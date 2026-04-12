@@ -1,0 +1,55 @@
+{
+  "date": "2026-04-11",
+  "proposals": [
+    {
+      "ticker": "LLY",
+      "strategy": "LONG_CALL",
+      "iv_rank": 22.222222222222225,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 980.0,
+        "bid": 74.0,
+        "ask": 77.3,
+        "last": 85.4,
+        "open_interest": 255,
+        "implied_vol": 0.41737948348999016,
+        "spread_ratio": 0.0427,
+        "dte": 131
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.595,
+        "z_score": 0.681,
+        "sigma_30d": 0.0213,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "simulation": {
+        "hit_rate": 0.9717,
+        "n_paths": 10000,
+        "n_days": 120,
+        "target_price": 1033.42,
+        "current_price": 939.47,
+        "sigma_adj": 0.0192,
+        "sector": "Healthcare",
+        "ttm": "4-8 Wochen"
+      },
+      "deep_analysis": {
+        "ticker": "LLY",
+        "impact": 4,
+        "surprise": 3,
+        "mispricing_logic": "Der Markt \u00fcberreagiert auf Indien-spezifische Generika-Konkurrenz, die f\u00fcr LLY's Kernumsatz strukturell irrelevant ist. Indien ist kein Prim\u00e4rmarkt f\u00fcr Mounjaro/Zepbound \u2013 der US-Markt bleibt patentgesch\u00fctzt bis 2036. EPS-Drift von 0.0 signalisiert keine Konsensrevision. Die -1.45% Bewegung reflektiert Headline-Rauschen, nicht fundamentale Neubewertung. Markt verwechselt regionale Generika-Dynamik mit globaler Bedrohung.",
+        "catalyst": "Q2 2025 Earnings (voraussichtlich Juli/August) mit US-Marktanteils- und Volumendaten f\u00fcr Zepbound/Mounjaro \u2013 erwartete Reacceleration durch Kapazit\u00e4tserweiterung und neue Indikationen (Herz-Kreislauf, NASH).",
+        "time_to_materialization": "4-8 Wochen",
+        "bear_case": "US-Gesetzgeber beschleunigen Generika-Zulassungen oder Medicare-Preisverhandlungen unter IRA greifen fr\u00fcher als erwartet. Produktionsengp\u00e4sse bleiben bestehen und erm\u00f6glichen Marktanteilsverlust an Novo.",
+        "bear_case_severity": 5,
+        "direction": "BULLISH"
+      },
+      "final_score": 0.1668
+    }
+  ]
+}

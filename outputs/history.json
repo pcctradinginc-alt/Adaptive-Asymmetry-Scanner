@@ -1,0 +1,474 @@
+{
+  "feature_stats": {
+    "impact": {
+      "low": {
+        "count": 24,
+        "avg_return": 0.0
+      },
+      "mid": {
+        "count": 22,
+        "avg_return": 0.0
+      },
+      "high": {
+        "count": 9,
+        "avg_return": 0.0
+      }
+    },
+    "mismatch": {
+      "weak": {
+        "count": 42,
+        "avg_return": 0.0
+      },
+      "good": {
+        "count": 13,
+        "avg_return": 0.0
+      },
+      "strong": {
+        "count": 0,
+        "avg_return": 0.0
+      }
+    },
+    "eps_drift": {
+      "noise": {
+        "count": 55,
+        "avg_return": 0.0
+      },
+      "relevant": {
+        "count": 0,
+        "avg_return": 0.0
+      },
+      "massive": {
+        "count": 0,
+        "avg_return": 0.0
+      }
+    }
+  },
+  "active_trades": [
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 8,
+        "surprise": 6,
+        "mismatch": 4.595,
+        "z_score": 0.681,
+        "sigma_30d": 0.0213,
+        "eps_drift": 0.0,
+        "bin_impact": "high",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 980.0,
+        "bid": 74.0,
+        "ask": 77.3,
+        "last": 85.4,
+        "open_interest": 255,
+        "implied_vol": 0.41737948348999016,
+        "spread_ratio": 0.0427,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 939.47,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "META",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 6,
+        "surprise": 7,
+        "mismatch": 0.733,
+        "z_score": 1.053,
+        "sigma_30d": 0.027,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 700.0,
+        "bid": 33.0,
+        "ask": 33.4,
+        "last": 33.35,
+        "open_interest": 2204,
+        "implied_vol": 0.390203851928711,
+        "spread_ratio": 0.012,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 629.86,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "MRK",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 7,
+        "surprise": 6,
+        "mismatch": 2.158,
+        "z_score": 0.968,
+        "sigma_30d": 0.0148,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 130.0,
+        "bid": 6.0,
+        "ask": 6.2,
+        "last": 6.05,
+        "open_interest": 2663,
+        "implied_vol": 0.2979196185302734,
+        "spread_ratio": 0.0323,
+        "dte": 159
+      },
+      "outcome": null,
+      "last_price": 121.42,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.665,
+        "z_score": 0.467,
+        "sigma_30d": 0.0131,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 280.0,
+        "bid": 9.5,
+        "ask": 9.75,
+        "last": 9.5,
+        "open_interest": 5543,
+        "implied_vol": 0.2744518356323242,
+        "spread_ratio": 0.0256,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 260.48,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "UNH",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 2,
+        "mismatch": 2.854,
+        "z_score": 0.229,
+        "sigma_30d": 0.0235,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_PUT",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 310.0,
+        "bid": 26.5,
+        "ask": 26.85,
+        "last": 25.8,
+        "open_interest": 1218,
+        "implied_vol": 0.3238287832641601,
+        "spread_ratio": 0.013,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 304.33,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 8,
+        "surprise": 5,
+        "mismatch": 4.595,
+        "z_score": 0.681,
+        "sigma_30d": 0.0213,
+        "eps_drift": 0.0,
+        "bin_impact": "high",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 980.0,
+        "bid": 74.0,
+        "ask": 77.3,
+        "last": 85.4,
+        "open_interest": 255,
+        "implied_vol": 0.41737948348999016,
+        "spread_ratio": 0.0427,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 939.47,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "UNH",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 3.854,
+        "z_score": 0.229,
+        "sigma_30d": 0.0235,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 330.0,
+        "bid": 14.85,
+        "ask": 15.55,
+        "last": 15.05,
+        "open_interest": 2715,
+        "implied_vol": 0.3467472552490234,
+        "spread_ratio": 0.045,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 304.33,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "META",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 6,
+        "surprise": 7,
+        "mismatch": 0.733,
+        "z_score": 1.053,
+        "sigma_30d": 0.027,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 700.0,
+        "bid": 33.0,
+        "ask": 33.4,
+        "last": 33.35,
+        "open_interest": 2204,
+        "implied_vol": 0.390203851928711,
+        "spread_ratio": 0.012,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 629.86,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "MRK",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 7,
+        "surprise": 5,
+        "mismatch": 2.158,
+        "z_score": 0.968,
+        "sigma_30d": 0.0148,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 130.0,
+        "bid": 6.0,
+        "ask": 6.2,
+        "last": 6.05,
+        "open_interest": 2663,
+        "implied_vol": 0.2979196185302734,
+        "spread_ratio": 0.0323,
+        "dte": 159
+      },
+      "outcome": null,
+      "last_price": 121.42,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 2,
+        "mismatch": 1.665,
+        "z_score": 0.467,
+        "sigma_30d": 0.0131,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 280.0,
+        "bid": 9.5,
+        "ask": 9.75,
+        "last": 9.5,
+        "open_interest": 5543,
+        "implied_vol": 0.2744518356323242,
+        "spread_ratio": 0.0256,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 260.48,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "TSLA",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.459,
+        "z_score": 0.708,
+        "sigma_30d": 0.0235,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_PUT",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 350.0,
+        "bid": 36.45,
+        "ask": 36.7,
+        "last": 37.62,
+        "open_interest": 3942,
+        "implied_vol": 0.4310969976806641,
+        "spread_ratio": 0.0068,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 348.95,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 2,
+        "mismatch": 0.595,
+        "z_score": 0.681,
+        "sigma_30d": 0.0213,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 980.0,
+        "bid": 74.0,
+        "ask": 77.3,
+        "last": 85.4,
+        "open_interest": 255,
+        "implied_vol": 0.41737948348999016,
+        "spread_ratio": 0.0427,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 939.47,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.595,
+        "z_score": 0.681,
+        "sigma_30d": 0.0213,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 980.0,
+        "bid": 74.0,
+        "ask": 77.3,
+        "last": 85.4,
+        "open_interest": 255,
+        "implied_vol": 0.41737948348999016,
+        "spread_ratio": 0.0427,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 939.47,
+      "current_return": 0.0
+    },
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-04-11",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.595,
+        "z_score": 0.681,
+        "sigma_30d": 0.0213,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 980.0,
+        "bid": 74.0,
+        "ask": 77.3,
+        "last": 85.4,
+        "open_interest": 255,
+        "implied_vol": 0.41737948348999016,
+        "spread_ratio": 0.0427,
+        "dte": 131
+      },
+      "outcome": null,
+      "last_price": 939.47,
+      "current_return": 0.0
+    }
+  ],
+  "closed_trades": [],
+  "model_weights": {
+    "impact": 0.35,
+    "mismatch": 0.45,
+    "eps_drift": 0.2
+  }
+}

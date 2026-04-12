@@ -1,0 +1,85 @@
+name: Adaptive Asymmetry-Scanner
+
+on:
+  schedule:
+    # 14:30 MEZ = 12:30 UTC (Mo-Fr)
+    - cron: "30 12 * * 1-5"
+  workflow_dispatch:   # Manueller Trigger für Tests
+
+permissions:
+  contents: write
+
+jobs:
+  pipeline:
+    name: Daily Pipeline Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
+          NEWS_API_KEY:      ${{ secrets.NEWS_API_KEY }}
+          GMAIL_SENDER:      ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW:      ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL:      ${{ secrets.NOTIFY_EMAIL }}
+        run: python pipeline.py
+
+      - name: Run Feedback Loop
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
+        run: python feedback.py
+
+      - name: Commit Reports & History
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/
+          git diff --staged --quiet || git commit -m "chore: daily report $(date -u +%Y-%m-%d)"
+          git push
+
+  feedback_weekly:
+    name: Weekly Weight Recalibration
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 8 * * 6'   # Samstag 08:00 UTC
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - run: pip install -r requirements.txt
+
+      - name: Run Feedback Loop (Weekly)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python feedback.py
+
+      - name: Commit Updated History
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/history.json
+          git diff --staged --quiet || git commit -m "chore: weekly weight recalibration $(date -u +%Y-%m-%d)"
+          git push
