@@ -389,3 +389,6 @@ def validate_candidate_data(candidate: dict) -> dict:
     candidate["data_anomaly"]     = eps_check.get("data_anomaly", False)
 
     return candidate
+
+# Backward-Kompatibilitäts-Alias (pipeline.py importiert compute_option_roi)
+compute_option_roi = compute_option_roi_with_vega
