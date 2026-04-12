@@ -1,14 +1,6 @@
 """
 Adaptive Asymmetry-Scanner v5.0
-Hauptpipeline – täglich ausgeführt via GitHub Actions (14:30 MEZ)
-
-Neue Module gegenüber v4.0:
-  - Stufe 1c: Alpha-Sources (FDA, SEC Insider) für YES-Ticker
-  - Stufe 1d: Daten-Validierung (Alpha Vantage EPS Cross-Check)
-  - Stufe 4b: Intraday-Delta-Filter (Move seit News)
-  - Stufe 6b: Premium-Signals (FLASH Alpha + Eulerpool) für Top-2
-  - Stufe 7:  Bid-Ask ROI Gate in OptionsDesigner
-  - Earnings: Finnhub statt yfinance als primäre Quelle
+NEU: Tägliche Status-Email wird IMMER gesendet.
 """
 
 import json
@@ -17,25 +9,23 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from modules.data_ingestion    import DataIngestion
-from modules.prescreener       import Prescreener
-from modules.deep_analysis     import DeepAnalysis
-from modules.mismatch_scorer   import MismatchScorer
+from modules.data_ingestion      import DataIngestion
+from modules.prescreener         import Prescreener
+from modules.deep_analysis       import DeepAnalysis
+from modules.mismatch_scorer     import MismatchScorer
 from modules.mirofish_simulation import MirofishSimulation
-from modules.rl_agent          import RLScorer
-from modules.options_designer  import OptionsDesigner
-from modules.reporter          import Reporter
-from modules.risk_gates        import RiskGates
-from modules.email_reporter    import send_email
-from modules.finbert_sentiment import score_candidate
-from modules.reddit_signals    import enrich_candidate
-
-# NEU v5.0
-from modules.intraday_delta  import filter_by_intraday_delta
-from modules.alpha_sources   import enrich_with_alpha_sources
-from modules.data_validator  import validate_candidate_data, compute_option_roi
-from modules.premium_signals import enrich_top_candidates
-from modules.config          import cfg
+from modules.rl_agent            import RLScorer
+from modules.options_designer    import OptionsDesigner
+from modules.reporter            import Reporter
+from modules.risk_gates          import RiskGates
+from modules.email_reporter      import send_email, send_status_email
+from modules.finbert_sentiment   import score_candidate
+from modules.reddit_signals      import enrich_candidate
+from modules.intraday_delta      import filter_by_intraday_delta
+from modules.alpha_sources       import enrich_with_alpha_sources
+from modules.data_validator      import validate_candidate_data, compute_option_roi
+from modules.premium_signals     import enrich_top_candidates
+from modules.config              import cfg
 
 logging.basicConfig(
     level=logging.INFO,
@@ -54,18 +44,11 @@ def load_history() -> dict:
             return json.load(f)
     return {
         "feature_stats": {
-            "impact":    {"low": {"count": 0, "avg_return": 0.0},
-                          "mid": {"count": 0, "avg_return": 0.0},
-                          "high": {"count": 0, "avg_return": 0.0}},
-            "mismatch":  {"weak": {"count": 0, "avg_return": 0.0},
-                          "good": {"count": 0, "avg_return": 0.0},
-                          "strong": {"count": 0, "avg_return": 0.0}},
-            "eps_drift": {"noise": {"count": 0, "avg_return": 0.0},
-                          "relevant": {"count": 0, "avg_return": 0.0},
-                          "massive": {"count": 0, "avg_return": 0.0}},
+            "impact":    {"low": {"count": 0, "avg_return": 0.0}, "mid": {"count": 0, "avg_return": 0.0}, "high": {"count": 0, "avg_return": 0.0}},
+            "mismatch":  {"weak": {"count": 0, "avg_return": 0.0}, "good": {"count": 0, "avg_return": 0.0}, "strong": {"count": 0, "avg_return": 0.0}},
+            "eps_drift": {"noise": {"count": 0, "avg_return": 0.0}, "relevant": {"count": 0, "avg_return": 0.0}, "massive": {"count": 0, "avg_return": 0.0}},
         },
-        "active_trades": [],
-        "closed_trades": [],
+        "active_trades": [], "closed_trades": [],
         "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20},
     }
 
@@ -88,26 +71,21 @@ def _inject_vix(proposals, vix):
 
 def _dedup_trades(existing, new_proposals, today):
     existing_keys = {(t["ticker"], t.get("entry_date", "")) for t in existing}
-    new_trades    = []
+    new_trades = []
     for proposal in new_proposals:
         key = (proposal["ticker"], today)
         if key in existing_keys:
-            log.info(f"  [{proposal['ticker']}] Duplikat → übersprungen.")
             continue
         existing_keys.add(key)
         new_trades.append({
-            "ticker":        proposal["ticker"],
-            "entry_date":    today,
-            "features":      proposal.get("features", {}),
-            "strategy":      proposal.get("strategy", ""),
-            "option":        proposal.get("option"),
-            "simulation":    proposal.get("simulation"),
+            "ticker": proposal["ticker"], "entry_date": today,
+            "features": proposal.get("features", {}),
+            "strategy": proposal.get("strategy", ""),
+            "option": proposal.get("option"),
+            "simulation": proposal.get("simulation"),
             "deep_analysis": proposal.get("deep_analysis"),
-            "flash_alpha":   proposal.get("flash_alpha"),
-            "eulerpool":     proposal.get("eulerpool"),
-            "intraday_delta": proposal.get("intraday_delta"),
-            "roi_analysis":  proposal.get("roi_analysis"),
-            "outcome":       None,
+            "roi_analysis": proposal.get("roi_analysis"),
+            "outcome": None,
         })
     return new_trades
 
@@ -117,128 +95,146 @@ def main() -> None:
     today   = datetime.utcnow().strftime("%Y-%m-%d")
     history = load_history()
 
+    # Pipeline-Stats für tägliche Status-Email
+    stats = {
+        "vix": None, "candidates": 0, "prescreened": 0,
+        "analyzed": 0, "mismatch_ok": 0, "intraday_ok": 0,
+        "simulated": 0, "rl_scored": 0, "roi_ok": 0,
+        "trades": 0, "stop_reason": "",
+    }
+
+    def send_daily_email(proposals=None):
+        """Sendet immer eine Email — Trade oder Status."""
+        try:
+            if proposals:
+                send_email(proposals, today)
+            else:
+                send_status_email(stats, today)
+        except Exception as e:
+            log.error(f"Email-Fehler: {e}")
+
     # ── STUFE 0: Risk-Gates ──────────────────────────────────────────────────
     gates = RiskGates()
     if not gates.global_ok():
         log.warning("Globales Risk-Gate ausgelöst. Abbruch.")
+        stats["stop_reason"] = f"VIX-Gate ausgelöst (VIX={gates.last_vix:.1f} > Schwelle)"
+        stats["vix"] = gates.last_vix
+        send_daily_email()
         return
+
+    stats["vix"] = gates.last_vix
 
     # ── STUFE 1: Daten-Ingestion ─────────────────────────────────────────────
     log.info("Stufe 1: Daten-Ingestion")
     ingestion  = DataIngestion(history=history)
     candidates = ingestion.run()
+    stats["candidates"] = len(candidates)
     log.info(f"  → {len(candidates)} Kandidaten nach Hard-Filter")
     if not candidates:
+        stats["stop_reason"] = "Keine Ticker mit relevanten News heute."
+        send_daily_email()
         return
 
     # ── STUFE 1b: FinBERT + Reddit ───────────────────────────────────────────
     log.info("Stufe 1b: FinBERT-Sentiment + Reddit-Enrichment")
     enriched = []
     for c in candidates:
-        try:
-            c = enrich_candidate(c)
-        except Exception as e:
-            log.debug(f"Reddit Fehler ({c.get('ticker')}): {e}")
+        try: c = enrich_candidate(c)
+        except Exception: pass
         try:
             sentiment = score_candidate(c)
             c.setdefault("features", {}).update(sentiment)
-        except Exception as e:
-            log.debug(f"FinBERT Fehler ({c.get('ticker')}): {e}")
-            c.setdefault("features", {}).update({
-                "sentiment_score": 0.0, "sentiment_label": "neutral",
-                "sentiment_confidence": 0.0,
-            })
+        except Exception:
+            c.setdefault("features", {}).update({"sentiment_score": 0.0, "sentiment_label": "neutral", "sentiment_confidence": 0.0})
         enriched.append(c)
     candidates = enriched
-    log.info(f"  → {len(candidates)} Kandidaten nach Enrichment")
 
     # ── STUFE 2: Prescreening ────────────────────────────────────────────────
     log.info("Stufe 2: Prescreening (Claude Haiku)")
-    prescreener = Prescreener()
-    shortlist   = prescreener.run(candidates)
+    shortlist = Prescreener().run(candidates)
+    stats["prescreened"] = len(shortlist)
     log.info(f"  → {len(shortlist)} Ticker nach Prescreening")
     if not shortlist:
+        stats["stop_reason"] = f"Alle {len(candidates)} Kandidaten im Prescreening als 'kein strukturelles Signal' bewertet."
+        send_daily_email()
         return
 
-    # ── NEU STUFE 1c: Alpha-Sources für YES-Ticker ───────────────────────────
-    log.info("Stufe 1c: Alpha-Sources (FDA, SEC Insider, Finnhub)")
+    # ── STUFE 1c+1d: Alpha-Sources + Validierung ─────────────────────────────
+    log.info("Stufe 1c: Alpha-Sources (FDA, SEC Insider)")
     shortlist = [enrich_with_alpha_sources(c) for c in shortlist]
-
-    # ── NEU STUFE 1d: Daten-Validierung (EPS Cross-Check) ───────────────────
     log.info("Stufe 1d: EPS Cross-Check (Alpha Vantage)")
     shortlist = [validate_candidate_data(c) for c in shortlist]
 
     # ── STUFE 3: Deep Analysis ───────────────────────────────────────────────
     log.info("Stufe 3: Deep Analysis (Claude Sonnet)")
-    analyzer = DeepAnalysis()
-    analyses = analyzer.run(shortlist)
+    analyses = DeepAnalysis().run(shortlist)
+    stats["analyzed"] = len(analyses)
     log.info(f"  → {len(analyses)} Analysen abgeschlossen")
 
     # ── STUFE 4: Mismatch-Score ──────────────────────────────────────────────
     log.info("Stufe 4: Mismatch-Score")
-    scorer = MismatchScorer()
-    scored = scorer.run(analyses)
+    scored = MismatchScorer().run(analyses)
+    stats["mismatch_ok"] = len(scored)
     log.info(f"  → {len(scored)} Ticker nach Mismatch-Filter")
 
-    # ── NEU STUFE 4b: Intraday-Delta-Filter ─────────────────────────────────
+    # ── STUFE 4b: Intraday-Delta ─────────────────────────────────────────────
     log.info("Stufe 4b: Intraday-Delta-Filter")
-    max_move = getattr(getattr(cfg, 'pipeline', None), 'max_intraday_move', 0.07)
+    max_move = getattr(getattr(cfg, "pipeline", None), "max_intraday_move", 0.07)
     scored   = filter_by_intraday_delta(scored, max_move=max_move)
+    stats["intraday_ok"] = len(scored)
     log.info(f"  → {len(scored)} Ticker nach Intraday-Filter")
 
     # ── STUFE 5: MiroFish Simulation ─────────────────────────────────────────
     log.info("Stufe 5: MiroFish Monte-Carlo-Simulation")
-    simulator = MirofishSimulation()
-    simulated = simulator.run(scored)
+    simulated = MirofishSimulation().run(scored)
+    stats["simulated"] = len(simulated)
     log.info(f"  → {len(simulated)} Ticker nach Simulation")
     if not simulated:
-        log.info("Keine Signale. Pipeline beendet.")
-        reporter = Reporter(reports_dir=REPORTS_DIR)
-        reporter.save(today=today, proposals=[], history=history)
+        stats["stop_reason"] = (
+            f"Kein Ticker hat die Confidence-Gate-Schwelle "
+            f"({cfg.pipeline.confidence_gate:.0%}) in der Monte-Carlo-Simulation erreicht."
+        )
         save_history(history)
+        send_daily_email()
         return
 
     # ── STUFE 6: RL-Scoring ──────────────────────────────────────────────────
     log.info("Stufe 6: RL-Agent Final-Scoring")
-    rl_scorer     = RLScorer(history=history)
-    final_signals = rl_scorer.run(simulated)
+    final_signals = RLScorer(history=history).run(simulated)
+    stats["rl_scored"] = len(final_signals)
     log.info(f"  → {len(final_signals)} Signale nach RL-Filter")
-
     if not final_signals:
-        log.info("RL-Agent hat alle Signale gefiltert. Pipeline beendet.")
-        reporter = Reporter(reports_dir=REPORTS_DIR)
-        reporter.save(today=today, proposals=[], history=history)
+        stats["stop_reason"] = "RL-Agent hat alle Signale als SKIP klassifiziert (zu wenig Confidence)."
         save_history(history)
+        send_daily_email()
         return
 
-    # ── NEU STUFE 6b: Premium-Signals für Top-2 ─────────────────────────────
+    # ── STUFE 6b: Premium-Signals für Top-2 ─────────────────────────────────
     log.info("Stufe 6b: FLASH Alpha + Eulerpool (Top-2)")
     final_signals = enrich_top_candidates(final_signals, top_n=2)
 
-    # ── STUFE 7: Options-Design ──────────────────────────────────────────────
+    # ── STUFE 7: Options-Design + ROI-Gate ───────────────────────────────────
     log.info("Stufe 7: Options-Design + ROI-Gate")
-    designer        = OptionsDesigner(gates=gates)
-    trade_proposals = designer.run(final_signals)
+    trade_proposals = OptionsDesigner(gates=gates).run(final_signals)
 
-    # NEU: Bid-Ask ROI Gate
+    min_roi     = getattr(getattr(cfg, "options", None), "min_roi_after_spread", 0.15)
     roi_filtered = []
-    min_roi      = float(getattr(getattr(cfg, 'options', None), 'min_roi_after_spread', 0.15))
-    for proposal in trade_proposals:
-        option     = proposal.get("option", {})
-        simulation = proposal.get("simulation", {})
+    for p in trade_proposals:
+        option = p.get("option", {})
         if option:
-            roi = compute_option_roi(option, simulation)
-            proposal["roi_analysis"] = roi
+            roi = compute_option_roi(option, p.get("simulation", {}))
+            p["roi_analysis"] = roi
             if not roi["passes_roi_gate"]:
-                log.info(
-                    f"  [{proposal['ticker']}] ROI-GATE: "
-                    f"net_roi={roi['roi_net']:.1%} < {min_roi:.0%} → verworfen."
-                )
+                log.info(f"  [{p['ticker']}] ROI-GATE: {roi['roi_net']:.1%} < {min_roi:.0%} → verworfen.")
                 continue
-        roi_filtered.append(proposal)
+        roi_filtered.append(p)
 
     trade_proposals = roi_filtered
-    log.info(f"  → {len(trade_proposals)} Trade-Vorschläge nach ROI-Gate")
+    stats["roi_ok"] = len(trade_proposals)
+    stats["trades"] = len(trade_proposals)
+
+    if not trade_proposals:
+        stats["stop_reason"] = f"Alle Options-Kontrakte scheitern am ROI-Gate (Mindest-ROI nach Spread: {min_roi:.0%})."
 
     trade_proposals = _inject_vix(trade_proposals, gates.last_vix)
 
@@ -249,18 +245,12 @@ def main() -> None:
     new_trades = _dedup_trades(history["active_trades"], trade_proposals, today)
     history["active_trades"].extend(new_trades)
     log.info(f"  {len(new_trades)} neue Trade(s) in history geschrieben.")
-
     save_history(history)
 
-    try:
-        send_email(trade_proposals, today)
-    except Exception as e:
-        log.error(f"Email-Fehler (nicht kritisch): {e}")
+    # ── EMAIL — IMMER SENDEN ─────────────────────────────────────────────────
+    send_daily_email(trade_proposals if trade_proposals else None)
 
-    log.info(
-        f"=== Pipeline beendet. "
-        f"{len(trade_proposals)} Trade-Vorschläge generiert. ==="
-    )
+    log.info(f"=== Pipeline beendet. {len(trade_proposals)} Trade-Vorschläge. ===")
 
 
 if __name__ == "__main__":
