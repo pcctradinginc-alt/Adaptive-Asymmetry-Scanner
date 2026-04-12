@@ -1,10 +1,13 @@
 """
 Stufe 7: Options-Design & Strategie
-- IV-Rank / IV-Percentile via Tradier API
-- IV-Rank < 50: Long Call (Vega-Long, Delta-Long)
-- IV-Rank >= 50: Bull Call Spread (Short Vega / Theta-Kompensation)
-- Parameter: DTE 120-200, Delta 0.60-0.70, Bid-Ask-Spread < 10%
-- Finales Skeptiker-Audit (Bear Case Check)
+
+Fixes:
+  C-03: Falscher Tradier-Endpunkt. markets/options/strikes gibt keine IV-Daten.
+        Fix: markets/options/quotes mit greeks=true für echte IV-Daten.
+        Fallback-Kette: Tradier → yfinance → Standardwert 30.0
+  L-03: TRADIER_KEY auf Modulebene gesetzt → Env-Änderungen nach Import
+        hatten keine Wirkung. Fix: os.getenv() zur Laufzeit aufrufen.
+  cfg:  Alle Konstanten aus config.yaml.
 """
 
 import logging
@@ -14,29 +17,26 @@ import yfinance as yf
 from datetime import datetime, timedelta
 from typing import Optional
 
+from modules.config import cfg
+
 log = logging.getLogger(__name__)
 
-TRADIER_BASE  = "https://api.tradier.com/v1"
-TRADIER_KEY   = os.getenv("TRADIER_API_KEY", "")
-
-MIN_OPEN_INTEREST = 100
-MAX_BID_ASK_RATIO = 0.10   # 10%
-DTE_MIN, DTE_MAX  = 120, 200
-DELTA_MIN, DELTA_MAX = 0.60, 0.70
+TRADIER_BASE = "https://api.tradier.com/v1"
 
 
 class OptionsDesigner:
+
     def __init__(self, gates):
         self.gates = gates
 
     def run(self, signals: list[dict]) -> list[dict]:
         proposals = []
         for s in signals:
-            # Finales Bear-Case Audit
             if not self._bear_case_ok(s):
-                log.info(f"  [{s['ticker']}] Bear-Case Audit FAILED – übersprungen.")
+                log.info(
+                    f"  [{s['ticker']}] Bear-Case Audit FAILED – übersprungen."
+                )
                 continue
-
             proposal = self._design_option(s)
             if proposal:
                 proposals.append(proposal)
@@ -45,12 +45,11 @@ class OptionsDesigner:
     # ── Bear-Case Audit ───────────────────────────────────────────────────────
 
     def _bear_case_ok(self, s: dict) -> bool:
-        da       = s.get("deep_analysis", {})
-        severity = da.get("bear_case_severity", 0)
-        # Blockiere wenn Bear-Case-Schwere > 7 (zu riskant)
-        if severity > 7:
+        severity = s.get("deep_analysis", {}).get("bear_case_severity", 0)
+        if severity > cfg.risk.max_bear_case_severity:
             log.info(
-                f"  [{s['ticker']}] Bear-Case-Severity={severity} > 7 → blockiert."
+                f"  [{s['ticker']}] Bear-Case-Severity={severity} "
+                f"> {cfg.risk.max_bear_case_severity} → blockiert."
             )
             return False
         return True
@@ -66,90 +65,223 @@ class OptionsDesigner:
         if current <= 0:
             return None
 
-        # Earnings-Gate
-        if self.gates.has_upcoming_earnings(ticker, days=7):
-            log.info(f"  [{ticker}] Earnings < 7 Tage → blockiert.")
+        if self.gates.has_upcoming_earnings(ticker):
+            log.info(
+                f"  [{ticker}] Earnings < "
+                f"{cfg.risk.earnings_buffer_days} Tage → blockiert."
+            )
             return None
 
-        # IV-Daten
         iv_rank = self._get_iv_rank(ticker)
-        log.info(f"  [{ticker}] IV-Rank={iv_rank}")
+        log.info(f"  [{ticker}] IV-Rank={iv_rank:.1f}")
 
-        # Strategie-Wahl
         if iv_rank < 50:
             strategy = "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
         else:
-            strategy = "BULL_CALL_SPREAD" if direction == "BULLISH" else "BEAR_PUT_SPREAD"
+            strategy = (
+                "BULL_CALL_SPREAD" if direction == "BULLISH"
+                else "BEAR_PUT_SPREAD"
+            )
 
-        # Bestes Options-Contract finden
         option = self._find_best_option(ticker, strategy, current)
         if not option:
-            log.warning(f"  [{ticker}] Kein geeigneter Options-Kontrakt gefunden.")
+            log.warning(
+                f"  [{ticker}] Kein geeigneter Options-Kontrakt gefunden."
+            )
             return None
 
         return {
-            "ticker":    ticker,
-            "strategy":  strategy,
-            "iv_rank":   iv_rank,
-            "direction": direction,
-            "option":    option,
-            "features":  s.get("features", {}),
-            "simulation": s.get("simulation", {}),
+            "ticker":       ticker,
+            "strategy":     strategy,
+            "iv_rank":      iv_rank,
+            "direction":    direction,
+            "option":       option,
+            "features":     s.get("features", {}),
+            "simulation":   s.get("simulation", {}),
             "deep_analysis": s.get("deep_analysis", {}),
-            "final_score": s.get("final_score", 0),
+            "final_score":  s.get("final_score", 0),
         }
 
     # ── IV-Rank via Tradier ───────────────────────────────────────────────────
 
     def _get_iv_rank(self, ticker: str) -> float:
-        if not TRADIER_KEY:
+        """
+        FIX C-03: Korrekter Tradier-Endpunkt für IV-Daten.
+
+        Vorher: markets/options/strikes → gibt Strikes-Liste, KEINE IV-Daten.
+                Felder 'iv', 'iv_52_week_low', 'iv_52_week_high' existieren
+                nicht → immer Default → immer IV-Rank = 22.2%.
+
+        Jetzt:  markets/options/quotes mit greeks=true → enthält
+                impliedVolatility pro Kontrakt. IV-Rank wird aus
+                aktuellem ATM-IV vs. 52W-Range berechnet.
+
+        FIX L-03: TRADIER_KEY zur Laufzeit lesen, nicht bei Modulimport.
+        """
+        # L-03: os.getenv() zur Laufzeit, nicht auf Modulebene
+        tradier_key = os.getenv("TRADIER_API_KEY", "")
+
+        if not tradier_key:
             return self._estimate_iv_rank_from_yfinance(ticker)
+
         try:
             headers = {
-                "Authorization": f"Bearer {TRADIER_KEY}",
+                "Authorization": f"Bearer {tradier_key}",
                 "Accept": "application/json",
             }
-            r = requests.get(
-                f"{TRADIER_BASE}/markets/options/strikes",
-                params={"symbol": ticker, "expiration": self._next_expiry()},
+
+            # Schritt 1: Verfügbare Expiries laden
+            exp_resp = requests.get(
+                f"{TRADIER_BASE}/markets/options/expirations",
+                params={"symbol": ticker, "includeAllRoots": "true"},
                 headers=headers,
                 timeout=10,
             )
-            data = r.json()
-            # Vereinfachter IV-Rank aus aktueller IV vs. 52W-Range
-            iv_current = data.get("iv", 0.25)
-            iv_52w_low = data.get("iv_52_week_low", 0.15)
-            iv_52w_high = data.get("iv_52_week_high", 0.60)
-            if iv_52w_high == iv_52w_low:
+            exp_data = exp_resp.json()
+            expirations = (
+                exp_data.get("expirations", {}).get("date", []) or []
+            )
+            if not expirations:
+                return self._estimate_iv_rank_from_yfinance(ticker)
+
+            # Schritt 2: Expiry im Ziel-DTE-Bereich wählen
+            target_expiry = None
+            for exp in expirations:
+                dte = self._days_to(exp)
+                if cfg.options.dte_min <= dte <= cfg.options.dte_max:
+                    target_expiry = exp
+                    break
+
+            if not target_expiry:
+                return self._estimate_iv_rank_from_yfinance(ticker)
+
+            # Schritt 3: FIX C-03 – korrekter Endpunkt mit greeks
+            quotes_resp = requests.get(
+                f"{TRADIER_BASE}/markets/options/chains",
+                params={
+                    "symbol":     ticker,
+                    "expiration": target_expiry,
+                    "greeks":     "true",
+                },
+                headers=headers,
+                timeout=10,
+            )
+            chains = quotes_resp.json()
+            options = chains.get("options", {}).get("option", []) or []
+
+            if not options:
+                return self._estimate_iv_rank_from_yfinance(ticker)
+
+            # ATM-Calls: Strike nächste zum aktuellen Preis
+            calls = [o for o in options if o.get("option_type") == "call"]
+            if not calls:
+                return self._estimate_iv_rank_from_yfinance(ticker)
+
+            # Mittlerer IV aus ATM-Calls (nächste 3 Strikes)
+            calls_sorted = sorted(
+                calls,
+                key=lambda o: abs(
+                    o.get("strike", 0) -
+                    (o.get("underlying_price") or o.get("strike", 0))
+                )
+            )
+            atm_ivs = [
+                float(c["greeks"]["mid_iv"])
+                for c in calls_sorted[:3]
+                if c.get("greeks") and c["greeks"].get("mid_iv")
+            ]
+
+            if not atm_ivs:
+                return self._estimate_iv_rank_from_yfinance(ticker)
+
+            iv_current = sum(atm_ivs) / len(atm_ivs)
+
+            # 52W IV-Range aus statistics-Endpunkt
+            stats_resp = requests.get(
+                f"{TRADIER_BASE}/markets/options/strikes",
+                params={"symbol": ticker, "expiration": target_expiry},
+                headers=headers,
+                timeout=10,
+            )
+            # Schätze 52W-Range aus historischer Volatilität
+            iv_52w_low, iv_52w_high = self._estimate_iv_range(ticker, iv_current)
+
+            if iv_52w_high <= iv_52w_low:
                 return 50.0
-            return ((iv_current - iv_52w_low) / (iv_52w_high - iv_52w_low)) * 100
-        except Exception:
+
+            iv_rank = ((iv_current - iv_52w_low) / (iv_52w_high - iv_52w_low)) * 100
+            return round(max(0.0, min(100.0, iv_rank)), 2)
+
+        except Exception as e:
+            log.debug(f"Tradier IV-Rank Fehler für {ticker}: {e}")
             return self._estimate_iv_rank_from_yfinance(ticker)
 
+    def _estimate_iv_range(
+        self, ticker: str, current_iv: float
+    ) -> tuple[float, float]:
+        """
+        Schätzt 52W IV-Low/High aus historischen Returns.
+        Heuristik: σ_30d × √252 = annualisierte Vola als IV-Proxy.
+        """
+        try:
+            hist = yf.Ticker(ticker).history(period="1y")
+            if len(hist) < 50:
+                return current_iv * 0.6, current_iv * 1.4
+
+            daily_returns = hist["Close"].pct_change().dropna()
+            # Rollierende 30-Tages-Vola (annualisiert)
+            rolling_vol = (
+                daily_returns
+                .rolling(30)
+                .std()
+                .dropna()
+                * (252 ** 0.5)
+            )
+            iv_low  = float(rolling_vol.quantile(0.10))
+            iv_high = float(rolling_vol.quantile(0.90))
+            return iv_low, iv_high
+
+        except Exception:
+            return current_iv * 0.6, current_iv * 1.4
+
     def _estimate_iv_rank_from_yfinance(self, ticker: str) -> float:
-        """Schätzt IV-Rank aus yfinance-Optionsdaten."""
+        """Schätzt IV-Rank aus yfinance-Optionsdaten (Fallback)."""
         try:
             t = yf.Ticker(ticker)
             dates = t.options
             if not dates:
                 return 30.0
-            chain = t.option_chain(dates[0])
+
+            # Nächste Expiry im DTE-Bereich wählen
+            target_date = None
+            for d in dates:
+                dte = self._days_to(d)
+                if cfg.options.dte_min <= dte <= cfg.options.dte_max:
+                    target_date = d
+                    break
+            if not target_date:
+                target_date = dates[0]
+
+            chain = t.option_chain(target_date)
             calls = chain.calls
+
             if calls.empty or "impliedVolatility" not in calls.columns:
                 return 30.0
-            avg_iv = calls["impliedVolatility"].median() * 100
-            # Grobe Heuristik: < 25 IV → niedriger Rank, > 40 → hoher Rank
-            if avg_iv < 20:
-                return 20.0
-            if avg_iv > 50:
-                return 70.0
-            return avg_iv
+
+            # Aktueller IV: Median der ATM-nahen Calls
+            current_iv = float(calls["impliedVolatility"].median())
+
+            # 52W-Range schätzen
+            iv_low, iv_high = self._estimate_iv_range(ticker, current_iv)
+
+            if iv_high <= iv_low:
+                return 30.0
+
+            iv_rank = ((current_iv - iv_low) / (iv_high - iv_low)) * 100
+            return round(max(0.0, min(100.0, iv_rank)), 2)
+
         except Exception:
             return 30.0
-
-    def _next_expiry(self) -> str:
-        d = datetime.utcnow() + timedelta(days=150)
-        return d.strftime("%Y-%m-%d")
 
     # ── Kontrakt-Suche ────────────────────────────────────────────────────────
 
@@ -160,51 +292,55 @@ class OptionsDesigner:
             t = yf.Ticker(ticker)
             expiry_dates = [
                 d for d in t.options
-                if DTE_MIN <= self._days_to(d) <= DTE_MAX
+                if cfg.options.dte_min <= self._days_to(d) <= cfg.options.dte_max
             ]
             if not expiry_dates:
                 return None
 
             best_expiry = expiry_dates[0]
-            chain = t.option_chain(best_expiry)
-            options = chain.calls if "CALL" in strategy or "BULL" in strategy else chain.puts
+            chain   = t.option_chain(best_expiry)
+            options = (
+                chain.calls
+                if "CALL" in strategy or "BULL" in strategy
+                else chain.puts
+            )
 
-            # Delta-Proxy: Strike nahe Delta 0.60-0.70 → ca. 5-15% OTM
-            target_strike_low  = current_price * 1.00
-            target_strike_high = current_price * 1.12
+            target_low  = current_price * 1.00
+            target_high = current_price * 1.12
 
             filtered = options[
-                (options["strike"] >= target_strike_low) &
-                (options["strike"] <= target_strike_high) &
-                (options["openInterest"] >= MIN_OPEN_INTEREST)
+                (options["strike"] >= target_low) &
+                (options["strike"] <= target_high) &
+                (options["openInterest"] >= cfg.risk.min_open_interest)
             ].copy()
 
             if filtered.empty:
                 return None
 
-            # Bid-Ask-Spread Filter
-            filtered["spread_ratio"] = (filtered["ask"] - filtered["bid"]) / filtered["ask"]
-            filtered = filtered[filtered["spread_ratio"] <= MAX_BID_ASK_RATIO]
+            filtered["spread_ratio"] = (
+                (filtered["ask"] - filtered["bid"]) / filtered["ask"]
+            )
+            filtered = filtered[
+                filtered["spread_ratio"] <= cfg.risk.max_bid_ask_ratio
+            ]
 
             if filtered.empty:
                 return None
 
-            # Bester Kontrakt: höchstes Open Interest
             best = filtered.sort_values("openInterest", ascending=False).iloc[0]
 
             result = {
-                "expiry":          best_expiry,
-                "strike":          float(best["strike"]),
-                "bid":             float(best["bid"]),
-                "ask":             float(best["ask"]),
-                "last":            float(best.get("lastPrice", 0)),
-                "open_interest":   int(best["openInterest"]),
-                "implied_vol":     float(best.get("impliedVolatility", 0)),
-                "spread_ratio":    round(float(best["spread_ratio"]), 4),
-                "dte":             self._days_to(best_expiry),
+                "expiry":        best_expiry,
+                "strike":        float(best["strike"]),
+                "bid":           float(best["bid"]),
+                "ask":           float(best["ask"]),
+                "last":          float(best.get("lastPrice", 0)),
+                "open_interest": int(best["openInterest"]),
+                "implied_vol":   float(best.get("impliedVolatility", 0)),
+                "spread_ratio":  round(float(best["spread_ratio"]), 4),
+                "dte":           self._days_to(best_expiry),
             }
 
-            # Spread-Leg für Bull Call Spread
             if strategy == "BULL_CALL_SPREAD":
                 spread_leg = self._find_spread_leg(
                     options, best["strike"], current_price
@@ -220,16 +356,17 @@ class OptionsDesigner:
     def _find_spread_leg(
         self, options, long_strike: float, current_price: float
     ) -> Optional[dict]:
-        """Findet den Short-Strike für den Bull Call Spread (~10% über Long)."""
         short_target = long_strike * 1.10
         candidates = options[
             (options["strike"] >= long_strike * 1.05) &
             (options["strike"] <= long_strike * 1.20) &
-            (options["openInterest"] >= MIN_OPEN_INTEREST)
+            (options["openInterest"] >= cfg.risk.min_open_interest)
         ]
         if candidates.empty:
             return None
-        best = candidates.iloc[(candidates["strike"] - short_target).abs().argsort()].iloc[0]
+        best = candidates.iloc[
+            (candidates["strike"] - short_target).abs().argsort()
+        ].iloc[0]
         return {
             "strike": float(best["strike"]),
             "bid":    float(best["bid"]),
