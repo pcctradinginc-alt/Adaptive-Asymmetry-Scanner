@@ -1,11 +1,11 @@
-# Adaptive Asymmetry-Scanner – Konfiguration v4.1
-# Alle Parameter hier zentral ändern, nie im Code.
+# Adaptive Asymmetry-Scanner – Konfiguration v5.0
 
 pipeline:
   confidence_gate: 0.70
   n_simulation_paths: 10000
   simulation_days: 120
-  min_impact_threshold: 4      # NEU Fix #5: Signale mit Impact < 4 werden nicht simuliert
+  min_impact_threshold: 4
+  max_intraday_move: 0.07    # NEU: 7% → Signal verwerfen wenn zu spät
 
 filters:
   min_market_cap: 2_000_000_000
@@ -21,7 +21,7 @@ risk:
   earnings_buffer_days: 7
   min_open_interest: 100
   max_bid_ask_ratio: 0.10
-  max_bear_case_severity: 7    # Fix #2: >= 7 blockiert (war > 7 → Severity=7 passierte)
+  max_bear_case_severity: 7
 
 options:
   dte_min: 120
@@ -29,33 +29,26 @@ options:
   delta_target_low:  0.60
   delta_target_high: 0.70
   target_move_pct:   0.10
+  min_roi_after_spread: 0.15   # NEU: 15% Mindest-ROI nach Bid-Ask-Spread
 
 learning:
   learning_rate: 0.05
   min_bin_count:  3
-  close_after_days: 45
+  close_after_days: 45         # Geändert: 130 → 45
 
 eps_drift:
   noise_threshold:    0.02
   relevant_threshold: 0.05
   massive_threshold:  0.10
 
+# RL-System
 rl:
   enabled: true
   model_path: "outputs/models/ppo_options_agent.zip"
   min_trades_for_training: 5
   timesteps_per_update: 2000
-  obs_weights:
-    impact:         0.15
-    surprise:       0.10
-    mismatch:       0.20
-    z_score:        0.05
-    eps_drift:      0.10
-    hit_rate:       0.15
-    iv_rank:        0.05
-    sentiment:      0.10
-    bear_severity:  0.10
 
+# FinBERT
 finbert:
   enabled: true
   model_name: "ProsusAI/finbert"
@@ -63,13 +56,41 @@ finbert:
   max_headlines: 8
   max_tokens: 128
 
+# Reddit
 reddit:
   enabled: true
-  subreddits:
-    - "wallstreetbets"
-    - "stocks"
-    - "investing"
-    - "options"
+  subreddits: ["wallstreetbets", "stocks", "investing", "options"]
   max_posts_per_ticker: 50
   time_filter: "day"
   request_delay: 0.5
+
+# NEU v5.0: Externe API-Quellen
+data_sources:
+  alpha_vantage:
+    enabled: true          # ALPHA_VANTAGE_API_KEY als Secret
+    max_daily_calls: 25    # Free Tier Limit
+    eps_tolerance: 0.10    # 10% Abweichung erlaubt
+
+  finnhub:
+    enabled: true          # FINNHUB_API_KEY als Secret
+    use_for_earnings: true # Earnings-Gate via Finnhub statt yfinance
+
+  fda:
+    enabled: true          # Kein Key nötig
+    days_back: 7
+    sectors: ["Healthcare", "Biotechnology", "Pharmaceuticals"]
+
+  sec_insider:
+    enabled: true          # Kein Key nötig
+    days_back: 14
+    min_cluster_size: 2    # Mindestens 2 Insider für Cluster-Signal
+
+  flash_alpha:
+    enabled: true          # FLASH_ALPHA_API_KEY als Secret
+    max_daily_calls: 5     # KRITISCH: Nicht überschreiten!
+    top_n: 2               # Nur für Top-2 Signale
+
+  eulerpool:
+    enabled: true          # EULERPOOL_API_KEY als Secret
+    top_n: 2               # Nur für Top-2 Signale
+    iv_crush_threshold: 80 # IV-Percentile ab dem Warnung ausgegeben wird
