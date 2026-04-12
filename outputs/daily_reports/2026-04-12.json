@@ -1,0 +1,61 @@
+{
+  "date": "2026-04-12",
+  "proposals": [
+    {
+      "ticker": "ON",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 67.74,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 70.0,
+        "bid": 9.15,
+        "ask": 10.0,
+        "last": 10.0,
+        "open_interest": 811,
+        "implied_vol": 0.5621381677246093,
+        "spread_ratio": 0.085,
+        "dte": 158,
+        "spread_leg": {
+          "strike": 75.0,
+          "bid": 6.85,
+          "ask": 7.8
+        }
+      },
+      "features": {
+        "impact": 3,
+        "surprise": 2,
+        "mismatch": 2.408,
+        "z_score": 0.118,
+        "sigma_30d": 0.0334,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise"
+      },
+      "simulation": {
+        "hit_rate": 1.0,
+        "n_paths": 10000,
+        "n_days": 120,
+        "target_price": 75.52,
+        "current_price": 68.65,
+        "sigma_adj": 0.0434,
+        "sector": "Technology",
+        "ttm": "2-3 Monate",
+        "vix": 19.23
+      },
+      "deep_analysis": {
+        "ticker": "ON",
+        "impact": 3,
+        "surprise": 2,
+        "mispricing_logic": "Der Ticker ON (ON Semiconductor) hat keinen direkten Bezug zu den Kodak-Headlines \u2013 hier liegt ein Datenfehler in der Vorselektion vor. ON Semiconductor ist ein EV/Industrial-Chips-Unternehmen. Der massive Gap zwischen Forward EPS (4.04) und Konsens (2.32) deutet auf Sch\u00e4tzungsdivergenz hin, vermutlich durch Zyklus-Unsicherheit im Auto-Halbleitermarkt. Der Markt diskontiert EV-Verlangsamung und China-Exposure zu stark, ignoriert aber strukturelle SiC-Dominanz.",
+        "catalyst": "N\u00e4chster Earnings-Call (ca. Q3 2025, Oktober) mit potenziellem EPS-Beat bei Lagerabbau-Normalisierung und SiC-Design-Win-Announcements von OEM-Partnern.",
+        "time_to_materialization": "2-3 Monate",
+        "bear_case": "China-EV-Nachfrage bleibt schwach, US-Z\u00f6lle treffen Lieferketten, SiC-Konkurrenz durch STMicro/Wolfspeed beschleunigt sich. Konsens-EPS von 2.32 k\u00f6nnte die Realit\u00e4t besser abbilden als Forward-4.04-Sch\u00e4tzungen.",
+        "bear_case_severity": 7,
+        "direction": "BULLISH"
+      },
+      "final_score": 0.2134
+    }
+  ]
+}
