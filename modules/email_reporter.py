@@ -133,7 +133,7 @@ def _build_status_email(stats: dict, today: str) -> str:
     <div style="font-size:28px;margin-bottom:4px;">{status_icon}</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">{status_text}</div>
     <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:4px;">
-      {today} · VIX {vix} · Adaptive Asymmetry-Scanner v5.0
+      {today} · VIX {f'{float(vix):.2f}' if vix else '–'} · Adaptive Asymmetry-Scanner v5.0
     </div>
   </div>
 
