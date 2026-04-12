@@ -33,7 +33,7 @@ options:
 learning:
   learning_rate: 0.05
   min_bin_count:  3
-  close_after_days: 130
+  close_after_days: 45
 
 eps_drift:
   noise_threshold:    0.02
