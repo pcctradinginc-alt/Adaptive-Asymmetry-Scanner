@@ -1,14 +1,15 @@
 """
-Stufe 5: Pfad-Simulation (MiroFish-Integration)
+Stufe 5: Pfad-Simulation (MiroFish)
 
-Fixes:
-  C-02: seed=42 war pro Ticker-Aufruf → alle Ticker hatten identische
-        Zufallszahlen. Fix: RNG einmalig auf Klassen-Ebene mit
-        time-basiertem Seed initialisiert → echte Stochastik.
-  M-02: `impact`-Variable war definiert aber nie genutzt. Fix: Impact
-        erhöht den initialen Alpha-Drift (stärkere News → stärkerer Drift).
-  H-03: Überreaktion (negatives Mismatch) wird explizit gefiltert.
-  cfg:  N_PATHS, N_DAYS, THRESHOLD aus config.yaml.
+Fix #3: Hit-Rate 100% war unrealistisch.
+        Ursachen: (a) impact_multiplier pushte Drift zu stark bei niedriger Vola,
+                  (b) kein Mindest-Mismatch-Schwellenwert vor Simulation.
+        Lösung:   impact_multiplier auf max 1.3 gecappt (war unbegrenzt durch
+                  Mismatch/100 * multiplier-Kombination).
+                  Zusätzlich: explizite Warnung wenn Hit-Rate = 100%.
+
+Fix #5: Min-Impact-Filter. Signale mit Impact < min_impact_threshold
+        (aus config.yaml) werden NICHT simuliert → schlechte Signale raus.
 """
 
 import logging
@@ -21,7 +22,6 @@ from modules.config import cfg
 
 log = logging.getLogger(__name__)
 
-# Narrative-Erosion: täglich verliert die News an Kraft
 NARRATIVE_DECAY = {
     "4-8 Wochen":  0.015,
     "2-3 Monate":  0.008,
@@ -47,16 +47,27 @@ SECTOR_VOLATILITY_MULTIPLIER = {
 class MirofishSimulation:
 
     def __init__(self):
-        # FIX C-02: RNG einmalig auf Instanz-Ebene initialisiert.
-        # Kein fester seed=42 → echter Zufall über alle Ticker.
-        # time_ns() stellt sicher, dass jeder Programmlauf einzigartig ist.
-        seed = int(time.time_ns() % (2**32))
+        seed      = int(time.time_ns() % (2**32))
         self._rng = np.random.default_rng(seed=seed)
-        log.debug(f"MirofishSimulation RNG initialisiert mit seed={seed}")
+        log.debug(f"MirofishSimulation RNG seed={seed}")
 
     def run(self, scored: list[dict]) -> list[dict]:
+        # FIX #5: Min-Impact-Filter VOR der Simulation
+        min_impact = getattr(cfg, 'pipeline', None)
+        min_impact = getattr(min_impact, 'min_impact_threshold', 4) if min_impact else 4
+
         passing = []
         for s in scored:
+            impact = s.get("features", {}).get("impact", 0)
+
+            # FIX #5: Impact zu niedrig → überspringen
+            if impact < min_impact:
+                log.info(
+                    f"  [{s['ticker']}] Impact={impact} < {min_impact} "
+                    f"(min_impact_threshold) → gefiltert."
+                )
+                continue
+
             result = self._simulate(s)
             if result:
                 passing.append(result)
@@ -68,16 +79,10 @@ class MirofishSimulation:
         da        = s.get("deep_analysis", {})
         direction = da.get("direction", "BULLISH")
         ttm       = da.get("time_to_materialization", "2-3 Monate")
+        mismatch  = features.get("mismatch", 0)
 
-        mismatch = features.get("mismatch", 0)
-
-        # FIX H-03: Negatives Mismatch bedeutet Überreaktion des Marktes,
-        # nicht Unterreaktion. Solche Signale werden hier explizit gefiltert.
         if mismatch <= 0:
-            log.info(
-                f"  [{ticker}] Mismatch={mismatch:.2f} ≤ 0 "
-                f"→ Markt hat überreagiert, kein Alpha-Signal."
-            )
+            log.info(f"  [{ticker}] Mismatch={mismatch:.2f} ≤ 0 → gefiltert.")
             return None
 
         sigma, current_price, sector = self._get_market_params(ticker)
@@ -88,29 +93,25 @@ class MirofishSimulation:
         vol_mult  = SECTOR_VOLATILITY_MULTIPLIER.get(sector, 1.0)
         sigma_adj = sigma * vol_mult
 
-        # FIX M-02: impact jetzt in Alpha-Drift integriert.
-        # Höherer Impact → stärkerer initialer Drift, unabhängig vom Mismatch.
-        # Formel: base_alpha = mismatch/100 × (1 + impact/20)
-        # Begründung: Impact skaliert den Drift linear zwischen 1.0 (impact=0)
-        # und 1.5 (impact=10) → moderate Verstärkung, keine Explosion.
         impact     = features.get("impact", 5)
         decay_rate = NARRATIVE_DECAY.get(ttm, 0.008)
 
-        impact_multiplier = 1.0 + (impact / 20.0)   # range: 1.0 – 1.5
-        base_alpha = (mismatch / 100.0) * impact_multiplier
+        # FIX #3: impact_multiplier gecappt auf max 1.3
+        # Vorher: 1.0 + (impact/20) → bei impact=10: 1.5
+        # Problem: Kombiniert mit hohem Mismatch → übertriebener Drift
+        # Jetzt: 1.0 + (impact/20) aber max 1.3 → realistischerer Drift
+        impact_multiplier = min(1.0 + (impact / 20.0), 1.3)
+        base_alpha        = (mismatch / 100.0) * impact_multiplier
 
         if direction == "BEARISH":
             base_alpha = -base_alpha
 
-        # Strike-Target aus config.yaml
         target_move = cfg.options.target_move_pct
         if direction == "BULLISH":
             target_price = current_price * (1 + target_move)
         else:
             target_price = current_price * (1 - target_move)
 
-        # FIX C-02: self._rng statt local rng(seed=42)
-        # Alle Ticker teilen denselben RNG-State → echte Unabhängigkeit
         n_paths   = cfg.pipeline.n_simulation_paths
         n_days    = cfg.pipeline.simulation_days
         threshold = cfg.pipeline.confidence_gate
@@ -123,22 +124,26 @@ class MirofishSimulation:
                 alpha_today  = base_alpha * np.exp(-decay_rate * day)
                 daily_return = alpha_today + sigma_adj * self._rng.standard_normal()
                 price       *= (1 + daily_return)
-
                 if direction == "BULLISH" and price >= target_price:
-                    hit = True
-                    break
+                    hit = True; break
                 if direction == "BEARISH" and price <= target_price:
-                    hit = True
-                    break
+                    hit = True; break
             if hit:
                 paths_hit += 1
 
         hit_rate = paths_hit / n_paths
 
+        # FIX #3: Warnung bei Hit-Rate = 100% (deutet auf Drift-Problem hin)
+        if hit_rate >= 0.999:
+            log.warning(
+                f"  [{ticker}] Hit-Rate=100% – Drift möglicherweise zu hoch. "
+                f"base_alpha={base_alpha:.4f} sigma_adj={sigma_adj:.4f}"
+            )
+
         log.info(
-            f"  [{ticker}] Simulation: {hit_rate:.1%} Pfade treffen Strike "
+            f"  [{ticker}] Simulation: {hit_rate:.1%} "
             f"({'PASS' if hit_rate >= threshold else 'FAIL'}) "
-            f"| impact_mult={impact_multiplier:.2f}"
+            f"| alpha={base_alpha:.4f} mult={impact_multiplier:.2f}"
         )
 
         if hit_rate < threshold:
