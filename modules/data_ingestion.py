@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 MIN_MARKET_CAP_USD    = 2_000_000_000   # > 2 Mrd. USD
 MIN_AVG_VOLUME        = 1_000_000       # > 1 Mio. Stück/Tag (30d Durchschnitt)
 MIN_DOLLAR_VOLUME_USD = 10_000_000      # > 10 Mio. USD/Tag (Preis × Volumen)
-MIN_RELATIVE_VOLUME   = 0.8             # > 80% des normalen Volumens
+MIN_RELATIVE_VOLUME   = 0.6             # > 60% des normalen Volumens (war 80%, zu streng)
 MAX_INTRADAY_MOVE     = 0.07            # < 7% Intraday-Bewegung (kein Chase)
 
 
