@@ -1,17 +1,16 @@
 """
-modules/email_reporter.py v5.0
+modules/email_reporter.py v8.0
 
-NEU: Tägliche Status-Email wird IMMER gesendet — auch wenn kein Trade generiert.
-     "No Trade"-Email zeigt transparent warum kein Signal durchkam.
-
-Email-Typen:
-  1. TRADE-Email:    Wie bisher — Trade-Vorschlag mit allen Details
-  2. NO-TRADE-Email: Täglich, zeigt Pipeline-Status + Filterstatistik
-
-Benötigte Secrets:
-  GMAIL_SENDER   → Absender-Adresse
-  GMAIL_APP_PW   → Gmail App-Passwort
-  NOTIFY_EMAIL   → Empfänger-Adresse
+Angepasst an Pipeline v8.0 (9 Stufen):
+  1. Hard-Filter
+  2. Prescreening (Haiku)
+  3. ROI Pre-Check (NEU)
+  4. Quick Monte Carlo (NEU)
+  5. Deep Analysis (Sonnet)
+  6. Mismatch + Intraday
+  7. Final Monte Carlo (NEU)
+  8. RL-Scoring
+  9. Options Design + ROI-Gate
 """
 
 import logging
@@ -24,41 +23,7 @@ from email.mime.text import MIMEText
 log = logging.getLogger(__name__)
 
 
-def send_email(proposals: list[dict], today: str) -> None:
-    """
-    Sendet entweder eine Trade-Email oder eine No-Trade-Status-Email.
-    Wird immer aufgerufen — unabhängig von proposals.
-    """
-    if proposals:
-        html = _build_trade_email(proposals, today)
-        subject = f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
-    else:
-        html = _build_no_trade_email(today)
-        subject = f"Adaptive Asymmetry-Scanner – Kein Trade – {today}"
-
-    _send_smtp(subject, html)
-
-
 def send_status_email(pipeline_stats: dict, today: str) -> None:
-    """
-    Explizite Status-Email mit Pipeline-Statistiken.
-    Wird von pipeline.py am Ende IMMER aufgerufen.
-
-    pipeline_stats:
-        {
-            "candidates":   int,   # nach Hard-Filter
-            "prescreened":  int,   # nach Prescreening
-            "analyzed":     int,   # nach Deep Analysis
-            "mismatch_ok":  int,   # nach Mismatch-Filter
-            "intraday_ok":  int,   # nach Intraday-Delta-Filter
-            "simulated":    int,   # nach Monte-Carlo
-            "rl_scored":    int,   # nach RL-Filter
-            "roi_ok":       int,   # nach ROI-Gate
-            "trades":       int,   # finale Trade-Vorschläge
-            "vix":          float,
-            "stop_reason":  str,   # Warum Pipeline gestoppt (wenn kein Trade)
-        }
-    """
     trades  = pipeline_stats.get("trades", 0)
     subject = (
         f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
@@ -69,191 +34,209 @@ def send_status_email(pipeline_stats: dict, today: str) -> None:
     _send_smtp(subject, html)
 
 
+def send_email(proposals: list[dict], today: str) -> None:
+    if proposals:
+        html    = _build_trade_email(proposals, today)
+        subject = f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
+    else:
+        html    = _build_status_email({"trades": 0}, today)
+        subject = f"Adaptive Asymmetry-Scanner – Kein Trade – {today}"
+    _send_smtp(subject, html)
+
+
 def _build_status_email(stats: dict, today: str) -> str:
-    """Baut die tägliche Status-Email (Trade oder No-Trade)."""
-    vix        = stats.get("vix", "–")
-    candidates = stats.get("candidates", 0)
-    prescreened = stats.get("prescreened", 0)
-    analyzed   = stats.get("analyzed", 0)
-    mismatch   = stats.get("mismatch_ok", 0)
-    intraday   = stats.get("intraday_ok", analyzed)
-    simulated  = stats.get("simulated", 0)
-    rl_scored  = stats.get("rl_scored", 0)
-    roi_ok     = stats.get("roi_ok", 0)
-    trades     = stats.get("trades", 0)
-    stop       = stats.get("stop_reason", "")
+    vix         = stats.get("vix")
+    trades      = stats.get("trades", 0)
+    stop        = stats.get("stop_reason", "")
+    header_col  = "#16a34a" if trades > 0 else "#0f172a"
+    status_icon = "🎯" if trades > 0 else "📊"
+    status_text = "Trade Empfehlung" if trades > 0 else "Kein Trade heute"
 
-    # Farbe je nach Ergebnis
-    header_color = "#16a34a" if trades > 0 else "#0f172a"
-    status_icon  = "🎯" if trades > 0 else "📊"
-    status_text  = "Trade Empfehlung" if trades > 0 else "Kein Trade heute"
-
-    # Filter-Funnel als Tabelle
-    funnel_rows = [
-        ("498 Ticker im Universum", "📋", True),
-        (f"{candidates} nach Hard-Filter (Market Cap / Volume)", "🔍", candidates > 0),
-        (f"{prescreened} nach Prescreening (Claude Haiku)", "🤖", prescreened > 0),
-        (f"{analyzed} nach Deep Analysis (Claude Sonnet)", "🧠", analyzed > 0),
-        (f"{mismatch} nach Mismatch-Score", "📐", mismatch > 0),
-        (f"{intraday} nach Intraday-Delta-Filter", "⏱️", intraday > 0),
-        (f"{simulated} nach Monte-Carlo-Simulation", "🎲", simulated > 0),
-        (f"{rl_scored} nach RL-Scoring", "🤖", rl_scored > 0),
-        (f"{roi_ok} nach ROI-Gate", "💰", roi_ok > 0),
-        (f"{trades} finale Trade-Vorschläge", "✅" if trades > 0 else "❌", trades > 0),
+    # Pipeline v8.0 — 9 Stufen
+    funnel = [
+        ("498 Ticker im Universum",                         "📋", True),
+        (f"{stats.get('candidates',   0)} nach Hard-Filter (Cap>2B, Vol>1M, RV>0.6)",  "🔍", stats.get("candidates",   0) > 0),
+        (f"{stats.get('prescreened',  0)} nach Prescreening (Claude Haiku)",            "🤖", stats.get("prescreened",  0) > 0),
+        (f"{stats.get('roi_precheck', 0)} nach ROI Pre-Check",                          "💰", stats.get("roi_precheck", 0) > 0),
+        (f"{stats.get('quick_mc',     0)} nach Quick Monte Carlo (3k Pfade, 30d)",      "🎲", stats.get("quick_mc",     0) > 0),
+        (f"{stats.get('analyzed',     0)} nach Deep Analysis (Claude Sonnet)",          "🧠", stats.get("analyzed",     0) > 0),
+        (f"{stats.get('mismatch_ok',  0)} nach Mismatch-Score + Intraday",             "📐", stats.get("mismatch_ok",  0) > 0),
+        (f"{stats.get('final_mc',     0)} nach Final Monte Carlo (10k Pfade)",         "🎯", stats.get("final_mc",     0) > 0),
+        (f"{stats.get('rl_scored',    0)} nach RL-Scoring",                            "🤖", stats.get("rl_scored",    0) > 0),
+        (f"{stats.get('roi_ok',       0)} nach Options Design + ROI-Gate",             "✅" if stats.get("roi_ok", 0) > 0 else "❌", stats.get("roi_ok", 0) > 0),
+        (f"{trades} finale Trade-Vorschläge",                                           "🏆" if trades > 0 else "❌", trades > 0),
     ]
 
-    funnel_html = ""
-    for label, icon, active in funnel_rows:
+    rows = ""
+    for label, icon, active in funnel:
         bg    = "#f0fdf4" if active else "#fef2f2"
         color = "#16a34a" if active else "#dc2626"
-        funnel_html += f"""
+        rows += f"""
         <tr>
-          <td style="padding:8px 12px;font-size:13px;color:{color};
+          <td style="padding:9px 16px;font-size:13px;color:{color};
                      background:{bg};border-bottom:1px solid #e2e8f0;">
-            {icon} {label}
+            {icon}&nbsp; {label}
           </td>
         </tr>"""
 
-    stop_section = ""
+    stop_html = ""
     if stop and trades == 0:
-        stop_section = f"""
-        <div style="margin:20px 0;padding:16px;background:#fef3c7;
-                    border-left:4px solid #f59e0b;border-radius:4px;">
+        stop_html = f"""
+        <div style="margin:20px 0;padding:14px 16px;background:#fef3c7;
+                    border-left:4px solid #f59e0b;border-radius:4px;
+                    font-size:13px;">
           <b>Pipeline-Stop:</b> {stop}
         </div>"""
 
-    return f"""
-<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;margin:0;padding:0;
-  background:#f8fafc;">
-<div style="max-width:600px;margin:30px auto;background:#fff;
+    vix_str = f"{float(vix):.2f}" if vix else "–"
+
+    return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;
+  margin:0;padding:0;background:#f8fafc;">
+<div style="max-width:620px;margin:30px auto;background:#fff;
   border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
 
-  <!-- Header -->
-  <div style="background:{header_color};padding:28px 32px;">
-    <div style="font-size:28px;margin-bottom:4px;">{status_icon}</div>
-    <div style="color:#fff;font-size:22px;font-weight:bold;">{status_text}</div>
-    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:4px;">
-      {today} · VIX {f'{float(vix):.2f}' if vix else '–'} · Adaptive Asymmetry-Scanner v5.0
+  <div style="background:{header_col};padding:28px 32px;">
+    <div style="font-size:28px;margin-bottom:6px;">{status_icon}</div>
+    <div style="color:#fff;font-size:22px;font-weight:bold;">
+      Adaptive Asymmetry-Scanner
+    </div>
+    <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">
+      {status_text}
+    </div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">
+      {today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; v8.0
     </div>
   </div>
 
-  <!-- Pipeline-Funnel -->
   <div style="padding:24px 32px;">
-    <h3 style="margin:0 0 16px;color:#0f172a;font-size:16px;">
+    <h3 style="margin:0 0 14px;color:#0f172a;font-size:15px;font-weight:600;">
       Pipeline-Filter heute
     </h3>
     <table style="width:100%;border-collapse:collapse;border-radius:8px;
                   overflow:hidden;border:1px solid #e2e8f0;">
-      {funnel_html}
+      {rows}
     </table>
-    {stop_section}
+    {stop_html}
   </div>
 
-  <!-- Footer -->
-  <div style="padding:16px 32px;background:#f8fafc;
+  <div style="padding:14px 32px;background:#f8fafc;
               border-top:1px solid #e2e8f0;
-              font-size:12px;color:#94a3b8;text-align:center;">
-    Adaptive Asymmetry-Scanner v5.0 · GitHub Actions · {datetime.utcnow().strftime('%H:%M UTC')}
+              font-size:11px;color:#94a3b8;text-align:center;">
+    Adaptive Asymmetry-Scanner v8.0 &nbsp;·&nbsp;
+    GitHub Actions &nbsp;·&nbsp;
+    {datetime.utcnow().strftime('%H:%M UTC')}
   </div>
-</div>
-</body></html>"""
+</div></body></html>"""
 
 
 def _build_trade_email(proposals: list[dict], today: str) -> str:
-    """Baut die Trade-Email (bereits vorhanden, hier vereinfacht)."""
     cards = ""
-    for i, p in enumerate(proposals, 1):
-        ticker     = p.get("ticker", "?")
-        strategy   = p.get("strategy", "?")
-        direction  = p.get("deep_analysis", {}).get("direction", "?")
-        score      = p.get("final_score", 0)
-        option     = p.get("option", {}) or {}
-        sim        = p.get("simulation", {}) or {}
-        da         = p.get("deep_analysis", {}) or {}
-        roi        = p.get("roi_analysis", {}) or {}
-        flash      = p.get("flash_alpha", {}) or {}
-        eulerpool  = p.get("eulerpool", {}) or {}
+    for p in proposals:
+        ticker   = p.get("ticker", "?")
+        strategy = p.get("strategy", "?")
+        score    = p.get("final_score", 0)
+        da       = p.get("deep_analysis", {}) or {}
+        sim      = p.get("simulation", {}) or {}
+        option   = p.get("option", {}) or {}
+        roi      = p.get("roi_analysis", {}) or {}
+        tve      = p.get("time_value_efficiency", {}) or {}
+        red_team = da.get("red_team", {}) or {}
 
-        strike      = option.get("strike", "–")
-        expiry      = option.get("expiry", "–")
-        bid         = option.get("bid", "–")
-        ask         = option.get("ask", "–")
-        oi          = option.get("open_interest", "–")
-        dte         = option.get("dte", "–")
-        iv_rank     = p.get("iv_rank", "–")
-        current     = sim.get("current_price", "–")
-        target      = sim.get("target_price", "–")
-        hit_rate    = sim.get("hit_rate", 0)
-        impact      = da.get("impact", "–")
-        surprise    = da.get("surprise", "–")
-        bear_sev    = da.get("bear_case_severity", "–")
-        roi_net     = roi.get("roi_net", None)
-        crush_risk  = eulerpool.get("iv_crush_risk", "–")
-        dealer_bias = flash.get("dealer_bullish", None)
-        sentiment   = p.get("features", {}).get("sentiment_score", None)
+        direction  = da.get("direction", "–")
+        current    = sim.get("current_price", "–")
+        target     = sim.get("target_price", "–")
+        hit_rate   = sim.get("hit_rate", 0)
+        mc_n       = sim.get("n_paths", "–")
+        strike     = option.get("strike", "–")
+        expiry     = option.get("expiry", "–")
+        dte        = option.get("dte", "–")
+        bid        = option.get("bid", "–")
+        ask        = option.get("ask", "–")
+        iv_rank    = p.get("iv_rank", "–")
+        roi_net    = roi.get("roi_net", None)
+        vega_loss  = roi.get("vega_loss", None)
+        roi_day    = tve.get("roi_per_day_pct", None)
+        ann_roi    = tve.get("annualized_roi", None)
+        dte_tier   = p.get("dte_tier", "–")
+        rt_verdict = red_team.get("red_team_verdict", "–")
+        rt_arg1    = red_team.get("argument_1", "–")
+        macro      = da.get("macro_assessment", "–")
+        impact     = da.get("impact", "–")
+        surprise   = da.get("surprise", "–")
 
-        roi_badge = ""
-        if roi_net is not None:
-            roi_color = "#16a34a" if roi_net > 0.2 else ("#f59e0b" if roi_net > 0.1 else "#dc2626")
-            roi_badge = f'<span style="background:{roi_color};color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">ROI {roi_net:.1%}</span>'
+        roi_color = "#16a34a" if (roi_net or 0) > 0.20 else (
+                    "#f59e0b" if (roi_net or 0) > 0.10 else "#dc2626")
 
         cards += f"""
-        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin-bottom:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-size:20px;font-weight:bold;color:#0f172a;">{ticker}</span>
-            <span style="background:#2563eb;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;">
-              {strategy} · Score {score:.4f}
+        <div style="border:1px solid #e2e8f0;border-radius:10px;
+                    padding:20px;margin-bottom:24px;">
+
+          <div style="display:flex;justify-content:space-between;
+                      align-items:center;margin-bottom:16px;">
+            <span style="font-size:22px;font-weight:bold;color:#0f172a;">
+              {ticker}
+            </span>
+            <span style="background:#2563eb;color:#fff;padding:4px 14px;
+                         border-radius:20px;font-size:12px;">
+              {strategy} &nbsp;·&nbsp; Score {score:.3f}
             </span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;
+                      gap:10px;font-size:13px;margin-bottom:14px;">
             <div><b>Richtung:</b> {direction}</div>
-            <div><b>Aktuell:</b> ${current}</div>
+            <div><b>Laufzeit-Tier:</b> {dte_tier}</div>
+            <div><b>Preis:</b> ${current}</div>
             <div><b>Ziel:</b> ${target}</div>
-            <div><b>Hit-Rate:</b> {hit_rate:.1%}</div>
+            <div><b>Hit-Rate:</b> {hit_rate:.1%} ({mc_n} Pfade)</div>
+            <div><b>Impact / Surprise:</b> {impact} / {surprise}</div>
             <div><b>Strike:</b> ${strike}</div>
             <div><b>Expiry:</b> {expiry} ({dte}d)</div>
-            <div><b>Bid/Ask:</b> ${bid}/${ask}</div>
-            <div><b>OI:</b> {oi}</div>
-            <div><b>Impact:</b> {impact}/10</div>
-            <div><b>Surprise:</b> {surprise}/10</div>
-            <div><b>Bear Severity:</b> {bear_sev}/10</div>
+            <div><b>Bid / Ask:</b> ${bid} / ${ask}</div>
             <div><b>IV-Rank:</b> {iv_rank}%</div>
-            {f'<div><b>Sentiment:</b> {sentiment:.2f}</div>' if sentiment is not None else ''}
-            {f'<div><b>IV-Crush:</b> {crush_risk}</div>' if crush_risk != "–" else ''}
-            {f'<div><b>Dealer-Bias:</b> {dealer_bias:.2f}</div>' if dealer_bias is not None else ''}
+            {f'<div><b>ROI netto:</b> <span style="color:{roi_color}">{roi_net:.1%}</span></div>' if roi_net is not None else ''}
+            {f'<div><b>Vega-Loss:</b> {vega_loss:.1%}</div>' if vega_loss is not None else ''}
+            {f'<div><b>ROI/Tag:</b> {roi_day:.3f}%</div>' if roi_day is not None else ''}
+            {f'<div><b>Ann. ROI:</b> {ann_roi:.0%}</div>' if ann_roi is not None else ''}
           </div>
-          {roi_badge}
+
+          <div style="background:#f8fafc;border-radius:6px;
+                      padding:12px;font-size:12px;color:#475569;">
+            <b>🔴 Red Team:</b> {rt_verdict} &nbsp;·&nbsp; {rt_arg1}<br>
+            <b>🌍 Makro:</b> {macro}
+          </div>
         </div>"""
 
-    return f"""
-<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f8fafc;margin:0;">
-<div style="max-width:600px;margin:30px auto;background:#fff;border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);overflow:hidden;">
+    return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;
+  background:#f8fafc;margin:0;padding:0;">
+<div style="max-width:620px;margin:30px auto;background:#fff;
+  border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);overflow:hidden;">
+
   <div style="background:#16a34a;padding:28px 32px;">
-    <div style="font-size:28px;">🎯</div>
+    <div style="font-size:28px;margin-bottom:6px;">🎯</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">
-      Adaptive Asymmetry-Scanner – Trade Empfehlung
+      Adaptive Asymmetry-Scanner
     </div>
-    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-top:4px;">
-      {today} · Adaptive Asymmetry-Scanner v5.0
+    <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">
+      Trade Empfehlung — {len(proposals)} Signal(e)
+    </div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">
+      {today} &nbsp;·&nbsp; v8.0
     </div>
   </div>
+
   <div style="padding:24px 32px;">{cards}</div>
-  <div style="padding:16px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;
-    font-size:12px;color:#94a3b8;text-align:center;">
-    Kein Finanzberatung. Alle Vorschläge sind algorithmisch generiert.
+
+  <div style="padding:14px 32px;background:#f8fafc;
+              border-top:1px solid #e2e8f0;
+              font-size:11px;color:#94a3b8;text-align:center;">
+    Kein Finanzberatung. Algorithmisch generiert. &nbsp;·&nbsp;
+    Adaptive Asymmetry-Scanner v8.0
   </div>
-</div>
-</body></html>"""
-
-
-def _build_no_trade_email(today: str) -> str:
-    """Fallback No-Trade-Email ohne Pipeline-Stats."""
-    return _build_status_email({"trades": 0, "stop_reason": "Kein Signal hat alle Filter passiert."}, today)
+</div></body></html>"""
 
 
 def _send_smtp(subject: str, html: str) -> None:
-    """Sendet die Email via Gmail SMTP."""
     sender   = os.getenv("GMAIL_SENDER", "")
     password = os.getenv("GMAIL_APP_PW", "")
     receiver = os.getenv("NOTIFY_EMAIL", sender)
