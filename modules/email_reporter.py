@@ -54,17 +54,18 @@ def _build_status_email(stats: dict, today: str) -> str:
 
     # Pipeline v8.0 — 9 Stufen
     funnel = [
-        ("498 Ticker im Universum",                         "📋", True),
-        (f"{stats.get('candidates',   0)} nach Hard-Filter (Cap>2B, Vol>1M, RV>0.6)",  "🔍", stats.get("candidates",   0) > 0),
-        (f"{stats.get('prescreened',  0)} nach Prescreening (Claude Haiku)",            "🤖", stats.get("prescreened",  0) > 0),
-        (f"{stats.get('roi_precheck', 0)} nach ROI Pre-Check",                          "💰", stats.get("roi_precheck", 0) > 0),
-        (f"{stats.get('quick_mc',     0)} nach Quick Monte Carlo (3k Pfade, 30d)",      "🎲", stats.get("quick_mc",     0) > 0),
-        (f"{stats.get('analyzed',     0)} nach Deep Analysis (Claude Sonnet)",          "🧠", stats.get("analyzed",     0) > 0),
-        (f"{stats.get('mismatch_ok',  0)} nach Mismatch-Score + Intraday",             "📐", stats.get("mismatch_ok",  0) > 0),
-        (f"{stats.get('final_mc',     0)} nach Final Monte Carlo (10k Pfade)",         "🎯", stats.get("final_mc",     0) > 0),
+        ("498 Ticker im Universum",                                                     "📋", True),
+        (f"{stats.get('candidates',   0)} nach Hard-Filter (Cap>2B, Vol>1M, RV>0.6)", "🔍", stats.get("candidates",   0) > 0),
+        (f"{stats.get('prescreened',  0)} nach Prescreening (Claude Haiku)",           "🤖", stats.get("prescreened",  0) > 0),
+        (f"{stats.get('roi_precheck', 0)} nach ROI Pre-Check (Fail Fast)",             "💰", stats.get("roi_precheck", 0) > 0),
+        (f"{stats.get('analyzed',     0)} nach Deep Analysis + Red Team (Sonnet)",     "🧠", stats.get("analyzed",     0) > 0),
+        (f"{stats.get('mismatch_ok',  0)} nach Mismatch-Score",                        "📐", stats.get("mismatch_ok",  0) > 0),
+        (f"{stats.get('quick_mc',     0)} nach Quick Monte Carlo (3k, 30d)",           "🎲", stats.get("quick_mc",     0) > 0),
+        (f"{stats.get('intraday_ok',  0)} nach Intraday-Delta-Filter",                 "⏱️", stats.get("intraday_ok",  0) > 0),
+        (f"{stats.get('final_mc',     0)} nach Final Monte Carlo (10k, 120d)",         "🎯", stats.get("final_mc",     0) > 0),
         (f"{stats.get('rl_scored',    0)} nach RL-Scoring",                            "🤖", stats.get("rl_scored",    0) > 0),
         (f"{stats.get('roi_ok',       0)} nach Options Design + ROI-Gate",             "✅" if stats.get("roi_ok", 0) > 0 else "❌", stats.get("roi_ok", 0) > 0),
-        (f"{trades} finale Trade-Vorschläge",                                           "🏆" if trades > 0 else "❌", trades > 0),
+        (f"{trades} finale Trade-Vorschläge",                                          "🏆" if trades > 0 else "❌", trades > 0),
     ]
 
     rows = ""
