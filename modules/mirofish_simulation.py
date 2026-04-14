@@ -157,6 +157,17 @@ class MirofishSimulation:
 
         hit_rate = paths_hit / n_paths
 
+        # Cap bei 97%: 100% ist statistisch unrealistisch und deutet
+        # auf überhöhten base_alpha (z.B. Default-Mismatch) hin.
+        # Warnung wenn Cap greift.
+        if hit_rate >= 0.99:
+            log.warning(
+                f"  [{ticker}] Hit-Rate={hit_rate:.1%} → Cap auf 97% "
+                f"(Mismatch-Alpha möglicherweise zu hoch: "
+                f"mismatch={s.get('features',{}).get('mismatch',0):.2f})"
+            )
+            hit_rate = 0.97
+
         # Statistische Stabilität prüfen (Standardfehler des Schätzers)
         stderr = np.sqrt(hit_rate * (1 - hit_rate) / n_paths)
         log.info(
