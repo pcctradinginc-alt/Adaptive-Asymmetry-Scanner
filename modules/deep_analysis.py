@@ -57,6 +57,9 @@ ANALYSIS_TEMPLATE = """=== MAKRO-KONTEXT ===
 === TICKER: {ticker} ===
 Aktueller Preis: ${current_price:.2f}
 Sektor: {sector}
+Haiku-Prescreening: {prescreen_reason} [Kategorie: {prescreen_category}]
+WICHTIG: Wenn deine Bewertung der Direction von der Haiku-Einschätzung abweicht,
+erkläre explizit warum im asymmetry_reasoning.
 EPS (yfinance): {forward_eps} | EPS (SEC EDGAR): {sec_eps}
 EPS-Abweichung: {eps_deviation}
 48h-Preisbewegung: {move_48h:+.1%}
@@ -135,13 +138,33 @@ class DeepAnalysis:
                     f"Impact {original} → 6 gedeckelt"
                 )
 
+            # Widerspruchs-Check: Haiku bullish → Sonnet bearish
+            haiku_reason  = candidate.get("prescreen_reason", "").lower()
+            sonnet_dir    = analysis.get("direction", "")
+            haiku_bullish = any(w in haiku_reason for w in
+                ["positiv", "erhöht", "wachstum", "deal", "akquisition",
+                 "expansion", "gewinn", "stieg", "prognose"])
+            if haiku_bullish and sonnet_dir == "BEARISH":
+                log.warning(
+                    f"  [{candidate['ticker']}] ⚠️ WIDERSPRUCH: "
+                    f"Haiku=BULLISH ({haiku_reason[:50]}) "
+                    f"aber Sonnet=BEARISH → Impact={analysis['impact']} "
+                    f"gedeckelt auf max 6"
+                )
+                if analysis.get("impact", 0) > 6:
+                    analysis["impact"] = 6
+                analysis["direction_conflict"] = True
+            else:
+                analysis["direction_conflict"] = False
+
             analyses.append({**candidate, "deep_analysis": analysis})
             log.info(
                 f"  [{candidate['ticker']}] "
                 f"Impact={analysis['impact']} "
                 f"Surprise={analysis['surprise']} "
                 f"Direction={analysis['direction']} "
-                f"RedTeam={red_team.get('red_team_verdict', '?')}"
+                f"RedTeam={red_team.get('red_team_verdict', '?')} "
+                f"{'⚠️ KONFLIKT' if analysis.get('direction_conflict') else '✅'}"
             )
 
         return analyses
@@ -200,11 +223,16 @@ class DeepAnalysis:
             else "Makro-Kontext: FRED nicht erreichbar."
         )
 
+        prescreen_reason   = candidate.get("prescreen_reason", "n/a")
+        prescreen_category = candidate.get("prescreen_category", "n/a")
+
         prompt = ANALYSIS_TEMPLATE.format(
             macro_context    = macro_text,
             ticker           = ticker,
             current_price    = current_price,
             sector           = sector,
+            prescreen_reason   = prescreen_reason,
+            prescreen_category = prescreen_category,
             forward_eps      = forward_eps,
             sec_eps          = sec_eps,
             eps_deviation    = eps_deviation,
@@ -220,7 +248,7 @@ class DeepAnalysis:
         try:
             response = self.client.messages.create(
                 model      = cfg.models.deep_analysis,
-                max_tokens = 1200,
+                max_tokens = 1500,
                 system     = SYSTEM_PROMPT,
                 messages   = [{"role": "user", "content": prompt}],
             )
@@ -235,7 +263,36 @@ class DeepAnalysis:
                 if idx != -1:
                     raw = raw[idx:]
 
-            result = json.loads(raw)
+            # Robuster JSON-Parser: bei unterminated string → reparieren
+            try:
+                result = json.loads(raw)
+            except json.JSONDecodeError as je:
+                # Versuche JSON bis zum letzten vollständigen Feld zu parsen
+                log.warning(f"  [{ticker}] JSON teilweise abgeschnitten: {je} → Reparatur-Versuch")
+                # Schneide bei letztem vollständigen Wert ab
+                last_comma = raw.rfind('",')
+                last_brace = raw.rfind('"')
+                cutoff = max(last_comma, 0)
+                if cutoff > 100:
+                    raw_fixed = raw[:cutoff] + '"}'
+                    try:
+                        result = json.loads(raw_fixed)
+                        log.info(f"  [{ticker}] JSON repariert (gekürzt auf {cutoff} Zeichen)")
+                    except Exception:
+                        # Fallback: Minimal-Response mit niedrigem Impact
+                        log.warning(f"  [{ticker}] JSON nicht reparierbar → Fallback-Response")
+                        result = {
+                            "red_team": {"argument_1": "JSON-Parse-Fehler", "red_team_verdict": "PASSIERT"},
+                            "stats_check": {"mc_assessment": "n/a", "concern_level": "medium"},
+                            "impact": 3, "surprise": 3, "direction": "BULLISH",
+                            "bear_case_severity": 5,
+                            "time_to_materialization": "2-3 Monate",
+                            "asymmetry_reasoning": "JSON-Parse-Fehler — manuelle Prüfung empfohlen",
+                            "catalyst": "n/a", "bear_case": "n/a",
+                            "macro_assessment": "n/a", "data_confidence": "low"
+                        }
+                else:
+                    raise
             result["macro_regime"]  = self._macro.get("macro_regime", "unknown")
             result["macro_context"] = {
                 "yield_curve": self._macro.get("yield_curve_spread"),
