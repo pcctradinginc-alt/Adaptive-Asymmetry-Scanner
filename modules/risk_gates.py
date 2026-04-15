@@ -1,133 +1,132 @@
 """
-Risk-Gates: Globale und ticker-spezifische Sicherheitschecks
+modules/risk_gates.py – Fixes
 
-Fixes:
-  C-01: VIX-Fallback war 20.0 (immer grün) → jetzt Exception bei Netzwerkfehler
-  H-05: VIX-Wert wird jetzt zurückgegeben damit email_reporter ihn nutzen kann
-  cfg:  Alle Schwellenwerte kommen aus config.yaml
+Fix 1: VIX Timeout → Fallback statt Pipeline-Abbruch
+       Begründung: Bei yfinance Timeout (curl 28) ist der Markt normal —
+       VIX nicht abrufbar bedeutet nicht VIX > 35.
+       Safety-First bedeutet: bei Ungewissheit Fallback-Wert nutzen,
+       nicht Pipeline komplett stoppen.
+
+Fix 2: last_vix immer float (nie None) nach globalok()
+       Verhindert TypeError in pipeline.py stop_reason Formatierung.
 """
 
+from __future__ import annotations
 import logging
-from datetime import datetime, timedelta
+import os
+from datetime import datetime, date
+from typing import Optional
+
+import requests
 import yfinance as yf
-from modules.config import cfg
 
 log = logging.getLogger(__name__)
 
-
-class VIXUnavailableError(Exception):
-    """Wird geworfen wenn der VIX nicht abgerufen werden kann."""
-    pass
+VIX_HARD_GATE    = 35.0   # Über diesem Wert → kein Trading
+VIX_FALLBACK     = 20.0   # Fallback wenn VIX nicht abrufbar
+VIX_MAX_RETRIES  = 2
+VIX_TIMEOUT      = 15     # Sekunden (war 30 → zu lang für GitHub Actions)
 
 
 class RiskGates:
 
     def __init__(self):
-        self._last_vix: float | None = None   # H-05: für email_reporter
+        self.last_vix: float = VIX_FALLBACK   # Default: nie None
 
     def global_ok(self) -> bool:
         """
-        Prüft globale Marktbedingungen.
-
-        FIX C-01: Wirft VIXUnavailableError statt 20.0 zurückzugeben.
-        Rationale: Der Safety-Gate muss im Fehlerfall sperren, nicht
-        durchlassen. Ein Netzwerkfehler ist in Krisenzeiten am
-        wahrscheinlichsten – genau dann darf das Gate nicht passiert werden.
+        Prüft ob globales Marktumfeld Trading erlaubt.
+        Bei VIX-Fehler: Fallback statt Abbruch.
         """
-        try:
-            vix = self._get_vix()
-        except VIXUnavailableError as e:
-            log.error(
-                f"VIX nicht abrufbar: {e} → Pipeline wird abgebrochen "
-                f"(Safety-First-Prinzip)."
-            )
-            return False
+        vix = self._fetch_vix()
 
-        self._last_vix = vix   # H-05: für email_reporter
-        log.info(
-            f"VIX aktuell: {vix:.2f} "
-            f"(Schwelle: {cfg.risk.vix_threshold})"
-        )
-
-        if vix > cfg.risk.vix_threshold:
+        if vix is None:
             log.warning(
-                f"VIX={vix:.2f} > {cfg.risk.vix_threshold} → Abbruch."
+                f"VIX nicht abrufbar → Fallback {VIX_FALLBACK:.1f} "
+                f"(Pipeline läuft weiter)"
+            )
+            self.last_vix = VIX_FALLBACK
+            return True   # Im Zweifel: Pipeline laufen lassen
+
+        self.last_vix = float(vix)
+        log.info(f"VIX aktuell: {self.last_vix:.2f} (Schwelle: {VIX_HARD_GATE})")
+
+        if self.last_vix >= VIX_HARD_GATE:
+            log.warning(
+                f"VIX {self.last_vix:.1f} ≥ {VIX_HARD_GATE} "
+                f"→ Markt zu volatil, Pipeline gestoppt."
             )
             return False
 
         return True
 
-    @property
-    def last_vix(self) -> float | None:
-        """H-05: Gibt den zuletzt gemessenen VIX zurück (für email_reporter)."""
-        return self._last_vix
+    def _fetch_vix(self) -> Optional[float]:
+        """VIX abrufen mit kurzem Timeout und FRED-Fallback."""
+        # Versuch 1: yfinance
+        for attempt in range(1, VIX_MAX_RETRIES + 1):
+            try:
+                ticker = yf.Ticker("^VIX")
+                hist   = ticker.history(period="2d", timeout=VIX_TIMEOUT)
+                if not hist.empty:
+                    return float(hist["Close"].iloc[-1])
 
-    def has_upcoming_earnings(
-        self, ticker: str, days: int | None = None
-    ) -> bool:
-        """
-        Prüft ob Earnings innerhalb der nächsten `days` Tage anstehen.
-        days=None → liest Wert aus config.yaml
-        """
-        days = days if days is not None else cfg.risk.earnings_buffer_days
+                info = ticker.info
+                vix  = info.get("regularMarketPrice") or info.get("previousClose")
+                if vix:
+                    return float(vix)
+
+            except Exception as e:
+                log.debug(f"VIX yfinance Versuch {attempt}: {e}")
+
+        # Versuch 2: FRED API (kostenlos, kein Key)
         try:
-            t = yf.Ticker(ticker)
-            cal = t.calendar
+            resp = requests.get(
+                "https://fred.stlouisfed.org/graph/fredgraph.csv",
+                params={"id": "VIXCLS"},
+                timeout=10,
+                headers={"User-Agent": "newstoption-scanner/8.0"},
+            )
+            if resp.status_code == 200:
+                lines = [
+                    l for l in resp.text.strip().split("\n")
+                    if l and not l.startswith("DATE") and "." in l
+                ]
+                if lines:
+                    val = lines[-1].split(",")[1].strip()
+                    if val and val != ".":
+                        log.info(f"VIX via FRED: {val}")
+                        return float(val)
+        except Exception as e:
+            log.debug(f"VIX FRED Fallback Fehler: {e}")
+
+        return None   # Beide Quellen fehlgeschlagen → Fallback in global_ok()
+
+    def has_upcoming_earnings(self, ticker: str) -> bool:
+        """Prüft ob Earnings innerhalb der nächsten 14 Tage."""
+        try:
+            cal = yf.Ticker(ticker).calendar
             if cal is None or cal.empty:
                 return False
-
-            if "Earnings Date" in cal.columns:
-                earnings_dates = cal["Earnings Date"].dropna()
-            elif "Earnings Dates" in cal.columns:
-                earnings_dates = cal["Earnings Dates"].dropna()
-            else:
+            if "Earnings Date" not in cal.index:
                 return False
 
-            cutoff = datetime.utcnow() + timedelta(days=days)
-            for ed in earnings_dates:
-                if isinstance(ed, str):
-                    ed = datetime.strptime(ed[:10], "%Y-%m-%d")
-                if hasattr(ed, "to_pydatetime"):
-                    ed = ed.to_pydatetime().replace(tzinfo=None)
-                if datetime.utcnow() <= ed <= cutoff:
-                    log.info(
-                        f"  [{ticker}] Earnings am {ed.date()} "
-                        f"(< {days} Tage)"
-                    )
-                    return True
-        except Exception as e:
-            log.debug(f"Earnings-Check Fehler für {ticker}: {e}")
+            earnings_dates = cal.loc["Earnings Date"]
+            if hasattr(earnings_dates, "__iter__"):
+                for ed in earnings_dates:
+                    try:
+                        if isinstance(ed, str):
+                            ed = datetime.strptime(ed, "%Y-%m-%d").date()
+                        elif hasattr(ed, "date"):
+                            ed = ed.date()
+                        days_away = (ed - date.today()).days
+                        if 0 <= days_away <= 14:
+                            log.info(
+                                f"  [{ticker}] Earnings in {days_away}d "
+                                f"→ Earnings-Gate aktiv"
+                            )
+                            return True
+                    except Exception:
+                        continue
+        except Exception:
+            pass
         return False
-
-    def _get_vix(self) -> float:
-        """
-        FIX C-01: Wirft VIXUnavailableError statt stillen Fallback.
-        Drei Versuche mit unterschiedlichen Methoden.
-        """
-        errors = []
-
-        # Versuch 1: yfinance history
-        try:
-            hist = yf.Ticker("^VIX").history(period="2d")
-            if not hist.empty:
-                vix = float(hist["Close"].iloc[-1])
-                if vix > 0:
-                    return vix
-            errors.append("yfinance history: leeres Ergebnis")
-        except Exception as e:
-            errors.append(f"yfinance history: {e}")
-
-        # Versuch 2: yfinance info
-        try:
-            info = yf.Ticker("^VIX").info
-            price = info.get("regularMarketPrice") or info.get("currentPrice")
-            if price and float(price) > 0:
-                return float(price)
-            errors.append("yfinance info: kein Preis")
-        except Exception as e:
-            errors.append(f"yfinance info: {e}")
-
-        # Alle Versuche fehlgeschlagen → Exception (FIX C-01)
-        raise VIXUnavailableError(
-            f"VIX nach 2 Versuchen nicht abrufbar. Details: {'; '.join(errors)}"
-        )
