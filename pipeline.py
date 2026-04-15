@@ -87,9 +87,17 @@ def main() -> None:
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
 
+    # trade_proposals wird am Ende gesetzt — Referenz via Liste
+    _proposals_ref = []
+
     def send_email():
         try:
-            send_status_email(stats, today)
+            proposals = _proposals_ref[0] if _proposals_ref else []
+            if proposals:
+                from modules.email_reporter import send_email as _send_trade_email
+                _send_trade_email(proposals, today)
+            else:
+                send_status_email(stats, today)
         except Exception as e:
             log.error(f"Email-Fehler: {e}")
 
@@ -259,7 +267,14 @@ def main() -> None:
     # ── STUFE 10: Options Design + ROI-Gate ──────────────────────────────────
     log.info("Stufe 10: Options Design + adaptiver Laufzeit-Loop")
     designer        = OptionsDesigner(gates=gates)
-    trade_proposals = designer.run(final_signals)
+    try:
+        trade_proposals = designer.run(final_signals)
+    except Exception as e:
+        log.error(f"Options Design Fehler: {e} → Email wird trotzdem gesendet")
+        stats["stop_reason"] = f"Options Design Fehler: {type(e).__name__}: {e}"
+        save_history(history)
+        send_email()
+        raise  # Re-raise damit GitHub Actions den Fehler sieht
 
     for p in trade_proposals:
         roi = p.get("roi_analysis", {})
@@ -272,6 +287,10 @@ def main() -> None:
     stats["trades"] = len(trade_proposals)
     if not trade_proposals:
         stats["stop_reason"] = "Alle Options-Kontrakte scheitern am ROI-Gate."
+
+    # Proposals für Email-Funktion verfügbar machen
+    if trade_proposals:
+        _proposals_ref.append(trade_proposals)
 
     # History speichern
     existing = {(t["ticker"], t.get("entry_date","")) for t in history["active_trades"]}
