@@ -1040,6 +1040,88 @@
         "dte": 22
       },
       "outcome": null
+    },
+    {
+      "ticker": "AMD",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 4,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0316,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 255.0,
+        "bid": 16.4,
+        "ask": 16.75,
+        "open_interest": 1187,
+        "implied_vol": 0.5706219696044923,
+        "spread_ratio": 0.0209,
+        "dte": 22
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 283.93,
+        "current_price": 258.12,
+        "sigma_adj": 0.041,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 12.1507,
+          "signal": 6.8137,
+          "histogram": 5.337,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "MI450-Hype bereits eingepreist: AMD hat in 48h +4,6% zugelegt, was stark darauf hindeutet, dass der Markt den MI450-Katalysator bereits vorwegnimmt. Mediencoverage ('Could Change Everything') signalisiert Retail-Euphorie, kein unentdecktes Alpha. Optionen d\u00fcrften erh\u00f6hte IV aufweisen \u2014 IV-Crush nach Launch-Event ist das wahrscheinlichste Szenario.",
+          "argument_2": "EPS-Diskrepanz als Warnsignal: yfinance meldet 10,83 EPS vs. SEC EDGAR 2,60 EPS \u2014 eine massive Abweichung, die trotz '0% Abweichung'-Flag nicht erkl\u00e4rt wird. Dies deutet auf Non-GAAP vs. GAAP-Konfusion hin und macht fundamentale Bewertungsaussagen unzuverl\u00e4ssig. AMD k\u00f6nnte auf GAAP-Basis deutlich teurer sein als kommuniziert.",
+          "argument_3": "Wettbewerbsdruck von NVIDIA bleibt strukturell: NVIDIA dominiert den AI-Accelerator-Markt mit CUDA-\u00d6kosystem-Lock-in. AMDs MI-Serie hat historisch Lieferprobleme, Software-Stack-Defizite und geringere Hyperscaler-Adoption gezeigt. Ein MI450-Launch ohne starke Pre-Order-Ank\u00fcndigungen von Tier-1-Clouds ist spekulativ. Zudem signalisieren fallende Seagate/Amkor-Aktien m\u00f6glichen Sektor-Gegenwind im Halbleiterbereich.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "MC nicht durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet fehlende Simulation, nicht 0% Erfolgswahrscheinlichkeit. Ohne MC-Daten ist eine statistische Validierung unm\u00f6glich. Bei AMDs historischer 30-Tage-Volatilit\u00e4t von ~45-55% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisbewegungen bei 50-65% zu erwarten. Die fehlenden Daten erh\u00f6hen die Unsicherheit erheblich.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat den MI450-Launch oberfl\u00e4chlich eingepreist, aber die Earnings-Impact-Dynamik bei tats\u00e4chlichen Hyperscaler-Adoptionsank\u00fcndigungen (Q2/Q3 Guidance-Erh\u00f6hungen) k\u00f6nnte untersch\u00e4tzt werden. Cluster-Insider-K\u00e4ufe von 4 Personen innerhalb 14 Tagen sind statistisch signifikant und deuten auf nicht-\u00f6ffentliches Vertrauen in nahe Katalysatoren hin. Die EPS-Diskrepanz (GAAP vs. Non-GAAP) verzerrt jedoch die Bewertungsgrundlage und limitiert das klare Asymmetrie-Signal.",
+        "catalyst": "MI450-Chip-Launch mit m\u00f6glichen Hyperscaler-Adoptionsank\u00fcndigungen (Microsoft Azure, Google Cloud, Meta) sowie Q2-Earnings-Guidance-Erh\u00f6hung basierend auf AI-Accelerator-Nachfrage",
+        "bear_case": "IV-Crush nach MI450-Launch-Event bei bereits +4,6% Vorwegnahme, kombiniert mit NVIDIA's strukturellem CUDA-Moat und m\u00f6glichem Lieferketten-/Software-Stack-Entt\u00e4uschungsrisiko \u2014 klassisches 'Buy the rumor, sell the news'-Muster in einem Markt mit erh\u00f6hten Erwartungen",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0,5%, Fed Funds 3,64%) ist f\u00fcr AMD weder R\u00fccken- noch Gegenwind. Technologie-/AI-Sektor profitiert von stabilem Zinsumfeld ohne Rezessionsdruck. Allerdings bleibt AMD als High-Beta-Tech-Aktie anf\u00e4llig f\u00fcr Risk-Off-Bewegungen, falls Zinssenkungserwartungen entt\u00e4uscht werden. Insgesamt akzeptables Makro-Fenster f\u00fcr mittelfristige Bullish-Positionen mit moderatem Conviction-Level.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.03555,
+        "roi_per_day_pct": 3.555,
+        "annualized_roi": 14559.9988,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -1107,7 +1189,7 @@
       },
       {
         "date": "2026-04-15",
-        "score": -0.0536,
+        "score": -0.0455,
         "headline_count": 5
       }
     ],
@@ -1275,7 +1357,7 @@
       },
       {
         "date": "2026-04-15",
-        "score": 0.3916,
+        "score": 0.3407,
         "headline_count": 5
       }
     ],
@@ -1287,7 +1369,7 @@
       },
       {
         "date": "2026-04-15",
-        "score": 0.11,
+        "score": -0.0718,
         "headline_count": 5
       }
     ],
@@ -1296,12 +1378,22 @@
         "date": "2026-04-14",
         "score": -0.4026,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-15",
+        "score": -0.3394,
+        "headline_count": 5
       }
     ],
     "BIIB": [
       {
         "date": "2026-04-14",
         "score": 0.256,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-15",
+        "score": 0.5262,
         "headline_count": 5
       }
     ],
@@ -1313,7 +1405,7 @@
       },
       {
         "date": "2026-04-15",
-        "score": 0.1473,
+        "score": 0.3261,
         "headline_count": 5
       }
     ],
@@ -1337,7 +1429,7 @@
       },
       {
         "date": "2026-04-15",
-        "score": 0.245,
+        "score": 0.2211,
         "headline_count": 5
       }
     ],
@@ -1728,6 +1820,11 @@
         "date": "2026-04-14",
         "score": 0.3345,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-15",
+        "score": 0.0436,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -1785,7 +1882,7 @@
     "ABT": [
       {
         "date": "2026-04-15",
-        "score": 0.3114,
+        "score": 0.3434,
         "headline_count": 5
       }
     ],
@@ -1806,14 +1903,14 @@
     "AWK": [
       {
         "date": "2026-04-15",
-        "score": 0.0319,
+        "score": 0.0363,
         "headline_count": 5
       }
     ],
     "AAPL": [
       {
         "date": "2026-04-15",
-        "score": 0.0995,
+        "score": 0.1652,
         "headline_count": 5
       }
     ],
@@ -1827,14 +1924,14 @@
     "BK": [
       {
         "date": "2026-04-15",
-        "score": 0.0205,
+        "score": 0.1416,
         "headline_count": 5
       }
     ],
     "AVGO": [
       {
         "date": "2026-04-15",
-        "score": 0.2328,
+        "score": 0.2059,
         "headline_count": 5
       }
     ],
@@ -1855,7 +1952,7 @@
     "CAT": [
       {
         "date": "2026-04-15",
-        "score": 0.1099,
+        "score": 0.0526,
         "headline_count": 5
       }
     ],
@@ -2072,7 +2169,7 @@
     "CCL": [
       {
         "date": "2026-04-15",
-        "score": 0.1756,
+        "score": 0.1535,
         "headline_count": 5
       }
     ],
@@ -2170,7 +2267,7 @@
     "CDNS": [
       {
         "date": "2026-04-15",
-        "score": 0.7114,
+        "score": 0.7066,
         "headline_count": 5
       }
     ],
@@ -2247,7 +2344,7 @@
     "SCHW": [
       {
         "date": "2026-04-15",
-        "score": 0.0957,
+        "score": 0.1426,
         "headline_count": 5
       }
     ],
@@ -2325,6 +2422,153 @@
       {
         "date": "2026-04-15",
         "score": 0.2004,
+        "headline_count": 5
+      }
+    ],
+    "LNT": [
+      {
+        "date": "2026-04-15",
+        "score": 0.867,
+        "headline_count": 1
+      }
+    ],
+    "AMD": [
+      {
+        "date": "2026-04-15",
+        "score": 0.4201,
+        "headline_count": 5
+      }
+    ],
+    "GOOG": [
+      {
+        "date": "2026-04-15",
+        "score": 0.4008,
+        "headline_count": 5
+      }
+    ],
+    "AES": [
+      {
+        "date": "2026-04-15",
+        "score": 0.4639,
+        "headline_count": 2
+      }
+    ],
+    "AEP": [
+      {
+        "date": "2026-04-15",
+        "score": 0.336,
+        "headline_count": 5
+      }
+    ],
+    "ABBV": [
+      {
+        "date": "2026-04-15",
+        "score": 0.319,
+        "headline_count": 5
+      }
+    ],
+    "GOOGL": [
+      {
+        "date": "2026-04-15",
+        "score": 0.4008,
+        "headline_count": 5
+      }
+    ],
+    "AMGN": [
+      {
+        "date": "2026-04-15",
+        "score": 0.2871,
+        "headline_count": 5
+      }
+    ],
+    "ADI": [
+      {
+        "date": "2026-04-15",
+        "score": 0.1465,
+        "headline_count": 5
+      }
+    ],
+    "AMAT": [
+      {
+        "date": "2026-04-15",
+        "score": -0.0001,
+        "headline_count": 5
+      }
+    ],
+    "ADM": [
+      {
+        "date": "2026-04-15",
+        "score": -0.2128,
+        "headline_count": 5
+      }
+    ],
+    "ACGL": [
+      {
+        "date": "2026-04-15",
+        "score": 0.1027,
+        "headline_count": 3
+      }
+    ],
+    "ANET": [
+      {
+        "date": "2026-04-15",
+        "score": 0.2537,
+        "headline_count": 5
+      }
+    ],
+    "ADSK": [
+      {
+        "date": "2026-04-15",
+        "score": 0.3453,
+        "headline_count": 5
+      }
+    ],
+    "BKR": [
+      {
+        "date": "2026-04-15",
+        "score": 0.1888,
+        "headline_count": 5
+      }
+    ],
+    "BBWI": [
+      {
+        "date": "2026-04-15",
+        "score": 0.636,
+        "headline_count": 3
+      }
+    ],
+    "BA": [
+      {
+        "date": "2026-04-15",
+        "score": 0.1781,
+        "headline_count": 5
+      }
+    ],
+    "CPT": [
+      {
+        "date": "2026-04-15",
+        "score": -0.0418,
+        "headline_count": 1
+      }
+    ],
+    "CAH": [
+      {
+        "date": "2026-04-15",
+        "score": 0.2406,
+        "headline_count": 5
+      }
+    ],
+    "CL": [
+      {
+        "date": "2026-04-15",
+        "score": -0.1817,
+        "headline_count": 5
+      }
+    ],
+    "CME": [
+      {
+        "date": "2026-04-15",
+        "score": 0.1971,
         "headline_count": 5
       }
     ]
