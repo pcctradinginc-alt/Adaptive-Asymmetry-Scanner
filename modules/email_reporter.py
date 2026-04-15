@@ -241,6 +241,31 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           </div>
         </div>"""
 
+    return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;
+  background:#f8fafc;margin:0;padding:0;">
+<div style="max-width:640px;margin:30px auto;background:#fff;
+  border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);overflow:hidden;">
+  <div style="background:#16a34a;padding:28px 32px;">
+    <div style="font-size:28px;margin-bottom:6px;">🎯</div>
+    <div style="color:#fff;font-size:22px;font-weight:bold;">
+      Adaptive Asymmetry-Scanner
+    </div>
+    <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">
+      Trade Empfehlung — {len(proposals)} Signal(e)
+    </div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">
+      {today} &nbsp;·&nbsp; v8.0
+    </div>
+  </div>
+  <div style="padding:24px 32px;">{cards}</div>
+  <div style="padding:14px 32px;background:#f8fafc;
+              border-top:1px solid #e2e8f0;
+              font-size:11px;color:#94a3b8;text-align:center;">
+    Kein Finanzberatung. Algorithmisch generiert. &nbsp;·&nbsp;
+    Adaptive Asymmetry-Scanner v8.0
+  </div>
+</div></body></html>"""
+
 
 def _send_smtp(subject: str, html: str) -> None:
     sender   = os.getenv("GMAIL_SENDER", "")
