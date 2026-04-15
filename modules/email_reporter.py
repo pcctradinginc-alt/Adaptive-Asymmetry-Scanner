@@ -160,27 +160,32 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
         trade_grade    = ts_grade.split(" ")[0] if ts_grade else "–"
 
         # Option-Daten
-        direction  = da.get("direction", "–")
-        current    = sim.get("current_price", "–")
-        target     = sim.get("target_price", "–")
-        hit_rate   = sim.get("hit_rate", 0)
-        mc_n       = sim.get("n_paths", "–")
-        strike     = option.get("strike", "–")
-        expiry     = option.get("expiry", "–")
-        dte        = option.get("dte", "–")
-        bid        = option.get("bid", "–")
-        ask        = option.get("ask", "–")
-        iv_rank    = p.get("iv_rank", "–")
-        roi_net    = roi.get("roi_net", None)
-        vega_loss  = roi.get("vega_loss", None)
-        roi_day    = tve.get("roi_per_day_pct", None)
-        ann_roi    = tve.get("annualized_roi", None)
-        dte_tier   = p.get("dte_tier", "–")
-        rt_verdict = red_team.get("red_team_verdict", "–")
-        rt_arg1    = red_team.get("argument_1", "–")
-        macro      = da.get("macro_assessment", "–")
-        impact     = da.get("impact", "–")
-        surprise   = da.get("surprise", "–")
+        def _s(v, default="–"):
+            """None-sicherer String-Konverter."""
+            if v is None: return default
+            return str(v)
+
+        direction  = _s(da.get("direction"))
+        current    = _s(sim.get("current_price"))
+        target     = _s(sim.get("target_price"))
+        hit_rate   = float(sim.get("hit_rate") or 0)
+        mc_n       = _s(sim.get("n_paths"))
+        strike     = _s(option.get("strike"))
+        expiry     = _s(option.get("expiry"))
+        dte        = _s(option.get("dte"))
+        bid        = _s(option.get("bid"))
+        ask        = _s(option.get("ask"))
+        iv_rank    = _s(p.get("iv_rank"))
+        roi_net    = roi.get("roi_net")
+        vega_loss  = roi.get("vega_loss")
+        roi_day    = tve.get("roi_per_day_pct")
+        ann_roi    = tve.get("annualized_roi")
+        dte_tier   = _s(p.get("dte_tier"))
+        rt_verdict = _s(red_team.get("red_team_verdict"))
+        rt_arg1    = _s(red_team.get("argument_1"))
+        macro      = _s(da.get("macro_assessment"))
+        impact     = _s(da.get("impact"))
+        surprise   = _s(da.get("surprise"))
 
         roi_color = "#16a34a" if (roi_net or 0) > 0.15 else ("#ca8a04" if (roi_net or 0) > 0 else "#dc2626")
 
