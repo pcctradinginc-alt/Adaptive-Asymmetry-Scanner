@@ -27,7 +27,7 @@ from modules.macro_context import get_macro_regime_multiplier
 log = logging.getLogger(__name__)
 
 TRADIER_BASE     = "https://api.tradier.com/v1"
-IV_RANK_GATE     = 70.0
+IV_RANK_GATE     = 85.0   # War 70% — bei Markt-IV-Spike zu restriktiv
 
 # Laufzeit-Stufen für den adaptiven Loop
 DTE_TIERS = [
@@ -45,7 +45,7 @@ SECTOR_ETF = {
     "Communication Services": "XLC", "default": "SPY",
 }
 
-RELATIVE_STRENGTH_MIN = -0.03
+RELATIVE_STRENGTH_MIN = -0.08   # War -3% — zu streng, auf -8% gelockert
 
 
 class OptionsDesigner:
@@ -105,7 +105,17 @@ class OptionsDesigner:
 
             if not option:
                 log.info(f"  [{ticker}] {label}: kein Kontrakt verfügbar")
-                continue
+                # Fallback: Bei Spread ohne Kontrakt → Long Option versuchen
+                if "SPREAD" in strategy:
+                    fallback = "LONG_CALL" if "BULL" in strategy else "LONG_PUT"
+                    option   = self._find_option_for_dte(
+                        ticker, fallback, current, tier["dte_min"], tier["dte_max"]
+                    )
+                    if option:
+                        strategy = fallback
+                        log.info(f"  [{ticker}] {label}: Fallback → {fallback}")
+                if not option:
+                    continue
 
             roi = self._compute_roi(option, sim, iv_rank, tier)
 
@@ -283,9 +293,12 @@ class OptionsDesigner:
             opts        = chain.calls if is_call else chain.puts
 
             filtered = opts[
-                (opts["strike"] >= current * 1.00) &
-                (opts["strike"] <= current * 1.12) &
-                (opts["openInterest"] >= cfg.risk.min_open_interest)
+                (opts["strike"] >= current * 0.97) &   # leicht ITM erlaubt
+                (opts["strike"] <= current * 1.15) &   # bis 15% OTM (war 12%)
+                (opts["openInterest"] >= max(
+                    getattr(getattr(cfg, "risk", None), "min_open_interest", 100),
+                    50   # Minimum 50 OI — verhindert totalen Block bei dünnen Märkten
+                ))
             ].copy()
 
             if filtered.empty:
