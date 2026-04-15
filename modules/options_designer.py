@@ -109,9 +109,14 @@ class OptionsDesigner:
 
             roi = self._compute_roi(option, sim, iv_rank, tier)
 
-            annualized_roi = float(
-                (1 + roi["roi_net"]) ** (365 / max(int(option["dte"] or 1), 1)) - 1
-            )
+            try:
+                dte_safe = max(int(option.get("dte") or 1), 1)
+                roi_net_safe = float(roi["roi_net"].real if isinstance(roi["roi_net"], complex) else roi["roi_net"])
+                annualized_roi = float(
+                    (1 + roi_net_safe) ** (365 / dte_safe) - 1
+                )
+            except Exception:
+                annualized_roi = 0.0
 
             log.info(
                 f"  [{ticker}] {label} ({int(option['dte'] or 0)}d): "
@@ -239,16 +244,22 @@ class OptionsDesigner:
                 f"vega={vega_loss:.2%} net={roi_net:.2%} < {min_roi:.0%}"
             )
 
+        # Defensive: alle Werte als float sichern (verhindert complex TypeError)
+        def _safe_float(v):
+            if isinstance(v, complex): return float(v.real)
+            try: return float(v)
+            except: return 0.0
+
         return {
-            "roi_gross":         round(roi_delta, 4),
-            "roi_net":           round(roi_net, 4),
-            "spread_pct":        round(spread_pct, 4),
-            "vega_loss":         round(vega_loss, 4),
-            "delta":             round(delta, 4),
-            "iv_drop_assumed":   iv_drop,
+            "roi_gross":         round(_safe_float(roi_delta), 4),
+            "roi_net":           round(_safe_float(roi_net), 4),
+            "spread_pct":        round(_safe_float(spread_pct), 4),
+            "vega_loss":         round(_safe_float(vega_loss), 4),
+            "delta":             round(_safe_float(delta), 4),
+            "iv_drop_assumed":   _safe_float(iv_drop),
             "passes_roi_gate":   passes,
             "min_roi_threshold": min_roi,
-            "dte":               dte,
+            "dte":               int(dte),
         }
 
     # ── Kontrakt-Suche für spezifischen DTE-Bereich ──────────────────────────
