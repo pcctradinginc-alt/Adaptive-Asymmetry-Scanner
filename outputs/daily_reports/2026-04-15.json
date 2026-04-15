@@ -3,33 +3,39 @@
   "proposals": [
     {
       "ticker": "AVGO",
-      "strategy": "LONG_CALL",
-      "iv_rank": 0.0,
-      "iv_gate_applied": false,
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
       "direction": "BULLISH",
       "option": {
         "expiry": "2026-05-08",
         "strike": 390.0,
-        "bid": 20.15,
-        "ask": 21.0,
+        "bid": 21.15,
+        "ask": 22.0,
         "open_interest": 845,
-        "implied_vol": 0.4334773449707031,
-        "spread_ratio": 0.0405,
-        "dte": 22
+        "implied_vol": 0.45862357788085945,
+        "spread_ratio": 0.0386,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 430.0,
+          "bid": 5.4,
+          "ask": 6.45
+        },
+        "net_debit": 16.6
       },
       "roi_analysis": {
-        "roi_gross": 1.1044,
-        "roi_net": 0.9842,
-        "spread_pct": 0.0405,
-        "vega_loss": 0.0392,
-        "delta": 0.5846,
-        "iv_drop_assumed": 0.05,
+        "roi_gross": 1.0502,
+        "roi_net": 0.7747,
+        "spread_pct": 0.0386,
+        "vega_loss": 0.1982,
+        "delta": 0.5824,
+        "iv_drop_assumed": 0.25,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 22
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 86538.2386,
+      "annualized_roi": 13588.6849,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
@@ -37,26 +43,32 @@
           "option": {
             "expiry": "2026-05-08",
             "strike": 390.0,
-            "bid": 20.15,
-            "ask": 21.0,
+            "bid": 21.15,
+            "ask": 22.0,
             "open_interest": 845,
-            "implied_vol": 0.4334773449707031,
-            "spread_ratio": 0.0405,
-            "dte": 22
+            "implied_vol": 0.45862357788085945,
+            "spread_ratio": 0.0386,
+            "dte": 22,
+            "spread_leg": {
+              "strike": 430.0,
+              "bid": 5.4,
+              "ask": 6.45
+            },
+            "net_debit": 16.6
           },
           "roi": {
-            "roi_gross": 1.1044,
-            "roi_net": 0.9842,
-            "spread_pct": 0.0405,
-            "vega_loss": 0.0392,
-            "delta": 0.5846,
-            "iv_drop_assumed": 0.05,
+            "roi_gross": 1.0502,
+            "roi_net": 0.7747,
+            "spread_pct": 0.0386,
+            "vega_loss": 0.1982,
+            "delta": 0.5824,
+            "iv_drop_assumed": 0.25,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 22
           },
-          "annualized_roi": 86538.2386,
-          "strategy": "LONG_CALL"
+          "annualized_roi": 13588.6849,
+          "strategy": "BULL_CALL_SPREAD"
         }
       ],
       "features": {
@@ -92,13 +104,13 @@
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Katalysator bereits eingepreist: +4.5% in 48h und breite Medienberichterstattung ('Zuck's Chip Dreams', 'Meta Broadcom Chip Pact') deuten darauf hin, dass der Markt den Deal bereits vollst\u00e4ndig absorbiert hat. Bei Optionen auf mittelfristige Sicht droht IV-Crush nach dem initialen Hype, da der strukturelle Wert \u00fcber Jahre realisiert wird, nicht in 2-6 Monaten.",
-          "argument_2": "Konzentrations-/Kundenrisiko: Ein 'exklusiver' Multi-Year-Deal mit Meta macht AVGO st\u00e4rker abh\u00e4ngig von einem einzigen Hyperscaler. Sollte Meta seinen KI-Capex k\u00fcrzen (regulatorischer Druck, Bewertungskorrektur im Tech-Sektor), tr\u00e4gt AVGO \u00fcberproportionales Abw\u00e4rtsrisiko. Der Markt preist den Upside ein, aber nicht das neue Klumpenrisiko.",
-          "argument_3": "EPS-Diskrepanz als Warnsignal: yfinance meldet EPS 17.997 vs. SEC EDGAR 5.13 \u2014 eine Divergenz von ~250%, die typischerweise auf GAAP vs. Non-GAAP-Unterschiede, Akquisitions-Amortisation (VMware) oder Einmaleffekte hindeutet. Bei AVGO's aktuellem Kurs von ~$397 bedeutet dies ein KGV von 22x (Non-GAAP) bis ~77x (GAAP), was bei einem neutralen Makro-Regime wenig Fehlertoleranz l\u00e4sst.",
+          "argument_1": "Katalysator bereits eingepreist: AVGO ist nach der +4.5% Bewegung in 48h bereits signifikant gestiegen. Der Meta-Broadcom-Chip-Deal wurde breit kommuniziert und ist in allen major News-Outlets. Multi-year-Deals mit Meta sind strukturell positiv, aber der unmittelbare Kursimpuls ist m\u00f6glicherweise vollst\u00e4ndig absorbiert \u2014 was f\u00fcr Optionsk\u00e4ufer auf 2-6 Monate bedeutet, dass man Pr\u00e4mie auf bereits eingepreiste Nachrichten zahlt.",
+          "argument_2": "EPS-Diskrepanz als Warnsignal: Der yfinance-EPS von 17.99 vs. SEC EDGAR-EPS von 5.13 ist eine massive Abweichung (>3x). Dies deutet entweder auf Non-GAAP vs. GAAP-Unterschiede oder auf Datenfehler hin. Bei einem Kurs von $396.72 impliziert das KGV-Spanne von 22x (Non-GAAP) bis 77x (GAAP) \u2014 letzteres ist f\u00fcr eine Chip-Company in einem neutralen Makro-Umfeld aggressiv bewertet.",
+          "argument_3": "Konzentrations- und Klumpenrisiko: Ein Multi-Year-Deal mit Meta ist positiv, erh\u00f6ht aber gleichzeitig die Abh\u00e4ngigkeit von einem einzigen Hyperscaler. Sollte Meta sein AI-CapEx-Budget k\u00fcrzen (m\u00f6glich bei makro\u00f6konomischer Eintr\u00fcbung oder regulatorischem Druck auf Big Tech), w\u00e4re AVGO \u00fcberproportional exponiert. Zudem konkurrieren NVDA, AMD und interne Chip-Entwicklungen (TPUs, Trainium) direkt.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine statistischen Pfade verf\u00fcgbar. Bei AVGOs historischer 30-Tage-Volatilit\u00e4t (~35-40% annualisiert) w\u00e4re f\u00fcr ein bullishes 30d-Ziel eine Hit-Rate von 55-65% realistisch. Das Fehlen der Statistik reduziert die Modellkonfidenz erheblich, ist aber kein inh\u00e4rentes Warnsignal gegen den Trade.",
+          "mc_assessment": "MC nicht durchgef\u00fchrt (0 Pfade). Bei AVGO mit historischer 30-Tage-Volatilit\u00e4t von ~35-40% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr bullische Szenarien im 30d-Fenster bei ca. 50-60% zu erwarten. Das Fehlen der Simulation reduziert die quantitative Fundierung erheblich \u2014 die fundamentale These muss allein tragen.",
           "concern_level": "medium"
         },
         "impact": 7,
@@ -106,10 +118,10 @@
         "direction": "BULLISH",
         "bear_case_severity": 5,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat die kurzfristige Newsflow-Reaktion (+4.5%) eingepreist, aber m\u00f6glicherweise noch nicht die strategische Implikation: Ein Multi-Year-Deal mit Meta validiert AVGOs Custom-ASIC-Plattform als bevorzugte Alternative zu NVIDIA f\u00fcr Hyperscaler und k\u00f6nnte \u00e4hnliche Deals mit anderen Tier-1-Kunden (Google, Apple) nach sich ziehen \u2014 eine Neubewertung des Gesch\u00e4ftsmodells, nicht nur eines Quartals. Cluster-Insider-K\u00e4ufe (7 innerhalb 14 Tagen) verst\u00e4rken das Signal, dass Management weitere Deal-Pipeline sieht, die \u00f6ffentlich noch nicht bekannt ist. Der Markt diskontiert AVGO weiterhin als 'diversifizierten Chip-Anbieter' statt als dedizierter AI-Infrastructure-Partner mit stabilen Multi-Year-Revenue-Streams.",
-        "catalyst": "Multi-Year-Exklusivdeal mit Meta f\u00fcr Custom AI-Chips (XPU/ASIC), begleitet von Insider-Cluster-K\u00e4ufen \u2014 n\u00e4chster Quartalsbericht als Best\u00e4tigung der Deal-Wirtschaftlichkeit und m\u00f6gliche Ank\u00fcndigung weiterer Hyperscaler-Partnerschaften",
-        "bear_case": "IV-Crush und Katalysator bereits eingepreist nach +4.5% Move \u2014 mittelfristiger Optionswert erodiert, wenn keine weiteren Deal-Ank\u00fcndigungen folgen und der Markt in eine 'show me the revenue'-Phase \u00fcbergeht",
-        "macro_assessment": "Neutral-Makro (flache Kurve, Fed bei 3.64%) ist f\u00fcr AVGO relativ g\u00fcnstig: Kein aktiver Gegenwind durch Rezessions\u00e4ngste, aber auch kein expansiver R\u00fcckenwind. Der KI-Capex-Zyklus der Hyperscaler wirkt als fundamentaler Treiber unabh\u00e4ngig vom Zinsregime. Leichtes Risiko: Sollten 10Y Yields auf 4.5%+ steigen, wird das hohe Non-GAAP-Multiple von ~22x komprimiert. Im aktuellen Regime ist das Signal mit moderater \u00dcberzeugung tragbar.",
+        "asymmetry_reasoning": "Der Markt hat die unmittelbare Nachricht eingepreist (+4.5%), aber das strukturelle Repricing der langfristigen Ertragsvisibilit\u00e4t durch einen Multi-Year AI-Chip-Deal mit Meta d\u00fcrfte auf 2-3 Monate noch nicht vollst\u00e4ndig in den Konsenssch\u00e4tzungen reflektiert sein. 7 Insider-K\u00e4ufe im Cluster sind ein starkes Insider-Conviction-Signal, das historisch auf fundamentale \u00dcberzeugung \u2014 nicht kurzfristigen Opportunismus \u2014 hindeutet. Das neutrale Makro-Umfeld erlaubt eine volle Bewertung des strukturellen AI-Infrastruktur-Alphas ohne dominanten makro\u00f6konomischen Gegenwind.",
+        "catalyst": "Multi-year AI-Chip-Partnerschaft mit Meta (Custom Silicon f\u00fcr AI-Infrastruktur), kombiniert mit Cluster-Insider-K\u00e4ufen \u2014 n\u00e4chster Earnings-Call als Best\u00e4tigungskatalysator f\u00fcr Guidance-Anhebung",
+        "bear_case": "Deal ist bereits eingepreist; GAAP-KGV ~77x l\u00e4sst keinen Bewertungspuffer bei Makroverschlechterung oder Meta CapEx-K\u00fcrzungen; Konzentration auf einen Hyperscaler erh\u00f6ht Klumpenrisiko",
+        "macro_assessment": "Flache Zinskurve (+0.50%) signalisiert \u00dcbergangsphase ohne klaren R\u00fcckenwind oder Gegenwind. Fed Funds Rate bei 3.64% und 10Y bei 4.25% sind f\u00fcr High-Multiple-Tech-Aktien wie AVGO neutral-leicht belastend (Diskontierungseffekt), aber nicht prohibitiv. In diesem Regime k\u00f6nnen strukturelle Wachstumssignale wie AI-Chip-Deals ihr volles Gewicht entfalten \u2014 kein Veto durch Makro.",
         "data_confidence": "medium",
         "macro_regime": "neutral",
         "macro_context": {
@@ -120,61 +132,67 @@
       },
       "sector_momentum": {
         "etf": "XLK",
-        "rel_strength": 0.1443
+        "rel_strength": 0.144
       },
       "final_score": 0.0675,
       "time_value_efficiency": {
-        "roi_per_day": 0.044736,
-        "roi_per_day_pct": 4.4736,
-        "annualized_roi": 86538.2386,
+        "roi_per_day": 0.035214,
+        "roi_per_day_pct": 3.5214,
+        "annualized_roi": 13588.6849,
         "efficiency_label": "high",
         "dte": 22
       },
       "trade_score": {
-        "total": 72,
+        "total": 62,
         "grade": "BUY \ud83d\udfe1",
         "grade_short": "BUY",
         "components": {
           "signal_quality": 23.7,
           "options_quality": 28.0,
-          "risk_deductions": 0.0,
+          "risk_deductions": -10.0,
           "context_bonus": 20.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=7/Surprise=5), guter ROI (98%), positive Sektor-Relative-St\u00e4rke",
-        "best_argument_for": "Der Markt hat die kurzfristige Newsflow-Reaktion (+4.5%) eingepreist, aber m\u00f6glicherweise noch nicht",
-        "best_argument_against": "Katalysator bereits eingepreist: +4.5% in 48h und breite Medienberichterstattung ('Zuck's Chip Dream"
+        "reasoning": "St\u00e4rken: solides Signal (Impact=7/Surprise=5), guter ROI (77%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt hat die unmittelbare Nachricht eingepreist (+4.5%), aber das strukturelle Repricing der la",
+        "best_argument_against": "Katalysator bereits eingepreist: AVGO ist nach der +4.5% Bewegung in 48h bereits signifikant gestieg"
       },
       "trade_rank": 1
     },
     {
       "ticker": "AMD",
-      "strategy": "LONG_CALL",
-      "iv_rank": 0.0,
-      "iv_gate_applied": false,
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
       "direction": "BULLISH",
       "option": {
         "expiry": "2026-05-08",
         "strike": 255.0,
-        "bid": 16.4,
-        "ask": 16.75,
+        "bid": 17.05,
+        "ask": 17.75,
         "open_interest": 1187,
-        "implied_vol": 0.5706219696044923,
-        "spread_ratio": 0.0209,
-        "dte": 22
+        "implied_vol": 0.6022378643798829,
+        "spread_ratio": 0.0394,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 280.0,
+          "bid": 7.3,
+          "ask": 7.55
+        },
+        "net_debit": 10.45
       },
       "roi_analysis": {
-        "roi_gross": 0.8665,
-        "roi_net": 0.7821,
-        "spread_pct": 0.0209,
-        "vega_loss": 0.0425,
-        "delta": 0.5623,
-        "iv_drop_assumed": 0.05,
+        "roi_gross": 0.8173,
+        "roi_net": 0.5266,
+        "spread_pct": 0.0394,
+        "vega_loss": 0.2118,
+        "delta": 0.5621,
+        "iv_drop_assumed": 0.25,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 22
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 14559.9988,
+      "annualized_roi": 1116.2981,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
@@ -182,31 +200,37 @@
           "option": {
             "expiry": "2026-05-08",
             "strike": 255.0,
-            "bid": 16.4,
-            "ask": 16.75,
+            "bid": 17.05,
+            "ask": 17.75,
             "open_interest": 1187,
-            "implied_vol": 0.5706219696044923,
-            "spread_ratio": 0.0209,
-            "dte": 22
+            "implied_vol": 0.6022378643798829,
+            "spread_ratio": 0.0394,
+            "dte": 22,
+            "spread_leg": {
+              "strike": 280.0,
+              "bid": 7.3,
+              "ask": 7.55
+            },
+            "net_debit": 10.45
           },
           "roi": {
-            "roi_gross": 0.8665,
-            "roi_net": 0.7821,
-            "spread_pct": 0.0209,
-            "vega_loss": 0.0425,
-            "delta": 0.5623,
-            "iv_drop_assumed": 0.05,
+            "roi_gross": 0.8173,
+            "roi_net": 0.5266,
+            "spread_pct": 0.0394,
+            "vega_loss": 0.2118,
+            "delta": 0.5621,
+            "iv_drop_assumed": 0.25,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 22
           },
-          "annualized_roi": 14559.9988,
-          "strategy": "LONG_CALL"
+          "annualized_roi": 1116.2981,
+          "strategy": "BULL_CALL_SPREAD"
         }
       ],
       "features": {
         "impact": 6,
-        "surprise": 4,
+        "surprise": 5,
         "mismatch": 6.0,
         "z_score": 0.0,
         "sigma_30d": 0.0316,
@@ -237,181 +261,24 @@
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "MI450-Hype bereits eingepreist: AMD hat in 48h +4,6% zugelegt, was stark darauf hindeutet, dass der Markt den MI450-Katalysator bereits vorwegnimmt. Mediencoverage ('Could Change Everything') signalisiert Retail-Euphorie, kein unentdecktes Alpha. Optionen d\u00fcrften erh\u00f6hte IV aufweisen \u2014 IV-Crush nach Launch-Event ist das wahrscheinlichste Szenario.",
-          "argument_2": "EPS-Diskrepanz als Warnsignal: yfinance meldet 10,83 EPS vs. SEC EDGAR 2,60 EPS \u2014 eine massive Abweichung, die trotz '0% Abweichung'-Flag nicht erkl\u00e4rt wird. Dies deutet auf Non-GAAP vs. GAAP-Konfusion hin und macht fundamentale Bewertungsaussagen unzuverl\u00e4ssig. AMD k\u00f6nnte auf GAAP-Basis deutlich teurer sein als kommuniziert.",
-          "argument_3": "Wettbewerbsdruck von NVIDIA bleibt strukturell: NVIDIA dominiert den AI-Accelerator-Markt mit CUDA-\u00d6kosystem-Lock-in. AMDs MI-Serie hat historisch Lieferprobleme, Software-Stack-Defizite und geringere Hyperscaler-Adoption gezeigt. Ein MI450-Launch ohne starke Pre-Order-Ank\u00fcndigungen von Tier-1-Clouds ist spekulativ. Zudem signalisieren fallende Seagate/Amkor-Aktien m\u00f6glichen Sektor-Gegenwind im Halbleiterbereich.",
+          "argument_1": "MI450-Hype bereits eingepreist: AMD hat +4,6% in 48h zugelegt, und Artikel wie 'AMD's MI450 Chip Could Change Everything' sind klassische Retail-Hype-Signale. Der Markt hat den Katalysator m\u00f6glicherweise bereits vollst\u00e4ndig diskontiert, was bedeutet dass beim tats\u00e4chlichen Launch ein 'Buy the rumor, sell the news'-Effekt droht.",
+          "argument_2": "EPS-Diskrepanz ist ein rotes Flag: yfinance zeigt EPS von 10,83, EDGAR zeigt 2,60 \u2014 eine Abweichung von \u00fcber 300%, die im JSON als 0% ausgewiesen wird. Dies deutet auf Non-GAAP vs. GAAP-Verzerrung hin und signalisiert, dass Bewertungsmodelle auf bereinigten Zahlen basieren, die die tats\u00e4chliche operative Profitabilit\u00e4t massiv \u00fcbertreiben k\u00f6nnten.",
+          "argument_3": "Kompetitiver Gegenwind durch NVIDIA-Dominanz: Der AI-Accelerator-Markt wird von NVIDIA mit >80% Marktanteil dominiert (CUDA-\u00d6kosystem). AMD hat historisch Schwierigkeiten, Marktanteile bei Enterprise-AI-Kunden zu gewinnen. MI450-Ank\u00fcndigungen ohne konkrete Design-Win-Best\u00e4tigungen von Hyperscalern sind spekulativ.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "MC nicht durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet fehlende Simulation, nicht 0% Erfolgswahrscheinlichkeit. Ohne MC-Daten ist eine statistische Validierung unm\u00f6glich. Bei AMDs historischer 30-Tage-Volatilit\u00e4t von ~45-55% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisbewegungen bei 50-65% zu erwarten. Die fehlenden Daten erh\u00f6hen die Unsicherheit erheblich.",
-          "concern_level": "high"
-        },
-        "impact": 6,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat den MI450-Launch oberfl\u00e4chlich eingepreist, aber die Earnings-Impact-Dynamik bei tats\u00e4chlichen Hyperscaler-Adoptionsank\u00fcndigungen (Q2/Q3 Guidance-Erh\u00f6hungen) k\u00f6nnte untersch\u00e4tzt werden. Cluster-Insider-K\u00e4ufe von 4 Personen innerhalb 14 Tagen sind statistisch signifikant und deuten auf nicht-\u00f6ffentliches Vertrauen in nahe Katalysatoren hin. Die EPS-Diskrepanz (GAAP vs. Non-GAAP) verzerrt jedoch die Bewertungsgrundlage und limitiert das klare Asymmetrie-Signal.",
-        "catalyst": "MI450-Chip-Launch mit m\u00f6glichen Hyperscaler-Adoptionsank\u00fcndigungen (Microsoft Azure, Google Cloud, Meta) sowie Q2-Earnings-Guidance-Erh\u00f6hung basierend auf AI-Accelerator-Nachfrage",
-        "bear_case": "IV-Crush nach MI450-Launch-Event bei bereits +4,6% Vorwegnahme, kombiniert mit NVIDIA's strukturellem CUDA-Moat und m\u00f6glichem Lieferketten-/Software-Stack-Entt\u00e4uschungsrisiko \u2014 klassisches 'Buy the rumor, sell the news'-Muster in einem Markt mit erh\u00f6hten Erwartungen",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0,5%, Fed Funds 3,64%) ist f\u00fcr AMD weder R\u00fccken- noch Gegenwind. Technologie-/AI-Sektor profitiert von stabilem Zinsumfeld ohne Rezessionsdruck. Allerdings bleibt AMD als High-Beta-Tech-Aktie anf\u00e4llig f\u00fcr Risk-Off-Bewegungen, falls Zinssenkungserwartungen entt\u00e4uscht werden. Insgesamt akzeptables Makro-Fenster f\u00fcr mittelfristige Bullish-Positionen mit moderatem Conviction-Level.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "sector_momentum": {
-        "etf": "XLK",
-        "rel_strength": 0.1721
-      },
-      "final_score": 0.48,
-      "time_value_efficiency": {
-        "roi_per_day": 0.03555,
-        "roi_per_day_pct": 3.555,
-        "annualized_roi": 14559.9988,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "trade_score": {
-        "total": 65,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
-        "components": {
-          "signal_quality": 19.6,
-          "options_quality": 30.0,
-          "risk_deductions": -5.0,
-          "context_bonus": 20.0
-        },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=4), guter ROI (78%), positive Sektor-Relative-St\u00e4rke",
-        "best_argument_for": "Der Markt hat den MI450-Launch oberfl\u00e4chlich eingepreist, aber die Earnings-Impact-Dynamik bei tats\u00e4",
-        "best_argument_against": "MI450-Hype bereits eingepreist: AMD hat in 48h +4,6% zugelegt, was stark darauf hindeutet, dass der "
-      },
-      "trade_rank": 2
-    },
-    {
-      "ticker": "META",
-      "strategy": "BULL_CALL_SPREAD",
-      "iv_rank": 100.0,
-      "iv_gate_applied": true,
-      "direction": "BULLISH",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 750.0,
-        "bid": 7.2,
-        "ask": 7.75,
-        "open_interest": 788,
-        "implied_vol": 0.45773857696533216,
-        "spread_ratio": 0.071,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 825.0,
-          "bid": 1.63,
-          "ask": 1.75
-        },
-        "net_debit": 6.12
-      },
-      "roi_analysis": {
-        "roi_gross": 1.5345,
-        "roi_net": 0.8926,
-        "spread_pct": 0.071,
-        "vega_loss": 0.5,
-        "delta": 0.1771,
-        "iv_drop_assumed": 0.25,
-        "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 22
-      },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 39504.5358,
-      "all_tiers_tried": [
-        {
-          "tier": "Short-Term",
-          "dte": 22,
-          "option": {
-            "expiry": "2026-05-08",
-            "strike": 750.0,
-            "bid": 7.2,
-            "ask": 7.75,
-            "open_interest": 788,
-            "implied_vol": 0.45773857696533216,
-            "spread_ratio": 0.071,
-            "dte": 22,
-            "spread_leg": {
-              "strike": 825.0,
-              "bid": 1.63,
-              "ask": 1.75
-            },
-            "net_debit": 6.12
-          },
-          "roi": {
-            "roi_gross": 1.5345,
-            "roi_net": 0.8926,
-            "spread_pct": 0.071,
-            "vega_loss": 0.5,
-            "delta": 0.1771,
-            "iv_drop_assumed": 0.25,
-            "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 22
-          },
-          "annualized_roi": 39504.5358,
-          "strategy": "BULL_CALL_SPREAD"
-        }
-      ],
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0275,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 738.74,
-        "current_price": 671.58,
-        "sigma_adj": 0.033,
-        "sector": "Communication Services",
-        "ema200": {},
-        "macd": {
-          "macd": 5.8507,
-          "signal": -7.3793,
-          "histogram": 13.23,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Bewertungsrisiko nach +5.8% in 48h: META handelt bereits zu einem Premium-Multiple (~18-19x Forward-EV/EBITDA). Der Broadcom-Chip-Deal und das KI-Narrativ sind im Kurs weitgehend eingepreist \u2014 der Markt hat die strukturellen Vorteile bereits antizipiert, sodass das Upside-Potenzial f\u00fcr weitere 2-6 Monate begrenzt sein d\u00fcrfte.",
-          "argument_2": "EPS-Diskrepanz als Warnsignal: yfinance meldet $35.62 vs. SEC EDGAR $23.48 \u2014 das ist eine erhebliche Abweichung von ~52%, nicht 0.2% wie angegeben. Dies deutet auf nicht-GAAP vs. GAAP-Unterschiede oder fehlerhafte Datenpunkte hin. Ein \u00fcberh\u00f6htes EPS-Bild verzerrt die Bewertungsgrundlage erheblich und k\u00f6nnte bei einer Normalisierung zu einer Neubewertung nach unten f\u00fchren.",
-          "argument_3": "Makro-Werbemarkt-Risiko: Trotz neutralem Zinsumfeld bleibt Meta extrem abh\u00e4ngig vom digitalen Werbemarkt (>95% der Revenues). Eine makro\u00f6konomische Abschw\u00e4chung oder Trade-War-Eskalation (Tarife auf chinesische Advertiser) k\u00f6nnte die Werbeausgaben schnell dr\u00fccken \u2014 insbesondere da Snap bereits 1.000 Jobs abgebaut hat, was auf Sektor-Druck hindeutet.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Quick MC nicht durchgef\u00fchrt (0 Pfade) \u2014 keine statistische Aussage m\u00f6glich. Bei META mit einer historischen 30d-Volatilit\u00e4t von ~25-30% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr ein positives Kursziel von +10% \u00fcber 30 Tage bei ~35-45% zu erwarten. Die fehlenden Daten reduzieren die Modellkonfidenz erheblich, erzwingen aber keinen Veto.",
+          "mc_assessment": "Kein MC wurde durchgef\u00fchrt (0 Pfade), daher ist 0% Hit-Rate uninformativ und nicht als bearishes Signal zu werten. Bei AMD mit historischer 30d-Volatilit\u00e4t von ~40-50% annualisiert (~12-15% monatlich) w\u00e4re eine realistische Hit-Rate f\u00fcr ein moderates Aufw\u00e4rtsziel von +10% historisch bei 40-55% anzusetzen. Das Fehlen des MC erh\u00f6ht die Datelunsicherheit, invalidiert den Trade aber nicht.",
           "concern_level": "medium"
         },
         "impact": 6,
         "surprise": 5,
         "direction": "BULLISH",
-        "bear_case_severity": 5,
+        "bear_case_severity": 6,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt bewertet den Broadcom-Chip-Deal prim\u00e4r als Kostenvorteil, untersch\u00e4tzt aber den strukturellen Moat: Eigene Silicon-Stack-Kontrolle reduziert NVIDIA-Abh\u00e4ngigkeit und erm\u00f6glicht schnellere KI-Deployment-Zyklen f\u00fcr Recommendation Engines \u2014 ein nachhaltiger Margenhebel, der in 2-3 Quartalen in die Zahlen einflie\u00dft. Insider-Cluster-K\u00e4ufe von 4 Personen in 14 Tagen signalisieren Informationsvorsprung bei nahenden positiven Entwicklungen. Die EPS-Abweichung (falls zugunsten h\u00f6herer GAAP-Gewinne aufgel\u00f6st) k\u00f6nnte eine positive Neubewertung ausl\u00f6sen.",
-        "catalyst": "Q2 2025 Earnings + Broadcom-Chip-Deployment-Update mit konkretisierten Kosteneinsparungen und Capex-Guidance-Revision",
-        "bear_case": "Snap-Stellenabbau als Vorbote eines digitalen Werbemarktr\u00fcckgangs \u2014 META generiert >95% der Ums\u00e4tze aus Advertising, und ein makro\u00f6konomischer Abschwung oder geopolitische Handelsspannungen k\u00f6nnten das Revenue-Wachstum schnell von ~20% auf single-digits dr\u00fccken, was das aktuelle Multiple nicht rechtfertigt.",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3.64%) ist kein aktiver Gegenwind f\u00fcr META. Die Kombination aus moderatem Wachstum und stabilen Zinsen beg\u00fcnstigt Large-Cap-Tech mit Free-Cash-Flow-St\u00e4rke. Keine Rezessionswarnung, aber das Upside ist durch die bereits aufgelaufene Bewertungspr\u00e4mie begrenzt \u2014 Meta ist kein 'Contrarian Buy' mehr, sondern ein 'Quality Hold' mit moderatem Potenzial.",
+        "asymmetry_reasoning": "Der Markt preist den MI450-Launch als inkrementelles Update, w\u00e4hrend strukturelle Kapazit\u00e4tsengp\u00e4sse bei NVIDIA (Blackwell-Lieferprobleme) einen echten Marktanteilsshift erm\u00f6glichen k\u00f6nnten. Insider-Cluster-K\u00e4ufe (4 Insiders in 14 Tagen) signalisieren, dass intern fundamentale \u00dcberzeugung \u00fcber den \u00f6ffentlichen Informationsstand hinaus besteht. Die EPS-Abweichung (GAAP vs. Non-GAAP) hat Sell-Side-Modelle m\u00f6glicherweise konservativ gehalten, was bei positivem Launch zu Aufw\u00e4rtsrevisionen f\u00fchren k\u00f6nnte.",
+        "catalyst": "MI450 AI-Accelerator Launch mit potenziellen Hyperscaler Design-Win-Ank\u00fcndigungen (Meta, Microsoft, Google als prim\u00e4re Targets)",
+        "bear_case": "Buy-the-rumor-Dynamik nach +4,6% Vorlauf plus NVIDIA CUDA-\u00d6kosystem-Lock-in verhindert signifikante Enterprise-Adoption des MI450 \u2014 Launch wird zu Entt\u00e4uschung und Reversal.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0,50%, Fed Funds 3,64%) ist weder R\u00fccken- noch Gegenwind. AI-Capex-Boom der Hyperscaler ist relativ zinsunelastisch, was AMD als AI-Hardware-Play von makro\u00f6konomischen Normalisierungsrisiken teilweise entkoppelt. Kein erh\u00f6hter Skeptizismus gerechtfertigt.",
         "data_confidence": "medium",
         "macro_regime": "neutral",
         "macro_context": {
@@ -421,32 +288,32 @@
         "direction_conflict": false
       },
       "sector_momentum": {
-        "etf": "XLC",
-        "rel_strength": 0.0177
+        "etf": "XLK",
+        "rel_strength": 0.1718
       },
       "final_score": 0.48,
       "time_value_efficiency": {
-        "roi_per_day": 0.040573,
-        "roi_per_day_pct": 4.0573,
-        "annualized_roi": 39504.5358,
+        "roi_per_day": 0.023936,
+        "roi_per_day_pct": 2.3936,
+        "annualized_roi": 1116.2981,
         "efficiency_label": "high",
         "dte": 22
       },
       "trade_score": {
-        "total": 52,
+        "total": 57,
         "grade": "WATCH \ud83d\udfe0",
         "grade_short": "WATCH",
         "components": {
           "signal_quality": 21.9,
-          "options_quality": 25.0,
-          "risk_deductions": -10.0,
-          "context_bonus": 15.0
+          "options_quality": 30.0,
+          "risk_deductions": -15.0,
+          "context_bonus": 20.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (89%) | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
-        "best_argument_for": "Der Markt bewertet den Broadcom-Chip-Deal prim\u00e4r als Kostenvorteil, untersch\u00e4tzt aber den strukturel",
-        "best_argument_against": "Bewertungsrisiko nach +5.8% in 48h: META handelt bereits zu einem Premium-Multiple (~18-19x Forward-"
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (53%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt preist den MI450-Launch als inkrementelles Update, w\u00e4hrend strukturelle Kapazit\u00e4tsengp\u00e4sse",
+        "best_argument_against": "MI450-Hype bereits eingepreist: AMD hat +4,6% in 48h zugelegt, und Artikel wie 'AMD's MI450 Chip Cou"
       },
-      "trade_rank": 3
+      "trade_rank": 2
     },
     {
       "ticker": "CDNS",
@@ -457,32 +324,32 @@
       "option": {
         "expiry": "2026-09-18",
         "strike": 310.0,
-        "bid": 35.4,
-        "ask": 38.2,
+        "bid": 34.3,
+        "ask": 36.6,
         "open_interest": 1664,
-        "implied_vol": 0.5137377728271484,
-        "spread_ratio": 0.0733,
+        "implied_vol": 0.49350482086181646,
+        "spread_ratio": 0.0628,
         "dte": 155,
         "spread_leg": {
           "strike": 340.0,
-          "bid": 22.6,
-          "ask": 25.7
+          "bid": 21.6,
+          "ask": 24.7
         },
-        "net_debit": 15.6
+        "net_debit": 15.0
       },
       "roi_analysis": {
-        "roi_gross": 0.4329,
-        "roi_net": 0.2018,
-        "spread_pct": 0.0733,
-        "vega_loss": 0.0845,
-        "delta": 0.5438,
+        "roi_gross": 0.4489,
+        "roi_net": 0.2383,
+        "spread_pct": 0.0628,
+        "vega_loss": 0.0848,
+        "delta": 0.5402,
         "iv_drop_assumed": 0.08,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.1,
         "dte": 155
       },
       "dte_tier": "Long-Term",
-      "annualized_roi": 0.5417,
+      "annualized_roi": 0.6542,
       "all_tiers_tried": [
         {
           "tier": "Long-Term",
@@ -490,31 +357,31 @@
           "option": {
             "expiry": "2026-09-18",
             "strike": 310.0,
-            "bid": 35.4,
-            "ask": 38.2,
+            "bid": 34.3,
+            "ask": 36.6,
             "open_interest": 1664,
-            "implied_vol": 0.5137377728271484,
-            "spread_ratio": 0.0733,
+            "implied_vol": 0.49350482086181646,
+            "spread_ratio": 0.0628,
             "dte": 155,
             "spread_leg": {
               "strike": 340.0,
-              "bid": 22.6,
-              "ask": 25.7
+              "bid": 21.6,
+              "ask": 24.7
             },
-            "net_debit": 15.6
+            "net_debit": 15.0
           },
           "roi": {
-            "roi_gross": 0.4329,
-            "roi_net": 0.2018,
-            "spread_pct": 0.0733,
-            "vega_loss": 0.0845,
-            "delta": 0.5438,
+            "roi_gross": 0.4489,
+            "roi_net": 0.2383,
+            "spread_pct": 0.0628,
+            "vega_loss": 0.0848,
+            "delta": 0.5402,
             "iv_drop_assumed": 0.08,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.1,
             "dte": 155
           },
-          "annualized_roi": 0.5417,
+          "annualized_roi": 0.6542,
           "strategy": "BULL_CALL_SPREAD"
         }
       ],
@@ -551,24 +418,24 @@
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Katalysator bereits eingepreist: Die +5,5% Bewegung in 48h deutet darauf hin, dass der Markt die Google- und Nvidia-Partnerschaften bereits absorbiert hat. CDNS handelt mit einem KGV von ~70x (auf Basis des SEC-EDGAR-EPS von 4,06$), was bei einem AI-Hype-Trade wenig Puffer f\u00fcr Entt\u00e4uschungen l\u00e4sst. Partnerships erzeugen selten sofortige Revenue-Spr\u00fcnge im EDA-Gesch\u00e4ft mit typisch langen Design-Zyklen.",
-          "argument_2": "EPS-Diskrepanz ist ein Warnsignal: yfinance zeigt 9,44$ vs. SEC EDGAR 4,06$ \u2014 eine massive Divergenz, die auf Non-GAAP vs. GAAP-Unterschiede oder Sonderposten hindeutet. Das echte GAAP-P/E liegt bei ~75x, was CDNS in einer Zinskorrektur oder bei AI-Entt\u00e4uschungen sehr anf\u00e4llig macht. \u00dcberbewertungsrisiko ist real.",
-          "argument_3": "Sektor-Rebound als Treiber, nicht Fundamentals: Die News erw\u00e4hnt explizit einen breiten Software-Sektorrebound nach Selloff ('dip-buying'). Das Signal k\u00f6nnte prim\u00e4r durch Sektor-Beta getrieben sein und nicht durch CDNS-spezifisches Alpha. Wenn die allgemeine Tech-Rally abbricht oder AI-Sentiment dreht, f\u00e4llt CDNS \u00fcberproportional.",
+          "argument_1": "Katalysator bereits eingepreist: Der Kurs ist bereits +5,5% in 48h gestiegen, was darauf hindeutet, dass der Markt die Nvidia- und Google-Partnerschaften gr\u00f6\u00dftenteils bereits absorbiert hat. Bei einem KGV von ~32x (Kurs $304 / EPS $9.44) ist CDNS nicht g\u00fcnstig bewertet, und die Nachricht mag bereits vollst\u00e4ndig diskontiert sein.",
+          "argument_2": "EPS-Diskrepanz als Red Flag: yfinance meldet EPS $9.44, EDGAR meldet $4.06 \u2014 das ist eine massive Diskrepanz (>130%), die auf nicht-recurring Items, GAAP vs. Non-GAAP Unterschiede oder Datenfehler hinweist. Ein KGV auf GAAP-Basis w\u00e4re ~75x, was bei steigenden Zinsen (10Y bei 4.25%) erheblichen Bewertungsdruck erzeugt.",
+          "argument_3": "Sektorrebound als Treiber, kein fundamentales Alpha: Die News erw\u00e4hnen explizit einen breiten Software-Sektor-Rebound durch Dip-Buying \u2014 das Signal k\u00f6nnte prim\u00e4r beta-getrieben (Sektorrotation) statt fundamental sein. Wenn der Sektor-Tailwind nachl\u00e4sst, f\u00e4llt CDNS mit dem Markt zur\u00fcck, unabh\u00e4ngig von Partnerschafts-News.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "0% Hit-Rate ist hier kein negatives Signal \u2014 der Quick MC wurde schlicht nicht durchgef\u00fchrt. Keine statistische Aussagekraft. Bei historischer 30d-Vol von CDNS (~30-35% annualisiert) w\u00e4re eine normale Hit-Rate f\u00fcr bullische Szenarien bei 45-55% zu erwarten. Fehlende Daten erzeugen Unsicherheit, aber kein Veto.",
-          "concern_level": "medium"
+          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher keine Hit-Rate verf\u00fcgbar. Dies reduziert die statistische Konfidenz erheblich. Bei 30-Tage-Horizonten und historischer Volatilit\u00e4t von ~30-35% f\u00fcr CDNS w\u00e4re eine Hit-Rate von 50-65% f\u00fcr moderate Preisziele realistisch. Die fehlenden MC-Daten bedeuten, dass quantitative Unterst\u00fctzung f\u00fcr den Trade komplett fehlt.",
+          "concern_level": "high"
         },
         "impact": 6,
         "surprise": 5,
         "direction": "BULLISH",
         "bear_case_severity": 6,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat die Partnerschaften kurzfristig reflektiert (+5,5%), untersch\u00e4tzt aber m\u00f6glicherweise den strukturellen Shift: CDNS positioniert sich als AI-nativer EDA-Player mit cloud-integrierten Workflows auf GCP, was den TAM mittelfristig ausweitet. Das Cluster-Insider-Signal (8 K\u00e4ufe in 14 Tagen) deutet auf informiertes Kapital hin, das vor breiteren Revenue-Sichtbarkeits-Updates akkumuliert. Allerdings limitiert die Hochbewertung das Upside signifikant, weshalb der Impact nicht h\u00f6her als 6 bewertet wird.",
-        "catalyst": "Cadence Q3/Q4 Earnings mit erster Monetarisierungssichtbarkeit aus ChipStack AI (Google Cloud) und Nvidia AI-Engineering-Tools \u2014 erwartet als konkreter Revenue-Beitrag oder erh\u00f6hter Guidance.",
-        "bear_case": "Bei GAAP-P/E ~75x und einem AI-Sentiment-R\u00fcckgang oder Entt\u00e4uschung bei n\u00e4chstem Earnings k\u00f6nnte CDNS 15-20% korrigieren. Die Partnerschaften sind strukturell positiv, aber der Gro\u00dfteil des kurzfristigen Katalysators scheint bereits eingepreist nach der 5,5%-Bewegung.",
-        "macro_assessment": "Neutrale Kurve (50bps) und Fed Funds bei 3,64% bieten weder starken R\u00fccken- noch Gegenwind. Das Umfeld ist tolerierbar f\u00fcr hochbewertete Tech-Namen, solange keine Rezessionsangst aufkommt. Bei einer Zinssenkungserwartung (die sich in der flachen Kurve andeutet) profitieren Growth-Aktien wie CDNS moderat. Keine Makro-Warnung, aber auch kein struktureller Boost.",
+        "asymmetry_reasoning": "Der Markt fokussiert sich auf den unmittelbaren Preisanstieg, untersch\u00e4tzt aber m\u00f6glicherweise die strukturelle Bedeutung von ChipStack AI Super Agent als plattformbasierte Umsatzerweiterung bei CDNS \u2014 konkret die M\u00f6glichkeit, bestehende EDA-Kunden in Cloud-basierte AI-Design-Workflows zu migrieren und damit recurring revenue zu erh\u00f6hen. Der Insider-Cluster (8 K\u00e4ufer in 14 Tagen) deutet auf unternehmensinternes Wissen \u00fcber die Tiefe der Partnerschaft hin, das \u00f6ffentlich noch nicht vollst\u00e4ndig kommuniziert wurde. Allerdings ist die +5,5%-Bewegung ein starkes Signal, dass der leicht-greifbare Gewinn bereits realisiert ist.",
+        "catalyst": "Cadence ChipStack AI Super Agent Integration auf Google Cloud + NVIDIA-Partnerschaft f\u00fcr AI-Chip-Design und Robotik \u2014 konkrete Revenue-Visibilit\u00e4t bei n\u00e4chstem Earnings oder Analyst Day",
+        "bear_case": "GAAP EPS von ~$4.06 impliziert ein KGV von ~75x bei 10Y-Zinsen von 4.25% \u2014 dies l\u00e4sst kaum Sicherheitsmarge und macht den Titel empfindlich f\u00fcr jede Entt\u00e4uschung bei Guidance oder makro\u00f6konomische Verschlechterung; zudem ist der unmittelbare Katalysator bereits im Kurs.",
+        "macro_assessment": "Neutrale Makro-Lage (flache Kurve +0.50%, Fed Funds 3.64%) schafft keinen strukturellen Gegenwind, aber auch keinen starken R\u00fcckenwind. Bei 10Y von 4.25% bleibt der Diskontierungsdruck auf hochbewertete Tech-Aktien wie CDNS sp\u00fcrbar. Das Regime 'Neutral' erlaubt eine vorsichtig bullishe Haltung, ohne aggressive Positionierung zu rechtfertigen.",
         "data_confidence": "medium",
         "macro_regime": "neutral",
         "macro_context": {
@@ -579,29 +446,186 @@
       },
       "sector_momentum": {
         "etf": "XLK",
-        "rel_strength": -0.0446
+        "rel_strength": -0.0448
       },
       "final_score": 0.48,
       "time_value_efficiency": {
-        "roi_per_day": 0.001302,
-        "roi_per_day_pct": 0.1302,
-        "annualized_roi": 0.5417,
+        "roi_per_day": 0.001537,
+        "roi_per_day_pct": 0.1537,
+        "annualized_roi": 0.6542,
         "efficiency_label": "low",
         "dte": 155
       },
       "trade_score": {
-        "total": 39,
+        "total": 41,
         "grade": "AVOID \ud83d\udd34",
         "grade_short": "AVOID",
         "components": {
           "signal_quality": 21.9,
-          "options_quality": 22.1,
+          "options_quality": 23.9,
           "risk_deductions": -15.0,
           "context_bonus": 10.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (20%) | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer, Sektor underperformt",
-        "best_argument_for": "Der Markt hat die Partnerschaften kurzfristig reflektiert (+5,5%), untersch\u00e4tzt aber m\u00f6glicherweise ",
-        "best_argument_against": "Katalysator bereits eingepreist: Die +5,5% Bewegung in 48h deutet darauf hin, dass der Markt die Goo"
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (24%) | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer, Sektor underperformt",
+        "best_argument_for": "Der Markt fokussiert sich auf den unmittelbaren Preisanstieg, untersch\u00e4tzt aber m\u00f6glicherweise die s",
+        "best_argument_against": "Katalysator bereits eingepreist: Der Kurs ist bereits +5,5% in 48h gestiegen, was darauf hindeutet, "
+      },
+      "trade_rank": 3
+    },
+    {
+      "ticker": "AMAT",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 390.0,
+        "bid": 23.7,
+        "ask": 25.35,
+        "open_interest": 172,
+        "implied_vol": 0.5571333349609376,
+        "spread_ratio": 0.0651,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 430.0,
+          "bid": 7.2,
+          "ask": 10.05
+        },
+        "net_debit": 18.15
+      },
+      "roi_analysis": {
+        "roi_gross": 0.8691,
+        "roi_net": 0.5291,
+        "spread_pct": 0.0651,
+        "vega_loss": 0.2099,
+        "delta": 0.5588,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 22
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 1147.0454,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 22,
+          "option": {
+            "expiry": "2026-05-08",
+            "strike": 390.0,
+            "bid": 23.7,
+            "ask": 25.35,
+            "open_interest": 172,
+            "implied_vol": 0.5571333349609376,
+            "spread_ratio": 0.0651,
+            "dte": 22,
+            "spread_leg": {
+              "strike": 430.0,
+              "bid": 7.2,
+              "ask": 10.05
+            },
+            "net_debit": 18.15
+          },
+          "roi": {
+            "roi_gross": 0.8691,
+            "roi_net": 0.5291,
+            "spread_pct": 0.0651,
+            "vega_loss": 0.2099,
+            "delta": 0.5588,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 22
+          },
+          "annualized_roi": 1147.0454,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0344,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 433.69,
+        "current_price": 394.26,
+        "sigma_adj": 0.0448,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 12.4673,
+          "signal": 7.7758,
+          "histogram": 4.6915,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Tariff-Risiko und Supply-Chain-Gegenwind: Die News berichten explizit, dass Fertigungsunternehmen mit Lieferkettenproblemen und verz\u00f6gerten Zollr\u00fcckerstattungen konfrontiert sind \u2013 AMAT als stark importabh\u00e4ngiger Halbleiterausr\u00fcster ist direkt exponiert. China-Exportbeschr\u00e4nkungen (AMAT erzielt ~25-30% Umsatz in China) bleiben ein strukturelles Risiko.",
+          "argument_2": "2nm-Tool-Ank\u00fcndigung bereits eingepreist: Der Markt hat die AMAT-Technologief\u00fchrerschaft in Advanced Nodes l\u00e4ngst diskontiert. Bei einem KGV von ~28x (Preis $394 / EPS $14) und einem f\u00fcr Semikap-Equipment-Zyklus-Top typischen Bewertungsniveau ist der Durchbruch kein 'Surprise'-Faktor mehr. Der Aktionismus rund um AI/HPC-Chips wurde 2023-2024 intensiv gehandelt.",
+          "argument_3": "EPS-Diskrepanz als Datensignal: Die Abweichung zwischen yfinance-EPS ($14.01) und SEC EDGAR-EPS ($9.73) ist erheblich (~44% Differenz) und deutet auf unterschiedliche Berechnungsbasen hin (m\u00f6glicherweise Non-GAAP vs. GAAP). Eine Bewertung auf Basis des h\u00f6heren Non-GAAP-EPS w\u00fcrde das tats\u00e4chliche Bewertungsniveau deutlich untersch\u00e4tzen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Quick MC nicht durchgef\u00fchrt (0 Pfade) \u2013 keine statistisch belastbare Hit-Rate verf\u00fcgbar. Bei AMAT's historischer 30d-Volatilit\u00e4t von ~35-40% annualisiert (impliziert ~10% 30d-Sigma) w\u00e4re eine bullishe Hit-Rate von 55-65% realistisch, nicht mehr. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Modellbewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt reagiert auf das 2nm-Tool-Rollout moderat, da der Semikap-Zyklus-Peak-Narrativ und China-Risiken die Aufmerksamkeit dominieren. Insider-Cluster-K\u00e4ufe (3 in 14 Tagen) sind ein statistisch signifikantes Signal, das vom Markt bei aktuell flachem Tape untergewichtet wird. Die eigentliche Asymmetrie liegt im Timing: Sollte TSMC/Samsung 2nm-Capex-Guidance nach oben revidieren, ist AMAT als prim\u00e4rer Ausr\u00fcster der direkte Nutznie\u00dfer.",
+        "catalyst": "2nm-Chip-Fertigungstools f\u00fcr AI/HPC + Insider-Cluster-K\u00e4ufe + potenziell positive Capex-Guidance von TSMC/Samsung in Q2-Earnings",
+        "bear_case": "China-Exportbeschr\u00e4nkungen eskalieren und/oder Tariff-bedingte Supply-Chain-Verz\u00f6gerungen treffen AMAT's Umsatzrealisierung in H2 2025, w\u00e4hrend das Bewertungsniveau (KGV 28x GAAP oder ~40x auf Non-GAAP-bereinigter Basis) wenig Puffer bietet.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed bei 3.64%) gibt keinen klaren Gegenwind, st\u00fctzt aber auch nicht stark. F\u00fcr ein kapitalintensives, zyklisches Unternehmen wie AMAT ist die flache Kurve ein 'wait-and-see' Signal \u2013 keine Rezessionsgefahr, aber auch kein expansiver R\u00fcckenwind. Moderate Positionsgr\u00f6\u00dfe gerechtfertigt.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": -0.054
+      },
+      "final_score": 0.4,
+      "time_value_efficiency": {
+        "roi_per_day": 0.02405,
+        "roi_per_day_pct": 2.405,
+        "annualized_roi": 1147.0454,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "trade_score": {
+        "total": 36,
+        "grade": "AVOID \ud83d\udd34",
+        "grade_short": "AVOID",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 23.5,
+          "risk_deductions": -15.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (53%) | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer, Sektor underperformt",
+        "best_argument_for": "Der Markt reagiert auf das 2nm-Tool-Rollout moderat, da der Semikap-Zyklus-Peak-Narrativ und China-R",
+        "best_argument_against": "Tariff-Risiko und Supply-Chain-Gegenwind: Die News berichten explizit, dass Fertigungsunternehmen mi"
       },
       "trade_rank": 4
     }

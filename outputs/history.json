@@ -1122,6 +1122,94 @@
         "dte": 22
       },
       "outcome": null
+    },
+    {
+      "ticker": "AMAT",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0344,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 390.0,
+        "bid": 23.7,
+        "ask": 25.35,
+        "open_interest": 172,
+        "implied_vol": 0.5571333349609376,
+        "spread_ratio": 0.0651,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 430.0,
+          "bid": 7.2,
+          "ask": 10.05
+        },
+        "net_debit": 18.15
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 433.69,
+        "current_price": 394.26,
+        "sigma_adj": 0.0448,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 12.4673,
+          "signal": 7.7758,
+          "histogram": 4.6915,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Tariff-Risiko und Supply-Chain-Gegenwind: Die News berichten explizit, dass Fertigungsunternehmen mit Lieferkettenproblemen und verz\u00f6gerten Zollr\u00fcckerstattungen konfrontiert sind \u2013 AMAT als stark importabh\u00e4ngiger Halbleiterausr\u00fcster ist direkt exponiert. China-Exportbeschr\u00e4nkungen (AMAT erzielt ~25-30% Umsatz in China) bleiben ein strukturelles Risiko.",
+          "argument_2": "2nm-Tool-Ank\u00fcndigung bereits eingepreist: Der Markt hat die AMAT-Technologief\u00fchrerschaft in Advanced Nodes l\u00e4ngst diskontiert. Bei einem KGV von ~28x (Preis $394 / EPS $14) und einem f\u00fcr Semikap-Equipment-Zyklus-Top typischen Bewertungsniveau ist der Durchbruch kein 'Surprise'-Faktor mehr. Der Aktionismus rund um AI/HPC-Chips wurde 2023-2024 intensiv gehandelt.",
+          "argument_3": "EPS-Diskrepanz als Datensignal: Die Abweichung zwischen yfinance-EPS ($14.01) und SEC EDGAR-EPS ($9.73) ist erheblich (~44% Differenz) und deutet auf unterschiedliche Berechnungsbasen hin (m\u00f6glicherweise Non-GAAP vs. GAAP). Eine Bewertung auf Basis des h\u00f6heren Non-GAAP-EPS w\u00fcrde das tats\u00e4chliche Bewertungsniveau deutlich untersch\u00e4tzen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Quick MC nicht durchgef\u00fchrt (0 Pfade) \u2013 keine statistisch belastbare Hit-Rate verf\u00fcgbar. Bei AMAT's historischer 30d-Volatilit\u00e4t von ~35-40% annualisiert (impliziert ~10% 30d-Sigma) w\u00e4re eine bullishe Hit-Rate von 55-65% realistisch, nicht mehr. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Modellbewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt reagiert auf das 2nm-Tool-Rollout moderat, da der Semikap-Zyklus-Peak-Narrativ und China-Risiken die Aufmerksamkeit dominieren. Insider-Cluster-K\u00e4ufe (3 in 14 Tagen) sind ein statistisch signifikantes Signal, das vom Markt bei aktuell flachem Tape untergewichtet wird. Die eigentliche Asymmetrie liegt im Timing: Sollte TSMC/Samsung 2nm-Capex-Guidance nach oben revidieren, ist AMAT als prim\u00e4rer Ausr\u00fcster der direkte Nutznie\u00dfer.",
+        "catalyst": "2nm-Chip-Fertigungstools f\u00fcr AI/HPC + Insider-Cluster-K\u00e4ufe + potenziell positive Capex-Guidance von TSMC/Samsung in Q2-Earnings",
+        "bear_case": "China-Exportbeschr\u00e4nkungen eskalieren und/oder Tariff-bedingte Supply-Chain-Verz\u00f6gerungen treffen AMAT's Umsatzrealisierung in H2 2025, w\u00e4hrend das Bewertungsniveau (KGV 28x GAAP oder ~40x auf Non-GAAP-bereinigter Basis) wenig Puffer bietet.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed bei 3.64%) gibt keinen klaren Gegenwind, st\u00fctzt aber auch nicht stark. F\u00fcr ein kapitalintensives, zyklisches Unternehmen wie AMAT ist die flache Kurve ein 'wait-and-see' Signal \u2013 keine Rezessionsgefahr, aber auch kein expansiver R\u00fcckenwind. Moderate Positionsgr\u00f6\u00dfe gerechtfertigt.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.02405,
+        "roi_per_day_pct": 2.405,
+        "annualized_roi": 1147.0454,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -1213,7 +1301,7 @@
       },
       {
         "date": "2026-04-15",
-        "score": -0.0134,
+        "score": 0.3419,
         "headline_count": 5
       }
     ],
@@ -1917,7 +2005,7 @@
     "BAC": [
       {
         "date": "2026-04-15",
-        "score": -0.1239,
+        "score": -0.1201,
         "headline_count": 5
       }
     ],
@@ -1945,7 +2033,7 @@
     "CARR": [
       {
         "date": "2026-04-15",
-        "score": -0.3908,
+        "score": -0.4658,
         "headline_count": 5
       }
     ],
@@ -2569,6 +2657,20 @@
       {
         "date": "2026-04-15",
         "score": 0.1971,
+        "headline_count": 5
+      }
+    ],
+    "APD": [
+      {
+        "date": "2026-04-15",
+        "score": 0.2345,
+        "headline_count": 4
+      }
+    ],
+    "ABNB": [
+      {
+        "date": "2026-04-15",
+        "score": 0.3208,
         "headline_count": 5
       }
     ]
