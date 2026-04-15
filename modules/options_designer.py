@@ -109,8 +109,8 @@ class OptionsDesigner:
 
             roi = self._compute_roi(option, sim, iv_rank, tier)
 
-            annualized_roi = (
-                (1 + roi["roi_net"]) ** (365 / max(option["dte"], 1)) - 1
+            annualized_roi = float(
+                (1 + roi["roi_net"]) ** (365 / max(int(option["dte"] or 1), 1)) - 1
             )
 
             log.info(
@@ -195,7 +195,7 @@ class OptionsDesigner:
         ask     = option.get("ask", 0) or 0
         strike  = option.get("strike", 0) or 0
         iv      = option.get("implied_vol", 0.30) or 0.30
-        dte     = option.get("dte", 120) or 120
+        dte     = int(option.get("dte", 120) or 120)  # Immer int
         current = sim.get("current_price", 0) or 0
         target  = sim.get("target_price", 0) or 0
         min_roi = tier["min_roi"]
