@@ -175,12 +175,22 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           <div style="display:flex;justify-content:space-between;
                       align-items:center;margin-bottom:16px;">
             <span style="font-size:22px;font-weight:bold;color:#0f172a;">
-              {ticker}
+              {rank_badge}{ticker}
             </span>
-            <span style="background:#2563eb;color:#fff;padding:4px 14px;
+            <span style="background:{score_color};color:#fff;padding:4px 14px;
                          border-radius:20px;font-size:12px;">
-              {strategy} &nbsp;·&nbsp; Score {score:.3f}
+              {trade_grade} &nbsp;·&nbsp; {trade_score_total}/100
             </span>
+          </div>
+          <div style="background:#f8fafc;border-radius:6px;padding:10px 14px;
+                      margin-bottom:12px;font-size:12px;color:#334155;">
+            <b>Score-Aufschlüsselung:</b>
+            Signal {sig_pts:.0f}/40 &nbsp;|&nbsp;
+            Optionen {opt_pts:.0f}/30 &nbsp;|&nbsp;
+            Risiko {risk_pts_v:.0f} &nbsp;|&nbsp;
+            Kontext {ctx_pts:.0f}/30<br>
+            <b style="color:#16a34a;">✅ Stärkstes Argument:</b> {best_for_v}<br>
+            <b style="color:#dc2626;">⚠️ Hauptrisiko:</b> {best_ag_v}
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;
@@ -198,7 +208,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             {f'<div><b>ROI netto:</b> <span style="color:{roi_color}">{roi_net:.1%}</span></div>' if roi_net is not None else ''}
             {f'<div><b>Vega-Loss:</b> {vega_loss:.1%}</div>' if vega_loss is not None else ''}
             {f'<div><b>ROI/Tag:</b> {roi_day:.3f}%</div>' if roi_day is not None else ''}
-            {f'<div><b>Ann. ROI:</b> {ann_roi:.0%}</div>' if ann_roi is not None else ''}
+            {f'<div><b>Ann. ROI:</b> {ann_roi:.0%}</div>' if ann_roi is not None and abs(ann_roi) < 50 else ''}
           </div>
 
           <div style="background:#f8fafc;border-radius:6px;
