@@ -96,7 +96,7 @@ def main() -> None:
     # ── STUFE 0: Risk Gates ──────────────────────────────────────────────────
     gates = RiskGates()
     if not gates.global_ok():
-        stats["stop_reason"] = f"VIX-Gate (VIX={gates.last_vix:.1f})"
+        stats["stop_reason"] = f"VIX-Gate (VIX={gates.last_vix:.1f})" if gates.last_vix is not None else "VIX-Gate (VIX nicht abrufbar)"
         stats["vix"] = gates.last_vix
         send_email(); return
     stats["vix"] = gates.last_vix
