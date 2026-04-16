@@ -1,4 +1,162 @@
 {
   "date": "2026-04-16",
-  "proposals": []
+  "proposals": [
+    {
+      "ticker": "ORCL",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 175.0,
+        "bid": 10.7,
+        "ask": 11.1,
+        "open_interest": 1445,
+        "implied_vol": 0.5363815893554689,
+        "spread_ratio": 0.036,
+        "dte": 21,
+        "spread_leg": {
+          "strike": 195.0,
+          "bid": 3.5,
+          "ask": 3.85
+        },
+        "net_debit": 7.6
+      },
+      "roi_analysis": {
+        "roi_gross": 0.9191,
+        "roi_net": 0.645,
+        "spread_pct": 0.036,
+        "vega_loss": 0.202,
+        "delta": 0.5738,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 21
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 5716.014,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 21,
+          "option": {
+            "expiry": "2026-05-08",
+            "strike": 175.0,
+            "bid": 10.7,
+            "ask": 11.1,
+            "open_interest": 1445,
+            "implied_vol": 0.5363815893554689,
+            "spread_ratio": 0.036,
+            "dte": 21,
+            "spread_leg": {
+              "strike": 195.0,
+              "bid": 3.5,
+              "ask": 3.85
+            },
+            "net_debit": 7.6
+          },
+          "roi": {
+            "roi_gross": 0.9191,
+            "roi_net": 0.645,
+            "spread_pct": 0.036,
+            "vega_loss": 0.202,
+            "delta": 0.5738,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 21
+          },
+          "annualized_roi": 5716.014,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0366,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 195.54,
+        "current_price": 177.76,
+        "sigma_adj": 0.0476,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 2.9543,
+          "signal": -1.0516,
+          "histogram": 4.0059,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Kurs ist bereits +9.1% in 48h gestiegen \u2014 der AWS-Deal ist damit weitgehend eingepreist. Bei einer Forward-P/E von ~30x und einem EPS-Discrepancy zwischen yfinance ($7.97) und SEC EDGAR ($5.81) von 37% besteht erhebliches \u00dcberbewertungsrisiko. Anleger, die jetzt einsteigen, kaufen nach dem Move.",
+          "argument_2": "EPS-Abweichung von 37% zwischen yfinance und SEC EDGAR ist ein erhebliches Datenqualit\u00e4tsproblem. Basiert die Bewertung auf Non-GAAP-Adjustments, die das tats\u00e4chliche GAAP-Ergebnis massiv \u00fcberzeichnen? ORCL hat historisch aggressive Aktienr\u00fcckk\u00e4ufe und M&A-Amortisierung, was GAAP-EPS strukturell dr\u00fcckt \u2014 die 'fundamentale St\u00e4rke' des Deals k\u00f6nnte optisch besser wirken als sie ist.",
+          "argument_3": "Cloud-Partnerschaften mit AWS sind grunds\u00e4tzlich zweischneidig: Oracle konkurriert direkt mit AWS in der Cloud-Datenbank-Infrastruktur. Eine tiefere AWS-Integration k\u00f6nnte Oracle-eigene Cloud-Migrationsbem\u00fchungen (OCI) kannibalisieren und langfristig die Marge von OCI unter Druck setzen. Der 'strategische Deal' k\u00f6nnte ein Zugest\u00e4ndnis an AWS-Marktmacht sein.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade) \u2014 keine statistische Validierung m\u00f6glich. Bei einem Kurs von $177.72 nach +9.1% in 48h und typischer 30-Tage-Volatilit\u00e4t von ORCL (~25-30% annualisiert) w\u00e4re eine Momentum-Fortsetzung zwar plausibel, aber ohne MC-Daten bleibt das Confidence-Level niedrig. Die fehlende Simulation ist ein Datenmangel, kein Signal.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat zwar mit +9.1% reagiert, aber die strukturelle Bedeutung des AWS-Deals f\u00fcr ORCLs AI-Infrastruktur-Positionierung (Oracle Database auf Multi-Cloud-Plattformen) k\u00f6nnte noch nicht vollst\u00e4ndig in den Konsenssch\u00e4tzungen reflektiert sein. Insider-Cluster-K\u00e4ufe von 6 Personen in 14 Tagen signalisieren Insider-Conviction jenseits des einmaligen News-Events. Allerdings weiche ich von einer st\u00e4rkeren Bewertung ab, weil der +9.1%-Move erheblich von der urspr\u00fcnglichen Underreaction wegfrisst.",
+        "catalyst": "Amazon AWS Cloud Deal \u2014 strategische Multi-Cloud-Partnerschaft f\u00fcr Oracle Database Services auf AWS-Infrastruktur, kombiniert mit AI/GPU-Nachfragesog f\u00fcr Oracle Cloud Infrastructure (OCI)",
+        "bear_case": "Mit +9.1% bereits bewegt und Forward-P/E ~30x auf fragw\u00fcrdiger Non-GAAP-Basis ist der Einstieg nach dem Move asymmetrisch ung\u00fcnstig; ein schwaches n\u00e4chstes Quartal oder Makro-Schock k\u00f6nnte den gesamten Gain revidieren.",
+        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0.53%) und Fed Funds bei 3.64% ist konstruktiv f\u00fcr Tech-Largecaps. Niedrigere Refinanzierungskosten beg\u00fcnstigen ORCLs schuldenfinanzierte Buyback-Strategie. Das Makro-R\u00fcckenwind-Argument st\u00fctzt eine moderate BULLISH-Positionierung, aber rechtfertigt keine aggressive \u00dcbergewichtung nach dem Kurssprung.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.53,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.1104
+      },
+      "final_score": 0.48,
+      "time_value_efficiency": {
+        "roi_per_day": 0.030714,
+        "roi_per_day_pct": 3.0714,
+        "annualized_roi": 5716.014,
+        "efficiency_label": "high",
+        "dte": 21
+      },
+      "trade_score": {
+        "total": 62,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": -15.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (64%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt hat zwar mit +9.1% reagiert, aber die strukturelle Bedeutung des AWS-Deals f\u00fcr ORCLs AI-In",
+        "best_argument_against": "Der Kurs ist bereits +9.1% in 48h gestiegen \u2014 der AWS-Deal ist damit weitgehend eingepreist. Bei ein"
+      },
+      "trade_rank": 1
+    }
+  ]
 }
