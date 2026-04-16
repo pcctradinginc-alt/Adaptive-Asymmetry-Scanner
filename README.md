@@ -181,6 +181,6 @@ pytest tests/ -v
 
 ## Haftungsausschluss
 
-Dieses System generiert **keine Anlageberatung**. Alle Vorschläge sind rein algorithmischer Natur und dienen ausschließlich zu Forschungs- und Lernzwecken. Der Einsatz von echtem Kapital auf Basis dieser Ausgaben erfolgt auf eigenes Risiko. Options-Handel kann zum vollständigen Verlust des eingesetzten Kapitals führen.
+Dieses System generiert ** keine Anlageberatung **. Alle Vorschläge sind rein algorithmischer Natur und dienen ausschließlich zu Forschungs- und Lernzwecken. Der Einsatz von echtem Kapital auf Basis dieser Ausgaben erfolgt auf eigenes Risiko. Options-Handel kann zum vollständigen Verlust des eingesetzten Kapitals führen.
 
 **Empfehlung:** Mindestens 6 Monate Papier-Trading (nur Logs, kein echtes Kapital) bevor reale Positionen eröffnet werden.
