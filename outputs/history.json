@@ -1386,6 +1386,82 @@
         "dte": 21
       },
       "outcome": null
+    },
+    {
+      "ticker": "HOOD",
+      "entry_date": "2026-04-17",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0424,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6696
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 100.0,
+        "bid": 4.5,
+        "ask": 4.65,
+        "open_interest": 13184,
+        "implied_vol": 0.7180203979492188,
+        "spread_ratio": 0.0323,
+        "dte": 27,
+        "spread_leg": {
+          "strike": 110.0,
+          "bid": 2.22,
+          "ask": 2.36
+        },
+        "net_debit": 2.43
+      },
+      "simulation": {
+        "current_price": 92.36,
+        "target_price": 99.75,
+        "hit_rate": 0.8047,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0458,
+        "alpha": 0.0005
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Bewertungsrisiko nach +5.9% in 48h: HOOD notiert bei $92.36 und hat sich in kurzer Zeit stark verteuert. Bei einem KGV, das f\u00fcr ein Retail-Brokergesch\u00e4ft mit hoher Zyklizit\u00e4t und regulatorischer Unsicherheit bereits hoch erscheint, ist ein Gro\u00dfteil des PDT-Rule-Katalysators m\u00f6glicherweise bereits eingepreist. Der Markt hat schnell reagiert, was die Asymmetrie f\u00fcr neue Einsteiger erheblich reduziert.",
+          "argument_2": "Schwab-Konkurrenz als struktureller Gegenwind: Die News vom 16. April zeigt explizit, dass Schwab seinen Crypto-Push ausweitet. Mit ihrem Vertriebsnetz, institutionellem Vertrauen und tieferen Taschen kann Schwab das Retail-Brokerage-Segment aggressiv angreifen. Die PDT-Regel\u00e4nderung \u00f6ffnet den Markt f\u00fcr HOOD \u2014 aber auch f\u00fcr Schwab, Fidelity und andere etablierte Player, was den Wettbewerbsvorteil von HOOD relativiert.",
+          "argument_3": "EPS-Diskrepanz und Datenunsicherheit: Es gibt eine L\u00fccke zwischen yfinance-EPS ($2.69) und SEC EDGAR-EPS ($2.05), die auf m\u00f6gliche Adjustierungen oder Nicht-GAAP-Elemente hinweist. HOODs Gesch\u00e4ftsmodell ist stark abh\u00e4ngig von Payment for Order Flow (PFOF), Market-Making-Umgebungen und Retail-Trading-Aktivit\u00e4t \u2014 alles hochzyklische Einnahmen, die bei Market-Stress rasch einbrechen. Die fundamentale Qualit\u00e4t der Gewinne ist fragw\u00fcrdig.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick-MC durchgef\u00fchrt wurde \u2014 keine statistische Validierung verf\u00fcgbar. Dies ist ein signifikanter blinder Fleck. Gegeben HOODs historischer Volatilit\u00e4t (typisch 50-80% annualisiert) w\u00e4re ein 30-Tage-Ziel-Hit bei moderaten Zielen normalerweise mit 50-70% Wahrscheinlichkeit erreichbar. Die fehlende Statistik erh\u00f6ht die Unsicherheit, ist aber kein Veto-Grund.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Die SEC-Aufhebung der PDT-Rule ist ein echter struktureller Katalysator, der HOODs Zielgruppe (Retail-Daytrader) direkt vergr\u00f6\u00dfert und die regulatorische Einstiegsh\u00fcrde senkt \u2014 der Markt hat zwar reagiert (+5.9%), aber das volle strukturelle Potenzial (mehr aktive Trader, h\u00f6here PFOF-Einnahmen, neue Konten) braucht 2-3 Monate zur Materialisierung in den Quartalszahlen. Vier Insider-K\u00e4ufe als Cluster-Signal deuten darauf hin, dass das Management die Kursbewegung als unvollst\u00e4ndig einpreisend betrachtet.",
+        "catalyst": "SEC-Abschaffung der Pattern-Day-Trader-Equity-Rule senkt die Einstiegsh\u00fcrde f\u00fcr Retail-Daytrader, was HOODs Kernzielgruppe strukturell vergr\u00f6\u00dfert und mittelfristig zu h\u00f6heren Konto\u00f6ffnungen, Handelsvolumen und PFOF-Einnahmen f\u00fchrt.",
+        "bear_case": "Schwab, Fidelity und andere etablierte Broker profitieren von derselben Regel\u00e4nderung und k\u00f6nnen mit tieferen Taschen und breiterem Vertriebsnetz aggressiv in HOODs Kernmarkt vordringen, w\u00e4hrend der Wettbewerbsdruck auf Margen dr\u00fcckt.",
+        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und moderater Fed Funds Rate (3.64%) beg\u00fcnstigt Retail-Trading-Aktivit\u00e4t und Risk-On-Sentiment \u2014 positiv f\u00fcr HOOD. H\u00f6here Zinsen erh\u00f6hen zudem den Cash-Sweep-Ertrag (ein wachsender Ertragsbestandteil von HOOD). Das Makro-Umfeld unterst\u00fctzt das bullishe Signal, reduziert aber nicht die idiosynkratischen Bewertungs- und Wettbewerbsrisiken.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6233,
+        "annualized_roi": null,
+        "dte": 27
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -1518,6 +1594,11 @@
         "date": "2026-04-16",
         "score": -0.2448,
         "headline_count": 3
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.9084,
+        "headline_count": 1
       }
     ],
     "INTC": [
@@ -1569,6 +1650,11 @@
         "date": "2026-04-16",
         "score": -0.386,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.3495,
+        "headline_count": 5
       }
     ],
     "USB": [
@@ -1597,6 +1683,11 @@
       {
         "date": "2026-04-15",
         "score": -0.2229,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.3506,
         "headline_count": 5
       }
     ],
@@ -1631,6 +1722,11 @@
       {
         "date": "2026-04-16",
         "score": -0.3009,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0294,
         "headline_count": 5
       }
     ],
@@ -1696,6 +1792,11 @@
       {
         "date": "2026-04-15",
         "score": -0.3394,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0036,
         "headline_count": 5
       }
     ],
@@ -1791,12 +1892,22 @@
         "date": "2026-04-15",
         "score": 0.132,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0786,
+        "headline_count": 5
       }
     ],
     "DOW": [
       {
         "date": "2026-04-14",
         "score": -0.3928,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.3915,
         "headline_count": 5
       }
     ],
@@ -1930,6 +2041,11 @@
         "date": "2026-04-16",
         "score": 0.0547,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.4118,
+        "headline_count": 5
       }
     ],
     "MS": [
@@ -1981,6 +2097,11 @@
         "date": "2026-04-16",
         "score": 0.2921,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0952,
+        "headline_count": 5
       }
     ],
     "NVDA": [
@@ -1999,6 +2120,11 @@
       {
         "date": "2026-04-14",
         "score": -0.1445,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.5022,
         "headline_count": 5
       }
     ],
@@ -2081,6 +2207,11 @@
       {
         "date": "2026-04-16",
         "score": 0.1788,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0381,
         "headline_count": 5
       }
     ],
@@ -2190,6 +2321,11 @@
         "date": "2026-04-16",
         "score": 0.095,
         "headline_count": 3
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.9178,
+        "headline_count": 2
       }
     ],
     "ZS": [
@@ -2413,6 +2549,11 @@
         "date": "2026-04-15",
         "score": -0.2044,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.4092,
+        "headline_count": 4
       }
     ],
     "KLAC": [
@@ -2485,6 +2626,11 @@
       {
         "date": "2026-04-15",
         "score": 0.1357,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.2427,
         "headline_count": 5
       }
     ],
@@ -2561,6 +2707,11 @@
         "date": "2026-04-15",
         "score": 0.0266,
         "headline_count": 1
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.1899,
+        "headline_count": 3
       }
     ],
     "APP": [
@@ -2586,6 +2737,11 @@
       {
         "date": "2026-04-16",
         "score": -0.1394,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.2056,
         "headline_count": 5
       }
     ],
@@ -2624,6 +2780,11 @@
       {
         "date": "2026-04-16",
         "score": 0.0442,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1422,
         "headline_count": 5
       }
     ],
@@ -2835,6 +2996,11 @@
         "date": "2026-04-16",
         "score": -0.3644,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.312,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -2860,6 +3026,11 @@
       {
         "date": "2026-04-16",
         "score": 0.0587,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.3007,
         "headline_count": 5
       }
     ],
@@ -3039,6 +3210,11 @@
         "date": "2026-04-15",
         "score": 0.636,
         "headline_count": 3
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.1875,
+        "headline_count": 4
       }
     ],
     "BA": [
@@ -3050,6 +3226,11 @@
       {
         "date": "2026-04-16",
         "score": -0.1318,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0388,
         "headline_count": 5
       }
     ],
@@ -3078,6 +3259,11 @@
       {
         "date": "2026-04-15",
         "score": 0.1971,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1044,
         "headline_count": 5
       }
     ],
@@ -3113,6 +3299,11 @@
       {
         "date": "2026-04-16",
         "score": 0.1245,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0846,
         "headline_count": 5
       }
     ],
@@ -3162,6 +3353,11 @@
       {
         "date": "2026-04-16",
         "score": 0.3656,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0854,
         "headline_count": 5
       }
     ],
@@ -3218,6 +3414,55 @@
       {
         "date": "2026-04-16",
         "score": 0.2078,
+        "headline_count": 5
+      }
+    ],
+    "CF": [
+      {
+        "date": "2026-04-17",
+        "score": 0.0925,
+        "headline_count": 5
+      }
+    ],
+    "CVX": [
+      {
+        "date": "2026-04-17",
+        "score": -0.1071,
+        "headline_count": 5
+      }
+    ],
+    "DVN": [
+      {
+        "date": "2026-04-17",
+        "score": 0.1073,
+        "headline_count": 5
+      }
+    ],
+    "EXC": [
+      {
+        "date": "2026-04-17",
+        "score": 0.347,
+        "headline_count": 5
+      }
+    ],
+    "LYB": [
+      {
+        "date": "2026-04-17",
+        "score": -0.3027,
+        "headline_count": 5
+      }
+    ],
+    "NFLX": [
+      {
+        "date": "2026-04-17",
+        "score": -0.2672,
+        "headline_count": 5
+      }
+    ],
+    "VLO": [
+      {
+        "date": "2026-04-17",
+        "score": -0.0148,
         "headline_count": 5
       }
     ]

@@ -1,0 +1,150 @@
+{
+  "date": "2026-04-17",
+  "proposals": [
+    {
+      "ticker": "HOOD",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 100.0,
+        "bid": 4.5,
+        "ask": 4.65,
+        "open_interest": 13184,
+        "implied_vol": 0.7180203979492188,
+        "spread_ratio": 0.0323,
+        "dte": 27,
+        "spread_leg": {
+          "strike": 110.0,
+          "bid": 2.22,
+          "ask": 2.36
+        },
+        "net_debit": 2.43
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6016,
+        "roi_net": 0.1683,
+        "spread_pct": 0.0323,
+        "vega_loss": 0.3688,
+        "delta": 0.3785,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 27
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 7.1891,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 27,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 100.0,
+            "bid": 4.5,
+            "ask": 4.65,
+            "open_interest": 13184,
+            "implied_vol": 0.7180203979492188,
+            "spread_ratio": 0.0323,
+            "dte": 27,
+            "spread_leg": {
+              "strike": 110.0,
+              "bid": 2.22,
+              "ask": 2.36
+            },
+            "net_debit": 2.43
+          },
+          "roi": {
+            "roi_gross": 0.6016,
+            "roi_net": 0.1683,
+            "spread_pct": 0.0323,
+            "vega_loss": 0.3688,
+            "delta": 0.3785,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 27
+          },
+          "annualized_roi": 7.1891,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0424,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6696
+      },
+      "simulation": {
+        "current_price": 92.36,
+        "target_price": 99.75,
+        "hit_rate": 0.8047,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0458,
+        "alpha": 0.0005
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Bewertungsrisiko nach +5.9% in 48h: HOOD notiert bei $92.36 und hat sich in kurzer Zeit stark verteuert. Bei einem KGV, das f\u00fcr ein Retail-Brokergesch\u00e4ft mit hoher Zyklizit\u00e4t und regulatorischer Unsicherheit bereits hoch erscheint, ist ein Gro\u00dfteil des PDT-Rule-Katalysators m\u00f6glicherweise bereits eingepreist. Der Markt hat schnell reagiert, was die Asymmetrie f\u00fcr neue Einsteiger erheblich reduziert.",
+          "argument_2": "Schwab-Konkurrenz als struktureller Gegenwind: Die News vom 16. April zeigt explizit, dass Schwab seinen Crypto-Push ausweitet. Mit ihrem Vertriebsnetz, institutionellem Vertrauen und tieferen Taschen kann Schwab das Retail-Brokerage-Segment aggressiv angreifen. Die PDT-Regel\u00e4nderung \u00f6ffnet den Markt f\u00fcr HOOD \u2014 aber auch f\u00fcr Schwab, Fidelity und andere etablierte Player, was den Wettbewerbsvorteil von HOOD relativiert.",
+          "argument_3": "EPS-Diskrepanz und Datenunsicherheit: Es gibt eine L\u00fccke zwischen yfinance-EPS ($2.69) und SEC EDGAR-EPS ($2.05), die auf m\u00f6gliche Adjustierungen oder Nicht-GAAP-Elemente hinweist. HOODs Gesch\u00e4ftsmodell ist stark abh\u00e4ngig von Payment for Order Flow (PFOF), Market-Making-Umgebungen und Retail-Trading-Aktivit\u00e4t \u2014 alles hochzyklische Einnahmen, die bei Market-Stress rasch einbrechen. Die fundamentale Qualit\u00e4t der Gewinne ist fragw\u00fcrdig.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick-MC durchgef\u00fchrt wurde \u2014 keine statistische Validierung verf\u00fcgbar. Dies ist ein signifikanter blinder Fleck. Gegeben HOODs historischer Volatilit\u00e4t (typisch 50-80% annualisiert) w\u00e4re ein 30-Tage-Ziel-Hit bei moderaten Zielen normalerweise mit 50-70% Wahrscheinlichkeit erreichbar. Die fehlende Statistik erh\u00f6ht die Unsicherheit, ist aber kein Veto-Grund.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Die SEC-Aufhebung der PDT-Rule ist ein echter struktureller Katalysator, der HOODs Zielgruppe (Retail-Daytrader) direkt vergr\u00f6\u00dfert und die regulatorische Einstiegsh\u00fcrde senkt \u2014 der Markt hat zwar reagiert (+5.9%), aber das volle strukturelle Potenzial (mehr aktive Trader, h\u00f6here PFOF-Einnahmen, neue Konten) braucht 2-3 Monate zur Materialisierung in den Quartalszahlen. Vier Insider-K\u00e4ufe als Cluster-Signal deuten darauf hin, dass das Management die Kursbewegung als unvollst\u00e4ndig einpreisend betrachtet.",
+        "catalyst": "SEC-Abschaffung der Pattern-Day-Trader-Equity-Rule senkt die Einstiegsh\u00fcrde f\u00fcr Retail-Daytrader, was HOODs Kernzielgruppe strukturell vergr\u00f6\u00dfert und mittelfristig zu h\u00f6heren Konto\u00f6ffnungen, Handelsvolumen und PFOF-Einnahmen f\u00fchrt.",
+        "bear_case": "Schwab, Fidelity und andere etablierte Broker profitieren von derselben Regel\u00e4nderung und k\u00f6nnen mit tieferen Taschen und breiterem Vertriebsnetz aggressiv in HOODs Kernmarkt vordringen, w\u00e4hrend der Wettbewerbsdruck auf Margen dr\u00fcckt.",
+        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und moderater Fed Funds Rate (3.64%) beg\u00fcnstigt Retail-Trading-Aktivit\u00e4t und Risk-On-Sentiment \u2014 positiv f\u00fcr HOOD. H\u00f6here Zinsen erh\u00f6hen zudem den Cash-Sweep-Ertrag (ein wachsender Ertragsbestandteil von HOOD). Das Makro-Umfeld unterst\u00fctzt das bullishe Signal, reduziert aber nicht die idiosynkratischen Bewertungs- und Wettbewerbsrisiken.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLF",
+        "rel_strength": 0.1859
+      },
+      "final_score": 0.48,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.6233,
+        "annualized_roi": null,
+        "dte": 27
+      },
+      "trade_score": {
+        "total": 55,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 23.4,
+          "risk_deductions": -15.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (17%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Die SEC-Aufhebung der PDT-Rule ist ein echter struktureller Katalysator, der HOODs Zielgruppe (Retai",
+        "best_argument_against": "Bewertungsrisiko nach +5.9% in 48h: HOOD notiert bei $92.36 und hat sich in kurzer Zeit stark verteu"
+      },
+      "trade_rank": 1
+    }
+  ]
+}
