@@ -1462,6 +1462,82 @@
         "dte": 27
       },
       "outcome": null
+    },
+    {
+      "ticker": "SCHW",
+      "entry_date": "2026-04-17",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0184,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5654
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 95.0,
+        "bid": 1.79,
+        "ask": 1.88,
+        "open_interest": 3138,
+        "implied_vol": 0.2866282275390625,
+        "spread_ratio": 0.0479,
+        "dte": 27,
+        "spread_leg": {
+          "strike": 105.0,
+          "bid": 0.16,
+          "ask": 0.25
+        },
+        "net_debit": 1.72
+      },
+      "simulation": {
+        "current_price": 92.64,
+        "target_price": 100.05,
+        "hit_rate": 0.8812,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0164,
+        "alpha": 0.00223
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der -7.8%-Kursr\u00fcckgang in 48h trotz positiver News (Dual PT-Erh\u00f6hungen, Record Revenues) deutet auf erheblichen Verkaufsdruck hin, m\u00f6glicherweise ausgel\u00f6st durch Robinhood-Konkurrenz im Crypto-Segment \u2013 der Markt k\u00f6nnte bereits eingepreist haben, dass SCHW im Crypto-Wettbewerb strukturell benachteiligt ist.",
+          "argument_2": "Schwabs Kerngesch\u00e4ft (Brokerage, Zinsertr\u00e4ge aus Cash-Sweeps) steht unter Druck, wenn Zinsen weiter sinken: Bei Fed Funds Rate 3.64% und m\u00f6glichen weiteren Cuts schrumpft die Net Interest Margin, die ~40-50% des Umsatzes ausmacht \u2013 der Crypto-Launch kann diesen strukturellen Gegenwind kaum kompensieren.",
+          "argument_3": "EPS-Divergenz (yfinance 6.95 vs. SEC EDGAR 4.65) ist erheblich und fragw\u00fcrdig \u2013 wenn die 'echte' Ertragsbasis n\u00e4her an 4.65 liegt, ist SCHW bei ~92$ auf Basis adjustierter Zahlen deutlich teurer bewertet als kommuniziert, was institutionelle Investoren m\u00f6glicherweise bereits erkannt haben und aussteigen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC durchgef\u00fchrt \u2013 keine statistischen Prognose-Informationen verf\u00fcgbar. Dies erh\u00f6ht Unsicherheit, bedeutet aber nicht per se Negativsignal. Angesichts der historischen Volatilit\u00e4t bei Finanzwerten und dem scharfen 48h-Drop erscheint eine Erholung auf 30d-Basis plausibel, aber ohne quantitative Untermauerung bleibt die Konfidenz niedrig.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt \u00fcberreagiert auf Robinhood-Konkurrenzangst und vernachl\u00e4ssigt das Cluster-Insider-Kaufsignal (5 Insider in 14 Tagen) sowie Dual Price Target-Erh\u00f6hungen von Tier-1-Banken, was auf fundamentale Unterbewertung hindeutet. Der -7.8%-Drop erscheint \u00fcberproportional zur tats\u00e4chlichen Bedrohung durch den Crypto-Launch von Robinhood. Die SEC-Regel\u00e4nderung beg\u00fcnstigt SCHW strukturell ebenso und er\u00f6ffnet eine neue Umsatzkategorie mit vergleichsweise niedrigem Marginalaufwand.",
+        "catalyst": "SCHW-eigener Crypto-Trading-Launch (SEC-Regel\u00e4nderung) + Insider-Cluster-K\u00e4ufe als Kontraindikator zum Kursr\u00fcckgang + m\u00f6gliche Q2-Earnings-\u00dcberraschung auf Basis Record-Revenue-Trend",
+        "bear_case": "Signifikanter R\u00fcckgang der Net Interest Income bei weiteren Fed-Cuts trifft Kerngesch\u00e4ft st\u00e4rker als Crypto-Gewinne kompensieren k\u00f6nnen; EPS-Diskrepanz signalisiert m\u00f6gliche Qualit\u00e4tsprobleme bei den Earnings",
+        "macro_assessment": "Expansives Makro-Umfeld (steile Kurve +0.54%, moderate Fed Funds Rate 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Finanzwerte und Long-Positionen. Allerdings ist f\u00fcr SCHW spezifisch zu beachten, dass bei weiter sinkenden Kurzfristzinsen (Fed-Cuts-Erwartungen) die Cash-Sweep-Ertr\u00e4ge leiden \u2013 das Makro ist supportiv f\u00fcr den Sektor, aber nicht uneingeschr\u00e4nkt f\u00fcr SCHWs Ertragsmodell.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 3.9511,
+        "annualized_roi": null,
+        "dte": 27
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -1565,6 +1641,11 @@
         "date": "2026-04-16",
         "score": 0.3548,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.3548,
+        "headline_count": 5
       }
     ],
     "DAL": [
@@ -1576,6 +1657,11 @@
       {
         "date": "2026-04-15",
         "score": 0.0512,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0364,
         "headline_count": 5
       }
     ],
@@ -1616,6 +1702,11 @@
         "date": "2026-04-16",
         "score": -0.1943,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0297,
+        "headline_count": 5
       }
     ],
     "MU": [
@@ -1653,7 +1744,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.3495,
+        "score": 0.1974,
         "headline_count": 5
       }
     ],
@@ -1687,7 +1778,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.3506,
+        "score": 0.2167,
         "headline_count": 5
       }
     ],
@@ -1705,6 +1796,11 @@
       {
         "date": "2026-04-16",
         "score": 0.2238,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0456,
         "headline_count": 5
       }
     ],
@@ -1726,7 +1822,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.0294,
+        "score": 0.0428,
         "headline_count": 5
       }
     ],
@@ -1756,6 +1852,11 @@
       {
         "date": "2026-04-16",
         "score": -0.4636,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0551,
         "headline_count": 5
       }
     ],
@@ -1796,7 +1897,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.0036,
+        "score": -0.8012,
         "headline_count": 5
       }
     ],
@@ -1895,7 +1996,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.0786,
+        "score": -0.2458,
         "headline_count": 5
       }
     ],
@@ -1907,7 +2008,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.3915,
+        "score": -0.4942,
         "headline_count": 5
       }
     ],
@@ -2044,7 +2145,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.4118,
+        "score": -0.2482,
         "headline_count": 5
       }
     ],
@@ -2080,6 +2181,11 @@
         "date": "2026-04-16",
         "score": 0.0293,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.3566,
+        "headline_count": 5
       }
     ],
     "NKE": [
@@ -2100,7 +2206,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.0952,
+        "score": -0.2803,
         "headline_count": 5
       }
     ],
@@ -2124,7 +2230,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.5022,
+        "score": -0.8052,
         "headline_count": 5
       }
     ],
@@ -2211,7 +2317,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.0381,
+        "score": 0.2156,
         "headline_count": 5
       }
     ],
@@ -2280,6 +2386,11 @@
         "date": "2026-04-16",
         "score": 0.338,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.4118,
+        "headline_count": 5
       }
     ],
     "ARM": [
@@ -2309,6 +2420,11 @@
         "date": "2026-04-16",
         "score": -0.1879,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1818,
+        "headline_count": 5
       }
     ],
     "PDD": [
@@ -2324,8 +2440,8 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.9178,
-        "headline_count": 2
+        "score": 0.083,
+        "headline_count": 4
       }
     ],
     "ZS": [
@@ -2379,12 +2495,22 @@
         "date": "2026-04-14",
         "score": 0.6461,
         "headline_count": 1
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.5876,
+        "headline_count": 1
       }
     ],
     "COP": [
       {
         "date": "2026-04-14",
         "score": -0.0584,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.506,
         "headline_count": 5
       }
     ],
@@ -2429,6 +2555,11 @@
         "date": "2026-04-16",
         "score": -0.3657,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.3494,
+        "headline_count": 5
       }
     ],
     "AOS": [
@@ -2462,6 +2593,11 @@
         "date": "2026-04-15",
         "score": 0.1652,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1122,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -2481,6 +2617,11 @@
         "date": "2026-04-16",
         "score": -0.0217,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.3871,
+        "headline_count": 5
       }
     ],
     "AVGO": [
@@ -2494,6 +2635,11 @@
       {
         "date": "2026-04-15",
         "score": -0.128,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1468,
         "headline_count": 5
       }
     ],
@@ -2535,6 +2681,11 @@
         "date": "2026-04-15",
         "score": 0.657,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0105,
+        "headline_count": 1
       }
     ],
     "ITW": [
@@ -2592,6 +2743,11 @@
         "date": "2026-04-16",
         "score": -0.4498,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.4433,
+        "headline_count": 5
       }
     ],
     "MTB": [
@@ -2630,7 +2786,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.2427,
+        "score": 0.1271,
         "headline_count": 5
       }
     ],
@@ -2646,6 +2802,11 @@
         "date": "2026-04-15",
         "score": 0.0306,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0399,
+        "headline_count": 3
       }
     ],
     "PNC": [
@@ -2693,6 +2854,11 @@
         "date": "2026-04-16",
         "score": -0.3527,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0744,
+        "headline_count": 5
       }
     ],
     "UBER": [
@@ -2710,8 +2876,8 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.1899,
-        "headline_count": 3
+        "score": 0.3055,
+        "headline_count": 2
       }
     ],
     "APP": [
@@ -2741,7 +2907,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.2056,
+        "score": -0.1584,
         "headline_count": 5
       }
     ],
@@ -2784,7 +2950,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.1422,
+        "score": -0.2064,
         "headline_count": 5
       }
     ],
@@ -2857,6 +3023,11 @@
         "date": "2026-04-15",
         "score": -0.0407,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.1725,
+        "headline_count": 4
       }
     ],
     "RMD": [
@@ -2889,6 +3060,11 @@
       {
         "date": "2026-04-16",
         "score": -0.0496,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.6709,
         "headline_count": 5
       }
     ],
@@ -2958,6 +3134,11 @@
         "date": "2026-04-16",
         "score": 0.0532,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1465,
+        "headline_count": 5
       }
     ],
     "BALL": [
@@ -2977,6 +3158,11 @@
         "date": "2026-04-15",
         "score": -0.1793,
         "headline_count": 4
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.3356,
+        "headline_count": 5
       }
     ],
     "BG": [
@@ -2999,7 +3185,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.312,
+        "score": 0.3643,
         "headline_count": 5
       }
     ],
@@ -3079,6 +3265,11 @@
         "date": "2026-04-15",
         "score": 0.1082,
         "headline_count": 1
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0659,
+        "headline_count": 4
       }
     ],
     "ETN": [
@@ -3111,6 +3302,11 @@
       {
         "date": "2026-04-16",
         "score": 0.1332,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.4153,
         "headline_count": 5
       }
     ],
@@ -3203,6 +3399,11 @@
         "date": "2026-04-15",
         "score": 0.1888,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.3997,
+        "headline_count": 5
       }
     ],
     "BBWI": [
@@ -3213,8 +3414,8 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.1875,
-        "headline_count": 4
+        "score": -0.2218,
+        "headline_count": 5
       }
     ],
     "BA": [
@@ -3230,7 +3431,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.0388,
+        "score": 0.3185,
         "headline_count": 5
       }
     ],
@@ -3263,7 +3464,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": 0.1044,
+        "score": -0.3772,
         "headline_count": 5
       }
     ],
@@ -3303,7 +3504,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.0846,
+        "score": -0.3752,
         "headline_count": 5
       }
     ],
@@ -3312,6 +3513,11 @@
         "date": "2026-04-16",
         "score": 0.0172,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0425,
+        "headline_count": 5
       }
     ],
     "IVZ": [
@@ -3319,12 +3525,22 @@
         "date": "2026-04-16",
         "score": 0.1199,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0133,
+        "headline_count": 5
       }
     ],
     "ON": [
       {
         "date": "2026-04-16",
         "score": 0.0656,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.0568,
         "headline_count": 5
       }
     ],
@@ -3339,6 +3555,11 @@
       {
         "date": "2026-04-16",
         "score": 0.0391,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.1408,
         "headline_count": 5
       }
     ],
@@ -3357,7 +3578,7 @@
       },
       {
         "date": "2026-04-17",
-        "score": -0.0854,
+        "score": 0.2623,
         "headline_count": 5
       }
     ],
@@ -3366,6 +3587,11 @@
         "date": "2026-04-16",
         "score": 0.7404,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.2935,
+        "headline_count": 5
       }
     ],
     "GFS": [
@@ -3373,6 +3599,11 @@
         "date": "2026-04-16",
         "score": 0.825,
         "headline_count": 1
+      },
+      {
+        "date": "2026-04-17",
+        "score": 0.2462,
+        "headline_count": 5
       }
     ],
     "TTD": [
@@ -3385,6 +3616,11 @@
     "COO": [
       {
         "date": "2026-04-16",
+        "score": 0.1159,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-04-17",
         "score": 0.1159,
         "headline_count": 1
       }
@@ -3415,54 +3651,185 @@
         "date": "2026-04-16",
         "score": 0.2078,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-17",
+        "score": -0.0515,
+        "headline_count": 5
       }
     ],
     "CF": [
       {
         "date": "2026-04-17",
-        "score": 0.0925,
+        "score": -0.2281,
         "headline_count": 5
       }
     ],
     "CVX": [
       {
         "date": "2026-04-17",
-        "score": -0.1071,
+        "score": -0.6947,
         "headline_count": 5
       }
     ],
     "DVN": [
       {
         "date": "2026-04-17",
-        "score": 0.1073,
+        "score": -0.1961,
         "headline_count": 5
       }
     ],
     "EXC": [
       {
         "date": "2026-04-17",
-        "score": 0.347,
+        "score": 0.2107,
         "headline_count": 5
       }
     ],
     "LYB": [
       {
         "date": "2026-04-17",
-        "score": -0.3027,
+        "score": -0.4753,
         "headline_count": 5
       }
     ],
     "NFLX": [
       {
         "date": "2026-04-17",
-        "score": -0.2672,
+        "score": -0.398,
         "headline_count": 5
       }
     ],
     "VLO": [
       {
         "date": "2026-04-17",
-        "score": -0.0148,
+        "score": 0.0534,
+        "headline_count": 5
+      }
+    ],
+    "AMT": [
+      {
+        "date": "2026-04-17",
+        "score": 0.3446,
+        "headline_count": 5
+      }
+    ],
+    "CLX": [
+      {
+        "date": "2026-04-17",
+        "score": -0.0086,
+        "headline_count": 5
+      }
+    ],
+    "EOG": [
+      {
+        "date": "2026-04-17",
+        "score": -0.0115,
+        "headline_count": 5
+      }
+    ],
+    "XOM": [
+      {
+        "date": "2026-04-17",
+        "score": -0.5973,
+        "headline_count": 5
+      }
+    ],
+    "FCX": [
+      {
+        "date": "2026-04-17",
+        "score": 0.1417,
+        "headline_count": 5
+      }
+    ],
+    "GPN": [
+      {
+        "date": "2026-04-17",
+        "score": -0.0315,
+        "headline_count": 2
+      }
+    ],
+    "HD": [
+      {
+        "date": "2026-04-17",
+        "score": 0.0389,
+        "headline_count": 5
+      }
+    ],
+    "LEN": [
+      {
+        "date": "2026-04-17",
+        "score": 0.1651,
+        "headline_count": 4
+      }
+    ],
+    "LOW": [
+      {
+        "date": "2026-04-17",
+        "score": 0.0649,
+        "headline_count": 5
+      }
+    ],
+    "MPC": [
+      {
+        "date": "2026-04-17",
+        "score": 0.0685,
+        "headline_count": 5
+      }
+    ],
+    "NXPI": [
+      {
+        "date": "2026-04-17",
+        "score": 0.1894,
+        "headline_count": 5
+      }
+    ],
+    "NCLH": [
+      {
+        "date": "2026-04-17",
+        "score": -0.2003,
+        "headline_count": 5
+      }
+    ],
+    "RJF": [
+      {
+        "date": "2026-04-17",
+        "score": -0.0206,
+        "headline_count": 5
+      }
+    ],
+    "SLB": [
+      {
+        "date": "2026-04-17",
+        "score": -0.2889,
+        "headline_count": 3
+      }
+    ],
+    "SHW": [
+      {
+        "date": "2026-04-17",
+        "score": -0.0681,
+        "headline_count": 5
+      }
+    ],
+    "LUV": [
+      {
+        "date": "2026-04-17",
+        "score": -0.2941,
+        "headline_count": 5
+      }
+    ],
+    "SYF": [
+      {
+        "date": "2026-04-17",
+        "score": 0.1316,
+        "headline_count": 5
+      }
+    ],
+    "TFC": [
+      {
+        "date": "2026-04-17",
+        "score": 0.046,
         "headline_count": 5
       }
     ]
