@@ -63,12 +63,12 @@ jobs:
 
       # ── Git Commit ───────────────────────────────────────────────────────
       - name: Commit daily report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Remote explizit auf korrektes Repo setzen
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git add outputs/
-          git diff --cached --quiet || git commit -m "chore: daily report $(date +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push origin main
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -m "chore: daily report $(date +%Y-%m-%d)"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
