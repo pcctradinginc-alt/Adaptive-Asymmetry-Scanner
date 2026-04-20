@@ -233,6 +233,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             <div><b>Expiry:</b> {expiry} ({dte}d)</div>
             <div><b>Bid / Ask:</b> ${bid} / ${ask}</div>
             {f'<div><b>ROI netto:</b> <span style="color:{roi_color};font-weight:600;">{roi_net:.1%}</span></div>' if roi_net is not None else ''}
+            {(lambda delta, r: f'<div><b>Expected Value:</b> <span style="color:{"#16a34a" if delta*r > 0.05 else "#ca8a04"};font-weight:600;">{delta*r:.1%}</span> <span style="font-size:11px;color:#94a3b8;">(ROI×Δ)</span></div>' if delta is not None and r is not None else '')(roi.get("delta"), roi_net)}
             {f'<div><b>Vega-Loss:</b> {vega_loss:.1%}</div>' if vega_loss is not None else ''}
             {f'<div><b>ROI/Tag:</b> {roi_day:.3f}%</div>' if roi_day is not None else ''}
           </div>
