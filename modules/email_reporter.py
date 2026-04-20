@@ -153,11 +153,13 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
         opt_pts        = ts_comps.get("options_quality", 0)
         risk_pts_v     = ts_comps.get("risk_deductions", 0)
         ctx_pts        = ts_comps.get("context_bonus", 0)
-        best_for_v     = (ts.get("best_argument_for", "") or "")[:100]
-        best_ag_v      = (ts.get("best_argument_against", "") or "")[:100]
-        rank_badge     = f"#{trade_rank} "
+        best_for_v     = (ts.get("best_argument_for", "") or "")[:220]
+        best_ag_v      = (ts.get("best_argument_against", "") or "")[:220]
+        rank_badge     = f"#{trade_rank} " if trade_rank else ""
         score_color    = "#16a34a" if ts_total >= 75 else ("#ca8a04" if ts_total >= 60 else ("#ea580c" if ts_total >= 45 else "#dc2626"))
-        trade_grade    = ts_grade.split(" ")[0] if ts_grade else "–"
+        # Grade sauber extrahieren: "STRONG BUY 🟢" → "STRONG BUY"
+        grade_parts    = (ts_grade or "–").split(" ")
+        trade_grade    = " ".join(p for p in grade_parts if not any(c in p for c in "🟢🟡🟠🔴")).strip() or "–"
 
         # Option-Daten
         def _s(v, default="–"):
@@ -198,9 +200,10 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             <span style="font-size:22px;font-weight:bold;color:#0f172a;">
               {rank_badge}{ticker}
             </span>
+            &nbsp;&nbsp;
             <span style="background:{score_color};color:#fff;padding:4px 14px;
                          border-radius:20px;font-size:13px;font-weight:600;">
-              {trade_grade} &nbsp;·&nbsp; {ts_total}/100
+              {trade_grade}&nbsp;·&nbsp;{ts_total}/100
             </span>
           </div>
 
