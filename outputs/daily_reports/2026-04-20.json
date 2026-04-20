@@ -3,33 +3,39 @@
   "proposals": [
     {
       "ticker": "HOOD",
-      "strategy": "LONG_CALL",
-      "iv_rank": 69.05,
-      "iv_gate_applied": false,
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
       "direction": "BULLISH",
       "option": {
         "expiry": "2026-05-15",
         "strike": 90.0,
         "bid": 7.0,
-        "ask": 7.15,
+        "ask": 7.1,
         "open_interest": 11387,
-        "implied_vol": 0.7083769396972657,
-        "spread_ratio": 0.021,
-        "dte": 24
+        "implied_vol": 0.7180203979492188,
+        "spread_ratio": 0.0141,
+        "dte": 24,
+        "spread_leg": {
+          "strike": 100.0,
+          "bid": 3.35,
+          "ask": 3.45
+        },
+        "net_debit": 3.75
       },
       "roi_analysis": {
-        "roi_gross": 0.5525,
-        "roi_net": 0.4013,
-        "spread_pct": 0.021,
-        "vega_loss": 0.1092,
-        "delta": 0.5464,
-        "iv_drop_assumed": 0.12,
+        "roi_gross": 0.5548,
+        "roi_net": 0.2944,
+        "spread_pct": 0.0141,
+        "vega_loss": 0.2322,
+        "delta": 0.5448,
+        "iv_drop_assumed": 0.25,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 24
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 168.2365,
+      "annualized_roi": 49.6262,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
@@ -38,25 +44,31 @@
             "expiry": "2026-05-15",
             "strike": 90.0,
             "bid": 7.0,
-            "ask": 7.15,
+            "ask": 7.1,
             "open_interest": 11387,
-            "implied_vol": 0.7083769396972657,
-            "spread_ratio": 0.021,
-            "dte": 24
+            "implied_vol": 0.7180203979492188,
+            "spread_ratio": 0.0141,
+            "dte": 24,
+            "spread_leg": {
+              "strike": 100.0,
+              "bid": 3.35,
+              "ask": 3.45
+            },
+            "net_debit": 3.75
           },
           "roi": {
-            "roi_gross": 0.5525,
-            "roi_net": 0.4013,
-            "spread_pct": 0.021,
-            "vega_loss": 0.1092,
-            "delta": 0.5464,
-            "iv_drop_assumed": 0.12,
+            "roi_gross": 0.5548,
+            "roi_net": 0.2944,
+            "spread_pct": 0.0141,
+            "vega_loss": 0.2322,
+            "delta": 0.5448,
+            "iv_drop_assumed": 0.25,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 24
           },
-          "annualized_roi": 168.2365,
-          "strategy": "LONG_CALL"
+          "annualized_roi": 49.6262,
+          "strategy": "BULL_CALL_SPREAD"
         }
       ],
       "features": {
@@ -69,12 +81,12 @@
         "bin_impact": "mid",
         "bin_mismatch": "strong",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.659
+        "quick_mc_hit_rate": 0.6522
       },
       "simulation": {
-        "current_price": 90.42,
-        "target_price": 97.65,
-        "hit_rate": 0.712,
+        "current_price": 90.34,
+        "target_price": 97.57,
+        "hit_rate": 0.7152,
         "n_paths": 10000,
         "days": 45,
         "sigma": 0.0454,
@@ -82,13 +94,13 @@
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Der Katalysator (SEC Pattern Day Trader Rule Change) ist m\u00f6glicherweise bereits vollst\u00e4ndig eingepreist: HOOD ist bereits +4.2% in 48h gestiegen, Mizuho hat das PT auf $115 angehoben und die News ist breit kommuniziert. Bei $90.42 sind viele der Upside-Szenarien bereits in der Aktie reflektiert.",
-          "argument_2": "Regulatorisches Risiko ist ein zweischneidiges Schwert: Die SEC-Regel\u00e4nderung k\u00f6nnte politisch reversibel sein, verz\u00f6gert werden oder enger als erwartet ausgelegt werden. HOOD's Gesch\u00e4ftsmodell bleibt abh\u00e4ngig von regulatorischer Gunst \u2014 dasselbe Umfeld, das heute g\u00fcnstig ist, kann sich rasch drehen (neue SEC-Vorsitzende, Kongressdruck nach Retailtrader-Verluste).",
-          "argument_3": "Bewertungsrisiko bei $90.42: Bei einem EPS von ~$2.05-2.69 handelt HOOD zu einem KGV von 34-44x. F\u00fcr ein noch junges Brokerage mit starker Abh\u00e4ngigkeit von Retail-Handelsvolumina (zyklisch, zinssensitiv) ist das eine ambitionierte Bewertung, die keinen R\u00fcckschlag in der Handelsaktivit\u00e4t verzeiht.",
+          "argument_1": "HOOD hat innerhalb von 48 Stunden bereits +4,1% zugelegt und Mizuho hat das Kursziel auf $115 angehoben \u2014 beides deutet darauf hin, dass der Katalysator (SEC Pattern Day Trader Rule Change) m\u00f6glicherweise bereits weitgehend eingepreist ist. Optionsk\u00e4ufer, die jetzt einsteigen, zahlen erh\u00f6hte implizite Volatilit\u00e4t auf einem bereits gestiegenen Kurs, was den IV-Crush nach dem ersten Nachrichtenrausch erheblich verst\u00e4rkt.",
+          "argument_2": "HOOD handelt bei $90.34 mit einem EPS von ~$2.05\u20132.69, was einem KGV von 33\u201344x entspricht \u2014 eine ambitionierte Bewertung f\u00fcr ein Unternehmen, dessen Kerngesch\u00e4ft stark von Retail-Trader-Aktivit\u00e4t und Marktsentiment abh\u00e4ngt. Sollte die Marktvolatilit\u00e4t sinken oder Retail-Interesse nachlassen (wie nach 2021 gesehen), k\u00f6nnte die Umsatzbasis schnell kollabieren und die hohe Bewertung nicht mehr rechtfertigbar sein.",
+          "argument_3": "Die SEC Pattern Day Trader Rule ist ein regulatorisches Signal, das von der Beh\u00f6rde auch revidiert oder verz\u00f6gert werden kann \u2014 regulatorische Unsicherheiten in den USA sind derzeit hoch. Zudem ist die eigentliche Umsetzung und Monetarisierung neuer Kundensegmente ein mehrstufiger Prozess, der 12\u201324 Monate ben\u00f6tigt, was weit \u00fcber den mittelfristigen Horizont von 2\u20136 Monaten hinausgeht.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "0% Hit-Rate resultiert aus fehlendem Quick MC (kein Durchlauf), nicht aus einem negativen Signal. Die Daten sind schlicht nicht verf\u00fcgbar. Bei einer 48h-Bewegung von +4.2% und hoher IV im Retail-Brokerage-Sektor w\u00e4re eine realistische 30d-Hit-Rate schwer einzusch\u00e4tzen \u2014 IV-Crush nach Katalysatoren ist ein reales Risiko f\u00fcr Long-Options-Positionen.",
+          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0% Hit-Rate kein echtes statistisches Ergebnis sondern ein Datenl\u00fccken-Artefakt. Bei HOOD mit historischer Volatilit\u00e4t von typischerweise 60\u201380% annualisiert w\u00e4re eine realistische 30-Tage-Hit-Rate f\u00fcr bullische Szenarien (z.B. +10%) im Bereich 40\u201355% zu erwarten. Das Fehlen des MC ist keine Warnung gegen den Trade, aber das Modell liefert keine quantitative Unterst\u00fctzung.",
           "concern_level": "medium"
         },
         "impact": 7,
@@ -96,10 +108,10 @@
         "direction": "BULLISH",
         "bear_case_severity": 5,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt untersch\u00e4tzt m\u00f6glicherweise das strukturelle Volumen-Uplift aus einer PDT-Regel\u00e4nderung: Kleinanleger mit unter $25k Depotgr\u00f6\u00dfe waren bisher systematisch vom aktiven Day-Trading ausgeschlossen, was HOOD's TAM massiv erweitert. Insider-Cluster-K\u00e4ufe von 4 Personen in 14 Tagen signalisieren, dass auch intern von einer nachhaltigen Fundamental-Verbesserung ausgegangen wird \u2014 dies ist kein kurzfristiges Rauschen. Der Mizuho-Upgrade auf $115 deutet darauf hin, dass Sell-Side-Modelle erst beginnen, die Volumens- und Umsatzeffekte neu zu kalkulieren.",
-        "catalyst": "SEC Pattern Day Trader Rule Change: Abschaffung/Lockerung der $25.000-Mindestkapitalanforderung f\u00fcr aktive Trader \u00f6ffnet strukturell einen neuen Kundensegment f\u00fcr HOOD's Plattform",
-        "bear_case": "Katalysator bereits eingepreist nach +4.2% Move; Regel\u00e4nderung k\u00f6nnte operativ sp\u00e4ter wirksam werden als erwartet oder Compliance-Kosten erh\u00f6hen; Bewertung bei 34-44x EPS l\u00e4sst wenig Fehlertoleranz",
-        "macro_assessment": "Expansives Makro-Umfeld mit steiler Kurve (+0.55%) und Fed Funds bei 3.64% beg\u00fcnstigt Risk-Assets und Retail-Handelsaktivit\u00e4t positiv. Sinkende Rezessionssorgen st\u00fctzen das diskretion\u00e4re Trading-Verhalten der Zielgruppe. Makro ist kein Gegenwind \u2014 eher ein leichter R\u00fcckenwind f\u00fcr HOOD's Volumen-Outlook.",
+        "asymmetry_reasoning": "Der Markt hat die SEC Pattern Day Trader Rule Change m\u00f6glicherweise als inkrementelles regulatorisches Update untersch\u00e4tzt, obwohl sie strukturell neue Nutzerkohorten f\u00fcr HOOD erschlie\u00dft \u2014 besonders j\u00fcngere, aktivere Trader mit kleineren Konten, die bislang durch die $25.000-Mindestanforderung ausgeschlossen waren. Das Insider-Cluster-Signal (4 K\u00e4ufe in 14 Tagen) kombiniert mit dem Mizuho-Upgrade und der Konkurrenz-Analyse gegen\u00fcber Schwab legt nahe, dass institutionelle und informierte Akteure das Potenzial breiter sehen als der aktuelle Kurs widerspiegelt. Im expansiven Makro-Umfeld mit steiler Zinskurve profitiert HOOD zus\u00e4tzlich vom zinsbedingten Spread auf Cash-Best\u00e4nde der Kunden. Die Kombination aus regulatorischem Katalysator, Insider-K\u00e4ufen und expansivem Umfeld schafft eine asymmetrische Ausgangslage, sofern man nicht auf dem bereits gestiegenen +4,1%-Kurs \u00fcberteuertes Premium zahlt.",
+        "catalyst": "SEC Pattern Day Trader Rule Change \u2014 Senkung/Abschaffung der $25.000-Mindestkapitalgrenze, die HOOD neue Kundensegmente (kleinere Retail-Trader) erschlie\u00dft und Marktanteilsgewinne gegen\u00fcber etablierten Brokern wie Schwab erm\u00f6glicht",
+        "bear_case": "Katalysator bereits eingepreist (+4,1% in 48h, Mizuho-Upgrade \u00f6ffentlich bekannt), kombiniert mit ambitionierter Bewertung (KGV 33\u201344x) und dem Risiko einer regulatorischen Verz\u00f6gerung oder Revision der Regel, was den Kurs schnell wieder auf $75\u201380 zur\u00fcckwerfen k\u00f6nnte",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0,55%, Fed Funds bei 3,64%) ist klar positiv f\u00fcr HOOD: Retail-Trader sind in Risk-On-Phasen aktiver, HOOD verdient an Cash-Spreads, und das Kreditumfeld belastet nicht. Keine Rezessionswarnung, keine invertierte Kurve \u2014 das Makro unterst\u00fctzt den bullischen Case und erlaubt eine vollgewichtete Einsch\u00e4tzung des strukturellen Signals.",
         "data_confidence": "medium",
         "macro_regime": "expansive",
         "macro_context": {
@@ -110,27 +122,27 @@
       },
       "sector_momentum": {
         "etf": "XLF",
-        "rel_strength": 0.12
+        "rel_strength": 0.1162
       },
-      "final_score": 0.0911,
+      "final_score": 0.1065,
       "time_value_efficiency": {
-        "roi_per_day_pct": 1.6721,
+        "roi_per_day_pct": 1.2267,
         "annualized_roi": null,
         "dte": 24
       },
       "trade_score": {
-        "total": 81,
-        "grade": "STRONG BUY \ud83d\udfe2",
-        "grade_short": "STRONG BUY",
+        "total": 71,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
         "components": {
           "signal_quality": 25.9,
-          "options_quality": 30.0,
-          "risk_deductions": 0.0,
+          "options_quality": 29.7,
+          "risk_deductions": -10.0,
           "context_bonus": 25.0
         },
-        "reasoning": "St\u00e4rken: starkes Signal (Impact=7/Surprise=6), guter ROI (40%), positive Sektor-Relative-St\u00e4rke",
-        "best_argument_for": "Der Markt untersch\u00e4tzt m\u00f6glicherweise das strukturelle Volumen-Uplift aus einer PDT-Regel\u00e4nderung: Kleinanleger mit unter $25k Depotgr\u00f6\u00dfe waren bisher systematisch vom aktiven Day-Trading ausgeschlossen, was HOOD's TAM m",
-        "best_argument_against": "Der Katalysator (SEC Pattern Day Trader Rule Change) ist m\u00f6glicherweise bereits vollst\u00e4ndig eingepreist: HOOD ist bereits +4.2% in 48h gestiegen, Mizuho hat das PT auf $115 angehoben und die News ist breit kommuniziert. "
+        "reasoning": "St\u00e4rken: starkes Signal (Impact=7/Surprise=6), guter ROI (29%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt hat die SEC Pattern Day Trader Rule Change m\u00f6glicherweise als inkrementelles regulatorisches Update untersch\u00e4tzt, obwohl sie strukturell neue Nutzerkohorten f\u00fcr HOOD erschlie\u00dft \u2014 besonders j\u00fcngere, aktivere Trader mit kleineren Konten, die bislang durch die $25.000-Mindestanforderung ausgeschlossen waren. Das Insider-Cluster-Signal (4 K\u00e4ufe in 14 Tagen) kombiniert mit dem Mizuho-Upgrade ",
+        "best_argument_against": "HOOD hat innerhalb von 48 Stunden bereits +4,1% zugelegt und Mizuho hat das Kursziel auf $115 angehoben \u2014 beides deutet darauf hin, dass der Katalysator (SEC Pattern Day Trader Rule Change) m\u00f6glicherweise bereits weitgehend eingepreist ist. Optionsk\u00e4ufer, die jetzt einsteigen, zahlen erh\u00f6hte implizite Volatilit\u00e4t auf einem bereits gestiegenen Kurs, was den IV-Crush nach dem ersten Nachrichtenrausc"
       },
       "trade_rank": 1
     },
@@ -144,31 +156,31 @@
         "expiry": "2026-05-15",
         "strike": 85.0,
         "bid": 5.9,
-        "ask": 6.1,
+        "ask": 6.15,
         "open_interest": 3117,
-        "implied_vol": 0.666263103027344,
-        "spread_ratio": 0.0328,
+        "implied_vol": 0.6499058447265625,
+        "spread_ratio": 0.0407,
         "dte": 24,
         "spread_leg": {
           "strike": 95.0,
-          "bid": 2.3,
+          "bid": 2.32,
           "ask": 2.62
         },
-        "net_debit": 3.8
+        "net_debit": 3.83
       },
       "roi_analysis": {
-        "roi_gross": 0.5947,
-        "roi_net": 0.2926,
-        "spread_pct": 0.0328,
-        "vega_loss": 0.2365,
-        "delta": 0.5335,
+        "roi_gross": 0.5948,
+        "roi_net": 0.2844,
+        "spread_pct": 0.0407,
+        "vega_loss": 0.2291,
+        "delta": 0.5371,
         "iv_drop_assumed": 0.25,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 24
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 48.566,
+      "annualized_roi": 43.9936,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
@@ -177,74 +189,74 @@
             "expiry": "2026-05-15",
             "strike": 85.0,
             "bid": 5.9,
-            "ask": 6.1,
+            "ask": 6.15,
             "open_interest": 3117,
-            "implied_vol": 0.666263103027344,
-            "spread_ratio": 0.0328,
+            "implied_vol": 0.6499058447265625,
+            "spread_ratio": 0.0407,
             "dte": 24,
             "spread_leg": {
               "strike": 95.0,
-              "bid": 2.3,
+              "bid": 2.32,
               "ask": 2.62
             },
-            "net_debit": 3.8
+            "net_debit": 3.83
           },
           "roi": {
-            "roi_gross": 0.5947,
-            "roi_net": 0.2926,
-            "spread_pct": 0.0328,
-            "vega_loss": 0.2365,
-            "delta": 0.5335,
+            "roi_gross": 0.5948,
+            "roi_net": 0.2844,
+            "spread_pct": 0.0407,
+            "vega_loss": 0.2291,
+            "delta": 0.5371,
             "iv_drop_assumed": 0.25,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 24
           },
-          "annualized_roi": 48.566,
+          "annualized_roi": 43.9936,
           "strategy": "BULL_CALL_SPREAD"
         }
       ],
       "features": {
         "impact": 6,
-        "surprise": 5,
+        "surprise": 7,
         "mismatch": 6.0,
         "z_score": 0.0,
-        "sigma_30d": 0.0378,
+        "sigma_30d": 0.0379,
         "eps_drift": 0.0,
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.8282
+        "quick_mc_hit_rate": 0.85
       },
       "simulation": {
-        "current_price": 84.98,
-        "target_price": 91.78,
+        "current_price": 85.14,
+        "target_price": 91.95,
         "hit_rate": 0.85,
         "n_paths": 10000,
         "days": 45,
         "sigma": 0.0307,
-        "alpha": 0.00618
+        "alpha": 0.00661
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "EV-Markt-Slowdown ist strukturell, nicht zyklisch: ON Semiconductor ist stark von Automotive-Halbleitern abh\u00e4ngig (>50% Umsatz), und der US-EV-Markt zeigt nachhaltige Schw\u00e4che durch mangelnde Infrastruktur, Preisdruck und sinkende Subventionen \u2014 das trifft OnsemiCore-Segmente direkt.",
-          "argument_2": "EPS-Diskrepanz ist massiv und ein Red Flag: Yfinance zeigt $4.05 EPS, SEC EDGAR zeigt $0.29 \u2014 eine Abweichung von ~1300% deutet auf Bereinigungen, Einmaleffekte oder Datenfehler hin. Die echte Ertragskraft k\u00f6nnte erheblich schw\u00e4cher sein als kommuniziert.",
-          "argument_3": "Der +6.3% Move in 48h legt nahe, dass positive Nachrichten bereits eingepreist sind. Das Cluster-Insider-Kaufsignal plus Teradyne-Bounce k\u00f6nnte ein kurzfristiges Sentiment-Event gewesen sein, nicht ein nachhaltiger fundamentaler Rerating-Katalysator.",
+          "argument_1": "Die +6,7% Preisbewegung innerhalb von 48 Stunden suggeriert, dass der Markt bereits auf das Energiespeicher-Narrativ reagiert hat. ON Semiconductor ist nach diesem Anstieg auf einem Niveau, das kurzfristig \u00fcberkauft wirken k\u00f6nnte \u2014 ein klassisches Buy-the-News-Ph\u00e4nomen. Der Katalysator (Energiespeicher-Boom, US-Lithium-Shift) k\u00f6nnte bereits vollst\u00e4ndig eingepreist sein, was das Upside f\u00fcr die n\u00e4chsten 2-6 Monate erheblich begrenzt und das R\u00fcckschlagsrisiko erh\u00f6ht.",
+          "argument_2": "Die massive EPS-Abweichung zwischen yfinance ($4.05) und SEC EDGAR ($0.29) ist ein gravierendes Datenproblem. Ein fairer Fundamentalwert l\u00e4sst sich unter diesen Umst\u00e4nden kaum berechnen. Wenn die EDGAR-Zahl korrekt ist, handelt ON Semiconductor zu einem extrem hohen P/E-Multiple, was bei einem zyklischen Halbleiterunternehmen mit Exposure zu EV-M\u00e4rkten (die laut News einen Slowdown erfahren) fundamental nicht zu rechtfertigen ist.",
+          "argument_3": "ON Semiconductor ist stark im EV-Halbleiter-Segment exponiert, und die News signalisieren explizit einen Slowdown im US-EV-Markt. Der Navitas-Artikel warnt zudem vor scharfen Re-Ratings in der GaN/SiC-Power-Halbleiter-Branche \u2014 ein direkter Wettbewerber-Signal. Obwohl Energiespeicher kompensieren k\u00f6nnten, bleibt die Frage, ob das reicht, um den EV-R\u00fcckgang zu \u00fcberkompensieren, besonders da die Margen im Energiespeicher-Segment typischerweise geringer sind als im Premium-EV-Segment.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "Kein Monte Carlo durchgef\u00fchrt (0 Pfade) \u2014 keine statistische Grundlage vorhanden. Bei einer 48h-Bewegung von +6.3% ist der Short-term-Momentum real, aber ohne MC-Daten ist die Wahrscheinlichkeitsverteilung f\u00fcr 2-6 Monate rein qualitativ zu beurteilen. Concern: mittelhoch wegen fehlender quantitativer Absicherung.",
+          "mc_assessment": "Kein Monte Carlo durchgef\u00fchrt \u2014 0% Hit-Rate durch fehlende Berechnung, nicht durch tats\u00e4chlich negative Modell-Ausgabe. Dies ist ein technisches Datenproblem, nicht ein Signal. Die fehlende MC-Validierung erh\u00f6ht die Unsicherheit erheblich, da keine statistische Absicherung der Kursziele m\u00f6glich ist.",
           "concern_level": "medium"
         },
         "impact": 6,
-        "surprise": 5,
+        "surprise": 7,
         "direction": "BULLISH",
         "bear_case_severity": 6,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt bewertet ON prim\u00e4r als EV-Play und diskontiert die strukturelle Neugewichtung hin zu Energy Storage, wo Lithium-Zell-Nachfrage durch Utilities und staatliche Subventionen unabh\u00e4ngig vom EV-Zyklus w\u00e4chst. Das Insider-Cluster (9 K\u00e4ufe in 14 Tagen) suggeriert informierten Optimismus \u00fcber eine bevorstehende Neubewertung des Segment-Mix. Die massive EPS-Diskrepanz zwischen Quellen erh\u00f6ht jedoch die Unsicherheit \u00fcber die echte fundamentale St\u00e4rke.",
-        "catalyst": "Offizielle Segment-Neugewichtung im n\u00e4chsten Earnings Report (Q-Bericht in ~6-8 Wochen) mit explizitem Energy Storage Revenue Breakdown + potenzieller Guidance-Erh\u00f6hung f\u00fcr Industrial/Storage-Sparte",
-        "bear_case": "Automotive-Halbleiter-\u00dcberkapazit\u00e4ten 2024-2025 k\u00f6nnen Margen erheblich unter Druck setzen, w\u00e4hrend der Energy Storage Ramp-Up zeitlich verz\u00f6gert ist \u2014 der Gewinnr\u00fcckgang trifft vor dem neuen Wachstum ein.",
-        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.55%) und Fed Funds bei 3.64% beg\u00fcnstigt kapitalintensive Industrieunternehmen wie Halbleiterhersteller. Niedrigere Finanzierungskosten unterst\u00fctzen den Energy-Storage-Infrastruktur-Boom. Das Makro-Regime ist eindeutig unterst\u00fctzend f\u00fcr das Bull-Case-Szenario.",
+        "asymmetry_reasoning": "Das Cluster-Insider-Kaufsignal (9 Insider in 14 Tagen) ist statistisch signifikant und deutet auf informierten Optimismus hin, der \u00fcber den kurzfristigen Preisanstieg hinausgeht. Der Markt hat m\u00f6glicherweise den strukturellen Shift vom EV-Segment zum Energiespeicher-Segment noch nicht vollst\u00e4ndig bewertet \u2014 dies ist ein mittelfristiger Treiber, der sich \u00fcber Quartale entfaltet. Der expansive Makro-Kontext (steile Zinskurve, Fed Funds bei 3.64%) beg\u00fcnstigt zyklische Halbleiter-Wetten. Die Kombination aus US-Produktions-Lokalisierung durch geopolitischen Druck und staatlichen Subventionen f\u00fcr Energiespeicher schafft eine strukturelle Nachfragebasis, die weniger zinssensitiv ist als reine EV-Exposure.",
+        "catalyst": "Quartalsberichterstattung mit expliziten Energiespeicher-Segment-Guidance-Anhebungen sowie m\u00f6gliche Ank\u00fcndigung neuer US-Fertigungspartnerschaften im Kontext von IRA-Subventionen",
+        "bear_case": "EPS-Dateninkonsistenz (EDGAR vs. yfinance) l\u00e4sst keine verl\u00e4ssliche Fundamentalbewertung zu; bei hohem tats\u00e4chlichem P/E ist ON bei EV-Abschw\u00e4chung anf\u00e4llig f\u00fcr scharfe Multiple-Kontraktion",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0.55%, moderate Fed Funds Rate) beg\u00fcnstigt das Signal. Steigende Zinskurven profitieren kapitalintensiven Unternehmen wie ON, die in neue Fertigungskapazit\u00e4ten investieren. Das Umfeld ist konsistent mit einer Bullish-Einsch\u00e4tzung, solange die EPS-Datenunsicherheit nicht das fundamentale Bild zerst\u00f6rt.",
         "data_confidence": "low",
         "macro_regime": "expansive",
         "macro_context": {
@@ -255,174 +267,29 @@
       },
       "sector_momentum": {
         "etf": "XLK",
-        "rel_strength": 0.1701
+        "rel_strength": 0.1748
       },
-      "final_score": 0.0268,
+      "final_score": 0.0437,
       "time_value_efficiency": {
-        "roi_per_day_pct": 1.2192,
+        "roi_per_day_pct": 1.185,
         "annualized_roi": null,
         "dte": 24
       },
       "trade_score": {
-        "total": 66,
+        "total": 70,
         "grade": "BUY \ud83d\udfe1",
         "grade_short": "BUY",
         "components": {
-          "signal_quality": 21.9,
-          "options_quality": 29.6,
+          "signal_quality": 25.9,
+          "options_quality": 29.2,
           "risk_deductions": -10.0,
           "context_bonus": 25.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (29%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer",
-        "best_argument_for": "Der Markt bewertet ON prim\u00e4r als EV-Play und diskontiert die strukturelle Neugewichtung hin zu Energy Storage, wo Lithium-Zell-Nachfrage durch Utilities und staatliche Subventionen unabh\u00e4ngig vom EV-Zyklus w\u00e4chst. Das In",
-        "best_argument_against": "EV-Markt-Slowdown ist strukturell, nicht zyklisch: ON Semiconductor ist stark von Automotive-Halbleitern abh\u00e4ngig (>50% Umsatz), und der US-EV-Markt zeigt nachhaltige Schw\u00e4che durch mangelnde Infrastruktur, Preisdruck un"
+        "reasoning": "St\u00e4rken: starkes Signal (Impact=6/Surprise=7), guter ROI (28%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Das Cluster-Insider-Kaufsignal (9 Insider in 14 Tagen) ist statistisch signifikant und deutet auf informierten Optimismus hin, der \u00fcber den kurzfristigen Preisanstieg hinausgeht. Der Markt hat m\u00f6glicherweise den strukturellen Shift vom EV-Segment zum Energiespeicher-Segment noch nicht vollst\u00e4ndig bewertet \u2014 dies ist ein mittelfristiger Treiber, der sich \u00fcber Quartale entfaltet. Der expansive Makro",
+        "best_argument_against": "Die +6,7% Preisbewegung innerhalb von 48 Stunden suggeriert, dass der Markt bereits auf das Energiespeicher-Narrativ reagiert hat. ON Semiconductor ist nach diesem Anstieg auf einem Niveau, das kurzfristig \u00fcberkauft wirken k\u00f6nnte \u2014 ein klassisches Buy-the-News-Ph\u00e4nomen. Der Katalysator (Energiespeicher-Boom, US-Lithium-Shift) k\u00f6nnte bereits vollst\u00e4ndig eingepreist sein, was das Upside f\u00fcr die n\u00e4ch"
       },
       "trade_rank": 2
-    },
-    {
-      "ticker": "TSLA",
-      "strategy": "BULL_CALL_SPREAD",
-      "iv_rank": 100.0,
-      "iv_gate_applied": true,
-      "direction": "BULLISH",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 400.0,
-        "bid": 16.65,
-        "ask": 16.75,
-        "open_interest": 15649,
-        "implied_vol": 0.4828848098754883,
-        "spread_ratio": 0.006,
-        "dte": 24,
-        "spread_leg": {
-          "strike": 440.0,
-          "bid": 5.4,
-          "ask": 5.5
-        },
-        "net_debit": 11.35
-      },
-      "roi_analysis": {
-        "roi_gross": 0.8612,
-        "roi_net": 0.5617,
-        "spread_pct": 0.006,
-        "vega_loss": 0.2876,
-        "delta": 0.4598,
-        "iv_drop_assumed": 0.25,
-        "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 24
-      },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 878.6238,
-      "all_tiers_tried": [
-        {
-          "tier": "Short-Term",
-          "dte": 24,
-          "option": {
-            "expiry": "2026-05-15",
-            "strike": 400.0,
-            "bid": 16.65,
-            "ask": 16.75,
-            "open_interest": 15649,
-            "implied_vol": 0.4828848098754883,
-            "spread_ratio": 0.006,
-            "dte": 24,
-            "spread_leg": {
-              "strike": 440.0,
-              "bid": 5.4,
-              "ask": 5.5
-            },
-            "net_debit": 11.35
-          },
-          "roi": {
-            "roi_gross": 0.8612,
-            "roi_net": 0.5617,
-            "spread_pct": 0.006,
-            "vega_loss": 0.2876,
-            "delta": 0.4598,
-            "iv_drop_assumed": 0.25,
-            "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 24
-          },
-          "annualized_roi": 878.6238,
-          "strategy": "BULL_CALL_SPREAD"
-        }
-      ],
-      "features": {
-        "impact": 6,
-        "surprise": 7,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0273,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6218
-      },
-      "simulation": {
-        "current_price": 392.02,
-        "target_price": 423.39,
-        "hit_rate": 0.7014,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0262,
-        "alpha": 0.00187
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "TSLA ist bereits mit einem astronomischen KGV (>100x) bewertet \u2014 die 'Terafab AI-Chip'-Story ist spekulativ und k\u00f6nnte lediglich ein narrativer Ablenkungsversuch sein, um die Aufmerksamkeit vom Kerngesch\u00e4ft abzulenken, das unter Margendruck, sinkenden Marktanteilen in China und zunehmender EV-Konkurrenz leidet. Der Markt hat solche TSLA-Versprechungen wiederholt \u00fcberbewertet.",
-          "argument_2": "TSLA ist das Schlusslicht der 'Magnificent 7' Rally \u2014 das deutet auf relative Schw\u00e4che und institutionelle Skepsis hin. Bevorstehende Earnings mit expliziter Erwartung 'tangible progress' bei FSD/Autonomie (Morgan Stanley) schaffen ein erhebliches Entt\u00e4uschungsrisiko: Wenn der Katalysator nicht liefert, droht ein starker IV-Crush plus fundamentaler Sell-off.",
-          "argument_3": "EPS-Diskrepanz zwischen yfinance ($2.75) und SEC EDGAR ($1.08) \u2014 ein Faktor von ~2.5x \u2014 ist ein erhebliches Datenkonfidenz-Problem. Bei TSLA mit seiner komplexen Bilanzierung (Regulatory Credits, FSD-Deferred Revenue, Energie-Segment) ist unklar, welche Zahl die operative Realit\u00e4t besser abbildet. Dies erschwert jede rationale Fundamentalbewertung erheblich.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine statistische Basis vorhanden. Bei TSLA mit historischer 30-Tage-Volatilit\u00e4t von ~45-60% annualisiert w\u00e4re ein bullisches MC-Ziel in 30 Tagen realistisch zwischen 45-55% Hit-Rate. Die fehlende MC-Analyse ist ein Datenl\u00fccken-Problem, nicht per se b\u00e4risch, aber es fehlt quantitative St\u00fctzung f\u00fcr die Richtungsthese.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 7,
-        "direction": "BULLISH",
-        "bear_case_severity": 7,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt unterreagiert m\u00f6glicherweise auf das Terafab AI-Chip-Signal, weil TSLA-Bullishness aktuell out-of-favor ist (Schlusslicht Mag7) und AI-Hardware-Narrativ erst in die Valuation-Modelle sickern muss. Das 6-Insider-Cluster-Kaufsignal innerhalb 14 Tagen ist statistisch ungew\u00f6hnlich und deutet auf informierten Optimismus vor Earnings hin. Haiku-Einsch\u00e4tzung wird best\u00e4tigt: Die neue AI-Chip-Kategorie k\u00f6nnte tats\u00e4chlich die Margin-Debatte neu framen \u2014 allerdings bleibt das Risiko hoch, da TSLA-Narrative oft entt\u00e4uschen.",
-        "catalyst": "TSLA Earnings-Report mit konkreten Terafab AI-Chip-Meilensteinen und FSD-Skalierungsfortschritt; Insider-Cluster-K\u00e4ufe als vorauseilender Informationsindikator",
-        "bear_case": "TSLA liefert bei Earnings erneut nur vage Versprechen ohne quantifizierbare AI-Chip-Revenue-Timeline \u2014 IV-Crush post-Earnings kombiniert mit fundamentalem Entt\u00e4uschungs-Sell-off bei weiterhin komprimierter Auto-Marge. Relative Schw\u00e4che vs. Mag7-Peers verst\u00e4rkt institutionelle Abgaben.",
-        "macro_assessment": "Steile Zinskurve (+0.55%) und expansives Fed-Regime (3.64% Funds Rate) beg\u00fcnstigen grunds\u00e4tzlich Growth/Momentum-Namen wie TSLA. Das makro\u00f6konomische Umfeld ist kein Gegenwind \u2014 im Gegenteil, fallende Real-Zinsen st\u00fctzen hochbewertete Wachstumsaktien. Allerdings bleibt TSLA prim\u00e4r ein idiosynkratisches Story-Risk, weniger ein Makro-Trade. Der Makro-R\u00fcckenwind ist vorhanden, aber nicht der dominante Treiber.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.55,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "sector_momentum": {
-        "etf": "XLY",
-        "rel_strength": -0.0668
-      },
-      "final_score": 0.0268,
-      "time_value_efficiency": {
-        "roi_per_day_pct": 2.3404,
-        "annualized_roi": null,
-        "dte": 24
-      },
-      "trade_score": {
-        "total": 51,
-        "grade": "WATCH \ud83d\udfe0",
-        "grade_short": "WATCH",
-        "components": {
-          "signal_quality": 25.9,
-          "options_quality": 30.0,
-          "risk_deductions": -20.0,
-          "context_bonus": 15.0
-        },
-        "reasoning": "St\u00e4rken: starkes Signal (Impact=6/Surprise=7), guter ROI (56%), expansives Makro-Umfeld | Risiken: hohe IV (100%) \u2014 Optionen teuer, hohes Bear-Risiko (7/10), Sektor underperformt Markt",
-        "best_argument_for": "Der Markt unterreagiert m\u00f6glicherweise auf das Terafab AI-Chip-Signal, weil TSLA-Bullishness aktuell out-of-favor ist (Schlusslicht Mag7) und AI-Hardware-Narrativ erst in die Valuation-Modelle sickern muss. Das 6-Insider",
-        "best_argument_against": "TSLA ist bereits mit einem astronomischen KGV (>100x) bewertet \u2014 die 'Terafab AI-Chip'-Story ist spekulativ und k\u00f6nnte lediglich ein narrativer Ablenkungsversuch sein, um die Aufmerksamkeit vom Kerngesch\u00e4ft abzulenken, d"
-      },
-      "trade_rank": 3
     }
   ]
 }
