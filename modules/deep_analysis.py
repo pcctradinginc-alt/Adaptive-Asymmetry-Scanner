@@ -120,7 +120,21 @@ class DeepAnalysis:
                 continue
 
             # Red Team Veto: Wenn Red Team "VETO" → Signal verwerfen
+            # Auch: Automatisches VETO bei Narrativ-Mismatch-Schlüsselwörtern
             red_team = analysis.get("red_team", {})
+            arg1 = (red_team.get("argument_1", "") or "").lower()
+            narrativ_mismatch = any(w in arg1 for w in [
+                "narrativ-mismatch", "narrative mismatch", "trifft das geschäftsmodell",
+                "falsches narrativ", "datenfehler in der vorselektion",
+                "grundlegendes missverständnis", "trifft nicht zu"
+            ])
+            if narrativ_mismatch and red_team.get("red_team_verdict") != "VETO":
+                log.warning(
+                    f"  [{candidate['ticker']}] AUTO-VETO: Narrativ-Mismatch erkannt → "
+                    f"'{arg1[:60]}'"
+                )
+                red_team["red_team_verdict"] = "VETO"
+
             if red_team.get("red_team_verdict") == "VETO":
                 log.info(
                     f"  [{candidate['ticker']}] RED TEAM VETO → verworfen. "
