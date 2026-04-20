@@ -240,7 +240,12 @@ def main() -> None:
     final_sims = []
     for s in mc_viable:
         ticker = s["ticker"]
-        result = sim_final.run_for_dte(s, days_to_expiry=120)
+        # Final MC mit realistischem Horizont:
+        # Short-Term-Signale (Quick MC mit 30d) → Final MC mit 45d
+        # Alle anderen → 120d
+        quick_mc_days = s.get("quick_mc", {}).get("n_days", 30)
+        final_dte = 45 if quick_mc_days <= 30 else 120
+        result = sim_final.run_for_dte(s, days_to_expiry=final_dte)
         if result:
             result["simulation"]["n_paths"] = FINAL_MC_PATHS
             final_sims.append(result)
