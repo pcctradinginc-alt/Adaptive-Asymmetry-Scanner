@@ -231,8 +231,8 @@ def compute_trade_score(proposal: dict) -> dict:
         reasoning_parts.append("Risiken: " + ", ".join(weaknesses[:3]))
 
     # Für / Gegen aus Deep Analysis (volle Länge für Email)
-    best_for     = (da.get("asymmetry_reasoning", "") or "Strukturelles Signal erkannt")[:220]
-    best_against = (red_team.get("argument_1", "") or "n/a")[:220]
+    best_for     = (da.get("asymmetry_reasoning", "") or "Strukturelles Signal erkannt")[:400]
+    best_against = (red_team.get("argument_1", "") or "n/a")[:400]
 
     log.info(
         f"  [{ticker}] Score: {total}/100 ({grade_short}) | "
