@@ -36,7 +36,8 @@ NARRATIVE_DECAY = {
 DEFAULT_SIGMA   = 0.020   # Fallback wenn yfinance nicht erreichbar
 QUICK_MC_PATHS  = 5_000
 FINAL_MC_PATHS  = 10_000
-HIT_RATE_CAP    = 0.97    # Nie über 97% — statistisch unglaubwürdig
+HIT_RATE_CAP_SHORT = 0.85  # Short-Term (<=45d): max 85%
+HIT_RATE_CAP_LONG  = 0.95  # Long-Term (>45d): max 95%
 
 
 @lru_cache(maxsize=128)
@@ -44,17 +45,22 @@ def _get_hist_params(ticker: str) -> tuple[float, float]:
     """
     Holt historische Volatilität und Drift von yfinance.
     Gecacht pro Ticker — wird nur einmal pro Run abgerufen.
+    Nutzt yf.download() für effizientere Batch-Verarbeitung.
     
     Returns:
         (sigma, mu) — tägliche Vola und täglicher Drift
     """
     try:
-        hist   = yf.Ticker(ticker).history(period="6mo")
+        hist = yf.download(ticker, period="6mo", progress=False, auto_adjust=True)
         if hist.empty or len(hist) < 30:
             log.debug(f"  [{ticker}] Hist-Daten zu wenig → Default sigma")
             return DEFAULT_SIGMA, 0.0
 
-        returns = hist["Close"].pct_change().dropna()
+        close = hist["Close"]
+        if hasattr(close, "iloc"):
+            close = close.squeeze()  # MultiIndex → Series
+
+        returns = close.pct_change().dropna()
         sigma   = float(returns.std())
         mu      = float(returns.mean())
 
@@ -70,6 +76,27 @@ def _get_hist_params(ticker: str) -> tuple[float, float]:
     except Exception as e:
         log.debug(f"  [{ticker}] yfinance Hist-Fehler: {e} → Default")
         return DEFAULT_SIGMA, 0.0
+
+
+def preload_hist_params(tickers: list[str]) -> None:
+    """
+    Lädt historische Parameter für alle Ticker parallel vor.
+    Spart Zeit weil MC-Runs sofort auf Cache treffen.
+    Wird in pipeline.py nach Hard-Filter aufgerufen.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    log.info(f"Preload historische Daten für {len(tickers)} Ticker...")
+    
+    with ThreadPoolExecutor(max_workers=10) as ex:
+        futures = {ex.submit(_get_hist_params, t): t for t in tickers}
+        done = 0
+        for f in as_completed(futures):
+            done += 1
+            try:
+                f.result()
+            except Exception:
+                pass
+    log.info(f"  Historische Daten geladen ({done} Ticker gecacht)")
 
 
 class MirofishSimulation:
@@ -153,13 +180,14 @@ class MirofishSimulation:
 
         hit_rate = paths_hit / n_paths
 
-        # Cap: >97% ist statistisch nicht glaubwürdig
-        if hit_rate >= HIT_RATE_CAP:
+        # Cap je nach Laufzeit: Short-Term 85%, Long-Term 95%
+        hit_rate_cap = HIT_RATE_CAP_SHORT if days_to_expiry <= 45 else HIT_RATE_CAP_LONG
+        if hit_rate >= hit_rate_cap:
             log.warning(
-                f"  [{ticker}] Hit-Rate={hit_rate:.1%} → Cap auf {HIT_RATE_CAP:.0%} "
-                f"(Signal möglicherweise zu stark: α={base_alpha:.4f})"
+                f"  [{ticker}] Hit-Rate={hit_rate:.1%} → Cap auf {hit_rate_cap:.0%} "
+                f"({'Short' if days_to_expiry <= 45 else 'Long'}-Term Cap)"
             )
-            hit_rate = HIT_RATE_CAP
+            hit_rate = hit_rate_cap
 
         stderr = math.sqrt(hit_rate * (1 - hit_rate) / n_paths)
 
