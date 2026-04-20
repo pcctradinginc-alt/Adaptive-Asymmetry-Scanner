@@ -2,151 +2,6 @@
   "date": "2026-04-20",
   "proposals": [
     {
-      "ticker": "HOOD",
-      "strategy": "BULL_CALL_SPREAD",
-      "iv_rank": 100.0,
-      "iv_gate_applied": true,
-      "direction": "BULLISH",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 100.0,
-        "bid": 3.4,
-        "ask": 3.5,
-        "open_interest": 13428,
-        "implied_vol": 0.7319362744140624,
-        "spread_ratio": 0.0286,
-        "dte": 24,
-        "spread_leg": {
-          "strike": 110.0,
-          "bid": 1.53,
-          "ask": 1.59
-        },
-        "net_debit": 1.97
-      },
-      "roi_analysis": {
-        "roi_gross": 0.6558,
-        "roi_net": 0.1682,
-        "spread_pct": 0.0286,
-        "vega_loss": 0.4305,
-        "delta": 0.3188,
-        "iv_drop_assumed": 0.25,
-        "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 24
-      },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 9.6371,
-      "all_tiers_tried": [
-        {
-          "tier": "Short-Term",
-          "dte": 24,
-          "option": {
-            "expiry": "2026-05-15",
-            "strike": 100.0,
-            "bid": 3.4,
-            "ask": 3.5,
-            "open_interest": 13428,
-            "implied_vol": 0.7319362744140624,
-            "spread_ratio": 0.0286,
-            "dte": 24,
-            "spread_leg": {
-              "strike": 110.0,
-              "bid": 1.53,
-              "ask": 1.59
-            },
-            "net_debit": 1.97
-          },
-          "roi": {
-            "roi_gross": 0.6558,
-            "roi_net": 0.1682,
-            "spread_pct": 0.0286,
-            "vega_loss": 0.4305,
-            "delta": 0.3188,
-            "iv_drop_assumed": 0.25,
-            "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 24
-          },
-          "annualized_roi": 9.6371,
-          "strategy": "BULL_CALL_SPREAD"
-        }
-      ],
-      "features": {
-        "impact": 7,
-        "surprise": 6,
-        "mismatch": 7.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0414,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "strong",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6506
-      },
-      "simulation": {
-        "current_price": 89.94,
-        "target_price": 97.14,
-        "hit_rate": 0.8011,
-        "n_paths": 10000,
-        "days": 120,
-        "sigma": 0.0454,
-        "alpha": 0.00031
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Bewertungs-Risiko: Bei $89.94 und einem EPS von ~$2.05-2.69 handelt HOOD auf einem KGV von 33-44x \u2014 eine Premium-Bewertung, die bereits viel Wachstum einpreist. Eine SEC-Regel\u00e4nderung, die 'die Schleusen \u00f6ffnet', ist m\u00f6glicherweise bereits durch den +3.6% Move in 48h und das Mizuho-Upgrade auf $115 weitgehend diskontiert.",
-          "argument_2": "Regulatorisches Risiko ist zweischneidig: Dieselbe SEC, die Pattern-Day-Trader-Regeln lockert, kann in einem anderen politischen Klima neue restriktive Ma\u00dfnahmen einf\u00fchren. HOOD hat eine Geschichte mit regulatorischen Strafen (FINRA, SEC Settlement 2021). Retailbroker sind strukturell exponiert gegen\u00fcber regulatorischer Unsicherheit \u2014 ein zuk\u00fcnftiger Gegenwind k\u00f6nnte diesen Katalysator umkehren.",
-          "argument_3": "Monetarisierungs-Unsicherheit: HOOD's Revenue ist stark von Payment-for-Order-Flow (PFOF) abh\u00e4ngig, das in Europa bereits verboten ist und in den USA unter Beobachtung steht. Zudem h\u00e4ngt der Umsatz stark von Marktvolatilit\u00e4t und Retail-Aktivit\u00e4t ab \u2014 in einem ruhigeren Marktumfeld (VIX unter 15) kollabiert das Trading-Volumen \u00fcberproportional.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "MC nicht durchgef\u00fchrt (0 Pfade). Bei HOOD mit historischer Volatilit\u00e4t von ~70-80% annualisiert ist keine statistische Einsch\u00e4tzung m\u00f6glich. Die fehlende MC-Simulation ist ein Datenl\u00fccke, erh\u00f6ht aber nicht das fundamentale Risiko des Setups. Concern-Level bleibt medium da Richtungssignal durch andere Quellen (Insider, Analyst-Upgrade) gest\u00fctzt wird.",
-          "concern_level": "medium"
-        },
-        "impact": 7,
-        "surprise": 6,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat die strukturelle Tragweite der PDT-Regel\u00e4nderung noch nicht vollst\u00e4ndig eingepreist: Eine Lockerung w\u00fcrde Millionen von Retail-Konten mit unter $25k aus der Pattern-Day-Trader-Beschr\u00e4nkung befreien und direkt HOOD's Kernzielgruppe freischalten. Das Cluster-Insider-Kaufsignal (4 Insider in 14 Tagen) deutet darauf hin, dass interne Akteure die Gesch\u00e4ftschance h\u00f6her bewerten als der aktuelle Kurs reflektiert. Mizuho's Upgrade auf $115 gibt ~28% Upside und kommt von einer typischerweise konservativen Institution.",
-        "catalyst": "SEC Pattern-Day-Trader-Regelreform: Lockerung der $25k-Mindestkapitalanforderung w\u00fcrde HOOD's adressierbaren Markt signifikant erweitern und Trading-Volumen sowie PFOF-Revenues strukturell steigern.",
-        "bear_case": "Valuation bereits gestreckt bei 33-44x KGV, +3.6% in 48h k\u00f6nnte den Katalysator kurzfristig \u00fcberdiskontieren, und PFOF-Abh\u00e4ngigkeit bleibt ein strukturelles Risiko bei zuk\u00fcnftigen Regulierungs\u00e4nderungen.",
-        "macro_assessment": "Expansives Makro-Umfeld mit steiler Zinskurve (+0.55%) und Fed Funds bei 3.64% beg\u00fcnstigt Retail-Broker strukturell: H\u00f6here Zinsen auf Cash-Best\u00e4nde st\u00e4rken NIM-Komponenten, und Risk-On-Umfeld treibt Retail-Engagement. HOOD profitiert \u00fcberproportional von expansivem Regime. Makro-Kontext st\u00fctzt BULLISH-Signal klar.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.55,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "sector_momentum": {
-        "etf": "XLF",
-        "rel_strength": 0.1136
-      },
-      "final_score": 0.0675,
-      "time_value_efficiency": {
-        "roi_per_day_pct": 0.7008,
-        "annualized_roi": null,
-        "dte": 24
-      },
-      "trade_score": {
-        "total": 64,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
-        "components": {
-          "signal_quality": 25.9,
-          "options_quality": 23.4,
-          "risk_deductions": -10.0,
-          "context_bonus": 25.0
-        },
-        "reasoning": "St\u00e4rken: starkes Signal (Impact=7/Surprise=6), guter ROI (17%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
-        "best_argument_for": "Der Markt hat die strukturelle Tragweite der PDT-Regel\u00e4nderung noch nicht vollst\u00e4ndig eingepreist: E",
-        "best_argument_against": "Bewertungs-Risiko: Bei $89.94 und einem EPS von ~$2.05-2.69 handelt HOOD auf einem KGV von 33-44x \u2014 "
-      },
-      "trade_rank": 1
-    },
-    {
       "ticker": "ON",
       "strategy": "BULL_CALL_SPREAD",
       "iv_rank": 100.0,
@@ -156,31 +11,31 @@
         "expiry": "2026-05-15",
         "strike": 85.0,
         "bid": 5.4,
-        "ask": 5.75,
+        "ask": 5.65,
         "open_interest": 3117,
-        "implied_vol": 0.631839619140625,
-        "spread_ratio": 0.0609,
+        "implied_vol": 0.6001016552734376,
+        "spread_ratio": 0.0442,
         "dte": 24,
         "spread_leg": {
           "strike": 95.0,
           "bid": 2.14,
           "ask": 2.39
         },
-        "net_debit": 3.61
+        "net_debit": 3.51
       },
       "roi_analysis": {
-        "roi_gross": 0.6141,
-        "roi_net": 0.2549,
-        "spread_pct": 0.0609,
-        "vega_loss": 0.2375,
-        "delta": 0.5216,
+        "roi_gross": 0.6477,
+        "roi_net": 0.3287,
+        "spread_pct": 0.0442,
+        "vega_loss": 0.2305,
+        "delta": 0.5373,
         "iv_drop_assumed": 0.25,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 24
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 30.5995,
+      "annualized_roi": 74.356,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
@@ -189,105 +44,250 @@
             "expiry": "2026-05-15",
             "strike": 85.0,
             "bid": 5.4,
-            "ask": 5.75,
+            "ask": 5.65,
             "open_interest": 3117,
-            "implied_vol": 0.631839619140625,
-            "spread_ratio": 0.0609,
+            "implied_vol": 0.6001016552734376,
+            "spread_ratio": 0.0442,
             "dte": 24,
             "spread_leg": {
               "strike": 95.0,
               "bid": 2.14,
               "ask": 2.39
             },
-            "net_debit": 3.61
+            "net_debit": 3.51
           },
           "roi": {
-            "roi_gross": 0.6141,
-            "roi_net": 0.2549,
-            "spread_pct": 0.0609,
-            "vega_loss": 0.2375,
-            "delta": 0.5216,
+            "roi_gross": 0.6477,
+            "roi_net": 0.3287,
+            "spread_pct": 0.0442,
+            "vega_loss": 0.2305,
+            "delta": 0.5373,
             "iv_drop_assumed": 0.25,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 24
           },
-          "annualized_roi": 30.5995,
+          "annualized_roi": 74.356,
           "strategy": "BULL_CALL_SPREAD"
         }
       ],
       "features": {
-        "impact": 5,
-        "surprise": 6,
-        "mismatch": 5.0,
+        "impact": 6,
+        "surprise": 7,
+        "mismatch": 6.0,
         "z_score": 0.0,
-        "sigma_30d": 0.0378,
+        "sigma_30d": 0.0379,
         "eps_drift": 0.0,
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.8334
+        "quick_mc_hit_rate": 0.85
       },
       "simulation": {
-        "current_price": 84.63,
-        "target_price": 91.4,
-        "hit_rate": 0.97,
+        "current_price": 85.22,
+        "target_price": 92.03,
+        "hit_rate": 0.95,
         "n_paths": 10000,
         "days": 120,
-        "sigma": 0.0306,
-        "alpha": 0.00615
+        "sigma": 0.0307,
+        "alpha": 0.0066
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "ON Semiconductor (onsemi) ist prim\u00e4r ein Automotive/Industrial-Halbleiter-Lieferant (SiC, IGBT), NICHT ein Lithium-Batterie- oder Energy-Storage-Hersteller. Die Haiku-Pr\u00e4misse 'Lithium-Engpass + Energy Storage Boom' trifft das Gesch\u00e4ftsmodell nur indirekt \u00fcber Leistungshalbleiter \u2013 das ist ein fundamentales Narrativ-Mismatch, das die Signalqualit\u00e4t massiv schw\u00e4cht.",
-          "argument_2": "EV-Slowdown ist explizit benannt und ON's gr\u00f6\u00dfter Wachstumstreiber (SiC f\u00fcr EVs) leidet darunter direkt. ON hat in den letzten Quartalen Guidance-Cuts bei Automotive SiC gemacht. Der +5.9% Move in 48h k\u00f6nnte eine Bear-Market-Rally in einem strukturell geschw\u00e4chten Segment sein \u2013 Momentum ohne fundamentale Revision nach oben.",
-          "argument_3": "Insider-Cluster-K\u00e4ufe bei Halbleiter-Unternehmen sind oft opportunistisch nach Kursr\u00fcckg\u00e4ngen und kein verl\u00e4sslicher Forward-Indikator. Der Kurs bei $84.63 impliziert ein KGV von ~21x auf annualisiertes EPS \u2013 bei verlangsamtem Wachstum und US/China-Geopolitik-Risiken f\u00fcr die Lieferkette ist das keine billige Bewertung. Zudem: EPS-Diskrepanz zwischen yfinance ($4.05) und SEC EDGAR ($0.29) deutet auf massive Bilanzierungs- oder Periodenunterschiede hin.",
+          "argument_1": "EV-Nachfrageschw\u00e4che trifft onsemi direkt: ON ist stark im Automobilsegment (SiC-Chips f\u00fcr EVs) exponiert. Der News-Artikel best\u00e4tigt einen 'Slowdown im US-EV-Markt' \u2014 das trifft ONs wichtigstes Wachstumssegment strukturell und nicht nur vor\u00fcbergehend. Die Aktie hat bereits +6,6% in 48h gemacht, was bedeutet der positive Energiespeicher-Narrativ ist m\u00f6glicherweise bereits eingepreist.",
+          "argument_2": "EPS-Diskrepanz ist ein rotes Flag: yfinance zeigt EPS von $4.05 vs. SEC EDGAR $0.29 \u2014 eine massive Abweichung, die auf Einmaleffekte, adjustierte vs. GAAP-Zahlen oder Datenfehler hinweist. Diese Unsicherheit in der Fundamentalanalyse untergr\u00e4bt das Vertrauen in die Bewertungsbasis. Ein Forward-P/E auf Basis bereinigter Zahlen k\u00f6nnte stark von GAAP abweichen und ON \u00fcberbewertet erscheinen lassen.",
+          "argument_3": "Navitas-Konkurrenz und Sektor-Repricing: Der Artikel 'Navitas Is One Misstep Away From A Sharp Re-Rating' deutet auf fragile Bewertungen im gesamten GaN/SiC-Chip-Sektor hin. ON konkurriert direkt mit Navitas, Wolfspeed und STMicroelectronics im Leistungshalbleiter-Segment \u2014 ein Sector-Repricing k\u00f6nnte ON mitrei\u00dfen. Zudem ist Wolfspeed unter enormem Druck, was \u00dcberkapazit\u00e4ten im SiC-Markt signalisiert.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt \u2013 0 Pfade verf\u00fcgbar. Kein statistischer R\u00fcckenwind auswertbar. Bei einer 48h-Bewegung von +5.9% und fehlender MC-Validierung ist das Signal rein news-getrieben ohne quantitative Best\u00e4tigung. Concern: Die EPS-Abweichung (yfinance $4.05 vs. SEC $0.29) ist extrem verd\u00e4chtig und k\u00f6nnte auf fehlerhafte Datenbasis im Modell hinweisen.",
-          "concern_level": "high"
+          "mc_assessment": "0% Hit-Rate ist nicht aussagekr\u00e4ftig \u2014 kein MC wurde durchgef\u00fchrt. Bei einem Semiconductor-Titel mit typischer 30-Tage-Volatilit\u00e4t von 35-45% annualisiert w\u00e4re ein bullisches 30d-Ziel mit normalen Parametern bei 50-65% Hit-Rate realistisch. Die fehlende MC-Berechnung ist ein methodischer Datenpunkt, der keine Aussagekraft hat \u2014 weder positiv noch negativ.",
+          "concern_level": "medium"
         },
-        "impact": 5,
-        "surprise": 6,
+        "impact": 6,
+        "surprise": 7,
         "direction": "BULLISH",
         "bear_case_severity": 6,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt k\u00f6nnte die indirekte Benefizierung von ON durch Energy-Storage-Boom (Leistungshalbleiter f\u00fcr Wechselrichter/BMS) noch nicht vollst\u00e4ndig eingepreist haben, da das EV-Slowdown-Narrativ dominiert. Insider-Cluster-K\u00e4ufe (9 in 14 Tagen) signalisieren Management-Zuversicht bei aktuellem Kursniveau. Allerdings weicht meine Bewertung von der Haiku-Einsch\u00e4tzung ab: ON ist kein Batterie-Produzent, sondern Profiteur via Leistungselektronik \u2013 das ist eine schw\u00e4chere, mittelbare Kausalit\u00e4t.",
-        "catalyst": "Q-Earnings mit \u00fcberraschend starker Energy-Storage/Industrial-Power-Guidance als Offset zum EV-Slowdown + m\u00f6gliche Erh\u00f6hung US-Produktionssubventionen f\u00fcr Leistungshalbleiter in domestischer Energieinfrastruktur",
-        "bear_case": "ON's Kerngesch\u00e4ft Automotive SiC leidet unter EV-Marktschw\u00e4che; Energy-Storage-Exposure ist indirekt und margenschw\u00e4cher; der +5.9% Move k\u00f6nnte bereits das gesamte kurzfristige Upside absorbiert haben vor dem n\u00e4chsten Earnings-Katalysator.",
-        "macro_assessment": "Expansives Makro-Umfeld (steile Kurve +0.55%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich zyklische Technologie/Halbleiter-Positionen. Die Kombination aus niedrigeren Finanzierungskosten und staatlichen Subventionen f\u00fcr US-Energieinfrastruktur schafft einen strukturellen R\u00fcckenwind f\u00fcr ON's Industrial-Power-Segment. Makro ist supportiv, d\u00e4mpft aber nicht die unternehmensspezifischen Risiken im EV-Segment.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
+        "asymmetry_reasoning": "9 Insider-K\u00e4ufe in 14 Tagen als Cluster-Signal ist statistisch ungew\u00f6hnlich und deutet auf Insider-Conviction bez\u00fcglich naher Katalysatoren hin \u2014 der Markt preist dies noch nicht vollst\u00e4ndig ein. Der Energiespeicher-Demand-Shift (Utilities + State Subsidies) ist ein struktureller Tailwind, der ONs SiC-Portfolio diversifiziert und die reine EV-Abh\u00e4ngigkeit reduziert. Haiku-Einsch\u00e4tzung wird best\u00e4tigt: Die Kombination aus Produktexpansion und Nachfrage-Shift von EV zu Energiespeicher ist ein echter fundamentaler Treiber, nicht nur ein kurzfristiges Momentum-Signal.",
+        "catalyst": "Energiespeicher-Nachfrage-Shift mit staatlichen Subventionen + 9-Insider-Cluster-Kaufsignal als Vorl\u00e4ufer eines m\u00f6glichen Q-Earnings-Beats oder strategischen Announcements im SiC/Power-Segment",
+        "bear_case": "EV-Marktschw\u00e4che in ONs Kernabnehmersegment (Automotive) kombiniert mit fraglicher EPS-Qualit\u00e4t (GAAP vs. adjusted Diskrepanz) und m\u00f6glichem Sector-Repricing im Leistungshalbleiter-Bereich k\u00f6nnten den Kursanstieg wieder zunichte machen.",
+        "macro_assessment": "Makro-Daten nicht verf\u00fcgbar (FRED unerreichbar). Geopolitische Spannungen beg\u00fcnstigen US-Made Cells laut Newslage \u2014 positiv f\u00fcr onshore SiC-Produktion von ON. Zinsumfeld bleibt unklar, aber Energiespeicher-Subventionen (IRA-Kontext) liefern ratenunabh\u00e4ngigen Nachfragepuffer. Vorsicht geboten bei erh\u00f6hter genereller Marktvolatilit\u00e4t ohne Makro-Best\u00e4tigung.",
+        "data_confidence": "medium",
+        "macro_regime": "recessionary",
         "macro_context": {
-          "yield_curve": 0.55,
-          "regime": "expansive"
+          "yield_curve": null,
+          "regime": "recessionary"
         },
         "direction_conflict": false
       },
       "sector_momentum": {
         "etf": "XLK",
-        "rel_strength": 0.1686
+        "rel_strength": 0.1747
       },
-      "final_score": 0.4,
+      "final_score": 0.48,
       "time_value_efficiency": {
-        "roi_per_day_pct": 1.0621,
+        "roi_per_day_pct": 1.3696,
         "annualized_roi": null,
         "dte": 24
       },
       "trade_score": {
-        "total": 57,
+        "total": 56,
         "grade": "WATCH \ud83d\udfe0",
         "grade_short": "WATCH",
         "components": {
-          "signal_quality": 21.9,
-          "options_quality": 24.7,
+          "signal_quality": 25.9,
+          "options_quality": 30.0,
           "risk_deductions": -15.0,
-          "context_bonus": 25.0
+          "context_bonus": 15.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=6), guter ROI (25%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
-        "best_argument_for": "Der Markt k\u00f6nnte die indirekte Benefizierung von ON durch Energy-Storage-Boom (Leistungshalbleiter f",
-        "best_argument_against": "ON Semiconductor (onsemi) ist prim\u00e4r ein Automotive/Industrial-Halbleiter-Lieferant (SiC, IGBT), NIC"
+        "reasoning": "St\u00e4rken: starkes Signal (Impact=6/Surprise=7), guter ROI (33%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "9 Insider-K\u00e4ufe in 14 Tagen als Cluster-Signal ist statistisch ungew\u00f6hnlich und deutet auf Insider-C",
+        "best_argument_against": "EV-Nachfrageschw\u00e4che trifft onsemi direkt: ON ist stark im Automobilsegment (SiC-Chips f\u00fcr EVs) expo"
+      },
+      "trade_rank": 1
+    },
+    {
+      "ticker": "HOOD",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 90.0,
+        "bid": 6.85,
+        "ask": 7.2,
+        "open_interest": 11387,
+        "implied_vol": 0.7418238708496092,
+        "spread_ratio": 0.0486,
+        "dte": 24,
+        "spread_leg": {
+          "strike": 100.0,
+          "bid": 3.25,
+          "ask": 3.5
+        },
+        "net_debit": 3.95
+      },
+      "roi_analysis": {
+        "roi_gross": 0.5339,
+        "roi_net": 0.2008,
+        "spread_pct": 0.0486,
+        "vega_loss": 0.2359,
+        "delta": 0.5346,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 24
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 15.1665,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 24,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 90.0,
+            "bid": 6.85,
+            "ask": 7.2,
+            "open_interest": 11387,
+            "implied_vol": 0.7418238708496092,
+            "spread_ratio": 0.0486,
+            "dte": 24,
+            "spread_leg": {
+              "strike": 100.0,
+              "bid": 3.25,
+              "ask": 3.5
+            },
+            "net_debit": 3.95
+          },
+          "roi": {
+            "roi_gross": 0.5339,
+            "roi_net": 0.2008,
+            "spread_pct": 0.0486,
+            "vega_loss": 0.2359,
+            "delta": 0.5346,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 24
+          },
+          "annualized_roi": 15.1665,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 7,
+        "surprise": 6,
+        "mismatch": 7.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0415,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "strong",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6494
+      },
+      "simulation": {
+        "current_price": 89.86,
+        "target_price": 97.05,
+        "hit_rate": 0.8046,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0454,
+        "alpha": 0.00029
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Katalysator bereits teilweise eingepreist: +3.5% in 48h und Mizuho-Upgrade auf $115 sind \u00f6ffentlich bekannt \u2014 der Markt hat die PDT-Regel\u00e4nderung bereits teilweise absorbiert. Das Upside von aktuellem Preis ~$89 zu $115 Kursziel impliziert ~28% Aufw\u00e4rtspotenzial, aber ein Gro\u00dfteil der '\u00dcberraschung' ist bereits Konsens.",
+          "argument_2": "Regulatorisches Risiko als zweischneidiges Schwert: Eine SEC-Regel\u00e4nderung, die Robinhood beg\u00fcnstigt, kann unter einer anderen Administration oder bei politischem Druck r\u00fcckg\u00e4ngig gemacht oder verw\u00e4ssert werden. HOOD ist als Retail-Broker-Disruptor ein bevorzugtes politisches Ziel, und die Monetarisierung des PDT-Katalysators h\u00e4ngt von stabiler Regulatorik ab.",
+          "argument_3": "Bewertungsstreckung bei hohem Kurs: HOOD bei ~$90 handelt zu einem erheblichen Premium gegen\u00fcber historischen Niveaus. EPS-Diskrepanz (yfinance $2.69 vs. SEC $2.05) deutet auf m\u00f6gliche Datenqualit\u00e4tsprobleme hin \u2014 das KGV basierend auf SEC-Zahlen (~44x) ist f\u00fcr einen Finanzdienstleister ambitioniert, besonders wenn Zinssenkungen die Net Interest Income komprimieren.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate von 0% ist nicht interpretierbar \u2014 kein MC wurde durchgef\u00fchrt. Dies bedeutet keine statistische Validierung der Upside-These ist vorhanden. Bei historischer Volatilit\u00e4t von HOOD (typisch 60-80% annualisiert) w\u00e4re ein 30d-MC mit realistischen Parametern n\u00f6tig. Das Fehlen dieser Daten erh\u00f6ht die Unsicherheit erheblich, ist aber kein negatives Signal per se.",
+          "concern_level": "medium"
+        },
+        "impact": 7,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt fokussiert sich auf kurzfristige Preisbewegung (+3.5%), untersch\u00e4tzt aber die strukturelle Kundenbasisexpansion durch PDT-Regel\u00e4nderung \u2014 neue aktive Trader-Kohorten generieren recurring Transaktionsvolumen. Insider-Cluster-K\u00e4ufe (4 in 14 Tagen) signalisieren, dass Management selbst das fundamentale Upside als nicht eingepreist betrachtet. Die Haiku-Einsch\u00e4tzung stimmt \u00fcberein: 'strukturell, unerwartet, fundamental f\u00fcr Gesch\u00e4ftsmodell' trifft zu, da PDT-Lockerung Robinhoods Kernkompetenz (Retail-Akquisition junger User) direkt adressiert.",
+        "catalyst": "SEC Pattern Day Trader Regel\u00e4nderung senkt Kapitalanforderungen f\u00fcr aktive Retail-Trader \u2014 direkter struktureller Vorteil f\u00fcr ROODs Gesch\u00e4ftsmodell bei Neukundenakquisition und Trading-Volumen-Monetarisierung",
+        "bear_case": "Katalysator bereits in Mizuho-Upgrade und +3.5% 48h-Move teilweise eskomptiert; hohe Bewertung (~44x EPS nach SEC-Zahlen) l\u00e4sst wenig Puffer f\u00fcr Entt\u00e4uschungen bei Umsetzungsgeschwindigkeit der PDT-\u00c4nderung",
+        "macro_assessment": "Makro-Daten nicht verf\u00fcgbar (FRED nicht erreichbar). Unter Vorsichtsprinzip: Erh\u00f6htes Zinsumfeld komprimiert typischerweise Growth-Multiples, beg\u00fcnstigt aber HOOD's Net Interest Income kurzfristig. Retail-Trading-Aktivit\u00e4t ist zyklisch \u2014 in einem Risk-Off-Umfeld w\u00fcrde Transaktionsvolumen leiden. Gesamtbewertung: neutral-leicht positiv, da struktureller Katalysator makro-agnostisch wirkt.",
+        "data_confidence": "medium",
+        "macro_regime": "recessionary",
+        "macro_context": {
+          "yield_curve": null,
+          "regime": "recessionary"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLF",
+        "rel_strength": 0.1103
+      },
+      "final_score": 0.0675,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.8367,
+        "annualized_roi": null,
+        "dte": 24
+      },
+      "trade_score": {
+        "total": 56,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 25.9,
+          "options_quality": 25.0,
+          "risk_deductions": -10.0,
+          "context_bonus": 15.0
+        },
+        "reasoning": "St\u00e4rken: starkes Signal (Impact=7/Surprise=6), guter ROI (20%), positive Sektor-Relative-St\u00e4rke | Risiken: sehr hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt fokussiert sich auf kurzfristige Preisbewegung (+3.5%), untersch\u00e4tzt aber die strukturelle",
+        "best_argument_against": "Katalysator bereits teilweise eingepreist: +3.5% in 48h und Mizuho-Upgrade auf $115 sind \u00f6ffentlich "
       },
       "trade_rank": 2
     }

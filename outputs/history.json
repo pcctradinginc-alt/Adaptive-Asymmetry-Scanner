@@ -2,26 +2,26 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 24,
-        "avg_return": 0.0
+        "count": 32,
+        "avg_return": 0.085453
       },
       "mid": {
-        "count": 22,
-        "avg_return": 0.0
+        "count": 27,
+        "avg_return": 0.039927
       },
       "high": {
-        "count": 9,
-        "avg_return": 0.0
+        "count": 11,
+        "avg_return": -0.039014
       }
     },
     "mismatch": {
       "weak": {
-        "count": 42,
-        "avg_return": 0.0
+        "count": 54,
+        "avg_return": 0.060543
       },
       "good": {
-        "count": 13,
-        "avg_return": 0.0
+        "count": 16,
+        "avg_return": 0.007127
       },
       "strong": {
         "count": 0,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 55,
-        "avg_return": 0.0
+        "count": 70,
+        "avg_return": 0.048332
       },
       "relevant": {
         "count": 0,
@@ -71,8 +71,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 939.47,
-      "current_return": 0.0
+      "last_price": 926.555,
+      "current_return": -0.2146
     },
     {
       "ticker": "META",
@@ -101,8 +101,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 629.86,
-      "current_return": 0.0
+      "last_price": 672.605,
+      "current_return": 0.5195
     },
     {
       "ticker": "MRK",
@@ -131,8 +131,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 121.42,
-      "current_return": 0.0
+      "last_price": 117.905,
+      "current_return": -0.2521
     },
     {
       "ticker": "AAPL",
@@ -161,8 +161,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 260.48,
-      "current_return": 0.0
+      "last_price": 273.4499,
+      "current_return": 0.5921
     },
     {
       "ticker": "UNH",
@@ -191,8 +191,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 304.33,
-      "current_return": 0.0
+      "last_price": 322.4854,
+      "current_return": 0.2975
     },
     {
       "ticker": "LLY",
@@ -221,8 +221,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 939.47,
-      "current_return": 0.0
+      "last_price": 926.555,
+      "current_return": -0.2146
     },
     {
       "ticker": "UNH",
@@ -251,8 +251,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 304.33,
-      "current_return": 0.0
+      "last_price": 322.4854,
+      "current_return": 0.5432
     },
     {
       "ticker": "META",
@@ -281,8 +281,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 629.86,
-      "current_return": 0.0
+      "last_price": 672.605,
+      "current_return": 0.5195
     },
     {
       "ticker": "MRK",
@@ -311,8 +311,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 121.42,
-      "current_return": 0.0
+      "last_price": 117.9,
+      "current_return": -0.2521
     },
     {
       "ticker": "AAPL",
@@ -341,8 +341,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 260.48,
-      "current_return": 0.0
+      "last_price": 273.43,
+      "current_return": 0.5921
     },
     {
       "ticker": "TSLA",
@@ -371,8 +371,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 348.95,
-      "current_return": 0.0
+      "last_price": 392.71,
+      "current_return": 0.8215
     },
     {
       "ticker": "LLY",
@@ -401,8 +401,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 939.47,
-      "current_return": 0.0
+      "last_price": 926.555,
+      "current_return": -0.2146
     },
     {
       "ticker": "LLY",
@@ -431,8 +431,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 939.47,
-      "current_return": 0.0
+      "last_price": 926.555,
+      "current_return": -0.2146
     },
     {
       "ticker": "LLY",
@@ -461,8 +461,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 939.47,
-      "current_return": 0.0
+      "last_price": 926.555,
+      "current_return": -0.2146
     },
     {
       "ticker": "ON",
@@ -517,7 +517,9 @@
         "bear_case_severity": 7,
         "direction": "BULLISH"
       },
-      "outcome": null
+      "outcome": null,
+      "last_price": 85.135,
+      "current_return": 1.075
     },
     {
       "ticker": "ABT",
@@ -2107,6 +2109,11 @@
         "date": "2026-04-16",
         "score": 0.1406,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-20",
+        "score": -0.2453,
+        "headline_count": 3
       }
     ],
     "C": [
@@ -2440,6 +2447,11 @@
         "date": "2026-04-16",
         "score": 0.1569,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-20",
+        "score": 0.2521,
+        "headline_count": 5
       }
     ],
     "SYK": [
@@ -2583,8 +2595,8 @@
       },
       {
         "date": "2026-04-20",
-        "score": 0.0395,
-        "headline_count": 2
+        "score": 0.255,
+        "headline_count": 4
       }
     ],
     "ASML": [
@@ -3767,8 +3779,8 @@
       },
       {
         "date": "2026-04-20",
-        "score": -0.3252,
-        "headline_count": 4
+        "score": -0.113,
+        "headline_count": 5
       }
     ],
     "PEP": [
@@ -3959,7 +3971,7 @@
       },
       {
         "date": "2026-04-20",
-        "score": 0.0111,
+        "score": 0.0115,
         "headline_count": 5
       }
     ],
@@ -4034,7 +4046,7 @@
       },
       {
         "date": "2026-04-20",
-        "score": -0.2899,
+        "score": -0.4863,
         "headline_count": 5
       }
     ],
@@ -4090,8 +4102,8 @@
     "HPE": [
       {
         "date": "2026-04-20",
-        "score": -0.1409,
-        "headline_count": 2
+        "score": -0.0974,
+        "headline_count": 3
       }
     ],
     "STLD": [
@@ -4106,6 +4118,20 @@
         "date": "2026-04-20",
         "score": 0.0698,
         "headline_count": 1
+      }
+    ],
+    "EFX": [
+      {
+        "date": "2026-04-20",
+        "score": 0.2222,
+        "headline_count": 2
+      }
+    ],
+    "LMT": [
+      {
+        "date": "2026-04-20",
+        "score": 0.1574,
+        "headline_count": 5
       }
     ]
   }
