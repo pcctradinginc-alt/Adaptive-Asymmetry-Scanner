@@ -144,6 +144,20 @@ class OptionsDesigner:
                 "strategy":       strategy,
             })
 
+            # Vega-Loss-Gate: Bei Short-Term mit >35% Vega-Loss → nächsten Tier
+            if label == "Short-Term" and roi.get("vega_loss", 0) > 0.35:
+                log.info(
+                    f"  [{ticker}] {label}: Vega-Loss={roi['vega_loss']:.0%} > 35% "
+                    f"→ zu hohes IV-Crush-Risiko, versuche längere Laufzeit"
+                )
+                results_per_tier.append({
+                    "tier": label, "dte": option["dte"],
+                    "option": option, "roi": roi,
+                    "annualized_roi": round(annualized_roi, 4),
+                    "strategy": strategy,
+                })
+                continue
+
             if roi["passes_roi_gate"]:
                 # Erster Tier der besteht → nehmen
                 tier_idx = DTE_TIERS.index(tier)
@@ -298,12 +312,24 @@ class OptionsDesigner:
             is_call     = "CALL" in strategy or "BULL" in strategy
             opts        = chain.calls if is_call else chain.puts
 
+            # Strike-Range je nach DTE: kurzfristig näher am Kurs
+            days_mid = (dte_min + dte_max) / 2
+            if days_mid <= 50:    # Short-Term
+                otm_max = 1.03    # max 3% OTM
+                itm_max = 0.97
+            elif days_mid <= 140:  # Mid-Term
+                otm_max = 1.08    # max 8% OTM
+                itm_max = 0.96
+            else:                  # Long-Term
+                otm_max = 1.12    # max 12% OTM
+                itm_max = 0.95
+
             filtered = opts[
-                (opts["strike"] >= current * 0.97) &   # leicht ITM erlaubt
-                (opts["strike"] <= current * 1.15) &   # bis 15% OTM (war 12%)
+                (opts["strike"] >= current * itm_max) &
+                (opts["strike"] <= current * otm_max) &
                 (opts["openInterest"] >= max(
                     getattr(getattr(cfg, "risk", None), "min_open_interest", 100),
-                    50   # Minimum 50 OI — verhindert totalen Block bei dünnen Märkten
+                    50
                 ))
             ].copy()
 
