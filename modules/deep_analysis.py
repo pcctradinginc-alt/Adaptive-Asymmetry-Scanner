@@ -79,7 +79,7 @@ Folge dem Pflicht-Ablauf: Red Team → Statistik → Makro → Finale Bewertung.
 Antworte NUR mit diesem JSON:
 {{
     "red_team": {{
-        "argument_1": "<Stärkstes Argument gegen den Trade>",
+        "argument_1": "<Stärkstes Argument gegen den Trade — Min 2 vollständige Sätze, mindestens 200 Zeichen, konkret>",  
         "argument_2": "<Zweitstärkstes Argument>",
         "argument_3": "<Drittstärkstes Argument>",
         "red_team_verdict": "VETO" oder "PASSIERT"
@@ -93,7 +93,7 @@ Antworte NUR mit diesem JSON:
     "direction": "BULLISH" oder "BEARISH",
     "bear_case_severity": <0-10>,
     "time_to_materialization": "4-8 Wochen" oder "2-3 Monate" oder "6 Monate",
-    "asymmetry_reasoning": "<Max 3 Sätze — warum Markt unterreagiert hat>",
+    "asymmetry_reasoning": "<Min 3, Max 5 vollständige Sätze — warum der Markt unterreagiert hat. Mindestens 300 Zeichen. Konkret und vollständig>",  
     "catalyst": "<Spezifischer Katalysator>",
     "bear_case": "<Stärkstes Gegenargument>",
     "macro_assessment": "<Bewertung im aktuellen Makro-Umfeld>",
