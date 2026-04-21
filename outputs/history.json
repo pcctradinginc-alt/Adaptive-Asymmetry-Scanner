@@ -2,26 +2,26 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 72,
-        "avg_return": 0.223889
+        "count": 80,
+        "avg_return": 0.233114
       },
       "mid": {
-        "count": 52,
-        "avg_return": 0.161352
+        "count": 57,
+        "avg_return": 0.177101
       },
       "high": {
-        "count": 21,
-        "avg_return": -0.160393
+        "count": 23,
+        "avg_return": -0.175822
       }
     },
     "mismatch": {
       "weak": {
-        "count": 114,
-        "avg_return": 0.158202
+        "count": 126,
+        "avg_return": 0.164053
       },
       "good": {
-        "count": 31,
-        "avg_return": 0.10022
+        "count": 34,
+        "avg_return": 0.118505
       },
       "strong": {
         "count": 0,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 145,
-        "avg_return": 0.145809
+        "count": 160,
+        "avg_return": 0.154377
       },
       "relevant": {
         "count": 0,
@@ -71,8 +71,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.33,
-      "current_return": -0.3293
+      "last_price": 901.955,
+      "current_return": -0.3378
     },
     {
       "ticker": "META",
@@ -101,8 +101,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 670.65,
-      "current_return": 0.5397
+      "last_price": 671.56,
+      "current_return": 0.545
     },
     {
       "ticker": "MRK",
@@ -132,7 +132,7 @@
       },
       "outcome": null,
       "last_price": 112.48,
-      "current_return": -0.4793
+      "current_return": -0.4917
     },
     {
       "ticker": "AAPL",
@@ -161,8 +161,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 266.5,
-      "current_return": 0.2553
+      "last_price": 266.54,
+      "current_return": 0.2684
     },
     {
       "ticker": "UNH",
@@ -191,8 +191,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 352.1312,
-      "current_return": 1.0475
+      "last_price": 351.675,
+      "current_return": 1.0552
     },
     {
       "ticker": "LLY",
@@ -221,8 +221,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.33,
-      "current_return": -0.3293
+      "last_price": 902.18,
+      "current_return": -0.3378
     },
     {
       "ticker": "UNH",
@@ -251,8 +251,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 352.1312,
-      "current_return": 1.603
+      "last_price": 351.675,
+      "current_return": 1.598
     },
     {
       "ticker": "META",
@@ -281,8 +281,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 670.65,
-      "current_return": 0.5397
+      "last_price": 671.56,
+      "current_return": 0.545
     },
     {
       "ticker": "MRK",
@@ -311,8 +311,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 112.52,
-      "current_return": -0.4793
+      "last_price": 112.48,
+      "current_return": -0.4917
     },
     {
       "ticker": "AAPL",
@@ -341,8 +341,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 266.5,
-      "current_return": 0.2553
+      "last_price": 266.54,
+      "current_return": 0.2684
     },
     {
       "ticker": "TSLA",
@@ -371,8 +371,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 389.0795,
-      "current_return": 0.7251
+      "last_price": 389.53,
+      "current_return": 0.7431
     },
     {
       "ticker": "LLY",
@@ -401,8 +401,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.33,
-      "current_return": -0.3293
+      "last_price": 902.18,
+      "current_return": -0.3378
     },
     {
       "ticker": "LLY",
@@ -431,8 +431,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.33,
-      "current_return": -0.3293
+      "last_price": 902.18,
+      "current_return": -0.3378
     },
     {
       "ticker": "LLY",
@@ -461,8 +461,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.33,
-      "current_return": -0.3293
+      "last_price": 902.18,
+      "current_return": -0.3378
     },
     {
       "ticker": "ON",
@@ -518,7 +518,7 @@
         "direction": "BULLISH"
       },
       "outcome": null,
-      "last_price": 86.42,
+      "last_price": 86.6,
       "current_return": 1.2075
     },
     {
@@ -2300,6 +2300,82 @@
         "dte": 23
       },
       "outcome": null
+    },
+    {
+      "ticker": "AEP",
+      "entry_date": "2026-04-21",
+      "features": {
+        "impact": 5,
+        "surprise": 6,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.01,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6648
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 130.0,
+        "bid": 4.9,
+        "ask": 5.4,
+        "open_interest": 1438,
+        "implied_vol": 0.2788158056640625,
+        "spread_ratio": 0.0926,
+        "dte": 23,
+        "spread_leg": {
+          "strike": 145.0,
+          "bid": 0.15,
+          "ask": 0.45
+        },
+        "net_debit": 5.25
+      },
+      "simulation": {
+        "current_price": 132.94,
+        "target_price": 143.58,
+        "hit_rate": 0.8378,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0117,
+        "alpha": 0.00338
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Morgan Stanley hat das Price Target auf $136 gesenkt, obwohl der aktuelle Kurs bei $132.94 liegt \u2014 das impliziert nur noch ~2.3% Upside zum MS-Target. Diese minimale Marge ist f\u00fcr einen 2-6 Monats-Options-Trade v\u00f6llig unzureichend, da Theta-Decay und Transaktionskosten diesen schmalen Puffer rasch aufzehren. Die Kombination 'Overweight-Rating beibehalten, aber Target senken' signalisiert intern zunehmende Skepsis des Analysten trotz formell bullischer Haltung.",
+          "argument_2": "Utilities sind ein defensiver Sektor, der zwar im expansiven Makro-Umfeld nicht kategorisch benachteiligt wird, aber typischerweise underperformt wenn Zinsen hoch bleiben (4.25% 10Y Treasury). AEP ist ein kapitalintensives Unternehmen mit hoher Schuldenlast; steigende oder persistente Realzinsen erh\u00f6hen die Kapitalkosten direkt und dr\u00fccken auf die Bewertungsmultiples (Utility-DCF ist zinssensibler als fast jeder andere Sektor). Bei 4.25% 10Y ist das Dividenden-Rendite-Argument f\u00fcr AEP deutlich schw\u00e4cher als in Niedrigzinsumgebungen.",
+          "argument_3": "Der neue Analyst-Initiator (Truist, Buy, $148 Target) k\u00f6nnte einen typischen 'Initiierungsboost' erzeugen, der rasch wieder abflacht. Solche Initiierungen sind oft bereits eingepreist bevor Retailinvestoren reagieren k\u00f6nnen, und das Momentum verpufft innerhalb von 2-4 Wochen. Der Cluster-Insider-Kauf muss ebenfalls kritisch gesehen werden: Bei Utilities k\u00f6nnen Insider-K\u00e4ufe auch regulatorisch motiviert oder durch Compain-Programme bedingt sein, ohne zwingend auf nicht-\u00f6ffentliche positive Informationen hinzuweisen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 es existiert schlicht keine statistische Grundlage aus dem Modell. Dies ist eine neutrale Feststellung (kein Datenpunkt vorhanden), nicht ein negatives Signal per se. Das erh\u00f6ht jedoch die Unsicherheit erheblich, da wir uns ausschlie\u00dflich auf qualitative Signale st\u00fctzen m\u00fcssen. Concern-Level wird entsprechend auf medium gesetzt.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt scheint die Kombination aus Truist-Initiierung ($148 Target, +11.3% Upside) und Insider-Cluster-K\u00e4ufen noch nicht vollst\u00e4ndig eingepreist zu haben, da die 48h-Preisbewegung mit -0.5% leicht negativ bleibt. Dies deutet darauf hin, dass die bullischen Katalysatoren entweder ignoriert oder durch die MS-Targetsenkung neutralisiert wurden. Die asymmetrische Gelegenheit liegt darin, dass bei einer KI-Power-Nachfrage-Story (vgl. Bloom Energy Erw\u00e4hnung im Kontext) auch AEP als Infrastruktur-Utility von steigendem Strombedarf profitieren k\u00f6nnte \u2014 ein struktureller Wachstumstreiber, der im aktuellen Narrative noch unterbewertet scheint. Das Upside-Ziel von $148 (Truist) vs. aktuellem Kurs $132.94 bietet mit ~11% einen f\u00fcr einen Utility-Trade \u00fcberdurchschnittlichen potenziellen Return, der die Optionspr\u00e4mie rechtfertigen k\u00f6nnte.",
+        "catalyst": "Truist-Initiierung mit $148 Buy-Rating kombiniert mit 3-fach Insider-Cluster-Kauf als Vertrauenssignal; m\u00f6gliche Positionierung als AI-Power-Infrastruktur-Benefiziar",
+        "bear_case": "Morgan Stanleys Targetsenkung auf $136 bei nur ~2.3% Upside und der persistente 10Y-Zins von 4.25% limitieren das strukturelle Kurspotenzial f\u00fcr einen kapitalintensiven Utility erheblich; IV-Crush nach Initiierungsphase wahrscheinlich",
+        "macro_assessment": "Das expansive Makroumfeld (Zinskurve +0.54%, Fed Funds 3.64%) ist grunds\u00e4tzlich supportiv f\u00fcr Risk-Assets. F\u00fcr Utilities ist es jedoch ambivalent: Zwar beg\u00fcnstigt die steilere Kurve keine Rezessionsangst, aber der absolute 10Y-Level von 4.25% bleibt ein struktureller Gegenwind f\u00fcr zinssensitive, hochverschuldete Utilities wie AEP. Das Makro ist damit neutral bis leicht negativ f\u00fcr AEP, nicht klar positiv.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 3.9635,
+        "annualized_roi": null,
+        "dte": 23
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -2377,7 +2453,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.1399,
+        "score": -0.1854,
         "headline_count": 5
       }
     ],
@@ -2631,7 +2707,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.3874,
+        "score": 0.007,
         "headline_count": 5
       }
     ],
@@ -2692,7 +2768,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.0938,
+        "score": -0.0939,
         "headline_count": 5
       }
     ],
@@ -3533,7 +3609,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.0731,
+        "score": 0.1056,
         "headline_count": 5
       }
     ],
@@ -4193,8 +4269,8 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.0377,
-        "headline_count": 5
+        "score": 0.0213,
+        "headline_count": 4
       }
     ],
     "BG": [
@@ -4383,7 +4459,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.1186,
+        "score": 0.1239,
         "headline_count": 5
       }
     ],
@@ -4602,7 +4678,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.0846,
+        "score": 0.1175,
         "headline_count": 5
       }
     ],
@@ -5199,7 +5275,7 @@
     "ALL": [
       {
         "date": "2026-04-21",
-        "score": 0.2704,
+        "score": 0.1396,
         "headline_count": 5
       }
     ],
@@ -5248,7 +5324,7 @@
     "COF": [
       {
         "date": "2026-04-21",
-        "score": 0.0917,
+        "score": 0.084,
         "headline_count": 5
       }
     ],
