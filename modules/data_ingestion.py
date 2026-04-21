@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 MIN_MARKET_CAP_USD    = 2_000_000_000
 MIN_AVG_VOLUME        = 1_000_000
 MIN_DOLLAR_VOLUME_USD = 10_000_000
-MIN_RELATIVE_VOLUME   = 0.6
+RV_BASE_THRESHOLD     = 0.6   # Basis-Schwelle (skaliert mit VIX dynamisch)
 MAX_WORKERS           = 20   # Parallel Threads — empirisch für Yahoo Finance
 
 
@@ -45,10 +45,22 @@ class DataIngestion:
         self.history      = history or {}
         self.news_api_key = os.getenv("NEWS_API_KEY", "")
 
+    def _get_current_vix(self) -> float:
+        """VIX einmal holen — nicht pro Ticker wiederholen."""
+        try:
+            import yfinance as _yf
+            val = _yf.Ticker("^VIX").fast_info.last_price
+            return float(val or 20.0)
+        except Exception:
+            return 20.0
+
     def run(self) -> list[dict]:
         tickers = get_universe()
         log.info(f"Stufe 1: Hard-Filter auf {len(tickers)} Ticker "
                  f"(parallel, {MAX_WORKERS} Workers)")
+
+        vix_current = self._get_current_vix()
+        log.info(f"  RV-Filter: VIX={vix_current:.1f} → Schwelle={0.6 * max(0.5, min(1.5, vix_current/20.0)):.3f}")
 
         stats = {
             "total": len(tickers), "no_data": 0, "market_cap": 0,
@@ -60,7 +72,7 @@ class DataIngestion:
         # Parallel-Requests — massiv schneller als sequenziell
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             futures = {
-                executor.submit(self._evaluate_ticker, ticker, {}): ticker
+                executor.submit(self._evaluate_ticker, ticker, {}, vix_current): ticker
                 for ticker in tickers
             }
             for future in as_completed(futures):
@@ -80,7 +92,7 @@ class DataIngestion:
         return candidates
 
     def _evaluate_ticker(
-        self, ticker: str, _stats: dict
+        self, ticker: str, _stats: dict, vix_current: float = 20.0
     ) -> tuple[Optional[dict], dict]:
         """Evaluiert einen Ticker. Gibt (result, stats_delta) zurück."""
         local_stats = {
@@ -116,11 +128,21 @@ class DataIngestion:
 
             volume_today = info.get("volume") or info.get("regularMarketVolume") or 0
             rel_volume   = volume_today / avg_vol if avg_vol > 0 and volume_today > 0 else 0.0
-            if rel_volume < MIN_RELATIVE_VOLUME:
+            # Dynamischer RV-Schwellenwert: skaliert mit VIX (einmal in run() geholt)
+            vix_avg = 20.0   # historischer Durchschnitt
+            # Schwelle sinkt bei ruhigem Markt, steigt bei Panik
+            rv_threshold = RV_BASE_THRESHOLD * max(0.5, min(1.5, vix_current / vix_avg))
+            rv_threshold = round(rv_threshold, 2)
+
+            # News-Override: Ticker mit starker News-Aktivität trotz niedrigem RV erlauben
+            news = self._fetch_news(ticker, info)
+            news_count   = len(news) if news else 0
+            news_override = (news_count >= 3 and rel_volume >= 0.25)
+
+            if rel_volume < rv_threshold and not news_override:
                 local_stats["rel_volume"] += 1
                 return None, local_stats
 
-            news = self._fetch_news(ticker, info)
             if not news:
                 local_stats["no_news"] += 1
                 return None, local_stats
@@ -161,7 +183,7 @@ class DataIngestion:
         log.info(f"  ❌ Market Cap < 2 Mrd.:      {stats['market_cap']:>4}  ({stats['market_cap']/total*100:.1f}%)")
         log.info(f"  ❌ Avg Volume < 1M:          {stats['avg_volume']:>4}  ({stats['avg_volume']/total*100:.1f}%)")
         log.info(f"  ❌ Dollar-Vol < $10M:         {stats['dollar_volume']:>4}  ({stats['dollar_volume']/total*100:.1f}%)")
-        log.info(f"  ❌ Rel. Volume < 0.6:       {stats['rel_volume']:>4}  ({stats['rel_volume']/total*100:.1f}%)")
+        log.info(f"  ❌ Rel. Volume < Schwelle:  {stats['rel_volume']:>4}  ({stats['rel_volume']/total*100:.1f}%)")
         log.info(f"  ❌ Keine News:                {stats['no_news']:>4}  ({stats['no_news']/total*100:.1f}%)")
         log.info(f"  ✅ Bestanden:                {passed:>4}  ({passed/total*100:.1f}%)")
         log.info("=" * 55)
