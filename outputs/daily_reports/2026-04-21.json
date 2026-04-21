@@ -1,0 +1,585 @@
+{
+  "date": "2026-04-21",
+  "proposals": [
+    {
+      "ticker": "AMZN",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 260.0,
+        "bid": 7.8,
+        "ask": 7.95,
+        "open_interest": 40568,
+        "implied_vol": 0.4288387194824219,
+        "spread_ratio": 0.0189,
+        "dte": 23,
+        "spread_leg": {
+          "strike": 285.0,
+          "bid": 1.92,
+          "ask": 2.0
+        },
+        "net_debit": 6.03
+      },
+      "roi_analysis": {
+        "roi_gross": 1.0542,
+        "roi_net": 0.6832,
+        "spread_pct": 0.0189,
+        "vega_loss": 0.3333,
+        "delta": 0.4147,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 23
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 3877.6054,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 23,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 260.0,
+            "bid": 7.8,
+            "ask": 7.95,
+            "open_interest": 40568,
+            "implied_vol": 0.4288387194824219,
+            "spread_ratio": 0.0189,
+            "dte": 23,
+            "spread_leg": {
+              "strike": 285.0,
+              "bid": 1.92,
+              "ask": 2.0
+            },
+            "net_debit": 6.03
+          },
+          "roi": {
+            "roi_gross": 1.0542,
+            "roi_net": 0.6832,
+            "spread_pct": 0.0189,
+            "vega_loss": 0.3333,
+            "delta": 0.4147,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 23
+          },
+          "annualized_roi": 3877.6054,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 4,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0207,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6888
+      },
+      "simulation": {
+        "current_price": 252.57,
+        "target_price": 272.78,
+        "hit_rate": 0.795,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0208,
+        "alpha": 0.00321
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die KI-Deals mit Anthropic und OpenAI sind bereits weitgehend bekannt und k\u00f6nnten vollst\u00e4ndig eingepreist sein. AMZN notiert bei $252.57, was einem sehr hohen Bewertungsniveau entspricht. Die $5B-Anthropic-Investition ist kein neues Signal \u2013 sie wurde bereits \u00fcber mehrere Tranchen kommuniziert. Der Markt hat diese Partnerschaft seit 2023 verfolgt; ein erneuter 'Deal-Announcement' d\u00fcrfte kaum frisches Alpha generieren, wenn Sell-Side-Analysten wie BofA die Preisziele bereits vor Earnings anpassen.",
+          "argument_2": "Das Weight-Loss-Segment (Amazon vs. Eli Lilly/Novo Nordisk) ist ein hochspekulativer Narrativ ohne konkreten Umsatzbeitrag auf 2-6 Monate. Amazon hat keine zugelassenen GLP-1-Produkte und agiert allenfalls als Distributor \u00fcber PillPack. Dieser Narrativ lenkt von den eigentlichen Risiken ab: Gegenwind im Advertising-Segment falls Konsum schw\u00e4chelt, AWS-Margendruck durch hohe Capex-Investitionen in KI-Infrastruktur, und steigender Wettbewerb durch Microsoft Azure und Google Cloud. Custom AI Chips (Trainium/Inferentia) brauchen 12-24 Monate bis zur skalierten Monetarisierung.",
+          "argument_3": "Der Insider-Cluster (5 K\u00e4ufe in 14 Tagen) klingt bullisch, ist aber bei AMZN-Insidern oft plan-gesteuertes Kaufen (10b5-1 Pl\u00e4ne) ohne direkten Signal-Wert. Zudem: Die EPS-Diskrepanz zwischen yfinance ($9.43) und SEC EDGAR ($7.17) ist mit 31% au\u00dfergew\u00f6hnlich hoch \u2013 dies deutet auf m\u00f6gliche Non-GAAP vs. GAAP-Unterschiede oder Berechnungsfehler hin, die die fundamentale Bewertungsbasis unzuverl\u00e4ssig machen. Ein KGV auf Basis von $7.17 EPS bei $252.57 liegt bei ~35x \u2013 ambitioniert vor einem Earnings-Event mit hohen Erwartungen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet schlicht kein MC wurde durchgef\u00fchrt \u2013 keine statistischen Daten verf\u00fcgbar. Dies ist neutral zu werten, reduziert aber die Modellsicherheit erheblich. Ohne MC-Simulation kann keine quantitative Wahrscheinlichkeitsaussage \u00fcber Zielpreisniveaus gemacht werden. Das Fehlen dieser Metrik erh\u00f6ht die Abh\u00e4ngigkeit von qualitativer Analyse.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt untersch\u00e4tzt m\u00f6glicherweise die strukturelle Beschleunigung bei AWS durch propriet\u00e4re AI-Chip-Entwicklung (Trainium2/Inferentia3), die Margen langfristig verbessern kann ohne Abh\u00e4ngigkeit von NVIDIA-Lieferketten. Die Anthropic-Partnerschaft schafft einen Moat im Enterprise-KI-Segment, der noch nicht vollst\u00e4ndig in Konsenssch\u00e4tzungen reflektiert ist. Earnings in den n\u00e4chsten Wochen k\u00f6nnten als Katalysator wirken, wenn AWS-Wachstum \u00fcber 20% YoY und verbesserte operative Margen gezeigt werden. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Growth-Rotation, was AMZN als Large-Cap-Growth-Titel strukturell bevorzugt. Die BofA-Zielpreisanpassung vor Earnings signalisiert, dass Analysten ihre Modelle nach oben revidieren \u2013 dies ist ein klassisches Pre-Earnings-Revision-Signal.",
+        "catalyst": "Q1/Q2 Earnings-Report mit AWS-Wachstumszahlen und operativer Margenentwicklung; Konkretisierung der Monetarisierung von Custom AI Chips (Trainium2) auf dem AWS Summit oder Investor Day",
+        "bear_case": "Hohe Capex-Investitionen in KI-Infrastruktur k\u00f6nnten FCF kurzfristig belasten und bei entt\u00e4uschenden AWS-Zahlen einen scharfen Selloff ausl\u00f6sen. Bei aktuell hohen Erwartungen (KGV ~35x auf GAAP-Basis) ist das Risiko eines 'Sell the News' nach Earnings erheblich.",
+        "macro_assessment": "Das Makro-Umfeld ist klar supportiv: Zinskurve mit +0.54% (10Y-2Y) zeigt expansives Regime, Fed Funds Rate bei 3.64% deutet auf moderaten Zinsdruck ohne Rezessionsangst. F\u00fcr AMZN als zinssensibler Growth-Titel mit hohem Duration-Risiko ist dieses Umfeld g\u00fcnstig. Consumer Cyclical profitiert von stabilem Konsumklima, und AWS als B2B-Cloud-Anbieter ist weniger direkt abh\u00e4ngig von Consumer-Spending. Das Umfeld rechtfertigt eine bullische Positionierung mit struktureller \u00dcberzeugung, aber kein aggressives Leveraged-Exposure vor Earnings.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": 0.1606
+      },
+      "final_score": 0.0898,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 2.9704,
+        "annualized_roi": null,
+        "dte": 23
+      },
+      "trade_score": {
+        "total": 65,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 19.6,
+          "options_quality": 30.0,
+          "risk_deductions": -10.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=4), guter ROI (68%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt untersch\u00e4tzt m\u00f6glicherweise die strukturelle Beschleunigung bei AWS durch propriet\u00e4re AI-Chip-Entwicklung (Trainium2/Inferentia3), die Margen langfristig verbessern kann ohne Abh\u00e4ngigkeit von NVIDIA-Lieferketten. Die Anthropic-Partnerschaft schafft einen Moat im Enterprise-KI-Segment, der noch nicht vollst\u00e4ndig in Konsenssch\u00e4tzungen reflektiert ist. Earnings in den n\u00e4chsten Wochen k\u00f6nnte",
+        "best_argument_against": "Die KI-Deals mit Anthropic und OpenAI sind bereits weitgehend bekannt und k\u00f6nnten vollst\u00e4ndig eingepreist sein. AMZN notiert bei $252.57, was einem sehr hohen Bewertungsniveau entspricht. Die $5B-Anthropic-Investition ist kein neues Signal \u2013 sie wurde bereits \u00fcber mehrere Tranchen kommuniziert. Der Markt hat diese Partnerschaft seit 2023 verfolgt; ein erneuter 'Deal-Announcement' d\u00fcrfte kaum frisc"
+      },
+      "trade_rank": 1
+    },
+    {
+      "ticker": "AMAT",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 390.0,
+        "bid": 27.8,
+        "ask": 29.85,
+        "open_interest": 1394,
+        "implied_vol": 0.6517368811035158,
+        "spread_ratio": 0.0687,
+        "dte": 23,
+        "spread_leg": {
+          "strike": 430.0,
+          "bid": 12.1,
+          "ask": 13.3
+        },
+        "net_debit": 17.75
+      },
+      "roi_analysis": {
+        "roi_gross": 0.5972,
+        "roi_net": 0.2467,
+        "spread_pct": 0.0687,
+        "vega_loss": 0.2132,
+        "delta": 0.564,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 23
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 32.0903,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 23,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 390.0,
+            "bid": 27.8,
+            "ask": 29.85,
+            "open_interest": 1394,
+            "implied_vol": 0.6517368811035158,
+            "spread_ratio": 0.0687,
+            "dte": 23,
+            "spread_leg": {
+              "strike": 430.0,
+              "bid": 12.1,
+              "ask": 13.3
+            },
+            "net_debit": 17.75
+          },
+          "roi": {
+            "roi_gross": 0.5972,
+            "roi_net": 0.2467,
+            "spread_pct": 0.0687,
+            "vega_loss": 0.2132,
+            "delta": 0.564,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 23
+          },
+          "annualized_roi": 32.0903,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.032,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6716
+      },
+      "simulation": {
+        "current_price": 395.09,
+        "target_price": 426.7,
+        "hit_rate": 0.7378,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0306,
+        "alpha": 0.00219
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "AMAT handelt in einem Halbleiterequipment-Sektor, der stark von Kapitalausgaben der Chipfabrikanten abh\u00e4ngt. Die aktuelle Unsicherheit rund um US-Exportkontrollen gegen\u00fcber China (insbesondere f\u00fcr advanced semiconductor equipment) stellt ein erhebliches Risiko dar: AMAT generiert ca. 25-30% seines Umsatzes in China. Weitere Versch\u00e4rfungen der BIS-Exportregeln k\u00f6nnten diesen Umsatzstrom massiv beschneiden und Konsenssch\u00e4tzungen nach unten zwingen.",
+          "argument_2": "Die Axcelis-Veeco Merger-News betrifft Wettbewerber, nicht AMAT direkt. Der Haiku-Prescreening klassifiziert das Signal als 'n/a', was auf fehlende direkte Relevanz f\u00fcr AMAT hindeutet. Ein konsolidierter Konkurrent k\u00f6nnte mittelfristig st\u00e4rker in Ion-Implant und Deposition-Segmenten konkurrieren, in denen AMAT bereits unter Margendruck steht. Das Signal ist damit eher neutral bis leicht negativ, nicht bullish.",
+          "argument_3": "Die EPS-Diskrepanz zwischen yfinance (14.07) und SEC EDGAR (9.75) ist erheblich \u2014 eine Differenz von ~44%, auch wenn die Abweichung als 0% angegeben wird (m\u00f6glicherweise unterschiedliche Perioden oder adjusted vs. GAAP). Dieses Datenkonsistenzproblem untergr\u00e4bt die Fundamentalanalyse erheblich. Ist AMAT auf Basis des GAAP-EPS von 9.75 mit einem KGV von ~40x bewertet, erscheint die Aktie bei $395 deutlich \u00fcberteuert f\u00fcr ein zyklisches Unternehmen in einem potenziell abschw\u00e4chenden Equipment-Spending-Zyklus.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt (0 Pfade), daher ist eine statistische Validierung nicht m\u00f6glich. Die 0% Hit-Rate ist kein inhaltliches Signal, sondern ein Datenartefakt \u2014 sie bedeutet weder bullish noch bearish. Das Fehlen dieser Kennzahl erh\u00f6ht die Unsicherheit der Bewertung und erfordert erh\u00f6hte Vorsicht.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte die strategische Tiefe der Advantest-AMAT-Partnerschaft auf der EPIC Platform untersch\u00e4tzen. Diese Kooperation verbindet Front-End-Fertigung mit Back-End-Testing und signalisiert, dass AMAT sein \u00d6kosystem in Richtung integrierter L\u00f6sungen ausbaut \u2014 ein strukturelles Differenzierungsmerkmal gegen\u00fcber reinen Equipment-Anbietern. Das Cluster-Signal aus 3 Insider-K\u00e4ufen innerhalb von 14 Tagen ist statistisch bedeutsam: Insider mit non-public-knowledge kaufen typischerweise dann, wenn sie glauben, die Aktie sei signifikant unterbewertet. Die leichte 48h-Kursschw\u00e4che (-0.6%) bei gleichzeitig positiven strategischen News deutet auf eine kurzfristige Marktreaktion hin, die die langfristige strategische Signalwirkung ignoriert. Das expansive Makroumfeld mit steiler Zinskurve und moderaten Fed Funds Rates beg\u00fcnstigt Capex-intensive Industrien wie Halbleiterfertigung strukturell.",
+        "catalyst": "Fortschritt auf der EPIC Platform / AMAT Q-Earnings mit Guidance-Update zu Advantest-Partnerschaft und m\u00f6gliche R\u00fccknahme von Exportbeschr\u00e4nkungen gegen\u00fcber China oder neue Kapitalzusagen von TSMC/Samsung f\u00fcr 2025-2026 Fab-Expansionen",
+        "bear_case": "Versch\u00e4rfte US-Exportkontrollen f\u00fcr Halbleiterequipment nach China k\u00f6nnten 25-30% des Umsatzes gef\u00e4hrden und Gewinnsch\u00e4tzungen massiv unter Konsens dr\u00fccken \u2014 bei einem KGV von 40x auf GAAP-Basis w\u00e4re das Downside-Potenzial erheblich.",
+        "macro_assessment": "Das expansive Makroumfeld mit positiver Zinskurve (+0.54%) und moderaten Zinsen (Fed Funds 3.64%) ist strukturell positiv f\u00fcr AMAT: Halbleiterunternehmen investieren bei sinkenden Kapitalkosten und stabiler Nachfrage aggressiver in Fertigungskapazit\u00e4ten. Die aktuelle Konstellation beg\u00fcnstigt mittelfristige Long-Positionen in Equipment-Aktien, sofern das Chinaexport-Risiko nicht eskaliert.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": -0.0057
+      },
+      "final_score": 0.0898,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 1.0726,
+        "annualized_roi": null,
+        "dte": 23
+      },
+      "trade_score": {
+        "total": 51,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 24.3,
+          "risk_deductions": -10.0,
+          "context_bonus": 15.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (25%), expansives Makro-Umfeld | Risiken: hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt k\u00f6nnte die strategische Tiefe der Advantest-AMAT-Partnerschaft auf der EPIC Platform untersch\u00e4tzen. Diese Kooperation verbindet Front-End-Fertigung mit Back-End-Testing und signalisiert, dass AMAT sein \u00d6kosystem in Richtung integrierter L\u00f6sungen ausbaut \u2014 ein strukturelles Differenzierungsmerkmal gegen\u00fcber reinen Equipment-Anbietern. Das Cluster-Signal aus 3 Insider-K\u00e4ufen innerhalb von ",
+        "best_argument_against": "AMAT handelt in einem Halbleiterequipment-Sektor, der stark von Kapitalausgaben der Chipfabrikanten abh\u00e4ngt. Die aktuelle Unsicherheit rund um US-Exportkontrollen gegen\u00fcber China (insbesondere f\u00fcr advanced semiconductor equipment) stellt ein erhebliches Risiko dar: AMAT generiert ca. 25-30% seines Umsatzes in China. Weitere Versch\u00e4rfungen der BIS-Exportregeln k\u00f6nnten diesen Umsatzstrom massiv besc"
+      },
+      "trade_rank": 2
+    },
+    {
+      "ticker": "AAPL",
+      "strategy": "BEAR_PUT_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BEARISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 270.0,
+        "bid": 10.1,
+        "ask": 10.25,
+        "open_interest": 14313,
+        "implied_vol": 0.29706513488769526,
+        "spread_ratio": 0.0146,
+        "dte": 23,
+        "spread_leg": {
+          "strike": 295.0,
+          "bid": 27.8,
+          "ask": 30.6
+        },
+        "net_debit": -17.55
+      },
+      "roi_analysis": {
+        "roi_gross": 0.9186,
+        "roi_net": 0.6982,
+        "spread_pct": 0.0146,
+        "vega_loss": 0.1912,
+        "delta": 0.4419,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 23
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 4464.0142,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 23,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 270.0,
+            "bid": 10.1,
+            "ask": 10.25,
+            "open_interest": 14313,
+            "implied_vol": 0.29706513488769526,
+            "spread_ratio": 0.0146,
+            "dte": 23,
+            "spread_leg": {
+              "strike": 295.0,
+              "bid": 27.8,
+              "ask": 30.6
+            },
+            "net_debit": -17.55
+          },
+          "roi": {
+            "roi_gross": 0.9186,
+            "roi_net": 0.6982,
+            "spread_pct": 0.0146,
+            "vega_loss": 0.1912,
+            "delta": 0.4419,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 23
+          },
+          "annualized_roi": 4464.0142,
+          "strategy": "BEAR_PUT_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 7,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0139,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5958
+      },
+      "simulation": {
+        "current_price": 266.33,
+        "target_price": 287.64,
+        "hit_rate": 0.748,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0135,
+        "alpha": 0.00281
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der CEO-Wechsel von Tim Cook ist das destruktivste Signal f\u00fcr AAPL auf mittelfristige Sicht. Cook ist seit \u00fcber einem Jahrzehnt das Gesicht von Apple und verantwortlich f\u00fcr die massive Supply-Chain-Optimierung sowie die Services-Transformation. Ein F\u00fchrungswechsel bei einem Unternehmen dieser Gr\u00f6\u00dfenordnung schafft typischerweise 6-18 Monate strategische Unsicherheit: Welche Produktpriorit\u00e4ten \u00e4ndert sich? Bleibt die Capital-Return-Politik (Buybacks, Dividenden) bestehen? Der Markt hat solche Transitionsphasen historisch mit erh\u00f6hter Volatilit\u00e4t und Kursabschl\u00e4gen quittiert.",
+          "argument_2": "AAPL handelt bei $266 mit einem Forward-KGV von ca. 28-30x \u2014 eine Premium-Bewertung, die wenig Spielraum f\u00fcr Entt\u00e4uschungen l\u00e4sst. Bei einem EPS von ~$9.37 (yfinance) ist die Bewertung bereits auf kontinuierliches Wachstum eingepreist. Der China-Markt bleibt strukturell unter Druck durch Huawei-Konkurrenz und potenzielle Regulierungsrisiken, und die Tariff-Unsicherheit (Trump's Kommentar zu Zollerstattungen) belastet die globale Supply-Chain von Apple direkt, da ein Gro\u00dfteil der Produktion in Asien angesiedelt ist.",
+          "argument_3": "Der Insider-Cluster-Kauf von 6 Personen in 14 Tagen klingt bullish, ist aber im Kontext des CEO-Wechsels ambivalent zu interpretieren. Es k\u00f6nnte sich um vorher geplante 10b5-1-Plan-K\u00e4ufe handeln, die kein genuines Conviction-Signal darstellen. Gleichzeitig deutet der Hinweis 'stock breakout is in trouble' und die -1.4% Bewegung in 48h darauf hin, dass der technische Aufw\u00e4rtstrend bricht \u2014 ein bearishes technisches Muster kombiniert mit fundamentaler F\u00fchrungsunsicherheit ist eine gef\u00e4hrliche Kombination f\u00fcr Long-Positionen auf 2-6 Monate.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Der Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0% Hit-Rate technisch nicht interpretierbar \u2014 sie bedeutet schlicht keine Datenverf\u00fcgbarkeit, nicht zwingend eine bearishe Prognose. Ohne MC-Daten fehlt eine quantitative St\u00fctze f\u00fcr jede Richtungseinsch\u00e4tzung. Dies erh\u00f6ht die Unsicherheit der Gesamtbewertung erheblich.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 7,
+        "direction": "BEARISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt untersch\u00e4tzt typischerweise die strukturelle Unsicherheit nach CEO-Wechseln bei Mega-Caps, weil der initiale 'smooth transition'-Narrativ beruhigend wirkt. Apple hat zwar einen Nachfolger designiert, aber der neue CEO muss seine strategische Vision f\u00fcr KI, Vision Pro und China erst unter Beweis stellen \u2014 dieser Beweiszeitraum dauert Quartale, nicht Wochen. Der Insider-Kauf-Cluster wird bullish interpretiert, k\u00f6nnte aber systematische Plan-K\u00e4ufe ohne echte Conviction widerspiegeln. Gleichzeitig ist die Morgan Stanley 'Urgent Message' ein Hinweis darauf, dass institutionelle Investoren nerv\u00f6s werden \u2014 solche Signale materialisieren sich oft erst mit Verz\u00f6gerung in der Price Action. Der negative technische Druck (-1.4% bei brechendem Breakout) kombiniert mit der F\u00fchrungsunsicherheit schafft eine asymmetrische Downside-Risk-Situation.",
+        "catalyst": "Erster Earnings Call unter neuer CEO-F\u00fchrung bzw. Investorentag mit strategischer Neuausrichtung \u2014 erwartet Q3/Q4 2025",
+        "bear_case": "Das expansive Makro-Umfeld (steile Zinskurve, Fed Funds bei 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Technologietiteln, und Apple bleibt durch massive Buybacks ($90B+ Programm) fundamental gest\u00fctzt. Ein reibungsloser CEO-\u00dcbergang und starke iPhone-17-Nachfrage k\u00f6nnten den Druck schnell neutralisieren.",
+        "macro_assessment": "Das makro\u00f6konomische Umfeld ist expansiv (10Y-2Y Spread +0.54%, Fed Funds bei 3.64%), was grunds\u00e4tzlich Large-Cap-Tech beg\u00fcnstigt. Dieser R\u00fcckenwind mildert das bearishe Signal ab, reicht aber nicht aus, um die idiosynkratische CEO-Unsicherheit zu \u00fcberkompensieren. Apple-spezifische Risiken (China, Tariffs, F\u00fchrungswechsel) dominieren in diesem Fall den Makro-Tailwind.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": -0.118
+      },
+      "final_score": 0.0898,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 3.0357,
+        "annualized_roi": null,
+        "dte": 23
+      },
+      "trade_score": {
+        "total": 51,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 25.9,
+          "options_quality": 30.0,
+          "risk_deductions": -20.0,
+          "context_bonus": 15.0
+        },
+        "reasoning": "St\u00e4rken: starkes Signal (Impact=6/Surprise=7), guter ROI (70%), expansives Makro-Umfeld | Risiken: hohe IV (100%) \u2014 Optionen teuer, hohes Bear-Risiko (7/10), Sektor underperformt Markt",
+        "best_argument_for": "Der Markt untersch\u00e4tzt typischerweise die strukturelle Unsicherheit nach CEO-Wechseln bei Mega-Caps, weil der initiale 'smooth transition'-Narrativ beruhigend wirkt. Apple hat zwar einen Nachfolger designiert, aber der neue CEO muss seine strategische Vision f\u00fcr KI, Vision Pro und China erst unter Beweis stellen \u2014 dieser Beweiszeitraum dauert Quartale, nicht Wochen. Der Insider-Kauf-Cluster wird b",
+        "best_argument_against": "Der CEO-Wechsel von Tim Cook ist das destruktivste Signal f\u00fcr AAPL auf mittelfristige Sicht. Cook ist seit \u00fcber einem Jahrzehnt das Gesicht von Apple und verantwortlich f\u00fcr die massive Supply-Chain-Optimierung sowie die Services-Transformation. Ein F\u00fchrungswechsel bei einem Unternehmen dieser Gr\u00f6\u00dfenordnung schafft typischerweise 6-18 Monate strategische Unsicherheit: Welche Produktpriorit\u00e4ten \u00e4nde"
+      },
+      "trade_rank": 3
+    },
+    {
+      "ticker": "ALB",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 200.0,
+        "bid": 11.6,
+        "ask": 12.5,
+        "open_interest": 908,
+        "implied_vol": 0.667239655761719,
+        "spread_ratio": 0.072,
+        "dte": 23,
+        "spread_leg": {
+          "strike": 220.0,
+          "bid": 5.3,
+          "ask": 5.9
+        },
+        "net_debit": 7.2
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6184,
+        "roi_net": 0.2118,
+        "spread_pct": 0.072,
+        "vega_loss": 0.2626,
+        "delta": 0.4917,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 23
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 20.0869,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 23,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 200.0,
+            "bid": 11.6,
+            "ask": 12.5,
+            "open_interest": 908,
+            "implied_vol": 0.667239655761719,
+            "spread_ratio": 0.072,
+            "dte": 23,
+            "spread_leg": {
+              "strike": 220.0,
+              "bid": 5.3,
+              "ask": 5.9
+            },
+            "net_debit": 7.2
+          },
+          "roi": {
+            "roi_gross": 0.6184,
+            "roi_net": 0.2118,
+            "spread_pct": 0.072,
+            "vega_loss": 0.2626,
+            "delta": 0.4917,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 23
+          },
+          "annualized_roi": 20.0869,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 6,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0421,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6994
+      },
+      "simulation": {
+        "current_price": 196.53,
+        "target_price": 212.25,
+        "hit_rate": 0.7656,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0404,
+        "alpha": 0.00219
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Lithiumpreis befindet sich in einem strukturellen \u00dcberangebot-Zyklus, der durch chinesische Produzenten (Ganfeng, Tianqi) massiv versch\u00e4rft wird. Trotz der BESS-Nachfrageschicht ist das Angebotswachstum aus neuen australischen und s\u00fcdamerikanischen Projekten so stark, dass der Spotpreis f\u00fcr Lithiumkarbonat 2024-2025 auf Mehrjahrestiefs gefallen ist. ALB's Margen sind direkt an diesen Preis gekoppelt, und selbst erh\u00f6hte BESS-Nachfrage k\u00f6nnte das strukturelle \u00dcberangebot nicht schnell genug absorbieren, um die Ertragslage kurzfristig zu verbessern.",
+          "argument_2": "Die EPS-Diskrepanz zwischen yfinance (+8.83) und SEC EDGAR (-5.77) ist ein kritisches Warnsignal f\u00fcr die Datenqualit\u00e4t. Eine negative EPS-Zahl im SEC-Filing deutet auf tats\u00e4chliche GAAP-Verluste hin, w\u00e4hrend die yfinance-Zahl m\u00f6glicherweise bereinigte oder normalisierte Gewinne widerspiegelt. Ein Unternehmen, das auf GAAP-Basis Verluste schreibt, w\u00e4hrend der Rohstoffpreis auf dem Tiefpunkt ist, hat erhebliches Downside-Risiko. Der Baird-Downgrade unterstreicht diese fundamentale Schw\u00e4che. Insider-K\u00e4ufe allein k\u00f6nnen dieses strukturelle Ertragsproblem nicht \u00fcberkompensieren.",
+          "argument_3": "Der Katalysator 'BESS macht diesen den letzten zyklischen Lithiumzyklus' ist ein narrativer Bullish-Case, der strukturell bereits seit 2023 diskutiert wird und damit weitgehend eingepreist sein d\u00fcrfte. Solche Paradigmenwechsel-Narrative neigen dazu, die tats\u00e4chliche Transition-Timeline erheblich zu untersch\u00e4tzen. Zus\u00e4tzlich besteht ein erhebliches politisches Risiko: US-Subventionen f\u00fcr Energiespeicher (IRA) k\u00f6nnten bei einem Regierungswechsel oder Haushaltsproblemen reduziert werden, was die BESS-Nachfrageprognosen stark after w\u00fcrde.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Monte Carlo durchgef\u00fchrt \u2014 0% Hit-Rate ist hier als 'nicht berechnet' zu interpretieren, nicht als echtes Ergebnis. Bei einem Preis von $196.53 und der historischen Volatilit\u00e4t von ALB (typischerweise 50-70% annualisiert f\u00fcr Rohstoffwerte) w\u00e4re eine 30-Tage-Prognose methodisch sehr unsicher. Die fehlende MC-Statistik erh\u00f6ht die Gesamtunsicherheit des Signals erheblich.",
+          "concern_level": "high"
+        },
+        "impact": 5,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte die strukturelle Nachfrageverlagerung von EV (zyklisch, verlangsamt) zu BESS (regulatorisch gest\u00fctzt, weniger zyklisch) noch nicht vollst\u00e4ndig in den Bewertungsmodellen reflektieren, da die meisten Sell-Side-Modelle ALB weiterhin prim\u00e4r als EV-Lithium-Proxy modellieren. Das Cluster-Insider-Kaufsignal (7 Insider in 14 Tagen) ist statistisch signifikant und deutet auf Insiderwissen \u00fcber eine positive Entwicklung hin, die dem Markt noch nicht bekannt ist \u2014 m\u00f6glicherweise bessere-als-erwartete Q-Zahlen oder ein Vertragsbeschluss. Der expansive Makro-Kontext (steile Zinskurve +0.54%, Fed Funds bei 3.64%) beg\u00fcnstigt kapitalintensive Rohstoff- und Industrie-Transformationsplays, da niedrigere Finanzierungskosten die Projekt-\u00d6konomie verbessern. Dennoch bleibt das GAAP-EPS-Problem (-5.77 laut SEC) das zentrale Risiko, das jede Bullish-Position limitiert.",
+        "catalyst": "Earnings-\u00dcberraschung Q2/Q3 durch BESS-Vertragsabschl\u00fcsse + m\u00f6gliche Lithiumpreis-Bodenbildung durch chinesische Produktionskostendruck",
+        "bear_case": "Strukturelles Lithium-\u00dcberangebot h\u00e4lt l\u00e4nger an als BESS-Nachfrage kompensieren kann; GAAP-Verluste (-5.77 EPS) deuten auf fundamentale Margenschw\u00e4che, die selbst optimistische BESS-Szenarien nicht kurzfristig heilen.",
+        "macro_assessment": "Das expansive Makroumfeld (steile Zinskurve, moderate Fed Funds Rate von 3.64%) ist grunds\u00e4tzlich konstruktiv f\u00fcr Rohstoff- und Industriewerte mit mittelfristigem Wachstumspotenzial. F\u00fcr ALB spezifisch bedeutet dies: g\u00fcnstigere Kapitalkosten f\u00fcr neue Minen-/Raffinationsprojekte und eine risikofreudige Marktstimmung, die Transformations-Narrativen (EV\u2192BESS) mehr Kredit gibt. Der Makro-Kontext ist supportiv, kann aber das firmenspezifische \u00dcberangebots-Problem im Lithiummarkt nicht \u00fcberwinden.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLB",
+        "rel_strength": 0.1921
+      },
+      "final_score": 0.0898,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.9209,
+        "annualized_roi": null,
+        "dte": 23
+      },
+      "trade_score": {
+        "total": 48,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 20.6,
+          "risk_deductions": -20.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=6), guter ROI (21%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer, hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt k\u00f6nnte die strukturelle Nachfrageverlagerung von EV (zyklisch, verlangsamt) zu BESS (regulatorisch gest\u00fctzt, weniger zyklisch) noch nicht vollst\u00e4ndig in den Bewertungsmodellen reflektieren, da die meisten Sell-Side-Modelle ALB weiterhin prim\u00e4r als EV-Lithium-Proxy modellieren. Das Cluster-Insider-Kaufsignal (7 Insider in 14 Tagen) ist statistisch signifikant und deutet auf Insiderwissen ",
+        "best_argument_against": "Der Lithiumpreis befindet sich in einem strukturellen \u00dcberangebot-Zyklus, der durch chinesische Produzenten (Ganfeng, Tianqi) massiv versch\u00e4rft wird. Trotz der BESS-Nachfrageschicht ist das Angebotswachstum aus neuen australischen und s\u00fcdamerikanischen Projekten so stark, dass der Spotpreis f\u00fcr Lithiumkarbonat 2024-2025 auf Mehrjahrestiefs gefallen ist. ALB's Margen sind direkt an diesen Preis gek"
+      },
+      "trade_rank": 4
+    }
+  ]
+}
