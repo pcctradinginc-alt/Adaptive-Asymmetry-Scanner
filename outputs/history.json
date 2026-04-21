@@ -2,26 +2,26 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 64,
-        "avg_return": 0.212771
+        "count": 72,
+        "avg_return": 0.223889
       },
       "mid": {
-        "count": 47,
-        "avg_return": 0.141842
+        "count": 52,
+        "avg_return": 0.161352
       },
       "high": {
-        "count": 19,
-        "avg_return": -0.14261
+        "count": 21,
+        "avg_return": -0.160393
       }
     },
     "mismatch": {
       "weak": {
-        "count": 102,
-        "avg_return": 0.151094
+        "count": 114,
+        "avg_return": 0.158202
       },
       "good": {
-        "count": 28,
-        "avg_return": 0.077233
+        "count": 31,
+        "avg_return": 0.10022
       },
       "strong": {
         "count": 0,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 130,
-        "avg_return": 0.135187
+        "count": 145,
+        "avg_return": 0.145809
       },
       "relevant": {
         "count": 0,
@@ -71,8 +71,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.6767,
-      "current_return": -0.3443
+      "last_price": 901.33,
+      "current_return": -0.3293
     },
     {
       "ticker": "META",
@@ -101,8 +101,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 672.62,
-      "current_return": 0.485
+      "last_price": 670.65,
+      "current_return": 0.5397
     },
     {
       "ticker": "MRK",
@@ -131,8 +131,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 112.45,
-      "current_return": -0.4711
+      "last_price": 112.48,
+      "current_return": -0.4793
     },
     {
       "ticker": "AAPL",
@@ -161,7 +161,7 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 266.375,
+      "last_price": 266.5,
       "current_return": 0.2553
     },
     {
@@ -191,8 +191,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 352.49,
-      "current_return": 1.0271
+      "last_price": 352.1312,
+      "current_return": 1.0475
     },
     {
       "ticker": "LLY",
@@ -221,8 +221,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.6767,
-      "current_return": -0.3443
+      "last_price": 901.33,
+      "current_return": -0.3293
     },
     {
       "ticker": "UNH",
@@ -251,8 +251,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 352.49,
-      "current_return": 1.5797
+      "last_price": 352.1312,
+      "current_return": 1.603
     },
     {
       "ticker": "META",
@@ -281,8 +281,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 672.5401,
-      "current_return": 0.485
+      "last_price": 670.65,
+      "current_return": 0.5397
     },
     {
       "ticker": "MRK",
@@ -311,8 +311,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 112.45,
-      "current_return": -0.4711
+      "last_price": 112.52,
+      "current_return": -0.4793
     },
     {
       "ticker": "AAPL",
@@ -341,7 +341,7 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 266.375,
+      "last_price": 266.5,
       "current_return": 0.2553
     },
     {
@@ -371,8 +371,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 387.825,
-      "current_return": 0.6913
+      "last_price": 389.0795,
+      "current_return": 0.7251
     },
     {
       "ticker": "LLY",
@@ -401,8 +401,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.6767,
-      "current_return": -0.3443
+      "last_price": 901.33,
+      "current_return": -0.3293
     },
     {
       "ticker": "LLY",
@@ -431,8 +431,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.6767,
-      "current_return": -0.3443
+      "last_price": 901.33,
+      "current_return": -0.3293
     },
     {
       "ticker": "LLY",
@@ -461,8 +461,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 901.6767,
-      "current_return": -0.3443
+      "last_price": 901.33,
+      "current_return": -0.3293
     },
     {
       "ticker": "ON",
@@ -518,7 +518,7 @@
         "direction": "BULLISH"
       },
       "outcome": null,
-      "last_price": 86.275,
+      "last_price": 86.42,
       "current_return": 1.2075
     },
     {
@@ -2072,6 +2072,234 @@
         "dte": 23
       },
       "outcome": null
+    },
+    {
+      "ticker": "BAC",
+      "entry_date": "2026-04-21",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0139,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.598
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-07-17",
+        "strike": 52.5,
+        "bid": 3.4,
+        "ask": 3.5,
+        "open_interest": 9085,
+        "implied_vol": 0.2919992675781249,
+        "spread_ratio": 0.0286,
+        "dte": 86,
+        "spread_leg": {
+          "strike": 57.5,
+          "bid": 1.13,
+          "ask": 1.17
+        },
+        "net_debit": 2.37
+      },
+      "simulation": {
+        "current_price": 53.55,
+        "target_price": 57.84,
+        "hit_rate": 0.7286,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0141,
+        "alpha": 0.00269
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Das AI-Margin-Expansion-Narrativ ist f\u00fcr Gro\u00dfbanken bereits weitgehend bekannt und d\u00fcrfte eingepreist sein. BAC handelt bei einem KGV von ~10-11x (53.55/5.04), was f\u00fcr eine Gro\u00dfbank im expansiven Zinsumfeld bereits ambitioniert ist. Analysten haben AI-Effizienzgewinne bei Banken seit mindestens 18 Monaten thematisiert \u2014 der Markt hat reichlich Zeit gehabt, dieses Signal zu antizipieren. Ein 'structural_change'-Label rechtfertigt keine Underreaction-Pr\u00e4mie, wenn der Katalysator im Mainstreambewusstsein angekommen ist.",
+          "argument_2": "Banken sind im aktuellen Umfeld anf\u00e4llig f\u00fcr Kreditqualit\u00e4tsverschlechterung: Trotz steiler Zinskurve (+0.54%) bleibt die absolute Zinslast auf Konsumenten hoch (Fed Funds 3.64%). Kreditkarten- und Verbraucherkredit-NPLs steigen branchenweit. BAC hat ein erhebliches Verbraucher-Kreditbuch, und eine potenzielle Rezessionsdrehung w\u00fcrde R\u00fcckstellungen massiv erh\u00f6hen und die Margenerweiterung durch AI vollst\u00e4ndig negieren. Der Markt preist aktuell ein Soft-Landing ein \u2014 jede Abweichung trifft BAC \u00fcberproportional.",
+          "argument_3": "Die -0.8% Preisbewegung in 48 Stunden bei positivem Newsflow (Insider-K\u00e4ufe, AI-Artikel) ist ein schwaches technisches Warnsignal. Der Markt reagiert nicht positiv auf bullishe Nachrichten \u2014 das deutet auf latenten Verkaufsdruck hin. Zudem fehlt ein Quick-MC-Ergebnis (0 Pfade), was die statistische Grundlage f\u00fcr einen mittelfristigen Options-Trade erheblich schw\u00e4cht. Ohne belastbare Preisverteilung ist jede Impact-Sch\u00e4tzung spekulativ.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Der MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate kein inhaltliches Signal sondern ein technischer Ausfall. F\u00fcr BAC mit historischer annualisierter Volatilit\u00e4t von ~25-30% w\u00e4re bei einem 2-6-Monats-Horizont eine realistische Hit-Rate von 50-65% f\u00fcr ein moderates Bullish-Ziel (~5-8% Aufw\u00e4rtsbewegung) zu erwarten. Das Fehlen jeder MC-Statistik senkt die Datenkonfidenz erheblich und verhindert eine robuste Risikosch\u00e4tzung.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt untersch\u00e4tzt m\u00f6glicherweise die Geschwindigkeit, mit der BAC AI-gest\u00fctzte Effizienzgewinne in den NII und Non-Interest-Income konvertiert \u2014 insbesondere bei Back-Office-Automatisierung und personalisierten Cross-Selling-Modellen. Das Anthropic-Mythos-Signal (europ\u00e4ische Banken) deutet auf branchenweite Adoption hin, die BAC durch fr\u00fche Investitionen bevorzugt. Das Cluster-Insider-Kaufsignal (5 K\u00e4ufer in 14 Tagen) ist ein statistisch signifikantes Signal f\u00fcr Insider-\u00dcberzeugung, das der Markt in der kurzfristigen Kursschw\u00e4che ignoriert. Das expansive Makro-Regime mit steiler Zinskurve beg\u00fcnstigt NII-Expansion bei BAC's gro\u00dfem variabel-verzinstem Kreditbuch direkt. Die Kombination aus AI-Operationalisierung, Insider-Zuversicht und Makro-R\u00fcckenwind schafft eine moderate asymmetrische Gelegenheit, die in der aktuellen Kursschw\u00e4che unterbewertet erscheint.",
+        "catalyst": "Q2 2026 Earnings (voraussichtlich Juli 2026): Erstmalige quantifizierte Disclosure von AI-bedingten Kosteneinsparungen und Margeverbesserungen im Net Interest Margin / Efficiency Ratio-Reporting",
+        "bear_case": "Kreditqualit\u00e4tsverschlechterung im Verbrauchersegment bei anhaltend hohen Realzinsen erzwingt erh\u00f6hte R\u00fcckstellungen und \u00fcberlagert jegliche AI-Effizienzgewinne; der Kurs reagiert bereits schwach auf positive News.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0.54%, Fed Funds 3.64%) ist strukturell positiv f\u00fcr BAC: Banken profitieren direkt von NII-Expansion bei steiler Kurve. Der moderate Zinssatz reduziert systemischen Stress. Risiko bleibt eine unerwartete Rezessionsdrehung oder Fed-Policy-Fehler, der die Konsumkreditqualit\u00e4t verschlechtert. Netto ist das Makro ein moderater R\u00fcckenwind, der bullishe Einzelsignale st\u00fctzt ohne sie zu garantieren.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6174,
+        "annualized_roi": null,
+        "dte": 86
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "BIIB",
+      "entry_date": "2026-04-21",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0201,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7718
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-07-17",
+        "strike": 200.0,
+        "bid": 7.9,
+        "ask": 8.5,
+        "open_interest": 654,
+        "implied_vol": 0.3726869372558594,
+        "spread_ratio": 0.0706,
+        "dte": 86,
+        "spread_leg": {
+          "strike": 220.0,
+          "bid": 2.15,
+          "ask": 3.0
+        },
+        "net_debit": 6.35
+      },
+      "simulation": {
+        "current_price": 186.77,
+        "target_price": 201.71,
+        "hit_rate": 0.85,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0205,
+        "alpha": 0.00438
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "BIIB hat fundamentale strukturelle Probleme: Die Pipeline ist stark auf wenige Alzheimer-Medikamente (Leqembi) konzentriert, die commercial ramp entt\u00e4uschend verl\u00e4uft. Die News \u00fcber 'Amyloid Setback' in den letzten 48h deutet auf weiteren negativen Druck im Alzheimer-Segment hin. Leqembi-Ums\u00e4tze verfehlen Konsenserwartungen konsistent, was das Core Business belastet. Die EPS-Abweichung zwischen yfinance (15.83) und SEC EDGAR (8.78) ist extrem auff\u00e4llig und k\u00f6nnte auf erhebliche non-recurring items hinweisen, die die tats\u00e4chliche Ertragskraft verzerren.",
+          "argument_2": "Der Felzartamab-China-Deal ist ein stark lokaler Katalysator mit erheblichen Risiken: Geopolitische Spannungen zwischen USA und China machen Biotech-Deals in China besonders anf\u00e4llig f\u00fcr regulatorische Blockaden oder Einschr\u00e4nkungen. Der Deal k\u00f6nnte bereits im +5.4% 48h-Move vollst\u00e4ndig eingepreist sein. Zudem ist der China-Pharmamarkt f\u00fcr ausl\u00e4ndische Unternehmen zunehmend schwierig navigierbar (lokale Konkurrenz, Preiskontrolle). Die Marktreaktion von +5.4% k\u00f6nnte bereits die maximale rationale Repricing-Bewegung darstellen.",
+          "argument_3": "Ein Artikel 'BIIB: 3 Reasons to Avoid BIIB' erschien gleichzeitig mit der positiven News \u2014 dies ist ein starkes kontraindikatives Signal, dass fundamentale Analysten das Chance/Risiko-Profil negativ bewerten. BIIB handelt bereits nach einem signifikanten Downturn und der operative Cashflow wird durch steigende R&D-Kosten und r\u00fcckl\u00e4ufige Kernums\u00e4tze (Spinal Muscular Atrophy-Segment verliert Marktanteile) belastet. Das Insider-Cluster-Kaufsignal kann auch als Desperation-Buying gewertet werden wenn Execs den Kurs st\u00fctzen wollen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt, daher keine statistische Validierung verf\u00fcgbar. Bei einer 48h-Bewegung von +5.4% ist das aktuelle Momentum ber\u00fccksichtigenswert, jedoch ohne MC-Daten kann keine Hit-Rate-Einsch\u00e4tzung gemacht werden. Die fehlende MC-Statistik reduziert das Confidence-Level erheblich und erfordert konservativere Annahmen.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte den Felzartamab-China-Deal und das Insider-Cluster-Kaufsignal (7 K\u00e4ufer in 14 Tagen) als Kombinations-Signal untersch\u00e4tzen. Q3-Earnings als konkreter Bin\u00e4r-Katalysator in 10-60 Tagen k\u00f6nnte bei positivem \u00dcberraschungspotenzial weitere Repricing-Bewegungen ausl\u00f6sen, da BIIB nach jahrelanger Underperformance niedrig bewertet ist. Expansives Makroumfeld mit steiler Zinskurve (+0.54%) beg\u00fcnstigt Risk-On in Healthcare-Wachstumswerten. Allerdings ist die EPS-Diskrepanz ein erhebliches Risiko das die Asymmetrie begrenzt \u2014 reales EPS k\u00f6nnte n\u00e4her an 8.78 (EDGAR) als 15.83 (yfinance) liegen, was das fundamentale Bild deutlich verschlechtert.",
+        "catalyst": "Q3-Earnings innerhalb 10-60 Tage kombiniert mit Felzartamab-China-Deal-Synergien und Insider-Cluster-Kaufsignal (7 K\u00e4ufer/14 Tage)",
+        "bear_case": "Leqembi commercial ramp bleibt entt\u00e4uschend, China-Deal wird durch Geopolitik blockiert, und die massive EPS-Diskrepanz (SEC EDGAR vs. yfinance) deutet auf verzerrte Earning Power hin \u2014 reales Kurs-Gewinn-Verh\u00e4ltnis deutlich ung\u00fcnstiger als auf den ersten Blick",
+        "macro_assessment": "Expansives Makroumfeld (Zinskurve +0.54%, Fed Funds bei 3.64%) ist generell unterst\u00fctzend f\u00fcr BULLISH-Einzelaktien-Signale im Healthcare-Sektor. Die Kombination aus nicht-inversierter Kurve und moderatem Zinsniveau erlaubt Risikopr\u00e4mien f\u00fcr Biotech. Kein wesentlicher makro\u00f6konomischer Gegenwind identifiziert \u2014 Makro-Kontext best\u00e4tigt die BULLISH-Direction der Haiku-Einsch\u00e4tzung.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.3608,
+        "annualized_roi": 2.1488,
+        "dte": 86
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "BBWI",
+      "entry_date": "2026-04-21",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.041,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6728
+      },
+      "strategy": "BEAR_PUT_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 20.0,
+        "bid": 0.9,
+        "ask": 1.0,
+        "open_interest": 864,
+        "implied_vol": 0.56055126953125,
+        "spread_ratio": 0.1,
+        "dte": 23,
+        "spread_leg": {
+          "strike": 22.5,
+          "bid": 2.25,
+          "ask": 2.45
+        },
+        "net_debit": -1.25
+      },
+      "simulation": {
+        "current_price": 20.57,
+        "target_price": 22.22,
+        "hit_rate": 0.7172,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0407,
+        "alpha": 0.00123
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Schlie\u00dfung von 92 Filialen ist kein Restrukturierungserfolg, sondern ein Zeichen struktureller Nachfrageschw\u00e4che im station\u00e4ren Einzelhandel. Bath & Body Works k\u00e4mpft mit einem s\u00e4kularen Trend weg vom Mallformat, steigendem Wettbewerb durch DTC-Marken und E-Commerce sowie einer Kundenbasis, die preissensitiv auf das aktuelle inflation\u00e4re Umfeld reagiert. Weitere Writedowns auf das Filialnetz, Mietverbindlichkeiten und Lagerbest\u00e4nde sind wahrscheinlich, und der Markt k\u00f6nnte diese Cascading Effects noch deutlich untersch\u00e4tzen.",
+          "argument_2": "Der laufende Rechtsstreit (Kuehn Law ermutigt Investoren zur Kontaktaufnahme) deutet auf potenzielle Securities-Class-Action hin, die h\u00e4ufig mit Verdacht auf unzureichende Offenlegung operativer Probleme verkn\u00fcpft ist. Solche Verfahren binden Management-Kapazit\u00e4t, erh\u00f6hen D&O-Versicherungskosten und k\u00f6nnen bei negativem Ausgang zu erheblichen Einmalbelastungen f\u00fchren. Gleichzeitig schrecken sie institutionelle Investoren ab, die Compliance-Anforderungen unterliegen.",
+          "argument_3": "Die 48h-Preisbewegung von +5,9% in Kombination mit 8 Insider-K\u00e4ufen klingt bullisch, k\u00f6nnte aber eine klassische Bullenfalle sein. Insider-K\u00e4ufe bei Restrukturierungen sind oft signalarm (Pflichtprogramm, kleine Volumen, Optionsaus\u00fcbungen), und ein kurzzeitiger Pop nach negativen Nachrichten ('dead cat bounce') ist im Einzelhandelssektor gut dokumentiert. Consumer Cyclicals sind in der aktuellen Phase mit hoher Zinslast bei den Konsumenten anf\u00e4llig f\u00fcr Umsatzentt\u00e4uschungen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick-MC durchgef\u00fchrt wurde \u2014 keine statistische Basis f\u00fcr eine 30-Tage-Prognose vorhanden. Dies erh\u00f6ht die Unsicherheit erheblich. Da kein Modell lief, k\u00f6nnen weder Pfade noch Wahrscheinlichkeiten validiert werden. Das Fehlen dieser Statistik ist an sich ein mittleres Warnsignal.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BEARISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Die Haiku-Einsch\u00e4tzung ist BEARISH und ich stimme dieser Richtung zu, auch wenn Insider-K\u00e4ufe oberfl\u00e4chlich bullisch erscheinen. Der Markt hat die 92-Store-Schlie\u00dfungen m\u00f6glicherweise noch nicht vollst\u00e4ndig in die zuk\u00fcnftigen Earnings-Sch\u00e4tzungen eingepreist, da die Auswirkungen auf Umsatz, Leasing-Verbindlichkeiten und Marge erst in den kommenden Quartalen vollst\u00e4ndig sichtbar werden. Der kurzfristige Pop von +5,9% erscheint durch selektive News-Interpretation getrieben, nicht durch fundamentale Verbesserung. Die Kombination aus strukturellem Filialr\u00fcckgang, laufendem Rechtsstreit und einem Consumer-Cyclical-Name in einem Umfeld erh\u00f6hter Verbraucherverschuldung schafft eine asymmetrische Risikolage nach unten. Selbst das expansive Makroumfeld \u00e4ndert nichts daran, dass BBWI ein firmenspezifisches Strukturproblem hat, das sektorale Tailwinds \u00fcberw\u00e4ltigen d\u00fcrfte.",
+        "catalyst": "N\u00e4chste Quartalsergebnisse mit voraussichtlicher Guidance-Senkung und weiteren Restrukturierungskosten aus den 92 Store-Schlie\u00dfungen",
+        "bear_case": "Das st\u00e4rkste Gegenargument ist das expansive Makroumfeld mit steiler Zinskurve und niedrigem Fed Funds Rate, das Consumer-Discretionary-Namen strukturell beg\u00fcnstigt. Zudem k\u00f6nnte die Insider-Kaufwelle auf echtes Management-Vertrauen in eine Turnaround-Story hinweisen, und die Store-Schlie\u00dfungen k\u00f6nnten mittelfristig die Profitabilit\u00e4t verbessern.",
+        "macro_assessment": "Das Makroumfeld (expansive Zinskurve +0,54%, Fed Funds bei 3,64%) ist grunds\u00e4tzlich supportiv f\u00fcr Long-Positionen in Consumer Cyclicals. Dieser Tailwind mildert den Bear Case ab, reicht aber nicht aus, um firmenspezifische Strukturprobleme wie Filialschlie\u00dfungen im dreistelligen Bereich, Rechtsstreitigkeiten und s\u00e4kularen Mallformat-Verfall zu \u00fcberlagern. BBWI ist ein Einzelunternehmensproblem im Mantel eines g\u00fcnstigen Makros.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 2.2709,
+        "annualized_roi": null,
+        "dte": 23
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -2149,7 +2377,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.3196,
+        "score": -0.1399,
         "headline_count": 5
       }
     ],
@@ -2166,8 +2394,8 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.3591,
-        "headline_count": 5
+        "score": 0.0028,
+        "headline_count": 4
       }
     ],
     "KMX": [
@@ -2447,7 +2675,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.1691,
+        "score": 0.2868,
         "headline_count": 5
       }
     ],
@@ -2483,6 +2711,11 @@
         "date": "2026-04-17",
         "score": -0.8012,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-21",
+        "score": 0.2103,
+        "headline_count": 5
       }
     ],
     "BIIB": [
@@ -2503,7 +2736,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.3324,
+        "score": 0.2854,
         "headline_count": 5
       }
     ],
@@ -3143,7 +3376,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.0852,
+        "score": 0.0847,
         "headline_count": 5
       }
     ],
@@ -3252,7 +3485,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.034,
+        "score": -0.0451,
         "headline_count": 5
       }
     ],
@@ -3300,7 +3533,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.1107,
+        "score": -0.0731,
         "headline_count": 5
       }
     ],
@@ -3312,7 +3545,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.1031,
+        "score": 0.0792,
         "headline_count": 5
       }
     ],
@@ -3862,8 +4095,8 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.2009,
-        "headline_count": 5
+        "score": 0.3377,
+        "headline_count": 3
       }
     ],
     "STZ": [
@@ -4150,7 +4383,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.2491,
+        "score": 0.1186,
         "headline_count": 5
       }
     ],
@@ -4174,7 +4407,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.1208,
+        "score": 0.2502,
         "headline_count": 5
       }
     ],
@@ -4210,7 +4443,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.0507,
+        "score": -0.1039,
         "headline_count": 5
       }
     ],
@@ -4239,7 +4472,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.2636,
+        "score": 0.2953,
         "headline_count": 5
       }
     ],
@@ -4251,7 +4484,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.4232,
+        "score": 0.3155,
         "headline_count": 5
       }
     ],
@@ -4275,7 +4508,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.2043,
+        "score": 0.2232,
         "headline_count": 5
       }
     ],
@@ -4287,7 +4520,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.5081,
+        "score": 0.3776,
         "headline_count": 5
       }
     ],
@@ -4296,6 +4529,11 @@
         "date": "2026-04-15",
         "score": 0.3453,
         "headline_count": 5
+      },
+      {
+        "date": "2026-04-21",
+        "score": 0.0634,
+        "headline_count": 3
       }
     ],
     "BKR": [
@@ -4323,8 +4561,8 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.1489,
-        "headline_count": 5
+        "score": 0.0204,
+        "headline_count": 3
       }
     ],
     "BA": [
@@ -4345,7 +4583,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.3107,
+        "score": 0.1701,
         "headline_count": 5
       }
     ],
@@ -4417,7 +4655,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": -0.3207,
+        "score": -0.3548,
         "headline_count": 5
       }
     ],
@@ -4907,7 +5145,7 @@
       },
       {
         "date": "2026-04-21",
-        "score": 0.4725,
+        "score": 0.0985,
         "headline_count": 5
       }
     ],
@@ -4954,8 +5192,8 @@
     "ALGN": [
       {
         "date": "2026-04-21",
-        "score": 0.4575,
-        "headline_count": 2
+        "score": 0.314,
+        "headline_count": 3
       }
     ],
     "ALL": [
@@ -4975,21 +5213,21 @@
     "AXP": [
       {
         "date": "2026-04-21",
-        "score": 0.4167,
+        "score": 0.4809,
         "headline_count": 5
       }
     ],
     "BMY": [
       {
         "date": "2026-04-21",
-        "score": 0.2095,
+        "score": 0.076,
         "headline_count": 5
       }
     ],
     "BBY": [
       {
         "date": "2026-04-21",
-        "score": 0.1845,
+        "score": 0.1964,
         "headline_count": 5
       }
     ],
