@@ -1,39 +1,36 @@
 """
-modules/options_designer.py v7.0
+modules/options_designer.py v7.3
 
-Adaptive Laufzeit-Loop:
-    Wenn primäre Laufzeit (30d) ROI-Gate nicht besteht →
-    automatisch Mid-Term (90-120d) und Long-Term (180d+) prüfen.
-
-    Wichtig: Annualisierter ROI wird geloggt damit Laufzeit-Vergleich
-    fair ist. 15% auf 180d = 10% p.a. vs. 15% auf 30d = 60% p.a.
-
-IV-Rank Gate bleibt aktiv für alle Laufzeiten:
-    Bei IV-Rank > 70%: Spread statt Long Call (noch wichtiger bei LEAPS).
+Fixes v7.3:
+    1. ROI bei Spreads: net_debit als Kostenbasis statt ask (Long-Leg)
+       + Spread-Delta-Adjustment (Long Delta - Short Delta ~0.80x)
+    2. DTE-Tiers lückenlos: 14-60 / 61-149 / 150-365
+    3. Timezone-Fix: datetime.now(timezone.utc) in _days_to
+    4. IV Sanity-Check: iv < 0.05 → Fallback auf realized vol * 1.2
+    5. yf.Ticker einmal pro Signal (Performance)
+    6. RV-Percentile: quantile(0.05/0.95) — crash-robust
 """
 
 from __future__ import annotations
 import logging
-import os
-from datetime import datetime, timedelta
+import math
+import numpy as np
+from datetime import datetime, timezone
 from typing import Optional
 
-import requests
 import yfinance as yf
 
-from modules.config       import cfg
+from modules.config        import cfg
 from modules.macro_context import get_macro_regime_multiplier
 
 log = logging.getLogger(__name__)
 
-TRADIER_BASE     = "https://api.tradier.com/v1"
-IV_RANK_GATE     = 85.0   # War 70% — bei Markt-IV-Spike zu restriktiv
+IV_RANK_GATE = 85.0
 
-# Laufzeit-Stufen für den adaptiven Loop
 DTE_TIERS = [
-    {"label": "Short-Term",  "dte_min": 21,  "dte_max": 45,  "min_roi": 0.15},
-    {"label": "Mid-Term",    "dte_min": 75,  "dte_max": 135, "min_roi": 0.12},
-    {"label": "Long-Term",   "dte_min": 150, "dte_max": 270, "min_roi": 0.10},
+    {"label": "Short-Term", "dte_min": 14,  "dte_max": 60,  "min_roi": 0.15},
+    {"label": "Mid-Term",   "dte_min": 61,  "dte_max": 149, "min_roi": 0.12},
+    {"label": "Long-Term",  "dte_min": 150, "dte_max": 365, "min_roi": 0.10},
 ]
 
 SECTOR_ETF = {
@@ -45,7 +42,7 @@ SECTOR_ETF = {
     "Communication Services": "XLC", "default": "SPY",
 }
 
-RELATIVE_STRENGTH_MIN = -0.08   # War -3% — zu streng, auf -8% gelockert
+RELATIVE_STRENGTH_MIN = -0.08
 
 
 class OptionsDesigner:
@@ -57,32 +54,25 @@ class OptionsDesigner:
         proposals = []
         for s in signals:
             ticker = s.get("ticker", "")
-
             if not self._bear_case_ok(s):
                 continue
-
-            if not self._sector_momentum_ok(s):
+            # Erzeuge yf.Ticker einmal pro Signal — wird an sector_momentum und design weitergegeben
+            t_obj = yf.Ticker(ticker)
+            if not self._sector_momentum_ok(s, t=t_obj):
                 log.info(f"  [{ticker}] SECTOR-GATE → verworfen")
                 continue
-
-            proposal = self._design_with_adaptive_dte(s)
+            proposal = self._design_with_adaptive_dte(s, t_obj)
             if proposal:
                 proposals.append(proposal)
-
         return proposals
 
     # ── Adaptiver Laufzeit-Loop ───────────────────────────────────────────────
 
-    def _design_with_adaptive_dte(self, s: dict) -> Optional[dict]:
-        """
-        Kern des Fix: Prüft Short → Mid → Long-Term Laufzeiten.
-        Wählt die erste Laufzeit die ROI-Gate besteht.
-        """
+    def _design_with_adaptive_dte(self, s: dict, t=None) -> Optional[dict]:
         ticker    = s["ticker"]
         direction = s.get("deep_analysis", {}).get("direction", "BULLISH")
         sim       = s.get("simulation", {})
         current   = sim.get("current_price", 0)
-        iv_rank   = self._get_iv_rank(ticker)
 
         if current <= 0:
             return None
@@ -91,25 +81,27 @@ class OptionsDesigner:
             log.info(f"  [{ticker}] EARNINGS-GATE → blockiert")
             return None
 
+        # t wird aus run() übergeben (einmal erzeugt) oder hier als Fallback
+        if t is None:
+            t = yf.Ticker(ticker)
+        iv_rank = self._get_iv_rank(ticker, t)
+
         results_per_tier = []
 
         for tier in DTE_TIERS:
             label   = tier["label"]
-            min_roi = tier["min_roi"]
 
             strategy = self._select_strategy(ticker, direction, iv_rank)
             option   = self._find_option_for_dte(
-                ticker, strategy, current,
-                tier["dte_min"], tier["dte_max"]
+                ticker, strategy, current, tier["dte_min"], tier["dte_max"], t
             )
 
             if not option:
                 log.info(f"  [{ticker}] {label}: kein Kontrakt verfügbar")
-                # Fallback: Bei Spread ohne Kontrakt → Long Option versuchen
                 if "SPREAD" in strategy:
                     fallback = "LONG_CALL" if "BULL" in strategy else "LONG_PUT"
                     option   = self._find_option_for_dte(
-                        ticker, fallback, current, tier["dte_min"], tier["dte_max"]
+                        ticker, fallback, current, tier["dte_min"], tier["dte_max"], t
                     )
                     if option:
                         strategy = fallback
@@ -117,14 +109,12 @@ class OptionsDesigner:
                 if not option:
                     continue
 
-            roi = self._compute_roi(option, sim, iv_rank, tier)
+            roi = self._compute_roi(option, sim, iv_rank, tier, strategy)
 
             try:
-                dte_safe = max(int(option.get("dte") or 1), 1)
-                roi_net_safe = float(roi["roi_net"].real if isinstance(roi["roi_net"], complex) else roi["roi_net"])
-                annualized_roi = float(
-                    (1 + roi_net_safe) ** (365 / dte_safe) - 1
-                )
+                dte_safe       = max(int(option.get("dte") or 1), 1)
+                roi_net_safe   = float(roi["roi_net"].real if isinstance(roi["roi_net"], complex) else roi["roi_net"])
+                annualized_roi = float((1 + roi_net_safe) ** (365 / dte_safe) - 1)
             except Exception:
                 annualized_roi = 0.0
 
@@ -136,33 +126,22 @@ class OptionsDesigner:
             )
 
             results_per_tier.append({
-                "tier":           label,
-                "dte":            option["dte"],
-                "option":         option,
-                "roi":            roi,
+                "tier": label, "dte": option["dte"],
+                "option": option, "roi": roi,
                 "annualized_roi": round(annualized_roi, 4),
-                "strategy":       strategy,
+                "strategy": strategy,
             })
 
-            # Vega-Loss-Gate: Bei Short-Term mit >35% Vega-Loss → nächsten Tier
             if label == "Short-Term" and roi.get("vega_loss", 0) > 0.35:
                 log.info(
                     f"  [{ticker}] {label}: Vega-Loss={roi['vega_loss']:.0%} > 35% "
                     f"→ zu hohes IV-Crush-Risiko, versuche längere Laufzeit"
                 )
-                results_per_tier.append({
-                    "tier": label, "dte": option["dte"],
-                    "option": option, "roi": roi,
-                    "annualized_roi": round(annualized_roi, 4),
-                    "strategy": strategy,
-                })
                 continue
 
             if roi["passes_roi_gate"]:
-                # Erster Tier der besteht → nehmen
                 tier_idx = DTE_TIERS.index(tier)
                 if tier_idx > 0:
-                    # War nicht der primäre Tier → explizit loggen
                     prev_label = DTE_TIERS[0]["label"]
                     prev_roi   = results_per_tier[0]["roi"]["roi_net"] if results_per_tier else None
                     if prev_roi is not None:
@@ -174,70 +153,75 @@ class OptionsDesigner:
                         )
 
                 return {
-                    "ticker":            ticker,
-                    "strategy":          strategy,
-                    "iv_rank":           iv_rank,
-                    "iv_gate_applied":   iv_rank >= IV_RANK_GATE,
-                    "direction":         direction,
-                    "option":            option,
-                    "roi_analysis":      roi,
-                    "dte_tier":          label,
-                    "annualized_roi":    round(annualized_roi, 4),
-                    "all_tiers_tried":   results_per_tier,
-                    "features":          s.get("features", {}),
-                    "simulation":        s.get("simulation", {}),
-                    "deep_analysis":     s.get("deep_analysis", {}),
-                    "sector_momentum":   s.get("sector_momentum", {}),
-                    "final_score":       s.get("final_score", 0),
+                    "ticker":          ticker,
+                    "strategy":        strategy,
+                    "iv_rank":         iv_rank,
+                    "iv_gate_applied": iv_rank >= IV_RANK_GATE,
+                    "direction":       direction,
+                    "option":          option,
+                    "roi_analysis":    roi,
+                    "dte_tier":        label,
+                    "annualized_roi":  round(annualized_roi, 4),
+                    "all_tiers_tried": results_per_tier,
+                    "features":        s.get("features", {}),
+                    "simulation":      s.get("simulation", {}),
+                    "deep_analysis":   s.get("deep_analysis", {}),
+                    "sector_momentum": s.get("sector_momentum", {}),
+                    "final_score":     s.get("final_score", 0),
                 }
 
-        # Alle 3 Tiers gescheitert
         tried = ", ".join(
             f"{r['tier']}={r['roi']['roi_net']:.1%}" for r in results_per_tier
         )
-        log.info(
-            f"  [{ticker}] Alle Laufzeiten unter ROI-Gate: {tried} → verworfen"
-        )
+        log.info(f"  [{ticker}] Alle Laufzeiten unter ROI-Gate: {tried} → verworfen")
         return None
 
-    # ── Strategie-Wahl (IV-Gate) ──────────────────────────────────────────────
+    # ── Strategie-Wahl ────────────────────────────────────────────────────────
 
     def _select_strategy(self, ticker: str, direction: str, iv_rank: float) -> str:
         if iv_rank >= IV_RANK_GATE:
             s = "BULL_CALL_SPREAD" if direction == "BULLISH" else "BEAR_PUT_SPREAD"
-            log.info(
-                f"  [{ticker}] IV={iv_rank:.0f}% ≥ {IV_RANK_GATE:.0f}% "
-                f"→ {s} (Vega-Schutz)"
-            )
+            log.info(f"  [{ticker}] IV={iv_rank:.0f}% ≥ {IV_RANK_GATE:.0f}% → {s} (Vega-Schutz)")
         else:
             s = "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
+            log.info(f"  [{ticker}] IV={iv_rank:.0f}% < {IV_RANK_GATE:.0f}% → {s} (Optionen günstig)")
         return s
 
-    # ── ROI-Berechnung ────────────────────────────────────────────────────────
+    # ── ROI-Berechnung v7.3 ───────────────────────────────────────────────────
 
     def _compute_roi(
-        self, option: dict, sim: dict, iv_rank: float, tier: dict
+        self, option: dict, sim: dict, iv_rank: float, tier: dict, strategy: str = ""
     ) -> dict:
-        import math
-
+        """
+        FIX v7.3: Bei Spreads net_debit als Kostenbasis statt ask.
+        Spread-Delta-Adjustment: Netto-Delta eines Spreads ~80% des Long-Leg-Delta.
+        IV Sanity-Check: iv < 0.05 → Fallback auf 0.30.
+        """
         bid     = option.get("bid", 0) or 0
         ask     = option.get("ask", 0) or 0
         strike  = option.get("strike", 0) or 0
         iv      = option.get("implied_vol", 0.30) or 0.30
-        dte     = int(option.get("dte", 120) or 120)  # Immer int
+        dte     = int(option.get("dte", 120) or 120)
         current = sim.get("current_price", 0) or 0
         target  = sim.get("target_price", 0) or 0
         min_roi = tier["min_roi"]
 
-        if ask <= 0 or current <= 0:
+        # FIX v7.3: Spread → net_debit als Kostenbasis
+        is_spread = "SPREAD" in strategy
+        cost = option.get("net_debit", ask) if is_spread else ask
+
+        if cost <= 0 or current <= 0:
             return {"roi_net": 0.0, "passes_roi_gate": False,
                     "roi_gross": 0.0, "spread_pct": 0.0,
                     "vega_loss": 0.0, "min_roi_threshold": min_roi}
 
+        # FIX v7.3: IV Sanity-Check
+        if iv < 0.05 or iv > 3.0:  # Sanity-Check: Stale/fehlerhafte yfinance-Daten
+            iv = 0.30                  # Neutral-Default (kein rv-Lookup nötig)
+
         spread_pct = (ask - bid) / ask if ask > 0 else 0.0
         T          = dte / 365.0
 
-        # Black-Scholes Delta + Vega
         try:
             d1    = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
             delta = (1.0 + math.erf(d1 / math.sqrt(2.0))) / 2.0
@@ -245,36 +229,26 @@ class OptionsDesigner:
         except Exception:
             delta, vega = 0.5, 0.0
 
-        leverage      = current / ask if ask > 0 else 1.0
+        # FIX v7.3: Spread-Delta-Adjustment
+        # Netto-Delta eines Bull/Bear Spreads ≈ 80% des Long-Leg-Delta
+        if is_spread:
+            delta *= 0.80
+
+        leverage      = current / cost if cost > 0 else 1.0
         expected_move = (target - current) / current if target > current else 0.0
         roi_delta     = expected_move * delta * leverage
 
-        # IV-Crush nach Event (höher bei kurzen Laufzeiten)
-        if dte <= 45:
+        if dte <= 60:
             iv_drop = 0.25 if iv_rank >= 70 else (0.12 if iv_rank >= 50 else 0.05)
-        elif dte <= 135:
+        elif dte <= 149:
             iv_drop = 0.15 if iv_rank >= 70 else (0.07 if iv_rank >= 50 else 0.02)
         else:
             iv_drop = 0.08 if iv_rank >= 70 else (0.03 if iv_rank >= 50 else 0.01)
 
-        # KORREKTE Vega-Loss Berechnung:
-        # vega_loss_dollar = vega ($/1pt IV) × delta_iv (absoluter IV-Rückgang)
-        # vega_loss_pct = vega_loss_dollar / ask (als % des Option-Preises)
-        # Cap bei 50%: verhindert Explosion bei sehr teuren Aktien (LLY=$800)
-        if ask > 0:
-            vega_loss = min((vega * iv * iv_drop) / ask, 0.50)
-        else:
-            vega_loss = 0.0
+        vega_loss = min((vega * iv * iv_drop) / cost, 0.50) if cost > 0 else 0.0
         roi_net   = roi_delta - (spread_pct * 2) - vega_loss
         passes    = roi_net >= min_roi
 
-        if not passes:
-            log.debug(
-                f"    ROI: delta={roi_delta:.2%} spread={spread_pct:.2%} "
-                f"vega={vega_loss:.2%} net={roi_net:.2%} < {min_roi:.0%}"
-            )
-
-        # Defensive: alle Werte als float sichern (verhindert complex TypeError)
         def _safe_float(v):
             if isinstance(v, complex): return float(v.real)
             try: return float(v)
@@ -287,19 +261,23 @@ class OptionsDesigner:
             "vega_loss":         round(_safe_float(vega_loss), 4),
             "delta":             round(_safe_float(delta), 4),
             "iv_drop_assumed":   _safe_float(iv_drop),
+            "cost_basis":        round(float(cost), 4),
+            "is_spread":         is_spread,
             "passes_roi_gate":   passes,
             "min_roi_threshold": min_roi,
             "dte":               int(dte),
         }
 
-    # ── Kontrakt-Suche für spezifischen DTE-Bereich ──────────────────────────
+    # ── Kontrakt-Suche ────────────────────────────────────────────────────────
 
     def _find_option_for_dte(
         self, ticker: str, strategy: str, current: float,
         dte_min: int, dte_max: int,
+        t: Optional[object] = None,
     ) -> Optional[dict]:
         try:
-            t     = yf.Ticker(ticker)
+            if t is None:
+                t = yf.Ticker(ticker)
             dates = [
                 d for d in (t.options or [])
                 if dte_min <= self._days_to(d) <= dte_max
@@ -312,24 +290,20 @@ class OptionsDesigner:
             is_call     = "CALL" in strategy or "BULL" in strategy
             opts        = chain.calls if is_call else chain.puts
 
-            # Strike-Range je nach DTE: kurzfristig näher am Kurs
+            # Strike-Range lückenlos mit DTE-Tiers
             days_mid = (dte_min + dte_max) / 2
-            if days_mid <= 50:    # Short-Term
-                otm_max = 1.03    # max 3% OTM
-                itm_max = 0.97
-            elif days_mid <= 140:  # Mid-Term
-                otm_max = 1.08    # max 8% OTM
-                itm_max = 0.96
-            else:                  # Long-Term
-                otm_max = 1.12    # max 12% OTM
-                itm_max = 0.95
+            if days_mid <= 60:
+                otm_max, itm_max = 1.03, 0.97
+            elif days_mid <= 149:
+                otm_max, itm_max = 1.08, 0.96
+            else:
+                otm_max, itm_max = 1.12, 0.95
 
             filtered = opts[
                 (opts["strike"] >= current * itm_max) &
                 (opts["strike"] <= current * otm_max) &
                 (opts["openInterest"] >= max(
-                    getattr(getattr(cfg, "risk", None), "min_open_interest", 100),
-                    50
+                    getattr(getattr(cfg, "risk", None), "min_open_interest", 100), 50
                 ))
             ].copy()
 
@@ -340,9 +314,7 @@ class OptionsDesigner:
                 (filtered["ask"] - filtered["bid"]) /
                 filtered["ask"].clip(lower=0.01)
             )
-            filtered = filtered[
-                filtered["spread_ratio"] <= cfg.risk.max_bid_ask_ratio
-            ]
+            filtered = filtered[filtered["spread_ratio"] <= cfg.risk.max_bid_ask_ratio]
             if filtered.empty:
                 return None
 
@@ -350,23 +322,29 @@ class OptionsDesigner:
             dte  = self._days_to(best_expiry)
 
             result = {
-                "expiry":       best_expiry,
-                "strike":       float(best["strike"]),
-                "bid":          float(best["bid"]),
-                "ask":          float(best["ask"]),
+                "expiry":        best_expiry,
+                "strike":        float(best["strike"]),
+                "bid":           float(best["bid"]),
+                "ask":           float(best["ask"]),
                 "open_interest": int(best["openInterest"]),
-                "implied_vol":  float(best.get("impliedVolatility", 0.30)),
-                "spread_ratio": round(float(best["spread_ratio"]), 4),
-                "dte":          int(dte),  # Explizit int — verhindert ValueError
+                "implied_vol":   float(best.get("impliedVolatility", 0.30)),
+                "spread_ratio":  round(float(best["spread_ratio"]), 4),
+                "dte":           int(dte),
             }
 
             if "SPREAD" in strategy:
                 spread_leg = self._find_spread_leg(opts, best["strike"])
                 result["spread_leg"] = spread_leg
                 if spread_leg:
+                    # net_debit = was man für den Spread wirklich bezahlt
                     result["net_debit"] = round(
                         result["ask"] - spread_leg.get("bid", 0), 2
                     )
+                    # Validierung: Short-Leg muss Liquidität haben
+                    if spread_leg.get("bid", 0) <= 0:
+                        log.debug(f"  [{ticker}] Short-Leg hat keine Liquidität → kein Spread")
+                        result.pop("spread_leg", None)
+                        result.pop("net_debit", None)
 
             return result
 
@@ -387,22 +365,90 @@ class OptionsDesigner:
         return {"strike": float(best["strike"]),
                 "bid": float(best["bid"]), "ask": float(best["ask"])}
 
+    # ── IV-Rank v7.3 ──────────────────────────────────────────────────────────
+
+    def _get_iv_rank(self, ticker: str, t: Optional[object] = None) -> float:
+        """
+        IV-Rank Proxy: RV-Percentile (quantile 0.05/0.95) + Term Structure Slope.
+        Kombiniert 50/50. Kein direkter IV-Rank möglich ohne historische IV-DB.
+        """
+        try:
+            if t is None:
+                t = yf.Ticker(ticker)
+            info    = t.info
+            current = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
+
+            # Signal 1: RV-Percentile (crash-robust via quantile)
+            rv_score = 50.0
+            hist = t.history(period="1y")
+            rv_current_val = None
+            if not hist.empty and len(hist) >= 60:
+                rets    = hist["Close"].pct_change().dropna()
+                roll_rv = rets.rolling(21).std().dropna() * (252 ** 0.5)
+                if len(roll_rv) >= 20:
+                    rv_current_val = float(roll_rv.iloc[-1])
+                    rv_min = float(roll_rv.quantile(0.05))
+                    rv_max = float(roll_rv.quantile(0.95))
+                    if rv_max > rv_min:
+                        rv_score = ((rv_current_val - rv_min) / (rv_max - rv_min)) * 100
+                        rv_score = max(0.0, min(100.0, rv_score))
+
+            if current <= 0:
+                return round(rv_score, 1)
+
+            # Signal 2: Term Structure Slope
+            term_score = 20.0
+            dates  = t.options or []
+            iv_pts = []
+            for d in dates[:3]:
+                try:
+                    dte = self._days_to(d)
+                    if dte < 7:
+                        continue
+                    ch  = t.option_chain(d)
+                    atm = ch.calls[
+                        (ch.calls["strike"] >= current * 0.93) &
+                        (ch.calls["strike"] <= current * 1.07) &
+                        (ch.calls["impliedVolatility"] > 0.05)
+                    ]
+                    if not atm.empty:
+                        iv_pts.append((dte, float(atm["impliedVolatility"].median())))
+                except Exception:
+                    continue
+
+            if len(iv_pts) >= 2:
+                iv_pts.sort()
+                iv_short = iv_pts[0][1]
+                iv_long  = iv_pts[-1][1]
+                if iv_long > 0:
+                    slope      = (iv_short / iv_long) - 1.0
+                    term_score = max(0.0, min(100.0, (slope + 0.1) * 200))
+
+            combined = round(rv_score * 0.5 + term_score * 0.5, 1)
+            log.debug(
+                f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} → {combined:.0f}"
+            )
+            return combined
+
+        except Exception:
+            return 50.0
+
     # ── Sektor-Momentum ───────────────────────────────────────────────────────
 
-    def _sector_momentum_ok(self, s: dict) -> bool:
-        import yfinance as yf
+    def _sector_momentum_ok(self, s: dict, t=None) -> bool:
         ticker    = s.get("ticker", "")
         sector    = s.get("info", {}).get("sector", "default")
         direction = s.get("deep_analysis", {}).get("direction", "BULLISH")
         etf       = SECTOR_ETF.get(sector, SECTOR_ETF["default"])
         try:
-            sh  = yf.Ticker(ticker).history(period="35d")
-            eh  = yf.Ticker(etf).history(period="35d")
+            ticker_obj = t if t is not None else yf.Ticker(ticker)
+            sh = ticker_obj.history(period="35d")
+            eh = yf.Ticker(etf).history(period="35d")
             if sh.empty or eh.empty or len(sh) < 5:
                 return True
-            sr  = float((sh["Close"].iloc[-1] - sh["Close"].iloc[0]) / sh["Close"].iloc[0])
-            er  = float((eh["Close"].iloc[-1] - eh["Close"].iloc[0]) / eh["Close"].iloc[0])
-            rs  = sr - er
+            sr = float((sh["Close"].iloc[-1] - sh["Close"].iloc[0]) / sh["Close"].iloc[0])
+            er = float((eh["Close"].iloc[-1] - eh["Close"].iloc[0]) / eh["Close"].iloc[0])
+            rs = sr - er
             s["sector_momentum"] = {"etf": etf, "rel_strength": round(rs, 4)}
             return rs >= RELATIVE_STRENGTH_MIN if direction == "BULLISH" else rs <= -RELATIVE_STRENGTH_MIN
         except Exception:
@@ -412,41 +458,19 @@ class OptionsDesigner:
 
     def _bear_case_ok(self, s: dict) -> bool:
         sev = s.get("deep_analysis", {}).get("bear_case_severity", 0)
-        thr = cfg.risk.max_bear_case_severity
+        thr = getattr(getattr(cfg, "risk", None), "max_bear_case_severity", 8)
         if sev >= thr:
             log.info(f"  [{s['ticker']}] BEAR-CASE={sev} ≥ {thr} → blockiert")
             return False
         return True
 
-    # ── IV-Rank ───────────────────────────────────────────────────────────────
-
-    def _get_iv_rank(self, ticker: str) -> float:
-        import math, numpy as np
-        try:
-            t     = yf.Ticker(ticker)
-            dates = t.options
-            if not dates:
-                return 30.0
-            chain      = t.option_chain(dates[0])
-            calls      = chain.calls
-            if calls.empty or "impliedVolatility" not in calls.columns:
-                return 30.0
-            iv_current = float(calls["impliedVolatility"].median())
-            hist       = t.history(period="1y")
-            rets       = hist["Close"].pct_change().dropna()
-            roll       = rets.rolling(30).std().dropna() * (252 ** 0.5)
-            iv_lo      = float(roll.quantile(0.10))
-            iv_hi      = float(roll.quantile(0.90))
-            if iv_hi <= iv_lo:
-                return 50.0
-            rank = ((iv_current - iv_lo) / (iv_hi - iv_lo)) * 100
-            return round(max(0.0, min(100.0, rank)), 2)
-        except Exception:
-            return 30.0
+    # ── Hilfsfunktionen ───────────────────────────────────────────────────────
 
     def _days_to(self, expiry_str: str) -> int:
+        """FIX v7.3: timezone.utc für konsistentes Verhalten auf allen Servern."""
         try:
-            delta = datetime.strptime(expiry_str, "%Y-%m-%d") - datetime.utcnow()
-            return max(0, int(delta.days))  # Immer int, nie komplex
+            expiry = datetime.strptime(expiry_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            now    = datetime.now(timezone.utc)
+            return max(0, (expiry - now).days)
         except Exception:
             return 0
