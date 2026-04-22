@@ -2,73 +2,476 @@
   "date": "2026-04-22",
   "proposals": [
     {
-      "ticker": "ABNB",
-      "strategy": "BULL_CALL_SPREAD",
-      "iv_rank": 100.0,
-      "iv_gate_applied": true,
+      "ticker": "AMD",
+      "strategy": "LONG_CALL",
+      "iv_rank": 15.1,
+      "iv_gate_applied": false,
       "direction": "BULLISH",
       "option": {
-        "expiry": "2026-05-15",
-        "strike": 145.0,
-        "bid": 7.25,
-        "ask": 7.7,
-        "open_interest": 1652,
-        "implied_vol": 0.5218553674316406,
-        "spread_ratio": 0.0584,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 160.0,
-          "bid": 1.99,
-          "ask": 2.39
-        },
-        "net_debit": 5.71
+        "expiry": "2026-05-08",
+        "strike": 292.5,
+        "bid": 22.5,
+        "ask": 23.2,
+        "open_interest": 1041,
+        "implied_vol": 0.6864045031738282,
+        "spread_ratio": 0.0302,
+        "dte": 15
       },
       "roi_analysis": {
-        "roi_gross": 0.7761,
-        "roi_net": 0.4195,
-        "spread_pct": 0.0584,
-        "vega_loss": 0.2397,
-        "delta": 0.5165,
-        "iv_drop_assumed": 0.25,
+        "roi_gross": 0.6328,
+        "roi_net": 0.5378,
+        "spread_pct": 0.0302,
+        "vega_loss": 0.0347,
+        "delta": 0.6094,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 23.2,
+        "is_spread": false,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
-        "dte": 22
+        "dte": 15
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 333.2447,
+      "annualized_roi": 35308.9018,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
-          "dte": 22,
+          "dte": 15,
           "option": {
-            "expiry": "2026-05-15",
-            "strike": 145.0,
-            "bid": 7.25,
-            "ask": 7.7,
-            "open_interest": 1652,
-            "implied_vol": 0.5218553674316406,
-            "spread_ratio": 0.0584,
-            "dte": 22,
-            "spread_leg": {
-              "strike": 160.0,
-              "bid": 1.99,
-              "ask": 2.39
-            },
-            "net_debit": 5.71
+            "expiry": "2026-05-08",
+            "strike": 292.5,
+            "bid": 22.5,
+            "ask": 23.2,
+            "open_interest": 1041,
+            "implied_vol": 0.6864045031738282,
+            "spread_ratio": 0.0302,
+            "dte": 15
           },
           "roi": {
-            "roi_gross": 0.7761,
-            "roi_net": 0.4195,
-            "spread_pct": 0.0584,
-            "vega_loss": 0.2397,
-            "delta": 0.5165,
-            "iv_drop_assumed": 0.25,
+            "roi_gross": 0.6328,
+            "roi_net": 0.5378,
+            "spread_pct": 0.0302,
+            "vega_loss": 0.0347,
+            "delta": 0.6094,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 23.2,
+            "is_spread": false,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
-            "dte": 22
+            "dte": 15
           },
-          "annualized_roi": 333.2447,
-          "strategy": "BULL_CALL_SPREAD"
+          "annualized_roi": 35308.9018,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0321,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7984
+      },
+      "simulation": {
+        "current_price": 301.1,
+        "target_price": 325.19,
+        "hit_rate": 0.85,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0377,
+        "alpha": 0.0051
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "AMD bei $301 nach einem +9.9% Anstieg in 48h ist ein klassisches Momentum-Overshoot-Risiko. Der Kursanstieg wurde prim\u00e4r durch AI-Chip-Sentiment getrieben, nicht durch fundamentale \u00dcberraschungen bei AMD selbst. Solche reflexiven Rallyes in hochfliegenden Halbleiteraktien werden oft innerhalb von 2-4 Wochen zu 50-60% revertiert, wenn der Katalysator (Micron-News, Google-Chips) als sektorales, nicht AMD-spezifisches Signal erkannt wird.",
+          "argument_2": "Die EPS-Diskrepanz ist ein kritisches Warnsignal: yfinance zeigt EPS 10.97 gegen\u00fcber SEC EDGAR 2.62 \u2014 das ist ein Faktor von ~4x. Selbst wenn die Abweichung formal als 0% deklariert wird (m\u00f6glicherweise durch unterschiedliche Berechnungszeitr\u00e4ume), deutet diese massive Differenz auf Dateninkonsistenz hin. Bei einem KGV-basierten Bullish-Case auf AMD schafft das erhebliche Unsicherheit \u00fcber die tats\u00e4chliche fundamentale Bewertung. Ein AMD auf Basis von KGV 27x (SEC-Zahlen) ist weit teurer als eines auf Basis von KGV 27x (yfinance-Zahlen).",
+          "argument_3": "Ein Artikel titelt explizit 'Nvidia vs. AMD: One Is a Generational Buy \u2014 The Other Is a Trap' \u2014 in einem Marktumfeld, in dem Google neue AI-Chips ank\u00fcndigt und Nvidia dominiert, k\u00f6nnte AMD strukturell verdr\u00e4ngt werden. AMD hat im AI-Accelerator-Markt trotz MI300-Hype keine signifikanten Marktanteile von Nvidia gewonnen. Gleichzeitig erh\u00f6ht Googles TPU-Expansion den Druck, da Hyperscaler zunehmend eigene Chips entwickeln, was das TAM f\u00fcr AMD direkt reduziert.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Bei einer historischen AMD-Volatilit\u00e4t von ~55-65% annualisiert und einem Kurs von $301 nach +9.9% in 48h ist kein MC-Ergebnis nicht gleichbedeutend mit einer schlechten Signal-Qualit\u00e4t, sondern schlicht fehlende Datenbasis. Das Fehlen des MC-Outputs reduziert die statistische Konfidenz erheblich \u2014 wir k\u00f6nnen keine Aussage \u00fcber Pfad-Wahrscheinlichkeiten machen.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Nach dem initialen +9.9%-Anstieg k\u00f6nnte der Markt die strukturelle Repositionierung von Institutionellen untersch\u00e4tzen, die AMD als Nvidia-Hedge kaufen. Der Q2-Earnings-Katalysator k\u00f6nnte MI300-Nachfragezahlen liefern, die \u00fcber den Konsenserwartungen liegen, da Data-Center-Kunden zunehmend dual-source-Strategien verfolgen. Die Makrolage mit steil positiver Zinskurve (+0.52%) und moderatem Fed Funds Rate von 3.64% beg\u00fcnstigt Risiko-Assets und speziell kapitalintensive Wachstumssektoren wie Halbleiter. Jedoch ist das kurzfristige Momentum bereits stark eingepreist, sodass die echte Asymmetrie erst nach einem m\u00f6glichen Post-Rally-Pullback entsteht.",
+        "catalyst": "Q2 2025 Earnings mit MI300/MI350 Data-Center-Revenue-Beat und erh\u00f6htem Guidance als prim\u00e4rer Katalysator; sekund\u00e4r m\u00f6gliche Partnerschaftsank\u00fcndigungen mit Hyperscalern als Nvidia-Alternative.",
+        "bear_case": "AMD verliert strukturell AI-Accelerator-Marktanteile an Nvidia (CUDA-\u00d6kosystem-Lock-in) und eigene Hyperscaler-Chips (Google TPU, AWS Trainium). Bei einem Sentiment-Reversal k\u00f6nnte der Kurs schnell 20-25% korrigieren.",
+        "macro_assessment": "Das expansive Makroumfeld (Kurve +0.52%, Fed Rate 3.64%, kein rezessiver Stress) ist grunds\u00e4tzlich supportiv f\u00fcr Halbleiter-Longs mit 2-6 Monaten Horizont. Niedrigere Kapitalkosten beg\u00fcnstigen Wachstumsbewertungen, und das Risk-on-Umfeld f\u00f6rdert institutionelle Allokation in AI-Themen. Kein struktureller Makro-Gegenwind erkennbar.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.3665
+      },
+      "final_score": 0.1452,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 3.5853,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 77,
+        "grade": "STRONG BUY \ud83d\udfe2",
+        "grade_short": "STRONG BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (54%), g\u00fcnstige IV (15%)",
+        "best_argument_for": "Nach dem initialen +9.9%-Anstieg k\u00f6nnte der Markt die strukturelle Repositionierung von Institutionellen untersch\u00e4tzen, die AMD als Nvidia-Hedge kaufen. Der Q2-Earnings-Katalysator k\u00f6nnte MI300-Nachfragezahlen liefern, die \u00fcber den Konsenserwartungen liegen, da Data-Center-Kunden zunehmend dual-source-Strategien verfolgen. Die Makrolage mit steil positiver Zinskurve (+0.52%) und moderatem Fed Funds Rate von 3.64% beg\u00fcnstigt Risiko-Assets und speziell kapitalintensive Wachstumssektoren wie Halbleiter. Jedoch ist das kurzfristige Momentum bereits stark eingepreist, sodass die echte Asymmetrie er",
+        "best_argument_against": "AMD bei $301 nach einem +9.9% Anstieg in 48h ist ein klassisches Momentum-Overshoot-Risiko. Der Kursanstieg wurde prim\u00e4r durch AI-Chip-Sentiment getrieben, nicht durch fundamentale \u00dcberraschungen bei AMD selbst. Solche reflexiven Rallyes in hochfliegenden Halbleiteraktien werden oft innerhalb von 2-4 Wochen zu 50-60% revertiert, wenn der Katalysator (Micron-News, Google-Chips) als sektorales, nicht AMD-spezifisches Signal erkannt wird."
+      },
+      "trade_rank": 1
+    },
+    {
+      "ticker": "APA",
+      "strategy": "LONG_CALL",
+      "iv_rank": 50.0,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-07-17",
+        "strike": 40.0,
+        "bid": 3.1,
+        "ask": 3.2,
+        "open_interest": 1564,
+        "implied_vol": 0.5293015820312501,
+        "spread_ratio": 0.0313,
+        "dte": 85
+      },
+      "roi_analysis": {
+        "roi_gross": 0.4565,
+        "roi_net": 0.3091,
+        "spread_pct": 0.0313,
+        "vega_loss": 0.0849,
+        "delta": 0.4774,
+        "iv_drop_assumed": 0.07,
+        "cost_basis": 3.2,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.12,
+        "dte": 85
+      },
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 2.179,
+      "all_tiers_tried": [
+        {
+          "tier": "Mid-Term",
+          "dte": 85,
+          "option": {
+            "expiry": "2026-07-17",
+            "strike": 40.0,
+            "bid": 3.1,
+            "ask": 3.2,
+            "open_interest": 1564,
+            "implied_vol": 0.5293015820312501,
+            "spread_ratio": 0.0313,
+            "dte": 85
+          },
+          "roi": {
+            "roi_gross": 0.4565,
+            "roi_net": 0.3091,
+            "spread_pct": 0.0313,
+            "vega_loss": 0.0849,
+            "delta": 0.4774,
+            "iv_drop_assumed": 0.07,
+            "cost_basis": 3.2,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.12,
+            "dte": 85
+          },
+          "annualized_roi": 2.179,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0325,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.85
+      },
+      "simulation": {
+        "current_price": 38.16,
+        "target_price": 41.22,
+        "hit_rate": 0.85,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0296,
+        "alpha": 0.00684
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "APA ist ein \u00d6lproduzent mit hoher Abh\u00e4ngigkeit vom Roh\u00f6lpreis, der aktuell von geopolitischer Unsicherheit (Iran/USA-Ceasefire) getrieben wird. Dieser Katalysator ist extrem kurzlebig und bin\u00e4r: Kommt eine Einigung vor dem 22. April zustande, kollabiert der \u00d6lpreis-Aufschlag und APA verliert den gesamten +5,9%-Gain der letzten 48h wieder. Der Trade ist damit ein direktes Wetten auf Scheitern diplomatischer Verhandlungen.",
+          "argument_2": "Truist Securities hat APA bei 'Hold' belassen und das Kursziel nur marginal auf $39 erh\u00f6ht \u2014 das entspricht einem Upside von weniger als 2% vom aktuellen Kurs. Ein Analyst-Konsensus ohne Bull-Upgrade bei gleichzeitig bereits realisiertem +5,9%-Move signalisiert, dass der Markt den Iran-Risiko-Aufschlag m\u00f6glicherweise bereits vollst\u00e4ndig eingepreist hat. F\u00fcr eine mittelfristige Options-Position (2-6 Monate) fehlt ein struktureller Bewertungsanker oberhalb des aktuellen Niveaus.",
+          "argument_3": "APA hat strukturelle Fundamentalprobleme: Die EPS-Abweichung zwischen yfinance ($3.83) und SEC EDGAR ($4.17) deutet auf Dateninkonsistenzen hin, und das KGV auf Basis des SEC-EPS liegt bereits bei ~9x \u2014 g\u00fcnstig bewertet, aber Energy-Sektor wird trotz Makro-R\u00fcckenwind chronisch mit Discounts gehandelt. Hinzu kommt die OPEC+-\u00dcberproduktionsgefahr sowie ein m\u00f6gliches US-Iran-Deal-Szenario, das den \u00d6lmarkt mit Angebotsdruck \u00fcberfluten k\u00f6nnte.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Der Quick MC liefert 0% Hit-Rate bei 0 Pfaden \u2014 das bedeutet schlicht, dass kein MC berechnet wurde, nicht dass die Wahrscheinlichkeit null ist. Dies ist ein Datenproblem, keine echte statistische Aussage. F\u00fcr APA mit historischer Energie-Sektor-Volatilit\u00e4t (typisch 35-50% annualisiert) w\u00e4re eine realistische 30-Tage-Treffrate f\u00fcr einen moderaten Upside-Move von 5-10% bei ca. 40-55% zu erwarten. Die fehlenden MC-Daten erh\u00f6hen die Unsicherheit erheblich.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Das Cluster-Insider-Kaufsignal (8 Insider in 14 Tagen) ist statistisch signifikant und deutet darauf hin, dass Management entweder einen \u00d6lpreis-Anstieg antizipiert oder die Aktie auf aktuellen Niveaus fundamental attraktiv bewertet. Der Markt hat dieses Signal m\u00f6glicherweise untergewichtet, weil es im Rauschen der Sektor-Rotation und geopolitischen Nachrichten unterging. Gleichzeitig befindet sich der Makro-Kontext mit steiler Zinskurve (+0.52%) und expansivem Regime in einem f\u00fcr Energie-Werte historisch g\u00fcnstigen Umfeld, was R\u00fcckenwind f\u00fcr realwirtschaftlich sensible Sektoren liefert. Die Iran-Ceasefire-Unsicherheit bis 22. April schafft einen bin\u00e4ren Volatilit\u00e4tskatalysator, der bei Eskalation APA und den Energiesektor \u00fcberproportional beg\u00fcnstigen w\u00fcrde, w\u00e4hrend das Downside durch bereits g\u00fcnstige Bewertung (~9x EPS) begrenzt erscheint.",
+        "catalyst": "Iran-USA-Ceasefire-Deadline 22. April: Scheitern der Verhandlungen \u2192 \u00d6lpreis-Spike \u2192 APA Earnings-Revision nach oben; sekund\u00e4r: 8-Insider-Cluster-Kauf als Fr\u00fchindikator f\u00fcr positive Guidance",
+        "bear_case": "Diplomatische Einigung zwischen USA und Iran vor dem 22. April f\u00fchrt zu \u00d6lpreis-Normalisierung, der gesamte Geopolitik-Aufschlag der letzten 48h (+5,9%) wird abgebaut, Truist-Hold ohne strukturelles Kurszielupside best\u00e4tigt begrenzte Upside-Fantasie.",
+        "macro_assessment": "Das expansive Makroumfeld mit positiver Zinskurve (+0.52%) und Fed Funds bei 3.64% ist f\u00fcr Energie-Aktien wie APA grunds\u00e4tzlich konstruktiv: H\u00f6heres Wachstumsumfeld st\u00fctzt \u00d6l-Nachfrage, keine unmittelbare Rezessionsgefahr dr\u00fcckt auf Industriemetalle/Energie. Die 10Y-Rendite bei 4.25% ist f\u00fcr Real-Asset-Sektoren neutral bis leicht negativ (h\u00f6here Diskontierungss\u00e4tze), aber APA's niedriges KGV macht die Aktie zinssensitiv in vergleichsweise geringem Ma\u00dfe. Insgesamt beg\u00fcnstigt der Makro-Kontext den Bullish-Case moderat.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLE",
+        "rel_strength": 0.2132
+      },
+      "final_score": 0.1452,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.3636,
+        "annualized_roi": 2.179,
+        "dte": 85
+      },
+      "trade_score": {
+        "total": 77,
+        "grade": "STRONG BUY \ud83d\udfe2",
+        "grade_short": "STRONG BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (31%), positive Sektor-Relative-St\u00e4rke",
+        "best_argument_for": "Das Cluster-Insider-Kaufsignal (8 Insider in 14 Tagen) ist statistisch signifikant und deutet darauf hin, dass Management entweder einen \u00d6lpreis-Anstieg antizipiert oder die Aktie auf aktuellen Niveaus fundamental attraktiv bewertet. Der Markt hat dieses Signal m\u00f6glicherweise untergewichtet, weil es im Rauschen der Sektor-Rotation und geopolitischen Nachrichten unterging. Gleichzeitig befindet sich der Makro-Kontext mit steiler Zinskurve (+0.52%) und expansivem Regime in einem f\u00fcr Energie-Werte historisch g\u00fcnstigen Umfeld, was R\u00fcckenwind f\u00fcr realwirtschaftlich sensible Sektoren liefert. Die Ir",
+        "best_argument_against": "APA ist ein \u00d6lproduzent mit hoher Abh\u00e4ngigkeit vom Roh\u00f6lpreis, der aktuell von geopolitischer Unsicherheit (Iran/USA-Ceasefire) getrieben wird. Dieser Katalysator ist extrem kurzlebig und bin\u00e4r: Kommt eine Einigung vor dem 22. April zustande, kollabiert der \u00d6lpreis-Aufschlag und APA verliert den gesamten +5,9%-Gain der letzten 48h wieder. Der Trade ist damit ein direktes Wetten auf Scheitern diplomatischer Verhandlungen."
+      },
+      "trade_rank": 2
+    },
+    {
+      "ticker": "AVGO",
+      "strategy": "LONG_CALL",
+      "iv_rank": 38.8,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 420.0,
+        "bid": 16.8,
+        "ask": 17.55,
+        "open_interest": 1274,
+        "implied_vol": 0.5000660345458985,
+        "spread_ratio": 0.0427,
+        "dte": 15
+      },
+      "roi_analysis": {
+        "roi_gross": 0.9669,
+        "roi_net": 0.8332,
+        "spread_pct": 0.0427,
+        "vega_loss": 0.0482,
+        "delta": 0.5067,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 17.55,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 15
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 2539643.814,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 15,
+          "option": {
+            "expiry": "2026-05-08",
+            "strike": 420.0,
+            "bid": 16.8,
+            "ask": 17.55,
+            "open_interest": 1274,
+            "implied_vol": 0.5000660345458985,
+            "spread_ratio": 0.0427,
+            "dte": 15
+          },
+          "roi": {
+            "roi_gross": 0.9669,
+            "roi_net": 0.8332,
+            "spread_pct": 0.0427,
+            "vega_loss": 0.0482,
+            "delta": 0.5067,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 17.55,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 15
+          },
+          "annualized_roi": 2539643.814,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0278,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.763
+      },
+      "simulation": {
+        "current_price": 418.56,
+        "target_price": 452.05,
+        "hit_rate": 0.839,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0287,
+        "alpha": 0.00431
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der +4,9% Preisanstieg in 48 Stunden deutet darauf hin, dass der Sektor-Spillover aus dem Micron/AMD-Momentum bereits vollst\u00e4ndig eingepreist sein k\u00f6nnte. AVGO hat keine eigene fundamentale Nachricht geliefert, die diesen Move rechtfertigt \u2014 es handelt sich um ein reines Sympathy-Trade-Muster. Bei Earnings-Erwartungen ohne klaren Katalysator besteht hohes IV-Crush-Risiko nach dem n\u00e4chsten Event.",
+          "argument_2": "Die EPS-Diskrepanz zwischen yfinance (18,11) und SEC EDGAR (5,12) ist gravierend und signalisiert potenziell aggressive Non-GAAP-Adjustierungen. Ein KGV basierend auf Non-GAAP-Zahlen w\u00e4re erheblich \u00fcberteuert gegen\u00fcber GAAP-Realit\u00e4t. Bei einem Preis von $418,56 k\u00f6nnte das tats\u00e4chliche GAAP-Multiple weit jenseits vern\u00fcnftiger Bewertungsniveaus liegen, was Downside-Risiken bei Sektorkorrekturen erh\u00f6ht.",
+          "argument_3": "Googles neue AI-Chips (TPU/Axion) stellen einen direkten strukturellen Gegenwind f\u00fcr AVGO dar, da Google zu den gr\u00f6\u00dften Custom-ASIC-Kunden von Broadcom geh\u00f6rt. Wenn Google st\u00e4rker auf eigene Chip-Entwicklung setzt, reduziert sich AVGOs Hyperscaler-Revenue-Basis langfristig. Dieser Trend zur Vertikal-Integration bei den gro\u00dfen Cloud-Playern (Google, Meta, Amazon) bedroht das Custom-Silicon-Segment, das aktuell ein wesentlicher Wachstumstreiber ist.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Die 0% Hit-Rate ist schlicht auf fehlende Monte-Carlo-Ausf\u00fchrung zur\u00fcckzuf\u00fchren, nicht auf ein negatives Signal. Ohne Datenbasis keine statistisch verl\u00e4ssliche Aussage m\u00f6glich. Bei historischer AVGO-Volatilit\u00e4t (typisch 30-40% annualisiert) w\u00e4re ein 30-Tage-Kursziel mit >65% Hit-Rate bei moderater Aufw\u00e4rtsbewegung realistisch. Das Fehlen der MC-Daten reduziert die Konfidenz erheblich, ist aber kein direktes Warnsignal f\u00fcr Overoptimismus.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt hat den Sektor-Spillover von Micron und AMD korrekt auf AVGO \u00fcbertragen, jedoch m\u00f6glicherweise das Cluster-Signal von 7 Insider-K\u00e4ufen innerhalb von 14 Tagen untergewichtet. Insider-K\u00e4ufe in dieser Gr\u00f6\u00dfenordnung kurz vor einem potenziellen Earnings-Katalysator sind statistisch signifikant und deuten auf Confidence im Management hin. Das expansive Makroumfeld mit steiler Zinskurve (+0,52%) beg\u00fcnstigt weiter Technologie-Long-Positionen. Gleichzeitig bleibt AVGOs Positionierung im Custom-ASIC-Markt f\u00fcr Hyperscaler strukturell intact, trotz des Google-Chip-Narrativs, da Google-Broadcom-Partnerschaft mehrj\u00e4hrig vertraglich gebunden ist. Der aktuelle Move k\u00f6nnte erst der Anfang einer Neubewertung des AI-Supply-Knappheits-Themas sein.",
+        "catalyst": "AVGO Earnings + Management Guidance zu Custom-ASIC-Bookings und AI-Accelerator-Revenue (n\u00e4chste 4-6 Wochen)",
+        "bear_case": "Googles zunehmende Eigenentwicklung bei AI-Chips k\u00f6nnte mittelfristig den gr\u00f6\u00dften Custom-Silicon-Kunden von AVGO reduzieren, gleichzeitig ist der aktuelle Preisanstieg m\u00f6glicherweise bereits reine Sympathy-Momentum ohne eigenst\u00e4ndige fundamentale Unterst\u00fctzung.",
+        "macro_assessment": "Das makro\u00f6konomische Umfeld ist klar bullish: Fed Funds Rate bei 3,64% mit positiver Zinskurve (+0,52% 10Y-2Y) signalisiert expansives Regime ohne unmittelbaren Rezessionsdruck. Dies beg\u00fcnstigt Growth/Technology-Positionen auf 2-6 Monats-Horizont. Die 10Y-Rendite von 4,25% ist zwar nicht trivial f\u00fcr Bewertungsmultiples, aber bei steiler Kurve kein dominantes Risiko. Geopolitische Entspannung (Iran-Ceasefire-Headline) reduziert kurzfristigen Risk-Off-Druck zus\u00e4tzlich.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.1935
+      },
+      "final_score": 0.1452,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 5.5547,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 77,
+        "grade": "STRONG BUY \ud83d\udfe2",
+        "grade_short": "STRONG BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (83%), g\u00fcnstige IV (39%)",
+        "best_argument_for": "Der Markt hat den Sektor-Spillover von Micron und AMD korrekt auf AVGO \u00fcbertragen, jedoch m\u00f6glicherweise das Cluster-Signal von 7 Insider-K\u00e4ufen innerhalb von 14 Tagen untergewichtet. Insider-K\u00e4ufe in dieser Gr\u00f6\u00dfenordnung kurz vor einem potenziellen Earnings-Katalysator sind statistisch signifikant und deuten auf Confidence im Management hin. Das expansive Makroumfeld mit steiler Zinskurve (+0,52%) beg\u00fcnstigt weiter Technologie-Long-Positionen. Gleichzeitig bleibt AVGOs Positionierung im Custom-ASIC-Markt f\u00fcr Hyperscaler strukturell intact, trotz des Google-Chip-Narrativs, da Google-Broadcom-P",
+        "best_argument_against": "Der +4,9% Preisanstieg in 48 Stunden deutet darauf hin, dass der Sektor-Spillover aus dem Micron/AMD-Momentum bereits vollst\u00e4ndig eingepreist sein k\u00f6nnte. AVGO hat keine eigene fundamentale Nachricht geliefert, die diesen Move rechtfertigt \u2014 es handelt sich um ein reines Sympathy-Trade-Muster. Bei Earnings-Erwartungen ohne klaren Katalysator besteht hohes IV-Crush-Risiko nach dem n\u00e4chsten Event."
+      },
+      "trade_rank": 3
+    },
+    {
+      "ticker": "ABNB",
+      "strategy": "LONG_CALL",
+      "iv_rank": 43.0,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-10-16",
+        "strike": 145.0,
+        "bid": 15.8,
+        "ask": 17.4,
+        "open_interest": 112,
+        "implied_vol": 0.4425104577636719,
+        "spread_ratio": 0.092,
+        "dte": 176
+      },
+      "roi_analysis": {
+        "roi_gross": 0.3688,
+        "roi_net": 0.1748,
+        "spread_pct": 0.092,
+        "vega_loss": 0.0101,
+        "delta": 0.5556,
+        "iv_drop_assumed": 0.01,
+        "cost_basis": 17.4,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.1,
+        "dte": 176
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.3967,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 176,
+          "option": {
+            "expiry": "2026-10-16",
+            "strike": 145.0,
+            "bid": 15.8,
+            "ask": 17.4,
+            "open_interest": 112,
+            "implied_vol": 0.4425104577636719,
+            "spread_ratio": 0.092,
+            "dte": 176
+          },
+          "roi": {
+            "roi_gross": 0.3688,
+            "roi_net": 0.1748,
+            "spread_pct": 0.092,
+            "vega_loss": 0.0101,
+            "delta": 0.5556,
+            "iv_drop_assumed": 0.01,
+            "cost_basis": 17.4,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.1,
+            "dte": 176
+          },
+          "annualized_roi": 0.3967,
+          "strategy": "LONG_CALL"
         }
       ],
       "features": {
@@ -81,26 +484,26 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7058
+        "quick_mc_hit_rate": 0.7052
       },
       "simulation": {
-        "current_price": 144.58,
-        "target_price": 156.15,
-        "hit_rate": 0.8032,
+        "current_price": 144.39,
+        "target_price": 155.94,
+        "hit_rate": 0.8058,
         "n_paths": 10000,
         "days": 45,
         "sigma": 0.0201,
-        "alpha": 0.0034
+        "alpha": 0.00339
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Der Wells Fargo Upgrade auf $178 ist ein klassischer Sell-the-News-Katalysator: Analyst-Upgrades nach bereits eingepreisten positiven Entwicklungen f\u00fchren statistisch h\u00e4ufig zu kurzfristiger Outperformance, gefolgt von Mean-Reversion. ABNB notiert bei $144.58 und hat bereits eine starke Erholung hinter sich \u2014 das 'Inflection Point'-Narrativ k\u00f6nnte bereits vollst\u00e4ndig repriced sein, besonders wenn institutionelle Investoren die Upgrade-Welle als Ausstiegsgelegenheit nutzen.",
-          "argument_2": "Die EPS-Abweichung zwischen yfinance ($5.80) und SEC EDGAR ($4.03) betr\u00e4gt in absoluten Zahlen ~44% \u2014 die 0.2%-Angabe erscheint methodisch fragw\u00fcrdig und deutet auf unterschiedliche Berechnungsgrundlagen (GAAP vs. Non-GAAP, annualisiert vs. TTM) hin. Dies untergr\u00e4bt das fundamentale Bewertungsfundament erheblich: Bei einem KGV von ~25x (auf Basis $5.80) wirkt ABNB moderat bewertet, auf SEC EDGAR-Basis ($4.03) liegt das KGV bei ~36x \u2014 f\u00fcr ein Consumer Cyclical in einem noch unsicheren Reise-Nachfrage-Umfeld eine ambitionierte Bewertung.",
-          "argument_3": "Ein wichtiger Executive (EMEA-bezogen) wurde von OpenAI abgeworben, was auf Talent-Drain hinweist und gleichzeitig bedeutet, dass ein zentraler Wachstumstreiber f\u00fcr Europa m\u00f6glicherweise geschw\u00e4cht wird. Der EMEA-Markt ist f\u00fcr Airbnbs internationales Wachstum kritisch \u2014 der Verlust von Schl\u00fcsselpersonal in dieser Region just zum Zeitpunkt eines postulierten 'Inflection Points' ist ein echtes operatives Risiko, das im bullishen Narrativ systematisch untersch\u00e4tzt wird.",
+          "argument_1": "ABNB operiert im Consumer Cyclical Sektor, der bei einer Abschw\u00e4chung der Konsumausgaben \u00fcberproportional leidet. Reiseausgaben sind diskretion\u00e4r und reagieren empfindlich auf Konsumentenvertrauen sowie verf\u00fcgbares Einkommen. Trotz aktuell expansivem Makro-Umfeld zeigen f\u00fchrende Indikatoren (z.B. sinkende Sparquoten, steigende Kreditkartenverschuldung in den USA) potenzielle Ersch\u00f6pfung des Konsumenten, was die Preissteigerungsthese von Wells Fargo gef\u00e4hrden k\u00f6nnte.",
+          "argument_2": "Das Wells Fargo Upgrade mit Kursziel $178 (+23% vom aktuellen Preis) k\u00f6nnte den Katalysator bereits vollst\u00e4ndig einpreisen. Analyst-Upgrades dieser Gr\u00f6\u00dfenordnung ziehen typischerweise institutionelle Aufmerksamkeit an, was bedeutet, dass der 'Easy Money'-Move m\u00f6glicherweise bereits in den 48h-Preisbewegung von +0.5% eingeflossen ist oder kurz bevorsteht. Dar\u00fcber hinaus verliert ABNB einen EMEA-F\u00fchrungskader an OpenAI, was auf strategische Schw\u00e4che in einer Wachstumsregion hindeutet.",
+          "argument_3": "Die EPS-Abweichung zwischen yfinance ($5.80) und SEC EDGAR ($4.03) ist mit 43% absoluter Differenz erheblich und legt nahe, dass Non-GAAP-Adjustierungen das bereinigte Ergebnis erheblich aufbl\u00e4hen. Ein auf bereinigten Zahlen basierendes KGV (~24.9x bei $5.80) wirkt attraktiver als das GAAP-basierte (~35.8x bei $4.03). Bei mittelfristiger Optionsstrategie ist dieses Bewertungsrisiko material, da institutionelle Akteure bei schwachen Quartalsberichten schnell deratieren k\u00f6nnten.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Monte Carlo durchgef\u00fchrt wurde \u2014 es liegen keine statistischen Pfad-Simulationen vor. Dies ist keine inhaltliche Aussage \u00fcber die Trefferwahrscheinlichkeit, sondern ein Datenmangel. Bei ABNB mit historischer 30d-Volatilit\u00e4t von ca. 30-40% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Aufw\u00e4rtsbewegungen (~10-15%) im Bereich 45-60% zu erwarten. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Bewertung.",
+          "mc_assessment": "Der Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0% Hit-Rate kein inhaltliches Signal, sondern ein technisches Artefakt. Bei ABNB mit historischer 30-Tage-Volatilit\u00e4t von ca. 35-45% w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Aufw\u00e4rtsmove (z.B. >5% in 30 Tagen) erfahrungsgem\u00e4\u00df zwischen 40-55% anzusiedeln. Keine Statistik verf\u00fcgbar erh\u00f6ht die Unsicherheit, reduziert aber nicht die fundamentale Bewertung.",
           "concern_level": "medium"
         },
         "impact": 6,
@@ -108,10 +511,10 @@
         "direction": "BULLISH",
         "bear_case_severity": 5,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat auf den Wells Fargo Upgrade mit nur +0.7% in 48h reagiert \u2014 f\u00fcr einen Overweight-Call mit $178 Target (23% Upside) ist dies auff\u00e4llig verhalten und deutet auf institutionelle Skepsis hin, die m\u00f6glicherweise nicht fundamental begr\u00fcndet ist. Das strukturelle Signal liegt in der Margenverbesserung durch das Subscriptions-Wachstum (7x), welches in den Headline-Metriken unterrepr\u00e4sentiert ist und erst in kommenden Quartalen vollst\u00e4ndig in die Earnings-Sch\u00e4tzungen einflie\u00dfen d\u00fcrfte. Vier Insider-K\u00e4ufe innerhalb von 14 Tagen verst\u00e4rken die Asymmetrie: Insider kaufen selten koordiniert ohne konkrete positive Sicht auf die n\u00e4chsten 1-2 Quartale. Das expansive Makro-Umfeld (steile Kurve, Fed Funds bei 3.64%) beg\u00fcnstigt Consumer Cyclicals strukturell, da Reisebudgets bei sinkenden Realzinsen tendenziell steigen. Die Kombination aus Analyst-Upgrade, Insider-Cluster und verstecktem Margin-Signal bei moderater Marktreaktion schafft eine klassische Underreaction-Situation.",
-        "catalyst": "Q2/Q3 2025 Earnings-\u00dcberraschung durch Subscription-Margin-Expansion und EMEA-Wachstumsdaten; m\u00f6gliche Forward-Guidance-Anhebung im n\u00e4chsten Earnings Call",
-        "bear_case": "EPS-Diskrepanz (GAAP $4.03 vs. Non-GAAP $5.80) l\u00e4sst das KGV auf GAAP-Basis bei ~36x erscheinen \u2014 f\u00fcr Consumer Cyclical in einem verlangsamenden globalen Reisemarkt m\u00f6glicherweise nicht nachhaltig. Talent-Verlust im EMEA-Bereich ist ein echtes operatives Risiko.",
-        "macro_assessment": "Das expansive Makro-Umfeld (10Y-2Y Spread +0.52%, Fed Funds 3.64%, keine invertierte Kurve) ist klar konstruktiv f\u00fcr Consumer Cyclicals wie ABNB. Sinkende Zinsen reduzieren den Diskontierungsfaktor f\u00fcr Wachstumsaktien und beg\u00fcnstigen discretionary spending. Das Regime-Signal 'Expansiv' st\u00e4rkt das bullishe Einzelaktien-Signal und rechtfertigt eine h\u00f6here Gewichtung des strukturellen Margin-Signals.",
+        "asymmetry_reasoning": "Das Cluster-Signal aus 4 Insider-K\u00e4ufen innerhalb von 14 Tagen ist ein substanzieller Hinweis darauf, dass das Management den aktuellen Preis als Undervaluation betrachtet \u2014 Insider haben Zugang zu nicht\u00f6ffentlichen Informationen \u00fcber Buchungstrends und Preisdynamik. Kombiniert mit dem Wells Fargo Upgrade, das explizit einen 'Inflection Point' in der Preisgestaltung adressiert, entsteht eine doppelte Signalkonvergenz. Der Markt hat auf das Upgrade mit nur +0.5% reagiert, was auf selektives Desinteresse oder Skepsis hindeutet, die bei positiver Best\u00e4tigung im n\u00e4chsten Earnings-Zyklus schnell aufgel\u00f6st werden k\u00f6nnte. Die EPS-Diskrepanz zwischen bereinigten und GAAP-Zahlen schreckt Value-Investoren ab, obwohl das operative Cash-Flow-Profil von ABNB strukturell stark ist. Das expansive Makro-Umfeld mit steiler Zinskurve und Fed Funds Rate von 3.64% beg\u00fcnstigt Konsum- und Reisewerte \u00fcberproportional.",
+        "catalyst": "Q2/Q3 Earnings mit Best\u00e4tigung der Preiserh\u00f6hungsdynamik (Summer-Booking-Season) und potenziell weitere Analysten-Upgrades als Folge des Wells Fargo Calls",
+        "bear_case": "Verlust eines EMEA-Schl\u00fcsselmanagers an OpenAI signalisiert interne Attraktivit\u00e4tsprobleme; kombiniert mit aufgebl\u00e4hten Non-GAAP-Earnings k\u00f6nnte eine Entt\u00e4uschung beim n\u00e4chsten Earnings einen IV-Crush auf Long-Optionen ausl\u00f6sen",
+        "macro_assessment": "Das aktuelle Makro-Umfeld mit +0.52% Zinskurven-Spread, Fed Funds Rate von 3.64% und expansivem Regime ist grunds\u00e4tzlich konstruktiv f\u00fcr Consumer-Cyclical-Werte wie ABNB. Eine nicht-invertierte Kurve reduziert Rezessions\u00e4ngste erheblich und st\u00fctzt diskretion\u00e4re Ausgaben. Long-Positionen im 2-6-Monats-Horizont erhalten in diesem Umfeld h\u00f6heres strukturelles Alpha-Gewicht.",
         "data_confidence": "medium",
         "macro_regime": "expansive",
         "macro_context": {
@@ -122,13 +525,13 @@
       },
       "sector_momentum": {
         "etf": "XLY",
-        "rel_strength": 0.0436
+        "rel_strength": 0.0414
       },
-      "final_score": 0.1455,
+      "final_score": 0.1452,
       "time_value_efficiency": {
-        "roi_per_day_pct": 1.9068,
-        "annualized_roi": null,
-        "dte": 22
+        "roi_per_day_pct": 0.0993,
+        "annualized_roi": 0.3967,
+        "dte": 176
       },
       "trade_score": {
         "total": 64,
@@ -136,127 +539,119 @@
         "grade_short": "BUY",
         "components": {
           "signal_quality": 21.9,
-          "options_quality": 27.0,
-          "risk_deductions": -10.0,
+          "options_quality": 17.2,
+          "risk_deductions": 0.0,
           "context_bonus": 25.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (42%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer",
-        "best_argument_for": "Der Markt hat auf den Wells Fargo Upgrade mit nur +0.7% in 48h reagiert \u2014 f\u00fcr einen Overweight-Call mit $178 Target (23% Upside) ist dies auff\u00e4llig verhalten und deutet auf institutionelle Skepsis hin, die m\u00f6glicherweise nicht fundamental begr\u00fcndet ist. Das strukturelle Signal liegt in der Margenverbesserung durch das Subscriptions-Wachstum (7x), welches in den Headline-Metriken unterrepr\u00e4sentiert ist und erst in kommenden Quartalen vollst\u00e4ndig in die Earnings-Sch\u00e4tzungen einflie\u00dfen d\u00fcrfte. Vier Insider-K\u00e4ufe innerhalb von 14 Tagen verst\u00e4rken die Asymmetrie: Insider kaufen selten koordiniert o",
-        "best_argument_against": "Der Wells Fargo Upgrade auf $178 ist ein klassischer Sell-the-News-Katalysator: Analyst-Upgrades nach bereits eingepreisten positiven Entwicklungen f\u00fchren statistisch h\u00e4ufig zu kurzfristiger Outperformance, gefolgt von Mean-Reversion. ABNB notiert bei $144.58 und hat bereits eine starke Erholung hinter sich \u2014 das 'Inflection Point'-Narrativ k\u00f6nnte bereits vollst\u00e4ndig repriced sein, besonders wenn institutionelle Investoren die Upgrade-Welle als Ausstiegsgelegenheit nutzen."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), positive Sektor-Relative-St\u00e4rke, expansives Makro-Umfeld",
+        "best_argument_for": "Das Cluster-Signal aus 4 Insider-K\u00e4ufen innerhalb von 14 Tagen ist ein substanzieller Hinweis darauf, dass das Management den aktuellen Preis als Undervaluation betrachtet \u2014 Insider haben Zugang zu nicht\u00f6ffentlichen Informationen \u00fcber Buchungstrends und Preisdynamik. Kombiniert mit dem Wells Fargo Upgrade, das explizit einen 'Inflection Point' in der Preisgestaltung adressiert, entsteht eine doppelte Signalkonvergenz. Der Markt hat auf das Upgrade mit nur +0.5% reagiert, was auf selektives Desinteresse oder Skepsis hindeutet, die bei positiver Best\u00e4tigung im n\u00e4chsten Earnings-Zyklus schnell au",
+        "best_argument_against": "ABNB operiert im Consumer Cyclical Sektor, der bei einer Abschw\u00e4chung der Konsumausgaben \u00fcberproportional leidet. Reiseausgaben sind diskretion\u00e4r und reagieren empfindlich auf Konsumentenvertrauen sowie verf\u00fcgbares Einkommen. Trotz aktuell expansivem Makro-Umfeld zeigen f\u00fchrende Indikatoren (z.B. sinkende Sparquoten, steigende Kreditkartenverschuldung in den USA) potenzielle Ersch\u00f6pfung des Konsumenten, was die Preissteigerungsthese von Wells Fargo gef\u00e4hrden k\u00f6nnte."
       },
-      "trade_rank": 1
+      "trade_rank": 4
     },
     {
-      "ticker": "BBWI",
-      "strategy": "BEAR_PUT_SPREAD",
-      "iv_rank": 100.0,
-      "iv_gate_applied": true,
-      "direction": "BEARISH",
+      "ticker": "ADI",
+      "strategy": "LONG_CALL",
+      "iv_rank": 59.9,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
       "option": {
-        "expiry": "2026-05-15",
-        "strike": 20.0,
-        "bid": 0.95,
-        "ask": 1.05,
-        "open_interest": 865,
-        "implied_vol": 0.561527822265625,
-        "spread_ratio": 0.0952,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 22.5,
-          "bid": 2.4,
-          "ask": 2.6
-        },
-        "net_debit": -1.35
+        "expiry": "2026-09-18",
+        "strike": 390.0,
+        "bid": 35.5,
+        "ask": 37.4,
+        "open_interest": 218,
+        "implied_vol": 0.42355923126220707,
+        "spread_ratio": 0.0508,
+        "dte": 148
       },
       "roi_analysis": {
-        "roi_gross": 0.8917,
-        "roi_net": 0.4397,
-        "spread_pct": 0.0952,
-        "vega_loss": 0.2616,
-        "delta": 0.5744,
-        "iv_drop_assumed": 0.25,
+        "roi_gross": 0.4207,
+        "roi_net": 0.2425,
+        "spread_pct": 0.0508,
+        "vega_loss": 0.0765,
+        "delta": 0.517,
+        "iv_drop_assumed": 0.07,
+        "cost_basis": 37.4,
+        "is_spread": false,
         "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 22
+        "min_roi_threshold": 0.12,
+        "dte": 148
       },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 421.5484,
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 0.7083,
       "all_tiers_tried": [
         {
-          "tier": "Short-Term",
-          "dte": 22,
+          "tier": "Mid-Term",
+          "dte": 148,
           "option": {
-            "expiry": "2026-05-15",
-            "strike": 20.0,
-            "bid": 0.95,
-            "ask": 1.05,
-            "open_interest": 865,
-            "implied_vol": 0.561527822265625,
-            "spread_ratio": 0.0952,
-            "dte": 22,
-            "spread_leg": {
-              "strike": 22.5,
-              "bid": 2.4,
-              "ask": 2.6
-            },
-            "net_debit": -1.35
+            "expiry": "2026-09-18",
+            "strike": 390.0,
+            "bid": 35.5,
+            "ask": 37.4,
+            "open_interest": 218,
+            "implied_vol": 0.42355923126220707,
+            "spread_ratio": 0.0508,
+            "dte": 148
           },
           "roi": {
-            "roi_gross": 0.8917,
-            "roi_net": 0.4397,
-            "spread_pct": 0.0952,
-            "vega_loss": 0.2616,
-            "delta": 0.5744,
-            "iv_drop_assumed": 0.25,
+            "roi_gross": 0.4207,
+            "roi_net": 0.2425,
+            "spread_pct": 0.0508,
+            "vega_loss": 0.0765,
+            "delta": 0.517,
+            "iv_drop_assumed": 0.07,
+            "cost_basis": 37.4,
+            "is_spread": false,
             "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 22
+            "min_roi_threshold": 0.12,
+            "dte": 148
           },
-          "annualized_roi": 421.5484,
-          "strategy": "BEAR_PUT_SPREAD"
+          "annualized_roi": 0.7083,
+          "strategy": "LONG_CALL"
         }
       ],
       "features": {
         "impact": 6,
-        "surprise": 7,
+        "surprise": 5,
         "mismatch": 6.0,
         "z_score": 0.0,
-        "sigma_30d": 0.0407,
+        "sigma_30d": 0.023,
         "eps_drift": 0.0,
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6724
+        "quick_mc_hit_rate": 0.85
       },
       "simulation": {
-        "current_price": 20.33,
-        "target_price": 21.96,
-        "hit_rate": 0.7386,
+        "current_price": 380.43,
+        "target_price": 410.86,
+        "hit_rate": 0.85,
         "n_paths": 10000,
         "days": 45,
-        "sigma": 0.0407,
-        "alpha": 0.00163
+        "sigma": 0.0198,
+        "alpha": 0.00615
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Die Schlie\u00dfung von 92 Stores ist kein positives Restrukturierungssignal, sondern ein Indikator f\u00fcr strukturellen Nachfrager\u00fcckgang im Consumer-Cyclical-Segment. Bath & Body Works k\u00e4mpft mit sinkender Foot-Traffic in Malls, steigendem Wettbewerb durch E-Commerce und einer Verbraucherbasis, die bei diskretion\u00e4ren Ausgaben zunehmend zur\u00fcckhaltend ist. Der Markt k\u00f6nnte das Ausma\u00df des strukturellen Wandels tats\u00e4chlich bereits korrekt einpreisen, und die BEARISH-These ist daher nicht zwingend eine Underreaction, sondern eine korrekte Bewertung.",
-          "argument_2": "Die Kuehn Law-Meldung deutet auf m\u00f6gliche Sammelklagen oder Investoren-Rechtsstreitigkeiten hin \u2014 dies ist ein erhebliches juristisches Tail-Risk, das EPS-Sch\u00e4tzungen und Managementkapazit\u00e4ten belasten kann. Gleichzeitig ist der EPS von ~2.87-3.11 bei einem Kurs von $20.33 zwar optisch g\u00fcnstig (KGV ~6-7x), aber rechtliche Belastungen und weitere Store-Schlie\u00dfungskosten (Abfindungen, Mietaufl\u00f6sungen, Inventory-Abschreibungen) k\u00f6nnten die realisierten Gewinne erheblich unter Konsenserwartungen dr\u00fccken.",
-          "argument_3": "Insider-K\u00e4ufe in einem Cluster sind oft ein contrarian bullisches Signal, k\u00f6nnen aber auch 'Catching a Falling Knife' bedeuten \u2014 besonders wenn das Management die Tiefe der operativen Probleme kennt aber \u00f6ffentlich optimistisch kommuniziert. Insider kaufen h\u00e4ufig, um Vertrauen zu signalisieren, selbst wenn das Unternehmen fundamental unter Druck steht. Bei einem -2.7% Move in 48h und einer Nachrichtenlage bestehend aus Store-Schlie\u00dfungen und Klagen ist die Wahrscheinlichkeit eines anhaltenden Abw\u00e4rtstrends nicht vernachl\u00e4ssigbar.",
+          "argument_1": "ADI hat nach einem starken mehrmonatigen Kursanstieg eine potenziell \u00fcberstreckte Bewertung erreicht. Der Artikel 'Assessing Analog Devices (ADI) Valuation After A Strong Multi-Month Share Price Run' deutet darauf hin, dass der Markt bereits erhebliche Erwartungen an eine Chip-Zyklus-Beschleunigung eingepreist hat. Ein KGV auf Basis des bereinigten EPS von ~13,15 erscheint zwar moderat, doch bei $380 je Aktie und dem EPS-Gap zwischen yfinance (13,15) und SEC EDGAR (5,48) besteht erhebliche Unsicherheit \u00fcber die tats\u00e4chliche Earnings-Qualit\u00e4t.",
+          "argument_2": "Die EPS-Diskrepanz zwischen yfinance ($13,15) und SEC EDGAR ($5,48) ist erheblich und nicht trivial. Ein Faktor von ~2,4x zwischen den beiden Quellen deutet auf m\u00f6gliche non-GAAP Adjustierungen hin, die die tats\u00e4chliche fundamentale St\u00e4rke des Unternehmens verschleiern k\u00f6nnten. Optionsstrategien, die auf hohen Earnings-\u00dcberraschungen basieren, tragen das Risiko eines IV-Crush nach dem n\u00e4chsten Earnings-Event, insbesondere wenn die non-GAAP Zahlen bereits optimistisch adjustiert sind.",
+          "argument_3": "Das Chip-Zyklus-Narrativ ist zwar plausibel, aber der Halbleitersektor (insbesondere Analog/Mixed-Signal wie ADI) reagiert typischerweise mit 3-6 Monaten Verz\u00f6gerung auf industrielle Nachfrageimpulse. Die Insider-K\u00e4ufe sind ein positives Signal, k\u00f6nnten aber auch schlicht auf Aktienoptionsprogramme zur\u00fcckzuf\u00fchren sein. Zudem ist ADI stark im Industriesegment exponiert, das im aktuellen PMI-Umfeld (schwacher globaler Industrie-PMI) weiterhin unter Druck stehen k\u00f6nnte, trotz steiler Zinskurve.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein Monte-Carlo wurde durchgef\u00fchrt \u2014 damit fehlen statistische Grundlagen f\u00fcr eine Wahrscheinlichkeitsbewertung. Bei BBWI mit historisch hoher Volatilit\u00e4t (~35-45% IV f\u00fcr Consumer-Cyclical-Retailer unter Druck) w\u00e4re eine belastbare MC-Simulation essenziell. Das Fehlen der Daten erh\u00f6ht die Unsicherheit, senkt aber nicht notwendigerweise die Signifikanz der qualitativen Signale. Concern ist daher medium-high.",
-          "concern_level": "high"
+          "mc_assessment": "Der Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate kein inhaltliches Signal, sondern ein technisches Artefakt. Ohne MC-Daten kann keine statistische Validierung der Upside-Pfade erfolgen. Die fehlenden Daten erh\u00f6hen die Modell-Unsicherheit erheblich und erfordern manuelle Einsch\u00e4tzung: Bei ADIs historischer 30-Tage-Volatilit\u00e4t von ~25-30% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Upside-Move (~5-8%) typischerweise zwischen 40-55%.",
+          "concern_level": "medium"
         },
         "impact": 6,
-        "surprise": 7,
-        "direction": "BEARISH",
-        "bear_case_severity": 7,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Das Haiku-Prescreening sieht eine bullische Underreaction (Transformations-Risiko ist underpriced). Ich weiche zur BEARISH-Seite ab, weil die Kombination aus 92 Store-Schlie\u00dfungen, laufenden Investorenklagen und -2.7% Kursbewegung in 48h eher auf eine unvollst\u00e4ndig eingepreiste strukturelle Verschlechterung hindeutet als auf eine missverstandene Restrukturierungs-Opportunity. Der Markt mag das Ausma\u00df der operativen Belastung (Mietaufl\u00f6sungskosten, Working Capital Stress, Brand-Erosion) noch nicht vollst\u00e4ndig reflektiert haben \u2014 aber BULLISH zu werden setzt voraus, dass die Store-Schlie\u00dfungen tats\u00e4chlich zu Margin-Expansion f\u00fchren, was bei Mall-Retailern historisch selten innerhalb von 2-3 Quartalen eintritt. Insider-K\u00e4ufe reduzieren das extreme Tail-Risk, \u00e4ndern aber nicht die mittelfristige Fundamentaldynamik.",
-        "catalyst": "N\u00e4chste Quartalsergebnisse mit Guidance-Update zu Store-Portfolio und Kosteneinsparungen sowie m\u00f6gliche Entwicklungen in der Kuehn Law Investorenklage",
-        "bear_case": "Weitere Store-Schlie\u00dfungen \u00fcber 92 hinaus bei gleichzeitig steigenden Restrukturierungskosten und rechtlichen Verbindlichkeiten k\u00f6nnten EPS-Konsenssch\u00e4tzungen um 20-30% verfehlen lassen, was bei einem bereits auf niedrigem Niveau gehandelten Titel weiteren signifikanten Druck generiert.",
-        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve, Fed Funds bei 3.64%) ist prinzipiell positiv f\u00fcr Consumer-Cyclicals und w\u00fcrde normalerweise bullische Signale beg\u00fcnstigen. Dennoch ist BBWI spezifisch mit idiosynkratischen Risiken belastet \u2014 die Makro-Tailwinds mildern das Downside, eliminieren es aber nicht. Der Sektor profitiert weniger als erwartet, wenn strukturelle Marktanteilsverluste (an E-Commerce, Specialty-Konkurrenten) dominieren.",
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte die Geschwindigkeit einer Chip-Zyklus-Erholung bei ADI untersch\u00e4tzen, da analog-/mixed-signal-Halbleiter typischerweise sp\u00e4ter in den Zyklus einsteigen, aber dann l\u00e4nger outperformen als digitale Pendants. Das Cluster-Signal von 7 Insider-K\u00e4ufen innerhalb von 14 Tagen ist statistisch bedeutsam und deutet auf Insiderwissen \u00fcber bevorstehende positive Entwicklungen hin. Der aktuelle Makrokontext (steile Kurve, expansives Regime, Fed Funds bei 3,64%) beg\u00fcnstigt kapitalintensive Industrieunternehmen wie ADI, deren Kunden (Automotive, Industrial) bei g\u00fcnstigeren Finanzierungskonditionen mehr investieren. Die Underreaction k\u00f6nnte darin bestehen, dass Markteilnehmer ADI noch immer mit dem zyklischen Tief-Narrativ des Industriesegments 2023-2024 betrachten, obwohl die Destocking-Phase weitgehend abgeschlossen sein d\u00fcrfte.",
+        "catalyst": "N\u00e4chstes ADI Earnings-Event (Q-Bericht) mit potenziellem positiven Guidance-Update zur Chip-Zyklus-Erholung im Industriesegment und m\u00f6gliche Erh\u00f6hung der Jahresprognose",
+        "bear_case": "Die Bewertung nach dem starken Kursanstieg l\u00e4sst wenig Spielraum f\u00fcr Entt\u00e4uschungen; die EPS-Diskrepanz zwischen GAAP und non-GAAP erh\u00f6ht das Risiko negativer Earnings-\u00dcberraschungen auf GAAP-Basis, und ein schwacher globaler Industrie-PMI k\u00f6nnte das Erholungsnarrativ im Industriesegment vorerst bremsen.",
+        "macro_assessment": "Das aktuelle Makroumfeld ist klar supportiv: Eine steile Kurve (+0,52%) signalisiert expansive Bedingungen, und die Fed Funds Rate bei 3,64% deutet auf eine akkommodative Geldpolitik hin, die Investitionen in industrielle Endm\u00e4rkte beg\u00fcnstigt \u2014 ADIs Kernmarkt. Dies st\u00fctzt das bullische Signal moderat, ohne es zu einem Hoch\u00fcberzeugungsfall zu machen.",
         "data_confidence": "medium",
         "macro_regime": "expansive",
         "macro_context": {
@@ -266,30 +661,167 @@
         "direction_conflict": false
       },
       "sector_momentum": {
-        "etf": "XLY",
-        "rel_strength": -0.139
+        "etf": "XLK",
+        "rel_strength": -0.013
       },
-      "final_score": 0.1455,
+      "final_score": 0.1452,
       "time_value_efficiency": {
-        "roi_per_day_pct": 1.9986,
-        "annualized_roi": null,
-        "dte": 22
+        "roi_per_day_pct": 0.1639,
+        "annualized_roi": 0.7083,
+        "dte": 148
       },
       "trade_score": {
-        "total": 46,
+        "total": 58,
         "grade": "WATCH \ud83d\udfe0",
         "grade_short": "WATCH",
         "components": {
-          "signal_quality": 25.9,
-          "options_quality": 25.0,
-          "risk_deductions": -20.0,
+          "signal_quality": 21.9,
+          "options_quality": 20.6,
+          "risk_deductions": 0.0,
           "context_bonus": 15.0
         },
-        "reasoning": "St\u00e4rken: starkes Signal (Impact=6/Surprise=7), guter ROI (44%), expansives Makro-Umfeld | Risiken: hohe IV (100%) \u2014 Optionen teuer, hohes Bear-Risiko (7/10), Sektor underperformt Markt",
-        "best_argument_for": "Das Haiku-Prescreening sieht eine bullische Underreaction (Transformations-Risiko ist underpriced). Ich weiche zur BEARISH-Seite ab, weil die Kombination aus 92 Store-Schlie\u00dfungen, laufenden Investorenklagen und -2.7% Kursbewegung in 48h eher auf eine unvollst\u00e4ndig eingepreiste strukturelle Verschlechterung hindeutet als auf eine missverstandene Restrukturierungs-Opportunity. Der Markt mag das Ausma\u00df der operativen Belastung (Mietaufl\u00f6sungskosten, Working Capital Stress, Brand-Erosion) noch nicht vollst\u00e4ndig reflektiert haben \u2014 aber BULLISH zu werden setzt voraus, dass die Store-Schlie\u00dfungen t",
-        "best_argument_against": "Die Schlie\u00dfung von 92 Stores ist kein positives Restrukturierungssignal, sondern ein Indikator f\u00fcr strukturellen Nachfrager\u00fcckgang im Consumer-Cyclical-Segment. Bath & Body Works k\u00e4mpft mit sinkender Foot-Traffic in Malls, steigendem Wettbewerb durch E-Commerce und einer Verbraucherbasis, die bei diskretion\u00e4ren Ausgaben zunehmend zur\u00fcckhaltend ist. Der Markt k\u00f6nnte das Ausma\u00df des strukturellen Wandels tats\u00e4chlich bereits korrekt einpreisen, und die BEARISH-These ist daher nicht zwingend eine Underreaction, sondern eine korrekte Bewertung."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (24%), expansives Makro-Umfeld",
+        "best_argument_for": "Der Markt k\u00f6nnte die Geschwindigkeit einer Chip-Zyklus-Erholung bei ADI untersch\u00e4tzen, da analog-/mixed-signal-Halbleiter typischerweise sp\u00e4ter in den Zyklus einsteigen, aber dann l\u00e4nger outperformen als digitale Pendants. Das Cluster-Signal von 7 Insider-K\u00e4ufen innerhalb von 14 Tagen ist statistisch bedeutsam und deutet auf Insiderwissen \u00fcber bevorstehende positive Entwicklungen hin. Der aktuelle Makrokontext (steile Kurve, expansives Regime, Fed Funds bei 3,64%) beg\u00fcnstigt kapitalintensive Industrieunternehmen wie ADI, deren Kunden (Automotive, Industrial) bei g\u00fcnstigeren Finanzierungskondit",
+        "best_argument_against": "ADI hat nach einem starken mehrmonatigen Kursanstieg eine potenziell \u00fcberstreckte Bewertung erreicht. Der Artikel 'Assessing Analog Devices (ADI) Valuation After A Strong Multi-Month Share Price Run' deutet darauf hin, dass der Markt bereits erhebliche Erwartungen an eine Chip-Zyklus-Beschleunigung eingepreist hat. Ein KGV auf Basis des bereinigten EPS von ~13,15 erscheint zwar moderat, doch bei $380 je Aktie und dem EPS-Gap zwischen yfinance (13,15) und SEC EDGAR (5,48) besteht erhebliche Unsicherheit \u00fcber die tats\u00e4chliche Earnings-Qualit\u00e4t."
       },
-      "trade_rank": 2
+      "trade_rank": 5
+    },
+    {
+      "ticker": "AMAT",
+      "strategy": "LONG_CALL",
+      "iv_rank": 56.9,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 400.0,
+        "bid": 20.35,
+        "ask": 22.6,
+        "open_interest": 394,
+        "implied_vol": 0.5696454168701173,
+        "spread_ratio": 0.0996,
+        "dte": 15
+      },
+      "roi_analysis": {
+        "roi_gross": 0.7295,
+        "roi_net": 0.4328,
+        "spread_pct": 0.0996,
+        "vega_loss": 0.0976,
+        "delta": 0.5162,
+        "iv_drop_assumed": 0.12,
+        "cost_basis": 22.6,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 15
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 6316.0688,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 15,
+          "option": {
+            "expiry": "2026-05-08",
+            "strike": 400.0,
+            "bid": 20.35,
+            "ask": 22.6,
+            "open_interest": 394,
+            "implied_vol": 0.5696454168701173,
+            "spread_ratio": 0.0996,
+            "dte": 15
+          },
+          "roi": {
+            "roi_gross": 0.7295,
+            "roi_net": 0.4328,
+            "spread_pct": 0.0996,
+            "vega_loss": 0.0976,
+            "delta": 0.5162,
+            "iv_drop_assumed": 0.12,
+            "cost_basis": 22.6,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 15
+          },
+          "annualized_roi": 6316.0688,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0321,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6624
+      },
+      "simulation": {
+        "current_price": 399.21,
+        "target_price": 431.15,
+        "hit_rate": 0.7454,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0305,
+        "alpha": 0.00219
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Bewertung von AMAT erscheint bereits gestretcht ('Valuation Looks Stretched' laut Headline). Bei einem KGV, das historische Hochs reflektiert, ist das Aufw\u00e4rtspotenzial begrenzt und das Downside-Risiko bei negativen Katalysatoren erheblich. Jede Entt\u00e4uschung beim n\u00e4chsten Earnings-Guidance k\u00f6nnte zu einem signifikanten Multiple-Compression f\u00fchren, da Wachstumserwartungen bereits eingepreist sind.",
+          "argument_2": "China-Exportrestriktionen stellen ein ernstes strukturelles Risiko dar. Microns Lobbying beim US-Kongress f\u00fcr h\u00e4rtere Chip-Tool-Verkaufsverbote an chinesische Wettbewerber zeigt, dass regulatorische Versch\u00e4rfungen unmittelbar bevorstehen k\u00f6nnten. China repr\u00e4sentiert typischerweise 25-30% von AMATs Umsatz \u2014 ein weiteres Exportkontrollpaket w\u00fcrde direkt auf die Guidance dr\u00fccken und k\u00f6nnte das Signal vollst\u00e4ndig zerst\u00f6ren.",
+          "argument_3": "Die EPS-Diskrepanz zwischen yfinance (14.07) und SEC EDGAR (9.75) ist erheblich und deutet auf potenzielle Datenqualit\u00e4tsprobleme hin. Eine solche Divergenz von ~44% zwischen den Quellen ist ungew\u00f6hnlich und k\u00f6nnte auf unterschiedliche Berechnungsbasen (GAAP vs. Non-GAAP) hinweisen. Anleger, die auf dem h\u00f6heren Non-GAAP-EPS aufbauen, k\u00f6nnten bei GAAP-basierten Bewertungsvergleichen deutlich zu optimistisch positioniert sein.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate ist nicht aussagekr\u00e4ftig, da kein Quick MC durchgef\u00fchrt wurde \u2014 die Statistik ist schlicht nicht verf\u00fcgbar. Bei einem Semiconductor-Equipment-Titel mit typischer 30-Tage-Volatilit\u00e4t von 25-35% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr bullishe 30d-Pfade bei neutralem Signal rund 45-55%. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit, ist aber kein direktes Warnsignal.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt d\u00fcrfte die Kombination aus Insider-Cluster-K\u00e4ufen (3 Insider in 14 Tagen) und der strategischen Vertiefung der Chip-Test-Links noch nicht vollst\u00e4ndig eingepreist haben. Die Test-Integration positioniert AMAT in einem wachsenden Segment jenseits reiner Deposition/Etch-Abh\u00e4ngigkeit, was eine strukturelle Margendiversifikation darstellt. Gleichzeitig k\u00f6nnte der China-Gegenwind bereits \u00fcbergewichtet sein \u2014 wenn h\u00e4rtere US-Exportkontrollen kommen, trifft dies alle Semiconductor-Equipment-Wettbewerber gleicherma\u00dfen, und AMAT hat historisch schneller umgestellt. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Capex-intensive Sektoren wie Semiconductor Equipment, da g\u00fcnstigere Finanzierungsbedingungen f\u00fcr Chip-Fabs die Investitionsbereitschaft erh\u00f6hen. Der n\u00e4chste Earnings-Catalyst (Guidance) ist der kritische Moment, der bei positiver \u00dcberraschung Momentum-K\u00e4ufer anziehen d\u00fcrfte.",
+        "catalyst": "AMAT Earnings Guidance (n\u00e4chstes Quartal) \u2014 insbesondere Aussagen zum China-Exposure, Test-Segment-Wachstum und WFE-Marktanteil",
+        "bear_case": "Eskalation der US-China Chip-Tool-Exportrestriktionen durch Congress-Legislation (Micron-Lobbying) k\u00f6nnte direkt 25-30% des AMAT-Umsatzes gef\u00e4hrden und zu einer erheblichen Guidance-Revision f\u00fchren, die alle bullishen Signale \u00fcberlagert.",
+        "macro_assessment": "Das expansive Makro-Umfeld (Zinskurve +0.52%, Fed Funds 3.64%) ist grunds\u00e4tzlich positiv f\u00fcr AMAT als Capex-sensitiven Technologietitel. Eine steile Kurvensignalisiert Wachstumserwartungen, die Halbleiter-Investitionszyklen beg\u00fcnstigen. Der Gegenwind kommt nicht vom Makro, sondern von geopolitischen/regulatorischen Faktoren \u2014 was das Signal selektiv st\u00e4rkt, da makro\u00f6konomisch getriebene Korrekturen derzeit weniger wahrscheinlich sind.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": -0.0014
+      },
+      "final_score": 0.1452,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 2.8853,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 50,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 23.5,
+          "risk_deductions": -10.0,
+          "context_bonus": 15.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (43%), expansives Makro-Umfeld | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt d\u00fcrfte die Kombination aus Insider-Cluster-K\u00e4ufen (3 Insider in 14 Tagen) und der strategischen Vertiefung der Chip-Test-Links noch nicht vollst\u00e4ndig eingepreist haben. Die Test-Integration positioniert AMAT in einem wachsenden Segment jenseits reiner Deposition/Etch-Abh\u00e4ngigkeit, was eine strukturelle Margendiversifikation darstellt. Gleichzeitig k\u00f6nnte der China-Gegenwind bereits \u00fcbergewichtet sein \u2014 wenn h\u00e4rtere US-Exportkontrollen kommen, trifft dies alle Semiconductor-Equipment-Wettbewerber gleicherma\u00dfen, und AMAT hat historisch schneller umgestellt. Das expansive Makro-Umfeld m",
+        "best_argument_against": "Die Bewertung von AMAT erscheint bereits gestretcht ('Valuation Looks Stretched' laut Headline). Bei einem KGV, das historische Hochs reflektiert, ist das Aufw\u00e4rtspotenzial begrenzt und das Downside-Risiko bei negativen Katalysatoren erheblich. Jede Entt\u00e4uschung beim n\u00e4chsten Earnings-Guidance k\u00f6nnte zu einem signifikanten Multiple-Compression f\u00fchren, da Wachstumserwartungen bereits eingepreist sind."
+      },
+      "trade_rank": 6
     }
   ]
 }
