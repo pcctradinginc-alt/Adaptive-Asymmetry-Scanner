@@ -1,0 +1,295 @@
+{
+  "date": "2026-04-22",
+  "proposals": [
+    {
+      "ticker": "ABNB",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 145.0,
+        "bid": 7.25,
+        "ask": 7.7,
+        "open_interest": 1652,
+        "implied_vol": 0.5218553674316406,
+        "spread_ratio": 0.0584,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 160.0,
+          "bid": 1.99,
+          "ask": 2.39
+        },
+        "net_debit": 5.71
+      },
+      "roi_analysis": {
+        "roi_gross": 0.7761,
+        "roi_net": 0.4195,
+        "spread_pct": 0.0584,
+        "vega_loss": 0.2397,
+        "delta": 0.5165,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 22
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 333.2447,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 22,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 145.0,
+            "bid": 7.25,
+            "ask": 7.7,
+            "open_interest": 1652,
+            "implied_vol": 0.5218553674316406,
+            "spread_ratio": 0.0584,
+            "dte": 22,
+            "spread_leg": {
+              "strike": 160.0,
+              "bid": 1.99,
+              "ask": 2.39
+            },
+            "net_debit": 5.71
+          },
+          "roi": {
+            "roi_gross": 0.7761,
+            "roi_net": 0.4195,
+            "spread_pct": 0.0584,
+            "vega_loss": 0.2397,
+            "delta": 0.5165,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 22
+          },
+          "annualized_roi": 333.2447,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0218,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7058
+      },
+      "simulation": {
+        "current_price": 144.58,
+        "target_price": 156.15,
+        "hit_rate": 0.8032,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0201,
+        "alpha": 0.0034
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Wells Fargo Upgrade auf $178 ist ein klassischer Sell-the-News-Katalysator: Analyst-Upgrades nach bereits eingepreisten positiven Entwicklungen f\u00fchren statistisch h\u00e4ufig zu kurzfristiger Outperformance, gefolgt von Mean-Reversion. ABNB notiert bei $144.58 und hat bereits eine starke Erholung hinter sich \u2014 das 'Inflection Point'-Narrativ k\u00f6nnte bereits vollst\u00e4ndig repriced sein, besonders wenn institutionelle Investoren die Upgrade-Welle als Ausstiegsgelegenheit nutzen.",
+          "argument_2": "Die EPS-Abweichung zwischen yfinance ($5.80) und SEC EDGAR ($4.03) betr\u00e4gt in absoluten Zahlen ~44% \u2014 die 0.2%-Angabe erscheint methodisch fragw\u00fcrdig und deutet auf unterschiedliche Berechnungsgrundlagen (GAAP vs. Non-GAAP, annualisiert vs. TTM) hin. Dies untergr\u00e4bt das fundamentale Bewertungsfundament erheblich: Bei einem KGV von ~25x (auf Basis $5.80) wirkt ABNB moderat bewertet, auf SEC EDGAR-Basis ($4.03) liegt das KGV bei ~36x \u2014 f\u00fcr ein Consumer Cyclical in einem noch unsicheren Reise-Nachfrage-Umfeld eine ambitionierte Bewertung.",
+          "argument_3": "Ein wichtiger Executive (EMEA-bezogen) wurde von OpenAI abgeworben, was auf Talent-Drain hinweist und gleichzeitig bedeutet, dass ein zentraler Wachstumstreiber f\u00fcr Europa m\u00f6glicherweise geschw\u00e4cht wird. Der EMEA-Markt ist f\u00fcr Airbnbs internationales Wachstum kritisch \u2014 der Verlust von Schl\u00fcsselpersonal in dieser Region just zum Zeitpunkt eines postulierten 'Inflection Points' ist ein echtes operatives Risiko, das im bullishen Narrativ systematisch untersch\u00e4tzt wird.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Monte Carlo durchgef\u00fchrt wurde \u2014 es liegen keine statistischen Pfad-Simulationen vor. Dies ist keine inhaltliche Aussage \u00fcber die Trefferwahrscheinlichkeit, sondern ein Datenmangel. Bei ABNB mit historischer 30d-Volatilit\u00e4t von ca. 30-40% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Aufw\u00e4rtsbewegungen (~10-15%) im Bereich 45-60% zu erwarten. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Bewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat auf den Wells Fargo Upgrade mit nur +0.7% in 48h reagiert \u2014 f\u00fcr einen Overweight-Call mit $178 Target (23% Upside) ist dies auff\u00e4llig verhalten und deutet auf institutionelle Skepsis hin, die m\u00f6glicherweise nicht fundamental begr\u00fcndet ist. Das strukturelle Signal liegt in der Margenverbesserung durch das Subscriptions-Wachstum (7x), welches in den Headline-Metriken unterrepr\u00e4sentiert ist und erst in kommenden Quartalen vollst\u00e4ndig in die Earnings-Sch\u00e4tzungen einflie\u00dfen d\u00fcrfte. Vier Insider-K\u00e4ufe innerhalb von 14 Tagen verst\u00e4rken die Asymmetrie: Insider kaufen selten koordiniert ohne konkrete positive Sicht auf die n\u00e4chsten 1-2 Quartale. Das expansive Makro-Umfeld (steile Kurve, Fed Funds bei 3.64%) beg\u00fcnstigt Consumer Cyclicals strukturell, da Reisebudgets bei sinkenden Realzinsen tendenziell steigen. Die Kombination aus Analyst-Upgrade, Insider-Cluster und verstecktem Margin-Signal bei moderater Marktreaktion schafft eine klassische Underreaction-Situation.",
+        "catalyst": "Q2/Q3 2025 Earnings-\u00dcberraschung durch Subscription-Margin-Expansion und EMEA-Wachstumsdaten; m\u00f6gliche Forward-Guidance-Anhebung im n\u00e4chsten Earnings Call",
+        "bear_case": "EPS-Diskrepanz (GAAP $4.03 vs. Non-GAAP $5.80) l\u00e4sst das KGV auf GAAP-Basis bei ~36x erscheinen \u2014 f\u00fcr Consumer Cyclical in einem verlangsamenden globalen Reisemarkt m\u00f6glicherweise nicht nachhaltig. Talent-Verlust im EMEA-Bereich ist ein echtes operatives Risiko.",
+        "macro_assessment": "Das expansive Makro-Umfeld (10Y-2Y Spread +0.52%, Fed Funds 3.64%, keine invertierte Kurve) ist klar konstruktiv f\u00fcr Consumer Cyclicals wie ABNB. Sinkende Zinsen reduzieren den Diskontierungsfaktor f\u00fcr Wachstumsaktien und beg\u00fcnstigen discretionary spending. Das Regime-Signal 'Expansiv' st\u00e4rkt das bullishe Einzelaktien-Signal und rechtfertigt eine h\u00f6here Gewichtung des strukturellen Margin-Signals.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": 0.0436
+      },
+      "final_score": 0.1455,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 1.9068,
+        "annualized_roi": null,
+        "dte": 22
+      },
+      "trade_score": {
+        "total": 64,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 27.0,
+          "risk_deductions": -10.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (42%), positive Sektor-Relative-St\u00e4rke | Risiken: hohe IV (100%) \u2014 Optionen teuer",
+        "best_argument_for": "Der Markt hat auf den Wells Fargo Upgrade mit nur +0.7% in 48h reagiert \u2014 f\u00fcr einen Overweight-Call mit $178 Target (23% Upside) ist dies auff\u00e4llig verhalten und deutet auf institutionelle Skepsis hin, die m\u00f6glicherweise nicht fundamental begr\u00fcndet ist. Das strukturelle Signal liegt in der Margenverbesserung durch das Subscriptions-Wachstum (7x), welches in den Headline-Metriken unterrepr\u00e4sentiert ist und erst in kommenden Quartalen vollst\u00e4ndig in die Earnings-Sch\u00e4tzungen einflie\u00dfen d\u00fcrfte. Vier Insider-K\u00e4ufe innerhalb von 14 Tagen verst\u00e4rken die Asymmetrie: Insider kaufen selten koordiniert o",
+        "best_argument_against": "Der Wells Fargo Upgrade auf $178 ist ein klassischer Sell-the-News-Katalysator: Analyst-Upgrades nach bereits eingepreisten positiven Entwicklungen f\u00fchren statistisch h\u00e4ufig zu kurzfristiger Outperformance, gefolgt von Mean-Reversion. ABNB notiert bei $144.58 und hat bereits eine starke Erholung hinter sich \u2014 das 'Inflection Point'-Narrativ k\u00f6nnte bereits vollst\u00e4ndig repriced sein, besonders wenn institutionelle Investoren die Upgrade-Welle als Ausstiegsgelegenheit nutzen."
+      },
+      "trade_rank": 1
+    },
+    {
+      "ticker": "BBWI",
+      "strategy": "BEAR_PUT_SPREAD",
+      "iv_rank": 100.0,
+      "iv_gate_applied": true,
+      "direction": "BEARISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 20.0,
+        "bid": 0.95,
+        "ask": 1.05,
+        "open_interest": 865,
+        "implied_vol": 0.561527822265625,
+        "spread_ratio": 0.0952,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 22.5,
+          "bid": 2.4,
+          "ask": 2.6
+        },
+        "net_debit": -1.35
+      },
+      "roi_analysis": {
+        "roi_gross": 0.8917,
+        "roi_net": 0.4397,
+        "spread_pct": 0.0952,
+        "vega_loss": 0.2616,
+        "delta": 0.5744,
+        "iv_drop_assumed": 0.25,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 22
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 421.5484,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 22,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 20.0,
+            "bid": 0.95,
+            "ask": 1.05,
+            "open_interest": 865,
+            "implied_vol": 0.561527822265625,
+            "spread_ratio": 0.0952,
+            "dte": 22,
+            "spread_leg": {
+              "strike": 22.5,
+              "bid": 2.4,
+              "ask": 2.6
+            },
+            "net_debit": -1.35
+          },
+          "roi": {
+            "roi_gross": 0.8917,
+            "roi_net": 0.4397,
+            "spread_pct": 0.0952,
+            "vega_loss": 0.2616,
+            "delta": 0.5744,
+            "iv_drop_assumed": 0.25,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 22
+          },
+          "annualized_roi": 421.5484,
+          "strategy": "BEAR_PUT_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 7,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0407,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6724
+      },
+      "simulation": {
+        "current_price": 20.33,
+        "target_price": 21.96,
+        "hit_rate": 0.7386,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0407,
+        "alpha": 0.00163
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Schlie\u00dfung von 92 Stores ist kein positives Restrukturierungssignal, sondern ein Indikator f\u00fcr strukturellen Nachfrager\u00fcckgang im Consumer-Cyclical-Segment. Bath & Body Works k\u00e4mpft mit sinkender Foot-Traffic in Malls, steigendem Wettbewerb durch E-Commerce und einer Verbraucherbasis, die bei diskretion\u00e4ren Ausgaben zunehmend zur\u00fcckhaltend ist. Der Markt k\u00f6nnte das Ausma\u00df des strukturellen Wandels tats\u00e4chlich bereits korrekt einpreisen, und die BEARISH-These ist daher nicht zwingend eine Underreaction, sondern eine korrekte Bewertung.",
+          "argument_2": "Die Kuehn Law-Meldung deutet auf m\u00f6gliche Sammelklagen oder Investoren-Rechtsstreitigkeiten hin \u2014 dies ist ein erhebliches juristisches Tail-Risk, das EPS-Sch\u00e4tzungen und Managementkapazit\u00e4ten belasten kann. Gleichzeitig ist der EPS von ~2.87-3.11 bei einem Kurs von $20.33 zwar optisch g\u00fcnstig (KGV ~6-7x), aber rechtliche Belastungen und weitere Store-Schlie\u00dfungskosten (Abfindungen, Mietaufl\u00f6sungen, Inventory-Abschreibungen) k\u00f6nnten die realisierten Gewinne erheblich unter Konsenserwartungen dr\u00fccken.",
+          "argument_3": "Insider-K\u00e4ufe in einem Cluster sind oft ein contrarian bullisches Signal, k\u00f6nnen aber auch 'Catching a Falling Knife' bedeuten \u2014 besonders wenn das Management die Tiefe der operativen Probleme kennt aber \u00f6ffentlich optimistisch kommuniziert. Insider kaufen h\u00e4ufig, um Vertrauen zu signalisieren, selbst wenn das Unternehmen fundamental unter Druck steht. Bei einem -2.7% Move in 48h und einer Nachrichtenlage bestehend aus Store-Schlie\u00dfungen und Klagen ist die Wahrscheinlichkeit eines anhaltenden Abw\u00e4rtstrends nicht vernachl\u00e4ssigbar.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein Monte-Carlo wurde durchgef\u00fchrt \u2014 damit fehlen statistische Grundlagen f\u00fcr eine Wahrscheinlichkeitsbewertung. Bei BBWI mit historisch hoher Volatilit\u00e4t (~35-45% IV f\u00fcr Consumer-Cyclical-Retailer unter Druck) w\u00e4re eine belastbare MC-Simulation essenziell. Das Fehlen der Daten erh\u00f6ht die Unsicherheit, senkt aber nicht notwendigerweise die Signifikanz der qualitativen Signale. Concern ist daher medium-high.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 7,
+        "direction": "BEARISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Das Haiku-Prescreening sieht eine bullische Underreaction (Transformations-Risiko ist underpriced). Ich weiche zur BEARISH-Seite ab, weil die Kombination aus 92 Store-Schlie\u00dfungen, laufenden Investorenklagen und -2.7% Kursbewegung in 48h eher auf eine unvollst\u00e4ndig eingepreiste strukturelle Verschlechterung hindeutet als auf eine missverstandene Restrukturierungs-Opportunity. Der Markt mag das Ausma\u00df der operativen Belastung (Mietaufl\u00f6sungskosten, Working Capital Stress, Brand-Erosion) noch nicht vollst\u00e4ndig reflektiert haben \u2014 aber BULLISH zu werden setzt voraus, dass die Store-Schlie\u00dfungen tats\u00e4chlich zu Margin-Expansion f\u00fchren, was bei Mall-Retailern historisch selten innerhalb von 2-3 Quartalen eintritt. Insider-K\u00e4ufe reduzieren das extreme Tail-Risk, \u00e4ndern aber nicht die mittelfristige Fundamentaldynamik.",
+        "catalyst": "N\u00e4chste Quartalsergebnisse mit Guidance-Update zu Store-Portfolio und Kosteneinsparungen sowie m\u00f6gliche Entwicklungen in der Kuehn Law Investorenklage",
+        "bear_case": "Weitere Store-Schlie\u00dfungen \u00fcber 92 hinaus bei gleichzeitig steigenden Restrukturierungskosten und rechtlichen Verbindlichkeiten k\u00f6nnten EPS-Konsenssch\u00e4tzungen um 20-30% verfehlen lassen, was bei einem bereits auf niedrigem Niveau gehandelten Titel weiteren signifikanten Druck generiert.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve, Fed Funds bei 3.64%) ist prinzipiell positiv f\u00fcr Consumer-Cyclicals und w\u00fcrde normalerweise bullische Signale beg\u00fcnstigen. Dennoch ist BBWI spezifisch mit idiosynkratischen Risiken belastet \u2014 die Makro-Tailwinds mildern das Downside, eliminieren es aber nicht. Der Sektor profitiert weniger als erwartet, wenn strukturelle Marktanteilsverluste (an E-Commerce, Specialty-Konkurrenten) dominieren.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": -0.139
+      },
+      "final_score": 0.1455,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 1.9986,
+        "annualized_roi": null,
+        "dte": 22
+      },
+      "trade_score": {
+        "total": 46,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 25.9,
+          "options_quality": 25.0,
+          "risk_deductions": -20.0,
+          "context_bonus": 15.0
+        },
+        "reasoning": "St\u00e4rken: starkes Signal (Impact=6/Surprise=7), guter ROI (44%), expansives Makro-Umfeld | Risiken: hohe IV (100%) \u2014 Optionen teuer, hohes Bear-Risiko (7/10), Sektor underperformt Markt",
+        "best_argument_for": "Das Haiku-Prescreening sieht eine bullische Underreaction (Transformations-Risiko ist underpriced). Ich weiche zur BEARISH-Seite ab, weil die Kombination aus 92 Store-Schlie\u00dfungen, laufenden Investorenklagen und -2.7% Kursbewegung in 48h eher auf eine unvollst\u00e4ndig eingepreiste strukturelle Verschlechterung hindeutet als auf eine missverstandene Restrukturierungs-Opportunity. Der Markt mag das Ausma\u00df der operativen Belastung (Mietaufl\u00f6sungskosten, Working Capital Stress, Brand-Erosion) noch nicht vollst\u00e4ndig reflektiert haben \u2014 aber BULLISH zu werden setzt voraus, dass die Store-Schlie\u00dfungen t",
+        "best_argument_against": "Die Schlie\u00dfung von 92 Stores ist kein positives Restrukturierungssignal, sondern ein Indikator f\u00fcr strukturellen Nachfrager\u00fcckgang im Consumer-Cyclical-Segment. Bath & Body Works k\u00e4mpft mit sinkender Foot-Traffic in Malls, steigendem Wettbewerb durch E-Commerce und einer Verbraucherbasis, die bei diskretion\u00e4ren Ausgaben zunehmend zur\u00fcckhaltend ist. Der Markt k\u00f6nnte das Ausma\u00df des strukturellen Wandels tats\u00e4chlich bereits korrekt einpreisen, und die BEARISH-These ist daher nicht zwingend eine Underreaction, sondern eine korrekte Bewertung."
+      },
+      "trade_rank": 2
+    }
+  ]
+}
