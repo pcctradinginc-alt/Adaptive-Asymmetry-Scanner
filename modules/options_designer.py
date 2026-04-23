@@ -1,14 +1,16 @@
 """
-modules/options_designer.py v7.3
+modules/options_designer.py v7.4
 
-Fixes v7.3:
+Fixes v7.3/v7.4:
     1. ROI bei Spreads: net_debit als Kostenbasis statt ask (Long-Leg)
        + Spread-Delta-Adjustment (Long Delta - Short Delta ~0.80x)
     2. DTE-Tiers lückenlos: 14-60 / 61-149 / 150-365
     3. Timezone-Fix: datetime.now(timezone.utc) in _days_to
-    4. IV Sanity-Check: iv < 0.05 → Fallback auf realized vol * 1.2
+    4. IV Sanity-Check: iv < 0.05 → Fallback 0.30
     5. yf.Ticker einmal pro Signal (Performance)
     6. RV-Percentile: quantile(0.05/0.95) — crash-robust
+    7. dates[:3] statt dates[:6] — weniger HTTP-Requests
+    8. _bear_case_ok: Schwelle aus cfg statt hardcoded
 """
 
 from __future__ import annotations
@@ -56,7 +58,7 @@ class OptionsDesigner:
             ticker = s.get("ticker", "")
             if not self._bear_case_ok(s):
                 continue
-            # Erzeuge yf.Ticker einmal pro Signal — wird an sector_momentum und design weitergegeben
+            # Erzeuge yf.Ticker einmal pro Signal
             t_obj = yf.Ticker(ticker)
             if not self._sector_momentum_ok(s, t=t_obj):
                 log.info(f"  [{ticker}] SECTOR-GATE → verworfen")
@@ -65,8 +67,6 @@ class OptionsDesigner:
             if proposal:
                 proposals.append(proposal)
         return proposals
-
-    # ── Adaptiver Laufzeit-Loop ───────────────────────────────────────────────
 
     def _design_with_adaptive_dte(self, s: dict, t=None) -> Optional[dict]:
         ticker    = s["ticker"]
@@ -81,7 +81,6 @@ class OptionsDesigner:
             log.info(f"  [{ticker}] EARNINGS-GATE → blockiert")
             return None
 
-        # t wird aus run() übergeben (einmal erzeugt) oder hier als Fallback
         if t is None:
             t = yf.Ticker(ticker)
         iv_rank = self._get_iv_rank(ticker, t)
@@ -89,7 +88,7 @@ class OptionsDesigner:
         results_per_tier = []
 
         for tier in DTE_TIERS:
-            label   = tier["label"]
+            label = tier["label"]
 
             strategy = self._select_strategy(ticker, direction, iv_rank)
             option   = self._find_option_for_dte(
@@ -176,8 +175,6 @@ class OptionsDesigner:
         log.info(f"  [{ticker}] Alle Laufzeiten unter ROI-Gate: {tried} → verworfen")
         return None
 
-    # ── Strategie-Wahl ────────────────────────────────────────────────────────
-
     def _select_strategy(self, ticker: str, direction: str, iv_rank: float) -> str:
         if iv_rank >= IV_RANK_GATE:
             s = "BULL_CALL_SPREAD" if direction == "BULLISH" else "BEAR_PUT_SPREAD"
@@ -187,16 +184,9 @@ class OptionsDesigner:
             log.info(f"  [{ticker}] IV={iv_rank:.0f}% < {IV_RANK_GATE:.0f}% → {s} (Optionen günstig)")
         return s
 
-    # ── ROI-Berechnung v7.3 ───────────────────────────────────────────────────
-
     def _compute_roi(
         self, option: dict, sim: dict, iv_rank: float, tier: dict, strategy: str = ""
     ) -> dict:
-        """
-        FIX v7.3: Bei Spreads net_debit als Kostenbasis statt ask.
-        Spread-Delta-Adjustment: Netto-Delta eines Spreads ~80% des Long-Leg-Delta.
-        IV Sanity-Check: iv < 0.05 → Fallback auf 0.30.
-        """
         bid     = option.get("bid", 0) or 0
         ask     = option.get("ask", 0) or 0
         strike  = option.get("strike", 0) or 0
@@ -206,7 +196,6 @@ class OptionsDesigner:
         target  = sim.get("target_price", 0) or 0
         min_roi = tier["min_roi"]
 
-        # FIX v7.3: Spread → net_debit als Kostenbasis
         is_spread = "SPREAD" in strategy
         cost = option.get("net_debit", ask) if is_spread else ask
 
@@ -215,9 +204,8 @@ class OptionsDesigner:
                     "roi_gross": 0.0, "spread_pct": 0.0,
                     "vega_loss": 0.0, "min_roi_threshold": min_roi}
 
-        # FIX v7.3: IV Sanity-Check
-        if iv < 0.05 or iv > 3.0:  # Sanity-Check: Stale/fehlerhafte yfinance-Daten
-            iv = 0.30                  # Neutral-Default (kein rv-Lookup nötig)
+        if iv < 0.05 or iv > 3.0:
+            iv = 0.30
 
         spread_pct = (ask - bid) / ask if ask > 0 else 0.0
         T          = dte / 365.0
@@ -229,8 +217,6 @@ class OptionsDesigner:
         except Exception:
             delta, vega = 0.5, 0.0
 
-        # FIX v7.3: Spread-Delta-Adjustment
-        # Netto-Delta eines Bull/Bear Spreads ≈ 80% des Long-Leg-Delta
         if is_spread:
             delta *= 0.80
 
@@ -268,8 +254,6 @@ class OptionsDesigner:
             "dte":               int(dte),
         }
 
-    # ── Kontrakt-Suche ────────────────────────────────────────────────────────
-
     def _find_option_for_dte(
         self, ticker: str, strategy: str, current: float,
         dte_min: int, dte_max: int,
@@ -290,7 +274,6 @@ class OptionsDesigner:
             is_call     = "CALL" in strategy or "BULL" in strategy
             opts        = chain.calls if is_call else chain.puts
 
-            # Strike-Range lückenlos mit DTE-Tiers
             days_mid = (dte_min + dte_max) / 2
             if days_mid <= 60:
                 otm_max, itm_max = 1.03, 0.97
@@ -336,11 +319,9 @@ class OptionsDesigner:
                 spread_leg = self._find_spread_leg(opts, best["strike"])
                 result["spread_leg"] = spread_leg
                 if spread_leg:
-                    # net_debit = was man für den Spread wirklich bezahlt
                     result["net_debit"] = round(
                         result["ask"] - spread_leg.get("bid", 0), 2
                     )
-                    # Validierung: Short-Leg muss Liquidität haben
                     if spread_leg.get("bid", 0) <= 0:
                         log.debug(f"  [{ticker}] Short-Leg hat keine Liquidität → kein Spread")
                         result.pop("spread_leg", None)
@@ -365,12 +346,10 @@ class OptionsDesigner:
         return {"strike": float(best["strike"]),
                 "bid": float(best["bid"]), "ask": float(best["ask"])}
 
-    # ── IV-Rank v7.3 ──────────────────────────────────────────────────────────
-
     def _get_iv_rank(self, ticker: str, t: Optional[object] = None) -> float:
         """
         IV-Rank Proxy: RV-Percentile (quantile 0.05/0.95) + Term Structure Slope.
-        Kombiniert 50/50. Kein direkter IV-Rank möglich ohne historische IV-DB.
+        50/50 kombiniert. Kein direkter IV-Rank ohne historische IV-Datenbank.
         """
         try:
             if t is None:
@@ -378,25 +357,22 @@ class OptionsDesigner:
             info    = t.info
             current = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
 
-            # Signal 1: RV-Percentile (crash-robust via quantile)
             rv_score = 50.0
             hist = t.history(period="1y")
-            rv_current_val = None
             if not hist.empty and len(hist) >= 60:
                 rets    = hist["Close"].pct_change().dropna()
                 roll_rv = rets.rolling(21).std().dropna() * (252 ** 0.5)
                 if len(roll_rv) >= 20:
-                    rv_current_val = float(roll_rv.iloc[-1])
+                    rv_current = float(roll_rv.iloc[-1])
                     rv_min = float(roll_rv.quantile(0.05))
                     rv_max = float(roll_rv.quantile(0.95))
                     if rv_max > rv_min:
-                        rv_score = ((rv_current_val - rv_min) / (rv_max - rv_min)) * 100
+                        rv_score = ((rv_current - rv_min) / (rv_max - rv_min)) * 100
                         rv_score = max(0.0, min(100.0, rv_score))
 
             if current <= 0:
                 return round(rv_score, 1)
 
-            # Signal 2: Term Structure Slope
             term_score = 20.0
             dates  = t.options or []
             iv_pts = []
@@ -425,15 +401,11 @@ class OptionsDesigner:
                     term_score = max(0.0, min(100.0, (slope + 0.1) * 200))
 
             combined = round(rv_score * 0.5 + term_score * 0.5, 1)
-            log.debug(
-                f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} → {combined:.0f}"
-            )
+            log.debug(f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} → {combined:.0f}")
             return combined
 
         except Exception:
             return 50.0
-
-    # ── Sektor-Momentum ───────────────────────────────────────────────────────
 
     def _sector_momentum_ok(self, s: dict, t=None) -> bool:
         ticker    = s.get("ticker", "")
@@ -454,8 +426,6 @@ class OptionsDesigner:
         except Exception:
             return True
 
-    # ── Bear-Case Gate ────────────────────────────────────────────────────────
-
     def _bear_case_ok(self, s: dict) -> bool:
         sev = s.get("deep_analysis", {}).get("bear_case_severity", 0)
         thr = getattr(getattr(cfg, "risk", None), "max_bear_case_severity", 8)
@@ -464,10 +434,7 @@ class OptionsDesigner:
             return False
         return True
 
-    # ── Hilfsfunktionen ───────────────────────────────────────────────────────
-
     def _days_to(self, expiry_str: str) -> int:
-        """FIX v7.3: timezone.utc für konsistentes Verhalten auf allen Servern."""
         try:
             expiry = datetime.strptime(expiry_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             now    = datetime.now(timezone.utc)
