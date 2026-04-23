@@ -18,6 +18,7 @@ Korrekte Reihenfolge:
 """
 
 import json
+import math
 import logging
 import sys
 from datetime import datetime
@@ -57,24 +58,96 @@ QUICK_MC_PATHS    = 3_000
 QUICK_MC_DAYS     = 30
 FINAL_MC_PATHS    = 10_000
 
-def get_mc_threshold(vix: float) -> float:
-    """VIX-abhängige MC-Schwelle:
-    VIX < 20 → 48% (ruhiger Markt, mehr Sicherheit nötig)
-    VIX 20-30 → 45% (Standard)
-    VIX > 30 → 42% (hohe Vola sorgt selbst für Weite der Pfade)
-    """
+
+def get_mc_threshold(vix) -> float:
+    """VIX-abhängige MC-Schwelle. Robust gegen None/negative Werte."""
+    try:
+        vix = float(vix)
+    except (TypeError, ValueError):
+        return 0.45  # Neutral-Default
+    if vix < 0:
+        return 0.45
     if vix < 20:
-        return 0.48
+        return 0.48  # Ruhiger Markt → mehr Sicherheit nötig
     elif vix > 30:
-        return 0.42
+        return 0.42  # Hohe Vola → Pfadweite sorgt selbst für Signal
     else:
         return 0.45
 
 
+# ── Reject Tracking ──────────────────────────────────────────────────────────
+
+reject_stats: dict = {}
+
+def reject(reason: str, ticker: str | None = None) -> None:
+    if reason not in reject_stats:
+        reject_stats[reason] = {"count": 0, "tickers": []}
+    reject_stats[reason]["count"] += 1
+    if ticker:
+        reject_stats[reason]["tickers"].append(ticker)
+        log.info(f"  [{ticker}] REJECT → {reason}")
+    else:
+        log.info(f"  REJECT → {reason}")
+
+
+# ── Validation Layer ──────────────────────────────────────────────────────────
+
+def validate_strict(c: dict):
+    """Ingress Validator: nach Enrichment, vor jeglicher Logik."""
+    if not isinstance(c, dict):
+        return None
+    ticker = c.get("ticker")
+    if not isinstance(ticker, str) or not ticker.strip():
+        return None
+    features = c.get("features")
+    if not isinstance(features, dict):
+        c["features"] = {}
+        features = c["features"]
+    for key in ["sentiment_score", "mismatch"]:
+        val = features.get(key)
+        if val is None:
+            features[key] = 0.0
+        elif not isinstance(val, (int, float)):
+            return None
+    return c
+
+
+def validate_for_simulation(c: dict):
+    """Pre-MC Validator: mismatch muss valide und im Bereich sein."""
+    if not isinstance(c, dict):
+        return None
+    features = c.get("features", {})
+    mismatch = features.get("mismatch")
+    if not isinstance(mismatch, (int, float)):
+        return None
+    if abs(mismatch) > 10:
+        return None
+    return c
+
+
+def validate_mc_result(result: dict):
+    """MC Output Validator: gibt hit_rate als float zurück oder None."""
+    if not result or "simulation" not in result:
+        return None
+    hit_rate = result["simulation"].get("hit_rate")
+    if not isinstance(hit_rate, (int, float)):
+        return None
+    if not (0.0 <= float(hit_rate) <= 1.0):
+        return None
+    return float(hit_rate)
+
+
 def load_history() -> dict:
     if HISTORY_PATH.exists():
-        with open(HISTORY_PATH) as f:
-            return json.load(f)
+        try:
+            with open(HISTORY_PATH) as f:
+                data = json.load(f)
+            # Minimale Schema-Validierung
+            if not isinstance(data, dict):
+                raise ValueError("history.json ist kein dict")
+            return data
+        except (json.JSONDecodeError, ValueError) as e:
+            log.warning(f"history.json beschädigt ({e}) → Reset auf Default")
     return {
         "feature_stats": {}, "active_trades": [], "closed_trades": [],
         "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20},
@@ -93,6 +166,9 @@ def main() -> None:
     today   = datetime.utcnow().strftime("%Y-%m-%d")
     history = load_history()
 
+    # Reset reject_stats für diesen Run
+    reject_stats.clear()
+
     stats = {
         "vix": None, "candidates": 0, "prescreened": 0,
         "roi_precheck": 0, "analyzed": 0, "mismatch_ok": 0,
@@ -105,7 +181,7 @@ def main() -> None:
 
     def send_email():
         try:
-            proposals = _proposals_ref[0] if _proposals_ref else []
+            proposals = _proposals_ref[0] if len(_proposals_ref) > 0 else []
             if proposals:
                 from modules.email_reporter import send_email as _send_trade_email
                 _send_trade_email(proposals, today)
@@ -167,7 +243,26 @@ def main() -> None:
     shortlist = enriched_with_alpha
     shortlist = [validate_candidate_data(c) for c in shortlist]
 
+    # ── Ingress Validation Gate ───────────────────────────────────────────────
+    shortlist_raw = shortlist[:]
+    shortlist = []
+    for c in shortlist_raw:
+        valid = validate_strict(c)
+        if valid is None:
+            reject("ingress_invalid_data", c.get("ticker") if isinstance(c, dict) else None)
+        else:
+            shortlist.append(valid)
+
     # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
+    # Schema-Check: ticker muss valide String sein
+    valid_shortlist = []
+    for c in shortlist:
+        if not isinstance(c.get("ticker"), str) or not c.get("ticker", "").strip():
+            reject("no_ticker")
+            continue
+        valid_shortlist.append(c)
+    shortlist = valid_shortlist
+
     log.info("Stufe 3: ROI Pre-Check (Fail Fast)")
     roi_viable = []
     designer_pre = OptionsDesigner(gates=gates)
@@ -191,8 +286,9 @@ def main() -> None:
                     continue
             roi_viable.append(c)
             log.info(f"  [{ticker}] ROI-PRECHECK: viable")
-        except Exception:
-            roi_viable.append(c)
+        except Exception as e:
+            reject("roi_error", c.get("ticker"))
+            continue
 
     stats["roi_precheck"] = len(roi_viable)
     log.info(f"  → {len(roi_viable)} nach ROI Pre-Check")
@@ -212,6 +308,12 @@ def main() -> None:
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
     scored = MismatchScorer().run(analyses)
+    # Post-DeepAnalysis Validation: mismatch muss vorhanden sein
+    before_da = len(scored)
+    scored = [validate_for_simulation(s) for s in scored]
+    scored = [s for s in scored if s is not None]
+    for _ in range(before_da - len(scored)):
+        reject("post_deep_analysis_invalid")
     stats["mismatch_ok"] = len(scored)
     log.info(f"  → {len(scored)} nach Mismatch-Score")
     if not scored:
@@ -219,6 +321,13 @@ def main() -> None:
         save_history(history); send_email(); return
 
     # ── STUFE 6: Quick MC (NACH Mismatch — jetzt mit echtem alpha) ───────────
+    # ── Pre-Simulation Gate ──────────────────────────────────────────────────
+    before_sim = len(scored)
+    scored = [validate_for_simulation(s) for s in scored]
+    scored = [s for s in scored if s is not None]
+    for _ in range(before_sim - len(scored)):
+        reject("pre_mc_invalid_mismatch")
+
     log.info(f"Stufe 6: Quick MC (n={QUICK_MC_PATHS}, {QUICK_MC_DAYS}d) — mit Mismatch-Alpha")
     sim        = MirofishSimulation()
     mc_viable  = []
@@ -227,12 +336,19 @@ def main() -> None:
         mismatch = s.get("features", {}).get("mismatch", 0)
         log.info(f"  [{ticker}] Mismatch={mismatch:.2f} → Quick MC startet")
 
-        result   = sim.run_for_dte(s, days_to_expiry=QUICK_MC_DAYS)
-        hit_rate = result["simulation"]["hit_rate"] if result else 0.0
-
         mc_threshold = get_mc_threshold(gates.last_vix or 20.0)
+        result   = sim.run_for_dte(s, days_to_expiry=QUICK_MC_DAYS)
+        hit_rate = validate_mc_result(result)
+        if hit_rate is None:
+            if not result or "simulation" not in result:
+                reject("mc_no_result", ticker)
+            else:
+                reject("mc_invalid_hit_rate", ticker)
+            continue
+
         if hit_rate < mc_threshold:
-            log.info(f"  [{ticker}] Quick MC: {hit_rate:.1%} < {mc_threshold:.0%} (VIX={gates.last_vix:.1f}) → verworfen")
+            log.info(f"  [{ticker}] Quick MC: {hit_rate:.1%} < {mc_threshold:.0%} → verworfen")
+            reject("mc_below_threshold", ticker)
             continue
 
         s["quick_mc"] = {"hit_rate": hit_rate, "n_paths": QUICK_MC_PATHS, "n_days": QUICK_MC_DAYS}
@@ -242,41 +358,19 @@ def main() -> None:
 
     stats["quick_mc"] = len(mc_viable)
     log.info(f"  → {len(mc_viable)} nach Quick MC")
-
-    # Schatten-Trading: Grenzfälle (40-47.9%) als rejected_candidates speichern
-    # Ermöglicht nach 6+ Monaten T-Test: Hätten diese Trades gewonnen?
-    mc_threshold_used = get_mc_threshold(gates.last_vix or 20.0)
-    shadow_lower = mc_threshold_used - 0.08  # 8% unter Schwelle = Grenzfall
-    for s in scored:
-        ticker = s.get("ticker", "")
-        qmc = s.get("quick_mc", {})
-        hit = qmc.get("hit_rate", 0.0)
-        if shadow_lower <= hit < mc_threshold_used:
-            shadow_entry = {
-                "ticker":       ticker,
-                "date":         today,
-                "mc_hit_rate":  round(hit, 4),
-                "mc_threshold": mc_threshold_used,
-                "regime":       macro.get("macro_regime", "unknown"),
-                "yield_curve":  macro.get("yield_curve_spread"),
-                "vix":          gates.last_vix,
-                "impact":       s.get("deep_analysis", {}).get("impact", 0),
-                "surprise":     s.get("deep_analysis", {}).get("surprise", 0),
-            }
-            history.setdefault("rejected_candidates", []).append(shadow_entry)
-            log.info(
-                f"  [{ticker}] SCHATTEN-TRADE: MC={hit:.1%} (Schwelle={mc_threshold_used:.0%}) "
-                f"→ gespeichert für spätere Analyse"
-            )
-
     if not mc_viable:
-        stats["stop_reason"] = f"Alle unter Quick-MC-Schwelle ({QUICK_MC_MIN_PROB:.0%})."
+        stats["stop_reason"] = f"Alle unter Quick-MC-Schwelle ({get_mc_threshold(gates.last_vix or 20.0):.0%})."
         save_history(history); send_email(); return
 
     # ── STUFE 7: Intraday-Delta ───────────────────────────────────────────────
     log.info("Stufe 7: Intraday-Delta-Filter")
     max_move = getattr(getattr(cfg, "pipeline", None), "max_intraday_move", 0.07)
+    before_intraday = {s["ticker"]: s for s in mc_viable}
     mc_viable = filter_by_intraday_delta(mc_viable, max_move=max_move)
+    after_intraday = {s["ticker"] for s in mc_viable}
+    for ticker_gone in before_intraday:
+        if ticker_gone not in after_intraday:
+            reject("intraday_too_late", ticker_gone)
     stats["intraday_ok"] = len(mc_viable)
     log.info(f"  → {len(mc_viable)} nach Intraday-Filter")
     if not mc_viable:
@@ -294,8 +388,15 @@ def main() -> None:
         # Alle anderen → 120d
         quick_mc_days = s.get("quick_mc", {}).get("n_days", 30)
         final_dte = 45 if quick_mc_days <= 30 else 120
-        result = sim_final.run_for_dte(s, days_to_expiry=final_dte)
-        if result:
+        result   = sim_final.run_for_dte(s, days_to_expiry=final_dte)
+        hit_rate = validate_mc_result(result)
+        if hit_rate is None:
+            reject("final_mc_invalid", ticker)
+            continue
+        if hit_rate < 0.01:
+            reject("final_mc_zero_prob", ticker)
+            continue
+        if hit_rate:
             result["simulation"]["n_paths"] = FINAL_MC_PATHS
             final_sims.append(result)
             log.info(f"  [{ticker}] Final MC: {result['simulation']['hit_rate']:.1%} ✅")
@@ -344,9 +445,9 @@ def main() -> None:
         # AVOID-Trades herausfiltern (Score < 45)
         before = len(trade_proposals)
         trade_proposals = [p for p in trade_proposals
-                           if p.get("trade_score", {}).get("total", 0) >= 50]
+                           if p.get("trade_score", {}).get("total", 0) >= 45]
         if len(trade_proposals) < before:
-            log.info(f"  {before - len(trade_proposals)} Trade(s) herausgefiltert (Score < 50 = WATCH/AVOID)")
+            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 45)")
         log.info(f"Trade-Ranking:")
         for p in trade_proposals:
             ts = p.get("trade_score", {})
@@ -385,6 +486,14 @@ def main() -> None:
     )
     save_history(history)
     send_email()
+    # Reject Summary
+    if reject_stats:
+        log.info("=== Reject Summary ===")
+        for reason, data in sorted(reject_stats.items(), key=lambda x: -x[1]["count"]):
+            tickers = ", ".join(data["tickers"][:5]) if data["tickers"] else "-"
+            log.info(f"  {reason}: {data['count']}x → [{tickers}]")
+    stats["rejects"] = {k: v["count"] for k, v in reject_stats.items()}
+
     log.info(f"=== Pipeline v8.1 beendet. {len(trade_proposals)} Trade-Vorschläge. ===")
 
 
