@@ -36,7 +36,7 @@ from modules.reporter            import Reporter
 from modules.risk_gates          import RiskGates
 from modules.email_reporter      import send_status_email
 from modules.finbert_sentiment   import score_candidate
-from modules.intraday_delta      import filter_by_intraday_delta
+from modules.intraday_delta      import filter_by_intraday_delta, get_intraday_move
 from modules.alpha_sources       import enrich_with_alpha_sources
 from modules.data_validator      import validate_candidate_data, compute_option_roi
 from modules.premium_signals     import enrich_top_candidates
@@ -364,14 +364,50 @@ def main() -> None:
 
     # ── STUFE 7: Intraday-Delta ───────────────────────────────────────────────
     log.info("Stufe 7: Intraday-Delta-Filter")
-    max_move = getattr(getattr(cfg, "pipeline", None), "max_intraday_move", 0.07)
+    # Dynamischer Intraday-Filter: Limit steigt mit Mismatch-Score
+    # Mismatch ≥ 7 → 12% (starkes Signal rechtfertigt Momentum)
+    # Mismatch ≥ 5 → 9%
+    # Mismatch < 5 → 7% (Standard)
+    base_move = getattr(getattr(cfg, "pipeline", None), "max_intraday_move", 0.07)
+
     before_intraday = {s["ticker"]: s for s in mc_viable}
-    mc_viable = filter_by_intraday_delta(mc_viable, max_move=max_move)
-    after_intraday = {s["ticker"] for s in mc_viable}
-    for ticker_gone in before_intraday:
-        if ticker_gone not in after_intraday:
-            reject("intraday_too_late", ticker_gone)
+    mc_viable_dynamic = []
+    for s in mc_viable:
+        ticker   = s["ticker"]
+        mismatch = s.get("features", {}).get("mismatch", 0)
+
+        if mismatch >= 7:
+            current_max = max(base_move, 0.12)
+        elif mismatch >= 5:
+            current_max = max(base_move, 0.09)
+        else:
+            current_max = base_move
+
+        # Berechne intraday_delta falls noch nicht vorhanden
+        if "intraday_delta" not in s:
+            s["intraday_delta"] = get_intraday_move(ticker)
+        delta_info = s.get("intraday_delta", {})
+        move = abs(float(delta_info.get("move_pct", 0) or 0))
+
+        if move <= current_max:
+            mc_viable_dynamic.append(s)
+            log.info(
+                f"  [{ticker}] Intraday-Move={move:+.2%} → "
+                f"noch Asymmetrie vorhanden (Limit={current_max:.0%}, Mismatch={mismatch:.1f})."
+            )
+        else:
+            reject("intraday_too_late", ticker)
+            log.info(
+                f"  [{ticker}] REJECT: Move={move:.1%} > Limit={current_max:.0%} "
+                f"(Mismatch={mismatch:.1f})"
+            )
+
+    mc_viable = mc_viable_dynamic
     stats["intraday_ok"] = len(mc_viable)
+    log.info(
+        f"Intraday-Delta-Filter: {len(before_intraday)} → {len(mc_viable)} Signale "
+        f"({len(before_intraday) - len(mc_viable)} zu spät)"
+    )
     log.info(f"  → {len(mc_viable)} nach Intraday-Filter")
     if not mc_viable:
         stats["stop_reason"] = "Alle durch Intraday-Delta-Filter verworfen (>7% Bewegung)."
