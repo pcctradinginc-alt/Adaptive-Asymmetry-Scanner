@@ -1,5 +1,5 @@
 """
-Stufe 4: Normalisierter Mismatch-Score (Quant-Validierung)
+Stufe 5: Normalisierter Mismatch-Score (Quant-Validierung)
 
 Fixes:
   H-03: Negative Mismatch-Werte (Markt hat überreagiert) wurden als "weak"
@@ -7,6 +7,14 @@ Fixes:
         Überreaktionen vor der Simulation aussortiert.
   M-01: EPS-Drift-Bins nutzten hardcodierte Werte statt config.yaml.
         Fix: cfg.eps_drift.* Thresholds.
+
+  v8.2 FIX-A: price_move_48h wurde NIRGENDS im Produktionscode gesetzt.
+        r_2d war IMMER 0 → Z-Score IMMER 0 → Mismatch = Impact.
+        Fix: Mismatch-Scorer berechnet 48h-Move selbst via yfinance.
+
+  v8.2 FIX-B: EPS-Drift wurde unter falschem Key gelesen.
+        a.get("eps_drift", {}).get("drift", 0.0) → Feld existiert nie.
+        Korrekter Pfad: a["data_validation"]["eps_cross_check"]["deviation_pct"]
 """
 
 import logging
@@ -64,7 +72,14 @@ class MismatchScorer:
         ticker = a["ticker"]
         da     = a.get("deep_analysis", {})
         impact = da.get("impact", 0)
-        r_2d   = abs(a.get("price_move_48h", 0))
+
+        # ── FIX v8.2-A: 48h-Move selbst berechnen ────────────────────────────
+        # Vorher: r_2d = abs(a.get("price_move_48h", 0))
+        # Problem: "price_move_48h" wurde NIRGENDS im Produktionscode gesetzt.
+        #          Nur in Tests als Mock-Daten vorhanden.
+        #          → r_2d war IMMER 0 → Z-Score IMMER 0 → Mismatch = Impact.
+        # Jetzt:   Eigene Berechnung, gleiche Logik wie deep_analysis v8.2.
+        r_2d = abs(self._compute_48h_move(ticker))
 
         sigma = self._compute_sigma(ticker)
         if sigma == 0:
@@ -81,19 +96,28 @@ class MismatchScorer:
         if mismatch <= 0:
             log.info(
                 f"  [{ticker}] Mismatch={mismatch:.2f} ≤ 0 "
+                f"(Impact={impact}, Z={z_score:.2f}, 48h-Move={r_2d:.3f}) "
                 f"→ Markt hat überreagiert, gefiltert."
             )
             return None
 
-        eps_drift_val = a.get("eps_drift", {}).get("drift", 0.0)
+        # ── FIX v8.2-B: EPS-Drift aus korrektem Pfad lesen ───────────────────
+        # Vorher: eps_drift_val = a.get("eps_drift", {}).get("drift", 0.0)
+        # Problem: Feld "eps_drift" mit Subkey "drift" existiert nie.
+        #          data_validator.py schreibt unter:
+        #          candidate["data_validation"]["eps_cross_check"]["deviation_pct"]
+        # Jetzt:   Korrekter Zugriffspfad.
+        eps_check     = a.get("data_validation", {}).get("eps_cross_check", {})
+        eps_drift_val = eps_check.get("deviation_pct", 0.0) or 0.0
 
         features = {
-            "impact":    impact,
-            "surprise":  da.get("surprise", 0),
-            "mismatch":  round(mismatch, 3),
-            "z_score":   round(z_score, 3),
-            "sigma_30d": round(sigma, 4),
-            "eps_drift": round(eps_drift_val, 4),
+            "impact":        impact,
+            "surprise":      da.get("surprise", 0),
+            "mismatch":      round(mismatch, 3),
+            "z_score":       round(z_score, 3),
+            "sigma_30d":     round(sigma, 4),
+            "price_move_48h": round(r_2d, 4),   # NEU: für Reports & Debugging
+            "eps_drift":     round(eps_drift_val, 4),
             "bin_impact":    _bin_impact(impact),
             "bin_mismatch":  _bin_mismatch(mismatch),
             "bin_eps_drift": _bin_eps_drift(eps_drift_val),
@@ -101,7 +125,8 @@ class MismatchScorer:
 
         log.info(
             f"  [{ticker}] Mismatch={mismatch:.2f} "
-            f"Z={z_score:.2f} σ={sigma:.4f}"
+            f"Z={z_score:.2f} σ={sigma:.4f} "
+            f"48h-Move={r_2d:.3f} EPS-Drift={eps_drift_val:.4f}"
         )
 
         return {**a, "features": features}
@@ -116,4 +141,25 @@ class MismatchScorer:
             return float(np.std(returns))
         except Exception as e:
             log.debug(f"Sigma-Berechnung Fehler für {ticker}: {e}")
+            return 0.0
+
+    def _compute_48h_move(self, ticker: str) -> float:
+        """
+        Berechnet die Preisbewegung der letzten 2 vollen Handelstage.
+
+        Nutzt period='10d' und vergleicht volle Handelstage:
+          close[-2] = gestriger Close (letzter abgeschlossener Tag)
+          close[-4] = vor-3-Tage-Close (48h-Fenster)
+
+        Gleiche Logik wie deep_analysis.py v8.2 _get_48h_move().
+        """
+        try:
+            hist  = yf.Ticker(ticker).history(period="10d")
+            close = hist["Close"]
+            if hasattr(close, "iloc"):
+                close = close.squeeze()
+            if len(close) < 5:
+                return 0.0
+            return float((close.iloc[-2] - close.iloc[-4]) / close.iloc[-4])
+        except Exception:
             return 0.0
