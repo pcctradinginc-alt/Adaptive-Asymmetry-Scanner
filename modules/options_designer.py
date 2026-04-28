@@ -1,5 +1,10 @@
 """
-modules/options_designer.py v7.4
+modules/options_designer.py v7.5
+
+Fixes v7.5:
+    - IV-Rank Kalibrierung: Term-Structure-Gewicht 50%→20%, Formel entschärft
+      Vorher: IV-Rank=100 bei fast allem (Term-Structure trieb Score hoch)
+      Jetzt:  RV-Percentile dominiert (80%), Term-Structure ergänzt (20%, cap 80)
 
 Fixes v7.3/v7.4:
     1. ROI bei Spreads: net_debit als Kostenbasis statt ask (Long-Leg)
@@ -346,10 +351,28 @@ class OptionsDesigner:
         return {"strike": float(best["strike"]),
                 "bid": float(best["bid"]), "ask": float(best["ask"])}
 
+    # ── FIX v7.5: IV-Rank Kalibrierung ───────────────────────────────────────
     def _get_iv_rank(self, ticker: str, t: Optional[object] = None) -> float:
         """
-        IV-Rank Proxy: RV-Percentile (quantile 0.05/0.95) + Term Structure Slope.
-        50/50 kombiniert. Kein direkter IV-Rank ohne historische IV-Datenbank.
+        IV-Rank Proxy: RV-Percentile + Term Structure Slope.
+
+        v7.5 FIX: Gewichtung 80/20 statt 50/50, Term-Structure entschärft.
+
+        Vorher (v7.4):
+            combined = rv_score * 0.5 + term_score * 0.5
+            term_score = (slope + 0.1) * 200  → explodiert bei Backwardation
+            Ergebnis: IV-Rank = 100 bei fast allen News-Events
+
+        Jetzt (v7.5):
+            combined = rv_score * 0.8 + term_score * 0.2
+            term_score = (slope + 0.05) * 100, cap bei 80
+            Ergebnis: RV-Percentile dominiert, Term-Structure ergänzt
+
+        Beispiel-Werte nach Fix:
+            Ruhiger Markt (RV=30, Term=20):  30*0.8 + 20*0.2 = 28 → LONG_CALL
+            Leicht erhöht (RV=55, Term=40):  55*0.8 + 40*0.2 = 52 → LONG_CALL
+            Stark erhöht (RV=85, Term=70):   85*0.8 + 70*0.2 = 82 → LONG_CALL (knapp)
+            Extrem (RV=95, Term=80):          95*0.8 + 80*0.2 = 92 → SPREAD
         """
         try:
             if t is None:
@@ -357,6 +380,7 @@ class OptionsDesigner:
             info    = t.info
             current = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
 
+            # ── RV-Percentile (80% Gewicht) ──────────────────────────────────
             rv_score = 50.0
             hist = t.history(period="1y")
             if not hist.empty and len(hist) >= 60:
@@ -373,7 +397,8 @@ class OptionsDesigner:
             if current <= 0:
                 return round(rv_score, 1)
 
-            term_score = 20.0
+            # ── Term Structure Slope (20% Gewicht) ───────────────────────────
+            term_score = 20.0   # Default: leicht unter Mitte (neutral-niedrig)
             dates  = t.options or []
             iv_pts = []
             for d in dates[:3]:
@@ -397,11 +422,20 @@ class OptionsDesigner:
                 iv_short = iv_pts[0][1]
                 iv_long  = iv_pts[-1][1]
                 if iv_long > 0:
-                    slope      = (iv_short / iv_long) - 1.0
-                    term_score = max(0.0, min(100.0, (slope + 0.1) * 200))
+                    slope = (iv_short / iv_long) - 1.0
+                    # v7.5: Entschärfte Formel + Cap bei 80
+                    # Vorher: (slope + 0.1) * 200 → slope=0.25 gab 70
+                    # Jetzt:  (slope + 0.05) * 100 → slope=0.25 gibt 30
+                    term_score = max(0.0, min(80.0, (slope + 0.05) * 100))
 
-            combined = round(rv_score * 0.5 + term_score * 0.5, 1)
-            log.debug(f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} → {combined:.0f}")
+            # v7.5: RV dominiert (80%), Term Structure ergänzt (20%)
+            # Vorher: 50/50 → Term-Structure-Spikes trieben alles auf 100
+            combined = round(rv_score * 0.80 + term_score * 0.20, 1)
+            log.info(
+                f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} "
+                f"→ combined={combined:.0f} "
+                f"({'SPREAD' if combined >= IV_RANK_GATE else 'LONG'})"
+            )
             return combined
 
         except Exception:
