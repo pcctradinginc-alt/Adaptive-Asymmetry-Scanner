@@ -1,19 +1,19 @@
 """
-modules/data_ingestion.py v7.0
+modules/data_ingestion.py v7.1
 
+v7.1: Short Interest als Feature
+    yfinance liefert shortPercentOfFloat bereits im info-Dict.
+    Kein zusätzlicher API-Call nötig.
+    Short Float > 15% → asymmetrisches Upside bei positiver News (Squeeze-Potential).
+    Wird als candidate["short_interest"] gespeichert.
+
+v7.0:
 Fix 1: Parallel-Requests statt sequenziell
     Vorher: 493 Ticker × ~0.85s = ~7 Minuten
     Jetzt:  ThreadPoolExecutor mit 20 Workers = ~30-45 Sekunden
-    
-    Warum 20 Workers (nicht mehr):
-    - Yahoo Finance drosselt bei zu vielen parallelen Requests
-    - 20 ist der empirisch beste Wert für GitHub Actions IP-Ranges
-    - Mehr als 30 → erhöhte 429-Rate
 
 Fix 2: Haiku↔Sonnet Konsistenz-Check
     Prescreening-Begründung wird an Deep Analysis übergeben.
-    Wenn Sonnet BEARISH für Haiku-YES (bullish begründet) →
-    explizite Warnung im Log + data_confidence = 'low'.
 """
 
 from __future__ import annotations
@@ -37,6 +37,10 @@ MIN_AVG_VOLUME        = 1_000_000
 MIN_DOLLAR_VOLUME_USD = 10_000_000
 RV_BASE_THRESHOLD     = 0.6   # Basis-Schwelle (skaliert mit VIX dynamisch)
 MAX_WORKERS           = 20   # Parallel Threads — empirisch für Yahoo Finance
+
+# v7.1: Short Interest Schwellenwerte
+SHORT_INTEREST_HIGH   = 0.15   # 15% Short Float → "high" (Squeeze-Potential)
+SHORT_INTEREST_MED    = 0.08   # 8% Short Float → "elevated"
 
 
 class DataIngestion:
@@ -147,6 +151,20 @@ class DataIngestion:
                 local_stats["no_news"] += 1
                 return None, local_stats
 
+            # ── v7.1: Short Interest extrahieren (kostenlos, bereits in info) ─
+            short_pct   = info.get("shortPercentOfFloat") or info.get("shortRatio") or 0.0
+            short_float = float(short_pct) if short_pct else 0.0
+            # yfinance gibt manchmal als Ratio (0.15) oder Prozent (15.0)
+            if short_float > 1.0:
+                short_float = short_float / 100.0   # 15.0 → 0.15
+
+            if short_float >= SHORT_INTEREST_HIGH:
+                short_label = "high"
+            elif short_float >= SHORT_INTEREST_MED:
+                short_label = "elevated"
+            else:
+                short_label = "normal"
+
             local_stats["passed"] += 1
             dollar_volume = current_price * avg_vol
             log.info(
@@ -154,6 +172,7 @@ class DataIngestion:
                 f"AvgVol={avg_vol/1e6:.1f}M "
                 f"$Vol=${dollar_volume/1e6:.0f}M "
                 f"RV={rel_volume:.2f} News={len(news)}"
+                f"{f' Short={short_float:.0%}({short_label})' if short_float >= SHORT_INTEREST_MED else ''}"
             )
 
             return {
@@ -166,6 +185,11 @@ class DataIngestion:
                 "rel_volume":    round(rel_volume, 3),
                 "current_price": current_price,
                 "features":      {},
+                # v7.1: Short Interest
+                "short_interest": {
+                    "short_float_pct": round(short_float, 4),
+                    "label":           short_label,
+                },
             }, local_stats
 
         except Exception as e:
