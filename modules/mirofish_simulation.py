@@ -1,5 +1,5 @@
 """
-modules/mirofish_simulation.py v8.0
+modules/mirofish_simulation.py v8.2
 
 Monte Carlo Simulation mit historischer yfinance-Kalibrierung.
 
@@ -8,14 +8,23 @@ Kernidee:
     base_alpha (Signal-Drift) = historische Drift + Signal-Bonus.
     Das macht Hit-Rates realistisch und ticker-spezifisch.
 
-Vorher:
-    sigma = hardcoded 0.02 (für alle Ticker gleich)
-    alpha = mismatch/100 * 1.3 = 0.078/Tag → immer 100%
+v8.2 Kalibrierungs-Fix:
+    Problem: Hit-Rates lagen bei 97% für praktisch jedes Signal.
+             Der Cap (85%/95%) griff IMMER → alle Signale sahen gleich aus.
 
-Nachher:
-    sigma = std(daily_returns, 6 Monate) ← ORCL hat andere Vola als AMZN
-    alpha = hist_mu + signal_strength * 0.003 ← realistisch 0.1-0.5%/Tag
-    → Hit-Rates 45-80% je nach Signal-Stärke
+    Ursache: max_signal_alpha=0.004 → bei Impact=6/Surprise=5 akkumulierten
+             sich ~19% Alpha-Drift über 120 Tage. Target war nur +8%.
+             → Trivial erreichbar, auch bei schwachen Signalen.
+
+    Fix (4 Stellschrauben):
+      1. max_signal_alpha: 0.004 → 0.001 (realistischer Informationsvorsprung)
+      2. NARRATIVE_DECAY: verdoppelt (News-Signal verblasst schneller)
+      3. HIT_RATE_CAP: 85%/95% → 75% (kein einzelnes Signal > 75%)
+      4. Target: volatilitäts-adaptiv statt pauschal +8%
+         Formel: target = current * (1 + max(0.08, 0.5 * σ * √days))
+         → Volatile Aktien brauchen grösseren Move für "Hit"
+
+    Erwartete Hit-Rates nach Fix: 35-70% je nach Signal-Stärke und Vola.
 """
 
 from __future__ import annotations
@@ -27,17 +36,34 @@ from functools import lru_cache
 
 log = logging.getLogger(__name__)
 
+# ── v8.2: Verdoppelte Decay-Rates ────────────────────────────────────────────
+# Vorher: short=0.015, medium=0.008, long=0.004
+# Begründung: Empirisch zerfallen News-Signale schneller als v8.0 annahm.
+# Typischer Nachrichtenzyklus: 3-5 Tage Peak, danach rapider Abfall.
 NARRATIVE_DECAY = {
-    "short":  0.015,  # Signal verpufft schnell
-    "medium": 0.008,
-    "long":   0.004,
+    "short":  0.030,   # Signal verpufft in ~30 Tagen (war: ~65 Tage)
+    "medium": 0.016,   # Signal verpufft in ~60 Tagen (war: ~125 Tage)
+    "long":   0.008,   # Signal verpufft in ~120 Tagen (war: ~250 Tage)
 }
 
 DEFAULT_SIGMA   = 0.020   # Fallback wenn yfinance nicht erreichbar
 QUICK_MC_PATHS  = 5_000
 FINAL_MC_PATHS  = 10_000
-HIT_RATE_CAP_SHORT = 0.85  # Short-Term (<=45d): max 85%
-HIT_RATE_CAP_LONG  = 0.95  # Long-Term (>45d): max 95%
+
+# ── v8.2: Einheitlicher Cap auf 75% ─────────────────────────────────────────
+# Vorher: Short=85%, Long=95%
+# Begründung: Kein einzelnes News-Signal rechtfertigt >75% Konfidenz.
+# Selbst perfekte Insider-Information hat Execution-Risiko, Makro-Risiko,
+# und Timing-Unsicherheit. 75% ist die Obergrenze für "sehr starkes Signal".
+HIT_RATE_CAP_SHORT = 0.75
+HIT_RATE_CAP_LONG  = 0.75
+
+# ── v8.2: Reduzierter Signal-Alpha ──────────────────────────────────────────
+# Vorher: 0.004 → bei Impact=6/Surprise=5 = 0.22%/Tag = ~19% über 120d
+# Jetzt:  0.001 → bei Impact=6/Surprise=5 = 0.055%/Tag = ~4.5% über 120d
+# Begründung: Ein News-Signal gibt keinen 0.4%/Tag-Vorsprung.
+# Selbst der stärkste fundamentale Katalysator liefert ~0.1%/Tag Alpha.
+MAX_SIGNAL_ALPHA = 0.001
 
 
 @lru_cache(maxsize=128)
@@ -99,6 +125,28 @@ def preload_hist_params(tickers: list[str]) -> None:
     log.info(f"  Historische Daten geladen ({done} Ticker gecacht)")
 
 
+def _compute_dynamic_target(current: float, sigma: float, days: int) -> float:
+    """
+    v8.2: Volatilitäts-adaptives Kursziel.
+
+    Vorher: pauschal current * 1.08 (+8% für alle)
+    Problem: +8% ist für eine Low-Vol-Aktie (σ=0.01) ein grosser Move,
+             aber für eine High-Vol-Aktie (σ=0.04) trivial.
+
+    Jetzt: target = current * (1 + max(0.08, 0.5 * σ * √days))
+      - Low-Vol  (σ=0.01, 120d): max(0.08, 0.055) = 8.0%  (unchanged)
+      - Normal   (σ=0.02, 120d): max(0.08, 0.110) = 11.0%
+      - High-Vol (σ=0.04, 120d): max(0.08, 0.219) = 21.9%
+
+    Ergebnis: Volatile Aktien brauchen stärkere Signale um hohe Hit-Rates
+    zu erreichen. Das verhindert falsch-positive "starke" Signale bei
+    naturgemäss volatilen Tech/Biotech-Titeln.
+    """
+    sigma_move = 0.5 * sigma * math.sqrt(days)
+    target_pct = max(0.08, sigma_move)
+    return current * (1.0 + target_pct)
+
+
 class MirofishSimulation:
 
     def __init__(self):
@@ -138,27 +186,37 @@ class MirofishSimulation:
         surprise = float(da.get("surprise", 5) or 5)
         ttm      = da.get("time_to_materialization", "medium") or "medium"
 
+        # TTM-String normalisieren (Claude gibt manchmal verschiedene Formate)
+        ttm_lower = ttm.lower()
+        if "woche" in ttm_lower or "4-8" in ttm_lower:
+            ttm_key = "short"
+        elif "6 monat" in ttm_lower:
+            ttm_key = "long"
+        else:
+            ttm_key = "medium"
+
         # Geometrisches Mittel: beide Dimensionen müssen stark sein
         signal_strength = math.sqrt((impact / 10.0) * (surprise / 10.0))
 
-        # Signal-Bonus: max 0.4%/Tag bei perfektem Signal (10/10)
-        # Das entspricht ~12% über 30 Tage bei vollem Signal
-        max_signal_alpha = 0.004
-        signal_alpha     = signal_strength * max_signal_alpha
+        # v8.2: Signal-Bonus reduziert — max 0.1%/Tag bei perfektem Signal
+        signal_alpha = signal_strength * MAX_SIGNAL_ALPHA
 
         # Gesamt-Alpha: historischer Trend + Signal-Bonus
         base_alpha = hist_mu + signal_alpha
-        decay_rate = NARRATIVE_DECAY.get(ttm, 0.008)
+        decay_rate = NARRATIVE_DECAY.get(ttm_key, 0.016)
 
-        # Kursziel: 8% über aktuellem Preis (konservativ)
-        target      = current * 1.08
-        n_paths     = QUICK_MC_PATHS if days_to_expiry <= 45 else FINAL_MC_PATHS
-        threshold   = 0.45 if days_to_expiry <= 45 else 0.50
+        # v8.2: Volatilitäts-adaptives Target
+        target  = _compute_dynamic_target(current, sigma, days_to_expiry)
+        target_pct = (target / current - 1.0) * 100
+
+        n_paths   = QUICK_MC_PATHS if days_to_expiry <= 45 else FINAL_MC_PATHS
+        threshold = 0.45 if days_to_expiry <= 45 else 0.50
 
         log.info(
             f"  [{ticker}] MC-Kalibrierung: "
             f"σ={sigma:.3f} μ={hist_mu:.4f} "
-            f"signal={signal_strength:.2f} α={base_alpha:.4f} "
+            f"signal={signal_strength:.2f} α={base_alpha:.5f} "
+            f"target=+{target_pct:.1f}% decay={decay_rate:.3f} "
             f"({days_to_expiry}d, {n_paths} Pfade)"
         )
 
@@ -180,12 +238,11 @@ class MirofishSimulation:
 
         hit_rate = paths_hit / n_paths
 
-        # Cap je nach Laufzeit: Short-Term 85%, Long-Term 95%
+        # v8.2: Einheitlicher Cap auf 75%
         hit_rate_cap = HIT_RATE_CAP_SHORT if days_to_expiry <= 45 else HIT_RATE_CAP_LONG
         if hit_rate >= hit_rate_cap:
             log.warning(
-                f"  [{ticker}] Hit-Rate={hit_rate:.1%} → Cap auf {hit_rate_cap:.0%} "
-                f"({'Short' if days_to_expiry <= 45 else 'Long'}-Term Cap)"
+                f"  [{ticker}] Hit-Rate={hit_rate:.1%} → Cap auf {hit_rate_cap:.0%}"
             )
             hit_rate = hit_rate_cap
 
@@ -225,7 +282,7 @@ class MirofishSimulation:
             )
         except Exception:
             current = 0.0
-        target = current * 1.08
+        target = _compute_dynamic_target(current, sigma, 120)
         return sigma, current, target
 
 
