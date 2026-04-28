@@ -2,109 +2,109 @@
   "date": "2026-04-28",
   "proposals": [
     {
-      "ticker": "BA",
-      "strategy": "LONG_CALL",
-      "iv_rank": 52.7,
+      "ticker": "AMAT",
+      "strategy": "LONG_PUT",
+      "iv_rank": 61.8,
       "iv_gate_applied": false,
-      "direction": "BULLISH",
+      "direction": "BEARISH",
       "option": {
         "expiry": "2026-05-15",
-        "strike": 235.0,
-        "bid": 4.5,
-        "ask": 4.7,
-        "open_interest": 10933,
-        "implied_vol": 0.3355779333496094,
-        "spread_ratio": 0.0426,
+        "strike": 380.0,
+        "bid": 20.0,
+        "ask": 21.2,
+        "open_interest": 1624,
+        "implied_vol": 0.6688875885009766,
+        "spread_ratio": 0.0566,
         "dte": 16
       },
       "roi_analysis": {
-        "roi_gross": 1.5523,
-        "roi_net": 1.3081,
-        "spread_pct": 0.0426,
-        "vega_loss": 0.1591,
-        "delta": 0.3963,
+        "roi_gross": 1.0621,
+        "roi_net": 0.8288,
+        "spread_pct": 0.0566,
+        "vega_loss": 0.1201,
+        "delta": 0.5635,
         "iv_drop_assumed": 0.12,
-        "cost_basis": 4.7,
+        "cost_basis": 21.2,
         "is_spread": false,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 16
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 193528994.0543,
+      "annualized_roi": 956458.8306,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
           "dte": 16,
           "option": {
             "expiry": "2026-05-15",
-            "strike": 235.0,
-            "bid": 4.5,
-            "ask": 4.7,
-            "open_interest": 10933,
-            "implied_vol": 0.3355779333496094,
-            "spread_ratio": 0.0426,
+            "strike": 380.0,
+            "bid": 20.0,
+            "ask": 21.2,
+            "open_interest": 1624,
+            "implied_vol": 0.6688875885009766,
+            "spread_ratio": 0.0566,
             "dte": 16
           },
           "roi": {
-            "roi_gross": 1.5523,
-            "roi_net": 1.3081,
-            "spread_pct": 0.0426,
-            "vega_loss": 0.1591,
-            "delta": 0.3963,
+            "roi_gross": 1.0621,
+            "roi_net": 0.8288,
+            "spread_pct": 0.0566,
+            "vega_loss": 0.1201,
+            "delta": 0.5635,
             "iv_drop_assumed": 0.12,
-            "cost_basis": 4.7,
+            "cost_basis": 21.2,
             "is_spread": false,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 16
           },
-          "annualized_roi": 193528994.0543,
-          "strategy": "LONG_CALL"
+          "annualized_roi": 956458.8306,
+          "strategy": "LONG_PUT"
         }
       ],
       "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 2.448,
-        "z_score": 0.51,
-        "sigma_30d": 0.0236,
-        "price_move_48h": 0.012,
-        "eps_drift": 0.004,
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 5.619,
+        "z_score": 0.076,
+        "sigma_30d": 0.0309,
+        "price_move_48h": 0.0024,
+        "eps_drift": 0.0,
         "bin_impact": "mid",
-        "bin_mismatch": "weak",
+        "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5054
+        "quick_mc_hit_rate": 0.75
       },
       "simulation": {
-        "current_price": 230.13,
-        "target_price": 248.54,
-        "hit_rate": 0.5904,
+        "current_price": 384.81,
+        "target_price": 424.77,
+        "hit_rate": 0.75,
         "n_paths": 10000,
         "days": 45,
-        "sigma": 0.0217,
-        "alpha": 0.00092
+        "sigma": 0.031,
+        "alpha": 0.00528
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Boeing k\u00e4mpft weiterhin mit massiven strukturellen Problemen: Qualit\u00e4tsm\u00e4ngel bei der 737 MAX-Produktion, anhaltende FAA-\u00dcberwachung und ein noch nicht vollst\u00e4ndig abgebauter Lieferr\u00fcckstau. Das Airbus-Schw\u00e4chesignal bedeutet nicht automatisch Boeing-St\u00e4rke, da BAs eigene Lieferf\u00e4higkeit und Produktionskapazit\u00e4t der bindende Engpass ist \u2013 nicht die Nachfrage. Ein Marktanteilsgewinn durch Airbus-Probleme ist kurzfristig kaum zu monetarisieren.",
-          "argument_2": "Der EPS-Wert zeigt eine besorgniserregende Diskrepanz: yfinance meldet 4.34, SEC EDGAR nur 2.53 \u2013 obwohl die Abweichung mit 0.4% angegeben wird, ist der absolute Unterschied von ~72% ein massives rotes Flag bez\u00fcglich Datenqualit\u00e4t und Gewinn-Normalisation. Boeing hat in den letzten Jahren wiederholt Sonderabschreibungen, R\u00fcckstellungen und nicht-GAAP-Adjustierungen verwendet, die die echte Ertragskraft verschleiern. Eine fundamentale Bewertung auf Basis dieser Kennzahlen ist daher hochgradig unsicher.",
-          "argument_3": "Insider-Cluster-K\u00e4ufe bei Boeing sind historisch ein schwaches Signal, da das Management-Team bei BA wiederholt Aktien unter Druck gekauft hat, um Zuversicht zu signalisieren, w\u00e4hrend gleichzeitig operative Probleme eskaliert sind. Der Copa-Airlines-Deal \u00fcber 60 737 MAX Jets klingt positiv, ist aber im Kontext des Gesamtr\u00fcckstands von \u00fcber 5.000 Bestellungen marginal und d\u00fcrfte keine kurzfristige Earnings-Revision ausl\u00f6sen. Der Markt k\u00f6nnte diesen Deal bereits vollst\u00e4ndig einpreisen.",
+          "argument_1": "Die US-Exportbeschr\u00e4nkungen gegen Hua Hong und andere chinesische Chipmaker treffen AMAT direkt im Kerngesch\u00e4ft. China macht historisch 25-30% des AMAT-Umsatzes aus, und jede weitere Versch\u00e4rfung der Restriktionen kann Auftragsbest\u00e4nde signifikant schrumpfen lassen. Der Markt hat dieses strukturelle Risiko m\u00f6glicherweise noch nicht vollst\u00e4ndig eingepreist, was eine weitere Abw\u00e4rtsbewegung trotz positivem Makro wahrscheinlich macht.",
+          "argument_2": "Der breite Semiconductor Sell-Off, der den S&P 500 und Nasdaq belastet, deutet auf sektorweiten Gegenwind hin. AMAT als Capital-Equipment-Anbieter ist doppelt exponiert: erstens \u00fcber das China-Risiko, zweitens \u00fcber die Investitionszyklen der Chipmaker, die bei unsicherem Nachfrageausblick ihre CapEx-Budgets k\u00fcrzen k\u00f6nnten. Insider-K\u00e4ufe reichen erfahrungsgem\u00e4\u00df nicht aus, um sektorweiten Abverkauf aufzufangen.",
+          "argument_3": "Die EPS-Diskrepanz zwischen yfinance (14.07) und SEC EDGAR (9.76) ist erheblich und deutet auf m\u00f6gliche Normalisierungseffekte oder Non-GAAP-Anpassungen hin, die die fundamentale Bewertung verzerren. Bei einem Kurs von $384.81 liegt das KGV je nach Datenbasis zwischen ca. 27 und 39 \u2014 bei regulatorischem Gegenwind und einem m\u00f6glichen CapEx-Zyklus-R\u00fcckgang ist die Aktie keinesfalls g\u00fcnstig bewertet.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate keine echte statistische Aussage, sondern ein technisches Fehlen der Simulation. Eine Bewertung der Hit-Rate-Plausibilit\u00e4t ist damit nicht m\u00f6glich. Der Concern-Level steigt, weil keine quantitative Untermauerung der Richtungsthese vorliegt.",
+          "mc_assessment": "Kein Monte Carlo wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate nicht interpretierbar und liefert keinerlei statistische Basis f\u00fcr die Entscheidung. Die fehlende Simulation erh\u00f6ht die Modell-Unsicherheit erheblich und erfordert h\u00f6here Vorsicht bei der Richtungsbewertung.",
           "concern_level": "high"
         },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BEARISH",
         "bear_case_severity": 7,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt fokussiert auf Boeings eigene Produktionsprobleme und \u00fcbersieht, dass Airbus-Lieferschw\u00e4che die relative Pr\u00e4ferenz institutioneller K\u00e4ufer bei Airline-Neubestellungen verschieben k\u00f6nnte. Der Copa-Deal und Insider-K\u00e4ufe deuten auf wachsendes internes Vertrauen in eine operative Stabilisierung hin. Die -1.2%-Bewegung in 48h zeigt Unterreaktion auf potenziell positive Konkurrenz-Signale.",
-        "catalyst": "Q2 2026 Boeing Earnings mit m\u00f6glicher positiver Auftragsrevision und Best\u00e4tigung der Produktionsnormalisierung auf 38+ 737 MAX/Monat",
-        "bear_case": "Boeings eigene Lieferprobleme und FAA-Kapazit\u00e4tsbeschr\u00e4nkungen verhindern, dass das Unternehmen von Airbus-Schw\u00e4che tats\u00e4chlich profitiert \u2013 Marktanteilsgewinne bleiben Papiergewinne ohne kurzfristige Cash-Flow-Wirkung.",
-        "macro_assessment": "Das expansive Makroumfeld mit steiler Kurve (+0.57%) und Fed Funds Rate bei 3.64% beg\u00fcnstigt kapitalintensive Industrials grunds\u00e4tzlich. Niedrigere Refinanzierungskosten entlasten Boeings hohe Schuldenlast (~45 Mrd. USD) und reduzieren den Druck auf das Working Capital. Das Regime unterst\u00fctzt die BULLISH-These moderat, reicht aber nicht aus, um die unternehmensindividuellen Risiken vollst\u00e4ndig zu kompensieren.",
+        "asymmetry_reasoning": "Der Markt fokussiert kurzfristig auf Insider-K\u00e4ufe und den bullishen B.-Riley-Kommentar, untersch\u00e4tzt aber das strukturelle China-Exportrisiko, das in 2-3 Monaten in Auftragsr\u00fcckg\u00e4ngen sichtbar wird. Die Haiku-Einsch\u00e4tzung bewertet das Signal als katalytisch-neutral, doch die Richtung ist BEARISH, weil Exportbeschr\u00e4nkungen Umsatzbeitr\u00e4ge dauerhaft kappen. Sektorweiter Sell-Off und regulatorische Eskalation \u00fcberlagern das expansive Makroumfeld f\u00fcr equipment-lastige Semis.",
+        "catalyst": "Weitere US-Exportbeschr\u00e4nkungen gegen chinesische Chipmaker (Hua Hong) mit direktem Auftragsr\u00fcckgang bei AMAT im n\u00e4chsten Earnings-Zyklus (Q2/Q3 2026)",
+        "bear_case": "China-Exposure von ca. 25-30% des Umsatzes trifft auf eskalierende Exportkontrollen, w\u00e4hrend sektorweiter CapEx-Pessimismus den Orderbuchaufbau hemmt und die Bewertung auf GAAP-Basis mit KGV ~39 wenig Sicherheitsmarge bietet.",
+        "macro_assessment": "Das expansive Makroumfeld (steile Kurve, Fed Funds bei 3.64%) ist grunds\u00e4tzlich positiv f\u00fcr Long-Positionen, federt aber das spezifische regulatorische Risiko f\u00fcr AMAT nicht ab. Geopolitisch getriebene Umsatzausf\u00e4lle sind makro-unabh\u00e4ngig und dominieren den mittelfristigen Ausblick f\u00fcr China-exponierte Halbleiterausr\u00fcster.",
         "data_confidence": "low",
         "macro_regime": "expansive",
         "macro_context": {
@@ -114,38 +114,38 @@
         "direction_conflict": false
       },
       "sector_momentum": {
-        "etf": "XLI",
-        "rel_strength": 0.0483
+        "etf": "XLK",
+        "rel_strength": -0.0218
       },
-      "final_score": 0.1843,
+      "final_score": 0.1172,
       "time_value_efficiency": {
-        "roi_per_day_pct": 8.1756,
+        "roi_per_day_pct": 5.18,
         "annualized_roi": null,
         "dte": 16
       },
       "trade_score": {
-        "total": 63,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
+        "total": 54,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
         "components": {
-          "signal_quality": 17.9,
-          "options_quality": 30.0,
+          "signal_quality": 21.9,
+          "options_quality": 27.0,
           "risk_deductions": -10.0,
-          "context_bonus": 25.0
+          "context_bonus": 15.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (131%), positive Sektor-Relative-St\u00e4rke | Risiken: hohes Bear-Risiko (7/10)",
-        "best_argument_for": "Der Markt fokussiert auf Boeings eigene Produktionsprobleme und \u00fcbersieht, dass Airbus-Lieferschw\u00e4che die relative Pr\u00e4ferenz institutioneller K\u00e4ufer bei Airline-Neubestellungen verschieben k\u00f6nnte. Der Copa-Deal und Insider-K\u00e4ufe deuten auf wachsendes internes Vertrauen in eine operative Stabilisierung hin. Die -1.2%-Bewegung in 48h zeigt Unterreaktion auf potenziell positive Konkurrenz-Signale.",
-        "best_argument_against": "Boeing k\u00e4mpft weiterhin mit massiven strukturellen Problemen: Qualit\u00e4tsm\u00e4ngel bei der 737 MAX-Produktion, anhaltende FAA-\u00dcberwachung und ein noch nicht vollst\u00e4ndig abgebauter Lieferr\u00fcckstau. Das Airbus-Schw\u00e4chesignal bedeutet nicht automatisch Boeing-St\u00e4rke, da BAs eigene Lieferf\u00e4higkeit und Produktionskapazit\u00e4t der bindende Engpass ist \u2013 nicht die Nachfrage. Ein Marktanteilsgewinn durch Airbus-Probleme ist kurzfristig kaum zu monetarisieren."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (83%), expansives Makro-Umfeld | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt fokussiert kurzfristig auf Insider-K\u00e4ufe und den bullishen B.-Riley-Kommentar, untersch\u00e4tzt aber das strukturelle China-Exportrisiko, das in 2-3 Monaten in Auftragsr\u00fcckg\u00e4ngen sichtbar wird. Die Haiku-Einsch\u00e4tzung bewertet das Signal als katalytisch-neutral, doch die Richtung ist BEARISH, weil Exportbeschr\u00e4nkungen Umsatzbeitr\u00e4ge dauerhaft kappen. Sektorweiter Sell-Off und regulatorische Eskalation \u00fcberlagern das expansive Makroumfeld f\u00fcr equipment-lastige Semis.",
+        "best_argument_against": "Die US-Exportbeschr\u00e4nkungen gegen Hua Hong und andere chinesische Chipmaker treffen AMAT direkt im Kerngesch\u00e4ft. China macht historisch 25-30% des AMAT-Umsatzes aus, und jede weitere Versch\u00e4rfung der Restriktionen kann Auftragsbest\u00e4nde signifikant schrumpfen lassen. Der Markt hat dieses strukturelle Risiko m\u00f6glicherweise noch nicht vollst\u00e4ndig eingepreist, was eine weitere Abw\u00e4rtsbewegung trotz positivem Makro wahrscheinlich macht."
       },
       "trade_rank": 1,
       "exit_rules": {
-        "entry_cost": 4.7,
+        "entry_cost": 21.2,
         "take_profit_pct": 50,
-        "take_profit_price": 7.05,
+        "take_profit_price": 31.8,
         "full_profit_pct": 100,
-        "full_profit_price": 9.4,
+        "full_profit_price": 42.4,
         "stop_loss_pct": -40,
-        "stop_loss_price": 2.82,
+        "stop_loss_price": 12.72,
         "time_exit_dte_remaining": 8,
         "time_exit_date": "2026-05-07",
         "time_exit_min_profit_pct": 20
@@ -154,34 +154,34 @@
     {
       "ticker": "CCL",
       "strategy": "LONG_PUT",
-      "iv_rank": 82.3,
+      "iv_rank": 82.7,
       "iv_gate_applied": false,
       "direction": "BEARISH",
       "option": {
         "expiry": "2026-05-15",
         "strike": 27.0,
-        "bid": 1.69,
-        "ask": 1.76,
+        "bid": 1.68,
+        "ask": 1.75,
         "open_interest": 6908,
-        "implied_vol": 0.5625043750000001,
-        "spread_ratio": 0.0398,
+        "implied_vol": 0.5361374511718751,
+        "spread_ratio": 0.04,
         "dte": 16
       },
       "roi_analysis": {
-        "roi_gross": 0.7341,
-        "roi_net": 0.4815,
-        "spread_pct": 0.0398,
-        "vega_loss": 0.173,
-        "delta": 0.4335,
+        "roi_gross": 0.7176,
+        "roi_net": 0.473,
+        "spread_pct": 0.04,
+        "vega_loss": 0.1646,
+        "delta": 0.4214,
         "iv_drop_assumed": 0.25,
-        "cost_basis": 1.76,
+        "cost_basis": 1.75,
         "is_spread": false,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.15,
         "dte": 16
       },
       "dte_tier": "Short-Term",
-      "annualized_roi": 7835.6694,
+      "annualized_roi": 6871.6648,
       "all_tiers_tried": [
         {
           "tier": "Short-Term",
@@ -189,34 +189,34 @@
           "option": {
             "expiry": "2026-05-15",
             "strike": 27.0,
-            "bid": 1.69,
-            "ask": 1.76,
+            "bid": 1.68,
+            "ask": 1.75,
             "open_interest": 6908,
-            "implied_vol": 0.5625043750000001,
-            "spread_ratio": 0.0398,
+            "implied_vol": 0.5361374511718751,
+            "spread_ratio": 0.04,
             "dte": 16
           },
           "roi": {
-            "roi_gross": 0.7341,
-            "roi_net": 0.4815,
-            "spread_pct": 0.0398,
-            "vega_loss": 0.173,
-            "delta": 0.4335,
+            "roi_gross": 0.7176,
+            "roi_net": 0.473,
+            "spread_pct": 0.04,
+            "vega_loss": 0.1646,
+            "delta": 0.4214,
             "iv_drop_assumed": 0.25,
-            "cost_basis": 1.76,
+            "cost_basis": 1.75,
             "is_spread": false,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.15,
             "dte": 16
           },
-          "annualized_roi": 7835.6694,
+          "annualized_roi": 6871.6648,
           "strategy": "LONG_PUT"
         }
       ],
       "features": {
         "impact": 5,
         "surprise": 6,
-        "mismatch": 4.424,
+        "mismatch": 4.425,
         "z_score": 0.115,
         "sigma_30d": 0.0391,
         "price_move_48h": 0.0045,
@@ -224,78 +224,78 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5546
+        "quick_mc_hit_rate": 0.5558
       },
       "simulation": {
-        "current_price": 26.29,
-        "target_price": 29.27,
-        "hit_rate": 0.574,
+        "current_price": 26.24,
+        "target_price": 29.22,
+        "hit_rate": 0.5684,
         "n_paths": 10000,
         "days": 45,
         "sigma": 0.0339,
-        "alpha": 0.00068
+        "alpha": 0.00065
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Der Insider-Verkauf von USD 15 Mio. ist ein klares Warnsignal: Wenn Unternehmensinsider in gr\u00f6\u00dferem Umfang Aktien ver\u00e4u\u00dfern, w\u00e4hrend der Kurs bereits 25% gefallen ist, deutet dies auf Informationsvorsprung bez\u00fcglich zuk\u00fcnftiger Gesch\u00e4ftsentwicklung hin. Gerade im konsumzyklischen Sektor, wo das diskretion\u00e4re Ausgabenverhalten der Verbraucher stark von Konjunkturerwartungen abh\u00e4ngt, kann ein Insider-Verkauf in dieser Gr\u00f6\u00dfenordnung strukturelle Probleme signalisieren, die noch nicht vollst\u00e4ndig im Kurs reflektiert sind.",
-          "argument_2": "Der 25%-Kursr\u00fcckgang innerhalb eines Monats legt nahe, dass entweder ein fundamentales Problem (z.B. Buchungsr\u00fcckgang, steigende Treibstoffkosten, Kapazit\u00e4ts\u00fcberhang) oder ein massiver Sentiment-Wandel stattgefunden hat. In einem solchen Momentum-Umfeld ist 'Catching the Falling Knife' hochriskant: Technische Unterst\u00fctzungsniveaus wurden m\u00f6glicherweise gebrochen, Margin-Calls verst\u00e4rken den Verkaufsdruck, und die Gegenbewegung von +0,5% in 48h ist statistisch insignifikant und kein verl\u00e4ssliches Boden-Signal.",
-          "argument_3": "CCL als Consumer-Cyclical-Unternehmen tr\u00e4gt erhebliche Treibstoffkosten-Risiken (der News-Kommentar zu 'Near-Term Fuel Risks' best\u00e4tigt dies) sowie W\u00e4hrungsrisiken bei einem global operierenden Gesch\u00e4ftsmodell. Die EPS-Abweichung zwischen yfinance (2,598) und SEC EDGAR (2,27) von ca. 14% ist besorgniserregend bez\u00fcglich Datenqualit\u00e4t und m\u00f6glicher Earnings-Quality-Probleme. Zudem ist der Kreuzfahrtsektor strukturell zinssensitiv wegen hoher Verschuldung \u2014 trotz aktuellem expansivem Umfeld k\u00f6nnte jede Verschlechterung der Kreditkonditionen CCL \u00fcberproportional treffen.",
+          "argument_1": "Der Insider-Verkauf von $15M ist ein massives Warnsignal: Wenn Unternehmensinsider trotz eines bereits 25%-igen Kursabsturzes in einem Monat noch verkaufen, signalisiert das, dass das Management selbst keinen kurzfristigen Boden sieht. Strukturelle Probleme wie Treibstoffkosten-Risiken und Konsumenten-Zur\u00fcckhaltung bei Luxusausgaben k\u00f6nnten den Druck weiter verst\u00e4rken.",
+          "argument_2": "CCL als Consumer Cyclical ist extrem sensitiv gegen\u00fcber Konsumentenvertrauen und Kreditverf\u00fcgbarkeit. Selbst in einem expansiven Makro-Umfeld kann eine Verlangsamung der Buchungsaktivit\u00e4t oder steigende Treibstoffkosten (Fuel Risks laut News explizit erw\u00e4hnt) die Margen stark komprimieren \u2014 der FY2029-Ausblick ist zu weit entfernt, um kurzfristige Kursverluste aufzufangen.",
+          "argument_3": "Die Haiku-Einsch\u00e4tzung identifiziert 'structural_change' \u2014 was darauf hindeutet, dass der Kursverfall nicht nur zyklisch, sondern m\u00f6glicherweise fundamental begr\u00fcndet ist. Ein 25%-Absturz in einem Monat bei gleichzeitigem Insider-Selling k\u00f6nnte Markt-Erwartungen einer echten Revision nach unten widerspiegeln, sodass Puts attraktiver erscheinen als Long-Positionen. Das Cluster-Insider-Kauf-Signal (2 Insider kaufen) ist im Volumen deutlich kleiner als der $15M-Verkauf.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "Kein MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate uninformativ und nicht als Signal zu interpretieren. Bei einem Titel mit 25% Monatsverlust und erh\u00f6hter impliziter Volatilit\u00e4t w\u00e4re ein MC-Ergebnis jedoch kritisch f\u00fcr die Einsch\u00e4tzung des Risk/Reward-Profils. Das Fehlen der Simulation erh\u00f6ht die Unsicherheit erheblich.",
-          "concern_level": "high"
+          "mc_assessment": "0% Hit-Rate ist hier nicht als statistisches Ergebnis zu werten, da kein Quick MC durchgef\u00fchrt wurde \u2014 die Kennzahl ist schlicht nicht verf\u00fcgbar. Die fehlende MC-Simulation erh\u00f6ht die Unsicherheit der Richtungseinsch\u00e4tzung erheblich; ohne Pfad-Daten kann keine robuste Wahrscheinlichkeitsaussage getroffen werden.",
+          "concern_level": "medium"
         },
         "impact": 5,
         "surprise": 6,
         "direction": "BEARISH",
         "bear_case_severity": 7,
         "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt ist zwischen Bull-Run-Narrativ und Insider-Hesitancy gespalten, was eine klare Underreaction auf die negativen Signale erzeugt. Der Cluster aus Insider-Verk\u00e4ufen und Treibstoffrisiken ist noch nicht vollst\u00e4ndig eingepreist. Put-Optionen profitieren von erh\u00f6hter IV nach dem 25%-R\u00fcckgang asymmetrisch, falls weitere Katalysatoren entt\u00e4uschen.",
-        "catalyst": "N\u00e4chstes Earnings-Release oder Guidance-Update f\u00fcr FY2026/FY2027, das Treibstoffkosten-Belastung und Buchungstrends konkretisiert \u2014 erwartet Q2 2026.",
-        "bear_case": "Zwei Insider kaufen gleichzeitig Aktien (Cluster-Buy-Signal), was dem Bearish-Case direkt widerspricht und auf eine m\u00f6gliche \u00dcberreaktion des Marktes sowie eine Stabilisierung des Kurses auf aktuellem Niveau hindeutet.",
-        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0,57%, Fed Funds 3,64%) beg\u00fcnstigt grunds\u00e4tzlich Consumer-Cyclicals und Long-Positionen. Allerdings ist CCL-spezifisch der Bearish-Case durch Insider-Verk\u00e4ufe und Treibstoffrisiken stark genug, um das makro-positive Umfeld zu kontern. Die Haiku-Einsch\u00e4tzung (BEARISH via Puts) bleibt trotz Makro-R\u00fcckenwind g\u00fcltig, da unternehmensspezifische strukturelle Risiken dominieren.",
-        "data_confidence": "low",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte die Kombination aus Insider-Selling und strukturellem Preisverfall als isolierte Ereignisse werten, anstatt als koh\u00e4rentes Signal f\u00fcr weiteren Abw\u00e4rtsdruck. Zwei kleinere Insider-K\u00e4ufe werden gegen einen $15M-Verkauf aufgewogen \u2014 das Netto-Signal bleibt klar bearish. Das expansive Makro-Umfeld verleitet Investoren, zyklische Rebounds zu antizipieren, obwohl sektorspezifische Risiken (Treibstoff, Buchungsr\u00fcckgang) diesen \u00fcberlagern k\u00f6nnten.",
+        "catalyst": "N\u00e4chste Earnings-Revision oder Guidance-Senkung f\u00fcr FY2026 bei schwachen Buchungsdaten oder steigenden Treibstoffkosten",
+        "bear_case": "Ein rascher R\u00fcckgang der \u00d6lpreise und \u00fcberraschend starke Buchungszahlen k\u00f6nnten den Kurs schnell erholen lassen \u2014 Buy-Analysten-Initierungen (Initiating With A Buy in News) k\u00f6nnten kurzfristig Short-Squeezes ausl\u00f6sen.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Zinskurve +0.57%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Consumer Cyclicals. Dennoch ist CCL ein Spezialfall: Der bereits materialisierte 25%-Absturz und das Insider-Selling dominieren das sektorspezifische Risiko. Das Makro mildert die Bearish-Einsch\u00e4tzung leicht, reicht aber nicht aus, um das strukturelle Signal zu \u00fcberstimmen.",
+        "data_confidence": "medium",
         "macro_regime": "expansive",
         "macro_context": {
           "yield_curve": 0.57,
           "regime": "expansive"
         },
-        "direction_conflict": false
+        "direction_conflict": true
       },
       "sector_momentum": {
         "etf": "XLY",
-        "rel_strength": -0.0235
+        "rel_strength": -0.025
       },
-      "final_score": 0.1225,
+      "final_score": 0.1172,
       "time_value_efficiency": {
-        "roi_per_day_pct": 3.0094,
+        "roi_per_day_pct": 2.9562,
         "annualized_roi": null,
         "dte": 16
       },
       "trade_score": {
-        "total": 55,
+        "total": 45,
         "grade": "WATCH \ud83d\udfe0",
         "grade_short": "WATCH",
         "components": {
           "signal_quality": 21.9,
           "options_quality": 30.0,
           "risk_deductions": -12.0,
-          "context_bonus": 15.0
+          "context_bonus": 5.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=6), guter ROI (48%), expansives Makro-Umfeld | Risiken: hohes Bear-Risiko (7/10)",
-        "best_argument_for": "Der Markt ist zwischen Bull-Run-Narrativ und Insider-Hesitancy gespalten, was eine klare Underreaction auf die negativen Signale erzeugt. Der Cluster aus Insider-Verk\u00e4ufen und Treibstoffrisiken ist noch nicht vollst\u00e4ndig eingepreist. Put-Optionen profitieren von erh\u00f6hter IV nach dem 25%-R\u00fcckgang asymmetrisch, falls weitere Katalysatoren entt\u00e4uschen.",
-        "best_argument_against": "Der Insider-Verkauf von USD 15 Mio. ist ein klares Warnsignal: Wenn Unternehmensinsider in gr\u00f6\u00dferem Umfang Aktien ver\u00e4u\u00dfern, w\u00e4hrend der Kurs bereits 25% gefallen ist, deutet dies auf Informationsvorsprung bez\u00fcglich zuk\u00fcnftiger Gesch\u00e4ftsentwicklung hin. Gerade im konsumzyklischen Sektor, wo das diskretion\u00e4re Ausgabenverhalten der Verbraucher stark von Konjunkturerwartungen abh\u00e4ngt, kann ein Insider-Verkauf in dieser Gr\u00f6\u00dfenordnung strukturelle Probleme signalisieren, die noch nicht vollst\u00e4ndig im Kurs reflektiert sind."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=6), guter ROI (47%), expansives Makro-Umfeld | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt k\u00f6nnte die Kombination aus Insider-Selling und strukturellem Preisverfall als isolierte Ereignisse werten, anstatt als koh\u00e4rentes Signal f\u00fcr weiteren Abw\u00e4rtsdruck. Zwei kleinere Insider-K\u00e4ufe werden gegen einen $15M-Verkauf aufgewogen \u2014 das Netto-Signal bleibt klar bearish. Das expansive Makro-Umfeld verleitet Investoren, zyklische Rebounds zu antizipieren, obwohl sektorspezifische Risiken (Treibstoff, Buchungsr\u00fcckgang) diesen \u00fcberlagern k\u00f6nnten.",
+        "best_argument_against": "Der Insider-Verkauf von $15M ist ein massives Warnsignal: Wenn Unternehmensinsider trotz eines bereits 25%-igen Kursabsturzes in einem Monat noch verkaufen, signalisiert das, dass das Management selbst keinen kurzfristigen Boden sieht. Strukturelle Probleme wie Treibstoffkosten-Risiken und Konsumenten-Zur\u00fcckhaltung bei Luxusausgaben k\u00f6nnten den Druck weiter verst\u00e4rken."
       },
       "trade_rank": 2,
       "exit_rules": {
-        "entry_cost": 1.76,
+        "entry_cost": 1.75,
         "take_profit_pct": 50,
-        "take_profit_price": 2.64,
+        "take_profit_price": 2.62,
         "full_profit_pct": 100,
-        "full_profit_price": 3.52,
+        "full_profit_price": 3.5,
         "stop_loss_pct": -40,
-        "stop_loss_price": 1.06,
+        "stop_loss_price": 1.05,
         "time_exit_dte_remaining": 8,
         "time_exit_date": "2026-05-07",
         "time_exit_min_profit_pct": 20
