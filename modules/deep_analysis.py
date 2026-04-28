@@ -1,5 +1,11 @@
 """
-modules/deep_analysis.py v8.1
+modules/deep_analysis.py v8.2
+
+Änderungen v8.2:
+    - FIX: _get_48h_move() nutzt period='10d' und vergleicht volle Handelstage
+      (close[-2] vs close[-4]) statt close[-1] vs close[-3].
+      Vorher: Scanner läuft 15:30 MEZ → close[-1] ist heutiger Intraday → ~0.0
+      Jetzt:  Vergleicht gestrigen Close vs vor-3-Tagen-Close → echte 48h-Bewegung.
 
 Änderungen v8.1:
     - Analysedatum im SYSTEM_PROMPT + ANALYSIS_TEMPLATE (verhindert Jahreszahlen-Halluzination)
@@ -304,12 +310,28 @@ class DeepAnalysis:
             log.error(f"  [{ticker}] Deep Analysis Fehler: {e}")
             return None
 
+    # ── FIX v8.2: 48h-Move Timing ────────────────────────────────────────────
     def _get_48h_move(self, ticker: str) -> float:
+        """
+        Berechnet die Preisbewegung der letzten 2 vollen Handelstage.
+
+        FIX v8.2: Nutzt period='10d' und vergleicht volle Handelstage:
+          close[-2] = gestriger Close (letzter abgeschlossener Tag)
+          close[-4] = vor-3-Tage-Close (48h-Fenster)
+
+        Vorher (v8.1): period='5d', close[-1] vs close[-3]
+          Problem: Scanner läuft um 15:30 MEZ (US-Markt gerade offen),
+          close[-1] ist der aktuelle Intraday-Preis → oft ~0% Veränderung.
+          Ergebnis: Z-Score war immer 0.0 → Mismatch = Impact - 0 = Impact.
+        """
         try:
-            hist  = yf.Ticker(ticker).history(period="5d")
+            hist = yf.Ticker(ticker).history(period="10d")
             close = hist["Close"]
-            if len(close) < 3:
+            if hasattr(close, "iloc"):
+                close = close.squeeze()  # MultiIndex → Series
+            if len(close) < 5:
                 return 0.0
-            return float((close.iloc[-1] - close.iloc[-3]) / close.iloc[-3])
+            # Letzte 2 volle Handelstage vs. 2 Tage davor
+            return float((close.iloc[-2] - close.iloc[-4]) / close.iloc[-4])
         except Exception:
             return 0.0
