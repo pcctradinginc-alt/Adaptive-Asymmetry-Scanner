@@ -1,4 +1,455 @@
 {
   "date": "2026-04-29",
-  "proposals": []
+  "proposals": [
+    {
+      "ticker": "BKR",
+      "strategy": "LONG_CALL",
+      "iv_rank": 46.3,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 70.0,
+        "bid": 1.6,
+        "ask": 1.65,
+        "open_interest": 3344,
+        "implied_vol": 0.35986968261718744,
+        "spread_ratio": 0.0303,
+        "dte": 15
+      },
+      "roi_analysis": {
+        "roi_gross": 1.4044,
+        "roi_net": 1.2842,
+        "spread_pct": 0.0303,
+        "vega_loss": 0.0595,
+        "delta": 0.4213,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 1.65,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 15
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 536039871.4154,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 15,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 70.0,
+            "bid": 1.6,
+            "ask": 1.65,
+            "open_interest": 3344,
+            "implied_vol": 0.35986968261718744,
+            "spread_ratio": 0.0303,
+            "dte": 15
+          },
+          "roi": {
+            "roi_gross": 1.4044,
+            "roi_net": 1.2842,
+            "spread_pct": 0.0303,
+            "vega_loss": 0.0595,
+            "delta": 0.4213,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 1.65,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 15
+          },
+          "annualized_roi": 536039871.4154,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 2.339,
+        "z_score": 0.732,
+        "sigma_30d": 0.0252,
+        "price_move_48h": 0.0184,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6906
+      },
+      "simulation": {
+        "current_price": 68.81,
+        "target_price": 74.31,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0211,
+        "alpha": 0.0037
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Energiesektor steht unter erheblichem Gegenwind durch volatile \u00d6lpreise und geopolitische Unsicherheiten im Nahen Osten. BKR selbst berichtet von Disruptions in Middle East Operations im Q1 2026, was darauf hindeutet, dass ein strukturell wichtiger Markt bereits unter Druck steht. Ein weiterer R\u00fcckgang der Energiepreise k\u00f6nnte Capex-Budgets gro\u00dfer \u00d6lproduzenten belasten und BKRs Auftragseingang in H2 2026 empfindlich treffen.",
+          "argument_2": "Das Jefferies-Kursziel von $80 liegt bei einem aktuellen Preis von $68.81 und damit bereits rund 16% im Upside \u2014 was bedeutet, dass ein Gro\u00dfteil der positiven Neubewertung durch die PT-Erh\u00f6hung und den Q1-Beat m\u00f6glicherweise bereits eingepreist ist. Die 48h-Preisbewegung von -1.8% trotz positiver Nachrichten (Inauguration, PT-Erh\u00f6hung, Q1-Beat) signalisiert, dass der Markt diese Katalysatoren bereits absorbiert hat und kein weiterer Impuls unmittelbar bevorsteht. Dies ist ein klassisches 'Buy the News, Sell the Fact'-Muster.",
+          "argument_3": "Die EPS-Abweichung zwischen yfinance ($2.79) und SEC EDGAR ($3.13) betr\u00e4gt zwar laut Angabe 0%, arithmetisch jedoch ca. 12.3% \u2014 ein erheblicher Unterschied, der Zweifel an der Datenqualit\u00e4t weckt. Wenn die h\u00f6here SEC-Zahl adjustierte Einmaleffekte enth\u00e4lt (z.B. Ver\u00e4u\u00dferungsgewinne, Restrukturierungseffekte), k\u00f6nnte das operative EPS-Bild weniger rosig sein als dargestellt. Investoren k\u00f6nnten diesen Unterschied im n\u00e4chsten Quartal als Entt\u00e4uschung wahrnehmen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt, daher ist 0% schlicht ein technisches Artefakt und keine inhaltliche Aussage. Die fehlende Simulation schr\u00e4nkt die quantitative Absicherung der Thesis ein. Angesichts historischer Volatilit\u00e4t im Energiesektor (~25-35% annualisiert f\u00fcr OFS-Titel) w\u00e4re eine 30d-Hit-Rate von 55-65% realistisch \u2014 das fehlende Modell ist kein positives oder negatives Signal, aber eine Datenl\u00fccke.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt reagierte trotz drei simultaner positiver Katalysatoren mit -1.8%, was auf initiale \u00dcberreaktion auf Makro-Energiesorgen hindeutet. Der Cluster aus 7 Insider-K\u00e4ufen in 14 Tagen ist ein seltenes Signal mit hoher Glaubw\u00fcrdigkeit, da Insider selten koordiniert ohne Information kaufen. Das neue Subsea-Facility st\u00e4rkt BKRs Wettbewerbsposition im North Sea strukturell \u00fcber mehrere Jahre.",
+        "catalyst": "Jefferies PT-Erh\u00f6hung auf $80 kombiniert mit 7-Insider-Kaufcluster und Subsea-Facility-Inauguration als struktureller Wachstumstreiber f\u00fcr North Sea Backlog 2026-2027",
+        "bear_case": "\u00d6lpreisr\u00fcckgang unter $65/Barrel k\u00f6nnte Capex-K\u00fcrzungen bei europ\u00e4ischen und nahost-Kunden ausl\u00f6sen und den Q2/Q3 2026 Auftragseingang substanziell unter Konsenserwartungen dr\u00fccken.",
+        "macro_assessment": "Das expansive Makroumfeld mit steiler Zinskurve (+0.52%) und Fed Funds bei 3.64% beg\u00fcnstigt kapitalintensive Industrietitel wie BKR. Energieunternehmen profitieren von stabilen Finanzierungskosten f\u00fcr Gro\u00dfprojekte. Der Makrokontext unterst\u00fctzt die Bullish-These, gibt jedoch keine Absicherung gegen sektorspezifischen \u00d6lpreisrisiken.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLE",
+        "rel_strength": 0.1269
+      },
+      "final_score": 0.1745,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 8.5613,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 77,
+        "grade": "STRONG BUY \ud83d\udfe2",
+        "grade_short": "STRONG BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (128%), positive Sektor-Relative-St\u00e4rke",
+        "best_argument_for": "Der Markt reagierte trotz drei simultaner positiver Katalysatoren mit -1.8%, was auf initiale \u00dcberreaktion auf Makro-Energiesorgen hindeutet. Der Cluster aus 7 Insider-K\u00e4ufen in 14 Tagen ist ein seltenes Signal mit hoher Glaubw\u00fcrdigkeit, da Insider selten koordiniert ohne Information kaufen. Das neue Subsea-Facility st\u00e4rkt BKRs Wettbewerbsposition im North Sea strukturell \u00fcber mehrere Jahre.",
+        "best_argument_against": "Der Energiesektor steht unter erheblichem Gegenwind durch volatile \u00d6lpreise und geopolitische Unsicherheiten im Nahen Osten. BKR selbst berichtet von Disruptions in Middle East Operations im Q1 2026, was darauf hindeutet, dass ein strukturell wichtiger Markt bereits unter Druck steht. Ein weiterer R\u00fcckgang der Energiepreise k\u00f6nnte Capex-Budgets gro\u00dfer \u00d6lproduzenten belasten und BKRs Auftragseingang in H2 2026 empfindlich treffen."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 1.65,
+        "take_profit_pct": 50,
+        "take_profit_price": 2.47,
+        "full_profit_pct": 100,
+        "full_profit_price": 3.3,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 0.99,
+        "time_exit_dte_remaining": 7,
+        "time_exit_date": "2026-05-08",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "APD",
+      "strategy": "LONG_CALL",
+      "iv_rank": 6.6,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 320.0,
+        "bid": 14.9,
+        "ask": 16.5,
+        "open_interest": 193,
+        "implied_vol": 0.3064644549560547,
+        "spread_ratio": 0.097,
+        "dte": 141
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6336,
+        "roi_net": 0.4121,
+        "spread_pct": 0.097,
+        "vega_loss": 0.0276,
+        "delta": 0.43,
+        "iv_drop_assumed": 0.02,
+        "cost_basis": 16.5,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.12,
+        "dte": 141
+      },
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 1.4431,
+      "all_tiers_tried": [
+        {
+          "tier": "Mid-Term",
+          "dte": 141,
+          "option": {
+            "expiry": "2026-09-18",
+            "strike": 320.0,
+            "bid": 14.9,
+            "ask": 16.5,
+            "open_interest": 193,
+            "implied_vol": 0.3064644549560547,
+            "spread_ratio": 0.097,
+            "dte": 141
+          },
+          "roi": {
+            "roi_gross": 0.6336,
+            "roi_net": 0.4121,
+            "spread_pct": 0.097,
+            "vega_loss": 0.0276,
+            "delta": 0.43,
+            "iv_drop_assumed": 0.02,
+            "cost_basis": 16.5,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.12,
+            "dte": 141
+          },
+          "annualized_roi": 1.4431,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 3.923,
+        "z_score": 0.415,
+        "sigma_30d": 0.0127,
+        "price_move_48h": 0.0053,
+        "eps_drift": 0.0137,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.588
+      },
+      "simulation": {
+        "current_price": 303.87,
+        "target_price": 328.18,
+        "hit_rate": 0.6838,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0184,
+        "alpha": 0.00244
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die EPS-Divergenz zwischen yfinance (14.13) und SEC EDGAR (-1.48) ist ein gravierendes Datenproblem. Ein negatives SEC-EPS w\u00fcrde auf erhebliche Sonderbelastungen oder Restrukturierungskosten hindeuten und macht fundamentale Bewertungsaussagen unzuverl\u00e4ssig. Bei KGV-Analysen k\u00f6nnte APD bei echter Verlustlage massiv \u00fcberbewertet sein.",
+          "argument_2": "Der Samsung-Fab-Vertrag in S\u00fcdkorea ist bereits via offizielle Pressemitteilung und News-Coverage publiziert worden \u2014 der positive Katalysator ist damit \u00f6ffentlich bekannt und d\u00fcrfte bereits eingepreist sein. Industrial-Gas-Vertr\u00e4ge sind zudem langfristig strukturell, generieren aber kurzfristig kaum Kurs-Momentum, da der Revenue-Impact erst \u00fcber Jahre sichtbar wird. Mittelfristige Optionsstrategien (2-6 Monate) profitieren nur bedingt.",
+          "argument_3": "APD operiert im Basic Materials / Industrial Gases Sektor, der stark von Energiepreisen, Rohstoffkosten und globaler Industrienachfrage abh\u00e4ngt. Bei einer m\u00f6glichen Verlangsamung der Halbleiter-Kapitalausgaben (CAPEX-Zyklen bei Samsung k\u00f6nnen verschoben werden) sowie geopolitischen Risiken auf der koreanischen Halbinsel k\u00f6nnte der Vertragswert und die Liefersicherheit in Frage gestellt werden. Die +0.5% 48h-Bewegung suggeriert bereits eine ged\u00e4mpfte Marktreaktion.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate ist nicht interpretierbar als Signal, sondern als Datenl\u00fccke. Ohne Monte-Carlo-Basis ist eine statistische Absicherung der Kurszielprognose nicht m\u00f6glich. Das erh\u00f6ht die Unsicherheit, disqualifiziert den Trade aber nicht automatisch.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt reagiert ged\u00e4mpft, weil Industrial-Gas-Vertr\u00e4ge als langweilig und langsam geltend eingestuft werden, obwohl sie stabile Cashflows sichern. Der 8-fache Insider-Cluster-Kauf innerhalb von 14 Tagen ist ein starkes, aber von Retail oft ignoriertes strukturelles Signal. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Capital-Intensive-Industrials zus\u00e4tzlich.",
+        "catalyst": "Offizieller Vertragsabschluss und Revenue-Guidance-Anhebung im n\u00e4chsten Earnings-Call (Q2 2026) aufgrund des Samsung-Fab-Deals und weiterer Semiconductor-Gas-Vertr\u00e4ge",
+        "bear_case": "EPS-Diskrepanz zwischen Datenbankquellen deutet auf m\u00f6gliche Bilanzrisiken hin; falls das SEC-EPS von -1.48 die reale operative Lage widerspiegelt, ist APD bei $303.87 fundamental erheblich \u00fcberbewertet und jede Kursrally w\u00e4re auf d\u00fcnnem Fundament gebaut.",
+        "macro_assessment": "Das expansive Makro-Umfeld mit steiler Zinskurve (+0.52%) und moderatem Fed Funds Rate (3.64%) beg\u00fcnstigt kapitalintensive Industrials wie APD. Long-Positionen in Basic Materials sind in diesem Regime historisch solide unterst\u00fctzt, da Industrienachfrage und Kreditverf\u00fcgbarkeit positiv korrelieren.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLB",
+        "rel_strength": 0.0706
+      },
+      "final_score": 0.1062,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.2923,
+        "annualized_roi": 1.4431,
+        "dte": 141
+      },
+      "trade_score": {
+        "total": 70,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 23.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (41%), g\u00fcnstige IV (7%)",
+        "best_argument_for": "Der Markt reagiert ged\u00e4mpft, weil Industrial-Gas-Vertr\u00e4ge als langweilig und langsam geltend eingestuft werden, obwohl sie stabile Cashflows sichern. Der 8-fache Insider-Cluster-Kauf innerhalb von 14 Tagen ist ein starkes, aber von Retail oft ignoriertes strukturelles Signal. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Capital-Intensive-Industrials zus\u00e4tzlich.",
+        "best_argument_against": "Die EPS-Divergenz zwischen yfinance (14.13) und SEC EDGAR (-1.48) ist ein gravierendes Datenproblem. Ein negatives SEC-EPS w\u00fcrde auf erhebliche Sonderbelastungen oder Restrukturierungskosten hindeuten und macht fundamentale Bewertungsaussagen unzuverl\u00e4ssig. Bei KGV-Analysen k\u00f6nnte APD bei echter Verlustlage massiv \u00fcberbewertet sein."
+      },
+      "trade_rank": 2,
+      "exit_rules": {
+        "entry_cost": 16.5,
+        "take_profit_pct": 50,
+        "take_profit_price": 24.75,
+        "full_profit_pct": 100,
+        "full_profit_price": 33.0,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 9.9,
+        "time_exit_dte_remaining": 70,
+        "time_exit_date": "2026-07-10",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "BA",
+      "strategy": "LONG_CALL",
+      "iv_rank": 63.5,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 220.0,
+        "bid": 8.05,
+        "ask": 8.65,
+        "open_interest": 5375,
+        "implied_vol": 0.383795224609375,
+        "spread_ratio": 0.0694,
+        "dte": 15
+      },
+      "roi_analysis": {
+        "roi_gross": 1.1767,
+        "roi_net": 0.9437,
+        "spread_pct": 0.0694,
+        "vega_loss": 0.0942,
+        "delta": 0.5721,
+        "iv_drop_assumed": 0.12,
+        "cost_basis": 8.65,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 15
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 10551430.3301,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 15,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 220.0,
+            "bid": 8.05,
+            "ask": 8.65,
+            "open_interest": 5375,
+            "implied_vol": 0.383795224609375,
+            "spread_ratio": 0.0694,
+            "dte": 15
+          },
+          "roi": {
+            "roi_gross": 1.1767,
+            "roi_net": 0.9437,
+            "spread_pct": 0.0694,
+            "vega_loss": 0.0942,
+            "delta": 0.5721,
+            "iv_drop_assumed": 0.12,
+            "cost_basis": 8.65,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 15
+          },
+          "annualized_roi": 10551430.3301,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.474,
+        "z_score": 0.305,
+        "sigma_30d": 0.0242,
+        "price_move_48h": 0.0074,
+        "eps_drift": 0.0079,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.505
+      },
+      "simulation": {
+        "current_price": 222.46,
+        "target_price": 240.25,
+        "hit_rate": 0.6068,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0216,
+        "alpha": 0.00099
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Boeing k\u00e4mpft weiterhin mit tiefgreifenden strukturellen Problemen: Produktionsm\u00e4ngel, FAA-\u00dcberwachung und anhaltende 737 Max-Zertifizierungsauflagen belasten den operativen Betrieb. Eine Bestellung von f\u00fcnf Flugzeugen durch Scat Airlines \u2013 eine kasachische Regionalfluggesellschaft \u2013 ist angesichts des Auftragsbestands von \u00fcber 5.000 Einheiten operativ bedeutungslos und kaum geeignet, die fundamentale Repricing-These zu tragen.",
+          "argument_2": "Die EPS-Diskrepanz zwischen yfinance (4.38) und SEC EDGAR (2.52) deutet auf erhebliche Datenqualit\u00e4tsprobleme hin. Der Headline-EPS spiegelt m\u00f6glicherweise adjustierte Werte wider, w\u00e4hrend der SEC-Wert die tats\u00e4chliche GAAP-Ertragslage zeigt \u2013 ein klassisches Zeichen f\u00fcr earnings quality risk bei Unternehmen in operativer Restrukturierung. Investoren, die auf falsche EPS-Zahlen vertrauen, untersch\u00e4tzen die reale Bewertungsbelastung.",
+          "argument_3": "Der Artikel-Hinweis 'Investors Shouldn't Be Too Comfortable With Boeing's Earnings' signalisiert, dass institutionelle Analysten die Qualit\u00e4t der gemeldeten Gewinne anzweifeln. Kombiniert mit einem -0.7% Preisr\u00fcckgang in 48h trotz positiver Nachrichtenlage (Bestellung, Insider-K\u00e4ufe) zeigt der Markt strukturelle Absorption auf h\u00f6herem Niveau \u2013 ein klassisches bearishes Divergenzsignal.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt. Eine 0%-Hit-Rate bei fehlenden Pfaden ist nicht interpretierbar \u2013 es fehlt schlicht die Simulation. Dies reduziert die statistische Validierbarkeit erheblich und erh\u00f6ht die Unsicherheit bei der Richtungsentscheidung.",
+          "concern_level": "high"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt wertet die Insider-Cluster-K\u00e4ufe und die Scat-Airlines-Bestellung als zu klein ab, untersch\u00e4tzt aber das Signaling-Potenzial von Insider-Aktivit\u00e4t in einer Phase regulatorischer Normalisierung. Die EPS-Divergenz erzeugt kurzfristige Unsicherheit, die eine strukturelle Neubewertung verz\u00f6gert. Das expansive Makro-Umfeld beg\u00fcnstigt industrielle Long-Positionen mittelfristig.",
+        "catalyst": "Insider-Cluster-K\u00e4ufe (5 Insider in 14 Tagen) als Vorl\u00e4ufer einer Q2-2026-Guidance-Anhebung oder positiver FAA-Zertifizierungsfortschritte f\u00fcr die 737 Max-Produktionshochlauf.",
+        "bear_case": "EPS-Qualit\u00e4tsprobleme (GAAP vs. adjusted Divergenz) kombiniert mit anhaltender FAA-Aufsicht und minimaler operativer Relevanz der Scat-Bestellung k\u00f6nnen jegliches bullishes Momentum schnell absorbieren.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0.52%, Fed Funds 3.64%) beg\u00fcnstigt Industrietitel mit zyklischer Erholung. Boeing profitiert von steigenden Defense-Budgets (+2.9% global) und ziviler Luftfahrtnachfrage. Das Makro liefert R\u00fcckenwind, allerdings reichen fundamentale Boeing-spezifische Risiken aus, um diesen Effekt teilweise zu neutralisieren.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.52,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLI",
+        "rel_strength": 0.0337
+      },
+      "final_score": 0.1062,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 6.2913,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 60,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 27.0,
+          "risk_deductions": -10.0,
+          "context_bonus": 25.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (94%), positive Sektor-Relative-St\u00e4rke | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt wertet die Insider-Cluster-K\u00e4ufe und die Scat-Airlines-Bestellung als zu klein ab, untersch\u00e4tzt aber das Signaling-Potenzial von Insider-Aktivit\u00e4t in einer Phase regulatorischer Normalisierung. Die EPS-Divergenz erzeugt kurzfristige Unsicherheit, die eine strukturelle Neubewertung verz\u00f6gert. Das expansive Makro-Umfeld beg\u00fcnstigt industrielle Long-Positionen mittelfristig.",
+        "best_argument_against": "Boeing k\u00e4mpft weiterhin mit tiefgreifenden strukturellen Problemen: Produktionsm\u00e4ngel, FAA-\u00dcberwachung und anhaltende 737 Max-Zertifizierungsauflagen belasten den operativen Betrieb. Eine Bestellung von f\u00fcnf Flugzeugen durch Scat Airlines \u2013 eine kasachische Regionalfluggesellschaft \u2013 ist angesichts des Auftragsbestands von \u00fcber 5.000 Einheiten operativ bedeutungslos und kaum geeignet, die fundamentale Repricing-These zu tragen."
+      },
+      "trade_rank": 3,
+      "exit_rules": {
+        "entry_cost": 8.65,
+        "take_profit_pct": 50,
+        "take_profit_price": 12.98,
+        "full_profit_pct": 100,
+        "full_profit_price": 17.3,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 5.19,
+        "time_exit_dte_remaining": 7,
+        "time_exit_date": "2026-05-08",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
 }
