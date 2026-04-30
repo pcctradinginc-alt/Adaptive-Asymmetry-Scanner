@@ -1,0 +1,305 @@
+{
+  "date": "2026-04-30",
+  "proposals": [
+    {
+      "ticker": "AMZN",
+      "strategy": "LONG_CALL",
+      "iv_rank": 33.2,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 260.0,
+        "bid": 6.8,
+        "ask": 6.95,
+        "open_interest": 36585,
+        "implied_vol": 0.35883209533691407,
+        "spread_ratio": 0.0216,
+        "dte": 14
+      },
+      "roi_analysis": {
+        "roi_gross": 1.4318,
+        "roi_net": 1.3365,
+        "spread_pct": 0.0216,
+        "vega_loss": 0.0521,
+        "delta": 0.4812,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 6.95,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 14
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 4064775336.5925,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 14,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 260.0,
+            "bid": 6.8,
+            "ask": 6.95,
+            "open_interest": 36585,
+            "implied_vol": 0.35883209533691407,
+            "spread_ratio": 0.0216,
+            "dte": 14
+          },
+          "roi": {
+            "roi_gross": 1.4318,
+            "roi_net": 1.3365,
+            "spread_pct": 0.0216,
+            "vega_loss": 0.0521,
+            "delta": 0.4812,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 6.95,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 14
+          },
+          "annualized_roi": 4064775336.5925,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 4.184,
+        "z_score": 0.363,
+        "sigma_30d": 0.0202,
+        "price_move_48h": 0.0074,
+        "eps_drift": 0.1423,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "massive",
+        "quick_mc_hit_rate": 0.5736
+      },
+      "simulation": {
+        "current_price": 258.5,
+        "target_price": 279.18,
+        "hit_rate": 0.664,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0208,
+        "alpha": 0.00196
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der AWS-Backlog von $364B ist zwar beeindruckend, aber Backlog ist keine Revenue-Garantie: Kunden k\u00f6nnen Vertr\u00e4ge renegotiieren, Projekte verz\u00f6gern oder k\u00fcrzen, insbesondere wenn Makro-Unsicherheit zunimmt. Die Umwandlungsrate von Backlog zu tats\u00e4chlichem Revenue ist historisch variabel, und M\u00e4rkte k\u00f6nnten den Backlog bereits vollst\u00e4ndig eingepreist haben, da die Zahl seit Wochen in der Presse kursiert.",
+          "argument_2": "Die EPS-Abweichung zwischen yfinance ($9.45) und SEC EDGAR ($7.17) von 14.2% ist ein erhebliches Datenkvalit\u00e4tsproblem. Wenn der 'Beat' auf Basis der h\u00f6heren, m\u00f6glicherweise fehlerhaften EPS-Zahl kommuniziert wird, k\u00f6nnte eine Korrektur der Erwartungen folgen. Zudem ist der Kurs bereits +0.7% in 48h gestiegen, was darauf hindeutet, dass die gute Nachricht teils schon eingepreist ist.",
+          "argument_3": "AMZN handelt in einem Consumer Cyclical-Sektor, der bei anhaltendem Inflationsdruck (Fed-Inflationsma\u00df auf 2-Jahres-Hoch laut News) besonders empfindlich ist. Bei einer Fed Funds Rate von 3.64% und flacher Zinskurve sind die Kapitalkosten f\u00fcr Amazons massive CapEx-Pl\u00e4ne im AI/Cloud-Bereich weiterhin erh\u00f6ht, was Margin-Expansion-Thesen unter Druck setzt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate von 0% ist nicht aussagekr\u00e4ftig, da kein Monte-Carlo-Lauf durchgef\u00fchrt wurde. Die Abwesenheit von MC-Daten erh\u00f6ht die Unsicherheit der quantitativen Basis erheblich und sollte als Warnsignal f\u00fcr die Modellrobustheit gewertet werden.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt preist den $364B Backlog m\u00f6glicherweise linear ein, untersch\u00e4tzt aber den konvexen Margin-Effekt bei AI-getriebener Workload-Skalierung in AWS. Cluster-Insider-K\u00e4ufe von 5 Personen innerhalb 14 Tagen signalisieren fundiertes internes Vertrauen, das \u00fcber kurzfristige Kursreaktionen hinausgeht. Der strukturelle Shift hin zu langfristigen Cloud-Commitments reduziert Revenue-Volatilit\u00e4t und verdient einen h\u00f6heren Multiplikator.",
+        "catalyst": "AWS Q2-2026 Revenue Report mit Margin-Expansion durch AI-Workload-Mix und m\u00f6gliche Erh\u00f6hung des Jahres-CapEx-Guidance als Confidence-Signal",
+        "bear_case": "Inflationsdruck k\u00f6nnte Fed zu erneuten Zinserh\u00f6hungen zwingen, was Amazons CapEx-intensive AI-Strategie verteuert und Consumer-Spending-Schw\u00e4che den Retail-Segment-Beitrag d\u00e4mpft.",
+        "macro_assessment": "Neutral-Makro mit flacher Kurve (0.50%) ist kein Gegenwind, aber auch kein R\u00fcckenwind. Fed Funds bei 3.64% belastet CapEx-schwere Gesch\u00e4ftsmodelle moderat. AI-Nachfrage als struktureller Treiber \u00fcberwiegt leicht das Zinsrisiko, sodass eine vorsichtig bullishe Haltung vertretbar bleibt.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": 0.1794
+      },
+      "final_score": 0.0911,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 9.5464,
+        "annualized_roi": null,
+        "dte": 14
+      },
+      "trade_score": {
+        "total": 72,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 20.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (134%), g\u00fcnstige IV (33%)",
+        "best_argument_for": "Der Markt preist den $364B Backlog m\u00f6glicherweise linear ein, untersch\u00e4tzt aber den konvexen Margin-Effekt bei AI-getriebener Workload-Skalierung in AWS. Cluster-Insider-K\u00e4ufe von 5 Personen innerhalb 14 Tagen signalisieren fundiertes internes Vertrauen, das \u00fcber kurzfristige Kursreaktionen hinausgeht. Der strukturelle Shift hin zu langfristigen Cloud-Commitments reduziert Revenue-Volatilit\u00e4t und verdient einen h\u00f6heren Multiplikator.",
+        "best_argument_against": "Der AWS-Backlog von $364B ist zwar beeindruckend, aber Backlog ist keine Revenue-Garantie: Kunden k\u00f6nnen Vertr\u00e4ge renegotiieren, Projekte verz\u00f6gern oder k\u00fcrzen, insbesondere wenn Makro-Unsicherheit zunimmt. Die Umwandlungsrate von Backlog zu tats\u00e4chlichem Revenue ist historisch variabel, und M\u00e4rkte k\u00f6nnten den Backlog bereits vollst\u00e4ndig eingepreist haben, da die Zahl seit Wochen in der Presse kursiert."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 6.95,
+        "take_profit_pct": 50,
+        "take_profit_price": 10.43,
+        "full_profit_pct": 100,
+        "full_profit_price": 13.9,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 4.17,
+        "time_exit_dte_remaining": 7,
+        "time_exit_date": "2026-05-08",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "APH",
+      "strategy": "LONG_CALL",
+      "iv_rank": 23.8,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 145.0,
+        "bid": 5.5,
+        "ask": 6.1,
+        "open_interest": 1736,
+        "implied_vol": 0.45532771240234376,
+        "spread_ratio": 0.0984,
+        "dte": 14
+      },
+      "roi_analysis": {
+        "roi_gross": 1.2892,
+        "roi_net": 1.0502,
+        "spread_pct": 0.0984,
+        "vega_loss": 0.0423,
+        "delta": 0.535,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 6.1,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 14
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 134577704.0352,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 14,
+          "option": {
+            "expiry": "2026-05-15",
+            "strike": 145.0,
+            "bid": 5.5,
+            "ask": 6.1,
+            "open_interest": 1736,
+            "implied_vol": 0.45532771240234376,
+            "spread_ratio": 0.0984,
+            "dte": 14
+          },
+          "roi": {
+            "roi_gross": 1.2892,
+            "roi_net": 1.0502,
+            "spread_pct": 0.0984,
+            "vega_loss": 0.0423,
+            "delta": 0.535,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 6.1,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 14
+          },
+          "annualized_roi": 134577704.0352,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 4,
+        "mismatch": 5.664,
+        "z_score": 0.067,
+        "sigma_30d": 0.026,
+        "price_move_48h": 0.0017,
+        "eps_drift": 0.0458,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6088
+      },
+      "simulation": {
+        "current_price": 145.56,
+        "target_price": 160.26,
+        "hit_rate": 0.6182,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0301,
+        "alpha": 0.00137
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "APH hat nach starken Q1-Ergebnissen und positivem Analyst-Coverage bereits eine signifikante Neubewertung erfahren. Der AI-Infrastruktur-Narrativ ist im Halbleiter- und Connectivity-Sektor mittlerweile so weit verbreitet, dass jede positive Einsch\u00e4tzung als bereits eingepreist gelten muss. Der Markt hat AI-Exposure-Plays seit 2024 aggressiv bewertet, und bei einem KGV, das deutlich \u00fcber historischen Normen f\u00fcr Industriekonglomerate liegt, ist das Aufw\u00e4rtspotenzial begrenzt.",
+          "argument_2": "Die EPS-Abweichung zwischen yfinance (5.19) und SEC EDGAR (3.33) betr\u00e4gt faktisch \u00fcber 55% \u2014 die angegebene 4.6% ist rechnerisch falsch. Diese massive Diskrepanz in den Gewinnzahlen untergr\u00e4bt die Datenqualit\u00e4t erheblich. Wenn das EDGAR-EPS korrekt ist, liegt das tats\u00e4chliche KGV deutlich h\u00f6her als vom Markt angenommen, was die Bewertung fundamental in Frage stellt.",
+          "argument_3": "Cluster-Insider-K\u00e4ufe sind ein ambivalentes Signal: Sie k\u00f6nnen echte \u00dcberzeugung widerspiegeln, aber auch koordiniertes Signal-Sending sein. Bei einem Kurs von $145.56 und einem bereits etablierten Post-Earnings-Anstieg besteht die Gefahr, dass kurzfristige Optionspositionen von IV-Crush getroffen werden \u2014 die implizite Volatilit\u00e4t d\u00fcrfte nach dem Earnings Call signifikant gefallen sein, was Long-Optionen strukturell benachteiligt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet keine Modell-Evidenz, nicht 0% Erfolgswahrscheinlichkeit. Die Abwesenheit des MC-Modells ist neutral, jedoch kann keine statistische Validierung des Targets erfolgen. Concern liegt darin, dass ohne quantitative Pfad-Analyse die Risiko-Reward-Sch\u00e4tzung rein qualitativ bleibt.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt bewertet APH prim\u00e4r als diversifizierten Connector-Hersteller, untersch\u00e4tzt aber die strukturelle Margenausweitung durch AI-Datacenter-spezifische Produkte mit h\u00f6herem ASP. Insider-Cluster-K\u00e4ufe nach Earnings deuten auf Management\u00fcberzeugung hin, die \u00fcber das kommunizierte Guidance-Niveau hinausgeht. Die EPS-Diskrepanz verunsichert kurzfristige Algo-Trader, schafft aber Einstiegsgelegenheit f\u00fcr fundamentale Investoren.",
+        "catalyst": "Analyst-Upgrades mit explizitem AI-Infrastructure-Target-Erh\u00f6hung und n\u00e4chste Quartals-Guidance Q2 2026",
+        "bear_case": "Massi EPS-Datendivergenz (EDGAR vs. yfinance) signalisiert m\u00f6gliche Accounting-Komplexit\u00e4t; bei Kl\u00e4rung zugunsten des niedrigeren EDGAR-Werts droht Bewertungskorrektur von 15-20%.",
+        "macro_assessment": "Flache Zinskurve bei 0.50% und Fed Funds Rate von 3.64% repr\u00e4sentiert ein neutrales Makroumfeld ohne klaren R\u00fcckenwind. F\u00fcr AI-Infrastruktur-Plays ist dieses Umfeld akzeptabel, da Capex-Ausgaben von Hyperscalern zinsunempfindlicher sind als konsumgetriebene Sektoren. Kein signifikanter makro\u00f6konomischer Gegenwind, aber auch kein expansiver Boost.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": -0.0393
+      },
+      "final_score": 0.1009,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 7.5014,
+        "annualized_roi": null,
+        "dte": 14
+      },
+      "trade_score": {
+        "total": 57,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 19.6,
+          "options_quality": 27.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=4), guter ROI (105%), g\u00fcnstige IV (24%) | Risiken: Sektor underperformt Markt",
+        "best_argument_for": "Der Markt bewertet APH prim\u00e4r als diversifizierten Connector-Hersteller, untersch\u00e4tzt aber die strukturelle Margenausweitung durch AI-Datacenter-spezifische Produkte mit h\u00f6herem ASP. Insider-Cluster-K\u00e4ufe nach Earnings deuten auf Management\u00fcberzeugung hin, die \u00fcber das kommunizierte Guidance-Niveau hinausgeht. Die EPS-Diskrepanz verunsichert kurzfristige Algo-Trader, schafft aber Einstiegsgelegenheit f\u00fcr fundamentale Investoren.",
+        "best_argument_against": "APH hat nach starken Q1-Ergebnissen und positivem Analyst-Coverage bereits eine signifikante Neubewertung erfahren. Der AI-Infrastruktur-Narrativ ist im Halbleiter- und Connectivity-Sektor mittlerweile so weit verbreitet, dass jede positive Einsch\u00e4tzung als bereits eingepreist gelten muss. Der Markt hat AI-Exposure-Plays seit 2024 aggressiv bewertet, und bei einem KGV, das deutlich \u00fcber historischen Normen f\u00fcr Industriekonglomerate liegt, ist das Aufw\u00e4rtspotenzial begrenzt."
+      },
+      "trade_rank": 2,
+      "exit_rules": {
+        "entry_cost": 6.1,
+        "take_profit_pct": 50,
+        "take_profit_price": 9.15,
+        "full_profit_pct": 100,
+        "full_profit_price": 12.2,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 3.66,
+        "time_exit_dte_remaining": 7,
+        "time_exit_date": "2026-05-08",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
+}
