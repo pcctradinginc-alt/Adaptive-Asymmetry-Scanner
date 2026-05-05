@@ -1,0 +1,155 @@
+{
+  "date": "2026-05-05",
+  "proposals": [
+    {
+      "ticker": "META",
+      "strategy": "LONG_PUT",
+      "iv_rank": 71.1,
+      "iv_gate_applied": false,
+      "direction": "BEARISH",
+      "option": {
+        "expiry": "2026-05-22",
+        "strike": 600.0,
+        "bid": 13.5,
+        "ask": 14.0,
+        "open_interest": 690,
+        "implied_vol": 0.2937692694091796,
+        "spread_ratio": 0.0357,
+        "dte": 16
+      },
+      "roi_analysis": {
+        "roi_gross": 1.9184,
+        "roi_net": 1.5849,
+        "spread_pct": 0.0357,
+        "vega_loss": 0.2621,
+        "delta": 0.5557,
+        "iv_drop_assumed": 0.25,
+        "cost_basis": 14.0,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 16
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 2563734028.8388,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 16,
+          "option": {
+            "expiry": "2026-05-22",
+            "strike": 600.0,
+            "bid": 13.5,
+            "ask": 14.0,
+            "open_interest": 690,
+            "implied_vol": 0.2937692694091796,
+            "spread_ratio": 0.0357,
+            "dte": 16
+          },
+          "roi": {
+            "roi_gross": 1.9184,
+            "roi_net": 1.5849,
+            "spread_pct": 0.0357,
+            "vega_loss": 0.2621,
+            "delta": 0.5557,
+            "iv_drop_assumed": 0.25,
+            "cost_basis": 14.0,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 16
+          },
+          "annualized_roi": 2563734028.8388,
+          "strategy": "LONG_PUT"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 5.597,
+        "z_score": 0.081,
+        "sigma_30d": 0.0304,
+        "price_move_48h": 0.0025,
+        "eps_drift": 0.0022,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.4882
+      },
+      "simulation": {
+        "current_price": 604.05,
+        "target_price": 652.38,
+        "hit_rate": 0.5756,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0237,
+        "alpha": 0.00041
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die EU-Regulierungsdrohung rund um WhatsApp-Interoperabilit\u00e4t ist ein strukturelles Tail-Risk mit erheblichem Margendruck-Potenzial. Sollte die EU Meta zwingen, WhatsApp f\u00fcr Drittanbieter-KI-Chatbots zu \u00f6ffnen, drohen nicht nur Compliance-Kosten in Milliardenh\u00f6he, sondern auch ein Verlust der Datenschutz-Moat, die METs Werbegesch\u00e4ftsmodell fundamental st\u00fctzt. Das aktuelle Hearing deutet darauf hin, dass die Entscheidung zeitnah im Jahr 2026 fallen k\u00f6nnte \u2014 also im direkten Zeithorizont der Trade-Betrachtung.",
+          "argument_2": "Die Diskrepanz zwischen dem yfinance-EPS (36.178) und dem SEC-EDGAR-EPS (27.59) ist trotz der offiziellen 0,2%-Angabe auff\u00e4llig gro\u00df in absoluten Zahlen und deutet auf methodische Unterschiede hin, die die Bewertungsgrundlage verzerren k\u00f6nnten. Hinzu kommen die im News erw\u00e4hnten 'Governance Scrutiny'-Bedenken im Zusammenhang mit dem AI-Bond-Sale: Wenn institutionelle Investoren beginnen, Corporate-Governance-Risiken bei META st\u00e4rker einzupreisen, kann dies zu einem strukturellen Bewertungsabschlag f\u00fchren, der durch fundamentales Gewinnwachstum nur schwer zu kompensieren ist.",
+          "argument_3": "Die massive Capex-Frage ('$500 Billion Capex Question') f\u00fcr BAI (Broad AI) im Jahr 2026 signalisiert, dass der Markt eine Phase intensiver Investitionen und damit potenziell sinkender freier Cashflows einpreisen muss. Insider-K\u00e4ufe sind zwar bullish zu werten, k\u00f6nnen aber auch Konfidenz-Signal einer Unternehmensf\u00fchrung sein, die den eigenen Hype zu st\u00fctzen versucht \u2014 kein verl\u00e4sslicher Contrarian-Indikator in einem Umfeld, in dem AI-Bewertungen zunehmend hinterfragt werden. META ist bereits 9,1% gefallen und ein Bounce ohne strukturellen Katalysator ist statistisch nicht gesichert.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Die 0% Hit-Rate ist das Ergebnis eines nicht durchgef\u00fchrten Quick-MC \u2014 also technisch bedeutungslos, da keine Simulation vorliegt. In Abwesenheit quantitativer Pfadanalyse ist das Signalvertrauen erheblich eingeschr\u00e4nkt. Die -0,2%-Preisbewegung in 48h ist neutral, bietet aber keine statistische Basis f\u00fcr Richtungsaussagen. Das Fehlen dieser Daten erh\u00f6ht die Unsicherheit des Gesamtsetups deutlich.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BEARISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt bewertet das EU-Regulierungsrisiko als juristisches Randthema, untersch\u00e4tzt jedoch die operative Konsequenz bei WhatsApp-\u00d6ffnung f\u00fcr Metas Datenstrategie. Der AI-Bond-Sale und Governance-Fragen deuten auf Kapitalallokationsdruck hin, der in der aktuellen Multiples-Bewertung nicht vollst\u00e4ndig reflektiert ist. Insider-K\u00e4ufe d\u00e4mpfen kurzfristig die Abw\u00e4rtserwartung, k\u00f6nnen aber den strukturellen Regulierungsdruck nicht aufheben.",
+        "catalyst": "EU-Entscheid zur WhatsApp-Interoperabilit\u00e4tspflicht (Digital Markets Act Hearing-Ausgang, voraussichtlich Q3 2026)",
+        "bear_case": "Insider-Kaufcluster (4 K\u00e4ufe in 14 Tagen) signalisiert echte \u00dcberzeugung des Managements in die fundamentale Unterbewertung nach dem 9,1%-R\u00fcckgang \u2014 kombiniert mit weiterhin starkem AI-Monetarisierungspotenzial k\u00f6nnte dies einen nachhaltigen Boden markieren.",
+        "macro_assessment": "Das neutrale Makro-Umfeld (flache Kurve +0,50%, Fed Funds 3,64%) liefert keinen direktionalen Bias, schr\u00e4nkt aber den potenziellen Aufw\u00e4rtsdruck bei zinssensitiven Tech-Multiples ein. Eine leichte Abk\u00fchlung w\u00e4re f\u00fcr hoch bewertete AI-Werte wie META marginal negativ \u2014 das Umfeld verst\u00e4rkt das Regulierungsrisiko, ohne es abzupuffern.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLC",
+        "rel_strength": -0.0342
+      },
+      "final_score": 0.0872,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 9.9056,
+        "annualized_roi": null,
+        "dte": 16
+      },
+      "trade_score": {
+        "total": 48,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 28.0,
+          "risk_deductions": -12.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (158%) | Risiken: hohes Bear-Risiko (7/10), Sektor underperformt Markt",
+        "best_argument_for": "Der Markt bewertet das EU-Regulierungsrisiko als juristisches Randthema, untersch\u00e4tzt jedoch die operative Konsequenz bei WhatsApp-\u00d6ffnung f\u00fcr Metas Datenstrategie. Der AI-Bond-Sale und Governance-Fragen deuten auf Kapitalallokationsdruck hin, der in der aktuellen Multiples-Bewertung nicht vollst\u00e4ndig reflektiert ist. Insider-K\u00e4ufe d\u00e4mpfen kurzfristig die Abw\u00e4rtserwartung, k\u00f6nnen aber den strukturellen Regulierungsdruck nicht aufheben.",
+        "best_argument_against": "Die EU-Regulierungsdrohung rund um WhatsApp-Interoperabilit\u00e4t ist ein strukturelles Tail-Risk mit erheblichem Margendruck-Potenzial. Sollte die EU Meta zwingen, WhatsApp f\u00fcr Drittanbieter-KI-Chatbots zu \u00f6ffnen, drohen nicht nur Compliance-Kosten in Milliardenh\u00f6he, sondern auch ein Verlust der Datenschutz-Moat, die METs Werbegesch\u00e4ftsmodell fundamental st\u00fctzt. Das aktuelle Hearing deutet darauf hin, dass die Entscheidung zeitnah im Jahr 2026 fallen k\u00f6nnte \u2014 also im direkten Zeithorizont der Trade-Betrachtung."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 14.0,
+        "take_profit_pct": 50,
+        "take_profit_price": 21.0,
+        "full_profit_pct": 100,
+        "full_profit_price": 28.0,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 8.4,
+        "time_exit_dte_remaining": 8,
+        "time_exit_date": "2026-05-14",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
+}
