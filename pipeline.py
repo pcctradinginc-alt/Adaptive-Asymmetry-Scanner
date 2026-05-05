@@ -8,6 +8,9 @@ v8.2 Änderungen:
   - NEU Stufe 10b: Korrelations-Check
     Verhindert Sektor-Konzentration (z.B. 3× Halbleiter am selben Tag).
     Entfernt das schwächere Signal bei Korrelation > 0.75.
+  - FIX: stats werden jetzt auch an _send_trade_email durchgereicht,
+    damit Funnel-Zahlen in der Email erscheinen wenn ein Score-48-Trade
+    aussortiert wird und die Email in den "Kein Trade"-Pfad fällt.
 
 Reihenfolge v8.2:
   1.  Hard-Filter
@@ -252,7 +255,7 @@ def main() -> None:
     reject_stats.clear()
 
     stats = {
-        "vix": None, "candidates": 0, "prescreened": 0,
+        "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
         "pre_mc": 0, "roi_precheck": 0, "analyzed": 0, "mismatch_ok": 0,
         "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
@@ -266,7 +269,9 @@ def main() -> None:
             proposals = _proposals_ref[0] if len(_proposals_ref) > 0 else []
             if proposals:
                 from modules.email_reporter import send_email as _send_trade_email
-                _send_trade_email(proposals, today)
+                # FIX v8.2: stats durchreichen, damit Funnel auch dann
+                # korrekt erscheint, wenn Trade nachträglich am >=50-Filter scheitert
+                _send_trade_email(proposals, today, stats)
             else:
                 send_status_email(stats, today)
         except Exception as e:
@@ -285,7 +290,16 @@ def main() -> None:
 
     # ── STUFE 1: Hard-Filter ─────────────────────────────────────────────────
     log.info("Stufe 1: Hard-Filter (Cap>2B, Vol>1M, RV>0.6)")
-    candidates = DataIngestion(history=history).run()
+    ingestion  = DataIngestion(history=history)
+    candidates = ingestion.run()
+    # FIX v8.2: Universumsgröße aus DataIngestion holen (falls verfügbar),
+    # sonst Fallback auf candidates-Anzahl. Greift auf typische Attributnamen zu.
+    stats["universe"] = (
+        getattr(ingestion, "universe_size", None)
+        or getattr(ingestion, "n_universe", None)
+        or getattr(ingestion, "universe_count", None)
+        or len(candidates)
+    )
     stats["candidates"] = len(candidates)
     if not candidates:
         stats["stop_reason"] = "Keine Kandidaten nach Hard-Filter."
