@@ -5,6 +5,8 @@ modules/email_reporter.py v8.2
     - Integration der Exit-Regeln (Take-Profit, Stop-Loss, Time-Exit)
     - Textlimit: [:700] für Best Argument For/Against
     - Score-Schwelle für Email: >= 50
+    - Fix: pipeline_stats werden auch im "Kein Trade"-Fall durchgereicht
+    - Fix: Universumsgröße wird aus stats gelesen (nicht mehr hartcodiert)
 """
 
 import logging
@@ -26,7 +28,8 @@ def send_status_email(pipeline_stats: dict, today: str) -> None:
     html = _build_status_email(pipeline_stats, today)
     _send_smtp(subject, html)
 
-def send_email(proposals: list[dict], today: str) -> None:
+def send_email(proposals: list[dict], today: str, pipeline_stats: dict | None = None) -> None:
+    pipeline_stats = pipeline_stats or {}
     # Nur Trades mit Score >= 50 in der Email
     proposals = [p for p in proposals 
                  if p.get("trade_score", {}).get("total", 0) >= 50]
@@ -34,7 +37,9 @@ def send_email(proposals: list[dict], today: str) -> None:
         html    = _build_trade_email(proposals, today)
         subject = f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
     else:
-        html    = _build_status_email({"trades": 0}, today)
+        # Pipeline-Stats durchreichen, damit Funnel-Zahlen in der Email landen
+        stats   = {**pipeline_stats, "trades": 0}
+        html    = _build_status_email(stats, today)
         subject = f"Adaptive Asymmetry-Scanner – Kein Trade – {today}"
     _send_smtp(subject, html)
 
@@ -47,7 +52,7 @@ def _build_status_email(stats: dict, today: str) -> str:
     status_text = "Trade Empfehlung" if trades > 0 else "Kein Trade heute"
 
     funnel = [
-        ("498 Ticker im Universum", "📋", True),
+        (f"{stats.get('universe', 0)} Ticker im Universum", "📋", True),
         (f"{stats.get('candidates', 0)} nach Hard-Filter (Cap>2B, Vol>1M)", "🔍", stats.get("candidates", 0) > 0),
         (f"{stats.get('prescreened', 0)} nach Prescreening (Haiku)", "🤖", stats.get("prescreened", 0) > 0),
         (f"{stats.get('roi_precheck', 0)} nach ROI Pre-Check", "💰", stats.get("roi_precheck", 0) > 0),
