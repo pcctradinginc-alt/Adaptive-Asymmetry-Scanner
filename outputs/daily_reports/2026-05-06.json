@@ -1,0 +1,305 @@
+{
+  "date": "2026-05-06",
+  "proposals": [
+    {
+      "ticker": "GOOG",
+      "strategy": "LONG_CALL",
+      "iv_rank": 80.0,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-22",
+        "strike": 390.0,
+        "bid": 11.55,
+        "ask": 12.35,
+        "open_interest": 4042,
+        "implied_vol": 0.31342239318847653,
+        "spread_ratio": 0.0648,
+        "dte": 15
+      },
+      "roi_analysis": {
+        "roi_gross": 1.4254,
+        "roi_net": 1.0965,
+        "spread_pct": 0.0648,
+        "vega_loss": 0.1994,
+        "delta": 0.5599,
+        "iv_drop_assumed": 0.25,
+        "cost_basis": 12.35,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 15
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 66533711.5162,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 15,
+          "option": {
+            "expiry": "2026-05-22",
+            "strike": 390.0,
+            "bid": 11.55,
+            "ask": 12.35,
+            "open_interest": 4042,
+            "implied_vol": 0.31342239318847653,
+            "spread_ratio": 0.0648,
+            "dte": 15
+          },
+          "roi": {
+            "roi_gross": 1.4254,
+            "roi_net": 1.0965,
+            "spread_pct": 0.0648,
+            "vega_loss": 0.1994,
+            "delta": 0.5599,
+            "iv_drop_assumed": 0.25,
+            "cost_basis": 12.35,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 15
+          },
+          "annualized_roi": 66533711.5162,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.441,
+        "z_score": 0.112,
+        "sigma_30d": 0.0245,
+        "price_move_48h": 0.0027,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6684
+      },
+      "simulation": {
+        "current_price": 392.96,
+        "target_price": 424.4,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0193,
+        "alpha": 0.00325
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der 'Anthropic-Deal-Spillover' ist ein narrativer Proxy-Trade mit schwacher Kausalit\u00e4t: Google ist bereits tief in Anthropic investiert, und der Markt kennt diese Partnerschaft seit 2023. Der Effekt d\u00fcrfte l\u00e4ngst eingepreist sein \u2014 ein klassisches 'buy the rumor, sold the news'-Muster, das bei AI-Hype-Narrativen wiederholt zu beobachten war.",
+          "argument_2": "Googles Kerngesch\u00e4ft (Search-Advertising) steht unter strukturellem Druck durch AI-generierte Suchergebnisse, die CPCs und Click-Through-Rates senken k\u00f6nnten. Wenn Googles eigene KI-Produkte den Werbekanal kannibalisieren, ist die AI-Compute-These ein zweischneidiges Schwert \u2014 Revenue-Wachstum k\u00f6nnte trotz technologischem Fortschritt entt\u00e4uschen.",
+          "argument_3": "Cathie Woods ARK-K\u00e4ufe sind historisch ein schlechter Kontr\u00e4r-Indikator und kein Alpha-Signal. Bei einem Preis von ~$393 und einem Trailing-EPS von ~$13-14 handelt GOOG mit einem KGV von ~28-30x \u2014 nicht g\u00fcnstig f\u00fcr ein reifes Unternehmen in einem Umfeld mit 4.32% 10Y-Renditen, wo der Diskontierungseffekt auf High-Multiple-Namen signifikant ist.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate von 0% bedeutet hier schlicht 'kein MC durchgef\u00fchrt', nicht eine echte Null-Wahrscheinlichkeit. Ohne MC-Daten fehlt die quantitative Basis f\u00fcr eine Pfadanalyse. Das Fehlen dieser Statistik erh\u00f6ht Unsicherheit, ist aber kein disqualifizierendes Signal per se \u2014 die fundamentale und nachrichtenbasierte Analyse muss st\u00e4rker gewichtet werden.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt behandelt Google prim\u00e4r als Advertising-Unternehmen, untersch\u00e4tzt aber den Leverage auf AI-Infrastruktur via TPU-Cloudkapazit\u00e4t und Gemini-Monetarisierung. Insider-Cluster-K\u00e4ufe in Kombination mit steigender AI-Compute-Nachfrage deuten auf nicht-\u00f6ffentlich bekannte Wachstumsbeschleunigung hin. Das neutrale Makroumfeld mit flacher Kurve und moderaten Zinsen belastet High-Multiple-Namen weniger als in inversionsphasen.",
+        "catalyst": "Q2 2026 Earnings (erwarteter Termin Juli 2026) mit AI-Cloud-Revenue-Beschleunigung und m\u00f6glicher Erh\u00f6hung der Compute-Guidance",
+        "bear_case": "Strukturelle Kannibalisierung des Search-Ad-Gesch\u00e4fts durch eigene KI-Produkte bei gleichzeitig hohem Capex-Druck k\u00f6nnte Margenkompression ausl\u00f6sen und das Multiple weiter unter Druck setzen.",
+        "macro_assessment": "Neutrale Makrolage mit flacher Zinskurve (+0.50%) und Fed Funds Rate von 3.64% ist moderat konstruktiv f\u00fcr Growth-Aktien. Der 10Y bei 4.32% \u00fcbt weiterhin leichten Druck auf DCF-basierte Bewertungen aus, ist aber kein dominanter Gegenwind. \u00d6lpreisr\u00fcckgang durch m\u00f6gliche Nahost-Entspannung st\u00fctzt den breiten Markt und reduziert Stagflationsrisiko \u2014 per Saldo leicht bullisher Kontext f\u00fcr GOOG.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLC",
+        "rel_strength": 0.2496
+      },
+      "final_score": 0.0815,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 7.31,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 63,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 27.0,
+          "risk_deductions": -2.0,
+          "context_bonus": 20.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (110%), positive Sektor-Relative-St\u00e4rke",
+        "best_argument_for": "Der Markt behandelt Google prim\u00e4r als Advertising-Unternehmen, untersch\u00e4tzt aber den Leverage auf AI-Infrastruktur via TPU-Cloudkapazit\u00e4t und Gemini-Monetarisierung. Insider-Cluster-K\u00e4ufe in Kombination mit steigender AI-Compute-Nachfrage deuten auf nicht-\u00f6ffentlich bekannte Wachstumsbeschleunigung hin. Das neutrale Makroumfeld mit flacher Kurve und moderaten Zinsen belastet High-Multiple-Namen weniger als in inversionsphasen.",
+        "best_argument_against": "Der 'Anthropic-Deal-Spillover' ist ein narrativer Proxy-Trade mit schwacher Kausalit\u00e4t: Google ist bereits tief in Anthropic investiert, und der Markt kennt diese Partnerschaft seit 2023. Der Effekt d\u00fcrfte l\u00e4ngst eingepreist sein \u2014 ein klassisches 'buy the rumor, sold the news'-Muster, das bei AI-Hype-Narrativen wiederholt zu beobachten war."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 12.35,
+        "take_profit_pct": 50,
+        "take_profit_price": 18.52,
+        "full_profit_pct": 100,
+        "full_profit_price": 24.7,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 7.41,
+        "time_exit_dte_remaining": 7,
+        "time_exit_date": "2026-05-15",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "AMCR",
+      "strategy": "LONG_CALL",
+      "iv_rank": 83.5,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-10-16",
+        "strike": 40.0,
+        "bid": 3.9,
+        "ask": 4.2,
+        "open_interest": 152,
+        "implied_vol": 0.33423517333984376,
+        "spread_ratio": 0.0714,
+        "dte": 162
+      },
+      "roi_analysis": {
+        "roi_gross": 0.4622,
+        "roi_net": 0.2517,
+        "spread_pct": 0.0714,
+        "vega_loss": 0.0677,
+        "delta": 0.5901,
+        "iv_drop_assumed": 0.08,
+        "cost_basis": 4.2,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.1,
+        "dte": 162
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.6584,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 162,
+          "option": {
+            "expiry": "2026-10-16",
+            "strike": 40.0,
+            "bid": 3.9,
+            "ask": 4.2,
+            "open_interest": 152,
+            "implied_vol": 0.33423517333984376,
+            "spread_ratio": 0.0714,
+            "dte": 162
+          },
+          "roi": {
+            "roi_gross": 0.4622,
+            "roi_net": 0.2517,
+            "spread_pct": 0.0714,
+            "vega_loss": 0.0677,
+            "delta": 0.5901,
+            "iv_drop_assumed": 0.08,
+            "cost_basis": 4.2,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.1,
+            "dte": 162
+          },
+          "annualized_roi": 0.6584,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.506,
+        "z_score": 0.099,
+        "sigma_30d": 0.0295,
+        "price_move_48h": 0.0029,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.4832
+      },
+      "simulation": {
+        "current_price": 41.05,
+        "target_price": 44.34,
+        "hit_rate": 0.5866,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0226,
+        "alpha": 0.0008
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "AMCR ist als Verpackungsunternehmen strukturell dem Konsumg\u00fctersektor ausgesetzt, der unter anhaltendem Margendruck durch Rohstoffkosten (Harz, Aluminium) leidet. Der Verkauf von zwei US-Produktionsanlagen an Closure Systems signalisiert m\u00f6glicherweise einen strategischen R\u00fcckzug aus marginschwachen Segmenten, was kurzfristig Einmalbelastungen und Restrukturierungskosten mit sich bringen kann.",
+          "argument_2": "Der EPS-Diskrepanz zwischen yfinance (4.36) und SEC EDGAR (1.33) ist ein erhebliches Datenkonfidenz-Warnsignal. Q3-Earnings matchten lediglich die Sch\u00e4tzungen, ohne positiv zu \u00fcberraschen \u2014 der Revenue-Beat und die angehobene Guidance k\u00f6nnten bereits durch die kurzfristige Preisreaktion vollst\u00e4ndig eingepreist sein, zumal die 48h-Bewegung mit -0.3% neutral bis leicht negativ ausf\u00e4llt, was auf fehlende \u00dcberzeugung beim Markt hindeutet.",
+          "argument_3": "Der Consumer Cyclical Sektor ist bei einem Fed Funds Rate von 3.64% und einem 10Y Treasury von 4.32% strukturell unter Druck, da h\u00f6here Kapitalkosten Investitionsentscheidungen bei Konsumenten und Industrie bremsen. AMCR als Zulieferer ist indirekt von Volumenr\u00fcckg\u00e4ngen bei Endkunden abh\u00e4ngig; ein Cluster-Insider-Kauf allein ist kein hinreichendes Bullish-Signal, wenn das operative Momentum durch Anlagenverk\u00e4ufe und flaches EPS-Wachstum relativiert wird.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate resultiert aus fehlendem Quick-MC-Durchlauf, nicht aus einem negativen Modellsignal. Die Abwesenheit statistischer Evidenz erh\u00f6ht die Unsicherheit erheblich und zwingt zu gr\u00f6\u00dferer Vorsicht bei der Einsch\u00e4tzung der Upside-Wahrscheinlichkeit. Bei AMCR mit historisch moderater Volatilit\u00e4t w\u00e4re eine realistische Hit-Rate im Bereich 45-60% f\u00fcr bullische Pfade \u00fcber 30 Tage zu erwarten.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt verarbeitet Revenue-Beat und Guidance-Anhebung verz\u00f6gert, da AMCR als Verpackungs-Utility-\u00e4hnlicher Titel wenig Analyst-Coverage-Momentum erzeugt. Neun Insider-K\u00e4ufe im 14-Tage-Cluster signalisieren internen Optimismus vor weiteren Katalysatoren. Der Anlagenverkauf reduziert kurzfristig Kapitalintensit\u00e4t und k\u00f6nnte Bilanzverbesserungen mit sich bringen.",
+        "catalyst": "Angehobene Jahresguidance Q3 2026 kombiniert mit Insider-Cluster-Kauf als vorgelagertes Signal f\u00fcr operative Margenverbesserung",
+        "bear_case": "EPS-Diskrepanz zwischen Datensources und fehlende positive Earnings-\u00dcberraschung deuten darauf hin, dass der Markt die Guidance-Anhebung als konservativ einsch\u00e4tzt und weiteres Upside bereits begrenzt ist.",
+        "macro_assessment": "Neutrales Makro-Umfeld mit flacher Kurve (+0.50%) ist f\u00fcr AMCR weder R\u00fccken- noch Gegenwind. Bei 4.32% 10Y-Yield bleibt Dividenden-orientiertes Kapital in Anleihen konkurrenzf\u00e4hig, was die relative Attraktivit\u00e4t von AMCR als Yield-Titel begrenzt. Kein strukturelles Makro-Veto, aber auch kein Tailwind.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": -0.0501
+      },
+      "final_score": 0.0815,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.1554,
+        "annualized_roi": 0.6584,
+        "dte": 162
+      },
+      "trade_score": {
+        "total": 47,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 21.1,
+          "risk_deductions": -2.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (25%) | Risiken: Sektor underperformt Markt",
+        "best_argument_for": "Der Markt verarbeitet Revenue-Beat und Guidance-Anhebung verz\u00f6gert, da AMCR als Verpackungs-Utility-\u00e4hnlicher Titel wenig Analyst-Coverage-Momentum erzeugt. Neun Insider-K\u00e4ufe im 14-Tage-Cluster signalisieren internen Optimismus vor weiteren Katalysatoren. Der Anlagenverkauf reduziert kurzfristig Kapitalintensit\u00e4t und k\u00f6nnte Bilanzverbesserungen mit sich bringen.",
+        "best_argument_against": "AMCR ist als Verpackungsunternehmen strukturell dem Konsumg\u00fctersektor ausgesetzt, der unter anhaltendem Margendruck durch Rohstoffkosten (Harz, Aluminium) leidet. Der Verkauf von zwei US-Produktionsanlagen an Closure Systems signalisiert m\u00f6glicherweise einen strategischen R\u00fcckzug aus marginschwachen Segmenten, was kurzfristig Einmalbelastungen und Restrukturierungskosten mit sich bringen kann."
+      },
+      "trade_rank": 2,
+      "exit_rules": {
+        "entry_cost": 4.2,
+        "take_profit_pct": 50,
+        "take_profit_price": 6.3,
+        "full_profit_pct": 100,
+        "full_profit_price": 8.4,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 2.52,
+        "time_exit_dte_remaining": 81,
+        "time_exit_date": "2026-07-27",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
+}
