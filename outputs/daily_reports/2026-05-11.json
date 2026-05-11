@@ -1,0 +1,155 @@
+{
+  "date": "2026-05-11",
+  "proposals": [
+    {
+      "ticker": "AVGO",
+      "strategy": "LONG_CALL",
+      "iv_rank": 31.1,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-05-29",
+        "strike": 420.0,
+        "bid": 24.35,
+        "ask": 25.45,
+        "open_interest": 1406,
+        "implied_vol": 0.5131274273681641,
+        "spread_ratio": 0.0432,
+        "dte": 17
+      },
+      "roi_analysis": {
+        "roi_gross": 0.9886,
+        "roi_net": 0.8661,
+        "spread_pct": 0.0432,
+        "vega_loss": 0.036,
+        "delta": 0.6049,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 25.45,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 17
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 656343.655,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 17,
+          "option": {
+            "expiry": "2026-05-29",
+            "strike": 420.0,
+            "bid": 24.35,
+            "ask": 25.45,
+            "open_interest": 1406,
+            "implied_vol": 0.5131274273681641,
+            "spread_ratio": 0.0432,
+            "dte": 17
+          },
+          "roi": {
+            "roi_gross": 0.9886,
+            "roi_net": 0.8661,
+            "spread_pct": 0.0432,
+            "vega_loss": 0.036,
+            "delta": 0.6049,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 25.45,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 17
+          },
+          "annualized_roi": 656343.655,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 3.987,
+        "z_score": 0.403,
+        "sigma_30d": 0.0266,
+        "price_move_48h": 0.0107,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6444
+      },
+      "simulation": {
+        "current_price": 429.92,
+        "target_price": 471.51,
+        "hit_rate": 0.6704,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0288,
+        "alpha": 0.00261
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Headline 'Parabolic Semiconductor Rally Is Pricing In 2028 Already' ist ein massives Warnsignal: AVGO bei $429.92 handelt m\u00f6glicherweise bereits weit \u00fcber fairen Wert f\u00fcr 2026-Fundamentaldaten. Wenn der Markt 2028-Gewinne diskontiert, ist das Aufw\u00e4rtspotenzial strukturell begrenzt und Entt\u00e4uschungsrisiko bei jedem Katalysator erheblich.",
+          "argument_2": "Die krasse EPS-Diskrepanz zwischen yfinance ($18.12) und SEC EDGAR ($5.12) deutet auf massive Goodwill-Amortisierungen, Akquisitionseffekte oder Non-GAAP-Adjustierungen hin. Ein KGV auf GAAP-Basis von ~84x bei einem Makroumfeld mit 4.32% 10Y-Rendite ist fundamental schwer zu rechtfertigen \u2014 jede Zinserwartungsverschiebung nach oben dr\u00fcckt den fairen Wert signifikant.",
+          "argument_3": "Der 'Nvidia caution into earnings'-Kontext ist ein zweischneidiges Schwert: Wenn Nvidia entt\u00e4uscht oder Guidance schw\u00e4cht, wird AVGO als AI-Proxy mit abgestraft \u2014 unabh\u00e4ngig von eigenen Fundamentaldaten. Der AI-Surge-Narrative ist ein Sentiment-getriebenes Signal, kein strukturelles, und Cluster-Insider-K\u00e4ufe k\u00f6nnen auch als Bodenbildung nach einem R\u00fccksetzer interpretiert werden, nicht zwingend als bullishes Momentum-Signal.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet keine Datenbasis, nicht 'keine Chance'. Ohne MC-Statistik fehlt quantitative Absicherung der Upside-Wahrscheinlichkeit. Bei einem Titel mit ~35-45% impliziter Volatilit\u00e4t (Semiconductor-Sektor) w\u00e4ren realistische 30d-Hit-Rates auf ein definiertes Kursziel zwischen 45-65% zu erwarten. Die fehlenden Daten erh\u00f6hen Unsicherheit erheblich.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt fokussiert auf Nvidia-Risiken und \u00fcbersieht AVGOs eigene Earnings-Katalysatoren sowie Insider-Cluster-Signale. Die Diskrepanz zwischen GAAP und Non-GAAP EPS verschleiert die operative St\u00e4rke im AI-Networking-Segment. Sieben Insider-K\u00e4ufe in 14 Tagen sind ein statistisch signifikantes Signal, das kurzfristig oft zu Underreaction f\u00fchrt.",
+        "catalyst": "AVGO n\u00e4chster Earnings-Report (voraussichtlich Q2 2026) mit AI-Networking-Segment-Guidance als prim\u00e4rer Katalysator; sekund\u00e4r Nvidia-Earnings-Reaktion als Proxy-Sentiment-Treiber",
+        "bear_case": "Parabolic AI-Valuations bereits 2028-Gewinne einpreisend \u2014 jede Guidance-Entt\u00e4uschung oder Nvidia-Schw\u00e4che l\u00f6st multiple Compression aus, GAAP-KGV ~84x bietet kein Puffer",
+        "macro_assessment": "Neutrales Makroumfeld (Kurve +48bp, Fed Funds 3.64%) ist weder Gegenwind noch R\u00fcckenwind. Die 10Y-Rendite bei 4.32% belastet hochmultiple Wachstumstitel moderat \u2014 bei einem KGV-Expansion-Trade ist dies ein strukturelles Hindernis, aber kein Deal-Breaker. Solange keine Rezessionssignale, bleibt der Technologie-Sektor grunds\u00e4tzlich supportiert.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.48,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.0319
+      },
+      "final_score": 0.0791,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 5.0947,
+        "annualized_roi": null,
+        "dte": 17
+      },
+      "trade_score": {
+        "total": 62,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 21.9,
+          "options_quality": 30.0,
+          "risk_deductions": -10.0,
+          "context_bonus": 20.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (87%), g\u00fcnstige IV (31%) | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt fokussiert auf Nvidia-Risiken und \u00fcbersieht AVGOs eigene Earnings-Katalysatoren sowie Insider-Cluster-Signale. Die Diskrepanz zwischen GAAP und Non-GAAP EPS verschleiert die operative St\u00e4rke im AI-Networking-Segment. Sieben Insider-K\u00e4ufe in 14 Tagen sind ein statistisch signifikantes Signal, das kurzfristig oft zu Underreaction f\u00fchrt.",
+        "best_argument_against": "Der Headline 'Parabolic Semiconductor Rally Is Pricing In 2028 Already' ist ein massives Warnsignal: AVGO bei $429.92 handelt m\u00f6glicherweise bereits weit \u00fcber fairen Wert f\u00fcr 2026-Fundamentaldaten. Wenn der Markt 2028-Gewinne diskontiert, ist das Aufw\u00e4rtspotenzial strukturell begrenzt und Entt\u00e4uschungsrisiko bei jedem Katalysator erheblich."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 25.45,
+        "take_profit_pct": 50,
+        "take_profit_price": 38.17,
+        "full_profit_pct": 100,
+        "full_profit_price": 50.9,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 15.27,
+        "time_exit_dte_remaining": 8,
+        "time_exit_date": "2026-05-21",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
+}
