@@ -111,9 +111,10 @@ def _fetch_macro_data() -> dict:
         "fetched_at":         datetime.utcnow().isoformat(),
     }
 
+    fed_str = f"{fedfunds:.2f}%" if fedfunds is not None else "Nicht verfügbar"
     log.info(
         f"Makro-Kontext geladen: Yield Curve={yc_desc} | "
-        f"Fed={fedfunds:.2f}% | Regime={macro_regime}"
+        f"Fed={fed_str} | Regime={macro_regime}"
     )
 
     return result
