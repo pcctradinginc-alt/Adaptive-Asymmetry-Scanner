@@ -1,0 +1,155 @@
+{
+  "date": "2026-05-13",
+  "proposals": [
+    {
+      "ticker": "META",
+      "strategy": "LONG_PUT",
+      "iv_rank": 48.0,
+      "iv_gate_applied": false,
+      "direction": "BEARISH",
+      "option": {
+        "expiry": "2026-05-29",
+        "strike": 600.0,
+        "bid": 11.9,
+        "ask": 12.5,
+        "open_interest": 1285,
+        "implied_vol": 0.3248053359985351,
+        "spread_ratio": 0.048,
+        "dte": 15
+      },
+      "roi_analysis": {
+        "roi_gross": 2.336,
+        "roi_net": 2.1781,
+        "spread_pct": 0.048,
+        "vega_loss": 0.062,
+        "delta": 0.5996,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 12.5,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 15
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 1657336082110.0369,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 15,
+          "option": {
+            "expiry": "2026-05-29",
+            "strike": 600.0,
+            "bid": 11.9,
+            "ask": 12.5,
+            "open_interest": 1285,
+            "implied_vol": 0.3248053359985351,
+            "spread_ratio": 0.048,
+            "dte": 15
+          },
+          "roi": {
+            "roi_gross": 2.336,
+            "roi_net": 2.1781,
+            "spread_pct": 0.048,
+            "vega_loss": 0.062,
+            "delta": 0.5996,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 12.5,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 15
+          },
+          "annualized_roi": 1657336082110.0369,
+          "strategy": "LONG_PUT"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 5,
+        "mismatch": 2.19,
+        "z_score": 0.362,
+        "sigma_30d": 0.03,
+        "price_move_48h": 0.0109,
+        "eps_drift": 0.0004,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.525
+      },
+      "simulation": {
+        "current_price": 608.73,
+        "target_price": 657.43,
+        "hit_rate": 0.5988,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0235,
+        "alpha": 0.00073
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der interne Mitarbeiterprotest gegen Mouse-Tracking ist ein weicher, schwer quantifizierbarer Katalysator. Interne Proteste bei Meta haben historisch selten zu regulatorischen Ma\u00dfnahmen gef\u00fchrt, die materielle finanzielle Auswirkungen hatten. Der Optionsmarkt d\u00fcrfte dieses Risiko bewusst niedrig gewichten, da es keine direkte beh\u00f6rdliche Einleitung gibt und das Signal eher PR-sensitiv als regulatorisch-bindend ist.",
+          "argument_2": "Die EPS-Abweichung zwischen yfinance (36.19) und SEC EDGAR (27.49) ist mit \u00fcber 30% dramatisch und weist auf erhebliche Datenunsicherheit hin. Diese Diskrepanz deutet m\u00f6glicherweise auf unterschiedliche Berechnungsbasen hin, macht aber jede Bewertungsmodellierung unzuverl\u00e4ssig. Ein Trade auf Basis fraglicher EPS-Daten erh\u00f6ht das Modellrisiko erheblich.",
+          "argument_3": "Der Aktienkurs von $608.73 impliziert ein hohes Bewertungsniveau, und ein bearishes Signal durch Regulatory Risk trifft auf einen Markt, der META mit Premium-Multiples bewertet. Sollte das Regulierungsrisiko aus dem Protest eskalieren (EU AI Act, FTC-Schritte), k\u00f6nnte eine schnelle Multiple-Kompression einsetzen. Gleichzeitig schw\u00e4cht das Insider-Kaufcluster (4 K\u00e4ufe in 14 Tagen) die bearishe These erheblich.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick MC durchgef\u00fchrt wurde \u2014 es gibt keine statistische Validierung der Kursrichtung. Bei einem Titel wie META mit impliziter Volatilit\u00e4t von typischerweise 25-35% w\u00e4re eine 30d-Simulation mit klarem Richtungssignal methodisch notwendig. Das Fehlen jeglicher MC-Daten erh\u00f6ht die Unsicherheit und erlaubt keine Aussage \u00fcber Trefferwahrscheinlichkeit.",
+          "concern_level": "high"
+        },
+        "impact": 4,
+        "surprise": 5,
+        "direction": "BEARISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt untersch\u00e4tzt, dass interner Protest bei Tech-Unternehmen als Fr\u00fchindikator f\u00fcr regulatorische Eskalation dienen kann, insbesondere im EU-Kontext. Insider-K\u00e4ufe konterkarieren zwar das Signal, signalisieren aber auch, dass das Management selbst keine unmittelbare materielle Bedrohung sieht. Das eigentliche Risiko liegt in der medialen Verst\u00e4rkung des Protests, die externe Regulatoren aktivieren k\u00f6nnte.",
+        "catalyst": "Regulatorische Einleitung durch EU-Datenschutzbeh\u00f6rden oder FTC basierend auf Mitarbeiter-Whistleblowing zum Mouse-Tracking-Tool",
+        "bear_case": "Vier Insider-K\u00e4ufe innerhalb von 14 Tagen sind ein starkes kontr\u00e4res Signal und deuten darauf hin, dass das Management das Regulatory Risk als begrenzt einsch\u00e4tzt \u2014 dies widerlegt die bearishe These strukturell.",
+        "macro_assessment": "Das neutrale Makro-Umfeld (flache Kurve, Fed Funds bei 3.64%) bietet weder R\u00fccken- noch Gegenwind. Bei einem neutralen Regime ist das idiosynkratische Risiko (Regulierung) der dominante Faktor, allerdings reicht das vorliegende Signal nicht f\u00fcr ein Impact >6, da strukturelle Klarheit fehlt.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.46,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLC",
+        "rel_strength": -0.0186
+      },
+      "final_score": 0.3336,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 14.5207,
+        "annualized_roi": null,
+        "dte": 15
+      },
+      "trade_score": {
+        "total": 58,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=4/Surprise=5), guter ROI (218%)",
+        "best_argument_for": "Der Markt untersch\u00e4tzt, dass interner Protest bei Tech-Unternehmen als Fr\u00fchindikator f\u00fcr regulatorische Eskalation dienen kann, insbesondere im EU-Kontext. Insider-K\u00e4ufe konterkarieren zwar das Signal, signalisieren aber auch, dass das Management selbst keine unmittelbare materielle Bedrohung sieht. Das eigentliche Risiko liegt in der medialen Verst\u00e4rkung des Protests, die externe Regulatoren aktivieren k\u00f6nnte.",
+        "best_argument_against": "Der interne Mitarbeiterprotest gegen Mouse-Tracking ist ein weicher, schwer quantifizierbarer Katalysator. Interne Proteste bei Meta haben historisch selten zu regulatorischen Ma\u00dfnahmen gef\u00fchrt, die materielle finanzielle Auswirkungen hatten. Der Optionsmarkt d\u00fcrfte dieses Risiko bewusst niedrig gewichten, da es keine direkte beh\u00f6rdliche Einleitung gibt und das Signal eher PR-sensitiv als regulatorisch-bindend ist."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 12.5,
+        "take_profit_pct": 50,
+        "take_profit_price": 18.75,
+        "full_profit_pct": 100,
+        "full_profit_price": 25.0,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 7.5,
+        "time_exit_dte_remaining": 7,
+        "time_exit_date": "2026-05-22",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
+}
