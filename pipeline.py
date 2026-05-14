@@ -1,5 +1,15 @@
 """
-pipeline.py v8.2 – Optimierte Reihenfolge + Korrelations-Check
+pipeline.py v8.3 – Early Sector-Momentum-Check
+
+v8.3 Änderungen:
+  - NEU Stufe 2c: Sector-Momentum-Check VOR ROI Pre-Check und Deep Analysis
+    Vorher: Sektor-Gate lief in Stufe 10 (Options Design) → nach teurem Sonnet-Call
+    Jetzt:  Sektor-Gate läuft direkt nach Prescreening → spart Sonnet-Calls
+    Beispiel: AMAT heute → verworfen NACH Sonnet (Impact=6, teuer)
+              AMAT morgen → verworfen VOR Sonnet (billig, ~0.5s yfinance)
+    Direction-Default: BULLISH (vor Deep Analysis noch unbekannt)
+    Konservativer Ansatz: Sektor muss zumindest nicht deutlich underperformen.
+    Der Gate in OptionsDesigner (Stufe 10) bleibt als Sicherheitsnetz erhalten.
 
 v8.2 Änderungen:
   - NEU Stufe 3b: Pre-Deep-Analysis MC Gate (1k Pfade, sigma-only)
@@ -8,17 +18,15 @@ v8.2 Änderungen:
   - NEU Stufe 10b: Korrelations-Check
     Verhindert Sektor-Konzentration (z.B. 3× Halbleiter am selben Tag).
     Entfernt das schwächere Signal bei Korrelation > 0.75.
-  - FIX: stats werden jetzt auch an _send_trade_email durchgereicht,
-    damit Funnel-Zahlen in der Email erscheinen wenn ein Score-48-Trade
-    aussortiert wird und die Email in den "Kein Trade"-Pfad fällt.
 
-Reihenfolge v8.2:
+Reihenfolge v8.3:
   1.  Hard-Filter
   1b. FinBERT + Sentiment-Drift
   2.  Prescreening (Haiku)
   2b. Alpha Sources + Data Validation
+  2c. Sector-Momentum-Check                                    ← NEU
   3.  ROI Pre-Check (Fail Fast)
-  3b. Pre-MC Gate (1k Pfade, kein Signal-Alpha — sigma-only)  ← NEU
+  3b. Pre-MC Gate (1k Pfade, sigma-only)
   4.  Deep Analysis (Sonnet + Red Team) — jetzt auf weniger Kandidaten
   5.  Mismatch-Score
   6.  Quick MC (3k, 30d, mit Mismatch-Alpha)
@@ -26,7 +34,7 @@ Reihenfolge v8.2:
   8.  Final MC (10k, adaptive DTE)
   9.  RL-Scoring
  10.  Options Design + ROI-Gate
- 10b. Korrelations-Check                                       ← NEU
+ 10b. Korrelations-Check
 """
 
 import json
@@ -73,10 +81,9 @@ QUICK_MC_PATHS    = 3_000
 QUICK_MC_DAYS     = 30
 FINAL_MC_PATHS    = 10_000
 
-# v8.2: Pre-MC Gate Einstellungen
 PRE_MC_PATHS      = 1_000
 PRE_MC_DAYS       = 30
-PRE_MC_THRESHOLD  = 0.25   # Sehr niedrig — filtert nur hoffnungslose Kandidaten
+PRE_MC_THRESHOLD  = 0.25
 
 
 def get_mc_threshold(vix) -> float:
@@ -84,13 +91,13 @@ def get_mc_threshold(vix) -> float:
     try:
         vix = float(vix)
     except (TypeError, ValueError):
-        return 0.45  # Neutral-Default
+        return 0.45
     if vix < 0:
         return 0.45
     if vix < 20:
-        return 0.48  # Ruhiger Markt → mehr Sicherheit nötig
+        return 0.48
     elif vix > 30:
-        return 0.42  # Hohe Vola → Pfadweite sorgt selbst für Signal
+        return 0.42
     else:
         return 0.45
 
@@ -113,7 +120,6 @@ def reject(reason: str, ticker: str | None = None) -> None:
 # ── Validation Layer ──────────────────────────────────────────────────────────
 
 def validate_strict(c: dict):
-    """Ingress Validator: nach Enrichment, vor jeglicher Logik."""
     if not isinstance(c, dict):
         return None
     ticker = c.get("ticker")
@@ -133,7 +139,6 @@ def validate_strict(c: dict):
 
 
 def validate_for_simulation(c: dict):
-    """Pre-MC Validator: mismatch muss valide und im Bereich sein."""
     if not isinstance(c, dict):
         return None
     features = c.get("features", {})
@@ -146,7 +151,6 @@ def validate_for_simulation(c: dict):
 
 
 def validate_mc_result(result: dict):
-    """MC Output Validator: gibt hit_rate als float zurück oder None."""
     if not result or "simulation" not in result:
         return None
     hit_rate = result["simulation"].get("hit_rate")
@@ -165,13 +169,6 @@ def filter_correlated_proposals(
 ) -> list[dict]:
     """
     Entfernt das schwächere Signal wenn zwei Proposals > max_corr korreliert sind.
-
-    Problem: Am 15. April wurden AVGO, AMD und AMAT gleichzeitig empfohlen —
-    alles Halbleiter. Das ist keine Diversifikation, sondern ein
-    konzentriertes Sektor-Bet.
-
-    Methode: 30-Tage Return-Korrelation via yfinance (kostenlos).
-    Bei Korrelation > 0.75 wird der Trade mit dem niedrigeren trade_score entfernt.
     """
     if len(proposals) <= 1:
         return proposals
@@ -209,7 +206,8 @@ def filter_correlated_proposals(
                     to_remove.add(weaker)
                     log.info(
                         f"  KORRELATION: {tickers[i]}↔{tickers[j]} = {corr:.2f} "
-                        f"→ {tickers[weaker]} entfernt (Score {proposals[weaker].get('trade_score',{}).get('total',0)})"
+                        f"→ {tickers[weaker]} entfernt "
+                        f"(Score {proposals[weaker].get('trade_score',{}).get('total',0)})"
                     )
 
         if to_remove:
@@ -227,7 +225,6 @@ def load_history() -> dict:
         try:
             with open(HISTORY_PATH) as f:
                 data = json.load(f)
-            # Minimale Schema-Validierung
             if not isinstance(data, dict):
                 raise ValueError("history.json ist kein dict")
             return data
@@ -247,21 +244,19 @@ def save_history(history: dict) -> None:
 
 
 def main() -> None:
-    log.info("=== Adaptive Asymmetry-Scanner v8.2 gestartet ===")
+    log.info("=== Adaptive Asymmetry-Scanner v8.3 gestartet ===")
     today   = datetime.utcnow().strftime("%Y-%m-%d")
     history = load_history()
 
-    # Reset reject_stats für diesen Run
     reject_stats.clear()
 
     stats = {
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
-        "pre_mc": 0, "roi_precheck": 0, "analyzed": 0, "mismatch_ok": 0,
-        "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
+        "sector_ok": 0, "pre_mc": 0, "roi_precheck": 0, "analyzed": 0,
+        "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
 
-    # trade_proposals wird am Ende gesetzt — Referenz via Liste
     _proposals_ref = []
 
     def send_email():
@@ -269,8 +264,6 @@ def main() -> None:
             proposals = _proposals_ref[0] if len(_proposals_ref) > 0 else []
             if proposals:
                 from modules.email_reporter import send_email as _send_trade_email
-                # FIX v8.2: stats durchreichen, damit Funnel auch dann
-                # korrekt erscheint, wenn Trade nachträglich am >=50-Filter scheitert
                 _send_trade_email(proposals, today, stats)
             else:
                 send_status_email(stats, today)
@@ -280,7 +273,10 @@ def main() -> None:
     # ── STUFE 0: Risk Gates ──────────────────────────────────────────────────
     gates = RiskGates()
     if not gates.global_ok():
-        stats["stop_reason"] = f"VIX-Gate (VIX={gates.last_vix:.1f})" if gates.last_vix is not None else "VIX-Gate (VIX nicht abrufbar)"
+        stats["stop_reason"] = (
+            f"VIX-Gate (VIX={gates.last_vix:.1f})"
+            if gates.last_vix is not None else "VIX-Gate (VIX nicht abrufbar)"
+        )
         stats["vix"] = gates.last_vix
         send_email(); return
     stats["vix"] = gates.last_vix
@@ -288,12 +284,13 @@ def main() -> None:
     macro = get_macro_context()
     log.info(f"Makro: {macro.get('macro_regime')} | YC={macro.get('yield_curve_desc','n/a')}")
 
+    # OptionsDesigner einmal instanziieren — wird in Stufe 2c + Stufe 3 + Stufe 10 genutzt
+    designer = OptionsDesigner(gates=gates)
+
     # ── STUFE 1: Hard-Filter ─────────────────────────────────────────────────
     log.info("Stufe 1: Hard-Filter (Cap>2B, Vol>1M, RV>0.6)")
     ingestion  = DataIngestion(history=history)
     candidates = ingestion.run()
-    # FIX v8.2: Universumsgröße aus DataIngestion holen (falls verfügbar),
-    # sonst Fallback auf candidates-Anzahl. Greift auf typische Attributnamen zu.
     stats["universe"] = (
         getattr(ingestion, "universe_size", None)
         or getattr(ingestion, "n_universe", None)
@@ -327,10 +324,10 @@ def main() -> None:
         stats["stop_reason"] = f"Alle {len(candidates)} im Prescreening als kein Signal bewertet."
         send_email(); return
 
+    # ── STUFE 2b: Alpha Sources + Data Validation ────────────────────────────
     enriched_with_alpha = []
     for c in shortlist:
         c = enrich_with_alpha_sources(c)
-        # Earnings-Gate: Wenn Earnings in < 7 Tagen → aus Pipeline entfernen
         if c.get("has_near_earnings"):
             earnings_date = c.get("alpha_signals", {}).get("earnings_date", "?")
             log.info(f"  [{c['ticker']}] EARNINGS-GATE: Earnings in 7d ({earnings_date}) → Hard-Block.")
@@ -349,8 +346,35 @@ def main() -> None:
         else:
             shortlist.append(valid)
 
-    # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
-    # Schema-Check: ticker muss valide String sein
+    # ── STUFE 2c: Sector-Momentum-Check ──────────────────────────────────────
+    # v8.3 NEU: Billiger yfinance-Check (~0.5s) VOR dem teuren Sonnet-Call.
+    # Direction-Default: BULLISH — vor Deep Analysis noch unbekannt.
+    # Der Gate in OptionsDesigner (Stufe 10) bleibt als Sicherheitsnetz.
+    log.info("Stufe 2c: Sector-Momentum-Check (früher Filter)")
+    sector_ok = []
+    for c in shortlist:
+        ticker = c["ticker"]
+        # Direction noch unbekannt → Default BULLISH
+        # Bearish-Signale kommen selten durch Haiku, werden in Stufe 10 nochmals geprüft
+        c_for_sector = {**c, "deep_analysis": {"direction": "BULLISH"}}
+        try:
+            if designer._sector_momentum_ok(c_for_sector):
+                sector_ok.append(c)
+            else:
+                reject("sector_momentum_weak", ticker)
+        except Exception as e:
+            # Bei Fehler: durchlassen (lieber false positive als Signal verlieren)
+            log.debug(f"  [{ticker}] Sector-Check Fehler: {e} → durchgelassen")
+            sector_ok.append(c)
+
+    shortlist = sector_ok
+    stats["sector_ok"] = len(shortlist)
+    log.info(f"  → {len(shortlist)} nach Sector-Momentum-Check")
+    if not shortlist:
+        stats["stop_reason"] = "Alle Kandidaten durch Sector-Momentum-Check verworfen."
+        send_email(); return
+
+    # ── Schema-Check ─────────────────────────────────────────────────────────
     valid_shortlist = []
     for c in shortlist:
         if not isinstance(c.get("ticker"), str) or not c.get("ticker", "").strip():
@@ -359,21 +383,21 @@ def main() -> None:
         valid_shortlist.append(c)
     shortlist = valid_shortlist
 
+    # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
     log.info("Stufe 3: ROI Pre-Check (Fail Fast)")
     roi_viable = []
-    designer_pre = OptionsDesigner(gates=gates)
     for c in shortlist:
         ticker = c["ticker"]
         try:
             _, current, _ = MirofishSimulation()._get_market_params(ticker)
             if current <= 0:
                 roi_viable.append(c); continue
-            iv_rank  = designer_pre._get_iv_rank(ticker)
-            strategy = designer_pre._select_strategy(ticker, "BULLISH", iv_rank)
-            option   = designer_pre._find_option_for_dte(ticker, strategy, current, 21, 45)
+            iv_rank  = designer._get_iv_rank(ticker)
+            strategy = designer._select_strategy(ticker, "BULLISH", iv_rank)
+            option   = designer._find_option_for_dte(ticker, strategy, current, 21, 45)
             if option:
                 sim_fake = {"current_price": current, "target_price": current * 1.08, "iv_rank": iv_rank}
-                roi      = designer_pre._compute_roi(
+                roi      = designer._compute_roi(
                     option, sim_fake, iv_rank,
                     {"label": "Short-Term", "dte_min": 21, "dte_max": 45, "min_roi": 0.15}
                 )
@@ -382,7 +406,7 @@ def main() -> None:
                     continue
             roi_viable.append(c)
             log.info(f"  [{ticker}] ROI-PRECHECK: viable")
-        except Exception as e:
+        except Exception:
             reject("roi_error", c.get("ticker"))
             continue
 
@@ -393,17 +417,11 @@ def main() -> None:
         send_email(); return
 
     # ── STUFE 3b: Pre-MC Gate (sigma-only, vor Deep Analysis) ────────────────
-    # v8.2 NEU: Leichtgewichtiger MC-Check OHNE Signal-Alpha.
-    # Prüft: "Hat diese Aktie genug Volatilität, damit sich Options lohnen?"
-    # Spart Sonnet-Calls für Low-Vol-Aktien die selbst mit Signal nie das
-    # Target erreichen würden.
     log.info(f"Stufe 3b: Pre-MC Gate ({PRE_MC_PATHS} Pfade, {PRE_MC_DAYS}d, sigma-only)")
     pre_mc_sim = MirofishSimulation()
     pre_mc_viable = []
     for c in roi_viable:
         ticker = c["ticker"]
-        # Minimales deep_analysis-Dict: default Impact/Surprise
-        # → MirofishSimulation nutzt impact=5, surprise=5 als Default
         c_temp = {**c, "deep_analysis": {"impact": 5, "surprise": 5,
                   "time_to_materialization": "2-3 Monate"}}
         result = pre_mc_sim.run_for_dte(c_temp, days_to_expiry=PRE_MC_DAYS)
@@ -439,7 +457,6 @@ def main() -> None:
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
     scored = MismatchScorer().run(analyses)
-    # Post-DeepAnalysis Validation: mismatch muss vorhanden sein
     before_da = len(scored)
     scored = [validate_for_simulation(s) for s in scored]
     scored = [s for s in scored if s is not None]
@@ -451,8 +468,7 @@ def main() -> None:
         stats["stop_reason"] = "Kein Signal hat Mismatch-Filter bestanden."
         save_history(history); send_email(); return
 
-    # ── STUFE 6: Quick MC (NACH Mismatch — jetzt mit echtem alpha) ───────────
-    # ── Pre-Simulation Gate ──────────────────────────────────────────────────
+    # ── STUFE 6: Quick MC ────────────────────────────────────────────────────
     before_sim = len(scored)
     scored = [validate_for_simulation(s) for s in scored]
     scored = [s for s in scored if s is not None]
@@ -460,8 +476,8 @@ def main() -> None:
         reject("pre_mc_invalid_mismatch")
 
     log.info(f"Stufe 6: Quick MC (n={QUICK_MC_PATHS}, {QUICK_MC_DAYS}d) — mit Mismatch-Alpha")
-    sim        = MirofishSimulation()
-    mc_viable  = []
+    sim       = MirofishSimulation()
+    mc_viable = []
     for s in scored:
         ticker   = s["ticker"]
         mismatch = s.get("features", {}).get("mismatch", 0)
@@ -495,7 +511,6 @@ def main() -> None:
 
     # ── STUFE 7: Intraday-Delta ───────────────────────────────────────────────
     log.info("Stufe 7: Intraday-Delta-Filter")
-    # Dynamischer Intraday-Filter: Limit steigt mit Mismatch-Score
     base_move = getattr(getattr(cfg, "pipeline", None), "max_intraday_move", 0.07)
 
     before_intraday = {s["ticker"]: s for s in mc_viable}
@@ -511,7 +526,6 @@ def main() -> None:
         else:
             current_max = base_move
 
-        # Berechne intraday_delta falls noch nicht vorhanden
         if "intraday_delta" not in s:
             s["intraday_delta"] = get_intraday_move(ticker)
         delta_info = s.get("intraday_delta", {})
@@ -583,7 +597,7 @@ def main() -> None:
 
     # ── STUFE 10: Options Design + ROI-Gate ──────────────────────────────────
     log.info("Stufe 10: Options Design + adaptiver Laufzeit-Loop")
-    designer        = OptionsDesigner(gates=gates)
+    # Nutzt dieselbe designer-Instanz von oben (Tradier-Status bereits geloggt)
     try:
         trade_proposals = designer.run(final_signals)
     except Exception as e:
@@ -591,7 +605,7 @@ def main() -> None:
         stats["stop_reason"] = f"Options Design Fehler: {type(e).__name__}: {e}"
         save_history(history)
         send_email()
-        raise  # Re-raise damit GitHub Actions den Fehler sieht
+        raise
 
     for p in trade_proposals:
         roi = p.get("roi_analysis", {})
@@ -600,10 +614,8 @@ def main() -> None:
             roi.get("roi_net", 0), dte
         )
 
-    # Trade-Score berechnen und ranken
     if trade_proposals:
         trade_proposals = rank_proposals(trade_proposals)
-        # AVOID-Trades herausfiltern (Score < 45)
         before = len(trade_proposals)
         trade_proposals = [p for p in trade_proposals
                            if p.get("trade_score", {}).get("total", 0) >= 45]
@@ -611,11 +623,10 @@ def main() -> None:
             log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 45)")
 
         # ── STUFE 10b: Korrelations-Check ────────────────────────────────────
-        # v8.2 NEU: Verhindert Sektor-Konzentration
         if len(trade_proposals) > 1:
             log.info("Stufe 10b: Korrelations-Check")
-            before_corr      = len(trade_proposals)
-            trade_proposals   = filter_correlated_proposals(trade_proposals)
+            before_corr    = len(trade_proposals)
+            trade_proposals = filter_correlated_proposals(trade_proposals)
             if len(trade_proposals) < before_corr:
                 log.info(
                     f"  Korrelations-Check: {before_corr} → {len(trade_proposals)} "
@@ -635,11 +646,9 @@ def main() -> None:
     if not trade_proposals:
         stats["stop_reason"] = "Alle Options-Kontrakte scheitern am ROI-Gate."
 
-    # Proposals für Email-Funktion verfügbar machen
     if trade_proposals:
         _proposals_ref.append(trade_proposals)
 
-    # History speichern
     existing = {(t["ticker"], t.get("entry_date","")) for t in history["active_trades"]}
     for p in trade_proposals:
         key = (p["ticker"], today)
@@ -660,7 +669,7 @@ def main() -> None:
     )
     save_history(history)
     send_email()
-    # Reject Summary
+
     if reject_stats:
         log.info("=== Reject Summary ===")
         for reason, data in sorted(reject_stats.items(), key=lambda x: -x[1]["count"]):
@@ -668,7 +677,7 @@ def main() -> None:
             log.info(f"  {reason}: {data['count']}x → [{tickers}]")
     stats["rejects"] = {k: v["count"] for k, v in reject_stats.items()}
 
-    log.info(f"=== Pipeline v8.2 beendet. {len(trade_proposals)} Trade-Vorschläge. ===")
+    log.info(f"=== Pipeline v8.3 beendet. {len(trade_proposals)} Trade-Vorschläge. ===")
 
 
 if __name__ == "__main__":
