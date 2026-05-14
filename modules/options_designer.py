@@ -1,12 +1,24 @@
 """
-modules/options_designer.py v7.5
+modules/options_designer.py v8.0
 
-Fixes v7.5:
+Änderungen v8.0:
+    - Tradier Live-API als primäre Datenquelle für Option Chains + Expirations
+      Endpoints: /v1/markets/options/expirations
+                 /v1/markets/options/chains?greeks=true
+    - yfinance bleibt vollständiger Fallback (Option Chain + Term Structure)
+    - Tradier liefert echte Real-Time Bid/Ask/IV/Greeks (kein 15-min-Delay)
+    - TRADIER_API_KEY via os.environ (bereits als GitHub Secret hinterlegt)
+    - RV-Percentile (IV-Rank Basis) weiterhin via yfinance Kurshistorie
+      → Tradier hat kein Äquivalent für tägliche OHLCV-Kurshistorie
+    - _sector_momentum_ok() weiterhin via yfinance (Kurshistorie)
+    - Neue Methoden: _tradier_expirations(), _tradier_chain(), _tradier_headers()
+
+Änderungen v7.5:
     - IV-Rank Kalibrierung: Term-Structure-Gewicht 50%→20%, Formel entschärft
       Vorher: IV-Rank=100 bei fast allem (Term-Structure trieb Score hoch)
       Jetzt:  RV-Percentile dominiert (80%), Term-Structure ergänzt (20%, cap 80)
 
-Fixes v7.3/v7.4:
+Änderungen v7.3/v7.4:
     1. ROI bei Spreads: net_debit als Kostenbasis statt ask (Long-Leg)
        + Spread-Delta-Adjustment (Long Delta - Short Delta ~0.80x)
     2. DTE-Tiers lückenlos: 14-60 / 61-149 / 150-365
@@ -21,7 +33,10 @@ Fixes v7.3/v7.4:
 from __future__ import annotations
 import logging
 import math
+import os
 import numpy as np
+import pandas as pd
+import requests
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -51,11 +66,141 @@ SECTOR_ETF = {
 
 RELATIVE_STRENGTH_MIN = -0.08
 
+TRADIER_BASE   = "https://api.tradier.com/v1"
+TRADIER_TIMEOUT = 10   # Sekunden — schneller als yfinance-Scraping
+
+
+# ── Tradier Hilfsfunktionen ───────────────────────────────────────────────────
+
+def _tradier_headers() -> dict:
+    """Authorization-Header für Tradier Live-API."""
+    api_key = os.environ.get("TRADIER_API_KEY", "")
+    return {
+        "Authorization": f"Bearer {api_key}",
+        "Accept":        "application/json",
+    }
+
+
+def _tradier_expirations(symbol: str) -> list[str]:
+    """
+    Verfallsdaten via Tradier Live-API.
+
+    Endpoint: GET /v1/markets/options/expirations?symbol=AAPL&includeAllRoots=true
+    Returns:  Sortierte Liste von Datumsstrings ["2026-05-16", "2026-06-20", ...]
+    Fallback: Leere Liste → Caller fällt auf yfinance zurück
+    """
+    try:
+        resp = requests.get(
+            f"{TRADIER_BASE}/markets/options/expirations",
+            params={"symbol": symbol, "includeAllRoots": "true"},
+            headers=_tradier_headers(),
+            timeout=TRADIER_TIMEOUT,
+        )
+        resp.raise_for_status()
+        data  = resp.json()
+        dates = data.get("expirations", {}).get("date", []) or []
+        # Tradier liefert manchmal einen einzelnen String statt Liste
+        if isinstance(dates, str):
+            dates = [dates]
+        return sorted(dates)
+    except Exception as e:
+        log.debug(f"Tradier Expirations [{symbol}]: {e}")
+        return []
+
+
+def _tradier_chain(symbol: str, expiration: str) -> list[dict]:
+    """
+    Option Chain via Tradier Live-API (mit Greeks).
+
+    Endpoint: GET /v1/markets/options/chains
+              ?symbol=AAPL&expiration=2026-10-16&greeks=true
+    Returns:  Liste von Option-Dicts mit Feldern:
+              strike, bid, ask, open_interest, option_type,
+              greeks.delta, greeks.mid_iv
+    Fallback: Leere Liste → Caller fällt auf yfinance zurück
+    """
+    try:
+        resp = requests.get(
+            f"{TRADIER_BASE}/markets/options/chains",
+            params={
+                "symbol":     symbol,
+                "expiration": expiration,
+                "greeks":     "true",
+            },
+            headers=_tradier_headers(),
+            timeout=TRADIER_TIMEOUT,
+        )
+        resp.raise_for_status()
+        data    = resp.json()
+        options = data.get("options", {}).get("option", []) or []
+        # Einzelner Kontrakt kommt manchmal als Dict statt Liste
+        if isinstance(options, dict):
+            options = [options]
+        return options
+    except Exception as e:
+        log.debug(f"Tradier Chain [{symbol} {expiration}]: {e}")
+        return []
+
+
+def _tradier_chain_to_df(options: list[dict], option_type: str) -> pd.DataFrame:
+    """
+    Konvertiert Tradier-Option-Liste in yfinance-kompatibles DataFrame.
+
+    Spalten-Mapping:
+        Tradier             → yfinance-kompatibel
+        open_interest       → openInterest
+        greeks.mid_iv       → impliedVolatility
+        greeks.delta        → delta  (Bonus: direkt verfügbar, kein BS nötig)
+
+    option_type: "call" oder "put"
+    """
+    rows = []
+    for o in options:
+        if o.get("option_type") != option_type:
+            continue
+        greeks = o.get("greeks") or {}
+
+        # mid_iv bevorzugt; Fallback auf smv_vol, dann 0.30
+        iv = (
+            greeks.get("mid_iv")
+            or greeks.get("smv_vol")
+            or 0.30
+        )
+        # Sanity-Check
+        if not isinstance(iv, (int, float)) or iv <= 0.01:
+            iv = 0.30
+
+        rows.append({
+            "strike":          float(o.get("strike", 0)),
+            "bid":             float(o.get("bid") or 0),
+            "ask":             float(o.get("ask") or 0),
+            "openInterest":    int(o.get("open_interest") or 0),
+            "impliedVolatility": float(iv),
+            "delta":           float(greeks.get("delta") or 0),
+            "volume":          int(o.get("volume") or 0),
+            # original Tradier-Felder für Debugging
+            "_option_symbol":  o.get("symbol", ""),
+        })
+
+    if not rows:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(rows)
+    return df
+
+
+# ── Haupt-Klasse ──────────────────────────────────────────────────────────────
 
 class OptionsDesigner:
 
     def __init__(self, gates):
         self.gates = gates
+        # Einmalig prüfen ob Tradier-Key vorhanden
+        self._use_tradier = bool(os.environ.get("TRADIER_API_KEY", "").strip())
+        if self._use_tradier:
+            log.info("OptionsDesigner: Tradier Live-API aktiv (Primary)")
+        else:
+            log.warning("OptionsDesigner: TRADIER_API_KEY fehlt → yfinance Fallback")
 
     def run(self, signals: list[dict]) -> list[dict]:
         proposals = []
@@ -63,7 +208,7 @@ class OptionsDesigner:
             ticker = s.get("ticker", "")
             if not self._bear_case_ok(s):
                 continue
-            # Erzeuge yf.Ticker einmal pro Signal
+            # yf.Ticker weiterhin für _sector_momentum_ok() (Kurshistorie)
             t_obj = yf.Ticker(ticker)
             if not self._sector_momentum_ok(s, t=t_obj):
                 log.info(f"  [{ticker}] SECTOR-GATE → verworfen")
@@ -215,12 +360,23 @@ class OptionsDesigner:
         spread_pct = (ask - bid) / ask if ask > 0 else 0.0
         T          = dte / 365.0
 
-        try:
-            d1    = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
-            delta = (1.0 + math.erf(d1 / math.sqrt(2.0))) / 2.0
-            vega  = current * math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi) * math.sqrt(T)
-        except Exception:
-            delta, vega = 0.5, 0.0
+        # Tradier liefert echtes Delta direkt — nutze es wenn vorhanden
+        tradier_delta = option.get("delta")
+        if tradier_delta and 0.01 <= abs(float(tradier_delta)) <= 0.99:
+            delta = float(tradier_delta)
+            vega  = 0.0   # Vega via BS als Fallback unten
+            try:
+                d1   = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
+                vega = current * math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi) * math.sqrt(T)
+            except Exception:
+                pass
+        else:
+            try:
+                d1    = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
+                delta = (1.0 + math.erf(d1 / math.sqrt(2.0))) / 2.0
+                vega  = current * math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi) * math.sqrt(T)
+            except Exception:
+                delta, vega = 0.5, 0.0
 
         if is_spread:
             delta *= 0.80
@@ -259,11 +415,133 @@ class OptionsDesigner:
             "dte":               int(dte),
         }
 
+    # ── Option Chain Abruf: Tradier Primary, yfinance Fallback ───────────────
+
     def _find_option_for_dte(
         self, ticker: str, strategy: str, current: float,
         dte_min: int, dte_max: int,
         t: Optional[object] = None,
     ) -> Optional[dict]:
+        """
+        Sucht den besten Kontrakt im DTE-Fenster.
+        Reihenfolge: Tradier Live-API → yfinance Fallback
+        """
+        # ── Versuch 1: Tradier ────────────────────────────────────────────────
+        if self._use_tradier:
+            result = self._find_option_tradier(ticker, strategy, current, dte_min, dte_max)
+            if result is not None:
+                return result
+            log.debug(f"  [{ticker}] Tradier Chain leer → yfinance Fallback")
+
+        # ── Versuch 2: yfinance Fallback ──────────────────────────────────────
+        return self._find_option_yfinance(ticker, strategy, current, dte_min, dte_max, t)
+
+    def _find_option_tradier(
+        self, ticker: str, strategy: str, current: float,
+        dte_min: int, dte_max: int,
+    ) -> Optional[dict]:
+        """Option-Kontrakt via Tradier Live-API."""
+        try:
+            # 1. Verfallsdaten holen
+            all_dates = _tradier_expirations(ticker)
+            if not all_dates:
+                return None
+
+            dates = [d for d in all_dates if dte_min <= self._days_to(d) <= dte_max]
+            if not dates:
+                return None
+
+            best_expiry = dates[0]
+            is_call     = "CALL" in strategy or "BULL" in strategy
+            option_type = "call" if is_call else "put"
+
+            # 2. Option Chain holen
+            raw = _tradier_chain(ticker, best_expiry)
+            if not raw:
+                return None
+
+            # 3. In yfinance-kompatibles DataFrame konvertieren
+            opts = _tradier_chain_to_df(raw, option_type)
+            if opts.empty:
+                return None
+
+            # 4. Strike-Filter (identisch zu yfinance-Pfad)
+            days_mid = (dte_min + dte_max) / 2
+            if days_mid <= 60:
+                otm_max, itm_max = 1.03, 0.97
+            elif days_mid <= 149:
+                otm_max, itm_max = 1.08, 0.96
+            else:
+                otm_max, itm_max = 1.12, 0.95
+
+            min_oi = max(
+                getattr(getattr(cfg, "risk", None), "min_open_interest", 100), 50
+            )
+            filtered = opts[
+                (opts["strike"] >= current * itm_max) &
+                (opts["strike"] <= current * otm_max) &
+                (opts["openInterest"] >= min_oi)
+            ].copy()
+
+            if filtered.empty:
+                return None
+
+            # 5. Bid-Ask-Ratio-Gate
+            filtered["spread_ratio"] = (
+                (filtered["ask"] - filtered["bid"]) /
+                filtered["ask"].clip(lower=0.01)
+            )
+            filtered = filtered[filtered["spread_ratio"] <= cfg.risk.max_bid_ask_ratio]
+            if filtered.empty:
+                return None
+
+            best = filtered.sort_values("openInterest", ascending=False).iloc[0]
+            dte  = self._days_to(best_expiry)
+
+            result = {
+                "expiry":        best_expiry,
+                "strike":        float(best["strike"]),
+                "bid":           float(best["bid"]),
+                "ask":           float(best["ask"]),
+                "open_interest": int(best["openInterest"]),
+                "implied_vol":   float(best["impliedVolatility"]),
+                "spread_ratio":  round(float(best["spread_ratio"]), 4),
+                "dte":           int(dte),
+                "delta":         float(best.get("delta", 0)),   # Bonus: echtes Delta
+                "data_source":   "tradier",
+            }
+
+            log.info(
+                f"  [{ticker}] Tradier Chain: expiry={best_expiry} "
+                f"strike={result['strike']:.1f} IV={result['implied_vol']:.1%} "
+                f"delta={result['delta']:.2f} OI={result['open_interest']}"
+            )
+
+            # 6. Spread-Leg (bei Spread-Strategien)
+            if "SPREAD" in strategy:
+                spread_leg = self._find_spread_leg(opts, best["strike"])
+                result["spread_leg"] = spread_leg
+                if spread_leg:
+                    result["net_debit"] = round(
+                        result["ask"] - spread_leg.get("bid", 0), 2
+                    )
+                    if spread_leg.get("bid", 0) <= 0:
+                        log.debug(f"  [{ticker}] Short-Leg hat keine Liquidität → kein Spread")
+                        result.pop("spread_leg", None)
+                        result.pop("net_debit", None)
+
+            return result
+
+        except Exception as e:
+            log.debug(f"Tradier _find_option [{ticker}] {dte_min}-{dte_max}d: {e}")
+            return None
+
+    def _find_option_yfinance(
+        self, ticker: str, strategy: str, current: float,
+        dte_min: int, dte_max: int,
+        t: Optional[object] = None,
+    ) -> Optional[dict]:
+        """Option-Kontrakt via yfinance (Fallback). Unveränderte v7.5-Logik."""
         try:
             if t is None:
                 t = yf.Ticker(ticker)
@@ -318,6 +596,7 @@ class OptionsDesigner:
                 "implied_vol":   float(best.get("impliedVolatility", 0.30)),
                 "spread_ratio":  round(float(best["spread_ratio"]), 4),
                 "dte":           int(dte),
+                "data_source":   "yfinance",
             }
 
             if "SPREAD" in strategy:
@@ -335,10 +614,10 @@ class OptionsDesigner:
             return result
 
         except Exception as e:
-            log.debug(f"Kontrakt-Suche [{ticker}] {dte_min}-{dte_max}d: {e}")
+            log.debug(f"yfinance _find_option [{ticker}] {dte_min}-{dte_max}d: {e}")
             return None
 
-    def _find_spread_leg(self, opts, long_strike: float) -> Optional[dict]:
+    def _find_spread_leg(self, opts: pd.DataFrame, long_strike: float) -> Optional[dict]:
         candidates = opts[
             (opts["strike"] >= long_strike * 1.05) &
             (opts["strike"] <= long_strike * 1.20)
@@ -351,24 +630,21 @@ class OptionsDesigner:
         return {"strike": float(best["strike"]),
                 "bid": float(best["bid"]), "ask": float(best["ask"])}
 
-    # ── FIX v7.5: IV-Rank Kalibrierung ───────────────────────────────────────
+    # ── IV-Rank: RV via yfinance, Term Structure Tradier → yfinance Fallback ──
+
     def _get_iv_rank(self, ticker: str, t: Optional[object] = None) -> float:
         """
-        IV-Rank Proxy: RV-Percentile + Term Structure Slope.
+        IV-Rank Proxy: RV-Percentile (yfinance) + Term Structure Slope (Tradier/yfinance).
+
+        v8.0:
+            Term Structure: Tradier Primary → yfinance Fallback
+            RV-Percentile:  Weiterhin yfinance (Kurshistorie, kein Tradier-Äquivalent)
 
         v7.5 FIX: Gewichtung 80/20 statt 50/50, Term-Structure entschärft.
-
-        Vorher (v7.4):
-            combined = rv_score * 0.5 + term_score * 0.5
-            term_score = (slope + 0.1) * 200  → explodiert bei Backwardation
-            Ergebnis: IV-Rank = 100 bei fast allen News-Events
-
-        Jetzt (v7.5):
             combined = rv_score * 0.8 + term_score * 0.2
             term_score = (slope + 0.05) * 100, cap bei 80
-            Ergebnis: RV-Percentile dominiert, Term-Structure ergänzt
 
-        Beispiel-Werte nach Fix:
+        Beispiel-Werte:
             Ruhiger Markt (RV=30, Term=20):  30*0.8 + 20*0.2 = 28 → LONG_CALL
             Leicht erhöht (RV=55, Term=40):  55*0.8 + 40*0.2 = 52 → LONG_CALL
             Stark erhöht (RV=85, Term=70):   85*0.8 + 70*0.2 = 82 → LONG_CALL (knapp)
@@ -377,19 +653,20 @@ class OptionsDesigner:
         try:
             if t is None:
                 t = yf.Ticker(ticker)
-            info    = t.info
-            current = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
 
-            # ── RV-Percentile (80% Gewicht) ──────────────────────────────────
+            # ── RV-Percentile (80% Gewicht) — weiterhin yfinance ─────────────
             rv_score = 50.0
+            info     = t.info
+            current  = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
+
             hist = t.history(period="1y")
             if not hist.empty and len(hist) >= 60:
                 rets    = hist["Close"].pct_change().dropna()
                 roll_rv = rets.rolling(21).std().dropna() * (252 ** 0.5)
                 if len(roll_rv) >= 20:
                     rv_current = float(roll_rv.iloc[-1])
-                    rv_min = float(roll_rv.quantile(0.05))
-                    rv_max = float(roll_rv.quantile(0.95))
+                    rv_min     = float(roll_rv.quantile(0.05))
+                    rv_max     = float(roll_rv.quantile(0.95))
                     if rv_max > rv_min:
                         rv_score = ((rv_current - rv_min) / (rv_max - rv_min)) * 100
                         rv_score = max(0.0, min(100.0, rv_score))
@@ -397,10 +674,93 @@ class OptionsDesigner:
             if current <= 0:
                 return round(rv_score, 1)
 
-            # ── Term Structure Slope (20% Gewicht) ───────────────────────────
-            term_score = 20.0   # Default: leicht unter Mitte (neutral-niedrig)
-            dates  = t.options or []
-            iv_pts = []
+            # ── Term Structure Slope (20% Gewicht) — Tradier → yfinance ──────
+            term_score = 20.0   # Default
+            iv_pts     = self._get_term_structure_iv(ticker, current, t)
+
+            if len(iv_pts) >= 2:
+                iv_pts.sort()
+                iv_short = iv_pts[0][1]
+                iv_long  = iv_pts[-1][1]
+                if iv_long > 0:
+                    slope      = (iv_short / iv_long) - 1.0
+                    term_score = max(0.0, min(80.0, (slope + 0.05) * 100))
+
+            combined = round(rv_score * 0.80 + term_score * 0.20, 1)
+            log.info(
+                f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} "
+                f"→ combined={combined:.0f} "
+                f"({'SPREAD' if combined >= IV_RANK_GATE else 'LONG'})"
+            )
+            return combined
+
+        except Exception:
+            return 50.0
+
+    def _get_term_structure_iv(
+        self, ticker: str, current: float, t=None
+    ) -> list[tuple[int, float]]:
+        """
+        Sammelt (DTE, ATM-IV)-Paare für Term-Structure-Berechnung.
+        Tradier Primary → yfinance Fallback.
+        Gibt max. 3 Datenpunkte zurück.
+        """
+        # ── Tradier ───────────────────────────────────────────────────────────
+        if self._use_tradier:
+            iv_pts = self._term_structure_tradier(ticker, current)
+            if len(iv_pts) >= 2:
+                return iv_pts
+            log.debug(f"  [{ticker}] Term-Structure Tradier unvollständig → yfinance")
+
+        # ── yfinance Fallback ─────────────────────────────────────────────────
+        return self._term_structure_yfinance(ticker, current, t)
+
+    def _term_structure_tradier(
+        self, ticker: str, current: float
+    ) -> list[tuple[int, float]]:
+        """Term Structure IV-Punkte via Tradier."""
+        iv_pts = []
+        try:
+            dates = _tradier_expirations(ticker)
+            for d in dates[:3]:
+                dte = self._days_to(d)
+                if dte < 7:
+                    continue
+                raw = _tradier_chain(ticker, d)
+                if not raw:
+                    continue
+
+                # ATM Calls (±7% vom aktuellen Kurs)
+                atm_ivs = []
+                for o in raw:
+                    if o.get("option_type") != "call":
+                        continue
+                    strike = float(o.get("strike", 0))
+                    if not (current * 0.93 <= strike <= current * 1.07):
+                        continue
+                    greeks = o.get("greeks") or {}
+                    iv = greeks.get("mid_iv") or greeks.get("smv_vol")
+                    if iv and isinstance(iv, (int, float)) and iv > 0.05:
+                        atm_ivs.append(float(iv))
+
+                if atm_ivs:
+                    median_iv = float(np.median(atm_ivs))
+                    iv_pts.append((dte, median_iv))
+
+        except Exception as e:
+            log.debug(f"  [{ticker}] Term-Structure Tradier Fehler: {e}")
+
+        return iv_pts
+
+    def _term_structure_yfinance(
+        self, ticker: str, current: float, t=None
+    ) -> list[tuple[int, float]]:
+        """Term Structure IV-Punkte via yfinance (Fallback, unveränderte v7.5-Logik)."""
+        iv_pts = []
+        try:
+            if t is None:
+                t = yf.Ticker(ticker)
+            dates = t.options or []
             for d in dates[:3]:
                 try:
                     dte = self._days_to(d)
@@ -416,30 +776,12 @@ class OptionsDesigner:
                         iv_pts.append((dte, float(atm["impliedVolatility"].median())))
                 except Exception:
                     continue
+        except Exception as e:
+            log.debug(f"  [{ticker}] Term-Structure yfinance Fehler: {e}")
 
-            if len(iv_pts) >= 2:
-                iv_pts.sort()
-                iv_short = iv_pts[0][1]
-                iv_long  = iv_pts[-1][1]
-                if iv_long > 0:
-                    slope = (iv_short / iv_long) - 1.0
-                    # v7.5: Entschärfte Formel + Cap bei 80
-                    # Vorher: (slope + 0.1) * 200 → slope=0.25 gab 70
-                    # Jetzt:  (slope + 0.05) * 100 → slope=0.25 gibt 30
-                    term_score = max(0.0, min(80.0, (slope + 0.05) * 100))
+        return iv_pts
 
-            # v7.5: RV dominiert (80%), Term Structure ergänzt (20%)
-            # Vorher: 50/50 → Term-Structure-Spikes trieben alles auf 100
-            combined = round(rv_score * 0.80 + term_score * 0.20, 1)
-            log.info(
-                f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} "
-                f"→ combined={combined:.0f} "
-                f"({'SPREAD' if combined >= IV_RANK_GATE else 'LONG'})"
-            )
-            return combined
-
-        except Exception:
-            return 50.0
+    # ── Sektor-Momentum (bleibt yfinance — Kurshistorie) ─────────────────────
 
     def _sector_momentum_ok(self, s: dict, t=None) -> bool:
         ticker    = s.get("ticker", "")
