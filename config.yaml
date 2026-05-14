@@ -64,33 +64,41 @@ reddit:
   time_filter: "day"
   request_delay: 0.5
 
-# NEU v5.0: Externe API-Quellen
+# Externe API-Quellen
 data_sources:
+
+  tradier:
+    enabled: true             # false → yfinance Fallback für Option Chains
+    base_url: "https://api.tradier.com/v1"
+    timeout: 10               # Sekunden pro Request
+    # Scope: options_designer.py (Chain + IV-Rank) + feedback.py (P&L-Tracking)
+    # Key:   TRADIER_API_KEY als GitHub Secret (nie hier eintragen!)
+
   alpha_vantage:
-    enabled: true          # ALPHA_VANTAGE_API_KEY als Secret
-    max_daily_calls: 25    # Free Tier Limit
-    eps_tolerance: 0.10    # 10% Abweichung erlaubt
+    enabled: true             # ALPHA_VANTAGE_API_KEY als Secret
+    max_daily_calls: 25       # Free Tier Limit
+    eps_tolerance: 0.10       # 10% Abweichung erlaubt
 
   finnhub:
-    enabled: true          # FINNHUB_API_KEY als Secret
-    use_for_earnings: true # Earnings-Gate via Finnhub statt yfinance
+    enabled: true             # FINNHUB_API_KEY als Secret
+    use_for_earnings: true    # Earnings-Gate via Finnhub statt yfinance
 
   fda:
-    enabled: true          # Kein Key nötig
+    enabled: true             # Kein Key nötig
     days_back: 7
     sectors: ["Healthcare", "Biotechnology", "Pharmaceuticals"]
 
   sec_insider:
-    enabled: true          # Kein Key nötig
+    enabled: true             # Kein Key nötig
     days_back: 14
-    min_cluster_size: 2    # Mindestens 2 Insider für Cluster-Signal
+    min_cluster_size: 2       # Mindestens 2 Insider für Cluster-Signal
 
   flash_alpha:
-    enabled: true          # FLASH_ALPHA_API_KEY als Secret
-    max_daily_calls: 5     # KRITISCH: Nicht überschreiten!
-    top_n: 2               # Nur für Top-2 Signale
+    enabled: true             # FLASH_ALPHA_API_KEY als Secret
+    max_daily_calls: 5        # KRITISCH: Nicht überschreiten!
+    top_n: 2                  # Nur für Top-2 Signale
 
   eulerpool:
-    enabled: true          # EULERPOOL_API_KEY als Secret
-    top_n: 2               # Nur für Top-2 Signale
-    iv_crush_threshold: 80 # IV-Percentile ab dem Warnung ausgegeben wird
+    enabled: true             # EULERPOOL_API_KEY als Secret
+    top_n: 2                  # Nur für Top-2 Signale
+    iv_crush_threshold: 80    # IV-Percentile ab dem Warnung ausgegeben wird
