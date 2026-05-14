@@ -2,44 +2,44 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 304,
-        "avg_return": 0.554092
+        "count": 312,
+        "avg_return": 0.562494
       },
       "mid": {
-        "count": 1181,
-        "avg_return": 0.05784
+        "count": 1248,
+        "avg_return": 0.058214
       },
       "high": {
-        "count": 79,
-        "avg_return": -0.203871
+        "count": 81,
+        "avg_return": -0.194146
       }
     },
     "mismatch": {
       "weak": {
-        "count": 487,
-        "avg_return": 0.300117
+        "count": 502,
+        "avg_return": 0.301993
       },
       "good": {
-        "count": 1017,
-        "avg_return": 0.076407
+        "count": 1075,
+        "avg_return": 0.078368
       },
       "strong": {
-        "count": 60,
-        "avg_return": -0.053597
+        "count": 64,
+        "avg_return": -0.053483
       }
     },
     "eps_drift": {
       "noise": {
-        "count": 1548,
-        "avg_return": 0.141615
+        "count": 1622,
+        "avg_return": 0.142261
       },
       "relevant": {
-        "count": 5,
-        "avg_return": 0.236834
+        "count": 6,
+        "avg_return": 0.237669
       },
       "massive": {
-        "count": 11,
-        "avg_return": 0.021307
+        "count": 13,
+        "avg_return": 0.018319
       }
     }
   },
@@ -14445,8 +14445,8 @@
       },
       {
         "date": "2026-05-14",
-        "score": -0.2657,
-        "headline_count": 5
+        "score": 0.256,
+        "headline_count": 3
       }
     ],
     "CCI": [

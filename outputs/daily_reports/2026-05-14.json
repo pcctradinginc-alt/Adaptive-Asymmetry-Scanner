@@ -2,113 +2,113 @@
   "date": "2026-05-14",
   "proposals": [
     {
-      "ticker": "BA",
+      "ticker": "CDNS",
       "strategy": "LONG_CALL",
-      "iv_rank": 42.8,
+      "iv_rank": 43.8,
       "iv_gate_applied": false,
       "direction": "BULLISH",
       "option": {
-        "expiry": "2026-05-29",
-        "strike": 240.0,
-        "bid": 7.65,
-        "ask": 8.1,
-        "open_interest": 5398,
-        "implied_vol": 0.3627,
-        "spread_ratio": 0.0556,
-        "dte": 14,
-        "delta": 0.5405,
+        "expiry": "2026-07-17",
+        "strike": 350.0,
+        "bid": 27.9,
+        "ask": 28.9,
+        "open_interest": 155,
+        "implied_vol": 0.4162,
+        "spread_ratio": 0.0346,
+        "dte": 63,
+        "delta": 0.5811,
         "data_source": "tradier"
       },
       "roi_analysis": {
-        "roi_gross": 1.2845,
-        "roi_net": 1.1314,
-        "spread_pct": 0.0556,
-        "vega_loss": 0.042,
-        "delta": 0.5405,
-        "iv_drop_assumed": 0.05,
-        "cost_basis": 8.1,
+        "roi_gross": 0.6137,
+        "roi_net": 0.5278,
+        "spread_pct": 0.0346,
+        "vega_loss": 0.0167,
+        "delta": 0.5811,
+        "iv_drop_assumed": 0.02,
+        "cost_basis": 28.9,
         "is_spread": false,
         "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 14
+        "min_roi_threshold": 0.12,
+        "dte": 63
       },
-      "dte_tier": "Short-Term",
+      "dte_tier": "Mid-Term",
       "annualized_roi": 9.99,
       "all_tiers_tried": [
         {
-          "tier": "Short-Term",
-          "dte": 14,
+          "tier": "Mid-Term",
+          "dte": 63,
           "option": {
-            "expiry": "2026-05-29",
-            "strike": 240.0,
-            "bid": 7.65,
-            "ask": 8.1,
-            "open_interest": 5398,
-            "implied_vol": 0.3627,
-            "spread_ratio": 0.0556,
-            "dte": 14,
-            "delta": 0.5405,
+            "expiry": "2026-07-17",
+            "strike": 350.0,
+            "bid": 27.9,
+            "ask": 28.9,
+            "open_interest": 155,
+            "implied_vol": 0.4162,
+            "spread_ratio": 0.0346,
+            "dte": 63,
+            "delta": 0.5811,
             "data_source": "tradier"
           },
           "roi": {
-            "roi_gross": 1.2845,
-            "roi_net": 1.1314,
-            "spread_pct": 0.0556,
-            "vega_loss": 0.042,
-            "delta": 0.5405,
-            "iv_drop_assumed": 0.05,
-            "cost_basis": 8.1,
+            "roi_gross": 0.6137,
+            "roi_net": 0.5278,
+            "spread_pct": 0.0346,
+            "vega_loss": 0.0167,
+            "delta": 0.5811,
+            "iv_drop_assumed": 0.02,
+            "cost_basis": 28.9,
             "is_spread": false,
             "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 14
+            "min_roi_threshold": 0.12,
+            "dte": 63
           },
           "annualized_roi": 9.99,
           "strategy": "LONG_CALL"
         }
       ],
       "features": {
-        "impact": 6,
+        "impact": 4,
         "surprise": 5,
-        "mismatch": 5.524,
-        "z_score": 0.095,
-        "sigma_30d": 0.0217,
-        "price_move_48h": 0.0021,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
+        "mismatch": 1.684,
+        "z_score": 0.463,
+        "sigma_30d": 0.0277,
+        "price_move_48h": 0.0128,
+        "eps_drift": 0.0023,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5858
+        "quick_mc_hit_rate": 0.6032
       },
       "simulation": {
-        "current_price": 240.6,
-        "target_price": 259.85,
-        "hit_rate": 0.6844,
+        "current_price": 354.55,
+        "target_price": 385.07,
+        "hit_rate": 0.6602,
         "n_paths": 10000,
         "days": 45,
-        "sigma": 0.0212,
-        "alpha": 0.00251
+        "sigma": 0.0257,
+        "alpha": 0.00174
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Der Markt hat diesen Katalysator bereits vollst\u00e4ndig eingepreist: Die News \u00fcber Trump-Xi-Summit und den 500-Jet-Deal dominieren seit Tagen die Finanzmedien. BA notiert nahezu unver\u00e4ndert (-0.2% in 48h), was darauf hindeutet, dass entweder der Markt skeptisch ist oder der Upside bereits absorbiert wurde. Deals dieser Art scheitern regelm\u00e4\u00dfig an politischen Bedingungen, Exportkontrollregeln (ITAR/EAR) oder chinesischen Gegenforderungen.",
-          "argument_2": "Boeing leidet weiterhin unter strukturellen operativen Problemen: Qualit\u00e4tskontrollskandale, FAA-Produktionsobergrenzen f\u00fcr die 737 MAX, anhaltende Lieferkettenengp\u00e4sse und eine hochverschuldete Bilanz mit negativem Free Cash Flow. Ein symbolischer Jet-Deal auf dem Xi-Summit l\u00f6st keine dieser fundamentalen Baustellen. Der EPS-Konflikt (yfinance 4.23 vs. SEC 2.53) ist zudem ein Qualit\u00e4tssignal \u2014 die tats\u00e4chliche Ertragskraft ist unklar und m\u00f6glicherweise deutlich schw\u00e4cher als dargestellt.",
-          "argument_3": "Geopolitische Deals zwischen den USA und China haben eine historisch schlechte Umsetzungsquote. Der 500-Jet-Deal k\u00f6nnte als Verhandlungspoker genutzt und nach dem Summit still begraben werden. Zudem unterliegen Boeing-Lieferungen nach China komplexen US-Exportgenehmigungen, und der Iran-Konflikt ('Iran War in Limbo') schafft ein geopolitisches Tail-Risk, das globale Risikobereitschaft schlagartig reduzieren kann.",
+          "argument_1": "Die Aeva-LiDAR-Lizenz ist ein Nischen-Katalysator mit unklarem finanziellen Materialit\u00e4tsgrad. CDNS generiert den Gro\u00dfteil seines Umsatzes aus EDA-Software und IP-Lizenzierung f\u00fcr Halbleiterdesign \u2014 der Beitrag eines einzelnen Robotics/LiDAR-Vertrags zum 4-Milliarden-Dollar-Jahresumsatz ist h\u00f6chstwahrscheinlich marginal und rechtfertigt keine Neubewertung des Gesamtunternehmens. Der Markt hat dies m\u00f6glicherweise nicht '\u00fcbersehen', sondern bewusst als nicht materiell eingestuft.",
+          "argument_2": "Der EPS-Datenpunkt zeigt eine signifikante Divergenz zwischen yfinance (9.38) und SEC EDGAR (4.30) \u2014 trotz der angegebenen 0.2% Abweichungsangabe, die offensichtlich falsch ist. Diese Diskrepanz von \u00fcber 100% deutet auf methodische Unterschiede (GAAP vs. Non-GAAP, TTM vs. annual) hin und macht jede auf EPS-Basis beruhende Bewertungsanalyse unzuverl\u00e4ssig. CDNS handelt auf GAAP-Basis bei ~$354 mit einem KGV von \u00fcber 80x \u2014 bei flacher Zinskurve und 4.32% 10Y-Rendite ist das erhebliches Bewertungsrisiko.",
+          "argument_3": "Das Cluster-Insider-Kaufsignal (8 K\u00e4ufe in 14 Tagen) klingt positiv, muss aber kritisch hinterfragt werden: Insider-K\u00e4ufe in Tech-Unternehmen erfolgen oft im Rahmen von vorher festgelegten 10b5-1-Pl\u00e4nen und sind kein echtes \u00dcberzeugungssignal. Gleichzeitig ist die 48h-Preisbewegung von -1.3% trotz positiver Newsflow-Lage ein schwaches relatives Signal \u2014 der Markt absorbiert den Katalysator offensichtlich nicht bullish.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "Kein Quick MC durchgef\u00fchrt, daher keine statistische Validierung m\u00f6glich. Bei fehlendem MC-Datenpunkt ist Vorsicht geboten \u2014 das Modell liefert kein quantitatives R\u00fcckhalt f\u00fcr die Richtungsthese. Die fehlende Hit-Rate ist ein neutrales Signal, nicht bullish.",
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt, daher ist die 0%-Hit-Rate nicht als Modellaussage interpretierbar \u2014 sie ist schlicht ein Datenmangel. Eine fehlende Simulation kann weder als bullishes noch bearishes Signal gewertet werden. Der Concern liegt darin, dass ohne MC-Validierung keine probabilistische Basis f\u00fcr die Kurszieleinsch\u00e4tzung existiert.",
           "concern_level": "medium"
         },
-        "impact": 6,
+        "impact": 4,
         "surprise": 5,
         "direction": "BULLISH",
         "bear_case_severity": 6,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt hat die News trotz massiver Medienberichterstattung kaum bewegt (-0.2%), was auf genuine Skepsis hindeutet \u2014 genau hier liegt das asymmetrische Potenzial bei positivem Dealabschluss. Insider-Cluster-K\u00e4ufe von 5 Personen in 14 Tagen signalisieren informiertes Vertrauen in nahe liegende Katalysatoren. Ein unterzeichneter oder konkretisierter 500-Jet-Deal w\u00fcrde Boeing strukturell entlasten und k\u00f6nnte eine schnelle Re-Rating-Bewegung ausl\u00f6sen.",
-        "catalyst": "Offizieller Abschluss oder Letter of Intent f\u00fcr 500-Jet-Deal mit China im Rahmen des Trump-Xi-Summits in Peking (14.-16. Mai 2026)",
-        "bear_case": "Deal scheitert an Exportkontrollh\u00fcrden oder bleibt symbolisch ohne Umsetzungsrahmen \u2014 kombiniert mit Boings strukturellen Problemen und unklarer Ertragskraft f\u00fchrt dies zu erneutem Kursr\u00fcckgang unter $230.",
-        "macro_assessment": "Das neutrale Makroumfeld (flache Kurve, Fed Funds bei 3.64%) ist kein aktiver Gegenwind f\u00fcr industrielle Einzeltitel mit spezifischem Katalysator. Die 10Y-Rate von 4.32% belastet kapitalintensive, hochverschuldete Unternehmen wie Boeing jedoch strukturell \u2014 dies d\u00e4mpft den Bewertungsmultiplikator und macht reine Momentum-Moves schwerer aufrechtzuerhalten ohne fundamentale Besserung.",
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt preist CDNS prim\u00e4r als EDA-Kerngesch\u00e4ft und ignoriert strukturell wachsende Adjacencies wie Robotics-IP-Lizenzierung. Der Aeva-Deal signalisiert eine Plattformausweitung, deren Multiplikatoreffekt (weitere LiDAR/Autonomie-Kunden) noch nicht im Konsensmodell abgebildet ist. Insider-Cluster-K\u00e4ufe erh\u00f6hen die Konviktionsbasis, ohne dass institutionelle Neubewertung bereits stattgefunden hat.",
+        "catalyst": "Aeva 4D LiDAR-Lizenzabkommen als Eintritt in Robotics/Autonomie-IP-Monetarisierung, potenziell Q2-2026-Earnings-Best\u00e4tigung weiterer Design-Wins in diesem Segment",
+        "bear_case": "CDNS handelt auf GAAP-Basis mit >80x KGV bei einem 10Y-Yield von 4.32% \u2014 jede Entt\u00e4uschung im Kerngesch\u00e4ft oder Margendruck durch R&D-Ausweitung in neue Segmente kann eine multiple Kompression ausl\u00f6sen, die jeden Katalysatorgewinn \u00fcberlagert.",
+        "macro_assessment": "Das neutrale Makro-Regime mit flacher Zinskurve (0.48%) und moderatem Zinsniveau (3.64% Fed Funds) ist kein aktiver Gegenwind, aber auch kein R\u00fcckenwind f\u00fcr hochbewertete Growth-Tech. Bei 4.32% 10Y ist der Diskontierungsdruck auf lange Duration-Cashflows real \u2014 CDNS als hochmultiples EDA-Unternehmen ist gegen\u00fcber Zins\u00fcberraschungen nach oben anf\u00e4llig. Neutral-Makro rechtfertigt moderat-bullishe Positionierung nur bei klarer fundamentaler \u00dcberzeugung.",
         "data_confidence": "low",
         "macro_regime": "neutral",
         "macro_context": {
@@ -118,40 +118,40 @@
         "direction_conflict": false
       },
       "sector_momentum": {
-        "etf": "XLI",
-        "rel_strength": 0.1537
+        "etf": "XLK",
+        "rel_strength": -0.0331
       },
-      "final_score": 0.0817,
+      "final_score": 0.3573,
       "time_value_efficiency": {
-        "roi_per_day_pct": 8.0814,
+        "roi_per_day_pct": 0.8378,
         "annualized_roi": null,
-        "dte": 14
+        "dte": 63
       },
       "trade_score": {
-        "total": 69,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
+        "total": 54,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
         "components": {
-          "signal_quality": 21.9,
-          "options_quality": 27.0,
+          "signal_quality": 17.9,
+          "options_quality": 26.5,
           "risk_deductions": 0.0,
-          "context_bonus": 20.0
+          "context_bonus": 10.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (113%), positive Sektor-Relative-St\u00e4rke",
-        "best_argument_for": "Der Markt hat die News trotz massiver Medienberichterstattung kaum bewegt (-0.2%), was auf genuine Skepsis hindeutet \u2014 genau hier liegt das asymmetrische Potenzial bei positivem Dealabschluss. Insider-Cluster-K\u00e4ufe von 5 Personen in 14 Tagen signalisieren informiertes Vertrauen in nahe liegende Katalysatoren. Ein unterzeichneter oder konkretisierter 500-Jet-Deal w\u00fcrde Boeing strukturell entlasten und k\u00f6nnte eine schnelle Re-Rating-Bewegung ausl\u00f6sen.",
-        "best_argument_against": "Der Markt hat diesen Katalysator bereits vollst\u00e4ndig eingepreist: Die News \u00fcber Trump-Xi-Summit und den 500-Jet-Deal dominieren seit Tagen die Finanzmedien. BA notiert nahezu unver\u00e4ndert (-0.2% in 48h), was darauf hindeutet, dass entweder der Markt skeptisch ist oder der Upside bereits absorbiert wurde. Deals dieser Art scheitern regelm\u00e4\u00dfig an politischen Bedingungen, Exportkontrollregeln (ITAR/EAR) oder chinesischen Gegenforderungen."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=4/Surprise=5), guter ROI (53%) | Risiken: Sektor underperformt Markt",
+        "best_argument_for": "Der Markt preist CDNS prim\u00e4r als EDA-Kerngesch\u00e4ft und ignoriert strukturell wachsende Adjacencies wie Robotics-IP-Lizenzierung. Der Aeva-Deal signalisiert eine Plattformausweitung, deren Multiplikatoreffekt (weitere LiDAR/Autonomie-Kunden) noch nicht im Konsensmodell abgebildet ist. Insider-Cluster-K\u00e4ufe erh\u00f6hen die Konviktionsbasis, ohne dass institutionelle Neubewertung bereits stattgefunden hat.",
+        "best_argument_against": "Die Aeva-LiDAR-Lizenz ist ein Nischen-Katalysator mit unklarem finanziellen Materialit\u00e4tsgrad. CDNS generiert den Gro\u00dfteil seines Umsatzes aus EDA-Software und IP-Lizenzierung f\u00fcr Halbleiterdesign \u2014 der Beitrag eines einzelnen Robotics/LiDAR-Vertrags zum 4-Milliarden-Dollar-Jahresumsatz ist h\u00f6chstwahrscheinlich marginal und rechtfertigt keine Neubewertung des Gesamtunternehmens. Der Markt hat dies m\u00f6glicherweise nicht '\u00fcbersehen', sondern bewusst als nicht materiell eingestuft."
       },
       "trade_rank": 1,
       "exit_rules": {
-        "entry_cost": 8.1,
+        "entry_cost": 28.9,
         "take_profit_pct": 50,
-        "take_profit_price": 12.15,
+        "take_profit_price": 43.35,
         "full_profit_pct": 100,
-        "full_profit_price": 16.2,
+        "full_profit_price": 57.8,
         "stop_loss_pct": -40,
-        "stop_loss_price": 4.86,
-        "time_exit_dte_remaining": 7,
-        "time_exit_date": "2026-05-22",
+        "stop_loss_price": 17.34,
+        "time_exit_dte_remaining": 31,
+        "time_exit_date": "2026-06-16",
         "time_exit_min_profit_pct": 20
       }
     },
@@ -223,7 +223,7 @@
       ],
       "features": {
         "impact": 5,
-        "surprise": 4,
+        "surprise": 6,
         "mismatch": 4.033,
         "z_score": 0.193,
         "sigma_30d": 0.0647,
@@ -232,37 +232,37 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "relevant",
-        "quick_mc_hit_rate": 0.5388
+        "quick_mc_hit_rate": 0.5456
       },
       "simulation": {
         "current_price": 161.14,
         "target_price": 184.0,
-        "hit_rate": 0.5592,
+        "hit_rate": 0.5576,
         "n_paths": 10000,
         "days": 45,
         "sigma": 0.0423,
-        "alpha": 0.00045
+        "alpha": 0.00055
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Der 26-Jahres-Hochstand bei AKAM ist prim\u00e4r durch Chip-Euphorie (Nvidia, Micron) und den breiteren Tech-Optimismus getrieben, nicht durch AKAM-spezifische Fundamentaldaten. Solche sympathy-Rallyes verpuffen typischerweise binnen weniger Wochen, sobald der sektorale R\u00fcckenwind nachl\u00e4sst. Der Markt k\u00f6nnte AKAM lediglich als Beta-Vehikel zu Chip-St\u00e4rke nutzen, ohne genuine Neubewertung des AI/Security-Moats.",
-          "argument_2": "Die massive EPS-Diskrepanz zwischen yfinance (7.24) und SEC EDGAR (3.19) \u2014 eine Abweichung von 126% im absoluten Betrag, nicht nur 7.8% \u2014 deutet auf erhebliche Datenqualit\u00e4tsprobleme hin. Wenn der tats\u00e4chliche EPS bei 3.19 liegt, handelt AKAM bei rund 50x earnings, was f\u00fcr ein moderat wachsendes CDN/Security-Unternehmen erhebliche \u00dcberbewertung darstellt. Das KGV-Risiko bei einer Stimmungskorrektur ist substanziell.",
-          "argument_3": "Der Insider-Cluster von 7 K\u00e4ufen in 14 Tagen klingt bullish, muss aber im Kontext einer Aktie bewertet werden, die bereits ein 26-Jahres-Hoch markiert hat. Katalysatoren, die bereits zu einem Multi-Dekaden-High gef\u00fchrt haben, sind per Definition weitgehend eingepreist. Das AI/Security-Narrativ f\u00fcr AKAM ist seit Monaten bekannt; der marginal neue Informationsgehalt ist begrenzt, und FOMO-K\u00e4ufe nahe Hochs sind historisch schwache Einstiege.",
+          "argument_1": "AKAM hat gerade ein 26-Jahres-Hoch markiert \u2013 ein klassisches Momentum-\u00dcberschie\u00dfen-Signal. Bei solchen extremen historischen Hochs ist die Wahrscheinlichkeit eines Mean-Reversion-Ereignisses erh\u00f6ht, da viele langfristige Inhaber in Gewinne hineinverkaufen und Short-Seller aktiv werden. Das Signal ist m\u00f6glicherweise bereits vollst\u00e4ndig eingepreist, wodurch weiteres Upside-Potenzial begrenzt ist.",
+          "argument_2": "Die EPS-Abweichung zwischen yfinance (7.24) und SEC EDGAR (3.19) ist mit ~127% extrem hoch und deutet auf erhebliche Datenqualit\u00e4tsprobleme hin. Wenn der 'wahre' EPS n\u00e4her an 3.19 liegt, w\u00e4re AKAM auf dem aktuellen Kursniveau deutlich teurer bewertet als angenommen \u2013 das KGV w\u00fcrde sich nahezu verdoppeln. Diese Unsicherheit untergr\u00e4bt jede fundamentale Bewertungsgrundlage f\u00fcr den Trade.",
+          "argument_3": "Der Haiku-Prescreening nennt 'Chip-St\u00e4rke als Katalysator' f\u00fcr AKAM \u2013 doch AKAM ist ein CDN/Edge-Computing-Unternehmen, kein Chip-Hersteller. Die Korrelation mit dem Chip-Sektor-Rally ist opportunistisch und nicht strukturell. Sobald der breite Tech-Optimismus nachl\u00e4sst, verliert AKAM diesen externen Treiber, da keine direkten fundamentalen Verbindungen zu Halbleitern bestehen.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "Ein 0%-Hit-Rate-Ergebnis bei nicht durchgef\u00fchrtem MC ist technisch neutral, liefert aber keinerlei statistischen R\u00fcckhalt f\u00fcr den Trade. Ohne MC-Daten fehlt jede quantitative Basis f\u00fcr Konfidenzaussagen zur Kursentwicklung in 30 Tagen. Das Fehlen dieser Statistik erh\u00f6ht die Unsicherheit der Gesamtbewertung.",
-          "concern_level": "medium"
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick-MC durchgef\u00fchrt wurde \u2013 keine statistische Grundlage vorhanden. Bei AKAM auf einem 26-Jahres-Hoch mit erh\u00f6hter impliziter Volatilit\u00e4t w\u00e4re eine realistische Hit-Rate f\u00fcr BULLISH-Szenarien auf 30 Tage eher bei 45-55% zu erwarten. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit erheblich und macht eine quantitative Risikoabsch\u00e4tzung unm\u00f6glich.",
+          "concern_level": "high"
         },
         "impact": 5,
-        "surprise": 4,
+        "surprise": 6,
         "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt fokussiert AKAM-Kursgewinne auf Chip-Sympathie, untersch\u00e4tzt aber den eigenst\u00e4ndigen Moat im Security-Edge-Segment. Insider-Cluster-K\u00e4ufe nahe einem 26-Jahres-Hoch signalisieren Vorstandsvertrauen in einen spezifischen, noch nicht \u00f6ffentlichen Katalysator. Die EPS-Unsicherheit d\u00e4mpft institutionelle Neubewertung, schafft aber Alpha-Potenzial bei Datenkl\u00e4rung.",
-        "catalyst": "Unbekannter spezifischer Unternehmenskatalysator (laut Headline), kombiniert mit Insider-Cluster-K\u00e4ufen und strukturellem AI/Security-Edge-Narrativ",
-        "bear_case": "Sympathy-Rally auf Chip-St\u00e4rke ohne fundamentale Neubewertung; bei nachlassendem Sektormomentum droht Reversion von den 26-Jahres-Hochs mit erh\u00f6htem R\u00fcckschlagrisiko.",
-        "macro_assessment": "Flache Zinskurve (+0.48%) und neutrale Fed-Politik (3.64%) bieten weder R\u00fccken- noch Gegenwind f\u00fcr den Trade. Technology-Wachstumswerte profitieren leicht von Zinsstabilisierung, jedoch sch\u00fctzt das neutrale Regime nicht vor sektorspezifischer Rotation.",
+        "bear_case_severity": 7,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte das Insider-Cluster-Kaufsignal (7 K\u00e4ufer in 14 Tagen) noch nicht vollst\u00e4ndig eingepreist haben, da solche koordinierten Insider-Aktivit\u00e4ten statistisch auf nicht-\u00f6ffentliche positive Entwicklungen hindeuten. Gleichzeitig besteht das Risiko eines schnellen R\u00fcckzugs nach dem 26-Jahres-Hoch. Die EPS-Datenunsicherheit bleibt ein strukturelles Risiko.",
+        "catalyst": "Insider-Cluster-Kaufsignal (7 Insider in 14 Tagen) kombiniert mit potenziellem Q2-2026-Earnings-Upside durch Edge-Computing-Nachfragetrend",
+        "bear_case": "Extreme EPS-Datendiskrepanz (yfinance vs. SEC EDGAR ~127%) deutet auf \u00fcberh\u00f6hte Konsenserwartungen hin; ein Earnings-Miss k\u00f6nnte vom 26-Jahres-Hoch aus einen scharfen Kursr\u00fcckgang ausl\u00f6sen.",
+        "macro_assessment": "Flache Zinskurve (0.48%) signalisiert eine neutrale Makrolage ohne klaren R\u00fccken- oder Gegenwind. Fed Funds Rate bei 3.64% und 10Y bei 4.32% belasten Technologie-Bewertungen moderat. Das neutrale Regime erlaubt eine vorsichtig bullishe Einsch\u00e4tzung, aber das erh\u00f6hte Bewertungsniveau auf dem 26-Jahres-Hoch reduziert die Sicherheitsmarge erheblich.",
         "data_confidence": "low",
         "macro_regime": "neutral",
         "macro_context": {
@@ -275,25 +275,25 @@
         "etf": "XLK",
         "rel_strength": 0.0593
       },
-      "final_score": 0.1006,
+      "final_score": 0.102,
       "time_value_efficiency": {
         "roi_per_day_pct": 0.2941,
         "annualized_roi": 1.5682,
         "dte": 98
       },
       "trade_score": {
-        "total": 60,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
+        "total": 54,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
         "components": {
-          "signal_quality": 17.9,
+          "signal_quality": 21.9,
           "options_quality": 24.4,
-          "risk_deductions": -2.0,
+          "risk_deductions": -12.0,
           "context_bonus": 20.0
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (29%), positive Sektor-Relative-St\u00e4rke",
-        "best_argument_for": "Der Markt fokussiert AKAM-Kursgewinne auf Chip-Sympathie, untersch\u00e4tzt aber den eigenst\u00e4ndigen Moat im Security-Edge-Segment. Insider-Cluster-K\u00e4ufe nahe einem 26-Jahres-Hoch signalisieren Vorstandsvertrauen in einen spezifischen, noch nicht \u00f6ffentlichen Katalysator. Die EPS-Unsicherheit d\u00e4mpft institutionelle Neubewertung, schafft aber Alpha-Potenzial bei Datenkl\u00e4rung.",
-        "best_argument_against": "Der 26-Jahres-Hochstand bei AKAM ist prim\u00e4r durch Chip-Euphorie (Nvidia, Micron) und den breiteren Tech-Optimismus getrieben, nicht durch AKAM-spezifische Fundamentaldaten. Solche sympathy-Rallyes verpuffen typischerweise binnen weniger Wochen, sobald der sektorale R\u00fcckenwind nachl\u00e4sst. Der Markt k\u00f6nnte AKAM lediglich als Beta-Vehikel zu Chip-St\u00e4rke nutzen, ohne genuine Neubewertung des AI/Security-Moats."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=6), guter ROI (29%), positive Sektor-Relative-St\u00e4rke | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Der Markt k\u00f6nnte das Insider-Cluster-Kaufsignal (7 K\u00e4ufer in 14 Tagen) noch nicht vollst\u00e4ndig eingepreist haben, da solche koordinierten Insider-Aktivit\u00e4ten statistisch auf nicht-\u00f6ffentliche positive Entwicklungen hindeuten. Gleichzeitig besteht das Risiko eines schnellen R\u00fcckzugs nach dem 26-Jahres-Hoch. Die EPS-Datenunsicherheit bleibt ein strukturelles Risiko.",
+        "best_argument_against": "AKAM hat gerade ein 26-Jahres-Hoch markiert \u2013 ein klassisches Momentum-\u00dcberschie\u00dfen-Signal. Bei solchen extremen historischen Hochs ist die Wahrscheinlichkeit eines Mean-Reversion-Ereignisses erh\u00f6ht, da viele langfristige Inhaber in Gewinne hineinverkaufen und Short-Seller aktiv werden. Das Signal ist m\u00f6glicherweise bereits vollst\u00e4ndig eingepreist, wodurch weiteres Upside-Potenzial begrenzt ist."
       },
       "trade_rank": 2,
       "exit_rules": {
@@ -306,6 +306,160 @@
         "stop_loss_price": 15.06,
         "time_exit_dte_remaining": 49,
         "time_exit_date": "2026-07-03",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "ALB",
+      "strategy": "LONG_CALL",
+      "iv_rank": 78.5,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-07-17",
+        "strike": 195.0,
+        "bid": 24.05,
+        "ask": 26.7,
+        "open_interest": 165,
+        "implied_vol": 0.6418,
+        "spread_ratio": 0.0993,
+        "dte": 63,
+        "delta": 0.6103,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.5863,
+        "roi_net": 0.2713,
+        "spread_pct": 0.0993,
+        "vega_loss": 0.1165,
+        "delta": 0.6103,
+        "iv_drop_assumed": 0.15,
+        "cost_basis": 26.7,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.12,
+        "dte": 63
+      },
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 3.0177,
+      "all_tiers_tried": [
+        {
+          "tier": "Mid-Term",
+          "dte": 63,
+          "option": {
+            "expiry": "2026-07-17",
+            "strike": 195.0,
+            "bid": 24.05,
+            "ask": 26.7,
+            "open_interest": 165,
+            "implied_vol": 0.6418,
+            "spread_ratio": 0.0993,
+            "dte": 63,
+            "delta": 0.6103,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 0.5863,
+            "roi_net": 0.2713,
+            "spread_pct": 0.0993,
+            "vega_loss": 0.1165,
+            "delta": 0.6103,
+            "iv_drop_assumed": 0.15,
+            "cost_basis": 26.7,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.12,
+            "dte": 63
+          },
+          "annualized_roi": 3.0177,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.818,
+        "z_score": 0.236,
+        "sigma_30d": 0.0416,
+        "price_move_48h": 0.0098,
+        "eps_drift": 0.0234,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.557
+      },
+      "simulation": {
+        "current_price": 200.94,
+        "target_price": 226.59,
+        "hit_rate": 0.5588,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0381,
+        "alpha": 0.00045
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "ALB hat bereits eine 238,1%-Rallye hinter sich, was auf eine erhebliche \u00dcberbewertung hinweist. Selbst wenn der Pentagon-Katalysator real ist, k\u00f6nnte dieser nach einer solch extremen Kursbewegung bereits vollst\u00e4ndig eingepreist sein \u2013 'Buy the rumor, sell the news' ist bei Rohstoffwerten mit politisch getriebenen Narrativen besonders virulent. Die aktuelle Bewertung l\u00e4sst wenig Sicherheitsmarge f\u00fcr Entt\u00e4uschungen.",
+          "argument_2": "Der EPS-Widerspruch zwischen yfinance (+10,95) und SEC EDGAR (-3,34) ist ein schwerwiegendes Datenqualit\u00e4tsproblem. Ein negatives GAAP-EPS bei gleichzeitig stark gestiegener Aktie deutet auf eine fundamentale Schw\u00e4che, die durch bereinigte Zahlen \u00fcberdeckt wird. Lithiumpreise sind strukturell volatil und k\u00f6nnen binnen weniger Monate kollabieren, wie 2023-2025 mehrfach demonstriert wurde.",
+          "argument_3": "Der Pentagon-Deadline-Katalysator (< 8 Monate) ist politisch getrieben und damit hochgradig unsicher. Regulatorische und geopolitische Katalysatoren in diesem Bereich scheitern regelm\u00e4\u00dfig an Umsetzungsverz\u00f6gerungen, Kongressblockaden oder Verhandlungsergebnissen, die Marktalternativen bevorzugen. ALB ist zudem in einem zyklischen Sektor, der bei neutralem Makro keine strukturelle Unterst\u00fctzung erh\u00e4lt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Bei einem Titel mit dieser Volatilit\u00e4t und dem extremen Ein-Jahres-Anstieg ist das Fehlen einer MC-Statistik ein erhebliches Warnsignal \u2013 es l\u00e4sst sich keine quantitative Aussage \u00fcber Trefferquoten machen. Concern bleibt hoch, da keine Modell-Validierung vorliegt.",
+          "concern_level": "high"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Insider-Cluster-K\u00e4ufe (7 in 14 Tagen) bei einem bereits stark gestiegenen Titel signalisieren, dass Insides einen weiteren Anstieg erwarten, der \u00f6ffentlich noch nicht vollst\u00e4ndig diskontiert ist. Der Pentagon-Katalysator hat eine harte Deadline, was den Druck auf politische Entscheidungen erh\u00f6ht und ALB als Nutznie\u00dfer positioniert. Die EPS-Divergenz schreckt institutionelle K\u00e4ufer ab, was eine partielle Underreaction trotz positiver Signallage erzeugt.",
+        "catalyst": "Pentagon-Frist zur Reduktion der Abh\u00e4ngigkeit von chinesischen Seltenen Erden (<8 Monate) kombiniert mit Insider-Cluster-Kaufsignal",
+        "bear_case": "238%-Rallye in 12 Monaten bei negativem GAAP-EPS macht ALB anf\u00e4llig f\u00fcr aggressive Gewinnmitnahmen; politische Katalysatoren scheitern oft an Umsetzungsverz\u00f6gerungen",
+        "macro_assessment": "Flache Zinskurve (+0,48%) und neutrale Fed-Politik (3,64%) liefern weder R\u00fccken- noch Gegenwind. Bei neutralem Makro k\u00f6nnen Einzelaktien-Katalysatoren wirken, jedoch fehlt der expansive R\u00fcckenwind, der zyklische Rohstoffwerte \u00fcberproportional befl\u00fcgelt. Impact-Bewertung bleibt konservativ.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.48,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLB",
+        "rel_strength": 0.0541
+      },
+      "final_score": 0.083,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.4306,
+        "annualized_roi": 3.0177,
+        "dte": 63
+      },
+      "trade_score": {
+        "total": 48,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 22.1,
+          "risk_deductions": -12.0,
+          "context_bonus": 20.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (27%), positive Sektor-Relative-St\u00e4rke | Risiken: hohes Bear-Risiko (7/10)",
+        "best_argument_for": "Insider-Cluster-K\u00e4ufe (7 in 14 Tagen) bei einem bereits stark gestiegenen Titel signalisieren, dass Insides einen weiteren Anstieg erwarten, der \u00f6ffentlich noch nicht vollst\u00e4ndig diskontiert ist. Der Pentagon-Katalysator hat eine harte Deadline, was den Druck auf politische Entscheidungen erh\u00f6ht und ALB als Nutznie\u00dfer positioniert. Die EPS-Divergenz schreckt institutionelle K\u00e4ufer ab, was eine partielle Underreaction trotz positiver Signallage erzeugt.",
+        "best_argument_against": "ALB hat bereits eine 238,1%-Rallye hinter sich, was auf eine erhebliche \u00dcberbewertung hinweist. Selbst wenn der Pentagon-Katalysator real ist, k\u00f6nnte dieser nach einer solch extremen Kursbewegung bereits vollst\u00e4ndig eingepreist sein \u2013 'Buy the rumor, sell the news' ist bei Rohstoffwerten mit politisch getriebenen Narrativen besonders virulent. Die aktuelle Bewertung l\u00e4sst wenig Sicherheitsmarge f\u00fcr Entt\u00e4uschungen."
+      },
+      "trade_rank": 3,
+      "exit_rules": {
+        "entry_cost": 26.7,
+        "take_profit_pct": 50,
+        "take_profit_price": 40.05,
+        "full_profit_pct": 100,
+        "full_profit_price": 53.4,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 16.02,
+        "time_exit_dte_remaining": 31,
+        "time_exit_date": "2026-06-16",
         "time_exit_min_profit_pct": 20
       }
     }
