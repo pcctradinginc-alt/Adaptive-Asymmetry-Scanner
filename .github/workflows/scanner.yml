@@ -40,25 +40,26 @@ jobs:
       # ── Scanner ──────────────────────────────────────────────────────────
       - name: Run Scanner
         env:
-          ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
-          TRADIER_API_KEY:      ${{ secrets.TRADIER_API_KEY }}
-          NEWS_API_KEY:         ${{ secrets.NEWS_API_KEY }}
-          GMAIL_SENDER:         ${{ secrets.GMAIL_SENDER }}
-          GMAIL_APP_PW:         ${{ secrets.GMAIL_APP_PW }}
-          NOTIFY_EMAIL:         ${{ secrets.NOTIFY_EMAIL }}
-          FINNHUB_API_KEY:      ${{ secrets.FINNHUB_API_KEY }}
+          ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+          TRADIER_API_KEY:       ${{ secrets.TRADIER_API_KEY }}
+          NEWS_API_KEY:          ${{ secrets.NEWS_API_KEY }}
+          GMAIL_SENDER:          ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW:          ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL:          ${{ secrets.NOTIFY_EMAIL }}
+          FINNHUB_API_KEY:       ${{ secrets.FINNHUB_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-          FLASH_ALPHA_API_KEY:  ${{ secrets.FLASH_ALPHA_API_KEY }}
-          EULERPOOL_API_KEY:    ${{ secrets.EULERPOOL_API_KEY }}
-          HF_HUB_CACHE:         /tmp/finbert_cache
-          TRANSFORMERS_CACHE:   /tmp/finbert_cache
-          HF_HOME:              /tmp/finbert_cache
+          FLASH_ALPHA_API_KEY:   ${{ secrets.FLASH_ALPHA_API_KEY }}
+          EULERPOOL_API_KEY:     ${{ secrets.EULERPOOL_API_KEY }}
+          HF_HUB_CACHE:          /tmp/finbert_cache
+          TRANSFORMERS_CACHE:    /tmp/finbert_cache
+          HF_HOME:               /tmp/finbert_cache
         run: python pipeline.py
 
       # ── Feedback Loop ────────────────────────────────────────────────────
       - name: Run Feedback Loop
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
         run: python feedback.py
 
       # ── Git Commit ───────────────────────────────────────────────────────
