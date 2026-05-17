@@ -1,0 +1,775 @@
+{
+  "date": "2026-05-17",
+  "proposals": [
+    {
+      "ticker": "BKR",
+      "strategy": "LONG_CALL",
+      "iv_rank": 54.1,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-06-18",
+        "strike": 65.0,
+        "bid": 2.4,
+        "ask": 2.65,
+        "open_interest": 1776,
+        "implied_vol": 0.359,
+        "spread_ratio": 0.0943,
+        "dte": 31,
+        "delta": 0.4872,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.9431,
+        "roi_net": 0.6336,
+        "spread_pct": 0.0943,
+        "vega_loss": 0.1208,
+        "delta": 0.4872,
+        "iv_drop_assumed": 0.12,
+        "cost_basis": 2.65,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 31
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 9.99,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 31,
+          "option": {
+            "expiry": "2026-06-18",
+            "strike": 65.0,
+            "bid": 2.4,
+            "ask": 2.65,
+            "open_interest": 1776,
+            "implied_vol": 0.359,
+            "spread_ratio": 0.0943,
+            "dte": 31,
+            "delta": 0.4872,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 0.9431,
+            "roi_net": 0.6336,
+            "spread_pct": 0.0943,
+            "vega_loss": 0.1208,
+            "delta": 0.4872,
+            "iv_drop_assumed": 0.12,
+            "cost_basis": 2.65,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 31
+          },
+          "annualized_roi": 9.99,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 2.74,
+        "z_score": 0.452,
+        "sigma_30d": 0.0214,
+        "price_move_48h": 0.0097,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6604
+      },
+      "simulation": {
+        "current_price": 64.12,
+        "target_price": 69.25,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0209,
+        "alpha": 0.0031
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Rig-Count-Anstieg ist ein zyklisches, nicht strukturelles Signal: Historisch folgen \u00d6lfelddienstleister wie BKR mit erheblicher Verz\u00f6gerung auf Rig-Count-Gewinne, da Vertragsabschl\u00fcsse und Mobilisierungskosten die Margenausweitung 2-4 Quartale verz\u00f6gern. Ein 'New Strong Sell'-Rating vom 15.05.2026 deutet darauf hin, dass professionelle Analysten den Zyklus m\u00f6glicherweise bereits als \u00fcberhitzt einstufen.",
+          "argument_2": "\u00d6lpreisanstiege im Jahr 2026 sind fundamental fragil: Ein \u00d6lpreisr\u00fcckgang durch nachlassende OPEC+-Disziplin, steigende US-Shale-Produktion oder globale Nachfrageschw\u00e4che (insbesondere China-Verlangsamung) w\u00fcrde den Rig-Count-Katalysator sofort zunichte machen. BKR bei $64.12 impliziert bereits eine Premium-Bewertung f\u00fcr den Energiesektor, sodass das Upside bei einer \u00d6lpreisnormalisierung stark begrenzt ist.",
+          "argument_3": "Der Insider-Kauf-Cluster (7 K\u00e4ufe in 14 Tagen) klingt bullish, ist aber ohne Kontext zu Kaufvolumen, -preis und Insider-Hierarchie wertlos. Wenn die K\u00e4ufe \u00fcberwiegend von niedrigrangigen Insidern in kleinen St\u00fcckzahlen stammen, ist das Signal statistisch insignifikant. Zudem k\u00f6nnte der 48h-Preisr\u00fcckgang von -1.0% trotz positiver News ein Warnsignal sein, dass das Smart Money bereits verkauft.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Die 0% Hit-Rate ist nicht inhaltlich interpretierbar, da kein Quick MC durchgef\u00fchrt wurde. Das Fehlen der Simulation ist selbst ein Datenproblem und reduziert die statistische Confidence erheblich \u2014 ohne MC-Basis kann keine Wahrscheinlichkeitsaussage zur Kurszielreichung getroffen werden.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt preist den Rig-Count-Anstieg als kurzfristiges Rauschen ein, untersch\u00e4tzt jedoch die strukturelle Margenverbesserung durch h\u00f6here Serviceraten in einem nachfragestarken Zyklus. Der Insider-Cluster von 7 K\u00e4ufern signalisiert Insider-Konfidenz in den kommenden Quartalsbericht als konkreten Katalysator. Das gleichzeitige Strong-Sell-Rating erzeugt eine k\u00fcnstliche Diskrepanz, die eine Underreaction auf positive Fundamentaldaten beg\u00fcnstigt.",
+        "catalyst": "N\u00e4chster Quartalsbericht Q2-2026 mit potenziellem Margenanstieg durch h\u00f6here Rig-Activity und Servicepreise; Insider-Cluster deutet auf Management-Konfidenz in Zahlen hin",
+        "bear_case": "Ein R\u00fcckgang des \u00d6lpreises unter die Break-Even-Schwelle f\u00fcr neue Bohrprojekte w\u00fcrde den Rig-Count-Anstieg reversieren und BKR als zyklischen Underperformer exponieren, w\u00e4hrend die aktuelle Bewertung kaum Puffer bietet.",
+        "macro_assessment": "Das neutrale Makro-Regime mit flacher Kurve (0.50%) und Fed Funds bei 3.64% ist f\u00fcr Energieservices ambivalent: Keine Rezessionswarnung, aber auch kein expansiver R\u00fcckenwind. Die 10Y bei 4.32% erh\u00f6ht den Discount-Faktor f\u00fcr kapitalintensive Sektoren leicht. Insgesamt kein Makro-Veto, aber auch keine makro-basierte Verst\u00e4rkung des bullishen Signals.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLE",
+        "rel_strength": 0.0675
+      },
+      "final_score": 0.1859,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 2.0439,
+        "annualized_roi": null,
+        "dte": 31
+      },
+      "trade_score": {
+        "total": 65,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 27.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 20.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (63%), positive Sektor-Relative-St\u00e4rke",
+        "best_argument_for": "Der Markt preist den Rig-Count-Anstieg als kurzfristiges Rauschen ein, untersch\u00e4tzt jedoch die strukturelle Margenverbesserung durch h\u00f6here Serviceraten in einem nachfragestarken Zyklus. Der Insider-Cluster von 7 K\u00e4ufern signalisiert Insider-Konfidenz in den kommenden Quartalsbericht als konkreten Katalysator. Das gleichzeitige Strong-Sell-Rating erzeugt eine k\u00fcnstliche Diskrepanz, die eine Underreaction auf positive Fundamentaldaten beg\u00fcnstigt.",
+        "best_argument_against": "Der Rig-Count-Anstieg ist ein zyklisches, nicht strukturelles Signal: Historisch folgen \u00d6lfelddienstleister wie BKR mit erheblicher Verz\u00f6gerung auf Rig-Count-Gewinne, da Vertragsabschl\u00fcsse und Mobilisierungskosten die Margenausweitung 2-4 Quartale verz\u00f6gern. Ein 'New Strong Sell'-Rating vom 15.05.2026 deutet darauf hin, dass professionelle Analysten den Zyklus m\u00f6glicherweise bereits als \u00fcberhitzt einstufen."
+      },
+      "trade_rank": 1,
+      "exit_rules": {
+        "entry_cost": 2.65,
+        "take_profit_pct": 50,
+        "take_profit_price": 3.97,
+        "full_profit_pct": 100,
+        "full_profit_price": 5.3,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 1.59,
+        "time_exit_dte_remaining": 15,
+        "time_exit_date": "2026-06-03",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "CARR",
+      "strategy": "LONG_CALL",
+      "iv_rank": 56.6,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 62.5,
+        "bid": 6.8,
+        "ask": 7.4,
+        "open_interest": 376,
+        "implied_vol": 0.3788,
+        "spread_ratio": 0.0811,
+        "dte": 123,
+        "delta": 0.6201,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.4332,
+        "roi_net": 0.2193,
+        "spread_pct": 0.0811,
+        "vega_loss": 0.0518,
+        "delta": 0.6201,
+        "iv_drop_assumed": 0.07,
+        "cost_basis": 7.4,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.12,
+        "dte": 123
+      },
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 0.8011,
+      "all_tiers_tried": [
+        {
+          "tier": "Mid-Term",
+          "dte": 123,
+          "option": {
+            "expiry": "2026-09-18",
+            "strike": 62.5,
+            "bid": 6.8,
+            "ask": 7.4,
+            "open_interest": 376,
+            "implied_vol": 0.3788,
+            "spread_ratio": 0.0811,
+            "dte": 123,
+            "delta": 0.6201,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 0.4332,
+            "roi_net": 0.2193,
+            "spread_pct": 0.0811,
+            "vega_loss": 0.0518,
+            "delta": 0.6201,
+            "iv_drop_assumed": 0.07,
+            "cost_basis": 7.4,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.12,
+            "dte": 123
+          },
+          "annualized_roi": 0.8011,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 2.109,
+        "z_score": 0.578,
+        "sigma_30d": 0.0309,
+        "price_move_48h": 0.0178,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6398
+      },
+      "simulation": {
+        "current_price": 64.67,
+        "target_price": 69.84,
+        "hit_rate": 0.7222,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0237,
+        "alpha": 0.00239
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die AI Data Center Cooling-Story ist bereits ein weitverbreitetes Narrativ im Markt \u2013 zahlreiche Analysten und Medien haben CARR in diesem Kontext positioniert, was bedeutet, dass der strukturelle Tailwind m\u00f6glicherweise bereits erheblich in der Bewertung ber\u00fccksichtigt ist. Bei einem KGV von ~20x (Kurs $64.67 / EPS $3.20) ist keine klassische Unterbewertung erkennbar, und ein bereits eingepreister Katalysator liefert selten weiteres Alpha.",
+          "argument_2": "Die massive EPS-Diskrepanz zwischen yfinance ($3.20) und SEC EDGAR ($1.50) ist ein ernstes Datenzuverl\u00e4ssigkeitsproblem. Sollte das SEC-EPS das korrektere Bild widerspiegeln, handelt die Aktie auf Basis bereinigter Earnings bei einem KGV von ~43x \u2013 eine Bewertung, die f\u00fcr einen Industrials-Titel erhebliches Downside-Risiko birgt, falls Wachstumserwartungen verfehlt werden.",
+          "argument_3": "CARR ist ein Industrials-Unternehmen mit erheblicher Exposition gegen\u00fcber dem globalen HVAC-Markt und Bauwirtschaft, die bei Zinsniveaus von 4.32% (10Y) weiterhin unter Druck steht. Der Wohnungsbau und kommerzielle Bau-Sektor zeigen strukturelle Schw\u00e4che, was das Kerngesch\u00e4ft belasten k\u00f6nnte und den positiven Effekt aus dem Data-Center-Segment kompensieren d\u00fcrfte.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate technisch bedeutungslos und kein echtes statistisches Signal. Die fehlenden MC-Daten reduzieren die quantitative Absicherung der Analyse erheblich \u2013 die Bewertung muss ohne probabilistische Pfadanalyse erfolgen, was die Unsicherheit erh\u00f6ht.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt bewertet CARR prim\u00e4r als klassischen HVAC-Hersteller, untersch\u00e4tzt aber die Margenpotenziale im hochmargigen Hyperscaler-Cooling-Segment. Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen signalisieren informiertes Kapital, das vor Hyperscaler-Guidance-Events positioniert. Die strukturelle DC-Expansion ist ein mehrj\u00e4hriger Trend, der in der Konsenssch\u00e4tzung noch nicht vollst\u00e4ndig reflektiert ist.",
+        "catalyst": "Hyperscaler Q2/Q3 2026 Guidance-Updates zu Data Center Capex und m\u00f6gliche CARR-Auftragsank\u00fcndigungen f\u00fcr Cooling-Infrastruktur",
+        "bear_case": "EPS-Diskrepanz (yfinance $3.20 vs. SEC $1.50) deutet auf m\u00f6gliche Bewertungs\u00fcberdehnung hin; falls bereinigtes EPS ma\u00dfgeblich ist, ist CARR fundamental teuer und anf\u00e4llig f\u00fcr Entt\u00e4uschungen",
+        "macro_assessment": "Neutrales Makro-Umfeld (Kurve +0.50%, Fed Funds 3.64%) liefert weder signifikanten R\u00fccken- noch Gegenwind. F\u00fcr Industrials leicht positiv, da keine Rezessionssignale vorliegen, aber das anhaltend hohe Zinsniveau belastet das Kerngesch\u00e4ft (Bau/HVAC) weiterhin moderat. Data-Center-Exposition mildert dieses Risiko partiell.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLI",
+        "rel_strength": 0.1197
+      },
+      "final_score": 0.1859,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.1783,
+        "annualized_roi": 0.8011,
+        "dte": 123
+      },
+      "trade_score": {
+        "total": 57,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 19.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 20.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (22%), positive Sektor-Relative-St\u00e4rke",
+        "best_argument_for": "Der Markt bewertet CARR prim\u00e4r als klassischen HVAC-Hersteller, untersch\u00e4tzt aber die Margenpotenziale im hochmargigen Hyperscaler-Cooling-Segment. Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen signalisieren informiertes Kapital, das vor Hyperscaler-Guidance-Events positioniert. Die strukturelle DC-Expansion ist ein mehrj\u00e4hriger Trend, der in der Konsenssch\u00e4tzung noch nicht vollst\u00e4ndig reflektiert ist.",
+        "best_argument_against": "Die AI Data Center Cooling-Story ist bereits ein weitverbreitetes Narrativ im Markt \u2013 zahlreiche Analysten und Medien haben CARR in diesem Kontext positioniert, was bedeutet, dass der strukturelle Tailwind m\u00f6glicherweise bereits erheblich in der Bewertung ber\u00fccksichtigt ist. Bei einem KGV von ~20x (Kurs $64.67 / EPS $3.20) ist keine klassische Unterbewertung erkennbar, und ein bereits eingepreister Katalysator liefert selten weiteres Alpha."
+      },
+      "trade_rank": 2,
+      "exit_rules": {
+        "entry_cost": 7.4,
+        "take_profit_pct": 50,
+        "take_profit_price": 11.1,
+        "full_profit_pct": 100,
+        "full_profit_price": 14.8,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 4.44,
+        "time_exit_dte_remaining": 61,
+        "time_exit_date": "2026-07-19",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "ABNB",
+      "strategy": "LONG_CALL",
+      "iv_rank": 15.3,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 140.0,
+        "bid": 7.55,
+        "ask": 7.9,
+        "open_interest": 467,
+        "implied_vol": 0.366,
+        "spread_ratio": 0.0443,
+        "dte": 95,
+        "delta": 0.4505,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6062,
+        "roi_net": 0.493,
+        "spread_pct": 0.0443,
+        "vega_loss": 0.0246,
+        "delta": 0.4505,
+        "iv_drop_assumed": 0.02,
+        "cost_basis": 7.9,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.12,
+        "dte": 95
+      },
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 3.664,
+      "all_tiers_tried": [
+        {
+          "tier": "Mid-Term",
+          "dte": 95,
+          "option": {
+            "expiry": "2026-08-21",
+            "strike": 140.0,
+            "bid": 7.55,
+            "ask": 7.9,
+            "open_interest": 467,
+            "implied_vol": 0.366,
+            "spread_ratio": 0.0443,
+            "dte": 95,
+            "delta": 0.4505,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 0.6062,
+            "roi_net": 0.493,
+            "spread_pct": 0.0443,
+            "vega_loss": 0.0246,
+            "delta": 0.4505,
+            "iv_drop_assumed": 0.02,
+            "cost_basis": 7.9,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.12,
+            "dte": 95
+          },
+          "annualized_roi": 3.664,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 0.997,
+        "z_score": 0.801,
+        "sigma_30d": 0.0167,
+        "price_move_48h": 0.0134,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5136
+      },
+      "simulation": {
+        "current_price": 132.85,
+        "target_price": 143.48,
+        "hit_rate": 0.609,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.02,
+        "alpha": 0.00164
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die AOC-Kritikwelle adressiert ein strukturelles politisches Risiko, das nicht als tempor\u00e4rer Noise abgetan werden sollte. Regulatorischer Gegenwind durch Mietrechtsversch\u00e4rfungen, Kurzzeitvermietungsverbote in st\u00e4dtischen Gebieten und politischer Druck auf Plattform\u00f6konomie k\u00f6nnten das Wachstumsmodell von ABNB in Kernm\u00e4rkten (USA, EU) mittelfristig besch\u00e4digen. Der Markt preist m\u00f6glicherweise Regulierungsrisiken strukturell ein, nicht nur \u00fcber.",
+          "argument_2": "Der Q1-Beat und die Analysten-Upgrades sind ein klassischer 'Buy the news, sell the fact'-Kontext. Nach einem positiven Quartalsergebnis tendieren Aktien ohne klaren Forward-Katalysator zur Konsolidierung. ABNB hat in den letzten 48h bereits -1,3% verloren, was auf eine Ersch\u00f6pfung des Post-Earnings-Impulses hindeutet. Die angehobenen Analyst-Outlooks sind bereits im Kurs reflektiert.",
+          "argument_3": "Die EPS-Abweichung zwischen yfinance (6.04) und SEC EDGAR (4.05) ist erheblich und deutet auf potenzielle Datenkonfusion hin \u2014 m\u00f6glicherweise GAAP vs. Non-GAAP. Falls der Markt auf Basis von \u00fcberh\u00f6hten Non-GAAP-Zahlen bewertet, besteht ein Bewertungsrisiko bei strikter GAAP-Betrachtung. Consumer Cyclicals sind zudem bei flacher Zinskurve anf\u00e4llig, da diskretion\u00e4re Konsumausgaben f\u00fcr Reisen konjunktursensitiv bleiben.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate nicht aussagekr\u00e4ftig und kann weder best\u00e4tigt noch widerlegt werden. Dies reduziert die statistische Grundlage der Analyse erheblich und erh\u00f6ht die Unsicherheit bei der Positionsbewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt \u00fcbergewichtet das politische AOC-Narrativ als fundamentales Risiko, obwohl Regulierungs\u00e4ngste f\u00fcr ABNB strukturell bekannt und historisch meist nicht in disruptive Policy umgesetzt wurden. Vier Insider-K\u00e4ufe in 14 Tagen signalisieren, dass Interne den Abverkauf als \u00fcbertrieben werten. Die flache Zinskurve im neutralen Makro-Regime d\u00e4mpft den Gegenwind und l\u00e4sst Einzelaktien-Alpha durch Earnings-Recovery zu.",
+        "catalyst": "Sommerbuchungs-Saison 2026 als operativer Umsatzkatalysator kombiniert mit m\u00f6glichem n\u00e4chsten Earnings-Report (Q2 2026), der die angehobenen Analyst-Outlooks best\u00e4tigen oder \u00fcbertreffen k\u00f6nnte.",
+        "bear_case": "Regulatorische Eskalation in US-Kernst\u00e4dten sowie anhaltender politischer Druck k\u00f6nnten Wachstumsprojektionen f\u00fcr die Plattform dr\u00fccken und institutionelle Investoren zur Rotation aus Consumer Cyclicals veranlassen.",
+        "macro_assessment": "Das neutrale Makro-Regime mit flacher Zinskurve (0,50%) und Fed Funds Rate bei 3,64% ist weder klar bullish noch bearish f\u00fcr ABNB. Reise-Nachfrage bleibt bei positiver Realwachstumsdynamik intakt, jedoch sind Consumer Cyclicals bei einer m\u00f6glichen Abk\u00fchlung des Konsums anf\u00e4llig. Kein signifikanter Makro-R\u00fcckenwind f\u00fcr eine aggressive Bullish-Position.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": -0.0214
+      },
+      "final_score": 0.1859,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.5189,
+        "annualized_roi": 3.664,
+        "dte": 95
+      },
+      "trade_score": {
+        "total": 54,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 26.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (49%), g\u00fcnstige IV (15%)",
+        "best_argument_for": "Der Markt \u00fcbergewichtet das politische AOC-Narrativ als fundamentales Risiko, obwohl Regulierungs\u00e4ngste f\u00fcr ABNB strukturell bekannt und historisch meist nicht in disruptive Policy umgesetzt wurden. Vier Insider-K\u00e4ufe in 14 Tagen signalisieren, dass Interne den Abverkauf als \u00fcbertrieben werten. Die flache Zinskurve im neutralen Makro-Regime d\u00e4mpft den Gegenwind und l\u00e4sst Einzelaktien-Alpha durch Earnings-Recovery zu.",
+        "best_argument_against": "Die AOC-Kritikwelle adressiert ein strukturelles politisches Risiko, das nicht als tempor\u00e4rer Noise abgetan werden sollte. Regulatorischer Gegenwind durch Mietrechtsversch\u00e4rfungen, Kurzzeitvermietungsverbote in st\u00e4dtischen Gebieten und politischer Druck auf Plattform\u00f6konomie k\u00f6nnten das Wachstumsmodell von ABNB in Kernm\u00e4rkten (USA, EU) mittelfristig besch\u00e4digen. Der Markt preist m\u00f6glicherweise Regulierungsrisiken strukturell ein, nicht nur \u00fcber."
+      },
+      "trade_rank": 3,
+      "exit_rules": {
+        "entry_cost": 7.9,
+        "take_profit_pct": 50,
+        "take_profit_price": 11.85,
+        "full_profit_pct": 100,
+        "full_profit_price": 15.8,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 4.74,
+        "time_exit_dte_remaining": 47,
+        "time_exit_date": "2026-07-05",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "BMY",
+      "strategy": "LONG_CALL",
+      "iv_rank": 49.3,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-06-05",
+        "strike": 56.0,
+        "bid": 2.0,
+        "ask": 2.14,
+        "open_interest": 993,
+        "implied_vol": 0.2743,
+        "spread_ratio": 0.0654,
+        "dte": 18,
+        "delta": 0.6297,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 1.3418,
+        "roi_net": 1.1802,
+        "spread_pct": 0.0654,
+        "vega_loss": 0.0307,
+        "delta": 0.6297,
+        "iv_drop_assumed": 0.05,
+        "cost_basis": 2.14,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.15,
+        "dte": 18
+      },
+      "dte_tier": "Short-Term",
+      "annualized_roi": 9.99,
+      "all_tiers_tried": [
+        {
+          "tier": "Short-Term",
+          "dte": 18,
+          "option": {
+            "expiry": "2026-06-05",
+            "strike": 56.0,
+            "bid": 2.0,
+            "ask": 2.14,
+            "open_interest": 993,
+            "implied_vol": 0.2743,
+            "spread_ratio": 0.0654,
+            "dte": 18,
+            "delta": 0.6297,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 1.3418,
+            "roi_net": 1.1802,
+            "spread_pct": 0.0654,
+            "vega_loss": 0.0307,
+            "delta": 0.6297,
+            "iv_drop_assumed": 0.05,
+            "cost_basis": 2.14,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.15,
+            "dte": 18
+          },
+          "annualized_roi": 9.99,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.347,
+        "z_score": 0.331,
+        "sigma_30d": 0.0171,
+        "price_move_48h": 0.0057,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5524
+      },
+      "simulation": {
+        "current_price": 57.0,
+        "target_price": 61.56,
+        "hit_rate": 0.6684,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0166,
+        "alpha": 0.00236
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "BMY tr\u00e4gt eine erhebliche Schuldenlast aus der Celgene-Akquisition, und die Pipeline-Diversifizierung durch China-Kollaborationen birgt regulatorische und geopolitische Risiken. US-China-Spannungen k\u00f6nnten Technologietransfers und klinische Datenpakete verz\u00f6gern oder blockieren, was die vermeintliche strukturelle St\u00e4rke ad absurdum f\u00fchrt.",
+          "argument_2": "Der EPS-Konflikt zwischen yfinance (6.17) und SEC EDGAR (3.57) ist erheblich \u2014 eine Abweichung von ~73% deutet auf GAAP- vs. Non-GAAP-Verzerrungen hin. Das wahre Ertragspotenzial ist unklar, und wenn der Markt auf SEC-konforme Zahlen umstellt, ist Kurskorrekturpotenzial nach unten vorhanden.",
+          "argument_3": "Die Carboplatin/Nivolumab Phase-II-Studie in metastasiertem TNBC zeigt keinen gesicherten \u00dcberlebensvorteil gegen\u00fcber Konkurrenzprodukten (Keytruda). Selbst bei positivem Ausgang ist der inkrementelle Marktanteil begrenzt, und der Katalysator k\u00f6nnte durch bestehende Checkpoint-Inhibitor-Konkurrenz bereits vollst\u00e4ndig eingepreist sein.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "MC wurde nicht durchgef\u00fchrt (0 Pfade). Bei einer Healthcare-Aktie mit strukturellen Katalysatoren wie Insider-Cluster und China-Pipeline ist das Fehlen einer MC-Validierung problematisch. Bei typischer BMY-Volatilit\u00e4t (IV ~25-30%) w\u00e4re eine 30d Hit-Rate f\u00fcr moderate Aufw\u00e4rtsbewegungen (~5%) historisch bei 45-55% realistisch. Der fehlende MC kann weder best\u00e4tigen noch widerlegen.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat den Insider-Cluster-Kauf von 6 Personen in 14 Tagen noch nicht vollst\u00e4ndig eingepreist, da derartige koordinierte Insiderk\u00e4ufe statistisch signifikant f\u00fcr positive Erwartungen der Unternehmensf\u00fchrung sind. Die China-Kollaboration wird als geopolitisches Risiko wahrgenommen, obwohl sie Pipeline-Diversifizierung und Kostenreduktion bedeutet. Cendakimab-Marktprognosen 2026-2034 deuten auf untersch\u00e4tzte Umsatzpotenziale hin.",
+        "catalyst": "Positive Phase-II-Daten zur Carboplatin/Nivolumab-Studie in TNBC oder erste Meilensteinzahlungen aus der China-Drug-Development-Kollaboration innerhalb Q3 2026",
+        "bear_case": "Geopolitische Eskalation im US-China-Verh\u00e4ltnis k\u00f6nnte die Kollaboration gef\u00e4hrden, w\u00e4hrend gleichzeitig der EPS-Konflikt zwischen GAAP und Non-GAAP-Zahlen bei Neubeurteilung durch Analysten Abwertungspotenzial schafft.",
+        "macro_assessment": "Das neutrale Makroumfeld (flache Kurve +0.50%, Fed Funds 3.64%) ist f\u00fcr BMY als defensiven Healthcare-Titel moderat positiv. Kein signifikanter R\u00fccken- oder Gegenwind. Das Zinsumfeld belastet BMIs Schuldendienst leicht, ist aber nicht kritisch. Neutral-Regime erlaubt strukturellen Katalysatoren, sich zu entfalten, ohne durch Makro-Gegenwind \u00fcberlagert zu werden.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLV",
+        "rel_strength": -0.0291
+      },
+      "final_score": 0.0848,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 6.5567,
+        "annualized_roi": null,
+        "dte": 18
+      },
+      "trade_score": {
+        "total": 53,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 25.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (118%)",
+        "best_argument_for": "Der Markt hat den Insider-Cluster-Kauf von 6 Personen in 14 Tagen noch nicht vollst\u00e4ndig eingepreist, da derartige koordinierte Insiderk\u00e4ufe statistisch signifikant f\u00fcr positive Erwartungen der Unternehmensf\u00fchrung sind. Die China-Kollaboration wird als geopolitisches Risiko wahrgenommen, obwohl sie Pipeline-Diversifizierung und Kostenreduktion bedeutet. Cendakimab-Marktprognosen 2026-2034 deuten auf untersch\u00e4tzte Umsatzpotenziale hin.",
+        "best_argument_against": "BMY tr\u00e4gt eine erhebliche Schuldenlast aus der Celgene-Akquisition, und die Pipeline-Diversifizierung durch China-Kollaborationen birgt regulatorische und geopolitische Risiken. US-China-Spannungen k\u00f6nnten Technologietransfers und klinische Datenpakete verz\u00f6gern oder blockieren, was die vermeintliche strukturelle St\u00e4rke ad absurdum f\u00fchrt."
+      },
+      "trade_rank": 4,
+      "exit_rules": {
+        "entry_cost": 2.14,
+        "take_profit_pct": 50,
+        "take_profit_price": 3.21,
+        "full_profit_pct": 100,
+        "full_profit_price": 4.28,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 1.28,
+        "time_exit_dte_remaining": 9,
+        "time_exit_date": "2026-05-27",
+        "time_exit_min_profit_pct": 20
+      }
+    },
+    {
+      "ticker": "CVX",
+      "strategy": "LONG_CALL",
+      "iv_rank": 46.4,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 190.0,
+        "bid": 10.8,
+        "ask": 12.0,
+        "open_interest": 345,
+        "implied_vol": 0.3161,
+        "spread_ratio": 0.1,
+        "dte": 95,
+        "delta": 0.5012,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6386,
+        "roi_net": 0.4183,
+        "spread_pct": 0.1,
+        "vega_loss": 0.0204,
+        "delta": 0.5012,
+        "iv_drop_assumed": 0.02,
+        "cost_basis": 12.0,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.12,
+        "dte": 95
+      },
+      "dte_tier": "Mid-Term",
+      "annualized_roi": 2.8292,
+      "all_tiers_tried": [
+        {
+          "tier": "Mid-Term",
+          "dte": 95,
+          "option": {
+            "expiry": "2026-08-21",
+            "strike": 190.0,
+            "bid": 10.8,
+            "ask": 12.0,
+            "open_interest": 345,
+            "implied_vol": 0.3161,
+            "spread_ratio": 0.1,
+            "dte": 95,
+            "delta": 0.5012,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 0.6386,
+            "roi_net": 0.4183,
+            "spread_pct": 0.1,
+            "vega_loss": 0.0204,
+            "delta": 0.5012,
+            "iv_drop_assumed": 0.02,
+            "cost_basis": 12.0,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.12,
+            "dte": 95
+          },
+          "annualized_roi": 2.8292,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.948,
+        "z_score": 0.21,
+        "sigma_30d": 0.0176,
+        "price_move_48h": 0.0037,
+        "eps_drift": 0.0035,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5448
+      },
+      "simulation": {
+        "current_price": 191.1,
+        "target_price": 206.39,
+        "hit_rate": 0.6692,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0152,
+        "alpha": 0.00244
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Energiesektor steht unter erheblichem strukturellem Gegenwind durch die globale Energiewende und potenzielle Nachfrageschw\u00e4che. Bei einem Fed Funds Rate von 3.64% und moderatem Wachstumsumfeld bleibt der \u00d6lpreis anf\u00e4llig f\u00fcr Korrekturen, da OPEC+-\u00dcberproduktion und schwache chinesische Nachfrage den WTI-Preis belasten k\u00f6nnen \u2014 CVX's Gewinne sind direkt an den Roh\u00f6lpreis gebunden.",
+          "argument_2": "Die EPS-Diskrepanz zwischen yfinance (12.17) und SEC EDGAR (5.75) ist erheblich und signalisiert ernste Datenqualit\u00e4tsprobleme. Eine solche Abweichung von \u00fcber 50% deutet m\u00f6glicherweise auf unterschiedliche Berechnungsgrundlagen (adjusted vs. GAAP) hin und macht eine verl\u00e4ssliche fundamentale Bewertung nahezu unm\u00f6glich \u2014 das P/E-Verh\u00e4ltnis und jede darauf basierende These ist damit fragw\u00fcrdig.",
+          "argument_3": "Der Hinweis auf Trump-bezogene Energiek\u00e4ufe in den News ist ein politisches Signal, kein fundamentales. Regulatory Tailwinds durch politische Pr\u00e4ferenzen sind kurzlebig und nicht nachhaltig \u2014 sie k\u00f6nnen sich bei politischen Kurs\u00e4nderungen oder Wahlergebnissen 2026/2027 schnell umkehren. Der 'Katalysator' ist damit strukturell schwach und nicht im Gewinn modellierbar.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine statistische Validierung verf\u00fcgbar. Dies erh\u00f6ht die Unsicherheit erheblich, da keine quantitative Pfadanalyse die These st\u00fctzt. Einsch\u00e4tzung muss rein qualitativ erfolgen, was die Zuverl\u00e4ssigkeit der Bewertung mindert.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Insider-Cluster aus 6 K\u00e4ufern in 14 Tagen ist ein statistisch seltenes Signal, das Markteilnehmer oft untersch\u00e4tzen, da es mit politischem L\u00e4rm \u00fcberlagert wird. Der Berkshire-R\u00fcckzug aus Hyperscalern zugunsten von Energy signalisiert eine institutionelle Neubewertung des Sektors, die noch nicht vollst\u00e4ndig eingepreist scheint. Das Biofuel-Profitabilit\u00e4tssignal der US-Raffinerien erg\u00e4nzt den strukturellen Repricing-Narrativ f\u00fcr integrierte Majors wie CVX.",
+        "catalyst": "Institutionelle Sektorrrotation (Berkshire-Signal) kombiniert mit Insider-Cluster-K\u00e4ufen als Best\u00e4tigung eines bevorstehenden Q2-2026 Earnings Beats",
+        "bear_case": "\u00d6lpreiskorrektur durch OPEC+-\u00dcberproduktion oder schwache China-Nachfrage w\u00fcrde CVX's Gewinne direkt komprimieren und die bullische These vollst\u00e4ndig entwerten \u2014 politische Tailwinds sch\u00fctzen nicht vor Commodity-Risiken.",
+        "macro_assessment": "Neutrale Makrolage mit flacher Zinskurve (0.50%) und Fed Rate von 3.64% ist f\u00fcr Energietitel moderat konstruktiv \u2014 keine Rezessionsgefahr, aber auch kein starker R\u00fcckenwind. Das Umfeld erlaubt moderate Bullen-Positionierung, rechtfertigt jedoch keine aggressiven Calls.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLE",
+        "rel_strength": -0.0451
+      },
+      "final_score": 0.0848,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.4403,
+        "annualized_roi": 2.8292,
+        "dte": 95
+      },
+      "trade_score": {
+        "total": 51,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 23.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 10.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (42%) | Risiken: Sektor underperformt Markt",
+        "best_argument_for": "Insider-Cluster aus 6 K\u00e4ufern in 14 Tagen ist ein statistisch seltenes Signal, das Markteilnehmer oft untersch\u00e4tzen, da es mit politischem L\u00e4rm \u00fcberlagert wird. Der Berkshire-R\u00fcckzug aus Hyperscalern zugunsten von Energy signalisiert eine institutionelle Neubewertung des Sektors, die noch nicht vollst\u00e4ndig eingepreist scheint. Das Biofuel-Profitabilit\u00e4tssignal der US-Raffinerien erg\u00e4nzt den strukturellen Repricing-Narrativ f\u00fcr integrierte Majors wie CVX.",
+        "best_argument_against": "Der Energiesektor steht unter erheblichem strukturellem Gegenwind durch die globale Energiewende und potenzielle Nachfrageschw\u00e4che. Bei einem Fed Funds Rate von 3.64% und moderatem Wachstumsumfeld bleibt der \u00d6lpreis anf\u00e4llig f\u00fcr Korrekturen, da OPEC+-\u00dcberproduktion und schwache chinesische Nachfrage den WTI-Preis belasten k\u00f6nnen \u2014 CVX's Gewinne sind direkt an den Roh\u00f6lpreis gebunden."
+      },
+      "trade_rank": 5,
+      "exit_rules": {
+        "entry_cost": 12.0,
+        "take_profit_pct": 50,
+        "take_profit_price": 18.0,
+        "full_profit_pct": 100,
+        "full_profit_price": 24.0,
+        "stop_loss_pct": -40,
+        "stop_loss_price": 7.2,
+        "time_exit_dte_remaining": 47,
+        "time_exit_date": "2026-07-05",
+        "time_exit_min_profit_pct": 20
+      }
+    }
+  ]
+}
