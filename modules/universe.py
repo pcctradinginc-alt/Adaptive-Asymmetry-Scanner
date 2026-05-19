@@ -20,8 +20,17 @@ Ersetzt durch aktuelle Aufnahmen:
 from __future__ import annotations
 import logging
 from functools import lru_cache
+from io import StringIO
+
+import requests
 
 log = logging.getLogger(__name__)
+
+# Wikipedia blockiert Standard-Scraper ohne User-Agent
+_WP_HEADERS = {
+    "User-Agent": "AdaptiveAsymmetryScanner/9.0 (research@pcctrading.com; index-rebalancing-tracker)",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 
 # ── Veraltete Ticker (delistet/akquiriert) ────────────────────────────────────
 # Diese Ticker sollen NIE mehr im Universum auftauchen
@@ -104,8 +113,10 @@ _NASDAQ100_STATIC: list[str] = [
 def _fetch_sp500() -> list[str]:
     try:
         import pandas as pd
-        url    = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-        tables = pd.read_html(url, attrs={"id": "constituents"})
+        url  = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        resp = requests.get(url, headers=_WP_HEADERS, timeout=12)
+        resp.raise_for_status()
+        tables  = pd.read_html(StringIO(resp.text), attrs={"id": "constituents"})
         tickers = (
             tables[0]["Symbol"]
             .str.replace(".", "-", regex=False)
@@ -122,8 +133,10 @@ def _fetch_sp500() -> list[str]:
 def _fetch_nasdaq100() -> list[str]:
     try:
         import pandas as pd
-        url = "https://en.wikipedia.org/wiki/Nasdaq-100"
-        all_tables = pd.read_html(url)
+        url  = "https://en.wikipedia.org/wiki/Nasdaq-100"
+        resp = requests.get(url, headers=_WP_HEADERS, timeout=12)
+        resp.raise_for_status()
+        all_tables = pd.read_html(StringIO(resp.text))
         for table in all_tables:
             if "Ticker" in table.columns:
                 tickers = (
