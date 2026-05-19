@@ -1,26 +1,36 @@
 """
-modules/options_designer.py v8.1
+modules/options_designer.py v9.0
+
+Änderungen v9.0:
+    #1  DTE-Architektur: Erste passende Tier-Logik ersetzt durch Catalyst-aligned DTE.
+        time_to_materialization aus deep_analysis bestimmt jetzt das DTE-Minimum.
+        Tiers unterhalb des Minimums werden übersprungen (nicht nur vega_loss-Check).
+
+    #2  IV-Spread-Gate: 85% → 52%.
+        BULL_CALL_SPREAD wird ab IV-Rank ≥ 52% gewählt (nicht erst bei 85%).
+        Bei normaler IV (< 52%) bleibt LONG_CALL, weil Vega-Exposure akzeptabel.
+
+    #3  Probability-weighted ROI: roi_delta × mc_hit_rate.
+        MC Hit-Rate aus quick_mc wird als Wahrscheinlichkeitsgewicht genutzt.
+        Ergebnis: 135%-ROI bei 0.55 Hit-Rate → ~74% realistischer Erwartungswert.
+
+    #6  time_to_materialization wird jetzt explizit aus deep_analysis
+        ausgelesen und an _compute_roi + Proposal weitergegeben.
+
+    #13 Theta-Decay-Gate: theta_daily_pct > 3%/Tag bei Short-Term → erzwingt
+        Upgrade auf Mid-Term. Verhindert dass Options mit >3% Tagesverlust
+        durch Zeitwert bei Short-Term akzeptiert werden.
 
 Änderungen v8.1:
     1. Adaptives Strike-Fenster bei hohem Aktienkurs
-       Problem: AME ~$310 → 3% OTM = $9.3 → zu eng → kein Kontrakt gefunden
-       Fix: Mindestens $15 Dollar-Spielraum pro Seite (statt % vom Kurs)
-       Gilt für beide Pfade: Tradier + yfinance Fallback
-
     2. Delta-Filter im Tradier-Pfad
-       Tradier liefert echtes Delta → direkt nutzbar statt BS-Approximation
-       Ziel: Delta 0.50–0.75 (aus config: delta_target_low / delta_target_high)
-       Fallback: Wenn kein Kontrakt im Delta-Fenster → alle behalten (kein hard reject)
-       Nur im Tradier-Pfad — yfinance liefert kein Delta
 
 Änderungen v8.0:
-    - Tradier Live-API als primäre Datenquelle für Option Chains + Expirations
-    - yfinance bleibt vollständiger Fallback
-    - TRADIER_API_KEY via os.environ
+    - Tradier Live-API als primäre Datenquelle
+    - yfinance Fallback
 
 Änderungen v7.5:
-    - IV-Rank Kalibrierung: Term-Structure-Gewicht 50%→20%, Formel entschärft
-    - RV-Percentile dominiert (80%), Term-Structure ergänzt (20%, cap 80)
+    - IV-Rank Kalibrierung
 """
 
 from __future__ import annotations
@@ -40,13 +50,30 @@ from modules.macro_context import get_macro_regime_multiplier
 
 log = logging.getLogger(__name__)
 
-IV_RANK_GATE = 85.0
+# IV-Gate: ab diesem Wert wird SPREAD statt LONG_CALL gewählt
+# v9.0: 85% → 52% (Spread schützt bereits bei mittlerer IV)
+IV_SPREAD_GATE = 52.0
+
+# IV-Gate für Scoring-Log (behalten für Kompatibilität)
+IV_RANK_GATE = IV_SPREAD_GATE
 
 DTE_TIERS = [
     {"label": "Short-Term", "dte_min": 14,  "dte_max": 60,  "min_roi": 0.15},
     {"label": "Mid-Term",   "dte_min": 61,  "dte_max": 149, "min_roi": 0.12},
     {"label": "Long-Term",  "dte_min": 150, "dte_max": 365, "min_roi": 0.10},
 ]
+
+# v9.0 #6: time_to_materialization → DTE-Minimum
+# Verhindert 16-DTE-Option bei 3-Monats-Thesis
+TTM_TO_DTE_MIN: dict[str, int] = {
+    "4-8 Wochen":  14,   # Short-Term erlaubt
+    "2-3 Monate":  55,   # Mid-Term Minimum (kein 16-DTE!)
+    "6 Monate":   140,   # Long-Term Minimum
+}
+
+# v9.0 #13: Theta-Decay-Gate
+# Wenn Zeitwertverlust > X%/Tag des Prämienpreises → Short-Term überspringen
+THETA_DAILY_PCT_GATE = 0.030   # 3 % pro Tag
 
 SECTOR_ETF = {
     "Technology": "XLK", "Healthcare": "XLV", "Biotechnology": "XBI",
@@ -62,8 +89,6 @@ RELATIVE_STRENGTH_MIN = -0.08
 TRADIER_BASE    = "https://api.tradier.com/v1"
 TRADIER_TIMEOUT = 10
 
-# v8.1: Mindest-Dollar-Spielraum für Strike-Fenster
-# Verhindert zu enges Fenster bei hochpreisigen Aktien (AME, GOOGL, etc.)
 MIN_STRIKE_DOLLAR_RANGE = 15.0
 
 
@@ -162,7 +187,6 @@ def _strike_window(current: float, dte_min: int, dte_max: int) -> tuple[float, f
 
     v8.1: Adaptiv bei hohem Aktienkurs.
     Mindestens MIN_STRIKE_DOLLAR_RANGE ($15) Spielraum pro Seite.
-    Verhindert zu enges Fenster bei Aktien >$300 (AME, GOOGL, etc.).
 
     Beispiele:
         AME  $310, Short-Term: 3% = $9.3  → zu eng → $15 = 4.8% → otm=1.048
@@ -236,10 +260,32 @@ class OptionsDesigner:
             t = yf.Ticker(ticker)
         iv_rank = self._get_iv_rank(ticker, t)
 
+        # v9.0 #6: time_to_materialization → DTE-Minimum
+        da  = s.get("deep_analysis", {})
+        ttm = da.get("time_to_materialization", "4-8 Wochen") or "4-8 Wochen"
+        dte_floor = TTM_TO_DTE_MIN.get(ttm, 14)
+        log.info(
+            f"  [{ticker}] TTM='{ttm}' → DTE-Minimum={dte_floor}d "
+            f"(Catalyst-aligned DTE Gate)"
+        )
+
+        # v9.0 #3: MC Hit-Rate für probability-weighted ROI
+        qmc         = s.get("quick_mc", {}) or {}
+        mc_hit_rate = float(qmc.get("hit_rate", 0.65) or 0.65)
+        mc_hit_rate = max(0.30, min(0.95, mc_hit_rate))  # Sicherheitsclip
+
         results_per_tier = []
 
         for tier in DTE_TIERS:
             label = tier["label"]
+
+            # v9.0 #1: Überspringe Tiers die unter dem Catalyst-DTE-Minimum liegen
+            if tier["dte_max"] < dte_floor:
+                log.info(
+                    f"  [{ticker}] {label}: dte_max={tier['dte_max']}d < "
+                    f"dte_floor={dte_floor}d (Thesis={ttm}) → übersprungen"
+                )
+                continue
 
             strategy = self._select_strategy(ticker, direction, iv_rank)
             option   = self._find_option_for_dte(
@@ -259,19 +305,20 @@ class OptionsDesigner:
                 if not option:
                     continue
 
-            roi = self._compute_roi(option, sim, iv_rank, tier, strategy)
+            roi = self._compute_roi(option, sim, iv_rank, tier, strategy, mc_hit_rate)
 
             try:
                 dte_safe       = max(int(option.get("dte") or 1), 1)
                 roi_net_safe   = float(roi["roi_net"].real if isinstance(roi["roi_net"], complex) else roi["roi_net"])
                 annualized_roi = float((1 + roi_net_safe) ** (365 / dte_safe) - 1)
-                annualized_roi = min(annualized_roi, 9.99)  # Cap: >999% p.a. = nicht aussagekräftig
+                annualized_roi = min(annualized_roi, 9.99)
             except Exception:
                 annualized_roi = 0.0
 
             log.info(
                 f"  [{ticker}] {label} ({int(option['dte'] or 0)}d): "
-                f"ROI={roi['roi_net']:.1%} "
+                f"ROI={roi['roi_net']:.1%} (mc_weighted) "
+                f"theta={roi.get('theta_daily_pct', 0):.1%}/d "
                 f"(ann.={annualized_roi:.1%}) "
                 f"{'✅ PASS' if roi['passes_roi_gate'] else '❌ FAIL'}"
             )
@@ -283,12 +330,25 @@ class OptionsDesigner:
                 "strategy": strategy,
             })
 
-            if label == "Short-Term" and roi.get("vega_loss", 0) > 0.35:
-                log.info(
-                    f"  [{ticker}] {label}: Vega-Loss={roi['vega_loss']:.0%} > 35% "
-                    f"→ zu hohes IV-Crush-Risiko, versuche längere Laufzeit"
-                )
-                continue
+            # v9.0 #13: Theta-Decay-Gate — bei Short-Term und hohem Theta → upgrade
+            if label == "Short-Term":
+                theta_pct = roi.get("theta_daily_pct", 0.0)
+                vega_loss = roi.get("vega_loss", 0)
+
+                if theta_pct > THETA_DAILY_PCT_GATE:
+                    log.info(
+                        f"  [{ticker}] {label}: Theta={theta_pct:.1%}/d > "
+                        f"{THETA_DAILY_PCT_GATE:.0%} Gate → Zeitwertverlust zu hoch, "
+                        f"versuche längere Laufzeit"
+                    )
+                    continue
+
+                if vega_loss > 0.35:
+                    log.info(
+                        f"  [{ticker}] {label}: Vega-Loss={vega_loss:.0%} > 35% "
+                        f"→ zu hohes IV-Crush-Risiko, versuche längere Laufzeit"
+                    )
+                    continue
 
             if roi["passes_roi_gate"]:
                 tier_idx = DTE_TIERS.index(tier)
@@ -304,21 +364,24 @@ class OptionsDesigner:
                         )
 
                 return {
-                    "ticker":          ticker,
-                    "strategy":        strategy,
-                    "iv_rank":         iv_rank,
-                    "iv_gate_applied": iv_rank >= IV_RANK_GATE,
-                    "direction":       direction,
-                    "option":          option,
-                    "roi_analysis":    roi,
-                    "dte_tier":        label,
-                    "annualized_roi":  round(annualized_roi, 4),
-                    "all_tiers_tried": results_per_tier,
-                    "features":        s.get("features", {}),
-                    "simulation":      s.get("simulation", {}),
-                    "deep_analysis":   s.get("deep_analysis", {}),
-                    "sector_momentum": s.get("sector_momentum", {}),
-                    "final_score":     s.get("final_score", 0),
+                    "ticker":              ticker,
+                    "strategy":            strategy,
+                    "iv_rank":             iv_rank,
+                    "iv_gate_applied":     iv_rank >= IV_SPREAD_GATE,
+                    "direction":           direction,
+                    "option":              option,
+                    "roi_analysis":        roi,
+                    "dte_tier":            label,
+                    "annualized_roi":      round(annualized_roi, 4),
+                    "all_tiers_tried":     results_per_tier,
+                    "features":            s.get("features", {}),
+                    "simulation":          s.get("simulation", {}),
+                    "deep_analysis":       s.get("deep_analysis", {}),
+                    "sector_momentum":     s.get("sector_momentum", {}),
+                    "final_score":         s.get("final_score", 0),
+                    "mc_hit_rate":         mc_hit_rate,
+                    "time_to_maturation":  ttm,
+                    "sector":              s.get("info", {}).get("sector", ""),
                 }
 
         tried = ", ".join(
@@ -328,16 +391,23 @@ class OptionsDesigner:
         return None
 
     def _select_strategy(self, ticker: str, direction: str, iv_rank: float) -> str:
-        if iv_rank >= IV_RANK_GATE:
+        # v9.0 #2: IV-Spread-Gate 85% → 52%
+        if iv_rank >= IV_SPREAD_GATE:
             s = "BULL_CALL_SPREAD" if direction == "BULLISH" else "BEAR_PUT_SPREAD"
-            log.info(f"  [{ticker}] IV={iv_rank:.0f}% ≥ {IV_RANK_GATE:.0f}% → {s} (Vega-Schutz)")
+            log.info(f"  [{ticker}] IV={iv_rank:.0f}% ≥ {IV_SPREAD_GATE:.0f}% → {s} (Vega-Schutz)")
         else:
             s = "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
-            log.info(f"  [{ticker}] IV={iv_rank:.0f}% < {IV_RANK_GATE:.0f}% → {s} (Optionen günstig)")
+            log.info(f"  [{ticker}] IV={iv_rank:.0f}% < {IV_SPREAD_GATE:.0f}% → {s} (Optionen günstig)")
         return s
 
     def _compute_roi(
-        self, option: dict, sim: dict, iv_rank: float, tier: dict, strategy: str = ""
+        self,
+        option:      dict,
+        sim:         dict,
+        iv_rank:     float,
+        tier:        dict,
+        strategy:    str  = "",
+        mc_hit_rate: float = 0.65,   # v9.0 #3: probability weight
     ) -> dict:
         bid     = option.get("bid", 0) or 0
         ask     = option.get("ask", 0) or 0
@@ -354,13 +424,15 @@ class OptionsDesigner:
         if cost <= 0 or current <= 0:
             return {"roi_net": 0.0, "passes_roi_gate": False,
                     "roi_gross": 0.0, "spread_pct": 0.0,
-                    "vega_loss": 0.0, "min_roi_threshold": min_roi}
+                    "vega_loss": 0.0, "theta_daily_pct": 0.0,
+                    "breakeven": 0.0, "breakeven_pct": 0.0,
+                    "delta": 0.0, "min_roi_threshold": min_roi}
 
         if iv < 0.05 or iv > 3.0:
             iv = 0.30
 
         spread_pct = (ask - bid) / ask if ask > 0 else 0.0
-        T          = dte / 365.0
+        T          = max(dte / 365.0, 1 / 365.0)  # mindestens 1 Tag
 
         tradier_delta = option.get("delta")
         if tradier_delta and 0.01 <= abs(float(tradier_delta)) <= 0.99:
@@ -368,23 +440,45 @@ class OptionsDesigner:
             vega  = 0.0
             try:
                 d1   = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
-                vega = current * math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi) * math.sqrt(T)
+                nd1  = math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi)
+                vega = current * nd1 * math.sqrt(T)
             except Exception:
-                pass
+                nd1 = 0.0
         else:
             try:
-                d1    = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
+                d1   = (math.log(current / strike) + 0.5 * iv**2 * T) / (iv * math.sqrt(T))
+                nd1  = math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi)
                 delta = (1.0 + math.erf(d1 / math.sqrt(2.0))) / 2.0
-                vega  = current * math.exp(-0.5 * d1**2) / math.sqrt(2 * math.pi) * math.sqrt(T)
+                vega  = current * nd1 * math.sqrt(T)
             except Exception:
-                delta, vega = 0.5, 0.0
+                delta, vega, nd1 = 0.5, 0.0, 0.0
 
         if is_spread:
             delta *= 0.80
 
+        # v9.0 #13: Theta-Decay (vereinfachte BS-Formel, r≈0)
+        # theta_per_year = -current * N'(d1) * sigma / (2 * sqrt(T))
+        # = -vega * sigma / (2 * T)
+        try:
+            theta_per_year = -(current * nd1 * iv) / (2.0 * math.sqrt(T))
+            theta_daily    = theta_per_year / 365.0
+            theta_daily_pct = abs(theta_daily) / cost if cost > 0 else 0.0
+        except Exception:
+            theta_daily     = 0.0
+            theta_daily_pct = 0.0
+
+        # Breakeven bei Expiry
+        breakeven     = strike + ask if not is_spread else strike + cost
+        breakeven_pct = (breakeven - current) / current if current > 0 else 0.0
+
         leverage      = current / cost if cost > 0 else 1.0
         expected_move = (target - current) / current if target > current else 0.0
-        roi_delta     = expected_move * delta * leverage
+
+        # v9.0 #3: Probability-weighted ROI
+        # roi_delta × mc_hit_rate: deterministisches "Underlying erreicht Ziel"
+        # wird zu probability-weighted Erwartungswert
+        mc_weight = max(0.30, min(0.95, mc_hit_rate))
+        roi_delta = expected_move * delta * leverage * mc_weight
 
         if dte <= 60:
             iv_drop = 0.25 if iv_rank >= 70 else (0.12 if iv_rank >= 50 else 0.05)
@@ -407,9 +501,14 @@ class OptionsDesigner:
             "roi_net":           round(_safe_float(roi_net), 4),
             "spread_pct":        round(_safe_float(spread_pct), 4),
             "vega_loss":         round(_safe_float(vega_loss), 4),
+            "theta_daily":       round(_safe_float(theta_daily), 4),
+            "theta_daily_pct":   round(_safe_float(theta_daily_pct), 4),
             "delta":             round(_safe_float(delta), 4),
+            "breakeven":         round(_safe_float(breakeven), 2),
+            "breakeven_pct":     round(_safe_float(breakeven_pct), 4),
             "iv_drop_assumed":   _safe_float(iv_drop),
             "cost_basis":        round(float(cost), 4),
+            "mc_weight":         round(mc_weight, 3),
             "is_spread":         is_spread,
             "passes_roi_gate":   passes,
             "min_roi_threshold": min_roi,
@@ -456,7 +555,6 @@ class OptionsDesigner:
             if opts.empty:
                 return None
 
-            # v8.1: Adaptives Strike-Fenster
             otm_max, itm_max = _strike_window(current, dte_min, dte_max)
 
             min_oi = max(
@@ -479,7 +577,6 @@ class OptionsDesigner:
             if filtered.empty:
                 return None
 
-            # v8.1: Delta-Filter (nur Tradier — liefert echtes Delta)
             delta_min = getattr(getattr(cfg, "options", None), "delta_target_low",  0.50)
             delta_max = getattr(getattr(cfg, "options", None), "delta_target_high", 0.75)
             if "delta" in filtered.columns:
@@ -555,7 +652,6 @@ class OptionsDesigner:
             is_call     = "CALL" in strategy or "BULL" in strategy
             opts        = chain.calls if is_call else chain.puts
 
-            # v8.1: Adaptives Strike-Fenster (identisch zu Tradier-Pfad)
             otm_max, itm_max = _strike_window(current, dte_min, dte_max)
 
             filtered = opts[
@@ -576,8 +672,6 @@ class OptionsDesigner:
             filtered = filtered[filtered["spread_ratio"] <= cfg.risk.max_bid_ask_ratio]
             if filtered.empty:
                 return None
-
-            # Kein Delta-Filter — yfinance liefert kein zuverlässiges Delta
 
             best = filtered.sort_values("openInterest", ascending=False).iloc[0]
             dte  = self._days_to(best_expiry)
@@ -666,7 +760,7 @@ class OptionsDesigner:
             log.info(
                 f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} "
                 f"→ combined={combined:.0f} "
-                f"({'SPREAD' if combined >= IV_RANK_GATE else 'LONG'})"
+                f"({'SPREAD' if combined >= IV_SPREAD_GATE else 'LONG'})"
             )
             return combined
 
