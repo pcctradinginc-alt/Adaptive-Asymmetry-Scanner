@@ -8,7 +8,7 @@ Architektur:
       Begründung: Stabil, sample-efficient für kleine Datensätze,
       keine Hyperparameter-Tuning nötig für MVP.
     - Policy: MlpPolicy (2 Hidden Layers à 64 Neurons)
-      Begründung: Observation-Space hat nur 9 Dimensionen,
+      Begründung: Observation-Space hat 11 Dimensionen (v9.0),
       tiefere Netze würden auf ~50 Trades overfitten.
     - Modell wird als PPO_options_agent.zip gespeichert.
     - Fallback: Wenn kein trainiertes Modell vorhanden →
@@ -117,7 +117,7 @@ def _create_new_model(env: OptionsRLEnv):
         clip_range=0.2,
         ent_coef=0.01,         # Leichte Exploration-Encouragement
         policy_kwargs={
-            "net_arch": [64, 64],   # 2 Hidden Layers reichen für 9 Features
+            "net_arch": [64, 64],   # 2 Hidden Layers reichen für 11 Features
         },
         verbose=0,
     )
@@ -166,10 +166,15 @@ class RLScorer:
 
         scored = []
         for s in simulated:
+            dte = int(
+                s.get("option", {}).get("dte", 0) or
+                s.get("roi_analysis", {}).get("dte", 90)
+            )
             obs = features_to_obs(
                 features      = s.get("features", {}),
                 simulation    = s.get("simulation", {}),
                 deep_analysis = s.get("deep_analysis", {}),
+                dte           = dte,
             )
 
             # PPO-Inference: deterministisch (kein Exploration-Noise)
@@ -216,19 +221,25 @@ class RLScorer:
         simulation = s.get("simulation", {})
         da         = s.get("deep_analysis", {})
 
-        obs = features_to_obs(features, simulation, da)
+        dte = int(
+            s.get("option", {}).get("dte", 0) or
+            s.get("roi_analysis", {}).get("dte", 90)
+        )
+        obs = features_to_obs(features, simulation, da, dte=dte)
 
-        # Gewichtungen entsprechen den QuasiML-Gewichten aus config.yaml
+        # v9.0: 11 Gewichte (OBS_DIM=11)
         weights = np.array([
             0.15,   # impact
             0.10,   # surprise
             0.20,   # mismatch  (stärkstes Signal)
             0.05,   # z_score
-            0.10,   # eps_drift
-            0.15,   # hit_rate
+            0.08,   # eps_drift
+            0.12,   # hit_rate
             0.05,   # iv_rank
-            0.10,   # sentiment (neu durch FinBERT)
-            0.10,   # bear_severity (invertiert)
+            0.08,   # sentiment
+            0.08,   # bear_severity (invertiert)
+            0.05,   # dte_normalized (kurz = riskanter)
+            0.04,   # catalyst_confidence
         ], dtype=np.float32)
 
         return float(np.dot(obs, weights))
