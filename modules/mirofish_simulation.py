@@ -152,7 +152,12 @@ class MirofishSimulation:
     def __init__(self):
         self.rng = np.random.default_rng()
 
-    def run_for_dte(self, candidate: dict, days_to_expiry: int = 120) -> dict | None:
+    def run_for_dte(
+        self,
+        candidate:    dict,
+        days_to_expiry: int            = 120,
+        min_hit_rate:   float | None   = None,  # Override interner Threshold (Pre-MC)
+    ) -> dict | None:
         ticker   = candidate.get("ticker", "")
         features = candidate.get("features", {}) or {}
         da       = candidate.get("deep_analysis", {}) or {}
@@ -210,7 +215,11 @@ class MirofishSimulation:
         target_pct = (target / current - 1.0) * 100
 
         n_paths   = QUICK_MC_PATHS if days_to_expiry <= 45 else FINAL_MC_PATHS
-        threshold = 0.45 if days_to_expiry <= 45 else 0.50
+        # min_hit_rate überschreibt den internen Threshold (genutzt für Pre-MC Gate
+        # mit niedrigerer Schwelle, ohne das Quick/Final-MC zu beeinflussen)
+        threshold = min_hit_rate if min_hit_rate is not None else (
+            0.45 if days_to_expiry <= 45 else 0.50
+        )
 
         log.info(
             f"  [{ticker}] MC-Kalibrierung: "
