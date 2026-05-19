@@ -123,7 +123,21 @@ def compute_trade_score(proposal: dict) -> dict:
     else:
         oi_pts = 0.5
 
-    options_pts = min(round(roi_pts + liq_pts + oi_pts + roi_penalty, 1), 30.0)
+    # v10.0 #5: Edge vs. Market-Implied Expected Move
+    # edge_vs_implied in % (z.B. 4.2 = Modell erwartet 4.2% mehr als Markt impliziert)
+    # Positiver Edge → Signal hat echte Informationsasymmetrie
+    # Negativer Edge → Markt hat das Kurs-Ziel bereits eingepreist
+    edge_vs_implied = proposal.get("edge_vs_implied")  # % oder None
+    edge_pts = 0.0
+    if edge_vs_implied is not None:
+        if edge_vs_implied < -2.0:
+            edge_pts = -6.0   # Modell-Move unter Market-Implied → kein Edge
+        elif edge_vs_implied < 0.0:
+            edge_pts = -2.0   # leicht negativ
+        elif edge_vs_implied > 5.0:
+            edge_pts = 4.0    # starker positiver Edge
+
+    options_pts = min(round(roi_pts + liq_pts + oi_pts + roi_penalty + edge_pts, 1), 30.0)
     options_pts = max(options_pts, 0.0)
 
     # ── C: RISIKO-ABZÜGE (0 bis -30) ─────────────────────────────────────────
@@ -226,6 +240,18 @@ def compute_trade_score(proposal: dict) -> dict:
     if roi_penalty < 0:
         weaknesses.append(f"ROI-Penalty: {roi_net:.0%} bei {dte}d (Leverage-Artefakt)")
 
+    if edge_vs_implied is not None:
+        implied_pct = proposal.get("implied_move_pct", 0) or 0
+        model_pct   = proposal.get("model_move_pct", 0) or 0
+        if edge_vs_implied < -2.0:
+            weaknesses.append(
+                f"Kein IV-Edge: Model +{model_pct:.1f}% ≤ Markt ±{implied_pct:.1f}% (bereits eingepreist)"
+            )
+        elif edge_vs_implied > 5.0:
+            strengths.append(
+                f"Klarer Edge: Model +{model_pct:.1f}% vs. Markt ±{implied_pct:.1f}% (+{edge_vs_implied:.1f}%)"
+            )
+
     if iv_rank >= 85:
         weaknesses.append(f"hohe IV ({iv_rank:.0f}%) — Optionen teuer")
     elif iv_rank <= 40:
@@ -273,6 +299,7 @@ def compute_trade_score(proposal: dict) -> dict:
             "risk_deductions":   risk_pts,
             "context_bonus":     context_pts,
             "roi_penalty":       roi_penalty,
+            "edge_pts":          edge_pts,
             "macro_sensitivity": macro_sensitivity,
         },
         "reasoning":             " | ".join(reasoning_parts),
