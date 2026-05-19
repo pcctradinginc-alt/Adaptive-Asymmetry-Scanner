@@ -1,5 +1,5 @@
 """
-modules/trade_scorer.py  —  Adaptive Asymmetry-Scanner v8.1
+modules/trade_scorer.py  —  Adaptive Asymmetry-Scanner v9.0
 
 Score-System (0-100 Punkte total):
 
@@ -7,7 +7,7 @@ A. SIGNAL-QUALITÄT (0-40 Punkte)
    √(Impact × Surprise) / 10 × 40
 
 B. OPTIONEN-QUALITÄT (0-30 Punkte)
-   - ROI netto:         max 15 Pkt  (nur positiv)
+   - ROI netto:         max 15 Pkt  (DTE-aware, kurze DTE mit hohem ROI = Penalty)
    - Bid-Ask Spread:    max 10 Pkt
    - Open Interest:     max  5 Pkt
 
@@ -17,10 +17,17 @@ C. RISIKO-ABZÜGE (0 bis -30 Punkte)
    - 48h-Move ≥5%:            bis  -5 Pkt
 
 D. KONTEXT-BONUS (0-30 Punkte)
-   - Makro expansiv:           +10
-   - Sektor-Momentum positiv:  +10
-   - KI-Konsistenz:            +5
-   - Richtungskonflikt:        -5
+   - Makro expansiv (sektor-gewichtet): +10 × Sektor-Sensitivität
+   - Sektor-Momentum positiv:           +10
+   - KI-Konsistenz:                     +5
+   - Richtungskonflikt:                 -5
+
+Änderungen v9.0:
+   #4  ROI-Scoring DTE-aware: >50% ROI bei <30 DTE → Penalty für Leverage-Artefakt.
+       Unterscheidet jetzt zwischen realistischem ROI und kurzfristigem Hebel-Effekt.
+
+   #8  Makro-Bonus sektor-spezifisch: Finanzwerte profitieren mehr von steiler Kurve
+       als Biotech/Healthcare. Multiplikator 0.1 (Healthcare) bis 1.0 (Financials).
 
 Finale Empfehlung:
    >=75: STRONG BUY | 60-74: BUY | 45-59: WATCH | <45: AVOID
@@ -32,6 +39,25 @@ import logging
 
 log = logging.getLogger(__name__)
 
+# v9.0 #8: Sektor-spezifische Makro-Sensitivität
+# Wie stark profitiert ein Sektor von einem expansiven Makro-Regime (steile Zinskurve)?
+# Basis: empirische Korrelation zwischen 10Y-2Y Spread und Sektorperformance
+MACRO_SECTOR_SENSITIVITY: dict[str, float] = {
+    "Financial Services":     1.00,  # Direkter NIM-Effekt
+    "Financials":             1.00,
+    "Real Estate":            0.85,  # Rate-sensitiv (Refinanzierung)
+    "Consumer Cyclical":      0.70,  # Konjunktursensitiv
+    "Industrials":            0.70,
+    "Technology":             0.60,  # Wachstums-Diskontierung
+    "Communication Services": 0.50,
+    "Basic Materials":        0.50,
+    "Energy":                 0.40,  # Rohstoff-getrieben, weniger Makro
+    "Utilities":              0.55,  # Defensive, moderat rate-sensitiv
+    "Consumer Defensive":     0.25,  # Stabil, kaum Makro-Beta
+    "Healthcare":             0.20,  # Pipeline-getrieben, makro-unabhängig
+    "Biotechnology":          0.10,  # Fast ausschließlich katalysatorgetrieben
+}
+
 
 def compute_trade_score(proposal: dict) -> dict:
     da       = proposal.get("deep_analysis", {}) or {}
@@ -40,6 +66,7 @@ def compute_trade_score(proposal: dict) -> dict:
     features = proposal.get("features", {}) or {}
     red_team = da.get("red_team", {}) or {}
     ticker   = proposal.get("ticker", "?")
+    sector   = proposal.get("sector", "") or ""
 
     # ── A: SIGNAL-QUALITÄT (0-40) ─────────────────────────────────────────────
     impact   = float(da.get("impact", 0) or 0)
@@ -55,9 +82,28 @@ def compute_trade_score(proposal: dict) -> dict:
     roi_net    = float(roi_data.get("roi_net", 0) or 0)
     spread_pct = float(roi_data.get("spread_pct", 1) or 1)
     oi         = int(option.get("open_interest", 0) or 0)
+    dte        = int(roi_data.get("dte", 120) or 120)
 
-    roi_capped = min(max(0.0, roi_net), 0.30)
-    roi_pts    = round((roi_capped / 0.30) * 15, 1)
+    # v9.0 #4: DTE-aware ROI-Scoring
+    # Kurze DTE + hoher ROI = Leverage-Artefakt, kein echter Alpha-Edge.
+    # Penalty verhindert, dass 16-DTE 135%-ROI denselben Score bekommt wie
+    # ein 90-DTE 40%-ROI (der probability-weighted realistischer ist).
+    roi_penalty = 0.0
+    if roi_net > 0.50 and dte < 30:
+        # Extremer Leverage-Artefakt: 135% ROI in 16 Tagen
+        roi_for_scoring = 0.20
+        roi_penalty     = -6.0
+        log.debug(f"  [{ticker}] ROI-Penalty: {roi_net:.0%} bei {dte}d → score={roi_for_scoring:.0%} -6pts")
+    elif roi_net > 0.80 and dte < 60:
+        # Hohes Leverage bei Short-Term
+        roi_for_scoring = 0.25
+        roi_penalty     = -3.0
+        log.debug(f"  [{ticker}] ROI-Penalty: {roi_net:.0%} bei {dte}d → score={roi_for_scoring:.0%} -3pts")
+    else:
+        # Realistischer Bereich: cap auf 40% (leicht höher als v8 wegen mc_weight)
+        roi_for_scoring = min(max(0.0, roi_net), 0.40)
+
+    roi_pts = round((roi_for_scoring / 0.40) * 15, 1)
 
     if spread_pct <= 0.05:
         liq_pts = 10.0
@@ -77,7 +123,8 @@ def compute_trade_score(proposal: dict) -> dict:
     else:
         oi_pts = 0.5
 
-    options_pts = min(round(roi_pts + liq_pts + oi_pts, 1), 30.0)
+    options_pts = min(round(roi_pts + liq_pts + oi_pts + roi_penalty, 1), 30.0)
+    options_pts = max(options_pts, 0.0)
 
     # ── C: RISIKO-ABZÜGE (0 bis -30) ─────────────────────────────────────────
     bear_sev  = float(da.get("bear_case_severity", 0) or 0)
@@ -117,12 +164,16 @@ def compute_trade_score(proposal: dict) -> dict:
     sector_info  = proposal.get("sector_momentum", {}) or {}
     sector_rs    = float(sector_info.get("rel_strength", 0) or 0)
 
+    # v9.0 #8: Sektor-spezifische Makro-Sensitivität
+    # Makro-Bonus wird mit der Sektor-Korrelation zur Zinskurve gewichtet.
+    macro_sensitivity = MACRO_SECTOR_SENSITIVITY.get(sector, 0.50)
     if macro_regime == "expansive":
-        macro_bonus = 10.0
+        macro_bonus_base = 10.0
     elif macro_regime in ("neutral", "unknown"):
-        macro_bonus = 5.0
+        macro_bonus_base = 5.0
     else:
-        macro_bonus = 0.0
+        macro_bonus_base = 0.0
+    macro_bonus = round(macro_bonus_base * macro_sensitivity, 1)
 
     if sector_rs >= 0.03:
         sector_bonus = 10.0
@@ -172,6 +223,9 @@ def compute_trade_score(proposal: dict) -> dict:
     elif roi_net < 0:
         weaknesses.append(f"negativer ROI ({roi_net:.0%})")
 
+    if roi_penalty < 0:
+        weaknesses.append(f"ROI-Penalty: {roi_net:.0%} bei {dte}d (Leverage-Artefakt)")
+
     if iv_rank >= 85:
         weaknesses.append(f"hohe IV ({iv_rank:.0f}%) — Optionen teuer")
     elif iv_rank <= 40:
@@ -188,8 +242,10 @@ def compute_trade_score(proposal: dict) -> dict:
     elif sector_rs < -0.03:
         weaknesses.append("Sektor underperformt Markt")
 
-    if macro_regime == "expansive":
-        strengths.append("expansives Makro-Umfeld")
+    if macro_regime == "expansive" and macro_bonus > 5:
+        strengths.append(f"expansives Makro (Sektor-Sensitivität {macro_sensitivity:.0%})")
+    elif macro_regime == "expansive" and macro_bonus <= 3:
+        weaknesses.append(f"Makro expansiv aber Sektor-Korrelation gering ({macro_sensitivity:.0%})")
 
     reasoning_parts = []
     if strengths:
@@ -203,7 +259,8 @@ def compute_trade_score(proposal: dict) -> dict:
     log.info(
         f"  [{ticker}] Score: {total}/100 ({grade_short}) | "
         f"Signal={signal_pts} Optionen={options_pts} "
-        f"Risiko={risk_pts} Kontext={context_pts}"
+        f"Risiko={risk_pts} Kontext={context_pts} "
+        f"(MacroSens={macro_sensitivity:.0%} Sektor='{sector}')"
     )
 
     return {
@@ -211,10 +268,12 @@ def compute_trade_score(proposal: dict) -> dict:
         "grade":       grade_full,
         "grade_short": grade_short,
         "components": {
-            "signal_quality":  signal_pts,
-            "options_quality": options_pts,
-            "risk_deductions": risk_pts,
-            "context_bonus":   context_pts,
+            "signal_quality":    signal_pts,
+            "options_quality":   options_pts,
+            "risk_deductions":   risk_pts,
+            "context_bonus":     context_pts,
+            "roi_penalty":       roi_penalty,
+            "macro_sensitivity": macro_sensitivity,
         },
         "reasoning":             " | ".join(reasoning_parts),
         "best_argument_for":     best_for,
