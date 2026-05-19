@@ -82,8 +82,8 @@ QUICK_MC_DAYS     = 30
 FINAL_MC_PATHS    = 10_000
 
 PRE_MC_PATHS      = 1_000
-PRE_MC_DAYS       = 30
-PRE_MC_THRESHOLD  = 0.25
+PRE_MC_DAYS       = 45    # 30→45: konsistent mit Quick-MC, rettet Low-Vol mit Zeitpuffer
+PRE_MC_THRESHOLD  = 0.40  # 0.25→0.40 (wird als min_hit_rate an mirofish übergeben)
 
 
 def get_mc_threshold(vix) -> float:
@@ -424,7 +424,7 @@ def main() -> None:
         ticker = c["ticker"]
         c_temp = {**c, "deep_analysis": {"impact": 5, "surprise": 5,
                   "time_to_materialization": "2-3 Monate"}}
-        result = pre_mc_sim.run_for_dte(c_temp, days_to_expiry=PRE_MC_DAYS)
+        result = pre_mc_sim.run_for_dte(c_temp, days_to_expiry=PRE_MC_DAYS, min_hit_rate=PRE_MC_THRESHOLD)
         if result and result.get("simulation", {}).get("hit_rate", 0) >= PRE_MC_THRESHOLD:
             pre_mc_viable.append(c)
             log.info(
