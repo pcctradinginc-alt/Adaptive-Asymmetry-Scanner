@@ -66,7 +66,7 @@ DTE_TIERS = [
 # v9.0 #6: time_to_materialization → DTE-Minimum
 # Verhindert 16-DTE-Option bei 3-Monats-Thesis
 TTM_TO_DTE_MIN: dict[str, int] = {
-    "4-8 Wochen":  14,   # Short-Term erlaubt
+    "4-8 Wochen":  45,   # Min 45d: Short-Thesis braucht trotzdem Puffer
     "2-3 Monate":  55,   # Mid-Term Minimum (kein 16-DTE!)
     "6 Monate":   140,   # Long-Term Minimum
 }
@@ -74,6 +74,21 @@ TTM_TO_DTE_MIN: dict[str, int] = {
 # v9.0 #13: Theta-Decay-Gate
 # Wenn Zeitwertverlust > X%/Tag des Prämienpreises → Short-Term überspringen
 THETA_DAILY_PCT_GATE = 0.030   # 3 % pro Tag
+
+# v10.0 #2: Event-typ-spezifische IV-Crush-Schätzungen (Basis-Rate, vor IV-Rank-Scaling)
+# Earnings:  IV crush hoch (42%/18%/6%), Event fix terminiert
+# FDA:       Sehr hoch (60%/22%/8%), binäres Outcome kollabiert Post-Event
+# M&A:       Mittel (25%/10%/3%), bereits teilweise eingepreist
+# Insider:   Niedrig (10%/4%/1%), kein konkretes Event-Datum
+# Other:     Standard (~22%/10%/3%)
+# Scaling:   × (0.5 + iv_rank/200) — bei iv_rank=50: ×0.75, bei iv_rank=100: ×1.0
+EVENT_IV_CRUSH: dict[str, dict[str, float]] = {
+    "EARNINGS": {"short": 0.42, "mid": 0.18, "long": 0.06},
+    "FDA":      {"short": 0.60, "mid": 0.22, "long": 0.08},
+    "MA":       {"short": 0.25, "mid": 0.10, "long": 0.03},
+    "INSIDER":  {"short": 0.10, "mid": 0.04, "long": 0.01},
+    "OTHER":    {"short": 0.22, "mid": 0.10, "long": 0.03},
+}
 
 SECTOR_ETF = {
     "Technology": "XLK", "Healthcare": "XLV", "Biotechnology": "XBI",
@@ -90,6 +105,27 @@ TRADIER_BASE    = "https://api.tradier.com/v1"
 TRADIER_TIMEOUT = 10
 
 MIN_STRIKE_DOLLAR_RANGE = 15.0
+
+
+def _classify_catalyst_type(s: dict) -> str:
+    """
+    Klassifiziert den Katalysator-Typ aus alpha_signals + deep_analysis.
+    Priorität: FDA > Earnings > M&A > Insider > Other
+    Wird in _compute_roi() für event-spezifischen IV-Crush genutzt.
+    """
+    alpha        = s.get("alpha_signals", {}) or {}
+    da           = s.get("deep_analysis", {}) or {}
+    catalyst_txt = (da.get("catalyst", "") or "").lower()
+
+    if alpha.get("fda_catalyst"):
+        return "FDA"
+    if alpha.get("eps_drift") or any(k in catalyst_txt for k in ("earnings", " eps", "ergebnis", "guidance")):
+        return "EARNINGS"
+    if any(k in catalyst_txt for k in ("merger", "acquisition", "takeover", "buyout", "übernahme", "deal", "m&a")):
+        return "MA"
+    if alpha.get("insider_cluster") or "insider" in catalyst_txt:
+        return "INSIDER"
+    return "OTHER"
 
 
 # ── Tradier Hilfsfunktionen ───────────────────────────────────────────────────
@@ -270,9 +306,19 @@ class OptionsDesigner:
         )
 
         # v9.0 #3: MC Hit-Rate für probability-weighted ROI
+        # v10.0 #6: Kein unterer Clamp mehr — 0.30 war künstlich und verbesserte
+        # schlechte Signale. Mirofish filtert bereits < threshold (0.45/0.50).
         qmc         = s.get("quick_mc", {}) or {}
         mc_hit_rate = float(qmc.get("hit_rate", 0.65) or 0.65)
-        mc_hit_rate = max(0.30, min(0.95, mc_hit_rate))  # Sicherheitsclip
+        mc_hit_rate = min(0.95, mc_hit_rate)   # nur obere Grenze, kein Floor
+
+        # v10.0 #2: Katalysator-Typ für event-spezifischen IV-Crush
+        catalyst_type = _classify_catalyst_type(s)
+
+        # Dealer-Gamma aus alpha_signals (bereits in v9.0 berechnet)
+        dealer_gamma = (
+            s.get("alpha_signals", {}).get("dealer_gamma", {}) or {}
+        )
 
         results_per_tier = []
 
@@ -291,7 +337,7 @@ class OptionsDesigner:
                 )
                 continue
 
-            strategy = self._select_strategy(ticker, direction, iv_rank)
+            strategy = self._select_strategy(ticker, direction, iv_rank, dealer_gamma)
             option   = self._find_option_for_dte(
                 ticker, strategy, current, tier["dte_min"], tier["dte_max"], t
             )
@@ -309,7 +355,7 @@ class OptionsDesigner:
                 if not option:
                     continue
 
-            roi = self._compute_roi(option, sim, iv_rank, tier, strategy, mc_hit_rate)
+            roi = self._compute_roi(option, sim, iv_rank, tier, strategy, mc_hit_rate, catalyst_type)
 
             try:
                 dte_safe       = max(int(option.get("dte") or 1), 1)
@@ -367,6 +413,21 @@ class OptionsDesigner:
                             f"Trade akzeptiert mit {option['dte']}d Laufzeit"
                         )
 
+                # v10.0 #5: Market-Implied Expected Move (ATM Straddle)
+                implied_move = self._get_atm_straddle(ticker, current, option["expiry"], t)
+                model_move   = (
+                    (sim.get("target_price", 0) - current) / current
+                    if current > 0 and sim.get("target_price", 0) > current else 0.0
+                )
+                edge_vs_implied = (model_move - implied_move) if implied_move is not None else None
+                if implied_move is not None:
+                    log.info(
+                        f"  [{ticker}] Market-Implied: ±{implied_move:.1%} | "
+                        f"Model: +{model_move:.1%} | "
+                        f"Edge: {edge_vs_implied:+.1%} "
+                        f"({'✅ Edge vorhanden' if edge_vs_implied > 0 else '⚠️ kein Edge'})"
+                    )
+
                 return {
                     "ticker":              ticker,
                     "strategy":            strategy,
@@ -386,6 +447,10 @@ class OptionsDesigner:
                     "mc_hit_rate":         mc_hit_rate,
                     "time_to_maturation":  ttm,
                     "sector":              s.get("info", {}).get("sector", ""),
+                    "catalyst_type":       catalyst_type,
+                    "implied_move_pct":    round(implied_move * 100, 2) if implied_move is not None else None,
+                    "model_move_pct":      round(model_move * 100, 2),
+                    "edge_vs_implied":     round(edge_vs_implied * 100, 2) if edge_vs_implied is not None else None,
                 }
 
         tried = ", ".join(
@@ -394,24 +459,63 @@ class OptionsDesigner:
         log.info(f"  [{ticker}] Alle Laufzeiten unter ROI-Gate: {tried} → verworfen")
         return None
 
-    def _select_strategy(self, ticker: str, direction: str, iv_rank: float) -> str:
-        # v9.0 #2: IV-Spread-Gate 85% → 52%
-        if iv_rank >= IV_SPREAD_GATE:
-            s = "BULL_CALL_SPREAD" if direction == "BULLISH" else "BEAR_PUT_SPREAD"
-            log.info(f"  [{ticker}] IV={iv_rank:.0f}% ≥ {IV_SPREAD_GATE:.0f}% → {s} (Vega-Schutz)")
+    def _select_strategy(
+        self,
+        ticker:       str,
+        direction:    str,
+        iv_rank:      float,
+        dealer_gamma: dict | None = None,
+    ) -> str:
+        """
+        Strategie-Auswahl mit drei Signalen:
+        1. IV-Rank: ≥ 52% → Spread (Vega-Schutz)
+        2. Dealer-Gamma: negative Gamma → aggressiver (LONG_CALL auch bei mittlerer IV)
+        3. Kombination: negative Gamma + niedrige IV → LONG_CALL
+                        positive Gamma + hohe IV   → SPREAD (doppelter Schutz)
+        """
+        dealer_gamma  = dealer_gamma or {}
+        gamma_sign    = dealer_gamma.get("net_gamma_sign", "neutral")
+        gamma_ok      = dealer_gamma.get("data_available", False)
+
+        is_bullish = direction == "BULLISH"
+
+        if gamma_ok and gamma_sign == "negative":
+            # Negative Dealer-Gamma: Moves verstärken sich → aggressiver
+            # Naked Call auch bei mittlerer IV (bis 65%), darüber Spread
+            effective_gate = min(IV_SPREAD_GATE + 13, 65.0)
+            reason = f"Dealer-Gamma negativ (Trend-Verstärkung) → IV-Gate {effective_gate:.0f}%"
+        elif gamma_ok and gamma_sign == "positive":
+            # Positive Dealer-Gamma: Moves werden gedämpft → defensiver
+            # Spread bereits ab niedrigerer IV (40%)
+            effective_gate = max(IV_SPREAD_GATE - 12, 40.0)
+            reason = f"Dealer-Gamma positiv (Mean-Reversion) → IV-Gate {effective_gate:.0f}%"
         else:
-            s = "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
-            log.info(f"  [{ticker}] IV={iv_rank:.0f}% < {IV_SPREAD_GATE:.0f}% → {s} (Optionen günstig)")
+            effective_gate = IV_SPREAD_GATE
+            reason = f"Dealer-Gamma neutral/unbekannt → Standard IV-Gate {IV_SPREAD_GATE:.0f}%"
+
+        if iv_rank >= effective_gate:
+            s = "BULL_CALL_SPREAD" if is_bullish else "BEAR_PUT_SPREAD"
+            log.info(
+                f"  [{ticker}] IV={iv_rank:.0f}% ≥ {effective_gate:.0f}% → {s} "
+                f"(Spread | {reason})"
+            )
+        else:
+            s = "LONG_CALL" if is_bullish else "LONG_PUT"
+            log.info(
+                f"  [{ticker}] IV={iv_rank:.0f}% < {effective_gate:.0f}% → {s} "
+                f"(Naked | {reason})"
+            )
         return s
 
     def _compute_roi(
         self,
-        option:      dict,
-        sim:         dict,
-        iv_rank:     float,
-        tier:        dict,
-        strategy:    str  = "",
-        mc_hit_rate: float = 0.65,   # v9.0 #3: probability weight
+        option:        dict,
+        sim:           dict,
+        iv_rank:       float,
+        tier:          dict,
+        strategy:      str   = "",
+        mc_hit_rate:   float = 0.65,   # v9.0 #3: probability weight
+        catalyst_type: str   = "OTHER", # v10.0 #2: event-spezifischer IV-Crush
     ) -> dict:
         bid     = option.get("bid", 0) or 0
         ask     = option.get("ask", 0) or 0
@@ -478,18 +582,20 @@ class OptionsDesigner:
         leverage      = current / cost if cost > 0 else 1.0
         expected_move = (target - current) / current if target > current else 0.0
 
-        # v9.0 #3: Probability-weighted ROI
-        # roi_delta × mc_hit_rate: deterministisches "Underlying erreicht Ziel"
-        # wird zu probability-weighted Erwartungswert
-        mc_weight = max(0.30, min(0.95, mc_hit_rate))
+        # v9.0 #3 / v10.0 #6: Probability-weighted ROI, kein unterer Clamp mehr
+        mc_weight = min(0.95, mc_hit_rate)
         roi_delta = expected_move * delta * leverage * mc_weight
 
-        if dte <= 60:
-            iv_drop = 0.25 if iv_rank >= 70 else (0.12 if iv_rank >= 50 else 0.05)
-        elif dte <= 149:
-            iv_drop = 0.15 if iv_rank >= 70 else (0.07 if iv_rank >= 50 else 0.02)
-        else:
-            iv_drop = 0.08 if iv_rank >= 70 else (0.03 if iv_rank >= 50 else 0.01)
+        # v10.0 #2: Event-typ-spezifischer IV-Crush + IV-Rank-Scaling
+        # Basis-Rate aus EVENT_IV_CRUSH, dann skaliert mit IV-Rank:
+        # iv_rank=0  → 0.50× (kaum IV, kaum Crush)
+        # iv_rank=50 → 0.75× (mittlere IV)
+        # iv_rank=100→ 1.00× (maximale IV, maximaler Crush)
+        crush_rates  = EVENT_IV_CRUSH.get(catalyst_type, EVENT_IV_CRUSH["OTHER"])
+        dte_key      = "short" if dte <= 60 else ("mid" if dte <= 149 else "long")
+        iv_drop_base = crush_rates[dte_key]
+        iv_rank_scale = 0.5 + (iv_rank / 200.0)
+        iv_drop       = iv_drop_base * iv_rank_scale
 
         vega_loss = min((vega * iv * iv_drop) / cost, 0.50) if cost > 0 else 0.0
         roi_net   = roi_delta - (spread_pct * 2) - vega_loss
@@ -511,6 +617,8 @@ class OptionsDesigner:
             "breakeven":         round(_safe_float(breakeven), 2),
             "breakeven_pct":     round(_safe_float(breakeven_pct), 4),
             "iv_drop_assumed":   _safe_float(iv_drop),
+            "iv_drop_base":      _safe_float(iv_drop_base),
+            "catalyst_type":     catalyst_type,
             "cost_basis":        round(float(cost), 4),
             "mc_weight":         round(mc_weight, 3),
             "is_spread":         is_spread,
@@ -722,6 +830,56 @@ class OptionsDesigner:
         ].iloc[0]
         return {"strike": float(best["strike"]),
                 "bid": float(best["bid"]), "ask": float(best["ask"])}
+
+    # ── ATM Straddle (Market-Implied Expected Move) ───────────────────────────
+
+    def _get_atm_straddle(
+        self, ticker: str, current: float, expiry: str, t=None
+    ) -> Optional[float]:
+        """
+        Berechnet den ATM Straddle-Preis (Call Ask + Put Ask) für eine Expiry.
+        Gibt ihn als Anteil des Aktienkurses zurück (= Market-Implied Expected Move).
+
+        Beispiel: Straddle $10 bei Kurs $100 → implied_move = 0.10 (±10%).
+        """
+        # Tradier: Chain bereits für diese Expiry gecacht
+        if self._use_tradier:
+            try:
+                raw = _tradier_chain(ticker, expiry)
+                if raw:
+                    atm_call = min(
+                        (o for o in raw if o.get("option_type") == "call"),
+                        key=lambda o: abs(float(o.get("strike", 1e9)) - current),
+                        default=None,
+                    )
+                    atm_put = min(
+                        (o for o in raw if o.get("option_type") == "put"),
+                        key=lambda o: abs(float(o.get("strike", 1e9)) - current),
+                        default=None,
+                    )
+                    if atm_call and atm_put:
+                        ca = float(atm_call.get("ask", 0) or 0)
+                        pa = float(atm_put.get("ask", 0) or 0)
+                        if ca > 0 and pa > 0 and current > 0:
+                            return (ca + pa) / current
+            except Exception as e:
+                log.debug(f"  [{ticker}] ATM Straddle Tradier Fehler: {e}")
+
+        # yfinance Fallback
+        try:
+            if t is None:
+                t = yf.Ticker(ticker)
+            chain = t.option_chain(expiry)
+            c = chain.calls.iloc[(chain.calls["strike"] - current).abs().argsort()].iloc[0]
+            p = chain.puts.iloc[(chain.puts["strike"] - current).abs().argsort()].iloc[0]
+            ca = float(c.get("ask", 0) or 0)
+            pa = float(p.get("ask", 0) or 0)
+            if ca > 0 and pa > 0 and current > 0:
+                return (ca + pa) / current
+        except Exception as e:
+            log.debug(f"  [{ticker}] ATM Straddle yfinance Fehler: {e}")
+
+        return None
 
     # ── IV-Rank ───────────────────────────────────────────────────────────────
 
