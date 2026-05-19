@@ -2,616 +2,196 @@
   "date": "2026-05-19",
   "proposals": [
     {
-      "ticker": "BIIB",
-      "strategy": "LONG_CALL",
-      "iv_rank": 60.9,
-      "iv_gate_applied": false,
+      "ticker": "GOOG",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 81.5,
+      "iv_gate_applied": true,
       "direction": "BULLISH",
       "option": {
-        "expiry": "2026-09-18",
-        "strike": 200.0,
-        "bid": 13.3,
-        "ask": 14.4,
-        "open_interest": 1332,
-        "implied_vol": 0.3508,
-        "spread_ratio": 0.0764,
-        "dte": 121,
-        "delta": 0.4883,
-        "data_source": "tradier"
+        "expiry": "2026-08-21",
+        "strike": 380.0,
+        "bid": 32.9,
+        "ask": 34.6,
+        "open_interest": 1254,
+        "implied_vol": 0.356,
+        "spread_ratio": 0.0491,
+        "dte": 93,
+        "delta": 0.6039,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 420.0,
+          "bid": 16.2,
+          "ask": 17.55
+        },
+        "net_debit": 18.4
       },
       "roi_analysis": {
-        "roi_gross": 0.5215,
-        "roi_net": 0.2938,
-        "spread_pct": 0.0764,
-        "vega_loss": 0.075,
-        "delta": 0.4883,
-        "iv_drop_assumed": 0.07,
-        "cost_basis": 14.4,
-        "is_spread": false,
+        "roi_gross": 0.5082,
+        "roi_net": 0.1682,
+        "spread_pct": 0.0491,
+        "vega_loss": 0.2418,
+        "theta_daily": -0.1464,
+        "theta_daily_pct": 0.008,
+        "delta": 0.4831,
+        "breakeven": 398.4,
+        "breakeven_pct": 0.0278,
+        "iv_drop_assumed": 0.16335,
+        "iv_drop_base": 0.18,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 18.4,
+        "mc_weight": 0.624,
+        "is_spread": true,
         "passes_roi_gate": true,
         "min_roi_threshold": 0.12,
-        "dte": 121
+        "dte": 93
       },
       "dte_tier": "Mid-Term",
-      "annualized_roi": 1.175,
+      "annualized_roi": 0.8407,
       "all_tiers_tried": [
         {
           "tier": "Mid-Term",
-          "dte": 121,
+          "dte": 93,
           "option": {
-            "expiry": "2026-09-18",
-            "strike": 200.0,
-            "bid": 13.3,
-            "ask": 14.4,
-            "open_interest": 1332,
-            "implied_vol": 0.3508,
-            "spread_ratio": 0.0764,
-            "dte": 121,
-            "delta": 0.4883,
-            "data_source": "tradier"
+            "expiry": "2026-08-21",
+            "strike": 380.0,
+            "bid": 32.9,
+            "ask": 34.6,
+            "open_interest": 1254,
+            "implied_vol": 0.356,
+            "spread_ratio": 0.0491,
+            "dte": 93,
+            "delta": 0.6039,
+            "data_source": "tradier",
+            "spread_leg": {
+              "strike": 420.0,
+              "bid": 16.2,
+              "ask": 17.55
+            },
+            "net_debit": 18.4
           },
           "roi": {
-            "roi_gross": 0.5215,
-            "roi_net": 0.2938,
-            "spread_pct": 0.0764,
-            "vega_loss": 0.075,
-            "delta": 0.4883,
-            "iv_drop_assumed": 0.07,
-            "cost_basis": 14.4,
-            "is_spread": false,
+            "roi_gross": 0.5082,
+            "roi_net": 0.1682,
+            "spread_pct": 0.0491,
+            "vega_loss": 0.2418,
+            "theta_daily": -0.1464,
+            "theta_daily_pct": 0.008,
+            "delta": 0.4831,
+            "breakeven": 398.4,
+            "breakeven_pct": 0.0278,
+            "iv_drop_assumed": 0.16335,
+            "iv_drop_base": 0.18,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 18.4,
+            "mc_weight": 0.624,
+            "is_spread": true,
             "passes_roi_gate": true,
             "min_roi_threshold": 0.12,
-            "dte": 121
+            "dte": 93
           },
-          "annualized_roi": 1.175,
-          "strategy": "LONG_CALL"
+          "annualized_roi": 0.8407,
+          "strategy": "BULL_CALL_SPREAD"
         }
       ],
       "features": {
         "impact": 5,
-        "surprise": 6,
-        "mismatch": 4.391,
-        "z_score": 0.122,
-        "sigma_30d": 0.0232,
-        "price_move_48h": 0.0028,
-        "eps_drift": 0.0,
+        "surprise": 4,
+        "mismatch": 2.704,
+        "z_score": 0.459,
+        "sigma_30d": 0.0223,
+        "price_move_48h": 0.0102,
+        "eps_drift": 0.0008,
         "bin_impact": "mid",
-        "bin_mismatch": "good",
+        "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5712
+        "quick_mc_hit_rate": 0.6242
       },
       "simulation": {
-        "current_price": 192.28,
-        "target_price": 207.66,
-        "hit_rate": 0.6484,
+        "current_price": 387.63,
+        "target_price": 418.64,
+        "hit_rate": 0.7202,
         "n_paths": 10000,
         "days": 45,
-        "sigma": 0.0218,
-        "alpha": 0.00189
+        "sigma": 0.0189,
+        "alpha": 0.0029
       },
       "deep_analysis": {
         "red_team": {
-          "argument_1": "Die Shareholder-Investigation durch SueWallSt wegen m\u00f6glicher Securities Law Violations ist ein erhebliches rechtliches Risiko. Solche Untersuchungen k\u00f6nnen auf undisklosed materielle negative Informationen hindeuten und das Management ablenken, was mittelfristig erheblichen Kursabw\u00e4rtsdruck erzeugen kann.",
-          "argument_2": "Der Insider-Cluster-Kauf bezieht sich auf BIIB, aber die News zur Immunic-Ernennung von Mike Bonney betrifft prim\u00e4r Immunic (IMUX), nicht Biogen direkt. Es besteht das Risiko einer Signal-Verwechslung: Der Katalysator (Immunic MS Trial Readout) ist kein direkter BIIB-Katalysator, sondern ein indirekter Partnerschafts-/Akquisitionshinweis \u2014 der Markt k\u00f6nnte diesen Link bereits eingepreist haben oder ihn nie vollst\u00e4ndig bewerten.",
-          "argument_3": "BIIB weist eine massive EPS-Divergenz auf: yfinance meldet 16.59 vs. SEC EDGAR 9.31 \u2014 das ist eine fundamentale Datenqualit\u00e4ts-Warnung. Unterschiedliche EPS-Quellen bei Biotech k\u00f6nnen auf Sonderabschreibungen, Goodwill-Korrekturen oder Restatements hindeuten, was die Bewertungsbasis erheblich unsicherer macht. Bei einem Kurs von $192 und EPS ~9.31 liegt das KGV bei ~20x, was f\u00fcr einen stagnierenden Biotech-Player ohne klares organisches Wachstum ambitioniert erscheint.",
+          "argument_1": "GOOG ist ein $4.7T Mega-Cap mit extremer Informationseffizienz. Google I/O ist ein \u00f6ffentliches Event, das institutionelle Desks seit Wochen antizipieren. Gemini 3.5 Pricing-Details werden innerhalb von Minuten von Hunderten von Sell-Side-Analysten modelliert \u2014 ein struktureller Edge f\u00fcr Retail-Investoren ist bei solchen \u00f6ffentlichen Ank\u00fcndigungen nahezu ausgeschlossen. Die -1.0% Preisbewegung in 48h deutet zudem darauf hin, dass der Markt bereits beginnt, die Euphorie zu diskontieren.",
+          "argument_2": "IV-Crush-Risiko ist erheblich: Google I/O ist ein bekanntes Katalysator-Event, was bedeutet, dass die implizite Volatilit\u00e4t vor dem Event k\u00fcnstlich erh\u00f6ht war und danach kollabiert. Naked Long-Call-Positionen nach einem solchen Event sind besonders gef\u00e4hrdet, da der Zeitwertverfall und der IV-Crush die Position gleichzeitig belasten. Die VIX-Contango-Struktur (slope +26%) signalisiert zwar sinkende Marktvolatilit\u00e4t, aber GOOG-spezifische IV nach I/O ist bereits teilweise gecrasht.",
+          "argument_3": "Der AI-Modell-Pricing-Wettbewerb ist fundamentaler Gegenwind: Wenn Google Gemini 3.5 aggressiv preist (g\u00fcnstig vs. Rivalen), k\u00f6nnte dies Margin-Kompression im Cloud/AI-Segment signalisieren statt Wachstum. OpenAI, Anthropic und Meta investieren massiv \u2014 der Markt k\u00f6nnte Preisaggressivit\u00e4t als Zeichen von Wettbewerbsdruck statt St\u00e4rke interpretieren. Samsung/Google AI-Glasses gegen Meta/Apple ist ein Hardwaresegment mit unklaren Margen und langem Materialisierungshorizont.",
           "red_team_verdict": "PASSIERT"
         },
         "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine Statistik verf\u00fcgbar. Dies ist eine erhebliche Datenl\u00fccke. Ohne MC-Validierung kann keine quantitative Wahrscheinlichkeitsaussage zur Zielerreichung gemacht werden. Die Abwesenheit des Modells erh\u00f6ht Unsicherheit, senkt aber nicht per se den Trade-Wert, da der Katalysator qualitativ getrieben ist.",
+          "mc_assessment": "Kein MC wurde durchgef\u00fchrt (0 Pfade), daher ist 0% Hit-Rate kein Datenpunkt, sondern ein fehlendes Datenpunkt. Die Aussagekraft ist null \u2014 weder bullisch noch bearisch. Bei GOOG mit historischer 30d-Vola von ~25-30% w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisziele (5-8% Aufw\u00e4rtsbewegung) in 30 Tagen typischerweise 35-50%, abh\u00e4ngig vom Strike. Fehlende Statistik erh\u00f6ht Unsicherheit erheblich.",
           "concern_level": "medium"
         },
         "impact": 5,
-        "surprise": 6,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt hat den Insider-Cluster-Kauf und die strategische Bonney-Ernennung noch nicht vollst\u00e4ndig als Akquisitionssignal eingepreist. Die +0.3% Kursbewegung in 48h zeigt minimale Reaktion auf potenziell materielle M&A-Vorbereitungssignale. Ein positiver Immunic MS Trial Readout in 30-60 Tagen k\u00f6nnte eine Partnerschaftsank\u00fcndigung triggern.",
-        "catalyst": "Immunic MS Phase-3-Trial-Readout in 30-60 Tagen (Mai-Juli 2026) als potenzieller BIIB-Partnerschafts- oder Akquisitions-Trigger, kombiniert mit 7-Insider-Cluster-Kauf als vorausladendes Signal",
-        "bear_case": "Die laufende Securities Law Investigation durch SueWallSt k\u00f6nnte auf nicht-\u00f6ffentliche negative Informationen hindeuten und das bullische Momentum vollst\u00e4ndig neutralisieren oder umkehren.",
-        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und Fed Funds Rate bei 3.64% beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Healthcare/Biotech. Niedrigere Kapitalkosten unterst\u00fctzen M&A-Aktivit\u00e4t und Biotech-Bewertungen. Der Makro-R\u00fcckenwind verst\u00e4rkt das bullische Signal moderat, kann aber das spezifische Rechtsrisiko (Shareholder Investigation) nicht kompensieren.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "sector_momentum": {
-        "etf": "XLV",
-        "rel_strength": 0.0439
-      },
-      "final_score": 0.0825,
-      "time_value_efficiency": {
-        "roi_per_day_pct": 0.2428,
-        "annualized_roi": 1.175,
-        "dte": 121
-      },
-      "trade_score": {
-        "total": 74,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
-        "components": {
-          "signal_quality": 21.9,
-          "options_quality": 26.7,
-          "risk_deductions": 0.0,
-          "context_bonus": 25.0
-        },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=6), guter ROI (29%), positive Sektor-Relative-St\u00e4rke",
-        "best_argument_for": "Der Markt hat den Insider-Cluster-Kauf und die strategische Bonney-Ernennung noch nicht vollst\u00e4ndig als Akquisitionssignal eingepreist. Die +0.3% Kursbewegung in 48h zeigt minimale Reaktion auf potenziell materielle M&A-Vorbereitungssignale. Ein positiver Immunic MS Trial Readout in 30-60 Tagen k\u00f6nnte eine Partnerschaftsank\u00fcndigung triggern.",
-        "best_argument_against": "Die Shareholder-Investigation durch SueWallSt wegen m\u00f6glicher Securities Law Violations ist ein erhebliches rechtliches Risiko. Solche Untersuchungen k\u00f6nnen auf undisklosed materielle negative Informationen hindeuten und das Management ablenken, was mittelfristig erheblichen Kursabw\u00e4rtsdruck erzeugen kann."
-      },
-      "trade_rank": 1,
-      "exit_rules": {
-        "entry_cost": 14.4,
-        "take_profit_pct": 50,
-        "take_profit_price": 21.6,
-        "full_profit_pct": 100,
-        "full_profit_price": 28.8,
-        "stop_loss_pct": -40,
-        "stop_loss_price": 8.64,
-        "time_exit_dte_remaining": 60,
-        "time_exit_date": "2026-07-20",
-        "time_exit_min_profit_pct": 20
-      }
-    },
-    {
-      "ticker": "META",
-      "strategy": "LONG_CALL",
-      "iv_rank": 44.9,
-      "iv_gate_applied": false,
-      "direction": "BULLISH",
-      "option": {
-        "expiry": "2026-06-05",
-        "strike": 610.0,
-        "bid": 13.2,
-        "ask": 13.8,
-        "open_interest": 729,
-        "implied_vol": 0.3253851641845703,
-        "spread_ratio": 0.0435,
-        "dte": 16,
-        "data_source": "yfinance"
-      },
-      "roi_analysis": {
-        "roi_gross": 1.4979,
-        "roi_net": 1.3526,
-        "spread_pct": 0.0435,
-        "vega_loss": 0.0583,
-        "delta": 0.4297,
-        "iv_drop_assumed": 0.05,
-        "cost_basis": 13.8,
-        "is_spread": false,
-        "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 16
-      },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 9.99,
-      "all_tiers_tried": [
-        {
-          "tier": "Short-Term",
-          "dte": 16,
-          "option": {
-            "expiry": "2026-06-05",
-            "strike": 610.0,
-            "bid": 13.2,
-            "ask": 13.8,
-            "open_interest": 729,
-            "implied_vol": 0.3253851641845703,
-            "spread_ratio": 0.0435,
-            "dte": 16,
-            "data_source": "yfinance"
-          },
-          "roi": {
-            "roi_gross": 1.4979,
-            "roi_net": 1.3526,
-            "spread_pct": 0.0435,
-            "vega_loss": 0.0583,
-            "delta": 0.4297,
-            "iv_drop_assumed": 0.05,
-            "cost_basis": 13.8,
-            "is_spread": false,
-            "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 16
-          },
-          "annualized_roi": 9.99,
-          "strategy": "LONG_CALL"
-        }
-      ],
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 3.501,
-        "z_score": 0.5,
-        "sigma_30d": 0.0234,
-        "price_move_48h": 0.0117,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5294
-      },
-      "simulation": {
-        "current_price": 601.29,
-        "target_price": 649.39,
-        "hit_rate": 0.6142,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0236,
-        "alpha": 0.00099
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Der Margin-Druck durch massive AI-Investitionen ist das Kernrisiko: 7.000 Reassignments bedeuten erh\u00f6hte Restrukturierungskosten und operative Ineffizienzen im \u00dcbergang. Q2-2026 Earnings k\u00f6nnten trotz Umsatzwachstum durch h\u00f6here CapEx und Personalkosten entt\u00e4uschen \u2014 der Markt hat diesen Margin-Squeeze m\u00f6glicherweise noch nicht vollst\u00e4ndig eingepreist, was bei einer Verfehlung zu einem schnellen Drawdown von 10-15% f\u00fchren k\u00f6nnte.",
-          "argument_2": "Die EPS-Diskrepanz zwischen yfinance (36.16) und SEC EDGAR (27.5) ist ein erhebliches Datenproblem. Ein bereinigtes EPS von 27.5 impliziert ein deutlich h\u00f6heres KGV bei aktuellem Kurs von ~601 USD \u2014 das Bewertungsniveau ist bei realistischeren Gewinnzahlen anspruchsvoller als auf den ersten Blick, was das Aufw\u00e4rtspotenzial strukturell begrenzt und das Downside-Risiko bei negativen \u00dcberraschungen erh\u00f6ht.",
-          "argument_3": "Der AI-Investitions-Katalysator ist bereits weitgehend bekannt und d\u00fcrfte teilweise eingepreist sein. Meta hat seit 2025 wiederholt \u00fcber AI-Investments kommuniziert; Insider-K\u00e4ufe sind oft Signale mit langer Vorlaufzeit ohne unmittelbaren Kurskatalysator. Die -1.2% in 48h trotz Insider-Cluster deutet auf mangelnde Markt\u00fcberzeugung hin.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate ist nicht aussagekr\u00e4ftig \u2014 kein Quick MC wurde durchgef\u00fchrt, daher keine statistische Validierung m\u00f6glich. Das Fehlen dieser Kennzahl erh\u00f6ht die Unsicherheit, erlaubt aber keinen direkten Schluss auf Bullish oder Bearish. Concern bleibt moderat.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
+        "surprise": 4,
         "direction": "BULLISH",
         "bear_case_severity": 6,
         "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt interpretiert den 7.000-Reassignment-Plan prim\u00e4r als Kostensignal, untersch\u00e4tzt aber die langfristige Produktivit\u00e4tshebung durch AI-fokussierte Ressourcenallokation. Insider-Cluster-K\u00e4ufe bei vier unabh\u00e4ngigen Insidern innerhalb 14 Tagen signalisieren Conviction nahe aktuellem Kursniveau. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt strukturelle Wachstumsthesen in Capital-Heavy Tech.",
-        "catalyst": "Q2-2026 Earnings Release (~Juli 2026) mit AI-Monetarisierungsfortschritt und Margin-Guidance",
-        "bear_case": "AI-CapEx-Zyklus belastet Margen in Q2-Q3 2026 st\u00e4rker als erwartet; bereinigtes EPS n\u00e4her an 27.5 l\u00e4sst Bewertung als \u00fcberdehnt erscheinen",
-        "macro_assessment": "Expansives Makro-Umfeld mit +0.54% Kurvensteigung und Fed Funds bei 3.64% ist konstruktiv f\u00fcr Large-Cap Tech mit AI-Wachstumsthese. Keine unmittelbaren Rezessionsrisiken sichtbar, was strukturelle Bull-Signale wie Insider-K\u00e4ufe st\u00e4rker gewichtet werden l\u00e4sst.",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt hat die Gemini 3.5 Pricing-Strategie noch nicht vollst\u00e4ndig in Cloud-Revenue-Modelle \u00fcbersetzt, da die Detailtiefe der I/O-Ank\u00fcndigung umfangreicher als erwartet war. Insider-Cluster-K\u00e4ufe (3 K\u00e4ufer in 14 Tagen) sind ein nicht-triviales Signal bei einem Mega-Cap, da diese teuer und risikoreich sind. Der AI-Glasses-Vorsto\u00df mit Samsung er\u00f6ffnet eine optionale Hardware-Umsatzquelle, die in aktuellen Konsenssch\u00e4tzungen nicht modelliert ist.",
+        "catalyst": "Gemini 3.5 Adoption-Metriken und Cloud-Revenue-Beat in Q2 2026 Earnings (Juli 2026), kombiniert mit m\u00f6glicher Aufw\u00e4rtsrevision der AI-Segment-Margen durch g\u00fcnstigere Inference-Kosten.",
+        "bear_case": "Aggressive AI-Modell-Preissetzung signalisiert Wettbewerbsdruck statt Marktmacht \u2014 Margin-Kompression im Google Cloud Segment k\u00f6nnte Konsenssch\u00e4tzungen f\u00fcr Q2 2026 entt\u00e4uschen und den gesamten bullischen Narrativ umkehren.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0.54%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Growth/Tech. Die VIX-Contango-Struktur ist moderat positiv f\u00fcr gerichtete Positionen, empfiehlt aber Spreads statt nackter Calls, um residuales IV-Crush-Risiko nach I/O zu begrenzen. Bei einem $4.7T Mega-Cap ist Makro-R\u00fcckenwind notwendig aber nicht hinreichend f\u00fcr signifikante Outperformance.",
         "data_confidence": "medium",
         "macro_regime": "expansive",
         "macro_context": {
           "yield_curve": 0.54,
           "regime": "expansive"
         },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4696309760000,
         "direction_conflict": false
       },
       "sector_momentum": {
         "etf": "XLC",
-        "rel_strength": 0.0065
+        "rel_strength": 0.3021
       },
-      "final_score": 0.0825,
+      "final_score": 0.181,
+      "mc_hit_rate": 0.6242,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Communication Services",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 14.87,
+      "model_move_pct": 8.0,
+      "edge_vs_implied": -6.87,
       "time_value_efficiency": {
-        "roi_per_day_pct": 8.4537,
-        "annualized_roi": null,
-        "dte": 16
+        "roi_per_day_pct": 0.1809,
+        "annualized_roi": 0.8407,
+        "dte": 93
       },
       "trade_score": {
-        "total": 70,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
-        "components": {
-          "signal_quality": 21.9,
-          "options_quality": 28.0,
-          "risk_deductions": 0.0,
-          "context_bonus": 20.0
-        },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (135%), expansives Makro-Umfeld",
-        "best_argument_for": "Der Markt interpretiert den 7.000-Reassignment-Plan prim\u00e4r als Kostensignal, untersch\u00e4tzt aber die langfristige Produktivit\u00e4tshebung durch AI-fokussierte Ressourcenallokation. Insider-Cluster-K\u00e4ufe bei vier unabh\u00e4ngigen Insidern innerhalb 14 Tagen signalisieren Conviction nahe aktuellem Kursniveau. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt strukturelle Wachstumsthesen in Capital-Heavy Tech.",
-        "best_argument_against": "Der Margin-Druck durch massive AI-Investitionen ist das Kernrisiko: 7.000 Reassignments bedeuten erh\u00f6hte Restrukturierungskosten und operative Ineffizienzen im \u00dcbergang. Q2-2026 Earnings k\u00f6nnten trotz Umsatzwachstum durch h\u00f6here CapEx und Personalkosten entt\u00e4uschen \u2014 der Markt hat diesen Margin-Squeeze m\u00f6glicherweise noch nicht vollst\u00e4ndig eingepreist, was bei einer Verfehlung zu einem schnellen Drawdown von 10-15% f\u00fchren k\u00f6nnte."
-      },
-      "trade_rank": 2,
-      "exit_rules": {
-        "entry_cost": 13.8,
-        "take_profit_pct": 50,
-        "take_profit_price": 20.7,
-        "full_profit_pct": 100,
-        "full_profit_price": 27.6,
-        "stop_loss_pct": -40,
-        "stop_loss_price": 8.28,
-        "time_exit_dte_remaining": 8,
-        "time_exit_date": "2026-05-28",
-        "time_exit_min_profit_pct": 20
-      }
-    },
-    {
-      "ticker": "BK",
-      "strategy": "LONG_CALL",
-      "iv_rank": 16.2,
-      "iv_gate_applied": false,
-      "direction": "BULLISH",
-      "option": {
-        "expiry": "2026-06-18",
-        "strike": 130.0,
-        "bid": 9.1,
-        "ask": 9.8,
-        "open_interest": 1321,
-        "implied_vol": 0.3113,
-        "spread_ratio": 0.0714,
-        "dte": 29,
-        "delta": 0.7354,
-        "data_source": "tradier"
-      },
-      "roi_analysis": {
-        "roi_gross": 0.8239,
-        "roi_net": 0.6613,
-        "spread_pct": 0.0714,
-        "vega_loss": 0.0197,
-        "delta": 0.7354,
-        "iv_drop_assumed": 0.05,
-        "cost_basis": 9.8,
-        "is_spread": false,
-        "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 29
-      },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 9.99,
-      "all_tiers_tried": [
-        {
-          "tier": "Short-Term",
-          "dte": 29,
-          "option": {
-            "expiry": "2026-06-18",
-            "strike": 130.0,
-            "bid": 9.1,
-            "ask": 9.8,
-            "open_interest": 1321,
-            "implied_vol": 0.3113,
-            "spread_ratio": 0.0714,
-            "dte": 29,
-            "delta": 0.7354,
-            "data_source": "tradier"
-          },
-          "roi": {
-            "roi_gross": 0.8239,
-            "roi_net": 0.6613,
-            "spread_pct": 0.0714,
-            "vega_loss": 0.0197,
-            "delta": 0.7354,
-            "iv_drop_assumed": 0.05,
-            "cost_basis": 9.8,
-            "is_spread": false,
-            "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 29
-          },
-          "annualized_roi": 9.99,
-          "strategy": "LONG_CALL"
-        }
-      ],
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 3.042,
-        "z_score": 0.392,
-        "sigma_30d": 0.0113,
-        "price_move_48h": 0.0044,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5584
-      },
-      "simulation": {
-        "current_price": 137.19,
-        "target_price": 148.17,
-        "hit_rate": 0.6902,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0141,
-        "alpha": 0.00261
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Der Snapdocs-Mortgage-Automation-Pivot ist strukturell schwach als Kurstreiber f\u00fcr BK: BNY Mellon ist prim\u00e4r ein Custody- und Asset-Servicing-Haus, kein Mortgage-Originator. Snapdocs-Integration adressiert einen Nischenbereich, der kaum materialisierbaren Revenue-Impact im Kontext eines 47-Mrd.-Dollar-Unternehmens erzeugt. Der 'hidden digital revenue pivot' aus dem Haiku-Prescreening ist schwer quantifizierbar und k\u00f6nnte reine Narrative-Inflation ohne EPS-Relevanz sein.",
-          "argument_2": "Der Insider-Cluster-Kauf (4 Insider in 14 Tagen) ist ein oft \u00fcberbewertetes Signal bei Gro\u00dfbanken: BK-F\u00fchrungskr\u00e4fte kaufen regelm\u00e4\u00dfig im Rahmen von vorgeplanten 10b5-1-Pl\u00e4nen, die keine taktische Informationsasymmetrie widerspiegeln. Zudem betr\u00e4gt die 48h-Preisbewegung nur +0,4%, was darauf hindeutet, dass der Markt dieses Signal bereits weitgehend ignoriert oder eingepreist hat.",
-          "argument_3": "BK handelt auf Basis des SEC-EDGAR-EPS von 8,06 USD bei einem Kurs von 137,19 USD mit einem KGV von ~17x \u2014 f\u00fcr eine systemrelevante Custody-Bank historisch ambitioniert bewertet. Ein Zinsr\u00fcckgang (Fed Funds aktuell 3,64%) komprimiert Net Interest Margin-Ertr\u00e4ge weiter, w\u00e4hrend steigende regulatorische Kapitalanforderungen (Basel III Endgame Nachwirkungen 2026) die ROE-Expansion begrenzen.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Der Quick MC wurde nicht ausgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate kein inhaltliches Signal, sondern ein technisches Artefakt ohne statistische Aussagekraft. Eine realistische 30-Tage Hit-Rate f\u00fcr einen moderaten Bullish-Move bei BK (z.B. +5-8%) l\u00e4ge angesichts historischer Finanzsektor-Volatilit\u00e4t von ~18-22% annualisiert bei ~40-55%, was bedeutet, dass kein Modelloptimismus vorliegt \u2014 schlicht keine Daten.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt bewertet BNY Mellons digitale Transformationsinitiativen prim\u00e4r als Kostenprojekte, nicht als Revenue-Katalysatoren, was eine systematische Underreaction auf Effizienzgewinne erzeugt. Insider-Cluster-K\u00e4ufe bei Custody-Banken korrelieren historisch mit bevorstehenden positiven Kapitalallokations-Ank\u00fcndigungen (Buybacks, Dividendenerh\u00f6hungen). Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Repricing-Effekte im Custody-Gesch\u00e4ft, die im Konsens noch nicht vollst\u00e4ndig modelliert sind.",
-        "catalyst": "Q2 2026 Earnings-Release (Juli 2026): Erstmalige Quantifizierung der Snapdocs-Effizienzgewinne kombiniert mit m\u00f6glicher Guidance-Erh\u00f6hung oder Kapitalr\u00fcckf\u00fchrungsank\u00fcndigung als konkreter Repricing-Trigger.",
-        "bear_case": "Regulatorische Kapitalanforderungen unter Basel III Endgame begrenzen Kapitalr\u00fcckf\u00fchrungen, w\u00e4hrend eine schnellere Fed-Lockerung die NIM-Ertr\u00e4ge komprimiert und den strukturellen Repricing-Thesis untergr\u00e4bt.",
-        "macro_assessment": "Die steile Zinskurve (+54bp 10Y-2Y) und Fed Funds Rate von 3,64% schaffen ein g\u00fcnstiges NIM-Umfeld f\u00fcr BK als Custody-Bank mit signifikanten Float-Einnahmen. Das expansive Regime reduziert Kreditrisikobedenken und unterst\u00fctzt institutionelle Long-Allokationen in Qualit\u00e4ts-Financials. Der Makro-Kontext ist damit moderat konstruktiv f\u00fcr die Bullish-These, ohne sie jedoch zwingend zu machen.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "sector_momentum": {
-        "etf": "XLF",
-        "rel_strength": 0.1205
-      },
-      "final_score": 0.0825,
-      "time_value_efficiency": {
-        "roi_per_day_pct": 2.2803,
-        "annualized_roi": null,
-        "dte": 29
-      },
-      "trade_score": {
-        "total": 70,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
+        "total": 51,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
         "components": {
           "signal_quality": 17.9,
-          "options_quality": 27.0,
-          "risk_deductions": 0.0,
-          "context_bonus": 25.0
+          "options_quality": 15.3,
+          "risk_deductions": -2.0,
+          "context_bonus": 20.0,
+          "roi_penalty": 0.0,
+          "edge_pts": -6.0,
+          "macro_sensitivity": 0.5
         },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (66%), g\u00fcnstige IV (16%)",
-        "best_argument_for": "Der Markt bewertet BNY Mellons digitale Transformationsinitiativen prim\u00e4r als Kostenprojekte, nicht als Revenue-Katalysatoren, was eine systematische Underreaction auf Effizienzgewinne erzeugt. Insider-Cluster-K\u00e4ufe bei Custody-Banken korrelieren historisch mit bevorstehenden positiven Kapitalallokations-Ank\u00fcndigungen (Buybacks, Dividendenerh\u00f6hungen). Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Repricing-Effekte im Custody-Gesch\u00e4ft, die im Konsens noch nicht vollst\u00e4ndig modelliert sind.",
-        "best_argument_against": "Der Snapdocs-Mortgage-Automation-Pivot ist strukturell schwach als Kurstreiber f\u00fcr BK: BNY Mellon ist prim\u00e4r ein Custody- und Asset-Servicing-Haus, kein Mortgage-Originator. Snapdocs-Integration adressiert einen Nischenbereich, der kaum materialisierbaren Revenue-Impact im Kontext eines 47-Mrd.-Dollar-Unternehmens erzeugt. Der 'hidden digital revenue pivot' aus dem Haiku-Prescreening ist schwer quantifizierbar und k\u00f6nnte reine Narrative-Inflation ohne EPS-Relevanz sein."
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), positive Sektor-Relative-St\u00e4rke | Risiken: Kein IV-Edge: Model +8.0% \u2264 Markt \u00b114.9% (bereits eingepreist)",
+        "best_argument_for": "Der Markt hat die Gemini 3.5 Pricing-Strategie noch nicht vollst\u00e4ndig in Cloud-Revenue-Modelle \u00fcbersetzt, da die Detailtiefe der I/O-Ank\u00fcndigung umfangreicher als erwartet war. Insider-Cluster-K\u00e4ufe (3 K\u00e4ufer in 14 Tagen) sind ein nicht-triviales Signal bei einem Mega-Cap, da diese teuer und risikoreich sind. Der AI-Glasses-Vorsto\u00df mit Samsung er\u00f6ffnet eine optionale Hardware-Umsatzquelle, die in aktuellen Konsenssch\u00e4tzungen nicht modelliert ist.",
+        "best_argument_against": "GOOG ist ein $4.7T Mega-Cap mit extremer Informationseffizienz. Google I/O ist ein \u00f6ffentliches Event, das institutionelle Desks seit Wochen antizipieren. Gemini 3.5 Pricing-Details werden innerhalb von Minuten von Hunderten von Sell-Side-Analysten modelliert \u2014 ein struktureller Edge f\u00fcr Retail-Investoren ist bei solchen \u00f6ffentlichen Ank\u00fcndigungen nahezu ausgeschlossen. Die -1.0% Preisbewegung in 48h deutet zudem darauf hin, dass der Markt bereits beginnt, die Euphorie zu diskontieren."
       },
-      "trade_rank": 3,
+      "trade_rank": 1,
       "exit_rules": {
-        "entry_cost": 9.8,
+        "entry_cost": 18.4,
         "take_profit_pct": 50,
-        "take_profit_price": 14.7,
+        "take_profit_price": 27.6,
         "full_profit_pct": 100,
-        "full_profit_price": 19.6,
+        "full_profit_price": 36.8,
         "stop_loss_pct": -40,
-        "stop_loss_price": 5.88,
-        "time_exit_dte_remaining": 14,
-        "time_exit_date": "2026-06-04",
-        "time_exit_min_profit_pct": 20
-      }
-    },
-    {
-      "ticker": "BMY",
-      "strategy": "LONG_CALL",
-      "iv_rank": 44.5,
-      "iv_gate_applied": false,
-      "direction": "BULLISH",
-      "option": {
-        "expiry": "2026-06-05",
-        "strike": 57.0,
-        "bid": 2.12,
-        "ask": 2.32,
-        "open_interest": 103,
-        "implied_vol": 0.2973,
-        "spread_ratio": 0.0862,
-        "dte": 16,
-        "delta": 0.6735,
-        "data_source": "tradier"
-      },
-      "roi_analysis": {
-        "roi_gross": 1.3528,
-        "roi_net": 1.1513,
-        "spread_pct": 0.0862,
-        "vega_loss": 0.0291,
-        "delta": 0.6735,
-        "iv_drop_assumed": 0.05,
-        "cost_basis": 2.32,
-        "is_spread": false,
-        "passes_roi_gate": true,
-        "min_roi_threshold": 0.15,
-        "dte": 16
-      },
-      "dte_tier": "Short-Term",
-      "annualized_roi": 9.99,
-      "all_tiers_tried": [
-        {
-          "tier": "Short-Term",
-          "dte": 16,
-          "option": {
-            "expiry": "2026-06-05",
-            "strike": 57.0,
-            "bid": 2.12,
-            "ask": 2.32,
-            "open_interest": 103,
-            "implied_vol": 0.2973,
-            "spread_ratio": 0.0862,
-            "dte": 16,
-            "delta": 0.6735,
-            "data_source": "tradier"
-          },
-          "roi": {
-            "roi_gross": 1.3528,
-            "roi_net": 1.1513,
-            "spread_pct": 0.0862,
-            "vega_loss": 0.0291,
-            "delta": 0.6735,
-            "iv_drop_assumed": 0.05,
-            "cost_basis": 2.32,
-            "is_spread": false,
-            "passes_roi_gate": true,
-            "min_roi_threshold": 0.15,
-            "dte": 16
-          },
-          "annualized_roi": 9.99,
-          "strategy": "LONG_CALL"
-        }
-      ],
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 3.173,
-        "z_score": 0.565,
-        "sigma_30d": 0.0168,
-        "price_move_48h": 0.0095,
-        "eps_drift": 0.0056,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5868
-      },
-      "simulation": {
-        "current_price": 58.21,
-        "target_price": 62.87,
-        "hit_rate": 0.7176,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0164,
-        "alpha": 0.00281
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Sotyktu PSA-Launch zeigt explizit eine ged\u00e4mpfte Adoptionskurve: Rheumatologen n\u00e4hern sich TYK2 gemessen an. Dies ist kein tempor\u00e4res Ph\u00e4nomen, sondern ein strukturelles Adoptionsproblem, das Q2/Q3 2026 Guidance-Cuts wahrscheinlich macht. Der Markt k\u00f6nnte die Ramp-Kurve noch immer zu optimistisch modellieren, was bei Earnings-Entt\u00e4uschung zu scharfen Abverk\u00e4ufen f\u00fchren kann.",
-          "argument_2": "Der EPS-Diskrepanz zwischen yfinance (6.17) und SEC EDGAR (3.59) ist erheblich und signalisiert m\u00f6glicherweise adjustierte vs. GAAP-Earnings-Verwechslungen. Anleger, die auf adjustierte EPS setzen, k\u00f6nnten bei GAAP-basierten Earnings-Berichten negativ \u00fcberrascht werden \u2014 insbesondere wenn hohe Abschreibungen auf Akquisitionen (z.B. Kardia, Mirati) weiterhin belasten.",
-          "argument_3": "Der Supreme Court hat Pharma-Firmen im Medicare Drug Pricing Case Certiorari verweigert. Dies bedeutet, dass die IRA-Preisverhandlungen f\u00fcr BMY-Schl\u00fcsselprodukte wie Eliquis und Opdivo rechtlich bindend bleiben. Dies ist ein langfristiger Revenue-Drain, der strukturell gegen die Bewertung wirkt und institutionelle Investoren zunehmend vorsichtig stimmt.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Der Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0% Hit-Rate technisch bedeutungslos. Bei einer 48h-Bewegung von nur +1.0% und BMY's historischer 30-Tage-Volatilit\u00e4t von typischerweise 15-20% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Zielpreis bei 55-65%. Das Fehlen der MC-Daten reduziert die statistische Fundierung dieser Analyse.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt gewichtet Sotyktu-Adoptions-Entt\u00e4uschung bereits negativ, aber der FDA-Approval f\u00fcr Opdivo Qvantig sowie das 6-Insider-Cluster-Kaufsignal deuten auf untersch\u00e4tzte Pipeline-Katalysatoren hin. Das expansive Makroumfeld (steile Kurve, Fed Funds 3.64%) beg\u00fcnstigt Healthcare-Repricing, w\u00e4hrend der Markt BMY noch immer auf IRA-Risiken diskontiert. Q3 2026 Earnings k\u00f6nnten erste Sotyktu-PSA-Skalierungssignale liefern, die Konsensmodelle \u00fcberraschen.",
-        "catalyst": "FDA-Approval Opdivo Qvantig + Q2/Q3 2026 Earnings-Guidance-Update zu Sotyktu PSA Ramp und m\u00f6gliche positive Revisionen bei Rheumatologen-Adoption",
-        "bear_case": "Sotyktu PSA-Adoption bleibt strukturell schwach, Q2 2026 Earnings enthalten Revenue-Guidance-Cut, kombiniert mit anhaltenden IRA-Pricing-Dr\u00fccken auf Eliquis \u2014 Kursr\u00fcckgang auf $52-54 m\u00f6glich.",
-        "macro_assessment": "Das expansive Makroumfeld mit steiler Zinskurve (+0.54%) und moderater Fed Funds Rate (3.64%) ist grunds\u00e4tzlich g\u00fcnstig f\u00fcr Long-Positionen in Healthcare. BMY profitiert als defensiver Value-Titel von fallenden Risikopr\u00e4mien, jedoch bleibt der sektorspezifische IRA-Gegenwind ein idiosynkratisches Risiko, das makro\u00f6konomische R\u00fcckenwind teilweise neutralisiert.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "sector_momentum": {
-        "etf": "XLV",
-        "rel_strength": -0.0366
-      },
-      "final_score": 0.0825,
-      "time_value_efficiency": {
-        "roi_per_day_pct": 7.1956,
-        "annualized_roi": null,
-        "dte": 16
-      },
-      "trade_score": {
-        "total": 60,
-        "grade": "BUY \ud83d\udfe1",
-        "grade_short": "BUY",
-        "components": {
-          "signal_quality": 21.9,
-          "options_quality": 23.5,
-          "risk_deductions": 0.0,
-          "context_bonus": 15.0
-        },
-        "reasoning": "St\u00e4rken: solides Signal (Impact=6/Surprise=5), guter ROI (115%), expansives Makro-Umfeld | Risiken: Sektor underperformt Markt",
-        "best_argument_for": "Der Markt gewichtet Sotyktu-Adoptions-Entt\u00e4uschung bereits negativ, aber der FDA-Approval f\u00fcr Opdivo Qvantig sowie das 6-Insider-Cluster-Kaufsignal deuten auf untersch\u00e4tzte Pipeline-Katalysatoren hin. Das expansive Makroumfeld (steile Kurve, Fed Funds 3.64%) beg\u00fcnstigt Healthcare-Repricing, w\u00e4hrend der Markt BMY noch immer auf IRA-Risiken diskontiert. Q3 2026 Earnings k\u00f6nnten erste Sotyktu-PSA-Skalierungssignale liefern, die Konsensmodelle \u00fcberraschen.",
-        "best_argument_against": "Sotyktu PSA-Launch zeigt explizit eine ged\u00e4mpfte Adoptionskurve: Rheumatologen n\u00e4hern sich TYK2 gemessen an. Dies ist kein tempor\u00e4res Ph\u00e4nomen, sondern ein strukturelles Adoptionsproblem, das Q2/Q3 2026 Guidance-Cuts wahrscheinlich macht. Der Markt k\u00f6nnte die Ramp-Kurve noch immer zu optimistisch modellieren, was bei Earnings-Entt\u00e4uschung zu scharfen Abverk\u00e4ufen f\u00fchren kann."
-      },
-      "trade_rank": 4,
-      "exit_rules": {
-        "entry_cost": 2.32,
-        "take_profit_pct": 50,
-        "take_profit_price": 3.48,
-        "full_profit_pct": 100,
-        "full_profit_price": 4.64,
-        "stop_loss_pct": -40,
-        "stop_loss_price": 1.39,
-        "time_exit_dte_remaining": 8,
-        "time_exit_date": "2026-05-28",
+        "stop_loss_price": 11.04,
+        "time_exit_dte_remaining": 46,
+        "time_exit_date": "2026-07-06",
         "time_exit_min_profit_pct": 20
       }
     }
