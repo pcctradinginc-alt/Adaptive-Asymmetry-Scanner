@@ -145,13 +145,40 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           </table>
         </div>"""
 
-        # ── v9.0 #7: MC-Wahrscheinlichkeits-Block ────────────────────────────
+        # ── v9.0 #7 / v10.0 #5: MC-Wahrscheinlichkeits-Block + Implied Move ────
         mc_hit_rate_pct = p.get("mc_hit_rate", 0) or 0
         cat_conf        = da.get("catalyst_confidence", None)
         dte_val         = option.get("dte", "–")
+        catalyst_type   = p.get("catalyst_type", "OTHER")
+        implied_move    = p.get("implied_move_pct")   # z.B. 8.2 (%)
+        model_move      = p.get("model_move_pct", 0)  # z.B. 12.4 (%)
+        edge_implied    = p.get("edge_vs_implied")     # z.B. 4.2 (%)
 
         mc_color = "#16a34a" if mc_hit_rate_pct >= 0.65 else "#ca8a04" if mc_hit_rate_pct >= 0.50 else "#dc2626"
         cat_str  = f"{cat_conf}/10" if cat_conf is not None else "–"
+
+        # Implied Move Row
+        if implied_move is not None:
+            if edge_implied is not None and edge_implied > 5.0:
+                edge_color = "#16a34a"
+                edge_sign  = f"+{edge_implied:.1f}%"
+            elif edge_implied is not None and edge_implied < -2.0:
+                edge_color = "#dc2626"
+                edge_sign  = f"{edge_implied:.1f}%"
+            else:
+                edge_color = "#ca8a04"
+                edge_sign  = f"{edge_implied:+.1f}%" if edge_implied is not None else "–"
+            implied_row = f"""
+            <tr>
+              <td style="padding:4px 8px 2px 0;" colspan="2">
+                <b>Market-Implied:</b> ±{implied_move:.1f}% &nbsp;|&nbsp;
+                <b>Model-Target:</b> +{model_move:.1f}% &nbsp;|&nbsp;
+                <b>Edge:</b> <span style="color:{edge_color};font-weight:bold;">{edge_sign}</span>
+                &nbsp;<span style="color:#64748b;font-size:11px;">({catalyst_type})</span>
+              </td>
+            </tr>"""
+        else:
+            implied_row = ""
 
         prob_html = f"""
         <div style="margin-top:8px;padding:10px 14px;background:#fefce8;border:1px solid #fde68a;border-radius:6px;font-size:12px;">
@@ -165,6 +192,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
               <td style="padding:2px 8px 2px 0;"><b>Thesis-Horizont:</b> {ttm}</td>
               <td style="padding:2px 8px 2px 0;"><b>Option-Laufzeit:</b> {dte_val}d</td>
             </tr>
+            {implied_row}
           </table>
         </div>"""
 
