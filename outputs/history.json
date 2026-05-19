@@ -2,44 +2,44 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 344,
-        "avg_return": 0.586143
+        "count": 352,
+        "avg_return": 0.589612
       },
       "mid": {
-        "count": 1520,
-        "avg_return": 0.054576
+        "count": 1592,
+        "avg_return": 0.052752
       },
       "high": {
-        "count": 89,
-        "avg_return": -0.170379
+        "count": 91,
+        "avg_return": -0.163347
       }
     },
     "mismatch": {
       "weak": {
-        "count": 562,
-        "avg_return": 0.302328
+        "count": 579,
+        "avg_return": 0.300179
       },
       "good": {
-        "count": 1311,
-        "avg_return": 0.079134
+        "count": 1372,
+        "avg_return": 0.078213
       },
       "strong": {
-        "count": 80,
-        "avg_return": -0.052741
+        "count": 84,
+        "avg_return": -0.052818
       }
     },
     "eps_drift": {
       "noise": {
-        "count": 1922,
-        "avg_return": 0.139101
+        "count": 2001,
+        "avg_return": 0.137243
       },
       "relevant": {
-        "count": 10,
-        "avg_return": 0.223332
+        "count": 11,
+        "avg_return": 0.218006
       },
       "massive": {
-        "count": 21,
-        "avg_return": -0.008327
+        "count": 23,
+        "avg_return": -0.016132
       }
     }
   },
@@ -71,8 +71,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 988.08,
-      "current_return": -0.0442
+      "last_price": 1015.54,
+      "current_return": 0.1496
     },
     {
       "ticker": "META",
@@ -101,8 +101,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 608.36,
-      "current_return": -0.4805
+      "last_price": 601.995,
+      "current_return": -0.53
     },
     {
       "ticker": "MRK",
@@ -131,8 +131,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 111.93,
-      "current_return": -0.6512
+      "last_price": 114.8541,
+      "current_return": -0.5463
     },
     {
       "ticker": "AAPL",
@@ -161,8 +161,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 295.235,
-      "current_return": 1.7579
+      "last_price": 297.92,
+      "current_return": 1.9105
     },
     {
       "ticker": "UNH",
@@ -191,8 +191,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 388.16,
-      "current_return": -0.8488
+      "last_price": 393.6301,
+      "current_return": -0.8634
     },
     {
       "ticker": "LLY",
@@ -221,8 +221,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 988.09,
-      "current_return": -0.0442
+      "last_price": 1015.54,
+      "current_return": 0.1496
     },
     {
       "ticker": "UNH",
@@ -251,8 +251,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 388.16,
-      "current_return": 3.3638
+      "last_price": 393.63,
+      "current_return": 3.6728
     },
     {
       "ticker": "META",
@@ -281,8 +281,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 608.45,
-      "current_return": -0.4805
+      "last_price": 602.03,
+      "current_return": -0.53
     },
     {
       "ticker": "MRK",
@@ -311,8 +311,8 @@
         "dte": 159
       },
       "outcome": null,
-      "last_price": 111.93,
-      "current_return": -0.6512
+      "last_price": 114.86,
+      "current_return": -0.5463
     },
     {
       "ticker": "AAPL",
@@ -341,8 +341,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 295.2565,
-      "current_return": 1.7579
+      "last_price": 297.965,
+      "current_return": 1.9105
     },
     {
       "ticker": "TSLA",
@@ -371,8 +371,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 410.28,
-      "current_return": -0.6338
+      "last_price": 398.75,
+      "current_return": -0.5767
     },
     {
       "ticker": "LLY",
@@ -401,8 +401,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 988.54,
-      "current_return": -0.0442
+      "last_price": 1015.54,
+      "current_return": 0.1496
     },
     {
       "ticker": "LLY",
@@ -431,8 +431,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 988.54,
-      "current_return": -0.0442
+      "last_price": 1015.54,
+      "current_return": 0.1496
     },
     {
       "ticker": "LLY",
@@ -461,8 +461,8 @@
         "dte": 131
       },
       "outcome": null,
-      "last_price": 988.54,
-      "current_return": -0.0442
+      "last_price": 1015.4185,
+      "current_return": 0.1496
     },
     {
       "ticker": "ON",
@@ -518,8 +518,8 @@
         "direction": "BULLISH"
       },
       "outcome": null,
-      "last_price": 108.27,
-      "current_return": 3.2
+      "last_price": 107.86,
+      "current_return": 3.08
     },
     {
       "ticker": "ABT",
@@ -608,8 +608,8 @@
         "dte": 127
       },
       "outcome": null,
-      "last_price": 86.76,
-      "current_return": -0.1441
+      "last_price": 88.82,
+      "current_return": -0.1238
     },
     {
       "ticker": "META",
@@ -698,8 +698,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 608.6073,
-      "current_return": -0.0966
+      "last_price": 601.976,
+      "current_return": -0.1065
     },
     {
       "ticker": "CDNS",
@@ -788,8 +788,8 @@
         "dte": 155
       },
       "outcome": null,
-      "last_price": 343.21,
-      "current_return": 0.121
+      "last_price": 341.325,
+      "current_return": 0.1148
     },
     {
       "ticker": "AVGO",
@@ -878,8 +878,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 417.9999,
-      "current_return": 0.0594
+      "last_price": 413.6223,
+      "current_return": 0.0483
     },
     {
       "ticker": "FISV",
@@ -962,8 +962,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 57.0,
-      "current_return": -0.0727
+      "last_price": 55.8217,
+      "current_return": -0.0919
     },
     {
       "ticker": "AMZN",
@@ -1052,8 +1052,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 264.5,
-      "current_return": 0.0644
+      "last_price": 256.62,
+      "current_return": 0.0327
     },
     {
       "ticker": "AMD",
@@ -1136,8 +1136,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 414.63,
-      "current_return": 0.6063
+      "last_price": 418.1199,
+      "current_return": 0.6199
     },
     {
       "ticker": "AMAT",
@@ -1226,8 +1226,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 411.6,
-      "current_return": 0.044
+      "last_price": 409.48,
+      "current_return": 0.0386
     },
     {
       "ticker": "CTVA",
@@ -1316,8 +1316,8 @@
         "dte": 29
       },
       "outcome": null,
-      "last_price": 81.87,
-      "current_return": 0.0068
+      "last_price": 79.715,
+      "current_return": -0.0197
     },
     {
       "ticker": "ORCL",
@@ -1406,8 +1406,8 @@
         "dte": 21
       },
       "outcome": null,
-      "last_price": 184.58,
-      "current_return": 0.0384
+      "last_price": 182.51,
+      "current_return": 0.0267
     },
     {
       "ticker": "HOOD",
@@ -1484,8 +1484,8 @@
         "dte": 27
       },
       "outcome": null,
-      "last_price": 76.18,
-      "current_return": -0.1752
+      "last_price": 74.64,
+      "current_return": -0.1919
     },
     {
       "ticker": "SCHW",
@@ -1562,8 +1562,8 @@
         "dte": 27
       },
       "outcome": null,
-      "last_price": 92.52,
-      "current_return": -0.0013
+      "last_price": 92.77,
+      "current_return": 0.0014
     },
     {
       "ticker": "HOOD",
@@ -1640,8 +1640,8 @@
         "dte": 24
       },
       "outcome": null,
-      "last_price": 76.18,
-      "current_return": -0.153
+      "last_price": 74.64,
+      "current_return": -0.1701
     },
     {
       "ticker": "ON",
@@ -1718,8 +1718,8 @@
         "dte": 24
       },
       "outcome": null,
-      "last_price": 108.255,
-      "current_return": 0.2792
+      "last_price": 107.86,
+      "current_return": 0.2745
     },
     {
       "ticker": "TSLA",
@@ -1796,8 +1796,8 @@
         "dte": 24
       },
       "outcome": null,
-      "last_price": 410.195,
-      "current_return": 0.0464
+      "last_price": 398.74,
+      "current_return": 0.0171
     },
     {
       "ticker": "AMZN",
@@ -1874,8 +1874,8 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 264.51,
-      "current_return": 0.0473
+      "last_price": 256.61,
+      "current_return": 0.016
     },
     {
       "ticker": "AMAT",
@@ -1952,8 +1952,8 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 411.6,
-      "current_return": 0.0418
+      "last_price": 409.48,
+      "current_return": 0.0364
     },
     {
       "ticker": "AAPL",
@@ -2030,8 +2030,8 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 295.26,
-      "current_return": 0.1086
+      "last_price": 297.9456,
+      "current_return": 0.1187
     },
     {
       "ticker": "ALB",
@@ -2108,8 +2108,8 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 176.405,
-      "current_return": -0.1024
+      "last_price": 169.82,
+      "current_return": -0.1359
     },
     {
       "ticker": "BAC",
@@ -2186,8 +2186,8 @@
         "dte": 86
       },
       "outcome": null,
-      "last_price": 50.545,
-      "current_return": -0.0561
+      "last_price": 51.095,
+      "current_return": -0.0458
     },
     {
       "ticker": "BIIB",
@@ -2264,8 +2264,8 @@
         "dte": 86
       },
       "outcome": null,
-      "last_price": 193.08,
-      "current_return": 0.0338
+      "last_price": 192.635,
+      "current_return": 0.0314
     },
     {
       "ticker": "BBWI",
@@ -2342,8 +2342,8 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 16.39,
-      "current_return": -0.2032
+      "last_price": 16.25,
+      "current_return": -0.21
     },
     {
       "ticker": "AEP",
@@ -2420,8 +2420,8 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 126.26,
-      "current_return": -0.0502
+      "last_price": 128.91,
+      "current_return": -0.0303
     },
     {
       "ticker": "ABNB",
@@ -2498,8 +2498,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 134.585,
-      "current_return": -0.0691
+      "last_price": 130.605,
+      "current_return": -0.0967
     },
     {
       "ticker": "BBWI",
@@ -2576,8 +2576,8 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 16.39,
-      "current_return": -0.1938
+      "last_price": 16.25,
+      "current_return": -0.2007
     },
     {
       "ticker": "AMD",
@@ -2648,8 +2648,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 414.5301,
-      "current_return": 0.3767
+      "last_price": 417.695,
+      "current_return": 0.3872
     },
     {
       "ticker": "APA",
@@ -2720,8 +2720,8 @@
         "dte": 85
       },
       "outcome": null,
-      "last_price": 40.3,
-      "current_return": 0.0561
+      "last_price": 40.62,
+      "current_return": 0.0645
     },
     {
       "ticker": "AVGO",
@@ -2792,8 +2792,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 417.755,
-      "current_return": -0.0019
+      "last_price": 413.53,
+      "current_return": -0.012
     },
     {
       "ticker": "ADI",
@@ -2864,8 +2864,8 @@
         "dte": 148
       },
       "outcome": null,
-      "last_price": 419.38,
-      "current_return": 0.1024
+      "last_price": 419.11,
+      "current_return": 0.1017
     },
     {
       "ticker": "AMAT",
@@ -2936,8 +2936,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 411.58,
-      "current_return": 0.031
+      "last_price": 409.48,
+      "current_return": 0.0257
     },
     {
       "ticker": "AVGO",
@@ -3008,8 +3008,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 417.825,
-      "current_return": -0.0253
+      "last_price": 413.53,
+      "current_return": -0.0354
     },
     {
       "ticker": "BKR",
@@ -3080,8 +3080,8 @@
         "dte": 21
       },
       "outcome": null,
-      "last_price": 65.8,
-      "current_return": 0.0229
+      "last_price": 66.0997,
+      "current_return": 0.0275
     },
     {
       "ticker": "BA",
@@ -3152,8 +3152,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 217.28,
-      "current_return": -0.0716
+      "last_price": 218.95,
+      "current_return": -0.0644
     },
     {
       "ticker": "AXP",
@@ -3224,8 +3224,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 313.22,
-      "current_return": -0.0321
+      "last_price": 310.12,
+      "current_return": -0.0417
     },
     {
       "ticker": "ANET",
@@ -3296,8 +3296,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 139.67,
-      "current_return": -0.2047
+      "last_price": 139.97,
+      "current_return": -0.203
     },
     {
       "ticker": "BX",
@@ -3368,8 +3368,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 117.25,
-      "current_return": -0.0416
+      "last_price": 115.62,
+      "current_return": -0.0549
     },
     {
       "ticker": "DVA",
@@ -3440,8 +3440,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 200.204,
-      "current_return": 0.2837
+      "last_price": 196.805,
+      "current_return": 0.2619
     },
     {
       "ticker": "T",
@@ -3512,8 +3512,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 24.515,
-      "current_return": -0.0811
+      "last_price": 24.835,
+      "current_return": -0.0692
     },
     {
       "ticker": "EQT",
@@ -3584,8 +3584,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 57.63,
-      "current_return": -0.0291
+      "last_price": 59.36,
+      "current_return": 0.0
     },
     {
       "ticker": "AMAT",
@@ -3656,8 +3656,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 411.65,
-      "current_return": -0.0171
+      "last_price": 409.48,
+      "current_return": -0.0223
     },
     {
       "ticker": "ANET",
@@ -3728,8 +3728,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 139.67,
-      "current_return": -0.2211
+      "last_price": 139.97,
+      "current_return": -0.2194
     },
     {
       "ticker": "BX",
@@ -3800,8 +3800,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 117.25,
-      "current_return": -0.0399
+      "last_price": 115.62,
+      "current_return": -0.0532
     },
     {
       "ticker": "AMD",
@@ -3872,8 +3872,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 414.735,
-      "current_return": 0.1914
+      "last_price": 417.7151,
+      "current_return": 0.2
     },
     {
       "ticker": "ALB",
@@ -3944,8 +3944,8 @@
         "dte": 237
       },
       "outcome": null,
-      "last_price": 176.405,
-      "current_return": -0.0564
+      "last_price": 169.945,
+      "current_return": -0.0909
     },
     {
       "ticker": "BKR",
@@ -4016,8 +4016,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 65.8,
-      "current_return": -0.0437
+      "last_price": 66.09,
+      "current_return": -0.0395
     },
     {
       "ticker": "CMCSA",
@@ -4088,8 +4088,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 25.235,
-      "current_return": -0.0913
+      "last_price": 24.835,
+      "current_return": -0.1057
     },
     {
       "ticker": "BKR",
@@ -4160,8 +4160,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 65.805,
-      "current_return": -0.0445
+      "last_price": 66.09,
+      "current_return": -0.0404
     },
     {
       "ticker": "AVGO",
@@ -4232,8 +4232,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 417.83,
-      "current_return": 0.0541
+      "last_price": 413.54,
+      "current_return": 0.0433
     },
     {
       "ticker": "BA",
@@ -4305,8 +4305,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 217.28,
-      "current_return": -0.0558
+      "last_price": 218.89,
+      "current_return": -0.0488
     },
     {
       "ticker": "CCL",
@@ -4378,8 +4378,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 24.74,
-      "current_return": -0.059
+      "last_price": 24.035,
+      "current_return": -0.0858
     },
     {
       "ticker": "AMAT",
@@ -4451,8 +4451,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 411.69,
-      "current_return": 0.0699
+      "last_price": 409.48,
+      "current_return": 0.0641
     },
     {
       "ticker": "BKR",
@@ -4524,8 +4524,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 65.79,
-      "current_return": -0.0439
+      "last_price": 66.0708,
+      "current_return": -0.0398
     },
     {
       "ticker": "APD",
@@ -4597,8 +4597,8 @@
         "dte": 141
       },
       "outcome": null,
-      "last_price": 295.3653,
-      "current_return": -0.028
+      "last_price": 292.715,
+      "current_return": -0.0367
     },
     {
       "ticker": "BA",
@@ -4670,8 +4670,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 217.33,
-      "current_return": -0.0231
+      "last_price": 218.89,
+      "current_return": -0.016
     },
     {
       "ticker": "AMZN",
@@ -4743,8 +4743,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 264.6,
-      "current_return": 0.0236
+      "last_price": 256.68,
+      "current_return": -0.007
     },
     {
       "ticker": "APH",
@@ -4816,8 +4816,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 121.7199,
-      "current_return": -0.1638
+      "last_price": 119.38,
+      "current_return": -0.1799
     },
     {
       "ticker": "AMAT",
@@ -4889,8 +4889,8 @@
         "dte": 73
       },
       "outcome": null,
-      "last_price": 411.45,
-      "current_return": 0.0544
+      "last_price": 409.485,
+      "current_return": 0.0493
     },
     {
       "ticker": "META",
@@ -4962,8 +4962,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 608.9,
-      "current_return": 0.008
+      "last_price": 602.1,
+      "current_return": -0.0032
     },
     {
       "ticker": "AMD",
@@ -5035,8 +5035,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 414.73,
-      "current_return": 0.1561
+      "last_price": 417.84,
+      "current_return": 0.1647
     },
     {
       "ticker": "GOOG",
@@ -5108,8 +5108,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 397.245,
-      "current_return": 0.0109
+      "last_price": 384.79,
+      "current_return": -0.0208
     },
     {
       "ticker": "AMCR",
@@ -5181,8 +5181,8 @@
         "dte": 162
       },
       "outcome": null,
-      "last_price": 37.56,
-      "current_return": -0.085
+      "last_price": 37.02,
+      "current_return": -0.0982
     },
     {
       "ticker": "ALB",
@@ -5254,8 +5254,8 @@
         "dte": 224
       },
       "outcome": null,
-      "last_price": 176.405,
-      "current_return": -0.1583
+      "last_price": 169.945,
+      "current_return": -0.1891
     },
     {
       "ticker": "ABNB",
@@ -5327,8 +5327,8 @@
         "dte": 69
       },
       "outcome": null,
-      "last_price": 134.73,
-      "current_return": -0.0754
+      "last_price": 130.57,
+      "current_return": -0.1039
     },
     {
       "ticker": "AVGO",
@@ -5400,8 +5400,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 417.78,
-      "current_return": -0.0282
+      "last_price": 413.68,
+      "current_return": -0.0378
     },
     {
       "ticker": "GOOG",
@@ -5472,7 +5472,9 @@
         "annualized_roi": null,
         "dte": 65
       },
-      "outcome": null
+      "outcome": null,
+      "last_price": 384.79,
+      "current_return": 0.0108
     },
     {
       "ticker": "BMY",
@@ -5543,7 +5545,9 @@
         "annualized_roi": null,
         "dte": 65
       },
-      "outcome": null
+      "outcome": null,
+      "last_price": 58.23,
+      "current_return": 0.0225
     },
     {
       "ticker": "CVX",
@@ -5614,7 +5618,9 @@
         "annualized_roi": null,
         "dte": 16
       },
-      "outcome": null
+      "outcome": null,
+      "last_price": 196.08,
+      "current_return": 0.0509
     },
     {
       "ticker": "META",
@@ -6635,6 +6641,297 @@
         "dte": 17
       },
       "outcome": null
+    },
+    {
+      "ticker": "BIIB",
+      "entry_date": "2026-05-19",
+      "features": {
+        "impact": 5,
+        "surprise": 6,
+        "mismatch": 4.391,
+        "z_score": 0.122,
+        "sigma_30d": 0.0232,
+        "price_move_48h": 0.0028,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5712
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 200.0,
+        "bid": 13.3,
+        "ask": 14.4,
+        "open_interest": 1332,
+        "implied_vol": 0.3508,
+        "spread_ratio": 0.0764,
+        "dte": 121,
+        "delta": 0.4883,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 192.28,
+        "target_price": 207.66,
+        "hit_rate": 0.6484,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0218,
+        "alpha": 0.00189
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Shareholder-Investigation durch SueWallSt wegen m\u00f6glicher Securities Law Violations ist ein erhebliches rechtliches Risiko. Solche Untersuchungen k\u00f6nnen auf undisklosed materielle negative Informationen hindeuten und das Management ablenken, was mittelfristig erheblichen Kursabw\u00e4rtsdruck erzeugen kann.",
+          "argument_2": "Der Insider-Cluster-Kauf bezieht sich auf BIIB, aber die News zur Immunic-Ernennung von Mike Bonney betrifft prim\u00e4r Immunic (IMUX), nicht Biogen direkt. Es besteht das Risiko einer Signal-Verwechslung: Der Katalysator (Immunic MS Trial Readout) ist kein direkter BIIB-Katalysator, sondern ein indirekter Partnerschafts-/Akquisitionshinweis \u2014 der Markt k\u00f6nnte diesen Link bereits eingepreist haben oder ihn nie vollst\u00e4ndig bewerten.",
+          "argument_3": "BIIB weist eine massive EPS-Divergenz auf: yfinance meldet 16.59 vs. SEC EDGAR 9.31 \u2014 das ist eine fundamentale Datenqualit\u00e4ts-Warnung. Unterschiedliche EPS-Quellen bei Biotech k\u00f6nnen auf Sonderabschreibungen, Goodwill-Korrekturen oder Restatements hindeuten, was die Bewertungsbasis erheblich unsicherer macht. Bei einem Kurs von $192 und EPS ~9.31 liegt das KGV bei ~20x, was f\u00fcr einen stagnierenden Biotech-Player ohne klares organisches Wachstum ambitioniert erscheint.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine Statistik verf\u00fcgbar. Dies ist eine erhebliche Datenl\u00fccke. Ohne MC-Validierung kann keine quantitative Wahrscheinlichkeitsaussage zur Zielerreichung gemacht werden. Die Abwesenheit des Modells erh\u00f6ht Unsicherheit, senkt aber nicht per se den Trade-Wert, da der Katalysator qualitativ getrieben ist.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt hat den Insider-Cluster-Kauf und die strategische Bonney-Ernennung noch nicht vollst\u00e4ndig als Akquisitionssignal eingepreist. Die +0.3% Kursbewegung in 48h zeigt minimale Reaktion auf potenziell materielle M&A-Vorbereitungssignale. Ein positiver Immunic MS Trial Readout in 30-60 Tagen k\u00f6nnte eine Partnerschaftsank\u00fcndigung triggern.",
+        "catalyst": "Immunic MS Phase-3-Trial-Readout in 30-60 Tagen (Mai-Juli 2026) als potenzieller BIIB-Partnerschafts- oder Akquisitions-Trigger, kombiniert mit 7-Insider-Cluster-Kauf als vorausladendes Signal",
+        "bear_case": "Die laufende Securities Law Investigation durch SueWallSt k\u00f6nnte auf nicht-\u00f6ffentliche negative Informationen hindeuten und das bullische Momentum vollst\u00e4ndig neutralisieren oder umkehren.",
+        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und Fed Funds Rate bei 3.64% beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Healthcare/Biotech. Niedrigere Kapitalkosten unterst\u00fctzen M&A-Aktivit\u00e4t und Biotech-Bewertungen. Der Makro-R\u00fcckenwind verst\u00e4rkt das bullische Signal moderat, kann aber das spezifische Rechtsrisiko (Shareholder Investigation) nicht kompensieren.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.2428,
+        "annualized_roi": 1.175,
+        "dte": 121
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "META",
+      "entry_date": "2026-05-19",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 3.501,
+        "z_score": 0.5,
+        "sigma_30d": 0.0234,
+        "price_move_48h": 0.0117,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5294
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-06-05",
+        "strike": 610.0,
+        "bid": 13.2,
+        "ask": 13.8,
+        "open_interest": 729,
+        "implied_vol": 0.3253851641845703,
+        "spread_ratio": 0.0435,
+        "dte": 16,
+        "data_source": "yfinance"
+      },
+      "simulation": {
+        "current_price": 601.29,
+        "target_price": 649.39,
+        "hit_rate": 0.6142,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0236,
+        "alpha": 0.00099
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Margin-Druck durch massive AI-Investitionen ist das Kernrisiko: 7.000 Reassignments bedeuten erh\u00f6hte Restrukturierungskosten und operative Ineffizienzen im \u00dcbergang. Q2-2026 Earnings k\u00f6nnten trotz Umsatzwachstum durch h\u00f6here CapEx und Personalkosten entt\u00e4uschen \u2014 der Markt hat diesen Margin-Squeeze m\u00f6glicherweise noch nicht vollst\u00e4ndig eingepreist, was bei einer Verfehlung zu einem schnellen Drawdown von 10-15% f\u00fchren k\u00f6nnte.",
+          "argument_2": "Die EPS-Diskrepanz zwischen yfinance (36.16) und SEC EDGAR (27.5) ist ein erhebliches Datenproblem. Ein bereinigtes EPS von 27.5 impliziert ein deutlich h\u00f6heres KGV bei aktuellem Kurs von ~601 USD \u2014 das Bewertungsniveau ist bei realistischeren Gewinnzahlen anspruchsvoller als auf den ersten Blick, was das Aufw\u00e4rtspotenzial strukturell begrenzt und das Downside-Risiko bei negativen \u00dcberraschungen erh\u00f6ht.",
+          "argument_3": "Der AI-Investitions-Katalysator ist bereits weitgehend bekannt und d\u00fcrfte teilweise eingepreist sein. Meta hat seit 2025 wiederholt \u00fcber AI-Investments kommuniziert; Insider-K\u00e4ufe sind oft Signale mit langer Vorlaufzeit ohne unmittelbaren Kurskatalysator. Die -1.2% in 48h trotz Insider-Cluster deutet auf mangelnde Markt\u00fcberzeugung hin.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate ist nicht aussagekr\u00e4ftig \u2014 kein Quick MC wurde durchgef\u00fchrt, daher keine statistische Validierung m\u00f6glich. Das Fehlen dieser Kennzahl erh\u00f6ht die Unsicherheit, erlaubt aber keinen direkten Schluss auf Bullish oder Bearish. Concern bleibt moderat.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt interpretiert den 7.000-Reassignment-Plan prim\u00e4r als Kostensignal, untersch\u00e4tzt aber die langfristige Produktivit\u00e4tshebung durch AI-fokussierte Ressourcenallokation. Insider-Cluster-K\u00e4ufe bei vier unabh\u00e4ngigen Insidern innerhalb 14 Tagen signalisieren Conviction nahe aktuellem Kursniveau. Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt strukturelle Wachstumsthesen in Capital-Heavy Tech.",
+        "catalyst": "Q2-2026 Earnings Release (~Juli 2026) mit AI-Monetarisierungsfortschritt und Margin-Guidance",
+        "bear_case": "AI-CapEx-Zyklus belastet Margen in Q2-Q3 2026 st\u00e4rker als erwartet; bereinigtes EPS n\u00e4her an 27.5 l\u00e4sst Bewertung als \u00fcberdehnt erscheinen",
+        "macro_assessment": "Expansives Makro-Umfeld mit +0.54% Kurvensteigung und Fed Funds bei 3.64% ist konstruktiv f\u00fcr Large-Cap Tech mit AI-Wachstumsthese. Keine unmittelbaren Rezessionsrisiken sichtbar, was strukturelle Bull-Signale wie Insider-K\u00e4ufe st\u00e4rker gewichtet werden l\u00e4sst.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 8.4537,
+        "annualized_roi": null,
+        "dte": 16
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "BK",
+      "entry_date": "2026-05-19",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.042,
+        "z_score": 0.392,
+        "sigma_30d": 0.0113,
+        "price_move_48h": 0.0044,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5584
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-06-18",
+        "strike": 130.0,
+        "bid": 9.1,
+        "ask": 9.8,
+        "open_interest": 1321,
+        "implied_vol": 0.3113,
+        "spread_ratio": 0.0714,
+        "dte": 29,
+        "delta": 0.7354,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 137.19,
+        "target_price": 148.17,
+        "hit_rate": 0.6902,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0141,
+        "alpha": 0.00261
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Snapdocs-Mortgage-Automation-Pivot ist strukturell schwach als Kurstreiber f\u00fcr BK: BNY Mellon ist prim\u00e4r ein Custody- und Asset-Servicing-Haus, kein Mortgage-Originator. Snapdocs-Integration adressiert einen Nischenbereich, der kaum materialisierbaren Revenue-Impact im Kontext eines 47-Mrd.-Dollar-Unternehmens erzeugt. Der 'hidden digital revenue pivot' aus dem Haiku-Prescreening ist schwer quantifizierbar und k\u00f6nnte reine Narrative-Inflation ohne EPS-Relevanz sein.",
+          "argument_2": "Der Insider-Cluster-Kauf (4 Insider in 14 Tagen) ist ein oft \u00fcberbewertetes Signal bei Gro\u00dfbanken: BK-F\u00fchrungskr\u00e4fte kaufen regelm\u00e4\u00dfig im Rahmen von vorgeplanten 10b5-1-Pl\u00e4nen, die keine taktische Informationsasymmetrie widerspiegeln. Zudem betr\u00e4gt die 48h-Preisbewegung nur +0,4%, was darauf hindeutet, dass der Markt dieses Signal bereits weitgehend ignoriert oder eingepreist hat.",
+          "argument_3": "BK handelt auf Basis des SEC-EDGAR-EPS von 8,06 USD bei einem Kurs von 137,19 USD mit einem KGV von ~17x \u2014 f\u00fcr eine systemrelevante Custody-Bank historisch ambitioniert bewertet. Ein Zinsr\u00fcckgang (Fed Funds aktuell 3,64%) komprimiert Net Interest Margin-Ertr\u00e4ge weiter, w\u00e4hrend steigende regulatorische Kapitalanforderungen (Basel III Endgame Nachwirkungen 2026) die ROE-Expansion begrenzen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Der Quick MC wurde nicht ausgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate kein inhaltliches Signal, sondern ein technisches Artefakt ohne statistische Aussagekraft. Eine realistische 30-Tage Hit-Rate f\u00fcr einen moderaten Bullish-Move bei BK (z.B. +5-8%) l\u00e4ge angesichts historischer Finanzsektor-Volatilit\u00e4t von ~18-22% annualisiert bei ~40-55%, was bedeutet, dass kein Modelloptimismus vorliegt \u2014 schlicht keine Daten.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt bewertet BNY Mellons digitale Transformationsinitiativen prim\u00e4r als Kostenprojekte, nicht als Revenue-Katalysatoren, was eine systematische Underreaction auf Effizienzgewinne erzeugt. Insider-Cluster-K\u00e4ufe bei Custody-Banken korrelieren historisch mit bevorstehenden positiven Kapitalallokations-Ank\u00fcndigungen (Buybacks, Dividendenerh\u00f6hungen). Das expansive Makro-Umfeld mit steiler Zinskurve beg\u00fcnstigt Repricing-Effekte im Custody-Gesch\u00e4ft, die im Konsens noch nicht vollst\u00e4ndig modelliert sind.",
+        "catalyst": "Q2 2026 Earnings-Release (Juli 2026): Erstmalige Quantifizierung der Snapdocs-Effizienzgewinne kombiniert mit m\u00f6glicher Guidance-Erh\u00f6hung oder Kapitalr\u00fcckf\u00fchrungsank\u00fcndigung als konkreter Repricing-Trigger.",
+        "bear_case": "Regulatorische Kapitalanforderungen unter Basel III Endgame begrenzen Kapitalr\u00fcckf\u00fchrungen, w\u00e4hrend eine schnellere Fed-Lockerung die NIM-Ertr\u00e4ge komprimiert und den strukturellen Repricing-Thesis untergr\u00e4bt.",
+        "macro_assessment": "Die steile Zinskurve (+54bp 10Y-2Y) und Fed Funds Rate von 3,64% schaffen ein g\u00fcnstiges NIM-Umfeld f\u00fcr BK als Custody-Bank mit signifikanten Float-Einnahmen. Das expansive Regime reduziert Kreditrisikobedenken und unterst\u00fctzt institutionelle Long-Allokationen in Qualit\u00e4ts-Financials. Der Makro-Kontext ist damit moderat konstruktiv f\u00fcr die Bullish-These, ohne sie jedoch zwingend zu machen.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 2.2803,
+        "annualized_roi": null,
+        "dte": 29
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "BMY",
+      "entry_date": "2026-05-19",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 3.173,
+        "z_score": 0.565,
+        "sigma_30d": 0.0168,
+        "price_move_48h": 0.0095,
+        "eps_drift": 0.0056,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5868
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-06-05",
+        "strike": 57.0,
+        "bid": 2.12,
+        "ask": 2.32,
+        "open_interest": 103,
+        "implied_vol": 0.2973,
+        "spread_ratio": 0.0862,
+        "dte": 16,
+        "delta": 0.6735,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 58.21,
+        "target_price": 62.87,
+        "hit_rate": 0.7176,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0164,
+        "alpha": 0.00281
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Sotyktu PSA-Launch zeigt explizit eine ged\u00e4mpfte Adoptionskurve: Rheumatologen n\u00e4hern sich TYK2 gemessen an. Dies ist kein tempor\u00e4res Ph\u00e4nomen, sondern ein strukturelles Adoptionsproblem, das Q2/Q3 2026 Guidance-Cuts wahrscheinlich macht. Der Markt k\u00f6nnte die Ramp-Kurve noch immer zu optimistisch modellieren, was bei Earnings-Entt\u00e4uschung zu scharfen Abverk\u00e4ufen f\u00fchren kann.",
+          "argument_2": "Der EPS-Diskrepanz zwischen yfinance (6.17) und SEC EDGAR (3.59) ist erheblich und signalisiert m\u00f6glicherweise adjustierte vs. GAAP-Earnings-Verwechslungen. Anleger, die auf adjustierte EPS setzen, k\u00f6nnten bei GAAP-basierten Earnings-Berichten negativ \u00fcberrascht werden \u2014 insbesondere wenn hohe Abschreibungen auf Akquisitionen (z.B. Kardia, Mirati) weiterhin belasten.",
+          "argument_3": "Der Supreme Court hat Pharma-Firmen im Medicare Drug Pricing Case Certiorari verweigert. Dies bedeutet, dass die IRA-Preisverhandlungen f\u00fcr BMY-Schl\u00fcsselprodukte wie Eliquis und Opdivo rechtlich bindend bleiben. Dies ist ein langfristiger Revenue-Drain, der strukturell gegen die Bewertung wirkt und institutionelle Investoren zunehmend vorsichtig stimmt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Der Quick MC wurde nicht durchgef\u00fchrt (0 Pfade), daher ist die 0% Hit-Rate technisch bedeutungslos. Bei einer 48h-Bewegung von nur +1.0% und BMY's historischer 30-Tage-Volatilit\u00e4t von typischerweise 15-20% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Zielpreis bei 55-65%. Das Fehlen der MC-Daten reduziert die statistische Fundierung dieser Analyse.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt gewichtet Sotyktu-Adoptions-Entt\u00e4uschung bereits negativ, aber der FDA-Approval f\u00fcr Opdivo Qvantig sowie das 6-Insider-Cluster-Kaufsignal deuten auf untersch\u00e4tzte Pipeline-Katalysatoren hin. Das expansive Makroumfeld (steile Kurve, Fed Funds 3.64%) beg\u00fcnstigt Healthcare-Repricing, w\u00e4hrend der Markt BMY noch immer auf IRA-Risiken diskontiert. Q3 2026 Earnings k\u00f6nnten erste Sotyktu-PSA-Skalierungssignale liefern, die Konsensmodelle \u00fcberraschen.",
+        "catalyst": "FDA-Approval Opdivo Qvantig + Q2/Q3 2026 Earnings-Guidance-Update zu Sotyktu PSA Ramp und m\u00f6gliche positive Revisionen bei Rheumatologen-Adoption",
+        "bear_case": "Sotyktu PSA-Adoption bleibt strukturell schwach, Q2 2026 Earnings enthalten Revenue-Guidance-Cut, kombiniert mit anhaltenden IRA-Pricing-Dr\u00fccken auf Eliquis \u2014 Kursr\u00fcckgang auf $52-54 m\u00f6glich.",
+        "macro_assessment": "Das expansive Makroumfeld mit steiler Zinskurve (+0.54%) und moderater Fed Funds Rate (3.64%) ist grunds\u00e4tzlich g\u00fcnstig f\u00fcr Long-Positionen in Healthcare. BMY profitiert als defensiver Value-Titel von fallenden Risikopr\u00e4mien, jedoch bleibt der sektorspezifische IRA-Gegenwind ein idiosynkratisches Risiko, das makro\u00f6konomische R\u00fcckenwind teilweise neutralisiert.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 7.1956,
+        "annualized_roi": null,
+        "dte": 16
+      },
+      "outcome": null
     }
   ],
   "closed_trades": [],
@@ -6719,6 +7016,11 @@
         "date": "2026-05-18",
         "score": 0.1162,
         "headline_count": 2
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2031,
+        "headline_count": 1
       }
     ],
     "GEN": [
@@ -6816,6 +7118,11 @@
       {
         "date": "2026-05-17",
         "score": -0.0659,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.3374,
         "headline_count": 5
       }
     ],
@@ -6929,6 +7236,11 @@
         "date": "2026-05-18",
         "score": -0.0665,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1227,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -7005,6 +7317,11 @@
       {
         "date": "2026-05-18",
         "score": 0.2047,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.4296,
         "headline_count": 3
       }
     ],
@@ -7343,6 +7660,11 @@
         "date": "2026-05-17",
         "score": -0.0358,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0944,
+        "headline_count": 5
       }
     ],
     "FSLR": [
@@ -7462,6 +7784,11 @@
         "date": "2026-05-18",
         "score": 0.1558,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.252,
+        "headline_count": 5
       }
     ],
     "META": [
@@ -7574,6 +7901,11 @@
         "date": "2026-05-18",
         "score": 0.2255,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1577,
+        "headline_count": 5
       }
     ],
     "APA": [
@@ -7651,6 +7983,11 @@
         "date": "2026-05-18",
         "score": 0.2213,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2475,
+        "headline_count": 5
       }
     ],
     "BIIB": [
@@ -7707,6 +8044,11 @@
       {
         "date": "2026-05-17",
         "score": 0.2071,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0721,
         "headline_count": 5
       }
     ],
@@ -7882,6 +8224,11 @@
         "date": "2026-05-18",
         "score": -0.1717,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1928,
+        "headline_count": 5
       }
     ],
     "C": [
@@ -7934,6 +8281,11 @@
         "date": "2026-05-17",
         "score": 0.015,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.5069,
+        "headline_count": 5
       }
     ],
     "CAG": [
@@ -8016,6 +8368,11 @@
         "date": "2026-05-18",
         "score": 0.2278,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1314,
+        "headline_count": 5
       }
     ],
     "DRI": [
@@ -8234,6 +8591,11 @@
         "date": "2026-05-18",
         "score": 0.4251,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1198,
+        "headline_count": 5
       }
     ],
     "FAST": [
@@ -8768,6 +9130,11 @@
         "date": "2026-05-18",
         "score": 0.0945,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0936,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -8854,6 +9221,11 @@
       {
         "date": "2026-05-17",
         "score": 0.6395,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1048,
         "headline_count": 3
       }
     ],
@@ -9041,6 +9413,11 @@
         "date": "2026-05-18",
         "score": -0.1691,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0563,
+        "headline_count": 5
       }
     ],
     "HRL": [
@@ -9166,6 +9543,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0264,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0366,
         "headline_count": 5
       }
     ],
@@ -9500,6 +9882,11 @@
         "date": "2026-05-18",
         "score": 0.2002,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0527,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -9576,6 +9963,11 @@
       {
         "date": "2026-05-18",
         "score": -0.1168,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0791,
         "headline_count": 5
       }
     ],
@@ -9674,6 +10066,11 @@
         "date": "2026-05-17",
         "score": -0.0358,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0397,
+        "headline_count": 3
       }
     ],
     "AVGO": [
@@ -9765,6 +10162,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0616,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2779,
         "headline_count": 5
       }
     ],
@@ -9868,6 +10270,11 @@
         "date": "2026-05-18",
         "score": -0.1185,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.5792,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -9915,6 +10322,11 @@
         "date": "2026-05-17",
         "score": 0.0321,
         "headline_count": 2
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1092,
+        "headline_count": 5
       }
     ],
     "CAT": [
@@ -9997,6 +10409,11 @@
         "date": "2026-05-18",
         "score": 0.0574,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0195,
+        "headline_count": 4
       }
     ],
     "BF-B": [
@@ -10065,6 +10482,11 @@
       {
         "date": "2026-05-18",
         "score": -0.0474,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1418,
         "headline_count": 5
       }
     ],
@@ -10444,6 +10866,11 @@
         "date": "2026-05-18",
         "score": 0.013,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1883,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -10526,6 +10953,11 @@
         "date": "2026-05-18",
         "score": -0.4298,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2325,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -10588,6 +11020,11 @@
         "date": "2026-05-18",
         "score": -0.2205,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1394,
+        "headline_count": 2
       }
     ],
     "D": [
@@ -10650,6 +11087,11 @@
         "date": "2026-05-18",
         "score": -0.0534,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.183,
+        "headline_count": 5
       }
     ],
     "ETR": [
@@ -10708,6 +11150,11 @@
       {
         "date": "2026-05-14",
         "score": -0.2599,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.5343,
         "headline_count": 5
       }
     ],
@@ -10840,6 +11287,11 @@
         "date": "2026-05-17",
         "score": 0.382,
         "headline_count": 2
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0759,
+        "headline_count": 5
       }
     ],
     "CDNS": [
@@ -10949,6 +11401,11 @@
         "date": "2026-05-18",
         "score": 0.1726,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2368,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -10980,6 +11437,11 @@
       {
         "date": "2026-05-17",
         "score": -0.0066,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1444,
         "headline_count": 5
       }
     ],
@@ -11136,6 +11598,11 @@
         "date": "2026-05-17",
         "score": -0.0454,
         "headline_count": 1
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.4336,
+        "headline_count": 4
       }
     ],
     "BALL": [
@@ -11369,6 +11836,11 @@
         "date": "2026-05-18",
         "score": 0.1211,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2075,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -11525,6 +11997,11 @@
         "date": "2026-05-17",
         "score": -0.2203,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.2187,
+        "headline_count": 5
       }
     ],
     "CMS": [
@@ -11639,6 +12116,11 @@
         "date": "2026-05-18",
         "score": 0.1211,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0944,
+        "headline_count": 5
       }
     ],
     "GLW": [
@@ -11731,6 +12213,11 @@
         "date": "2026-05-18",
         "score": 0.1854,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2707,
+        "headline_count": 5
       }
     ],
     "COST": [
@@ -11792,6 +12279,11 @@
       {
         "date": "2026-05-18",
         "score": 0.174,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1006,
         "headline_count": 4
       }
     ],
@@ -11872,6 +12364,11 @@
         "date": "2026-05-18",
         "score": -0.1621,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.15,
+        "headline_count": 5
       }
     ],
     "ETN": [
@@ -11933,6 +12430,11 @@
       {
         "date": "2026-05-18",
         "score": 0.1988,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1439,
         "headline_count": 5
       }
     ],
@@ -12105,6 +12607,11 @@
         "date": "2026-05-18",
         "score": -0.0701,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.22,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -12211,6 +12718,11 @@
       {
         "date": "2026-05-18",
         "score": -0.1788,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.2729,
         "headline_count": 5
       }
     ],
@@ -12485,6 +12997,11 @@
         "date": "2026-05-18",
         "score": 0.236,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1369,
+        "headline_count": 5
       }
     ],
     "AMGN": [
@@ -12551,6 +13068,11 @@
       {
         "date": "2026-05-17",
         "score": -0.0818,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.4572,
         "headline_count": 5
       }
     ],
@@ -12633,6 +13155,11 @@
       {
         "date": "2026-05-18",
         "score": -0.3952,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2032,
         "headline_count": 5
       }
     ],
@@ -12726,6 +13253,11 @@
         "date": "2026-05-18",
         "score": -0.4024,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0349,
+        "headline_count": 5
       }
     ],
     "ADM": [
@@ -12793,6 +13325,11 @@
         "date": "2026-05-18",
         "score": 0.4024,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0671,
+        "headline_count": 5
       }
     ],
     "ACGL": [
@@ -12957,6 +13494,11 @@
         "date": "2026-05-18",
         "score": 0.0615,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.038,
+        "headline_count": 5
       }
     ],
     "ADSK": [
@@ -13008,6 +13550,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0537,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1243,
         "headline_count": 5
       }
     ],
@@ -13262,6 +13809,11 @@
         "date": "2026-05-17",
         "score": -0.8214,
         "headline_count": 1
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0777,
+        "headline_count": 4
       }
     ],
     "CAH": [
@@ -13364,6 +13916,11 @@
         "date": "2026-05-18",
         "score": -0.0511,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.3014,
+        "headline_count": 5
       }
     ],
     "CL": [
@@ -13420,6 +13977,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0304,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1761,
         "headline_count": 5
       }
     ],
@@ -13487,6 +14049,11 @@
       {
         "date": "2026-05-18",
         "score": 0.1562,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.2102,
         "headline_count": 5
       }
     ],
@@ -13612,6 +14179,11 @@
         "date": "2026-05-18",
         "score": 0.0221,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1925,
+        "headline_count": 5
       }
     ],
     "CTSH": [
@@ -13693,6 +14265,11 @@
       {
         "date": "2026-05-18",
         "score": -0.4394,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.4506,
         "headline_count": 5
       }
     ],
@@ -13798,6 +14375,11 @@
         "date": "2026-05-17",
         "score": -0.0283,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.4525,
+        "headline_count": 3
       }
     ],
     "GE": [
@@ -13995,6 +14577,11 @@
         "date": "2026-05-18",
         "score": 0.1211,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2075,
+        "headline_count": 5
       }
     ],
     "DG": [
@@ -14061,6 +14648,11 @@
       {
         "date": "2026-05-18",
         "score": -0.1621,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.15,
         "headline_count": 5
       }
     ],
@@ -14197,6 +14789,11 @@
         "date": "2026-05-18",
         "score": 0.1369,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0979,
+        "headline_count": 5
       }
     ],
     "DVN": [
@@ -14283,6 +14880,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0413,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.22,
         "headline_count": 5
       }
     ],
@@ -14384,6 +14986,11 @@
         "date": "2026-05-17",
         "score": 0.0855,
         "headline_count": 1
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2195,
+        "headline_count": 5
       }
     ],
     "CLX": [
@@ -14480,6 +15087,11 @@
       {
         "date": "2026-05-18",
         "score": 0.1211,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0944,
         "headline_count": 5
       }
     ],
@@ -14688,6 +15300,11 @@
         "date": "2026-05-18",
         "score": -0.192,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1369,
+        "headline_count": 4
       }
     ],
     "LMT": [
@@ -14767,6 +15384,11 @@
         "date": "2026-05-18",
         "score": 0.2078,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1948,
+        "headline_count": 4
       }
     ],
     "EQT": [
@@ -14793,6 +15415,11 @@
       {
         "date": "2026-05-17",
         "score": 0.3748,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1416,
         "headline_count": 5
       }
     ],
@@ -14946,6 +15573,11 @@
         "date": "2026-05-17",
         "score": 0.0113,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.3571,
+        "headline_count": 2
       }
     ],
     "ACN": [
@@ -15017,6 +15649,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0752,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.3185,
         "headline_count": 5
       }
     ],
@@ -15152,6 +15789,11 @@
         "date": "2026-05-17",
         "score": 0.3142,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1976,
+        "headline_count": 5
       }
     ],
     "BBY": [
@@ -15204,6 +15846,11 @@
         "date": "2026-05-17",
         "score": 0.3016,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0052,
+        "headline_count": 3
       }
     ],
     "BR": [
@@ -15303,6 +15950,11 @@
         "date": "2026-05-17",
         "score": -0.1031,
         "headline_count": 1
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.1003,
+        "headline_count": 5
       }
     ],
     "COF": [
@@ -15370,6 +16022,11 @@
         "date": "2026-05-18",
         "score": 0.2073,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.3197,
+        "headline_count": 5
       }
     ],
     "COR": [
@@ -15441,6 +16098,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0151,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0272,
         "headline_count": 5
       }
     ],
@@ -15523,6 +16185,11 @@
       {
         "date": "2026-05-18",
         "score": 0.0783,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.156,
         "headline_count": 5
       }
     ],
@@ -15710,6 +16377,11 @@
         "date": "2026-05-18",
         "score": -0.0074,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0062,
+        "headline_count": 5
       }
     ],
     "CEG": [
@@ -15777,6 +16449,11 @@
         "date": "2026-05-18",
         "score": 0.1726,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2368,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -15844,6 +16521,11 @@
         "date": "2026-05-18",
         "score": -0.1741,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0122,
+        "headline_count": 5
       }
     ],
     "DHR": [
@@ -15901,6 +16583,11 @@
         "date": "2026-05-17",
         "score": 0.1094,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.408,
+        "headline_count": 3
       }
     ],
     "DOV": [
@@ -15922,6 +16609,11 @@
       {
         "date": "2026-05-17",
         "score": 0.087,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1002,
         "headline_count": 5
       }
     ],
@@ -15965,6 +16657,11 @@
         "date": "2026-05-18",
         "score": -0.1828,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.3093,
+        "headline_count": 5
       }
     ],
     "EBAY": [
@@ -16006,6 +16703,11 @@
       {
         "date": "2026-05-17",
         "score": 0.0026,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0123,
         "headline_count": 5
       }
     ],
@@ -16054,6 +16756,11 @@
         "date": "2026-05-18",
         "score": 0.0208,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0161,
+        "headline_count": 5
       }
     ],
     "EIX": [
@@ -16086,6 +16793,11 @@
         "date": "2026-05-17",
         "score": 0.2435,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1042,
+        "headline_count": 5
       }
     ],
     "AME": [
@@ -16200,6 +16912,11 @@
         "date": "2026-05-17",
         "score": 0.1984,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1098,
+        "headline_count": 4
       }
     ],
     "AEE": [
@@ -16237,6 +16954,11 @@
         "date": "2026-05-17",
         "score": 0.0121,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1754,
+        "headline_count": 5
       }
     ],
     "AMCR": [
@@ -16420,6 +17142,11 @@
         "date": "2026-05-18",
         "score": -0.0962,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0013,
+        "headline_count": 5
       }
     ],
     "CSX": [
@@ -16511,6 +17238,11 @@
         "date": "2026-05-18",
         "score": -0.1028,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0258,
+        "headline_count": 4
       }
     ],
     "CDW": [
@@ -16664,6 +17396,11 @@
         "date": "2026-05-18",
         "score": -0.0714,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.3594,
+        "headline_count": 5
       }
     ],
     "DECK": [
@@ -16721,6 +17458,11 @@
         "date": "2026-05-18",
         "score": -0.0032,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.3788,
+        "headline_count": 5
       }
     ],
     "ECL": [
@@ -16773,6 +17515,11 @@
         "date": "2026-05-18",
         "score": -0.0408,
         "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.2148,
+        "headline_count": 5
       }
     ],
     "EA": [
@@ -16804,6 +17551,11 @@
       {
         "date": "2026-05-18",
         "score": -0.2523,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1986,
         "headline_count": 5
       }
     ],
@@ -16874,6 +17626,11 @@
         "date": "2026-05-17",
         "score": -0.2545,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": -0.0084,
+        "headline_count": 5
       }
     ],
     "EL": [
@@ -16906,6 +17663,11 @@
         "date": "2026-05-17",
         "score": -0.0358,
         "headline_count": 5
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0594,
+        "headline_count": 5
       }
     ],
     "ETSY": [
@@ -16937,6 +17699,11 @@
       {
         "date": "2026-05-18",
         "score": -0.0042,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.0847,
         "headline_count": 3
       }
     ],
@@ -17049,6 +17816,11 @@
         "date": "2026-05-18",
         "score": -0.0443,
         "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1577,
+        "headline_count": 5
       }
     ],
     "AON": [
@@ -17159,6 +17931,11 @@
         "date": "2026-05-08",
         "score": 0.4346,
         "headline_count": 2
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.8141,
+        "headline_count": 2
       }
     ],
     "EPAM": [
@@ -17199,6 +17976,11 @@
       {
         "date": "2026-05-14",
         "score": 0.0448,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-05-19",
+        "score": 0.1748,
         "headline_count": 4
       }
     ],
