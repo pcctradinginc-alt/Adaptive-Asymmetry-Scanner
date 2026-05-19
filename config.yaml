@@ -24,12 +24,15 @@ risk:
   max_bear_case_severity: 8
 
 options:
-  dte_min: 120
-  dte_max: 200
+  # DTE-Tiers werden in options_designer.py (DTE_TIERS) gesteuert.
+  # time_to_materialization aus deep_analysis bestimmt das DTE-Minimum (v9.0):
+  #   "4-8 Wochen"  → dte_floor=14  (Short-Term erlaubt)
+  #   "2-3 Monate"  → dte_floor=55  (Mid-Term Minimum)
+  #   "6 Monate"    → dte_floor=140 (Long-Term Minimum)
   delta_target_low:  0.55
   delta_target_high: 0.75
   target_move_pct:   0.10
-  min_roi_after_spread: 0.15   # NEU: 15% Mindest-ROI nach Bid-Ask-Spread
+  min_roi_after_spread: 0.15
 
 learning:
   learning_rate: 0.05
@@ -45,7 +48,7 @@ eps_drift:
 rl:
   enabled: true
   model_path: "outputs/models/ppo_options_agent.zip"
-  min_trades_for_training: 5
+  min_trades_for_training: 3
   timesteps_per_update: 2000
 
 # FinBERT
