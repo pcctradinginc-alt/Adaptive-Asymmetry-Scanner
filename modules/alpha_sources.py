@@ -32,7 +32,7 @@ import logging
 import os
 import re
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Optional
 
 import requests
@@ -314,7 +314,9 @@ def has_earnings_within_days(
 
     try:
         earnings_dt = datetime.strptime(earnings_date, "%Y-%m-%d")
-        days_until  = (earnings_dt - datetime.utcnow()).days
+        # date.today() statt datetime.utcnow() — konsistent mit risk_gates.py.
+        # datetime.utcnow() hat UTC-Offset-Fehler (0d vs 1d je nach Tageszeit).
+        days_until  = (earnings_dt.date() - date.today()).days
 
         if 0 <= days_until <= buffer_days:
             log.info(
