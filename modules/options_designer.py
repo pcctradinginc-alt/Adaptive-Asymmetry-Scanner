@@ -99,7 +99,7 @@ SECTOR_ETF = {
     "Communication Services": "XLC", "default": "SPY",
 }
 
-RELATIVE_STRENGTH_MIN = -0.08
+RELATIVE_STRENGTH_MIN = -0.15  # -0.08→-0.15: weniger aggressiv, rettet Underreaction-Signale
 
 TRADIER_BASE    = "https://api.tradier.com/v1"
 TRADIER_TIMEOUT = 10
