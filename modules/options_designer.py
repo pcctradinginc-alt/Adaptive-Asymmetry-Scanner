@@ -119,7 +119,9 @@ def _classify_catalyst_type(s: dict) -> str:
 
     if alpha.get("fda_catalyst"):
         return "FDA"
-    if alpha.get("eps_drift") or any(k in catalyst_txt for k in ("earnings", " eps", "ergebnis", "guidance")):
+    # eps_drift ist ein Float — nur als EARNINGS klassifizieren wenn signifikant (>5%)
+    eps_drift_significant = abs(float(alpha.get("eps_drift") or 0)) > 0.05
+    if eps_drift_significant or any(k in catalyst_txt for k in ("earnings", " eps", "ergebnis", "guidance")):
         return "EARNINGS"
     if any(k in catalyst_txt for k in ("merger", "acquisition", "takeover", "buyout", "übernahme", "deal", "m&a")):
         return "MA"
