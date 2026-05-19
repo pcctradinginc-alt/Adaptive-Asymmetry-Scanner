@@ -1,15 +1,28 @@
 """
-modules/deep_analysis.py v8.2
+modules/deep_analysis.py v9.0
+
+Änderungen v9.0:
+    #10 catalyst_confidence (0-10) als neues JSON-Feld.
+        Separater Score für "Wie sicher ist der Catalyst einzutreten?"
+        Unabhängig vom Gesamt-Impact — ein Catalyst kann materialreich sein
+        (Impact=8) aber unsicher (confidence=3). Wird in RL-Observation
+        und Email ausgegeben.
+
+    #12 Mega-Cap-Filter im System-Prompt.
+        Bei Marktkapitalisierung > $200 Mrd. expliziter Hinweis auf
+        Informationseffizienz. Impact > 6 bei Mega-Caps erfordert
+        besonders starke Begründung. Marktkapitalisierung wird im
+        Analyse-Template angezeigt.
+
+    #3  mc_hit_rate wird im returned result dict gespeichert,
+        damit options_designer.py darauf zugreifen kann ohne
+        erneuten quick_mc-Lookup.
 
 Änderungen v8.2:
-    - FIX: _get_48h_move() nutzt period='10d' und vergleicht volle Handelstage
-      (close[-2] vs close[-4]) statt close[-1] vs close[-3].
-      Vorher: Scanner läuft 15:30 MEZ → close[-1] ist heutiger Intraday → ~0.0
-      Jetzt:  Vergleicht gestrigen Close vs vor-3-Tagen-Close → echte 48h-Bewegung.
+    - FIX: _get_48h_move() nutzt period='10d' und vergleicht volle Handelstage.
 
 Änderungen v8.1:
-    - Analysedatum im SYSTEM_PROMPT + ANALYSIS_TEMPLATE (verhindert Jahreszahlen-Halluzination)
-    - current_year dynamisch in SYSTEM_PROMPT
+    - Analysedatum im SYSTEM_PROMPT + ANALYSIS_TEMPLATE
     - asymmetry_reasoning: Genau 3 Sätze, max 500 Zeichen
 """
 
@@ -27,6 +40,9 @@ from modules.macro_context import get_macro_context
 
 log = logging.getLogger(__name__)
 
+# v9.0 #12: Mega-Cap-Schwelle in USD
+MEGA_CAP_THRESHOLD = 200_000_000_000  # $200 Mrd.
+
 SYSTEM_PROMPT = """Du bist ein skeptischer Quant-Analyst mit Fokus auf mittelfristige Optionsstrategien (2-6 Monate). Das aktuelle Jahr ist {current_year}. Alle Jahreszahlen in deinen Analysen müssen ≥ {current_year} sein. Ignoriere historische Jahreszahlen aus deinen Trainingsdaten — orientiere dich ausschließlich am Analysedatum im Prompt.
 
 PFLICHT-ABLAUF — in dieser Reihenfolge, keine Ausnahme:
@@ -34,7 +50,7 @@ PFLICHT-ABLAUF — in dieser Reihenfolge, keine Ausnahme:
 SCHRITT 1 — RED TEAM (zuerst immer):
 Finde die 3 stärksten Argumente GEGEN diesen Trade.
 Denke wie ein Short-Seller. Was könnte das Signal zerstören?
-Typische Red Flags: Überbewertung, Sektor-Gegenwind, fragliche Datenqualität, 
+Typische Red Flags: Überbewertung, Sektor-Gegenwind, fragliche Datenqualität,
 Makro-Risiko, IV-Crush, Katalysator bereits eingepreist.
 
 SCHRITT 2 — STATISTIK-CHECK:
@@ -45,7 +61,15 @@ SCHRITT 3 — MAKRO-KONTEXT:
 Passt das Signal zum aktuellen Zinsumfeld?
 Rezessives Umfeld (invertierte Kurve) → erhöhte Skepsis bei BULLISH-Signalen.
 
-SCHRITT 4 — ERST JETZT: Finale Bewertung.
+SCHRITT 4 — MEGA-CAP-CHECK (wenn Marktkapitalisierung > $200 Mrd.):
+Mega-Cap-Warnung: Bei Aktien mit Marktkapitalisierung > $200 Mrd. ist die
+Informationseffizienz extrem hoch. Große institutionelle Desk-Coverage bedeutet,
+dass öffentliche Informationen innerhalb von Minuten eingepreist werden.
+Strukturelle Underreactions bei Mega-Caps sind deutlich seltener als bei Mid-Caps.
+Impact > 6 bei Mega-Caps erfordert einen sehr konkreten, nicht-öffentlichen Informationsvorsprung.
+Im Zweifel: Impact auf 5 begrenzen wenn nur öffentliche Informationen vorliegen.
+
+SCHRITT 5 — ERST JETZT: Finale Bewertung.
 Im Zweifel BEARISH. Nur eindeutige strukturelle Signale verdienen Impact > 7.
 
 Antworte ausschließlich mit validem JSON."""
@@ -57,6 +81,7 @@ ANALYSIS_TEMPLATE = """=== ANALYSEDATUM: {analysis_date} (WICHTIG: Alle Jahresza
 
 === TICKER: {ticker} ===
 Aktueller Preis: ${current_price:.2f}
+Marktkapitalisierung: {market_cap_str}{mega_cap_flag}
 Sektor: {sector}
 Haiku-Prescreening: {prescreen_reason} [Kategorie: {prescreen_category}]
 WICHTIG: Wenn deine Bewertung der Direction von der Haiku-Einschätzung abweicht,
@@ -75,12 +100,12 @@ Interpretation: {mc_interpretation}
 {data_anomaly_warning}
 
 === DEINE AUFGABE ===
-Folge dem Pflicht-Ablauf: Red Team → Statistik → Makro → Finale Bewertung.
+Folge dem Pflicht-Ablauf: Red Team → Statistik → Makro → {mega_cap_step}→ Finale Bewertung.
 
 Antworte NUR mit diesem JSON:
 {{
     "red_team": {{
-        "argument_1": "<Stärkstes Argument gegen den Trade — Min 2 vollständige Sätze, mindestens 200 Zeichen, konkret>",  
+        "argument_1": "<Stärkstes Argument gegen den Trade — Min 2 vollständige Sätze, mindestens 200 Zeichen, konkret>",
         "argument_2": "<Zweitstärkstes Argument>",
         "argument_3": "<Drittstärkstes Argument>",
         "red_team_verdict": "VETO" oder "PASSIERT"
@@ -94,12 +119,23 @@ Antworte NUR mit diesem JSON:
     "direction": "BULLISH" oder "BEARISH",
     "bear_case_severity": <0-10>,
     "time_to_materialization": "4-8 Wochen" oder "2-3 Monate" oder "6 Monate",
-    "asymmetry_reasoning": "<Genau 3 vollständige Sätze — warum der Markt unterreagiert hat. Maximal 500 Zeichen. Kein Satz darf abgebrochen werden>",  
+    "catalyst_confidence": <0-10>,
+    "asymmetry_reasoning": "<Genau 3 vollständige Sätze — warum der Markt unterreagiert hat. Maximal 500 Zeichen. Kein Satz darf abgebrochen werden>",
     "catalyst": "<Spezifischer Katalysator>",
     "bear_case": "<Stärkstes Gegenargument>",
     "macro_assessment": "<Bewertung im aktuellen Makro-Umfeld>",
     "data_confidence": "high" oder "medium" oder "low"
 }}"""
+
+
+def _format_market_cap(market_cap: Optional[int]) -> str:
+    if not market_cap or market_cap <= 0:
+        return "Unbekannt"
+    if market_cap >= 1_000_000_000_000:
+        return f"${market_cap/1_000_000_000_000:.1f}B (Trillion)"
+    if market_cap >= 1_000_000_000:
+        return f"${market_cap/1_000_000_000:.1f} Mrd."
+    return f"${market_cap/1_000_000:.0f} Mio."
 
 
 class DeepAnalysis:
@@ -168,15 +204,19 @@ class DeepAnalysis:
             else:
                 analysis["direction_conflict"] = False
 
-            analyses.append({**candidate, "deep_analysis": analysis})
+            cat_conf = analysis.get("catalyst_confidence")
             log.info(
                 f"  [{candidate['ticker']}] "
                 f"Impact={analysis['impact']} "
                 f"Surprise={analysis['surprise']} "
                 f"Direction={analysis['direction']} "
+                f"CatalystConf={cat_conf}/10 "
+                f"TTM={analysis.get('time_to_materialization','?')} "
                 f"RedTeam={red_team.get('red_team_verdict', '?')} "
                 f"{'⚠️ KONFLIKT' if analysis.get('direction_conflict') else '✅'}"
             )
+
+            analyses.append({**candidate, "deep_analysis": analysis})
 
         return analyses
 
@@ -189,9 +229,10 @@ class DeepAnalysis:
             info.get("currentPrice") or
             info.get("regularMarketPrice") or 0
         )
-        forward_eps = info.get("forwardEps") or info.get("trailingEps") or 0.0
-        sector      = info.get("sector", "Unknown")
-        move_48h    = self._get_48h_move(ticker)
+        forward_eps  = info.get("forwardEps") or info.get("trailingEps") or 0.0
+        sector       = info.get("sector", "Unknown")
+        market_cap   = info.get("marketCap") or 0
+        move_48h     = self._get_48h_move(ticker)
 
         eps_check     = candidate.get("data_validation", {}).get("eps_cross_check", {})
         sec_eps       = eps_check.get("sec_eps", "n/a")
@@ -221,6 +262,15 @@ class DeepAnalysis:
         else:
             mc_interpretation = f"Nur {mc_hit_rate:.0%} — knapp über Minimum-Gate, erhöhte Vorsicht."
 
+        # v9.0 #12: Mega-Cap-Hinweis
+        market_cap_str = _format_market_cap(market_cap)
+        is_mega_cap    = market_cap >= MEGA_CAP_THRESHOLD
+        mega_cap_flag  = (
+            f"\n⚠️ MEGA-CAP: Informationseffizienz sehr hoch — Impact > 6 erfordert konkreten Edge!"
+            if is_mega_cap else ""
+        )
+        mega_cap_step = "Mega-Cap-Check → " if is_mega_cap else ""
+
         news_text = "\n".join(f"- {h}" for h in news[:8]) if news else "Keine News."
 
         macro_text = (
@@ -240,6 +290,9 @@ class DeepAnalysis:
             macro_context      = macro_text,
             ticker             = ticker,
             current_price      = current_price,
+            market_cap_str     = market_cap_str,
+            mega_cap_flag      = mega_cap_flag,
+            mega_cap_step      = mega_cap_step,
             sector             = sector,
             prescreen_reason   = prescreen_reason,
             prescreen_category = prescreen_category,
@@ -258,7 +311,7 @@ class DeepAnalysis:
         try:
             response = self.client.messages.create(
                 model      = cfg.models.deep_analysis,
-                max_tokens = 1500,
+                max_tokens = 1600,
                 system     = SYSTEM_PROMPT.format(current_year=_today.year),
                 messages   = [{"role": "user", "content": prompt}],
             )
@@ -277,7 +330,6 @@ class DeepAnalysis:
             except json.JSONDecodeError as je:
                 log.warning(f"  [{ticker}] JSON teilweise abgeschnitten: {je} → Reparatur-Versuch")
                 last_comma = raw.rfind('",')
-                last_brace = raw.rfind('"')
                 cutoff = max(last_comma, 0)
                 if cutoff > 100:
                     raw_fixed = raw[:cutoff] + '"}'
@@ -292,6 +344,7 @@ class DeepAnalysis:
                             "impact": 3, "surprise": 3, "direction": "BULLISH",
                             "bear_case_severity": 5,
                             "time_to_materialization": "2-3 Monate",
+                            "catalyst_confidence": 5,
                             "asymmetry_reasoning": "JSON-Parse-Fehler — manuelle Prüfung empfohlen",
                             "catalyst": "n/a", "bear_case": "n/a",
                             "macro_assessment": "n/a", "data_confidence": "low"
@@ -299,11 +352,20 @@ class DeepAnalysis:
                 else:
                     raise
 
+            # Sicherstellen dass catalyst_confidence vorhanden ist (Fallback: 5)
+            if "catalyst_confidence" not in result:
+                result["catalyst_confidence"] = 5
+
             result["macro_regime"]  = self._macro.get("macro_regime", "unknown")
             result["macro_context"] = {
                 "yield_curve": self._macro.get("yield_curve_spread"),
                 "regime":      self._macro.get("macro_regime"),
             }
+            # v9.0 #3: mc_hit_rate im Result speichern für options_designer
+            result["mc_hit_rate"]  = mc_hit_rate
+            result["is_mega_cap"]  = is_mega_cap
+            result["market_cap"]   = market_cap
+
             return result
 
         except Exception as e:
@@ -318,20 +380,14 @@ class DeepAnalysis:
         FIX v8.2: Nutzt period='10d' und vergleicht volle Handelstage:
           close[-2] = gestriger Close (letzter abgeschlossener Tag)
           close[-4] = vor-3-Tage-Close (48h-Fenster)
-
-        Vorher (v8.1): period='5d', close[-1] vs close[-3]
-          Problem: Scanner läuft um 15:30 MEZ (US-Markt gerade offen),
-          close[-1] ist der aktuelle Intraday-Preis → oft ~0% Veränderung.
-          Ergebnis: Z-Score war immer 0.0 → Mismatch = Impact - 0 = Impact.
         """
         try:
             hist = yf.Ticker(ticker).history(period="10d")
             close = hist["Close"]
             if hasattr(close, "iloc"):
-                close = close.squeeze()  # MultiIndex → Series
+                close = close.squeeze()
             if len(close) < 5:
                 return 0.0
-            # Letzte 2 volle Handelstage vs. 2 Tage davor
             return float((close.iloc[-2] - close.iloc[-4]) / close.iloc[-4])
         except Exception:
             return 0.0
