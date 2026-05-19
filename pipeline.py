@@ -315,6 +315,30 @@ def main() -> None:
         enriched.append(c)
     candidates = enriched
 
+    # ── STUFE 1c: Sector-Momentum-Check (VOR Haiku — spart ~35% LLM-Calls) ───
+    # Billiger yfinance-Check (~0.5s/Ticker) wird vorgezogen um teure Haiku-Calls
+    # auf Ticker zu sparen die durch Sektor-Schwäche ohnehin blockiert würden.
+    log.info("Stufe 1c: Sector-Momentum-Check (vor LLM-Prescreening)")
+    sector_pre = []
+    for c in candidates:
+        ticker = c["ticker"]
+        c_for_sector = {**c, "deep_analysis": {"direction": "BULLISH"}}
+        try:
+            if designer._sector_momentum_ok(c_for_sector):
+                sector_pre.append(c)
+            else:
+                reject("sector_momentum_weak", ticker)
+                log.info(f"  [{ticker}] REJECT → sector_momentum_weak")
+        except Exception as e:
+            log.debug(f"  [{ticker}] Sector-Check Fehler: {e} → durchgelassen")
+            sector_pre.append(c)
+    candidates = sector_pre
+    stats["sector_ok"] = len(candidates)
+    log.info(f"  → {len(candidates)} nach Sector-Momentum-Check")
+    if not candidates:
+        stats["stop_reason"] = "Alle Kandidaten durch Sector-Momentum-Check verworfen."
+        send_email(); return
+
     # ── STUFE 2: Prescreening (Haiku) ────────────────────────────────────────
     log.info("Stufe 2: Prescreening (Claude Haiku)")
     shortlist = Prescreener().run(candidates)
@@ -345,34 +369,6 @@ def main() -> None:
             reject("ingress_invalid_data", c.get("ticker") if isinstance(c, dict) else None)
         else:
             shortlist.append(valid)
-
-    # ── STUFE 2c: Sector-Momentum-Check ──────────────────────────────────────
-    # v8.3 NEU: Billiger yfinance-Check (~0.5s) VOR dem teuren Sonnet-Call.
-    # Direction-Default: BULLISH — vor Deep Analysis noch unbekannt.
-    # Der Gate in OptionsDesigner (Stufe 10) bleibt als Sicherheitsnetz.
-    log.info("Stufe 2c: Sector-Momentum-Check (früher Filter)")
-    sector_ok = []
-    for c in shortlist:
-        ticker = c["ticker"]
-        # Direction noch unbekannt → Default BULLISH
-        # Bearish-Signale kommen selten durch Haiku, werden in Stufe 10 nochmals geprüft
-        c_for_sector = {**c, "deep_analysis": {"direction": "BULLISH"}}
-        try:
-            if designer._sector_momentum_ok(c_for_sector):
-                sector_ok.append(c)
-            else:
-                reject("sector_momentum_weak", ticker)
-        except Exception as e:
-            # Bei Fehler: durchlassen (lieber false positive als Signal verlieren)
-            log.debug(f"  [{ticker}] Sector-Check Fehler: {e} → durchgelassen")
-            sector_ok.append(c)
-
-    shortlist = sector_ok
-    stats["sector_ok"] = len(shortlist)
-    log.info(f"  → {len(shortlist)} nach Sector-Momentum-Check")
-    if not shortlist:
-        stats["stop_reason"] = "Alle Kandidaten durch Sector-Momentum-Check verworfen."
-        send_email(); return
 
     # ── Schema-Check ─────────────────────────────────────────────────────────
     valid_shortlist = []
