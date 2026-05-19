@@ -46,7 +46,7 @@ from typing import Optional
 import yfinance as yf
 
 from modules.config        import cfg
-from modules.macro_context import get_macro_regime_multiplier
+from modules.macro_context import get_macro_regime_multiplier, get_macro_context
 
 log = logging.getLogger(__name__)
 
@@ -265,6 +265,8 @@ class OptionsDesigner:
             log.info("OptionsDesigner: Tradier Live-API aktiv (Primary)")
         else:
             log.warning("OptionsDesigner: TRADIER_API_KEY fehlt → yfinance Fallback")
+        # VIX Term Structure: einmal laden, gecacht für alle Ticker dieses Runs
+        self._vix_ts = get_macro_context().get("vix_term_structure", {})
 
     def run(self, signals: list[dict]) -> list[dict]:
         proposals = []
@@ -482,18 +484,23 @@ class OptionsDesigner:
         is_bullish = direction == "BULLISH"
 
         if gamma_ok and gamma_sign == "negative":
-            # Negative Dealer-Gamma: Moves verstärken sich → aggressiver
-            # Naked Call auch bei mittlerer IV (bis 65%), darüber Spread
             effective_gate = min(IV_SPREAD_GATE + 13, 65.0)
             reason = f"Dealer-Gamma negativ (Trend-Verstärkung) → IV-Gate {effective_gate:.0f}%"
         elif gamma_ok and gamma_sign == "positive":
-            # Positive Dealer-Gamma: Moves werden gedämpft → defensiver
-            # Spread bereits ab niedrigerer IV (40%)
             effective_gate = max(IV_SPREAD_GATE - 12, 40.0)
             reason = f"Dealer-Gamma positiv (Mean-Reversion) → IV-Gate {effective_gate:.0f}%"
         else:
             effective_gate = IV_SPREAD_GATE
             reason = f"Dealer-Gamma neutral/unbekannt → Standard IV-Gate {IV_SPREAD_GATE:.0f}%"
+
+        # VIX Term Structure: Backwardation → kurzfristige Angst hoch →
+        # Vol-Crush nach Event wahrscheinlicher → Spread bevorzugen (Gate -8%)
+        vix_structure = self._vix_ts.get("structure", "unknown") if self._vix_ts else "unknown"
+        if vix_structure == "backwardation":
+            effective_gate = max(effective_gate - 8.0, 35.0)
+            reason += f" | VIX Backwardation → Gate -{8:.0f}% ({effective_gate:.0f}%)"
+        elif vix_structure == "contango":
+            pass  # Contango: kein Adjustment — Standardlogik reicht
 
         if iv_rank >= effective_gate:
             s = "BULL_CALL_SPREAD" if is_bullish else "BEAR_PUT_SPREAD"
@@ -597,7 +604,14 @@ class OptionsDesigner:
         dte_key      = "short" if dte <= 60 else ("mid" if dte <= 149 else "long")
         iv_drop_base = crush_rates[dte_key]
         iv_rank_scale = 0.5 + (iv_rank / 200.0)
-        iv_drop       = iv_drop_base * iv_rank_scale
+
+        # VIX Term Structure: Backwardation → erhöhter Crush (×1.20)
+        #                     Contango      → geringerer Crush (×0.85, Markt ruhig)
+        vix_structure = self._vix_ts.get("structure", "unknown") if self._vix_ts else "unknown"
+        vix_crush_scale = 1.20 if vix_structure == "backwardation" else (
+                          0.85 if vix_structure == "contango" else 1.00)
+
+        iv_drop = iv_drop_base * iv_rank_scale * vix_crush_scale
 
         vega_loss = min((vega * iv * iv_drop) / cost, 0.50) if cost > 0 else 0.0
         roi_net   = roi_delta - (spread_pct * 2) - vega_loss
