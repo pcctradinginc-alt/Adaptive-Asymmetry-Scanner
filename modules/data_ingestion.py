@@ -104,8 +104,19 @@ class DataIngestion:
             "dollar_volume": 0, "rel_volume": 0, "no_news": 0, "passed": 0,
         }
         try:
-            t    = yf.Ticker(ticker)
-            info = t.info
+            # Retry bei 401 (yfinance Crumb-Invalidierung durch parallele Requests)
+            info = None
+            for _attempt in range(2):
+                try:
+                    t    = yf.Ticker(ticker)
+                    info = t.info
+                    if info and isinstance(info, dict):
+                        break
+                except Exception as _e:
+                    if _attempt == 0:
+                        time.sleep(0.4)   # kurze Pause vor Retry
+                    else:
+                        raise
 
             if not info or not isinstance(info, dict):
                 local_stats["no_data"] += 1
