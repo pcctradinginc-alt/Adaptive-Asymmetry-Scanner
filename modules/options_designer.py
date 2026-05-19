@@ -279,11 +279,15 @@ class OptionsDesigner:
         for tier in DTE_TIERS:
             label = tier["label"]
 
-            # v9.0 #1: Überspringe Tiers die unter dem Catalyst-DTE-Minimum liegen
-            if tier["dte_max"] < dte_floor:
+            # v9.0 #1: Überspringe Tiers die unter dem Catalyst-DTE-Minimum liegen.
+            # Korrekte Bedingung: dte_min des Tiers < dte_floor
+            # Beispiel: "2-3 Monate" → dte_floor=55
+            #   Short-Term dte_min=14 < 55 → übersprungen ✓
+            #   Mid-Term   dte_min=61 < 55 → False → evaluiert  ✓
+            if tier["dte_min"] < dte_floor:
                 log.info(
-                    f"  [{ticker}] {label}: dte_max={tier['dte_max']}d < "
-                    f"dte_floor={dte_floor}d (Thesis={ttm}) → übersprungen"
+                    f"  [{ticker}] {label}: dte_min={tier['dte_min']}d < "
+                    f"dte_floor={dte_floor}d (Thesis='{ttm}') → übersprungen"
                 )
                 continue
 
