@@ -178,22 +178,39 @@ class Reporter:
                 ]
 
                 if option:
+                    _is_spread   = p.get("strategy") == "BULL_CALL_SPREAD"
+                    _action_line = (
+                        f"- **Buy to Open:** ${option.get('strike', 0):.2f} CALL @ ask ${option.get('ask', 0):.2f}"
+                        if not _is_spread else
+                        f"- **Strike (Long Leg):** ${option.get('strike', 0):.2f} CALL"
+                    )
                     lines += [
                         "### Options-Vorschlag",
                         f"- **Expiry:** {option.get('expiry', 'N/A')} ({option.get('dte', 'N/A')} DTE)",
-                        f"- **Strike:** ${option.get('strike', 0):.2f}",
+                        _action_line,
                         f"- **Bid/Ask:** ${option.get('bid', 0):.2f} / ${option.get('ask', 0):.2f}",
-                        f"- **Impl. Vol.:** {option.get('implied_vol', 0):.1%}",
+                        f"- **IV %:** {option.get('implied_vol', 0):.1%}",
                         f"- **Open Interest:** {option.get('open_interest', 0):,}",
                         f"- **Bid-Ask-Ratio:** {option.get('spread_ratio', 0):.2%}",
                         "",
                     ]
                     if p.get("strategy") == "BULL_CALL_SPREAD" and option.get("spread_leg"):
-                        sl = option["spread_leg"]
+                        sl         = option["spread_leg"]
+                        long_k     = float(option.get("strike", 0))
+                        short_k    = float(sl.get("strike", 0))
+                        net_debit  = float(option.get("net_debit", 0))
+                        width      = round(short_k - long_k, 2)
+                        max_profit = round((width - net_debit) * 100, 2)
+                        max_loss   = round(net_debit * 100, 2)
+                        bep_price  = round(long_k + net_debit, 2)
+                        max_roi    = round((width - net_debit) / net_debit, 4) if net_debit > 0 else 0
                         lines += [
-                            f"- **Short Strike:** ${sl.get('strike', 0):.2f}  ",
-                            f"- **Short Bid/Ask:** ${sl.get('bid', 0):.2f} / ${sl.get('ask', 0):.2f}",
-                            f"- **Net Debit:** ${option.get('net_debit', 0):.2f}",
+                            f"- **Buy to Open:**  ${long_k:.2f} CALL @ ask ${option.get('ask', 0):.2f}",
+                            f"- **Sell to Open:** ${short_k:.2f} CALL @ bid ${sl.get('bid', 0):.2f}",
+                            f"- **Net Debit:** ${net_debit:.2f} pro Kontrakt (Max Verlust: ${max_loss:.0f})",
+                            f"- **Spread-Breite:** ${width:.2f}",
+                            f"- **Break-even:** ${bep_price:.2f} (+{(bep_price / long_k - 1) * 100:.1f}% über Buy-Strike)",
+                            f"- **Max Gewinn:** ${max_profit:.0f} pro Kontrakt ({max_roi:.1%} ROI auf Debit)",
                             "",
                         ]
 
