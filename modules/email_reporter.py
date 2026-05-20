@@ -209,6 +209,52 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
                 </table>
             </div>"""
 
+        # ── Ausführungs-Block (Tradier-Sprache) ──────────────────────────────
+        is_spread = strategy == "BULL_CALL_SPREAD"
+        sl        = option.get("spread_leg") or {}
+
+        if is_spread and sl:
+            long_k     = float(option.get("strike", 0))
+            short_k    = float(sl.get("strike", 0))
+            net_debit  = float(option.get("net_debit", 0))
+            width      = round(short_k - long_k, 2) if short_k > long_k else 0
+            max_profit = round((width - net_debit) * 100, 2) if width > 0 and net_debit > 0 else 0
+            max_loss   = round(net_debit * 100, 2)
+            bep_price  = round(long_k + net_debit, 2)
+            max_roi    = round((width - net_debit) / net_debit, 4) if net_debit > 0 else 0
+            execution_html = f"""
+            <div style="margin-top:10px;padding:12px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;font-size:12px;">
+              <b style="color:#15803d;">📋 Ausführung (Tradier)</b>
+              <table style="width:100%;margin-top:6px;font-size:12px;color:#14532d;border-collapse:collapse;">
+                <tr>
+                  <td style="padding:3px 8px 3px 0;width:40%;"><b>Buy to Open:</b></td>
+                  <td style="padding:3px 0;">${long_k:.2f} CALL &nbsp;@&nbsp; ask&nbsp;<b>${option.get('ask',0):.2f}</b></td>
+                </tr>
+                <tr>
+                  <td style="padding:3px 8px 3px 0;"><b>Sell to Open:</b></td>
+                  <td style="padding:3px 0;">${short_k:.2f} CALL &nbsp;@&nbsp; bid&nbsp;<b>${sl.get('bid',0):.2f}</b></td>
+                </tr>
+                <tr style="border-top:1px solid #bbf7d0;">
+                  <td style="padding:5px 8px 3px 0;"><b>Net Debit:</b></td>
+                  <td style="padding:5px 0;"><b>${net_debit:.2f}</b> &nbsp;·&nbsp; Max Verlust: ${max_loss:.0f}</td>
+                </tr>
+                <tr>
+                  <td style="padding:3px 8px 3px 0;"><b>Break-even:</b></td>
+                  <td style="padding:3px 0;">${bep_price:.2f} &nbsp;(+{(bep_price / long_k - 1) * 100:.1f}% über Buy-Strike)</td>
+                </tr>
+                <tr>
+                  <td style="padding:3px 8px 3px 0;"><b>Max Gewinn:</b></td>
+                  <td style="padding:3px 0;color:#15803d;font-weight:600;">${max_profit:.0f} pro Kontrakt ({max_roi:.1%} ROI auf Debit)</td>
+                </tr>
+              </table>
+            </div>"""
+            strike_cell  = f"<div><b>Long / Short:</b> ${long_k:.2f} / ${short_k:.2f} CALL</div>"
+            bidask_cell  = f"<div><b>Expiry:</b> {option.get('expiry','–')} ({option.get('dte','–')}d)</div>"
+        else:
+            execution_html = ""
+            strike_cell  = f"<div><b>Buy to Open:</b> ${option.get('strike','–')} CALL @ ask ${option.get('ask','–')}</div>"
+            bidask_cell  = f"<div><b>Bid/Ask:</b> ${option.get('bid','–')} / ${option.get('ask','–')}</div>"
+
         cards += f"""
         <div style="border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:24px;background:#fff;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -228,12 +274,13 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             <div><b>Richtung:</b> {da.get('direction','–')}</div>
             <div><b>IV-Rank:</b> {p.get('iv_rank','–')}%</div>
             <div><b>Ziel:</b> ${sim.get('target_price',0):.2f}</div>
-            <div><b>Strike:</b> ${option.get('strike','–')}</div>
-            <div><b>Expiry:</b> {option.get('expiry','–')} ({option.get('dte','–')}d)</div>
-            <div><b>Bid/Ask:</b> ${option.get('bid','–')} / ${option.get('ask','–')}</div>
+            {strike_cell}
+            {bidask_cell}
+            <div><b>IV %:</b> {option.get('implied_vol', 0):.1%}</div>
             <div><b>ROI netto:</b> <span style="color:#16a34a;font-weight:600;">{roi.get('roi_net',0):.1%}</span></div>
           </div>
 
+          {execution_html}
           {greeks_html}
           {prob_html}
           {exit_html}
