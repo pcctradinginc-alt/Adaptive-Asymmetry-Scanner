@@ -1,5 +1,11 @@
 """
-modules/options_designer.py v10.2
+modules/options_designer.py v10.3
+
+Änderungen v10.3:
+    #MC-PNL Phase 2: Stochastische IV via Ornstein-Uhlenbeck-Prozess.
+        history wird an simulate_option_pnl() weitergegeben.
+        OU-Parameter: 2-Layer Hybrid (Heuristik bei iv_rank + lineare Regression
+        nach ≥30 Tagen eigener IV-Historie). iv_crush_factor entfernt.
 
 Änderungen v10.2:
     #MC-PNL: Options-P&L Monte Carlo (Phase 1).
@@ -272,8 +278,9 @@ def _strike_window(current: float, dte_min: int, dte_max: int) -> tuple[float, f
 
 class OptionsDesigner:
 
-    def __init__(self, gates):
-        self.gates = gates
+    def __init__(self, gates, history: dict = None):
+        self.gates   = gates
+        self.history = history or {}
         self._use_tradier = bool(os.environ.get("TRADIER_API_KEY", "").strip())
         if self._use_tradier:
             log.info("OptionsDesigner: Tradier Live-API aktiv (Primary)")
@@ -455,20 +462,22 @@ class OptionsDesigner:
                     if not has_edge:
                         continue
 
-                # v10.2 MC-PNL: Options-P&L Monte Carlo (Phase 1)
+                # v10.3 MC-PNL: Options-P&L Monte Carlo (Phase 2 — stochastische IV)
                 mc_result = mirofish_sim.simulate_option_pnl(
                     candidate        = s,
                     option           = option,
                     days_to_expiry   = option.get("dte", 45),
+                    history          = self.history,
                     n_paths          = 5000,
-                    iv_crush_factor  = 0.22 if iv_rank >= 60 else 0.12,
+                    iv_rank          = iv_rank,
                 )
                 if "error" not in mc_result:
                     roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
                     roi["roi_net"]         = mc_result["expected_pnl_pct"] - (roi.get("spread_pct", 0.0) * 2)
                     roi["passes_roi_gate"] = roi["roi_net"] >= tier["min_roi"]
+                    ou_tag = mc_result.get("ou_method", "heuristic")
                     log.info(
-                        f"  [{ticker}] MC-P&L {label}: "
+                        f"  [{ticker}] MC-P&L {label} [{ou_tag}]: "
                         f"median={mc_result['expected_pnl_pct']:.1%} "
                         f"σ={mc_result['pnl_std']:.1%} "
                         f"hold={mc_result['hold_days']}d "
@@ -503,6 +512,8 @@ class OptionsDesigner:
                     "mc_pnl_pct":          mc_result.get("expected_pnl_pct"),
                     "mc_pnl_std":          mc_result.get("pnl_std"),
                     "mc_hold_days":        mc_result.get("hold_days"),
+                    "mc_ou_method":        mc_result.get("ou_method"),
+                    "mc_ou_n_days":        mc_result.get("ou_n_days"),
                 }
 
         tried = ", ".join(
