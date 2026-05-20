@@ -1,5 +1,13 @@
 """
-modules/options_designer.py v10.3
+modules/options_designer.py v10.4
+
+Änderungen v10.4:
+    #EDGE-GATE: Break-even statt straddle/2 als Vergleichsbasis.
+        Long Call:        BEP = (strike + ask  - S₀) / S₀
+        Bull Call Spread: BEP = (strike + net_debit - S₀) / S₀
+        Fallback:         BEP = straddle / 2 (wenn keine Prämie verfügbar)
+        Straddle weiterhin geloggt als Markt-Kontext.
+        trade_bep_pct im Return-Dict für Reporting.
 
 Änderungen v10.3:
     #MC-PNL Phase 2: Stochastische IV via Ornstein-Uhlenbeck-Prozess.
@@ -439,28 +447,48 @@ class OptionsDesigner:
                             f"Trade akzeptiert mit {option['dte']}d Laufzeit"
                         )
 
-                # v10.1 EDGE-GATE: Market-Implied Expected Move (ATM Straddle)
-                # v10.1 EDGE-GATE: model_move (einseitig) vs. implied_move/2 (einseitig)
-                # Straddle = ±X% → beidseitige Markt-Erwartung.
-                # Für einen bullishen Long-Call gilt: implied_one_sided = straddle / 2.
-                # Edge = model_move - implied_one_sided. Positiv = Modell sieht mehr Upside als der Markt.
+                # v10.4 EDGE-GATE: Trade-spezifischer Break-even statt straddle/2
+                # Break-even bei Verfall (konservativ):
+                #   Long Call:        (strike + ask  - S₀) / S₀
+                #   Bull Call Spread: (strike + net_debit - S₀) / S₀
+                # Beim Haltepunkt (~50% DTE) liegt der effektive BEP noch darunter
+                # (Zeitwert der verbleibenden Laufzeit hilft) → Gate bleibt konservativ.
+                # Straddle wird weiterhin geloggt als Markt-Kontext, aber nicht als Gate.
                 implied_move = self._get_atm_straddle(ticker, current, option["expiry"], t)
                 model_move   = (
                     (sim.get("target_price", 0) - current) / current
                     if current > 0 and sim.get("target_price", 0) > current else 0.0
                 )
-                # implied_move / 2: Straddle in einseitige Upside-Erwartung umrechnen
-                edge_vs_implied = (model_move - implied_move / 2) if implied_move is not None else None
 
-                if implied_move is not None:
-                    has_edge = edge_vs_implied > 0.005  # 0.5% Mindest-Edge nach Straddle-Halbierung
+                _ask    = float(option.get("ask", 0) or 0)
+                _strike = float(option.get("strike", 0) or 0)
+                _nd     = float(option.get("net_debit", 0) or 0) if "SPREAD" in strategy else 0.0
+
+                if current > 0 and _strike > 0 and ("SPREAD" in strategy and _nd > 0):
+                    trade_bep = (_strike + _nd - current) / current
+                    bep_desc  = f"Spread-BEP +{trade_bep:.1%} (net=${_nd:.2f})"
+                elif current > 0 and _strike > 0 and _ask > 0:
+                    trade_bep = (_strike + _ask - current) / current
+                    bep_desc  = f"Call-BEP +{trade_bep:.1%} (ask=${_ask:.2f})"
+                elif implied_move is not None:
+                    trade_bep = implied_move / 2   # Fallback wenn keine Prämie vorhanden
+                    bep_desc  = f"BEP ≈ straddle/2 +{trade_bep:.1%} (fallback)"
+                else:
+                    trade_bep = None
+                    bep_desc  = "BEP n/a"
+
+                edge_vs_implied = (model_move - trade_bep) if trade_bep is not None else None
+
+                if edge_vs_implied is not None:
+                    has_edge = edge_vs_implied > 0.005  # 0.5% Mindest-Edge über dem Trade-BEP
+                    straddle_ctx = f"Straddle ±{implied_move:.1%} | " if implied_move is not None else ""
                     log.info(
                         f"  [{ticker}] EDGE-CHECK {label}: "
-                        f"Straddle ±{implied_move:.1%} → einseitig ±{implied_move/2:.1%} | "
-                        f"Model +{model_move:.1%} | Edge {edge_vs_implied:+.1%} "
+                        f"{straddle_ctx}{bep_desc} | Model +{model_move:.1%} | "
+                        f"Edge {edge_vs_implied:+.1%} "
                         f"({'✅ Edge' if has_edge else '❌ kein Edge → verworfen'})"
                     )
-                    # Hard-Gate: kein echter Edge → diese Laufzeit verwerfen
+                    # Hard-Gate: Trade-BEP > Modell-Ziel → verwerfen
                     if not has_edge:
                         continue
 
@@ -516,6 +544,7 @@ class OptionsDesigner:
                     "mc_hold_days":        mc_result.get("hold_days"),
                     "mc_ou_method":        mc_result.get("ou_method"),
                     "mc_ou_n_days":        mc_result.get("ou_n_days"),
+                    "trade_bep_pct":       round(trade_bep * 100, 2) if trade_bep is not None else None,
                 }
 
         tried = ", ".join(
