@@ -1,5 +1,5 @@
 """
-modules/mirofish_simulation.py v8.2
+modules/mirofish_simulation.py v8.3
 
 Monte Carlo Simulation mit historischer yfinance-Kalibrierung.
 
@@ -25,12 +25,19 @@ v8.2 Kalibrierungs-Fix:
          → Volatile Aktien brauchen grösseren Move für "Hit"
 
     Erwartete Hit-Rates nach Fix: 35-70% je nach Signal-Stärke und Vola.
+
+v8.3 Options-P&L Monte Carlo (Phase 1):
+    Neue Methoden: _generate_gbm_paths, _black_scholes_call,
+                   _compute_mismatch_drift, simulate_option_pnl.
+    simulate_option_pnl berechnet expected_pnl_pct via Haltepunkt-Repricing
+    (~45% der Laufzeit) mit festem IV-Crush. Theta und Vega wirken realistisch.
 """
 
 from __future__ import annotations
 import logging
 import math
 import numpy as np
+from scipy.stats import norm as _scipy_norm
 import yfinance as yf
 from functools import lru_cache
 
@@ -293,6 +300,119 @@ class MirofishSimulation:
             current = 0.0
         target = _compute_dynamic_target(current, sigma, 120)
         return sigma, current, target
+
+    # ── Phase 1: Options-P&L Monte Carlo ─────────────────────────────────────
+
+    def _generate_gbm_paths(
+        self,
+        S0:      float,
+        mu:      float,
+        sigma:   float,
+        T:       float,
+        n_paths: int,
+        n_steps: int,
+    ) -> np.ndarray:
+        """Vektorisierte GBM-Pfade. Gibt Array (n_paths, n_steps+1) zurück."""
+        if n_steps <= 0:
+            return np.full((n_paths, 1), S0)
+        dt        = T / n_steps
+        Z         = self.rng.standard_normal((n_paths, n_steps))
+        drift     = (mu - 0.5 * sigma**2) * dt
+        diffusion = sigma * math.sqrt(dt) * Z
+        paths     = S0 * np.exp(np.cumsum(drift + diffusion, axis=1))
+        return np.hstack([np.full((n_paths, 1), S0), paths])
+
+    def _black_scholes_call(
+        self,
+        S:     np.ndarray,
+        K:     float,
+        T:     float,
+        sigma: float,
+    ) -> np.ndarray:
+        """Vektorisierter Black-Scholes Call (r=0)."""
+        if T <= 0.001:
+            return np.maximum(S - K, 0.0)
+        d1 = (np.log(S / K) + 0.5 * sigma**2 * T) / (sigma * math.sqrt(T))
+        d2 = d1 - sigma * math.sqrt(T)
+        return S * _scipy_norm.cdf(d1) - K * _scipy_norm.cdf(d2)
+
+    def _compute_mismatch_drift(self, candidate: dict) -> float:
+        """
+        Drift für GBM-Pfade: hist_mu + signal_alpha.
+        Identische Formel wie run_for_dte() — keine Inkonsistenz.
+        """
+        ticker   = candidate.get("ticker", "")
+        _, hist_mu = _get_hist_params(ticker) if ticker else (DEFAULT_SIGMA, 0.0)
+        da       = candidate.get("deep_analysis", {}) or {}
+        impact   = float(da.get("impact",   5) or 5)
+        surprise = float(da.get("surprise", 5) or 5)
+        strength = math.sqrt((impact / 10.0) * (surprise / 10.0))
+        return hist_mu + strength * MAX_SIGNAL_ALPHA
+
+    def simulate_option_pnl(
+        self,
+        candidate:       dict,
+        option:          dict,
+        days_to_expiry:  int,
+        n_paths:         int   = 5000,
+        iv_crush_factor: float = 0.22,
+    ) -> dict:
+        """
+        Phase 1: Options-P&L via Haltepunkt-Repricing (~45% der Laufzeit).
+        IV-Crush und Theta-Decay haben bei verbleibender Restlaufzeit vollen Effekt.
+
+        Returns dict mit expected_pnl_pct, hit_rate, pnl_std, hold_days.
+        Bei ungültigen Eingaben: dict mit 'error'-Key.
+        """
+        try:
+            current_price = float(candidate["simulation"]["current_price"])
+            strike        = float(option["strike"])
+            entry_price   = float(option.get("ask") or option.get("last") or 0)
+            entry_iv      = float(option.get("implied_vol") or 0.30)
+        except (KeyError, TypeError, ValueError):
+            return {"expected_pnl_pct": 0.0, "hit_rate": 0.0, "error": "invalid_input"}
+
+        if entry_price <= 0 or days_to_expiry < 3 or current_price <= 0:
+            return {"expected_pnl_pct": 0.0, "hit_rate": 0.0, "error": "invalid_input"}
+
+        # sigma_30d und hist_mu aus _get_hist_params() sind TÄGLICH.
+        # _generate_gbm_paths erwartet annualisierte Werte (dt = 1/365 year).
+        mu_daily    = self._compute_mismatch_drift(candidate)
+        sigma_daily = float(candidate.get("features", {}).get("sigma_30d") or DEFAULT_SIGMA)
+        mu          = mu_daily * 252
+        sigma       = sigma_daily * math.sqrt(252)
+
+        # Haltepunkt: 45% der Laufzeit — Theta und IV-Crush sind noch voll wirksam
+        hold_days   = max(3, int(days_to_expiry * 0.45))
+        T_total     = days_to_expiry / 365.0
+        paths       = self._generate_gbm_paths(
+            current_price, mu, sigma, T_total, n_paths, days_to_expiry
+        )
+
+        mid_S       = paths[:, hold_days]
+        remaining_T = (days_to_expiry - hold_days) / 365.0
+        final_iv    = max(entry_iv * (1.0 - iv_crush_factor), 0.05)
+
+        repriced     = self._black_scholes_call(mid_S, strike, remaining_T, final_iv)
+        pnl_per_path = (repriced - entry_price) / entry_price
+
+        log.debug(
+            f"  [{candidate.get('ticker', '?')}] MC-P&L: "
+            f"hold={hold_days}d remaining_T={remaining_T:.3f}y "
+            f"IV {entry_iv:.1%}→{final_iv:.1%} "
+            f"median={float(np.median(pnl_per_path)):.1%}"
+        )
+
+        return {
+            "expected_pnl_pct": float(np.median(pnl_per_path)),
+            "mean_pnl_pct":     float(np.mean(pnl_per_path)),
+            "hit_rate":         float(np.mean(paths[:, -1] > strike)),
+            "pnl_std":          float(np.std(pnl_per_path)),
+            "iv_crush_used":    round(iv_crush_factor, 2),
+            "hold_days":        hold_days,
+            "paths":            n_paths,
+            "entry_price":      round(entry_price, 4),
+        }
 
 
 def compute_time_value_efficiency(roi_net: float, dte: int) -> dict:
