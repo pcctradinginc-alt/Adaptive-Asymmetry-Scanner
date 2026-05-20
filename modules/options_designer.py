@@ -440,22 +440,24 @@ class OptionsDesigner:
                         )
 
                 # v10.1 EDGE-GATE: Market-Implied Expected Move (ATM Straddle)
-                # Vergleich: model_move (einseitig +%) vs. implied_move (Straddle ±%)
-                # Konvention: Straddle = Markt-Erwartung für die Gesamt-Bewegung.
-                # Edge = model_move - implied_move. Positiv = Modell erwartet mehr als der Markt.
+                # v10.1 EDGE-GATE: model_move (einseitig) vs. implied_move/2 (einseitig)
+                # Straddle = ±X% → beidseitige Markt-Erwartung.
+                # Für einen bullishen Long-Call gilt: implied_one_sided = straddle / 2.
+                # Edge = model_move - implied_one_sided. Positiv = Modell sieht mehr Upside als der Markt.
                 implied_move = self._get_atm_straddle(ticker, current, option["expiry"], t)
                 model_move   = (
                     (sim.get("target_price", 0) - current) / current
                     if current > 0 and sim.get("target_price", 0) > current else 0.0
                 )
-                edge_vs_implied = (model_move - implied_move) if implied_move is not None else None
+                # implied_move / 2: Straddle in einseitige Upside-Erwartung umrechnen
+                edge_vs_implied = (model_move - implied_move / 2) if implied_move is not None else None
 
                 if implied_move is not None:
-                    has_edge = edge_vs_implied > 0.01
+                    has_edge = edge_vs_implied > 0.005  # 0.5% Mindest-Edge nach Straddle-Halbierung
                     log.info(
                         f"  [{ticker}] EDGE-CHECK {label}: "
-                        f"Implied ±{implied_move:.1%} | Model +{model_move:.1%} | "
-                        f"Edge {edge_vs_implied:+.1%} "
+                        f"Straddle ±{implied_move:.1%} → einseitig ±{implied_move/2:.1%} | "
+                        f"Model +{model_move:.1%} | Edge {edge_vs_implied:+.1%} "
                         f"({'✅ Edge' if has_edge else '❌ kein Edge → verworfen'})"
                     )
                     # Hard-Gate: kein echter Edge → diese Laufzeit verwerfen
