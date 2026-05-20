@@ -1,5 +1,11 @@
 """
-modules/options_designer.py v9.0
+modules/options_designer.py v10.1
+
+Änderungen v10.1:
+    #EDGE-GATE: Hard-Rejection wenn Edge vs. Market-Implied Move ≤ 1%.
+        Bisher: Straddle-Daten wurden berechnet, geloggt, aber nicht zum Filtern genutzt.
+        Jetzt: Trade wird pro Tier verworfen wenn model_move - implied_move ≤ 1%.
+        Platzierung: nach ROI-Gate, nach Straddle-Berechnung, vor return.
 
 Änderungen v9.0:
     #1  DTE-Architektur: Erste passende Tier-Logik ersetzt durch Catalyst-aligned DTE.
@@ -417,20 +423,28 @@ class OptionsDesigner:
                             f"Trade akzeptiert mit {option['dte']}d Laufzeit"
                         )
 
-                # v10.0 #5: Market-Implied Expected Move (ATM Straddle)
+                # v10.1 EDGE-GATE: Market-Implied Expected Move (ATM Straddle)
+                # Vergleich: model_move (einseitig +%) vs. implied_move (Straddle ±%)
+                # Konvention: Straddle = Markt-Erwartung für die Gesamt-Bewegung.
+                # Edge = model_move - implied_move. Positiv = Modell erwartet mehr als der Markt.
                 implied_move = self._get_atm_straddle(ticker, current, option["expiry"], t)
                 model_move   = (
                     (sim.get("target_price", 0) - current) / current
                     if current > 0 and sim.get("target_price", 0) > current else 0.0
                 )
                 edge_vs_implied = (model_move - implied_move) if implied_move is not None else None
+
                 if implied_move is not None:
+                    has_edge = edge_vs_implied > 0.01
                     log.info(
-                        f"  [{ticker}] Market-Implied: ±{implied_move:.1%} | "
-                        f"Model: +{model_move:.1%} | "
-                        f"Edge: {edge_vs_implied:+.1%} "
-                        f"({'✅ Edge vorhanden' if edge_vs_implied > 0 else '⚠️ kein Edge'})"
+                        f"  [{ticker}] EDGE-CHECK {label}: "
+                        f"Implied ±{implied_move:.1%} | Model +{model_move:.1%} | "
+                        f"Edge {edge_vs_implied:+.1%} "
+                        f"({'✅ Edge' if has_edge else '❌ kein Edge → verworfen'})"
                     )
+                    # Hard-Gate: kein echter Edge → diese Laufzeit verwerfen
+                    if not has_edge:
+                        continue
 
                 return {
                     "ticker":              ticker,
