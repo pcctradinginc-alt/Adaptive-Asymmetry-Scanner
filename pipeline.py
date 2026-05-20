@@ -285,7 +285,7 @@ def main() -> None:
     log.info(f"Makro: {macro.get('macro_regime')} | YC={macro.get('yield_curve_desc','n/a')}")
 
     # OptionsDesigner einmal instanziieren — wird in Stufe 2c + Stufe 3 + Stufe 10 genutzt
-    designer = OptionsDesigner(gates=gates)
+    designer = OptionsDesigner(gates=gates, history=history)
 
     # ── STUFE 1: Hard-Filter ─────────────────────────────────────────────────
     log.info("Stufe 1: Hard-Filter (Cap>2B, Vol>1M, RV>0.6)")
@@ -602,6 +602,16 @@ def main() -> None:
         save_history(history)
         send_email()
         raise
+
+    # v10.3: IV-Historie täglich loggen (für OU-Kalibrierung ab ~30 Tagen)
+    _iv_logger = MirofishSimulation()
+    for p in trade_proposals:
+        _ticker = p.get("ticker", "")
+        _atm_iv = p.get("option", {}).get("implied_vol")
+        if _ticker and _atm_iv:
+            _iv_logger._log_iv_today(_ticker, float(_atm_iv), history)
+    if trade_proposals:
+        save_history(history)
 
     for p in trade_proposals:
         roi = p.get("roi_analysis", {})
