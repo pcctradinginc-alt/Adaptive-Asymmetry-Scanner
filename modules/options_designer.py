@@ -1,5 +1,12 @@
 """
-modules/options_designer.py v10.1
+modules/options_designer.py v10.2
+
+Änderungen v10.2:
+    #MC-PNL: Options-P&L Monte Carlo (Phase 1).
+        Nach ROI-Gate und Edge-Gate: simulate_option_pnl() aus MirofishSimulation.
+        roi_net wird durch MC-basierten expected_pnl_pct ersetzt.
+        Theta und IV-Crush wirken via Haltepunkt-Repricing bei ~45% der Laufzeit.
+        iv_crush_factor: 0.22 wenn IV-Rank ≥ 60, sonst 0.12.
 
 Änderungen v10.1:
     #EDGE-GATE: Hard-Rejection wenn Edge vs. Market-Implied Move ≤ 1%.
@@ -51,8 +58,9 @@ from typing import Optional
 
 import yfinance as yf
 
-from modules.config        import cfg
-from modules.macro_context import get_macro_regime_multiplier, get_macro_context
+from modules.config              import cfg
+from modules.macro_context       import get_macro_regime_multiplier, get_macro_context
+from modules.mirofish_simulation import MirofishSimulation
 
 log = logging.getLogger(__name__)
 
@@ -330,6 +338,7 @@ class OptionsDesigner:
             s.get("alpha_signals", {}).get("dealer_gamma", {}) or {}
         )
 
+        mirofish_sim     = MirofishSimulation()
         results_per_tier = []
 
         for tier in DTE_TIERS:
@@ -446,6 +455,28 @@ class OptionsDesigner:
                     if not has_edge:
                         continue
 
+                # v10.2 MC-PNL: Options-P&L Monte Carlo (Phase 1)
+                mc_result = mirofish_sim.simulate_option_pnl(
+                    candidate        = s,
+                    option           = option,
+                    days_to_expiry   = option.get("dte", 45),
+                    n_paths          = 5000,
+                    iv_crush_factor  = 0.22 if iv_rank >= 60 else 0.12,
+                )
+                if "error" not in mc_result:
+                    roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
+                    roi["roi_net"]         = mc_result["expected_pnl_pct"] - (roi.get("spread_pct", 0.0) * 2)
+                    roi["passes_roi_gate"] = roi["roi_net"] >= tier["min_roi"]
+                    log.info(
+                        f"  [{ticker}] MC-P&L {label}: "
+                        f"median={mc_result['expected_pnl_pct']:.1%} "
+                        f"σ={mc_result['pnl_std']:.1%} "
+                        f"hold={mc_result['hold_days']}d "
+                        f"({'✅ PASS' if roi['passes_roi_gate'] else '❌ FAIL → verworfen'})"
+                    )
+                    if not roi["passes_roi_gate"]:
+                        continue
+
                 return {
                     "ticker":              ticker,
                     "strategy":            strategy,
@@ -469,6 +500,9 @@ class OptionsDesigner:
                     "implied_move_pct":    round(implied_move * 100, 2) if implied_move is not None else None,
                     "model_move_pct":      round(model_move * 100, 2),
                     "edge_vs_implied":     round(edge_vs_implied * 100, 2) if edge_vs_implied is not None else None,
+                    "mc_pnl_pct":          mc_result.get("expected_pnl_pct"),
+                    "mc_pnl_std":          mc_result.get("pnl_std"),
+                    "mc_hold_days":        mc_result.get("hold_days"),
                 }
 
         tried = ", ".join(
