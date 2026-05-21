@@ -624,9 +624,9 @@ def main() -> None:
         trade_proposals = rank_proposals(trade_proposals)
         before = len(trade_proposals)
         trade_proposals = [p for p in trade_proposals
-                           if p.get("trade_score", {}).get("total", 0) >= 45]
+                           if p.get("trade_score", {}).get("total", 0) >= 55]
         if len(trade_proposals) < before:
-            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 45)")
+            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 55)")
 
         # ── STUFE 10b: Korrelations-Check ────────────────────────────────────
         if len(trade_proposals) > 1:
