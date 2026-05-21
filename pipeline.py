@@ -684,6 +684,7 @@ def main() -> None:
                 "tve":           p.get("time_value_efficiency"),
                 "outcome":       None,
             })
+            existing.add(key)
 
     Reporter(reports_dir=REPORTS_DIR).save(
         today=today, proposals=trade_proposals, history=history
