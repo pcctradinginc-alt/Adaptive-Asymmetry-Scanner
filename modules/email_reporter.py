@@ -43,7 +43,7 @@ def send_status_email(pipeline_stats: dict, today: str) -> None:
 def send_email(proposals: list[dict], today: str, pipeline_stats: dict | None = None) -> None:
     pipeline_stats = pipeline_stats or {}
     proposals = [p for p in proposals
-                 if p.get("trade_score", {}).get("total", 0) >= 50]
+                 if p.get("trade_score", {}).get("total", 0) >= 65]
     if proposals:
         html    = _build_trade_email(proposals, today)
         subject = f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
