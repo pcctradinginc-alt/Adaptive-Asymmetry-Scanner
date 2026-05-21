@@ -277,45 +277,110 @@ def _yfinance_option_price(
         return 0.0
 
 
+# ── Spread-Preis (beide Legs) ─────────────────────────────────────────────────
+
+def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float:
+    """
+    Aktueller Net-Wert eines Spreads: long_leg_mid − short_leg_mid.
+
+    Nutzt get_current_option_price() für jeden Leg separat.
+    Beide Legs teilen dieselbe Expiry (Standard bei vertikalen Spreads).
+    Gibt 0.0 zurück wenn einer der Legs nicht abrufbar ist.
+    """
+    sl = option.get("spread_leg") or {}
+    if not sl:
+        return 0.0
+
+    expiry = option.get("expiry", "")
+
+    long_mid = get_current_option_price(ticker, option, strategy)
+
+    short_option = {"strike": sl.get("strike"), "expiry": expiry}
+    short_mid    = get_current_option_price(ticker, short_option, strategy)
+
+    if long_mid > 0 and short_mid > 0:
+        net = round(long_mid - short_mid, 4)
+        log.debug(f"    [{ticker}] Spread-Legs: long=${long_mid:.2f} short=${short_mid:.2f} net=${net:.2f}")
+        return max(net, 0.0)
+
+    log.debug(f"    [{ticker}] Spread-Leg nicht abrufbar: long={long_mid} short={short_mid}")
+    return 0.0
+
+
 # ── Outcome-Berechnung ────────────────────────────────────────────────────────
 
 def compute_outcome(trade: dict, current_stock_price: float) -> float:
     """
     Berechnet Trade-Outcome (Return) für das RL-Training.
 
-    Reihenfolge:
-    1. Echter Options-P&L (wenn entry_last bekannt → Tradier/yfinance Preis)
-    2. Delta-approximierter Return (Leverage-Schätzung)
-    3. Reiner Stock-Return als letzter Fallback
-    """
-    ticker      = trade["ticker"]
-    option      = trade.get("option", {})
-    strategy    = trade.get("strategy", "")   # v5.0: für Option-Type-Erkennung
-    sim         = trade.get("simulation", {})
-    entry_stock = sim.get("current_price", 0)
+    Prioritäten:
+      Spread:       Net-Spread-Preis (long − short). Kein Stock-Fallback.
+      Long Option:  Echter Options-Preis → Delta-Approx → Stock-Fallback.
+      Unbekannt:    Stock-Return als letzter Ausweg.
 
+    Entry-Debit:
+      Explizit gespeichertes entry_debit hat Vorrang.
+      Fallback: net_debit (Spread) oder ask (Long).
+    """
+    ticker    = trade["ticker"]
+    option    = trade.get("option") or {}
+    strategy  = trade.get("strategy", "")
+    sim       = trade.get("simulation") or {}
+    is_spread = "SPREAD" in strategy
+
+    # ── Entry-Debit ermitteln ────────────────────────────────────────────────
+    entry_debit = float(trade.get("entry_debit") or 0)
+    if entry_debit <= 0:
+        if is_spread:
+            sl  = option.get("spread_leg") or {}
+            nd  = option.get("net_debit")
+            if nd:
+                entry_debit = float(nd)
+            else:
+                la = float(option.get("ask", 0))
+                sb = float(sl.get("bid", 0))
+                entry_debit = round(la - sb, 2) if la > 0 and sb > 0 else la
+        else:
+            entry_debit = float(option.get("ask", 0)) or float(option.get("last", 0))
+
+    # ── Spread: beide Legs repricing, kein Stock-Fallback ───────────────────
+    if is_spread:
+        if entry_debit <= 0:
+            log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome=0.0 (übersprungen)")
+            return 0.0
+        current_spread = get_current_spread_price(ticker, option, strategy)
+        if current_spread > 0:
+            result = (current_spread - entry_debit) / entry_debit
+            log.info(
+                f"    Spread-P&L: entry=${entry_debit:.2f} → "
+                f"current=${current_spread:.2f} = {result:+.2%}"
+            )
+            return result
+        log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome=0.0")
+        return 0.0
+
+    # ── Long Option: echter Preis → Delta-Approx ────────────────────────────
+    entry_stock = float(sim.get("current_price", 0))
     stock_return = 0.0
     if entry_stock > 0 and current_stock_price > 0:
         stock_return = (current_stock_price - entry_stock) / entry_stock
 
-    entry_last = option.get("last", 0) if option else 0
-    if entry_last > 0:
-        # v5.0: strategy wird weitergegeben für saubere Call/Put-Erkennung
+    if entry_debit > 0:
         current_option = get_current_option_price(ticker, option, strategy)
         if current_option > 0:
-            options_return = (current_option - entry_last) / entry_last
+            result = (current_option - entry_debit) / entry_debit
             log.info(
-                f"    Options-P&L: entry=${entry_last:.2f} → "
-                f"current=${current_option:.2f} = {options_return:+.2%}"
+                f"    Options-P&L: entry=${entry_debit:.2f} → "
+                f"current=${current_option:.2f} = {result:+.2%}"
             )
-            return options_return
+            return result
+        if entry_stock > 0:
+            leverage = (entry_stock / entry_debit) * 0.65
+            result   = stock_return * leverage
+            log.info(f"    Delta-approx: {stock_return:+.2%} × {leverage:.1f} = {result:+.2%}")
+            return result
 
-    if entry_last > 0 and entry_stock > 0:
-        leverage      = (entry_stock / entry_last) * 0.65
-        approx_return = stock_return * leverage
-        log.info(f"    Delta-approx: {stock_return:+.2%} × {leverage:.1f} = {approx_return:+.2%}")
-        return approx_return
-
+    # ── Letzter Fallback: Stock-Return (nur wenn kein Debit bekannt) ─────────
     log.info(f"    Stock-Return Fallback: {stock_return:+.2%}")
     return stock_return
 
