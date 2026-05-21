@@ -377,6 +377,7 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float:
         if entry_stock > 0:
             leverage = (entry_stock / entry_debit) * 0.65
             result   = stock_return * leverage
+            result   = max(-1.0, min(result, 5.0))   # Options: Max-Verlust=-100%, Cap=+500%
             log.info(f"    Delta-approx: {stock_return:+.2%} × {leverage:.1f} = {result:+.2%}")
             return result
 
