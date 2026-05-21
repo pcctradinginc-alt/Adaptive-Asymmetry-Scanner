@@ -206,13 +206,22 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             vol_crush_pts = exit_r.get("vol_crush_pts", 30)
             underlying_be = exit_r.get("underlying_breakeven", 0)
             delta_exit_v  = exit_r.get("delta_exit")
+            entry_c       = exit_r["entry_cost"]
+            entry_usd     = round(entry_c * 100)
+            sl_price      = exit_r["stop_loss_price"]
+            tp1_price     = exit_r["take_profit_price"]
+            tp2_price     = exit_r["full_profit_price"]
+            sl_pnl        = round((sl_price  - entry_c) * 100)
+            tp1_pnl       = round((tp1_price - entry_c) * 100)
+            tp2_pnl       = round((tp2_price - entry_c) * 100)
+
             if is_spread:
                 tp_label  = f"+{exit_r['take_profit_pct']}% Max-Gewinn"
                 tp2_label = f"+{exit_r['full_profit_pct']}% Max-Gewinn"
                 sl_label  = f"−{abs(exit_r['stop_loss_pct'])}% Net-Debit"
-                sl_action = "→ Sell to Close Spread (Limit)"
+                sl_action = "Sell to Close Spread · Limit GTC"
                 warn_row  = f"""
-                <tr><td colspan="2" style="padding:5px 0 0;font-size:11px;color:#92400e;">
+                <tr><td colspan="3" style="padding:5px 0 0;font-size:11px;color:#92400e;">
                   ⚠️ Warnschwellen: IV-Crush &gt;{vol_crush_pts} Pkte &nbsp;|&nbsp;
                   Kurs &lt; Break-even + 1%&nbsp;(${underlying_be:.2f})
                 </td></tr>"""
@@ -221,10 +230,10 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
                 tp_label  = f"+{exit_r['take_profit_pct']}% ROI"
                 tp2_label = f"+{exit_r['full_profit_pct']}% ROI"
                 sl_label  = f"−{abs(exit_r['stop_loss_pct'])}% Debit"
-                sl_action = "→ Buy to Close (Limit)"
+                sl_action = "Buy to Close · Limit GTC"
                 delta_str = f"{delta_exit_v:.2f}" if delta_exit_v else "0.80"
                 warn_row  = f"""
-                <tr><td colspan="2" style="padding:5px 0 0;font-size:11px;color:#92400e;">
+                <tr><td colspan="3" style="padding:5px 0 0;font-size:11px;color:#92400e;">
                   ⚠️ Warnschwellen: IV-Crush &gt;{vol_crush_pts} Pkte &nbsp;|&nbsp;
                   Delta &gt; {delta_str} (ITM – Roll prüfen)
                 </td></tr>"""
@@ -233,16 +242,36 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             <div style="margin-top:10px;padding:12px 14px;background:#fff7ed;border:1px dashed #ed8936;border-radius:6px;font-size:12px;">
               <b style="color:#c05621;">{title}</b>
               <table style="width:100%;margin-top:6px;font-size:12px;color:#7b341e;border-collapse:collapse;">
-                <tr>
-                  <td style="padding:3px 8px 3px 0;width:50%;"><b>Entry:</b> ${exit_r['entry_cost']:.2f}</td>
-                  <td style="padding:3px 0;"><b>Stop ({sl_label}):</b> <span style="color:#dc2626;font-weight:bold;">${exit_r['stop_loss_price']:.2f}</span> {sl_action}</td>
+                <tr style="border-bottom:1px solid #fed7aa;">
+                  <td style="padding:2px 8px 2px 0;width:38%;font-size:11px;color:#92400e;"></td>
+                  <td style="padding:2px 8px 2px 0;font-size:11px;color:#92400e;">Optionspreis</td>
+                  <td style="padding:2px 0;font-size:11px;color:#92400e;">P&amp;L / Kontrakt</td>
+                </tr>
+                <tr style="border-bottom:1px solid #fed7aa;">
+                  <td style="padding:4px 8px 4px 0;"><b>Entry-Kosten</b></td>
+                  <td style="padding:4px 8px 4px 0;">${entry_c:.2f}</td>
+                  <td style="padding:4px 0;font-weight:600;">${entry_usd:.0f}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #fed7aa;">
+                  <td style="padding:4px 8px 4px 0;"><b>Stop ({sl_label})</b><br>
+                    <span style="font-size:11px;color:#dc2626;">{sl_action}</span></td>
+                  <td style="padding:4px 8px 4px 0;color:#dc2626;font-weight:bold;">${sl_price:.2f}</td>
+                  <td style="padding:4px 0;color:#dc2626;font-weight:bold;">{sl_pnl:+.0f}$</td>
+                </tr>
+                <tr style="border-bottom:1px solid #fed7aa;">
+                  <td style="padding:4px 8px 4px 0;"><b>TP1 ({tp_label})</b><br>
+                    <span style="font-size:11px;color:#15803d;">Hälfte schliessen</span></td>
+                  <td style="padding:4px 8px 4px 0;color:#15803d;font-weight:bold;">${tp1_price:.2f}</td>
+                  <td style="padding:4px 0;color:#15803d;font-weight:bold;">{tp1_pnl:+.0f}$</td>
+                </tr>
+                <tr style="border-bottom:1px solid #fed7aa;">
+                  <td style="padding:4px 8px 4px 0;"><b>TP2 ({tp2_label})</b><br>
+                    <span style="font-size:11px;color:#15803d;">Rest schliessen</span></td>
+                  <td style="padding:4px 8px 4px 0;color:#15803d;font-weight:bold;">${tp2_price:.2f}</td>
+                  <td style="padding:4px 0;color:#15803d;font-weight:bold;">{tp2_pnl:+.0f}$</td>
                 </tr>
                 <tr>
-                  <td style="padding:3px 8px 3px 0;"><b>TP1 ({tp_label}):</b> ${exit_r['take_profit_price']:.2f}</td>
-                  <td style="padding:3px 0;"><b>TP2 ({tp2_label}):</b> ${exit_r['full_profit_price']:.2f}</td>
-                </tr>
-                <tr>
-                  <td colspan="2" style="padding:3px 0;"><b>Time-Exit:</b> {exit_r['time_exit_date']} ({exit_r['time_exit_dte_remaining']} DTE Rest) — wenn Gewinn &lt; +{exit_r['time_exit_min_profit_pct']}%</td>
+                  <td colspan="3" style="padding:4px 0;"><b>Time-Exit:</b> {exit_r['time_exit_date']} ({exit_r['time_exit_dte_remaining']} DTE Rest) — wenn Gewinn &lt; +{exit_r['time_exit_min_profit_pct']}%</td>
                 </tr>
                 {warn_row}
               </table>
@@ -286,9 +315,38 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             strike_cell  = f"<div><b>Long / Short:</b> ${long_k:.2f} / ${short_k:.2f} CALL</div>"
             bidask_cell  = f"<div><b>Expiry:</b> {option.get('expiry','–')} ({option.get('dte','–')}d)</div>"
         else:
-            execution_html = ""
-            strike_cell  = f"<div><b>Buy to Open:</b> ${option.get('strike','–')} CALL @ ask ${option.get('ask','–')}</div>"
-            bidask_cell  = f"<div><b>Bid/Ask:</b> ${option.get('bid','–')} / ${option.get('ask','–')}</div>"
+            ask_lc        = float(option.get("ask", 0))
+            strike_lc     = float(option.get("strike", 0))
+            entry_usd_lc  = round(ask_lc * 100)
+            be_underlying = round(strike_lc + ask_lc, 2)
+            be_pct_lc     = round((ask_lc / strike_lc) * 100, 1) if strike_lc > 0 else 0
+            if ask_lc > 0:
+                execution_html = f"""
+                <div style="margin-top:10px;padding:12px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;font-size:12px;">
+                  <b style="color:#15803d;">📋 Ausführung (Tradier)</b>
+                  <table style="width:100%;margin-top:6px;font-size:12px;color:#14532d;border-collapse:collapse;">
+                    <tr>
+                      <td style="padding:3px 8px 3px 0;width:40%;"><b>Buy to Open:</b></td>
+                      <td style="padding:3px 0;">${strike_lc:.2f} CALL &nbsp;@&nbsp; ask&nbsp;<b>${ask_lc:.2f}</b></td>
+                    </tr>
+                    <tr style="border-top:1px solid #bbf7d0;">
+                      <td style="padding:5px 8px 3px 0;"><b>Entry-Kosten:</b></td>
+                      <td style="padding:5px 0;">${ask_lc:.2f} /Share &nbsp;·&nbsp; <b>${entry_usd_lc:.0f}</b> pro Kontrakt</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:3px 8px 3px 0;"><b>Break-even:</b></td>
+                      <td style="padding:3px 0;">${be_underlying:.2f} Kurs &nbsp;(+{be_pct_lc:.1f}% über Strike)</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:3px 8px 3px 0;"><b>Expiry:</b></td>
+                      <td style="padding:3px 0;">{option.get('expiry','–')} &nbsp;({option.get('dte','–')} DTE)</td>
+                    </tr>
+                  </table>
+                </div>"""
+            else:
+                execution_html = ""
+            strike_cell = f"<div><b>Strike:</b> ${option.get('strike','–')} CALL</div>"
+            bidask_cell = f"<div><b>Bid/Ask:</b> ${option.get('bid','–')} / ${option.get('ask','–')}</div>"
 
         cards += f"""
         <div style="border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:24px;background:#fff;">
