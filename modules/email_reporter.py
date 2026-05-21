@@ -196,22 +196,57 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           </table>
         </div>"""
 
-        # ── Exit-Regeln Block ─────────────────────────────────────────────────
-        exit_html = ""
-        if exit_r and exit_r.get("entry_cost", 0) > 0:
-            exit_html = f"""
-            <div style="margin-top:10px;padding:12px;background:#fff7ed;border:1px dashed #ed8936;border-radius:6px;font-size:12px;">
-                <b style="color:#c05621;">🚪 EXIT-STRATEGIE (pro Kontrakt)</b><br>
-                <table style="width:100%;margin-top:5px;font-size:12px;color:#7b341e;">
-                    <tr><td><b>Entry:</b> ${exit_r['entry_cost']:.2f}</td><td><b>Stop-Loss:</b> <span style="color:#dc2626;">${exit_r['stop_loss_price']:.2f}</span></td></tr>
-                    <tr><td><b>TP 50%:</b> ${exit_r['take_profit_price']:.2f}</td><td><b>TP 100%:</b> ${exit_r['full_profit_price']:.2f}</td></tr>
-                    <tr><td colspan="2"><b>Time-Exit:</b> {exit_r['time_exit_date']} (wenn Gewinn &lt; {exit_r['time_exit_min_profit_pct']}%)</td></tr>
-                </table>
-            </div>"""
-
         # ── Ausführungs-Block (Tradier-Sprache) ──────────────────────────────
         is_spread = strategy == "BULL_CALL_SPREAD"
         sl        = option.get("spread_leg") or {}
+
+        # ── Exit-Block (strategie-spezifisch, direkt nach Entry) ─────────────
+        exit_html = ""
+        if exit_r and exit_r.get("entry_cost", 0) > 0:
+            vol_crush_pts = exit_r.get("vol_crush_pts", 30)
+            underlying_be = exit_r.get("underlying_breakeven", 0)
+            delta_exit_v  = exit_r.get("delta_exit")
+            if is_spread:
+                tp_label  = f"+{exit_r['take_profit_pct']}% Max-Gewinn"
+                tp2_label = f"+{exit_r['full_profit_pct']}% Max-Gewinn"
+                sl_label  = f"−{abs(exit_r['stop_loss_pct'])}% Net-Debit"
+                sl_action = "→ Sell to Close Spread (Limit)"
+                warn_row  = f"""
+                <tr><td colspan="2" style="padding:5px 0 0;font-size:11px;color:#92400e;">
+                  ⚠️ Warnschwellen: IV-Crush &gt;{vol_crush_pts} Pkte &nbsp;|&nbsp;
+                  Kurs &lt; Break-even + 1%&nbsp;(${underlying_be:.2f})
+                </td></tr>"""
+                title = "🚪 EXIT – Bull Call Spread (pro Kontrakt)"
+            else:
+                tp_label  = f"+{exit_r['take_profit_pct']}% ROI"
+                tp2_label = f"+{exit_r['full_profit_pct']}% ROI"
+                sl_label  = f"−{abs(exit_r['stop_loss_pct'])}% Debit"
+                sl_action = "→ Buy to Close (Limit)"
+                delta_str = f"{delta_exit_v:.2f}" if delta_exit_v else "0.80"
+                warn_row  = f"""
+                <tr><td colspan="2" style="padding:5px 0 0;font-size:11px;color:#92400e;">
+                  ⚠️ Warnschwellen: IV-Crush &gt;{vol_crush_pts} Pkte &nbsp;|&nbsp;
+                  Delta &gt; {delta_str} (ITM – Roll prüfen)
+                </td></tr>"""
+                title = "🚪 EXIT – Long Call (pro Kontrakt)"
+            exit_html = f"""
+            <div style="margin-top:10px;padding:12px 14px;background:#fff7ed;border:1px dashed #ed8936;border-radius:6px;font-size:12px;">
+              <b style="color:#c05621;">{title}</b>
+              <table style="width:100%;margin-top:6px;font-size:12px;color:#7b341e;border-collapse:collapse;">
+                <tr>
+                  <td style="padding:3px 8px 3px 0;width:50%;"><b>Entry:</b> ${exit_r['entry_cost']:.2f}</td>
+                  <td style="padding:3px 0;"><b>Stop ({sl_label}):</b> <span style="color:#dc2626;font-weight:bold;">${exit_r['stop_loss_price']:.2f}</span> {sl_action}</td>
+                </tr>
+                <tr>
+                  <td style="padding:3px 8px 3px 0;"><b>TP1 ({tp_label}):</b> ${exit_r['take_profit_price']:.2f}</td>
+                  <td style="padding:3px 0;"><b>TP2 ({tp2_label}):</b> ${exit_r['full_profit_price']:.2f}</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding:3px 0;"><b>Time-Exit:</b> {exit_r['time_exit_date']} ({exit_r['time_exit_dte_remaining']} DTE Rest) — wenn Gewinn &lt; +{exit_r['time_exit_min_profit_pct']}%</td>
+                </tr>
+                {warn_row}
+              </table>
+            </div>"""
 
         if is_spread and sl:
             long_k     = float(option.get("strike", 0))
@@ -281,9 +316,9 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           </div>
 
           {execution_html}
+          {exit_html}
           {greeks_html}
           {prob_html}
-          {exit_html}
         </div>"""
 
     return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f8fafc;margin:0;padding:0;">
