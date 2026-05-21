@@ -191,12 +191,21 @@ class DeepAnalysis:
             haiku_bullish = any(w in haiku_reason for w in
                 ["positiv", "erhöht", "wachstum", "deal", "akquisition",
                  "expansion", "gewinn", "stieg", "prognose"])
+            haiku_bearish = any(w in haiku_reason for w in
+                ["warnung", "verlust", "rückgang", "verfehlt", "kürzung",
+                 "rechtsstreit", "rückruf", "gegenwind", "sinkt", "enttäuscht"])
             if haiku_bullish and sonnet_dir == "BEARISH":
                 log.warning(
                     f"  [{candidate['ticker']}] ⚠️ WIDERSPRUCH: "
-                    f"Haiku=BULLISH ({haiku_reason[:50]}) "
-                    f"aber Sonnet=BEARISH → Impact={analysis['impact']} "
-                    f"gedeckelt auf max 6"
+                    f"Haiku=BULLISH aber Sonnet=BEARISH → Impact≤6"
+                )
+                if analysis.get("impact", 0) > 6:
+                    analysis["impact"] = 6
+                analysis["direction_conflict"] = True
+            elif haiku_bearish and sonnet_dir == "BULLISH":
+                log.warning(
+                    f"  [{candidate['ticker']}] ⚠️ WIDERSPRUCH: "
+                    f"Haiku=BEARISH aber Sonnet=BULLISH → Impact≤6"
                 )
                 if analysis.get("impact", 0) > 6:
                     analysis["impact"] = 6
