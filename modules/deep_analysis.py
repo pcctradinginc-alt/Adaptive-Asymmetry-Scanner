@@ -72,6 +72,26 @@ Im Zweifel: Impact auf 5 begrenzen wenn nur öffentliche Informationen vorliegen
 SCHRITT 5 — ERST JETZT: Finale Bewertung.
 Im Zweifel BEARISH. Nur eindeutige strukturelle Signale verdienen Impact > 7.
 
+SCORING-KALIBRIERUNG — lies diese Skala bevor du Impact und Surprise vergibst:
+
+Impact (fundamentale Bedeutung der Information):
+  1-2  → Marginales Rauschen, kein nachweisbarer Fundamentaleffekt
+  3-4  → Solide News, kleine bis mittlere fundamentale Auswirkung
+  5-6  → Klares strukturelles Signal, messbar für Earnings oder Marktanteil
+  7-8  → Starker Katalysator, signifikante Neubewertung gerechtfertigt
+  9-10 → Nur für bahnbrechende, nicht-öffentliche Informationsvorsprünge (sehr selten)
+
+Surprise (wie unerwartet ist das Signal für den Konsensus?):
+  1-2  → Vollständig erwartet, im Markt bereits eingepreist
+  3-4  → Leicht überraschend, Konsensus hatte es teilweise antizipiert
+  5-6  → Genuiner Überraschungseffekt, Markt hat klar unterreagiert
+  7-8  → Stark unerwartet, fundamentaler Paradigmenwechsel
+  9-10 → Black-Swan-Charakter (extrem selten)
+
+WICHTIG: Impact=5, Surprise=4 als Reflex-Standardwert ist VERBOTEN.
+Vergib nur Werte die du im asymmetry_reasoning KONKRET begründen kannst.
+Erwartete Verteilung: ~60% der Signale bei Impact 3-5, Surprise 2-4.
+
 Antworte ausschließlich mit validem JSON."""
 
 ANALYSIS_TEMPLATE = """=== ANALYSEDATUM: {analysis_date} (WICHTIG: Alle Jahreszahlen müssen ≥ {analysis_year} sein) ===
@@ -114,8 +134,8 @@ Antworte NUR mit diesem JSON:
         "mc_assessment": "<Ist {mc_hit_rate:.0%} realistisch?>",
         "concern_level": "low" oder "medium" oder "high"
     }},
-    "impact": <0-10>,
-    "surprise": <0-10>,
+    "impact": <0-10 | 1-2=Rauschen, 3-4=solide, 5-6=klar strukturell, 7-8=stark, 9-10=selten>,
+    "surprise": <0-10 | 1-2=erwartet, 3-4=leicht überraschend, 5-6=echte Überraschung, 7+=Black-Swan>,
     "direction": "BULLISH" oder "BEARISH",
     "bear_case_severity": <0-10>,
     "time_to_materialization": "4-8 Wochen" oder "2-3 Monate" oder "6 Monate",
@@ -191,9 +211,12 @@ class DeepAnalysis:
             haiku_bullish = any(w in haiku_reason for w in
                 ["positiv", "erhöht", "wachstum", "deal", "akquisition",
                  "expansion", "gewinn", "stieg", "prognose"])
-            haiku_bearish = any(w in haiku_reason for w in
-                ["warnung", "verlust", "rückgang", "verfehlt", "kürzung",
-                 "rechtsstreit", "rückruf", "gegenwind", "sinkt", "enttäuscht"])
+            haiku_bearish = (
+                any(w in haiku_reason for w in
+                    ["warnung", "verlust", "rückgang", "verfehlt", "kürzung",
+                     "rechtsstreit", "rückruf", "gegenwind", "sinkt", "enttäuscht"])
+                or candidate.get("prescreen_category") == "bearish_reversal"
+            )
             if haiku_bullish and sonnet_dir == "BEARISH":
                 log.warning(
                     f"  [{candidate['ticker']}] ⚠️ WIDERSPRUCH: "
