@@ -91,6 +91,16 @@ DTE_TIERS = [
     {"label": "Long-Term",  "dte_min": 150, "dte_max": 365, "min_roi": 0.10},
 ]
 
+# VIX-abhängige ROI-Schwellen-Anpassung
+# In ruhigen Märkten (niedrige σ) produziert MC kleinere Moves → ROI systematisch tiefer.
+# Der Gate wird proportional abgesenkt/angehoben. Format: (vix_upper_bound, faktor)
+VIX_ROI_FACTORS: list[tuple[float, float]] = [
+    (18.0, 0.70),        # VIX < 18   → 70%  (z.B. 15% → 10.5%)
+    (22.0, 0.85),        # VIX 18–22  → 85%
+    (28.0, 1.00),        # VIX 22–28  → normal
+    (float("inf"), 1.20),# VIX > 28   → +20% (mehr Schutz in turbulentem Markt)
+]
+
 # v9.0 #6: time_to_materialization → DTE-Minimum
 # Verhindert 16-DTE-Option bei 3-Monats-Thesis
 TTM_TO_DTE_MIN: dict[str, int] = {
@@ -345,6 +355,15 @@ class OptionsDesigner:
         mc_hit_rate = float(qmc.get("hit_rate", 0.65) or 0.65)
         mc_hit_rate = min(0.95, mc_hit_rate)   # nur obere Grenze, kein Floor
 
+        # VIX-abhängige ROI-Schwellen-Anpassung (einmal pro Ticker)
+        vix_current = float(self.gates.last_vix or 20.0)
+        _roi_factor = next(f for cap, f in VIX_ROI_FACTORS if vix_current < cap)
+        if _roi_factor != 1.0:
+            log.info(
+                f"  [{ticker}] VIX={vix_current:.1f} → ROI-Schwellen ×{_roi_factor:.2f} "
+                f"(Short={0.15*_roi_factor:.1%} Mid={0.12*_roi_factor:.1%} Long={0.10*_roi_factor:.1%})"
+            )
+
         # v10.0 #2: Katalysator-Typ für event-spezifischen IV-Crush
         catalyst_type = _classify_catalyst_type(s)
 
@@ -371,6 +390,8 @@ class OptionsDesigner:
                 )
                 continue
 
+            dynamic_tier = {**tier, "min_roi": self._get_dynamic_min_roi(tier["min_roi"], vix_current)}
+
             strategy = self._select_strategy(ticker, direction, iv_rank, dealer_gamma)
             option   = self._find_option_for_dte(
                 ticker, strategy, current, tier["dte_min"], tier["dte_max"], t
@@ -389,7 +410,7 @@ class OptionsDesigner:
                 if not option:
                     continue
 
-            roi = self._compute_roi(option, sim, iv_rank, tier, strategy, mc_hit_rate, catalyst_type)
+            roi = self._compute_roi(option, sim, iv_rank, dynamic_tier, strategy, mc_hit_rate, catalyst_type)
 
             try:
                 dte_safe       = max(int(option.get("dte") or 1), 1)
@@ -504,7 +525,7 @@ class OptionsDesigner:
                 if "error" not in mc_result:
                     roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
                     roi["roi_net"]         = mc_result["expected_pnl_pct"] - (roi.get("spread_pct", 0.0) * 2)
-                    roi["passes_roi_gate"] = roi["roi_net"] >= tier["min_roi"]
+                    roi["passes_roi_gate"] = roi["roi_net"] >= dynamic_tier["min_roi"]
                     ou_tag = mc_result.get("ou_method", "heuristic")
                     log.info(
                         f"  [{ticker}] MC-P&L {label} [{ou_tag}]: "
@@ -550,7 +571,10 @@ class OptionsDesigner:
         tried = ", ".join(
             f"{r['tier']}={r['roi']['roi_net']:.1%}" for r in results_per_tier
         )
-        log.info(f"  [{ticker}] Alle Laufzeiten unter ROI-Gate: {tried} → verworfen")
+        log.info(
+            f"  [{ticker}] Alle Laufzeiten unter ROI-Gate "
+            f"(VIX={vix_current:.1f}, Faktor={_roi_factor:.2f}): {tried} → verworfen"
+        )
         return None
 
     def _select_strategy(
@@ -1130,6 +1154,13 @@ class OptionsDesigner:
             log.info(f"  [{s['ticker']}] BEAR-CASE={sev} ≥ {thr} → blockiert")
             return False
         return True
+
+    def _get_dynamic_min_roi(self, base_roi: float, vix: float) -> float:
+        """Skaliert min_roi je nach VIX-Regime (VIX_ROI_FACTORS)."""
+        for vix_cap, factor in VIX_ROI_FACTORS:
+            if vix < vix_cap:
+                return round(base_roi * factor, 3)
+        return base_roi
 
     def _days_to(self, expiry_str: str) -> int:
         try:
