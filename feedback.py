@@ -22,7 +22,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -279,32 +279,99 @@ def _yfinance_option_price(
 
 # ── Spread-Preis (beide Legs) ─────────────────────────────────────────────────
 
-def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float:
+def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
+    """
+    Intrinsic-Wert eines Bull Call Spreads am Verfallstag via yfinance-History.
+
+    Returns None  → historische Daten nicht verfügbar (Outcome bleibt 0.0).
+    Returns 0.0   → Spread verfallen wertlos (OTM). Outcome = -100%.
+    Returns width → Spread voll im Geld. Outcome = Max-Gewinn.
+    """
+    try:
+        expiry_str = option.get("expiry", "")
+        long_k     = float(option.get("strike", 0))
+        sl         = option.get("spread_leg") or {}
+        short_k    = float(sl.get("strike", 0))
+        width      = round(short_k - long_k, 2) if short_k > long_k > 0 else 0
+
+        if width <= 0 or long_k <= 0:
+            return None
+
+        expiry_dt = datetime.strptime(expiry_str, "%Y-%m-%d")
+        end_str   = (expiry_dt + timedelta(days=4)).strftime("%Y-%m-%d")
+        hist      = yf.Ticker(ticker).history(start=expiry_str, end=end_str, auto_adjust=True)
+        if hist.empty:
+            return None
+
+        close = float(hist["Close"].iloc[0])  # Schlusskurs am Verfallstag
+
+        if close <= long_k:
+            intrinsic = 0.0
+        elif close >= short_k:
+            intrinsic = width
+        else:
+            intrinsic = round(close - long_k, 4)
+
+        log.info(
+            f"    [{ticker}] Expired Spread ({expiry_str}): "
+            f"stock=${close:.2f} | long_k=${long_k} short_k=${short_k} "
+            f"→ intrinsic=${intrinsic:.2f}"
+        )
+        return intrinsic
+
+    except Exception as e:
+        log.debug(f"    [{ticker}] Expired-Spread Fehler: {e}")
+        return None
+
+
+def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float | None:
     """
     Aktueller Net-Wert eines Spreads: long_leg_mid − short_leg_mid.
 
-    Nutzt get_current_option_price() für jeden Leg separat.
-    Beide Legs teilen dieselbe Expiry (Standard bei vertikalen Spreads).
-    Gibt 0.0 zurück wenn einer der Legs nicht abrufbar ist.
+    Returns None  → Preis nicht abrufbar (kein verwertbares Outcome).
+    Returns float → Net-Wert inkl. 0.0 (Spread wertlos / vollständig verloren).
+
+    Abgelaufene Kontrakte: Tradier liefert keine Chain mehr → Fallback auf
+    yfinance-History für Intrinsic-Value-Berechnung am Verfallstag.
     """
     sl = option.get("spread_leg") or {}
     if not sl:
-        return 0.0
+        log.warning(f"    [{ticker}] Spread: kein spread_leg in option-Dict")
+        return None
 
-    expiry = option.get("expiry", "")
+    expiry    = option.get("expiry", "")
+    long_str  = option.get("strike", "?")
+    short_str = sl.get("strike", "?")
 
-    long_mid = get_current_option_price(ticker, option, strategy)
+    # Abgelaufene Option → Intrinsic-Wert via yfinance statt Live-Chain
+    try:
+        if expiry and datetime.strptime(expiry, "%Y-%m-%d").date() < datetime.utcnow().date():
+            log.info(f"    [{ticker}] Spread-Expiry {expiry} abgelaufen → Intrinsic-Berechnung")
+            return _expired_spread_intrinsic(ticker, option)
+    except ValueError:
+        pass
 
-    short_option = {"strike": sl.get("strike"), "expiry": expiry}
-    short_mid    = get_current_option_price(ticker, short_option, strategy)
+    long_mid  = get_current_option_price(ticker, option, strategy)
+    short_mid = get_current_option_price(
+        ticker, {"strike": sl.get("strike"), "expiry": expiry}, strategy
+    )
 
     if long_mid > 0 and short_mid > 0:
         net = round(long_mid - short_mid, 4)
-        log.debug(f"    [{ticker}] Spread-Legs: long=${long_mid:.2f} short=${short_mid:.2f} net=${net:.2f}")
+        log.info(
+            f"    [{ticker}] Spread-Legs: "
+            f"long(k={long_str})=${long_mid:.2f} | "
+            f"short(k={short_str})=${short_mid:.2f} | net=${net:.2f}"
+        )
         return max(net, 0.0)
 
-    log.debug(f"    [{ticker}] Spread-Leg nicht abrufbar: long={long_mid} short={short_mid}")
-    return 0.0
+    log.warning(
+        f"    [{ticker}] Spread-Leg nicht abrufbar: "
+        f"long(k={long_str})={long_mid:.2f} | "
+        f"short(k={short_str})={short_mid:.2f} | "
+        f"expiry={expiry}"
+    )
+    return None
 
 
 # ── Outcome-Berechnung ────────────────────────────────────────────────────────
@@ -349,15 +416,17 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float:
             log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome=0.0 (übersprungen)")
             return 0.0
         current_spread = get_current_spread_price(ticker, option, strategy)
-        if current_spread > 0:
-            result = (current_spread - entry_debit) / entry_debit
-            log.info(
-                f"    Spread-P&L: entry=${entry_debit:.2f} → "
-                f"current=${current_spread:.2f} = {result:+.2%}"
-            )
-            return result
-        log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome=0.0")
-        return 0.0
+        if current_spread is None:
+            # Preis wirklich nicht ermittelbar — nicht als 0.0 ins Training
+            log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome=0.0 (nicht verwertbar)")
+            return 0.0
+        # current_spread == 0.0 ist valide: Spread verfallen wertlos → -100%
+        result = (current_spread - entry_debit) / entry_debit
+        log.info(
+            f"    Spread-P&L: entry=${entry_debit:.2f} → "
+            f"current=${current_spread:.2f} = {result:+.2%}"
+        )
+        return result
 
     # ── Long Option: echter Preis → Delta-Approx ────────────────────────────
     entry_stock = float(sim.get("current_price", 0))
