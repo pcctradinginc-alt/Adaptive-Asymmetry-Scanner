@@ -32,7 +32,8 @@ MAX_HEADLINES = 3
 SYSTEM_PROMPT = """Du bist ein Options-Analyst mit Fokus auf Informations-Asymmetrie.
 
 KERNFRAGE fuer jeden Ticker: "Enthaelt diese Nachricht eine Information, die der breite
-Markt noch nicht vollstaendig verarbeitet hat — und koennte ein Options-Kaeufer davon profitieren?"
+Markt noch nicht vollstaendig verarbeitet hat — und koennte ein Options-Kaeufer
+(Long Call ODER Long Put) davon profitieren?"
 
 [YES] wenn MINDESTENS EINE der folgenden Bedingungen zutrifft:
   a) EINGEBETTETES SIGNAL: Guidance-Erhoehung im Nebensatz, strukturelle Aenderung versteckt
@@ -61,7 +62,7 @@ Antworte NUR mit diesem JSON:
     {{
       "ticker": "AAPL",
       "decision": "[YES]" oder "[NO]",
-      "category": "structural_change|routine_news|analyst_opinion|earnings|catalyst",
+      "category": "structural_change|routine_news|analyst_opinion|earnings|catalyst|bearish_reversal",
       "reason": "Konkreter Grund in max 20 Worten — spezifisch, nicht vage"
     }}
   ]
@@ -108,7 +109,7 @@ class Prescreener:
 
                 if decision == "[YES]":
                     # Zusatz-Check: Routine-Kategorien nie durchlassen
-                    if category in ("routine_news", "analyst_opinion", "earnings"):
+                    if category in ("routine_news", "analyst_opinion"):
                         log.info(
                             f"  [{ticker}] Override: Kategorie='{category}' "
                             f"→ trotz [YES] auf [NO] gesetzt"
