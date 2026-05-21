@@ -659,11 +659,26 @@ def main() -> None:
     for p in trade_proposals:
         key = (p["ticker"], today)
         if key not in existing:
+            _opt      = p.get("option") or {}
+            _strategy = p.get("strategy", "")
+            _is_sp    = "SPREAD" in _strategy
+            if _is_sp:
+                _sl   = _opt.get("spread_leg") or {}
+                _nd   = _opt.get("net_debit")
+                if _nd:
+                    _entry_debit = round(float(_nd), 2)
+                else:
+                    _la = float(_opt.get("ask", 0))
+                    _sb = float(_sl.get("bid", 0))
+                    _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
+            else:
+                _entry_debit = round(float(_opt.get("ask", 0)), 2)
             history["active_trades"].append({
                 "ticker":        p["ticker"], "entry_date": today,
                 "features":      p.get("features", {}),
-                "strategy":      p.get("strategy", ""),
-                "option":        p.get("option"),
+                "strategy":      _strategy,
+                "entry_debit":   _entry_debit,
+                "option":        _opt,
                 "simulation":    p.get("simulation"),
                 "deep_analysis": p.get("deep_analysis"),
                 "tve":           p.get("time_value_efficiency"),
