@@ -1,7 +1,7 @@
 """
-modules/email_reporter.py v9.0
+modules/email_reporter.py v8.3
 
-Änderungen v9.0:
+Änderungen v8.3:
     #5  Greeks-Block im Trade-Card:
         Delta (P(ITM)-Approximation), Theta/Tag, Vega-Exposure, Breakeven.
         Trader sieht jetzt nicht nur ROI, sondern auch wie empfindlich
@@ -64,9 +64,12 @@ def _build_status_email(stats: dict, today: str) -> str:
     funnel = [
         (f"{stats.get('universe', 0)} Ticker im Universum", "📋", True),
         (f"{stats.get('candidates', 0)} nach Hard-Filter (Cap>2B, Vol>1M)", "🔍", stats.get("candidates", 0) > 0),
+        (f"{stats.get('sector_ok', stats.get('candidates', 0))} nach Sector-Momentum", "📈", stats.get("sector_ok", stats.get("candidates", 0)) > 0),
         (f"{stats.get('prescreened', 0)} nach Prescreening (Haiku)", "🤖", stats.get("prescreened", 0) > 0),
         (f"{stats.get('roi_precheck', 0)} nach ROI Pre-Check", "💰", stats.get("roi_precheck", 0) > 0),
+        (f"{stats.get('pre_mc', stats.get('roi_precheck', 0))} nach Pre-MC-Gate", "⚡", stats.get("pre_mc", stats.get("roi_precheck", 0)) > 0),
         (f"{stats.get('analyzed', 0)} nach Deep Analysis (Sonnet)", "🧠", stats.get("analyzed", 0) > 0),
+        (f"{stats.get('after_isf', stats.get('analyzed', 0))} nach Impact×Surprise-Floor", "🎯", stats.get("after_isf", stats.get("analyzed", 0)) > 0),
         (f"{stats.get('quick_mc', 0)} nach Quick Monte Carlo", "🎲", stats.get("quick_mc", 0) > 0),
         (f"{trades} finale Trade-Vorschläge", "🏆" if trades > 0 else "❌", trades > 0),
     ]
@@ -85,13 +88,13 @@ def _build_status_email(stats: dict, today: str) -> str:
     <div style="font-size:28px;margin-bottom:6px;">{status_icon}</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">Adaptive Asymmetry-Scanner</div>
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">{status_text}</div>
-    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; v9.0</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; v8.3</div>
   </div>
   <div style="padding:24px 32px;">
     <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">{rows}</table>
   </div>
   <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
-    Adaptive Asymmetry-Scanner v9.0 &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
+    Adaptive Asymmetry-Scanner v8.3 &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
   </div>
 </div></body></html>"""
 
@@ -115,7 +118,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
 
         score_color = "#16a34a" if ts_total >= 75 else "#ca8a04" if ts_total >= 60 else "#ea580c"
 
-        # ── v9.0 #5: Greeks-Block ─────────────────────────────────────────────
+        # ── v8.3 #5: Greeks-Block ─────────────────────────────────────────────
         delta          = roi.get("delta", 0) or 0
         theta_day_pct  = roi.get("theta_daily_pct", 0) or 0
         vega_loss      = roi.get("vega_loss", 0) or 0
@@ -145,7 +148,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           </table>
         </div>"""
 
-        # ── v9.0 #7 / v10.0 #5: MC-Wahrscheinlichkeits-Block + Implied Move ────
+        # ── v8.3 #7 / v10.0 #5: MC-Wahrscheinlichkeits-Block + Implied Move ────
         mc_hit_rate_pct = p.get("mc_hit_rate", 0) or 0
         cat_conf        = da.get("catalyst_confidence", None)
         dte_val         = option.get("dte", "–")
@@ -385,7 +388,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
     <div style="font-size:28px;margin-bottom:6px;">🎯</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">Adaptive Asymmetry-Scanner</div>
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Trade Empfehlung — {len(proposals)} Signal(e)</div>
-    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; v9.0</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; v8.3</div>
   </div>
   <div style="padding:24px 32px;">{cards}</div>
 </div></body></html>"""
