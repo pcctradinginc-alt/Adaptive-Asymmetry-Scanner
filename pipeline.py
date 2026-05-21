@@ -41,7 +41,7 @@ import json
 import math
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -450,6 +450,20 @@ def main() -> None:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
         send_email(); return
 
+    # ── STUFE 4b: Impact×Surprise Floor ──────────────────────────────────────
+    _before_isf = len(analyses)
+    analyses = [
+        a for a in analyses
+        if (a.get("deep_analysis", {}).get("impact", 0) *
+            a.get("deep_analysis", {}).get("surprise", 0)) >= 20
+    ]
+    for _ in range(_before_isf - len(analyses)):
+        reject("impact_x_surprise_below_floor")
+    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (≥20, war {_before_isf})")
+    if not analyses:
+        stats["stop_reason"] = "Alle Signale unter Impact×Surprise-Floor (< 20)."
+        save_history(history); send_email(); return
+
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
     scored = MismatchScorer().run(analyses)
@@ -655,36 +669,47 @@ def main() -> None:
     if trade_proposals:
         _proposals_ref.append(trade_proposals)
 
-    existing = {(t["ticker"], t.get("entry_date","")) for t in history["active_trades"]}
+    # Ticker-Cooldown: gleicher Ticker innerhalb von 30 Tagen nicht erneut eintragen
+    _cutoff = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+    cooled_tickers = {
+        t["ticker"] for t in history["active_trades"]
+        if t.get("entry_date", "") >= _cutoff
+    }
+    existing = {(t["ticker"], t.get("entry_date", "")) for t in history["active_trades"]}
     for p in trade_proposals:
         key = (p["ticker"], today)
-        if key not in existing:
-            _opt      = p.get("option") or {}
-            _strategy = p.get("strategy", "")
-            _is_sp    = "SPREAD" in _strategy
-            if _is_sp:
-                _sl   = _opt.get("spread_leg") or {}
-                _nd   = _opt.get("net_debit")
-                if _nd:
-                    _entry_debit = round(float(_nd), 2)
-                else:
-                    _la = float(_opt.get("ask", 0))
-                    _sb = float(_sl.get("bid", 0))
-                    _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
+        if key in existing:
+            continue
+        if p["ticker"] in cooled_tickers:
+            log.info(f"  [{p['ticker']}] COOLDOWN: aktiv in letzten 30 Tagen → nicht erneut eingetragen")
+            continue
+        _opt      = p.get("option") or {}
+        _strategy = p.get("strategy", "")
+        _is_sp    = "SPREAD" in _strategy
+        if _is_sp:
+            _sl   = _opt.get("spread_leg") or {}
+            _nd   = _opt.get("net_debit")
+            if _nd:
+                _entry_debit = round(float(_nd), 2)
             else:
-                _entry_debit = round(float(_opt.get("ask", 0)), 2)
-            history["active_trades"].append({
-                "ticker":        p["ticker"], "entry_date": today,
-                "features":      p.get("features", {}),
-                "strategy":      _strategy,
-                "entry_debit":   _entry_debit,
-                "option":        _opt,
-                "simulation":    p.get("simulation"),
-                "deep_analysis": p.get("deep_analysis"),
-                "tve":           p.get("time_value_efficiency"),
-                "outcome":       None,
-            })
-            existing.add(key)
+                _la = float(_opt.get("ask", 0))
+                _sb = float(_sl.get("bid", 0))
+                _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
+        else:
+            _entry_debit = round(float(_opt.get("ask", 0)), 2)
+        history["active_trades"].append({
+            "ticker":        p["ticker"], "entry_date": today,
+            "features":      p.get("features", {}),
+            "strategy":      _strategy,
+            "entry_debit":   _entry_debit,
+            "option":        _opt,
+            "simulation":    p.get("simulation"),
+            "deep_analysis": p.get("deep_analysis"),
+            "tve":           p.get("time_value_efficiency"),
+            "outcome":       None,
+        })
+        existing.add(key)
+        cooled_tickers.add(p["ticker"])
 
     Reporter(reports_dir=REPORTS_DIR).save(
         today=today, proposals=trade_proposals, history=history
