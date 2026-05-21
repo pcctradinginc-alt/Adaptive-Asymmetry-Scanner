@@ -459,6 +459,7 @@ def main() -> None:
     ]
     for _ in range(_before_isf - len(analyses)):
         reject("impact_x_surprise_below_floor")
+    stats["after_isf"] = len(analyses)
     log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (≥20, war {_before_isf})")
     if not analyses:
         stats["stop_reason"] = "Alle Signale unter Impact×Surprise-Floor (< 20)."
