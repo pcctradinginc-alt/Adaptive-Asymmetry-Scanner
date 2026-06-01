@@ -2,12 +2,12 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 471,
-        "avg_return": 0.598203
+        "count": 472,
+        "avg_return": 0.596679
       },
       "mid": {
-        "count": 2863,
-        "avg_return": 0.056969
+        "count": 2958,
+        "avg_return": 0.060463
       },
       "high": {
         "count": 117,
@@ -16,1078 +16,34 @@
     },
     "mismatch": {
       "weak": {
-        "count": 890,
-        "avg_return": 0.26984
+        "count": 910,
+        "avg_return": 0.26701
       },
       "good": {
-        "count": 2413,
-        "avg_return": 0.091816
+        "count": 2485,
+        "avg_return": 0.094706
       },
       "strong": {
-        "count": 148,
-        "avg_return": -0.148171
+        "count": 152,
+        "avg_return": -0.150621
       }
     },
     "eps_drift": {
       "noise": {
-        "count": 3359,
-        "avg_return": 0.121851
+        "count": 3451,
+        "avg_return": 0.122111
       },
       "relevant": {
-        "count": 37,
-        "avg_return": 0.761653
+        "count": 39,
+        "avg_return": 0.813708
       },
       "massive": {
-        "count": 55,
-        "avg_return": 0.042061
+        "count": 57,
+        "avg_return": 0.040484
       }
     }
   },
   "active_trades": [
-    {
-      "ticker": "ABT",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0122,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-08-21",
-        "strike": 115.0,
-        "bid": 2.25,
-        "ask": 2.3,
-        "open_interest": 980,
-        "implied_vol": 0.27899890930175775,
-        "spread_ratio": 0.0217,
-        "dte": 127,
-        "spread_leg": {
-          "strike": 125.0,
-          "bid": 0.75,
-          "ask": 0.8
-        },
-        "net_debit": 1.55
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 111.51,
-        "current_price": 101.37,
-        "sigma_adj": 0.0109,
-        "sector": "Healthcare",
-        "ema200": {},
-        "macd": {
-          "macd": -2.3205,
-          "signal": -2.4092,
-          "histogram": 0.0887,
-          "momentum_score": 0.3513,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Die Exact Sciences Akquisition ist ein massiver Deal, der erhebliche Integrationsrisiken, Goodwill-Belastungen und m\u00f6gliche Verw\u00e4sserung mit sich bringt. Strategische M&A-Transaktionen dieser Gr\u00f6\u00dfenordnung f\u00fchren h\u00e4ufig zu kurzfristigen Kursdr\u00fccken, da der Markt Integrationskomplexit\u00e4t und Kapitalbedarf negativ einpreist. Der Haiku nennt dies 'strukturell ver\u00e4ndert', was auch negativ interpretiert werden kann.",
-          "argument_2": "EPS-Abweichung zwischen yfinance (6.11) und SEC EDGAR (3.73) betr\u00e4gt faktisch ~38% \u2013 die angegebenen 0.3% sind offensichtlich falsch. Diese massive Diskrepanz deutet auf accounting adjustments, Non-GAAP vs. GAAP Unterschiede oder Datenfehler hin. Bei einem GAAP-EPS von 3.73 bei einem Kurs von $101.48 ergibt sich ein KGV von ~27x, was f\u00fcr ein defensives Healthcare-Unternehmen in einem \u00dcbergangsumfeld sportlich ist.",
-          "argument_3": "Jim Cramers explizite Skepsis ('Give us a couple of reasons on the call') signalisiert, dass der Markt vor dem Q1 Earnings Call erh\u00f6hte Beweislast fordert. Der Kurs hat sich nur +0.7% in 48h bewegt trotz positiver Nachrichten (Insider-K\u00e4ufe, Cramer-Coverage) \u2013 das deutet auf schwaches Momentum und fehlende institutionelle \u00dcberzeugung hin.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein Monte Carlo durchgef\u00fchrt (0 Pfade). Ohne statistische Basis ist jede Hit-Rate-Aussage unm\u00f6glich. Bei einem Healthcare Blue-Chip mit ~20-25% impliziter Volatilit\u00e4t w\u00e4re eine realistische 30d-Trefferquote f\u00fcr einen gerichteten Trade bei 50-65%. Die fehlenden Daten erh\u00f6hen die Unsicherheit erheblich \u2013 Bewertung muss rein fundamental erfolgen.",
-          "concern_level": "high"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt scheint die Kombination aus Insider-Cluster-K\u00e4ufen (US$3.1M in 14 Tagen) und strategischer Portfolio-Neuausrichtung durch Exact Sciences noch nicht vollst\u00e4ndig bepreist zu haben, da Integrationsrisiken die unmittelbare Reaktion d\u00e4mpfen. Q1 Earnings Call ist der n\u00e4chste Katalysator, der Klarheit \u00fcber Synergiepotenziale und Guidance bringen kann. Das 'Oversold Blue Chip'-Narrativ deutet auf technische Unterperformance relativ zu Fundamentals hin, die sich mittelfristig normalisieren k\u00f6nnte.",
-        "catalyst": "Q1 Earnings Call mit konkreten Aussagen zur Exact Sciences Integration, Synergieerwartungen und Guidance-Best\u00e4tigung",
-        "bear_case": "Massive EPS-Diskrepanz (GAAP ~3.73 vs. Non-GAAP ~6.11) bedeutet das echte KGV ist ~27x \u2013 bei Integrationskosten aus der Akquisition k\u00f6nnte Guidance gesenkt werden, was bei einem bereits 'zu beweisenden' Kurs erheblichen Drawdown ausl\u00f6st.",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed bei 3.64%) ist f\u00fcr defensive Healthcare-Werte wie ABT tendenziell supportiv, da Anleger bei Unsicherheit in Quality-Defensives rotieren. Kein signifikanter Gegenwind, aber auch kein starker R\u00fcckenwind \u2013 der Trade steht und f\u00e4llt mit dem unternehmenseigenen Katalysator.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.005524,
-        "roi_per_day_pct": 0.5524,
-        "annualized_roi": 3.6077,
-        "efficiency_label": "high",
-        "dte": 127
-      },
-      "outcome": null,
-      "last_price": 85.79,
-      "current_return": -1.0
-    },
-    {
-      "ticker": "META",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0275,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 750.0,
-        "bid": 7.15,
-        "ask": 7.4,
-        "open_interest": 788,
-        "implied_vol": 0.4421137332153321,
-        "spread_ratio": 0.0338,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 825.0,
-          "bid": 1.61,
-          "ask": 1.72
-        },
-        "net_debit": 5.79
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 741.08,
-        "current_price": 673.71,
-        "sigma_adj": 0.033,
-        "sector": "Communication Services",
-        "ema200": {},
-        "macd": {
-          "macd": 6.023,
-          "signal": -7.3448,
-          "histogram": 13.3678,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Preis bereits +6.1% in 48h gestiegen \u2014 der Broadcom-Deal und Insider-K\u00e4ufe sind weitgehend eingepreist. Bei $673 Marktkapitalisierung von ~1.7 Billionen USD fehlt der Hebel f\u00fcr weiteren kurzfristigen Anstieg; der Katalysator ist verbrannt.",
-          "argument_2": "EPS-Abweichung zwischen yfinance ($35.62) und SEC EDGAR ($23.48) ist mit faktisch ~52% Diskrepanz massiv \u2014 nicht 0.2% wie angegeben. Das deutet auf unterschiedliche Berechnungsbasen (TTM vs. GAAP) hin und macht die Fundamentalbewertung unsicher. KGV auf SEC-Basis liegt bei ~28.7, was bei flacher Kurve ambitioniert ist.",
-          "argument_3": "Der Broadcom-Deal ist strukturell positiv, aber AI-Infrastruktur-Investitionen dr\u00fccken kurzfristig auf die Margen (Capex-Zyklus). META hat bereits signifikant in Reality Labs und AI investiert \u2014 der Markt k\u00f6nnte die CapEx-Eskalation als Belastung f\u00fcr FCF in 2-3 Quartalen einpreisen, besonders bei stabilen aber nicht fallenden Zinsen.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt, nicht dass die Wahrscheinlichkeit null ist. Ohne MC-Daten fehlt eine statistische Basis f\u00fcr die Zielbewertung. Bei historischer 30d-Volatilit\u00e4t von META (~30-35% annualisiert) w\u00e4re eine Hit-Rate von 55-65% f\u00fcr einen moderaten Upside-Move realistisch. Die fehlende Simulation erh\u00f6ht die Unsicherheit der Einsch\u00e4tzung.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Broadcom-Chip-Deal signalisiert langfristige AI-Infrastruktur-Unabh\u00e4ngigkeit, die der Markt erst in zuk\u00fcnftigen Margin-Verbesserungen vollst\u00e4ndig einpreisen wird. Insider-Cluster-K\u00e4ufe von 4 Personen innerhalb 14 Tagen suggerieren Insider-\u00dcberzeugung jenseits der unmittelbaren News-Reaktion. Die 48h-Reaktion (+6.1%) adressiert die Oberfl\u00e4che des Deals, untersch\u00e4tzt aber die strategische Bedeutung f\u00fcr METAs AI-Cost-Struktur in 2026.",
-        "catalyst": "Multi-Jahres AI-Chip-Partnerschaft mit Broadcom zur Reduktion von NVIDIA-Abh\u00e4ngigkeit + Insider-Cluster-K\u00e4ufe als Konfidenz-Signal vor Q2-Earnings",
-        "bear_case": "Kurzfristiger Katalysator bereits vollst\u00e4ndig eingepreist nach +6.1% Move; CapEx-Eskalation durch AI-Infrastruktur belastet FCF in den n\u00e4chsten 2 Quartalen und k\u00f6nnte den Markt entt\u00e4uschen.",
-        "macro_assessment": "Neutrales Makro-Umfeld mit flacher Zinskurve (0.50%) und Fed Funds bei 3.64% liefert keinen signifikanten R\u00fccken- oder Gegenwind. F\u00fcr ein Large-Cap-Qualit\u00e4tsunternehmen mit strukturellem AI-Wachstum ist dies ein akzeptables Umfeld. Kein Rezessions-Veto erforderlich, aber die Bewertung bleibt anspruchsvoll bei ~$673.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.046677,
-        "roi_per_day_pct": 4.6677,
-        "annualized_roi": 123203.6706,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "outcome": null,
-      "last_price": 625.32,
-      "current_return": -1.0
-    },
-    {
-      "ticker": "CDNS",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0248,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-09-18",
-        "strike": 310.0,
-        "bid": 35.4,
-        "ask": 37.7,
-        "open_interest": 1664,
-        "implied_vol": 0.4931691308593751,
-        "spread_ratio": 0.061,
-        "dte": 155,
-        "spread_leg": {
-          "strike": 340.0,
-          "bid": 22.3,
-          "ask": 25.3
-        },
-        "net_debit": 15.4
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 336.79,
-        "current_price": 306.17,
-        "sigma_adj": 0.0322,
-        "sector": "Technology",
-        "ema200": {},
-        "macd": {
-          "macd": -0.3606,
-          "signal": -3.1853,
-          "histogram": 2.8247,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Katalysator bereits eingepreist: +6.4% in 48h nach den Ank\u00fcndigungen bedeutet, dass der Markt das NVIDIA- und Google-Partnerschaftssignal bereits stark eingepreist hat. CDNS handelt bei ~32x Sales und ~65x Forward EPS \u2014 eine Pr\u00e4mie, die wenig Fehlertoleranz l\u00e4sst.",
-          "argument_2": "EPS-Diskrepanz als Datenqualit\u00e4ts-Warnung: yfinance EPS 9.44 vs. SEC EDGAR EPS 4.06 \u2014 eine Abweichung von \u00fcber 100% deutet auf unterschiedliche Berechnungsbasen hin (GAAP vs. Non-GAAP). Das signalisiert, dass die 'echten' fundamentalen Zahlen deutlich schw\u00e4cher sind als die kommunizierten, was die Bewertung bei einer Neubewertung riskant macht.",
-          "argument_3": "Partnership-Announcements ohne kurzfristigen Revenue-Impact: Cadence/NVIDIA-Kooperationen im AI-Bereich sind strategisch langfristig relevant, aber EDA-Software-Zyklen sind lang. Robotics-AI und ChipStack-AI sind fr\u00fche Stadien ohne materialisierbaren Earnings-Beitrag in 2-6 Monaten \u2014 das Risiko eines 'Show Me'-Moments auf dem n\u00e4chsten Earnings Call ist real.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein Quick MC durchgef\u00fchrt (0 Pfade). Bei CDNS historischer 30d-Volatilit\u00e4t von ca. 25-30% annualisiert w\u00e4re eine Hit-Rate von 0% schlicht ein technisches Daten-Fehler-Signal, nicht aussagekr\u00e4ftig. Die fehlende MC-Statistik erh\u00f6ht Unsicherheit, reduziert aber nicht automatisch die Signalqualit\u00e4t der fundamentalen Katalysatoren.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Trotz +6.4% Move ist die strukturelle Verschiebung \u2014 Cadence als AI-nativer EDA-Player mit Google Cloud und NVIDIA als Plattformpartner \u2014 noch nicht vollst\u00e4ndig in der Neubewertung angekommen. 8 Insider-K\u00e4ufe im 14-Tage-Cluster sind ein starkes Signal mit historisch positiver Forward-Performance. Der Markt behandelt dies noch als Partnerschafts-PR statt als Gesch\u00e4ftsmodell-Transformation, die Q2/Q3-Guidance-Erh\u00f6hungen begr\u00fcnden k\u00f6nnte.",
-        "catalyst": "CadenceLIVE Silicon Valley 2026 Ank\u00fcndigungen: ChipStack AI Super Agent auf Google Cloud + NVIDIA-Erweiterung auf AI-Robotics \u2014 kombiniert mit Cluster-Insider-K\u00e4ufen als Vertrauenssignal f\u00fcr bevorstehende positive Guidance",
-        "bear_case": "Nach +6.4% ist das unmittelbare Risiko-Ertrags-Verh\u00e4ltnis f\u00fcr neue Positionen ung\u00fcnstig. GAAP EPS von 4.06 impliziert ein KGV von ~75x \u2014 bei jeder Entt\u00e4uschung auf dem n\u00e4chsten Earnings Call (typischerweise Juli) droht ein IV-Crush und Bewertungskompression zur\u00fcck zur Peer-Gruppe.",
-        "macro_assessment": "Neutrale Makrolage (flache Kurve 0.5%, Fed Funds 3.64%) ist kein aktiver Gegenwind f\u00fcr ein High-Quality-Tech-Unternehmen wie CDNS. Die Zinsnormalisierung beg\u00fcnstigt selektiv profitable Tech mit AI-Exposure. Kein makro\u00f6konomisches Veto gegen die BULLISH-These, aber auch kein struktureller R\u00fcckenwind \u2014 die Story muss sich durch Earnings beweisen.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.001554,
-        "roi_per_day_pct": 0.1554,
-        "annualized_roi": 0.6621,
-        "efficiency_label": "low",
-        "dte": 155
-      },
-      "outcome": null,
-      "last_price": 375.73,
-      "current_return": 0.3734
-    },
-    {
-      "ticker": "AVGO",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 6,
-        "surprise": 4,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0278,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 390.0,
-        "bid": 20.2,
-        "ask": 20.9,
-        "open_interest": 845,
-        "implied_vol": 0.46271289245605474,
-        "spread_ratio": 0.0335,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 430.0,
-          "bid": 5.15,
-          "ask": 5.85
-        },
-        "net_debit": 15.75
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 434.03,
-        "current_price": 394.57,
-        "sigma_adj": 0.0361,
-        "sector": "Technology",
-        "ema200": {},
-        "macd": {
-          "macd": 14.6955,
-          "signal": 5.6457,
-          "histogram": 9.0498,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Katalysator bereits eingepreist: Die +3.9% Bewegung in 48h und die Haiku-Meldung \u00fcber den Meta-Deal suggerieren, dass der Markt diese Information bereits absorbiert hat. Multi-Year-Deals mit Meta sind nicht neu f\u00fcr AVGO \u2013 das Unternehmen hat seit Jahren enge Kundenbeziehungen zu Hyperscalern. Der marginale Informationsgehalt f\u00fcr mittelfristige Kursphantasie ist begrenzt.",
-          "argument_2": "EPS-Diskrepanz als Warnsignal: Die massive Differenz zwischen yfinance EPS (17.99) und SEC EDGAR EPS (5.13) \u2013 trotz angeblich nur 0.2% Abweichung, was rechnerisch nicht stimmt \u2013 deutet auf erhebliche Datenunsicherheit hin. Entweder handelt es sich um adjusted vs. GAAP, oder die Datenbasis ist fehlerhaft. Bei P/E-Bewertungen auf Basis falscher EPS-Zahlen k\u00f6nnten Options-Strategien auf falschen Fundamentaldaten beruhen.",
-          "argument_3": "Bewertungsniveau und AI-Hype-Risiko: AVGO bei ~$395 handelt auf einem sehr hohen Bewertungsmultiple. Wenn AI-Investitionszyklen sich verlangsamen oder Hyperscaler-CapEx-Guidance entt\u00e4uscht (historisch h\u00e4ufig nach gro\u00dfen Ank\u00fcndigungen), kann die Aktie schnell 20-30% korrigieren. Insider-K\u00e4ufe bei 7 Personen k\u00f6nnen auch als Pflicht\u00fcbung nach Aktienprogramm-Grants interpretiert werden, nicht als echtes bullishes Conviction-Signal.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt \u2013 0% Hit-Rate bedeutet Datenmangel, nicht Nullwahrscheinlichkeit. Bei AVGOs historischer 30d-Volatilit\u00e4t von ~35-45% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Bullish-Move (5-10%) bei 30d im Bereich 45-60%. Die fehlende MC-Simulation ist ein methodisches Gap, erh\u00f6ht Unsicherheit aber vetot den Trade nicht.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt reagiert m\u00f6glicherweise nicht vollst\u00e4ndig auf die strukturelle Natur eines Multi-Year-Deals mit Meta, der Revenuepredictability und Kapazit\u00e4tsauslastung f\u00fcr mehrere Quartale sichert. Zus\u00e4tzlich kann das Cluster-Signal von 7 Insider-K\u00e4ufen auf Wissen \u00fcber bevorstehende starke Quartalszahlen hindeuten, das noch nicht im Kurs reflektiert ist. Allerdings ist der Informationsvorteil bei einem bereits +3.9% gestiegenen Kurs begrenzt.",
-        "catalyst": "Meta-Broadcom Multi-Year AI Chip Deal + Earnings Release (n\u00e4chste Quartalsberichte mit erh\u00f6hter Revenue-Visibility durch Hyperscaler-Vertr\u00e4ge)",
-        "bear_case": "Der Kurs hat die News bereits mit +3.9% eingepreist; bei Entt\u00e4uschung \u00fcber Marge oder Guidance beim n\u00e4chsten Earnings droht IV-Crush und Trendumkehr in einem von hohen Erwartungen gepr\u00e4gten AI-Sektor.",
-        "macro_assessment": "Neutrales Makroumfeld (flache Kurve, Fed bei 3.64%) ist weder Gegen- noch R\u00fcckenwind. Technology-Sektor profitiert von stabilen bis leicht sinkenden Zinsen; das Umfeld unterst\u00fctzt Capex-Investitionen bei Hyperscalern. Kein struktureller Makro-Veto, aber auch kein starker Tail-Wind. Impact-Score bleibt moderat.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.0357,
-        "roi_per_day_pct": 3.57,
-        "annualized_roi": 15013.8605,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "outcome": null,
-      "last_price": 439.055,
-      "current_return": 1.5397
-    },
-    {
-      "ticker": "FISV",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 5,
-        "surprise": 6,
-        "mismatch": 5.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0198,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "LONG_CALL",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 60.0,
-        "bid": 4.9,
-        "ask": 5.1,
-        "open_interest": 187,
-        "implied_vol": 0.6796907031250001,
-        "spread_ratio": 0.0392,
-        "dte": 22
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 67.61,
-        "current_price": 61.47,
-        "sigma_adj": 0.0198,
-        "sector": "default",
-        "ema200": {},
-        "macd": {
-          "macd": -0.1433,
-          "signal": -0.9054,
-          "histogram": 0.7621,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Avalara-Akquisition ist bereits bekannt und im Kurs eingepreist: Der +4.8% Move in 48h deutet darauf hin, dass der Markt das M&A-Event bereits verarbeitet hat. Klassischer 'Buy the rumor, sell the news'-Effekt bei Fintech-Akquisitionen, die oft Integrations-Komplexit\u00e4t und kurzfristige Margenkompression mit sich bringen.",
-          "argument_2": "EPS = 0.0 (yfinance) und None (SEC EDGAR) ist ein massives Datenproblem. Ein Unternehmen mit $61.58-Kurs und keinen ausgewiesenen Gewinnen deutet entweder auf fehlerhafte Datenlage oder auf massive Restrukturierungskosten durch die Avalara-\u00dcbernahme hin. Ohne valide Fundamentaldaten ist eine Bewertung hochspekulativ.",
-          "argument_3": "Bewertungsrisiko nach Rebound: Der Haiku-Hinweis auf 'Rebound in Share Price Performance' kombiniert mit der Bewertungsfrage impliziert, dass FISV m\u00f6glicherweise von einem niedrigeren Niveau stark gestiegen ist und jetzt \u00fcberbewertet gehandelt wird \u2014 gerade bei Fintech mit Integrationsrisiken ist ein Mean-Reversion-Szenario realistisch.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Hit-Rate 0% ist nicht realistisch interpretierbar \u2014 kein MC wurde durchgef\u00fchrt. Dies bedeutet keine statistische Validierung des Signals. Die fehlende MC-Basis erh\u00f6ht die Unsicherheit erheblich und erlaubt keine quantitative Absicherung der Preis-These.",
-          "concern_level": "high"
-        },
-        "impact": 5,
-        "surprise": 6,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Das Cluster-Insider-Kaufsignal (9 Insider in 14 Tagen) ist ein statistisch relevantes Underreaction-Signal, da Insider-Cluster bei Fintech-M&A typischerweise Confidence in die Integrations-Roadmap signalisieren. Der Markt fokussiert sich kurzfristig auf Integrationsrisiken und EPS-Verw\u00e4sserung, untersch\u00e4tzt aber m\u00f6glicherweise den strategischen Wert der Tax-Automation-Integration in Clover. Da Haiku eine neutrale Kategorie (n/a) zuweist und der Sektor unbekannt bleibt, ist die Bullish-Einsch\u00e4tzung prim\u00e4r durch das Insider-Signal getrieben, nicht durch fundamentale \u00dcberzeugung.",
-        "catalyst": "9 Insider-K\u00e4ufe als Cluster-Signal innerhalb 14 Tagen, kombiniert mit Avalara-Integration in Clover-Plattform als strategischer Umsatz-Multiplikator",
-        "bear_case": "EPS-Datenl\u00fccke und m\u00f6gliche Margenkompression durch Akquisitionskosten; +4.8% Kursanstieg hat m\u00f6glicherweise das Upside bereits vorweggenommen",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0.50%, Fed Funds 3.64%) ist weder starker R\u00fccken- noch Gegenwind f\u00fcr FISV. Fintech-Payment-Unternehmen sind zinssensitiver als der Markt, aber bei flacher Kurve reduziert sich dieser Gegenwind. Neutral gewichteter Makro-Effekt rechtfertigt keine Auf- oder Abwertung des Signals.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.024477,
-        "roi_per_day_pct": 2.4477,
-        "annualized_roi": 1269.9183,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "outcome": null,
-      "last_price": 57.065,
-      "current_return": -0.5614
-    },
-    {
-      "ticker": "AMZN",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0209,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 260.0,
-        "bid": 6.5,
-        "ask": 6.6,
-        "open_interest": 39153,
-        "implied_vol": 0.4401911450195312,
-        "spread_ratio": 0.0152,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 285.0,
-          "bid": 1.5,
-          "ask": 1.66
-        },
-        "net_debit": 5.1
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 273.35,
-        "current_price": 248.5,
-        "sigma_adj": 0.0209,
-        "sector": "Consumer Cyclical",
-        "ema200": {},
-        "macd": {
-          "macd": 8.1626,
-          "signal": 3.4128,
-          "histogram": 4.7498,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Bewertungsstress: AMZN handelt bei ~$248 mit einem P/E von ~26x auf SEC-Basis (EPS $7.17 statt der m\u00f6glicherweise bereinigten $9.40). Bei 4.25% risikofreiem Zinssatz ist das Earnings-Yield von ~3.8% kaum attraktiv gegen\u00fcber Treasuries \u2014 klassische 'TINA ist tot'-Falle f\u00fcr Consumer Cyclicals.",
-          "argument_2": "Katalysator bereits eingepreist: AMZN ist seit Jahresbeginn bereits massiv outperformed, und die +3.6% der letzten 48h zeigen, dass DTCC-Deal und Globalstar-News teilweise schon in den Kurs geflossen sind. Der strukturelle AWS-Gewinn durch DTCC ist ein Multi-Jahr-Rollout 'bis Dekade-Ende' \u2014 kein kurzfristiger Earnings-Treiber f\u00fcr einen 2-6-Monats-Horizont.",
-          "argument_3": "Reputations- und Regulierungsrisiko: Der Arbeitsunfall-Vorfall in Oregon (Arbeiter stirbt auf Lagerhaus-Boden, Kollegen m\u00fcssen weitermachen) kann regulatorische Eskalation, NGO-Druck und politische Angriffe ausl\u00f6sen. Im aktuellen populistischen Klima ist AMZN ein politisches Ziel \u2014 Strafz\u00f6lle, Kartellrecht und Arbeitnehmerrechts-Gesetzgebung k\u00f6nnten als Katalysatoren f\u00fcr Underperformance dienen.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC durchgef\u00fchrt \u2014 keine statistische Validierung m\u00f6glich. Dies ist ein signifikantes Informationsloch. Gegeben AMZN's historischer 30-Tage-Volatilit\u00e4t (~25-30% annualisiert, ~7-9% auf 30 Tage) w\u00e4re eine realistische Bullish-Hit-Rate bei moderatem Upside-Target ca. 50-60%. Die fehlende MC-Analyse verhindert quantitative Positionsvalidierung.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der DTCC-AWS-Deal ist strukturell bedeutsam, da er Finanzmarkt-Infrastruktur in die Cloud verlagert und AWS als kritische Systeminfrastruktur zementiert \u2014 dies reduziert Churn-Risiko und erh\u00f6ht Switching Costs dauerhaft. F\u00fcnf Insider-K\u00e4ufe im Cluster-Muster innerhalb von 14 Tagen signalisieren, dass Informierte den aktuellen Kurs als unterbewertet einstufen. Der Markt reagiert zu kurzfristig auf den 'bis Dekade-Ende'-Horizont, \u00fcbersieht aber den sofortigen Reputationsgewinn f\u00fcr AWS im Enterprise-Segment.",
-        "catalyst": "DTCC-AWS Cloud-Migration Deal + Insider-Cluster-K\u00e4ufe + Q2/Q3 AWS Wachstumsbeschleunigung durch Enterprise-Vertragsabschl\u00fcsse",
-        "bear_case": "Hohe Bewertung bei flacher Zinskurve und 4.25% 10Y-Yield macht den Earnings-Yield unattraktiv; kurzfristige +3.6%-Bewegung hat Teile des News-Flows bereits eingepreist, und regulatorische/reputationale Risiken durch Arbeitsrechtsvorf\u00e4lle k\u00f6nnten politischen Gegenwind erzeugen.",
-        "macro_assessment": "Neutrales Makroumfeld (Kurve +50bp, Fed Funds 3.64%) ist kein aktiver Gegenwind f\u00fcr AMZN, aber auch kein R\u00fcckenwind. Die flache Kurve signalisiert \u00dcbergangsphase \u2014 kein Rezessionsrisiko, aber auch keine expansive Liquidit\u00e4tsflut. Consumer Cyclical-Sektor leidet bei hohen Realzinsen durch Konsumdruck. AWS als struktureller Cloud-Gewinner ist jedoch zinssensitivit\u00e4tsneutraler als der Retail-Arm, was das Signal partiell isoliert vom Makrorisiko.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.042582,
-        "roi_per_day_pct": 4.2582,
-        "annualized_roi": 57941.5264,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "outcome": null,
-      "last_price": 271.1,
-      "current_return": 1.4863
-    },
-    {
-      "ticker": "AMD",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 6,
-        "surprise": 4,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0316,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "LONG_CALL",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 255.0,
-        "bid": 16.4,
-        "ask": 16.75,
-        "open_interest": 1187,
-        "implied_vol": 0.5706219696044923,
-        "spread_ratio": 0.0209,
-        "dte": 22
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 283.93,
-        "current_price": 258.12,
-        "sigma_adj": 0.041,
-        "sector": "Technology",
-        "ema200": {},
-        "macd": {
-          "macd": 12.1507,
-          "signal": 6.8137,
-          "histogram": 5.337,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "MI450-Hype bereits eingepreist: AMD hat in 48h +4,6% zugelegt, was stark darauf hindeutet, dass der Markt den MI450-Katalysator bereits vorwegnimmt. Mediencoverage ('Could Change Everything') signalisiert Retail-Euphorie, kein unentdecktes Alpha. Optionen d\u00fcrften erh\u00f6hte IV aufweisen \u2014 IV-Crush nach Launch-Event ist das wahrscheinlichste Szenario.",
-          "argument_2": "EPS-Diskrepanz als Warnsignal: yfinance meldet 10,83 EPS vs. SEC EDGAR 2,60 EPS \u2014 eine massive Abweichung, die trotz '0% Abweichung'-Flag nicht erkl\u00e4rt wird. Dies deutet auf Non-GAAP vs. GAAP-Konfusion hin und macht fundamentale Bewertungsaussagen unzuverl\u00e4ssig. AMD k\u00f6nnte auf GAAP-Basis deutlich teurer sein als kommuniziert.",
-          "argument_3": "Wettbewerbsdruck von NVIDIA bleibt strukturell: NVIDIA dominiert den AI-Accelerator-Markt mit CUDA-\u00d6kosystem-Lock-in. AMDs MI-Serie hat historisch Lieferprobleme, Software-Stack-Defizite und geringere Hyperscaler-Adoption gezeigt. Ein MI450-Launch ohne starke Pre-Order-Ank\u00fcndigungen von Tier-1-Clouds ist spekulativ. Zudem signalisieren fallende Seagate/Amkor-Aktien m\u00f6glichen Sektor-Gegenwind im Halbleiterbereich.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "MC nicht durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet fehlende Simulation, nicht 0% Erfolgswahrscheinlichkeit. Ohne MC-Daten ist eine statistische Validierung unm\u00f6glich. Bei AMDs historischer 30-Tage-Volatilit\u00e4t von ~45-55% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisbewegungen bei 50-65% zu erwarten. Die fehlenden Daten erh\u00f6hen die Unsicherheit erheblich.",
-          "concern_level": "high"
-        },
-        "impact": 6,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat den MI450-Launch oberfl\u00e4chlich eingepreist, aber die Earnings-Impact-Dynamik bei tats\u00e4chlichen Hyperscaler-Adoptionsank\u00fcndigungen (Q2/Q3 Guidance-Erh\u00f6hungen) k\u00f6nnte untersch\u00e4tzt werden. Cluster-Insider-K\u00e4ufe von 4 Personen innerhalb 14 Tagen sind statistisch signifikant und deuten auf nicht-\u00f6ffentliches Vertrauen in nahe Katalysatoren hin. Die EPS-Diskrepanz (GAAP vs. Non-GAAP) verzerrt jedoch die Bewertungsgrundlage und limitiert das klare Asymmetrie-Signal.",
-        "catalyst": "MI450-Chip-Launch mit m\u00f6glichen Hyperscaler-Adoptionsank\u00fcndigungen (Microsoft Azure, Google Cloud, Meta) sowie Q2-Earnings-Guidance-Erh\u00f6hung basierend auf AI-Accelerator-Nachfrage",
-        "bear_case": "IV-Crush nach MI450-Launch-Event bei bereits +4,6% Vorwegnahme, kombiniert mit NVIDIA's strukturellem CUDA-Moat und m\u00f6glichem Lieferketten-/Software-Stack-Entt\u00e4uschungsrisiko \u2014 klassisches 'Buy the rumor, sell the news'-Muster in einem Markt mit erh\u00f6hten Erwartungen",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0,5%, Fed Funds 3,64%) ist f\u00fcr AMD weder R\u00fccken- noch Gegenwind. Technologie-/AI-Sektor profitiert von stabilem Zinsumfeld ohne Rezessionsdruck. Allerdings bleibt AMD als High-Beta-Tech-Aktie anf\u00e4llig f\u00fcr Risk-Off-Bewegungen, falls Zinssenkungserwartungen entt\u00e4uscht werden. Insgesamt akzeptables Makro-Fenster f\u00fcr mittelfristige Bullish-Positionen mit moderatem Conviction-Level.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.03555,
-        "roi_per_day_pct": 3.555,
-        "annualized_roi": 14559.9988,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "outcome": null,
-      "last_price": 508.105,
-      "current_return": 5.0
-    },
-    {
-      "ticker": "AMAT",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 5.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0344,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 390.0,
-        "bid": 23.7,
-        "ask": 25.35,
-        "open_interest": 172,
-        "implied_vol": 0.5571333349609376,
-        "spread_ratio": 0.0651,
-        "dte": 22,
-        "spread_leg": {
-          "strike": 430.0,
-          "bid": 7.2,
-          "ask": 10.05
-        },
-        "net_debit": 18.15
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 433.69,
-        "current_price": 394.26,
-        "sigma_adj": 0.0448,
-        "sector": "Technology",
-        "ema200": {},
-        "macd": {
-          "macd": 12.4673,
-          "signal": 7.7758,
-          "histogram": 4.6915,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Tariff-Risiko und Supply-Chain-Gegenwind: Die News berichten explizit, dass Fertigungsunternehmen mit Lieferkettenproblemen und verz\u00f6gerten Zollr\u00fcckerstattungen konfrontiert sind \u2013 AMAT als stark importabh\u00e4ngiger Halbleiterausr\u00fcster ist direkt exponiert. China-Exportbeschr\u00e4nkungen (AMAT erzielt ~25-30% Umsatz in China) bleiben ein strukturelles Risiko.",
-          "argument_2": "2nm-Tool-Ank\u00fcndigung bereits eingepreist: Der Markt hat die AMAT-Technologief\u00fchrerschaft in Advanced Nodes l\u00e4ngst diskontiert. Bei einem KGV von ~28x (Preis $394 / EPS $14) und einem f\u00fcr Semikap-Equipment-Zyklus-Top typischen Bewertungsniveau ist der Durchbruch kein 'Surprise'-Faktor mehr. Der Aktionismus rund um AI/HPC-Chips wurde 2023-2024 intensiv gehandelt.",
-          "argument_3": "EPS-Diskrepanz als Datensignal: Die Abweichung zwischen yfinance-EPS ($14.01) und SEC EDGAR-EPS ($9.73) ist erheblich (~44% Differenz) und deutet auf unterschiedliche Berechnungsbasen hin (m\u00f6glicherweise Non-GAAP vs. GAAP). Eine Bewertung auf Basis des h\u00f6heren Non-GAAP-EPS w\u00fcrde das tats\u00e4chliche Bewertungsniveau deutlich untersch\u00e4tzen.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Quick MC nicht durchgef\u00fchrt (0 Pfade) \u2013 keine statistisch belastbare Hit-Rate verf\u00fcgbar. Bei AMAT's historischer 30d-Volatilit\u00e4t von ~35-40% annualisiert (impliziert ~10% 30d-Sigma) w\u00e4re eine bullishe Hit-Rate von 55-65% realistisch, nicht mehr. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Modellbewertung.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt reagiert auf das 2nm-Tool-Rollout moderat, da der Semikap-Zyklus-Peak-Narrativ und China-Risiken die Aufmerksamkeit dominieren. Insider-Cluster-K\u00e4ufe (3 in 14 Tagen) sind ein statistisch signifikantes Signal, das vom Markt bei aktuell flachem Tape untergewichtet wird. Die eigentliche Asymmetrie liegt im Timing: Sollte TSMC/Samsung 2nm-Capex-Guidance nach oben revidieren, ist AMAT als prim\u00e4rer Ausr\u00fcster der direkte Nutznie\u00dfer.",
-        "catalyst": "2nm-Chip-Fertigungstools f\u00fcr AI/HPC + Insider-Cluster-K\u00e4ufe + potenziell positive Capex-Guidance von TSMC/Samsung in Q2-Earnings",
-        "bear_case": "China-Exportbeschr\u00e4nkungen eskalieren und/oder Tariff-bedingte Supply-Chain-Verz\u00f6gerungen treffen AMAT's Umsatzrealisierung in H2 2025, w\u00e4hrend das Bewertungsniveau (KGV 28x GAAP oder ~40x auf Non-GAAP-bereinigter Basis) wenig Puffer bietet.",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed bei 3.64%) gibt keinen klaren Gegenwind, st\u00fctzt aber auch nicht stark. F\u00fcr ein kapitalintensives, zyklisches Unternehmen wie AMAT ist die flache Kurve ein 'wait-and-see' Signal \u2013 keine Rezessionsgefahr, aber auch kein expansiver R\u00fcckenwind. Moderate Positionsgr\u00f6\u00dfe gerechtfertigt.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.02405,
-        "roi_per_day_pct": 2.405,
-        "annualized_roi": 1147.0454,
-        "efficiency_label": "high",
-        "dte": 22
-      },
-      "outcome": null,
-      "last_price": 451.35,
-      "current_return": 1.2039
-    },
-    {
-      "ticker": "CTVA",
-      "entry_date": "2026-04-15",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 5.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0149,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 80.0,
-        "bid": 3.7,
-        "ask": 4.1,
-        "open_interest": 383,
-        "implied_vol": 0.36255520263671875,
-        "spread_ratio": 0.0976,
-        "dte": 29,
-        "spread_leg": {
-          "strike": 90.0,
-          "bid": 0.3,
-          "ask": 0.8
-        },
-        "net_debit": 3.8
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 89.45,
-        "current_price": 81.32,
-        "sigma_adj": 0.0164,
-        "sector": "Basic Materials",
-        "ema200": {},
-        "macd": {
-          "macd": 1.3359,
-          "signal": 1.7096,
-          "histogram": -0.3737,
-          "momentum_score": -1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Bewertungsrisiko nach 40% Rally: Der Artikel 'Is Corteva Still Reasonable After A 40% One-Year Share Price Rally?' signalisiert, dass die Aktie m\u00f6glicherweise bereits fair bis \u00fcberbewertet ist. Bei einem KGV auf Basis des bereinigten EPS von ~4.05 ergibt sich ein P/E von ~20x \u2014 f\u00fcr ein agrochemisches Unternehmen mit zyklischem Exposure durchaus ambitioniert. Das Alpha k\u00f6nnte bereits verbraucht sein.",
-          "argument_2": "Management-Disruption als Risiko: Die Aufspaltung in zwei separate Einheiten (Crop Protection unter neuem CEO Kissam ab Juni 2026 und eine 'Advanced Seed and Genetics'-Gesellschaft) erzeugt erhebliche operative Unsicherheit. Spin-Off-Transitionen binden Management-Kapazit\u00e4ten, verursachen Restrukturierungskosten und k\u00f6nnen zu Kundenunsicherheit f\u00fchren. Die 2-6 Monats-Periode ist genau das Fenster maximaler Disruption.",
-          "argument_3": "EPS-Divergenz und Datenqualit\u00e4t: Die Diskrepanz zwischen yfinance EPS (4.05) und SEC EDGAR EPS (1.75) ist erheblich (2.3x Faktor) und deutet auf erhebliche Non-GAAP-Adjustierungen hin. Ohne Kenntnis der genauen Zusammensetzung ist unklar, wie nachhaltig die Ertragskraft ist. Zus\u00e4tzlich der -2.6% Preisr\u00fcckgang in 48h trotz positiver Insider-K\u00e4ufe zeigt, dass der Markt die Restrukturierungs-News skeptisch aufnimmt.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Monte Carlo nicht durchgef\u00fchrt (0 Pfade). Bei CTVA mit historischer Volatilit\u00e4t im Bereich 25-35% f\u00fcr einen Agrochemie-Titel w\u00e4ren in einem 30-Tage-Fenster normalerweise ca. 40-60% Aufw\u00e4rtspfade realistisch. Der fehlende MC-Check liefert keine verwertbare statistische Grundlage \u2014 Vorsicht geboten.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "6 Monate",
-        "asymmetry_reasoning": "Der Markt verarbeitet die Aufspaltungs-Ank\u00fcndigung kurzfristig negativ (Unsicherheits-Discount), untersch\u00e4tzt dabei m\u00f6glicherweise den Sum-of-Parts-Value der zwei entstehenden fokussierten Unternehmen. Insider-Cluster-K\u00e4ufe (4 Insider in 14 Tagen) trotz laufendem Preisr\u00fcckgang signalisieren Insider\u00fcberzeugung, dass der Markt \u00fcberreagiert. Jedoch ist die Haiku-Einsch\u00e4tzung 'n/a' zutreffend: Das Signal ist strategisch aber ohne klaren Short-Term-Katalysator, was einen Impact >6 nicht rechtfertigt.",
-        "catalyst": "Q1 2026 Earnings Report als erster Beweis f\u00fcr operative Stabilit\u00e4t w\u00e4hrend der Restrukturierung; anschlie\u00dfend konkrete Kapitalmarkt-Kommunikation zum Spin-Off-Timeline und Bewertungsrahmen beider Einheiten",
-        "bear_case": "Nach einer 40% Jahresrally mit laufendem Restrukturierungsrisiko und ambitionierter Bewertung k\u00f6nnte der Q1-Earnings-Report bei jeder Guidance-Entt\u00e4uschung einen erheblichen De-Rating-Effekt ausl\u00f6sen \u2014 typisches 'Sell the restructuring news'-Muster in zyklischen Sektoren.",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds bei 3.64%) ist f\u00fcr CTVA nicht besonders unterst\u00fctzend: Agrochemie profitiert wenig von Zinssenkungserwartungen, und ein schw\u00e4cherer Agrar-Commodity-Zyklus (Mais, Soja) k\u00f6nnte Saatgut/Crop-Protection-Nachfrage d\u00e4mpfen. Keine signifikante Makro-Einschr\u00e4nkung, aber auch kein struktureller R\u00fcckenwind.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.026362,
-        "roi_per_day_pct": 2.6362,
-        "annualized_roi": 1269.6656,
-        "efficiency_label": "high",
-        "dte": 29
-      },
-      "outcome": null,
-      "last_price": 79.88,
-      "current_return": -0.4184
-    },
-    {
-      "ticker": "ORCL",
-      "entry_date": "2026-04-16",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0366,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-08",
-        "strike": 175.0,
-        "bid": 10.7,
-        "ask": 11.1,
-        "open_interest": 1445,
-        "implied_vol": 0.5363815893554689,
-        "spread_ratio": 0.036,
-        "dte": 21,
-        "spread_leg": {
-          "strike": 195.0,
-          "bid": 3.5,
-          "ask": 3.85
-        },
-        "net_debit": 7.6
-      },
-      "simulation": {
-        "hit_rate": 0.97,
-        "stderr": 0.0017,
-        "n_paths": 10000,
-        "n_days": 120,
-        "days_to_expiry": 120,
-        "target_price": 195.54,
-        "current_price": 177.76,
-        "sigma_adj": 0.0476,
-        "sector": "Technology",
-        "ema200": {},
-        "macd": {
-          "macd": 2.9543,
-          "signal": -1.0516,
-          "histogram": 4.0059,
-          "momentum_score": 1.0,
-          "data_available": true
-        }
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Der Kurs ist bereits +9.1% in 48h gestiegen \u2014 der AWS-Deal ist damit weitgehend eingepreist. Bei einer Forward-P/E von ~30x und einem EPS-Discrepancy zwischen yfinance ($7.97) und SEC EDGAR ($5.81) von 37% besteht erhebliches \u00dcberbewertungsrisiko. Anleger, die jetzt einsteigen, kaufen nach dem Move.",
-          "argument_2": "EPS-Abweichung von 37% zwischen yfinance und SEC EDGAR ist ein erhebliches Datenqualit\u00e4tsproblem. Basiert die Bewertung auf Non-GAAP-Adjustments, die das tats\u00e4chliche GAAP-Ergebnis massiv \u00fcberzeichnen? ORCL hat historisch aggressive Aktienr\u00fcckk\u00e4ufe und M&A-Amortisierung, was GAAP-EPS strukturell dr\u00fcckt \u2014 die 'fundamentale St\u00e4rke' des Deals k\u00f6nnte optisch besser wirken als sie ist.",
-          "argument_3": "Cloud-Partnerschaften mit AWS sind grunds\u00e4tzlich zweischneidig: Oracle konkurriert direkt mit AWS in der Cloud-Datenbank-Infrastruktur. Eine tiefere AWS-Integration k\u00f6nnte Oracle-eigene Cloud-Migrationsbem\u00fchungen (OCI) kannibalisieren und langfristig die Marge von OCI unter Druck setzen. Der 'strategische Deal' k\u00f6nnte ein Zugest\u00e4ndnis an AWS-Marktmacht sein.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade) \u2014 keine statistische Validierung m\u00f6glich. Bei einem Kurs von $177.72 nach +9.1% in 48h und typischer 30-Tage-Volatilit\u00e4t von ORCL (~25-30% annualisiert) w\u00e4re eine Momentum-Fortsetzung zwar plausibel, aber ohne MC-Daten bleibt das Confidence-Level niedrig. Die fehlende Simulation ist ein Datenmangel, kein Signal.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat zwar mit +9.1% reagiert, aber die strukturelle Bedeutung des AWS-Deals f\u00fcr ORCLs AI-Infrastruktur-Positionierung (Oracle Database auf Multi-Cloud-Plattformen) k\u00f6nnte noch nicht vollst\u00e4ndig in den Konsenssch\u00e4tzungen reflektiert sein. Insider-Cluster-K\u00e4ufe von 6 Personen in 14 Tagen signalisieren Insider-Conviction jenseits des einmaligen News-Events. Allerdings weiche ich von einer st\u00e4rkeren Bewertung ab, weil der +9.1%-Move erheblich von der urspr\u00fcnglichen Underreaction wegfrisst.",
-        "catalyst": "Amazon AWS Cloud Deal \u2014 strategische Multi-Cloud-Partnerschaft f\u00fcr Oracle Database Services auf AWS-Infrastruktur, kombiniert mit AI/GPU-Nachfragesog f\u00fcr Oracle Cloud Infrastructure (OCI)",
-        "bear_case": "Mit +9.1% bereits bewegt und Forward-P/E ~30x auf fragw\u00fcrdiger Non-GAAP-Basis ist der Einstieg nach dem Move asymmetrisch ung\u00fcnstig; ein schwaches n\u00e4chstes Quartal oder Makro-Schock k\u00f6nnte den gesamten Gain revidieren.",
-        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0.53%) und Fed Funds bei 3.64% ist konstruktiv f\u00fcr Tech-Largecaps. Niedrigere Refinanzierungskosten beg\u00fcnstigen ORCLs schuldenfinanzierte Buyback-Strategie. Das Makro-R\u00fcckenwind-Argument st\u00fctzt eine moderate BULLISH-Positionierung, aber rechtfertigt keine aggressive \u00dcbergewichtung nach dem Kurssprung.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.53,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day": 0.030714,
-        "roi_per_day_pct": 3.0714,
-        "annualized_roi": 5716.014,
-        "efficiency_label": "high",
-        "dte": 21
-      },
-      "outcome": null,
-      "last_price": 222.985,
-      "current_return": 1.6316
-    },
-    {
-      "ticker": "HOOD",
-      "entry_date": "2026-04-17",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0424,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6696
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 100.0,
-        "bid": 4.5,
-        "ask": 4.65,
-        "open_interest": 13184,
-        "implied_vol": 0.7180203979492188,
-        "spread_ratio": 0.0323,
-        "dte": 27,
-        "spread_leg": {
-          "strike": 110.0,
-          "bid": 2.22,
-          "ask": 2.36
-        },
-        "net_debit": 2.43
-      },
-      "simulation": {
-        "current_price": 92.36,
-        "target_price": 99.75,
-        "hit_rate": 0.8047,
-        "n_paths": 10000,
-        "days": 120,
-        "sigma": 0.0458,
-        "alpha": 0.0005
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Bewertungsrisiko nach +5.9% in 48h: HOOD notiert bei $92.36 und hat sich in kurzer Zeit stark verteuert. Bei einem KGV, das f\u00fcr ein Retail-Brokergesch\u00e4ft mit hoher Zyklizit\u00e4t und regulatorischer Unsicherheit bereits hoch erscheint, ist ein Gro\u00dfteil des PDT-Rule-Katalysators m\u00f6glicherweise bereits eingepreist. Der Markt hat schnell reagiert, was die Asymmetrie f\u00fcr neue Einsteiger erheblich reduziert.",
-          "argument_2": "Schwab-Konkurrenz als struktureller Gegenwind: Die News vom 16. April zeigt explizit, dass Schwab seinen Crypto-Push ausweitet. Mit ihrem Vertriebsnetz, institutionellem Vertrauen und tieferen Taschen kann Schwab das Retail-Brokerage-Segment aggressiv angreifen. Die PDT-Regel\u00e4nderung \u00f6ffnet den Markt f\u00fcr HOOD \u2014 aber auch f\u00fcr Schwab, Fidelity und andere etablierte Player, was den Wettbewerbsvorteil von HOOD relativiert.",
-          "argument_3": "EPS-Diskrepanz und Datenunsicherheit: Es gibt eine L\u00fccke zwischen yfinance-EPS ($2.69) und SEC EDGAR-EPS ($2.05), die auf m\u00f6gliche Adjustierungen oder Nicht-GAAP-Elemente hinweist. HOODs Gesch\u00e4ftsmodell ist stark abh\u00e4ngig von Payment for Order Flow (PFOF), Market-Making-Umgebungen und Retail-Trading-Aktivit\u00e4t \u2014 alles hochzyklische Einnahmen, die bei Market-Stress rasch einbrechen. Die fundamentale Qualit\u00e4t der Gewinne ist fragw\u00fcrdig.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick-MC durchgef\u00fchrt wurde \u2014 keine statistische Validierung verf\u00fcgbar. Dies ist ein signifikanter blinder Fleck. Gegeben HOODs historischer Volatilit\u00e4t (typisch 50-80% annualisiert) w\u00e4re ein 30-Tage-Ziel-Hit bei moderaten Zielen normalerweise mit 50-70% Wahrscheinlichkeit erreichbar. Die fehlende Statistik erh\u00f6ht die Unsicherheit, ist aber kein Veto-Grund.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Die SEC-Aufhebung der PDT-Rule ist ein echter struktureller Katalysator, der HOODs Zielgruppe (Retail-Daytrader) direkt vergr\u00f6\u00dfert und die regulatorische Einstiegsh\u00fcrde senkt \u2014 der Markt hat zwar reagiert (+5.9%), aber das volle strukturelle Potenzial (mehr aktive Trader, h\u00f6here PFOF-Einnahmen, neue Konten) braucht 2-3 Monate zur Materialisierung in den Quartalszahlen. Vier Insider-K\u00e4ufe als Cluster-Signal deuten darauf hin, dass das Management die Kursbewegung als unvollst\u00e4ndig einpreisend betrachtet.",
-        "catalyst": "SEC-Abschaffung der Pattern-Day-Trader-Equity-Rule senkt die Einstiegsh\u00fcrde f\u00fcr Retail-Daytrader, was HOODs Kernzielgruppe strukturell vergr\u00f6\u00dfert und mittelfristig zu h\u00f6heren Konto\u00f6ffnungen, Handelsvolumen und PFOF-Einnahmen f\u00fchrt.",
-        "bear_case": "Schwab, Fidelity und andere etablierte Broker profitieren von derselben Regel\u00e4nderung und k\u00f6nnen mit tieferen Taschen und breiterem Vertriebsnetz aggressiv in HOODs Kernmarkt vordringen, w\u00e4hrend der Wettbewerbsdruck auf Margen dr\u00fcckt.",
-        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und moderater Fed Funds Rate (3.64%) beg\u00fcnstigt Retail-Trading-Aktivit\u00e4t und Risk-On-Sentiment \u2014 positiv f\u00fcr HOOD. H\u00f6here Zinsen erh\u00f6hen zudem den Cash-Sweep-Ertrag (ein wachsender Ertragsbestandteil von HOOD). Das Makro-Umfeld unterst\u00fctzt das bullishe Signal, reduziert aber nicht die idiosynkratischen Bewertungs- und Wettbewerbsrisiken.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.6233,
-        "annualized_roi": null,
-        "dte": 27
-      },
-      "outcome": null,
-      "last_price": 93.19,
-      "current_return": -1.0
-    },
-    {
-      "ticker": "SCHW",
-      "entry_date": "2026-04-17",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0184,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5654
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 95.0,
-        "bid": 1.79,
-        "ask": 1.88,
-        "open_interest": 3138,
-        "implied_vol": 0.2866282275390625,
-        "spread_ratio": 0.0479,
-        "dte": 27,
-        "spread_leg": {
-          "strike": 105.0,
-          "bid": 0.16,
-          "ask": 0.25
-        },
-        "net_debit": 1.72
-      },
-      "simulation": {
-        "current_price": 92.64,
-        "target_price": 100.05,
-        "hit_rate": 0.8812,
-        "n_paths": 10000,
-        "days": 120,
-        "sigma": 0.0164,
-        "alpha": 0.00223
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Der -7.8%-Kursr\u00fcckgang in 48h trotz positiver News (Dual PT-Erh\u00f6hungen, Record Revenues) deutet auf erheblichen Verkaufsdruck hin, m\u00f6glicherweise ausgel\u00f6st durch Robinhood-Konkurrenz im Crypto-Segment \u2013 der Markt k\u00f6nnte bereits eingepreist haben, dass SCHW im Crypto-Wettbewerb strukturell benachteiligt ist.",
-          "argument_2": "Schwabs Kerngesch\u00e4ft (Brokerage, Zinsertr\u00e4ge aus Cash-Sweeps) steht unter Druck, wenn Zinsen weiter sinken: Bei Fed Funds Rate 3.64% und m\u00f6glichen weiteren Cuts schrumpft die Net Interest Margin, die ~40-50% des Umsatzes ausmacht \u2013 der Crypto-Launch kann diesen strukturellen Gegenwind kaum kompensieren.",
-          "argument_3": "EPS-Divergenz (yfinance 6.95 vs. SEC EDGAR 4.65) ist erheblich und fragw\u00fcrdig \u2013 wenn die 'echte' Ertragsbasis n\u00e4her an 4.65 liegt, ist SCHW bei ~92$ auf Basis adjustierter Zahlen deutlich teurer bewertet als kommuniziert, was institutionelle Investoren m\u00f6glicherweise bereits erkannt haben und aussteigen.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC durchgef\u00fchrt \u2013 keine statistischen Prognose-Informationen verf\u00fcgbar. Dies erh\u00f6ht Unsicherheit, bedeutet aber nicht per se Negativsignal. Angesichts der historischen Volatilit\u00e4t bei Finanzwerten und dem scharfen 48h-Drop erscheint eine Erholung auf 30d-Basis plausibel, aber ohne quantitative Untermauerung bleibt die Konfidenz niedrig.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt \u00fcberreagiert auf Robinhood-Konkurrenzangst und vernachl\u00e4ssigt das Cluster-Insider-Kaufsignal (5 Insider in 14 Tagen) sowie Dual Price Target-Erh\u00f6hungen von Tier-1-Banken, was auf fundamentale Unterbewertung hindeutet. Der -7.8%-Drop erscheint \u00fcberproportional zur tats\u00e4chlichen Bedrohung durch den Crypto-Launch von Robinhood. Die SEC-Regel\u00e4nderung beg\u00fcnstigt SCHW strukturell ebenso und er\u00f6ffnet eine neue Umsatzkategorie mit vergleichsweise niedrigem Marginalaufwand.",
-        "catalyst": "SCHW-eigener Crypto-Trading-Launch (SEC-Regel\u00e4nderung) + Insider-Cluster-K\u00e4ufe als Kontraindikator zum Kursr\u00fcckgang + m\u00f6gliche Q2-Earnings-\u00dcberraschung auf Basis Record-Revenue-Trend",
-        "bear_case": "Signifikanter R\u00fcckgang der Net Interest Income bei weiteren Fed-Cuts trifft Kerngesch\u00e4ft st\u00e4rker als Crypto-Gewinne kompensieren k\u00f6nnen; EPS-Diskrepanz signalisiert m\u00f6gliche Qualit\u00e4tsprobleme bei den Earnings",
-        "macro_assessment": "Expansives Makro-Umfeld (steile Kurve +0.54%, moderate Fed Funds Rate 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Finanzwerte und Long-Positionen. Allerdings ist f\u00fcr SCHW spezifisch zu beachten, dass bei weiter sinkenden Kurzfristzinsen (Fed-Cuts-Erwartungen) die Cash-Sweep-Ertr\u00e4ge leiden \u2013 das Makro ist supportiv f\u00fcr den Sektor, aber nicht uneingeschr\u00e4nkt f\u00fcr SCHWs Ertragsmodell.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 3.9511,
-        "annualized_roi": null,
-        "dte": 27
-      },
-      "outcome": null,
-      "last_price": 87.03,
-      "current_return": -1.0
-    },
     {
       "ticker": "HOOD",
       "entry_date": "2026-04-20",
@@ -1163,7 +119,7 @@
         "dte": 24
       },
       "outcome": null,
-      "last_price": 93.1859,
+      "last_price": 90.605,
       "current_return": -1.0
     },
     {
@@ -1241,7 +197,7 @@
         "dte": 24
       },
       "outcome": null,
-      "last_price": 120.23,
+      "last_price": 120.15,
       "current_return": 1.7701
     },
     {
@@ -1319,7 +275,7 @@
         "dte": 24
       },
       "outcome": null,
-      "last_price": 437.0771,
+      "last_price": 418.32,
       "current_return": 0.9595
     },
     {
@@ -1397,7 +353,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 271.08,
+      "last_price": 264.01,
       "current_return": -0.3134
     },
     {
@@ -1475,7 +431,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 451.3899,
+      "last_price": 457.41,
       "current_return": 1.2535
     },
     {
@@ -1553,7 +509,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 310.76,
+      "last_price": 307.5501,
       "current_return": 0.0
     },
     {
@@ -1631,7 +587,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 176.95,
+      "last_price": 171.52,
       "current_return": -1.0
     },
     {
@@ -1709,8 +665,8 @@
         "dte": 86
       },
       "outcome": null,
-      "last_price": 51.245,
-      "current_return": -0.4937
+      "last_price": 51.525,
+      "current_return": -0.4494
     },
     {
       "ticker": "BIIB",
@@ -1787,8 +743,8 @@
         "dte": 86
       },
       "outcome": null,
-      "last_price": 197.62,
-      "current_return": 0.1575
+      "last_price": 192.28,
+      "current_return": -0.3346
     },
     {
       "ticker": "BBWI",
@@ -1865,7 +821,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 20.355,
+      "last_price": 18.575,
       "current_return": 0.0
     },
     {
@@ -1943,7 +899,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 127.33,
+      "last_price": 124.215,
       "current_return": -1.0
     },
     {
@@ -2021,7 +977,7 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 134.65,
+      "last_price": 137.44,
       "current_return": -1.0
     },
     {
@@ -2099,7 +1055,7 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 20.355,
+      "last_price": 18.575,
       "current_return": 0.0
     },
     {
@@ -2171,7 +1127,7 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 508.11,
+      "last_price": 512.5688,
       "current_return": 5.0
     },
     {
@@ -2243,8 +1199,8 @@
         "dte": 85
       },
       "outcome": null,
-      "last_price": 36.09,
-      "current_return": -0.6375
+      "last_price": 37.815,
+      "current_return": -0.4453
     },
     {
       "ticker": "AVGO",
@@ -2315,8 +1271,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 439.09,
-      "current_return": 0.7604
+      "last_price": 461.83,
+      "current_return": 1.6026
     },
     {
       "ticker": "ADI",
@@ -2387,8 +1343,8 @@
         "dte": 148
       },
       "outcome": null,
-      "last_price": 410.67,
-      "current_return": 0.4184
+      "last_price": 406.795,
+      "current_return": 0.369
     },
     {
       "ticker": "AMAT",
@@ -2459,8 +1415,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 451.265,
-      "current_return": 1.4972
+      "last_price": 457.44,
+      "current_return": 1.6748
     },
     {
       "ticker": "AVGO",
@@ -2531,8 +1487,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 439.09,
-      "current_return": 0.439
+      "last_price": 461.76,
+      "current_return": 1.3958
     },
     {
       "ticker": "BKR",
@@ -2603,8 +1559,8 @@
         "dte": 21
       },
       "outcome": null,
-      "last_price": 64.785,
-      "current_return": 0.1207
+      "last_price": 62.97,
+      "current_return": -0.3608
     },
     {
       "ticker": "BA",
@@ -2675,8 +1631,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 231.1,
-      "current_return": -0.3201
+      "last_price": 224.465,
+      "current_return": -1.0
     },
     {
       "ticker": "AXP",
@@ -2747,8 +1703,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 318.28,
-      "current_return": -0.4695
+      "last_price": 312.98,
+      "current_return": -0.58
     },
     {
       "ticker": "ANET",
@@ -2819,8 +1775,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 157.58,
-      "current_return": -0.739
+      "last_price": 171.9301,
+      "current_return": -0.4182
     },
     {
       "ticker": "BX",
@@ -2891,8 +1847,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 116.765,
-      "current_return": -0.4617
+      "last_price": 117.8963,
+      "current_return": -0.4067
     },
     {
       "ticker": "DVA",
@@ -2963,8 +1919,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 195.795,
-      "current_return": 2.5429
+      "last_price": 191.63,
+      "current_return": 2.1857
     },
     {
       "ticker": "T",
@@ -3035,7 +1991,7 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 24.675,
+      "last_price": 24.595,
       "current_return": -1.0
     },
     {
@@ -3107,7 +2063,7 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 55.235,
+      "last_price": 55.06,
       "current_return": -1.0
     },
     {
@@ -3179,8 +2135,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 451.265,
-      "current_return": 0.9035
+      "last_price": 457.525,
+      "current_return": 1.0777
     },
     {
       "ticker": "ANET",
@@ -3251,8 +2207,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 157.58,
-      "current_return": -1.0
+      "last_price": 171.9301,
+      "current_return": -0.3822
     },
     {
       "ticker": "BX",
@@ -3323,8 +2279,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 116.765,
-      "current_return": -1.0
+      "last_price": 117.8963,
+      "current_return": -0.8075
     },
     {
       "ticker": "AMD",
@@ -3395,8 +2351,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 508.02,
-      "current_return": 3.9751
+      "last_price": 512.3134,
+      "current_return": 4.0818
     },
     {
       "ticker": "ALB",
@@ -3467,8 +2423,8 @@
         "dte": 237
       },
       "outcome": null,
-      "last_price": 176.95,
-      "current_return": -0.2378
+      "last_price": 171.55,
+      "current_return": -0.3328
     },
     {
       "ticker": "BKR",
@@ -3539,7 +2495,7 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 64.785,
+      "last_price": 62.97,
       "current_return": -1.0
     },
     {
@@ -3611,7 +2567,7 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 24.835,
+      "last_price": 25.02,
       "current_return": -1.0
     },
     {
@@ -3683,7 +2639,7 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 64.785,
+      "last_price": 62.97,
       "current_return": -1.0
     },
     {
@@ -3755,8 +2711,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 439.175,
-      "current_return": 2.1563
+      "last_price": 461.86,
+      "current_return": 3.2994
     },
     {
       "ticker": "BA",
@@ -3828,8 +2784,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 231.1,
-      "current_return": 0.1341
+      "last_price": 224.465,
+      "current_return": -0.7835
     },
     {
       "ticker": "CCL",
@@ -3901,8 +2857,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 28.255,
-      "current_return": 0.7257
+      "last_price": 27.65,
+      "current_return": 0.5023
     },
     {
       "ticker": "AMAT",
@@ -3974,8 +2930,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 451.265,
-      "current_return": 2.0375
+      "last_price": 457.61,
+      "current_return": 2.2321
     },
     {
       "ticker": "BKR",
@@ -4047,7 +3003,7 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 64.785,
+      "last_price": 62.965,
       "current_return": -1.0
     },
     {
@@ -4120,8 +3076,8 @@
         "dte": 141
       },
       "outcome": null,
-      "last_price": 279.75,
-      "current_return": -0.7152
+      "last_price": 279.14,
+      "current_return": -0.7182
     },
     {
       "ticker": "BA",
@@ -4193,8 +3149,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 231.1,
-      "current_return": 0.6492
+      "last_price": 224.44,
+      "current_return": 0.1488
     },
     {
       "ticker": "AMZN",
@@ -4266,8 +3222,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 271.11,
-      "current_return": 1.1794
+      "last_price": 264.0692,
+      "current_return": 0.5209
     },
     {
       "ticker": "APH",
@@ -4339,8 +3295,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 146.95,
-      "current_return": 0.1481
+      "last_price": 146.4,
+      "current_return": 0.0895
     },
     {
       "ticker": "AMAT",
@@ -4412,8 +3368,8 @@
         "dte": 73
       },
       "outcome": null,
-      "last_price": 451.265,
-      "current_return": 0.6755
+      "last_price": 457.53,
+      "current_return": 0.8069
     },
     {
       "ticker": "META",
@@ -4485,8 +3441,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 625.2901,
-      "current_return": 0.9861
+      "last_price": 606.4179,
+      "current_return": 0.1099
     },
     {
       "ticker": "AMD",
@@ -4558,8 +3514,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 508.11,
-      "current_return": 3.6777
+      "last_price": 512.37,
+      "current_return": 3.7826
     },
     {
       "ticker": "GOOG",
@@ -4631,8 +3587,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 378.94,
-      "current_return": -0.7379
+      "last_price": 373.76,
+      "current_return": -1.0
     },
     {
       "ticker": "AMCR",
@@ -4704,8 +3660,8 @@
         "dte": 162
       },
       "outcome": null,
-      "last_price": 39.085,
-      "current_return": -0.2976
+      "last_price": 37.78,
+      "current_return": -0.4167
     },
     {
       "ticker": "ALB",
@@ -4777,8 +3733,8 @@
         "dte": 224
       },
       "outcome": null,
-      "last_price": 176.95,
-      "current_return": -0.4592
+      "last_price": 171.55,
+      "current_return": -0.5266
     },
     {
       "ticker": "ABNB",
@@ -4850,8 +3806,8 @@
         "dte": 69
       },
       "outcome": null,
-      "last_price": 134.67,
-      "current_return": -0.6486
+      "last_price": 137.44,
+      "current_return": -0.5594
     },
     {
       "ticker": "AVGO",
@@ -4923,8 +3879,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 439.175,
-      "current_return": -0.2495
+      "last_price": 461.795,
+      "current_return": 0.8141
     },
     {
       "ticker": "GOOG",
@@ -4996,8 +3952,8 @@
         "dte": 65
       },
       "outcome": null,
-      "last_price": 378.94,
-      "current_return": -0.3522
+      "last_price": 373.76,
+      "current_return": -0.469
     },
     {
       "ticker": "BMY",
@@ -5069,8 +4025,8 @@
         "dte": 65
       },
       "outcome": null,
-      "last_price": 56.745,
-      "current_return": -0.2193
+      "last_price": 54.925,
+      "current_return": -0.5395
     },
     {
       "ticker": "CVX",
@@ -5142,8 +4098,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 181.705,
-      "current_return": -0.9961
+      "last_price": 186.06,
+      "current_return": -0.1331
     },
     {
       "ticker": "META",
@@ -5215,8 +4171,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 625.37,
-      "current_return": -0.9972
+      "last_price": 606.4,
+      "current_return": -0.1212
     },
     {
       "ticker": "BA",
@@ -5290,8 +4246,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 231.1,
-      "current_return": -0.9975
+      "last_price": 224.44,
+      "current_return": -1.0
     },
     {
       "ticker": "AKAM",
@@ -5365,8 +4321,8 @@
         "dte": 98
       },
       "outcome": null,
-      "last_price": 148.66,
-      "current_return": -0.3924
+      "last_price": 154.04,
+      "current_return": -0.2291
     },
     {
       "ticker": "ALB",
@@ -5440,8 +4396,8 @@
         "dte": 63
       },
       "outcome": null,
-      "last_price": 176.95,
-      "current_return": -0.6902
+      "last_price": 171.55,
+      "current_return": -0.7753
     },
     {
       "ticker": "CDNS",
@@ -5515,8 +4471,8 @@
         "dte": 63
       },
       "outcome": null,
-      "last_price": 375.71,
-      "current_return": 0.4051
+      "last_price": 409.275,
+      "current_return": 1.5485
     },
     {
       "ticker": "BKR",
@@ -5590,8 +4546,8 @@
         "dte": 31
       },
       "outcome": null,
-      "last_price": 64.78,
-      "current_return": -0.1604
+      "last_price": 62.97,
+      "current_return": -0.4434
     },
     {
       "ticker": "CARR",
@@ -5665,8 +4621,8 @@
         "dte": 123
       },
       "outcome": null,
-      "last_price": 64.25,
-      "current_return": -0.1149
+      "last_price": 65.06,
+      "current_return": -0.0541
     },
     {
       "ticker": "ABNB",
@@ -5740,8 +4696,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 134.67,
-      "current_return": 0.0538
+      "last_price": 137.44,
+      "current_return": 0.2405
     },
     {
       "ticker": "BMY",
@@ -5815,8 +4771,8 @@
         "dte": 18
       },
       "outcome": null,
-      "last_price": 56.745,
-      "current_return": -0.3318
+      "last_price": 54.925,
+      "current_return": -0.8224
     },
     {
       "ticker": "CVX",
@@ -5890,8 +4846,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 181.705,
-      "current_return": -0.4542
+      "last_price": 186.06,
+      "current_return": -0.2521
     },
     {
       "ticker": "GOOG",
@@ -5965,8 +4921,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 378.9228,
-      "current_return": -0.8779
+      "last_price": 373.76,
+      "current_return": -0.9461
     },
     {
       "ticker": "META",
@@ -6040,8 +4996,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 625.37,
-      "current_return": 0.2274
+      "last_price": 606.426,
+      "current_return": -0.3499
     },
     {
       "ticker": "AMD",
@@ -6115,8 +5071,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 507.9,
-      "current_return": 2.7893
+      "last_price": 512.15,
+      "current_return": 2.9371
     },
     {
       "ticker": "ABNB",
@@ -6190,8 +5146,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 134.67,
-      "current_return": -0.5438
+      "last_price": 137.44,
+      "current_return": -0.259
     },
     {
       "ticker": "BIIB",
@@ -6265,8 +5221,8 @@
         "dte": 121
       },
       "outcome": null,
-      "last_price": 197.62,
-      "current_return": 0.1007
+      "last_price": 192.28,
+      "current_return": -0.0417
     },
     {
       "ticker": "META",
@@ -6339,8 +5295,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 625.37,
-      "current_return": 0.4529
+      "last_price": 606.426,
+      "current_return": -0.288
     },
     {
       "ticker": "BK",
@@ -6489,8 +5445,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 56.745,
-      "current_return": -0.6142
+      "last_price": 54.93,
+      "current_return": -0.931
     },
     {
       "ticker": "GOOG",
@@ -6574,8 +5530,8 @@
         "dte": 93
       },
       "outcome": null,
-      "last_price": 378.9228,
-      "current_return": -0.2092
+      "last_price": 373.76,
+      "current_return": -0.2894
     },
     {
       "ticker": "GOOGL",
@@ -6659,8 +5615,8 @@
         "dte": 93
       },
       "outcome": null,
-      "last_price": 382.27,
-      "current_return": -0.1935
+      "last_price": 377.795,
+      "current_return": -0.2616
     },
     {
       "ticker": "DDOG",
@@ -6744,8 +5700,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 239.63,
-      "current_return": 0.2956
+      "last_price": 276.65,
+      "current_return": 0.5663
     },
     {
       "ticker": "COIN",
@@ -6823,8 +5779,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 189.0,
-      "current_return": -0.1383
+      "last_price": 182.245,
+      "current_return": -0.2654
     },
     {
       "ticker": "GOOG",
@@ -6908,8 +5864,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 378.93,
-      "current_return": -0.1046
+      "last_price": 373.76,
+      "current_return": -0.1954
     },
     {
       "ticker": "CSCO",
@@ -6993,8 +5949,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 119.8601,
-      "current_return": 0.1118
+      "last_price": 121.1041,
+      "current_return": 0.1353
     },
     {
       "ticker": "MO",
@@ -7078,8 +6034,8 @@
         "dte": 120
       },
       "outcome": null,
-      "last_price": 69.84,
-      "current_return": -0.405
+      "last_price": 68.58,
+      "current_return": -0.5198
     },
     {
       "ticker": "AKAM",
@@ -7163,8 +6119,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 148.66,
-      "current_return": -0.2842
+      "last_price": 154.04,
+      "current_return": -0.2105
     },
     {
       "ticker": "BA",
@@ -7248,8 +6204,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 231.1,
-      "current_return": -0.0427
+      "last_price": 224.44,
+      "current_return": -0.1588
     },
     {
       "ticker": "GOOGL",
@@ -7333,8 +6289,8 @@
         "dte": 91
       },
       "outcome": null,
-      "last_price": 382.27,
-      "current_return": -0.1677
+      "last_price": 377.765,
+      "current_return": -0.238
     },
     {
       "ticker": "MO",
@@ -7419,8 +6375,8 @@
         "dte": 119
       },
       "outcome": null,
-      "last_price": 69.84,
-      "current_return": -0.5023
+      "last_price": 68.58,
+      "current_return": -0.6041
     }
   ],
   "closed_trades": [
@@ -7930,6 +6886,1074 @@
       "current_return": 0.4048,
       "close_date": "2026-05-27",
       "close_price": 123.07
+    },
+    {
+      "ticker": "ABT",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0122,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 115.0,
+        "bid": 2.25,
+        "ask": 2.3,
+        "open_interest": 980,
+        "implied_vol": 0.27899890930175775,
+        "spread_ratio": 0.0217,
+        "dte": 127,
+        "spread_leg": {
+          "strike": 125.0,
+          "bid": 0.75,
+          "ask": 0.8
+        },
+        "net_debit": 1.55
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 111.51,
+        "current_price": 101.37,
+        "sigma_adj": 0.0109,
+        "sector": "Healthcare",
+        "ema200": {},
+        "macd": {
+          "macd": -2.3205,
+          "signal": -2.4092,
+          "histogram": 0.0887,
+          "momentum_score": 0.3513,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Exact Sciences Akquisition ist ein massiver Deal, der erhebliche Integrationsrisiken, Goodwill-Belastungen und m\u00f6gliche Verw\u00e4sserung mit sich bringt. Strategische M&A-Transaktionen dieser Gr\u00f6\u00dfenordnung f\u00fchren h\u00e4ufig zu kurzfristigen Kursdr\u00fccken, da der Markt Integrationskomplexit\u00e4t und Kapitalbedarf negativ einpreist. Der Haiku nennt dies 'strukturell ver\u00e4ndert', was auch negativ interpretiert werden kann.",
+          "argument_2": "EPS-Abweichung zwischen yfinance (6.11) und SEC EDGAR (3.73) betr\u00e4gt faktisch ~38% \u2013 die angegebenen 0.3% sind offensichtlich falsch. Diese massive Diskrepanz deutet auf accounting adjustments, Non-GAAP vs. GAAP Unterschiede oder Datenfehler hin. Bei einem GAAP-EPS von 3.73 bei einem Kurs von $101.48 ergibt sich ein KGV von ~27x, was f\u00fcr ein defensives Healthcare-Unternehmen in einem \u00dcbergangsumfeld sportlich ist.",
+          "argument_3": "Jim Cramers explizite Skepsis ('Give us a couple of reasons on the call') signalisiert, dass der Markt vor dem Q1 Earnings Call erh\u00f6hte Beweislast fordert. Der Kurs hat sich nur +0.7% in 48h bewegt trotz positiver Nachrichten (Insider-K\u00e4ufe, Cramer-Coverage) \u2013 das deutet auf schwaches Momentum und fehlende institutionelle \u00dcberzeugung hin.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Monte Carlo durchgef\u00fchrt (0 Pfade). Ohne statistische Basis ist jede Hit-Rate-Aussage unm\u00f6glich. Bei einem Healthcare Blue-Chip mit ~20-25% impliziter Volatilit\u00e4t w\u00e4re eine realistische 30d-Trefferquote f\u00fcr einen gerichteten Trade bei 50-65%. Die fehlenden Daten erh\u00f6hen die Unsicherheit erheblich \u2013 Bewertung muss rein fundamental erfolgen.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt scheint die Kombination aus Insider-Cluster-K\u00e4ufen (US$3.1M in 14 Tagen) und strategischer Portfolio-Neuausrichtung durch Exact Sciences noch nicht vollst\u00e4ndig bepreist zu haben, da Integrationsrisiken die unmittelbare Reaktion d\u00e4mpfen. Q1 Earnings Call ist der n\u00e4chste Katalysator, der Klarheit \u00fcber Synergiepotenziale und Guidance bringen kann. Das 'Oversold Blue Chip'-Narrativ deutet auf technische Unterperformance relativ zu Fundamentals hin, die sich mittelfristig normalisieren k\u00f6nnte.",
+        "catalyst": "Q1 Earnings Call mit konkreten Aussagen zur Exact Sciences Integration, Synergieerwartungen und Guidance-Best\u00e4tigung",
+        "bear_case": "Massive EPS-Diskrepanz (GAAP ~3.73 vs. Non-GAAP ~6.11) bedeutet das echte KGV ist ~27x \u2013 bei Integrationskosten aus der Akquisition k\u00f6nnte Guidance gesenkt werden, was bei einem bereits 'zu beweisenden' Kurs erheblichen Drawdown ausl\u00f6st.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed bei 3.64%) ist f\u00fcr defensive Healthcare-Werte wie ABT tendenziell supportiv, da Anleger bei Unsicherheit in Quality-Defensives rotieren. Kein signifikanter Gegenwind, aber auch kein starker R\u00fcckenwind \u2013 der Trade steht und f\u00e4llt mit dem unternehmenseigenen Katalysator.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.005524,
+        "roi_per_day_pct": 0.5524,
+        "annualized_roi": 3.6077,
+        "efficiency_label": "high",
+        "dte": 127
+      },
+      "outcome": -0.8387,
+      "last_price": 85.79,
+      "current_return": -1.0,
+      "close_date": "2026-06-01",
+      "close_price": 87.38
+    },
+    {
+      "ticker": "META",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0275,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 750.0,
+        "bid": 7.15,
+        "ask": 7.4,
+        "open_interest": 788,
+        "implied_vol": 0.4421137332153321,
+        "spread_ratio": 0.0338,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 825.0,
+          "bid": 1.61,
+          "ask": 1.72
+        },
+        "net_debit": 5.79
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 741.08,
+        "current_price": 673.71,
+        "sigma_adj": 0.033,
+        "sector": "Communication Services",
+        "ema200": {},
+        "macd": {
+          "macd": 6.023,
+          "signal": -7.3448,
+          "histogram": 13.3678,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Preis bereits +6.1% in 48h gestiegen \u2014 der Broadcom-Deal und Insider-K\u00e4ufe sind weitgehend eingepreist. Bei $673 Marktkapitalisierung von ~1.7 Billionen USD fehlt der Hebel f\u00fcr weiteren kurzfristigen Anstieg; der Katalysator ist verbrannt.",
+          "argument_2": "EPS-Abweichung zwischen yfinance ($35.62) und SEC EDGAR ($23.48) ist mit faktisch ~52% Diskrepanz massiv \u2014 nicht 0.2% wie angegeben. Das deutet auf unterschiedliche Berechnungsbasen (TTM vs. GAAP) hin und macht die Fundamentalbewertung unsicher. KGV auf SEC-Basis liegt bei ~28.7, was bei flacher Kurve ambitioniert ist.",
+          "argument_3": "Der Broadcom-Deal ist strukturell positiv, aber AI-Infrastruktur-Investitionen dr\u00fccken kurzfristig auf die Margen (Capex-Zyklus). META hat bereits signifikant in Reality Labs und AI investiert \u2014 der Markt k\u00f6nnte die CapEx-Eskalation als Belastung f\u00fcr FCF in 2-3 Quartalen einpreisen, besonders bei stabilen aber nicht fallenden Zinsen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt, nicht dass die Wahrscheinlichkeit null ist. Ohne MC-Daten fehlt eine statistische Basis f\u00fcr die Zielbewertung. Bei historischer 30d-Volatilit\u00e4t von META (~30-35% annualisiert) w\u00e4re eine Hit-Rate von 55-65% f\u00fcr einen moderaten Upside-Move realistisch. Die fehlende Simulation erh\u00f6ht die Unsicherheit der Einsch\u00e4tzung.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Broadcom-Chip-Deal signalisiert langfristige AI-Infrastruktur-Unabh\u00e4ngigkeit, die der Markt erst in zuk\u00fcnftigen Margin-Verbesserungen vollst\u00e4ndig einpreisen wird. Insider-Cluster-K\u00e4ufe von 4 Personen innerhalb 14 Tagen suggerieren Insider-\u00dcberzeugung jenseits der unmittelbaren News-Reaktion. Die 48h-Reaktion (+6.1%) adressiert die Oberfl\u00e4che des Deals, untersch\u00e4tzt aber die strategische Bedeutung f\u00fcr METAs AI-Cost-Struktur in 2026.",
+        "catalyst": "Multi-Jahres AI-Chip-Partnerschaft mit Broadcom zur Reduktion von NVIDIA-Abh\u00e4ngigkeit + Insider-Cluster-K\u00e4ufe als Konfidenz-Signal vor Q2-Earnings",
+        "bear_case": "Kurzfristiger Katalysator bereits vollst\u00e4ndig eingepreist nach +6.1% Move; CapEx-Eskalation durch AI-Infrastruktur belastet FCF in den n\u00e4chsten 2 Quartalen und k\u00f6nnte den Markt entt\u00e4uschen.",
+        "macro_assessment": "Neutrales Makro-Umfeld mit flacher Zinskurve (0.50%) und Fed Funds bei 3.64% liefert keinen signifikanten R\u00fccken- oder Gegenwind. F\u00fcr ein Large-Cap-Qualit\u00e4tsunternehmen mit strukturellem AI-Wachstum ist dies ein akzeptables Umfeld. Kein Rezessions-Veto erforderlich, aber die Bewertung bleibt anspruchsvoll bei ~$673.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.046677,
+        "roi_per_day_pct": 4.6677,
+        "annualized_roi": 123203.6706,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": -1.0,
+      "last_price": 625.32,
+      "current_return": -1.0,
+      "close_date": "2026-06-01",
+      "close_price": 606.525
+    },
+    {
+      "ticker": "CDNS",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0248,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 310.0,
+        "bid": 35.4,
+        "ask": 37.7,
+        "open_interest": 1664,
+        "implied_vol": 0.4931691308593751,
+        "spread_ratio": 0.061,
+        "dte": 155,
+        "spread_leg": {
+          "strike": 340.0,
+          "bid": 22.3,
+          "ask": 25.3
+        },
+        "net_debit": 15.4
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 336.79,
+        "current_price": 306.17,
+        "sigma_adj": 0.0322,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": -0.3606,
+          "signal": -3.1853,
+          "histogram": 2.8247,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Katalysator bereits eingepreist: +6.4% in 48h nach den Ank\u00fcndigungen bedeutet, dass der Markt das NVIDIA- und Google-Partnerschaftssignal bereits stark eingepreist hat. CDNS handelt bei ~32x Sales und ~65x Forward EPS \u2014 eine Pr\u00e4mie, die wenig Fehlertoleranz l\u00e4sst.",
+          "argument_2": "EPS-Diskrepanz als Datenqualit\u00e4ts-Warnung: yfinance EPS 9.44 vs. SEC EDGAR EPS 4.06 \u2014 eine Abweichung von \u00fcber 100% deutet auf unterschiedliche Berechnungsbasen hin (GAAP vs. Non-GAAP). Das signalisiert, dass die 'echten' fundamentalen Zahlen deutlich schw\u00e4cher sind als die kommunizierten, was die Bewertung bei einer Neubewertung riskant macht.",
+          "argument_3": "Partnership-Announcements ohne kurzfristigen Revenue-Impact: Cadence/NVIDIA-Kooperationen im AI-Bereich sind strategisch langfristig relevant, aber EDA-Software-Zyklen sind lang. Robotics-AI und ChipStack-AI sind fr\u00fche Stadien ohne materialisierbaren Earnings-Beitrag in 2-6 Monaten \u2014 das Risiko eines 'Show Me'-Moments auf dem n\u00e4chsten Earnings Call ist real.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC durchgef\u00fchrt (0 Pfade). Bei CDNS historischer 30d-Volatilit\u00e4t von ca. 25-30% annualisiert w\u00e4re eine Hit-Rate von 0% schlicht ein technisches Daten-Fehler-Signal, nicht aussagekr\u00e4ftig. Die fehlende MC-Statistik erh\u00f6ht Unsicherheit, reduziert aber nicht automatisch die Signalqualit\u00e4t der fundamentalen Katalysatoren.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Trotz +6.4% Move ist die strukturelle Verschiebung \u2014 Cadence als AI-nativer EDA-Player mit Google Cloud und NVIDIA als Plattformpartner \u2014 noch nicht vollst\u00e4ndig in der Neubewertung angekommen. 8 Insider-K\u00e4ufe im 14-Tage-Cluster sind ein starkes Signal mit historisch positiver Forward-Performance. Der Markt behandelt dies noch als Partnerschafts-PR statt als Gesch\u00e4ftsmodell-Transformation, die Q2/Q3-Guidance-Erh\u00f6hungen begr\u00fcnden k\u00f6nnte.",
+        "catalyst": "CadenceLIVE Silicon Valley 2026 Ank\u00fcndigungen: ChipStack AI Super Agent auf Google Cloud + NVIDIA-Erweiterung auf AI-Robotics \u2014 kombiniert mit Cluster-Insider-K\u00e4ufen als Vertrauenssignal f\u00fcr bevorstehende positive Guidance",
+        "bear_case": "Nach +6.4% ist das unmittelbare Risiko-Ertrags-Verh\u00e4ltnis f\u00fcr neue Positionen ung\u00fcnstig. GAAP EPS von 4.06 impliziert ein KGV von ~75x \u2014 bei jeder Entt\u00e4uschung auf dem n\u00e4chsten Earnings Call (typischerweise Juli) droht ein IV-Crush und Bewertungskompression zur\u00fcck zur Peer-Gruppe.",
+        "macro_assessment": "Neutrale Makrolage (flache Kurve 0.5%, Fed Funds 3.64%) ist kein aktiver Gegenwind f\u00fcr ein High-Quality-Tech-Unternehmen wie CDNS. Die Zinsnormalisierung beg\u00fcnstigt selektiv profitable Tech mit AI-Exposure. Kein makro\u00f6konomisches Veto gegen die BULLISH-These, aber auch kein struktureller R\u00fcckenwind \u2014 die Story muss sich durch Earnings beweisen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.001554,
+        "roi_per_day_pct": 0.1554,
+        "annualized_roi": 0.6621,
+        "efficiency_label": "low",
+        "dte": 155
+      },
+      "outcome": 0.5097,
+      "last_price": 375.73,
+      "current_return": 0.3734,
+      "close_date": "2026-06-01",
+      "close_price": 408.99
+    },
+    {
+      "ticker": "AVGO",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 4,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0278,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 390.0,
+        "bid": 20.2,
+        "ask": 20.9,
+        "open_interest": 845,
+        "implied_vol": 0.46271289245605474,
+        "spread_ratio": 0.0335,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 430.0,
+          "bid": 5.15,
+          "ask": 5.85
+        },
+        "net_debit": 15.75
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 434.03,
+        "current_price": 394.57,
+        "sigma_adj": 0.0361,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 14.6955,
+          "signal": 5.6457,
+          "histogram": 9.0498,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Katalysator bereits eingepreist: Die +3.9% Bewegung in 48h und die Haiku-Meldung \u00fcber den Meta-Deal suggerieren, dass der Markt diese Information bereits absorbiert hat. Multi-Year-Deals mit Meta sind nicht neu f\u00fcr AVGO \u2013 das Unternehmen hat seit Jahren enge Kundenbeziehungen zu Hyperscalern. Der marginale Informationsgehalt f\u00fcr mittelfristige Kursphantasie ist begrenzt.",
+          "argument_2": "EPS-Diskrepanz als Warnsignal: Die massive Differenz zwischen yfinance EPS (17.99) und SEC EDGAR EPS (5.13) \u2013 trotz angeblich nur 0.2% Abweichung, was rechnerisch nicht stimmt \u2013 deutet auf erhebliche Datenunsicherheit hin. Entweder handelt es sich um adjusted vs. GAAP, oder die Datenbasis ist fehlerhaft. Bei P/E-Bewertungen auf Basis falscher EPS-Zahlen k\u00f6nnten Options-Strategien auf falschen Fundamentaldaten beruhen.",
+          "argument_3": "Bewertungsniveau und AI-Hype-Risiko: AVGO bei ~$395 handelt auf einem sehr hohen Bewertungsmultiple. Wenn AI-Investitionszyklen sich verlangsamen oder Hyperscaler-CapEx-Guidance entt\u00e4uscht (historisch h\u00e4ufig nach gro\u00dfen Ank\u00fcndigungen), kann die Aktie schnell 20-30% korrigieren. Insider-K\u00e4ufe bei 7 Personen k\u00f6nnen auch als Pflicht\u00fcbung nach Aktienprogramm-Grants interpretiert werden, nicht als echtes bullishes Conviction-Signal.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2013 0% Hit-Rate bedeutet Datenmangel, nicht Nullwahrscheinlichkeit. Bei AVGOs historischer 30d-Volatilit\u00e4t von ~35-45% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Bullish-Move (5-10%) bei 30d im Bereich 45-60%. Die fehlende MC-Simulation ist ein methodisches Gap, erh\u00f6ht Unsicherheit aber vetot den Trade nicht.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt reagiert m\u00f6glicherweise nicht vollst\u00e4ndig auf die strukturelle Natur eines Multi-Year-Deals mit Meta, der Revenuepredictability und Kapazit\u00e4tsauslastung f\u00fcr mehrere Quartale sichert. Zus\u00e4tzlich kann das Cluster-Signal von 7 Insider-K\u00e4ufen auf Wissen \u00fcber bevorstehende starke Quartalszahlen hindeuten, das noch nicht im Kurs reflektiert ist. Allerdings ist der Informationsvorteil bei einem bereits +3.9% gestiegenen Kurs begrenzt.",
+        "catalyst": "Meta-Broadcom Multi-Year AI Chip Deal + Earnings Release (n\u00e4chste Quartalsberichte mit erh\u00f6hter Revenue-Visibility durch Hyperscaler-Vertr\u00e4ge)",
+        "bear_case": "Der Kurs hat die News bereits mit +3.9% eingepreist; bei Entt\u00e4uschung \u00fcber Marge oder Guidance beim n\u00e4chsten Earnings droht IV-Crush und Trendumkehr in einem von hohen Erwartungen gepr\u00e4gten AI-Sektor.",
+        "macro_assessment": "Neutrales Makroumfeld (flache Kurve, Fed bei 3.64%) ist weder Gegen- noch R\u00fcckenwind. Technology-Sektor profitiert von stabilen bis leicht sinkenden Zinsen; das Umfeld unterst\u00fctzt Capex-Investitionen bei Hyperscalern. Kein struktureller Makro-Veto, aber auch kein starker Tail-Wind. Impact-Score bleibt moderat.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.0357,
+        "roi_per_day_pct": 3.57,
+        "annualized_roi": 15013.8605,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": 1.5397,
+      "last_price": 439.055,
+      "current_return": 1.5397,
+      "close_date": "2026-06-01",
+      "close_price": 461.795
+    },
+    {
+      "ticker": "FISV",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 5,
+        "surprise": 6,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0198,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 60.0,
+        "bid": 4.9,
+        "ask": 5.1,
+        "open_interest": 187,
+        "implied_vol": 0.6796907031250001,
+        "spread_ratio": 0.0392,
+        "dte": 22
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 67.61,
+        "current_price": 61.47,
+        "sigma_adj": 0.0198,
+        "sector": "default",
+        "ema200": {},
+        "macd": {
+          "macd": -0.1433,
+          "signal": -0.9054,
+          "histogram": 0.7621,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Avalara-Akquisition ist bereits bekannt und im Kurs eingepreist: Der +4.8% Move in 48h deutet darauf hin, dass der Markt das M&A-Event bereits verarbeitet hat. Klassischer 'Buy the rumor, sell the news'-Effekt bei Fintech-Akquisitionen, die oft Integrations-Komplexit\u00e4t und kurzfristige Margenkompression mit sich bringen.",
+          "argument_2": "EPS = 0.0 (yfinance) und None (SEC EDGAR) ist ein massives Datenproblem. Ein Unternehmen mit $61.58-Kurs und keinen ausgewiesenen Gewinnen deutet entweder auf fehlerhafte Datenlage oder auf massive Restrukturierungskosten durch die Avalara-\u00dcbernahme hin. Ohne valide Fundamentaldaten ist eine Bewertung hochspekulativ.",
+          "argument_3": "Bewertungsrisiko nach Rebound: Der Haiku-Hinweis auf 'Rebound in Share Price Performance' kombiniert mit der Bewertungsfrage impliziert, dass FISV m\u00f6glicherweise von einem niedrigeren Niveau stark gestiegen ist und jetzt \u00fcberbewertet gehandelt wird \u2014 gerade bei Fintech mit Integrationsrisiken ist ein Mean-Reversion-Szenario realistisch.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate 0% ist nicht realistisch interpretierbar \u2014 kein MC wurde durchgef\u00fchrt. Dies bedeutet keine statistische Validierung des Signals. Die fehlende MC-Basis erh\u00f6ht die Unsicherheit erheblich und erlaubt keine quantitative Absicherung der Preis-These.",
+          "concern_level": "high"
+        },
+        "impact": 5,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Das Cluster-Insider-Kaufsignal (9 Insider in 14 Tagen) ist ein statistisch relevantes Underreaction-Signal, da Insider-Cluster bei Fintech-M&A typischerweise Confidence in die Integrations-Roadmap signalisieren. Der Markt fokussiert sich kurzfristig auf Integrationsrisiken und EPS-Verw\u00e4sserung, untersch\u00e4tzt aber m\u00f6glicherweise den strategischen Wert der Tax-Automation-Integration in Clover. Da Haiku eine neutrale Kategorie (n/a) zuweist und der Sektor unbekannt bleibt, ist die Bullish-Einsch\u00e4tzung prim\u00e4r durch das Insider-Signal getrieben, nicht durch fundamentale \u00dcberzeugung.",
+        "catalyst": "9 Insider-K\u00e4ufe als Cluster-Signal innerhalb 14 Tagen, kombiniert mit Avalara-Integration in Clover-Plattform als strategischer Umsatz-Multiplikator",
+        "bear_case": "EPS-Datenl\u00fccke und m\u00f6gliche Margenkompression durch Akquisitionskosten; +4.8% Kursanstieg hat m\u00f6glicherweise das Upside bereits vorweggenommen",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0.50%, Fed Funds 3.64%) ist weder starker R\u00fccken- noch Gegenwind f\u00fcr FISV. Fintech-Payment-Unternehmen sind zinssensitiver als der Markt, aber bei flacher Kurve reduziert sich dieser Gegenwind. Neutral gewichteter Makro-Effekt rechtfertigt keine Auf- oder Abwertung des Signals.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.024477,
+        "roi_per_day_pct": 2.4477,
+        "annualized_roi": 1269.9183,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": -0.339,
+      "last_price": 57.065,
+      "current_return": -0.5614,
+      "close_date": "2026-06-01",
+      "close_price": 58.81
+    },
+    {
+      "ticker": "AMZN",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0209,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 260.0,
+        "bid": 6.5,
+        "ask": 6.6,
+        "open_interest": 39153,
+        "implied_vol": 0.4401911450195312,
+        "spread_ratio": 0.0152,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 285.0,
+          "bid": 1.5,
+          "ask": 1.66
+        },
+        "net_debit": 5.1
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 273.35,
+        "current_price": 248.5,
+        "sigma_adj": 0.0209,
+        "sector": "Consumer Cyclical",
+        "ema200": {},
+        "macd": {
+          "macd": 8.1626,
+          "signal": 3.4128,
+          "histogram": 4.7498,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Bewertungsstress: AMZN handelt bei ~$248 mit einem P/E von ~26x auf SEC-Basis (EPS $7.17 statt der m\u00f6glicherweise bereinigten $9.40). Bei 4.25% risikofreiem Zinssatz ist das Earnings-Yield von ~3.8% kaum attraktiv gegen\u00fcber Treasuries \u2014 klassische 'TINA ist tot'-Falle f\u00fcr Consumer Cyclicals.",
+          "argument_2": "Katalysator bereits eingepreist: AMZN ist seit Jahresbeginn bereits massiv outperformed, und die +3.6% der letzten 48h zeigen, dass DTCC-Deal und Globalstar-News teilweise schon in den Kurs geflossen sind. Der strukturelle AWS-Gewinn durch DTCC ist ein Multi-Jahr-Rollout 'bis Dekade-Ende' \u2014 kein kurzfristiger Earnings-Treiber f\u00fcr einen 2-6-Monats-Horizont.",
+          "argument_3": "Reputations- und Regulierungsrisiko: Der Arbeitsunfall-Vorfall in Oregon (Arbeiter stirbt auf Lagerhaus-Boden, Kollegen m\u00fcssen weitermachen) kann regulatorische Eskalation, NGO-Druck und politische Angriffe ausl\u00f6sen. Im aktuellen populistischen Klima ist AMZN ein politisches Ziel \u2014 Strafz\u00f6lle, Kartellrecht und Arbeitnehmerrechts-Gesetzgebung k\u00f6nnten als Katalysatoren f\u00fcr Underperformance dienen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC durchgef\u00fchrt \u2014 keine statistische Validierung m\u00f6glich. Dies ist ein signifikantes Informationsloch. Gegeben AMZN's historischer 30-Tage-Volatilit\u00e4t (~25-30% annualisiert, ~7-9% auf 30 Tage) w\u00e4re eine realistische Bullish-Hit-Rate bei moderatem Upside-Target ca. 50-60%. Die fehlende MC-Analyse verhindert quantitative Positionsvalidierung.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der DTCC-AWS-Deal ist strukturell bedeutsam, da er Finanzmarkt-Infrastruktur in die Cloud verlagert und AWS als kritische Systeminfrastruktur zementiert \u2014 dies reduziert Churn-Risiko und erh\u00f6ht Switching Costs dauerhaft. F\u00fcnf Insider-K\u00e4ufe im Cluster-Muster innerhalb von 14 Tagen signalisieren, dass Informierte den aktuellen Kurs als unterbewertet einstufen. Der Markt reagiert zu kurzfristig auf den 'bis Dekade-Ende'-Horizont, \u00fcbersieht aber den sofortigen Reputationsgewinn f\u00fcr AWS im Enterprise-Segment.",
+        "catalyst": "DTCC-AWS Cloud-Migration Deal + Insider-Cluster-K\u00e4ufe + Q2/Q3 AWS Wachstumsbeschleunigung durch Enterprise-Vertragsabschl\u00fcsse",
+        "bear_case": "Hohe Bewertung bei flacher Zinskurve und 4.25% 10Y-Yield macht den Earnings-Yield unattraktiv; kurzfristige +3.6%-Bewegung hat Teile des News-Flows bereits eingepreist, und regulatorische/reputationale Risiken durch Arbeitsrechtsvorf\u00e4lle k\u00f6nnten politischen Gegenwind erzeugen.",
+        "macro_assessment": "Neutrales Makroumfeld (Kurve +50bp, Fed Funds 3.64%) ist kein aktiver Gegenwind f\u00fcr AMZN, aber auch kein R\u00fcckenwind. Die flache Kurve signalisiert \u00dcbergangsphase \u2014 kein Rezessionsrisiko, aber auch keine expansive Liquidit\u00e4tsflut. Consumer Cyclical-Sektor leidet bei hohen Realzinsen durch Konsumdruck. AWS als struktureller Cloud-Gewinner ist jedoch zinssensitivit\u00e4tsneutraler als der Retail-Arm, was das Signal partiell isoliert vom Makrorisiko.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.042582,
+        "roi_per_day_pct": 4.2582,
+        "annualized_roi": 57941.5264,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": 1.4863,
+      "last_price": 271.1,
+      "current_return": 1.4863,
+      "close_date": "2026-06-01",
+      "close_price": 263.99
+    },
+    {
+      "ticker": "AMD",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 6,
+        "surprise": 4,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0316,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 255.0,
+        "bid": 16.4,
+        "ask": 16.75,
+        "open_interest": 1187,
+        "implied_vol": 0.5706219696044923,
+        "spread_ratio": 0.0209,
+        "dte": 22
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 283.93,
+        "current_price": 258.12,
+        "sigma_adj": 0.041,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 12.1507,
+          "signal": 6.8137,
+          "histogram": 5.337,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "MI450-Hype bereits eingepreist: AMD hat in 48h +4,6% zugelegt, was stark darauf hindeutet, dass der Markt den MI450-Katalysator bereits vorwegnimmt. Mediencoverage ('Could Change Everything') signalisiert Retail-Euphorie, kein unentdecktes Alpha. Optionen d\u00fcrften erh\u00f6hte IV aufweisen \u2014 IV-Crush nach Launch-Event ist das wahrscheinlichste Szenario.",
+          "argument_2": "EPS-Diskrepanz als Warnsignal: yfinance meldet 10,83 EPS vs. SEC EDGAR 2,60 EPS \u2014 eine massive Abweichung, die trotz '0% Abweichung'-Flag nicht erkl\u00e4rt wird. Dies deutet auf Non-GAAP vs. GAAP-Konfusion hin und macht fundamentale Bewertungsaussagen unzuverl\u00e4ssig. AMD k\u00f6nnte auf GAAP-Basis deutlich teurer sein als kommuniziert.",
+          "argument_3": "Wettbewerbsdruck von NVIDIA bleibt strukturell: NVIDIA dominiert den AI-Accelerator-Markt mit CUDA-\u00d6kosystem-Lock-in. AMDs MI-Serie hat historisch Lieferprobleme, Software-Stack-Defizite und geringere Hyperscaler-Adoption gezeigt. Ein MI450-Launch ohne starke Pre-Order-Ank\u00fcndigungen von Tier-1-Clouds ist spekulativ. Zudem signalisieren fallende Seagate/Amkor-Aktien m\u00f6glichen Sektor-Gegenwind im Halbleiterbereich.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "MC nicht durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet fehlende Simulation, nicht 0% Erfolgswahrscheinlichkeit. Ohne MC-Daten ist eine statistische Validierung unm\u00f6glich. Bei AMDs historischer 30-Tage-Volatilit\u00e4t von ~45-55% annualisiert w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisbewegungen bei 50-65% zu erwarten. Die fehlenden Daten erh\u00f6hen die Unsicherheit erheblich.",
+          "concern_level": "high"
+        },
+        "impact": 6,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat den MI450-Launch oberfl\u00e4chlich eingepreist, aber die Earnings-Impact-Dynamik bei tats\u00e4chlichen Hyperscaler-Adoptionsank\u00fcndigungen (Q2/Q3 Guidance-Erh\u00f6hungen) k\u00f6nnte untersch\u00e4tzt werden. Cluster-Insider-K\u00e4ufe von 4 Personen innerhalb 14 Tagen sind statistisch signifikant und deuten auf nicht-\u00f6ffentliches Vertrauen in nahe Katalysatoren hin. Die EPS-Diskrepanz (GAAP vs. Non-GAAP) verzerrt jedoch die Bewertungsgrundlage und limitiert das klare Asymmetrie-Signal.",
+        "catalyst": "MI450-Chip-Launch mit m\u00f6glichen Hyperscaler-Adoptionsank\u00fcndigungen (Microsoft Azure, Google Cloud, Meta) sowie Q2-Earnings-Guidance-Erh\u00f6hung basierend auf AI-Accelerator-Nachfrage",
+        "bear_case": "IV-Crush nach MI450-Launch-Event bei bereits +4,6% Vorwegnahme, kombiniert mit NVIDIA's strukturellem CUDA-Moat und m\u00f6glichem Lieferketten-/Software-Stack-Entt\u00e4uschungsrisiko \u2014 klassisches 'Buy the rumor, sell the news'-Muster in einem Markt mit erh\u00f6hten Erwartungen",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve 0,5%, Fed Funds 3,64%) ist f\u00fcr AMD weder R\u00fccken- noch Gegenwind. Technologie-/AI-Sektor profitiert von stabilem Zinsumfeld ohne Rezessionsdruck. Allerdings bleibt AMD als High-Beta-Tech-Aktie anf\u00e4llig f\u00fcr Risk-Off-Bewegungen, falls Zinssenkungserwartungen entt\u00e4uscht werden. Insgesamt akzeptables Makro-Fenster f\u00fcr mittelfristige Bullish-Positionen mit moderatem Conviction-Level.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.03555,
+        "roi_per_day_pct": 3.555,
+        "annualized_roi": 14559.9988,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": 5.0,
+      "last_price": 508.105,
+      "current_return": 5.0,
+      "close_date": "2026-06-01",
+      "close_price": 512.45
+    },
+    {
+      "ticker": "AMAT",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0344,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 390.0,
+        "bid": 23.7,
+        "ask": 25.35,
+        "open_interest": 172,
+        "implied_vol": 0.5571333349609376,
+        "spread_ratio": 0.0651,
+        "dte": 22,
+        "spread_leg": {
+          "strike": 430.0,
+          "bid": 7.2,
+          "ask": 10.05
+        },
+        "net_debit": 18.15
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 433.69,
+        "current_price": 394.26,
+        "sigma_adj": 0.0448,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 12.4673,
+          "signal": 7.7758,
+          "histogram": 4.6915,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Tariff-Risiko und Supply-Chain-Gegenwind: Die News berichten explizit, dass Fertigungsunternehmen mit Lieferkettenproblemen und verz\u00f6gerten Zollr\u00fcckerstattungen konfrontiert sind \u2013 AMAT als stark importabh\u00e4ngiger Halbleiterausr\u00fcster ist direkt exponiert. China-Exportbeschr\u00e4nkungen (AMAT erzielt ~25-30% Umsatz in China) bleiben ein strukturelles Risiko.",
+          "argument_2": "2nm-Tool-Ank\u00fcndigung bereits eingepreist: Der Markt hat die AMAT-Technologief\u00fchrerschaft in Advanced Nodes l\u00e4ngst diskontiert. Bei einem KGV von ~28x (Preis $394 / EPS $14) und einem f\u00fcr Semikap-Equipment-Zyklus-Top typischen Bewertungsniveau ist der Durchbruch kein 'Surprise'-Faktor mehr. Der Aktionismus rund um AI/HPC-Chips wurde 2023-2024 intensiv gehandelt.",
+          "argument_3": "EPS-Diskrepanz als Datensignal: Die Abweichung zwischen yfinance-EPS ($14.01) und SEC EDGAR-EPS ($9.73) ist erheblich (~44% Differenz) und deutet auf unterschiedliche Berechnungsbasen hin (m\u00f6glicherweise Non-GAAP vs. GAAP). Eine Bewertung auf Basis des h\u00f6heren Non-GAAP-EPS w\u00fcrde das tats\u00e4chliche Bewertungsniveau deutlich untersch\u00e4tzen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Quick MC nicht durchgef\u00fchrt (0 Pfade) \u2013 keine statistisch belastbare Hit-Rate verf\u00fcgbar. Bei AMAT's historischer 30d-Volatilit\u00e4t von ~35-40% annualisiert (impliziert ~10% 30d-Sigma) w\u00e4re eine bullishe Hit-Rate von 55-65% realistisch, nicht mehr. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Modellbewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt reagiert auf das 2nm-Tool-Rollout moderat, da der Semikap-Zyklus-Peak-Narrativ und China-Risiken die Aufmerksamkeit dominieren. Insider-Cluster-K\u00e4ufe (3 in 14 Tagen) sind ein statistisch signifikantes Signal, das vom Markt bei aktuell flachem Tape untergewichtet wird. Die eigentliche Asymmetrie liegt im Timing: Sollte TSMC/Samsung 2nm-Capex-Guidance nach oben revidieren, ist AMAT als prim\u00e4rer Ausr\u00fcster der direkte Nutznie\u00dfer.",
+        "catalyst": "2nm-Chip-Fertigungstools f\u00fcr AI/HPC + Insider-Cluster-K\u00e4ufe + potenziell positive Capex-Guidance von TSMC/Samsung in Q2-Earnings",
+        "bear_case": "China-Exportbeschr\u00e4nkungen eskalieren und/oder Tariff-bedingte Supply-Chain-Verz\u00f6gerungen treffen AMAT's Umsatzrealisierung in H2 2025, w\u00e4hrend das Bewertungsniveau (KGV 28x GAAP oder ~40x auf Non-GAAP-bereinigter Basis) wenig Puffer bietet.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed bei 3.64%) gibt keinen klaren Gegenwind, st\u00fctzt aber auch nicht stark. F\u00fcr ein kapitalintensives, zyklisches Unternehmen wie AMAT ist die flache Kurve ein 'wait-and-see' Signal \u2013 keine Rezessionsgefahr, aber auch kein expansiver R\u00fcckenwind. Moderate Positionsgr\u00f6\u00dfe gerechtfertigt.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.02405,
+        "roi_per_day_pct": 2.405,
+        "annualized_roi": 1147.0454,
+        "efficiency_label": "high",
+        "dte": 22
+      },
+      "outcome": 1.2039,
+      "last_price": 451.35,
+      "current_return": 1.2039,
+      "close_date": "2026-06-01",
+      "close_price": 457.525
+    },
+    {
+      "ticker": "CTVA",
+      "entry_date": "2026-04-15",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0149,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 80.0,
+        "bid": 3.7,
+        "ask": 4.1,
+        "open_interest": 383,
+        "implied_vol": 0.36255520263671875,
+        "spread_ratio": 0.0976,
+        "dte": 29,
+        "spread_leg": {
+          "strike": 90.0,
+          "bid": 0.3,
+          "ask": 0.8
+        },
+        "net_debit": 3.8
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 89.45,
+        "current_price": 81.32,
+        "sigma_adj": 0.0164,
+        "sector": "Basic Materials",
+        "ema200": {},
+        "macd": {
+          "macd": 1.3359,
+          "signal": 1.7096,
+          "histogram": -0.3737,
+          "momentum_score": -1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Bewertungsrisiko nach 40% Rally: Der Artikel 'Is Corteva Still Reasonable After A 40% One-Year Share Price Rally?' signalisiert, dass die Aktie m\u00f6glicherweise bereits fair bis \u00fcberbewertet ist. Bei einem KGV auf Basis des bereinigten EPS von ~4.05 ergibt sich ein P/E von ~20x \u2014 f\u00fcr ein agrochemisches Unternehmen mit zyklischem Exposure durchaus ambitioniert. Das Alpha k\u00f6nnte bereits verbraucht sein.",
+          "argument_2": "Management-Disruption als Risiko: Die Aufspaltung in zwei separate Einheiten (Crop Protection unter neuem CEO Kissam ab Juni 2026 und eine 'Advanced Seed and Genetics'-Gesellschaft) erzeugt erhebliche operative Unsicherheit. Spin-Off-Transitionen binden Management-Kapazit\u00e4ten, verursachen Restrukturierungskosten und k\u00f6nnen zu Kundenunsicherheit f\u00fchren. Die 2-6 Monats-Periode ist genau das Fenster maximaler Disruption.",
+          "argument_3": "EPS-Divergenz und Datenqualit\u00e4t: Die Diskrepanz zwischen yfinance EPS (4.05) und SEC EDGAR EPS (1.75) ist erheblich (2.3x Faktor) und deutet auf erhebliche Non-GAAP-Adjustierungen hin. Ohne Kenntnis der genauen Zusammensetzung ist unklar, wie nachhaltig die Ertragskraft ist. Zus\u00e4tzlich der -2.6% Preisr\u00fcckgang in 48h trotz positiver Insider-K\u00e4ufe zeigt, dass der Markt die Restrukturierungs-News skeptisch aufnimmt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Monte Carlo nicht durchgef\u00fchrt (0 Pfade). Bei CTVA mit historischer Volatilit\u00e4t im Bereich 25-35% f\u00fcr einen Agrochemie-Titel w\u00e4ren in einem 30-Tage-Fenster normalerweise ca. 40-60% Aufw\u00e4rtspfade realistisch. Der fehlende MC-Check liefert keine verwertbare statistische Grundlage \u2014 Vorsicht geboten.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "6 Monate",
+        "asymmetry_reasoning": "Der Markt verarbeitet die Aufspaltungs-Ank\u00fcndigung kurzfristig negativ (Unsicherheits-Discount), untersch\u00e4tzt dabei m\u00f6glicherweise den Sum-of-Parts-Value der zwei entstehenden fokussierten Unternehmen. Insider-Cluster-K\u00e4ufe (4 Insider in 14 Tagen) trotz laufendem Preisr\u00fcckgang signalisieren Insider\u00fcberzeugung, dass der Markt \u00fcberreagiert. Jedoch ist die Haiku-Einsch\u00e4tzung 'n/a' zutreffend: Das Signal ist strategisch aber ohne klaren Short-Term-Katalysator, was einen Impact >6 nicht rechtfertigt.",
+        "catalyst": "Q1 2026 Earnings Report als erster Beweis f\u00fcr operative Stabilit\u00e4t w\u00e4hrend der Restrukturierung; anschlie\u00dfend konkrete Kapitalmarkt-Kommunikation zum Spin-Off-Timeline und Bewertungsrahmen beider Einheiten",
+        "bear_case": "Nach einer 40% Jahresrally mit laufendem Restrukturierungsrisiko und ambitionierter Bewertung k\u00f6nnte der Q1-Earnings-Report bei jeder Guidance-Entt\u00e4uschung einen erheblichen De-Rating-Effekt ausl\u00f6sen \u2014 typisches 'Sell the restructuring news'-Muster in zyklischen Sektoren.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds bei 3.64%) ist f\u00fcr CTVA nicht besonders unterst\u00fctzend: Agrochemie profitiert wenig von Zinssenkungserwartungen, und ein schw\u00e4cherer Agrar-Commodity-Zyklus (Mais, Soja) k\u00f6nnte Saatgut/Crop-Protection-Nachfrage d\u00e4mpfen. Keine signifikante Makro-Einschr\u00e4nkung, aber auch kein struktureller R\u00fcckenwind.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.026362,
+        "roi_per_day_pct": 2.6362,
+        "annualized_roi": 1269.6656,
+        "efficiency_label": "high",
+        "dte": 29
+      },
+      "outcome": -0.4184,
+      "last_price": 79.88,
+      "current_return": -0.4184,
+      "close_date": "2026-06-01",
+      "close_price": 77.8
+    },
+    {
+      "ticker": "ORCL",
+      "entry_date": "2026-04-16",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0366,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.97
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-08",
+        "strike": 175.0,
+        "bid": 10.7,
+        "ask": 11.1,
+        "open_interest": 1445,
+        "implied_vol": 0.5363815893554689,
+        "spread_ratio": 0.036,
+        "dte": 21,
+        "spread_leg": {
+          "strike": 195.0,
+          "bid": 3.5,
+          "ask": 3.85
+        },
+        "net_debit": 7.6
+      },
+      "simulation": {
+        "hit_rate": 0.97,
+        "stderr": 0.0017,
+        "n_paths": 10000,
+        "n_days": 120,
+        "days_to_expiry": 120,
+        "target_price": 195.54,
+        "current_price": 177.76,
+        "sigma_adj": 0.0476,
+        "sector": "Technology",
+        "ema200": {},
+        "macd": {
+          "macd": 2.9543,
+          "signal": -1.0516,
+          "histogram": 4.0059,
+          "momentum_score": 1.0,
+          "data_available": true
+        }
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Kurs ist bereits +9.1% in 48h gestiegen \u2014 der AWS-Deal ist damit weitgehend eingepreist. Bei einer Forward-P/E von ~30x und einem EPS-Discrepancy zwischen yfinance ($7.97) und SEC EDGAR ($5.81) von 37% besteht erhebliches \u00dcberbewertungsrisiko. Anleger, die jetzt einsteigen, kaufen nach dem Move.",
+          "argument_2": "EPS-Abweichung von 37% zwischen yfinance und SEC EDGAR ist ein erhebliches Datenqualit\u00e4tsproblem. Basiert die Bewertung auf Non-GAAP-Adjustments, die das tats\u00e4chliche GAAP-Ergebnis massiv \u00fcberzeichnen? ORCL hat historisch aggressive Aktienr\u00fcckk\u00e4ufe und M&A-Amortisierung, was GAAP-EPS strukturell dr\u00fcckt \u2014 die 'fundamentale St\u00e4rke' des Deals k\u00f6nnte optisch besser wirken als sie ist.",
+          "argument_3": "Cloud-Partnerschaften mit AWS sind grunds\u00e4tzlich zweischneidig: Oracle konkurriert direkt mit AWS in der Cloud-Datenbank-Infrastruktur. Eine tiefere AWS-Integration k\u00f6nnte Oracle-eigene Cloud-Migrationsbem\u00fchungen (OCI) kannibalisieren und langfristig die Marge von OCI unter Druck setzen. Der 'strategische Deal' k\u00f6nnte ein Zugest\u00e4ndnis an AWS-Marktmacht sein.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade) \u2014 keine statistische Validierung m\u00f6glich. Bei einem Kurs von $177.72 nach +9.1% in 48h und typischer 30-Tage-Volatilit\u00e4t von ORCL (~25-30% annualisiert) w\u00e4re eine Momentum-Fortsetzung zwar plausibel, aber ohne MC-Daten bleibt das Confidence-Level niedrig. Die fehlende Simulation ist ein Datenmangel, kein Signal.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat zwar mit +9.1% reagiert, aber die strukturelle Bedeutung des AWS-Deals f\u00fcr ORCLs AI-Infrastruktur-Positionierung (Oracle Database auf Multi-Cloud-Plattformen) k\u00f6nnte noch nicht vollst\u00e4ndig in den Konsenssch\u00e4tzungen reflektiert sein. Insider-Cluster-K\u00e4ufe von 6 Personen in 14 Tagen signalisieren Insider-Conviction jenseits des einmaligen News-Events. Allerdings weiche ich von einer st\u00e4rkeren Bewertung ab, weil der +9.1%-Move erheblich von der urspr\u00fcnglichen Underreaction wegfrisst.",
+        "catalyst": "Amazon AWS Cloud Deal \u2014 strategische Multi-Cloud-Partnerschaft f\u00fcr Oracle Database Services auf AWS-Infrastruktur, kombiniert mit AI/GPU-Nachfragesog f\u00fcr Oracle Cloud Infrastructure (OCI)",
+        "bear_case": "Mit +9.1% bereits bewegt und Forward-P/E ~30x auf fragw\u00fcrdiger Non-GAAP-Basis ist der Einstieg nach dem Move asymmetrisch ung\u00fcnstig; ein schwaches n\u00e4chstes Quartal oder Makro-Schock k\u00f6nnte den gesamten Gain revidieren.",
+        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0.53%) und Fed Funds bei 3.64% ist konstruktiv f\u00fcr Tech-Largecaps. Niedrigere Refinanzierungskosten beg\u00fcnstigen ORCLs schuldenfinanzierte Buyback-Strategie. Das Makro-R\u00fcckenwind-Argument st\u00fctzt eine moderate BULLISH-Positionierung, aber rechtfertigt keine aggressive \u00dcbergewichtung nach dem Kurssprung.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.53,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day": 0.030714,
+        "roi_per_day_pct": 3.0714,
+        "annualized_roi": 5716.014,
+        "efficiency_label": "high",
+        "dte": 21
+      },
+      "outcome": 1.6316,
+      "last_price": 222.985,
+      "current_return": 1.6316,
+      "close_date": "2026-06-01",
+      "close_price": 249.8199
+    },
+    {
+      "ticker": "HOOD",
+      "entry_date": "2026-04-17",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0424,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6696
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 100.0,
+        "bid": 4.5,
+        "ask": 4.65,
+        "open_interest": 13184,
+        "implied_vol": 0.7180203979492188,
+        "spread_ratio": 0.0323,
+        "dte": 27,
+        "spread_leg": {
+          "strike": 110.0,
+          "bid": 2.22,
+          "ask": 2.36
+        },
+        "net_debit": 2.43
+      },
+      "simulation": {
+        "current_price": 92.36,
+        "target_price": 99.75,
+        "hit_rate": 0.8047,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0458,
+        "alpha": 0.0005
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Bewertungsrisiko nach +5.9% in 48h: HOOD notiert bei $92.36 und hat sich in kurzer Zeit stark verteuert. Bei einem KGV, das f\u00fcr ein Retail-Brokergesch\u00e4ft mit hoher Zyklizit\u00e4t und regulatorischer Unsicherheit bereits hoch erscheint, ist ein Gro\u00dfteil des PDT-Rule-Katalysators m\u00f6glicherweise bereits eingepreist. Der Markt hat schnell reagiert, was die Asymmetrie f\u00fcr neue Einsteiger erheblich reduziert.",
+          "argument_2": "Schwab-Konkurrenz als struktureller Gegenwind: Die News vom 16. April zeigt explizit, dass Schwab seinen Crypto-Push ausweitet. Mit ihrem Vertriebsnetz, institutionellem Vertrauen und tieferen Taschen kann Schwab das Retail-Brokerage-Segment aggressiv angreifen. Die PDT-Regel\u00e4nderung \u00f6ffnet den Markt f\u00fcr HOOD \u2014 aber auch f\u00fcr Schwab, Fidelity und andere etablierte Player, was den Wettbewerbsvorteil von HOOD relativiert.",
+          "argument_3": "EPS-Diskrepanz und Datenunsicherheit: Es gibt eine L\u00fccke zwischen yfinance-EPS ($2.69) und SEC EDGAR-EPS ($2.05), die auf m\u00f6gliche Adjustierungen oder Nicht-GAAP-Elemente hinweist. HOODs Gesch\u00e4ftsmodell ist stark abh\u00e4ngig von Payment for Order Flow (PFOF), Market-Making-Umgebungen und Retail-Trading-Aktivit\u00e4t \u2014 alles hochzyklische Einnahmen, die bei Market-Stress rasch einbrechen. Die fundamentale Qualit\u00e4t der Gewinne ist fragw\u00fcrdig.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet, dass kein Quick-MC durchgef\u00fchrt wurde \u2014 keine statistische Validierung verf\u00fcgbar. Dies ist ein signifikanter blinder Fleck. Gegeben HOODs historischer Volatilit\u00e4t (typisch 50-80% annualisiert) w\u00e4re ein 30-Tage-Ziel-Hit bei moderaten Zielen normalerweise mit 50-70% Wahrscheinlichkeit erreichbar. Die fehlende Statistik erh\u00f6ht die Unsicherheit, ist aber kein Veto-Grund.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Die SEC-Aufhebung der PDT-Rule ist ein echter struktureller Katalysator, der HOODs Zielgruppe (Retail-Daytrader) direkt vergr\u00f6\u00dfert und die regulatorische Einstiegsh\u00fcrde senkt \u2014 der Markt hat zwar reagiert (+5.9%), aber das volle strukturelle Potenzial (mehr aktive Trader, h\u00f6here PFOF-Einnahmen, neue Konten) braucht 2-3 Monate zur Materialisierung in den Quartalszahlen. Vier Insider-K\u00e4ufe als Cluster-Signal deuten darauf hin, dass das Management die Kursbewegung als unvollst\u00e4ndig einpreisend betrachtet.",
+        "catalyst": "SEC-Abschaffung der Pattern-Day-Trader-Equity-Rule senkt die Einstiegsh\u00fcrde f\u00fcr Retail-Daytrader, was HOODs Kernzielgruppe strukturell vergr\u00f6\u00dfert und mittelfristig zu h\u00f6heren Konto\u00f6ffnungen, Handelsvolumen und PFOF-Einnahmen f\u00fchrt.",
+        "bear_case": "Schwab, Fidelity und andere etablierte Broker profitieren von derselben Regel\u00e4nderung und k\u00f6nnen mit tieferen Taschen und breiterem Vertriebsnetz aggressiv in HOODs Kernmarkt vordringen, w\u00e4hrend der Wettbewerbsdruck auf Margen dr\u00fcckt.",
+        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und moderater Fed Funds Rate (3.64%) beg\u00fcnstigt Retail-Trading-Aktivit\u00e4t und Risk-On-Sentiment \u2014 positiv f\u00fcr HOOD. H\u00f6here Zinsen erh\u00f6hen zudem den Cash-Sweep-Ertrag (ein wachsender Ertragsbestandteil von HOOD). Das Makro-Umfeld unterst\u00fctzt das bullishe Signal, reduziert aber nicht die idiosynkratischen Bewertungs- und Wettbewerbsrisiken.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6233,
+        "annualized_roi": null,
+        "dte": 27
+      },
+      "outcome": -1.0,
+      "last_price": 93.19,
+      "current_return": -1.0,
+      "close_date": "2026-06-01",
+      "close_price": 90.605
+    },
+    {
+      "ticker": "SCHW",
+      "entry_date": "2026-04-17",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0184,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5654
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 95.0,
+        "bid": 1.79,
+        "ask": 1.88,
+        "open_interest": 3138,
+        "implied_vol": 0.2866282275390625,
+        "spread_ratio": 0.0479,
+        "dte": 27,
+        "spread_leg": {
+          "strike": 105.0,
+          "bid": 0.16,
+          "ask": 0.25
+        },
+        "net_debit": 1.72
+      },
+      "simulation": {
+        "current_price": 92.64,
+        "target_price": 100.05,
+        "hit_rate": 0.8812,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0164,
+        "alpha": 0.00223
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der -7.8%-Kursr\u00fcckgang in 48h trotz positiver News (Dual PT-Erh\u00f6hungen, Record Revenues) deutet auf erheblichen Verkaufsdruck hin, m\u00f6glicherweise ausgel\u00f6st durch Robinhood-Konkurrenz im Crypto-Segment \u2013 der Markt k\u00f6nnte bereits eingepreist haben, dass SCHW im Crypto-Wettbewerb strukturell benachteiligt ist.",
+          "argument_2": "Schwabs Kerngesch\u00e4ft (Brokerage, Zinsertr\u00e4ge aus Cash-Sweeps) steht unter Druck, wenn Zinsen weiter sinken: Bei Fed Funds Rate 3.64% und m\u00f6glichen weiteren Cuts schrumpft die Net Interest Margin, die ~40-50% des Umsatzes ausmacht \u2013 der Crypto-Launch kann diesen strukturellen Gegenwind kaum kompensieren.",
+          "argument_3": "EPS-Divergenz (yfinance 6.95 vs. SEC EDGAR 4.65) ist erheblich und fragw\u00fcrdig \u2013 wenn die 'echte' Ertragsbasis n\u00e4her an 4.65 liegt, ist SCHW bei ~92$ auf Basis adjustierter Zahlen deutlich teurer bewertet als kommuniziert, was institutionelle Investoren m\u00f6glicherweise bereits erkannt haben und aussteigen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC durchgef\u00fchrt \u2013 keine statistischen Prognose-Informationen verf\u00fcgbar. Dies erh\u00f6ht Unsicherheit, bedeutet aber nicht per se Negativsignal. Angesichts der historischen Volatilit\u00e4t bei Finanzwerten und dem scharfen 48h-Drop erscheint eine Erholung auf 30d-Basis plausibel, aber ohne quantitative Untermauerung bleibt die Konfidenz niedrig.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt \u00fcberreagiert auf Robinhood-Konkurrenzangst und vernachl\u00e4ssigt das Cluster-Insider-Kaufsignal (5 Insider in 14 Tagen) sowie Dual Price Target-Erh\u00f6hungen von Tier-1-Banken, was auf fundamentale Unterbewertung hindeutet. Der -7.8%-Drop erscheint \u00fcberproportional zur tats\u00e4chlichen Bedrohung durch den Crypto-Launch von Robinhood. Die SEC-Regel\u00e4nderung beg\u00fcnstigt SCHW strukturell ebenso und er\u00f6ffnet eine neue Umsatzkategorie mit vergleichsweise niedrigem Marginalaufwand.",
+        "catalyst": "SCHW-eigener Crypto-Trading-Launch (SEC-Regel\u00e4nderung) + Insider-Cluster-K\u00e4ufe als Kontraindikator zum Kursr\u00fcckgang + m\u00f6gliche Q2-Earnings-\u00dcberraschung auf Basis Record-Revenue-Trend",
+        "bear_case": "Signifikanter R\u00fcckgang der Net Interest Income bei weiteren Fed-Cuts trifft Kerngesch\u00e4ft st\u00e4rker als Crypto-Gewinne kompensieren k\u00f6nnen; EPS-Diskrepanz signalisiert m\u00f6gliche Qualit\u00e4tsprobleme bei den Earnings",
+        "macro_assessment": "Expansives Makro-Umfeld (steile Kurve +0.54%, moderate Fed Funds Rate 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Finanzwerte und Long-Positionen. Allerdings ist f\u00fcr SCHW spezifisch zu beachten, dass bei weiter sinkenden Kurzfristzinsen (Fed-Cuts-Erwartungen) die Cash-Sweep-Ertr\u00e4ge leiden \u2013 das Makro ist supportiv f\u00fcr den Sektor, aber nicht uneingeschr\u00e4nkt f\u00fcr SCHWs Ertragsmodell.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 3.9511,
+        "annualized_roi": null,
+        "dte": 27
+      },
+      "outcome": -1.0,
+      "last_price": 87.03,
+      "current_return": -1.0,
+      "close_date": "2026-06-01",
+      "close_price": 88.93
     }
   ],
   "model_weights": {
@@ -8151,6 +8175,11 @@
         "date": "2026-05-25",
         "score": 0.0057,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0543,
+        "headline_count": 1
       }
     ],
     "AMZN": [
@@ -8303,6 +8332,11 @@
         "date": "2026-05-29",
         "score": -0.1328,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.4425,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -8425,6 +8459,11 @@
         "date": "2026-05-29",
         "score": 0.0639,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2806,
+        "headline_count": 3
       }
     ],
     "KMX": [
@@ -8548,6 +8587,11 @@
       {
         "date": "2026-05-29",
         "score": -0.0408,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0495,
         "headline_count": 5
       }
     ],
@@ -8822,6 +8866,11 @@
         "date": "2026-05-27",
         "score": -0.2017,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
+        "headline_count": 5
       }
     ],
     "FSLR": [
@@ -8975,6 +9024,11 @@
       {
         "date": "2026-05-29",
         "score": -0.1201,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1706,
         "headline_count": 5
       }
     ],
@@ -9277,6 +9331,11 @@
         "date": "2026-05-27",
         "score": 0.3362,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2844,
+        "headline_count": 3
       }
     ],
     "BX": [
@@ -9369,6 +9428,11 @@
         "date": "2026-05-29",
         "score": -0.2176,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.113,
+        "headline_count": 5
       }
     ],
     "CHTR": [
@@ -9516,6 +9580,11 @@
         "date": "2026-05-29",
         "score": -0.2641,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0131,
+        "headline_count": 5
       }
     ],
     "C": [
@@ -9597,6 +9666,11 @@
       {
         "date": "2026-05-29",
         "score": 0.2783,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0697,
         "headline_count": 5
       }
     ],
@@ -9767,6 +9841,11 @@
         "date": "2026-05-27",
         "score": -0.3276,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0058,
+        "headline_count": 5
       }
     ],
     "FANG": [
@@ -9823,6 +9902,11 @@
       {
         "date": "2026-05-25",
         "score": 0.1307,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1478,
         "headline_count": 5
       }
     ],
@@ -9900,6 +9984,11 @@
       {
         "date": "2026-05-29",
         "score": 0.1219,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2962,
         "headline_count": 5
       }
     ],
@@ -10002,6 +10091,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2725,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0708,
         "headline_count": 5
       }
     ],
@@ -10388,6 +10482,11 @@
         "date": "2026-05-29",
         "score": -0.2284,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2536,
+        "headline_count": 3
       }
     ],
     "CVNA": [
@@ -10612,6 +10711,11 @@
         "date": "2026-05-29",
         "score": -0.2824,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2822,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -10723,6 +10827,11 @@
       {
         "date": "2026-05-27",
         "score": -0.0508,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0185,
         "headline_count": 4
       }
     ],
@@ -10873,6 +10982,11 @@
         "date": "2026-05-29",
         "score": -0.4552,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2607,
+        "headline_count": 5
       }
     ],
     "CSGP": [
@@ -10965,6 +11079,11 @@
         "date": "2026-05-29",
         "score": 0.1256,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2691,
+        "headline_count": 5
       }
     ],
     "HRL": [
@@ -11004,6 +11123,11 @@
         "date": "2026-05-29",
         "score": -0.6231,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.6203,
+        "headline_count": 3
       }
     ],
     "ABT": [
@@ -11151,6 +11275,11 @@
         "date": "2026-05-29",
         "score": 0.1311,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.8823,
+        "headline_count": 1
       }
     ],
     "AOS": [
@@ -11253,6 +11382,11 @@
         "date": "2026-05-29",
         "score": 0.0653,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.6009,
+        "headline_count": 2
       }
     ],
     "AIG": [
@@ -11334,6 +11468,11 @@
       {
         "date": "2026-05-25",
         "score": -0.4028,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1344,
         "headline_count": 5
       }
     ],
@@ -11604,6 +11743,11 @@
         "date": "2026-05-29",
         "score": -0.0057,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.5465,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -11720,6 +11864,11 @@
       {
         "date": "2026-05-29",
         "score": 0.2729,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0768,
         "headline_count": 5
       }
     ],
@@ -11965,6 +12114,11 @@
         "date": "2026-05-29",
         "score": 0.3989,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2082,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
@@ -12107,6 +12261,11 @@
         "date": "2026-05-29",
         "score": 0.0888,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2735,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -12193,6 +12352,11 @@
       {
         "date": "2026-05-29",
         "score": 0.0275,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0534,
         "headline_count": 5
       }
     ],
@@ -12310,6 +12474,11 @@
       {
         "date": "2026-05-29",
         "score": -0.0564,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0375,
         "headline_count": 5
       }
     ],
@@ -12646,6 +12815,11 @@
         "date": "2026-05-29",
         "score": 0.1245,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1127,
+        "headline_count": 3
       }
     ],
     "IBKR": [
@@ -12702,6 +12876,11 @@
         "date": "2026-05-25",
         "score": 0.8054,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0386,
+        "headline_count": 5
       }
     ],
     "DDOG": [
@@ -12749,6 +12928,11 @@
         "date": "2026-05-29",
         "score": 0.2304,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.4804,
+        "headline_count": 4
       }
     ],
     "MDB": [
@@ -12898,6 +13082,11 @@
         "date": "2026-05-29",
         "score": -0.0543,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0071,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -12999,6 +13188,11 @@
       {
         "date": "2026-05-28",
         "score": 0.169,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0143,
         "headline_count": 5
       }
     ],
@@ -13194,6 +13388,11 @@
         "date": "2026-05-29",
         "score": -0.1909,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0707,
+        "headline_count": 5
       }
     ],
     "ETR": [
@@ -13434,6 +13633,11 @@
         "date": "2026-05-29",
         "score": 0.4688,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.015,
+        "headline_count": 5
       }
     ],
     "CDNS": [
@@ -13531,6 +13735,11 @@
         "date": "2026-05-29",
         "score": -0.0406,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2085,
+        "headline_count": 5
       }
     ],
     "STZ": [
@@ -13618,6 +13827,11 @@
         "date": "2026-05-29",
         "score": -0.1218,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1691,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -13689,6 +13903,11 @@
       {
         "date": "2026-05-29",
         "score": 0.2357,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.4091,
         "headline_count": 5
       }
     ],
@@ -13768,6 +13987,11 @@
         "date": "2026-05-25",
         "score": -0.5588,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0295,
+        "headline_count": 3
       }
     ],
     "APTV": [
@@ -13885,6 +14109,11 @@
         "date": "2026-05-29",
         "score": 0.1094,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.7995,
+        "headline_count": 2
       }
     ],
     "BALL": [
@@ -13952,6 +14181,11 @@
         "date": "2026-05-27",
         "score": 0.3522,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0209,
+        "headline_count": 1
       }
     ],
     "BLDR": [
@@ -14059,6 +14293,11 @@
         "date": "2026-05-28",
         "score": 0.0234,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0466,
+        "headline_count": 5
       }
     ],
     "BG": [
@@ -14115,6 +14354,11 @@
       {
         "date": "2026-05-28",
         "score": 0.2178,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.132,
         "headline_count": 5
       }
     ],
@@ -14217,6 +14461,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2164,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
         "headline_count": 5
       }
     ],
@@ -14367,6 +14616,11 @@
         "date": "2026-05-29",
         "score": 0.2162,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2143,
+        "headline_count": 4
       }
     ],
     "CFG": [
@@ -14444,6 +14698,11 @@
         "date": "2026-05-29",
         "score": -0.0916,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0028,
+        "headline_count": 5
       }
     ],
     "CMS": [
@@ -14510,6 +14769,11 @@
       {
         "date": "2026-05-29",
         "score": -0.1447,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2304,
         "headline_count": 5
       }
     ],
@@ -14622,6 +14886,11 @@
       {
         "date": "2026-05-29",
         "score": -0.078,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
         "headline_count": 5
       }
     ],
@@ -14755,6 +15024,11 @@
         "date": "2026-05-29",
         "score": 0.4526,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2478,
+        "headline_count": 5
       }
     ],
     "COST": [
@@ -14856,6 +15130,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2678,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1245,
         "headline_count": 5
       }
     ],
@@ -14975,6 +15254,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2715,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0497,
         "headline_count": 5
       }
     ],
@@ -15279,6 +15563,11 @@
         "date": "2026-05-29",
         "score": 0.4802,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0112,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -15425,6 +15714,11 @@
       {
         "date": "2026-05-29",
         "score": 0.0629,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2226,
         "headline_count": 5
       }
     ],
@@ -15584,6 +15878,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2649,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.4504,
         "headline_count": 4
       }
     ],
@@ -15809,6 +16108,11 @@
         "date": "2026-05-28",
         "score": -0.2034,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0285,
+        "headline_count": 5
       }
     ],
     "AMGN": [
@@ -15900,6 +16204,11 @@
       {
         "date": "2026-05-28",
         "score": -0.1371,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2308,
         "headline_count": 5
       }
     ],
@@ -16023,6 +16332,11 @@
         "date": "2026-05-29",
         "score": 0.063,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1131,
+        "headline_count": 3
       }
     ],
     "AMAT": [
@@ -16154,6 +16468,11 @@
       {
         "date": "2026-05-29",
         "score": 0.3744,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0266,
         "headline_count": 5
       }
     ],
@@ -16359,6 +16678,11 @@
         "date": "2026-05-29",
         "score": -0.3116,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0889,
+        "headline_count": 5
       }
     ],
     "ANET": [
@@ -16506,6 +16830,11 @@
         "date": "2026-05-29",
         "score": 0.4512,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0188,
+        "headline_count": 2
       }
     ],
     "ADSK": [
@@ -16597,6 +16926,11 @@
       {
         "date": "2026-05-29",
         "score": -0.1497,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.4361,
         "headline_count": 5
       }
     ],
@@ -16694,6 +17028,11 @@
       {
         "date": "2026-05-29",
         "score": 0.0464,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.258,
         "headline_count": 5
       }
     ],
@@ -16879,6 +17218,11 @@
         "date": "2026-05-29",
         "score": 0.5684,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2315,
+        "headline_count": 5
       }
     ],
     "CPT": [
@@ -16940,6 +17284,11 @@
       {
         "date": "2026-05-27",
         "score": 0.0532,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.5118,
         "headline_count": 5
       }
     ],
@@ -17078,6 +17427,11 @@
         "date": "2026-05-28",
         "score": 0.0839,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0313,
+        "headline_count": 5
       }
     ],
     "CL": [
@@ -17169,6 +17523,11 @@
       {
         "date": "2026-05-28",
         "score": 0.1474,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0879,
         "headline_count": 5
       }
     ],
@@ -17272,6 +17631,11 @@
         "date": "2026-05-29",
         "score": 0.1294,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0529,
+        "headline_count": 5
       }
     ],
     "APD": [
@@ -17353,6 +17717,11 @@
       {
         "date": "2026-05-29",
         "score": 0.1246,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0499,
         "headline_count": 5
       }
     ],
@@ -17465,6 +17834,11 @@
       {
         "date": "2026-05-29",
         "score": 0.408,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0083,
         "headline_count": 5
       }
     ],
@@ -17587,6 +17961,11 @@
       {
         "date": "2026-05-29",
         "score": 0.2762,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2017,
         "headline_count": 5
       }
     ],
@@ -17726,6 +18105,11 @@
       {
         "date": "2026-05-29",
         "score": 0.3777,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1556,
         "headline_count": 5
       }
     ],
@@ -17964,6 +18348,11 @@
         "date": "2026-05-29",
         "score": -0.2164,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
+        "headline_count": 5
       }
     ],
     "DG": [
@@ -18071,6 +18460,11 @@
         "date": "2026-05-29",
         "score": -0.2715,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0497,
+        "headline_count": 5
       }
     ],
     "PPL": [
@@ -18169,6 +18563,11 @@
         "date": "2026-05-29",
         "score": 0.0817,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0093,
+        "headline_count": 5
       }
     ],
     "CVX": [
@@ -18265,6 +18664,11 @@
       {
         "date": "2026-05-29",
         "score": 0.0267,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0877,
         "headline_count": 5
       }
     ],
@@ -18393,6 +18797,11 @@
         "date": "2026-05-29",
         "score": 0.2294,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.008,
+        "headline_count": 5
       }
     ],
     "EXC": [
@@ -18523,6 +18932,11 @@
         "date": "2026-05-28",
         "score": 0.2131,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.323,
+        "headline_count": 3
       }
     ],
     "CLX": [
@@ -18649,6 +19063,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2164,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
         "headline_count": 5
       }
     ],
@@ -18976,6 +19395,11 @@
         "date": "2026-05-29",
         "score": -0.1917,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0041,
+        "headline_count": 5
       }
     ],
     "EQT": [
@@ -19052,6 +19476,11 @@
         "date": "2026-05-17",
         "score": -0.9031,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0086,
+        "headline_count": 3
       }
     ],
     "MCHP": [
@@ -19225,6 +19654,11 @@
         "date": "2026-05-29",
         "score": 0.291,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
+        "headline_count": 5
       }
     ],
     "ACN": [
@@ -19332,6 +19766,11 @@
         "date": "2026-05-29",
         "score": 0.2509,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1494,
+        "headline_count": 4
       }
     ],
     "AXP": [
@@ -19444,6 +19883,11 @@
         "date": "2026-05-29",
         "score": -0.0539,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1917,
+        "headline_count": 5
       }
     ],
     "BMY": [
@@ -19541,6 +19985,11 @@
         "date": "2026-05-29",
         "score": 0.6311,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.348,
+        "headline_count": 5
       }
     ],
     "BBY": [
@@ -19633,6 +20082,11 @@
         "date": "2026-05-29",
         "score": 0.0417,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0101,
+        "headline_count": 5
       }
     ],
     "BR": [
@@ -19720,6 +20174,11 @@
         "date": "2026-05-28",
         "score": -0.017,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.5723,
+        "headline_count": 3
       }
     ],
     "CBRE": [
@@ -19792,6 +20251,11 @@
         "date": "2026-05-29",
         "score": 0.4192,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1291,
+        "headline_count": 5
       }
     ],
     "COF": [
@@ -19894,6 +20358,11 @@
         "date": "2026-05-29",
         "score": 0.2876,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0222,
+        "headline_count": 5
       }
     ],
     "COR": [
@@ -19995,6 +20464,11 @@
       {
         "date": "2026-05-29",
         "score": 0.0219,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1756,
         "headline_count": 5
       }
     ],
@@ -20118,6 +20592,11 @@
         "date": "2026-05-29",
         "score": 0.1743,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0758,
+        "headline_count": 4
       }
     ],
     "CHD": [
@@ -20194,6 +20673,11 @@
       {
         "date": "2026-05-29",
         "score": -0.06,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1374,
         "headline_count": 5
       }
     ],
@@ -20286,6 +20770,11 @@
       {
         "date": "2026-05-29",
         "score": -0.2164,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1583,
         "headline_count": 5
       }
     ],
@@ -20388,6 +20877,11 @@
       {
         "date": "2026-05-29",
         "score": 0.1128,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.418,
         "headline_count": 5
       }
     ],
@@ -20496,6 +20990,11 @@
         "date": "2026-05-29",
         "score": -0.1218,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1691,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -20603,6 +21102,11 @@
         "date": "2026-05-29",
         "score": -0.1183,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2993,
+        "headline_count": 4
       }
     ],
     "DHR": [
@@ -20722,6 +21226,11 @@
         "date": "2026-05-26",
         "score": -0.1946,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.24,
+        "headline_count": 4
       }
     ],
     "DUK": [
@@ -20778,6 +21287,11 @@
       {
         "date": "2026-05-28",
         "score": -0.1703,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0407,
         "headline_count": 5
       }
     ],
@@ -20851,6 +21365,11 @@
         "date": "2026-05-29",
         "score": 0.0805,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1246,
+        "headline_count": 5
       }
     ],
     "DD": [
@@ -20923,6 +21442,11 @@
         "date": "2026-05-28",
         "score": 0.0491,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.3378,
+        "headline_count": 5
       }
     ],
     "EIX": [
@@ -20965,6 +21489,11 @@
         "date": "2026-05-29",
         "score": 0.2549,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2656,
+        "headline_count": 5
       }
     ],
     "AME": [
@@ -21022,6 +21551,11 @@
         "date": "2026-05-27",
         "score": -0.061,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0002,
+        "headline_count": 2
       }
     ],
     "APH": [
@@ -21124,6 +21658,11 @@
         "date": "2026-05-29",
         "score": 0.7424,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.4928,
+        "headline_count": 4
       }
     ],
     "AEE": [
@@ -21295,6 +21834,11 @@
         "date": "2026-05-26",
         "score": 0.0627,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1911,
+        "headline_count": 3
       }
     ],
     "BRO": [
@@ -21377,6 +21921,11 @@
         "date": "2026-05-29",
         "score": 0.2266,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2162,
+        "headline_count": 5
       }
     ],
     "CCI": [
@@ -21464,6 +22013,11 @@
         "date": "2026-05-29",
         "score": -0.0933,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0734,
+        "headline_count": 5
       }
     ],
     "CSX": [
@@ -21471,6 +22025,11 @@
         "date": "2026-04-23",
         "score": -0.134,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0446,
+        "headline_count": 2
       }
     ],
     "DLR": [
@@ -21543,6 +22102,11 @@
         "date": "2026-05-29",
         "score": 0.0682,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1029,
+        "headline_count": 5
       }
     ],
     "ATO": [
@@ -21610,6 +22174,11 @@
         "date": "2026-05-29",
         "score": 0.2763,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2526,
+        "headline_count": 3
       }
     ],
     "CDW": [
@@ -21637,6 +22206,11 @@
         "date": "2026-05-29",
         "score": 0.8432,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0091,
+        "headline_count": 1
       }
     ],
     "CNC": [
@@ -21697,6 +22271,11 @@
       },
       {
         "date": "2026-05-25",
+        "score": 0.0499,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
         "score": 0.0499,
         "headline_count": 5
       }
@@ -21798,6 +22377,11 @@
         "date": "2026-05-29",
         "score": -0.1143,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.4035,
+        "headline_count": 5
       }
     ],
     "DECK": [
@@ -21895,6 +22479,11 @@
         "date": "2026-05-29",
         "score": 0.1279,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1885,
+        "headline_count": 5
       }
     ],
     "ECL": [
@@ -21967,6 +22556,11 @@
         "date": "2026-05-28",
         "score": 0.0453,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2837,
+        "headline_count": 3
       }
     ],
     "EA": [
@@ -22266,6 +22860,11 @@
         "date": "2026-05-29",
         "score": 0.1311,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2912,
+        "headline_count": 1
       }
     ],
     "DPZ": [
@@ -22390,6 +22989,11 @@
         "date": "2026-05-29",
         "score": 0.4561,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0149,
+        "headline_count": 2
       }
     ],
     "AJG": [
@@ -22493,6 +23097,11 @@
       {
         "date": "2026-05-27",
         "score": 0.0965,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0586,
         "headline_count": 5
       }
     ],
@@ -22608,6 +23217,11 @@
         "date": "2026-05-29",
         "score": 0.2623,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2095,
+        "headline_count": 5
       }
     ],
     "APO": [
@@ -22629,6 +23243,11 @@
       {
         "date": "2026-05-29",
         "score": -0.1668,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1762,
         "headline_count": 5
       }
     ],
@@ -22677,6 +23296,11 @@
         "date": "2026-05-29",
         "score": -0.1865,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.1099,
+        "headline_count": 5
       }
     ],
     "BSX": [
@@ -22719,6 +23343,11 @@
         "date": "2026-05-29",
         "score": -0.2904,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2531,
+        "headline_count": 5
       }
     ],
     "BKNG": [
@@ -22756,6 +23385,11 @@
         "date": "2026-05-28",
         "score": 0.2319,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.2595,
+        "headline_count": 4
       }
     ],
     "CHRW": [
@@ -22790,6 +23424,11 @@
         "date": "2026-05-29",
         "score": -0.0982,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.2211,
+        "headline_count": 4
       }
     ],
     "COIN": [
@@ -22821,6 +23460,11 @@
       {
         "date": "2026-05-29",
         "score": 0.0583,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0609,
         "headline_count": 5
       }
     ],
@@ -22859,6 +23503,11 @@
         "date": "2026-05-29",
         "score": 0.1879,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1236,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -22896,6 +23545,11 @@
         "date": "2026-05-29",
         "score": 0.1927,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0719,
+        "headline_count": 3
       }
     ],
     "DELL": [
@@ -22927,6 +23581,11 @@
       {
         "date": "2026-05-29",
         "score": 0.2428,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.3464,
         "headline_count": 5
       }
     ],
@@ -22960,6 +23619,11 @@
         "date": "2026-05-29",
         "score": -0.258,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.0212,
+        "headline_count": 5
       }
     ],
     "SATS": [
@@ -22992,6 +23656,11 @@
         "date": "2026-05-29",
         "score": -0.0129,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.167,
+        "headline_count": 2
       }
     ],
     "BNY": [
@@ -22999,6 +23668,11 @@
         "date": "2026-05-25",
         "score": 0.0242,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-01",
+        "score": -0.1479,
+        "headline_count": 5
       }
     ],
     "CIEN": [
@@ -23010,6 +23684,11 @@
       {
         "date": "2026-05-29",
         "score": 0.2513,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-06-01",
+        "score": 0.0344,
         "headline_count": 3
       }
     ]
