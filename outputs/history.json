@@ -2,12 +2,12 @@
   "feature_stats": {
     "impact": {
       "low": {
-        "count": 474,
-        "avg_return": 0.595244
+        "count": 475,
+        "avg_return": 0.596369
       },
       "mid": {
-        "count": 3124,
-        "avg_return": 0.067436
+        "count": 3207,
+        "avg_return": 0.068879
       },
       "high": {
         "count": 117,
@@ -16,268 +16,34 @@
     },
     "mismatch": {
       "weak": {
-        "count": 950,
-        "avg_return": 0.264274
+        "count": 970,
+        "avg_return": 0.264827
       },
       "good": {
-        "count": 2605,
-        "avg_return": 0.099538
+        "count": 2665,
+        "avg_return": 0.100257
       },
       "strong": {
-        "count": 160,
-        "avg_return": -0.141298
+        "count": 164,
+        "avg_return": -0.152308
       }
     },
     "eps_drift": {
       "noise": {
-        "count": 3611,
-        "avg_return": 0.123911
+        "count": 3691,
+        "avg_return": 0.123519
       },
       "relevant": {
-        "count": 43,
-        "avg_return": 0.930685
+        "count": 45,
+        "avg_return": 0.976478
       },
       "massive": {
-        "count": 61,
-        "avg_return": 0.004597
+        "count": 63,
+        "avg_return": -0.012205
       }
     }
   },
   "active_trades": [
-    {
-      "ticker": "HOOD",
-      "entry_date": "2026-04-20",
-      "features": {
-        "impact": 7,
-        "surprise": 6,
-        "mismatch": 7.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0414,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "strong",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6506
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 100.0,
-        "bid": 3.4,
-        "ask": 3.5,
-        "open_interest": 13428,
-        "implied_vol": 0.7319362744140624,
-        "spread_ratio": 0.0286,
-        "dte": 24,
-        "spread_leg": {
-          "strike": 110.0,
-          "bid": 1.53,
-          "ask": 1.59
-        },
-        "net_debit": 1.97
-      },
-      "simulation": {
-        "current_price": 89.94,
-        "target_price": 97.14,
-        "hit_rate": 0.8011,
-        "n_paths": 10000,
-        "days": 120,
-        "sigma": 0.0454,
-        "alpha": 0.00031
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Bewertungs-Risiko: Bei $89.94 und einem EPS von ~$2.05-2.69 handelt HOOD auf einem KGV von 33-44x \u2014 eine Premium-Bewertung, die bereits viel Wachstum einpreist. Eine SEC-Regel\u00e4nderung, die 'die Schleusen \u00f6ffnet', ist m\u00f6glicherweise bereits durch den +3.6% Move in 48h und das Mizuho-Upgrade auf $115 weitgehend diskontiert.",
-          "argument_2": "Regulatorisches Risiko ist zweischneidig: Dieselbe SEC, die Pattern-Day-Trader-Regeln lockert, kann in einem anderen politischen Klima neue restriktive Ma\u00dfnahmen einf\u00fchren. HOOD hat eine Geschichte mit regulatorischen Strafen (FINRA, SEC Settlement 2021). Retailbroker sind strukturell exponiert gegen\u00fcber regulatorischer Unsicherheit \u2014 ein zuk\u00fcnftiger Gegenwind k\u00f6nnte diesen Katalysator umkehren.",
-          "argument_3": "Monetarisierungs-Unsicherheit: HOOD's Revenue ist stark von Payment-for-Order-Flow (PFOF) abh\u00e4ngig, das in Europa bereits verboten ist und in den USA unter Beobachtung steht. Zudem h\u00e4ngt der Umsatz stark von Marktvolatilit\u00e4t und Retail-Aktivit\u00e4t ab \u2014 in einem ruhigeren Marktumfeld (VIX unter 15) kollabiert das Trading-Volumen \u00fcberproportional.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "MC nicht durchgef\u00fchrt (0 Pfade). Bei HOOD mit historischer Volatilit\u00e4t von ~70-80% annualisiert ist keine statistische Einsch\u00e4tzung m\u00f6glich. Die fehlende MC-Simulation ist ein Datenl\u00fccke, erh\u00f6ht aber nicht das fundamentale Risiko des Setups. Concern-Level bleibt medium da Richtungssignal durch andere Quellen (Insider, Analyst-Upgrade) gest\u00fctzt wird.",
-          "concern_level": "medium"
-        },
-        "impact": 7,
-        "surprise": 6,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt hat die strukturelle Tragweite der PDT-Regel\u00e4nderung noch nicht vollst\u00e4ndig eingepreist: Eine Lockerung w\u00fcrde Millionen von Retail-Konten mit unter $25k aus der Pattern-Day-Trader-Beschr\u00e4nkung befreien und direkt HOOD's Kernzielgruppe freischalten. Das Cluster-Insider-Kaufsignal (4 Insider in 14 Tagen) deutet darauf hin, dass interne Akteure die Gesch\u00e4ftschance h\u00f6her bewerten als der aktuelle Kurs reflektiert. Mizuho's Upgrade auf $115 gibt ~28% Upside und kommt von einer typischerweise konservativen Institution.",
-        "catalyst": "SEC Pattern-Day-Trader-Regelreform: Lockerung der $25k-Mindestkapitalanforderung w\u00fcrde HOOD's adressierbaren Markt signifikant erweitern und Trading-Volumen sowie PFOF-Revenues strukturell steigern.",
-        "bear_case": "Valuation bereits gestreckt bei 33-44x KGV, +3.6% in 48h k\u00f6nnte den Katalysator kurzfristig \u00fcberdiskontieren, und PFOF-Abh\u00e4ngigkeit bleibt ein strukturelles Risiko bei zuk\u00fcnftigen Regulierungs\u00e4nderungen.",
-        "macro_assessment": "Expansives Makro-Umfeld mit steiler Zinskurve (+0.55%) und Fed Funds bei 3.64% beg\u00fcnstigt Retail-Broker strukturell: H\u00f6here Zinsen auf Cash-Best\u00e4nde st\u00e4rken NIM-Komponenten, und Risk-On-Umfeld treibt Retail-Engagement. HOOD profitiert \u00fcberproportional von expansivem Regime. Makro-Kontext st\u00fctzt BULLISH-Signal klar.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.55,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.7008,
-        "annualized_roi": null,
-        "dte": 24
-      },
-      "outcome": null,
-      "last_price": 83.965,
-      "current_return": -1.0
-    },
-    {
-      "ticker": "ON",
-      "entry_date": "2026-04-20",
-      "features": {
-        "impact": 5,
-        "surprise": 6,
-        "mismatch": 5.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0378,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.8334
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 85.0,
-        "bid": 5.4,
-        "ask": 5.75,
-        "open_interest": 3117,
-        "implied_vol": 0.631839619140625,
-        "spread_ratio": 0.0609,
-        "dte": 24,
-        "spread_leg": {
-          "strike": 95.0,
-          "bid": 2.14,
-          "ask": 2.39
-        },
-        "net_debit": 3.61
-      },
-      "simulation": {
-        "current_price": 84.63,
-        "target_price": 91.4,
-        "hit_rate": 0.97,
-        "n_paths": 10000,
-        "days": 120,
-        "sigma": 0.0306,
-        "alpha": 0.00615
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "ON Semiconductor (onsemi) ist prim\u00e4r ein Automotive/Industrial-Halbleiter-Lieferant (SiC, IGBT), NICHT ein Lithium-Batterie- oder Energy-Storage-Hersteller. Die Haiku-Pr\u00e4misse 'Lithium-Engpass + Energy Storage Boom' trifft das Gesch\u00e4ftsmodell nur indirekt \u00fcber Leistungshalbleiter \u2013 das ist ein fundamentales Narrativ-Mismatch, das die Signalqualit\u00e4t massiv schw\u00e4cht.",
-          "argument_2": "EV-Slowdown ist explizit benannt und ON's gr\u00f6\u00dfter Wachstumstreiber (SiC f\u00fcr EVs) leidet darunter direkt. ON hat in den letzten Quartalen Guidance-Cuts bei Automotive SiC gemacht. Der +5.9% Move in 48h k\u00f6nnte eine Bear-Market-Rally in einem strukturell geschw\u00e4chten Segment sein \u2013 Momentum ohne fundamentale Revision nach oben.",
-          "argument_3": "Insider-Cluster-K\u00e4ufe bei Halbleiter-Unternehmen sind oft opportunistisch nach Kursr\u00fcckg\u00e4ngen und kein verl\u00e4sslicher Forward-Indikator. Der Kurs bei $84.63 impliziert ein KGV von ~21x auf annualisiertes EPS \u2013 bei verlangsamtem Wachstum und US/China-Geopolitik-Risiken f\u00fcr die Lieferkette ist das keine billige Bewertung. Zudem: EPS-Diskrepanz zwischen yfinance ($4.05) und SEC EDGAR ($0.29) deutet auf massive Bilanzierungs- oder Periodenunterschiede hin.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt \u2013 0 Pfade verf\u00fcgbar. Kein statistischer R\u00fcckenwind auswertbar. Bei einer 48h-Bewegung von +5.9% und fehlender MC-Validierung ist das Signal rein news-getrieben ohne quantitative Best\u00e4tigung. Concern: Die EPS-Abweichung (yfinance $4.05 vs. SEC $0.29) ist extrem verd\u00e4chtig und k\u00f6nnte auf fehlerhafte Datenbasis im Modell hinweisen.",
-          "concern_level": "high"
-        },
-        "impact": 5,
-        "surprise": 6,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "asymmetry_reasoning": "Der Markt k\u00f6nnte die indirekte Benefizierung von ON durch Energy-Storage-Boom (Leistungshalbleiter f\u00fcr Wechselrichter/BMS) noch nicht vollst\u00e4ndig eingepreist haben, da das EV-Slowdown-Narrativ dominiert. Insider-Cluster-K\u00e4ufe (9 in 14 Tagen) signalisieren Management-Zuversicht bei aktuellem Kursniveau. Allerdings weicht meine Bewertung von der Haiku-Einsch\u00e4tzung ab: ON ist kein Batterie-Produzent, sondern Profiteur via Leistungselektronik \u2013 das ist eine schw\u00e4chere, mittelbare Kausalit\u00e4t.",
-        "catalyst": "Q-Earnings mit \u00fcberraschend starker Energy-Storage/Industrial-Power-Guidance als Offset zum EV-Slowdown + m\u00f6gliche Erh\u00f6hung US-Produktionssubventionen f\u00fcr Leistungshalbleiter in domestischer Energieinfrastruktur",
-        "bear_case": "ON's Kerngesch\u00e4ft Automotive SiC leidet unter EV-Marktschw\u00e4che; Energy-Storage-Exposure ist indirekt und margenschw\u00e4cher; der +5.9% Move k\u00f6nnte bereits das gesamte kurzfristige Upside absorbiert haben vor dem n\u00e4chsten Earnings-Katalysator.",
-        "macro_assessment": "Expansives Makro-Umfeld (steile Kurve +0.55%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich zyklische Technologie/Halbleiter-Positionen. Die Kombination aus niedrigeren Finanzierungskosten und staatlichen Subventionen f\u00fcr US-Energieinfrastruktur schafft einen strukturellen R\u00fcckenwind f\u00fcr ON's Industrial-Power-Segment. Makro ist supportiv, d\u00e4mpft aber nicht die unternehmensspezifischen Risiken im EV-Segment.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.55,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 1.0621,
-        "annualized_roi": null,
-        "dte": 24
-      },
-      "outcome": null,
-      "last_price": 133.62,
-      "current_return": 1.7701
-    },
-    {
-      "ticker": "TSLA",
-      "entry_date": "2026-04-20",
-      "features": {
-        "impact": 6,
-        "surprise": 7,
-        "mismatch": 6.0,
-        "z_score": 0.0,
-        "sigma_30d": 0.0273,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6218
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-05-15",
-        "strike": 400.0,
-        "bid": 16.65,
-        "ask": 16.75,
-        "open_interest": 15649,
-        "implied_vol": 0.4828848098754883,
-        "spread_ratio": 0.006,
-        "dte": 24,
-        "spread_leg": {
-          "strike": 440.0,
-          "bid": 5.4,
-          "ask": 5.5
-        },
-        "net_debit": 11.35
-      },
-      "simulation": {
-        "current_price": 392.02,
-        "target_price": 423.39,
-        "hit_rate": 0.7014,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0262,
-        "alpha": 0.00187
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "TSLA ist bereits mit einem astronomischen KGV (>100x) bewertet \u2014 die 'Terafab AI-Chip'-Story ist spekulativ und k\u00f6nnte lediglich ein narrativer Ablenkungsversuch sein, um die Aufmerksamkeit vom Kerngesch\u00e4ft abzulenken, das unter Margendruck, sinkenden Marktanteilen in China und zunehmender EV-Konkurrenz leidet. Der Markt hat solche TSLA-Versprechungen wiederholt \u00fcberbewertet.",
-          "argument_2": "TSLA ist das Schlusslicht der 'Magnificent 7' Rally \u2014 das deutet auf relative Schw\u00e4che und institutionelle Skepsis hin. Bevorstehende Earnings mit expliziter Erwartung 'tangible progress' bei FSD/Autonomie (Morgan Stanley) schaffen ein erhebliches Entt\u00e4uschungsrisiko: Wenn der Katalysator nicht liefert, droht ein starker IV-Crush plus fundamentaler Sell-off.",
-          "argument_3": "EPS-Diskrepanz zwischen yfinance ($2.75) und SEC EDGAR ($1.08) \u2014 ein Faktor von ~2.5x \u2014 ist ein erhebliches Datenkonfidenz-Problem. Bei TSLA mit seiner komplexen Bilanzierung (Regulatory Credits, FSD-Deferred Revenue, Energie-Segment) ist unklar, welche Zahl die operative Realit\u00e4t besser abbildet. Dies erschwert jede rationale Fundamentalbewertung erheblich.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine statistische Basis vorhanden. Bei TSLA mit historischer 30-Tage-Volatilit\u00e4t von ~45-60% annualisiert w\u00e4re ein bullisches MC-Ziel in 30 Tagen realistisch zwischen 45-55% Hit-Rate. Die fehlende MC-Analyse ist ein Datenl\u00fccken-Problem, nicht per se b\u00e4risch, aber es fehlt quantitative St\u00fctzung f\u00fcr die Richtungsthese.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 7,
-        "direction": "BULLISH",
-        "bear_case_severity": 7,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt unterreagiert m\u00f6glicherweise auf das Terafab AI-Chip-Signal, weil TSLA-Bullishness aktuell out-of-favor ist (Schlusslicht Mag7) und AI-Hardware-Narrativ erst in die Valuation-Modelle sickern muss. Das 6-Insider-Cluster-Kaufsignal innerhalb 14 Tagen ist statistisch ungew\u00f6hnlich und deutet auf informierten Optimismus vor Earnings hin. Haiku-Einsch\u00e4tzung wird best\u00e4tigt: Die neue AI-Chip-Kategorie k\u00f6nnte tats\u00e4chlich die Margin-Debatte neu framen \u2014 allerdings bleibt das Risiko hoch, da TSLA-Narrative oft entt\u00e4uschen.",
-        "catalyst": "TSLA Earnings-Report mit konkreten Terafab AI-Chip-Meilensteinen und FSD-Skalierungsfortschritt; Insider-Cluster-K\u00e4ufe als vorauseilender Informationsindikator",
-        "bear_case": "TSLA liefert bei Earnings erneut nur vage Versprechen ohne quantifizierbare AI-Chip-Revenue-Timeline \u2014 IV-Crush post-Earnings kombiniert mit fundamentalem Entt\u00e4uschungs-Sell-off bei weiterhin komprimierter Auto-Marge. Relative Schw\u00e4che vs. Mag7-Peers verst\u00e4rkt institutionelle Abgaben.",
-        "macro_assessment": "Steile Zinskurve (+0.55%) und expansives Fed-Regime (3.64% Funds Rate) beg\u00fcnstigen grunds\u00e4tzlich Growth/Momentum-Namen wie TSLA. Das makro\u00f6konomische Umfeld ist kein Gegenwind \u2014 im Gegenteil, fallende Real-Zinsen st\u00fctzen hochbewertete Wachstumsaktien. Allerdings bleibt TSLA prim\u00e4r ein idiosynkratisches Story-Risk, weniger ein Makro-Trade. Der Makro-R\u00fcckenwind ist vorhanden, aber nicht der dominante Treiber.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.55,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 2.3404,
-        "annualized_roi": null,
-        "dte": 24
-      },
-      "outcome": null,
-      "last_price": 423.673,
-      "current_return": 0.9595
-    },
     {
       "ticker": "AMZN",
       "entry_date": "2026-04-21",
@@ -353,7 +119,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 248.89,
+      "last_price": 253.775,
       "current_return": -0.3134
     },
     {
@@ -431,7 +197,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 502.065,
+      "last_price": 499.625,
       "current_return": 1.2535
     },
     {
@@ -509,7 +275,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 309.68,
+      "last_price": 311.24,
       "current_return": 0.0
     },
     {
@@ -587,7 +353,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 169.1,
+      "last_price": 164.545,
       "current_return": -1.0
     },
     {
@@ -665,8 +431,8 @@
         "dte": 86
       },
       "outcome": null,
-      "last_price": 52.455,
-      "current_return": -0.3165
+      "last_price": 54.24,
+      "current_return": -0.0527
     },
     {
       "ticker": "BIIB",
@@ -743,8 +509,8 @@
         "dte": 86
       },
       "outcome": null,
-      "last_price": 194.96,
-      "current_return": -0.1772
+      "last_price": 199.23,
+      "current_return": 0.0157
     },
     {
       "ticker": "BBWI",
@@ -821,7 +587,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 18.085,
+      "last_price": 17.84,
       "current_return": 0.0
     },
     {
@@ -899,7 +665,7 @@
         "dte": 23
       },
       "outcome": null,
-      "last_price": 127.92,
+      "last_price": 127.435,
       "current_return": -1.0
     },
     {
@@ -977,7 +743,7 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 134.39,
+      "last_price": 136.12,
       "current_return": -1.0
     },
     {
@@ -1055,7 +821,7 @@
         "dte": 22
       },
       "outcome": null,
-      "last_price": 18.085,
+      "last_price": 17.84,
       "current_return": 0.0
     },
     {
@@ -1127,7 +893,7 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 542.55,
+      "last_price": 523.79,
       "current_return": 5.0
     },
     {
@@ -1199,8 +965,8 @@
         "dte": 85
       },
       "outcome": null,
-      "last_price": 38.285,
-      "current_return": -0.3844
+      "last_price": 38.3,
+      "current_return": -0.3969
     },
     {
       "ticker": "AVGO",
@@ -1271,8 +1037,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 487.94,
-      "current_return": 2.5696
+      "last_price": 412.33,
+      "current_return": -0.2307
     },
     {
       "ticker": "ADI",
@@ -1343,8 +1109,8 @@
         "dte": 148
       },
       "outcome": null,
-      "last_price": 437.825,
-      "current_return": 0.9893
+      "last_price": 428.93,
+      "current_return": 0.8035
     },
     {
       "ticker": "AMAT",
@@ -1415,8 +1181,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 501.96,
-      "current_return": 2.9552
+      "last_price": 499.615,
+      "current_return": 2.8878
     },
     {
       "ticker": "AVGO",
@@ -1487,8 +1253,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 487.94,
-      "current_return": 2.5008
+      "last_price": 412.3001,
+      "current_return": -0.6918
     },
     {
       "ticker": "BKR",
@@ -1559,8 +1325,8 @@
         "dte": 21
       },
       "outcome": null,
-      "last_price": 63.92,
-      "current_return": -0.1088
+      "last_price": 65.54,
+      "current_return": 0.321
     },
     {
       "ticker": "BA",
@@ -1631,7 +1397,7 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 213.425,
+      "last_price": 216.47,
       "current_return": -1.0
     },
     {
@@ -1703,8 +1469,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 303.64,
-      "current_return": -0.7526
+      "last_price": 313.88,
+      "current_return": -0.5989
     },
     {
       "ticker": "ANET",
@@ -1775,8 +1541,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 176.9,
-      "current_return": -0.3192
+      "last_price": 164.665,
+      "current_return": -0.6478
     },
     {
       "ticker": "BX",
@@ -1847,8 +1613,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 109.03,
-      "current_return": -0.7144
+      "last_price": 119.11,
+      "current_return": -0.3421
     },
     {
       "ticker": "DVA",
@@ -1919,8 +1685,8 @@
         "dte": 84
       },
       "outcome": null,
-      "last_price": 195.465,
-      "current_return": 2.5857
+      "last_price": 193.79,
+      "current_return": 2.5048
     },
     {
       "ticker": "T",
@@ -1991,7 +1757,7 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 23.545,
+      "last_price": 22.705,
       "current_return": -1.0
     },
     {
@@ -2063,7 +1829,7 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 54.62,
+      "last_price": 55.335,
       "current_return": -1.0
     },
     {
@@ -2135,8 +1901,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 501.84,
-      "current_return": 2.3113
+      "last_price": 499.585,
+      "current_return": 2.2486
     },
     {
       "ticker": "ANET",
@@ -2207,8 +1973,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 176.9,
-      "current_return": -0.1248
+      "last_price": 164.6,
+      "current_return": -0.7619
     },
     {
       "ticker": "BX",
@@ -2279,8 +2045,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 109.03,
-      "current_return": -1.0
+      "last_price": 119.22,
+      "current_return": -0.5544
     },
     {
       "ticker": "AMD",
@@ -2351,8 +2117,8 @@
         "dte": 20
       },
       "outcome": null,
-      "last_price": 542.43,
-      "current_return": 4.8304
+      "last_price": 523.785,
+      "current_return": 4.3669
     },
     {
       "ticker": "ALB",
@@ -2423,8 +2189,8 @@
         "dte": 237
       },
       "outcome": null,
-      "last_price": 169.1,
-      "current_return": -0.3976
+      "last_price": 164.545,
+      "current_return": -0.4448
     },
     {
       "ticker": "BKR",
@@ -2495,7 +2261,7 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 63.92,
+      "last_price": 65.54,
       "current_return": -1.0
     },
     {
@@ -2567,7 +2333,7 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 23.69,
+      "last_price": 23.505,
       "current_return": -1.0
     },
     {
@@ -2639,7 +2405,7 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 63.92,
+      "last_price": 65.54,
       "current_return": -1.0
     },
     {
@@ -2711,8 +2477,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 487.81,
-      "current_return": 4.6069
+      "last_price": 412.49,
+      "current_return": 0.8117
     },
     {
       "ticker": "BA",
@@ -2784,7 +2550,7 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 213.425,
+      "last_price": 216.455,
       "current_return": -1.0
     },
     {
@@ -2857,8 +2623,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 27.33,
-      "current_return": 0.3841
+      "last_price": 27.54,
+      "current_return": 0.4616
     },
     {
       "ticker": "AMAT",
@@ -2930,8 +2696,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 501.84,
-      "current_return": 3.5882
+      "last_price": 499.56,
+      "current_return": 3.5183
     },
     {
       "ticker": "BKR",
@@ -3003,7 +2769,7 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 63.9182,
+      "last_price": 65.54,
       "current_return": -1.0
     },
     {
@@ -3076,8 +2842,8 @@
         "dte": 141
       },
       "outcome": null,
-      "last_price": 281.34,
-      "current_return": -0.6848
+      "last_price": 284.925,
+      "current_return": -0.6545
     },
     {
       "ticker": "BA",
@@ -3149,8 +2915,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 213.425,
-      "current_return": -0.6789
+      "last_price": 216.455,
+      "current_return": -0.4512
     },
     {
       "ticker": "AMZN",
@@ -3222,8 +2988,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 248.83,
-      "current_return": -0.9044
+      "last_price": 253.76,
+      "current_return": -0.4433
     },
     {
       "ticker": "APH",
@@ -3295,8 +3061,8 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 147.84,
-      "current_return": 0.243
+      "last_price": 146.71,
+      "current_return": 0.1225
     },
     {
       "ticker": "AMAT",
@@ -3368,8 +3134,8 @@
         "dte": 73
       },
       "outcome": null,
-      "last_price": 501.84,
-      "current_return": 1.5797
+      "last_price": 499.615,
+      "current_return": 1.5331
     },
     {
       "ticker": "META",
@@ -3441,8 +3207,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 622.0,
-      "current_return": 0.8334
+      "last_price": 630.45,
+      "current_return": 1.2257
     },
     {
       "ticker": "AMD",
@@ -3514,8 +3280,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 542.58,
-      "current_return": 4.5264
+      "last_price": 523.7,
+      "current_return": 4.0615
     },
     {
       "ticker": "GOOG",
@@ -3587,7 +3353,7 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 355.74,
+      "last_price": 367.5,
       "current_return": -1.0
     },
     {
@@ -3660,8 +3426,8 @@
         "dte": 162
       },
       "outcome": null,
-      "last_price": 38.13,
-      "current_return": -0.3929
+      "last_price": 37.85,
+      "current_return": -0.4464
     },
     {
       "ticker": "ALB",
@@ -3733,8 +3499,8 @@
         "dte": 224
       },
       "outcome": null,
-      "last_price": 169.1,
-      "current_return": -0.5726
+      "last_price": 164.545,
+      "current_return": -0.6061
     },
     {
       "ticker": "ABNB",
@@ -3806,8 +3572,8 @@
         "dte": 69
       },
       "outcome": null,
-      "last_price": 134.39,
-      "current_return": -0.6556
+      "last_price": 136.12,
+      "current_return": -0.6101
     },
     {
       "ticker": "AVGO",
@@ -3879,8 +3645,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 487.775,
-      "current_return": 1.4776
+      "last_price": 412.73,
+      "current_return": -0.439
     },
     {
       "ticker": "GOOG",
@@ -3952,8 +3718,8 @@
         "dte": 65
       },
       "outcome": null,
-      "last_price": 355.765,
-      "current_return": -0.7245
+      "last_price": 367.54,
+      "current_return": -0.5858
     },
     {
       "ticker": "BMY",
@@ -4025,8 +3791,8 @@
         "dte": 65
       },
       "outcome": null,
-      "last_price": 54.815,
-      "current_return": -0.5461
+      "last_price": 56.08,
+      "current_return": -0.3794
     },
     {
       "ticker": "CVX",
@@ -4098,8 +3864,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 189.56,
-      "current_return": 0.7626
+      "last_price": 189.8,
+      "current_return": 0.824
     },
     {
       "ticker": "META",
@@ -4171,8 +3937,8 @@
         "dte": 15
       },
       "outcome": null,
-      "last_price": 622.03,
-      "current_return": 0.6916
+      "last_price": 630.45,
+      "current_return": 1.1294
     },
     {
       "ticker": "BA",
@@ -4246,7 +4012,7 @@
         "dte": 14
       },
       "outcome": null,
-      "last_price": 213.425,
+      "last_price": 216.48,
       "current_return": -1.0
     },
     {
@@ -4321,8 +4087,8 @@
         "dte": 98
       },
       "outcome": null,
-      "last_price": 162.59,
-      "current_return": -0.0339
+      "last_price": 158.835,
+      "current_return": -0.1394
     },
     {
       "ticker": "ALB",
@@ -4396,8 +4162,8 @@
         "dte": 63
       },
       "outcome": null,
-      "last_price": 169.1,
-      "current_return": -0.8138
+      "last_price": 164.545,
+      "current_return": -0.8537
     },
     {
       "ticker": "CDNS",
@@ -4471,8 +4237,8 @@
         "dte": 63
       },
       "outcome": null,
-      "last_price": 406.255,
-      "current_return": 1.3924
+      "last_price": 409.98,
+      "current_return": 1.4768
     },
     {
       "ticker": "BKR",
@@ -4546,8 +4312,8 @@
         "dte": 31
       },
       "outcome": null,
-      "last_price": 63.94,
-      "current_return": -0.3679
+      "last_price": 65.59,
+      "current_return": -0.1226
     },
     {
       "ticker": "CARR",
@@ -4621,8 +4387,8 @@
         "dte": 123
       },
       "outcome": null,
-      "last_price": 67.755,
-      "current_return": 0.2635
+      "last_price": 68.41,
+      "current_return": 0.3041
     },
     {
       "ticker": "ABNB",
@@ -4696,8 +4462,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 134.39,
-      "current_return": 0.0601
+      "last_price": 136.115,
+      "current_return": 0.1487
     },
     {
       "ticker": "BMY",
@@ -4771,8 +4537,8 @@
         "dte": 18
       },
       "outcome": null,
-      "last_price": 54.815,
-      "current_return": -0.9229
+      "last_price": 56.08,
+      "current_return": -0.7266
     },
     {
       "ticker": "CVX",
@@ -4846,8 +4612,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 189.56,
-      "current_return": -0.0812
+      "last_price": 189.8,
+      "current_return": -0.0958
     },
     {
       "ticker": "GOOG",
@@ -4921,8 +4687,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 355.775,
-      "current_return": -0.9948
+      "last_price": 367.49,
+      "current_return": -0.9961
     },
     {
       "ticker": "META",
@@ -4996,8 +4762,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 621.9532,
-      "current_return": 0.0453
+      "last_price": 630.33,
+      "current_return": 0.3565
     },
     {
       "ticker": "AMD",
@@ -5071,8 +4837,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 542.385,
-      "current_return": 4.108
+      "last_price": 523.595,
+      "current_return": 3.3574
     },
     {
       "ticker": "ABNB",
@@ -5146,8 +4912,8 @@
         "dte": 17
       },
       "outcome": null,
-      "last_price": 134.39,
-      "current_return": -0.8426
+      "last_price": 136.115,
+      "current_return": -0.8068
     },
     {
       "ticker": "BIIB",
@@ -5221,8 +4987,8 @@
         "dte": 121
       },
       "outcome": null,
-      "last_price": 195.08,
-      "current_return": -0.0417
+      "last_price": 199.165,
+      "current_return": 0.125
     },
     {
       "ticker": "META",
@@ -5295,8 +5061,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 621.9532,
-      "current_return": 0.1196
+      "last_price": 630.3,
+      "current_return": 0.5489
     },
     {
       "ticker": "BK",
@@ -5445,8 +5211,8 @@
         "dte": 16
       },
       "outcome": null,
-      "last_price": 54.815,
-      "current_return": -0.9784
+      "last_price": 56.08,
+      "current_return": -0.9332
     },
     {
       "ticker": "GOOG",
@@ -5530,8 +5296,8 @@
         "dte": 93
       },
       "outcome": null,
-      "last_price": 355.82,
-      "current_return": -0.5272
+      "last_price": 367.49,
+      "current_return": -0.3764
     },
     {
       "ticker": "GOOGL",
@@ -5615,8 +5381,8 @@
         "dte": 93
       },
       "outcome": null,
-      "last_price": 359.47,
-      "current_return": -0.5108
+      "last_price": 370.805,
+      "current_return": -0.3762
     },
     {
       "ticker": "DDOG",
@@ -5700,8 +5466,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 249.17,
-      "current_return": 0.3315
+      "last_price": 245.16,
+      "current_return": 0.2652
     },
     {
       "ticker": "COIN",
@@ -5779,8 +5545,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 165.7399,
-      "current_return": -0.5402
+      "last_price": 163.64,
+      "current_return": -0.5654
     },
     {
       "ticker": "GOOG",
@@ -5864,8 +5630,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 355.82,
-      "current_return": -0.4646
+      "last_price": 367.49,
+      "current_return": -0.2938
     },
     {
       "ticker": "CSCO",
@@ -5949,7 +5715,7 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 128.8,
+      "last_price": 128.6701,
       "current_return": 0.3882
     },
     {
@@ -6034,8 +5800,8 @@
         "dte": 120
       },
       "outcome": null,
-      "last_price": 70.535,
-      "current_return": -0.3549
+      "last_price": 70.76,
+      "current_return": -0.3219
     },
     {
       "ticker": "AKAM",
@@ -6119,8 +5885,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 162.59,
-      "current_return": -0.1316
+      "last_price": 158.835,
+      "current_return": -0.1737
     },
     {
       "ticker": "BA",
@@ -6204,8 +5970,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 213.425,
-      "current_return": -0.2938
+      "last_price": 216.505,
+      "current_return": -0.2678
     },
     {
       "ticker": "GOOGL",
@@ -6289,8 +6055,8 @@
         "dte": 91
       },
       "outcome": null,
-      "last_price": 359.39,
-      "current_return": -0.4952
+      "last_price": 370.78,
+      "current_return": -0.3562
     },
     {
       "ticker": "MO",
@@ -6375,8 +6141,8 @@
         "dte": 119
       },
       "outcome": null,
-      "last_price": 70.535,
-      "current_return": -0.3597
+      "last_price": 70.76,
+      "current_return": -0.3891
     }
   ],
   "closed_trades": [
@@ -7954,6 +7720,246 @@
       "current_return": -1.0,
       "close_date": "2026-06-01",
       "close_price": 88.93
+    },
+    {
+      "ticker": "HOOD",
+      "entry_date": "2026-04-20",
+      "features": {
+        "impact": 7,
+        "surprise": 6,
+        "mismatch": 7.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0414,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "strong",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6506
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 100.0,
+        "bid": 3.4,
+        "ask": 3.5,
+        "open_interest": 13428,
+        "implied_vol": 0.7319362744140624,
+        "spread_ratio": 0.0286,
+        "dte": 24,
+        "spread_leg": {
+          "strike": 110.0,
+          "bid": 1.53,
+          "ask": 1.59
+        },
+        "net_debit": 1.97
+      },
+      "simulation": {
+        "current_price": 89.94,
+        "target_price": 97.14,
+        "hit_rate": 0.8011,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0454,
+        "alpha": 0.00031
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Bewertungs-Risiko: Bei $89.94 und einem EPS von ~$2.05-2.69 handelt HOOD auf einem KGV von 33-44x \u2014 eine Premium-Bewertung, die bereits viel Wachstum einpreist. Eine SEC-Regel\u00e4nderung, die 'die Schleusen \u00f6ffnet', ist m\u00f6glicherweise bereits durch den +3.6% Move in 48h und das Mizuho-Upgrade auf $115 weitgehend diskontiert.",
+          "argument_2": "Regulatorisches Risiko ist zweischneidig: Dieselbe SEC, die Pattern-Day-Trader-Regeln lockert, kann in einem anderen politischen Klima neue restriktive Ma\u00dfnahmen einf\u00fchren. HOOD hat eine Geschichte mit regulatorischen Strafen (FINRA, SEC Settlement 2021). Retailbroker sind strukturell exponiert gegen\u00fcber regulatorischer Unsicherheit \u2014 ein zuk\u00fcnftiger Gegenwind k\u00f6nnte diesen Katalysator umkehren.",
+          "argument_3": "Monetarisierungs-Unsicherheit: HOOD's Revenue ist stark von Payment-for-Order-Flow (PFOF) abh\u00e4ngig, das in Europa bereits verboten ist und in den USA unter Beobachtung steht. Zudem h\u00e4ngt der Umsatz stark von Marktvolatilit\u00e4t und Retail-Aktivit\u00e4t ab \u2014 in einem ruhigeren Marktumfeld (VIX unter 15) kollabiert das Trading-Volumen \u00fcberproportional.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "MC nicht durchgef\u00fchrt (0 Pfade). Bei HOOD mit historischer Volatilit\u00e4t von ~70-80% annualisiert ist keine statistische Einsch\u00e4tzung m\u00f6glich. Die fehlende MC-Simulation ist ein Datenl\u00fccke, erh\u00f6ht aber nicht das fundamentale Risiko des Setups. Concern-Level bleibt medium da Richtungssignal durch andere Quellen (Insider, Analyst-Upgrade) gest\u00fctzt wird.",
+          "concern_level": "medium"
+        },
+        "impact": 7,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt hat die strukturelle Tragweite der PDT-Regel\u00e4nderung noch nicht vollst\u00e4ndig eingepreist: Eine Lockerung w\u00fcrde Millionen von Retail-Konten mit unter $25k aus der Pattern-Day-Trader-Beschr\u00e4nkung befreien und direkt HOOD's Kernzielgruppe freischalten. Das Cluster-Insider-Kaufsignal (4 Insider in 14 Tagen) deutet darauf hin, dass interne Akteure die Gesch\u00e4ftschance h\u00f6her bewerten als der aktuelle Kurs reflektiert. Mizuho's Upgrade auf $115 gibt ~28% Upside und kommt von einer typischerweise konservativen Institution.",
+        "catalyst": "SEC Pattern-Day-Trader-Regelreform: Lockerung der $25k-Mindestkapitalanforderung w\u00fcrde HOOD's adressierbaren Markt signifikant erweitern und Trading-Volumen sowie PFOF-Revenues strukturell steigern.",
+        "bear_case": "Valuation bereits gestreckt bei 33-44x KGV, +3.6% in 48h k\u00f6nnte den Katalysator kurzfristig \u00fcberdiskontieren, und PFOF-Abh\u00e4ngigkeit bleibt ein strukturelles Risiko bei zuk\u00fcnftigen Regulierungs\u00e4nderungen.",
+        "macro_assessment": "Expansives Makro-Umfeld mit steiler Zinskurve (+0.55%) und Fed Funds bei 3.64% beg\u00fcnstigt Retail-Broker strukturell: H\u00f6here Zinsen auf Cash-Best\u00e4nde st\u00e4rken NIM-Komponenten, und Risk-On-Umfeld treibt Retail-Engagement. HOOD profitiert \u00fcberproportional von expansivem Regime. Makro-Kontext st\u00fctzt BULLISH-Signal klar.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.55,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.7008,
+        "annualized_roi": null,
+        "dte": 24
+      },
+      "outcome": -1.0,
+      "last_price": 83.965,
+      "current_return": -1.0,
+      "close_date": "2026-06-04",
+      "close_price": 86.1042
+    },
+    {
+      "ticker": "ON",
+      "entry_date": "2026-04-20",
+      "features": {
+        "impact": 5,
+        "surprise": 6,
+        "mismatch": 5.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0378,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.8334
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 85.0,
+        "bid": 5.4,
+        "ask": 5.75,
+        "open_interest": 3117,
+        "implied_vol": 0.631839619140625,
+        "spread_ratio": 0.0609,
+        "dte": 24,
+        "spread_leg": {
+          "strike": 95.0,
+          "bid": 2.14,
+          "ask": 2.39
+        },
+        "net_debit": 3.61
+      },
+      "simulation": {
+        "current_price": 84.63,
+        "target_price": 91.4,
+        "hit_rate": 0.97,
+        "n_paths": 10000,
+        "days": 120,
+        "sigma": 0.0306,
+        "alpha": 0.00615
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "ON Semiconductor (onsemi) ist prim\u00e4r ein Automotive/Industrial-Halbleiter-Lieferant (SiC, IGBT), NICHT ein Lithium-Batterie- oder Energy-Storage-Hersteller. Die Haiku-Pr\u00e4misse 'Lithium-Engpass + Energy Storage Boom' trifft das Gesch\u00e4ftsmodell nur indirekt \u00fcber Leistungshalbleiter \u2013 das ist ein fundamentales Narrativ-Mismatch, das die Signalqualit\u00e4t massiv schw\u00e4cht.",
+          "argument_2": "EV-Slowdown ist explizit benannt und ON's gr\u00f6\u00dfter Wachstumstreiber (SiC f\u00fcr EVs) leidet darunter direkt. ON hat in den letzten Quartalen Guidance-Cuts bei Automotive SiC gemacht. Der +5.9% Move in 48h k\u00f6nnte eine Bear-Market-Rally in einem strukturell geschw\u00e4chten Segment sein \u2013 Momentum ohne fundamentale Revision nach oben.",
+          "argument_3": "Insider-Cluster-K\u00e4ufe bei Halbleiter-Unternehmen sind oft opportunistisch nach Kursr\u00fcckg\u00e4ngen und kein verl\u00e4sslicher Forward-Indikator. Der Kurs bei $84.63 impliziert ein KGV von ~21x auf annualisiertes EPS \u2013 bei verlangsamtem Wachstum und US/China-Geopolitik-Risiken f\u00fcr die Lieferkette ist das keine billige Bewertung. Zudem: EPS-Diskrepanz zwischen yfinance ($4.05) und SEC EDGAR ($0.29) deutet auf massive Bilanzierungs- oder Periodenunterschiede hin.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2013 0 Pfade verf\u00fcgbar. Kein statistischer R\u00fcckenwind auswertbar. Bei einer 48h-Bewegung von +5.9% und fehlender MC-Validierung ist das Signal rein news-getrieben ohne quantitative Best\u00e4tigung. Concern: Die EPS-Abweichung (yfinance $4.05 vs. SEC $0.29) ist extrem verd\u00e4chtig und k\u00f6nnte auf fehlerhafte Datenbasis im Modell hinweisen.",
+          "concern_level": "high"
+        },
+        "impact": 5,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "asymmetry_reasoning": "Der Markt k\u00f6nnte die indirekte Benefizierung von ON durch Energy-Storage-Boom (Leistungshalbleiter f\u00fcr Wechselrichter/BMS) noch nicht vollst\u00e4ndig eingepreist haben, da das EV-Slowdown-Narrativ dominiert. Insider-Cluster-K\u00e4ufe (9 in 14 Tagen) signalisieren Management-Zuversicht bei aktuellem Kursniveau. Allerdings weicht meine Bewertung von der Haiku-Einsch\u00e4tzung ab: ON ist kein Batterie-Produzent, sondern Profiteur via Leistungselektronik \u2013 das ist eine schw\u00e4chere, mittelbare Kausalit\u00e4t.",
+        "catalyst": "Q-Earnings mit \u00fcberraschend starker Energy-Storage/Industrial-Power-Guidance als Offset zum EV-Slowdown + m\u00f6gliche Erh\u00f6hung US-Produktionssubventionen f\u00fcr Leistungshalbleiter in domestischer Energieinfrastruktur",
+        "bear_case": "ON's Kerngesch\u00e4ft Automotive SiC leidet unter EV-Marktschw\u00e4che; Energy-Storage-Exposure ist indirekt und margenschw\u00e4cher; der +5.9% Move k\u00f6nnte bereits das gesamte kurzfristige Upside absorbiert haben vor dem n\u00e4chsten Earnings-Katalysator.",
+        "macro_assessment": "Expansives Makro-Umfeld (steile Kurve +0.55%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich zyklische Technologie/Halbleiter-Positionen. Die Kombination aus niedrigeren Finanzierungskosten und staatlichen Subventionen f\u00fcr US-Energieinfrastruktur schafft einen strukturellen R\u00fcckenwind f\u00fcr ON's Industrial-Power-Segment. Makro ist supportiv, d\u00e4mpft aber nicht die unternehmensspezifischen Risiken im EV-Segment.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.55,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 1.0621,
+        "annualized_roi": null,
+        "dte": 24
+      },
+      "outcome": 1.7701,
+      "last_price": 133.62,
+      "current_return": 1.7701,
+      "close_date": "2026-06-04",
+      "close_price": 131.255
+    },
+    {
+      "ticker": "TSLA",
+      "entry_date": "2026-04-20",
+      "features": {
+        "impact": 6,
+        "surprise": 7,
+        "mismatch": 6.0,
+        "z_score": 0.0,
+        "sigma_30d": 0.0273,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6218
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-05-15",
+        "strike": 400.0,
+        "bid": 16.65,
+        "ask": 16.75,
+        "open_interest": 15649,
+        "implied_vol": 0.4828848098754883,
+        "spread_ratio": 0.006,
+        "dte": 24,
+        "spread_leg": {
+          "strike": 440.0,
+          "bid": 5.4,
+          "ask": 5.5
+        },
+        "net_debit": 11.35
+      },
+      "simulation": {
+        "current_price": 392.02,
+        "target_price": 423.39,
+        "hit_rate": 0.7014,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0262,
+        "alpha": 0.00187
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "TSLA ist bereits mit einem astronomischen KGV (>100x) bewertet \u2014 die 'Terafab AI-Chip'-Story ist spekulativ und k\u00f6nnte lediglich ein narrativer Ablenkungsversuch sein, um die Aufmerksamkeit vom Kerngesch\u00e4ft abzulenken, das unter Margendruck, sinkenden Marktanteilen in China und zunehmender EV-Konkurrenz leidet. Der Markt hat solche TSLA-Versprechungen wiederholt \u00fcberbewertet.",
+          "argument_2": "TSLA ist das Schlusslicht der 'Magnificent 7' Rally \u2014 das deutet auf relative Schw\u00e4che und institutionelle Skepsis hin. Bevorstehende Earnings mit expliziter Erwartung 'tangible progress' bei FSD/Autonomie (Morgan Stanley) schaffen ein erhebliches Entt\u00e4uschungsrisiko: Wenn der Katalysator nicht liefert, droht ein starker IV-Crush plus fundamentaler Sell-off.",
+          "argument_3": "EPS-Diskrepanz zwischen yfinance ($2.75) und SEC EDGAR ($1.08) \u2014 ein Faktor von ~2.5x \u2014 ist ein erhebliches Datenkonfidenz-Problem. Bei TSLA mit seiner komplexen Bilanzierung (Regulatory Credits, FSD-Deferred Revenue, Energie-Segment) ist unklar, welche Zahl die operative Realit\u00e4t besser abbildet. Dies erschwert jede rationale Fundamentalbewertung erheblich.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine statistische Basis vorhanden. Bei TSLA mit historischer 30-Tage-Volatilit\u00e4t von ~45-60% annualisiert w\u00e4re ein bullisches MC-Ziel in 30 Tagen realistisch zwischen 45-55% Hit-Rate. Die fehlende MC-Analyse ist ein Datenl\u00fccken-Problem, nicht per se b\u00e4risch, aber es fehlt quantitative St\u00fctzung f\u00fcr die Richtungsthese.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 7,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt unterreagiert m\u00f6glicherweise auf das Terafab AI-Chip-Signal, weil TSLA-Bullishness aktuell out-of-favor ist (Schlusslicht Mag7) und AI-Hardware-Narrativ erst in die Valuation-Modelle sickern muss. Das 6-Insider-Cluster-Kaufsignal innerhalb 14 Tagen ist statistisch ungew\u00f6hnlich und deutet auf informierten Optimismus vor Earnings hin. Haiku-Einsch\u00e4tzung wird best\u00e4tigt: Die neue AI-Chip-Kategorie k\u00f6nnte tats\u00e4chlich die Margin-Debatte neu framen \u2014 allerdings bleibt das Risiko hoch, da TSLA-Narrative oft entt\u00e4uschen.",
+        "catalyst": "TSLA Earnings-Report mit konkreten Terafab AI-Chip-Meilensteinen und FSD-Skalierungsfortschritt; Insider-Cluster-K\u00e4ufe als vorauseilender Informationsindikator",
+        "bear_case": "TSLA liefert bei Earnings erneut nur vage Versprechen ohne quantifizierbare AI-Chip-Revenue-Timeline \u2014 IV-Crush post-Earnings kombiniert mit fundamentalem Entt\u00e4uschungs-Sell-off bei weiterhin komprimierter Auto-Marge. Relative Schw\u00e4che vs. Mag7-Peers verst\u00e4rkt institutionelle Abgaben.",
+        "macro_assessment": "Steile Zinskurve (+0.55%) und expansives Fed-Regime (3.64% Funds Rate) beg\u00fcnstigen grunds\u00e4tzlich Growth/Momentum-Namen wie TSLA. Das makro\u00f6konomische Umfeld ist kein Gegenwind \u2014 im Gegenteil, fallende Real-Zinsen st\u00fctzen hochbewertete Wachstumsaktien. Allerdings bleibt TSLA prim\u00e4r ein idiosynkratisches Story-Risk, weniger ein Makro-Trade. Der Makro-R\u00fcckenwind ist vorhanden, aber nicht der dominante Treiber.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.55,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 2.3404,
+        "annualized_roi": null,
+        "dte": 24
+      },
+      "outcome": 0.9595,
+      "last_price": 423.673,
+      "current_return": 0.9595,
+      "close_date": "2026-06-04",
+      "close_price": 419.34
     }
   ],
   "model_weights": {
@@ -8057,6 +8063,11 @@
         "date": "2026-05-25",
         "score": 0.0903,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.3712,
+        "headline_count": 3
       }
     ],
     "GEN": [
@@ -8189,6 +8200,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0937,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.4614,
         "headline_count": 5
       }
     ],
@@ -8357,6 +8373,11 @@
         "date": "2026-06-03",
         "score": 0.103,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.3062,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -8493,6 +8514,11 @@
       {
         "date": "2026-06-03",
         "score": 0.4098,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1208,
         "headline_count": 5
       }
     ],
@@ -8916,6 +8942,11 @@
         "date": "2026-06-03",
         "score": 0.2266,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0099,
+        "headline_count": 5
       }
     ],
     "FSLR": [
@@ -9074,6 +9105,11 @@
       {
         "date": "2026-06-01",
         "score": 0.1706,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2075,
         "headline_count": 5
       }
     ],
@@ -9498,6 +9534,11 @@
         "date": "2026-06-03",
         "score": -0.189,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.4302,
+        "headline_count": 5
       }
     ],
     "CHTR": [
@@ -9660,6 +9701,11 @@
         "date": "2026-06-03",
         "score": -0.3269,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0826,
+        "headline_count": 5
       }
     ],
     "C": [
@@ -9756,6 +9802,11 @@
       {
         "date": "2026-06-03",
         "score": 0.2198,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.3635,
         "headline_count": 5
       }
     ],
@@ -9951,6 +10002,11 @@
         "date": "2026-06-03",
         "score": -0.2475,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1164,
+        "headline_count": 5
       }
     ],
     "FANG": [
@@ -10022,6 +10078,11 @@
       {
         "date": "2026-06-03",
         "score": -0.0763,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0522,
         "headline_count": 5
       }
     ],
@@ -10632,6 +10693,11 @@
         "date": "2026-06-03",
         "score": 0.1878,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.5107,
+        "headline_count": 5
       }
     ],
     "CVNA": [
@@ -10880,6 +10946,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1322,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1609,
         "headline_count": 5
       }
     ],
@@ -11274,6 +11345,11 @@
         "date": "2026-06-03",
         "score": -0.0613,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1144,
+        "headline_count": 5
       }
     ],
     "HRL": [
@@ -11479,6 +11555,11 @@
       {
         "date": "2026-06-03",
         "score": 0.5253,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1192,
         "headline_count": 5
       }
     ],
@@ -11796,6 +11877,11 @@
         "date": "2026-06-03",
         "score": 0.3433,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2539,
+        "headline_count": 5
       }
     ],
     "AAPL": [
@@ -11968,6 +12054,11 @@
         "date": "2026-06-03",
         "score": 0.0486,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1086,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -12099,6 +12190,11 @@
       {
         "date": "2026-06-03",
         "score": 0.136,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1424,
         "headline_count": 5
       }
     ],
@@ -12359,6 +12455,11 @@
         "date": "2026-06-03",
         "score": 0.0653,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.5009,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
@@ -12516,6 +12617,11 @@
         "date": "2026-06-03",
         "score": 0.3456,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2519,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -12617,6 +12723,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0455,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0586,
         "headline_count": 5
       }
     ],
@@ -12749,6 +12860,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0694,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0193,
         "headline_count": 5
       }
     ],
@@ -13100,6 +13216,11 @@
         "date": "2026-06-03",
         "score": -0.0881,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0028,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -13232,6 +13353,11 @@
       {
         "date": "2026-06-03",
         "score": 0.2914,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1621,
         "headline_count": 5
       }
     ],
@@ -13397,6 +13523,11 @@
         "date": "2026-06-03",
         "score": 0.0706,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1447,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -13509,6 +13640,11 @@
         "date": "2026-06-03",
         "score": 0.1509,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0653,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -13601,6 +13737,11 @@
         "date": "2026-05-29",
         "score": 0.4773,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0125,
+        "headline_count": 3
       }
     ],
     "D": [
@@ -13718,6 +13859,11 @@
         "date": "2026-06-03",
         "score": 0.1492,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1281,
+        "headline_count": 5
       }
     ],
     "ETR": [
@@ -13750,6 +13896,11 @@
         "date": "2026-05-20",
         "score": 0.191,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0296,
+        "headline_count": 1
       }
     ],
     "EQR": [
@@ -13973,6 +14124,11 @@
         "date": "2026-06-01",
         "score": 0.015,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0512,
+        "headline_count": 5
       }
     ],
     "CDNS": [
@@ -14085,6 +14241,11 @@
         "date": "2026-06-03",
         "score": 0.3718,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1811,
+        "headline_count": 5
       }
     ],
     "STZ": [
@@ -14182,6 +14343,11 @@
         "date": "2026-06-02",
         "score": 0.0589,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0395,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -14268,6 +14434,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0129,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0256,
         "headline_count": 5
       }
     ],
@@ -14484,6 +14655,11 @@
         "date": "2026-06-03",
         "score": 0.1228,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.054,
+        "headline_count": 5
       }
     ],
     "BALL": [
@@ -14555,6 +14731,11 @@
       {
         "date": "2026-06-01",
         "score": -0.0209,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.237,
         "headline_count": 1
       }
     ],
@@ -14862,6 +15043,11 @@
         "date": "2026-06-03",
         "score": 0.3235,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0099,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -14938,6 +15124,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1906,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0339,
         "headline_count": 4
       }
     ],
@@ -15036,6 +15227,11 @@
         "date": "2026-06-03",
         "score": -0.0152,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1477,
+        "headline_count": 5
       }
     ],
     "CFG": [
@@ -15128,6 +15324,11 @@
         "date": "2026-06-03",
         "score": -0.1288,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.142,
+        "headline_count": 5
       }
     ],
     "CMS": [
@@ -15209,6 +15410,11 @@
       {
         "date": "2026-06-03",
         "score": -0.216,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0166,
         "headline_count": 5
       }
     ],
@@ -15336,6 +15542,11 @@
       {
         "date": "2026-06-03",
         "score": 0.3235,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0099,
         "headline_count": 5
       }
     ],
@@ -15484,6 +15695,11 @@
         "date": "2026-06-03",
         "score": 0.14,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2795,
+        "headline_count": 5
       }
     ],
     "COST": [
@@ -15601,6 +15817,11 @@
         "date": "2026-06-03",
         "score": 0.1625,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0879,
+        "headline_count": 5
       }
     ],
     "DVA": [
@@ -15735,6 +15956,11 @@
         "date": "2026-06-03",
         "score": 0.1341,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1543,
+        "headline_count": 5
       }
     ],
     "ETN": [
@@ -15836,6 +16062,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0504,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0439,
         "headline_count": 5
       }
     ],
@@ -16063,6 +16294,11 @@
         "date": "2026-06-03",
         "score": 0.0755,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0601,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -16225,6 +16461,11 @@
         "date": "2026-06-03",
         "score": -0.02,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2733,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -16297,6 +16538,11 @@
         "date": "2026-06-03",
         "score": 0.3379,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.3207,
+        "headline_count": 5
       }
     ],
     "AEP": [
@@ -16495,6 +16741,11 @@
       {
         "date": "2026-06-03",
         "score": 0.2056,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.005,
         "headline_count": 5
       }
     ],
@@ -16740,6 +16991,11 @@
         "date": "2026-06-03",
         "score": 0.1862,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.3346,
+        "headline_count": 5
       }
     ],
     "ADI": [
@@ -16876,6 +17132,11 @@
       {
         "date": "2026-06-03",
         "score": -0.0128,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.4126,
         "headline_count": 5
       }
     ],
@@ -17023,6 +17284,11 @@
       {
         "date": "2026-06-03",
         "score": -0.0591,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0892,
         "headline_count": 5
       }
     ],
@@ -17243,6 +17509,11 @@
         "date": "2026-06-03",
         "score": -0.1881,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1881,
+        "headline_count": 5
       }
     ],
     "ANET": [
@@ -17405,6 +17676,11 @@
         "date": "2026-06-03",
         "score": 0.1203,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0377,
+        "headline_count": 5
       }
     ],
     "ADSK": [
@@ -17511,6 +17787,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1225,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2279,
         "headline_count": 5
       }
     ],
@@ -17818,6 +18099,11 @@
         "date": "2026-06-03",
         "score": 0.3235,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.3,
+        "headline_count": 5
       }
     ],
     "CPT": [
@@ -17895,6 +18181,11 @@
         "date": "2026-06-03",
         "score": 0.2952,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.134,
+        "headline_count": 4
       }
     ],
     "CAH": [
@@ -18042,6 +18333,11 @@
         "date": "2026-06-02",
         "score": 0.3803,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1485,
+        "headline_count": 5
       }
     ],
     "CL": [
@@ -18148,6 +18444,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0344,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0944,
         "headline_count": 5
       }
     ],
@@ -18266,6 +18567,11 @@
         "date": "2026-06-03",
         "score": 0.0025,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1085,
+        "headline_count": 5
       }
     ],
     "APD": [
@@ -18358,6 +18664,11 @@
         "date": "2026-06-03",
         "score": 0.4683,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.6114,
+        "headline_count": 4
       }
     ],
     "ABNB": [
@@ -18617,6 +18928,11 @@
         "date": "2026-06-03",
         "score": -0.4026,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0868,
+        "headline_count": 5
       }
     ],
     "CTVA": [
@@ -18760,6 +19076,11 @@
       {
         "date": "2026-06-01",
         "score": 0.1556,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2097,
         "headline_count": 5
       }
     ],
@@ -19013,6 +19334,11 @@
         "date": "2026-06-03",
         "score": 0.3235,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0099,
+        "headline_count": 5
       }
     ],
     "DG": [
@@ -19134,6 +19460,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1341,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1543,
         "headline_count": 5
       }
     ],
@@ -19783,6 +20114,11 @@
       {
         "date": "2026-06-03",
         "score": 0.3235,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0099,
         "headline_count": 5
       }
     ],
@@ -20516,6 +20852,11 @@
         "date": "2026-06-03",
         "score": 0.4223,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.3251,
+        "headline_count": 5
       }
     ],
     "AXP": [
@@ -20643,6 +20984,11 @@
         "date": "2026-06-03",
         "score": 0.0001,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.3852,
+        "headline_count": 5
       }
     ],
     "BMY": [
@@ -20755,6 +21101,11 @@
         "date": "2026-06-03",
         "score": 0.0463,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.3078,
+        "headline_count": 3
       }
     ],
     "BBY": [
@@ -20862,6 +21213,11 @@
         "date": "2026-06-03",
         "score": 0.2849,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2237,
+        "headline_count": 5
       }
     ],
     "BR": [
@@ -20964,6 +21320,11 @@
         "date": "2026-06-03",
         "score": -0.0113,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.3267,
+        "headline_count": 5
       }
     ],
     "CBRE": [
@@ -21050,6 +21411,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1707,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1593,
         "headline_count": 5
       }
     ],
@@ -21167,6 +21533,11 @@
       {
         "date": "2026-06-03",
         "score": -0.1315,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1282,
         "headline_count": 5
       }
     ],
@@ -21422,6 +21793,11 @@
         "date": "2026-06-03",
         "score": 0.0157,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1297,
+        "headline_count": 5
       }
     ],
     "CHD": [
@@ -21514,6 +21890,11 @@
         "date": "2026-06-03",
         "score": -0.1179,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.3699,
+        "headline_count": 4
       }
     ],
     "CI": [
@@ -21615,6 +21996,11 @@
       {
         "date": "2026-06-03",
         "score": 0.3235,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0099,
         "headline_count": 5
       }
     ],
@@ -21732,6 +22118,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1824,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.187,
         "headline_count": 5
       }
     ],
@@ -21855,6 +22246,11 @@
         "date": "2026-06-03",
         "score": -0.0165,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0395,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -21977,6 +22373,11 @@
         "date": "2026-06-03",
         "score": 0.3532,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1894,
+        "headline_count": 5
       }
     ],
     "DHR": [
@@ -22074,6 +22475,11 @@
         "date": "2026-06-03",
         "score": 0.2192,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2179,
+        "headline_count": 4
       }
     ],
     "DOV": [
@@ -22182,6 +22588,11 @@
       {
         "date": "2026-06-03",
         "score": 0.0136,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1054,
         "headline_count": 5
       }
     ],
@@ -22399,6 +22810,11 @@
         "date": "2026-06-03",
         "score": -0.0844,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1407,
+        "headline_count": 4
       }
     ],
     "AME": [
@@ -22861,6 +23277,11 @@
         "date": "2026-06-03",
         "score": 0.1688,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1263,
+        "headline_count": 5
       }
     ],
     "CCI": [
@@ -22962,6 +23383,11 @@
       {
         "date": "2026-06-03",
         "score": -0.0476,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.2506,
         "headline_count": 5
       }
     ],
@@ -23072,6 +23498,11 @@
         "date": "2026-06-03",
         "score": 0.2626,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0118,
+        "headline_count": 5
       }
     ],
     "ATO": [
@@ -23154,6 +23585,11 @@
         "date": "2026-06-03",
         "score": 0.1751,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2151,
+        "headline_count": 4
       }
     ],
     "CDW": [
@@ -23257,6 +23693,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1187,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.5086,
         "headline_count": 5
       }
     ],
@@ -23484,6 +23925,11 @@
         "date": "2026-06-03",
         "score": 0.0621,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1853,
+        "headline_count": 5
       }
     ],
     "ECL": [
@@ -23627,6 +24073,11 @@
       {
         "date": "2026-06-03",
         "score": -0.2778,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.4191,
         "headline_count": 5
       }
     ],
@@ -24044,6 +24495,11 @@
         "date": "2026-06-03",
         "score": 0.3784,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.4667,
+        "headline_count": 2
       }
     ],
     "AJG": [
@@ -24168,6 +24624,11 @@
         "date": "2026-06-02",
         "score": 0.072,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0018,
+        "headline_count": 5
       }
     ],
     "CRL": [
@@ -24344,6 +24805,11 @@
         "date": "2026-06-03",
         "score": 0.1199,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2268,
+        "headline_count": 5
       }
     ],
     "XYZ": [
@@ -24406,6 +24872,11 @@
         "date": "2026-06-03",
         "score": -0.1852,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2373,
+        "headline_count": 5
       }
     ],
     "BSX": [
@@ -24463,6 +24934,11 @@
         "date": "2026-06-03",
         "score": 0.3692,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.318,
+        "headline_count": 4
       }
     ],
     "BKNG": [
@@ -24515,6 +24991,11 @@
         "date": "2026-06-03",
         "score": 0.2846,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1966,
+        "headline_count": 5
       }
     ],
     "CHRW": [
@@ -24532,6 +25013,11 @@
         "date": "2026-06-03",
         "score": 0.361,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2958,
+        "headline_count": 5
       }
     ],
     "CNP": [
@@ -24568,6 +25054,11 @@
       {
         "date": "2026-06-03",
         "score": 0.1743,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1914,
         "headline_count": 5
       }
     ],
@@ -24615,6 +25106,11 @@
       {
         "date": "2026-06-03",
         "score": 0.2505,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.0016,
         "headline_count": 5
       }
     ],
@@ -24668,6 +25164,11 @@
         "date": "2026-06-03",
         "score": -0.0184,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1799,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -24720,6 +25221,11 @@
         "date": "2026-06-03",
         "score": -0.3122,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.1155,
+        "headline_count": 5
       }
     ],
     "DELL": [
@@ -24766,6 +25272,11 @@
       {
         "date": "2026-06-03",
         "score": -0.0248,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.2292,
         "headline_count": 5
       }
     ],
@@ -24814,6 +25325,11 @@
         "date": "2026-06-03",
         "score": 0.0105,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": -0.1435,
+        "headline_count": 5
       }
     ],
     "SATS": [
@@ -24861,6 +25377,11 @@
         "date": "2026-06-03",
         "score": 0.0855,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0841,
+        "headline_count": 2
       }
     ],
     "BNY": [
@@ -24910,6 +25431,11 @@
         "date": "2026-06-03",
         "score": 0.3113,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.0915,
+        "headline_count": 3
       }
     ],
     "EXE": [
@@ -24923,6 +25449,11 @@
       {
         "date": "2026-06-03",
         "score": -0.0114,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-04",
+        "score": 0.201,
         "headline_count": 5
       }
     ],
