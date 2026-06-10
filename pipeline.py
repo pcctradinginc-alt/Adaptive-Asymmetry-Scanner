@@ -328,7 +328,6 @@ def main() -> None:
                 sector_pre.append(c)
             else:
                 reject("sector_momentum_weak", ticker)
-                log.info(f"  [{ticker}] REJECT → sector_momentum_weak")
         except Exception as e:
             log.debug(f"  [{ticker}] Sector-Check Fehler: {e} → durchgelassen")
             sector_pre.append(c)
@@ -452,13 +451,16 @@ def main() -> None:
 
     # ── STUFE 4b: Impact×Surprise Floor ──────────────────────────────────────
     _before_isf = len(analyses)
-    analyses = [
-        a for a in analyses
+    _passed_isf, _failed_isf = [], []
+    for a in analyses:
         if (a.get("deep_analysis", {}).get("impact", 0) *
-            a.get("deep_analysis", {}).get("surprise", 0)) >= 20
-    ]
-    for _ in range(_before_isf - len(analyses)):
-        reject("impact_x_surprise_below_floor")
+                a.get("deep_analysis", {}).get("surprise", 0)) >= 20:
+            _passed_isf.append(a)
+        else:
+            _failed_isf.append(a)
+    for a in _failed_isf:
+        reject("impact_x_surprise_below_floor", a.get("ticker"))
+    analyses = _passed_isf
     stats["after_isf"] = len(analyses)
     log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (≥20, war {_before_isf})")
     if not analyses:

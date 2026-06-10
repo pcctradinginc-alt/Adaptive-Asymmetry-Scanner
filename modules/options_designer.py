@@ -431,6 +431,7 @@ class OptionsDesigner:
             results_per_tier.append({
                 "tier": label, "dte": option["dte"],
                 "option": option, "roi": roi,
+                "roi_net_initial": roi["roi_net"],  # Snapshot vor möglicher MC-Mutation
                 "annualized_roi": round(annualized_roi, 4),
                 "strategy": strategy,
             })
@@ -457,16 +458,18 @@ class OptionsDesigner:
 
             if roi["passes_roi_gate"]:
                 tier_idx = DTE_TIERS.index(tier)
-                if tier_idx > 0:
-                    prev_label = DTE_TIERS[0]["label"]
-                    prev_roi   = results_per_tier[0]["roi"]["roi_net"] if results_per_tier else None
-                    if prev_roi is not None:
-                        log.info(
-                            f"  [{ticker}] ⚡ LAUFZEIT-RETTUNG: "
-                            f"{prev_label} ROI={prev_roi:.1%} (FAIL) → "
-                            f"{label} ROI={roi['roi_net']:.1%} (PASS) — "
-                            f"Trade akzeptiert mit {option['dte']}d Laufzeit"
-                        )
+                if tier_idx > 0 and results_per_tier:
+                    # Verwende den letzten verarbeiteten Tier (nicht immer Index 0)
+                    # und den Snapshot vor MC-Mutation für korrekte Darstellung.
+                    prev_entry = results_per_tier[-1]
+                    prev_label = prev_entry["tier"]
+                    prev_roi   = prev_entry["roi_net_initial"]
+                    log.info(
+                        f"  [{ticker}] ⚡ LAUFZEIT-RETTUNG: "
+                        f"{prev_label} ROI={prev_roi:.1%} (FAIL) → "
+                        f"{label} ROI={roi['roi_net']:.1%} (PASS) — "
+                        f"Trade akzeptiert mit {option['dte']}d Laufzeit"
+                    )
 
                 # v10.4 EDGE-GATE: Trade-spezifischer Break-even statt straddle/2
                 # Break-even bei Verfall (konservativ):
@@ -569,7 +572,7 @@ class OptionsDesigner:
                 }
 
         tried = ", ".join(
-            f"{r['tier']}={r['roi']['roi_net']:.1%}" for r in results_per_tier
+            f"{r['tier']}={r['roi_net_initial']:.1%}" for r in results_per_tier
         )
         log.info(
             f"  [{ticker}] Alle Laufzeiten unter ROI-Gate "

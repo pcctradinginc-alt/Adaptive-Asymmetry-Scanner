@@ -66,6 +66,13 @@ class DataIngestion:
         vix_current = self._get_current_vix()
         log.info(f"  RV-Filter: VIX={vix_current:.1f} → Schwelle={0.6 * max(0.5, min(1.5, vix_current/20.0)):.3f}")
 
+        # Crumb-Fix: yfinance-Session vor parallelen Requests einmalig warmlaufen lassen,
+        # damit alle Threads denselben gültigen Crumb verwenden.
+        try:
+            yf.Ticker("SPY").fast_info.last_price
+        except Exception:
+            pass
+
         stats = {
             "total": len(tickers), "no_data": 0, "market_cap": 0,
             "avg_volume": 0, "dollar_volume": 0, "rel_volume": 0,
@@ -106,15 +113,15 @@ class DataIngestion:
         try:
             # Retry bei 401 (yfinance Crumb-Invalidierung durch parallele Requests)
             info = None
-            for _attempt in range(2):
+            for _attempt in range(3):
                 try:
                     t    = yf.Ticker(ticker)
                     info = t.info
                     if info and isinstance(info, dict):
                         break
                 except Exception as _e:
-                    if _attempt == 0:
-                        time.sleep(0.4)   # kurze Pause vor Retry
+                    if _attempt < 2:
+                        time.sleep(0.5 * (2 ** _attempt))   # 0.5s, 1.0s
                     else:
                         raise
 
