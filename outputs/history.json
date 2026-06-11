@@ -1,45 +1,37 @@
 {
   "feature_stats": {
     "impact": {
-      "low": {
-        "count": 481,
-        "avg_return": 0.578717
+      "high": {
+        "count": 2,
+        "avg_return": 0.8166
       },
       "mid": {
-        "count": 3563,
-        "avg_return": 0.040075
+        "count": 51,
+        "avg_return": 0.22528
       },
-      "high": {
-        "count": 117,
-        "avg_return": -0.043778
+      "low": {
+        "count": 8,
+        "avg_return": 0.844775
       }
     },
     "mismatch": {
-      "weak": {
-        "count": 1090,
-        "avg_return": 0.222291
-      },
       "good": {
-        "count": 2897,
-        "avg_return": 0.071365
+        "count": 45,
+        "avg_return": 0.388084
+      },
+      "weak": {
+        "count": 12,
+        "avg_return": 0.444
       },
       "strong": {
-        "count": 174,
-        "avg_return": -0.189584
+        "count": 4,
+        "avg_return": -0.727775
       }
     },
     "eps_drift": {
       "noise": {
-        "count": 4029,
-        "avg_return": 0.092039
-      },
-      "relevant": {
-        "count": 57,
-        "avg_return": 0.981518
-      },
-      "massive": {
-        "count": 75,
-        "avg_return": -0.142989
+        "count": 61,
+        "avg_return": 0.325912
       }
     }
   },
@@ -8025,9 +8017,9 @@
     }
   ],
   "model_weights": {
-    "impact": NaN,
-    "mismatch": NaN,
-    "eps_drift": NaN
+    "impact": 0.35,
+    "mismatch": 0.45,
+    "eps_drift": 0.2
   },
   "sentiment_history": {
     "TECH": [

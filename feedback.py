@@ -376,9 +376,11 @@ def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float 
 
 # ── Outcome-Berechnung ────────────────────────────────────────────────────────
 
-def compute_outcome(trade: dict, current_stock_price: float) -> float:
+def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
     """
     Berechnet Trade-Outcome (Return) für das RL-Training.
+    Returns None wenn kein verwertbarer Preis ermittelbar ist (statt 0.0,
+    das sonst als echtes Ergebnis ins Lern-System fließen würde).
 
     Prioritäten:
       Spread:       Net-Spread-Preis (long − short). Kein Stock-Fallback.
@@ -413,13 +415,13 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float:
     # ── Spread: beide Legs repricing, kein Stock-Fallback ───────────────────
     if is_spread:
         if entry_debit <= 0:
-            log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome=0.0 (übersprungen)")
-            return 0.0
+            log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome nicht verwertbar")
+            return None
         current_spread = get_current_spread_price(ticker, option, strategy)
         if current_spread is None:
             # Preis wirklich nicht ermittelbar — nicht als 0.0 ins Training
-            log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome=0.0 (nicht verwertbar)")
-            return 0.0
+            log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome nicht verwertbar")
+            return None
         # current_spread == 0.0 ist valide: Spread verfallen wertlos → -100%
         result = (current_spread - entry_debit) / entry_debit
         log.info(
@@ -531,15 +533,24 @@ def compute_pearson_weights(history: dict) -> dict:
     for name, arr in [("impact", np.array(impacts)),
                        ("mismatch", np.array(mismatches)),
                        ("eps_drift", np.array(drifts))]:
-        r, _ = stats.pearsonr(arr, outcomes_arr)
+        # Konstante Spalte (z.B. alle bin_eps_drift="noise") → pearsonr=NaN
+        if np.std(arr) == 0 or np.std(outcomes_arr) == 0:
+            r = 0.0
+        else:
+            r, _ = stats.pearsonr(arr, outcomes_arr)
+        if not np.isfinite(r):
+            r = 0.0
         correlations[name] = max(r, 0)
 
     total = sum(correlations.values()) or 1.0
-    old_w = history.get("model_weights", {})
+    old_w    = history.get("model_weights", {})
+    defaults = {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}
     new_w = {}
     for feat, corr in correlations.items():
-        raw_new     = corr / total
-        old         = old_w.get(feat, 1/3)
+        raw_new = corr / total
+        old     = old_w.get(feat, defaults.get(feat, 1/3))
+        if not isinstance(old, (int, float)) or not np.isfinite(old):
+            old = defaults.get(feat, 1/3)
         new_w[feat] = round(old + cfg.learning.learning_rate * (raw_new - old), 4)
 
     total_w = sum(new_w.values())
@@ -583,18 +594,23 @@ def main() -> None:
             continue
 
         outcome = compute_outcome(trade, current)
+        if outcome is None:
+            log.warning(f"  [{ticker}] Outcome nicht ermittelbar → bleibt aktiv, kein Lern-Update")
+            still_active.append(trade)
+            continue
         log.info(f"  [{ticker}] Alter={age_days}d Outcome={outcome:+.2%}")
 
-        # Legacy Bin-Updates (für Backward-Kompatibilität mit QuasiML)
-        feat = trade.get("features", {})
-        for f_name, bin_key in [("impact",    "bin_impact"),
-                                  ("mismatch",  "bin_mismatch"),
-                                  ("eps_drift", "bin_eps_drift")]:
-            bin_label = feat.get(bin_key)
-            if bin_label:
-                update_bin(history["feature_stats"], f_name, bin_label, outcome)
-
         if age_days >= cfg.learning.close_after_days:
+            # Bin-Updates NUR beim Close — sonst wird derselbe Trade bei jedem
+            # Feedback-Lauf erneut gezählt und verzerrt die Lernstatistik massiv.
+            feat = trade.get("features", {})
+            for f_name, bin_key in [("impact",    "bin_impact"),
+                                      ("mismatch",  "bin_mismatch"),
+                                      ("eps_drift", "bin_eps_drift")]:
+                bin_label = feat.get(bin_key)
+                if bin_label:
+                    update_bin(history["feature_stats"], f_name, bin_label, outcome)
+
             trade["outcome"]      = round(outcome, 4)
             trade["close_date"]   = today.strftime("%Y-%m-%d")
             trade["close_price"]  = current

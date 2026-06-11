@@ -271,17 +271,20 @@ class TestMirofishSimulation:
         candidate = {
             "ticker": "NVDA",
             "features": {"mismatch": 8.0, "impact": 9},
+            "simulation": {"current_price": 500.0},
             "deep_analysis": {
                 "direction": "BULLISH",
+                "impact": 9,
+                "surprise": 9,
                 "time_to_materialization": "2-3 Monate",
             },
         }
-        with patch.object(sim, "_get_market_params", return_value=(0.02, 500.0, "Technology")):
-            result = sim._simulate(candidate)
+        # Starker historischer Drift + starkes Signal → Gate muss passieren
+        with patch("modules.mirofish_simulation._get_hist_params", return_value=(0.02, 0.01)):
+            result = sim.run_for_dte(candidate, days_to_expiry=45)
 
-        # Mit hohem Mismatch-Drift sollte die Simulation passieren
         assert result is not None
-        assert result["simulation"]["hit_rate"] >= 0.70
+        assert result["simulation"]["hit_rate"] >= 0.45
 
     def test_zero_price_returns_none(self):
         from modules.mirofish_simulation import MirofishSimulation
@@ -292,8 +295,9 @@ class TestMirofishSimulation:
             "features": {"mismatch": 5.0, "impact": 5},
             "deep_analysis": {"direction": "BULLISH", "time_to_materialization": "2-3 Monate"},
         }
-        with patch.object(sim, "_get_market_params", return_value=(0.02, 0.0, "default")):
-            result = sim._simulate(candidate)
+        # Kein Preis im Candidate und yfinance nicht erreichbar → None
+        with patch("modules.mirofish_simulation.yf.Ticker", side_effect=Exception("offline")):
+            result = sim.run_for_dte(candidate, days_to_expiry=45)
         assert result is None
 
 

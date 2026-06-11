@@ -227,6 +227,18 @@ def load_history() -> dict:
                 data = json.load(f)
             if not isinstance(data, dict):
                 raise ValueError("history.json ist kein dict")
+            # NaN/ungültige Modell-Gewichte (z.B. aus Pearson auf konstanter
+            # Spalte) auf Defaults zurücksetzen, sonst ist QuasiML-Scoring NaN.
+            defaults = {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}
+            weights  = data.get("model_weights")
+            if not isinstance(weights, dict):
+                data["model_weights"] = dict(defaults)
+            else:
+                for k, dflt in defaults.items():
+                    v = weights.get(k)
+                    if not isinstance(v, (int, float)) or not math.isfinite(v):
+                        log.warning(f"model_weights[{k}] ungültig ({v}) → Default {dflt}")
+                        weights[k] = dflt
             return data
         except (json.JSONDecodeError, ValueError) as e:
             log.warning(f"history.json beschädigt ({e}) → Reset auf Default")
