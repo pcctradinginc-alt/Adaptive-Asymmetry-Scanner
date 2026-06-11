@@ -1,0 +1,58 @@
+name: Feedback Loop (Exit-Alarme + Lernen)
+
+# Läuft zusätzlich zum Feedback-Schritt im Scanner-Workflow (≈14:00 UTC):
+#   15:30 UTC — frühe US-Session: Stop-Loss/Take-Profit nach Markt-Open
+#   19:30 UTC — 30 Min vor US-Close: letzte Exit-Chance am selben Tag
+# Damit werden Exit-Regeln 3× täglich geprüft statt 1×.
+
+on:
+  schedule:
+    - cron: '30 15 * * 1-5'
+    - cron: '30 19 * * 1-5'
+  workflow_dispatch:
+
+concurrency:
+  group: history-write    # nie parallel zum Scanner auf history.json schreiben
+  cancel-in-progress: false
+
+jobs:
+  feedback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Feedback Loop
+        env:
+          TRADIER_API_KEY: ${{ secrets.TRADIER_API_KEY }}
+          GMAIL_SENDER:    ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW:    ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
+        run: python feedback.py
+
+      - name: Commit updated history
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -m "chore: feedback loop $(date -u +%Y-%m-%dT%H:%M)"
+          # Rebase gegen mögliche parallele Scanner-Commits
+          git pull --rebase origin main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main

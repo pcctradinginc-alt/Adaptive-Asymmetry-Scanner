@@ -5,6 +5,10 @@ on:
     - cron: '30 13 * * 1-5'  # 13:30 UTC = 15:30 MEZ (entspricht US-Marktöffnung)
   workflow_dispatch:
 
+concurrency:
+  group: history-write    # nie parallel zum Feedback-Workflow auf history.json schreiben
+  cancel-in-progress: false
+
 jobs:
   scan:
     runs-on: ubuntu-latest
