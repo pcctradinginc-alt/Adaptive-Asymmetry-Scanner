@@ -461,6 +461,22 @@ def main() -> None:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
         send_email(); return
 
+    # ── STUFE 4a: Bearish-Gate ───────────────────────────────────────────────
+    # Track Record bearisher Trades: 0/6 Wins (LONG_PUT mean −86%).
+    # Underreaction-These funktioniert empirisch nur long → BEARISH verwerfen.
+    allow_bearish = bool(getattr(getattr(cfg, "options", None), "allow_bearish", False))
+    if not allow_bearish:
+        _bullish = []
+        for a in analyses:
+            if a.get("deep_analysis", {}).get("direction", "BULLISH") == "BEARISH":
+                reject("bearish_disabled", a.get("ticker"))
+            else:
+                _bullish.append(a)
+        analyses = _bullish
+        if not analyses:
+            stats["stop_reason"] = "Alle Signale bearish (Bearish-Trades deaktiviert)."
+            save_history(history); send_email(); return
+
     # ── STUFE 4b: Impact×Surprise Floor ──────────────────────────────────────
     _before_isf = len(analyses)
     _passed_isf, _failed_isf = [], []
@@ -484,6 +500,21 @@ def main() -> None:
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
     scored = MismatchScorer().run(analyses)
+
+    # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
+    # (4 Trades: 25% Win, mean −73%) — extreme Werte deuten auf eine
+    # Bullen-Falle/strukturelles Problem statt verzögerter Einpreisung.
+    mismatch_cap = float(getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0))
+    _capped = []
+    for s in scored:
+        m = s.get("features", {}).get("mismatch", 0)
+        if isinstance(m, (int, float)) and m > mismatch_cap:
+            reject("mismatch_overreaction", s.get("ticker"))
+            log.info(f"  [{s.get('ticker')}] Mismatch={m:.1f} > {mismatch_cap:.0f} → Overreaction-Verdacht")
+        else:
+            _capped.append(s)
+    scored = _capped
+
     before_da = len(scored)
     scored = [validate_for_simulation(s) for s in scored]
     scored = [s for s in scored if s is not None]

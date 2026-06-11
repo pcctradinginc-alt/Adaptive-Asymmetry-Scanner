@@ -303,6 +303,27 @@ class TestMirofishSimulation:
 
 # ── Feedback Loop ─────────────────────────────────────────────────────────────
 
+class TestTtmDteFloor:
+    def test_known_formats(self):
+        from modules.options_designer import ttm_to_dte_floor
+        assert ttm_to_dte_floor("4-8 Wochen") == 45
+        assert ttm_to_dte_floor("2-3 Monate") == 55
+        assert ttm_to_dte_floor("6 Monate") == 140
+
+    def test_fuzzy_formats_normalized(self):
+        from modules.options_designer import ttm_to_dte_floor
+        assert ttm_to_dte_floor("ca. 2 Monate") == 55
+        assert ttm_to_dte_floor("6 monate+") == 140
+
+    def test_unknown_defaults_conservative(self):
+        # Unbekannte Formate dürfen NICHT auf 14 zurückfallen
+        # (alle 15 Totalverluste waren Kurzläufer < 30 DTE).
+        from modules.options_designer import ttm_to_dte_floor
+        assert ttm_to_dte_floor("sofort") >= 45
+        assert ttm_to_dte_floor("") >= 45
+        assert ttm_to_dte_floor(None) >= 45
+
+
 class TestFeedbackLoop:
     def test_bin_update_running_average(self):
         import feedback

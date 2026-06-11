@@ -109,6 +109,23 @@ TTM_TO_DTE_MIN: dict[str, int] = {
     "6 Monate":   140,   # Long-Term Minimum
 }
 
+
+def ttm_to_dte_floor(ttm: str) -> int:
+    """
+    Normalisiert TTM-Strings (Claude liefert variierende Formate) → DTE-Floor.
+    Unbekannte Formate → 45 statt 14: alle 15 Totalverluste der closed_trades
+    waren Kurzläufer (<30 DTE), die über den alten 14er-Default durchrutschten.
+    """
+    exact = TTM_TO_DTE_MIN.get(ttm)
+    if exact is not None:
+        return exact
+    t = (ttm or "").lower()
+    if "6 monat" in t:
+        return 140
+    if "monat" in t:
+        return 55
+    return 45
+
 # v9.0 #13: Theta-Decay-Gate
 # Wenn Zeitwertverlust > X%/Tag des Prämienpreises → Short-Term überspringen
 THETA_DAILY_PCT_GATE = 0.030   # 3 % pro Tag
@@ -342,7 +359,7 @@ class OptionsDesigner:
         # v9.0 #6: time_to_materialization → DTE-Minimum
         da  = s.get("deep_analysis", {})
         ttm = da.get("time_to_materialization", "4-8 Wochen") or "4-8 Wochen"
-        dte_floor = TTM_TO_DTE_MIN.get(ttm, 14)
+        dte_floor = ttm_to_dte_floor(ttm)
         log.info(
             f"  [{ticker}] TTM='{ttm}' → DTE-Minimum={dte_floor}d "
             f"(Catalyst-aligned DTE Gate)"

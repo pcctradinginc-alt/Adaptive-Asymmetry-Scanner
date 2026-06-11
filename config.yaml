@@ -6,6 +6,7 @@ pipeline:
   simulation_days: 120
   min_impact_threshold: 4
   max_intraday_move: 0.07    # NEU: 7% → Signal verwerfen wenn zu spät
+  max_mismatch: 7.0          # Overreaction-Cap: Mismatch > 7 historisch 25% Win, mean −73%
 
 filters:
   min_market_cap: 2_000_000_000
@@ -26,9 +27,11 @@ risk:
 options:
   # DTE-Tiers werden in options_designer.py (DTE_TIERS) gesteuert.
   # time_to_materialization aus deep_analysis bestimmt das DTE-Minimum (v9.0):
-  #   "4-8 Wochen"  → dte_floor=14  (Short-Term erlaubt)
+  #   "4-8 Wochen"  → dte_floor=45  (Kurzläufer-Puffer)
   #   "2-3 Monate"  → dte_floor=55  (Mid-Term Minimum)
   #   "6 Monate"    → dte_floor=140 (Long-Term Minimum)
+  #   unbekannt     → dte_floor=45  (konservativer Default statt 14)
+  allow_bearish: false       # Bearish-Trades deaktiviert: 0/6 Wins (LONG_PUT mean −86%)
   delta_target_low:  0.55
   delta_target_high: 0.75
   target_move_pct:   0.10
