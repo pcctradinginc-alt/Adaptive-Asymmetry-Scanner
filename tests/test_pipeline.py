@@ -380,6 +380,32 @@ class TestPositionSizing:
         assert "Kelly" in s["note"]
 
 
+class TestCommissionInRoi:
+    def test_commission_deducted_from_roi_net(self):
+        from modules.options_designer import OptionsDesigner
+        d = object.__new__(OptionsDesigner)   # __init__ braucht gates → umgehen
+        d._vix_ts = {}
+        option = {"bid": 1.40, "ask": 1.50, "strike": 100,
+                  "implied_vol": 0.35, "dte": 60}
+        sim  = {"current_price": 100, "target_price": 110}
+        tier = {"min_roi": 0.12}
+        roi  = d._compute_roi(option, sim, 40, tier, "LONG_CALL", 0.65, "OTHER")
+        # 1 Leg, Round-Trip: 0.65 × 2 / (1.50 × 100)
+        assert abs(roi["commission_pct"] - 0.65 * 2 / 150) < 1e-4
+
+    def test_spread_has_double_legs(self):
+        from modules.options_designer import OptionsDesigner
+        d = object.__new__(OptionsDesigner)
+        d._vix_ts = {}
+        option = {"bid": 1.40, "ask": 1.50, "strike": 100, "net_debit": 1.50,
+                  "implied_vol": 0.35, "dte": 60}
+        sim  = {"current_price": 100, "target_price": 110}
+        tier = {"min_roi": 0.12}
+        roi  = d._compute_roi(option, sim, 40, tier, "BULL_CALL_SPREAD", 0.65, "OTHER")
+        # 2 Legs, Round-Trip: 0.65 × 4 / (1.50 × 100)
+        assert abs(roi["commission_pct"] - 0.65 * 4 / 150) < 1e-4
+
+
 class TestTuningSuggestions:
     def _history(self, n_good, n_bad):
         # n_good Gewinner mit mismatch=3, n_bad Verlierer mit mismatch=8

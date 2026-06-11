@@ -544,7 +544,11 @@ class OptionsDesigner:
                 )
                 if "error" not in mc_result:
                     roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
-                    roi["roi_net"]         = mc_result["expected_pnl_pct"] - (roi.get("spread_pct", 0.0) * 2)
+                    roi["roi_net"]         = (
+                        mc_result["expected_pnl_pct"]
+                        - (roi.get("spread_pct", 0.0) * 2)
+                        - roi.get("commission_pct", 0.0)
+                    )
                     roi["passes_roi_gate"] = roi["roi_net"] >= dynamic_tier["min_roi"]
                     ou_tag = mc_result.get("ou_method", "heuristic")
                     log.info(
@@ -748,7 +752,14 @@ class OptionsDesigner:
         iv_drop = iv_drop_base * iv_rank_scale * vix_crush_scale
 
         vega_loss = min((vega * iv * iv_drop) / cost, 0.50) if cost > 0 else 0.0
-        roi_net   = roi_delta - (spread_pct * 2) - vega_loss
+
+        # Kommissionen: $/Kontrakt/Seite, Round-Trip; Spreads haben 2 Legs (=4 Fills).
+        # Bei billigen Optionen ist das relevant: $0.65 × 4 auf $1.50-Spread = 1.7%.
+        commission = float(getattr(getattr(cfg, "costs", None), "commission_per_contract", 0.65))
+        n_legs     = 2 if is_spread else 1
+        commission_pct = (commission * n_legs * 2) / (cost * 100) if cost > 0 else 0.0
+
+        roi_net   = roi_delta - (spread_pct * 2) - vega_loss - commission_pct
         passes    = roi_net >= min_roi
 
         def _safe_float(v):
@@ -766,6 +777,7 @@ class OptionsDesigner:
             "delta":             round(_safe_float(delta), 4),
             "breakeven":         round(_safe_float(breakeven), 2),
             "breakeven_pct":     round(_safe_float(breakeven_pct), 4),
+            "commission_pct":    round(_safe_float(commission_pct), 4),
             "iv_drop_assumed":   _safe_float(iv_drop),
             "iv_drop_base":      _safe_float(iv_drop_base),
             "catalyst_type":     catalyst_type,

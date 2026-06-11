@@ -40,8 +40,22 @@ def trade_rows(history: dict) -> list[dict]:
                 "dte":      opt.get("dte"),
                 "score":    t.get("trade_score"),
                 "strategy": t.get("strategy", ""),
+                "catalyst": t.get("catalyst_type"),
             })
     return rows
+
+
+def catalyst_breakdown(rows: list[dict]) -> None:
+    """Win-Rate pro Katalysator-Typ — welcher Event-Typ liefert die Gewinner?"""
+    print("\n── Katalysator-Typ " + "─" * 35)
+    groups: dict[str, list[dict]] = {}
+    for r in rows:
+        groups.setdefault(r.get("catalyst") or "unbekannt", []).append(r)
+    if set(groups) == {"unbekannt"}:
+        print("  (catalyst_type wird erst seit Juni 2026 getrackt — Daten folgen)")
+        return
+    for cat, g in sorted(groups.items(), key=lambda x: -len(x[1])):
+        print(f"  {cat:<17} {summarize(g)}")
 
 
 def summarize(rows: list[dict]) -> str:
@@ -176,6 +190,7 @@ def main() -> None:
     sweep(rows, "Surprise-Floor", "surprise", [3, 4, 5, 6], mode="min")
     sweep(rows, "MC-Hit-Rate-Floor", "hit_rate", [0.45, 0.50, 0.55, 0.60], mode="min")
     sweep(rows, "Trade-Score-Floor", "score", [40, 50, 55, 60, 70], mode="min")
+    catalyst_breakdown(rows)
 
     print(
         "\nHinweis: Kleine n → Zufall dominiert. Schwellen erst ändern, wenn"

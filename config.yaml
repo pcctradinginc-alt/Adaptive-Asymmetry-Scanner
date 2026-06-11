@@ -37,6 +37,10 @@ options:
   target_move_pct:   0.10
   min_roi_after_spread: 0.15
 
+# Transaktionskosten (fließen ins ROI-Gate ein)
+costs:
+  commission_per_contract: 0.65   # $/Kontrakt/Seite (Broker-typisch, z.B. Tradier/IBKR)
+
 # Positionsgrößen-Empfehlung (Fractional Kelly)
 portfolio:
   size_usd: 5000             # Depotgröße für Sizing-Empfehlung

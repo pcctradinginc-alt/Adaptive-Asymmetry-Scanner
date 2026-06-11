@@ -747,6 +747,8 @@ def main() -> None:
             shadow_list.append({
                 "ticker":        p["ticker"], "entry_date": today,
                 "reject_reason": why,
+                "catalyst_type": p.get("catalyst_type")
+                                 or p.get("roi_analysis", {}).get("catalyst_type", "OTHER"),
                 "strategy":      p.get("strategy", ""),
                 "entry_debit":   round(float((p.get("option") or {}).get("ask", 0)), 2),
                 "option":        p.get("option") or {},
@@ -806,11 +808,24 @@ def main() -> None:
                 _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
         else:
             _entry_debit = round(float(_opt.get("ask", 0)), 2)
+        # Fill-Tracking: Quote-Zustand beim Entry für spätere Slippage-Analyse
+        # (Modell rechnet mit Ask-Fill — wie viel kostet das vs. Mid?)
+        _bid = float(_opt.get("bid", 0) or 0)
+        _ask = float(_opt.get("ask", 0) or 0)
+        _entry_quote = {
+            "bid": _bid, "ask": _ask,
+            "mid":        round((_bid + _ask) / 2, 4) if _bid > 0 and _ask > 0 else _ask,
+            "spread_pct": round((_ask - _bid) / _ask, 4) if _ask > 0 else 0.0,
+            "assumed_fill": "ask",
+        }
         history["active_trades"].append({
             "ticker":        p["ticker"], "entry_date": today,
             "features":      p.get("features", {}),
             "strategy":      _strategy,
             "entry_debit":   _entry_debit,
+            "entry_quote":   _entry_quote,
+            "catalyst_type": p.get("catalyst_type")
+                             or p.get("roi_analysis", {}).get("catalyst_type", "OTHER"),
             "option":        _opt,
             "simulation":    p.get("simulation"),
             "deep_analysis": p.get("deep_analysis"),
