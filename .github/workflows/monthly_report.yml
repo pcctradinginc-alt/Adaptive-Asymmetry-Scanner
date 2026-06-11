@@ -1,0 +1,33 @@
+name: Monthly Performance Report
+
+on:
+  schedule:
+    - cron: '0 7 1 * *'   # 1. des Monats, 07:00 UTC
+  workflow_dispatch:        # manuell auslösbar zum Testen
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send monthly report
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python monthly_report.py

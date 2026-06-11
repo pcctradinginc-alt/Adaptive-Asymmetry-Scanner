@@ -271,7 +271,31 @@ def main() -> None:
 
     _proposals_ref = []
 
+    def save_stats_snapshot():
+        """Persistiert Funnel-Stats + Reject-Gründe in die Daily-JSON.
+        Läuft auf JEDEM Exit-Pfad — sonst ist bei 0-Trade-Tagen nicht
+        nachvollziehbar, welches Gate blockiert hat."""
+        try:
+            REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+            path = REPORTS_DIR / f"{today}.json"
+            data = {}
+            if path.exists():
+                try:
+                    data = json.loads(path.read_text())
+                except json.JSONDecodeError:
+                    data = {}
+            data.setdefault("date", today)
+            data["stats"]   = {k: v for k, v in stats.items()}
+            data["rejects"] = {
+                k: {"count": v["count"], "tickers": v["tickers"][:10]}
+                for k, v in reject_stats.items()
+            }
+            path.write_text(json.dumps(data, indent=2, default=str))
+        except Exception as e:
+            log.error(f"Stats-Snapshot-Fehler: {e}")
+
     def send_email():
+        save_stats_snapshot()
         try:
             proposals = _proposals_ref[0] if len(_proposals_ref) > 0 else []
             if proposals:
