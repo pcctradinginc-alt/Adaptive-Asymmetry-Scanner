@@ -380,6 +380,32 @@ class TestPositionSizing:
         assert "Kelly" in s["note"]
 
 
+class TestTuningSuggestions:
+    def _history(self, n_good, n_bad):
+        # n_good Gewinner mit mismatch=3, n_bad Verlierer mit mismatch=8
+        trades = (
+            [{"ticker": f"G{i}", "outcome": 0.5,
+              "features": {"mismatch": 3.0}} for i in range(n_good)]
+            + [{"ticker": f"B{i}", "outcome": -0.8,
+                "features": {"mismatch": 8.0}} for i in range(n_bad)]
+        )
+        return {"closed_trades": trades, "shadow_trades": []}
+
+    def test_suggests_tighter_cap_with_enough_data(self):
+        from backtest_thresholds import suggest_thresholds
+        h = self._history(25, 10)
+        sugg = suggest_thresholds(h, {"mismatch": 8})
+        gates = {s["gate"]: s for s in sugg}
+        assert "Mismatch-Cap" in gates
+        assert gates["Mismatch-Cap"]["suggested"] < 8
+
+    def test_guardrail_blocks_small_samples(self):
+        from backtest_thresholds import suggest_thresholds
+        # Nur 10 Trades insgesamt → unter MIN_N_FOR_SUGGESTION → kein Vorschlag
+        h = self._history(7, 3)
+        assert suggest_thresholds(h, {"mismatch": 8}) == []
+
+
 class TestFeedbackLoop:
     def test_bin_update_running_average(self):
         import feedback

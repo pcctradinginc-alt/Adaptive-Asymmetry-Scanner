@@ -74,6 +74,86 @@ def sweep(rows: list[dict], label: str, field: str,
         print(f"  {th:<17} {summarize(sel)}")
 
 
+# ── Tuning-Vorschläge (für monthly_report.py) ────────────────────────────────
+
+# Tunable Gates: (Label, Feld, Modus, Kandidaten, aktueller Wert via cfg/Code)
+TUNABLES = [
+    ("DTE-Floor",         "dte",      "min", [30, 45, 60, 90, 120]),
+    ("Mismatch-Cap",      "mismatch", "max", [4, 5, 6, 7, 8]),
+    ("Impact-Floor",      "impact",   "min", [4, 5, 6]),
+    ("Surprise-Floor",    "surprise", "min", [3, 4, 5]),
+    ("Trade-Score-Floor", "score",    "min", [40, 50, 55, 60, 70]),
+]
+
+MIN_N_FOR_SUGGESTION = 20     # Guardrail: nie auf dünner Datenbasis vorschlagen
+MIN_WINRATE_GAIN_PP  = 5.0    # Mindest-Verbesserung in Prozentpunkten
+
+
+def _select(rows: list[dict], field: str, th: float, mode: str) -> list[dict]:
+    if mode == "min":
+        return [r for r in rows if r[field] >= th]
+    return [r for r in rows if r[field] <= th]
+
+
+def _stats(rows: list[dict]) -> dict | None:
+    if not rows:
+        return None
+    outs = [r["outcome"] for r in rows]
+    wins = sum(1 for o in outs if o > 0)
+    return {"n": len(outs), "win_rate": wins / len(outs),
+            "mean": statistics.mean(outs)}
+
+
+def suggest_thresholds(history: dict, current: dict) -> list[dict]:
+    """
+    Vergleicht für jedes tunable Gate den aktuellen Schwellwert mit
+    Alternativen über echte + Schatten-Trade-Outcomes.
+
+    Guardrails (kein Overfitting auf Kleinst-Stichproben):
+      - Alternative braucht n ≥ MIN_N_FOR_SUGGESTION Trades
+      - Win-Rate-Verbesserung ≥ MIN_WINRATE_GAIN_PP Prozentpunkte
+      - Ø-Return darf sich nicht verschlechtern
+
+    `current`: {"dte": 45, "mismatch": 7, "impact": 4, "surprise": 3, "score": 55}
+    Returns Liste von Vorschlägen (kann leer sein) — es wird NICHTS
+    automatisch geändert, nur empfohlen.
+    """
+    rows = trade_rows(history)
+    suggestions = []
+    for label, field, mode, candidates in TUNABLES:
+        cur_th = current.get(field)
+        if cur_th is None:
+            continue
+        valid = [r for r in rows if isinstance(r.get(field), (int, float))]
+        cur_stats = _stats(_select(valid, field, cur_th, mode))
+        if cur_stats is None:
+            continue
+        best = None
+        for th in candidates:
+            if th == cur_th:
+                continue
+            s = _stats(_select(valid, field, th, mode))
+            if s is None or s["n"] < MIN_N_FOR_SUGGESTION:
+                continue
+            gain_pp = (s["win_rate"] - cur_stats["win_rate"]) * 100
+            if gain_pp < MIN_WINRATE_GAIN_PP or s["mean"] < cur_stats["mean"]:
+                continue
+            if best is None or s["win_rate"] > best["stats"]["win_rate"]:
+                best = {"threshold": th, "stats": s, "gain_pp": gain_pp}
+        if best:
+            suggestions.append({
+                "gate":        label,
+                "field":       field,
+                "mode":        mode,
+                "current":     cur_th,
+                "suggested":   best["threshold"],
+                "gain_pp":     round(best["gain_pp"], 1),
+                "current_stats":   cur_stats,
+                "suggested_stats": best["stats"],
+            })
+    return suggestions
+
+
 def main() -> None:
     if not HISTORY_PATH.exists():
         print("outputs/history.json nicht gefunden.")

@@ -135,13 +135,77 @@ def shadow_stats(history: dict, key: str) -> dict | None:
             "mean": statistics.mean(outs)}
 
 
+def current_thresholds() -> dict:
+    """Aktuelle Gate-Schwellen aus config.yaml / Code-Konstanten."""
+    try:
+        from modules.config import cfg
+        mismatch_cap = float(getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0))
+        impact_floor = int(getattr(getattr(cfg, "pipeline", None), "min_impact_threshold", 4))
+    except Exception:
+        mismatch_cap, impact_floor = 7.0, 4
+    return {
+        "dte":      45,            # ttm_to_dte_floor-Default (options_designer.py)
+        "mismatch": mismatch_cap,
+        "impact":   impact_floor,
+        "surprise": 3,             # Impact×Surprise-Floor (pipeline.py Stufe 4b)
+        "score":    55,            # Trade-Score-Gate (pipeline.py Stufe 10)
+    }
+
+
+def tuning_suggestions(history: dict) -> list[dict]:
+    try:
+        from backtest_thresholds import suggest_thresholds
+        return suggest_thresholds(history, current_thresholds())
+    except Exception as e:
+        log.warning(f"Tuning-Vorschläge nicht berechenbar: {e}")
+        return []
+
+
 def _fmt_pct(x: float) -> str:
     return f"{x * 100:.0f}%"
 
 
+def build_tuning_html(suggestions: list[dict]) -> str:
+    if not suggestions:
+        return (
+            "<h3>🔧 Schwellen-Tuning</h3>"
+            "<p>Keine Empfehlung diesen Monat — keine Alternative erfüllt die "
+            "Guardrails (≥20 Trades, ≥5pp Win-Rate-Gewinn, Ø-Return nicht schlechter). "
+            "Das ist ein gutes Zeichen oder es fehlen noch Daten.</p>"
+        )
+    rows = ""
+    for s in suggestions:
+        cs, ss = s["current_stats"], s["suggested_stats"]
+        op = "≥" if s["mode"] == "min" else "≤"
+        rows += (
+            f"<tr>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><b>{s['gate']}</b></td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{op} {s['current']} "
+            f"({_fmt_pct(cs['win_rate'])} Win, n={cs['n']})</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;color:#16a34a;'>"
+            f"<b>{op} {s['suggested']}</b> ({_fmt_pct(ss['win_rate'])} Win, "
+            f"Ø {ss['mean']:+.1%}, n={ss['n']})</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><b>+{s['gain_pp']:.0f}pp</b></td>"
+            f"</tr>"
+        )
+    return f"""
+    <h3>🔧 Schwellen-Tuning-Vorschlag (echte + Schatten-Trades)</h3>
+    <table style="border-collapse:collapse;font-size:13px;width:100%">
+      <tr style="text-align:left;color:#64748b;">
+        <th style="padding:4px 8px;">Gate</th><th style="padding:4px 8px;">Aktuell</th>
+        <th style="padding:4px 8px;">Vorschlag</th><th style="padding:4px 8px;">Δ Win-Rate</th>
+      </tr>
+      {rows}
+    </table>
+    <p style="font-size:0.85em;color:#92400e;">⚠️ Nur eine Empfehlung — nichts wurde
+    automatisch geändert. Anpassung in config.yaml bzw. pipeline.py, idealerweise
+    max. eine Schwelle pro Monat (sonst ist der Effekt nicht zuordenbar).</p>"""
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
                total: dict | None, funnel: dict,
-               spy: float | None = None, shadow: dict | None = None) -> str:
+               spy: float | None = None, shadow: dict | None = None,
+               tuning: list[dict] | None = None) -> str:
     def stat_block(label: str, s: dict | None) -> str:
         if s is None:
             return f"<p><b>{label}:</b> keine geschlossenen Trades</p>"
@@ -210,6 +274,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       {shadow_html}
       <hr>
       {stat_block("Gesamt (alle closed Trades)", total)}
+      {build_tuning_html(tuning or [])}
       {funnel_html}
       <hr>
       <p style="color:#888;font-size:0.85em">
@@ -239,6 +304,7 @@ def main() -> None:
     funnel = funnel_summary(report_month)
     spy    = spy_return(report_month)
     shadow = shadow_stats(history, report_month)
+    tuning = tuning_suggestions(history)
 
     if cur and prev:
         delta   = (cur["win_rate"] - prev["win_rate"]) * 100
@@ -251,7 +317,9 @@ def main() -> None:
     else:
         subject = f"📊 {REPO_NAME}: Monats-Report {report_month} — keine geschlossenen Trades"
 
-    html = build_html(report_month, cur, prev, total, funnel, spy, shadow)
+    if tuning:
+        log.info(f"{len(tuning)} Tuning-Vorschlag/Vorschläge gefunden")
+    html = build_html(report_month, cur, prev, total, funnel, spy, shadow, tuning)
     log.info(f"Sende Monats-Report: {subject}")
     _send_smtp(subject, html)
     log.info("=== Monats-Report abgeschlossen ===")
