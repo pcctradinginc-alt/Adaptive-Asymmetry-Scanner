@@ -453,8 +453,10 @@ def main() -> None:
     _before_isf = len(analyses)
     _passed_isf, _failed_isf = [], []
     for a in analyses:
-        if (a.get("deep_analysis", {}).get("impact", 0) *
-                a.get("deep_analysis", {}).get("surprise", 0)) >= 20:
+        da = a.get("deep_analysis", {})
+        impact   = da.get("impact", 0)
+        surprise = da.get("surprise", 0)
+        if impact >= 4 and surprise >= 3:
             _passed_isf.append(a)
         else:
             _failed_isf.append(a)
@@ -462,9 +464,9 @@ def main() -> None:
         reject("impact_x_surprise_below_floor", a.get("ticker"))
     analyses = _passed_isf
     stats["after_isf"] = len(analyses)
-    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (≥20, war {_before_isf})")
+    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (impact≥4 & surprise≥3, war {_before_isf})")
     if not analyses:
-        stats["stop_reason"] = "Alle Signale unter Impact×Surprise-Floor (< 20)."
+        stats["stop_reason"] = "Alle Signale unter Impact×Surprise-Floor (impact<4 oder surprise<3)."
         save_history(history); send_email(); return
 
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
