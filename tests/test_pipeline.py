@@ -324,6 +324,62 @@ class TestTtmDteFloor:
         assert ttm_to_dte_floor(None) >= 45
 
 
+class TestExitRules:
+    def _trade(self, **kw):
+        base = {
+            "ticker": "TEST", "entry_date": "2026-05-01",
+            "strategy": "LONG_CALL", "entry_debit": 3.0,
+            "option": {"strike": 100, "expiry": "2026-08-01"},
+        }
+        base.update(kw)
+        return base
+
+    def test_take_profit_triggers(self):
+        from feedback import check_exit_rules
+        from datetime import datetime
+        t = self._trade()
+        assert check_exit_rules(t, 0.55, datetime(2026, 5, 10)) == "take_profit"
+
+    def test_stop_loss_triggers(self):
+        from feedback import check_exit_rules
+        from datetime import datetime
+        t = self._trade()
+        assert check_exit_rules(t, -0.50, datetime(2026, 5, 10)) == "stop_loss"
+
+    def test_time_exit_triggers_when_flat(self):
+        from feedback import check_exit_rules
+        from datetime import datetime
+        t = self._trade()
+        # >50% der Laufzeit (1.5.–1.8.) verstrichen, Gewinn unter +20%
+        assert check_exit_rules(t, 0.05, datetime(2026, 7, 15)) == "time_exit"
+
+    def test_no_exit_when_running(self):
+        from feedback import check_exit_rules
+        from datetime import datetime
+        t = self._trade()
+        assert check_exit_rules(t, 0.10, datetime(2026, 5, 20)) is None
+
+
+class TestPositionSizing:
+    def test_positive_edge_gives_contracts(self):
+        from modules.position_sizing import compute_position_size
+        p = {"ticker": "T", "strategy": "LONG_CALL",
+             "option": {"ask": 2.0}, "roi_analysis": {"roi_net": 0.40},
+             "mc_hit_rate": 0.70}
+        s = compute_position_size(p)
+        assert s["contracts"] >= 1
+        assert s["position_usd"] <= s["portfolio_usd"] * 0.10 + 1e-6
+
+    def test_negative_edge_gives_zero(self):
+        from modules.position_sizing import compute_position_size
+        p = {"ticker": "T", "strategy": "LONG_CALL",
+             "option": {"ask": 2.0}, "roi_analysis": {"roi_net": 0.05},
+             "mc_hit_rate": 0.45}
+        s = compute_position_size(p)
+        assert s["contracts"] == 0
+        assert "Kelly" in s["note"]
+
+
 class TestFeedbackLoop:
     def test_bin_update_running_average(self):
         import feedback

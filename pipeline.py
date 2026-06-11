@@ -65,6 +65,7 @@ from modules.data_validator      import validate_candidate_data, compute_option_
 from modules.premium_signals     import enrich_top_candidates
 from modules.sentiment_tracker   import enrich_with_sentiment_drift
 from modules.macro_context       import get_macro_context
+from modules.position_sizing     import enrich_with_sizing
 from modules.config              import cfg
 
 logging.basicConfig(
@@ -709,21 +710,57 @@ def main() -> None:
     if trade_proposals:
         trade_proposals = rank_proposals(trade_proposals)
         before = len(trade_proposals)
-        trade_proposals = [p for p in trade_proposals
-                           if p.get("trade_score", {}).get("total", 0) >= 55]
+        _kept, _shadow = [], []
+        for p in trade_proposals:
+            score = p.get("trade_score", {}).get("total", 0)
+            if score >= 55:
+                _kept.append(p)
+            elif score >= 40:
+                # Schatten-Trade: knapp verworfen → mittracken um die
+                # Score-Schwelle mit echten Outcomes zu validieren
+                _shadow.append((p, f"score_{score}"))
+        trade_proposals = _kept
         if len(trade_proposals) < before:
             log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 55)")
 
         # ── STUFE 10b: Korrelations-Check ────────────────────────────────────
         if len(trade_proposals) > 1:
             log.info("Stufe 10b: Korrelations-Check")
-            before_corr    = len(trade_proposals)
+            before_corr     = len(trade_proposals)
+            _pre_corr       = trade_proposals[:]
             trade_proposals = filter_correlated_proposals(trade_proposals)
+            for p in _pre_corr:
+                if p not in trade_proposals:
+                    _shadow.append((p, "correlation"))
             if len(trade_proposals) < before_corr:
                 log.info(
                     f"  Korrelations-Check: {before_corr} → {len(trade_proposals)} "
                     f"({before_corr - len(trade_proposals)} korrelierte entfernt)"
                 )
+
+        # ── Schatten-Trades registrieren (kein Geld, nur Lern-Daten) ─────────
+        shadow_list = history.setdefault("shadow_trades", [])
+        _shadow_existing = {(t["ticker"], t.get("entry_date", "")) for t in shadow_list}
+        for p, why in _shadow:
+            if (p["ticker"], today) in _shadow_existing:
+                continue
+            shadow_list.append({
+                "ticker":        p["ticker"], "entry_date": today,
+                "reject_reason": why,
+                "strategy":      p.get("strategy", ""),
+                "entry_debit":   round(float((p.get("option") or {}).get("ask", 0)), 2),
+                "option":        p.get("option") or {},
+                "simulation":    p.get("simulation"),
+                "trade_score":   p.get("trade_score", {}).get("total"),
+                "features":      p.get("features", {}),
+                "outcome":       None,
+            })
+            _shadow_existing.add((p["ticker"], today))
+        if _shadow:
+            log.info(f"  {len(_shadow)} Schatten-Trade(s) registriert (Gate-Validierung)")
+
+        # ── Positionsgrößen (Fractional Kelly, Depot aus config.yaml) ────────
+        trade_proposals = enrich_with_sizing(trade_proposals)
 
         log.info(f"Trade-Ranking:")
         for p in trade_proposals:

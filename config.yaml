@@ -37,6 +37,13 @@ options:
   target_move_pct:   0.10
   min_roi_after_spread: 0.15
 
+# Positionsgrößen-Empfehlung (Fractional Kelly)
+portfolio:
+  size_usd: 5000             # Depotgröße für Sizing-Empfehlung
+  kelly_fraction: 0.25       # ¼-Kelly: konservativ, Standard für Options
+  max_position_pct: 0.10     # Hard-Cap: max. 10% des Depots pro Trade
+  assumed_loss_pct: 0.45     # Erwarteter Verlust bei Stop-Loss (−45%)
+
 learning:
   learning_rate: 0.05
   min_bin_count:  3

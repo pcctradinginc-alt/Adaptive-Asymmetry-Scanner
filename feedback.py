@@ -39,8 +39,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-HISTORY_PATH       = Path("outputs/history.json")
-MIN_TRADE_AGE_DAYS = 7
+HISTORY_PATH = Path("outputs/history.json")
 
 TRADIER_BASE    = "https://api.tradier.com/v1"
 TRADIER_TIMEOUT = 10
@@ -457,6 +456,84 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
     return stock_return
 
 
+# ── Regelbasierte Exits ───────────────────────────────────────────────────────
+# Die Empfehlungs-Mails enthalten TP/SL/Time-Exit-Regeln (reporter.py).
+# Der Lern-Loop muss dieselben Regeln anwenden — sonst lernt das System
+# aus "Preis nach 45 Tagen" statt aus der tatsächlich empfohlenen Strategie.
+
+def check_exit_rules(trade: dict, outcome: float, today: datetime) -> str | None:
+    """
+    Prüft TP/SL/Time-Exit für einen aktiven Trade.
+    Returns Exit-Grund ("take_profit"/"stop_loss"/"time_exit") oder None.
+    """
+    strategy  = trade.get("strategy", "")
+    option    = trade.get("option") or {}
+    is_spread = "SPREAD" in strategy
+
+    # Schwellen analog reporter.compute_exit_rules
+    if is_spread:
+        sl_threshold = -0.50
+        entry = float(trade.get("entry_debit") or option.get("net_debit") or 0)
+        long_k  = float(option.get("strike") or 0)
+        short_k = float((option.get("spread_leg") or {}).get("strike") or 0)
+        width   = short_k - long_k if short_k > long_k > 0 else 0
+        if width > 0 and entry > 0:
+            tp_threshold = (width - entry) * 0.70 / entry   # 70% des Max-Gewinns
+        else:
+            tp_threshold = 0.50
+    else:
+        sl_threshold = -0.45
+        tp_threshold = 0.50
+
+    if outcome <= sl_threshold:
+        return "stop_loss"
+    if outcome >= tp_threshold:
+        return "take_profit"
+
+    # Time-Exit: 50% der Laufzeit verstrichen und Gewinn < +20%
+    expiry_str = option.get("expiry", "")
+    try:
+        expiry    = datetime.strptime(expiry_str, "%Y-%m-%d")
+        entry_dt  = datetime.strptime(trade["entry_date"][:10], "%Y-%m-%d")
+        dte_total = (expiry - entry_dt).days
+        remaining = (expiry - today).days
+        if dte_total > 0 and remaining <= dte_total * 0.5 and outcome < 0.20:
+            return "time_exit"
+    except (ValueError, KeyError):
+        pass
+
+    return None
+
+
+def evaluate_shadow_trades(history: dict, today: datetime) -> None:
+    """
+    Bewertet Schatten-Trades (von Gates verworfene Signale) nach Ablauf
+    der Haltedauer — validiert kostenlos, ob die Gates Gewinner wegfiltern.
+    """
+    shadows = history.get("shadow_trades", [])
+    for st in shadows:
+        if st.get("outcome") is not None:
+            continue
+        try:
+            entry_dt = datetime.strptime(st["entry_date"][:10], "%Y-%m-%d")
+        except (ValueError, KeyError):
+            continue
+        if (today - entry_dt).days < cfg.learning.close_after_days:
+            continue
+        current = get_current_price(st["ticker"])
+        if current <= 0:
+            continue
+        outcome = compute_outcome(st, current)
+        if outcome is None:
+            continue
+        st["outcome"]    = round(outcome, 4)
+        st["close_date"] = today.strftime("%Y-%m-%d")
+        log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
+    # Liste begrenzen: nur die letzten 300 behalten
+    if len(shadows) > 300:
+        history["shadow_trades"] = shadows[-300:]
+
+
 # ── Bin-Updates (Legacy, für Backward-Kompatibilität) ─────────────────────────
 
 def update_bin(stats_dict: dict, feature: str, bin_label: str, outcome: float) -> None:
@@ -578,15 +655,12 @@ def main() -> None:
     still_active = []
     newly_closed = 0
 
+    exit_alerts: list[dict] = []
+
     for trade in active:
         ticker     = trade["ticker"]
         entry_date = datetime.strptime(trade["entry_date"][:10], "%Y-%m-%d")
         age_days   = (today - entry_date).days
-
-        if age_days < MIN_TRADE_AGE_DAYS:
-            log.info(f"  [{ticker}] Alter={age_days}d < {MIN_TRADE_AGE_DAYS} → zu jung.")
-            still_active.append(trade)
-            continue
 
         current = get_current_price(ticker)
         if current <= 0:
@@ -600,7 +674,19 @@ def main() -> None:
             continue
         log.info(f"  [{ticker}] Alter={age_days}d Outcome={outcome:+.2%}")
 
-        if age_days >= cfg.learning.close_after_days:
+        # ── Regelbasierter Exit (TP/SL/Time-Exit) — auch für junge Trades ────
+        exit_reason = check_exit_rules(trade, outcome, today)
+        if exit_reason:
+            exit_alerts.append({
+                "ticker":   ticker,
+                "strategy": trade.get("strategy", ""),
+                "reason":   exit_reason,
+                "outcome":  outcome,
+                "age_days": age_days,
+                "option":   trade.get("option") or {},
+            })
+
+        if exit_reason or age_days >= cfg.learning.close_after_days:
             # Bin-Updates NUR beim Close — sonst wird derselbe Trade bei jedem
             # Feedback-Lauf erneut gezählt und verzerrt die Lernstatistik massiv.
             feat = trade.get("features", {})
@@ -614,8 +700,12 @@ def main() -> None:
             trade["outcome"]      = round(outcome, 4)
             trade["close_date"]   = today.strftime("%Y-%m-%d")
             trade["close_price"]  = current
+            trade["close_reason"] = exit_reason or "max_holding_period"
             history.setdefault("closed_trades", []).append(trade)
-            log.info(f"  [{ticker}] Trade abgeschlossen (Return={outcome:+.2%})")
+            log.info(
+                f"  [{ticker}] Trade abgeschlossen "
+                f"({trade['close_reason']}, Return={outcome:+.2%})"
+            )
             newly_closed += 1
         else:
             trade["last_price"]     = current
@@ -625,7 +715,18 @@ def main() -> None:
     history["active_trades"] = still_active
     history["model_weights"] = compute_pearson_weights(history)
 
+    # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
+    evaluate_shadow_trades(history, today)
+
     save_history(history)
+
+    # Exit-Alarme als E-Mail (TP/SL/Time-Exit erreicht → Handlungsaufforderung)
+    if exit_alerts:
+        try:
+            from modules.email_reporter import send_exit_alert_email
+            send_exit_alert_email(exit_alerts, today.strftime("%Y-%m-%d"))
+        except Exception as e:
+            log.error(f"Exit-Alert-Email-Fehler: {e}")
 
     if newly_closed > 0:
         log.info(f"{newly_closed} neue closed_trades → starte RL-Nachtraining...")

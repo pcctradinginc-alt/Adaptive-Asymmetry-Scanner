@@ -54,6 +54,42 @@ def send_email(proposals: list[dict], today: str, pipeline_stats: dict | None = 
     _send_smtp(subject, html)
 
 
+def send_exit_alert_email(alerts: list[dict], today: str) -> None:
+    """
+    Sofort-Alarm wenn aktive Trades ihre Exit-Regel erreicht haben.
+    Wird von feedback.py aufgerufen — der wichtigste Mail-Typ, denn hier
+    geht es um offene Positionen mit echtem Geld.
+    """
+    LABELS = {
+        "take_profit": ("🎯 TAKE-PROFIT", "#16a34a", "Gewinn mitnehmen — Position (oder Hälfte) schliessen"),
+        "stop_loss":   ("🛑 STOP-LOSS",   "#dc2626", "Position liquidieren — Verlust begrenzen"),
+        "time_exit":   ("⏳ TIME-EXIT",   "#ca8a04", "Theta-Decay: halbe Laufzeit um, Gewinn < +20% — schliessen"),
+    }
+    rows = ""
+    for a in alerts:
+        label, color, action = LABELS.get(a["reason"], (a["reason"], "#0f172a", ""))
+        opt = a.get("option") or {}
+        rows += f"""
+        <div style="margin:10px 0;padding:12px 14px;border-left:4px solid {color};background:#f8fafc;border-radius:4px;">
+          <b style="color:{color};">{label}</b> — <b>{a['ticker']}</b> {a.get('strategy','')}
+          <br>Strike ${opt.get('strike','?')} · Expiry {opt.get('expiry','?')} ·
+          aktueller P&amp;L: <b style="color:{color};">{a['outcome']:+.1%}</b> ·
+          Haltedauer {a['age_days']}d
+          <br><i>{action}</i>
+        </div>"""
+    html = f"""
+    <html><body style="font-family:Arial,sans-serif;max-width:640px">
+      <h2>🚨 Exit-Alarm — {len(alerts)} Position(en) haben ihre Exit-Regel erreicht</h2>
+      {rows}
+      <p style="color:#888;font-size:0.85em">Automatisch generiert · {today} ·
+      Diese Positionen wurden im Lern-System mit dem heutigen Stand geschlossen.</p>
+    </body></html>"""
+    n_tp = sum(1 for a in alerts if a["reason"] == "take_profit")
+    n_sl = sum(1 for a in alerts if a["reason"] == "stop_loss")
+    subject = f"🚨 Exit-Alarm: {len(alerts)} Position(en) ({n_tp}× TP, {n_sl}× SL) – {today}"
+    _send_smtp(subject, html)
+
+
 def _build_status_email(stats: dict, today: str) -> str:
     vix         = stats.get("vix")
     trades      = stats.get("trades", 0)
@@ -280,6 +316,33 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
               </table>
             </div>"""
 
+        # ── Positionsgrößen-Block (Fractional Kelly) ─────────────────────────
+        sizing      = p.get("position_sizing") or {}
+        sizing_html = ""
+        if sizing:
+            s_contracts = sizing.get("contracts", 0)
+            s_note      = sizing.get("note", "")
+            s_color     = "#16a34a" if s_contracts > 0 else "#dc2626"
+            note_html   = f"<br><i style='color:#92400e;'>{s_note}</i>" if s_note else ""
+            sizing_html = f"""
+            <div style="margin-top:10px;padding:12px 14px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:6px;font-size:12px;">
+              <b style="color:#3730a3;">💼 Positionsgröße (¼-Kelly, Depot ${sizing.get('portfolio_usd',0):,.0f})</b>
+              <table style="width:100%;margin-top:6px;font-size:12px;color:#312e81;border-collapse:collapse;">
+                <tr>
+                  <td style="padding:2px 8px 2px 0;"><b>Empfehlung:</b>
+                    <span style="color:{s_color};font-weight:bold;">{s_contracts} Kontrakt(e)</span>
+                    à ${sizing.get('cost_per_contract',0):,.0f}</td>
+                  <td style="padding:2px 8px 2px 0;"><b>Budget:</b> ${sizing.get('position_usd',0):,.0f}
+                    ({sizing.get('position_pct',0):.1%} Depot)</td>
+                </tr>
+                <tr>
+                  <td style="padding:2px 8px 2px 0;"><b>Max. Risiko (bei SL):</b> ${sizing.get('max_risk_usd',0):,.0f}</td>
+                  <td style="padding:2px 8px 2px 0;"><b>Voll-Kelly:</b> {sizing.get('kelly_raw',0):.2f}</td>
+                </tr>
+              </table>
+              {note_html}
+            </div>"""
+
         if is_spread and sl:
             long_k     = float(option.get("strike", 0))
             short_k    = float(sl.get("strike", 0))
@@ -377,6 +440,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           </div>
 
           {execution_html}
+          {sizing_html}
           {exit_html}
           {greeks_html}
           {prob_html}
