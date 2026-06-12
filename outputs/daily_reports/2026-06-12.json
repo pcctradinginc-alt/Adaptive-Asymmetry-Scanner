@@ -1,0 +1,66 @@
+{
+  "date": "2026-06-12",
+  "proposals": [],
+  "stats": {
+    "vix": 18.770000457763672,
+    "universe": 88,
+    "candidates": 88,
+    "prescreened": 15,
+    "sector_ok": 78,
+    "pre_mc": 14,
+    "roi_precheck": 15,
+    "analyzed": 12,
+    "mismatch_ok": 7,
+    "quick_mc": 3,
+    "intraday_ok": 3,
+    "final_mc": 3,
+    "rl_scored": 3,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "after_isf": 11
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 10,
+      "tickers": [
+        "ADBE",
+        "ADSK",
+        "ANET",
+        "XYZ",
+        "BSX",
+        "AVGO",
+        "CHTR",
+        "CTSH",
+        "COIN",
+        "CEG"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 1,
+      "tickers": [
+        "AOS"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "AMGN"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 1,
+      "tickers": [
+        "ABNB"
+      ]
+    },
+    "mc_no_result": {
+      "count": 3,
+      "tickers": [
+        "AEP",
+        "BX",
+        "ECL"
+      ]
+    }
+  }
+}
