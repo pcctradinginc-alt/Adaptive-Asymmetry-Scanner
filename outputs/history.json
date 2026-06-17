@@ -6,8 +6,8 @@
         "avg_return": 0.8166
       },
       "mid": {
-        "count": 89,
-        "avg_return": 0.062192
+        "count": 90,
+        "avg_return": 0.055342
       },
       "low": {
         "count": 9,
@@ -16,8 +16,8 @@
     },
     "mismatch": {
       "good": {
-        "count": 71,
-        "avg_return": 0.152259
+        "count": 72,
+        "avg_return": 0.142446
       },
       "weak": {
         "count": 25,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 96,
-        "avg_return": 0.126054
+        "count": 97,
+        "avg_return": 0.11904
       },
       "massive": {
         "count": 2,
@@ -114,8 +114,8 @@
         "dte": 162
       },
       "outcome": null,
-      "last_price": 41.42,
-      "current_return": -0.0357
+      "last_price": 41.67,
+      "current_return": -0.0476
     },
     {
       "ticker": "ABNB",
@@ -189,8 +189,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 141.2,
-      "current_return": 0.2911
+      "last_price": 142.77,
+      "current_return": 0.4209
     },
     {
       "ticker": "BIIB",
@@ -264,8 +264,8 @@
         "dte": 121
       },
       "outcome": null,
-      "last_price": 195.61,
-      "current_return": -0.0556
+      "last_price": 201.615,
+      "current_return": 0.1354
     },
     {
       "ticker": "GOOG",
@@ -349,8 +349,8 @@
         "dte": 93
       },
       "outcome": null,
-      "last_price": 371.1,
-      "current_return": -0.3424
+      "last_price": 363.43,
+      "current_return": -0.447
     },
     {
       "ticker": "DDOG",
@@ -434,8 +434,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 231.11,
-      "current_return": 0.116
+      "last_price": 231.55,
+      "current_return": 0.2514
     },
     {
       "ticker": "GOOG",
@@ -519,8 +519,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 371.1,
-      "current_return": -0.2554
+      "last_price": 363.43,
+      "current_return": -0.3738
     },
     {
       "ticker": "CSCO",
@@ -604,8 +604,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 119.57,
-      "current_return": 0.1059
+      "last_price": 118.78,
+      "current_return": 0.0294
     },
     {
       "ticker": "MO",
@@ -689,8 +689,8 @@
         "dte": 120
       },
       "outcome": null,
-      "last_price": 70.19,
-      "current_return": -0.3127
+      "last_price": 69.15,
+      "current_return": -0.4116
     },
     {
       "ticker": "AKAM",
@@ -774,8 +774,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 132.31,
-      "current_return": -0.4421
+      "last_price": 130.195,
+      "current_return": -0.4737
     },
     {
       "ticker": "BA",
@@ -859,94 +859,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 227.49,
-      "current_return": -0.109
-    },
-    {
-      "ticker": "MO",
-      "entry_date": "2026-05-21",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 3.543,
-        "z_score": 0.291,
-        "sigma_30d": 0.0182,
-        "price_move_48h": 0.0053,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5836
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 2.21,
-      "option": {
-        "expiry": "2026-09-18",
-        "strike": 75.0,
-        "bid": 3.1,
-        "ask": 3.2,
-        "open_interest": 3636,
-        "implied_vol": 0.2507,
-        "spread_ratio": 0.0313,
-        "dte": 119,
-        "delta": 0.4411,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 82.5,
-          "bid": 0.99,
-          "ask": 1.1
-        },
-        "net_debit": 2.21
-      },
-      "simulation": {
-        "current_price": 73.54,
-        "target_price": 79.42,
-        "hit_rate": 0.7112,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0151,
-        "alpha": 0.00275
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Der Insider-Verkauf von 19% einer Beteiligung ist ein ernstzunehmendes Warnsignal. Bei einem Tabakwert mit strukturell schrumpfendem Kerngesch\u00e4ft k\u00f6nnte dies auf bevorstehende negative Q2-Guidance oder eine Dividendenk\u00fcrzung hindeuten, die den Kurs kurzfristig stark belasten w\u00fcrden.",
-          "argument_2": "Altria operiert in einem s\u00e4kularen Niedergang-Sektor: Zigarettenvolumen sinken strukturell, das NJOY-E-Zigaretten-Gesch\u00e4ft ist noch nicht profitabel skaliert, und regulatorische Risiken (FDA-Menthol-Verbote, Nikotinlimits) k\u00f6nnten jederzeit eskalieren. Die Barclays-Preiszielerh\u00f6hung basiert auf einem Sektor-Re-Rating, das stark von politischen Entscheidungen abh\u00e4ngt.",
-          "argument_3": "Das gemischte Insider-Signal ist widerspr\u00fcchlich und daher unzuverl\u00e4ssig: 8 Insider kaufen laut Form 4, gleichzeitig verkauft ein Insider 19% seiner Beteiligung. Solche widerspr\u00fcchlichen Cluster-Signale deuten oft auf unkoordiniertes Verhalten hin und sind schwer zu interpretieren. Der Call-OI-\u00dcberhang bei Dealer-Gamma k\u00f6nnte kurzfristige Aufw\u00e4rtsbewegungen d\u00e4mpfen statt verst\u00e4rken.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt, 0% Hit-Rate ist daher technisch nicht aussagekr\u00e4ftig und kein Indikator f\u00fcr Modell-Optimismus. Die fehlende MC-Simulation ist ein Datenl\u00fccke, erh\u00f6ht aber den Unsicherheitsgrad der Bewertung und erfordert konservativere Sch\u00e4tzungen.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Das Cluster-Kaufsignal von 8 Insidern innerhalb von 14 Tagen wird durch den Einzelverkauf von 19% \u00fcberlagert und vom Markt m\u00f6glicherweise als negatives Signal fehlgedeutet. Barclays' Sektor-Re-Rating-These ist strukturell bullish, wird aber durch regulatorische Unsicherheiten systematisch diskontiert. Der expansive Makro-Kontext mit steiler Zinskurve st\u00fctzt defensiv-dividendenstarke Werte, die im aktuellen Umfeld Kapitalzufl\u00fcsse von Rentenorientieren Investoren erleben.",
-        "catalyst": "Q2-Earnings mit best\u00e4tigtem Dividendenwachstum und NJOY-Skalierungsfortschritt als Sektor-Re-Rating-Best\u00e4tigung",
-        "bear_case": "Insider-Verkauf von 19% kombiniert mit strukturell sinkenden Zigarettenvolumen und FDA-Regulierungsrisiko k\u00f6nnte Dividendenk\u00fcrzung vorwegnehmen",
-        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0,53%) und Fed Funds Rate von 3,64% beg\u00fcnstigt dividendenstarke Consumer-Defensive-Werte wie MO. Die VIX-Contango-Struktur (slope +42%) reduziert Long-Vol-Risiken. Allerdings ist MO kein Wachstumswert, sodass das expansive Makro nur moderaten R\u00fcckenwind bietet \u2014 prim\u00e4r durch Kapitalallokation weg von Treasuries hin zu Hochdividendenwerten.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.53,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 122803306496,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 1.1075,
-        "annualized_roi": null,
-        "dte": 119
-      },
-      "outcome": null,
-      "last_price": 70.19,
-      "current_return": -0.4706
+      "last_price": 230.39,
+      "current_return": -0.0806
     }
   ],
   "closed_trades": [
@@ -8139,6 +8053,95 @@
       "close_date": "2026-06-15",
       "close_price": 180.77,
       "close_reason": "stop_loss"
+    },
+    {
+      "ticker": "MO",
+      "entry_date": "2026-05-21",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.543,
+        "z_score": 0.291,
+        "sigma_30d": 0.0182,
+        "price_move_48h": 0.0053,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5836
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 2.21,
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 75.0,
+        "bid": 3.1,
+        "ask": 3.2,
+        "open_interest": 3636,
+        "implied_vol": 0.2507,
+        "spread_ratio": 0.0313,
+        "dte": 119,
+        "delta": 0.4411,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 82.5,
+          "bid": 0.99,
+          "ask": 1.1
+        },
+        "net_debit": 2.21
+      },
+      "simulation": {
+        "current_price": 73.54,
+        "target_price": 79.42,
+        "hit_rate": 0.7112,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0151,
+        "alpha": 0.00275
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Insider-Verkauf von 19% einer Beteiligung ist ein ernstzunehmendes Warnsignal. Bei einem Tabakwert mit strukturell schrumpfendem Kerngesch\u00e4ft k\u00f6nnte dies auf bevorstehende negative Q2-Guidance oder eine Dividendenk\u00fcrzung hindeuten, die den Kurs kurzfristig stark belasten w\u00fcrden.",
+          "argument_2": "Altria operiert in einem s\u00e4kularen Niedergang-Sektor: Zigarettenvolumen sinken strukturell, das NJOY-E-Zigaretten-Gesch\u00e4ft ist noch nicht profitabel skaliert, und regulatorische Risiken (FDA-Menthol-Verbote, Nikotinlimits) k\u00f6nnten jederzeit eskalieren. Die Barclays-Preiszielerh\u00f6hung basiert auf einem Sektor-Re-Rating, das stark von politischen Entscheidungen abh\u00e4ngt.",
+          "argument_3": "Das gemischte Insider-Signal ist widerspr\u00fcchlich und daher unzuverl\u00e4ssig: 8 Insider kaufen laut Form 4, gleichzeitig verkauft ein Insider 19% seiner Beteiligung. Solche widerspr\u00fcchlichen Cluster-Signale deuten oft auf unkoordiniertes Verhalten hin und sind schwer zu interpretieren. Der Call-OI-\u00dcberhang bei Dealer-Gamma k\u00f6nnte kurzfristige Aufw\u00e4rtsbewegungen d\u00e4mpfen statt verst\u00e4rken.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Quick MC wurde nicht durchgef\u00fchrt, 0% Hit-Rate ist daher technisch nicht aussagekr\u00e4ftig und kein Indikator f\u00fcr Modell-Optimismus. Die fehlende MC-Simulation ist ein Datenl\u00fccke, erh\u00f6ht aber den Unsicherheitsgrad der Bewertung und erfordert konservativere Sch\u00e4tzungen.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Das Cluster-Kaufsignal von 8 Insidern innerhalb von 14 Tagen wird durch den Einzelverkauf von 19% \u00fcberlagert und vom Markt m\u00f6glicherweise als negatives Signal fehlgedeutet. Barclays' Sektor-Re-Rating-These ist strukturell bullish, wird aber durch regulatorische Unsicherheiten systematisch diskontiert. Der expansive Makro-Kontext mit steiler Zinskurve st\u00fctzt defensiv-dividendenstarke Werte, die im aktuellen Umfeld Kapitalzufl\u00fcsse von Rentenorientieren Investoren erleben.",
+        "catalyst": "Q2-Earnings mit best\u00e4tigtem Dividendenwachstum und NJOY-Skalierungsfortschritt als Sektor-Re-Rating-Best\u00e4tigung",
+        "bear_case": "Insider-Verkauf von 19% kombiniert mit strukturell sinkenden Zigarettenvolumen und FDA-Regulierungsrisiko k\u00f6nnte Dividendenk\u00fcrzung vorwegnehmen",
+        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0,53%) und Fed Funds Rate von 3,64% beg\u00fcnstigt dividendenstarke Consumer-Defensive-Werte wie MO. Die VIX-Contango-Struktur (slope +42%) reduziert Long-Vol-Risiken. Allerdings ist MO kein Wachstumswert, sodass das expansive Makro nur moderaten R\u00fcckenwind bietet \u2014 prim\u00e4r durch Kapitalallokation weg von Treasuries hin zu Hochdividendenwerten.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.53,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 122803306496,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 1.1075,
+        "annualized_roi": null,
+        "dte": 119
+      },
+      "outcome": -0.5543,
+      "last_price": 70.19,
+      "current_return": -0.4706,
+      "close_date": "2026-06-17",
+      "close_price": 69.15,
+      "close_reason": "stop_loss"
     }
   ],
   "model_weights": {
@@ -8257,6 +8260,11 @@
         "date": "2026-06-15",
         "score": -0.049,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.125,
+        "headline_count": 3
       }
     ],
     "GEN": [
@@ -8627,6 +8635,11 @@
         "date": "2026-06-16",
         "score": 0.2945,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.3824,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -8804,6 +8817,11 @@
         "date": "2026-06-16",
         "score": -0.1298,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1861,
+        "headline_count": 5
       }
     ],
     "KMX": [
@@ -8957,6 +8975,11 @@
       {
         "date": "2026-06-16",
         "score": -0.1825,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3005,
         "headline_count": 5
       }
     ],
@@ -9286,6 +9309,11 @@
         "date": "2026-06-16",
         "score": -0.2702,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.408,
+        "headline_count": 3
       }
     ],
     "FSLR": [
@@ -9729,6 +9757,11 @@
         "date": "2026-06-16",
         "score": -0.0606,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.0948,
+        "headline_count": 5
       }
     ],
     "BIIB": [
@@ -9968,6 +10001,11 @@
         "date": "2026-06-16",
         "score": 0.1789,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2867,
+        "headline_count": 5
       }
     ],
     "CHTR": [
@@ -10170,6 +10208,11 @@
         "date": "2026-06-16",
         "score": 0.098,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.0563,
+        "headline_count": 3
       }
     ],
     "C": [
@@ -10306,6 +10349,11 @@
       {
         "date": "2026-06-16",
         "score": 0.157,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.0885,
         "headline_count": 5
       }
     ],
@@ -10541,6 +10589,11 @@
         "date": "2026-06-16",
         "score": 0.0396,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0623,
+        "headline_count": 4
       }
     ],
     "FANG": [
@@ -10755,6 +10808,11 @@
         "date": "2026-06-16",
         "score": -0.0594,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.453,
+        "headline_count": 4
       }
     ],
     "EW": [
@@ -10887,6 +10945,11 @@
         "date": "2026-06-16",
         "score": 0.1031,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0004,
+        "headline_count": 4
       }
     ],
     "FAST": [
@@ -11339,6 +11402,11 @@
         "date": "2026-06-08",
         "score": 0.2481,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.3928,
+        "headline_count": 5
       }
     ],
     "PLTR": [
@@ -11605,6 +11673,11 @@
       {
         "date": "2026-06-16",
         "score": -0.002,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0584,
         "headline_count": 5
       }
     ],
@@ -11912,6 +11985,11 @@
         "date": "2026-06-16",
         "score": 0.1923,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0643,
+        "headline_count": 5
       }
     ],
     "CSGP": [
@@ -12043,6 +12121,11 @@
       {
         "date": "2026-06-16",
         "score": 0.1071,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0213,
         "headline_count": 5
       }
     ],
@@ -12883,6 +12966,11 @@
         "date": "2026-06-16",
         "score": -0.2062,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.1379,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -13060,6 +13148,11 @@
         "date": "2026-06-16",
         "score": 0.0215,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.541,
+        "headline_count": 5
       }
     ],
     "BK": [
@@ -13359,6 +13452,11 @@
         "date": "2026-06-16",
         "score": -0.3056,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2109,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
@@ -13555,6 +13653,11 @@
       {
         "date": "2026-06-16",
         "score": 0.0475,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2281,
         "headline_count": 5
       }
     ],
@@ -13854,6 +13957,11 @@
       {
         "date": "2026-06-16",
         "score": -0.0756,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0439,
         "headline_count": 5
       }
     ],
@@ -14250,6 +14358,11 @@
         "date": "2026-06-16",
         "score": 0.0971,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2579,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -14335,6 +14448,11 @@
       {
         "date": "2026-06-16",
         "score": 0.1048,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0841,
         "headline_count": 5
       }
     ],
@@ -14627,6 +14745,11 @@
         "date": "2026-06-16",
         "score": -0.2699,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.3469,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -14774,6 +14897,11 @@
         "date": "2026-06-16",
         "score": -0.267,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2728,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -14876,6 +15004,11 @@
         "date": "2026-06-08",
         "score": 0.8695,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1917,
+        "headline_count": 5
       }
     ],
     "D": [
@@ -15022,6 +15155,11 @@
       {
         "date": "2026-06-16",
         "score": 0.0531,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0056,
         "headline_count": 5
       }
     ],
@@ -15582,6 +15720,11 @@
         "date": "2026-06-16",
         "score": 0.6734,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0145,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -15688,6 +15831,11 @@
       {
         "date": "2026-06-15",
         "score": 0.0594,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2985,
         "headline_count": 5
       }
     ],
@@ -15949,6 +16097,11 @@
         "date": "2026-06-16",
         "score": -0.2624,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2624,
+        "headline_count": 4
       }
     ],
     "BALL": [
@@ -16040,6 +16193,11 @@
       {
         "date": "2026-06-16",
         "score": -0.0037,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.5287,
         "headline_count": 3
       }
     ],
@@ -16255,6 +16413,11 @@
         "date": "2026-06-15",
         "score": 0.0656,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0215,
+        "headline_count": 5
       }
     ],
     "SCHW": [
@@ -16407,6 +16570,11 @@
         "date": "2026-06-16",
         "score": -0.2702,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0339,
+        "headline_count": 4
       }
     ],
     "CTAS": [
@@ -16645,6 +16813,11 @@
       {
         "date": "2026-06-16",
         "score": 0.4148,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1468,
         "headline_count": 5
       }
     ],
@@ -17052,6 +17225,11 @@
         "date": "2026-06-16",
         "score": -0.2702,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0339,
+        "headline_count": 4
       }
     ],
     "GLW": [
@@ -17234,6 +17412,11 @@
         "date": "2026-06-16",
         "score": 0.4328,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2152,
+        "headline_count": 5
       }
     ],
     "COST": [
@@ -17385,6 +17568,11 @@
       {
         "date": "2026-06-16",
         "score": 0.3933,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1556,
         "headline_count": 5
       }
     ],
@@ -17661,6 +17849,11 @@
       {
         "date": "2026-06-16",
         "score": 0.104,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0833,
         "headline_count": 5
       }
     ],
@@ -18139,6 +18332,11 @@
       {
         "date": "2026-06-16",
         "score": 0.1932,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2733,
         "headline_count": 5
       }
     ],
@@ -18795,6 +18993,11 @@
         "date": "2026-06-16",
         "score": 0.2926,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1511,
+        "headline_count": 5
       }
     ],
     "ADI": [
@@ -19164,6 +19367,11 @@
         "date": "2026-06-16",
         "score": 0.5506,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.5826,
+        "headline_count": 5
       }
     ],
     "ADM": [
@@ -19285,6 +19493,11 @@
       {
         "date": "2026-06-16",
         "score": -0.0794,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2317,
         "headline_count": 4
       }
     ],
@@ -19620,6 +19833,11 @@
         "date": "2026-06-16",
         "score": 0.2238,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.0815,
+        "headline_count": 5
       }
     ],
     "ADSK": [
@@ -19766,6 +19984,11 @@
       {
         "date": "2026-06-16",
         "score": 0.1427,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.3288,
         "headline_count": 5
       }
     ],
@@ -20128,6 +20351,11 @@
         "date": "2026-06-16",
         "score": -0.2702,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0339,
+        "headline_count": 4
       }
     ],
     "CPT": [
@@ -20235,6 +20463,11 @@
         "date": "2026-06-16",
         "score": 0.0976,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.015,
+        "headline_count": 4
       }
     ],
     "CAH": [
@@ -20417,6 +20650,11 @@
         "date": "2026-06-16",
         "score": -0.3325,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2493,
+        "headline_count": 5
       }
     ],
     "CL": [
@@ -20553,6 +20791,11 @@
       {
         "date": "2026-06-16",
         "score": 0.062,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3183,
         "headline_count": 5
       }
     ],
@@ -20710,6 +20953,11 @@
       {
         "date": "2026-06-16",
         "score": -0.22,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3058,
         "headline_count": 5
       }
     ],
@@ -20980,6 +21228,11 @@
         "date": "2026-06-16",
         "score": 0.151,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0561,
+        "headline_count": 5
       }
     ],
     "CTSH": [
@@ -21151,6 +21404,11 @@
       {
         "date": "2026-06-16",
         "score": -0.0169,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1199,
         "headline_count": 5
       }
     ],
@@ -21613,6 +21871,11 @@
         "date": "2026-06-16",
         "score": -0.2702,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.1579,
+        "headline_count": 4
       }
     ],
     "DG": [
@@ -21759,6 +22022,11 @@
       {
         "date": "2026-06-16",
         "score": -0.2922,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2641,
         "headline_count": 5
       }
     ],
@@ -22010,6 +22278,11 @@
         "date": "2026-06-16",
         "score": 0.0864,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.1007,
+        "headline_count": 5
       }
     ],
     "DVN": [
@@ -22172,6 +22445,11 @@
         "date": "2026-06-16",
         "score": -0.0701,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0439,
+        "headline_count": 3
       }
     ],
     "EXC": [
@@ -22529,6 +22807,11 @@
         "date": "2026-06-16",
         "score": -0.2702,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0339,
+        "headline_count": 4
       }
     ],
     "EOG": [
@@ -22947,6 +23230,11 @@
         "date": "2026-06-03",
         "score": 0.0495,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3259,
+        "headline_count": 5
       }
     ],
     "MKC": [
@@ -23219,6 +23507,11 @@
         "date": "2026-06-16",
         "score": -0.3446,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2025,
+        "headline_count": 4
       }
     ],
     "ACN": [
@@ -23527,6 +23820,11 @@
       {
         "date": "2026-06-16",
         "score": 0.228,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0798,
         "headline_count": 5
       }
     ],
@@ -24173,6 +24471,11 @@
         "date": "2026-06-16",
         "score": 0.1187,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2346,
+        "headline_count": 5
       }
     ],
     "COR": [
@@ -24467,6 +24770,11 @@
         "date": "2026-06-16",
         "score": 0.1777,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0168,
+        "headline_count": 4
       }
     ],
     "CHD": [
@@ -24573,6 +24881,11 @@
       {
         "date": "2026-06-16",
         "score": -0.2681,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0183,
         "headline_count": 5
       }
     ],
@@ -25015,6 +25328,11 @@
         "date": "2026-06-16",
         "score": 0.6734,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0145,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -25171,6 +25489,11 @@
       {
         "date": "2026-06-16",
         "score": 0.2076,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1745,
         "headline_count": 5
       }
     ],
@@ -25423,6 +25746,11 @@
         "date": "2026-06-16",
         "score": 0.0841,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2847,
+        "headline_count": 4
       }
     ],
     "EBAY": [
@@ -25602,6 +25930,11 @@
         "date": "2026-06-16",
         "score": -0.0225,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0061,
+        "headline_count": 5
       }
     ],
     "EIX": [
@@ -25659,6 +25992,11 @@
         "date": "2026-06-04",
         "score": 0.1407,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0595,
+        "headline_count": 5
       }
     ],
     "AME": [
@@ -25866,6 +26204,11 @@
       },
       {
         "date": "2026-06-16",
+        "score": 0.1399,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
         "score": 0.1399,
         "headline_count": 4
       }
@@ -26333,6 +26676,11 @@
         "date": "2026-06-16",
         "score": -0.3556,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0081,
+        "headline_count": 4
       }
     ],
     "CSX": [
@@ -26354,6 +26702,11 @@
       {
         "date": "2026-06-03",
         "score": -0.1757,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1111,
         "headline_count": 3
       }
     ],
@@ -26472,6 +26825,11 @@
         "date": "2026-06-16",
         "score": -0.2252,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1824,
+        "headline_count": 4
       }
     ],
     "ATO": [
@@ -26723,6 +27081,11 @@
         "date": "2026-06-16",
         "score": 0.3708,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3065,
+        "headline_count": 5
       }
     ],
     "CNX": [
@@ -26857,6 +27220,11 @@
         "date": "2026-06-16",
         "score": 0.1205,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0786,
+        "headline_count": 5
       }
     ],
     "DECK": [
@@ -26983,6 +27351,11 @@
       {
         "date": "2026-06-15",
         "score": 0.158,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.122,
         "headline_count": 5
       }
     ],
@@ -27163,6 +27536,11 @@
         "date": "2026-06-12",
         "score": 0.0527,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.4149,
+        "headline_count": 4
       }
     ],
     "ELV": [
@@ -27266,6 +27644,11 @@
       {
         "date": "2026-06-12",
         "score": 0.2454,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3595,
         "headline_count": 5
       }
     ],
@@ -27639,6 +28022,11 @@
         "date": "2026-06-12",
         "score": -0.151,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1467,
+        "headline_count": 3
       }
     ],
     "AJG": [
@@ -27893,6 +28281,11 @@
         "date": "2026-06-02",
         "score": 0.1112,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.0497,
+        "headline_count": 5
       }
     ],
     "CPRT": [
@@ -28002,6 +28395,11 @@
         "date": "2026-06-16",
         "score": 0.2136,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0284,
+        "headline_count": 5
       }
     ],
     "APO": [
@@ -28053,6 +28451,11 @@
       {
         "date": "2026-06-16",
         "score": 0.1797,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.028,
         "headline_count": 5
       }
     ],
@@ -28161,6 +28564,11 @@
         "date": "2026-06-16",
         "score": 0.112,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.2008,
+        "headline_count": 5
       }
     ],
     "BSX": [
@@ -28258,6 +28666,11 @@
         "date": "2026-06-16",
         "score": -0.2844,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3771,
+        "headline_count": 5
       }
     ],
     "BKNG": [
@@ -28434,6 +28847,11 @@
         "date": "2026-06-16",
         "score": -0.2158,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.1987,
+        "headline_count": 5
       }
     ],
     "COIN": [
@@ -28515,6 +28933,11 @@
       {
         "date": "2026-06-16",
         "score": 0.0633,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.3089,
         "headline_count": 5
       }
     ],
@@ -28602,6 +29025,11 @@
       {
         "date": "2026-06-16",
         "score": 0.0218,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0682,
         "headline_count": 5
       }
     ],
@@ -28772,6 +29200,11 @@
         "date": "2026-06-16",
         "score": -0.1273,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": -0.3843,
+        "headline_count": 5
       }
     ],
     "DASH": [
@@ -28849,6 +29282,11 @@
         "date": "2026-06-16",
         "score": -0.0418,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.1058,
+        "headline_count": 5
       }
     ],
     "SATS": [
@@ -28920,6 +29358,11 @@
       {
         "date": "2026-06-16",
         "score": 0.3922,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.2575,
         "headline_count": 5
       }
     ],
@@ -29027,6 +29470,11 @@
         "date": "2026-06-02",
         "score": 0.0862,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.4261,
+        "headline_count": 5
       }
     ],
     "CBOE": [
@@ -29073,6 +29521,11 @@
       {
         "date": "2026-06-16",
         "score": 0.449,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-17",
+        "score": 0.0644,
         "headline_count": 5
       }
     ],
