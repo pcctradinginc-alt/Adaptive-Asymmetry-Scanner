@@ -6,8 +6,8 @@
         "avg_return": 0.8166
       },
       "mid": {
-        "count": 90,
-        "avg_return": 0.055342
+        "count": 91,
+        "avg_return": 0.048719
       },
       "low": {
         "count": 9,
@@ -20,8 +20,8 @@
         "avg_return": 0.142446
       },
       "weak": {
-        "count": 25,
-        "avg_return": 0.201071
+        "count": 26,
+        "avg_return": 0.172285
       },
       "strong": {
         "count": 4,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 97,
-        "avg_return": 0.11904
+        "count": 98,
+        "avg_return": 0.11224
       },
       "massive": {
         "count": 2,
@@ -114,8 +114,8 @@
         "dte": 162
       },
       "outcome": null,
-      "last_price": 41.3425,
-      "current_return": -0.0714
+      "last_price": 41.08,
+      "current_return": -0.1548
     },
     {
       "ticker": "ABNB",
@@ -189,8 +189,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 143.08,
-      "current_return": 0.4589
+      "last_price": 142.41,
+      "current_return": 0.4019
     },
     {
       "ticker": "BIIB",
@@ -264,8 +264,8 @@
         "dte": 121
       },
       "outcome": null,
-      "last_price": 195.06,
-      "current_return": -0.1146
+      "last_price": 196.58,
+      "current_return": -0.0417
     },
     {
       "ticker": "GOOG",
@@ -349,8 +349,8 @@
         "dte": 93
       },
       "outcome": null,
-      "last_price": 366.0701,
-      "current_return": -0.4239
+      "last_price": 367.46,
+      "current_return": -0.4198
     },
     {
       "ticker": "DDOG",
@@ -434,8 +434,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 222.26,
-      "current_return": -0.0138
+      "last_price": 223.0,
+      "current_return": 0.0967
     },
     {
       "ticker": "GOOG",
@@ -519,8 +519,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 366.08,
-      "current_return": -0.3492
+      "last_price": 367.46,
+      "current_return": -0.3431
     },
     {
       "ticker": "CSCO",
@@ -604,8 +604,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 119.86,
-      "current_return": 0.1294
+      "last_price": 119.54,
+      "current_return": 0.1
     },
     {
       "ticker": "MO",
@@ -689,93 +689,8 @@
         "dte": 120
       },
       "outcome": null,
-      "last_price": 69.045,
-      "current_return": -0.4116
-    },
-    {
-      "ticker": "AKAM",
-      "entry_date": "2026-05-20",
-      "features": {
-        "impact": 5,
-        "surprise": 5,
-        "mismatch": 0.18,
-        "z_score": 0.964,
-        "sigma_30d": 0.0656,
-        "price_move_48h": 0.0632,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7134
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-11-20",
-        "strike": 135.0,
-        "bid": 26.8,
-        "ask": 29.4,
-        "open_interest": 454,
-        "implied_vol": 0.5802,
-        "spread_ratio": 0.0884,
-        "dte": 183,
-        "delta": 0.6439,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 150.0,
-          "bid": 19.9,
-          "ask": 22.2
-        },
-        "net_debit": 9.5
-      },
-      "simulation": {
-        "current_price": 141.71,
-        "target_price": 162.05,
-        "hit_rate": 0.7412,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0428,
-        "alpha": 0.00534
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Die -6,3% Preisbewegung in 48h deutet auf einen negativen Katalysator hin, der m\u00f6glicherweise fundamentaler Natur ist (z.B. schwacher Earnings Outlook oder Guidancek\u00fcrzung). Der dominierende Put-OI (Call/Put-Ratio=0,55) mit 94 Put-OI ATM signalisiert, dass institutionelle Marktteilnehmer aktiv gegen AKAM positioniert sind, und Dealer-Hedging kann weitere Abw\u00e4rtsbewegungen prozyklisch verst\u00e4rken.",
-          "argument_2": "Die DDoS/API-Security-Forschung ist ein klassisches Marketing-Instrument von Akamai selbst und stellt kein unabh\u00e4ngiges externes Signal dar. Solche Berichte werden regelm\u00e4\u00dfig ver\u00f6ffentlicht und sind vom Markt l\u00e4ngst als Standard-PR eingepreist \u2014 der Informationsvorteil ist minimal bis inexistent, was den 'structural_change'-Charakter des Haiku-Screenings erheblich schw\u00e4cht.",
-          "argument_3": "Die eklatante EPS-Diskrepanz zwischen yfinance ($7.15) und SEC EDGAR ($2.95) \u2014 obwohl mit 0% Abweichung ausgewiesen, was mathematisch inkonsistent erscheint \u2014 wirft Fragen zur Datenqualit\u00e4t auf. Zudem fehlt ein Quick-MC (0 Pfade, 0% Hit-Rate), was bedeutet, dass keine statistische Absicherung f\u00fcr das bullishe Szenario vorliegt. Die Insider-K\u00e4ufe k\u00f6nnten auch als defensives Signaling bei bekanntem internem Druck interpretiert werden.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate ist nicht realistisch als echtes Ergebnis \u2014 wahrscheinlich wurde der MC nicht ausgef\u00fchrt. Ohne MC-Daten fehlt jede statistische Grundlage f\u00fcr eine Wahrscheinlichkeitsaussage. Dies erh\u00f6ht die Unsicherheit erheblich, ist aber kein Veto-Grund wenn fundamentale Signale stark genug sind.",
-          "concern_level": "high"
-        },
-        "impact": 5,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 4,
-        "asymmetry_reasoning": "Der Markt \u00fcbergewichtet kurzfristig die -6,3% Bewegung und Put-Dominanz, w\u00e4hrend er den strukturellen Nachfrageanstieg bei Security-L\u00f6sungen untersch\u00e4tzt. Sieben Insider-K\u00e4ufe im Cluster innerhalb von 14 Tagen sind ein statistisch seltenes Signal, das echtes Insider-Vertrauen in eine Erholung signalisiert. Das expansive Makroumfeld mit steiler Kurve beg\u00fcnstigt Mid-Cap-Tech-Rebounds nach \u00fcbertriebenen Short-Term-Korrekturen.",
-        "catalyst": "Q2-2026-Earnings mit Guidance-Upgrade im Security-Segment (Cloudflare-Competitor-Displacement) kombiniert mit Insider-Cluster als Best\u00e4tigung",
-        "bear_case": "Put-OI-Dominanz und Dealer-Gamma-Struktur k\u00f6nnen Abw\u00e4rtsdruck selbstverst\u00e4rkend prolongieren; DDoS-Research ist Eigenmarketing ohne externe Validierung",
-        "macro_assessment": "Expansives Umfeld (Kurve +0,54%, Fed Funds 3,64%) ist grunds\u00e4tzlich supportiv f\u00fcr Mid-Cap-Tech-Longs. VIX-Contango-Struktur (9d=15,2 \u2192 3M=20,7) spricht f\u00fcr Bull-Call-Spreads statt nakter Long-Calls, um erh\u00f6hte implizite Volatilit\u00e4t bei Q2-Events abzusichern. Das Makro liefert keinen Gegenwind, reduziert aber nicht die aktienspezifischen Risiken.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 20602574848,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.2474,
-        "annualized_roi": 1.1062,
-        "dte": 183
-      },
-      "outcome": null,
-      "last_price": 125.82,
-      "current_return": -0.4789
+      "last_price": 69.12,
+      "current_return": -0.3931
     },
     {
       "ticker": "BA",
@@ -859,8 +774,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 221.67,
-      "current_return": -0.1896
+      "last_price": 222.72,
+      "current_return": -0.1635
     }
   ],
   "closed_trades": [
@@ -8141,6 +8056,94 @@
       "current_return": -0.4706,
       "close_date": "2026-06-17",
       "close_price": 69.15,
+      "close_reason": "stop_loss"
+    },
+    {
+      "ticker": "AKAM",
+      "entry_date": "2026-05-20",
+      "features": {
+        "impact": 5,
+        "surprise": 5,
+        "mismatch": 0.18,
+        "z_score": 0.964,
+        "sigma_30d": 0.0656,
+        "price_move_48h": 0.0632,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7134
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-11-20",
+        "strike": 135.0,
+        "bid": 26.8,
+        "ask": 29.4,
+        "open_interest": 454,
+        "implied_vol": 0.5802,
+        "spread_ratio": 0.0884,
+        "dte": 183,
+        "delta": 0.6439,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 150.0,
+          "bid": 19.9,
+          "ask": 22.2
+        },
+        "net_debit": 9.5
+      },
+      "simulation": {
+        "current_price": 141.71,
+        "target_price": 162.05,
+        "hit_rate": 0.7412,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0428,
+        "alpha": 0.00534
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die -6,3% Preisbewegung in 48h deutet auf einen negativen Katalysator hin, der m\u00f6glicherweise fundamentaler Natur ist (z.B. schwacher Earnings Outlook oder Guidancek\u00fcrzung). Der dominierende Put-OI (Call/Put-Ratio=0,55) mit 94 Put-OI ATM signalisiert, dass institutionelle Marktteilnehmer aktiv gegen AKAM positioniert sind, und Dealer-Hedging kann weitere Abw\u00e4rtsbewegungen prozyklisch verst\u00e4rken.",
+          "argument_2": "Die DDoS/API-Security-Forschung ist ein klassisches Marketing-Instrument von Akamai selbst und stellt kein unabh\u00e4ngiges externes Signal dar. Solche Berichte werden regelm\u00e4\u00dfig ver\u00f6ffentlicht und sind vom Markt l\u00e4ngst als Standard-PR eingepreist \u2014 der Informationsvorteil ist minimal bis inexistent, was den 'structural_change'-Charakter des Haiku-Screenings erheblich schw\u00e4cht.",
+          "argument_3": "Die eklatante EPS-Diskrepanz zwischen yfinance ($7.15) und SEC EDGAR ($2.95) \u2014 obwohl mit 0% Abweichung ausgewiesen, was mathematisch inkonsistent erscheint \u2014 wirft Fragen zur Datenqualit\u00e4t auf. Zudem fehlt ein Quick-MC (0 Pfade, 0% Hit-Rate), was bedeutet, dass keine statistische Absicherung f\u00fcr das bullishe Szenario vorliegt. Die Insider-K\u00e4ufe k\u00f6nnten auch als defensives Signaling bei bekanntem internem Druck interpretiert werden.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate ist nicht realistisch als echtes Ergebnis \u2014 wahrscheinlich wurde der MC nicht ausgef\u00fchrt. Ohne MC-Daten fehlt jede statistische Grundlage f\u00fcr eine Wahrscheinlichkeitsaussage. Dies erh\u00f6ht die Unsicherheit erheblich, ist aber kein Veto-Grund wenn fundamentale Signale stark genug sind.",
+          "concern_level": "high"
+        },
+        "impact": 5,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt \u00fcbergewichtet kurzfristig die -6,3% Bewegung und Put-Dominanz, w\u00e4hrend er den strukturellen Nachfrageanstieg bei Security-L\u00f6sungen untersch\u00e4tzt. Sieben Insider-K\u00e4ufe im Cluster innerhalb von 14 Tagen sind ein statistisch seltenes Signal, das echtes Insider-Vertrauen in eine Erholung signalisiert. Das expansive Makroumfeld mit steiler Kurve beg\u00fcnstigt Mid-Cap-Tech-Rebounds nach \u00fcbertriebenen Short-Term-Korrekturen.",
+        "catalyst": "Q2-2026-Earnings mit Guidance-Upgrade im Security-Segment (Cloudflare-Competitor-Displacement) kombiniert mit Insider-Cluster als Best\u00e4tigung",
+        "bear_case": "Put-OI-Dominanz und Dealer-Gamma-Struktur k\u00f6nnen Abw\u00e4rtsdruck selbstverst\u00e4rkend prolongieren; DDoS-Research ist Eigenmarketing ohne externe Validierung",
+        "macro_assessment": "Expansives Umfeld (Kurve +0,54%, Fed Funds 3,64%) ist grunds\u00e4tzlich supportiv f\u00fcr Mid-Cap-Tech-Longs. VIX-Contango-Struktur (9d=15,2 \u2192 3M=20,7) spricht f\u00fcr Bull-Call-Spreads statt nakter Long-Calls, um erh\u00f6hte implizite Volatilit\u00e4t bei Q2-Events abzusichern. Das Makro liefert keinen Gegenwind, reduziert aber nicht die aktienspezifischen Risiken.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 20602574848,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.2474,
+        "annualized_roi": 1.1062,
+        "dte": 183
+      },
+      "outcome": -0.5474,
+      "last_price": 125.82,
+      "current_return": -0.4789,
+      "close_date": "2026-06-18",
+      "close_price": 124.91,
       "close_reason": "stop_loss"
     }
   ],
