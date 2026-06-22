@@ -6,8 +6,8 @@
         "avg_return": 0.8166
       },
       "mid": {
-        "count": 91,
-        "avg_return": 0.048719
+        "count": 94,
+        "avg_return": 0.032381
       },
       "low": {
         "count": 9,
@@ -16,12 +16,12 @@
     },
     "mismatch": {
       "good": {
-        "count": 72,
-        "avg_return": 0.142446
+        "count": 73,
+        "avg_return": 0.138538
       },
       "weak": {
-        "count": 26,
-        "avg_return": 0.172285
+        "count": 28,
+        "avg_return": 0.115453
       },
       "strong": {
         "count": 4,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 98,
-        "avg_return": 0.11224
+        "count": 101,
+        "avg_return": 0.095148
       },
       "massive": {
         "count": 2,
@@ -44,79 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "AMCR",
-      "entry_date": "2026-05-06",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 4.506,
-        "z_score": 0.099,
-        "sigma_30d": 0.0295,
-        "price_move_48h": 0.0029,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.4832
-      },
-      "strategy": "LONG_CALL",
-      "option": {
-        "expiry": "2026-10-16",
-        "strike": 40.0,
-        "bid": 3.9,
-        "ask": 4.2,
-        "open_interest": 152,
-        "implied_vol": 0.33423517333984376,
-        "spread_ratio": 0.0714,
-        "dte": 162
-      },
-      "simulation": {
-        "current_price": 41.05,
-        "target_price": 44.34,
-        "hit_rate": 0.5866,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0226,
-        "alpha": 0.0008
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "AMCR ist als Verpackungsunternehmen strukturell dem Konsumg\u00fctersektor ausgesetzt, der unter anhaltendem Margendruck durch Rohstoffkosten (Harz, Aluminium) leidet. Der Verkauf von zwei US-Produktionsanlagen an Closure Systems signalisiert m\u00f6glicherweise einen strategischen R\u00fcckzug aus marginschwachen Segmenten, was kurzfristig Einmalbelastungen und Restrukturierungskosten mit sich bringen kann.",
-          "argument_2": "Der EPS-Diskrepanz zwischen yfinance (4.36) und SEC EDGAR (1.33) ist ein erhebliches Datenkonfidenz-Warnsignal. Q3-Earnings matchten lediglich die Sch\u00e4tzungen, ohne positiv zu \u00fcberraschen \u2014 der Revenue-Beat und die angehobene Guidance k\u00f6nnten bereits durch die kurzfristige Preisreaktion vollst\u00e4ndig eingepreist sein, zumal die 48h-Bewegung mit -0.3% neutral bis leicht negativ ausf\u00e4llt, was auf fehlende \u00dcberzeugung beim Markt hindeutet.",
-          "argument_3": "Der Consumer Cyclical Sektor ist bei einem Fed Funds Rate von 3.64% und einem 10Y Treasury von 4.32% strukturell unter Druck, da h\u00f6here Kapitalkosten Investitionsentscheidungen bei Konsumenten und Industrie bremsen. AMCR als Zulieferer ist indirekt von Volumenr\u00fcckg\u00e4ngen bei Endkunden abh\u00e4ngig; ein Cluster-Insider-Kauf allein ist kein hinreichendes Bullish-Signal, wenn das operative Momentum durch Anlagenverk\u00e4ufe und flaches EPS-Wachstum relativiert wird.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate resultiert aus fehlendem Quick-MC-Durchlauf, nicht aus einem negativen Modellsignal. Die Abwesenheit statistischer Evidenz erh\u00f6ht die Unsicherheit erheblich und zwingt zu gr\u00f6\u00dferer Vorsicht bei der Einsch\u00e4tzung der Upside-Wahrscheinlichkeit. Bei AMCR mit historisch moderater Volatilit\u00e4t w\u00e4re eine realistische Hit-Rate im Bereich 45-60% f\u00fcr bullische Pfade \u00fcber 30 Tage zu erwarten.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt verarbeitet Revenue-Beat und Guidance-Anhebung verz\u00f6gert, da AMCR als Verpackungs-Utility-\u00e4hnlicher Titel wenig Analyst-Coverage-Momentum erzeugt. Neun Insider-K\u00e4ufe im 14-Tage-Cluster signalisieren internen Optimismus vor weiteren Katalysatoren. Der Anlagenverkauf reduziert kurzfristig Kapitalintensit\u00e4t und k\u00f6nnte Bilanzverbesserungen mit sich bringen.",
-        "catalyst": "Angehobene Jahresguidance Q3 2026 kombiniert mit Insider-Cluster-Kauf als vorgelagertes Signal f\u00fcr operative Margenverbesserung",
-        "bear_case": "EPS-Diskrepanz zwischen Datensources und fehlende positive Earnings-\u00dcberraschung deuten darauf hin, dass der Markt die Guidance-Anhebung als konservativ einsch\u00e4tzt und weiteres Upside bereits begrenzt ist.",
-        "macro_assessment": "Neutrales Makro-Umfeld mit flacher Kurve (+0.50%) ist f\u00fcr AMCR weder R\u00fccken- noch Gegenwind. Bei 4.32% 10Y-Yield bleibt Dividenden-orientiertes Kapital in Anleihen konkurrenzf\u00e4hig, was die relative Attraktivit\u00e4t von AMCR als Yield-Titel begrenzt. Kein strukturelles Makro-Veto, aber auch kein Tailwind.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.5,
-          "regime": "neutral"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.1554,
-        "annualized_roi": 0.6584,
-        "dte": 162
-      },
-      "outcome": null,
-      "last_price": 41.08,
-      "current_return": -0.1548
-    },
     {
       "ticker": "ABNB",
       "entry_date": "2026-05-17",
@@ -189,8 +116,8 @@
         "dte": 95
       },
       "outcome": null,
-      "last_price": 142.41,
-      "current_return": 0.4019
+      "last_price": 139.13,
+      "current_return": 0.1361
     },
     {
       "ticker": "BIIB",
@@ -264,93 +191,8 @@
         "dte": 121
       },
       "outcome": null,
-      "last_price": 196.58,
-      "current_return": -0.0417
-    },
-    {
-      "ticker": "GOOG",
-      "entry_date": "2026-05-19",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 2.704,
-        "z_score": 0.459,
-        "sigma_30d": 0.0223,
-        "price_move_48h": 0.0102,
-        "eps_drift": 0.0008,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6242
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-08-21",
-        "strike": 380.0,
-        "bid": 32.9,
-        "ask": 34.6,
-        "open_interest": 1254,
-        "implied_vol": 0.356,
-        "spread_ratio": 0.0491,
-        "dte": 93,
-        "delta": 0.6039,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 420.0,
-          "bid": 16.2,
-          "ask": 17.55
-        },
-        "net_debit": 18.4
-      },
-      "simulation": {
-        "current_price": 387.63,
-        "target_price": 418.64,
-        "hit_rate": 0.7202,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0189,
-        "alpha": 0.0029
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "GOOG ist ein $4.7T Mega-Cap mit extremer Informationseffizienz. Google I/O ist ein \u00f6ffentliches Event, das institutionelle Desks seit Wochen antizipieren. Gemini 3.5 Pricing-Details werden innerhalb von Minuten von Hunderten von Sell-Side-Analysten modelliert \u2014 ein struktureller Edge f\u00fcr Retail-Investoren ist bei solchen \u00f6ffentlichen Ank\u00fcndigungen nahezu ausgeschlossen. Die -1.0% Preisbewegung in 48h deutet zudem darauf hin, dass der Markt bereits beginnt, die Euphorie zu diskontieren.",
-          "argument_2": "IV-Crush-Risiko ist erheblich: Google I/O ist ein bekanntes Katalysator-Event, was bedeutet, dass die implizite Volatilit\u00e4t vor dem Event k\u00fcnstlich erh\u00f6ht war und danach kollabiert. Naked Long-Call-Positionen nach einem solchen Event sind besonders gef\u00e4hrdet, da der Zeitwertverfall und der IV-Crush die Position gleichzeitig belasten. Die VIX-Contango-Struktur (slope +26%) signalisiert zwar sinkende Marktvolatilit\u00e4t, aber GOOG-spezifische IV nach I/O ist bereits teilweise gecrasht.",
-          "argument_3": "Der AI-Modell-Pricing-Wettbewerb ist fundamentaler Gegenwind: Wenn Google Gemini 3.5 aggressiv preist (g\u00fcnstig vs. Rivalen), k\u00f6nnte dies Margin-Kompression im Cloud/AI-Segment signalisieren statt Wachstum. OpenAI, Anthropic und Meta investieren massiv \u2014 der Markt k\u00f6nnte Preisaggressivit\u00e4t als Zeichen von Wettbewerbsdruck statt St\u00e4rke interpretieren. Samsung/Google AI-Glasses gegen Meta/Apple ist ein Hardwaresegment mit unklaren Margen und langem Materialisierungshorizont.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC wurde durchgef\u00fchrt (0 Pfade), daher ist 0% Hit-Rate kein Datenpunkt, sondern ein fehlendes Datenpunkt. Die Aussagekraft ist null \u2014 weder bullisch noch bearisch. Bei GOOG mit historischer 30d-Vola von ~25-30% w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisziele (5-8% Aufw\u00e4rtsbewegung) in 30 Tagen typischerweise 35-50%, abh\u00e4ngig vom Strike. Fehlende Statistik erh\u00f6ht Unsicherheit erheblich.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Markt hat die Gemini 3.5 Pricing-Strategie noch nicht vollst\u00e4ndig in Cloud-Revenue-Modelle \u00fcbersetzt, da die Detailtiefe der I/O-Ank\u00fcndigung umfangreicher als erwartet war. Insider-Cluster-K\u00e4ufe (3 K\u00e4ufer in 14 Tagen) sind ein nicht-triviales Signal bei einem Mega-Cap, da diese teuer und risikoreich sind. Der AI-Glasses-Vorsto\u00df mit Samsung er\u00f6ffnet eine optionale Hardware-Umsatzquelle, die in aktuellen Konsenssch\u00e4tzungen nicht modelliert ist.",
-        "catalyst": "Gemini 3.5 Adoption-Metriken und Cloud-Revenue-Beat in Q2 2026 Earnings (Juli 2026), kombiniert mit m\u00f6glicher Aufw\u00e4rtsrevision der AI-Segment-Margen durch g\u00fcnstigere Inference-Kosten.",
-        "bear_case": "Aggressive AI-Modell-Preissetzung signalisiert Wettbewerbsdruck statt Marktmacht \u2014 Margin-Kompression im Google Cloud Segment k\u00f6nnte Konsenssch\u00e4tzungen f\u00fcr Q2 2026 entt\u00e4uschen und den gesamten bullischen Narrativ umkehren.",
-        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0.54%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Growth/Tech. Die VIX-Contango-Struktur ist moderat positiv f\u00fcr gerichtete Positionen, empfiehlt aber Spreads statt nackter Calls, um residuales IV-Crush-Risiko nach I/O zu begrenzen. Bei einem $4.7T Mega-Cap ist Makro-R\u00fcckenwind notwendig aber nicht hinreichend f\u00fcr signifikante Outperformance.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": true,
-        "market_cap": 4696309760000,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.1809,
-        "annualized_roi": 0.8407,
-        "dte": 93
-      },
-      "outcome": null,
-      "last_price": 367.46,
-      "current_return": -0.4198
+      "last_price": 198.82,
+      "current_return": -0.0069
     },
     {
       "ticker": "DDOG",
@@ -434,93 +276,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 223.0,
-      "current_return": 0.0967
-    },
-    {
-      "ticker": "GOOG",
-      "entry_date": "2026-05-20",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 0.207,
-        "z_score": 0.959,
-        "sigma_30d": 0.0223,
-        "price_move_48h": 0.0214,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6398
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-08-21",
-        "strike": 380.0,
-        "bid": 29.6,
-        "ask": 30.3,
-        "open_interest": 1278,
-        "implied_vol": 0.3499,
-        "spread_ratio": 0.0231,
-        "dte": 92,
-        "delta": 0.5777,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 420.0,
-          "bid": 14.05,
-          "ask": 14.45
-        },
-        "net_debit": 16.25
-      },
-      "simulation": {
-        "current_price": 381.78,
-        "target_price": 412.32,
-        "hit_rate": 0.736,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.019,
-        "alpha": 0.00287
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Berkshire/Abel-Pivot als Signal ist schwach: Die Positionierung eines Value-Fonds in einem AI-Tech-Titel ist keine nicht-\u00f6ffentliche Information und wird bei einem $4.6T Mega-Cap innerhalb von Minuten eingepreist. Der Kurs reagierte bereits \u2013 die -2.1% in 48h zeigen, dass kein nachhaltiger Kaufdruck entstanden ist, obwohl die News bekannt wurden.",
-          "argument_2": "Googles Kerngesch\u00e4ft Search steht unter strukturellem Druck durch AI-Disruption (ChatGPT, Perplexity, eigene AI-Overviews kannibalisieren Click-Rates). Die Google I/O 2026 AI Showcase war ein bekannter Termin \u2013 BofA's $430 Kursziel nach dem Event deutet auf Katalysator-Already-Priced-In hin. IV-Crush nach dem Showcase-Event kann Long-Optionen erheblich sch\u00e4digen.",
-          "argument_3": "Die UK Union-Ablehnung signalisiert potenzielle regulatorische und arbeitsrechtliche Risiken in Europa. Antitrust-Verfahren gegen Google laufen in mehreren Jurisdiktionen parallel (EU, DOJ), und ein negatives Urteil im 2-6 Monats-Horizont k\u00f6nnte das Search-Monopol strukturell gef\u00e4hrden und Milliarden an Strafzahlungen ausl\u00f6sen.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate ist nicht interpretierbar da kein MC durchgef\u00fchrt wurde \u2013 keine statistischen R\u00fcckschl\u00fcsse m\u00f6glich. Die fehlende Simulation erh\u00f6ht die Unsicherheit bei der Positionssizing-Entscheidung erheblich.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Berkshire-Abel-Pivot signalisiert institutionelle Neubewertung von GOOG als AI-Infrastruktur-Titel, nicht mehr nur als Werbe-Plattform. Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen bei gleichzeitigem Kursr\u00fcckgang von -2.1% deuten auf informierten Akkumulationsdruck hin. Das expansive Makroumfeld mit steiler Kurve beg\u00fcnstigt Wachstumstitel, was die strukturelle Underreaction gegen\u00fcber dem I/O-Showcase-Momentum verst\u00e4rkt.",
-        "catalyst": "BofA $430 Kursziel nach I/O 2026 AI Showcase kombiniert mit Berkshire-Einstieg als Katalysator f\u00fcr institutionelle Neubewertung im Q3 2026 Earnings-Zyklus",
-        "bear_case": "AI-Overviews kannibalisieren Search-Click-Rates strukturell, w\u00e4hrend laufende DOJ/EU-Antitrust-Urteile im 2-6 Monats-Horizont materialisieren k\u00f6nnten und die gesamte Bull-Thesis eines stabilen Monopol-Cashflows gef\u00e4hrden.",
-        "macro_assessment": "Expansives Umfeld mit steiler Kurve (+0.54%) und Fed Funds bei 3.64% beg\u00fcnstigt Growth/Tech-Positionen. VIX Contango deutet auf sinkende implizite Volatilit\u00e4t hin, was Long-Calls mittelfristig unterst\u00fctzt. Der 10Y bei 4.32% ist tolerierbar f\u00fcr High-Multiple-Titel, jedoch begrenzt dies den Bewertungsexpansionsspielraum bei einem bereits $4.6T Mega-Cap.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": true,
-        "market_cap": 4624465002496,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.3074,
-        "annualized_roi": 1.686,
-        "dte": 92
-      },
-      "outcome": null,
-      "last_price": 367.46,
-      "current_return": -0.3431
+      "last_price": 219.115,
+      "current_return": -0.0083
     },
     {
       "ticker": "CSCO",
@@ -604,8 +361,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 119.54,
-      "current_return": 0.1
+      "last_price": 121.9,
+      "current_return": 0.1941
     },
     {
       "ticker": "MO",
@@ -689,8 +446,8 @@
         "dte": 120
       },
       "outcome": null,
-      "last_price": 69.12,
-      "current_return": -0.3931
+      "last_price": 69.34,
+      "current_return": -0.4156
     },
     {
       "ticker": "BA",
@@ -774,8 +531,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 222.72,
-      "current_return": -0.1635
+      "last_price": 220.725,
+      "current_return": -0.1801
     }
   ],
   "closed_trades": [
@@ -8145,6 +7902,258 @@
       "close_date": "2026-06-18",
       "close_price": 124.91,
       "close_reason": "stop_loss"
+    },
+    {
+      "ticker": "AMCR",
+      "entry_date": "2026-05-06",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.506,
+        "z_score": 0.099,
+        "sigma_30d": 0.0295,
+        "price_move_48h": 0.0029,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.4832
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-10-16",
+        "strike": 40.0,
+        "bid": 3.9,
+        "ask": 4.2,
+        "open_interest": 152,
+        "implied_vol": 0.33423517333984376,
+        "spread_ratio": 0.0714,
+        "dte": 162
+      },
+      "simulation": {
+        "current_price": 41.05,
+        "target_price": 44.34,
+        "hit_rate": 0.5866,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0226,
+        "alpha": 0.0008
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "AMCR ist als Verpackungsunternehmen strukturell dem Konsumg\u00fctersektor ausgesetzt, der unter anhaltendem Margendruck durch Rohstoffkosten (Harz, Aluminium) leidet. Der Verkauf von zwei US-Produktionsanlagen an Closure Systems signalisiert m\u00f6glicherweise einen strategischen R\u00fcckzug aus marginschwachen Segmenten, was kurzfristig Einmalbelastungen und Restrukturierungskosten mit sich bringen kann.",
+          "argument_2": "Der EPS-Diskrepanz zwischen yfinance (4.36) und SEC EDGAR (1.33) ist ein erhebliches Datenkonfidenz-Warnsignal. Q3-Earnings matchten lediglich die Sch\u00e4tzungen, ohne positiv zu \u00fcberraschen \u2014 der Revenue-Beat und die angehobene Guidance k\u00f6nnten bereits durch die kurzfristige Preisreaktion vollst\u00e4ndig eingepreist sein, zumal die 48h-Bewegung mit -0.3% neutral bis leicht negativ ausf\u00e4llt, was auf fehlende \u00dcberzeugung beim Markt hindeutet.",
+          "argument_3": "Der Consumer Cyclical Sektor ist bei einem Fed Funds Rate von 3.64% und einem 10Y Treasury von 4.32% strukturell unter Druck, da h\u00f6here Kapitalkosten Investitionsentscheidungen bei Konsumenten und Industrie bremsen. AMCR als Zulieferer ist indirekt von Volumenr\u00fcckg\u00e4ngen bei Endkunden abh\u00e4ngig; ein Cluster-Insider-Kauf allein ist kein hinreichendes Bullish-Signal, wenn das operative Momentum durch Anlagenverk\u00e4ufe und flaches EPS-Wachstum relativiert wird.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate resultiert aus fehlendem Quick-MC-Durchlauf, nicht aus einem negativen Modellsignal. Die Abwesenheit statistischer Evidenz erh\u00f6ht die Unsicherheit erheblich und zwingt zu gr\u00f6\u00dferer Vorsicht bei der Einsch\u00e4tzung der Upside-Wahrscheinlichkeit. Bei AMCR mit historisch moderater Volatilit\u00e4t w\u00e4re eine realistische Hit-Rate im Bereich 45-60% f\u00fcr bullische Pfade \u00fcber 30 Tage zu erwarten.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt verarbeitet Revenue-Beat und Guidance-Anhebung verz\u00f6gert, da AMCR als Verpackungs-Utility-\u00e4hnlicher Titel wenig Analyst-Coverage-Momentum erzeugt. Neun Insider-K\u00e4ufe im 14-Tage-Cluster signalisieren internen Optimismus vor weiteren Katalysatoren. Der Anlagenverkauf reduziert kurzfristig Kapitalintensit\u00e4t und k\u00f6nnte Bilanzverbesserungen mit sich bringen.",
+        "catalyst": "Angehobene Jahresguidance Q3 2026 kombiniert mit Insider-Cluster-Kauf als vorgelagertes Signal f\u00fcr operative Margenverbesserung",
+        "bear_case": "EPS-Diskrepanz zwischen Datensources und fehlende positive Earnings-\u00dcberraschung deuten darauf hin, dass der Markt die Guidance-Anhebung als konservativ einsch\u00e4tzt und weiteres Upside bereits begrenzt ist.",
+        "macro_assessment": "Neutrales Makro-Umfeld mit flacher Kurve (+0.50%) ist f\u00fcr AMCR weder R\u00fccken- noch Gegenwind. Bei 4.32% 10Y-Yield bleibt Dividenden-orientiertes Kapital in Anleihen konkurrenzf\u00e4hig, was die relative Attraktivit\u00e4t von AMCR als Yield-Titel begrenzt. Kein strukturelles Makro-Veto, aber auch kein Tailwind.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.5,
+          "regime": "neutral"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.1554,
+        "annualized_roi": 0.6584,
+        "dte": 162
+      },
+      "outcome": -0.1429,
+      "last_price": 41.08,
+      "current_return": -0.1548,
+      "close_date": "2026-06-22",
+      "close_price": 40.885,
+      "close_reason": "max_holding_period"
+    },
+    {
+      "ticker": "GOOG",
+      "entry_date": "2026-05-19",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 2.704,
+        "z_score": 0.459,
+        "sigma_30d": 0.0223,
+        "price_move_48h": 0.0102,
+        "eps_drift": 0.0008,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6242
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 380.0,
+        "bid": 32.9,
+        "ask": 34.6,
+        "open_interest": 1254,
+        "implied_vol": 0.356,
+        "spread_ratio": 0.0491,
+        "dte": 93,
+        "delta": 0.6039,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 420.0,
+          "bid": 16.2,
+          "ask": 17.55
+        },
+        "net_debit": 18.4
+      },
+      "simulation": {
+        "current_price": 387.63,
+        "target_price": 418.64,
+        "hit_rate": 0.7202,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0189,
+        "alpha": 0.0029
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "GOOG ist ein $4.7T Mega-Cap mit extremer Informationseffizienz. Google I/O ist ein \u00f6ffentliches Event, das institutionelle Desks seit Wochen antizipieren. Gemini 3.5 Pricing-Details werden innerhalb von Minuten von Hunderten von Sell-Side-Analysten modelliert \u2014 ein struktureller Edge f\u00fcr Retail-Investoren ist bei solchen \u00f6ffentlichen Ank\u00fcndigungen nahezu ausgeschlossen. Die -1.0% Preisbewegung in 48h deutet zudem darauf hin, dass der Markt bereits beginnt, die Euphorie zu diskontieren.",
+          "argument_2": "IV-Crush-Risiko ist erheblich: Google I/O ist ein bekanntes Katalysator-Event, was bedeutet, dass die implizite Volatilit\u00e4t vor dem Event k\u00fcnstlich erh\u00f6ht war und danach kollabiert. Naked Long-Call-Positionen nach einem solchen Event sind besonders gef\u00e4hrdet, da der Zeitwertverfall und der IV-Crush die Position gleichzeitig belasten. Die VIX-Contango-Struktur (slope +26%) signalisiert zwar sinkende Marktvolatilit\u00e4t, aber GOOG-spezifische IV nach I/O ist bereits teilweise gecrasht.",
+          "argument_3": "Der AI-Modell-Pricing-Wettbewerb ist fundamentaler Gegenwind: Wenn Google Gemini 3.5 aggressiv preist (g\u00fcnstig vs. Rivalen), k\u00f6nnte dies Margin-Kompression im Cloud/AI-Segment signalisieren statt Wachstum. OpenAI, Anthropic und Meta investieren massiv \u2014 der Markt k\u00f6nnte Preisaggressivit\u00e4t als Zeichen von Wettbewerbsdruck statt St\u00e4rke interpretieren. Samsung/Google AI-Glasses gegen Meta/Apple ist ein Hardwaresegment mit unklaren Margen und langem Materialisierungshorizont.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC wurde durchgef\u00fchrt (0 Pfade), daher ist 0% Hit-Rate kein Datenpunkt, sondern ein fehlendes Datenpunkt. Die Aussagekraft ist null \u2014 weder bullisch noch bearisch. Bei GOOG mit historischer 30d-Vola von ~25-30% w\u00e4re eine realistische Hit-Rate f\u00fcr moderate Preisziele (5-8% Aufw\u00e4rtsbewegung) in 30 Tagen typischerweise 35-50%, abh\u00e4ngig vom Strike. Fehlende Statistik erh\u00f6ht Unsicherheit erheblich.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt hat die Gemini 3.5 Pricing-Strategie noch nicht vollst\u00e4ndig in Cloud-Revenue-Modelle \u00fcbersetzt, da die Detailtiefe der I/O-Ank\u00fcndigung umfangreicher als erwartet war. Insider-Cluster-K\u00e4ufe (3 K\u00e4ufer in 14 Tagen) sind ein nicht-triviales Signal bei einem Mega-Cap, da diese teuer und risikoreich sind. Der AI-Glasses-Vorsto\u00df mit Samsung er\u00f6ffnet eine optionale Hardware-Umsatzquelle, die in aktuellen Konsenssch\u00e4tzungen nicht modelliert ist.",
+        "catalyst": "Gemini 3.5 Adoption-Metriken und Cloud-Revenue-Beat in Q2 2026 Earnings (Juli 2026), kombiniert mit m\u00f6glicher Aufw\u00e4rtsrevision der AI-Segment-Margen durch g\u00fcnstigere Inference-Kosten.",
+        "bear_case": "Aggressive AI-Modell-Preissetzung signalisiert Wettbewerbsdruck statt Marktmacht \u2014 Margin-Kompression im Google Cloud Segment k\u00f6nnte Konsenssch\u00e4tzungen f\u00fcr Q2 2026 entt\u00e4uschen und den gesamten bullischen Narrativ umkehren.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0.54%, Fed Funds 3.64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Growth/Tech. Die VIX-Contango-Struktur ist moderat positiv f\u00fcr gerichtete Positionen, empfiehlt aber Spreads statt nackter Calls, um residuales IV-Crush-Risiko nach I/O zu begrenzen. Bei einem $4.7T Mega-Cap ist Makro-R\u00fcckenwind notwendig aber nicht hinreichend f\u00fcr signifikante Outperformance.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4696309760000,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.1809,
+        "annualized_roi": 0.8407,
+        "dte": 93
+      },
+      "outcome": -0.6467,
+      "last_price": 367.46,
+      "current_return": -0.4198,
+      "close_date": "2026-06-22",
+      "close_price": 347.005,
+      "close_reason": "stop_loss"
+    },
+    {
+      "ticker": "GOOG",
+      "entry_date": "2026-05-20",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 0.207,
+        "z_score": 0.959,
+        "sigma_30d": 0.0223,
+        "price_move_48h": 0.0214,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6398
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 380.0,
+        "bid": 29.6,
+        "ask": 30.3,
+        "open_interest": 1278,
+        "implied_vol": 0.3499,
+        "spread_ratio": 0.0231,
+        "dte": 92,
+        "delta": 0.5777,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 420.0,
+          "bid": 14.05,
+          "ask": 14.45
+        },
+        "net_debit": 16.25
+      },
+      "simulation": {
+        "current_price": 381.78,
+        "target_price": 412.32,
+        "hit_rate": 0.736,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.019,
+        "alpha": 0.00287
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Berkshire/Abel-Pivot als Signal ist schwach: Die Positionierung eines Value-Fonds in einem AI-Tech-Titel ist keine nicht-\u00f6ffentliche Information und wird bei einem $4.6T Mega-Cap innerhalb von Minuten eingepreist. Der Kurs reagierte bereits \u2013 die -2.1% in 48h zeigen, dass kein nachhaltiger Kaufdruck entstanden ist, obwohl die News bekannt wurden.",
+          "argument_2": "Googles Kerngesch\u00e4ft Search steht unter strukturellem Druck durch AI-Disruption (ChatGPT, Perplexity, eigene AI-Overviews kannibalisieren Click-Rates). Die Google I/O 2026 AI Showcase war ein bekannter Termin \u2013 BofA's $430 Kursziel nach dem Event deutet auf Katalysator-Already-Priced-In hin. IV-Crush nach dem Showcase-Event kann Long-Optionen erheblich sch\u00e4digen.",
+          "argument_3": "Die UK Union-Ablehnung signalisiert potenzielle regulatorische und arbeitsrechtliche Risiken in Europa. Antitrust-Verfahren gegen Google laufen in mehreren Jurisdiktionen parallel (EU, DOJ), und ein negatives Urteil im 2-6 Monats-Horizont k\u00f6nnte das Search-Monopol strukturell gef\u00e4hrden und Milliarden an Strafzahlungen ausl\u00f6sen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate ist nicht interpretierbar da kein MC durchgef\u00fchrt wurde \u2013 keine statistischen R\u00fcckschl\u00fcsse m\u00f6glich. Die fehlende Simulation erh\u00f6ht die Unsicherheit bei der Positionssizing-Entscheidung erheblich.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Berkshire-Abel-Pivot signalisiert institutionelle Neubewertung von GOOG als AI-Infrastruktur-Titel, nicht mehr nur als Werbe-Plattform. Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen bei gleichzeitigem Kursr\u00fcckgang von -2.1% deuten auf informierten Akkumulationsdruck hin. Das expansive Makroumfeld mit steiler Kurve beg\u00fcnstigt Wachstumstitel, was die strukturelle Underreaction gegen\u00fcber dem I/O-Showcase-Momentum verst\u00e4rkt.",
+        "catalyst": "BofA $430 Kursziel nach I/O 2026 AI Showcase kombiniert mit Berkshire-Einstieg als Katalysator f\u00fcr institutionelle Neubewertung im Q3 2026 Earnings-Zyklus",
+        "bear_case": "AI-Overviews kannibalisieren Search-Click-Rates strukturell, w\u00e4hrend laufende DOJ/EU-Antitrust-Urteile im 2-6 Monats-Horizont materialisieren k\u00f6nnten und die gesamte Bull-Thesis eines stabilen Monopol-Cashflows gef\u00e4hrden.",
+        "macro_assessment": "Expansives Umfeld mit steiler Kurve (+0.54%) und Fed Funds bei 3.64% beg\u00fcnstigt Growth/Tech-Positionen. VIX Contango deutet auf sinkende implizite Volatilit\u00e4t hin, was Long-Calls mittelfristig unterst\u00fctzt. Der 10Y bei 4.32% ist tolerierbar f\u00fcr High-Multiple-Titel, jedoch begrenzt dies den Bewertungsexpansionsspielraum bei einem bereits $4.6T Mega-Cap.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4624465002496,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.3074,
+        "annualized_roi": 1.686,
+        "dte": 92
+      },
+      "outcome": -0.6,
+      "last_price": 367.46,
+      "current_return": -0.3431,
+      "close_date": "2026-06-22",
+      "close_price": 346.98,
+      "close_reason": "stop_loss"
     }
   ],
   "model_weights": {
@@ -8441,6 +8450,11 @@
         "date": "2026-06-19",
         "score": 0.0874,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1365,
+        "headline_count": 5
       }
     ],
     "AMZN": [
@@ -8667,6 +8681,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0216,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.112,
         "headline_count": 5
       }
     ],
@@ -9028,6 +9047,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0837,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0836,
         "headline_count": 5
       }
     ],
@@ -9580,6 +9604,11 @@
       {
         "date": "2026-06-19",
         "score": 0.4352,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1679,
         "headline_count": 5
       }
     ],
@@ -10321,6 +10350,11 @@
         "date": "2026-06-19",
         "score": 0.3499,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0588,
+        "headline_count": 5
       }
     ],
     "C": [
@@ -10472,6 +10506,11 @@
       {
         "date": "2026-06-19",
         "score": 0.2248,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1906,
         "headline_count": 5
       }
     ],
@@ -10630,6 +10669,11 @@
         "date": "2026-06-19",
         "score": 0.0611,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.093,
+        "headline_count": 3
       }
     ],
     "DRI": [
@@ -10731,6 +10775,11 @@
       {
         "date": "2026-06-19",
         "score": -0.0997,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.2021,
         "headline_count": 5
       }
     ],
@@ -10848,6 +10897,11 @@
       {
         "date": "2026-06-19",
         "score": 0.3592,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0708,
         "headline_count": 5
       }
     ],
@@ -10970,6 +11024,11 @@
       {
         "date": "2026-06-19",
         "score": -0.303,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1445,
         "headline_count": 5
       }
     ],
@@ -11877,6 +11936,11 @@
         "date": "2026-06-19",
         "score": -0.1613,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1658,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -12009,6 +12073,11 @@
         "date": "2026-06-19",
         "score": 0.0874,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0072,
+        "headline_count": 4
       }
     ],
     "CE": [
@@ -12203,6 +12272,11 @@
         "date": "2026-06-19",
         "score": -0.4129,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0554,
+        "headline_count": 5
       }
     ],
     "CSGP": [
@@ -12350,6 +12424,11 @@
         "date": "2026-06-19",
         "score": 0.075,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2724,
+        "headline_count": 4
       }
     ],
     "HRL": [
@@ -12855,6 +12934,11 @@
         "date": "2026-06-19",
         "score": 0.0037,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.06,
+        "headline_count": 4
       }
     ],
     "AWK": [
@@ -13012,6 +13096,11 @@
         "date": "2026-06-19",
         "score": 0.5256,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2532,
+        "headline_count": 4
       }
     ],
     "AAPL": [
@@ -13244,6 +13333,11 @@
         "date": "2026-06-19",
         "score": -0.1691,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.4954,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -13435,6 +13529,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0366,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0372,
         "headline_count": 5
       }
     ],
@@ -13750,6 +13849,11 @@
         "date": "2026-06-19",
         "score": 0.3875,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0415,
+        "headline_count": 4
       }
     ],
     "BRK-B": [
@@ -13962,6 +14066,11 @@
         "date": "2026-06-19",
         "score": 0.1258,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.2075,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -14098,6 +14207,11 @@
       {
         "date": "2026-06-19",
         "score": 0.1857,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0061,
         "headline_count": 5
       }
     ],
@@ -14285,6 +14399,11 @@
       {
         "date": "2026-06-19",
         "score": 0.1328,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.2154,
         "headline_count": 5
       }
     ],
@@ -14696,6 +14815,11 @@
         "date": "2026-06-19",
         "score": -0.069,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1053,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -14903,6 +15027,11 @@
       {
         "date": "2026-06-19",
         "score": 0.055,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0292,
         "headline_count": 5
       }
     ],
@@ -15113,6 +15242,11 @@
         "date": "2026-06-19",
         "score": 0.3172,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0323,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -15275,6 +15409,11 @@
         "date": "2026-06-19",
         "score": -0.3976,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1203,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -15553,6 +15692,11 @@
       {
         "date": "2026-06-19",
         "score": -0.1309,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3333,
         "headline_count": 5
       }
     ],
@@ -16001,6 +16145,11 @@
         "date": "2026-06-19",
         "score": 0.2571,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1571,
+        "headline_count": 5
       }
     ],
     "STZ": [
@@ -16148,6 +16297,11 @@
         "date": "2026-06-19",
         "score": 0.1826,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1049,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -16269,6 +16423,11 @@
       {
         "date": "2026-06-19",
         "score": -0.0193,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1183,
         "headline_count": 5
       }
     ],
@@ -16652,6 +16811,11 @@
         "date": "2026-06-19",
         "score": -0.4388,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0588,
+        "headline_count": 5
       }
     ],
     "BLDR": [
@@ -16789,6 +16953,11 @@
         "date": "2026-06-19",
         "score": 0.1593,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0049,
+        "headline_count": 5
       }
     ],
     "BG": [
@@ -16890,6 +17059,11 @@
       {
         "date": "2026-06-19",
         "score": 0.3653,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1304,
         "headline_count": 5
       }
     ],
@@ -17057,6 +17231,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0142,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3773,
         "headline_count": 5
       }
     ],
@@ -17322,6 +17501,11 @@
         "date": "2026-06-19",
         "score": 0.0699,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0696,
+        "headline_count": 5
       }
     ],
     "CFG": [
@@ -17459,6 +17643,11 @@
         "date": "2026-06-19",
         "score": 0.027,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0382,
+        "headline_count": 4
       }
     ],
     "CMS": [
@@ -17585,6 +17774,11 @@
       {
         "date": "2026-06-19",
         "score": -0.0919,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0514,
         "headline_count": 5
       }
     ],
@@ -17762,6 +17956,11 @@
       {
         "date": "2026-06-19",
         "score": -0.0986,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3773,
         "headline_count": 5
       }
     ],
@@ -17960,6 +18159,11 @@
         "date": "2026-06-19",
         "score": 0.2847,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0034,
+        "headline_count": 4
       }
     ],
     "COST": [
@@ -18127,6 +18331,11 @@
         "date": "2026-06-19",
         "score": 0.0028,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0486,
+        "headline_count": 5
       }
     ],
     "DVA": [
@@ -18281,6 +18490,11 @@
         "date": "2026-06-19",
         "score": 0.0848,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0858,
+        "headline_count": 4
       }
     ],
     "ETN": [
@@ -18427,6 +18641,11 @@
       {
         "date": "2026-06-19",
         "score": 0.2025,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.077,
         "headline_count": 5
       }
     ],
@@ -18714,6 +18933,11 @@
         "date": "2026-06-19",
         "score": -0.068,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.168,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -18935,6 +19159,11 @@
       {
         "date": "2026-06-19",
         "score": 0.3753,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1088,
         "headline_count": 5
       }
     ],
@@ -19165,6 +19394,11 @@
         "date": "2026-06-19",
         "score": 0.2562,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.2094,
+        "headline_count": 3
       }
     ],
     "ABBV": [
@@ -19641,6 +19875,11 @@
         "date": "2026-06-19",
         "score": 0.0604,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.4872,
+        "headline_count": 4
       }
     ],
     "ADI": [
@@ -20035,6 +20274,11 @@
         "date": "2026-06-19",
         "score": 0.1152,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.234,
+        "headline_count": 5
       }
     ],
     "ADM": [
@@ -20172,6 +20416,11 @@
         "date": "2026-06-19",
         "score": 0.0935,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0154,
+        "headline_count": 3
       }
     ],
     "ACGL": [
@@ -20531,6 +20780,11 @@
         "date": "2026-06-19",
         "score": 0.6287,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2541,
+        "headline_count": 3
       }
     ],
     "ADSK": [
@@ -20693,6 +20947,11 @@
         "date": "2026-06-19",
         "score": 0.0632,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2648,
+        "headline_count": 4
       }
     ],
     "BKR": [
@@ -21079,6 +21338,11 @@
         "date": "2026-06-19",
         "score": 0.0142,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0185,
+        "headline_count": 5
       }
     ],
     "CPT": [
@@ -21201,6 +21465,11 @@
         "date": "2026-06-19",
         "score": -0.2898,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0152,
+        "headline_count": 5
       }
     ],
     "CAH": [
@@ -21398,6 +21667,11 @@
         "date": "2026-06-19",
         "score": -0.0547,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0917,
+        "headline_count": 5
       }
     ],
     "CL": [
@@ -21550,6 +21824,11 @@
         "date": "2026-06-19",
         "score": 0.0451,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.3403,
+        "headline_count": 3
       }
     ],
     "CME": [
@@ -21722,6 +22001,11 @@
         "date": "2026-06-19",
         "score": -0.3419,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.2367,
+        "headline_count": 5
       }
     ],
     "APD": [
@@ -21843,6 +22127,11 @@
       {
         "date": "2026-06-19",
         "score": -0.2716,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.4322,
         "headline_count": 5
       }
     ],
@@ -22015,6 +22304,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0902,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0723,
         "headline_count": 5
       }
     ],
@@ -22203,6 +22497,11 @@
         "date": "2026-06-19",
         "score": -0.1265,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3292,
+        "headline_count": 5
       }
     ],
     "CTVA": [
@@ -22230,6 +22529,11 @@
         "date": "2026-06-19",
         "score": 0.9123,
         "headline_count": 1
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0475,
+        "headline_count": 3
       }
     ],
     "ALB": [
@@ -22699,6 +23003,11 @@
         "date": "2026-06-19",
         "score": -0.0986,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3773,
+        "headline_count": 5
       }
     ],
     "DG": [
@@ -22861,6 +23170,11 @@
         "date": "2026-06-19",
         "score": 0.0848,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0858,
+        "headline_count": 4
       }
     ],
     "PPL": [
@@ -22993,6 +23307,11 @@
       {
         "date": "2026-06-19",
         "score": 0.1316,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1115,
         "headline_count": 5
       }
     ],
@@ -23135,6 +23454,11 @@
       {
         "date": "2026-06-19",
         "score": -0.2088,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2942,
         "headline_count": 5
       }
     ],
@@ -23312,6 +23636,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0039,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.209,
         "headline_count": 5
       }
     ],
@@ -23694,6 +24023,11 @@
       {
         "date": "2026-06-19",
         "score": -0.1326,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3773,
         "headline_count": 5
       }
     ],
@@ -24086,6 +24420,11 @@
         "date": "2026-06-19",
         "score": -0.0201,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1462,
+        "headline_count": 5
       }
     ],
     "EQT": [
@@ -24293,6 +24632,11 @@
         "date": "2026-06-19",
         "score": -0.4066,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1782,
+        "headline_count": 5
       }
     ],
     "ALL": [
@@ -24587,6 +24931,11 @@
         "date": "2026-06-19",
         "score": 0.1211,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.177,
+        "headline_count": 5
       }
     ],
     "AXP": [
@@ -24764,6 +25113,11 @@
         "date": "2026-06-19",
         "score": -0.0473,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0091,
+        "headline_count": 4
       }
     ],
     "BMY": [
@@ -24926,6 +25280,11 @@
         "date": "2026-06-19",
         "score": 0.4385,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.3337,
+        "headline_count": 3
       }
     ],
     "BBY": [
@@ -25063,6 +25422,11 @@
         "date": "2026-06-19",
         "score": -0.337,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.6422,
+        "headline_count": 4
       }
     ],
     "BR": [
@@ -25184,6 +25548,11 @@
       {
         "date": "2026-06-19",
         "score": 0.1961,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0746,
         "headline_count": 5
       }
     ],
@@ -25464,6 +25833,11 @@
         "date": "2026-06-19",
         "score": -0.0186,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1858,
+        "headline_count": 4
       }
     ],
     "COR": [
@@ -25590,6 +25964,11 @@
       {
         "date": "2026-06-19",
         "score": 0.4142,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0056,
         "headline_count": 5
       }
     ],
@@ -25783,6 +26162,11 @@
         "date": "2026-06-19",
         "score": 0.0023,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0185,
+        "headline_count": 4
       }
     ],
     "CHD": [
@@ -25904,6 +26288,11 @@
       {
         "date": "2026-06-19",
         "score": -0.3251,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.2372,
         "headline_count": 5
       }
     ],
@@ -26041,6 +26430,11 @@
       {
         "date": "2026-06-19",
         "score": -0.0986,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.3773,
         "headline_count": 5
       }
     ],
@@ -26208,6 +26602,11 @@
       {
         "date": "2026-06-19",
         "score": 0.134,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0438,
         "headline_count": 5
       }
     ],
@@ -26381,6 +26780,11 @@
         "date": "2026-06-19",
         "score": 0.1826,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1049,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -26553,6 +26957,11 @@
         "date": "2026-06-19",
         "score": -0.2268,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2012,
+        "headline_count": 5
       }
     ],
     "DHR": [
@@ -26829,6 +27238,11 @@
         "date": "2026-06-19",
         "score": -0.0045,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0351,
+        "headline_count": 5
       }
     ],
     "EBAY": [
@@ -27033,6 +27447,11 @@
         "date": "2026-06-19",
         "score": -0.1096,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1708,
+        "headline_count": 5
       }
     ],
     "EIX": [
@@ -27104,6 +27523,11 @@
       {
         "date": "2026-06-19",
         "score": -0.2654,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0809,
         "headline_count": 5
       }
     ],
@@ -27181,6 +27605,11 @@
       {
         "date": "2026-06-19",
         "score": -0.3407,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0021,
         "headline_count": 1
       }
     ],
@@ -27707,6 +28136,11 @@
         "date": "2026-06-19",
         "score": 0.0121,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1837,
+        "headline_count": 5
       }
     ],
     "CCI": [
@@ -27858,6 +28292,11 @@
       {
         "date": "2026-06-19",
         "score": 0.1163,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1106,
         "headline_count": 5
       }
     ],
@@ -28022,6 +28461,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0259,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0159,
         "headline_count": 5
       }
     ],
@@ -28299,6 +28743,11 @@
         "date": "2026-06-19",
         "score": 0.3439,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1485,
+        "headline_count": 5
       }
     ],
     "CNX": [
@@ -28448,6 +28897,11 @@
         "date": "2026-06-19",
         "score": -0.2932,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0608,
+        "headline_count": 4
       }
     ],
     "DECK": [
@@ -28589,6 +29043,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0478,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1204,
         "headline_count": 5
       }
     ],
@@ -28793,6 +29252,11 @@
       {
         "date": "2026-06-19",
         "score": 0.1121,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.2046,
         "headline_count": 5
       }
     ],
@@ -29121,6 +29585,11 @@
         "date": "2026-06-19",
         "score": 0.0974,
         "headline_count": 2
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.4105,
+        "headline_count": 5
       }
     ],
     "DPZ": [
@@ -29703,6 +30172,11 @@
         "date": "2026-06-19",
         "score": 0.0134,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.061,
+        "headline_count": 5
       }
     ],
     "APO": [
@@ -29770,6 +30244,11 @@
         "date": "2026-06-19",
         "score": -0.3311,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.3802,
+        "headline_count": 4
       }
     ],
     "XYZ": [
@@ -30004,6 +30483,11 @@
         "date": "2026-06-19",
         "score": 0.0421,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0298,
+        "headline_count": 5
       }
     ],
     "BKNG": [
@@ -30111,6 +30595,11 @@
         "date": "2026-06-19",
         "score": 0.0477,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.3667,
+        "headline_count": 4
       }
     ],
     "CHRW": [
@@ -30210,6 +30699,11 @@
         "date": "2026-06-19",
         "score": -0.1452,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.5189,
+        "headline_count": 2
       }
     ],
     "COIN": [
@@ -30306,6 +30800,11 @@
       {
         "date": "2026-06-19",
         "score": -0.1898,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.0448,
         "headline_count": 5
       }
     ],
@@ -30409,6 +30908,11 @@
         "date": "2026-06-19",
         "score": 0.2349,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1415,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -30505,6 +31009,11 @@
       {
         "date": "2026-06-19",
         "score": 0.0132,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.037,
         "headline_count": 5
       }
     ],
@@ -30603,6 +31112,11 @@
         "date": "2026-06-19",
         "score": 0.2042,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": 0.1121,
+        "headline_count": 5
       }
     ],
     "DASH": [
@@ -30694,6 +31208,11 @@
       {
         "date": "2026-06-19",
         "score": -0.1915,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.0473,
         "headline_count": 5
       }
     ],
@@ -30970,6 +31489,11 @@
         "date": "2026-06-19",
         "score": -0.2099,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-22",
+        "score": -0.1116,
+        "headline_count": 4
       }
     ],
     "DTE": [

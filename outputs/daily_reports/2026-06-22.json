@@ -1,0 +1,46 @@
+{
+  "date": "2026-06-22",
+  "stats": {
+    "vix": 17.329999923706055,
+    "universe": 103,
+    "candidates": 103,
+    "prescreened": 11,
+    "sector_ok": 88,
+    "pre_mc": 11,
+    "roi_precheck": 11,
+    "analyzed": 8,
+    "mismatch_ok": 2,
+    "quick_mc": 2,
+    "intraday_ok": 2,
+    "final_mc": 2,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "RL-Agent: alle als SKIP klassifiziert.",
+    "after_isf": 6
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 15,
+      "tickers": [
+        "ADBE",
+        "ACN",
+        "ANET",
+        "ADSK",
+        "AVGO",
+        "BR",
+        "BSX",
+        "CBOE",
+        "CHTR",
+        "CF"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 2,
+      "tickers": [
+        "GOOG",
+        "AAPL"
+      ]
+    }
+  }
+}
