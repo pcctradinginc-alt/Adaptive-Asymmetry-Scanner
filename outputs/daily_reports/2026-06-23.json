@@ -1,0 +1,59 @@
+{
+  "date": "2026-06-23",
+  "stats": {
+    "vix": 19.479999542236328,
+    "universe": 68,
+    "candidates": 68,
+    "prescreened": 12,
+    "sector_ok": 57,
+    "pre_mc": 12,
+    "roi_precheck": 12,
+    "analyzed": 10,
+    "mismatch_ok": 5,
+    "quick_mc": 1,
+    "intraday_ok": 1,
+    "final_mc": 1,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "RL-Agent: alle als SKIP klassifiziert.",
+    "after_isf": 9
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 11,
+      "tickers": [
+        "ADBE",
+        "ALB",
+        "ANET",
+        "ADSK",
+        "AVGO",
+        "CBOE",
+        "CME",
+        "CTSH",
+        "COIN",
+        "CSGP"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "BBY"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 1,
+      "tickers": [
+        "ABNB"
+      ]
+    },
+    "mc_no_result": {
+      "count": 3,
+      "tickers": [
+        "AAPL",
+        "BDX",
+        "CRH"
+      ]
+    }
+  }
+}
