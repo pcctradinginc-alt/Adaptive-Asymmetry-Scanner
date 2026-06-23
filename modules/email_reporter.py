@@ -90,6 +90,74 @@ def send_exit_alert_email(alerts: list[dict], today: str) -> None:
     _send_smtp(subject, html)
 
 
+# Copy-Paste-Prompt für Claude Code: setzt den RL-Agenten von Option A (Veto aus)
+# auf Option B (gelernter Filter mit Regret-Reward) um. Bewusst self-contained,
+# damit der User ihn direkt einfügen kann, ohne weiteren Kontext.
+RL_ARMING_PROMPT = (
+    "Stelle den RL-Agenten des Adaptive-Asymmetry-Scanners scharf (Übergang Option A → B). "
+    "Es liegen jetzt genug closed_trades unter den neuen Regeln vor. Mach Folgendes und "
+    "committe erst nach meiner Freigabe:\n"
+    "1) modules/rl_environment.py: Reward auf Regret-Shaping umbauen — SKIP darf nicht mehr "
+    "gratis sein. reward(SKIP) = -max(0, outcome) (Wegskippen eines Gewinners wird bestraft), "
+    "NORMAL = outcome, BOOST = outcome*1.5 wie bisher. KEIN Win-Capping (verschärft den SKIP-Kollaps).\n"
+    "2) config.yaml: rl.timesteps_per_update von 2000 auf mindestens 50000 erhöhen.\n"
+    "3) feedback.py retrain_rl_agent: einmalig force_retrain=True, damit nicht auf der alten "
+    "degenerierten Policy aufgesetzt wird.\n"
+    "4) Anti-Degenerations-Check ergänzen: nach dem Training auf den closed_trades evaluieren; "
+    "wenn der Agent >90% skippt, rl.veto_enabled auf false lassen und mich warnen statt scharfzustellen.\n"
+    "5) Backtest auf closed_trades: Win-Rate des getradeten Subsets vs. aller Trades berichten.\n"
+    "6) Erst nach grünem Anti-Degenerations-Check rl.veto_enabled: true setzen.\n"
+    "Berichte mir das Ergebnis vor dem Commit."
+)
+
+
+def send_rl_arming_email(n_trades: int, threshold: int,
+                         win_rate: float, since: str) -> None:
+    """
+    Einmalige Email, sobald genug closed_trades unter den neuen Regeln vorliegen,
+    um den RL-Agenten scharfzustellen (Option A → B). Enthält einen fertigen
+    Prompt, den der User direkt an Claude Code geben kann.
+    """
+    html = _build_rl_arming_email(n_trades, threshold, win_rate, since)
+    subject = f"🟢 RL scharfstellen bereit: {n_trades} Trades erreicht (Schwelle {threshold})"
+    _send_smtp(subject, html)
+
+
+def _build_rl_arming_email(n_trades: int, threshold: int,
+                           win_rate: float, since: str) -> str:
+    import html as _html
+    prompt_escaped = _html.escape(RL_ARMING_PROMPT)
+    return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;margin:0;padding:0;background:#f8fafc;">
+<div style="max-width:640px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+  <div style="background:#16a34a;padding:28px 32px;">
+    <div style="font-size:28px;margin-bottom:6px;">🟢</div>
+    <div style="color:#fff;font-size:22px;font-weight:bold;">RL-Agent bereit zum Scharfstellen</div>
+    <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Datenschwelle erreicht</div>
+  </div>
+  <div style="padding:24px 32px;color:#0f172a;font-size:14px;line-height:1.55;">
+    <p><b>Trade-Anzahl für RL-Scharfstellung erreicht.</b></p>
+    <table style="width:100%;border-collapse:collapse;margin:14px 0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+      <tr><td style="padding:9px 16px;background:#f0fdf4;border-bottom:1px solid #e2e8f0;">✅&nbsp; Geschlossene Trades seit {since}</td>
+          <td style="padding:9px 16px;background:#f0fdf4;border-bottom:1px solid #e2e8f0;text-align:right;"><b>{n_trades}</b> / {threshold}</td></tr>
+      <tr><td style="padding:9px 16px;">📊&nbsp; Win-Rate dieser Trades</td>
+          <td style="padding:9px 16px;text-align:right;"><b>{win_rate:.0%}</b></td></tr>
+    </table>
+    <p>Der RL-Agent läuft aktuell im <b>Option-A-Modus</b> (PPO-Veto aus, QuasiML-Ranking).
+    Es liegen jetzt genug Outcomes unter den neuen Regeln vor, um ihn als echten gelernten
+    Filter scharfzustellen (Option B: Regret-Reward + Voll-Retraining + Anti-Degenerations-Check).</p>
+    <p style="margin-top:18px;"><b>Diesen Prompt direkt an Claude Code geben:</b></p>
+    <pre style="white-space:pre-wrap;word-break:break-word;background:#0f172a;color:#e2e8f0;
+                padding:16px 18px;border-radius:8px;font-size:12.5px;line-height:1.5;
+                font-family:Menlo,Consolas,monospace;user-select:all;">{prompt_escaped}</pre>
+    <p style="color:#64748b;font-size:12px;">Hinweis: Claude soll <b>erst nach deiner Freigabe</b> committen und
+    bei einem fehlgeschlagenen Anti-Degenerations-Check das Veto ausgelassen lassen.</p>
+  </div>
+  <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
+    Adaptive Asymmetry-Scanner &nbsp;·&nbsp; {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}
+  </div>
+</div></body></html>"""
+
+
 def _build_status_email(stats: dict, today: str) -> str:
     vix         = stats.get("vix")
     trades      = stats.get("trades", 0)

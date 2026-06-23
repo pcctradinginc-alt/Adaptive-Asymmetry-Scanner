@@ -550,6 +550,44 @@ def update_bin(stats_dict: dict, feature: str, bin_label: str, outcome: float) -
 
 # ── RL-Training ───────────────────────────────────────────────────────────────
 
+def maybe_notify_rl_arming(history: dict) -> None:
+    """
+    Sendet eine EINMALIGE Email, sobald genug closed_trades unter den neuen Regeln
+    (entry_date >= rl.arm_since) vorliegen, um den RL-Agenten scharfzustellen.
+
+    Relevant nur solange das RL-Veto deaktiviert ist (Option A). Der Flag
+    history['rl_arm_notified'] verhindert wiederholten Versand.
+    """
+    rl_cfg = cfg.rl
+    if rl_cfg.get("veto_enabled", True):
+        return  # RL bereits scharf → nichts zu tun
+    if history.get("rl_arm_notified"):
+        return  # bereits benachrichtigt
+
+    threshold = int(rl_cfg.get("arm_threshold", 30))
+    since     = str(rl_cfg.get("arm_since", "2026-06-11"))
+    closed    = history.get("closed_trades", [])
+
+    relevant = [
+        t for t in closed
+        if t.get("outcome") is not None and str(t.get("entry_date", ""))[:10] >= since
+    ]
+    n = len(relevant)
+    if n < threshold:
+        log.info(f"RL-Arming: {n}/{threshold} closed_trades seit {since} — noch nicht erreicht.")
+        return
+
+    wins     = sum(1 for t in relevant if t["outcome"] > 0)
+    win_rate = wins / n if n else 0.0
+    try:
+        from modules.email_reporter import send_rl_arming_email
+        send_rl_arming_email(n, threshold, win_rate, since)
+        history["rl_arm_notified"] = True
+        log.info(f"RL-Arming-Email gesendet: {n} Trades seit {since}, Win-Rate {win_rate:.0%}.")
+    except Exception as e:
+        log.error(f"RL-Arming-Email-Fehler: {e}")
+
+
 def retrain_rl_agent(history: dict) -> None:
     """
     Trainiert den PPO-Agenten inkrementell auf allen closed_trades.
@@ -717,6 +755,9 @@ def main() -> None:
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
     evaluate_shadow_trades(history, today)
+
+    # RL-Scharfstellung: Email sobald genug closed_trades unter neuen Regeln vorliegen
+    maybe_notify_rl_arming(history)
 
     save_history(history)
 

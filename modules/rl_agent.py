@@ -133,10 +133,17 @@ class RLScorer:
     Fallback: Wenn kein Modell vorhanden, wird die QuasiML-Logik genutzt.
     """
 
-    def __init__(self, history: dict):
-        self.history = history
-        self._model  = None
-        self._load_model()
+    def __init__(self, history: dict, veto_enabled: bool = True):
+        self.history      = history
+        self.veto_enabled = veto_enabled
+        self._model       = None
+        if veto_enabled:
+            self._load_model()
+        else:
+            log.info(
+                "RL-Veto deaktiviert (rl.veto_enabled=false) → QuasiML-Ranking, "
+                "kein SKIP-Filter. (Option A bis genug closed_trades zum Scharfstellen.)"
+            )
 
     def _load_model(self) -> None:
         """Lazy-Load des trainierten PPO-Modells."""
@@ -161,7 +168,8 @@ class RLScorer:
         Wenn RL-Modell vorhanden: PPO-Inference
         Sonst: QuasiML-Fallback
         """
-        if self._model is None:
+        # Option A: Veto aus → reines QuasiML-Ranking, kein Kandidat wird verworfen.
+        if not self.veto_enabled or self._model is None:
             return self._quasi_ml_fallback(simulated)
 
         scored = []

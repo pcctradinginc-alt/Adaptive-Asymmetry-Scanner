@@ -669,7 +669,8 @@ def main() -> None:
 
     # ── STUFE 9: RL-Scoring ──────────────────────────────────────────────────
     log.info("Stufe 9: RL-Scoring")
-    final_signals = RLScorer(history=history).run(final_sims)
+    _rl_veto = bool(cfg.rl.get("veto_enabled", True))
+    final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
     stats["rl_scored"] = len(final_signals)
     log.info(f"  → {len(final_signals)} nach RL-Scoring")
     if not final_signals:

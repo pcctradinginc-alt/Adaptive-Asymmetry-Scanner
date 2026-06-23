@@ -61,9 +61,18 @@ eps_drift:
 # RL-System
 rl:
   enabled: true
+  veto_enabled: false           # Option A: PPO-Veto AUS → QuasiML-Ranking.
+                                # Grund: Der trainierte PPO-Agent skippte 100% aller
+                                # Kandidaten (degenerierte "immer SKIP"-Policy, da der
+                                # Trainings-Ledger netto verlustig ist). Erst wieder true,
+                                # wenn genug closed_trades unter den neuen Regeln vorliegen
+                                # (arm_threshold) und der Reward auf Regret-Shaping umgebaut ist.
   model_path: "outputs/models/ppo_options_agent.zip"
   min_trades_for_training: 3
   timesteps_per_update: 2000
+  arm_threshold: 30             # closed_trades (seit arm_since) ab denen eine "RL scharfstellen"-
+                                # Email ausgelöst wird (= Phase-1-Validierungsziel)
+  arm_since: "2026-06-11"       # Stichtag neue Gates — nur Trades danach zählen fürs Scharfstellen
 
 # FinBERT
 finbert:
