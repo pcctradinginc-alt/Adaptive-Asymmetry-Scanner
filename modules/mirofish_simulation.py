@@ -277,10 +277,12 @@ class MirofishSimulation:
             f"({'PASS' if hit_rate >= threshold else 'FAIL'})"
         )
 
-        if hit_rate < threshold:
-            log.info(f"  [{ticker}] Hit-Rate {hit_rate:.1%} < {threshold:.0%} → verworfen")
-            return None
-
+        # run_for_dte ist ein reiner Simulator und entscheidet NICHT mehr selbst über
+        # PASS/FAIL. Der Caller wendet seine eigene (ggf. VIX-adaptive) Schwelle an und
+        # labelt korrekt. Frueher fuehrte das interne `return None` bei niedriger Hit-Rate
+        # dazu, dass die Pipeline es als "mc_no_result" (= kein Preis) fehl-labelte und in
+        # High-VIX-Phasen die interne 0.45 strenger war als die Pipeline-Schwelle (0.42).
+        # Einziges legitimes None: kein Preis verfuegbar (oben).
         return {
             **candidate,
             "simulation": {

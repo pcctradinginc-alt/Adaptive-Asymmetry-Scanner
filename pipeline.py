@@ -654,6 +654,13 @@ def main() -> None:
         if hit_rate < 0.01:
             reject("final_mc_zero_prob", ticker)
             continue
+        # Schwelle jetzt explizit im Caller (run_for_dte filtert nicht mehr selbst).
+        # Wert = vormals interner Threshold → Verhalten unveraendert.
+        final_threshold = 0.45 if final_dte <= 45 else 0.50
+        if hit_rate < final_threshold:
+            log.info(f"  [{ticker}] Final MC: {hit_rate:.1%} < {final_threshold:.0%} → verworfen")
+            reject("final_mc_below_threshold", ticker)
+            continue
         if hit_rate:
             result["simulation"]["n_paths"] = FINAL_MC_PATHS
             final_sims.append(result)
