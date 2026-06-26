@@ -6,8 +6,8 @@
         "avg_return": 0.8166
       },
       "mid": {
-        "count": 95,
-        "avg_return": 0.038636
+        "count": 96,
+        "avg_return": 0.04554
       },
       "low": {
         "count": 9,
@@ -16,8 +16,8 @@
     },
     "mismatch": {
       "good": {
-        "count": 73,
-        "avg_return": 0.138538
+        "count": 74,
+        "avg_return": 0.146144
       },
       "weak": {
         "count": 29,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 102,
-        "avg_return": 0.100358
+        "count": 103,
+        "avg_return": 0.106193
       },
       "massive": {
         "count": 2,
@@ -44,81 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "BIIB",
-      "entry_date": "2026-05-19",
-      "features": {
-        "impact": 5,
-        "surprise": 6,
-        "mismatch": 4.391,
-        "z_score": 0.122,
-        "sigma_30d": 0.0232,
-        "price_move_48h": 0.0028,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5712
-      },
-      "strategy": "LONG_CALL",
-      "option": {
-        "expiry": "2026-09-18",
-        "strike": 200.0,
-        "bid": 13.3,
-        "ask": 14.4,
-        "open_interest": 1332,
-        "implied_vol": 0.3508,
-        "spread_ratio": 0.0764,
-        "dte": 121,
-        "delta": 0.4883,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 192.28,
-        "target_price": 207.66,
-        "hit_rate": 0.6484,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0218,
-        "alpha": 0.00189
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Die Shareholder-Investigation durch SueWallSt wegen m\u00f6glicher Securities Law Violations ist ein erhebliches rechtliches Risiko. Solche Untersuchungen k\u00f6nnen auf undisklosed materielle negative Informationen hindeuten und das Management ablenken, was mittelfristig erheblichen Kursabw\u00e4rtsdruck erzeugen kann.",
-          "argument_2": "Der Insider-Cluster-Kauf bezieht sich auf BIIB, aber die News zur Immunic-Ernennung von Mike Bonney betrifft prim\u00e4r Immunic (IMUX), nicht Biogen direkt. Es besteht das Risiko einer Signal-Verwechslung: Der Katalysator (Immunic MS Trial Readout) ist kein direkter BIIB-Katalysator, sondern ein indirekter Partnerschafts-/Akquisitionshinweis \u2014 der Markt k\u00f6nnte diesen Link bereits eingepreist haben oder ihn nie vollst\u00e4ndig bewerten.",
-          "argument_3": "BIIB weist eine massive EPS-Divergenz auf: yfinance meldet 16.59 vs. SEC EDGAR 9.31 \u2014 das ist eine fundamentale Datenqualit\u00e4ts-Warnung. Unterschiedliche EPS-Quellen bei Biotech k\u00f6nnen auf Sonderabschreibungen, Goodwill-Korrekturen oder Restatements hindeuten, was die Bewertungsbasis erheblich unsicherer macht. Bei einem Kurs von $192 und EPS ~9.31 liegt das KGV bei ~20x, was f\u00fcr einen stagnierenden Biotech-Player ohne klares organisches Wachstum ambitioniert erscheint.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine Statistik verf\u00fcgbar. Dies ist eine erhebliche Datenl\u00fccke. Ohne MC-Validierung kann keine quantitative Wahrscheinlichkeitsaussage zur Zielerreichung gemacht werden. Die Abwesenheit des Modells erh\u00f6ht Unsicherheit, senkt aber nicht per se den Trade-Wert, da der Katalysator qualitativ getrieben ist.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 6,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "4-8 Wochen",
-        "asymmetry_reasoning": "Der Markt hat den Insider-Cluster-Kauf und die strategische Bonney-Ernennung noch nicht vollst\u00e4ndig als Akquisitionssignal eingepreist. Die +0.3% Kursbewegung in 48h zeigt minimale Reaktion auf potenziell materielle M&A-Vorbereitungssignale. Ein positiver Immunic MS Trial Readout in 30-60 Tagen k\u00f6nnte eine Partnerschaftsank\u00fcndigung triggern.",
-        "catalyst": "Immunic MS Phase-3-Trial-Readout in 30-60 Tagen (Mai-Juli 2026) als potenzieller BIIB-Partnerschafts- oder Akquisitions-Trigger, kombiniert mit 7-Insider-Cluster-Kauf als vorausladendes Signal",
-        "bear_case": "Die laufende Securities Law Investigation durch SueWallSt k\u00f6nnte auf nicht-\u00f6ffentliche negative Informationen hindeuten und das bullische Momentum vollst\u00e4ndig neutralisieren oder umkehren.",
-        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und Fed Funds Rate bei 3.64% beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Healthcare/Biotech. Niedrigere Kapitalkosten unterst\u00fctzen M&A-Aktivit\u00e4t und Biotech-Bewertungen. Der Makro-R\u00fcckenwind verst\u00e4rkt das bullische Signal moderat, kann aber das spezifische Rechtsrisiko (Shareholder Investigation) nicht kompensieren.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.2428,
-        "annualized_roi": 1.175,
-        "dte": 121
-      },
-      "outcome": null,
-      "last_price": 201.96,
-      "current_return": 0.1354
-    },
     {
       "ticker": "DDOG",
       "entry_date": "2026-05-20",
@@ -201,8 +126,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 220.94,
-      "current_return": 0.0055
+      "last_price": 234.365,
+      "current_return": 0.1188
     },
     {
       "ticker": "CSCO",
@@ -286,8 +211,8 @@
         "dte": 92
       },
       "outcome": null,
-      "last_price": 118.97,
-      "current_return": 0.0941
+      "last_price": 114.95,
+      "current_return": -0.0941
     },
     {
       "ticker": "MO",
@@ -371,8 +296,8 @@
         "dte": 120
       },
       "outcome": null,
-      "last_price": 73.21,
-      "current_return": -0.0066
+      "last_price": 73.0707,
+      "current_return": -0.0211
     },
     {
       "ticker": "BA",
@@ -456,8 +381,8 @@
         "dte": 183
       },
       "outcome": null,
-      "last_price": 218.12,
-      "current_return": -0.2417
+      "last_price": 222.1,
+      "current_return": -0.1754
     }
   ],
   "closed_trades": [
@@ -8157,6 +8082,84 @@
       "close_date": "2026-06-24",
       "close_price": 145.475,
       "close_reason": "take_profit"
+    },
+    {
+      "ticker": "BIIB",
+      "entry_date": "2026-05-19",
+      "features": {
+        "impact": 5,
+        "surprise": 6,
+        "mismatch": 4.391,
+        "z_score": 0.122,
+        "sigma_30d": 0.0232,
+        "price_move_48h": 0.0028,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5712
+      },
+      "strategy": "LONG_CALL",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 200.0,
+        "bid": 13.3,
+        "ask": 14.4,
+        "open_interest": 1332,
+        "implied_vol": 0.3508,
+        "spread_ratio": 0.0764,
+        "dte": 121,
+        "delta": 0.4883,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 192.28,
+        "target_price": 207.66,
+        "hit_rate": 0.6484,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0218,
+        "alpha": 0.00189
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Shareholder-Investigation durch SueWallSt wegen m\u00f6glicher Securities Law Violations ist ein erhebliches rechtliches Risiko. Solche Untersuchungen k\u00f6nnen auf undisklosed materielle negative Informationen hindeuten und das Management ablenken, was mittelfristig erheblichen Kursabw\u00e4rtsdruck erzeugen kann.",
+          "argument_2": "Der Insider-Cluster-Kauf bezieht sich auf BIIB, aber die News zur Immunic-Ernennung von Mike Bonney betrifft prim\u00e4r Immunic (IMUX), nicht Biogen direkt. Es besteht das Risiko einer Signal-Verwechslung: Der Katalysator (Immunic MS Trial Readout) ist kein direkter BIIB-Katalysator, sondern ein indirekter Partnerschafts-/Akquisitionshinweis \u2014 der Markt k\u00f6nnte diesen Link bereits eingepreist haben oder ihn nie vollst\u00e4ndig bewerten.",
+          "argument_3": "BIIB weist eine massive EPS-Divergenz auf: yfinance meldet 16.59 vs. SEC EDGAR 9.31 \u2014 das ist eine fundamentale Datenqualit\u00e4ts-Warnung. Unterschiedliche EPS-Quellen bei Biotech k\u00f6nnen auf Sonderabschreibungen, Goodwill-Korrekturen oder Restatements hindeuten, was die Bewertungsbasis erheblich unsicherer macht. Bei einem Kurs von $192 und EPS ~9.31 liegt das KGV bei ~20x, was f\u00fcr einen stagnierenden Biotech-Player ohne klares organisches Wachstum ambitioniert erscheint.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein MC wurde durchgef\u00fchrt \u2014 keine Statistik verf\u00fcgbar. Dies ist eine erhebliche Datenl\u00fccke. Ohne MC-Validierung kann keine quantitative Wahrscheinlichkeitsaussage zur Zielerreichung gemacht werden. Die Abwesenheit des Modells erh\u00f6ht Unsicherheit, senkt aber nicht per se den Trade-Wert, da der Katalysator qualitativ getrieben ist.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 6,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "asymmetry_reasoning": "Der Markt hat den Insider-Cluster-Kauf und die strategische Bonney-Ernennung noch nicht vollst\u00e4ndig als Akquisitionssignal eingepreist. Die +0.3% Kursbewegung in 48h zeigt minimale Reaktion auf potenziell materielle M&A-Vorbereitungssignale. Ein positiver Immunic MS Trial Readout in 30-60 Tagen k\u00f6nnte eine Partnerschaftsank\u00fcndigung triggern.",
+        "catalyst": "Immunic MS Phase-3-Trial-Readout in 30-60 Tagen (Mai-Juli 2026) als potenzieller BIIB-Partnerschafts- oder Akquisitions-Trigger, kombiniert mit 7-Insider-Cluster-Kauf als vorausladendes Signal",
+        "bear_case": "Die laufende Securities Law Investigation durch SueWallSt k\u00f6nnte auf nicht-\u00f6ffentliche negative Informationen hindeuten und das bullische Momentum vollst\u00e4ndig neutralisieren oder umkehren.",
+        "macro_assessment": "Expansives Makroumfeld mit steiler Zinskurve (+0.54%) und Fed Funds Rate bei 3.64% beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen in Healthcare/Biotech. Niedrigere Kapitalkosten unterst\u00fctzen M&A-Aktivit\u00e4t und Biotech-Bewertungen. Der Makro-R\u00fcckenwind verst\u00e4rkt das bullische Signal moderat, kann aber das spezifische Rechtsrisiko (Shareholder Investigation) nicht kompensieren.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.2428,
+        "annualized_roi": 1.175,
+        "dte": 121
+      },
+      "outcome": 0.7014,
+      "last_price": 201.96,
+      "current_return": 0.1354,
+      "close_date": "2026-06-26",
+      "close_price": 214.31,
+      "close_reason": "take_profit"
     }
   ],
   "model_weights": {
@@ -8294,6 +8297,11 @@
       {
         "date": "2026-06-25",
         "score": -0.1501,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.4866,
         "headline_count": 5
       }
     ],
@@ -8720,6 +8728,11 @@
         "date": "2026-06-25",
         "score": 0.2126,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.1759,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -8921,6 +8934,11 @@
       {
         "date": "2026-06-24",
         "score": 0.3916,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.3725,
         "headline_count": 5
       }
     ],
@@ -12124,6 +12142,11 @@
         "date": "2026-06-25",
         "score": -0.5082,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.2225,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -13586,6 +13609,11 @@
         "date": "2026-06-25",
         "score": -0.3195,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.3089,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -13797,6 +13825,11 @@
       {
         "date": "2026-06-25",
         "score": 0.6775,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.1616,
         "headline_count": 5
       }
     ],
@@ -14131,6 +14164,11 @@
       {
         "date": "2026-06-25",
         "score": -0.2535,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.4128,
         "headline_count": 5
       }
     ],
@@ -19668,6 +19706,11 @@
         "date": "2026-06-25",
         "score": -0.0158,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.0723,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -19912,6 +19955,11 @@
         "date": "2026-06-24",
         "score": 0.1249,
         "headline_count": 4
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.2419,
+        "headline_count": 5
       }
     ],
     "ABBV": [
@@ -20615,6 +20663,11 @@
         "date": "2026-06-25",
         "score": -0.2385,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.1708,
+        "headline_count": 5
       }
     ],
     "AMAT": [
@@ -20841,6 +20894,11 @@
       {
         "date": "2026-06-25",
         "score": 0.1596,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.3292,
         "headline_count": 5
       }
     ],
@@ -23374,6 +23432,11 @@
         "date": "2026-06-25",
         "score": -0.0471,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.0471,
+        "headline_count": 5
       }
     ],
     "GE": [
@@ -24520,6 +24583,11 @@
         "date": "2026-06-19",
         "score": -0.0984,
         "headline_count": 3
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.3136,
+        "headline_count": 4
       }
     ],
     "CLX": [
@@ -25664,6 +25732,11 @@
         "date": "2026-06-25",
         "score": -0.0856,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.3836,
+        "headline_count": 5
       }
     ],
     "AXP": [
@@ -26027,6 +26100,11 @@
       {
         "date": "2026-06-25",
         "score": -0.147,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.2575,
         "headline_count": 5
       }
     ],
@@ -29034,6 +29112,11 @@
         "date": "2026-06-25",
         "score": -0.2126,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.3915,
+        "headline_count": 4
       }
     ],
     "CCI": [
@@ -30994,6 +31077,11 @@
         "date": "2026-06-19",
         "score": 0.0006,
         "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.1114,
+        "headline_count": 3
       }
     ],
     "ES": [
@@ -31246,6 +31334,11 @@
       {
         "date": "2026-06-25",
         "score": -0.0639,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": -0.1652,
         "headline_count": 5
       }
     ],
@@ -31500,6 +31593,11 @@
       {
         "date": "2026-06-25",
         "score": 0.0449,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-06-26",
+        "score": 0.0942,
         "headline_count": 5
       }
     ],
