@@ -698,6 +698,48 @@ def main() -> None:
         send_email()
         raise
 
+    # ── ROI-Gate-Instrumentierung ───────────────────────────────────────────
+    # Kandidaten, die ALLE Laufzeiten am ROI-Gate scheitern, als Schatten-Trades
+    # registrieren (bestes Tier je Kandidat). feedback.py bewertet ihr Outcome
+    # nach der Haltedauer → damit wird das ROI-Gate erstmals mit echten Ergebnissen
+    # backtestbar (statt geraten). KEINE Schwelle wird verändert — reine Datenerfassung.
+    _roi_rejects = list(getattr(designer, "roi_reject_log", []) or [])
+    if _roi_rejects:
+        _sl = history.setdefault("shadow_trades", [])
+        _seen = {(t["ticker"], t.get("entry_date", "")) for t in _sl}
+        for r in _roi_rejects:
+            if (r["ticker"], today) in _seen:
+                continue
+            _sl.append({
+                "ticker":        r["ticker"], "entry_date": today,
+                "reject_reason": "roi_gate",
+                "catalyst_type": r.get("catalyst_type", "OTHER"),
+                "strategy":      r.get("strategy", ""),
+                "entry_debit":   r.get("entry_debit", 0.0),
+                "option":        r.get("option") or {},
+                "simulation":    r.get("simulation"),
+                "features":      r.get("features", {}),
+                # ROI-Gate-Diagnostik (für Schwellen-Kalibrierung):
+                "roi_net":       r.get("roi_net"),
+                "roi_hurdle":    r.get("roi_hurdle"),
+                "roi_gap":       r.get("roi_gap"),
+                "vix":           r.get("vix"),
+                "mc_hit_rate":   r.get("mc_hit_rate"),
+                "outcome":       None,
+            })
+            _seen.add((r["ticker"], today))
+        # Kompakt-Summary in die Daily-Stats (Verteilung der ROI-Lücke):
+        _gaps = sorted(g for g in (x.get("roi_gap") for x in _roi_rejects) if g is not None)
+        stats["roi_rejects"] = {
+            "n": len(_roi_rejects),
+            "gap_min":    _gaps[0] if _gaps else None,
+            "gap_median": _gaps[len(_gaps)//2] if _gaps else None,
+            "gap_max":    _gaps[-1] if _gaps else None,
+        }
+        log.info(f"  {len(_roi_rejects)} ROI-Gate-Reject(s) als Schatten-Trades geloggt "
+                 f"(gap median={stats['roi_rejects']['gap_median']}).")
+        save_history(history)
+
     # v10.3: IV-Historie täglich loggen (für OU-Kalibrierung ab ~30 Tagen)
     _iv_logger = MirofishSimulation()
     for p in trade_proposals:

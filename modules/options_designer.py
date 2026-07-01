@@ -135,6 +135,17 @@ def ttm_to_dte_floor(ttm: str) -> int:
         return 120
     return 120
 
+
+def _safe_float(v) -> float:
+    """Robuste float-Konvertierung (complex → Realteil, Fehler → 0.0)."""
+    if isinstance(v, complex):
+        return float(v.real)
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 # v9.0 #13: Theta-Decay-Gate
 # Wenn Zeitwertverlust > X%/Tag des Prämienpreises → Short-Term überspringen
 THETA_DAILY_PCT_GATE = 0.030   # 3 % pro Tag
@@ -332,6 +343,11 @@ class OptionsDesigner:
             log.warning("OptionsDesigner: TRADIER_API_KEY fehlt → yfinance Fallback")
         # VIX Term Structure: einmal laden, gecacht für alle Ticker dieses Runs
         self._vix_ts = get_macro_context().get("vix_term_structure", {})
+        # ROI-Gate-Instrumentierung: pro Run gesammelte ROI-Rejects (bestes Tier
+        # je Kandidat) — die Pipeline registriert sie als Schatten-Trades, damit
+        # feedback.py ihr hypothetisches Outcome misst und das ROI-Gate irgendwann
+        # datengestützt (statt geraten) kalibriert werden kann.
+        self.roi_reject_log: list[dict] = []
 
     def run(self, signals: list[dict]) -> list[dict]:
         proposals = []
@@ -608,6 +624,31 @@ class OptionsDesigner:
             f"  [{ticker}] Alle Laufzeiten unter ROI-Gate "
             f"(VIX={vix_current:.1f}, Faktor={_roi_factor:.2f}): {tried} → verworfen"
         )
+
+        # ── ROI-Gate-Instrumentierung ────────────────────────────────────────
+        # Bestes (höchstes roi_net) Tier festhalten, damit wir später messen
+        # können, ob das ROI-Gate Gewinner wegfiltert und wie weit die Rejects
+        # unter dem Hurdle liegen. Nur die Datenerfassung — Schwelle unverändert.
+        if results_per_tier:
+            best = max(results_per_tier, key=lambda r: _safe_float(r.get("roi_net_initial", 0)))
+            best_roi   = _safe_float(best.get("roi_net_initial", 0))
+            hurdle     = _safe_float((best.get("roi") or {}).get("min_roi_threshold", 0))
+            self.roi_reject_log.append({
+                "ticker":        ticker,
+                "strategy":      best.get("strategy", ""),
+                "option":        best.get("option") or {},
+                "entry_debit":   round(_safe_float((best.get("option") or {}).get("ask", 0)), 2),
+                "simulation":    sim,
+                "features":      s.get("features", {}),
+                "catalyst_type": catalyst_type,
+                "best_tier":     best.get("tier"),
+                "roi_net":       round(best_roi, 4),
+                "roi_hurdle":    round(hurdle, 4),
+                "roi_gap":       round(best_roi - hurdle, 4),  # <0 = wie weit drunter
+                "vix":           round(vix_current, 2),
+                "roi_factor":    round(_roi_factor, 3),
+                "mc_hit_rate":   round(mc_hit_rate, 4),
+            })
         return None
 
     def _select_strategy(
@@ -770,11 +811,6 @@ class OptionsDesigner:
 
         roi_net   = roi_delta - (spread_pct * 2) - vega_loss - commission_pct
         passes    = roi_net >= min_roi
-
-        def _safe_float(v):
-            if isinstance(v, complex): return float(v.real)
-            try: return float(v)
-            except: return 0.0
 
         return {
             "roi_gross":         round(_safe_float(roi_delta), 4),
