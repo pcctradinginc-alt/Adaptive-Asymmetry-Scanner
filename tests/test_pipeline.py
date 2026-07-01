@@ -305,14 +305,16 @@ class TestMirofishSimulation:
 
 class TestTtmDteFloor:
     def test_known_formats(self):
+        # v11.0: Floor 45/55 → 120 (DTE 45–119 = 19% Win / Ø −23.6%,
+        # DTE≥120 = 41% Win / Ø +12.7% über 98 dedup. closed_trades).
         from modules.options_designer import ttm_to_dte_floor
-        assert ttm_to_dte_floor("4-8 Wochen") == 45
-        assert ttm_to_dte_floor("2-3 Monate") == 55
+        assert ttm_to_dte_floor("4-8 Wochen") == 120
+        assert ttm_to_dte_floor("2-3 Monate") == 120
         assert ttm_to_dte_floor("6 Monate") == 140
 
     def test_fuzzy_formats_normalized(self):
         from modules.options_designer import ttm_to_dte_floor
-        assert ttm_to_dte_floor("ca. 2 Monate") == 55
+        assert ttm_to_dte_floor("ca. 2 Monate") == 120
         assert ttm_to_dte_floor("6 monate+") == 140
 
     def test_unknown_defaults_conservative(self):

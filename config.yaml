@@ -26,11 +26,13 @@ risk:
 
 options:
   # DTE-Tiers werden in options_designer.py (DTE_TIERS) gesteuert.
-  # time_to_materialization aus deep_analysis bestimmt das DTE-Minimum (v9.0):
-  #   "4-8 Wochen"  → dte_floor=45  (Kurzläufer-Puffer)
-  #   "2-3 Monate"  → dte_floor=55  (Mid-Term Minimum)
-  #   "6 Monate"    → dte_floor=140 (Long-Term Minimum)
-  #   unbekannt     → dte_floor=45  (konservativer Default statt 14)
+  # time_to_materialization aus deep_analysis bestimmt das DTE-Minimum.
+  # v11.0 (2026-07 Monats-Tuning): Floor 45/55 → 120. Datenbefund über 98 dedup.
+  # closed_trades: DTE 45–119 = 19% Win / Ø −23.6%, DTE≥120 = 41% Win / Ø +12.7%.
+  #   "4-8 Wochen"  → dte_floor=120 (war 45 — Sub-120 blutet aus)
+  #   "2-3 Monate"  → dte_floor=120 (war 55)
+  #   "6 Monate"    → dte_floor=140 (Long-Term Minimum, Thesis-Matching)
+  #   unbekannt     → dte_floor=120 (konservativer Default)
   allow_bearish: false       # Bearish-Trades deaktiviert: 0/6 Wins (LONG_PUT mean −86%)
   delta_target_low:  0.55
   delta_target_high: 0.75

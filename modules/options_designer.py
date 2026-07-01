@@ -103,18 +103,27 @@ VIX_ROI_FACTORS: list[tuple[float, float]] = [
 
 # v9.0 #6: time_to_materialization → DTE-Minimum
 # Verhindert 16-DTE-Option bei 3-Monats-Thesis
+# v11.0 (2026-07 Monats-Tuning): DTE-Floor 45/55 → 120 angehoben.
+#   Datenbefund (105 closed / 98 dedup, outputs/history.json):
+#     DTE  45–119: 19% Win, Ø −23.6%, Median −56%  ← tote Verlustzone
+#     DTE ≥120:    41% Win, Ø +12.7%               ← einziger profitabler Bereich
+#     DTE ≥140:    33% Win, Ø −19.3%               ← überschießt wieder
+#   DTE ist der Expiry-Puffer, NICHT der Thesis-Horizont: eine 4-8-Wochen-Thesis
+#   wird jetzt auf einem ≥120d-Kontrakt gespielt (weniger Theta, früher Exit).
+#   "6 Monate" bleibt 140 (Thesis-Matching für echte Langläufer).
 TTM_TO_DTE_MIN: dict[str, int] = {
-    "4-8 Wochen":  45,   # Min 45d: Short-Thesis braucht trotzdem Puffer
-    "2-3 Monate":  55,   # Mid-Term Minimum (kein 16-DTE!)
-    "6 Monate":   140,   # Long-Term Minimum
+    "4-8 Wochen":  120,  # angehoben von 45 — Sub-120-DTE blutet aus
+    "2-3 Monate":  120,  # angehoben von 55 — kein Kurzläufer mehr
+    "6 Monate":    140,  # Long-Term Minimum (Thesis-Matching)
 }
 
 
 def ttm_to_dte_floor(ttm: str) -> int:
     """
     Normalisiert TTM-Strings (Claude liefert variierende Formate) → DTE-Floor.
-    Unbekannte Formate → 45 statt 14: alle 15 Totalverluste der closed_trades
-    waren Kurzläufer (<30 DTE), die über den alten 14er-Default durchrutschten.
+    Unbekannte Formate → 120 (v11.0): der DTE-45–119-Bereich verlor über 98
+    dedup. closed_trades im Median −56% (19% Win); erst ab DTE≥120 dreht der
+    Ø-Return ins Plus (+12.7%). Deshalb konservativer Default = 120 statt 45.
     """
     exact = TTM_TO_DTE_MIN.get(ttm)
     if exact is not None:
@@ -123,8 +132,8 @@ def ttm_to_dte_floor(ttm: str) -> int:
     if "6 monat" in t:
         return 140
     if "monat" in t:
-        return 55
-    return 45
+        return 120
+    return 120
 
 # v9.0 #13: Theta-Decay-Gate
 # Wenn Zeitwertverlust > X%/Tag des Prämienpreises → Short-Term überspringen

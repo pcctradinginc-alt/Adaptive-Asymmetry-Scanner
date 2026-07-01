@@ -144,7 +144,7 @@ def current_thresholds() -> dict:
     except Exception:
         mismatch_cap, impact_floor = 7.0, 4
     return {
-        "dte":      45,            # ttm_to_dte_floor-Default (options_designer.py)
+        "dte":      120,           # ttm_to_dte_floor-Default (options_designer.py, v11.0)
         "mismatch": mismatch_cap,
         "impact":   impact_floor,
         "surprise": 3,             # Impact×Surprise-Floor (pipeline.py Stufe 4b)
