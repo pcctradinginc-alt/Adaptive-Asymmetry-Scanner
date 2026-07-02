@@ -1,0 +1,31 @@
+{
+  "date": "2026-07-02",
+  "stats": {
+    "vix": 16.780000686645508,
+    "universe": 20,
+    "candidates": 20,
+    "prescreened": 3,
+    "sector_ok": 18,
+    "pre_mc": 3,
+    "roi_precheck": 3,
+    "analyzed": 2,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Kein Signal hat Mismatch-Filter bestanden.",
+    "after_isf": 2
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 2,
+      "tickers": [
+        "APO",
+        "AVGO"
+      ]
+    }
+  }
+}
