@@ -568,17 +568,26 @@ class OptionsDesigner:
                     iv_rank          = iv_rank,
                 )
                 if "error" not in mc_result:
+                    # v11.1: Gate auf Mean statt Median. Options-P&L ist rechtsschief
+                    # (Ledger: Ø +11% vs. Median −49%) — "Median ≥ min_roi" verlangte
+                    # >50% Wahrscheinlichkeit für +min_roi netto und ließ ab 2026-06-11
+                    # 0/20 Scan-Tagen einen Trade durch. Neu: Erwartungswert muss die
+                    # Schwelle schlagen UND der Median darf netto nicht negativ sein.
+                    _mc_costs = (roi.get("spread_pct", 0.0) * 2) + roi.get("commission_pct", 0.0)
+                    median_net = mc_result["expected_pnl_pct"] - _mc_costs
+                    mean_net   = mc_result["mean_pnl_pct"] - _mc_costs
                     roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
-                    roi["roi_net"]         = (
-                        mc_result["expected_pnl_pct"]
-                        - (roi.get("spread_pct", 0.0) * 2)
-                        - roi.get("commission_pct", 0.0)
+                    roi["mc_pnl_mean"]     = mc_result["mean_pnl_pct"]
+                    roi["mc_median_net"]   = round(_safe_float(median_net), 4)
+                    roi["roi_net"]         = mean_net
+                    roi["passes_roi_gate"] = (
+                        mean_net >= dynamic_tier["min_roi"] and median_net >= 0.0
                     )
-                    roi["passes_roi_gate"] = roi["roi_net"] >= dynamic_tier["min_roi"]
                     ou_tag = mc_result.get("ou_method", "heuristic")
                     log.info(
                         f"  [{ticker}] MC-P&L {label} [{ou_tag}]: "
-                        f"median={mc_result['expected_pnl_pct']:.1%} "
+                        f"mean_net={mean_net:.1%} (Gate≥{dynamic_tier['min_roi']:.1%}) "
+                        f"median_net={median_net:.1%} (Gate≥0) "
                         f"σ={mc_result['pnl_std']:.1%} "
                         f"hold={mc_result['hold_days']}d "
                         f"({'✅ PASS' if roi['passes_roi_gate'] else '❌ FAIL → verworfen'})"
@@ -610,6 +619,7 @@ class OptionsDesigner:
                     "model_move_pct":      round(model_move * 100, 2),
                     "edge_vs_implied":     round(edge_vs_implied * 100, 2) if edge_vs_implied is not None else None,
                     "mc_pnl_pct":          mc_result.get("expected_pnl_pct"),
+                    "mc_pnl_mean":         mc_result.get("mean_pnl_pct"),
                     "mc_pnl_std":          mc_result.get("pnl_std"),
                     "mc_hold_days":        mc_result.get("hold_days"),
                     "mc_ou_method":        mc_result.get("ou_method"),
