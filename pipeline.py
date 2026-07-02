@@ -674,6 +674,39 @@ def main() -> None:
         stats["stop_reason"] = "Kein Kandidat besteht Final MC (120d)."
         save_history(history); send_email(); return
 
+    # ── Funnel-Survivor-Instrumentierung ─────────────────────────────────────
+    # Jeden Final-MC-Überlebenden als Schatten-Trade loggen — unabhängig davon,
+    # was RL-Gate/ROI-Gate danach entscheiden. Zweck: Feature-Validierung mit
+    # Stock-Outcomes nach Haltedauer, v.a. die Mismatch-Richtung (Ledger:
+    # Mismatch 0-1 = 56% Win / Ø +51% vs. Mismatch 2-3 = 17% Win / Ø −29%).
+    # Keine Schwelle wird verändert — reine Datenerfassung.
+    _sv_list = history.setdefault("shadow_trades", [])
+    _sv_seen = {(t["ticker"], t.get("entry_date", ""), t.get("reject_reason", ""))
+                for t in _sv_list}
+    _n_sv = 0
+    for s in final_sims:
+        _sv_key = (s.get("ticker"), today, "final_mc_survivor")
+        if not s.get("ticker") or _sv_key in _sv_seen:
+            continue
+        _da = s.get("deep_analysis") or {}
+        _sv_list.append({
+            "ticker":        s["ticker"], "entry_date": today,
+            "reject_reason": "final_mc_survivor",
+            "strategy":      "",   # kein Kontrakt designt → Stock-Outcome-Fallback
+            "simulation":    s.get("simulation"),
+            "features":      s.get("features", {}),
+            "sector":        s.get("info", {}).get("sector", ""),
+            "sector_etf":    (s.get("sector_momentum") or {}).get("etf", ""),
+            "deep_analysis": {k: _da.get(k) for k in
+                              ("direction", "impact", "surprise", "time_to_materialization")},
+            "outcome":       None,
+        })
+        _sv_seen.add(_sv_key)
+        _n_sv += 1
+    if _n_sv:
+        log.info(f"  {_n_sv} Final-MC-Survivor als Schatten-Trades geloggt (Feature-Validierung)")
+        save_history(history)
+
     # ── STUFE 9: RL-Scoring ──────────────────────────────────────────────────
     log.info("Stufe 9: RL-Scoring")
     _rl_veto = bool(cfg.rl.get("veto_enabled", True))
@@ -706,9 +739,10 @@ def main() -> None:
     _roi_rejects = list(getattr(designer, "roi_reject_log", []) or [])
     if _roi_rejects:
         _sl = history.setdefault("shadow_trades", [])
-        _seen = {(t["ticker"], t.get("entry_date", "")) for t in _sl}
+        _seen = {(t["ticker"], t.get("entry_date", ""), t.get("reject_reason", ""))
+                 for t in _sl}
         for r in _roi_rejects:
-            if (r["ticker"], today) in _seen:
+            if (r["ticker"], today, "roi_gate") in _seen:
                 continue
             _sl.append({
                 "ticker":        r["ticker"], "entry_date": today,
@@ -727,7 +761,7 @@ def main() -> None:
                 "mc_hit_rate":   r.get("mc_hit_rate"),
                 "outcome":       None,
             })
-            _seen.add((r["ticker"], today))
+            _seen.add((r["ticker"], today, "roi_gate"))
         # Kompakt-Summary in die Daily-Stats (Verteilung der ROI-Lücke):
         _gaps = sorted(g for g in (x.get("roi_gap") for x in _roi_rejects) if g is not None)
         stats["roi_rejects"] = {
@@ -790,9 +824,10 @@ def main() -> None:
 
         # ── Schatten-Trades registrieren (kein Geld, nur Lern-Daten) ─────────
         shadow_list = history.setdefault("shadow_trades", [])
-        _shadow_existing = {(t["ticker"], t.get("entry_date", "")) for t in shadow_list}
+        _shadow_existing = {(t["ticker"], t.get("entry_date", ""), t.get("reject_reason", ""))
+                            for t in shadow_list}
         for p, why in _shadow:
-            if (p["ticker"], today) in _shadow_existing:
+            if (p["ticker"], today, why) in _shadow_existing:
                 continue
             shadow_list.append({
                 "ticker":        p["ticker"], "entry_date": today,
@@ -807,7 +842,7 @@ def main() -> None:
                 "features":      p.get("features", {}),
                 "outcome":       None,
             })
-            _shadow_existing.add((p["ticker"], today))
+            _shadow_existing.add((p["ticker"], today, why))
         if _shadow:
             log.info(f"  {len(_shadow)} Schatten-Trade(s) registriert (Gate-Validierung)")
 

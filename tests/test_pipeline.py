@@ -365,8 +365,11 @@ class TestExitRules:
 class TestPositionSizing:
     def test_positive_edge_gives_contracts(self):
         from modules.position_sizing import compute_position_size
+        # assumed_loss_pct=0.80 (realisierte Stop-Loss-Verluste): ¼-Kelly
+        # vergibt erst bei deutlichem Edge ≥1 Kontrakt — roi_net=0.40 bei
+        # hit=0.70 ergibt jetzt korrekt 0 (Edge zu dünn für $200-Kontrakt).
         p = {"ticker": "T", "strategy": "LONG_CALL",
-             "option": {"ask": 2.0}, "roi_analysis": {"roi_net": 0.40},
+             "option": {"ask": 2.0}, "roi_analysis": {"roi_net": 0.80},
              "mc_hit_rate": 0.70}
         s = compute_position_size(p)
         assert s["contracts"] >= 1

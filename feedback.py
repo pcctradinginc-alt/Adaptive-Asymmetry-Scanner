@@ -534,6 +534,75 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
         history["shadow_trades"] = shadows[-300:]
 
 
+# ── Trailing-Stop-Paralleltest ────────────────────────────────────────────────
+# Der harte Take-Profit bei +50% kappt den rechten Tail, von dem die
+# Asymmetrie-These lebt (TP-Exits: Ø +120% — die Gewinner laufen weit über die
+# Schwelle hinaus). Bevor die Exit-Regel geändert wird: jeden echten TP-Exit
+# virtuell weiterführen und erst bei Rückfall auf TRAIL_FACTOR × Peak oder am
+# Verfall schließen. trailing_outcome vs. tp_outcome liefert die Datenbasis
+# für den nächsten Tuning-Slot. Kein Geld im Spiel, keine Regel verändert.
+
+TRAIL_FACTOR = 0.65
+
+
+def register_trailing_sim(history: dict, trade: dict, today: datetime) -> None:
+    """Startet die virtuelle Weiterführung eines per Take-Profit geschlossenen Trades."""
+    sims = history.setdefault("trailing_sim", [])
+    if any(s.get("ticker") == trade["ticker"] and s.get("entry_date") == trade.get("entry_date")
+           for s in sims):
+        return
+    tp_outcome = float(trade.get("outcome") or 0)
+    sims.append({
+        "ticker":           trade["ticker"],
+        "strategy":         trade.get("strategy", ""),
+        "option":           trade.get("option") or {},
+        "simulation":       trade.get("simulation") or {},
+        "entry_debit":      trade.get("entry_debit"),
+        "entry_date":       trade.get("entry_date"),
+        "tp_date":          today.strftime("%Y-%m-%d"),
+        "tp_outcome":       tp_outcome,
+        "peak":             max(float(trade.get("peak_return") or 0), tp_outcome),
+        "trailing_outcome": None,
+    })
+    log.info(
+        f"  [TRAIL {trade['ticker']}] TP-Exit {tp_outcome:+.2%} → "
+        f"virtuelle Weiterführung gestartet (Exit bei {TRAIL_FACTOR:.0%} des Peaks)"
+    )
+
+
+def evaluate_trailing_sims(history: dict, today: datetime) -> None:
+    """Führt offene Trailing-Simulationen fort und schließt sie regelbasiert."""
+    for sim in history.get("trailing_sim", []):
+        if sim.get("trailing_outcome") is not None:
+            continue
+        current = get_current_price(sim["ticker"])
+        if current <= 0:
+            continue
+        outcome = compute_outcome(sim, current)
+        if outcome is None:
+            continue
+        peak = max(float(sim.get("peak") or 0), outcome)
+        sim["peak"]           = round(peak, 4)
+        sim["current_return"] = round(outcome, 4)
+
+        expiry_str = (sim.get("option") or {}).get("expiry", "")
+        try:
+            expired = datetime.strptime(expiry_str, "%Y-%m-%d") <= today
+        except ValueError:
+            expired = False
+
+        if outcome <= peak * TRAIL_FACTOR or expired:
+            sim["trailing_outcome"] = round(outcome, 4)
+            sim["close_date"]       = today.strftime("%Y-%m-%d")
+            sim["close_reason"]     = "expiry" if expired else "trail_stop"
+            delta = outcome - float(sim.get("tp_outcome") or 0)
+            log.info(
+                f"  [TRAIL {sim['ticker']}] {sim['close_reason']}: "
+                f"trailing={outcome:+.2%} vs. TP={float(sim.get('tp_outcome') or 0):+.2%} "
+                f"(Δ={delta:+.2%})"
+            )
+
+
 # ── Bin-Updates (Legacy, für Backward-Kompatibilität) ─────────────────────────
 
 def update_bin(stats_dict: dict, feature: str, bin_label: str, outcome: float) -> None:
@@ -712,6 +781,9 @@ def main() -> None:
             continue
         log.info(f"  [{ticker}] Alter={age_days}d Outcome={outcome:+.2%}")
 
+        # Peak-Return mitschreiben (Grundlage für den Trailing-Paralleltest)
+        trade["peak_return"] = round(max(float(trade.get("peak_return") or outcome), outcome), 4)
+
         # ── Regelbasierter Exit (TP/SL/Time-Exit) — auch für junge Trades ────
         exit_reason = check_exit_rules(trade, outcome, today)
         if exit_reason:
@@ -745,6 +817,8 @@ def main() -> None:
                 f"({trade['close_reason']}, Return={outcome:+.2%})"
             )
             newly_closed += 1
+            if trade["close_reason"] == "take_profit":
+                register_trailing_sim(history, trade, today)
         else:
             trade["last_price"]     = current
             trade["current_return"] = round(outcome, 4)
@@ -755,6 +829,9 @@ def main() -> None:
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
     evaluate_shadow_trades(history, today)
+
+    # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen)
+    evaluate_trailing_sims(history, today)
 
     # RL-Scharfstellung: Email sobald genug closed_trades unter neuen Regeln vorliegen
     maybe_notify_rl_arming(history)

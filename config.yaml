@@ -48,7 +48,9 @@ portfolio:
   size_usd: 5000             # Depotgröße für Sizing-Empfehlung
   kelly_fraction: 0.25       # ¼-Kelly: konservativ, Standard für Options
   max_position_pct: 0.10     # Hard-Cap: max. 10% des Depots pro Trade
-  assumed_loss_pct: 0.45     # Erwarteter Verlust bei Stop-Loss (−45%)
+  assumed_loss_pct: 0.80     # Erwarteter Verlust bei Stop-Loss. War 0.45 (= SL-Schwelle),
+                             # aber realisierte stop_loss-Exits: Ø −80% / Median −92%
+                             # (n=30, 2×-täglicher Check + Gaps). Kelly rechnete zu optimistisch.
 
 learning:
   learning_rate: 0.05
