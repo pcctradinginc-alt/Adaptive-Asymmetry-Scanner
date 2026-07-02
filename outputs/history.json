@@ -228,7 +228,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5378
+        "quick_mc_hit_rate": 0.5378,
+        "iv_rank": 80.1
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -297,7 +298,9 @@
       },
       "outcome": null,
       "last_price": 72.35,
-      "current_return": -0.0897
+      "current_return": -0.0897,
+      "iv_rank": 80.1,
+      "sector_etf": "XLP"
     },
     {
       "ticker": "BA",
@@ -313,7 +316,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6212
+        "quick_mc_hit_rate": 0.6212,
+        "iv_rank": 68.2
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -382,7 +386,9 @@
       },
       "outcome": null,
       "last_price": 224.325,
-      "current_return": -0.1445
+      "current_return": -0.1445,
+      "iv_rank": 68.2,
+      "sector_etf": "XLI"
     }
   ],
   "closed_trades": [
@@ -846,7 +852,8 @@
         "eps_drift": 0.0,
         "bin_impact": "low",
         "bin_mismatch": "weak",
-        "bin_eps_drift": "noise"
+        "bin_eps_drift": "noise",
+        "iv_rank": 67.74
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -891,7 +898,8 @@
       "last_price": 126.56,
       "current_return": 0.4048,
       "close_date": "2026-05-27",
-      "close_price": 123.07
+      "close_price": 123.07,
+      "iv_rank": 67.74
     },
     {
       "ticker": "ABT",
@@ -906,7 +914,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
+        "quick_mc_hit_rate": 0.97,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -983,7 +992,9 @@
       "last_price": 85.79,
       "current_return": -1.0,
       "close_date": "2026-06-01",
-      "close_price": 87.38
+      "close_price": 87.38,
+      "iv_rank": 100.0,
+      "sector_etf": "XLV"
     },
     {
       "ticker": "META",
@@ -1182,7 +1193,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
+        "quick_mc_hit_rate": 0.97,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -1259,7 +1271,9 @@
       "last_price": 439.055,
       "current_return": 1.5397,
       "close_date": "2026-06-01",
-      "close_price": 461.795
+      "close_price": 461.795,
+      "iv_rank": 100.0,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "FISV",
@@ -1452,7 +1466,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
+        "quick_mc_hit_rate": 0.97,
+        "iv_rank": 100.0
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -1523,7 +1538,9 @@
       "last_price": 508.105,
       "current_return": 5.0,
       "close_date": "2026-06-01",
-      "close_price": 512.45
+      "close_price": 512.45,
+      "iv_rank": 100.0,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "AMAT",
@@ -1538,7 +1555,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
+        "quick_mc_hit_rate": 0.97,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -1615,7 +1633,9 @@
       "last_price": 451.35,
       "current_return": 1.2039,
       "close_date": "2026-06-01",
-      "close_price": 457.525
+      "close_price": 457.525,
+      "iv_rank": 100.0,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "CTVA",
@@ -1630,7 +1650,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
+        "quick_mc_hit_rate": 0.97,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -1707,7 +1728,9 @@
       "last_price": 79.88,
       "current_return": -0.4184,
       "close_date": "2026-06-01",
-      "close_price": 77.8
+      "close_price": 77.8,
+      "iv_rank": 100.0,
+      "sector_etf": "XLB"
     },
     {
       "ticker": "ORCL",
@@ -1722,7 +1745,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.97
+        "quick_mc_hit_rate": 0.97,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -1799,7 +1823,9 @@
       "last_price": 222.985,
       "current_return": 1.6316,
       "close_date": "2026-06-01",
-      "close_price": 249.8199
+      "close_price": 249.8199,
+      "iv_rank": 100.0,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "HOOD",
@@ -1894,7 +1920,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5654
+        "quick_mc_hit_rate": 0.5654,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -1959,7 +1986,9 @@
       "last_price": 87.03,
       "current_return": -1.0,
       "close_date": "2026-06-01",
-      "close_price": 88.93
+      "close_price": 88.93,
+      "iv_rank": 100.0,
+      "sector_etf": "XLF"
     },
     {
       "ticker": "HOOD",
@@ -1974,7 +2003,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "strong",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6506
+        "quick_mc_hit_rate": 0.6506,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -2039,7 +2069,9 @@
       "last_price": 83.965,
       "current_return": -1.0,
       "close_date": "2026-06-04",
-      "close_price": 86.1042
+      "close_price": 86.1042,
+      "iv_rank": 100.0,
+      "sector_etf": "XLF"
     },
     {
       "ticker": "ON",
@@ -2054,7 +2086,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.8334
+        "quick_mc_hit_rate": 0.8334,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -2119,7 +2152,9 @@
       "last_price": 133.62,
       "current_return": 1.7701,
       "close_date": "2026-06-04",
-      "close_price": 131.255
+      "close_price": 131.255,
+      "iv_rank": 100.0,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "TSLA",
@@ -2774,7 +2809,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6648
+        "quick_mc_hit_rate": 0.6648,
+        "iv_rank": 100.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -2839,7 +2875,9 @@
       "last_price": 127.435,
       "current_return": -1.0,
       "close_date": "2026-06-05",
-      "close_price": 129.52
+      "close_price": 129.52,
+      "iv_rank": 100.0,
+      "sector_etf": "XLU"
     },
     {
       "ticker": "ABNB",
@@ -2854,7 +2892,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7058
+        "quick_mc_hit_rate": 0.7058,
+        "iv_rank": 42.9
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -2919,7 +2958,9 @@
       "last_price": 133.335,
       "current_return": -1.0,
       "close_date": "2026-06-08",
-      "close_price": 134.7
+      "close_price": 134.7,
+      "iv_rank": 42.9,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "BBWI",
@@ -3088,7 +3129,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.85
+        "quick_mc_hit_rate": 0.85,
+        "iv_rank": 50.0
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -3147,7 +3189,9 @@
       "last_price": 36.82,
       "current_return": -0.5969,
       "close_date": "2026-06-08",
-      "close_price": 37.39
+      "close_price": 37.39,
+      "iv_rank": 50.0,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "AVGO",
@@ -3310,7 +3354,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6624
+        "quick_mc_hit_rate": 0.6624,
+        "iv_rank": 56.1
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -3369,7 +3414,9 @@
       "last_price": 470.36,
       "current_return": 2.0463,
       "close_date": "2026-06-08",
-      "close_price": 491.51
+      "close_price": 491.51,
+      "iv_rank": 56.1,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "AVGO",
@@ -3606,7 +3653,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5014
+        "quick_mc_hit_rate": 0.5014,
+        "iv_rank": 33.7
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -3665,7 +3713,9 @@
       "last_price": 308.79,
       "current_return": -0.7074,
       "close_date": "2026-06-08",
-      "close_price": 313.48
+      "close_price": 313.48,
+      "iv_rank": 33.7,
+      "sector_etf": "XLF"
     },
     {
       "ticker": "ANET",
@@ -3754,7 +3804,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5094
+        "quick_mc_hit_rate": 0.5094,
+        "iv_rank": 69.0
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -3813,7 +3864,9 @@
       "last_price": 114.82,
       "current_return": -0.555,
       "close_date": "2026-06-08",
-      "close_price": 115.4172
+      "close_price": 115.4172,
+      "iv_rank": 69.0,
+      "sector_etf": "XLF"
     },
     {
       "ticker": "DVA",
@@ -3828,7 +3881,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7608
+        "quick_mc_hit_rate": 0.7608,
+        "iv_rank": 33.8
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -3887,7 +3941,9 @@
       "last_price": 192.69,
       "current_return": 2.3381,
       "close_date": "2026-06-08",
-      "close_price": 191.235
+      "close_price": 191.235,
+      "iv_rank": 33.8,
+      "sector_etf": "XLV"
     },
     {
       "ticker": "T",
@@ -3902,7 +3958,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.652
+        "quick_mc_hit_rate": 0.652,
+        "iv_rank": 43.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -3961,7 +4018,9 @@
       "last_price": 22.71,
       "current_return": -1.0,
       "close_date": "2026-06-08",
-      "close_price": 22.545
+      "close_price": 22.545,
+      "iv_rank": 43.3,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "EQT",
@@ -3976,7 +4035,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.683
+        "quick_mc_hit_rate": 0.683,
+        "iv_rank": 34.2
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4035,7 +4095,9 @@
       "last_price": 54.03,
       "current_return": -1.0,
       "close_date": "2026-06-08",
-      "close_price": 53.215
+      "close_price": 53.215,
+      "iv_rank": 34.2,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "AMAT",
@@ -4050,7 +4112,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6546
+        "quick_mc_hit_rate": 0.6546,
+        "iv_rank": 56.0
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4109,7 +4172,9 @@
       "last_price": 470.4099,
       "current_return": 1.4364,
       "close_date": "2026-06-08",
-      "close_price": 491.36
+      "close_price": 491.36,
+      "iv_rank": 56.0,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "ANET",
@@ -4124,7 +4189,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7564
+        "quick_mc_hit_rate": 0.7564,
+        "iv_rank": 49.8
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4183,7 +4249,9 @@
       "last_price": 154.545,
       "current_return": -1.0,
       "close_date": "2026-06-08",
-      "close_price": 157.17
+      "close_price": 157.17,
+      "iv_rank": 49.8,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "BX",
@@ -4198,7 +4266,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5166
+        "quick_mc_hit_rate": 0.5166,
+        "iv_rank": 49.6
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4257,7 +4326,9 @@
       "last_price": 114.895,
       "current_return": -1.0,
       "close_date": "2026-06-08",
-      "close_price": 115.4172
+      "close_price": 115.4172,
+      "iv_rank": 49.6,
+      "sector_etf": "XLF"
     },
     {
       "ticker": "AMD",
@@ -4272,7 +4343,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7988
+        "quick_mc_hit_rate": 0.7988,
+        "iv_rank": 34.7
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4331,7 +4403,9 @@
       "last_price": 478.72,
       "current_return": 3.2468,
       "close_date": "2026-06-08",
-      "close_price": 489.225
+      "close_price": 489.225,
+      "iv_rank": 34.7,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "ALB",
@@ -4346,7 +4420,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6756
+        "quick_mc_hit_rate": 0.6756,
+        "iv_rank": 58.2
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4405,7 +4480,9 @@
       "last_price": 157.28,
       "current_return": -0.5398,
       "close_date": "2026-06-08",
-      "close_price": 151.73
+      "close_price": 151.73,
+      "iv_rank": 58.2,
+      "sector_etf": "XLB"
     },
     {
       "ticker": "BKR",
@@ -4420,7 +4497,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "strong",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.85
+        "quick_mc_hit_rate": 0.85,
+        "iv_rank": 36.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -4479,7 +4557,9 @@
       "last_price": 63.515,
       "current_return": -1.0,
       "close_date": "2026-06-11",
-      "close_price": 63.22
+      "close_price": 63.22,
+      "iv_rank": 36.3,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "CMCSA",
@@ -4494,7 +4574,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.644
+        "quick_mc_hit_rate": 0.644,
+        "iv_rank": 73.4
       },
       "strategy": "LONG_PUT",
       "option": {
@@ -4553,7 +4634,9 @@
       "last_price": 24.0193,
       "current_return": -1.0,
       "close_date": "2026-06-11",
-      "close_price": 24.015
+      "close_price": 24.015,
+      "iv_rank": 73.4,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "BKR",
@@ -4795,7 +4878,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5546
+        "quick_mc_hit_rate": 0.5546,
+        "iv_rank": 82.7
       },
       "strategy": "LONG_PUT",
       "option": {
@@ -4855,7 +4939,9 @@
       "current_return": 0.0129,
       "close_date": "2026-06-11",
       "close_price": 28.12,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 82.7,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "AMAT",
@@ -4871,7 +4957,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.75
+        "quick_mc_hit_rate": 0.75,
+        "iv_rank": 61.8
       },
       "strategy": "LONG_PUT",
       "option": {
@@ -4931,7 +5018,9 @@
       "current_return": 4.3831,
       "close_date": "2026-06-11",
       "close_price": 552.64,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 61.8,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "BKR",
@@ -4947,7 +5036,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6906
+        "quick_mc_hit_rate": 0.6906,
+        "iv_rank": 46.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5007,7 +5097,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 63.48,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 46.3,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "APD",
@@ -5023,7 +5115,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.588
+        "quick_mc_hit_rate": 0.588,
+        "iv_rank": 6.6
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5083,7 +5176,9 @@
       "current_return": -0.7848,
       "close_date": "2026-06-11",
       "close_price": 278.12,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 6.6,
+      "sector_etf": "XLB"
     },
     {
       "ticker": "BA",
@@ -5099,7 +5194,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.505
+        "quick_mc_hit_rate": 0.505,
+        "iv_rank": 63.5
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5159,7 +5255,9 @@
       "current_return": -0.5463,
       "close_date": "2026-06-11",
       "close_price": 221.63,
-      "close_reason": "time_exit"
+      "close_reason": "time_exit",
+      "iv_rank": 63.5,
+      "sector_etf": "XLI"
     },
     {
       "ticker": "AMZN",
@@ -5175,7 +5273,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "massive",
-        "quick_mc_hit_rate": 0.5736
+        "quick_mc_hit_rate": 0.5736,
+        "iv_rank": 33.2
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5235,7 +5334,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 241.51,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 33.2,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "APH",
@@ -5251,7 +5352,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6088
+        "quick_mc_hit_rate": 0.6088,
+        "iv_rank": 23.8
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5311,7 +5413,9 @@
       "current_return": 0.4039,
       "close_date": "2026-06-11",
       "close_price": 152.46,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 23.8,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "AMAT",
@@ -5327,7 +5431,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.75
+        "quick_mc_hit_rate": 0.75,
+        "iv_rank": 50.1
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5387,7 +5492,9 @@
       "current_return": 2.0973,
       "close_date": "2026-06-11",
       "close_price": 552.64,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 50.1,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "META",
@@ -5479,7 +5586,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "relevant",
-        "quick_mc_hit_rate": 0.662
+        "quick_mc_hit_rate": 0.662,
+        "iv_rank": 42.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5539,7 +5647,9 @@
       "current_return": 2.5503,
       "close_date": "2026-06-11",
       "close_price": 488.45,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 42.3,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "GOOG",
@@ -5555,7 +5665,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6684
+        "quick_mc_hit_rate": 0.6684,
+        "iv_rank": 80.0
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5615,7 +5726,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 356.56,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 80.0,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "ALB",
@@ -5631,7 +5744,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "massive",
-        "quick_mc_hit_rate": 0.5472
+        "quick_mc_hit_rate": 0.5472,
+        "iv_rank": 81.6
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5691,7 +5805,9 @@
       "current_return": -0.6975,
       "close_date": "2026-06-11",
       "close_price": 159.06,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 81.6,
+      "sector_etf": "XLB"
     },
     {
       "ticker": "ABNB",
@@ -5707,7 +5823,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5792
+        "quick_mc_hit_rate": 0.5792,
+        "iv_rank": 24.2
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5767,7 +5884,9 @@
       "current_return": -0.8696,
       "close_date": "2026-06-11",
       "close_price": 130.87,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 24.2,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "AVGO",
@@ -5783,7 +5902,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6444
+        "quick_mc_hit_rate": 0.6444,
+        "iv_rank": 31.1
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5843,7 +5963,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 385.57,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 31.1,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "GOOG",
@@ -5859,7 +5981,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6302
+        "quick_mc_hit_rate": 0.6302,
+        "iv_rank": 82.7
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5919,7 +6042,9 @@
       "current_return": -0.8847,
       "close_date": "2026-06-11",
       "close_price": 356.56,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 82.7,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "CVX",
@@ -5935,7 +6060,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.51
+        "quick_mc_hit_rate": 0.51,
+        "iv_rank": 56.4
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -5995,7 +6121,9 @@
       "current_return": 0.8266,
       "close_date": "2026-06-11",
       "close_price": 185.82,
-      "close_reason": "time_exit"
+      "close_reason": "time_exit",
+      "iv_rank": 56.4,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "META",
@@ -6011,7 +6139,8 @@
         "bin_impact": "low",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.525
+        "quick_mc_hit_rate": 0.525,
+        "iv_rank": 48.0
       },
       "strategy": "LONG_PUT",
       "option": {
@@ -6071,7 +6200,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 568.43,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 48.0,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "BA",
@@ -6165,7 +6296,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "relevant",
-        "quick_mc_hit_rate": 0.5514
+        "quick_mc_hit_rate": 0.5514,
+        "iv_rank": 83.4
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6227,7 +6359,9 @@
       "current_return": -0.7311,
       "close_date": "2026-06-11",
       "close_price": 132.46,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 83.4,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "ALB",
@@ -6243,7 +6377,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.538
+        "quick_mc_hit_rate": 0.538,
+        "iv_rank": 78.5
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6305,7 +6440,9 @@
       "current_return": -0.9535,
       "close_date": "2026-06-11",
       "close_price": 159.06,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 78.5,
+      "sector_etf": "XLB"
     },
     {
       "ticker": "CDNS",
@@ -6321,7 +6458,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6004
+        "quick_mc_hit_rate": 0.6004,
+        "iv_rank": 43.8
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6383,7 +6521,9 @@
       "current_return": 0.5907,
       "close_date": "2026-06-11",
       "close_price": 383.74,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 43.8,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "BKR",
@@ -6399,7 +6539,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6604
+        "quick_mc_hit_rate": 0.6604,
+        "iv_rank": 54.1
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6461,7 +6602,9 @@
       "current_return": -0.7075,
       "close_date": "2026-06-11",
       "close_price": 63.48,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 54.1,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "BMY",
@@ -6477,7 +6620,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5524
+        "quick_mc_hit_rate": 0.5524,
+        "iv_rank": 49.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6539,7 +6683,9 @@
       "current_return": -0.0805,
       "close_date": "2026-06-11",
       "close_price": 56.9,
-      "close_reason": "time_exit"
+      "close_reason": "time_exit",
+      "iv_rank": 49.3,
+      "sector_etf": "XLV"
     },
     {
       "ticker": "GOOG",
@@ -6555,7 +6701,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6768
+        "quick_mc_hit_rate": 0.6768,
+        "iv_rank": 82.2
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6617,7 +6764,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 356.56,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 82.2,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "META",
@@ -6633,7 +6782,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5288
+        "quick_mc_hit_rate": 0.5288,
+        "iv_rank": 46.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6695,7 +6845,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 568.43,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 46.3,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "AMD",
@@ -6711,7 +6863,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5434
+        "quick_mc_hit_rate": 0.5434,
+        "iv_rank": 81.5
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6773,7 +6926,9 @@
       "current_return": 1.2864,
       "close_date": "2026-06-11",
       "close_price": 488.45,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 81.5,
+      "sector_etf": "XLK"
     },
     {
       "ticker": "ABNB",
@@ -6789,7 +6944,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.561
+        "quick_mc_hit_rate": 0.561,
+        "iv_rank": 8.6
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -6851,7 +7007,9 @@
       "current_return": -1.0,
       "close_date": "2026-06-11",
       "close_price": 130.87,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 8.6,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "META",
@@ -7100,7 +7258,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6286
+        "quick_mc_hit_rate": 0.6286,
+        "iv_rank": 84.0
       },
       "strategy": "BULL_CALL_SPREAD",
       "option": {
@@ -7172,7 +7331,9 @@
       "current_return": -0.6378,
       "close_date": "2026-06-11",
       "close_price": 357.77,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 84.0,
+      "sector_etf": "XLC"
     },
     {
       "ticker": "COIN",
@@ -7358,7 +7519,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5554
+        "quick_mc_hit_rate": 0.5554,
+        "iv_rank": 55.8
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -7418,7 +7580,9 @@
       "current_return": -0.3114,
       "close_date": "2026-06-15",
       "close_price": 56.43,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 55.8,
+      "sector_etf": "XLV"
     },
     {
       "ticker": "CARR",
@@ -7434,7 +7598,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6398
+        "quick_mc_hit_rate": 0.6398,
+        "iv_rank": 56.6
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -7496,7 +7661,9 @@
       "current_return": 0.4054,
       "close_date": "2026-06-15",
       "close_price": 72.1979,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 56.6,
+      "sector_etf": "XLI"
     },
     {
       "ticker": "CVX",
@@ -7512,7 +7679,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5448
+        "quick_mc_hit_rate": 0.5448,
+        "iv_rank": 46.4
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -7574,7 +7742,9 @@
       "current_return": -0.3,
       "close_date": "2026-06-15",
       "close_price": 180.77,
-      "close_reason": "stop_loss"
+      "close_reason": "stop_loss",
+      "iv_rank": 46.4,
+      "sector_etf": "XLE"
     },
     {
       "ticker": "MO",
@@ -7767,7 +7937,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.4832
+        "quick_mc_hit_rate": 0.4832,
+        "iv_rank": 83.5
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -7827,7 +7998,9 @@
       "current_return": -0.1548,
       "close_date": "2026-06-22",
       "close_price": 40.885,
-      "close_reason": "max_holding_period"
+      "close_reason": "max_holding_period",
+      "iv_rank": 83.5,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "GOOG",
@@ -8019,7 +8192,8 @@
         "bin_impact": "mid",
         "bin_mismatch": "weak",
         "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5136
+        "quick_mc_hit_rate": 0.5136,
+        "iv_rank": 15.3
       },
       "strategy": "LONG_CALL",
       "option": {
@@ -8081,7 +8255,9 @@
       "current_return": 0.1203,
       "close_date": "2026-06-24",
       "close_price": 145.475,
-      "close_reason": "take_profit"
+      "close_reason": "take_profit",
+      "iv_rank": 15.3,
+      "sector_etf": "XLY"
     },
     {
       "ticker": "BIIB",
