@@ -6,8 +6,8 @@
         "avg_return": 0.8166
       },
       "mid": {
-        "count": 96,
-        "avg_return": 0.04554
+        "count": 100,
+        "avg_return": 0.046068
       },
       "low": {
         "count": 9,
@@ -16,12 +16,12 @@
     },
     "mismatch": {
       "good": {
-        "count": 74,
-        "avg_return": 0.146144
+        "count": 75,
+        "avg_return": 0.151194
       },
       "weak": {
-        "count": 29,
-        "avg_return": 0.133078
+        "count": 32,
+        "avg_return": 0.111543
       },
       "strong": {
         "count": 4,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 103,
-        "avg_return": 0.106193
+        "count": 107,
+        "avg_return": 0.10442
       },
       "massive": {
         "count": 2,
@@ -44,356 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "DDOG",
-      "entry_date": "2026-05-20",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 3.112,
-        "z_score": 0.578,
-        "sigma_30d": 0.0597,
-        "price_move_48h": 0.0345,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6432
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-08-21",
-        "strike": 210.0,
-        "bid": 28.15,
-        "ask": 28.9,
-        "open_interest": 285,
-        "implied_vol": 0.6211,
-        "spread_ratio": 0.026,
-        "dte": 92,
-        "delta": 0.5946,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 230.0,
-          "bid": 19.85,
-          "ask": 21.25
-        },
-        "net_debit": 9.05
-      },
-      "simulation": {
-        "current_price": 211.93,
-        "target_price": 243.79,
-        "hit_rate": 0.6786,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0448,
-        "alpha": 0.00381
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "DDOG notiert bereits bei einer Marktkapitalisierung von $75 Mrd. bei einem EPS von nur $2.84, was einem KGV von ~74 entspricht. Die Aktie hat in den letzten 48h bereits +3,4% zugelegt, was darauf hindeutet, dass der Integrations-Katalysator (Cloudflare/Claude) zumindest partiell eingepreist ist. Ein Gro\u00dfteil des kurzfristigen Upside-Potenzials k\u00f6nnte bereits absorbiert sein.",
-          "argument_2": "Die genannten Katalysatoren \u2013 datadog-serverless-compat 0.15.0 und Claude Managed Agents auf Cloudflare \u2013 sind \u00f6ffentlich verf\u00fcgbare Informationen aus dem Open-Source- und Partner-\u00d6kosystem. Diese Integrations-News sind f\u00fcr institutionelle Analysten mit dedizierter Cloud/AI-Coverage sofort sichtbar. Der behauptete 'langsame Markt' bei der Verarbeitung ist bei einem stark gecoverten Growth-Tech-Titel mit erheblicher institutioneller Aufmerksamkeit skeptisch zu betrachten.",
-          "argument_3": "Das Dealer-Gamma-Signal zeigt Call-OI (436) dominierend \u00fcber Put-OI (251) ATM. Dies bedeutet, dass Dealer bei steigenden Kursen short Gamma sind und aktiv hedgen m\u00fcssen \u2013 was Aufw\u00e4rtsbewegungen d\u00e4mpft. Kombiniert mit einer bereits aufgelaufenen 3,4%-Bewegung in 48h und einer VIX-Contango-Struktur (Markt erwartet sinkende Vol) besteht das Risiko eines Vol-Crush nach dem n\u00e4chsten Event-Fenster, das Long-Options-Strategien benachteiligt.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein Quick MC durchgef\u00fchrt (0 Pfade). Die fehlende Simulation reduziert die quantitative Unterst\u00fctzung erheblich. Bei DDOG mit historisch hoher Volatilit\u00e4t (~45-55% annualisiert) w\u00e4re eine Hit-Rate von 0% unrealistisch \u2014 der fehlende MC ist ein Datenl\u00fccken-Problem, keine echte Aussage \u00fcber die Pfad-Wahrscheinlichkeit. Das Fehlen des MC erh\u00f6ht die Unsicherheit und erfordert konservativere Impact-Bewertung.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Markt bewertet Ecosystem-Integrationen wie Cloudflare/Claude-Agents als inkrementelle News, ohne den kumulativen Netzwerkeffekt f\u00fcr DDAGs AI-Observability-Plattform vollst\u00e4ndig zu diskontieren. Cluster-Insider-K\u00e4ufe (6 Personen in 14 Tagen) signalisieren intern gesteigertes Conviction, das \u00f6ffentlich noch nicht reflektiert ist. Das expansive Makro-Umfeld und steile Zinskurve beg\u00fcnstigen Growth-Multiples zus\u00e4tzlich.",
-        "catalyst": "Kumulativer AI-Observability-Plattform-Ausbau durch Cloudflare/Claude-Agent-Integration und Serverless-Compat-Expansion, validiert durch Cluster-Insider-K\u00e4ufe vor dem n\u00e4chsten Earnings-Zyklus Q2 2026",
-        "bear_case": "\u00d6ffentliche Integrations-News sind bei einem stark gecoverten Growth-Titel schnell eingepreist; das KGV von ~74 l\u00e4sst wenig Puffer f\u00fcr Entt\u00e4uschungen, und das Call-dominante Dealer-Gamma-Profil d\u00e4mpft strukturell kurzfristige Aufw\u00e4rtsbewegungen.",
-        "macro_assessment": "Das expansive Makro-Umfeld (Zinskurve +0.54%, Fed Funds 3.64%) beg\u00fcnstigt High-Multiple-Growth-Titel wie DDOG. Die VIX-Contango-Struktur (slope +31%) signalisiert, dass kurzfristige Volatilit\u00e4t als \u00fcberbewertet gilt \u2014 dies reduziert das IV-Crush-Risiko f\u00fcr mittelfristige Long-Strategien auf 2-3 Monate. Insgesamt konstruktives Umfeld, das bullische Struktursignale moderat verst\u00e4rkt.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 75438637056,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.6812,
-        "annualized_roi": null,
-        "dte": 92
-      },
-      "outcome": null,
-      "last_price": 260.36,
-      "current_return": 0.5387,
-      "peak_return": 0.5387
-    },
-    {
-      "ticker": "CSCO",
-      "entry_date": "2026-05-20",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 0.613,
-        "z_score": 0.877,
-        "sigma_30d": 0.0273,
-        "price_move_48h": 0.0239,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.705
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-08-21",
-        "strike": 115.0,
-        "bid": 9.55,
-        "ask": 9.8,
-        "open_interest": 331,
-        "implied_vol": 0.3921,
-        "spread_ratio": 0.0255,
-        "dte": 92,
-        "delta": 0.563,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 125.0,
-          "bid": 5.55,
-          "ask": 5.8
-        },
-        "net_debit": 4.25
-      },
-      "simulation": {
-        "current_price": 115.39,
-        "target_price": 124.62,
-        "hit_rate": 0.75,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0226,
-        "alpha": 0.00425
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "CSCO ist ein Mega-Cap mit $455 Mrd. Marktkapitalisierung und extremer Informationseffizienz. Der EANTC 2026 VXLAN/EVPN Testbericht ist eine \u00f6ffentliche, branchenweit zug\u00e4ngliche Validierung \u2014 institutionelle Netzwerk-Analysten haben dieses Ergebnis binnen Minuten eingepreist. Ein technisches Benchmark-Zertifikat erzeugt bei Cisco keinen nachhaltigen Informationsvorsprung, da Wettbewerber wie Arista, Juniper und HPE regelm\u00e4\u00dfig \u00e4hnliche Tests durchlaufen.",
-          "argument_2": "Die aktuellen News zeigen einen breiten Markt-Sell-off mit Bond-Yields auf 19-Jahres-Hochs. Dieser makro\u00f6konomische Gegenwind bei einem defensiven Netzwerk-Player wie Cisco bedeutet, dass trotz steil positiver Zinskurve die kurzfristige Marktdynamik bullische Einzel-Signale \u00fcberlagern kann. Die -2.4% Bewegung in 48h deutet darauf hin, dass CSCO im Sog des Gesamtmarkts abverkauft wird, unabh\u00e4ngig von den fundamentalen Katalysatoren.",
-          "argument_3": "Der EPS-Widerspruch zwischen yfinance (4.75) und SEC EDGAR (3.0) ist substanziell und deutet auf erhebliche Unsicherheit in der Datenbasis hin. Zudem betr\u00e4gt die Quick-MC Hit-Rate 0%, was auf fehlende Modell-Validierung hindeutet. Die Dealer-Gamma-Konstellation mit dominierender Call-OI k\u00f6nnte Aufw\u00e4rtsbewegungen mechanisch d\u00e4mpfen, und ein m\u00f6glicher IV-Crush nach Q2-Earnings w\u00fcrde Long-Options-Positionen stark belasten.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Die 0% Hit-Rate resultiert aus keiner Berechnung (kein MC durchgef\u00fchrt), nicht aus einem negativen Ergebnis \u2014 daher statistisch nicht verwertbar. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit, eliminiert aber kein strukturelles Signal. Bei CSCO mit historischer Volatilit\u00e4t von ca. 20-25% sind 30d-Bewegungen von 5-10% realistische Szenarien, was bei einem moderaten Kursziel eine Hit-Rate von 40-55% erwarten lie\u00dfe.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "4-8 Wochen",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Markt fokussiert sich auf den makro\u00f6konomischen Sell-off und \u00fcbersieht das Cluster-Signal aus 8 Insider-K\u00e4ufen kombiniert mit der EANTC-Validierung kurz vor Q2-Earnings. Cisco Live 2026 und die Automation Anywhere AI-Partnerschaft schaffen einen narrativen Rahmen, der institutionelle Aufmerksamkeit auf das AI-Networking-Exposure lenken k\u00f6nnte. Das expansive Makroregime mit positiver Zinskurve beg\u00fcnstigt eine Neubewertung defensiver Tech-Werte sobald der Bond-Yield-Schock abklingt.",
-        "catalyst": "Q2-Earnings CSCO (ca. Juni 2026) kombiniert mit Cisco Live 2026 Momentum und 8-Insider-Kauf-Cluster als Vorl\u00e4ufer-Signal",
-        "bear_case": "Breiter Markt-Sell-off durch Bond-Yield-Schock auf 19-Jahres-Hoch \u00fcberlagert alle fundamentalen Einzelsignale; IV-Crush nach Earnings vernichtet Long-Options-Wert",
-        "macro_assessment": "Expansives Umfeld mit positiver Zinskurve (+0.54%) und Fed Funds Rate 3.64% beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen. Allerdings konterkariert der aktuelle Bond-Yield-getriebene Sell-off kurzfristig diesen Rahmen. VIX Contango deutet auf sinkende Volatilit\u00e4t in 3 Monaten \u2014 Spreads gegen\u00fcber nackten Calls bevorzugen um Event-Vol-Crush nach Earnings abzufedern.",
-        "data_confidence": "low",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": true,
-        "market_cap": 455778172928,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.3752,
-        "annualized_roi": 2.243,
-        "dte": 92
-      },
-      "outcome": null,
-      "last_price": 112.69,
-      "current_return": -0.1824,
-      "peak_return": -0.1824
-    },
-    {
-      "ticker": "MO",
-      "entry_date": "2026-05-20",
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 1.549,
-        "z_score": 0.69,
-        "sigma_30d": 0.018,
-        "price_move_48h": 0.0125,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5378,
-        "iv_rank": 80.1
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-09-18",
-        "strike": 70.0,
-        "bid": 5.8,
-        "ask": 6.1,
-        "open_interest": 3388,
-        "implied_vol": 0.2647,
-        "spread_ratio": 0.0492,
-        "dte": 120,
-        "delta": 0.6461,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 77.5,
-          "bid": 2.31,
-          "ask": 2.44
-        },
-        "net_debit": 3.79
-      },
-      "simulation": {
-        "current_price": 73.95,
-        "target_price": 79.87,
-        "hit_rate": 0.6576,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.015,
-        "alpha": 0.00279
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Altria ist ein strukturell schrumpfendes Gesch\u00e4ft: Zigarettenvolumina sinken seit Jahren systematisch, und regulatorische Versch\u00e4rfungen (Menthol-Verbote, Nikotinreduzierungsregeln) k\u00f6nnten den R\u00fcckgang beschleunigen. Das 'Regulatory/Tax-Umfeld-Shift'-Narrativ ist zweischneidig \u2014 ein ung\u00fcnstiger Policy-Shift k\u00f6nnte den gesamten Sektor belasten, nicht st\u00fctzen.",
-          "argument_2": "Der Barclays-Analyst hat sein Price-Target-Upgrade bereits ver\u00f6ffentlicht und ist \u00f6ffentlich zug\u00e4nglich. Bei einer Marktkapitalisierung von $123,5 Mrd. wird diese Information innerhalb von Stunden von institutionellen Desks eingepreist. Das Catalyst-Signal ist damit m\u00f6glicherweise bereits vollst\u00e4ndig verarbeitet, und die +1,2% Preisbewegung in den letzten 48h deutet darauf hin, dass der Markt bereits reagiert hat.",
-          "argument_3": "Die Dealer-Gamma-Struktur zeigt eine Call-OI-Dominanz (2.094 zu 314), was bedeutet, dass Market-Maker bei steigenden Kursen short Gamma sind und Delta-Hedging Aufw\u00e4rtsbewegungen aktiv d\u00e4mpft. Gleichzeitig ist MO ein hochdividendengetriebener Titel mit 5,7% Dividendenrendite \u2014 ein gro\u00dfer Teil des erwarteten Returns ist bereits als Dividende eingepreist, was das Aufw\u00e4rtspotenzial f\u00fcr Options-Strategien begrenzt.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate ist technisch bedingt (kein Modell-Run), nicht inhaltlich aussagekr\u00e4ftig. Angesichts der historischen Volatilit\u00e4t von MO (~18-22% annualisiert) und dem expansiven Makro-Umfeld w\u00e4re eine realistische 30-Tage Hit-Rate f\u00fcr moderate Aufw\u00e4rtsbewegungen von +5-8% bei ca. 40-55% zu erwarten. Fehlende MC-Daten reduzieren die quantitative Absicherung dieser Analyse erheblich.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 4,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "4-8 Wochen",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Markt hat das Barclays-Upgrade m\u00f6glicherweise als punktuelles Ereignis bewertet, ohne das potenzielle Portfolio-Rebalancing in Defensive-Dividendentiteln einzupreisen, das bei einem Zinsumfeld-Shift folgen k\u00f6nnte. Das Insider-Cluster-Kaufsignal (8 Insider in 14 Tagen) liefert einen unabh\u00e4ngigen, nicht-\u00f6ffentlichen Indikator f\u00fcr innerbetrieblich wahrgenommene Unterbewertung. Das Zusammentreffen von Dividendennarrativen, Sektor-Re-Rating und Insider-K\u00e4ufen schafft eine kumulative Informationsdichte, die der Markt bisher nicht vollst\u00e4ndig aggregiert hat.",
-        "catalyst": "Barclays Sektor-Re-Rating kombiniert mit Insider-Cluster-K\u00e4ufen (8 Transaktionen in 14 Tagen) und m\u00f6glichem Portfolio-Rebalancing institutioneller Anleger in hochdividendenstarke Consumer-Defensive-Titel im Zuge eines Regulatory/Tax-Umfeld-Shifts bis Ende Q3 2026.",
-        "bear_case": "Strukturell schrumpfende Zigarettenvolumina und m\u00f6gliche regulatorische Versch\u00e4rfungen (Menthol-Verbote, FDA-Nikotinregeln) k\u00f6nnten das Sektor-Re-Rating-Narrativ rasch zunichte machen; zudem ist das Barclays-Upgrade als \u00f6ffentliche Information weitgehend eingepreist.",
-        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0,54%, Fed Funds bei 3,64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen, jedoch profitiert MO als Consumer-Defensive-Titel prim\u00e4r in Risk-off-Phasen. Im expansiven Regime tendieren Investoren zu Wachstumstiteln, was den Kapitalzufluss in Hochdividenden-Defensivtitel strukturell begrenzt. Der VIX-Contango spricht gegen Long-Vol-Strategien \u2014 ein Bull-Call-Spread w\u00e4re sinnvoller als ein nackter Long-Call.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 123488452608,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.252,
-        "annualized_roi": 1.2336,
-        "dte": 120
-      },
-      "outcome": null,
-      "last_price": 72.71,
-      "current_return": -0.124,
-      "iv_rank": 80.1,
-      "sector_etf": "XLP",
-      "peak_return": -0.124
-    },
-    {
-      "ticker": "BA",
-      "entry_date": "2026-05-20",
-      "features": {
-        "impact": 6,
-        "surprise": 5,
-        "mismatch": 0.41,
-        "z_score": 1.118,
-        "sigma_30d": 0.0222,
-        "price_move_48h": 0.0249,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6212,
-        "iv_rank": 68.2
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "option": {
-        "expiry": "2026-11-20",
-        "strike": 220.0,
-        "bid": 25.15,
-        "ask": 26.9,
-        "open_interest": 243,
-        "implied_vol": 0.3651,
-        "spread_ratio": 0.0651,
-        "dte": 183,
-        "delta": 0.5967,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 240.0,
-          "bid": 16.35,
-          "ask": 18.3
-        },
-        "net_debit": 10.55
-      },
-      "simulation": {
-        "current_price": 222.2,
-        "target_price": 239.98,
-        "hit_rate": 0.72,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0218,
-        "alpha": 0.00252
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Boeing k\u00e4mpft weiterhin mit massiven operativen Problemen: Produktionsengp\u00e4sse bei 737 MAX und 787, anhaltende Qualit\u00e4tsm\u00e4ngel, FAA-Auflagen und ein jahrelang aufgebauter Vertrauensverlust bei Airlines. Der 200-Flugzeug-Deal mit China ist diplomatisch fragil \u2014 geopolitische Eskalationen (Taiwan, Halbleiter-Sanktionen) k\u00f6nnen dieses Abkommen innerhalb von Wochen zunichtemachen, da China Boeing historisch als Verhandlungsmasse nutzt.",
-          "argument_2": "Der Kursanstieg nach Tariff-Truce-News k\u00f6nnte bereits vollst\u00e4ndig eingepreist sein. BA ist in 48h bereits -2,5% gefallen nach dem initialen Anstieg, was auf schwaches Follow-through hindeutet. Citi-Neupositionierung und die 'gift'-Rhetorik sind typische Wall-Street-Narrativwechsel nach einem Selloff \u2014 das fundamentale Bild (negative Free Cashflows, hohe Verschuldung > $50 Mrd.) hat sich nicht strukturell verbessert.",
-          "argument_3": "EPS-Diskrepanz zwischen yfinance ($4.26) und SEC EDGAR ($2.54) ist ein Qualit\u00e4tssignal: Die Zahlen divergieren deutlich, was auf non-recurring Items oder Accounting-Adjustierungen hindeutet. Mit einem KGV von ~52x auf EDGAR-Basis ist BA bei weitem nicht g\u00fcnstig und l\u00e4sst kaum Sicherheitsmarge f\u00fcr Entt\u00e4uschungen in der Lieferkette oder bei der n\u00e4chsten Earnings-Guidance.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "MC nicht durchgef\u00fchrt, 0% Hit-Rate ist ein Datenfehler (kein Signal, nicht 0 Pfade bullish). Bei typischer 30-Tage-Volatilit\u00e4t von BA (~35% annualisiert) w\u00e4re eine realistische Hit-Rate f\u00fcr ein bullisches Szenario 40-55%. Die fehlende Statistik erh\u00f6ht die Unsicherheit, disqualifiziert aber das Signal nicht.",
-          "concern_level": "medium"
-        },
-        "impact": 6,
-        "surprise": 5,
-        "direction": "BULLISH",
-        "bear_case_severity": 7,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Markt diskontiert China-Deal-Risiken strukturell \u00fcber, weil geopolitische Unsicherheit als permanent eingepreist wird, obwohl Tariff-Truce-Signale eine echte Entspannung andeuten. Insider-Cluster-K\u00e4ufe von 5 Managern in 14 Tagen sind ein seltenes, nicht-triviales Signal das Retail-Sentiment oft vorwegnimmt. Die Kombination aus operativer Trendwende bei Produktionsraten und Nachfrage-Rerating durch China-Normalisierung ist im aktuellen Preis von $222 noch nicht vollst\u00e4ndig reflektiert.",
-        "catalyst": "Best\u00e4tigung des 200-Flugzeug-China-Deals und Q2-2026 Earnings mit verbesserter Delivery-Guidance als Doppelkatalysator",
-        "bear_case": "China-Deal platzt bei geopolitischer Eskalation, operative Cashflow-Probleme bleiben und hohe Verschuldung begrenzt Kurspotenzial strukturell",
-        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0.54%) und moderatem Fed Funds Rate (3.64%) beg\u00fcnstigt Industrials-Recovery-Plays grunds\u00e4tzlich. VIX Contango deutet auf sinkende implizite Volatilit\u00e4t hin, was Call-Spreads attraktiver macht als nackte Longs um Theta-Kosten zu begrenzen. Marktkapitalisierung $175 Mrd. liegt knapp unter Mega-Cap-Schwelle, sodass moderate Informationsineffizienz noch m\u00f6glich ist.",
-        "data_confidence": "medium",
-        "macro_regime": "expansive",
-        "macro_context": {
-          "yield_curve": 0.54,
-          "regime": "expansive"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 175160770560,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.2162,
-        "annualized_roi": 0.9442,
-        "dte": 183
-      },
-      "outcome": null,
-      "last_price": 226.49,
-      "current_return": -0.128,
-      "iv_rank": 68.2,
-      "sector_etf": "XLI",
-      "peak_return": -0.128
-    },
     {
       "ticker": "CSCO",
       "entry_date": "2026-07-03",
@@ -479,9 +129,9 @@
         "dte": 167
       },
       "outcome": null,
-      "peak_return": -0.0155,
-      "last_price": 112.69,
-      "current_return": -0.0155
+      "peak_return": 0.056,
+      "last_price": 114.565,
+      "current_return": 0.056
     }
   ],
   "closed_trades": [
@@ -8429,6 +8079,368 @@
       "close_date": "2026-06-26",
       "close_price": 214.31,
       "close_reason": "take_profit"
+    },
+    {
+      "ticker": "DDOG",
+      "entry_date": "2026-05-20",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 3.112,
+        "z_score": 0.578,
+        "sigma_30d": 0.0597,
+        "price_move_48h": 0.0345,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6432
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 210.0,
+        "bid": 28.15,
+        "ask": 28.9,
+        "open_interest": 285,
+        "implied_vol": 0.6211,
+        "spread_ratio": 0.026,
+        "dte": 92,
+        "delta": 0.5946,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 230.0,
+          "bid": 19.85,
+          "ask": 21.25
+        },
+        "net_debit": 9.05
+      },
+      "simulation": {
+        "current_price": 211.93,
+        "target_price": 243.79,
+        "hit_rate": 0.6786,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0448,
+        "alpha": 0.00381
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "DDOG notiert bereits bei einer Marktkapitalisierung von $75 Mrd. bei einem EPS von nur $2.84, was einem KGV von ~74 entspricht. Die Aktie hat in den letzten 48h bereits +3,4% zugelegt, was darauf hindeutet, dass der Integrations-Katalysator (Cloudflare/Claude) zumindest partiell eingepreist ist. Ein Gro\u00dfteil des kurzfristigen Upside-Potenzials k\u00f6nnte bereits absorbiert sein.",
+          "argument_2": "Die genannten Katalysatoren \u2013 datadog-serverless-compat 0.15.0 und Claude Managed Agents auf Cloudflare \u2013 sind \u00f6ffentlich verf\u00fcgbare Informationen aus dem Open-Source- und Partner-\u00d6kosystem. Diese Integrations-News sind f\u00fcr institutionelle Analysten mit dedizierter Cloud/AI-Coverage sofort sichtbar. Der behauptete 'langsame Markt' bei der Verarbeitung ist bei einem stark gecoverten Growth-Tech-Titel mit erheblicher institutioneller Aufmerksamkeit skeptisch zu betrachten.",
+          "argument_3": "Das Dealer-Gamma-Signal zeigt Call-OI (436) dominierend \u00fcber Put-OI (251) ATM. Dies bedeutet, dass Dealer bei steigenden Kursen short Gamma sind und aktiv hedgen m\u00fcssen \u2013 was Aufw\u00e4rtsbewegungen d\u00e4mpft. Kombiniert mit einer bereits aufgelaufenen 3,4%-Bewegung in 48h und einer VIX-Contango-Struktur (Markt erwartet sinkende Vol) besteht das Risiko eines Vol-Crush nach dem n\u00e4chsten Event-Fenster, das Long-Options-Strategien benachteiligt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC durchgef\u00fchrt (0 Pfade). Die fehlende Simulation reduziert die quantitative Unterst\u00fctzung erheblich. Bei DDOG mit historisch hoher Volatilit\u00e4t (~45-55% annualisiert) w\u00e4re eine Hit-Rate von 0% unrealistisch \u2014 der fehlende MC ist ein Datenl\u00fccken-Problem, keine echte Aussage \u00fcber die Pfad-Wahrscheinlichkeit. Das Fehlen des MC erh\u00f6ht die Unsicherheit und erfordert konservativere Impact-Bewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt bewertet Ecosystem-Integrationen wie Cloudflare/Claude-Agents als inkrementelle News, ohne den kumulativen Netzwerkeffekt f\u00fcr DDAGs AI-Observability-Plattform vollst\u00e4ndig zu diskontieren. Cluster-Insider-K\u00e4ufe (6 Personen in 14 Tagen) signalisieren intern gesteigertes Conviction, das \u00f6ffentlich noch nicht reflektiert ist. Das expansive Makro-Umfeld und steile Zinskurve beg\u00fcnstigen Growth-Multiples zus\u00e4tzlich.",
+        "catalyst": "Kumulativer AI-Observability-Plattform-Ausbau durch Cloudflare/Claude-Agent-Integration und Serverless-Compat-Expansion, validiert durch Cluster-Insider-K\u00e4ufe vor dem n\u00e4chsten Earnings-Zyklus Q2 2026",
+        "bear_case": "\u00d6ffentliche Integrations-News sind bei einem stark gecoverten Growth-Titel schnell eingepreist; das KGV von ~74 l\u00e4sst wenig Puffer f\u00fcr Entt\u00e4uschungen, und das Call-dominante Dealer-Gamma-Profil d\u00e4mpft strukturell kurzfristige Aufw\u00e4rtsbewegungen.",
+        "macro_assessment": "Das expansive Makro-Umfeld (Zinskurve +0.54%, Fed Funds 3.64%) beg\u00fcnstigt High-Multiple-Growth-Titel wie DDOG. Die VIX-Contango-Struktur (slope +31%) signalisiert, dass kurzfristige Volatilit\u00e4t als \u00fcberbewertet gilt \u2014 dies reduziert das IV-Crush-Risiko f\u00fcr mittelfristige Long-Strategien auf 2-3 Monate. Insgesamt konstruktives Umfeld, das bullische Struktursignale moderat verst\u00e4rkt.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 75438637056,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6812,
+        "annualized_roi": null,
+        "dte": 92
+      },
+      "outcome": 0.5249,
+      "last_price": 260.36,
+      "current_return": 0.5387,
+      "peak_return": 0.5387,
+      "close_date": "2026-07-06",
+      "close_price": 258.48,
+      "close_reason": "max_holding_period"
+    },
+    {
+      "ticker": "CSCO",
+      "entry_date": "2026-05-20",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 0.613,
+        "z_score": 0.877,
+        "sigma_30d": 0.0273,
+        "price_move_48h": 0.0239,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.705
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-08-21",
+        "strike": 115.0,
+        "bid": 9.55,
+        "ask": 9.8,
+        "open_interest": 331,
+        "implied_vol": 0.3921,
+        "spread_ratio": 0.0255,
+        "dte": 92,
+        "delta": 0.563,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 125.0,
+          "bid": 5.55,
+          "ask": 5.8
+        },
+        "net_debit": 4.25
+      },
+      "simulation": {
+        "current_price": 115.39,
+        "target_price": 124.62,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0226,
+        "alpha": 0.00425
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "CSCO ist ein Mega-Cap mit $455 Mrd. Marktkapitalisierung und extremer Informationseffizienz. Der EANTC 2026 VXLAN/EVPN Testbericht ist eine \u00f6ffentliche, branchenweit zug\u00e4ngliche Validierung \u2014 institutionelle Netzwerk-Analysten haben dieses Ergebnis binnen Minuten eingepreist. Ein technisches Benchmark-Zertifikat erzeugt bei Cisco keinen nachhaltigen Informationsvorsprung, da Wettbewerber wie Arista, Juniper und HPE regelm\u00e4\u00dfig \u00e4hnliche Tests durchlaufen.",
+          "argument_2": "Die aktuellen News zeigen einen breiten Markt-Sell-off mit Bond-Yields auf 19-Jahres-Hochs. Dieser makro\u00f6konomische Gegenwind bei einem defensiven Netzwerk-Player wie Cisco bedeutet, dass trotz steil positiver Zinskurve die kurzfristige Marktdynamik bullische Einzel-Signale \u00fcberlagern kann. Die -2.4% Bewegung in 48h deutet darauf hin, dass CSCO im Sog des Gesamtmarkts abverkauft wird, unabh\u00e4ngig von den fundamentalen Katalysatoren.",
+          "argument_3": "Der EPS-Widerspruch zwischen yfinance (4.75) und SEC EDGAR (3.0) ist substanziell und deutet auf erhebliche Unsicherheit in der Datenbasis hin. Zudem betr\u00e4gt die Quick-MC Hit-Rate 0%, was auf fehlende Modell-Validierung hindeutet. Die Dealer-Gamma-Konstellation mit dominierender Call-OI k\u00f6nnte Aufw\u00e4rtsbewegungen mechanisch d\u00e4mpfen, und ein m\u00f6glicher IV-Crush nach Q2-Earnings w\u00fcrde Long-Options-Positionen stark belasten.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Die 0% Hit-Rate resultiert aus keiner Berechnung (kein MC durchgef\u00fchrt), nicht aus einem negativen Ergebnis \u2014 daher statistisch nicht verwertbar. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit, eliminiert aber kein strukturelles Signal. Bei CSCO mit historischer Volatilit\u00e4t von ca. 20-25% sind 30d-Bewegungen von 5-10% realistische Szenarien, was bei einem moderaten Kursziel eine Hit-Rate von 40-55% erwarten lie\u00dfe.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt fokussiert sich auf den makro\u00f6konomischen Sell-off und \u00fcbersieht das Cluster-Signal aus 8 Insider-K\u00e4ufen kombiniert mit der EANTC-Validierung kurz vor Q2-Earnings. Cisco Live 2026 und die Automation Anywhere AI-Partnerschaft schaffen einen narrativen Rahmen, der institutionelle Aufmerksamkeit auf das AI-Networking-Exposure lenken k\u00f6nnte. Das expansive Makroregime mit positiver Zinskurve beg\u00fcnstigt eine Neubewertung defensiver Tech-Werte sobald der Bond-Yield-Schock abklingt.",
+        "catalyst": "Q2-Earnings CSCO (ca. Juni 2026) kombiniert mit Cisco Live 2026 Momentum und 8-Insider-Kauf-Cluster als Vorl\u00e4ufer-Signal",
+        "bear_case": "Breiter Markt-Sell-off durch Bond-Yield-Schock auf 19-Jahres-Hoch \u00fcberlagert alle fundamentalen Einzelsignale; IV-Crush nach Earnings vernichtet Long-Options-Wert",
+        "macro_assessment": "Expansives Umfeld mit positiver Zinskurve (+0.54%) und Fed Funds Rate 3.64% beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen. Allerdings konterkariert der aktuelle Bond-Yield-getriebene Sell-off kurzfristig diesen Rahmen. VIX Contango deutet auf sinkende Volatilit\u00e4t in 3 Monaten \u2014 Spreads gegen\u00fcber nackten Calls bevorzugen um Event-Vol-Crush nach Earnings abzufedern.",
+        "data_confidence": "low",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 455778172928,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.3752,
+        "annualized_roi": 2.243,
+        "dte": 92
+      },
+      "outcome": -0.0941,
+      "last_price": 112.69,
+      "current_return": -0.1824,
+      "peak_return": -0.0941,
+      "close_date": "2026-07-06",
+      "close_price": 114.565,
+      "close_reason": "time_exit"
+    },
+    {
+      "ticker": "MO",
+      "entry_date": "2026-05-20",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 1.549,
+        "z_score": 0.69,
+        "sigma_30d": 0.018,
+        "price_move_48h": 0.0125,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5378,
+        "iv_rank": 80.1
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-09-18",
+        "strike": 70.0,
+        "bid": 5.8,
+        "ask": 6.1,
+        "open_interest": 3388,
+        "implied_vol": 0.2647,
+        "spread_ratio": 0.0492,
+        "dte": 120,
+        "delta": 0.6461,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 77.5,
+          "bid": 2.31,
+          "ask": 2.44
+        },
+        "net_debit": 3.79
+      },
+      "simulation": {
+        "current_price": 73.95,
+        "target_price": 79.87,
+        "hit_rate": 0.6576,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.015,
+        "alpha": 0.00279
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Altria ist ein strukturell schrumpfendes Gesch\u00e4ft: Zigarettenvolumina sinken seit Jahren systematisch, und regulatorische Versch\u00e4rfungen (Menthol-Verbote, Nikotinreduzierungsregeln) k\u00f6nnten den R\u00fcckgang beschleunigen. Das 'Regulatory/Tax-Umfeld-Shift'-Narrativ ist zweischneidig \u2014 ein ung\u00fcnstiger Policy-Shift k\u00f6nnte den gesamten Sektor belasten, nicht st\u00fctzen.",
+          "argument_2": "Der Barclays-Analyst hat sein Price-Target-Upgrade bereits ver\u00f6ffentlicht und ist \u00f6ffentlich zug\u00e4nglich. Bei einer Marktkapitalisierung von $123,5 Mrd. wird diese Information innerhalb von Stunden von institutionellen Desks eingepreist. Das Catalyst-Signal ist damit m\u00f6glicherweise bereits vollst\u00e4ndig verarbeitet, und die +1,2% Preisbewegung in den letzten 48h deutet darauf hin, dass der Markt bereits reagiert hat.",
+          "argument_3": "Die Dealer-Gamma-Struktur zeigt eine Call-OI-Dominanz (2.094 zu 314), was bedeutet, dass Market-Maker bei steigenden Kursen short Gamma sind und Delta-Hedging Aufw\u00e4rtsbewegungen aktiv d\u00e4mpft. Gleichzeitig ist MO ein hochdividendengetriebener Titel mit 5,7% Dividendenrendite \u2014 ein gro\u00dfer Teil des erwarteten Returns ist bereits als Dividende eingepreist, was das Aufw\u00e4rtspotenzial f\u00fcr Options-Strategien begrenzt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate ist technisch bedingt (kein Modell-Run), nicht inhaltlich aussagekr\u00e4ftig. Angesichts der historischen Volatilit\u00e4t von MO (~18-22% annualisiert) und dem expansiven Makro-Umfeld w\u00e4re eine realistische 30-Tage Hit-Rate f\u00fcr moderate Aufw\u00e4rtsbewegungen von +5-8% bei ca. 40-55% zu erwarten. Fehlende MC-Daten reduzieren die quantitative Absicherung dieser Analyse erheblich.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "4-8 Wochen",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt hat das Barclays-Upgrade m\u00f6glicherweise als punktuelles Ereignis bewertet, ohne das potenzielle Portfolio-Rebalancing in Defensive-Dividendentiteln einzupreisen, das bei einem Zinsumfeld-Shift folgen k\u00f6nnte. Das Insider-Cluster-Kaufsignal (8 Insider in 14 Tagen) liefert einen unabh\u00e4ngigen, nicht-\u00f6ffentlichen Indikator f\u00fcr innerbetrieblich wahrgenommene Unterbewertung. Das Zusammentreffen von Dividendennarrativen, Sektor-Re-Rating und Insider-K\u00e4ufen schafft eine kumulative Informationsdichte, die der Markt bisher nicht vollst\u00e4ndig aggregiert hat.",
+        "catalyst": "Barclays Sektor-Re-Rating kombiniert mit Insider-Cluster-K\u00e4ufen (8 Transaktionen in 14 Tagen) und m\u00f6glichem Portfolio-Rebalancing institutioneller Anleger in hochdividendenstarke Consumer-Defensive-Titel im Zuge eines Regulatory/Tax-Umfeld-Shifts bis Ende Q3 2026.",
+        "bear_case": "Strukturell schrumpfende Zigarettenvolumina und m\u00f6gliche regulatorische Versch\u00e4rfungen (Menthol-Verbote, FDA-Nikotinregeln) k\u00f6nnten das Sektor-Re-Rating-Narrativ rasch zunichte machen; zudem ist das Barclays-Upgrade als \u00f6ffentliche Information weitgehend eingepreist.",
+        "macro_assessment": "Das expansive Makro-Umfeld (steile Kurve +0,54%, Fed Funds bei 3,64%) beg\u00fcnstigt grunds\u00e4tzlich Long-Positionen, jedoch profitiert MO als Consumer-Defensive-Titel prim\u00e4r in Risk-off-Phasen. Im expansiven Regime tendieren Investoren zu Wachstumstiteln, was den Kapitalzufluss in Hochdividenden-Defensivtitel strukturell begrenzt. Der VIX-Contango spricht gegen Long-Vol-Strategien \u2014 ein Bull-Call-Spread w\u00e4re sinnvoller als ein nackter Long-Call.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 123488452608,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.252,
+        "annualized_roi": 1.2336,
+        "dte": 120
+      },
+      "outcome": -0.2005,
+      "last_price": 72.71,
+      "current_return": -0.124,
+      "iv_rank": 80.1,
+      "sector_etf": "XLP",
+      "peak_return": -0.124,
+      "close_date": "2026-07-06",
+      "close_price": 71.6701,
+      "close_reason": "max_holding_period"
+    },
+    {
+      "ticker": "BA",
+      "entry_date": "2026-05-20",
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 0.41,
+        "z_score": 1.118,
+        "sigma_30d": 0.0222,
+        "price_move_48h": 0.0249,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6212,
+        "iv_rank": 68.2
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2026-11-20",
+        "strike": 220.0,
+        "bid": 25.15,
+        "ask": 26.9,
+        "open_interest": 243,
+        "implied_vol": 0.3651,
+        "spread_ratio": 0.0651,
+        "dte": 183,
+        "delta": 0.5967,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 240.0,
+          "bid": 16.35,
+          "ask": 18.3
+        },
+        "net_debit": 10.55
+      },
+      "simulation": {
+        "current_price": 222.2,
+        "target_price": 239.98,
+        "hit_rate": 0.72,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0218,
+        "alpha": 0.00252
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Boeing k\u00e4mpft weiterhin mit massiven operativen Problemen: Produktionsengp\u00e4sse bei 737 MAX und 787, anhaltende Qualit\u00e4tsm\u00e4ngel, FAA-Auflagen und ein jahrelang aufgebauter Vertrauensverlust bei Airlines. Der 200-Flugzeug-Deal mit China ist diplomatisch fragil \u2014 geopolitische Eskalationen (Taiwan, Halbleiter-Sanktionen) k\u00f6nnen dieses Abkommen innerhalb von Wochen zunichtemachen, da China Boeing historisch als Verhandlungsmasse nutzt.",
+          "argument_2": "Der Kursanstieg nach Tariff-Truce-News k\u00f6nnte bereits vollst\u00e4ndig eingepreist sein. BA ist in 48h bereits -2,5% gefallen nach dem initialen Anstieg, was auf schwaches Follow-through hindeutet. Citi-Neupositionierung und die 'gift'-Rhetorik sind typische Wall-Street-Narrativwechsel nach einem Selloff \u2014 das fundamentale Bild (negative Free Cashflows, hohe Verschuldung > $50 Mrd.) hat sich nicht strukturell verbessert.",
+          "argument_3": "EPS-Diskrepanz zwischen yfinance ($4.26) und SEC EDGAR ($2.54) ist ein Qualit\u00e4tssignal: Die Zahlen divergieren deutlich, was auf non-recurring Items oder Accounting-Adjustierungen hindeutet. Mit einem KGV von ~52x auf EDGAR-Basis ist BA bei weitem nicht g\u00fcnstig und l\u00e4sst kaum Sicherheitsmarge f\u00fcr Entt\u00e4uschungen in der Lieferkette oder bei der n\u00e4chsten Earnings-Guidance.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "MC nicht durchgef\u00fchrt, 0% Hit-Rate ist ein Datenfehler (kein Signal, nicht 0 Pfade bullish). Bei typischer 30-Tage-Volatilit\u00e4t von BA (~35% annualisiert) w\u00e4re eine realistische Hit-Rate f\u00fcr ein bullisches Szenario 40-55%. Die fehlende Statistik erh\u00f6ht die Unsicherheit, disqualifiziert aber das Signal nicht.",
+          "concern_level": "medium"
+        },
+        "impact": 6,
+        "surprise": 5,
+        "direction": "BULLISH",
+        "bear_case_severity": 7,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt diskontiert China-Deal-Risiken strukturell \u00fcber, weil geopolitische Unsicherheit als permanent eingepreist wird, obwohl Tariff-Truce-Signale eine echte Entspannung andeuten. Insider-Cluster-K\u00e4ufe von 5 Managern in 14 Tagen sind ein seltenes, nicht-triviales Signal das Retail-Sentiment oft vorwegnimmt. Die Kombination aus operativer Trendwende bei Produktionsraten und Nachfrage-Rerating durch China-Normalisierung ist im aktuellen Preis von $222 noch nicht vollst\u00e4ndig reflektiert.",
+        "catalyst": "Best\u00e4tigung des 200-Flugzeug-China-Deals und Q2-2026 Earnings mit verbesserter Delivery-Guidance als Doppelkatalysator",
+        "bear_case": "China-Deal platzt bei geopolitischer Eskalation, operative Cashflow-Probleme bleiben und hohe Verschuldung begrenzt Kurspotenzial strukturell",
+        "macro_assessment": "Expansives Umfeld mit steiler Zinskurve (+0.54%) und moderatem Fed Funds Rate (3.64%) beg\u00fcnstigt Industrials-Recovery-Plays grunds\u00e4tzlich. VIX Contango deutet auf sinkende implizite Volatilit\u00e4t hin, was Call-Spreads attraktiver macht als nackte Longs um Theta-Kosten zu begrenzen. Marktkapitalisierung $175 Mrd. liegt knapp unter Mega-Cap-Schwelle, sodass moderate Informationsineffizienz noch m\u00f6glich ist.",
+        "data_confidence": "medium",
+        "macro_regime": "expansive",
+        "macro_context": {
+          "yield_curve": 0.54,
+          "regime": "expansive"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 175160770560,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.2162,
+        "annualized_roi": 0.9442,
+        "dte": 183
+      },
+      "outcome": 0.0047,
+      "last_price": 226.49,
+      "current_return": -0.128,
+      "iv_rank": 68.2,
+      "sector_etf": "XLI",
+      "peak_return": 0.0047,
+      "close_date": "2026-07-06",
+      "close_price": 232.65,
+      "close_reason": "max_holding_period"
     }
   ],
   "model_weights": {
@@ -8597,6 +8609,11 @@
         "date": "2026-07-03",
         "score": -0.5777,
         "headline_count": 1
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.2124,
+        "headline_count": 4
       }
     ],
     "GEN": [
@@ -9057,6 +9074,11 @@
         "date": "2026-07-03",
         "score": 0.0502,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.1824,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -9477,6 +9499,11 @@
       {
         "date": "2026-07-03",
         "score": 0.2379,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.3195,
         "headline_count": 5
       }
     ],
@@ -10065,6 +10092,11 @@
         "date": "2026-07-01",
         "score": 0.1966,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.1143,
+        "headline_count": 5
       }
     ],
     "META": [
@@ -10451,6 +10483,11 @@
         "date": "2026-07-03",
         "score": 0.0928,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1068,
+        "headline_count": 3
       }
     ],
     "BX": [
@@ -11072,6 +11109,11 @@
         "date": "2026-07-03",
         "score": -0.2853,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0767,
+        "headline_count": 5
       }
     ],
     "CAG": [
@@ -11376,6 +11418,11 @@
         "date": "2026-07-03",
         "score": -0.0205,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1844,
+        "headline_count": 4
       }
     ],
     "FANG": [
@@ -12681,6 +12728,11 @@
         "date": "2026-07-03",
         "score": 0.0057,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.2192,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -13525,6 +13577,11 @@
         "date": "2026-07-01",
         "score": -0.0266,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.254,
+        "headline_count": 4
       }
     ],
     "AOS": [
@@ -13961,6 +14018,11 @@
         "date": "2026-07-03",
         "score": 0.218,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.09,
+        "headline_count": 5
       }
     ],
     "AAPL": [
@@ -14238,6 +14300,11 @@
         "date": "2026-07-03",
         "score": -0.2582,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1952,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -14479,6 +14546,11 @@
       {
         "date": "2026-07-03",
         "score": -0.3545,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.5458,
         "headline_count": 5
       }
     ],
@@ -14844,6 +14916,11 @@
         "date": "2026-07-03",
         "score": -0.098,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.3441,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
@@ -15086,6 +15163,11 @@
         "date": "2026-07-03",
         "score": -0.1653,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1911,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -15237,6 +15319,11 @@
       {
         "date": "2026-07-03",
         "score": 0.2256,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.2463,
         "headline_count": 5
       }
     ],
@@ -15470,6 +15557,11 @@
         "date": "2026-07-03",
         "score": -0.1416,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.1957,
+        "headline_count": 4
       }
     ],
     "BF-B": [
@@ -15930,6 +16022,11 @@
         "date": "2026-07-03",
         "score": 0.1359,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.4322,
+        "headline_count": 4
       }
     ],
     "IBKR": [
@@ -16167,6 +16264,11 @@
       {
         "date": "2026-07-03",
         "score": 0.1429,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0033,
         "headline_count": 5
       }
     ],
@@ -17370,6 +17472,11 @@
         "date": "2026-07-03",
         "score": 0.1587,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1705,
+        "headline_count": 5
       }
     ],
     "STZ": [
@@ -17552,6 +17659,11 @@
         "date": "2026-07-03",
         "score": 0.2384,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.127,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -17693,6 +17805,11 @@
       {
         "date": "2026-07-03",
         "score": 0.2021,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.113,
         "headline_count": 5
       }
     ],
@@ -18557,6 +18674,11 @@
         "date": "2026-07-03",
         "score": 0.046,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.137,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -18841,6 +18963,11 @@
         "date": "2026-07-03",
         "score": 0.0402,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.114,
+        "headline_count": 5
       }
     ],
     "CFG": [
@@ -19002,6 +19129,11 @@
       {
         "date": "2026-07-03",
         "score": -0.2587,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.3375,
         "headline_count": 5
       }
     ],
@@ -19367,6 +19499,11 @@
         "date": "2026-07-03",
         "score": 0.046,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.137,
+        "headline_count": 5
       }
     ],
     "GLW": [
@@ -19604,6 +19741,11 @@
         "date": "2026-07-03",
         "score": -0.3522,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.558,
+        "headline_count": 4
       }
     ],
     "COST": [
@@ -19805,6 +19947,11 @@
       {
         "date": "2026-07-03",
         "score": 0.0046,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0226,
         "headline_count": 5
       }
     ],
@@ -20483,6 +20630,11 @@
         "date": "2026-06-29",
         "score": 0.099,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.099,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -20750,6 +20902,11 @@
         "date": "2026-07-03",
         "score": 0.0138,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0029,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -21009,6 +21166,11 @@
         "date": "2026-07-03",
         "score": 0.2379,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.3963,
+        "headline_count": 3
       }
     ],
     "ABBV": [
@@ -21155,6 +21317,11 @@
       {
         "date": "2026-06-29",
         "score": 0.3474,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0659,
         "headline_count": 5
       }
     ],
@@ -21353,6 +21520,11 @@
         "date": "2026-06-25",
         "score": -0.0158,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0029,
+        "headline_count": 5
       }
     ],
     "AMGN": [
@@ -21530,6 +21702,11 @@
         "date": "2026-07-03",
         "score": 0.2852,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1983,
+        "headline_count": 4
       }
     ],
     "ADI": [
@@ -22008,6 +22185,11 @@
       {
         "date": "2026-07-03",
         "score": -0.1308,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1228,
         "headline_count": 5
       }
     ],
@@ -22550,6 +22732,11 @@
         "date": "2026-07-03",
         "score": -0.0557,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0956,
+        "headline_count": 5
       }
     ],
     "ADSK": [
@@ -22914,6 +23101,11 @@
         "date": "2026-07-03",
         "score": 0.234,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.5487,
+        "headline_count": 3
       }
     ],
     "BBWI": [
@@ -23187,6 +23379,11 @@
       {
         "date": "2026-07-03",
         "score": -0.1176,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.137,
         "headline_count": 5
       }
     ],
@@ -23527,6 +23724,11 @@
         "date": "2026-07-03",
         "score": -0.214,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.037,
+        "headline_count": 4
       }
     ],
     "CL": [
@@ -23905,6 +24107,11 @@
       {
         "date": "2026-07-03",
         "score": -0.1808,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.1969,
         "headline_count": 5
       }
     ],
@@ -24462,6 +24669,11 @@
         "date": "2026-07-03",
         "score": 0.21,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0547,
+        "headline_count": 4
       }
     ],
     "CTVA": [
@@ -25038,6 +25250,11 @@
         "date": "2026-07-03",
         "score": 0.046,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.137,
+        "headline_count": 5
       }
     ],
     "DG": [
@@ -25353,6 +25570,11 @@
         "date": "2026-07-03",
         "score": 0.0544,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0384,
+        "headline_count": 5
       }
     ],
     "CVX": [
@@ -25529,6 +25751,11 @@
       {
         "date": "2026-07-03",
         "score": 0.0749,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.3661,
         "headline_count": 5
       }
     ],
@@ -25722,6 +25949,11 @@
         "date": "2026-07-03",
         "score": -0.092,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0163,
+        "headline_count": 5
       }
     ],
     "EXC": [
@@ -25947,6 +26179,11 @@
         "date": "2026-07-03",
         "score": 0.0189,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0337,
+        "headline_count": 3
       }
     ],
     "CLX": [
@@ -26812,6 +27049,11 @@
         "date": "2026-07-01",
         "score": -0.4277,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1067,
+        "headline_count": 5
       }
     ],
     "ALL": [
@@ -27151,6 +27393,11 @@
         "date": "2026-07-01",
         "score": 0.582,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.3017,
+        "headline_count": 3
       }
     ],
     "AXP": [
@@ -27347,6 +27594,11 @@
       {
         "date": "2026-07-03",
         "score": 0.4597,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1544,
         "headline_count": 5
       }
     ],
@@ -28300,6 +28552,11 @@
         "date": "2026-07-03",
         "score": 0.106,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0724,
+        "headline_count": 5
       }
     ],
     "CMG": [
@@ -28517,6 +28774,11 @@
         "date": "2026-07-03",
         "score": 0.0536,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.1781,
+        "headline_count": 5
       }
     ],
     "CHD": [
@@ -28815,6 +29077,11 @@
       {
         "date": "2026-07-03",
         "score": 0.046,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.137,
         "headline_count": 5
       }
     ],
@@ -29215,6 +29482,11 @@
         "date": "2026-07-03",
         "score": 0.2384,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.127,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -29417,6 +29689,11 @@
         "date": "2026-07-03",
         "score": -0.1179,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.4926,
+        "headline_count": 5
       }
     ],
     "DHR": [
@@ -29553,6 +29830,11 @@
       {
         "date": "2026-07-03",
         "score": 0.0475,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.2202,
         "headline_count": 5
       }
     ],
@@ -30756,6 +31038,11 @@
         "date": "2026-07-03",
         "score": 0.3709,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0394,
+        "headline_count": 5
       }
     ],
     "CCI": [
@@ -30948,6 +31235,11 @@
         "date": "2026-07-03",
         "score": -0.3971,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.2502,
+        "headline_count": 5
       }
     ],
     "CSX": [
@@ -31156,6 +31448,11 @@
       {
         "date": "2026-07-03",
         "score": 0.1758,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0153,
         "headline_count": 5
       }
     ],
@@ -31467,6 +31764,11 @@
       {
         "date": "2026-07-03",
         "score": 0.195,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0485,
         "headline_count": 5
       }
     ],
@@ -31788,6 +32090,11 @@
       {
         "date": "2026-07-03",
         "score": 0.1348,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0085,
         "headline_count": 5
       }
     ],
@@ -32881,6 +33188,11 @@
         "date": "2026-06-29",
         "score": 0.0394,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.2143,
+        "headline_count": 5
       }
     ],
     "ES": [
@@ -33341,6 +33653,11 @@
         "date": "2026-07-03",
         "score": 0.2387,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.1132,
+        "headline_count": 5
       }
     ],
     "BSX": [
@@ -33488,6 +33805,11 @@
         "date": "2026-07-03",
         "score": -0.2815,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0511,
+        "headline_count": 5
       }
     ],
     "BKNG": [
@@ -33754,6 +34076,11 @@
         "date": "2026-07-03",
         "score": -0.0092,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.6021,
+        "headline_count": 1
       }
     ],
     "COIN": [
@@ -33890,6 +34217,11 @@
       {
         "date": "2026-07-03",
         "score": -0.2363,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.032,
         "headline_count": 5
       }
     ],
@@ -34033,6 +34365,11 @@
         "date": "2026-07-03",
         "score": 0.1203,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0552,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -34154,6 +34491,11 @@
       {
         "date": "2026-07-03",
         "score": 0.0138,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": 0.0479,
         "headline_count": 5
       }
     ],
@@ -34292,6 +34634,11 @@
         "date": "2026-07-03",
         "score": 0.0455,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0748,
+        "headline_count": 5
       }
     ],
     "DASH": [
@@ -34568,6 +34915,11 @@
         "date": "2026-07-03",
         "score": 0.1559,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.0093,
+        "headline_count": 4
       }
     ],
     "CIEN": [
@@ -34769,6 +35121,11 @@
         "date": "2026-07-03",
         "score": 0.3966,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-06",
+        "score": -0.337,
+        "headline_count": 4
       }
     ],
     "DTE": [
@@ -34854,6 +35211,10 @@
       {
         "date": "2026-05-20",
         "atm_iv": 0.3486
+      },
+      {
+        "date": "2026-07-06",
+        "atm_iv": 0.3583
       }
     ],
     "MO": [
@@ -34880,6 +35241,10 @@
       {
         "date": "2026-05-21",
         "atm_iv": 0.3573
+      },
+      {
+        "date": "2026-07-06",
+        "atm_iv": 0.3673
       }
     ],
     "CVX": [
@@ -35409,6 +35774,217 @@
         "bin_mismatch": "good",
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.647
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "GOOGL",
+      "entry_date": "2026-07-06",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 364.13,
+        "target_price": 393.27,
+        "hit_rate": 0.6486,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0199,
+        "alpha": 0.00175
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 2.15,
+        "z_score": 0.37,
+        "sigma_30d": 0.0192,
+        "price_move_48h": 0.0071,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5498
+      },
+      "sector": "Communication Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "GOOG",
+      "entry_date": "2026-07-06",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 361.47,
+        "target_price": 390.39,
+        "hit_rate": 0.6418,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0197,
+        "alpha": 0.00167
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.934,
+        "z_score": 0.413,
+        "sigma_30d": 0.0195,
+        "price_move_48h": 0.0081,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.532
+      },
+      "sector": "Communication Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "BIIB",
+      "entry_date": "2026-07-06",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 212.68,
+        "target_price": 229.69,
+        "hit_rate": 0.6892,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0227,
+        "alpha": 0.002
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 5,
+        "mismatch": 4.932,
+        "z_score": 0.014,
+        "sigma_30d": 0.0204,
+        "price_move_48h": 0.0003,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5964
+      },
+      "sector": "Healthcare",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 5,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "GOOGL",
+      "entry_date": "2026-07-06",
+      "reject_reason": "score_51",
+      "catalyst_type": "EARNINGS",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 46.3,
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 350.0,
+        "bid": 45.3,
+        "ask": 46.3,
+        "open_interest": 3156,
+        "implied_vol": 0.3673,
+        "spread_ratio": 0.0216,
+        "dte": 164,
+        "delta": 0.6382,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 385.0,
+          "bid": 28.8,
+          "ask": 30.1
+        },
+        "net_debit": 17.5
+      },
+      "simulation": {
+        "current_price": 364.13,
+        "target_price": 393.27,
+        "hit_rate": 0.6486,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0199,
+        "alpha": 0.00175
+      },
+      "trade_score": 51,
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 2.15,
+        "z_score": 0.37,
+        "sigma_30d": 0.0192,
+        "price_move_48h": 0.0071,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5498
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "GOOG",
+      "entry_date": "2026-07-06",
+      "reject_reason": "score_48",
+      "catalyst_type": "EARNINGS",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 39.45,
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 360.0,
+        "bid": 37.6,
+        "ask": 39.45,
+        "open_interest": 6303,
+        "implied_vol": 0.3583,
+        "spread_ratio": 0.0469,
+        "dte": 164,
+        "delta": 0.5817,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 395.0,
+          "bid": 23.7,
+          "ask": 24.8
+        },
+        "net_debit": 15.75
+      },
+      "simulation": {
+        "current_price": 361.47,
+        "target_price": 390.39,
+        "hit_rate": 0.6418,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0197,
+        "alpha": 0.00167
+      },
+      "trade_score": 48,
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.934,
+        "z_score": 0.413,
+        "sigma_30d": 0.0195,
+        "price_move_48h": 0.0081,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.532
       },
       "outcome": null
     }
