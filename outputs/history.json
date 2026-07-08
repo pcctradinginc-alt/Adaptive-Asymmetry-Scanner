@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.056,
-      "last_price": 111.79,
-      "current_return": -0.05
+      "last_price": 112.63,
+      "current_return": -0.0298
     }
   ],
   "closed_trades": [
@@ -8619,6 +8619,11 @@
         "date": "2026-07-07",
         "score": 0.0648,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.3664,
+        "headline_count": 1
       }
     ],
     "GEN": [
@@ -8801,6 +8806,11 @@
       {
         "date": "2026-07-01",
         "score": 0.4177,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.139,
         "headline_count": 5
       }
     ],
@@ -9325,6 +9335,11 @@
       {
         "date": "2026-07-07",
         "score": 0.3486,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.2169,
         "headline_count": 5
       }
     ],
@@ -10386,6 +10401,11 @@
         "date": "2026-07-03",
         "score": 0.0174,
         "headline_count": 1
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.557,
+        "headline_count": 3
       }
     ],
     "BIIB": [
@@ -10508,6 +10528,11 @@
         "date": "2026-07-06",
         "score": 0.1068,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.5417,
+        "headline_count": 5
       }
     ],
     "BX": [
@@ -12773,6 +12798,11 @@
         "date": "2026-07-07",
         "score": 0.1601,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.0008,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -14612,6 +14642,11 @@
         "date": "2026-07-07",
         "score": -0.0627,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.4427,
+        "headline_count": 5
       }
     ],
     "BK": [
@@ -16107,6 +16142,11 @@
         "date": "2026-07-07",
         "score": 0.1686,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.0913,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -20775,6 +20815,11 @@
         "date": "2026-07-07",
         "score": -0.6685,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.1236,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -22351,6 +22396,11 @@
         "date": "2026-07-07",
         "score": -0.3425,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.0077,
+        "headline_count": 5
       }
     ],
     "ADM": [
@@ -22907,6 +22957,11 @@
         "date": "2026-07-07",
         "score": 0.0627,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.0695,
+        "headline_count": 5
       }
     ],
     "ADSK": [
@@ -23285,6 +23340,11 @@
       {
         "date": "2026-07-07",
         "score": 0.0067,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.2715,
         "headline_count": 5
       }
     ],
@@ -27623,6 +27683,11 @@
         "date": "2026-07-06",
         "score": 0.3017,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-08",
+        "score": 0.2358,
+        "headline_count": 5
       }
     ],
     "AXP": [
@@ -27829,6 +27894,11 @@
       {
         "date": "2026-07-07",
         "score": 0.0312,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.1545,
         "headline_count": 5
       }
     ],
@@ -31054,6 +31124,11 @@
         "date": "2026-07-03",
         "score": 0.3208,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-08",
+        "score": -0.0978,
+        "headline_count": 3
       }
     ],
     "AVB": [
@@ -36568,6 +36643,91 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.6622
       },
+      "outcome": null
+    },
+    {
+      "ticker": "APP",
+      "entry_date": "2026-07-08",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 509.21,
+        "target_price": 599.3,
+        "hit_rate": 0.5398,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0527,
+        "alpha": 0.00024
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.807,
+        "z_score": 0.039,
+        "sigma_30d": 0.0451,
+        "price_move_48h": 0.0017,
+        "eps_drift": 0.0035,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5342
+      },
+      "sector": "Communication Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "APP",
+      "entry_date": "2026-07-08",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 113.5,
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 500.0,
+        "bid": 105.9,
+        "ask": 113.5,
+        "open_interest": 312,
+        "implied_vol": 0.7612,
+        "spread_ratio": 0.067,
+        "dte": 162,
+        "delta": 0.6256,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 509.21,
+        "target_price": 599.3,
+        "hit_rate": 0.5398,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0527,
+        "alpha": 0.00024
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.807,
+        "z_score": 0.039,
+        "sigma_30d": 0.0451,
+        "price_move_48h": 0.0017,
+        "eps_drift": 0.0035,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5342
+      },
+      "roi_net": 0.1027,
+      "roi_hurdle": 0.085,
+      "roi_gap": 0.0177,
+      "vix": 18.36,
+      "mc_hit_rate": 0.5342,
       "outcome": null
     }
   ]
