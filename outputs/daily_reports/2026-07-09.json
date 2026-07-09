@@ -1,0 +1,59 @@
+{
+  "date": "2026-07-09",
+  "proposals": [],
+  "stats": {
+    "vix": 16.139999389648438,
+    "universe": 55,
+    "candidates": 55,
+    "prescreened": 14,
+    "sector_ok": 47,
+    "pre_mc": 13,
+    "roi_precheck": 13,
+    "analyzed": 12,
+    "mismatch_ok": 7,
+    "quick_mc": 4,
+    "intraday_ok": 4,
+    "final_mc": 4,
+    "rl_scored": 4,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "after_isf": 10,
+    "roi_rejects": {
+      "n": 3,
+      "gap_min": 0.0867,
+      "gap_median": 0.4356,
+      "gap_max": 0.5057
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 8,
+      "tickers": [
+        "ACN",
+        "AKAM",
+        "ADBE",
+        "ADSK",
+        "CBOE",
+        "CME",
+        "CTSH",
+        "CCI"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 2,
+      "tickers": [
+        "AMD",
+        "APP"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 3,
+      "tickers": [
+        "ALL",
+        "AMZN",
+        "AEP"
+      ]
+    }
+  }
+}
