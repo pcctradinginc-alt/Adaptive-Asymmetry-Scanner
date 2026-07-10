@@ -1,0 +1,45 @@
+{
+  "date": "2026-07-10",
+  "stats": {
+    "vix": 15.479999542236328,
+    "universe": 17,
+    "candidates": 17,
+    "prescreened": 2,
+    "sector_ok": 13,
+    "pre_mc": 2,
+    "roi_precheck": 2,
+    "analyzed": 2,
+    "mismatch_ok": 1,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle unter Quick-MC-Schwelle (48%).",
+    "after_isf": 1
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 4,
+      "tickers": [
+        "ACN",
+        "APO",
+        "COIN",
+        "COHR"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "CVS"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 1,
+      "tickers": [
+        "CMCSA"
+      ]
+    }
+  }
+}
