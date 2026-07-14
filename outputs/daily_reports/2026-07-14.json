@@ -1,0 +1,37 @@
+{
+  "date": "2026-07-14",
+  "stats": {
+    "vix": 16.469999313354492,
+    "universe": 9,
+    "candidates": 9,
+    "prescreened": 2,
+    "sector_ok": 7,
+    "pre_mc": 2,
+    "roi_precheck": 2,
+    "analyzed": 2,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Kein Signal hat Mismatch-Filter bestanden.",
+    "after_isf": 1
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 2,
+      "tickers": [
+        "ACN",
+        "BSX"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "APP"
+      ]
+    }
+  }
+}
