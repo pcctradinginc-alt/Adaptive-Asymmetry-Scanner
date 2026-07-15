@@ -130,8 +130,103 @@
       },
       "outcome": null,
       "peak_return": 0.3,
-      "last_price": 117.09,
-      "current_return": 0.1655
+      "last_price": 111.77,
+      "current_return": -0.0298
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-07-15",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.146,
+        "z_score": 0.171,
+        "sigma_30d": 0.0202,
+        "price_move_48h": 0.0034,
+        "eps_drift": 0.0073,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5626
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 14.25,
+      "entry_quote": {
+        "bid": 27.25,
+        "ask": 28.35,
+        "mid": 27.8,
+        "spread_pct": 0.0388,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 320.0,
+        "bid": 27.25,
+        "ask": 28.35,
+        "open_interest": 10270,
+        "implied_vol": 0.2775,
+        "spread_ratio": 0.0388,
+        "dte": 155,
+        "delta": 0.5984,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 350.0,
+          "bid": 14.1,
+          "ask": 14.45
+        },
+        "net_debit": 14.25
+      },
+      "simulation": {
+        "current_price": 323.83,
+        "target_price": 349.74,
+        "hit_rate": 0.6746,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.017,
+        "alpha": 0.00237
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Alibaba Qwen-Integration in Apple Intelligence f\u00fcr China ist prim\u00e4r eine regulatorische Anpassung an chinesische KI-Zensurvorschriften, keine strategische Schw\u00e4che. Der Markt hat dieses Abh\u00e4ngigkeitsrisiko bereits im Diskurs verarbeitet \u2014 Apple hat keine Wahl bei China-Compliance, und der Deal sichert den Marktzugang f\u00fcr ~1 Mrd. potenzielle Nutzer. Ein BEARISH-Signal aus dieser Nachricht setzt voraus, dass der Markt die Kompromittierung der KI-Architektur untersch\u00e4tzt, was bei einem $4.8T-Unternehmen mit maximaler Analystenabdeckung unwahrscheinlich ist.",
+          "argument_2": "Das Call-OI (34.513) dominiert das Put-OI (9.386) ATM massiv. Dealer-Gamma in positive Ausrichtung bedeutet, dass Market Maker bei steigenden Kursen Aktien verkaufen m\u00fcssen (d\u00e4mpfend) \u2014 dies begrenzt das Aufw\u00e4rtspotenzial und schafft einen strukturellen Widerstand. F\u00fcr eine BULLISH-Optionsstrategie bei AAPL bedeutet dies erh\u00f6hte Kosten und reduzierte Hebelwirkung, da Dealer-Hedging systematisch gegen Long-Call-Positionen arbeitet.",
+          "argument_3": "Der Insider-Kauf-Cluster (7 K\u00e4ufer in 14 Tagen) klingt bullish, ist bei AAPL-Insiders aber historisch schwaches Signal, da Apple-Executives routinem\u00e4\u00dfig auf feste Kaufprogramme (10b5-1 Plans) setzen, die keine aktive Informationsasymmetrie reflektieren. Bei einem $323/Aktie-Kurs handelt es sich wahrscheinlich um geplante Pflichtanteile. Das Signal ist bei Mega-Caps nahezu wertlos ohne Kenntnis des Kaufvolumens vs. gleichzeitiger automatischer Verk\u00e4ufe.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate 0% ist trivialerweise ein technischer Fehler (kein MC durchgef\u00fchrt, nicht 0% echter Erfolgswahrscheinlichkeit). Ohne MC-Daten ist keine statistische Validierung m\u00f6glich. Bei AAPL mit ~25% annualisierter Volatilit\u00e4t w\u00e4ren realistische Hit-Rates f\u00fcr moderate Upside-Strikes im 2-3 Monate-Fenster bei 40-55% anzusetzen.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt bewertet die Qwen-Integration prim\u00e4r als China-Risiko, untersch\u00e4tzt aber den Umsatzimpuls durch freigeschaltete Apple-Intelligence-Monetarisierung in China. Insider-Cluster bei 7 K\u00e4ufern in 14 Tagen ist als Stimmungssignal nicht vollst\u00e4ndig eingepreist. Neutral-Makro und VIX-Contango reduzieren Optionspr\u00e4mien und machen Call-Spreads kosteneffizient.",
+        "catalyst": "Apple Intelligence China-Launch mit Alibaba Qwen: erster gro\u00dfer Markttest der KI-Monetarisierungsstrategie au\u00dferhalb der USA mit Q3/Q4 2026 Earnings-Reflexion",
+        "bear_case": "Qwen-Integration signalisiert technologische Abh\u00e4ngigkeit von chinesischem Partner statt eigener KI-Kompetenz \u2014 regulatorisches Risiko und Reputationsschaden k\u00f6nnten Bewertungsmultiple komprimieren, besonders wenn US-China-Spannungen eskalieren.",
+        "macro_assessment": "Neutrales Makroumfeld (flache Kurve +0.40%, Fed Funds 3.63%) bietet weder R\u00fccken- noch Gegenwind. VIX-Contango (13\u219219.2, +48%) signalisiert erwartete Volatilit\u00e4tsstabilit\u00e4t \u2014 g\u00fcnstige Bedingungen f\u00fcr Debit-Spreads. Kein rezessiver Gegenwind der bullische Einzelsignale \u00fcberlagert.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.4,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4756206518272,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6116,
+        "annualized_roi": 3.808,
+        "dte": 155
+      },
+      "outcome": null,
+      "peak_return": -0.0456,
+      "last_price": 323.9142,
+      "current_return": -0.0456
     }
   ],
   "closed_trades": [
@@ -9114,6 +9209,11 @@
         "date": "2026-07-13",
         "score": 0.2103,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.3159,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -10461,6 +10561,11 @@
         "date": "2026-07-14",
         "score": 0.0307,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.1162,
+        "headline_count": 5
       }
     ],
     "BIIB": [
@@ -10602,6 +10707,11 @@
       {
         "date": "2026-07-14",
         "score": 0.3467,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.1943,
         "headline_count": 5
       }
     ],
@@ -11238,6 +11348,11 @@
       {
         "date": "2026-07-13",
         "score": -0.1103,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.1032,
         "headline_count": 5
       }
     ],
@@ -12023,6 +12138,11 @@
       {
         "date": "2026-07-09",
         "score": -0.1438,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.0466,
         "headline_count": 5
       }
     ],
@@ -14515,6 +14635,11 @@
         "date": "2026-07-13",
         "score": -0.1482,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.419,
+        "headline_count": 5
       }
     ],
     "BAC": [
@@ -14781,6 +14906,11 @@
       {
         "date": "2026-07-14",
         "score": 0.1111,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.0482,
         "headline_count": 5
       }
     ],
@@ -19146,6 +19276,11 @@
         "date": "2026-07-07",
         "score": 0.0161,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.0986,
+        "headline_count": 4
       }
     ],
     "CB": [
@@ -19322,6 +19457,11 @@
       {
         "date": "2026-07-10",
         "score": 0.128,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.2177,
         "headline_count": 5
       }
     ],
@@ -20140,6 +20280,11 @@
       {
         "date": "2026-07-09",
         "score": 0.6185,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.3581,
         "headline_count": 5
       }
     ],
@@ -21080,6 +21225,11 @@
         "date": "2026-07-14",
         "score": 0.2808,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.0694,
+        "headline_count": 5
       }
     ],
     "GOOG": [
@@ -22005,6 +22155,11 @@
         "date": "2026-07-09",
         "score": -0.1677,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.0604,
+        "headline_count": 5
       }
     ],
     "AMGN": [
@@ -22690,6 +22845,11 @@
       {
         "date": "2026-07-09",
         "score": -0.4564,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.1124,
         "headline_count": 5
       }
     ],
@@ -27447,6 +27607,11 @@
         "date": "2026-06-24",
         "score": 0.3371,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.5911,
+        "headline_count": 3
       }
     ],
     "EQT": [
@@ -27855,6 +28020,11 @@
       {
         "date": "2026-07-09",
         "score": 0.3984,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.0145,
         "headline_count": 5
       }
     ],
@@ -31492,6 +31662,11 @@
         "date": "2026-07-03",
         "score": 0.4423,
         "headline_count": 2
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.0567,
+        "headline_count": 3
       }
     ],
     "AMCR": [
@@ -33175,6 +33350,11 @@
         "date": "2026-07-09",
         "score": 0.0238,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.0345,
+        "headline_count": 5
       }
     ],
     "ELV": [
@@ -33211,6 +33391,11 @@
       {
         "date": "2026-07-03",
         "score": 0.5149,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.0458,
         "headline_count": 5
       }
     ],
@@ -34376,6 +34561,11 @@
         "date": "2026-07-13",
         "score": 0.0064,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.3862,
+        "headline_count": 5
       }
     ],
     "XYZ": [
@@ -34527,6 +34717,11 @@
       {
         "date": "2026-07-06",
         "score": -0.1132,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.5007,
         "headline_count": 5
       }
     ],
@@ -34961,6 +35156,11 @@
         "date": "2026-07-13",
         "score": -0.1019,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.5405,
+        "headline_count": 5
       }
     ],
     "COIN": [
@@ -35407,6 +35607,11 @@
         "date": "2026-07-07",
         "score": 0.5295,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.1573,
+        "headline_count": 5
       }
     ],
     "DELL": [
@@ -35558,6 +35763,11 @@
       {
         "date": "2026-07-09",
         "score": 0.2631,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": 0.214,
         "headline_count": 5
       }
     ],
@@ -35854,6 +36064,11 @@
       {
         "date": "2026-07-09",
         "score": 0.2152,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-15",
+        "score": -0.1518,
         "headline_count": 5
       }
     ],
@@ -36249,6 +36464,12 @@
       {
         "date": "2026-07-09",
         "atm_iv": 0.4363
+      }
+    ],
+    "AAPL": [
+      {
+        "date": "2026-07-15",
+        "atm_iv": 0.2775
       }
     ]
   },
@@ -37739,6 +37960,134 @@
       "roi_gap": 0.0944,
       "vix": 16.24,
       "mc_hit_rate": 0.5494,
+      "outcome": null
+    },
+    {
+      "ticker": "AMAT",
+      "entry_date": "2026-07-15",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 575.66,
+        "target_price": 654.85,
+        "hit_rate": 0.5536,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.041,
+        "alpha": 0.00035
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 2.022,
+        "z_score": 0.396,
+        "sigma_30d": 0.057,
+        "price_move_48h": 0.0225,
+        "eps_drift": 0.0396,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5496
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "4-8 Wochen"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-07-15",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 323.83,
+        "target_price": 349.74,
+        "hit_rate": 0.6746,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.017,
+        "alpha": 0.00237
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.146,
+        "z_score": 0.171,
+        "sigma_30d": 0.0202,
+        "price_move_48h": 0.0034,
+        "eps_drift": 0.0073,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5626
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "AMAT",
+      "entry_date": "2026-07-15",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 133.85,
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 560.0,
+        "bid": 126.85,
+        "ask": 133.85,
+        "open_interest": 256,
+        "implied_vol": 0.8066,
+        "spread_ratio": 0.0523,
+        "dte": 155,
+        "delta": 0.6359,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 620.0,
+          "bid": 103.6,
+          "ask": 108.7
+        },
+        "net_debit": 30.25
+      },
+      "simulation": {
+        "current_price": 575.66,
+        "target_price": 654.85,
+        "hit_rate": 0.5536,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.041,
+        "alpha": 0.00035
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 2.022,
+        "z_score": 0.396,
+        "sigma_30d": 0.057,
+        "price_move_48h": 0.0225,
+        "eps_drift": 0.0396,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5496
+      },
+      "roi_net": 0.4508,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.3808,
+      "vix": 16.15,
+      "mc_hit_rate": 0.5496,
       "outcome": null
     }
   ]
