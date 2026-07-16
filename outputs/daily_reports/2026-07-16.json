@@ -1,0 +1,41 @@
+{
+  "date": "2026-07-16",
+  "proposals": [],
+  "stats": {
+    "vix": 15.880000114440918,
+    "universe": 34,
+    "candidates": 34,
+    "prescreened": 6,
+    "sector_ok": 30,
+    "pre_mc": 5,
+    "roi_precheck": 5,
+    "analyzed": 3,
+    "mismatch_ok": 1,
+    "quick_mc": 1,
+    "intraday_ok": 1,
+    "final_mc": 1,
+    "rl_scored": 1,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "after_isf": 1
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 4,
+      "tickers": [
+        "ACN",
+        "APO",
+        "BSX",
+        "COHR"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 2,
+      "tickers": [
+        "GLW",
+        "DELL"
+      ]
+    }
+  }
+}
