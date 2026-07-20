@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.3,
-      "last_price": 111.94,
-      "current_return": -0.0238
+      "last_price": 111.75,
+      "current_return": -0.019
     },
     {
       "ticker": "AAPL",
@@ -225,8 +225,8 @@
       },
       "outcome": null,
       "peak_return": 0.1105,
-      "last_price": 333.74,
-      "current_return": 0.1105
+      "last_price": 324.965,
+      "current_return": -0.0158
     }
   ],
   "closed_trades": [
@@ -11374,6 +11374,11 @@
         "date": "2026-07-17",
         "score": 0.0535,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": 0.0211,
+        "headline_count": 5
       }
     ],
     "CAG": [
@@ -11703,6 +11708,11 @@
         "date": "2026-07-13",
         "score": -0.0724,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-20",
+        "score": 0.4,
+        "headline_count": 5
       }
     ],
     "FANG": [
@@ -13073,6 +13083,11 @@
         "date": "2026-07-17",
         "score": -0.1112,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": 0.2285,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -14392,11 +14407,6 @@
     ],
     "AAPL": [
       {
-        "date": "2026-04-21",
-        "score": 0.1056,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-22",
         "score": -0.0747,
         "headline_count": 5
@@ -14689,6 +14699,11 @@
       {
         "date": "2026-07-17",
         "score": 0.1163,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": 0.166,
         "headline_count": 5
       }
     ],
@@ -24290,6 +24305,11 @@
         "date": "2026-07-06",
         "score": 0.137,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": -0.1852,
+        "headline_count": 5
       }
     ],
     "CPT": [
@@ -27569,6 +27589,11 @@
       {
         "date": "2026-04-20",
         "score": -0.0307,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": -0.5138,
         "headline_count": 5
       }
     ],
@@ -31244,6 +31269,11 @@
       {
         "date": "2026-07-17",
         "score": -0.1127,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": -0.0471,
         "headline_count": 5
       }
     ],
@@ -35815,6 +35845,11 @@
         "date": "2026-07-17",
         "score": 0.1588,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": 0.0506,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -36690,6 +36725,11 @@
         "date": "2026-07-03",
         "score": 0.0239,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-20",
+        "score": -0.0701,
+        "headline_count": 5
       }
     ],
     "EVRG": [
@@ -36730,6 +36770,27 @@
         "date": "2026-07-17",
         "score": -0.0723,
         "headline_count": 4
+      }
+    ],
+    "GEHC": [
+      {
+        "date": "2026-07-20",
+        "score": 0.1094,
+        "headline_count": 5
+      }
+    ],
+    "GEV": [
+      {
+        "date": "2026-07-20",
+        "score": 0.1094,
+        "headline_count": 5
+      }
+    ],
+    "IBM": [
+      {
+        "date": "2026-07-20",
+        "score": -0.175,
+        "headline_count": 5
       }
     ]
   },
@@ -36840,6 +36901,10 @@
       {
         "date": "2026-07-15",
         "atm_iv": 0.2775
+      },
+      {
+        "date": "2026-07-20",
+        "atm_iv": 0.2885
       }
     ]
   },
@@ -38580,6 +38645,43 @@
       "roi_gap": 0.0496,
       "vix": 18.09,
       "mc_hit_rate": 0.6242,
+      "outcome": null
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-07-20",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 324.88,
+        "target_price": 350.87,
+        "hit_rate": 0.6722,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0171,
+        "alpha": 0.00277
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 0.552,
+        "z_score": 0.89,
+        "sigma_30d": 0.0214,
+        "price_move_48h": 0.0191,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5732
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "4-8 Wochen"
+      },
       "outcome": null
     }
   ]
