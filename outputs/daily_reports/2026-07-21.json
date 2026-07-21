@@ -1,0 +1,30 @@
+{
+  "date": "2026-07-21",
+  "proposals": [],
+  "stats": {
+    "vix": 17.489999771118164,
+    "universe": 16,
+    "candidates": 16,
+    "prescreened": 5,
+    "sector_ok": 16,
+    "pre_mc": 2,
+    "roi_precheck": 2,
+    "analyzed": 2,
+    "mismatch_ok": 2,
+    "quick_mc": 2,
+    "intraday_ok": 2,
+    "final_mc": 2,
+    "rl_scored": 2,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "after_isf": 2,
+    "roi_rejects": {
+      "n": 2,
+      "gap_min": 0.0788,
+      "gap_median": 0.7493,
+      "gap_max": 0.7493
+    }
+  },
+  "rejects": {}
+}

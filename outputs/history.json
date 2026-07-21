@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.3,
-      "last_price": 110.7,
-      "current_return": -0.0417
+      "last_price": 111.295,
+      "current_return": -0.0452
     },
     {
       "ticker": "AAPL",
@@ -225,8 +225,8 @@
       },
       "outcome": null,
       "peak_return": 0.1105,
-      "last_price": 326.59,
-      "current_return": 0.014
+      "last_price": 327.785,
+      "current_return": 0.0193
     }
   ],
   "closed_trades": [
@@ -10282,6 +10282,11 @@
         "date": "2026-07-14",
         "score": -0.2351,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-21",
+        "score": -0.2599,
+        "headline_count": 5
       }
     ],
     "META": [
@@ -13087,6 +13092,11 @@
       {
         "date": "2026-07-20",
         "score": 0.2285,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": -0.0095,
         "headline_count": 5
       }
     ],
@@ -17226,6 +17236,11 @@
         "date": "2026-07-16",
         "score": 0.1463,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": -0.0514,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -19259,6 +19274,11 @@
         "date": "2026-07-06",
         "score": 0.137,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": -0.1925,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -19587,6 +19607,11 @@
       {
         "date": "2026-07-17",
         "score": 0.2832,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.1171,
         "headline_count": 5
       }
     ],
@@ -20446,6 +20471,11 @@
         "date": "2026-07-17",
         "score": 0.3247,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.6335,
+        "headline_count": 3
       }
     ],
     "COST": [
@@ -21409,6 +21439,11 @@
       {
         "date": "2026-07-17",
         "score": -0.0931,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.1871,
         "headline_count": 5
       }
     ],
@@ -23055,6 +23090,11 @@
       {
         "date": "2026-07-17",
         "score": -0.7974,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.119,
         "headline_count": 5
       }
     ],
@@ -27673,6 +27713,11 @@
         "date": "2026-07-03",
         "score": 0.0955,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-21",
+        "score": -0.019,
+        "headline_count": 2
       }
     ],
     "LMT": [
@@ -27847,6 +27892,11 @@
         "date": "2026-07-15",
         "score": 0.5911,
         "headline_count": 3
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.058,
+        "headline_count": 5
       }
     ],
     "EQT": [
@@ -31061,6 +31111,11 @@
         "date": "2026-07-17",
         "score": 0.3162,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.2672,
+        "headline_count": 4
       }
     ],
     "DOV": [
@@ -32323,6 +32378,11 @@
         "date": "2026-07-17",
         "score": 0.2978,
         "headline_count": 4
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.0712,
+        "headline_count": 5
       }
     ],
     "CCI": [
@@ -33401,6 +33461,11 @@
         "date": "2026-07-13",
         "score": 0.1937,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": -0.3212,
+        "headline_count": 5
       }
     ],
     "ECL": [
@@ -34113,6 +34178,11 @@
       {
         "date": "2026-05-20",
         "score": 0.43,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.5576,
         "headline_count": 5
       }
     ],
@@ -35673,6 +35743,11 @@
         "date": "2026-07-17",
         "score": 0.026,
         "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.1142,
+        "headline_count": 5
       }
     ],
     "COHR": [
@@ -35849,6 +35924,11 @@
       {
         "date": "2026-07-20",
         "score": 0.0506,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-07-21",
+        "score": 0.0846,
         "headline_count": 5
       }
     ],
@@ -38682,6 +38762,182 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
+      "outcome": null
+    },
+    {
+      "ticker": "AMD",
+      "entry_date": "2026-07-21",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 533.19,
+        "target_price": 618.98,
+        "hit_rate": 0.5454,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.048,
+        "alpha": 0.00039
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 4.471,
+        "z_score": 0.106,
+        "sigma_30d": 0.0496,
+        "price_move_48h": 0.0053,
+        "eps_drift": 0.0166,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.532
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "4-8 Wochen"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-07-21",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 178.52,
+        "target_price": 207.63,
+        "hit_rate": 0.5154,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0486,
+        "alpha": -0.00044
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.957,
+        "z_score": 0.009,
+        "sigma_30d": 0.0431,
+        "price_move_48h": 0.0004,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5128
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-07-21",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "INSIDER",
+      "strategy": "LONG_CALL",
+      "entry_debit": 35.65,
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 190.0,
+        "bid": 34.1,
+        "ask": 35.65,
+        "open_interest": 1510,
+        "implied_vol": 0.7601,
+        "spread_ratio": 0.0435,
+        "dte": 177,
+        "delta": 0.5786,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 178.52,
+        "target_price": 207.63,
+        "hit_rate": 0.5154,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0486,
+        "alpha": -0.00044
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.957,
+        "z_score": 0.009,
+        "sigma_30d": 0.0431,
+        "price_move_48h": 0.0004,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5128
+      },
+      "roi_net": 0.1488,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.0788,
+      "vix": 17.49,
+      "mc_hit_rate": 0.5128,
+      "outcome": null
+    },
+    {
+      "ticker": "AMD",
+      "entry_date": "2026-07-21",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 117.5,
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 530.0,
+        "bid": 115.3,
+        "ask": 117.5,
+        "open_interest": 2135,
+        "implied_vol": 0.7474,
+        "spread_ratio": 0.0187,
+        "dte": 177,
+        "delta": 0.6171,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 580.0,
+          "bid": 95.95,
+          "ask": 98.1
+        },
+        "net_debit": 21.55
+      },
+      "simulation": {
+        "current_price": 533.19,
+        "target_price": 618.98,
+        "hit_rate": 0.5454,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.048,
+        "alpha": 0.00039
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 4.471,
+        "z_score": 0.106,
+        "sigma_30d": 0.0496,
+        "price_move_48h": 0.0053,
+        "eps_drift": 0.0166,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.532
+      },
+      "roi_net": 0.8193,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.7493,
+      "vix": 17.49,
+      "mc_hit_rate": 0.532,
       "outcome": null
     }
   ]
