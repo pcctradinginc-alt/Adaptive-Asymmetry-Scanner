@@ -1,0 +1,32 @@
+{
+  "date": "2026-07-24",
+  "stats": {
+    "vix": 18.639999389648438,
+    "universe": 23,
+    "candidates": 23,
+    "prescreened": 5,
+    "sector_ok": 20,
+    "pre_mc": 3,
+    "roi_precheck": 3,
+    "analyzed": 3,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Kein Signal hat Mismatch-Filter bestanden.",
+    "after_isf": 3
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 3,
+      "tickers": [
+        "BKR",
+        "BSX",
+        "COHR"
+      ]
+    }
+  }
+}
