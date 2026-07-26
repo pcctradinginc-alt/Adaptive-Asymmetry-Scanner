@@ -29,14 +29,14 @@ from email.mime.text import MIMEText
 log = logging.getLogger(__name__)
 
 
-def send_status_email(pipeline_stats: dict, today: str) -> None:
+def send_status_email(pipeline_stats: dict, today: str, health: dict | None = None) -> None:
     trades  = pipeline_stats.get("trades", 0)
     subject = (
         f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
         if trades > 0
         else f"Adaptive Asymmetry-Scanner – Kein Trade – {today}"
     )
-    html = _build_status_email(pipeline_stats, today)
+    html = _build_status_email(pipeline_stats, today, health)
     _send_smtp(subject, html)
 
 
@@ -158,7 +158,7 @@ def _build_rl_arming_email(n_trades: int, threshold: int,
 </div></body></html>"""
 
 
-def _build_status_email(stats: dict, today: str) -> str:
+def _build_status_email(stats: dict, today: str, health: dict | None = None) -> str:
     vix         = stats.get("vix")
     trades      = stats.get("trades", 0)
     header_col  = "#16a34a" if trades > 0 else "#0f172a"
@@ -186,6 +186,20 @@ def _build_status_email(stats: dict, today: str) -> str:
 
     vix_str = f"{float(vix):.2f}" if vix else "–"
 
+    # ── Engine-Monitor: Warnungen (falls vorhanden) — reine Observability,
+    # kein Gate/keine Schwelle. Rückwärtskompatibel: health ist optional. ──
+    health_html = ""
+    engine_warnings = (health or {}).get("warnings") or []
+    if engine_warnings:
+        warn_rows = "".join(
+            f"""<li style="margin:4px 0;">{w}</li>""" for w in engine_warnings
+        )
+        health_html = f"""
+  <div style="padding:16px 32px;background:#fffbeb;border-top:1px solid #fde68a;">
+    <div style="font-size:13px;font-weight:bold;color:#b45309;margin-bottom:6px;">⚠️ Engine-Status: WARN</div>
+    <ul style="margin:0;padding-left:18px;font-size:12px;color:#92400e;">{warn_rows}</ul>
+  </div>"""
+
     return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;margin:0;padding:0;background:#f8fafc;">
 <div style="max-width:620px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
   <div style="background:{header_col};padding:28px 32px;">
@@ -196,7 +210,7 @@ def _build_status_email(stats: dict, today: str) -> str:
   </div>
   <div style="padding:24px 32px;">
     <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">{rows}</table>
-  </div>
+  </div>{health_html}
   <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
     Adaptive Asymmetry-Scanner v8.3 &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
   </div>

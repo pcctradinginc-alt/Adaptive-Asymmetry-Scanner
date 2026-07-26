@@ -66,6 +66,7 @@ from modules.premium_signals     import enrich_top_candidates
 from modules.sentiment_tracker   import enrich_with_sentiment_drift
 from modules.macro_context       import get_macro_context
 from modules.position_sizing     import enrich_with_sizing
+from modules.engine_monitor      import build_health_report, append_markdown_section
 from modules.config              import cfg
 
 logging.basicConfig(
@@ -271,6 +272,7 @@ def main() -> None:
     }
 
     _proposals_ref = []
+    _health_ref    = []   # letzter Engine-Health-Report, für die Status-Mail wiederverwendet
 
     def save_stats_snapshot():
         """Persistiert Funnel-Stats + Reject-Gründe in die Daily-JSON.
@@ -291,6 +293,17 @@ def main() -> None:
                 k: {"count": v["count"], "tickers": v["tickers"][:10]}
                 for k, v in reject_stats.items()
             }
+            # Engine-Monitor: reine Observability, darf den Snapshot nie verhindern.
+            try:
+                _hist = history if isinstance(history, dict) else load_history()
+                _health = build_health_report(
+                    history=_hist, reports_dir=REPORTS_DIR,
+                    today=datetime.strptime(today, "%Y-%m-%d").date(),
+                )
+                data["health"] = _health
+                _health_ref[:] = [_health]
+            except Exception as e:
+                log.debug(f"Engine-Monitor Health-Report übersprungen: {e}")
             path.write_text(json.dumps(data, indent=2, default=str))
         except Exception as e:
             log.error(f"Stats-Snapshot-Fehler: {e}")
@@ -299,11 +312,12 @@ def main() -> None:
         save_stats_snapshot()
         try:
             proposals = _proposals_ref[0] if len(_proposals_ref) > 0 else []
+            health = _health_ref[0] if _health_ref else None
             if proposals:
                 from modules.email_reporter import send_email as _send_trade_email
                 _send_trade_email(proposals, today, stats)
             else:
-                send_status_email(stats, today)
+                send_status_email(stats, today, health=health)
         except Exception as e:
             log.error(f"Email-Fehler: {e}")
 
@@ -923,6 +937,19 @@ def main() -> None:
     Reporter(reports_dir=REPORTS_DIR).save(
         today=today, proposals=trade_proposals, history=history
     )
+
+    # Engine-Monitor: Status-Abschnitt an die Daily-Markdown anhängen.
+    # Reine Observability (kein Gate, keine Schwelle) — darf die Pipeline
+    # nie brechen, deshalb defensiv try/except um den gesamten Block.
+    try:
+        _health = build_health_report(
+            history=history, reports_dir=REPORTS_DIR,
+            today=datetime.strptime(today, "%Y-%m-%d").date(),
+        )
+        append_markdown_section(REPORTS_DIR / f"{today}.md", _health)
+    except Exception as e:
+        log.error(f"Engine-Monitor Markdown-Abschnitt Fehler: {e}")
+
     save_history(history)
     send_email()
 

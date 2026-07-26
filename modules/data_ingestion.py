@@ -1,5 +1,22 @@
 """
-modules/data_ingestion.py v7.1
+modules/data_ingestion.py v7.2
+
+v7.2: Short-Interest-Bugfix + Momentum + Features-Anbindung
+    Bug: shortRatio (Days-to-Cover, z.B. 2.28 Tage) wurde als Fallback für
+    shortPercentOfFloat verwendet und fälschlich als Prozent-vom-Float
+    interpretiert (Einheiten-Mix). Fix: shortPercentOfFloat ist jetzt die
+    EINZIGE Quelle für short_float; shortRatio wird separat und ohne
+    Umrechnung als short_ratio_days erfasst.
+    Neu: short_mom (Short-Interest-Momentum ggü. Vormonat) — steigendes
+    Short Interest vor positiver News ist die eigentliche Squeeze-Alpha-
+    Hypothese.
+    Neu: short_pct_float / short_mom fließen jetzt in candidate["features"]
+    (nur wenn tatsächlich vorhanden, kein 0.0-Default) — damit landen sie
+    in outputs/history.json bei Trades/Schatten-Trades und sind
+    backtestbar.
+    Die reine Berechnung steckt jetzt in der modulweiten Hilfsfunktion
+    extract_short_interest(info) — netzwerkfrei, testbar ohne Mocking von
+    yfinance.
 
 v7.1: Short Interest als Feature
     yfinance liefert shortPercentOfFloat bereits im info-Dict.
@@ -41,6 +58,97 @@ MAX_WORKERS           = 20   # Parallel Threads — empirisch für Yahoo Finance
 # v7.1: Short Interest Schwellenwerte
 SHORT_INTEREST_HIGH   = 0.15   # 15% Short Float → "high" (Squeeze-Potential)
 SHORT_INTEREST_MED    = 0.08   # 8% Short Float → "elevated"
+
+
+def _safe_float(val) -> Optional[float]:
+    """Wandelt val defensiv in float um — None/leer/Müll-Strings → None, nie Exception."""
+    if val is None or val == "":
+        return None
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return None
+
+
+def extract_short_interest(info: dict | None) -> dict:
+    """
+    Reine, netzwerkfreie Hilfsfunktion — extrahiert Short-Interest-Kennzahlen
+    aus dem yfinance info-Dict. Wird sowohl von _evaluate_ticker() als auch
+    direkt von Tests aufgerufen (kein yfinance-Mocking nötig).
+
+    Wichtig (v7.2-Fix): shortPercentOfFloat ist die EINZIGE Quelle für
+    short_float. shortRatio ist "Days to Cover" (Tage, bis Shorts bei
+    aktuellem Handelsvolumen gedeckt wären) — eine völlig andere Einheit
+    als Prozent-vom-Float! Er wird separat und OHNE Umrechnung als
+    short_ratio_days erfasst und fließt nicht in short_float ein.
+
+    short_mom (Short-Interest-Momentum) = sharesShort / sharesShortPriorMonth - 1.
+    Nur gesetzt, wenn beide Werte vorhanden und der Vormonatswert > 0 ist
+    (sonst None). Steigendes Short Interest vor positiver News ist die
+    Squeeze-Alpha-Hypothese dieses Features.
+
+    Defensiv: yfinance-info-Felder können fehlen, None sein oder als
+    Müll-String vorliegen — diese Funktion wirft niemals eine Exception.
+
+    Rückgabe:
+        {
+            "short_float":      float,        # 0.0 wenn unbekannt
+            "label":            str,           # "high" | "elevated" | "normal"
+            "short_ratio_days": float | None,  # Days-to-Cover, unverändert
+            "short_mom":        float | None,  # Momentum ggü. Vormonat
+            "features": {                      # nur tatsächlich vorhandene Werte
+                "short_pct_float": float,       # nur falls shortPercentOfFloat vorhanden
+                "short_mom":       float,       # nur falls berechenbar
+            },
+        }
+    """
+    info = info or {}
+
+    # ── short_float: NUR shortPercentOfFloat, keine Vermischung mit shortRatio ──
+    raw_short_pct    = _safe_float(info.get("shortPercentOfFloat"))
+    short_float      = 0.0
+    have_short_float = raw_short_pct is not None
+    if have_short_float:
+        short_float = raw_short_pct
+        # yfinance liefert manchmal als Ratio (0.15) oder als Prozent (15.0)
+        if short_float > 1.0:
+            short_float = short_float / 100.0   # 15.0 → 0.15
+    short_float = round(short_float, 4)
+
+    # ── short_ratio_days: shortRatio (Days-to-Cover) — OHNE Umrechnung ──
+    short_ratio_days = _safe_float(info.get("shortRatio"))
+
+    # ── short_mom: Short-Interest-Momentum ggü. Vormonat ──
+    shares_short       = _safe_float(info.get("sharesShort"))
+    shares_short_prior = _safe_float(info.get("sharesShortPriorMonth"))
+    short_mom = None
+    if shares_short is not None and shares_short_prior is not None and shares_short_prior > 0:
+        short_mom = round(shares_short / shares_short_prior - 1.0, 4)
+
+    # ── Label (unverändert: high/elevated/normal) ──
+    if short_float >= SHORT_INTEREST_HIGH:
+        label = "high"
+    elif short_float >= SHORT_INTEREST_MED:
+        label = "elevated"
+    else:
+        label = "normal"
+
+    # ── Features fürs Backtesting: nur setzen, wenn Wert wirklich vorhanden ──
+    # (kein 0.0-Default — sonst würde "unbekannt" später als "kein Short
+    # Interest" fehlinterpretiert)
+    features = {}
+    if have_short_float:
+        features["short_pct_float"] = short_float
+    if short_mom is not None:
+        features["short_mom"] = short_mom
+
+    return {
+        "short_float":      short_float,
+        "label":            label,
+        "short_ratio_days": short_ratio_days,
+        "short_mom":        short_mom,
+        "features":         features,
+    }
 
 
 class DataIngestion:
@@ -169,19 +277,10 @@ class DataIngestion:
                 local_stats["no_news"] += 1
                 return None, local_stats
 
-            # ── v7.1: Short Interest extrahieren (kostenlos, bereits in info) ─
-            short_pct   = info.get("shortPercentOfFloat") or info.get("shortRatio") or 0.0
-            short_float = float(short_pct) if short_pct else 0.0
-            # yfinance gibt manchmal als Ratio (0.15) oder Prozent (15.0)
-            if short_float > 1.0:
-                short_float = short_float / 100.0   # 15.0 → 0.15
-
-            if short_float >= SHORT_INTEREST_HIGH:
-                short_label = "high"
-            elif short_float >= SHORT_INTEREST_MED:
-                short_label = "elevated"
-            else:
-                short_label = "normal"
+            # ── v7.1/v7.2: Short Interest extrahieren (kostenlos, bereits in info) ─
+            short_info  = extract_short_interest(info)
+            short_float = short_info["short_float"]
+            short_label = short_info["label"]
 
             local_stats["passed"] += 1
             dollar_volume = current_price * avg_vol
@@ -202,11 +301,15 @@ class DataIngestion:
                 "dollar_volume": dollar_volume,
                 "rel_volume":    round(rel_volume, 3),
                 "current_price": current_price,
-                "features":      {},
-                # v7.1: Short Interest
+                # v7.2: Short-Interest-Features fürs Backtesting (nur wenn vorhanden,
+                # kein 0.0-Default — siehe extract_short_interest())
+                "features":      dict(short_info["features"]),
+                # v7.1/v7.2: Short Interest (Logging/Reports)
                 "short_interest": {
-                    "short_float_pct": round(short_float, 4),
-                    "label":           short_label,
+                    "short_float_pct":  short_float,
+                    "label":            short_label,
+                    "short_ratio_days": short_info["short_ratio_days"],
+                    "short_mom":        short_info["short_mom"],
                 },
             }, local_stats
 

@@ -161,6 +161,16 @@ def tuning_suggestions(history: dict) -> list[dict]:
         return []
 
 
+def slot_candidates(history: dict) -> list[dict]:
+    """Kandidaten aus den laufenden Schatten-Messungen für den nächsten Slot."""
+    try:
+        from backtest_thresholds import slot_candidate_analysis
+        return slot_candidate_analysis(history)
+    except Exception as e:
+        log.warning(f"Slot-Analyse nicht berechenbar: {e}")
+        return []
+
+
 def _fmt_pct(x: float) -> str:
     return f"{x * 100:.0f}%"
 
@@ -202,10 +212,52 @@ def build_tuning_html(suggestions: list[dict]) -> str:
     max. eine Schwelle pro Monat (sonst ist der Effekt nicht zuordenbar).</p>"""
 
 
+def build_slot_html(candidates: list[dict]) -> str:
+    """
+    Entscheidungsvorlage für den nächsten Tuning-Slot — fasst die laufenden
+    Schatten-Messungen (Trailing-Stop, Spreads vs. Long Calls, Sektor-
+    Konzentration) zusammen. Reines Reporting, ändert nichts.
+    """
+    if not candidates:
+        return (
+            "<h3>🧭 Slot-Analyse — Kandidaten für den nächsten Tuning-Slot</h3>"
+            "<p>Keine Kandidaten berechenbar (fehlende Daten).</p>"
+        )
+    rows = ""
+    for c in candidates:
+        ready = c.get("ready", False)
+        style = "" if ready else "color:#94a3b8;"
+        status = "✅" if ready else "⏳"
+        rec = c.get("recommendation") or "—"
+        rows += (
+            f"<tr style='{style}'>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{status} "
+            f"<b>{c.get('name', '?')}</b></td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>n={c.get('n', 0)}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{c.get('finding', '')}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><i>{rec}</i></td>"
+            f"</tr>"
+        )
+    return f"""
+    <h3>🧭 Slot-Analyse — Kandidaten für den nächsten Tuning-Slot</h3>
+    <table style="border-collapse:collapse;font-size:13px;width:100%">
+      <tr style="text-align:left;color:#64748b;">
+        <th style="padding:4px 8px;">Analyse</th><th style="padding:4px 8px;">n</th>
+        <th style="padding:4px 8px;">Befund</th><th style="padding:4px 8px;">Empfehlung</th>
+      </tr>
+      {rows}
+    </table>
+    <p style="font-size:0.85em;color:#92400e;">⚠️ Ausgegraute Zeilen (⏳) haben noch zu wenig
+    Daten — Empfehlung lautet dann "weiter Daten sammeln". Es gilt weiterhin: max. eine
+    Schwellen-Änderung pro Monat (Tuning-Slot), und der User entscheidet, ob und welcher
+    Kandidat umgesetzt wird.</p>"""
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
                total: dict | None, funnel: dict,
                spy: float | None = None, shadow: dict | None = None,
-               tuning: list[dict] | None = None) -> str:
+               tuning: list[dict] | None = None,
+               slot: list[dict] | None = None) -> str:
     def stat_block(label: str, s: dict | None) -> str:
         if s is None:
             return f"<p><b>{label}:</b> keine geschlossenen Trades</p>"
@@ -275,6 +327,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       <hr>
       {stat_block("Gesamt (alle closed Trades)", total)}
       {build_tuning_html(tuning or [])}
+      {build_slot_html(slot or [])}
       {funnel_html}
       <hr>
       <p style="color:#888;font-size:0.85em">
@@ -305,6 +358,7 @@ def main() -> None:
     spy    = spy_return(report_month)
     shadow = shadow_stats(history, report_month)
     tuning = tuning_suggestions(history)
+    slot   = slot_candidates(history)
 
     if cur and prev:
         delta   = (cur["win_rate"] - prev["win_rate"]) * 100
@@ -319,7 +373,7 @@ def main() -> None:
 
     if tuning:
         log.info(f"{len(tuning)} Tuning-Vorschlag/Vorschläge gefunden")
-    html = build_html(report_month, cur, prev, total, funnel, spy, shadow, tuning)
+    html = build_html(report_month, cur, prev, total, funnel, spy, shadow, tuning, slot)
     log.info(f"Sende Monats-Report: {subject}")
     _send_smtp(subject, html)
     log.info("=== Monats-Report abgeschlossen ===")
