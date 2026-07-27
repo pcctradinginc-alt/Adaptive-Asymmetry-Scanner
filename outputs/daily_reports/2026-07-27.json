@@ -1,0 +1,192 @@
+{
+  "date": "2026-07-27",
+  "proposals": [],
+  "stats": {
+    "vix": 19.420000076293945,
+    "universe": 54,
+    "candidates": 54,
+    "prescreened": 11,
+    "sector_ok": 49,
+    "pre_mc": 6,
+    "roi_precheck": 6,
+    "analyzed": 6,
+    "mismatch_ok": 3,
+    "quick_mc": 3,
+    "intraday_ok": 3,
+    "final_mc": 3,
+    "rl_scored": 3,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "after_isf": 4,
+    "roi_rejects": {
+      "n": 3,
+      "gap_min": -0.0109,
+      "gap_median": -0.0001,
+      "gap_max": 0.1027
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 5,
+      "tickers": [
+        "COHR",
+        "GLW",
+        "CSGP",
+        "CCI",
+        "DOW"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "AXP"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 1,
+      "tickers": [
+        "T"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 5 Tage ohne Trade in Folge (dominanter Killer: mismatch_ok, 3x).",
+      "Neuester Report (2026-07-27): universe=0 (keine Ticker im Universum).",
+      "Neuester Report (2026-07-27): VIX fehlt."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 5,
+        "killer_counts": {
+          "universe": 1,
+          "mismatch_ok": 3,
+          "roi_ok": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-07-27",
+            "trades": 0,
+            "killer": "universe"
+          },
+          {
+            "date": "2026-07-24",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-07-23",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-07-22",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-07-21",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-20",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-07-17",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-16",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-15",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-07-14",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-07-27"
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-07-27"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-07-30"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-07-30"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-08"
+          },
+          "final_mc_survivor": {
+            "total": 26,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-17"
+          },
+          "roi_gate": {
+            "total": 15,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-20"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-23"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 0,
+          "avg_delta": null
+        }
+      }
+    }
+  }
+}
