@@ -1,0 +1,634 @@
+{
+  "date": "2026-07-28",
+  "proposals": [
+    {
+      "ticker": "CRWD",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 72.3,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 175.0,
+        "bid": 34.9,
+        "ask": 36.0,
+        "open_interest": 5883,
+        "implied_vol": 0.6314,
+        "spread_ratio": 0.0306,
+        "dte": 170,
+        "delta": 0.6254,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 192.5,
+          "bid": 26.45,
+          "ask": 28.4
+        },
+        "net_debit": 9.55
+      },
+      "roi_analysis": {
+        "roi_gross": 0.8217,
+        "roi_net": 0.9234168695426823,
+        "spread_pct": 0.0306,
+        "vega_loss": 0.1372,
+        "theta_daily": -0.0877,
+        "theta_daily_pct": 0.0092,
+        "delta": 0.5003,
+        "breakeven": 184.55,
+        "breakeven_pct": 0.017,
+        "commission_pct": 0.0027,
+        "iv_drop_assumed": 0.04393649999999999,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 9.55,
+        "mc_weight": 0.719,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 170,
+        "mc_pnl_pct": 0.6958671150812263,
+        "mc_pnl_mean": 0.9873168695426823,
+        "mc_median_net": 0.632
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 1.8196,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 170,
+          "option": {
+            "expiry": "2027-01-15",
+            "strike": 175.0,
+            "bid": 34.9,
+            "ask": 36.0,
+            "open_interest": 5883,
+            "implied_vol": 0.6314,
+            "spread_ratio": 0.0306,
+            "dte": 170,
+            "delta": 0.6254,
+            "data_source": "tradier",
+            "spread_leg": {
+              "strike": 192.5,
+              "bid": 26.45,
+              "ask": 28.4
+            },
+            "net_debit": 9.55
+          },
+          "roi": {
+            "roi_gross": 0.8217,
+            "roi_net": 0.9234168695426823,
+            "spread_pct": 0.0306,
+            "vega_loss": 0.1372,
+            "theta_daily": -0.0877,
+            "theta_daily_pct": 0.0092,
+            "delta": 0.5003,
+            "breakeven": 184.55,
+            "breakeven_pct": 0.017,
+            "commission_pct": 0.0027,
+            "iv_drop_assumed": 0.04393649999999999,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 9.55,
+            "mc_weight": 0.719,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 170,
+            "mc_pnl_pct": 0.6958671150812263,
+            "mc_pnl_mean": 0.9873168695426823,
+            "mc_median_net": 0.632
+          },
+          "roi_net_initial": 0.6206,
+          "annualized_roi": 1.8196,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.237,
+        "z_score": 0.553,
+        "sigma_30d": 0.0327,
+        "price_move_48h": 0.018,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7188
+      },
+      "simulation": {
+        "current_price": 181.47,
+        "target_price": 203.29,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0359,
+        "alpha": 0.0045
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "CrowdStrike ist eine Mega-Cap mit $184.8 Mrd. Marktkapitalisierung und extrem hoher Analyst-Coverage. Die Nachricht \u00fcber die '37-member AI Security Alliance ohne Tech-Giganten' ist vollst\u00e4ndig \u00f6ffentlich und wird innerhalb von Minuten von institutionellen Desks verarbeitet. Ein struktureller Informationsvorsprung existiert nicht \u2014 der angebliche Repricing-Effekt ist bereits eingepreist oder gar nicht vorhanden.",
+          "argument_2": "Die EPS-Divergenz zwischen yfinance ($1.56) und SEC EDGAR (-$0.04) ist ein erhebliches Datenqualit\u00e4tsproblem. Ein negatives GAAP-EPS signalisiert, dass CrowdStrike auf GAAP-Basis noch nicht profitabel ist. Bei einem Kurs von $181.47 und negativem GAAP-EPS ist die Bewertung extrem ambitioniert und anf\u00e4llig f\u00fcr Sentiment-Shifts, besonders wenn das AI-Security-Narrativ sich nicht schnell genug in Umsatz materialisiert.",
+          "argument_3": "Die 48h-Preisbewegung von -1.8% trotz positiver Newsflow deutet darauf hin, dass der Markt bereits skeptisch auf das Allianz-Signal reagiert. Eine Allianz ohne Nvidia, OpenAI, Anthropic und Google \u2014 also ohne die dominierenden AI-Player \u2014 k\u00f6nnte als Signal gewertet werden, dass CrowdStrike im Kernbereich AI-Security von den wirklich wichtigen Akteuren isoliert wird. Das schw\u00e4cht die bullische These erheblich.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Die fehlende Statistik ist neutral zu werten \u2014 sie kann weder best\u00e4tigen noch widerlegen. Bei CRWD mit historisch hoher Volatilit\u00e4t (~40-50% annualisiert) w\u00e4ren auf 30 Tage realistische Hit-Rates f\u00fcr moderate Bull-Targets bei 45-60% zu erwarten. Das Fehlen der Daten erlaubt keine Kalibrierung.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Insider-Cluster-Kauf von 7 Personen innerhalb 14 Tagen ist das st\u00e4rkste Signal \u2014 Insider kennen das Pipeline-Momentum und antizipieren m\u00f6glicherweise kommende Partnerschaftsdeals. Der Markt hat die Allianz oberfl\u00e4chlich als schwach bewertet (keine Tech-Giganten), untersch\u00e4tzt aber CrowdStrike als de-facto-Standard f\u00fcr Enterprise-Security. Q2-Earnings k\u00f6nnten die AI-Security-Adoption best\u00e4tigen.",
+        "catalyst": "Q2 FY2027 Earnings-Report (erwartet August/September 2026) mit AI-Security-ARR-Wachstum und m\u00f6glicher Konkretisierung der Alliance-Partnerschaften als Umsatzkatalysator",
+        "bear_case": "Negatives GAAP-EPS kombiniert mit ambitionierter Bewertung bei $184.8 Mrd. Marktkapitalisierung macht CRWD anf\u00e4llig f\u00fcr Multiple-Compression falls AI-Security-Adoption langsamer als erwartet materialisiert oder ein Wettbewerber (SentinelOne, Palo Alto) die Alliance-Position \u00fcbernimmt.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3.63%) ist moderat supportiv f\u00fcr High-Growth-Tech. VIX-Contango (17\u219219.8 auf 3M) signalisiert steigende erwartete Volatilit\u00e4t \u2014 Long-Calls auf CRWD sind vertretbar, aber ein Bull-Spread w\u00e4re risiko\u00e4rmer angesichts des IV-Anstiegs zur Earnings-Saison.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.34,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 184783503360,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.17
+      },
+      "final_score": 0.295,
+      "mc_hit_rate": 0.7188,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Technology",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 34.41,
+      "model_move_pct": 12.02,
+      "edge_vs_implied": 10.33,
+      "mc_pnl_pct": 0.6958671150812263,
+      "mc_pnl_mean": 0.9873168695426823,
+      "mc_pnl_std": 1.415228599922306,
+      "mc_hold_days": 85,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 0,
+      "trade_bep_pct": 1.7,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.5432,
+        "annualized_roi": 3.0731,
+        "dte": 170
+      },
+      "trade_score": {
+        "total": 60,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 30.0,
+          "risk_deductions": -2.0,
+          "context_bonus": 18.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 4.0,
+          "macro_sensitivity": 0.6
+        },
+        "reasoning": "St\u00e4rken: guter ROI (92%), Klarer Edge: Model +12.0% vs. Markt \u00b134.4% (+10.3%), positive Sektor-Relative-St\u00e4rke | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Der Insider-Cluster-Kauf von 7 Personen innerhalb 14 Tagen ist das st\u00e4rkste Signal \u2014 Insider kennen das Pipeline-Momentum und antizipieren m\u00f6glicherweise kommende Partnerschaftsdeals. Der Markt hat die Allianz oberfl\u00e4chlich als schwach bewertet (keine Tech-Giganten), untersch\u00e4tzt aber CrowdStrike als de-facto-Standard f\u00fcr Enterprise-Security. Q2-Earnings k\u00f6nnten die AI-Security-Adoption best\u00e4tigen.",
+        "best_argument_against": "CrowdStrike ist eine Mega-Cap mit $184.8 Mrd. Marktkapitalisierung und extrem hoher Analyst-Coverage. Die Nachricht \u00fcber die '37-member AI Security Alliance ohne Tech-Giganten' ist vollst\u00e4ndig \u00f6ffentlich und wird innerhalb von Minuten von institutionellen Desks verarbeitet. Ein struktureller Informationsvorsprung existiert nicht \u2014 der angebliche Repricing-Effekt ist bereits eingepreist oder gar nicht vorhanden."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.4752,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.1,
+        "position_usd": 500.0,
+        "cost_per_contract": 955.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($955) \u00fcbersteigt das Kelly-Budget ($500) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 9.55,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 15.12,
+        "full_profit_pct": 90,
+        "full_profit_price": 16.71,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 4.78,
+        "time_exit_dte_remaining": 76,
+        "time_exit_date": "2026-10-31",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 184.55
+      }
+    },
+    {
+      "ticker": "CSCO",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 41.7,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 115.0,
+        "bid": 14.75,
+        "ask": 15.65,
+        "open_interest": 10155,
+        "implied_vol": 0.4376,
+        "spread_ratio": 0.0575,
+        "dte": 170,
+        "delta": 0.5685,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 125.0,
+          "bid": 10.4,
+          "ask": 11.25
+        },
+        "net_debit": 5.25
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6396,
+        "roi_net": 1.10475740542796,
+        "spread_pct": 0.0575,
+        "vega_loss": 0.0156,
+        "theta_daily": -0.0401,
+        "theta_daily_pct": 0.0076,
+        "delta": 0.4548,
+        "breakeven": 120.25,
+        "breakeven_pct": 0.0307,
+        "commission_pct": 0.005,
+        "iv_drop_assumed": 0.00602225,
+        "iv_drop_base": 0.01,
+        "catalyst_type": "INSIDER",
+        "cost_basis": 5.25,
+        "mc_weight": 0.73,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 170,
+        "mc_pnl_pct": 1.0362995211664896,
+        "mc_pnl_mean": 1.2247574054279602,
+        "mc_median_net": 0.9163
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 1.4019,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 170,
+          "option": {
+            "expiry": "2027-01-15",
+            "strike": 115.0,
+            "bid": 14.75,
+            "ask": 15.65,
+            "open_interest": 10155,
+            "implied_vol": 0.4376,
+            "spread_ratio": 0.0575,
+            "dte": 170,
+            "delta": 0.5685,
+            "data_source": "tradier",
+            "spread_leg": {
+              "strike": 125.0,
+              "bid": 10.4,
+              "ask": 11.25
+            },
+            "net_debit": 5.25
+          },
+          "roi": {
+            "roi_gross": 0.6396,
+            "roi_net": 1.10475740542796,
+            "spread_pct": 0.0575,
+            "vega_loss": 0.0156,
+            "theta_daily": -0.0401,
+            "theta_daily_pct": 0.0076,
+            "delta": 0.4548,
+            "breakeven": 120.25,
+            "breakeven_pct": 0.0307,
+            "commission_pct": 0.005,
+            "iv_drop_assumed": 0.00602225,
+            "iv_drop_base": 0.01,
+            "catalyst_type": "INSIDER",
+            "cost_basis": 5.25,
+            "mc_weight": 0.73,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 170,
+            "mc_pnl_pct": 1.0362995211664896,
+            "mc_pnl_mean": 1.2247574054279602,
+            "mc_median_net": 0.9163
+          },
+          "roi_net_initial": 0.504,
+          "annualized_roi": 1.4019,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.167,
+        "z_score": 0.767,
+        "sigma_30d": 0.0209,
+        "price_move_48h": 0.0161,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7296
+      },
+      "simulation": {
+        "current_price": 116.67,
+        "target_price": 126.79,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0259,
+        "alpha": 0.00391
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "NVIDIA-gef\u00fchrte AI Security Alliance ist prim\u00e4r ein PR/\u00d6kosystem-Signal, kein direkter Umsatzkatalysator f\u00fcr CSCO. Cisco ist etablierter Netzwerk-Player und wird in solchen Allianzen oft als Kooperationspartner gelistet, ohne dass daraus kurzfristig messbares Revenue-Delta entsteht. Bei einem Mega-Cap mit $460 Mrd. Marktkapitalisierung werden Partnerschaftsmeldungen dieser Art binnen Minuten durch institutionelle Desks verarbeitet und eingepreist.",
+          "argument_2": "Patent-Invalidity-Risiken sind konkret negativer Katalysator, der im Haiku-Screening nur am Rande erw\u00e4hnt wird. Wenn laufende Patente f\u00fcr CSCOs Core-Networking-IP angefochten werden und Prosecution teurer wird, belastet das direkt die F&E-Effizienz und potenziell die Wettbewerbsposition. Die EPS-Diskrepanz zwischen yfinance (4.79) und SEC EDGAR (3.00) ist zudem bemerkenswert und deutet auf m\u00f6gliche Non-GAAP-Sch\u00f6nf\u00e4rberei hin, die fundamentale Schw\u00e4che kaschiert.",
+          "argument_3": "Der Dealer-Gamma-Effekt mit dominierender Call-OI (2035 vs. 572 Puts) ATM wirkt tats\u00e4chlich als Aufw\u00e4rtsd\u00e4mpfer: Dealer sind Short Gamma bei Call-\u00dcbergewicht und m\u00fcssen bei Kursanstieg Underlying verkaufen (Delta-Hedging), was nat\u00fcrliche Kursdeckelung erzeugt. Die 48h-Bewegung von +1.6% k\u00f6nnte bereits den Gro\u00dfteil des Alliance-News-Impulses absorbiert haben, sodass weiteres Upside ohne neuen Katalysator begrenzt ist.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate 0% wurde nicht berechnet (kein Quick MC durchgef\u00fchrt), ist also nicht interpretierbar. Kein statistisches Signal verf\u00fcgbar \u2014 weder bullish noch bearish. Fehlendes MC erh\u00f6ht Unsicherheit, ersetzt aber nicht die fundamentale Analyse. Concern bleibt medium, da ohne Pfad-Simulation kein R\u00fcckhalt f\u00fcr Wahrscheinlichkeitsaussagen vorhanden ist.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt hat den Insider-Cluster (8 K\u00e4ufe in 14 Tagen) noch nicht vollst\u00e4ndig als koordiniertes Commitment-Signal verarbeitet, da Einzelk\u00e4ufe oft ignoriert werden. Die AI-Security-Alliance positioniert CSCO als Netzwerk-Backbone f\u00fcr Enterprise-AI-Deployments, was schrittweise in Forward-Estimates eingepreist werden k\u00f6nnte. Patent-Risiken und Dealer-Gamma begrenzen jedoch das Upside strukturell.",
+        "catalyst": "Insider-Cluster-K\u00e4ufe kombiniert mit Enterprise-AI-Security-Alliance als mittelfristiger Umsatztreiber f\u00fcr Cisco-Netzwerkinfrastruktur",
+        "bear_case": "EPS-Diskrepanz (GAAP 3.00 vs. Non-GAAP 4.79) signalisiert strukturelle Bewertungsverzerrung; Patent-Invalidity-Risiken k\u00f6nnten IP-Moat besch\u00e4digen; Mega-Cap-Effizienz hat Alliance-News bereits eingepreist",
+        "macro_assessment": "Neutrale Zinskurve (0.34%) und Fed Funds bei 3.63% schaffen kein klares R\u00fccken- oder Gegenwind-Szenario. VIX-Contango beg\u00fcnstigt Long-Vol-Positionen moderat, aber bei CSCO als defensivem Technologietitel ist das Upside-Beta begrenzt. Makro erlaubt strukturellen Bullish-Bias, verlangt aber Spreads statt nackter Calls wegen Dealer-Gamma-Decklung.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.34,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 459926011904,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.0117
+      },
+      "final_score": 0.295,
+      "mc_hit_rate": 0.7296,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Technology",
+      "catalyst_type": "INSIDER",
+      "implied_move_pct": 24.04,
+      "model_move_pct": 8.67,
+      "edge_vs_implied": 5.61,
+      "mc_pnl_pct": 1.0362995211664896,
+      "mc_pnl_mean": 1.2247574054279602,
+      "mc_pnl_std": 1.292220782672003,
+      "mc_hold_days": 85,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 2,
+      "trade_bep_pct": 3.07,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.6499,
+        "annualized_roi": 3.9424,
+        "dte": 170
+      },
+      "trade_score": {
+        "total": 57,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 13.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 4.0,
+          "macro_sensitivity": 0.6
+        },
+        "reasoning": "St\u00e4rken: guter ROI (110%), Klarer Edge: Model +8.7% vs. Markt \u00b124.0% (+5.6%) | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Der Markt hat den Insider-Cluster (8 K\u00e4ufe in 14 Tagen) noch nicht vollst\u00e4ndig als koordiniertes Commitment-Signal verarbeitet, da Einzelk\u00e4ufe oft ignoriert werden. Die AI-Security-Alliance positioniert CSCO als Netzwerk-Backbone f\u00fcr Enterprise-AI-Deployments, was schrittweise in Forward-Estimates eingepreist werden k\u00f6nnte. Patent-Risiken und Dealer-Gamma begrenzen jedoch das Upside strukturell.",
+        "best_argument_against": "NVIDIA-gef\u00fchrte AI Security Alliance ist prim\u00e4r ein PR/\u00d6kosystem-Signal, kein direkter Umsatzkatalysator f\u00fcr CSCO. Cisco ist etablierter Netzwerk-Player und wird in solchen Allianzen oft als Kooperationspartner gelistet, ohne dass daraus kurzfristig messbares Revenue-Delta entsteht. Bei einem Mega-Cap mit $460 Mrd. Marktkapitalisierung werden Partnerschaftsmeldungen dieser Art binnen Minuten durch institutionelle Desks verarbeitet und eingepreist."
+      },
+      "trade_rank": 2,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.5338,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.1,
+        "position_usd": 500.0,
+        "cost_per_contract": 525.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($525) \u00fcbersteigt das Kelly-Budget ($500) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 5.25,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 8.57,
+        "full_profit_pct": 90,
+        "full_profit_price": 9.53,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 2.62,
+        "time_exit_dte_remaining": 76,
+        "time_exit_date": "2026-10-31",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 120.25
+      }
+    }
+  ],
+  "stats": {
+    "vix": 17.989999771118164,
+    "universe": 93,
+    "candidates": 93,
+    "prescreened": 21,
+    "sector_ok": 87,
+    "pre_mc": 13,
+    "roi_precheck": 13,
+    "analyzed": 10,
+    "mismatch_ok": 2,
+    "quick_mc": 2,
+    "intraday_ok": 2,
+    "final_mc": 2,
+    "rl_scored": 2,
+    "roi_ok": 2,
+    "trades": 2,
+    "stop_reason": "",
+    "after_isf": 7
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 6,
+      "tickers": [
+        "APP",
+        "CIEN",
+        "COHR",
+        "GLW",
+        "CCI",
+        "DOW"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 3,
+      "tickers": [
+        "GOOGL",
+        "CMCSA",
+        "ED"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 6 Tage ohne Trade in Folge (dominanter Killer: mismatch_ok, 3x).",
+      "Neuester Report (2026-07-28): universe=0 (keine Ticker im Universum).",
+      "Neuester Report (2026-07-28): VIX fehlt."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 6,
+        "killer_counts": {
+          "universe": 1,
+          "roi_ok": 2,
+          "mismatch_ok": 3
+        },
+        "last_10_days": [
+          {
+            "date": "2026-07-28",
+            "trades": 0,
+            "killer": "universe"
+          },
+          {
+            "date": "2026-07-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-24",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-07-23",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-07-22",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-07-21",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-20",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-07-17",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-16",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-15",
+            "trades": 1,
+            "killer": null
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-07-30"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-07-30"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-08"
+          },
+          "final_mc_survivor": {
+            "total": 28,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-17"
+          },
+          "roi_gate": {
+            "total": 15,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-20"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-23"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 0,
+          "avg_delta": null
+        }
+      }
+    }
+  }
+}
