@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.3,
-      "last_price": 120.88,
-      "current_return": 0.194
+      "last_price": 120.24,
+      "current_return": 0.2333
     },
     {
       "ticker": "AAPL",
@@ -225,8 +225,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 312.41,
-      "current_return": -0.2561
+      "last_price": 314.355,
+      "current_return": -0.2404
     },
     {
       "ticker": "CRWD",
@@ -319,9 +319,9 @@
         "dte": 170
       },
       "outcome": null,
-      "peak_return": 0.0524,
-      "last_price": 207.39,
-      "current_return": -0.0969
+      "peak_return": 0.0681,
+      "last_price": 211.83,
+      "current_return": 0.0681
     },
     {
       "ticker": "ALL",
@@ -415,8 +415,103 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 275.11,
-      "current_return": -0.0625
+      "last_price": 268.68,
+      "current_return": -0.1905
+    },
+    {
+      "ticker": "ABNB",
+      "entry_date": "2026-08-07",
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.266,
+        "z_score": 0.347,
+        "sigma_30d": 0.0331,
+        "price_move_48h": 0.0115,
+        "eps_drift": 0.0799,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "relevant",
+        "quick_mc_hit_rate": 0.711
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 9.65,
+      "entry_quote": {
+        "bid": 17.05,
+        "ask": 18.2,
+        "mid": 17.625,
+        "spread_pct": 0.0632,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 175.0,
+        "bid": 17.05,
+        "ask": 18.2,
+        "open_interest": 3565,
+        "implied_vol": 0.3525,
+        "spread_ratio": 0.0632,
+        "dte": 160,
+        "delta": 0.5786,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 195.0,
+          "bid": 8.55,
+          "ask": 9.8
+        },
+        "net_debit": 9.65
+      },
+      "simulation": {
+        "current_price": 175.64,
+        "target_price": 190.29,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0249,
+        "alpha": 0.00373
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Earnings Beat und die AI-Narrative sind nach einem +8%-Gap bereits weitgehend eingepreist. Die Headline 'AI Paying Off, Says CEO' ist eine \u00f6ffentliche, breit rezipierte Aussage \u2014 kein Informationsvorsprung. Der Markt hat innerhalb von 48h auf +1.1% zus\u00e4tzlich reagiert, was auf abnehmende Momentum-Kraft hindeutet. Bei einem KGV-Multiple, das AI-Wachstum bereits teilweise diskontiert, ist der marginale \u00dcberraschungseffekt deutlich ersch\u00f6pft.",
+          "argument_2": "Die EPS-Divergenz zwischen yfinance (6.04) und SEC EDGAR (4.03) betr\u00e4gt 8% und ist ein ernsthaftes Datenqualit\u00e4tsproblem. Es ist unklar, welche Zahl die tats\u00e4chliche operative Profitabilit\u00e4t widerspiegelt \u2014 Non-GAAP-Anpassungen k\u00f6nnten das Bild erheblich verzerren. Anlageentscheidungen auf Basis gesch\u00f6nter EPS-Zahlen erh\u00f6hen das Risiko einer negativen Revision oder Entt\u00e4uschung beim n\u00e4chsten Earnings-Zyklus erheblich.",
+          "argument_3": "Consumer Cyclical-Titel wie ABNB sind bei einem 10Y-Yield von 4.60% strukturell unter Druck, da Reisebudgets der Konsumenten durch hohe Finanzierungskosten belastet werden. Das Dealer-Gamma-Signal (Call-OI 360 vs. Put-OI 0 ATM) deutet auf einseitige Positionierung hin \u2014 bei einem Sentiment-Umschwung oder schwachen Makrodaten k\u00f6nnten Short-Squeezes ausbleiben und Long-Positionen abrupt liquidiert werden.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet keine statistischen Pfade berechnet, keine Aussagekraft. Das Fehlen des MC-Vorfilters erh\u00f6ht die Unsicherheit, da keine Verteilungsannahmen validiert wurden. Concern: medium, da ohne MC-Daten das Risikoprofil nur qualitativ beurteilbar ist.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Insider-Cluster von 6 K\u00e4ufern in 14 Tagen liefert ein genuines, \u00fcber reines Earnings-Momentum hinausgehendes Signal. Der Markt hat die AI-Monetarisierung im Supply/Demand-Matching noch nicht vollst\u00e4ndig in Forward-Multiples diskontiert. Das neutrale Makroregime mit flacher Kurve reduziert systematischen Gegenwind, sodass idiosynkratisches Alpha tragen kann.",
+        "catalyst": "AI-gest\u00fctzte Angebotsoptimierung und n\u00e4chster Earnings-Zyklus Q3 2026 als Best\u00e4tigungskatalysator f\u00fcr nachhaltige Margensteigerung",
+        "bear_case": "Post-Earnings-IV-Crush und bereits vollst\u00e4ndig eingepreiste AI-Narrative bei 4.60% Yield-Belastung f\u00fcr Consumer Cyclicals k\u00f6nnten Upside auf 3-5% begrenzen",
+        "macro_assessment": "Neutrales Regime mit flacher Zinskurve (+0.44%) ist kein aktiver Gegenwind, aber 4.60% 10Y-Yield belastet Consumer Cyclicals strukturell. VIX-Contango (+56%) signalisiert sinkende implizite Volatilit\u00e4t \u2014 Long-Vol-Positionen sind weniger riskant als bei Backwardation, aber IV-Crush nach bereits erfolgtem Earnings-Event begrenzt den Wert nackter Long-Calls. Spreads empfohlen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.44,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 104243200000,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.9683,
+        "annualized_roi": null,
+        "dte": 160
+      },
+      "outcome": null,
+      "peak_return": -0.1192,
+      "last_price": 175.625,
+      "current_return": -0.1192
     }
   ],
   "closed_trades": [
@@ -9147,6 +9242,11 @@
         "date": "2026-08-06",
         "score": 0.2104,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.4028,
+        "headline_count": 5
       }
     ],
     "AMZN": [
@@ -17407,6 +17507,11 @@
         "date": "2026-08-06",
         "score": -0.6182,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.1881,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -17715,6 +17820,11 @@
         "date": "2026-08-06",
         "score": 0.1678,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": -0.6585,
+        "headline_count": 4
       }
     ],
     "MDB": [
@@ -19735,6 +19845,11 @@
       {
         "date": "2026-08-06",
         "score": 0.0277,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.2044,
         "headline_count": 5
       }
     ],
@@ -22452,11 +22567,6 @@
     ],
     "AMD": [
       {
-        "date": "2026-04-23",
-        "score": 0.269,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-24",
         "score": 0.3059,
         "headline_count": 5
@@ -22749,6 +22859,11 @@
       {
         "date": "2026-08-04",
         "score": 0.0695,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.431,
         "headline_count": 5
       }
     ],
@@ -27087,6 +27202,11 @@
         "date": "2026-08-06",
         "score": 0.2631,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.2658,
+        "headline_count": 5
       }
     ],
     "CTSH": [
@@ -30186,6 +30306,11 @@
         "date": "2026-08-06",
         "score": 0.4572,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.5249,
+        "headline_count": 5
       }
     ],
     "ACN": [
@@ -32378,6 +32503,11 @@
         "date": "2026-08-06",
         "score": -0.2525,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": -0.4111,
+        "headline_count": 4
       }
     ],
     "CSCO": [
@@ -38618,6 +38748,11 @@
         "date": "2026-08-05",
         "score": 0.1349,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.3696,
+        "headline_count": 5
       }
     ],
     "COHR": [
@@ -38849,6 +38984,11 @@
       {
         "date": "2026-08-06",
         "score": 0.1801,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.3119,
         "headline_count": 5
       }
     ],
@@ -39360,6 +39500,11 @@
       {
         "date": "2026-08-06",
         "score": -0.0505,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-07",
+        "score": 0.0353,
         "headline_count": 5
       }
     ],
@@ -40093,6 +40238,12 @@
       {
         "date": "2026-08-06",
         "atm_iv": 0.2849
+      }
+    ],
+    "ABNB": [
+      {
+        "date": "2026-08-07",
+        "atm_iv": 0.3525
       }
     ]
   },
@@ -42840,6 +42991,43 @@
         "direction": "BULLISH",
         "impact": 6,
         "surprise": 5,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "ABNB",
+      "entry_date": "2026-08-07",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 175.64,
+        "target_price": 190.29,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0249,
+        "alpha": 0.00373
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.266,
+        "z_score": 0.347,
+        "sigma_30d": 0.0331,
+        "price_move_48h": 0.0115,
+        "eps_drift": 0.0799,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "relevant",
+        "quick_mc_hit_rate": 0.711
+      },
+      "sector": "Consumer Cyclical",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
       "outcome": null

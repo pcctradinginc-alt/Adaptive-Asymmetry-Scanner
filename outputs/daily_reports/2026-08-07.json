@@ -1,0 +1,401 @@
+{
+  "date": "2026-08-07",
+  "proposals": [
+    {
+      "ticker": "ABNB",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 84.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 175.0,
+        "bid": 17.05,
+        "ask": 18.2,
+        "open_interest": 3565,
+        "implied_vol": 0.3525,
+        "spread_ratio": 0.0632,
+        "dte": 160,
+        "delta": 0.5786,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 195.0,
+          "bid": 8.55,
+          "ask": 9.8
+        },
+        "net_debit": 9.65
+      },
+      "roi_analysis": {
+        "roi_gross": 0.4996,
+        "roi_net": 1.5492639358371776,
+        "spread_pct": 0.0632,
+        "vega_loss": 0.0788,
+        "theta_daily": -0.0507,
+        "theta_daily_pct": 0.0052,
+        "delta": 0.4629,
+        "breakeven": 184.65,
+        "breakeven_pct": 0.0513,
+        "commission_pct": 0.0027,
+        "iv_drop_assumed": 0.04691999999999999,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 9.65,
+        "mc_weight": 0.711,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 160,
+        "mc_pnl_pct": 0.9747704606423674,
+        "mc_pnl_mean": 1.6783639358371776,
+        "mc_median_net": 0.8457
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.793,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 160,
+          "option": {
+            "expiry": "2027-01-15",
+            "strike": 175.0,
+            "bid": 17.05,
+            "ask": 18.2,
+            "open_interest": 3565,
+            "implied_vol": 0.3525,
+            "spread_ratio": 0.0632,
+            "dte": 160,
+            "delta": 0.5786,
+            "data_source": "tradier",
+            "spread_leg": {
+              "strike": 195.0,
+              "bid": 8.55,
+              "ask": 9.8
+            },
+            "net_debit": 9.65
+          },
+          "roi": {
+            "roi_gross": 0.4996,
+            "roi_net": 1.5492639358371776,
+            "spread_pct": 0.0632,
+            "vega_loss": 0.0788,
+            "theta_daily": -0.0507,
+            "theta_daily_pct": 0.0052,
+            "delta": 0.4629,
+            "breakeven": 184.65,
+            "breakeven_pct": 0.0513,
+            "commission_pct": 0.0027,
+            "iv_drop_assumed": 0.04691999999999999,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 9.65,
+            "mc_weight": 0.711,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 160,
+            "mc_pnl_pct": 0.9747704606423674,
+            "mc_pnl_mean": 1.6783639358371776,
+            "mc_median_net": 0.8457
+          },
+          "roi_net_initial": 0.2917,
+          "annualized_roi": 0.793,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 3.266,
+        "z_score": 0.347,
+        "sigma_30d": 0.0331,
+        "price_move_48h": 0.0115,
+        "eps_drift": 0.0799,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "relevant",
+        "quick_mc_hit_rate": 0.711
+      },
+      "simulation": {
+        "current_price": 175.64,
+        "target_price": 190.29,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0249,
+        "alpha": 0.00373
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Earnings Beat und die AI-Narrative sind nach einem +8%-Gap bereits weitgehend eingepreist. Die Headline 'AI Paying Off, Says CEO' ist eine \u00f6ffentliche, breit rezipierte Aussage \u2014 kein Informationsvorsprung. Der Markt hat innerhalb von 48h auf +1.1% zus\u00e4tzlich reagiert, was auf abnehmende Momentum-Kraft hindeutet. Bei einem KGV-Multiple, das AI-Wachstum bereits teilweise diskontiert, ist der marginale \u00dcberraschungseffekt deutlich ersch\u00f6pft.",
+          "argument_2": "Die EPS-Divergenz zwischen yfinance (6.04) und SEC EDGAR (4.03) betr\u00e4gt 8% und ist ein ernsthaftes Datenqualit\u00e4tsproblem. Es ist unklar, welche Zahl die tats\u00e4chliche operative Profitabilit\u00e4t widerspiegelt \u2014 Non-GAAP-Anpassungen k\u00f6nnten das Bild erheblich verzerren. Anlageentscheidungen auf Basis gesch\u00f6nter EPS-Zahlen erh\u00f6hen das Risiko einer negativen Revision oder Entt\u00e4uschung beim n\u00e4chsten Earnings-Zyklus erheblich.",
+          "argument_3": "Consumer Cyclical-Titel wie ABNB sind bei einem 10Y-Yield von 4.60% strukturell unter Druck, da Reisebudgets der Konsumenten durch hohe Finanzierungskosten belastet werden. Das Dealer-Gamma-Signal (Call-OI 360 vs. Put-OI 0 ATM) deutet auf einseitige Positionierung hin \u2014 bei einem Sentiment-Umschwung oder schwachen Makrodaten k\u00f6nnten Short-Squeezes ausbleiben und Long-Positionen abrupt liquidiert werden.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt \u2014 0% Hit-Rate bedeutet keine statistischen Pfade berechnet, keine Aussagekraft. Das Fehlen des MC-Vorfilters erh\u00f6ht die Unsicherheit, da keine Verteilungsannahmen validiert wurden. Concern: medium, da ohne MC-Daten das Risikoprofil nur qualitativ beurteilbar ist.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 4,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Insider-Cluster von 6 K\u00e4ufern in 14 Tagen liefert ein genuines, \u00fcber reines Earnings-Momentum hinausgehendes Signal. Der Markt hat die AI-Monetarisierung im Supply/Demand-Matching noch nicht vollst\u00e4ndig in Forward-Multiples diskontiert. Das neutrale Makroregime mit flacher Kurve reduziert systematischen Gegenwind, sodass idiosynkratisches Alpha tragen kann.",
+        "catalyst": "AI-gest\u00fctzte Angebotsoptimierung und n\u00e4chster Earnings-Zyklus Q3 2026 als Best\u00e4tigungskatalysator f\u00fcr nachhaltige Margensteigerung",
+        "bear_case": "Post-Earnings-IV-Crush und bereits vollst\u00e4ndig eingepreiste AI-Narrative bei 4.60% Yield-Belastung f\u00fcr Consumer Cyclicals k\u00f6nnten Upside auf 3-5% begrenzen",
+        "macro_assessment": "Neutrales Regime mit flacher Zinskurve (+0.44%) ist kein aktiver Gegenwind, aber 4.60% 10Y-Yield belastet Consumer Cyclicals strukturell. VIX-Contango (+56%) signalisiert sinkende implizite Volatilit\u00e4t \u2014 Long-Vol-Positionen sind weniger riskant als bei Backwardation, aber IV-Crush nach bereits erfolgtem Earnings-Event begrenzt den Wert nackter Long-Calls. Spreads empfohlen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.44,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 104243200000,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": 0.2058
+      },
+      "final_score": 0.0922,
+      "mc_hit_rate": 0.711,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Consumer Cyclical",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 18.9,
+      "model_move_pct": 8.34,
+      "edge_vs_implied": 3.21,
+      "mc_pnl_pct": 0.9747704606423674,
+      "mc_pnl_mean": 1.6783639358371776,
+      "mc_pnl_std": 2.5584349795764063,
+      "mc_hold_days": 80,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 0,
+      "trade_bep_pct": 5.13,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.9683,
+        "annualized_roi": null,
+        "dte": 160
+      },
+      "trade_score": {
+        "total": 61,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 17.9,
+          "options_quality": 27.0,
+          "risk_deductions": -2.0,
+          "context_bonus": 18.5,
+          "roi_penalty": 0.0,
+          "edge_pts": 0.0,
+          "macro_sensitivity": 0.7
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=4), guter ROI (155%), positive Sektor-Relative-St\u00e4rke",
+        "best_argument_for": "Der Insider-Cluster von 6 K\u00e4ufern in 14 Tagen liefert ein genuines, \u00fcber reines Earnings-Momentum hinausgehendes Signal. Der Markt hat die AI-Monetarisierung im Supply/Demand-Matching noch nicht vollst\u00e4ndig in Forward-Multiples diskontiert. Das neutrale Makroregime mit flacher Kurve reduziert systematischen Gegenwind, sodass idiosynkratisches Alpha tragen kann.",
+        "best_argument_against": "Der Earnings Beat und die AI-Narrative sind nach einem +8%-Gap bereits weitgehend eingepreist. Die Headline 'AI Paying Off, Says CEO' ist eine \u00f6ffentliche, breit rezipierte Aussage \u2014 kein Informationsvorsprung. Der Markt hat innerhalb von 48h auf +1.1% zus\u00e4tzlich reagiert, was auf abnehmende Momentum-Kraft hindeutet. Bei einem KGV-Multiple, das AI-Wachstum bereits teilweise diskontiert, ist der marginale \u00dcberraschungseffekt deutlich ersch\u00f6pft."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.5618,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.1,
+        "position_usd": 500.0,
+        "cost_per_contract": 965.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($965) \u00fcbersteigt das Kelly-Budget ($500) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 9.65,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 16.89,
+        "full_profit_pct": 90,
+        "full_profit_price": 18.96,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 4.83,
+        "time_exit_dte_remaining": 72,
+        "time_exit_date": "2026-11-04",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 184.65
+      }
+    }
+  ],
+  "stats": {
+    "vix": 14.930000305175781,
+    "universe": 11,
+    "candidates": 11,
+    "prescreened": 3,
+    "sector_ok": 9,
+    "pre_mc": 3,
+    "roi_precheck": 3,
+    "analyzed": 3,
+    "mismatch_ok": 1,
+    "quick_mc": 1,
+    "intraday_ok": 1,
+    "final_mc": 1,
+    "rl_scored": 1,
+    "roi_ok": 1,
+    "trades": 1,
+    "stop_reason": "",
+    "after_isf": 1
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 2,
+      "tickers": [
+        "APP",
+        "APTV"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 2,
+      "tickers": [
+        "AMD",
+        "DDOG"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Neuester Report (2026-08-07): universe=0 (keine Ticker im Universum).",
+      "Neuester Report (2026-08-07): VIX fehlt."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 1,
+        "killer_counts": {
+          "universe": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-08-07",
+            "trades": 0,
+            "killer": "universe"
+          },
+          {
+            "date": "2026-08-06",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-05",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-04",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-08-03",
+            "trades": 0,
+            "killer": "quick_mc"
+          },
+          {
+            "date": "2026-07-31",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-30",
+            "trades": 0,
+            "killer": "quick_mc"
+          },
+          {
+            "date": "2026-07-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-28",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-07-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-08"
+          },
+          "final_mc_survivor": {
+            "total": 36,
+            "evaluated": 0,
+            "ready_in_14d": 10,
+            "next_eval_date": "2026-08-17"
+          },
+          "roi_gate": {
+            "total": 19,
+            "evaluated": 0,
+            "ready_in_14d": 3,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 0,
+            "ready_in_14d": 3,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-20"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-08-23"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 0,
+          "avg_delta": null
+        }
+      }
+    }
+  }
+}
