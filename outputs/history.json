@@ -129,9 +129,9 @@
         "dte": 167
       },
       "outcome": null,
-      "peak_return": 0.3,
-      "last_price": 121.43,
-      "current_return": 0.2167
+      "peak_return": 0.3333,
+      "last_price": 123.84,
+      "current_return": 0.3333
     },
     {
       "ticker": "AAPL",
@@ -225,8 +225,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 313.33,
-      "current_return": -0.2649
+      "last_price": 306.626,
+      "current_return": -0.3754
     },
     {
       "ticker": "CRWD",
@@ -319,9 +319,9 @@
         "dte": 170
       },
       "outcome": null,
-      "peak_return": 0.1387,
-      "last_price": 214.42,
-      "current_return": 0.1387
+      "peak_return": 0.144,
+      "last_price": 223.875,
+      "current_return": 0.144
     },
     {
       "ticker": "ALL",
@@ -415,8 +415,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 267.0,
-      "current_return": -0.1786
+      "last_price": 269.83,
+      "current_return": -0.1488
     },
     {
       "ticker": "ABNB",
@@ -509,9 +509,9 @@
         "dte": 160
       },
       "outcome": null,
-      "peak_return": -0.0803,
-      "last_price": 178.07,
-      "current_return": -0.0803
+      "peak_return": -0.0389,
+      "last_price": 181.23,
+      "current_return": -0.0389
     }
   ],
   "closed_trades": [
@@ -9039,6 +9039,11 @@
         "date": "2026-08-03",
         "score": 0.0844,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-10",
+        "score": 0.0228,
+        "headline_count": 4
       }
     ],
     "GEN": [
@@ -15202,11 +15207,6 @@
     ],
     "AAPL": [
       {
-        "date": "2026-05-05",
-        "score": 0.6034,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-06",
         "score": -0.4311,
         "headline_count": 5
@@ -15499,6 +15499,11 @@
       {
         "date": "2026-08-06",
         "score": 0.1627,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-10",
+        "score": -0.3264,
         "headline_count": 5
       }
     ],
@@ -16487,6 +16492,11 @@
       {
         "date": "2026-08-03",
         "score": -0.1015,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-10",
+        "score": -0.0343,
         "headline_count": 5
       }
     ],
@@ -17825,6 +17835,11 @@
         "date": "2026-08-07",
         "score": -0.6585,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-10",
+        "score": 0.1243,
+        "headline_count": 5
       }
     ],
     "MDB": [
@@ -18104,6 +18119,11 @@
         "date": "2026-08-05",
         "score": 0.5975,
         "headline_count": 3
+      },
+      {
+        "date": "2026-08-10",
+        "score": -0.2154,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -27206,6 +27226,11 @@
       {
         "date": "2026-08-07",
         "score": 0.2658,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-10",
+        "score": 0.4306,
         "headline_count": 5
       }
     ],
@@ -37624,6 +37649,11 @@
         "date": "2026-08-06",
         "score": 0.3394,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-10",
+        "score": 0.0691,
+        "headline_count": 4
       }
     ],
     "APO": [
@@ -38989,6 +39019,11 @@
       {
         "date": "2026-08-07",
         "score": 0.3119,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-10",
+        "score": 0.1193,
         "headline_count": 5
       }
     ],
@@ -40488,7 +40523,8 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.4826
       },
-      "outcome": null
+      "outcome": 0.8262,
+      "close_date": "2026-08-10"
     },
     {
       "ticker": "CARR",
