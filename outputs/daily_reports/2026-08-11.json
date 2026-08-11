@@ -1,0 +1,163 @@
+{
+  "date": "2026-08-11",
+  "stats": {
+    "vix": 15.420000076293945,
+    "universe": 7,
+    "candidates": 7,
+    "prescreened": 1,
+    "sector_ok": 6,
+    "pre_mc": 1,
+    "roi_precheck": 1,
+    "analyzed": 1,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Kein Signal hat Mismatch-Filter bestanden.",
+    "after_isf": 1
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 1,
+      "tickers": [
+        "APP"
+      ]
+    }
+  },
+  "health": {
+    "status": "OK",
+    "warnings": [],
+    "metrics": {
+      "duerre": {
+        "streak": 1,
+        "killer_counts": {
+          "mismatch_ok": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-08-10",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-07",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-06",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-05",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-04",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-08-03",
+            "trades": 0,
+            "killer": "quick_mc"
+          },
+          {
+            "date": "2026-07-31",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-30",
+            "trades": 0,
+            "killer": "quick_mc"
+          },
+          {
+            "date": "2026-07-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-07-28",
+            "trades": 2,
+            "killer": null
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "final_mc_survivor": {
+            "total": 36,
+            "evaluated": 0,
+            "ready_in_14d": 15,
+            "next_eval_date": "2026-08-17"
+          },
+          "roi_gate": {
+            "total": 19,
+            "evaluated": 0,
+            "ready_in_14d": 7,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 0,
+            "ready_in_14d": 3,
+            "next_eval_date": "2026-08-17"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-20"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-23"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 0,
+          "avg_delta": null
+        }
+      }
+    }
+  }
+}
