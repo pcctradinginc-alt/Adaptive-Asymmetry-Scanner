@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.3333,
-      "last_price": 113.47,
-      "current_return": -0.144
+      "last_price": 111.59,
+      "current_return": -0.2226
     },
     {
       "ticker": "AAPL",
@@ -225,8 +225,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 305.26,
-      "current_return": -0.4105
+      "last_price": 304.835,
+      "current_return": -0.4175
     },
     {
       "ticker": "CRWD",
@@ -320,8 +320,8 @@
       },
       "outcome": null,
       "peak_return": 0.2277,
-      "last_price": 225.53,
-      "current_return": 0.2094
+      "last_price": 220.44,
+      "current_return": 0.2068
     },
     {
       "ticker": "ALL",
@@ -415,8 +415,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 260.48,
-      "current_return": -0.3155
+      "last_price": 260.02,
+      "current_return": -0.3244
     },
     {
       "ticker": "ABNB",
@@ -510,8 +510,8 @@
       },
       "outcome": null,
       "peak_return": 0.1166,
-      "last_price": 185.13,
-      "current_return": -0.0155
+      "last_price": 186.22,
+      "current_return": 0.0907
     }
   ],
   "closed_trades": [
@@ -15933,11 +15933,6 @@
     ],
     "AVGO": [
       {
-        "date": "2026-04-15",
-        "score": 0.2059,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-21",
         "score": 0.1074,
         "headline_count": 5
@@ -16230,6 +16225,11 @@
       {
         "date": "2026-08-04",
         "score": 0.2462,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-14",
+        "score": 0.1944,
         "headline_count": 5
       }
     ],
@@ -22617,11 +22617,6 @@
     ],
     "AMD": [
       {
-        "date": "2026-04-24",
-        "score": 0.3059,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-27",
         "score": 0.055,
         "headline_count": 5
@@ -22914,6 +22909,11 @@
       {
         "date": "2026-08-07",
         "score": 0.431,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-14",
+        "score": -0.1533,
         "headline_count": 5
       }
     ],
@@ -24388,11 +24388,6 @@
     ],
     "AMAT": [
       {
-        "date": "2026-04-24",
-        "score": 0.1659,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-27",
         "score": -0.3372,
         "headline_count": 3
@@ -24685,6 +24680,11 @@
       {
         "date": "2026-08-03",
         "score": 0.0962,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-14",
+        "score": 0.2136,
         "headline_count": 5
       }
     ],
@@ -27543,6 +27543,11 @@
       {
         "date": "2026-08-04",
         "score": 0.1141,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-14",
+        "score": 0.3096,
         "headline_count": 5
       }
     ],
@@ -32804,6 +32809,11 @@
       {
         "date": "2026-08-04",
         "score": 0.1283,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-14",
+        "score": -0.5399,
         "headline_count": 5
       }
     ],
@@ -39100,6 +39110,11 @@
         "date": "2026-08-12",
         "score": 0.0606,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-14",
+        "score": -0.0446,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -43146,6 +43161,91 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
+      "outcome": null
+    },
+    {
+      "ticker": "AVGO",
+      "entry_date": "2026-08-14",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 396.89,
+        "target_price": 437.11,
+        "hit_rate": 0.6694,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0302,
+        "alpha": 0.00235
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.212,
+        "z_score": 0.158,
+        "sigma_30d": 0.0265,
+        "price_move_48h": 0.0042,
+        "eps_drift": 0.005,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6508
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 4,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "AVGO",
+      "entry_date": "2026-08-14",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 51.3,
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 400.0,
+        "bid": 50.35,
+        "ask": 51.3,
+        "open_interest": 6838,
+        "implied_vol": 0.4874,
+        "spread_ratio": 0.0185,
+        "dte": 153,
+        "delta": 0.5792,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 396.89,
+        "target_price": 437.11,
+        "hit_rate": 0.6694,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0302,
+        "alpha": 0.00235
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.212,
+        "z_score": 0.158,
+        "sigma_30d": 0.0265,
+        "price_move_48h": 0.0042,
+        "eps_drift": 0.005,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6508
+      },
+      "roi_net": 0.2293,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.1593,
+      "vix": 14.58,
+      "mc_hit_rate": 0.6508,
       "outcome": null
     }
   ]
