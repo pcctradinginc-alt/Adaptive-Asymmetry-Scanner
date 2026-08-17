@@ -6,8 +6,8 @@
         "avg_return": 0.8166
       },
       "mid": {
-        "count": 100,
-        "avg_return": 0.046068
+        "count": 101,
+        "avg_return": 0.043997
       },
       "low": {
         "count": 9,
@@ -16,8 +16,8 @@
     },
     "mismatch": {
       "good": {
-        "count": 75,
-        "avg_return": 0.151194
+        "count": 76,
+        "avg_return": 0.147059
       },
       "weak": {
         "count": 32,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 107,
-        "avg_return": 0.10442
+        "count": 108,
+        "avg_return": 0.101943
       },
       "massive": {
         "count": 2,
@@ -44,95 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "CSCO",
-      "entry_date": "2026-07-03",
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 4.116,
-        "z_score": 0.177,
-        "sigma_30d": 0.0331,
-        "price_move_48h": 0.0059,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7268
-      },
-      "strategy": "LONG_CALL",
-      "entry_debit": 21.0,
-      "entry_quote": {
-        "bid": 20.35,
-        "ask": 21.0,
-        "mid": 20.675,
-        "spread_pct": 0.031,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "EARNINGS",
-      "option": {
-        "expiry": "2026-12-18",
-        "strike": 100.0,
-        "bid": 20.35,
-        "ask": 21.0,
-        "open_interest": 3441,
-        "implied_vol": 0.443,
-        "spread_ratio": 0.031,
-        "dte": 167,
-        "delta": 0.7138,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 112.69,
-        "target_price": 122.24,
-        "hit_rate": 0.75,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0253,
-        "alpha": 0.004
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "CSCO ist ein Mega-Cap mit $444 Mrd. Marktkapitalisierung und extrem hoher Informationseffizienz. Das Forecast-Beat sowie der Nexus-Produktlaunch sind \u00f6ffentliche Informationen, die von institutionellen Desks innerhalb von Minuten eingepreist werden. Strukturelle Underreactions bei diesem Deckungsgrad sind statistisch sehr unwahrscheinlich, und das Cluster-Insider-Signal bei 8 K\u00e4ufern \u00fcber 14 Tage ist bei einem Mega-Cap-Unternehmen mit umfangreichen Kompensationsprogrammen oft eine Routinetransaktion ohne echten Informationsvorsprung.",
-          "argument_2": "Der Dealer-Gamma-Kontext ist explizit bearish: Put-OI von 947 dominiert ATM mit einem Call/Put-Ratio von nur 0.36, was bedeutet, dass Dealer bei Kursr\u00fcckg\u00e4ngen short Gamma sind und Abw\u00e4rtsbewegungen aktiv verst\u00e4rken k\u00f6nnen. Eine -0.6% Preisbewegung in den letzten 48h trotz positiver News deutet darauf hin, dass der Markt das bullishe Signal bereits absorbiert und relativiert hat. Dieses technische Umfeld beg\u00fcnstigt keine aggressiven Long-Call-Positionen.",
-          "argument_3": "Der EPS-Diskrepanz zwischen yfinance (4.78) und SEC EDGAR (3.00) ist erheblich und deutet auf Datenqualit\u00e4tsprobleme hin \u2014 m\u00f6glicherweise GAAP vs. Non-GAAP Verwechslung. Wenn die 'Forecast-Beat'-Story auf Non-GAAP-Zahlen basiert, ist der fundamentale \u00dcberraschungseffekt erheblich geringer als suggeriert, da institutionelle Investoren vorwiegend GAAP-Zahlen und normalisierte Metriken verwenden. Zudem ist der Edge-AI-Markt ein Trend, den der Markt f\u00fcr CSCO bereits seit Quartalen antizipiert.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "0% Hit-Rate resultiert aus nicht durchgef\u00fchrtem Quick MC, liefert keine statistische Aussagekraft. Bei CSCO mit historischer 30d-Volatilit\u00e4t im Bereich 20-25% w\u00e4re eine Trefferquote von 40-55% f\u00fcr moderate Bull-Szenarien realistisch. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Gesamtbewertung.",
-          "concern_level": "medium"
-        },
-        "impact": 5,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Die Kombination aus Forecast-Beat, Nexus-Architektur-Launch und 8 Insider-K\u00e4ufen innerhalb 14 Tagen schafft ein mehrdimensionales Signal, das Retail-Sentiment kurzfristig \u00fcberraschend trifft. Der bearishe Put-Overhang (Call/Put=0.36) bedeutet, dass eine positive Kursbewegung Gamma-Squeeze-Dynamik ausl\u00f6sen kann. Das neutrale Makro-Regime mit flacher Zinskurve reduziert systemischen Gegenwind f\u00fcr Technologie-Infrastruktur.",
-        "catalyst": "Q3-2026 Earnings-Guidance-Anhebung kombiniert mit Nexus-One-Ramping und m\u00f6glichem Gamma-Squeeze durch Put-schwere Options-Struktur",
-        "bear_case": "Dealer-Gamma-Struktur mit Put/Call=0.36 verst\u00e4rkt Abw\u00e4rtsbewegungen; Forecast-Beat bereits eingepreist nach -0.6% Reaktion; EPS-Datenqualit\u00e4t fraglich",
-        "macro_assessment": "Neutrales Makro-Regime mit flacher Zinskurve (0.35%) und Fed Funds bei 3.63% bietet weder klaren R\u00fccken- noch Gegenwind f\u00fcr CSCO. VIX-Contango (slope +54%) beg\u00fcnstigt Long-Vol-Strukturen und macht nackte Calls weniger riskant als in Backwardation-Phasen, obwohl bei einem Mega-Cap Spreads zur Kostenreduktion dennoch sinnvoll sind.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.35,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": true,
-        "market_cap": 444160278528,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.631,
-        "annualized_roi": 3.821,
-        "dte": 167
-      },
-      "outcome": null,
-      "peak_return": 0.3333,
-      "last_price": 111.68,
-      "current_return": -0.2202
-    },
     {
       "ticker": "AAPL",
       "entry_date": "2026-07-15",
@@ -225,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 305.93,
-      "current_return": -0.4088
+      "last_price": 305.48,
+      "current_return": -0.4123
     },
     {
       "ticker": "CRWD",
@@ -320,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": 0.2277,
-      "last_price": 216.95,
-      "current_return": 0.055
+      "last_price": 216.205,
+      "current_return": 0.1099
     },
     {
       "ticker": "ALL",
@@ -415,8 +326,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 261.41,
-      "current_return": -0.2917
+      "last_price": 261.76,
+      "current_return": -0.3214
     },
     {
       "ticker": "ABNB",
@@ -510,8 +421,8 @@
       },
       "outcome": null,
       "peak_return": 0.1166,
-      "last_price": 184.06,
-      "current_return": 0.0389
+      "last_price": 182.465,
+      "current_return": 0.0078
     }
   ],
   "closed_trades": [
@@ -8820,6 +8731,98 @@
       "peak_return": 0.0047,
       "close_date": "2026-07-06",
       "close_price": 232.65,
+      "close_reason": "max_holding_period"
+    },
+    {
+      "ticker": "CSCO",
+      "entry_date": "2026-07-03",
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 4.116,
+        "z_score": 0.177,
+        "sigma_30d": 0.0331,
+        "price_move_48h": 0.0059,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7268
+      },
+      "strategy": "LONG_CALL",
+      "entry_debit": 21.0,
+      "entry_quote": {
+        "bid": 20.35,
+        "ask": 21.0,
+        "mid": 20.675,
+        "spread_pct": 0.031,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 100.0,
+        "bid": 20.35,
+        "ask": 21.0,
+        "open_interest": 3441,
+        "implied_vol": 0.443,
+        "spread_ratio": 0.031,
+        "dte": 167,
+        "delta": 0.7138,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 112.69,
+        "target_price": 122.24,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0253,
+        "alpha": 0.004
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "CSCO ist ein Mega-Cap mit $444 Mrd. Marktkapitalisierung und extrem hoher Informationseffizienz. Das Forecast-Beat sowie der Nexus-Produktlaunch sind \u00f6ffentliche Informationen, die von institutionellen Desks innerhalb von Minuten eingepreist werden. Strukturelle Underreactions bei diesem Deckungsgrad sind statistisch sehr unwahrscheinlich, und das Cluster-Insider-Signal bei 8 K\u00e4ufern \u00fcber 14 Tage ist bei einem Mega-Cap-Unternehmen mit umfangreichen Kompensationsprogrammen oft eine Routinetransaktion ohne echten Informationsvorsprung.",
+          "argument_2": "Der Dealer-Gamma-Kontext ist explizit bearish: Put-OI von 947 dominiert ATM mit einem Call/Put-Ratio von nur 0.36, was bedeutet, dass Dealer bei Kursr\u00fcckg\u00e4ngen short Gamma sind und Abw\u00e4rtsbewegungen aktiv verst\u00e4rken k\u00f6nnen. Eine -0.6% Preisbewegung in den letzten 48h trotz positiver News deutet darauf hin, dass der Markt das bullishe Signal bereits absorbiert und relativiert hat. Dieses technische Umfeld beg\u00fcnstigt keine aggressiven Long-Call-Positionen.",
+          "argument_3": "Der EPS-Diskrepanz zwischen yfinance (4.78) und SEC EDGAR (3.00) ist erheblich und deutet auf Datenqualit\u00e4tsprobleme hin \u2014 m\u00f6glicherweise GAAP vs. Non-GAAP Verwechslung. Wenn die 'Forecast-Beat'-Story auf Non-GAAP-Zahlen basiert, ist der fundamentale \u00dcberraschungseffekt erheblich geringer als suggeriert, da institutionelle Investoren vorwiegend GAAP-Zahlen und normalisierte Metriken verwenden. Zudem ist der Edge-AI-Markt ein Trend, den der Markt f\u00fcr CSCO bereits seit Quartalen antizipiert.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate resultiert aus nicht durchgef\u00fchrtem Quick MC, liefert keine statistische Aussagekraft. Bei CSCO mit historischer 30d-Volatilit\u00e4t im Bereich 20-25% w\u00e4re eine Trefferquote von 40-55% f\u00fcr moderate Bull-Szenarien realistisch. Die fehlende MC-Statistik erh\u00f6ht die Unsicherheit der Gesamtbewertung.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Die Kombination aus Forecast-Beat, Nexus-Architektur-Launch und 8 Insider-K\u00e4ufen innerhalb 14 Tagen schafft ein mehrdimensionales Signal, das Retail-Sentiment kurzfristig \u00fcberraschend trifft. Der bearishe Put-Overhang (Call/Put=0.36) bedeutet, dass eine positive Kursbewegung Gamma-Squeeze-Dynamik ausl\u00f6sen kann. Das neutrale Makro-Regime mit flacher Zinskurve reduziert systemischen Gegenwind f\u00fcr Technologie-Infrastruktur.",
+        "catalyst": "Q3-2026 Earnings-Guidance-Anhebung kombiniert mit Nexus-One-Ramping und m\u00f6glichem Gamma-Squeeze durch Put-schwere Options-Struktur",
+        "bear_case": "Dealer-Gamma-Struktur mit Put/Call=0.36 verst\u00e4rkt Abw\u00e4rtsbewegungen; Forecast-Beat bereits eingepreist nach -0.6% Reaktion; EPS-Datenqualit\u00e4t fraglich",
+        "macro_assessment": "Neutrales Makro-Regime mit flacher Zinskurve (0.35%) und Fed Funds bei 3.63% bietet weder klaren R\u00fccken- noch Gegenwind f\u00fcr CSCO. VIX-Contango (slope +54%) beg\u00fcnstigt Long-Vol-Strukturen und macht nackte Calls weniger riskant als in Backwardation-Phasen, obwohl bei einem Mega-Cap Spreads zur Kostenreduktion dennoch sinnvoll sind.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.35,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 444160278528,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.631,
+        "annualized_roi": 3.821,
+        "dte": 167
+      },
+      "outcome": -0.1631,
+      "peak_return": 0.3333,
+      "last_price": 111.68,
+      "current_return": -0.2202,
+      "close_date": "2026-08-17",
+      "close_price": 113.375,
       "close_reason": "max_holding_period"
     }
   ],
@@ -40656,7 +40659,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.1051,
+      "close_date": "2026-08-17"
     },
     {
       "ticker": "CSCO",
@@ -40693,7 +40697,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": 0.0062,
+      "close_date": "2026-08-17"
     },
     {
       "ticker": "ETN",
@@ -40730,7 +40735,8 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": 0.1395,
+      "close_date": "2026-08-17"
     },
     {
       "ticker": "XOM",
@@ -40767,7 +40773,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": 0.1685,
+      "close_date": "2026-08-17"
     },
     {
       "ticker": "XOM",
@@ -40815,7 +40822,8 @@
       "roi_gap": -0.026,
       "vix": 15.76,
       "mc_hit_rate": 0.5038,
-      "outcome": null
+      "outcome": 1.4588,
+      "close_date": "2026-08-17"
     },
     {
       "ticker": "ETN",
@@ -40865,7 +40873,8 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.647
       },
-      "outcome": null
+      "outcome": -0.5107,
+      "close_date": "2026-08-17"
     },
     {
       "ticker": "GOOGL",
