@@ -10,8 +10,8 @@
         "avg_return": 0.043997
       },
       "low": {
-        "count": 9,
-        "avg_return": 0.6398
+        "count": 10,
+        "avg_return": 0.660375
       }
     },
     "mismatch": {
@@ -20,8 +20,8 @@
         "avg_return": 0.147059
       },
       "weak": {
-        "count": 32,
-        "avg_return": 0.111543
+        "count": 33,
+        "avg_return": 0.133786
       },
       "strong": {
         "count": 4,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 108,
-        "avg_return": 0.101943
+        "count": 109,
+        "avg_return": 0.108765
       },
       "massive": {
         "count": 2,
@@ -136,103 +136,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 315.41,
-      "current_return": -0.2351
-    },
-    {
-      "ticker": "CRWD",
-      "entry_date": "2026-07-28",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 1.237,
-        "z_score": 0.553,
-        "sigma_30d": 0.0327,
-        "price_move_48h": 0.018,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.7188
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 9.55,
-      "entry_quote": {
-        "bid": 34.9,
-        "ask": 36.0,
-        "mid": 35.45,
-        "spread_pct": 0.0306,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "EARNINGS",
-      "option": {
-        "expiry": "2027-01-15",
-        "strike": 175.0,
-        "bid": 34.9,
-        "ask": 36.0,
-        "open_interest": 5883,
-        "implied_vol": 0.6314,
-        "spread_ratio": 0.0306,
-        "dte": 170,
-        "delta": 0.6254,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 192.5,
-          "bid": 26.45,
-          "ask": 28.4
-        },
-        "net_debit": 9.55
-      },
-      "simulation": {
-        "current_price": 181.47,
-        "target_price": 203.29,
-        "hit_rate": 0.75,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0359,
-        "alpha": 0.0045
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "CrowdStrike ist eine Mega-Cap mit $184.8 Mrd. Marktkapitalisierung und extrem hoher Analyst-Coverage. Die Nachricht \u00fcber die '37-member AI Security Alliance ohne Tech-Giganten' ist vollst\u00e4ndig \u00f6ffentlich und wird innerhalb von Minuten von institutionellen Desks verarbeitet. Ein struktureller Informationsvorsprung existiert nicht \u2014 der angebliche Repricing-Effekt ist bereits eingepreist oder gar nicht vorhanden.",
-          "argument_2": "Die EPS-Divergenz zwischen yfinance ($1.56) und SEC EDGAR (-$0.04) ist ein erhebliches Datenqualit\u00e4tsproblem. Ein negatives GAAP-EPS signalisiert, dass CrowdStrike auf GAAP-Basis noch nicht profitabel ist. Bei einem Kurs von $181.47 und negativem GAAP-EPS ist die Bewertung extrem ambitioniert und anf\u00e4llig f\u00fcr Sentiment-Shifts, besonders wenn das AI-Security-Narrativ sich nicht schnell genug in Umsatz materialisiert.",
-          "argument_3": "Die 48h-Preisbewegung von -1.8% trotz positiver Newsflow deutet darauf hin, dass der Markt bereits skeptisch auf das Allianz-Signal reagiert. Eine Allianz ohne Nvidia, OpenAI, Anthropic und Google \u2014 also ohne die dominierenden AI-Player \u2014 k\u00f6nnte als Signal gewertet werden, dass CrowdStrike im Kernbereich AI-Security von den wirklich wichtigen Akteuren isoliert wird. Das schw\u00e4cht die bullische These erheblich.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Die fehlende Statistik ist neutral zu werten \u2014 sie kann weder best\u00e4tigen noch widerlegen. Bei CRWD mit historisch hoher Volatilit\u00e4t (~40-50% annualisiert) w\u00e4ren auf 30 Tage realistische Hit-Rates f\u00fcr moderate Bull-Targets bei 45-60% zu erwarten. Das Fehlen der Daten erlaubt keine Kalibrierung.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 4,
-        "asymmetry_reasoning": "Der Insider-Cluster-Kauf von 7 Personen innerhalb 14 Tagen ist das st\u00e4rkste Signal \u2014 Insider kennen das Pipeline-Momentum und antizipieren m\u00f6glicherweise kommende Partnerschaftsdeals. Der Markt hat die Allianz oberfl\u00e4chlich als schwach bewertet (keine Tech-Giganten), untersch\u00e4tzt aber CrowdStrike als de-facto-Standard f\u00fcr Enterprise-Security. Q2-Earnings k\u00f6nnten die AI-Security-Adoption best\u00e4tigen.",
-        "catalyst": "Q2 FY2027 Earnings-Report (erwartet August/September 2026) mit AI-Security-ARR-Wachstum und m\u00f6glicher Konkretisierung der Alliance-Partnerschaften als Umsatzkatalysator",
-        "bear_case": "Negatives GAAP-EPS kombiniert mit ambitionierter Bewertung bei $184.8 Mrd. Marktkapitalisierung macht CRWD anf\u00e4llig f\u00fcr Multiple-Compression falls AI-Security-Adoption langsamer als erwartet materialisiert oder ein Wettbewerber (SentinelOne, Palo Alto) die Alliance-Position \u00fcbernimmt.",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3.63%) ist moderat supportiv f\u00fcr High-Growth-Tech. VIX-Contango (17\u219219.8 auf 3M) signalisiert steigende erwartete Volatilit\u00e4t \u2014 Long-Calls auf CRWD sind vertretbar, aber ein Bull-Spread w\u00e4re risiko\u00e4rmer angesichts des IV-Anstiegs zur Earnings-Saison.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.34,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 184783503360,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.5432,
-        "annualized_roi": 3.0731,
-        "dte": 170
-      },
-      "outcome": null,
-      "peak_return": 0.2277,
-      "last_price": 200.405,
-      "current_return": 0.0209
+      "last_price": 316.975,
+      "current_return": -0.207
     },
     {
       "ticker": "ALL",
@@ -326,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 261.0,
-      "current_return": -0.3095
+      "last_price": 257.54,
+      "current_return": -0.369
     },
     {
       "ticker": "ABNB",
@@ -421,8 +326,8 @@
       },
       "outcome": null,
       "peak_return": 0.1192,
-      "last_price": 187.075,
-      "current_return": 0.1192
+      "last_price": 185.265,
+      "current_return": 0.114
     }
   ],
   "closed_trades": [
@@ -8824,6 +8729,104 @@
       "close_date": "2026-08-17",
       "close_price": 113.375,
       "close_reason": "max_holding_period"
+    },
+    {
+      "ticker": "CRWD",
+      "entry_date": "2026-07-28",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.237,
+        "z_score": 0.553,
+        "sigma_30d": 0.0327,
+        "price_move_48h": 0.018,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.7188
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 9.55,
+      "entry_quote": {
+        "bid": 34.9,
+        "ask": 36.0,
+        "mid": 35.45,
+        "spread_pct": 0.0306,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 175.0,
+        "bid": 34.9,
+        "ask": 36.0,
+        "open_interest": 5883,
+        "implied_vol": 0.6314,
+        "spread_ratio": 0.0306,
+        "dte": 170,
+        "delta": 0.6254,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 192.5,
+          "bid": 26.45,
+          "ask": 28.4
+        },
+        "net_debit": 9.55
+      },
+      "simulation": {
+        "current_price": 181.47,
+        "target_price": 203.29,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0359,
+        "alpha": 0.0045
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "CrowdStrike ist eine Mega-Cap mit $184.8 Mrd. Marktkapitalisierung und extrem hoher Analyst-Coverage. Die Nachricht \u00fcber die '37-member AI Security Alliance ohne Tech-Giganten' ist vollst\u00e4ndig \u00f6ffentlich und wird innerhalb von Minuten von institutionellen Desks verarbeitet. Ein struktureller Informationsvorsprung existiert nicht \u2014 der angebliche Repricing-Effekt ist bereits eingepreist oder gar nicht vorhanden.",
+          "argument_2": "Die EPS-Divergenz zwischen yfinance ($1.56) und SEC EDGAR (-$0.04) ist ein erhebliches Datenqualit\u00e4tsproblem. Ein negatives GAAP-EPS signalisiert, dass CrowdStrike auf GAAP-Basis noch nicht profitabel ist. Bei einem Kurs von $181.47 und negativem GAAP-EPS ist die Bewertung extrem ambitioniert und anf\u00e4llig f\u00fcr Sentiment-Shifts, besonders wenn das AI-Security-Narrativ sich nicht schnell genug in Umsatz materialisiert.",
+          "argument_3": "Die 48h-Preisbewegung von -1.8% trotz positiver Newsflow deutet darauf hin, dass der Markt bereits skeptisch auf das Allianz-Signal reagiert. Eine Allianz ohne Nvidia, OpenAI, Anthropic und Google \u2014 also ohne die dominierenden AI-Player \u2014 k\u00f6nnte als Signal gewertet werden, dass CrowdStrike im Kernbereich AI-Security von den wirklich wichtigen Akteuren isoliert wird. Das schw\u00e4cht die bullische These erheblich.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Die fehlende Statistik ist neutral zu werten \u2014 sie kann weder best\u00e4tigen noch widerlegen. Bei CRWD mit historisch hoher Volatilit\u00e4t (~40-50% annualisiert) w\u00e4ren auf 30 Tage realistische Hit-Rates f\u00fcr moderate Bull-Targets bei 45-60% zu erwarten. Das Fehlen der Daten erlaubt keine Kalibrierung.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Insider-Cluster-Kauf von 7 Personen innerhalb 14 Tagen ist das st\u00e4rkste Signal \u2014 Insider kennen das Pipeline-Momentum und antizipieren m\u00f6glicherweise kommende Partnerschaftsdeals. Der Markt hat die Allianz oberfl\u00e4chlich als schwach bewertet (keine Tech-Giganten), untersch\u00e4tzt aber CrowdStrike als de-facto-Standard f\u00fcr Enterprise-Security. Q2-Earnings k\u00f6nnten die AI-Security-Adoption best\u00e4tigen.",
+        "catalyst": "Q2 FY2027 Earnings-Report (erwartet August/September 2026) mit AI-Security-ARR-Wachstum und m\u00f6glicher Konkretisierung der Alliance-Partnerschaften als Umsatzkatalysator",
+        "bear_case": "Negatives GAAP-EPS kombiniert mit ambitionierter Bewertung bei $184.8 Mrd. Marktkapitalisierung macht CRWD anf\u00e4llig f\u00fcr Multiple-Compression falls AI-Security-Adoption langsamer als erwartet materialisiert oder ein Wettbewerber (SentinelOne, Palo Alto) die Alliance-Position \u00fcbernimmt.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3.63%) ist moderat supportiv f\u00fcr High-Growth-Tech. VIX-Contango (17\u219219.8 auf 3M) signalisiert steigende erwartete Volatilit\u00e4t \u2014 Long-Calls auf CRWD sind vertretbar, aber ein Bull-Spread w\u00e4re risiko\u00e4rmer angesichts des IV-Anstiegs zur Earnings-Saison.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.34,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 184783503360,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.5432,
+        "annualized_roi": 3.0731,
+        "dte": 170
+      },
+      "outcome": 0.8455,
+      "peak_return": 0.8455,
+      "last_price": 200.405,
+      "current_return": 0.0209,
+      "close_date": "2026-08-20",
+      "close_price": 197.3025,
+      "close_reason": "take_profit"
     }
   ],
   "model_weights": {
@@ -19573,6 +19576,11 @@
       {
         "date": "2026-08-03",
         "score": -0.1421,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-20",
+        "score": -0.2437,
         "headline_count": 5
       }
     ],
@@ -33890,6 +33898,11 @@
         "date": "2026-08-06",
         "score": 0.2249,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-20",
+        "score": 0.4614,
+        "headline_count": 5
       }
     ],
     "DD": [
@@ -38866,6 +38879,11 @@
         "date": "2026-08-07",
         "score": 0.3696,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-20",
+        "score": -0.0461,
+        "headline_count": 5
       }
     ],
     "COHR": [
@@ -40911,7 +40929,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0598,
+      "close_date": "2026-08-20"
     },
     {
       "ticker": "GOOG",
@@ -40948,7 +40967,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.061,
+      "close_date": "2026-08-20"
     },
     {
       "ticker": "BIIB",
@@ -40985,7 +41005,8 @@
         "surprise": 5,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": 0.0357,
+      "close_date": "2026-08-20"
     },
     {
       "ticker": "GOOGL",
@@ -41035,7 +41056,8 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.5498
       },
-      "outcome": null
+      "outcome": -0.7484,
+      "close_date": "2026-08-20"
     },
     {
       "ticker": "GOOG",
@@ -41085,7 +41107,8 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.532
       },
-      "outcome": null
+      "outcome": -0.7624,
+      "close_date": "2026-08-20"
     },
     {
       "ticker": "AMD",
@@ -43256,6 +43279,48 @@
       "vix": 14.58,
       "mc_hit_rate": 0.6508,
       "outcome": null
+    }
+  ],
+  "trailing_sim": [
+    {
+      "ticker": "CRWD",
+      "strategy": "BULL_CALL_SPREAD",
+      "option": {
+        "expiry": "2027-01-15",
+        "strike": 175.0,
+        "bid": 34.9,
+        "ask": 36.0,
+        "open_interest": 5883,
+        "implied_vol": 0.6314,
+        "spread_ratio": 0.0306,
+        "dte": 170,
+        "delta": 0.6254,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 192.5,
+          "bid": 26.45,
+          "ask": 28.4
+        },
+        "net_debit": 9.55
+      },
+      "simulation": {
+        "current_price": 181.47,
+        "target_price": 203.29,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0359,
+        "alpha": 0.0045
+      },
+      "entry_debit": 9.55,
+      "entry_date": "2026-07-28",
+      "tp_date": "2026-08-20",
+      "tp_outcome": 0.8455,
+      "peak": 0.8455,
+      "trailing_outcome": -0.0419,
+      "current_return": -0.0419,
+      "close_date": "2026-08-20",
+      "close_reason": "trail_stop"
     }
   ]
 }
