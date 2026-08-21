@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 312.42,
-      "current_return": -0.2825
+      "last_price": 307.75,
+      "current_return": -0.3754
     },
     {
       "ticker": "ALL",
@@ -231,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 255.3,
-      "current_return": -0.3839
+      "last_price": 255.1703,
+      "current_return": -0.4107
     },
     {
       "ticker": "ABNB",
@@ -326,8 +326,8 @@
       },
       "outcome": null,
       "peak_return": 0.1192,
-      "last_price": 185.66,
-      "current_return": 0.101
+      "last_price": 187.5,
+      "current_return": 0.0959
     }
   ],
   "closed_trades": [
@@ -9049,6 +9049,11 @@
       {
         "date": "2026-08-10",
         "score": 0.0228,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-08-21",
+        "score": 0.3868,
         "headline_count": 4
       }
     ],
@@ -20919,6 +20924,11 @@
         "date": "2026-07-30",
         "score": -0.3794,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-21",
+        "score": 0.0195,
+        "headline_count": 5
       }
     ],
     "CFG": [
@@ -22138,6 +22148,11 @@
       {
         "date": "2026-08-05",
         "score": 0.0462,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-21",
+        "score": -0.321,
         "headline_count": 5
       }
     ],
@@ -38667,6 +38682,11 @@
         "date": "2026-08-06",
         "score": 0.1124,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-21",
+        "score": -0.2237,
+        "headline_count": 5
       }
     ],
     "COIN": [
@@ -38883,6 +38903,11 @@
       {
         "date": "2026-08-20",
         "score": -0.0461,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-21",
+        "score": 0.2008,
         "headline_count": 5
       }
     ],
@@ -41145,7 +41170,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0906,
+      "close_date": "2026-08-21"
     },
     {
       "ticker": "ADI",
@@ -41182,7 +41208,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0021,
+      "close_date": "2026-08-21"
     },
     {
       "ticker": "AVGO",
@@ -41219,7 +41246,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0064,
+      "close_date": "2026-08-21"
     },
     {
       "ticker": "AMD",
@@ -41273,7 +41301,8 @@
       "roi_gap": 0.6324,
       "vix": 16.31,
       "mc_hit_rate": 0.5268,
-      "outcome": null
+      "outcome": -0.8709,
+      "close_date": "2026-08-21"
     },
     {
       "ticker": "AVGO",
@@ -41321,7 +41350,8 @@
       "roi_gap": 0.0677,
       "vix": 16.31,
       "mc_hit_rate": 0.603,
-      "outcome": null
+      "outcome": -0.2353,
+      "close_date": "2026-08-21"
     },
     {
       "ticker": "ADI",
@@ -41371,7 +41401,8 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.6622
       },
-      "outcome": null
+      "outcome": -0.734,
+      "close_date": "2026-08-21"
     },
     {
       "ticker": "APP",
