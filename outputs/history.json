@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": 0.2123,
-      "last_price": 309.6,
-      "current_return": -0.3368
+      "last_price": 312.005,
+      "current_return": -0.3053
     },
     {
       "ticker": "ALL",
@@ -231,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 255.05,
-      "current_return": -0.4107
+      "last_price": 258.49,
+      "current_return": -0.3631
     },
     {
       "ticker": "ABNB",
@@ -326,8 +326,8 @@
       },
       "outcome": null,
       "peak_return": 0.1606,
-      "last_price": 186.93,
-      "current_return": 0.1606
+      "last_price": 190.61,
+      "current_return": 0.1166
     }
   ],
   "closed_trades": [
@@ -18986,6 +18986,11 @@
         "date": "2026-07-07",
         "score": 0.6197,
         "headline_count": 3
+      },
+      {
+        "date": "2026-08-24",
+        "score": -0.574,
+        "headline_count": 3
       }
     ],
     "CDNS": [
@@ -19410,6 +19415,11 @@
         "date": "2026-08-06",
         "score": 0.244,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-24",
+        "score": 0.0445,
+        "headline_count": 4
       }
     ],
     "DE": [
@@ -23345,6 +23355,11 @@
         "date": "2026-07-13",
         "score": 0.0416,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-24",
+        "score": -0.6112,
+        "headline_count": 3
       }
     ],
     "AEP": [
@@ -27303,6 +27318,11 @@
         "date": "2026-08-12",
         "score": -0.0654,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-24",
+        "score": -0.1628,
+        "headline_count": 5
       }
     ],
     "CTSH": [
@@ -30663,6 +30683,11 @@
       {
         "date": "2026-08-12",
         "score": 0.0251,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-08-24",
+        "score": 0.2186,
         "headline_count": 4
       }
     ],
@@ -38909,6 +38934,11 @@
         "date": "2026-08-21",
         "score": 0.2008,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-24",
+        "score": -0.164,
+        "headline_count": 5
       }
     ],
     "COHR": [
@@ -39160,6 +39190,11 @@
       {
         "date": "2026-08-14",
         "score": -0.0446,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-24",
+        "score": -0.0553,
         "headline_count": 5
       }
     ],
@@ -41439,7 +41474,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.4105,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "APP",
@@ -41487,7 +41523,8 @@
       "roi_gap": 0.0177,
       "vix": 18.36,
       "mc_hit_rate": 0.5342,
-      "outcome": null
+      "outcome": -0.9441,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "AXON",
@@ -41524,7 +41561,8 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": 0.0651,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "AVGO",
@@ -41561,7 +41599,8 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0948,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "CSCO",
@@ -41598,7 +41637,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0732,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "DELL",
@@ -41635,7 +41675,8 @@
         "surprise": 4,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null
+      "outcome": -0.0564,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "AXON",
@@ -41689,7 +41730,8 @@
       "roi_gap": 0.4356,
       "vix": 16.14,
       "mc_hit_rate": 0.5544,
-      "outcome": null
+      "outcome": -0.7541,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "AVGO",
@@ -41743,7 +41785,8 @@
       "roi_gap": 0.5057,
       "vix": 16.14,
       "mc_hit_rate": 0.6466,
-      "outcome": null
+      "outcome": -0.8339,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "DELL",
@@ -41791,7 +41834,8 @@
       "roi_gap": 0.0867,
       "vix": 16.14,
       "mc_hit_rate": 0.5284,
-      "outcome": null
+      "outcome": -0.434,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "CSCO",
@@ -41841,7 +41885,8 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.75
       },
-      "outcome": null
+      "outcome": -0.8133,
+      "close_date": "2026-08-24"
     },
     {
       "ticker": "BIIB",

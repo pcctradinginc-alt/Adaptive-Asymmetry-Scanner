@@ -1,0 +1,166 @@
+{
+  "date": "2026-08-24",
+  "stats": {
+    "vix": 16.0,
+    "universe": 7,
+    "candidates": 7,
+    "prescreened": 1,
+    "sector_ok": 7,
+    "pre_mc": 1,
+    "roi_precheck": 1,
+    "analyzed": 1,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Signale bearish (Bearish-Trades deaktiviert)."
+  },
+  "rejects": {
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "ABNB"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 9 Tage ohne Trade in Folge (dominanter Killer: mismatch_ok, 5x)."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 9,
+        "killer_counts": {
+          "mismatch_ok": 5,
+          "prescreened": 3,
+          "roi_ok": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-08-21",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-20",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-19",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-08-18",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-08-17",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-08-14",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-08-12",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-11",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-10",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-07",
+            "trades": 1,
+            "killer": null
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "final_mc_survivor": {
+            "total": 37,
+            "evaluated": 10,
+            "ready_in_14d": 13,
+            "next_eval_date": "2026-08-22"
+          },
+          "roi_gate": {
+            "total": 20,
+            "evaluated": 3,
+            "ready_in_14d": 9,
+            "next_eval_date": "2026-08-22"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 3,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-08-23"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      }
+    }
+  }
+}
