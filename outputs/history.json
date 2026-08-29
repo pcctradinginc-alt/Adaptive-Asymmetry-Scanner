@@ -10,14 +10,14 @@
         "avg_return": 0.043997
       },
       "low": {
-        "count": 10,
-        "avg_return": 0.660375
+        "count": 11,
+        "avg_return": 0.585987
       }
     },
     "mismatch": {
       "good": {
-        "count": 76,
-        "avg_return": 0.147059
+        "count": 77,
+        "avg_return": 0.143099
       },
       "weak": {
         "count": 33,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 109,
-        "avg_return": 0.108765
+        "count": 110,
+        "avg_return": 0.106341
       },
       "massive": {
         "count": 2,
@@ -44,101 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "AAPL",
-      "entry_date": "2026-07-15",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.146,
-        "z_score": 0.171,
-        "sigma_30d": 0.0202,
-        "price_move_48h": 0.0034,
-        "eps_drift": 0.0073,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5626
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 14.25,
-      "entry_quote": {
-        "bid": 27.25,
-        "ask": 28.35,
-        "mid": 27.8,
-        "spread_pct": 0.0388,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "EARNINGS",
-      "option": {
-        "expiry": "2026-12-18",
-        "strike": 320.0,
-        "bid": 27.25,
-        "ask": 28.35,
-        "open_interest": 10270,
-        "implied_vol": 0.2775,
-        "spread_ratio": 0.0388,
-        "dte": 155,
-        "delta": 0.5984,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 350.0,
-          "bid": 14.1,
-          "ask": 14.45
-        },
-        "net_debit": 14.25
-      },
-      "simulation": {
-        "current_price": 323.83,
-        "target_price": 349.74,
-        "hit_rate": 0.6746,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.017,
-        "alpha": 0.00237
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Die Alibaba Qwen-Integration in Apple Intelligence f\u00fcr China ist prim\u00e4r eine regulatorische Anpassung an chinesische KI-Zensurvorschriften, keine strategische Schw\u00e4che. Der Markt hat dieses Abh\u00e4ngigkeitsrisiko bereits im Diskurs verarbeitet \u2014 Apple hat keine Wahl bei China-Compliance, und der Deal sichert den Marktzugang f\u00fcr ~1 Mrd. potenzielle Nutzer. Ein BEARISH-Signal aus dieser Nachricht setzt voraus, dass der Markt die Kompromittierung der KI-Architektur untersch\u00e4tzt, was bei einem $4.8T-Unternehmen mit maximaler Analystenabdeckung unwahrscheinlich ist.",
-          "argument_2": "Das Call-OI (34.513) dominiert das Put-OI (9.386) ATM massiv. Dealer-Gamma in positive Ausrichtung bedeutet, dass Market Maker bei steigenden Kursen Aktien verkaufen m\u00fcssen (d\u00e4mpfend) \u2014 dies begrenzt das Aufw\u00e4rtspotenzial und schafft einen strukturellen Widerstand. F\u00fcr eine BULLISH-Optionsstrategie bei AAPL bedeutet dies erh\u00f6hte Kosten und reduzierte Hebelwirkung, da Dealer-Hedging systematisch gegen Long-Call-Positionen arbeitet.",
-          "argument_3": "Der Insider-Kauf-Cluster (7 K\u00e4ufer in 14 Tagen) klingt bullish, ist bei AAPL-Insiders aber historisch schwaches Signal, da Apple-Executives routinem\u00e4\u00dfig auf feste Kaufprogramme (10b5-1 Plans) setzen, die keine aktive Informationsasymmetrie reflektieren. Bei einem $323/Aktie-Kurs handelt es sich wahrscheinlich um geplante Pflichtanteile. Das Signal ist bei Mega-Caps nahezu wertlos ohne Kenntnis des Kaufvolumens vs. gleichzeitiger automatischer Verk\u00e4ufe.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Hit-Rate 0% ist trivialerweise ein technischer Fehler (kein MC durchgef\u00fchrt, nicht 0% echter Erfolgswahrscheinlichkeit). Ohne MC-Daten ist keine statistische Validierung m\u00f6glich. Bei AAPL mit ~25% annualisierter Volatilit\u00e4t w\u00e4ren realistische Hit-Rates f\u00fcr moderate Upside-Strikes im 2-3 Monate-Fenster bei 40-55% anzusetzen.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 4,
-        "asymmetry_reasoning": "Der Markt bewertet die Qwen-Integration prim\u00e4r als China-Risiko, untersch\u00e4tzt aber den Umsatzimpuls durch freigeschaltete Apple-Intelligence-Monetarisierung in China. Insider-Cluster bei 7 K\u00e4ufern in 14 Tagen ist als Stimmungssignal nicht vollst\u00e4ndig eingepreist. Neutral-Makro und VIX-Contango reduzieren Optionspr\u00e4mien und machen Call-Spreads kosteneffizient.",
-        "catalyst": "Apple Intelligence China-Launch mit Alibaba Qwen: erster gro\u00dfer Markttest der KI-Monetarisierungsstrategie au\u00dferhalb der USA mit Q3/Q4 2026 Earnings-Reflexion",
-        "bear_case": "Qwen-Integration signalisiert technologische Abh\u00e4ngigkeit von chinesischem Partner statt eigener KI-Kompetenz \u2014 regulatorisches Risiko und Reputationsschaden k\u00f6nnten Bewertungsmultiple komprimieren, besonders wenn US-China-Spannungen eskalieren.",
-        "macro_assessment": "Neutrales Makroumfeld (flache Kurve +0.40%, Fed Funds 3.63%) bietet weder R\u00fccken- noch Gegenwind. VIX-Contango (13\u219219.2, +48%) signalisiert erwartete Volatilit\u00e4tsstabilit\u00e4t \u2014 g\u00fcnstige Bedingungen f\u00fcr Debit-Spreads. Kein rezessiver Gegenwind der bullische Einzelsignale \u00fcberlagert.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.4,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": true,
-        "market_cap": 4756206518272,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.6116,
-        "annualized_roi": 3.808,
-        "dte": 155
-      },
-      "outcome": null,
-      "peak_return": 0.2123,
-      "last_price": 319.7,
-      "current_return": -0.1579
-    },
     {
       "ticker": "ALL",
       "entry_date": "2026-08-06",
@@ -8922,6 +8827,104 @@
       "close_date": "2026-08-20",
       "close_price": 197.3025,
       "close_reason": "take_profit"
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-07-15",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.146,
+        "z_score": 0.171,
+        "sigma_30d": 0.0202,
+        "price_move_48h": 0.0034,
+        "eps_drift": 0.0073,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5626
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 14.25,
+      "entry_quote": {
+        "bid": 27.25,
+        "ask": 28.35,
+        "mid": 27.8,
+        "spread_pct": 0.0388,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2026-12-18",
+        "strike": 320.0,
+        "bid": 27.25,
+        "ask": 28.35,
+        "open_interest": 10270,
+        "implied_vol": 0.2775,
+        "spread_ratio": 0.0388,
+        "dte": 155,
+        "delta": 0.5984,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 350.0,
+          "bid": 14.1,
+          "ask": 14.45
+        },
+        "net_debit": 14.25
+      },
+      "simulation": {
+        "current_price": 323.83,
+        "target_price": 349.74,
+        "hit_rate": 0.6746,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.017,
+        "alpha": 0.00237
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Alibaba Qwen-Integration in Apple Intelligence f\u00fcr China ist prim\u00e4r eine regulatorische Anpassung an chinesische KI-Zensurvorschriften, keine strategische Schw\u00e4che. Der Markt hat dieses Abh\u00e4ngigkeitsrisiko bereits im Diskurs verarbeitet \u2014 Apple hat keine Wahl bei China-Compliance, und der Deal sichert den Marktzugang f\u00fcr ~1 Mrd. potenzielle Nutzer. Ein BEARISH-Signal aus dieser Nachricht setzt voraus, dass der Markt die Kompromittierung der KI-Architektur untersch\u00e4tzt, was bei einem $4.8T-Unternehmen mit maximaler Analystenabdeckung unwahrscheinlich ist.",
+          "argument_2": "Das Call-OI (34.513) dominiert das Put-OI (9.386) ATM massiv. Dealer-Gamma in positive Ausrichtung bedeutet, dass Market Maker bei steigenden Kursen Aktien verkaufen m\u00fcssen (d\u00e4mpfend) \u2014 dies begrenzt das Aufw\u00e4rtspotenzial und schafft einen strukturellen Widerstand. F\u00fcr eine BULLISH-Optionsstrategie bei AAPL bedeutet dies erh\u00f6hte Kosten und reduzierte Hebelwirkung, da Dealer-Hedging systematisch gegen Long-Call-Positionen arbeitet.",
+          "argument_3": "Der Insider-Kauf-Cluster (7 K\u00e4ufer in 14 Tagen) klingt bullish, ist bei AAPL-Insiders aber historisch schwaches Signal, da Apple-Executives routinem\u00e4\u00dfig auf feste Kaufprogramme (10b5-1 Plans) setzen, die keine aktive Informationsasymmetrie reflektieren. Bei einem $323/Aktie-Kurs handelt es sich wahrscheinlich um geplante Pflichtanteile. Das Signal ist bei Mega-Caps nahezu wertlos ohne Kenntnis des Kaufvolumens vs. gleichzeitiger automatischer Verk\u00e4ufe.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Hit-Rate 0% ist trivialerweise ein technischer Fehler (kein MC durchgef\u00fchrt, nicht 0% echter Erfolgswahrscheinlichkeit). Ohne MC-Daten ist keine statistische Validierung m\u00f6glich. Bei AAPL mit ~25% annualisierter Volatilit\u00e4t w\u00e4ren realistische Hit-Rates f\u00fcr moderate Upside-Strikes im 2-3 Monate-Fenster bei 40-55% anzusetzen.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt bewertet die Qwen-Integration prim\u00e4r als China-Risiko, untersch\u00e4tzt aber den Umsatzimpuls durch freigeschaltete Apple-Intelligence-Monetarisierung in China. Insider-Cluster bei 7 K\u00e4ufern in 14 Tagen ist als Stimmungssignal nicht vollst\u00e4ndig eingepreist. Neutral-Makro und VIX-Contango reduzieren Optionspr\u00e4mien und machen Call-Spreads kosteneffizient.",
+        "catalyst": "Apple Intelligence China-Launch mit Alibaba Qwen: erster gro\u00dfer Markttest der KI-Monetarisierungsstrategie au\u00dferhalb der USA mit Q3/Q4 2026 Earnings-Reflexion",
+        "bear_case": "Qwen-Integration signalisiert technologische Abh\u00e4ngigkeit von chinesischem Partner statt eigener KI-Kompetenz \u2014 regulatorisches Risiko und Reputationsschaden k\u00f6nnten Bewertungsmultiple komprimieren, besonders wenn US-China-Spannungen eskalieren.",
+        "macro_assessment": "Neutrales Makroumfeld (flache Kurve +0.40%, Fed Funds 3.63%) bietet weder R\u00fccken- noch Gegenwind. VIX-Contango (13\u219219.2, +48%) signalisiert erwartete Volatilit\u00e4tsstabilit\u00e4t \u2014 g\u00fcnstige Bedingungen f\u00fcr Debit-Spreads. Kein rezessiver Gegenwind der bullische Einzelsignale \u00fcberlagert.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.4,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4756206518272,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6116,
+        "annualized_roi": 3.808,
+        "dte": 155
+      },
+      "outcome": -0.1579,
+      "peak_return": 0.2123,
+      "last_price": 319.7,
+      "current_return": -0.1579,
+      "close_date": "2026-08-29",
+      "close_price": 319.7,
+      "close_reason": "max_holding_period"
     }
   ],
   "model_weights": {
@@ -43413,7 +43416,8 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null
+      "outcome": -0.198,
+      "close_date": "2026-08-29"
     },
     {
       "ticker": "AAPL",
@@ -43450,7 +43454,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.0128,
+      "close_date": "2026-08-29"
     },
     {
       "ticker": "AMAT",
@@ -43504,7 +43509,8 @@
       "roi_gap": 0.3808,
       "vix": 16.15,
       "mc_hit_rate": 0.5496,
-      "outcome": null
+      "outcome": -0.9206,
+      "close_date": "2026-08-29"
     },
     {
       "ticker": "CHRW",
