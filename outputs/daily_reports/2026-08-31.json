@@ -1,0 +1,438 @@
+{
+  "date": "2026-08-31",
+  "proposals": [
+    {
+      "ticker": "AMZN",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 79.0,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-02-19",
+        "strike": 260.0,
+        "bid": 27.1,
+        "ask": 29.75,
+        "open_interest": 1480,
+        "implied_vol": 0.3539,
+        "spread_ratio": 0.0891,
+        "dte": 171,
+        "delta": 0.5744,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 285.0,
+          "bid": 16.75,
+          "ask": 19.0
+        },
+        "net_debit": 13.0
+      },
+      "roi_analysis": {
+        "roi_gross": 0.4538,
+        "roi_net": 0.75356117492019,
+        "spread_pct": 0.0891,
+        "vega_loss": 0.0146,
+        "theta_daily": -0.0728,
+        "theta_daily_pct": 0.0056,
+        "delta": 0.4595,
+        "breakeven": 273.0,
+        "breakeven_pct": 0.0536,
+        "commission_pct": 0.002,
+        "iv_drop_assumed": 0.0076075,
+        "iv_drop_base": 0.01,
+        "catalyst_type": "INSIDER",
+        "cost_basis": 13.0,
+        "mc_weight": 0.62,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 171,
+        "mc_pnl_pct": 0.2504704326597718,
+        "mc_pnl_mean": 0.9337611749201901,
+        "mc_median_net": 0.0703
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.6352,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 171,
+          "option": {
+            "expiry": "2027-02-19",
+            "strike": 260.0,
+            "bid": 27.1,
+            "ask": 29.75,
+            "open_interest": 1480,
+            "implied_vol": 0.3539,
+            "spread_ratio": 0.0891,
+            "dte": 171,
+            "delta": 0.5744,
+            "data_source": "tradier",
+            "spread_leg": {
+              "strike": 285.0,
+              "bid": 16.75,
+              "ask": 19.0
+            },
+            "net_debit": 13.0
+          },
+          "roi": {
+            "roi_gross": 0.4538,
+            "roi_net": 0.75356117492019,
+            "spread_pct": 0.0891,
+            "vega_loss": 0.0146,
+            "theta_daily": -0.0728,
+            "theta_daily_pct": 0.0056,
+            "delta": 0.4595,
+            "breakeven": 273.0,
+            "breakeven_pct": 0.0536,
+            "commission_pct": 0.002,
+            "iv_drop_assumed": 0.0076075,
+            "iv_drop_base": 0.01,
+            "catalyst_type": "INSIDER",
+            "cost_basis": 13.0,
+            "mc_weight": 0.62,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 171,
+            "mc_pnl_pct": 0.2504704326597718,
+            "mc_pnl_mean": 0.9337611749201901,
+            "mc_median_net": 0.0703
+          },
+          "roi_net_initial": 0.2591,
+          "annualized_roi": 0.6352,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.177,
+        "z_score": 0.565,
+        "sigma_30d": 0.0326,
+        "price_move_48h": 0.0184,
+        "eps_drift": 0.0386,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6196
+      },
+      "simulation": {
+        "current_price": 259.12,
+        "target_price": 279.84,
+        "hit_rate": 0.7244,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0235,
+        "alpha": 0.00236
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der AWS Saudi-Region-Launch ist f\u00fcr AMZN als $2.8T Mega-Cap fundamental marginal: Saudi-Arabien repr\u00e4sentiert einen kleinen Anteil am globalen Cloud-TAM, und AMZN AWS ist bereits in 33+ Regionen pr\u00e4sent. Der Markt hat Middle-East-Expansion seit Jahren antizipiert \u2014 dieser Launch ist kein \u00dcberraschungskatalysator, sondern Execution auf einer bekannten Roadmap. Bei einem KGV im Bereich 35-40x und einem Aktienkurs von $259 ist dieser regionale Expansion-Schritt mit sehr hoher Wahrscheinlichkeit bereits vollst\u00e4ndig eingepreist.",
+          "argument_2": "Die Headline 'AI Bubble tritt gef\u00e4hrlichste Phase ein, Ausgaben n\u00e4hern sich $1 Billion' ist ein explizites Gegenwind-Signal f\u00fcr AWS-Growth-Erwartungen. Wenn institutionelle Investoren beginnen, die Nachhaltigkeit von Hyperscaler-CapEx zu hinterfragen, droht eine multiple Kompression f\u00fcr AMZN trotz solider operativer Performance. US-Strikes auf Iran (laut News) erh\u00f6hen zudem geopolitisches Risiko in der MENA-Region \u2014 genau dort, wo der neue Wachstumskatalysator liegen soll.",
+          "argument_3": "Der Dealer-Gamma-Kontext zeigt Call-OI-Dominanz (85,955 vs. 48,327 Puts), was bedeutet, dass Dealer bei steigenden Kursen Delta-Hedging via Short-Futures betreiben \u2014 dieser strukturelle D\u00e4mpfungseffekt limitiert kurzfristige Upside-Moves. Kombiniert mit -1.8% Preisbewegung in 48h und schwachem Aktien-Saisonalit\u00e4tsmuster (laut News) fehlt ein glaubw\u00fcrdiger kurzfristiger Kurskatalysator f\u00fcr einen gerichteten Long-Trade mit positivem Erwartungswert.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein Quick-MC wurde ausgef\u00fchrt, keine statistische Basis verf\u00fcgbar. Ohne MC-Daten kann keine Hit-Rate-Plausibilit\u00e4t gepr\u00fcft werden \u2014 das ist ein Datenl\u00fccke, kein positives Signal. Concern bleibt medium, da AMZN bei historischer 30-Tage-Vol von ca. 25-30% annualisiert realistische Pfadbreite h\u00e4tte.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Saudi-AWS-Launch kombiniert mit Insider-Kaufcluster (5 Personen in 14 Tagen) k\u00f6nnte eine leichte Konsensus-Unterreaktion auf das MENA-AI-Infrastrukturmomentum signalisieren. Bei neutralem Makro (flache Kurve, 3.63% Fed Funds) ist Mega-Cap-Tech weder strukturell beg\u00fcnstigt noch stark belastet, was einen moderaten Optionswert im 2-3-Monats-Fenster erzeugt. Der Insider-Cluster ist das st\u00e4rkste verbleibende Signal, da er nicht-\u00f6ffentliches Konfidenz-Niveau der Unternehmensf\u00fchrung reflektiert.",
+        "catalyst": "AWS Saudi-Region-Launch als MENA-AI-Infrastrukturkatalysator kombiniert mit Insider-Kaufcluster (5 K\u00e4ufe/14 Tage)",
+        "bear_case": "AI-CapEx-Bubble-Narrative k\u00f6nnte Multiple-Kompression bei Hyperscalern ausl\u00f6sen; geopolitisches Risiko Iran/MENA d\u00e4mpft den regionalen Wachstumsthese direkt; Dealer-Gamma-Struktur limitiert kurzfristige Upside strukturell.",
+        "macro_assessment": "Neutrales Makro (flache Kurve +0.39%, Fed Funds 3.63%) schafft keinen signifikanten R\u00fccken- oder Gegenwind f\u00fcr AMZN. VIX-Contango-Struktur (12.5\u219217.6, +41% slope) beg\u00fcnstigt Long-Vol-Strategien leicht, impliziert aber auch, dass der Markt f\u00fcr die n\u00e4chsten 3 Monate steigende Volatilit\u00e4t erwartet \u2014 Spreads sind nakten Calls vorzuziehen, um IV-Crush nach dem n\u00e4chsten Earnings-Event zu begrenzen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.39,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 2794895441920,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": 0.041
+      },
+      "final_score": 0.2866,
+      "mc_hit_rate": 0.6196,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Consumer Cyclical",
+      "catalyst_type": "INSIDER",
+      "implied_move_pct": 20.45,
+      "model_move_pct": 8.0,
+      "edge_vs_implied": 2.64,
+      "mc_pnl_pct": 0.2504704326597718,
+      "mc_pnl_mean": 0.9337611749201901,
+      "mc_pnl_std": 2.021842042738569,
+      "mc_hold_days": 85,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 0,
+      "trade_bep_pct": 5.36,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.4407,
+        "annualized_roi": 2.3163,
+        "dte": 171
+      },
+      "trade_score": {
+        "total": 57,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 27.0,
+          "risk_deductions": -2.0,
+          "context_bonus": 18.5,
+          "roi_penalty": 0.0,
+          "edge_pts": 0.0,
+          "macro_sensitivity": 0.7
+        },
+        "reasoning": "St\u00e4rken: guter ROI (75%), positive Sektor-Relative-St\u00e4rke | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Der Saudi-AWS-Launch kombiniert mit Insider-Kaufcluster (5 Personen in 14 Tagen) k\u00f6nnte eine leichte Konsensus-Unterreaktion auf das MENA-AI-Infrastrukturmomentum signalisieren. Bei neutralem Makro (flache Kurve, 3.63% Fed Funds) ist Mega-Cap-Tech weder strukturell beg\u00fcnstigt noch stark belastet, was einen moderaten Optionswert im 2-3-Monats-Fenster erzeugt. Der Insider-Cluster ist das st\u00e4rkste verbleibende Signal, da er nicht-\u00f6ffentliches Konfidenz-Niveau der Unternehmensf\u00fchrung reflektiert.",
+        "best_argument_against": "Der AWS Saudi-Region-Launch ist f\u00fcr AMZN als $2.8T Mega-Cap fundamental marginal: Saudi-Arabien repr\u00e4sentiert einen kleinen Anteil am globalen Cloud-TAM, und AMZN AWS ist bereits in 33+ Regionen pr\u00e4sent. Der Markt hat Middle-East-Expansion seit Jahren antizipiert \u2014 dieser Launch ist kein \u00dcberraschungskatalysator, sondern Execution auf einer bekannten Roadmap. Bei einem KGV im Bereich 35-40x und einem Aktienkurs von $259 ist dieser regionale Expansion-Schritt mit sehr hoher Wahrscheinlichkeit bereits vollst\u00e4ndig eingepreist."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.2158,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.0539,
+        "position_usd": 269.7,
+        "cost_per_contract": 1300.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($1300) \u00fcbersteigt das Kelly-Budget ($270) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 13.0,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 21.4,
+        "full_profit_pct": 90,
+        "full_profit_price": 23.8,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 6.5,
+        "time_exit_dte_remaining": 76,
+        "time_exit_date": "2026-12-05",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 273.0
+      }
+    }
+  ],
+  "stats": {
+    "vix": 15.029999732971191,
+    "universe": 95,
+    "candidates": 95,
+    "prescreened": 24,
+    "sector_ok": 89,
+    "pre_mc": 21,
+    "roi_precheck": 23,
+    "analyzed": 20,
+    "mismatch_ok": 10,
+    "quick_mc": 6,
+    "intraday_ok": 6,
+    "final_mc": 6,
+    "rl_scored": 6,
+    "roi_ok": 1,
+    "trades": 1,
+    "stop_reason": "",
+    "after_isf": 12,
+    "roi_rejects": {
+      "n": 3,
+      "gap_min": 0.0187,
+      "gap_median": 0.2224,
+      "gap_max": 0.3238
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 6,
+      "tickers": [
+        "AMD",
+        "APTV",
+        "APP",
+        "GLW",
+        "CVS",
+        "DECK"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 2,
+      "tickers": [
+        "AOS",
+        "CNP"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 7,
+      "tickers": [
+        "AES",
+        "AMGN",
+        "ARES",
+        "BA",
+        "BLDR",
+        "CVNA",
+        "CSGP"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 1,
+      "tickers": [
+        "A"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 4,
+      "tickers": [
+        "AON",
+        "BMY",
+        "CVX",
+        "CME"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Neuester Report (2026-08-31): universe=0 (keine Ticker im Universum).",
+      "Neuester Report (2026-08-31): VIX fehlt."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 1,
+        "killer_counts": {
+          "universe": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-08-31",
+            "trades": 0,
+            "killer": "universe"
+          },
+          {
+            "date": "2026-08-28",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-08-26",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-25",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-08-24",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-21",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-20",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-19",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-08-18",
+            "trades": 0,
+            "killer": "prescreened"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-12"
+          },
+          "final_mc_survivor": {
+            "total": 58,
+            "evaluated": 18,
+            "ready_in_14d": 13,
+            "next_eval_date": "2026-08-30"
+          },
+          "roi_gate": {
+            "total": 32,
+            "evaluated": 9,
+            "ready_in_14d": 9,
+            "next_eval_date": "2026-08-31"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 3,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      }
+    }
+  }
+}

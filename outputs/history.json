@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 260.58,
-      "current_return": -0.2798
+      "last_price": 258.49,
+      "current_return": -0.3423
     },
     {
       "ticker": "ABNB",
@@ -231,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": 0.228,
-      "last_price": 189.43,
-      "current_return": 0.228
+      "last_price": 183.03,
+      "current_return": 0.0078
     },
     {
       "ticker": "APO",
@@ -325,9 +325,104 @@
         "dte": 202
       },
       "outcome": null,
-      "peak_return": -0.2089,
-      "last_price": 135.04,
-      "current_return": -0.2089
+      "peak_return": -0.1962,
+      "last_price": 136.99,
+      "current_return": -0.1962
+    },
+    {
+      "ticker": "AMZN",
+      "entry_date": "2026-08-31",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.177,
+        "z_score": 0.565,
+        "sigma_30d": 0.0326,
+        "price_move_48h": 0.0184,
+        "eps_drift": 0.0386,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6196
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 13.0,
+      "entry_quote": {
+        "bid": 27.1,
+        "ask": 29.75,
+        "mid": 28.425,
+        "spread_pct": 0.0891,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "INSIDER",
+      "option": {
+        "expiry": "2027-02-19",
+        "strike": 260.0,
+        "bid": 27.1,
+        "ask": 29.75,
+        "open_interest": 1480,
+        "implied_vol": 0.3539,
+        "spread_ratio": 0.0891,
+        "dte": 171,
+        "delta": 0.5744,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 285.0,
+          "bid": 16.75,
+          "ask": 19.0
+        },
+        "net_debit": 13.0
+      },
+      "simulation": {
+        "current_price": 259.12,
+        "target_price": 279.84,
+        "hit_rate": 0.7244,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0235,
+        "alpha": 0.00236
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der AWS Saudi-Region-Launch ist f\u00fcr AMZN als $2.8T Mega-Cap fundamental marginal: Saudi-Arabien repr\u00e4sentiert einen kleinen Anteil am globalen Cloud-TAM, und AMZN AWS ist bereits in 33+ Regionen pr\u00e4sent. Der Markt hat Middle-East-Expansion seit Jahren antizipiert \u2014 dieser Launch ist kein \u00dcberraschungskatalysator, sondern Execution auf einer bekannten Roadmap. Bei einem KGV im Bereich 35-40x und einem Aktienkurs von $259 ist dieser regionale Expansion-Schritt mit sehr hoher Wahrscheinlichkeit bereits vollst\u00e4ndig eingepreist.",
+          "argument_2": "Die Headline 'AI Bubble tritt gef\u00e4hrlichste Phase ein, Ausgaben n\u00e4hern sich $1 Billion' ist ein explizites Gegenwind-Signal f\u00fcr AWS-Growth-Erwartungen. Wenn institutionelle Investoren beginnen, die Nachhaltigkeit von Hyperscaler-CapEx zu hinterfragen, droht eine multiple Kompression f\u00fcr AMZN trotz solider operativer Performance. US-Strikes auf Iran (laut News) erh\u00f6hen zudem geopolitisches Risiko in der MENA-Region \u2014 genau dort, wo der neue Wachstumskatalysator liegen soll.",
+          "argument_3": "Der Dealer-Gamma-Kontext zeigt Call-OI-Dominanz (85,955 vs. 48,327 Puts), was bedeutet, dass Dealer bei steigenden Kursen Delta-Hedging via Short-Futures betreiben \u2014 dieser strukturelle D\u00e4mpfungseffekt limitiert kurzfristige Upside-Moves. Kombiniert mit -1.8% Preisbewegung in 48h und schwachem Aktien-Saisonalit\u00e4tsmuster (laut News) fehlt ein glaubw\u00fcrdiger kurzfristiger Kurskatalysator f\u00fcr einen gerichteten Long-Trade mit positivem Erwartungswert.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "0% Hit-Rate bedeutet kein Quick-MC wurde ausgef\u00fchrt, keine statistische Basis verf\u00fcgbar. Ohne MC-Daten kann keine Hit-Rate-Plausibilit\u00e4t gepr\u00fcft werden \u2014 das ist ein Datenl\u00fccke, kein positives Signal. Concern bleibt medium, da AMZN bei historischer 30-Tage-Vol von ca. 25-30% annualisiert realistische Pfadbreite h\u00e4tte.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Saudi-AWS-Launch kombiniert mit Insider-Kaufcluster (5 Personen in 14 Tagen) k\u00f6nnte eine leichte Konsensus-Unterreaktion auf das MENA-AI-Infrastrukturmomentum signalisieren. Bei neutralem Makro (flache Kurve, 3.63% Fed Funds) ist Mega-Cap-Tech weder strukturell beg\u00fcnstigt noch stark belastet, was einen moderaten Optionswert im 2-3-Monats-Fenster erzeugt. Der Insider-Cluster ist das st\u00e4rkste verbleibende Signal, da er nicht-\u00f6ffentliches Konfidenz-Niveau der Unternehmensf\u00fchrung reflektiert.",
+        "catalyst": "AWS Saudi-Region-Launch als MENA-AI-Infrastrukturkatalysator kombiniert mit Insider-Kaufcluster (5 K\u00e4ufe/14 Tage)",
+        "bear_case": "AI-CapEx-Bubble-Narrative k\u00f6nnte Multiple-Kompression bei Hyperscalern ausl\u00f6sen; geopolitisches Risiko Iran/MENA d\u00e4mpft den regionalen Wachstumsthese direkt; Dealer-Gamma-Struktur limitiert kurzfristige Upside strukturell.",
+        "macro_assessment": "Neutrales Makro (flache Kurve +0.39%, Fed Funds 3.63%) schafft keinen signifikanten R\u00fccken- oder Gegenwind f\u00fcr AMZN. VIX-Contango-Struktur (12.5\u219217.6, +41% slope) beg\u00fcnstigt Long-Vol-Strategien leicht, impliziert aber auch, dass der Markt f\u00fcr die n\u00e4chsten 3 Monate steigende Volatilit\u00e4t erwartet \u2014 Spreads sind nakten Calls vorzuziehen, um IV-Crush nach dem n\u00e4chsten Earnings-Event zu begrenzen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.39,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 2794895441920,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.4407,
+        "annualized_roi": 2.3163,
+        "dte": 171
+      },
+      "outcome": null,
+      "peak_return": -0.1981,
+      "last_price": 260.415,
+      "current_return": -0.1981
     }
   ],
   "closed_trades": [
@@ -9153,6 +9248,11 @@
         "date": "2026-08-21",
         "score": 0.3868,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.4392,
+        "headline_count": 5
       }
     ],
     "GEN": [
@@ -9374,11 +9474,6 @@
       }
     ],
     "AMZN": [
-      {
-        "date": "2026-05-05",
-        "score": 0.3143,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-06",
         "score": -0.0605,
@@ -9672,6 +9767,11 @@
       {
         "date": "2026-08-28",
         "score": -0.0307,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1793,
         "headline_count": 5
       }
     ],
@@ -10183,6 +10283,11 @@
       {
         "date": "2026-08-28",
         "score": -0.206,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0815,
         "headline_count": 5
       }
     ],
@@ -11150,6 +11255,11 @@
         "date": "2026-08-28",
         "score": -0.1673,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0125,
+        "headline_count": 5
       }
     ],
     "BIIB": [
@@ -11322,6 +11432,11 @@
         "date": "2026-08-28",
         "score": -0.2489,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.2665,
+        "headline_count": 3
       }
     ],
     "BX": [
@@ -11564,6 +11679,11 @@
         "date": "2026-08-28",
         "score": 0.4851,
         "headline_count": 2
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0026,
+        "headline_count": 3
       }
     ],
     "CHTR": [
@@ -12466,6 +12586,11 @@
       {
         "date": "2026-08-28",
         "score": -0.1218,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.7721,
         "headline_count": 5
       }
     ],
@@ -13513,6 +13638,11 @@
         "date": "2026-08-28",
         "score": 0.2418,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3137,
+        "headline_count": 5
       }
     ],
     "CVNA": [
@@ -13605,6 +13735,11 @@
         "date": "2026-08-05",
         "score": 0.0097,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1209,
+        "headline_count": 3
       }
     ],
     "PLTR": [
@@ -14174,6 +14309,11 @@
         "date": "2026-08-28",
         "score": 0.0845,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.5935,
+        "headline_count": 1
       }
     ],
     "CE": [
@@ -14423,6 +14563,11 @@
         "date": "2026-08-28",
         "score": 0.0244,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0397,
+        "headline_count": 5
       }
     ],
     "CSGP": [
@@ -14625,6 +14770,11 @@
         "date": "2026-08-28",
         "score": 0.1288,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1157,
+        "headline_count": 5
       }
     ],
     "HRL": [
@@ -14724,6 +14874,11 @@
         "date": "2026-08-28",
         "score": 0.0435,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.1347,
+        "headline_count": 2
       }
     ],
     "ABT": [
@@ -15006,6 +15161,11 @@
         "date": "2026-08-28",
         "score": 0.1913,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.7102,
+        "headline_count": 5
       }
     ],
     "AOS": [
@@ -15178,6 +15338,11 @@
         "date": "2026-08-28",
         "score": 0.0845,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0363,
+        "headline_count": 5
       }
     ],
     "AIG": [
@@ -15527,14 +15692,14 @@
         "date": "2026-08-28",
         "score": 0.0249,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.3255,
+        "headline_count": 5
       }
     ],
     "AAPL": [
-      {
-        "date": "2026-05-08",
-        "score": -0.13,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-11",
         "score": 0.16,
@@ -15828,6 +15993,11 @@
       {
         "date": "2026-08-28",
         "score": -0.2103,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0863,
         "headline_count": 5
       }
     ],
@@ -16247,11 +16417,6 @@
     ],
     "AVGO": [
       {
-        "date": "2026-04-23",
-        "score": -0.0296,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-24",
         "score": 0.3341,
         "headline_count": 5
@@ -16545,6 +16710,11 @@
         "date": "2026-08-28",
         "score": -0.074,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1331,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
@@ -16832,6 +17002,11 @@
         "date": "2026-08-28",
         "score": -0.1003,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.128,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -17028,6 +17203,11 @@
       {
         "date": "2026-08-28",
         "score": 0.086,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1816,
         "headline_count": 5
       }
     ],
@@ -17321,6 +17501,11 @@
         "date": "2026-08-28",
         "score": 0.0841,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.018,
+        "headline_count": 5
       }
     ],
     "BF-B": [
@@ -17901,6 +18086,11 @@
         "date": "2026-08-28",
         "score": 0.0225,
         "headline_count": 2
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.2081,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -18533,6 +18723,11 @@
         "date": "2026-08-28",
         "score": 0.0072,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1516,
+        "headline_count": 5
       }
     ],
     "CVS": [
@@ -18749,6 +18944,11 @@
       {
         "date": "2026-08-28",
         "score": -0.1715,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3285,
         "headline_count": 5
       }
     ],
@@ -19409,6 +19609,11 @@
         "date": "2026-08-28",
         "score": 0.7045,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0363,
+        "headline_count": 5
       }
     ],
     "CDNS": [
@@ -19620,6 +19825,11 @@
       {
         "date": "2026-08-28",
         "score": 0.3176,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0495,
         "headline_count": 5
       }
     ],
@@ -19858,6 +20068,11 @@
         "date": "2026-08-28",
         "score": -0.2988,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0108,
+        "headline_count": 5
       }
     ],
     "DE": [
@@ -20044,6 +20259,11 @@
       {
         "date": "2026-08-28",
         "score": -0.2386,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0461,
         "headline_count": 5
       }
     ],
@@ -20385,6 +20605,11 @@
         "date": "2026-08-28",
         "score": -0.9381,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0121,
+        "headline_count": 1
       }
     ],
     "BALL": [
@@ -20521,6 +20746,11 @@
       {
         "date": "2026-08-28",
         "score": 0.156,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.2567,
         "headline_count": 5
       }
     ],
@@ -20714,6 +20944,11 @@
         "date": "2026-08-28",
         "score": -0.4124,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0487,
+        "headline_count": 4
       }
     ],
     "BG": [
@@ -20871,6 +21106,11 @@
         "date": "2026-08-28",
         "score": 0.0545,
         "headline_count": 3
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0059,
+        "headline_count": 5
       }
     ],
     "SCHW": [
@@ -21472,6 +21712,11 @@
         "date": "2026-08-28",
         "score": 0.026,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.6517,
+        "headline_count": 5
       }
     ],
     "CFG": [
@@ -21679,6 +21924,11 @@
         "date": "2026-08-28",
         "score": -0.4231,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1838,
+        "headline_count": 5
       }
     ],
     "CMS": [
@@ -21875,6 +22125,11 @@
       {
         "date": "2026-08-28",
         "score": 0.0748,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.1165,
         "headline_count": 5
       }
     ],
@@ -22168,14 +22423,14 @@
         "date": "2026-08-28",
         "score": 0.1227,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3925,
+        "headline_count": 5
       }
     ],
     "GLW": [
-      {
-        "date": "2026-04-16",
-        "score": -0.3367,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-23",
         "score": -0.0073,
@@ -22470,6 +22725,11 @@
         "date": "2026-08-28",
         "score": 0.1806,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.2595,
+        "headline_count": 5
       }
     ],
     "COST": [
@@ -22741,6 +23001,11 @@
       {
         "date": "2026-08-28",
         "score": 0.1076,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.3333,
         "headline_count": 5
       }
     ],
@@ -23256,11 +23521,6 @@
     ],
     "AMD": [
       {
-        "date": "2026-04-29",
-        "score": -0.2171,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-30",
         "score": 0.4478,
         "headline_count": 5
@@ -23554,14 +23814,14 @@
         "date": "2026-08-28",
         "score": -0.3456,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0382,
+        "headline_count": 5
       }
     ],
     "GOOG": [
-      {
-        "date": "2026-05-01",
-        "score": 0.105,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-04",
         "score": -0.0112,
@@ -23856,6 +24116,11 @@
         "date": "2026-08-28",
         "score": 0.0336,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1381,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -23978,6 +24243,11 @@
         "date": "2026-08-28",
         "score": 0.5489,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.076,
+        "headline_count": 5
       }
     ],
     "AEP": [
@@ -24624,6 +24894,11 @@
         "date": "2026-08-28",
         "score": -0.0976,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1377,
+        "headline_count": 5
       }
     ],
     "AMGN": [
@@ -24846,6 +25121,11 @@
         "date": "2026-08-28",
         "score": 0.1781,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0296,
+        "headline_count": 4
       }
     ],
     "ADI": [
@@ -25557,6 +25837,11 @@
         "date": "2026-08-28",
         "score": 0.0917,
         "headline_count": 2
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0892,
+        "headline_count": 5
       }
     ],
     "ACGL": [
@@ -25723,6 +26008,11 @@
       {
         "date": "2026-08-28",
         "score": -0.5883,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0668,
         "headline_count": 1
       }
     ],
@@ -26485,6 +26775,11 @@
         "date": "2026-08-28",
         "score": 0.4824,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0556,
+        "headline_count": 5
       }
     ],
     "BBWI": [
@@ -26530,11 +26825,6 @@
       }
     ],
     "BA": [
-      {
-        "date": "2026-04-16",
-        "score": -0.1318,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-17",
         "score": 0.3185,
@@ -26829,6 +27119,11 @@
         "date": "2026-08-28",
         "score": -0.1838,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.033,
+        "headline_count": 3
       }
     ],
     "CPT": [
@@ -26980,6 +27275,11 @@
       {
         "date": "2026-08-28",
         "score": -0.099,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0225,
         "headline_count": 5
       }
     ],
@@ -27218,6 +27518,11 @@
         "date": "2026-08-28",
         "score": 0.0876,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.2532,
+        "headline_count": 5
       }
     ],
     "CL": [
@@ -27434,6 +27739,11 @@
       {
         "date": "2026-08-28",
         "score": 0.2174,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0105,
         "headline_count": 5
       }
     ],
@@ -27677,6 +27987,11 @@
         "date": "2026-08-28",
         "score": 0.3261,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1773,
+        "headline_count": 5
       }
     ],
     "APD": [
@@ -27839,6 +28154,11 @@
         "date": "2026-08-28",
         "score": -0.0877,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.3868,
+        "headline_count": 1
       }
     ],
     "ABNB": [
@@ -28096,6 +28416,11 @@
         "date": "2026-08-28",
         "score": 0.3173,
         "headline_count": 3
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.855,
+        "headline_count": 1
       }
     ],
     "CTSH": [
@@ -28377,6 +28702,11 @@
       {
         "date": "2026-08-28",
         "score": 0.0677,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.2927,
         "headline_count": 5
       }
     ],
@@ -29019,6 +29349,11 @@
         "date": "2026-08-28",
         "score": 0.1227,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3925,
+        "headline_count": 5
       }
     ],
     "DG": [
@@ -29404,6 +29739,11 @@
         "date": "2026-08-28",
         "score": -0.1641,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3277,
+        "headline_count": 5
       }
     ],
     "CVX": [
@@ -29640,6 +29980,11 @@
       {
         "date": "2026-08-28",
         "score": -0.0541,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0356,
         "headline_count": 5
       }
     ],
@@ -30365,6 +30710,11 @@
         "date": "2026-08-28",
         "score": 0.1227,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3925,
+        "headline_count": 5
       }
     ],
     "EOG": [
@@ -30851,6 +31201,11 @@
         "date": "2026-08-28",
         "score": 0.1265,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1701,
+        "headline_count": 5
       }
     ],
     "EQT": [
@@ -31315,6 +31670,11 @@
         "date": "2026-08-28",
         "score": -0.567,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.076,
+        "headline_count": 5
       }
     ],
     "ACN": [
@@ -32076,6 +32436,11 @@
         "date": "2026-08-28",
         "score": 0.1369,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3251,
+        "headline_count": 3
       }
     ],
     "BBY": [
@@ -32238,6 +32603,11 @@
         "date": "2026-08-28",
         "score": 0.0336,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0091,
+        "headline_count": 1
       }
     ],
     "BR": [
@@ -32537,6 +32907,11 @@
         "date": "2026-08-28",
         "score": 0.0391,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.3292,
+        "headline_count": 5
       }
     ],
     "COF": [
@@ -32779,6 +33154,11 @@
         "date": "2026-08-28",
         "score": 0.2484,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.057,
+        "headline_count": 5
       }
     ],
     "COR": [
@@ -32970,6 +33350,11 @@
       {
         "date": "2026-08-28",
         "score": 0.0549,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0638,
         "headline_count": 5
       }
     ],
@@ -33248,6 +33633,11 @@
         "date": "2026-08-28",
         "score": 0.2743,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.4902,
+        "headline_count": 5
       }
     ],
     "CHD": [
@@ -33409,6 +33799,11 @@
       {
         "date": "2026-08-28",
         "score": -0.091,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0841,
         "headline_count": 5
       }
     ],
@@ -33864,6 +34259,11 @@
         "date": "2026-08-28",
         "score": 0.3904,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1263,
+        "headline_count": 5
       }
     ],
     "CEG": [
@@ -34131,6 +34531,11 @@
         "date": "2026-08-28",
         "score": -0.2988,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0108,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
@@ -34393,6 +34798,11 @@
         "date": "2026-08-28",
         "score": 0.2482,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.3197,
+        "headline_count": 4
       }
     ],
     "DHR": [
@@ -34590,6 +35000,11 @@
         "date": "2026-08-28",
         "score": 0.2113,
         "headline_count": 2
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.3255,
+        "headline_count": 3
       }
     ],
     "DOV": [
@@ -35337,6 +35752,11 @@
         "date": "2026-08-28",
         "score": 0.0411,
         "headline_count": 2
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0973,
+        "headline_count": 1
       }
     ],
     "APH": [
@@ -36097,6 +36517,11 @@
         "date": "2026-08-28",
         "score": 0.0845,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1741,
+        "headline_count": 5
       }
     ],
     "CCI": [
@@ -36339,6 +36764,11 @@
         "date": "2026-08-28",
         "score": -0.0968,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0597,
+        "headline_count": 5
       }
     ],
     "CSX": [
@@ -36812,6 +37242,11 @@
         "date": "2026-08-27",
         "score": 0.9306,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0318,
+        "headline_count": 1
       }
     ],
     "CNC": [
@@ -37004,6 +37439,11 @@
         "date": "2026-08-28",
         "score": -0.3344,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0253,
+        "headline_count": 5
       }
     ],
     "CNX": [
@@ -37182,6 +37622,11 @@
       {
         "date": "2026-08-28",
         "score": -0.0869,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1848,
         "headline_count": 5
       }
     ],
@@ -37404,6 +37849,11 @@
       {
         "date": "2026-08-28",
         "score": 0.1823,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.2318,
         "headline_count": 5
       }
     ],
@@ -38146,6 +38596,11 @@
         "date": "2026-08-28",
         "score": -0.3157,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.2227,
+        "headline_count": 5
       }
     ],
     "DPZ": [
@@ -38355,6 +38810,11 @@
         "date": "2026-08-28",
         "score": -0.1677,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.1424,
+        "headline_count": 5
       }
     ],
     "AJG": [
@@ -38472,6 +38932,11 @@
         "date": "2026-08-28",
         "score": -0.02,
         "headline_count": 1
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.2496,
+        "headline_count": 5
       }
     ],
     "BAX": [
@@ -38644,6 +39109,11 @@
         "date": "2026-08-28",
         "score": -0.2047,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.2603,
+        "headline_count": 5
       }
     ],
     "CRL": [
@@ -38746,6 +39216,11 @@
       {
         "date": "2026-08-28",
         "score": 0.0278,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0471,
         "headline_count": 5
       }
     ],
@@ -39018,6 +39493,11 @@
         "date": "2026-08-28",
         "score": -0.1366,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.253,
+        "headline_count": 3
       }
     ],
     "APO": [
@@ -39195,6 +39675,11 @@
         "date": "2026-08-28",
         "score": 0.2813,
         "headline_count": 3
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.1943,
+        "headline_count": 4
       }
     ],
     "XYZ": [
@@ -39377,6 +39862,11 @@
         "date": "2026-08-28",
         "score": 0.0103,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.2323,
+        "headline_count": 2
       }
     ],
     "BSX": [
@@ -39604,6 +40094,11 @@
         "date": "2026-08-28",
         "score": -0.4341,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0091,
+        "headline_count": 1
       }
     ],
     "BKNG": [
@@ -39785,6 +40280,11 @@
       {
         "date": "2026-08-28",
         "score": 0.105,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.3671,
         "headline_count": 5
       }
     ],
@@ -40010,6 +40510,11 @@
         "date": "2026-08-28",
         "score": 0.1072,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.668,
+        "headline_count": 2
       }
     ],
     "COIN": [
@@ -40246,6 +40751,11 @@
       {
         "date": "2026-08-28",
         "score": -0.0462,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": 0.0413,
         "headline_count": 5
       }
     ],
@@ -40514,6 +41024,11 @@
         "date": "2026-08-28",
         "score": -0.0612,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.241,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -40686,6 +41201,11 @@
         "date": "2026-08-28",
         "score": -0.6075,
         "headline_count": 4
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.0377,
+        "headline_count": 5
       }
     ],
     "DELL": [
@@ -41249,6 +41769,11 @@
         "date": "2026-08-28",
         "score": -0.0003,
         "headline_count": 2
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.022,
+        "headline_count": 5
       }
     ],
     "CIEN": [
@@ -41510,6 +42035,11 @@
         "date": "2026-08-28",
         "score": 0.2281,
         "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.241,
+        "headline_count": 4
       }
     ],
     "DTE": [
@@ -41643,6 +42173,11 @@
       {
         "date": "2026-08-28",
         "score": 0.1105,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-08-31",
+        "score": -0.141,
         "headline_count": 5
       }
     ],
@@ -41855,6 +42390,12 @@
       {
         "date": "2026-08-28",
         "atm_iv": 0.3312
+      }
+    ],
+    "AMZN": [
+      {
+        "date": "2026-08-31",
+        "atm_iv": 0.3539
       }
     ]
   },
@@ -43547,7 +44088,8 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": -0.2665,
+      "close_date": "2026-08-31"
     },
     {
       "ticker": "AVGO",
@@ -43584,7 +44126,8 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null
+      "outcome": 0.0007,
+      "close_date": "2026-08-31"
     },
     {
       "ticker": "AVGO",
@@ -43632,7 +44175,8 @@
       "roi_gap": 0.0496,
       "vix": 18.09,
       "mc_hit_rate": 0.6242,
-      "outcome": null
+      "outcome": -0.2692,
+      "close_date": "2026-08-31"
     },
     {
       "ticker": "AAPL",
@@ -45832,6 +46376,384 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.5244
       },
+      "outcome": null
+    },
+    {
+      "ticker": "AMZN",
+      "entry_date": "2026-08-31",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 259.12,
+        "target_price": 279.84,
+        "hit_rate": 0.7244,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0235,
+        "alpha": 0.00236
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.177,
+        "z_score": 0.565,
+        "sigma_30d": 0.0326,
+        "price_move_48h": 0.0184,
+        "eps_drift": 0.0386,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6196
+      },
+      "sector": "Consumer Cyclical",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "APO",
+      "entry_date": "2026-08-31",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 137.44,
+        "target_price": 148.44,
+        "hit_rate": 0.733,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0229,
+        "alpha": 0.00275
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 4.592,
+        "z_score": 0.082,
+        "sigma_30d": 0.0239,
+        "price_move_48h": 0.002,
+        "eps_drift": 0.0142,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6496
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "BIIB",
+      "entry_date": "2026-08-31",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 217.73,
+        "target_price": 235.15,
+        "hit_rate": 0.668,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.023,
+        "alpha": 0.00178
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.19,
+        "z_score": 0.162,
+        "sigma_30d": 0.0204,
+        "price_move_48h": 0.0033,
+        "eps_drift": 0.016,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5836
+      },
+      "sector": "Healthcare",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "COF",
+      "entry_date": "2026-08-31",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 214.82,
+        "target_price": 232.01,
+        "hit_rate": 0.5852,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0184,
+        "alpha": 0.00139
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.384,
+        "z_score": 0.123,
+        "sigma_30d": 0.0161,
+        "price_move_48h": 0.002,
+        "eps_drift": 0.005,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.4958
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "CBOE",
+      "entry_date": "2026-08-31",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 304.91,
+        "target_price": 332.24,
+        "hit_rate": 0.615,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0267,
+        "alpha": 0.00091
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.366,
+        "z_score": 0.727,
+        "sigma_30d": 0.0229,
+        "price_move_48h": 0.0166,
+        "eps_drift": 0.0016,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5722
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-08-31",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 189.37,
+        "target_price": 217.0,
+        "hit_rate": 0.593,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0435,
+        "alpha": 0.00145
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.946,
+        "z_score": 0.411,
+        "sigma_30d": 0.0463,
+        "price_move_48h": 0.019,
+        "eps_drift": 0.0644,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "relevant",
+        "quick_mc_hit_rate": 0.5874
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null
+    },
+    {
+      "ticker": "COF",
+      "entry_date": "2026-08-31",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 24.6,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 210.0,
+        "bid": 23.4,
+        "ask": 24.6,
+        "open_interest": 208,
+        "implied_vol": 0.3124,
+        "spread_ratio": 0.0488,
+        "dte": 199,
+        "delta": 0.6108,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 214.82,
+        "target_price": 232.01,
+        "hit_rate": 0.5852,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0184,
+        "alpha": 0.00139
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.384,
+        "z_score": 0.123,
+        "sigma_30d": 0.0161,
+        "price_move_48h": 0.002,
+        "eps_drift": 0.005,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.4958
+      },
+      "roi_net": 0.0887,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.0187,
+      "vix": 15.03,
+      "mc_hit_rate": 0.4958,
+      "outcome": null
+    },
+    {
+      "ticker": "CBOE",
+      "entry_date": "2026-08-31",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "INSIDER",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 37.9,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 300.0,
+        "bid": 35.0,
+        "ask": 37.9,
+        "open_interest": 203,
+        "implied_vol": 0.3509,
+        "spread_ratio": 0.0765,
+        "dte": 199,
+        "delta": 0.6015,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 330.0,
+          "bid": 21.5,
+          "ask": 24.4
+        },
+        "net_debit": 16.4
+      },
+      "simulation": {
+        "current_price": 304.91,
+        "target_price": 332.24,
+        "hit_rate": 0.615,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0267,
+        "alpha": 0.00091
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.366,
+        "z_score": 0.727,
+        "sigma_30d": 0.0229,
+        "price_move_48h": 0.0166,
+        "eps_drift": 0.0016,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5722
+      },
+      "roi_net": 0.2924,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.2224,
+      "vix": 15.03,
+      "mc_hit_rate": 0.5722,
+      "outcome": null
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-08-31",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "INSIDER",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 38.85,
+      "option": {
+        "expiry": "2027-02-19",
+        "strike": 190.0,
+        "bid": 35.25,
+        "ask": 38.85,
+        "open_interest": 307,
+        "implied_vol": 0.6971,
+        "spread_ratio": 0.0927,
+        "dte": 171,
+        "delta": 0.6005,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 210.0,
+          "bid": 25.8,
+          "ask": 33.2
+        },
+        "net_debit": 13.05
+      },
+      "simulation": {
+        "current_price": 189.37,
+        "target_price": 217.0,
+        "hit_rate": 0.593,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0435,
+        "alpha": 0.00145
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.946,
+        "z_score": 0.411,
+        "sigma_30d": 0.0463,
+        "price_move_48h": 0.019,
+        "eps_drift": 0.0644,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "relevant",
+        "quick_mc_hit_rate": 0.5874
+      },
+      "roi_net": 0.3938,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.3238,
+      "vix": 15.03,
+      "mc_hit_rate": 0.5874,
       "outcome": null
     }
   ],
