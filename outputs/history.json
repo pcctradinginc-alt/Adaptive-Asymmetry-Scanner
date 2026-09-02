@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.0625,
-      "last_price": 257.87,
-      "current_return": -0.3512
+      "last_price": 260.76,
+      "current_return": -0.3155
     },
     {
       "ticker": "ABNB",
@@ -231,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": 0.228,
-      "last_price": 182.545,
-      "current_return": -0.0078
+      "last_price": 182.875,
+      "current_return": -0.0466
     },
     {
       "ticker": "APO",
@@ -326,8 +326,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 131.69,
-      "current_return": -0.2722
+      "last_price": 131.44,
+      "current_return": -0.3101
     },
     {
       "ticker": "AMZN",
@@ -421,8 +421,103 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 254.92,
+      "last_price": 254.67,
       "current_return": -0.2712
+    },
+    {
+      "ticker": "BBY",
+      "entry_date": "2026-09-02",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.81,
+        "z_score": 0.438,
+        "sigma_30d": 0.0254,
+        "price_move_48h": 0.0111,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.718
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 4.2,
+      "entry_quote": {
+        "bid": 8.1,
+        "ask": 8.9,
+        "mid": 8.5,
+        "spread_pct": 0.0899,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 90.0,
+        "bid": 8.1,
+        "ask": 8.9,
+        "open_interest": 217,
+        "implied_vol": 0.3988,
+        "spread_ratio": 0.0899,
+        "dte": 197,
+        "delta": 0.491,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 100.0,
+          "bid": 4.7,
+          "ask": 5.5
+        },
+        "net_debit": 4.2
+      },
+      "simulation": {
+        "current_price": 87.46,
+        "target_price": 95.23,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0265,
+        "alpha": 0.00365
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Best Buy operiert in einem strukturell r\u00fcckl\u00e4ufigen Markt f\u00fcr Consumer Electronics: S\u00e4ttigungseffekte bei TVs, PCs und Smartphones sowie zunehmender E-Commerce-Druck von Amazon und Walmart setzen die Margen dauerhaft unter Druck. Eine Forward-Guidance-Erh\u00f6hung in Q2 kann zyklisch durch tempor\u00e4re Nachholeffekte getrieben sein und muss keinen strukturellen Turnaround signalisieren.",
+          "argument_2": "Die Aktie wird laut News-Analyse als 'fairly valued' eingestuft \u2014 das bedeutet, die Guidance-Erh\u00f6hung ist bereits im Kurs eingepreist. Bei einem Kurs von $87.46 und EPS von ca. $6-7 ergibt sich ein KGV von ~12-14x, was f\u00fcr einen zyklischen Retailer mit sinkendem Same-Store-Sales-Trend wenig Margin of Safety l\u00e4sst. Das Signal hat kaum verbleibende Upside-Asymmetrie.",
+          "argument_3": "Das Dealer-Gamma-Profil (Call-OI 2.770 vs. Put-OI 758 ATM) deutet auf eine Dealer-Short-Gamma-Position hin, die Aufw\u00e4rtsbewegungen aktiv d\u00e4mpft: Dealer m\u00fcssen bei steigendem Kurs Aktien verkaufen (Short-Delta-Hedge), was als nat\u00fcrlicher Deckel wirkt. Kombiniert mit der 48h-Bewegung von nur +0,2% trotz Guidance-Erh\u00f6hung zeigt dies, dass der Markt das Signal bereits weitgehend verdaut hat.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt, daher ist die 0% Hit-Rate ein Datenartefakt und nicht interpretierbar. Bei BBY mit historischer 30d-Volatilit\u00e4t im Bereich 25-35% w\u00e4ren bei einem bullishen ATM-Setup Hit-Rates von 45-55% f\u00fcr moderate Kursziele realistisch. Die fehlende MC-Statistik reduziert die Modell-Validierbarkeit.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen kombiniert mit Guidance-Erh\u00f6hung erzeugen ein mehrschichtiges Signal, das Retail-Investoren oft untersch\u00e4tzen. Der Turnaround-Narrativ unter neuer F\u00fchrung ist noch nicht vollst\u00e4ndig im Konsensus verankert, was bei Q3-Earnings eine positive \u00dcberraschung erm\u00f6glicht. Der Markt preist BBY prim\u00e4r als stagnierenden Retailer \u2014 eine Neubewertung als Turnaround-Story h\u00e4tte moderate Upside.",
+        "catalyst": "Q3-Earnings-Report (ca. November 2026) mit potenzieller erneuter Guidance-Erh\u00f6hung und Best\u00e4tigung des Turnaround-Momentum unter neuer F\u00fchrung",
+        "bear_case": "Aktie bereits als 'fairly valued' eingestuft, struktureller Consumer-Electronics-Gegenwind unver\u00e4ndert, und Dealer-Gamma-Positionierung d\u00e4mpft Aufw\u00e4rtsbewegungen mechanisch.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3,63%) ist weder R\u00fccken- noch Gegenwind f\u00fcr zyklische Consumer-Aktien. VIX-Contango (slope +40%) reduziert das Vol-Crush-Risiko bei Long-Optionspositionen, macht aber Spreads gegen\u00fcber nackten Calls dennoch sinnvoll um Theta-Kosten zu begrenzen. Kein makro\u00f6konmischer Veto f\u00fcr BBY-Bullish-Position.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.4,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 18433691648,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.8662,
+        "annualized_roi": null,
+        "dte": 197
+      },
+      "outcome": null,
+      "peak_return": -0.1905,
+      "last_price": 87.315,
+      "current_return": -0.1905
     }
   ],
   "closed_trades": [
@@ -9480,11 +9575,6 @@
     ],
     "AMZN": [
       {
-        "date": "2026-05-07",
-        "score": -0.002,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-11",
         "score": 0.391,
         "headline_count": 5
@@ -9777,6 +9867,11 @@
       {
         "date": "2026-09-01",
         "score": 0.0287,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.2018,
         "headline_count": 5
       }
     ],
@@ -10955,6 +11050,11 @@
       {
         "date": "2026-09-01",
         "score": -0.002,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.1032,
         "headline_count": 5
       }
     ],
@@ -13698,6 +13798,11 @@
         "date": "2026-09-01",
         "score": 0.5407,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.4227,
+        "headline_count": 4
       }
     ],
     "CVNA": [
@@ -15241,6 +15346,11 @@
         "date": "2026-09-01",
         "score": -0.3554,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.4252,
+        "headline_count": 5
       }
     ],
     "AOS": [
@@ -15540,6 +15650,11 @@
         "date": "2026-08-28",
         "score": -0.0202,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.0983,
+        "headline_count": 4
       }
     ],
     "AWK": [
@@ -15777,14 +15892,14 @@
         "date": "2026-09-01",
         "score": 0.1833,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.3937,
+        "headline_count": 5
       }
     ],
     "AAPL": [
-      {
-        "date": "2026-05-12",
-        "score": 0.0036,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-13",
         "score": 0.2127,
@@ -16079,14 +16194,14 @@
         "date": "2026-09-01",
         "score": 0.0883,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.1858,
+        "headline_count": 5
       }
     ],
     "BAC": [
-      {
-        "date": "2026-05-04",
-        "score": -0.2939,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-05",
         "score": -0.1231,
@@ -16380,6 +16495,11 @@
       {
         "date": "2026-09-01",
         "score": 0.0447,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.0532,
         "headline_count": 5
       }
     ],
@@ -18196,6 +18316,11 @@
         "date": "2026-09-01",
         "score": 0.353,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.0434,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -18347,6 +18472,11 @@
         "date": "2026-08-28",
         "score": 0.0572,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.4523,
+        "headline_count": 5
       }
     ],
     "DDOG": [
@@ -19743,6 +19873,11 @@
       {
         "date": "2026-09-01",
         "score": 0.4525,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.295,
         "headline_count": 5
       }
     ],
@@ -23998,11 +24133,6 @@
     ],
     "GOOG": [
       {
-        "date": "2026-05-05",
-        "score": 0.1948,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-06",
         "score": -0.1088,
         "headline_count": 5
@@ -24295,6 +24425,11 @@
       {
         "date": "2026-09-01",
         "score": 0.2078,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.093,
         "headline_count": 5
       }
     ],
@@ -24802,6 +24937,11 @@
         "date": "2026-08-28",
         "score": 0.287,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.2012,
+        "headline_count": 5
       }
     ],
     "GOOGL": [
@@ -25079,6 +25219,11 @@
         "date": "2026-09-01",
         "score": 0.1363,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.093,
+        "headline_count": 5
       }
     ],
     "AMGN": [
@@ -25310,6 +25455,11 @@
       {
         "date": "2026-09-01",
         "score": 0.1443,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.2303,
         "headline_count": 5
       }
     ],
@@ -25561,11 +25711,6 @@
       }
     ],
     "AMAT": [
-      {
-        "date": "2026-05-04",
-        "score": 0.5062,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-05",
         "score": 0.2086,
@@ -25860,6 +26005,11 @@
         "date": "2026-09-01",
         "score": 0.0011,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.0126,
+        "headline_count": 5
       }
     ],
     "ADM": [
@@ -26032,6 +26182,11 @@
         "date": "2026-09-01",
         "score": -0.1821,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.1412,
+        "headline_count": 3
       }
     ],
     "ACGL": [
@@ -26209,14 +26364,14 @@
         "date": "2026-09-01",
         "score": 0.4792,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.4792,
+        "headline_count": 3
       }
     ],
     "ANET": [
-      {
-        "date": "2026-04-23",
-        "score": 0.7318,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-24",
         "score": 0.5275,
@@ -26510,6 +26665,11 @@
       {
         "date": "2026-08-28",
         "score": 0.1644,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.2718,
         "headline_count": 5
       }
     ],
@@ -27031,11 +27191,6 @@
     ],
     "BA": [
       {
-        "date": "2026-04-21",
-        "score": 0.1701,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-22",
         "score": 0.2431,
         "headline_count": 5
@@ -27328,6 +27483,11 @@
       {
         "date": "2026-09-01",
         "score": 0.0365,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.0863,
         "headline_count": 5
       }
     ],
@@ -28635,6 +28795,11 @@
       {
         "date": "2026-09-01",
         "score": 0.0904,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.0759,
         "headline_count": 5
       }
     ],
@@ -30723,6 +30888,11 @@
         "date": "2026-09-01",
         "score": 0.1417,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.0939,
+        "headline_count": 3
       }
     ],
     "CLX": [
@@ -32449,6 +32619,11 @@
         "date": "2026-09-01",
         "score": 0.3074,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.1222,
+        "headline_count": 5
       }
     ],
     "BMY": [
@@ -32878,6 +33053,11 @@
         "date": "2026-09-01",
         "score": 0.4643,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.2108,
+        "headline_count": 5
       }
     ],
     "BR": [
@@ -36309,6 +36489,11 @@
         "date": "2026-08-28",
         "score": 0.0856,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.3826,
+        "headline_count": 3
       }
     ],
     "AEE": [
@@ -39185,6 +39370,11 @@
         "date": "2026-09-01",
         "score": -0.52,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.053,
+        "headline_count": 5
       }
     ],
     "AJG": [
@@ -39883,6 +40073,11 @@
         "date": "2026-09-01",
         "score": 0.1891,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.2181,
+        "headline_count": 5
       }
     ],
     "APO": [
@@ -40262,6 +40457,11 @@
         "date": "2026-09-01",
         "score": -0.0236,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.026,
+        "headline_count": 5
       }
     ],
     "BSX": [
@@ -40494,6 +40694,11 @@
         "date": "2026-08-31",
         "score": 0.0091,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-02",
+        "score": -0.2374,
+        "headline_count": 3
       }
     ],
     "BKNG": [
@@ -40686,6 +40891,11 @@
         "date": "2026-09-01",
         "score": 0.3658,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-02",
+        "score": 0.1714,
+        "headline_count": 5
       }
     ],
     "CHRW": [
@@ -42831,6 +43041,12 @@
       {
         "date": "2026-08-31",
         "atm_iv": 0.3539
+      }
+    ],
+    "BBY": [
+      {
+        "date": "2026-09-02",
+        "atm_iv": 0.3988
       }
     ]
   },
@@ -47428,6 +47644,43 @@
       "roi_gap": 0.5312,
       "vix": 16.01,
       "mc_hit_rate": 0.5518,
+      "outcome": null
+    },
+    {
+      "ticker": "BBY",
+      "entry_date": "2026-09-02",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 87.46,
+        "target_price": 95.23,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0265,
+        "alpha": 0.00365
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.81,
+        "z_score": 0.438,
+        "sigma_30d": 0.0254,
+        "price_move_48h": 0.0111,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.718
+      },
+      "sector": "Consumer Cyclical",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
       "outcome": null
     }
   ],

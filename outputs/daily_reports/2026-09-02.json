@@ -1,0 +1,410 @@
+{
+  "date": "2026-09-02",
+  "proposals": [
+    {
+      "ticker": "BBY",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 45.3,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 90.0,
+        "bid": 8.1,
+        "ask": 8.9,
+        "open_interest": 217,
+        "implied_vol": 0.3988,
+        "spread_ratio": 0.0899,
+        "dte": 197,
+        "delta": 0.491,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 100.0,
+          "bid": 4.7,
+          "ask": 5.5
+        },
+        "net_debit": 4.2
+      },
+      "roi_analysis": {
+        "roi_gross": 0.5218,
+        "roi_net": 1.7065001854395974,
+        "spread_pct": 0.0899,
+        "vega_loss": 0.0901,
+        "theta_daily": -0.0259,
+        "theta_daily_pct": 0.0062,
+        "delta": 0.3928,
+        "breakeven": 94.2,
+        "breakeven_pct": 0.0771,
+        "commission_pct": 0.0062,
+        "iv_drop_assumed": 0.037051499999999994,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 4.2,
+        "mc_weight": 0.718,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 197,
+        "mc_pnl_pct": 1.4093422601427488,
+        "mc_pnl_mean": 1.8925001854395973,
+        "mc_median_net": 1.2233
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.5024,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 197,
+          "option": {
+            "expiry": "2027-03-19",
+            "strike": 90.0,
+            "bid": 8.1,
+            "ask": 8.9,
+            "open_interest": 217,
+            "implied_vol": 0.3988,
+            "spread_ratio": 0.0899,
+            "dte": 197,
+            "delta": 0.491,
+            "data_source": "tradier",
+            "spread_leg": {
+              "strike": 100.0,
+              "bid": 4.7,
+              "ask": 5.5
+            },
+            "net_debit": 4.2
+          },
+          "roi": {
+            "roi_gross": 0.5218,
+            "roi_net": 1.7065001854395974,
+            "spread_pct": 0.0899,
+            "vega_loss": 0.0901,
+            "theta_daily": -0.0259,
+            "theta_daily_pct": 0.0062,
+            "delta": 0.3928,
+            "breakeven": 94.2,
+            "breakeven_pct": 0.0771,
+            "commission_pct": 0.0062,
+            "iv_drop_assumed": 0.037051499999999994,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 4.2,
+            "mc_weight": 0.718,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 197,
+            "mc_pnl_pct": 1.4093422601427488,
+            "mc_pnl_mean": 1.8925001854395973,
+            "mc_median_net": 1.2233
+          },
+          "roi_net_initial": 0.2457,
+          "annualized_roi": 0.5024,
+          "strategy": "BULL_CALL_SPREAD"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.81,
+        "z_score": 0.438,
+        "sigma_30d": 0.0254,
+        "price_move_48h": 0.0111,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.718
+      },
+      "simulation": {
+        "current_price": 87.46,
+        "target_price": 95.23,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0265,
+        "alpha": 0.00365
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Best Buy operiert in einem strukturell r\u00fcckl\u00e4ufigen Markt f\u00fcr Consumer Electronics: S\u00e4ttigungseffekte bei TVs, PCs und Smartphones sowie zunehmender E-Commerce-Druck von Amazon und Walmart setzen die Margen dauerhaft unter Druck. Eine Forward-Guidance-Erh\u00f6hung in Q2 kann zyklisch durch tempor\u00e4re Nachholeffekte getrieben sein und muss keinen strukturellen Turnaround signalisieren.",
+          "argument_2": "Die Aktie wird laut News-Analyse als 'fairly valued' eingestuft \u2014 das bedeutet, die Guidance-Erh\u00f6hung ist bereits im Kurs eingepreist. Bei einem Kurs von $87.46 und EPS von ca. $6-7 ergibt sich ein KGV von ~12-14x, was f\u00fcr einen zyklischen Retailer mit sinkendem Same-Store-Sales-Trend wenig Margin of Safety l\u00e4sst. Das Signal hat kaum verbleibende Upside-Asymmetrie.",
+          "argument_3": "Das Dealer-Gamma-Profil (Call-OI 2.770 vs. Put-OI 758 ATM) deutet auf eine Dealer-Short-Gamma-Position hin, die Aufw\u00e4rtsbewegungen aktiv d\u00e4mpft: Dealer m\u00fcssen bei steigendem Kurs Aktien verkaufen (Short-Delta-Hedge), was als nat\u00fcrlicher Deckel wirkt. Kombiniert mit der 48h-Bewegung von nur +0,2% trotz Guidance-Erh\u00f6hung zeigt dies, dass der Markt das Signal bereits weitgehend verdaut hat.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt, daher ist die 0% Hit-Rate ein Datenartefakt und nicht interpretierbar. Bei BBY mit historischer 30d-Volatilit\u00e4t im Bereich 25-35% w\u00e4ren bei einem bullishen ATM-Setup Hit-Rates von 45-55% f\u00fcr moderate Kursziele realistisch. Die fehlende MC-Statistik reduziert die Modell-Validierbarkeit.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen kombiniert mit Guidance-Erh\u00f6hung erzeugen ein mehrschichtiges Signal, das Retail-Investoren oft untersch\u00e4tzen. Der Turnaround-Narrativ unter neuer F\u00fchrung ist noch nicht vollst\u00e4ndig im Konsensus verankert, was bei Q3-Earnings eine positive \u00dcberraschung erm\u00f6glicht. Der Markt preist BBY prim\u00e4r als stagnierenden Retailer \u2014 eine Neubewertung als Turnaround-Story h\u00e4tte moderate Upside.",
+        "catalyst": "Q3-Earnings-Report (ca. November 2026) mit potenzieller erneuter Guidance-Erh\u00f6hung und Best\u00e4tigung des Turnaround-Momentum unter neuer F\u00fchrung",
+        "bear_case": "Aktie bereits als 'fairly valued' eingestuft, struktureller Consumer-Electronics-Gegenwind unver\u00e4ndert, und Dealer-Gamma-Positionierung d\u00e4mpft Aufw\u00e4rtsbewegungen mechanisch.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3,63%) ist weder R\u00fccken- noch Gegenwind f\u00fcr zyklische Consumer-Aktien. VIX-Contango (slope +40%) reduziert das Vol-Crush-Risiko bei Long-Optionspositionen, macht aber Spreads gegen\u00fcber nackten Calls dennoch sinnvoll um Theta-Kosten zu begrenzen. Kein makro\u00f6konmischer Veto f\u00fcr BBY-Bullish-Position.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.4,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 18433691648,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLY",
+        "rel_strength": 0.0458
+      },
+      "final_score": 0.2866,
+      "mc_hit_rate": 0.718,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Consumer Cyclical",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 24.35,
+      "model_move_pct": 8.88,
+      "edge_vs_implied": 1.18,
+      "mc_pnl_pct": 1.4093422601427488,
+      "mc_pnl_mean": 1.8925001854395973,
+      "mc_pnl_std": 2.2124651262033113,
+      "mc_hold_days": 98,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 0,
+      "trade_bep_pct": 7.71,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.8662,
+        "annualized_roi": null,
+        "dte": 197
+      },
+      "trade_score": {
+        "total": 56,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 23.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 18.5,
+          "roi_penalty": 0.0,
+          "edge_pts": 0.0,
+          "macro_sensitivity": 0.7
+        },
+        "reasoning": "St\u00e4rken: guter ROI (171%), positive Sektor-Relative-St\u00e4rke | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen kombiniert mit Guidance-Erh\u00f6hung erzeugen ein mehrschichtiges Signal, das Retail-Investoren oft untersch\u00e4tzen. Der Turnaround-Narrativ unter neuer F\u00fchrung ist noch nicht vollst\u00e4ndig im Konsensus verankert, was bei Q3-Earnings eine positive \u00dcberraschung erm\u00f6glicht. Der Markt preist BBY prim\u00e4r als stagnierenden Retailer \u2014 eine Neubewertung als Turnaround-Story h\u00e4tte moderate Upside.",
+        "best_argument_against": "Best Buy operiert in einem strukturell r\u00fcckl\u00e4ufigen Markt f\u00fcr Consumer Electronics: S\u00e4ttigungseffekte bei TVs, PCs und Smartphones sowie zunehmender E-Commerce-Druck von Amazon und Walmart setzen die Margen dauerhaft unter Druck. Eine Forward-Guidance-Erh\u00f6hung in Q2 kann zyklisch durch tempor\u00e4re Nachholeffekte getrieben sein und muss keinen strukturellen Turnaround signalisieren."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.5858,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.1,
+        "position_usd": 500.0,
+        "cost_per_contract": 420.0,
+        "contracts": 1,
+        "max_risk_usd": 336.0,
+        "note": ""
+      },
+      "exit_rules": {
+        "entry_cost": 4.2,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 8.26,
+        "full_profit_pct": 90,
+        "full_profit_price": 9.42,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 2.1,
+        "time_exit_dte_remaining": 88,
+        "time_exit_date": "2026-12-21",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 94.2
+      }
+    }
+  ],
+  "stats": {
+    "vix": 15.380000114440918,
+    "universe": 30,
+    "candidates": 30,
+    "prescreened": 9,
+    "sector_ok": 28,
+    "pre_mc": 7,
+    "roi_precheck": 9,
+    "analyzed": 7,
+    "mismatch_ok": 1,
+    "quick_mc": 1,
+    "intraday_ok": 1,
+    "final_mc": 1,
+    "rl_scored": 1,
+    "roi_ok": 1,
+    "trades": 1,
+    "stop_reason": "",
+    "after_isf": 4
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 2,
+      "tickers": [
+        "AMAT",
+        "APP"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 2,
+      "tickers": [
+        "AIG",
+        "BSX"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 3,
+      "tickers": [
+        "ADBE",
+        "GOOG",
+        "ADP"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Neuester Report (2026-09-02): universe=0 (keine Ticker im Universum).",
+      "Neuester Report (2026-09-02): VIX fehlt."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 2,
+        "killer_counts": {
+          "universe": 1,
+          "roi_ok": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-09-02",
+            "trades": 0,
+            "killer": "universe"
+          },
+          {
+            "date": "2026-09-01",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-08-31",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-28",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-08-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-08-26",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-25",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-08-24",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-21",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-08-20",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-12"
+          },
+          "final_mc_survivor": {
+            "total": 64,
+            "evaluated": 20,
+            "ready_in_14d": 11,
+            "next_eval_date": "2026-09-03"
+          },
+          "roi_gate": {
+            "total": 33,
+            "evaluated": 10,
+            "ready_in_14d": 8,
+            "next_eval_date": "2026-09-04"
+          },
+          "score_48": {
+            "total": 3,
+            "evaluated": 3,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      }
+    }
+  }
+}
