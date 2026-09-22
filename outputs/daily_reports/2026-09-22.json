@@ -1,0 +1,434 @@
+{
+  "date": "2026-09-22",
+  "proposals": [
+    {
+      "ticker": "AAPL",
+      "strategy": "LONG_CALL",
+      "iv_rank": 33.9,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 330.0,
+        "bid": 33.8,
+        "ask": 35.2,
+        "open_interest": 8990,
+        "implied_vol": 0.2656,
+        "spread_ratio": 0.0398,
+        "dte": 177,
+        "delta": 0.6572,
+        "data_source": "tradier"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.3153,
+        "roi_net": 1.2174754214482948,
+        "spread_pct": 0.0398,
+        "vega_loss": 0.0235,
+        "theta_daily": -0.0685,
+        "theta_daily_pct": 0.0019,
+        "delta": 0.6572,
+        "breakeven": 365.2,
+        "breakeven_pct": 0.0697,
+        "commission_pct": 0.0004,
+        "iv_drop_assumed": 0.034144499999999994,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 35.2,
+        "mc_weight": 0.618,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 177,
+        "mc_pnl_pct": 1.1905692436843776,
+        "mc_pnl_mean": 1.2974754214482949,
+        "mc_median_net": 1.1106
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.4863,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 177,
+          "option": {
+            "expiry": "2027-03-19",
+            "strike": 330.0,
+            "bid": 33.8,
+            "ask": 35.2,
+            "open_interest": 8990,
+            "implied_vol": 0.2656,
+            "spread_ratio": 0.0398,
+            "dte": 177,
+            "delta": 0.6572,
+            "data_source": "tradier"
+          },
+          "roi": {
+            "roi_gross": 0.3153,
+            "roi_net": 1.2174754214482948,
+            "spread_pct": 0.0398,
+            "vega_loss": 0.0235,
+            "theta_daily": -0.0685,
+            "theta_daily_pct": 0.0019,
+            "delta": 0.6572,
+            "breakeven": 365.2,
+            "breakeven_pct": 0.0697,
+            "commission_pct": 0.0004,
+            "iv_drop_assumed": 0.034144499999999994,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 35.2,
+            "mc_weight": 0.618,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 177,
+            "mc_pnl_pct": 1.1905692436843776,
+            "mc_pnl_mean": 1.2974754214482949,
+            "mc_median_net": 1.1106
+          },
+          "roi_net_initial": 0.2119,
+          "annualized_roi": 0.4863,
+          "strategy": "LONG_CALL"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.649,
+        "z_score": 0.47,
+        "sigma_30d": 0.0125,
+        "price_move_48h": 0.0059,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6184
+      },
+      "simulation": {
+        "current_price": 341.41,
+        "target_price": 368.72,
+        "hit_rate": 0.7362,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0173,
+        "alpha": 0.00294
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "AAPL ist mit einer Marktkapitalisierung von $5 Billionen und einem KGV deutlich \u00fcber dem Marktdurchschnitt extrem hoch bewertet. Der $20.000-Mac positioniert Apple in einem Nischenmarkt mit sehr geringen Volumina, was fundamentalen Einfluss auf Umsatz und EPS minimal h\u00e4lt. Die Premiumpositionierung ist kein neues Narrativ \u2013 Apple verfolgt diese Strategie seit Jahren, und der Markt hat sie l\u00e4ngst eingepreist.",
+          "argument_2": "Das Dealer-Gamma-Signal zeigt Call-OI-Dominanz (18.551 vs. 2.761 Puts ATM), was bei einer positiven Bewegung d\u00e4mpfend wirken kann: Dealer sind bereits long Gamma und verkaufen Rallyes aktiv. Dies bedeutet, dass der Weg nach oben mechanisch gebremst wird und kurzfristige Upside-Trades gegen strukturellen Hedging-Druck laufen \u2013 ein erhebliches Hindernis f\u00fcr taktische Long-Positionen.",
+          "argument_3": "Das Insider-Cluster-Signal von 8 K\u00e4ufern in 14 Tagen klingt bullish, bei einem Mega-Cap wie AAPL ist dies jedoch oft wenig aussagekr\u00e4ftig: RSU-K\u00e4ufe, planm\u00e4\u00dfige 10b5-1-Programme und Token-K\u00e4ufe aus steuerlichen Gr\u00fcnden dominieren. Zudem warnt ein Analyst explizit vor einem S&P-Dip von 7000, was einen makro\u00f6konomischen Gegenwind signalisiert, der bei einem hoch bewerteten Tech-Titel \u00fcberproportional wirkt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate nicht interpretierbar \u2013 es liegt schlicht keine Simulation vor. Die fehlende MC-Validierung erh\u00f6ht die Modell-Unsicherheit. Bei AAPL mit historischer 30-Tage-Volatilit\u00e4t von ca. 20-25% w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Aufw\u00e4rtstrend im Bereich 45-60% zu erwarten \u2013 das Fehlen der Simulation ist ein Datenl\u00fccken-Risiko.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der $20.000-Mac und die AI-Off-Meter-Positionierung signalisieren Margenstabilit\u00e4t, die der Markt noch nicht vollst\u00e4ndig in die Earnings-Erwartungen eingebaut hat. Insider-Cluster-K\u00e4ufe bei einem Mega-Cap liefern ein schwaches, aber nicht triviales Best\u00e4tigungssignal f\u00fcr Insiderzuversicht vor dem n\u00e4chsten Earnings-Katalysator. Der Markt fokussiert sich auf Makro-Unsicherheit und \u00fcbersieht die strukturelle Margenst\u00e4rke durch AI-Monetarisierung.",
+        "catalyst": "Q4 2026 Earnings-Bericht mit Margin-Surprise durch AI-Premium-Positionierung und $20k-Mac-Segment",
+        "bear_case": "Dealer-Gamma-Druck d\u00e4mpft Rallyes mechanisch, und bei einer Bewertung von $5 Billionen sind positive Signale bereits nahezu vollst\u00e4ndig eingepreist \u2013 der Markt braucht echte EPS-\u00dcberraschungen, nicht nur Positionierungs-Narrative.",
+        "macro_assessment": "Das neutrale Makro-Umfeld (flache Kurve, Fed Funds bei 3.63%) ist f\u00fcr AAPL weder R\u00fccken- noch Gegenwind. Der VIX-Contango (12.2 \u2192 17.7 \u00fcber 3M) deutet auf steigende erwartete Volatilit\u00e4t hin, was Long-Optionen verteuert und den Zeitwertzerfall beschleunigt. Eine Spread-Strategie (Bull Call Spread) ist nakten Long-Calls vorzuziehen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.2,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4982601940992,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.0554
+      },
+      "final_score": 0.2866,
+      "mc_hit_rate": 0.6184,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Technology",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 15.03,
+      "model_move_pct": 8.0,
+      "edge_vs_implied": 1.03,
+      "mc_pnl_pct": 1.1905692436843776,
+      "mc_pnl_mean": 1.2974754214482949,
+      "mc_pnl_std": 1.0249516898709128,
+      "mc_hold_days": 88,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 4,
+      "trade_bep_pct": 6.97,
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.6878,
+        "annualized_roi": 4.1667,
+        "dte": 177
+      },
+      "trade_score": {
+        "total": 62,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 18.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 0.0,
+          "macro_sensitivity": 0.6
+        },
+        "reasoning": "St\u00e4rken: guter ROI (122%), g\u00fcnstige IV (34%), positive Sektor-Relative-St\u00e4rke | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Der $20.000-Mac und die AI-Off-Meter-Positionierung signalisieren Margenstabilit\u00e4t, die der Markt noch nicht vollst\u00e4ndig in die Earnings-Erwartungen eingebaut hat. Insider-Cluster-K\u00e4ufe bei einem Mega-Cap liefern ein schwaches, aber nicht triviales Best\u00e4tigungssignal f\u00fcr Insiderzuversicht vor dem n\u00e4chsten Earnings-Katalysator. Der Markt fokussiert sich auf Makro-Unsicherheit und \u00fcbersieht die strukturelle Margenst\u00e4rke durch AI-Monetarisierung.",
+        "best_argument_against": "AAPL ist mit einer Marktkapitalisierung von $5 Billionen und einem KGV deutlich \u00fcber dem Marktdurchschnitt extrem hoch bewertet. Der $20.000-Mac positioniert Apple in einem Nischenmarkt mit sehr geringen Volumina, was fundamentalen Einfluss auf Umsatz und EPS minimal h\u00e4lt. Die Premiumpositionierung ist kein neues Narrativ \u2013 Apple verfolgt diese Strategie seit Jahren, und der Markt hat sie l\u00e4ngst eingepreist."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.3677,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.0919,
+        "position_usd": 459.56,
+        "cost_per_contract": 3520.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($3520) \u00fcbersteigt das Kelly-Budget ($460) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 35.2,
+        "is_spread": false,
+        "take_profit_pct": 50,
+        "take_profit_price": 52.8,
+        "full_profit_pct": 100,
+        "full_profit_price": 70.4,
+        "stop_loss_pct": -45,
+        "stop_loss_price": 19.36,
+        "time_exit_dte_remaining": 88,
+        "time_exit_date": "2026-12-21",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 30,
+        "delta_exit": 0.8,
+        "underlying_breakeven": 0
+      }
+    }
+  ],
+  "stats": {
+    "vix": 14.289999961853027,
+    "universe": 122,
+    "candidates": 122,
+    "prescreened": 26,
+    "sector_ok": 109,
+    "pre_mc": 25,
+    "roi_precheck": 26,
+    "analyzed": 22,
+    "mismatch_ok": 5,
+    "quick_mc": 3,
+    "intraday_ok": 3,
+    "final_mc": 3,
+    "rl_scored": 3,
+    "roi_ok": 1,
+    "trades": 1,
+    "stop_reason": "",
+    "after_isf": 13,
+    "roi_rejects": {
+      "n": 2,
+      "gap_min": 0.1764,
+      "gap_median": 0.5546,
+      "gap_max": 0.5546
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 13,
+      "tickers": [
+        "AON",
+        "APP",
+        "AXON",
+        "AMAT",
+        "BAX",
+        "AVGO",
+        "CDNS",
+        "CCL",
+        "CHTR",
+        "CSCO"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 1,
+      "tickers": [
+        "AEP"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 7,
+      "tickers": [
+        "ADBE",
+        "ALL",
+        "MO",
+        "BG",
+        "CVX",
+        "COIN",
+        "DVN"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 2,
+      "tickers": [
+        "ADP",
+        "CARR"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 2,
+      "tickers": [
+        "MMM",
+        "AMT"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Neuester Report (2026-09-22): universe=0 (keine Ticker im Universum).",
+      "Neuester Report (2026-09-22): VIX fehlt."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 1,
+        "killer_counts": {
+          "universe": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-09-22",
+            "trades": 0,
+            "killer": "universe"
+          },
+          {
+            "date": "2026-09-21",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-09-18",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-17",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-16",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-15",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-14",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-11",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-10",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-09",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 3,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-12"
+          },
+          "final_mc_survivor": {
+            "total": 117,
+            "evaluated": 36,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-09-28"
+          },
+          "roi_gate": {
+            "total": 70,
+            "evaluated": 19,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-09-28"
+          },
+          "score_48": {
+            "total": 4,
+            "evaluated": 3,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_51": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-23"
+          },
+          "score_52": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      }
+    }
+  }
+}
