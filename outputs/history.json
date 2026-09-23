@@ -10,14 +10,14 @@
         "avg_return": 0.03489
       },
       "low": {
-        "count": 11,
-        "avg_return": 0.585987
+        "count": 12,
+        "avg_return": 0.494961
       }
     },
     "mismatch": {
       "good": {
-        "count": 79,
-        "avg_return": 0.128715
+        "count": 80,
+        "avg_return": 0.120777
       },
       "weak": {
         "count": 33,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 110,
-        "avg_return": 0.106341
+        "count": 111,
+        "avg_return": 0.100821
       },
       "massive": {
         "count": 2,
@@ -44,101 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "APO",
-      "entry_date": "2026-08-28",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.581,
-        "z_score": 0.084,
-        "sigma_30d": 0.0233,
-        "price_move_48h": 0.002,
-        "eps_drift": 0.0071,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6402
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 7.9,
-      "entry_quote": {
-        "bid": 14.9,
-        "ask": 16.4,
-        "mid": 15.65,
-        "spread_pct": 0.0915,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "INSIDER",
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 135.0,
-        "bid": 14.9,
-        "ask": 16.4,
-        "open_interest": 128,
-        "implied_vol": 0.3646,
-        "spread_ratio": 0.0915,
-        "dte": 202,
-        "delta": 0.5762,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 150.0,
-          "bid": 8.5,
-          "ask": 10.3
-        },
-        "net_debit": 7.9
-      },
-      "simulation": {
-        "current_price": 135.04,
-        "target_price": 145.84,
-        "hit_rate": 0.7234,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0228,
-        "alpha": 0.00258
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Die EPS-Diskrepanz zwischen yfinance (10.73) und SEC EDGAR (2.80) ist gravierend und deutet auf erhebliche GAAP-Adjustierungen hin. Alternative Asset Manager wie Apollo berichten routinem\u00e4\u00dfig adjustierte EPS-Zahlen, die unrealisierte Carry-Gewinne einschlie\u00dfen \u2014 diese k\u00f6nnen sich bei Marktkorrekturen schnell umkehren und das FRE-Multiple-Neubewertungsargument untergraben.",
-          "argument_2": "Der Headline-Katalysator (Record AUM, JV mit Enbridge/KKR) ist vollst\u00e4ndig \u00f6ffentlich und in den Nachrichten breit diskutiert. Apollo-spezifische JV-Strukturen in der Pipeline-Infrastruktur sind f\u00fcr das Unternehmen keine Neuigkeit \u2014 Apollo Funds agieren hier als Kreditgeber, nicht als strategischer Principal. Der Margenbeitrag f\u00fcr APO direkt ist gering und der Markt hat dies wahrscheinlich bereits eingepreist.",
-          "argument_3": "Das Dealer-Gamma-Profil zeigt Call-OI-Dominanz (3,736 vs. 2,233 Puts), was bedeutet, dass Dealer short Gamma sind und bei Kursanstiegen hedgen m\u00fcssen \u2014 das k\u00f6nnte kurzfristige Aufw\u00e4rtsbewegungen d\u00e4mpfen. Zus\u00e4tzlich ist der VIX-Contango-Spread sehr steil (+56%), was auf erh\u00f6hte implizite Volatilit\u00e4t in 3 Monaten hindeutet und Long-Call-Positionen teuer macht.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Die 0% Hit-Rate ist kein inhaltliches Signal \u2014 der MC wurde schlicht nicht durchgef\u00fchrt. Ohne Pfaddaten ist keine statistische Kalibrierung m\u00f6glich. Die Bewertung muss ausschlie\u00dflich auf fundamentalen und strukturellen Argumenten basieren, was die data_confidence reduziert.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der Insider-Cluster (3 K\u00e4ufe in 14 Tagen) ist ein glaubw\u00fcrdiges Signal, das der Markt bei $79 Mrd. Mid-Cap oft untergewichtet. Das FRE-Multiple-Argument hat Substanz, da Private-Credit-Expansion bei Apollo strukturell h\u00f6here Fee-Stabilit\u00e4t erzeugt als Carry-abh\u00e4ngige Peers. Die JV-Neuigkeit signalisiert Apollos Kapazit\u00e4t, komplexe Kredit-Strukturen zu skalieren \u2014 ein Margentreiber f\u00fcr Fee-Related Earnings.",
-        "catalyst": "FRE-Multiple-Neubewertung durch Record-AUM-Wachstum und Private-Credit-Expansion, unterst\u00fctzt durch Insider-Cluster-Kaufsignal",
-        "bear_case": "Massive EPS-Abweichung zwischen adjustierten und GAAP-Zahlen schafft Bewertungsunsicherheit; \u00f6ffentlich bekannte JV-Details sind bereits eingepreist und liefern keinen echten Informationsvorsprung",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds bei 3.63%) ist moderat positiv f\u00fcr Alternative Asset Manager \u2014 keine Rezessionswarnung, aber auch kein expansiver R\u00fcckenwind. Der steile VIX-Contango macht nackte Long-Calls suboptimal; Call-Spreads sind hier die strukturell sinnvollere Strategie um IV-Kosten zu begrenzen.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.39,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 79746949120,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.4138,
-        "annualized_roi": 1.9975,
-        "dte": 202
-      },
-      "outcome": null,
-      "peak_return": -0.1962,
-      "last_price": 124.29,
-      "current_return": -0.4494
-    },
     {
       "ticker": "AMZN",
       "entry_date": "2026-08-31",
@@ -231,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 249.845,
-      "current_return": -0.3365
+      "last_price": 249.27,
+      "current_return": -0.3442
     },
     {
       "ticker": "BBY",
@@ -326,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": 0.1905,
-      "last_price": 90.84,
-      "current_return": 0.0119
+      "last_price": 90.8,
+      "current_return": -0.0119
     },
     {
       "ticker": "ADM",
@@ -421,8 +326,8 @@
       },
       "outcome": null,
       "peak_return": -0.1429,
-      "last_price": 81.75,
-      "current_return": -0.2143
+      "last_price": 82.15,
+      "current_return": -0.2347
     },
     {
       "ticker": "AAPL",
@@ -510,8 +415,8 @@
       },
       "outcome": null,
       "peak_return": -0.0199,
-      "last_price": 337.04,
-      "current_return": -0.0902
+      "last_price": 337.02,
+      "current_return": -0.0852
     }
   ],
   "closed_trades": [
@@ -9305,6 +9210,104 @@
       "close_date": "2026-09-21",
       "close_price": 167.61,
       "close_reason": "max_holding_period"
+    },
+    {
+      "ticker": "APO",
+      "entry_date": "2026-08-28",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.581,
+        "z_score": 0.084,
+        "sigma_30d": 0.0233,
+        "price_move_48h": 0.002,
+        "eps_drift": 0.0071,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6402
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 7.9,
+      "entry_quote": {
+        "bid": 14.9,
+        "ask": 16.4,
+        "mid": 15.65,
+        "spread_pct": 0.0915,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "INSIDER",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 135.0,
+        "bid": 14.9,
+        "ask": 16.4,
+        "open_interest": 128,
+        "implied_vol": 0.3646,
+        "spread_ratio": 0.0915,
+        "dte": 202,
+        "delta": 0.5762,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 150.0,
+          "bid": 8.5,
+          "ask": 10.3
+        },
+        "net_debit": 7.9
+      },
+      "simulation": {
+        "current_price": 135.04,
+        "target_price": 145.84,
+        "hit_rate": 0.7234,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0228,
+        "alpha": 0.00258
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die EPS-Diskrepanz zwischen yfinance (10.73) und SEC EDGAR (2.80) ist gravierend und deutet auf erhebliche GAAP-Adjustierungen hin. Alternative Asset Manager wie Apollo berichten routinem\u00e4\u00dfig adjustierte EPS-Zahlen, die unrealisierte Carry-Gewinne einschlie\u00dfen \u2014 diese k\u00f6nnen sich bei Marktkorrekturen schnell umkehren und das FRE-Multiple-Neubewertungsargument untergraben.",
+          "argument_2": "Der Headline-Katalysator (Record AUM, JV mit Enbridge/KKR) ist vollst\u00e4ndig \u00f6ffentlich und in den Nachrichten breit diskutiert. Apollo-spezifische JV-Strukturen in der Pipeline-Infrastruktur sind f\u00fcr das Unternehmen keine Neuigkeit \u2014 Apollo Funds agieren hier als Kreditgeber, nicht als strategischer Principal. Der Margenbeitrag f\u00fcr APO direkt ist gering und der Markt hat dies wahrscheinlich bereits eingepreist.",
+          "argument_3": "Das Dealer-Gamma-Profil zeigt Call-OI-Dominanz (3,736 vs. 2,233 Puts), was bedeutet, dass Dealer short Gamma sind und bei Kursanstiegen hedgen m\u00fcssen \u2014 das k\u00f6nnte kurzfristige Aufw\u00e4rtsbewegungen d\u00e4mpfen. Zus\u00e4tzlich ist der VIX-Contango-Spread sehr steil (+56%), was auf erh\u00f6hte implizite Volatilit\u00e4t in 3 Monaten hindeutet und Long-Call-Positionen teuer macht.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Die 0% Hit-Rate ist kein inhaltliches Signal \u2014 der MC wurde schlicht nicht durchgef\u00fchrt. Ohne Pfaddaten ist keine statistische Kalibrierung m\u00f6glich. Die Bewertung muss ausschlie\u00dflich auf fundamentalen und strukturellen Argumenten basieren, was die data_confidence reduziert.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Insider-Cluster (3 K\u00e4ufe in 14 Tagen) ist ein glaubw\u00fcrdiges Signal, das der Markt bei $79 Mrd. Mid-Cap oft untergewichtet. Das FRE-Multiple-Argument hat Substanz, da Private-Credit-Expansion bei Apollo strukturell h\u00f6here Fee-Stabilit\u00e4t erzeugt als Carry-abh\u00e4ngige Peers. Die JV-Neuigkeit signalisiert Apollos Kapazit\u00e4t, komplexe Kredit-Strukturen zu skalieren \u2014 ein Margentreiber f\u00fcr Fee-Related Earnings.",
+        "catalyst": "FRE-Multiple-Neubewertung durch Record-AUM-Wachstum und Private-Credit-Expansion, unterst\u00fctzt durch Insider-Cluster-Kaufsignal",
+        "bear_case": "Massive EPS-Abweichung zwischen adjustierten und GAAP-Zahlen schafft Bewertungsunsicherheit; \u00f6ffentlich bekannte JV-Details sind bereits eingepreist und liefern keinen echten Informationsvorsprung",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds bei 3.63%) ist moderat positiv f\u00fcr Alternative Asset Manager \u2014 keine Rezessionswarnung, aber auch kein expansiver R\u00fcckenwind. Der steile VIX-Contango macht nackte Long-Calls suboptimal; Call-Spreads sind hier die strukturell sinnvollere Strategie um IV-Kosten zu begrenzen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.39,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 79746949120,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.4138,
+        "annualized_roi": 1.9975,
+        "dte": 202
+      },
+      "outcome": -0.5063,
+      "peak_return": -0.1962,
+      "last_price": 124.29,
+      "current_return": -0.4494,
+      "close_date": "2026-09-23",
+      "close_price": 124.36,
+      "close_reason": "stop_loss"
     }
   ],
   "model_weights": {
