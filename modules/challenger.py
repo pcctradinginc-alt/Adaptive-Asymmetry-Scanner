@@ -150,13 +150,12 @@ def select(rows: list[dict], rule: list[dict]) -> list[dict]:
 
 
 def metric_value(row: dict, metric: str, fallback: str | None = None):
-    """Reads `metric` from a row, falling back to `fallback` (or an auto-derived
-    'opt_ret_' -> 'ret_' fallback) when the primary metric is missing."""
+    """Reads `metric` from a row; only an EXPLICIT `fallback` is used.
+    Kein automatischer opt_ret_→ret_-Fallback: Options- und Aktienrenditen
+    in einem Arm zu mischen würde die Mittelwerte verzerren."""
     val = _get_path(row, metric)
     if val is not None:
         return val
-    if fallback is None and "opt_ret_" in metric:
-        fallback = metric.replace("opt_ret_", "ret_")
     if fallback:
         return _get_path(row, fallback)
     return None

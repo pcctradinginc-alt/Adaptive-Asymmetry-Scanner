@@ -141,9 +141,10 @@ def test_metric_value_primary_present():
     assert ch.metric_value(row, "outcomes.opt_ret_45d") == 0.1
 
 
-def test_metric_value_falls_back_when_missing():
+def test_metric_value_no_implicit_stock_fallback():
+    # Options- und Aktienrenditen dürfen nicht stillschweigend gemischt werden
     row = {"outcomes": {"ret_45d": 0.2}}
-    assert ch.metric_value(row, "outcomes.opt_ret_45d") == 0.2
+    assert ch.metric_value(row, "outcomes.opt_ret_45d") is None
 
 
 def test_metric_value_explicit_fallback():

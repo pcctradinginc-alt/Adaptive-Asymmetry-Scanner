@@ -42,7 +42,6 @@ challengers:
         op: ">="
         value: 0.45
     metric: "outcomes.opt_ret_45d"
-    metric_fallback: "outcomes.ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180
@@ -64,7 +63,6 @@ challengers:
         op: ">="
         value: 55
     metric: "outcomes.opt_ret_45d"
-    metric_fallback: "outcomes.ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180
