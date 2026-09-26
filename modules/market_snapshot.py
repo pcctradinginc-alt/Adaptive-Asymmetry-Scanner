@@ -313,6 +313,50 @@ def select_contract(ticker: str, direction: str, dte_floor: int, spot: float) ->
         return None
 
 
+def select_spread_short_leg(
+    ticker: str, expiry: str | None, option_type: str, long_strike: float,
+) -> dict | None:
+    """
+    P0-2 (candidate_ledger real_strategy): wählt den Short-Leg eines Spreads
+    aus DERSELBEN Chain/Expiry wie der bereits gewählte Long-Leg — über
+    genau dieselbe Auswahlregel wie die Produktion
+    (options_designer.pick_spread_leg_strike: Fenster [1.05, 1.20]×long_strike,
+    Ziel 1.10×long_strike). Gibt None zurück (nie einen Fehler), wenn kein
+    TRADIER_API_KEY, keine Expiry/Chain oder kein Kontrakt im Fenster liegt.
+    """
+    try:
+        if not expiry or option_type not in ("call", "put"):
+            return None
+        if not _use_tradier():
+            return None
+        chain = _fetch_chain(ticker, expiry)
+        candidates = [o for o in chain if o.get("option_type") == option_type]
+        if not candidates:
+            return None
+
+        from modules.options_designer import pick_spread_leg_strike
+
+        strikes = [float(o.get("strike", 0)) for o in candidates]
+        target_strike = pick_spread_leg_strike(strikes, float(long_strike))
+        if target_strike is None:
+            return None
+
+        best = min(candidates, key=lambda o: abs(float(o.get("strike", 0)) - target_strike))
+        bid = _f(best.get("bid"))
+        ask = _f(best.get("ask"))
+        mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
+        return {
+            "symbol": best.get("symbol"),
+            "strike": float(best.get("strike", 0)),
+            "bid":    bid,
+            "ask":    ask,
+            "mid":    mid,
+        }
+    except Exception as e:
+        log.debug(f"market_snapshot.select_spread_short_leg [{ticker}] Fehler (ignoriert): {e}")
+        return None
+
+
 def fetch_option_quotes(symbols: list[str]) -> dict:
     """
     Gebündelter Tradier-Quote-Abruf für OCC-Options-Symbole (für

@@ -118,6 +118,78 @@ TTM_TO_DTE_MIN: dict[str, int] = {
 }
 
 
+def choose_strategy(
+    iv_rank:            float,
+    is_bullish:         bool,
+    dealer_gamma_state:  dict | None = None,
+    vix_structure:       str | None = None,
+) -> tuple[str, float, str]:
+    """
+    Reine Strategie-Entscheidungsfunktion (P0-2 Refactor): identisch zur
+    bisherigen Logik in OptionsDesigner._select_strategy, aber ohne
+    Ticker/Logging-Nebeneffekte — damit sowohl die Produktion (über
+    _select_strategy) als auch der Ledger-Counterfactual (real_strategy)
+    exakt denselben Entscheidungspfad durchlaufen.
+
+    Gibt (strategy, effective_gate, reason) zurück:
+        strategy       – "BULL_CALL_SPREAD" | "BEAR_PUT_SPREAD" |
+                          "LONG_CALL"        | "LONG_PUT"
+        effective_gate – der tatsächlich verwendete IV-Rank-Gate (nach
+                          Dealer-Gamma-/VIX-Term-Structure-Anpassung)
+        reason         – Freitext-Begründung (wie im bisherigen Log)
+    """
+    dealer_gamma_state = dealer_gamma_state or {}
+    gamma_sign = dealer_gamma_state.get("net_gamma_sign", "neutral")
+    gamma_ok   = dealer_gamma_state.get("data_available", False)
+
+    if gamma_ok and gamma_sign == "negative":
+        effective_gate = min(IV_SPREAD_GATE + 13, 65.0)
+        reason = f"Dealer-Gamma negativ (Trend-Verstärkung) → IV-Gate {effective_gate:.0f}%"
+    elif gamma_ok and gamma_sign == "positive":
+        effective_gate = max(IV_SPREAD_GATE - 12, 40.0)
+        reason = f"Dealer-Gamma positiv (Mean-Reversion) → IV-Gate {effective_gate:.0f}%"
+    else:
+        effective_gate = IV_SPREAD_GATE
+        reason = f"Dealer-Gamma neutral/unbekannt → Standard IV-Gate {IV_SPREAD_GATE:.0f}%"
+
+    vix_structure = vix_structure or "unknown"
+    if vix_structure == "backwardation":
+        effective_gate = max(effective_gate - 8.0, 35.0)
+        reason += f" | VIX Backwardation → Gate -{8:.0f}% ({effective_gate:.0f}%)"
+    elif vix_structure == "contango":
+        pass  # Contango: kein Adjustment — Standardlogik reicht
+
+    if iv_rank >= effective_gate:
+        strategy = "BULL_CALL_SPREAD" if is_bullish else "BEAR_PUT_SPREAD"
+    else:
+        strategy = "LONG_CALL" if is_bullish else "LONG_PUT"
+
+    return strategy, effective_gate, reason
+
+
+def pick_spread_leg_strike(strikes, long_strike: float) -> Optional[float]:
+    """
+    Reine Auswahlfunktion (P0-2 Refactor) für den Short-Leg-Strike eines
+    Spreads: gleiche Regel wie bisher in OptionsDesigner._find_spread_leg
+    (Strike-Fenster [1.05, 1.20] × long_strike, am nächsten zu 1.10× long_strike),
+    aber operiert auf einer einfachen Liste von Strikes statt einem
+    yfinance/Tradier-DataFrame — damit sie sowohl von der Produktion (über
+    _find_spread_leg) als auch vom Ledger-Counterfactual (real_strategy,
+    gleiche Chain) genutzt werden kann.
+
+    Gibt None zurück, wenn kein Strike im Fenster liegt.
+    """
+    try:
+        lo, hi = long_strike * 1.05, long_strike * 1.20
+        candidates = [float(s) for s in strikes if lo <= float(s) <= hi]
+        if not candidates:
+            return None
+        target = long_strike * 1.10
+        return min(candidates, key=lambda s: abs(s - target))
+    except Exception:
+        return None
+
+
 def ttm_to_dte_floor(ttm: str) -> int:
     """
     Normalisiert TTM-Strings (Claude liefert variierende Formate) → DTE-Floor.
@@ -676,39 +748,19 @@ class OptionsDesigner:
         3. Kombination: negative Gamma + niedrige IV → LONG_CALL
                         positive Gamma + hohe IV   → SPREAD (doppelter Schutz)
         """
-        dealer_gamma  = dealer_gamma or {}
-        gamma_sign    = dealer_gamma.get("net_gamma_sign", "neutral")
-        gamma_ok      = dealer_gamma.get("data_available", False)
-
         is_bullish = direction == "BULLISH"
-
-        if gamma_ok and gamma_sign == "negative":
-            effective_gate = min(IV_SPREAD_GATE + 13, 65.0)
-            reason = f"Dealer-Gamma negativ (Trend-Verstärkung) → IV-Gate {effective_gate:.0f}%"
-        elif gamma_ok and gamma_sign == "positive":
-            effective_gate = max(IV_SPREAD_GATE - 12, 40.0)
-            reason = f"Dealer-Gamma positiv (Mean-Reversion) → IV-Gate {effective_gate:.0f}%"
-        else:
-            effective_gate = IV_SPREAD_GATE
-            reason = f"Dealer-Gamma neutral/unbekannt → Standard IV-Gate {IV_SPREAD_GATE:.0f}%"
-
-        # VIX Term Structure: Backwardation → kurzfristige Angst hoch →
-        # Vol-Crush nach Event wahrscheinlicher → Spread bevorzugen (Gate -8%)
         vix_structure = self._vix_ts.get("structure", "unknown") if self._vix_ts else "unknown"
-        if vix_structure == "backwardation":
-            effective_gate = max(effective_gate - 8.0, 35.0)
-            reason += f" | VIX Backwardation → Gate -{8:.0f}% ({effective_gate:.0f}%)"
-        elif vix_structure == "contango":
-            pass  # Contango: kein Adjustment — Standardlogik reicht
+
+        s, effective_gate, reason = choose_strategy(
+            iv_rank, is_bullish, dealer_gamma, vix_structure,
+        )
 
         if iv_rank >= effective_gate:
-            s = "BULL_CALL_SPREAD" if is_bullish else "BEAR_PUT_SPREAD"
             log.info(
                 f"  [{ticker}] IV={iv_rank:.0f}% ≥ {effective_gate:.0f}% → {s} "
                 f"(Spread | {reason})"
             )
         else:
-            s = "LONG_CALL" if is_bullish else "LONG_PUT"
             log.info(
                 f"  [{ticker}] IV={iv_rank:.0f}% < {effective_gate:.0f}% → {s} "
                 f"(Naked | {reason})"
@@ -1037,15 +1089,11 @@ class OptionsDesigner:
             return None
 
     def _find_spread_leg(self, opts: pd.DataFrame, long_strike: float) -> Optional[dict]:
-        candidates = opts[
-            (opts["strike"] >= long_strike * 1.05) &
-            (opts["strike"] <= long_strike * 1.20)
-        ]
-        if candidates.empty:
+        target_strike = pick_spread_leg_strike(opts["strike"].tolist(), long_strike)
+        if target_strike is None:
             return None
-        best = candidates.iloc[
-            (candidates["strike"] - long_strike * 1.10).abs().argsort()
-        ].iloc[0]
+        idx = (opts["strike"] - target_strike).abs().idxmin()
+        best = opts.loc[idx]
         return {"strike": float(best["strike"]),
                 "bid": float(best["bid"]), "ask": float(best["ask"])}
 

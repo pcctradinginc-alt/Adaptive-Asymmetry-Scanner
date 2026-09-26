@@ -62,9 +62,12 @@ challengers:
       - field: "features.final_mc_hit_rate"
         op: ">="
         value: 0.45
-    # Primär: echter Options-Kontrakt (Ask rein, Bid raus). Black-Scholes-opt_ret
-    # bleibt nur sekundäre Diagnose (umgestellt vor start_date, keine Daten gesehen).
-    metric: "outcomes.real_opt_ret_45d"
+    # Primär: echter Produktions-Strategie-Counterfactual (real_strategy —
+    # spiegelt exakt, was die Produktion getradet hätte: Spread ODER Long-Leg,
+    # je nach demselben choose_strategy()-Gate). real_opt_ret bleibt nur
+    # sekundäre Diagnose (nur die Long-Leg). Umgestellt vor start_date
+    # (2026-09-28) — noch keine Daten gesehen.
+    metric: "outcomes.real_strat_ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180
@@ -86,9 +89,12 @@ challengers:
       - field: "features.trade_score"
         op: ">="
         value: 55
-    # Primär: echter Options-Kontrakt (Ask rein, Bid raus). Black-Scholes-opt_ret
-    # bleibt nur sekundäre Diagnose (umgestellt vor start_date, keine Daten gesehen).
-    metric: "outcomes.real_opt_ret_45d"
+    # Primär: echter Produktions-Strategie-Counterfactual (real_strategy —
+    # spiegelt exakt, was die Produktion getradet hätte: Spread ODER Long-Leg,
+    # je nach demselben choose_strategy()-Gate). real_opt_ret bleibt nur
+    # sekundäre Diagnose (nur die Long-Leg). Umgestellt vor start_date
+    # (2026-09-28) — noch keine Daten gesehen.
+    metric: "outcomes.real_strat_ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180

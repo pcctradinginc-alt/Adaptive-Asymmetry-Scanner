@@ -11,10 +11,16 @@ WICHTIG: Dieses Modul ist REINE Observability.
   - Jede öffentliche Funktion ist defensiv (try/except + Logging) und darf
     die Pipeline unter keinen Umständen zum Absturz bringen.
 
-Datenformat: outputs/candidate_ledger/YYYY-MM.jsonl (eine Zeile pro Ticker/Tag)
+Datenformat: outputs/candidate_ledger/YYYY-MM.jsonl (eine Zeile pro SIGNAL —
+P0-1: ein Ticker kann mehrere Signale/Zeilen am selben Tag haben, je ein
+eigener Katalysator/Event — siehe event_key/event_id unten und den
+Kommentar bei _resolve_signal_for_note)
     {
       "date": "2026-09-26",
       "ticker": "AAPL",
+      "signal_id": "…",           # eindeutig je Signal, bei Erzeugung vergeben
+      "event_id": "…",             # sha1(ticker+event_key)[:12] bzw. sha1(ticker+date)[:12]
+      "event_key": "FDA approval PDUFA" | null,
       "pipeline_version": "v8.3",
       "config_hash": "abcdef012345",
       "status": "rejected" | "proposed",
@@ -24,9 +30,19 @@ Datenformat: outputs/candidate_ledger/YYYY-MM.jsonl (eine Zeile pro Ticker/Tag)
       "features": {...},
       "entry_price": 123.45 | null,
       "signal_timestamp": "2026-09-26T14:03:07+00:00",  # UTC, Sekundenpräzision;
-          # gesetzt beim ersten note() dieses Kandidaten im Lauf
+          # gesetzt beim ersten note() dieses Signals im Lauf
+      "real_option": {...},        # echter Long-Leg-Kontrakt (Tradier), Rückwärtskompatibilität
+      "real_strategy": {           # P0-2: Produktions-Strategie-Counterfactual
+          "strategy": "BULL_CALL_SPREAD" | "LONG_CALL" | ...,
+          "strategy_source": "computed" | "default_long" | "spread_no_liquidity",
+          "legs": [{"symbol": ..., "strike": ..., "side": "long"|"short",
+                     "bid": ..., "ask": ..., "mid": ...}, ...],
+          "net_debit_entry": ..., "net_mid_entry": ...,
+      },
+      "snapshot_eligible_n": 12, "snapshot_budget": 40, "snapshot_selected": true,
       "outcomes": {
           "ret_5d": 0.012, "ret_20d": ..., "ret_45d": ..., "ret_120d": ...,
+          "real_strat_ret_45d": ..., "real_strat_ret_mid_45d": ...,
           "mfe": ..., "mae": ...
       }
     }
@@ -177,20 +193,23 @@ def _max_option_snapshots() -> int:
         return DEFAULT_MAX_OPTION_SNAPSHOTS
 
 
-def _compute_event_id(ticker: str, date: str, features: dict) -> str:
+def _compute_event_id(ticker: str, date: str, signal: dict) -> str:
     """
-    event_id = sha1(ticker + Katalysator-Text)[:12], falls die Pipeline über
-    note(..., event_key=...) einen Katalysator/Headline-Text mitgegeben hat
-    (siehe pipeline.py Stufe 4 „Deep Analysis"). Ohne event_key: Fallback
-    sha1(ticker + date)[:12] (bisheriges Verhalten — ein Event/Tag/Ticker).
+    event_id = sha1(ticker + Katalysator-Text)[:12], falls dieses Signal
+    über note(..., event_key=...) einen Katalysator/Headline-Text bekommen
+    hat (siehe pipeline.py Stufe 4 „Deep Analysis"). Ohne event_key:
+    Fallback sha1(ticker + date)[:12] (bisheriges Verhalten — ein
+    Event/Tag/Ticker; P0-1: es gibt dann per Ticker/Tag höchstens EIN
+    Signal ohne event_key, siehe _resolve_signal_for_note).
 
     Dedup beim flush() erfolgt über (date, ticker, event_id): zwei
     verschiedene Events für denselben Ticker am selben Tag bleiben beide
-    erhalten; ein erneuter Lauf über dasselbe Event überschreibt sich nicht
-    (wird als Duplikat verworfen).
+    erhalten (je ein eigenes Signal/eine eigene Zeile — P0-1); ein
+    erneuter Lauf über dasselbe Event überschreibt sich nicht (wird als
+    Duplikat verworfen).
     """
     try:
-        event_key = (features or {}).get("event_key")
+        event_key = (signal or {}).get("event_key")
         if event_key:
             raw = f"{ticker}:{event_key}"
         else:
@@ -228,7 +247,15 @@ def _compute_code_sha() -> str:
 
 
 def _compute_model_ids() -> dict:
-    """LLM-/ML-Modell-IDs aus config.yaml (models:, rl, finbert) für Reproduzierbarkeit."""
+    """LLM-/ML-Modell-IDs aus config.yaml (models:, rl, finbert) für Reproduzierbarkeit.
+
+    P1: zusätzlich sha256(erste 12 Zeichen) der PPO-Modell-Datei
+    (config rl.model_path), FALLS die Datei existiert — damit ein
+    Ledger-Eintrag eindeutig auf die tatsächlich verwendeten Modell-Gewichte
+    zurückgeführt werden kann (model_path allein sagt nichts über einen
+    Retrain aus). Fehlt die Datei/der Pfad, wird das Feld einfach
+    weggelassen (kein Fehler nach außen).
+    """
     ids = {}
     try:
         import yaml
@@ -240,6 +267,14 @@ def _compute_model_ids() -> dict:
             sec = raw.get(section) or {}
             if isinstance(sec, dict) and isinstance(sec.get(key), str):
                 ids[f"{section}.{key}"] = sec[key]
+                if section == "rl" and key == "model_path":
+                    try:
+                        model_path = Path(sec[key])
+                        if model_path.exists():
+                            digest = hashlib.sha256(model_path.read_bytes()).hexdigest()
+                            ids["rl.model_sha256"] = digest[:12]
+                    except Exception:
+                        pass
     except Exception:
         pass
     return ids
@@ -264,67 +299,148 @@ def start_run(today: str) -> None:
         _state["flushed"]          = False
 
 
-def _entry(ticker: str) -> dict:
-    e = _state["entries"].get(ticker)
-    if e is None:
-        e = {
-            "ticker":           ticker,
-            "status":           "seen",
-            "stage":            None,
-            "reject_stage":     None,
-            "reject_reason":    None,
-            "direction":        None,
-            "features":         {},
-            # Erster Zeitpunkt, zu dem dieser Kandidat in diesem Lauf notiert
-            # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
-            # Walk-forward-Prüfung im Challenger-Modul (registered_at).
-            "signal_timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            # P2 Signal-Identität: eindeutige ID je Kandidat/Lauf (uuid4).
-            "signal_id":        uuid.uuid4().hex,
-        }
-        _state["entries"][ticker] = e
-    return e
+# ── P0-1 Signal-Identität ────────────────────────────────────────────────────
+#
+# _state["entries"] ist ticker -> LISTE von Signal-Dicts (statt einem Dict je
+# Ticker). Grund: ein Ticker kann in einem Lauf zu mehreren, unabhängigen
+# Katalysator-Events gehören (z.B. zwei separate Headlines am selben Tag) —
+# das darf beim Flush nicht auf eine Zeile kollabieren.
+#
+# note()-Aufrufe für einen Ticker passieren zuerst OHNE event_key (Universe-
+# Stufe: Feature-Werte sind noch ticker-weit, das Event ist noch nicht
+# bekannt) und erst später MIT event_key (Deep-Analysis-Stufe: Katalysator-
+# Text bekannt). Deshalb:
+#   - note(ticker, ...) OHNE event_key aktualisiert ALLE bisherigen Signale
+#     dieses Tickers (oder legt das erste an, falls noch keins existiert).
+#   - note(ticker, ..., event_key=X) sucht ein Signal mit event_key==X; gibt
+#     es keins, wird das erste noch event_key-lose Signal "geclaimt" (das ist
+#     der Normalfall: Universe-Stufe → Deep-Analysis-Stufe desselben Events);
+#     gibt es auch das nicht (alle bestehenden Signale haben schon einen
+#     ANDEREN event_key), wird ein NEUES Signal angelegt — eine Kopie der
+#     bisher notierten ticker-weiten Felder (features/direction/stage) des
+#     ersten Signals, damit das neue Event nicht mit leeren Features startet.
+#   - Ein zweites note(..., event_key=X) mit demselben X aktualisiert nur
+#     dieses eine Signal (Dedup: "gleiches Event zweimal notiert → eine Zeile").
+#
+# mark_rejected()/mark_passed() wirken ohne event_key auf ALLE Signale des
+# Tickers (bisheriges Verhalten, z.B. frühe Prescreening-Rejects, die noch
+# gar kein Event kennen); mit event_key nur auf das eine passende Signal.
+
+
+def _new_signal(ticker: str, event_key=None) -> dict:
+    return {
+        "ticker":           ticker,
+        "event_key":        event_key,
+        "status":           "seen",
+        "stage":            None,
+        "reject_stage":     None,
+        "reject_reason":    None,
+        "direction":        None,
+        "features":         {},
+        # Erster Zeitpunkt, zu dem dieses Signal in diesem Lauf notiert
+        # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
+        # Walk-forward-Prüfung im Challenger-Modul (registered_at).
+        "signal_timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        # Eindeutige ID je Signal — bei Erzeugung vergeben (nicht erst beim
+        # Flush), damit sie über note()-Aufrufe hinweg stabil bleibt.
+        "signal_id":        uuid.uuid4().hex,
+    }
+
+
+def _signals(ticker: str) -> list:
+    return _state["entries"].setdefault(ticker, [])
+
+
+def _resolve_signal_for_note(ticker: str, event_key) -> list:
+    """Gibt die Liste der Signale zurück, auf die ein note()-Aufruf
+    angewendet werden soll (siehe Modul-weiter Kommentar oben)."""
+    lst = _signals(ticker)
+    if event_key is None:
+        if not lst:
+            lst.append(_new_signal(ticker))
+        return lst
+    for s in lst:
+        if s.get("event_key") == event_key:
+            return [s]
+    unassigned = next((s for s in lst if s.get("event_key") is None), None)
+    if unassigned is not None:
+        unassigned["event_key"] = event_key
+        return [unassigned]
+    if lst:
+        base = lst[0]
+        new_sig = _new_signal(ticker, event_key)
+        new_sig["features"]  = dict(base.get("features", {}))
+        new_sig["direction"] = base.get("direction")
+        new_sig["stage"]     = base.get("stage")
+        lst.append(new_sig)
+        return [new_sig]
+    new_sig = _new_signal(ticker, event_key)
+    lst.append(new_sig)
+    return [new_sig]
+
+
+def _resolve_signal_for_mark(ticker: str, event_key) -> list:
+    """Gibt die Liste der Signale zurück, auf die mark_rejected()/
+    mark_passed() angewendet werden sollen."""
+    lst = _signals(ticker)
+    if not lst:
+        lst.append(_new_signal(ticker))
+        return lst
+    if event_key is None:
+        return lst
+    for s in lst:
+        if s.get("event_key") == event_key:
+            return [s]
+    # Unbekannter event_key (z.B. Reject vor Deep-Analysis-Stufe, während
+    # ein anderer Aufrufer schon einen event_key vergeben hat): sicherer
+    # Fallback auf ALLE Signale statt zu verwerfen.
+    return lst
 
 
 def note(ticker, stage: str | None = None, **fields) -> None:
-    """Merkt Feature-Werte/Stage für einen Ticker vor (upsert)."""
+    """Merkt Feature-Werte/Stage für einen Ticker vor (upsert je Signal,
+    siehe Kommentar oben zur P0-1 Signal-Identität)."""
     try:
         if not ticker or not isinstance(ticker, str):
             return
-        e = _entry(ticker)
-        if stage:
-            e["stage"] = stage
-        for k, v in fields.items():
-            if k == "direction":
-                e["direction"] = v
-            else:
-                try:
-                    json.dumps(v, default=str)  # nur JSON-serialisierbare Werte
-                    e["features"][k] = v
-                except Exception:
-                    e["features"][k] = str(v)
+        event_key = fields.pop("event_key", None)
+        targets = _resolve_signal_for_note(ticker, event_key)
+        for e in targets:
+            if event_key is not None:
+                e["event_key"] = event_key
+            if stage:
+                e["stage"] = stage
+            for k, v in fields.items():
+                if k == "direction":
+                    e["direction"] = v
+                else:
+                    try:
+                        json.dumps(v, default=str)  # nur JSON-serialisierbare Werte
+                        e["features"][k] = v
+                    except Exception:
+                        e["features"][k] = str(v)
     except Exception as e:
         log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
 
 
-def mark_rejected(ticker, reason: str) -> None:
+def mark_rejected(ticker, reason: str, event_key=None) -> None:
     try:
         if not ticker or not isinstance(ticker, str):
             return
-        e = _entry(ticker)
-        e["status"]        = "rejected"
-        e["reject_reason"] = reason
-        e["reject_stage"]  = e.get("stage")
+        for e in _resolve_signal_for_mark(ticker, event_key):
+            e["status"]        = "rejected"
+            e["reject_reason"] = reason
+            e["reject_stage"]  = e.get("stage")
     except Exception as e:
         log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
-def mark_passed(ticker) -> None:
+def mark_passed(ticker, event_key=None) -> None:
     try:
         if not ticker or not isinstance(ticker, str):
             return
-        e = _entry(ticker)
-        e["status"] = "proposed"
+        for e in _resolve_signal_for_mark(ticker, event_key):
+            e["status"] = "proposed"
     except Exception as e:
         log.debug(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
 
@@ -426,6 +542,190 @@ def _build_real_option(e: dict, spot) -> dict | None:
         return None
 
 
+# ── P0-2: Produktions-Strategie-Counterfactual (real_strategy) ──────────────
+#
+# real_option (oben) bewertet immer nur die Long-Leg (LONG_CALL/LONG_PUT) —
+# aber die Produktion (options_designer._select_strategy /
+# choose_strategy()) tradet ab einem bestimmten IV-Rank/Dealer-Gamma/VIX-
+# Term-Structure-Gate stattdessen einen Debit-Spread. real_strategy
+# durchläuft GENAU denselben Entscheidungspfad (choose_strategy() ist die
+# aus options_designer.py extrahierte reine Funktion), damit der Ledger
+# nicht nur "wie hätte ein Long-Call performt", sondern "wie hätte die
+# Produktion TATSÄCHLICH gehandelt" beantwortet.
+#
+# iv_rank: die Produktion berechnet ihn über yfinance-Realized-Vol +
+# Options-Term-Structure (OptionsDesigner._get_iv_rank) — das braucht pro
+# Kandidat mehrere Netzwerk-Calls und ist hier aus Budget-/Kopplungsgründen
+# NICHT reproduzierbar. Stattdessen: ein Percentile-Rank der Chain-IV des
+# gewählten Long-Legs innerhalb der historischen ATM-IV-Werte desselben
+# Tickers (outputs/history.json → iv_history[ticker], von
+# mirofish_simulation._log_iv_today() befüllt). Das ist eine bewusste
+# Vereinfachung (siehe Docstring), NICHT identisch mit _get_iv_rank — bei
+# zu wenig Historie (<20 Tage) wird iv_rank als nicht bestimmbar behandelt
+# und strategy_source="default_long" gesetzt (Fallback: Long-Leg, wie schon
+# real_option).
+#
+# dealer_gamma_state/vix_structure: wenn die Produktion sie im selben Lauf
+# schon berechnet hat, werden sie per note(..., dealer_gamma_state=...,
+# vix_structure=...) aus pipeline.py mitgegeben (ein note()-Aufruf,
+# unmittelbar vor designer.run(), siehe pipeline.py Stufe 10). Fehlen sie
+# (z.B. älterer Lauf, Pipeline-Pfad ohne diesen note()-Aufruf erreicht):
+# "unknown" — genau der Fallback, den choose_strategy() selbst für
+# unbekannte Werte verwendet (neutrales Gate, kein VIX-Adjustment).
+
+HISTORY_PATH = Path("outputs/history.json")
+
+
+def _load_iv_history(ticker: str) -> list:
+    """outputs/history.json → iv_history[ticker] (Liste von {date, atm_iv}).
+    Fehlt die Datei/der Ticker: leere Liste (nie ein Fehler nach außen)."""
+    try:
+        if not HISTORY_PATH.exists():
+            return []
+        data = json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return []
+        return (data.get("iv_history") or {}).get(ticker, []) or []
+    except Exception as e:
+        log.debug(f"candidate_ledger._load_iv_history [{ticker}] Fehler (ignoriert): {e}")
+        return []
+
+
+IV_RANK_MIN_HISTORY_DAYS = 20
+
+
+def _resolve_candidate_iv_rank(ticker: str, chain_iv) -> float | None:
+    """Percentile-Rank der Chain-IV des Long-Legs innerhalb der letzten
+    ~252 historischen ATM-IV-Werte (5%/95%-Quantile wie
+    OptionsDesigner._get_iv_rank's rv_score-Komponente). None, wenn Chain-IV
+    fehlt oder zu wenig Historie vorliegt (< IV_RANK_MIN_HISTORY_DAYS)."""
+    try:
+        if chain_iv in (None, 0):
+            return None
+        chain_iv = float(chain_iv)
+        entries = _load_iv_history(ticker)[-252:]
+        values = sorted(
+            float(e["atm_iv"]) for e in entries
+            if isinstance(e, dict) and isinstance(e.get("atm_iv"), (int, float))
+        )
+        if len(values) < IV_RANK_MIN_HISTORY_DAYS:
+            return None
+        lo = values[max(0, int(len(values) * 0.05))]
+        hi = values[min(len(values) - 1, int(len(values) * 0.95))]
+        if hi <= lo:
+            return None
+        rank = (chain_iv - lo) / (hi - lo) * 100.0
+        return max(0.0, min(100.0, rank))
+    except Exception as e:
+        log.debug(f"candidate_ledger._resolve_candidate_iv_rank [{ticker}] Fehler (ignoriert): {e}")
+        return None
+
+
+def _leg_from_contract(contract: dict, side: str) -> dict:
+    return {
+        "symbol": contract.get("symbol"),
+        "strike": contract.get("strike"),
+        "side":   side,
+        "bid":    contract.get("bid"),
+        "ask":    contract.get("ask"),
+        "mid":    contract.get("mid"),
+    }
+
+
+def _strategy_row(strategy, source, legs, iv_rank, effective_gate, expiry) -> dict:
+    row = {"strategy": strategy, "strategy_source": source, "legs": legs, "expiry": expiry}
+    if iv_rank is not None:
+        row["iv_rank"] = round(iv_rank, 1)
+    if effective_gate is not None:
+        row["effective_gate"] = effective_gate
+    return row
+
+
+def _build_real_strategy(e: dict, ticker: str, spot, long_raw: dict | None) -> dict | None:
+    """
+    P0-2: baut den Produktions-Strategie-Counterfactual (siehe Kommentar
+    oben) — wiederverwendet den bereits abgerufenen Long-Leg-Kontrakt
+    (long_raw, aus _build_real_option) statt Tradier erneut zu befragen.
+    Nur eine ZUSÄTZLICHE Chain-Abfrage für den Short-Leg, falls die
+    Strategie ein Spread ist (choose_strategy() → *_SPREAD). Gibt None
+    zurück (nie einen Fehler), wenn Richtung fehlt oder kein Long-Kontrakt
+    vorliegt.
+    """
+    try:
+        direction = e.get("direction")
+        if direction not in ("BULLISH", "BEARISH") or long_raw is None:
+            return None
+
+        features           = e.get("features") or {}
+        dealer_gamma_state = features.get("dealer_gamma_state") or {}
+        vix_structure      = features.get("vix_structure") or "unknown"
+        is_bullish         = direction == "BULLISH"
+        default_strategy   = "LONG_CALL" if is_bullish else "LONG_PUT"
+        long_leg           = _leg_from_contract(long_raw, "long")
+        expiry             = long_raw.get("expiry")
+
+        iv_rank = _resolve_candidate_iv_rank(ticker, long_raw.get("iv"))
+        if iv_rank is None:
+            return _strategy_row(default_strategy, "default_long", [long_leg], None, None, expiry)
+
+        from modules.options_designer import choose_strategy
+
+        strategy, effective_gate, _reason = choose_strategy(
+            iv_rank, is_bullish, dealer_gamma_state, vix_structure,
+        )
+
+        if "SPREAD" not in strategy:
+            return _strategy_row(strategy, "computed", [long_leg], iv_rank, effective_gate, expiry)
+
+        option_type = "call" if is_bullish else "put"
+        short_raw = market_snapshot.select_spread_short_leg(
+            ticker, expiry, option_type, long_raw.get("strike"),
+        )
+        if short_raw is None or short_raw.get("bid") in (None, 0):
+            # Keine Liquidität im Short-Leg-Fenster → wie Produktion
+            # (_find_spread_leg liefert None → Fallback auf Long-Leg-Strategie).
+            return _strategy_row(default_strategy, "spread_no_liquidity", [long_leg], iv_rank, effective_gate, expiry)
+
+        short_leg = _leg_from_contract(short_raw, "short")
+        row = _strategy_row(strategy, "computed", [long_leg, short_leg], iv_rank, effective_gate, expiry)
+
+        long_ask, short_bid = long_leg.get("ask"), short_leg.get("bid")
+        long_mid, short_mid = long_leg.get("mid"), short_leg.get("mid")
+        if long_ask is not None and short_bid is not None:
+            row["net_debit_entry"] = round(long_ask - short_bid, 4)
+        if long_mid is not None and short_mid is not None:
+            row["net_mid_entry"] = round(long_mid - short_mid, 4)
+        return row
+    except Exception as ex:
+        log.debug(f"candidate_ledger._build_real_strategy Fehler (ignoriert): {ex}")
+        return None
+
+
+def _finalize_real_strategy(rs: dict, session: str, today: str) -> dict:
+    """Analog zu _finalize_real_option, aber für alle Legs von real_strategy
+    (Multi-Leg-Session-Gating): Optionen handeln nur in der regulären
+    Session — außerhalb wandern alle Leg-Quotes nach snapshot_legs
+    (informativ) und die "echten" bid/ask/mid je Leg bleiben None bis zum
+    Fill in update_outcomes() (_fill_real_strategy_entries)."""
+    rs = dict(rs)
+    legs = [dict(l) for l in rs.get("legs", [])]
+    if session == "regular":
+        rs["entry_pending"] = False
+        rs["entry_date"]    = today
+    else:
+        rs["snapshot_legs"] = [
+            {"symbol": l.get("symbol"), "bid": l.get("bid"), "ask": l.get("ask"), "mid": l.get("mid")}
+            for l in legs
+        ]
+        for l in legs:
+            l["bid"] = l["ask"] = l["mid"] = None
+        rs["net_debit_entry"] = None
+        rs["net_mid_entry"]   = None
+        rs["entry_pending"]   = True
+    rs["legs"] = legs
+    return rs
+
+
 def _now_utc() -> datetime:
     """Isoliert für Tests (monkeypatch), damit „jetzige Session" injizierbar ist."""
     return datetime.now(timezone.utc)
@@ -492,7 +792,8 @@ def _fetch_prices_batch(tickers: list[str]) -> dict:
 
 
 def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
-    """Schreibt alle Kandidaten des aktuellen Runs als JSONL-Zeilen (dedup je Tag)."""
+    """Schreibt alle Signale des aktuellen Runs als JSONL-Zeilen (dedup je
+    Tag+Event; P0-1: ein Ticker kann mehrere Signale/Zeilen haben)."""
     try:
         if _state.get("flushed"):
             return
@@ -501,16 +802,18 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             return
 
         today   = _state["date"]
-        entries = _state["entries"]
+        entries = _state["entries"]   # ticker -> [signal, ...] (P0-1)
 
         root = Path(reports_dir_root)
         root.mkdir(parents=True, exist_ok=True)
         month_file = root / f"{today[:7]}.jsonl"
 
-        # P2: event_id je Kandidat bestimmen (braucht die evtl. bis hier
-        # gesammelten features, inkl. event_key aus pipeline.py note()).
-        for ticker, e in entries.items():
-            e["event_id"] = _compute_event_id(ticker, today, e.get("features", {}))
+        all_signals = [(t, sig) for t, lst in entries.items() for sig in lst]
+
+        # event_id je Signal bestimmen (braucht die evtl. bis hier
+        # gesammelten event_key/features).
+        for ticker, e in all_signals:
+            e["event_id"] = _compute_event_id(ticker, today, e)
 
         existing_keys = set()
         if month_file.exists():
@@ -522,31 +825,70 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                             continue
                         try:
                             row = json.loads(line)
-                            # Dedup-Schlüssel inkl. event_id (P2): zwei
+                            # Dedup-Schlüssel inkl. event_id (P0-1/P2): zwei
                             # verschiedene Events desselben Tickers am selben
-                            # Tag bleiben beide erhalten. Ältere Zeilen ohne
-                            # event_id werden über ihren (fehlenden) Wert
-                            # weiterhin eindeutig identifiziert.
+                            # Tag bleiben beide erhalten (je eine eigene
+                            # Zeile). Ältere Zeilen ohne event_id werden über
+                            # ihren (fehlenden) Wert weiterhin eindeutig
+                            # identifiziert.
                             existing_keys.add((row.get("date"), row.get("ticker"), row.get("event_id")))
                         except Exception:
                             continue
             except Exception as e:
                 log.debug(f"candidate_ledger: Ledger-Datei nicht lesbar: {e}")
 
-        tickers_to_process = [
-            t for t, e in entries.items()
+        to_process = [
+            (t, e) for (t, e) in all_signals
             if (today, t, e.get("event_id")) not in existing_keys
         ]
+
+        tickers_to_process = sorted({t for t, _ in to_process})
         prices            = _fetch_prices_batch(tickers_to_process)
         underlying_quotes = market_snapshot.fetch_underlying_quotes(tickers_to_process)
 
-        max_snapshots       = _max_option_snapshots()
-        real_option_budget  = max_snapshots
+        resolved_by_id = {
+            e["signal_id"]: _resolve_entry(ticker, e, underlying_quotes, prices)
+            for ticker, e in to_process
+        }
+
+        # ── P1: neutraler Options-Snapshot-Budget ────────────────────────────
+        # Statt die ersten `max_snapshots` Signale in Verarbeitungsreihenfolge
+        # zu bedienen (systematische Verzerrung — z.B. bevorzugt Ticker, die
+        # zuerst in die Pipeline einliefen), wird zuerst die vollständige
+        # Menge der ELIGIBLEN Signale (bekannte Richtung + auflösbarer Spot)
+        # bestimmt. Übersteigt sie das Budget, wird eine deterministische
+        # Pseudo-Zufallsauswahl getroffen (seeded by date via
+        # sha1(date+signal_id)) — NIEMALS "die ersten N".
+        eligible = []  # (ticker, signal, spot)
+        for ticker, e in to_process:
+            if e.get("direction") not in ("BULLISH", "BEARISH"):
+                continue
+            resolved = resolved_by_id[e["signal_id"]]
+            spot = resolved["entry_price"]
+            if spot in (None, 0):
+                spot = resolved["underlying"].get("last") or resolved["underlying"].get("mid")
+            if spot in (None, 0):
+                spot = prices.get(ticker)
+            if spot in (None, 0):
+                continue
+            eligible.append((ticker, e, spot))
+
+        max_snapshots = _max_option_snapshots()
+        eligible_n    = len(eligible)
+        if eligible_n > max_snapshots:
+            ranked = sorted(
+                eligible,
+                key=lambda item: hashlib.sha1(
+                    f"{today}:{item[1]['signal_id']}".encode("utf-8")
+                ).hexdigest(),
+            )
+            selected_ids = {sig["signal_id"] for (_, sig, _) in ranked[:max_snapshots]}
+        else:
+            selected_ids = {sig["signal_id"] for (_, sig, _) in eligible}
+        spot_by_id = {sig["signal_id"]: spot for (_, sig, spot) in eligible}
 
         new_lines = []
-        for ticker, e in entries.items():
-            if (today, ticker, e.get("event_id")) in existing_keys:
-                continue
+        for ticker, e in to_process:
             # Ohne reject()-Aufruf ausgeschieden (z.B. Prescreening) → als
             # "dropped" mit letzter erreichter Stufe markieren statt "seen".
             if e.get("status", "seen") == "seen":
@@ -554,7 +896,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 e["reject_stage"]  = e.get("stage")
                 e["reject_reason"] = f"unlabeled_after_{e.get('stage') or 'unknown'}"
 
-            resolved    = _resolve_entry(ticker, e, underlying_quotes, prices)
+            resolved    = resolved_by_id[e["signal_id"]]
             entry_price = resolved["entry_price"]
 
             row = {
@@ -562,6 +904,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "ticker":           ticker,
                 "signal_id":        e.get("signal_id"),
                 "event_id":         e.get("event_id"),
+                "event_key":        e.get("event_key"),
                 "pipeline_version": _state.get("pipeline_version", "unknown"),
                 "config_hash":      _state.get("config_hash", "unknown"),
                 "code_sha":         _state.get("code_sha", "unknown"),
@@ -584,29 +927,33 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             if hypo is not None:
                 row["hypo_option"] = hypo
 
-            # P0-B: echter Options-Kontrakt — nur für Kandidaten mit bekannter
-            # Richtung, begrenzt auf `ledger.max_option_snapshots` API-Calls/Lauf.
+            # P0-B/P0-2: echter Options-Kontrakt (+ Produktions-Strategie-
+            # Counterfactual) — nur für Kandidaten mit bekannter Richtung,
+            # begrenzt auf `ledger.max_option_snapshots` API-Calls/Lauf (P1:
+            # neutrale Zufallsauswahl statt "erste N", siehe oben).
             if e.get("direction") in ("BULLISH", "BEARISH"):
-                if real_option_budget <= 0:
-                    row["real_option_skip_reason"] = "max_snapshots_reached"
+                signal_id = e["signal_id"]
+                row["snapshot_eligible_n"] = eligible_n
+                row["snapshot_budget"]     = max_snapshots
+                if signal_id not in spot_by_id:
+                    row["snapshot_selected"]       = False
+                    row["real_option_skip_reason"] = "no_spot"
+                elif signal_id not in selected_ids:
+                    row["snapshot_selected"]       = False
+                    row["real_option_skip_reason"] = "budget_random_exclusion"
                 else:
-                    spot = entry_price
-                    if spot in (None, 0):
-                        spot = resolved["underlying"].get("last") or resolved["underlying"].get("mid")
-                    if spot in (None, 0):
-                        spot = prices.get(ticker)
-                    # Jeder Versuch (Erfolg oder nicht) zählt gegen das
-                    # API-Call-Budget, da er selbst bei einem Miss bereits
-                    # einen Tradier-Call (Expirations/Chain) ausgelöst hat.
-                    real_option_budget -= 1
-                    real_option = _build_real_option(e, spot)
-                    if real_option is not None:
-                        row["real_option"] = _finalize_real_option(real_option, resolved["session"], today)
+                    row["snapshot_selected"] = True
+                    spot = spot_by_id[signal_id]
+                    real_option_raw = _build_real_option(e, spot)
+                    if real_option_raw is not None:
+                        row["real_option"] = _finalize_real_option(real_option_raw, resolved["session"], today)
+                        real_strategy_raw = _build_real_strategy(e, ticker, spot, real_option_raw)
+                        if real_strategy_raw is not None:
+                            row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, resolved["session"], today)
                     else:
                         row["real_option_skip_reason"] = (
-                            "no_spot" if spot in (None, 0)
-                            else ("no_api_key" if not os.environ.get("TRADIER_API_KEY", "").strip()
-                                  else "no_contract_found")
+                            "no_api_key" if not os.environ.get("TRADIER_API_KEY", "").strip()
+                            else "no_contract_found"
                         )
 
             new_lines.append(row)
@@ -718,6 +1065,10 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     except Exception as e:
         log.debug(f"candidate_ledger: real_option Entry-Fill Fehler (ignoriert): {e}")
     try:
+        changed |= _fill_real_strategy_entries(rows)
+    except Exception as e:
+        log.debug(f"candidate_ledger: real_strategy Entry-Fill Fehler (ignoriert): {e}")
+    try:
         changed |= _fill_return_horizons(rows, today_dt)
     except Exception as e:
         log.debug(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
@@ -725,6 +1076,10 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
         changed |= _fill_real_option_marks(rows, today_dt)
     except Exception as e:
         log.debug(f"candidate_ledger: real_opt_ret-Marks Fehler (ignoriert): {e}")
+    try:
+        changed |= _fill_real_strategy_marks(rows, today_dt)
+    except Exception as e:
+        log.debug(f"candidate_ledger: real_strat_ret-Marks Fehler (ignoriert): {e}")
 
     if changed:
         _atomic_write_jsonl(path, rows)
@@ -776,6 +1131,75 @@ def _fill_real_option_entries(rows: list[dict]) -> bool:
             changed = True
         except Exception as e:
             log.debug(f"candidate_ledger._fill_real_option_entries Fehler (ignoriert): {e}")
+    return changed
+
+
+def _fill_real_strategy_entries(rows: list[dict]) -> bool:
+    """
+    P0-2: Pendant zu _fill_real_option_entries, aber für ALLE Legs von
+    real_strategy (Multi-Leg-Fill — Spread braucht Long- UND Short-Leg-Quote,
+    bevor entry_pending=False gesetzt wird; nur regulare Session, EIN
+    gebündelter fetch_option_quotes-Call über alle offenen Legs)."""
+    now = _now_utc()
+    session = market_snapshot.us_market_session(now)
+    if session != "regular":
+        return False
+
+    pending = [
+        row for row in rows
+        if isinstance(row.get("real_strategy"), dict) and row["real_strategy"].get("entry_pending")
+    ]
+    if not pending:
+        return False
+
+    symbols = sorted({
+        leg.get("symbol")
+        for row in pending
+        for leg in (row["real_strategy"].get("legs") or [])
+        if leg.get("symbol")
+    })
+    if not symbols:
+        return False
+    quotes = market_snapshot.fetch_option_quotes(symbols)
+
+    changed = False
+    for row in pending:
+        try:
+            rs   = row["real_strategy"]
+            legs = rs.get("legs") or []
+            if not legs:
+                continue
+
+            all_filled = True
+            for leg in legs:
+                q = quotes.get(leg.get("symbol"))
+                if not q or (q.get("bid") is None and q.get("ask") is None and q.get("mid") is None):
+                    all_filled = False
+                    continue
+                leg["bid"], leg["ask"], leg["mid"] = q.get("bid"), q.get("ask"), q.get("mid")
+            if not all_filled:
+                continue  # nächster Regular-Session-Lauf holt die fehlenden Legs nach
+
+            long_leg  = next((l for l in legs if l.get("side") == "long"), None)
+            short_leg = next((l for l in legs if l.get("side") == "short"), None)
+            if long_leg is None:
+                continue
+
+            if short_leg is not None:
+                if long_leg.get("ask") is not None and short_leg.get("bid") is not None:
+                    rs["net_debit_entry"] = round(long_leg["ask"] - short_leg["bid"], 4)
+                if long_leg.get("mid") is not None and short_leg.get("mid") is not None:
+                    rs["net_mid_entry"] = round(long_leg["mid"] - short_leg["mid"], 4)
+            else:
+                rs["net_debit_entry"] = long_leg.get("ask")
+                rs["net_mid_entry"]   = long_leg.get("mid")
+
+            rs["entry_pending"]   = False
+            rs["entry_filled_at"] = now.isoformat(timespec="seconds")
+            rs["entry_date"]      = now.strftime("%Y-%m-%d")
+            changed = True
+        except Exception as e:
+            log.debug(f"candidate_ledger._fill_real_strategy_entries Fehler (ignoriert): {e}")
     return changed
 
 
@@ -1057,6 +1481,124 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             changed = True
         except Exception as e:
             log.debug(f"candidate_ledger._fill_real_option_marks Fehler (ignoriert): {e}")
+    return changed
+
+
+def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
+    """
+    P0-2: Pendant zu _fill_real_option_marks, aber für real_strategy
+    (Long-Leg allein ODER Long+Short-Leg bei einem Spread):
+
+        exit_conservative = long_bid - short_ask (floored bei 0; für
+            Single-Leg-Strategien einfach long_bid, wie bisher)
+        exit_mid           = long_mid - short_mid (Single-Leg: long_mid)
+        real_strat_ret_{h}d      = exit_conservative / net_debit_entry - 1
+        real_strat_ret_mid_{h}d  = exit_mid / net_mid_entry - 1
+
+    Am/nach Expiry: Intrinsic-Wert BEIDER Legs aus dem Underlying-
+    Schlusskurs am Expiry-Tag (Long-Intrinsic - Short-Intrinsic, ebenfalls
+    bei 0 gefloort für den konservativen Wert). Session-Gating und
+    late_mark wie bei real_option.
+    """
+    session = market_snapshot.us_market_session(_now_utc())
+    if session != "regular":
+        return False
+
+    tasks = []  # (row, h, entry_dt)
+    for row in rows:
+        rs = row.get("real_strategy")
+        if not rs or rs.get("entry_pending"):
+            continue
+        entry_dt = _parse_date(rs.get("entry_date") or "")
+        if entry_dt is None:
+            continue
+        outcomes = row.setdefault("outcomes", {})
+        for h in HORIZONS:
+            if f"real_strat_ret_{h}d" in outcomes:
+                continue
+            if (today_dt - entry_dt).days >= h:
+                tasks.append((row, h, entry_dt))
+
+    if not tasks:
+        return False
+
+    symbols = sorted({
+        leg.get("symbol")
+        for t in tasks
+        for leg in (t[0]["real_strategy"].get("legs") or [])
+        if leg.get("symbol")
+    })
+    quotes = market_snapshot.fetch_option_quotes(symbols)
+
+    underlying_tickers = sorted({t[0].get("ticker") for t in tasks if t[0].get("ticker")})
+    max_days = max((today_dt - t[2]).days for t in tasks)
+    underlying_hist = _fetch_history_batch(underlying_tickers, max(max_days + 10, 15))
+
+    changed = False
+    for row, h, entry_dt in tasks:
+        try:
+            rs   = row.get("real_strategy") or {}
+            legs = rs.get("legs") or []
+            long_leg  = next((l for l in legs if l.get("side") == "long"), None)
+            short_leg = next((l for l in legs if l.get("side") == "short"), None)
+            if long_leg is None:
+                continue
+
+            net_debit_entry = rs.get("net_debit_entry")
+            net_mid_entry   = rs.get("net_mid_entry")
+            if net_debit_entry in (None, 0) or net_mid_entry in (None, 0):
+                continue
+
+            expiry_dt = _parse_date(rs.get("expiry") or "")
+            kind = "call" if row.get("direction") == "BULLISH" else "put"
+
+            if expiry_dt is not None and today_dt.date() > expiry_dt.date():
+                hist = underlying_hist.get(row.get("ticker"))
+                spot_at_expiry = _price_on_or_before(hist, expiry_dt) if hist else None
+                if spot_at_expiry is None:
+                    continue
+
+                def _intrinsic(leg):
+                    strike = leg.get("strike") or 0
+                    return (max(spot_at_expiry - strike, 0.0) if kind == "call"
+                            else max(strike - spot_at_expiry, 0.0))
+
+                long_intrinsic  = _intrinsic(long_leg)
+                short_intrinsic = _intrinsic(short_leg) if short_leg is not None else 0.0
+                exit_conservative = max(long_intrinsic - short_intrinsic, 0.0)
+                exit_mid          = long_intrinsic - short_intrinsic
+            else:
+                q_long = quotes.get(long_leg.get("symbol"))
+                if not q_long:
+                    continue
+                long_bid, long_mid_q = q_long.get("bid"), q_long.get("mid")
+                if long_bid is None or long_mid_q is None:
+                    continue
+
+                if short_leg is not None:
+                    q_short = quotes.get(short_leg.get("symbol"))
+                    if not q_short:
+                        continue
+                    short_ask, short_mid_q = q_short.get("ask"), q_short.get("mid")
+                    if short_ask is None or short_mid_q is None:
+                        continue
+                    exit_conservative = max(long_bid - short_ask, 0.0)
+                    exit_mid          = long_mid_q - short_mid_q
+                else:
+                    exit_conservative = long_bid
+                    exit_mid          = long_mid_q
+
+            outcomes = row.setdefault("outcomes", {})
+            outcomes[f"real_strat_ret_{h}d"]       = round(exit_conservative / net_debit_entry - 1.0, 4)
+            outcomes[f"real_strat_ret_mid_{h}d"]   = round(exit_mid / net_mid_entry - 1.0, 4)
+            outcomes[f"real_strat_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+
+            if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
+                row["late_mark"] = True
+
+            changed = True
+        except Exception as e:
+            log.debug(f"candidate_ledger._fill_real_strategy_marks Fehler (ignoriert): {e}")
     return changed
 
 

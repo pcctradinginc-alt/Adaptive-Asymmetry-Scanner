@@ -927,6 +927,20 @@ def main() -> None:
 
     # ── STUFE 10: Options Design + ROI-Gate ──────────────────────────────────
     log.info("Stufe 10: Options Design + adaptiver Laufzeit-Loop")
+    # P0-2 (candidate_ledger.py real_strategy): dieselben Werte notieren, die
+    # designer._select_strategy gleich zur Strategie-Wahl (choose_strategy())
+    # verwendet — damit der Ledger-Counterfactual denselben Entscheidungspfad
+    # nachvollziehen kann, statt auf "unknown" zurückzufallen.
+    _vix_structure = (getattr(designer, "_vix_ts", None) or {}).get("structure", "unknown")
+    for fs in final_signals:
+        try:
+            candidate_ledger.note(
+                fs.get("ticker"), stage="options_design",
+                dealer_gamma_state=fs.get("alpha_signals", {}).get("dealer_gamma", {}),
+                vix_structure=_vix_structure,
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     # Nutzt dieselbe designer-Instanz von oben (Tradier-Status bereits geloggt)
     try:
         trade_proposals = designer.run(final_signals)
