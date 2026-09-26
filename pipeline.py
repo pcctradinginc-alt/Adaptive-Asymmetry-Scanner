@@ -54,7 +54,7 @@ from modules.mismatch_scorer     import MismatchScorer
 from modules.mirofish_simulation import MirofishSimulation, compute_time_value_efficiency
 from modules.trade_scorer        import rank_proposals
 from modules.rl_agent            import RLScorer
-from modules.options_designer    import OptionsDesigner
+from modules.options_designer    import OptionsDesigner, ttm_to_dte_floor
 from modules.reporter            import Reporter
 from modules.risk_gates          import RiskGates
 from modules.email_reporter      import send_status_email
@@ -161,6 +161,39 @@ def validate_mc_result(result: dict):
     if not (0.0 <= float(hit_rate) <= 1.0):
         return None
     return float(hit_rate)
+
+
+# Module-level list to track final_mc_shadow results for stats
+_final_mc_shadow_log: list[dict] = []
+
+
+def compute_final_mc_shadow(
+    sim, s: dict, final_dte: int, hit_rate: float, min_long: float
+) -> dict:
+    """
+    Compute shadow MC simulation with correct DTE derived from TTM.
+
+    Returns dict with:
+      - dte_used: final_dte (45 or 120 used in real decision)
+      - hit_rate_used: hit_rate from real final_dte simulation
+      - dte_shadow: shadow_dte computed from ttm_to_dte_floor
+      - hit_rate_shadow: hit_rate from shadow simulation
+      - would_pass_shadow: bool indicating if shadow would pass gate
+    """
+    ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
+    shadow_dte = ttm_to_dte_floor(ttm)
+    shadow_result = sim.run_for_dte(s, days_to_expiry=shadow_dte)
+    shadow_hit = validate_mc_result(shadow_result)
+
+    would_pass = shadow_hit is not None and shadow_hit >= min_long
+
+    return {
+        "dte_used": final_dte,
+        "hit_rate_used": hit_rate,
+        "dte_shadow": shadow_dte,
+        "hit_rate_shadow": shadow_hit,
+        "would_pass_shadow": would_pass,
+    }
 
 
 # ── v8.2: Korrelations-Check ────────────────────────────────────────────────
@@ -677,6 +710,33 @@ def main() -> None:
         if hit_rate < 0.01:
             reject("final_mc_zero_prob", ticker)
             continue
+
+        # Compute shadow MC with correct DTE from TTM (BEFORE any rejects)
+        # Wrap in try/except so shadow can never affect real decision
+        final_mc_min_long = 0.50 if final_dte > 45 else 0.45
+        try:
+            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, final_mc_min_long)
+            s["final_mc_shadow"] = shadow
+            # Log shadow comparison
+            log.info(
+                f"  [{ticker}] Final MC shadow: "
+                f"real_dte={final_dte}d/{hit_rate:.1%} vs "
+                f"shadow_dte={shadow['dte_shadow']}d/{shadow['hit_rate_shadow']:.1%} "
+                f"(would_pass={shadow['would_pass_shadow']})"
+            )
+            _final_mc_shadow_log.append({
+                "ticker": ticker,
+                "dte_used": final_dte,
+                "hit_rate_used": hit_rate,
+                "dte_shadow": shadow["dte_shadow"],
+                "hit_rate_shadow": shadow["hit_rate_shadow"],
+                "passed_real": None,  # Updated later after gates
+                "would_pass_shadow": shadow["would_pass_shadow"],
+            })
+        except Exception as e:
+            log.warning(f"  [{ticker}] Final MC shadow computation failed: {e}")
+            s["final_mc_shadow"] = None
+
         # Schwelle jetzt explizit im Caller (run_for_dte filtert nicht mehr selbst).
         # Wert = vormals interner Threshold → Verhalten unveraendert.
         final_mc_min_short = float(getattr(gate_cfg, "final_mc_min_short", 0.45))
@@ -688,6 +748,9 @@ def main() -> None:
             continue
         if hit_rate:
             result["simulation"]["n_paths"] = FINAL_MC_PATHS
+            # Add shadow to result so it travels through to proposals
+            if s.get("final_mc_shadow"):
+                result["final_mc_shadow"] = s["final_mc_shadow"]
             final_sims.append(result)
             log.info(f"  [{ticker}] Final MC: {result['simulation']['hit_rate']:.1%} ✅")
         else:
@@ -695,6 +758,12 @@ def main() -> None:
 
     stats["final_mc"] = len(final_sims)
     log.info(f"  → {len(final_sims)} nach Final MC")
+
+    # Mark which candidates passed the real MC gate
+    _passed_tickers = {s.get("ticker") for s in final_sims}
+    for entry in _final_mc_shadow_log:
+        entry["passed_real"] = entry["ticker"] in _passed_tickers
+
     if not final_sims:
         stats["stop_reason"] = "Kein Kandidat besteht Final MC (120d)."
         save_history(history); send_email(); return
@@ -714,7 +783,7 @@ def main() -> None:
         if not s.get("ticker") or _sv_key in _sv_seen:
             continue
         _da = s.get("deep_analysis") or {}
-        _sv_list.append({
+        _sv_dict = {
             "ticker":        s["ticker"], "entry_date": today,
             "reject_reason": "final_mc_survivor",
             "strategy":      "",   # kein Kontrakt designt → Stock-Outcome-Fallback
@@ -725,7 +794,10 @@ def main() -> None:
             "deep_analysis": {k: _da.get(k) for k in
                               ("direction", "impact", "surprise", "time_to_materialization")},
             "outcome":       None,
-        })
+        }
+        if s.get("final_mc_shadow"):
+            _sv_dict["final_mc_shadow"] = s["final_mc_shadow"]
+        _sv_list.append(_sv_dict)
         _sv_seen.add(_sv_key)
         _n_sv += 1
     if _n_sv:
@@ -856,7 +928,7 @@ def main() -> None:
         for p, why in _shadow:
             if (p["ticker"], today, why) in _shadow_existing:
                 continue
-            shadow_list.append({
+            _p_dict = {
                 "ticker":        p["ticker"], "entry_date": today,
                 "reject_reason": why,
                 "catalyst_type": p.get("catalyst_type")
@@ -868,7 +940,10 @@ def main() -> None:
                 "trade_score":   p.get("trade_score", {}).get("total"),
                 "features":      p.get("features", {}),
                 "outcome":       None,
-            })
+            }
+            if p.get("final_mc_shadow"):
+                _p_dict["final_mc_shadow"] = p["final_mc_shadow"]
+            shadow_list.append(_p_dict)
             _shadow_existing.add((p["ticker"], today, why))
         if _shadow:
             log.info(f"  {len(_shadow)} Schatten-Trade(s) registriert (Gate-Validierung)")
@@ -930,7 +1005,7 @@ def main() -> None:
             "spread_pct": round((_ask - _bid) / _ask, 4) if _ask > 0 else 0.0,
             "assumed_fill": "ask",
         }
-        history["active_trades"].append({
+        _at_dict = {
             "ticker":        p["ticker"], "entry_date": today,
             "features":      p.get("features", {}),
             "strategy":      _strategy,
@@ -943,7 +1018,10 @@ def main() -> None:
             "deep_analysis": p.get("deep_analysis"),
             "tve":           p.get("time_value_efficiency"),
             "outcome":       None,
-        })
+        }
+        if p.get("final_mc_shadow"):
+            _at_dict["final_mc_shadow"] = p["final_mc_shadow"]
+        history["active_trades"].append(_at_dict)
         existing.add(key)
         cooled_tickers.add(p["ticker"])
 
@@ -964,6 +1042,22 @@ def main() -> None:
         log.error(f"Engine-Monitor Markdown-Abschnitt Fehler: {e}")
 
     save_history(history)
+
+    # Add final_mc_shadow stats before final email
+    if _final_mc_shadow_log:
+        stats["final_mc_shadow"] = [
+            {
+                "ticker": e["ticker"],
+                "dte_used": e["dte_used"],
+                "hit_rate_used": e["hit_rate_used"],
+                "dte_shadow": e["dte_shadow"],
+                "hit_rate_shadow": e["hit_rate_shadow"],
+                "passed_real": e["passed_real"],
+                "would_pass_shadow": e["would_pass_shadow"],
+            }
+            for e in _final_mc_shadow_log
+        ]
+
     send_email()
 
     if reject_stats:
