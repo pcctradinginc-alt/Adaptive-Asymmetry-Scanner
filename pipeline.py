@@ -293,6 +293,10 @@ def main() -> None:
                 k: {"count": v["count"], "tickers": v["tickers"][:10]}
                 for k, v in reject_stats.items()
             }
+            # Erst die aktuellen Stats schreiben: der Health-Report liest die
+            # Daily-JSON von Platte — sonst sieht er nur den Reporter-Stand
+            # ohne "stats" (→ falsches "universe=0"/"VIX fehlt").
+            path.write_text(json.dumps(data, indent=2, default=str))
             # Engine-Monitor: reine Observability, darf den Snapshot nie verhindern.
             try:
                 _hist = history if isinstance(history, dict) else load_history()
