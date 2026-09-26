@@ -74,11 +74,12 @@ log = logging.getLogger(__name__)
 REGISTRY_PATH = Path("challengers.yaml")
 LEDGER_ROOT   = Path("outputs/candidate_ledger")
 
-MAX_ACTIVE   = 3
-ALPHA_BASE   = 0.10
-N_BOOT       = 2000
-LOSS_FLOOR   = -0.95
-LOSS_MARGIN  = 0.02
+MAX_ACTIVE    = 3
+ALPHA_BASE    = 0.10
+N_BOOT        = 2000
+LOSS_FLOOR    = -0.95
+LOSS_MARGIN   = 0.02
+MIN_CLUSTERS  = 10
 
 _OPS = {
     ">=": lambda a, b: a >= b,
@@ -236,18 +237,18 @@ def _deterministic_seed(challenger_id: str) -> int:
 
 
 def _bootstrap_diff_ci(chal_flags: list[bool], base_flags: list[bool], values: list[float],
-                        alpha: float, n_boot: int, seed: int) -> tuple[float | None, float | None]:
-    """Policy bootstrap CI of (mean(challenger) - mean(baseline)).
+                        clusters: list[str], alpha: float, n_boot: int, seed: int) -> tuple[float | None, float | None]:
+    """Cluster (block) bootstrap CI of (mean(challenger) - mean(baseline)).
 
     Der Challenger- und der Baseline-Arm überlappen sich (der Baseline-Arm
     enthält typischerweise auch alle Challenger-Zeilen, z.B. score>=55
-    umfasst score>=61). Unabhängiges Resampling beider Arme ignoriert diese
-    Überlappung und liefert ein künstlich zu breites CI. Statt dessen wird
-    hier die gesamte eligible Population (mit Zurücklegen) resampelt und
-    Challenger-/Baseline-Zugehörigkeit (`chal_flags`/`base_flags`, pro Zeile
-    vorab berechnet) sowie der Metrik-Wert (`values`) auf das Replikat
-    übertragen; Mittelwertdifferenz je Replikat = mean(challenger im
-    Replikat) - mean(baseline im Replikat).
+    umfasst score>=61). Zeilen vom gleichen Trading-Tag sind korreliert
+    (gemeinsame Marktbewegungen). Statt eines Row-Level-Resampling wird hier
+    ein CLUSTER-Bootstrap durchgeführt: pro Replikat wird eine Stichprobe von
+    K Clustern (mit Zurücklegen gezogen, K = Anzahl der distinct Cluster/Tage),
+    und alle Zeilen dieser Cluster werden ins Replikat aufgenommen.
+    Dadurch bleibt die intra-tag Korrelation erhalten, und das CI wird nicht
+    künstlich zu eng.
 
     Replikate, in denen einer der beiden Arme leer ist, werden verworfen
     (gezählt). Werden mehr als 10% aller Replikate verworfen, ist die
@@ -257,12 +258,29 @@ def _bootstrap_diff_ci(chal_flags: list[bool], base_flags: list[bool], values: l
     One-sided Perzentile bei alpha und 1-alpha, deterministischer Seed."""
     rng = random.Random(seed)
     n = len(values)
+
+    # Group indices by cluster
+    cluster_map: dict[str, list[int]] = {}
+    for i, c in enumerate(clusters):
+        if c not in cluster_map:
+            cluster_map[c] = []
+        cluster_map[c].append(i)
+
+    cluster_list = list(cluster_map.keys())
+    n_clusters = len(cluster_list)
+
     diffs = []
     skipped = 0
     for _ in range(n_boot):
-        idxs = [rng.randrange(n) for _ in range(n)]
-        c_vals = [values[i] for i in idxs if chal_flags[i]]
-        b_vals = [values[i] for i in idxs if base_flags[i]]
+        # Draw K clusters with replacement, where K = n_clusters
+        drawn_clusters = [rng.choice(cluster_list) for _ in range(n_clusters)]
+        # Concatenate all indices from drawn clusters
+        replicate_idxs = []
+        for c in drawn_clusters:
+            replicate_idxs.extend(cluster_map[c])
+
+        c_vals = [values[i] for i in replicate_idxs if chal_flags[i]]
+        b_vals = [values[i] for i in replicate_idxs if base_flags[i]]
         if not c_vals or not b_vals:
             skipped += 1
             continue
@@ -349,10 +367,12 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
 
     # Precompute per-row membership flags + metric values once, for both the
     # arm stats below and the policy bootstrap (avoids re-filtering per
-    # bootstrap replicate).
+    # bootstrap replicate). Additionally extract the cluster (trading day) for
+    # each row for cluster-based resampling.
     values = [metric_value(r, metric, fallback) for r in eligible]
     base_flags = [all(_match_condition(r, cond) for cond in baseline_rule) for r in eligible]
     chal_flags = [all(_match_condition(r, cond) for cond in rule) for r in eligible]
+    clusters = [str(r.get("date", "")) for r in eligible]
 
     baseline_vals = [v for v, f in zip(values, base_flags) if f]
     challenger_vals = [v for v, f in zip(values, chal_flags) if f]
@@ -362,6 +382,9 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
 
     registered_on = _parse_date(challenger.get("registered_on", challenger["start_date"]))
     expired = today > registered_on + timedelta(days=max_duration_days)
+
+    # Count distinct clusters (trading days)
+    n_clusters = len(set(clusters))
 
     result = {
         "id": cid,
@@ -380,15 +403,21 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
         "alpha": ALPHA_BASE / max(n_active, 1),
         "expired": expired,
         "verdict": "running",
+        "n_clusters": n_clusters,
     }
 
     if base_stats["n"] < min_n or chal_stats["n"] < min_n:
         result["verdict"] = "reject" if expired else "running"
         return result
 
+    # Guard: need at least MIN_CLUSTERS distinct dates for cluster bootstrap
+    if n_clusters < MIN_CLUSTERS:
+        result["verdict"] = "running"
+        return result
+
     alpha = ALPHA_BASE / max(n_active, 1)
     seed = _deterministic_seed(cid)
-    lower, upper = _bootstrap_diff_ci(chal_flags, base_flags, values, alpha, N_BOOT, seed)
+    lower, upper = _bootstrap_diff_ci(chal_flags, base_flags, values, clusters, alpha, N_BOOT, seed)
     result["ci_lower"] = lower
     result["ci_upper"] = upper
 
@@ -509,13 +538,15 @@ def _fmt(x, pct=True):
 def _print_table(results: list[dict]) -> None:
     print("Hinweis: opt_ret-Metriken sind synthetisch (Black-Scholes, konstante IV, "
           "kein IV-Crush, fixer Spread) — kein echtes Options-P&L.")
-    header = f"{'id':<24} {'n_base':>7} {'n_chal':>7} {'mean_base':>10} {'mean_chal':>10} {'ci_lower':>9} {'ci_upper':>9} {'verdict':<20}"
+    header = f"{'id':<24} {'n_base':>7} {'n_chal':>7} {'n_clust':>7} {'mean_base':>10} {'mean_chal':>10} {'ci_lower':>9} {'ci_upper':>9} {'verdict':<20}"
     print(header)
     print("-" * len(header))
     for r in results:
+        n_clust = r.get('n_clusters', '–')
         print(
             f"{r['id']:<24} "
             f"{str(r['n_baseline']):>7} {str(r['n_challenger']):>7} "
+            f"{str(n_clust):>7} "
             f"{_fmt(r['mean_baseline']):>10} {_fmt(r['mean_challenger']):>10} "
             f"{_fmt(r['ci_lower']):>9} {_fmt(r['ci_upper']):>9} "
             f"{r['verdict']:<20}"

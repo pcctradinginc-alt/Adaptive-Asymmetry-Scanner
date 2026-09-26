@@ -563,3 +563,187 @@ def test_registered_at_gates_rows_by_signal_timestamp():
     # Unparsbarer Timestamp → ausgeschlossen
     assert not elig({"date": "2026-09-28", "signal_timestamp": "kaputt"}, start, reg)
 
+
+# ── Cluster bootstrap tests ────────────────────────────────────────────────────
+#
+# The cluster bootstrap resamples trading days (not individual rows) to preserve
+# intra-day correlations (e.g., common market moves). This reduces the CI width
+# appropriately compared to row-level resampling.
+
+def _row_level_bootstrap_diff_ci(chal_vals, base_vals, alpha, n_boot, seed):
+    """Row-level bootstrap for comparison: resamples individual rows
+    independently from challenger and baseline arms. Used only in tests to
+    verify that cluster bootstrap produces wider CIs on day-correlated data."""
+    import random
+    import statistics as _stats
+
+    rng = random.Random(seed)
+    diffs = []
+    nc, nb = len(chal_vals), len(base_vals)
+    for _ in range(n_boot):
+        c_sample = [chal_vals[rng.randrange(nc)] for _ in range(nc)]
+        b_sample = [base_vals[rng.randrange(nb)] for _ in range(nb)]
+        diffs.append(_stats.mean(c_sample) - _stats.mean(b_sample))
+    diffs.sort()
+    lower_idx = max(0, min(n_boot - 1, int(n_boot * alpha)))
+    upper_idx = max(0, min(n_boot - 1, int(n_boot * (1 - alpha))))
+    return diffs[lower_idx], diffs[upper_idx]
+
+
+def _day_correlated_rows(n_days=20, n_per_day=10, base_val=0.05, day_spread=0.08, within_day_noise=0.01):
+    """Creates synthetic rows with strong intra-day correlation:
+    each day gets a value (market move), and all rows that day
+    share it (plus tiny individual noise). This models reality where rows
+    from the same trading day are correlated due to common market conditions.
+
+    - n_days: distinct trading dates
+    - n_per_day: rows per day
+    - base_val: base value for all rows
+    - day_spread: spread across days (major variance source)
+    - within_day_noise: tiny noise added to each row within a day
+    """
+    import random as _rnd
+    rows = []
+    _rnd.seed(42)  # Deterministic row generation
+
+    # Generate a value for each day (major variance component)
+    day_values = _series(n_days, base=base_val, spread=day_spread)
+
+    for day_offset, day_value in enumerate(day_values):
+        day_str = f"2026-02-{(day_offset % 27) + 1:02d}"
+        for row_offset in range(n_per_day):
+            # Add tiny individual noise within the day
+            row_noise = _rnd.gauss(0, within_day_noise)
+            value = day_value + row_noise
+            rows.append(_row(day_str, trade_score=61, opt_ret_45d=value, status="proposed"))
+    return rows
+
+
+def test_cluster_bootstrap_wider_than_row_level_on_correlated_data():
+    """(a) On day-correlated data (common market shock per day), the
+    cluster-bootstrap CI (resamples days) is WIDER than row-level bootstrap
+    (resamples rows independently), because cluster bootstrap preserves intra-day
+    correlation."""
+    rows = []
+    # Create data: each day gets ONE value, all rows in that day share that value
+    # This is extreme intra-day correlation (perfect correlation)
+    base_vals = _series(10, base=0.05, spread=0.02)     # 10 distinct values for base_only days
+    shared_vals = _series(10, base=0.05, spread=0.02)   # 10 distinct values for shared days
+
+    # base_only days: 10 days x 5 rows/day = 50 rows with score 56
+    for day_idx, day_val in enumerate(base_vals):
+        day_str = f"2026-02-{day_idx + 1:02d}"
+        for _ in range(5):  # 5 rows per day, all with same value
+            rows.append(_row(day_str, trade_score=56, opt_ret_45d=day_val, status="proposed"))
+
+    # shared days: 10 days x 5 rows/day = 50 rows with score 65
+    for day_idx, day_val in enumerate(shared_vals):
+        day_str = f"2026-03-{day_idx + 1:02d}"
+        for _ in range(5):  # 5 rows per day, all with same value
+            rows.append(_row(day_str, trade_score=65, opt_ret_45d=day_val, status="proposed"))
+
+    c = _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55}],
+        min_n=25,
+        max_duration_days=180,
+    )
+
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+
+    # Extract values for row-level comparison
+    chal_vals = [ch.metric_value(r, "outcomes.opt_ret_45d") for r in ch.select(rows, c["rule"])]
+    base_vals_all = [ch.metric_value(r, "outcomes.opt_ret_45d") for r in ch.select(rows, c["baseline_rule"])]
+
+    alpha = ch.ALPHA_BASE / 1
+    seed = ch._deterministic_seed(c["id"])
+    row_lower, row_upper = _row_level_bootstrap_diff_ci(chal_vals, base_vals_all, alpha, ch.N_BOOT, seed)
+
+    cluster_width = result["ci_upper"] - result["ci_lower"]
+    row_width = row_upper - row_lower
+
+    # Cluster bootstrap CI should be WIDER because intra-day perfect correlation
+    # reduces effective sample size from 100 rows to 20 clusters
+    assert cluster_width > row_width, \
+        f"cluster_width={cluster_width:.6f} should be > row_width={row_width:.6f}"
+
+
+def test_cluster_bootstrap_determinism():
+    """(c) Cluster bootstrap with same input → identical CI (deterministic seed)."""
+    rows = []
+    base_vals = _series(10, base=0.05, spread=0.02)
+    shared_vals = _series(10, base=0.05, spread=0.02)
+    for day_idx, day_val in enumerate(base_vals):
+        day_str = f"2026-02-{day_idx + 1:02d}"
+        for _ in range(5):
+            rows.append(_row(day_str, trade_score=56, opt_ret_45d=day_val, status="proposed"))
+    for day_idx, day_val in enumerate(shared_vals):
+        day_str = f"2026-03-{day_idx + 1:02d}"
+        for _ in range(5):
+            rows.append(_row(day_str, trade_score=65, opt_ret_45d=day_val, status="proposed"))
+    c = _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55}],
+        min_n=25,
+        max_duration_days=180,
+    )
+
+    r1 = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    r2 = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+
+    assert r1["ci_lower"] == r2["ci_lower"]
+    assert r1["ci_upper"] == r2["ci_upper"]
+    assert r1["verdict"] == r2["verdict"]
+
+
+def test_cluster_bootstrap_too_few_clusters_stays_running():
+    """(b) < MIN_CLUSTERS distinct dates → verdict stays "running" and
+    n_clusters is reported."""
+    rows = []
+    # Only 5 distinct dates (< MIN_CLUSTERS=10)
+    for d in range(5):
+        day_str = f"2026-02-{d+1:02d}"
+        for _ in range(15):  # 15 rows per day, 75 rows total
+            rows.append(_row(day_str, trade_score=61, opt_ret_45d=0.1, status="proposed"))
+
+    c = _make_challenger(min_n=30, max_duration_days=180)
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+
+    assert result["verdict"] == "running"
+    assert result["n_clusters"] == 5
+    assert result["n_clusters"] < ch.MIN_CLUSTERS
+
+
+def test_cluster_bootstrap_promotion_with_sufficient_clusters():
+    """(d) With >= MIN_CLUSTERS distinct dates and clearly better challenger,
+    should promote."""
+    rows = []
+    # Create 12 distinct dates (>= MIN_CLUSTERS=10)
+    # Baseline group: low scores, lower returns
+    # Challenger group: high scores, much higher returns
+    base_vals = _series(60, base=0.0, spread=0.01)
+    chal_vals = _series(60, base=0.25, spread=0.01)
+
+    date_cycle = 0
+    for i, v in enumerate(base_vals):
+        day_str = f"2026-02-{(date_cycle % 12) + 1:02d}"
+        rows.append(_row(day_str, trade_score=56, opt_ret_45d=v, status="proposed"))
+        date_cycle += 1
+    for i, v in enumerate(chal_vals):
+        day_str = f"2026-03-{(date_cycle % 12) + 1:02d}"
+        rows.append(_row(day_str, trade_score=65, opt_ret_45d=v, status="proposed"))
+        date_cycle += 1
+
+    c = _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55},
+                       {"field": "features.trade_score", "op": "<", "value": 61}],
+        min_n=30,
+        max_duration_days=180,
+    )
+
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result["verdict"] == "promote_recommended"
+    assert result["ci_lower"] > 0
+    assert result["n_clusters"] >= ch.MIN_CLUSTERS
+
