@@ -199,15 +199,21 @@ Produktionslogik ändern kann:
    Candidate-Ledger-Zeilen (`outputs/candidate_ledger/*.jsonl`) aus, deren
    Datum **nach** der Registrierung liegt und deren Outcome-Horizont bereits
    verstrichen ist. Bereits vor Registrierung gesammelte Daten fließen nie ein.
-3. **Deterministisches Verdikt.** Für jeden Challenger wird ein seeded,
-   reproduzierbares Bootstrap-Konfidenzintervall der Return-Differenz
-   (Challenger − Baseline) berechnet, mit Bonferroni-Korrektur über alle
-   aktiven Challenger (max. 3 gleichzeitig). Das Verdikt (`running`,
-   `promote_recommended`, `reject`, `expired`) ist eine reine Funktion der
-   Daten — kein manuelles Ermessen im laufenden Auswertungscode.
+3. **Deterministisches Verdikt mit Alpha-Spending.** Für jeden Challenger wird ein
+   seeded, reproduzierbares Bootstrap-Konfidenzintervall der Return-Differenz
+   (Challenger − Baseline) berechnet. Da Challenger jeden Monat neu bewertet werden
+   (bis sie promotiert oder expiriert sind), wird eine Alpha-Spending-Regel angewandt,
+   um die Familie-weise Fehlerquote über wiederholte Looks zu kontrollieren:
+   - Geplante Anzahl Looks: `n_looks = max(1, ceil(max_duration_days / 30))`
+   - Effektives Signifikanzniveau: `alpha = 0.10 / (n_active × n_looks)`
+   
+   Dies ist eine konservative (Bonferroni-artige) Korrektur; Confidence Sequences
+   sind eine künftige Verbesserung. Das Verdikt (`running`, `promote_recommended`,
+   `reject`, `expired`) ist eine reine Funktion der Daten — kein manuelles Ermessen
+   im laufenden Auswertungscode.
 4. **Promotion ist ausschließlich ein von einem Menschen gemergter PR.** Ein
    `promote_recommended`-Verdikt erscheint informativ im Monats-Report
-   (Abschnitt „🧪 Challenger (Walk-forward)“). Es ändert **nichts** automatisch.
+   (Abschnitt „🧪 Challenger (Walk-forward)”). Es ändert **nichts** automatisch.
    Die tatsächliche Übernahme in die Produktion ist ein Pull-Request, der
    `gates:` in `config.yaml` ändert und von einem Repo-Owner (siehe
    `.github/CODEOWNERS`) geprüft und gemergt wird.

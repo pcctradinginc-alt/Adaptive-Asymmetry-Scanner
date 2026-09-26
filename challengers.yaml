@@ -15,6 +15,14 @@
 #     signal_timestamp-Feld, ist sie nur eligible, wenn dieser Zeitstempel
 #     ECHT NACH registered_at liegt (Zeilen ohne signal_timestamp fallen auf
 #     date >= start_date zurück).
+#   - Alpha-Spending (repeated looks): Challenger werden jeden Monat neu bewertet
+#     bis sie promotiert oder expiriert sind. Um die Familie-weise Fehlerquote
+#     (FWER) über wiederholte Looks zu kontrollieren, wird alpha-spending
+#     verwendet: alpha = ALPHA_BASE / (n_active * n_looks), wobei
+#     n_looks = ceil(max_duration_days / 30) geplante Looks sind. Ein optionales
+#     planned_looks-Feld kann diese Berechnung überschreiben. Dies ist eine
+#     konservative (Bonferroni-artige) Ansatz; Confidence Sequences sind eine
+#     künftige Verbesserung.
 #
 # Feldreferenz:
 #   id            eindeutiger Schlüssel
@@ -31,6 +39,7 @@
 #   min_n         Mindest-Stichprobengröße je Arm, bevor ein Verdikt gefällt wird
 #   horizon_days  Horizont in Tagen (informativ, für Report/Zeitplanung)
 #   max_duration_days  nach registered_on+max_duration_days ohne Promotion → "expired"/"reject"
+#   planned_looks (optional) überschreibt die automatische n_looks-Berechnung
 #   status        active | promote_recommended | rejected | expired
 
 challengers:

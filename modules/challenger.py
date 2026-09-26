@@ -44,10 +44,16 @@ Auswertungslogik (siehe evaluate()):
     werden mehr als 10% aller Replikate verworfen, ist die Datenlage zu
     dünn für ein CI und evaluate() liefert (None, None) zurück (Verdikt
     bleibt "running").
-  - Signifikanzniveau alpha = 0.10 / n_active (Bonferroni über die aktiven
-    Challenger); da einseitig getestet wird, werden die alpha- und
-    (1-alpha)-Perzentile der Bootstrap-Differenzverteilung als CI-Grenzen
-    verwendet.
+  - Alpha-Spending (Bonferroni über wiederholte Looks):
+    * Geplante Anzahl Looks pro Challenger: n_looks = max(1, ceil(max_duration_days / LOOK_INTERVAL_DAYS))
+      LOOK_INTERVAL_DAYS = 30 (monatliche Report-Kadenz).
+    * Optional kann im Registry ein `planned_looks`-Feld die Berechnung überschreiben.
+    * Effektives Signifikanzniveau: alpha = ALPHA_BASE / (n_active * n_looks)
+      Dies ist eine konservative Familie-weise Fehlerquote, die über alle
+      geplanten wiederholten Looks aufgeteilt wird. Confidence Sequences
+      sind eine künftige Verbesserung.
+    * Da einseitig getestet wird, werden die alpha- und (1-alpha)-Perzentile
+      der Bootstrap-Differenzverteilung als CI-Grenzen verwendet.
   - Verdikt (deterministisch):
       "running"             wenn ein Arm n < min_n hat und noch nicht expired
       "promote_recommended" wenn CI-Untergrenze > 0 UND
@@ -67,6 +73,7 @@ import json
 import random
 import statistics
 from datetime import date, datetime, timedelta, timezone
+from math import ceil
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -74,12 +81,13 @@ log = logging.getLogger(__name__)
 REGISTRY_PATH = Path("challengers.yaml")
 LEDGER_ROOT   = Path("outputs/candidate_ledger")
 
-MAX_ACTIVE    = 3
-ALPHA_BASE    = 0.10
-N_BOOT        = 2000
-LOSS_FLOOR    = -0.95
-LOSS_MARGIN   = 0.02
-MIN_CLUSTERS  = 10
+MAX_ACTIVE           = 3
+ALPHA_BASE           = 0.10
+N_BOOT               = 2000
+LOSS_FLOOR           = -0.95
+LOSS_MARGIN          = 0.02
+MIN_CLUSTERS         = 10
+LOOK_INTERVAL_DAYS   = 30  # monthly report cadence for challenger re-evaluation
 
 _OPS = {
     ">=": lambda a, b: a >= b,
@@ -341,7 +349,14 @@ def _row_is_time_eligible(row: dict, start_date: date, registered_at: str | None
 
 def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> dict:
     """Evaluates a single pre-registered challenger against the ledger rows.
-    Never writes anything — purely computes a recommendation."""
+    Never writes anything — purely computes a recommendation.
+
+    Alpha-spending rule (Bonferroni over planned looks):
+    - Planned number of looks per challenger: n_looks = max(1, ceil(max_duration_days / LOOK_INTERVAL_DAYS))
+    - Optional registry field `planned_looks` overrides n_looks.
+    - Per-look alpha: alpha = ALPHA_BASE / (n_active * n_looks)
+    - This conservative approach controls family-wise error across repeated monthly evaluations.
+    """
     cid = challenger["id"]
     start_date = _parse_date(challenger["start_date"])
     registered_at = challenger.get("registered_at")
@@ -349,6 +364,13 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
     fallback = challenger.get("metric_fallback")
     min_n = int(challenger.get("min_n", 30))
     max_duration_days = int(challenger.get("max_duration_days", 180))
+
+    # Calculate n_looks: planned number of looks per challenger
+    planned_looks = challenger.get("planned_looks")
+    if planned_looks is not None:
+        n_looks = int(planned_looks)
+    else:
+        n_looks = max(1, ceil(max_duration_days / LOOK_INTERVAL_DAYS))
 
     # Walk-forward: only rows at/after start_date (or, if registered_at is
     # pre-registered and the row carries a signal_timestamp, only rows whose
@@ -386,6 +408,9 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
     # Count distinct clusters (trading days)
     n_clusters = len(set(clusters))
 
+    # Calculate effective alpha with alpha-spending rule
+    alpha = ALPHA_BASE / (max(n_active, 1) * n_looks)
+
     result = {
         "id": cid,
         "hypothesis": challenger.get("hypothesis", ""),
@@ -400,7 +425,8 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
         "total_loss_rate_challenger": chal_stats["total_loss_rate"],
         "ci_lower": None,
         "ci_upper": None,
-        "alpha": ALPHA_BASE / max(n_active, 1),
+        "alpha": alpha,
+        "n_looks": n_looks,
         "expired": expired,
         "verdict": "running",
         "n_clusters": n_clusters,
@@ -415,7 +441,6 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
         result["verdict"] = "reject" if expired else "running"
         return result
 
-    alpha = ALPHA_BASE / max(n_active, 1)
     seed = _deterministic_seed(cid)
     lower, upper = _bootstrap_diff_ci(chal_flags, base_flags, values, clusters, alpha, N_BOOT, seed)
     result["ci_lower"] = lower
@@ -481,6 +506,7 @@ def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
             "ci_lower": None,
             "ci_upper": None,
             "alpha": None,
+            "n_looks": None,
             "expired": False,
             "verdict": "invalid",
             "invalid_reason": c.get("_invalid_reason"),
@@ -502,6 +528,7 @@ def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
             "ci_lower": None,
             "ci_upper": None,
             "alpha": None,
+            "n_looks": None,
             "expired": False,
             "verdict": "queued",
         })
@@ -522,6 +549,7 @@ def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
             "ci_lower": None,
             "ci_upper": None,
             "alpha": None,
+            "n_looks": None,
             "expired": False,
             "verdict": c.get("status"),
         })

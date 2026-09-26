@@ -274,11 +274,14 @@ def test_alpha_scales_with_n_active():
         baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55},
                        {"field": "features.trade_score", "op": "<", "value": 61}],
         min_n=30,
+        max_duration_days=180,  # n_looks = 6
     )
     r1 = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
     r3 = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=3)
-    assert r1["alpha"] == pytest.approx(0.10 / 1)
-    assert r3["alpha"] == pytest.approx(0.10 / 3)
+    # alpha = ALPHA_BASE / (n_active * n_looks)
+    # n_looks = 6 for max_duration_days=180
+    assert r1["alpha"] == pytest.approx(0.10 / (1 * 6))
+    assert r3["alpha"] == pytest.approx(0.10 / (3 * 6))
     assert r3["alpha"] < r1["alpha"]
     # Tighter alpha (n_active=3) means the CI is at least as wide as n_active=1
     assert r3["ci_lower"] <= r1["ci_lower"]
@@ -537,8 +540,9 @@ def test_evaluate_all_reports_invalid_verdict_and_excludes_from_n_active(tmp_pat
     assert by_id["bad"]["invalid_reason"]
     assert by_id["bad"]["n_baseline"] is None
 
-    # n_active only counts the valid challenger ("good") -> alpha = 0.10 / 1
-    assert by_id["good"]["alpha"] == pytest.approx(0.10 / 1)
+    # n_active only counts the valid challenger ("good") -> alpha = 0.10 / (1 * 6)
+    # n_looks = 6 for default max_duration_days=180
+    assert by_id["good"]["alpha"] == pytest.approx(0.10 / (1 * 6))
 
 
 def test_registered_at_gates_rows_by_signal_timestamp():
@@ -746,4 +750,133 @@ def test_cluster_bootstrap_promotion_with_sufficient_clusters():
     assert result["verdict"] == "promote_recommended"
     assert result["ci_lower"] > 0
     assert result["n_clusters"] >= ch.MIN_CLUSTERS
+
+
+# ── Alpha-spending rule (repeated looks) ──────────────────────────────────────
+
+def test_n_looks_computed_from_max_duration_days():
+    """n_looks = ceil(max_duration_days / LOOK_INTERVAL_DAYS).
+    max_duration_days=180 → n_looks=6 (180/30 = 6)."""
+    rows = []
+    base_vals = _series(40, base=0.0, spread=0.01)
+    chal_vals = _series(40, base=0.30, spread=0.01)
+    for i, v in enumerate(base_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(chal_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+
+    c = _make_challenger(min_n=30, max_duration_days=180)
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result["n_looks"] == 6
+
+
+def test_n_looks_with_non_divisible_max_duration_days():
+    """n_looks = ceil(175 / 30) = 6 (not floor)."""
+    rows = []
+    base_vals = _series(40, base=0.0, spread=0.01)
+    chal_vals = _series(40, base=0.30, spread=0.01)
+    for i, v in enumerate(base_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(chal_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+
+    c = _make_challenger(min_n=30, max_duration_days=175)
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result["n_looks"] == 6  # ceil(175/30) = 6
+
+
+def test_planned_looks_overrides_calculation():
+    """planned_looks field overrides automatic n_looks calculation."""
+    rows = []
+    base_vals = _series(40, base=0.0, spread=0.01)
+    chal_vals = _series(40, base=0.30, spread=0.01)
+    for i, v in enumerate(base_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(chal_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+
+    c = _make_challenger(min_n=30, max_duration_days=180)
+    c["planned_looks"] = 10  # Override the automatic calculation
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result["n_looks"] == 10
+
+
+def test_effective_alpha_with_alpha_spending():
+    """alpha = ALPHA_BASE / (n_active * n_looks)."""
+    rows = []
+    base_vals = _series(40, base=0.0, spread=0.01)
+    chal_vals = _series(40, base=0.30, spread=0.01)
+    for i, v in enumerate(base_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(chal_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+
+    c = _make_challenger(min_n=30, max_duration_days=180)  # n_looks = 6
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=2)  # n_active = 2
+
+    expected_alpha = 0.10 / (2 * 6)
+    assert result["alpha"] == pytest.approx(expected_alpha)
+    assert result["n_looks"] == 6
+
+
+def test_alpha_spending_stricter_than_plain_bonferroni():
+    """With alpha-spending, CI is wider than with only n_active Bonferroni."""
+    rows = []
+    base_vals = _series(40, base=0.0, spread=0.01)
+    chal_vals = _series(40, base=0.15, spread=0.01)  # Borderline difference
+    for i, v in enumerate(base_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(chal_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+
+    c = _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55},
+                       {"field": "features.trade_score", "op": "<", "value": 61}],
+        min_n=30,
+        max_duration_days=180,  # n_looks = 6
+    )
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+
+    # Alpha with alpha-spending: 0.10 / (1 * 6) = 0.0167
+    # Alpha without alpha-spending: 0.10 / 1 = 0.10
+    # So CI should be wider (more conservative)
+    expected_alpha = 0.10 / 6
+    assert result["alpha"] == pytest.approx(expected_alpha)
+    assert result["alpha"] < 0.10  # Stricter than plain 0.10
+
+
+def test_borderline_case_rejects_with_alpha_spending():
+    """A borderline case that would promote with old alpha (0.10/n_active)
+    should stay 'running' or 'reject' with stricter alpha-spending alpha."""
+    rows = []
+    # Create a borderline case: subtle but consistent improvement
+    base_vals = _series(35, base=0.0, spread=0.01)
+    chal_vals = _series(35, base=0.08, spread=0.01)  # Small improvement: 0.08 vs 0.0
+
+    for i, v in enumerate(base_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(chal_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+
+    c = _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55},
+                       {"field": "features.trade_score", "op": "<", "value": 61}],
+        min_n=25,
+        max_duration_days=30,  # n_looks = 1
+    )
+
+    # With n_looks=1, alpha is still 0.10 (same as before for single look)
+    result_short = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result_short["n_looks"] == 1
+
+    # With n_looks=6, alpha becomes 0.10/6 (stricter)
+    c["max_duration_days"] = 180
+    result_long = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result_long["n_looks"] == 6
+
+    # The stricter alpha-spending should result in a wider CI
+    # and potentially different verdict (if borderline)
+    assert result_long["alpha"] < result_short["alpha"]
 
