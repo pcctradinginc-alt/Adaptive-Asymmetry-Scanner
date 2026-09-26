@@ -87,7 +87,14 @@ Im GitHub-Repo unter **Settings → Secrets and variables → Actions**:
 
 ### Automatischer Trigger
 
-Die Pipeline läuft automatisch **Mo–Fr um 14:30 MEZ** (12:30 UTC).  
+Die Pipeline läuft automatisch **Mo–Fr um 14:30 MEZ** (13:30 UTC, cron `30 13 * * 1-5`).  
+**Hinweis:** GitHub Scheduled Runs unterliegen erheblichen Verzögerungen; aktuelle Läufe starten 
+oft erst gegen 17:50 UTC statt 13:30 UTC.
+
+**Feedback-Workflow** (Exit-Checks + Lernen) läuft zusätzlich:
+- **15:30 UTC** – frühe US-Session: Stop-Loss/Take-Profit nach Markt-Open
+- **19:30 UTC** – 30 Min vor US-Close: letzte Exit-Chance am selben Tag
+
 Manueller Trigger: GitHub → Actions → "Adaptive Asymmetry-Scanner" → "Run workflow".
 
 ---
@@ -169,6 +176,11 @@ Nach jedem abgeschlossenen Trade (≥ 130 Tage) werden:
 
 Je mehr Trades, desto präziser das Scoring.
 
+**Hinweis:** Trades werden nach `learning.close_after_days` Tagen geschlossen
+(aktuell: 45 Tage, siehe `config.yaml` Zeile 70). Trades, die älter als dieser
+Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
+Outcomes zum Training herangezogen.
+
 ---
 
 ## Tuning-Prozess
@@ -187,15 +199,21 @@ Produktionslogik ändern kann:
    Candidate-Ledger-Zeilen (`outputs/candidate_ledger/*.jsonl`) aus, deren
    Datum **nach** der Registrierung liegt und deren Outcome-Horizont bereits
    verstrichen ist. Bereits vor Registrierung gesammelte Daten fließen nie ein.
-3. **Deterministisches Verdikt.** Für jeden Challenger wird ein seeded,
-   reproduzierbares Bootstrap-Konfidenzintervall der Return-Differenz
-   (Challenger − Baseline) berechnet, mit Bonferroni-Korrektur über alle
-   aktiven Challenger (max. 3 gleichzeitig). Das Verdikt (`running`,
-   `promote_recommended`, `reject`, `expired`) ist eine reine Funktion der
-   Daten — kein manuelles Ermessen im laufenden Auswertungscode.
+3. **Deterministisches Verdikt mit Alpha-Spending.** Für jeden Challenger wird ein
+   seeded, reproduzierbares Bootstrap-Konfidenzintervall der Return-Differenz
+   (Challenger − Baseline) berechnet. Da Challenger jeden Monat neu bewertet werden
+   (bis sie promotiert oder expiriert sind), wird eine Alpha-Spending-Regel angewandt,
+   um die Familie-weise Fehlerquote über wiederholte Looks zu kontrollieren:
+   - Geplante Anzahl Looks: `n_looks = max(1, ceil(max_duration_days / 30))`
+   - Effektives Signifikanzniveau: `alpha = 0.10 / (n_active × n_looks)`
+   
+   Dies ist eine konservative (Bonferroni-artige) Korrektur; Confidence Sequences
+   sind eine künftige Verbesserung. Das Verdikt (`running`, `promote_recommended`,
+   `reject`, `expired`) ist eine reine Funktion der Daten — kein manuelles Ermessen
+   im laufenden Auswertungscode.
 4. **Promotion ist ausschließlich ein von einem Menschen gemergter PR.** Ein
    `promote_recommended`-Verdikt erscheint informativ im Monats-Report
-   (Abschnitt „🧪 Challenger (Walk-forward)“). Es ändert **nichts** automatisch.
+   (Abschnitt „🧪 Challenger (Walk-forward)”). Es ändert **nichts** automatisch.
    Die tatsächliche Übernahme in die Produktion ist ein Pull-Request, der
    `gates:` in `config.yaml` ändert und von einem Repo-Owner (siehe
    `.github/CODEOWNERS`) geprüft und gemergt wird.

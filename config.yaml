@@ -150,3 +150,7 @@ exit_sim:
   enabled: true
   trail_pcts: [0.35, 0.50]   # Trailing-Abstand für Varianten C (trail35) / D (trail50)
   activation: 0.50           # Peak-Return, ab dem der Trailing-Stop/Teilverkauf aktiviert wird
+
+# Candidate-Ledger (reine Observability, siehe modules/candidate_ledger.py)
+ledger:
+  max_option_snapshots: 40   # Obergrenze echter Tradier-Options-Snapshots pro Lauf (API-Call-Budget)

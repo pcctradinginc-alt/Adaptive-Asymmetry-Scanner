@@ -38,9 +38,11 @@ import logging
 import math
 import os
 import tempfile
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from modules import market_snapshot
 from modules.bs_pricing import bs_price
 
 log = logging.getLogger(__name__)
@@ -50,6 +52,10 @@ CONFIG_PATH   = Path(__file__).resolve().parent.parent / "config.yaml"
 PIPELINE_PATH = Path(__file__).resolve().parent.parent / "pipeline.py"
 
 HORIZONS = (5, 20, 45, 120)
+
+# ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
+DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
+LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
 
 # ── Hypothetischer Options-Kontrakt (Counterfactual, Observability) ──────────
 # Gates verwerfen/akzeptieren Kandidaten auf Basis von Underlying-Returns,
@@ -160,6 +166,40 @@ def _compute_config_hash() -> str:
         return "unknown"
 
 
+def _max_option_snapshots() -> int:
+    """config.yaml ledger.max_option_snapshots, Default 40. Nie ein Fehler
+    nach außen (fehlende/kaputte config.yaml → Default)."""
+    try:
+        from modules.config import cfg
+        ledger_cfg = getattr(cfg, "ledger", None)
+        return int(getattr(ledger_cfg, "max_option_snapshots", DEFAULT_MAX_OPTION_SNAPSHOTS))
+    except Exception:
+        return DEFAULT_MAX_OPTION_SNAPSHOTS
+
+
+def _compute_event_id(ticker: str, date: str, features: dict) -> str:
+    """
+    event_id = sha1(ticker + Katalysator-Text)[:12], falls die Pipeline über
+    note(..., event_key=...) einen Katalysator/Headline-Text mitgegeben hat
+    (siehe pipeline.py Stufe 4 „Deep Analysis"). Ohne event_key: Fallback
+    sha1(ticker + date)[:12] (bisheriges Verhalten — ein Event/Tag/Ticker).
+
+    Dedup beim flush() erfolgt über (date, ticker, event_id): zwei
+    verschiedene Events für denselben Ticker am selben Tag bleiben beide
+    erhalten; ein erneuter Lauf über dasselbe Event überschreibt sich nicht
+    (wird als Duplikat verworfen).
+    """
+    try:
+        event_key = (features or {}).get("event_key")
+        if event_key:
+            raw = f"{ticker}:{event_key}"
+        else:
+            raw = f"{ticker}:{date}"
+        return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
+    except Exception:
+        return hashlib.sha1(f"{ticker}:{date}".encode("utf-8")).hexdigest()[:12]
+
+
 def _detect_pipeline_version() -> str:
     """Liest z.B. 'v8.3' aus dem Docstring-Kopf von pipeline.py."""
     try:
@@ -173,12 +213,46 @@ def _detect_pipeline_version() -> str:
     return "unknown"
 
 
+def _compute_code_sha() -> str:
+    """Commit-SHA des laufenden Codes (GitHub Actions: GITHUB_SHA, sonst git)."""
+    sha = os.environ.get("GITHUB_SHA", "").strip()
+    if sha:
+        return sha[:12]
+    try:
+        import subprocess
+        out = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
+                             text=True, timeout=5)
+        return out.stdout.strip()[:12] or "unknown"
+    except Exception:
+        return "unknown"
+
+
+def _compute_model_ids() -> dict:
+    """LLM-/ML-Modell-IDs aus config.yaml (models:, rl, finbert) für Reproduzierbarkeit."""
+    ids = {}
+    try:
+        import yaml
+        raw = yaml.safe_load(Path("config.yaml").read_text()) or {}
+        for k, v in (raw.get("models") or {}).items():
+            if isinstance(v, str):
+                ids[f"models.{k}"] = v
+        for section, key in (("rl", "model_path"), ("finbert", "model_name")):
+            sec = raw.get(section) or {}
+            if isinstance(sec, dict) and isinstance(sec.get(key), str):
+                ids[f"{section}.{key}"] = sec[key]
+    except Exception:
+        pass
+    return ids
+
+
 def start_run(today: str) -> None:
     """Setzt den In-Memory-State für einen neuen Pipeline-Lauf zurück."""
     try:
         _state["date"]             = today
         _state["config_hash"]      = _compute_config_hash()
         _state["pipeline_version"] = _detect_pipeline_version()
+        _state["code_sha"]         = _compute_code_sha()
+        _state["model_ids"]        = _compute_model_ids()
         _state["entries"]          = {}
         _state["flushed"]          = False
     except Exception as e:
@@ -205,6 +279,8 @@ def _entry(ticker: str) -> dict:
             # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
             # Walk-forward-Prüfung im Challenger-Modul (registered_at).
             "signal_timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            # P2 Signal-Identität: eindeutige ID je Kandidat/Lauf (uuid4).
+            "signal_id":        uuid.uuid4().hex,
         }
         _state["entries"][ticker] = e
     return e
@@ -253,6 +329,142 @@ def mark_passed(ticker) -> None:
         log.debug(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
 
 
+def _parse_iso_dt(ts: str):
+    try:
+        dt = datetime.fromisoformat(ts)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+    except Exception:
+        return None
+
+
+_EMPTY_UNDERLYING = {
+    "bid": None, "ask": None, "mid": None, "last": None,
+    "prev_close": None, "open": None, "quote_ts": None, "source": None,
+}
+
+
+def _resolve_entry(ticker: str, e: dict, underlying_quotes: dict, yf_prices: dict) -> dict:
+    """
+    P0-A Entry-Policy (siehe Modul-Docstring): bestimmt entry_price +
+    entry_basis + Session, NIEMALS der letzte yfinance-Schlusskurs bei
+    Pre-/Post-/Closed-Signalen (das wäre eine unfaire Vorab-Bewegung).
+
+        regular + Quote-Mid vorhanden  → entry_price=mid,  basis="quote_mid"
+        pre/post/closed                → entry_price=None, basis="next_open"
+        regular, aber keine Quote      → entry_price=yfinance-Preis, basis="yf_last"
+
+    Gibt nie einen Fehler nach außen (Default = next_open bei Unsicherheit).
+    """
+    underlying = dict(_EMPTY_UNDERLYING)
+    session = "closed"
+    try:
+        signal_dt = _parse_iso_dt(e.get("signal_timestamp") or "")
+        session = market_snapshot.us_market_session(signal_dt) if signal_dt else "closed"
+
+        quote = underlying_quotes.get(ticker)
+        if quote:
+            underlying.update(quote)
+
+        if session == "regular" and underlying.get("mid") is not None:
+            entry_price, entry_basis = underlying["mid"], "quote_mid"
+        elif session in ("pre", "post", "closed"):
+            entry_price, entry_basis = None, "next_open"
+        else:
+            entry_price = yf_prices.get(ticker)
+            entry_basis = "yf_last"
+
+        gap_at_entry = None
+        prev_close = underlying.get("prev_close")
+        if entry_price not in (None, 0) and prev_close not in (None, 0):
+            try:
+                gap_at_entry = round(float(entry_price) / float(prev_close) - 1.0, 4)
+            except Exception:
+                gap_at_entry = None
+
+        return {
+            "entry_price":  entry_price,
+            "entry_basis":  entry_basis,
+            "session":      session,
+            "underlying":   underlying,
+            "gap_at_entry": gap_at_entry,
+        }
+    except Exception as ex:
+        log.debug(f"candidate_ledger._resolve_entry Fehler (ignoriert): {ex}")
+        return {
+            "entry_price":  None,
+            "entry_basis":  "next_open",
+            "session":      session,
+            "underlying":   underlying,
+            "gap_at_entry": None,
+        }
+
+
+def _build_real_option(e: dict, spot) -> dict | None:
+    """
+    P0-B: echter Options-Kontrakt (Tradier-Chain) als Ergänzung zum rein
+    synthetischen hypo_option (Black-Scholes). None, wenn Richtung/Spot
+    fehlen oder Tradier degradiert (kein Fehler nach außen).
+    """
+    try:
+        direction = e.get("direction")
+        if direction not in ("BULLISH", "BEARISH"):
+            return None
+        if spot in (None, 0):
+            return None
+        features = e.get("features") or {}
+        ttm = features.get("ttm")
+        try:
+            from modules.options_designer import ttm_to_dte_floor
+            dte_floor = ttm_to_dte_floor(ttm) if ttm else 120
+        except Exception:
+            dte_floor = 120
+        return market_snapshot.select_contract(e.get("ticker") or "", direction, dte_floor, spot)
+    except Exception as ex:
+        log.debug(f"candidate_ledger._build_real_option Fehler (ignoriert): {ex}")
+        return None
+
+
+def _now_utc() -> datetime:
+    """Isoliert für Tests (monkeypatch), damit „jetzige Session" injizierbar ist."""
+    return datetime.now(timezone.utc)
+
+
+def _finalize_real_option(raw_contract: dict, session: str, today: str) -> dict:
+    """
+    Optionen handeln NUR in der regulären Session — ein Kontrakt, der
+    pre/post/closed ausgewählt wurde, bekommt seine bid/ask/mid-Snapshot-
+    Quote (zum Auswahl-Zeitpunkt) NICHT als Entry unterstellt (das wäre
+    exakt das Look-ahead-Problem, das für das Underlying schon gelöst
+    wurde). Stattdessen:
+
+        session == "regular" → sofortiger Entry: entry_pending=False,
+            entry_quote_ts=quote_ts, entry_date=heute (Signal-Tag).
+        sonst                 → entry_pending=True, bid/ask/mid der
+            Auswahl wandern nach snapshot_quote (rein informativ), die
+            "echten" bid/ask/mid bleiben None bis zum Fill in
+            update_outcomes() (siehe _fill_real_option_entries).
+    """
+    contract = dict(raw_contract)
+    if session == "regular":
+        contract["entry_pending"] = False
+        contract["entry_quote_ts"] = raw_contract.get("quote_ts")
+        contract["entry_date"] = today
+    else:
+        contract["snapshot_quote"] = {
+            "bid":      raw_contract.get("bid"),
+            "ask":      raw_contract.get("ask"),
+            "mid":      raw_contract.get("mid"),
+            "quote_ts": raw_contract.get("quote_ts"),
+        }
+        contract["bid"] = None
+        contract["ask"] = None
+        contract["mid"] = None
+        contract["entry_pending"] = True
+    return contract
+
+
 def _fetch_prices_batch(tickers: list[str]) -> dict:
     """Ein gebündelter yfinance-Call für die Entry-Preise. Tolerant gegen Fehler."""
     prices = {t: None for t in tickers}
@@ -295,6 +507,11 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         root.mkdir(parents=True, exist_ok=True)
         month_file = root / f"{today[:7]}.jsonl"
 
+        # P2: event_id je Kandidat bestimmen (braucht die evtl. bis hier
+        # gesammelten features, inkl. event_key aus pipeline.py note()).
+        for ticker, e in entries.items():
+            e["event_id"] = _compute_event_id(ticker, today, e.get("features", {}))
+
         existing_keys = set()
         if month_file.exists():
             try:
@@ -305,18 +522,30 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                             continue
                         try:
                             row = json.loads(line)
-                            existing_keys.add((row.get("date"), row.get("ticker")))
+                            # Dedup-Schlüssel inkl. event_id (P2): zwei
+                            # verschiedene Events desselben Tickers am selben
+                            # Tag bleiben beide erhalten. Ältere Zeilen ohne
+                            # event_id werden über ihren (fehlenden) Wert
+                            # weiterhin eindeutig identifiziert.
+                            existing_keys.add((row.get("date"), row.get("ticker"), row.get("event_id")))
                         except Exception:
                             continue
             except Exception as e:
                 log.debug(f"candidate_ledger: Ledger-Datei nicht lesbar: {e}")
 
-        tickers_to_price = [t for t in entries.keys() if (today, t) not in existing_keys]
-        prices = _fetch_prices_batch(tickers_to_price)
+        tickers_to_process = [
+            t for t, e in entries.items()
+            if (today, t, e.get("event_id")) not in existing_keys
+        ]
+        prices            = _fetch_prices_batch(tickers_to_process)
+        underlying_quotes = market_snapshot.fetch_underlying_quotes(tickers_to_process)
+
+        max_snapshots       = _max_option_snapshots()
+        real_option_budget  = max_snapshots
 
         new_lines = []
         for ticker, e in entries.items():
-            if (today, ticker) in existing_keys:
+            if (today, ticker, e.get("event_id")) in existing_keys:
                 continue
             # Ohne reject()-Aufruf ausgeschieden (z.B. Prescreening) → als
             # "dropped" mit letzter erreichter Stufe markieren statt "seen".
@@ -324,24 +553,62 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 e["status"]        = "dropped"
                 e["reject_stage"]  = e.get("stage")
                 e["reject_reason"] = f"unlabeled_after_{e.get('stage') or 'unknown'}"
-            entry_price = prices.get(ticker)
+
+            resolved    = _resolve_entry(ticker, e, underlying_quotes, prices)
+            entry_price = resolved["entry_price"]
+
             row = {
                 "date":             today,
                 "ticker":           ticker,
+                "signal_id":        e.get("signal_id"),
+                "event_id":         e.get("event_id"),
                 "pipeline_version": _state.get("pipeline_version", "unknown"),
                 "config_hash":      _state.get("config_hash", "unknown"),
+                "code_sha":         _state.get("code_sha", "unknown"),
+                "model_ids":        _state.get("model_ids", {}),
                 "status":           e.get("status", "seen"),
                 "reject_stage":     e.get("reject_stage"),
                 "reject_reason":    e.get("reject_reason"),
                 "direction":        e.get("direction"),
                 "features":        e.get("features", {}),
                 "entry_price":      entry_price,
+                "entry_basis":      resolved["entry_basis"],
+                "session":          resolved["session"],
+                "underlying":       resolved["underlying"],
+                "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
                 "outcomes":         {},
             }
+
             hypo = _build_hypo_option(e, entry_price)
             if hypo is not None:
                 row["hypo_option"] = hypo
+
+            # P0-B: echter Options-Kontrakt — nur für Kandidaten mit bekannter
+            # Richtung, begrenzt auf `ledger.max_option_snapshots` API-Calls/Lauf.
+            if e.get("direction") in ("BULLISH", "BEARISH"):
+                if real_option_budget <= 0:
+                    row["real_option_skip_reason"] = "max_snapshots_reached"
+                else:
+                    spot = entry_price
+                    if spot in (None, 0):
+                        spot = resolved["underlying"].get("last") or resolved["underlying"].get("mid")
+                    if spot in (None, 0):
+                        spot = prices.get(ticker)
+                    # Jeder Versuch (Erfolg oder nicht) zählt gegen das
+                    # API-Call-Budget, da er selbst bei einem Miss bereits
+                    # einen Tradier-Call (Expirations/Chain) ausgelöst hat.
+                    real_option_budget -= 1
+                    real_option = _build_real_option(e, spot)
+                    if real_option is not None:
+                        row["real_option"] = _finalize_real_option(real_option, resolved["session"], today)
+                    else:
+                        row["real_option_skip_reason"] = (
+                            "no_spot" if spot in (None, 0)
+                            else ("no_api_key" if not os.environ.get("TRADIER_API_KEY", "").strip()
+                                  else "no_contract_found")
+                        )
+
             new_lines.append(row)
 
         if new_lines:
@@ -378,6 +645,27 @@ def _direction_adjusted_return(entry_price: float, price: float, direction: str 
     if direction and str(direction).upper() == "BEARISH":
         ret = -ret
     return ret
+
+
+def _parse_date(s: str):
+    try:
+        return datetime.strptime(s, "%Y-%m-%d")
+    except Exception:
+        return None
+
+
+def _row_entry_dt(row: dict):
+    """
+    Effektives Entry-Datum für Horizont-Berechnungen: bei next_open-Zeilen,
+    deren Open bereits nachgetragen wurde, das nachgetragene Handelsdatum
+    (entry_effective_date) — sonst (bisheriges Verhalten) das Signal-Datum.
+    """
+    eff = row.get("entry_effective_date")
+    if eff:
+        dt = _parse_date(eff)
+        if dt is not None:
+            return dt
+    return _parse_date(row.get("date", ""))
 
 
 def update_outcomes(today: str, root: Path = LEDGER_ROOT) -> None:
@@ -420,14 +708,164 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     if not rows:
         return
 
-    # Welche Zeilen brauchen überhaupt einen Update-Versuch?
+    changed = False
+    try:
+        changed |= _fill_next_open_entries(rows, today_dt)
+    except Exception as e:
+        log.debug(f"candidate_ledger: next_open-Fill Fehler (ignoriert): {e}")
+    try:
+        changed |= _fill_real_option_entries(rows)
+    except Exception as e:
+        log.debug(f"candidate_ledger: real_option Entry-Fill Fehler (ignoriert): {e}")
+    try:
+        changed |= _fill_return_horizons(rows, today_dt)
+    except Exception as e:
+        log.debug(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
+    try:
+        changed |= _fill_real_option_marks(rows, today_dt)
+    except Exception as e:
+        log.debug(f"candidate_ledger: real_opt_ret-Marks Fehler (ignoriert): {e}")
+
+    if changed:
+        _atomic_write_jsonl(path, rows)
+
+
+def _fill_real_option_entries(rows: list[dict]) -> bool:
+    """
+    Optionen handeln nur in der regulären Session. Ein real_option-Kontrakt,
+    der pre/post/closed ausgewählt wurde (entry_pending=True), bekommt seinen
+    tatsächlichen Entry-Preis erst hier — beim ERSTEN feedback.py-Lauf
+    (2×/Tag), der während einer regulären Session läuft — per EINEM
+    gebündelten fetch_option_quotes-Call. Läuft dieser Aufruf außerhalb der
+    regulären Session, wird nichts befüllt (nächster Lauf versucht es erneut).
+    """
+    now = _now_utc()
+    session = market_snapshot.us_market_session(now)
+    if session != "regular":
+        return False
+
+    pending = [
+        row for row in rows
+        if isinstance(row.get("real_option"), dict) and row["real_option"].get("entry_pending")
+    ]
+    if not pending:
+        return False
+
+    symbols = sorted({
+        row["real_option"].get("symbol") for row in pending
+        if row["real_option"].get("symbol")
+    })
+    if not symbols:
+        return False
+    quotes = market_snapshot.fetch_option_quotes(symbols)
+
+    changed = False
+    for row in pending:
+        try:
+            ro = row["real_option"]
+            q = quotes.get(ro.get("symbol"))
+            if not q:
+                continue
+            bid, ask, mid = q.get("bid"), q.get("ask"), q.get("mid")
+            if bid is None and ask is None and mid is None:
+                continue
+            ro["bid"], ro["ask"], ro["mid"] = bid, ask, mid
+            ro["entry_pending"]   = False
+            ro["entry_filled_at"] = now.isoformat(timespec="seconds")
+            ro["entry_date"]      = now.strftime("%Y-%m-%d")
+            changed = True
+        except Exception as e:
+            log.debug(f"candidate_ledger._fill_real_option_entries Fehler (ignoriert): {e}")
+    return changed
+
+
+def _fill_next_open_entries(rows: list[dict], today_dt: datetime) -> bool:
+    """
+    P0-A: für Zeilen mit entry_basis="next_open" und noch fehlendem
+    entry_price wird der Open-Preis der ersten regulären Session STRIKT NACH
+    signal_timestamp nachgetragen (Signal pre-market an einem Handelstag →
+    Open desselben Tages; post/closed → Open des nächsten Handelstags).
+    Setzt entry_effective_date, entry_price, gap_at_entry (falls prev_close
+    bekannt) und trägt hypo_option nach, falls noch nicht vorhanden.
+    """
+    pending = [
+        r for r in rows
+        if r.get("entry_basis") == "next_open" and r.get("entry_price") in (None, 0)
+    ]
+    if not pending:
+        return False
+
+    tickers = sorted({r["ticker"] for r in pending if r.get("ticker")})
+    dates = [_parse_date(r.get("date", "")) for r in pending]
+    dates = [d for d in dates if d is not None]
+    if not dates:
+        return False
+    max_days = max((today_dt - d).days for d in dates)
+    period_days = max(max_days + 10, 15)
+
+    histories = _fetch_history_open_batch(tickers, period_days)
+
+    changed = False
+    for row in pending:
+        try:
+            hist = histories.get(row.get("ticker"))
+            if not hist:
+                continue
+            signal_dt = _parse_iso_dt(row.get("signal_timestamp") or "")
+            if signal_dt is None:
+                continue
+            local = signal_dt.astimezone(market_snapshot.NY_TZ)
+            session = row.get("session")
+            floor_date = local.date() if session == "pre" else local.date() + timedelta(days=1)
+
+            candidate = None
+            for d, open_px, _close in sorted(hist, key=lambda x: x[0]):
+                if d >= floor_date:
+                    candidate = (d, open_px)
+                    break
+            if candidate is None:
+                continue
+
+            entry_date, entry_open = candidate
+            if entry_open in (None, 0):
+                continue
+
+            entry_price = round(float(entry_open), 4)
+            row["entry_price"]          = entry_price
+            row["entry_effective_date"] = entry_date.isoformat()
+
+            prev_close = (row.get("underlying") or {}).get("prev_close")
+            if prev_close not in (None, 0):
+                try:
+                    row["gap_at_entry"] = round(entry_price / float(prev_close) - 1.0, 4)
+                except Exception:
+                    pass
+
+            if "hypo_option" not in row:
+                try:
+                    hypo = _build_hypo_option(row, entry_price)
+                    if hypo is not None:
+                        row["hypo_option"] = hypo
+                except Exception as e:
+                    log.debug(f"candidate_ledger: hypo_option-Backfill (next_open) Fehler (ignoriert): {e}")
+
+            changed = True
+        except Exception as e:
+            log.debug(f"candidate_ledger._fill_next_open_entries Fehler (ignoriert): {e}")
+    return changed
+
+
+def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
+    """Bestehende Logik: füllt ret_{h}d/opt_ret_{h}d/mfe/mae. Nutzt das
+    effektive Entry-Datum (entry_effective_date bei next_open-Zeilen, sonst
+    das Signal-Datum) statt blind row["date"]."""
     pending_tickers = set()
     for row in rows:
-        entry_dt = None
-        try:
-            entry_dt = datetime.strptime(row.get("date", ""), "%Y-%m-%d")
-        except Exception:
+        entry_dt = _row_entry_dt(row)
+        if entry_dt is None:
             continue
+        if row.get("entry_price") in (None, 0) and row.get("entry_basis") == "next_open":
+            continue  # Open noch nicht verfügbar — nächster Lauf versucht es erneut
         outcomes = row.setdefault("outcomes", {})
         for h in HORIZONS:
             key = f"ret_{h}d"
@@ -438,11 +876,15 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
                 break
 
     if not pending_tickers:
-        return
+        return False
 
-    max_days = max((today_dt - datetime.strptime(r["date"], "%Y-%m-%d")).days
-                   for r in rows if r.get("ticker") in pending_tickers)
-    period_days = max(max_days + 5, 10)
+    candidate_days = [
+        (today_dt - _row_entry_dt(r)).days for r in rows
+        if r.get("ticker") in pending_tickers and _row_entry_dt(r) is not None
+    ]
+    if not candidate_days:
+        return False
+    period_days = max(max(candidate_days) + 5, 10)
 
     histories = _fetch_history_batch(sorted(pending_tickers), period_days)
 
@@ -451,18 +893,23 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
         ticker = row.get("ticker")
         if ticker not in pending_tickers:
             continue
-        try:
-            entry_dt = datetime.strptime(row.get("date", ""), "%Y-%m-%d")
-        except Exception:
+        entry_dt = _row_entry_dt(row)
+        if entry_dt is None:
             continue
 
         hist = histories.get(ticker)
         if hist is None or len(hist) == 0:
             continue
 
-        # Entry-Preis fehlte beim flush (API-Fehler) → aus Historie nachtragen
+        # Entry-Preis fehlte beim flush (API-Fehler) → aus Historie nachtragen.
+        # next_open-Zeilen NICHT hier nachtragen (das übernimmt ausschließlich
+        # _fill_next_open_entries mit der Open-Regel — niemals der letzte
+        # verfügbare Schlusskurs, sonst wäre die Pre-Signal-Bewegung wieder
+        # unfair eingepreist).
         entry_price = row.get("entry_price")
         if entry_price in (None, 0):
+            if row.get("entry_basis") == "next_open":
+                continue
             entry_price = _price_on_or_before(hist, entry_dt)
             if entry_price in (None, 0):
                 continue
@@ -515,8 +962,102 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
                     outcomes["mae"] = round(min(rets), 4)
             changed = True
 
-    if changed:
-        _atomic_write_jsonl(path, rows)
+    return changed
+
+
+def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
+    """
+    P0-B: für Zeilen mit real_option (bereits gefülltem Entry — kein
+    entry_pending mehr) und verstrichenem Horizont h wird real_opt_ret_{h}d
+    (konservativ: Kauf zum Ask, Verkauf zum Bid) sowie real_opt_ret_mid_{h}d
+    (Mid/Mid) nachgetragen. Für bereits verfallene Kontrakte wird der
+    Intrinsic-Wert aus dem Underlying-Schlusskurs am Expiry-Tag verwendet
+    statt einer (nicht mehr existierenden) Live-Quote.
+
+    Optionen handeln nur in der regulären Session — Marks passieren daher
+    NUR, wenn der aktuelle Lauf (2×/Tag via feedback.py) während einer
+    regulären Session läuft; sonst wird nichts markiert (nächster
+    Regular-Session-Lauf holt es nach). Horizonte laufen ab dem TATSÄCHLICH
+    gefüllten Entry-Datum (real_option["entry_date"]), nicht ab dem
+    ursprünglichen Signal-Datum. Zeilen, deren Horizont schon >7 Tage
+    verstrichen ist, werden trotzdem jetzt mit der aktuellen Quote markiert,
+    aber zusätzlich mit late_mark=true geflaggt.
+    """
+    session = market_snapshot.us_market_session(_now_utc())
+    if session != "regular":
+        return False
+
+    tasks = []  # (row, h, entry_dt)
+    for row in rows:
+        real_option = row.get("real_option")
+        if not real_option or real_option.get("entry_pending"):
+            continue
+        entry_dt = _parse_date(real_option.get("entry_date") or "")
+        if entry_dt is None:
+            continue
+        outcomes = row.setdefault("outcomes", {})
+        for h in HORIZONS:
+            if f"real_opt_ret_{h}d" in outcomes:
+                continue
+            if (today_dt - entry_dt).days >= h:
+                tasks.append((row, h, entry_dt))
+
+    if not tasks:
+        return False
+
+    symbols = sorted({
+        t[0]["real_option"].get("symbol") for t in tasks
+        if t[0]["real_option"].get("symbol")
+    })
+    quotes = market_snapshot.fetch_option_quotes(symbols)
+
+    underlying_tickers = sorted({t[0].get("ticker") for t in tasks if t[0].get("ticker")})
+    max_days = max((today_dt - t[2]).days for t in tasks)
+    underlying_hist = _fetch_history_batch(underlying_tickers, max(max_days + 10, 15))
+
+    changed = False
+    for row, h, entry_dt in tasks:
+        try:
+            real_option = row.get("real_option") or {}
+            entry_ask = real_option.get("ask")
+            entry_mid = real_option.get("mid")
+            if entry_ask in (None, 0) or entry_mid in (None, 0):
+                continue
+
+            symbol     = real_option.get("symbol")
+            expiry_str = real_option.get("expiry")
+            expiry_dt  = _parse_date(expiry_str) if expiry_str else None
+
+            if expiry_dt is not None and today_dt.date() > expiry_dt.date():
+                hist = underlying_hist.get(row.get("ticker"))
+                spot_at_expiry = _price_on_or_before(hist, expiry_dt) if hist else None
+                if spot_at_expiry is None:
+                    continue
+                strike = real_option.get("strike") or 0
+                kind = "call" if row.get("direction") == "BULLISH" else "put"
+                intrinsic = (max(spot_at_expiry - strike, 0.0) if kind == "call"
+                             else max(strike - spot_at_expiry, 0.0))
+                exit_bid = exit_mid = intrinsic
+            else:
+                q = quotes.get(symbol)
+                if not q:
+                    continue
+                exit_bid, exit_mid = q.get("bid"), q.get("mid")
+                if exit_bid in (None,) or exit_mid in (None,):
+                    continue
+
+            outcomes = row.setdefault("outcomes", {})
+            outcomes[f"real_opt_ret_{h}d"]       = round(exit_bid / entry_ask - 1.0, 4)
+            outcomes[f"real_opt_ret_mid_{h}d"]   = round(exit_mid / entry_mid - 1.0, 4)
+            outcomes[f"real_opt_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+
+            if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
+                row["late_mark"] = True
+
+            changed = True
+        except Exception as e:
+            log.debug(f"candidate_ledger._fill_real_option_marks Fehler (ignoriert): {e}")
+    return changed
 
 
 def _compute_opt_ret(hypo: dict, price_h: float, h: int):
@@ -575,6 +1116,46 @@ def _fetch_history_batch(tickers: list[str], period_days: int) -> dict:
                 continue
     except Exception as e:
         log.debug(f"candidate_ledger: History-Batch-Abruf fehlgeschlagen: {e}")
+    return out
+
+
+def _fetch_history_open_batch(tickers: list[str], period_days: int) -> dict:
+    """
+    Batched yfinance-Tageshistorie INKLUSIVE Open (für den next_open
+    Entry-Preis-Fill in _fill_next_open_entries). Getrennt von
+    _fetch_history_batch (Close-only), damit dessen bestehendes Format
+    (und die darauf aufbauenden Tests) unverändert bleibt.
+
+    Returns: {ticker: [(date, open, close), ...]}
+    """
+    out = {}
+    if not tickers:
+        return out
+    try:
+        import yfinance as yf
+        period = f"{max(int(period_days), 5)}d"
+        data = yf.download(tickers, period=period, progress=False, auto_adjust=True, group_by="ticker")
+        if data is None or data.empty:
+            return out
+        for t in tickers:
+            try:
+                frame = data if len(tickers) == 1 else data[t]
+                frame = frame.dropna(subset=["Open"])
+                bars = []
+                for ts, r in frame.iterrows():
+                    d = ts.to_pydatetime()
+                    d = d.date() if hasattr(d, "date") else d
+                    try:
+                        close_val = float(r["Close"])
+                    except Exception:
+                        close_val = float(r["Open"])
+                    bars.append((d, float(r["Open"]), close_val))
+                if bars:
+                    out[t] = bars
+            except Exception:
+                continue
+    except Exception as e:
+        log.debug(f"candidate_ledger: History(Open)-Batch-Abruf fehlgeschlagen: {e}")
     return out
 
 
