@@ -175,7 +175,7 @@ def test_build_rolling_stats_html_basic():
     ]
     prev_stats = {"win_rate": 0.5, "n": 5}
 
-    html = build_rolling_stats_html(trades, prev_stats)
+    html = build_rolling_stats_html(trades, prev_stats, {"win_rate": 0.6, "n": 5})
 
     # Should NOT contain "das System wird besser/schlechter"
     assert "das System wird besser" not in html
@@ -195,12 +195,13 @@ def test_build_rolling_stats_html_honest_language():
     ]
     prev_stats = {"win_rate": 0.5, "n": 5}
 
-    html = build_rolling_stats_html(trades, prev_stats)
+    html = build_rolling_stats_html(trades, prev_stats, {"win_rate": 0.6, "n": 5})
 
     # Should contain honest language about uncertainty
     assert "Stichprobe" in html or "Δ Win-Rate" in html
-    # Should contain mention that monthly differences are often noise
-    assert "Rauschen" in html or "Trendanalyse" in html or "Stabilität" in html
+    # Zu wenig Daten für einen KI-Vergleich → neutrale Aussage, nie "besser"
+    assert "kein Nachweis einer Veränderung" in html
+    assert "wird besser" not in html
 
 
 def test_month_stats_includes_total_losses():

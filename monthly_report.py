@@ -5,7 +5,7 @@ Läuft am 1. jedes Monats (GitHub Actions: monthly_report.yml) und sendet:
   - Win-Rate, Trade-Anzahl, Mean/Median-Return, Totalverluste des Vormonats
     (= Trades mit close_date im Vormonat)
   - Rollende Statistiken (30er, 60er Fenster, alle) mit ehrlichen Metriken und
-    95%-Konfidenzintervallen — objektive Bewertung ohne Übertreibung
+    90%-Konfidenzintervallen (dedupliziert) — objektive Bewertung ohne Übertreibung
   - Gesamt-Statistik über alle closed_trades
   - Signal-Funnel: Wie viele Tage hatten 0 Trades und welche Gates blockierten
 
@@ -354,14 +354,16 @@ def build_slot_html(candidates: list[dict]) -> str:
     Kandidat umgesetzt wird.</p>"""
 
 
-def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None = None) -> str:
+def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None = None,
+                             cur_stats: dict | None = None) -> str:
     """
     Build HTML table showing rolling window statistics.
     Includes 30-day, 60-day, and all-trades windows.
     """
     # Sort by close_date to have consistent ordering
     sorted_trades = sorted(
-        [t for t in closed if t.get("outcome") is not None and t.get("close_date")],
+        [t for t in dedup_closed_trades(closed)
+         if t.get("outcome") is not None and t.get("close_date")],
         key=lambda t: t.get("close_date", "")
     )
 
@@ -375,14 +377,9 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
     ]
 
     rows = ""
-    last_30_stats = None
-    last_30_outcomes = None
 
     for label, window in windows:
         stats = rolling_stats(sorted_trades, window)
-        if window == 30:
-            last_30_stats = stats
-            last_30_outcomes = [float(t["outcome"]) for t in sorted_trades[-30:] if t.get("outcome") is not None]
 
         if stats["n"] == 0:
             rows += f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{label}</td><td colspan='7' style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><i>keine Daten</i></td></tr>"
@@ -414,28 +411,26 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
             f"</tr>"
         )
 
-    # Month-over-month delta with honest wording
+    # Δ Win-Rate Monat vs. Vormonat (neutral formuliert). "Signifikant" nur,
+    # wenn sich das 90%-KI der letzten 30 Trades nicht mit dem KI der
+    # 30 Trades davor überschneidet.
     delta_html = ""
-    if prev_closed_stats and last_30_stats and last_30_outcomes:
-        delta = (last_30_stats["win_rate"] - prev_closed_stats["win_rate"]) * 100
-
-        # Check if 90% CI of last-30 is entirely above CI of previous month
-        last_30_ci = bootstrap_ci(last_30_outcomes)
-        prev_month_outcomes = [float(t["outcome"]) for t in closed if t.get("outcome") is not None]
-        prev_month_ci = bootstrap_ci(prev_month_outcomes)
-
-        if last_30_ci and prev_month_ci and last_30_ci[0] > prev_month_ci[1]:
-            significance = "signifikant besser"
+    if prev_closed_stats and cur_stats:
+        delta = (cur_stats["win_rate"] - prev_closed_stats["win_rate"]) * 100
+        outs = [float(t["outcome"]) for t in sorted_trades]
+        last_ci = bootstrap_ci(outs[-30:]) if len(outs) >= 60 else None
+        prior_ci = bootstrap_ci(outs[-60:-30]) if len(outs) >= 60 else None
+        if last_ci and prior_ci and last_ci[0] > prior_ci[1]:
+            significance = "signifikant besser (letzte 30 vs. 30 davor, KIs überschneiden sich nicht)"
+        elif last_ci and prior_ci and last_ci[1] < prior_ci[0]:
+            significance = "signifikant schlechter (letzte 30 vs. 30 davor, KIs überschneiden sich nicht)"
         else:
-            significance = "kein Nachweis einer Verbesserung"
-
+            significance = "kein Nachweis einer Veränderung"
         delta_html = (
             f"<p style='margin-top:1em;font-size:0.95em;color:#555;'>"
             f"<b>Δ Win-Rate ggü. Vormonat:</b> {delta:+.0f} Prozentpunkte "
-            f"(Vormonat: n={prev_closed_stats.get('n', '?')}, "
-            f"Letzte 30: n={last_30_stats['n']}) — bei dieser Stichprobe <b>{significance}</b>. "
-            f"Hinweis: Monatliche Unterschiede sind oft Rauschen; zeitliche Stabilität "
-            f"(Trendanalyse über mehrere Monate) ist aussagekräftiger.</p>"
+            f"(n={cur_stats.get('n', '?')} vs. {prev_closed_stats.get('n', '?')}) — "
+            f"bei dieser Stichprobe <b>{significance}</b>.</p>"
         )
 
     return f"""
@@ -474,7 +469,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
     # Rolling stats and month-over-month analysis
     rolling_html = ""
     if closed:
-        rolling_html = build_rolling_stats_html(closed, prev)
+        rolling_html = build_rolling_stats_html(closed, prev, cur)
 
     # SPY-Benchmark: schlägt das System buy-and-hold?
     bench_html = ""
