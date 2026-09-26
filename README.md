@@ -170,14 +170,15 @@ Alle Gates blockieren den Trade automatisch:
 FinalScore = Σ(Bin_Avg_Return_i × Current_Weight_i)
 ```
 
-Nach jedem abgeschlossenen Trade (≥ 130 Tage) werden:
+Nach jedem abgeschlossenen Trade (Schließung nach `learning.close_after_days`, siehe unten) werden:
 1. Die Bin-Durchschnitte aktualisiert (laufender Ø)
 2. Die Feature-Gewichte via Pearson-Korrelation neu kalibriert
 
-Je mehr Trades, desto präziser das Scoring.
+Je mehr Trades, desto präziser das Scoring. Achtung: Sind alle Feature-Korrelationen ≤ 0,
+bleiben die Gewichte auf ihren Startwerten (der Engine-Monitor warnt dann "Lern-Loop eingefroren").
 
 **Hinweis:** Trades werden nach `learning.close_after_days` Tagen geschlossen
-(aktuell: 45 Tage, siehe `config.yaml` Zeile 70). Trades, die älter als dieser
+(aktuell: 45 Tage, siehe `config.yaml` → `learning.close_after_days`). Trades, die älter als dieser
 Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
 Outcomes zum Training herangezogen.
 
