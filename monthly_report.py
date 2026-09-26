@@ -329,7 +329,7 @@ def challenger_snippet(suggestion: dict, today: date) -> str:
     gain_pp = suggestion.get("gain_pp", 0)
 
     hypothesis = (
-        f"Gate '{gate_name}' angehoben: {op_str} {current} → {op_str} {suggested}. "
+        f"Gate '{gate_name}' geändert: {op_str} {current} → {op_str} {suggested}. "
         f"Retrospektiv +{gain_pp:.0f}pp Win-Rate auf bereits gesehenen Daten. "
         f"Nur mit prospektivem Walk-forward validieren."
     )
