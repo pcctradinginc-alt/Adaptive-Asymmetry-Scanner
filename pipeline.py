@@ -173,6 +173,29 @@ def validate_mc_result(result: dict):
 _final_mc_shadow_log: list[dict] = []
 
 
+LEGACY_FINAL_MC_DTE = 45
+
+
+def resolve_final_mc_dtes(mode: str, ttm: str) -> tuple[int, int]:
+    """(Produktions-DTE, Schatten-DTE) für den Final MC.
+
+    legacy_45: Produktion simuliert bewusst 45d (Baseline im A/B-Test,
+               Challenger final_mc_dte_shadow), Schatten = TTM-DTE (120/140).
+    ttm:       Produktion = TTM-DTE (Horizont des gehandelten Kontrakts),
+               45d läuft als Schatten weiter.
+    Unbekannter Modus → legacy_45.
+    """
+    ttm_dte = ttm_to_dte_floor(ttm or "")
+    if mode == "ttm":
+        return ttm_dte, LEGACY_FINAL_MC_DTE
+    return LEGACY_FINAL_MC_DTE, ttm_dte
+
+
+def final_mc_threshold(dte: int, min_short: float, min_long: float) -> float:
+    """Final-MC-Schwelle passend zum simulierten Horizont."""
+    return min_short if dte <= LEGACY_FINAL_MC_DTE else min_long
+
+
 def compute_final_mc_shadow(
     sim, s: dict, final_dte: int, hit_rate: float, shadow_dte: int, min_long: float
 ) -> dict:
@@ -752,19 +775,9 @@ def main() -> None:
     for s in mc_viable:
         ticker = s["ticker"]
 
-        # Extract TTM from deep_analysis and compute ttm_dte
+        # TTM aus der Deep Analysis → Produktions-/Schatten-DTE je nach Modus
         ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
-        ttm_dte = ttm_to_dte_floor(ttm)
-
-        # Determine production final_dte and shadow_dte based on mode
-        if gate_cfg_mode == "legacy_45":
-            # legacy_45: production=45 (deliberate baseline for A/B test), shadow=ttm_dte
-            final_dte = 45
-            shadow_dte = ttm_dte
-        else:  # ttm mode
-            # ttm: production=ttm_dte, shadow=45
-            final_dte = ttm_dte
-            shadow_dte = 45
+        final_dte, shadow_dte = resolve_final_mc_dtes(gate_cfg_mode, ttm)
 
         result   = sim_final.run_for_dte(s, days_to_expiry=final_dte)
         hit_rate = validate_mc_result(result)
@@ -777,7 +790,11 @@ def main() -> None:
 
         # Compute shadow MC with correct DTE (BEFORE any rejects)
         # Wrap in try/except so shadow can never affect real decision
-        _shadow_min = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
+        _shadow_min = final_mc_threshold(
+            shadow_dte,
+            float(getattr(gate_cfg, "final_mc_min_short", 0.45)),
+            float(getattr(gate_cfg, "final_mc_min_long", 0.50)),
+        )
         try:
             shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, shadow_dte, _shadow_min)
             shadow["mode"] = gate_cfg_mode
@@ -816,7 +833,7 @@ def main() -> None:
         # Wert = vormals interner Threshold → Verhalten unveraendert.
         final_mc_min_short = float(getattr(gate_cfg, "final_mc_min_short", 0.45))
         final_mc_min_long  = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
-        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
+        final_threshold = final_mc_threshold(final_dte, final_mc_min_short, final_mc_min_long)
         if hit_rate < final_threshold:
             log.info(f"  [{ticker}] Final MC: {hit_rate:.1%} < {final_threshold:.0%} → verworfen")
             reject("final_mc_below_threshold", ticker)

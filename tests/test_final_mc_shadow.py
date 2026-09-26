@@ -149,93 +149,35 @@ class TestComputeFinalMcShadow:
 
 
 class TestDteModeLogic:
-    """Unit tests for final_mc_dte_mode configuration switching."""
+    """Testet die echten Helfer aus pipeline.py (keine kopierte Logik)."""
 
     def test_legacy_45_mode(self):
-        """Test legacy_45 mode: production=45, shadow=ttm_dte."""
-        # Simulating the logic from Stage 8
-        gate_cfg_mode = "legacy_45"
-        ttm = "4-8 Wochen"
-        ttm_dte = ttm_to_dte_floor(ttm)  # Should be 120
-
-        if gate_cfg_mode == "legacy_45":
-            final_dte = 45
-            shadow_dte = ttm_dte
-        else:
-            final_dte = ttm_dte
-            shadow_dte = 45
-
-        assert final_dte == 45
-        assert shadow_dte == 120
+        from pipeline import resolve_final_mc_dtes
+        assert resolve_final_mc_dtes("legacy_45", "4-8 Wochen") == (45, 120)
+        assert resolve_final_mc_dtes("legacy_45", "6 Monate") == (45, 140)
 
     def test_ttm_mode(self):
-        """Test ttm mode: production=ttm_dte, shadow=45."""
-        gate_cfg_mode = "ttm"
-        ttm = "6 Monate"
-        ttm_dte = ttm_to_dte_floor(ttm)  # Should be 140
+        from pipeline import resolve_final_mc_dtes
+        assert resolve_final_mc_dtes("ttm", "6 Monate") == (140, 45)
+        assert resolve_final_mc_dtes("ttm", "") == (120, 45)
 
-        if gate_cfg_mode == "legacy_45":
-            final_dte = 45
-            shadow_dte = ttm_dte
-        else:
-            final_dte = ttm_dte
-            shadow_dte = 45
-
-        assert final_dte == 140
-        assert shadow_dte == 45
-
-    def test_unknown_mode_fallback(self):
-        """Test that unknown mode falls back to legacy_45."""
-        gate_cfg_mode = "unknown_mode"
-
-        # Simulate fallback logic
-        if gate_cfg_mode not in ("legacy_45", "ttm"):
-            gate_cfg_mode = "legacy_45"
-
-        assert gate_cfg_mode == "legacy_45"
+    def test_unknown_mode_falls_back_to_legacy(self):
+        from pipeline import resolve_final_mc_dtes
+        assert resolve_final_mc_dtes("bogus", "2-3 Monate") == (45, 120)
 
 
 class TestThresholdSelection:
-    """Unit tests for threshold selection based on final_dte."""
+    def test_threshold_matches_horizon(self):
+        from pipeline import final_mc_threshold
+        assert final_mc_threshold(45, 0.45, 0.50) == 0.45
+        assert final_mc_threshold(120, 0.45, 0.50) == 0.50
+        assert final_mc_threshold(140, 0.45, 0.50) == 0.50
 
-    def test_short_dte_threshold_legacy_45(self):
-        """Test threshold selection for short DTE (legacy_45 mode)."""
-        final_mc_min_short = 0.45
-        final_mc_min_long = 0.50
-        final_dte = 45
-
-        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
-
-        assert final_threshold == 0.45
-        assert final_dte <= 45
-
-    def test_long_dte_threshold_legacy_45(self):
-        """Test threshold selection for long DTE in legacy_45 mode (via shadow)."""
-        final_mc_min_short = 0.45
-        final_mc_min_long = 0.50
-        # In legacy_45, production always uses 45
-        final_dte = 45
-
-        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
-
-        assert final_threshold == 0.45
-        # Shadow would use long threshold
-        shadow_dte = 120
-        shadow_threshold = final_mc_min_short if shadow_dte <= 45 else final_mc_min_long
-        assert shadow_threshold == 0.50
-
-    def test_long_dte_threshold_ttm_mode(self):
-        """Test threshold selection for long DTE in ttm mode."""
-        final_mc_min_short = 0.45
-        final_mc_min_long = 0.50
-        # In ttm mode with "6 Monate", production uses 140
-        final_dte = 140
-
-        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
-
-        assert final_threshold == 0.50
-        assert final_dte > 45
-
+    def test_shadow_threshold_in_ttm_mode_uses_short(self):
+        # ttm-Modus: Schatten simuliert 45d → kurze Schwelle
+        from pipeline import resolve_final_mc_dtes, final_mc_threshold
+        _, shadow_dte = resolve_final_mc_dtes("ttm", "4-8 Wochen")
+        assert final_mc_threshold(shadow_dte, 0.45, 0.50) == 0.45
 
 class TestCodeContainsFinalMcShadow:
     """Integration tests: verify code contains required elements."""
@@ -269,7 +211,7 @@ class TestCodeContainsFinalMcShadow:
         # Should contain the helper function definition
         assert 'def compute_final_mc_shadow' in content, "pipeline.py missing compute_final_mc_shadow function"
         # Should contain ttm_to_dte_floor call
-        assert 'ttm_to_dte_floor(ttm)' in content, "pipeline.py missing ttm_to_dte_floor call"
+        assert 'resolve_final_mc_dtes(' in content, "pipeline.py missing resolve_final_mc_dtes call"
 
     def test_grep_ttm_to_dte_floor_in_options_designer(self):
         """Grep-style test: verify ttm_to_dte_floor in options_designer.py."""
