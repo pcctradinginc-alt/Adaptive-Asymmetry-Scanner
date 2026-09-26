@@ -392,6 +392,45 @@ def _build_real_option(e: dict, spot) -> dict | None:
         return None
 
 
+def _now_utc() -> datetime:
+    """Isoliert für Tests (monkeypatch), damit „jetzige Session" injizierbar ist."""
+    return datetime.now(timezone.utc)
+
+
+def _finalize_real_option(raw_contract: dict, session: str, today: str) -> dict:
+    """
+    Optionen handeln NUR in der regulären Session — ein Kontrakt, der
+    pre/post/closed ausgewählt wurde, bekommt seine bid/ask/mid-Snapshot-
+    Quote (zum Auswahl-Zeitpunkt) NICHT als Entry unterstellt (das wäre
+    exakt das Look-ahead-Problem, das für das Underlying schon gelöst
+    wurde). Stattdessen:
+
+        session == "regular" → sofortiger Entry: entry_pending=False,
+            entry_quote_ts=quote_ts, entry_date=heute (Signal-Tag).
+        sonst                 → entry_pending=True, bid/ask/mid der
+            Auswahl wandern nach snapshot_quote (rein informativ), die
+            "echten" bid/ask/mid bleiben None bis zum Fill in
+            update_outcomes() (siehe _fill_real_option_entries).
+    """
+    contract = dict(raw_contract)
+    if session == "regular":
+        contract["entry_pending"] = False
+        contract["entry_quote_ts"] = raw_contract.get("quote_ts")
+        contract["entry_date"] = today
+    else:
+        contract["snapshot_quote"] = {
+            "bid":      raw_contract.get("bid"),
+            "ask":      raw_contract.get("ask"),
+            "mid":      raw_contract.get("mid"),
+            "quote_ts": raw_contract.get("quote_ts"),
+        }
+        contract["bid"] = None
+        contract["ask"] = None
+        contract["mid"] = None
+        contract["entry_pending"] = True
+    return contract
+
+
 def _fetch_prices_batch(tickers: list[str]) -> dict:
     """Ein gebündelter yfinance-Call für die Entry-Preise. Tolerant gegen Fehler."""
     prices = {t: None for t in tickers}
@@ -526,7 +565,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                     real_option_budget -= 1
                     real_option = _build_real_option(e, spot)
                     if real_option is not None:
-                        row["real_option"] = real_option
+                        row["real_option"] = _finalize_real_option(real_option, resolved["session"], today)
                     else:
                         row["real_option_skip_reason"] = (
                             "no_spot" if spot in (None, 0)
@@ -639,6 +678,10 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     except Exception as e:
         log.debug(f"candidate_ledger: next_open-Fill Fehler (ignoriert): {e}")
     try:
+        changed |= _fill_real_option_entries(rows)
+    except Exception as e:
+        log.debug(f"candidate_ledger: real_option Entry-Fill Fehler (ignoriert): {e}")
+    try:
         changed |= _fill_return_horizons(rows, today_dt)
     except Exception as e:
         log.debug(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
@@ -649,6 +692,55 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
 
     if changed:
         _atomic_write_jsonl(path, rows)
+
+
+def _fill_real_option_entries(rows: list[dict]) -> bool:
+    """
+    Optionen handeln nur in der regulären Session. Ein real_option-Kontrakt,
+    der pre/post/closed ausgewählt wurde (entry_pending=True), bekommt seinen
+    tatsächlichen Entry-Preis erst hier — beim ERSTEN feedback.py-Lauf
+    (2×/Tag), der während einer regulären Session läuft — per EINEM
+    gebündelten fetch_option_quotes-Call. Läuft dieser Aufruf außerhalb der
+    regulären Session, wird nichts befüllt (nächster Lauf versucht es erneut).
+    """
+    now = _now_utc()
+    session = market_snapshot.us_market_session(now)
+    if session != "regular":
+        return False
+
+    pending = [
+        row for row in rows
+        if isinstance(row.get("real_option"), dict) and row["real_option"].get("entry_pending")
+    ]
+    if not pending:
+        return False
+
+    symbols = sorted({
+        row["real_option"].get("symbol") for row in pending
+        if row["real_option"].get("symbol")
+    })
+    if not symbols:
+        return False
+    quotes = market_snapshot.fetch_option_quotes(symbols)
+
+    changed = False
+    for row in pending:
+        try:
+            ro = row["real_option"]
+            q = quotes.get(ro.get("symbol"))
+            if not q:
+                continue
+            bid, ask, mid = q.get("bid"), q.get("ask"), q.get("mid")
+            if bid is None and ask is None and mid is None:
+                continue
+            ro["bid"], ro["ask"], ro["mid"] = bid, ask, mid
+            ro["entry_pending"]   = False
+            ro["entry_filled_at"] = now.isoformat(timespec="seconds")
+            ro["entry_date"]      = now.strftime("%Y-%m-%d")
+            changed = True
+        except Exception as e:
+            log.debug(f"candidate_ledger._fill_real_option_entries Fehler (ignoriert): {e}")
+    return changed
 
 
 def _fill_next_open_entries(rows: list[dict], today_dt: datetime) -> bool:
@@ -839,22 +931,32 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
 
 def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     """
-    P0-B: für Zeilen mit real_option und verstrichenem Horizont h wird
-    real_opt_ret_{h}d (konservativ: Kauf zum Ask, Verkauf zum Bid) sowie
-    real_opt_ret_mid_{h}d (Mid/Mid) nachgetragen. Für bereits verfallene
-    Kontrakte wird der Intrinsic-Wert aus dem Underlying-Schlusskurs am
-    Expiry-Tag verwendet statt einer (nicht mehr existierenden) Live-Quote.
-    Marks passieren erst beim ERSTEN feedback.py-Lauf nach Ablauf des
-    Horizonts (Lag dokumentiert über real_opt_mark_date_{h}d). Zeilen, deren
-    Horizont schon >7 Tage verstrichen ist, werden trotzdem jetzt mit der
-    aktuellen Quote markiert, aber zusätzlich mit late_mark=true geflaggt.
+    P0-B: für Zeilen mit real_option (bereits gefülltem Entry — kein
+    entry_pending mehr) und verstrichenem Horizont h wird real_opt_ret_{h}d
+    (konservativ: Kauf zum Ask, Verkauf zum Bid) sowie real_opt_ret_mid_{h}d
+    (Mid/Mid) nachgetragen. Für bereits verfallene Kontrakte wird der
+    Intrinsic-Wert aus dem Underlying-Schlusskurs am Expiry-Tag verwendet
+    statt einer (nicht mehr existierenden) Live-Quote.
+
+    Optionen handeln nur in der regulären Session — Marks passieren daher
+    NUR, wenn der aktuelle Lauf (2×/Tag via feedback.py) während einer
+    regulären Session läuft; sonst wird nichts markiert (nächster
+    Regular-Session-Lauf holt es nach). Horizonte laufen ab dem TATSÄCHLICH
+    gefüllten Entry-Datum (real_option["entry_date"]), nicht ab dem
+    ursprünglichen Signal-Datum. Zeilen, deren Horizont schon >7 Tage
+    verstrichen ist, werden trotzdem jetzt mit der aktuellen Quote markiert,
+    aber zusätzlich mit late_mark=true geflaggt.
     """
+    session = market_snapshot.us_market_session(_now_utc())
+    if session != "regular":
+        return False
+
     tasks = []  # (row, h, entry_dt)
     for row in rows:
         real_option = row.get("real_option")
-        if not real_option:
+        if not real_option or real_option.get("entry_pending"):
             continue
-        entry_dt = _row_entry_dt(row)
+        entry_dt = _parse_date(real_option.get("entry_date") or "")
         if entry_dt is None:
             continue
         outcomes = row.setdefault("outcomes", {})

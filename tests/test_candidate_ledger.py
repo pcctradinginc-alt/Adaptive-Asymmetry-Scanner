@@ -850,10 +850,48 @@ def test_flush_builds_real_option_when_direction_and_spot_known(monkeypatch, led
     cl.flush(reports_dir_root=ledger_root)
 
     row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
-    assert row["real_option"] == fake_contract
+    ro = row["real_option"]
+    assert ro["symbol"] == fake_contract["symbol"]
+    assert ro["bid"] == pytest.approx(5.0) and ro["ask"] == pytest.approx(5.4)
+    # Regular Session -> sofortiger Entry (kein Look-ahead-Problem, Optionen
+    # handeln ja gerade JETZT):
+    assert ro["entry_pending"] is False
+    assert ro["entry_quote_ts"] == "t"
+    assert ro["entry_date"] == "2026-09-26"
+    assert "snapshot_quote" not in ro
     assert len(calls) == 1
     assert calls[0][0] == "AAPL" and calls[0][1] == "BULLISH"
     assert calls[0][3] == pytest.approx(100.2)  # spot = entry_price (quote_mid)
+
+
+def test_flush_real_option_pre_market_signal_is_entry_pending(monkeypatch, ledger_root):
+    """Optionen handeln nur in der regulären Session: ein pre/post/closed
+    ausgewählter Kontrakt darf NICHT sofort mit seiner (stale) Quote als
+    Entry gebucht werden — dieselbe Look-ahead-Falle wie beim Underlying."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "pre")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes",
+                         lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2,
+                                               "last": 100.1, "prev_close": 99.0, "open": None,
+                                               "quote_ts": "t", "source": "tradier"} for t in tickers})
+    fake_contract = {"symbol": "AAPL261120C00100000", "strike": 100.0, "expiry": "2026-11-20",
+                      "dte": 55, "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
+                      "open_interest": 500, "quote_ts": "stale-t"}
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", lambda t, d, f, s: fake_contract)
+
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.flush(reports_dir_root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    ro = row["real_option"]
+    assert ro["entry_pending"] is True
+    assert ro["bid"] is None and ro["ask"] is None and ro["mid"] is None
+    assert ro["snapshot_quote"] == {"bid": 5.0, "ask": 5.4, "mid": 5.2, "quote_ts": "stale-t"}
+    assert "entry_date" not in ro
+    # Kontrakt-Metadaten (Symbol/Strike/Expiry/DTE/IV/Delta/OI) bleiben trotzdem erhalten:
+    assert ro["symbol"] == fake_contract["symbol"]
+    assert ro["strike"] == fake_contract["strike"]
+    assert ro["expiry"] == fake_contract["expiry"]
 
 
 def test_flush_real_option_skip_reason_without_direction(monkeypatch, ledger_root):
@@ -917,6 +955,14 @@ def test_flush_real_option_no_api_key_degrades(monkeypatch, ledger_root):
 
 
 # ── P0-B: real_opt_ret_{h}d in update_outcomes (bid/ask, Intrinsic, late) ────
+#
+# Optionen handeln nur regulär → Fill/Marks passieren nur, wenn der Lauf
+# selbst in einer regulären Session steht (_now_utc()/market_snapshot.
+# us_market_session gesteuert). Für diese Tests: 2026-08-20 (Do) 15:00 UTC
+# = 10:00 EDT (regular); 2026-08-20 22:00 UTC = 17:00 EDT (post).
+REGULAR_NOW     = datetime(2026, 8, 20, 15, 0, tzinfo=timezone.utc)
+NON_REGULAR_NOW = datetime(2026, 8, 20, 22, 0, tzinfo=timezone.utc)
+
 
 def test_update_outcomes_real_opt_ret_bid_ask_math(monkeypatch, ledger_root):
     entry_date = "2026-08-01"
@@ -926,7 +972,8 @@ def test_update_outcomes_real_opt_ret_bid_ask_math(monkeypatch, ledger_root):
         "reject_reason": None, "direction": "BULLISH", "features": {},
         "entry_price": 100.0, "outcomes": {},
         "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
-                         "expiry": "2026-12-31", "dte": 150,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": False,
+                         "entry_date": entry_date,
                          "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
                          "open_interest": 500, "quote_ts": "t"},
     })
@@ -934,6 +981,7 @@ def test_update_outcomes_real_opt_ret_bid_ask_math(monkeypatch, ledger_root):
     monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {})
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
                          lambda symbols: {"AAPL261231C00100000": {"bid": 7.0, "ask": 7.4, "mid": 7.2, "ts": "t"}})
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)
 
     today = (entry_dt + timedelta(days=5)).strftime("%Y-%m-%d")
     cl.update_outcomes(today, root=ledger_root)
@@ -946,6 +994,41 @@ def test_update_outcomes_real_opt_ret_bid_ask_math(monkeypatch, ledger_root):
     assert "late_mark" not in row
 
 
+def test_update_outcomes_real_opt_ret_skips_outside_regular_session(monkeypatch, ledger_root):
+    """Läuft feedback.py außerhalb der regulären Session, wird weder gefüllt
+    noch markiert — das übernimmt erst der nächste Regular-Session-Lauf."""
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": 100.0, "outcomes": {},
+        "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": False,
+                         "entry_date": entry_date,
+                         "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
+                         "open_interest": 500, "quote_ts": "t"},
+    })
+    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {})
+    called = {"n": 0}
+    def spy(symbols):
+        called["n"] += 1
+        return {"AAPL261231C00100000": {"bid": 7.0, "ask": 7.4, "mid": 7.2, "ts": "t"}}
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", spy)
+    monkeypatch.setattr(cl, "_now_utc", lambda: NON_REGULAR_NOW)
+    # Autouse-Fixture patcht us_market_session default-mäßig auf "regular" —
+    # für diesen Test die tatsächliche Session-Logik (bzw. "post") nutzen.
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "post")
+
+    today = (entry_dt + timedelta(days=5)).strftime("%Y-%m-%d")
+    cl.update_outcomes(today, root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert "real_opt_ret_5d" not in row["outcomes"]
+    assert called["n"] == 0
+
+
 def test_update_outcomes_real_opt_ret_uses_intrinsic_when_expired(monkeypatch, ledger_root):
     entry_date = "2026-08-01"
     _write_ledger_line(ledger_root, "2026-08", {
@@ -954,7 +1037,8 @@ def test_update_outcomes_real_opt_ret_uses_intrinsic_when_expired(monkeypatch, l
         "reject_reason": None, "direction": "BULLISH", "features": {},
         "entry_price": 100.0, "outcomes": {},
         "real_option": {"symbol": "AAPL260806C00100000", "strike": 100.0,
-                         "expiry": "2026-08-06", "dte": 5,
+                         "expiry": "2026-08-06", "dte": 5, "entry_pending": False,
+                         "entry_date": entry_date,
                          "bid": 3.0, "ask": 3.4, "mid": 3.2, "iv": 0.3, "delta": 0.5,
                          "open_interest": 500, "quote_ts": "t"},
     })
@@ -967,6 +1051,7 @@ def test_update_outcomes_real_opt_ret_uses_intrinsic_when_expired(monkeypatch, l
         called["n"] += 1
         return {}
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", fake_quotes)
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)
 
     today = (entry_dt + timedelta(days=10)).strftime("%Y-%m-%d")  # nach Verfall
     cl.update_outcomes(today, root=ledger_root)
@@ -986,7 +1071,8 @@ def test_update_outcomes_real_opt_ret_flags_late_mark(monkeypatch, ledger_root):
         "reject_reason": None, "direction": "BULLISH", "features": {},
         "entry_price": 100.0, "outcomes": {},
         "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
-                         "expiry": "2026-12-31", "dte": 150,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": False,
+                         "entry_date": entry_date,
                          "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
                          "open_interest": 500, "quote_ts": "t"},
     })
@@ -994,6 +1080,7 @@ def test_update_outcomes_real_opt_ret_flags_late_mark(monkeypatch, ledger_root):
     monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {})
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
                          lambda symbols: {"AAPL261231C00100000": {"bid": 7.0, "ask": 7.4, "mid": 7.2, "ts": "t"}})
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)
 
     # 20 Tage nach Entry: ret_5d wäre seit 15 Tagen fällig gewesen (>7 Tage spät).
     today = (entry_dt + timedelta(days=20)).strftime("%Y-%m-%d")
@@ -1011,12 +1098,14 @@ def test_update_outcomes_real_opt_ret_never_raises_on_bad_data(monkeypatch, ledg
         "reject_reason": None, "direction": "BULLISH", "features": {},
         "entry_price": 100.0, "outcomes": {},
         "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
-                         "expiry": "2026-12-31", "dte": 150,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": False,
+                         "entry_date": entry_date,
                          "bid": None, "ask": None, "mid": None, "iv": 0.3, "delta": 0.5,
                          "open_interest": 500, "quote_ts": "t"},
     })
     entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
     monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {})
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)
 
     def boom(symbols):
         raise RuntimeError("network down")
@@ -1026,6 +1115,110 @@ def test_update_outcomes_real_opt_ret_never_raises_on_bad_data(monkeypatch, ledg
     cl.update_outcomes(today, root=ledger_root)  # must not raise
     row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
     assert "real_opt_ret_5d" not in row["outcomes"]
+
+
+# ── P0-B: real_option Entry-Fill (nur in regulärer Session) ─────────────────
+
+def test_update_outcomes_fills_pending_real_option_entry_in_regular_session(monkeypatch, ledger_root):
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": "2026-08-01", "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": None, "entry_basis": "next_open", "session": "pre",
+        "signal_timestamp": "2026-08-01T13:00:00+00:00", "outcomes": {},
+        "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": True,
+                         "bid": None, "ask": None, "mid": None, "iv": 0.3, "delta": 0.5,
+                         "open_interest": 500, "quote_ts": "stale",
+                         "snapshot_quote": {"bid": 5.0, "ask": 5.4, "mid": 5.2, "quote_ts": "stale"}},
+    })
+    monkeypatch.setattr(cl, "_fetch_history_open_batch", lambda tickers, period_days: {})
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: {})
+    calls = []
+    def fake_quotes(symbols):
+        calls.append(list(symbols))
+        return {"AAPL261231C00100000": {"bid": 6.0, "ask": 6.4, "mid": 6.2, "ts": "live"}}
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", fake_quotes)
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)
+
+    cl.update_outcomes("2026-08-20", root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    ro = row["real_option"]
+    assert ro["entry_pending"] is False
+    assert ro["bid"] == pytest.approx(6.0) and ro["ask"] == pytest.approx(6.4) and ro["mid"] == pytest.approx(6.2)
+    assert ro["entry_date"] == "2026-08-20"
+    assert "entry_filled_at" in ro
+    assert len(calls) == 1 and calls[0] == ["AAPL261231C00100000"]
+
+
+def test_update_outcomes_pending_real_option_not_filled_outside_regular_session(monkeypatch, ledger_root):
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": "2026-08-01", "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": None, "entry_basis": "next_open", "session": "pre",
+        "signal_timestamp": "2026-08-01T13:00:00+00:00", "outcomes": {},
+        "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": True,
+                         "bid": None, "ask": None, "mid": None, "iv": 0.3, "delta": 0.5,
+                         "open_interest": 500, "quote_ts": "stale",
+                         "snapshot_quote": {"bid": 5.0, "ask": 5.4, "mid": 5.2, "quote_ts": "stale"}},
+    })
+    monkeypatch.setattr(cl, "_fetch_history_open_batch", lambda tickers, period_days: {})
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: {})
+    called = {"n": 0}
+    def spy(symbols):
+        called["n"] += 1
+        return {"AAPL261231C00100000": {"bid": 6.0, "ask": 6.4, "mid": 6.2, "ts": "live"}}
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", spy)
+    monkeypatch.setattr(cl, "_now_utc", lambda: NON_REGULAR_NOW)
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "post")
+
+    cl.update_outcomes("2026-08-20", root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    ro = row["real_option"]
+    assert ro["entry_pending"] is True
+    assert ro["bid"] is None
+    assert called["n"] == 0
+
+
+def test_update_outcomes_real_option_horizon_counted_from_entry_date_not_signal_date(monkeypatch, ledger_root):
+    """Horizonte für real_opt_ret laufen ab dem TATSÄCHLICH gefüllten
+    Entry-Datum, nicht ab dem ursprünglichen Signal-Datum (das könnte Tage
+    früher gewesen sein, wenn der Kontrakt pre-market gewählt wurde)."""
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": "2026-08-01", "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": None, "entry_basis": "next_open", "session": "pre",
+        "signal_timestamp": "2026-08-01T13:00:00+00:00", "outcomes": {},
+        "real_option": {"symbol": "AAPL261231C00100000", "strike": 100.0,
+                         "expiry": "2026-12-31", "dte": 150, "entry_pending": True,
+                         "bid": None, "ask": None, "mid": None, "iv": 0.3, "delta": 0.5,
+                         "open_interest": 500, "quote_ts": "stale",
+                         "snapshot_quote": {"bid": 5.0, "ask": 5.4, "mid": 5.2, "quote_ts": "stale"}},
+    })
+    monkeypatch.setattr(cl, "_fetch_history_open_batch", lambda tickers, period_days: {})
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: {})
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
+                         lambda symbols: {"AAPL261231C00100000": {"bid": 6.0, "ask": 6.4, "mid": 6.2, "ts": "live"}})
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)  # füllt am 2026-08-20
+
+    # Fill-Lauf: Entry wird erst jetzt (08-20) tatsächlich gebucht.
+    cl.update_outcomes("2026-08-20", root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert row["real_option"]["entry_date"] == "2026-08-20"
+    assert "real_opt_ret_5d" not in row["outcomes"]  # noch kein Horizont seit dem Fill verstrichen
+
+    # 5 Tage nach dem FILL (nicht nach dem ursprünglichen Signal 08-01) markieren:
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
+                         lambda symbols: {"AAPL261231C00100000": {"bid": 7.0, "ask": 7.4, "mid": 7.2, "ts": "live2"}})
+    cl.update_outcomes("2026-08-25", root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert "real_opt_ret_5d" in row["outcomes"]
+    assert row["outcomes"]["real_opt_ret_5d"] == pytest.approx(7.0 / 6.4 - 1.0, abs=1e-4)
 
 
 # ── P2: signal_id / event_id, Dedup je Event ─────────────────────────────────
