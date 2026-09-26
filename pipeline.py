@@ -557,7 +557,7 @@ def main() -> None:
             candidate_ledger.note(
                 a.get("ticker"), stage="deep_analysis",
                 direction=_da.get("direction"), impact=_da.get("impact"),
-                surprise=_da.get("surprise"),
+                surprise=_da.get("surprise"), ttm=_da.get("time_to_materialization"),
             )
         except Exception as e:
             log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
@@ -759,6 +759,14 @@ def main() -> None:
         try:
             shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, _shadow_min)
             s["final_mc_shadow"] = shadow
+            try:
+                candidate_ledger.note(
+                    ticker, stage="final_mc", final_mc_hit_rate=hit_rate,
+                    final_mc_shadow_hit_rate=shadow["hit_rate_shadow"],
+                    final_mc_shadow_dte=shadow["dte_shadow"],
+                )
+            except Exception as e:
+                log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
             # Log shadow comparison
             log.info(
                 f"  [{ticker}] Final MC shadow: "

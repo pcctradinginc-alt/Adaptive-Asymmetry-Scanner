@@ -33,10 +33,13 @@ Datenformat: outputs/candidate_ledger/YYYY-MM.jsonl (eine Zeile pro Ticker/Tag)
 import hashlib
 import json
 import logging
+import math
 import os
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
+
+from modules.bs_pricing import bs_price
 
 log = logging.getLogger(__name__)
 
@@ -45,6 +48,85 @@ CONFIG_PATH   = Path(__file__).resolve().parent.parent / "config.yaml"
 PIPELINE_PATH = Path(__file__).resolve().parent.parent / "pipeline.py"
 
 HORIZONS = (5, 20, 45, 120)
+
+# ── Hypothetischer Options-Kontrakt (Counterfactual, Observability) ──────────
+# Gates verwerfen/akzeptieren Kandidaten auf Basis von Underlying-Returns,
+# aber Trades laufen über Optionen. Um zu sehen, was ein Gate in ECHTEM
+# Options-P&L gekostet/gespart hätte, wird pro Kandidat mit bekannter
+# Richtung ein hypothetischer ATM-Kontrakt (Black-Scholes) mitgeführt.
+# Annahmen (bewusst simpel, rein zur Observability):
+#   - konstante IV über die Haltedauer (KEIN IV-Crush-Modell)
+#   - halber Spread beim Entry, halber Spread beim Exit
+#   - r = 4%
+DEFAULT_IV      = 0.35
+HYPO_SPREAD_COST = 0.05
+
+
+def _bs_dte(dte) -> int | None:
+    try:
+        return int(dte)
+    except (TypeError, ValueError):
+        return None
+
+
+def _resolve_hypo_iv(features: dict) -> tuple[float, str]:
+    """Wählt IV für den hypothetischen Kontrakt: implied > realized > default."""
+    for key in ("implied_vol", "atm_iv", "iv"):
+        v = features.get(key)
+        if isinstance(v, (int, float)) and v > 0:
+            return float(v), "implied"
+    sigma_30d = features.get("sigma_30d")
+    if isinstance(sigma_30d, (int, float)) and sigma_30d > 0:
+        try:
+            return float(sigma_30d) * math.sqrt(252), "realized"
+        except Exception:
+            pass
+    return DEFAULT_IV, "default"
+
+
+def _build_hypo_option(entry: dict, entry_price: float) -> dict | None:
+    """
+    Baut den hypothetischen ATM-Kontrakt für einen Kandidaten mit bekannter
+    Richtung (BULLISH/BEARISH) und bekanntem Entry-Preis. Gibt None zurück,
+    wenn Richtung, DTE oder Entry-Preis fehlen — nie ein Fehler nach außen.
+    """
+    try:
+        direction = entry.get("direction")
+        if direction not in ("BULLISH", "BEARISH"):
+            return None
+        if entry_price in (None, 0):
+            return None
+        features = entry.get("features") or {}
+        ttm = features.get("ttm")
+        try:
+            from modules.options_designer import ttm_to_dte_floor
+            dte = ttm_to_dte_floor(ttm) if ttm else 120
+        except Exception:
+            dte = 120
+        dte = _bs_dte(dte) or 120
+
+        iv, iv_source = _resolve_hypo_iv(features)
+        kind = "call" if direction == "BULLISH" else "put"
+        strike = round(float(entry_price))
+
+        entry_premium = bs_price(
+            float(entry_price), strike, dte / 365.0, iv, r=0.04, kind=kind,
+        )
+        if entry_premium is None or entry_premium <= 0:
+            return None
+
+        return {
+            "kind":           kind,
+            "strike":         strike,
+            "dte":            dte,
+            "iv":             round(float(iv), 4),
+            "iv_source":      iv_source,
+            "entry_premium":  round(float(entry_premium), 4),
+            "spread_cost":    HYPO_SPREAD_COST,
+        }
+    except Exception as e:
+        log.debug(f"candidate_ledger._build_hypo_option Fehler (ignoriert): {e}")
+        return None
 
 # ── In-Memory-Run-State ──────────────────────────────────────────────────────
 
@@ -236,6 +318,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 e["status"]        = "dropped"
                 e["reject_stage"]  = e.get("stage")
                 e["reject_reason"] = f"unlabeled_after_{e.get('stage') or 'unknown'}"
+            entry_price = prices.get(ticker)
             row = {
                 "date":             today,
                 "ticker":           ticker,
@@ -246,9 +329,12 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "reject_reason":    e.get("reject_reason"),
                 "direction":        e.get("direction"),
                 "features":        e.get("features", {}),
-                "entry_price":      prices.get(ticker),
+                "entry_price":      entry_price,
                 "outcomes":         {},
             }
+            hypo = _build_hypo_option(e, entry_price)
+            if hypo is not None:
+                row["hypo_option"] = hypo
             new_lines.append(row)
 
         if new_lines:
@@ -375,9 +461,17 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
                 continue
             row["entry_price"] = round(float(entry_price), 4)
             changed = True
+            if "hypo_option" not in row:
+                try:
+                    hypo = _build_hypo_option(row, entry_price)
+                    if hypo is not None:
+                        row["hypo_option"] = hypo
+                except Exception as e:
+                    log.debug(f"candidate_ledger: hypo_option-Backfill Fehler (ignoriert): {e}")
 
         direction = row.get("direction")
         outcomes  = row.setdefault("outcomes", {})
+        hypo      = row.get("hypo_option")
 
         filled_any = False
         for h in HORIZONS:
@@ -392,6 +486,11 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
                 continue
             outcomes[key] = round(_direction_adjusted_return(entry_price, price, direction), 4)
             filled_any = True
+            opt_key = f"opt_ret_{h}d"
+            if opt_key not in outcomes and hypo:
+                opt_ret = _compute_opt_ret(hypo, price, h)
+                if opt_ret is not None:
+                    outcomes[opt_key] = opt_ret
 
         if filled_any:
             # MFE/MAE über den bislang gefüllten Zeitraum (bis zum letzten
@@ -411,6 +510,38 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
 
     if changed:
         _atomic_write_jsonl(path, rows)
+
+
+def _compute_opt_ret(hypo: dict, price_h: float, h: int):
+    """
+    Options-Counterfactual-Return für Horizont h Tage: bewertet den
+    hypothetischen Kontrakt zum Horizont-Preis mit KONSTANTER IV (kein
+    IV-Crush-Modell — das ist eine bewusste Vereinfachung), abzüglich
+    halbem Spread bei Entry und Exit. Nach unten auf -1.0 gecapped
+    (Optionsverlust kann nicht schlimmer als Totalverlust sein), nach
+    oben offen.
+    """
+    try:
+        kind          = hypo.get("kind")
+        strike        = hypo.get("strike")
+        dte           = hypo.get("dte")
+        iv            = hypo.get("iv")
+        entry_premium = hypo.get("entry_premium")
+        spread_cost   = hypo.get("spread_cost", HYPO_SPREAD_COST)
+        if not entry_premium or entry_premium <= 0:
+            return None
+        remaining_days = dte - h
+        T_years = max(remaining_days, 0) / 365.0
+        exit_price = bs_price(float(price_h), float(strike), T_years, float(iv), r=0.04, kind=kind)
+        exit_net  = exit_price * (1 - spread_cost / 2)
+        entry_net = entry_premium * (1 + spread_cost / 2)
+        if entry_net <= 0:
+            return None
+        opt_ret = (exit_net / entry_net) - 1.0
+        return round(max(opt_ret, -1.0), 4)
+    except Exception as e:
+        log.debug(f"candidate_ledger._compute_opt_ret Fehler (ignoriert): {e}")
+        return None
 
 
 def _fetch_history_batch(tickers: list[str], period_days: int) -> dict:
@@ -503,7 +634,10 @@ def summarize(root: Path = LEDGER_ROOT) -> dict:
                             continue
                         status = row.get("status")
                         key = "proposed" if status == "proposed" else (row.get("reject_reason") or "unknown")
-                        b = buckets.setdefault(key, {"n": 0, "ret_20d": [], "ret_45d": [], "pos": 0, "pos_n": 0})
+                        b = buckets.setdefault(key, {
+                            "n": 0, "ret_20d": [], "ret_45d": [], "pos": 0, "pos_n": 0,
+                            "opt_ret_20d": [], "opt_pos": 0, "opt_pos_n": 0, "opt_ret_45d": [],
+                        })
                         b["n"] += 1
                         outcomes = row.get("outcomes") or {}
                         r20 = outcomes.get("ret_20d")
@@ -515,16 +649,30 @@ def summarize(root: Path = LEDGER_ROOT) -> dict:
                                 b["pos"] += 1
                         if isinstance(r45, (int, float)):
                             b["ret_45d"].append(r45)
+
+                        opt20 = outcomes.get("opt_ret_20d")
+                        opt45 = outcomes.get("opt_ret_45d")
+                        if isinstance(opt20, (int, float)):
+                            b["opt_ret_20d"].append(opt20)
+                            b["opt_pos_n"] += 1
+                            if opt20 > 0:
+                                b["opt_pos"] += 1
+                        if isinstance(opt45, (int, float)):
+                            b["opt_ret_45d"].append(opt45)
             except Exception as e:
                 log.debug(f"candidate_ledger.summarize: {path} Fehler (ignoriert): {e}")
 
         result = {}
         for key, b in buckets.items():
             result[key] = {
-                "n":              b["n"],
-                "mean_ret_20d":   round(sum(b["ret_20d"]) / len(b["ret_20d"]), 4) if b["ret_20d"] else None,
-                "mean_ret_45d":   round(sum(b["ret_45d"]) / len(b["ret_45d"]), 4) if b["ret_45d"] else None,
-                "share_positive": round(b["pos"] / b["pos_n"], 4) if b["pos_n"] else None,
+                "n":                  b["n"],
+                "mean_ret_20d":       round(sum(b["ret_20d"]) / len(b["ret_20d"]), 4) if b["ret_20d"] else None,
+                "mean_ret_45d":       round(sum(b["ret_45d"]) / len(b["ret_45d"]), 4) if b["ret_45d"] else None,
+                "share_positive":     round(b["pos"] / b["pos_n"], 4) if b["pos_n"] else None,
+                # Options-Counterfactual (Black-Scholes, konstante IV):
+                "mean_opt_ret_20d":   round(sum(b["opt_ret_20d"]) / len(b["opt_ret_20d"]), 4) if b["opt_ret_20d"] else None,
+                "mean_opt_ret_45d":   round(sum(b["opt_ret_45d"]) / len(b["opt_ret_45d"]), 4) if b["opt_ret_45d"] else None,
+                "opt_share_positive": round(b["opt_pos"] / b["opt_pos_n"], 4) if b["opt_pos_n"] else None,
             }
         return result
     except Exception as e:
