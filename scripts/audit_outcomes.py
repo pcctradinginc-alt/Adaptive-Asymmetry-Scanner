@@ -36,18 +36,25 @@ def infer_outcome_method_legacy(trade: dict, entry_stock: float, close_price: fl
     Returns one of: "likely_delta_approx", "likely_option_quote",
                     "likely_stock_fallback", "unknown"
     """
-    outcome = trade.get("outcome", 0)
-    entry_debit = trade.get("entry_debit", 0) or (trade.get("option") or {}).get("net_debit", 0)
-
+    outcome = float(trade.get("outcome") or 0)
+    option = trade.get("option") or {}
+    # Gleiche Entry-Debit-Reihenfolge wie feedback.compute_outcome:
+    # entry_debit → net_debit (Spread) → ask/last (Long)
+    entry_debit = float(trade.get("entry_debit") or 0)
     if entry_debit <= 0:
-        return "likely_stock_fallback"
+        entry_debit = float(option.get("net_debit") or 0) or float(option.get("ask") or 0) \
+                      or float(option.get("last") or 0)
+    is_spread = "SPREAD" in (trade.get("strategy") or "")
 
-    # Check if outcome matches clipped delta-approx
-    clipped_delta_approx = compute_clipped_delta_approx(entry_stock, close_price, entry_debit)
-
-    if abs(outcome - clipped_delta_approx) < 0.01:
-        return "likely_delta_approx"
-
+    if entry_debit > 0 and not is_spread and entry_stock > 0 and close_price > 0:
+        clipped_delta_approx = compute_clipped_delta_approx(entry_stock, close_price, entry_debit)
+        if abs(outcome - clipped_delta_approx) < 0.01:
+            return "likely_delta_approx"
+    if entry_debit <= 0 and entry_stock > 0 and close_price > 0:
+        if abs(outcome - (close_price - entry_stock) / entry_stock) < 0.005:
+            return "likely_stock_fallback"
+    if abs(outcome) >= 5.0 - 1e-9:
+        return "likely_delta_approx"   # +500%-Cap existiert nur im Delta-Approx-Pfad
     return "unknown"
 
 
