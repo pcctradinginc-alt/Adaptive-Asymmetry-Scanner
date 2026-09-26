@@ -18,7 +18,8 @@ Checks in build_health_report():
                         (welche Funnel-Stufe hat den Kandidaten-Fluss gestoppt)
   b) PARALLELTEST     – Reife-Übersicht der Schatten-Trades / Trailing-Sim
      -REIFE             (keine Warnung, nur Metrics für die Kalibrierung)
-  c) LERN-LOOP-SANITY – NaN-/Null-Gewichte, verwaiste (überfällige) Trades
+  c) LERN-LOOP-SANITY – NaN-/Null-Gewichte, verwaiste (überfällige) Trades,
+                        Feature-Korrelationen mit Outcome (Lern-Loop-Freeze)
   d) DATA-HEALTH      – Läuft der Scanner noch? Kommen sinnvolle Daten rein?
 """
 
@@ -26,6 +27,7 @@ import json
 import logging
 import math
 import re
+import statistics
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -63,6 +65,19 @@ def _get_close_after_days() -> int:
         return int(cfg.learning.close_after_days)
     except Exception:
         return 45
+
+
+def _bin_to_num(feature: str, bin_label: str) -> float:
+    """
+    Konvertiert bin-Label zu numerischem Wert (identisch mit feedback.py).
+    Wird für die Pearson-Korrelations-Berechnung der Features verwendet.
+    """
+    mapping = {
+        "impact":    {"low": 0.0, "mid": 0.5, "high": 1.0},
+        "mismatch":  {"weak": 0.0, "good": 0.5, "strong": 1.0},
+        "eps_drift": {"noise": 0.0, "relevant": 0.5, "massive": 1.0},
+    }
+    return mapping.get(feature, {}).get(bin_label, 0.5)
 
 
 def _load_recent_daily_reports(reports_dir: Path, today: date, limit: int = 10) -> list[tuple[date, dict]]:
@@ -203,7 +218,17 @@ def _parallel_test_metrics(history: dict, today: date, close_after_days: int) ->
 
 def _check_learn_loop_sanity(
     history: dict, today: date, close_after_days: int, warnings: list[str],
-) -> None:
+) -> dict:
+    """
+    Prüft Sanity des Lern-Loops: NaN-Gewichte, Null-Gewichte, verwaiste Trades,
+    und Feature-Korrelationen mit Outcome.
+
+    Returns dict mit:
+      - learn_loop_frozen: bool (True wenn >= 20 trades und alle Korrelationen <= 0)
+      - feature_corr: dict mit Korrelationswerten (oder {})
+    """
+    metrics = {"learn_loop_frozen": False, "feature_corr": {}}
+
     weights = history.get("model_weights") or {}
     if isinstance(weights, dict) and weights:
         nan_feats, numeric_vals = [], []
@@ -237,6 +262,77 @@ def _check_learn_loop_sanity(
             f"{len(stale)} active_trade(s) älter als {stale_cutoff} Tage "
             f"(sollte(n) längst geschlossen sein): {', '.join(stale[:5])}."
         )
+
+    # Feature-Korrelations-Check für Lern-Loop-Freeze-Erkennung
+    try:
+        closed_trades = history.get("closed_trades") or []
+        # Nur Trades mit outcome != None
+        valid_trades = [t for t in closed_trades if isinstance(t, dict) and t.get("outcome") is not None]
+
+        if len(valid_trades) >= 20:
+            outcomes = []
+            impacts = []
+            mismatches = []
+            drifts = []
+
+            for t in valid_trades:
+                outcome = t.get("outcome")
+                if outcome is None:
+                    continue
+                outcomes.append(float(outcome))
+
+                feat = t.get("features") or {}
+                impact_bin = feat.get("bin_impact", "mid")
+                mismatch_bin = feat.get("bin_mismatch", "good")
+                drift_bin = feat.get("bin_eps_drift", "noise")
+
+                impacts.append(_bin_to_num("impact", impact_bin))
+                mismatches.append(_bin_to_num("mismatch", mismatch_bin))
+                drifts.append(_bin_to_num("eps_drift", drift_bin))
+
+            # Berechne Korrelationen mit Outcome
+            correlations = {}
+            feature_arrays = {
+                "impact": impacts,
+                "mismatch": mismatches,
+                "eps_drift": drifts,
+            }
+
+            for feature_name, feature_vals in feature_arrays.items():
+                try:
+                    # Prüfe auf konstante Spalte
+                    if len(set(feature_vals)) <= 1 or len(set(outcomes)) <= 1:
+                        correlations[feature_name] = 0.0
+                    else:
+                        # Nutze statistics.correlation (Python 3.10+)
+                        corr = statistics.correlation(feature_vals, outcomes)
+                        if math.isfinite(corr):
+                            correlations[feature_name] = round(corr, 3)
+                        else:
+                            correlations[feature_name] = 0.0
+                except (ValueError, statistics.StatisticsError):
+                    # Bei Fehler in Korrelations-Berechnung: auf 0 setzen
+                    correlations[feature_name] = 0.0
+
+            metrics["feature_corr"] = correlations
+
+            # Wenn ALLE Korrelationen <= 0 → Lern-Loop ist eingefroren
+            if correlations and all(corr <= 0 for corr in correlations.values()):
+                metrics["learn_loop_frozen"] = True
+                corr_str = ", ".join(
+                    f"{feat}={val:.3g}" for feat, val in sorted(correlations.items())
+                )
+                warnings.append(
+                    f"Lern-Loop eingefroren: alle Feature-Korrelationen ≤ 0 "
+                    f"({corr_str}) → model_weights bleiben auf Startwerten; "
+                    f"Features haben keine positive Vorhersagekraft."
+                )
+
+    except Exception as e:
+        # Fehler in Korrelations-Berechnung → nur loggen, keine Warnung
+        log.debug(f"Feature-Korrelations-Check fehlgeschlagen: {e}")
+
+    return metrics
 
 
 # ── d) Data-Health ────────────────────────────────────────────────────────────
@@ -294,7 +390,7 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
 
     parallel_tests = _parallel_test_metrics(history, today, close_after_days)
 
-    _check_learn_loop_sanity(history, today, close_after_days, warnings)
+    learn_loop_metrics = _check_learn_loop_sanity(history, today, close_after_days, warnings)
     _check_data_health(reports_dir, today, warnings)
 
     return {
@@ -303,6 +399,7 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
         "metrics":  {
             "duerre":          duerre,
             "parallel_tests":  parallel_tests,
+            "learn_loop":      learn_loop_metrics,
         },
     }
 

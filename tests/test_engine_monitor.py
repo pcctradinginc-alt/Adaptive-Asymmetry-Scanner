@@ -18,6 +18,7 @@ from modules.engine_monitor import (
     build_health_report,
     append_markdown_section,
     _killer_gate,
+    _bin_to_num,
 )
 
 CLOSE_AFTER_DAYS = int(cfg.learning.close_after_days)
@@ -223,6 +224,121 @@ class TestLearnLoopSanity:
         ])
         result = build_health_report(history=history, reports_dir=tmp_path, today=today)
         assert not any("FRESH" in w for w in result["warnings"])
+
+    def test_negative_feature_correlations_warns_frozen_loop(self, tmp_path):
+        """
+        25 synthetische Trades: höhere bins → niedrigere Outcomes.
+        Alle Korrelationen sollten <= 0 sein → warning + frozen=True.
+        """
+        today = date(2026, 7, 20)
+
+        closed_trades = []
+        for i in range(25):
+            # Höhere bins → negative Outcomes
+            # bin_impact high (1.0) → outcome negative
+            # bin_mismatch strong (1.0) → outcome negative
+            # bin_eps_drift massive (1.0) → outcome negative
+            bin_impact = "high" if i % 3 == 0 else ("mid" if i % 3 == 1 else "low")
+            bin_mismatch = "strong" if i % 3 == 0 else ("good" if i % 3 == 1 else "weak")
+            bin_eps_drift = "massive" if i % 3 == 0 else ("relevant" if i % 3 == 1 else "noise")
+
+            # Inverses Mapping: high bin → negative outcome
+            outcome = -0.30 if i % 3 == 0 else (-0.10 if i % 3 == 1 else 0.05)
+
+            closed_trades.append({
+                "ticker": f"STOCK{i}",
+                "outcome": outcome,
+                "features": {
+                    "bin_impact": bin_impact,
+                    "bin_mismatch": bin_mismatch,
+                    "bin_eps_drift": bin_eps_drift,
+                },
+            })
+
+        history = _empty_history(closed_trades=closed_trades)
+        result = build_health_report(history=history, reports_dir=tmp_path, today=today)
+
+        # Warnung sollte Present sein und von "eingefroren" sprechen
+        assert result["status"] == "WARN"
+        frozen_warning = [w for w in result["warnings"] if "eingefroren" in w.lower()]
+        assert len(frozen_warning) > 0, f"Expected frozen warning, got: {result['warnings']}"
+
+        # Metrics sollten frozen=True enthalten
+        learn_loop = result["metrics"].get("learn_loop", {})
+        assert learn_loop.get("learn_loop_frozen") is True
+        assert "feature_corr" in learn_loop
+        assert len(learn_loop["feature_corr"]) == 3  # 3 Features
+
+    def test_positive_feature_correlations_no_warning(self, tmp_path):
+        """
+        25 synthetische Trades: höhere bins → höhere Outcomes.
+        Korrelationen sollten positiv sein → kein warning, frozen=False.
+        """
+        today = date(2026, 7, 20)
+
+        closed_trades = []
+        for i in range(25):
+            # Höhere bins → positive Outcomes
+            bin_impact = "high" if i % 3 == 0 else ("mid" if i % 3 == 1 else "low")
+            bin_mismatch = "strong" if i % 3 == 0 else ("good" if i % 3 == 1 else "weak")
+            bin_eps_drift = "massive" if i % 3 == 0 else ("relevant" if i % 3 == 1 else "noise")
+
+            # Direktes Mapping: high bin → positive outcome
+            outcome = 0.50 if i % 3 == 0 else (0.25 if i % 3 == 1 else 0.05)
+
+            closed_trades.append({
+                "ticker": f"STOCK{i}",
+                "outcome": outcome,
+                "features": {
+                    "bin_impact": bin_impact,
+                    "bin_mismatch": bin_mismatch,
+                    "bin_eps_drift": bin_eps_drift,
+                },
+            })
+
+        history = _empty_history(closed_trades=closed_trades)
+        result = build_health_report(history=history, reports_dir=tmp_path, today=today)
+
+        # Keine Warnung über eingefrorene Loop
+        frozen_warnings = [w for w in result["warnings"] if "eingefroren" in w.lower()]
+        assert len(frozen_warnings) == 0
+
+        # frozen sollte False sein
+        learn_loop = result["metrics"].get("learn_loop", {})
+        assert learn_loop.get("learn_loop_frozen") is False
+        assert "feature_corr" in learn_loop
+
+    def test_insufficient_trades_no_correlation_warning(self, tmp_path):
+        """
+        Weniger als 20 closed_trades → keine Korrelations-Warnung,
+        auch wenn die Korrelationen alle <= 0 sind.
+        """
+        today = date(2026, 7, 20)
+
+        # Nur 15 Trades (unter Schwellwert von 20)
+        closed_trades = []
+        for i in range(15):
+            outcome = -0.20
+            closed_trades.append({
+                "ticker": f"STOCK{i}",
+                "outcome": outcome,
+                "features": {
+                    "bin_impact": "high",
+                    "bin_mismatch": "strong",
+                    "bin_eps_drift": "massive",
+                },
+            })
+
+        history = _empty_history(closed_trades=closed_trades)
+        result = build_health_report(history=history, reports_dir=tmp_path, today=today)
+
+        # Keine Warnung über eingefrorene Loop (da < 20 trades)
+        frozen_warnings = [w for w in result["warnings"] if "eingefroren" in w.lower()]
+        assert len(frozen_warnings) == 0
+
+        # frozen sollte False sein (Schwellwert nicht erreicht)
+        learn_loop = result["metrics"].get("learn_loop", {})
+        assert learn_loop.get("learn_loop_frozen") is False
 
 
 # ── d) Data-Health ────────────────────────────────────────────────────────────
