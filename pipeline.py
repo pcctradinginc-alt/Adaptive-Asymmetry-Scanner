@@ -1092,6 +1092,13 @@ def main() -> None:
             candidate_ledger.note(
                 p.get("ticker"), stage="trade_proposal",
                 trade_score=p.get("trade_score", {}).get("total"),
+                # Review-Fix (candidate_ledger.py real_strategy): Ground-Truth
+                # der tatsächlichen Produktions-Entscheidung — wenn die
+                # Produktion diesen Kandidaten erreicht hat, nutzt der Ledger
+                # sie statt einer replizierten Schätzung (strategy_source=
+                # "production" statt "replicated").
+                production_strategy=p.get("strategy"),
+                production_iv_rank=p.get("iv_rank"),
             )
             candidate_ledger.mark_passed(p.get("ticker"))
         except Exception as e:

@@ -167,6 +167,72 @@ def choose_strategy(
     return strategy, effective_gate, reason
 
 
+def compute_iv_rank_components(closes: list, term_points: list) -> dict:
+    """
+    Reine Funktion (Refactor-Extraktion aus OptionsDesigner._get_iv_rank):
+    berechnet die beiden Komponenten des IV-Rank sowie den kombinierten
+    Wert, exakt nach der bisherigen Formel:
+
+        rv_score:   Percentile-Rank der AKTUELLEN rollierenden 21-Tage
+                    Realized-Vol (annualisiert) innerhalb der rollierenden
+                    1y-RV-Verteilung (5%/95%-Quantile). Braucht >=60 Closes
+                    UND >=20 rollierende RV-Punkte — sonst Default 50.0.
+        term_score: Slope zwischen kürzestem und längstem term_points-Punkt
+                    (sortiert nach DTE): (iv_short/iv_long - 1 + 0.05)*100,
+                    geclampt auf [0, 80]. Braucht >=2 term_points — sonst
+                    Default 20.0.
+        combined  = round(rv_score*0.80 + term_score*0.20, 1)
+
+    closes: Liste von Schlusskursen (chronologisch, älteste zuerst).
+    term_points: Liste von (dte, iv)-Tupeln.
+    """
+    rv_score = 50.0
+    try:
+        clean = [float(c) for c in (closes or []) if c is not None]
+        if len(clean) >= 60:
+            s       = pd.Series(clean)
+            rets    = s.pct_change().dropna()
+            roll_rv = rets.rolling(21).std().dropna() * (252 ** 0.5)
+            if len(roll_rv) >= 20:
+                rv_current = float(roll_rv.iloc[-1])
+                rv_min     = float(roll_rv.quantile(0.05))
+                rv_max     = float(roll_rv.quantile(0.95))
+                if rv_max > rv_min:
+                    rv_score = ((rv_current - rv_min) / (rv_max - rv_min)) * 100
+                    rv_score = max(0.0, min(100.0, rv_score))
+    except Exception:
+        rv_score = 50.0
+
+    term_score    = 20.0
+    pts           = sorted(term_points or [])
+    n_term_points = len(pts)
+    try:
+        if n_term_points >= 2:
+            iv_short = pts[0][1]
+            iv_long  = pts[-1][1]
+            if iv_long > 0:
+                slope      = (iv_short / iv_long) - 1.0
+                term_score = max(0.0, min(80.0, (slope + 0.05) * 100))
+    except Exception:
+        term_score = 20.0
+
+    combined = round(rv_score * 0.80 + term_score * 0.20, 1)
+    return {
+        "rv_score":      round(rv_score, 1),
+        "term_score":    round(term_score, 1),
+        "n_term_points": n_term_points,
+        "combined":      combined,
+    }
+
+
+def compute_iv_rank(closes: list, term_points: list) -> float:
+    """Reine Funktion: kombinierter IV-Rank (siehe compute_iv_rank_components).
+    Wird sowohl von OptionsDesigner._get_iv_rank als auch — mit echten,
+    batched 1y-Closes — vom Ledger-Counterfactual (candidate_ledger.py
+    real_strategy, strategy_source="replicated") verwendet."""
+    return compute_iv_rank_components(closes, term_points)["combined"]
+
+
 def pick_spread_leg_strike(strikes, long_strike: float) -> Optional[float]:
     """
     Reine Auswahlfunktion (P0-2 Refactor) für den Short-Leg-Strike eines
@@ -1154,39 +1220,24 @@ class OptionsDesigner:
             if t is None:
                 t = yf.Ticker(ticker)
 
-            rv_score = 50.0
-            info     = t.info
-            current  = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
+            info    = t.info
+            current = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
 
-            hist = t.history(period="1y")
-            if not hist.empty and len(hist) >= 60:
-                rets    = hist["Close"].pct_change().dropna()
-                roll_rv = rets.rolling(21).std().dropna() * (252 ** 0.5)
-                if len(roll_rv) >= 20:
-                    rv_current = float(roll_rv.iloc[-1])
-                    rv_min     = float(roll_rv.quantile(0.05))
-                    rv_max     = float(roll_rv.quantile(0.95))
-                    if rv_max > rv_min:
-                        rv_score = ((rv_current - rv_min) / (rv_max - rv_min)) * 100
-                        rv_score = max(0.0, min(100.0, rv_score))
+            hist   = t.history(period="1y")
+            closes = hist["Close"].tolist() if (hist is not None and not hist.empty) else []
 
+            # Bisheriges Randverhalten (current<=0 → nur rv_score, KEIN
+            # Term-Structure-Call, KEIN Combine mit dem term_score-Default):
+            # exakt erhalten, indem term_points hier bewusst leer bleiben.
+            rv_only = compute_iv_rank_components(closes, [])
             if current <= 0:
-                return round(rv_score, 1)
+                return rv_only["rv_score"]
 
-            term_score = 20.0
-            iv_pts     = self._get_term_structure_iv(ticker, current, t)
-
-            if len(iv_pts) >= 2:
-                iv_pts.sort()
-                iv_short = iv_pts[0][1]
-                iv_long  = iv_pts[-1][1]
-                if iv_long > 0:
-                    slope      = (iv_short / iv_long) - 1.0
-                    term_score = max(0.0, min(80.0, (slope + 0.05) * 100))
-
-            combined = round(rv_score * 0.80 + term_score * 0.20, 1)
+            iv_pts = self._get_term_structure_iv(ticker, current, t)
+            parts  = compute_iv_rank_components(closes, iv_pts)
+            combined = parts["combined"]
             log.info(
-                f"  [{ticker}] IV-Rank: rv={rv_score:.0f} term={term_score:.0f} "
+                f"  [{ticker}] IV-Rank: rv={parts['rv_score']:.0f} term={parts['term_score']:.0f} "
                 f"→ combined={combined:.0f} "
                 f"({'SPREAD' if combined >= IV_SPREAD_GATE else 'LONG'})"
             )

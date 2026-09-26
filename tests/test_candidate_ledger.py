@@ -13,6 +13,7 @@ Alle Preis-Abrufe werden gemockt (kein Netzwerkzugriff). Fokus:
 
 import hashlib
 import json
+import math
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -34,6 +35,15 @@ def _reset_state(monkeypatch):
     # unverändert greift, sofern ein Test nicht explizit etwas anderes will.
     monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes", lambda tickers: {})
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    # Review-Fix (replicated iv_rank): Default für alle Tests, die real_option
+    # via select_contract mocken, aber nicht am replizierten iv_rank
+    # interessiert sind — vermeidet echte Netzwerk-Calls (yf.download/
+    # Tradier-Chain) und macht strategy_source deterministisch
+    # "iv_history_fallback"/"default_long" statt zufällig vom Testlauf-
+    # Netzwerkzugriff abhängig. Tests, die real_strategy explizit testen,
+    # überschreiben dies gezielt.
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: {})
+    monkeypatch.setattr(cl.market_snapshot, "fetch_term_iv_point", lambda ticker, spot, min_dte=7: None)
     yield
     cl._state["date"] = None
     cl._state["entries"] = {}
@@ -865,6 +875,61 @@ def test_flush_builds_real_option_when_direction_and_spot_known(monkeypatch, led
     assert calls[0][3] == pytest.approx(100.2)  # spot = entry_price (quote_mid)
 
 
+def test_flush_real_strategy_uses_batched_closes_and_term_point(monkeypatch, ledger_root):
+    """End-to-End: flush() holt 1y-Closes für ALLE snapshot-ausgewählten
+    Ticker in EINEM gebündelten Call (_fetch_history_batch) und fragt pro
+    Kandidat höchstens EINEN zusätzlichen Term-Structure-Punkt ab
+    (market_snapshot.fetch_term_iv_point) — beides fließt in
+    real_strategy.strategy_source='replicated' ein."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes",
+                         lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2,
+                                               "last": 100.1, "prev_close": 99.0, "open": 100.0,
+                                               "quote_ts": "t", "source": "tradier"} for t in tickers})
+    fake_contract = {"symbol": "AAPL261120C00100000", "strike": 100.0, "expiry": "2026-11-20",
+                      "dte": 55, "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
+                      "open_interest": 500, "quote_ts": "t"}
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", lambda t, d, f, s: fake_contract)
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+
+    closes = _high_recent_vol_closes()
+    history_calls = []
+
+    def fake_history_batch(tickers, period_days):
+        history_calls.append((tuple(sorted(tickers)), period_days))
+        return {t: [(datetime(2026, 1, 1) + timedelta(days=i), c) for i, c in enumerate(closes)] for t in tickers}
+
+    monkeypatch.setattr(cl, "_fetch_history_batch", fake_history_batch)
+
+    term_calls = []
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_term_iv_point",
+        lambda ticker, spot, min_dte=7: term_calls.append(ticker) or None,
+    )
+
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.flush(reports_dir_root=ledger_root)
+
+    # EIN gebündelter _fetch_history_batch-Call für alle betroffenen Ticker:
+    assert len(history_calls) == 1
+    assert history_calls[0][0] == ("AAPL",)
+    assert history_calls[0][1] == 365
+    # Höchstens EIN zusätzlicher Term-Structure-Call für diesen einen Kandidaten:
+    assert term_calls == ["AAPL"]
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    rs = row["real_strategy"]
+    assert rs["strategy_source"] == "replicated"
+    assert rs["strategy"] == "BULL_CALL_SPREAD"
+    assert len(rs["legs"]) == 2
+
+
 def test_flush_real_option_pre_market_signal_is_entry_pending(monkeypatch, ledger_root):
     """Optionen handeln nur in der regulären Session: ein pre/post/closed
     ausgewählter Kontrakt darf NICHT sofort mit seiner (stale) Quote als
@@ -1417,7 +1482,7 @@ def test_build_real_strategy_bull_call_spread_when_iv_rank_high(monkeypatch):
     e = {"direction": "BULLISH", "features": {}}
     rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW)
     assert rs["strategy"] == "BULL_CALL_SPREAD"
-    assert rs["strategy_source"] == "computed"
+    assert rs["strategy_source"] == "iv_history_fallback"
     assert len(rs["legs"]) == 2
     assert {l["side"] for l in rs["legs"]} == {"long", "short"}
     assert rs["net_debit_entry"] == pytest.approx(5.4 - 2.0)
@@ -1482,6 +1547,128 @@ def test_build_real_strategy_uses_dealer_gamma_and_vix_from_features(monkeypatch
 def test_build_real_strategy_none_without_direction():
     e = {"direction": None, "features": {}}
     assert cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW) is None
+
+
+# ── Review-Fix: real_strategy iv_rank — replicated (echte 1y-Closes) ────────
+#
+# Ground-truth-Reihenfolge: production > replicated > iv_history_fallback >
+# default_long. Diese Tests decken "replicated" (echte Closes/Term-Structure,
+# via compute_iv_rank_components) und "production" (Ground Truth aus
+# pipeline.py) sowie strategy_match ab.
+
+def _high_recent_vol_closes(n=300):
+    """Deterministische Kursreihe mit stark erhöhter Vola in den letzten 40
+    Tagen (niedrige Vola davor) → rv_score nahe 100 (siehe
+    compute_iv_rank_components: Percentile-Rank der aktuellen rollierenden
+    21d-RV innerhalb der 1y-Verteilung)."""
+    closes = []
+    price = 100.0
+    for i in range(n):
+        amp   = 0.001 if i < n - 40 else 0.05
+        drift = amp * math.sin(i)
+        price *= (1 + drift)
+        closes.append(round(price, 4))
+    return closes
+
+
+IV_SPREAD_GATE_FOR_TEST = 52.0  # entspricht options_designer.IV_SPREAD_GATE
+
+
+def test_build_real_strategy_replicated_spread_when_rv_high(monkeypatch):
+    """Mit echten (hier: synthetischen, aber realistisch geformten) 1y-Closes
+    UND hoher aktueller Realized-Vol wird — wie in der Produktion — ein
+    Spread statt eines Long-Legs gewählt (strategy_source='replicated')."""
+    closes = _high_recent_vol_closes()
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=None)
+
+    assert rs["strategy_source"] == "replicated"
+    assert rs["strategy"] == "BULL_CALL_SPREAD"
+    assert rs["iv_rank"] > IV_SPREAD_GATE_FOR_TEST
+    assert rs["replicated_strategy"] == "BULL_CALL_SPREAD"
+    assert rs["iv_rank_components"]["n_term_points"] == 1  # nur Long-Leg-Punkt
+    assert len(rs["legs"]) == 2
+
+
+def test_build_real_strategy_replicated_uses_term_point2_when_available(monkeypatch):
+    closes = _high_recent_vol_closes()
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(
+        e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=(10, 0.3),
+    )
+    assert rs["iv_rank_components"]["n_term_points"] == 2
+
+
+def test_build_real_strategy_replicated_falls_back_when_too_few_closes(monkeypatch):
+    """<60 Closes → replizierter iv_rank nicht bestimmbar → nächster
+    Fallback (iv_history_fallback, hier ohne Historie → default_long)."""
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=[100.0] * 10)
+    assert rs["strategy_source"] == "default_long"
+    assert "replicated_strategy" not in rs
+
+
+def test_build_real_strategy_production_ground_truth_overrides_replicated(monkeypatch):
+    """Wenn pipeline.py im selben Lauf einen Trade-Proposal erzeugt hat
+    (production_strategy/production_iv_rank genotet), hat das Vorrang vor
+    dem replizierten Wert — aber beide werden gespeichert (strategy_match)."""
+    closes = _high_recent_vol_closes()  # würde allein ein SPREAD ergeben
+    e = {
+        "direction": "BULLISH",
+        "features": {
+            "production_strategy": "LONG_CALL",     # Produktion hat NICHT gespreadet
+            "production_iv_rank":  35.0,
+        },
+    }
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=None)
+
+    assert rs["strategy_source"] == "production"
+    assert rs["strategy"] == "LONG_CALL"
+    assert rs["iv_rank"] == pytest.approx(35.0)
+    assert rs["production_strategy"] == "LONG_CALL"
+    assert rs["production_iv_rank"] == pytest.approx(35.0)
+    # Der replizierte Wert wird TROTZDEM gespeichert (für spätere Auswertung):
+    assert rs["replicated_strategy"] == "BULL_CALL_SPREAD"
+    assert rs["strategy_match"] is False  # production LONG_CALL != replicated SPREAD
+
+
+def test_build_real_strategy_strategy_match_true_when_agreeing(monkeypatch):
+    closes = _high_recent_vol_closes()
+    e = {
+        "direction": "BULLISH",
+        "features": {
+            "production_strategy": "BULL_CALL_SPREAD",  # stimmt mit replicated überein
+            "production_iv_rank":  85.0,
+        },
+    }
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=None)
+    assert rs["strategy_source"] == "production"
+    assert rs["strategy_match"] is True
+
+
+def test_build_real_strategy_production_without_replicated_data_no_match_field(monkeypatch):
+    """Keine Closes (z.B. History-Download fehlgeschlagen) → kein replizierter
+    Wert → strategy_match wird gar nicht erst gesetzt (None/fehlt)."""
+    e = {
+        "direction": "BULLISH",
+        "features": {"production_strategy": "LONG_CALL", "production_iv_rank": 40.0},
+    }
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=None)
+    assert rs["strategy_source"] == "production"
+    assert "strategy_match" not in rs
+    assert "replicated_strategy" not in rs
 
 
 # ── P0-2: real_strategy Entry-Fill (Multi-Leg Session-Gating) ───────────────

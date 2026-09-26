@@ -10,9 +10,19 @@ bestehenden Schwellen (IV_SPREAD_GATE=52, Dealer-Gamma-Anpassung
 +13/-12, VIX-Backwardation -8, Spread-Fenster 1.05–1.20× / Ziel 1.10×).
 """
 
+import math
+
+import pandas as pd
 import pytest
 
-from modules.options_designer import choose_strategy, pick_spread_leg_strike, IV_SPREAD_GATE
+import modules.options_designer as od
+from modules.options_designer import (
+    choose_strategy,
+    compute_iv_rank,
+    compute_iv_rank_components,
+    pick_spread_leg_strike,
+    IV_SPREAD_GATE,
+)
 
 
 # ── choose_strategy: Parity-Tabelle ──────────────────────────────────────────
@@ -75,3 +85,115 @@ def test_pick_spread_leg_strike_none_when_window_empty():
 
 def test_pick_spread_leg_strike_empty_strikes():
     assert pick_spread_leg_strike([], 100.0) is None
+
+
+# ── compute_iv_rank_components / compute_iv_rank ─────────────────────────────
+#
+# Review-Fix: reine Extraktion aus OptionsDesigner._get_iv_rank —
+#   rv_score:   Percentile-Rank der aktuellen rollierenden 21d-RV innerhalb
+#               der rollierenden 1y-RV-Verteilung (5%/95%-Quantile), braucht
+#               >=60 Closes/>=20 RV-Punkte, sonst Default 50.0.
+#   term_score: Slope zwischen kürzestem/längstem term_points-Punkt,
+#               geclampt [0,80], braucht >=2 Punkte, sonst Default 20.0.
+#   combined  = round(rv_score*0.80 + term_score*0.20, 1)
+
+def _synthetic_closes(n=300):
+    """Deterministische, nicht-triviale Kursreihe (keine echte Zufälligkeit,
+    aber genug Schwankung für eine nicht-degenerierte rollierende
+    RV-Verteilung) — reproduzierbar über Testläufe hinweg."""
+    closes = []
+    price = 100.0
+    for i in range(n):
+        drift = 0.02 * math.sin(i / 6.0) + 0.002 * math.sin(i / 1.7)
+        price *= (1 + drift * 0.05)
+        closes.append(round(price, 4))
+    return closes
+
+
+def test_compute_iv_rank_components_default_without_enough_closes():
+    parts = compute_iv_rank_components([100.0] * 30, [])
+    assert parts["rv_score"] == 50.0
+    assert parts["term_score"] == 20.0
+    assert parts["n_term_points"] == 0
+    assert parts["combined"] == pytest.approx(50.0 * 0.80 + 20.0 * 0.20, abs=1e-6)
+
+
+def test_compute_iv_rank_components_default_without_enough_term_points():
+    closes = _synthetic_closes(300)
+    parts = compute_iv_rank_components(closes, [(30, 0.4)])  # nur 1 Punkt
+    assert parts["term_score"] == 20.0
+    assert parts["n_term_points"] == 1
+
+
+def test_compute_iv_rank_components_term_score_slope_direction():
+    closes = _synthetic_closes(300)
+    # iv_short(kurzeste DTE) > iv_long(längste DTE) → positive Slope → höherer term_score
+    parts_high = compute_iv_rank_components(closes, [(10, 0.60), (90, 0.30)])
+    parts_low  = compute_iv_rank_components(closes, [(10, 0.30), (90, 0.60)])
+    assert parts_high["term_score"] > parts_low["term_score"]
+    assert parts_high["n_term_points"] == 2 and parts_low["n_term_points"] == 2
+
+
+def test_compute_iv_rank_components_term_score_clamped_0_80():
+    closes = _synthetic_closes(300)
+    parts = compute_iv_rank_components(closes, [(10, 5.0), (90, 0.01)])  # extreme Slope
+    assert parts["term_score"] == 80.0
+    parts2 = compute_iv_rank_components(closes, [(10, 0.01), (90, 5.0)])
+    assert parts2["term_score"] == 0.0
+
+
+def test_compute_iv_rank_matches_components_combined():
+    closes = _synthetic_closes(300)
+    term_points = [(10, 0.5), (90, 0.4)]
+    parts = compute_iv_rank_components(closes, term_points)
+    assert compute_iv_rank(closes, term_points) == parts["combined"]
+
+
+def test_get_iv_rank_matches_compute_iv_rank_parity(monkeypatch):
+    """End-to-End-Parität: OptionsDesigner._get_iv_rank (mit gemocktem
+    yfinance-Ticker + Term-Structure) muss EXAKT denselben Wert liefern wie
+    die extrahierte reine Funktion compute_iv_rank() mit denselben Inputs."""
+    closes = _synthetic_closes(300)
+    term_points = [(14, 0.55), (120, 0.35)]
+
+    class _FakeTicker:
+        info = {"currentPrice": 100.0}
+
+        def history(self, period="1y"):
+            return pd.DataFrame({"Close": closes})
+
+    # Instanz ohne __init__ (kein Makro-Kontext-/Netzwerk-Overhead) — nur
+    # _get_iv_rank + _get_term_structure_iv werden gebraucht.
+    designer = od.OptionsDesigner.__new__(od.OptionsDesigner)
+    monkeypatch.setattr(
+        designer, "_get_term_structure_iv",
+        lambda ticker, current, t=None: list(term_points),
+    )
+
+    got = designer._get_iv_rank("FAKE", t=_FakeTicker())
+    expected = compute_iv_rank(closes, term_points)
+    assert got == pytest.approx(expected)
+
+
+def test_get_iv_rank_returns_rv_score_only_when_current_price_zero(monkeypatch):
+    """Bisheriges Randverhalten (current<=0): NUR rv_score, kein Combine mit
+    dem term_score-Default — muss durch die Extraktion erhalten bleiben."""
+    closes = _synthetic_closes(300)
+
+    class _FakeTickerNoPrice:
+        info = {}  # keine currentPrice/regularMarketPrice → current=0
+
+        def history(self, period="1y"):
+            return pd.DataFrame({"Close": closes})
+
+    designer = od.OptionsDesigner.__new__(od.OptionsDesigner)
+    calls = []
+    monkeypatch.setattr(
+        designer, "_get_term_structure_iv",
+        lambda ticker, current, t=None: calls.append(1) or [(10, 0.5), (90, 0.4)],
+    )
+
+    got = designer._get_iv_rank("FAKE", t=_FakeTickerNoPrice())
+    expected_rv_only = compute_iv_rank_components(closes, [])["rv_score"]
+    assert got == pytest.approx(expected_rv_only)
+    assert calls == []  # Term-Structure wird bei current<=0 gar nicht erst abgefragt

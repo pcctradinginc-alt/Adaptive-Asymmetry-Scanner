@@ -553,17 +553,26 @@ def _build_real_option(e: dict, spot) -> dict | None:
 # nicht nur "wie hätte ein Long-Call performt", sondern "wie hätte die
 # Produktion TATSÄCHLICH gehandelt" beantwortet.
 #
-# iv_rank: die Produktion berechnet ihn über yfinance-Realized-Vol +
-# Options-Term-Structure (OptionsDesigner._get_iv_rank) — das braucht pro
-# Kandidat mehrere Netzwerk-Calls und ist hier aus Budget-/Kopplungsgründen
-# NICHT reproduzierbar. Stattdessen: ein Percentile-Rank der Chain-IV des
-# gewählten Long-Legs innerhalb der historischen ATM-IV-Werte desselben
-# Tickers (outputs/history.json → iv_history[ticker], von
-# mirofish_simulation._log_iv_today() befüllt). Das ist eine bewusste
-# Vereinfachung (siehe Docstring), NICHT identisch mit _get_iv_rank — bei
-# zu wenig Historie (<20 Tage) wird iv_rank als nicht bestimmbar behandelt
-# und strategy_source="default_long" gesetzt (Fallback: Long-Leg, wie schon
-# real_option).
+# iv_rank (Review-Fix — vier Quellen, bevorzugt in dieser Reihenfolge):
+#   1. "production"          — pipeline.py notiert production_strategy/
+#      production_iv_rank aus dem TATSÄCHLICHEN OptionsDesigner-Ergebnis
+#      desselben Laufs (Stufe 10) — Ground Truth, wenn der Kandidat einen
+#      Trade-Proposal erzeugt hat.
+#   2. "replicated"          — sonst: compute_iv_rank_components() (die aus
+#      OptionsDesigner._get_iv_rank extrahierte reine Funktion) mit ECHTEN
+#      1y-Closes (EIN gebündelter yf.download je Flush für alle
+#      snapshot-ausgewählten Ticker) + zwei Term-Structure-Punkten
+#      (Long-Leg-Expiration, bereits vorhanden, + nächste Expiration
+#      >=7 DTE via market_snapshot.fetch_term_iv_point — ein zusätzlicher
+#      Chain-Call pro Kandidat).
+#   3. "iv_history_fallback" — falls 1y-Closes nicht abrufbar sind (History-
+#      Download fehlgeschlagen): grobe Percentile-Schätzung aus
+#      outputs/history.json → iv_history[ticker] (in Produktion meist zu
+#      wenige Einträge, daher nur letzter Fallback, nicht der Primärpfad).
+#   4. "default_long"        — auch das nicht verfügbar → Long-Leg.
+# Sind sowohl 1 als auch 2 verfügbar, werden BEIDE gespeichert
+# (production_*/replicated_* + strategy_match), damit sich die
+# Replikations-Genauigkeit später auswerten lässt.
 #
 # dealer_gamma_state/vix_structure: wenn die Produktion sie im selben Lauf
 # schon berechnet hat, werden sie per note(..., dealer_gamma_state=...,
@@ -595,10 +604,14 @@ IV_RANK_MIN_HISTORY_DAYS = 20
 
 
 def _resolve_candidate_iv_rank(ticker: str, chain_iv) -> float | None:
-    """Percentile-Rank der Chain-IV des Long-Legs innerhalb der letzten
-    ~252 historischen ATM-IV-Werte (5%/95%-Quantile wie
-    OptionsDesigner._get_iv_rank's rv_score-Komponente). None, wenn Chain-IV
-    fehlt oder zu wenig Historie vorliegt (< IV_RANK_MIN_HISTORY_DAYS)."""
+    """LETZTER Fallback (strategy_source="iv_history_fallback"), nur wenn
+    weder eine Produktions-Ground-Truth NOCH die replizierte Methode
+    (_resolve_replicated_iv_rank, echte 1y-Closes) verfügbar sind (z.B.
+    History-Download fehlgeschlagen). Percentile-Rank der Chain-IV
+    innerhalb der historischen ATM-IV-Werte aus outputs/history.json
+    (iv_history[ticker]) — in Produktion meist zu wenige Einträge (2-5/
+    Ticker), deshalb NICHT der primäre Pfad. None, wenn Chain-IV fehlt
+    oder zu wenig Historie vorliegt (< IV_RANK_MIN_HISTORY_DAYS)."""
     try:
         if chain_iv in (None, 0):
             return None
@@ -621,6 +634,43 @@ def _resolve_candidate_iv_rank(ticker: str, chain_iv) -> float | None:
         return None
 
 
+def _resolve_replicated_iv_rank(long_raw: dict, closes: list | None, term_point2) -> tuple:
+    """
+    Review-Fix: repliziert OptionsDesigner._get_iv_rank so genau wie
+    verfügbare Daten es erlauben — über die extrahierte reine Funktion
+    compute_iv_rank_components() (echte 1y-Closes statt iv_history):
+
+        term_points: [(long_dte, long_chain_iv), term_point2] — der erste
+            Punkt ist der bereits abgerufene Long-Leg-Kontrakt, der zweite
+            (optional) die ATM-IV der nächsten Expiration (>=7 DTE), per
+            market_snapshot.fetch_term_iv_point (ein zusätzlicher Chain-
+            Call, vom Aufrufer über term_calls gezählt).
+
+    Gibt (iv_rank, components-dict) zurück; (None, {}) wenn zu wenig Closes
+    (<60) vorliegen (z.B. History-Download fehlgeschlagen).
+    """
+    try:
+        if not closes or len(closes) < 60:
+            return None, {}
+        from modules.options_designer import compute_iv_rank_components
+
+        term_points = []
+        long_dte, long_iv = long_raw.get("dte"), long_raw.get("iv")
+        if long_dte is not None and long_iv:
+            try:
+                term_points.append((int(long_dte), float(long_iv)))
+            except (TypeError, ValueError):
+                pass
+        if term_point2 is not None:
+            term_points.append(term_point2)
+
+        parts = compute_iv_rank_components(closes, term_points)
+        return parts["combined"], parts
+    except Exception as e:
+        log.debug(f"candidate_ledger._resolve_replicated_iv_rank Fehler (ignoriert): {e}")
+        return None, {}
+
+
 def _leg_from_contract(contract: dict, side: str) -> dict:
     return {
         "symbol": contract.get("symbol"),
@@ -641,15 +691,33 @@ def _strategy_row(strategy, source, legs, iv_rank, effective_gate, expiry) -> di
     return row
 
 
-def _build_real_strategy(e: dict, ticker: str, spot, long_raw: dict | None) -> dict | None:
+def _build_real_strategy(
+    e: dict, ticker: str, spot, long_raw: dict | None,
+    closes: list | None = None, term_point2=None,
+) -> dict | None:
     """
-    P0-2: baut den Produktions-Strategie-Counterfactual (siehe Kommentar
-    oben) — wiederverwendet den bereits abgerufenen Long-Leg-Kontrakt
-    (long_raw, aus _build_real_option) statt Tradier erneut zu befragen.
-    Nur eine ZUSÄTZLICHE Chain-Abfrage für den Short-Leg, falls die
-    Strategie ein Spread ist (choose_strategy() → *_SPREAD). Gibt None
-    zurück (nie einen Fehler), wenn Richtung fehlt oder kein Long-Kontrakt
-    vorliegt.
+    P0-2: baut den Produktions-Strategie-Counterfactual — wiederverwendet
+    den bereits abgerufenen Long-Leg-Kontrakt (long_raw, aus
+    _build_real_option) statt Tradier erneut zu befragen. Nur eine
+    ZUSÄTZLICHE Chain-Abfrage für den Short-Leg, falls die Strategie ein
+    Spread ist. Gibt None zurück (nie einen Fehler), wenn Richtung fehlt
+    oder kein Long-Kontrakt vorliegt.
+
+    Reihenfolge der Strategie-Quelle (Review-Fix):
+      1. "production"   — pipeline.py hat im selben Lauf einen tatsächlichen
+                           Trade-Proposal erzeugt (note(production_strategy=,
+                           production_iv_rank=) in Stufe 10) → Ground Truth.
+      2. "replicated"    — kein Proposal, aber replizierter iv_rank aus
+                           echten 1y-Closes + Term-Structure verfügbar
+                           (siehe _resolve_replicated_iv_rank).
+      3. "iv_history_fallback" — weder 1 noch 2 verfügbar; grobe Percentile-
+                           Schätzung aus outputs/history.json.
+      4. "default_long"  — auch das nicht verfügbar → Long-Leg, wie bisher.
+
+    Ist sowohl production als auch replicated verfügbar, werden BEIDE im
+    Ergebnis gespeichert (production_strategy/production_iv_rank UND
+    replicated_strategy/replicated_iv_rank) plus strategy_match (bool),
+    damit die Replikations-Genauigkeit später ausgewertet werden kann.
     """
     try:
         direction = e.get("direction")
@@ -664,37 +732,80 @@ def _build_real_strategy(e: dict, ticker: str, spot, long_raw: dict | None) -> d
         long_leg           = _leg_from_contract(long_raw, "long")
         expiry             = long_raw.get("expiry")
 
-        iv_rank = _resolve_candidate_iv_rank(ticker, long_raw.get("iv"))
-        if iv_rank is None:
-            return _strategy_row(default_strategy, "default_long", [long_leg], None, None, expiry)
-
         from modules.options_designer import choose_strategy
 
-        strategy, effective_gate, _reason = choose_strategy(
-            iv_rank, is_bullish, dealer_gamma_state, vix_structure,
-        )
+        replicated_iv_rank, iv_rank_components = _resolve_replicated_iv_rank(long_raw, closes, term_point2)
+        replicated_strategy, replicated_gate = None, None
+        if replicated_iv_rank is not None:
+            replicated_strategy, replicated_gate, _reason = choose_strategy(
+                replicated_iv_rank, is_bullish, dealer_gamma_state, vix_structure,
+            )
+
+        production_strategy = features.get("production_strategy")
+        production_iv_rank  = features.get("production_iv_rank")
+
+        strategy_match = None
+        if production_strategy is not None:
+            strategy, iv_rank, effective_gate, source = (
+                production_strategy, production_iv_rank, None, "production",
+            )
+            if replicated_strategy is not None:
+                strategy_match = (production_strategy == replicated_strategy)
+        elif replicated_strategy is not None:
+            strategy, iv_rank, effective_gate, source = (
+                replicated_strategy, replicated_iv_rank, replicated_gate, "replicated",
+            )
+        else:
+            fallback_iv_rank = _resolve_candidate_iv_rank(ticker, long_raw.get("iv"))
+            if fallback_iv_rank is not None:
+                fb_strategy, fb_gate, _reason = choose_strategy(
+                    fallback_iv_rank, is_bullish, dealer_gamma_state, vix_structure,
+                )
+                strategy, iv_rank, effective_gate, source = (
+                    fb_strategy, fallback_iv_rank, fb_gate, "iv_history_fallback",
+                )
+            else:
+                strategy, iv_rank, effective_gate, source = (
+                    default_strategy, None, None, "default_long",
+                )
 
         if "SPREAD" not in strategy:
-            return _strategy_row(strategy, "computed", [long_leg], iv_rank, effective_gate, expiry)
+            row = _strategy_row(strategy, source, [long_leg], iv_rank, effective_gate, expiry)
+        else:
+            option_type = "call" if is_bullish else "put"
+            short_raw = market_snapshot.select_spread_short_leg(
+                ticker, expiry, option_type, long_raw.get("strike"),
+            )
+            if short_raw is None or short_raw.get("bid") in (None, 0):
+                # Keine Liquidität im Short-Leg-Fenster → wie Produktion
+                # (_find_spread_leg liefert None → Fallback auf Long-Leg).
+                row = _strategy_row(default_strategy, "spread_no_liquidity", [long_leg], iv_rank, effective_gate, expiry)
+            else:
+                short_leg = _leg_from_contract(short_raw, "short")
+                row = _strategy_row(strategy, source, [long_leg, short_leg], iv_rank, effective_gate, expiry)
 
-        option_type = "call" if is_bullish else "put"
-        short_raw = market_snapshot.select_spread_short_leg(
-            ticker, expiry, option_type, long_raw.get("strike"),
-        )
-        if short_raw is None or short_raw.get("bid") in (None, 0):
-            # Keine Liquidität im Short-Leg-Fenster → wie Produktion
-            # (_find_spread_leg liefert None → Fallback auf Long-Leg-Strategie).
-            return _strategy_row(default_strategy, "spread_no_liquidity", [long_leg], iv_rank, effective_gate, expiry)
+                long_ask, short_bid = long_leg.get("ask"), short_leg.get("bid")
+                long_mid, short_mid = long_leg.get("mid"), short_leg.get("mid")
+                if long_ask is not None and short_bid is not None:
+                    row["net_debit_entry"] = round(long_ask - short_bid, 4)
+                if long_mid is not None and short_mid is not None:
+                    row["net_mid_entry"] = round(long_mid - short_mid, 4)
 
-        short_leg = _leg_from_contract(short_raw, "short")
-        row = _strategy_row(strategy, "computed", [long_leg, short_leg], iv_rank, effective_gate, expiry)
+        if production_strategy is not None:
+            row["production_strategy"] = production_strategy
+            row["production_iv_rank"]  = production_iv_rank
+        if replicated_strategy is not None:
+            row["replicated_strategy"] = replicated_strategy
+            row["replicated_iv_rank"]  = round(replicated_iv_rank, 1)
+        if iv_rank_components:
+            row["iv_rank_components"] = {
+                "rv_score":      iv_rank_components.get("rv_score"),
+                "term_score":    iv_rank_components.get("term_score"),
+                "n_term_points": iv_rank_components.get("n_term_points"),
+            }
+        if strategy_match is not None:
+            row["strategy_match"] = strategy_match
 
-        long_ask, short_bid = long_leg.get("ask"), short_leg.get("bid")
-        long_mid, short_mid = long_leg.get("mid"), short_leg.get("mid")
-        if long_ask is not None and short_bid is not None:
-            row["net_debit_entry"] = round(long_ask - short_bid, 4)
-        if long_mid is not None and short_mid is not None:
-            row["net_mid_entry"] = round(long_mid - short_mid, 4)
         return row
     except Exception as ex:
         log.debug(f"candidate_ledger._build_real_strategy Fehler (ignoriert): {ex}")
@@ -887,6 +998,46 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             selected_ids = {sig["signal_id"] for (_, sig, _) in eligible}
         spot_by_id = {sig["signal_id"]: spot for (_, sig, spot) in eligible}
 
+        # ── Review-Fix: real_option (Pass 1) für alle budget-ausgewählten
+        # Signale bauen, BEVOR die 1y-Closes für den replizierten iv_rank
+        # (real_strategy) geholt werden — die brauchen die tatsächlich
+        # betroffenen Ticker (nur die mit erfolgreich gebautem real_option).
+        real_option_raw_by_id = {}
+        for ticker, e in to_process:
+            signal_id = e["signal_id"]
+            if signal_id not in selected_ids or signal_id not in spot_by_id:
+                continue
+            real_option_raw = _build_real_option(e, spot_by_id[signal_id])
+            if real_option_raw is not None:
+                real_option_raw_by_id[signal_id] = (ticker, real_option_raw)
+
+        # ── Pass 2: EIN gebündelter yf.download für 1y-Closes über alle
+        # Ticker mit erfolgreichem real_option (für den replizierten
+        # iv_rank in real_strategy — siehe compute_iv_rank_components).
+        strategy_tickers = sorted({t for (t, _raw) in real_option_raw_by_id.values()})
+        closes_hist = _fetch_history_batch(strategy_tickers, 365) if strategy_tickers else {}
+        closes_by_ticker = {t: [p for _ts, p in hist] for t, hist in closes_hist.items()}
+
+        # ── Pass 3: pro Kandidat höchstens EIN zusätzlicher Chain-Call für
+        # den zweiten Term-Structure-Punkt (nächste Expiration >=7 DTE).
+        # term_calls zählt reine Versuche (Erfolg oder nicht) — Observability,
+        # kein eigenes Budget/Gate.
+        term_calls = 0
+        real_strategy_raw_by_id = {}
+        for signal_id, (ticker, real_option_raw) in real_option_raw_by_id.items():
+            e = next(sig for _t, sig in to_process if sig["signal_id"] == signal_id)
+            spot = spot_by_id[signal_id]
+            term_calls += 1
+            term_point2 = market_snapshot.fetch_term_iv_point(ticker, spot)
+            real_strategy_raw = _build_real_strategy(
+                e, ticker, spot, real_option_raw,
+                closes=closes_by_ticker.get(ticker), term_point2=term_point2,
+            )
+            if real_strategy_raw is not None:
+                real_strategy_raw_by_id[signal_id] = real_strategy_raw
+        if term_calls:
+            log.info(f"candidate_ledger: {term_calls} zusätzliche Term-Structure-Chain-Call(s) für real_strategy")
+
         new_lines = []
         for ticker, e in to_process:
             # Ohne reject()-Aufruf ausgeschieden (z.B. Prescreening) → als
@@ -943,11 +1094,10 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                     row["real_option_skip_reason"] = "budget_random_exclusion"
                 else:
                     row["snapshot_selected"] = True
-                    spot = spot_by_id[signal_id]
-                    real_option_raw = _build_real_option(e, spot)
-                    if real_option_raw is not None:
+                    if signal_id in real_option_raw_by_id:
+                        _t, real_option_raw = real_option_raw_by_id[signal_id]
                         row["real_option"] = _finalize_real_option(real_option_raw, resolved["session"], today)
-                        real_strategy_raw = _build_real_strategy(e, ticker, spot, real_option_raw)
+                        real_strategy_raw = real_strategy_raw_by_id.get(signal_id)
                         if real_strategy_raw is not None:
                             row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, resolved["session"], today)
                     else:
