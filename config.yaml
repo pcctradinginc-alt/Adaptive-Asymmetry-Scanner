@@ -143,3 +143,9 @@ data_sources:
     enabled: true             # EULERPOOL_API_KEY als Secret
     top_n: 2                  # Nur für Top-2 Signale
     iv_crush_threshold: 80    # IV-Percentile ab dem Warnung ausgegeben wird
+
+# Multi-Variant Exit-Counterfactual (rein simulativ, siehe modules/exit_sim.py)
+exit_sim:
+  enabled: true
+  trail_pcts: [0.35, 0.50]   # Trailing-Abstand für Varianten C (trail35) / D (trail50)
+  activation: 0.50           # Peak-Return, ab dem der Trailing-Stop/Teilverkauf aktiviert wird
