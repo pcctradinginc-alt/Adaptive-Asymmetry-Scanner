@@ -1,0 +1,69 @@
+# challengers.yaml – Pre-registered Challenger/Shadow/Walk-forward Registry
+#
+# WICHTIG: Diese Datei ist eine reine Beobachtungs-/Vorregistrierungs-Liste.
+#   - modules/challenger.py LIEST diese Datei, schreibt sie NIEMALS.
+#   - Eine "promote_recommended"-Empfehlung ändert NICHT automatisch
+#     config.yaml. Ein Mensch prüft die Empfehlung und merged einen PR,
+#     der `gates:` in config.yaml ändert. Erst das ist die "Promotion".
+#   - Jeder Challenger wird VOR der Datensammlung registriert (Hypothese +
+#     Regel + start_date), damit die Auswertung kein Post-hoc-Overfitting ist.
+#     start_date liegt strikt NACH registered_on ("walk-forward" — es werden
+#     nur Ledger-Zeilen mit date >= start_date ausgewertet).
+#
+# Feldreferenz:
+#   id            eindeutiger Schlüssel
+#   hypothesis    Freitext: was wird erwartet und warum
+#   registered_on Datum der Registrierung (Commit-Datum dieses Eintrags)
+#   start_date    erste Ledger-Zeile, die in die Auswertung einfließt
+#   rule          Liste von {field, op, value} — AND-verknüpft; Feld über
+#                 Punkt-Pfad in die Ledger-Zeile, z.B. "features.trade_score"
+#   baseline_rule wie rule, aber für den Produktions-Arm (Default: status==proposed)
+#   metric        Ziel-Metrik (Punkt-Pfad), z.B. "outcomes.opt_ret_45d";
+#                 fällt bei fehlendem Feld auf eine Fallback-Metrik zurück
+#   min_n         Mindest-Stichprobengröße je Arm, bevor ein Verdikt gefällt wird
+#   horizon_days  Horizont in Tagen (informativ, für Report/Zeitplanung)
+#   max_duration_days  nach registered_on+max_duration_days ohne Promotion → "expired"/"reject"
+#   status        active | promote_recommended | rejected | expired
+
+challengers:
+  - id: final_mc_dte_shadow
+    hypothesis: >
+      Gating mit dem MC-Horizont, der zur gehandelten DTE passt (Shadow-Hit-Rate
+      auf dem tatsächlichen Horizont statt dem generischen final_mc_hit_rate),
+      selektiert bessere Trades als das aktuelle final_mc-Gate.
+    registered_on: "2026-09-28"
+    start_date: "2026-09-28"
+    rule:
+      - field: "features.final_mc_shadow_hit_rate"
+        op: ">="
+        value: 0.50
+    baseline_rule:
+      - field: "features.final_mc_hit_rate"
+        op: ">="
+        value: 0.45
+    metric: "outcomes.opt_ret_45d"
+    min_n: 30
+    horizon_days: 45
+    max_duration_days: 180
+    status: active
+
+  - id: trade_score_61
+    hypothesis: >
+      Ein höheres Trade-Score-Gate (>=61 statt >=55) filtert schwächere
+      Kandidaten heraus und verbessert den mittleren Return, ohne die
+      Sample-Größe zu stark zu reduzieren.
+    registered_on: "2026-09-28"
+    start_date: "2026-09-28"
+    rule:
+      - field: "features.trade_score"
+        op: ">="
+        value: 61
+    baseline_rule:
+      - field: "features.trade_score"
+        op: ">="
+        value: 55
+    metric: "outcomes.opt_ret_45d"
+    min_n: 30
+    horizon_days: 45
+    max_duration_days: 180
+    status: active

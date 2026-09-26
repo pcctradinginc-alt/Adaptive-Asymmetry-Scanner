@@ -171,6 +171,47 @@ Je mehr Trades, desto präziser das Scoring.
 
 ---
 
+## Tuning-Prozess
+
+Änderungen an den Produktions-Schwellen (`config.yaml` → `gates:`) folgen einem
+festen Prozess, damit kein Tuning auf bereits gesehenen Daten (Post-hoc-
+Overfitting) stattfindet und keine automatisierte Instanz allein die
+Produktionslogik ändern kann:
+
+1. **Vorregistrierung.** Jede Hypothese wird in `challengers.yaml` **vor**
+   der Datensammlung eingetragen: eine Freitext-Hypothese, eine deklarative
+   Auswahlregel für den Challenger-Arm, eine Baseline-Regel (Standard: die
+   aktuelle Produktionsregel), eine Ziel-Metrik, eine Mindest-Stichprobengröße
+   (`min_n`) und ein `start_date`/`max_duration_days`-Fenster.
+2. **Walk-forward-Auswertung.** `modules/challenger.py` wertet ausschließlich
+   Candidate-Ledger-Zeilen (`outputs/candidate_ledger/*.jsonl`) aus, deren
+   Datum **nach** der Registrierung liegt und deren Outcome-Horizont bereits
+   verstrichen ist. Bereits vor Registrierung gesammelte Daten fließen nie ein.
+3. **Deterministisches Verdikt.** Für jeden Challenger wird ein seeded,
+   reproduzierbares Bootstrap-Konfidenzintervall der Return-Differenz
+   (Challenger − Baseline) berechnet, mit Bonferroni-Korrektur über alle
+   aktiven Challenger (max. 3 gleichzeitig). Das Verdikt (`running`,
+   `promote_recommended`, `reject`, `expired`) ist eine reine Funktion der
+   Daten — kein manuelles Ermessen im laufenden Auswertungscode.
+4. **Promotion ist ausschließlich ein von einem Menschen gemergter PR.** Ein
+   `promote_recommended`-Verdikt erscheint informativ im Monats-Report
+   (Abschnitt „🧪 Challenger (Walk-forward)“). Es ändert **nichts** automatisch.
+   Die tatsächliche Übernahme in die Produktion ist ein Pull-Request, der
+   `gates:` in `config.yaml` ändert und von einem Repo-Owner (siehe
+   `.github/CODEOWNERS`) geprüft und gemergt wird.
+5. **Grenzen für automatisierte Beiträge.** Eine KI/Automatisierung darf neue
+   Challenger in `challengers.yaml` vorschlagen/registrieren (als PR, nicht
+   als Direkt-Commit gegen `main`). Sie darf **nicht** `modules/challenger.py`,
+   die Candidate-Ledger-Daten (`outputs/candidate_ledger/`) oder die
+   Promotion-Regeln selbst verändern — diese Pfade sind über CODEOWNERS
+   geschützt und benötigen menschliche Review.
+
+```bash
+python -m modules.challenger   # druckt eine Tabelle aller registrierten Challenger
+```
+
+---
+
 ## Tests
 
 ```bash

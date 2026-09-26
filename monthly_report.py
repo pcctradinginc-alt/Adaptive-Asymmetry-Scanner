@@ -452,6 +452,53 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
     """
 
 
+def _fmt_signed_pct(x) -> str:
+    return f"{x:+.1%}" if isinstance(x, (int, float)) else "–"
+
+
+def build_challenger_html() -> str:
+    """
+    🧪 Challenger (Walk-forward): rendert evaluate_all() aus modules/challenger.py.
+    Rein informativ — ändert nie config.yaml/challengers.yaml. Darf den Report
+    unter keinen Umständen zum Absturz bringen (try/except).
+    """
+    try:
+        from modules.challenger import evaluate_all
+        results = evaluate_all()
+        if not results:
+            return ""
+
+        rows_html = ""
+        for r in results:
+            verdict = r.get("verdict", "running")
+            color = {
+                "promote_recommended": "#16a34a",
+                "reject": "#dc2626",
+                "expired": "#dc2626",
+                "queued": "#888",
+            }.get(verdict, "#d97706")
+            ci = ""
+            if r.get("ci_lower") is not None and r.get("ci_upper") is not None:
+                ci = f"[{_fmt_signed_pct(r['ci_lower'])}, {_fmt_signed_pct(r['ci_upper'])}]"
+            rows_html += (
+                f"<li><b>{r['id']}</b> — {r.get('hypothesis', '').strip()}<br>"
+                f"n Baseline/Challenger: {r.get('n_baseline')}/{r.get('n_challenger')} · "
+                f"Ø Baseline {_fmt_signed_pct(r.get('mean_baseline'))} vs. "
+                f"Ø Challenger {_fmt_signed_pct(r.get('mean_challenger'))} · "
+                f"CI(Diff) {ci} · "
+                f"Verdikt: <b style='color:{color}'>{verdict}</b></li>"
+            )
+        return (
+            "<h3>🧪 Challenger (Walk-forward)</h3>"
+            "<p style='font-size:0.85em;color:#888'>Rein informativ — Promotion erfolgt "
+            "ausschließlich durch einen von Menschen gemergten PR auf config.yaml.</p>"
+            f"<ul>{rows_html}</ul>"
+        )
+    except Exception as e:
+        log.debug(f"build_challenger_html Fehler (ignoriert): {e}")
+        return ""
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
                total: dict | None, funnel: dict, closed: list[dict] | None = None,
                spy: float | None = None, shadow: dict | None = None,
@@ -522,6 +569,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       {stat_block("Gesamt (alle closed Trades)", total)}
       {build_tuning_html(tuning or [])}
       {build_slot_html(slot or [])}
+      {build_challenger_html()}
       {funnel_html}
       <hr>
       <p style="color:#888;font-size:0.85em">

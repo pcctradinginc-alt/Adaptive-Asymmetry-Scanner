@@ -337,6 +337,27 @@ def test_summarize_aggregates_by_reason(ledger_root):
     assert reason["share_positive"] == pytest.approx(0.5)
 
 
+def test_summarize_includes_opt_ret_stats(ledger_root):
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": "2026-08-01", "ticker": "A", "status": "proposed",
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": 100.0,
+        "outcomes": {"ret_20d": 0.10, "ret_45d": 0.15, "opt_ret_20d": 0.40, "opt_ret_45d": 0.55},
+    })
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": "2026-08-01", "ticker": "B", "status": "rejected",
+        "reject_reason": "mc_below_threshold", "direction": "BULLISH", "features": {},
+        "entry_price": 50.0,
+        "outcomes": {"ret_20d": -0.05, "ret_45d": -0.02, "opt_ret_20d": -0.30, "opt_ret_45d": -0.20},
+    })
+
+    summary = cl.summarize(ledger_root)
+    assert summary["proposed"]["mean_opt_ret_20d"] == pytest.approx(0.40)
+    assert summary["proposed"]["opt_share_positive"] == pytest.approx(1.0)
+    assert summary["mc_below_threshold"]["mean_opt_ret_20d"] == pytest.approx(-0.30)
+    assert summary["mc_below_threshold"]["opt_share_positive"] == pytest.approx(0.0)
+
+
 def test_summarize_handles_missing_root(tmp_path):
     result = cl.summarize(tmp_path / "does_not_exist")
     assert result == {}
@@ -352,6 +373,222 @@ def test_summarize_never_raises_on_corrupt_line(ledger_root):
         }) + "\n")
     result = cl.summarize(ledger_root)
     assert result["proposed"]["n"] == 1
+
+
+# ── hypo_option (Black-Scholes-Counterfactual) ───────────────────────────────
+
+def test_flush_builds_hypo_call_for_bullish(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.mark_passed("AAPL")
+    cl.flush(reports_dir_root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    hypo = row["hypo_option"]
+    assert hypo["kind"] == "call"
+    assert hypo["strike"] == 100
+    assert hypo["dte"] == 120  # ttm_to_dte_floor("4-8 Wochen")
+    assert hypo["iv_source"] == "default"
+    assert hypo["iv"] == pytest.approx(0.35)
+    assert hypo["entry_premium"] > 0
+    assert hypo["spread_cost"] == pytest.approx(0.05)
+
+
+def test_flush_builds_hypo_put_for_bearish(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 50.0 for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("XOM", stage="deep_analysis", direction="BEARISH", ttm="6 Monate")
+    cl.mark_passed("XOM")
+    cl.flush(reports_dir_root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    hypo = row["hypo_option"]
+    assert hypo["kind"] == "put"
+    assert hypo["strike"] == 50
+    assert hypo["dte"] == 140
+
+
+def test_flush_hypo_uses_implied_vol_when_present(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", implied_vol=0.42)
+    cl.flush(reports_dir_root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert row["hypo_option"]["iv_source"] == "implied"
+    assert row["hypo_option"]["iv"] == pytest.approx(0.42)
+
+
+def test_flush_hypo_uses_realized_sigma_when_no_iv(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="mismatch", sigma_30d=0.02)
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH")
+    cl.flush(reports_dir_root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    hypo = row["hypo_option"]
+    assert hypo["iv_source"] == "realized"
+    assert hypo["iv"] == pytest.approx(0.02 * (252 ** 0.5), abs=1e-4)
+
+
+def test_flush_skips_hypo_when_direction_unknown(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("XOM", stage="universe")
+    cl.flush(reports_dir_root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert "hypo_option" not in row
+
+
+def test_flush_hypo_never_raises_with_missing_price(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: None for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH")
+    cl.flush(reports_dir_root=ledger_root)  # must not raise
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert "hypo_option" not in row
+
+
+# ── opt_ret_{h}d (Options-Counterfactual über update_outcomes) ───────────────
+
+def test_update_outcomes_computes_opt_ret_for_known_path(monkeypatch, ledger_root):
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": 100.0, "outcomes": {},
+        "hypo_option": {
+            "kind": "call", "strike": 100, "dte": 120, "iv": 0.35,
+            "iv_source": "default", "entry_premium": 6.7723, "spread_cost": 0.05,
+        },
+    })
+    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+    # Underlying steigt: +5% nach 20 Tagen
+    hist = {"AAPL": [(entry_dt + timedelta(days=d), 100.0 + d * 0.25) for d in range(0, 40)]}
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: hist)
+
+    today = (entry_dt + timedelta(days=25)).strftime("%Y-%m-%d")
+    cl.update_outcomes(today, root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    outcomes = row["outcomes"]
+    assert "opt_ret_5d" in outcomes
+    assert "opt_ret_20d" in outcomes
+    # Underlying up -> call gains value -> opt_ret should be positive and
+    # (due to leverage) larger in magnitude than the underlying return.
+    assert outcomes["opt_ret_20d"] > outcomes["ret_20d"]
+
+
+def test_update_outcomes_opt_ret_put_gains_when_underlying_falls(monkeypatch, ledger_root):
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "XOM", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "rejected", "reject_stage": "quick_mc",
+        "reject_reason": "mc_below_threshold", "direction": "BEARISH", "features": {},
+        "entry_price": 100.0, "outcomes": {},
+        "hypo_option": {
+            "kind": "put", "strike": 100, "dte": 120, "iv": 0.35,
+            "iv_source": "default", "entry_premium": 6.7723, "spread_cost": 0.05,
+        },
+    })
+    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+    hist = {"XOM": [(entry_dt + timedelta(days=d), 100.0 - d * 0.5) for d in range(0, 10)]}
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: hist)
+
+    today = (entry_dt + timedelta(days=6)).strftime("%Y-%m-%d")
+    cl.update_outcomes(today, root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    outcomes = row["outcomes"]
+    assert outcomes["opt_ret_5d"] > 0  # put gains as underlying falls
+
+
+def test_update_outcomes_opt_ret_capped_at_minus_one(monkeypatch, ledger_root):
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": 100.0, "outcomes": {},
+        "hypo_option": {
+            "kind": "call", "strike": 100, "dte": 20, "iv": 0.35,
+            "iv_source": "default", "entry_premium": 3.0, "spread_cost": 0.05,
+        },
+    })
+    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+    # Underlying crashes hard -> deep OTM call at expiry -> near-total loss
+    hist = {"AAPL": [(entry_dt + timedelta(days=d), 60.0) for d in range(0, 25)]}
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: hist)
+
+    today = (entry_dt + timedelta(days=25)).strftime("%Y-%m-%d")
+    cl.update_outcomes(today, root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert row["outcomes"]["opt_ret_20d"] >= -1.0
+
+
+def test_update_outcomes_no_crash_when_hypo_missing(monkeypatch, ledger_root):
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": 100.0, "outcomes": {},
+    })
+    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+    hist = {"AAPL": [(entry_dt + timedelta(days=d), 100.0 + d) for d in range(0, 10)]}
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: hist)
+
+    today = (entry_dt + timedelta(days=6)).strftime("%Y-%m-%d")
+    cl.update_outcomes(today, root=ledger_root)  # must not raise
+
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert "ret_5d" in row["outcomes"]
+    assert "opt_ret_5d" not in row["outcomes"]
+
+
+def test_update_outcomes_backfills_hypo_option_when_entry_price_missing(monkeypatch, ledger_root):
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": None, "outcomes": {},
+    })
+    d0 = datetime.strptime(entry_date, "%Y-%m-%d")
+    hist = [(d0 + timedelta(days=k), 100.0 + k) for k in range(0, 31)]
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {"AAPL": hist})
+
+    cl.update_outcomes((d0 + timedelta(days=30)).strftime("%Y-%m-%d"), root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert row["entry_price"] == 100.0
+    assert "hypo_option" in row
+    assert row["hypo_option"]["kind"] == "call"
+    assert "opt_ret_5d" in row["outcomes"]
+
+
+# ── Stage-Notizen landen in features (flush) ─────────────────────────────────
+
+def test_note_fields_across_stages_end_up_in_flushed_features(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="mismatch", mismatch=6.5)
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", impact=6, surprise=4)
+    cl.note("AAPL", stage="quick_mc", quick_mc_hit_rate=0.6)
+    cl.note("AAPL", stage="final_mc", final_mc_hit_rate=0.55)
+    cl.note("AAPL", stage="trade_proposal", trade_score=88)
+    cl.mark_passed("AAPL")
+    cl.flush(reports_dir_root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    f = row["features"]
+    assert f["impact"] == 6
+    assert f["surprise"] == 4
+    assert f["mismatch"] == 6.5
+    assert f["quick_mc_hit_rate"] == 0.6
+    assert f["final_mc_hit_rate"] == 0.55
+    assert f["trade_score"] == 88
 
 
 def test_flush_marks_unlabeled_drop_with_last_stage(monkeypatch, ledger_root):

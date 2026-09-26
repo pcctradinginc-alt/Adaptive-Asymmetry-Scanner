@@ -1,0 +1,7 @@
+# Diese Pfade steuern die Produktions-Gates und den Tuning-Prozess.
+# Änderungen benötigen Review durch einen Repo-Owner — auch wenn sie von
+# einer Automatisierung/KI vorgeschlagen werden (siehe README.md, "Tuning-Prozess").
+modules/challenger.py         @pcctradinginc-alt
+challengers.yaml              @pcctradinginc-alt
+config.yaml                   @pcctradinginc-alt
+outputs/candidate_ledger/     @pcctradinginc-alt
