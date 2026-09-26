@@ -412,7 +412,7 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
 
     # Guard: need at least MIN_CLUSTERS distinct dates for cluster bootstrap
     if n_clusters < MIN_CLUSTERS:
-        result["verdict"] = "running"
+        result["verdict"] = "reject" if expired else "running"
         return result
 
     alpha = ALPHA_BASE / max(n_active, 1)
