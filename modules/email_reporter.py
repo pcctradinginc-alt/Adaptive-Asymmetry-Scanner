@@ -26,6 +26,8 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from modules.config import cfg
+
 log = logging.getLogger(__name__)
 
 
@@ -42,8 +44,9 @@ def send_status_email(pipeline_stats: dict, today: str, health: dict | None = No
 
 def send_email(proposals: list[dict], today: str, pipeline_stats: dict | None = None) -> None:
     pipeline_stats = pipeline_stats or {}
+    trade_score_min = float(getattr(getattr(cfg, "gates", None), "trade_score_min", 55))
     proposals = [p for p in proposals
-                 if p.get("trade_score", {}).get("total", 0) >= 65]
+                 if p.get("trade_score", {}).get("total", 0) >= trade_score_min]
     if proposals:
         html    = _build_trade_email(proposals, today)
         subject = f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"

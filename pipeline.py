@@ -521,13 +521,17 @@ def main() -> None:
             save_history(history); send_email(); return
 
     # ── STUFE 4b: Impact×Surprise Floor ──────────────────────────────────────
+    gate_cfg     = getattr(cfg, "gates", None)
+    impact_min   = int(getattr(gate_cfg, "impact_min", 4))
+    surprise_min = int(getattr(gate_cfg, "surprise_min", 3))
+
     _before_isf = len(analyses)
     _passed_isf, _failed_isf = [], []
     for a in analyses:
         da = a.get("deep_analysis", {})
         impact   = da.get("impact", 0)
         surprise = da.get("surprise", 0)
-        if impact >= 4 and surprise >= 3:
+        if impact >= impact_min and surprise >= surprise_min:
             _passed_isf.append(a)
         else:
             _failed_isf.append(a)
@@ -535,9 +539,9 @@ def main() -> None:
         reject("impact_x_surprise_below_floor", a.get("ticker"))
     analyses = _passed_isf
     stats["after_isf"] = len(analyses)
-    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (impact≥4 & surprise≥3, war {_before_isf})")
+    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (impact≥{impact_min} & surprise≥{surprise_min}, war {_before_isf})")
     if not analyses:
-        stats["stop_reason"] = "Alle Signale unter Impact×Surprise-Floor (impact<4 oder surprise<3)."
+        stats["stop_reason"] = f"Alle Signale unter Impact×Surprise-Floor (impact<{impact_min} oder surprise<{surprise_min})."
         save_history(history); send_email(); return
 
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
@@ -547,7 +551,8 @@ def main() -> None:
     # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
     # (4 Trades: 25% Win, mean −73%) — extreme Werte deuten auf eine
     # Bullen-Falle/strukturelles Problem statt verzögerter Einpreisung.
-    mismatch_cap = float(getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0))
+    mismatch_cap = float(getattr(getattr(cfg, "gates", None), "mismatch_max",
+                          getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0)))
     _capped = []
     for s in scored:
         m = s.get("features", {}).get("mismatch", 0)
@@ -620,7 +625,7 @@ def main() -> None:
         ticker   = s["ticker"]
         mismatch = s.get("features", {}).get("mismatch", 0)
 
-        if mismatch >= 7:
+        if mismatch >= mismatch_cap:
             current_max = max(base_move, 0.12)
         elif mismatch >= 5:
             current_max = max(base_move, 0.09)
@@ -674,7 +679,9 @@ def main() -> None:
             continue
         # Schwelle jetzt explizit im Caller (run_for_dte filtert nicht mehr selbst).
         # Wert = vormals interner Threshold → Verhalten unveraendert.
-        final_threshold = 0.45 if final_dte <= 45 else 0.50
+        final_mc_min_short = float(getattr(gate_cfg, "final_mc_min_short", 0.45))
+        final_mc_min_long  = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
+        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
         if hit_rate < final_threshold:
             log.info(f"  [{ticker}] Final MC: {hit_rate:.1%} < {final_threshold:.0%} → verworfen")
             reject("final_mc_below_threshold", ticker)
@@ -812,18 +819,20 @@ def main() -> None:
     if trade_proposals:
         trade_proposals = rank_proposals(trade_proposals)
         before = len(trade_proposals)
+        trade_score_min  = float(getattr(gate_cfg, "trade_score_min", 55))
+        shadow_score_min = float(getattr(gate_cfg, "shadow_score_min", 40))
         _kept, _shadow = [], []
         for p in trade_proposals:
             score = p.get("trade_score", {}).get("total", 0)
-            if score >= 55:
+            if score >= trade_score_min:
                 _kept.append(p)
-            elif score >= 40:
+            elif score >= shadow_score_min:
                 # Schatten-Trade: knapp verworfen → mittracken um die
                 # Score-Schwelle mit echten Outcomes zu validieren
                 _shadow.append((p, f"score_{score}"))
         trade_proposals = _kept
         if len(trade_proposals) < before:
-            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 55)")
+            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < {trade_score_min:.0f})")
 
         # ── STUFE 10b: Korrelations-Check ────────────────────────────────────
         if len(trade_proposals) > 1:

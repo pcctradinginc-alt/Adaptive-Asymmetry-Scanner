@@ -139,16 +139,23 @@ def current_thresholds() -> dict:
     """Aktuelle Gate-Schwellen aus config.yaml / Code-Konstanten."""
     try:
         from modules.config import cfg
-        mismatch_cap = float(getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0))
-        impact_floor = int(getattr(getattr(cfg, "pipeline", None), "min_impact_threshold", 4))
+        from modules.options_designer import ttm_to_dte_floor
+        gate_cfg     = getattr(cfg, "gates", None)
+        mismatch_cap = float(getattr(gate_cfg, "mismatch_max",
+                              getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0)))
+        impact_floor = int(getattr(gate_cfg, "impact_min",
+                           getattr(getattr(cfg, "pipeline", None), "min_impact_threshold", 4)))
+        surprise_floor = int(getattr(gate_cfg, "surprise_min", 3))
+        score_floor    = int(getattr(gate_cfg, "trade_score_min", 55))
+        dte_floor      = ttm_to_dte_floor("")  # unbekanntes TTM → konservativer Default
     except Exception:
-        mismatch_cap, impact_floor = 7.0, 4
+        mismatch_cap, impact_floor, surprise_floor, score_floor, dte_floor = 7.0, 4, 3, 55, 120
     return {
-        "dte":      120,           # ttm_to_dte_floor-Default (options_designer.py, v11.0)
+        "dte":      dte_floor,      # ttm_to_dte_floor-Default (options_designer.py, v11.0)
         "mismatch": mismatch_cap,
         "impact":   impact_floor,
-        "surprise": 3,             # Impact×Surprise-Floor (pipeline.py Stufe 4b)
-        "score":    55,            # Trade-Score-Gate (pipeline.py Stufe 10)
+        "surprise": surprise_floor, # Impact×Surprise-Floor (pipeline.py Stufe 4b)
+        "score":    score_floor,    # Trade-Score-Gate (pipeline.py Stufe 10)
     }
 
 
