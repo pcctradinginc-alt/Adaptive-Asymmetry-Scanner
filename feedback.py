@@ -377,7 +377,7 @@ def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float 
 
 # ── Outcome-Berechnung ────────────────────────────────────────────────────────
 
-def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
+def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None = None) -> float | None:
     """
     Berechnet Trade-Outcome (Return) für das RL-Training.
     Returns None wenn kein verwertbarer Preis ermittelbar ist (statt 0.0,
@@ -391,6 +391,14 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
     Entry-Debit:
       Explizit gespeichertes entry_debit hat Vorrang.
       Fallback: net_debit (Spread) oder ask (Long).
+
+    Args:
+        trade: Trade dict
+        current_stock_price: Aktueller Aktienkurs
+        meta: Optional dict to record which method computed the outcome.
+              When provided, sets meta["method"] to one of:
+              "spread_quote", "option_quote", "delta_approx",
+              "delta_approx_clipped", "stock_fallback"
     """
     ticker    = trade["ticker"]
     option    = trade.get("option") or {}
@@ -425,6 +433,8 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
             return None
         # current_spread == 0.0 ist valide: Spread verfallen wertlos → -100%
         result = (current_spread - entry_debit) / entry_debit
+        if meta is not None:
+            meta["method"] = "spread_quote"
         log.info(
             f"    Spread-P&L: entry=${entry_debit:.2f} → "
             f"current=${current_spread:.2f} = {result:+.2%}"
@@ -441,6 +451,8 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
         current_option = get_current_option_price(ticker, option, strategy)
         if current_option > 0:
             result = (current_option - entry_debit) / entry_debit
+            if meta is not None:
+                meta["method"] = "option_quote"
             log.info(
                 f"    Options-P&L: entry=${entry_debit:.2f} → "
                 f"current=${current_option:.2f} = {result:+.2%}"
@@ -449,11 +461,20 @@ def compute_outcome(trade: dict, current_stock_price: float) -> float | None:
         if entry_stock > 0:
             leverage = (entry_stock / entry_debit) * 0.65
             result   = stock_return * leverage
+            unclipped_result = result
             result   = max(-1.0, min(result, 5.0))   # Options: Max-Verlust=-100%, Cap=+500%
+            # Record whether clipping was applied
+            if meta is not None:
+                if abs(unclipped_result - result) > 1e-6:
+                    meta["method"] = "delta_approx_clipped"
+                else:
+                    meta["method"] = "delta_approx"
             log.info(f"    Delta-approx: {stock_return:+.2%} × {leverage:.1f} = {result:+.2%}")
             return result
 
     # ── Letzter Fallback: Stock-Return (nur wenn kein Debit bekannt) ─────────
+    if meta is not None:
+        meta["method"] = "stock_fallback"
     log.info(f"    Stock-Return Fallback: {stock_return:+.2%}")
     return stock_return
 
@@ -808,7 +829,8 @@ def main() -> None:
             still_active.append(trade)
             continue
 
-        outcome = compute_outcome(trade, current)
+        meta = {}
+        outcome = compute_outcome(trade, current, meta)
         if outcome is None:
             log.warning(f"  [{ticker}] Outcome nicht ermittelbar → bleibt aktiv, kein Lern-Update")
             still_active.append(trade)
@@ -841,10 +863,11 @@ def main() -> None:
                 if bin_label:
                     update_bin(history["feature_stats"], f_name, bin_label, outcome)
 
-            trade["outcome"]      = round(outcome, 4)
-            trade["close_date"]   = today.strftime("%Y-%m-%d")
-            trade["close_price"]  = current
-            trade["close_reason"] = exit_reason or "max_holding_period"
+            trade["outcome"]        = round(outcome, 4)
+            trade["close_date"]     = today.strftime("%Y-%m-%d")
+            trade["close_price"]    = current
+            trade["close_reason"]   = exit_reason or "max_holding_period"
+            trade["outcome_method"] = meta.get("method", "unknown")
             history.setdefault("closed_trades", []).append(trade)
             log.info(
                 f"  [{ticker}] Trade abgeschlossen "
