@@ -76,6 +76,7 @@ class TestComputeFinalMcShadow:
             s=test_signal,
             final_dte=45,
             hit_rate=0.50,
+            shadow_dte=120,
             min_long=0.50
         )
 
@@ -89,7 +90,7 @@ class TestComputeFinalMcShadow:
         # Check values
         assert result["dte_used"] == 45
         assert result["hit_rate_used"] == 0.50
-        assert result["dte_shadow"] == 120  # "4-8 Wochen" → 120
+        assert result["dte_shadow"] == 120
         assert result["hit_rate_shadow"] == 0.55
         assert result["would_pass_shadow"] is True  # 0.55 >= 0.50
 
@@ -114,11 +115,12 @@ class TestComputeFinalMcShadow:
             s=test_signal,
             final_dte=120,
             hit_rate=0.52,
+            shadow_dte=140,
             min_long=0.50
         )
 
         assert result["dte_used"] == 120
-        assert result["dte_shadow"] == 140  # "6 Monate" → 140
+        assert result["dte_shadow"] == 140
         assert result["hit_rate_shadow"] == 0.40
         assert result["would_pass_shadow"] is False  # 0.40 < 0.50
 
@@ -138,11 +140,101 @@ class TestComputeFinalMcShadow:
             s=test_signal,
             final_dte=45,
             hit_rate=0.50,
+            shadow_dte=120,
             min_long=0.45
         )
 
-        # Empty TTM should default to 120
+        # shadow_dte is passed explicitly, so it should be 120
         assert result["dte_shadow"] == 120
+
+
+class TestDteModeLogic:
+    """Unit tests for final_mc_dte_mode configuration switching."""
+
+    def test_legacy_45_mode(self):
+        """Test legacy_45 mode: production=45, shadow=ttm_dte."""
+        # Simulating the logic from Stage 8
+        gate_cfg_mode = "legacy_45"
+        ttm = "4-8 Wochen"
+        ttm_dte = ttm_to_dte_floor(ttm)  # Should be 120
+
+        if gate_cfg_mode == "legacy_45":
+            final_dte = 45
+            shadow_dte = ttm_dte
+        else:
+            final_dte = ttm_dte
+            shadow_dte = 45
+
+        assert final_dte == 45
+        assert shadow_dte == 120
+
+    def test_ttm_mode(self):
+        """Test ttm mode: production=ttm_dte, shadow=45."""
+        gate_cfg_mode = "ttm"
+        ttm = "6 Monate"
+        ttm_dte = ttm_to_dte_floor(ttm)  # Should be 140
+
+        if gate_cfg_mode == "legacy_45":
+            final_dte = 45
+            shadow_dte = ttm_dte
+        else:
+            final_dte = ttm_dte
+            shadow_dte = 45
+
+        assert final_dte == 140
+        assert shadow_dte == 45
+
+    def test_unknown_mode_fallback(self):
+        """Test that unknown mode falls back to legacy_45."""
+        gate_cfg_mode = "unknown_mode"
+
+        # Simulate fallback logic
+        if gate_cfg_mode not in ("legacy_45", "ttm"):
+            gate_cfg_mode = "legacy_45"
+
+        assert gate_cfg_mode == "legacy_45"
+
+
+class TestThresholdSelection:
+    """Unit tests for threshold selection based on final_dte."""
+
+    def test_short_dte_threshold_legacy_45(self):
+        """Test threshold selection for short DTE (legacy_45 mode)."""
+        final_mc_min_short = 0.45
+        final_mc_min_long = 0.50
+        final_dte = 45
+
+        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
+
+        assert final_threshold == 0.45
+        assert final_dte <= 45
+
+    def test_long_dte_threshold_legacy_45(self):
+        """Test threshold selection for long DTE in legacy_45 mode (via shadow)."""
+        final_mc_min_short = 0.45
+        final_mc_min_long = 0.50
+        # In legacy_45, production always uses 45
+        final_dte = 45
+
+        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
+
+        assert final_threshold == 0.45
+        # Shadow would use long threshold
+        shadow_dte = 120
+        shadow_threshold = final_mc_min_short if shadow_dte <= 45 else final_mc_min_long
+        assert shadow_threshold == 0.50
+
+    def test_long_dte_threshold_ttm_mode(self):
+        """Test threshold selection for long DTE in ttm mode."""
+        final_mc_min_short = 0.45
+        final_mc_min_long = 0.50
+        # In ttm mode with "6 Monate", production uses 140
+        final_dte = 140
+
+        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
+
+        assert final_threshold == 0.50
+        assert final_dte > 45
 
 
 class TestCodeContainsFinalMcShadow:

@@ -174,20 +174,19 @@ _final_mc_shadow_log: list[dict] = []
 
 
 def compute_final_mc_shadow(
-    sim, s: dict, final_dte: int, hit_rate: float, min_long: float
+    sim, s: dict, final_dte: int, hit_rate: float, shadow_dte: int, min_long: float
 ) -> dict:
     """
-    Compute shadow MC simulation with correct DTE derived from TTM.
+    Compute shadow MC simulation with explicit shadow_dte.
 
     Returns dict with:
       - dte_used: final_dte (45 or 120 used in real decision)
       - hit_rate_used: hit_rate from real final_dte simulation
-      - dte_shadow: shadow_dte computed from ttm_to_dte_floor
+      - dte_shadow: shadow_dte (passed explicitly)
       - hit_rate_shadow: hit_rate from shadow simulation
       - would_pass_shadow: bool indicating if shadow would pass gate
+      - mode: the DTE mode used (legacy_45 or ttm)
     """
-    ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
-    shadow_dte = ttm_to_dte_floor(ttm)
     shadow_result = sim.run_for_dte(s, days_to_expiry=shadow_dte)
     shadow_hit = validate_mc_result(shadow_result)
 
@@ -741,12 +740,32 @@ def main() -> None:
 
     # ── STUFE 8: Final MC (10k, adaptive DTE) ────────────────────────────────
     log.info(f"Stufe 8: Final MC (n={FINAL_MC_PATHS}, adaptive DTE)")
+
+    # Read final_mc_dte_mode from config with default fallback
+    gate_cfg_mode = getattr(gate_cfg, "final_mc_dte_mode", "legacy_45")
+    if gate_cfg_mode not in ("legacy_45", "ttm"):
+        log.warning(f"Unknown final_mc_dte_mode '{gate_cfg_mode}' → fallback to legacy_45")
+        gate_cfg_mode = "legacy_45"
+
     sim_final  = MirofishSimulation()
     final_sims = []
     for s in mc_viable:
         ticker = s["ticker"]
-        quick_mc_days = s.get("quick_mc", {}).get("n_days", 30)
-        final_dte = 45 if quick_mc_days <= 30 else 120
+
+        # Extract TTM from deep_analysis and compute ttm_dte
+        ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
+        ttm_dte = ttm_to_dte_floor(ttm)
+
+        # Determine production final_dte and shadow_dte based on mode
+        if gate_cfg_mode == "legacy_45":
+            # legacy_45: production=45 (deliberate baseline for A/B test), shadow=ttm_dte
+            final_dte = 45
+            shadow_dte = ttm_dte
+        else:  # ttm mode
+            # ttm: production=ttm_dte, shadow=45
+            final_dte = ttm_dte
+            shadow_dte = 45
+
         result   = sim_final.run_for_dte(s, days_to_expiry=final_dte)
         hit_rate = validate_mc_result(result)
         if hit_rate is None:
@@ -756,12 +775,12 @@ def main() -> None:
             reject("final_mc_zero_prob", ticker)
             continue
 
-        # Compute shadow MC with correct DTE from TTM (BEFORE any rejects)
+        # Compute shadow MC with correct DTE (BEFORE any rejects)
         # Wrap in try/except so shadow can never affect real decision
-        # Schatten-DTE ist immer >=120 → Long-Schwelle aus cfg.gates.
         _shadow_min = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
         try:
-            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, _shadow_min)
+            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, shadow_dte, _shadow_min)
+            shadow["mode"] = gate_cfg_mode
             s["final_mc_shadow"] = shadow
             try:
                 candidate_ledger.note(
@@ -773,7 +792,7 @@ def main() -> None:
                 log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
             # Log shadow comparison
             log.info(
-                f"  [{ticker}] Final MC shadow: "
+                f"  [{ticker}] Final MC ({gate_cfg_mode}): "
                 f"real_dte={final_dte}d/{hit_rate:.1%} vs "
                 f"shadow_dte={shadow['dte_shadow']}d/"
                 f"{(shadow['hit_rate_shadow'] or 0):.1%} "
@@ -781,6 +800,7 @@ def main() -> None:
             )
             _final_mc_shadow_log.append({
                 "ticker": ticker,
+                "mode": gate_cfg_mode,
                 "dte_used": final_dte,
                 "hit_rate_used": hit_rate,
                 "dte_shadow": shadow["dte_shadow"],

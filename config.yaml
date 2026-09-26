@@ -18,6 +18,7 @@ gates:
   final_mc_min_long: 0.50    # Final MC, DTE>45
   trade_score_min: 55        # Stufe 10 Trade-Score-Gate (Pipeline UND Mail)
   shadow_score_min: 40       # darunter nicht mal Schatten-Trade
+  final_mc_dte_mode: legacy_45   # legacy_45 = Produktion simuliert 45d (bewusste Baseline im A/B-Test, Challenger final_mc_dte_shadow); ttm = Produktion nutzt ttm_to_dte_floor (120/140d), 45d läuft als Shadow weiter
 
 filters:
   min_market_cap: 2_000_000_000
