@@ -636,6 +636,10 @@ def main() -> None:
             candidate_ledger.note(
                 s.get("ticker"), stage="mismatch",
                 mismatch=s.get("features", {}).get("mismatch"),
+                # Realisierte Vola für den hypothetischen Ledger-Kontrakt —
+                # bewusst für ALLE Kandidaten gleich (keine implied IV nur für
+                # Proposals, sonst wäre der Gate-Vergleich verzerrt).
+                sigma_30d=s.get("features", {}).get("sigma_30d"),
             )
         except Exception as e:
             log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
