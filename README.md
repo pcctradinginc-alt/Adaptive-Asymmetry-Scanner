@@ -87,7 +87,14 @@ Im GitHub-Repo unter **Settings → Secrets and variables → Actions**:
 
 ### Automatischer Trigger
 
-Die Pipeline läuft automatisch **Mo–Fr um 14:30 MEZ** (12:30 UTC).  
+Die Pipeline läuft automatisch **Mo–Fr um 14:30 MEZ** (13:30 UTC, cron `30 13 * * 1-5`).  
+**Hinweis:** GitHub Scheduled Runs unterliegen erheblichen Verzögerungen; aktuelle Läufe starten 
+oft erst gegen 17:50 UTC statt 13:30 UTC.
+
+**Feedback-Workflow** (Exit-Checks + Lernen) läuft zusätzlich:
+- **15:30 UTC** – frühe US-Session: Stop-Loss/Take-Profit nach Markt-Open
+- **19:30 UTC** – 30 Min vor US-Close: letzte Exit-Chance am selben Tag
+
 Manueller Trigger: GitHub → Actions → "Adaptive Asymmetry-Scanner" → "Run workflow".
 
 ---
@@ -168,6 +175,11 @@ Nach jedem abgeschlossenen Trade (≥ 130 Tage) werden:
 2. Die Feature-Gewichte via Pearson-Korrelation neu kalibriert
 
 Je mehr Trades, desto präziser das Scoring.
+
+**Hinweis:** Trades werden nach `learning.close_after_days` Tagen geschlossen
+(aktuell: 45 Tage, siehe `config.yaml` Zeile 70). Trades, die älter als dieser
+Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
+Outcomes zum Training herangezogen.
 
 ---
 

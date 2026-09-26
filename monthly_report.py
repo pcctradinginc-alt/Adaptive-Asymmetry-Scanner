@@ -25,6 +25,19 @@ from pathlib import Path
 
 from modules.email_reporter import _send_smtp
 
+
+# ── Field Mapping: suggestion gate names → ledger field paths ────────────────
+# Maps the 'field' returned by suggest_thresholds to the ledger field path used
+# in challenger.yaml rules. These must match the actual storage format in the
+# candidate_ledger JSON.
+LEDGER_FIELD_MAP = {
+    "mismatch": "features.mismatch",
+    "impact": "features.impact",
+    "surprise": "features.surprise",
+    "score": "features.trade_score",
+    "dte": None,  # no direct ledger field for DTE
+}
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -276,15 +289,95 @@ def _fmt_pct(x: float) -> str:
     return f"{x * 100:.0f}%"
 
 
+def challenger_snippet(suggestion: dict, today: date) -> str:
+    """
+    Generate a ready-to-copy YAML snippet for challengers.yaml from a suggestion
+    returned by suggest_thresholds().
+
+    Args:
+        suggestion: dict with keys gate, field, mode, current, suggested, gain_pp, etc.
+        today: the date to use for registered_on
+
+    Returns:
+        YAML text that can be pasted into challengers.yaml, or a comment explaining
+        why the suggestion cannot be rendered (e.g., no ledger field).
+    """
+    field = suggestion.get("field")
+    ledger_field = LEDGER_FIELD_MAP.get(field)
+
+    if ledger_field is None:
+        # Field has no ledger mapping — cannot be evaluated prospectively
+        gate_label = suggestion.get("gate", field)
+        return f"# {gate_label}: kein Ledger-Feld – Challenger nicht direkt auswertbar"
+
+    # Generate a sanitized ID from the gate and new value
+    gate_label = suggestion.get("gate", field).lower().replace(" ", "_").replace("-", "_")
+    new_value = suggestion.get("suggested")
+    try:
+        new_value_str = str(new_value).replace(".", "p")
+    except Exception:
+        new_value_str = "unknown"
+
+    challenger_id = f"{gate_label}_{new_value_str}"
+
+    # Build hypothesis sentence
+    gate_name = suggestion.get("gate", field)
+    mode = suggestion.get("mode", "min")
+    op_str = "≥" if mode == "min" else "≤"
+    current = suggestion.get("current")
+    suggested = suggestion.get("suggested")
+    gain_pp = suggestion.get("gain_pp", 0)
+
+    hypothesis = (
+        f"Gate '{gate_name}' angehoben: {op_str} {current} → {op_str} {suggested}. "
+        f"Retrospektiv +{gain_pp:.0f}pp Win-Rate auf bereits gesehenen Daten. "
+        f"Nur mit prospektivem Walk-forward validieren."
+    )
+
+    # Build rule: {field, op, value}
+    op_map = {"min": ">=", "max": "<="}
+    op = op_map.get(mode, ">=")
+
+    # Build baseline_rule (current value)
+    baseline_op = op_map.get(mode, ">=")
+
+    tomorrow = today + timedelta(days=1)
+    start_date_str = tomorrow.isoformat()
+    today_str = today.isoformat()
+
+    yaml_snippet = f"""  - id: {challenger_id}
+    hypothesis: >
+      {hypothesis}
+    registered_on: "{today_str}"
+    start_date: "{start_date_str}"
+    rule:
+      - field: "{ledger_field}"
+        op: "{op}"
+        value: {suggested}
+    baseline_rule:
+      - field: "{ledger_field}"
+        op: "{baseline_op}"
+        value: {current}
+    metric: "outcomes.opt_ret_45d"
+    min_n: 30
+    horizon_days: 45
+    max_duration_days: 180
+    status: active
+"""
+    return yaml_snippet
+
+
 def build_tuning_html(suggestions: list[dict]) -> str:
+    today = date.today()
     if not suggestions:
         return (
-            "<h3>🔧 Schwellen-Tuning</h3>"
+            "<h3>💡 Hypothesen-Generator (retrospektiv, NICHT promotion-fähig)</h3>"
             "<p>Keine Empfehlung diesen Monat — keine Alternative erfüllt die "
             "Guardrails (≥20 Trades, ≥5pp Win-Rate-Gewinn, Ø-Return nicht schlechter). "
             "Das ist ein gutes Zeichen oder es fehlen noch Daten.</p>"
         )
     rows = ""
+    yaml_snippets = ""
     for s in suggestions:
         cs, ss = s["current_stats"], s["suggested_stats"]
         op = "≥" if s["mode"] == "min" else "≤"
@@ -299,18 +392,33 @@ def build_tuning_html(suggestions: list[dict]) -> str:
             f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><b>+{s['gain_pp']:.0f}pp</b></td>"
             f"</tr>"
         )
+        # Generate YAML snippet for this suggestion
+        snippet = challenger_snippet(s, today)
+        yaml_snippets += f"<p style='font-size:0.80em;margin-top:1em;'><b>{s['gate']}:</b></p>\n"
+        yaml_snippets += f"<pre style='background:#f5f5f5;padding:8px;border-radius:4px;overflow-x:auto;font-size:0.75em;'>{snippet}</pre>\n"
+
     return f"""
-    <h3>🔧 Schwellen-Tuning-Vorschlag (echte + Schatten-Trades)</h3>
-    <table style="border-collapse:collapse;font-size:13px;width:100%">
+    <h3>💡 Hypothesen-Generator (retrospektiv, NICHT promotion-fähig)</h3>
+    <p style="font-size:0.90em;color:#555;">
+    Diese Vorschläge basieren auf retrospektiver In-Sample-Analyse bereits gesehener Daten.
+    Sie sind <b>NICHT promotion-fähig</b> und dürfen <b>NICHT direkt</b> in config.yaml
+    oder pipeline.py übernommen werden. Die einzige zulässige Konsequenz ist die
+    <b>Registrierung eines neuen Challengers</b> in <code>challengers.yaml</code> mit
+    <code>registered_on = heute</code> und <code>start_date > heute</code>.
+    Der Challenger wird dann prospektiv (Walk-Forward) auf zukünftigen Daten validiert.
+    </p>
+    <table style="border-collapse:collapse;font-size:13px;width:100%;margin-top:1em;">
       <tr style="text-align:left;color:#64748b;">
         <th style="padding:4px 8px;">Gate</th><th style="padding:4px 8px;">Aktuell</th>
         <th style="padding:4px 8px;">Vorschlag</th><th style="padding:4px 8px;">Δ Win-Rate</th>
       </tr>
       {rows}
     </table>
-    <p style="font-size:0.85em;color:#92400e;">⚠️ Nur eine Empfehlung — nichts wurde
-    automatisch geändert. Anpassung in config.yaml bzw. pipeline.py, idealerweise
-    max. eine Schwelle pro Monat (sonst ist der Effekt nicht zuordenbar).</p>"""
+    <p style="font-size:0.85em;color:#555;margin-top:1em;"><b>Challenger-Vorlagen:</b></p>
+    {yaml_snippets}
+    <p style="font-size:0.80em;color:#666;"><i>Diese Snippets können in challengers.yaml
+    kopiert und angepasst werden. Jeder Challenger wird mit der heutigen Registrierung
+    und morgen als start_date erstellt, um Walk-Forward-Validität zu gewährleisten.</i></p>"""
 
 
 def build_slot_html(candidates: list[dict]) -> str:
@@ -616,7 +724,7 @@ def main() -> None:
         subject = f"📊 {REPO_NAME}: Monats-Report {report_month} — keine geschlossenen Trades"
 
     if tuning:
-        log.info(f"{len(tuning)} Tuning-Vorschlag/Vorschläge gefunden")
+        log.info(f"{len(tuning)} Hypothesen-Vorschlag/Vorschläge gefunden (retrospektiv)")
     html = build_html(report_month, cur, prev, total, funnel, closed, spy, shadow, tuning, slot)
     log.info(f"Sende Monats-Report: {subject}")
     _send_smtp(subject, html)

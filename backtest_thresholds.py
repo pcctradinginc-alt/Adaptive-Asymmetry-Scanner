@@ -1,9 +1,13 @@
 """
-backtest_thresholds.py – Schwellen-Validierung auf historischen Trades
+backtest_thresholds.py – Retrospektiver Hypothesen-Generator
 
 Replay über closed_trades (+ bewertete shadow_trades) aus history.json:
 Für jede Gate-Schwelle wird gezeigt, wie Win-Rate / Ø-Return / Trade-Anzahl
-sich verändern, wenn die Schwelle anders gesetzt wäre. Kein API-Call nötig.
+sich verändern WÜRDEN, wenn die Schwelle anders gesetzt wäre — auf bereits
+gesehenen Daten (In-Sample). Diese Analyse ist NICHT promotion-fähig (keine
+direkten Änderungen an config.yaml). Die einzige zulässige Konsequenz ist
+die Registrierung eines neuen Challengers in challengers.yaml mit prospektivem
+Walk-Forward-Validierungsfenster. Kein API-Call nötig.
 
 Nutzung:
     python backtest_thresholds.py
@@ -123,8 +127,14 @@ def _stats(rows: list[dict]) -> dict | None:
 
 def suggest_thresholds(history: dict, current: dict) -> list[dict]:
     """
-    Vergleicht für jedes tunable Gate den aktuellen Schwellwert mit
-    Alternativen über echte + Schatten-Trade-Outcomes.
+    RETROSPEKTIVER HYPOTHESEN-GENERATOR: Vergleicht für jedes tunable Gate
+    den aktuellen Schwellwert mit Alternativen über echte + Schatten-Trade-
+    Outcomes aus bereits gesammelten Daten (In-Sample-Analyse).
+
+    ⚠️ WICHTIG: Diese Analyse ist NICHT promotion-fähig. Sie darf NICHT
+    direkt dazu führen, dass config.yaml oder pipeline.py editiert werden.
+    Die einzige zulässige Konsequenz ist die Registrierung eines neuen
+    Challengers in challengers.yaml mit prospektivem Walk-Forward-Fenster.
 
     Guardrails (kein Overfitting auf Kleinst-Stichproben):
       - Alternative braucht n ≥ MIN_N_FOR_SUGGESTION Trades
@@ -132,8 +142,8 @@ def suggest_thresholds(history: dict, current: dict) -> list[dict]:
       - Ø-Return darf sich nicht verschlechtern
 
     `current`: {"dte": 45, "mismatch": 7, "impact": 4, "surprise": 3, "score": 55}
-    Returns Liste von Vorschlägen (kann leer sein) — es wird NICHTS
-    automatisch geändert, nur empfohlen.
+    Returns Liste von Vorschlägen (kann leer sein) — es wird NIEMALS etwas
+    automatisch geändert, nur prospektive Challenger vorgeschlagen.
     """
     rows = trade_rows(history)
     suggestions = []
