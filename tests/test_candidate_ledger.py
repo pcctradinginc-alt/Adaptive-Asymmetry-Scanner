@@ -7,10 +7,12 @@ Alle Preis-Abrufe werden gemockt (kein Netzwerkzugriff). Fokus:
   - update_outcomes befüllt Horizonte korrekt (inkl. BEARISH-Sign-Flip)
   - Fehler im Preis-Abruf lassen die Funktionen nie crashen
   - summarize liefert plausible Kennzahlen
+  - signal_timestamp wird beim ersten note() je Kandidat/Lauf gesetzt und
+    im geflushten Row persistiert
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -589,6 +591,60 @@ def test_note_fields_across_stages_end_up_in_flushed_features(monkeypatch, ledge
     assert f["quick_mc_hit_rate"] == 0.6
     assert f["final_mc_hit_rate"] == 0.55
     assert f["trade_score"] == 88
+
+
+# ── signal_timestamp (Pre-Registrierungs-Zeitgate für den Challenger) ───────
+
+def test_note_sets_signal_timestamp_on_first_note(monkeypatch):
+    fixed = datetime(2026, 9, 26, 14, 3, 7, tzinfo=timezone.utc)
+
+    class FakeDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return fixed
+
+    monkeypatch.setattr(cl, "datetime", FakeDateTime)
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="universe")
+    assert cl._state["entries"]["AAPL"]["signal_timestamp"] == "2026-09-26T14:03:07+00:00"
+
+
+def test_note_signal_timestamp_is_set_once_across_multiple_notes(monkeypatch):
+    times = iter([
+        datetime(2026, 9, 26, 10, 0, 0, tzinfo=timezone.utc),
+        datetime(2026, 9, 26, 11, 0, 0, tzinfo=timezone.utc),
+    ])
+
+    class FakeDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return next(times)
+
+    monkeypatch.setattr(cl, "datetime", FakeDateTime)
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="universe")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH")
+    # Second note() must NOT advance the timestamp — it stays at the first
+    # value noted for this ticker in this run.
+    assert cl._state["entries"]["AAPL"]["signal_timestamp"] == "2026-09-26T10:00:00+00:00"
+
+
+def test_flush_persists_signal_timestamp(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    fixed = datetime(2026, 9, 26, 14, 3, 7, tzinfo=timezone.utc)
+
+    class FakeDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return fixed
+
+    monkeypatch.setattr(cl, "datetime", FakeDateTime)
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="universe")
+    cl.flush(reports_dir_root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert row["signal_timestamp"] == "2026-09-26T14:03:07+00:00"
 
 
 def test_flush_marks_unlabeled_drop_with_last_stage(monkeypatch, ledger_root):

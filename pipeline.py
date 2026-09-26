@@ -173,21 +173,43 @@ def validate_mc_result(result: dict):
 _final_mc_shadow_log: list[dict] = []
 
 
+LEGACY_FINAL_MC_DTE = 45
+
+
+def resolve_final_mc_dtes(mode: str, ttm: str) -> tuple[int, int]:
+    """(Produktions-DTE, Schatten-DTE) für den Final MC.
+
+    legacy_45: Produktion simuliert bewusst 45d (Baseline im A/B-Test,
+               Challenger final_mc_dte_shadow), Schatten = TTM-DTE (120/140).
+    ttm:       Produktion = TTM-DTE (Horizont des gehandelten Kontrakts),
+               45d läuft als Schatten weiter.
+    Unbekannter Modus → legacy_45.
+    """
+    ttm_dte = ttm_to_dte_floor(ttm or "")
+    if mode == "ttm":
+        return ttm_dte, LEGACY_FINAL_MC_DTE
+    return LEGACY_FINAL_MC_DTE, ttm_dte
+
+
+def final_mc_threshold(dte: int, min_short: float, min_long: float) -> float:
+    """Final-MC-Schwelle passend zum simulierten Horizont."""
+    return min_short if dte <= LEGACY_FINAL_MC_DTE else min_long
+
+
 def compute_final_mc_shadow(
-    sim, s: dict, final_dte: int, hit_rate: float, min_long: float
+    sim, s: dict, final_dte: int, hit_rate: float, shadow_dte: int, min_long: float
 ) -> dict:
     """
-    Compute shadow MC simulation with correct DTE derived from TTM.
+    Compute shadow MC simulation with explicit shadow_dte.
 
     Returns dict with:
       - dte_used: final_dte (45 or 120 used in real decision)
       - hit_rate_used: hit_rate from real final_dte simulation
-      - dte_shadow: shadow_dte computed from ttm_to_dte_floor
+      - dte_shadow: shadow_dte (passed explicitly)
       - hit_rate_shadow: hit_rate from shadow simulation
       - would_pass_shadow: bool indicating if shadow would pass gate
+      - mode: the DTE mode used (legacy_45 or ttm)
     """
-    ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
-    shadow_dte = ttm_to_dte_floor(ttm)
     shadow_result = sim.run_for_dte(s, days_to_expiry=shadow_dte)
     shadow_hit = validate_mc_result(shadow_result)
 
@@ -741,12 +763,22 @@ def main() -> None:
 
     # ── STUFE 8: Final MC (10k, adaptive DTE) ────────────────────────────────
     log.info(f"Stufe 8: Final MC (n={FINAL_MC_PATHS}, adaptive DTE)")
+
+    # Read final_mc_dte_mode from config with default fallback
+    gate_cfg_mode = getattr(gate_cfg, "final_mc_dte_mode", "legacy_45")
+    if gate_cfg_mode not in ("legacy_45", "ttm"):
+        log.warning(f"Unknown final_mc_dte_mode '{gate_cfg_mode}' → fallback to legacy_45")
+        gate_cfg_mode = "legacy_45"
+
     sim_final  = MirofishSimulation()
     final_sims = []
     for s in mc_viable:
         ticker = s["ticker"]
-        quick_mc_days = s.get("quick_mc", {}).get("n_days", 30)
-        final_dte = 45 if quick_mc_days <= 30 else 120
+
+        # TTM aus der Deep Analysis → Produktions-/Schatten-DTE je nach Modus
+        ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
+        final_dte, shadow_dte = resolve_final_mc_dtes(gate_cfg_mode, ttm)
+
         result   = sim_final.run_for_dte(s, days_to_expiry=final_dte)
         hit_rate = validate_mc_result(result)
         if hit_rate is None:
@@ -756,12 +788,16 @@ def main() -> None:
             reject("final_mc_zero_prob", ticker)
             continue
 
-        # Compute shadow MC with correct DTE from TTM (BEFORE any rejects)
+        # Compute shadow MC with correct DTE (BEFORE any rejects)
         # Wrap in try/except so shadow can never affect real decision
-        # Schatten-DTE ist immer >=120 → Long-Schwelle aus cfg.gates.
-        _shadow_min = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
+        _shadow_min = final_mc_threshold(
+            shadow_dte,
+            float(getattr(gate_cfg, "final_mc_min_short", 0.45)),
+            float(getattr(gate_cfg, "final_mc_min_long", 0.50)),
+        )
         try:
-            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, _shadow_min)
+            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, shadow_dte, _shadow_min)
+            shadow["mode"] = gate_cfg_mode
             s["final_mc_shadow"] = shadow
             try:
                 candidate_ledger.note(
@@ -773,7 +809,7 @@ def main() -> None:
                 log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
             # Log shadow comparison
             log.info(
-                f"  [{ticker}] Final MC shadow: "
+                f"  [{ticker}] Final MC ({gate_cfg_mode}): "
                 f"real_dte={final_dte}d/{hit_rate:.1%} vs "
                 f"shadow_dte={shadow['dte_shadow']}d/"
                 f"{(shadow['hit_rate_shadow'] or 0):.1%} "
@@ -781,6 +817,7 @@ def main() -> None:
             )
             _final_mc_shadow_log.append({
                 "ticker": ticker,
+                "mode": gate_cfg_mode,
                 "dte_used": final_dte,
                 "hit_rate_used": hit_rate,
                 "dte_shadow": shadow["dte_shadow"],
@@ -796,7 +833,7 @@ def main() -> None:
         # Wert = vormals interner Threshold → Verhalten unveraendert.
         final_mc_min_short = float(getattr(gate_cfg, "final_mc_min_short", 0.45))
         final_mc_min_long  = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
-        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
+        final_threshold = final_mc_threshold(final_dte, final_mc_min_short, final_mc_min_long)
         if hit_rate < final_threshold:
             log.info(f"  [{ticker}] Final MC: {hit_rate:.1%} < {final_threshold:.0%} → verworfen")
             reject("final_mc_below_threshold", ticker)
