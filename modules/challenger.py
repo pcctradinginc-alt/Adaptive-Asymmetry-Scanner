@@ -66,7 +66,7 @@ import logging
 import json
 import random
 import statistics
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -288,25 +288,37 @@ def _parse_date(d) -> date:
 
 # ── Evaluation ────────────────────────────────────────────────────────────────
 
-def _row_is_time_eligible(row: dict, start_date: date, registered_at: str | None) -> bool:
-    """Walk-forward time gate for a single ledger row.
+def _parse_ts(value) -> datetime | None:
+    """ISO-8601 → tz-aware datetime (UTC, falls ohne Zone). None bei Fehler."""
+    try:
+        dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except Exception:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
-    Wenn `registered_at` gesetzt ist UND die Zeile ein `signal_timestamp`
-    trägt, entscheidet ausschließlich der Vergleich signal_timestamp >
-    registered_at (strikt). Zeilen ohne signal_timestamp (oder wenn kein
-    registered_at vorregistriert wurde) fallen auf date >= start_date zurück.
+
+def _row_is_time_eligible(row: dict, start_date: date, registered_at: str | None) -> bool:
+    """Walk-forward time gate für eine Ledger-Zeile.
+
+    Immer: date >= start_date. Zusätzlich, wenn registered_at gesetzt ist UND
+    die Zeile ein signal_timestamp trägt: signal_timestamp > registered_at
+    (strikt, als Zeitpunkt verglichen — nicht als String). Beide Bedingungen
+    müssen gelten, damit weder ein zu frühes Datum noch ein Signal vor der
+    Registrierung in den prospektiven Test gelangt.
     """
-    ts = row.get("signal_timestamp")
-    if registered_at and ts:
-        try:
-            return str(ts) > str(registered_at)
-        except Exception:
-            return False
     try:
         r_date = _parse_date(row.get("date"))
     except Exception:
         return False
-    return r_date >= start_date
+    if r_date < start_date:
+        return False
+    ts = row.get("signal_timestamp")
+    if registered_at and ts:
+        row_dt, reg_dt = _parse_ts(ts), _parse_ts(registered_at)
+        if row_dt is None or reg_dt is None:
+            return False
+        return row_dt > reg_dt
+    return True
 
 
 def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> dict:

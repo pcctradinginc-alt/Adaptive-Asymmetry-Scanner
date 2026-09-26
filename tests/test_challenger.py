@@ -542,42 +542,24 @@ def test_evaluate_all_reports_invalid_verdict_and_excludes_from_n_active(tmp_pat
 
 
 def test_registered_at_gates_rows_by_signal_timestamp():
-    """Rows carrying signal_timestamp are gated purely by comparing that
-    timestamp to registered_at (ignoring `date`); rows without a
-    signal_timestamp fall back to the date >= start_date check."""
-    rows = []
-    registered_at = "2026-09-26T07:00:00Z"
+    """Beide Bedingungen müssen gelten: date >= start_date UND (falls
+    vorhanden) signal_timestamp > registered_at — als Zeitpunkt verglichen."""
+    from datetime import date as _d
+    elig = ch._row_is_time_eligible
+    start = _d(2026, 9, 28)
+    reg = "2026-09-26T07:00:00Z"
+    # Datum ok, Signal nach Registrierung → eligible
+    assert elig({"date": "2026-09-28", "signal_timestamp": "2026-09-28T13:40:00+00:00"}, start, reg)
+    # Datum ok, Signal VOR Registrierung → ausgeschlossen
+    assert not elig({"date": "2026-09-28", "signal_timestamp": "2026-09-26T06:00:00+00:00"}, start, reg)
+    # Signal nach Registrierung, aber Datum VOR start_date → ausgeschlossen
+    assert not elig({"date": "2026-09-27", "signal_timestamp": "2026-09-27T10:00:00+00:00"}, start, reg)
+    # Ohne Timestamp: nur Datum zählt
+    assert elig({"date": "2026-09-29"}, start, reg)
+    assert not elig({"date": "2026-09-01"}, start, reg)
+    # Gemischte Zonen-Notation, gleicher Zeitpunkt → nicht strikt größer
+    assert not elig({"date": "2026-09-28", "signal_timestamp": "2026-09-28T07:00:00+00:00"},
+                    start, "2026-09-28T07:00:00Z")
+    # Unparsbarer Timestamp → ausgeschlossen
+    assert not elig({"date": "2026-09-28", "signal_timestamp": "kaputt"}, start, reg)
 
-    # Group A: signal_timestamp BEFORE registered_at, date AFTER start_date
-    # -> must be excluded (timestamp check wins over date).
-    for i in range(30):
-        rows.append(_row("2026-09-29", trade_score=65, opt_ret_45d=0.5,
-                          signal_timestamp="2026-09-26T06:00:00Z"))
-
-    # Group B: signal_timestamp AFTER registered_at, date BEFORE start_date
-    # -> must be included (timestamp check wins over date).
-    for i in range(30):
-        rows.append(_row("2026-09-01", trade_score=65, opt_ret_45d=0.5,
-                          signal_timestamp="2026-09-27T00:00:00Z"))
-
-    # Group C: no signal_timestamp, date AFTER start_date -> included via
-    # the date fallback (baseline-only, trade_score below the challenger rule).
-    for i in range(30):
-        rows.append(_row("2026-09-29", trade_score=56, opt_ret_45d=0.5))
-
-    # Group D: no signal_timestamp, date BEFORE start_date -> excluded via
-    # the date fallback.
-    for i in range(30):
-        rows.append(_row("2026-09-01", trade_score=56, opt_ret_45d=0.5))
-
-    c = _make_challenger(
-        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
-        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55}],
-        min_n=1,
-        registered_on="2026-09-26",
-        registered_at=registered_at,
-        start_date="2026-09-28",
-    )
-    result = ch.evaluate(c, rows, today=date(2026, 10, 1), n_active=1)
-    assert result["n_challenger"] == 30       # only Group B
-    assert result["n_baseline"] == 60          # Group B + Group C

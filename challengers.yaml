@@ -35,6 +35,9 @@
 
 challengers:
   - id: final_mc_dte_shadow
+    # Gilt nur solange gates.final_mc_dte_mode = legacy_45 (dann ist der Schatten
+    # der TTM-Horizont). Bei Promotion → Modus auf ttm stellen und diesen
+    # Challenger auf status: promote_recommended/abgeschlossen setzen.
     hypothesis: >
       Gating mit dem MC-Horizont, der zur gehandelten DTE passt (Shadow-Hit-Rate
       auf dem tatsächlichen Horizont statt dem generischen final_mc_hit_rate),
