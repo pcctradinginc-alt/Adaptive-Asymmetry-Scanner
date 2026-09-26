@@ -611,6 +611,7 @@ class OptionsDesigner:
                     "deep_analysis":       s.get("deep_analysis", {}),
                     "sector_momentum":     s.get("sector_momentum", {}),
                     "final_score":         s.get("final_score", 0),
+                    "final_mc_shadow":     s.get("final_mc_shadow"),
                     "mc_hit_rate":         mc_hit_rate,
                     "time_to_maturation":  ttm,
                     "sector":              s.get("info", {}).get("sector", ""),

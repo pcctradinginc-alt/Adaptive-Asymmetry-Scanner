@@ -54,7 +54,7 @@ from modules.mismatch_scorer     import MismatchScorer
 from modules.mirofish_simulation import MirofishSimulation, compute_time_value_efficiency
 from modules.trade_scorer        import rank_proposals
 from modules.rl_agent            import RLScorer
-from modules.options_designer    import OptionsDesigner
+from modules.options_designer    import OptionsDesigner, ttm_to_dte_floor
 from modules.reporter            import Reporter
 from modules.risk_gates          import RiskGates
 from modules.email_reporter      import send_status_email
@@ -68,6 +68,7 @@ from modules.macro_context       import get_macro_context
 from modules.position_sizing     import enrich_with_sizing
 from modules.engine_monitor      import build_health_report, append_markdown_section
 from modules.config              import cfg
+from modules              import candidate_ledger
 
 logging.basicConfig(
     level=logging.INFO,
@@ -117,6 +118,11 @@ def reject(reason: str, ticker: str | None = None) -> None:
         log.info(f"  [{ticker}] REJECT → {reason}")
     else:
         log.info(f"  REJECT → {reason}")
+    try:
+        if ticker:
+            candidate_ledger.mark_rejected(ticker, reason)
+    except Exception as e:
+        log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
 # ── Validation Layer ──────────────────────────────────────────────────────────
@@ -161,6 +167,39 @@ def validate_mc_result(result: dict):
     if not (0.0 <= float(hit_rate) <= 1.0):
         return None
     return float(hit_rate)
+
+
+# Module-level list to track final_mc_shadow results for stats
+_final_mc_shadow_log: list[dict] = []
+
+
+def compute_final_mc_shadow(
+    sim, s: dict, final_dte: int, hit_rate: float, min_long: float
+) -> dict:
+    """
+    Compute shadow MC simulation with correct DTE derived from TTM.
+
+    Returns dict with:
+      - dte_used: final_dte (45 or 120 used in real decision)
+      - hit_rate_used: hit_rate from real final_dte simulation
+      - dte_shadow: shadow_dte computed from ttm_to_dte_floor
+      - hit_rate_shadow: hit_rate from shadow simulation
+      - would_pass_shadow: bool indicating if shadow would pass gate
+    """
+    ttm = (s.get("deep_analysis") or {}).get("time_to_materialization", "")
+    shadow_dte = ttm_to_dte_floor(ttm)
+    shadow_result = sim.run_for_dte(s, days_to_expiry=shadow_dte)
+    shadow_hit = validate_mc_result(shadow_result)
+
+    would_pass = shadow_hit is not None and shadow_hit >= min_long
+
+    return {
+        "dte_used": final_dte,
+        "hit_rate_used": hit_rate,
+        "dte_shadow": shadow_dte,
+        "hit_rate_shadow": shadow_hit,
+        "would_pass_shadow": would_pass,
+    }
 
 
 # ── v8.2: Korrelations-Check ────────────────────────────────────────────────
@@ -263,6 +302,10 @@ def main() -> None:
     history = load_history()
 
     reject_stats.clear()
+    try:
+        candidate_ledger.start_run(today)
+    except Exception as e:
+        log.debug(f"candidate_ledger.start_run Fehler (ignoriert): {e}")
 
     stats = {
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
@@ -311,6 +354,10 @@ def main() -> None:
             path.write_text(json.dumps(data, indent=2, default=str))
         except Exception as e:
             log.error(f"Stats-Snapshot-Fehler: {e}")
+        try:
+            candidate_ledger.flush()
+        except Exception as e:
+            log.debug(f"candidate_ledger.flush Fehler (ignoriert): {e}")
 
     def send_email():
         save_stats_snapshot()
@@ -353,6 +400,11 @@ def main() -> None:
         or len(candidates)
     )
     stats["candidates"] = len(candidates)
+    for c in candidates:
+        try:
+            candidate_ledger.note(c.get("ticker"), stage="universe")
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     if not candidates:
         stats["stop_reason"] = "Keine Kandidaten nach Hard-Filter."
         send_email(); return
@@ -499,6 +551,16 @@ def main() -> None:
     log.info("Stufe 4: Deep Analysis (Claude Sonnet + Red Team)")
     analyses = DeepAnalysis().run(pre_mc_viable)
     stats["analyzed"] = len(analyses)
+    for a in analyses:
+        try:
+            _da = a.get("deep_analysis", {}) or {}
+            candidate_ledger.note(
+                a.get("ticker"), stage="deep_analysis",
+                direction=_da.get("direction"), impact=_da.get("impact"),
+                surprise=_da.get("surprise"),
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(analyses)} nach Deep Analysis")
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
@@ -521,13 +583,17 @@ def main() -> None:
             save_history(history); send_email(); return
 
     # ── STUFE 4b: Impact×Surprise Floor ──────────────────────────────────────
+    gate_cfg     = getattr(cfg, "gates", None)
+    impact_min   = int(getattr(gate_cfg, "impact_min", 4))
+    surprise_min = int(getattr(gate_cfg, "surprise_min", 3))
+
     _before_isf = len(analyses)
     _passed_isf, _failed_isf = [], []
     for a in analyses:
         da = a.get("deep_analysis", {})
         impact   = da.get("impact", 0)
         surprise = da.get("surprise", 0)
-        if impact >= 4 and surprise >= 3:
+        if impact >= impact_min and surprise >= surprise_min:
             _passed_isf.append(a)
         else:
             _failed_isf.append(a)
@@ -535,9 +601,9 @@ def main() -> None:
         reject("impact_x_surprise_below_floor", a.get("ticker"))
     analyses = _passed_isf
     stats["after_isf"] = len(analyses)
-    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (impact≥4 & surprise≥3, war {_before_isf})")
+    log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (impact≥{impact_min} & surprise≥{surprise_min}, war {_before_isf})")
     if not analyses:
-        stats["stop_reason"] = "Alle Signale unter Impact×Surprise-Floor (impact<4 oder surprise<3)."
+        stats["stop_reason"] = f"Alle Signale unter Impact×Surprise-Floor (impact<{impact_min} oder surprise<{surprise_min})."
         save_history(history); send_email(); return
 
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
@@ -547,7 +613,8 @@ def main() -> None:
     # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
     # (4 Trades: 25% Win, mean −73%) — extreme Werte deuten auf eine
     # Bullen-Falle/strukturelles Problem statt verzögerter Einpreisung.
-    mismatch_cap = float(getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0))
+    mismatch_cap = float(getattr(getattr(cfg, "gates", None), "mismatch_max",
+                          getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0)))
     _capped = []
     for s in scored:
         m = s.get("features", {}).get("mismatch", 0)
@@ -564,6 +631,14 @@ def main() -> None:
     for _ in range(before_da - len(scored)):
         reject("post_deep_analysis_invalid")
     stats["mismatch_ok"] = len(scored)
+    for s in scored:
+        try:
+            candidate_ledger.note(
+                s.get("ticker"), stage="mismatch",
+                mismatch=s.get("features", {}).get("mismatch"),
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(scored)} nach Mismatch-Score")
     if not scored:
         stats["stop_reason"] = "Kein Signal hat Mismatch-Filter bestanden."
@@ -602,6 +677,10 @@ def main() -> None:
         s["quick_mc"] = {"hit_rate": hit_rate, "n_paths": QUICK_MC_PATHS, "n_days": QUICK_MC_DAYS}
         s["features"]["quick_mc_hit_rate"] = hit_rate
         mc_viable.append(s)
+        try:
+            candidate_ledger.note(ticker, stage="quick_mc", quick_mc_hit_rate=hit_rate)
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
         log.info(f"  [{ticker}] Quick MC: {hit_rate:.1%} ✅ PASS")
 
     stats["quick_mc"] = len(mc_viable)
@@ -620,7 +699,7 @@ def main() -> None:
         ticker   = s["ticker"]
         mismatch = s.get("features", {}).get("mismatch", 0)
 
-        if mismatch >= 7:
+        if mismatch >= mismatch_cap:
             current_max = max(base_move, 0.12)
         elif mismatch >= 5:
             current_max = max(base_move, 0.09)
@@ -672,15 +751,49 @@ def main() -> None:
         if hit_rate < 0.01:
             reject("final_mc_zero_prob", ticker)
             continue
+
+        # Compute shadow MC with correct DTE from TTM (BEFORE any rejects)
+        # Wrap in try/except so shadow can never affect real decision
+        # Schatten-DTE ist immer >=120 → Long-Schwelle aus cfg.gates.
+        _shadow_min = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
+        try:
+            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, _shadow_min)
+            s["final_mc_shadow"] = shadow
+            # Log shadow comparison
+            log.info(
+                f"  [{ticker}] Final MC shadow: "
+                f"real_dte={final_dte}d/{hit_rate:.1%} vs "
+                f"shadow_dte={shadow['dte_shadow']}d/"
+                f"{(shadow['hit_rate_shadow'] or 0):.1%} "
+                f"(would_pass={shadow['would_pass_shadow']})"
+            )
+            _final_mc_shadow_log.append({
+                "ticker": ticker,
+                "dte_used": final_dte,
+                "hit_rate_used": hit_rate,
+                "dte_shadow": shadow["dte_shadow"],
+                "hit_rate_shadow": shadow["hit_rate_shadow"],
+                "passed_real": None,  # Updated later after gates
+                "would_pass_shadow": shadow["would_pass_shadow"],
+            })
+        except Exception as e:
+            log.warning(f"  [{ticker}] Final MC shadow computation failed: {e}")
+            s["final_mc_shadow"] = None
+
         # Schwelle jetzt explizit im Caller (run_for_dte filtert nicht mehr selbst).
         # Wert = vormals interner Threshold → Verhalten unveraendert.
-        final_threshold = 0.45 if final_dte <= 45 else 0.50
+        final_mc_min_short = float(getattr(gate_cfg, "final_mc_min_short", 0.45))
+        final_mc_min_long  = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
+        final_threshold = final_mc_min_short if final_dte <= 45 else final_mc_min_long
         if hit_rate < final_threshold:
             log.info(f"  [{ticker}] Final MC: {hit_rate:.1%} < {final_threshold:.0%} → verworfen")
             reject("final_mc_below_threshold", ticker)
             continue
         if hit_rate:
             result["simulation"]["n_paths"] = FINAL_MC_PATHS
+            # Add shadow to result so it travels through to proposals
+            if s.get("final_mc_shadow"):
+                result["final_mc_shadow"] = s["final_mc_shadow"]
             final_sims.append(result)
             log.info(f"  [{ticker}] Final MC: {result['simulation']['hit_rate']:.1%} ✅")
         else:
@@ -688,6 +801,15 @@ def main() -> None:
 
     stats["final_mc"] = len(final_sims)
     log.info(f"  → {len(final_sims)} nach Final MC")
+
+    # Mark which candidates passed the real MC gate
+    _passed_tickers = {s.get("ticker") for s in final_sims}
+    for entry in _final_mc_shadow_log:
+        entry["passed_real"] = entry["ticker"] in _passed_tickers
+    # Sofort in stats → landet auch bei frühem Exit (ROI-Gate etc.) in der Daily-JSON
+    if _final_mc_shadow_log:
+        stats["final_mc_shadow"] = [dict(e) for e in _final_mc_shadow_log]
+
     if not final_sims:
         stats["stop_reason"] = "Kein Kandidat besteht Final MC (120d)."
         save_history(history); send_email(); return
@@ -707,7 +829,7 @@ def main() -> None:
         if not s.get("ticker") or _sv_key in _sv_seen:
             continue
         _da = s.get("deep_analysis") or {}
-        _sv_list.append({
+        _sv_dict = {
             "ticker":        s["ticker"], "entry_date": today,
             "reject_reason": "final_mc_survivor",
             "strategy":      "",   # kein Kontrakt designt → Stock-Outcome-Fallback
@@ -718,7 +840,10 @@ def main() -> None:
             "deep_analysis": {k: _da.get(k) for k in
                               ("direction", "impact", "surprise", "time_to_materialization")},
             "outcome":       None,
-        })
+        }
+        if s.get("final_mc_shadow"):
+            _sv_dict["final_mc_shadow"] = s["final_mc_shadow"]
+        _sv_list.append(_sv_dict)
         _sv_seen.add(_sv_key)
         _n_sv += 1
     if _n_sv:
@@ -730,6 +855,14 @@ def main() -> None:
     _rl_veto = bool(cfg.rl.get("veto_enabled", True))
     final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
     stats["rl_scored"] = len(final_signals)
+    for fs in final_signals:
+        try:
+            candidate_ledger.note(
+                fs.get("ticker"), stage="rl_scoring",
+                final_mc_hit_rate=fs.get("simulation", {}).get("hit_rate"),
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(final_signals)} nach RL-Scoring")
     if not final_signals:
         stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
@@ -812,18 +945,20 @@ def main() -> None:
     if trade_proposals:
         trade_proposals = rank_proposals(trade_proposals)
         before = len(trade_proposals)
+        trade_score_min  = float(getattr(gate_cfg, "trade_score_min", 55))
+        shadow_score_min = float(getattr(gate_cfg, "shadow_score_min", 40))
         _kept, _shadow = [], []
         for p in trade_proposals:
             score = p.get("trade_score", {}).get("total", 0)
-            if score >= 55:
+            if score >= trade_score_min:
                 _kept.append(p)
-            elif score >= 40:
+            elif score >= shadow_score_min:
                 # Schatten-Trade: knapp verworfen → mittracken um die
                 # Score-Schwelle mit echten Outcomes zu validieren
                 _shadow.append((p, f"score_{score}"))
         trade_proposals = _kept
         if len(trade_proposals) < before:
-            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < 55)")
+            log.info(f"  {before - len(trade_proposals)} AVOID-Trade(s) herausgefiltert (Score < {trade_score_min:.0f})")
 
         # ── STUFE 10b: Korrelations-Check ────────────────────────────────────
         if len(trade_proposals) > 1:
@@ -847,7 +982,7 @@ def main() -> None:
         for p, why in _shadow:
             if (p["ticker"], today, why) in _shadow_existing:
                 continue
-            shadow_list.append({
+            _p_dict = {
                 "ticker":        p["ticker"], "entry_date": today,
                 "reject_reason": why,
                 "catalyst_type": p.get("catalyst_type")
@@ -859,7 +994,10 @@ def main() -> None:
                 "trade_score":   p.get("trade_score", {}).get("total"),
                 "features":      p.get("features", {}),
                 "outcome":       None,
-            })
+            }
+            if p.get("final_mc_shadow"):
+                _p_dict["final_mc_shadow"] = p["final_mc_shadow"]
+            shadow_list.append(_p_dict)
             _shadow_existing.add((p["ticker"], today, why))
         if _shadow:
             log.info(f"  {len(_shadow)} Schatten-Trade(s) registriert (Gate-Validierung)")
@@ -879,6 +1017,16 @@ def main() -> None:
     stats["trades"] = len(trade_proposals)
     if not trade_proposals:
         stats["stop_reason"] = "Alle Options-Kontrakte scheitern am ROI-Gate."
+
+    for p in trade_proposals:
+        try:
+            candidate_ledger.note(
+                p.get("ticker"), stage="trade_proposal",
+                trade_score=p.get("trade_score", {}).get("total"),
+            )
+            candidate_ledger.mark_passed(p.get("ticker"))
+        except Exception as e:
+            log.debug(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
 
     if trade_proposals:
         _proposals_ref.append(trade_proposals)
@@ -921,7 +1069,7 @@ def main() -> None:
             "spread_pct": round((_ask - _bid) / _ask, 4) if _ask > 0 else 0.0,
             "assumed_fill": "ask",
         }
-        history["active_trades"].append({
+        _at_dict = {
             "ticker":        p["ticker"], "entry_date": today,
             "features":      p.get("features", {}),
             "strategy":      _strategy,
@@ -934,7 +1082,10 @@ def main() -> None:
             "deep_analysis": p.get("deep_analysis"),
             "tve":           p.get("time_value_efficiency"),
             "outcome":       None,
-        })
+        }
+        if p.get("final_mc_shadow"):
+            _at_dict["final_mc_shadow"] = p["final_mc_shadow"]
+        history["active_trades"].append(_at_dict)
         existing.add(key)
         cooled_tickers.add(p["ticker"])
 
@@ -955,6 +1106,8 @@ def main() -> None:
         log.error(f"Engine-Monitor Markdown-Abschnitt Fehler: {e}")
 
     save_history(history)
+
+
     send_email()
 
     if reject_stats:

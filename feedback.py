@@ -31,6 +31,8 @@ import yfinance as yf
 from scipy import stats
 
 from modules.config import cfg
+from modules.exit_sim import register_exit_sim, summarize_exit_sim, trim_exit_sim, update_exit_sim_entry
+from modules import candidate_ledger
 
 logging.basicConfig(
     level=logging.INFO,
@@ -603,6 +605,31 @@ def evaluate_trailing_sims(history: dict, today: datetime) -> None:
             )
 
 
+# ── Multi-Variant Exit-Counterfactual (Erweiterung des Trailing-Paralleltests) ──
+# Verallgemeinert register_trailing_sim/evaluate_trailing_sims (oben) auf sechs
+# Exit-Varianten, die für JEDEN aktiven Trade parallel mitgeführt werden — nicht
+# nur für per Take-Profit geschlossene. Reine Simulation, siehe modules/exit_sim.py
+# für die Varianten-Logik und den Hinweis zur (groben) Pfad-Granularität. Ändert
+# nichts an der echten Exit-Logik/trailing_sim — beide bleiben unverändert aktiv.
+
+def evaluate_exit_sims(history: dict, today: datetime) -> None:
+    """Aktualisiert alle offenen exit_sim-Einträge mit dem aktuellen Options-Return."""
+    for entry in history.get("exit_sim", []):
+        if entry.get("closed"):
+            continue
+        try:
+            current = get_current_price(entry["ticker"])
+            if current <= 0:
+                continue
+            outcome = compute_outcome(entry, current)
+            if outcome is None:
+                continue
+            update_exit_sim_entry(entry, outcome, today)
+        except Exception as e:
+            log.warning(f"  [EXIT-SIM {entry.get('ticker', '?')}] Update-Fehler: {e}")
+    trim_exit_sim(history)
+
+
 # ── Bin-Updates (Legacy, für Backward-Kompatibilität) ─────────────────────────
 
 def update_bin(stats_dict: dict, feature: str, bin_label: str, outcome: float) -> None:
@@ -769,6 +796,13 @@ def main() -> None:
         entry_date = datetime.strptime(trade["entry_date"][:10], "%Y-%m-%d")
         age_days   = (today - entry_date).days
 
+        # exit_sim: Multi-Variant-Counterfactual anlegen (idempotent, rein simulativ,
+        # läuft unabhängig vom echten Trade-Close weiter — siehe evaluate_exit_sims).
+        try:
+            register_exit_sim(history, trade, today)
+        except Exception as e:
+            log.warning(f"  [EXIT-SIM {ticker}] Register-Fehler: {e}")
+
         current = get_current_price(ticker)
         if current <= 0:
             still_active.append(trade)
@@ -833,6 +867,23 @@ def main() -> None:
     # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen)
     evaluate_trailing_sims(history, today)
 
+    # Multi-Variant Exit-Counterfactual fortführen (pure Simulation, kein Trade-Impact)
+    try:
+        evaluate_exit_sims(history, today)
+        summary = summarize_exit_sim(history)
+        for key, stats_row in summary.items():
+            if "note" in stats_row:
+                log.info(f"  [EXIT-SIM] {key}: {stats_row['note']}")
+            else:
+                log.info(
+                    f"  [EXIT-SIM] {key}: n={stats_row['n']} "
+                    f"mean={stats_row['mean']:+.2%} median={stats_row['median']:+.2%} "
+                    f"win_rate={stats_row['win_rate']:.0%} "
+                    f"total_loss_rate={stats_row['total_loss_rate']:.0%}"
+                )
+    except Exception as e:
+        log.error(f"Exit-Sim-Fehler: {e}")
+
     # RL-Scharfstellung: Email sobald genug closed_trades unter neuen Regeln vorliegen
     maybe_notify_rl_arming(history)
 
@@ -851,6 +902,13 @@ def main() -> None:
         retrain_rl_agent(history)
     else:
         log.info("Keine neuen closed_trades → RL-Training übersprungen.")
+
+    # Candidate-Ledger: Counterfactual-Outcomes nachtragen (reine Observability,
+    # darf den Feedback-Loop nie brechen).
+    try:
+        candidate_ledger.update_outcomes(today.strftime("%Y-%m-%d"))
+    except Exception as e:
+        log.debug(f"candidate_ledger.update_outcomes Fehler (ignoriert): {e}")
 
     log.info("=== Feedback-Loop abgeschlossen ===")
 

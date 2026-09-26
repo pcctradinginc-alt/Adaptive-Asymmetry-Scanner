@@ -4,9 +4,20 @@ pipeline:
   confidence_gate: 0.70
   n_simulation_paths: 10000
   simulation_days: 120
-  min_impact_threshold: 4
+  min_impact_threshold: 4    # Legacy-Key, siehe gates.impact_min (dieser gewinnt bei Konflikt)
   max_intraday_move: 0.07    # NEU: 7% → Signal verwerfen wenn zu spät
-  max_mismatch: 7.0          # Overreaction-Cap: Mismatch > 7 historisch 25% Win, mean −73%
+  max_mismatch: 7.0          # Legacy-Key, siehe gates.mismatch_max (dieser gewinnt bei Konflikt)
+
+# Zentrale Gate-Schwellen: Pipeline, Mail und Monats-Report lesen ausschließlich
+# von hier (mit Fallback auf die Legacy-Keys oben, dann auf den Code-Default).
+gates:
+  impact_min: 4              # Stufe 4b Impact×Surprise-Floor
+  surprise_min: 3
+  mismatch_max: 7.0          # Overreaction-Cap: Mismatch > 7 historisch 25% Win, mean −73%
+  final_mc_min_short: 0.45   # Final MC, DTE<=45
+  final_mc_min_long: 0.50    # Final MC, DTE>45
+  trade_score_min: 55        # Stufe 10 Trade-Score-Gate (Pipeline UND Mail)
+  shadow_score_min: 40       # darunter nicht mal Schatten-Trade
 
 filters:
   min_market_cap: 2_000_000_000
@@ -132,3 +143,9 @@ data_sources:
     enabled: true             # EULERPOOL_API_KEY als Secret
     top_n: 2                  # Nur für Top-2 Signale
     iv_crush_threshold: 80    # IV-Percentile ab dem Warnung ausgegeben wird
+
+# Multi-Variant Exit-Counterfactual (rein simulativ, siehe modules/exit_sim.py)
+exit_sim:
+  enabled: true
+  trail_pcts: [0.35, 0.50]   # Trailing-Abstand für Varianten C (trail35) / D (trail50)
+  activation: 0.50           # Peak-Return, ab dem der Trailing-Stop/Teilverkauf aktiviert wird
