@@ -11,7 +11,9 @@ Alle Preis-Abrufe werden gemockt (kein Netzwerkzugriff). Fokus:
     im geflushten Row persistiert
 """
 
+import hashlib
 import json
+import math
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -33,6 +35,15 @@ def _reset_state(monkeypatch):
     # unverändert greift, sofern ein Test nicht explizit etwas anderes will.
     monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes", lambda tickers: {})
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    # Review-Fix (replicated iv_rank): Default für alle Tests, die real_option
+    # via select_contract mocken, aber nicht am replizierten iv_rank
+    # interessiert sind — vermeidet echte Netzwerk-Calls (yf.download/
+    # Tradier-Chain) und macht strategy_source deterministisch
+    # "iv_history_fallback"/"default_long" statt zufällig vom Testlauf-
+    # Netzwerkzugriff abhängig. Tests, die real_strategy explizit testen,
+    # überschreiben dies gezielt.
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: {})
+    monkeypatch.setattr(cl.market_snapshot, "fetch_term_iv_point", lambda ticker, spot, min_dte=7: None)
     yield
     cl._state["date"] = None
     cl._state["entries"] = {}
@@ -73,7 +84,7 @@ def test_note_upserts_fields():
     cl.start_run("2026-09-26")
     cl.note("AAPL", stage="universe")
     cl.note("AAPL", stage="deep_analysis", direction="BULLISH", impact=6)
-    e = cl._state["entries"]["AAPL"]
+    e = cl._state["entries"]["AAPL"][0]
     assert e["stage"] == "deep_analysis"
     assert e["direction"] == "BULLISH"
     assert e["features"]["impact"] == 6
@@ -90,7 +101,7 @@ def test_mark_rejected_sets_status_and_stage():
     cl.start_run("2026-09-26")
     cl.note("XOM", stage="quick_mc")
     cl.mark_rejected("XOM", "mc_below_threshold")
-    e = cl._state["entries"]["XOM"]
+    e = cl._state["entries"]["XOM"][0]
     assert e["status"] == "rejected"
     assert e["reject_reason"] == "mc_below_threshold"
     assert e["reject_stage"] == "quick_mc"
@@ -106,7 +117,7 @@ def test_mark_passed_sets_status():
     cl.start_run("2026-09-26")
     cl.note("MSFT", stage="trade_proposal")
     cl.mark_passed("MSFT")
-    assert cl._state["entries"]["MSFT"]["status"] == "proposed"
+    assert cl._state["entries"]["MSFT"][0]["status"] == "proposed"
 
 
 # ── flush ────────────────────────────────────────────────────────────────────
@@ -612,7 +623,7 @@ def test_note_sets_signal_timestamp_on_first_note(monkeypatch):
     monkeypatch.setattr(cl, "datetime", FakeDateTime)
     cl.start_run("2026-09-26")
     cl.note("AAPL", stage="universe")
-    assert cl._state["entries"]["AAPL"]["signal_timestamp"] == "2026-09-26T14:03:07+00:00"
+    assert cl._state["entries"]["AAPL"][0]["signal_timestamp"] == "2026-09-26T14:03:07+00:00"
 
 
 def test_note_signal_timestamp_is_set_once_across_multiple_notes(monkeypatch):
@@ -632,7 +643,7 @@ def test_note_signal_timestamp_is_set_once_across_multiple_notes(monkeypatch):
     cl.note("AAPL", stage="deep_analysis", direction="BULLISH")
     # Second note() must NOT advance the timestamp — it stays at the first
     # value noted for this ticker in this run.
-    assert cl._state["entries"]["AAPL"]["signal_timestamp"] == "2026-09-26T10:00:00+00:00"
+    assert cl._state["entries"]["AAPL"][0]["signal_timestamp"] == "2026-09-26T10:00:00+00:00"
 
 
 def test_flush_persists_signal_timestamp(monkeypatch, ledger_root):
@@ -864,6 +875,61 @@ def test_flush_builds_real_option_when_direction_and_spot_known(monkeypatch, led
     assert calls[0][3] == pytest.approx(100.2)  # spot = entry_price (quote_mid)
 
 
+def test_flush_real_strategy_uses_batched_closes_and_term_point(monkeypatch, ledger_root):
+    """End-to-End: flush() holt 1y-Closes für ALLE snapshot-ausgewählten
+    Ticker in EINEM gebündelten Call (_fetch_history_batch) und fragt pro
+    Kandidat höchstens EINEN zusätzlichen Term-Structure-Punkt ab
+    (market_snapshot.fetch_term_iv_point) — beides fließt in
+    real_strategy.strategy_source='replicated' ein."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes",
+                         lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2,
+                                               "last": 100.1, "prev_close": 99.0, "open": 100.0,
+                                               "quote_ts": "t", "source": "tradier"} for t in tickers})
+    fake_contract = {"symbol": "AAPL261120C00100000", "strike": 100.0, "expiry": "2026-11-20",
+                      "dte": 55, "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
+                      "open_interest": 500, "quote_ts": "t"}
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", lambda t, d, f, s: fake_contract)
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+
+    closes = _high_recent_vol_closes()
+    history_calls = []
+
+    def fake_history_batch(tickers, period_days):
+        history_calls.append((tuple(sorted(tickers)), period_days))
+        return {t: [(datetime(2026, 1, 1) + timedelta(days=i), c) for i, c in enumerate(closes)] for t in tickers}
+
+    monkeypatch.setattr(cl, "_fetch_history_batch", fake_history_batch)
+
+    term_calls = []
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_term_iv_point",
+        lambda ticker, spot, min_dte=7: term_calls.append(ticker) or None,
+    )
+
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.flush(reports_dir_root=ledger_root)
+
+    # EIN gebündelter _fetch_history_batch-Call für alle betroffenen Ticker:
+    assert len(history_calls) == 1
+    assert history_calls[0][0] == ("AAPL",)
+    assert history_calls[0][1] == 365
+    # Höchstens EIN zusätzlicher Term-Structure-Call für diesen einen Kandidaten:
+    assert term_calls == ["AAPL"]
+
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    rs = row["real_strategy"]
+    assert rs["strategy_source"] == "replicated"
+    assert rs["strategy"] == "BULL_CALL_SPREAD"
+    assert len(rs["legs"]) == 2
+
+
 def test_flush_real_option_pre_market_signal_is_entry_pending(monkeypatch, ledger_root):
     """Optionen handeln nur in der regulären Session: ein pre/post/closed
     ausgewählter Kontrakt darf NICHT sofort mit seiner (stale) Quote als
@@ -930,10 +996,14 @@ def test_flush_real_option_respects_max_snapshot_cap(monkeypatch, ledger_root):
 
     rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl")}
     with_option = [t for t, r in rows.items() if "real_option" in r]
-    without_option = [t for t, r in rows.items() if r.get("real_option_skip_reason") == "max_snapshots_reached"]
+    without_option = [t for t, r in rows.items() if r.get("real_option_skip_reason") == "budget_random_exclusion"]
     assert len(with_option) == 2
     assert len(without_option) == 1
     assert len(calls) == 2  # Budget begrenzt auch die API-Calls selbst
+    for r in rows.values():
+        assert r["snapshot_eligible_n"] == 3
+        assert r["snapshot_budget"] == 2
+    assert sum(1 for r in rows.values() if r["snapshot_selected"]) == 2
 
 
 def test_flush_real_option_no_api_key_degrades(monkeypatch, ledger_root):
@@ -1292,3 +1362,637 @@ def test_flush_records_code_sha_and_model_ids(monkeypatch, ledger_root):
     row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
     assert row["code_sha"] == "0123456789ab"
     assert row["model_ids"].get("models.deep_analysis")
+
+
+# ── P0-1: Signal-Identität — mehrere Events desselben Tickers im selben Lauf ─
+
+def test_note_two_events_same_ticker_creates_two_signals_in_memory():
+    """Zwei verschiedene event_keys für denselben Ticker im selben Lauf
+    dürfen NICHT auf ein Signal kollabieren (das war der P0-1-Bug)."""
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="universe", sigma_30d=0.3)
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", event_key="FDA approval PDUFA")
+    cl.note("AAPL", stage="deep_analysis", direction="BEARISH", event_key="Guidance cut Q3")
+
+    signals = cl._state["entries"]["AAPL"]
+    assert len(signals) == 2
+    event_keys = {s["event_key"] for s in signals}
+    assert event_keys == {"FDA approval PDUFA", "Guidance cut Q3"}
+    signal_ids = {s["signal_id"] for s in signals}
+    assert len(signal_ids) == 2  # distinct IDs
+    # Das ticker-weite Feld (vor dem ersten event_key notiert) wurde in
+    # beide Signale übernommen (copy-on-branch):
+    for s in signals:
+        assert s["features"]["sigma_30d"] == pytest.approx(0.3)
+    directions = {s["direction"] for s in signals}
+    assert directions == {"BULLISH", "BEARISH"}
+
+
+def test_note_same_event_key_twice_updates_one_signal():
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", event_key="FDA approval PDUFA")
+    cl.note("AAPL", stage="rl_scoring", event_key="FDA approval PDUFA", final_mc_hit_rate=0.6)
+
+    signals = cl._state["entries"]["AAPL"]
+    assert len(signals) == 1
+    assert signals[0]["stage"] == "rl_scoring"
+    assert signals[0]["features"]["final_mc_hit_rate"] == pytest.approx(0.6)
+
+
+def test_note_without_event_key_updates_all_signals_of_ticker():
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", event_key="Event A")
+    cl.note("AAPL", stage="deep_analysis", direction="BEARISH", event_key="Event B")
+    # Ein späterer note()-Aufruf OHNE event_key (z.B. ein Feature, das für
+    # den Ticker als Ganzes gilt) muss BEIDE Signale aktualisieren.
+    cl.note("AAPL", trade_score=77)
+
+    signals = cl._state["entries"]["AAPL"]
+    assert len(signals) == 2
+    for s in signals:
+        assert s["features"]["trade_score"] == 77
+
+
+def test_mark_rejected_without_event_key_applies_to_all_signals():
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", event_key="Event A")
+    cl.note("AAPL", stage="deep_analysis", direction="BEARISH", event_key="Event B")
+    cl.mark_rejected("AAPL", "mismatch_overreaction")
+
+    signals = cl._state["entries"]["AAPL"]
+    assert all(s["status"] == "rejected" for s in signals)
+    assert all(s["reject_reason"] == "mismatch_overreaction" for s in signals)
+
+
+def test_mark_passed_with_event_key_applies_only_to_that_signal():
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", event_key="Event A")
+    cl.note("AAPL", stage="deep_analysis", direction="BEARISH", event_key="Event B")
+    cl.mark_passed("AAPL", event_key="Event A")
+
+    signals = {s["event_key"]: s for s in cl._state["entries"]["AAPL"]}
+    assert signals["Event A"]["status"] == "proposed"
+    assert signals["Event B"]["status"] == "seen"
+
+
+def test_flush_two_events_same_ticker_single_run_two_rows_distinct_ids(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", event_key="FDA approval PDUFA")
+    cl.note("AAPL", stage="deep_analysis", direction="BEARISH", event_key="Guidance cut Q3")
+    cl.flush(reports_dir_root=ledger_root)
+
+    rows = _read_jsonl(ledger_root / "2026-09.jsonl")
+    assert len(rows) == 2
+    assert all(r["ticker"] == "AAPL" for r in rows)
+    assert len({r["signal_id"] for r in rows}) == 2
+    assert len({r["event_id"] for r in rows}) == 2
+    directions = {r["direction"] for r in rows}
+    assert directions == {"BULLISH", "BEARISH"}
+
+
+# ── P0-2: real_strategy (Produktions-Strategie-Counterfactual) ──────────────
+
+_LONG_CALL_RAW = {
+    "symbol": "AAPL_LONG", "strike": 100.0, "expiry": "2026-11-20", "dte": 55,
+    "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.4, "delta": 0.5,
+    "open_interest": 500, "quote_ts": "t",
+}
+
+
+def test_build_real_strategy_default_long_without_iv_history(monkeypatch):
+    monkeypatch.setattr(cl, "_resolve_candidate_iv_rank", lambda ticker, iv: None)
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW)
+    assert rs["strategy_source"] == "default_long"
+    assert rs["strategy"] == "LONG_CALL"
+    assert len(rs["legs"]) == 1
+    assert rs["legs"][0]["side"] == "long"
+
+
+def test_build_real_strategy_bull_call_spread_when_iv_rank_high(monkeypatch):
+    monkeypatch.setattr(cl, "_resolve_candidate_iv_rank", lambda ticker, iv: 80.0)
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW)
+    assert rs["strategy"] == "BULL_CALL_SPREAD"
+    assert rs["strategy_source"] == "iv_history_fallback"
+    assert len(rs["legs"]) == 2
+    assert {l["side"] for l in rs["legs"]} == {"long", "short"}
+    assert rs["net_debit_entry"] == pytest.approx(5.4 - 2.0)
+    assert rs["net_mid_entry"] == pytest.approx(5.2 - 2.1)
+
+
+def test_build_real_strategy_bear_put_spread_uses_put_leg(monkeypatch):
+    monkeypatch.setattr(cl, "_resolve_candidate_iv_rank", lambda ticker, iv: 80.0)
+    captured = {}
+
+    def fake_short_leg(ticker, expiry, opt_type, strike):
+        captured["opt_type"] = opt_type
+        return {"symbol": "AAPL_SHORT_PUT", "strike": strike * 1.10, "bid": 1.5, "ask": 1.7, "mid": 1.6}
+
+    monkeypatch.setattr(cl.market_snapshot, "select_spread_short_leg", fake_short_leg)
+    e = {"direction": "BEARISH", "features": {}}
+    long_put_raw = dict(_LONG_CALL_RAW, symbol="AAPL_LONG_PUT")
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, long_put_raw)
+    assert rs["strategy"] == "BEAR_PUT_SPREAD"
+    assert captured["opt_type"] == "put"
+
+
+def test_build_real_strategy_falls_back_to_long_when_short_leg_illiquid(monkeypatch):
+    monkeypatch.setattr(cl, "_resolve_candidate_iv_rank", lambda ticker, iv: 80.0)
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda *a, **k: {"symbol": "X", "strike": 110.0, "bid": 0, "ask": 0.1, "mid": 0.05},
+    )
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW)
+    assert rs["strategy_source"] == "spread_no_liquidity"
+    assert rs["strategy"] == "LONG_CALL"
+    assert len(rs["legs"]) == 1
+
+
+def test_build_real_strategy_uses_dealer_gamma_and_vix_from_features(monkeypatch):
+    """dealer_gamma_state/vix_structure kommen aus den vom pipeline.py
+    genoteten Features (siehe pipeline.py Stufe 10 note()-Aufruf)."""
+    captured = {}
+
+    def fake_choose_strategy(iv_rank, is_bullish, dealer_gamma_state, vix_structure):
+        captured["dealer_gamma_state"] = dealer_gamma_state
+        captured["vix_structure"] = vix_structure
+        return "LONG_CALL", 52.0, "test"
+
+    monkeypatch.setattr(cl, "_resolve_candidate_iv_rank", lambda ticker, iv: 30.0)
+    import modules.options_designer as od
+    monkeypatch.setattr(od, "choose_strategy", fake_choose_strategy)
+
+    e = {
+        "direction": "BULLISH",
+        "features": {
+            "dealer_gamma_state": {"data_available": True, "net_gamma_sign": "negative"},
+            "vix_structure": "backwardation",
+        },
+    }
+    cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW)
+    assert captured["dealer_gamma_state"] == {"data_available": True, "net_gamma_sign": "negative"}
+    assert captured["vix_structure"] == "backwardation"
+
+
+def test_build_real_strategy_none_without_direction():
+    e = {"direction": None, "features": {}}
+    assert cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW) is None
+
+
+# ── Review-Fix: real_strategy iv_rank — replicated (echte 1y-Closes) ────────
+#
+# Ground-truth-Reihenfolge: production > replicated > iv_history_fallback >
+# default_long. Diese Tests decken "replicated" (echte Closes/Term-Structure,
+# via compute_iv_rank_components) und "production" (Ground Truth aus
+# pipeline.py) sowie strategy_match ab.
+
+def _high_recent_vol_closes(n=300):
+    """Deterministische Kursreihe mit stark erhöhter Vola in den letzten 40
+    Tagen (niedrige Vola davor) → rv_score nahe 100 (siehe
+    compute_iv_rank_components: Percentile-Rank der aktuellen rollierenden
+    21d-RV innerhalb der 1y-Verteilung)."""
+    closes = []
+    price = 100.0
+    for i in range(n):
+        amp   = 0.001 if i < n - 40 else 0.05
+        drift = amp * math.sin(i)
+        price *= (1 + drift)
+        closes.append(round(price, 4))
+    return closes
+
+
+IV_SPREAD_GATE_FOR_TEST = 52.0  # entspricht options_designer.IV_SPREAD_GATE
+
+
+def test_build_real_strategy_replicated_spread_when_rv_high(monkeypatch):
+    """Mit echten (hier: synthetischen, aber realistisch geformten) 1y-Closes
+    UND hoher aktueller Realized-Vol wird — wie in der Produktion — ein
+    Spread statt eines Long-Legs gewählt (strategy_source='replicated')."""
+    closes = _high_recent_vol_closes()
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=None)
+
+    assert rs["strategy_source"] == "replicated"
+    assert rs["strategy"] == "BULL_CALL_SPREAD"
+    assert rs["iv_rank"] > IV_SPREAD_GATE_FOR_TEST
+    assert rs["replicated_strategy"] == "BULL_CALL_SPREAD"
+    assert rs["iv_rank_components"]["n_term_points"] == 1  # nur Long-Leg-Punkt
+    assert len(rs["legs"]) == 2
+
+
+def test_build_real_strategy_replicated_uses_term_point2_when_available(monkeypatch):
+    closes = _high_recent_vol_closes()
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(
+        e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=(10, 0.3),
+    )
+    assert rs["iv_rank_components"]["n_term_points"] == 2
+
+
+def test_build_real_strategy_replicated_falls_back_when_too_few_closes(monkeypatch):
+    """<60 Closes → replizierter iv_rank nicht bestimmbar → nächster
+    Fallback (iv_history_fallback, hier ohne Historie → default_long)."""
+    e = {"direction": "BULLISH", "features": {}}
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=[100.0] * 10)
+    assert rs["strategy_source"] == "default_long"
+    assert "replicated_strategy" not in rs
+
+
+def test_build_real_strategy_production_ground_truth_overrides_replicated(monkeypatch):
+    """Wenn pipeline.py im selben Lauf einen Trade-Proposal erzeugt hat
+    (production_strategy/production_iv_rank genotet), hat das Vorrang vor
+    dem replizierten Wert — aber beide werden gespeichert (strategy_match)."""
+    closes = _high_recent_vol_closes()  # würde allein ein SPREAD ergeben
+    e = {
+        "direction": "BULLISH",
+        "features": {
+            "production_strategy": "LONG_CALL",     # Produktion hat NICHT gespreadet
+            "production_iv_rank":  35.0,
+        },
+    }
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=None)
+
+    assert rs["strategy_source"] == "production"
+    assert rs["strategy"] == "LONG_CALL"
+    assert rs["iv_rank"] == pytest.approx(35.0)
+    assert rs["production_strategy"] == "LONG_CALL"
+    assert rs["production_iv_rank"] == pytest.approx(35.0)
+    # Der replizierte Wert wird TROTZDEM gespeichert (für spätere Auswertung):
+    assert rs["replicated_strategy"] == "BULL_CALL_SPREAD"
+    assert rs["strategy_match"] is False  # production LONG_CALL != replicated SPREAD
+
+
+def test_build_real_strategy_strategy_match_true_when_agreeing(monkeypatch):
+    closes = _high_recent_vol_closes()
+    e = {
+        "direction": "BULLISH",
+        "features": {
+            "production_strategy": "BULL_CALL_SPREAD",  # stimmt mit replicated überein
+            "production_iv_rank":  85.0,
+        },
+    }
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_spread_short_leg",
+        lambda ticker, expiry, opt_type, strike: {
+            "symbol": "AAPL_SHORT", "strike": strike * 1.10, "bid": 2.0, "ask": 2.2, "mid": 2.1,
+        },
+    )
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=closes, term_point2=None)
+    assert rs["strategy_source"] == "production"
+    assert rs["strategy_match"] is True
+
+
+def test_build_real_strategy_production_without_replicated_data_no_match_field(monkeypatch):
+    """Keine Closes (z.B. History-Download fehlgeschlagen) → kein replizierter
+    Wert → strategy_match wird gar nicht erst gesetzt (None/fehlt)."""
+    e = {
+        "direction": "BULLISH",
+        "features": {"production_strategy": "LONG_CALL", "production_iv_rank": 40.0},
+    }
+    rs = cl._build_real_strategy(e, "AAPL", 100.0, _LONG_CALL_RAW, closes=None)
+    assert rs["strategy_source"] == "production"
+    assert "strategy_match" not in rs
+    assert "replicated_strategy" not in rs
+
+
+# ── P0-2: real_strategy Entry-Fill (Multi-Leg Session-Gating) ───────────────
+
+def test_fill_real_strategy_entries_requires_regular_session(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "pre")
+    row = {"real_strategy": {"entry_pending": True, "legs": [
+        {"symbol": "LONG", "side": "long", "bid": None, "ask": None, "mid": None},
+    ]}}
+    changed = cl._fill_real_strategy_entries([row])
+    assert changed is False
+    assert row["real_strategy"]["entry_pending"] is True
+
+
+def test_fill_real_strategy_entries_partial_leg_quote_keeps_pending(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_option_quotes",
+        lambda symbols: {"LONG": {"bid": 5.0, "ask": 5.4, "mid": 5.2}},  # SHORT-Quote fehlt
+    )
+    row = {"real_strategy": {"entry_pending": True, "legs": [
+        {"symbol": "LONG", "side": "long", "bid": None, "ask": None, "mid": None},
+        {"symbol": "SHORT", "side": "short", "bid": None, "ask": None, "mid": None},
+    ]}}
+    changed = cl._fill_real_strategy_entries([row])
+    assert changed is False
+    assert row["real_strategy"]["entry_pending"] is True
+
+
+def test_fill_real_strategy_entries_full_fill_sets_net_debit(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    now = datetime(2026, 9, 26, 15, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr(cl, "_now_utc", lambda: now)
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_option_quotes",
+        lambda symbols: {
+            "LONG":  {"bid": 5.0, "ask": 5.4, "mid": 5.2},
+            "SHORT": {"bid": 2.0, "ask": 2.2, "mid": 2.1},
+        },
+    )
+    row = {"real_strategy": {"entry_pending": True, "legs": [
+        {"symbol": "LONG", "side": "long", "bid": None, "ask": None, "mid": None},
+        {"symbol": "SHORT", "side": "short", "bid": None, "ask": None, "mid": None},
+    ]}}
+    changed = cl._fill_real_strategy_entries([row])
+    assert changed is True
+    rs = row["real_strategy"]
+    assert rs["entry_pending"] is False
+    assert rs["net_debit_entry"] == pytest.approx(5.4 - 2.0)
+    assert rs["net_mid_entry"] == pytest.approx(5.2 - 2.1)
+    assert rs["entry_date"] == "2026-09-26"
+
+
+def test_fill_real_strategy_entries_single_leg_uses_ask_and_mid(monkeypatch):
+    """LONG_CALL/LONG_PUT (kein Spread, strategy_source=default_long/computed
+    ohne Short-Leg) hat nur einen Leg — net_debit_entry/net_mid_entry
+    entsprechen dann einfach Ask/Mid des Long-Legs."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_option_quotes",
+        lambda symbols: {"LONG": {"bid": 5.0, "ask": 5.4, "mid": 5.2}},
+    )
+    row = {"real_strategy": {"entry_pending": True, "legs": [
+        {"symbol": "LONG", "side": "long", "bid": None, "ask": None, "mid": None},
+    ]}}
+    changed = cl._fill_real_strategy_entries([row])
+    assert changed is True
+    rs = row["real_strategy"]
+    assert rs["net_debit_entry"] == pytest.approx(5.4)
+    assert rs["net_mid_entry"] == pytest.approx(5.2)
+
+
+# ── P0-2: real_strategy Marks (Exit-Mathematik, Floor bei 0, Expiry) ────────
+
+def test_fill_real_strategy_marks_spread_floors_conservative_at_zero(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_option_quotes",
+        lambda symbols: {
+            "LONG":  {"bid": 1.0, "ask": 1.2, "mid": 1.1},
+            "SHORT": {"bid": 1.5, "ask": 1.6, "mid": 1.55},  # short ask > long bid → negativ vor Floor
+        },
+    )
+    row = {
+        "ticker": "AAPL", "direction": "BULLISH",
+        "real_strategy": {
+            "entry_pending": False, "entry_date": "2026-08-01", "expiry": "2027-01-01",
+            "net_debit_entry": 3.0, "net_mid_entry": 2.9,
+            "legs": [
+                {"symbol": "LONG",  "strike": 100.0, "side": "long",  "bid": None, "ask": None, "mid": None},
+                {"symbol": "SHORT", "strike": 110.0, "side": "short", "bid": None, "ask": None, "mid": None},
+            ],
+        },
+        "outcomes": {},
+    }
+    changed = cl._fill_real_strategy_marks([row], datetime(2026, 8, 6))
+    assert changed is True
+    assert row["outcomes"]["real_strat_ret_5d"] == pytest.approx(0.0 / 3.0 - 1.0, abs=1e-4)  # gefloort bei 0
+    exit_mid = 1.1 - 1.55
+    assert row["outcomes"]["real_strat_ret_mid_5d"] == pytest.approx(exit_mid / 2.9 - 1.0, abs=1e-4)
+    assert row["outcomes"]["real_strat_mark_date_5d"] == "2026-08-06"
+
+
+def test_fill_real_strategy_marks_bull_call_spread_positive_exit(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_option_quotes",
+        lambda symbols: {
+            "LONG":  {"bid": 6.0, "ask": 6.2, "mid": 6.1},
+            "SHORT": {"bid": 1.0, "ask": 1.1, "mid": 1.05},
+        },
+    )
+    row = {
+        "ticker": "AAPL", "direction": "BULLISH",
+        "real_strategy": {
+            "entry_pending": False, "entry_date": "2026-08-01", "expiry": "2027-01-01",
+            "net_debit_entry": 3.0, "net_mid_entry": 2.9,
+            "legs": [
+                {"symbol": "LONG",  "strike": 100.0, "side": "long",  "bid": None, "ask": None, "mid": None},
+                {"symbol": "SHORT", "strike": 110.0, "side": "short", "bid": None, "ask": None, "mid": None},
+            ],
+        },
+        "outcomes": {},
+    }
+    cl._fill_real_strategy_marks([row], datetime(2026, 8, 6))
+    exit_conservative = 6.0 - 1.1
+    exit_mid = 6.1 - 1.05
+    assert row["outcomes"]["real_strat_ret_5d"] == pytest.approx(exit_conservative / 3.0 - 1.0, abs=1e-4)
+    assert row["outcomes"]["real_strat_ret_mid_5d"] == pytest.approx(exit_mid / 2.9 - 1.0, abs=1e-4)
+
+
+def test_fill_real_strategy_marks_uses_intrinsic_after_expiry(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", lambda symbols: {})
+    monkeypatch.setattr(
+        cl, "_fetch_history_batch",
+        lambda tickers, period_days: {"AAPL": [(datetime(2026, 8, 1), 115.0)]},
+    )
+    row = {
+        "ticker": "AAPL", "direction": "BULLISH",
+        "real_strategy": {
+            "entry_pending": False, "entry_date": "2026-07-01", "expiry": "2026-08-01",
+            "net_debit_entry": 3.0, "net_mid_entry": 2.9,
+            "legs": [
+                {"symbol": "LONG",  "strike": 100.0, "side": "long",  "bid": None, "ask": None, "mid": None},
+                {"symbol": "SHORT", "strike": 110.0, "side": "short", "bid": None, "ask": None, "mid": None},
+            ],
+        },
+        "outcomes": {},
+    }
+    changed = cl._fill_real_strategy_marks([row], datetime(2026, 8, 20))
+    assert changed is True
+    # Long-Intrinsic=115-100=15, Short-Intrinsic=115-110=5 → net=10
+    assert row["outcomes"]["real_strat_ret_45d"] == pytest.approx(10.0 / 3.0 - 1.0, abs=1e-4)
+
+
+def test_fill_real_strategy_marks_bearish_put_spread_intrinsic_at_expiry(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", lambda symbols: {})
+    monkeypatch.setattr(
+        cl, "_fetch_history_batch",
+        lambda tickers, period_days: {"AAPL": [(datetime(2026, 8, 1), 85.0)]},
+    )
+    row = {
+        "ticker": "AAPL", "direction": "BEARISH",
+        "real_strategy": {
+            "entry_pending": False, "entry_date": "2026-07-01", "expiry": "2026-08-01",
+            "net_debit_entry": 3.0, "net_mid_entry": 2.9,
+            "legs": [
+                {"symbol": "LONG",  "strike": 100.0, "side": "long",  "bid": None, "ask": None, "mid": None},
+                {"symbol": "SHORT", "strike": 90.0,  "side": "short", "bid": None, "ask": None, "mid": None},
+            ],
+        },
+        "outcomes": {},
+    }
+    changed = cl._fill_real_strategy_marks([row], datetime(2026, 8, 20))
+    assert changed is True
+    # Long-Put-Intrinsic=100-85=15, Short-Put-Intrinsic=90-85=5 → net=10
+    assert row["outcomes"]["real_strat_ret_45d"] == pytest.approx(10.0 / 3.0 - 1.0, abs=1e-4)
+
+
+def test_fill_real_strategy_marks_single_leg_no_floor_needed(monkeypatch):
+    """Single-Leg (kein Spread): exit_conservative ist einfach long_bid."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_option_quotes",
+        lambda symbols: {"LONG": {"bid": 7.0, "ask": 7.2, "mid": 7.1}},
+    )
+    row = {
+        "ticker": "AAPL", "direction": "BULLISH",
+        "real_strategy": {
+            "entry_pending": False, "entry_date": "2026-08-01", "expiry": "2027-01-01",
+            "net_debit_entry": 6.4, "net_mid_entry": 6.2,
+            "legs": [
+                {"symbol": "LONG", "strike": 100.0, "side": "long", "bid": None, "ask": None, "mid": None},
+            ],
+        },
+        "outcomes": {},
+    }
+    cl._fill_real_strategy_marks([row], datetime(2026, 8, 6))
+    assert row["outcomes"]["real_strat_ret_5d"] == pytest.approx(7.0 / 6.4 - 1.0, abs=1e-4)
+    assert row["outcomes"]["real_strat_ret_mid_5d"] == pytest.approx(7.1 / 6.2 - 1.0, abs=1e-4)
+
+
+def test_fill_real_strategy_marks_outside_regular_session_noop(monkeypatch):
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "closed")
+    row = {
+        "ticker": "AAPL", "direction": "BULLISH",
+        "real_strategy": {
+            "entry_pending": False, "entry_date": "2026-08-01", "expiry": "2027-01-01",
+            "net_debit_entry": 3.0, "net_mid_entry": 2.9,
+            "legs": [{"symbol": "LONG", "strike": 100.0, "side": "long", "bid": None, "ask": None, "mid": None}],
+        },
+        "outcomes": {},
+    }
+    changed = cl._fill_real_strategy_marks([row], datetime(2026, 8, 6))
+    assert changed is False
+    assert "real_strat_ret_5d" not in row["outcomes"]
+
+
+# ── P1: neutraler Options-Snapshot-Budget (keine "erste N") ─────────────────
+
+class _FakeUUID4:
+    def __init__(self, hexval):
+        self.hex = hexval
+
+
+def test_flush_budget_selection_is_not_first_n_and_deterministic(monkeypatch, ledger_root):
+    """Die Budget-Auswahl darf NICHT einfach die ersten N Kandidaten in
+    Verarbeitungsreihenfolge nehmen — sie muss deterministisch (seeded by
+    date) aber unabhängig von der Reihenfolge sein."""
+    fixed_ids = [
+        "00000000000000000000000000000001",
+        "00000000000000000000000000000026",
+        "0000000000000000000000000000004b",
+        "00000000000000000000000000000070",
+        "00000000000000000000000000000095",
+    ]
+    id_iter = iter(fixed_ids)
+    monkeypatch.setattr(cl.uuid, "uuid4", lambda: _FakeUUID4(next(id_iter)))
+
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(
+        cl.market_snapshot, "fetch_underlying_quotes",
+        lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2,
+                              "last": 100.1, "prev_close": 99.0, "open": 100.0,
+                              "quote_ts": "t", "source": "tradier"} for t in tickers},
+    )
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {t: 100.0 for t in tickers})
+    monkeypatch.setattr(cl, "_max_option_snapshots", lambda: 2)
+    monkeypatch.setattr(
+        cl.market_snapshot, "select_contract",
+        lambda ticker, direction, dte_floor, spot: {
+            "symbol": f"{ticker}_OPT", "strike": 100.0, "expiry": "2026-11-20", "dte": 55,
+            "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5,
+            "open_interest": 500, "quote_ts": "t",
+        },
+    )
+    monkeypatch.setattr(cl, "_build_real_strategy", lambda *a, **k: None)
+
+    tickers = ["AAA", "BBB", "CCC", "DDD", "EEE"]  # note()-Reihenfolge
+
+    cl.start_run("2026-09-26")
+    for t in tickers:
+        cl.note(t, stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    signal_ids = {t: cl._state["entries"][t][0]["signal_id"] for t in tickers}
+    cl.flush(reports_dir_root=ledger_root)
+
+    rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl")}
+    selected = {t for t, r in rows.items() if r["snapshot_selected"]}
+    assert len(selected) == 2
+
+    # NICHT die ersten beiden in note()-Aufrufreihenfolge:
+    assert selected != set(tickers[:2])
+
+    # Deterministisch: entspricht exakt sha1(date+signal_id)-Ranking.
+    ranked = sorted(
+        tickers,
+        key=lambda t: hashlib.sha1(f"2026-09-26:{signal_ids[t]}".encode("utf-8")).hexdigest(),
+    )
+    assert selected == set(ranked[:2])
+
+    # Erneuter Flush-Lauf (gleicher Tag, gleiche Signal-IDs) liefert
+    # dieselbe Auswahl (deterministisch, nicht zufällig pro Aufruf):
+    id_iter2 = iter(fixed_ids)
+    monkeypatch.setattr(cl.uuid, "uuid4", lambda: _FakeUUID4(next(id_iter2)))
+    cl.start_run("2026-09-26")
+    for t in tickers:
+        cl.note(t, stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.flush(reports_dir_root=ledger_root)
+    rows2 = _read_jsonl(ledger_root / "2026-09.jsonl")
+    assert len(rows2) == 5  # dedup (gleiche event_id je Ticker/Tag) — kein zweiter Satz Zeilen
+
+
+# ── P1: rl.model_sha256 in model_ids ────────────────────────────────────────
+
+def test_compute_model_ids_includes_rl_model_sha256(monkeypatch, tmp_path):
+    model_file = tmp_path / "ppo.zip"
+    model_file.write_bytes(b"fake-ppo-weights")
+    expected = hashlib.sha256(b"fake-ppo-weights").hexdigest()[:12]
+
+    fake_config_yaml = f"""
+models:
+  deep_analysis: "claude-sonnet-test"
+rl:
+  model_path: "{model_file.as_posix()}"
+finbert:
+  model_name: "finbert-test"
+"""
+    monkeypatch.setattr(cl.Path, "read_text", lambda self, *a, **k: fake_config_yaml if self.name == "config.yaml" else "")
+
+    ids = cl._compute_model_ids()
+    assert ids.get("rl.model_sha256") == expected
+    assert ids.get("rl.model_path") == model_file.as_posix()
+
+
+def test_compute_model_ids_no_sha256_when_model_file_missing(monkeypatch, tmp_path):
+    missing_path = tmp_path / "does_not_exist.zip"
+    fake_config_yaml = f"""
+rl:
+  model_path: "{missing_path.as_posix()}"
+"""
+    monkeypatch.setattr(cl.Path, "read_text", lambda self, *a, **k: fake_config_yaml if self.name == "config.yaml" else "")
+
+    ids = cl._compute_model_ids()
+    assert "rl.model_sha256" not in ids
+    assert ids.get("rl.model_path") == missing_path.as_posix()

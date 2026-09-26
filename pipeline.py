@@ -927,6 +927,20 @@ def main() -> None:
 
     # ── STUFE 10: Options Design + ROI-Gate ──────────────────────────────────
     log.info("Stufe 10: Options Design + adaptiver Laufzeit-Loop")
+    # P0-2 (candidate_ledger.py real_strategy): dieselben Werte notieren, die
+    # designer._select_strategy gleich zur Strategie-Wahl (choose_strategy())
+    # verwendet — damit der Ledger-Counterfactual denselben Entscheidungspfad
+    # nachvollziehen kann, statt auf "unknown" zurückzufallen.
+    _vix_structure = (getattr(designer, "_vix_ts", None) or {}).get("structure", "unknown")
+    for fs in final_signals:
+        try:
+            candidate_ledger.note(
+                fs.get("ticker"), stage="options_design",
+                dealer_gamma_state=fs.get("alpha_signals", {}).get("dealer_gamma", {}),
+                vix_structure=_vix_structure,
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     # Nutzt dieselbe designer-Instanz von oben (Tradier-Status bereits geloggt)
     try:
         trade_proposals = designer.run(final_signals)
@@ -1078,6 +1092,13 @@ def main() -> None:
             candidate_ledger.note(
                 p.get("ticker"), stage="trade_proposal",
                 trade_score=p.get("trade_score", {}).get("total"),
+                # Review-Fix (candidate_ledger.py real_strategy): Ground-Truth
+                # der tatsächlichen Produktions-Entscheidung — wenn die
+                # Produktion diesen Kandidaten erreicht hat, nutzt der Ledger
+                # sie statt einer replizierten Schätzung (strategy_source=
+                # "production" statt "replicated").
+                production_strategy=p.get("strategy"),
+                production_iv_rank=p.get("iv_rank"),
             )
             candidate_ledger.mark_passed(p.get("ticker"))
         except Exception as e:

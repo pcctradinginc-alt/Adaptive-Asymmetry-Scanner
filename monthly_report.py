@@ -358,7 +358,7 @@ def challenger_snippet(suggestion: dict, today: date) -> str:
       - field: "{ledger_field}"
         op: "{baseline_op}"
         value: {current}
-    metric: "outcomes.real_opt_ret_45d"
+    metric: "outcomes.real_strat_ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180

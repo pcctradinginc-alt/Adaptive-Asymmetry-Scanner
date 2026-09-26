@@ -313,6 +313,112 @@ def select_contract(ticker: str, direction: str, dte_floor: int, spot: float) ->
         return None
 
 
+def select_spread_short_leg(
+    ticker: str, expiry: str | None, option_type: str, long_strike: float,
+) -> dict | None:
+    """
+    P0-2 (candidate_ledger real_strategy): wählt den Short-Leg eines Spreads
+    aus DERSELBEN Chain/Expiry wie der bereits gewählte Long-Leg — über
+    genau dieselbe Auswahlregel wie die Produktion
+    (options_designer.pick_spread_leg_strike: Fenster [1.05, 1.20]×long_strike,
+    Ziel 1.10×long_strike). Gibt None zurück (nie einen Fehler), wenn kein
+    TRADIER_API_KEY, keine Expiry/Chain oder kein Kontrakt im Fenster liegt.
+    """
+    try:
+        if not expiry or option_type not in ("call", "put"):
+            return None
+        if not _use_tradier():
+            return None
+        chain = _fetch_chain(ticker, expiry)
+        candidates = [o for o in chain if o.get("option_type") == option_type]
+        if not candidates:
+            return None
+
+        from modules.options_designer import pick_spread_leg_strike
+
+        strikes = [float(o.get("strike", 0)) for o in candidates]
+        target_strike = pick_spread_leg_strike(strikes, float(long_strike))
+        if target_strike is None:
+            return None
+
+        best = min(candidates, key=lambda o: abs(float(o.get("strike", 0)) - target_strike))
+        bid = _f(best.get("bid"))
+        ask = _f(best.get("ask"))
+        mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
+        return {
+            "symbol": best.get("symbol"),
+            "strike": float(best.get("strike", 0)),
+            "bid":    bid,
+            "ask":    ask,
+            "mid":    mid,
+        }
+    except Exception as e:
+        log.debug(f"market_snapshot.select_spread_short_leg [{ticker}] Fehler (ignoriert): {e}")
+        return None
+
+
+def fetch_term_iv_point(ticker: str, spot: float, min_dte: int = 7) -> tuple | None:
+    """
+    Review-Fix (replicated iv_rank): zweiter Term-Structure-Punkt für
+    candidate_ledger.py's real_strategy — die ATM-IV der NÄCHSTEN Expiration
+    mit DTE >= min_dte (typischerweise deutlich kürzer als die gewählte
+    Long-Leg-Expiration, die schon einen eigenen Term-Punkt liefert). Genau
+    EIN zusätzlicher Chain-Call pro Kandidat (getrennt vom Long-Leg-Call);
+    der Aufrufer zählt Versuche selbst (term_calls-Zähler).
+
+    Gibt (dte, atm_iv) zurück oder None (nie einen Fehler) — z.B. ohne
+    TRADIER_API_KEY, ohne Expirations/Chain oder ohne ATM-Kontrakt mit IV.
+    """
+    try:
+        if spot in (None, 0) or not _use_tradier():
+            return None
+        expirations = _fetch_expirations(ticker)
+        if not expirations:
+            return None
+
+        today = datetime.now(timezone.utc).date()
+        chosen_exp, chosen_dte = None, None
+        for exp in expirations:
+            try:
+                exp_date = datetime.strptime(exp, "%Y-%m-%d").date()
+            except Exception:
+                continue
+            dte = (exp_date - today).days
+            if dte >= min_dte:
+                chosen_exp, chosen_dte = exp, dte
+                break
+        if chosen_exp is None:
+            return None
+
+        chain = _fetch_chain(ticker, chosen_exp)
+        calls = [o for o in chain if o.get("option_type") == "call"]
+        if not calls:
+            return None
+
+        atm_ivs = []
+        for o in calls:
+            try:
+                strike = float(o.get("strike", 0))
+            except Exception:
+                continue
+            if not (spot * 0.93 <= strike <= spot * 1.07):
+                continue
+            greeks = o.get("greeks") or {}
+            iv = greeks.get("mid_iv") or greeks.get("smv_vol")
+            if iv and isinstance(iv, (int, float)) and iv > 0.05:
+                atm_ivs.append(float(iv))
+        if not atm_ivs:
+            return None
+
+        atm_ivs.sort()
+        median_iv = atm_ivs[len(atm_ivs) // 2] if len(atm_ivs) % 2 else \
+            (atm_ivs[len(atm_ivs) // 2 - 1] + atm_ivs[len(atm_ivs) // 2]) / 2
+        return chosen_dte, float(median_iv)
+    except Exception as e:
+        log.debug(f"market_snapshot.fetch_term_iv_point [{ticker}] Fehler (ignoriert): {e}")
+        return None
+
+
 def fetch_option_quotes(symbols: list[str]) -> dict:
     """
     Gebündelter Tradier-Quote-Abruf für OCC-Options-Symbole (für
