@@ -234,7 +234,28 @@ def test_update_outcomes_flips_sign_for_bearish(monkeypatch, ledger_root):
     assert outcomes["ret_5d"] == pytest.approx(-0.10, abs=1e-4)
 
 
-def test_update_outcomes_skips_when_entry_price_missing(monkeypatch, ledger_root):
+def test_update_outcomes_backfills_missing_entry_price(monkeypatch, ledger_root):
+    """Entry-Preis fehlte beim flush → wird aus der Historie nachgetragen."""
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
+        "config_hash": "abc", "status": "proposed", "reject_stage": None,
+        "reject_reason": None, "direction": "BULLISH", "features": {},
+        "entry_price": None, "outcomes": {},
+    })
+    d0 = datetime.strptime(entry_date, "%Y-%m-%d")
+    hist = [(d0 + timedelta(days=k), 100.0 + k) for k in range(0, 31)]
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {"AAPL": hist})
+
+    cl.update_outcomes((d0 + timedelta(days=30)).strftime("%Y-%m-%d"), root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert row["entry_price"] == 100.0
+    assert abs(row["outcomes"]["ret_5d"] - 0.05) < 1e-9
+    assert abs(row["outcomes"]["ret_20d"] - 0.20) < 1e-9
+    assert "ret_45d" not in row["outcomes"]
+
+
+def test_update_outcomes_no_history_keeps_row_unchanged(monkeypatch, ledger_root):
     entry_date = "2026-08-01"
     _write_ledger_line(ledger_root, "2026-08", {
         "date": entry_date, "ticker": "AAPL", "pipeline_version": "v8.3",
@@ -242,17 +263,11 @@ def test_update_outcomes_skips_when_entry_price_missing(monkeypatch, ledger_root
         "reject_reason": "ingress_invalid_data", "direction": None, "features": {},
         "entry_price": None, "outcomes": {},
     })
-    called = {"n": 0}
-    def fake_fetch(tickers, period_days):
-        called["n"] += 1
-        return {}
-    monkeypatch.setattr(cl, "_fetch_history_batch", fake_fetch)
-
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {})
     today = (datetime.strptime(entry_date, "%Y-%m-%d") + timedelta(days=30)).strftime("%Y-%m-%d")
     cl.update_outcomes(today, root=ledger_root)
     rows = _read_jsonl(ledger_root / "2026-08.jsonl")
-    assert rows[0]["outcomes"] == {}
-    assert called["n"] == 0  # no tickers pending -> batch fetch never invoked
+    assert rows[0]["outcomes"] == {} and rows[0]["entry_price"] is None
 
 
 def test_update_outcomes_never_raises_when_fetch_throws(monkeypatch, ledger_root):
@@ -337,3 +352,15 @@ def test_summarize_never_raises_on_corrupt_line(ledger_root):
         }) + "\n")
     result = cl.summarize(ledger_root)
     assert result["proposed"]["n"] == 1
+
+
+def test_flush_marks_unlabeled_drop_with_last_stage(monkeypatch, ledger_root):
+    """Kandidat ohne reject()/mark_passed → status 'dropped' mit letzter Stufe."""
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {})
+    cl.start_run("2026-09-25")
+    cl.note("XOM", stage="universe")
+    cl.flush(ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert row["status"] == "dropped"
+    assert row["reject_stage"] == "universe"
+    assert row["reject_reason"] == "unlabeled_after_universe"

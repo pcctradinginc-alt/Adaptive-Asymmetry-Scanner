@@ -230,6 +230,12 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         for ticker, e in entries.items():
             if (today, ticker) in existing_keys:
                 continue
+            # Ohne reject()-Aufruf ausgeschieden (z.B. Prescreening) → als
+            # "dropped" mit letzter erreichter Stufe markieren statt "seen".
+            if e.get("status", "seen") == "seen":
+                e["status"]        = "dropped"
+                e["reject_stage"]  = e.get("stage")
+                e["reject_reason"] = f"unlabeled_after_{e.get('stage') or 'unknown'}"
             row = {
                 "date":             today,
                 "ticker":           ticker,
@@ -324,8 +330,6 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     # Welche Zeilen brauchen überhaupt einen Update-Versuch?
     pending_tickers = set()
     for row in rows:
-        if row.get("entry_price") is None:
-            continue
         entry_dt = None
         try:
             entry_dt = datetime.strptime(row.get("date", ""), "%Y-%m-%d")
@@ -354,9 +358,6 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
         ticker = row.get("ticker")
         if ticker not in pending_tickers:
             continue
-        entry_price = row.get("entry_price")
-        if entry_price in (None, 0):
-            continue
         try:
             entry_dt = datetime.strptime(row.get("date", ""), "%Y-%m-%d")
         except Exception:
@@ -365,6 +366,15 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
         hist = histories.get(ticker)
         if hist is None or len(hist) == 0:
             continue
+
+        # Entry-Preis fehlte beim flush (API-Fehler) → aus Historie nachtragen
+        entry_price = row.get("entry_price")
+        if entry_price in (None, 0):
+            entry_price = _price_on_or_before(hist, entry_dt)
+            if entry_price in (None, 0):
+                continue
+            row["entry_price"] = round(float(entry_price), 4)
+            changed = True
 
         direction = row.get("direction")
         outcomes  = row.setdefault("outcomes", {})
