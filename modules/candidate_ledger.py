@@ -213,12 +213,46 @@ def _detect_pipeline_version() -> str:
     return "unknown"
 
 
+def _compute_code_sha() -> str:
+    """Commit-SHA des laufenden Codes (GitHub Actions: GITHUB_SHA, sonst git)."""
+    sha = os.environ.get("GITHUB_SHA", "").strip()
+    if sha:
+        return sha[:12]
+    try:
+        import subprocess
+        out = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
+                             text=True, timeout=5)
+        return out.stdout.strip()[:12] or "unknown"
+    except Exception:
+        return "unknown"
+
+
+def _compute_model_ids() -> dict:
+    """LLM-/ML-Modell-IDs aus config.yaml (models:, rl, finbert) für Reproduzierbarkeit."""
+    ids = {}
+    try:
+        import yaml
+        raw = yaml.safe_load(Path("config.yaml").read_text()) or {}
+        for k, v in (raw.get("models") or {}).items():
+            if isinstance(v, str):
+                ids[f"models.{k}"] = v
+        for section, key in (("rl", "model_path"), ("finbert", "model_name")):
+            sec = raw.get(section) or {}
+            if isinstance(sec, dict) and isinstance(sec.get(key), str):
+                ids[f"{section}.{key}"] = sec[key]
+    except Exception:
+        pass
+    return ids
+
+
 def start_run(today: str) -> None:
     """Setzt den In-Memory-State für einen neuen Pipeline-Lauf zurück."""
     try:
         _state["date"]             = today
         _state["config_hash"]      = _compute_config_hash()
         _state["pipeline_version"] = _detect_pipeline_version()
+        _state["code_sha"]         = _compute_code_sha()
+        _state["model_ids"]        = _compute_model_ids()
         _state["entries"]          = {}
         _state["flushed"]          = False
     except Exception as e:
@@ -530,6 +564,8 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "event_id":         e.get("event_id"),
                 "pipeline_version": _state.get("pipeline_version", "unknown"),
                 "config_hash":      _state.get("config_hash", "unknown"),
+                "code_sha":         _state.get("code_sha", "unknown"),
+                "model_ids":        _state.get("model_ids", {}),
                 "status":           e.get("status", "seen"),
                 "reject_stage":     e.get("reject_stage"),
                 "reject_reason":    e.get("reject_reason"),

@@ -1281,3 +1281,14 @@ def test_flush_event_id_fallback_without_event_key_is_ticker_and_date(monkeypatc
 
     rows = _read_jsonl(ledger_root / "2026-09.jsonl")
     assert len(rows) == 1
+
+
+def test_flush_records_code_sha_and_model_ids(monkeypatch, ledger_root):
+    monkeypatch.setenv("GITHUB_SHA", "0123456789abcdef")
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {})
+    cl.start_run("2026-09-25")
+    cl.note("XOM", stage="universe")
+    cl.flush(ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert row["code_sha"] == "0123456789ab"
+    assert row["model_ids"].get("models.deep_analysis")

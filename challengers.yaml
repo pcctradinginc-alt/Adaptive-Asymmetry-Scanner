@@ -62,7 +62,9 @@ challengers:
       - field: "features.final_mc_hit_rate"
         op: ">="
         value: 0.45
-    metric: "outcomes.opt_ret_45d"
+    # Primär: echter Options-Kontrakt (Ask rein, Bid raus). Black-Scholes-opt_ret
+    # bleibt nur sekundäre Diagnose (umgestellt vor start_date, keine Daten gesehen).
+    metric: "outcomes.real_opt_ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180
@@ -84,7 +86,9 @@ challengers:
       - field: "features.trade_score"
         op: ">="
         value: 55
-    metric: "outcomes.opt_ret_45d"
+    # Primär: echter Options-Kontrakt (Ask rein, Bid raus). Black-Scholes-opt_ret
+    # bleibt nur sekundäre Diagnose (umgestellt vor start_date, keine Daten gesehen).
+    metric: "outcomes.real_opt_ret_45d"
     min_n: 30
     horizon_days: 45
     max_duration_days: 180

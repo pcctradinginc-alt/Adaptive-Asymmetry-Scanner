@@ -43,7 +43,7 @@ def test_challenger_snippet_score_gate():
     assert 'op: ">="' in snippet, "Score gate should use >= operator"
     assert "2026-09-27" in snippet, "start_date should be tomorrow"
     assert "2026-09-26" in snippet, "registered_on should be today"
-    assert "outcomes.opt_ret_45d" in snippet, "Should use the correct metric"
+    assert "outcomes.real_opt_ret_45d" in snippet, "Should use the correct metric"
     assert "status: active" in snippet, "Should start as active"
 
 
@@ -134,7 +134,7 @@ def test_challenger_snippet_metric_and_guardrails():
     today = date(2026, 9, 26)
     snippet = challenger_snippet(suggestion, today)
 
-    assert "outcomes.opt_ret_45d" in snippet, "Should use opt_ret_45d metric"
+    assert "outcomes.real_opt_ret_45d" in snippet, "Should use opt_ret_45d metric"
     assert "min_n: 30" in snippet, "Should enforce min_n guardrail"
     assert "horizon_days: 45" in snippet, "Should set horizon_days to 45"
     assert "max_duration_days: 180" in snippet, "Should set max_duration_days to 180"
