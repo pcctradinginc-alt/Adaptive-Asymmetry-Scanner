@@ -182,6 +182,11 @@ bleiben die Gewichte auf ihren Startwerten (der Engine-Monitor warnt dann "Lern-
 Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
 Outcomes zum Training herangezogen.
 
+**Hinweis:** Trades werden nach `learning.close_after_days` Tagen geschlossen
+(aktuell: 45 Tage, siehe `config.yaml` Zeile 70). Trades, die älter als dieser
+Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
+Outcomes zum Training herangezogen.
+
 ---
 
 ## Tuning-Prozess
