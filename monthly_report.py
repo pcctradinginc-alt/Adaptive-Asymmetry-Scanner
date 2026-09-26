@@ -4,7 +4,8 @@ monthly_report.py – Monatlicher Performance-Report per E-Mail
 Läuft am 1. jedes Monats (GitHub Actions: monthly_report.yml) und sendet:
   - Win-Rate, Trade-Anzahl, Mean/Median-Return, Totalverluste des Vormonats
     (= Trades mit close_date im Vormonat)
-  - Vergleich zum Monat davor (Δ Win-Rate) → wird das System besser?
+  - Rollende Statistiken (30er, 60er Fenster, alle) mit ehrlichen Metriken und
+    95%-Konfidenzintervallen — objektive Bewertung ohne Übertreibung
   - Gesamt-Statistik über alle closed_trades
   - Signal-Funnel: Wie viele Tage hatten 0 Trades und welche Gates blockierten
 
@@ -15,6 +16,7 @@ tägliche Scanner. Keine zusätzlichen Kosten, keine neuen API-Keys.
 import json
 import logging
 import os
+import random
 import statistics
 import sys
 from collections import Counter
@@ -33,6 +35,98 @@ log = logging.getLogger(__name__)
 HISTORY_PATH = Path("outputs/history.json")
 REPORTS_DIR  = Path("outputs/daily_reports")
 REPO_NAME    = os.getenv("GITHUB_REPOSITORY", "Adaptive-Asymmetry-Scanner")
+
+
+def dedup_closed_trades(closed: list[dict]) -> list[dict]:
+    """
+    Deduplicate trades: keep one trade per (ticker, entry_date).
+    Returns only the first occurrence of each unique (ticker, entry_date) pair.
+    """
+    seen = set()
+    result = []
+    for trade in closed:
+        ticker = trade.get("ticker", "?")
+        entry_date = trade.get("entry_date", "?")
+        key = (ticker, entry_date)
+        if key not in seen:
+            seen.add(key)
+            result.append(trade)
+    return result
+
+
+def rolling_stats(trades: list[dict], window: int | None = None) -> dict:
+    """
+    Compute rolling window stats on trades (sorted by close_date).
+    Returns: n, win_rate, mean, median, total_loss_rate, mean_ex_top3, profit_factor, profit_factor_n_losses.
+    If window is None, uses all trades.
+    """
+    if window is not None:
+        trades = trades[-window:]
+
+    outs = [float(t["outcome"]) for t in trades if t.get("outcome") is not None]
+
+    if not outs:
+        return {
+            "n": 0,
+            "win_rate": None,
+            "mean": None,
+            "median": None,
+            "total_loss_rate": None,
+            "mean_ex_top3": None,
+            "profit_factor": None,
+        }
+
+    wins = sum(1 for o in outs if o > 0)
+    win_rate = wins / len(outs)
+
+    # total_loss_rate: fraction of outcomes <= -0.95
+    total_losses = sum(1 for o in outs if o <= -0.95)
+    total_loss_rate = total_losses / len(outs)
+
+    # mean_ex_top3: mean after removing 3 best outcomes
+    sorted_outs = sorted(outs, reverse=True)
+    if len(sorted_outs) > 3:
+        mean_ex_top3 = statistics.mean(sorted_outs[3:])
+    else:
+        mean_ex_top3 = None
+
+    # profit_factor: sum of wins / abs(sum of losses)
+    sum_wins = sum(o for o in outs if o > 0)
+    sum_losses = sum(o for o in outs if o <= 0)
+    if sum_losses >= 0 or sum_losses == 0:
+        profit_factor = None
+    else:
+        profit_factor = sum_wins / abs(sum_losses)
+
+    return {
+        "n": len(outs),
+        "win_rate": win_rate,
+        "mean": statistics.mean(outs),
+        "median": statistics.median(outs),
+        "total_loss_rate": total_loss_rate,
+        "mean_ex_top3": mean_ex_top3,
+        "profit_factor": profit_factor,
+    }
+
+
+def bootstrap_ci(values: list[float], n_boot: int = 2000, seed: int = 42) -> tuple[float, float] | None:
+    """
+    Compute 90% confidence interval (5th/95th percentile) for the mean via bootstrap.
+    Returns (lower, upper) or None if len(values) < 10.
+    """
+    if len(values) < 10:
+        return None
+
+    rng = random.Random(seed)
+    boot_means = []
+    for _ in range(n_boot):
+        sample = [rng.choice(values) for _ in range(len(values))]
+        boot_means.append(statistics.mean(sample))
+
+    boot_means.sort()
+    lower_idx = int(n_boot * 0.05)
+    upper_idx = int(n_boot * 0.95)
+    return (boot_means[lower_idx], boot_means[upper_idx])
 
 
 def month_key(d: date) -> str:
@@ -260,8 +354,111 @@ def build_slot_html(candidates: list[dict]) -> str:
     Kandidat umgesetzt wird.</p>"""
 
 
+def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None = None) -> str:
+    """
+    Build HTML table showing rolling window statistics.
+    Includes 30-day, 60-day, and all-trades windows.
+    """
+    # Sort by close_date to have consistent ordering
+    sorted_trades = sorted(
+        [t for t in closed if t.get("outcome") is not None and t.get("close_date")],
+        key=lambda t: t.get("close_date", "")
+    )
+
+    if not sorted_trades:
+        return "<p><i>Keine geschlossenen Trades für Rolling-Statistik.</i></p>"
+
+    windows = [
+        ("Letzte 30", 30),
+        ("Letzte 60", 60),
+        ("Alle Trades", None),
+    ]
+
+    rows = ""
+    last_30_stats = None
+    last_30_outcomes = None
+
+    for label, window in windows:
+        stats = rolling_stats(sorted_trades, window)
+        if window == 30:
+            last_30_stats = stats
+            last_30_outcomes = [float(t["outcome"]) for t in sorted_trades[-30:] if t.get("outcome") is not None]
+
+        if stats["n"] == 0:
+            rows += f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{label}</td><td colspan='7' style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><i>keine Daten</i></td></tr>"
+            continue
+
+        win_rate_str = f"{stats['win_rate'] * 100:.0f}%" if stats['win_rate'] is not None else "—"
+        mean_str = f"{stats['mean']:+.1%}" if stats['mean'] is not None else "—"
+        median_str = f"{stats['median']:+.1%}" if stats['median'] is not None else "—"
+        mean_ex_top3_str = f"{stats['mean_ex_top3']:+.1%}" if stats['mean_ex_top3'] is not None else "—"
+        total_loss_str = f"{stats['total_loss_rate'] * 100:.0f}%" if stats['total_loss_rate'] is not None else "—"
+
+        outcomes_for_ci = [float(t["outcome"]) for t in sorted_trades[-window:] if t.get("outcome") is not None] if window else [float(t["outcome"]) for t in sorted_trades if t.get("outcome") is not None]
+        ci = bootstrap_ci(outcomes_for_ci)
+        if ci:
+            ci_str = f"{ci[0]:+.1%} bis {ci[1]:+.1%}"
+        else:
+            ci_str = "—"
+
+        rows += (
+            f"<tr>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><b>{label}</b></td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{stats['n']}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{win_rate_str}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{mean_str}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{median_str}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{mean_ex_top3_str}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{total_loss_str}</td>"
+            f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{ci_str}</td>"
+            f"</tr>"
+        )
+
+    # Month-over-month delta with honest wording
+    delta_html = ""
+    if prev_closed_stats and last_30_stats and last_30_outcomes:
+        delta = (last_30_stats["win_rate"] - prev_closed_stats["win_rate"]) * 100
+
+        # Check if 90% CI of last-30 is entirely above CI of previous month
+        last_30_ci = bootstrap_ci(last_30_outcomes)
+        prev_month_outcomes = [float(t["outcome"]) for t in closed if t.get("outcome") is not None]
+        prev_month_ci = bootstrap_ci(prev_month_outcomes)
+
+        if last_30_ci and prev_month_ci and last_30_ci[0] > prev_month_ci[1]:
+            significance = "signifikant besser"
+        else:
+            significance = "kein Nachweis einer Verbesserung"
+
+        delta_html = (
+            f"<p style='margin-top:1em;font-size:0.95em;color:#555;'>"
+            f"<b>Δ Win-Rate ggü. Vormonat:</b> {delta:+.0f} Prozentpunkte "
+            f"(Vormonat: n={prev_closed_stats.get('n', '?')}, "
+            f"Letzte 30: n={last_30_stats['n']}) — bei dieser Stichprobe <b>{significance}</b>. "
+            f"Hinweis: Monatliche Unterschiede sind oft Rauschen; zeitliche Stabilität "
+            f"(Trendanalyse über mehrere Monate) ist aussagekräftiger.</p>"
+        )
+
+    return f"""
+    <h3>📊 Beobachtete Performance (rollierend)</h3>
+    <table style="border-collapse:collapse;font-size:13px;width:100%">
+      <tr style="text-align:left;color:#64748b;">
+        <th style="padding:4px 8px;">Fenster</th>
+        <th style="padding:4px 8px;">n</th>
+        <th style="padding:4px 8px;">Win-Rate</th>
+        <th style="padding:4px 8px;">Ø</th>
+        <th style="padding:4px 8px;">Median</th>
+        <th style="padding:4px 8px;">Ø ohne Top-3</th>
+        <th style="padding:4px 8px;">Totalverlust-Quote</th>
+        <th style="padding:4px 8px;">90%-KI des Ø</th>
+      </tr>
+      {rows}
+    </table>
+    {delta_html}
+    """
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
-               total: dict | None, funnel: dict,
+               total: dict | None, funnel: dict, closed: list[dict] | None = None,
                spy: float | None = None, shadow: dict | None = None,
                tuning: list[dict] | None = None,
                slot: list[dict] | None = None) -> str:
@@ -274,15 +471,10 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
             f"Median {s['median']:+.1%} · Totalverluste {s['total_losses']}</p>"
         )
 
-    if cur and prev:
-        delta = (cur["win_rate"] - prev["win_rate"]) * 100
-        trend = (
-            f"<p style='font-size:1.1em'><b>Trend: {'📈' if delta >= 0 else '📉'} "
-            f"{delta:+.0f} Prozentpunkte Win-Rate vs. Vormonat</b> — "
-            f"das System wird {'besser' if delta > 0 else 'schlechter' if delta < 0 else 'nicht besser'}.</p>"
-        )
-    else:
-        trend = "<p><i>Noch kein Vormonats-Vergleich möglich (zu wenige Daten).</i></p>"
+    # Rolling stats and month-over-month analysis
+    rolling_html = ""
+    if closed:
+        rolling_html = build_rolling_stats_html(closed, prev)
 
     # SPY-Benchmark: schlägt das System buy-and-hold?
     bench_html = ""
@@ -328,7 +520,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       <p>Berichtsmonat: <b>{report_month}</b> (Trades mit Close-Datum in diesem Monat)</p>
       {stat_block(f"Monat {report_month}", cur)}
       {stat_block("Vormonat", prev)}
-      {trend}
+      {rolling_html}
       {bench_html}
       {shadow_html}
       <hr>
@@ -380,7 +572,7 @@ def main() -> None:
 
     if tuning:
         log.info(f"{len(tuning)} Tuning-Vorschlag/Vorschläge gefunden")
-    html = build_html(report_month, cur, prev, total, funnel, spy, shadow, tuning, slot)
+    html = build_html(report_month, cur, prev, total, funnel, closed, spy, shadow, tuning, slot)
     log.info(f"Sende Monats-Report: {subject}")
     _send_smtp(subject, html)
     log.info("=== Monats-Report abgeschlossen ===")
