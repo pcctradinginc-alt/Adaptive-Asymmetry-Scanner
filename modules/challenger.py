@@ -16,14 +16,34 @@ WICHTIG — HARTE GARANTIE:
   evaluate()/evaluate_all() liefern nur eine Empfehlung ("promote_recommended"),
   nie eine Aktion.
 
+Pre-Registrierung (siehe load_registry()/evaluate_all()):
+  - start_date muss ECHT NACH registered_on liegen (strikt größer), sonst
+    ist der Eintrag "invalid" (kein Post-hoc-Overfitting durch nachträglich
+    vordatierte Registrierung).
+  - Optionales Feld `registered_at` (ISO-UTC-Zeitstempel): ist es gesetzt,
+    sind Ledger-Zeilen mit einem `signal_timestamp`-Feld nur eligible, wenn
+    dieser Zeitstempel ECHT NACH registered_at liegt. Zeilen ohne
+    signal_timestamp fallen auf den date >= start_date-Vergleich zurück.
+  - Ein "invalid" Eintrag wird NIE ausgewertet und fließt nicht in n_active
+    (Bonferroni) ein.
+
 Auswertungslogik (siehe evaluate()):
-  - Nur Ledger-Zeilen mit date >= challenger.start_date UND deren Horizont-
-    Metrik bereits vorliegt (Walk-forward: kein Blick auf Daten, die vor
-    der Registrierung lagen oder deren Outcome noch nicht feststeht).
+  - Nur Ledger-Zeilen mit date >= challenger.start_date (bzw. dem strengeren
+    registered_at-Vergleich über signal_timestamp, siehe oben) UND deren
+    Horizont-Metrik bereits vorliegt (Walk-forward: kein Blick auf Daten,
+    die vor der Registrierung lagen oder deren Outcome noch nicht feststeht).
   - Pro Arm: n, mean, median, total_loss_rate (Anteil Outcomes <= -0.95).
   - Bootstrap-Konfidenzintervall (seeded, deterministisch) der Differenz
-    der Mittelwerte (Challenger − Baseline), mit unabhängigem Resampling
-    beider Arme.
+    der Mittelwerte (Challenger − Baseline) als POLICY-Bootstrap: die Arme
+    überlappen sich (z.B. baseline score>=55 enthält alle challenger
+    score>=61 Zeilen), daher werden nicht beide Arme unabhängig resampelt.
+    Statt dessen wird pro Replikat die gesamte eligible Ledger-Population
+    (mit Zurücklegen) resampelt, und darauf werden Challenger- und
+    Baseline-Regel jeweils neu angewendet ("policy bootstrap"). Ist einer
+    der beiden Arme in einem Replikat leer, wird das Replikat verworfen;
+    werden mehr als 10% aller Replikate verworfen, ist die Datenlage zu
+    dünn für ein CI und evaluate() liefert (None, None) zurück (Verdikt
+    bleibt "running").
   - Signifikanzniveau alpha = 0.10 / n_active (Bonferroni über die aktiven
     Challenger); da einseitig getestet wird, werden die alpha- und
     (1-alpha)-Perzentile der Bootstrap-Differenzverteilung als CI-Grenzen
@@ -73,8 +93,39 @@ _OPS = {
 
 # ── Registry / Ledger loading (read-only) ────────────────────────────────────
 
+def _validate_challenger(c: dict) -> str | None:
+    """Pre-registration guard: returns None if `c` is valid, else an invalid-reason string.
+
+    - start_date muss ECHT NACH registered_on liegen (kein post-hoc-Overfitting
+      durch eine nachträglich vordatierte/gleichgesetzte Registrierung).
+    - registered_at (falls vorhanden) muss ein gültiger ISO-Zeitstempel sein.
+    """
+    try:
+        registered_on = _parse_date(c["registered_on"])
+    except Exception:
+        return "registered_on fehlt oder ist ungültig"
+    try:
+        start_date = _parse_date(c["start_date"])
+    except Exception:
+        return "start_date fehlt oder ist ungültig"
+    if not (start_date > registered_on):
+        return "start_date muss strikt nach registered_on liegen"
+    registered_at = c.get("registered_at")
+    if registered_at is not None:
+        try:
+            datetime.fromisoformat(str(registered_at).replace("Z", "+00:00"))
+        except Exception:
+            return "registered_at ist kein gültiger ISO-Zeitstempel"
+    return None
+
+
 def load_registry(path: Path | str = REGISTRY_PATH) -> list[dict]:
-    """Reads challengers.yaml and returns the list of challenger dicts. Never writes."""
+    """Reads challengers.yaml and returns the list of challenger dicts. Never writes.
+
+    Jeder Eintrag wird gegen die Pre-Registrierungs-Garantie geprüft
+    (start_date strikt nach registered_on, gültiges registered_at); ein
+    ungültiger Eintrag bekommt `_invalid_reason` gesetzt (None sonst).
+    evaluate_all() wertet solche Einträge nie aus."""
     import yaml
 
     path = Path(path)
@@ -89,6 +140,8 @@ def load_registry(path: Path | str = REGISTRY_PATH) -> list[dict]:
         c.setdefault("baseline_rule", [{"field": "status", "op": "==", "value": "proposed"}])
         c.setdefault("status", "active")
         c.setdefault("metric_fallback", None)
+        c.setdefault("registered_at", None)
+        c["_invalid_reason"] = _validate_challenger(c)
         out.append(c)
     return out
 
@@ -182,20 +235,48 @@ def _deterministic_seed(challenger_id: str) -> int:
     return int.from_bytes(digest[:8], "big") % (2**31 - 1)
 
 
-def _bootstrap_diff_ci(challenger_vals: list[float], baseline_vals: list[float],
-                        alpha: float, n_boot: int, seed: int) -> tuple[float, float]:
-    """Bootstrap CI of (mean(challenger) - mean(baseline)) with independent resampling.
-    One-sided percentiles at alpha and 1-alpha."""
+def _bootstrap_diff_ci(chal_flags: list[bool], base_flags: list[bool], values: list[float],
+                        alpha: float, n_boot: int, seed: int) -> tuple[float | None, float | None]:
+    """Policy bootstrap CI of (mean(challenger) - mean(baseline)).
+
+    Der Challenger- und der Baseline-Arm überlappen sich (der Baseline-Arm
+    enthält typischerweise auch alle Challenger-Zeilen, z.B. score>=55
+    umfasst score>=61). Unabhängiges Resampling beider Arme ignoriert diese
+    Überlappung und liefert ein künstlich zu breites CI. Statt dessen wird
+    hier die gesamte eligible Population (mit Zurücklegen) resampelt und
+    Challenger-/Baseline-Zugehörigkeit (`chal_flags`/`base_flags`, pro Zeile
+    vorab berechnet) sowie der Metrik-Wert (`values`) auf das Replikat
+    übertragen; Mittelwertdifferenz je Replikat = mean(challenger im
+    Replikat) - mean(baseline im Replikat).
+
+    Replikate, in denen einer der beiden Arme leer ist, werden verworfen
+    (gezählt). Werden mehr als 10% aller Replikate verworfen, ist die
+    Datenlage zu dünn für ein belastbares CI und es wird (None, None)
+    zurückgegeben.
+
+    One-sided Perzentile bei alpha und 1-alpha, deterministischer Seed."""
     rng = random.Random(seed)
+    n = len(values)
     diffs = []
-    nc, nb = len(challenger_vals), len(baseline_vals)
+    skipped = 0
     for _ in range(n_boot):
-        c_sample = [challenger_vals[rng.randrange(nc)] for _ in range(nc)]
-        b_sample = [baseline_vals[rng.randrange(nb)] for _ in range(nb)]
-        diffs.append(statistics.mean(c_sample) - statistics.mean(b_sample))
+        idxs = [rng.randrange(n) for _ in range(n)]
+        c_vals = [values[i] for i in idxs if chal_flags[i]]
+        b_vals = [values[i] for i in idxs if base_flags[i]]
+        if not c_vals or not b_vals:
+            skipped += 1
+            continue
+        diffs.append(statistics.mean(c_vals) - statistics.mean(b_vals))
+
+    if n_boot > 0 and skipped / n_boot > 0.10:
+        return None, None
+    if not diffs:
+        return None, None
+
     diffs.sort()
-    lower_idx = max(0, min(n_boot - 1, int(n_boot * alpha)))
-    upper_idx = max(0, min(n_boot - 1, int(n_boot * (1 - alpha))))
+    n_diffs = len(diffs)
+    lower_idx = max(0, min(n_diffs - 1, int(n_diffs * alpha)))
+    upper_idx = max(0, min(n_diffs - 1, int(n_diffs * (1 - alpha))))
     return diffs[lower_idx], diffs[upper_idx]
 
 
@@ -207,35 +288,62 @@ def _parse_date(d) -> date:
 
 # ── Evaluation ────────────────────────────────────────────────────────────────
 
+def _row_is_time_eligible(row: dict, start_date: date, registered_at: str | None) -> bool:
+    """Walk-forward time gate for a single ledger row.
+
+    Wenn `registered_at` gesetzt ist UND die Zeile ein `signal_timestamp`
+    trägt, entscheidet ausschließlich der Vergleich signal_timestamp >
+    registered_at (strikt). Zeilen ohne signal_timestamp (oder wenn kein
+    registered_at vorregistriert wurde) fallen auf date >= start_date zurück.
+    """
+    ts = row.get("signal_timestamp")
+    if registered_at and ts:
+        try:
+            return str(ts) > str(registered_at)
+        except Exception:
+            return False
+    try:
+        r_date = _parse_date(row.get("date"))
+    except Exception:
+        return False
+    return r_date >= start_date
+
+
 def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> dict:
     """Evaluates a single pre-registered challenger against the ledger rows.
     Never writes anything — purely computes a recommendation."""
     cid = challenger["id"]
     start_date = _parse_date(challenger["start_date"])
+    registered_at = challenger.get("registered_at")
     metric = challenger["metric"]
     fallback = challenger.get("metric_fallback")
     min_n = int(challenger.get("min_n", 30))
     max_duration_days = int(challenger.get("max_duration_days", 180))
 
-    # Walk-forward: only rows at/after start_date whose horizon has elapsed
-    # (i.e. the metric — or its fallback — is already present).
+    # Walk-forward: only rows at/after start_date (or, if registered_at is
+    # pre-registered and the row carries a signal_timestamp, only rows whose
+    # signal_timestamp is strictly after registered_at) whose horizon has
+    # elapsed (i.e. the metric — or its fallback — is already present).
     eligible = []
     for r in rows:
-        try:
-            r_date = _parse_date(r.get("date"))
-        except Exception:
-            continue
-        if r_date < start_date:
+        if not _row_is_time_eligible(r, start_date, registered_at):
             continue
         if metric_value(r, metric, fallback) is None:
             continue
         eligible.append(r)
 
-    baseline_rows = select(eligible, challenger.get("baseline_rule") or [])
-    challenger_rows = select(eligible, challenger.get("rule") or [])
+    baseline_rule = challenger.get("baseline_rule") or []
+    rule = challenger.get("rule") or []
 
-    baseline_vals = [v for v in (metric_value(r, metric, fallback) for r in baseline_rows) if v is not None]
-    challenger_vals = [v for v in (metric_value(r, metric, fallback) for r in challenger_rows) if v is not None]
+    # Precompute per-row membership flags + metric values once, for both the
+    # arm stats below and the policy bootstrap (avoids re-filtering per
+    # bootstrap replicate).
+    values = [metric_value(r, metric, fallback) for r in eligible]
+    base_flags = [all(_match_condition(r, cond) for cond in baseline_rule) for r in eligible]
+    chal_flags = [all(_match_condition(r, cond) for cond in rule) for r in eligible]
+
+    baseline_vals = [v for v, f in zip(values, base_flags) if f]
+    challenger_vals = [v for v, f in zip(values, chal_flags) if f]
 
     base_stats = _arm_stats(baseline_vals)
     chal_stats = _arm_stats(challenger_vals)
@@ -268,9 +376,15 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
 
     alpha = ALPHA_BASE / max(n_active, 1)
     seed = _deterministic_seed(cid)
-    lower, upper = _bootstrap_diff_ci(challenger_vals, baseline_vals, alpha, N_BOOT, seed)
+    lower, upper = _bootstrap_diff_ci(chal_flags, base_flags, values, alpha, N_BOOT, seed)
     result["ci_lower"] = lower
     result["ci_upper"] = upper
+
+    if lower is None or upper is None:
+        # Too many bootstrap replicates had an empty arm (>10%) — the data
+        # is too thin for a reliable CI; keep the verdict "running".
+        result["verdict"] = "running"
+        return result
 
     promote = lower > 0 and chal_stats["total_loss_rate"] <= base_stats["total_loss_rate"] + LOSS_MARGIN
     if promote:
@@ -289,13 +403,19 @@ def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
     """Loads the registry + ledger and evaluates all registered challengers.
     Enforces MAX_ACTIVE = 3: only the first 3 active challengers (by
     registered_on) are evaluated; the rest are reported as 'queued'.
+    Pre-registration guard: entries failing _validate_challenger() (e.g.
+    start_date not strictly after registered_on) get verdict "invalid",
+    are never evaluated, and do not count towards n_active.
     Never writes to challengers.yaml or config.yaml."""
     today = today or date.today()
     registry = load_registry(registry_path)
     rows = load_ledger_rows(ledger_root)
 
-    active = [c for c in registry if c.get("status") == "active"]
-    inactive = [c for c in registry if c.get("status") != "active"]
+    invalid = [c for c in registry if c.get("_invalid_reason")]
+    valid = [c for c in registry if not c.get("_invalid_reason")]
+
+    active = [c for c in valid if c.get("status") == "active"]
+    inactive = [c for c in valid if c.get("status") != "active"]
 
     active_sorted = sorted(active, key=lambda c: _parse_date(c["registered_on"]))
     to_evaluate = active_sorted[:MAX_ACTIVE]
@@ -303,6 +423,27 @@ def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
 
     n_active = len(to_evaluate)
     results = [evaluate(c, rows, today, n_active) for c in to_evaluate]
+
+    for c in invalid:
+        results.append({
+            "id": c["id"],
+            "hypothesis": c.get("hypothesis", ""),
+            "metric": c.get("metric"),
+            "n_baseline": None,
+            "n_challenger": None,
+            "mean_baseline": None,
+            "mean_challenger": None,
+            "median_baseline": None,
+            "median_challenger": None,
+            "total_loss_rate_baseline": None,
+            "total_loss_rate_challenger": None,
+            "ci_lower": None,
+            "ci_upper": None,
+            "alpha": None,
+            "expired": False,
+            "verdict": "invalid",
+            "invalid_reason": c.get("_invalid_reason"),
+        })
 
     for c in queued:
         results.append({
@@ -354,6 +495,8 @@ def _fmt(x, pct=True):
 
 
 def _print_table(results: list[dict]) -> None:
+    print("Hinweis: opt_ret-Metriken sind synthetisch (Black-Scholes, konstante IV, "
+          "kein IV-Crush, fixer Spread) — kein echtes Options-P&L.")
     header = f"{'id':<24} {'n_base':>7} {'n_chal':>7} {'mean_base':>10} {'mean_chal':>10} {'ci_lower':>9} {'ci_upper':>9} {'verdict':<20}"
     print(header)
     print("-" * len(header))

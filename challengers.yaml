@@ -8,12 +8,20 @@
 #   - Jeder Challenger wird VOR der Datensammlung registriert (Hypothese +
 #     Regel + start_date), damit die Auswertung kein Post-hoc-Overfitting ist.
 #     start_date liegt strikt NACH registered_on ("walk-forward" — es werden
-#     nur Ledger-Zeilen mit date >= start_date ausgewertet).
+#     nur Ledger-Zeilen mit date >= start_date ausgewertet). Ein Eintrag mit
+#     start_date <= registered_on ist "invalid" und wird nie ausgewertet.
+#   - registered_at (ISO-UTC-Zeitstempel der Registrierung) verschärft die
+#     Walk-forward-Grenze zusätzlich: trägt eine Ledger-Zeile ein
+#     signal_timestamp-Feld, ist sie nur eligible, wenn dieser Zeitstempel
+#     ECHT NACH registered_at liegt (Zeilen ohne signal_timestamp fallen auf
+#     date >= start_date zurück).
 #
 # Feldreferenz:
 #   id            eindeutiger Schlüssel
 #   hypothesis    Freitext: was wird erwartet und warum
 #   registered_on Datum der Registrierung (Commit-Datum dieses Eintrags)
+#   registered_at (optional) ISO-UTC-Zeitstempel der Registrierung; verschärft
+#                 die Walk-forward-Grenze für Zeilen mit signal_timestamp
 #   start_date    erste Ledger-Zeile, die in die Auswertung einfließt
 #   rule          Liste von {field, op, value} — AND-verknüpft; Feld über
 #                 Punkt-Pfad in die Ledger-Zeile, z.B. "features.trade_score"
@@ -31,7 +39,8 @@ challengers:
       Gating mit dem MC-Horizont, der zur gehandelten DTE passt (Shadow-Hit-Rate
       auf dem tatsächlichen Horizont statt dem generischen final_mc_hit_rate),
       selektiert bessere Trades als das aktuelle final_mc-Gate.
-    registered_on: "2026-09-28"
+    registered_on: "2026-09-26"
+    registered_at: "2026-09-26T07:00:00Z"
     start_date: "2026-09-28"
     rule:
       - field: "features.final_mc_shadow_hit_rate"
@@ -52,7 +61,8 @@ challengers:
       Ein höheres Trade-Score-Gate (>=61 statt >=55) filtert schwächere
       Kandidaten heraus und verbessert den mittleren Return, ohne die
       Sample-Größe zu stark zu reduzieren.
-    registered_on: "2026-09-28"
+    registered_on: "2026-09-26"
+    registered_at: "2026-09-26T07:00:00Z"
     start_date: "2026-09-28"
     rule:
       - field: "features.trade_score"

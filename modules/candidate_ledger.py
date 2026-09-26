@@ -23,6 +23,8 @@ Datenformat: outputs/candidate_ledger/YYYY-MM.jsonl (eine Zeile pro Ticker/Tag)
       "direction": "BULLISH" | "BEARISH" | null,
       "features": {...},
       "entry_price": 123.45 | null,
+      "signal_timestamp": "2026-09-26T14:03:07+00:00",  # UTC, Sekundenpräzision;
+          # gesetzt beim ersten note() dieses Kandidaten im Lauf
       "outcomes": {
           "ret_5d": 0.012, "ret_20d": ..., "ret_45d": ..., "ret_120d": ...,
           "mfe": ..., "mae": ...
@@ -36,7 +38,7 @@ import logging
 import math
 import os
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from modules.bs_pricing import bs_price
@@ -192,13 +194,17 @@ def _entry(ticker: str) -> dict:
     e = _state["entries"].get(ticker)
     if e is None:
         e = {
-            "ticker":        ticker,
-            "status":        "seen",
-            "stage":         None,
-            "reject_stage":  None,
-            "reject_reason": None,
-            "direction":     None,
-            "features":      {},
+            "ticker":           ticker,
+            "status":           "seen",
+            "stage":            None,
+            "reject_stage":     None,
+            "reject_reason":    None,
+            "direction":        None,
+            "features":         {},
+            # Erster Zeitpunkt, zu dem dieser Kandidat in diesem Lauf notiert
+            # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
+            # Walk-forward-Prüfung im Challenger-Modul (registered_at).
+            "signal_timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         }
         _state["entries"][ticker] = e
     return e
@@ -330,6 +336,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "direction":        e.get("direction"),
                 "features":        e.get("features", {}),
                 "entry_price":      entry_price,
+                "signal_timestamp": e.get("signal_timestamp"),
                 "outcomes":         {},
             }
             hypo = _build_hypo_option(e, entry_price)

@@ -492,6 +492,8 @@ def build_challenger_html() -> str:
             "<h3>🧪 Challenger (Walk-forward)</h3>"
             "<p style='font-size:0.85em;color:#888'>Rein informativ — Promotion erfolgt "
             "ausschließlich durch einen von Menschen gemergten PR auf config.yaml.</p>"
+            "<p style='font-size:0.85em;color:#888'>Hinweis: opt_ret-Metriken sind synthetisch "
+            "(Black-Scholes, konstante IV, kein IV-Crush, fixer Spread) — kein echtes Options-P&amp;L.</p>"
             f"<ul>{rows_html}</ul>"
         )
     except Exception as e:

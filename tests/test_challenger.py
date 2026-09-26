@@ -11,6 +11,10 @@ Deckt ab:
   - "queued" jenseits von MAX_ACTIVE=3
   - Determinismus (zwei Läufe liefern dasselbe Ergebnis)
   - Guard: evaluate_all() schreibt niemals nach config.yaml/challengers.yaml
+  - Policy-Bootstrap auf genesteten/überlappenden Armen (kein False-Promote,
+    schmaleres CI als die alte unabhängige Resampling-Methode, Determinismus)
+  - Pre-Registrierungs-Guard: start_date strikt nach registered_on,
+    registered_at gate über signal_timestamp
 """
 
 import builtins
@@ -27,7 +31,7 @@ from modules import challenger as ch
 # ── Fixtures / Helpers ───────────────────────────────────────────────────────
 
 def _row(day: str, trade_score=None, final_mc_hit_rate=None, final_mc_shadow_hit_rate=None,
-         status="proposed", opt_ret_45d=None, ret_45d=None):
+         status="proposed", opt_ret_45d=None, ret_45d=None, signal_timestamp=None):
     features = {}
     if trade_score is not None:
         features["trade_score"] = trade_score
@@ -40,13 +44,16 @@ def _row(day: str, trade_score=None, final_mc_hit_rate=None, final_mc_shadow_hit
         outcomes["opt_ret_45d"] = opt_ret_45d
     if ret_45d is not None:
         outcomes["ret_45d"] = ret_45d
-    return {
+    row = {
         "date": day,
         "ticker": "TST",
         "status": status,
         "features": features,
         "outcomes": outcomes,
     }
+    if signal_timestamp is not None:
+        row["signal_timestamp"] = signal_timestamp
+    return row
 
 
 def _write_ledger(root: Path, rows: list[dict]) -> None:
@@ -60,13 +67,15 @@ def _write_ledger(root: Path, rows: list[dict]) -> None:
                 f.write(json.dumps(r) + "\n")
 
 
-def _make_challenger(id_="c1", start_date="2026-01-01", registered_on="2026-01-01",
+def _make_challenger(id_="c1", start_date="2026-01-02", registered_on="2026-01-01",
+                      registered_at=None,
                       rule=None, baseline_rule=None, metric="outcomes.opt_ret_45d",
                       min_n=5, max_duration_days=180, status="active"):
     return {
         "id": id_,
         "hypothesis": f"hypothesis for {id_}",
         "registered_on": registered_on,
+        "registered_at": registered_at,
         "start_date": start_date,
         "rule": rule or [{"field": "features.trade_score", "op": ">=", "value": 61}],
         "baseline_rule": baseline_rule or [{"field": "status", "op": "==", "value": "proposed"}],
@@ -225,7 +234,7 @@ def test_evaluate_expired_without_promotion_rejects():
         min_n=30,
         max_duration_days=10,
         registered_on="2026-01-01",
-        start_date="2026-01-01",
+        start_date="2026-01-02",
     )
     result = ch.evaluate(c, rows, today=date(2026, 6, 1), n_active=1)
     assert result["expired"] is True
@@ -236,7 +245,7 @@ def test_evaluate_expired_but_insufficient_n_still_rejects():
     rows = [
         _row("2026-02-01", trade_score=70, opt_ret_45d=0.1, status="proposed"),
     ]
-    c = _make_challenger(min_n=30, max_duration_days=1, registered_on="2026-01-01", start_date="2026-01-01")
+    c = _make_challenger(min_n=30, max_duration_days=1, registered_on="2026-01-01", start_date="2026-01-02")
     result = ch.evaluate(c, rows, today=date(2026, 6, 1), n_active=1)
     assert result["expired"] is True
     assert result["verdict"] == "reject"
@@ -244,7 +253,7 @@ def test_evaluate_expired_but_insufficient_n_still_rejects():
 
 def test_evaluate_ignores_rows_before_start_date():
     rows = [_row("2025-01-01", trade_score=70, opt_ret_45d=0.5, status="proposed")]
-    c = _make_challenger(start_date="2026-01-01", registered_on="2026-01-01", min_n=1)
+    c = _make_challenger(start_date="2026-01-02", registered_on="2026-01-01", min_n=1)
     result = ch.evaluate(c, rows, today=date(2026, 2, 1), n_active=1)
     assert result["n_challenger"] == 0
     assert result["n_baseline"] == 0
@@ -305,7 +314,7 @@ def test_evaluate_all_queues_beyond_max_active(tmp_path):
 
     registry_path = tmp_path / "challengers.yaml"
     challengers = [
-        _make_challenger(id_=f"c{i}", registered_on=f"2026-01-{i+1:02d}", start_date=f"2026-01-{i+1:02d}")
+        _make_challenger(id_=f"c{i}", registered_on=f"2026-01-{i+1:02d}", start_date=f"2026-01-{i+2:02d}")
         for i in range(5)
     ]
     registry_path.write_text(yaml.safe_dump({"challengers": challengers}), encoding="utf-8")
@@ -394,3 +403,181 @@ def test_evaluate_all_never_writes_real_repo_files(monkeypatch):
 
     monkeypatch.setattr(builtins, "open", guarded_open)
     ch.evaluate_all(today=date(2026, 6, 1))
+
+
+# ── Policy (paired) bootstrap on nested/overlapping arms ────────────────────
+#
+# The registered baseline_rule/rule pairs in challengers.yaml are NESTED
+# (e.g. baseline score>=55 contains all challenger score>=61 rows). The old
+# implementation resampled both arms *independently*, ignoring the shared
+# rows between them and thereby overestimating the variance of the
+# difference of means (an artificially wide CI). The current implementation
+# resamples the eligible population once per replicate and re-applies both
+# rules to that same replicate ("policy bootstrap"), preserving the
+# covariance between the two overlapping arms.
+
+def _old_independent_bootstrap_diff_ci(challenger_vals, baseline_vals, alpha, n_boot, seed):
+    """The PRE-FIX independent-resampling bootstrap, kept here only for
+    comparison in tests. Not used anywhere in production code."""
+    import random
+    import statistics as _stats
+
+    rng = random.Random(seed)
+    diffs = []
+    nc, nb = len(challenger_vals), len(baseline_vals)
+    for _ in range(n_boot):
+        c_sample = [challenger_vals[rng.randrange(nc)] for _ in range(nc)]
+        b_sample = [baseline_vals[rng.randrange(nb)] for _ in range(nb)]
+        diffs.append(_stats.mean(c_sample) - _stats.mean(b_sample))
+    diffs.sort()
+    lower_idx = max(0, min(n_boot - 1, int(n_boot * alpha)))
+    upper_idx = max(0, min(n_boot - 1, int(n_boot * (1 - alpha))))
+    return diffs[lower_idx], diffs[upper_idx]
+
+
+def _nested_rows(n_base_only=30, n_shared=30, base_val=0.05, spread=0.02, better_shared=None):
+    """Builds nested-arm rows: baseline_rule (score>=55) matches BOTH groups;
+    rule (score>=61) matches only the 'shared' group. Optionally makes the
+    shared group's values clearly better than the base-only group."""
+    rows = []
+    base_only_vals = _series(n_base_only, base=base_val, spread=spread)
+    shared_vals = _series(n_shared, base=better_shared if better_shared is not None else base_val, spread=spread)
+    for i, v in enumerate(base_only_vals):
+        rows.append(_row(f"2026-02-{(i % 27) + 1:02d}", trade_score=56, opt_ret_45d=v, status="proposed"))
+    for i, v in enumerate(shared_vals):
+        rows.append(_row(f"2026-03-{(i % 27) + 1:02d}", trade_score=65, opt_ret_45d=v, status="proposed"))
+    return rows
+
+
+def _nested_challenger(min_n=25):
+    return _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55}],
+        min_n=min_n,
+        max_duration_days=180,
+    )
+
+
+def test_paired_bootstrap_no_false_promote_on_identical_nested_distribution():
+    """(a) Challenger subset drawn from the SAME distribution as the rest of
+    the (nested) baseline arm: the paired CI must contain 0 (no false
+    promote), and must be narrower than the old independent-resampling CI
+    on the same data."""
+    rows = _nested_rows(n_base_only=30, n_shared=30, base_val=0.05, spread=0.02)
+    c = _nested_challenger(min_n=25)
+
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result["verdict"] != "promote_recommended"
+    assert result["ci_lower"] <= 0 <= result["ci_upper"]
+
+    challenger_vals = [ch.metric_value(r, "outcomes.opt_ret_45d") for r in ch.select(rows, c["rule"])]
+    baseline_vals = [ch.metric_value(r, "outcomes.opt_ret_45d") for r in ch.select(rows, c["baseline_rule"])]
+    alpha = ch.ALPHA_BASE / 1
+    seed = ch._deterministic_seed(c["id"])
+    old_lower, old_upper = _old_independent_bootstrap_diff_ci(challenger_vals, baseline_vals, alpha, ch.N_BOOT, seed)
+
+    paired_width = result["ci_upper"] - result["ci_lower"]
+    old_width = old_upper - old_lower
+    assert paired_width < old_width
+
+
+def test_paired_bootstrap_promotes_when_nested_subset_clearly_better():
+    """(b) Clearly better nested subset -> promote."""
+    rows = _nested_rows(n_base_only=30, n_shared=30, base_val=0.0, spread=0.01, better_shared=0.30)
+    c = _nested_challenger(min_n=25)
+
+    result = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert result["verdict"] == "promote_recommended"
+    assert result["ci_lower"] > 0
+
+
+def test_paired_bootstrap_is_deterministic():
+    """(c) Determinism: two evaluations of the same nested data yield the
+    exact same CI/verdict."""
+    rows = _nested_rows(n_base_only=30, n_shared=30, base_val=0.0, spread=0.01, better_shared=0.30)
+    c = _nested_challenger(min_n=25)
+
+    r1 = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    r2 = ch.evaluate(c, rows, today=date(2026, 4, 1), n_active=1)
+    assert r1 == r2
+
+
+# ── Pre-registration guard (registered_on / registered_at) ──────────────────
+
+def test_load_registry_marks_invalid_when_start_date_not_after_registered_on(tmp_path):
+    registry_path = tmp_path / "challengers.yaml"
+    c = _make_challenger(registered_on="2026-01-05", start_date="2026-01-05")  # equal -> invalid
+    registry_path.write_text(yaml.safe_dump({"challengers": [c]}), encoding="utf-8")
+    registry = ch.load_registry(registry_path)
+    assert registry[0]["_invalid_reason"] is not None
+
+
+def test_load_registry_valid_entry_has_no_invalid_reason():
+    c = _make_challenger(registered_on="2026-01-01", start_date="2026-01-02")
+    assert ch._validate_challenger(c) is None
+
+
+def test_evaluate_all_reports_invalid_verdict_and_excludes_from_n_active(tmp_path):
+    ledger_root = tmp_path / "ledger"
+    registry_path = tmp_path / "challengers.yaml"
+
+    invalid_c = _make_challenger(id_="bad", registered_on="2026-01-05", start_date="2026-01-04")  # before -> invalid
+    good_c = _make_challenger(id_="good", registered_on="2026-01-01", start_date="2026-01-02", min_n=1)
+    registry_path.write_text(yaml.safe_dump({"challengers": [invalid_c, good_c]}), encoding="utf-8")
+
+    _write_ledger(ledger_root, [
+        _row("2026-02-01", trade_score=70, opt_ret_45d=0.1, status="proposed"),
+        _row("2026-02-02", trade_score=40, opt_ret_45d=0.05, status="proposed"),
+    ])
+
+    results = ch.evaluate_all(registry_path=registry_path, ledger_root=ledger_root, today=date(2026, 6, 1))
+    by_id = {r["id"]: r for r in results}
+
+    assert by_id["bad"]["verdict"] == "invalid"
+    assert by_id["bad"]["invalid_reason"]
+    assert by_id["bad"]["n_baseline"] is None
+
+    # n_active only counts the valid challenger ("good") -> alpha = 0.10 / 1
+    assert by_id["good"]["alpha"] == pytest.approx(0.10 / 1)
+
+
+def test_registered_at_gates_rows_by_signal_timestamp():
+    """Rows carrying signal_timestamp are gated purely by comparing that
+    timestamp to registered_at (ignoring `date`); rows without a
+    signal_timestamp fall back to the date >= start_date check."""
+    rows = []
+    registered_at = "2026-09-26T07:00:00Z"
+
+    # Group A: signal_timestamp BEFORE registered_at, date AFTER start_date
+    # -> must be excluded (timestamp check wins over date).
+    for i in range(30):
+        rows.append(_row("2026-09-29", trade_score=65, opt_ret_45d=0.5,
+                          signal_timestamp="2026-09-26T06:00:00Z"))
+
+    # Group B: signal_timestamp AFTER registered_at, date BEFORE start_date
+    # -> must be included (timestamp check wins over date).
+    for i in range(30):
+        rows.append(_row("2026-09-01", trade_score=65, opt_ret_45d=0.5,
+                          signal_timestamp="2026-09-27T00:00:00Z"))
+
+    # Group C: no signal_timestamp, date AFTER start_date -> included via
+    # the date fallback (baseline-only, trade_score below the challenger rule).
+    for i in range(30):
+        rows.append(_row("2026-09-29", trade_score=56, opt_ret_45d=0.5))
+
+    # Group D: no signal_timestamp, date BEFORE start_date -> excluded via
+    # the date fallback.
+    for i in range(30):
+        rows.append(_row("2026-09-01", trade_score=56, opt_ret_45d=0.5))
+
+    c = _make_challenger(
+        rule=[{"field": "features.trade_score", "op": ">=", "value": 61}],
+        baseline_rule=[{"field": "features.trade_score", "op": ">=", "value": 55}],
+        min_n=1,
+        registered_on="2026-09-26",
+        registered_at=registered_at,
+        start_date="2026-09-28",
+    )
+    result = ch.evaluate(c, rows, today=date(2026, 10, 1), n_active=1)
+    assert result["n_challenger"] == 30       # only Group B
+    assert result["n_baseline"] == 60          # Group B + Group C
