@@ -32,6 +32,7 @@ from scipy import stats
 
 from modules.config import cfg
 from modules.exit_sim import register_exit_sim, summarize_exit_sim, trim_exit_sim, update_exit_sim_entry
+from modules import candidate_ledger
 
 logging.basicConfig(
     level=logging.INFO,
@@ -901,6 +902,13 @@ def main() -> None:
         retrain_rl_agent(history)
     else:
         log.info("Keine neuen closed_trades → RL-Training übersprungen.")
+
+    # Candidate-Ledger: Counterfactual-Outcomes nachtragen (reine Observability,
+    # darf den Feedback-Loop nie brechen).
+    try:
+        candidate_ledger.update_outcomes(today.strftime("%Y-%m-%d"))
+    except Exception as e:
+        log.debug(f"candidate_ledger.update_outcomes Fehler (ignoriert): {e}")
 
     log.info("=== Feedback-Loop abgeschlossen ===")
 

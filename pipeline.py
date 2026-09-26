@@ -68,6 +68,7 @@ from modules.macro_context       import get_macro_context
 from modules.position_sizing     import enrich_with_sizing
 from modules.engine_monitor      import build_health_report, append_markdown_section
 from modules.config              import cfg
+from modules              import candidate_ledger
 
 logging.basicConfig(
     level=logging.INFO,
@@ -117,6 +118,11 @@ def reject(reason: str, ticker: str | None = None) -> None:
         log.info(f"  [{ticker}] REJECT → {reason}")
     else:
         log.info(f"  REJECT → {reason}")
+    try:
+        if ticker:
+            candidate_ledger.mark_rejected(ticker, reason)
+    except Exception as e:
+        log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
 # ── Validation Layer ──────────────────────────────────────────────────────────
@@ -296,6 +302,10 @@ def main() -> None:
     history = load_history()
 
     reject_stats.clear()
+    try:
+        candidate_ledger.start_run(today)
+    except Exception as e:
+        log.debug(f"candidate_ledger.start_run Fehler (ignoriert): {e}")
 
     stats = {
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
@@ -344,6 +354,10 @@ def main() -> None:
             path.write_text(json.dumps(data, indent=2, default=str))
         except Exception as e:
             log.error(f"Stats-Snapshot-Fehler: {e}")
+        try:
+            candidate_ledger.flush()
+        except Exception as e:
+            log.debug(f"candidate_ledger.flush Fehler (ignoriert): {e}")
 
     def send_email():
         save_stats_snapshot()
@@ -386,6 +400,11 @@ def main() -> None:
         or len(candidates)
     )
     stats["candidates"] = len(candidates)
+    for c in candidates:
+        try:
+            candidate_ledger.note(c.get("ticker"), stage="universe")
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     if not candidates:
         stats["stop_reason"] = "Keine Kandidaten nach Hard-Filter."
         send_email(); return
@@ -532,6 +551,16 @@ def main() -> None:
     log.info("Stufe 4: Deep Analysis (Claude Sonnet + Red Team)")
     analyses = DeepAnalysis().run(pre_mc_viable)
     stats["analyzed"] = len(analyses)
+    for a in analyses:
+        try:
+            _da = a.get("deep_analysis", {}) or {}
+            candidate_ledger.note(
+                a.get("ticker"), stage="deep_analysis",
+                direction=_da.get("direction"), impact=_da.get("impact"),
+                surprise=_da.get("surprise"),
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(analyses)} nach Deep Analysis")
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
@@ -602,6 +631,14 @@ def main() -> None:
     for _ in range(before_da - len(scored)):
         reject("post_deep_analysis_invalid")
     stats["mismatch_ok"] = len(scored)
+    for s in scored:
+        try:
+            candidate_ledger.note(
+                s.get("ticker"), stage="mismatch",
+                mismatch=s.get("features", {}).get("mismatch"),
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(scored)} nach Mismatch-Score")
     if not scored:
         stats["stop_reason"] = "Kein Signal hat Mismatch-Filter bestanden."
@@ -640,6 +677,10 @@ def main() -> None:
         s["quick_mc"] = {"hit_rate": hit_rate, "n_paths": QUICK_MC_PATHS, "n_days": QUICK_MC_DAYS}
         s["features"]["quick_mc_hit_rate"] = hit_rate
         mc_viable.append(s)
+        try:
+            candidate_ledger.note(ticker, stage="quick_mc", quick_mc_hit_rate=hit_rate)
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
         log.info(f"  [{ticker}] Quick MC: {hit_rate:.1%} ✅ PASS")
 
     stats["quick_mc"] = len(mc_viable)
@@ -814,6 +855,14 @@ def main() -> None:
     _rl_veto = bool(cfg.rl.get("veto_enabled", True))
     final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
     stats["rl_scored"] = len(final_signals)
+    for fs in final_signals:
+        try:
+            candidate_ledger.note(
+                fs.get("ticker"), stage="rl_scoring",
+                final_mc_hit_rate=fs.get("simulation", {}).get("hit_rate"),
+            )
+        except Exception as e:
+            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(final_signals)} nach RL-Scoring")
     if not final_signals:
         stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
@@ -968,6 +1017,16 @@ def main() -> None:
     stats["trades"] = len(trade_proposals)
     if not trade_proposals:
         stats["stop_reason"] = "Alle Options-Kontrakte scheitern am ROI-Gate."
+
+    for p in trade_proposals:
+        try:
+            candidate_ledger.note(
+                p.get("ticker"), stage="trade_proposal",
+                trade_score=p.get("trade_score", {}).get("total"),
+            )
+            candidate_ledger.mark_passed(p.get("ticker"))
+        except Exception as e:
+            log.debug(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
 
     if trade_proposals:
         _proposals_ref.append(trade_proposals)
