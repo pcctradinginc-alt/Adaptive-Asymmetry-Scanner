@@ -368,7 +368,7 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
     # Calculate n_looks: planned number of looks per challenger
     planned_looks = challenger.get("planned_looks")
     if planned_looks is not None:
-        n_looks = int(planned_looks)
+        n_looks = max(1, int(planned_looks))
     else:
         n_looks = max(1, ceil(max_duration_days / LOOK_INTERVAL_DAYS))
 
