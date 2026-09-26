@@ -713,15 +713,17 @@ def main() -> None:
 
         # Compute shadow MC with correct DTE from TTM (BEFORE any rejects)
         # Wrap in try/except so shadow can never affect real decision
-        final_mc_min_long = 0.50 if final_dte > 45 else 0.45
+        # Schatten-DTE ist immer >=120 → Long-Schwelle aus cfg.gates.
+        _shadow_min = float(getattr(gate_cfg, "final_mc_min_long", 0.50))
         try:
-            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, final_mc_min_long)
+            shadow = compute_final_mc_shadow(sim_final, s, final_dte, hit_rate, _shadow_min)
             s["final_mc_shadow"] = shadow
             # Log shadow comparison
             log.info(
                 f"  [{ticker}] Final MC shadow: "
                 f"real_dte={final_dte}d/{hit_rate:.1%} vs "
-                f"shadow_dte={shadow['dte_shadow']}d/{shadow['hit_rate_shadow']:.1%} "
+                f"shadow_dte={shadow['dte_shadow']}d/"
+                f"{(shadow['hit_rate_shadow'] or 0):.1%} "
                 f"(would_pass={shadow['would_pass_shadow']})"
             )
             _final_mc_shadow_log.append({
@@ -763,6 +765,9 @@ def main() -> None:
     _passed_tickers = {s.get("ticker") for s in final_sims}
     for entry in _final_mc_shadow_log:
         entry["passed_real"] = entry["ticker"] in _passed_tickers
+    # Sofort in stats → landet auch bei frühem Exit (ROI-Gate etc.) in der Daily-JSON
+    if _final_mc_shadow_log:
+        stats["final_mc_shadow"] = [dict(e) for e in _final_mc_shadow_log]
 
     if not final_sims:
         stats["stop_reason"] = "Kein Kandidat besteht Final MC (120d)."
@@ -1043,20 +1048,6 @@ def main() -> None:
 
     save_history(history)
 
-    # Add final_mc_shadow stats before final email
-    if _final_mc_shadow_log:
-        stats["final_mc_shadow"] = [
-            {
-                "ticker": e["ticker"],
-                "dte_used": e["dte_used"],
-                "hit_rate_used": e["hit_rate_used"],
-                "dte_shadow": e["dte_shadow"],
-                "hit_rate_shadow": e["hit_rate_shadow"],
-                "passed_real": e["passed_real"],
-                "would_pass_shadow": e["would_pass_shadow"],
-            }
-            for e in _final_mc_shadow_log
-        ]
 
     send_email()
 
