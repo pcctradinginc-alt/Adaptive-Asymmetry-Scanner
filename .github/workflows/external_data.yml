@@ -40,6 +40,8 @@ jobs:
           FRED_API_KEY:   ${{ secrets.FRED_API_KEY }}
           DESTATIS_USER:     ${{ secrets.DESTATIS_USER }}
           DESTATIS_PASSWORD: ${{ secrets.DESTATIS_PASSWORD }}
+          NCEI_CDO_TOKEN: ${{ secrets.NCEI_CDO_TOKEN }}
+          NWS_USER_AGENT_CONTACT: ${{ secrets.NWS_USER_AGENT_CONTACT }}
           GMAIL_SENDER:   ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PW:   ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL:   ${{ secrets.NOTIFY_EMAIL }}

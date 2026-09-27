@@ -53,6 +53,12 @@ def configured_user_agent_contact(source_cfg: dict | None = None) -> str:
     'user_agent_contact' im Registry-Eintrag > DEFAULT_USER_AGENT_CONTACT.
     VERIFY vor Produktion: README enthält aktuell keinen offiziellen Kontakt,
     der Default hier ist ein Platzhalter."""
+    # Vorrang: Umgebungsvariable NWS_USER_AGENT_CONTACT (GitHub-Secret), damit
+    # keine Kontaktadresse im Repo stehen muss.
+    import os
+    env_contact = os.environ.get("NWS_USER_AGENT_CONTACT", "").strip()
+    if env_contact:
+        return env_contact
     try:
         from modules.config import cfg
         weather_cfg = getattr(getattr(cfg, "external_context", None), "weather", None)

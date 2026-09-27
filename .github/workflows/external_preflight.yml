@@ -33,6 +33,8 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           DESTATIS_USER: ${{ secrets.DESTATIS_USER }}
           DESTATIS_PASSWORD: ${{ secrets.DESTATIS_PASSWORD }}
+          NCEI_CDO_TOKEN: ${{ secrets.NCEI_CDO_TOKEN }}
+          NWS_USER_AGENT_CONTACT: ${{ secrets.NWS_USER_AGENT_CONTACT }}
         run: |
           mkdir -p outputs/external_data/health
           python -m modules.external.orchestrator preflight --json outputs/external_data/health/preflight_report.json
