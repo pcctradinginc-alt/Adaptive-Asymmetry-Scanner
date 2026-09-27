@@ -1,43 +1,83 @@
 [
   {
     "source_id": "imf_portwatch_ports",
-    "status": "FAIL",
+    "status": "SCHEMA_CHANGED",
     "n_observations": 0,
     "latest_observation_time": null,
     "endpoints": [],
     "http_status": [],
-    "message": "ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': [\"'outFields' parameter is invalid\"]}",
-    "discovered_ids": {},
+    "message": "SCHEMA_CHANGED: Kern-Felder (portid/portname) nicht im Ports-Referenz-Layer gefunden. Vorhandene Felder: ['CPCS_Type', 'CityName', 'CountyName', 'FID', 'FacilityAd', 'FacilityNa', 'FacilityTy', 'GlobalID', 'Latitude', 'Longitude', 'OBJECTID_1', 'Owner', 'Port_Tonn', 'PublishDat', 'USACE_Port', 'ag_exports', 'ag_imports']",
+    "discovered_ids": {
+      "diagnostics": {
+        "field_names": [
+          "CPCS_Type",
+          "CityName",
+          "CountyName",
+          "FID",
+          "FacilityAd",
+          "FacilityNa",
+          "FacilityTy",
+          "GlobalID",
+          "Latitude",
+          "Longitude",
+          "OBJECTID_1",
+          "Owner",
+          "Port_Tonn",
+          "PublishDat",
+          "USACE_Port",
+          "ag_exports",
+          "ag_imports"
+        ],
+        "maxRecordCount": 2000,
+        "service_url": "https://services.arcgis.com/IYrj3otxNjPsrTRD/arcgis/rest/services/Maritime_Ports_Ag_Trade/FeatureServer/0"
+      }
+    },
     "family": "maritime",
     "license_status": "REVIEW_REQUIRED",
     "archiving": "blocked_until_license_review"
   },
   {
     "source_id": "imf_portwatch_chokepoints",
-    "status": "FAIL",
-    "n_observations": 0,
-    "latest_observation_time": null,
-    "endpoints": [],
-    "http_status": [],
-    "message": "ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': [\"'outFields' parameter is invalid\"]}",
-    "discovered_ids": {},
+    "status": "WARN",
+    "n_observations": 5880,
+    "latest_observation_time": "2026-09-20T00:00:00+00:00",
+    "endpoints": [
+      "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0/query"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "5880 observations; 4 unresolved chokepoints: ['Bosporus Strait', 'Gibraltar Strait', 'Malacca Strait', 'Taiwan Strait']",
+    "discovered_ids": {
+      "chokepoints": {
+        "Suez Canal": "1",
+        "Bab el-Mandeb": "4",
+        "Strait of Hormuz": "5",
+        "Panama Canal": "2"
+      },
+      "unresolved_chokepoints": {
+        "Malacca Strait": "no_match",
+        "Taiwan Strait": "no_match",
+        "Gibraltar Strait": "no_match",
+        "Bosporus Strait": "no_match"
+      }
+    },
     "family": "maritime",
     "license_status": "REVIEW_REQUIRED",
     "archiving": "blocked_until_license_review"
   },
   {
     "source_id": "destatis_truck_toll",
-    "status": "SCHEMA_CHANGED",
+    "status": "AUTH_MISSING",
     "n_observations": 0,
     "latest_observation_time": null,
     "endpoints": [
-      "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables",
-      "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
+      "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables"
     ],
     "http_status": [
       200
     ],
-    "message": "ffcsv-Antwort enthielt keine erkennbaren Datenzeilen/Spalten (erwartetes GENESIS-ffcsv-Schema gepr\u00fcft) \u2013 vermutlich Schema\u00e4nderung.",
+    "message": "GENESIS-Online: Zugangsdaten abgelehnt (DESTATIS_USER/DESTATIS_PASSWORD oder GAST-Fallback pr\u00fcfen).",
     "discovered_ids": {
       "fallback_table_code_source": "config.expected_table_code (verify in preflight)"
     },
@@ -51,57 +91,26 @@
     "latest_observation_time": null,
     "endpoints": [],
     "http_status": [],
-    "message": "fredgraph.csv-Fallback fehlgeschlagen: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=30)",
+    "message": "fredgraph.csv-Fallback fehlgeschlagen: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=60). Empfehlung: FRED_API_KEY setzen, um stattdessen die stabilere ALFRED-Vintages-API zu nutzen.",
     "discovered_ids": {},
     "family": "road_freight",
     "license_status": "OK"
   },
   {
     "source_id": "eurostat_road_freight",
-    "status": "FAIL",
-    "n_observations": 0,
-    "latest_observation_time": null,
+    "status": "PASS",
+    "n_observations": 23817,
+    "latest_observation_time": "2025-01-01T00:00:00+00:00",
     "endpoints": [
-      "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en"
+      "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
+      "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_go_ta_tott"
     ],
     "http_status": [
       200
     ],
-    "message": "Eurostat-Datenabruf fehlgeschlagen (road_go): 404 f\u00fcr https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_go (nicht retrybar)",
+    "message": "23817 Beobachtungen aus Datensatz road_go_ta_tott",
     "discovered_ids": {
       "eurostat_road_freight_candidates": {
-        "road_go": "Road freight transport measurement",
-        "road_go_cta7gtt": "Cross-trade road freight transport of reporting country by country of loading and unloading, type of goods and type of transport (t) - annual data (1990-2007)",
-        "road_go_cta_gtt": "Cross-trade road freight transport of reporting country by country of loading and unloading, type of goods and type of transport (t) - annual data (from 2008 onwards)",
-        "road_go_ctq_tt": "Cross-trade road freight transport of reporting country by country of loading and unloading and type of transport (t, tkm) - quarterly data",
-        "road_go_ia7lgtt": "International road freight transport - loaded goods in reporting country by country of unloading, type of goods and type of transport (t) - annual data (1982-2007)",
-        "road_go_ia7ugtt": "International road freight transport - unloaded goods in reporting country by country of loading, type of goods and type of transport (t)- annual data (1982-2007)",
-        "road_go_ia_lgtt": "International road freight transport - loaded goods in reporting country by country of unloading, type of goods and type of transport (t) - annual data (from 2008 onwards)",
-        "road_go_ia_ltt": "International road freight transport - loaded goods in reporting country by country of unloading and type of transport (tkm) - annual data",
-        "road_go_ia_rc": "International road freight transport of reporting country, by country of loading and unloading (t, tkm) - annual data",
-        "road_go_ia_rctg": "International road freight transport of reporting countryby country of loading and unloading and type of goods (t, tkm) - annual data (1999-2007)",
-        "road_go_ia_tc": "International road freight transport by country of loading and unloading (t, tkm) - annual data, EU aggregates (1999-2013)",
-        "road_go_ia_tctg": "International road freight transport by country of loading and unloading and type of goods (t, tkm) - annual data, EU aggregates (1999-2007)",
-        "road_go_ia_ugtt": "International road freight transport - unloaded goods in reporting country by country of loading, type of goods and type of transport (t) - annual data (from 2008 onwards)",
-        "road_go_ia_utt": "International road freight transport - unloaded goods in reporting country by country of loading and type of transport (tkm) - annual data",
-        "road_go_int": "International road freight transport",
-        "road_go_int_h": "International road freight transport - historical data (1982-2007)",
-        "road_go_iq_ltt": "International road freight transport - loaded goods in reporting country by country of unloading and type of transport (t, tkm) - quarterly data",
-        "road_go_iq_utt": "International road freight transport - unloaded goods in reporting country by country of loading and type of transport (t, tkm) - quarterly data",
-        "road_go_na7dctg": "National road freight transport by distance class, type of goods and type of transport (t) - annual data (1982-2007)",
-        "road_go_na7rl3g": "National road freight transport by region of loading (NUTS 3) and type of goods (t) - annual data (1999-2007)",
-        "road_go_na7ru3g": "National road freight transport by region of unloading (NUTS 3) and by type of goods (t) - annual data (1999-2007)",
-        "road_go_na7tgtt": "National road freight transport by type of goods and type of transport (t, tkm) - annual data (1982-2007)",
-        "road_go_na_dctg": "National road freight transport by distance class, type of goods and type of transport (t) - annual data (from 2008 onwards)",
-        "road_go_na_dctt": "National road freight transport by distance class and type of transport (tkm) - annual data",
-        "road_go_na_rl2g": "National road freight transport by region of loading and type of goods (t) - annual data (1982-1999)",
-        "road_go_na_rl3g": "National road freight transport by region of loading (NUTS 3) and type of goods (t) - annual data (from 2008 onwards)",
-        "road_go_na_ru2g": "National road freight transport by region of unloading and type of goods (t) - annual data (1982-1999)",
-        "road_go_na_ru3g": "National road freight transport by region of unloading (NUTS 3) and type of goods (t) - annual data (from 2008 onwards)",
-        "road_go_nat": "National road freight transport",
-        "road_go_nat_h": "National road freight transport - historical data (1982-2007)",
-        "road_go_ta7dctg": "Road freight transport by distance class and type of goods (t, tkm, vehicle-km, basic transport operations) - annual data (1999-2007)",
-        "road_go_ta7tg": "Road freight transport by type of goods and type of transport (t, tkm) - annual data (1999-2007)",
         "road_go_ta_agev": "Road freight transport by age of vehicle (tkm, vehicle-km, journeys) - annual data",
         "road_go_ta_axle": "Road freight transport by axle configuration of vehicle (tkm, vehicle-km, journeys) - annual data",
         "road_go_ta_dc": "Road freight transport by distance class and type of transport (t, tkm, vehicle-km, basic transport operations) - annual data",
@@ -117,13 +126,9 @@
         "road_go_ta_tott": "Road freight transport by type of operation and type of transport (t, tkm, vehicle-km) - annual data",
         "road_go_ta_tra": "Road freight transport vehicle transit movements by transit country (t, journeys) - annual data",
         "road_go_ta_trat": "Road freight transport vehicle transit movements by transit country, loading status and maximum permissible laden weight (MPLW) of vehicle (t, journeys) - annual data, EU aggregates",
-        "road_go_ta_vm": "Road freight transport vehicle movements by loading status, type of transport and territorial coverage (vehicle-km, journeys) - annual data",
-        "road_go_tot": "Total road freight transport",
-        "road_go_tot_h": "Total road freight transport - historical data (1999-2007)",
-        "road_go_tq_tott": "Road freight transport by type of operation and type of transport - (t, tkm, vehicle-km) - quarterly data",
-        "road_go_tq_trat": "Road freight transport vehicle transit movements by transit country, loading status and maximum permissible laden weight (MPLW) of vehicle (t, journeys) - quarterly data, EU totals"
+        "road_go_ta_vm": "Road freight transport vehicle movements by loading status, type of transport and territorial coverage (vehicle-km, journeys) - annual data"
       },
-      "eurostat_chosen": "road_go"
+      "eurostat_chosen": "road_go_ta_tott"
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -180,7 +185,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 20048,
+    "n_observations": 20045,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
