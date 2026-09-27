@@ -30,6 +30,7 @@ ausschließlich aus den offiziellen Referenz-Layern.
 
 from __future__ import annotations
 
+from collections import defaultdict
 import difflib
 import json
 import os
@@ -1030,6 +1031,25 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 ))
 
             n_raw_obs = len(observations)
+            # Aktivität je Hinweis-Kandidat (Summe portcalls im Abruffenster,
+            # plus ID/Land) -- entscheidet z.B. "Qingdao Port" vs. "Qingdao
+            # Gang" nach Daten statt nach Namen; rein diagnostisch.
+            ref_by_name: dict = {}
+            for f in ref_features:
+                a = f.get("attributes", f)
+                ref_by_name.setdefault(str(a.get(ref_schema["name_field"], "")), []).append(
+                    {"id": str(a.get(ref_schema["id_field"])),
+                     "country": a.get(ref_schema.get("country_field")) if ref_schema.get("country_field") else None})
+            calls_by_id: dict = defaultdict(float)
+            for o in observations:
+                if o.metric == "portcalls_total" and o.value is not None:
+                    calls_by_id[o.entity_id] += o.value
+            diagnostics["unresolved_ports_hint_activity"] = {
+                name: {c: [{**r, "portcalls_sum": calls_by_id.get(r["id"], 0.0)}
+                           for r in ref_by_name.get(c, [])]
+                       for c in cands}
+                for name, cands in diagnostics["unresolved_ports_hint_matches"].items()
+            }
             groups_by_name = {p["name"]: p["group"] for p in wanted}
             curated_groups = {pid: groups_by_name.get(name) for name, pid in discovered_ids.items()
                               if groups_by_name.get(name)}
