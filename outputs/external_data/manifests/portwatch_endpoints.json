@@ -1,0 +1,43 @@
+{
+  "discovered_at": "2026-09-27T16:32:28.159037+00:00",
+  "endpoints": {
+    "chokepoints_daily": {
+      "ambiguous": false,
+      "item_id": "3da2b9ca97684916b75c4013f95d18ab",
+      "layer_id": 0,
+      "orgId": null,
+      "owner": "IMF-portwatch_imf_dataviz",
+      "service_url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer",
+      "title": "Daily_Chokepoints_Data"
+    },
+    "chokepoints_reference": {
+      "ambiguous": false,
+      "fallback_to_daily_layer": false,
+      "item_id": "fa9a5800b0ee4855af8b2944ab1e07af",
+      "layer_id": 0,
+      "orgId": null,
+      "owner": "IMF-portwatch_imf_dataviz",
+      "service_url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_chokepoints_database/FeatureServer",
+      "title": "Chokepoints"
+    },
+    "ports_daily": {
+      "ambiguous": false,
+      "item_id": "83b1bbc7b3354c5fb1f40673bb8f852e",
+      "layer_id": 0,
+      "orgId": null,
+      "owner": "IMF-portwatch_imf_dataviz",
+      "service_url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer",
+      "title": "Daily_Ports_Data"
+    },
+    "ports_reference": {
+      "ambiguous": false,
+      "fallback_to_daily_layer": false,
+      "item_id": "423c70d5443f4b818acdaba0d98e0252",
+      "layer_id": 1,
+      "orgId": null,
+      "owner": "IMF-portwatch_imf_dataviz",
+      "service_url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports/FeatureServer",
+      "title": "PortWatch: Ports"
+    }
+  }
+}

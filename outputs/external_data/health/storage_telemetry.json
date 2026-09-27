@@ -1,7 +1,7 @@
 {
-  "measured_at": "2026-09-27T16:26:52+00:00",
+  "measured_at": "2026-09-27T16:32:56+00:00",
   "total_bytes_per_day": 0.0,
-  "one_off_backfill_bytes": 82847840,
+  "one_off_backfill_bytes": 105538816,
   "projections_bytes": {
     "30d": 0.0,
     "1y": 0.0,
@@ -9,39 +9,56 @@
   },
   "warn_mb_1y": 200.0,
   "flagged": false,
+  "backend": "git",
+  "bytes_in_git": 22330329,
+  "bytes_offloaded": 0,
   "per_source": {
     "destatis_truck_toll": {
       "retrieval_days": 1,
       "rows": 0,
-      "one_off_backfill_bytes": 12530,
+      "one_off_backfill_bytes": 15036,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_road_freight": {
       "retrieval_days": 1,
       "rows": 15128,
-      "one_off_backfill_bytes": 21151301,
+      "one_off_backfill_bytes": 23350092,
+      "raw_bytes_per_day": 0.0,
+      "normalized_bytes_per_day": 0.0
+    },
+    "imf_portwatch_chokepoints": {
+      "retrieval_days": 1,
+      "rows": 5880,
+      "one_off_backfill_bytes": 3728415,
+      "raw_bytes_per_day": 0.0,
+      "normalized_bytes_per_day": 0.0
+    },
+    "imf_portwatch_ports": {
+      "retrieval_days": 1,
+      "rows": 8190,
+      "one_off_backfill_bytes": 5164283,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nhc_storms": {
       "retrieval_days": 1,
       "rows": 60,
-      "one_off_backfill_bytes": 136653,
+      "one_off_backfill_bytes": 160000,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nws_alerts": {
       "retrieval_days": 1,
       "rows": 0,
-      "one_off_backfill_bytes": 925857,
+      "one_off_backfill_bytes": 1072238,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nws_forecast": {
       "retrieval_days": 1,
-      "rows": 4577,
-      "one_off_backfill_bytes": 60621499,
+      "rows": 4627,
+      "one_off_backfill_bytes": 72048752,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     }
