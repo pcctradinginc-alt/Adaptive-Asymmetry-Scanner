@@ -161,9 +161,38 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
             })
 
     if not dry_run:
-        registry.save_health(health)
         if manifest_entries:
             archive.write_manifest(run_id, manifest_entries, now=now)
+
+        # Optionaler Object-Storage-Sync (external_context.archive.backend:
+        # s3): Upload + Verifikation + Retention-Löschung abgeschlossener,
+        # alter normalisierter Monate. Bei backend=git (Default) oder ohne
+        # konfiguriertes Backend ist dies ein No-Op (nie Löschung). Fehler
+        # sind NIE fatal für den Ingestion-Run -> WARN + bestehende
+        # ARCHIVE_FAILURE-Alarmierung je betroffener Quelle.
+        offload_result = archive.offload_normalized_months(now=now)
+        summary["offload"] = {
+            "enabled": offload_result.get("enabled", False),
+            "backend": offload_result.get("backend"),
+            "uploaded": len(offload_result.get("uploaded", [])),
+            "offloaded": len(offload_result.get("offloaded", [])),
+        }
+        for source_id, messages in (offload_result.get("failures") or {}).items():
+            message = "; ".join(messages)
+            if source_id in health:
+                h = SourceHealth.from_dict(health[source_id])
+            else:
+                h = SourceHealth(source_id=source_id)
+            h.status = SourceStatus.WARN.value
+            h.message = (h.message + " | " if h.message else "") + f"offload: {message}"
+            h.archive_error = (h.archive_error + " | " if h.archive_error else "") + f"offload: {message}"
+            health[source_id] = h.to_dict()
+            if source_id not in summary["sources"]:
+                summary["sources"][source_id] = {}
+            summary["sources"][source_id]["status"] = h.status
+            summary["sources"][source_id]["archive_error"] = h.archive_error
+
+        registry.save_health(health)
         archive.storage_telemetry()
 
     alerts = decide_alerts(health_before, health)

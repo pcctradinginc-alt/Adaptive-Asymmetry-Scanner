@@ -402,14 +402,47 @@ Fehlt ein Secret, wird die betroffene Quelle `AUTH_MISSING`/`DISABLED` und
 bleibt aus der Readiness-Kette ausgeschlossen — kein Fehler, keine
 Pipeline-Unterbrechung.
 
-### Speicher-Telemetrie & Migration
+### Speicher-Telemetrie & Objekt-Storage-Backend
 
 `ExternalArchive.storage_telemetry()` misst Bytes/Zeilen je Quelle, projiziert
 30d/1y/5y und flaggt, wenn die 1y-Projektion
-`external_context.archive.storage_warn_mb_1y` (Default 200 MB) überschreitet.
-GitHub-Actions-Checkout/Artefakte sind kein dauerhafter Speicher — bei
-anhaltendem Wachstum: Object Storage (S3/GCS/Backblaze B2) für
-`normalized/`/`raw/`, ältere `raw/`-Monate kompaktieren.
+`external_context.archive.storage_warn_mb_1y` (Default 200 MB) überschreitet
+(`storage_telemetry.json` enthält zusätzlich `backend`, `bytes_in_git`,
+`bytes_offloaded`). GitHub-Actions-Checkout/Artefakte sind kein dauerhafter
+Speicher, git ist nur für kurz-/mittelfristiges Wachstum geeignet — dafür
+gibt es ein implementiertes, optionales S3-kompatibles Object-Storage-
+Backend (`modules/external/storage.py`; funktioniert mit AWS S3, Cloudflare
+R2, Backblaze B2, MinIO, jedem S3-kompatiblen Store):
+
+1. Bucket anlegen (z.B. AWS S3, Cloudflare R2, Backblaze B2 oder ein
+   selbstgehostetes MinIO).
+2. Secrets im Repo hinterlegen: `EXTERNAL_ARCHIVE_S3_BUCKET` (erforderlich),
+   optional `EXTERNAL_ARCHIVE_S3_ENDPOINT` (R2/B2/MinIO),
+   `EXTERNAL_ARCHIVE_S3_PREFIX` (Default
+   `adaptive-asymmetry/external_data`), sowie `AWS_ACCESS_KEY_ID` /
+   `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` — siehe `.env.example`. Der
+   Workflow (`.github/workflows/external_data.yml`) reicht diese als Env
+   durch und installiert `boto3` (`requirements-storage.txt`) nur, wenn
+   `EXTERNAL_ARCHIVE_S3_BUCKET` gesetzt ist.
+3. `external_context.archive.backend: s3` in `config.yaml` setzen (Default
+   `git` — ohne diese Änderung passiert nichts, auch nicht mit gesetzten
+   Secrets). `git_retention_months` (Default 3) steuert, ab wann
+   abgeschlossene normalisierte Monatsdateien lokal gelöscht werden.
+
+Ablauf je Ingestion-Run bei `backend: s3`: alle `normalized/`/`raw/`-Dateien
+werden gzip-komprimiert mit sha256-Metadaten hochgeladen (idempotent),
+danach per Re-Download verifiziert. **Erst nach erfolgreicher Verifikation**
+werden abgeschlossene (nicht der laufende Monat) normalisierte
+Monatsdateien, die älter als `git_retention_months` sind, aus dem
+Git-Arbeitsverzeichnis entfernt; ein Pointer-Manifest
+(`outputs/external_data/manifests/offloaded.json`) hält `s3_key`/`sha256`/
+`bytes`/`offloaded_at` je ausgelagerter Datei. `ExternalArchive.load()`/
+`as_of()` lesen ausgelagerte Monate transparent aus dem Object Storage
+zurück (Cache in `/tmp`) — PIT-Semantik bleibt unverändert. Schlägt Upload
+oder Verifikation fehl, wird **nie** gelöscht; die betroffene Quelle bekommt
+Status `WARN` und die bestehende `ARCHIVE_FAILURE`-Alarmierung. Ohne
+gesetztes `EXTERNAL_ARCHIVE_S3_BUCKET` bleibt `backend: s3` wirkungslos
+(kein Upload, keine Löschung, wie `backend: git`).
 
 ### Grenzen
 

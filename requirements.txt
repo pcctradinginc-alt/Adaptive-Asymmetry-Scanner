@@ -16,3 +16,6 @@ transformers>=4.40.0
 python-box>=7.0.0
 praw>=7.7.0
 lxml>=5.0.0
+# Optionales S3-Object-Storage-Backend fürs externe Archiv
+# (external_context.archive.backend: s3) -> siehe requirements-storage.txt
+# (boto3), nur installieren wenn EXTERNAL_ARCHIVE_S3_BUCKET gesetzt ist.
