@@ -1,0 +1,11 @@
+{
+  "id": 0,
+  "name": "PortWatch_ports_index",
+  "type": "Feature Layer",
+  "maxRecordCount": 2000,
+  "fields": [
+    {"name": "portid", "type": "esriFieldTypeString"},
+    {"name": "portname", "type": "esriFieldTypeString"},
+    {"name": "country", "type": "esriFieldTypeString"}
+  ]
+}
