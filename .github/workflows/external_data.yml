@@ -38,6 +38,8 @@ jobs:
         env:
           ESTAT_APP_ID:   ${{ secrets.ESTAT_APP_ID }}
           FRED_API_KEY:   ${{ secrets.FRED_API_KEY }}
+          DESTATIS_USER:     ${{ secrets.DESTATIS_USER }}
+          DESTATIS_PASSWORD: ${{ secrets.DESTATIS_PASSWORD }}
           GMAIL_SENDER:   ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PW:   ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL:   ${{ secrets.NOTIFY_EMAIL }}
