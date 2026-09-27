@@ -21,6 +21,7 @@ from __future__ import annotations
 import gzip
 import json
 import os
+import statistics
 import subprocess
 from collections import defaultdict
 from datetime import datetime
@@ -34,6 +35,7 @@ DEFAULT_ROOT = "outputs/external_data"
 DEFAULT_RAW_MAX_BYTES = 2_000_000
 DEFAULT_RAW_POLICY = "hash_only"
 DEFAULT_STORAGE_WARN_MB_1Y = 200
+DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN = 2_000_000
 
 
 def _config_archive_defaults() -> dict:
@@ -86,6 +88,11 @@ def _iso(dt: datetime | None) -> str | None:
 class ExternalArchive:
     def __init__(self, root: str | os.PathLike = DEFAULT_ROOT):
         self.root = Path(root)
+        # Von store_observations() bei jedem Aufruf neu gesetzt: source_id ->
+        # {"estimated_bytes", "max_bytes"} für Quellen, deren neue
+        # normalisierte Zeilen in DIESEM Aufruf wegen der Volumen-Guard NICHT
+        # geschrieben wurden (siehe Punkt 4 der Storage-Fix-Aufgabe).
+        self.last_guard_blocked: dict[str, dict] = {}
 
     # ── Pfade ────────────────────────────────────────────────────────────
 
@@ -170,47 +177,102 @@ class ExternalArchive:
 
     # ── Observations ─────────────────────────────────────────────────────
 
-    def store_observations(self, observations: Iterable[Observation]) -> dict:
+    def store_observations(self, observations: Iterable[Observation],
+                            max_new_normalized_bytes_per_source_per_run: int | None = None) -> dict:
         """Idempotente Ablage: gleiche Identität + gleicher Wert = duplicate
         (skip); gleiche Identität + anderer Wert = NEUE Vintage-Zeile (nie
-        überschreiben)."""
+        überschreiben).
+
+        Volumen-Guard: bevor irgendetwas geschrieben wird, werden die neuen
+        Zeilen JE source_id (über alle Monats-Buckets hinweg) simuliert und
+        ihre serialisierte Byte-Größe geschätzt. Übersteigt eine Quelle
+        `max_new_normalized_bytes_per_source_per_run` (Default aus
+        config.yaml external_context.archive, sonst
+        DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN), wird für DIESE
+        Quelle in diesem Run NICHTS geschrieben (nie stillschweigend
+        kürzen) — siehe self.last_guard_blocked, das der Orchestrator dann
+        in WARN + Alert übersetzt."""
+        defaults = _config_archive_defaults()
+        max_bytes_per_source = (
+            max_new_normalized_bytes_per_source_per_run
+            if max_new_normalized_bytes_per_source_per_run is not None
+            else int(defaults.get("max_new_normalized_bytes_per_source_per_run",
+                                   DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN))
+        )
+
+        self.last_guard_blocked = {}
         counts = {"new": 0, "duplicate": 0, "revision": 0}
         by_bucket: dict[tuple[str, str], list[Observation]] = defaultdict(list)
         for obs in observations:
             month = obs.observation_time.strftime("%Y-%m")
             by_bucket[(obs.source_id, month)].append(obs)
 
+        buckets_by_source: dict[str, list[tuple[str, list[Observation]]]] = defaultdict(list)
         for (source_id, month), obs_list in by_bucket.items():
-            path = self._normalized_path(source_id, month)
-            existing = self._read_jsonl(path)
-            existing_by_key: dict[str, list[Observation]] = defaultdict(list)
-            for o in existing:
-                existing_by_key[o.identity_key()].append(o)
+            buckets_by_source[source_id].append((month, obs_list))
 
-            new_rows: list[Observation] = []
-            for obs in obs_list:
-                key = obs.identity_key()
-                prior = existing_by_key[key]
-                # Duplikat nur, wenn der Wert der JÜNGSTEN Version entspricht —
-                # eine Revision zurück auf einen früheren Wert (A→B→A) ist eine
-                # echte neue Vintage und muss erhalten bleiben.
-                latest = max(prior, key=lambda p: (p.vintage_time or p.available_at), default=None)
-                if latest is not None and latest.value == obs.value:
-                    counts["duplicate"] += 1
-                    continue
-                if prior:
-                    counts["revision"] += 1
-                else:
-                    counts["new"] += 1
-                new_rows.append(obs)
-                existing_by_key[key].append(obs)
+        for source_id, month_buckets in buckets_by_source.items():
+            source_counts = {"new": 0, "duplicate": 0, "revision": 0}
+            per_month_new_rows: dict[str, list[Observation]] = {}
+            estimated_bytes = 0
 
-            if new_rows:
-                self._normalized_dir(source_id).mkdir(parents=True, exist_ok=True)
-                with open(path, "a", encoding="utf-8") as fh:
-                    for obs in new_rows:
-                        fh.write(json.dumps(obs.to_dict()) + "\n")
+            for month, obs_list in month_buckets:
+                path = self._normalized_path(source_id, month)
+                existing = self._read_jsonl(path)
+                existing_by_key: dict[str, list[Observation]] = defaultdict(list)
+                for o in existing:
+                    existing_by_key[o.identity_key()].append(o)
+
+                new_rows: list[Observation] = []
+                for obs in obs_list:
+                    key = obs.identity_key()
+                    prior = existing_by_key[key]
+                    # Duplikat nur, wenn der Wert der JÜNGSTEN Version
+                    # entspricht — eine Revision zurück auf einen früheren
+                    # Wert (A→B→A) ist eine echte neue Vintage und muss
+                    # erhalten bleiben.
+                    latest = max(prior, key=lambda p: (p.vintage_time or p.available_at), default=None)
+                    if latest is not None and latest.value == obs.value:
+                        source_counts["duplicate"] += 1
+                        continue
+                    if prior:
+                        source_counts["revision"] += 1
+                    else:
+                        source_counts["new"] += 1
+                    new_rows.append(obs)
+                    existing_by_key[key].append(obs)
+
+                per_month_new_rows[month] = new_rows
+                estimated_bytes += sum(
+                    len((json.dumps(obs.to_dict()) + "\n").encode("utf-8")) for obs in new_rows
+                )
+
+            if estimated_bytes > max_bytes_per_source:
+                self.last_guard_blocked[source_id] = {
+                    "estimated_bytes": estimated_bytes, "max_bytes": max_bytes_per_source,
+                }
+                continue  # NICHTS für diese Quelle in diesem Run schreiben — nie kürzen
+
+            for month, new_rows in per_month_new_rows.items():
+                if new_rows:
+                    self._normalized_dir(source_id).mkdir(parents=True, exist_ok=True)
+                    with open(self._normalized_path(source_id, month), "a", encoding="utf-8") as fh:
+                        for obs in new_rows:
+                            fh.write(json.dumps(obs.to_dict()) + "\n")
+
+            counts["new"] += source_counts["new"]
+            counts["duplicate"] += source_counts["duplicate"]
+            counts["revision"] += source_counts["revision"]
         return counts
+
+    def normalized_bytes_written_estimate(self, source_id: str) -> int:
+        """Aktuelle Gesamtgröße der normalisierten JSONL-Dateien einer Quelle
+        (Bytes) — der Orchestrator misst dies vor/nach store_observations(),
+        um bytes_written fürs Manifest zu bestimmen (siehe orchestrator.py)."""
+        d = self._normalized_dir(source_id)
+        if not d.exists():
+            return 0
+        return sum(p.stat().st_size for p in d.glob("*.jsonl") if p.is_file())
 
     def load(self, source_id: str, since: datetime | None = None) -> list[Observation]:
         """Alle Observations einer Quelle (über alle Monate), optional gefiltert
@@ -289,42 +351,98 @@ class ExternalArchive:
 
     # ── Storage-Telemetrie ───────────────────────────────────────────────
 
+    def _manifest_entries_by_source_day(self) -> dict[str, dict[str, dict[str, int]]]:
+        """source_id -> retrieval_day (YYYY-MM-DD) -> {raw_bytes,
+        normalized_bytes}, ausschließlich aus den Ingestion-Run-Manifesten
+        (manifests/<day>/<run>.json) gelesen — die Manifest-Tage SIND die
+        tatsächlichen Abruf-Tage, im Unterschied zur beobachteten
+        observation_time-Spanne (die bei z.B. Eurostat Jahrzehnte zurück-
+        reicht, obwohl wir erst seit kurzem abrufen)."""
+        out: dict[str, dict[str, dict[str, int]]] = defaultdict(lambda: defaultdict(lambda: {"raw_bytes": 0, "normalized_bytes": 0}))
+        manifests_root = self.root / "manifests"
+        if not manifests_root.exists():
+            return out
+        for day_dir in sorted(manifests_root.iterdir()):
+            if not day_dir.is_dir():
+                continue
+            day = day_dir.name
+            for run_path in sorted(day_dir.glob("*.json")):
+                try:
+                    manifest = json.loads(run_path.read_text())
+                except Exception:
+                    continue
+                for entry in manifest.get("entries", []) or []:
+                    sid = entry.get("source_id")
+                    if not sid:
+                        continue
+                    out[sid][day]["raw_bytes"] += int(entry.get("bytes") or 0)
+                    out[sid][day]["normalized_bytes"] += int(entry.get("bytes_written") or 0)
+        return out
+
     def storage_telemetry(self, warn_mb_1y: float | None = None) -> dict:
-        """Misst Bytes/Zeilen je Quelle aus den Dateien, projiziert 30d/1y/5y
-        und markiert eine Warnung wenn die 1y-Projektion die Schwelle
-        übersteigt (Default 200 MB gesamt). Persistiert nach
-        health/storage_telemetry.json."""
+        """Misst das ECHTE Wachstum je Quelle über die Ingestion-Run-
+        Manifeste (retrieval days), NICHT über die beobachtete
+        observation_time-Spanne der Daten selbst (das war der Bug: eine
+        Quelle mit Jahrzehnten an historischen Beobachtungen, aber erst
+        einem einzigen tatsächlichen Abruf-Tag, wurde so behandelt, als sei
+        ihr Byte-Volumen über all diese Jahre gewachsen).
+
+        Je Quelle wird der ERSTE beobachtete Retrieval-Tag als einmaliger
+        Backfill (`one_off_backfill_bytes`) separat ausgewiesen; die
+        Wachstumsrate (bytes/Tag) ist der Median der bytes_written/bytes der
+        FOLGENDEN Retrieval-Tage. Mit nur einem einzigen Retrieval-Tag
+        (genau der Fall des ersten Live-Runs) ist die Wachstumsrate 0 —
+        NIE wird ein einmaliger Batch als Dauer-Wachstumsrate hochgerechnet.
+        Projektionen 30d/1y/5y aus dieser Rate; Warnung, wenn die
+        1y-Projektion die Schwelle übersteigt (Default 200 MB gesamt).
+        Persistiert nach health/storage_telemetry.json."""
         defaults = _config_archive_defaults()
         warn_mb_1y = warn_mb_1y if warn_mb_1y is not None else float(
             defaults.get("storage_warn_mb_1y", DEFAULT_STORAGE_WARN_MB_1Y))
 
-        per_source: dict[str, dict] = {}
-        raw_root = self.root / "raw"
+        by_source_day = self._manifest_entries_by_source_day()
         norm_root = self.root / "normalized"
+        raw_root = self.root / "raw"
 
-        source_ids = set()
-        if raw_root.exists():
-            source_ids.update(p.name for p in raw_root.iterdir() if p.is_dir())
+        source_ids = set(by_source_day)
         if norm_root.exists():
             source_ids.update(p.name for p in norm_root.iterdir() if p.is_dir())
+        if raw_root.exists():
+            source_ids.update(p.name for p in raw_root.iterdir() if p.is_dir())
 
+        per_source: dict[str, dict] = {}
         total_bytes_per_day = 0.0
+        total_one_off_backfill_bytes = 0
+
         for source_id in sorted(source_ids):
-            raw_bytes, raw_days = self._dir_bytes_and_days(raw_root / source_id)
-            norm_bytes, norm_days = self._dir_bytes_and_days(norm_root / source_id)
+            days_map = by_source_day.get(source_id, {})
+            days_sorted = sorted(days_map)
             rows = len(self.load(source_id)) if (norm_root / source_id).exists() else 0
-            days = max(raw_days, norm_days, 1)
-            raw_bpd = raw_bytes / days
-            norm_bpd = norm_bytes / days
+
+            raw_one_off = norm_one_off = 0
+            raw_growth_vals: list[int] = []
+            norm_growth_vals: list[int] = []
+            if days_sorted:
+                first_day = days_sorted[0]
+                raw_one_off = days_map[first_day]["raw_bytes"]
+                norm_one_off = days_map[first_day]["normalized_bytes"]
+                for d in days_sorted[1:]:
+                    raw_growth_vals.append(days_map[d]["raw_bytes"])
+                    norm_growth_vals.append(days_map[d]["normalized_bytes"])
+
+            raw_bpd = statistics.median(raw_growth_vals) if raw_growth_vals else 0.0
+            norm_bpd = statistics.median(norm_growth_vals) if norm_growth_vals else 0.0
+            one_off = raw_one_off + norm_one_off
+
             per_source[source_id] = {
-                "raw_bytes": raw_bytes,
-                "normalized_bytes": norm_bytes,
+                "retrieval_days": len(days_sorted),
                 "rows": rows,
-                "rows_per_day": rows / days,
+                "one_off_backfill_bytes": one_off,
                 "raw_bytes_per_day": raw_bpd,
                 "normalized_bytes_per_day": norm_bpd,
             }
             total_bytes_per_day += raw_bpd + norm_bpd
+            total_one_off_backfill_bytes += one_off
 
         projections = {
             "30d": total_bytes_per_day * 30,
@@ -335,6 +453,7 @@ class ExternalArchive:
         telemetry = {
             "measured_at": _iso(utc_now()),
             "total_bytes_per_day": total_bytes_per_day,
+            "one_off_backfill_bytes": total_one_off_backfill_bytes,
             "projections_bytes": projections,
             "warn_mb_1y": warn_mb_1y,
             "flagged": flagged,
@@ -351,22 +470,6 @@ class ExternalArchive:
         self._health_dir().mkdir(parents=True, exist_ok=True)
         self._write_json(self.storage_telemetry_path(), telemetry)
         return telemetry
-
-    @staticmethod
-    def _dir_bytes_and_days(path: Path) -> tuple[int, int]:
-        if not path.exists():
-            return 0, 0
-        total = 0
-        months = set()
-        for p in path.rglob("*"):
-            if p.is_file():
-                total += p.stat().st_size
-                # YYYY-MM Monatsordner oder .jsonl-Dateiname als Zeit-Proxy
-                for part in (p.parent.name, p.stem):
-                    if len(part) == 7 and part[4] == "-":
-                        months.add(part)
-        days = max(len(months) * 30, 1)
-        return total, days
 
     # ── Hilfsfunktionen ──────────────────────────────────────────────────
 

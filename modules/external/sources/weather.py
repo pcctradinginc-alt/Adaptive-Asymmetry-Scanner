@@ -30,8 +30,10 @@ import io
 import json
 import math
 import re
+import statistics
+from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -89,6 +91,15 @@ DEFAULT_ALERT_EVENT_TYPES = [
 ]
 
 HDD_CDD_BASE_F = 65.0  # NCEI-Konvention: Base 65°F für Heating/Cooling Degree Days
+
+DEFAULT_FORECAST_DAYS = 7  # nur Tage 0..N-1 relativ zum lokalen Issue-Tag archivieren
+
+DAILY_METRIC_UNITS = {
+    "tmax": "degF", "tmin": "degF", "tmean": "degF",
+    "hdd": "degF-day", "cdd": "degF-day",
+    "precip_total": "in", "snow_total": "in", "ice_total": "in",
+    "pop_max": "%", "wind_max": "mph", "gust_max": "mph",
+}
 
 
 # --------------------------------------------------------------------------- #
@@ -283,6 +294,136 @@ def parse_grid_response(points_json: dict, grid_json: dict, location: dict,
     return observations
 
 
+def _resolve_location_timezone(points_json: dict):
+    """points_json.properties.timeZone (IANA-Name, z.B. 'America/New_York')
+    -> zoneinfo.ZoneInfo, sonst None (Aufrufer fällt dann auf UTC zurück)."""
+    tz_name = (points_json.get("properties") or {}).get("timeZone")
+    if not tz_name:
+        return None
+    try:
+        from zoneinfo import ZoneInfo
+        return ZoneInfo(tz_name)
+    except Exception:
+        return None
+
+
+def aggregate_daily_forecast(hourly_observations: list[Observation], points_json: dict, location: dict,
+                              retrieved_at: datetime, forecast_days: int = DEFAULT_FORECAST_DAYS,
+                              source_id: str = "nws_forecast",
+                              parser_version: str = PARSER_VERSION) -> list[Observation]:
+    """Aggregiert die stündlichen/Perioden-Observations EINES Grid-Abrufs
+    (aus parse_grid_response, NUR im Speicher, wird NIE archiviert) zu
+    Tageswerten: tmax, tmin, tmean, hdd, cdd, precip_total, snow_total,
+    ice_total, pop_max, wind_max, gust_max — je (Location, lokaler
+    Kalendertag, Issue-Zeit). Nur Tage 0..forecast_days-1 relativ zum
+    lokalen Tag von forecast_issue_time (updateTime) werden archiviert.
+
+    Kalendertag = lokaler Tag in der Timezone aus /points (properties.
+    timeZone), sonst UTC (kein Rateversuch über eine hartcodierte Zone).
+    identity_key() der resultierenden Observations enthält
+    forecast_issue_time -> eine neue Issue-Zeit erzeugt IMMER neue Zeilen;
+    Revisionen entstehen NUR beim Vergleich derselben forecast_valid_time
+    (siehe weather_features.forecast_revision)."""
+    if not hourly_observations:
+        return []
+    tz = _resolve_location_timezone(points_json)
+    retrieved_at = ensure_utc(retrieved_at) or utc_now()
+    update_time = hourly_observations[0].forecast_issue_time
+    if update_time is None:
+        return []
+    series_id = hourly_observations[0].series_id
+    issue_local_day = (update_time.astimezone(tz) if tz else update_time).date()
+
+    by_day: dict[date, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+    for o in hourly_observations:
+        if o.value is None or o.forecast_valid_time is None:
+            continue
+        local_dt = o.forecast_valid_time.astimezone(tz) if tz else o.forecast_valid_time
+        day = local_dt.date()
+        offset = (day - issue_local_day).days
+        if offset < 0 or offset >= forecast_days:
+            continue
+        by_day[day][o.metric].append(o.value)
+
+    observations: list[Observation] = []
+    for day in sorted(by_day):
+        metrics = by_day[day]
+        hourly_t = metrics.get("temperature", [])
+        maxt = metrics.get("maxTemperature", [])
+        mint = metrics.get("minTemperature", [])
+        tmax = max(maxt) if maxt else (max(hourly_t) if hourly_t else None)
+        tmin = min(mint) if mint else (min(hourly_t) if hourly_t else None)
+        if hourly_t:
+            tmean = statistics.fmean(hourly_t)
+        elif tmax is not None and tmin is not None:
+            tmean = (tmax + tmin) / 2.0
+        else:
+            tmean = None
+        hdd = max(0.0, HDD_CDD_BASE_F - tmean) if tmean is not None else None
+        cdd = max(0.0, tmean - HDD_CDD_BASE_F) if tmean is not None else None
+        precip = metrics.get("quantitativePrecipitation", [])
+        snow = metrics.get("snowfallAmount", [])
+        ice = metrics.get("iceAccumulation", [])
+        pop = metrics.get("probabilityOfPrecipitation", [])
+        wind = metrics.get("windSpeed", [])
+        gust = metrics.get("windGust", [])
+
+        day_start = datetime(day.year, day.month, day.day, tzinfo=tz or timezone.utc)
+        values = {
+            "tmax": tmax, "tmin": tmin, "tmean": tmean, "hdd": hdd, "cdd": cdd,
+            "precip_total": sum(precip) if precip else None,
+            "snow_total": sum(snow) if snow else None,
+            "ice_total": sum(ice) if ice else None,
+            "pop_max": max(pop) if pop else None,
+            "wind_max": max(wind) if wind else None,
+            "gust_max": max(gust) if gust else None,
+        }
+        for metric, value in values.items():
+            if value is None:
+                continue
+            observations.append(Observation(
+                source_id=source_id, dataset="grid_forecast_daily", series_id=series_id,
+                entity_id=location["code"], metric=metric, value=value,
+                unit=DAILY_METRIC_UNITS.get(metric, ""),
+                observation_time=day_start, available_at=retrieved_at, retrieved_at=retrieved_at,
+                availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+                parser_version=parser_version, source_release_time=update_time,
+                forecast_issue_time=update_time, forecast_valid_time=day_start,
+                attrs={"location_code": location["code"]},
+            ))
+    return observations
+
+
+def write_nws_locations_manifest(discovered: dict, locations: list[dict],
+                                  archive_root: str | Path | None = None) -> Path:
+    """Schreibt/aktualisiert outputs/external_data/manifests/nws_locations.json
+    – statische Location-Metadaten (lat/lon/grid ids/timezone) EINMAL zentral,
+    statt sie in jeder normalisierten Zeile zu wiederholen (siehe attrs=
+    {"location_code"} in aggregate_daily_forecast)."""
+    from modules.external.archive import DEFAULT_ROOT
+    root = Path(archive_root or DEFAULT_ROOT)
+    path = root / "manifests" / "nws_locations.json"
+    existing: dict = {}
+    if path.exists():
+        try:
+            existing = json.loads(path.read_text())
+        except Exception:
+            existing = {}
+    by_code = {l["code"]: l for l in locations}
+    now_iso = utc_now().isoformat(timespec="seconds")
+    for code, grid in discovered.items():
+        loc = by_code.get(code, {})
+        existing[code] = {
+            "lat": loc.get("lat"), "lon": loc.get("lon"),
+            "gridId": grid.get("gridId"), "gridX": grid.get("gridX"), "gridY": grid.get("gridY"),
+            "timezone": grid.get("timezone"),
+            "updated_at": now_iso,
+        }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(existing, indent=2, sort_keys=True))
+    return path
+
+
 class NwsForecastConnector(Connector):
     source_id = "nws_forecast"
     parser_version = PARSER_VERSION
@@ -298,10 +439,23 @@ class NwsForecastConnector(Connector):
             locs = [l for l in locs if l.get("code") in codes]
         return [l for l in locs if l.get("lat") is not None and l.get("lon") is not None]
 
+    def _forecast_days(self) -> int:
+        try:
+            from modules.config import cfg
+            weather_cfg = getattr(getattr(cfg, "external_context", None), "weather", None)
+            v = getattr(weather_cfg, "forecast_days", None) if weather_cfg else None
+            if v:
+                return int(v)
+        except Exception:
+            pass
+        return int(self.cfg.get("forecast_days", DEFAULT_FORECAST_DAYS))
+
     def fetch(self, now: datetime) -> ConnectorResult:
         base_url = self.cfg.get("base_url", "https://api.weather.gov")
         elements = self.cfg.get("elements", DEFAULT_GRID_ELEMENTS)
         headers = {"User-Agent": self._user_agent(), "Accept": "application/geo+json"}
+        forecast_days = self._forecast_days()
+        archive_root = self.cfg.get("archive_root")
 
         observations: list[Observation] = []
         raw: list[RawRecord] = []
@@ -326,15 +480,21 @@ class NwsForecastConnector(Connector):
                 raw.append(_to_raw(self.source_id, "grid_forecast", grid_res))
                 grid_json = grid_res.json()
 
-                obs = parse_grid_response(points_json, grid_json, loc, elements,
-                                           retrieved_at=grid_res.retrieved_at,
-                                           source_id=self.source_id,
-                                           parser_version=self.parser_version)
+                hourly_obs = parse_grid_response(points_json, grid_json, loc, elements,
+                                                  retrieved_at=grid_res.retrieved_at,
+                                                  source_id=self.source_id,
+                                                  parser_version=self.parser_version)
+                obs = aggregate_daily_forecast(hourly_obs, points_json, loc,
+                                                retrieved_at=grid_res.retrieved_at,
+                                                forecast_days=forecast_days,
+                                                source_id=self.source_id,
+                                                parser_version=self.parser_version)
                 observations.extend(obs)
                 discovered[loc["code"]] = {
                     "gridId": points_json["properties"].get("gridId"),
                     "gridX": points_json["properties"].get("gridX"),
                     "gridY": points_json["properties"].get("gridY"),
+                    "timezone": points_json["properties"].get("timeZone"),
                 }
                 for o in obs:
                     if latest_release is None or (o.source_release_time and o.source_release_time > latest_release):
@@ -342,6 +502,12 @@ class NwsForecastConnector(Connector):
             except (http.FetchError, ValueError, KeyError) as e:
                 failures += 1
                 continue
+
+        if discovered:
+            try:
+                write_nws_locations_manifest(discovered, locations, archive_root=archive_root)
+            except Exception:
+                pass  # Manifest ist ein Komfort-Cache, darf den Fetch nie brechen
 
         if not observations and failures:
             status = SourceStatus.FAIL

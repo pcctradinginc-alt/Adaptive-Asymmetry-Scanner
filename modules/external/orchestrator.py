@@ -99,14 +99,27 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
 
         counts = {"new": 0, "duplicate": 0, "revision": 0}
         archive_error = ""
+        bytes_written = 0
+        guard_blocked = None
         if not dry_run:
             try:
                 policy = None
                 for raw in result.raw:
                     archive.store_raw(raw, policy=policy)
+                bytes_before = archive.normalized_bytes_written_estimate(source_id)
                 counts = archive.store_observations(result.observations)
+                bytes_written = archive.normalized_bytes_written_estimate(source_id) - bytes_before
+                guard_blocked = archive.last_guard_blocked.get(source_id)
             except Exception as e:  # noqa: BLE001
                 archive_error = repr(e)
+
+        if guard_blocked is not None:
+            # Volumen-Guard hat für diese Quelle in diesem Run NICHTS
+            # geschrieben (nie stillschweigend kürzen) -> WARN + Alert über
+            # die bestehende ARCHIVE_FAILURE-Alarmierung (archive_error).
+            h.status = SourceStatus.WARN.value
+            h.message = (h.message + " | " if h.message else "") + "volume guard"
+            archive_error = "volume guard"
 
         h.archive_error = archive_error
         h.revision_count = int(h.revision_count or 0) + counts["revision"]
@@ -138,6 +151,7 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
                 "content_hash": result.raw[0].content_hash if result.raw else "",
                 "content_type": result.raw[0].content_type if result.raw else "",
                 "bytes": sum(r.bytes for r in result.raw),
+                "bytes_written": bytes_written,
                 "parser_version": connector.parser_version,
                 "feature_version": None,
                 "counts": counts,

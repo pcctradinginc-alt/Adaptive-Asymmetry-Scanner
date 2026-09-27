@@ -50,89 +50,55 @@ def latest_per_valid_time(observations: Iterable[Observation]) -> dict:
     return best
 
 
-def group_by_entity_metric_date(observations: Iterable[Observation],
-                                 use_latest_issue: bool = True) -> dict:
-    """entity_id -> metric -> date -> list[value] (nur Werte ungleich None).
-    use_latest_issue=True: pro (entity, metric, valid_time) nur die jüngste
-    Prognoseversion verwenden (Standardfall für Aggregation/Anomalie)."""
-    if use_latest_issue:
-        obs_iter = latest_per_valid_time(observations).values()
-    else:
-        obs_iter = observations
-    out: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for o in obs_iter:
-        d = _date_of(o.forecast_valid_time or o.observation_time)
-        if d is None or o.value is None:
-            continue
-        out[o.entity_id][o.metric][d].append(o.value)
-    return out
-
-
 # --------------------------------------------------------------------------- #
 # Tägliche Aggregate aus stündlichen/Perioden-Prognosen
 # --------------------------------------------------------------------------- #
 
+_TEMP_METRIC_MAP = {"tmean": "tmean", "tmax": "tmax", "tmin": "tmin", "hdd": "hdd", "cdd": "cdd"}
+_PRECIP_METRIC_MAP = {
+    "precip_total": "precip_in", "snow_total": "snow_in", "ice_total": "ice_in",
+    "wind_max": "wind_mph_max", "gust_max": "gust_mph_max", "pop_max": "pop_max",
+}
+
+
+def _daily_values_from_latest_issue(observations: Iterable[Observation], metric_map: dict) -> dict:
+    """entity_id -> date -> {out_field: value}, EIN Wert je (entity, Tag,
+    Feld) — die Werte kommen bereits tagesaggregiert aus dem Konnektor
+    (modules/external/sources/weather.py: aggregate_daily_forecast), hier
+    wird NUR noch die jüngste Issue-Zeit je forecast_valid_time gewählt
+    (Revision), NIE erneut über Stunden aggregiert. Fehlende Felder eines
+    Tages bleiben None (nie 0)."""
+    best = latest_per_valid_time(observations)  # (entity, metric, valid_time) -> Observation
+    out: dict = {}
+    for (entity, metric, valid_time), o in best.items():
+        out_field = metric_map.get(metric)
+        if out_field is None:
+            continue
+        d = _date_of(valid_time)
+        if d is None:
+            continue
+        out.setdefault(entity, {}).setdefault(d, {})[out_field] = o.value
+    for entity_days in out.values():
+        for day_vals in entity_days.values():
+            for out_field in metric_map.values():
+                day_vals.setdefault(out_field, None)
+    return out
+
+
 def daily_temperature_aggregates(observations: Iterable[Observation]) -> dict:
-    """entity_id -> date -> {tmean, tmax, tmin, hdd, cdd} in °F.
-    tmax/tmin nutzen bevorzugt die 'maxTemperature'/'minTemperature'-Grid-
-    Elemente (Tagesperioden); fallen sie für einen Tag aus, wird auf
-    max()/min() der stündlichen 'temperature'-Werte dieses Tages
-    zurückgefallen. tmean = Mittel der stündlichen 'temperature'-Werte."""
-    grouped = group_by_entity_metric_date(observations)
-    out: dict = {}
-    for entity, metrics in grouped.items():
-        out[entity] = {}
-        hourly_by_date = metrics.get("temperature", {})
-        maxt_by_date = metrics.get("maxTemperature", {})
-        mint_by_date = metrics.get("minTemperature", {})
-        all_dates = set(hourly_by_date) | set(maxt_by_date) | set(mint_by_date)
-        for d in all_dates:
-            hourly_vals = hourly_by_date.get(d, [])
-            tmean = statistics.fmean(hourly_vals) if hourly_vals else None
-            tmax = (max(maxt_by_date[d]) if d in maxt_by_date and maxt_by_date[d]
-                    else (max(hourly_vals) if hourly_vals else None))
-            tmin = (min(mint_by_date[d]) if d in mint_by_date and mint_by_date[d]
-                    else (min(hourly_vals) if hourly_vals else None))
-            hdd = max(0.0, HDD_CDD_BASE_F - tmean) if tmean is not None else None
-            cdd = max(0.0, tmean - HDD_CDD_BASE_F) if tmean is not None else None
-            out[entity][d] = {"tmean": tmean, "tmax": tmax, "tmin": tmin, "hdd": hdd, "cdd": cdd}
-    return out
-
-
-def _daily_sum(observations: Iterable[Observation], metric: str) -> dict:
-    grouped = group_by_entity_metric_date(observations)
-    out: dict = {}
-    for entity, metrics in grouped.items():
-        by_date = metrics.get(metric, {})
-        out[entity] = {d: sum(vals) for d, vals in by_date.items() if vals}
-    return out
+    """entity_id -> date -> {tmean, tmax, tmin, hdd, cdd} in °F. Die Werte
+    sind bereits tagesaggregiert im Archiv (siehe weather.py:
+    aggregate_daily_forecast) -- hier wird nur je forecast_valid_time die
+    jüngste Issue-Version (Revision) ausgewählt."""
+    return _daily_values_from_latest_issue(observations, _TEMP_METRIC_MAP)
 
 
 def daily_precip_snow_ice_wind(observations: Iterable[Observation]) -> dict:
     """entity_id -> date -> {precip_in, snow_in, ice_in, wind_mph_max,
-    gust_mph_max, pop_max}. precip/snow/ice sind Tagessummen (NWS liefert sie
-    bereits als Periodenmengen); Wind/Gust/PoP sind Tagesmaxima."""
-    grouped = group_by_entity_metric_date(observations)
-    out: dict = {}
-    for entity, metrics in grouped.items():
-        out[entity] = {}
-        precip = metrics.get("quantitativePrecipitation", {})
-        snow = metrics.get("snowfallAmount", {})
-        ice = metrics.get("iceAccumulation", {})
-        wind = metrics.get("windSpeed", {})
-        gust = metrics.get("windGust", {})
-        pop = metrics.get("probabilityOfPrecipitation", {})
-        all_dates = set(precip) | set(snow) | set(ice) | set(wind) | set(gust) | set(pop)
-        for d in all_dates:
-            out[entity][d] = {
-                "precip_in": sum(precip[d]) if precip.get(d) else None,
-                "snow_in": sum(snow[d]) if snow.get(d) else None,
-                "ice_in": sum(ice[d]) if ice.get(d) else None,
-                "wind_mph_max": max(wind[d]) if wind.get(d) else None,
-                "gust_mph_max": max(gust[d]) if gust.get(d) else None,
-                "pop_max": max(pop[d]) if pop.get(d) else None,
-            }
-    return out
+    gust_mph_max, pop_max}. Bereits tagesaggregiert im Archiv (precip_total/
+    snow_total/ice_total/wind_max/gust_max/pop_max) -- hier nur die jüngste
+    Issue-Version je forecast_valid_time."""
+    return _daily_values_from_latest_issue(observations, _PRECIP_METRIC_MAP)
 
 
 # --------------------------------------------------------------------------- #

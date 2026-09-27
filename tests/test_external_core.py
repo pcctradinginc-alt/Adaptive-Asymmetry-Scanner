@@ -198,11 +198,45 @@ def test_storage_telemetry_projections(tmp_path):
                      content_type="application/json", content_hash="h1", bytes=1000,
                      content=b"x" * 1000)
     a.store_raw(rec, policy="gzip", raw_max_bytes=10000)
+    # Zwei Ingestion-Run-Manifeste an zwei Retrieval-Tagen -- storage_telemetry
+    # liest das Wachstum NUR aus diesen Manifesten (retrieval days), nicht aus
+    # der Observation-Time-Spanne.
+    a.write_manifest("run1", [{"source_id": "src_a", "bytes": 1000, "bytes_written": 500}],
+                      now=datetime(2026, 1, 1, tzinfo=UTC))
+    a.write_manifest("run2", [{"source_id": "src_a", "bytes": 1000, "bytes_written": 500}],
+                      now=datetime(2026, 1, 2, tzinfo=UTC))
     telemetry = a.storage_telemetry(warn_mb_1y=0.0000001)  # winzige Schwelle -> flagged
     assert telemetry["projections_bytes"]["1y"] == pytest.approx(
         telemetry["total_bytes_per_day"] * 365)
     assert telemetry["flagged"] is True
     assert (tmp_path / "health" / "storage_telemetry.json").exists()
+
+
+def test_storage_telemetry_uses_retrieval_days_not_observation_time_span(tmp_path):
+    """Eine Quelle mit Beobachtungen, die Jahre zurückreichen (observation_
+    time), aber nur EINEM tatsächlichen Retrieval-Tag im Manifest, darf NICHT
+    so behandelt werden, als sei ihr Byte-Volumen über all diese Jahre
+    gewachsen (der ursprüngliche Bug: bytes/Tag = bytes / Beobachtungs-
+    Spanne). Mit nur einem Retrieval-Tag ist die Wachstumsrate 0 und der
+    gesamte Betrag zählt als one_off_backfill_bytes."""
+    a = ExternalArchive(root=tmp_path)
+    old_obs = [mk_obs(source_id="eurostat_road_freight", value=float(i),
+                       obs_time=f"{2005 + i}-01-01T00:00:00+00:00",
+                       available_at="2026-01-01T00:00:00+00:00",
+                       retrieved_at="2026-01-01T00:00:00+00:00")
+               for i in range(20)]  # Beobachtungen reichen 20 Jahre zurück
+    a.store_observations(old_obs)
+    a.write_manifest("run1", [{"source_id": "eurostat_road_freight", "bytes": 5000,
+                                "bytes_written": 4000}],
+                      now=datetime(2026, 1, 1, tzinfo=UTC))
+    telemetry = a.storage_telemetry(warn_mb_1y=200)
+    per_source = telemetry["per_source"]["eurostat_road_freight"]
+    assert per_source["retrieval_days"] == 1
+    assert per_source["normalized_bytes_per_day"] == 0.0   # keine 2. Beobachtung -> keine Rate
+    assert per_source["raw_bytes_per_day"] == 0.0
+    assert per_source["one_off_backfill_bytes"] == 9000     # 5000 + 4000, separat ausgewiesen
+    assert telemetry["projections_bytes"]["1y"] == 0.0
+    assert telemetry["one_off_backfill_bytes"] == 9000
 
 
 # ── registry.py ────────────────────────────────────────────────────────────
@@ -417,6 +451,73 @@ def test_orchestrator_archives_ok_connector(tmp_path):
     assert summary["sources"]["ok_src"]["status"] == "PASS"
     archive = ExternalArchive(tmp_path)
     assert len(archive.load("ok_src")) == 1
+
+
+def test_orchestrator_manifest_records_bytes_written(tmp_path):
+    sources = {"ok_src": dict(VALID_SOURCE, source_id="ok_src", family="maritime")}
+    registry = _fake_registry(tmp_path, sources, {"ok_src": _OkConnector})
+    now = datetime(2026, 2, 1, tzinfo=UTC)
+    orch.run_ingestion(now, registry=registry)
+    manifest_files = list((tmp_path / "manifests").glob("*/*.json"))
+    assert len(manifest_files) == 1
+    manifest = json.loads(manifest_files[0].read_text())
+    assert manifest["entries"][0]["source_id"] == "ok_src"
+    assert manifest["entries"][0]["bytes_written"] > 0
+
+
+class _HugeConnector(Connector):
+    source_id = "huge_src"
+
+    def fetch(self, now):
+        obs = [mk_obs(source_id="huge_src", series_id=f"S{i}", value=float(i),
+                       obs_time=now.isoformat(), available_at=now.isoformat(),
+                       retrieved_at=now.isoformat())
+               for i in range(200)]
+        return ConnectorResult(source_id="huge_src", status=SourceStatus.PASS,
+                                observations=obs, latest_observation_time=now)
+
+
+def test_volume_guard_blocks_write_and_sets_warn(tmp_path, monkeypatch):
+    """Übersteigt eine Quelle das konfigurierte Bytes/Run-Limit, wird für sie
+    in diesem Run NICHTS geschrieben (nie stillschweigend gekürzt), Status
+    wird WARN mit Meldung 'volume guard', und der bestehende Alert-Mechanismus
+    (ARCHIVE_FAILURE über archive_error) greift."""
+    sources = {"huge_src": dict(VALID_SOURCE, source_id="huge_src", family="weather")}
+    registry = _fake_registry(tmp_path, sources, {"huge_src": _HugeConnector})
+    now = datetime(2026, 3, 1, tzinfo=UTC)
+    monkeypatch.setattr(al, "_alerts_email_enabled", lambda: False)
+    monkeypatch.setattr(
+        "modules.external.archive._config_archive_defaults",
+        lambda: {"max_new_normalized_bytes_per_source_per_run": 100},
+    )
+    summary = orch.run_ingestion(now, registry=registry)
+    assert summary["sources"]["huge_src"]["status"] == "WARN"
+    assert "volume guard" in summary["sources"]["huge_src"]["archive_error"]
+    archive = ExternalArchive(tmp_path)
+    assert archive.load("huge_src") == []   # NICHTS geschrieben, nie gekürzt
+    alerts = summary["alerts"]
+    assert any(a["source_id"] == "huge_src" and a["type"] == "ARCHIVE_FAILURE" for a in alerts)
+
+
+def test_archive_store_observations_guard_blocks_oversized_source(tmp_path):
+    a = ExternalArchive(root=tmp_path)
+    obs = [mk_obs(series_id=f"S{i}", value=float(i)) for i in range(50)]
+    counts = a.store_observations(obs, max_new_normalized_bytes_per_source_per_run=100)
+    assert counts == {"new": 0, "duplicate": 0, "revision": 0}
+    assert a.load("src_a") == []
+    assert "src_a" in a.last_guard_blocked
+    assert a.last_guard_blocked["src_a"]["max_bytes"] == 100
+
+
+def test_archive_store_observations_guard_does_not_affect_other_sources(tmp_path):
+    a = ExternalArchive(root=tmp_path)
+    small = [mk_obs(source_id="small_src", value=1.0)]
+    huge = [mk_obs(source_id="huge_src", series_id=f"S{i}", value=float(i)) for i in range(50)]
+    counts = a.store_observations(small + huge, max_new_normalized_bytes_per_source_per_run=600)
+    assert counts["new"] == 1   # small_src wurde geschrieben
+    assert len(a.load("small_src")) == 1
+    assert a.load("huge_src") == []
+    assert "huge_src" in a.last_guard_blocked and "small_src" not in a.last_guard_blocked
 
 
 def test_orchestrator_gates_review_required(tmp_path):
