@@ -30,6 +30,7 @@ ausschließlich aus den offiziellen Referenz-Layern.
 
 from __future__ import annotations
 
+import difflib
 import json
 import os
 import re
@@ -130,18 +131,45 @@ class SchemaError(Exception):
 # Discovery (ArcGIS Hub / Online Sharing Search API)
 # --------------------------------------------------------------------------
 
-def _search_arcgis_item(title: str, http_fetch: FetchFn, extra_query: str = "") -> dict:
+def _search_arcgis_item(
+    title: str,
+    http_fetch: FetchFn,
+    extra_query: str = "",
+    require_owner: str | None = None,
+    require_orgid: str | None = None,
+) -> dict:
     """Sucht ein ArcGIS-Item per Titel. Wählt bei Mehrdeutigkeit den zuletzt
     geänderten "Feature Service"-Treffer, markiert das Ergebnis aber als
-    `ambiguous`, damit ein Preflight-Check das laut melden kann."""
+    `ambiguous`, damit ein Preflight-Check das laut melden kann.
+
+    `require_owner`/`require_orgid` schränken die Suche auf den bereits
+    verifizierten PortWatch-Publisher ein (aus einem zuvor erfolgreich
+    aufgelösten Daily-Layer-Item) UND filtern das Ergebnis client-seitig
+    erneut nach Owner/OrgId -- so wird nie ein Item aus fremder Organisation
+    akzeptiert, selbst wenn die serverseitige q-Restriktion aus irgendeinem
+    Grund nicht greift (z.B. die USDA-"Maritime_Ports_Ag_Trade"-Layer, die
+    live fälschlich für den Titel "Ports" zurückkam)."""
     q = f'title:"{title}"'
+    if require_orgid:
+        q += f" orgid:{require_orgid}"
+    elif require_owner:
+        q += f" owner:{require_owner}"
     if extra_query:
         q += f" {extra_query}"
     res = http_fetch(ARCGIS_SEARCH_URL, params={"q": q, "f": "json", "num": 25})
     data = res.json()
     results = data.get("results", [])
+    if require_orgid or require_owner:
+        results = [
+            r for r in results
+            if (not require_orgid or r.get("orgId") == require_orgid)
+            and (not require_owner or r.get("owner") == require_owner)
+        ]
     if not results:
-        raise DiscoveryError(f"ArcGIS-Suche ohne Treffer für title={title!r}")
+        raise DiscoveryError(
+            f"ArcGIS-Suche ohne (Org-verifizierten) Treffer für title={title!r} "
+            f"(require_owner={require_owner!r}, require_orgid={require_orgid!r})"
+        )
 
     def _is_exact(r: dict) -> bool:
         return r.get("title", "").strip().lower() == title.strip().lower()
@@ -157,6 +185,8 @@ def _search_arcgis_item(title: str, http_fetch: FetchFn, extra_query: str = "") 
         "service_url": (chosen.get("url") or "").rstrip("/"),
         "ambiguous": ambiguous,
         "n_candidates": len(candidates),
+        "owner": chosen.get("owner"),
+        "orgId": chosen.get("orgId"),
     }
 
 
@@ -172,6 +202,17 @@ def _resolve_layer(service_url: str, http_fetch: FetchFn) -> dict:
     return {"layer_id": layers[0].get("id", 0)}
 
 
+# Referenz-Layer-Key -> zugehöriger Daily-Layer-Key, dessen bereits
+# verifiziertes Owner/OrgId die Referenz-Suche einschränkt (item 1 im Fix:
+# "Ports"/"Chokepoints" sind zu generische Titel, um sie ungeschützt gegen
+# die globale ArcGIS-Suche laufen zu lassen -- live griff das z.B. eine
+# USDA-Ag-Trade-Layer für "Ports" ab).
+REFERENCE_TO_DAILY_KEY: dict[str, str] = {
+    "ports_reference": "ports_daily",
+    "chokepoints_reference": "chokepoints_daily",
+}
+
+
 def discover_endpoints(
     http_fetch: FetchFn | None = None,
     cache_path: str = DEFAULT_CACHE_PATH,
@@ -184,6 +225,17 @@ def discover_endpoints(
     cached das Ergebnis unter `cache_path` und respektiert eine Config-
     Override (machine_endpoint) für das Ports-Daily-Layer -- die dann als
     "verify_in_preflight" markiert wird, weil sie ungeprüft übernommen wurde.
+
+    Reihenfolge: zuerst werden die beiden "Daily ..."-Layer aufgelöst (ihre
+    Titel sind spezifisch genug, um ohne Owner-Restriktion sicher zu sein).
+    Aus deren Item-Metadaten (owner/orgId) wird dann die Suche nach den
+    generischen Referenz-Titeln ("Ports"/"Chokepoints") eingeschränkt -- ein
+    Treffer aus fremder Organisation wird NIE akzeptiert. Schlägt die
+    Org-eingeschränkte Referenz-Suche fehl, wird kein Fallback-Owner
+    erraten; stattdessen wird der Referenz-Layer als
+    `fallback_to_daily_layer=True` markiert, damit der Konnektor
+    Port-/Chokepoint-Id/Name/Land per Distinct-Values-Query direkt aus dem
+    Daily-Layer selbst ableitet.
     """
     fetch_fn = http_fetch or http.fetch
     now = now or utc_now()
@@ -198,8 +250,8 @@ def discover_endpoints(
                 return _apply_override(endpoints, config_override)
 
     endpoints: dict[str, dict] = {}
-    for key, title in DATASET_TITLES.items():
-        item = _search_arcgis_item(title, fetch_fn)
+    for key in ("ports_daily", "chokepoints_daily"):
+        item = _search_arcgis_item(DATASET_TITLES[key], fetch_fn)
         layer = _resolve_layer(item["service_url"], fetch_fn)
         endpoints[key] = {
             "service_url": item["service_url"],
@@ -207,7 +259,41 @@ def discover_endpoints(
             "item_id": item["item_id"],
             "title": item["title"],
             "ambiguous": item["ambiguous"],
+            "owner": item.get("owner"),
+            "orgId": item.get("orgId"),
         }
+
+    for ref_key, daily_key in REFERENCE_TO_DAILY_KEY.items():
+        title = DATASET_TITLES[ref_key]
+        require_owner = endpoints[daily_key].get("owner")
+        require_orgid = endpoints[daily_key].get("orgId")
+        try:
+            item = _search_arcgis_item(
+                title, fetch_fn, require_owner=require_owner, require_orgid=require_orgid,
+            )
+            layer = _resolve_layer(item["service_url"], fetch_fn)
+            endpoints[ref_key] = {
+                "service_url": item["service_url"],
+                "layer_id": layer["layer_id"],
+                "item_id": item["item_id"],
+                "title": item["title"],
+                "ambiguous": item["ambiguous"],
+                "owner": item.get("owner"),
+                "orgId": item.get("orgId"),
+                "fallback_to_daily_layer": False,
+            }
+        except DiscoveryError:
+            daily_ep = endpoints[daily_key]
+            endpoints[ref_key] = {
+                "service_url": daily_ep["service_url"],
+                "layer_id": daily_ep["layer_id"],
+                "item_id": daily_ep["item_id"],
+                "title": daily_ep["title"],
+                "ambiguous": False,
+                "owner": daily_ep.get("owner"),
+                "orgId": daily_ep.get("orgId"),
+                "fallback_to_daily_layer": True,
+            }
 
     _write_endpoint_cache(cache_path, endpoints, now)
     return _apply_override(endpoints, config_override)
@@ -460,6 +546,62 @@ def query_features(
     return all_features
 
 
+def query_distinct_values(
+    service_url: str,
+    layer_id: int,
+    out_fields: Iterable[str],
+    http_fetch: FetchFn,
+    max_record_count: int | None = None,
+) -> list[dict]:
+    """Fallback-Ableitung von Referenzdaten (item 1 im Fix): fragt distinkte
+    Kombinationen von `out_fields` (typischerweise id/name/land) direkt aus
+    dem Daily-Layer ab (`returnDistinctValues=true`), statt eines dedizierten
+    Referenz-Layers. Wird genutzt, wenn der Referenz-Layer nicht org-
+    verifiziert gefunden werden kann. Paginiert wie `query_features`."""
+    out = ",".join(out_fields)
+    page_size = max_record_count or 2000
+    query_url = f"{service_url}/{layer_id}/query"
+    offset = 0
+    all_features: list[dict] = []
+    for _ in range(MAX_PAGES_SAFETY):
+        params = {
+            "where": "1=1",
+            "outFields": out,
+            "returnDistinctValues": "true",
+            "returnGeometry": "false",
+            "resultOffset": offset,
+            "resultRecordCount": page_size,
+            "f": "json",
+        }
+        res = http_fetch(query_url, params=params)
+        data = res.json()
+        if isinstance(data, dict) and "error" in data:
+            raise FetchError(
+                f"ArcGIS-Distinct-Query-Fehler: {data['error']} (outFields={out}, "
+                f"service_url={service_url}/{layer_id})"
+            )
+        feats = data.get("features", [])
+        all_features.extend(feats)
+        exceeded = bool(data.get("exceededTransferLimit"))
+        if not exceeded or not feats:
+            break
+        offset += len(feats)
+    else:  # pragma: no cover - Sicherheitsnetz gegen Endlos-Pagination
+        raise FetchError(f"Distinct-Pagination-Limit ({MAX_PAGES_SAFETY} Seiten) erreicht für {query_url}")
+    # Dedupliziert nach den Attribut-Werten selbst -- ArcGIS liefert
+    # `returnDistinctValues` nicht immer serverseitig verlustfrei über die
+    # Pagination hinweg.
+    seen: set[tuple] = set()
+    deduped: list[dict] = []
+    for feat in all_features:
+        attrs = feat.get("attributes", feat)
+        key = tuple(sorted(attrs.items()))
+        if key not in seen:
+            seen.add(key)
+            deduped.append(feat if "attributes" in feat else {"attributes": attrs})
+    return deduped
+
+
 def incremental_window(now: datetime, days: int = INCREMENTAL_WINDOW_DAYS) -> tuple[date, date]:
     end = now.date()
     start = end - timedelta(days=days)
@@ -474,6 +616,9 @@ _PAREN_RE = re.compile(r"[()\-–,.]")
 _WS_RE = re.compile(r"\s+")
 
 
+_STRAIT_OF_RE = re.compile(r"^strait of (.+)$")
+
+
 def normalize_name(name: str) -> str:
     if not name:
         return ""
@@ -483,7 +628,27 @@ def normalize_name(name: str) -> str:
     for prefix in ("port of ", "the "):
         if s.startswith(prefix):
             s = s[len(prefix):]
+    # "Strait of X" <-> "X Strait" ist reine Wortstellung, kein Alias --
+    # wird direkt normalisiert (item 2 im Fix), spelling-Varianten
+    # (Bosporus/Bosphorus etc.) laufen weiterhin über die dokumentierte
+    # Alias-Tabelle in config/port_universe.yaml.
+    m = _STRAIT_OF_RE.match(s)
+    if m:
+        s = f"{m.group(1)} strait"
     return s
+
+
+def close_name_matches(name: str, candidate_names: Iterable[str], k: int = 3) -> list[str]:
+    """Top-`k` Kandidaten aus `candidate_names` nach normalisierter
+    String-Ähnlichkeit zu `name` -- rein diagnostisch (item 3 im Fix), wird
+    NIE zum automatischen Matchen benutzt, nur zum Anzeigen in Diagnostics."""
+    target = normalize_name(name)
+    scored = sorted(
+        {c for c in candidate_names if c},
+        key=lambda c: difflib.SequenceMatcher(None, target, normalize_name(c)).ratio(),
+        reverse=True,
+    )
+    return scored[:k]
 
 
 @dataclass
@@ -501,11 +666,19 @@ def resolve_entities_by_name(
     id_field: str,
     name_field: str,
     country_field: str | None = "country",
+    alias_map: dict[str, list[str]] | None = None,
 ) -> list[ResolvedEntity]:
     """Matched eine gewünschte Liste {name, country?} gegen Referenz-Layer-
     Features (exakter, normalisierter Name; bei mehreren Treffern zusätzlich
     nach Land gefiltert). Kein Fuzzy-Raten -- unklare Fälle werden als
-    'ambiguous' bzw. 'no_match' zurückgegeben, nie mit einer geratenen ID."""
+    'ambiguous' bzw. 'no_match' zurückgegeben, nie mit einer geratenen ID.
+
+    `alias_map` (kuratierter Name -> Liste dokumentierter Alias-Namen, siehe
+    config/port_universe.yaml `chokepoint_aliases`) wird NUR gegen Namen
+    gematcht, die tatsächlich im offiziellen Referenz-Layer vorkommen --
+    es wird nie eine ID vergeben, ohne dass ein normalisierter Name (Original
+    oder dokumentierter Alias) exakt in `reference_features` gefunden wurde."""
+    alias_map = alias_map or {}
     index: dict[str, list[dict]] = {}
     for feat in reference_features:
         attrs = feat.get("attributes", feat)
@@ -516,8 +689,16 @@ def resolve_entities_by_name(
     for item in wanted:
         name = item["name"]
         country = item.get("country")
-        norm = normalize_name(name)
-        matches = index.get(norm, [])
+        candidate_norms = [normalize_name(name)] + [
+            normalize_name(a) for a in alias_map.get(name, [])
+        ]
+        matches: list[dict] = []
+        norm = candidate_norms[0]
+        for cand_norm in candidate_norms:
+            matches = index.get(cand_norm, [])
+            if matches:
+                norm = cand_norm
+                break
         if not matches:
             results.append(ResolvedEntity(name, country, None, "no_match", []))
             continue
@@ -556,6 +737,16 @@ def flatten_port_universe(universe: dict) -> list[dict]:
 
 def flatten_chokepoint_universe(universe: dict) -> list[dict]:
     return [{"name": c["name"], "country": c.get("country")} for c in (universe.get("chokepoints") or [])]
+
+
+def load_chokepoint_aliases(universe: dict) -> dict[str, list[str]]:
+    """Dokumentierte Namens-Alias-Tabelle aus config/port_universe.yaml
+    (`chokepoint_aliases`) -- z.B. Schreibvarianten wie Bosporus/Bosphorus,
+    die reine Normalisierung nicht auflösen kann. Wird NIE erraten, nur
+    gegen tatsächlich im offiziellen Chokepoints-Layer vorhandene Namen
+    gematcht (siehe resolve_entities_by_name)."""
+    raw = universe.get("chokepoint_aliases") or {}
+    return {k: list(v) for k, v in raw.items()}
 
 
 # --------------------------------------------------------------------------
@@ -716,16 +907,33 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
             )
 
-            ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
-            ref_schema = resolve_ports_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
-            ref_out_fields = [ref_schema["id_field"], ref_schema["name_field"]]
-            if ref_schema.get("country_field"):
-                ref_out_fields.append(ref_schema["country_field"])
-            ref_features = query_features(
-                ref_ep["service_url"], ref_ep["layer_id"], "1=1",
-                ref_out_fields, self._fetch,
-                max_record_count=ref_meta.get("maxRecordCount", 2000),
-            )
+            if ref_ep.get("fallback_to_daily_layer"):
+                # Ports-Referenz-Layer konnte nicht org-verifiziert gefunden
+                # werden (item 1 im Fix) -> Id/Name/Land werden per
+                # Distinct-Values-Query direkt aus dem Daily-Ports-Layer
+                # abgeleitet (der Layer trägt portid & portname ohnehin).
+                ref_schema = {
+                    "id_field": schema["id_field"], "name_field": schema["name_field"],
+                    "country_field": schema.get("country_field"),
+                }
+                ref_out_fields = [ref_schema["id_field"], ref_schema["name_field"]]
+                if ref_schema.get("country_field"):
+                    ref_out_fields.append(ref_schema["country_field"])
+                ref_features = query_distinct_values(
+                    ep["service_url"], ep["layer_id"], ref_out_fields, self._fetch,
+                    max_record_count=max_rc,
+                )
+            else:
+                ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
+                ref_schema = resolve_ports_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
+                ref_out_fields = [ref_schema["id_field"], ref_schema["name_field"]]
+                if ref_schema.get("country_field"):
+                    ref_out_fields.append(ref_schema["country_field"])
+                ref_features = query_features(
+                    ref_ep["service_url"], ref_ep["layer_id"], "1=1",
+                    ref_out_fields, self._fetch,
+                    max_record_count=ref_meta.get("maxRecordCount", 2000),
+                )
             universe = load_port_universe(self._universe_path)
             wanted = flatten_port_universe(universe)
             resolved = resolve_entities_by_name(
@@ -734,6 +942,18 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}
+            available_ports = sorted({
+                str(f.get("attributes", f).get(ref_schema["name_field"], ""))
+                for f in ref_features
+            } - {""})
+            diagnostics = {
+                "available_ports": available_ports[:60],
+                "n_available_ports": len(available_ports),
+                "ports_reference_fallback_to_daily_layer": bool(ref_ep.get("fallback_to_daily_layer")),
+                "unresolved_ports_close_matches": {
+                    name: close_name_matches(name, available_ports) for name in unresolved
+                },
+            }
 
             retrieved_at = now
             observations: list[Observation] = []
@@ -750,7 +970,10 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 source_id=self.source_id, status=status, observations=observations, raw=raw,
                 message=f"{len(observations)} observations; {len(unresolved)} unresolved ports: {sorted(unresolved)}",
                 latest_observation_time=latest,
-                discovered_ids={"ports": discovered_ids, "unresolved_ports": unresolved},
+                discovered_ids={
+                    "ports": discovered_ids, "unresolved_ports": unresolved,
+                    "diagnostics": diagnostics,
+                },
             )
         except SchemaError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
@@ -786,20 +1009,45 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
             )
 
-            ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
-            ref_schema = resolve_chokepoints_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
-            ref_features = query_features(
-                ref_ep["service_url"], ref_ep["layer_id"], "1=1",
-                [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
-                max_record_count=ref_meta.get("maxRecordCount", 2000),
-            )
+            if ref_ep.get("fallback_to_daily_layer"):
+                # Chokepoints-Referenz-Layer nicht org-verifiziert gefunden
+                # -> Id/Name per Distinct-Values-Query aus dem
+                # Daily-Chokepoints-Layer selbst ableiten.
+                ref_schema = {"id_field": schema["id_field"], "name_field": schema["name_field"]}
+                ref_features = query_distinct_values(
+                    ep["service_url"], ep["layer_id"],
+                    [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
+                    max_record_count=max_rc,
+                )
+            else:
+                ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
+                ref_schema = resolve_chokepoints_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
+                ref_features = query_features(
+                    ref_ep["service_url"], ref_ep["layer_id"], "1=1",
+                    [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
+                    max_record_count=ref_meta.get("maxRecordCount", 2000),
+                )
             universe = load_port_universe(self._universe_path)
             wanted = flatten_chokepoint_universe(universe)
+            alias_map = load_chokepoint_aliases(universe)
             resolved = resolve_entities_by_name(
                 wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"], country_field=None,
+                alias_map=alias_map,
             )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}
+            available_chokepoints = sorted({
+                str(f.get("attributes", f).get(ref_schema["name_field"], ""))
+                for f in ref_features
+            } - {""})
+            diagnostics = {
+                "available_chokepoints": available_chokepoints[:60],
+                "n_available_chokepoints": len(available_chokepoints),
+                "chokepoints_reference_fallback_to_daily_layer": bool(ref_ep.get("fallback_to_daily_layer")),
+                "unresolved_chokepoints_close_matches": {
+                    name: close_name_matches(name, available_chokepoints) for name in unresolved
+                },
+            }
 
             retrieved_at = now
             observations: list[Observation] = []
@@ -816,7 +1064,10 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 source_id=self.source_id, status=status, observations=observations, raw=raw,
                 message=f"{len(observations)} observations; {len(unresolved)} unresolved chokepoints: {sorted(unresolved)}",
                 latest_observation_time=latest,
-                discovered_ids={"chokepoints": discovered_ids, "unresolved_chokepoints": unresolved},
+                discovered_ids={
+                    "chokepoints": discovered_ids, "unresolved_chokepoints": unresolved,
+                    "diagnostics": diagnostics,
+                },
             )
         except SchemaError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,

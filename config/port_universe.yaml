@@ -103,6 +103,29 @@ chokepoints:
     country: "Turkey"
     slug: bosporus
 
+# Chokepoint-Name-Alias-Tabelle (item 2 des PW2-Fixes).
+# Reine Wortstellung ("Strait of X" <-> "X Strait") wird bereits im Code
+# normalisiert (normalize_name); diese Tabelle deckt echte
+# Schreib-/Bezeichnungsvarianten ab, die keine reine Normalisierung lösen
+# kann. Matching ist case-/punctuation-insensitiv (normalize_name) und wird
+# NUR gegen Namen akzeptiert, die tatsächlich im offiziellen PortWatch-
+# Chokepoints-Referenz-Layer vorkommen (siehe discovered_ids["diagnostics"]
+# ["available_chokepoints"] im Preflight-Report) -- nie geraten.
+chokepoint_aliases:
+  "Malacca Strait":
+    - "Strait of Malacca"
+  "Taiwan Strait":
+    - "Strait of Taiwan"
+  "Gibraltar Strait":
+    - "Strait of Gibraltar"
+  "Bosporus Strait":
+    - "Strait of Bosporus"
+    - "Bosphorus Strait"
+    - "Strait of Bosphorus"
+    - "Bosporus"
+    - "Bosphorus"
+    - "Turkish Straits"
+
 # Feature-Konfiguration (item 7 Defaults; hier zentral, nicht im Code
 # hart verdrahtet, damit sie ohne Code-Änderung angepasst werden können).
 feature_config:
