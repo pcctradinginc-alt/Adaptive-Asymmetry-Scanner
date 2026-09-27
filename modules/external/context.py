@@ -22,7 +22,7 @@ from __future__ import annotations
 import hashlib
 import json
 import statistics
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -282,7 +282,7 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
         forecast_obs = _load_observations(archive, "nws_forecast", now)
         alert_obs = _load_observations(archive, "nws_alerts", now)
         normals_obs = _load_observations(archive, "ncei_normals", now)
-        storm_obs = _load_observations(archive, "nhc_storms", now)
+        storm_obs = current_storm_observations(_load_observations(archive, "nhc_storms", now), now)
 
         as_of_date = ensure_utc(now).date()
         temp_daily = wf.daily_temperature_aggregates(forecast_obs)
@@ -314,8 +314,10 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
 
         pc = wf.pc_insurance_features([], alert_obs, storm_obs)
         out["active_tropical_system"] = pc.get("active_tropical_system")
-        # Distanz der AKTUELLEN Sturmposition (NHC lat/lon) zur nächsten
-        # kuratierten US-Küsten-Expositionsregion. Ohne Position -> None.
+        # Minimale Distanz über AKTUELLE Sturmposition (NHC lat/lon) UND
+        # den geparsten Forecast-Track (aus dem offiziellen Forecast/
+        # Advisory-Text, siehe weather.py) zur nächsten kuratierten
+        # US-Küsten-Expositionsregion. Ohne Position/Track -> None.
         out["tropical_min_distance_km"] = _tropical_min_distance_km(storm_obs)
 
         alert_entities = {o.entity_id for o in alert_obs if o.metric == "alert_count"}
@@ -337,18 +339,90 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
 TROPICAL_NEAR_EXPOSURE_KM = 1000.0
 
 
+NHC_MARKER_MAX_AGE = timedelta(hours=48)   # täglicher Abruf + Puffer
+
+
+def current_storm_observations(storm_obs, now: datetime) -> list:
+    """Nur Stürme, die im JÜNGSTEN bis `now` verfügbaren NHC-Abruf aktiv
+    waren. Das Archiv hält die ganze Historie; ohne diesen Filter zählten
+    längst aufgelöste Stürme weiter als 'aktiv'. Grundlage ist der
+    Abruf-Marker (dataset fetch_summary), den jeder Abruf schreibt, auch
+    bei 0 Stürmen. Kein Marker oder Marker älter als NHC_MARKER_MAX_AGE
+    -> [] (unbekannt, nicht 'kein Sturm'). Je Sturm und Metrik bleibt nur
+    die jüngste Beobachtung (active_storms); Track-Punkte bleiben komplett,
+    die jüngste Advisory wählt _tropical_min_distance_km."""
+    from modules.external.sources.weather import FETCH_SUMMARY_DATASET
+    storm_obs = list(storm_obs or [])
+    markers = [o for o in storm_obs if o.dataset == FETCH_SUMMARY_DATASET]
+    if not markers:
+        return []
+    marker = max(markers, key=lambda o: o.available_at)
+    if ensure_utc(now) - marker.available_at > NHC_MARKER_MAX_AGE:
+        return []
+    ids = set((marker.attrs or {}).get("active_storm_ids") or [])
+    latest: dict = {}
+    out = [marker]
+    for o in storm_obs:
+        if o.dataset == FETCH_SUMMARY_DATASET or o.series_id not in ids:
+            continue
+        if o.dataset == "active_storms":
+            k = (o.series_id, o.metric)
+            cur = latest.get(k)
+            if cur is None or (o.observation_time, o.available_at) > (cur.observation_time, cur.available_at):
+                latest[k] = o
+        else:
+            out.append(o)
+    return out + list(latest.values())
+
+
 def _tropical_min_distance_km(storm_obs) -> float | None:
+    """Minimale Distanz über AKTUELLE Sturmposition (metric 'lat'/'lon')
+    UND geparsten Forecast-Track-Punkten (metric 'track_lat'/'track_lon',
+    aus dem offiziellen Forecast/Advisory-TEXT, siehe weather.py
+    parse_forecast_advisory_text) zu einer kuratierten US-Küsten-
+    Expositionsregion. `storm_obs` ist bereits PIT-gefiltert
+    (available_at <= as_of, siehe archive.as_of/_load_observations) --
+    je Sturm zählt nur die JÜNGSTE bis dahin verfügbare Advisory (höchste
+    forecast_issue_time unter den verfügbaren Track-Punkten dieses Sturms),
+    ältere Advisories desselben Sturms werden ignoriert."""
     try:
         from modules.external.sources.weather import haversine_km, load_weather_locations
         regions = load_weather_locations().get("coastal_exposure_regions", []) or []
     except Exception:
         return None
-    pos: dict[str, dict] = {}
+
+    # ── aktuelle Position je Sturm (series_id) ──────────────────────────────
+    current_pos: dict[str, dict] = {}
     for o in storm_obs or []:
         if o.metric in ("lat", "lon") and o.value is not None:
-            pos.setdefault(o.series_id, {})[o.metric] = o.value
+            current_pos.setdefault(o.series_id, {})[o.metric] = o.value
+
+    # ── neueste verfügbare Advisory je Sturm bestimmen (höchste
+    # forecast_issue_time unter den bis 'as_of' verfügbaren Track-Punkten) ──
+    latest_issue_time: dict[str, Any] = {}
+    for o in storm_obs or []:
+        if o.metric not in ("track_lat", "track_lon") or o.forecast_issue_time is None:
+            continue
+        cur = latest_issue_time.get(o.series_id)
+        if cur is None or o.forecast_issue_time > cur:
+            latest_issue_time[o.series_id] = o.forecast_issue_time
+
+    # ── Track-Punkte (lat/lon je forecast_valid_time) NUR aus der jeweils
+    # neuesten Advisory je Sturm ─────────────────────────────────────────────
+    track_pos: dict[tuple[str, Any], dict] = {}
+    for o in storm_obs or []:
+        if o.metric not in ("track_lat", "track_lon") or o.value is None:
+            continue
+        if o.forecast_issue_time != latest_issue_time.get(o.series_id):
+            continue
+        key = (o.series_id, o.forecast_valid_time)
+        field = "lat" if o.metric == "track_lat" else "lon"
+        track_pos.setdefault(key, {})[field] = o.value
+
+    all_points: list[dict] = list(current_pos.values()) + list(track_pos.values())
+
     best = None
-    for p_ in pos.values():
+    for p_ in all_points:
         if "lat" not in p_ or "lon" not in p_:
             continue
         for r in regions:

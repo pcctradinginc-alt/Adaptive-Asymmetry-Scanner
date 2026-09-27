@@ -793,24 +793,244 @@ class NhcSchemaError(Exception):
         self.diagnostics = diagnostics or {}
 
 
+FETCH_SUMMARY_DATASET = "fetch_summary"
+
+
+class NhcAdvisoryParseError(Exception):
+    """Der Text eines Forecast/Advisory-Produkts (TCM, z.B. MIATCMAT#) passt
+    nicht mehr auf das erwartete Zeilenformat (FORECAST/OUTLOOK VALID ...).
+    Wird pro Sturm gefangen: nur DIESER Sturm verliert seinen Forecast-Track
+    (die Observation bekommt attrs['advisory_status']='SCHEMA_CHANGED'),
+    andere Stürme und der Rest der Pipeline laufen unbeeinflusst weiter --
+    nie eine Exception aus parse_current_storms() heraus für dieses Problem."""
+
+
+# CurrentStorms.json.activeStorms[i].forecastTrack ist LIVE nur ein Verweis
+# auf ein GIS-Produkt (KMZ/Shapefile-ZIP), keine Punktliste -- siehe NHC-API-
+# Dokumentation. Die tatsächliche Vorhersagespur kommt daher aus dem
+# offiziellen Forecast/Advisory-TEXT-Produkt (TCM), dessen URL+Issuance im
+# Feld 'forecastAdvisory' steht: {"advNum", "issuance", "url"}. VERIFY live:
+# Feldname/-form kann sich ändern (siehe NhcAdvisoryParseError-Handling).
+
+# Zeilen wie "FORECAST VALID 28/0000Z 17.5N 105.2W" bzw.
+# "OUTLOOK VALID 30/0000Z 20.0N 110.0W" bzw.
+# "EXTENDED FORECAST VALID 29/1200Z 22.0N 108.0W".
+_ADVISORY_VALID_RE = re.compile(
+    r"(?P<kind>EXTENDED\s+FORECAST|FORECAST|OUTLOOK)\s+VALID\s+"
+    r"(?P<day>\d{2})/(?P<hour>\d{2})(?P<minute>\d{2})Z\s+"
+    r"(?P<lat>\d{1,2}\.\d)(?P<lat_hemi>[NS])\s+"
+    r"(?P<lon>\d{1,3}\.\d)(?P<lon_hemi>[EW])",
+    re.IGNORECASE,
+)
+
+# Aktuelle Position: "INITIAL 26/2100Z 25.5N 84.0W" (Tag/Zeit VOR Position)
+_ADVISORY_INIT_RE = re.compile(
+    r"INIT(?:IAL)?\s+"
+    r"(?P<day>\d{2})/(?P<hour>\d{2})(?P<minute>\d{2})Z\s+"
+    r"(?P<lat>\d{1,2}\.\d)(?P<lat_hemi>[NS])\s+"
+    r"(?P<lon>\d{1,3}\.\d)(?P<lon_hemi>[EW])",
+    re.IGNORECASE,
+)
+
+# Aktuelle Position: "CENTER LOCATED NEAR 25.5N 84.0W AT 26/2100Z" (Position
+# VOR Tag/Zeit; das 'AT dd/hhmmZ' ist optional in manchen Produktvarianten).
+_ADVISORY_CENTER_RE = re.compile(
+    r"CENTER\s+LOCATED\s+NEAR\s+"
+    r"(?P<lat>\d{1,2}\.\d)(?P<lat_hemi>[NS])\s+"
+    r"(?P<lon>\d{1,3}\.\d)(?P<lon_hemi>[EW])"
+    r"(?:\s+AT\s+(?P<day>\d{2})/(?P<hour>\d{2})(?P<minute>\d{2})Z)?",
+    re.IGNORECASE,
+)
+
+# "MAX WIND  85 KT...GUSTS 105 KT." (GUSTS-Teil optional/variable Wortform).
+_ADVISORY_MAX_WIND_RE = re.compile(
+    r"MAX(?:IMUM)?\s+(?:SUSTAINED\s+)?WIND[S]?\s+(?P<wind>\d{2,3})\s*KT"
+    r"(?:\s*\.{0,3}\s*GUSTS?(?:\s+TO)?\s*(?P<gust>\d{2,3})\s*KT)?",
+    re.IGNORECASE,
+)
+
+# Windradien-Zeile: "64 KT... 30NE  20SE  15SW  25NW."
+_ADVISORY_WIND_RADII_RE = re.compile(
+    r"^\s*(?P<thresh>\d{2,3})\s*KT\.{0,3}\s*"
+    r"(?P<ne>\d{1,3})NE\s+(?P<se>\d{1,3})SE\s+(?P<sw>\d{1,3})SW\s+(?P<nw>\d{1,3})NW",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+
+def _dd_hemi_to_signed(num_str: str, hemi: str) -> float:
+    val = float(num_str)
+    return -val if hemi.upper() in ("S", "W") else val
+
+
+def _advisory_valid_time(day: int, hour: int, minute: int, issuance: datetime) -> datetime:
+    """DD/HHMMZ -> UTC-datetime relativ zur Advisory-Issuance. Monats-
+    (und ggf. Jahres-)Übergang: TCM-Vorhersagehorizonte sind <= 5 Tage, daher
+    heißt ein Vorhersage-Tag < Issuance-Tag zuverlässig 'nächster Monat'
+    (z.B. Issuance 30. Sep, VALID 01/... -> 1. Okt). VERIFY: reine
+    Heuristik, kein expliziter Monats-/Jahresfeld im TCM-Text vorhanden."""
+    issuance = ensure_utc(issuance)
+    year, month = issuance.year, issuance.month
+    if day < issuance.day:
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+    return datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
+
+
+def _extract_advisory_wind_radii(block: str) -> dict[str, dict[str, float]]:
+    radii: dict[str, dict[str, float]] = {}
+    for m in _ADVISORY_WIND_RADII_RE.finditer(block):
+        radii[m.group("thresh")] = {
+            "NE": float(m.group("ne")), "SE": float(m.group("se")),
+            "SW": float(m.group("sw")), "NW": float(m.group("nw")),
+        }
+    return radii
+
+
+def _extract_advisory_max_wind(block: str) -> tuple[float | None, float | None]:
+    m = _ADVISORY_MAX_WIND_RE.search(block)
+    if not m:
+        return None, None
+    gust = float(m.group("gust")) if m.group("gust") else None
+    return float(m.group("wind")), gust
+
+
+def _extract_advisory_pre_text(raw_text: str) -> str:
+    """Der Forecast/Advisory-Text wird meist als HTML-Seite mit einem
+    <pre>-Block ausgeliefert (z.B. nhc.noaa.gov/text/...shtml); ist bereits
+    reiner Text (kein <pre>-Tag gefunden, z.B. in Tests), wird er
+    unverändert zurückgegeben."""
+    m = re.search(r"<pre[^>]*>(.*?)</pre>", raw_text, re.IGNORECASE | re.DOTALL)
+    body = m.group(1) if m else raw_text
+    import html as _html
+    return _html.unescape(body)
+
+
+def parse_forecast_advisory_points(text: str, issuance: datetime) -> list[dict]:
+    """Reine Text-Parse-Logik (kein HTML/HTTP): zerlegt den TCM-Volltext in
+    Absätze (leerzeilengetrennt) und extrahiert je Absatz höchstens einen
+    Track-Punkt (FORECAST/OUTLOOK/EXTENDED FORECAST VALID, oder die
+    aktuelle Position über INITIAL/CENTER LOCATED NEAR). Nie ein KeyError/
+    IndexError nach außen: unlesbarer Text (kein einziger erkannter Punkt)
+    -> NhcAdvisoryParseError (Aufrufer entscheidet SCHEMA_CHANGED-Handling)."""
+    issuance = ensure_utc(issuance)
+    if issuance is None:
+        raise NhcAdvisoryParseError("issuance fehlt oder ist ungültig")
+
+    points: list[dict] = []
+    for block in re.split(r"\n\s*\n", text or ""):
+        m = _ADVISORY_VALID_RE.search(block)
+        if m:
+            kind_raw = m.group("kind").upper()
+            kind = "outlook" if kind_raw == "OUTLOOK" else "forecast"
+        else:
+            m = _ADVISORY_INIT_RE.search(block) or _ADVISORY_CENTER_RE.search(block)
+            kind = "initial"
+            if m is None or m.group("day") is None:
+                continue  # kein Track-Punkt in diesem Absatz -- kein Fehler
+        try:
+            lat = _dd_hemi_to_signed(m.group("lat"), m.group("lat_hemi"))
+            lon = _dd_hemi_to_signed(m.group("lon"), m.group("lon_hemi"))
+            valid_time = _advisory_valid_time(
+                int(m.group("day")), int(m.group("hour")), int(m.group("minute")), issuance)
+        except (TypeError, ValueError):
+            continue
+        wind, gust = _extract_advisory_max_wind(block)
+        points.append({
+            "kind": kind, "valid_time": valid_time, "lat": lat, "lon": lon,
+            "max_wind_kt": wind, "gust_kt": gust,
+            "wind_radii_nm": _extract_advisory_wind_radii(block),
+        })
+
+    if not points:
+        raise NhcAdvisoryParseError(
+            "keine FORECAST/OUTLOOK/INITIAL-Zeilen im Advisory-Text gefunden "
+            "(Textformat hat sich vermutlich geändert)"
+        )
+    return points
+
+
+def parse_forecast_advisory_text(raw_text: str, storm_id: str, issuance: datetime,
+                                  adv_num: str | None, retrieved_at: datetime,
+                                  source_id: str = "nhc_storms",
+                                  parser_version: str = PARSER_VERSION) -> list[Observation]:
+    """HTML-oder-Text-Forecast/Advisory (TCM) -> Observations (track_lat,
+    track_lon, track_max_wind_kt) je Track-Punkt (Issuance-Zeitpunkt =
+    forecast_issue_time, geparste VALID-Zeit = forecast_valid_time,
+    EXACT_TIMESTAMP, attrs={'kind': 'forecast'|'outlook'|'initial',
+    'advisory': adv_num}). Wirft NhcAdvisoryParseError bei unlesbarem Text
+    (Aufrufer fängt das pro Sturm ab, siehe parse_current_storms)."""
+    body = _extract_advisory_pre_text(raw_text)
+    points = parse_forecast_advisory_points(body, issuance)
+    return _advisory_points_to_observations(
+        points, storm_id, issuance, adv_num, retrieved_at,
+        source_id=source_id, parser_version=parser_version,
+    )
+
+
+def _advisory_points_to_observations(points: list[dict], storm_id: str, issuance: datetime,
+                                      adv_num: str | None, retrieved_at: datetime,
+                                      source_id: str, parser_version: str) -> list[Observation]:
+    retrieved_at = ensure_utc(retrieved_at) or utc_now()
+    issuance = ensure_utc(issuance)
+    observations: list[Observation] = []
+    for pt in points:
+        attrs = {"kind": pt["kind"], "advisory": adv_num}
+        if pt.get("gust_kt") is not None:
+            attrs["gust_kt"] = pt["gust_kt"]
+        if pt.get("wind_radii_nm"):
+            attrs["wind_radii_nm"] = pt["wind_radii_nm"]
+        common = dict(
+            source_id=source_id, dataset="forecast_track", series_id=storm_id,
+            entity_id=storm_id, observation_time=pt["valid_time"],
+            available_at=retrieved_at, retrieved_at=retrieved_at,
+            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+            parser_version=parser_version, source_release_time=issuance,
+            forecast_issue_time=issuance, forecast_valid_time=pt["valid_time"],
+        )
+        if pt.get("lat") is not None:
+            observations.append(Observation(metric="track_lat", value=pt["lat"], unit="deg",
+                                             attrs=dict(attrs), **common))
+        if pt.get("lon") is not None:
+            observations.append(Observation(metric="track_lon", value=pt["lon"], unit="deg",
+                                             attrs=dict(attrs), **common))
+        if pt.get("max_wind_kt") is not None:
+            observations.append(Observation(metric="track_max_wind_kt", value=pt["max_wind_kt"],
+                                             unit="kt", attrs=dict(attrs), **common))
+    return observations
+
+
 def parse_current_storms(storms_json: dict, retrieved_at: datetime,
                           exposure_regions: list[dict] | None = None,
+                          advisory_texts: dict[str, str] | None = None,
                           source_id: str = "nhc_storms",
                           parser_version: str = PARSER_VERSION) -> list[Observation]:
-    """CurrentStorms.json -> Observations je aktivem Sturm. Wenn
-    exposure_regions übergeben werden UND der Sturm Forecast-Track-Punkte
-    enthält (Feld 'forecastTrack', Liste von {lat, lon, validTime}), wird die
-    minimale Distanz zu jeder Region berechnet; sonst bleibt distance_km auf
-    None (Limitation: CurrentStorms.json selbst liefert i.d.R. keine
-    strukturierten Forecast-Punkte – volles GIS-Parsing der Advisory-
-    Produkte ist hier bewusst NICHT implementiert, siehe Registry-Notes).
+    """CurrentStorms.json -> Observations je aktivem Sturm.
+
+    `advisory_texts` (optional): {storm_id: roher HTML/Text-Body des
+    Forecast/Advisory-Produkts (TCM), bereits abgerufen -- I/O passiert NUR
+    im Connector, diese Funktion bleibt pur/testbar}. Wenn für einen Sturm
+    sowohl ein 'forecastAdvisory'-Objekt ({advNum, issuance, url}) im JSON
+    ALS AUCH ein Eintrag in advisory_texts vorliegt, wird daraus der echte
+    Forecast-Track (FORECAST/OUTLOOK VALID-Punkte, siehe
+    parse_forecast_advisory_text) geparst und archiviert; min_track_distance_km
+    + hours_until_closest_approach werden über Track-Punkte + aktuelle
+    Position berechnet. min_distance_to_exposure_km bleibt (unverändert)
+    die Distanz NUR der aktuellen Sturmposition.
+
+    CurrentStorms.json.forecastTrack selbst ist LIVE nur ein GIS-Verweis
+    (KMZ/ZIP), keine Punktliste -- wird hier nicht mehr verwendet.
 
     Robust gegenüber unerwarteten Formen: ein nicht-dict Top-Level-Objekt
     oder ein 'activeStorms', das keine Liste ist, führt zu NhcSchemaError
     (SCHEMA_CHANGED) statt einer AttributeError/TypeError in der Pipeline.
     Einzelne Nicht-dict-Einträge in activeStorms (z.B. rohe ID-Strings statt
     Objekten) werden übersprungen, nicht als Crash behandelt -- eine leere
-    activeStorms-Liste liefert weiterhin PASS mit 0 Observations."""
+    activeStorms-Liste liefert weiterhin PASS mit 0 Observations. Ein
+    unlesbarer Advisory-Text bricht NUR den Track dieses EINEN Sturms
+    (attrs['advisory_status']='SCHEMA_CHANGED' auf den Track-Distanz-
+    Observations), nie die ganze Funktion."""
     if not isinstance(storms_json, dict):
         raise NhcSchemaError(
             f"CurrentStorms.json: Top-Level ist kein Objekt, sondern {type(storms_json).__name__}.",
@@ -832,6 +1052,7 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
     retrieved_at = ensure_utc(retrieved_at) or utc_now()
     observations: list[Observation] = []
     exposure_regions = exposure_regions or []
+    advisory_texts = advisory_texts or {}
 
     for storm in active_storms:
         if not isinstance(storm, dict):
@@ -887,44 +1108,122 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
             ))
 
         wsp = storm.get("windSpeedProbabilities")
-        forecast_track = storm.get("forecastTrack")
-        min_distance_km = None
-        nearest_region = None
-        # Im offiziellen CurrentStorms.json ist forecastTrack ein Verweis
-        # (URL/Objekt auf ein GIS-Produkt), keine Punktliste. Distanz nur
-        # berechnen, wenn tatsächlich eine Liste von Punkt-Dicts vorliegt.
-        if not (isinstance(forecast_track, list)
-                and all(isinstance(p_, dict) for p_ in forecast_track)):
-            forecast_track = None
-        if forecast_track and exposure_regions:
-            for pt in forecast_track:
-                plat, plon = pt.get("lat"), pt.get("lon")
-                if plat is None or plon is None:
-                    continue
-                for region in exposure_regions:
-                    d = haversine_km(float(plat), float(plon), region["lat"], region["lon"])
-                    if min_distance_km is None or d < min_distance_km:
-                        min_distance_km = d
-                        nearest_region = region.get("code")
+
+        # ── aktuelle Position -> nächste Expositionsregion (unverändert) ────
+        current_min_distance_km = None
+        current_nearest_region = None
+        if lat is not None and lon is not None:
+            for region in exposure_regions:
+                d = haversine_km(lat, lon, region["lat"], region["lon"])
+                if current_min_distance_km is None or d < current_min_distance_km:
+                    current_min_distance_km = d
+                    current_nearest_region = region.get("code")
 
         observations.append(Observation(
             source_id=source_id, dataset="active_storms", series_id=storm_id,
             entity_id=storm_id, metric="min_distance_to_exposure_km",
-            value=min_distance_km, unit="km",
+            value=current_min_distance_km, unit="km",
             observation_time=issuance, available_at=retrieved_at, retrieved_at=retrieved_at,
-            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP if min_distance_km is not None
+            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP if current_min_distance_km is not None
                 else AvailabilityPrecision.UNKNOWN,
             parser_version=parser_version, source_release_time=issuance, forecast_issue_time=issuance,
             attrs={
-                "nearest_region": nearest_region,
-                "limitation": None if forecast_track else (
-                    "CurrentStorms.json enthielt keine forecastTrack-Punkte; "
-                    "volles GIS/Text-Parsing der Advisory-Produkte ist nicht implementiert"
-                ),
+                "nearest_region": current_nearest_region,
+                "limitation": None if lat is not None and lon is not None else "keine aktuelle Sturmposition",
                 "wind_speed_probability_product_url": (wsp or {}).get("url") if isinstance(wsp, dict) else None,
                 "wind_speed_probability_issuance": (wsp or {}).get("issuance") if isinstance(wsp, dict) else None,
             },
         ))
+
+        # ── Forecast-Track (aus Forecast/Advisory-TEXT) -> min. Distanz +
+        # Stunden bis zur größten Annäherung ────────────────────────────────
+        fc_adv = storm.get("forecastAdvisory")
+        adv_issuance = issuance
+        adv_num = None
+        advisory_status = None
+        advisory_error = None
+        track_points: list[dict] = []
+        if isinstance(fc_adv, dict):
+            adv_issuance = ensure_utc(fc_adv.get("issuance")) or issuance
+            adv_num = fc_adv.get("advNum")
+            raw_text = advisory_texts.get(storm_id)
+            if raw_text:
+                try:
+                    track_obs = parse_forecast_advisory_text(
+                        raw_text, storm_id, adv_issuance, adv_num, retrieved_at,
+                        source_id=source_id, parser_version=parser_version,
+                    )
+                    observations.extend(track_obs)
+                    body = _extract_advisory_pre_text(raw_text)
+                    track_points = parse_forecast_advisory_points(body, adv_issuance)
+                except NhcAdvisoryParseError as e:
+                    advisory_status = "SCHEMA_CHANGED"
+                    advisory_error = str(e)
+            elif fc_adv.get("url"):
+                advisory_status = "NO_TEXT_FETCHED"
+                advisory_error = "forecastAdvisory.url vorhanden, aber kein Advisory-Text abgerufen/übergeben"
+
+        track_min_distance_km = None
+        track_nearest_region = None
+        closest_time = None
+        candidate_points: list[tuple[float, float, datetime]] = []
+        if lat is not None and lon is not None:
+            candidate_points.append((lat, lon, adv_issuance or retrieved_at))
+        for pt in track_points:
+            if pt.get("lat") is not None and pt.get("lon") is not None:
+                candidate_points.append((pt["lat"], pt["lon"], pt["valid_time"]))
+        if candidate_points and exposure_regions:
+            for plat, plon, ptime in candidate_points:
+                for region in exposure_regions:
+                    d = haversine_km(plat, plon, region["lat"], region["lon"])
+                    if track_min_distance_km is None or d < track_min_distance_km:
+                        track_min_distance_km = d
+                        track_nearest_region = region.get("code")
+                        closest_time = ptime
+
+        hours_until_closest_approach = None
+        if closest_time is not None:
+            hours_until_closest_approach = (closest_time - retrieved_at).total_seconds() / 3600.0
+
+        track_attrs = {
+            "nearest_region": track_nearest_region,
+            "advisory": adv_num,
+            "advisory_status": advisory_status,
+            "advisory_error": advisory_error,
+            "n_track_points": len(track_points),
+        }
+        observations.append(Observation(
+            source_id=source_id, dataset="active_storms", series_id=storm_id,
+            entity_id=storm_id, metric="min_track_distance_km",
+            value=track_min_distance_km, unit="km",
+            observation_time=issuance, available_at=retrieved_at, retrieved_at=retrieved_at,
+            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP if track_min_distance_km is not None
+                else AvailabilityPrecision.UNKNOWN,
+            parser_version=parser_version, source_release_time=issuance, forecast_issue_time=issuance,
+            attrs=dict(track_attrs),
+        ))
+        observations.append(Observation(
+            source_id=source_id, dataset="active_storms", series_id=storm_id,
+            entity_id=storm_id, metric="hours_until_closest_approach",
+            value=hours_until_closest_approach, unit="h",
+            observation_time=issuance, available_at=retrieved_at, retrieved_at=retrieved_at,
+            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP if hours_until_closest_approach is not None
+                else AvailabilityPrecision.UNKNOWN,
+            parser_version=parser_version, source_release_time=issuance, forecast_issue_time=issuance,
+            attrs=dict(track_attrs),
+        ))
+    # ── Abruf-Marker: EINE Observation je Abruf (auch bei 0 Stürmen), mit
+    # der Liste der in DIESEM Abruf aktiven Sturm-IDs. Der Kontext nutzt nur
+    # den jüngsten bis as_of verfügbaren Marker, um aufgelöste Stürme aus
+    # früheren Abrufen auszuschließen (das Archiv hält die ganze Historie).
+    active_ids = sorted({o.series_id for o in observations if o.dataset == "active_storms"})
+    observations.append(Observation(
+        source_id=source_id, dataset=FETCH_SUMMARY_DATASET, series_id="nhc_current_storms",
+        entity_id="", metric="active_storm_count", value=float(len(active_ids)), unit="count",
+        observation_time=retrieved_at, available_at=retrieved_at, retrieved_at=retrieved_at,
+        availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+        parser_version=parser_version, attrs={"active_storm_ids": active_ids},
+    ))
     return observations
 
 
@@ -972,8 +1271,37 @@ class NhcStormsConnector(Connector):
                 }},
             )
 
+        # Forecast/Advisory-TEXT je aktivem Sturm holen (I/O bleibt hier im
+        # Connector; parse_current_storms bekommt nur die fertigen Texte,
+        # damit sie pur/testbar bleibt). Ein einzelner fehlgeschlagener
+        # Advisory-Abruf bricht nie den ganzen Fetch -- der betroffene Sturm
+        # bekommt schlicht keinen Forecast-Track (siehe parse_current_storms).
+        advisory_texts: dict[str, str] = {}
+        active_storms_raw = storms_json.get("activeStorms") if isinstance(storms_json, dict) else None
+        if isinstance(active_storms_raw, list):
+            for storm in active_storms_raw:
+                if not isinstance(storm, dict):
+                    continue
+                storm_id = storm.get("id") or storm.get("binNumber")
+                fc_adv = storm.get("forecastAdvisory")
+                if not storm_id or not isinstance(fc_adv, dict):
+                    continue
+                adv_url = fc_adv.get("url")
+                if not adv_url:
+                    continue
+                try:
+                    adv_res = http.fetch(adv_url, headers=headers)
+                except http.FetchError:
+                    continue
+                raw.append(_to_raw(self.source_id, f"forecast_advisory:{storm_id}", adv_res))
+                try:
+                    advisory_texts[storm_id] = adv_res.content.decode("utf-8", errors="replace")
+                except Exception:
+                    continue
+
         try:
             observations = parse_current_storms(storms_json, res.retrieved_at, exposure_regions,
+                                                 advisory_texts=advisory_texts,
                                                  source_id=self.source_id, parser_version=self.parser_version)
         except NhcSchemaError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
