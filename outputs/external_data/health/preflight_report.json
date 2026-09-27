@@ -109,8 +109,8 @@
         "unresolved_ports_close_matches": {
           "Long Beach": [
             "Palm Beach",
-            "LNG Tangguh",
-            "Montego Bay"
+            "Montego Bay",
+            "LNG Tangguh"
           ],
           "Ningbo(-Zhoushan)": [
             "Zhoushan",
@@ -124,8 +124,8 @@
           ],
           "Qingdao": [
             "Qinhuangdao",
-            "Qingdao Gang",
-            "Qingdao Port"
+            "Qingdao Port",
+            "Qingdao Gang"
           ],
           "Laem Chabang": [
             "Palembang",
@@ -266,9 +266,9 @@
   },
   {
     "source_id": "destatis_truck_toll",
-    "status": "WARN",
-    "n_observations": 0,
-    "latest_observation_time": null,
+    "status": "PASS",
+    "n_observations": 120,
+    "latest_observation_time": "2026-12-01T00:00:00+00:00",
     "endpoints": [
       "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables",
       "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
@@ -276,7 +276,7 @@
     "http_status": [
       200
     ],
-    "message": "0 Beobachtungen aus Tabelle 42191-0001, 119 Zeilen nicht parsebar",
+    "message": "120 Beobachtungen aus Tabelle 42191-0001",
     "discovered_ids": {
       "fallback_table_code_source": "config.expected_table_code (verify in preflight)"
     },
@@ -364,14 +364,14 @@
           "updatedAt": "2026-09-25T17:46:40.000Z"
         },
         {
-          "id": "6zn8-4eyz",
-          "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
-          "updatedAt": "2026-09-25T17:46:49.000Z"
-        },
-        {
           "id": "3w2s-iysp",
           "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
           "updatedAt": "2026-06-10T11:17:47.000Z"
+        },
+        {
+          "id": "6zn8-4eyz",
+          "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
+          "updatedAt": "2026-09-25T17:46:49.000Z"
         },
         {
           "id": "9czv-tjte",
