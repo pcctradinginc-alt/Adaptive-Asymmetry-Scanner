@@ -677,3 +677,21 @@ def test_bts_fred_gated_without_key_and_failures_reset(monkeypatch):
     cfg = next(s for s in SourceRegistry().iter_sources() if s["source_id"] == "bts_freight_tsi")
     assert cfg["requires_auth"] is True and cfg["auth_optional"] is True
     assert gate_source(cfg) == (False, "AUTH_MISSING")
+
+
+def test_portwatch_license_decision_and_attribution():
+    """Menschliche Lizenzentscheidung: privat/nicht-kommerziell, Attribution Pflicht."""
+    from modules.external.registry import SourceRegistry, gate_source
+    from modules.external.reporting import source_attributions, render_markdown_lines
+    cfgs = {s["source_id"]: s for s in SourceRegistry().iter_sources()}
+    for sid in ("imf_portwatch_ports", "imf_portwatch_chokepoints"):
+        c = cfgs[sid]
+        assert c["license_status"] == "OK"
+        assert "non-commercial" in c["usage_restriction"]
+        assert gate_source(c)[0] is True
+    attr = source_attributions()
+    assert any("IMF PortWatch" in a for a in attr)
+    ctx = {"mode": "shadow", "source_health": {"counts": {}, "failing": []},
+           "regional_freight_states": [], "global_maritime_state": None,
+           "chokepoint_anomalies": [], "weather": {}, "candidates": [], "attributions": attr}
+    assert any("IMF PortWatch" in ln for ln in render_markdown_lines(ctx))

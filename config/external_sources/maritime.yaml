@@ -9,11 +9,17 @@
 # gesetzter machine_endpoint überschreibt die Discovery, wird aber als
 # "verify in preflight" markiert, weil er ungeprüft übernommen wird.
 #
-# LIZENZ-HINWEIS (ehrlich, nicht live verifiziert): IMF-Daten sind in der
-# Regel mit Attribution frei nutzbar, aber die exakten PortWatch-
-# Nutzungsbedingungen wurden in diesem Sandbox NICHT gegen
-# https://portwatch.imf.org geprüft. Daher license_status REVIEW_REQUIRED,
-# bis ein Mensch das live bestätigt.
+# LIZENZ-ENTSCHEIDUNG (menschlich, 2026-09-27, Repo-Owner): Nutzung
+# ausschließlich PRIVAT und NICHT-KOMMERZIELL als Research-Tool. Grundlage:
+# IMF Copyright and Terms (https://www.imf.org/en/about/copyright-and-terms,
+# verlinkt von portwatch.imf.org): Daten dürfen heruntergeladen, kopiert,
+# weiterverarbeitet und genutzt werden – mit Quellenangabe, ohne Verfälschung,
+# wesentliche Umformungen kenntlich gemacht. Kommerzielle Wiederverwendung
+# erfordert eine Genehmigung (copyright@imf.org) – bei jeder Änderung des
+# Nutzungszwecks (z.B. Signalverkauf, Fonds, kommerzielles Angebot) MUSS
+# license_status zurück auf REVIEW_REQUIRED und die Genehmigung eingeholt werden.
+# Pflicht-Attribution in Reports: "Source: International Monetary Fund,
+# IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
 
 sources:
   - source_id: imf_portwatch_ports
@@ -25,8 +31,11 @@ sources:
     access_method: "ArcGIS FeatureServer REST (query)"
     requires_auth: false
     auth_env_variable: null
-    license_reference: "PortWatch terms of use (portwatch.imf.org); not independently verified live in this sandbox"
-    license_status: REVIEW_REQUIRED
+    license_reference: "IMF Copyright and Terms (imf.org/en/about/copyright-and-terms): Nutzung mit Attribution; kommerzielle Wiederverwendung genehmigungspflichtig"
+    license_status: OK
+    usage_restriction: "private, non-commercial research only"
+    commercial_use_status_if_known: "requires permission (copyright@imf.org)"
+    attribution: "Source: International Monetary Fund, IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
     frequency: daily
     expected_update_cadence: 7d
     supports_history: true
@@ -45,8 +54,11 @@ sources:
     access_method: "ArcGIS FeatureServer REST (query)"
     requires_auth: false
     auth_env_variable: null
-    license_reference: "PortWatch terms of use (portwatch.imf.org); not independently verified live in this sandbox"
-    license_status: REVIEW_REQUIRED
+    license_reference: "IMF Copyright and Terms (imf.org/en/about/copyright-and-terms): Nutzung mit Attribution; kommerzielle Wiederverwendung genehmigungspflichtig"
+    license_status: OK
+    usage_restriction: "private, non-commercial research only"
+    commercial_use_status_if_known: "requires permission (copyright@imf.org)"
+    attribution: "Source: International Monetary Fund, IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
     frequency: daily
     expected_update_cadence: 7d
     supports_history: true
