@@ -516,15 +516,22 @@ class EurostatIndustrialProductionConnector(_EurostatGenericMonthlyConnector):
             if "index" not in unit_label and not unit.upper().startswith("I"):
                 return None
         nace = dim_parts.get("nace_r2")
-        indic_bt = dim_parts.get("indic_bt")
-        if nace is None or indic_bt is None:
+        if nace is None:
             return None
         nace_label = (dim_label_maps.get("nace_r2", {}).get(nace) or "").lower()
-        indic_label = (dim_label_maps.get("indic_bt", {}).get(indic_bt) or "").lower()
-        if "except construction" not in nace_label:
+        # B-D ist der offizielle Code für "Industry (except construction)";
+        # je nach Label-Version heißt er auch "Mining and quarrying;
+        # manufacturing; electricity, gas, steam ..." (Preflight 2026-09-27:
+        # reine Label-Prüfung fand nichts).
+        if nace != "B-D" and "except construction" not in nace_label:
             return None
-        if "production" not in indic_label:
-            return None
+        # indic_bt existiert nicht in jeder Datensatzversion; falls vorhanden,
+        # muss es der Produktionsindikator sein.
+        indic_bt = dim_parts.get("indic_bt")
+        if indic_bt is not None:
+            indic_label = (dim_label_maps.get("indic_bt", {}).get(indic_bt) or "").lower()
+            if "production" not in indic_label and indic_bt != "PRD":
+                return None
         return "production_volume_index"
 
 

@@ -677,7 +677,15 @@ def parse_normals_response(records: list[dict], station_id: str, location_code: 
         date_raw = rec.get("DATE")
         if not date_raw:
             continue
-        obs_time = ensure_utc(date_raw)
+        date_raw = str(date_raw).strip()
+        if re.fullmatch(r"\d{2}-\d{2}", date_raw):
+            # Normals-Klimatologie ohne Jahr ("MM-DD") -> Platzhalterjahr 2010
+            # (nur Monat/Tag werden ausgewertet, siehe normals_by_month_day)
+            date_raw = f"2010-{date_raw}"
+        try:
+            obs_time = ensure_utc(date_raw)
+        except ValueError:
+            continue
         if obs_time is None:
             continue
         for dt_code in NORMALS_DATATYPES:
@@ -748,14 +756,24 @@ class NceiNormalsConnector(Connector):
                     auth_missing = True
                     continue
                 discovered[loc["code"]] = station
-                res = http.fetch(base_url, params={
+                params = {
                     "dataset": self.cfg.get("dataset", "normals-daily-1991-2020"),
                     # CDO-Stationssuche liefert "GHCND:USC00090444", der
                     # Access-Data-Service erwartet die nackte ID.
                     "stations": str(station["id"]).split(":", 1)[-1],
                     "dataTypes": ",".join(NORMALS_DATATYPES),
                     "format": "json",
-                }, headers=headers)
+                }
+                try:
+                    res = http.fetch(base_url, params=params, headers=headers)
+                except http.FetchError as e:
+                    if "400" not in str(e):
+                        raise
+                    # Preflight 2026-09-27: 400 ohne Datumsbereich. Normals
+                    # sind Klimatologie ohne echtes Jahr; der Service
+                    # verlangt dennoch start/end (Platzhalterjahr 2010).
+                    res = http.fetch(base_url, params={**params, "startDate": "2010-01-01",
+                                                       "endDate": "2010-12-31"}, headers=headers)
                 raw.append(_to_raw(self.source_id, "normals_daily", res))
                 records = res.json()
                 if not isinstance(records, list):

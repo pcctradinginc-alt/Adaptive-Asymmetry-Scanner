@@ -660,3 +660,18 @@ def test_genesis_tablefile_zip_and_cp1252_are_decoded():
     assert rf._decode_genesis_tablefile(buf.getvalue()).startswith("Zeit;Wert")
     assert "Größe" in rf._decode_genesis_tablefile("Größe".encode("cp1252"))
     assert rf._decode_genesis_tablefile(b"PK\x03\x04kaputt") is None
+
+
+def test_genesis_classic_monthly_csv_is_parsed():
+    text = (FIXTURES / "destatis_genesis_classic_monthly.csv").read_text(encoding="utf-8")
+    conn = rf.DestatisTruckTollConnector({})
+    obs, latest, failures = conn._parse_classic_csv(text, "42191-0001", NOW)
+    assert failures == 0
+    sa = {o.observation_time.month + 100 * o.observation_time.year: o.value
+          for o in obs if o.metric == "index_sa"}
+    assert sa[202501] == 95.5 and sa[202503] == 95.6
+    assert sa[202601] is None                       # "-" = fehlend, nie 0
+    assert {o.metric for o in obs} == {"index_unadjusted", "index_calendar_adjusted",
+                                      "index_sa", "index_sa_bv41", "index_trend"}
+    assert latest.year == 2026 and latest.month == 1
+    assert all(o.dataset == "monthly_index" and o.entity_id == "" for o in obs)
