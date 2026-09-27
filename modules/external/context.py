@@ -188,7 +188,7 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         if de_obs:
             eu_sources.append(_region_entry(out["de_z_1y"], "destatis_truck_toll"))
         eu_country_entities = sorted({
-            o.entity_id for o in eu_obs if o.metric == "road_freight_tonnes"
+            o.entity_id for o in eu_obs if o.metric == "road_freight_ths_t"
         })
         for eid in eu_country_entities:
             z = _safe(rff.eu_road_freight_z, eu_obs, eid)

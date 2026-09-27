@@ -171,6 +171,10 @@ def test_eurostat_discovers_dataset_and_parses_jsonstat():
                if o.entity_id == "DE" and o.observation_time == datetime(2023, 1, 1, tzinfo=timezone.utc)]
     assert len(de_2023) == 1
     assert de_2023[0].value == 110.0
+    assert de_2023[0].metric == "road_freight_ths_t"
+    assert de_2023[0].unit == "THS_T"
+    assert de_2023[0].series_id == "road_go_ta_tott:tra_type=TOTAL|unit=THS_T"
+    assert de_2023[0].attrs == {"tra_type": "TOTAL", "unit": "THS_T"}
     assert de_2023[0].availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
     assert de_2023[0].available_at == datetime(2024, 6, 15, 9, 0, tzinfo=timezone.utc)
 
@@ -225,6 +229,88 @@ def test_eurostat_schema_changed_without_dimension():
     ]):
         result = conn.fetch(NOW)
     assert result.status == SourceStatus.SCHEMA_CHANGED
+
+
+def test_eurostat_parses_all_dimensions_generically_with_sparse_values():
+    """JSON-stat mit zusaetzlichen Dimensionen (tra_type/carriage/unit) UND
+    einem sparsen value-dict (nicht alle 16 Kombinationen vorhanden). Jede
+    Kombination von geo/time/unit/tra_type/carriage muss eine EIGENE,
+    unterscheidbare Beobachtung ergeben -- das ist der Kernfix gegen den
+    Bug, der bis zu 55 verschiedene Werte auf eine Identitaet kollabierte."""
+    conn = rf.EurostatRoadFreightConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_multidim.json"),
+    ]):
+        result = conn.fetch(NOW)
+
+    assert result.status == SourceStatus.PASS
+    assert result.parse_failures == 0
+    assert len(result.observations) == 6  # sparse: nur 6 von 16 moeglichen Kombinationen
+
+    by_val = {o.value: o for o in result.observations}
+
+    # unit MIO_TKM darf NIE als "tonnes" fehlinterpretiert werden.
+    mio = by_val[45000.0]
+    assert mio.metric == "road_freight_mio_tkm"
+    assert mio.unit == "MIO_TKM"
+    assert mio.entity_id == "DE"
+    assert mio.attrs == {"carriage": "TOT", "tra_type": "TOTAL", "unit": "MIO_TKM"}
+    assert mio.series_id == "road_go_ta_tott:carriage=TOT|tra_type=TOTAL|unit=MIO_TKM"
+
+    ths = by_val[500.0]
+    assert ths.metric == "road_freight_ths_t"
+    assert ths.unit == "THS_T"
+    assert ths.series_id == "road_go_ta_tott:carriage=TOT|tra_type=TOTAL|unit=THS_T"
+
+    # Gleiches geo/time/unit, aber tra_type=NAT statt TOTAL -> eigene
+    # Identitaet (andere series_id), NIE mit dem TOTAL-Wert zusammengefasst.
+    nat = by_val[300.0]
+    assert nat.entity_id == "DE"
+    assert nat.observation_time == datetime(2023, 1, 1, tzinfo=timezone.utc)
+    assert nat.metric == "road_freight_ths_t"
+    assert nat.series_id == "road_go_ta_tott:carriage=TOT|tra_type=NAT|unit=THS_T"
+    assert nat.series_id != ths.series_id
+    assert nat.identity_key() != ths.identity_key()
+
+    # Quartalszeit: "2023-Q2" -> 2023-04-01.
+    q2 = by_val[130.0]
+    assert q2.observation_time == datetime(2023, 4, 1, tzinfo=timezone.utc)
+    assert q2.entity_id == "DE"
+
+    # Jahreszeit: "2023" -> 2023-01-01.
+    assert ths.observation_time == datetime(2023, 1, 1, tzinfo=timezone.utc)
+
+    # Alle Identitaeten sind eindeutig (keine zwei Observations teilen sich
+    # source_id/dataset/series_id/entity_id/metric/observation_time).
+    keys = [o.identity_key() for o in result.observations]
+    assert len(keys) == len(set(keys))
+
+    # archive.store_observations() auf frischem Archiv -> alles "new", 0 revisions.
+    from modules.external.archive import ExternalArchive
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        archive = ExternalArchive(root=tmp)
+        stats = archive.store_observations(result.observations)
+    assert stats["revision"] == 0
+    assert stats["duplicate"] == 0
+    assert stats["new"] == 6
+
+
+def test_eurostat_duplicate_identity_raises_schema_changed():
+    """Zwei Rohwerte, die (nach korrektem generischem Dimensions-Parsing)
+    auf dieselbe (series_id, entity_id, metric, observation_time)-Identitaet
+    fallen, werden NIE stillschweigend zusammengefasst -- klarer
+    SCHEMA_CHANGED statt einer verlorenen Revision."""
+    conn = rf.EurostatRoadFreightConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_duplicate_identity.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.SCHEMA_CHANGED
+    assert result.observations == []
+    assert "identity" in result.message.lower()
 
 
 # ---------------------------------------------------------------------------

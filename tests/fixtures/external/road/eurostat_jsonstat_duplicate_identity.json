@@ -1,0 +1,23 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Road freight transport (Schemabruch-Test: zwei Rohwerte kollidieren auf dieselbe Identitaet, da die 'carriage'-Kategorie-Metadaten zwei verschiedene Indexpositionen auf denselben Code TOT abbilden)",
+  "updated": "2024-06-15T11:00:00+02:00",
+  "id": ["carriage", "geo", "time"],
+  "size": [2, 1, 1],
+  "dimension": {
+    "carriage": {
+      "label": "type of carriage",
+      "category": {"index": ["TOT", "TOT"], "label": ["Total", "Total"]}
+    },
+    "geo": {
+      "label": "geo",
+      "category": {"index": {"DE": 0}, "label": {"DE": "Germany"}}
+    },
+    "time": {
+      "label": "time",
+      "category": {"index": {"2023": 0}, "label": {"2023": "2023"}}
+    }
+  },
+  "value": {"0": 10.0, "1": 20.0}
+}

@@ -1,0 +1,44 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Road freight transport by type of transport (multi-dimension fixture)",
+  "updated": "2024-06-15T11:00:00+02:00",
+  "id": ["unit", "tra_type", "carriage", "geo", "time"],
+  "size": [2, 2, 1, 2, 2],
+  "dimension": {
+    "unit": {
+      "label": "unit",
+      "category": {
+        "index": {"THS_T": 0, "MIO_TKM": 1},
+        "label": {"THS_T": "Thousand tonnes", "MIO_TKM": "Million tonne-kilometres (TKM)"}
+      }
+    },
+    "tra_type": {
+      "label": "type of transport",
+      "category": {
+        "index": {"TOTAL": 0, "NAT": 1},
+        "label": {"TOTAL": "Total", "NAT": "National transport"}
+      }
+    },
+    "carriage": {
+      "label": "type of carriage",
+      "category": {"index": {"TOT": 0}, "label": {"TOT": "Total"}}
+    },
+    "geo": {
+      "label": "geo",
+      "category": {"index": {"DE": 0, "FR": 1}, "label": {"DE": "Germany", "FR": "France"}}
+    },
+    "time": {
+      "label": "time",
+      "category": {"index": {"2023": 0, "2023-Q2": 1}, "label": {"2023": "2023", "2023-Q2": "2023-Q2"}}
+    }
+  },
+  "value": {
+    "0": 500.0,
+    "1": 130.0,
+    "2": 600.0,
+    "4": 300.0,
+    "8": 45000.0,
+    "15": 99999.0
+  }
+}

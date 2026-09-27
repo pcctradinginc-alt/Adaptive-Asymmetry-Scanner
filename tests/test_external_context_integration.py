@@ -177,7 +177,7 @@ def test_regional_confidence_differs_with_more_source_coverage(tmp_path):
     obs = [mk_obs("destatis_truck_toll", "index_sa", 50.0 + i * 2.0,
                   now - timedelta(days=20 - i), now - timedelta(days=20 - i))
            for i in range(20)]
-    obs += [mk_obs("eurostat_road_freight", "road_freight_tonnes", 1000.0 + i * 30.0,
+    obs += [mk_obs("eurostat_road_freight", "road_freight_ths_t", 1000.0 + i * 30.0,
                     now - timedelta(days=20 - i), now - timedelta(days=20 - i), entity_id="FR")
             for i in range(20)]
     archive_two.store_observations(obs)

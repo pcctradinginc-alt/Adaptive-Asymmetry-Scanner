@@ -562,6 +562,12 @@ class BtsFreightTsiConnector(Connector):
 # 3) eurostat_road_freight – Eurostat road_go_ta_* (JSON-stat 2.0)
 # ---------------------------------------------------------------------------
 
+class _DuplicateIdentityError(ValueError):
+    """Zwei JSON-stat-Werte mappen auf dieselbe Beobachtungs-Identität
+    (series_id, entity_id, metric, observation_time) -- wird NIE
+    stillschweigend zusammengefasst, siehe _parse_jsonstat()."""
+
+
 class EurostatRoadFreightConnector(Connector):
     """Discovery über die offizielle Eurostat-TOC (table of contents,
     https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt) –
@@ -574,6 +580,12 @@ class EurostatRoadFreightConnector(Connector):
     TOC_URL = "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en"
     DATA_BASE = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
     COUNTRIES = ["DE", "FR", "IT", "ES", "PL", "NL", "BE", "AT", "CZ", "SE", "EU27_2020"]
+
+    # Kuratierte Slice-Defaults (siehe config/external_sources/road_freight.yaml
+    # -> dimension_filters). Reduziert das Antwortvolumen UND stellt sicher,
+    # dass genau EINE gut-definierte Serie je Land/Einheit ankommt (nie alle
+    # ~55 nst07/tra_type/carriage-Kombinationen ungefiltert).
+    DIMENSION_FILTERS = {"unit": ["THS_T", "MIO_TKM"], "tra_type": ["TOTAL"], "carriage": ["TOT"]}
 
     # Nur echte Datensatz-Codes (type == "dataset" in der TOC) UND das
     # dokumentierte Namensmuster road_go_ta_* -- die TOC enthält auch
@@ -631,8 +643,13 @@ class EurostatRoadFreightConnector(Connector):
 
     def _fetch_dataset(self, code: str, raw: list[RawRecord]) -> tuple["http.FetchResult | None", str | None]:
         url = f"{self.DATA_BASE}/{code}"
+        countries = self.cfg.get("countries") or self.COUNTRIES
+        dimension_filters = self.cfg.get("dimension_filters") or self.DIMENSION_FILTERS
+        params: dict = {"format": "JSON", "lang": "en", "geo": countries}
+        for dim_id, codes in dimension_filters.items():
+            params[dim_id] = codes
         try:
-            res = http.fetch(url, params={"format": "JSON", "lang": "en", "geo": self.COUNTRIES})
+            res = http.fetch(url, params=params)
         except http.FetchError as e:
             return None, str(e)
         raw.append(_raw(self.source_id, "jsonstat", res))
@@ -679,7 +696,17 @@ class EurostatRoadFreightConnector(Connector):
                 discovered_ids=discovered,
             )
 
-        observations, latest, release_time, parse_failures = self._parse_jsonstat(data, code, res.retrieved_at)
+        try:
+            observations, latest, release_time, parse_failures, parse_diag = self._parse_jsonstat(
+                data, code, res.retrieved_at)
+        except _DuplicateIdentityError as e:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message=f"Eurostat-JSON liefert mehrere Werte für dieselbe Beobachtungs-"
+                        f"Identität (Dimension fehlt/wird nicht erfasst): {e}",
+                discovered_ids=discovered,
+            )
+        discovered.update(parse_diag)
         if observations is None:
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
@@ -696,12 +723,24 @@ class EurostatRoadFreightConnector(Connector):
         )
 
     def _parse_jsonstat(self, data: dict, code: str, retrieved_at: datetime):
+        """Parst ALLE JSON-stat-2.0-Dimensionen generisch (nicht nur
+        geo/time/unit) -- jede Kombination der übrigen Dimensionen
+        (nst07/tra_type/carriage/...) ist eine EIGENE Serie/Identität, nie
+        stillschweigend mit anderen Kombinationen zusammengefasst.
+
+        Rückgabe: (observations, latest_obs_time, release_time,
+                   parse_failures, diagnostics_dict). observations is None
+        bei einem Schema, das nicht mal minimal auswertbar ist (dann
+        SCHEMA_CHANGED beim Aufrufer). Bei einer echten Identitäts-Kollision
+        wird _DuplicateIdentityError geworfen (ebenfalls SCHEMA_CHANGED,
+        aber mit einer klaren, spezifischen Nachricht statt Stille)."""
         dims = (data.get("dimension") or {})
         ids = data.get("id") or []
         sizes = data.get("size") or []
         values = data.get("value")
+        diagnostics: dict = {}
         if not ids or not sizes or values is None or "geo" not in dims or "time" not in dims:
-            return None, None, None, 0
+            return None, None, None, 0, diagnostics
 
         release_time = None
         updated_raw = data.get("updated") or (data.get("extension") or {}).get("updated")
@@ -720,20 +759,34 @@ class EurostatRoadFreightConnector(Connector):
                 return {v: k for k, v in index.items()}
             return {i: str(v) for i, v in enumerate(index)}
 
+        pos = {name: i for i, name in enumerate(ids)}
+        if "geo" not in pos or "time" not in pos:
+            return None, None, None, 0, diagnostics
+
         geo_of = index_map("geo")
         time_of = index_map("time")
-        unit_of = index_map("unit") if "unit" in dims else {}
+        # ALLE übrigen Dimensionen (nicht nur "unit") werden generisch
+        # indiziert -- das ist der Kernfix: vorher wurden nst07/tra_type/
+        # carriage/... komplett ignoriert und bis zu 55 Werte teilten sich
+        # dieselbe (series_id, entity_id, metric, observation_time)-Identität.
+        other_dim_ids = sorted(d for d in ids if d not in ("geo", "time"))
+        dim_maps = {d: index_map(d) for d in other_dim_ids}
+
+        # Diagnostik: konfigurierte Slice-Filter, die dieser Datensatz gar
+        # nicht kennt (nie stillschweigend danach filtern -- siehe fetch()).
+        configured_filters = self.cfg.get("dimension_filters") or self.DIMENSION_FILTERS
+        missing_filter_dims = sorted(set(configured_filters) - set(ids))
+        if missing_filter_dims:
+            diagnostics["eurostat_dimension_filters_not_in_dataset"] = missing_filter_dims
 
         strides = [1] * len(ids)
         for i in range(len(ids) - 2, -1, -1):
             strides[i] = strides[i + 1] * sizes[i + 1]
-        pos = {name: i for i, name in enumerate(ids)}
-        if "geo" not in pos or "time" not in pos:
-            return None, None, None, 0
 
         observations: list[Observation] = []
         latest: datetime | None = None
         parse_failures = 0
+        seen_identities: dict[tuple, str] = {}
         raw_values = values if isinstance(values, dict) else {str(i): v for i, v in enumerate(values)}
 
         for key_str, val in raw_values.items():
@@ -753,25 +806,42 @@ class EurostatRoadFreightConnector(Connector):
             except (IndexError, KeyError):
                 parse_failures += 1
                 continue
-            unit_label = unit_of.get(idxs[pos["unit"]], "") if "unit" in pos else ""
+            try:
+                dim_parts = {d: dim_maps[d][idxs[pos[d]]] for d in other_dim_ids}
+            except (IndexError, KeyError):
+                parse_failures += 1
+                continue
             try:
                 obs_time = self._parse_eurostat_time(time_label)
             except ValueError:
                 parse_failures += 1
                 continue
-            metric = "tonnes" if "T" in unit_label.upper() or not unit_label else unit_label.lower()
+
+            dimkey = "|".join(f"{d}={dim_parts[d]}" for d in sorted(dim_parts))
+            series_id = f"{code}:{dimkey}" if dimkey else code
+            unit_code = dim_parts.get("unit")
+            metric = f"road_freight_{unit_code.lower()}" if unit_code else "road_freight_unknown_unit"
+
+            identity = (series_id, geo_label, metric, obs_time.isoformat())
+            if identity in seen_identities:
+                raise _DuplicateIdentityError(
+                    f"identity={identity!r} kollidiert bei value-Keys "
+                    f"{seen_identities[identity]!r} und {key_str!r} (Datensatz {code})")
+            seen_identities[identity] = key_str
+
             avail_precision = AvailabilityPrecision.EXACT_TIMESTAMP if release_time else AvailabilityPrecision.CONSERVATIVE_DATE
             available_at = release_time or retrieved_at
             observations.append(Observation(
-                source_id=self.source_id, dataset="road_freight", series_id=code,
-                entity_id=geo_label, metric=f"road_freight_{metric}",
-                value=float(val) if val is not None else None, unit=unit_label or "unknown",
+                source_id=self.source_id, dataset="road_freight", series_id=series_id,
+                entity_id=geo_label, metric=metric,
+                value=float(val) if val is not None else None, unit=unit_code or "unknown",
                 observation_time=obs_time, available_at=available_at, retrieved_at=retrieved_at,
                 availability_precision=avail_precision, parser_version=self.parser_version,
+                attrs=dict(dim_parts),
             ))
             if latest is None or obs_time > latest:
                 latest = obs_time
-        return observations, latest, release_time, parse_failures
+        return observations, latest, release_time, parse_failures, diagnostics
 
     @staticmethod
     def _parse_eurostat_time(label: str) -> datetime:
