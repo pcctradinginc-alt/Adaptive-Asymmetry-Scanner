@@ -1813,6 +1813,11 @@ class EurostatRoadFreightQuarterlyConnector(Connector):
 # 4) estat_jp_truck – Japan e-Stat (自動車輸送統計 / MLIT Motor Vehicle Transport)
 # ---------------------------------------------------------------------------
 
+def _estat_text(v) -> str:
+    """e-Stat-Textfelder kommen als String oder {"@...": ..., "$": text}."""
+    return v.get("$", "") if isinstance(v, dict) else (v or "")
+
+
 class EstatJpTruckConnector(Connector):
     """e-Stat API v3. Ohne ESTAT_APP_ID wird KEIN HTTP-Call ausgeführt
     (AUTH_MISSING sofort)."""
@@ -1822,7 +1827,6 @@ class EstatJpTruckConnector(Connector):
 
     BASE = "https://api.e-stat.go.jp/rest/3.0/app/json"
     SEARCH_WORD = "自動車輸送統計"
-    STATS_CODE = "00600350"   # 自動車輸送統計調査 (MLIT), amtlicher e-Stat-Code
 
     def fetch(self, now: datetime) -> ConnectorResult:
         # Leerzeichen/Zeilenumbrüche aus dem Secret-Feld entfernen
@@ -1838,10 +1842,14 @@ class EstatJpTruckConnector(Connector):
         list_url = f"{self.BASE}/getStatsList"
         tables = None
         attempts = []
-        # 1) amtlicher Statistik-Code des Kfz-Transportsurveys (自動車輸送統計調査,
-        #    statsCode 00600350) -- stabiler als Freitextsuche; 2) Suchwort.
-        for params in ({"statsCode": self.cfg.get("stats_code", self.STATS_CODE), "limit": 100},
-                       {"searchWord": self.SEARCH_WORD, "limit": 100}):
+        # Suchwort; optional ein in der Registry gepflegter statsCode. Jede
+        # gefundene Tabelle muss laut STATISTICS_NAME zur Kfz-Transportstatistik
+        # gehören (Live 2026-09-27: statsCode 00600350 lieferte Güterbahn-
+        # Daten -- コンテナ/車扱 -- die fälschlich als Lkw archiviert wurden).
+        queries = [{"searchWord": self.SEARCH_WORD, "limit": 100}]
+        if self.cfg.get("stats_code"):
+            queries.insert(0, {"statsCode": self.cfg["stats_code"], "limit": 100})
+        for params in queries:
             try:
                 res = http.fetch(list_url, params={"appId": app_id, **params})
             except http.AuthError:
@@ -1876,6 +1884,9 @@ class EstatJpTruckConnector(Connector):
             found = (root.get("DATALIST_INF") or {}).get("TABLE_INF")
             if isinstance(found, dict):
                 found = [found]
+            found = [t for t in (found or [])
+                     if self.SEARCH_WORD in _estat_text(t.get("STAT_NAME"))
+                     or self.SEARCH_WORD in _estat_text(t.get("STATISTICS_NAME"))]
             if found:
                 tables = found
                 break
@@ -1888,11 +1899,12 @@ class EstatJpTruckConnector(Connector):
                 discovered_ids=discovered,
             )
 
-        def _txt(v):
-            return v.get("$", "") if isinstance(v, dict) else (v or "")
+        _txt = _estat_text
 
         catalog = [{"id": t.get("@id"), "title": _txt(t.get("TITLE")),
-                    "stat_name": _txt(t.get("STATISTICS_NAME")), "cycle": t.get("CYCLE"),
+                    "stat_name": _txt(t.get("STAT_NAME")) or _txt(t.get("STATISTICS_NAME")),
+                    "stat_code": (t.get("STAT_NAME") or {}).get("@code") if isinstance(t.get("STAT_NAME"), dict) else None,
+                    "cycle": t.get("CYCLE"),
                     "survey_date": t.get("SURVEY_DATE"), "updated": t.get("UPDATED_DATE")}
                    for t in tables]
         discovered["estat_jp_truck_candidates"] = catalog[:40]
