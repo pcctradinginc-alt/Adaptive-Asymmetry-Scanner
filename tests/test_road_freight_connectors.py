@@ -374,3 +374,277 @@ def test_available_at_never_before_retrieved_at_unless_release_time_known(connec
         if o.availability_precision in (AvailabilityPrecision.EXACT_TIMESTAMP, AvailabilityPrecision.EXACT_DATE):
             continue  # offizielle Release-Zeit darf vor unserem Abruf liegen
         assert o.available_at >= o.retrieved_at or o.available_at == o.retrieved_at
+
+
+# ---------------------------------------------------------------------------
+# bts_open_data_tsi (Socrata data.bts.gov, ohne API-Key)
+# ---------------------------------------------------------------------------
+
+def test_bts_open_data_discovers_dataset_and_parses_rows():
+    conn = rf.BtsOpenDataTsiConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("bts_socrata_catalog.json"),
+        _fr("bts_views_metadata.json"),
+        _fr("bts_soda_rows_page1.json"),
+    ]):
+        result = conn.fetch(NOW)
+
+    assert result.status == SourceStatus.PASS
+    assert result.discovered_ids["bts_open_data_tsi_dataset_id"] == "69qe-yiui"
+    assert "bts_open_data_tsi_ambiguous" not in result.discovered_ids
+    cols = result.discovered_ids["bts_open_data_tsi_columns"]
+    assert cols["freight_field"] == "tsi_freight_seasonally_adjusted"
+    assert cols["truck_field"] == "tsi_truck_seasonally_adjusted"
+
+    freight = [o for o in result.observations if o.metric == "us_freight_tsi"]
+    trucking = [o for o in result.observations if o.metric == "us_trucking_index"]
+    assert len(freight) == 2
+    assert len(trucking) == 2
+    jan = [o for o in freight if o.observation_time == datetime(2024, 1, 1, tzinfo=timezone.utc)][0]
+    assert jan.value == 125.3
+    assert jan.entity_id == "US"
+    assert jan.availability_precision == AvailabilityPrecision.CONSERVATIVE_DATE
+    assert jan.available_at == jan.retrieved_at
+    # rowsUpdatedAt (Unix-Sekunden) -> informativer source_release_time
+    assert jan.source_release_time == datetime(2024, 5, 15, 13, 0, tzinfo=timezone.utc)
+
+
+def test_bts_open_data_ambiguous_catalog_flags_and_picks_most_recent():
+    conn = rf.BtsOpenDataTsiConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("bts_socrata_catalog_ambiguous.json"),
+        _fr("bts_views_metadata.json"),
+        _fr("bts_soda_rows_page1.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    assert result.discovered_ids["bts_open_data_tsi_ambiguous"] == ["new-tsi", "old-tsi"]
+    assert result.discovered_ids["bts_open_data_tsi_dataset_id"] == "new-tsi"
+
+
+def test_bts_open_data_pagination_across_soda_pages():
+    conn = rf.BtsOpenDataTsiConnector({"page_limit": 2})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("bts_socrata_catalog.json"),
+        _fr("bts_views_metadata.json"),
+        _fr("bts_soda_rows_page1.json"),
+        _fr("bts_soda_rows_page2.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    freight = [o for o in result.observations if o.metric == "us_freight_tsi"]
+    assert len(freight) == 3
+    assert {o.observation_time for o in freight} == {
+        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 2, 1, tzinfo=timezone.utc),
+        datetime(2024, 3, 1, tzinfo=timezone.utc),
+    }
+
+
+def test_bts_open_data_schema_changed_when_no_freight_column():
+    conn = rf.BtsOpenDataTsiConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("bts_socrata_catalog.json"),
+        _fr("bts_views_metadata_broken.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.SCHEMA_CHANGED
+
+
+def test_bts_open_data_fail_when_no_dataset_found_and_no_fallback():
+    conn = rf.BtsOpenDataTsiConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("bts_socrata_catalog_empty.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.FAIL
+
+
+# ---------------------------------------------------------------------------
+# destatis_truck_toll_download (EXDAT-Direktdownload, ohne GENESIS-Login)
+# ---------------------------------------------------------------------------
+
+def test_destatis_download_discovers_xlsx_link_and_parses():
+    conn = rf.DestatisTruckTollDownloadConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_lkw_maut_page.html", content_type="text/html"),
+        _fr("destatis_truck_toll_download.xlsx",
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    ]):
+        result = conn.fetch(NOW)
+
+    assert result.status == SourceStatus.PASS
+    chosen = result.discovered_ids["destatis_truck_toll_download_chosen"]
+    assert chosen.endswith(".xlsx")
+    assert chosen.startswith("https://www.destatis.de/")
+    # der externe Spiegel-Link darf NIE als Kandidat auftauchen.
+    assert not any("external-mirror" in c for c in
+                   result.discovered_ids["destatis_truck_toll_download_candidates"])
+
+    metrics = {o.metric for o in result.observations}
+    assert metrics == {"index_sa", "index_unadjusted"}
+    for o in result.observations:
+        assert o.entity_id == ""
+        assert o.availability_precision == AvailabilityPrecision.CONSERVATIVE_DATE
+        assert o.available_at == o.retrieved_at
+    sa = [o for o in result.observations if o.metric == "index_sa"]
+    assert {o.value for o in sa} == {101.2, 102.5, None}
+
+
+def test_destatis_download_parses_csv_variant():
+    conn = rf.DestatisTruckTollDownloadConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_lkw_maut_page.html", content_type="text/html"),
+    ]):
+        # Downloadseite bevorzugt xlsx -> wir testen den CSV-Pfad separat,
+        # indem wir den Konnektor direkt mit der CSV-Downloadlogik aufrufen.
+        content = (FIXTURES / "destatis_truck_toll_download.csv").read_bytes()
+        observations, latest, parse_failures, diag = conn._parse_csv(content, NOW)
+    assert diag == {}
+    metrics = {o.metric for o in observations}
+    assert metrics == {"index_sa", "index_unadjusted"}
+    sa = [o for o in observations if o.metric == "index_sa"]
+    assert {o.value for o in sa} == {101.2, 102.5, None}
+
+
+def test_destatis_download_only_accepts_destatis_domain_links():
+    conn = rf.DestatisTruckTollDownloadConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_lkw_maut_page_external_only.html", content_type="text/html"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.FAIL
+    assert "destatis_truck_toll_download_candidates" not in result.discovered_ids
+
+
+def test_destatis_download_fail_when_page_has_no_link_and_no_fallback():
+    conn = rf.DestatisTruckTollDownloadConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_lkw_maut_page_no_link.html", content_type="text/html"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.FAIL
+
+
+def test_destatis_download_schema_changed_when_columns_missing():
+    conn = rf.DestatisTruckTollDownloadConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_lkw_maut_page.html", content_type="text/html"),
+        _fr("destatis_truck_toll_download_schema_broken.xlsx",
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.SCHEMA_CHANGED
+
+
+def test_destatis_download_features_used_as_fallback_when_genesis_absent():
+    """road_freight_features.de_truck_* muss destatis_truck_toll_download
+    genauso bedienen wie destatis_truck_toll (Fallback-Konvention)."""
+    from modules.external.sources import road_freight_features as feat
+    conn = rf.DestatisTruckTollDownloadConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_lkw_maut_page.html", content_type="text/html"),
+        _fr("destatis_truck_toll_download.xlsx",
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    ]):
+        result = conn.fetch(NOW)
+    assert feat.de_truck_level(result.observations) == 102.5
+
+
+# ---------------------------------------------------------------------------
+# eurostat_road_freight_quarterly (Discovery + First-Seen-PIT-Präzision)
+# ---------------------------------------------------------------------------
+
+def test_eurostat_quarterly_discovers_quarterly_dataset_not_annual():
+    conn = rf.EurostatRoadFreightQuarterlyConnector({
+        "_seen_periods_state_path": "/tmp/_never_used_eurostat_seen_periods_discovery_test.json"})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_quarterly.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_quarterly_v1.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    # "road_go" (Ordner) und die jährliche road_go_ta_tott dürfen NIE
+    # gewählt werden -- nur der Datensatz mit "quarterly" im TOC-Titel.
+    assert result.discovered_ids["eurostat_road_freight_quarterly_chosen"] == "road_go_qa_tott"
+    assert len(result.observations) == 3
+    q1 = [o for o in result.observations if o.observation_time == datetime(2023, 1, 1, tzinfo=timezone.utc)][0]
+    assert q1.entity_id == "DE"
+    assert q1.value == 100.0
+
+
+def test_eurostat_quarterly_first_seen_precision(tmp_path):
+    state_path = str(tmp_path / "eurostat_seen_periods.json")
+    cfg = {"_seen_periods_state_path": state_path}
+
+    # 1. Abruf: Zustandsdatei existiert noch nicht -> Backfill der ganzen
+    # Historie; deren Erstveröffentlichung ist unbekannt -> CONSERVATIVE_DATE,
+    # kein first_seen_at. Präzisere Zeiten erst ab dem 2. Abruf.
+    conn1 = rf.EurostatRoadFreightQuarterlyConnector(cfg)
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_quarterly.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_quarterly_v1.json"),
+    ]):
+        result1 = conn1.fetch(NOW)
+    assert result1.status == SourceStatus.PASS
+    assert len(result1.observations) == 3
+    for o in result1.observations:
+        assert o.availability_precision == AvailabilityPrecision.CONSERVATIVE_DATE
+        assert o.available_at == datetime(2024, 6, 15, 9, 0, tzinfo=timezone.utc)
+        assert "first_seen_at" not in o.attrs
+    import json as _json
+    stored = _json.loads(Path(state_path).read_text())
+    assert set(stored["road_go_qa_tott"]) == {"2023-Q1", "2023-Q2", "2023-Q3"}
+
+    # 2. Abruf (neuer Connector-Instanz, gleiche Zustandsdatei): 2023-Q1..Q3
+    # sind jetzt historisch (CONSERVATIVE_DATE), NUR 2023-Q4 ist neu
+    # (EXACT_TIMESTAMP, first_seen_at gesetzt).
+    conn2 = rf.EurostatRoadFreightQuarterlyConnector(cfg)
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_quarterly.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_quarterly_v2.json"),
+    ]):
+        result2 = conn2.fetch(NOW)
+    assert result2.status == SourceStatus.PASS
+    by_period = {o.observation_time: o for o in result2.observations}
+    historical = [o for t, o in by_period.items() if t < datetime(2023, 10, 1, tzinfo=timezone.utc)]
+    new_period = [o for t, o in by_period.items() if t == datetime(2023, 10, 1, tzinfo=timezone.utc)][0]
+    assert len(historical) == 3
+    for o in historical:
+        assert o.availability_precision == AvailabilityPrecision.CONSERVATIVE_DATE
+        assert "first_seen_at" not in o.attrs
+    assert new_period.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
+    assert "first_seen_at" in new_period.attrs
+    assert new_period.available_at == datetime(2024, 9, 15, 9, 0, tzinfo=timezone.utc)
+
+    stored2 = _json.loads(Path(state_path).read_text())
+    assert set(stored2["road_go_qa_tott"]) == {"2023-Q1", "2023-Q2", "2023-Q3", "2023-Q4"}
+
+
+def test_eurostat_road_freight_annual_connector_precision_unaffected():
+    """Der bestehende eurostat_road_freight-Konnektor (jährlich/gemischt)
+    behält sein etabliertes Verhalten (EXACT_TIMESTAMP sobald release_time
+    bekannt) -- die First-Seen-PIT-Präzision ist bewusst NUR im neuen
+    Quarterly-Konnektor aktiv (siehe _parse_eurostat_jsonstat-Docstring)."""
+    conn = rf.EurostatRoadFreightConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    for o in result.observations:
+        assert o.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
+        assert "first_seen_at" not in o.attrs
+
+
+def test_eurostat_quarterly_preflight_does_not_touch_first_seen_state(tmp_path):
+    state_path = tmp_path / "eurostat_seen_periods.json"
+    conn = rf.EurostatRoadFreightQuarterlyConnector({"_seen_periods_state_path": str(state_path)})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_quarterly.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_quarterly_v1.json"),
+    ]):
+        rep = conn.preflight(NOW)
+    assert rep["status"] == "PASS"
+    assert not state_path.exists()

@@ -26,6 +26,7 @@ import logging
 import os
 import re
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from modules.external import http
 from modules.external.pit import AvailabilityPrecision, Observation, utc_now
@@ -333,6 +334,287 @@ class DestatisTruckTollConnector(Connector):
 
 
 # ---------------------------------------------------------------------------
+# 1b) destatis_truck_toll_download – Destatis EXDAT-Downloadseite, OHNE
+#     GENESIS-Login (öffentlicher .xlsx/.csv-Download auf destatis.de)
+# ---------------------------------------------------------------------------
+
+class DestatisTruckTollDownloadConnector(Connector):
+    """Lkw-Maut-Fahrleistungsindex ohne GENESIS-Zugangsdaten: Destatis
+    veröffentlicht den experimentellen Datensatz zusätzlich als direkten
+    Download (.xlsx/.csv) auf einer offiziellen destatis.de-Seite unter
+    Service/EXDAT (z.B. .../lkw-maut-fahrleistungsindex.html).
+
+    Discovery: die offizielle Seiten-URL wird geladen; ein Link auf eine
+    .xlsx- oder .csv-Datei wird NUR akzeptiert, wenn er (nach Auflösung
+    relativer Pfade) auf der Domain destatis.de liegt -- nie ein beliebiger
+    externer Link. Mehrere Kandidaten -> .xlsx bevorzugt (Excel enthält
+    i.d.R. beide Bereinigungsarten in getrennten Spalten); sonst der erste
+    gefundene Kandidat, alle werden in discovered_ids protokolliert.
+
+    Metrik-/Entity-Konventionen identisch zu DestatisTruckTollConnector
+    (index_sa / index_unadjusted, entity_id="" für Deutschland gesamt),
+    damit modules/external/sources/road_freight_features.de_truck_* beide
+    Konnektoren gleichermaßen bedienen kann.
+    """
+
+    source_id = "destatis_truck_toll_download"
+    parser_version = PARSER_VERSION
+
+    PAGE_URL = "https://www.destatis.de/DE/Service/EXDAT/Datensaetze/lkw-maut-fahrleistungsindex.html"
+    ALLOWED_DOMAIN = "destatis.de"
+    _LINK_RE = re.compile(r'href="([^"]+?\.(?:xlsx|csv))(\?[^"]*)?"', re.IGNORECASE)
+
+    def _discover_download_url(self, raw: list[RawRecord]) -> tuple[str | None, dict]:
+        page_url = self.cfg.get("download_page_url", self.PAGE_URL)
+        try:
+            res = http.fetch(page_url)
+        except http.FetchError as e:
+            log.warning("Destatis-EXDAT-Seite nicht erreichbar: %s", e)
+            return None, {}
+        raw.append(_raw(self.source_id, "download_page", res))
+        try:
+            html_text = res.content.decode("utf-8", errors="replace")
+        except UnicodeDecodeError:
+            return None, {}
+
+        from urllib.parse import urljoin, urlparse
+
+        candidates: list[str] = []
+        for m in self._LINK_RE.finditer(html_text):
+            href = m.group(1)
+            resolved = urljoin(page_url, href)
+            host = urlparse(resolved).netloc.lower()
+            if host == self.ALLOWED_DOMAIN or host.endswith("." + self.ALLOWED_DOMAIN):
+                candidates.append(resolved)
+        if not candidates:
+            return None, {}
+        discovered = {"destatis_truck_toll_download_candidates": candidates}
+        xlsx = [c for c in candidates if c.lower().split("?")[0].endswith(".xlsx")]
+        chosen = xlsx[0] if xlsx else candidates[0]
+        discovered["destatis_truck_toll_download_chosen"] = chosen
+        return chosen, discovered
+
+    def fetch(self, now: datetime) -> ConnectorResult:
+        raw: list[RawRecord] = []
+        discovered: dict = {}
+        download_url, disc = self._discover_download_url(raw)
+        discovered.update(disc)
+        if download_url is None:
+            download_url = self.cfg.get("expected_download_url")
+            if not download_url:
+                return ConnectorResult(
+                    source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                    message="Konnte auf der offiziellen Destatis-EXDAT-Seite keinen "
+                            ".xlsx/.csv-Downloadlink auf destatis.de finden, und keine "
+                            "expected_download_url in der Config.",
+                    discovered_ids=discovered,
+                )
+            discovered["fallback_download_url_source"] = "config.expected_download_url (verify in preflight)"
+
+        try:
+            res = http.fetch(download_url)
+        except http.FetchError as e:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                message=f"Download fehlgeschlagen ({download_url}): {e}", discovered_ids=discovered,
+            )
+        raw.append(_raw(self.source_id, "daily_index_file", res))
+
+        is_xlsx = download_url.lower().split("?")[0].endswith(".xlsx")
+        if is_xlsx:
+            observations, latest, parse_failures, diag = self._parse_xlsx(res.content, res.retrieved_at)
+        else:
+            observations, latest, parse_failures, diag = self._parse_csv(res.content, res.retrieved_at)
+
+        if observations is None:
+            discovered.update(diag)
+            if diag.get("missing_dependency"):
+                return ConnectorResult(
+                    source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                    message=diag["missing_dependency"], discovered_ids=discovered,
+                )
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="Downloaddatei entspricht nicht dem erwarteten Schema "
+                        "(Datums- und/oder Indexspalten nicht gefunden).",
+                discovered_ids=discovered,
+            )
+        if not observations:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="Downloaddatei enthielt keine auswertbaren Datenzeilen.",
+                discovered_ids=discovered,
+            )
+        status = SourceStatus.WARN if parse_failures else SourceStatus.PASS
+        return ConnectorResult(
+            source_id=self.source_id, status=status, observations=observations, raw=raw,
+            message=f"{len(observations)} Beobachtungen aus {download_url}"
+                    + (f", {parse_failures} Zeilen nicht parsebar" if parse_failures else ""),
+            latest_observation_time=latest, discovered_ids=discovered,
+            parse_failures=parse_failures,
+        )
+
+    @staticmethod
+    def _classify_columns(headers: list[str]) -> dict[int, str]:
+        """Spaltenindex -> Metrikname, aus Header-Text abgeleitet (gleiche
+        Sprache/Konvention wie DestatisTruckTollConnector._parse_ffcsv)."""
+        col_metric: dict[int, str] = {}
+        for i, h in enumerate(headers):
+            hl = (h or "").strip().lower()
+            if not hl:
+                continue
+            has_kalender = "kalender" in hl
+            has_saison = "saison" in hl
+            if (has_kalender and has_saison) or "bereinigt" in hl and "unbereinigt" not in hl:
+                col_metric[i] = "index_sa"
+            elif "unbereinigt" in hl or "original" in hl or "rohwert" in hl:
+                col_metric[i] = "index_unadjusted"
+        return col_metric
+
+    def _parse_xlsx(self, content: bytes, retrieved_at: datetime
+                     ) -> tuple[list[Observation] | None, datetime | None, int, dict]:
+        try:
+            import openpyxl
+        except ImportError:
+            return None, None, 0, {"missing_dependency":
+                "openpyxl nicht installiert -> Voraussetzung für die .xlsx-Verarbeitung "
+                "des Destatis-EXDAT-Downloads fehlt (siehe requirements.txt)."}
+        try:
+            wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True, read_only=True)
+        except Exception as e:  # noqa: BLE001 - defekte/unerwartete xlsx -> laut scheitern
+            return None, None, 0, {"diagnostics": {"xlsx_load_error": str(e)}}
+
+        best: tuple[list[Observation], datetime | None, int] | None = None
+        for ws in wb.worksheets:
+            rows_iter = ws.iter_rows(values_only=True)
+            try:
+                header_row = next(rows_iter)
+            except StopIteration:
+                continue
+            headers = [str(c) if c is not None else "" for c in header_row]
+            date_idx = None
+            for i, h in enumerate(headers):
+                hl = h.strip().lower()
+                if hl in ("datum", "date", "tag") or "datum" in hl:
+                    date_idx = i
+                    break
+            col_metric = self._classify_columns(headers)
+            if date_idx is None or not col_metric:
+                continue
+
+            observations: list[Observation] = []
+            latest: datetime | None = None
+            parse_failures = 0
+            for row in rows_iter:
+                if row is None or date_idx >= len(row):
+                    continue
+                raw_date = row[date_idx]
+                obs_date = self._coerce_date(raw_date)
+                if obs_date is None:
+                    if raw_date not in (None, ""):
+                        parse_failures += 1
+                    continue
+                for col_i, metric in col_metric.items():
+                    if col_i >= len(row):
+                        continue
+                    value = self._coerce_float(row[col_i])
+                    observations.append(Observation(
+                        source_id=self.source_id, dataset="daily_index", series_id="lkw_maut_fahrleistungsindex",
+                        entity_id="", metric=metric, value=value, unit="index_points",
+                        observation_time=obs_date, available_at=retrieved_at, retrieved_at=retrieved_at,
+                        availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                        parser_version=self.parser_version, attrs={"sheet": ws.title},
+                    ))
+                if latest is None or obs_date > latest:
+                    latest = obs_date
+            if observations and (best is None or len(observations) > len(best[0])):
+                best = (observations, latest, parse_failures)
+
+        wb.close()
+        if best is None:
+            return None, None, 0, {"diagnostics": {"reason": "keine Tabelle mit Datums- und Indexspalten gefunden"}}
+        return best[0], best[1], best[2], {}
+
+    def _parse_csv(self, content: bytes, retrieved_at: datetime
+                    ) -> tuple[list[Observation] | None, datetime | None, int, dict]:
+        try:
+            text = content.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            return None, None, 0, {"diagnostics": {"reason": "CSV nicht UTF-8-dekodierbar"}}
+        delimiter = ";" if text.count(";") >= text.count(",") else ","
+        rows = list(csv.reader(io.StringIO(text), delimiter=delimiter))
+        if len(rows) < 2:
+            return None, None, 0, {"diagnostics": {"body_snippet": text[:600]}}
+        headers = [h.strip() for h in rows[0]]
+        date_idx = None
+        for i, h in enumerate(headers):
+            hl = h.strip().lower()
+            if hl in ("datum", "date", "tag") or "datum" in hl:
+                date_idx = i
+                break
+        col_metric = self._classify_columns(headers)
+        if date_idx is None or not col_metric:
+            return None, None, 0, {"diagnostics": {"body_snippet": text[:600], "headers": headers}}
+
+        observations: list[Observation] = []
+        latest: datetime | None = None
+        parse_failures = 0
+        for row in rows[1:]:
+            if date_idx >= len(row):
+                parse_failures += 1
+                continue
+            obs_date = self._coerce_date(row[date_idx])
+            if obs_date is None:
+                if row[date_idx].strip():
+                    parse_failures += 1
+                continue
+            for col_i, metric in col_metric.items():
+                if col_i >= len(row):
+                    continue
+                value = self._coerce_float(row[col_i])
+                observations.append(Observation(
+                    source_id=self.source_id, dataset="daily_index", series_id="lkw_maut_fahrleistungsindex",
+                    entity_id="", metric=metric, value=value, unit="index_points",
+                    observation_time=obs_date, available_at=retrieved_at, retrieved_at=retrieved_at,
+                    availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                    parser_version=self.parser_version,
+                ))
+            if latest is None or obs_date > latest:
+                latest = obs_date
+        return observations, latest, parse_failures, {}
+
+    @staticmethod
+    def _coerce_date(raw) -> datetime | None:
+        if raw is None:
+            return None
+        if isinstance(raw, datetime):
+            return raw.replace(tzinfo=timezone.utc) if raw.tzinfo is None else raw.astimezone(timezone.utc)
+        s = str(raw).strip().strip('"')
+        if not s:
+            return None
+        for fmt in ("%d.%m.%Y", "%Y-%m-%d", "%Y%m%d"):
+            try:
+                return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+        return None
+
+    @staticmethod
+    def _coerce_float(raw) -> float | None:
+        if raw is None:
+            return None
+        if isinstance(raw, (int, float)):
+            return float(raw)
+        s = str(raw).strip().strip('"').replace(",", ".")
+        if s in ("", ".", "-", "x"):
+            return None
+        try:
+            return float(s)
+        except ValueError:
+            return None
+
+
+# ---------------------------------------------------------------------------
 # 2) bts_freight_tsi – US BTS Freight Transportation Services Index
 # ---------------------------------------------------------------------------
 
@@ -559,6 +841,282 @@ class BtsFreightTsiConnector(Connector):
 
 
 # ---------------------------------------------------------------------------
+# 2b) bts_open_data_tsi – US BTS Transportation Services Index, OHNE API-Key
+#     (offizielles Socrata-Open-Data-Portal data.bts.gov)
+# ---------------------------------------------------------------------------
+
+class BtsOpenDataTsiConnector(Connector):
+    """Freight-TSI ohne FRED_API_KEY: das offizielle Socrata-Open-Data-Portal
+    von BTS (data.bts.gov) verlangt keinerlei Zugangsdaten.
+
+    Discovery (NIE eine Datensatz-ID erfinden):
+      1. Socrata Discovery API (api.us.socrata.com/api/catalog/v1) mit
+         domains=data.bts.gov + Volltextsuche nach "Transportation Services
+         Index" -> Kandidaten werden in discovered_ids protokolliert; der
+         Datensatz, dessen Name "Transportation Services Index" enthält,
+         wird gewählt. Mehrere Treffer -> der zuletzt aktualisierte wird
+         gewählt, aber als "bts_open_data_tsi_ambiguous" geflaggt.
+      2. /api/views/<id>.json (Socrata-Metadaten) liefert die echten
+         Spaltennamen -> eine Spalte, die sowohl "freight" als auch
+         "tsi"/"index" enthält, wird als us_freight_tsi gemappt (bei
+         mehreren Kandidaten wird die saisonbereinigte bevorzugt); eine
+         Spalte, die "truck" enthält, wird zusätzlich als us_trucking_index
+         gemappt, sofern eindeutig vorhanden. Kein Ratespiel: fehlt die
+         Freight-Spalte, ist das Ergebnis SCHEMA_CHANGED.
+      3. SODA-Zeilen via /resource/<id>.json mit $limit/$order/$offset
+         (Pagination) von data.bts.gov.
+
+    PIT: kein offizieller Zeilenwert-Release-Zeitstempel pro Zeile bekannt
+    -> available_at = retrieved_at (CONSERVATIVE_DATE) für neu gesehene
+    Zeilen; die Datensatz-Metadaten liefern zusätzlich rowsUpdatedAt, das
+    als source_release_time (informativ) mitgeführt wird.
+    """
+
+    source_id = "bts_open_data_tsi"
+    parser_version = PARSER_VERSION
+
+    CATALOG_URL = "https://api.us.socrata.com/api/catalog/v1"
+    DOMAIN = "data.bts.gov"
+    SEARCH_QUERY = "Transportation Services Index"
+    PAGE_LIMIT = 5000
+
+    def _discover_dataset(self, raw: list[RawRecord]) -> tuple[str | None, dict]:
+        params = {"domains": self.DOMAIN, "search_context": self.DOMAIN, "q": self.SEARCH_QUERY}
+        try:
+            res = http.fetch(self.CATALOG_URL, params=params)
+        except http.FetchError as e:
+            log.warning("Socrata-Katalogsuche nicht erreichbar: %s", e)
+            return None, {}
+        raw.append(_raw(self.source_id, "catalog", res))
+        try:
+            data = res.json()
+        except json.JSONDecodeError:
+            return None, {}
+        results = data.get("results") or []
+        candidates = []
+        for r in results:
+            resource = r.get("resource") or {}
+            name = resource.get("name") or ""
+            rid = resource.get("id")
+            updated = resource.get("updatedAt") or resource.get("data_updated_at")
+            if not rid or not name:
+                continue
+            candidates.append({"id": rid, "name": name, "updatedAt": updated})
+        matches = [c for c in candidates if "transportation services index" in c["name"].lower()]
+        discovered = {"bts_open_data_tsi_candidates": candidates}
+        if not matches:
+            return None, discovered
+        if len(matches) > 1:
+            # Uneindeutig -> zuletzt aktualisierten wählen, aber laut flaggen
+            # statt stillschweigend zu raten.
+            matches_sorted = sorted(matches, key=lambda c: c["updatedAt"] or "", reverse=True)
+            discovered["bts_open_data_tsi_ambiguous"] = [c["id"] for c in matches_sorted]
+            chosen = matches_sorted[0]
+        else:
+            chosen = matches[0]
+        discovered["bts_open_data_tsi_dataset_id"] = chosen["id"]
+        return chosen["id"], discovered
+
+    def _fetch_metadata(self, dataset_id: str, raw: list[RawRecord]) -> tuple[dict | None, str | None]:
+        url = f"https://{self.DOMAIN}/api/views/{dataset_id}.json"
+        try:
+            res = http.fetch(url)
+        except http.FetchError as e:
+            return None, str(e)
+        raw.append(_raw(self.source_id, "views_metadata", res))
+        try:
+            data = res.json()
+        except json.JSONDecodeError:
+            return None, "views-Metadaten kein valides JSON"
+        return data, None
+
+    @staticmethod
+    def _pick_columns(columns: list[dict]) -> tuple[str | None, str | None, str | None]:
+        """Gibt (date_field, freight_field, trucking_field) zurück -- nie
+        erfunden, nur aus tatsächlich vorhandenen fieldNames abgeleitet."""
+        date_field = None
+        freight_candidates = []
+        truck_candidates = []
+        for c in columns:
+            field = (c.get("fieldName") or "").lower()
+            name = (c.get("name") or "").lower()
+            if not field:
+                continue
+            if date_field is None and (field in ("date", "period", "month")
+                                        or "date" in field or field == "period"):
+                date_field = c.get("fieldName")
+            if "freight" in field or "freight" in name:
+                if "tsi" in field or "tsi" in name or "index" in field or "index" in name:
+                    freight_candidates.append(c.get("fieldName"))
+            if "truck" in field or "truck" in name:
+                truck_candidates.append(c.get("fieldName"))
+
+        def _prefer_seasonally_adjusted(cands: list[str]) -> str | None:
+            if not cands:
+                return None
+            adjusted = [c for c in cands if "unadjust" in c.lower() or "_nsa" in c.lower()
+                        or "not_seasonally" in c.lower()]
+            preferred = [c for c in cands if c not in adjusted]
+            pool = preferred or cands
+            return sorted(pool)[0]
+
+        freight_field = _prefer_seasonally_adjusted(freight_candidates)
+        truck_field = _prefer_seasonally_adjusted(truck_candidates)
+        # trucking-Spalte nur übernehmen, wenn sie eindeutig NICHT die
+        # bereits gewählte Freight-Spalte ist (nie doppelt mappen).
+        if truck_field == freight_field:
+            truck_field = None
+        return date_field, freight_field, truck_field
+
+    def _fetch_rows(self, dataset_id: str, date_field: str, raw: list[RawRecord]
+                     ) -> tuple[list[dict] | None, str | None]:
+        url = f"https://{self.DOMAIN}/resource/{dataset_id}.json"
+        page_limit = int(self.cfg.get("page_limit") or self.PAGE_LIMIT)
+        rows: list[dict] = []
+        offset = 0
+        while True:
+            params = {"$limit": page_limit, "$order": date_field, "$offset": offset}
+            try:
+                res = http.fetch(url, params=params)
+            except http.FetchError as e:
+                return None, str(e)
+            raw.append(_raw(self.source_id, "soda_rows", res))
+            try:
+                page = res.json()
+            except json.JSONDecodeError:
+                return None, "SODA-Antwort kein valides JSON"
+            if not isinstance(page, list):
+                return None, "SODA-Antwort kein JSON-Array"
+            rows.extend(page)
+            if len(page) < page_limit:
+                break
+            offset += page_limit
+            if offset > 200_000:  # Sicherheitsgrenze gegen Endlos-Pagination
+                break
+        return rows, None
+
+    def fetch(self, now: datetime) -> ConnectorResult:
+        raw: list[RawRecord] = []
+        discovered: dict = {}
+        dataset_id, disc = self._discover_dataset(raw)
+        discovered.update(disc)
+        expected_id = self.cfg.get("expected_dataset_id")
+        if dataset_id is None:
+            dataset_id = expected_id
+            if not dataset_id:
+                return ConnectorResult(
+                    source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                    message="Socrata-Katalogsuche fand keinen Datensatz mit 'Transportation "
+                            "Services Index' im Namen und keine expected_dataset_id in der Config.",
+                    discovered_ids=discovered,
+                )
+            discovered["fallback_dataset_id_source"] = "config.expected_dataset_id (verify in preflight)"
+
+        meta, err = self._fetch_metadata(dataset_id, raw)
+        if err is not None:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                message=f"BTS-Open-Data views-Metadaten-Abruf fehlgeschlagen ({dataset_id}): {err}",
+                discovered_ids=discovered,
+            )
+        columns = meta.get("columns") if isinstance(meta, dict) else None
+        if not columns:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="views-Metadaten ohne 'columns' -> Schema geändert.",
+                discovered_ids=discovered,
+            )
+        date_field, freight_field, truck_field = self._pick_columns(columns)
+        discovered["bts_open_data_tsi_columns"] = {
+            "date_field": date_field, "freight_field": freight_field, "truck_field": truck_field,
+            "all_field_names": [c.get("fieldName") for c in columns],
+        }
+        if not date_field or not freight_field:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="Konnte weder Datums- noch Freight-TSI-Spalte eindeutig aus den "
+                        "views-Metadaten ableiten (erwartete Spaltenmuster nicht gefunden).",
+                discovered_ids=discovered,
+            )
+        rows_updated_raw = meta.get("rowsUpdatedAt")
+        source_release_time = None
+        if rows_updated_raw is not None:
+            try:
+                source_release_time = datetime.fromtimestamp(int(rows_updated_raw), tz=timezone.utc)
+            except (TypeError, ValueError, OSError):
+                source_release_time = None
+
+        rows, err = self._fetch_rows(dataset_id, date_field, raw)
+        if err is not None:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                message=f"SODA-Zeilenabruf fehlgeschlagen ({dataset_id}): {err}",
+                discovered_ids=discovered,
+            )
+        if not rows:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="SODA-Endpunkt lieferte keine Zeilen.", discovered_ids=discovered,
+            )
+
+        retrieved_at = raw[-1].retrieved_at
+        observations: list[Observation] = []
+        latest: datetime | None = None
+        parse_failures = 0
+        for row in rows:
+            raw_date = row.get(date_field)
+            if not raw_date:
+                parse_failures += 1
+                continue
+            try:
+                obs_time = datetime.fromisoformat(str(raw_date).replace("Z", "+00:00"))
+                if obs_time.tzinfo is None:
+                    obs_time = obs_time.replace(tzinfo=timezone.utc)
+                obs_time = obs_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            except ValueError:
+                parse_failures += 1
+                continue
+
+            for field, metric in ((freight_field, "us_freight_tsi"), (truck_field, "us_trucking_index")):
+                if field is None:
+                    continue
+                raw_val = row.get(field)
+                value = self._safe_float(raw_val)
+                observations.append(Observation(
+                    source_id=self.source_id, dataset="freight_tsi", series_id=dataset_id,
+                    entity_id="US", metric=metric, value=value, unit="index_points",
+                    observation_time=obs_time, available_at=retrieved_at, retrieved_at=retrieved_at,
+                    availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                    source_release_time=source_release_time, parser_version=self.parser_version,
+                    attrs={"field_name": field},
+                ))
+                if latest is None or obs_time > latest:
+                    latest = obs_time
+
+        if not observations:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="Keine auswertbaren Beobachtungen aus SODA-Zeilen extrahiert.",
+                discovered_ids=discovered,
+            )
+        status = SourceStatus.WARN if parse_failures else SourceStatus.PASS
+        return ConnectorResult(
+            source_id=self.source_id, status=status, observations=observations, raw=raw,
+            message=f"{len(observations)} Beobachtungen aus Datensatz {dataset_id} "
+                    f"(freight_field={freight_field}, truck_field={truck_field})",
+            latest_observation_time=latest, discovered_ids=discovered,
+            parse_failures=parse_failures,
+        )
+
+    @staticmethod
+    def _safe_float(s) -> float | None:
+        try:
+            return float(s)
+        except (TypeError, ValueError):
+            return None
+
+
+# ---------------------------------------------------------------------------
 # 3) eurostat_road_freight – Eurostat road_go_ta_* (JSON-stat 2.0)
 # ---------------------------------------------------------------------------
 
@@ -733,24 +1291,55 @@ class EurostatRoadFreightConnector(Connector):
         )
 
     def _parse_jsonstat(self, data: dict, code: str, retrieved_at: datetime):
+        """Rückwärtskompatible Signatur (bestehende Tests/Verhalten
+        unverändert): delegiert an _parse_eurostat_jsonstat() OHNE
+        previously_seen_periods -> altes First-Party-Verhalten (EXACT_TIMESTAMP
+        sobald eine offizielle Release-Zeit bekannt ist, siehe Docstring
+        dort). Die First-Seen-PIT-Präzision (siehe Aufgabenstellung Punkt 4)
+        ist bewusst NUR im neuen EurostatRoadFreightQuarterlyConnector aktiv,
+        um das etablierte, bereits getestete Verhalten dieses Konnektors
+        nicht rückwirkend zu ändern."""
+        configured_filters = self.cfg.get("dimension_filters") or self.DIMENSION_FILTERS
+        obs, latest, release_time, parse_failures, diagnostics, _periods = _parse_eurostat_jsonstat(
+            data, code, retrieved_at, configured_filters, source_id=self.source_id,
+            parser_version=self.parser_version, previously_seen_periods=None)
+        return obs, latest, release_time, parse_failures, diagnostics
+
+
+def _parse_eurostat_jsonstat(data: dict, code: str, retrieved_at: datetime,
+                              configured_filters: dict, *, source_id: str = "eurostat_road_freight",
+                              parser_version: str = PARSER_VERSION,
+                              previously_seen_periods: set[str] | None = None):
         """Parst ALLE JSON-stat-2.0-Dimensionen generisch (nicht nur
         geo/time/unit) -- jede Kombination der übrigen Dimensionen
         (nst07/tra_type/carriage/...) ist eine EIGENE Serie/Identität, nie
         stillschweigend mit anderen Kombinationen zusammengefasst.
 
+        `previously_seen_periods`: None -> altes Verhalten (EXACT_TIMESTAMP
+        sobald release_time bekannt, sonst CONSERVATIVE_DATE). Ein Set (auch
+        leeres) -> First-Seen-PIT-Präzision (Aufgabenstellung Punkt 4):
+        Beobachtungsperioden (time-Dimension-Labels), die schon im Set
+        enthalten sind, gelten als historisch (CONSERVATIVE_DATE,
+        available_at = release_time oder retrieved_at "wie bisher"); neue
+        Perioden (erstmals bei diesem Abruf gesehen) erhalten
+        EXACT_TIMESTAMP mit available_at = release_time (<= retrieved_at,
+        Datensatz-Update-Zeitstempel) und attrs["first_seen_at"] =
+        retrieved_at.isoformat().
+
         Rückgabe: (observations, latest_obs_time, release_time,
-                   parse_failures, diagnostics_dict). observations is None
-        bei einem Schema, das nicht mal minimal auswertbar ist (dann
-        SCHEMA_CHANGED beim Aufrufer). Bei einer echten Identitäts-Kollision
-        wird _DuplicateIdentityError geworfen (ebenfalls SCHEMA_CHANGED,
-        aber mit einer klaren, spezifischen Nachricht statt Stille)."""
+                   parse_failures, diagnostics_dict, all_periods_seen_set).
+        observations ist None bei einem Schema, das nicht mal minimal
+        auswertbar ist (dann SCHEMA_CHANGED beim Aufrufer). Bei einer echten
+        Identitäts-Kollision wird _DuplicateIdentityError geworfen (ebenfalls
+        SCHEMA_CHANGED, aber mit einer klaren, spezifischen Nachricht statt
+        Stille)."""
         dims = (data.get("dimension") or {})
         ids = data.get("id") or []
         sizes = data.get("size") or []
         values = data.get("value")
         diagnostics: dict = {}
         if not ids or not sizes or values is None or "geo" not in dims or "time" not in dims:
-            return None, None, None, 0, diagnostics
+            return None, None, None, 0, diagnostics, set()
 
         release_time = None
         updated_raw = data.get("updated") or (data.get("extension") or {}).get("updated")
@@ -771,7 +1360,7 @@ class EurostatRoadFreightConnector(Connector):
 
         pos = {name: i for i, name in enumerate(ids)}
         if "geo" not in pos or "time" not in pos:
-            return None, None, None, 0, diagnostics
+            return None, None, None, 0, diagnostics, set()
 
         geo_of = index_map("geo")
         time_of = index_map("time")
@@ -784,7 +1373,6 @@ class EurostatRoadFreightConnector(Connector):
 
         # Diagnostik: konfigurierte Slice-Filter, die dieser Datensatz gar
         # nicht kennt (nie stillschweigend danach filtern -- siehe fetch()).
-        configured_filters = self.cfg.get("dimension_filters") or self.DIMENSION_FILTERS
         missing_filter_dims = sorted(set(configured_filters) - set(ids))
         if missing_filter_dims:
             diagnostics["eurostat_dimension_filters_not_in_dataset"] = missing_filter_dims
@@ -797,6 +1385,7 @@ class EurostatRoadFreightConnector(Connector):
         latest: datetime | None = None
         parse_failures = 0
         seen_identities: dict[tuple, str] = {}
+        all_periods_seen: set[str] = set()
         raw_values = values if isinstance(values, dict) else {str(i): v for i, v in enumerate(values)}
 
         for key_str, val in raw_values.items():
@@ -822,7 +1411,7 @@ class EurostatRoadFreightConnector(Connector):
                 parse_failures += 1
                 continue
             try:
-                obs_time = self._parse_eurostat_time(time_label)
+                obs_time = _parse_eurostat_time(time_label)
             except ValueError:
                 parse_failures += 1
                 continue
@@ -839,33 +1428,268 @@ class EurostatRoadFreightConnector(Connector):
                     f"{seen_identities[identity]!r} und {key_str!r} (Datensatz {code})")
             seen_identities[identity] = key_str
 
-            avail_precision = AvailabilityPrecision.EXACT_TIMESTAMP if release_time else AvailabilityPrecision.CONSERVATIVE_DATE
-            available_at = release_time or retrieved_at
+            attrs = dict(dim_parts)
+            if previously_seen_periods is None:
+                # Altes/Standard-Verhalten (eurostat_road_freight, monatlich/
+                # jährlich): EXACT_TIMESTAMP sobald eine offizielle
+                # Release-Zeit bekannt ist, sonst CONSERVATIVE_DATE.
+                avail_precision = (AvailabilityPrecision.EXACT_TIMESTAMP if release_time
+                                    else AvailabilityPrecision.CONSERVATIVE_DATE)
+                available_at = release_time or retrieved_at
+            elif not previously_seen_periods or time_label in previously_seen_periods:
+                # Erster Abruf überhaupt (Backfill: die ganze Historie ist
+                # "neu", ihre echte Erstveröffentlichung aber unbekannt) oder
+                # Periode war schon bei einem früheren Abruf dieses
+                # Datensatzes vorhanden -> historisch/Revision, konservativ.
+                avail_precision = AvailabilityPrecision.CONSERVATIVE_DATE
+                available_at = release_time or retrieved_at
+            else:
+                # Periode erscheint zum ERSTEN MAL bei diesem Abruf -> die
+                # offizielle Release-Zeit des Datensatzes ist ein belastbarer
+                # (<= retrieved_at) Verfügbarkeits-Zeitpunkt.
+                avail_precision = AvailabilityPrecision.EXACT_TIMESTAMP
+                available_at = release_time or retrieved_at
+                attrs["first_seen_at"] = retrieved_at.isoformat()
+            all_periods_seen.add(time_label)
+
             observations.append(Observation(
-                source_id=self.source_id, dataset="road_freight", series_id=series_id,
+                source_id=source_id, dataset="road_freight", series_id=series_id,
                 entity_id=geo_label, metric=metric,
                 value=float(val) if val is not None else None, unit=unit_code or "unknown",
                 observation_time=obs_time, available_at=available_at, retrieved_at=retrieved_at,
-                availability_precision=avail_precision, parser_version=self.parser_version,
-                attrs=dict(dim_parts),
+                availability_precision=avail_precision, parser_version=parser_version,
+                attrs=attrs,
             ))
             if latest is None or obs_time > latest:
                 latest = obs_time
-        return observations, latest, release_time, parse_failures, diagnostics
+        return observations, latest, release_time, parse_failures, diagnostics, all_periods_seen
 
-    @staticmethod
-    def _parse_eurostat_time(label: str) -> datetime:
-        label = label.strip()
-        if len(label) == 4 and label.isdigit():
-            return datetime(int(label), 1, 1, tzinfo=timezone.utc)
-        if "Q" in label:
-            year, q = label.split("-Q")
-            month = (int(q) - 1) * 3 + 1
-            return datetime(int(year), month, 1, tzinfo=timezone.utc)
-        if "M" in label:
-            year, m = label.split("-M")
-            return datetime(int(year), int(m), 1, tzinfo=timezone.utc)
-        raise ValueError(f"Unbekanntes Eurostat-Zeitformat: {label}")
+
+def _parse_eurostat_time(label: str) -> datetime:
+    label = label.strip()
+    if len(label) == 4 and label.isdigit():
+        return datetime(int(label), 1, 1, tzinfo=timezone.utc)
+    if "Q" in label:
+        year, q = label.split("-Q")
+        month = (int(q) - 1) * 3 + 1
+        return datetime(int(year), month, 1, tzinfo=timezone.utc)
+    if "M" in label:
+        year, m = label.split("-M")
+        return datetime(int(year), int(m), 1, tzinfo=timezone.utc)
+    raise ValueError(f"Unbekanntes Eurostat-Zeitformat: {label}")
+
+
+# ---------------------------------------------------------------------------
+# 3b) eurostat_road_freight_quarterly – Eurostat QUARTERLY road_go_* Datensatz
+#     (bessere Timing-Auflösung für z-Score/Beschleunigung als der
+#     jährliche/gemischte eurostat_road_freight-Datensatz)
+# ---------------------------------------------------------------------------
+
+EUROSTAT_SEEN_PERIODS_STATE_PATH = "outputs/external_data/manifests/eurostat_seen_periods.json"
+"""Von EurostatRoadFreightQuarterlyConnector geschriebene/gelesene kleine
+Zustandsdatei: {"<dataset_code>": ["2023-Q1", "2023-Q2", ...]}. Hält je
+Eurostat-Datensatz-Code die Menge der beim jeweils LETZTEN erfolgreichen
+Parse bereits gesehenen time-Dimension-Labels (Perioden) fest -- Grundlage
+für die First-Seen-PIT-Präzision (siehe _parse_eurostat_jsonstat()):
+Perioden, die schon in dieser Datei stehen, gelten bei einem erneuten Abruf
+als historisch (CONSERVATIVE_DATE); Perioden, die NICHT drin stehen, gelten
+als neu erschienen (EXACT_TIMESTAMP, available_at = Release-Zeit des
+Datensatzes). Die Datei wird nach jedem erfolgreichen Parse überschrieben
+(Vereinigungsmenge alt+neu). Kein Netzwerk-/Auth-Bezug, rein lokal."""
+
+
+class EurostatRoadFreightQuarterlyConnector(Connector):
+    """Wie EurostatRoadFreightConnector, aber Discovery beschränkt auf einen
+    QUARTERLY-Datensatz der road_go_-Familie (Code beginnt mit "road_go_",
+    Titel enthält "quarterly", type=="dataset" in der TOC) -- liefert eine
+    deutlich feinere Zeitauflösung für Momentum-/Z-Score-Features als der
+    jährliche eurostat_road_freight-Datensatz.
+
+    Nutzt denselben generischen JSON-stat-2.0-Parser (_parse_eurostat_jsonstat)
+    wie EurostatRoadFreightConnector, aktiviert aber zusätzlich die
+    First-Seen-PIT-Präzision (Aufgabenstellung Punkt 4) über eine kleine,
+    lokale Zustandsdatei (siehe EUROSTAT_SEEN_PERIODS_STATE_PATH).
+    """
+
+    source_id = "eurostat_road_freight_quarterly"
+    parser_version = PARSER_VERSION
+
+    TOC_URL = "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en"
+    DATA_BASE = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+    COUNTRIES = EurostatRoadFreightConnector.COUNTRIES
+    DIMENSION_FILTERS = {"unit": ["THS_T", "MIO_TKM"]}
+    DATASET_CODE_RE = re.compile(r"^road_go_")
+
+    def _discover_dataset_code(self, raw: list[RawRecord]) -> tuple[str | None, dict]:
+        search_terms = self.cfg.get("search_terms", ["quarterly"])
+        expected_code = self.cfg.get("expected_dataset_code")
+        try:
+            res = http.fetch(self.TOC_URL)
+        except http.FetchError as e:
+            log.warning("Eurostat TOC nicht erreichbar: %s", e)
+            return None, {}
+        raw.append(_raw(self.source_id, "toc", res))
+        try:
+            text = res.content.decode("utf-8")
+        except UnicodeDecodeError:
+            return None, {}
+        rows = list(csv.reader(io.StringIO(text), delimiter="\t"))
+        if not rows or len(rows) < 2:
+            return None, {}
+        header = [h.strip().lower() for h in rows[0]]
+        try:
+            title_idx = header.index("title")
+            code_idx = header.index("code")
+        except ValueError:
+            return None, {}
+        type_idx = header.index("type") if "type" in header else None
+        matches = []
+        for row in rows[1:]:
+            needed = max(title_idx, code_idx, type_idx or 0)
+            if len(row) <= needed:
+                continue
+            title, code = row[title_idx].strip(), row[code_idx].strip()
+            entry_type = row[type_idx].strip().lower() if type_idx is not None else "dataset"
+            if entry_type != "dataset":
+                continue
+            if not self.DATASET_CODE_RE.match(code):
+                continue
+            if any(term.lower() in title.lower() for term in search_terms):
+                matches.append((code, title))
+        if not matches:
+            return None, {}
+        matches.sort(key=lambda m: m[0])
+        chosen = matches[0][0]
+        if expected_code and any(c == expected_code for c, _ in matches):
+            chosen = expected_code
+        return chosen, {"eurostat_road_freight_quarterly_candidates": dict(matches),
+                         "eurostat_road_freight_quarterly_chosen": chosen}
+
+    def _fetch_dataset(self, code: str, raw: list[RawRecord]) -> tuple["http.FetchResult | None", str | None]:
+        url = f"{self.DATA_BASE}/{code}"
+        countries = self.cfg.get("countries") or self.COUNTRIES
+        dimension_filters = self.cfg.get("dimension_filters") or self.DIMENSION_FILTERS
+        params: dict = {"format": "JSON", "lang": "en", "geo": countries}
+        for dim_id, codes in dimension_filters.items():
+            params[dim_id] = codes
+        try:
+            res = http.fetch(url, params=params)
+        except http.FetchError as e:
+            if "400" in str(e) and len(params) > 3:
+                try:
+                    res = http.fetch(url, params={"format": "JSON", "lang": "en", "geo": countries})
+                except http.FetchError as e2:
+                    return None, f"{e} | Retry ohne Dimensionsfilter: {e2}"
+            else:
+                return None, str(e)
+        raw.append(_raw(self.source_id, "jsonstat", res))
+        return res, None
+
+    def _state_path(self) -> Path:
+        return Path(self.cfg.get("_seen_periods_state_path", EUROSTAT_SEEN_PERIODS_STATE_PATH))
+
+    def preflight(self, now: datetime) -> dict:
+        """Live-Check ohne Seiteneffekt: der First-Seen-Zustand wird NUR vom
+        archivierenden Abruf fortgeschrieben, sonst würden Perioden, die der
+        Preflight zuerst sieht, später fälschlich als 'schon gesehen' gelten."""
+        self._dry_run = True
+        try:
+            return super().preflight(now)
+        finally:
+            self._dry_run = False
+
+    def _load_seen_periods(self, code: str) -> set[str]:
+        path = self._state_path()
+        if not path.exists():
+            return set()
+        try:
+            data = json.loads(path.read_text())
+        except (json.JSONDecodeError, OSError):
+            return set()
+        return set(data.get(code, []))
+
+    def _save_seen_periods(self, code: str, all_periods: set[str]) -> None:
+        path = self._state_path()
+        try:
+            data = json.loads(path.read_text()) if path.exists() else {}
+        except (json.JSONDecodeError, OSError):
+            data = {}
+        data[code] = sorted(all_periods)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, indent=2, sort_keys=True))
+
+    def fetch(self, now: datetime) -> ConnectorResult:
+        raw: list[RawRecord] = []
+        discovered: dict = {}
+        code, disc = self._discover_dataset_code(raw)
+        discovered.update(disc)
+        expected_code = self.cfg.get("expected_dataset_code")
+        if code is None:
+            code = expected_code
+            if not code:
+                return ConnectorResult(
+                    source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                    message="Eurostat-TOC-Discovery (quarterly) fehlgeschlagen und keine "
+                            "expected_dataset_code in der Config.",
+                    discovered_ids=discovered,
+                )
+            discovered["fallback_dataset_code_source"] = "config.expected_dataset_code (verify in preflight)"
+
+        res, err = self._fetch_dataset(code, raw)
+        if err is not None and "404" in err and expected_code and expected_code != code:
+            discovered["eurostat_discovered_code_404"] = code
+            code = expected_code
+            discovered["eurostat_road_freight_quarterly_chosen"] = code
+            res, err = self._fetch_dataset(code, raw)
+        if err is not None:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                message=f"Eurostat-Datenabruf (quarterly) fehlgeschlagen ({code}): {err}",
+                discovered_ids=discovered,
+            )
+        try:
+            data = res.json()
+        except json.JSONDecodeError:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="Eurostat-Antwort (quarterly) kein valides JSON (JSON-stat 2.0 erwartet).",
+                discovered_ids=discovered,
+            )
+
+        previously_seen = self._load_seen_periods(code)
+        configured_filters = self.cfg.get("dimension_filters") or self.DIMENSION_FILTERS
+        try:
+            observations, latest, release_time, parse_failures, parse_diag, all_periods = _parse_eurostat_jsonstat(
+                data, code, res.retrieved_at, configured_filters, source_id=self.source_id,
+                parser_version=self.parser_version, previously_seen_periods=previously_seen)
+        except _DuplicateIdentityError as e:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message=f"Eurostat-JSON (quarterly) liefert mehrere Werte für dieselbe "
+                        f"Beobachtungs-Identität: {e}",
+                discovered_ids=discovered,
+            )
+        discovered.update(parse_diag)
+        if observations is None:
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                message="Eurostat-JSON (quarterly) entspricht nicht dem erwarteten "
+                        "JSON-stat-2.0-Schema (dimension/value fehlen).",
+                discovered_ids=discovered,
+            )
+        # Zustandsdatei erst NACH erfolgreichem Parse aktualisieren (nie bei
+        # SCHEMA_CHANGED/FAIL einen halbgaren Stand persistieren).
+        if not getattr(self, "_dry_run", False):   # Preflight: keine Zustandsänderung
+            self._save_seen_periods(code, previously_seen | all_periods)
+        discovered["eurostat_road_freight_quarterly_new_periods"] = sorted(all_periods - previously_seen)
+
+        status = SourceStatus.WARN if parse_failures else SourceStatus.PASS
+        return ConnectorResult(
+            source_id=self.source_id, status=status, observations=observations, raw=raw,
+            message=f"{len(observations)} Beobachtungen aus Datensatz {code} (quarterly)",
+            latest_observation_time=latest, latest_release_time=release_time,
+            discovered_ids=discovered, parse_failures=parse_failures,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1047,8 +1871,11 @@ class EstatJpTruckConnector(Connector):
 
 CONNECTORS: dict[str, type[Connector]] = {
     "destatis_truck_toll": DestatisTruckTollConnector,
+    "destatis_truck_toll_download": DestatisTruckTollDownloadConnector,
     "bts_freight_tsi": BtsFreightTsiConnector,
+    "bts_open_data_tsi": BtsOpenDataTsiConnector,
     "eurostat_road_freight": EurostatRoadFreightConnector,
+    "eurostat_road_freight_quarterly": EurostatRoadFreightQuarterlyConnector,
     "estat_jp_truck": EstatJpTruckConnector,
     # fhwa_faf: kein Live-Konnektor (siehe scripts/build_faf_exposure.py) –
     # bewusst nicht in CONNECTORS, Registry-Eintrag hat status_override DEFERRED.

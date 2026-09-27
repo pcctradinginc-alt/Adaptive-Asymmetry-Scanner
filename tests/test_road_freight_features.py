@@ -98,6 +98,61 @@ def test_eu_road_freight_level_yoy_and_z():
     assert z is None or isinstance(z, float)
 
 
+# ---------------------------------------------------------------------------
+# bts_open_data_tsi Fallback (US Freight TSI ohne FRED_API_KEY)
+# ---------------------------------------------------------------------------
+
+def test_us_freight_tsi_uses_open_data_fallback_when_bts_freight_tsi_absent():
+    obs = [_obs("bts_open_data_tsi", "us_freight_tsi", i * 30, 100 + i) for i in range(15)]
+    assert feat.us_freight_tsi_level(obs) == 114
+    assert feat.us_freight_tsi_yoy(obs) == pytest.approx((114 - 102) / 102)
+    assert feat.us_freight_tsi_z(obs) is None or isinstance(feat.us_freight_tsi_z(obs), float)
+
+
+def test_us_freight_tsi_prefers_alfred_source_when_both_present():
+    """bts_freight_tsi (ALFRED-Vintages) muss immer bevorzugt werden, auch
+    wenn bts_open_data_tsi-Observations ebenfalls vorhanden sind (nie
+    beide Quellen vermischen)."""
+    obs = (
+        [_obs("bts_freight_tsi", "us_freight_tsi", i * 30, 200 + i) for i in range(15)]
+        + [_obs("bts_open_data_tsi", "us_freight_tsi", i * 30, 100 + i) for i in range(15)]
+    )
+    assert feat.us_freight_tsi_level(obs) == 214  # aus bts_freight_tsi, nicht 114
+
+
+def test_us_trucking_uses_open_data_index_metric_as_fallback():
+    obs = [_obs("bts_open_data_tsi", "us_trucking_index", i * 30, 130 + i) for i in range(13)]
+    assert feat.us_trucking_level(obs) == 142
+    assert feat.us_trucking_yoy(obs) == pytest.approx((142 - 130) / 130)
+
+
+# ---------------------------------------------------------------------------
+# eurostat_road_freight_quarterly – Frequenz-Präferenz (quarterly zuerst,
+# Fallback auf die jährliche eurostat_road_freight-Reihe)
+# ---------------------------------------------------------------------------
+
+def test_eu_road_freight_prefers_quarterly_when_enough_points():
+    obs = [_obs("eurostat_road_freight_quarterly", "road_freight_ths_t", i * 91, 100 + i, entity_id="DE")
+           for i in range(8)]
+    z, freq = feat.eu_road_freight_z_preferred(obs, entity_id="DE")
+    assert freq == "quarterly"
+    assert z is None or isinstance(z, float)
+    acc, freq2 = feat.eu_road_freight_acceleration_preferred(obs, entity_id="DE")
+    assert freq2 == "quarterly"
+
+
+def test_eu_road_freight_falls_back_to_annual_when_too_few_quarterly_points():
+    quarterly_obs = [_obs("eurostat_road_freight_quarterly", "road_freight_ths_t", i * 91, 100 + i, entity_id="DE")
+                      for i in range(3)]  # < _QUARTERLY_MIN_POINTS
+    annual_obs = [_obs("eurostat_road_freight", "road_freight_ths_t", i * 365, 100 + i * 5, entity_id="DE")
+                  for i in range(6)]
+    obs = quarterly_obs + annual_obs
+    z, freq = feat.eu_road_freight_z_preferred(obs, entity_id="DE")
+    assert freq in ("annual", "none")
+    acc, freq2 = feat.eu_road_freight_acceleration_preferred(obs, entity_id="DE")
+    assert freq2 in ("annual", "none")
+
+
 def test_jp_truck_functions_use_given_metric():
     obs = [_obs("estat_jp_truck", "jp_truck_100", i * 30, 100 + i) for i in range(15)]
     assert feat.jp_truck_level(obs, "jp_truck_100") == 114

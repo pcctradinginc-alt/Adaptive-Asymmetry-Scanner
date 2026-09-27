@@ -887,3 +887,28 @@ def test_only_latest_position_per_active_storm_is_kept():
     cur = current_storm_observations(obs, t1)
     lats = [o.value for o in cur if o.metric == "lat"]
     assert lats == [25.0]
+
+
+# ── Schlüssellose Fallback-Quellen erreichen den Kontext ────────────────────
+
+def test_keyless_fallback_sources_feed_road_context(tmp_path):
+    from datetime import datetime, timedelta, timezone
+    from modules.external import context as ctxmod
+    from modules.external.archive import ExternalArchive
+    from modules.external.pit import AvailabilityPrecision, Observation
+    t_end = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    obs = []
+    for i in range(500):
+        t = t_end - timedelta(days=499 - i)
+        obs.append(Observation(source_id="destatis_truck_toll_download", dataset="daily_index",
+                               series_id="lkw", entity_id="", metric="index_sa",
+                               value=100.0 + (i % 7) + (10.0 if i == 499 else 0.0), unit="idx",
+                               observation_time=t, available_at=t, retrieved_at=t,
+                               availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                               parser_version="1"))
+    archive = ExternalArchive(root=tmp_path)
+    archive.store_observations(obs)
+    snap = ctxmod.build_external_context(t_end + timedelta(days=1), archive=archive)
+    road = snap["road_freight"]
+    assert "destatis_truck_toll_download" in road["eu_sources"]
+    assert road["de_z_1y"] is not None

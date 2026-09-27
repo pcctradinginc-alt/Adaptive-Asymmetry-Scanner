@@ -39,6 +39,35 @@ sources:
       falls die Katalogsuche selbst nicht erreichbar ist.
     expected_table_code: "42191-0001"  # verify in preflight
 
+  - source_id: destatis_truck_toll_download
+    display_name: "Destatis EXDAT-Direktdownload Lkw-Maut-Fahrleistungsindex (ohne GENESIS-Login)"
+    family: road_freight
+    authority: "Statistisches Bundesamt (Destatis)"
+    official_homepage: "https://www.destatis.de/DE/Service/EXDAT/Datensaetze/lkw-maut-fahrleistungsindex.html"
+    machine_endpoint: "https://www.destatis.de/DE/Service/EXDAT/Datensaetze/lkw-maut-fahrleistungsindex.html"
+    access_method: "destatis_exdat_static_download"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)"
+    commercial_use_status_if_known: "erlaubt unter Namensnennung (DL-DE-BY-2.0)"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    notes: >
+      Kein GENESIS-Login nötig: der Downloadlink (.xlsx bevorzugt, sonst
+      .csv) wird zur Laufzeit von der offiziellen EXDAT-Seite gelesen (nur
+      Links auf der Domain destatis.de werden akzeptiert). Ergänzt
+      destatis_truck_toll (GENESIS-Online) als login-freie Alternative;
+      gleiche Metrik-/Entity-Konventionen (index_sa/index_unadjusted,
+      entity_id="" = Deutschland gesamt).
+    download_page_url: "https://www.destatis.de/DE/Service/EXDAT/Datensaetze/lkw-maut-fahrleistungsindex.html"
+
   - source_id: bts_freight_tsi
     display_name: "US BTS Freight Transportation Services Index"
     family: road_freight
@@ -65,6 +94,73 @@ sources:
       angenommen — verify in preflight. Ohne FRED_API_KEY: fredgraph.csv-
       Fallback, nur letzter Stand, supports_vintages effektiv false.
     expected_series_id: "TSIFRGHT"  # verify in preflight
+
+  - source_id: bts_open_data_tsi
+    display_name: "US BTS Transportation Services Index (Socrata Open Data, ohne API-Key)"
+    family: road_freight
+    authority: "U.S. Bureau of Transportation Statistics (BTS)"
+    official_homepage: "https://data.bts.gov/"
+    machine_endpoint: "https://data.bts.gov/resource/"
+    access_method: "socrata_open_data_soda"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "US-Bundesstatistik (public domain, 17 U.S.C. §105); Socrata Open Data Portal ToU beachten"
+    commercial_use_status_if_known: "public domain (US federal statistics)"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    notes: >
+      Ohne FRED_API_KEY: statt fredgraph.csv-Fallback bevorzugt der offizielle
+      Socrata-Open-Data-Endpunkt data.bts.gov, der keinerlei Zugangsdaten
+      verlangt. Dataset-ID wird zur Laufzeit über die Socrata Discovery API
+      (api.us.socrata.com/api/catalog/v1, domains=data.bts.gov) per
+      Titelsuche "Transportation Services Index" ermittelt; Spaltennamen
+      über /api/views/<id>.json. bts_freight_tsi (FRED/ALFRED) bleibt bei
+      vorhandenem FRED_API_KEY die bevorzugte Quelle (Vintages).
+    expected_dataset_id: ""  # kein bekannter fester Fallback -- verify in preflight
+
+  - source_id: eurostat_road_freight_quarterly
+    display_name: "Eurostat Road freight transport, quarterly (road_go_* Familie)"
+    family: road_freight
+    authority: "Eurostat"
+    official_homepage: "https://ec.europa.eu/eurostat/web/transport/database"
+    machine_endpoint: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+    access_method: "eurostat_dissemination_api_jsonstat2"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "Eurostat reuse policy (Commission Decision 2011/833/EU, i.d.R. CC BY 4.0)"
+    commercial_use_status_if_known: "erlaubt unter Namensnennung (Eurostat reuse policy)"
+    frequency: quarterly
+    expected_update_cadence: "P7D"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: low
+    license_status: OK
+    role: SLOW_CONFIRMATION
+    countries: [DE, FR, IT, ES, PL, NL, BE, AT, CZ, SE, EU27_2020]
+    dimension_filters:
+      unit: [THS_T, MIO_TKM]
+    notes: >
+      Wie eurostat_road_freight, aber Discovery beschränkt auf einen
+      QUARTERLY-Datensatz der road_go_-Familie (TOC-Titel enthält
+      "quarterly") -- liefert eine feinere Zeitauflösung
+      (~12 Quartale = 3 Jahre Fenster) für die z-Score-/Beschleunigungs-
+      Features in road_freight_features (eu_road_freight_z/_acceleration
+      nutzen diese Reihe bevorzugt, fallen bei zu wenig Quartalspunkten auf
+      die jährliche eurostat_road_freight-Reihe zurück). Implementiert
+      zusätzlich die First-Seen-PIT-Präzision über eine lokale
+      Zustandsdatei (outputs/external_data/manifests/eurostat_seen_periods.json,
+      siehe EurostatRoadFreightQuarterlyConnector-Docstring).
+    expected_dataset_code: ""  # kein bekannter fester Fallback -- verify in preflight
 
   - source_id: eurostat_road_freight
     display_name: "Eurostat Road freight transport (road_go_ta_* Familie)"
