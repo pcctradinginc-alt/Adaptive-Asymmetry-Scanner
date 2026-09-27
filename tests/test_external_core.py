@@ -713,3 +713,25 @@ def test_source_backfill_override_allows_large_first_import(tmp_path):
     b.store_observations(obs, max_new_normalized_bytes_per_source_per_run=1000, max_backfill_bytes=5000)
     assert "big" in b.last_guard_blocked
     assert "big" not in a.last_guard_blocked
+
+
+def test_refetched_historical_vintages_are_duplicates(tmp_path):
+    """ALFRED liefert je Abruf alle Vintages; ein zweiter identischer Abruf
+    darf nichts Neues schreiben (vorher: ältere Vintages als 'Revision')."""
+    from datetime import datetime, timezone
+    from modules.external.archive import ExternalArchive
+    from modules.external.pit import AvailabilityPrecision, Observation
+    t = datetime(2026, 1, 1, tzinfo=timezone.utc)
+
+    def vint(v, day):
+        vt = datetime(2026, 2, day, tzinfo=timezone.utc)
+        return Observation(source_id="alfred", dataset="d", series_id="S", entity_id="", metric="m",
+                           value=v, unit="u", observation_time=t, available_at=vt, retrieved_at=vt,
+                           vintage_time=vt, availability_precision=AvailabilityPrecision.EXACT_DATE,
+                           parser_version="1")
+    batch = [vint(1.0, 1), vint(2.0, 15)]
+    a = ExternalArchive(root=tmp_path)
+    first = a.store_observations(batch)
+    second = a.store_observations(batch)
+    assert first["new"] + first["revision"] == 2
+    assert second["new"] == 0 and second["revision"] == 0 and second["duplicate"] == 2
