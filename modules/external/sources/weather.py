@@ -724,6 +724,12 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
         forecast_track = storm.get("forecastTrack")
         min_distance_km = None
         nearest_region = None
+        # Im offiziellen CurrentStorms.json ist forecastTrack ein Verweis
+        # (URL/Objekt auf ein GIS-Produkt), keine Punktliste. Distanz nur
+        # berechnen, wenn tatsächlich eine Liste von Punkt-Dicts vorliegt.
+        if not (isinstance(forecast_track, list)
+                and all(isinstance(p_, dict) for p_ in forecast_track)):
+            forecast_track = None
         if forecast_track and exposure_regions:
             for pt in forecast_track:
                 plat, plon = pt.get("lat"), pt.get("lon")
