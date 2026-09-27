@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from types import SimpleNamespace
 
 from modules.external import http
 from modules.external.pit import AvailabilityPrecision, utc_now
@@ -685,3 +686,19 @@ def test_estat_ten_digit_time_codes():
     assert p("2024100000").month == 4          # Fiskaljahr ab April
     with pytest.raises(ValueError):
         p("20241")
+
+
+def test_estat_rejects_tables_from_other_statistics(monkeypatch):
+    """Live 2026-09-27: Güterbahn-Tabellen (鉄道輸送統計) wurden als Lkw
+    archiviert. Tabellen anderer Statistiken dürfen nie gewählt werden."""
+    import json as _json
+    monkeypatch.setenv("ESTAT_APP_ID", "x")
+    rail = {"GET_STATS_LIST": {"RESULT": {"STATUS": 0}, "DATALIST_INF": {"TABLE_INF": [
+        {"@id": "0003423101", "STAT_NAME": {"@code": "00600350", "$": "鉄道輸送統計調査"},
+         "TITLE": {"$": "貨物輸送トン数"}}]}}}
+    res = SimpleNamespace(content=_json.dumps(rail).encode(), json=lambda: rail, status=200,
+                          content_type="application/json", retrieved_at=NOW, url="u",
+                          fingerprint="f", content_hash="h", bytes=10)
+    with patch.object(rf.http, "fetch", return_value=res):
+        out = rf.EstatJpTruckConnector({}).fetch(NOW)
+    assert out.status == SourceStatus.FAIL and not out.observations
