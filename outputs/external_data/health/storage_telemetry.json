@@ -1,7 +1,7 @@
 {
-  "measured_at": "2026-09-27T19:21:29+00:00",
+  "measured_at": "2026-09-27T19:26:03+00:00",
   "total_bytes_per_day": 0.0,
-  "one_off_backfill_bytes": 352584574,
+  "one_off_backfill_bytes": 385132017,
   "projections_bytes": {
     "30d": 0.0,
     "1y": 0.0,
@@ -10,69 +10,69 @@
   "warn_mb_1y": 200.0,
   "flagged": false,
   "backend": "git",
-  "bytes_in_git": 154752746,
+  "bytes_in_git": 158887915,
   "bytes_offloaded": 0,
   "per_source": {
     "bts_freight_tsi": {
       "retrieval_days": 1,
       "rows": 7789,
-      "one_off_backfill_bytes": 7396587,
+      "one_off_backfill_bytes": 8143739,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "bts_open_data_tsi": {
       "retrieval_days": 1,
       "rows": 638,
-      "one_off_backfill_bytes": 3429248,
+      "one_off_backfill_bytes": 4190718,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "destatis_truck_toll": {
       "retrieval_days": 1,
       "rows": 1120,
-      "one_off_backfill_bytes": 777694,
+      "one_off_backfill_bytes": 792723,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "estat_jp_truck": {
       "retrieval_days": 1,
-      "rows": 0,
-      "one_off_backfill_bytes": 622176,
+      "rows": 5896,
+      "one_off_backfill_bytes": 5115589,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_industrial_production": {
       "retrieval_days": 1,
       "rows": 2785,
-      "one_off_backfill_bytes": 10145305,
+      "one_off_backfill_bytes": 12193882,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_road_freight": {
       "retrieval_days": 1,
       "rows": 15128,
-      "one_off_backfill_bytes": 32145256,
+      "one_off_backfill_bytes": 34344047,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_road_freight_quarterly": {
       "retrieval_days": 1,
       "rows": 60282,
-      "one_off_backfill_bytes": 53145795,
+      "one_off_backfill_bytes": 56026286,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_sentiment": {
       "retrieval_days": 1,
       "rows": 7162,
-      "one_off_backfill_bytes": 13445373,
+      "one_off_backfill_bytes": 15694210,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "fred_us_macro": {
       "retrieval_days": 1,
       "rows": 40445,
-      "one_off_backfill_bytes": 38177307,
+      "one_off_backfill_bytes": 42099558,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -93,28 +93,28 @@
     "ncei_normals": {
       "retrieval_days": 1,
       "rows": 87600,
-      "one_off_backfill_bytes": 63480838,
+      "one_off_backfill_bytes": 65972979,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nhc_storms": {
       "retrieval_days": 1,
-      "rows": 210,
-      "one_off_backfill_bytes": 884077,
+      "rows": 216,
+      "one_off_backfill_bytes": 1041695,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nws_alerts": {
       "retrieval_days": 1,
       "rows": 0,
-      "one_off_backfill_bytes": 1651501,
+      "one_off_backfill_bytes": 1791621,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nws_forecast": {
       "retrieval_days": 1,
-      "rows": 7279,
-      "one_off_backfill_bytes": 117428915,
+      "rows": 7649,
+      "one_off_backfill_bytes": 127870468,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     }
