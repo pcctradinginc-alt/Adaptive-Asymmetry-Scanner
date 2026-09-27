@@ -119,18 +119,41 @@
           ],
           "Shenzhen": [
             "Iskenderun",
-            "Wenzhou",
-            "Bushehr"
+            "Bushehr",
+            "Wenzhou"
           ],
           "Qingdao": [
             "Qinhuangdao",
-            "Qingdao Port",
-            "Qingdao Gang"
+            "Qingdao Gang",
+            "Qingdao Port"
           ],
           "Laem Chabang": [
             "Palembang",
             "Daesan Hang",
             "Semarang"
+          ]
+        },
+        "unresolved_ports_hint_matches": {
+          "Long Beach": [
+            "Los Angeles",
+            "San Pedro",
+            "San Pedro De Macoris"
+          ],
+          "Ningbo(-Zhoushan)": [
+            "Ningbo",
+            "Zhoushan"
+          ],
+          "Shenzhen": [
+            "Chiwan",
+            "Shekou"
+          ],
+          "Qingdao": [
+            "Qingdao Gang",
+            "Qingdao Port",
+            "Qinhuangdao"
+          ],
+          "Laem Chabang": [
+            "Si Racha"
           ]
         },
         "n_observations_before_reduction": 563745
@@ -267,8 +290,8 @@
   {
     "source_id": "destatis_truck_toll",
     "status": "PASS",
-    "n_observations": 120,
-    "latest_observation_time": "2026-12-01T00:00:00+00:00",
+    "n_observations": 1120,
+    "latest_observation_time": "2026-08-01T00:00:00+00:00",
     "endpoints": [
       "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables",
       "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
@@ -276,7 +299,7 @@
     "http_status": [
       200
     ],
-    "message": "120 Beobachtungen aus Tabelle 42191-0001",
+    "message": "1120 Beobachtungen aus Tabelle 42191-0001",
     "discovered_ids": {
       "fallback_table_code_source": "config.expected_table_code (verify in preflight)"
     },
@@ -364,14 +387,14 @@
           "updatedAt": "2026-09-25T17:46:40.000Z"
         },
         {
-          "id": "3w2s-iysp",
-          "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
-          "updatedAt": "2026-06-10T11:17:47.000Z"
-        },
-        {
           "id": "6zn8-4eyz",
           "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
           "updatedAt": "2026-09-25T17:46:49.000Z"
+        },
+        {
+          "id": "3w2s-iysp",
+          "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
+          "updatedAt": "2026-06-10T11:17:47.000Z"
         },
         {
           "id": "9czv-tjte",
@@ -501,152 +524,7 @@
         "road_go_tq_trat": "Road freight transport vehicle transit movements by transit country, loading status and maximum permissible laden weight (MPLW) of vehicle (t, journeys) - quarterly data, EU totals"
       },
       "eurostat_road_freight_quarterly_chosen": "road_go_tq_tott",
-      "eurostat_road_freight_quarterly_new_periods": [
-        "1990-Q1",
-        "1990-Q2",
-        "1990-Q3",
-        "1990-Q4",
-        "1991-Q1",
-        "1991-Q2",
-        "1991-Q3",
-        "1991-Q4",
-        "1992-Q1",
-        "1992-Q2",
-        "1992-Q3",
-        "1992-Q4",
-        "1993-Q1",
-        "1993-Q2",
-        "1993-Q3",
-        "1993-Q4",
-        "1994-Q1",
-        "1994-Q2",
-        "1994-Q3",
-        "1994-Q4",
-        "1995-Q1",
-        "1995-Q2",
-        "1995-Q3",
-        "1995-Q4",
-        "1996-Q1",
-        "1996-Q2",
-        "1996-Q3",
-        "1996-Q4",
-        "1997-Q1",
-        "1997-Q2",
-        "1997-Q3",
-        "1997-Q4",
-        "1998-Q1",
-        "1998-Q2",
-        "1998-Q3",
-        "1998-Q4",
-        "1999-Q1",
-        "1999-Q2",
-        "1999-Q3",
-        "1999-Q4",
-        "2000-Q1",
-        "2000-Q2",
-        "2000-Q3",
-        "2000-Q4",
-        "2001-Q1",
-        "2001-Q2",
-        "2001-Q3",
-        "2001-Q4",
-        "2002-Q1",
-        "2002-Q2",
-        "2002-Q3",
-        "2002-Q4",
-        "2003-Q1",
-        "2003-Q2",
-        "2003-Q3",
-        "2003-Q4",
-        "2004-Q1",
-        "2004-Q2",
-        "2004-Q3",
-        "2004-Q4",
-        "2005-Q1",
-        "2005-Q2",
-        "2005-Q3",
-        "2005-Q4",
-        "2006-Q1",
-        "2006-Q2",
-        "2006-Q3",
-        "2006-Q4",
-        "2007-Q1",
-        "2007-Q2",
-        "2007-Q3",
-        "2007-Q4",
-        "2008-Q1",
-        "2008-Q2",
-        "2008-Q3",
-        "2008-Q4",
-        "2009-Q1",
-        "2009-Q2",
-        "2009-Q3",
-        "2009-Q4",
-        "2010-Q1",
-        "2010-Q2",
-        "2010-Q3",
-        "2010-Q4",
-        "2011-Q1",
-        "2011-Q2",
-        "2011-Q3",
-        "2011-Q4",
-        "2012-Q1",
-        "2012-Q2",
-        "2012-Q3",
-        "2012-Q4",
-        "2013-Q1",
-        "2013-Q2",
-        "2013-Q3",
-        "2013-Q4",
-        "2014-Q1",
-        "2014-Q2",
-        "2014-Q3",
-        "2014-Q4",
-        "2015-Q1",
-        "2015-Q2",
-        "2015-Q3",
-        "2015-Q4",
-        "2016-Q1",
-        "2016-Q2",
-        "2016-Q3",
-        "2016-Q4",
-        "2017-Q1",
-        "2017-Q2",
-        "2017-Q3",
-        "2017-Q4",
-        "2018-Q1",
-        "2018-Q2",
-        "2018-Q3",
-        "2018-Q4",
-        "2019-Q1",
-        "2019-Q2",
-        "2019-Q3",
-        "2019-Q4",
-        "2020-Q1",
-        "2020-Q2",
-        "2020-Q3",
-        "2020-Q4",
-        "2021-Q1",
-        "2021-Q2",
-        "2021-Q3",
-        "2021-Q4",
-        "2022-Q1",
-        "2022-Q2",
-        "2022-Q3",
-        "2022-Q4",
-        "2023-Q1",
-        "2023-Q2",
-        "2023-Q3",
-        "2023-Q4",
-        "2024-Q1",
-        "2024-Q2",
-        "2024-Q3",
-        "2024-Q4",
-        "2025-Q1",
-        "2025-Q2",
-        "2025-Q3",
-        "2025-Q4"
-      ]
+      "eurostat_road_freight_quarterly_new_periods": []
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -690,16 +568,19 @@
   },
   {
     "source_id": "estat_jp_truck",
-    "status": "AUTH_MISSING",
+    "status": "SCHEMA_CHANGED",
     "n_observations": 0,
     "latest_observation_time": null,
-    "endpoints": [],
-    "http_status": [],
-    "message": "ESTAT_APP_ID nicht gesetzt -> kein API-Call ausgef\u00fchrt.",
+    "endpoints": [
+      "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "getStatsList-Antwort ohne TABLE_INF -> Schema ge\u00e4ndert.",
     "discovered_ids": {},
     "family": "road_freight",
-    "license_status": "REVIEW_REQUIRED",
-    "archiving": "blocked_until_license_review"
+    "license_status": "OK"
   },
   {
     "source_id": "fhwa_faf",
@@ -739,8 +620,8 @@
   },
   {
     "source_id": "nws_forecast",
-    "status": "PASS",
-    "n_observations": 2397,
+    "status": "WARN",
+    "n_observations": 2229,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -778,8 +659,6 @@
       "https://api.weather.gov/gridpoints/OKX/42,40",
       "https://api.weather.gov/gridpoints/PHI/48,75",
       "https://api.weather.gov/gridpoints/PHI/50,79",
-      "https://api.weather.gov/gridpoints/PSR/159,58",
-      "https://api.weather.gov/gridpoints/PSR/161,57",
       "https://api.weather.gov/gridpoints/SEW/124,61",
       "https://api.weather.gov/gridpoints/TBW/98,102",
       "https://api.weather.gov/gridpoints/VEF/122,94",
@@ -827,7 +706,7 @@
     "http_status": [
       200
     ],
-    "message": "",
+    "message": "3 von 45 Locations fehlgeschlagen",
     "discovered_ids": {
       "ATL": {
         "gridId": "FFC",
@@ -888,12 +767,6 @@
         "gridX": 106,
         "gridY": 51,
         "timezone": "America/New_York"
-      },
-      "PHX": {
-        "gridId": "PSR",
-        "gridX": 161,
-        "gridY": 57,
-        "timezone": "America/Phoenix"
       },
       "SEA": {
         "gridId": "SEW",
@@ -973,12 +846,6 @@
         "gridY": 87,
         "timezone": "America/New_York"
       },
-      "PHX_METRO": {
-        "gridId": "PSR",
-        "gridX": 159,
-        "gridY": 58,
-        "timezone": "America/Phoenix"
-      },
       "LA_METRO": {
         "gridId": "LOX",
         "gridX": 155,
@@ -1044,12 +911,6 @@
         "gridX": 26,
         "gridY": 68,
         "timezone": "America/New_York"
-      },
-      "AZ_CONSTR": {
-        "gridId": "PSR",
-        "gridX": 159,
-        "gridY": 58,
-        "timezone": "America/Phoenix"
       },
       "GA_CONSTR": {
         "gridId": "FFC",

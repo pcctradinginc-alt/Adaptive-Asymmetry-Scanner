@@ -1,5 +1,5 @@
 {
-  "retrieved_at": "2026-09-27T17:10:48+00:00",
+  "retrieved_at": "2026-09-27T18:04:02+00:00",
   "portwatch_arcgis_items": [
     {
       "id": "83b1bbc7b3354c5fb1f40673bb8f852e",
@@ -56,6 +56,44 @@
       "url": "https://portwatch.imf.org/pages/data-and-methodology",
       "http_status": 200,
       "relevant_paragraphs": []
+    },
+    "estat_terms_of_use": {
+      "url": "https://www.e-stat.go.jp/en/terms-of-use",
+      "http_status": 200,
+      "relevant_paragraphs": [
+        "Terms of Use | Portal Site of Official Statistics of Japan",
+        "Information made available on this website (hereinafter referred to as “Content”) may be freely used, copied, publicly transmitted, translated or otherwise modified on condition that the user complies with provisions 1) to 6) below. Commercial use of Content is also permitted.",
+        "Note, however, that numerical data and data in Simple tables, graphs, and so forth are not subject to copyright. Accordingly the terms of use does not apply to such data, and said data may be used freely.",
+        "Use of the Content constitutes agreement by the user with these terms of use for using the Content described herein (hereinafter referred to as “Terms of Use”).",
+        "a. The user must cite the source when using the Content. Sources should be cited in the following manner:",
+        "b. If you have edited the Content for use, you must include a statement expressing that the content has been edited, in addition to the abovementioned source citation, but not in any way that making public or using edited information in a format that may be misconstrued as having been created by the Government of Japan (or its ministries and/or agencies).",
+        "(Example of citation when using edited content)",
+        "a. In some cases, a third party (refers to a party other than the state. Hereinafter referred to as “Third Party”) may hold copyrights or other rights to a part of the Content. For Content where a Third Party holds copyrights or other rights (e.g. portrait rights in a photograph, publicity rights etc.), it is the responsibility of the user to obtain consent for use from the Third Party unless there is explicit indication that the rights have already been cleared.",
+        "b. If a Third Party holds rights to a part of the Content, said fact may be directly or indirectly stated or indicated through source citations, but in some cases the part of the Content to which the Third Party holds the rights may not be clear or may not be explicitly stated. It is the responsibility of the user to confirm the rights pertaining to use of the Content.",
+        "c. The user must comply with the terms and conditions of the source provider for Content obtained through API (Application Programming Interface) links to external databases etc.",
+        "d. Even if a Third Party holds copyrights to the Content, some use of the Content, such as quoting, may be allowed without the consent of the copyright holder, under the Copyright Act of Japan.",
+        "3) Content where the Terms of Use does not apply",
+        "The Terms of Use herein does not apply to the following Content.",
+        "b. Content where other terms of use apply with rational and concrete reason.",
+        "(Please refer to Notes. Content where other terms of use apply.)",
+        "a. The Terms of Use shall be governed by and construed in accordance with the laws of Japan.",
+        "b. In case of disputes relating to the use of the Content based on the Terms of Use, or the Terms of Use, the user agrees that the exclusive court of first instance shall be the district court with jurisdiction in the place where the organization that has published the disputed Content or Terms of Use is located.",
+        "a. The Terms of Use does not limit those types of uses for which, under Copyright Act of Japan, license from the right holders are not required.",
+        "b. The Terms of Use was established on January 29, 2016. The Terms of Use is based on the Government of Japan Standard Terms of Use (Version 2.0). The Terms of Use may be modified in the future. If you are already using Content under previous version of the Government of Japan Standard Terms of Use, these terms and conditions will continue to apply.",
+        "c. The Terms of Use are compatible with the Creative Commons Attribution License 4.0 (hereinafter referred to as the CC License). This means that Content based on the Terms of Use may be used under the CC License in lieu of the Terms of Use.",
+        "Notes. Content where other terms of use apply",
+        "-Use of the API in the Portal Site of Official Statistics of Japan (e-Stat):",
+        "These Terms of Use (Japanese) shall apply to the use of the API in the Portal Site of Official Statistics of Japan (e-Stat).",
+        "These Terms of Use (Japanese) shall apply to the use of the GIS in the Portal Site of Official Statistics of Japan (e-Stat)."
+      ]
+    },
+    "estat_api_credit": {
+      "url": "https://www.e-stat.go.jp/api/en/api-info/credit",
+      "http_status": 200,
+      "relevant_paragraphs": [
+        "In case of disclosing the service using the API functions, please make sure there is the credit below on it.",
+        "\"This service uses API functions from e-Stat, however its contents are not guaranteed by government.\""
+      ]
     }
   },
   "note": "Belege, keine Entscheidung. license_status wird per menschlichem PR gesetzt."
