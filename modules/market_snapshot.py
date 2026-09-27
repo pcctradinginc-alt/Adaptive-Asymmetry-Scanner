@@ -24,14 +24,13 @@ WICHTIG: Dieses Modul ist REINE Observability, genau wie candidate_ledger.py.
   - Netzwerkzugriffe sind bewusst in kleine "_fetch_*"-Funktionen isoliert,
     damit Tests sie ohne echtes Netzwerk monkeypatchen können.
 
-NYSE-Feiertage werden in us_market_session() NICHT berücksichtigt (out of
-scope) — an einem Feiertag liefert die Funktion fälschlich "pre"/"regular"/
-"post" statt "closed" (Wochenend-Erkennung ist aber korrekt).
+NYSE-Feiertage und Early-Closes werden über eine regel-basierte Kalender
+(nyse_holidays, nyse_early_closes) berücksichtigt.
 """
 
 import logging
 import os
-from datetime import datetime, time as dt_time, timezone
+from datetime import datetime, time as dt_time, timezone, date, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
@@ -46,6 +45,252 @@ NY_TZ = ZoneInfo("America/New_York")
 
 MARKET_OPEN  = dt_time(9, 30)
 MARKET_CLOSE = dt_time(16, 0)
+EARLY_CLOSE  = dt_time(13, 0)
+
+
+# ── NYSE-Kalender (rule-based, pure functions, stdlib only) ──────────────────
+
+def _easter_date(year: int) -> date:
+    """
+    Compute Easter Sunday using Gregorian/Meeus algorithm.
+    Returns the date of Easter Sunday for the given year.
+    """
+    a = year % 19
+    b = year // 100
+    c = year % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = ((h + l - 7 * m + 114) % 31) + 1
+    return date(year, month, day)
+
+
+def _third_monday(year: int, month: int) -> date:
+    """Return the third Monday of the given month."""
+    d = date(year, month, 1)
+    # Find first Monday
+    days_until_monday = (7 - d.weekday()) % 7
+    if days_until_monday == 0:
+        first_monday = d
+    else:
+        first_monday = d + timedelta(days=days_until_monday)
+    # Third Monday is 2 weeks after first Monday
+    return first_monday + timedelta(weeks=2)
+
+
+def _last_monday(year: int, month: int) -> date:
+    """Return the last Monday of the given month."""
+    # Start from the last day of the month
+    if month == 12:
+        next_month = date(year + 1, 1, 1)
+    else:
+        next_month = date(year, month + 1, 1)
+    last_day = next_month - timedelta(days=1)
+
+    # Back up to the last Monday
+    days_back = (last_day.weekday() - 0) % 7  # 0=Monday
+    return last_day - timedelta(days=days_back)
+
+
+def _fourth_thursday(year: int, month: int) -> date:
+    """Return the fourth Thursday of the given month."""
+    d = date(year, month, 1)
+    # Find first Thursday (weekday 3)
+    days_until_thursday = (3 - d.weekday()) % 7
+    if days_until_thursday == 0:
+        first_thursday = d
+    else:
+        first_thursday = d + timedelta(days=days_until_thursday)
+    # Fourth Thursday is 3 weeks after first Thursday
+    return first_thursday + timedelta(weeks=3)
+
+
+def _observe_date(d: date) -> date:
+    """
+    Apply NYSE observation rule: if Saturday, preceding Friday;
+    if Sunday, following Monday.
+    EXCEPT: New Year's Day Saturday is NOT observed on Dec 31 of prior year.
+    """
+    if d.weekday() == 5:  # Saturday
+        return d - timedelta(days=1)
+    elif d.weekday() == 6:  # Sunday
+        return d + timedelta(days=1)
+    return d
+
+
+def nyse_holidays(year: int) -> set[date]:
+    """
+    Return the set of NYSE holiday dates for the given year.
+    Includes:
+    - New Year's Day (Jan 1, observed; Saturday → preceding Friday,
+      Sunday → following Monday)
+    - Martin Luther King Jr. Day (3rd Monday January)
+    - Washington's Birthday (3rd Monday February)
+    - Good Friday (Friday before Easter)
+    - Memorial Day (last Monday May)
+    - Juneteenth (June 19, observed; from 2022 onward)
+    - Independence Day (July 4, observed)
+    - Labor Day (1st Monday September)
+    - Thanksgiving (4th Thursday November)
+    - Christmas (Dec 25, observed)
+
+    Special note: New Year's Day on Saturday is NOT observed on Dec 31
+    of the prior year per NYSE rule.
+    """
+    holidays = set()
+
+    # New Year's Day (Jan 1, observed)
+    new_year = date(year, 1, 1)
+    if new_year.weekday() == 5:  # Saturday
+        # NYSE rule: do NOT observe on Dec 31 of prior year
+        # Just observe on the Saturday itself? Or not at all?
+        # According to the spec, if Saturday, observed on preceding Friday (Dec 31)
+        # but NOT per NYSE rule (meaning Dec 31 is not a holiday)
+        # So New Year Saturday is observed on... the Saturday? Let me check the spec again.
+        # "if Saturday → NOT observed on Dec 31 of prior year per NYSE rule"
+        # This suggests: if Jan 1 is Saturday, it's NOT observed on Dec 31 of the prior year,
+        # but IS observed on Jan 1 (the Saturday itself) or the Friday before?
+        # I think the intention is: Saturday Jan 1 is NOT a holiday at all for NYSE.
+        # No, wait. Let me re-read: "if Saturday → NOT observed on Dec 31 of prior year"
+        # This is saying the rule is different from typical. Normally Sat → Fri before.
+        # But NYSE doesn't observe it on the Friday of prior year. So maybe Jan 1 Sat is
+        # NOT a holiday? Or is it observed on Saturday?
+        # Actually, re-reading more carefully with the test cases:
+        # "2022 New Year Saturday → no Dec 31 2021 holiday"
+        # This tells us that when Jan 1 is Saturday (in 2022), Dec 31 2021 is NOT a holiday.
+        # So for NYSE, we just observe Jan 1 Saturday as-is (the Saturday), not the Friday.
+        holidays.add(new_year)
+    elif new_year.weekday() == 6:  # Sunday
+        holidays.add(_observe_date(new_year))  # Following Monday (Jan 2)
+    else:  # Weekday
+        holidays.add(new_year)
+
+    # MLK Day (3rd Monday January)
+    holidays.add(_third_monday(year, 1))
+
+    # Washington's Birthday (3rd Monday February)
+    holidays.add(_third_monday(year, 2))
+
+    # Good Friday (Friday before Easter)
+    easter = _easter_date(year)
+    good_friday = easter - timedelta(days=2)
+    holidays.add(good_friday)
+
+    # Memorial Day (last Monday May)
+    holidays.add(_last_monday(year, 5))
+
+    # Juneteenth (June 19, observed; from 2022 onward)
+    if year >= 2022:
+        juneteenth = date(year, 6, 19)
+        if juneteenth.weekday() == 5:  # Saturday
+            holidays.add(juneteenth - timedelta(days=1))  # Preceding Friday
+        elif juneteenth.weekday() == 6:  # Sunday
+            holidays.add(juneteenth + timedelta(days=1))  # Following Monday
+        else:
+            holidays.add(juneteenth)
+
+    # Independence Day (July 4, observed)
+    july_4 = date(year, 7, 4)
+    if july_4.weekday() == 5:  # Saturday
+        holidays.add(july_4 - timedelta(days=1))  # Preceding Friday (July 3)
+    elif july_4.weekday() == 6:  # Sunday
+        holidays.add(july_4 + timedelta(days=1))  # Following Monday (July 5)
+    else:
+        holidays.add(july_4)
+
+    # Labor Day (1st Monday September)
+    d = date(year, 9, 1)
+    days_until_monday = (7 - d.weekday()) % 7
+    if days_until_monday == 0:
+        first_monday = d
+    else:
+        first_monday = d + timedelta(days=days_until_monday)
+    holidays.add(first_monday)
+
+    # Thanksgiving (4th Thursday November)
+    holidays.add(_fourth_thursday(year, 11))
+
+    # Christmas (Dec 25, observed)
+    christmas = date(year, 12, 25)
+    if christmas.weekday() == 5:  # Saturday
+        holidays.add(christmas - timedelta(days=1))  # Preceding Friday (Dec 24)
+    elif christmas.weekday() == 6:  # Sunday
+        holidays.add(christmas + timedelta(days=1))  # Following Monday (Dec 26)
+    else:
+        holidays.add(christmas)
+
+    return holidays
+
+
+def nyse_early_closes(year: int) -> set[date]:
+    """
+    Return the set of NYSE early close dates (close at 13:00 ET) for the given year.
+    Includes:
+    - Day before Independence Day (July 3) if weekday and not a holiday
+    - Day after Thanksgiving (usually Friday)
+    - Christmas Eve (Dec 24) if weekday and not a holiday
+    """
+    early_closes = set()
+    holidays = nyse_holidays(year)
+
+    # Day before Independence Day (July 3)
+    july_3 = date(year, 7, 3)
+    if july_3.weekday() < 5 and july_3 not in holidays:  # weekday (Mon-Fri)
+        early_closes.add(july_3)
+
+    # Day after Thanksgiving (4th Thursday November)
+    thanksgiving = _fourth_thursday(year, 11)
+    day_after = thanksgiving + timedelta(days=1)
+    if day_after.weekday() < 5:  # If it's a weekday
+        early_closes.add(day_after)
+
+    # Christmas Eve (Dec 24)
+    christmas_eve = date(year, 12, 24)
+    if christmas_eve.weekday() < 5 and christmas_eve not in holidays:  # weekday and not a holiday
+        early_closes.add(christmas_eve)
+
+    return early_closes
+
+
+def is_trading_day(d: date) -> bool:
+    """
+    Check if a date is a trading day (not a holiday or weekend).
+    """
+    if d.weekday() >= 5:  # Saturday or Sunday
+        return False
+    year = d.year
+    if d in nyse_holidays(year):
+        return False
+    return True
+
+
+def market_close_time(d: date) -> dt_time:
+    """
+    Return the market close time for a given date.
+    13:00 ET for early close days, 16:00 ET otherwise.
+    """
+    year = d.year
+    if d in nyse_early_closes(year):
+        return EARLY_CLOSE
+    return MARKET_CLOSE
+
+
+def next_trading_day(d: date) -> date:
+    """
+    Return the next trading day after the given date.
+    Skips weekends and holidays.
+    """
+    current = d + timedelta(days=1)
+    while not is_trading_day(current):
+        current = current + timedelta(days=1)
+    return current
 
 
 # ── Tradier Hilfsfunktionen ───────────────────────────────────────────────────
@@ -95,24 +340,36 @@ def us_market_session(ts_utc: datetime) -> str:
     """
     Klassifiziert einen (UTC-)Zeitpunkt in eine NYSE-Session:
         "pre"     – Wochentag, vor 09:30 America/New_York
-        "regular" – Wochentag, 09:30–16:00 America/New_York
-        "post"    – Wochentag, nach 16:00 America/New_York
-        "closed"  – Samstag/Sonntag
+        "regular" – Wochentag, 09:30–close time America/New_York
+                    (16:00 normal, 13:00 on early-close days)
+        "post"    – Wochentag, nach close time America/New_York
+        "closed"  – Samstag/Sonntag oder NYSE-Feiertag
 
-    DST wird korrekt über zoneinfo behandelt. NYSE-Feiertage NICHT (out of
-    scope) — dort liefert die Funktion die uhrzeit-basierte Klassifikation,
-    obwohl der Markt tatsächlich geschlossen ist.
+    DST wird korrekt über zoneinfo behandelt. NYSE-Feiertage und Early-Closes
+    werden über die rule-based Kalender berücksichtigt.
     """
     try:
         if ts_utc.tzinfo is None:
             ts_utc = ts_utc.replace(tzinfo=timezone.utc)
         local = ts_utc.astimezone(NY_TZ)
-        if local.weekday() >= 5:  # Samstag=5, Sonntag=6
+        d = local.date()
+
+        # Check for weekend
+        if d.weekday() >= 5:  # Samstag=5, Sonntag=6
             return "closed"
+
+        # Check for NYSE holiday
+        if d in nyse_holidays(d.year):
+            return "closed"
+
+        # Determine close time for this date
+        close_time = market_close_time(d)
+
+        # Classify by time
         t = local.time()
         if t < MARKET_OPEN:
             return "pre"
-        if t < MARKET_CLOSE:
+        if t < close_time:
             return "regular"
         return "post"
     except Exception as e:
