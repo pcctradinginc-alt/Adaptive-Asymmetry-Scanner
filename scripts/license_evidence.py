@@ -34,6 +34,8 @@ PAGES = {
     "imf_terms_legacy": "https://www.imf.org/external/terms.htm",
     "portwatch_faqs": "https://portwatch.imf.org/pages/faqs",
     "portwatch_data_methodology": "https://portwatch.imf.org/pages/data-and-methodology",
+    "estat_terms_of_use": "https://www.e-stat.go.jp/en/terms-of-use",
+    "estat_api_credit": "https://www.e-stat.go.jp/api/en/api-info/credit",
 }
 KEYWORDS = re.compile(
     r"(licen[cs]e|terms|copyright|commercial|attribut|cite|citation|permission|"
