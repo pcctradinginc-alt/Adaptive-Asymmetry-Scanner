@@ -10,8 +10,9 @@ groups:
   US_WEST:
     - name: "Los Angeles"
       country: "United States"
-    - name: "Long Beach"
-      country: "United States"
+    # Long Beach: PortWatch führt den San-Pedro-Bay-Komplex nur als
+    # "Los Angeles" (port664, Preflight 2026-09-27) -> nicht separat, sonst
+    # Doppelzählung.
 
   US_EAST:
     - name: "New York-New Jersey"
@@ -130,9 +131,8 @@ chokepoint_aliases:
 
 # Offizielle PortWatch-Hafennamen (World-Port-Index-Schreibweise), jeweils im
 # Live-Preflight vom 2026-09-27 als vorhandener Layer-Name beobachtet. Nur
-# eindeutige Treffer: Qingdao ("Qingdao Port" vs. "Qingdao Gang") bleibt
-# bewusst offen; Long Beach, Shenzhen, Ningbo(-Zhoushan), Laem Chabang
-# erschienen nicht unter einem eindeutigen Namen -> unaufgelöst statt geraten.
+# eindeutige Treffer; mehrdeutige Fälle nach Daten (portcalls) entschieden,
+# siehe preflight diagnostics unresolved_ports_hint_activity.
 port_aliases:
   "Antwerp(-Bruges)": ["Antwerp"]
   "Piraeus": ["Piraievs"]
@@ -142,6 +142,11 @@ port_aliases:
   "Tokyo": ["Tokyo Ko"]
   "Jebel Ali": ["Mina Jabal Ali"]
   "Jeddah": ["Jiddah"]
+  # Preflight 2026-09-27, entschieden nach portcalls im Abruffenster:
+  "Ningbo(-Zhoushan)": ["Ningbo"]        # port824, 668 Anläufe (Zhoushan port1429 separat, 241)
+  "Shenzhen": ["Shekou"]                 # port1189, 111 (Chiwan 10; Yantian nicht im Layer)
+  "Qingdao": ["Qingdao Gang"]            # port1069, 364 (Qingdao Port port1070: 81)
+  "Laem Chabang": ["Si Racha"]           # port1197, Thailand, 229 (Laem Chabang liegt in Si Racha)
 
 # Suchwörter für die Preflight-Diagnose unaufgelöster Häfen (nur Anzeige,
 # kein automatisches Matching; Treffer werden manuell zu port_aliases).
