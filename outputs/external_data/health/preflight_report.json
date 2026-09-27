@@ -1,35 +1,178 @@
 [
   {
     "source_id": "imf_portwatch_ports",
-    "status": "SCHEMA_CHANGED",
-    "n_observations": 0,
-    "latest_observation_time": null,
-    "endpoints": [],
-    "http_status": [],
-    "message": "SCHEMA_CHANGED: Kern-Felder (portid/portname) nicht im Ports-Referenz-Layer gefunden. Vorhandene Felder: ['CPCS_Type', 'CityName', 'CountyName', 'FID', 'FacilityAd', 'FacilityNa', 'FacilityTy', 'GlobalID', 'Latitude', 'Longitude', 'OBJECTID_1', 'Owner', 'Port_Tonn', 'PublishDat', 'USACE_Port', 'ag_exports', 'ag_imports']",
+    "status": "WARN",
+    "n_observations": 563745,
+    "latest_observation_time": "2026-09-18T00:00:00+00:00",
+    "endpoints": [
+      "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "563745 observations; 13 unresolved ports: ['Antwerp(-Bruges)', 'Busan', 'Genoa', 'Jebel Ali', 'Jeddah', 'Laem Chabang', 'Long Beach', 'Ningbo(-Zhoushan)', 'Piraeus', 'Qingdao', 'Shenzhen', 'Tokyo', 'Yokohama']",
     "discovered_ids": {
+      "ports": {
+        "Los Angeles": "port664",
+        "New York-New Jersey": "port815",
+        "Savannah": "port1170",
+        "Houston": "port481",
+        "Rotterdam": "port1114",
+        "Hamburg": "port446",
+        "Bremerhaven": "port168",
+        "Valencia": "port1348",
+        "Shanghai": "port1188",
+        "Kobe": "port581",
+        "Singapore": "port1201",
+        "Port Klang": "port960"
+      },
+      "unresolved_ports": {
+        "Long Beach": "no_match",
+        "Antwerp(-Bruges)": "no_match",
+        "Piraeus": "no_match",
+        "Genoa": "no_match",
+        "Ningbo(-Zhoushan)": "no_match",
+        "Shenzhen": "no_match",
+        "Qingdao": "no_match",
+        "Busan": "no_match",
+        "Yokohama": "no_match",
+        "Tokyo": "no_match",
+        "Laem Chabang": "no_match",
+        "Jebel Ali": "no_match",
+        "Jeddah": "no_match"
+      },
       "diagnostics": {
-        "field_names": [
-          "CPCS_Type",
-          "CityName",
-          "CountyName",
-          "FID",
-          "FacilityAd",
-          "FacilityNa",
-          "FacilityTy",
-          "GlobalID",
-          "Latitude",
-          "Longitude",
-          "OBJECTID_1",
-          "Owner",
-          "Port_Tonn",
-          "PublishDat",
-          "USACE_Port",
-          "ag_exports",
-          "ag_imports"
+        "available_ports": [
+          "Abbot Point",
+          "Abenra",
+          "Aberdeen",
+          "Abidjan",
+          "Abu Zaby",
+          "Acajutla",
+          "Acapulco",
+          "Ad Dakhla",
+          "Aden",
+          "Agadir",
+          "Ahus",
+          "Aiyion",
+          "Ajman",
+          "Akita-Funakawa Ko",
+          "Ako",
+          "Aktau Port",
+          "Akureyri",
+          "Al Ahmadi",
+          "Al Aqabah",
+          "Al Basrah",
+          "Al Burayqah",
+          "Al Hamriyah LPG Terminal",
+          "Al Iskandariyh (Alexandria)",
+          "Al Jubayl",
+          "Al Kuwayt",
+          "Al Ladhiqiyah",
+          "Al Mukalla",
+          "Albany",
+          "Alborg",
+          "Alesund",
+          "Algeciras",
+          "Alger",
+          "Aliaga",
+          "Alicante",
+          "Almeria",
+          "Alotoa",
+          "Altamira",
+          "Alvika",
+          "Amagasaki",
+          "Amamapare",
+          "Ambon",
+          "Amirabad Port",
+          "Ampenan",
+          "Amsterdam",
+          "Amuay (Bahia De Amuay)",
+          "Anacortes",
+          "Anchorage",
+          "Ancona",
+          "Andoany",
+          "Andres (Andres LGN Terminal)",
+          "Anguilla",
+          "Annaba",
+          "Antalya",
+          "Antisranana",
+          "Antofagasta",
+          "Antwerp",
+          "Anzali Port",
+          "Aomori Ko",
+          "Apia",
+          "Apra Harbor"
         ],
-        "maxRecordCount": 2000,
-        "service_url": "https://services.arcgis.com/IYrj3otxNjPsrTRD/arcgis/rest/services/Maritime_Ports_Ag_Trade/FeatureServer/0"
+        "n_available_ports": 1364,
+        "ports_reference_fallback_to_daily_layer": false,
+        "unresolved_ports_close_matches": {
+          "Long Beach": [
+            "Palm Beach",
+            "LNG Tangguh",
+            "Montego Bay"
+          ],
+          "Antwerp(-Bruges)": [
+            "Antwerp",
+            "Bruges",
+            "Sankt-Peterburg"
+          ],
+          "Piraeus": [
+            "Piraievs",
+            "Empire",
+            "Brades"
+          ],
+          "Genoa": [
+            "Genova",
+            "Benoa",
+            "Gela"
+          ],
+          "Ningbo(-Zhoushan)": [
+            "Zhoushan",
+            "Jinzhou Wan",
+            "Qingzhou"
+          ],
+          "Shenzhen": [
+            "Iskenderun",
+            "Bushehr",
+            "Wenzhou"
+          ],
+          "Qingdao": [
+            "Qinhuangdao",
+            "Qingdao Port",
+            "Qingdao Gang"
+          ],
+          "Busan": [
+            "Pusan",
+            "Ulsan",
+            "Kunsan"
+          ],
+          "Yokohama": [
+            "Yokohama Ko",
+            "Tokuyama",
+            "Harmac"
+          ],
+          "Tokyo": [
+            "Tokyo Ko",
+            "Koko",
+            "Stockton"
+          ],
+          "Laem Chabang": [
+            "Palembang",
+            "Daesan Hang",
+            "Semarang"
+          ],
+          "Jebel Ali": [
+            "El Palito",
+            "Mina Jabal Ali",
+            "Bejaia"
+          ],
+          "Jeddah": [
+            "Jiddah",
+            "Jiddah Oil",
+            "Odda"
+          ]
+        }
       }
     },
     "family": "maritime",
@@ -47,19 +190,60 @@
     "http_status": [
       200
     ],
-    "message": "5880 observations; 4 unresolved chokepoints: ['Bosporus Strait', 'Gibraltar Strait', 'Malacca Strait', 'Taiwan Strait']",
+    "message": "5880 observations; 1 unresolved chokepoints: ['Bab el-Mandeb']",
     "discovered_ids": {
       "chokepoints": {
-        "Suez Canal": "1",
-        "Bab el-Mandeb": "4",
-        "Strait of Hormuz": "5",
-        "Panama Canal": "2"
+        "Suez Canal": "chokepoint1",
+        "Strait of Hormuz": "chokepoint6",
+        "Malacca Strait": "chokepoint5",
+        "Panama Canal": "chokepoint2",
+        "Taiwan Strait": "chokepoint11",
+        "Gibraltar Strait": "chokepoint8",
+        "Bosporus Strait": "chokepoint3"
       },
       "unresolved_chokepoints": {
-        "Malacca Strait": "no_match",
-        "Taiwan Strait": "no_match",
-        "Gibraltar Strait": "no_match",
-        "Bosporus Strait": "no_match"
+        "Bab el-Mandeb": "no_match"
+      },
+      "diagnostics": {
+        "available_chokepoints": [
+          "Bab el-Mandeb Strait",
+          "Balabac Strait",
+          "Bering Strait",
+          "Bohai Strait",
+          "Bosporus Strait",
+          "Cape of Good Hope",
+          "Dover Strait",
+          "Gibraltar Strait",
+          "Kerch Strait",
+          "Korea Strait",
+          "Lombok Strait",
+          "Luzon Strait",
+          "Magellan Strait",
+          "Makassar Strait",
+          "Malacca Strait",
+          "Mindoro Strait",
+          "Mona Passage",
+          "Ombai Strait",
+          "Oresund Strait",
+          "Panama Canal",
+          "Strait of Hormuz",
+          "Suez Canal",
+          "Sunda Strait",
+          "Taiwan Strait",
+          "Torres Strait",
+          "Tsugaru Strait",
+          "Windward Passage",
+          "Yucatan Channel"
+        ],
+        "n_available_chokepoints": 28,
+        "chokepoints_reference_fallback_to_daily_layer": false,
+        "unresolved_chokepoints_close_matches": {
+          "Bab el-Mandeb": [
+            "Bab el-Mandeb Strait",
+            "Balabac Strait",
+            "Magellan Strait"
+          ]
+        }
       }
     },
     "family": "maritime",
@@ -185,7 +369,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 20045,
+    "n_observations": 20039,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -529,6 +713,23 @@
     "source_id": "nhc_storms",
     "status": "FAIL",
     "message": "AttributeError(\"'str' object has no attribute 'get'\")",
+    "discovered_ids": {
+      "diagnostics": {
+        "traceback_tail": [
+          "Traceback (most recent call last):",
+          "  File \"/home/runner/work/Adaptive-Asymmetry-Scanner/Adaptive-Asymmetry-Scanner/modules/external/sources/base.py\", line 77, in preflight",
+          "    res = self.fetch(now)",
+          "          ^^^^^^^^^^^^^^^",
+          "  File \"/home/runner/work/Adaptive-Asymmetry-Scanner/Adaptive-Asymmetry-Scanner/modules/external/sources/weather.py\", line 804, in fetch",
+          "    observations = parse_current_storms(storms_json, res.retrieved_at, exposure_regions,",
+          "                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "  File \"/home/runner/work/Adaptive-Asymmetry-Scanner/Adaptive-Asymmetry-Scanner/modules/external/sources/weather.py\", line 729, in parse_current_storms",
+          "    plat, plon = pt.get(\"lat\"), pt.get(\"lon\")",
+          "                 ^^^^^^",
+          "AttributeError: 'str' object has no attribute 'get'"
+        ]
+      }
+    },
     "family": "weather",
     "license_status": "OK"
   },
