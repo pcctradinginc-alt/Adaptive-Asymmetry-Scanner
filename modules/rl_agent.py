@@ -176,7 +176,16 @@ class RLScorer:
 
         try:
             from stable_baselines3 import PPO
-            self._model = PPO.load(str(MODEL_PATH))
+            model = PPO.load(str(MODEL_PATH))
+            # Dimensions-Guard gegen das GELADENE Modell (der String-Guard oben
+            # prüft nur die Config): ein Modell mit anderem Beobachtungsraum
+            # würde sonst falsch ausgerichtete Features scoren.
+            obs_shape = tuple(getattr(getattr(model, "observation_space", None), "shape", ()) or ())
+            if obs_shape != (OBS_DIM,):
+                log.error(f"RL-Modell {MODEL_PATH}: observation_space {obs_shape} != ({OBS_DIM},) "
+                          f"→ Laden ABGELEHNT, QuasiML-Fallback aktiv.")
+                return
+            self._model = model
             log.info(f"RL-Modell geladen: {MODEL_PATH}")
         except Exception as e:
             log.warning(f"RL-Modell-Laden fehlgeschlagen: {e} → QuasiML-Fallback")
