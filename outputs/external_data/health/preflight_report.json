@@ -10,7 +10,7 @@
     "http_status": [
       200
     ],
-    "message": "563745 observations; 13 unresolved ports: ['Antwerp(-Bruges)', 'Busan', 'Genoa', 'Jebel Ali', 'Jeddah', 'Laem Chabang', 'Long Beach', 'Ningbo(-Zhoushan)', 'Piraeus', 'Qingdao', 'Shenzhen', 'Tokyo', 'Yokohama']",
+    "message": "563745 observations; 5 unresolved ports: ['Laem Chabang', 'Long Beach', 'Ningbo(-Zhoushan)', 'Qingdao', 'Shenzhen']",
     "discovered_ids": {
       "ports": {
         "Los Angeles": "port664",
@@ -18,28 +18,28 @@
         "Savannah": "port1170",
         "Houston": "port481",
         "Rotterdam": "port1114",
+        "Antwerp(-Bruges)": "port57",
         "Hamburg": "port446",
         "Bremerhaven": "port168",
         "Valencia": "port1348",
+        "Piraeus": "port908",
+        "Genoa": "port387",
         "Shanghai": "port1188",
+        "Busan": "port1065",
+        "Yokohama": "port1417",
+        "Tokyo": "port1305",
         "Kobe": "port581",
         "Singapore": "port1201",
-        "Port Klang": "port960"
+        "Port Klang": "port960",
+        "Jebel Ali": "port744",
+        "Jeddah": "port518"
       },
       "unresolved_ports": {
         "Long Beach": "no_match",
-        "Antwerp(-Bruges)": "no_match",
-        "Piraeus": "no_match",
-        "Genoa": "no_match",
         "Ningbo(-Zhoushan)": "no_match",
         "Shenzhen": "no_match",
         "Qingdao": "no_match",
-        "Busan": "no_match",
-        "Yokohama": "no_match",
-        "Tokyo": "no_match",
-        "Laem Chabang": "no_match",
-        "Jebel Ali": "no_match",
-        "Jeddah": "no_match"
+        "Laem Chabang": "no_match"
       },
       "diagnostics": {
         "available_ports": [
@@ -112,21 +112,6 @@
             "LNG Tangguh",
             "Montego Bay"
           ],
-          "Antwerp(-Bruges)": [
-            "Antwerp",
-            "Bruges",
-            "Sankt-Peterburg"
-          ],
-          "Piraeus": [
-            "Piraievs",
-            "Empire",
-            "Brades"
-          ],
-          "Genoa": [
-            "Genova",
-            "Benoa",
-            "Gela"
-          ],
           "Ningbo(-Zhoushan)": [
             "Zhoushan",
             "Jinzhou Wan",
@@ -134,43 +119,18 @@
           ],
           "Shenzhen": [
             "Iskenderun",
-            "Bushehr",
-            "Wenzhou"
+            "Wenzhou",
+            "Bushehr"
           ],
           "Qingdao": [
             "Qinhuangdao",
             "Qingdao Port",
             "Qingdao Gang"
           ],
-          "Busan": [
-            "Pusan",
-            "Ulsan",
-            "Kunsan"
-          ],
-          "Yokohama": [
-            "Yokohama Ko",
-            "Tokuyama",
-            "Harmac"
-          ],
-          "Tokyo": [
-            "Tokyo Ko",
-            "Koko",
-            "Stockton"
-          ],
           "Laem Chabang": [
             "Palembang",
             "Daesan Hang",
             "Semarang"
-          ],
-          "Jebel Ali": [
-            "El Palito",
-            "Mina Jabal Ali",
-            "Bejaia"
-          ],
-          "Jeddah": [
-            "Jiddah",
-            "Jiddah Oil",
-            "Odda"
           ]
         }
       }
@@ -181,7 +141,7 @@
   },
   {
     "source_id": "imf_portwatch_chokepoints",
-    "status": "WARN",
+    "status": "PASS",
     "n_observations": 5880,
     "latest_observation_time": "2026-09-20T00:00:00+00:00",
     "endpoints": [
@@ -190,10 +150,11 @@
     "http_status": [
       200
     ],
-    "message": "5880 observations; 1 unresolved chokepoints: ['Bab el-Mandeb']",
+    "message": "5880 observations; 0 unresolved chokepoints: []",
     "discovered_ids": {
       "chokepoints": {
         "Suez Canal": "chokepoint1",
+        "Bab el-Mandeb": "chokepoint4",
         "Strait of Hormuz": "chokepoint6",
         "Malacca Strait": "chokepoint5",
         "Panama Canal": "chokepoint2",
@@ -201,9 +162,7 @@
         "Gibraltar Strait": "chokepoint8",
         "Bosporus Strait": "chokepoint3"
       },
-      "unresolved_chokepoints": {
-        "Bab el-Mandeb": "no_match"
-      },
+      "unresolved_chokepoints": {},
       "diagnostics": {
         "available_chokepoints": [
           "Bab el-Mandeb Strait",
@@ -237,13 +196,7 @@
         ],
         "n_available_chokepoints": 28,
         "chokepoints_reference_fallback_to_daily_layer": false,
-        "unresolved_chokepoints_close_matches": {
-          "Bab el-Mandeb": [
-            "Bab el-Mandeb Strait",
-            "Balabac Strait",
-            "Magellan Strait"
-          ]
-        }
+        "unresolved_chokepoints_close_matches": {}
       }
     },
     "family": "maritime",
@@ -369,7 +322,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 20039,
+    "n_observations": 20046,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -711,25 +664,17 @@
   },
   {
     "source_id": "nhc_storms",
-    "status": "FAIL",
-    "message": "AttributeError(\"'str' object has no attribute 'get'\")",
-    "discovered_ids": {
-      "diagnostics": {
-        "traceback_tail": [
-          "Traceback (most recent call last):",
-          "  File \"/home/runner/work/Adaptive-Asymmetry-Scanner/Adaptive-Asymmetry-Scanner/modules/external/sources/base.py\", line 77, in preflight",
-          "    res = self.fetch(now)",
-          "          ^^^^^^^^^^^^^^^",
-          "  File \"/home/runner/work/Adaptive-Asymmetry-Scanner/Adaptive-Asymmetry-Scanner/modules/external/sources/weather.py\", line 804, in fetch",
-          "    observations = parse_current_storms(storms_json, res.retrieved_at, exposure_regions,",
-          "                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-          "  File \"/home/runner/work/Adaptive-Asymmetry-Scanner/Adaptive-Asymmetry-Scanner/modules/external/sources/weather.py\", line 729, in parse_current_storms",
-          "    plat, plon = pt.get(\"lat\"), pt.get(\"lon\")",
-          "                 ^^^^^^",
-          "AttributeError: 'str' object has no attribute 'get'"
-        ]
-      }
-    },
+    "status": "PASS",
+    "n_observations": 30,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://www.nhc.noaa.gov/CurrentStorms.json"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "",
+    "discovered_ids": {},
     "family": "weather",
     "license_status": "OK"
   },
