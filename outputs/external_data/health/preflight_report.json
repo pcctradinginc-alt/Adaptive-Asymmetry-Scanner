@@ -156,6 +156,95 @@
             "Si Racha"
           ]
         },
+        "unresolved_ports_hint_activity": {
+          "Long Beach": {
+            "Los Angeles": [
+              {
+                "id": "port664",
+                "country": "United States",
+                "portcalls_sum": 127.0
+              }
+            ],
+            "San Pedro": [
+              {
+                "id": "port1146",
+                "country": "C\u00f4te d'Ivoire",
+                "portcalls_sum": 11.0
+              }
+            ],
+            "San Pedro De Macoris": [
+              {
+                "id": "port1147",
+                "country": "Dominican Republic",
+                "portcalls_sum": 12.0
+              }
+            ]
+          },
+          "Ningbo(-Zhoushan)": {
+            "Ningbo": [
+              {
+                "id": "port824",
+                "country": "China",
+                "portcalls_sum": 668.0
+              }
+            ],
+            "Zhoushan": [
+              {
+                "id": "port1429",
+                "country": "China",
+                "portcalls_sum": 241.0
+              }
+            ]
+          },
+          "Shenzhen": {
+            "Chiwan": [
+              {
+                "id": "port242",
+                "country": "China",
+                "portcalls_sum": 10.0
+              }
+            ],
+            "Shekou": [
+              {
+                "id": "port1189",
+                "country": "China",
+                "portcalls_sum": 111.0
+              }
+            ]
+          },
+          "Qingdao": {
+            "Qingdao Gang": [
+              {
+                "id": "port1069",
+                "country": "China",
+                "portcalls_sum": 364.0
+              }
+            ],
+            "Qingdao Port": [
+              {
+                "id": "port1070",
+                "country": "China",
+                "portcalls_sum": 81.0
+              }
+            ],
+            "Qinhuangdao": [
+              {
+                "id": "port1072",
+                "country": "China",
+                "portcalls_sum": 94.0
+              }
+            ]
+          },
+          "Laem Chabang": {
+            "Si Racha": [
+              {
+                "id": "port1197",
+                "country": "Thailand",
+                "portcalls_sum": 229.0
+              }
+            ]
+          }
+        },
         "n_observations_before_reduction": 563745
       }
     },
@@ -387,14 +476,14 @@
           "updatedAt": "2026-09-25T17:46:40.000Z"
         },
         {
-          "id": "6zn8-4eyz",
-          "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
-          "updatedAt": "2026-09-25T17:46:49.000Z"
-        },
-        {
           "id": "3w2s-iysp",
           "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
           "updatedAt": "2026-06-10T11:17:47.000Z"
+        },
+        {
+          "id": "6zn8-4eyz",
+          "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
+          "updatedAt": "2026-09-25T17:46:49.000Z"
         },
         {
           "id": "9czv-tjte",
@@ -568,7 +657,7 @@
   },
   {
     "source_id": "estat_jp_truck",
-    "status": "SCHEMA_CHANGED",
+    "status": "AUTH_MISSING",
     "n_observations": 0,
     "latest_observation_time": null,
     "endpoints": [
@@ -577,8 +666,19 @@
     "http_status": [
       200
     ],
-    "message": "getStatsList-Antwort ohne TABLE_INF -> Schema ge\u00e4ndert.",
-    "discovered_ids": {},
+    "message": "e-Stat: appId abgelehnt (\u8a8d\u8a3c\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3ID\u3092\u78ba\u8a8d\u3057\u3066\u4e0b\u3055\u3044\u3002).",
+    "discovered_ids": {
+      "estat_jp_truck_attempts": [
+        {
+          "query": {
+            "statsCode": "00600350",
+            "limit": 100
+          },
+          "status": 100,
+          "error_msg": "\u8a8d\u8a3c\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3ID\u3092\u78ba\u8a8d\u3057\u3066\u4e0b\u3055\u3044\u3002"
+        }
+      ]
+    },
     "family": "road_freight",
     "license_status": "OK"
   },
