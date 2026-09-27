@@ -374,6 +374,8 @@ def test_available_at_never_before_retrieved_at_unless_release_time_known(connec
     for o in result.observations:
         if o.availability_precision in (AvailabilityPrecision.EXACT_TIMESTAMP, AvailabilityPrecision.EXACT_DATE):
             continue  # offizielle Release-Zeit darf vor unserem Abruf liegen
+        if result.latest_release_time is not None and o.available_at == result.latest_release_time:
+            continue  # ältere Periode: offizielle Datensatz-Release-Zeit, konservativ etikettiert
         assert o.available_at >= o.retrieved_at or o.available_at == o.retrieved_at
 
 
@@ -622,7 +624,7 @@ def test_eurostat_quarterly_first_seen_precision(tmp_path):
     assert set(stored2["road_go_qa_tott"]) == {"2023-Q1", "2023-Q2", "2023-Q3", "2023-Q4"}
 
 
-def test_eurostat_road_freight_annual_connector_precision_unaffected():
+def test_eurostat_road_freight_annual_precision_exact_only_for_latest_period():
     """Der bestehende eurostat_road_freight-Konnektor (jährlich/gemischt)
     behält sein etabliertes Verhalten (EXACT_TIMESTAMP sobald release_time
     bekannt) -- die First-Seen-PIT-Präzision ist bewusst NUR im neuen
@@ -634,8 +636,14 @@ def test_eurostat_road_freight_annual_connector_precision_unaffected():
     ]):
         result = conn.fetch(NOW)
     assert result.status == SourceStatus.PASS
+    # Datensatz-Update-Zeit ist nur für die JÜNGSTE Periode exakt; ältere
+    # Perioden waren früher verfügbar -> konservativ (Audit 2026-09-27)
+    latest = max(o.observation_time for o in result.observations)
     for o in result.observations:
-        assert o.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
+        expected = (AvailabilityPrecision.EXACT_TIMESTAMP if o.observation_time == latest
+                    else AvailabilityPrecision.CONSERVATIVE_DATE)
+        assert o.availability_precision == expected
+        assert o.available_at == result.latest_release_time
         assert "first_seen_at" not in o.attrs
 
 
@@ -702,3 +710,31 @@ def test_estat_rejects_tables_from_other_statistics(monkeypatch):
     with patch.object(rf.http, "fetch", return_value=res):
         out = rf.EstatJpTruckConnector({}).fetch(NOW)
     assert out.status == SourceStatus.FAIL and not out.observations
+
+
+def test_estat_accepts_motor_vehicle_statistic_and_keeps_dimensions_apart(monkeypatch):
+    """Punkt 1 Nutzer-Audit: nur 自動車輸送統計調査 (STAT_NAME @code 00600360)
+    und mehrdimensionale Serienidentität (@tab/@cat01/@cat02) bleibt getrennt."""
+    import json as _json
+    monkeypatch.setenv("ESTAT_APP_ID", "x")
+    lst = {"GET_STATS_LIST": {"RESULT": {"STATUS": 0}, "DATALIST_INF": {"TABLE_INF": [
+        {"@id": "0003422293", "STAT_NAME": {"@code": "00600360", "$": "自動車輸送統計調査"},
+         "TITLE": {"$": "輸送トン数"}, "CYCLE": "月次", "SURVEY_DATE": "202603"}]}}}
+    vals = [{"@tab": "01", "@cat01": "100", "@cat02": "110", "@time": "2026000301", "$": "100"},
+            {"@tab": "01", "@cat01": "100", "@cat02": "120", "@time": "2026000301", "$": "200"},
+            {"@tab": "02", "@cat01": "100", "@cat02": "110", "@time": "2026000301", "$": "300"}]
+    data = {"GET_STATS_DATA": {"STATISTICAL_DATA": {"CLASS_INF": {"CLASS_OBJ": []},
+                                                    "DATA_INF": {"VALUE": vals}}}}
+
+    def res(payload):
+        return SimpleNamespace(content=_json.dumps(payload).encode(), json=lambda: payload, status=200,
+                               content_type="application/json", retrieved_at=NOW, url="u",
+                               fingerprint="f", content_hash="h", bytes=10)
+    with patch.object(rf.http, "fetch", side_effect=[res(lst), res(data)]):
+        out = rf.EstatJpTruckConnector({}).fetch(NOW)
+    assert out.status == SourceStatus.PASS
+    cand = out.discovered_ids["estat_jp_truck_candidates"][0]
+    assert cand["stat_code"] == "00600360" and "自動車輸送統計" in cand["stat_name"]
+    keys = {o.identity_key() for o in out.observations}
+    assert len(out.observations) == 3 and len(keys) == 3       # nichts kollabiert
+    assert sorted(o.value for o in out.observations) == [100.0, 200.0, 300.0]

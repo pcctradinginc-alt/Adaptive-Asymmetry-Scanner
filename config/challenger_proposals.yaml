@@ -1,0 +1,95 @@
+# config/challenger_proposals.yaml – EINGEFRORENE Challenger-Vorschläge
+#
+# Vorregistrierung in zwei Stufen:
+#   1. HEUTE (frozen_on) werden Hypothese, Regel, Baseline, Metrik und
+#      Mindestgrößen festgeschrieben -- bevor eine einzige Ledger-Zeile mit
+#      externem Kontext existiert (Ledger startet 2026-09-28). spec_sha256
+#      friert die Spezifikation ein; jede spätere Änderung macht den Hash
+#      ungültig und der Registrar verweigert die Registrierung.
+#   2. Der Registrar (modules/challenger_registrar.py, täglicher Feedback-
+#      Workflow) trägt einen Vorschlag automatisch in challengers.yaml ein,
+#      sobald der Candidate Ledger activation.min_ledger_days Tage abdeckt.
+#      registered_on = Registrierungstag, start_date = Folgetag: in die
+#      Bestätigung fließen NUR Ledger-Zeilen NACH der Registrierung. Die
+#      ersten 10 Wochen dienen nur der Datenreife (Zeilen-/Tageszahl), nie
+#      der Auswertung der Regel.
+#
+# Nichts hier ändert Produktion: challenger.py bewertet nur, "promote_
+# recommended" ist eine Empfehlung, Promotion bleibt ein menschlicher PR.
+# Regeln: Liste von Bedingungen (UND); zusätzlich {not|any|all} für Filter.
+
+frozen_on: "2026-09-27"
+activation:
+  min_ledger_days: 70          # 10 Wochen Ledger-Abdeckung
+  min_ledger_rows: 100         # und mindestens so viele Ledger-Zeilen
+
+proposals:
+  - id: ext_joint_freight_contraction
+    source_hypothesis: H5
+    hypothesis: >
+      Gleichzeitige Kontraktion von Straßenfracht (global_freight_state) und
+      Seefracht (global_maritime_state) signalisiert echte Nachfrageschwäche.
+      BULLISH-Katalysatoren bei fracht-exponierten Titeln (road oder maritime
+      relevance MEDIUM/HIGH) laufen dann schlechter. Challenger = Produktion
+      ohne diese Kandidaten; wird an der realen Produktions-Strategierendite
+      gemessen, inkl. verlorener Gewinner (Arm-Differenz).
+    rule:
+      - {field: "status", op: "==", value: "proposed"}
+      - not:
+          all:
+            - {field: "direction", op: "==", value: "BULLISH"}
+            - any:
+                - {field: "external.ticker_exposure.road_freight_relevance", op: "in", value: ["MEDIUM", "HIGH"]}
+                - {field: "external.ticker_exposure.maritime_relevance", op: "in", value: ["MEDIUM", "HIGH"]}
+            - {field: "external.states.global_freight_state", op: "in", value: ["CONTRACTION", "STRONG_CONTRACTION"]}
+            - {field: "external.states.global_maritime_state", op: "in", value: ["CONTRACTION", "STRONG_CONTRACTION"]}
+    baseline_rule:
+      - {field: "status", op: "==", value: "proposed"}
+    metric: "outcomes.real_strat_ret_45d"
+    min_n: 40
+    min_clusters: 15             # unabhängige Signaltage
+    horizon_days: 45
+    max_duration_days: 270
+
+  - id: ext_relation_contradict
+    source_hypothesis: H12
+    hypothesis: >
+      Widerspricht der verifizierte externe Kontext dem Katalysator
+      (relation CONTRADICT, materiality MEDIUM/HIGH), sind die Trades
+      schlechter. Zweiseitig: ein "reject" (Challenger schlechter) zeigt,
+      dass CONTRADICT eher starke idiosynkratische Titel markiert.
+    rule:
+      - {field: "status", op: "==", value: "proposed"}
+      - not:
+          all:
+            - {field: "external.relation.relation", op: "==", value: "CONTRADICT"}
+            - {field: "external.relation.materiality", op: "in", value: ["MEDIUM", "HIGH"]}
+    baseline_rule:
+      - {field: "status", op: "==", value: "proposed"}
+    metric: "outcomes.real_strat_ret_45d"
+    min_n: 30
+    min_clusters: 12
+    horizon_days: 45
+    max_duration_days: 270
+
+  - id: ext_weather_disruption_exposed
+    source_hypothesis: H4
+    hypothesis: >
+      Bei schwerer Wetterstörung (weather_disruption_index >= 0.5: Mehrheit
+      der überwachten Regionen mit schweren Warnungen) laufen BULLISH-Trades
+      in stark wetterexponierten Titeln (weather_relevance HIGH: Airlines,
+      Logistik, P&C, Versorger laut Exposure-Map) schlechter.
+    rule:
+      - {field: "status", op: "==", value: "proposed"}
+      - not:
+          all:
+            - {field: "direction", op: "==", value: "BULLISH"}
+            - {field: "external.ticker_exposure.weather_relevance", op: "==", value: "HIGH"}
+            - {field: "external.primitives.weather_disruption_index", op: ">=", value: 0.5}
+    baseline_rule:
+      - {field: "status", op: "==", value: "proposed"}
+    metric: "outcomes.real_strat_ret_45d"
+    min_n: 30
+    min_clusters: 15
+    horizon_days: 45
+    max_duration_days: 365

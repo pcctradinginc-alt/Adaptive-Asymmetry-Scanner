@@ -1,0 +1,77 @@
+{
+  "trained_at": "2026-09-27T20:22:04+00:00",
+  "reward": "log(1 + f*s*r)/f, f = portfolio.max_position_pct; SKIP=0, BOOST s=1.5",
+  "n_trades": 117,
+  "seed": 7,
+  "timesteps": 4680,
+  "walk_forward": {
+    "train_n": 93,
+    "test_n": 24,
+    "train_until": "2026-05-18",
+    "test_from": "2026-05-18",
+    "test": {
+      "n": 24,
+      "action_counts": {
+        "SKIP": 0,
+        "NORMAL": 24,
+        "BOOST": 0
+      },
+      "max_share": 1.0,
+      "collapsed": true,
+      "all": {
+        "n": 24,
+        "mean": -0.221,
+        "median": -0.435,
+        "win_rate": 0.208
+      },
+      "taken": {
+        "n": 24,
+        "mean": -0.221,
+        "median": -0.435,
+        "win_rate": 0.208
+      },
+      "skipped": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "win_rate": null
+      },
+      "avoided_losers": 0,
+      "lost_winners": 0,
+      "lost_big_winners": 0
+    }
+  },
+  "in_sample": {
+    "n": 117,
+    "action_counts": {
+      "SKIP": 0,
+      "NORMAL": 117,
+      "BOOST": 0
+    },
+    "max_share": 1.0,
+    "collapsed": true,
+    "all": {
+      "n": 117,
+      "mean": 0.0954,
+      "median": -0.4184,
+      "win_rate": 0.333
+    },
+    "taken": {
+      "n": 117,
+      "mean": 0.0954,
+      "median": -0.4184,
+      "win_rate": 0.333
+    },
+    "skipped": {
+      "n": 0,
+      "mean": null,
+      "median": null,
+      "win_rate": null
+    },
+    "avoided_losers": 0,
+    "lost_winners": 0,
+    "lost_big_winners": 0
+  },
+  "model_sha256": "daf4e082807bd7f4060f788502eadd33c15ac52dae0f9b7d05ee7d054ece5d0c",
+  "status": "SHADOW_ONLY"
+}

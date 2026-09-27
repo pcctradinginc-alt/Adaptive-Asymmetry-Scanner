@@ -110,9 +110,17 @@ class OptionsRLEnv(gym.Env):
 
     metadata = {"render_modes": []}
 
-    def __init__(self, trade_data: list[dict]):
+    def __init__(self, trade_data: list[dict], reward_mode: str = "legacy"):
         super().__init__()
 
+        # "legacy": Rendite (Mittelwert-getrieben, Produktion unverändert).
+        # "robust": log(1 + Rendite) = geometrische Wachstumsrate (Kelly-Logik);
+        #           Totalverluste stark bestraft, einzelne Ausreißer-Gewinner
+        #           dominieren nicht (Audit 2026-09-27: legacy-Policy kollabierte
+        #           auf 100 % SKIP bzw. 100 % BOOST). Nur für den Shadow-Challenger.
+        if reward_mode not in ("legacy", "robust"):
+            raise ValueError(f"reward_mode {reward_mode!r} unbekannt")
+        self.reward_mode = reward_mode
         self.trade_data = [t for t in trade_data if t.get("outcome") is not None]
         if not self.trade_data:
             raise ValueError(
@@ -145,7 +153,9 @@ class OptionsRLEnv(gym.Env):
         )
         is_short_dte = trade_dte > 0 and trade_dte < SHORT_DTE_THRESHOLD
 
-        if action == ACTION_SKIP:
+        if self.reward_mode == "robust":
+            reward = robust_reward(outcome, int(action))
+        elif action == ACTION_SKIP:
             reward = 0.0
         elif action == ACTION_NORMAL:
             # v9.0: Short-DTE-Verlust stärker bestrafen
@@ -182,6 +192,31 @@ class OptionsRLEnv(gym.Env):
 
     def render(self):
         pass
+
+
+def _robust_position_fraction() -> float:
+    """Positionsanteil am Depot aus config.yaml (portfolio.max_position_pct,
+    Hard-Cap der hauseigenen Sizing-Regel) -- keine frei gewählte Zahl."""
+    try:
+        from modules.config import cfg
+        f = float(getattr(getattr(cfg, "portfolio", None), "max_position_pct", 0.10) or 0.10)
+        return f if 0 < f <= 1 else 0.10
+    except Exception:
+        return 0.10
+
+
+def robust_reward(outcome: float, action: int, fraction: float | None = None) -> float:
+    """Log-Depotwachstum je Trade, auf Rendite-Einheiten skaliert:
+    log(1 + f · s · r) / f mit f = Positionsanteil (config), s = 1 (NORMAL)
+    bzw. 1.5 (BOOST), SKIP = 0. Mit realistischem f wiegt ein Totalverlust
+    so viel, wie er das Depot tatsächlich kostet; einzelne Ausreißer-Gewinner
+    dominieren nicht (Konkavität). log(1 + r) mit f = 1 (volles Depot je Trade)
+    wäre unrealistisch und führte zu 100 % SKIP."""
+    if action == ACTION_SKIP:
+        return 0.0
+    f = fraction if fraction is not None else _robust_position_fraction()
+    scale = 1.5 if action == ACTION_BOOST else 1.0
+    return float(np.log1p(max(f * scale * outcome, -0.999)) / f)
 
 
 def build_env_from_history(history: dict) -> Optional[OptionsRLEnv]:

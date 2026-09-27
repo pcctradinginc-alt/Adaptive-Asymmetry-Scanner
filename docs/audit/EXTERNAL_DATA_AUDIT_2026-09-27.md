@@ -274,3 +274,138 @@ feature Wetterstörung (NWS-Warnungen/NHC-Track in kuratierter Exposure-Region) 
 - **Q20** Nein — nicht messbar; keine Integration empfohlen.
 - **Q21** Weiter wie bisher; zusätzlich Sektor und Optionsdaten pro Trade vollständig im Ledger, protokollierte PPO-Scores, KOSIS nur bei vorhandenem Key.
 - **Q22** Keine weiteren Makro- oder Fracht-Quellen, bevor die bestehenden Evidenz liefern; kein Scraping von CN/BE/AT-Seiten; keine weiteren Wetter-Variablen.
+
+---
+
+# Nachtrag (2026-09-27 abends): Nachweise, PIT je Quelle, Inkrementalanalyse, Challenger
+
+## N1. e-Stat Japan: final
+
+- Geladen wird ausschließlich **自動車輸送統計調査** (STAT_NAME `@code 00600360`), Tabelle **0003422293**, Einheit 千トン (Tausend Tonnen), gegliedert nach gewerblichem und privatem Verkehr sowie Fahrzeugklasse. Die Auswahl verlangt 自動車輸送統計 in `STAT_NAME` oder `STATISTICS_NAME`; bevorzugt wird die jüngste Monatstabelle.
+- Die Güterbahn-Daten (00600350 鉄道輸送統計調査) und die Altserie 2010–2020 sind aus raw/ und normalized/ gelöscht. Die neue Tabelle wurde als Erstimport archiviert (4.320 Werte, bis 2026-03). Manifeste und Health-Logs vergangener Läufe bleiben als Protokoll bestehen.
+- Regressionstests prüfen explizit:
+  - Tabellen fremder Statistiken werden verworfen.
+  - `stat_code` 00600360 wird akzeptiert.
+  - 3 Werte mit unterschiedlichen `@tab`/`@cat01`/`@cat02` ergeben 3 getrennte Identitäten.
+  - 10-stellige Zeitcodes werden korrekt gelesen.
+- Frische: e-Stat erscheint mit etwa 6 Monaten Verzug, daher eigene Klasse `monthly_lagged` (240 Tage).
+
+## N2. „fabcity/awesome-fabcity-data#35“
+
+Kommt weder im Repository noch in der Git-Historie vor. Keine Aktion dieser Sitzung hat ein anderes Repository berührt; alle PRs liegen in pcctradinginc-alt/Adaptive-Asymmetry-Scanner. Mit hoher Wahrscheinlichkeit ist es ein Anzeige- oder Logging-Artefakt außerhalb des Scanners.
+
+## N3. Source- und PIT-Tabelle (Archiv, Stand 2026-09-27 20:00 UTC)
+
+| Quelle | Endpoint | Letzte Beob. | Frequenz | Revisionen im Archiv | available_at | PIT-Qualität | Lizenz | Status |
+|---|---|---|---|---|---|---|---|---|
+| bts_freight_tsi | FRED/ALFRED `series/observations` (realtime) | 2026-06 | monatlich | **317 IDs mit mehreren Vintages** | ALFRED `realtime_start` | **PIT_SAFE** | FRED ToU | PASS |
+| fred_us_macro | ALFRED UMCSENT, INDPRO | 2026-08 | monatlich | **1.395 IDs mit Vintages** | `realtime_start` | **PIT_SAFE** | FRED ToU | PASS |
+| bts_open_data_tsi | data.bts.gov Socrata `bw6n-ddqk` | 2026-07 | monatlich | keine | Datensatz-Update 2026-09-14 | CURRENT_VALUE | Public Domain | PASS (Fallback) |
+| destatis_truck_toll | GENESIS REST 2020 `data/tablefile` 42191-0001 | 2026-08 | monatlich | ab jetzt forward (Wertänderung = neue Vintage) | Abrufzeit | CURRENT_VALUE / forward | DL-DE-BY-2.0 | PASS |
+| eurostat_road_freight (+ quarterly) | Dissemination API `road_go_ta_tott` / `road_go_tq_tott` | 2025 / 2025-Q4 | jährlich / quartalsweise | forward | Datensatz-Update | CURRENT_VALUE; **EXACT nur jüngste Periode** (N4) | Eurostat reuse | PASS |
+| eurostat_sentiment / _industrial_production | `ei_bssi_m_r2` / `sts_inpr_m` | 2026-08 / 2026-07 | monatlich | forward | Datensatz-Update | wie oben | Eurostat reuse | PASS |
+| estat_jp_truck | e-Stat API v3 `getStatsData` 0003422293 | 2026-03 | monatlich (Verzug ~6 Monate) | forward | Abrufzeit (kein Release-Datum in der API) | CURRENT_VALUE / forward | Gov. Standard Terms 2.0 | PASS |
+| imf_portwatch_ports / _chokepoints | ArcGIS FeatureServer Daily Ports / Chokepoints | 2026-09-18 / 09-20 | täglich | **435 IDs mit Vintages** (spätere Korrekturen, z. B. unvollständige Tage) | **Abrufzeit, nie activity_date** | FORWARD (Historie nur konservativ) | privat, nicht kommerziell | PASS |
+| nws_forecast / _alerts | api.weather.gov | laufend | stündlich | Prognose-Vintages je `forecast_issue_time` | Abrufzeit | FORWARD | Public Domain | WARN (3/45) / PASS |
+| nhc_storms | CurrentStorms.json + TCM-Text | laufend | Ereignis | Advisory-Vintages | Abrufzeit | FORWARD | Public Domain | PASS |
+| ncei_normals | Access Data Service normals-daily-1991-2020 | statisch | – | – | Abrufzeit | Referenz | Public Domain | PASS |
+| Viapass, ASFINAG, NBS, MOT, KOSIS, FAF | – | – | – | – | – | – | – | DEFERRED (§3) |
+
+**PIT-Einzelnachweise:**
+- **BTS:** Rückwärtsanalysen nutzen `archive.as_of(T)` über ALFRED-Vintages, nicht die heute revidierte Historie.
+- **PortWatch:** `activity_date` wird nie als `available_at` verwendet.
+- **Wetter:** `forecast_issue_time` ist von `forecast_valid_time` getrennt, realisiertes Wetter fließt nie als Prognose ein (Proben §4).
+- **Ledger T1/T2/T3:** Test `test_ledger_keeps_t1_context_after_t2_revision`. Nach einer Revision bei T2 behält der Ledger den T1-Wert (130), `as_of(T1)` liefert weiter 130 und `as_of(T2)` den revidierten Wert 120. Beide Vintages bleiben im Archiv.
+
+## N4. Korrigiertes PIT-Etikett (Eurostat)
+
+`available_at` = Update-Zeit des Datensatzes ist nur für die jüngste Periode exakt. Ältere Perioden waren früher verfügbar, der Wert ist dort also konservativ und kein Leck. Bisher trug die gesamte Historie das Etikett `EXACT_TIMESTAMP`.
+- **Fix im Parser:** ältere Perioden erhalten `CONSERVATIVE_DATE`.
+- **Einmal-Migration** (`scripts/migrate_precision_2026_09_27.py`): 24.358 Archivzeilen, nachweislich nur das Präzisions-Etikett geändert (0 Abweichungen in allen anderen Feldern), idempotent.
+
+## N5. Beweise: SHADOW = OFF, keine externen Daten im Produktionslernen
+
+`tests/test_external_shadow_proofs.py`:
+- Kein Entscheidungsmodul (Trade-Score, Quasi-ML, Risk-Gates, Mismatch, RL, Deep-Analysis) enthält `external_context`.
+- Quasi-ML-Ranking, Trade-Score und RL-Scoring sind mit und ohne maximal negativen externen Kontext (STRONG_CONTRACTION, CONTRADICT, Wetterstörung 0.9) **identisch**.
+- Die Pearson-Gewichte sind mit und ohne `external_context_entry` in den geschlossenen Trades identisch.
+- PPO-Beobachtungen und -Belohnungen sind mit und ohne externen Kontext identisch.
+
+Damit gilt: Freight/Shipping/Weather → Ledger → Outcomes → Research, aber **nicht** → Pearson-Gewicht oder PPO-Input.
+
+## N6. 117 geschlossene Trades: PIT-saubere Inkrementalanalyse (`scripts/incremental_analysis.py`, EXPLORATIV)
+
+**Stichprobenstruktur:**
+- 117 Trades, **34 unabhängige Signaltage**, 4 Monate (2026-04-11 bis 2026-08-28).
+- Sektoren: nicht erfasst (die geschlossenen Trades haben kein Sektorfeld; der Ledger speichert es künftig).
+- **2 Fracht-Regime**, deckungsgleich mit den Monaten: CONTRACTION = April (71) + August (3), STRONG_EXPANSION = Mai (40) + Juli (3).
+
+**Vorab festgelegter Filter „BULLISH entfernen, wenn US-Fracht kontrahiert“** (Schwelle aus `classify_state`, nicht getunt):
+
+| | Base | + US-Fracht-Filter | Δ |
+|---|---|---|---|
+| N Trades | 117 | 52 | −65 |
+| Mittel | +9,5 % | −11,2 % | −20,7 pp |
+| Median | −41,8 % | −51,9 % | −10,0 pp |
+| Anteil großer Verluste (≤ −80 %) | 29,1 % | 26,9 % | −2,2 pp |
+| Erwartete Rendite je Signal | +9,5 % | −5,0 % | **−14,5 pp** (Cluster-CI 95 %: −36 % bis +11 %) |
+| Vermiedene Verlierer / verlorene Gewinner | | 38 / 27, davon **15 große Gewinner ≥ +100 %** | |
+
+Der Filter hätte mehr Wert vernichtet als vermieden: Die großen asymmetrischen Gewinner lagen im „Kontraktions“-Monat. Wegen der Deckung von Regime und Monat (effektiv 2 Beobachtungen) ist das weder für noch gegen Fracht eine belastbare Aussage.
+
+**Orthogonalität von us_freight_z zu den bestehenden Features** (je Tag / je Trade):
+
+| Feature | je Tag | je Trade |
+|---|---|---|
+| mismatch | −0,60 | −0,49 |
+| z_score | +0,58 | +0,44 |
+| impact | −0,28 | – |
+| surprise | −0,18 | – |
+| eps_drift | +0,13 | – |
+
+Das ist ein Kalender-Artefakt (andere Kandidatenmischung im April und im Mai), kein Beleg für Redundanz oder Unabhängigkeit. VIX, Sektor-Momentum und Preis-Momentum sind in den geschlossenen Trades nicht gespeichert und damit nicht prüfbar. EU-Fracht, Shipping und Wetter sind für diese Trades nicht rückwirkend PIT-sicher, also N/A.
+
+**Ledger-Teil:** Er wertet ab Oktober automatisch aus (Familien US / EU / ASIA / Shipping / Road+Shipping / Wetter, gleiche Kennzahlen) und läuft monatlich im Workflow. Branchenspezifische Auswertungen (Industrials: Fracht + Shipping, Airlines: Wetter, Versorger: HDD/CDD, P&C: NHC …) ergeben sich über die Exposure-Relevanz im eingefrorenen Kontext.
+
+## N7. Robuster PPO-Challenger (`modules/rl_robust_shadow.py`)
+
+**Aufbau:**
+- Belohnung = Log-Depotwachstum bei realem Positionsanteil: log(1 + f·s·r)/f mit f = `portfolio.max_position_pct` (0,10), s = 1,5 bei BOOST.
+- Chronologisches Neu-Training mit festem Seed; Walk-forward auf 80 % / 20 %.
+- Kollaps-Kennzeichnung; Aktionen nur als `features.rl_robust_action` im Ledger.
+
+**Ergebnis heute:**
+- log(1 + r) mit vollem Depot pro Trade führt zu 100 % SKIP. Der geometrische Mittelwert pro Trade liegt bei −54 %, weil 25 % der Trades Totalverluste sind.
+- Mit realem Positionsanteil wählt das Modell 100 % NORMAL, in-sample wie walk-forward.
+- Das pathologische „immer BOOST“ ist beseitigt. Eine Trennung der Trades gelingt mit den 11 Merkmalen und 117 Trades aber nicht, passend zu den Feature-Korrelationen |r| ≤ 0,11.
+- Bewusst nicht weiter justiert (das wäre Tuning).
+
+**Registrierung:** Challenger `ppo_robust_shadow` ist registriert: Start 2026-09-28, min_n 30, 12 unabhängige Tage, Metrik `real_strat_ret_45d`.
+
+## N8. Automatische Registrierung der drei Challenger nach 10 Wochen
+
+**Vorschläge (eingefroren am 2026-09-27 in `config/challenger_proposals.yaml`, gesichert per SHA-256-Lock):**
+- `ext_joint_freight_contraction` (H5)
+- `ext_relation_contradict` (H12)
+- `ext_weather_disruption_exposed` (H4)
+
+Alle drei sind als Filter formuliert: Produktion ohne die ausgelösten Kandidaten. Primärmetrik ist die reale Strategierendite; die Arm-Differenz misst verlorene Gewinner mit.
+
+**Ablauf (`modules/challenger_registrar.py`, täglich im Feedback-Workflow):**
+- Sobald der Ledger ≥ 70 Tage und ≥ 100 Zeilen umfasst, wird jeder Vorschlag mit `registered_on` = Tag und `start_date` = Folgetag eingetragen.
+- Die ersten 10 Wochen werden **nie** ausgewertet, nur gezählt.
+- Eine nachträgliche Änderung der Spezifikation (Hash) verhindert die Registrierung.
+- `min_clusters` (12–15 unabhängige Tage) verschärft das Minimum pro Challenger.
+
+Getestet: nicht vor 70 Tagen, danach genau einmal, Hash-Schutz, nur Zeilen nach der Registrierung, Filterlogik. Promotion bleibt ein menschlicher PR; kein Produktionsgewicht ändert sich automatisch.
+
+## N9. Pfad-Nachweis für echte Kandidaten
+
+`scripts/trace_candidate.py` gibt für Ledger-Kandidaten den Pfad aus:
+- Quellen des Snapshots mit `available_at_max` ≤ Signalzeit
+- Neuaufbau des Kontexts zum Signalzeitpunkt aus dem **heutigen** Archiv mit Vergleich zu den eingefrorenen Werten (Abweichung = PIT-Leck oder Versionswechsel)
+- Zustände, Exposure, Relation
+- Ledger-Status und Richtung
+- Real- oder Shadow-Trade, Outcome, Feedback
+
+Probe mit dem heutigen echten Kontext: keine PIT-Verletzung, exakt reproduzierbar. Der erste echte Lauf ist 2026-09-28; die geplante Prüfung um 14:20 UTC wendet das Skript auf reale Kandidaten an.
