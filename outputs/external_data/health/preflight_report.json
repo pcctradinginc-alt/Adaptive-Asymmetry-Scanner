@@ -2,7 +2,7 @@
   {
     "source_id": "imf_portwatch_ports",
     "status": "WARN",
-    "n_observations": 563745,
+    "n_observations": 8190,
     "latest_observation_time": "2026-09-18T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query"
@@ -10,7 +10,7 @@
     "http_status": [
       200
     ],
-    "message": "563745 observations; 5 unresolved ports: ['Laem Chabang', 'Long Beach', 'Ningbo(-Zhoushan)', 'Qingdao', 'Shenzhen']",
+    "message": "8190 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 563745 Rohbeobachtungen); 5 unresolved ports: ['Laem Chabang', 'Long Beach', 'Ningbo(-Zhoushan)', 'Qingdao', 'Shenzhen']",
     "discovered_ids": {
       "ports": {
         "Los Angeles": "port664",
@@ -109,8 +109,8 @@
         "unresolved_ports_close_matches": {
           "Long Beach": [
             "Palm Beach",
-            "LNG Tangguh",
-            "Montego Bay"
+            "Montego Bay",
+            "LNG Tangguh"
           ],
           "Ningbo(-Zhoushan)": [
             "Zhoushan",
@@ -119,8 +119,8 @@
           ],
           "Shenzhen": [
             "Iskenderun",
-            "Wenzhou",
-            "Bushehr"
+            "Bushehr",
+            "Wenzhou"
           ],
           "Qingdao": [
             "Qinhuangdao",
@@ -132,12 +132,12 @@
             "Daesan Hang",
             "Semarang"
           ]
-        }
+        },
+        "n_observations_before_reduction": 563745
       }
     },
     "family": "maritime",
-    "license_status": "REVIEW_REQUIRED",
-    "archiving": "blocked_until_license_review"
+    "license_status": "OK"
   },
   {
     "source_id": "imf_portwatch_chokepoints",
@@ -200,43 +200,328 @@
       }
     },
     "family": "maritime",
-    "license_status": "REVIEW_REQUIRED",
-    "archiving": "blocked_until_license_review"
+    "license_status": "OK"
   },
   {
-    "source_id": "destatis_truck_toll",
-    "status": "AUTH_MISSING",
-    "n_observations": 0,
-    "latest_observation_time": null,
+    "source_id": "eurostat_sentiment",
+    "status": "PASS",
+    "n_observations": 7162,
+    "latest_observation_time": "2026-08-01T00:00:00+00:00",
     "endpoints": [
-      "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables"
+      "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
+      "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/ei_bssi_m_r2"
     ],
     "http_status": [
       200
     ],
-    "message": "GENESIS-Online: Zugangsdaten abgelehnt (DESTATIS_USER/DESTATIS_PASSWORD oder GAST-Fallback pr\u00fcfen).",
+    "message": "7162 Beobachtungen aus Datensatz ei_bssi_m_r2",
     "discovered_ids": {
-      "fallback_table_code_source": "config.expected_table_code (verify in preflight)"
+      "fallback_dataset_code_source": "config.expected_dataset_code (verify in preflight)"
+    },
+    "family": "real_economy",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "eurostat_industrial_production",
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "Eurostat-Datenabruf fehlgeschlagen (sts_inpr_m): 413 f\u00fcr https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m (nicht retrybar)",
+    "discovered_ids": {
+      "eurostat_industrial_production_candidates": {
+        "sts_inpr_a": "Production in industry - annual data",
+        "sts_inpr_m": "Production in industry - monthly data",
+        "sts_inpr_q": "Production in industry - quarterly data"
+      },
+      "eurostat_industrial_production_chosen": "sts_inpr_m"
+    },
+    "family": "real_economy",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "fred_us_macro",
+    "status": "PASS",
+    "n_observations": 40445,
+    "latest_observation_time": "2026-08-01T00:00:00+00:00",
+    "endpoints": [
+      "https://api.stlouisfed.org/fred/series/observations"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "40445 ALFRED-Vintage-Beobachtungen (UMCSENT+INDPRO)",
+    "discovered_ids": {
+      "UMCSENT_series_id": "UMCSENT",
+      "INDPRO_series_id": "INDPRO"
+    },
+    "family": "real_economy",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "destatis_truck_toll",
+    "status": "SCHEMA_CHANGED",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables",
+      "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "ffcsv/csv-Antwort enthielt keine erkennbaren Datenzeilen/Spalten (erwartetes GENESIS-Schema f\u00fcr beide Formate gepr\u00fcft) \u2013 vermutlich Schema\u00e4nderung.",
+    "discovered_ids": {
+      "fallback_table_code_source": "config.expected_table_code (verify in preflight)",
+      "diagnostics": {
+        "format": "csv",
+        "content_type": "application/zip",
+        "body_snippet": "<nicht UTF-8-dekodierbar>"
+      }
     },
     "family": "road_freight",
     "license_status": "OK"
   },
   {
-    "source_id": "bts_freight_tsi",
+    "source_id": "destatis_truck_toll_download",
     "status": "FAIL",
     "n_observations": 0,
     "latest_observation_time": null,
-    "endpoints": [],
-    "http_status": [],
-    "message": "fredgraph.csv-Fallback fehlgeschlagen: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=60). Empfehlung: FRED_API_KEY setzen, um stattdessen die stabilere ALFRED-Vintages-API zu nutzen.",
+    "endpoints": [
+      "https://www.destatis.de/DE/Service/EXDAT/Datensaetze/lkw-maut-fahrleistungsindex.html"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "Konnte auf der offiziellen Destatis-EXDAT-Seite keinen .xlsx/.csv-Downloadlink auf destatis.de finden, und keine expected_download_url in der Config.",
     "discovered_ids": {},
+    "family": "road_freight",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "bts_freight_tsi",
+    "status": "PASS",
+    "n_observations": 7789,
+    "latest_observation_time": "2026-06-01T00:00:00+00:00",
+    "endpoints": [
+      "https://api.stlouisfed.org/fred/series/observations"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "7789 ALFRED-Vintage-Beobachtungen f\u00fcr TSIFRGHT",
+    "discovered_ids": {
+      "bts_freight_tsi_series_id": "TSIFRGHT"
+    },
+    "family": "road_freight",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "bts_open_data_tsi",
+    "status": "PASS",
+    "n_observations": 638,
+    "latest_observation_time": "2026-07-01T00:00:00+00:00",
+    "endpoints": [
+      "https://api.us.socrata.com/api/catalog/v1",
+      "https://data.bts.gov/api/views/bw6n-ddqk.json",
+      "https://data.bts.gov/resource/bw6n-ddqk.json"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "638 Beobachtungen aus Datensatz bw6n-ddqk (freight_field=tsi_freight, truck_field=idx_truck_d11)",
+    "discovered_ids": {
+      "bts_open_data_tsi_candidates": [
+        {
+          "id": "bw6n-ddqk",
+          "name": "Transportation Services Index and Seasonally-Adjusted Transportation Data",
+          "updatedAt": "2026-09-14T15:00:14.000Z"
+        },
+        {
+          "id": "gutz-h9fp",
+          "name": "Transportation Services Index - Freight",
+          "updatedAt": "2025-01-03T13:25:19.000Z"
+        },
+        {
+          "id": "ni8u-e22d",
+          "name": "Transportation Services Index - Combined",
+          "updatedAt": "2025-01-02T18:04:20.000Z"
+        },
+        {
+          "id": "s539-c8h7",
+          "name": "Transportation Services Index - Passenger",
+          "updatedAt": "2025-01-02T18:04:14.000Z"
+        },
+        {
+          "id": "n68x-u7m7",
+          "name": "Freight Transportation Service Index",
+          "updatedAt": "2026-09-25T17:49:30.000Z"
+        },
+        {
+          "id": "xkwi-7rvx",
+          "name": "Passenger Transportation Service Index",
+          "updatedAt": "2026-09-25T17:49:08.000Z"
+        },
+        {
+          "id": "4h5v-s7mv",
+          "name": "Pocket Guide to Transportation-Passenger Transportation Service Index",
+          "updatedAt": "2026-09-25T17:46:41.000Z"
+        },
+        {
+          "id": "erq7-v5ry",
+          "name": "Pocket Guide to Transportation-Combined Transportation Service Index",
+          "updatedAt": "2026-09-25T17:46:40.000Z"
+        },
+        {
+          "id": "6zn8-4eyz",
+          "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
+          "updatedAt": "2026-09-25T17:46:49.000Z"
+        },
+        {
+          "id": "3w2s-iysp",
+          "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
+          "updatedAt": "2026-06-10T11:17:47.000Z"
+        },
+        {
+          "id": "9czv-tjte",
+          "name": "Transportation as an Economic Indicator",
+          "updatedAt": "2026-07-17T22:23:45.385Z"
+        },
+        {
+          "id": "65u2-y2k4",
+          "name": "Chapter 4. Economic Characteristics of Passenger Travel",
+          "updatedAt": "2026-08-17T18:34:44.760Z"
+        },
+        {
+          "id": "nad9-43zf",
+          "name": "Transportation Economic Concepts: Transportation as an Economic Indicator",
+          "updatedAt": "2024-11-18T12:36:18.556Z"
+        },
+        {
+          "id": "crem-w557",
+          "name": "Monthly Transportation Statistics",
+          "updatedAt": "2026-09-24T18:05:10.000Z"
+        }
+      ],
+      "bts_open_data_tsi_ambiguous": [
+        "bw6n-ddqk",
+        "3w2s-iysp",
+        "gutz-h9fp",
+        "ni8u-e22d",
+        "s539-c8h7"
+      ],
+      "bts_open_data_tsi_dataset_id": "bw6n-ddqk",
+      "bts_open_data_tsi_columns": {
+        "date_field": "obs_date",
+        "freight_field": "tsi_freight",
+        "truck_field": "idx_truck_d11",
+        "all_field_names": [
+          "id",
+          "obs_date",
+          "asm",
+          "asm_d11",
+          "asm_d",
+          "asm_d_d11",
+          "asm_i",
+          "asm_i_d11",
+          "rpm",
+          "rpm_d11",
+          "rpm_d",
+          "rpm_d_d11",
+          "rpm_i",
+          "rpm_i_d11",
+          "load_factor",
+          "load_factor_d11",
+          "load_factor_d",
+          "load_factor_d_d11",
+          "load_factor_i",
+          "load_factor_i_d11",
+          "enplane_i",
+          "enplane_i_d11",
+          "enplane_d",
+          "enplane_d_d11",
+          "enplane",
+          "enplane_d11",
+          "air_rpm_tsi",
+          "air_rpm_tsi_d11",
+          "air_rtmfm",
+          "air_rtmfm_d11",
+          "rail_frt_carloads",
+          "rail_frt_carloads_d11",
+          "rail_frt_intermodal",
+          "rail_frt_intermodal_d11",
+          "rail_pm",
+          "rail_pm_d11",
+          "transit",
+          "transit_d11",
+          "petroleum",
+          "petroleum_d11",
+          "natural_gas",
+          "natural_gas_d11",
+          "waterborne",
+          "waterborne_d11",
+          "truck_d11",
+          "vmt",
+          "vmt_d11",
+          "tsi_freight",
+          "tsi_freight_c",
+          "tsi_passenger",
+          "tsi_passenger_c",
+          "tsi_total",
+          "tsi_total_c",
+          "ind_pro",
+          "manuf",
+          "inv_to_sales",
+          "idx_air_rpm",
+          "idx_air_rtmfm",
+          "idx_rail_frt_carloads",
+          "idx_rail_frt_intermodal",
+          "idx_rail_pm",
+          "idx_transit_d11",
+          "idx_petroleum_d11",
+          "idx_natural_gas_d11",
+          "idx_waterborne_d11",
+          "idx_truck_d11"
+        ]
+      }
+    },
+    "family": "road_freight",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "eurostat_road_freight_quarterly",
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "Eurostat-Datenabruf (quarterly) fehlgeschlagen (road_go_ctq_tt): 413 f\u00fcr https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_go_ctq_tt (nicht retrybar)",
+    "discovered_ids": {
+      "eurostat_road_freight_quarterly_candidates": {
+        "road_go_ctq_tt": "Cross-trade road freight transport of reporting country by country of loading and unloading and type of transport (t, tkm) - quarterly data",
+        "road_go_iq_ltt": "International road freight transport - loaded goods in reporting country by country of unloading and type of transport (t, tkm) - quarterly data",
+        "road_go_iq_utt": "International road freight transport - unloaded goods in reporting country by country of loading and type of transport (t, tkm) - quarterly data",
+        "road_go_tq_tott": "Road freight transport by type of operation and type of transport - (t, tkm, vehicle-km) - quarterly data",
+        "road_go_tq_trat": "Road freight transport vehicle transit movements by transit country, loading status and maximum permissible laden weight (MPLW) of vehicle (t, journeys) - quarterly data, EU totals"
+      },
+      "eurostat_road_freight_quarterly_chosen": "road_go_ctq_tt"
+    },
     "family": "road_freight",
     "license_status": "OK"
   },
   {
     "source_id": "eurostat_road_freight",
     "status": "PASS",
-    "n_observations": 23817,
+    "n_observations": 15128,
     "latest_observation_time": "2025-01-01T00:00:00+00:00",
     "endpoints": [
       "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
@@ -245,7 +530,7 @@
     "http_status": [
       200
     ],
-    "message": "23817 Beobachtungen aus Datensatz road_go_ta_tott",
+    "message": "15128 Beobachtungen aus Datensatz road_go_ta_tott",
     "discovered_ids": {
       "eurostat_road_freight_candidates": {
         "road_go_ta_agev": "Road freight transport by age of vehicle (tkm, vehicle-km, journeys) - annual data",
@@ -322,7 +607,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 20046,
+    "n_observations": 2397,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -414,227 +699,272 @@
       "ATL": {
         "gridId": "FFC",
         "gridX": 50,
-        "gridY": 82
+        "gridY": 82,
+        "timezone": "America/New_York"
       },
       "DFW": {
         "gridId": "FWD",
         "gridX": 80,
-        "gridY": 109
+        "gridY": 109,
+        "timezone": "America/Chicago"
       },
       "DEN": {
         "gridId": "BOU",
         "gridX": 74,
-        "gridY": 66
+        "gridY": 66,
+        "timezone": "America/Denver"
       },
       "ORD": {
         "gridId": "LOT",
         "gridX": 66,
-        "gridY": 77
+        "gridY": 77,
+        "timezone": "America/Chicago"
       },
       "LAX": {
         "gridId": "LOX",
         "gridX": 148,
-        "gridY": 41
+        "gridY": 41,
+        "timezone": "America/Los_Angeles"
       },
       "CLT": {
         "gridId": "GSP",
         "gridX": 115,
-        "gridY": 64
+        "gridY": 64,
+        "timezone": "America/New_York"
       },
       "JFK": {
         "gridId": "OKX",
         "gridX": 42,
-        "gridY": 40
+        "gridY": 40,
+        "timezone": "America/New_York"
       },
       "LAS": {
         "gridId": "VEF",
         "gridX": 122,
-        "gridY": 94
+        "gridY": 94,
+        "timezone": "America/Los_Angeles"
       },
       "MCO": {
         "gridId": "MLB",
         "gridX": 29,
-        "gridY": 64
+        "gridY": 64,
+        "timezone": "America/New_York"
       },
       "MIA": {
         "gridId": "MFL",
         "gridX": 106,
-        "gridY": 51
+        "gridY": 51,
+        "timezone": "America/New_York"
       },
       "PHX": {
         "gridId": "PSR",
         "gridX": 161,
-        "gridY": 57
+        "gridY": 57,
+        "timezone": "America/Phoenix"
       },
       "SEA": {
         "gridId": "SEW",
         "gridX": 124,
-        "gridY": 61
+        "gridY": 61,
+        "timezone": "America/Los_Angeles"
       },
       "SFO": {
         "gridId": "MTR",
         "gridX": 85,
-        "gridY": 98
+        "gridY": 98,
+        "timezone": "America/Los_Angeles"
       },
       "IAH": {
         "gridId": "HGX",
         "gridX": 64,
-        "gridY": 105
+        "gridY": 105,
+        "timezone": "America/Chicago"
       },
       "EWR": {
         "gridId": "OKX",
         "gridX": 28,
-        "gridY": 40
+        "gridY": 40,
+        "timezone": "America/New_York"
       },
       "MSP": {
         "gridId": "MPX",
         "gridX": 110,
-        "gridY": 68
+        "gridY": 68,
+        "timezone": "America/Chicago"
       },
       "BOS": {
         "gridId": "BOX",
         "gridX": 73,
-        "gridY": 102
+        "gridY": 102,
+        "timezone": "America/New_York"
       },
       "DTW": {
         "gridId": "DTX",
         "gridX": 56,
-        "gridY": 28
+        "gridY": 28,
+        "timezone": "America/Detroit"
       },
       "PHL": {
         "gridId": "PHI",
         "gridX": 48,
-        "gridY": 75
+        "gridY": 75,
+        "timezone": "America/New_York"
       },
       "NYC": {
         "gridId": "OKX",
         "gridX": 33,
-        "gridY": 42
+        "gridY": 42,
+        "timezone": "America/New_York"
       },
       "CHI": {
         "gridId": "LOT",
         "gridX": 76,
-        "gridY": 73
+        "gridY": 73,
+        "timezone": "America/Chicago"
       },
       "HOU": {
         "gridId": "HGX",
         "gridX": 63,
-        "gridY": 95
+        "gridY": 95,
+        "timezone": "America/Chicago"
       },
       "DAL": {
         "gridId": "FWD",
         "gridX": 89,
-        "gridY": 104
+        "gridY": 104,
+        "timezone": "America/Chicago"
       },
       "ATL_METRO": {
         "gridId": "FFC",
         "gridX": 51,
-        "gridY": 87
+        "gridY": 87,
+        "timezone": "America/New_York"
       },
       "PHX_METRO": {
         "gridId": "PSR",
         "gridX": 159,
-        "gridY": 58
+        "gridY": 58,
+        "timezone": "America/Phoenix"
       },
       "LA_METRO": {
         "gridId": "LOX",
         "gridX": 155,
-        "gridY": 45
+        "gridY": 45,
+        "timezone": "America/Los_Angeles"
       },
       "BOS_METRO": {
         "gridId": "BOX",
         "gridX": 71,
-        "gridY": 101
+        "gridY": 101,
+        "timezone": "America/New_York"
       },
       "PHL_METRO": {
         "gridId": "PHI",
         "gridX": 50,
-        "gridY": 79
+        "gridY": 79,
+        "timezone": "America/New_York"
       },
       "DET_METRO": {
         "gridId": "DTX",
         "gridX": 66,
-        "gridY": 34
+        "gridY": 34,
+        "timezone": "America/Detroit"
       },
       "MSP_METRO": {
         "gridId": "MPX",
         "gridX": 108,
-        "gridY": 72
+        "gridY": 72,
+        "timezone": "America/Chicago"
       },
       "FL_COAST": {
         "gridId": "TBW",
         "gridX": 98,
-        "gridY": 102
+        "gridY": 102,
+        "timezone": "America/New_York"
       },
       "TX_COAST": {
         "gridId": "HGX",
         "gridX": 63,
-        "gridY": 59
+        "gridY": 59,
+        "timezone": "America/Chicago"
       },
       "LA_COAST": {
         "gridId": "LIX",
         "gridX": 68,
-        "gridY": 88
+        "gridY": 88,
+        "timezone": "America/Chicago"
       },
       "CAROLINAS_COAST": {
         "gridId": "ILM",
         "gridX": 31,
-        "gridY": 51
+        "gridY": 51,
+        "timezone": "America/New_York"
       },
       "TX_CONSTR": {
         "gridId": "EWX",
         "gridX": 156,
-        "gridY": 91
+        "gridY": 91,
+        "timezone": "America/Chicago"
       },
       "FL_CONSTR": {
         "gridId": "MLB",
         "gridX": 26,
-        "gridY": 68
+        "gridY": 68,
+        "timezone": "America/New_York"
       },
       "AZ_CONSTR": {
         "gridId": "PSR",
         "gridX": 159,
-        "gridY": 58
+        "gridY": 58,
+        "timezone": "America/Phoenix"
       },
       "GA_CONSTR": {
         "gridId": "FFC",
         "gridX": 51,
-        "gridY": 87
+        "gridY": 87,
+        "timezone": "America/New_York"
       },
       "NC_CONSTR": {
         "gridId": "GSP",
         "gridX": 119,
-        "gridY": 65
+        "gridY": 65,
+        "timezone": "America/New_York"
       },
       "CA_CONSTR": {
         "gridId": "LOX",
         "gridX": 155,
-        "gridY": 45
+        "gridY": 45,
+        "timezone": "America/Los_Angeles"
       },
       "MEM_FDX": {
         "gridId": "MEG",
         "gridX": 45,
-        "gridY": 62
+        "gridY": 62,
+        "timezone": "America/Chicago"
       },
       "SDF_UPS": {
         "gridId": "LMK",
         "gridX": 51,
-        "gridY": 74
+        "gridY": 74,
+        "timezone": "America/New_York"
       },
       "IND_LOGISTICS": {
         "gridId": "IND",
         "gridX": 58,
-        "gridY": 69
+        "gridY": 69,
+        "timezone": "America/Indiana/Indianapolis"
       },
       "CHI_RAIL": {
         "gridId": "LOT",
         "gridX": 76,
-        "gridY": 73
+        "gridY": 73,
+        "timezone": "America/Chicago"
       },
       "DAL_LOGISTICS": {
         "gridId": "FWD",
         "gridX": 89,
-        "gridY": 104
+        "gridY": 104,
+        "timezone": "America/Chicago"
       }
     },
     "family": "weather",
@@ -658,17 +988,348 @@
   },
   {
     "source_id": "ncei_normals",
-    "status": "AUTH_MISSING",
-    "reason": "AUTH_MISSING",
-    "family": "weather"
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://www.ncei.noaa.gov/cdo-web/api/v2/stations"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "",
+    "discovered_ids": {
+      "ATL": {
+        "id": "GHCND:USC00090444",
+        "name": "ATLANTA 9 NW, GA US",
+        "lat": 33.8263,
+        "lon": -84.4961,
+        "distance_km": 21.58533423703047
+      },
+      "DFW": {
+        "id": "GHCND:USC00411490",
+        "name": "CARROLLTON, TX US",
+        "lat": 32.985,
+        "lon": -96.92583,
+        "distance_km": 14.277884319791236
+      },
+      "DEN": {
+        "id": "GHCND:USC00050950",
+        "name": "BRIGHTON 3 SE, CO US",
+        "lat": 39.9428,
+        "lon": -104.83504,
+        "distance_km": 16.803791966613172
+      },
+      "ORD": {
+        "id": "GHCND:USC00114816",
+        "name": "LA GRANGE, IL US",
+        "lat": 41.79528,
+        "lon": -87.87083,
+        "distance_km": 20.122798221240938
+      },
+      "LAX": {
+        "id": "GHCND:USC00042214",
+        "name": "CULVER CITY, CA US",
+        "lat": 34.005,
+        "lon": -118.4139,
+        "distance_km": 7.06733252879995
+      },
+      "CLT": {
+        "id": "GHCND:USC00315913",
+        "name": "MOUNT HOLLY 4 NE, NC US",
+        "lat": 35.3338,
+        "lon": -80.9868,
+        "distance_km": 13.752398038825538
+      },
+      "JFK": {
+        "id": "GHCND:USC00283704",
+        "name": "HARRISON, NJ US",
+        "lat": 40.7481,
+        "lon": -74.152,
+        "distance_km": 33.685327966930586
+      },
+      "LAS": {
+        "id": "GHCND:USW00023169",
+        "name": "HARRY REID INTERNATIONAL AIRPORT, NV US",
+        "lat": 36.0719,
+        "lon": -115.16343,
+        "distance_km": 1.604648130943501
+      },
+      "MCO": {
+        "id": "GHCND:USC00084625",
+        "name": "KISSIMMEE 2, FL US",
+        "lat": 28.2763,
+        "lon": -81.424,
+        "distance_km": 20.622753841849672
+      },
+      "MIA": {
+        "id": "GHCND:USC00083909",
+        "name": "HIALEAH, FL US",
+        "lat": 25.82726,
+        "lon": -80.28592,
+        "distance_km": 3.488753162061643
+      },
+      "PHX": {
+        "id": "GHCND:USC00024829",
+        "name": "LAVEEN 3 SSE, AZ US",
+        "lat": 33.3371,
+        "lon": -112.147,
+        "distance_km": 16.749582633432496
+      },
+      "SEA": {
+        "id": "GHCND:USC00454169",
+        "name": "KENT, WA US",
+        "lat": 47.41735,
+        "lon": -122.2433,
+        "distance_km": 6.133119518577213
+      },
+      "SFO": {
+        "id": "GHCND:USC00043714",
+        "name": "HALF MOON BAY, CA US",
+        "lat": 37.4725,
+        "lon": -122.4433,
+        "distance_km": 17.48998353459396
+      },
+      "IAH": {
+        "id": "GHCND:USC00414328",
+        "name": "HOUSTON SAN JACINTO, TX US",
+        "lat": 29.91667,
+        "lon": -95.15,
+        "distance_km": 19.767056559762157
+      },
+      "EWR": {
+        "id": "GHCND:USC00283704",
+        "name": "HARRISON, NJ US",
+        "lat": 40.7481,
+        "lon": -74.152,
+        "distance_km": 6.7863367728852415
+      },
+      "MSP": {
+        "id": "GHCND:USC00214884",
+        "name": "LOWER ST. ANTHONY FALLS, MN US",
+        "lat": 44.97855,
+        "lon": -93.24695,
+        "distance_km": 10.60360276723622
+      },
+      "BOS": {
+        "id": "GHCND:USC00193890",
+        "name": "JAMAICA PLAIN, MA US",
+        "lat": 42.30298,
+        "lon": -71.12415,
+        "distance_km": 11.710760588911006
+      },
+      "DTW": {
+        "id": "GHCND:USC00202015",
+        "name": "DEARBORN, MI US",
+        "lat": 42.31917,
+        "lon": -83.23839,
+        "distance_km": 15.182806633205699
+      },
+      "PHL": {
+        "id": "GHCND:USC00283291",
+        "name": "GLASSBORO 2 NE, NJ US",
+        "lat": 39.73583,
+        "lon": -75.09528,
+        "distance_km": 19.88355659264125
+      },
+      "NYC": {
+        "id": "GHCND:USC00283704",
+        "name": "HARRISON, NJ US",
+        "lat": 40.7481,
+        "lon": -74.152,
+        "distance_km": 12.913302378265945
+      },
+      "CHI": {
+        "id": "GHCND:USC00111550",
+        "name": "CHICAGO NORTHERLY ISLAND, IL US",
+        "lat": 41.8558,
+        "lon": -87.6094,
+        "distance_km": 3.000374461746446
+      },
+      "HOU": {
+        "id": "GHCND:USC00414321",
+        "name": "HOUSTON HEIGHTS, TX US",
+        "lat": 29.79139,
+        "lon": -95.42611,
+        "distance_km": 6.435120029187962
+      },
+      "DAL": {
+        "id": "GHCND:USC00410337",
+        "name": "ARLINGTON SIX FLAGS, TX US",
+        "lat": 32.7572,
+        "lon": -97.0736,
+        "distance_km": 25.953270873032093
+      },
+      "ATL_METRO": {
+        "id": "GHCND:USC00090444",
+        "name": "ATLANTA 9 NW, GA US",
+        "lat": 33.8263,
+        "lon": -84.4961,
+        "distance_km": 13.178817192314208
+      },
+      "PHX_METRO": {
+        "id": "GHCND:USC00024829",
+        "name": "LAVEEN 3 SSE, AZ US",
+        "lat": 33.3371,
+        "lon": -112.147,
+        "distance_km": 14.110154079329744
+      },
+      "LA_METRO": {
+        "id": "GHCND:USC00045790",
+        "name": "MONTEBELLO, CA US",
+        "lat": 34.0191,
+        "lon": -118.1052,
+        "distance_km": 13.282372981775351
+      },
+      "BOS_METRO": {
+        "id": "GHCND:USC00193890",
+        "name": "JAMAICA PLAIN, MA US",
+        "lat": 42.30298,
+        "lon": -71.12415,
+        "distance_km": 8.313256439388342
+      },
+      "PHL_METRO": {
+        "id": "GHCND:USC00283291",
+        "name": "GLASSBORO 2 NE, NJ US",
+        "lat": 39.73583,
+        "lon": -75.09528,
+        "distance_km": 24.831924312187937
+      },
+      "DET_METRO": {
+        "id": "GHCND:USC00202016",
+        "name": "DEARBORN NUMBER 2, MI US",
+        "lat": 42.3469,
+        "lon": -83.1736,
+        "distance_km": 10.644619010711589
+      },
+      "MSP_METRO": {
+        "id": "GHCND:USC00214884",
+        "name": "LOWER ST. ANTHONY FALLS, MN US",
+        "lat": 44.97855,
+        "lon": -93.24695,
+        "distance_km": 1.4222013918516971
+      },
+      "FL_COAST": {
+        "id": "GHCND:USC00084707",
+        "name": "LAKE ALFRED EXPERIMENTAL STATION, FL US",
+        "lat": 28.10417,
+        "lon": -81.71444,
+        "distance_km": 13.009136028476084
+      },
+      "TX_COAST": {
+        "id": "GHCND:USC00413340",
+        "name": "FREEPORT 2 NW, TX US",
+        "lat": 28.9845,
+        "lon": -95.3809,
+        "distance_km": 3.5486157564078247
+      },
+      "LA_COAST": {
+        "id": "GHCND:USC00163829",
+        "name": "GRETNA, LA US",
+        "lat": 29.91694,
+        "lon": -90.06167,
+        "distance_km": 3.914751582745038
+      },
+      "CAROLINAS_COAST": {
+        "id": "GHCND:USC00381241",
+        "name": "CADES 4 W, SC US",
+        "lat": 33.8083,
+        "lon": -79.8566,
+        "distance_km": 25.701208779415044
+      },
+      "TX_CONSTR": {
+        "id": "GHCND:USC00410431",
+        "name": "AUSTIN 6 S, TX US",
+        "lat": 30.2247,
+        "lon": -97.7327,
+        "distance_km": 4.830228933320616
+      },
+      "FL_CONSTR": {
+        "id": "GHCND:USC00084625",
+        "name": "KISSIMMEE 2, FL US",
+        "lat": 28.2763,
+        "lon": -81.424,
+        "distance_km": 29.460777478562097
+      },
+      "AZ_CONSTR": {
+        "id": "GHCND:USC00024829",
+        "name": "LAVEEN 3 SSE, AZ US",
+        "lat": 33.3371,
+        "lon": -112.147,
+        "distance_km": 14.110154079329744
+      },
+      "GA_CONSTR": {
+        "id": "GHCND:USC00090444",
+        "name": "ATLANTA 9 NW, GA US",
+        "lat": 33.8263,
+        "lon": -84.4961,
+        "distance_km": 13.178817192314208
+      },
+      "NC_CONSTR": {
+        "id": "GHCND:USC00315913",
+        "name": "MOUNT HOLLY 4 NE, NC US",
+        "lat": 35.3338,
+        "lon": -80.9868,
+        "distance_km": 17.632707008815167
+      },
+      "CA_CONSTR": {
+        "id": "GHCND:USC00045790",
+        "name": "MONTEBELLO, CA US",
+        "lat": 34.0191,
+        "lon": -118.1052,
+        "distance_km": 13.282372981775351
+      },
+      "MEM_FDX": {
+        "id": "GHCND:USC00037712",
+        "name": "WEST MEMPHIS, AR US",
+        "lat": 35.12407,
+        "lon": -90.18048,
+        "distance_km": 20.646925524748582
+      },
+      "SDF_UPS": {
+        "id": "GHCND:USC00121814",
+        "name": "CORYDON, IN US",
+        "lat": 38.218,
+        "lon": -86.1183,
+        "distance_km": 33.721610782152624
+      },
+      "IND_LOGISTICS": {
+        "id": "GHCND:USC00121326",
+        "name": "CASTLETON 2 S, IN US",
+        "lat": 39.8801,
+        "lon": -86.0514,
+        "distance_km": 15.404505532921338
+      },
+      "CHI_RAIL": {
+        "id": "GHCND:USC00111550",
+        "name": "CHICAGO NORTHERLY ISLAND, IL US",
+        "lat": 41.8558,
+        "lon": -87.6094,
+        "distance_km": 3.000374461746446
+      },
+      "DAL_LOGISTICS": {
+        "id": "GHCND:USC00410337",
+        "name": "ARLINGTON SIX FLAGS, TX US",
+        "lat": 32.7572,
+        "lon": -97.0736,
+        "distance_km": 25.953270873032093
+      }
+    },
+    "family": "weather",
+    "license_status": "OK"
   },
   {
     "source_id": "nhc_storms",
     "status": "PASS",
-    "n_observations": 30,
+    "n_observations": 160,
     "latest_observation_time": null,
     "endpoints": [
-      "https://www.nhc.noaa.gov/CurrentStorms.json"
+      "https://www.nhc.noaa.gov/CurrentStorms.json",
+      "https://www.nhc.noaa.gov/text/HFOTCMCP2.shtml",
+      "https://www.nhc.noaa.gov/text/MIATCMAT1.shtml",
+      "https://www.nhc.noaa.gov/text/MIATCMEP1.shtml",
+      "https://www.nhc.noaa.gov/text/MIATCMEP2.shtml",
+      "https://www.nhc.noaa.gov/text/MIATCMEP3.shtml"
     ],
     "http_status": [
       200

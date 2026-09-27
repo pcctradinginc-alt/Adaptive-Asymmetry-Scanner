@@ -1,0 +1,62 @@
+{
+  "retrieved_at": "2026-09-27T16:55:21+00:00",
+  "portwatch_arcgis_items": [
+    {
+      "id": "83b1bbc7b3354c5fb1f40673bb8f852e",
+      "title": "Daily_Ports_Data",
+      "owner": "IMF-portwatch_imf_dataviz",
+      "orgId": null,
+      "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer",
+      "type": "Feature Service",
+      "modified": 1778598250000,
+      "licenseInfo": "<p><a target='_blank' href='https://www.imf.org/external/terms.htm' rel='nofollow ugc noopener noreferrer'><strong>https://www.imf.org/external/terms.htm</strong></a></p>",
+      "accessInformation": null,
+      "snippet": "These estimates are based on satellite-captured signals on 90 thousands ships worldwide, harnessing the power of big data analytics. The methodology is described in the paper below.",
+      "licenseInfo_text": "https://www.imf.org/external/terms.htm"
+    },
+    {
+      "id": "3da2b9ca97684916b75c4013f95d18ab",
+      "title": "Daily_Chokepoints_Data",
+      "owner": "IMF-portwatch_imf_dataviz",
+      "orgId": null,
+      "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer",
+      "type": "Feature Service",
+      "modified": 1789487344000,
+      "licenseInfo": "<p><span style='font-family:&quot;Avenir Next W01&quot;, sans-serif; font-size:16px;'>https://www.imf.org/external/terms.htm</span></p>",
+      "accessInformation": null,
+      "snippet": "Daily transit calls and estimates of transit trade volumes (in metric tons) for 28 chokepoints around the world.",
+      "licenseInfo_text": "https://www.imf.org/external/terms.htm"
+    }
+  ],
+  "pages": {
+    "imf_copyright_and_terms": {
+      "url": "https://www.imf.org/en/about/copyright-and-terms",
+      "http_status": 403,
+      "relevant_paragraphs": [
+        "You don't have permission to access \"http://www.imf.org/en/about/copyright-and-terms\" on this server."
+      ]
+    },
+    "imf_terms_legacy": {
+      "url": "https://www.imf.org/external/terms.htm",
+      "http_status": 403,
+      "relevant_paragraphs": [
+        "You don't have permission to access \"http://www.imf.org/external/terms.htm\" on this server."
+      ]
+    },
+    "portwatch_faqs": {
+      "url": "https://portwatch.imf.org/pages/faqs",
+      "http_status": 200,
+      "relevant_paragraphs": [
+        "\" your=\"\" request.=\"\" record=\"\" generally=\"\" sufficient=\"\" single=\"\" port=\"\" time.=\"\" if=\"\" need=\"\" multiple=\"\" chokepoints,=\"\" you’ll=\"\" iterate=\"\" relevant=\"\" ids=\"\" own=\"\" implementation.<=\"\" <li>=\"\" <strong>example:=\"\" (port0):<=\"\" strong><br>=\"\" <code>https:=\"\" services9.arcgis.com=\"\" wej1qsnbmyjlchdg=\"\" services=\"\" daily_trade_data=\"\" featureserver=\"\" query?where=\"portid%20%3D%20%27PORT0%27&amp;outFields=*&amp;maxRecordCountFactor=5&amp;outSR=4326&amp;f=json \" (chokepoint1):<=\"\" daily_chokepoints_data=\"\" <li>you=\"\" customize=\"\" portid=\"\" query=\"\" >ports<=\"\" >chokepoints<=\"\" a>.=\"\" advanced=\"\" full=\"\" list=\"\" supported=\"\" parameters,=\"\" refer=\"\" >arcgis=\"\" documentation<=\"\" a>.<br><=\"\" ><b>port=\"\" monitor<=\"\" should=\"\" interpret=\"\" “port=\"\" calls”?<=\"\" <li>a=\"\" defined=\"\" arrival=\"\" v",
+        "\" your=\"\" request.=\"\" record=\"\" generally=\"\" sufficient=\"\" single=\"\" port=\"\" time.=\"\" if=\"\" need=\"\" multiple=\"\" chokepoints,=\"\" you’ll=\"\" iterate=\"\" relevant=\"\" ids=\"\" own=\"\" implementation.<=\"\" <li>=\"\" <strong>example:=\"\" (port0):<=\"\" strong><br>=\"\" <code>https:=\"\" services9.arcgis.com=\"\" wej1qsnbmyjlchdg=\"\" services=\"\" daily_trade_data=\"\" featureserver=\"\" query?where=\"portid%20%3D%20%27PORT0%27&amp;outFields=*&amp;maxRecordCountFactor=5&amp;outSR=4326&amp;f=json \" (chokepoint1):<=\"\" daily_chokepoints_data=\"\" <li>you=\"\" customize=\"\" portid=\"\" query=\"\" >ports<=\"\" >chokepoints<=\"\" a>.=\"\" advanced=\"\" full=\"\" list=\"\" supported=\"\" parameters,=\"\" refer=\"\" >arcgis=\"\" documentation<=\"\" a>.<br><=\"\" ><b>port=\"\" monitor<=\"\" should=\"\" interpret=\"\" “port=\"\" calls”?<=\"\" <li>a=\"\" defined=\"\" arrival=\"\" v",
+        "\" your=\"\" request.=\"\" record=\"\" generally=\"\" sufficient=\"\" single=\"\" port=\"\" time.=\"\" if=\"\" need=\"\" multiple=\"\" chokepoints,=\"\" you’ll=\"\" iterate=\"\" relevant=\"\" ids=\"\" own=\"\" implementation.<=\"\" <li>=\"\" <strong>example:=\"\" (port0):<=\"\" strong><br>=\"\" <code>https:=\"\" services9.arcgis.com=\"\" wej1qsnbmyjlchdg=\"\" services=\"\" daily_trade_data=\"\" featureserver=\"\" query?where=\"portid%20%3D%20%27PORT0%27&amp;outFields=*&amp;maxRecordCountFactor=5&amp;outSR=4326&amp;f=json \" (chokepoint1):<=\"\" daily_chokepoints_data=\"\" <li>you=\"\" customize=\"\" portid=\"\" query=\"\" >ports<=\"\" >chokepoints<=\"\" a>.=\"\" advanced=\"\" full=\"\" list=\"\" supported=\"\" parameters,=\"\" refer=\"\" >arcgis=\"\" documentation<=\"\" a>.<br><=\"\" ><b>port=\"\" monitor<=\"\" should=\"\" interpret=\"\" “port=\"\" calls”?<=\"\" <li>a=\"\" defined=\"\" arrival=\"\" v"
+      ]
+    },
+    "portwatch_data_methodology": {
+      "url": "https://portwatch.imf.org/pages/data-and-methodology",
+      "http_status": 200,
+      "relevant_paragraphs": []
+    }
+  },
+  "note": "Belege, keine Entscheidung. license_status wird per menschlichem PR gesetzt."
+}
