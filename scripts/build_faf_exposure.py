@@ -499,6 +499,9 @@ def exposure_states_for_industry(
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--zip", default=None,
+                        help="Lokal (im Browser) heruntergeladene FAF5-State-Zip verwenden "
+                             "statt Download; faf.ornl.gov sperrt Cloud-IPs (GitHub Actions).")
     parser.add_argument("--url", default=None,
                          help="Direct URL to the FAF5 state-level database zip "
                               "(skips discovery on the FAF5 Data Download page).")
@@ -517,11 +520,15 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     with tempfile.TemporaryDirectory(prefix="faf5_") as tmp_str:
         tmp_dir = Path(tmp_str)
-        zip_url = args.url or discover_faf_zip_url(args.page_url)
-        print(f"FAF5 zip URL: {zip_url}", file=sys.stderr)
-
-        zip_path = tmp_dir / "faf5_state.zip"
-        sha256 = download_zip(zip_url, zip_path)
+        if args.zip:
+            zip_path = Path(args.zip)
+            sha256 = hashlib.sha256(zip_path.read_bytes()).hexdigest()
+            zip_url = args.url or f"local:{zip_path.name} (von {args.page_url})"
+        else:
+            zip_url = args.url or discover_faf_zip_url(args.page_url)
+            print(f"FAF5 zip URL: {zip_url}", file=sys.stderr)
+            zip_path = tmp_dir / "faf5_state.zip"
+            sha256 = download_zip(zip_url, zip_path)
         print(f"Downloaded {zip_path.stat().st_size} bytes, sha256={sha256}", file=sys.stderr)
 
         csv_path = extract_first_csv(zip_path, tmp_dir)
