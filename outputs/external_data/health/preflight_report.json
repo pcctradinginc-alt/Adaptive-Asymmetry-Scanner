@@ -124,8 +124,8 @@
           ],
           "Qingdao": [
             "Qinhuangdao",
-            "Qingdao Port",
-            "Qingdao Gang"
+            "Qingdao Gang",
+            "Qingdao Port"
           ],
           "Laem Chabang": [
             "Palembang",
@@ -223,9 +223,9 @@
   },
   {
     "source_id": "eurostat_industrial_production",
-    "status": "SCHEMA_CHANGED",
-    "n_observations": 0,
-    "latest_observation_time": null,
+    "status": "PASS",
+    "n_observations": 2785,
+    "latest_observation_time": "2026-07-01T00:00:00+00:00",
     "endpoints": [
       "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
       "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m"
@@ -233,7 +233,7 @@
     "http_status": [
       200
     ],
-    "message": "Keine der Dimensions-Kombinationen entsprach der gesuchten Metrik laut offiziellem Label (indic/nace_r2/s_adj) -- Labels in preflight pr\u00fcfen.",
+    "message": "2785 Beobachtungen aus Datensatz sts_inpr_m",
     "discovered_ids": {
       "eurostat_industrial_production_candidates": {
         "sts_inpr_a": "Production in industry - annual data",
@@ -266,7 +266,7 @@
   },
   {
     "source_id": "destatis_truck_toll",
-    "status": "SCHEMA_CHANGED",
+    "status": "WARN",
     "n_observations": 0,
     "latest_observation_time": null,
     "endpoints": [
@@ -276,14 +276,9 @@
     "http_status": [
       200
     ],
-    "message": "ffcsv/csv-Antwort enthielt keine erkennbaren Datenzeilen/Spalten (erwartetes GENESIS-Schema f\u00fcr beide Formate gepr\u00fcft) \u2013 vermutlich Schema\u00e4nderung.",
+    "message": "0 Beobachtungen aus Tabelle 42191-0001, 119 Zeilen nicht parsebar",
     "discovered_ids": {
-      "fallback_table_code_source": "config.expected_table_code (verify in preflight)",
-      "diagnostics": {
-        "format": "csv",
-        "content_type": "application/zip",
-        "body_snippet": "Tabelle: 42191-0001\nLkw-Maut-Fahrleistungsindex: Deutschland, Monate, Original- und bereinigte Daten;;;;;;\nIndizes aus der Lkw-Mauterhebung;;;;;;\nDeutschland;;;;;;\nLkw-Maut-Fahrleistungsindex (2021=100);;;;;;\n;;Original- und bereinigte Daten;;;;\n;;Originalwerte;X13 JDemetra+  kalenderbereinigt;X13 JDemetra+  kalender- und saisonbereinigt;BV4.1 kalender- und saisonbereinigt;BV4.1 Trend\n2025;Januar;92,4;90,9;95,5;95,3;94,8\n;Februar;91,5;91,1;93,8;94,8;94,7\n;M\u00e4rz;99,5;103,4;95,6;94,6;94,7\n;April;96,1;95,6;95,4;94,6;94,7\n;Mai;96,0;95,1;94,4;94,5;94,7\n;Juni;91,8;95,7;94,0;94,5;94,7\n;Juli;101,1;98,0"
-      }
+      "fallback_table_code_source": "config.expected_table_code (verify in preflight)"
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -339,14 +334,14 @@
           "updatedAt": "2025-01-03T13:25:19.000Z"
         },
         {
-          "id": "s539-c8h7",
-          "name": "Transportation Services Index - Passenger",
-          "updatedAt": "2025-01-02T18:04:14.000Z"
-        },
-        {
           "id": "ni8u-e22d",
           "name": "Transportation Services Index - Combined",
           "updatedAt": "2025-01-02T18:04:20.000Z"
+        },
+        {
+          "id": "s539-c8h7",
+          "name": "Transportation Services Index - Passenger",
+          "updatedAt": "2025-01-02T18:04:14.000Z"
         },
         {
           "id": "n68x-u7m7",
@@ -744,8 +739,8 @@
   },
   {
     "source_id": "nws_forecast",
-    "status": "WARN",
-    "n_observations": 2342,
+    "status": "PASS",
+    "n_observations": 2397,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -784,6 +779,7 @@
       "https://api.weather.gov/gridpoints/PHI/48,75",
       "https://api.weather.gov/gridpoints/PHI/50,79",
       "https://api.weather.gov/gridpoints/PSR/159,58",
+      "https://api.weather.gov/gridpoints/PSR/161,57",
       "https://api.weather.gov/gridpoints/SEW/124,61",
       "https://api.weather.gov/gridpoints/TBW/98,102",
       "https://api.weather.gov/gridpoints/VEF/122,94",
@@ -831,7 +827,7 @@
     "http_status": [
       200
     ],
-    "message": "1 von 45 Locations fehlgeschlagen",
+    "message": "",
     "discovered_ids": {
       "ATL": {
         "gridId": "FFC",
@@ -892,6 +888,12 @@
         "gridX": 106,
         "gridY": 51,
         "timezone": "America/New_York"
+      },
+      "PHX": {
+        "gridId": "PSR",
+        "gridX": 161,
+        "gridY": 57,
+        "timezone": "America/Phoenix"
       },
       "SEA": {
         "gridId": "SEW",
@@ -1119,16 +1121,17 @@
   },
   {
     "source_id": "ncei_normals",
-    "status": "FAIL",
-    "n_observations": 0,
+    "status": "PASS",
+    "n_observations": 87600,
     "latest_observation_time": null,
     "endpoints": [
+      "https://www.ncei.noaa.gov/access/services/data/v1",
       "https://www.ncei.noaa.gov/cdo-web/api/v2/stations"
     ],
     "http_status": [
       200
     ],
-    "message": "45 Standorte fehlgeschlagen, erster Fehler: ATL: 400 f\u00fcr https://www.ncei.noaa.gov/access/services/data/v1 (nicht retrybar)",
+    "message": "",
     "discovered_ids": {
       "ATL": {
         "id": "GHCND:USC00090444",
