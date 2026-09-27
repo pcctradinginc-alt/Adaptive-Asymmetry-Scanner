@@ -443,5 +443,7 @@ def test_nhc_forecast_track_as_reference_does_not_crash():
             "forecastTrack": track}]}
         obs = parse_current_storms(storms, datetime.now(timezone.utc),
                                    [{"lat": 27.0, "lon": -81.0, "code": "FL"}])
-        metrics = {o.metric for o in obs}
-        assert "lat" in metrics and "min_distance_to_exposure_km" not in metrics
+        by_metric = {o.metric: o for o in obs}
+        assert "lat" in by_metric
+        dist = by_metric["min_distance_to_exposure_km"]
+        assert dist.value is None and dist.attrs.get("limitation")
