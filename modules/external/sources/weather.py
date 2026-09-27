@@ -793,6 +793,9 @@ class NhcSchemaError(Exception):
         self.diagnostics = diagnostics or {}
 
 
+FETCH_SUMMARY_DATASET = "fetch_summary"
+
+
 class NhcAdvisoryParseError(Exception):
     """Der Text eines Forecast/Advisory-Produkts (TCM, z.B. MIATCMAT#) passt
     nicht mehr auf das erwartete Zeilenformat (FORECAST/OUTLOOK VALID ...).
@@ -1209,6 +1212,18 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
             parser_version=parser_version, source_release_time=issuance, forecast_issue_time=issuance,
             attrs=dict(track_attrs),
         ))
+    # ── Abruf-Marker: EINE Observation je Abruf (auch bei 0 Stürmen), mit
+    # der Liste der in DIESEM Abruf aktiven Sturm-IDs. Der Kontext nutzt nur
+    # den jüngsten bis as_of verfügbaren Marker, um aufgelöste Stürme aus
+    # früheren Abrufen auszuschließen (das Archiv hält die ganze Historie).
+    active_ids = sorted({o.series_id for o in observations if o.dataset == "active_storms"})
+    observations.append(Observation(
+        source_id=source_id, dataset=FETCH_SUMMARY_DATASET, series_id="nhc_current_storms",
+        entity_id="", metric="active_storm_count", value=float(len(active_ids)), unit="count",
+        observation_time=retrieved_at, available_at=retrieved_at, retrieved_at=retrieved_at,
+        availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+        parser_version=parser_version, attrs={"active_storm_ids": active_ids},
+    ))
     return observations
 
 

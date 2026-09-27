@@ -22,7 +22,7 @@ from __future__ import annotations
 import hashlib
 import json
 import statistics
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -282,7 +282,7 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
         forecast_obs = _load_observations(archive, "nws_forecast", now)
         alert_obs = _load_observations(archive, "nws_alerts", now)
         normals_obs = _load_observations(archive, "ncei_normals", now)
-        storm_obs = _load_observations(archive, "nhc_storms", now)
+        storm_obs = current_storm_observations(_load_observations(archive, "nhc_storms", now), now)
 
         as_of_date = ensure_utc(now).date()
         temp_daily = wf.daily_temperature_aggregates(forecast_obs)
@@ -337,6 +337,42 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
 # System zählt nur dann als operatives Risiko, wenn seine aktuelle Position
 # innerhalb dieser Distanz zu einer kuratierten US-Küsten-Expositionsregion liegt.
 TROPICAL_NEAR_EXPOSURE_KM = 1000.0
+
+
+NHC_MARKER_MAX_AGE = timedelta(hours=48)   # täglicher Abruf + Puffer
+
+
+def current_storm_observations(storm_obs, now: datetime) -> list:
+    """Nur Stürme, die im JÜNGSTEN bis `now` verfügbaren NHC-Abruf aktiv
+    waren. Das Archiv hält die ganze Historie; ohne diesen Filter zählten
+    längst aufgelöste Stürme weiter als 'aktiv'. Grundlage ist der
+    Abruf-Marker (dataset fetch_summary), den jeder Abruf schreibt, auch
+    bei 0 Stürmen. Kein Marker oder Marker älter als NHC_MARKER_MAX_AGE
+    -> [] (unbekannt, nicht 'kein Sturm'). Je Sturm und Metrik bleibt nur
+    die jüngste Beobachtung (active_storms); Track-Punkte bleiben komplett,
+    die jüngste Advisory wählt _tropical_min_distance_km."""
+    from modules.external.sources.weather import FETCH_SUMMARY_DATASET
+    storm_obs = list(storm_obs or [])
+    markers = [o for o in storm_obs if o.dataset == FETCH_SUMMARY_DATASET]
+    if not markers:
+        return []
+    marker = max(markers, key=lambda o: o.available_at)
+    if ensure_utc(now) - marker.available_at > NHC_MARKER_MAX_AGE:
+        return []
+    ids = set((marker.attrs or {}).get("active_storm_ids") or [])
+    latest: dict = {}
+    out = [marker]
+    for o in storm_obs:
+        if o.dataset == FETCH_SUMMARY_DATASET or o.series_id not in ids:
+            continue
+        if o.dataset == "active_storms":
+            k = (o.series_id, o.metric)
+            cur = latest.get(k)
+            if cur is None or (o.observation_time, o.available_at) > (cur.observation_time, cur.available_at):
+                latest[k] = o
+        else:
+            out.append(o)
+    return out + list(latest.values())
 
 
 def _tropical_min_distance_km(storm_obs) -> float | None:

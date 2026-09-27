@@ -828,3 +828,62 @@ def test_tropical_min_distance_as_of_uses_only_latest_available_advisory_per_sto
     assert both is not None
     assert both < 5.0
     assert both != pytest.approx(only_old)
+
+
+# ── Aktive Stürme nur aus dem jüngsten NHC-Abruf ────────────────────────────
+
+def _storm_obs(storm_id, lat, lon, at):
+    from modules.external.pit import AvailabilityPrecision, Observation
+    return [Observation(source_id="nhc_storms", dataset="active_storms", series_id=storm_id,
+                        entity_id=storm_id, metric=m, value=v, unit="deg",
+                        observation_time=at, available_at=at, retrieved_at=at,
+                        availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+                        parser_version="1", forecast_issue_time=at)
+            for m, v in (("lat", lat), ("lon", lon))]
+
+
+def _marker(ids, at):
+    from modules.external.pit import AvailabilityPrecision, Observation
+    from modules.external.sources.weather import FETCH_SUMMARY_DATASET
+    return Observation(source_id="nhc_storms", dataset=FETCH_SUMMARY_DATASET,
+                       series_id="nhc_current_storms", entity_id="", metric="active_storm_count",
+                       value=float(len(ids)), unit="count", observation_time=at, available_at=at,
+                       retrieved_at=at, availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+                       parser_version="1", attrs={"active_storm_ids": sorted(ids)})
+
+
+def test_dissipated_storm_from_old_fetch_is_not_active():
+    from datetime import datetime, timedelta, timezone
+    from modules.external.context import current_storm_observations
+    from modules.external.sources import weather_features as wf
+    t0 = datetime(2026, 9, 1, 12, tzinfo=timezone.utc)
+    t1 = t0 + timedelta(days=1)
+    obs = _storm_obs("AL052026", 26.0, -80.0, t0) + [_marker(["AL052026"], t0), _marker([], t1)]
+    cur = current_storm_observations(obs, t1 + timedelta(hours=1))
+    assert all(o.dataset == "fetch_summary" for o in cur)
+    assert wf.pc_insurance_features([], [], cur)["active_tropical_system"] is False
+    # PIT: zum Zeitpunkt des ersten Abrufs war der Sturm aktiv
+    cur0 = current_storm_observations([o for o in obs if o.available_at <= t0], t0)
+    assert wf.pc_insurance_features([], [], cur0)["active_tropical_system"] is True
+
+
+def test_storm_context_unknown_without_fresh_marker():
+    from datetime import datetime, timedelta, timezone
+    from modules.external.context import current_storm_observations
+    t0 = datetime(2026, 9, 1, 12, tzinfo=timezone.utc)
+    obs = _storm_obs("AL052026", 26.0, -80.0, t0)
+    assert current_storm_observations(obs, t0) == []                      # kein Marker
+    assert current_storm_observations(obs + [_marker(["AL052026"], t0)],
+                                      t0 + timedelta(days=3)) == []       # veraltet
+
+
+def test_only_latest_position_per_active_storm_is_kept():
+    from datetime import datetime, timedelta, timezone
+    from modules.external.context import current_storm_observations
+    t0 = datetime(2026, 9, 1, 12, tzinfo=timezone.utc)
+    t1 = t0 + timedelta(hours=6)
+    obs = (_storm_obs("AL052026", 20.0, -60.0, t0) + _storm_obs("AL052026", 25.0, -79.0, t1)
+           + [_marker(["AL052026"], t1)])
+    cur = current_storm_observations(obs, t1)
+    lats = [o.value for o in cur if o.metric == "lat"]
+    assert lats == [25.0]

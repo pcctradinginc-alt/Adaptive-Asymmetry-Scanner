@@ -441,14 +441,18 @@ def test_nhc_no_active_storms_returns_empty_observations():
     storms = _load("nhc_current_storms_none.json")
     retrieved_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
     obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=[])
-    assert obs == []
+    # nur der Abruf-Marker: 0 aktive Stürme, belegt "Abruf lief, kein Sturm"
+    assert len(obs) == 1
+    assert obs[0].dataset == w.FETCH_SUMMARY_DATASET
+    assert obs[0].value == 0.0 and obs[0].attrs["active_storm_ids"] == []
 
 
 def test_nhc_skips_non_dict_storm_entries_instead_of_crashing():
     storms = {"activeStorms": ["AL052024", 42, None]}
     retrieved_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
     obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=[])
-    assert obs == []
+    assert [o.dataset for o in obs] == [w.FETCH_SUMMARY_DATASET]
+    assert obs[0].value == 0.0
 
 
 def test_nhc_raises_schema_error_when_top_level_is_not_a_dict():
@@ -496,7 +500,8 @@ def test_nhc_forecast_issue_time_is_advisory_issuance():
     retrieved_at = datetime(2024, 9, 27, tzinfo=timezone.utc)
     obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=[])
     expected = datetime(2024, 9, 26, 21, 0, 0, tzinfo=timezone.utc)
-    assert all(o.forecast_issue_time == expected for o in obs)
+    assert all(o.forecast_issue_time == expected for o in obs
+               if o.dataset != w.FETCH_SUMMARY_DATASET)
 
 
 def test_nhc_distance_to_exposure_uses_current_position():
