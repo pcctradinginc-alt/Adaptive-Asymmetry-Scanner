@@ -52,6 +52,7 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         h = SourceHealth.from_dict(health.get(source_id, {"source_id": source_id}))
         h.source_id = source_id
         h.criticality = source_cfg.get("criticality", "low")
+        h.auth_optional = bool(source_cfg.get("auth_optional", False))
         h.expected_cadence = source_cfg.get("expected_update_cadence")
         h.last_attempt = _now_iso(now)
 
@@ -62,6 +63,8 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
                         else SourceStatus.REVIEW_REQUIRED.value if "REVIEW_REQUIRED" in reason
                         else SourceStatus.DEFERRED.value)
             h.message = reason
+            # Kein Abrufversuch -> keine Fehlerserie fortschreiben
+            h.consecutive_failures = 0
             health[source_id] = h.to_dict()
             summary["sources"][source_id] = {"status": h.status, "reason": reason}
             continue

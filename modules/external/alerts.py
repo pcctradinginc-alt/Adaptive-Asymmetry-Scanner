@@ -50,11 +50,15 @@ def decide_alerts(health_before: dict[str, dict], health_after: dict[str, dict])
                             "message": after.get("message", "")})
 
         if after.get("status") == SourceStatus_AUTH_MISSING \
-                and before.get("status") != SourceStatus_AUTH_MISSING:
+                and before.get("status") != SourceStatus_AUTH_MISSING \
+                and not after.get("auth_optional"):
             alerts.append({"source_id": source_id, "type": "AUTH_MISSING",
                             "message": "Auth-Env-Variable fehlt neu."})
 
-        if int(after.get("consecutive_failures", 0) or 0) >= 3:
+        # Nur beim ÜBERSCHREITEN der Schwelle alarmieren (nicht bei jedem
+        # weiteren Fehlschlag erneut); nach Erholung kann erneut alarmiert werden.
+        if int(after.get("consecutive_failures", 0) or 0) >= 3 \
+                and int(before.get("consecutive_failures", 0) or 0) < 3:
             alerts.append({"source_id": source_id, "type": "CONSECUTIVE_FAILURES",
                             "message": f"{after['consecutive_failures']} Fehlversuche in Folge."})
 

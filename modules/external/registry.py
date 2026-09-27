@@ -155,6 +155,7 @@ class SourceHealth:
     consecutive_failures: int = 0
     message: str = ""
     criticality: str = "low"
+    auth_optional: bool = False   # optionale Zugangsdaten: AUTH_MISSING ohne Alert-Mail
     pit_integrity_failures: int = 0
     archive_error: str = ""
 

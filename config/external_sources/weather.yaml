@@ -96,6 +96,7 @@ sources:
     machine_endpoint: "https://www.ncei.noaa.gov/access/services/data/v1"
     access_method: "REST/JSON (access/services/data/v1, dataset=normals-daily-1991-2020)"
     requires_auth: true
+    auth_optional: true
     auth_env_variable: "NCEI_CDO_TOKEN"
     license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
     license_status: OK
