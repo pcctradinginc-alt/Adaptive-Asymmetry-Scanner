@@ -1825,7 +1825,8 @@ class EstatJpTruckConnector(Connector):
     STATS_CODE = "00600350"   # 自動車輸送統計調査 (MLIT), amtlicher e-Stat-Code
 
     def fetch(self, now: datetime) -> ConnectorResult:
-        app_id = os.environ.get("ESTAT_APP_ID")
+        # Leerzeichen/Zeilenumbrüche aus dem Secret-Feld entfernen
+        app_id = (os.environ.get("ESTAT_APP_ID") or "").strip()
         if not app_id:
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.AUTH_MISSING,

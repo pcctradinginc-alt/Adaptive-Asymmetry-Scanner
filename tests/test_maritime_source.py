@@ -545,7 +545,10 @@ def test_port_aliases_only_official_names_from_config():
     universe = yaml.safe_load(open("config/port_universe.yaml"))
     aliases = load_port_aliases(universe)
     assert aliases["Busan"] == ["Pusan"]
-    assert "Qingdao" not in aliases   # mehrdeutig -> bewusst nicht gemappt
+    # mehrdeutig nach Namen, entschieden nach portcalls (Preflight-Diagnose)
+    assert aliases["Qingdao"] == ["Qingdao Gang"]
+    names = {p["name"] for g in (mw.load_port_universe("config/port_universe.yaml")["groups"] or {}).values() for p in g}
+    assert "Long Beach" not in names   # in PortWatch Teil von "Los Angeles"
 
 
 def test_reduce_port_observations_keeps_curated_and_builds_aggregates():

@@ -299,6 +299,10 @@ sources:
     criticality: low
     license_status: REVIEW_REQUIRED
     status_override: REVIEW_REQUIRED
+    # Katalogsuche 2026-09-27 (scripts/source_discovery.py, data.europa.eu/
+    # data.gv.at): kein offizieller maschinenlesbarer Lkw-Fahrleistungs-Feed
+    # gefunden (nur PDF-Berichte). Belgien ist über die Eurostat-Länderreihen
+    # (eurostat_road_freight[_quarterly], geo) abgedeckt -> bleibt deaktiviert.
     notes: >
       Kein stabiler, offiziell dokumentierter maschinenlesbarer Endpoint für
       aggregierte Fahrleistungs-/Aufkommensdaten bekannt -> vor Aktivierung
@@ -326,6 +330,10 @@ sources:
     criticality: low
     license_status: REVIEW_REQUIRED
     status_override: REVIEW_REQUIRED
+    # Katalogsuche 2026-09-27 (scripts/source_discovery.py, data.europa.eu/
+    # data.gv.at): kein offizieller maschinenlesbarer Lkw-Fahrleistungs-Feed
+    # gefunden (nur PDF-Berichte). Österreich ist über die Eurostat-Länderreihen
+    # (eurostat_road_freight[_quarterly], geo) abgedeckt -> bleibt deaktiviert.
     notes: >
       ASFINAG betreibt einen Verkehrsdaten-/Open-Data-Bereich; konkreter
       offizieller Endpoint und Lizenzstatus für einen aggregierten
