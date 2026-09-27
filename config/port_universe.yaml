@@ -143,6 +143,15 @@ port_aliases:
   "Jebel Ali": ["Mina Jabal Ali"]
   "Jeddah": ["Jiddah"]
 
+# Suchwörter für die Preflight-Diagnose unaufgelöster Häfen (nur Anzeige,
+# kein automatisches Matching; Treffer werden manuell zu port_aliases).
+port_search_hints:
+  "Long Beach": ["Long Beach", "Los Angeles", "San Pedro"]
+  "Ningbo(-Zhoushan)": ["Ningbo", "Zhoushan", "Beilun", "Zhenhai"]
+  "Shenzhen": ["Shenzhen", "Shekou", "Yantian", "Chiwan", "Da Chan", "Mawan"]
+  "Qingdao": ["Qingdao", "Huangdao", "Dongjiakou"]
+  "Laem Chabang": ["Laem", "Chabang", "Si Racha", "Sriracha"]
+
 # Feature-Konfiguration (item 7 Defaults; hier zentral, nicht im Code
 # hart verdrahtet, damit sie ohne Code-Änderung angepasst werden können).
 feature_config:

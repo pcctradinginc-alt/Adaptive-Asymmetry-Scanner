@@ -231,7 +231,13 @@ sources:
     pit_quality: CONSERVATIVE_DATE
     enabled: true
     criticality: low
-    license_status: REVIEW_REQUIRED
+    # Entscheidung 2026-09-27 (Nutzer: private, nicht-kommerzielle Forschung):
+    # e-Stat-Inhalte stehen unter den Standard-Nutzungsbedingungen der
+    # japanischen Regierung (Version 2.0, CC-BY-4.0-kompatibel); API-Nutzung
+    # verlangt den Credit-Hinweis unten. Primärbelege: license_evidence.json.
+    license_status: OK
+    usage_restriction: "private, non-commercial research only"
+    attribution: "Source: e-Stat (Portal Site of Official Statistics of Japan). This service uses the API function of e-Stat, but the contents of the service are not guaranteed by the government."
     notes: >
       statsDataId wird zur Laufzeit über getStatsList (searchWord
       "自動車輸送統計") ermittelt; niemals fest kodiert.

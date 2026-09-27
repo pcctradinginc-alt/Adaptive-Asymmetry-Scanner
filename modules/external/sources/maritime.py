@@ -1008,6 +1008,17 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 "unresolved_ports_close_matches": {
                     name: close_name_matches(name, available_ports) for name in unresolved
                 },
+                # rein diagnostisch: alle Layer-Namen, die ein Suchwort
+                # enthalten (port_search_hints, z.B. Shekou/Yantian für
+                # Shenzhen) -- Grundlage für manuell gepflegte port_aliases,
+                # nie automatisches Matching
+                "unresolved_ports_hint_matches": {
+                    name: sorted({c for c in available_ports
+                                  for h in ((universe.get("port_search_hints") or {}).get(name)
+                                            or [name])
+                                  if normalize_name(h) in normalize_name(c)})[:25]
+                    for name in unresolved
+                },
             }
 
             retrieved_at = now
