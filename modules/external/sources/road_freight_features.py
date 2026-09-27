@@ -111,49 +111,62 @@ def _acceleration(series: list[tuple[datetime, float]], step: int) -> float | No
 
 
 # ---------------------------------------------------------------------------
-# destatis_truck_toll (Deutschland, täglicher Fahrleistungsindex)
+# destatis_truck_toll (GENESIS-Online, bevorzugt) bzw. destatis_truck_toll_
+# download (EXDAT-Direktdownload ohne Login, Fallback) -- Deutschland,
+# täglicher Fahrleistungsindex. Beide Konnektoren teilen sich exakt die
+# gleichen Metrik-/Entity-Konventionen (index_sa/index_unadjusted,
+# entity_id="" = Deutschland gesamt), _de_truck_series() wählt pro Aufruf
+# genau EINE Quelle (GENESIS zuerst, nie vermischt).
 # ---------------------------------------------------------------------------
+
+def _de_truck_series(observations: Iterable[Observation], entity_id: str, metric: str):
+    obs = list(observations)
+    primary = _series(obs, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    if primary:
+        return primary
+    return _series(obs, source_id="destatis_truck_toll_download", metric=metric, entity_id=entity_id)
+
 
 def de_truck_level(observations: Iterable[Observation], entity_id: str = "",
                     metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _last_value(s)
 
 
 def de_truck_7d_mean(observations: Iterable[Observation], entity_id: str = "",
                       metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _mean_last_n(s, 7)
 
 
 def de_truck_28d_mean(observations: Iterable[Observation], entity_id: str = "",
                        metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _mean_last_n(s, 28)
 
 
 def de_truck_90d_mean(observations: Iterable[Observation], entity_id: str = "",
                        metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _mean_last_n(s, 90)
 
 
 def de_truck_wow(observations: Iterable[Observation], entity_id: str = "",
                   metric: str = "index_sa") -> float | None:
     """Week-over-week: letzter Wert vs. Wert 7 Beobachtungstage zuvor."""
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _pct_change(_last_value(s), _value_n_periods_back(s, 7))
 
 
 def de_truck_28d_change(observations: Iterable[Observation], entity_id: str = "",
                          metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _pct_change(_last_value(s), _value_n_periods_back(s, 28))
 
 
 def de_truck_yoy(observations: Iterable[Observation], entity_id: str = "",
                   metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     if not s:
         return None
     last_t, last_v = s[-1]
@@ -165,70 +178,103 @@ def de_truck_yoy(observations: Iterable[Observation], entity_id: str = "",
 
 def de_truck_z_1y(observations: Iterable[Observation], entity_id: str = "",
                    metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _zscore(s, 365)
 
 
 def de_truck_z_3y(observations: Iterable[Observation], entity_id: str = "",
                    metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _zscore(s, 3 * 365)
 
 
 def de_truck_acceleration(observations: Iterable[Observation], entity_id: str = "",
                            metric: str = "index_sa") -> float | None:
-    s = _series(observations, source_id="destatis_truck_toll", metric=metric, entity_id=entity_id)
+    s = _de_truck_series(observations, entity_id, metric)
     return _acceleration(s, 7)
 
 
 # ---------------------------------------------------------------------------
-# bts_freight_tsi (USA, monatlich)
+# bts_freight_tsi (USA, monatlich, FRED/ALFRED bei FRED_API_KEY) bzw.
+# bts_open_data_tsi (USA, monatlich, Socrata Open Data ohne API-Key) --
+# bts_freight_tsi wird IMMER bevorzugt (ALFRED-Vintages, siehe
+# BtsFreightTsiConnector), bts_open_data_tsi ist der Fallback ohne Key.
+# _us_tsi_source() wählt pro Aufruf genau EINE Quelle (nie vermischt).
 # ---------------------------------------------------------------------------
 
+_US_TSI_PREFERRED_SOURCE = "bts_freight_tsi"
+_US_TSI_FALLBACK_SOURCE = "bts_open_data_tsi"
+
+
+def _us_tsi_source(observations: Iterable[Observation]) -> str:
+    """Welche Quelle für us_freight_tsi_*-Features verwendet wird: bevorzugt
+    bts_freight_tsi (ALFRED-Vintages bei FRED_API_KEY), sonst
+    bts_open_data_tsi, falls dafür Observations vorliegen."""
+    has_preferred = any(o.source_id == _US_TSI_PREFERRED_SOURCE and o.metric == "us_freight_tsi"
+                         for o in observations)
+    return _US_TSI_PREFERRED_SOURCE if has_preferred else _US_TSI_FALLBACK_SOURCE
+
+
 def us_freight_tsi_level(observations: Iterable[Observation]) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _last_value(s)
 
 
 def us_freight_tsi_mom(observations: Iterable[Observation]) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _pct_change(_last_value(s), _value_n_periods_back(s, 1))
 
 
 def us_freight_tsi_yoy(observations: Iterable[Observation]) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _pct_change(_last_value(s), _value_n_periods_back(s, 12))
 
 
 def us_freight_tsi_3m_momentum(observations: Iterable[Observation]) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _pct_change(_last_value(s), _value_n_periods_back(s, 3))
 
 
 def us_freight_tsi_6m_momentum(observations: Iterable[Observation]) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _pct_change(_last_value(s), _value_n_periods_back(s, 6))
 
 
 def us_freight_tsi_z(observations: Iterable[Observation], window_days: int = 365 * 3) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _zscore(s, window_days)
 
 
 def us_freight_tsi_acceleration(observations: Iterable[Observation]) -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric="us_freight_tsi")
+    obs = list(observations)
+    s = _series(obs, source_id=_us_tsi_source(obs), metric="us_freight_tsi")
     return _acceleration(s, 1)
 
 
 def us_trucking_level(observations: Iterable[Observation], metric: str = "us_trucking") -> float | None:
     """Nur befüllt, falls ein truckingspezifisches TSI-Komponentenmetric
-    tatsächlich vorhanden ist (kein erfundener Ersatz)."""
-    s = _series(observations, source_id="bts_freight_tsi", metric=metric)
+    tatsächlich vorhanden ist (kein erfundener Ersatz). Sucht in der
+    bevorzugten Quelle (bts_freight_tsi) zuerst, sonst im Socrata-Fallback
+    bts_open_data_tsi (dort heißt die Metrik "us_trucking_index")."""
+    obs = list(observations)
+    s = _series(obs, source_id="bts_freight_tsi", metric=metric)
+    if s:
+        return _last_value(s)
+    s = _series(obs, source_id="bts_open_data_tsi", metric="us_trucking_index")
     return _last_value(s)
 
 
 def us_trucking_yoy(observations: Iterable[Observation], metric: str = "us_trucking") -> float | None:
-    s = _series(observations, source_id="bts_freight_tsi", metric=metric)
+    obs = list(observations)
+    s = _series(obs, source_id="bts_freight_tsi", metric=metric)
+    if not s:
+        s = _series(obs, source_id="bts_open_data_tsi", metric="us_trucking_index")
     return _pct_change(_last_value(s), _value_n_periods_back(s, 12))
 
 
@@ -261,16 +307,20 @@ _TOTAL_CODES = {"TOTAL", "TOT", "T"}
 
 
 def select_eurostat_total_series(observations: Iterable[Observation], entity_id: str,
-                                 metric: str) -> str | None:
+                                 metric: str, source_id: str = "eurostat_road_freight") -> str | None:
     """Wählt deterministisch GENAU EINE Eurostat-Reihe (series_id) je Land und
     Einheit, damit Varianten (z.B. gewerblich/Werkverkehr) nie vermischt
     werden: bevorzugt die Reihe, deren Nicht-geo/time/unit-Dimensionen alle
     Gesamt-Codes (TOTAL/TOT/T) tragen; sonst die mit dem größten mittleren
-    Niveau (Gesamt >= Komponenten); Gleichstand -> lexikografisch kleinste ID."""
+    Niveau (Gesamt >= Komponenten); Gleichstand -> lexikografisch kleinste ID.
+
+    `source_id` wählt die Quelle (Default: die jährliche/gemischte
+    eurostat_road_freight-Reihe); eurostat_road_freight_quarterly übergibt
+    hier explizit ihre eigene source_id, siehe _eu_quarterly_series()."""
     by_series: dict[str, list] = {}
     attrs_of: dict[str, dict] = {}
     for o in observations:
-        if (o.source_id != "eurostat_road_freight" or o.metric != metric
+        if (o.source_id != source_id or o.metric != metric
                 or o.entity_id != entity_id or o.value is None):
             continue
         by_series.setdefault(o.series_id, []).append(o.value)
@@ -305,6 +355,62 @@ def eu_road_freight_z(observations: Iterable[Observation], entity_id: str = "DE"
 def eu_road_freight_acceleration(observations: Iterable[Observation], entity_id: str = "DE",
                                   metric: str = "road_freight_ths_t") -> float | None:
     return _acceleration(_eu_series(observations, entity_id, metric), 1)
+
+
+# ---------------------------------------------------------------------------
+# eurostat_road_freight_quarterly – bevorzugte, feinere Zeitauflösung für
+# z-Score/Beschleunigung; Fallback auf die jährliche eurostat_road_freight-
+# Reihe, wenn (noch) zu wenige Quartalspunkte vorliegen (siehe
+# eu_road_freight_z_preferred/_acceleration_preferred unten).
+# ---------------------------------------------------------------------------
+
+def _eu_quarterly_series(observations, entity_id: str, metric: str):
+    obs = list(observations)
+    sid = select_eurostat_total_series(
+        [o for o in obs if o.source_id == "eurostat_road_freight_quarterly"], entity_id, metric,
+        source_id="eurostat_road_freight_quarterly")
+    if sid is None:
+        return []
+    return _series([o for o in obs if o.series_id == sid], source_id="eurostat_road_freight_quarterly",
+                   metric=metric, entity_id=entity_id)
+
+
+_QUARTERLY_MIN_POINTS = 5
+_QUARTERLY_WINDOW_QUARTERS = 12   # ~3 Jahre
+
+
+def eu_road_freight_z_preferred(observations: Iterable[Observation], entity_id: str = "DE",
+                                 metric: str = "road_freight_ths_t") -> tuple[float | None, str]:
+    """Bevorzugt die Eurostat-QUARTERLY-Reihe (Fenster ~12 Quartale = 3
+    Jahre), sofern mindestens _QUARTERLY_MIN_POINTS Punkte vorliegen;
+    andernfalls Fallback auf die jährliche eurostat_road_freight-Reihe
+    (3-Jahres-Fenster in Tagen, wie eu_road_freight_z). Rückgabe:
+    (z_score, frequency_used) mit frequency_used in {"quarterly", "annual",
+    "none"} -- das Aufrufer-/Reporting-Layer kann so dokumentieren, welche
+    Auflösung tatsächlich verwendet wurde."""
+    obs = list(observations)
+    q_series = _eu_quarterly_series(obs, entity_id, metric)
+    if len(q_series) >= _QUARTERLY_MIN_POINTS:
+        window_days = int(_QUARTERLY_WINDOW_QUARTERS * 91.3)
+        z = _zscore(q_series, window_days)
+        if z is not None:
+            return z, "quarterly"
+    z = eu_road_freight_z(obs, entity_id, metric)
+    return z, ("annual" if z is not None else "none")
+
+
+def eu_road_freight_acceleration_preferred(observations: Iterable[Observation], entity_id: str = "DE",
+                                            metric: str = "road_freight_ths_t") -> tuple[float | None, str]:
+    """Wie eu_road_freight_z_preferred(), aber für die Beschleunigungsrate
+    (1-Perioden-Schritt in der jeweils gewählten Frequenz)."""
+    obs = list(observations)
+    q_series = _eu_quarterly_series(obs, entity_id, metric)
+    if len(q_series) >= _QUARTERLY_MIN_POINTS:
+        acc = _acceleration(q_series, 1)
+        if acc is not None:
+            return acc, "quarterly"
+    acc = eu_road_freight_acceleration(obs, entity_id, metric)
+    return acc, ("annual" if acc is not None else "none")
 
 
 # ---------------------------------------------------------------------------
