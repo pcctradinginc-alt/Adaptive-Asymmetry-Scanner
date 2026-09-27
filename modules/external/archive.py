@@ -35,6 +35,7 @@ DEFAULT_ROOT = "outputs/external_data"
 DEFAULT_RAW_MAX_BYTES = 2_000_000
 DEFAULT_RAW_POLICY = "hash_only"
 DEFAULT_STORAGE_WARN_MB_1Y = 200
+DEFAULT_MAX_BACKFILL_BYTES_PER_SOURCE = 30_000_000
 DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN = 2_000_000
 
 
@@ -247,9 +248,20 @@ class ExternalArchive:
                     len((json.dumps(obs.to_dict()) + "\n").encode("utf-8")) for obs in new_rows
                 )
 
-            if estimated_bytes > max_bytes_per_source:
+            # Erstimport (Quelle hat noch keine normalisierten Daten) ist ein
+            # einmaliger historischer Backfill -> eigene, höhere Grenze
+            # (max_backfill_bytes_per_source). Die tägliche Sperre gilt für den
+            # inkrementellen Zuwachs; beides schreibt nie gekürzt.
+            is_first_import = not self._normalized_dir(source_id).exists() or not any(
+                self._normalized_dir(source_id).glob("*.jsonl"))
+            limit = (max(max_bytes_per_source,
+                         int(defaults.get("max_backfill_bytes_per_source",
+                                          DEFAULT_MAX_BACKFILL_BYTES_PER_SOURCE)))
+                     if is_first_import else max_bytes_per_source)
+            if estimated_bytes > limit:
                 self.last_guard_blocked[source_id] = {
-                    "estimated_bytes": estimated_bytes, "max_bytes": max_bytes_per_source,
+                    "estimated_bytes": estimated_bytes, "max_bytes": limit,
+                    "first_import": is_first_import,
                 }
                 continue  # NICHTS für diese Quelle in diesem Run schreiben — nie kürzen
 

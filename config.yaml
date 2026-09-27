@@ -185,6 +185,7 @@ external_context:
     # NICHTS geschrieben (nie stillschweigend gekürzt) -- Status WARN,
     # Meldung "volume guard", Alarmierung über den bestehenden Mechanismus.
     max_new_normalized_bytes_per_source_per_run: 2000000
+    max_backfill_bytes_per_source: 30000000   # einmaliger historischer Erstimport je Quelle
   readiness:
     # Methodologische Mindestschwellen je Frequenz für EXPLORATORY_READY /
     # CHALLENGER_READY — NIE aus Returns abgeleitet (siehe registry.py).

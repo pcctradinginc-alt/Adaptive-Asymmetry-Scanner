@@ -478,6 +478,11 @@ class _HugeConnector(Connector):
 
 
 def test_volume_guard_blocks_write_and_sets_warn(tmp_path, monkeypatch):
+    # Erstimport-Backfill-Grenze klein setzen: diese Tests prüfen die Sperre selbst
+    import modules.external.archive as _arch_mod
+    _orig_defaults = _arch_mod._config_archive_defaults
+    monkeypatch.setattr(_arch_mod, "_config_archive_defaults",
+                        lambda: {**_orig_defaults(), "max_backfill_bytes_per_source": 50})
     """Übersteigt eine Quelle das konfigurierte Bytes/Run-Limit, wird für sie
     in diesem Run NICHTS geschrieben (nie stillschweigend gekürzt), Status
     wird WARN mit Meldung 'volume guard', und der bestehende Alert-Mechanismus
@@ -488,7 +493,8 @@ def test_volume_guard_blocks_write_and_sets_warn(tmp_path, monkeypatch):
     monkeypatch.setattr(al, "_alerts_email_enabled", lambda: False)
     monkeypatch.setattr(
         "modules.external.archive._config_archive_defaults",
-        lambda: {"max_new_normalized_bytes_per_source_per_run": 100},
+        lambda: {"max_new_normalized_bytes_per_source_per_run": 100,
+                 "max_backfill_bytes_per_source": 100},
     )
     summary = orch.run_ingestion(now, registry=registry)
     assert summary["sources"]["huge_src"]["status"] == "WARN"
@@ -499,7 +505,12 @@ def test_volume_guard_blocks_write_and_sets_warn(tmp_path, monkeypatch):
     assert any(a["source_id"] == "huge_src" and a["type"] == "ARCHIVE_FAILURE" for a in alerts)
 
 
-def test_archive_store_observations_guard_blocks_oversized_source(tmp_path):
+def test_archive_store_observations_guard_blocks_oversized_source(tmp_path, monkeypatch):
+    # Erstimport-Backfill-Grenze klein setzen: diese Tests prüfen die Sperre selbst
+    import modules.external.archive as _arch_mod
+    _orig_defaults = _arch_mod._config_archive_defaults
+    monkeypatch.setattr(_arch_mod, "_config_archive_defaults",
+                        lambda: {**_orig_defaults(), "max_backfill_bytes_per_source": 50})
     a = ExternalArchive(root=tmp_path)
     obs = [mk_obs(series_id=f"S{i}", value=float(i)) for i in range(50)]
     counts = a.store_observations(obs, max_new_normalized_bytes_per_source_per_run=100)
@@ -509,7 +520,12 @@ def test_archive_store_observations_guard_blocks_oversized_source(tmp_path):
     assert a.last_guard_blocked["src_a"]["max_bytes"] == 100
 
 
-def test_archive_store_observations_guard_does_not_affect_other_sources(tmp_path):
+def test_archive_store_observations_guard_does_not_affect_other_sources(tmp_path, monkeypatch):
+    # Erstimport-Backfill-Grenze klein setzen: diese Tests prüfen die Sperre selbst
+    import modules.external.archive as _arch_mod
+    _orig_defaults = _arch_mod._config_archive_defaults
+    monkeypatch.setattr(_arch_mod, "_config_archive_defaults",
+                        lambda: {**_orig_defaults(), "max_backfill_bytes_per_source": 50})
     a = ExternalArchive(root=tmp_path)
     small = [mk_obs(source_id="small_src", value=1.0)]
     huge = [mk_obs(source_id="huge_src", series_id=f"S{i}", value=float(i)) for i in range(50)]
@@ -610,3 +626,23 @@ def test_preflight_reads_license_review_sources_but_skips_overrides(monkeypatch)
            for r in orchestrator.preflight(registry=FakeReg())}
     assert out["lic"]["archiving"] == "blocked_until_license_review"
     assert out["def"]["status"].startswith("status_override")
+
+
+def test_volume_guard_allows_first_import_backfill_but_blocks_large_increment(tmp_path):
+    from datetime import datetime, timezone, timedelta
+    from modules.external.archive import ExternalArchive
+    from modules.external.pit import Observation, AvailabilityPrecision
+    arch = ExternalArchive(root=str(tmp_path))
+    t0 = datetime(2020, 1, 1, tzinfo=timezone.utc)
+
+    def batch(n, offset):
+        return [Observation("src", "ds", f"s{i}", "", "m", float(i), "u",
+                            t0 + timedelta(days=offset + i), t0, t0,
+                            AvailabilityPrecision.EXACT_DATE, "1") for i in range(n)]
+
+    # Erstimport über der täglichen Grenze, unter der Backfill-Grenze -> geschrieben
+    arch.store_observations(batch(50, 0), max_new_normalized_bytes_per_source_per_run=1000)
+    assert "src" not in arch.last_guard_blocked
+    # späterer großer Zuwachs -> blockiert
+    arch.store_observations(batch(50, 1000), max_new_normalized_bytes_per_source_per_run=1000)
+    assert arch.last_guard_blocked["src"]["first_import"] is False
