@@ -675,3 +675,13 @@ def test_genesis_classic_monthly_csv_is_parsed():
                                       "index_sa", "index_sa_bv41", "index_trend"}
     assert latest.year == 2026 and latest.month == 1
     assert all(o.dataset == "monthly_index" and o.entity_id == "" for o in obs)
+
+
+def test_estat_ten_digit_time_codes():
+    p = rf.EstatJpTruckConnector._parse_estat_time
+    assert (p("2024000101").year, p("2024000101").month) == (2024, 1)
+    assert p("2024000103").month == 1          # Quartal Jan-Mär -> Start
+    assert p("2024000000").month == 1          # Kalenderjahr
+    assert p("2024100000").month == 4          # Fiskaljahr ab April
+    with pytest.raises(ValueError):
+        p("20241")
