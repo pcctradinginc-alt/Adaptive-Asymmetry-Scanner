@@ -1909,8 +1909,12 @@ class EstatJpTruckConnector(Connector):
                    for t in tables]
         discovered["estat_jp_truck_candidates"] = catalog[:40]
         # Monatstabellen mit Transport-Tonnage bevorzugen; sonst erste Tabelle
-        preferred = [c for c in catalog if c["cycle"] == "月次" and "トン" in c["title"]]
-        chosen = next((t for t in tables if preferred and t.get("@id") == preferred[0]["id"]), tables[0])
+        # Monatstabellen mit Tonnage bevorzugen, davon die JÜNGSTE (SURVEY_DATE/
+        # UPDATED_DATE): Live 2026-09-27 wählte die erste Treffer-Tabelle, eine
+        # 2020 abgeschlossene Altserie (0003091286, bis 2020-03).
+        preferred = [c for c in catalog if c["cycle"] == "月次" and "トン" in c["title"]] or catalog
+        best = max(preferred, key=lambda c: (str(c.get("survey_date") or ""), str(c.get("updated") or "")))
+        chosen = next((t for t in tables if t.get("@id") == best["id"]), tables[0])
         stats_data_id = chosen.get("@id")
         if not stats_data_id:
             return ConnectorResult(

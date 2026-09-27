@@ -435,5 +435,17 @@ def jp_truck_yoy(observations: Iterable[Observation], metric: str) -> float | No
 
 
 def jp_truck_z(observations: Iterable[Observation], metric: str, window_days: int = 365 * 3) -> float | None:
-    s = _series(observations, source_id="estat_jp_truck", metric=metric)
-    return _zscore(s, window_days)
+    """z der Vorjahresrate: e-Stat-Tonnage ist NICHT saisonbereinigt, ein
+    Niveau-z würde vor allem das Saisonmuster messen (Audit 2026-09-27)."""
+    obs = [o for o in observations if o.source_id == "estat_jp_truck" and o.metric == metric
+           and o.value is not None]
+    if not obs:
+        return None
+    # nur die aktuelle Tabelle (series_id der jüngsten Beobachtung) -- nie eine
+    # abgeschlossene Altserie mit gleichem Metriknamen untermischen
+    current_sid = max(obs, key=lambda o: o.observation_time).series_id
+    s = _series([o for o in obs if o.series_id == current_sid], source_id="estat_jp_truck", metric=metric)
+    by_month = {(t.year, t.month): v for t, v in s}
+    yoy = [(t, (v - by_month[(t.year - 1, t.month)]) / abs(by_month[(t.year - 1, t.month)]))
+           for t, v in s if by_month.get((t.year - 1, t.month)) not in (None, 0)]
+    return _zscore(yoy, window_days)

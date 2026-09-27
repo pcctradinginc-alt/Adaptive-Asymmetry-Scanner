@@ -221,3 +221,26 @@ def test_eurostat_400_retries_without_dimension_filters(monkeypatch):
     res, err = conn._fetch_dataset("road_go_ta_tott", [])
     assert err is None and res is not None
     assert "unit" in calls[0] and "unit" not in calls[1]
+
+
+def test_jp_truck_z_ignores_pure_seasonality():
+    """Nicht saisonbereinigte Tonnage: reines Saisonmuster -> YoY 0 -> z 0;
+    ein Niveau-z hätte im Saisonhoch stark positiv ausgeschlagen."""
+    from datetime import datetime, timezone
+    from modules.external.pit import AvailabilityPrecision, Observation
+    from modules.external.sources import road_freight_features as rff
+    season = [100, 90, 110, 120, 130, 125, 115, 105, 95, 100, 140, 150]
+    obs = []
+    for y in range(2021, 2026):
+        for m, v in enumerate(season, start=1):
+            t = datetime(y, m, 1, tzinfo=timezone.utc)
+            obs.append(Observation(source_id="estat_jp_truck", dataset="d", series_id="s",
+                                   entity_id="00000", metric="jp_truck_合計|合計", value=float(v),
+                                   unit="千トン", observation_time=t, available_at=t, retrieved_at=t,
+                                   availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                                   parser_version="1"))
+    level_z = rff._zscore(rff._series(obs, source_id="estat_jp_truck", metric="jp_truck_合計|合計"),
+                          365 * 3)
+    assert level_z > 1.0                       # Dezember-Saisonhoch
+    z = rff.jp_truck_z(obs, "jp_truck_合計|合計")
+    assert z is None or abs(z) < 0.5           # YoY konstant -> kein Signal
