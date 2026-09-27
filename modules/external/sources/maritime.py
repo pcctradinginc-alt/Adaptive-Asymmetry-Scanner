@@ -83,14 +83,32 @@ INCREMENTAL_WINDOW_DAYS = 21
 
 # Kern-Felder, die im Daily-Ports-Layer vorhanden sein MÜSSEN, sonst
 # SCHEMA_CHANGED (nie stillschweigend umbenannte Felder mappen).
-CORE_FIELDS_PORTS = {"date", "portid", "portname"}
+# Alias-Tabelle: erlaubt case-insensitive Matching gegen tatsächlich in der
+# Layer-Metadata gefundene Feldnamen (z.B. "portId" statt "portid") -- es
+# wird NIE ein Feld erraten, das nicht mindestens einem dokumentierten Alias
+# entspricht. outFields wird ausschließlich aus der Schnittmenge
+# {gewünschte logische Felder} x {tatsächliche Metadaten-Felder} gebaut.
+FIELD_ALIASES_PORTS: dict[str, tuple[str, ...]] = {
+    "date": ("date", "Date", "DATE"),
+    "portid": ("portid", "portId", "PortId", "PORTID", "port_id"),
+    "portname": ("portname", "portName", "PortName", "PORTNAME", "port_name"),
+    "country": ("country", "Country", "COUNTRY"),
+    "iso3": ("ISO3", "iso3", "Iso3"),
+}
 CARGO_PREFIXES_PORTS = ("portcalls", "import", "export")
 
-CORE_FIELDS_CHOKEPOINTS = {"date"}
-# mögliche Namens-/ID-/Zähl-Feldvarianten (VERIFY LIVE welche tatsächlich existieren)
-CHOKEPOINT_ID_CANDIDATES = ("chokepointid", "choke_id", "portid", "id", "objectid")
-CHOKEPOINT_NAME_CANDIDATES = ("chokepointname", "portname", "name")
+FIELD_ALIASES_CHOKEPOINTS: dict[str, tuple[str, ...]] = {
+    "date": ("date", "Date", "DATE"),
+    "chokepointid": ("chokepointid", "choke_id", "chokePointId", "CHOKEPOINTID", "portid", "id", "objectid"),
+    "chokepointname": ("chokepointname", "choke_name", "chokePointName", "CHOKEPOINTNAME", "portname", "name"),
+}
 CHOKEPOINT_COUNT_PREFIXES = ("n_", "vessel", "transit", "capacity")
+
+# Rückwärtskompatible Namen (werden von älteren Aufrufern ggf. importiert).
+CORE_FIELDS_PORTS = {"date", "portid", "portname"}
+CORE_FIELDS_CHOKEPOINTS = {"date"}
+CHOKEPOINT_ID_CANDIDATES = FIELD_ALIASES_CHOKEPOINTS["chokepointid"]
+CHOKEPOINT_NAME_CANDIDATES = FIELD_ALIASES_CHOKEPOINTS["chokepointname"]
 
 
 class DiscoveryError(Exception):
@@ -98,7 +116,14 @@ class DiscoveryError(Exception):
 
 
 class SchemaError(Exception):
-    """Layer-Metadaten passen nicht zum erwarteten Kern-Schema -> SCHEMA_CHANGED."""
+    """Layer-Metadaten passen nicht zum erwarteten Kern-Schema -> SCHEMA_CHANGED.
+
+    `diagnostics` trägt sichere, öffentliche Debug-Infos (Feldliste,
+    maxRecordCount, Service-URL) -- NIE Request-Parameter/Credentials."""
+
+    def __init__(self, message: str, diagnostics: dict | None = None):
+        super().__init__(message)
+        self.diagnostics = diagnostics or {}
 
 
 # --------------------------------------------------------------------------
@@ -228,45 +253,143 @@ def fetch_layer_metadata(service_url: str, layer_id: int, http_fetch: FetchFn) -
     url = f"{service_url}/{layer_id}"
     res = http_fetch(url, params={"f": "json"})
     meta = res.json()
-    if "fields" not in meta:
-        raise SchemaError(f"Layer-Metadaten ohne 'fields': {url}")
+    if not isinstance(meta, dict) or "fields" not in meta:
+        body_snippet = json.dumps(meta)[:600] if isinstance(meta, (dict, list)) else str(meta)[:600]
+        raise SchemaError(
+            f"Layer-Metadaten ohne 'fields': {url}",
+            diagnostics={"service_url": url, "body_snippet": body_snippet},
+        )
     return meta
 
 
 def _field_names(meta: dict) -> set[str]:
-    return {f["name"] for f in meta.get("fields", [])}
+    return {f["name"] for f in meta.get("fields", []) if isinstance(f, dict) and f.get("name")}
+
+
+def _all_field_names(meta: dict) -> list[str]:
+    return sorted(_field_names(meta))
+
+
+def _field_index(meta: dict) -> dict[str, dict]:
+    """lower(Feldname) -> Feld-Metadaten-Dict (name, type, ...)."""
+    return {
+        f["name"].lower(): f for f in meta.get("fields", [])
+        if isinstance(f, dict) and f.get("name")
+    }
+
+
+def _match_alias(field_index: dict[str, dict], aliases: tuple[str, ...]) -> dict | None:
+    """Case-insensitives Alias-Matching gegen die tatsächliche Layer-
+    Metadata -- rät NIE ein Feld, das keinem dokumentierten Alias entspricht."""
+    for alias in aliases:
+        f = field_index.get(alias.lower())
+        if f is not None:
+            return f
+    return None
+
+
+def _layer_diagnostics(meta: dict, service_url: str = "", layer_id: int | str = "") -> dict:
+    """Sichere Debug-Infos für ConnectorResult.discovered_ids['diagnostics']
+    im Fehlerfall (nie Request-Parameter/Credentials)."""
+    return {
+        "field_names": _all_field_names(meta),
+        "maxRecordCount": meta.get("maxRecordCount"),
+        "service_url": f"{service_url}/{layer_id}" if service_url != "" else None,
+    }
+
+
+def resolve_ports_field_schema(meta: dict, service_url: str = "", layer_id: int | str = "") -> dict:
+    """Löst die logischen Felder (date/id/name/country/iso3/cargo) case-
+    insensitiv gegen die tatsächliche Ports-Layer-Metadata auf. outFields
+    wird ausschließlich aus dieser Schnittmenge gebaut -- nie hartcodiert."""
+    field_index = _field_index(meta)
+    date_f = _match_alias(field_index, FIELD_ALIASES_PORTS["date"])
+    id_f = _match_alias(field_index, FIELD_ALIASES_PORTS["portid"])
+    name_f = _match_alias(field_index, FIELD_ALIASES_PORTS["portname"])
+    country_f = _match_alias(field_index, FIELD_ALIASES_PORTS["country"])
+    iso3_f = _match_alias(field_index, FIELD_ALIASES_PORTS["iso3"])
+    cargo_fields = sorted(
+        f["name"] for lower, f in field_index.items() if lower.startswith(CARGO_PREFIXES_PORTS)
+    )
+    if date_f is None or id_f is None or name_f is None or not cargo_fields:
+        raise SchemaError(
+            "SCHEMA_CHANGED: Kern-Felder (date/portid/portname/mind. 1 Cargo-Feld) nicht im "
+            f"Ports-Layer gefunden. Vorhandene Felder: {_all_field_names(meta)}",
+            diagnostics=_layer_diagnostics(meta, service_url, layer_id),
+        )
+    return {
+        "date_field": date_f["name"], "date_field_type": date_f.get("type", ""),
+        "id_field": id_f["name"], "name_field": name_f["name"],
+        "country_field": country_f["name"] if country_f else None,
+        "iso3_field": iso3_f["name"] if iso3_f else None,
+        "cargo_fields": cargo_fields,
+    }
 
 
 def validate_ports_schema(meta: dict) -> list[str]:
-    """Prüft Kern-Felder + mind. ein Cargo-Feld. Gibt die Liste aller
-    Cargo-/Import-/Export-Felder zurück (das ist das, was tatsächlich
-    beobachtet wird -- nichts wird umbenannt/erraten)."""
-    fields = _field_names(meta)
-    missing = CORE_FIELDS_PORTS - fields
-    if missing:
-        raise SchemaError(f"SCHEMA_CHANGED: Kernfelder fehlen im Ports-Layer: {sorted(missing)}")
-    cargo_fields = sorted(f for f in fields if f.startswith(CARGO_PREFIXES_PORTS))
-    if not cargo_fields:
-        raise SchemaError("SCHEMA_CHANGED: keine portcalls_/import_/export_-Felder im Ports-Layer gefunden")
-    return cargo_fields
+    """Rückwärtskompatibler Wrapper: gibt nur die Cargo-Feldnamen zurück."""
+    return resolve_ports_field_schema(meta)["cargo_fields"]
+
+
+def resolve_ports_reference_schema(meta: dict, service_url: str = "", layer_id: int | str = "") -> dict:
+    """Löst id/name/country für den Ports-Referenz-Layer auf (separate
+    Metadata -- kein Feld wird zwischen Daily- und Referenz-Layer geraten)."""
+    field_index = _field_index(meta)
+    id_f = _match_alias(field_index, FIELD_ALIASES_PORTS["portid"])
+    name_f = _match_alias(field_index, FIELD_ALIASES_PORTS["portname"])
+    country_f = _match_alias(field_index, FIELD_ALIASES_PORTS["country"])
+    if id_f is None or name_f is None:
+        raise SchemaError(
+            "SCHEMA_CHANGED: Kern-Felder (portid/portname) nicht im Ports-Referenz-Layer gefunden. "
+            f"Vorhandene Felder: {_all_field_names(meta)}",
+            diagnostics=_layer_diagnostics(meta, service_url, layer_id),
+        )
+    return {
+        "id_field": id_f["name"], "name_field": name_f["name"],
+        "country_field": country_f["name"] if country_f else None,
+    }
+
+
+def resolve_chokepoints_field_schema(meta: dict, service_url: str = "", layer_id: int | str = "") -> dict:
+    """Löst die logischen Felder (date/id/name/count) case-insensitiv gegen
+    die tatsächliche Chokepoints-Layer-Metadata auf."""
+    field_index = _field_index(meta)
+    date_f = _match_alias(field_index, FIELD_ALIASES_CHOKEPOINTS["date"])
+    id_f = _match_alias(field_index, FIELD_ALIASES_CHOKEPOINTS["chokepointid"])
+    name_f = _match_alias(field_index, FIELD_ALIASES_CHOKEPOINTS["chokepointname"])
+    count_fields = sorted(
+        f["name"] for lower, f in field_index.items() if lower.startswith(CHOKEPOINT_COUNT_PREFIXES)
+    )
+    if date_f is None or id_f is None or name_f is None or not count_fields:
+        raise SchemaError(
+            "SCHEMA_CHANGED: Kern-Felder (date/id/name/mind. 1 Zähl-Feld) nicht im "
+            f"Chokepoints-Layer gefunden. Vorhandene Felder: {_all_field_names(meta)}",
+            diagnostics=_layer_diagnostics(meta, service_url, layer_id),
+        )
+    return {
+        "date_field": date_f["name"], "date_field_type": date_f.get("type", ""),
+        "id_field": id_f["name"], "name_field": name_f["name"], "count_fields": count_fields,
+    }
+
+
+def resolve_chokepoints_reference_schema(meta: dict, service_url: str = "", layer_id: int | str = "") -> dict:
+    field_index = _field_index(meta)
+    id_f = _match_alias(field_index, FIELD_ALIASES_CHOKEPOINTS["chokepointid"])
+    name_f = _match_alias(field_index, FIELD_ALIASES_CHOKEPOINTS["chokepointname"])
+    if id_f is None or name_f is None:
+        raise SchemaError(
+            "SCHEMA_CHANGED: Kern-Felder (id/name) nicht im Chokepoints-Referenz-Layer gefunden. "
+            f"Vorhandene Felder: {_all_field_names(meta)}",
+            diagnostics=_layer_diagnostics(meta, service_url, layer_id),
+        )
+    return {"id_field": id_f["name"], "name_field": name_f["name"]}
 
 
 def validate_chokepoints_schema(meta: dict) -> dict:
-    fields = _field_names(meta)
-    missing = CORE_FIELDS_CHOKEPOINTS - fields
-    if missing:
-        raise SchemaError(f"SCHEMA_CHANGED: Kernfelder fehlen im Chokepoints-Layer: {sorted(missing)}")
-    id_field = next((f for f in CHOKEPOINT_ID_CANDIDATES if f in fields), None)
-    name_field = next((f for f in CHOKEPOINT_NAME_CANDIDATES if f in fields), None)
-    count_fields = sorted(f for f in fields if f.lower().startswith(CHOKEPOINT_COUNT_PREFIXES))
-    if id_field is None or name_field is None:
-        raise SchemaError(
-            "SCHEMA_CHANGED: kein bekanntes ID-/Name-Feld im Chokepoints-Layer "
-            f"(Felder vorhanden: {sorted(fields)})"
-        )
-    if not count_fields:
-        raise SchemaError("SCHEMA_CHANGED: keine Transit-/Kapazitäts-Felder im Chokepoints-Layer gefunden")
-    return {"id_field": id_field, "name_field": name_field, "count_fields": count_fields}
+    """Rückwärtskompatibler Wrapper ohne date_field im Rückgabewert."""
+    schema = resolve_chokepoints_field_schema(meta)
+    return {"id_field": schema["id_field"], "name_field": schema["name_field"],
+            "count_fields": schema["count_fields"]}
 
 
 # --------------------------------------------------------------------------
@@ -276,7 +399,14 @@ def validate_chokepoints_schema(meta: dict) -> dict:
 MAX_PAGES_SAFETY = 500
 
 
-def build_where_clause(start: date, end: date, date_field: str = "date") -> str:
+def build_where_clause(start: date, end: date, date_field: str = "date",
+                        date_field_type: str = "esriFieldTypeDate") -> str:
+    """Baut die WHERE-Klausel passend zum tatsächlichen ArcGIS-Feldtyp:
+    esriFieldTypeDate -> TIMESTAMP-Literal (epoch-ms intern), sonst
+    (z.B. esriFieldTypeString mit ISO-Datum) -> einfacher String-Vergleich.
+    Nie den falschen Vergleichsoperator für den Feldtyp erraten."""
+    if date_field_type and date_field_type != "esriFieldTypeDate":
+        return f"{date_field} >= '{start.isoformat()}' AND {date_field} <= '{end.isoformat()}'"
     return (
         f"{date_field} >= TIMESTAMP '{start.isoformat()} 00:00:00' "
         f"AND {date_field} <= TIMESTAMP '{end.isoformat()} 23:59:59'"
@@ -315,8 +445,10 @@ def query_features(
             params["orderByFields"] = order_by
         res = http_fetch(query_url, params=params)
         data = res.json()
-        if "error" in data:
-            raise FetchError(f"ArcGIS-Query-Fehler: {data['error']}")
+        if isinstance(data, dict) and "error" in data:
+            raise FetchError(
+                f"ArcGIS-Query-Fehler: {data['error']} (outFields={out}, service_url={service_url}/{layer_id})"
+            )
         feats = data.get("features", [])
         all_features.extend(feats)
         exceeded = bool(data.get("exceededTransferLimit"))
@@ -457,16 +589,20 @@ def build_port_observations(
     retrieved_at: datetime,
     source_id: str,
     dataset: str,
-    cargo_fields: list[str],
+    schema: dict,
     parser_version: str,
     is_backfill: bool,
 ) -> list[Observation]:
-    obs_time = _arcgis_date_to_utc(attrs.get("date"))
+    cargo_fields = schema["cargo_fields"]
+    obs_time = _arcgis_date_to_utc(attrs.get(schema["date_field"]))
     if obs_time is None:
         return []
-    port_id = str(attrs.get("portid"))
-    port_name = attrs.get("portname")
-    country = attrs.get("country") or attrs.get("ISO3")
+    port_id = str(attrs.get(schema["id_field"]))
+    port_name = attrs.get(schema["name_field"])
+    country = (
+        (attrs.get(schema["country_field"]) if schema.get("country_field") else None)
+        or (attrs.get(schema["iso3_field"]) if schema.get("iso3_field") else None)
+    )
     precision = AvailabilityPrecision.UNKNOWN if is_backfill else AvailabilityPrecision.CONSERVATIVE_DATE
     result = []
     for field in cargo_fields:
@@ -496,7 +632,7 @@ def build_chokepoint_observations(
     parser_version: str,
     is_backfill: bool,
 ) -> list[Observation]:
-    obs_time = _arcgis_date_to_utc(attrs.get("date"))
+    obs_time = _arcgis_date_to_utc(attrs.get(schema.get("date_field", "date")))
     if obs_time is None:
         return []
     entity_id = str(attrs.get(schema["id_field"]))
@@ -559,26 +695,43 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             ref_ep = endpoints["ports_reference"]
 
             meta = fetch_layer_metadata(ep["service_url"], ep["layer_id"], self._fetch)
-            cargo_fields = validate_ports_schema(meta)
+            schema = resolve_ports_field_schema(meta, ep["service_url"], ep["layer_id"])
             max_rc = meta.get("maxRecordCount", 2000)
 
             start, end = (BACKFILL_START, now.date()) if backfill else incremental_window(now)
-            where = build_where_clause(start, end)
-            out_fields = sorted({"date", "portid", "portname", "country", "ISO3"} | set(cargo_fields))
+            where = build_where_clause(start, end, date_field=schema["date_field"],
+                                        date_field_type=schema["date_field_type"])
+            # outFields = ausschließlich die Schnittmenge aus gewünschten
+            # logischen Feldern und tatsächlicher Layer-Metadata (nie
+            # hartcodierte Feldnamen an ArcGIS senden -> vermeidet den
+            # 'outFields parameter is invalid' 400er).
+            out_fields = sorted({
+                schema["date_field"], schema["id_field"], schema["name_field"],
+                *( [schema["country_field"]] if schema.get("country_field") else [] ),
+                *( [schema["iso3_field"]] if schema.get("iso3_field") else [] ),
+                *schema["cargo_fields"],
+            })
             raw_features = query_features(
                 ep["service_url"], ep["layer_id"], where, out_fields, self._fetch,
-                order_by="date ASC", max_record_count=max_rc,
+                order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
             )
 
             ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
+            ref_schema = resolve_ports_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
+            ref_out_fields = [ref_schema["id_field"], ref_schema["name_field"]]
+            if ref_schema.get("country_field"):
+                ref_out_fields.append(ref_schema["country_field"])
             ref_features = query_features(
                 ref_ep["service_url"], ref_ep["layer_id"], "1=1",
-                ["portid", "portname", "country"], self._fetch,
+                ref_out_fields, self._fetch,
                 max_record_count=ref_meta.get("maxRecordCount", 2000),
             )
             universe = load_port_universe(self._universe_path)
             wanted = flatten_port_universe(universe)
-            resolved = resolve_entities_by_name(wanted, ref_features, "portid", "portname", "country")
+            resolved = resolve_entities_by_name(
+                wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"],
+                country_field=ref_schema.get("country_field"),
+            )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}
 
@@ -587,7 +740,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             for feat in raw_features:
                 observations.extend(build_port_observations(
                     feat.get("attributes", {}), retrieved_at, self.source_id, self.dataset,
-                    cargo_fields, self.parser_version, is_backfill=backfill,
+                    schema, self.parser_version, is_backfill=backfill,
                 ))
 
             raw = [self._raw_record(f"{ep['service_url']}/{ep['layer_id']}/query", where, retrieved_at)]
@@ -600,7 +753,8 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 discovered_ids={"ports": discovered_ids, "unresolved_ports": unresolved},
             )
         except SchemaError as e:
-            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, message=str(e))
+            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
+                                    message=str(e), discovered_ids={"diagnostics": e.diagnostics})
         except DiscoveryError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
         except FetchError as e:
@@ -619,27 +773,30 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
             ref_ep = endpoints["chokepoints_reference"]
 
             meta = fetch_layer_metadata(ep["service_url"], ep["layer_id"], self._fetch)
-            schema = validate_chokepoints_schema(meta)
+            schema = resolve_chokepoints_field_schema(meta, ep["service_url"], ep["layer_id"])
             max_rc = meta.get("maxRecordCount", 2000)
 
             start, end = (BACKFILL_START, now.date()) if backfill else incremental_window(now)
-            where = build_where_clause(start, end)
-            out_fields = sorted({"date", schema["id_field"], schema["name_field"]} | set(schema["count_fields"]))
+            where = build_where_clause(start, end, date_field=schema["date_field"],
+                                        date_field_type=schema["date_field_type"])
+            out_fields = sorted({schema["date_field"], schema["id_field"], schema["name_field"]}
+                                 | set(schema["count_fields"]))
             raw_features = query_features(
                 ep["service_url"], ep["layer_id"], where, out_fields, self._fetch,
-                order_by="date ASC", max_record_count=max_rc,
+                order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
             )
 
             ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
+            ref_schema = resolve_chokepoints_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
             ref_features = query_features(
                 ref_ep["service_url"], ref_ep["layer_id"], "1=1",
-                [schema["id_field"], schema["name_field"]], self._fetch,
+                [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
                 max_record_count=ref_meta.get("maxRecordCount", 2000),
             )
             universe = load_port_universe(self._universe_path)
             wanted = flatten_chokepoint_universe(universe)
             resolved = resolve_entities_by_name(
-                wanted, ref_features, schema["id_field"], schema["name_field"], country_field=None,
+                wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"], country_field=None,
             )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}
@@ -662,7 +819,8 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 discovered_ids={"chokepoints": discovered_ids, "unresolved_chokepoints": unresolved},
             )
         except SchemaError as e:
-            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, message=str(e))
+            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
+                                    message=str(e), discovered_ids={"diagnostics": e.diagnostics})
         except DiscoveryError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
         except FetchError as e:

@@ -53,14 +53,23 @@ class FetchResult:
 
 def fetch(url: str, params: dict | None = None, headers: dict | None = None,
           timeout: int = DEFAULT_TIMEOUT, retries: int = 3, backoff: float = 2.0,
-          session: requests.Session | None = None) -> FetchResult:
+          session: requests.Session | None = None, method: str = "GET",
+          data: dict | None = None) -> FetchResult:
+    """method='POST' schickt `data` als application/x-www-form-urlencoded
+    Body (z.B. für GENESIS-Online, das POST für data/tablefile bevorzugt);
+    `params` bleibt in diesem Fall die Query-String-Ergänzung (falls nötig).
+    Credentials in `data`/`headers` werden nie geloggt (request_fingerprint
+    filtert nur den GET-params-Pfad; POST-Bodies landen nicht im Fingerprint)."""
     hdrs = {"User-Agent": USER_AGENT, "Accept": "*/*"}
     hdrs.update(headers or {})
     sess = session or requests
     last_err: Exception | None = None
     for attempt in range(retries):
         try:
-            r = sess.get(url, params=params, headers=hdrs, timeout=timeout)
+            if method.upper() == "POST":
+                r = sess.post(url, params=params, data=data, headers=hdrs, timeout=timeout)
+            else:
+                r = sess.get(url, params=params, headers=hdrs, timeout=timeout)
             if r.status_code in (401, 403):
                 raise AuthError(f"{r.status_code} für {url}")
             if r.status_code == 429 or r.status_code >= 500:

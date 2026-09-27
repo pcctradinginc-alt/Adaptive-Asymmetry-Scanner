@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import math
 import re
 from dataclasses import dataclass
@@ -616,6 +617,16 @@ class NceiNormalsConnector(Connector):
 # nhc_storms
 # --------------------------------------------------------------------------- #
 
+class NhcSchemaError(Exception):
+    """CurrentStorms.json entspricht nicht dem erwarteten Top-Level-Schema
+    ({"activeStorms": [...]}) -> SCHEMA_CHANGED, nie eine Exception in die
+    Pipeline werfen lassen. `diagnostics` trägt sichere Debug-Infos."""
+
+    def __init__(self, message: str, diagnostics: dict | None = None):
+        super().__init__(message)
+        self.diagnostics = diagnostics or {}
+
+
 def parse_current_storms(storms_json: dict, retrieved_at: datetime,
                           exposure_regions: list[dict] | None = None,
                           source_id: str = "nhc_storms",
@@ -626,12 +637,41 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
     minimale Distanz zu jeder Region berechnet; sonst bleibt distance_km auf
     None (Limitation: CurrentStorms.json selbst liefert i.d.R. keine
     strukturierten Forecast-Punkte – volles GIS-Parsing der Advisory-
-    Produkte ist hier bewusst NICHT implementiert, siehe Registry-Notes)."""
+    Produkte ist hier bewusst NICHT implementiert, siehe Registry-Notes).
+
+    Robust gegenüber unerwarteten Formen: ein nicht-dict Top-Level-Objekt
+    oder ein 'activeStorms', das keine Liste ist, führt zu NhcSchemaError
+    (SCHEMA_CHANGED) statt einer AttributeError/TypeError in der Pipeline.
+    Einzelne Nicht-dict-Einträge in activeStorms (z.B. rohe ID-Strings statt
+    Objekten) werden übersprungen, nicht als Crash behandelt -- eine leere
+    activeStorms-Liste liefert weiterhin PASS mit 0 Observations."""
+    if not isinstance(storms_json, dict):
+        raise NhcSchemaError(
+            f"CurrentStorms.json: Top-Level ist kein Objekt, sondern {type(storms_json).__name__}.",
+            diagnostics={"body_snippet": str(storms_json)[:600]},
+        )
+    active_storms = storms_json.get("activeStorms", [])
+    if active_storms is None:
+        active_storms = []
+    if not isinstance(active_storms, list):
+        try:
+            body_snippet = json.dumps(storms_json)[:600]
+        except (TypeError, ValueError):
+            body_snippet = str(storms_json)[:600]
+        raise NhcSchemaError(
+            f"CurrentStorms.json: 'activeStorms' ist kein Array, sondern {type(active_storms).__name__}.",
+            diagnostics={"body_snippet": body_snippet},
+        )
+
     retrieved_at = ensure_utc(retrieved_at) or utc_now()
     observations: list[Observation] = []
     exposure_regions = exposure_regions or []
 
-    for storm in storms_json.get("activeStorms", []):
+    for storm in active_storms:
+        if not isinstance(storm, dict):
+            # z.B. eine rohe ID-Zeichenkette statt eines Sturm-Objekts --
+            # überspringen statt mit AttributeError zu crashen.
+            continue
         storm_id = storm.get("id") or storm.get("binNumber")
         if not storm_id:
             continue
@@ -741,11 +781,21 @@ class NhcStormsConnector(Connector):
         try:
             storms_json = res.json()
         except ValueError as e:
-            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
-                                    raw=raw, message=str(e))
+            return ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw, message=str(e),
+                discovered_ids={"diagnostics": {
+                    "body_snippet": res.content.decode("utf-8", errors="replace")[:600],
+                    "content_type": res.content_type,
+                }},
+            )
 
-        observations = parse_current_storms(storms_json, res.retrieved_at, exposure_regions,
-                                             source_id=self.source_id, parser_version=self.parser_version)
+        try:
+            observations = parse_current_storms(storms_json, res.retrieved_at, exposure_regions,
+                                                 source_id=self.source_id, parser_version=self.parser_version)
+        except NhcSchemaError as e:
+            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
+                                    raw=raw, message=str(e), discovered_ids={"diagnostics": e.diagnostics})
+
         latest_release = max((o.source_release_time for o in observations if o.source_release_time), default=None)
         return ConnectorResult(source_id=self.source_id, status=SourceStatus.PASS,
                                 observations=observations, raw=raw,

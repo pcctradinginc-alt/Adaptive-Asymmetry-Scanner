@@ -1,0 +1,16 @@
+{
+  "id": 0,
+  "name": "PortWatch_daily_ports_alt_casing",
+  "type": "Feature Layer",
+  "maxRecordCount": 2000,
+  "fields": [
+    {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+    {"name": "Date", "type": "esriFieldTypeString"},
+    {"name": "PortId", "type": "esriFieldTypeString"},
+    {"name": "PortName", "type": "esriFieldTypeString"},
+    {"name": "Country", "type": "esriFieldTypeString"},
+    {"name": "portcalls", "type": "esriFieldTypeDouble"},
+    {"name": "import", "type": "esriFieldTypeDouble"},
+    {"name": "export", "type": "esriFieldTypeDouble"}
+  ]
+}
