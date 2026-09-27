@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-09-27T20:28:01+00:00",
+  "label": "EXPLORATORY ONLY — keine Produktions- oder Promotionsaussage",
+  "closed_trades_pit_safe": {
+    "sample": {
+      "n_trades": 117,
+      "n_independent_dates": 34,
+      "calendar_span": [
+        "2026-04-11",
+        "2026-08-28"
+      ],
+      "n_months": 4,
+      "n_sectors": null,
+      "n_regimes": 2,
+      "regimes": {
+        "CONTRACTION": 74,
+        "STRONG_EXPANSION": 43
+      },
+      "regime_x_month": {
+        "CONTRACTION": {
+          "2026-04": 71,
+          "2026-08": 3
+        },
+        "STRONG_EXPANSION": {
+          "2026-05": 40,
+          "2026-07": 3
+        }
+      }
+    },
+    "us_freight_filter": {
+      "base": {
+        "n": 117,
+        "mean": 0.0954,
+        "median": -0.4184,
+        "win_rate": 0.333,
+        "large_loss_rate": 0.291
+      },
+      "with_filter": {
+        "n": 52,
+        "mean": -0.112,
+        "median": -0.5188,
+        "win_rate": 0.231,
+        "large_loss_rate": 0.269
+      },
+      "n_removed": 65,
+      "removed_dates": 17,
+      "avoided_losers": 38,
+      "lost_winners": 27,
+      "lost_big_winners": 15,
+      "net_removed_return": 16.9923,
+      "expected_return_per_signal_base": 0.0954,
+      "expected_return_per_signal_filter": -0.0498,
+      "delta_mean": -0.2074,
+      "delta_median": -0.1004,
+      "delta_large_loss_rate": -0.022,
+      "delta_expected_per_signal": -0.1452,
+      "cluster_ci_delta_expected_per_signal": [
+        -0.3605,
+        0.1079
+      ]
+    },
+    "orthogonality_us_freight_z": {
+      "impact": {
+        "per_trade": -0.275,
+        "per_date": -0.283,
+        "n_dates": 34
+      },
+      "surprise": {
+        "per_trade": -0.209,
+        "per_date": -0.183,
+        "n_dates": 34
+      },
+      "mismatch": {
+        "per_trade": -0.493,
+        "per_date": -0.601,
+        "n_dates": 34
+      },
+      "z_score": {
+        "per_trade": 0.436,
+        "per_date": 0.576,
+        "n_dates": 34
+      },
+      "eps_drift": {
+        "per_trade": 0.118,
+        "per_date": 0.132,
+        "n_dates": 34
+      },
+      "sigma_30d": {
+        "per_trade": 0.122,
+        "per_date": 0.084,
+        "n_dates": 34
+      }
+    },
+    "not_pit_safe_families": [
+      "eu_freight",
+      "asia_freight",
+      "shipping",
+      "weather"
+    ]
+  },
+  "ledger": {
+    "sample": {
+      "n_trades": 0,
+      "n_independent_dates": 0,
+      "calendar_span": null,
+      "n_months": 0,
+      "n_sectors": null
+    }
+  }
+}

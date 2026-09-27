@@ -995,6 +995,14 @@ def main() -> None:
     _rl_veto = bool(cfg.rl.get("veto_enabled", True))
     final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
     stats["rl_scored"] = len(final_signals)
+    # Robuster PPO-Challenger: NUR Shadow-Aktion im Ledger (challengers.yaml
+    # ppo_robust_shadow), beeinflusst weder final_signals noch Ranking/Gates.
+    try:
+        from modules.rl_robust_shadow import shadow_actions
+        for _tk, _act in shadow_actions(final_sims).items():
+            candidate_ledger.note(_tk, rl_robust_action=_act)
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"robustes PPO Shadow Fehler (ignoriert): {e}")
     for fs in final_signals:
         try:
             candidate_ledger.note(

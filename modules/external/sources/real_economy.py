@@ -53,7 +53,7 @@ from datetime import datetime, timezone
 from modules.external import http
 from modules.external.pit import AvailabilityPrecision, Observation, utc_now
 from modules.external.sources.base import Connector, ConnectorResult, RawRecord, SourceStatus
-from modules.external.sources.road_freight import _DuplicateIdentityError
+from modules.external.sources.road_freight import _DuplicateIdentityError, downgrade_historical_precision
 
 log = logging.getLogger(__name__)
 
@@ -268,6 +268,7 @@ def _parse_eurostat_jsonstat_generic(data: dict, code: str, source_id: str, data
         ))
         if latest is None or obs_time > latest:
             latest = obs_time
+    downgrade_historical_precision(observations, latest)
     return observations, latest, release_time, parse_failures, diagnostics
 
 

@@ -145,7 +145,10 @@ def _first_with_data(archive, now, *source_ids):
 # Frequenz, bevor eine Quelle als 'stale' gilt: Kadenz + übliche
 # Veröffentlichungsverzögerung (BTS TSI ~3-4 Monate, Eurostat quartalsweise
 # ~2-3 Quartale, jährlich ~1,5 Jahre). Methodisch, nicht renditeoptimiert.
-MAX_AGE_DAYS_BY_FREQUENCY = {"daily": 21, "monthly": 150, "quarterly": 400, "annual": 800}
+MAX_AGE_DAYS_BY_FREQUENCY = {"daily": 21, "monthly": 150, "monthly_lagged": 240,
+                             "quarterly": 400, "annual": 800}
+# monthly_lagged: e-Stat 自動車輸送統計 erscheint mit ~5-6 Monaten Verzug
+# (Live 2026-09-27: jüngster Wert 2026-03).
 
 
 def _latest_observation_time(observations, metric: str | None = None,
@@ -270,7 +273,7 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         out["asia_z"] = asia_z
         asia_sources = []
         if jp_obs:
-            asia_sources.append(_region_entry(asia_z, "estat_jp_truck", jp_obs, now, "monthly"))
+            asia_sources.append(_region_entry(asia_z, "estat_jp_truck", jp_obs, now, "monthly_lagged"))
         out["asia_combined"] = feat.combine_states(asia_sources)
 
         out["global_z"] = _mean_of([out["us_z"], out["eu_z"], out["asia_z"]])

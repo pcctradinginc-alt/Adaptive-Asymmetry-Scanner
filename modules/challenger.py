@@ -190,6 +190,17 @@ def _get_path(row: dict, path: str):
 
 
 def _match_condition(row: dict, cond: dict) -> bool:
+    # Zusammengesetzte Bedingungen (für Filter-Challenger wie "Produktion OHNE
+    # (exponiert UND Kontraktion)"): {"not": cond}, {"any": [...]}, {"all": [...]}.
+    # Fehlendes Feld in einem "not" -> Innenbedingung False -> "not" True:
+    # ohne externen Kontext bleibt ein Kandidat im Challenger-Arm (keine
+    # stille Ausfilterung wegen fehlender Daten).
+    if "not" in cond:
+        return not _match_condition(row, cond["not"])
+    if "any" in cond:
+        return any(_match_condition(row, c) for c in cond["any"] or [])
+    if "all" in cond:
+        return all(_match_condition(row, c) for c in cond["all"] or [])
     field = cond.get("field")
     op = cond.get("op")
     value = cond.get("value")
@@ -437,7 +448,11 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
         return result
 
     # Guard: need at least MIN_CLUSTERS distinct dates for cluster bootstrap
-    if n_clusters < MIN_CLUSTERS:
+    # min_clusters (optional, je Challenger vorregistriert) verschärft die
+    # globale Untergrenze unabhängiger Signaltage, lockert sie nie.
+    min_clusters = max(MIN_CLUSTERS, int(challenger.get("min_clusters") or 0))
+    result["min_clusters"] = min_clusters
+    if n_clusters < min_clusters:
         result["verdict"] = "reject" if expired else "running"
         return result
 

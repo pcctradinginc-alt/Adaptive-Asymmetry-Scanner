@@ -99,3 +99,31 @@ challengers:
     horizon_days: 45
     max_duration_days: 180
     status: active
+
+  - id: ppo_robust_shadow
+    # Robuster PPO-Challenger (modules/rl_robust_shadow.py): Belohnung =
+    # Log-Depotwachstum bei realem Positionsanteil (portfolio.max_position_pct)
+    # statt Rendite; chronologisch trainiert, fester Seed, Walk-forward-
+    # Diagnose in outputs/models/ppo_robust_shadow_meta.json. Die Aktion
+    # steht NUR im Ledger (features.rl_robust_action), nie im Ranking.
+    hypothesis: >
+      Ein PPO mit wachstumsorientierter (konkaver) Belohnung trennt Trades
+      besser als die Produktion ohne RL-Filter: die von ihm nicht
+      übersprungenen Trades haben eine höhere reale Strategierendite bei
+      nicht höherer Totalverlustquote. Stand Registrierung: in-sample und
+      walk-forward 100 % NORMAL (keine Trennung) -- Challenger misst, ob
+      sich das mit neuen Daten ändert.
+    registered_on: "2026-09-27"
+    registered_at: "2026-09-27T21:00:00Z"
+    start_date: "2026-09-28"
+    rule:
+      - {field: "status", op: "==", value: "proposed"}
+      - {field: "features.rl_robust_action", op: "in", value: ["NORMAL", "BOOST"]}
+    baseline_rule:
+      - {field: "status", op: "==", value: "proposed"}
+    metric: "outcomes.real_strat_ret_45d"
+    min_n: 30
+    min_clusters: 12
+    horizon_days: 45
+    max_duration_days: 270
+    status: active

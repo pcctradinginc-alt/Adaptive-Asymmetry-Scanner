@@ -1073,6 +1073,17 @@ def main() -> None:
     if newly_closed > 0:
         log.info(f"{newly_closed} neue closed_trades → starte RL-Nachtraining...")
         retrain_rl_agent(history)
+        # Robuster PPO-Challenger (SHADOW): chronologisch, fester Seed,
+        # Walk-forward-Diagnose in outputs/models/ppo_robust_shadow_meta.json
+        try:
+            from modules.rl_robust_shadow import train_robust_shadow
+            meta = train_robust_shadow(history)
+            if meta:
+                wf = meta["walk_forward"]["test"]
+                log.info(f"Robustes PPO (Shadow): walk-forward n={wf['n']} "
+                         f"Aktionen={wf['action_counts']} kollabiert={wf['collapsed']}")
+        except Exception as e:  # noqa: BLE001
+            log.warning(f"Robustes PPO-Shadow-Training fehlgeschlagen (ignoriert): {e}")
     else:
         log.info("Keine neuen closed_trades → RL-Training übersprungen.")
 

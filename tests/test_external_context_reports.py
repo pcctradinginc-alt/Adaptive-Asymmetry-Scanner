@@ -109,6 +109,9 @@ def test_build_html_includes_external_section_end_to_end():
 def test_status_email_renders_with_and_without_snapshot(monkeypatch, tmp_path):
     from modules import email_reporter
 
+    # isoliert vom echten outputs/ (dort liegen ab dem ersten Scanner-Lauf Snapshots)
+    monkeypatch.setattr("modules.external.reporting.load_latest_snapshot",
+                        lambda root=reporting.DEFAULT_SNAPSHOT_ROOT: None)
     html_empty = email_reporter._build_status_email({"trades": 0}, "2026-09-27")
     assert "keine externen Daten" in html_empty
 
@@ -156,8 +159,10 @@ def test_daily_markdown_includes_external_section(tmp_path, monkeypatch):
     assert "UPS" in md
 
 
-def test_daily_markdown_no_snapshot_shows_single_line(tmp_path):
+def test_daily_markdown_no_snapshot_shows_single_line(tmp_path, monkeypatch):
     from modules.reporter import Reporter
+    monkeypatch.setattr("modules.external.reporting.load_latest_snapshot",
+                        lambda root=reporting.DEFAULT_SNAPSHOT_ROOT: None)
 
     r = Reporter(reports_dir=tmp_path)
     r.save("2026-09-27", [], {"model_weights": {}})

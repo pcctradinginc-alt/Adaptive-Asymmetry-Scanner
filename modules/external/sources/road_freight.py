@@ -73,6 +73,19 @@ def _decode_genesis_tablefile(content: bytes) -> str | None:
     return None
 
 
+def downgrade_historical_precision(observations: list, latest) -> None:
+    """available_at = Datensatz-Update-Zeit gilt EXAKT nur für die jüngste
+    Periode (die gerade veröffentlichte). Ältere Perioden waren schon früher
+    verfügbar -> available_at ist dort nur konservativ (Audit 2026-09-27:
+    ganze Historie war als EXACT_TIMESTAMP etikettiert). Kein Leck, aber
+    ehrliche PIT-Qualität für Backtests, die nach Präzision filtern."""
+    if latest is None:
+        return
+    for o in observations:
+        if o.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP and o.observation_time < latest:
+            o.availability_precision = AvailabilityPrecision.CONSERVATIVE_DATE
+
+
 class DestatisTruckTollConnector(Connector):
     """GENESIS-Online REST API 2020 (Destatis).
 
@@ -1579,6 +1592,8 @@ def _parse_eurostat_jsonstat(data: dict, code: str, retrieved_at: datetime,
             ))
             if latest is None or obs_time > latest:
                 latest = obs_time
+        if previously_seen_periods is None:
+            downgrade_historical_precision(observations, latest)
         return observations, latest, release_time, parse_failures, diagnostics, all_periods_seen
 
 
