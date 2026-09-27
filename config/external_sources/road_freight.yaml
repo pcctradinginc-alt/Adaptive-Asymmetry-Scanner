@@ -1,0 +1,273 @@
+# config/external_sources/road_freight.yaml
+#
+# Registry-Einträge für die Datenfamilie "road_freight" (Lkw-/Straßengüter-
+# verkehr als Frühindikator). Konnektor-Implementierungen:
+#   modules/external/sources/road_freight.py (CONNECTORS)
+# Feature-Funktionen:
+#   modules/external/sources/road_freight_features.py
+#
+# license_status: "OK" nur, wenn eine offizielle offene Lizenz mit
+# vertretbarer Sicherheit bekannt ist; sonst "REVIEW_REQUIRED".
+
+sources:
+
+  - source_id: destatis_truck_toll
+    display_name: "Destatis/BALM Lkw-Maut-Fahrleistungsindex (Tagesindex, experimentell)"
+    family: road_freight
+    authority: "Statistisches Bundesamt (Destatis) / Bundesamt für Logistik und Mobilität (BALM)"
+    official_homepage: "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Transport-Verkehr/Gueterverkehr/_inhalt.html"
+    machine_endpoint: "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
+    access_method: "genesis_online_rest_2020"
+    requires_auth: false   # anonymer GAST/GAST-Zugang moeglich; DESTATIS_USER/PASSWORD optional
+    auth_env_variable: "DESTATIS_USER"   # optional; zweite Variable DESTATIS_PASSWORD siehe Connector
+    license_reference: "Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)"
+    commercial_use_status_if_known: "erlaubt unter Namensnennung (DL-DE-BY-2.0)"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    notes: >
+      Tabellenfamilie 42191-* wird zur Laufzeit über catalogue/tables
+      (Suchbegriff "Lkw-Maut-Fahrleistungsindex") ermittelt. Erwarteter
+      Tabellencode als Fallback in expected_table_code (verify in preflight),
+      falls die Katalogsuche selbst nicht erreichbar ist.
+    expected_table_code: "42191-0001"  # verify in preflight
+
+  - source_id: bts_freight_tsi
+    display_name: "US BTS Freight Transportation Services Index"
+    family: road_freight
+    authority: "U.S. Bureau of Transportation Statistics (BTS)"
+    official_homepage: "https://www.bts.gov/topics/national-transportation-statistics/freight-transportation-services-index-tsi"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api_with_fredgraph_csv_fallback"
+    requires_auth: false
+    auth_env_variable: "FRED_API_KEY"   # optional: aktiviert ALFRED-Vintages statt CSV-Fallback
+    license_reference: "FRED/ALFRED Terms of Use; BTS-Daten sind US-Bundesstatistik (public domain, 17 U.S.C. §105)"
+    commercial_use_status_if_known: "public domain (US federal statistics) / FRED ToU beachten"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    supports_history: true
+    supports_vintages: true   # nur wenn FRED_API_KEY gesetzt ist; ohne Key: false (siehe Connector-Message)
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    notes: >
+      FRED-Series-ID "TSIFRGHT" laut Aufgabenstellung als Freight-TSI-Serie
+      angenommen — verify in preflight. Ohne FRED_API_KEY: fredgraph.csv-
+      Fallback, nur letzter Stand, supports_vintages effektiv false.
+    expected_series_id: "TSIFRGHT"  # verify in preflight
+
+  - source_id: eurostat_road_freight
+    display_name: "Eurostat Road freight transport (road_go_ta_* Familie)"
+    family: road_freight
+    authority: "Eurostat"
+    official_homepage: "https://ec.europa.eu/eurostat/web/transport/database"
+    machine_endpoint: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+    access_method: "eurostat_dissemination_api_jsonstat2"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "Eurostat reuse policy (Commission Decision 2011/833/EU, i.d.R. CC BY 4.0)"
+    commercial_use_status_if_known: "erlaubt unter Namensnennung (Eurostat reuse policy)"
+    frequency: quarterly
+    expected_update_cadence: "P7D"   # role SLOW_CONFIRMATION -> wöchentlicher Check auf neue Releases
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: low
+    license_status: OK
+    role: SLOW_CONFIRMATION
+    countries: [DE, FR, IT, ES, PL, NL, BE, AT, CZ, SE, EU27_2020]
+    notes: >
+      Datensatz-Code wird zur Laufzeit über die offizielle TOC
+      (catalogue/toc/txt) per Titelsuche "Road freight transport" ermittelt
+      (Familie road_go_ta_*). expected_dataset_code ist nur Notfall-Fallback.
+    expected_dataset_code: "road_go_ta_tott"  # verify in preflight
+
+  - source_id: estat_jp_truck
+    display_name: "Japan e-Stat 自動車輸送統計 (MLIT Motor Vehicle Transport Statistics)"
+    family: road_freight
+    authority: "e-Stat (Statistics Bureau of Japan) / MLIT"
+    official_homepage: "https://www.e-stat.go.jp/"
+    machine_endpoint: "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
+    access_method: "estat_api_v3"
+    requires_auth: true
+    auth_env_variable: "ESTAT_APP_ID"
+    license_reference: "e-Stat Terms of Use (im Allgemeinen freie Wiederverwendung mit Quellenangabe)"
+    commercial_use_status_if_known: "REVIEW_REQUIRED — e-Stat ToU im Detail prüfen"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    license_status: REVIEW_REQUIRED
+    notes: >
+      statsDataId wird zur Laufzeit über getStatsList (searchWord
+      "自動車輸送統計") ermittelt; niemals fest kodiert.
+
+  # --- FHWA FAF: strukturelle Exposure, kein Live-Konnektor ------------------
+  - source_id: fhwa_faf
+    display_name: "FHWA Freight Analysis Framework (Commodity/Region Exposure)"
+    family: road_freight
+    authority: "Federal Highway Administration (FHWA)"
+    official_homepage: "https://ops.fhwa.dot.gov/freight/freight_analysis/faf/"
+    machine_endpoint: ""
+    access_method: "manual_builder_script"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "public domain (US federal data)"
+    commercial_use_status_if_known: "public domain"
+    frequency: irregular
+    expected_update_cadence: "P365D"
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    license_status: OK
+    status_override: DEFERRED
+    notes: >
+      FAF-Rohdaten sind sehr groß und werden NICHT im laufenden Scanner
+      geladen. scripts/build_faf_exposure.py ist ein manuelles/einmaliges
+      Build-Skript, das config/faf_exposure.yaml (Commodity->Region->Sektor)
+      ableiten soll. Aktuell ist config/faf_exposure.yaml nur ein kuratierter
+      Platzhalter ("manual/derived, not yet built").
+
+  # --- Preflight-only: kein Daten-Konnektor, nur Registry-Metadaten ---------
+  - source_id: viapass_be
+    display_name: "Viapass (Belgien) Lkw-Kilometerabgabe"
+    family: road_freight
+    authority: "Viapass (Region Wallonie/Vlaanderen/Brüssel gemeinsame Struktur)"
+    official_homepage: "https://www.viapass.be/"
+    machine_endpoint: ""
+    access_method: "unknown"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "kein bekannter offener Statistik-Feed identifiziert"
+    commercial_use_status_if_known: "REVIEW_REQUIRED"
+    frequency: unknown
+    expected_update_cadence: ""
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    license_status: REVIEW_REQUIRED
+    status_override: REVIEW_REQUIRED
+    notes: >
+      Kein stabiler, offiziell dokumentierter maschinenlesbarer Endpoint für
+      aggregierte Fahrleistungs-/Aufkommensdaten bekannt -> vor Aktivierung
+      im Preflight verifizieren (Viapass Open Data / Statbel als Alternative
+      prüfen).
+
+  - source_id: asfinag_at
+    display_name: "ASFINAG (Österreich) Verkehrsdaten/Maut"
+    family: road_freight
+    authority: "ASFINAG"
+    official_homepage: "https://www.asfinag.at/"
+    machine_endpoint: ""
+    access_method: "unknown"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "ASFINAG Open Data Portal existiert, konkreter Endpoint/Lizenz für aggregierte Lkw-Fahrleistung nicht verifiziert"
+    commercial_use_status_if_known: "REVIEW_REQUIRED"
+    frequency: unknown
+    expected_update_cadence: ""
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    license_status: REVIEW_REQUIRED
+    status_override: REVIEW_REQUIRED
+    notes: >
+      ASFINAG betreibt einen Verkehrsdaten-/Open-Data-Bereich; konkreter
+      offizieller Endpoint und Lizenzstatus für einen aggregierten
+      Lkw-Fahrleistungsindex sind hier NICHT verifiziert -> im Preflight
+      prüfen, bevor ein Konnektor implementiert wird.
+
+  - source_id: nbs_cn
+    display_name: "China NBS Straßengüterverkehr (Road Freight Turnover)"
+    family: road_freight
+    authority: "National Bureau of Statistics of China (NBS)"
+    official_homepage: "https://www.stats.gov.cn/english/"
+    machine_endpoint: ""
+    access_method: "deferred"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "NBS-Nutzungsbedingungen nicht abschließend geprüft"
+    commercial_use_status_if_known: "REVIEW_REQUIRED"
+    frequency: monthly
+    expected_update_cadence: ""
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    license_status: REVIEW_REQUIRED
+    status_override: DEFERRED
+    notes: "NBS-Datenportal-API/Stabilität nicht verifiziert -> deferred."
+
+  - source_id: mot_cn
+    display_name: "China Ministry of Transport (MOT) Straßengüterverkehr"
+    family: road_freight
+    authority: "Ministry of Transport of the People's Republic of China (MOT)"
+    official_homepage: "https://www.mot.gov.cn/"
+    machine_endpoint: ""
+    access_method: "deferred"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "keine offizielle offene API identifiziert"
+    commercial_use_status_if_known: "REVIEW_REQUIRED"
+    frequency: monthly
+    expected_update_cadence: ""
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    license_status: REVIEW_REQUIRED
+    status_override: DEFERRED
+    notes: "Kein maschinenlesbarer offizieller Endpoint identifiziert -> deferred."
+
+  - source_id: kosis_kr
+    display_name: "KOSIS (Südkorea) Straßengüterverkehr"
+    family: road_freight
+    authority: "Statistics Korea (KOSTAT) / KOSIS"
+    official_homepage: "https://kosis.kr/"
+    machine_endpoint: "https://kosis.kr/openapi/"
+    access_method: "kosis_openapi"
+    requires_auth: true
+    auth_env_variable: "KOSIS_API_KEY"
+    license_reference: "KOSIS Open API Nutzungsbedingungen (Key-Beantragung erforderlich, nicht abschließend geprüft)"
+    commercial_use_status_if_known: "REVIEW_REQUIRED"
+    frequency: monthly
+    expected_update_cadence: ""
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    license_status: REVIEW_REQUIRED
+    status_override: DEFERRED
+    notes: >
+      KOSIS OpenAPI erfordert einen beantragten API-Key (KOSIS_API_KEY);
+      Serien-/Tabellen-IDs für Straßengüterverkehr wurden nicht verifiziert
+      -> deferred bis Key vorhanden und Discovery-Endpoint geprüft ist.
