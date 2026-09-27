@@ -112,6 +112,138 @@ def test_build_external_context_missing_family_is_none_not_zero(tmp_path):
         assert snap["primitives"][key] is None
 
 
+def test_regional_confidence_one_source_low_and_others_unknown(tmp_path):
+    """Nur EINE Quelle (DE/destatis) im gesamten Archiv -> EU-Confidence
+    <=0.3, US/Asia bleiben None/UNKNOWN (keine Quelle vorhanden)."""
+    now = datetime(2026, 6, 1, tzinfo=UTC)
+    archive = ExternalArchive(root=tmp_path)
+    obs = [mk_obs("destatis_truck_toll", "index_sa", 50.0 + i * 0.3,
+                  now - timedelta(days=20 - i), now - timedelta(days=20 - i))
+           for i in range(20)]
+    archive.store_observations(obs)
+
+    snap = ctxmod.build_external_context(now, archive=archive)
+    states = snap["states"]
+
+    assert states["eu_freight_confidence"] is not None and states["eu_freight_confidence"] <= 0.3
+    assert states["eu_freight_state"] != "UNKNOWN"
+    assert states["us_freight_state"] == "UNKNOWN"
+    assert states["us_freight_confidence"] in (0.0, None)
+    assert states["asia_freight_state"] == "UNKNOWN"
+    assert states["asia_freight_confidence"] in (0.0, None)
+    # EU-Confidence darf NICHT identisch mit der globalen Confidence sein,
+    # weil die globale Confidence hier ebenfalls durch nur 1 frische Region
+    # gedeckelt ist -- Regression-Guard: beide Werte kommen aus getrennten
+    # combine_states()-Aufrufen (Region vs. global), nicht aus derselben Quelle.
+    assert snap["road_freight"]["eu_combined"]["confidence"] == states["eu_freight_confidence"]
+
+
+def test_de_only_eu_source_count_and_state_from_de(tmp_path):
+    """DE-only: eu_source_count==1, eu_sources==['destatis_truck_toll'], und
+    der EU-Zustand kommt direkt aus dem DE-Z-Score -- NIE stillschweigend als
+    generische 'EU' ohne Zusammensetzungs-Angabe."""
+    now = datetime(2026, 6, 1, tzinfo=UTC)
+    archive = ExternalArchive(root=tmp_path)
+    obs = [mk_obs("destatis_truck_toll", "index_sa", 50.0 + i * 2.0,
+                  now - timedelta(days=20 - i), now - timedelta(days=20 - i))
+           for i in range(20)]
+    archive.store_observations(obs)
+
+    snap = ctxmod.build_external_context(now, archive=archive)
+    assert snap["road_freight"]["eu_source_count"] == 1
+    assert snap["road_freight"]["eu_sources"] == ["destatis_truck_toll"]
+    from modules.external.sources import road_freight_features as rff
+    de_obs = archive.as_of("destatis_truck_toll", now)
+    expected_de_z = rff.de_truck_z_1y(de_obs)
+    assert snap["primitives"]["freight_eu_z"] == pytest.approx(expected_de_z)
+
+
+def test_regional_confidence_differs_with_more_source_coverage(tmp_path):
+    """EU-Confidence mit 2 Quellen (DE + FR via eurostat) muss sich von der
+    DE-only-Confidence unterscheiden können (mehr Quellen -> potenziell
+    höhere agreement_ratio/source_count -- Regression-Guard gegen 'immer
+    dieselbe globale Zahl')."""
+    now = datetime(2026, 6, 1, tzinfo=UTC)
+
+    archive_de_only = ExternalArchive(root=tmp_path / "de_only")
+    archive_de_only.store_observations([
+        mk_obs("destatis_truck_toll", "index_sa", 50.0 + i * 2.0,
+               now - timedelta(days=20 - i), now - timedelta(days=20 - i))
+        for i in range(20)
+    ])
+    snap_de_only = ctxmod.build_external_context(now, archive=archive_de_only)
+
+    archive_two = ExternalArchive(root=tmp_path / "de_fr")
+    obs = [mk_obs("destatis_truck_toll", "index_sa", 50.0 + i * 2.0,
+                  now - timedelta(days=20 - i), now - timedelta(days=20 - i))
+           for i in range(20)]
+    obs += [mk_obs("eurostat_road_freight", "road_freight_tonnes", 1000.0 + i * 30.0,
+                    now - timedelta(days=20 - i), now - timedelta(days=20 - i), entity_id="FR")
+            for i in range(20)]
+    archive_two.store_observations(obs)
+    snap_two = ctxmod.build_external_context(now, archive=archive_two)
+
+    assert snap_de_only["road_freight"]["eu_source_count"] == 1
+    assert snap_two["road_freight"]["eu_source_count"] == 2
+    assert snap_two["road_freight"]["eu_sources"] == [
+        "destatis_truck_toll", "eurostat_road_freight:FR"]
+    # Zwei übereinstimmend expandierende Quellen -> mindestens so hohe
+    # Confidence wie eine einzelne (agreement_ratio bei 2/2 = 1.0 vs. 1/1 = 1.0,
+    # aber fresh_source_count steigt von 1 auf 2 -> die 'nur 1 frische Quelle'-
+    # Deckelung greift nicht mehr).
+    assert snap_two["states"]["eu_freight_confidence"] >= snap_de_only["states"]["eu_freight_confidence"]
+
+
+def test_supply_chain_contains_eu_freight_state_consistent_with_states(tmp_path):
+    now = datetime(2026, 6, 1, tzinfo=UTC)
+    archive = ExternalArchive(root=tmp_path)
+    _seed_archive(archive, now)
+    snap = ctxmod.build_external_context(now, archive=archive)
+
+    sc = snap["supply_chain"]
+    st = snap["states"]
+    assert sc["us_freight_state"] == st["us_freight_state"]
+    assert sc["us_freight_confidence"] == st["us_freight_confidence"]
+    assert sc["eu_freight_state"] == st["eu_freight_state"]
+    assert sc["eu_freight_confidence"] == st["eu_freight_confidence"]
+    assert sc["asia_freight_state"] == st["asia_freight_state"]
+    assert sc["asia_freight_confidence"] == st["asia_freight_confidence"]
+
+
+def test_global_freight_state_derived_from_regional_states_not_raw_mean(tmp_path):
+    """Wenn nur EINE Region (US) frische Daten hat, muss die globale
+    Confidence gemäß combine_states' Regel gedeckelt sein (<=0.3) -- das
+    beweist, dass der globale Combine über die REGIONALEN Frische-Flags
+    läuft, nicht über einen reinen Z-Score-Mittelwert."""
+    now = datetime(2026, 6, 1, tzinfo=UTC)
+    archive = ExternalArchive(root=tmp_path)
+    obs = [mk_obs("bts_freight_tsi", "us_freight_tsi", 100.0 + i,
+                  now - timedelta(days=20 - i), now - timedelta(days=20 - i))
+           for i in range(20)]
+    archive.store_observations(obs)
+
+    snap = ctxmod.build_external_context(now, archive=archive)
+    assert snap["states"]["global_freight_confidence"] <= 0.3
+    assert snap["states"]["us_freight_state"] != "UNKNOWN"
+    assert snap["states"]["eu_freight_state"] == "UNKNOWN"
+    assert snap["states"]["asia_freight_state"] == "UNKNOWN"
+
+
+def test_attach_candidate_context_exposes_eu_quality_block(tmp_path):
+    now = datetime(2026, 6, 1, tzinfo=UTC)
+    archive = ExternalArchive(root=tmp_path)
+    obs = [mk_obs("destatis_truck_toll", "index_sa", 50.0 + i * 2.0,
+                  now - timedelta(days=20 - i), now - timedelta(days=20 - i))
+           for i in range(20)]
+    archive.store_observations(obs)
+    snap = ctxmod.build_external_context(now, archive=archive)
+
+    ctx = ctxmod.attach_candidate_context({"ticker": "X", "info": {}}, snap,
+                                           exposures_cfg=EXPOSURES_CFG, industry_cfg=INDUSTRY_CFG)
+    assert ctx["quality"]["eu_source_count"] == 1
+    assert ctx["quality"]["eu_sources"] == ["destatis_truck_toll"]
+
+
 def test_snapshot_saved_immutable(tmp_path, monkeypatch):
     from modules.config import cfg
     monkeypatch.setitem(cfg.external_context, "archive", {"root": str(tmp_path)})

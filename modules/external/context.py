@@ -122,6 +122,16 @@ def _entity_zscores(observations, metric: str, window_days: int = 365) -> dict[s
     return out
 
 
+def _zscore_for_metric(observations, metric: str, window_days: int = 365) -> float | None:
+    series = _series_for(observations, metric)
+    z = feat.rolling_zscore(series, window_days=window_days, min_periods=5)
+    return z[-1] if z else None
+
+
+def _region_entry(z, source_id):
+    return {"source_id": source_id, "z": z, "is_fresh": z is not None, "age_days": None}
+
+
 def _chokepoint_zscore(observations, slug: str, metric: str = "n_total",
                         window_days: int = 365) -> float | None:
     aliases = CHOKEPOINT_SLUGS.get(slug, (slug,))
@@ -143,7 +153,10 @@ def _chokepoint_zscore(observations, slug: str, metric: str = "n_total",
 def _build_road_freight(archive, now: datetime, errors: list) -> dict:
     out = {"us_z": None, "eu_z": None, "asia_z": None, "global_z": None,
            "breadth": None, "de_z_1y": None, "de_acceleration": None,
-           "us_tsi_yoy": None, "us_tsi_z": None}
+           "us_tsi_yoy": None, "us_tsi_z": None,
+           "eu_sources": [], "eu_source_count": 0,
+           "us_combined": feat.combine_states([]), "eu_combined": feat.combine_states([]),
+           "asia_combined": feat.combine_states([])}
     try:
         de_obs = _load_observations(archive, "destatis_truck_toll", now)
         us_obs = _load_observations(archive, "bts_freight_tsi", now)
@@ -156,9 +169,36 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         out["us_z"] = _safe(rff.us_freight_tsi_z, us_obs)
         out["us_tsi_z"] = out["us_z"]
 
-        eu_z = _safe(rff.eu_road_freight_z, eu_obs)
-        out["eu_z"] = eu_z if eu_z is not None else out["de_z_1y"]
+        # ── US: bts_freight_tsi (+ trucking-Komponente, falls vorhanden) ────
+        us_sources = []
+        if us_obs:
+            us_sources.append(_region_entry(out["us_z"], "bts_freight_tsi"))
+            us_metrics = {o.metric for o in us_obs}
+            if "us_trucking" in us_metrics:
+                trucking_z = _zscore_for_metric(us_obs, "us_trucking")
+                us_sources.append(_region_entry(trucking_z, "bts_freight_tsi_trucking"))
+        out["us_combined"] = feat.combine_states(us_sources)
 
+        # ── EU: DE (destatis) + jede eurostat-Länderserie/EU-Aggregat als
+        # EIGENE Quelle -- DE zählt als EINE von mehreren EU-Quellen, NIE
+        # stillschweigend als "die" EU (siehe eu_source_count/eu_sources
+        # unten, die das dokumentieren). Kein Fallback mehr: freight_eu_z
+        # ist der Mittelwert der tatsächlich vorhandenen EU-Quellen.
+        eu_sources = []
+        if de_obs:
+            eu_sources.append(_region_entry(out["de_z_1y"], "destatis_truck_toll"))
+        eu_country_entities = sorted({
+            o.entity_id for o in eu_obs if o.metric == "road_freight_tonnes"
+        })
+        for eid in eu_country_entities:
+            z = _safe(rff.eu_road_freight_z, eu_obs, eid)
+            eu_sources.append(_region_entry(z, f"eurostat_road_freight:{eid}"))
+        out["eu_sources"] = [e["source_id"] for e in eu_sources]
+        out["eu_source_count"] = len(eu_sources)
+        out["eu_combined"] = feat.combine_states(eu_sources)
+        out["eu_z"] = _mean_of([e["z"] for e in eu_sources])
+
+        # ── ASIA: estat_jp_truck (maritime-unabhängige Quellen only) ────────
         # Japan: keine Default-Metrik bekannt -> nur wenn ein plausibles
         # 'index'-Metric tatsächlich vorhanden ist (nie erfinden).
         jp_metrics = {o.metric for o in jp_obs}
@@ -169,6 +209,10 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
                 if asia_z is not None:
                     break
         out["asia_z"] = asia_z
+        asia_sources = []
+        if jp_obs:
+            asia_sources.append(_region_entry(asia_z, "estat_jp_truck"))
+        out["asia_combined"] = feat.combine_states(asia_sources)
 
         out["global_z"] = _mean_of([out["us_z"], out["eu_z"], out["asia_z"]])
 
@@ -349,9 +393,16 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
     hard_vs_survey_reason = "no_survey_series_in_macro_context"
     hard_vs_survey = None
 
-    us_state = feat.classify_state(road.get("us_z"))
-    eu_state = feat.classify_state(road.get("eu_z"))
-    asia_state = feat.classify_state(road.get("asia_z"))
+    # Regionale Zustände kommen JEWEILS aus combine_states über die eigenen
+    # Quellen dieser Region (siehe _build_road_freight: us_combined/
+    # eu_combined/asia_combined) -- NIE aus der globalen Confidence.
+    us_combined = road.get("us_combined") or feat.combine_states([])
+    eu_combined = road.get("eu_combined") or feat.combine_states([])
+    asia_combined = road.get("asia_combined") or feat.combine_states([])
+
+    us_state = us_combined.get("state", "UNKNOWN")
+    eu_state = eu_combined.get("state", "UNKNOWN")
+    asia_state = asia_combined.get("state", "UNKNOWN")
     maritime_state = feat.classify_state(maritime.get("global_z"))
     container_state = feat.classify_state(maritime.get("container_z"))
     drybulk_state = feat.classify_state(maritime.get("drybulk_z"))
@@ -360,10 +411,21 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
     def _entry(z, source_id):
         return {"source_id": source_id, "z": z, "is_fresh": z is not None, "age_days": None}
 
+    # Global-Freight-State: Combine über die REGIONALEN Zustände (nicht über
+    # einen Mittelwert der Roh-Z-Scores) -- is_fresh richtet sich danach, ob
+    # die jeweilige Region überhaupt eine frische Quelle hatte; dadurch erbt
+    # combine_states' eingebaute Regel ("<=1 frische Quelle -> confidence
+    # <=0.3") korrekt: nur 1 von 3 Regionen frisch -> niedrige Global-Confidence.
     combined_freight = feat.combine_states([
-        _entry(road.get("us_z"), "bts_freight_tsi"),
-        _entry(road.get("eu_z"), "eurostat_road_freight"),
-        _entry(road.get("asia_z"), "estat_jp_truck"),
+        {"source_id": "us_region", "z": road.get("us_z"),
+         "is_fresh": us_combined.get("fresh_source_count", 0) > 0,
+         "age_days": us_combined.get("data_age_days")},
+        {"source_id": "eu_region", "z": road.get("eu_z"),
+         "is_fresh": eu_combined.get("fresh_source_count", 0) > 0,
+         "age_days": eu_combined.get("data_age_days")},
+        {"source_id": "asia_region", "z": road.get("asia_z"),
+         "is_fresh": asia_combined.get("fresh_source_count", 0) > 0,
+         "age_days": asia_combined.get("data_age_days")},
     ])
     combined_global = feat.combine_states([
         _entry(road.get("global_z"), "road_freight_composite"),
@@ -374,6 +436,12 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         weather.get("disruption_index"), weather.get("active_tropical_system"))
 
     supply_chain = {
+        "us_freight_state": us_state,
+        "us_freight_confidence": us_combined.get("confidence"),
+        "eu_freight_state": eu_state,
+        "eu_freight_confidence": eu_combined.get("confidence"),
+        "asia_freight_state": asia_state,
+        "asia_freight_confidence": asia_combined.get("confidence"),
         "global_freight_state": combined_freight.get("state"),
         "global_freight_confidence": combined_freight.get("confidence"),
         "global_maritime_state": maritime_state,
@@ -472,9 +540,12 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
             "us_freight_state": us_state,
             "eu_freight_state": eu_state,
             "asia_freight_state": asia_state,
-            "us_freight_confidence": combined_freight.get("confidence"),
-            "eu_freight_confidence": combined_freight.get("confidence"),
-            "asia_freight_confidence": combined_freight.get("confidence"),
+            "us_freight_confidence": us_combined.get("confidence"),
+            "eu_freight_confidence": eu_combined.get("confidence"),
+            "asia_freight_confidence": asia_combined.get("confidence"),
+            "us_freight_source_count": us_combined.get("source_count"),
+            "eu_freight_source_count": eu_combined.get("source_count"),
+            "asia_freight_source_count": asia_combined.get("source_count"),
             "global_maritime_state": maritime_state,
             "global_maritime_confidence": combined_global.get("confidence"),
             "global_freight_state": combined_freight.get("state"),
@@ -598,6 +669,7 @@ def attach_candidate_context(candidate: dict, snapshot: dict | None,
     primitives = dict(snapshot.get("primitives") or {})
     states = snapshot.get("states") or {}
     divergences = snapshot.get("divergences") or {}
+    road_freight_block = snapshot.get("road_freight") or {}
 
     return {
         "snapshot_id": snapshot.get("snapshot_id"),
@@ -607,10 +679,13 @@ def attach_candidate_context(candidate: dict, snapshot: dict | None,
         "states": {
             "us_freight_state": states.get("us_freight_state"),
             "us_freight_confidence": states.get("us_freight_confidence"),
+            "us_freight_source_count": states.get("us_freight_source_count"),
             "eu_freight_state": states.get("eu_freight_state"),
             "eu_freight_confidence": states.get("eu_freight_confidence"),
+            "eu_freight_source_count": states.get("eu_freight_source_count"),
             "asia_freight_state": states.get("asia_freight_state"),
             "asia_freight_confidence": states.get("asia_freight_confidence"),
+            "asia_freight_source_count": states.get("asia_freight_source_count"),
             "global_maritime_state": states.get("global_maritime_state"),
             "global_maritime_confidence": states.get("global_maritime_confidence"),
             "global_freight_state": states.get("global_freight_state"),
@@ -618,6 +693,13 @@ def attach_candidate_context(candidate: dict, snapshot: dict | None,
         },
         "ticker_exposure": exposure,
         "divergences": dict(divergences),
+        # Dokumentiert die tatsächliche Zusammensetzung von freight_eu_z:
+        # eu_source_count==1 mit eu_sources==["destatis_truck_toll"] bedeutet
+        # "nur Deutschland", NIE stillschweigend als "EU" ausgegeben.
+        "quality": {
+            "eu_source_count": road_freight_block.get("eu_source_count"),
+            "eu_sources": list(road_freight_block.get("eu_sources") or []),
+        },
         "relation": {"relation": "NEUTRAL", "materiality": "NONE", "confidence": 0.0,
                      "mechanism": "", "relevant_sources": [], "source": "skipped",
                      "reason": "shadow_analysis_not_run"},
