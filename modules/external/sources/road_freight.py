@@ -245,6 +245,11 @@ class DestatisTruckTollConnector(Connector):
                     pass
 
             observations, latest_obs, parse_failures = self._parse_ffcsv(text, table_code, res.retrieved_at)
+            if not observations and not parse_failures:
+                # klassisches GENESIS-CSV (Kopfblock, Jahr;Monat;Werte je
+                # Bereinigungsart) -- so liefert GENESIS 42191-0001 mit Konto
+                observations, latest_obs, parse_failures = self._parse_classic_csv(
+                    text, table_code, res.retrieved_at)
             if observations or parse_failures:
                 break
             last_diag = {"format": fmt, "content_type": res.content_type, "body_snippet": text[:600]}
@@ -334,6 +339,81 @@ class DestatisTruckTollConnector(Connector):
                 attrs={"table_code": table_code, "region_label": region_label, "adjustment_label": adjust_label},
             )
             observations.append(obs)
+            if latest is None or obs_date > latest:
+                latest = obs_date
+        return observations, latest, parse_failures
+
+    GERMAN_MONTHS = {"januar": 1, "februar": 2, "märz": 3, "maerz": 3, "april": 4, "mai": 5,
+                     "juni": 6, "juli": 7, "august": 8, "september": 9, "oktober": 10,
+                     "november": 11, "dezember": 12}
+
+    @staticmethod
+    def _classic_metric(label: str) -> str | None:
+        """Spaltenlabel -> Metrik. X13 kalender- und saisonbereinigt ist die
+        Standard-SA-Reihe (index_sa); Alternativverfahren eigene Metriken."""
+        l = label.lower()
+        if not l:
+            return None
+        if "originalwert" in l:
+            return "index_unadjusted"
+        if "trend" in l:
+            return "index_trend"
+        if "saison" in l:
+            return "index_sa" if ("x13" in l or "bv4" not in l) else "index_sa_bv41"
+        if "kalender" in l:
+            return "index_calendar_adjusted"
+        return None
+
+    def _parse_classic_csv(self, text: str, table_code: str, retrieved_at: datetime
+                           ) -> tuple[list[Observation], datetime | None, int]:
+        """Klassisches GENESIS-CSV: Kopfzeilen, dann eine Spaltenkopfzeile mit
+        den Bereinigungsarten (z.B. ';;Originalwerte;X13 ... saisonbereinigt;
+        ...'), dann Datenzeilen 'Jahr;Monat;Wert;...' (Jahr nur in der ersten
+        Zeile eines Jahres) oder 'TT.MM.JJJJ;;Wert;...'. Fußzeilen (__, ©)
+        werden übersprungen. Nie raten: unbekannte Spaltenlabels entfallen."""
+        rows = list(csv.reader(io.StringIO(text), delimiter=";"))
+        header_i = next((i for i, r in enumerate(rows)
+                         if any(self._classic_metric(c.strip()) for c in r[1:])), None)
+        if header_i is None:
+            return [], None, 0
+        header = [c.strip() for c in rows[header_i]]
+        metric_cols = {i: self._classic_metric(c) for i, c in enumerate(header)
+                       if i >= 1 and self._classic_metric(c)}
+        observations: list[Observation] = []
+        latest: datetime | None = None
+        parse_failures = 0
+        year: int | None = None
+        for row in rows[header_i + 1:]:
+            if not row or row[0].strip().startswith(("__", "©", "Stand")):
+                continue
+            c0 = row[0].strip()
+            c1 = row[1].strip().lower() if len(row) > 1 else ""
+            obs_date = None
+            dataset = "monthly_index"
+            if re.fullmatch(r"\d{4}", c0):
+                year = int(c0)
+            if re.fullmatch(r"\d{2}\.\d{2}\.\d{4}", c0):
+                obs_date = datetime.strptime(c0, "%d.%m.%Y").replace(tzinfo=timezone.utc)
+                dataset = "daily_index"
+            elif year is not None and c1 in self.GERMAN_MONTHS:
+                obs_date = datetime(year, self.GERMAN_MONTHS[c1], 1, tzinfo=timezone.utc)
+            if obs_date is None:
+                if any(ch.strip() for ch in row[2:]) and (c0 or c1):
+                    parse_failures += 1
+                continue
+            for i, metric in metric_cols.items():
+                if i >= len(row):
+                    continue
+                raw_val = row[i].strip().replace(".", "").replace(",", ".")
+                value = None if raw_val in ("", "-", "x", "...") else self._safe_float(raw_val)
+                observations.append(Observation(
+                    source_id=self.source_id, dataset=dataset, series_id=table_code,
+                    entity_id="", metric=metric, value=value, unit="index_points",
+                    observation_time=obs_date, available_at=retrieved_at, retrieved_at=retrieved_at,
+                    availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                    parser_version=self.parser_version,
+                    attrs={"table_code": table_code, "adjustment_label": header[i]},
+                ))
             if latest is None or obs_date > latest:
                 latest = obs_date
         return observations, latest, parse_failures

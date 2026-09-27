@@ -75,7 +75,15 @@ def fetch(url: str, params: dict | None = None, headers: dict | None = None,
             if r.status_code == 429 or r.status_code >= 500:
                 raise FetchError(f"{r.status_code} für {url}")
             if r.status_code >= 400:
-                raise FetchError(f"{r.status_code} für {url} (nicht retrybar)")
+                # Fehlertext des Servers (gekürzt) für die Diagnose; enthält
+                # keine Request-Daten/Credentials, nur die Server-Antwort.
+                detail = ""
+                try:
+                    detail = (r.text or "")[:200].replace("\n", " ").strip()
+                except Exception:  # noqa: BLE001
+                    pass
+                raise FetchError(f"{r.status_code} für {url} (nicht retrybar)"
+                                 + (f": {detail}" if detail else ""))
             content = r.content or b""
             return FetchResult(
                 url=url, status=r.status_code, content=content,
