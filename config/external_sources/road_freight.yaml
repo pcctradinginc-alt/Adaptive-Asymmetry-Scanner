@@ -133,17 +133,17 @@ sources:
 
   # --- FHWA FAF: strukturelle Exposure, kein Live-Konnektor ------------------
   - source_id: fhwa_faf
-    display_name: "FHWA Freight Analysis Framework (Commodity/Region Exposure)"
+    display_name: "FHWA Freight Analysis Framework (Commodity/State Exposure)"
     family: road_freight
     authority: "Federal Highway Administration (FHWA)"
-    official_homepage: "https://ops.fhwa.dot.gov/freight/freight_analysis/faf/"
+    official_homepage: "https://faf.ornl.gov/faf5/"
     machine_endpoint: ""
     access_method: "manual_builder_script"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "public domain (US federal data)"
     commercial_use_status_if_known: "public domain"
-    frequency: irregular
+    frequency: "static (rebuild manually on FAF release)"
     expected_update_cadence: "P365D"
     supports_history: false
     supports_vintages: false
@@ -154,11 +154,17 @@ sources:
     license_status: OK
     status_override: DEFERRED
     notes: >
-      FAF-Rohdaten sind sehr groß und werden NICHT im laufenden Scanner
-      geladen. scripts/build_faf_exposure.py ist ein manuelles/einmaliges
-      Build-Skript, das config/faf_exposure.yaml (Commodity->Region->Sektor)
-      ableiten soll. Aktuell ist config/faf_exposure.yaml nur ein kuratierter
-      Platzhalter ("manual/derived, not yet built").
+      FAF5-Rohdaten (mehrere GB) werden NICHT im laufenden Scanner geladen.
+      scripts/build_faf_exposure.py lädt die offizielle FAF5-State-Level-
+      Datenbank von https://faf.ornl.gov/faf5/, streamt sie in ein
+      temp-Verzeichnis (nie committed) und leitet daraus die kompakte
+      Tabelle config/faf_exposure.yaml (SCTG2-Commodity <-> Origin-State-
+      Shares, State-Commodity-Mix, Mode-Shares) ab. Manuell oder via
+      .github/workflows/faf_build.yml (workflow_dispatch) ausführen.
+      status_override bleibt DEFERRED, bis config/faf_exposure.yaml
+      meta.built_at gesetzt hat (siehe
+      scripts/build_faf_exposure.py:exposure_states_for_industry(), das
+      bis dahin None statt einer Exposure-Map liefert).
 
   # --- Preflight-only: kein Daten-Konnektor, nur Registry-Metadaten ---------
   - source_id: viapass_be

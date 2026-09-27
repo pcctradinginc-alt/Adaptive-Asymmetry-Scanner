@@ -30,26 +30,38 @@ industries:
     road_freight_relevance: MEDIUM
     maritime_relevance: LOW
     weather_relevance: LOW
+    # SCTG2 34 = Machinery.
+    faf_commodities: [34]
 
   Autos:
     road_freight_relevance: MEDIUM
     maritime_relevance: MEDIUM
     weather_relevance: LOW
+    # SCTG2 36 = Motorized and other vehicles (including parts).
+    faf_commodities: [36]
 
   Chemicals:
     road_freight_relevance: MEDIUM
     maritime_relevance: MEDIUM
     weather_relevance: MEDIUM
+    # SCTG2 20-24 = Basic chemicals, Pharmaceutical products, Fertilizers,
+    # Chemical products n.e.c., Plastics and rubber.
+    faf_commodities: [20, 21, 22, 23, 24]
 
   Semiconductors:
     road_freight_relevance: LOW
     maritime_relevance: MEDIUM
     weather_relevance: LOW
+    # SCTG2 35 = Electronic and other electrical equipment and components.
+    faf_commodities: [35]
 
   Energy:
     road_freight_relevance: LOW
     maritime_relevance: MEDIUM
     weather_relevance: MEDIUM
+    # SCTG2 15-19 = Coal, Crude petroleum, Gasoline, Fuel oils, Other
+    # coal/petroleum products.
+    faf_commodities: [15, 16, 17, 18, 19]
 
   Utilities:
     road_freight_relevance: LOW
@@ -65,16 +77,24 @@ industries:
     road_freight_relevance: LOW
     maritime_relevance: NONE
     weather_relevance: MEDIUM
+    # SCTG2 10-12 = Building stone, Natural sands, Gravel/crushed stone;
+    # 31-33 = Nonmetallic mineral products, Base metals, Articles of base metal.
+    faf_commodities: [10, 11, 12, 31, 32, 33]
 
   Construction:
     road_freight_relevance: MEDIUM
     maritime_relevance: NONE
     weather_relevance: MEDIUM
+    # Same construction-materials commodity group as Homebuilders.
+    faf_commodities: [10, 11, 12, 31, 32, 33]
 
   Retail:
     road_freight_relevance: MEDIUM
     maritime_relevance: LOW
     weather_relevance: MEDIUM
+    # SCTG2 01-08 = Live animals/fish through Alcoholic beverages
+    # (food/consumer-staples commodity group).
+    faf_commodities: [1, 2, 3, 4, 5, 6, 7, 8]
 
   Technology / Software:
     road_freight_relevance: NONE
