@@ -1,0 +1,52 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Business and consumer surveys - sentiment indicators",
+  "updated": "2026-08-30T10:00:00+02:00",
+  "id": ["s_adj", "indic", "geo", "time"],
+  "size": [2, 3, 2, 2],
+  "dimension": {
+    "s_adj": {
+      "label": "seasonal adjustment",
+      "category": {
+        "index": {"SA": 0, "NSA": 1},
+        "label": {"SA": "Seasonally adjusted data", "NSA": "Unadjusted data"}
+      }
+    },
+    "indic": {
+      "label": "indicator",
+      "category": {
+        "index": {"BS-ESI-I": 0, "BS-ICI-BAL": 1, "BS-CSMCI-BAL": 2},
+        "label": {
+          "BS-ESI-I": "Economic sentiment indicator",
+          "BS-ICI-BAL": "Industrial confidence indicator",
+          "BS-CSMCI-BAL": "Consumer confidence indicator"
+        }
+      }
+    },
+    "geo": {
+      "label": "geo",
+      "category": {
+        "index": {"DE": 0, "EU27_2020": 1},
+        "label": {"DE": "Germany", "EU27_2020": "European Union - 27 countries (from 2020)"}
+      }
+    },
+    "time": {
+      "label": "time",
+      "category": {
+        "index": {"2026-07": 0, "2026-08": 1},
+        "label": {"2026-07": "2026-07", "2026-08": "2026-08"}
+      }
+    }
+  },
+  "value": {
+    "0": 101.5,
+    "1": 102.0,
+    "4": 5.0,
+    "5": 6.0,
+    "3": 100.0,
+    "7": 3.0,
+    "13": 999.0,
+    "9": 888.0
+  }
+}

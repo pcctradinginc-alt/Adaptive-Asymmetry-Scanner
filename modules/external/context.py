@@ -28,6 +28,7 @@ from typing import Any
 
 from modules.external import features as feat
 from modules.external.pit import ensure_utc, utc_now
+from modules.external.sources import real_economy_features as ref
 from modules.external.sources import road_freight_features as rff
 from modules.external.sources import weather_features as wf
 from modules.external.sources.weather import (
@@ -38,6 +39,7 @@ FEATURE_VERSIONS = {
     "road_freight": "v1",
     "maritime": "v1",
     "weather": "v1",
+    "real_economy": "v1",
     "divergences": "v1",
     "context": "v1",
 }
@@ -50,6 +52,7 @@ ROAD_FREIGHT_SOURCES = ["destatis_truck_toll", "bts_freight_tsi", "eurostat_road
                          "estat_jp_truck"]
 MARITIME_SOURCES = ["imf_portwatch_ports", "imf_portwatch_chokepoints"]
 WEATHER_SOURCES = ["nws_forecast", "nws_alerts", "ncei_normals", "nhc_storms"]
+REAL_ECONOMY_SOURCES = ["eurostat_sentiment", "eurostat_industrial_production", "fred_us_macro"]
 
 CHOKEPOINT_SLUGS = {
     "suez": ("suez", "suez canal"),
@@ -333,6 +336,82 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
     return out
 
 
+EU_REAL_ECONOMY_ENTITY = "EU27_2020"
+
+
+def _build_real_economy(archive, now: datetime, errors: list) -> dict:
+    """Umfrage- vs. Hard-Data-Block je Region. survey_z kombiniert ESI +
+    Industrial-confidence-Z (EU) bzw. UMCSENT-Z (US); hard_z kombiniert die
+    Industrieproduktions-Z mit der EU-Straßengüterverkehrs-Z, FALLS diese
+    im road_freight-Block bereits vorhanden ist (siehe ROAD_FREIGHT_SOURCES)
+    -- nie erfunden, nur wenn tatsächlich beobachtet. US-Werte bleiben None,
+    solange kein FRED_API_KEY gesetzt ist (fred_us_macro liefert dann keine
+    Beobachtungen, siehe FredUsMacroConnector: AUTH_MISSING, kein Call)."""
+    out = {
+        "eu": {"survey_z": None, "hard_z": None, "divergence_z": None,
+               "agreement": "UNKNOWN", "sources": []},
+        "us": {"survey_z": None, "hard_z": None, "divergence_z": None,
+               "agreement": "UNKNOWN", "sources": []},
+    }
+    try:
+        sentiment_obs = _load_observations(archive, "eurostat_sentiment", now)
+        indprod_obs = _load_observations(archive, "eurostat_industrial_production", now)
+        fred_obs = _load_observations(archive, "fred_us_macro", now)
+        road_obs = _load_observations(archive, "eurostat_road_freight", now)
+
+        eu_sources = []
+        if sentiment_obs:
+            eu_sources.append("eurostat_sentiment")
+        if indprod_obs:
+            eu_sources.append("eurostat_industrial_production")
+
+        eu_survey_z = _safe(ref.eu_survey_z, sentiment_obs, EU_REAL_ECONOMY_ENTITY)
+        eu_indprod_z = _safe(ref.industrial_production_z, indprod_obs, EU_REAL_ECONOMY_ENTITY)
+        # Straßengüterverkehr (EU27-Aggregat) als zusätzliches Hard-Data-Signal,
+        # NUR falls der road_freight-Konnektor diese Entity tatsächlich liefert
+        # (sonst bleibt hard_z reines Industrieproduktions-Signal).
+        eu_road_z = None
+        if any(o.metric == "road_freight_ths_t" and o.entity_id == EU_REAL_ECONOMY_ENTITY for o in road_obs):
+            eu_road_z = _safe(rff.eu_road_freight_z, road_obs, EU_REAL_ECONOMY_ENTITY,
+                               "road_freight_ths_t", 365 * 12)
+            if eu_road_z is not None:
+                eu_sources.append("eurostat_road_freight")
+        eu_hard_components = [z for z in (eu_indprod_z, eu_road_z) if z is not None]
+        eu_hard_z = statistics.fmean(eu_hard_components) if eu_hard_components else None
+
+        out["eu"]["survey_z"] = eu_survey_z
+        out["eu"]["hard_z"] = eu_hard_z
+        out["eu"]["sources"] = eu_sources
+        eu_div = feat.divergence(eu_hard_z, eu_survey_z)
+        out["eu"]["divergence_z"] = eu_div.get("divergence_z")
+        out["eu"]["agreement"] = eu_div.get("agreement", "UNKNOWN")
+
+        us_sources = ["fred_us_macro"] if fred_obs else []
+        us_survey_z = _safe(ref.us_survey_z, fred_obs)
+        us_hard_z = _safe(ref.us_hard_z, fred_obs)
+        out["us"]["survey_z"] = us_survey_z
+        out["us"]["hard_z"] = us_hard_z
+        out["us"]["sources"] = us_sources
+        us_div = feat.divergence(us_hard_z, us_survey_z)
+        out["us"]["divergence_z"] = us_div.get("divergence_z")
+        out["us"]["agreement"] = us_div.get("agreement", "UNKNOWN")
+    except Exception as e:  # noqa: BLE001 - Familie darf nie den Snapshot brechen
+        errors.append(f"real_economy: {e!r}")
+    return out
+
+
+def _real_economy_has_data(block: dict) -> bool:
+    """block.values() sind bei real_economy verschachtelte {eu:{...},
+    us:{...}}-Dicts, nie None -- die generische 'any(v is not None ...)'-
+    Prüfung der übrigen Familien greift hier nicht (siehe
+    quality['families_with_data'] in build_external_context)."""
+    for region in ("eu", "us"):
+        r = block.get(region) or {}
+        if r.get("survey_z") is not None or r.get("hard_z") is not None:
+            return True
+    return False
+
+
 # Methodischer Schwellenwert (nicht gegen Renditen optimiert): ein tropisches
 # System zählt nur dann als operatives Risiko, wenn seine aktuelle Position
 # innerhalb dieser Distanz zu einer kuratierten US-Küsten-Expositionsregion liegt.
@@ -509,6 +588,11 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
     road = _build_road_freight(archive, now, errors) if archive is not None else {}
     maritime = _build_maritime(archive, now, errors) if archive is not None else {}
     weather = _build_weather(archive, now, errors) if archive is not None else {}
+    real_economy = (_build_real_economy(archive, now, errors) if archive is not None
+                     else {"eu": {"survey_z": None, "hard_z": None, "divergence_z": None,
+                                  "agreement": "UNKNOWN", "sources": []},
+                           "us": {"survey_z": None, "hard_z": None, "divergence_z": None,
+                                  "agreement": "UNKNOWN", "sources": []}})
 
     div = feat.divergence(road.get("global_z"), maritime.get("global_z"), threshold=0.5)
     road_shipping_divergence_z = div.get("divergence_z")
@@ -520,10 +604,22 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
             road["global_z"] <= -0.5 and weather["disruption_index"] >= 0.5
         )
 
-    # ISM/PMI-Umfrageserie existiert (Stand dieser Codebase) nicht in
-    # modules/macro_context.py -> NIE erfinden, nur begründet None liefern.
-    hard_vs_survey_reason = "no_survey_series_in_macro_context"
-    hard_vs_survey = None
+    # hard_data_vs_survey_divergence ist DEFINITORISCH der EU-Block aus
+    # real_economy (hard_z - survey_z, siehe feat.divergence in
+    # _build_real_economy) -- garantiert ohne API-Key verfügbar (Eurostat).
+    # Der US-Wert (nur mit FRED_API_KEY) lebt separat in
+    # snapshot["real_economy"]["us"], nicht in diesem globalen Primitive.
+    eu_real_economy = real_economy.get("eu") or {}
+    hard_vs_survey = eu_real_economy.get("divergence_z")
+    hard_vs_survey_agreement = eu_real_economy.get("agreement", "UNKNOWN")
+    if hard_vs_survey is not None:
+        hard_vs_survey_reason = None
+    elif eu_real_economy.get("hard_z") is None and eu_real_economy.get("survey_z") is None:
+        hard_vs_survey_reason = "missing_survey_and_hard_data"
+    elif eu_real_economy.get("hard_z") is None:
+        hard_vs_survey_reason = "missing_hard_data"
+    else:
+        hard_vs_survey_reason = "missing_survey_data"
 
     # Regionale Zustände kommen JEWEILS aus combine_states über die eigenen
     # Quellen dieser Region (siehe _build_road_freight: us_combined/
@@ -623,7 +719,7 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         "hard_data_vs_survey_divergence": hard_vs_survey,
     }
 
-    all_source_ids = ROAD_FREIGHT_SOURCES + MARITIME_SOURCES + WEATHER_SOURCES
+    all_source_ids = ROAD_FREIGHT_SOURCES + MARITIME_SOURCES + WEATHER_SOURCES + REAL_ECONOMY_SOURCES
     sources = _sources_summary(archive, now, all_source_ids) if archive is not None else {}
 
     available_at_values = [
@@ -632,13 +728,17 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
     ]
     max_available_at_used = max(available_at_values) if available_at_values else None
 
+    families_with_data = [
+        name for name, block in (("road_freight", road), ("maritime", maritime),
+                                  ("weather", weather))
+        if any(v is not None for v in block.values())
+    ]
+    if _real_economy_has_data(real_economy):
+        families_with_data.append("real_economy")
+
     quality = {
         "errors": errors,
-        "families_with_data": [
-            name for name, block in (("road_freight", road), ("maritime", maritime),
-                                      ("weather", weather))
-            if any(v is not None for v in block.values())
-        ],
+        "families_with_data": families_with_data,
         "hard_data_vs_survey_divergence_reason": hard_vs_survey_reason,
     }
 
@@ -658,11 +758,13 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         "road_freight": road,
         "maritime_freight": maritime,
         "weather": weather,
-        "real_economy": {},   # Platzhalter -- kein realer Realwirtschafts-Konnektor in dieser Version
+        "real_economy": real_economy,
         "supply_chain": supply_chain,
         "divergences": {
             "road_shipping_divergence_z": road_shipping_divergence_z,
             "road_shipping_agreement": road_shipping_agreement,
+            "hard_data_vs_survey_divergence_z": hard_vs_survey,
+            "hard_data_vs_survey_agreement": hard_vs_survey_agreement,
         },
         "quality": quality,
         "point_in_time": {
