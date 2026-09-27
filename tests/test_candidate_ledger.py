@@ -1996,3 +1996,17 @@ rl:
     ids = cl._compute_model_ids()
     assert "rl.model_sha256" not in ids
     assert ids.get("rl.model_path") == missing_path.as_posix()
+
+
+def test_flush_persists_frozen_external_context(monkeypatch, ledger_root):
+    """End-to-End: note(external=...) wird eingefroren UND im geflushten
+    Ledger-Eintrag persistiert; spätere note(external=...) überschreibt nicht."""
+    monkeypatch.setattr(cl, "_fetch_prices_batch", lambda tickers: {})
+    cl.start_run("2026-09-25")
+    cl.note("UPS", stage="deep_analysis", direction="BULLISH",
+            external={"snapshot_id": "snapA", "primitives": {"freight_eu_z": -0.16}})
+    cl.note("UPS", external={"snapshot_id": "LATER"})
+    cl.flush(ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    assert row["external"]["snapshot_id"] == "snapA"
+    assert row["external"]["primitives"]["freight_eu_z"] == -0.16

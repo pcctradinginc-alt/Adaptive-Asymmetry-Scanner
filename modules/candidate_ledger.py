@@ -1085,6 +1085,9 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "underlying":       resolved["underlying"],
                 "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
+                # Externer Kontext: beim ersten note(external=...) eingefroren,
+                # hier unverändert persistiert (nie neu berechnet).
+                "external":         e.get("external"),
                 "outcomes":         {},
             }
 
