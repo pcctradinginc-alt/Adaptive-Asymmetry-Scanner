@@ -239,11 +239,22 @@ def _build_maritime(archive, now: datetime, errors: list) -> dict:
             ("portcalls_dry_bulk", "drybulk_z"),
             ("portcalls_tanker", "tanker_z"),
         ):
-            series = _aggregate_sum_series(port_obs, metric_key)
+            # Bevorzugt das beim Abruf über ALLE Häfen gebildete GLOBAL-Aggregat;
+            # sonst (ältere Daten) Summe über Einzelhäfen ohne Aggregat-Zeilen.
+            global_rows = [o for o in port_obs if o.entity_id == "GLOBAL"]
+            # Unvollständige (jüngste) Tage nie mit vollständigen vergleichen:
+            # nur Tage mit >= 90 % der maximal beobachteten Hafenzahl.
+            _max_n = max(((o.attrs or {}).get("n_ports") or 0 for o in global_rows), default=0)
+            global_rows = [o for o in global_rows
+                           if ((o.attrs or {}).get("n_ports") or 0) >= 0.9 * _max_n]
+            series = (_series_for(global_rows, metric_key) if global_rows else
+                      _aggregate_sum_series([o for o in port_obs
+                                             if not (o.attrs or {}).get("aggregate")], metric_key))
             z = feat.rolling_zscore(series, window_days=365, min_periods=5)
             out[out_key] = z[-1] if z else None
 
-        entity_z = _entity_zscores(port_obs, "portcalls_total", window_days=365)
+        entity_z = _entity_zscores([o for o in port_obs if not (o.attrs or {}).get("aggregate")],
+                                   "portcalls_total", window_days=365)
         out["valid_port_count"] = sum(1 for v in entity_z.values() if v is not None)
         # Mindestabdeckung aus config/port_universe.yaml (Default 8 Häfen):
         # Breite nie aus nur ein, zwei Häfen; unterhalb -> None (fehlend != 0).

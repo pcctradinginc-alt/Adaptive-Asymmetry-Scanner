@@ -784,6 +784,51 @@ def _arcgis_date_to_utc(raw: Any) -> datetime | None:
     return datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
 
 
+AGGREGATE_GLOBAL = "GLOBAL"
+AGGREGATE_GROUP_PREFIX = "GROUP:"
+
+
+def is_aggregate_entity(entity_id: str) -> bool:
+    return entity_id == AGGREGATE_GLOBAL or str(entity_id).startswith(AGGREGATE_GROUP_PREFIX)
+
+
+def reduce_port_observations(observations: list, curated_groups: dict[str, str]) -> list:
+    """Archiv-Volumen begrenzen, ohne globale Information zu verlieren:
+      - behält Einzelbeobachtungen NUR für kuratierte Häfen (curated_groups:
+        port_id -> Gruppe), ergänzt attrs.group
+      - erzeugt je (Tag, Kennzahl) ein GLOBAL-Aggregat über ALLE Häfen und je
+        Gruppe ein GROUP:<name>-Aggregat über die kuratierten Häfen der Gruppe
+        (attrs.n_ports = Anzahl beitragender Häfen, für die Vollständigkeits-
+        prüfung des jüngsten Tages).
+    Summen werden nie aus fehlenden Werten gebildet (None wird übersprungen)."""
+    kept, sums = [], {}
+    for o in observations:
+        keys = [(AGGREGATE_GLOBAL, o.observation_time, o.metric)]
+        grp = curated_groups.get(o.entity_id)
+        if grp is not None:
+            o.attrs = {**(o.attrs or {}), "group": grp}
+            kept.append(o)
+            keys.append((AGGREGATE_GROUP_PREFIX + grp, o.observation_time, o.metric))
+        if o.value is None:
+            continue
+        for k in keys:
+            acc = sums.setdefault(k, {"sum": 0.0, "n": 0, "proto": o})
+            acc["sum"] += o.value
+            acc["n"] += 1
+    for (entity, obs_time, metric), acc in sums.items():
+        proto = acc["proto"]
+        kept.append(Observation(
+            source_id=proto.source_id, dataset=proto.dataset, series_id="aggregate",
+            entity_id=entity, metric=metric, value=acc["sum"], unit=proto.unit,
+            observation_time=obs_time, available_at=proto.available_at,
+            retrieved_at=proto.retrieved_at, availability_precision=proto.availability_precision,
+            parser_version=proto.parser_version,
+            attrs={"aggregate": True, "n_ports": acc["n"],
+                   **({"historical_backfill": True} if (proto.attrs or {}).get("historical_backfill") else {})},
+        ))
+    return kept
+
+
 def build_port_observations(
     attrs: dict,
     retrieved_at: datetime,
@@ -973,12 +1018,20 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                     schema, self.parser_version, is_backfill=backfill,
                 ))
 
+            n_raw_obs = len(observations)
+            groups_by_name = {p["name"]: p["group"] for p in wanted}
+            curated_groups = {pid: groups_by_name.get(name) for name, pid in discovered_ids.items()
+                              if groups_by_name.get(name)}
+            observations = reduce_port_observations(observations, curated_groups)
+            diagnostics["n_observations_before_reduction"] = n_raw_obs
+
             raw = [self._raw_record(f"{ep['service_url']}/{ep['layer_id']}/query", where, retrieved_at)]
             latest = max((o.observation_time for o in observations), default=None)
             status = SourceStatus.WARN if unresolved else SourceStatus.PASS
             return ConnectorResult(
                 source_id=self.source_id, status=status, observations=observations, raw=raw,
-                message=f"{len(observations)} observations; {len(unresolved)} unresolved ports: {sorted(unresolved)}",
+                message=(f"{len(observations)} observations (kuratierte Häfen + GLOBAL/Gruppen-Aggregate "
+                         f"aus {n_raw_obs} Rohbeobachtungen); {len(unresolved)} unresolved ports: {sorted(unresolved)}"),
                 latest_observation_time=latest,
                 discovered_ids={
                     "ports": discovered_ids, "unresolved_ports": unresolved,

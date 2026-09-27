@@ -436,14 +436,16 @@ def test_cargo_types_kept_separate_not_merged(tmp_path):
     cache_path = str(tmp_path / "portwatch_endpoints.json")
     connector = mw.PortWatchPortsConnector(http_fetch=fake_fetch, cache_path=cache_path)
     result = connector.fetch(NOW)
+    # Nicht kuratierte Fixture-Häfen werden nicht einzeln archiviert, fließen
+    # aber in das GLOBAL-Aggregat ein -- Cargo-Arten bleiben dort getrennt.
+    glob = [o for o in result.observations if o.entity_id == "GLOBAL"]
     metrics_for_first_date = {
-        o.metric for o in result.observations
-        if o.entity_id == "port_test" and o.observation_time.date().isoformat() == "2024-01-01"
+        o.metric for o in glob if o.observation_time.date().isoformat() == "2024-01-01"
     }
     assert {"portcalls_total", "import_total", "export_total", "portcalls_container"} <= metrics_for_first_date
-    # jede Cargo-Art bleibt eine eigene Beobachtung/Metrik, kein Summieren
-    container_obs = [o for o in result.observations if o.metric == "portcalls_container"]
-    total_obs = [o for o in result.observations if o.metric == "portcalls_total"]
+    # jede Cargo-Art bleibt eine eigene Beobachtung/Metrik, kein Summieren über Cargo-Arten
+    container_obs = [o for o in glob if o.metric == "portcalls_container"]
+    total_obs = [o for o in glob if o.metric == "portcalls_total"]
     assert len(container_obs) == len(total_obs) == 5
     assert container_obs[0].value != total_obs[0].value
 
@@ -544,3 +546,22 @@ def test_port_aliases_only_official_names_from_config():
     aliases = load_port_aliases(universe)
     assert aliases["Busan"] == ["Pusan"]
     assert "Qingdao" not in aliases   # mehrdeutig -> bewusst nicht gemappt
+
+
+def test_reduce_port_observations_keeps_curated_and_builds_aggregates():
+    from datetime import datetime, timezone
+    from modules.external.pit import Observation, AvailabilityPrecision
+    from modules.external.sources.maritime import reduce_port_observations
+    t = datetime(2026, 9, 1, tzinfo=timezone.utc)
+
+    def ob(pid, v):
+        return Observation("imf_portwatch_ports", "daily_ports", "portcalls", pid, "portcalls_total",
+                           v, "count", t, t, t, AvailabilityPrecision.CONSERVATIVE_DATE, "1", attrs={})
+
+    raw = [ob("p1", 10), ob("p2", 20), ob("p3", 30), ob("p4", None)]
+    out = reduce_port_observations(raw, {"p1": "NORTH_EUROPE", "p2": "NORTH_EUROPE"})
+    by_entity = {o.entity_id: o for o in out}
+    assert set(by_entity) == {"p1", "p2", "GLOBAL", "GROUP:NORTH_EUROPE"}   # p3/p4 nicht archiviert
+    assert by_entity["GLOBAL"].value == 60 and by_entity["GLOBAL"].attrs["n_ports"] == 3
+    assert by_entity["GROUP:NORTH_EUROPE"].value == 30
+    assert by_entity["p1"].attrs["group"] == "NORTH_EUROPE"
