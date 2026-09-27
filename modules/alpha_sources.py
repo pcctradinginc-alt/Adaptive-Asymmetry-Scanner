@@ -288,6 +288,15 @@ def get_earnings_date_finnhub(ticker: str) -> Optional[str]:
         return None
 
 
+def _earnings_buffer_days() -> int:
+    """risk.earnings_buffer_days aus config.yaml (vorher ignoriert, immer 7)."""
+    try:
+        from modules.config import cfg
+        return int(getattr(cfg.risk, "earnings_buffer_days", 7) or 7)
+    except Exception:
+        return 7
+
+
 def has_earnings_within_days(
     ticker:      str,
     buffer_days: int  = 7,
@@ -721,7 +730,7 @@ def enrich_with_alpha_sources(candidate: dict) -> dict:
         candidate["news"] = [insider_data["headline"]] + candidate["news"]
 
     # 3. Finnhub Earnings
-    has_earnings, earnings_date = has_earnings_within_days(ticker)
+    has_earnings, earnings_date = has_earnings_within_days(ticker, buffer_days=_earnings_buffer_days())
     alpha_signals["earnings_date"]     = earnings_date
     alpha_signals["has_near_earnings"] = has_earnings
     candidate["has_near_earnings"]     = has_earnings

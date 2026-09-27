@@ -76,8 +76,10 @@ class Prescreener:
 
     def __init__(self):
         self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        self.failed_tickers: list[str] = []
 
     def run(self, candidates: list[dict]) -> list[dict]:
+        self.failed_tickers = []
         if not candidates:
             return []
 
@@ -97,7 +99,10 @@ class Prescreener:
             results = self._call_with_retry(batch)
 
             if results is None:
+                # API-Ausfall ist KEIN "kein Signal": getrennt zählen, damit
+                # Report/Ledger das nicht als Bewertung missverstehen
                 log.warning(f"  Batch {batch_idx} fehlgeschlagen → übersprungen")
+                self.failed_tickers.extend(c.get("ticker") for c in batch)
                 continue
 
             yes_count = 0
@@ -129,9 +134,10 @@ class Prescreener:
                 else:
                     no_count += 1
 
+            n_decided = yes_count + no_count
             log.info(
                 f"  Batch {batch_idx}: {yes_count} YES, {no_count} NO "
-                f"({yes_count/(yes_count+no_count)*100:.0f}% YES-Rate)"
+                f"({(yes_count / n_decided * 100) if n_decided else 0:.0f}% YES-Rate)"
             )
 
         shortlist = []

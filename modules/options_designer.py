@@ -233,24 +233,27 @@ def compute_iv_rank(closes: list, term_points: list) -> float:
     return compute_iv_rank_components(closes, term_points)["combined"]
 
 
-def pick_spread_leg_strike(strikes, long_strike: float) -> Optional[float]:
+def pick_spread_leg_strike(strikes, long_strike: float, option_type: str = "call") -> Optional[float]:
     """
-    Reine Auswahlfunktion (P0-2 Refactor) für den Short-Leg-Strike eines
-    Spreads: gleiche Regel wie bisher in OptionsDesigner._find_spread_leg
-    (Strike-Fenster [1.05, 1.20] × long_strike, am nächsten zu 1.10× long_strike),
-    aber operiert auf einer einfachen Liste von Strikes statt einem
-    yfinance/Tradier-DataFrame — damit sie sowohl von der Produktion (über
-    _find_spread_leg) als auch vom Ledger-Counterfactual (real_strategy,
-    gleiche Chain) genutzt werden kann.
+    Reine Auswahlfunktion für den Short-Leg-Strike eines Debit-Spreads
+    (Produktion über _find_spread_leg und Ledger-Counterfactual):
+      - call (BULL_CALL_SPREAD): Short-Leg ÜBER dem Long-Strike,
+        Fenster [1.05, 1.20] × long_strike, Ziel 1.10×
+      - put  (BEAR_PUT_SPREAD):  Short-Leg UNTER dem Long-Strike,
+        Fenster [0.80, 0.95] × long_strike, Ziel 0.90× (spiegelbildlich).
+        Vorher galt das Call-Fenster auch für Puts -> der verkaufte Put lag
+        über dem gekauften, war teurer, net_debit negativ (Review 2026-09-27).
 
     Gibt None zurück, wenn kein Strike im Fenster liegt.
     """
     try:
-        lo, hi = long_strike * 1.05, long_strike * 1.20
+        if option_type == "put":
+            lo, hi, target = long_strike * 0.80, long_strike * 0.95, long_strike * 0.90
+        else:
+            lo, hi, target = long_strike * 1.05, long_strike * 1.20, long_strike * 1.10
         candidates = [float(s) for s in strikes if lo <= float(s) <= hi]
         if not candidates:
             return None
-        target = long_strike * 1.10
         return min(candidates, key=lambda s: abs(s - target))
     except Exception:
         return None
@@ -1070,13 +1073,16 @@ class OptionsDesigner:
             )
 
             if "SPREAD" in strategy:
-                spread_leg = self._find_spread_leg(opts, best["strike"])
+                spread_leg = self._find_spread_leg(opts, best["strike"],
+                                                   "call" if is_call else "put")
                 result["spread_leg"] = spread_leg
                 if spread_leg:
                     result["net_debit"] = round(
                         result["ask"] - spread_leg.get("bid", 0), 2
                     )
-                    if spread_leg.get("bid", 0) <= 0:
+                    # Debit-Spread muss Geld kosten; <= 0 heißt falscher Leg
+                    # oder kaputte Quotes -> kein Spread (Fallback Long-Leg)
+                    if spread_leg.get("bid", 0) <= 0 or result["net_debit"] <= 0:
                         log.debug(f"  [{ticker}] Short-Leg hat keine Liquidität → kein Spread")
                         result.pop("spread_leg", None)
                         result.pop("net_debit", None)
@@ -1144,13 +1150,16 @@ class OptionsDesigner:
             }
 
             if "SPREAD" in strategy:
-                spread_leg = self._find_spread_leg(opts, best["strike"])
+                spread_leg = self._find_spread_leg(opts, best["strike"],
+                                                   "call" if is_call else "put")
                 result["spread_leg"] = spread_leg
                 if spread_leg:
                     result["net_debit"] = round(
                         result["ask"] - spread_leg.get("bid", 0), 2
                     )
-                    if spread_leg.get("bid", 0) <= 0:
+                    # Debit-Spread muss Geld kosten; <= 0 heißt falscher Leg
+                    # oder kaputte Quotes -> kein Spread (Fallback Long-Leg)
+                    if spread_leg.get("bid", 0) <= 0 or result["net_debit"] <= 0:
                         log.debug(f"  [{ticker}] Short-Leg hat keine Liquidität → kein Spread")
                         result.pop("spread_leg", None)
                         result.pop("net_debit", None)
@@ -1161,8 +1170,9 @@ class OptionsDesigner:
             log.debug(f"yfinance _find_option [{ticker}] {dte_min}-{dte_max}d: {e}")
             return None
 
-    def _find_spread_leg(self, opts: pd.DataFrame, long_strike: float) -> Optional[dict]:
-        target_strike = pick_spread_leg_strike(opts["strike"].tolist(), long_strike)
+    def _find_spread_leg(self, opts: pd.DataFrame, long_strike: float,
+                         option_type: str = "call") -> Optional[dict]:
+        target_strike = pick_spread_leg_strike(opts["strike"].tolist(), long_strike, option_type)
         if target_strike is None:
             return None
         idx = (opts["strike"] - target_strike).abs().idxmin()

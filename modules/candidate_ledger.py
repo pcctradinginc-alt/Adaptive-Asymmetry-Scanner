@@ -802,6 +802,8 @@ def _build_real_strategy(
                 long_mid, short_mid = long_leg.get("mid"), short_leg.get("mid")
                 if long_ask is not None and short_bid is not None:
                     row["net_debit_entry"] = round(long_ask - short_bid, 4)
+                    if row["net_debit_entry"] <= 0:
+                        row["invalid_reason"] = "non_positive_net_debit"
                 if long_mid is not None and short_mid is not None:
                     row["net_mid_entry"] = round(long_mid - short_mid, 4)
 
@@ -1713,7 +1715,10 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
 
             net_debit_entry = rs.get("net_debit_entry")
             net_mid_entry   = rs.get("net_mid_entry")
-            if net_debit_entry in (None, 0) or net_mid_entry in (None, 0):
+            # Debit-Spread: Einstieg muss positiv sein; <= 0 (falsches Short-Leg,
+            # kaputte Quotes) ergäbe sinnlose Renditen (nichtneg./negativ - 1)
+            if net_debit_entry is None or net_mid_entry is None \
+                    or net_debit_entry <= 0 or net_mid_entry <= 0:
                 continue
 
             expiry_dt = _parse_date(rs.get("expiry") or "")

@@ -76,4 +76,9 @@ jobs:
           git add outputs/
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: daily report $(date +%Y-%m-%d)"
+          # Rebase wie alle anderen Workflows: sonst scheitert der Push, wenn
+          # während des Laufs ein anderer Workflow auf main committet hat, und
+          # history.json des Tages ginge verloren (Review 2026-09-27)
+          git stash --include-untracked || true
+          git pull --rebase origin main
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main

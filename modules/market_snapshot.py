@@ -577,8 +577,8 @@ def select_spread_short_leg(
     P0-2 (candidate_ledger real_strategy): wählt den Short-Leg eines Spreads
     aus DERSELBEN Chain/Expiry wie der bereits gewählte Long-Leg — über
     genau dieselbe Auswahlregel wie die Produktion
-    (options_designer.pick_spread_leg_strike: Fenster [1.05, 1.20]×long_strike,
-    Ziel 1.10×long_strike). Gibt None zurück (nie einen Fehler), wenn kein
+    (options_designer.pick_spread_leg_strike: call [1.05, 1.20]×, put
+    [0.80, 0.95]× long_strike). Gibt None zurück (nie einen Fehler), wenn kein
     TRADIER_API_KEY, keine Expiry/Chain oder kein Kontrakt im Fenster liegt.
     """
     try:
@@ -594,7 +594,7 @@ def select_spread_short_leg(
         from modules.options_designer import pick_spread_leg_strike
 
         strikes = [float(o.get("strike", 0)) for o in candidates]
-        target_strike = pick_spread_leg_strike(strikes, float(long_strike))
+        target_strike = pick_spread_leg_strike(strikes, float(long_strike), option_type)
         if target_strike is None:
             return None
 
