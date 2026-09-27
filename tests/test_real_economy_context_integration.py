@@ -46,7 +46,10 @@ NOW = datetime(2026, 8, 1, tzinfo=UTC)
 # Ausreißer (Hard Data schwächer) -> hard_z < survey_z -> divergence_z < 0.
 ESI_VALUES = [100.0] * 9 + [110.0]
 ICI_VALUES = [0.0] * 9 + [8.0]
-PRODUCTION_VALUES = [100.0] * 9 + [90.0]
+# Produktion: 22 Monate (ab 2024-11), damit die Vorjahresrate >= 5 Punkte hat
+# (hard_z wird auf der YoY-Rate berechnet, nicht auf dem Indexniveau).
+PRODUCTION_VALUES = [100.0] * 21 + [90.0]
+PRODUCTION_START = dict(start_year=2024, start_month=11)
 
 
 def _seed_eu_real_economy(archive: ExternalArchive):
@@ -54,7 +57,7 @@ def _seed_eu_real_economy(archive: ExternalArchive):
     obs += _monthly("eurostat_sentiment", "esi", ESI_VALUES, "EU27_2020")
     obs += _monthly("eurostat_sentiment", "industrial_confidence", ICI_VALUES, "EU27_2020")
     obs += _monthly("eurostat_industrial_production", "production_volume_index",
-                     PRODUCTION_VALUES, "EU27_2020")
+                     PRODUCTION_VALUES, "EU27_2020", **PRODUCTION_START)
     archive.store_observations(obs)
 
 
@@ -112,7 +115,7 @@ def test_hard_data_vs_survey_divergence_reason_missing_hard_data_only(tmp_path):
 def test_hard_data_vs_survey_divergence_reason_missing_survey_data_only(tmp_path):
     archive = ExternalArchive(root=tmp_path)
     archive.store_observations(_monthly(
-        "eurostat_industrial_production", "production_volume_index", PRODUCTION_VALUES, "EU27_2020"))
+        "eurostat_industrial_production", "production_volume_index", PRODUCTION_VALUES, "EU27_2020", **PRODUCTION_START))
 
     snap = ctxmod.build_external_context(NOW, archive=archive)
     assert snap["primitives"]["hard_data_vs_survey_divergence"] is None
@@ -129,7 +132,7 @@ def test_eu_hard_z_blends_industrial_production_with_road_freight_when_present(t
     obs = []
     obs += _monthly("eurostat_sentiment", "esi", ESI_VALUES, "EU27_2020")
     obs += _monthly("eurostat_industrial_production", "production_volume_index",
-                     PRODUCTION_VALUES, "EU27_2020")
+                     PRODUCTION_VALUES, "EU27_2020", **PRODUCTION_START)
     # Jahresreihe (12 Jahre) für eurostat_road_freight/EU27_2020, wie vom
     # bestehenden road_freight-Feature-Fenster (365*12 Tage) erwartet.
     road_values = [1000.0, 1010.0, 995.0, 1005.0, 1002.0, 998.0,
@@ -149,7 +152,7 @@ def test_real_economy_us_block_from_fred_observations(tmp_path):
     archive = ExternalArchive(root=tmp_path)
     obs = []
     obs += _monthly("fred_us_macro", "us_umcsent", [70.0] * 9 + [80.0], "US")
-    obs += _monthly("fred_us_macro", "us_indpro", [100.0] * 9 + [92.0], "US")
+    obs += _monthly("fred_us_macro", "us_indpro", [100.0] * 21 + [92.0], "US", **PRODUCTION_START)
     archive.store_observations(obs)
 
     snap = ctxmod.build_external_context(NOW, archive=archive)

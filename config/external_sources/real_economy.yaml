@@ -97,6 +97,8 @@ sources:
     access_method: "fred_alfred_api"
     requires_auth: true
     auth_env_variable: "FRED_API_KEY"
+    # optional: ohne Key bleibt die Quelle AUTH_MISSING, aber ohne Alert-Mail
+    auth_optional: true
     license_reference: "FRED/ALFRED Terms of Use"
     commercial_use_status_if_known: "FRED ToU beachten (überwiegend frei mit Quellenangabe)"
     frequency: monthly

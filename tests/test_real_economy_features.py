@@ -95,12 +95,14 @@ def test_eu_survey_z_uses_only_available_component():
 # ---------------------------------------------------------------------------
 
 def test_industrial_production_z_and_3m_momentum():
-    values = [100.0, 100.5, 101.0, 101.5, 102.0, 102.5, 103.0, 103.5, 104.0, 110.0]
+    # stetiger Trend (+0.5/Monat) und zuletzt ein Sprung: die Vorjahresrate
+    # springt, obwohl ein Niveau-Z schon wegen des Trends hoch wäre.
+    values = [100.0 + 0.5 * i for i in range(21)] + [120.0]
     obs = _monthly_series("eurostat_industrial_production", "production_volume_index", values)
     z = ref.industrial_production_z(obs)
     mom = ref.industrial_production_3m_momentum(obs)
     assert z is not None and z > 1.0
-    assert mom == pytest.approx((110.0 - 103.0) / 103.0)
+    assert mom == pytest.approx((120.0 - values[18]) / values[18])
 
 
 def test_industrial_production_3m_momentum_none_with_short_history():
@@ -116,7 +118,7 @@ def test_us_survey_and_hard_z_and_momentum():
     umcsent = _monthly_series("fred_us_macro", "us_umcsent",
                                [70.0] * 9 + [80.0], entity_id="US")
     indpro = _monthly_series("fred_us_macro", "us_indpro",
-                              [100.0] * 9 + [90.0], entity_id="US")
+                              [100.0] * 21 + [90.0], entity_id="US")
     obs = umcsent + indpro
     survey_z = ref.us_survey_z(obs)
     hard_z = ref.us_hard_z(obs)

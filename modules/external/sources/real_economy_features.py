@@ -52,6 +52,23 @@ def _z_latest(series: list, window_days: int) -> float | None:
     return z[-1] if z else None
 
 
+def _yoy_series(series: list) -> list:
+    """Vorjahresänderung (%) je Monat, datumsbasiert (gleicher Monat des
+    Vorjahres; fehlt er, entfällt der Punkt). Ein Produktionsindex hat einen
+    Trend -- sein Niveau-Z misst vor allem den Trend, nicht die Konjunktur.
+    Umfragesalden (ESI, Konsumklima) sind dagegen um ihr Mittel stationär.
+    Vergleichbar werden beide erst, wenn Hard Data als Wachstumsrate
+    eingeht."""
+    by_month = {(t.year, t.month): v for t, v in series}
+    out = []
+    for t, v in series:
+        prev = by_month.get((t.year - 1, t.month))
+        if prev in (None, 0):
+            continue
+        out.append((t, (v - prev) / abs(prev)))
+    return out
+
+
 def _momentum_3m(series: list) -> float | None:
     """3-Monats-Momentum: prozentuale Änderung ggü. dem Wert 3 vollständige
     Beobachtungen (Monate) zuvor (indexbasiert -- monatliche Serien sind
@@ -107,9 +124,10 @@ def eu_survey_z(observations: Iterable[Observation], entity_id: str = "EU27_2020
 
 def industrial_production_z(observations: Iterable[Observation], entity_id: str = "EU27_2020",
                              window_days: int = WINDOW_5Y_DAYS) -> float | None:
+    """Z der Vorjahresrate (nicht des Indexniveaus, siehe _yoy_series)."""
     s = _series(observations, source_id="eurostat_industrial_production",
                 metric="production_volume_index", entity_id=entity_id)
-    return _z_latest(s, window_days)
+    return _z_latest(_yoy_series(s), window_days)
 
 
 def industrial_production_3m_momentum(observations: Iterable[Observation],
@@ -135,8 +153,9 @@ def us_survey_3m_momentum(observations: Iterable[Observation]) -> float | None:
 
 
 def us_hard_z(observations: Iterable[Observation], window_days: int = WINDOW_5Y_DAYS) -> float | None:
+    """Z der Vorjahresrate (nicht des Indexniveaus, siehe _yoy_series)."""
     s = _series(observations, source_id="fred_us_macro", metric="us_indpro")
-    return _z_latest(s, window_days)
+    return _z_latest(_yoy_series(s), window_days)
 
 
 def us_hard_3m_momentum(observations: Iterable[Observation]) -> float | None:
