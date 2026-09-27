@@ -1,0 +1,28 @@
+{
+  "features": [
+    {
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.example1",
+        "event": "Winter Storm Warning",
+        "severity": "Severe",
+        "onset": "2024-01-01T06:00:00-05:00",
+        "expires": "2024-01-02T06:00:00-05:00",
+        "sent": "2024-01-01T00:00:00-05:00",
+        "areaDesc": "Queens; Kings (Brooklyn)",
+        "geocode": {"UGC": ["NYZ072", "NYZ178"], "SAME": ["36081"]}
+      }
+    },
+    {
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.example2",
+        "event": "Flood Watch",
+        "severity": "Moderate",
+        "onset": "2024-01-01T06:00:00-05:00",
+        "expires": "2024-01-02T06:00:00-05:00",
+        "sent": "2024-01-01T00:00:00-05:00",
+        "areaDesc": "Queens",
+        "geocode": {"UGC": ["NYZ072"], "SAME": ["36081"]}
+      }
+    }
+  ]
+}

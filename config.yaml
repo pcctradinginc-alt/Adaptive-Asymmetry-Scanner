@@ -162,7 +162,13 @@ external_context:
   mode: shadow            # off | shadow | challenger | production
   road_freight: {enabled: true}
   maritime: {enabled: true}
-  weather: {enabled: true}
+  weather:
+    enabled: true
+    # Erforderlicher NWS-API-Kontakt (api.weather.gov verlangt einen
+    # identifizierenden User-Agent). VERIFY: README enthält aktuell keinen
+    # offiziellen Kontakt; vor Produktion durch eine echte, erreichbare
+    # Adresse/URL des Betreibers ersetzen.
+    user_agent_contact: "research@adaptive-asymmetry-scanner.local"
   archive:
     root: outputs/external_data
     raw_payload_policy: hash_only    # hash_only (Default) | gzip

@@ -1,0 +1,71 @@
+# config/weather_exposures.yaml
+#
+# Exposure-Hierarchie für Wetter-Features je Ticker:
+#   1. ticker_overrides (dieses File)      – höchste Priorität
+#   2. industry-Zuordnung (config/industry_exposure.yaml)
+#   3. sector-Fallback (config/industry_exposure.yaml)
+#   4. unknown -> Exposure ist None (NIE 0; "kein bekanntes Exposure" ist
+#      etwas anderes als "kein Wetter-Impact")
+#
+# Ticker-Overrides werden NUR für Firmen gepflegt, deren operative Fussabdruck
+# öffentlich bekannt und unkontrovers ist (Hub-Airports, benannte Mega-Hubs).
+# HQ-Standorte werden NIEMALS als Exposure-Region verwendet — ein Override ohne
+# belastbare "source/rationale" wird nicht aufgenommen.
+
+ticker_overrides:
+  DAL:
+    name: "Delta Air Lines"
+    exposure_type: airline_hub
+    hub_codes: [ATL, MSP, DTW, JFK, LAX, SEA, BOS]
+    source: "Delta 10-K 'Properties'/hub disclosures; ATL/MSP/DTW/JFK/LAX/SEA/BOS are Delta's publicly disclosed primary hubs"
+    rationale: "Largest scheduled-hub carrier disclosures; SLC omitted here pending airport-code confirmation (see verify list)"
+
+  UAL:
+    name: "United Airlines Holdings"
+    exposure_type: airline_hub
+    hub_codes: [ORD, DEN, IAH, EWR, SFO, LAX]
+    source: "United 10-K 'Properties'/hub disclosures (ORD/DEN/IAH/EWR/SFO/LAX; IAD is a joint-use hub, tracked separately, not in weather_locations.yaml curated list)"
+    rationale: "Publicly disclosed United hub network"
+
+  AAL:
+    name: "American Airlines Group"
+    exposure_type: airline_hub
+    hub_codes: [DFW, CLT, ORD, MIA, PHX, PHL, LAX, JFK]
+    source: "American 10-K 'Properties'/hub disclosures (DFW/CLT/ORD/MIA/PHX/PHL/LAX/JFK; DCA is a joint-use hub, not in curated airport list)"
+    rationale: "Publicly disclosed American hub network"
+
+  LUV:
+    name: "Southwest Airlines"
+    exposure_type: airline_hub
+    # Southwest ist point-to-point, keine klassischen Hubs; wir verwenden die
+    # publizierten größten Basen, die in der kuratierten Liste existieren,
+    # statt eine vollständige eigene Netzliste zu pflegen.
+    hub_codes: [LAS, MCO, PHX]
+    source: "Southwest 10-K 'Properties' (largest bases by departures); point-to-point model, no traditional hubs"
+    rationale: >
+      Southwest's network is point-to-point; exposure is spread across many
+      stations. LAS, MCO and PHX are publicly among Southwest's largest
+      bases and overlap with our curated airline_hubs list; treated as a
+      conservative partial exposure set, not an exhaustive network. VERIFY:
+      recompute against Southwest's latest 10-K before production use.
+
+  FDX:
+    name: "FedEx"
+    exposure_type: logistics_hub
+    hub_codes: [MEM_FDX]
+    source: "FedEx Express global superhub disclosures (Memphis World Hub)"
+    rationale: "Memphis is FedEx's publicly disclosed primary global air superhub"
+
+  UPS:
+    name: "United Parcel Service"
+    exposure_type: logistics_hub
+    hub_codes: [SDF_UPS]
+    source: "UPS Worldport (Louisville) disclosures"
+    rationale: "Louisville Worldport is UPS's publicly disclosed primary global air hub"
+
+notes: >
+  hub_codes reference codes defined in config/weather_locations.yaml
+  (airline_hubs / logistics_hubs sections). weather.py must ignore any
+  hub_code it cannot resolve in weather_locations.yaml rather than raising,
+  per the "missing -> None" policy, and never fall back to a ticker's HQ
+  location as an exposure region.

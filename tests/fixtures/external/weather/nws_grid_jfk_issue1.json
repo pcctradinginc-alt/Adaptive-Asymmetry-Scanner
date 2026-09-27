@@ -1,0 +1,66 @@
+{
+  "properties": {
+    "updateTime": "2024-01-01T09:00:00+00:00",
+    "validTimes": "2024-01-01T06:00:00+00:00/P7DT18H",
+    "temperature": {
+      "uom": "wmoUnit:degC",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 0.0},
+        {"validTime": "2024-01-01T13:00:00+00:00/PT1H", "value": 1.0},
+        {"validTime": "2024-01-01T14:00:00+00:00/PT1H", "value": 2.0}
+      ]
+    },
+    "maxTemperature": {
+      "uom": "wmoUnit:degC",
+      "values": [
+        {"validTime": "2024-01-01T00:00:00+00:00/P1D", "value": 3.0}
+      ]
+    },
+    "minTemperature": {
+      "uom": "wmoUnit:degC",
+      "values": [
+        {"validTime": "2024-01-01T00:00:00+00:00/P1D", "value": -2.0}
+      ]
+    },
+    "probabilityOfPrecipitation": {
+      "uom": "wmoUnit:percent",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 40},
+        {"validTime": "2024-01-01T13:00:00+00:00/PT1H", "value": 60}
+      ]
+    },
+    "quantitativePrecipitation": {
+      "uom": "wmoUnit:mm",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 1.0},
+        {"validTime": "2024-01-01T13:00:00+00:00/PT1H", "value": 2.0}
+      ]
+    },
+    "snowfallAmount": {
+      "uom": "wmoUnit:mm",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 0.0},
+        {"validTime": "2024-01-01T13:00:00+00:00/PT1H", "value": null}
+      ]
+    },
+    "iceAccumulation": {
+      "uom": "wmoUnit:mm",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 0.0}
+      ]
+    },
+    "windSpeed": {
+      "uom": "wmoUnit:km_h-1",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 10.0},
+        {"validTime": "2024-01-01T13:00:00+00:00/PT1H", "value": 20.0}
+      ]
+    },
+    "windGust": {
+      "uom": "wmoUnit:km_h-1",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 15.0}
+      ]
+    }
+  }
+}
