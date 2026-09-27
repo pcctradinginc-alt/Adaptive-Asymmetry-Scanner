@@ -31,6 +31,17 @@ from modules.config import cfg
 log = logging.getLogger(__name__)
 
 
+def _external_context_html() -> str:
+    """Kompakter 'Externer Kontext'-Block (siehe modules/external/reporting.py).
+    Darf die Mail nie zum Absturz bringen — guarded try/except."""
+    try:
+        from modules.external.reporting import build_compact_context, render_html_block
+        return render_html_block(build_compact_context())
+    except Exception as e:
+        log.debug(f"_external_context_html Fehler (ignoriert): {e}")
+        return ""
+
+
 def send_status_email(pipeline_stats: dict, today: str, health: dict | None = None) -> None:
     trades  = pipeline_stats.get("trades", 0)
     subject = (
@@ -213,6 +224,7 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
   </div>
   <div style="padding:24px 32px;">
     <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">{rows}</table>
+    {_external_context_html()}
   </div>{health_html}
   <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
     Adaptive Asymmetry-Scanner v8.3 &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
@@ -539,7 +551,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Trade Empfehlung — {len(proposals)} Signal(e)</div>
     <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; v8.3</div>
   </div>
-  <div style="padding:24px 32px;">{cards}</div>
+  <div style="padding:24px 32px;">{cards}{_external_context_html()}</div>
 </div></body></html>"""
 
 

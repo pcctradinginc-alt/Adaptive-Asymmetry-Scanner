@@ -335,6 +335,177 @@ def _check_learn_loop_sanity(
     return metrics
 
 
+# ── e) Externer Kontext: Lern-Health (nur Warnungen, keine Gates) ────────────
+# Reine Observability über den externen Real-Economy-Kontext (siehe
+# modules/external/). Ändert nichts an mode=shadow/production, keine Gates.
+
+EXTERNAL_PRIMITIVES_FOR_MISSINGNESS = (
+    "freight_global_z", "us_freight_tsi_z", "shipping_global_z",
+    "suez_z", "panama_z", "hormuz_z", "malacca_z", "bab_el_mandeb_z",
+    "weather_disruption_index",
+)
+EXTERNAL_MISSING_RATIO_WARN = 0.80
+EXTERNAL_TINY_EFFECTIVE_N   = 10
+
+
+def _external_ledger_rows_last_30d(today: date) -> list[dict]:
+    """Lädt Candidate-Ledger-Zeilen der letzten 30 Kalendertage (read-only,
+    über modules.challenger.load_ledger_rows). Nie ein Fehler nach außen."""
+    try:
+        from modules.challenger import load_ledger_rows
+        cutoff = today - timedelta(days=30)
+        rows = load_ledger_rows()
+        out = []
+        for r in rows:
+            d = _parse_date(r.get("date"))
+            if d is not None and d >= cutoff:
+                out.append(r)
+        return out
+    except Exception:
+        return []
+
+
+def _check_external_missingness(rows: list[dict], warnings: list[str]) -> dict:
+    """Primitive, die über 30 Tage konstant ODER >80% missing sind."""
+    result: dict[str, dict] = {}
+    ext_rows = [r for r in rows if isinstance(r.get("external"), dict)]
+    if not ext_rows:
+        return result
+    for prim in EXTERNAL_PRIMITIVES_FOR_MISSINGNESS:
+        values = []
+        n_total = len(ext_rows)
+        for r in ext_rows:
+            v = ((r.get("external") or {}).get("primitives") or {}).get(prim)
+            values.append(v)
+        present = [v for v in values if v is not None]
+        missing_ratio = 1 - (len(present) / n_total) if n_total else 1.0
+        is_constant = len(present) >= 2 and len(set(present)) == 1
+        result[prim] = {"missing_ratio": round(missing_ratio, 3), "constant": is_constant,
+                         "n": n_total}
+        if missing_ratio > EXTERNAL_MISSING_RATIO_WARN:
+            warnings.append(
+                f"Externes Primitiv '{prim}' ist über die letzten 30 Ledger-Tage zu "
+                f"{missing_ratio:.0%} missing (>{EXTERNAL_MISSING_RATIO_WARN:.0%}-Schwelle)."
+            )
+        elif is_constant:
+            warnings.append(
+                f"Externes Primitiv '{prim}' ist über die letzten 30 Ledger-Tage konstant "
+                f"({present[0]!r}) — evtl. Quelle eingefroren/gestuckt."
+            )
+    return result
+
+
+def _check_stale_high_criticality_sources(warnings: list[str]) -> dict:
+    """Liest health/source_health.json (falls vorhanden) und warnt bei
+    STALE-Status hoher Kritikalität. Fehlende Datei/Registry → kein Fehler."""
+    try:
+        from modules.config import cfg as _cfg
+        archive_root = getattr(
+            getattr(getattr(_cfg, "external_context", None), "archive", None),
+            "root", "outputs/external_data",
+        )
+        from modules.external.registry import load_health, load_source_configs
+        health = load_health(archive_root)
+        sources = load_source_configs()
+    except Exception:
+        return {}
+
+    stale_high = []
+    for source_id, h in (health or {}).items():
+        src_cfg = sources.get(source_id) or {}
+        criticality = h.get("criticality") or src_cfg.get("criticality", "low")
+        if criticality == "high" and h.get("staleness") == "STALE":
+            stale_high.append(source_id)
+    if stale_high:
+        warnings.append(
+            f"{len(stale_high)} hoch-kritische externe Quelle(n) sind STALE: "
+            f"{', '.join(sorted(stale_high))}."
+        )
+    return {"stale_high_criticality": stale_high}
+
+
+def _check_feature_stats_external_reliability(history: dict, rows: list[dict],
+                                                warnings: list[str]) -> dict:
+    """Warnt, wenn feature_stats_external-Buckets mit sehr kleinem
+    effective_n dennoch im Monats-Report als belastbar erscheinen könnten
+    (nur ein Hinweis, kein Gate)."""
+    stats_ext = history.get("feature_stats_external") or {}
+    tiny: list[str] = []
+    try:
+        from modules.external.research import analyze_external_buckets
+        buckets = analyze_external_buckets(rows) if rows else {}
+    except Exception:
+        buckets = {}
+    for dim, values in stats_ext.items():
+        if not isinstance(values, dict):
+            continue
+        for key, b in values.items():
+            count = int(b.get("count", 0)) if isinstance(b, dict) else 0
+            eff_n = None
+            group_stats = (buckets.get(dim) or {}).get(str(key)) if buckets else None
+            if isinstance(group_stats, dict):
+                eff_n = group_stats.get("effective_n")
+            if count > 0 and (eff_n is not None and eff_n < EXTERNAL_TINY_EFFECTIVE_N):
+                tiny.append(f"{dim}={key} (effective_n={eff_n:.1f})")
+    if tiny:
+        warnings.append(
+            f"feature_stats_external: {len(tiny)} Bucket(s) mit sehr kleinem "
+            f"effective_n (<{EXTERNAL_TINY_EFFECTIVE_N}) werden im Report angezeigt — "
+            f"Vorsicht bei der Interpretation: {', '.join(tiny[:5])}."
+        )
+    return {"tiny_effective_n_buckets": tiny}
+
+
+def _check_promoted_external_dominance(warnings: list[str]) -> dict:
+    """Placeholder-Check: sind externe Features promotet (learning.
+    promoted_external_features nicht leer) UND macht eine davon >50% des
+    model_weights-Gewichts aus? (Platzhalter — model_weights enthält heute
+    keine externen Features; wird relevant, sobald eine Promotion erfolgt.)"""
+    try:
+        from modules.config import cfg as _cfg
+        learning = getattr(getattr(_cfg, "external_context", None), "learning", None)
+        promoted = list(getattr(learning, "promoted_external_features", []) or [])
+    except Exception:
+        promoted = []
+    if not promoted:
+        return {"promoted_external_features": []}
+    warnings.append(
+        f"{len(promoted)} externe Feature(s) sind promotet "
+        f"({', '.join(promoted)}) — Gewichtsanteil im Lern-Loop manuell prüfen "
+        f"(automatischer Dominanz-Check greift erst, sobald model_weights "
+        f"externe Features führt)."
+    )
+    return {"promoted_external_features": promoted}
+
+
+def _check_external_health(history: dict, today: date, warnings: list[str]) -> dict:
+    """Baut metrics['external'] — reine Warnungen, kein Gate, kein Netzwerk,
+    kein Schreibzugriff. Jede Sub-Prüfung ist einzeln try/except-geschützt."""
+    metrics: dict = {}
+    try:
+        rows = _external_ledger_rows_last_30d(today)
+    except Exception:
+        rows = []
+    try:
+        metrics["missingness"] = _check_external_missingness(rows, warnings)
+    except Exception as e:
+        log.debug(f"engine_monitor: external missingness Fehler (ignoriert): {e}")
+    try:
+        metrics["source_health"] = _check_stale_high_criticality_sources(warnings)
+    except Exception as e:
+        log.debug(f"engine_monitor: external source_health Fehler (ignoriert): {e}")
+    try:
+        metrics["feature_stats_external"] = _check_feature_stats_external_reliability(
+            history, rows, warnings)
+    except Exception as e:
+        log.debug(f"engine_monitor: external feature_stats Fehler (ignoriert): {e}")
+    try:
+        metrics["promoted_dominance"] = _check_promoted_external_dominance(warnings)
+    except Exception as e:
+        log.debug(f"engine_monitor: external promoted-dominance Fehler (ignoriert): {e}")
+    return metrics
+
+
 # ── d) Data-Health ────────────────────────────────────────────────────────────
 
 def _check_data_health(reports_dir: Path, today: date, warnings: list[str]) -> None:
@@ -392,6 +563,7 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
 
     learn_loop_metrics = _check_learn_loop_sanity(history, today, close_after_days, warnings)
     _check_data_health(reports_dir, today, warnings)
+    external_metrics = _check_external_health(history, today, warnings)
 
     return {
         "status":   "WARN" if warnings else "OK",
@@ -400,6 +572,7 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
             "duerre":          duerre,
             "parallel_tests":  parallel_tests,
             "learn_loop":      learn_loop_metrics,
+            "external":        external_metrics,
         },
     }
 

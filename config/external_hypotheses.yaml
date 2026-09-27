@@ -1,0 +1,355 @@
+# config/external_hypotheses.yaml
+#
+# Katalog vorregistrierter Forschungsfragen (H1–H12) über den externen
+# Real-Economy-Kontext (Road/Maritime Freight, Weather, siehe modules/external/).
+#
+# WICHTIG:
+#   - Dieser Katalog wird NUR von modules/external/research.py gelesen (aus
+#     backtest_thresholds.py / dem Hypothesen-Generator-Pfad des Monats-
+#     Reports), NIEMALS aus der Produktions-Pipeline.
+#   - Jede Zeile hier ist eine Freitext-Mechanismus-Hypothese + eine
+#     retrospektive/in-sample Analyse-Regel. Ein Treffer aus research.py ist
+#     NIEMALS promotion-fähig — die einzige zulässige Konsequenz ist ein
+#     challengers.yaml-Snippet mit prospektivem start_date > heute, das ein
+#     Mensch selbst einfügt (siehe README "External Context").
+#   - Konkurrierende Hypothesen (z.B. H1A vs. H1B) decken BEIDE Richtungen
+#     desselben Features ab — der Generator schlägt nie nur eine Richtung vor.
+#   - `feature` gruppiert den Thresholds-Zähler (max. 2 Vorschläge je Feature
+#     und Monat, siehe research.py MAX_THRESHOLDS_PER_FEATURE).
+#   - `challenger_rule`/`baseline_rule` sind AND-verknüpfte Listen von
+#     {field, op, value} — dieselbe Mini-DSL wie in challengers.yaml/
+#     modules/challenger.py, angewandt auf Candidate-Ledger-Zeilen
+#     (row["external"] = externer Kontext, row["catalyst"]/row["direction"] =
+#     Signal-Metadaten).
+
+hypotheses:
+
+  # ── H1: Road-Freight-Zustand × Industrials/Trucking ────────────────────────
+  - id: H1A
+    feature: freight_state
+    mechanism: >
+      Road-Freight-Expansion (global_freight_state EXPANSION/STRONG_EXPANSION)
+      geht realer Nachfrage-Beschleunigung voraus, bevor sie sich in offiziellen
+      Earnings zeigt — Katalysatoren bei Road-Freight-relevanten Tickern
+      (Industrials/Trucking/Machinery) sollten in einer Freight-Expansion
+      überdurchschnittlich performen (Hard-Data-Tailwind).
+    eligible_relevance: {field: road_freight_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.states.global_freight_state", op: "in", value: ["EXPANSION", "STRONG_EXPANSION"]}
+    baseline_rule:
+      - {field: "external.states.global_freight_state", op: "in", value: ["NEUTRAL"]}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  - id: H1B
+    feature: freight_state
+    mechanism: >
+      Gegenhypothese zu H1A: Road-Freight-Kontraktion (CONTRACTION/
+      STRONG_CONTRACTION) geht realer Nachfrage-Schwäche voraus — Katalysatoren
+      bei Road-Freight-relevanten Tickern sollten in einer Freight-Kontraktion
+      unterdurchschnittlich performen.
+    eligible_relevance: {field: road_freight_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.states.global_freight_state", op: "in", value: ["CONTRACTION", "STRONG_CONTRACTION"]}
+    baseline_rule:
+      - {field: "external.states.global_freight_state", op: "in", value: ["NEUTRAL"]}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H2: Maritime-Zustand × Retail/Consumer Discretionary ───────────────────
+  - id: H2A
+    feature: maritime_state
+    mechanism: >
+      Globale Maritime-Expansion (Container-/Trockenfracht-Volumina hoch)
+      signalisiert Lagerauffüllung entlang der Lieferkette — Katalysatoren bei
+      maritime-relevanten Retail-/Consumer-Discretionary-Tickern sollten in
+      einer Maritime-Expansion überdurchschnittlich performen.
+    eligible_relevance: {field: maritime_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.states.global_maritime_state", op: "in", value: ["EXPANSION", "STRONG_EXPANSION"]}
+    baseline_rule:
+      - {field: "external.states.global_maritime_state", op: "in", value: ["NEUTRAL"]}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  - id: H2B
+    feature: maritime_state
+    mechanism: >
+      Gegenhypothese zu H2A: Maritime-Kontraktion signalisiert Lagerabbau/
+      schwache Nachfrage entlang der Lieferkette — Katalysatoren bei
+      maritime-relevanten Tickern sollten in einer Maritime-Kontraktion
+      unterdurchschnittlich performen.
+    eligible_relevance: {field: maritime_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.states.global_maritime_state", op: "in", value: ["CONTRACTION", "STRONG_CONTRACTION"]}
+    baseline_rule:
+      - {field: "external.states.global_maritime_state", op: "in", value: ["NEUTRAL"]}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H3: Chokepoint-Anomalie × Energy/Shipping vs. JIT-Retail ────────────────
+  - id: H3A
+    feature: chokepoint_anomaly
+    mechanism: >
+      Eine starke Chokepoint-Anomalie (|z| >= 2 an Suez/Panama/Hormuz/Bab
+      el-Mandeb) treibt Frachtraten/Energiepreise hoch — Katalysatoren bei
+      Energy-/Shipping-Tickern mit hoher maritime_relevance sollten davon
+      überdurchschnittlich profitieren (Preissetzungsmacht bei Verknappung).
+    eligible_relevance: {field: maritime_relevance, min: HIGH}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.suez_z", op: ">=", value: 2}
+    baseline_rule:
+      - {field: "external.primitives.suez_z", op: "<", value: 1}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  - id: H3B
+    feature: chokepoint_anomaly
+    mechanism: >
+      Gegenhypothese: dieselbe Chokepoint-Anomalie (|z| >= 2) verteuert/
+      verzögert Vorprodukte für Just-in-Time-abhängige Retail-/Consumer-
+      Ticker — Katalysatoren dort sollten bei einer Anomalie unterdurch-
+      schnittlich performen (Kosten-/Verzögerungsdruck statt Preissetzungsmacht).
+    eligible_relevance: {field: maritime_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.suez_z", op: ">=", value: 2}
+    baseline_rule:
+      - {field: "external.primitives.suez_z", op: "<", value: 1}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H4: Wetter-Disruption × Energy/Utilities vs. Transportation ────────────
+  - id: H4A
+    feature: weather_disruption
+    mechanism: >
+      Hohe Wetter-Disruption (weather_disruption_index hoch bzw. aktives
+      Tropensystem) erhöht Energienachfrage/-Preissetzungsmacht — Katalysatoren
+      bei Energy-/Utilities-Tickern mit hoher weather_relevance sollten davon
+      überdurchschnittlich profitieren.
+    eligible_relevance: {field: weather_relevance, min: HIGH}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.weather_disruption_index", op: ">=", value: 1.5}
+    baseline_rule:
+      - {field: "external.primitives.weather_disruption_index", op: "<", value: 0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  - id: H4B
+    feature: weather_disruption
+    mechanism: >
+      Gegenhypothese: dieselbe Wetter-Disruption erhöht Betriebskosten/
+      Verzögerungen für Transportation-/Logistics-Ticker — Katalysatoren dort
+      sollten bei hoher Disruption unterdurchschnittlich performen.
+    eligible_relevance: {field: weather_relevance, min: HIGH}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.weather_disruption_index", op: ">=", value: 1.5}
+    baseline_rule:
+      - {field: "external.primitives.weather_disruption_index", op: "<", value: 0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H5: Road/Shipping-Übereinstimmung stärkt Relations-Konfidenz ───────────
+  - id: H5
+    feature: road_shipping_agreement
+    mechanism: >
+      Wenn Road- und Maritime-Freight-Signale übereinstimmen
+      (road_shipping_agreement="agreement") UND die LLM-Relation SUPPORT ist,
+      ist das Signal ein konvergenter Hard-Data-Befund und sollte zuverlässiger
+      sein (stärkerer Effekt) als eine SUPPORT-Relation ohne Übereinstimmung.
+    eligible_relevance: {field: road_freight_relevance, min: LOW}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.primitives.road_shipping_agreement", op: "==", value: "agreement"}
+    baseline_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.primitives.road_shipping_agreement", op: "!=", value: "agreement"}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H6: Wetter-konfundierte Freight-Signale sind weniger verlässlich ───────
+  - id: H6
+    feature: weather_confound
+    mechanism: >
+      Ist possible_weather_confounded_freight=true, ist ein beobachteter
+      Freight-Ausschlag eher wetterbedingtes Rauschen als ein echtes
+      Nachfrage-Signal — SUPPORT-Relationen MIT diesem Flag sollten schwächer
+      performen als SUPPORT-Relationen OHNE das Flag.
+    eligible_relevance: {field: road_freight_relevance, min: LOW}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.primitives.possible_weather_confounded_freight", op: "==", value: true}
+    baseline_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.primitives.possible_weather_confounded_freight", op: "==", value: false}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H7: US Freight TSI × domestische Industrials ───────────────────────────
+  - id: H7A
+    feature: us_freight_tsi_z
+    mechanism: >
+      Ein stark positiver us_freight_tsi_z ist ein Makro-Tailwind für
+      domestisch exponierte Industrials/Road-Freight-relevante Ticker —
+      Katalysatoren dort sollten dann überdurchschnittlich performen.
+    eligible_relevance: {field: road_freight_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.us_freight_tsi_z", op: ">=", value: 1.5}
+    baseline_rule:
+      - {field: "external.primitives.us_freight_tsi_z", op: "<", value: 0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  - id: H7B
+    feature: us_freight_tsi_z
+    mechanism: >
+      Gegenhypothese zu H7A: ein stark negativer us_freight_tsi_z ist ein
+      Makro-Gegenwind für dieselben Ticker — Katalysatoren dort sollten dann
+      unterdurchschnittlich performen.
+    eligible_relevance: {field: road_freight_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.us_freight_tsi_z", op: "<=", value: -1.5}
+    baseline_rule:
+      - {field: "external.primitives.us_freight_tsi_z", op: ">", value: -0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H8: Hard-Data-vs-Survey-Divergenz als Fade-Signal ──────────────────────
+  - id: H8
+    feature: hard_data_vs_survey_divergence
+    mechanism: >
+      Ist hard_data_vs_survey_divergence groß (Umfragedaten deutlich
+      optimistischer als Hard-Data), ankert der Markt auf dem optimistischeren
+      Umfragesignal, bis die Hard-Data die Lücke schließt — SUPPORT-Relationen
+      mit großer Divergenz sollten dann schwächer/gegenläufiger performen
+      als SUPPORT-Relationen mit kleiner Divergenz (Überreaktions-/Fade-
+      Mechanismus).
+    eligible_relevance: {field: road_freight_relevance, min: LOW}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.primitives.hard_data_vs_survey_divergence", op: ">=", value: 1.5}
+    baseline_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.primitives.hard_data_vs_survey_divergence", op: "<", value: 0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H9: Shipping-Breadth × maritime-relevante Ticker ────────────────────────
+  - id: H9A
+    feature: shipping_breadth
+    mechanism: >
+      Eine hohe shipping_negative_breadth (>0.66, breite Kontraktion über
+      Container/Trockenfracht/Tanker) signalisiert eine breite Nachfrage-
+      schwäche entlang der Lieferkette — maritime-relevante Ticker sollten
+      dann unterdurchschnittlich performen.
+    eligible_relevance: {field: maritime_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.shipping_negative_breadth", op: ">", value: 0.66}
+    baseline_rule:
+      - {field: "external.primitives.shipping_negative_breadth", op: "<", value: 0.33}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  - id: H9B
+    feature: shipping_breadth
+    mechanism: >
+      Gegenhypothese zu H9A: eine niedrige shipping_negative_breadth (<0.33,
+      breite Expansion) signalisiert eine breite Nachfragestärke — maritime-
+      relevante Ticker sollten dann überdurchschnittlich performen.
+    eligible_relevance: {field: maritime_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.shipping_negative_breadth", op: "<", value: 0.33}
+    baseline_rule:
+      - {field: "external.primitives.shipping_negative_breadth", op: ">", value: 0.66}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H10: DE-Truck-Beschleunigung als früher EU-Indikator ────────────────────
+  - id: H10
+    feature: de_truck_acceleration
+    mechanism: >
+      de_truck_acceleration (positive Beschleunigung des deutschen LKW-
+      Maut-Fahrleistungsindex) reagiert schneller als die offizielle
+      global_freight_state-Klassifikation — Katalysatoren bei EU-Industrials
+      sollten bei positiver Beschleunigung überdurchschnittlich performen,
+      auch bevor der Zustand offiziell auf EXPANSION wechselt.
+    eligible_relevance: {field: road_freight_relevance, min: MEDIUM}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.de_truck_acceleration", op: ">=", value: 0.5}
+    baseline_rule:
+      - {field: "external.primitives.de_truck_acceleration", op: "<", value: 0}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H11: Road/Shipping-Divergenz als Dispersions-/Unsicherheitssignal ──────
+  - id: H11
+    feature: road_shipping_divergence
+    mechanism: >
+      Eine große Divergenz zwischen Road- und Shipping-Freight-Signalen
+      (|road_shipping_divergence_z| groß) signalisiert widersprüchliche
+      Real-Economy-Signale und damit erhöhte idiosynkratische Unsicherheit —
+      Katalysator-Outcomes sollten bei großer Divergenz eine größere
+      Streuung (Std) aufweisen, UNABHÄNGIG von der Richtung des mittleren
+      Returns. (Primärmetrik bleibt real_strat_ret_45d; die Dispersion wird
+      im Report als Std der Gruppe mitgeführt, siehe research.py.)
+    eligible_relevance: {field: road_freight_relevance, min: LOW}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.primitives.road_shipping_divergence_z", op: ">=", value: 1.5}
+    baseline_rule:
+      - {field: "external.primitives.road_shipping_divergence_z", op: "<", value: 0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180
+
+  # ── H12: LLM-Relation CONTRADICT als Warnsignal ─────────────────────────────
+  - id: H12
+    feature: external_relation_contradict
+    mechanism: >
+      Eine LLM-Relation CONTRADICT mit hoher materiality flaggt eine
+      fundamentale Diskrepanz zwischen der Katalysator-Erzählung und den
+      beobachteten Real-Economy-Bedingungen — solche Katalysatoren sollten
+      systematisch schlechter performen als materialitätsgleiche SUPPORT-
+      Relationen.
+    eligible_relevance: {field: road_freight_relevance, min: LOW}
+    primary_metric: "outcomes.real_strat_ret_45d"
+    challenger_rule:
+      - {field: "external.relation.relation", op: "==", value: "CONTRADICT"}
+      - {field: "external.relation.materiality", op: ">=", value: 0.5}
+    baseline_rule:
+      - {field: "external.relation.relation", op: "==", value: "SUPPORT"}
+      - {field: "external.relation.materiality", op: ">=", value: 0.5}
+    min_n: 30
+    horizon: 45
+    max_duration: 180

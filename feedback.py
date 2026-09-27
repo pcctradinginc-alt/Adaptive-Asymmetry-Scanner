@@ -551,6 +551,10 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
             continue
         st["outcome"]    = round(outcome, 4)
         st["close_date"] = today.strftime("%Y-%m-%d")
+        try:
+            update_feature_stats_external(history, st)
+        except Exception as e:
+            log.debug(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
         log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
     # Liste begrenzen: nur die letzten 300 behalten
     if len(shadows) > 300:
@@ -663,6 +667,148 @@ def update_bin(stats_dict: dict, feature: str, bin_label: str, outcome: float) -
     new_avg = (old_avg * old_cnt + outcome) / new_cnt
     bin_data["count"]      = new_cnt
     bin_data["avg_return"] = round(new_avg, 6)
+
+
+# ── Externer Kontext: Observational Feature-Stats (NIEMALS ins Lern-System) ──
+# history["feature_stats_external"] ist PURE Observability für den Monats-Report
+# (siehe modules/external/research.py + monthly_report.py Abschnitt "Externer
+# Kontext (SHADOW)"). Es wird AUSSCHLIESSLICH aus dem beim Trade-Entry
+# EINGEFRORENEN trade["external_context_entry"] gespeist — nie aus einer
+# Neuberechnung/einem Live-Snapshot zum Zeitpunkt des Closes (der externe
+# Snapshot hätte sich bis dahin revidiert/weiterentwickelt; das würde die
+# Point-in-Time-Garantie des externen Kontexts verletzen).
+#
+# HARTE GARANTIE: Diese Stats fließen NIE in compute_pearson_weights(),
+# history["model_weights"], QuasiML-Scoring oder den RL-Agenten (Trainings-
+# Environment/Reward) ein. Sie sind ausschließlich deskriptiv für Menschen.
+# (Siehe tests/test_feature_stats_external.py für den entsprechenden Guard-Test.)
+#
+# Streaming/Approximation: count und mean sind über ALLE Outcomes seit je exakt
+# (Welford-Online-Update). Da eine unbegrenzt wachsende Rohwerte-Liste den
+# history.json-Speicherbedarf unkontrolliert wachsen ließe, werden für
+# Median/Std nur die letzten EXTERNAL_BUCKET_OUTCOMES_CAP Outcomes je Bucket
+# behalten — Median/Std sind daher ab mehr als CAP Outcomes eine (im
+# Zweifel leicht verzerrte) Streaming-Approximation über das jüngste Fenster,
+# nicht über die komplette Historie.
+
+EXTERNAL_BUCKET_OUTCOMES_CAP = 200
+
+
+def _shipping_breadth_bucket(breadth) -> str | None:
+    """Methodologische Bins für shipping_negative_breadth (0..1): <0.33,
+    0.33-0.66, >0.66. None wenn kein Wert vorliegt."""
+    if not isinstance(breadth, (int, float)):
+        return None
+    if breadth < 0.33:
+        return "<0.33"
+    if breadth < 0.66:
+        return "0.33-0.66"
+    return ">0.66"
+
+
+def _divergence_bucket(div_z) -> str | None:
+    """Grobe Magnitude-Bins für road_shipping_divergence_z (|z|): low (<0.5),
+    medium (<1.5), high (sonst). None wenn kein Wert vorliegt."""
+    if not isinstance(div_z, (int, float)):
+        return None
+    mag = abs(div_z)
+    if mag < 0.5:
+        return "low"
+    if mag < 1.5:
+        return "medium"
+    return "high"
+
+
+def external_feature_buckets(ext: dict) -> dict:
+    """
+    Extrahiert die methodologischen Buckets aus einem EINGEFRORENEN
+    external_context_entry-Dict (row["external"]-Format, siehe
+    modules/candidate_ledger.py-Docstring / modules/external/*). Tolerant
+    gegenüber fehlenden Feldern/Keys — liefert None für nicht ableitbare
+    Buckets, statt zu werfen.
+
+    Bucket-Dimensionen (siehe Spezifikation):
+      freight_state, maritime_state, weather_operational_risk,
+      external_relation, road_shipping_agreement, shipping_breadth_bucket,
+      divergence_bucket.
+    """
+    if not isinstance(ext, dict):
+        ext = {}
+    states     = ext.get("states") or {}
+    primitives = ext.get("primitives") or {}
+    relation   = ext.get("relation") or {}
+
+    wdi = primitives.get("weather_disruption_index")
+    if primitives.get("active_tropical_system") or (isinstance(wdi, (int, float)) and wdi >= 1.5):
+        weather_bucket = "elevated"
+    elif wdi is not None or "active_tropical_system" in primitives:
+        weather_bucket = "normal"
+    else:
+        weather_bucket = None
+
+    return {
+        "freight_state":            states.get("global_freight_state"),
+        "maritime_state":           states.get("global_maritime_state"),
+        "weather_operational_risk": weather_bucket,
+        "external_relation":        relation.get("relation"),
+        "road_shipping_agreement":  primitives.get("road_shipping_agreement"),
+        "shipping_breadth_bucket":  _shipping_breadth_bucket(primitives.get("shipping_negative_breadth")),
+        "divergence_bucket":        _divergence_bucket(primitives.get("road_shipping_divergence_z")),
+    }
+
+
+def _update_external_bucket(dim_bucket: dict, key: str, outcome: float, strat_ret: float | None) -> None:
+    b = dim_bucket.setdefault(str(key), {
+        "count": 0, "mean": 0.0, "_m2": 0.0, "wins": 0,
+        "outcomes": [], "strat_ret_sum": 0.0, "strat_ret_count": 0,
+    })
+    b["count"] += 1
+    delta = outcome - b["mean"]
+    b["mean"] += delta / b["count"]
+    b["_m2"] += delta * (outcome - b["mean"])
+    if outcome > 0:
+        b["wins"] += 1
+    b["outcomes"].append(round(outcome, 6))
+    if len(b["outcomes"]) > EXTERNAL_BUCKET_OUTCOMES_CAP:
+        del b["outcomes"][:-EXTERNAL_BUCKET_OUTCOMES_CAP]
+    if strat_ret is not None:
+        b["strat_ret_sum"] += strat_ret
+        b["strat_ret_count"] += 1
+
+
+def update_feature_stats_external(history: dict, trade: dict) -> None:
+    """
+    Observational Update von history["feature_stats_external"] beim
+    Trade-Close — AUSSCHLIESSLICH aus trade["external_context_entry"]
+    (beim Entry eingefroren, NIE neu berechnet). No-op wenn kein
+    external_context_entry vorhanden ist (externes Modul deaktiviert / Trade
+    älter als die External-Integration) oder kein Outcome vorliegt — bricht
+    den Feedback-Loop nie (kein Raise).
+
+    WICHTIG: Siehe Modul-Docstring oben — diese Funktion füttert NIE
+    compute_pearson_weights()/history["model_weights"]/QuasiML/RL.
+    """
+    ext = trade.get("external_context_entry")
+    if not isinstance(ext, dict) or not ext:
+        return
+    outcome = trade.get("outcome")
+    if outcome is None:
+        return
+    try:
+        outcome = float(outcome)
+    except (TypeError, ValueError):
+        return
+
+    strat_ret = trade.get("real_strat_ret")
+    strat_ret = float(strat_ret) if isinstance(strat_ret, (int, float)) else outcome
+
+    buckets = external_feature_buckets(ext)
+    stats_all = history.setdefault("feature_stats_external", {})
+    for dim, key in buckets.items():
+        if key is None:
+            continue
+        dim_bucket = stats_all.setdefault(dim, {})
+        _update_external_bucket(dim_bucket, key, outcome, strat_ret)
 
 
 # ── RL-Training ───────────────────────────────────────────────────────────────
@@ -869,6 +1015,10 @@ def main() -> None:
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
             history.setdefault("closed_trades", []).append(trade)
+            try:
+                update_feature_stats_external(history, trade)
+            except Exception as e:
+                log.debug(f"  [{ticker}] feature_stats_external-Update Fehler (ignoriert): {e}")
             log.info(
                 f"  [{ticker}] Trade abgeschlossen "
                 f"({trade['close_reason']}, Return={outcome:+.2%})"
