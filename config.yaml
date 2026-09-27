@@ -174,7 +174,7 @@ external_context:
     # wind_max/gust_max), nicht mehr stündlich -- siehe modules/external/
     # sources/weather.py: aggregate_daily_forecast. Nur Tage 0..forecast_days-1
     # relativ zum lokalen Issue-Tag der Location.
-    forecast_days: 7
+    forecast_days: 5  # 5 Tage: ~1,5 MB/Lauf unkomprimiert (unter der 2-MB-Volumensperre)
   archive:
     root: outputs/external_data
     raw_payload_policy: hash_only    # hash_only (Default) | gzip
