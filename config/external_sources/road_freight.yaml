@@ -96,8 +96,8 @@ sources:
     # landet sie in discovered_ids["eurostat_dimension_filters_not_in_dataset"].
     dimension_filters:
       unit: [THS_T, MIO_TKM]
-      tra_type: [TOTAL]
-      carriage: [TOT]
+      # tra_type/carriage-Filter entfernt: live HTTP 400 (Codes nicht verifiziert).
+      # Die Gesamt-Reihe wird in road_freight_features deterministisch gewählt.
     notes: >
       Datensatz-Code wird zur Laufzeit über die offizielle TOC
       (catalogue/toc/txt) per Titelsuche "Road freight transport" ermittelt

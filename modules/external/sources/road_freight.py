@@ -585,7 +585,7 @@ class EurostatRoadFreightConnector(Connector):
     # -> dimension_filters). Reduziert das Antwortvolumen UND stellt sicher,
     # dass genau EINE gut-definierte Serie je Land/Einheit ankommt (nie alle
     # ~55 nst07/tra_type/carriage-Kombinationen ungefiltert).
-    DIMENSION_FILTERS = {"unit": ["THS_T", "MIO_TKM"], "tra_type": ["TOTAL"], "carriage": ["TOT"]}
+    DIMENSION_FILTERS = {"unit": ["THS_T", "MIO_TKM"]}  # weitere Filter nur, wenn live verifiziert
 
     # Nur echte Datensatz-Codes (type == "dataset" in der TOC) UND das
     # dokumentierte Namensmuster road_go_ta_* -- die TOC enthält auch
@@ -651,7 +651,17 @@ class EurostatRoadFreightConnector(Connector):
         try:
             res = http.fetch(url, params=params)
         except http.FetchError as e:
-            return None, str(e)
+            # 400 = ungültiger Dimensionsfilter (z.B. Code existiert im Datensatz
+            # nicht). Einmal nur mit geo-Filter wiederholen; Auswahl der Reihen
+            # erfolgt dann deterministisch in road_freight_features.
+            if "400" in str(e) and len(params) > 3:
+                try:
+                    res = http.fetch(url, params={"format": "JSON", "lang": "en", "geo": countries})
+                except http.FetchError as e2:
+                    return None, f"{e} | Retry ohne Dimensionsfilter: {e2}"
+                self.filter_fallback = True
+            else:
+                return None, str(e)
         raw.append(_raw(self.source_id, "jsonstat", res))
         return res, None
 
