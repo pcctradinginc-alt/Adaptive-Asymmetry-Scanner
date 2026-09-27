@@ -234,28 +234,37 @@ def us_trucking_yoy(observations: Iterable[Observation], metric: str = "us_truck
 
 # ---------------------------------------------------------------------------
 # eurostat_road_freight (EU, wöchentlicher Check / typ. jährliche-quartalsweise Daten)
+#
+# Eine EU-Länderserie ist erst über (metric, entity_id) UND die übrigen
+# JSON-stat-Dimensionen (tra_type/carriage/nst07/...) eindeutig -- siehe
+# EurostatRoadFreightConnector._parse_jsonstat (series_id kodiert das).
+# Für die Z-Scores/Features hier wird bewusst GENAU EINE gut-definierte
+# Serie je Land verwendet: die kuratierte "total transport"-Serie in
+# Tausend Tonnen (unit=THS_T, siehe config/external_sources/road_freight.yaml
+# dimension_filters), NIE ein aus dem Unit-Label geratener "tonnes"-Sammel-
+# metric mehrerer verschiedener Einheiten/Kategorien.
 # ---------------------------------------------------------------------------
 
 def eu_road_freight_level(observations: Iterable[Observation], entity_id: str = "DE",
-                           metric: str = "road_freight_tonnes") -> float | None:
+                           metric: str = "road_freight_ths_t") -> float | None:
     s = _series(observations, source_id="eurostat_road_freight", metric=metric, entity_id=entity_id)
     return _last_value(s)
 
 
 def eu_road_freight_yoy(observations: Iterable[Observation], entity_id: str = "DE",
-                         metric: str = "road_freight_tonnes") -> float | None:
+                         metric: str = "road_freight_ths_t") -> float | None:
     s = _series(observations, source_id="eurostat_road_freight", metric=metric, entity_id=entity_id)
     return _pct_change(_last_value(s), _value_n_periods_back(s, 1))
 
 
 def eu_road_freight_z(observations: Iterable[Observation], entity_id: str = "DE",
-                       metric: str = "road_freight_tonnes", window_days: int = 365 * 3) -> float | None:
+                       metric: str = "road_freight_ths_t", window_days: int = 365 * 3) -> float | None:
     s = _series(observations, source_id="eurostat_road_freight", metric=metric, entity_id=entity_id)
     return _zscore(s, window_days)
 
 
 def eu_road_freight_acceleration(observations: Iterable[Observation], entity_id: str = "DE",
-                                  metric: str = "road_freight_tonnes") -> float | None:
+                                  metric: str = "road_freight_ths_t") -> float | None:
     s = _series(observations, source_id="eurostat_road_freight", metric=metric, entity_id=entity_id)
     return _acceleration(s, 1)
 

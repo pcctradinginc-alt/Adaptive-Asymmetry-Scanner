@@ -86,6 +86,18 @@ sources:
     license_status: OK
     role: SLOW_CONFIRMATION
     countries: [DE, FR, IT, ES, PL, NL, BE, AT, CZ, SE, EU27_2020]
+    # Kuratierte Slice-Filter (als Query-Parameter an die Dissemination-API
+    # gereicht, z.B. &unit=THS_T&unit=MIO_TKM&tra_type=TOTAL&carriage=TOT).
+    # Reduziert das Antwortvolumen und stellt sicher, dass genau EINE
+    # gut-definierte Gesamt-Serie je Land/Einheit ankommt (nie alle
+    # nst07/tra_type/carriage-Kombinationen ungefiltert, siehe
+    # EurostatRoadFreightConnector._parse_jsonstat). Fehlt eine dieser
+    # Dimensionen im Datensatz, wird NICHT danach gefiltert -- stattdessen
+    # landet sie in discovered_ids["eurostat_dimension_filters_not_in_dataset"].
+    dimension_filters:
+      unit: [THS_T, MIO_TKM]
+      tra_type: [TOTAL]
+      carriage: [TOT]
     notes: >
       Datensatz-Code wird zur Laufzeit über die offizielle TOC
       (catalogue/toc/txt) per Titelsuche "Road freight transport" ermittelt

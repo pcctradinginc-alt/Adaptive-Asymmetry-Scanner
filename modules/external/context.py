@@ -188,7 +188,7 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         if de_obs:
             eu_sources.append(_region_entry(out["de_z_1y"], "destatis_truck_toll"))
         eu_country_entities = sorted({
-            o.entity_id for o in eu_obs if o.metric == "road_freight_tonnes"
+            o.entity_id for o in eu_obs if o.metric == "road_freight_ths_t"
         })
         for eid in eu_country_entities:
             z = _safe(rff.eu_road_freight_z, eu_obs, eid)
@@ -278,13 +278,14 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
         out["hdd_anomaly"] = _mean_of(hdd_anoms)
         out["cdd_anomaly"] = _mean_of(cdd_anoms)
 
-        # Forecast-Revisionen: Durchschnitt über alle Entities/'temperature'.
+        # Forecast-Revisionen: Durchschnitt über alle Entities/'tmean'
+        # (Tagesmittel, siehe weather.py: aggregate_daily_forecast).
         # HDD-Revision ist die invertierte Temperatur-Revision (mehr Wärme
         # -> weniger Heizbedarf) -- dokumentierte Vereinfachung.
         entities = {o.entity_id for o in forecast_obs}
         temp_revisions = []
         for entity in entities:
-            for rev in wf.revisions_for_metric(forecast_obs, entity, "temperature"):
+            for rev in wf.revisions_for_metric(forecast_obs, entity, "tmean"):
                 if rev.get("revision") is not None:
                     temp_revisions.append(rev["revision"])
         mean_rev = _mean_of(temp_revisions)

@@ -169,11 +169,22 @@ external_context:
     # offiziellen Kontakt; vor Produktion durch eine echte, erreichbare
     # Adresse/URL des Betreibers ersetzen.
     user_agent_contact: "research@adaptive-asymmetry-scanner.local"
+    # NWS-Grid-Prognosen werden je Location/Tag/Metrik AGGREGIERT archiviert
+    # (tmax/tmin/tmean/hdd/cdd/precip_total/snow_total/ice_total/pop_max/
+    # wind_max/gust_max), nicht mehr stündlich -- siehe modules/external/
+    # sources/weather.py: aggregate_daily_forecast. Nur Tage 0..forecast_days-1
+    # relativ zum lokalen Issue-Tag der Location.
+    forecast_days: 5  # 5 Tage: ~1,5 MB/Lauf unkomprimiert (unter der 2-MB-Volumensperre)
   archive:
     root: outputs/external_data
     raw_payload_policy: hash_only    # hash_only (Default) | gzip
     raw_max_bytes: 2000000           # Nur bis zu dieser Größe wird bei "gzip" der Payload gespeichert
     storage_warn_mb_1y: 200          # 1y-Speicherprojektion über dieser Schwelle → Warnung/Migrationshinweis
+    # Volumen-Guard: übersteigen die NEUEN normalisierten Zeilen EINER Quelle
+    # in einem Run diese Bytegrenze, wird für diese Quelle in diesem Run
+    # NICHTS geschrieben (nie stillschweigend gekürzt) -- Status WARN,
+    # Meldung "volume guard", Alarmierung über den bestehenden Mechanismus.
+    max_new_normalized_bytes_per_source_per_run: 2000000
   readiness:
     # Methodologische Mindestschwellen je Frequenz für EXPLORATORY_READY /
     # CHALLENGER_READY — NIE aus Returns abgeleitet (siehe registry.py).

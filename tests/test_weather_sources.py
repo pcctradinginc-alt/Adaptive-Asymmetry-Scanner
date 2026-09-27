@@ -175,6 +175,192 @@ def test_two_issues_produce_distinct_observations_for_same_valid_time():
 
 
 # --------------------------------------------------------------------------- #
+# nws_forecast – Tagesaggregation (aggregate_daily_forecast)
+# --------------------------------------------------------------------------- #
+
+def test_daily_aggregation_computes_tmean_tmax_tmin_hdd_cdd():
+    points = _load("nws_points_jfk.json")
+    grid = _load("nws_grid_jfk_issue1.json")
+    retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    hourly = w.parse_grid_response(points, grid, JFK_LOCATION, w.DEFAULT_GRID_ELEMENTS, retrieved_at)
+    daily = w.aggregate_daily_forecast(hourly, points, JFK_LOCATION, retrieved_at)
+
+    by_metric = {o.metric: o for o in daily if o.observation_time == datetime(2024, 1, 1, tzinfo=timezone.utc)}
+    # temperature-Stundenwerte 0,1,2 degC -> 32.0,33.8,35.6 degF -> mean
+    assert by_metric["tmean"].value == pytest.approx((32.0 + 33.8 + 35.6) / 3, abs=0.05)
+    assert by_metric["tmax"].value == pytest.approx(37.4)   # maxTemperature 3 degC
+    assert by_metric["tmin"].value == pytest.approx(28.4)   # minTemperature -2 degC
+    assert by_metric["hdd"].value == pytest.approx(65.0 - by_metric["tmean"].value)
+    assert by_metric["cdd"].value == pytest.approx(0.0)
+    assert by_metric["precip_total"].value == pytest.approx((1.0 + 2.0) / 25.4)
+    assert by_metric["pop_max"].value == pytest.approx(60.0)
+
+
+def test_daily_aggregation_one_row_per_day_per_metric_not_per_hour():
+    points = _load("nws_points_jfk.json")
+    grid = _load("nws_grid_jfk_issue1.json")
+    retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    hourly = w.parse_grid_response(points, grid, JFK_LOCATION, w.DEFAULT_GRID_ELEMENTS, retrieved_at)
+    daily = w.aggregate_daily_forecast(hourly, points, JFK_LOCATION, retrieved_at)
+    tmean_rows = [o for o in daily if o.metric == "tmean"]
+    assert len(tmean_rows) == 1   # nicht 3 (ein Wert pro Stunde wie vorher)
+
+
+def test_daily_aggregation_slim_attrs_only_location_code():
+    points = _load("nws_points_jfk.json")
+    grid = _load("nws_grid_jfk_issue1.json")
+    retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    hourly = w.parse_grid_response(points, grid, JFK_LOCATION, w.DEFAULT_GRID_ELEMENTS, retrieved_at)
+    daily = w.aggregate_daily_forecast(hourly, points, JFK_LOCATION, retrieved_at)
+    for o in daily:
+        assert set(o.attrs) == {"location_code"}
+        assert o.attrs["location_code"] == "JFK"
+
+
+def test_daily_aggregation_respects_forecast_days_window():
+    points = _load("nws_points_jfk.json")
+    grid = _load("nws_grid_jfk_issue1.json")
+    retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    hourly = w.parse_grid_response(points, grid, JFK_LOCATION, w.DEFAULT_GRID_ELEMENTS, retrieved_at)
+    daily_0 = w.aggregate_daily_forecast(hourly, points, JFK_LOCATION, retrieved_at, forecast_days=0)
+    assert daily_0 == []   # Tag 0 (Issue-Tag) selbst ausgeschlossen -> nichts im Fenster [0, 0)
+    daily_default = w.aggregate_daily_forecast(hourly, points, JFK_LOCATION, retrieved_at)
+    assert daily_default   # forecast_days=7 (Default) enthält den Issue-Tag
+
+
+def test_daily_aggregation_uses_local_timezone_day_boundary():
+    """Ein Stundenwert um 2024-01-02T05:00Z liegt in America/Los_Angeles noch
+    im lokalen Kalendertag 2024-01-01 (21:00 PST) -> muss auf diesen Tag
+    gebucht werden, nicht auf den UTC-Tag 2024-01-02."""
+    points = {"properties": {"gridId": "LOX", "gridX": 1, "gridY": 1,
+                              "forecastGridData": "https://api.weather.gov/gridpoints/LOX/1,1",
+                              "timeZone": "America/Los_Angeles"}}
+    grid = {"properties": {
+        "updateTime": "2024-01-01T09:00:00+00:00",
+        "temperature": {"uom": "wmoUnit:degC", "values": [
+            {"validTime": "2024-01-01T09:00:00+00:00/PT1H", "value": 0.0},    # 01:00 PST, Jan 1 lokal
+            {"validTime": "2024-01-02T05:00:00+00:00/PT1H", "value": 10.0},   # 21:00 PST, Jan 1 lokal
+            {"validTime": "2024-01-02T09:00:00+00:00/PT1H", "value": 20.0},   # 01:00 PST, Jan 2 lokal
+        ]},
+    }}
+    loc = {"code": "LAX", "lat": 33.94, "lon": -118.4}
+    retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    hourly = w.parse_grid_response(points, grid, loc, ["temperature"], retrieved_at)
+    daily = w.aggregate_daily_forecast(hourly, points, loc, retrieved_at)
+    tmean_by_day = {o.observation_time.astimezone(timezone.utc).date(): o.value
+                    for o in daily if o.metric == "tmean"}
+    from datetime import date as _date
+    jan1_tmean = tmean_by_day[_date(2024, 1, 1)]
+    # Jan 1 lokal enthält ZWEI Stundenwerte (0 und 10 degC), nicht nur einen
+    assert jan1_tmean == pytest.approx((32.0 + 50.0) / 2)
+    assert _date(2024, 1, 2) in tmean_by_day
+
+
+def test_daily_aggregation_empty_without_hourly_observations():
+    assert w.aggregate_daily_forecast([], {}, JFK_LOCATION, datetime(2024, 1, 1, tzinfo=timezone.utc)) == []
+
+
+def test_daily_aggregation_idempotent_archiving_same_issue_time(tmp_path):
+    """Gleicher Grid-Abruf zweimal aggregiert + archiviert -> zweiter Lauf
+    liefert ausschließlich Duplikate (identity_key enthält forecast_issue_time)."""
+    from modules.external.archive import ExternalArchive
+    points = _load("nws_points_jfk.json")
+    grid = _load("nws_grid_jfk_issue1.json")
+    retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    hourly = w.parse_grid_response(points, grid, JFK_LOCATION, w.DEFAULT_GRID_ELEMENTS, retrieved_at)
+    daily = w.aggregate_daily_forecast(hourly, points, JFK_LOCATION, retrieved_at)
+
+    archive = ExternalArchive(root=tmp_path)
+    c1 = archive.store_observations(daily)
+    assert c1["new"] == len(daily)
+    c2 = archive.store_observations(daily)
+    assert c2["new"] == 0 and c2["revision"] == 0
+    assert c2["duplicate"] == len(daily)
+
+
+def test_daily_aggregation_new_issue_time_produces_new_rows_not_revisions_of_other_days(tmp_path):
+    """Eine neue Issue-Zeit erzeugt für ALLE Gültigkeitstage neue Zeilen
+    (Identität enthält forecast_issue_time); Revisionen entstehen erst, wenn
+    weather_features denselben Gültigkeitstag über Issues hinweg vergleicht."""
+    from modules.external.archive import ExternalArchive
+    points = _load("nws_points_jfk.json")
+    grid1 = _load("nws_grid_jfk_issue1.json")
+    grid2 = _load("nws_grid_jfk_issue2.json")
+    r1 = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+    r2 = datetime(2024, 1, 1, 15, 5, 0, tzinfo=timezone.utc)
+    hourly1 = w.parse_grid_response(points, grid1, JFK_LOCATION, ["temperature"], r1)
+    hourly2 = w.parse_grid_response(points, grid2, JFK_LOCATION, ["temperature"], r2)
+    daily1 = w.aggregate_daily_forecast(hourly1, points, JFK_LOCATION, r1)
+    daily2 = w.aggregate_daily_forecast(hourly2, points, JFK_LOCATION, r2)
+
+    archive = ExternalArchive(root=tmp_path)
+    archive.store_observations(daily1)
+    counts = archive.store_observations(daily2)
+    assert counts["new"] > 0   # neue Issue-Zeit -> neue Vintage-Zeilen, kein Skip
+
+
+def test_write_nws_locations_manifest_creates_slim_static_metadata(tmp_path):
+    locations = [{"code": "JFK", "lat": 40.6413, "lon": -73.7781}]
+    discovered = {"JFK": {"gridId": "OKX", "gridX": 32, "gridY": 34, "timezone": "America/New_York"}}
+    path = w.write_nws_locations_manifest(discovered, locations, archive_root=tmp_path)
+    assert path == tmp_path / "manifests" / "nws_locations.json"
+    data = json.loads(path.read_text())
+    assert data["JFK"]["gridId"] == "OKX"
+    assert data["JFK"]["lat"] == pytest.approx(40.6413)
+    assert data["JFK"]["timezone"] == "America/New_York"
+
+
+def test_write_nws_locations_manifest_merges_across_calls(tmp_path):
+    w.write_nws_locations_manifest(
+        {"JFK": {"gridId": "OKX", "gridX": 32, "gridY": 34, "timezone": "America/New_York"}},
+        [{"code": "JFK", "lat": 40.6413, "lon": -73.7781}], archive_root=tmp_path)
+    path = w.write_nws_locations_manifest(
+        {"ATL": {"gridId": "FFC", "gridX": 50, "gridY": 60, "timezone": "America/New_York"}},
+        [{"code": "ATL", "lat": 33.64, "lon": -84.43}], archive_root=tmp_path)
+    data = json.loads(path.read_text())
+    assert "JFK" in data and "ATL" in data
+
+
+def test_nws_forecast_connector_fetch_produces_daily_rows_and_locations_manifest(tmp_path, monkeypatch):
+    points = _load("nws_points_jfk.json")
+    grid = _load("nws_grid_jfk_issue1.json")
+
+    class _FakeRes:
+        def __init__(self, payload, url):
+            self._payload = payload
+            self.url = url
+            self.fingerprint = "fp"
+            self.retrieved_at = datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc)
+            self.status = 200
+            self.content_type = "application/geo+json"
+            self.content_hash = "h"
+            self.bytes = 10
+
+        def json(self):
+            return self._payload
+
+    def fake_fetch(url, params=None, headers=None):
+        if "/points/" in url:
+            return _FakeRes(points, url)
+        return _FakeRes(grid, url)
+
+    monkeypatch.setattr(w.http, "fetch", fake_fetch)
+    connector = w.NwsForecastConnector(source_cfg={
+        "location_codes": ["JFK"], "archive_root": tmp_path,
+    })
+    result = connector.fetch(datetime(2024, 1, 1, 9, 5, 0, tzinfo=timezone.utc))
+    assert result.status.value in ("PASS", "WARN")
+    assert result.observations
+    assert all(o.dataset == "grid_forecast_daily" for o in result.observations)
+    assert all(set(o.attrs) == {"location_code"} for o in result.observations)
+
+    manifest_path = tmp_path / "manifests" / "nws_locations.json"
+    assert manifest_path.exists()
+    data = json.loads(manifest_path.read_text())
+    assert data["JFK"]["gridId"] == "OKX"
+
+
+# --------------------------------------------------------------------------- #
 # nws_alerts – Klassifikation
 # --------------------------------------------------------------------------- #
 

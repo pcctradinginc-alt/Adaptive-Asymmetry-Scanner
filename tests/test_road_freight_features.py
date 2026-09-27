@@ -90,7 +90,7 @@ def test_us_trucking_component_absent_returns_none():
 
 
 def test_eu_road_freight_level_yoy_and_z():
-    obs = [_obs("eurostat_road_freight", "road_freight_tonnes", i * 365, 100 + i * 5, entity_id="DE")
+    obs = [_obs("eurostat_road_freight", "road_freight_ths_t", i * 365, 100 + i * 5, entity_id="DE")
            for i in range(6)]
     assert feat.eu_road_freight_level(obs) == 125
     assert feat.eu_road_freight_yoy(obs) == pytest.approx((125 - 120) / 120)

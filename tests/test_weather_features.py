@@ -4,6 +4,13 @@ tests/test_weather_features.py
 Tests für modules/external/sources/weather_features.py: HDD/CDD-Berechnung,
 Normals-Anomalie-Mathematik, Forecast-Revisionen (NUR gleiche valid_time),
 fehlende Daten -> None (nie 0), Hub-/Utility-/P&C-Feature-Grundlagen.
+
+Seit der NWS-Tagesaggregation (siehe modules/external/sources/weather.py:
+aggregate_daily_forecast) liefert der Konnektor bereits tagesaggregierte
+Metriken (tmean/tmax/tmin/hdd/cdd/precip_total/snow_total/ice_total/
+pop_max/wind_max/gust_max) mit forecast_valid_time = lokaler Tagesbeginn;
+weather_features.py wählt daraus nur noch je Tag die jüngste Issue-Version
+(Revision), aggregiert NICHT mehr selbst über Stunden.
 """
 
 from datetime import date, datetime, timezone
@@ -15,7 +22,7 @@ from modules.external.sources import weather_features as wf
 
 
 def _obs(entity_id, metric, value, forecast_valid_time=None, forecast_issue_time=None,
-         observation_time=None, unit="degF", attrs=None, dataset="grid_forecast",
+         observation_time=None, unit="degF", attrs=None, dataset="grid_forecast_daily",
          source_id="nws_forecast"):
     obs_time = observation_time or forecast_valid_time or datetime(2024, 1, 1, tzinfo=timezone.utc)
     return Observation(
@@ -29,39 +36,43 @@ def _obs(entity_id, metric, value, forecast_valid_time=None, forecast_issue_time
     )
 
 
+def _day(entity_id, d, tmean=None, tmax=None, tmin=None, hdd=None, cdd=None,
+         issue=datetime(2024, 1, 1, tzinfo=timezone.utc)):
+    """Baut die (bereits tagesaggregierten) Observations EINES Kalendertags,
+    wie sie der Konnektor jetzt liefert (forecast_valid_time = Tagesbeginn)."""
+    vt = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
+    out = []
+    for metric, value in (("tmean", tmean), ("tmax", tmax), ("tmin", tmin), ("hdd", hdd), ("cdd", cdd)):
+        if value is not None:
+            out.append(_obs(entity_id, metric, value, forecast_valid_time=vt, forecast_issue_time=issue))
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # HDD/CDD
 # --------------------------------------------------------------------------- #
 
 def test_hdd_cdd_base_65f():
-    obs = [
-        _obs("JFK", "temperature", 60.0, forecast_valid_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc),
-             forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc)),
-        _obs("JFK", "temperature", 70.0, forecast_valid_time=datetime(2024, 1, 1, 18, tzinfo=timezone.utc),
-             forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc)),
-    ]
-    daily = wf.daily_temperature_aggregates(obs)
     d = date(2024, 1, 1)
-    tmean = daily["JFK"][d]["tmean"]
-    assert tmean == pytest.approx(65.0)
+    obs = _day("JFK", d, tmean=65.0, hdd=0.0, cdd=0.0)
+    daily = wf.daily_temperature_aggregates(obs)
+    assert daily["JFK"][d]["tmean"] == pytest.approx(65.0)
     assert daily["JFK"][d]["hdd"] == pytest.approx(0.0)
     assert daily["JFK"][d]["cdd"] == pytest.approx(0.0)
 
 
 def test_hdd_positive_when_cold():
-    obs = [_obs("JFK", "temperature", 40.0, forecast_valid_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc),
-                 forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))]
-    daily = wf.daily_temperature_aggregates(obs)
     d = date(2024, 1, 1)
+    obs = _day("JFK", d, tmean=40.0, hdd=25.0, cdd=0.0)
+    daily = wf.daily_temperature_aggregates(obs)
     assert daily["JFK"][d]["hdd"] == pytest.approx(25.0)
     assert daily["JFK"][d]["cdd"] == pytest.approx(0.0)
 
 
 def test_cdd_positive_when_hot():
-    obs = [_obs("JFK", "temperature", 90.0, forecast_valid_time=datetime(2024, 7, 1, 15, tzinfo=timezone.utc),
-                 forecast_issue_time=datetime(2024, 7, 1, 0, tzinfo=timezone.utc))]
-    daily = wf.daily_temperature_aggregates(obs)
     d = date(2024, 7, 1)
+    obs = _day("JFK", d, tmean=90.0, hdd=0.0, cdd=25.0)
+    daily = wf.daily_temperature_aggregates(obs)
     assert daily["JFK"][d]["cdd"] == pytest.approx(25.0)
     assert daily["JFK"][d]["hdd"] == pytest.approx(0.0)
 
@@ -69,6 +80,15 @@ def test_cdd_positive_when_hot():
 def test_daily_aggregates_missing_entity_returns_no_entry_not_zero():
     daily = wf.daily_temperature_aggregates([])
     assert daily == {}
+
+
+def test_daily_aggregates_missing_field_is_none_not_zero():
+    """tmax fehlt für diesen Tag -> None, nie 0 (nur tmean/hdd/cdd geliefert)."""
+    d = date(2024, 1, 1)
+    obs = _day("JFK", d, tmean=50.0, hdd=15.0, cdd=0.0)
+    daily = wf.daily_temperature_aggregates(obs)
+    assert daily["JFK"][d]["tmax"] is None
+    assert daily["JFK"][d]["tmin"] is None
 
 
 # --------------------------------------------------------------------------- #
@@ -89,14 +109,14 @@ def test_anomaly_none_when_normal_missing():
 
 
 def test_anomalies_for_day_uses_month_day_index_not_year():
-    forecast_obs = [_obs("JFK", "temperature", 70.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
-                          forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))]
+    d = date(2024, 1, 1)
+    forecast_obs = _day("JFK", d, tmean=70.0)
     daily = wf.daily_temperature_aggregates(forecast_obs)
     normals_obs = [_obs("JFK", "DLY-TAVG-NORMAL", 60.0,
                          observation_time=datetime(2010, 1, 1, tzinfo=timezone.utc),  # anderes Jahr!
                          dataset="normals_daily_1991_2020", source_id="ncei_normals")]
     normals = wf.normals_by_month_day(normals_obs)
-    result = wf.anomalies_for_day(daily, "JFK", date(2024, 1, 1), normals)
+    result = wf.anomalies_for_day(daily, "JFK", d, normals)
     assert result["tmean_anomaly"] == pytest.approx(10.0)
 
 
@@ -117,54 +137,66 @@ def test_extreme_flag_none_when_missing():
 # --------------------------------------------------------------------------- #
 
 def test_forecast_revision_same_valid_time():
-    older = _obs("JFK", "temperature", 50.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    older = _obs("JFK", "tmean", 50.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
                  forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))
-    newer = _obs("JFK", "temperature", 55.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    newer = _obs("JFK", "tmean", 55.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
                  forecast_issue_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc))
     assert wf.forecast_revision(newer, older) == pytest.approx(5.0)
 
 
 def test_forecast_revision_none_for_different_valid_time():
-    older = _obs("JFK", "temperature", 50.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    older = _obs("JFK", "tmean", 50.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
                  forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))
-    newer = _obs("JFK", "temperature", 55.0, forecast_valid_time=datetime(2024, 1, 1, 18, tzinfo=timezone.utc),
+    newer = _obs("JFK", "tmean", 55.0, forecast_valid_time=datetime(2024, 1, 2, tzinfo=timezone.utc),
                  forecast_issue_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc))
     assert wf.forecast_revision(newer, older) is None
 
 
 def test_forecast_revision_none_when_newer_is_not_actually_later():
-    a = _obs("JFK", "temperature", 50.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    a = _obs("JFK", "tmean", 50.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
              forecast_issue_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc))
-    b = _obs("JFK", "temperature", 55.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    b = _obs("JFK", "tmean", 55.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
              forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))
     # b wurde VOR a ausgegeben -> als "newer" übergeben ist das ein Fehlaufruf
     assert wf.forecast_revision(b, a) is None
 
 
 def test_forecast_revision_none_for_different_entity():
-    a = _obs("JFK", "temperature", 50.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    a = _obs("JFK", "tmean", 50.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
              forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))
-    b = _obs("EWR", "temperature", 55.0, forecast_valid_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc),
+    b = _obs("EWR", "tmean", 55.0, forecast_valid_time=datetime(2024, 1, 1, tzinfo=timezone.utc),
              forecast_issue_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc))
     assert wf.forecast_revision(b, a) is None
 
 
 def test_revisions_for_metric_picks_two_latest_issues_per_valid_time():
-    vt = datetime(2024, 1, 1, 12, tzinfo=timezone.utc)
+    vt = datetime(2024, 1, 1, tzinfo=timezone.utc)
     obs = [
-        _obs("JFK", "temperature", 50.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc)),
-        _obs("JFK", "temperature", 52.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc)),
-        _obs("JFK", "temperature", 55.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc)),
+        _obs("JFK", "tmean", 50.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc)),
+        _obs("JFK", "tmean", 52.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc)),
+        _obs("JFK", "tmean", 55.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc)),
     ]
-    revisions = wf.revisions_for_metric(obs, "JFK", "temperature")
+    revisions = wf.revisions_for_metric(obs, "JFK", "tmean")
     assert len(revisions) == 1
     assert revisions[0]["revision"] == pytest.approx(3.0)  # 55 - 52 (die zwei jüngsten)
 
 
 def test_revisions_for_metric_empty_with_single_issue():
-    vt = datetime(2024, 1, 1, 12, tzinfo=timezone.utc)
-    obs = [_obs("JFK", "temperature", 50.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))]
-    assert wf.revisions_for_metric(obs, "JFK", "temperature") == []
+    vt = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    obs = [_obs("JFK", "tmean", 50.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc))]
+    assert wf.revisions_for_metric(obs, "JFK", "tmean") == []
+
+
+def test_daily_temperature_aggregates_uses_latest_issue_for_same_valid_day():
+    """Zwei Issues für denselben Gültigkeitstag -> nur die jüngste Version
+    fließt in daily_temperature_aggregates ein (Revision, kein Duplikat)."""
+    vt = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    obs = [
+        _obs("JFK", "tmean", 50.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc)),
+        _obs("JFK", "tmean", 58.0, forecast_valid_time=vt, forecast_issue_time=datetime(2024, 1, 1, 12, tzinfo=timezone.utc)),
+    ]
+    daily = wf.daily_temperature_aggregates(obs)
+    assert daily["JFK"][date(2024, 1, 1)]["tmean"] == pytest.approx(58.0)
 
 
 # --------------------------------------------------------------------------- #
@@ -202,8 +234,9 @@ def test_hub_features_missing_hub_data_yields_none_fields():
 
 def test_hub_features_detects_exposure_from_snow_and_alert():
     d = date(2024, 1, 1)
+    vt = datetime(2024, 1, 1, tzinfo=timezone.utc)
     forecast_obs = [
-        _obs("ATL", "snowfallAmount", 3.0, forecast_valid_time=datetime(2024, 1, 1, 6, tzinfo=timezone.utc),
+        _obs("ATL", "snow_total", 3.0, forecast_valid_time=vt,
              forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc), unit="in"),
     ]
     alert_obs = [
@@ -223,13 +256,12 @@ def test_hub_features_detects_exposure_from_snow_and_alert():
 # --------------------------------------------------------------------------- #
 
 def test_construction_disruption_days_counts_freeze_and_heavy_precip():
-    obs = [
-        _obs("TX_CONSTR", "minTemperature", 20.0, forecast_valid_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc),
-             forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc)),
-        _obs("TX_CONSTR", "quantitativePrecipitation", 1.5,
-             forecast_valid_time=datetime(2024, 1, 2, 0, tzinfo=timezone.utc),
-             forecast_issue_time=datetime(2024, 1, 1, 0, tzinfo=timezone.utc), unit="in"),
-    ]
+    obs = (
+        _day("TX_CONSTR", date(2024, 1, 1), tmin=20.0)
+        + [_obs("TX_CONSTR", "precip_total", 1.5,
+                forecast_valid_time=datetime(2024, 1, 2, tzinfo=timezone.utc),
+                forecast_issue_time=datetime(2024, 1, 1, tzinfo=timezone.utc), unit="in")]
+    )
     days = wf.construction_disruption_days("TX_CONSTR", obs, date(2024, 1, 2), 3)
     assert days == 2
 
