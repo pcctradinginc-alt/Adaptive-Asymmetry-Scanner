@@ -69,7 +69,7 @@ from modules.position_sizing     import enrich_with_sizing
 from modules.engine_monitor      import build_health_report, append_markdown_section
 from modules.config              import cfg
 from modules              import candidate_ledger
-from modules.external.context    import build_external_context, attach_candidate_context
+from modules.external.context    import build_external_context, attach_candidate_context, refresh_catalyst_relevance
 from modules.external.shadow_analysis import run_for_candidates as run_shadow_relation_analysis
 
 logging.basicConfig(
@@ -667,6 +667,11 @@ def main() -> None:
     # Read-only: liest nur das bereits vorhandene Deep-Analysis-Ergebnis,
     # verändert es nie. Läuft komplett übersprungen wenn mode==off/disabled/
     # kein API-Key (siehe modules/external/shadow_analysis.py).
+    for a in analyses:
+        try:
+            refresh_catalyst_relevance(a)
+        except Exception as e:  # noqa: BLE001
+            log.debug(f"catalyst_relevance Fehler ({a.get('ticker')}, ignoriert): {e}")
     try:
         run_shadow_relation_analysis(analyses)
     except Exception as e:  # noqa: BLE001
