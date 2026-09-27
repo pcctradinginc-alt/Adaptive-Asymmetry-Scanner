@@ -322,6 +322,27 @@ def save_history(history: dict) -> None:
 
 # ── Stufe 2b-ext: External Context Snapshot (SHADOW) ─────────────────────────
 
+def bearish_trading_allowed(options_cfg) -> bool:
+    """Bearish nur, wenn freigeschaltet UND die Bewertung als richtungsfähig
+    validiert ist. Review 2026-09-27: Monte Carlo (mirofish_simulation) und
+    Options-P&L bewerten Puts mit der Call-Formel und einem immer steigenden
+    Kursziel -> Bearish-ROI/Edge ohne ökonomische Bedeutung. Erst nach einem
+    Fix + Validierung options.bearish_pricing_validated: true setzen."""
+    allow = bool(getattr(options_cfg, "allow_bearish", False))
+    validated = bool(getattr(options_cfg, "bearish_pricing_validated", False))
+    if allow and not validated:
+        log.error("allow_bearish=true ignoriert: Bearish-Bewertung (MC/Put-Preis) ist nicht "
+                  "richtungsfähig validiert (options.bearish_pricing_validated=false).")
+        return False
+    return allow
+
+
+def directional_move(move_pct: float, direction: str | None) -> float:
+    """Intraday-Bewegung in Signalrichtung (positiv = schon mitgelaufen).
+    Für das 'zu spät'-Gate: BULLISH -> +move, BEARISH -> -move."""
+    return -move_pct if direction == "BEARISH" else move_pct
+
+
 def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], dict]:
     """Baut GENAU EINEN externen Snapshot pro Lauf und hängt ihn an jeden
     Kandidaten als candidate["external_context"] an. Reine Observability:
@@ -527,11 +548,23 @@ def main() -> None:
 
     # ── STUFE 2: Prescreening (Haiku) ────────────────────────────────────────
     log.info("Stufe 2: Prescreening (Claude Haiku)")
-    shortlist = Prescreener().run(candidates)
+    _prescreener = Prescreener()
+    shortlist = _prescreener.run(candidates)
     stats["prescreened"] = len(shortlist)
+    _failed = [t for t in _prescreener.failed_tickers if t]
+    if _failed:
+        stats["prescreen_api_failed"] = len(_failed)
+        for _t in _failed:
+            reject("prescreen_api_error", _t)
     log.info(f"  → {len(shortlist)} nach Prescreening")
     if not shortlist:
-        stats["stop_reason"] = f"Alle {len(candidates)} im Prescreening als kein Signal bewertet."
+        if _failed and len(_failed) >= len(candidates):
+            stats["stop_reason"] = (f"Prescreening-API ausgefallen: {len(_failed)} Kandidaten "
+                                    f"NICHT bewertet (kein Signal-Urteil).")
+        else:
+            stats["stop_reason"] = (f"Alle {len(candidates) - len(_failed)} bewerteten Kandidaten im "
+                                    f"Prescreening als kein Signal eingestuft"
+                                    + (f"; {len(_failed)} wegen API-Fehler nicht bewertet." if _failed else "."))
         send_email(); return
 
     # ── STUFE 2b: Alpha Sources + Data Validation ────────────────────────────
@@ -680,7 +713,7 @@ def main() -> None:
     # ── STUFE 4a: Bearish-Gate ───────────────────────────────────────────────
     # Track Record bearisher Trades: 0/6 Wins (LONG_PUT mean −86%).
     # Underreaction-These funktioniert empirisch nur long → BEARISH verwerfen.
-    allow_bearish = bool(getattr(getattr(cfg, "options", None), "allow_bearish", False))
+    allow_bearish = bearish_trading_allowed(getattr(cfg, "options", None))
     if not allow_bearish:
         _bullish = []
         for a in analyses:
@@ -824,7 +857,13 @@ def main() -> None:
         if "intraday_delta" not in s:
             s["intraday_delta"] = get_intraday_move(ticker)
         delta_info = s.get("intraday_delta", {})
-        move = abs(float(delta_info.get("move_pct", 0) or 0))
+        signed_move = float(delta_info.get("move_pct", 0) or 0)
+        direction = (s.get("deep_analysis") or {}).get("direction", "BULLISH")
+        # "Zu spät" nur, wenn sich der Kurs bereits IN Signalrichtung bewegt hat
+        # (wie modules/intraday_delta.is_already_moved). Vorher abs(): ein
+        # BULLISH-Kandidat mit -9 % Tagesbewegung wurde als "zu spät" verworfen
+        # (Review 2026-09-27).
+        move = directional_move(signed_move, direction)
 
         if move <= current_max:
             mc_viable_dynamic.append(s)
@@ -1229,6 +1268,11 @@ def main() -> None:
                 _la = float(_opt.get("ask", 0))
                 _sb = float(_sl.get("bid", 0))
                 _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
+            if _entry_debit is not None and _entry_debit <= 0:
+                # Debit-Spread ohne positive Kosten kann nie geschlossen werden
+                # (compute_outcome -> None für immer) -> Long-Leg-Preis nehmen
+                log.warning(f"  [{p['ticker']}] net_debit <= 0 -> entry_debit = Long-Leg-Ask")
+                _entry_debit = round(float(_opt.get("ask", 0) or 0), 2)
         else:
             _entry_debit = round(float(_opt.get("ask", 0)), 2)
         # Fill-Tracking: Quote-Zustand beim Entry für spätere Slippage-Analyse

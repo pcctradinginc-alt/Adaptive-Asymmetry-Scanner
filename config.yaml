@@ -46,6 +46,8 @@ options:
   #   "6 Monate"    → dte_floor=140 (Long-Term Minimum, Thesis-Matching)
   #   unbekannt     → dte_floor=120 (konservativer Default)
   allow_bearish: false       # Bearish-Trades deaktiviert: 0/6 Wins (LONG_PUT mean −86%)
+  bearish_pricing_validated: false  # MC + Put-P&L noch richtungsblind (Review 2026-09-27);
+                                    # allow_bearish wirkt erst, wenn hier true (nach Fix)
   delta_target_low:  0.55
   delta_target_high: 0.75
   target_move_pct:   0.10

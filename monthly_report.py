@@ -922,7 +922,9 @@ def main() -> None:
         log.error("history.json nicht gefunden.")
         sys.exit(1)
     history = json.loads(HISTORY_PATH.read_text())
-    closed  = history.get("closed_trades", [])
+    # einmal deduplizieren, damit alle Abschnitte dieselbe Basis haben
+    # (vorher nur die Rolling-Stats -> widersprüchliche Zahlen in einer Mail)
+    closed  = dedup_closed_trades(history.get("closed_trades", []))
 
     # Berichtsmonat = Vormonat (Report läuft am 1. des Folgemonats)
     today        = date.today()

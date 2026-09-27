@@ -369,18 +369,11 @@ class DeepAnalysis:
                         result = json.loads(raw_fixed)
                         log.info(f"  [{ticker}] JSON repariert (gekürzt auf {cutoff} Zeichen)")
                     except Exception:
-                        log.warning(f"  [{ticker}] JSON nicht reparierbar → Fallback-Response")
-                        result = {
-                            "red_team": {"argument_1": "JSON-Parse-Fehler", "red_team_verdict": "PASSIERT"},
-                            "stats_check": {"mc_assessment": "n/a", "concern_level": "medium"},
-                            "impact": 3, "surprise": 3, "direction": "BULLISH",
-                            "bear_case_severity": 5,
-                            "time_to_materialization": "2-3 Monate",
-                            "catalyst_confidence": 5,
-                            "asymmetry_reasoning": "JSON-Parse-Fehler — manuelle Prüfung empfohlen",
-                            "catalyst": "n/a", "bear_case": "n/a",
-                            "macro_assessment": "n/a", "data_confidence": "low"
-                        }
+                        # Kein erfundener BULLISH/PASSIERT-Datensatz mehr: der
+                        # wäre (bei gelockerten Gates) als echte Analyse in
+                        # Trades und Lerndaten gelandet (Review 2026-09-27).
+                        log.warning(f"  [{ticker}] JSON nicht reparierbar → Kandidat verworfen")
+                        return None
                 else:
                     raise
 

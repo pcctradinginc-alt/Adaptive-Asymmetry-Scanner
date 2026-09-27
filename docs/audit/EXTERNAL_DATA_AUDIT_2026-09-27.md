@@ -409,3 +409,44 @@ Getestet: nicht vor 70 Tagen, danach genau einmal, Hash-Schutz, nur Zeilen nach 
 - Real- oder Shadow-Trade, Outcome, Feedback
 
 Probe mit dem heutigen echten Kontext: keine PIT-Verletzung, exakt reproduzierbar. Der erste echte Lauf ist 2026-09-28; die geplante Prüfung um 14:20 UTC wendet das Skript auf reale Kandidaten an.
+
+---
+
+# Repo-Review (gesamtes Repository, 2026-09-27 nachts)
+
+Drei parallele Reviews: Signalgenerierung, Trade-Konstruktion/Scoring, Outcomes/Lernen/Versand. Jeder Befund wurde im Code nachgeprüft.
+
+## Behoben (mit Regressionstests)
+
+| Prio | Befund | Fix |
+|---|---|---|
+| P0 | **Bear-Put-Spread:** Das Short-Leg lag über dem Long-Strike (Call-Fenster auch für Puts). Der verkaufte Put war teurer, `net_debit` negativ. Folgen: Die ROI-Gate verwarf den Trade still, oder ein Trade blieb ewig offen (`compute_outcome` → None), und das Ledger-Counterfactual `real_strat_ret` war unsinnig. | `pick_spread_leg_strike` ist richtungsabhängig (Put: [0.80, 0.95]×, Ziel 0.90×). Ein Spread mit Debit ≤ 0 wird verworfen, und zwar im Designer, beim Trade-Eintrag und im Ledger-Counterfactual. |
+| P0 | **Intraday-„zu spät“-Gate** nutzte `abs(move)`: Ein BULLISH-Kandidat mit −9 % Tagesbewegung wurde als „zu spät“ verworfen (falsche Rejects, verfälschte Reject-Statistik). | Die Bewegung wird jetzt in Signalrichtung gemessen (`directional_move`), wie schon in `intraday_delta.is_already_moved`. |
+| P0 (latent) | **Bearish-Bewertung richtungsblind:** Monte Carlo mit immer steigendem Kursziel, Put-P&L über die Call-Formel. | Harte Sperre: `allow_bearish` wirkt nur mit `options.bearish_pricing_validated: true` (erst nach Fix und Validierung). |
+| P1 | Prescreener: `ZeroDivisionError` bei leerem Batch bricht den gesamten Lauf ohne Mail und Historie ab. | Division abgesichert. |
+| P1 | Prescreener: Ein API-Ausfall wurde als „alle als kein Signal bewertet“ gemeldet, ohne Reject-Eintrag. | `failed_tickers`, `reject("prescreen_api_error")`, eigener `stop_reason`, `stats.prescreen_api_failed`. |
+| P1 | Deep-Analyse: Bei unreparierbarem JSON wurde ein **erfundener BULLISH/PASSIERT-Datensatz** zurückgegeben (Risiko: Fake-Trades und Fake-Lerndaten). | Der Kandidat wird verworfen (`None`). |
+| P1 | `scanner.yml` pushte ohne Rebase. Ein paralleler Commit hätte die Historie des Tages verloren gehen lassen. | Stash plus `pull --rebase` vor dem Push, wie in allen anderen Workflows. |
+| P2 | `risk.earnings_buffer_days` wurde ignoriert (fest 7). | Wird jetzt aus der Config gelesen (Wert unverändert 7). |
+| P2 | Monatsbericht deduplizierte nur einen Abschnitt, dadurch widersprüchliche Zahlen in einer Mail. | Einmalige Deduplizierung für alle Abschnitte. |
+
+## Bewusst nicht geändert (Governance oder zu große Eingriffe), mit Empfehlung
+
+| Prio | Befund | Warum offen / Empfehlung |
+|---|---|---|
+| P1 | Edge-Gate vergleicht das 45-Tage-MC-Ziel mit dem Straddle einer Option mit 120 und mehr Tagen Laufzeit (`final_mc_dte_mode: legacy_45`). | Genau das prüft der vorregistrierte Challenger `final_mc_dte_shadow` (Start 2026-09-28). Eine Umstellung wäre Promotion ohne Evidenz. |
+| P1 | Bearish-MC/Put-Pricing richtungsblind (siehe oben). | Eigener Umbau: Put-Formel, abwärts gerichtetes Ziel, Put-Delta. Danach validieren und `bearish_pricing_validated` setzen. |
+| P2 | `datetime.utcnow()` als Handelstag (Pipeline, Makro-Cache). | Beim aktuellen Cron (13:30 UTC) ohne Wirkung. Bei manuellen Läufen nachts UTC wäre das Datum um einen Tag versetzt. Empfehlung: NY-Datum (`market_snapshot.NY_TZ`). |
+| P2 | Insider-Cluster zählt ≥ 2 Insider in 14 Tagen statt der dokumentierten 72 Stunden. | Verändert die Signalsemantik; zuerst als Challenger prüfen. |
+| P2 (plausibel) | SEC-EPS-TTM summiert die letzten 4 XBRL-Fakten ohne Dauerfilter; Quartals- und kumulierte Werte können sich mischen. | Braucht Live-SEC-Daten zur Verifikation. |
+| P2 | DTE-Tiers Short/Mid werden nie ausgewertet (`dte_floor` ≥ 120). | Toter Code; aufräumen. |
+| P2 (plausibel) | Kelly mischt MC-Mittel-P&L (b) mit der Treffer-Wahrscheinlichkeit (p) aus einem anderen Modell. | Modellierungsfrage; bedingte Gewinn- und Verlusthöhen schätzen. |
+| P3 | Tote Config-Keys (`target_move_pct`, `min_roi_after_spread`, `pipeline.min_impact_threshold`) sowie das unbenutzte `compute_option_roi` mit ENV-Schwelle. | Aufräumen, damit Tuning über diese Keys nicht still wirkungslos bleibt. |
+| P3 | Mail-Versandfehler werden nur geloggt. | Empfehlung: Zähler für Zustellfehler im Health-Report. |
+
+## Einordnung für das Ziel „selbstlernend, irgendwann Alpha, Trade-Mails“
+
+1. **Datenqualität des Lernens** ist jetzt der Engpass, nicht die Zahl der Quellen. Behoben sind falsche Rejects (Intraday), Fake-Analysen, stille Lauf-Abbrüche und kaputte Spread-Outcomes. Das alles hätte die Lerndaten verfälscht.
+2. **Die Ökonomie** ist die Hauptbaustelle: Median −42 %, 25 % Totalverluste, geometrisch −54 % pro Trade bei vollem Einsatz. Das Kapital überlebt nur bei kleinen Positionen. Hebel sind Exit-Regeln, Laufzeit/Edge-Gate (Challenger läuft) und Positionsgröße, nicht mehr Features.
+3. **Die Lernmechanik** ist intakt und abgesichert: Ledger mit eingefrorenem Kontext, vorregistrierte Challenger mit Alpha-Spending, menschliche Promotion. Quasi-ML und PPO lernen derzeit nichts, weil die Basis-Features keine Vorhersagekraft haben. Die Challenger sind der vorgesehene Weg zu neuen, geprüften Signalen.
+4. **Trade-Mails:** Der Versandpfad funktioniert. Die Bear-Spread- und Intraday-Fehler haben Empfehlungen verhindert, das ist behoben.
