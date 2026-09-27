@@ -154,3 +154,42 @@ exit_sim:
 # Candidate-Ledger (reine Observability, siehe modules/candidate_ledger.py)
 ledger:
   max_option_snapshots: 40   # Obergrenze echter Tradier-Options-Snapshots pro Lauf (API-Call-Budget)
+
+# External-Data Factory (Road/Maritime Freight, Weather, Real Economy) —
+# siehe modules/external/. Reine Observability solange mode != production.
+external_context:
+  enabled: true
+  mode: shadow            # off | shadow | challenger | production
+  road_freight: {enabled: true}
+  maritime: {enabled: true}
+  weather: {enabled: true}
+  archive:
+    root: outputs/external_data
+    raw_payload_policy: hash_only    # hash_only (Default) | gzip
+    raw_max_bytes: 2000000           # Nur bis zu dieser Größe wird bei "gzip" der Payload gespeichert
+    storage_warn_mb_1y: 200          # 1y-Speicherprojektion über dieser Schwelle → Warnung/Migrationshinweis
+  readiness:
+    # Methodologische Mindestschwellen je Frequenz für EXPLORATORY_READY /
+    # CHALLENGER_READY — NIE aus Returns abgeleitet (siehe registry.py).
+    daily:   {exploratory_min_obs: 60, exploratory_min_days: 90, challenger_min_obs: 250, challenger_min_days: 365}
+    monthly: {exploratory_min_obs: 24, exploratory_min_days: 0,  challenger_min_obs: 60,  challenger_min_days: 0}
+    event:   {exploratory_min_obs: 20, exploratory_min_days: 0,  challenger_min_obs: 50,  challenger_min_days: 0}
+  states:
+    strong: 1.5             # |z| >= strong → STRONG_EXPANSION/STRONG_CONTRACTION
+    normal: 0.5              # |z| >= normal → EXPANSION/CONTRACTION
+    z_window_days: 365
+  research:
+    enable_hypothesis_generation: true
+    max_external_hypotheses_per_month: 3
+  production:
+    max_score_delta: 0
+  alerts:
+    email: true
+  learning:
+    promoted_external_features: []   # Erst nach Challenger-Validierung + gemergtem PR befüllen
+
+# RL-Feature-Schema für externe Signale (siehe modules/external/features.py)
+learning_features:
+  production: [impact, mismatch, eps_drift]
+  shadow: []           # externe Features werden von den Integrationsschritten ergänzt
+rl_feature_schema_version: v1

@@ -1,0 +1,51 @@
+name: External Data Preflight
+
+# Manueller Live-Check ALLER registrierten externen Quellen (inkl.
+# disabled/deferred) — archiviert NICHTS, nur Status/Grund je Quelle.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Preflight
+        env:
+          ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          mkdir -p outputs/external_data/health
+          python -m modules.external.orchestrator preflight --json outputs/external_data/health/preflight_report.json
+
+      - name: Print report
+        run: cat outputs/external_data/health/preflight_report.json
+
+      - name: Commit preflight report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/external_data/health/preflight_report.json
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -m "chore: external data preflight $(date -u +%Y-%m-%dT%H:%M)"
+          git pull --rebase origin main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
