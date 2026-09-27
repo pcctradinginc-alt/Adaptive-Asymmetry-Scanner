@@ -695,3 +695,21 @@ def test_portwatch_license_decision_and_attribution():
            "regional_freight_states": [], "global_maritime_state": None,
            "chokepoint_anomalies": [], "weather": {}, "candidates": [], "attributions": attr}
     assert any("IMF PortWatch" in ln for ln in render_markdown_lines(ctx))
+
+
+def test_source_backfill_override_allows_large_first_import(tmp_path):
+    from datetime import datetime, timezone
+    from modules.external.archive import ExternalArchive
+    from modules.external.pit import AvailabilityPrecision, Observation
+    t = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    obs = [Observation(source_id="big", dataset="d", series_id=f"s{i}", entity_id="", metric="m",
+                       value=float(i), unit="u", observation_time=t, available_at=t, retrieved_at=t,
+                       availability_precision=AvailabilityPrecision.INFERRED, parser_version="1")
+           for i in range(200)]
+    a = ExternalArchive(root=tmp_path)
+    a.store_observations(obs, max_new_normalized_bytes_per_source_per_run=1000)
+    # Standard-Backfill-Limit (30 MB) reicht hier; mit kleinem Override blockiert:
+    b = ExternalArchive(root=tmp_path / "b")
+    b.store_observations(obs, max_new_normalized_bytes_per_source_per_run=1000, max_backfill_bytes=5000)
+    assert "big" in b.last_guard_blocked
+    assert "big" not in a.last_guard_blocked

@@ -106,6 +106,9 @@ sources:
     supports_vintages: false
     supports_release_time: false
     pit_quality: INFERRED
+    # Einmaliger Erstimport über dem 30-MB-Standard (Ingestion 2026-09-27:
+    # volume guard). Danach gilt wieder das tägliche Limit.
+    max_backfill_bytes: 60000000
     enabled: true
     criticality: low
     dataset: "normals-daily-1991-2020"
