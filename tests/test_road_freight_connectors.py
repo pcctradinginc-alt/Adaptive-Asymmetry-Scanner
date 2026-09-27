@@ -577,8 +577,9 @@ def test_eurostat_quarterly_first_seen_precision(tmp_path):
     state_path = str(tmp_path / "eurostat_seen_periods.json")
     cfg = {"_seen_periods_state_path": state_path}
 
-    # 1. Abruf: alle 3 Perioden sind neu (Zustandsdatei existiert noch
-    # nicht) -> EXACT_TIMESTAMP, attrs.first_seen_at gesetzt.
+    # 1. Abruf: Zustandsdatei existiert noch nicht -> Backfill der ganzen
+    # Historie; deren Erstveröffentlichung ist unbekannt -> CONSERVATIVE_DATE,
+    # kein first_seen_at. Präzisere Zeiten erst ab dem 2. Abruf.
     conn1 = rf.EurostatRoadFreightQuarterlyConnector(cfg)
     with patch.object(rf.http, "fetch", side_effect=[
         _fr("eurostat_toc_quarterly.txt", content_type="text/plain"),
@@ -588,9 +589,9 @@ def test_eurostat_quarterly_first_seen_precision(tmp_path):
     assert result1.status == SourceStatus.PASS
     assert len(result1.observations) == 3
     for o in result1.observations:
-        assert o.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
+        assert o.availability_precision == AvailabilityPrecision.CONSERVATIVE_DATE
         assert o.available_at == datetime(2024, 6, 15, 9, 0, tzinfo=timezone.utc)
-        assert "first_seen_at" in o.attrs
+        assert "first_seen_at" not in o.attrs
     import json as _json
     stored = _json.loads(Path(state_path).read_text())
     assert set(stored["road_go_qa_tott"]) == {"2023-Q1", "2023-Q2", "2023-Q3"}
@@ -635,3 +636,15 @@ def test_eurostat_road_freight_annual_connector_precision_unaffected():
     for o in result.observations:
         assert o.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
         assert "first_seen_at" not in o.attrs
+
+
+def test_eurostat_quarterly_preflight_does_not_touch_first_seen_state(tmp_path):
+    state_path = tmp_path / "eurostat_seen_periods.json"
+    conn = rf.EurostatRoadFreightQuarterlyConnector({"_seen_periods_state_path": str(state_path)})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_quarterly.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat_quarterly_v1.json"),
+    ]):
+        rep = conn.preflight(NOW)
+    assert rep["status"] == "PASS"
+    assert not state_path.exists()

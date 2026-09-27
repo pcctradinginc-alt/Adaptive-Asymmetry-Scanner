@@ -1436,7 +1436,9 @@ def _parse_eurostat_jsonstat(data: dict, code: str, retrieved_at: datetime,
                 avail_precision = (AvailabilityPrecision.EXACT_TIMESTAMP if release_time
                                     else AvailabilityPrecision.CONSERVATIVE_DATE)
                 available_at = release_time or retrieved_at
-            elif time_label in previously_seen_periods:
+            elif not previously_seen_periods or time_label in previously_seen_periods:
+                # Erster Abruf überhaupt (Backfill: die ganze Historie ist
+                # "neu", ihre echte Erstveröffentlichung aber unbekannt) oder
                 # Periode war schon bei einem früheren Abruf dieses
                 # Datensatzes vorhanden -> historisch/Revision, konservativ.
                 avail_precision = AvailabilityPrecision.CONSERVATIVE_DATE
@@ -1586,6 +1588,16 @@ class EurostatRoadFreightQuarterlyConnector(Connector):
     def _state_path(self) -> Path:
         return Path(self.cfg.get("_seen_periods_state_path", EUROSTAT_SEEN_PERIODS_STATE_PATH))
 
+    def preflight(self, now: datetime) -> dict:
+        """Live-Check ohne Seiteneffekt: der First-Seen-Zustand wird NUR vom
+        archivierenden Abruf fortgeschrieben, sonst würden Perioden, die der
+        Preflight zuerst sieht, später fälschlich als 'schon gesehen' gelten."""
+        self._dry_run = True
+        try:
+            return super().preflight(now)
+        finally:
+            self._dry_run = False
+
     def _load_seen_periods(self, code: str) -> set[str]:
         path = self._state_path()
         if not path.exists():
@@ -1667,7 +1679,8 @@ class EurostatRoadFreightQuarterlyConnector(Connector):
             )
         # Zustandsdatei erst NACH erfolgreichem Parse aktualisieren (nie bei
         # SCHEMA_CHANGED/FAIL einen halbgaren Stand persistieren).
-        self._save_seen_periods(code, previously_seen | all_periods)
+        if not getattr(self, "_dry_run", False):   # Preflight: keine Zustandsänderung
+            self._save_seen_periods(code, previously_seen | all_periods)
         discovered["eurostat_road_freight_quarterly_new_periods"] = sorted(all_periods - previously_seen)
 
         status = SourceStatus.WARN if parse_failures else SourceStatus.PASS

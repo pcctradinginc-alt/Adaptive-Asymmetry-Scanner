@@ -48,8 +48,9 @@ DEFAULT_ARCHIVE_ROOT = "outputs/external_data"
 
 # Quellen je Familie (siehe config/external_sources/*.yaml für die vollen
 # Registry-Einträge; hier reicht die source_id, um das Archiv zu befragen).
-ROAD_FREIGHT_SOURCES = ["destatis_truck_toll", "bts_freight_tsi", "eurostat_road_freight",
-                         "estat_jp_truck"]
+ROAD_FREIGHT_SOURCES = ["destatis_truck_toll", "destatis_truck_toll_download",
+                         "bts_freight_tsi", "bts_open_data_tsi", "eurostat_road_freight",
+                         "eurostat_road_freight_quarterly", "estat_jp_truck"]
 MARITIME_SOURCES = ["imf_portwatch_ports", "imf_portwatch_chokepoints"]
 WEATHER_SOURCES = ["nws_forecast", "nws_alerts", "ncei_normals", "nhc_storms"]
 REAL_ECONOMY_SOURCES = ["eurostat_sentiment", "eurostat_industrial_production", "fred_us_macro"]
@@ -131,6 +132,15 @@ def _zscore_for_metric(observations, metric: str, window_days: int = 365) -> flo
     return z[-1] if z else None
 
 
+def _first_with_data(archive, now, *source_ids):
+    """(source_id, observations) der ersten Quelle mit Daten bis `now`."""
+    for sid in source_ids:
+        obs = _load_observations(archive, sid, now)
+        if obs:
+            return sid, obs
+    return source_ids[0], []
+
+
 def _region_entry(z, source_id):
     return {"source_id": source_id, "z": z, "is_fresh": z is not None, "age_days": None}
 
@@ -161,9 +171,13 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
            "us_combined": feat.combine_states([]), "eu_combined": feat.combine_states([]),
            "asia_combined": feat.combine_states([])}
     try:
-        de_obs = _load_observations(archive, "destatis_truck_toll", now)
-        us_obs = _load_observations(archive, "bts_freight_tsi", now)
+        # Je Region GENAU EINE Quelle, nie vermischt: die bevorzugte (GENESIS
+        # bzw. FRED/ALFRED mit Vintages), sonst der schlüssellose Fallback.
+        de_src, de_obs = _first_with_data(archive, now, "destatis_truck_toll",
+                                          "destatis_truck_toll_download")
+        us_src, us_obs = _first_with_data(archive, now, "bts_freight_tsi", "bts_open_data_tsi")
         eu_obs = _load_observations(archive, "eurostat_road_freight", now)
+        eu_q_obs = _load_observations(archive, "eurostat_road_freight_quarterly", now)
         jp_obs = _load_observations(archive, "estat_jp_truck", now)
 
         out["de_z_1y"] = _safe(rff.de_truck_z_1y, de_obs)
@@ -175,11 +189,11 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         # ── US: bts_freight_tsi (+ trucking-Komponente, falls vorhanden) ────
         us_sources = []
         if us_obs:
-            us_sources.append(_region_entry(out["us_z"], "bts_freight_tsi"))
+            us_sources.append(_region_entry(out["us_z"], us_src))
             us_metrics = {o.metric for o in us_obs}
             if "us_trucking" in us_metrics:
                 trucking_z = _zscore_for_metric(us_obs, "us_trucking")
-                us_sources.append(_region_entry(trucking_z, "bts_freight_tsi_trucking"))
+                us_sources.append(_region_entry(trucking_z, f"{us_src}_trucking"))
         out["us_combined"] = feat.combine_states(us_sources)
 
         # ── EU: DE (destatis) + jede eurostat-Länderserie/EU-Aggregat als
@@ -189,14 +203,19 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         # ist der Mittelwert der tatsächlich vorhandenen EU-Quellen.
         eu_sources = []
         if de_obs:
-            eu_sources.append(_region_entry(out["de_z_1y"], "destatis_truck_toll"))
+            eu_sources.append(_region_entry(out["de_z_1y"], de_src))
         eu_country_entities = sorted({
-            o.entity_id for o in eu_obs if o.metric == "road_freight_ths_t"
+            o.entity_id for o in eu_obs + eu_q_obs if o.metric == "road_freight_ths_t"
         })
+        eu_frequency = {}
         for eid in eu_country_entities:
-            # Eurostat liefert Jahreswerte: 12-Jahres-Fenster (>= 5 Basispunkte)
-            z = _safe(rff.eu_road_freight_z, eu_obs, eid, "road_freight_ths_t", 365 * 12)
+            # Quartalsreihe bevorzugt (~12 Quartale), sonst Jahreswerte
+            # (12-Jahres-Fenster); je Land EINE Quelle, nie doppelt gezählt.
+            z, freq = _safe(rff.eu_road_freight_z_preferred, eu_obs + eu_q_obs, eid,
+                            "road_freight_ths_t", default=(None, "none"))
+            eu_frequency[eid] = freq
             eu_sources.append(_region_entry(z, f"eurostat_road_freight:{eid}"))
+        out["eu_frequency"] = eu_frequency
         out["eu_sources"] = [e["source_id"] for e in eu_sources]
         out["eu_source_count"] = len(eu_sources)
         out["eu_combined"] = feat.combine_states(eu_sources)

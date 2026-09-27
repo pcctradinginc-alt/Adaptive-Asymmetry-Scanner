@@ -395,7 +395,9 @@ def eu_road_freight_z_preferred(observations: Iterable[Observation], entity_id: 
         z = _zscore(q_series, window_days)
         if z is not None:
             return z, "quarterly"
-    z = eu_road_freight_z(obs, entity_id, metric)
+    # Jahreswerte: 12-Jahres-Fenster (>= 5 Basispunkte), wie im Kontext.
+    # Das 3-Jahres-Default-Fenster hätte nur 3 Jahrespunkte -> immer None.
+    z = eu_road_freight_z(obs, entity_id, metric, window_days=365 * 12)
     return z, ("annual" if z is not None else "none")
 
 
