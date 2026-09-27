@@ -937,6 +937,22 @@ def _resolve_catalyst_relevance(catalyst_text: str | None, industry_cfg: dict) -
     return None
 
 
+def refresh_catalyst_relevance(candidate: dict, industry_cfg: dict | None = None) -> None:
+    """Setzt ticker_exposure.catalyst_relevance aus dem Deep-Analysis-
+    Katalysator. Der Kontext wird VOR der Deep-Analyse angehängt, dort war der
+    Katalysator noch unbekannt -> catalyst_relevance war immer None (Audit
+    2026-09-27). Rein kandidatenbezogen, keine externen Daten -> PIT-neutral."""
+    ctx = candidate.get("external_context")
+    if not ctx:
+        return
+    catalyst_text = (candidate.get("deep_analysis") or {}).get("catalyst")
+    if not catalyst_text:
+        return
+    industry_cfg = industry_cfg if industry_cfg is not None else _safe(load_industry_exposure, default={})
+    exposure = ctx.setdefault("ticker_exposure", {})
+    exposure["catalyst_relevance"] = _resolve_catalyst_relevance(catalyst_text, industry_cfg)
+
+
 def attach_candidate_context(candidate: dict, snapshot: dict | None,
                               exposures_cfg: dict | None = None,
                               industry_cfg: dict | None = None) -> dict | None:

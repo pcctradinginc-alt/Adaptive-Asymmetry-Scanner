@@ -940,3 +940,19 @@ def test_stale_source_is_not_fresh_and_caps_confidence():
     assert feat.combine_states([fresh, dict(fresh, source_id="fresh2")])["confidence"] > 0.3
     # ohne Beobachtungen: nie frisch
     assert not ctxmod._region_entry(1.0, "x")["is_fresh"]
+
+
+def test_catalyst_relevance_set_after_deep_analysis():
+    """Kontext wird VOR der Deep-Analyse angehängt -> catalyst_relevance war
+    immer None. refresh_catalyst_relevance setzt es aus dem Katalysator
+    (echte config/industry_exposure.yaml)."""
+    from modules.external import context as ctxmod
+    c = {"ticker": "DAL", "external_context": {"ticker_exposure": {"catalyst_relevance": None}},
+         "deep_analysis": {"catalyst": "Delta cuts Q4 airline guidance on fuel costs"}}
+    ctxmod.refresh_catalyst_relevance(c)
+    rel = c["external_context"]["ticker_exposure"]["catalyst_relevance"]
+    assert rel["catalyst_type"] == "airline_guidance"
+    assert rel["weather_relevance"] == "HIGH" and rel["maritime_relevance"] == "NONE"
+    # ohne Kontext / ohne Katalysator: nichts passiert, kein Fehler
+    ctxmod.refresh_catalyst_relevance({"ticker": "A"})
+    ctxmod.refresh_catalyst_relevance({"ticker": "A", "external_context": {}, "deep_analysis": {}})
