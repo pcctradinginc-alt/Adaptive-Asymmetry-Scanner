@@ -39,6 +39,9 @@ jobs:
           mkdir -p outputs/external_data/health
           python -m modules.external.orchestrator preflight --json outputs/external_data/health/preflight_report.json
 
+      - name: Collect license evidence (Primärbelege, keine Entscheidung)
+        run: python scripts/license_evidence.py || true
+
       - name: Print report
         run: cat outputs/external_data/health/preflight_report.json
 
@@ -48,7 +51,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/external_data/health/preflight_report.json
+          git add outputs/external_data/health/preflight_report.json outputs/external_data/health/license_evidence.json 2>/dev/null || git add outputs/external_data/health/preflight_report.json
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: external data preflight $(date -u +%Y-%m-%dT%H:%M)"
           git pull --rebase origin main
