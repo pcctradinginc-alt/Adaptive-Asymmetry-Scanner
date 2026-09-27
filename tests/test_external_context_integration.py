@@ -912,3 +912,31 @@ def test_keyless_fallback_sources_feed_road_context(tmp_path):
     road = snap["road_freight"]
     assert "destatis_truck_toll_download" in road["eu_sources"]
     assert road["de_z_1y"] is not None
+
+
+# ── Freshness: eine veraltete Quelle darf keine hohe Konfidenz erzeugen ────
+
+def test_stale_source_is_not_fresh_and_caps_confidence():
+    from datetime import datetime, timezone
+    from modules.external import context as ctxmod
+    from modules.external import features as feat
+    from modules.external.pit import AvailabilityPrecision, Observation
+    now = datetime(2026, 9, 1, tzinfo=timezone.utc)
+
+    def obs(month_start):
+        return [Observation(source_id="s", dataset="d", series_id="x", entity_id="", metric="m",
+                            value=1.0, unit="u", observation_time=month_start,
+                            available_at=month_start, retrieved_at=month_start,
+                            availability_precision=AvailabilityPrecision.EXACT_DATE,
+                            parser_version="1")]
+    fresh = ctxmod._region_entry(2.5, "fresh", obs(datetime(2026, 7, 1, tzinfo=timezone.utc)),
+                                 now, "monthly", metric="m")
+    stale = ctxmod._region_entry(2.5, "stale", obs(datetime(2025, 7, 1, tzinfo=timezone.utc)),
+                                 now, "monthly", metric="m")
+    assert fresh["is_fresh"] and fresh["age_days"] == 62
+    assert not stale["is_fresh"] and stale["age_days"] > 400
+    # vorher: beide 'frisch' -> Konfidenz 1.0 (STRONG); jetzt gedeckelt
+    assert feat.combine_states([fresh, stale])["confidence"] <= 0.3
+    assert feat.combine_states([fresh, dict(fresh, source_id="fresh2")])["confidence"] > 0.3
+    # ohne Beobachtungen: nie frisch
+    assert not ctxmod._region_entry(1.0, "x")["is_fresh"]
