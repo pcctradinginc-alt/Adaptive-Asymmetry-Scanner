@@ -260,7 +260,9 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         # 'index'-Metric tatsächlich vorhanden ist (nie erfinden).
         jp_metrics = {o.metric for o in jp_obs}
         asia_z = None
-        for candidate_metric in ("index_sa", "index", "truck_index"):
+        # e-Stat 自動車輸送統計: Gesamttonnage (合計|合計, 千トン) -- vorher nur
+        # Index-Namen gesucht, die e-Stat nie liefert -> asia_z immer None.
+        for candidate_metric in ("index_sa", "index", "truck_index", "jp_truck_合計|合計"):
             if candidate_metric in jp_metrics:
                 asia_z = _safe(rff.jp_truck_z, jp_obs, candidate_metric)
                 if asia_z is not None:
