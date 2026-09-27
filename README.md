@@ -236,6 +236,194 @@ python -m modules.challenger   # druckt eine Tabelle aller registrierten Challen
 
 ---
 
+## External Context (Real Economy / Freight / Shipping / Weather)
+
+Ein zusätzlicher, vollständig von der Trading-Entscheidung entkoppelter
+Beobachtungs-Layer (`modules/external/`) sammelt Real-Economy-Signale
+(Road-Freight, Maritime/Shipping, Chokepoints, Wetter) und ordnet sie den
+Aktien-Katalysatoren des Scanners zu. Er läuft **ausschließlich im Shadow-
+Modus**: er beeinflusst keine Gates, keine Scores, keine Trades.
+
+### Architektur (ASCII)
+
+```
+config/external_sources/*.yaml          config/{industry,port,weather}_exposure.yaml
+        │                                          │
+        ▼                                          │
+modules/external/sources/*  ──fetch──►  RawRecord  │
+        │                                          │
+        ▼                                          │
+modules/external/pit.py  (Observation, PIT-Regeln) │
+        │                                          │
+        ▼                                          ▼
+modules/external/archive.py  ──persist──►  outputs/external_data/
+   raw/<source_id>/<YYYY-MM>/…meta.json               ▲
+   normalized/<source_id>/<YYYY-MM>.jsonl              │
+   manifests/<YYYY-MM-DD>/<run_id>.json                │
+   health/source_health.json ◄── registry.py ──────────┘
+   health/storage_telemetry.json
+        │
+        ▼
+modules/external/features.py  (rolling/zscore/state/breadth, past-only)
+        │
+        ▼
+modules/external/context.py / policy.py / shadow_analysis.py / governance.py
+   (LLM-Relation SUPPORT|NEUTRAL|CONTRADICT, score_delta=0, Governance-Pfad)
+        │
+        ▼
+Candidate-Ledger-Zeile: row["external"] = {snapshot_id, feature_version,
+  available_at, primitives{…}, states{…}, ticker_exposure{…}, divergences{…},
+  relation{…}, policy{mode, score_delta=0, veto}}
+        │
+        ├──► Trades: "external_context_entry" (beim Entry EINGEFROREN)
+        │        │
+        │        ▼
+        │    feedback.py: history["feature_stats_external"]  (rein deskriptiv,
+        │        NIE in compute_pearson_weights/model_weights/QuasiML/RL)
+        │
+        ├──► modules/external/research.py  (retrospektiv/in-sample, H1–H12,
+        │        NIE aus der Produktions-Pipeline aufgerufen)
+        │        → challengers.yaml-Snippets (Mensch fügt ein)
+        │
+        └──► Reports:
+             - Monats-Report: "🌍 Externer Kontext (SHADOW)"
+             - Status-/Trade-Mail + Daily-Markdown: kompakter Block
+               ("SHADOW — NICHT in der Produktionsentscheidung verwendet")
+             - modules/engine_monitor.py: externe Lern-Health-Warnungen
+```
+
+### Point-in-Time (PIT), Vintages, Archiv
+
+- Jede `Observation` trägt `observation_time`, `available_at` und optional
+  `vintage_time`/`forecast_issue_time` — Features dürfen zu Zeitpunkt `t`
+  ausschließlich Werte verwenden, die zu `t` bereits **bekannt** waren
+  (`modules/external/pit.py: available_as_of`).
+- Revisionen überschreiben nie: derselbe Identitätsschlüssel mit neuem Wert
+  wird als **neue Vintage-Zeile** angehängt (`archive.store_observations`).
+  Eine Rückrevision A→B→A ist eine echte neue Vintage und bleibt erhalten.
+- Rohdaten-Policy (`external_context.archive.raw_payload_policy`):
+  `hash_only` (Default, nur Metadaten+Content-Hash) oder `gzip` (Payload bis
+  `raw_max_bytes` zusätzlich gespeichert). Es werden **nie** Credentials/
+  Header archiviert.
+- Layout: `raw/<source_id>/<YYYY-MM>/…`, `normalized/<source_id>/<YYYY-MM>.jsonl`,
+  `manifests/<YYYY-MM-DD>/<run_id>.json`, `health/source_health.json`,
+  `health/storage_telemetry.json` (Speicher-Projektion 30d/1y/5y + Migrations-
+  hinweis, wenn `external_context.archive.storage_warn_mb_1y` überschritten
+  wird — GitHub-Actions-Checkout/Artefakte sind **kein** dauerhafter Speicher).
+
+### Quellen-Registry, Status, Readiness
+
+- `config/external_sources/*.yaml` je Datenfamilie (Road/Maritime/Weather),
+  entdeckt via `modules/external/registry.py`. Jede Quelle: `license_status`
+  (`OK`/`REVIEW_REQUIRED` — bei `REVIEW_REQUIRED` **nie** automatisch
+  abgerufen), `requires_auth` + `auth_env_variable` (fehlt die Env-Var →
+  `AUTH_MISSING`, kein Call), `criticality` (`low`/`medium`/`high`).
+- `SourceHealth` (`PASS`/`FAIL`/…, `staleness` `FRESH`/`STALE`/`UNKNOWN`,
+  `consecutive_failures`, `pit_integrity_failures`, …) wird nach
+  `outputs/external_data/health/source_health.json` persistiert.
+- `DataReadiness` (`registry.compute_readiness`) wird **ausschließlich** aus
+  Schema/PIT/Provenienz/Frische/Coverage/Zeitspanne/Beobachtungszahl
+  abgeleitet — **niemals** aus Returns/P&L:
+  `DISABLED → COLLECTING → SCHEMA_VALIDATED → PIT_VALIDATED →
+  EXPLORATORY_READY → CHALLENGER_READY → PRODUCTION_ELIGIBLE`
+  (bzw. `DEGRADED`/`BLOCKED`). Mindestschwellen je Frequenz in
+  `external_context.readiness` (`config.yaml`).
+
+### Shadow-Modus: Garantien
+
+- `external_context.mode` steuert die Stufe (`off | shadow | challenger |
+  production`); aktuell **`shadow`**.
+- `external_context.production.max_score_delta: 0` — im Shadow-Modus darf
+  der externe Kontext **keinen** Score/Gate beeinflussen. `policy.score_delta`
+  ist strukturell auf 0 begrenzt.
+- Alle Reports markieren den Abschnitt explizit:
+  **„SHADOW — NICHT in der Produktionsentscheidung verwendet"**.
+- `learning_features.shadow` sammelt externe Feature-Namen für das RL-Schema,
+  ohne dass sie ins aktive Training einfließen (`learning_features.production`
+  bleibt unverändert).
+
+### LLM-Relation — was sie ist und was sie nicht ist
+
+Die `relation`-Bewertung (`SUPPORT`/`NEUTRAL`/`CONTRADICT`, `materiality`,
+`confidence`, `mechanism`) ist eine **Konsistenzprüfung**: passt der
+behauptete Katalysator zur beobachteten Real-Economy-Lage? Sie ist **kein**
+Kauf-/Verkaufssignal, **kein** Score-Beitrag (siehe `max_score_delta: 0`) und
+**kein** Ersatz für Impact/Mismatch/EPS-Drift. Sie ist reine Zusatz-
+Information für Menschen und für `modules/external/research.py`.
+
+### Governance-Pfad (observe → … → human promotion)
+
+Analog zum bestehenden Challenger-Prozess (siehe „Tuning-Prozess" oben):
+`COLLECTING/EXPLORATORY_READY` (reine Beobachtung) → `CHALLENGER_READY`
+(walk-forward validierbar, siehe `modules/challenger.py`) →
+`PRODUCTION_ELIGIBLE` (nur wenn `source_id` in
+`external_context.learning.promoted_external_features` steht) → **Promotion
+ist ausschließlich ein von einem Menschen gemergter PR**, der `gates:`/
+`learning_features.production` in `config.yaml` ändert. Keine Automatisierung
+darf diesen Schritt selbst auslösen.
+
+### Forschungs-/Hypothesen-Budget (H1–H12)
+
+`modules/external/research.py` (aufgerufen aus `backtest_thresholds.py` /
+dem Hypothesen-Generator-Pfad von `monthly_report.py`, **nie** aus der
+Produktions-Pipeline) prüft mature Candidate-Ledger-Zeilen retrospektiv/
+in-sample gegen den vorregistrierten Mechanismus-Katalog
+`config/external_hypotheses.yaml` (H1–H12, u.a. Road-Freight-Zustand,
+Maritime-Zustand, Chokepoint-Anomalien, Wetter-Disruption, Divergenzen —
+**beide Richtungen** je Feature, z.B. H1A/H1B, konkurrieren unabhängig).
+Reifegrad-Gate: n≥30, ≥15 unabhängige Handelstage, ≥60 Tage Kalenderspanne,
+geclustertes 90%-Bootstrap-KI schließt 0 nicht ein. Budget:
+`external_context.research.max_external_hypotheses_per_month` (Default 3),
+max. 2 Vorschläge je Feature, keine >2-Wege-Interaktionen. Ein Treffer wird
+**nie** automatisch übernommen — er erscheint nur als fertiges
+`challengers.yaml`-Snippet im Monats-Report, das ein Mensch selbst einfügt
+(`registered_on=heute`, `start_date=morgen`, Label „retrospektiv/in-sample,
+NICHT promotion-fähig").
+
+### Ingestion/Preflight ausführen
+
+```bash
+python -m modules.external.orchestrator ingest              # Ingestion-Lauf (alle Familien)
+python -m modules.external.orchestrator ingest --family road_freight
+python -m modules.external.orchestrator preflight            # Nur Konnektor-/Auth-/License-Check, kein Fetch
+```
+
+### Optionale Secrets
+
+| Secret | Zweck |
+|---|---|
+| `ESTAT_APP_ID` | Eurostat-Zugriff (EU-Road-Freight) |
+| `FRED_API_KEY` | FRED (US-Freight/Truck-Tonnage-Serien) |
+| `DESTATIS_USER` / `DESTATIS_PASSWORD` | Destatis-Zugangsdaten (DE-LKW-Maut) |
+| `NCEI_CDO_TOKEN` | NOAA NCEI Climate Data Online (Wetter-Historie) |
+| `NWS_USER_AGENT_CONTACT` | Erforderlicher Kontakt-User-Agent für api.weather.gov |
+
+Fehlt ein Secret, wird die betroffene Quelle `AUTH_MISSING`/`DISABLED` und
+bleibt aus der Readiness-Kette ausgeschlossen — kein Fehler, keine
+Pipeline-Unterbrechung.
+
+### Speicher-Telemetrie & Migration
+
+`ExternalArchive.storage_telemetry()` misst Bytes/Zeilen je Quelle, projiziert
+30d/1y/5y und flaggt, wenn die 1y-Projektion
+`external_context.archive.storage_warn_mb_1y` (Default 200 MB) überschreitet.
+GitHub-Actions-Checkout/Artefakte sind kein dauerhafter Speicher — bei
+anhaltendem Wachstum: Object Storage (S3/GCS/Backblaze B2) für
+`normalized/`/`raw/`, ältere `raw/`-Monate kompaktieren.
+
+### Grenzen
+
+- Datenqualität/Abdeckung variiert stark je Quelle/Region — `Readiness` und
+  `SourceHealth` machen das explizit, statt es zu verschleiern.
+- Die LLM-Relation ist eine Heuristik, kein validiertes Kausalmodell.
+- `modules/external/research.py`-Befunde sind In-Sample — ohne prospektive
+  Walk-forward-Validierung (`modules/challenger.py`) bleiben sie Hypothesen.
+- Der externe Kontext bleibt Shadow, bis eine Quelle `PRODUCTION_ELIGIBLE`
+  erreicht UND ein Mensch sie in `learning_features.production`/`gates:`
+  aufnimmt.
+
+---
+
 ## Tests
 
 ```bash

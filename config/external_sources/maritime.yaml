@@ -1,0 +1,57 @@
+# config/external_sources/maritime.yaml
+#
+# Registry-Einträge für die Maritime-Datenfamilie (IMF PortWatch). Gleiches
+# Feld-Set wie andere externe Datenfamilien. `machine_endpoint` ist absichtlich
+# leer/optional: die tatsächlichen ArcGIS-FeatureServer-URLs werden zur
+# Laufzeit über die ArcGIS-Sharing-Search-API entdeckt (siehe
+# modules/external/sources/maritime.py::discover_endpoints) und unter
+# outputs/external_data/manifests/portwatch_endpoints.json gecached. Ein hier
+# gesetzter machine_endpoint überschreibt die Discovery, wird aber als
+# "verify in preflight" markiert, weil er ungeprüft übernommen wird.
+#
+# LIZENZ-HINWEIS (ehrlich, nicht live verifiziert): IMF-Daten sind in der
+# Regel mit Attribution frei nutzbar, aber die exakten PortWatch-
+# Nutzungsbedingungen wurden in diesem Sandbox NICHT gegen
+# https://portwatch.imf.org geprüft. Daher license_status REVIEW_REQUIRED,
+# bis ein Mensch das live bestätigt.
+
+sources:
+  - source_id: imf_portwatch_ports
+    display_name: "IMF PortWatch – Daily Ports Data"
+    family: maritime
+    authority: "IMF PortWatch (IMF & University of Oxford)"
+    official_homepage: "https://portwatch.imf.org"
+    machine_endpoint: null  # discovered at runtime; verify in preflight if overridden
+    access_method: "ArcGIS FeatureServer REST (query)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "PortWatch terms of use (portwatch.imf.org); not independently verified live in this sandbox"
+    license_status: REVIEW_REQUIRED
+    frequency: daily
+    expected_update_cadence: 7d
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: medium
+
+  - source_id: imf_portwatch_chokepoints
+    display_name: "IMF PortWatch – Daily Chokepoints Data"
+    family: maritime
+    authority: "IMF PortWatch (IMF & University of Oxford)"
+    official_homepage: "https://portwatch.imf.org"
+    machine_endpoint: null  # discovered at runtime; verify in preflight if overridden
+    access_method: "ArcGIS FeatureServer REST (query)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "PortWatch terms of use (portwatch.imf.org); not independently verified live in this sandbox"
+    license_status: REVIEW_REQUIRED
+    frequency: daily
+    expected_update_cadence: 7d
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: medium

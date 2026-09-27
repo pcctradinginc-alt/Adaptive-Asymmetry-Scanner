@@ -1,0 +1,12 @@
+{
+  "id": 0,
+  "name": "PortWatch_daily_ports_renamed",
+  "type": "Feature Layer",
+  "maxRecordCount": 2000,
+  "fields": [
+    {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+    {"name": "activity_date", "type": "esriFieldTypeDate"},
+    {"name": "port_identifier", "type": "esriFieldTypeString"},
+    {"name": "port_label", "type": "esriFieldTypeString"}
+  ]
+}

@@ -41,7 +41,7 @@ import json
 import math
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -69,6 +69,8 @@ from modules.position_sizing     import enrich_with_sizing
 from modules.engine_monitor      import build_health_report, append_markdown_section
 from modules.config              import cfg
 from modules              import candidate_ledger
+from modules.external.context    import build_external_context, attach_candidate_context
+from modules.external.shadow_analysis import run_for_candidates as run_shadow_relation_analysis
 
 logging.basicConfig(
     level=logging.INFO,
@@ -318,6 +320,62 @@ def save_history(history: dict) -> None:
         json.dump(history, f, indent=2, default=str)
 
 
+# ── Stufe 2b-ext: External Context Snapshot (SHADOW) ─────────────────────────
+
+def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], dict]:
+    """Baut GENAU EINEN externen Snapshot pro Lauf und hängt ihn an jeden
+    Kandidaten als candidate["external_context"] an. Reine Observability:
+    - Wird nie aufgerufen/gelesen von Produktions-Entscheidungspfaden.
+    - Ein Fehler beim Snapshot-Bau (Netzwerk, Archiv, Config) darf die
+      Pipeline NIE unterbrechen -> Kandidaten kommen unverändert zurück,
+      Snapshot bleibt None, Summary vermerkt den Fehler.
+    Gibt (candidates, summary_dict) zurück -- summary_dict landet 1:1 in
+    stats["external_context"] der Daily-JSON.
+    """
+    ext_cfg = getattr(cfg, "external_context", None)
+    enabled = bool(getattr(ext_cfg, "enabled", False))
+    mode = str(getattr(ext_cfg, "mode", "off") or "off")
+
+    if not enabled or mode == "off":
+        return candidates, {"enabled": enabled, "mode": mode, "snapshot_id": None,
+                            "sources": {}}
+
+    now = datetime.now(timezone.utc)
+    try:
+        snapshot = build_external_context(now)
+    except Exception as e:  # noqa: BLE001 - darf die Pipeline nie stoppen
+        log.warning(f"External-Context-Snapshot fehlgeschlagen (ignoriert): {e}")
+        return candidates, {"enabled": enabled, "mode": mode, "snapshot_id": None,
+                            "error": repr(e), "sources": {}}
+
+    for c in candidates:
+        try:
+            ctx = attach_candidate_context(c, snapshot)
+            if ctx is not None:
+                ctx["policy"]["mode"] = mode
+                c["external_context"] = ctx
+                # EIN note()-Aufruf je Kandidat für diese Stufe — der Ledger
+                # friert row["external"] beim ersten Setzen ein (siehe
+                # candidate_ledger.note(): key "external") und aktualisiert
+                # es nie wieder, auch wenn spätere Läufe einen neuen Snapshot
+                # für denselben Signal-Key bauen.
+                candidate_ledger.note(c.get("ticker"), external=ctx)
+        except Exception as e:  # noqa: BLE001
+            log.debug(f"attach_candidate_context Fehler ({c.get('ticker')}, ignoriert): {e}")
+
+    source_status = {
+        sid: info.get("status") for sid, info in (snapshot.get("sources") or {}).items()
+    }
+    summary = {
+        "enabled": enabled, "mode": mode,
+        "snapshot_id": snapshot.get("snapshot_id"),
+        "as_of": snapshot.get("as_of"),
+        "sources": source_status,
+        "quality": snapshot.get("quality", {}),
+    }
+    return candidates, summary
+
+
 def main() -> None:
     log.info("=== Adaptive Asymmetry-Scanner v8.3 gestartet ===")
     today   = datetime.utcnow().strftime("%Y-%m-%d")
@@ -507,6 +565,17 @@ def main() -> None:
         valid_shortlist.append(c)
     shortlist = valid_shortlist
 
+    # ── STUFE 2b-ext: External Context Snapshot (SHADOW, reine Observability) ─
+    # WICHTIG: candidate["external_context"] wird an KEINER Stelle von einem
+    # Produktions-Entscheidungspfad gelesen (Prescreener bereits gelaufen;
+    # Deep Analysis/MismatchScorer/MiroFish/QuasiML/RL/OptionsDesigner/
+    # TradeScorer bauen ihre Prompts/Features ausschließlich aus benannten
+    # Feldern, nie aus einer vollständigen json.dumps(candidate)-Serialisierung
+    # — daher kann dieses Feld nie in einen LLM-Prompt "durchsickern"). Ein
+    # Fehler hier darf die Pipeline nie beeinflussen: try/except → None.
+    shortlist, _ext_summary = attach_external_context_stage(shortlist)
+    stats["external_context"] = _ext_summary
+
     # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
     log.info("Stufe 3: ROI Pre-Check (Fail Fast)")
     roi_viable = []
@@ -593,6 +662,15 @@ def main() -> None:
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
         send_email(); return
+
+    # ── Stufe 4-ext: Shadow-Relation (optionaler, SEPARATER LLM-Call) ────────
+    # Read-only: liest nur das bereits vorhandene Deep-Analysis-Ergebnis,
+    # verändert es nie. Läuft komplett übersprungen wenn mode==off/disabled/
+    # kein API-Key (siehe modules/external/shadow_analysis.py).
+    try:
+        run_shadow_relation_analysis(analyses)
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"Shadow-Relation-Analyse Fehler (ignoriert): {e}")
 
     # ── STUFE 4a: Bearish-Gate ───────────────────────────────────────────────
     # Track Record bearisher Trades: 0/6 Wins (LONG_PUT mean −86%).
@@ -898,6 +976,8 @@ def main() -> None:
         }
         if s.get("final_mc_shadow"):
             _sv_dict["final_mc_shadow"] = s["final_mc_shadow"]
+        if s.get("external_context"):
+            _sv_dict["external_context_entry"] = s["external_context"]
         _sv_list.append(_sv_dict)
         _sv_seen.add(_sv_key)
         _n_sv += 1
@@ -980,6 +1060,7 @@ def main() -> None:
                 "vix":           r.get("vix"),
                 "mc_hit_rate":   r.get("mc_hit_rate"),
                 "outcome":       None,
+                "external_context_entry": r.get("external_context"),
             })
             _seen.add((r["ticker"], today, "roi_gate"))
         # Kompakt-Summary in die Daily-Stats (Verteilung der ROI-Lücke):
@@ -1066,6 +1147,8 @@ def main() -> None:
             }
             if p.get("final_mc_shadow"):
                 _p_dict["final_mc_shadow"] = p["final_mc_shadow"]
+            if p.get("external_context"):
+                _p_dict["external_context_entry"] = p["external_context"]
             shadow_list.append(_p_dict)
             _shadow_existing.add((p["ticker"], today, why))
         if _shadow:
@@ -1161,6 +1244,8 @@ def main() -> None:
         }
         if p.get("final_mc_shadow"):
             _at_dict["final_mc_shadow"] = p["final_mc_shadow"]
+        if p.get("external_context"):
+            _at_dict["external_context_entry"] = p["external_context"]
         history["active_trades"].append(_at_dict)
         existing.add(key)
         cooled_tickers.add(p["ticker"])

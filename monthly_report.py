@@ -609,6 +609,231 @@ def build_challenger_html() -> str:
         return ""
 
 
+def _fmt_signed_pct2(x) -> str:
+    return f"{x:+.1%}" if isinstance(x, (int, float)) else "–"
+
+
+def _external_row_html(label: str, stats: dict) -> str:
+    tiny = "" if not stats or stats.get("effective_n") is None or stats["effective_n"] >= 10 else \
+        " <span style='color:#dc2626;'>(zu kleine Stichprobe)</span>"
+    if not stats or not stats.get("n"):
+        return (
+            f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{label}</td>"
+            f"<td colspan='7' style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>"
+            f"<i>keine Daten</i></td></tr>"
+        )
+    ci = ""
+    if stats.get("ci_lower") is not None and stats.get("ci_upper") is not None:
+        ci = f"[{_fmt_signed_pct2(stats['ci_lower'])}, {_fmt_signed_pct2(stats['ci_upper'])}]"
+    win = f"{stats['win_rate']:.0%}" if stats.get("win_rate") is not None else "–"
+    return (
+        f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{label}{tiny}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{stats.get('n', 0)}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{stats.get('independent_date_count', 0)}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{stats.get('effective_n', 0):.1f}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{win}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{_fmt_signed_pct2(stats.get('mean'))}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{_fmt_signed_pct2(stats.get('median'))}</td>"
+        f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{ci}</td></tr>"
+    )
+
+
+def _external_bucket_table_html(title: str, group: dict) -> str:
+    if not group:
+        return f"<p style='font-size:0.85em;color:#94a3b8;'><i>{title}: keine Daten.</i></p>"
+    rows = "".join(_external_row_html(str(k), v) for k, v in sorted(group.items()))
+    return f"""
+    <p style="font-size:0.90em;font-weight:bold;margin-top:1em;">{title}</p>
+    <table style="border-collapse:collapse;font-size:12px;width:100%;">
+      <tr style="text-align:left;color:#64748b;">
+        <th style="padding:4px 8px;">Bucket</th><th style="padding:4px 8px;">n</th>
+        <th style="padding:4px 8px;">Unabh. Tage</th><th style="padding:4px 8px;">Eff. n</th>
+        <th style="padding:4px 8px;">Win-Rate</th><th style="padding:4px 8px;">Ø</th>
+        <th style="padding:4px 8px;">Median</th><th style="padding:4px 8px;">90%-KI</th>
+      </tr>
+      {rows}
+    </table>"""
+
+
+def build_external_context_html() -> str:
+    """
+    🌍 Externer Kontext (SHADOW): mature Outcome-Tabellen je Freight-/Maritime-/
+    Relations-Bucket, Sektor, Katalysator-Typ, Richtung; Daten-Readiness je
+    Quelle, Source-Health, Feature-Coverage, promotete Features, Hypothesen-
+    Vorschläge (modules/external/research.py). Rein informativ, Shadow-Mode.
+    Guarded: darf den Report NIE zum Absturz bringen.
+    """
+    try:
+        from modules.config import cfg
+        mode = str(getattr(getattr(cfg, "external_context", None), "mode", "shadow"))
+    except Exception:
+        mode = "shadow"
+
+    header = (
+        "<h3>🌍 Externer Kontext (SHADOW)</h3>"
+        if mode == "shadow" else
+        f"<h3>🌍 Externer Kontext (mode={mode})</h3>"
+    )
+    shadow_notice = (
+        "<p style='font-size:0.85em;color:#92400e;background:#fffbeb;padding:8px 10px;"
+        "border-radius:4px;'><b>SHADOW — NICHT in der Produktionsentscheidung verwendet.</b> "
+        "Alle Zahlen unten sind reine Observability über den externen Real-Economy-Kontext "
+        "(Road/Maritime Freight, Weather); score_delta ist auf 0 begrenzt.</p>"
+        if mode == "shadow" else ""
+    )
+
+    try:
+        from modules.challenger import load_ledger_rows
+        from modules.external.research import analyze_external_buckets, generate_hypothesis_proposals
+        rows = load_ledger_rows()
+    except Exception as e:
+        log.debug(f"build_external_context_html: Ledger/Research nicht ladbar (ignoriert): {e}")
+        return header + shadow_notice + "<p><i>Keine externen Daten.</i></p>"
+
+    # ── Mature Outcome-Tabellen ────────────────────────────────────────────
+    tables_html = ""
+    try:
+        buckets = analyze_external_buckets(rows)
+        tables_html += _external_bucket_table_html("Freight-Zustand (global_freight_state)",
+                                                     buckets.get("freight_state", {}))
+        tables_html += _external_bucket_table_html("Maritime-Zustand (global_maritime_state)",
+                                                     buckets.get("maritime_state", {}))
+        tables_html += _external_bucket_table_html("Externe Relation (LLM)",
+                                                     buckets.get("external_relation", {}))
+        tables_html += _external_bucket_table_html("Sektor/Industrie", buckets.get("sector", {}))
+        tables_html += _external_bucket_table_html("Katalysator-Typ", buckets.get("catalyst", {}))
+        tables_html += _external_bucket_table_html("Richtung", buckets.get("direction", {}))
+    except Exception as e:
+        log.debug(f"build_external_context_html: analyze_external_buckets Fehler (ignoriert): {e}")
+        tables_html = "<p><i>Mature-Outcome-Tabellen nicht berechenbar.</i></p>"
+
+    # ── Daten-Readiness + Source-Health ────────────────────────────────────
+    readiness_html = "<p><i>Readiness nicht berechenbar.</i></p>"
+    health_html = "<p><i>Source-Health nicht verfügbar.</i></p>"
+    try:
+        from modules.external.registry import SourceRegistry, compute_readiness
+        registry = SourceRegistry()
+        health = registry.load_health()
+        rows_r = ""
+        rows_h = ""
+        for source_id, src_cfg in sorted(registry.sources.items()):
+            h = health.get(source_id, {})
+            readiness = compute_readiness(src_cfg, h)
+            rows_r += (
+                f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{source_id}</td>"
+                f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{readiness.value}</td></tr>"
+            )
+            rows_h += (
+                f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{source_id}</td>"
+                f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{h.get('status', '–')}</td>"
+                f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{h.get('staleness', 'UNKNOWN')}</td></tr>"
+            )
+        if rows_r:
+            readiness_html = (
+                "<table style='border-collapse:collapse;font-size:12px;width:100%;'>"
+                "<tr style='text-align:left;color:#64748b;'><th style='padding:4px 8px;'>Quelle</th>"
+                "<th style='padding:4px 8px;'>Readiness</th></tr>" + rows_r + "</table>"
+            )
+        if rows_h:
+            health_html = (
+                "<table style='border-collapse:collapse;font-size:12px;width:100%;'>"
+                "<tr style='text-align:left;color:#64748b;'><th style='padding:4px 8px;'>Quelle</th>"
+                "<th style='padding:4px 8px;'>Status</th><th style='padding:4px 8px;'>Frische</th></tr>"
+                + rows_h + "</table>"
+            )
+    except Exception as e:
+        log.debug(f"build_external_context_html: Readiness/Health Fehler (ignoriert): {e}")
+
+    # ── Feature-Coverage (% non-null je Primitiv, letzte 30 Ledger-Tage) ────
+    coverage_html = "<p><i>Feature-Coverage nicht berechenbar.</i></p>"
+    try:
+        recent_cutoff = (date.today() - timedelta(days=30)).isoformat()
+        recent = [r for r in rows if str(r.get("date", "")) >= recent_cutoff and isinstance(r.get("external"), dict)]
+        if recent:
+            prim_keys: set[str] = set()
+            for r in recent:
+                prim_keys.update(((r.get("external") or {}).get("primitives") or {}).keys())
+            cov_rows = ""
+            for prim in sorted(prim_keys):
+                present = sum(
+                    1 for r in recent
+                    if ((r.get("external") or {}).get("primitives") or {}).get(prim) is not None
+                )
+                pct = present / len(recent)
+                cov_rows += (
+                    f"<tr><td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{prim}</td>"
+                    f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'>{pct:.0%}</td></tr>"
+                )
+            coverage_html = (
+                "<table style='border-collapse:collapse;font-size:12px;width:100%;'>"
+                "<tr style='text-align:left;color:#64748b;'><th style='padding:4px 8px;'>Primitiv</th>"
+                "<th style='padding:4px 8px;'>% non-null (30d)</th></tr>" + cov_rows + "</table>"
+            )
+        else:
+            coverage_html = "<p><i>Keine Ledger-Zeilen mit externem Kontext in den letzten 30 Tagen.</i></p>"
+    except Exception as e:
+        log.debug(f"build_external_context_html: Feature-Coverage Fehler (ignoriert): {e}")
+
+    # ── Promotete externe Features ──────────────────────────────────────────
+    promoted_html = "<p><i>Keine promoteten externen Features.</i></p>"
+    try:
+        from modules.config import cfg as _cfg
+        promoted = list(getattr(getattr(getattr(_cfg, "external_context", None), "learning", None),
+                                 "promoted_external_features", []) or [])
+        if promoted:
+            promoted_html = "<ul>" + "".join(f"<li>{p}</li>" for p in promoted) + "</ul>"
+    except Exception as e:
+        log.debug(f"build_external_context_html: promoted features Fehler (ignoriert): {e}")
+
+    # ── Hypothesen-Vorschläge (research.py) ─────────────────────────────────
+    hypotheses_html = "<p><i>Keine neuen Hypothesen-Vorschläge diesen Monat.</i></p>"
+    try:
+        proposals = generate_hypothesis_proposals(rows)
+        if proposals:
+            items = ""
+            for p in proposals:
+                items += (
+                    f"<p style='font-size:0.80em;margin-top:0.8em;'><b>{p['hypothesis_id']}</b> "
+                    f"({p['group_label']}):</p>"
+                    f"<pre style='background:#f5f5f5;padding:8px;border-radius:4px;"
+                    f"overflow-x:auto;font-size:0.75em;'>{p['snippet']}</pre>"
+                )
+            hypotheses_html = (
+                "<p style='font-size:0.85em;color:#555;'>Retrospektiv/in-sample — NICHT "
+                "promotion-fähig. Snippets können in challengers.yaml eingefügt werden "
+                "(start_date liegt bereits in der Zukunft).</p>" + items
+            )
+    except Exception as e:
+        log.debug(f"build_external_context_html: Hypothesen-Generator Fehler (ignoriert): {e}")
+
+    return f"""
+    {header}
+    {shadow_notice}
+    <p style="font-size:0.90em;font-weight:bold;">Mature Outcomes je externem Bucket</p>
+    {tables_html}
+    <p style="font-size:0.90em;font-weight:bold;margin-top:1em;">Daten-Readiness je Quelle</p>
+    {readiness_html}
+    <p style="font-size:0.90em;font-weight:bold;margin-top:1em;">Source-Health</p>
+    {health_html}
+    <p style="font-size:0.90em;font-weight:bold;margin-top:1em;">Feature-Coverage (letzte 30 Tage)</p>
+    {coverage_html}
+    <p style="font-size:0.90em;font-weight:bold;margin-top:1em;">Promotete externe Features (Produktion)</p>
+    {promoted_html}
+    <p style="font-size:0.90em;font-weight:bold;margin-top:1em;">🔬 Externe Hypothesen-Vorschläge</p>
+    {hypotheses_html}
+    """
+
+
+def _safe_external_context_html() -> str:
+    """Wrapper um build_external_context_html() — darf den Report NIE zum
+    Absturz bringen (Anforderung: Guarded try/except)."""
+    try:
+        return build_external_context_html()
+    except Exception as e:
+        log.debug(f"_safe_external_context_html Fehler (ignoriert): {e}")
+        return "<h3>🌍 Externer Kontext (SHADOW)</h3><p><i>keine externen Daten</i></p>"
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
                total: dict | None, funnel: dict, closed: list[dict] | None = None,
                spy: float | None = None, shadow: dict | None = None,
@@ -680,6 +905,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       {build_tuning_html(tuning or [])}
       {build_slot_html(slot or [])}
       {build_challenger_html()}
+      {_safe_external_context_html()}
       {funnel_html}
       <hr>
       <p style="color:#888;font-size:0.85em">

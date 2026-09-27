@@ -171,6 +171,44 @@ def _fetch_fred_series(series_id: str, last_n: int = 1) -> Optional[float]:
         return None
 
 
+def fetch_latest_fred_csv_value(series_id: str, since_days: int = 30,
+                                 headers: Optional[dict] = None,
+                                 timeout: int = 10) -> Optional[float]:
+    """Gemeinsamer FRED-CSV-Helfer (fredgraph.csv, kein API-Key nötig).
+
+    Wird von modules/external/sources/road_freight.py als No-Key-Fallback für
+    bts_freight_tsi genutzt. Verhält sich identisch zu _fetch_fred_series,
+    ist aber öffentlich/parametrisierbar für externe Konnektoren. Bestehendes
+    Verhalten von _fetch_fred_series bleibt unverändert.
+    """
+    try:
+        since = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y-%m-%d")
+        resp = requests.get(
+            _FRED_BASE,
+            params={
+                "id": series_id,
+                "vintage_date": datetime.utcnow().strftime("%Y-%m-%d"),
+                "observation_start": since,
+            },
+            headers=headers or _HEADERS,
+            timeout=timeout,
+        )
+        if resp.status_code != 200:
+            return None
+        lines = [l for l in resp.text.strip().split("\n") if l and not l.startswith("DATE")]
+        for line in reversed(lines):
+            parts = line.split(",")
+            if len(parts) >= 2 and parts[1].strip() not in (".", ""):
+                try:
+                    return float(parts[1].strip())
+                except ValueError:
+                    continue
+        return None
+    except Exception as e:
+        log.debug(f"FRED CSV {series_id} Fehler: {e}")
+        return None
+
+
 def _build_claude_context(
     t10y2y:      Optional[float],
     fedfunds:    Optional[float],

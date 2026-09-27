@@ -254,6 +254,18 @@ class Reporter:
             f"- Impact: `{weights.get('impact', 0.35):.2f}`",
             f"- Mismatch: `{weights.get('mismatch', 0.45):.2f}`",
             f"- EPS-Drift: `{weights.get('eps_drift', 0.20):.2f}`",
+        ]
+
+        # Externer Kontext (SHADOW) — reine Observability, darf den Report
+        # nie zum Absturz bringen (guarded try/except).
+        try:
+            from modules.external.reporting import build_compact_context, render_markdown_lines
+            lines += render_markdown_lines(build_compact_context())
+        except Exception as e:
+            log.debug(f"Externer-Kontext-Markdown Fehler (ignoriert): {e}")
+            lines += ["", "### 🌍 Externer Kontext", "", "_keine externen Daten_", ""]
+
+        lines += [
             "",
             "_Automatisch generiert durch Adaptive Asymmetry-Scanner v8.2_",
         ]

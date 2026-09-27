@@ -1,0 +1,14 @@
+{
+  "properties": {
+    "updateTime": "2024-01-01T15:00:00+00:00",
+    "validTimes": "2024-01-01T12:00:00+00:00/P7DT12H",
+    "temperature": {
+      "uom": "wmoUnit:degC",
+      "values": [
+        {"validTime": "2024-01-01T12:00:00+00:00/PT1H", "value": 3.0},
+        {"validTime": "2024-01-01T13:00:00+00:00/PT1H", "value": 4.0},
+        {"validTime": "2024-01-01T15:00:00+00:00/PT1H", "value": 5.0}
+      ]
+    }
+  }
+}

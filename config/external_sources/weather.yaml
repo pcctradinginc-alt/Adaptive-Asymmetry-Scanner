@@ -1,0 +1,209 @@
+# config/external_sources/weather.yaml
+#
+# Registry-Einträge für die Weather-Familie (family: weather). Gleiches
+# Pflichtfeld-Set wie andere externe Datenfamilien (siehe REQUIRED_FIELDS in
+# modules/external/registry.py); jeder Eintrag ist zugleich die Config, die
+# unverändert an die jeweilige Connector-Klasse in
+# modules/external/sources/weather.py durchgereicht wird (self.cfg).
+#
+# LIZENZ: US-Bundesdaten (NWS/NOAA/NCEI/NHC) sind laut 17 U.S.C. §105 Public
+# Domain in den USA -> license_status: OK. ECMWF Open Data ist CC-BY-4.0 (mit
+# Attribution nutzbar) -> license_status: OK, aber status_override: DEFERRED
+# (FORWARD_ARCHIVE_ONLY, optional): wir archivieren aktuell nicht aktiv.
+#
+# user_agent_contact wird NICHT hier gepflegt, sondern zentral über
+# config.yaml external_context.weather.user_agent_contact (siehe
+# modules/external/sources/weather.py::configured_user_agent_contact).
+
+sources:
+  - source_id: nws_forecast
+    display_name: "NWS Forecast Grid Data (api.weather.gov)"
+    family: weather
+    authority: "NOAA / National Weather Service"
+    official_homepage: "https://www.weather.gov"
+    machine_endpoint: "https://api.weather.gov"
+    access_method: "REST/JSON (/points -> forecastGridData)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
+    license_status: OK
+    frequency: hourly
+    expected_update_cadence: 6h
+    supports_history: false
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: medium
+    base_url: "https://api.weather.gov"
+    elements:
+      - temperature
+      - maxTemperature
+      - minTemperature
+      - probabilityOfPrecipitation
+      - quantitativePrecipitation
+      - snowfallAmount
+      - iceAccumulation
+      - windSpeed
+      - windGust
+    locations_config: "config/weather_locations.yaml"
+    notes: >
+      /points/{lat},{lon} liefert relativeLocation + gridId/gridX/gridY +
+      forecastGridData-URL zur Laufzeit; niemals grid-Koordinaten fest
+      verdrahten. available_at = retrieved_at (wir können keine frühere
+      Verfügbarkeit für unseren eigenen Abruf belegen), auch wenn updateTime
+      (source_release_time/forecast_issue_time) zeitlich davor liegt.
+
+  - source_id: nws_alerts
+    display_name: "NWS Active Alerts (api.weather.gov)"
+    family: weather
+    authority: "NOAA / National Weather Service"
+    official_homepage: "https://www.weather.gov"
+    machine_endpoint: "https://api.weather.gov/alerts/active"
+    access_method: "REST/JSON (/alerts/active?point=lat,lon)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
+    license_status: OK
+    frequency: hourly
+    expected_update_cadence: 1h
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: medium
+    base_url: "https://api.weather.gov"
+    event_types:
+      - "Winter Storm Warning"
+      - "Hurricane Warning"
+      - "Storm Surge Warning"
+      - "Flood Warning"
+      - "Tornado Warning"
+      - "Severe Thunderstorm Warning"
+      - "Ice Storm Warning"
+      - "Blizzard Warning"
+      - "Excessive Heat Warning"
+    locations_config: "config/weather_locations.yaml"
+    notes: >
+      available_at = retrieved_at; source_release_time = Alert-Feld "sent".
+
+  - source_id: ncei_normals
+    display_name: "NCEI 1991-2020 Daily Normals"
+    family: weather
+    authority: "NOAA / National Centers for Environmental Information"
+    official_homepage: "https://www.ncei.noaa.gov"
+    machine_endpoint: "https://www.ncei.noaa.gov/access/services/data/v1"
+    access_method: "REST/JSON (access/services/data/v1, dataset=normals-daily-1991-2020)"
+    requires_auth: true
+    auth_env_variable: "NCEI_CDO_TOKEN"
+    license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
+    license_status: OK
+    frequency: static
+    expected_update_cadence: 365d
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: INFERRED
+    enabled: true
+    criticality: low
+    dataset: "normals-daily-1991-2020"
+    datatypes:
+      - DLY-TAVG-NORMAL
+      - DLY-TMAX-NORMAL
+      - DLY-TMIN-NORMAL
+      - DLY-HTDD-NORMAL
+      - DLY-CLDD-NORMAL
+      - DLY-PRCP-NORMAL
+    station_search_url: "https://www.ncei.noaa.gov/cdo-web/api/v2/stations"
+    locations_config: "config/weather_locations.yaml"
+    cache_dir: "outputs/external_data/normalized/ncei_normals"
+    notes: >
+      Stationen werden NIE als GHCND-ID im Code hartcodiert; Auflösung
+      erfolgt zur Laufzeit über die nächstgelegene Stationssuche relativ zur
+      konfigurierten Location. requires_auth=true, da die NCEI CDO Web
+      Services v2 Stationssuche einen kostenlosen Token voraussetzt
+      (auth_env_variable NCEI_CDO_TOKEN) – ohne Token: AUTH_MISSING, nie ein
+      Fallback auf eine erratene Station-ID.
+
+  - source_id: nhc_storms
+    display_name: "NHC Current Storms (CurrentStorms.json)"
+    family: weather
+    authority: "NOAA / National Hurricane Center"
+    official_homepage: "https://www.nhc.noaa.gov"
+    machine_endpoint: "https://www.nhc.noaa.gov/CurrentStorms.json"
+    access_method: "REST/JSON"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
+    license_status: OK
+    frequency: hourly
+    expected_update_cadence: 6h
+    supports_history: false
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: high
+    current_storms_url: "https://www.nhc.noaa.gov/CurrentStorms.json"
+    notes: >
+      Wind-Speed-Probability-Produkte (34/50/64kt) werden nur als
+      Produkt-Metadaten (Link + Issuance-Zeit) gespeichert – kein
+      GIS/Text-Parsing der Advisory-Produkte implementiert (siehe
+      NhcStormsConnector-Docstring). Distanz Sturm->Exposure-Region nur
+      berechnet, wenn CurrentStorms.json selbst forecastTrack-Punkte liefert;
+      sonst None (nie geschätzt).
+
+  - source_id: noaa_storm_events
+    display_name: "NCEI Storm Events Database (bulk CSV)"
+    family: weather
+    authority: "NOAA / National Centers for Environmental Information"
+    official_homepage: "https://www.ncdc.noaa.gov/stormevents/"
+    machine_endpoint: "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles"
+    access_method: "Bulk CSV directory listing + download"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
+    license_status: OK
+    frequency: monthly
+    expected_update_cadence: 31d
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: false   # nur explizit im Backfill-Modus aktivieren (große Bulk-Dateien)
+    criticality: low
+    base_url: "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles"
+    backfill_only: true
+    notes: >
+      Der Connector listet nur das offizielle Verzeichnis und ingested
+      standardmäßig NICHTS (enabled=false); im Backfill-Modus
+      (cfg['backfill_mode']=True, expliziter Aufruf) liest er ausschließlich
+      Metadaten/Zähler (Events je Bundesstaat & Event-Typ) der neuesten
+      Jahres-"details"-Datei.
+
+  - source_id: ecmwf_open_data
+    display_name: "ECMWF Open Data"
+    family: weather
+    authority: "European Centre for Medium-Range Weather Forecasts"
+    official_homepage: "https://www.ecmwf.int/en/forecasts/datasets/open-data"
+    machine_endpoint: "https://data.ecmwf.int/forecasts"
+    access_method: "n/a (registry only, not implemented)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "CC-BY-4.0 (ECMWF Open Data Terms of Use)"
+    license_status: OK
+    status_override: DEFERRED   # FORWARD_ARCHIVE_ONLY, optional
+    frequency: n/a
+    expected_update_cadence: 1d
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: UNKNOWN
+    enabled: false
+    criticality: low
+    notes: >
+      Nur Registry-Eintrag, kein aktiver Connector. CC-BY-4.0 ist
+      grundsätzlich nutzbar (Namensnennung erforderlich); wir archivieren
+      aktuell nicht aktiv (DEFERRED) und behalten uns eine reine
+      Forward-Archivierung (kein Backfill) für später vor.

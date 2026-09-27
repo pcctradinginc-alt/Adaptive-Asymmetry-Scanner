@@ -1,0 +1,15 @@
+{
+  "GET_STATS_LIST": {
+    "RESULT": {"STATUS": 0, "ERROR_MSG": "正常に終了しました"},
+    "DATALIST_INF": {
+      "NUMBER": 1,
+      "TABLE_INF": [
+        {
+          "@id": "0003000001",
+          "STAT_NAME": {"@code": "00600360", "$": "自動車輸送統計調査"},
+          "TITLE": {"$": "自動車輸送統計"}
+        }
+      ]
+    }
+  }
+}

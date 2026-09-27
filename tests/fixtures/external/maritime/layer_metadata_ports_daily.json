@@ -1,0 +1,26 @@
+{
+  "id": 0,
+  "name": "PortWatch_daily_ports",
+  "type": "Feature Layer",
+  "maxRecordCount": 2,
+  "supportsPagination": true,
+  "advancedQueryCapabilities": {"supportsPagination": true},
+  "fields": [
+    {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+    {"name": "date", "type": "esriFieldTypeDate"},
+    {"name": "portid", "type": "esriFieldTypeString"},
+    {"name": "portname", "type": "esriFieldTypeString"},
+    {"name": "country", "type": "esriFieldTypeString"},
+    {"name": "ISO3", "type": "esriFieldTypeString"},
+    {"name": "portcalls", "type": "esriFieldTypeDouble"},
+    {"name": "portcalls_tanker", "type": "esriFieldTypeDouble"},
+    {"name": "portcalls_container", "type": "esriFieldTypeDouble"},
+    {"name": "portcalls_general_cargo", "type": "esriFieldTypeDouble"},
+    {"name": "portcalls_dry_bulk", "type": "esriFieldTypeDouble"},
+    {"name": "portcalls_roro", "type": "esriFieldTypeDouble"},
+    {"name": "import", "type": "esriFieldTypeDouble"},
+    {"name": "export", "type": "esriFieldTypeDouble"},
+    {"name": "import_container", "type": "esriFieldTypeDouble"},
+    {"name": "export_container", "type": "esriFieldTypeDouble"}
+  ]
+}

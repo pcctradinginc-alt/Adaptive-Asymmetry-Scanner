@@ -1,0 +1,111 @@
+# config/port_universe.yaml
+#
+# Kuratiertes Port-/Chokepoint-Universum. Nur NAMEN + Land werden hier
+# gespeichert -- Port-/Chokepoint-IDs werden ausschließlich zur Laufzeit gegen
+# die offiziellen PortWatch-Referenz-Layer ("Ports", "Chokepoints") aufgelöst
+# (exakter/normalisierter Name + Land). Mehrdeutige oder nicht gefundene
+# Einträge werden als "unresolved" protokolliert -- NIE erraten.
+
+groups:
+  US_WEST:
+    - name: "Los Angeles"
+      country: "United States"
+    - name: "Long Beach"
+      country: "United States"
+
+  US_EAST:
+    - name: "New York-New Jersey"
+      country: "United States"
+    - name: "Savannah"
+      country: "United States"
+
+  US_GULF:
+    - name: "Houston"
+      country: "United States"
+
+  NORTH_EUROPE:
+    - name: "Rotterdam"
+      country: "Netherlands"
+    - name: "Antwerp(-Bruges)"
+      country: "Belgium"
+    - name: "Hamburg"
+      country: "Germany"
+    - name: "Bremerhaven"
+      country: "Germany"
+
+  MEDITERRANEAN:
+    - name: "Valencia"
+      country: "Spain"
+    - name: "Piraeus"
+      country: "Greece"
+    - name: "Genoa"
+      country: "Italy"
+
+  CHINA:
+    - name: "Shanghai"
+      country: "China"
+    - name: "Ningbo(-Zhoushan)"
+      country: "China"
+    - name: "Shenzhen"
+      country: "China"
+    - name: "Qingdao"
+      country: "China"
+
+  JAPAN_KOREA:
+    - name: "Busan"
+      country: "South Korea"
+    - name: "Yokohama"
+      country: "Japan"
+    - name: "Tokyo"
+      country: "Japan"
+    - name: "Kobe"
+      country: "Japan"
+
+  SE_ASIA:
+    - name: "Singapore"
+      country: "Singapore"
+    - name: "Port Klang"
+      country: "Malaysia"
+    - name: "Laem Chabang"
+      country: "Thailand"
+
+  MIDDLE_EAST:
+    - name: "Jebel Ali"
+      country: "United Arab Emirates"
+    - name: "Jeddah"
+      country: "Saudi Arabia"
+
+# Chokepoints-Allowlist (item 5). Ebenfalls nur Namen -- IDs werden gegen den
+# offiziellen "Chokepoints"-Referenz-Layer aufgelöst.
+chokepoints:
+  - name: "Suez Canal"
+    country: "Egypt"
+    slug: suez
+  - name: "Bab el-Mandeb"
+    country: null
+    slug: bab_el_mandeb
+  - name: "Strait of Hormuz"
+    country: null
+    slug: hormuz
+  - name: "Malacca Strait"
+    country: null
+    slug: malacca
+  - name: "Panama Canal"
+    country: "Panama"
+    slug: panama
+  - name: "Taiwan Strait"
+    country: null
+    slug: taiwan
+  - name: "Gibraltar Strait"
+    country: null
+    slug: gibraltar
+  - name: "Bosporus Strait"
+    country: "Turkey"
+    slug: bosporus
+
+# Feature-Konfiguration (item 7 Defaults; hier zentral, nicht im Code
+# hart verdrahtet, damit sie ohne Code-Änderung angepasst werden können).
+feature_config:
+  min_valid_ports_for_breadth: 8
+  incomplete_day_min_coverage: 0.90
+  breadth_z_threshold: 1.0

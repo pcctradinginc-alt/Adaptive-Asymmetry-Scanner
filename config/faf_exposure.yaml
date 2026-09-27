@@ -1,0 +1,24 @@
+# config/faf_exposure.yaml
+#
+# PLATZHALTER — manual/derived, not yet built.
+#
+# Soll eine kompakte Commodity -> Region -> Sektor-Exposure-Tabelle aus dem
+# FHWA Freight Analysis Framework (FAF) enthalten, um Straßengüterverkehr
+# nach Rohgut/Region auf GICS-Sektoren zu mappen (structural exposure, KEIN
+# Live-Feed). Wird einmalig/manuell erzeugt von scripts/build_faf_exposure.py
+# und danach von Hand kuratiert/geprüft, nicht automatisch überschrieben.
+#
+# Registry: config/external_sources/road_freight.yaml -> source_id fhwa_faf,
+# status_override: DEFERRED, solange diese Datei nicht befüllt ist.
+
+built: false
+build_script: "scripts/build_faf_exposure.py"
+source: "FHWA Freight Analysis Framework (FAF5), https://ops.fhwa.dot.gov/freight/freight_analysis/faf/"
+note: "manual/derived, not yet built"
+schema:
+  commodity_sctg_code: "str — offizieller FAF/SCTG-Warencode (2-stellig)"
+  commodity_label: "str"
+  region: "str — FAF-Region-Code (nicht erfunden, aus offizieller FAF-Regionsliste)"
+  sector_gics: "str — zugeordneter GICS-Sektor (manuelle Kuratierung)"
+  weight_tons_share: "float — Anteil an Gesamttonnage der Region (0..1)"
+exposure: []

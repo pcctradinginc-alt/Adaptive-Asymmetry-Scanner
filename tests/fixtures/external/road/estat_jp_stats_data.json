@@ -1,0 +1,24 @@
+{
+  "GET_STATS_DATA": {
+    "RESULT": {"STATUS": 0, "ERROR_MSG": "正常に終了しました"},
+    "STATISTICAL_DATA": {
+      "CLASS_INF": {
+        "CLASS_OBJ": [
+          {
+            "@id": "cat01",
+            "@name": "貨物の種類",
+            "CLASS": [
+              {"@code": "100", "@name": "貨物輸送量(トン)"}
+            ]
+          }
+        ]
+      },
+      "DATA_INF": {
+        "VALUE": [
+          {"@cat01": "100", "@area": "00000", "@time": "202401", "$": "12345"},
+          {"@cat01": "100", "@area": "00000", "@time": "202402", "$": "12500"}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": 0,
+  "name": "PortWatch_daily_chokepoints",
+  "type": "Feature Layer",
+  "maxRecordCount": 2000,
+  "fields": [
+    {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+    {"name": "date", "type": "esriFieldTypeDate"},
+    {"name": "chokepointid", "type": "esriFieldTypeString"},
+    {"name": "chokepointname", "type": "esriFieldTypeString"},
+    {"name": "n_total", "type": "esriFieldTypeDouble"},
+    {"name": "n_tanker", "type": "esriFieldTypeDouble"},
+    {"name": "n_container", "type": "esriFieldTypeDouble"},
+    {"name": "capacity", "type": "esriFieldTypeDouble"}
+  ]
+}

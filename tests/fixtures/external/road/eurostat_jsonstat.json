@@ -1,0 +1,23 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Road freight transport by type of transport",
+  "updated": "2024-06-15T11:00:00+02:00",
+  "id": ["unit", "geo", "time"],
+  "size": [1, 2, 2],
+  "dimension": {
+    "unit": {
+      "label": "unit",
+      "category": {"index": {"THS_T": 0}, "label": {"THS_T": "Thousand tonnes"}}
+    },
+    "geo": {
+      "label": "geo",
+      "category": {"index": {"DE": 0, "FR": 1}, "label": {"DE": "Germany", "FR": "France"}}
+    },
+    "time": {
+      "label": "time",
+      "category": {"index": {"2022": 0, "2023": 1}, "label": {"2022": "2022", "2023": "2023"}}
+    }
+  },
+  "value": {"0": 100.0, "1": 110.0, "2": 90.0, "3": 95.0}
+}

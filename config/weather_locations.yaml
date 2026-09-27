@@ -1,0 +1,217 @@
+# config/weather_locations.yaml
+#
+# Kuratierte Locations mit offiziellen Koordinaten. lat/lon sind die
+# amtlichen Referenzpunkte (Flughafen-ARP bzw. Stadtzentrum/NWS-Office);
+# KEINE Grid-IDs/Stations-IDs hier -> die werden zur Laufzeit über
+# NWS /points bzw. NCEI-Stationssuche aufgelöst (siehe weather.py).
+
+airline_hubs:
+  - code: ATL
+    name: "Hartsfield-Jackson Atlanta International"
+    lat: 33.6407
+    lon: -84.4277
+  - code: DFW
+    name: "Dallas/Fort Worth International"
+    lat: 32.8998
+    lon: -97.0403
+  - code: DEN
+    name: "Denver International"
+    lat: 39.8561
+    lon: -104.6737
+  - code: ORD
+    name: "Chicago O'Hare International"
+    lat: 41.9742
+    lon: -87.9073
+  - code: LAX
+    name: "Los Angeles International"
+    lat: 33.9416
+    lon: -118.4085
+  - code: CLT
+    name: "Charlotte Douglas International"
+    lat: 35.2144
+    lon: -80.9473
+  - code: JFK
+    name: "John F. Kennedy International"
+    lat: 40.6413
+    lon: -73.7781
+  - code: LAS
+    name: "Harry Reid International"
+    lat: 36.0840
+    lon: -115.1537
+  - code: MCO
+    name: "Orlando International"
+    lat: 28.4312
+    lon: -81.3081
+  - code: MIA
+    name: "Miami International"
+    lat: 25.7959
+    lon: -80.2870
+  - code: PHX
+    name: "Phoenix Sky Harbor International"
+    lat: 33.4352
+    lon: -112.0101
+  - code: SEA
+    name: "Seattle-Tacoma International"
+    lat: 47.4502
+    lon: -122.3088
+  - code: SFO
+    name: "San Francisco International"
+    lat: 37.6213
+    lon: -122.3790
+  - code: IAH
+    name: "George Bush Intercontinental (Houston)"
+    lat: 29.9902
+    lon: -95.3368
+  - code: EWR
+    name: "Newark Liberty International"
+    lat: 40.6895
+    lon: -74.1745
+  - code: MSP
+    name: "Minneapolis-Saint Paul International"
+    lat: 44.8848
+    lon: -93.2223
+  - code: BOS
+    name: "Logan International (Boston)"
+    lat: 42.3656
+    lon: -71.0096
+  - code: DTW
+    name: "Detroit Metropolitan Wayne County"
+    lat: 42.2124
+    lon: -83.3534
+  - code: PHL
+    name: "Philadelphia International"
+    lat: 39.8744
+    lon: -75.2424
+
+population_regions:
+  - code: NYC
+    name: "New York City"
+    lat: 40.7128
+    lon: -74.0060
+    population_weight: 8336817
+  - code: CHI
+    name: "Chicago"
+    lat: 41.8781
+    lon: -87.6298
+    population_weight: 2665039
+  - code: HOU
+    name: "Houston"
+    lat: 29.7604
+    lon: -95.3698
+    population_weight: 2304580
+  - code: DAL
+    name: "Dallas"
+    lat: 32.7767
+    lon: -96.7970
+    population_weight: 1304379
+  - code: ATL_METRO
+    name: "Atlanta"
+    lat: 33.7490
+    lon: -84.3880
+    population_weight: 499127
+  - code: PHX_METRO
+    name: "Phoenix"
+    lat: 33.4484
+    lon: -112.0740
+    population_weight: 1608139
+  - code: LA_METRO
+    name: "Los Angeles"
+    lat: 34.0522
+    lon: -118.2437
+    population_weight: 3898747
+  - code: BOS_METRO
+    name: "Boston"
+    lat: 42.3601
+    lon: -71.0589
+    population_weight: 675647
+  - code: PHL_METRO
+    name: "Philadelphia"
+    lat: 39.9526
+    lon: -75.1652
+    population_weight: 1573916
+  - code: DET_METRO
+    name: "Detroit"
+    lat: 42.3314
+    lon: -83.0458
+    population_weight: 620376
+  - code: MSP_METRO
+    name: "Minneapolis"
+    lat: 44.9778
+    lon: -93.2650
+    population_weight: 429954
+
+coastal_exposure_regions:
+  - code: FL_COAST
+    name: "Florida (statewide, hurricane/storm-surge exposure)"
+    lat: 27.9944
+    lon: -81.7603
+    state: FL
+  - code: TX_COAST
+    name: "Texas Gulf Coast (Houston/Corpus Christi corridor)"
+    lat: 28.9541
+    lon: -95.3698
+    state: TX
+  - code: LA_COAST
+    name: "Louisiana Gulf Coast (New Orleans corridor)"
+    lat: 29.9511
+    lon: -90.0715
+    state: LA
+  - code: CAROLINAS_COAST
+    name: "Carolinas (Charleston/Wilmington corridor)"
+    lat: 33.8361
+    lon: -79.5804
+    state: NC
+
+construction_markets:
+  - code: TX_CONSTR
+    name: "Texas construction market"
+    lat: 30.2672
+    lon: -97.7431
+    state: TX
+  - code: FL_CONSTR
+    name: "Florida construction market"
+    lat: 28.5383
+    lon: -81.3792
+    state: FL
+  - code: AZ_CONSTR
+    name: "Arizona construction market"
+    lat: 33.4484
+    lon: -112.0740
+    state: AZ
+  - code: GA_CONSTR
+    name: "Georgia construction market"
+    lat: 33.7490
+    lon: -84.3880
+    state: GA
+  - code: NC_CONSTR
+    name: "North Carolina construction market"
+    lat: 35.2271
+    lon: -80.8431
+    state: NC
+  - code: CA_CONSTR
+    name: "California construction market"
+    lat: 34.0522
+    lon: -118.2437
+    state: CA
+
+logistics_hubs:
+  - code: MEM_FDX
+    name: "Memphis (FedEx superhub)"
+    lat: 35.0424
+    lon: -89.9767
+  - code: SDF_UPS
+    name: "Louisville (UPS Worldport)"
+    lat: 38.1740
+    lon: -85.7365
+  - code: IND_LOGISTICS
+    name: "Indianapolis logistics hub"
+    lat: 39.7684
+    lon: -86.1581
+  - code: CHI_RAIL
+    name: "Chicago rail/truck hub"
+    lat: 41.8781
+    lon: -87.6298
+  - code: DAL_LOGISTICS
+    name: "Dallas logistics hub"
+    lat: 32.7767
+    lon: -96.7970

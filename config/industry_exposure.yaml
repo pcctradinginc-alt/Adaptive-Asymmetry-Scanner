@@ -1,0 +1,179 @@
+# config/industry_exposure.yaml
+#
+# Industrie-Ebene der Exposure-Hierarchie (ticker_overrides > industry >
+# sector > unknown). Relevanz-Werte sind reine Kategorien
+# (NONE/LOW/MEDIUM/HIGH) OHNE Richtung — ob Wetter für eine Aktie bullish
+# oder bearish ist, entscheidet die Pipeline, nie dieses Config-File.
+
+industries:
+  Airlines:
+    road_freight_relevance: LOW
+    maritime_relevance: NONE
+    weather_relevance: HIGH
+
+  Air Freight & Logistics:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: MEDIUM
+    weather_relevance: HIGH
+
+  Road Freight / Trucking:
+    road_freight_relevance: HIGH
+    maritime_relevance: NONE
+    weather_relevance: HIGH
+
+  Industrials:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: LOW
+    weather_relevance: MEDIUM
+
+  Machinery:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: LOW
+    weather_relevance: LOW
+
+  Autos:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: MEDIUM
+    weather_relevance: LOW
+
+  Chemicals:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: MEDIUM
+    weather_relevance: MEDIUM
+
+  Semiconductors:
+    road_freight_relevance: LOW
+    maritime_relevance: MEDIUM
+    weather_relevance: LOW
+
+  Energy:
+    road_freight_relevance: LOW
+    maritime_relevance: MEDIUM
+    weather_relevance: MEDIUM
+
+  Utilities:
+    road_freight_relevance: LOW
+    maritime_relevance: NONE
+    weather_relevance: HIGH
+
+  P&C Insurance:
+    road_freight_relevance: NONE
+    maritime_relevance: LOW
+    weather_relevance: HIGH
+
+  Homebuilders:
+    road_freight_relevance: LOW
+    maritime_relevance: NONE
+    weather_relevance: MEDIUM
+
+  Construction:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: NONE
+    weather_relevance: MEDIUM
+
+  Retail:
+    road_freight_relevance: MEDIUM
+    maritime_relevance: LOW
+    weather_relevance: MEDIUM
+
+  Technology / Software:
+    road_freight_relevance: NONE
+    maritime_relevance: NONE
+    weather_relevance: NONE
+
+  Healthcare:
+    road_freight_relevance: LOW
+    maritime_relevance: NONE
+    weather_relevance: LOW
+
+# Abbildung von yfinance sector/industry-Strings auf unsere Industrien.
+# yfinance liefert `info["sector"]` (grob) und `info["industry"]` (feiner).
+# Wir matchen zuerst industry (case-insensitive, exakt aus dieser Liste),
+# fallen sonst auf sector zurück (siehe sector_fallback).
+yfinance_industry_map:
+  "Airlines": Airlines
+  "Integrated Freight & Logistics": Air Freight & Logistics
+  "Trucking": Road Freight / Trucking
+  "Railroads": Road Freight / Trucking
+  "Marine Shipping": Air Freight & Logistics
+  "Specialty Industrial Machinery": Machinery
+  "Farm & Heavy Construction Machinery": Machinery
+  "Auto Manufacturers": Autos
+  "Auto Parts": Autos
+  "Chemicals": Chemicals
+  "Specialty Chemicals": Chemicals
+  "Semiconductors": Semiconductors
+  "Semiconductor Equipment & Materials": Semiconductors
+  "Oil & Gas E&P": Energy
+  "Oil & Gas Midstream": Energy
+  "Oil & Gas Refining & Marketing": Energy
+  "Utilities—Regulated Electric": Utilities
+  "Utilities—Regulated Gas": Utilities
+  "Utilities—Diversified": Utilities
+  "Utilities—Regulated Water": Utilities
+  "Insurance—Property & Casualty": P&C Insurance
+  "Insurance—Reinsurance": P&C Insurance
+  "Residential Construction": Homebuilders
+  "Engineering & Construction": Construction
+  "Building Products & Equipment": Construction
+  "Discount Stores": Retail
+  "Department Stores": Retail
+  "Apparel Retail": Retail
+  "Grocery Stores": Retail
+  "Home Improvement Retail": Retail
+  "Specialty Retail": Retail
+  "Software—Application": Technology / Software
+  "Software—Infrastructure": Technology / Software
+  "Information Technology Services": Technology / Software
+  "Drug Manufacturers—General": Healthcare
+  "Biotechnology": Healthcare
+  "Medical Devices": Healthcare
+
+# Fallback, wenn industry nicht in yfinance_industry_map matcht: nur der
+# grobe yfinance sector-String.
+sector_fallback:
+  "Industrials": Industrials
+  "Consumer Cyclical": Retail
+  "Utilities": Utilities
+  "Energy": Energy
+  "Financial Services": P&C Insurance
+  "Technology": Technology / Software
+  "Healthcare": Healthcare
+  "Basic Materials": Chemicals
+
+# Katalysator-Typ -> Relevanz-Map (Relevanz nur, keine Richtung). Wird von
+# der Pipeline genutzt, um zu entscheiden, ob ein Wetter-Feature für einen
+# bestimmten Event-/Katalysator-Typ überhaupt sinnvoll ist zu betrachten.
+catalyst_relevance:
+  fda_biotech:
+    road_freight_relevance: NONE
+    maritime_relevance: NONE
+    weather_relevance: NONE
+  airline_guidance:
+    road_freight_relevance: LOW
+    maritime_relevance: NONE
+    weather_relevance: HIGH
+  utility_earnings:
+    road_freight_relevance: NONE
+    maritime_relevance: NONE
+    weather_relevance: HIGH
+    notes: "HDD/CDD-Anomalien sind der primäre Treiber (Heizung/Kühlung-Nachfrage)."
+  pc_insurance_catastrophe:
+    road_freight_relevance: NONE
+    maritime_relevance: LOW
+    weather_relevance: HIGH
+    notes: "Aktive Tropenzyklone / Katastrophenexposure hat höchste Relevanz."
+  logistics_operations:
+    road_freight_relevance: HIGH
+    maritime_relevance: MEDIUM
+    weather_relevance: HIGH
+  semiconductor_demand:
+    road_freight_relevance: LOW
+    maritime_relevance: MEDIUM
+    weather_relevance: LOW
+    notes: "Asien-Shipping-Exposure ist maritime/logistisch, kaum US-Wetter."
+  homebuilder_activity:
+    road_freight_relevance: LOW
+    maritime_relevance: NONE
+    weather_relevance: MEDIUM
+    notes: "Regionale Bauverzögerung durch Extremwetter (Frost/Hitze/Starkregen)."

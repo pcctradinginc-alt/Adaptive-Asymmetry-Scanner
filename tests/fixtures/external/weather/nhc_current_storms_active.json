@@ -1,0 +1,30 @@
+{
+  "activeStorms": [
+    {
+      "id": "AL052024",
+      "binNumber": "05L",
+      "name": "HELENE",
+      "classification": "HU",
+      "intensity": "90",
+      "pressure": "965",
+      "lat": "25.5N",
+      "lon": "84.0W",
+      "movementDir": "340",
+      "movementSpeed": "12",
+      "lastUpdate": "2024-09-26T21:00:00Z",
+      "publicAdvisory": {
+        "advNum": "010",
+        "issuance": "2024-09-26T21:00:00Z",
+        "url": "https://www.nhc.noaa.gov/text/refresh/MIATCPAT4+shtml/262100.shtml"
+      },
+      "windSpeedProbabilities": {
+        "issuance": "2024-09-26T21:00:00Z",
+        "url": "https://www.nhc.noaa.gov/gis/forecast/archive/al052024_2024092621_wsp_120hr5km.zip"
+      },
+      "forecastTrack": [
+        {"validTime": "2024-09-27T00:00:00Z", "lat": 26.0, "lon": -84.5},
+        {"validTime": "2024-09-27T12:00:00Z", "lat": 27.5, "lon": -84.0}
+      ]
+    }
+  ]
+}
