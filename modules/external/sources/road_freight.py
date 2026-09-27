@@ -24,6 +24,7 @@ import io
 import json
 import logging
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 from modules.external import http
@@ -121,6 +122,47 @@ class DestatisTruckTollConnector(Connector):
         discovered = {c[0]: c[1] for c in candidates}
         return chosen, {"destatis_table_codes": discovered, "destatis_chosen_table": chosen}
 
+    def _fetch_tablefile(self, table_code: str, fmt: str, raw: list[RawRecord],
+                          ) -> tuple["http.FetchResult | None", ConnectorResult | None]:
+        """POST (application/x-www-form-urlencoded, Credentials als HTTP-
+        Header -- aktuelles GENESIS-REST-2020-Verhalten) zuerst; nur bei
+        einem Nicht-Auth-Fehler (z.B. Endpoint akzeptiert an dieser Stelle
+        nur GET) Fallback auf GET mit Credentials als Query-Parameter
+        (älteres/alternatives Verhalten). Ein echter Auth-Fehler wird NIE
+        stillschweigend per GET erneut versucht."""
+        user, pw = self._credentials()
+        url = f"{self.BASE}/data/tablefile"
+        body = {"name": table_code, "area": "all", "format": fmt, "language": "de"}
+        try:
+            res = http.fetch(url, method="POST", data=body, headers={"username": user, "password": pw})
+            raw.append(_raw(self.source_id, "daily_index", res))
+            return res, None
+        except http.AuthError:
+            return None, ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.AUTH_MISSING, raw=raw,
+                message="GENESIS-Online: Zugangsdaten abgelehnt (DESTATIS_USER/DESTATIS_PASSWORD "
+                        "oder GAST-Fallback prüfen).",
+            )
+        except http.FetchError as e:
+            log.warning("destatis data/tablefile POST fehlgeschlagen (format=%s): %s -> GET-Fallback", fmt, e)
+
+        params = {"username": user, "password": pw, **body}
+        try:
+            res = http.fetch(url, params=params)
+        except http.AuthError:
+            return None, ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.AUTH_MISSING, raw=raw,
+                message="GENESIS-Online: Zugangsdaten abgelehnt (DESTATIS_USER/DESTATIS_PASSWORD "
+                        "oder GAST-Fallback prüfen).",
+            )
+        except http.FetchError as e:
+            return None, ConnectorResult(
+                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                message=f"GENESIS data/tablefile Abruf fehlgeschlagen (POST und GET, format={fmt}): {e}",
+            )
+        raw.append(_raw(self.source_id, "daily_index", res))
+        return res, None
+
     def fetch(self, now: datetime) -> ConnectorResult:
         raw: list[RawRecord] = []
         discovered: dict = {}
@@ -138,62 +180,56 @@ class DestatisTruckTollConnector(Connector):
                 )
             discovered["fallback_table_code_source"] = "config.expected_table_code (verify in preflight)"
 
-        user, pw = self._credentials()
-        url = f"{self.BASE}/data/tablefile"
-        params = {
-            "username": user, "password": pw, "name": table_code,
-            "area": "all", "format": "ffcsv", "language": "de",
-        }
-        try:
-            res = http.fetch(url, params=params)
-        except http.AuthError:
-            return ConnectorResult(
-                source_id=self.source_id, status=SourceStatus.AUTH_MISSING, raw=raw,
-                message="GENESIS-Online: Zugangsdaten abgelehnt (DESTATIS_USER/DESTATIS_PASSWORD "
-                        "oder GAST-Fallback prüfen).",
-                discovered_ids=discovered,
-            )
-        except http.FetchError as e:
-            return ConnectorResult(
-                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
-                message=f"GENESIS data/tablefile Abruf fehlgeschlagen: {e}",
-                discovered_ids=discovered,
-            )
-        raw.append(_raw(self.source_id, "daily_index", res))
+        observations: list = []
+        latest_obs = None
+        parse_failures = 0
+        last_diag: dict = {}
+        # GENESIS liefert je Tabelle/Instanz teils nur "ffcsv", teils nur
+        # "csv" aus -- beide Formate werden versucht, bevor laut mit
+        # SCHEMA_CHANGED gescheitert wird.
+        for fmt in ("ffcsv", "csv"):
+            res, err = self._fetch_tablefile(table_code, fmt, raw)
+            if err is not None:
+                err.discovered_ids = discovered
+                return err
 
-        try:
-            text = res.content.decode("utf-8-sig")
-        except UnicodeDecodeError:
-            return ConnectorResult(
-                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
-                message="GENESIS-Antwort ließ sich nicht als UTF-8 dekodieren "
-                        "(erwartetes ffcsv-Format hat sich vermutlich geändert).",
-                discovered_ids=discovered,
-            )
-
-        # Manche GENESIS-Antworten sind JSON-Umschläge mit Fehlerstatus statt
-        # direktem ffcsv – das prüfen wir zuerst, um klar zu scheitern.
-        stripped = text.lstrip()
-        if stripped.startswith("{"):
             try:
-                envelope = json.loads(stripped)
-                status_code = ((envelope.get("Status") or {}).get("Code"))
-                if status_code not in (0, None):
-                    return ConnectorResult(
-                        source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
-                        message=f"GENESIS meldet Status {status_code}: "
-                                f"{(envelope.get('Status') or {}).get('Content')}",
-                        discovered_ids=discovered,
-                    )
-            except json.JSONDecodeError:
-                pass
+                text = res.content.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                last_diag = {"format": fmt, "content_type": res.content_type,
+                             "body_snippet": "<nicht UTF-8-dekodierbar>"}
+                continue
 
-        observations, latest_obs, parse_failures = self._parse_ffcsv(text, table_code, res.retrieved_at)
-        if not observations and parse_failures == 0:
+            # Manche GENESIS-Antworten sind JSON-Umschläge mit Fehlerstatus
+            # statt direktem ffcsv/csv (HTTP 200!) – das prüfen wir zuerst,
+            # um klar mit Code/Content zu scheitern statt SCHEMA_CHANGED zu
+            # erraten.
+            stripped = text.lstrip()
+            if stripped.startswith("{"):
+                try:
+                    envelope = json.loads(stripped)
+                    status_obj = envelope.get("Status") or {}
+                    status_code = status_obj.get("Code")
+                    if status_code not in (0, None):
+                        return ConnectorResult(
+                            source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                            message=f"GENESIS meldet Status {status_code}: "
+                                    f"{status_obj.get('Content')} (format={fmt})",
+                            discovered_ids=discovered,
+                        )
+                except json.JSONDecodeError:
+                    pass
+
+            observations, latest_obs, parse_failures = self._parse_ffcsv(text, table_code, res.retrieved_at)
+            if observations or parse_failures:
+                break
+            last_diag = {"format": fmt, "content_type": res.content_type, "body_snippet": text[:600]}
+        else:
+            discovered["diagnostics"] = last_diag
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
-                message="ffcsv-Antwort enthielt keine erkennbaren Datenzeilen/Spalten "
-                        "(erwartetes GENESIS-ffcsv-Schema geprüft) – vermutlich Schemaänderung.",
+                message="ffcsv/csv-Antwort enthielt keine erkennbaren Datenzeilen/Spalten "
+                        "(erwartetes GENESIS-Schema für beide Formate geprüft) – vermutlich Schemaänderung.",
                 discovered_ids=discovered,
             )
 
@@ -457,11 +493,18 @@ class BtsFreightTsiConnector(Connector):
         url = self.FREDGRAPH_CSV
         params = {"id": expected_series_id}
         try:
-            res = http.fetch(url, params=params)
+            # fredgraph.csv ist gelegentlich langsam/rate-limited; ohne
+            # FRED_API_KEY ist das der einzige Zugang -> großzügigeres
+            # Timeout + Retries statt sofort FAIL bei einem einzelnen
+            # Read-Timeout.
+            res = http.fetch(url, params=params, timeout=60, retries=2)
         except http.FetchError as e:
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
-                message=f"fredgraph.csv-Fallback fehlgeschlagen: {e}", discovered_ids=discovered,
+                message=f"fredgraph.csv-Fallback fehlgeschlagen: {e}. "
+                        "Empfehlung: FRED_API_KEY setzen, um stattdessen die stabilere "
+                        "ALFRED-Vintages-API zu nutzen.",
+                discovered_ids=discovered,
             )
         raw.append(_raw(self.source_id, "fredgraph_csv_fallback", res))
         text = res.content.decode("utf-8", errors="replace")
@@ -470,8 +513,10 @@ class BtsFreightTsiConnector(Connector):
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
                 message="fredgraph.csv lieferte keine Datenzeilen (Series-ID in preflight verifizieren: "
-                        f"'{expected_series_id}').",
-                discovered_ids=discovered,
+                        f"'{expected_series_id}'). Empfehlung: FRED_API_KEY setzen (ALFRED-API statt "
+                        "fredgraph.csv-Fallback).",
+                discovered_ids={**discovered, "diagnostics": {"body_snippet": text[:600],
+                                                                "content_type": res.content_type}},
             )
         last_date, last_value = None, None
         for line in lines:
@@ -530,8 +575,16 @@ class EurostatRoadFreightConnector(Connector):
     DATA_BASE = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
     COUNTRIES = ["DE", "FR", "IT", "ES", "PL", "NL", "BE", "AT", "CZ", "SE", "EU27_2020"]
 
+    # Nur echte Datensatz-Codes (type == "dataset" in der TOC) UND das
+    # dokumentierte Namensmuster road_go_ta_* -- die TOC enthält auch
+    # Ordner/Tabellen-Einträge (z.B. "road_go" als Kategorie-Knoten), die
+    # NIE als Datensatz-Endpoint verwendet werden dürfen (führte live zu
+    # 404 auf .../data/road_go).
+    DATASET_CODE_RE = re.compile(r"^road_go_ta_")
+
     def _discover_dataset_code(self, raw: list[RawRecord]) -> tuple[str | None, dict]:
         search_terms = self.cfg.get("search_terms", ["Road freight transport"])
+        expected_code = self.cfg.get("expected_dataset_code")
         try:
             res = http.fetch(self.TOC_URL)
         except http.FetchError as e:
@@ -551,26 +604,48 @@ class EurostatRoadFreightConnector(Connector):
             code_idx = header.index("code")
         except ValueError:
             return None, {}
+        type_idx = header.index("type") if "type" in header else None
         matches = []
         for row in rows[1:]:
-            if len(row) <= max(title_idx, code_idx):
+            needed = max(title_idx, code_idx, type_idx or 0)
+            if len(row) <= needed:
                 continue
             title, code = row[title_idx].strip(), row[code_idx].strip()
-            if any(term.lower() in title.lower() for term in search_terms) and code.startswith("road_go"):
+            entry_type = row[type_idx].strip().lower() if type_idx is not None else "dataset"
+            if entry_type != "dataset":
+                continue
+            if not self.DATASET_CODE_RE.match(code):
+                continue
+            if any(term.lower() in title.lower() for term in search_terms):
                 matches.append((code, title))
         if not matches:
             return None, {}
         matches.sort(key=lambda m: m[0])
         chosen = matches[0][0]
+        # Bevorzuge die konfigurierte erwartete Dataset-Code, WENN sie
+        # tatsächlich unter den (echten Datensatz-)Treffern der TOC auftaucht
+        # -- rät nie eine ID, die nicht in den TOC-Kandidaten steht.
+        if expected_code and any(c == expected_code for c, _ in matches):
+            chosen = expected_code
         return chosen, {"eurostat_road_freight_candidates": dict(matches), "eurostat_chosen": chosen}
+
+    def _fetch_dataset(self, code: str, raw: list[RawRecord]) -> tuple["http.FetchResult | None", str | None]:
+        url = f"{self.DATA_BASE}/{code}"
+        try:
+            res = http.fetch(url, params={"format": "JSON", "lang": "en", "geo": self.COUNTRIES})
+        except http.FetchError as e:
+            return None, str(e)
+        raw.append(_raw(self.source_id, "jsonstat", res))
+        return res, None
 
     def fetch(self, now: datetime) -> ConnectorResult:
         raw: list[RawRecord] = []
         discovered: dict = {}
         code, disc = self._discover_dataset_code(raw)
         discovered.update(disc)
+        expected_code = self.cfg.get("expected_dataset_code")
         if code is None:
-            code = self.cfg.get("expected_dataset_code")
+            code = expected_code
             if not code:
                 return ConnectorResult(
                     source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
@@ -580,16 +655,21 @@ class EurostatRoadFreightConnector(Connector):
                 )
             discovered["fallback_dataset_code_source"] = "config.expected_dataset_code (verify in preflight)"
 
-        url = f"{self.DATA_BASE}/{code}"
-        try:
-            res = http.fetch(url, params={"format": "JSON", "lang": "en", "geo": self.COUNTRIES})
-        except http.FetchError as e:
+        res, err = self._fetch_dataset(code, raw)
+        if err is not None and "404" in err and expected_code and expected_code != code:
+            # der TOC-discovered Code ist nicht (mehr) abrufbar -> ein Retry
+            # mit der konfigurierten erwarteten Dataset-Code, statt sofort
+            # laut zu scheitern.
+            discovered["eurostat_discovered_code_404"] = code
+            code = expected_code
+            discovered["eurostat_chosen"] = code
+            res, err = self._fetch_dataset(code, raw)
+        if err is not None:
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
-                message=f"Eurostat-Datenabruf fehlgeschlagen ({code}): {e}",
+                message=f"Eurostat-Datenabruf fehlgeschlagen ({code}): {err}",
                 discovered_ids=discovered,
             )
-        raw.append(_raw(self.source_id, "jsonstat", res))
         try:
             data = res.json()
         except json.JSONDecodeError:

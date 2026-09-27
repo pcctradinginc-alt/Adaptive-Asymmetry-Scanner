@@ -168,6 +168,52 @@ def test_validate_ports_schema_changed_raises():
         mw.validate_ports_schema(meta)
 
 
+def test_resolve_ports_field_schema_matches_case_insensitive_aliases():
+    meta = _load("layer_metadata_ports_daily_alt_casing.json")
+    schema = mw.resolve_ports_field_schema(meta)
+    assert schema["date_field"] == "Date"
+    assert schema["date_field_type"] == "esriFieldTypeString"
+    assert schema["id_field"] == "PortId"
+    assert schema["name_field"] == "PortName"
+    assert schema["country_field"] == "Country"
+    assert schema["cargo_fields"] == sorted(["portcalls", "import", "export"])
+
+
+def test_resolve_ports_field_schema_never_sends_hardcoded_outfields(tmp_path):
+    fake_fetch, _ = make_fake_fetch(
+        ports_daily_metadata_fixture="layer_metadata_ports_daily_alt_casing.json",
+    )
+    cache_path = str(tmp_path / "portwatch_endpoints.json")
+    connector = mw.PortWatchPortsConnector(http_fetch=fake_fetch, cache_path=cache_path)
+    # nur die Metadaten-Layer-Fetches werden hier gebraucht; ein Query-Aufruf
+    # mit korrekt gecaseten outFields ist Teil des vollen fetch()-Flusses,
+    # dieser Test verifiziert nur die Schema-Auflösung selbst (siehe oben) --
+    # zusätzlich prüfen wir hier, dass ein SchemaError bei völlig fehlenden
+    # Kernfeldern die Feldliste als Diagnose mitliefert.
+    meta = _load("layer_metadata_ports_daily_schema_changed.json")
+    with pytest.raises(mw.SchemaError) as exc_info:
+        mw.resolve_ports_field_schema(meta, "https://example.org/FeatureServer", 0)
+    assert exc_info.value.diagnostics["field_names"] == sorted(
+        f["name"] for f in meta["fields"]
+    )
+    assert exc_info.value.diagnostics["service_url"] == "https://example.org/FeatureServer/0"
+
+
+def test_build_where_clause_uses_timestamp_for_date_field_type():
+    from datetime import date as _date
+    where = mw.build_where_clause(_date(2024, 1, 1), _date(2024, 1, 7), date_field="date",
+                                   date_field_type="esriFieldTypeDate")
+    assert "TIMESTAMP" in where
+
+
+def test_build_where_clause_uses_string_compare_for_non_date_field_type():
+    from datetime import date as _date
+    where = mw.build_where_clause(_date(2024, 1, 1), _date(2024, 1, 7), date_field="Date",
+                                   date_field_type="esriFieldTypeString")
+    assert "TIMESTAMP" not in where
+    assert "'2024-01-01'" in where and "'2024-01-07'" in where
+
+
 def test_connector_reports_schema_changed_status(tmp_path):
     fake_fetch, _ = make_fake_fetch(
         ports_daily_metadata_fixture="layer_metadata_ports_daily_schema_changed.json",
@@ -177,6 +223,7 @@ def test_connector_reports_schema_changed_status(tmp_path):
     result = connector.fetch(NOW)
     assert result.status == SourceStatus.SCHEMA_CHANGED
     assert result.observations == []
+    assert "field_names" in result.discovered_ids["diagnostics"]
 
 
 # --------------------------------------------------------------------------

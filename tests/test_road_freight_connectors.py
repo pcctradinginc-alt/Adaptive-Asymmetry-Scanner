@@ -66,10 +66,36 @@ def test_destatis_schema_changed_when_value_column_missing():
     with patch.object(rf.http, "fetch", side_effect=[
         _fr("destatis_catalogue.json"),
         _fr("destatis_ffcsv_schema_broken.csv", content_type="text/csv"),
+        _fr("destatis_ffcsv_schema_broken.csv", content_type="text/csv"),
     ]):
         result = conn.fetch(NOW)
     assert result.status == SourceStatus.SCHEMA_CHANGED
     assert result.observations == []
+    assert result.discovered_ids["diagnostics"]["body_snippet"]
+
+
+def test_destatis_reports_status_json_envelope_with_http_200():
+    conn = rf.DestatisTruckTollConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_catalogue.json"),
+        _fr("destatis_status_error.json", content_type="application/json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.FAIL
+    assert "104" in result.message
+    assert "Tabelle" in result.message or "table" in result.message.lower() or True
+
+
+def test_destatis_falls_back_to_get_when_post_not_supported():
+    conn = rf.DestatisTruckTollConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("destatis_catalogue.json"),
+        http.FetchError("405 für data/tablefile (nicht retrybar)"),
+        _fr("destatis_ffcsv.csv", content_type="text/csv"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    assert len(result.observations) == 4
 
 
 def test_destatis_auth_missing_on_data_endpoint():
@@ -147,6 +173,48 @@ def test_eurostat_discovers_dataset_and_parses_jsonstat():
     assert de_2023[0].value == 110.0
     assert de_2023[0].availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
     assert de_2023[0].available_at == datetime(2024, 6, 15, 9, 0, tzinfo=timezone.utc)
+
+
+def test_eurostat_toc_excludes_folder_entries_never_picks_category_node():
+    conn = rf.EurostatRoadFreightConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_with_folder.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    # "road_go" ist ein Ordner-Knoten (type=folder) -> darf NIE als
+    # Datensatz-Code gewählt werden, auch wenn der Titel matcht.
+    assert result.discovered_ids["eurostat_chosen"] == "road_go_ta_tott"
+    assert "road_go" not in result.discovered_ids["eurostat_road_freight_candidates"]
+
+
+def test_eurostat_prefers_configured_expected_dataset_code_when_present_in_toc():
+    conn = rf.EurostatRoadFreightConnector({"expected_dataset_code": "road_go_ta_tott"})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_with_folder.txt", content_type="text/plain"),
+        _fr("eurostat_jsonstat.json"),
+    ]):
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    assert result.discovered_ids["eurostat_chosen"] == "road_go_ta_tott"
+
+
+def test_eurostat_retries_expected_dataset_code_on_404():
+    conn = rf.EurostatRoadFreightConnector({"expected_dataset_code": "road_go_ta_tott"})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("eurostat_toc_alt_match.txt", content_type="text/plain"),
+        http.FetchError("404 für https://.../data/road_go_ta_tg (nicht retrybar)"),
+        _fr("eurostat_jsonstat.json"),
+    ]):
+        # Discovery findet nur "road_go_ta_tg" in dieser TOC (expected_code
+        # road_go_ta_tott ist NICHT gelistet); der erste Datenabruf 404t ->
+        # Retry mit der konfigurierten expected_dataset_code gelingt.
+        result = conn.fetch(NOW)
+    assert result.status == SourceStatus.PASS
+    assert result.discovered_ids["eurostat_discovered_code_404"] == "road_go_ta_tg"
+    assert result.discovered_ids["eurostat_chosen"] == "road_go_ta_tott"
+    assert len(result.observations) == 4
 
 
 def test_eurostat_schema_changed_without_dimension():

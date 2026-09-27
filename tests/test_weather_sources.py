@@ -11,6 +11,8 @@ laufen ohne Netzwerk gegen Fixtures unter tests/fixtures/external/weather/.
 import json
 from datetime import date, datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 
@@ -254,6 +256,42 @@ def test_nhc_no_active_storms_returns_empty_observations():
     retrieved_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
     obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=[])
     assert obs == []
+
+
+def test_nhc_skips_non_dict_storm_entries_instead_of_crashing():
+    storms = {"activeStorms": ["AL052024", 42, None]}
+    retrieved_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=[])
+    assert obs == []
+
+
+def test_nhc_raises_schema_error_when_top_level_is_not_a_dict():
+    retrieved_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    with pytest.raises(w.NhcSchemaError) as exc_info:
+        w.parse_current_storms(["not", "a", "dict"], retrieved_at, exposure_regions=[])
+    assert "body_snippet" in exc_info.value.diagnostics
+
+
+def test_nhc_raises_schema_error_when_active_storms_is_not_a_list():
+    retrieved_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    with pytest.raises(w.NhcSchemaError):
+        w.parse_current_storms({"activeStorms": "AL052024"}, retrieved_at, exposure_regions=[])
+
+
+def test_nhc_connector_reports_schema_changed_for_unexpected_active_storms_type():
+    connector = w.NhcStormsConnector(source_cfg={})
+    fake_res = SimpleNamespace(
+        json=lambda: {"activeStorms": "not-a-list"},
+        content=b'{"activeStorms": "not-a-list"}',
+        content_type="application/json",
+        retrieved_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        url="https://www.nhc.noaa.gov/CurrentStorms.json", status=200,
+        fingerprint="fp", content_hash="hash", bytes=10,
+    )
+    with patch.object(w.http, "fetch", return_value=fake_res):
+        result = connector.fetch(datetime(2024, 1, 1, tzinfo=timezone.utc))
+    assert result.status.value == "SCHEMA_CHANGED"
+    assert "body_snippet" in result.discovered_ids["diagnostics"]
 
 
 def test_nhc_active_storm_parses_core_fields_and_signed_latlon():
