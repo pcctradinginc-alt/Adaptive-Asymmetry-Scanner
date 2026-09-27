@@ -739,6 +739,15 @@ def flatten_chokepoint_universe(universe: dict) -> list[dict]:
     return [{"name": c["name"], "country": c.get("country")} for c in (universe.get("chokepoints") or [])]
 
 
+def load_port_aliases(universe: dict) -> dict[str, list[str]]:
+    """Dokumentierte offizielle Hafennamen aus config/port_universe.yaml
+    (`port_aliases`), z.B. "Busan" -> "Pusan". Nur Namen, die im Live-
+    Preflight im offiziellen PortWatch-Layer beobachtet wurden; Matching
+    weiterhin ausschließlich gegen tatsächlich vorhandene Layer-Namen."""
+    raw = universe.get("port_aliases") or {}
+    return {k: list(v) for k, v in raw.items()}
+
+
 def load_chokepoint_aliases(universe: dict) -> dict[str, list[str]]:
     """Dokumentierte Namens-Alias-Tabelle aus config/port_universe.yaml
     (`chokepoint_aliases`) -- z.B. Schreibvarianten wie Bosporus/Bosphorus,
@@ -939,6 +948,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             resolved = resolve_entities_by_name(
                 wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"],
                 country_field=ref_schema.get("country_field"),
+                alias_map=load_port_aliases(universe),
             )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}

@@ -533,3 +533,14 @@ def test_chokepoints_connector_resolves_via_alias_and_reports_diagnostics(tmp_pa
     assert diagnostics["chokepoints_reference_fallback_to_daily_layer"] is False
     assert "Taiwan Strait" in diagnostics["unresolved_chokepoints_close_matches"]
     assert diagnostics["unresolved_chokepoints_close_matches"]["Taiwan Strait"]
+
+
+def test_port_aliases_only_official_names_from_config():
+    """port_aliases aus config/port_universe.yaml: nur beobachtete offizielle
+    Layer-Namen; Aliase ohne Treffer im Layer lösen nichts auf."""
+    import yaml
+    from modules.external.sources.maritime import load_port_aliases
+    universe = yaml.safe_load(open("config/port_universe.yaml"))
+    aliases = load_port_aliases(universe)
+    assert aliases["Busan"] == ["Pusan"]
+    assert "Qingdao" not in aliases   # mehrdeutig -> bewusst nicht gemappt

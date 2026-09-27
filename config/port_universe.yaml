@@ -112,6 +112,8 @@ chokepoints:
 # Chokepoints-Referenz-Layer vorkommen (siehe discovered_ids["diagnostics"]
 # ["available_chokepoints"] im Preflight-Report) -- nie geraten.
 chokepoint_aliases:
+  "Bab el-Mandeb":
+    - "Bab el-Mandeb Strait"      # offizieller Layer-Name (Preflight 2026-09-27)
   "Malacca Strait":
     - "Strait of Malacca"
   "Taiwan Strait":
@@ -125,6 +127,21 @@ chokepoint_aliases:
     - "Bosporus"
     - "Bosphorus"
     - "Turkish Straits"
+
+# Offizielle PortWatch-Hafennamen (World-Port-Index-Schreibweise), jeweils im
+# Live-Preflight vom 2026-09-27 als vorhandener Layer-Name beobachtet. Nur
+# eindeutige Treffer: Qingdao ("Qingdao Port" vs. "Qingdao Gang") bleibt
+# bewusst offen; Long Beach, Shenzhen, Ningbo(-Zhoushan), Laem Chabang
+# erschienen nicht unter einem eindeutigen Namen -> unaufgelöst statt geraten.
+port_aliases:
+  "Antwerp(-Bruges)": ["Antwerp"]
+  "Piraeus": ["Piraievs"]
+  "Genoa": ["Genova"]
+  "Busan": ["Pusan"]
+  "Yokohama": ["Yokohama Ko"]
+  "Tokyo": ["Tokyo Ko"]
+  "Jebel Ali": ["Mina Jabal Ali"]
+  "Jeddah": ["Jiddah"]
 
 # Feature-Konfiguration (item 7 Defaults; hier zentral, nicht im Code
 # hart verdrahtet, damit sie ohne Code-Änderung angepasst werden können).

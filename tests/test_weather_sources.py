@@ -427,3 +427,23 @@ def test_weather_locations_config_loads_and_has_curated_categories():
 
 def test_location_by_code_returns_none_for_unknown_code():
     assert w.location_by_code("NOT_A_REAL_CODE") is None
+
+
+def test_nhc_forecast_track_as_reference_does_not_crash():
+    """Live-Schema: forecastTrack ist ein Verweis (Objekt/String), keine
+    Punktliste -> keine Distanzberechnung, aber kein Absturz."""
+    from datetime import datetime, timezone
+    from modules.external.sources.weather import parse_current_storms
+    for track in ({"kmzFile": "https://example/track.kmz"}, "https://example/track.kmz"):
+        storms = {"activeStorms": [{
+            "id": "al092026", "name": "X", "classification": "HU", "intensity": "85",
+            "pressure": "975", "latitudeNumeric": 25.1, "longitudeNumeric": -80.2,
+            "lastUpdate": "2026-09-27T09:00:00Z",
+            "publicAdvisory": {"issuance": "2026-09-27T09:00:00Z"},
+            "forecastTrack": track}]}
+        obs = parse_current_storms(storms, datetime.now(timezone.utc),
+                                   [{"lat": 27.0, "lon": -81.0, "code": "FL"}])
+        by_metric = {o.metric: o for o in obs}
+        assert "lat" in by_metric
+        dist = by_metric["min_distance_to_exposure_km"]
+        assert dist.value is None and dist.attrs.get("limitation")
