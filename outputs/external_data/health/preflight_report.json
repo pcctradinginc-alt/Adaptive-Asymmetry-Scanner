@@ -1,8 +1,8 @@
 [
   {
     "source_id": "imf_portwatch_ports",
-    "status": "WARN",
-    "n_observations": 8190,
+    "status": "PASS",
+    "n_observations": 9282,
     "latest_observation_time": "2026-09-18T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query"
@@ -10,7 +10,7 @@
     "http_status": [
       200
     ],
-    "message": "8190 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 563745 Rohbeobachtungen); 5 unresolved ports: ['Laem Chabang', 'Long Beach', 'Ningbo(-Zhoushan)', 'Qingdao', 'Shenzhen']",
+    "message": "9282 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 563745 Rohbeobachtungen); 0 unresolved ports: []",
     "discovered_ids": {
       "ports": {
         "Los Angeles": "port664",
@@ -25,22 +25,20 @@
         "Piraeus": "port908",
         "Genoa": "port387",
         "Shanghai": "port1188",
+        "Ningbo(-Zhoushan)": "port824",
+        "Shenzhen": "port1189",
+        "Qingdao": "port1069",
         "Busan": "port1065",
         "Yokohama": "port1417",
         "Tokyo": "port1305",
         "Kobe": "port581",
         "Singapore": "port1201",
         "Port Klang": "port960",
+        "Laem Chabang": "port1197",
         "Jebel Ali": "port744",
         "Jeddah": "port518"
       },
-      "unresolved_ports": {
-        "Long Beach": "no_match",
-        "Ningbo(-Zhoushan)": "no_match",
-        "Shenzhen": "no_match",
-        "Qingdao": "no_match",
-        "Laem Chabang": "no_match"
-      },
+      "unresolved_ports": {},
       "diagnostics": {
         "available_ports": [
           "Abbot Point",
@@ -106,145 +104,9 @@
         ],
         "n_available_ports": 1364,
         "ports_reference_fallback_to_daily_layer": false,
-        "unresolved_ports_close_matches": {
-          "Long Beach": [
-            "Palm Beach",
-            "Montego Bay",
-            "LNG Tangguh"
-          ],
-          "Ningbo(-Zhoushan)": [
-            "Zhoushan",
-            "Jinzhou Wan",
-            "Qingzhou"
-          ],
-          "Shenzhen": [
-            "Iskenderun",
-            "Bushehr",
-            "Wenzhou"
-          ],
-          "Qingdao": [
-            "Qinhuangdao",
-            "Qingdao Gang",
-            "Qingdao Port"
-          ],
-          "Laem Chabang": [
-            "Palembang",
-            "Daesan Hang",
-            "Semarang"
-          ]
-        },
-        "unresolved_ports_hint_matches": {
-          "Long Beach": [
-            "Los Angeles",
-            "San Pedro",
-            "San Pedro De Macoris"
-          ],
-          "Ningbo(-Zhoushan)": [
-            "Ningbo",
-            "Zhoushan"
-          ],
-          "Shenzhen": [
-            "Chiwan",
-            "Shekou"
-          ],
-          "Qingdao": [
-            "Qingdao Gang",
-            "Qingdao Port",
-            "Qinhuangdao"
-          ],
-          "Laem Chabang": [
-            "Si Racha"
-          ]
-        },
-        "unresolved_ports_hint_activity": {
-          "Long Beach": {
-            "Los Angeles": [
-              {
-                "id": "port664",
-                "country": "United States",
-                "portcalls_sum": 127.0
-              }
-            ],
-            "San Pedro": [
-              {
-                "id": "port1146",
-                "country": "C\u00f4te d'Ivoire",
-                "portcalls_sum": 11.0
-              }
-            ],
-            "San Pedro De Macoris": [
-              {
-                "id": "port1147",
-                "country": "Dominican Republic",
-                "portcalls_sum": 12.0
-              }
-            ]
-          },
-          "Ningbo(-Zhoushan)": {
-            "Ningbo": [
-              {
-                "id": "port824",
-                "country": "China",
-                "portcalls_sum": 668.0
-              }
-            ],
-            "Zhoushan": [
-              {
-                "id": "port1429",
-                "country": "China",
-                "portcalls_sum": 241.0
-              }
-            ]
-          },
-          "Shenzhen": {
-            "Chiwan": [
-              {
-                "id": "port242",
-                "country": "China",
-                "portcalls_sum": 10.0
-              }
-            ],
-            "Shekou": [
-              {
-                "id": "port1189",
-                "country": "China",
-                "portcalls_sum": 111.0
-              }
-            ]
-          },
-          "Qingdao": {
-            "Qingdao Gang": [
-              {
-                "id": "port1069",
-                "country": "China",
-                "portcalls_sum": 364.0
-              }
-            ],
-            "Qingdao Port": [
-              {
-                "id": "port1070",
-                "country": "China",
-                "portcalls_sum": 81.0
-              }
-            ],
-            "Qinhuangdao": [
-              {
-                "id": "port1072",
-                "country": "China",
-                "portcalls_sum": 94.0
-              }
-            ]
-          },
-          "Laem Chabang": {
-            "Si Racha": [
-              {
-                "id": "port1197",
-                "country": "Thailand",
-                "portcalls_sum": 229.0
-              }
-            ]
-          }
-        },
+        "unresolved_ports_close_matches": {},
+        "unresolved_ports_hint_matches": {},
+        "unresolved_ports_hint_activity": {},
         "n_observations_before_reduction": 563745
       }
     },
@@ -451,14 +313,14 @@
           "updatedAt": "2025-01-02T18:04:20.000Z"
         },
         {
-          "id": "s539-c8h7",
-          "name": "Transportation Services Index - Passenger",
-          "updatedAt": "2025-01-02T18:04:14.000Z"
-        },
-        {
           "id": "n68x-u7m7",
           "name": "Freight Transportation Service Index",
           "updatedAt": "2026-09-25T17:49:30.000Z"
+        },
+        {
+          "id": "s539-c8h7",
+          "name": "Transportation Services Index - Passenger",
+          "updatedAt": "2025-01-02T18:04:14.000Z"
         },
         {
           "id": "xkwi-7rvx",
@@ -476,14 +338,14 @@
           "updatedAt": "2026-09-25T17:46:40.000Z"
         },
         {
-          "id": "3w2s-iysp",
-          "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
-          "updatedAt": "2026-06-10T11:17:47.000Z"
-        },
-        {
           "id": "6zn8-4eyz",
           "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
           "updatedAt": "2026-09-25T17:46:49.000Z"
+        },
+        {
+          "id": "3w2s-iysp",
+          "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
+          "updatedAt": "2026-06-10T11:17:47.000Z"
         },
         {
           "id": "9czv-tjte",
@@ -657,27 +519,391 @@
   },
   {
     "source_id": "estat_jp_truck",
-    "status": "AUTH_MISSING",
-    "n_observations": 0,
-    "latest_observation_time": null,
+    "status": "PASS",
+    "n_observations": 4560,
+    "latest_observation_time": "2020-03-01T00:00:00+00:00",
     "endpoints": [
+      "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData",
       "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList"
     ],
     "http_status": [
       200
     ],
-    "message": "e-Stat: appId abgelehnt (\u8a8d\u8a3c\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3ID\u3092\u78ba\u8a8d\u3057\u3066\u4e0b\u3055\u3044\u3002).",
+    "message": "4560 Beobachtungen aus statsDataId 0003091286",
     "discovered_ids": {
       "estat_jp_truck_attempts": [
         {
           "query": {
-            "statsCode": "00600350",
+            "searchWord": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08",
             "limit": 100
           },
-          "status": 100,
-          "error_msg": "\u8a8d\u8a3c\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3ID\u3092\u78ba\u8a8d\u3057\u3066\u4e0b\u3055\u3044\u3002"
+          "status": 0,
+          "error_msg": "\u6b63\u5e38\u306b\u7d42\u4e86\u3057\u307e\u3057\u305f\u3002"
         }
-      ]
+      ],
+      "estat_jp_truck_candidates": [
+        {
+          "id": "0003091286",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u8ca8\u7269\u8f38\u9001\u91cf\uff08\u30c8\u30f3\u6570\u30fb\u30c8\u30f3\u30ad\u30ed\u30fb\u80fd\u529b\u30c8\u30f3\u30ad\u30ed\u30fb\u5b9f\u8eca\u30ad\u30ed\uff09",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003422293",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u8ca8\u7269\u8f38\u9001\u91cf\uff08\u30c8\u30f3\u6570\u30fb\u30c8\u30f3\u30ad\u30ed\u30fb\u80fd\u529b\u30c8\u30f3\u30ad\u30ed\u30fb\u5b9f\u8eca\u30ad\u30ed\uff092020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090587",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u30c8\u30f3\u6570",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003422413",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u30c8\u30f3\u6570 2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090639",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u30c8\u30f3\u30ad\u30ed",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003422833",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u30c8\u30f3\u30ad\u30ed 2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090620",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u80fd\u529b\u30c8\u30f3\u30ad\u30ed",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003422873",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u80fd\u529b\u30c8\u30f3\u30ad\u30ed 2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090621",
+          "title": "\u8ca8\u7269\u8f38\u9001 \uff16\u5927\u90fd\u5e9c\u770c\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u30c8\u30f3\u6570",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003426795",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u6570\uff08\u56db\u534a\u671f\u3054\u3068\uff09 2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u56db\u534a\u671f",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090659",
+          "title": "\u8ca8\u7269\u8f38\u9001 \uff16\u5927\u90fd\u5e9c\u770c\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u30c8\u30f3\u30ad\u30ed",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003426799",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u30ad\u30ed\uff08\u56db\u534a\u671f\u3054\u3068\uff092020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u56db\u534a\u671f",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090640",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u6570",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003130148",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u6570\uff082015\u5e744\u6708~\uff09",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003426800",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u6570\uff08\u56db\u534a\u671f\u3054\u3068\uff092020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u56db\u534a\u671f",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090588",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u6570",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003355795",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u6570\uff082015\u5e744\u6708~\uff09",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003426801",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u54c1\u76ee\u5225\u8f38\u9001\u30c8\u30f3\u30ad\u30ed\uff08\u56db\u534a\u671f\u3054\u3068\uff092020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u56db\u534a\u671f",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090641",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u65c5\u5ba2\u8f38\u9001\u91cf\uff08\u4eba\u54e1\u30fb\u4eba\u30ad\u30ed\u30fb\u80fd\u529b\u4eba\u30ad\u30ed\u30fb\u5b9f\u8eca\u30ad\u30ed\uff09",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003423113",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u65c5\u5ba2\u8f38\u9001\u91cf\uff08\u4eba\u54e1\u30fb\u4eba\u30ad\u30ed\u30fb\u80fd\u529b\u4eba\u30ad\u30ed\u30fb\u5b9f\u8eca\u30ad\u30ed\uff092020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090589",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003422874",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1 2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090661",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u30ad\u30ed",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003423134",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090590",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u8eca\u7a2e\u5225\u80fd\u529b\u4eba\u30ad\u30ed",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003423253",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u5730\u65b9\u904b\u8f38\u5c40\u5225\u30fb\u8eca\u7a2e\u5225\u80fd\u529b\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090642",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \uff16\u5927\u90fd\u5e9c\u770c\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003423114",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \uff16\u5927\u90fd\u5e9c\u770c\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090622",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \uff16\u5927\u90fd\u5e9c\u770c\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u30ad\u30ed",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003423214",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \uff16\u5927\u90fd\u5e9c\u770c\u5225\u30fb\u696d\u614b\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090591",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u55b6\u696d\u7528\u30d0\u30b9\uff08\u4e57\u5408\u30fb\u8cb8\u5207\uff09\u90fd\u9053\u5e9c\u770c\u5225\u8f38\u9001\u91cf",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003417713",
+          "title": "\u65c5\u5ba2\u904b\u8f38 \u55b6\u696d\u7528\u30d0\u30b9 \u90fd\u9053\u5e9c\u770c\uff08\u652f\u5c40\uff09\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1\u3001\u8f38\u9001\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003417713",
+          "title": "\u65c5\u5ba2\u904b\u8f38 \u55b6\u696d\u7528\u30d0\u30b9 \u90fd\u9053\u5e9c\u770c\uff08\u652f\u5c40\uff09\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1\u3001\u8f38\u9001\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003443079",
+          "title": "\u65c5\u5ba2\u904b\u8f38 \u55b6\u696d\u7528\u30d0\u30b9 \u90fd\u9053\u5e9c\u770c\uff08\u652f\u5c40\uff09\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1\u3001\u8f38\u9001\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003443079",
+          "title": "\u65c5\u5ba2\u904b\u8f38 \u55b6\u696d\u7528\u30d0\u30b9 \u90fd\u9053\u5e9c\u770c\uff08\u652f\u5c40\uff09\u5225\u30fb\u8eca\u7a2e\u5225\u8f38\u9001\u4eba\u54e1\u3001\u8f38\u9001\u4eba\u30ad\u30ed  2020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003090558",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u539f\u5358\u4f4d",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003090660",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u539f\u5358\u4f4d",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        },
+        {
+          "id": "0003423213",
+          "title": "\u65c5\u5ba2\u8f38\u9001 \u539f\u5358\u4f4d\u30002020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003426794",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u539f\u5358\u4f4d\u30002020\u5e744\u6708\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u6708\u6b21",
+          "survey_date": 0,
+          "updated": "2026-09-17"
+        },
+        {
+          "id": "0003442538",
+          "title": "\u8ca8\u7269\u8f38\u9001 \u8ca8\u7269\u8f38\u9001\u91cf\uff08\u30c8\u30f3\u6570\u30fb\u30c8\u30f3\u30ad\u30ed\u30fb\u80fd\u529b\u30c8\u30f3\u30ad\u30ed\u30fb\u5b9f\u8eca\u30ad\u30ed\uff092020\u5e74\u5ea6\uff5e",
+          "stat_name": "\u81ea\u52d5\u8eca\u8f38\u9001\u7d71\u8a08\u8abf\u67fb",
+          "stat_code": "00600330",
+          "cycle": "\u5e74\u5ea6\u6b21",
+          "survey_date": 0,
+          "updated": "2026-08-05"
+        }
+      ],
+      "estat_jp_truck_stats_data_id": "0003091286"
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -721,7 +947,7 @@
   {
     "source_id": "nws_forecast",
     "status": "WARN",
-    "n_observations": 2229,
+    "n_observations": 2227,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",

@@ -1,5 +1,5 @@
 {
-  "retrieved_at": "2026-09-27T18:09:36+00:00",
+  "retrieved_at": "2026-09-27T19:32:32+00:00",
   "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
   "results": {
     "asfinag_at": {
@@ -107,21 +107,6 @@
           ]
         },
         {
-          "title": "Lkw-Maut-Farleistungsindex",
-          "id": "https-www-destatis-de-de-themen-wirtschaft-konjunkturindikatoren-lkw-maut-fahrleistungsindex-kmau110",
-          "publisher": "Statistisches Bundesamt",
-          "catalog": "govdata",
-          "license": [
-            "http://dcat-ap.de/def/licenses/dl-by-de/2.0"
-          ],
-          "formats": [
-            "HTML"
-          ],
-          "access_urls": [
-            "https://www.destatis.de/DE/Themen/Wirtschaft/Konjunkturindikatoren/Lkw-Maut-Fahrleistungsindex/kmau110.html"
-          ]
-        },
-        {
           "title": "Truck connections Cologne",
           "id": "628d19db-d515-4b22-ac6b-d84f63d52faa",
           "publisher": "Stadt Köln",
@@ -134,6 +119,21 @@
           ],
           "access_urls": [
             "https://www.offenedaten-koeln.de/distribution/60e204f0ef53d76beb91ad0db69b9b09"
+          ]
+        },
+        {
+          "title": "Lkw-Maut-Farleistungsindex",
+          "id": "https-www-destatis-de-de-themen-wirtschaft-konjunkturindikatoren-lkw-maut-fahrleistungsindex-kmau110",
+          "publisher": "Statistisches Bundesamt",
+          "catalog": "govdata",
+          "license": [
+            "http://dcat-ap.de/def/licenses/dl-by-de/2.0"
+          ],
+          "formats": [
+            "HTML"
+          ],
+          "access_urls": [
+            "https://www.destatis.de/DE/Themen/Wirtschaft/Konjunkturindikatoren/Lkw-Maut-Fahrleistungsindex/kmau110.html"
           ]
         },
         {
@@ -155,15 +155,6 @@
           "access_urls": []
         },
         {
-          "title": "Truck route map of the city of Hamm",
-          "id": "47aa2968-9e21-46f7-a957-cc32f83d6d69",
-          "publisher": "",
-          "catalog": "gdi-de",
-          "license": [],
-          "formats": [],
-          "access_urls": []
-        },
-        {
           "title": "Trucks (N.º)",
           "id": "ine-0007247",
           "publisher": "Instituto Nacional de Estatística",
@@ -179,6 +170,15 @@
             "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
             "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
           ]
+        },
+        {
+          "title": "Truck route map of the city of Hamm",
+          "id": "47aa2968-9e21-46f7-a957-cc32f83d6d69",
+          "publisher": "",
+          "catalog": "gdi-de",
+          "license": [],
+          "formats": [],
+          "access_urls": []
         },
         {
           "title": "Positivnetz Lang-LKW Hamburg",
@@ -944,17 +944,8 @@
           ]
         },
         {
-          "title": "All-vehicle road traffic and percentage of heavy goods vehicles, by section and year",
-          "id": "341e611b-2950-4d0e-ab76-7f78e5da284b",
-          "publisher": "",
-          "catalog": "geocatalogue-fr",
-          "license": [],
-          "formats": [],
-          "access_urls": []
-        },
-        {
-          "title": "Weight of goods in national transport (t) in heavy goods vehicles",
-          "id": "ine-0013804",
+          "title": "Weight of goods carried by foreign heavy goods vehicles (t)",
+          "id": "ine-0011459",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
           "license": [
@@ -965,8 +956,8 @@
             "JSON"
           ],
           "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/8eeeecf9-6c2d-4f5d-8673-81b437eed55e",
-            "https://dados.gov.pt/api/1/datasets/r/3cb679ca-c242-4451-9cc5-213d6305d3b5"
+            "https://dados.gov.pt/api/1/datasets/r/e5de6f84-d225-48ac-963a-5e9227dee2e0",
+            "https://dados.gov.pt/api/1/datasets/r/3d965ad5-b1b6-4e8b-9886-566d905d2c55"
           ]
         },
         {
@@ -1004,8 +995,8 @@
           ]
         },
         {
-          "title": "Weight of goods carried by foreign heavy goods vehicles (t)",
-          "id": "ine-0011459",
+          "title": "Weight of goods in national transport (t) in heavy goods vehicles",
+          "id": "ine-0013804",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
           "license": [
@@ -1016,13 +1007,22 @@
             "JSON"
           ],
           "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/e5de6f84-d225-48ac-963a-5e9227dee2e0",
-            "https://dados.gov.pt/api/1/datasets/r/3d965ad5-b1b6-4e8b-9886-566d905d2c55"
+            "https://dados.gov.pt/api/1/datasets/r/8eeeecf9-6c2d-4f5d-8673-81b437eed55e",
+            "https://dados.gov.pt/api/1/datasets/r/3cb679ca-c242-4451-9cc5-213d6305d3b5"
           ]
         },
         {
-          "title": "Weight of goods carried by foreign heavy goods vehicles (t)",
-          "id": "ine-0011465",
+          "title": "All-vehicle road traffic and percentage of heavy goods vehicles, by section and year",
+          "id": "341e611b-2950-4d0e-ab76-7f78e5da284b",
+          "publisher": "",
+          "catalog": "geocatalogue-fr",
+          "license": [],
+          "formats": [],
+          "access_urls": []
+        },
+        {
+          "title": "Weight of goods in national transport (t) in heavy goods vehicles",
+          "id": "ine-0000375",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
           "license": [
@@ -1033,8 +1033,8 @@
             "JSON"
           ],
           "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/987474db-c84c-4b4f-9c68-28e2e852b86e",
-            "https://dados.gov.pt/api/1/datasets/r/82843394-4595-41bb-9377-c647f08df689"
+            "https://dados.gov.pt/api/1/datasets/r/63a0d80f-5a1d-47c1-bfe8-ff3c27f9797c",
+            "https://dados.gov.pt/api/1/datasets/r/753996f1-82e1-491c-ace0-49f3fbcad75b"
           ]
         }
       ],
@@ -1250,23 +1250,6 @@
         },
         {
           "title": "Tonne-kilometre in national transport (tkm) in heavy goods vehicles",
-          "id": "ine-0000380",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/d1d412e9-c54e-422e-9e3a-0e10abfcf287",
-            "https://dados.gov.pt/api/1/datasets/r/c4d32a96-394c-4a6d-af87-de02fb5b5dee"
-          ]
-        },
-        {
-          "title": "Tonne-kilometre in national transport (tkm) in heavy goods vehicles",
           "id": "ine-0006266",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
@@ -1280,6 +1263,23 @@
           "access_urls": [
             "https://dados.gov.pt/api/1/datasets/r/c58b0e9a-b189-4afc-a114-22739bdcf5ad",
             "https://dados.gov.pt/api/1/datasets/r/28a29618-e1c1-4dc2-8af6-f3574d7a3754"
+          ]
+        },
+        {
+          "title": "Tonne-kilometre in national transport (tkm) in heavy goods vehicles",
+          "id": "ine-0000380",
+          "publisher": "Instituto Nacional de Estatística",
+          "catalog": "dados-gov-pt",
+          "license": [
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://creativecommons.org/licenses/by/4.0/"
+          ],
+          "formats": [
+            "JSON"
+          ],
+          "access_urls": [
+            "https://dados.gov.pt/api/1/datasets/r/d1d412e9-c54e-422e-9e3a-0e10abfcf287",
+            "https://dados.gov.pt/api/1/datasets/r/c4d32a96-394c-4a6d-af87-de02fb5b5dee"
           ]
         },
         {
@@ -1518,6 +1518,21 @@
           ]
         },
         {
+          "title": "WFS Freight Station",
+          "id": "c4fb695d-2f91-4271-a599-cd9bc55b6d71",
+          "publisher": "",
+          "catalog": "gdi-de",
+          "license": [
+            null
+          ],
+          "formats": [
+            "WFS_SRVC"
+          ],
+          "access_urls": [
+            "https://haleconnect.com/ows/services/org.1120.a3c6fa30-fd89-4bbf-abad-71720506f204_wfs/org.1120.464e6a20-c850-41e3-8c6b-2b2a996adc47?SERVICE=WFS&Request=GetCapabilities"
+          ]
+        },
+        {
           "title": "agroBRIDGES Multi-Actor Framework Engagement Data Analysis",
           "id": "oai-zenodo-org-10409102",
           "publisher": "Zenodo",
@@ -1534,21 +1549,6 @@
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102"
-          ]
-        },
-        {
-          "title": "WFS Freight Station",
-          "id": "c4fb695d-2f91-4271-a599-cd9bc55b6d71",
-          "publisher": "",
-          "catalog": "gdi-de",
-          "license": [
-            null
-          ],
-          "formats": [
-            "WFS_SRVC"
-          ],
-          "access_urls": [
-            "https://haleconnect.com/ows/services/org.1120.a3c6fa30-fd89-4bbf-abad-71720506f204_wfs/org.1120.464e6a20-c850-41e3-8c6b-2b2a996adc47?SERVICE=WFS&Request=GetCapabilities"
           ]
         },
         {
