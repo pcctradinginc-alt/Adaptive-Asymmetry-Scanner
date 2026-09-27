@@ -705,3 +705,21 @@ def test_no_production_module_reads_external_context_key():
     for rel in production_modules:
         text = (root / rel).read_text(encoding="utf-8")
         assert "external_context" not in text, f"{rel} liest external_context!"
+
+
+def test_freight_breadth_none_when_coverage_insufficient():
+    """Nur eine Region mit Daten (min_valid=2) -> freight_breadth None, nie 0."""
+    from modules.external import features as feat
+    b = feat.breadth({"us": None, "eu": -0.2, "asia": None}, threshold=0.5, min_valid=2)
+    assert b["breadth_valid"] is False
+
+
+def test_weather_risk_requires_storm_near_exposure():
+    from modules.external.context import _weather_operational_risk
+    # aktiver Sturm weit weg (Ostpazifik) -> kein HIGH
+    assert _weather_operational_risk(None, True, 1900.0) == "LOW"
+    # aktiver Sturm nahe Küstenregion -> HIGH
+    assert _weather_operational_risk(None, True, 400.0) == "HIGH"
+    # ohne Position -> kein HIGH allein wegen "aktiv"
+    assert _weather_operational_risk(None, True, None) == "LOW"
+    assert _weather_operational_risk(None, False, None) == "UNKNOWN"

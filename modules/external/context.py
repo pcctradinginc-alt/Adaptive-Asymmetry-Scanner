@@ -191,7 +191,8 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
             o.entity_id for o in eu_obs if o.metric == "road_freight_ths_t"
         })
         for eid in eu_country_entities:
-            z = _safe(rff.eu_road_freight_z, eu_obs, eid)
+            # Eurostat liefert Jahreswerte: 12-Jahres-Fenster (>= 5 Basispunkte)
+            z = _safe(rff.eu_road_freight_z, eu_obs, eid, "road_freight_ths_t", 365 * 12)
             eu_sources.append(_region_entry(z, f"eurostat_road_freight:{eid}"))
         out["eu_sources"] = [e["source_id"] for e in eu_sources]
         out["eu_source_count"] = len(eu_sources)
@@ -244,8 +245,16 @@ def _build_maritime(archive, now: datetime, errors: list) -> dict:
 
         entity_z = _entity_zscores(port_obs, "portcalls_total", window_days=365)
         out["valid_port_count"] = sum(1 for v in entity_z.values() if v is not None)
-        breadth = feat.breadth(entity_z, threshold=0.5, min_valid=1)
-        out["negative_breadth"] = breadth.get("negative_breadth")
+        # Mindestabdeckung aus config/port_universe.yaml (Default 8 Häfen):
+        # Breite nie aus nur ein, zwei Häfen; unterhalb -> None (fehlend != 0).
+        try:
+            import yaml
+            _fc = (yaml.safe_load(open("config/port_universe.yaml")) or {}).get("feature_config", {})
+            _min_ports = int(_fc.get("min_valid_ports_for_breadth", 8))
+        except Exception:
+            _min_ports = 8
+        breadth = feat.breadth(entity_z, threshold=0.5, min_valid=_min_ports)
+        out["negative_breadth"] = breadth.get("negative_breadth") if breadth.get("breadth_valid") else None
 
         for slug in CHOKEPOINT_SLUGS:
             out[f"{slug}_z"] = _chokepoint_zscore(choke_obs, slug)
@@ -294,6 +303,9 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
 
         pc = wf.pc_insurance_features([], alert_obs, storm_obs)
         out["active_tropical_system"] = pc.get("active_tropical_system")
+        # Distanz der AKTUELLEN Sturmposition (NHC lat/lon) zur nächsten
+        # kuratierten US-Küsten-Expositionsregion. Ohne Position -> None.
+        out["tropical_min_distance_km"] = _tropical_min_distance_km(storm_obs)
 
         alert_entities = {o.entity_id for o in alert_obs if o.metric == "alert_count"}
         if alert_entities:
@@ -308,11 +320,45 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
     return out
 
 
-def _weather_operational_risk(disruption_index: float | None, active_storm: bool | None) -> str:
-    if disruption_index is None and not active_storm:
-        return "UNKNOWN" if disruption_index is None else "LOW"
+# Methodischer Schwellenwert (nicht gegen Renditen optimiert): ein tropisches
+# System zählt nur dann als operatives Risiko, wenn seine aktuelle Position
+# innerhalb dieser Distanz zu einer kuratierten US-Küsten-Expositionsregion liegt.
+TROPICAL_NEAR_EXPOSURE_KM = 1000.0
+
+
+def _tropical_min_distance_km(storm_obs) -> float | None:
+    try:
+        from modules.external.sources.weather import haversine_km, load_weather_locations
+        regions = load_weather_locations().get("coastal_exposure_regions", []) or []
+    except Exception:
+        return None
+    pos: dict[str, dict] = {}
+    for o in storm_obs or []:
+        if o.metric in ("lat", "lon") and o.value is not None:
+            pos.setdefault(o.series_id, {})[o.metric] = o.value
+    best = None
+    for p_ in pos.values():
+        if "lat" not in p_ or "lon" not in p_:
+            continue
+        for r in regions:
+            try:
+                d = haversine_km(float(p_["lat"]), float(p_["lon"]), float(r["lat"]), float(r["lon"]))
+            except (KeyError, TypeError, ValueError):
+                continue
+            best = d if best is None or d < best else best
+    return best
+
+
+def _weather_operational_risk(disruption_index: float | None, active_storm: bool | None,
+                              tropical_min_distance_km: float | None = None) -> str:
+    # Ein aktiver Sturm allein ist kein Risiko für US-Exposition (z.B.
+    # Ostpazifik-Hurrikane): nur mit Position nahe einer Expositionsregion.
+    near_storm = bool(active_storm) and tropical_min_distance_km is not None \
+        and tropical_min_distance_km <= TROPICAL_NEAR_EXPOSURE_KM
+    if disruption_index is None and not near_storm:
+        return "UNKNOWN" if not active_storm else "LOW"
     score = disruption_index or 0.0
-    if active_storm:
+    if near_storm:
         score = max(score, 0.6)
     if score >= 0.5:
         return "HIGH"
@@ -434,7 +480,8 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
     ])
 
     weather_risk = _weather_operational_risk(
-        weather.get("disruption_index"), weather.get("active_tropical_system"))
+        weather.get("disruption_index"), weather.get("active_tropical_system"),
+        weather.get("tropical_min_distance_km"))
 
     supply_chain = {
         "us_freight_state": us_state,
@@ -461,7 +508,9 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         "freight_us_z": road.get("us_z"),
         "freight_eu_z": road.get("eu_z"),
         "freight_asia_z": road.get("asia_z"),
-        "freight_breadth": (road.get("breadth") or {}).get("positive_breadth"),
+        # Breite nur, wenn die Mindestabdeckung erfüllt ist (fehlend != 0)
+        "freight_breadth": ((road.get("breadth") or {}).get("positive_breadth")
+                            if (road.get("breadth") or {}).get("breadth_valid") else None),
         "de_truck_z_1y": road.get("de_z_1y"),
         "de_truck_acceleration": road.get("de_acceleration"),
         "us_freight_tsi_yoy": road.get("us_tsi_yoy"),
