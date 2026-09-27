@@ -499,12 +499,22 @@ class EurostatIndustrialProductionConnector(_EurostatGenericMonthlyConnector):
     COUNTRIES = ["EU27_2020", "DE", "FR", "IT", "ES", "NL", "PL"]
     # s_adj=SCA (calendar and seasonally adjusted data) ist ebenfalls ein
     # harmonisierter Eurostat-Code.
-    DIMENSION_FILTERS = {"s_adj": ["SCA"]}
+    # Live-Preflight 2026-09-27: nur mit s_adj antwortet Eurostat 413
+    # (Antwort zu groß, alle NACE-Abteilungen x Einheiten). B-D = "Industry
+    # (except construction)", I21 = Index 2021=100 -- beides offizielle
+    # Eurostat-Codes; die Label-Prüfung unten bleibt die inhaltliche Kontrolle.
+    DIMENSION_FILTERS = {"s_adj": ["SCA"], "nace_r2": ["B-D"], "unit": ["I21"]}
 
     def _metric_fn(self, dim_parts: dict, dim_label_maps: dict) -> str | None:
         s_adj = dim_parts.get("s_adj")
         if s_adj is not None and s_adj != "SCA":
             return None
+        # nur Indexniveaus, nie Veränderungsraten (PCH_*) in dieselbe Metrik
+        unit = dim_parts.get("unit")
+        if unit is not None:
+            unit_label = (dim_label_maps.get("unit", {}).get(unit) or unit).lower()
+            if "index" not in unit_label and not unit.upper().startswith("I"):
+                return None
         nace = dim_parts.get("nace_r2")
         indic_bt = dim_parts.get("indic_bt")
         if nace is None or indic_bt is None:
