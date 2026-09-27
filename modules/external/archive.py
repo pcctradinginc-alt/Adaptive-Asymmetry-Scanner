@@ -19,17 +19,22 @@ Grundregeln:
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 import os
 import statistics
 import subprocess
+import tempfile
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 from modules.external.pit import Observation, ensure_utc, utc_now
 from modules.external.sources.base import RawRecord
+from modules.external.storage import (
+    StorageBackend, build_s3_backend_from_env, sha256_hex,
+)
 
 DEFAULT_ROOT = "outputs/external_data"
 DEFAULT_RAW_MAX_BYTES = 2_000_000
@@ -37,6 +42,9 @@ DEFAULT_RAW_POLICY = "hash_only"
 DEFAULT_STORAGE_WARN_MB_1Y = 200
 DEFAULT_MAX_BACKFILL_BYTES_PER_SOURCE = 30_000_000
 DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN = 2_000_000
+DEFAULT_ARCHIVE_BACKEND = "git"
+DEFAULT_GIT_RETENTION_MONTHS = 3
+OFFLOAD_MANIFEST_NAME = "offloaded.json"
 
 
 def _config_archive_defaults() -> dict:
@@ -87,13 +95,20 @@ def _iso(dt: datetime | None) -> str | None:
 
 
 class ExternalArchive:
-    def __init__(self, root: str | os.PathLike = DEFAULT_ROOT):
+    def __init__(self, root: str | os.PathLike = DEFAULT_ROOT,
+                 storage_backend: StorageBackend | None = None):
         self.root = Path(root)
         # Von store_observations() bei jedem Aufruf neu gesetzt: source_id ->
         # {"estimated_bytes", "max_bytes"} für Quellen, deren neue
         # normalisierte Zeilen in DIESEM Aufruf wegen der Volumen-Guard NICHT
         # geschrieben wurden (siehe Punkt 4 der Storage-Fix-Aufgabe).
         self.last_guard_blocked: dict[str, dict] = {}
+        # Optionales Object-Storage-Backend für die Offload-/Retention-Logik
+        # (siehe offload_normalized_months()). Explizit übergeben in Tests
+        # (Fake-Backend); sonst lazy aus config.yaml + Env aufgelöst.
+        self._storage_backend_override = storage_backend
+        self._storage_backend_resolved = False
+        self._storage_backend: StorageBackend | None = None
 
     # ── Pfade ────────────────────────────────────────────────────────────
 
@@ -120,6 +135,35 @@ class ExternalArchive:
 
     def _manifest_dir(self, day: str) -> Path:
         return self.root / "manifests" / day
+
+    def offload_manifest_path(self) -> Path:
+        return self.root / "manifests" / OFFLOAD_MANIFEST_NAME
+
+    # ── Object-Storage-Backend (optional) ───────────────────────────────
+
+    def storage_backend(self) -> StorageBackend | None:
+        """Liefert das konfigurierte Object-Storage-Backend, oder None wenn
+        `external_context.archive.backend` nicht "s3" ist oder
+        EXTERNAL_ARCHIVE_S3_BUCKET fehlt. Wird genau einmal pro Instanz
+        aufgelöst (Ausnahme: explizit im Konstruktor übergebenes Backend)."""
+        if self._storage_backend_override is not None:
+            return self._storage_backend_override
+        if self._storage_backend_resolved:
+            return self._storage_backend
+        self._storage_backend_resolved = True
+        defaults = _config_archive_defaults()
+        backend_name = str(defaults.get("backend", DEFAULT_ARCHIVE_BACKEND) or DEFAULT_ARCHIVE_BACKEND)
+        if backend_name != "s3":
+            self._storage_backend = None
+            return None
+        try:
+            self._storage_backend = build_s3_backend_from_env()
+        except Exception:
+            # Nie Zugangsdaten in der Exception/im Log – Backend bleibt None,
+            # Aufrufer behandelt das wie "nicht konfiguriert" (WARN, keine
+            # Löschung).
+            self._storage_backend = None
+        return self._storage_backend
 
     # ── Raw-Payload ──────────────────────────────────────────────────────
 
@@ -288,14 +332,34 @@ class ExternalArchive:
 
     def load(self, source_id: str, since: datetime | None = None) -> list[Observation]:
         """Alle Observations einer Quelle (über alle Monate), optional gefiltert
-        auf observation_time >= since."""
+        auf observation_time >= since. Liest transparent auch nach Object
+        Storage ausgelagerte (lokal gelöschte) Monate zurück (siehe
+        offload_normalized_months()) – PIT-Semantik bleibt unverändert:
+        der Aufrufer sieht dieselben Observations wie vor dem Offload."""
         since = ensure_utc(since)
         out: list[Observation] = []
         d = self._normalized_dir(source_id)
-        if not d.exists():
-            return out
-        for path in sorted(d.glob("*.jsonl")):
-            for obs in self._read_jsonl(path):
+        local_months: set[str] = set()
+        if d.exists():
+            for path in sorted(d.glob("*.jsonl")):
+                local_months.add(path.name)
+                for obs in self._read_jsonl(path):
+                    if since is not None and obs.observation_time < since:
+                        continue
+                    out.append(obs)
+
+        prefix = f"normalized/{source_id}/"
+        offloaded = self._load_offload_manifest()
+        offloaded_months = []
+        for rel_path, info in offloaded.items():
+            if not rel_path.startswith(prefix):
+                continue
+            month_file = Path(rel_path).name
+            if month_file in local_months:
+                continue  # lokale Datei hat Vorrang (sollte nach Offload nie vorkommen)
+            offloaded_months.append((rel_path, info))
+        for rel_path, info in sorted(offloaded_months):
+            for obs in self._read_offloaded_jsonl(rel_path, info):
                 if since is not None and obs.observation_time < since:
                     continue
                 out.append(obs)
@@ -360,6 +424,183 @@ class ExternalArchive:
         path = day_dir / f"{run_id}.json"
         path.write_text(json.dumps(manifest, indent=2, default=str))
         return path
+
+    # ── Object-Storage-Offload / Retention ──────────────────────────────
+
+    def _load_offload_manifest(self) -> dict:
+        return self._load_json(self.offload_manifest_path(), default={})
+
+    def _save_offload_manifest(self, data: dict) -> None:
+        self._write_json(self.offload_manifest_path(), data)
+
+    def _offload_cache_dir(self) -> Path:
+        return Path(tempfile.gettempdir()) / "aas_external_archive_cache"
+
+    def _read_offloaded_jsonl(self, rel_path: str, info: dict) -> list[Observation]:
+        """Liest eine nach Object Storage ausgelagerte Monatsdatei zurück,
+        mit lokalem /tmp-Cache (verifiziert per sha256 gegen den Manifest-
+        Eintrag, damit ein veralteter Cache nie stillschweigend benutzt
+        wird)."""
+        cache_path = self._offload_cache_dir() / rel_path
+        expected_sha = info.get("sha256")
+        if cache_path.exists():
+            try:
+                if hashlib.sha256(cache_path.read_bytes()).hexdigest() == expected_sha:
+                    return self._read_jsonl(cache_path)
+            except Exception:
+                pass
+        backend = self.storage_backend()
+        if backend is None:
+            # Kein Backend konfiguriert (z.B. Checkout ohne S3-Secrets) –
+            # ausgelagerte Monate sind dann schlicht nicht lesbar; PIT-
+            # Aufrufer bekommen die lokal vorhandenen Daten, keinen Crash.
+            return []
+        try:
+            raw = backend.get_bytes(info["s3_key"])
+            data = gzip.decompress(raw)
+            if expected_sha and hashlib.sha256(data).hexdigest() != expected_sha:
+                return []
+        except Exception:
+            return []
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_bytes(data)
+        return self._read_jsonl(cache_path)
+
+    @staticmethod
+    def _is_closed_month(month: str, now: datetime) -> bool:
+        """Ein Monat gilt als "geschlossen", wenn er vor dem aktuellen
+        Kalendermonat liegt (nie der laufende Monat, der noch geschrieben
+        werden kann)."""
+        try:
+            y, m = (int(x) for x in month.split("-"))
+        except Exception:
+            return False
+        return (y, m) < (now.year, now.month)
+
+    @staticmethod
+    def _months_before_cutoff(month: str, now: datetime, retention_months: int) -> bool:
+        y, m = (int(x) for x in month.split("-"))
+        idx = y * 12 + (m - 1)
+        cutoff_total = now.year * 12 + (now.month - 1) - int(retention_months)
+        return idx < cutoff_total
+
+    def offload_normalized_months(self, now: datetime | None = None,
+                                   retention_months: int | None = None) -> dict:
+        """Lädt normalisierte/rohe Dateien ins konfigurierte Object-Storage-
+        Backend hoch (gzip, sha256 in Metadaten, idempotent) und entfernt
+        anschließend NUR normalisierte Monatsdateien, die (a) abgeschlossen
+        sind (nicht der laufende Monat) UND (b) älter als
+        `git_retention_months` sind, aus dem Git-Arbeitsverzeichnis — erst
+        nach verifiziertem Re-Download (sha256-Vergleich). Ist kein
+        S3-Backend konfiguriert (`backend: git` oder fehlende Secrets),
+        passiert NICHTS (kein Löschen, wie heute).
+
+        Rückgabe: {"enabled", "uploaded": [...], "verified": [...],
+        "offloaded": [...], "failures": {source_id: [messages]}}."""
+        now = ensure_utc(now) or utc_now()
+        defaults = _config_archive_defaults()
+        backend_name = str(defaults.get("backend", DEFAULT_ARCHIVE_BACKEND) or DEFAULT_ARCHIVE_BACKEND)
+        retention_months = (retention_months if retention_months is not None
+                            else int(defaults.get("git_retention_months", DEFAULT_GIT_RETENTION_MONTHS)))
+
+        result = {"enabled": False, "backend": backend_name, "uploaded": [], "verified": [],
+                  "offloaded": [], "failures": {}}
+        if backend_name != "s3":
+            return result
+
+        backend = self.storage_backend()
+        if backend is None:
+            result["failures"]["_backend"] = [
+                "backend=s3 konfiguriert, aber kein Object-Storage erreichbar "
+                "(EXTERNAL_ARCHIVE_S3_BUCKET fehlt oder boto3 nicht installiert)."
+            ]
+            return result
+
+        result["enabled"] = True
+        offload_manifest = self._load_offload_manifest()
+        failed_rel_paths: set[str] = set()
+
+        # 1) Upload aller normalisierten + rohen Dateien (Backup, immer –
+        #    Löschung folgt separat und nur für normalisierte Monatsdateien).
+        for area in ("normalized", "raw"):
+            area_root = self.root / area
+            if not area_root.exists():
+                continue
+            for path in sorted(area_root.rglob("*")):
+                if not path.is_file():
+                    continue
+                if path.name.startswith("_"):  # z.B. _hashes.json – kein Datenfile
+                    continue
+                rel_path = str(path.relative_to(self.root)).replace(os.sep, "/")
+                # source_id ist das erste Pfadsegment unter normalized/raw/
+                parts = Path(rel_path).parts
+                source_id = parts[1] if len(parts) > 1 else "unknown"
+                try:
+                    local_bytes = path.read_bytes()
+                    local_sha = sha256_hex(local_bytes)
+                    key = rel_path if rel_path.endswith(".gz") else rel_path + ".gz"
+
+                    existing = offload_manifest.get(rel_path)
+                    if existing and existing.get("sha256") == local_sha and backend.exists(key):
+                        continue  # idempotent: unverändert & bereits hochgeladen
+
+                    payload = local_bytes if rel_path.endswith(".gz") else gzip.compress(local_bytes)
+                    backend.put_bytes(key, payload, metadata={"sha256": local_sha})
+                    result["uploaded"].append(rel_path)
+
+                    # Safety: NIE löschen vor verifiziertem Re-Download.
+                    verify_raw = backend.get_bytes(key)
+                    verify_bytes = gzip.decompress(verify_raw) if not rel_path.endswith(".gz") else verify_raw
+                    if hashlib.sha256(verify_bytes).hexdigest() != local_sha:
+                        result["failures"].setdefault(source_id, []).append(
+                            f"Verifikation fehlgeschlagen für {rel_path} (sha256-Mismatch nach Re-Download)."
+                        )
+                        failed_rel_paths.add(rel_path)
+                        continue
+                    result["verified"].append(rel_path)
+                    offload_manifest[rel_path] = {
+                        "s3_key": key,
+                        "sha256": local_sha,
+                        "bytes": len(local_bytes),
+                        "offloaded_at": None,  # erst bei tatsächlicher lokaler Löschung gesetzt
+                    }
+                except Exception as e:  # noqa: BLE001 - nie fatal für den Ingestion-Run
+                    result["failures"].setdefault(source_id, []).append(
+                        f"Upload fehlgeschlagen für {rel_path}: {e!r}"
+                    )
+                    failed_rel_paths.add(rel_path)
+
+        # 2) Retention: nur normalisierte, abgeschlossene Monatsdateien
+        #    älter als git_retention_months werden lokal gelöscht – erst
+        #    nachdem sie oben erfolgreich verifiziert wurden.
+        norm_root = self.root / "normalized"
+        if norm_root.exists():
+            for source_dir in sorted(p for p in norm_root.iterdir() if p.is_dir()):
+                source_id = source_dir.name
+                for path in sorted(source_dir.glob("*.jsonl")):
+                    month = path.stem
+                    if not self._is_closed_month(month, now):
+                        continue
+                    if not self._months_before_cutoff(month, now, retention_months):
+                        continue
+                    rel_path = str(path.relative_to(self.root)).replace(os.sep, "/")
+                    manifest_entry = offload_manifest.get(rel_path)
+                    if manifest_entry is None or manifest_entry.get("offloaded_at") is not None:
+                        continue  # nicht (neu) verifiziert in diesem Lauf -> nie löschen
+                    if rel_path in failed_rel_paths:
+                        continue
+                    try:
+                        path.unlink()
+                        manifest_entry["offloaded_at"] = _iso(now)
+                        offload_manifest[rel_path] = manifest_entry
+                        result["offloaded"].append(rel_path)
+                    except Exception as e:  # noqa: BLE001
+                        result["failures"].setdefault(source_id, []).append(
+                            f"Löschen fehlgeschlagen für {rel_path}: {e!r}"
+                        )
+
+        self._save_offload_manifest(offload_manifest)
+        return result
 
     # ── Storage-Telemetrie ───────────────────────────────────────────────
 
@@ -462,6 +703,20 @@ class ExternalArchive:
             "5y": total_bytes_per_day * 365 * 5,
         }
         flagged = projections["1y"] > warn_mb_1y * 1_000_000
+
+        defaults = _config_archive_defaults()
+        backend_name = str(defaults.get("backend", DEFAULT_ARCHIVE_BACKEND) or DEFAULT_ARCHIVE_BACKEND)
+        bytes_in_git = 0
+        for area in ("normalized", "raw"):
+            area_root = self.root / area
+            if area_root.exists():
+                bytes_in_git += sum(p.stat().st_size for p in area_root.rglob("*") if p.is_file())
+        offload_manifest = self._load_offload_manifest()
+        bytes_offloaded = sum(
+            int(v.get("bytes") or 0) for v in offload_manifest.values()
+            if v.get("offloaded_at") is not None
+        )
+
         telemetry = {
             "measured_at": _iso(utc_now()),
             "total_bytes_per_day": total_bytes_per_day,
@@ -469,6 +724,9 @@ class ExternalArchive:
             "projections_bytes": projections,
             "warn_mb_1y": warn_mb_1y,
             "flagged": flagged,
+            "backend": backend_name,
+            "bytes_in_git": bytes_in_git,
+            "bytes_offloaded": bytes_offloaded,
             "per_source": per_source,
         }
         if flagged:

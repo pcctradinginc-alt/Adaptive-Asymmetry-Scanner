@@ -114,6 +114,20 @@ def weather_exposure_summary(primitives: dict) -> dict:
     }
 
 
+def source_attributions(sources_dir: str = "config/external_sources") -> list[str]:
+    """Pflicht-Quellenangaben aller aktivierten Quellen mit `attribution`-Feld
+    in der Registry (z.B. IMF PortWatch). Fehler -> leere Liste."""
+    try:
+        from modules.external.registry import load_source_configs
+        out = []
+        for s in load_source_configs(sources_dir).values():
+            if s.get("enabled") and s.get("attribution") and s["attribution"] not in out:
+                out.append(s["attribution"])
+        return out
+    except Exception:
+        return []
+
+
 def build_compact_context(snapshot: dict | None = None, health: dict | None = None) -> dict | None:
     """
     Baut den kompakten Kontext für die tägliche Darstellung aus einem
@@ -139,6 +153,7 @@ def build_compact_context(snapshot: dict | None = None, health: dict | None = No
         "global_maritime_confidence": states.get("global_maritime_confidence"),
         "chokepoint_anomalies": chokepoint_anomalies(primitives),
         "weather": weather_exposure_summary(primitives),
+        "attributions": source_attributions(),
         "candidates": [
             {
                 "ticker": c.get("ticker"),
@@ -215,6 +230,7 @@ def render_html_block(context: dict | None) -> str:
         Wetter: {weather_str}
       </div>
       {cand_html}
+      {"<div style='margin-top:6px;color:#64748b;'>Quellen: " + " · ".join(context.get("attributions") or []) + "</div>" if context.get("attributions") else ""}
     </div>"""
 
 
@@ -256,6 +272,8 @@ def render_markdown_lines(context: dict | None) -> list[str]:
     if isinstance(weather.get("weather_disruption_index"), (int, float)):
         w_str += f" · Disruption-Index {weather['weather_disruption_index']:.2f}"
     lines.append(f"- Wetter: {w_str}")
+    if context.get("attributions"):
+        lines.append("- Quellen: " + " · ".join(context["attributions"]))
     candidates = context.get("candidates") or []
     if candidates:
         lines.append("- Kandidaten (Relation/Materialität/Quelle):")

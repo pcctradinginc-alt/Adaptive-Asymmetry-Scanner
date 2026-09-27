@@ -1,0 +1,6 @@
+# Optionale Abhängigkeit für das S3-kompatible Object-Storage-Backend des
+# externen PIT-Archivs (external_context.archive.backend: s3 in config.yaml,
+# siehe modules/external/storage.py). NICHT Teil von requirements.txt -- nur
+# installieren, wenn EXTERNAL_ARCHIVE_S3_BUCKET gesetzt ist (siehe
+# .github/workflows/external_data.yml).
+boto3>=1.34.0

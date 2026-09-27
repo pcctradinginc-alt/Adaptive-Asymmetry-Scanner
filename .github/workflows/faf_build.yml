@@ -1,0 +1,60 @@
+name: FAF Exposure Build
+
+# Manual/occasional rebuild of config/faf_exposure.yaml (FHWA Freight
+# Analysis Framework FAF5 structural exposure map). NOT scheduled — the
+# FAF5 state-level database only changes on an occasional FAF release, and
+# downloading/processing it is too heavy for routine runs. Trigger by hand
+# after a new FAF5 release (see scripts/build_faf_exposure.py).
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Optional direct FAF5 state-level database zip URL (skips page discovery)"
+        required: false
+        default: ""
+
+concurrency:
+  group: faf-exposure-build   # never write config/faf_exposure.yaml concurrently
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build FAF exposure map
+        run: |
+          if [ -n "${{ github.event.inputs.url }}" ]; then
+            python3 scripts/build_faf_exposure.py --url "${{ github.event.inputs.url }}" --out config/faf_exposure.yaml
+          else
+            python3 scripts/build_faf_exposure.py --out config/faf_exposure.yaml
+          fi
+
+      - name: Commit updated exposure map
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/faf_exposure.yaml
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -m "chore: rebuild FAF5 exposure map $(date -u +%Y-%m-%dT%H:%M)"
+          git pull --rebase origin main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main

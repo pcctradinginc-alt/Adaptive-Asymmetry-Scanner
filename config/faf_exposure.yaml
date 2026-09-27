@@ -1,24 +1,31 @@
 # config/faf_exposure.yaml
 #
-# PLATZHALTER — manual/derived, not yet built.
+# NOT YET BUILT — placeholder.
 #
-# Soll eine kompakte Commodity -> Region -> Sektor-Exposure-Tabelle aus dem
-# FHWA Freight Analysis Framework (FAF) enthalten, um Straßengüterverkehr
-# nach Rohgut/Region auf GICS-Sektoren zu mappen (structural exposure, KEIN
-# Live-Feed). Wird einmalig/manuell erzeugt von scripts/build_faf_exposure.py
-# und danach von Hand kuratiert/geprüft, nicht automatisch überschrieben.
+# Compact FHWA Freight Analysis Framework (FAF5) structural exposure map:
+# commodity (SCTG2) <-> origin-state shares, state <-> commodity mix, and
+# mode shares. Built by scripts/build_faf_exposure.py from the official
+# FAF5 state-level database (https://faf.ornl.gov/faf5/), which is NOT
+# fetched automatically on every scanner run — this is a structural
+# exposure table (rebuilt manually / on a new FAF5 release), never a live
+# feed.
 #
-# Registry: config/external_sources/road_freight.yaml -> source_id fhwa_faf,
-# status_override: DEFERRED, solange diese Datei nicht befüllt ist.
+# To (re)build:
+#     python3 scripts/build_faf_exposure.py --out config/faf_exposure.yaml
+#
+# meta.built_at is the built-marker consumed by
+# scripts/build_faf_exposure.py:exposure_states_for_industry() — while it
+# is null/missing, the loader returns None (not {}), and the registry
+# entry config/external_sources/road_freight.yaml (source_id fhwa_faf)
+# carries status_override: DEFERRED.
 
-built: false
-build_script: "scripts/build_faf_exposure.py"
-source: "FHWA Freight Analysis Framework (FAF5), https://ops.fhwa.dot.gov/freight/freight_analysis/faf/"
-note: "manual/derived, not yet built"
-schema:
-  commodity_sctg_code: "str — offizieller FAF/SCTG-Warencode (2-stellig)"
-  commodity_label: "str"
-  region: "str — FAF-Region-Code (nicht erfunden, aus offizieller FAF-Regionsliste)"
-  sector_gics: "str — zugeordneter GICS-Sektor (manuelle Kuratierung)"
-  weight_tons_share: "float — Anteil an Gesamttonnage der Region (0..1)"
-exposure: []
+meta:
+  source_url: null
+  faf_version: null
+  year: null
+  built_at: null
+  sha256_of_zip: null
+sctg_names: {}
+commodity_state_shares: {}
+state_commodity_mix: {}
+mode_shares: {}

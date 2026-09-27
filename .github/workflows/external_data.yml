@@ -34,6 +34,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install optional S3-Storage-Backend dependency (boto3)
+        # Nur installieren, wenn ein Bucket konfiguriert ist -- sonst bleibt
+        # backend: s3 in config.yaml wirkungslos (kein boto3 nötig, kein
+        # zusätzliches Deployment-Risiko für den Default-Pfad "git").
+        if: env.EXTERNAL_ARCHIVE_S3_BUCKET != ''
+        env:
+          EXTERNAL_ARCHIVE_S3_BUCKET: ${{ secrets.EXTERNAL_ARCHIVE_S3_BUCKET }}
+        run: pip install -r requirements-storage.txt
+
       - name: Run External-Data Ingestion
         env:
           ESTAT_APP_ID:   ${{ secrets.ESTAT_APP_ID }}
@@ -46,6 +55,14 @@ jobs:
           GMAIL_APP_PW:   ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL:   ${{ secrets.NOTIFY_EMAIL }}
           GITHUB_SHA:     ${{ github.sha }}
+          # Optionales Object-Storage-Backend (external_context.archive.backend:
+          # s3 in config.yaml). Ohne EXTERNAL_ARCHIVE_S3_BUCKET wirkungslos.
+          EXTERNAL_ARCHIVE_S3_BUCKET:   ${{ secrets.EXTERNAL_ARCHIVE_S3_BUCKET }}
+          EXTERNAL_ARCHIVE_S3_ENDPOINT: ${{ secrets.EXTERNAL_ARCHIVE_S3_ENDPOINT }}
+          EXTERNAL_ARCHIVE_S3_PREFIX:   ${{ secrets.EXTERNAL_ARCHIVE_S3_PREFIX }}
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ secrets.AWS_REGION }}
         run: python -m modules.external.orchestrator ingest
 
       - name: Commit archived external data

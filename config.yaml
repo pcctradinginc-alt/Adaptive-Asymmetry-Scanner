@@ -186,6 +186,14 @@ external_context:
     # Meldung "volume guard", Alarmierung über den bestehenden Mechanismus.
     max_new_normalized_bytes_per_source_per_run: 2000000
     max_backfill_bytes_per_source: 30000000   # einmaliger historischer Erstimport je Quelle
+    # Optionales Object-Storage-Backend (siehe modules/external/storage.py).
+    # "git" (Default) = heutiges Verhalten, NIE Löschung. "s3" aktiviert
+    # Upload+Retention -- Zugangsdaten/Bucket AUSSCHLIESSLICH über Env-Vars
+    # (EXTERNAL_ARCHIVE_S3_BUCKET/_ENDPOINT/_PREFIX, AWS_ACCESS_KEY_ID/
+    # AWS_SECRET_ACCESS_KEY/AWS_REGION), nie hier in config.yaml. Ohne
+    # EXTERNAL_ARCHIVE_S3_BUCKET bleibt "s3" wirkungslos (WARN, keine Löschung).
+    backend: git                     # git (Default) | s3
+    git_retention_months: 3          # nur abgeschlossene, verifiziert hochgeladene normalisierte Monate älter als N Monate werden lokal gelöscht
   readiness:
     # Methodologische Mindestschwellen je Frequenz für EXPLORATORY_READY /
     # CHALLENGER_READY — NIE aus Returns abgeleitet (siehe registry.py).
