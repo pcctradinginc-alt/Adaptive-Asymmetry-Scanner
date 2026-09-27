@@ -1,0 +1,542 @@
+[
+  {
+    "source_id": "imf_portwatch_ports",
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [],
+    "http_status": [],
+    "message": "ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': [\"'outFields' parameter is invalid\"]}",
+    "discovered_ids": {},
+    "family": "maritime",
+    "license_status": "REVIEW_REQUIRED",
+    "archiving": "blocked_until_license_review"
+  },
+  {
+    "source_id": "imf_portwatch_chokepoints",
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [],
+    "http_status": [],
+    "message": "ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': [\"'outFields' parameter is invalid\"]}",
+    "discovered_ids": {},
+    "family": "maritime",
+    "license_status": "REVIEW_REQUIRED",
+    "archiving": "blocked_until_license_review"
+  },
+  {
+    "source_id": "destatis_truck_toll",
+    "status": "SCHEMA_CHANGED",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://www-genesis.destatis.de/genesisWS/rest/2020/catalogue/tables",
+      "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "ffcsv-Antwort enthielt keine erkennbaren Datenzeilen/Spalten (erwartetes GENESIS-ffcsv-Schema gepr\u00fcft) \u2013 vermutlich Schema\u00e4nderung.",
+    "discovered_ids": {
+      "fallback_table_code_source": "config.expected_table_code (verify in preflight)"
+    },
+    "family": "road_freight",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "bts_freight_tsi",
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [],
+    "http_status": [],
+    "message": "fredgraph.csv-Fallback fehlgeschlagen: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=30)",
+    "discovered_ids": {},
+    "family": "road_freight",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "eurostat_road_freight",
+    "status": "FAIL",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "Eurostat-Datenabruf fehlgeschlagen (road_go): 404 f\u00fcr https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_go (nicht retrybar)",
+    "discovered_ids": {
+      "eurostat_road_freight_candidates": {
+        "road_go": "Road freight transport measurement",
+        "road_go_cta7gtt": "Cross-trade road freight transport of reporting country by country of loading and unloading, type of goods and type of transport (t) - annual data (1990-2007)",
+        "road_go_cta_gtt": "Cross-trade road freight transport of reporting country by country of loading and unloading, type of goods and type of transport (t) - annual data (from 2008 onwards)",
+        "road_go_ctq_tt": "Cross-trade road freight transport of reporting country by country of loading and unloading and type of transport (t, tkm) - quarterly data",
+        "road_go_ia7lgtt": "International road freight transport - loaded goods in reporting country by country of unloading, type of goods and type of transport (t) - annual data (1982-2007)",
+        "road_go_ia7ugtt": "International road freight transport - unloaded goods in reporting country by country of loading, type of goods and type of transport (t)- annual data (1982-2007)",
+        "road_go_ia_lgtt": "International road freight transport - loaded goods in reporting country by country of unloading, type of goods and type of transport (t) - annual data (from 2008 onwards)",
+        "road_go_ia_ltt": "International road freight transport - loaded goods in reporting country by country of unloading and type of transport (tkm) - annual data",
+        "road_go_ia_rc": "International road freight transport of reporting country, by country of loading and unloading (t, tkm) - annual data",
+        "road_go_ia_rctg": "International road freight transport of reporting countryby country of loading and unloading and type of goods (t, tkm) - annual data (1999-2007)",
+        "road_go_ia_tc": "International road freight transport by country of loading and unloading (t, tkm) - annual data, EU aggregates (1999-2013)",
+        "road_go_ia_tctg": "International road freight transport by country of loading and unloading and type of goods (t, tkm) - annual data, EU aggregates (1999-2007)",
+        "road_go_ia_ugtt": "International road freight transport - unloaded goods in reporting country by country of loading, type of goods and type of transport (t) - annual data (from 2008 onwards)",
+        "road_go_ia_utt": "International road freight transport - unloaded goods in reporting country by country of loading and type of transport (tkm) - annual data",
+        "road_go_int": "International road freight transport",
+        "road_go_int_h": "International road freight transport - historical data (1982-2007)",
+        "road_go_iq_ltt": "International road freight transport - loaded goods in reporting country by country of unloading and type of transport (t, tkm) - quarterly data",
+        "road_go_iq_utt": "International road freight transport - unloaded goods in reporting country by country of loading and type of transport (t, tkm) - quarterly data",
+        "road_go_na7dctg": "National road freight transport by distance class, type of goods and type of transport (t) - annual data (1982-2007)",
+        "road_go_na7rl3g": "National road freight transport by region of loading (NUTS 3) and type of goods (t) - annual data (1999-2007)",
+        "road_go_na7ru3g": "National road freight transport by region of unloading (NUTS 3) and by type of goods (t) - annual data (1999-2007)",
+        "road_go_na7tgtt": "National road freight transport by type of goods and type of transport (t, tkm) - annual data (1982-2007)",
+        "road_go_na_dctg": "National road freight transport by distance class, type of goods and type of transport (t) - annual data (from 2008 onwards)",
+        "road_go_na_dctt": "National road freight transport by distance class and type of transport (tkm) - annual data",
+        "road_go_na_rl2g": "National road freight transport by region of loading and type of goods (t) - annual data (1982-1999)",
+        "road_go_na_rl3g": "National road freight transport by region of loading (NUTS 3) and type of goods (t) - annual data (from 2008 onwards)",
+        "road_go_na_ru2g": "National road freight transport by region of unloading and type of goods (t) - annual data (1982-1999)",
+        "road_go_na_ru3g": "National road freight transport by region of unloading (NUTS 3) and type of goods (t) - annual data (from 2008 onwards)",
+        "road_go_nat": "National road freight transport",
+        "road_go_nat_h": "National road freight transport - historical data (1982-2007)",
+        "road_go_ta7dctg": "Road freight transport by distance class and type of goods (t, tkm, vehicle-km, basic transport operations) - annual data (1999-2007)",
+        "road_go_ta7tg": "Road freight transport by type of goods and type of transport (t, tkm) - annual data (1999-2007)",
+        "road_go_ta_agev": "Road freight transport by age of vehicle (tkm, vehicle-km, journeys) - annual data",
+        "road_go_ta_axle": "Road freight transport by axle configuration of vehicle (tkm, vehicle-km, journeys) - annual data",
+        "road_go_ta_dc": "Road freight transport by distance class and type of transport (t, tkm, vehicle-km, basic transport operations) - annual data",
+        "road_go_ta_dctg": "Road freight transport by distance class and type of goods (t, tkm, vehicle-km, basic transport operations) - annual data (from 2008 onwards)",
+        "road_go_ta_dg": "Road freight transport of dangerous goods by type of dangerous goods and territorial coverage (tkm, vehicle-km, basic transport operations) - annual data",
+        "road_go_ta_lc": "Road freight transport by load capacity (LC) of vehicle and type of transport (tkm, vehicle-km, journeys) - annual data",
+        "road_go_ta_mplw": "Road freight transport by maximum permissible laden weight (MPLW) of vehicle (tkm, vehicle-km, journeys) - annual data",
+        "road_go_ta_nace": "Road freight transport by NACE Rev. 2 activity of the vehicle operator (tkm, vehicle-km, journeys) - annual data",
+        "road_go_ta_rl": "Road freight transport by region of loading (t, tkm, journeys) - annual data",
+        "road_go_ta_ru": "Road freight transport by region of unloading (t, tkm, journeys) - annual data",
+        "road_go_ta_tcrg": "Road freight transport by type of cargo and distance class (t, tkm, vehicle-km, basic transport operations) - annual data",
+        "road_go_ta_tg": "Road freight transport by type of goods and type of transport (t, tkm) - annual data",
+        "road_go_ta_tott": "Road freight transport by type of operation and type of transport (t, tkm, vehicle-km) - annual data",
+        "road_go_ta_tra": "Road freight transport vehicle transit movements by transit country (t, journeys) - annual data",
+        "road_go_ta_trat": "Road freight transport vehicle transit movements by transit country, loading status and maximum permissible laden weight (MPLW) of vehicle (t, journeys) - annual data, EU aggregates",
+        "road_go_ta_vm": "Road freight transport vehicle movements by loading status, type of transport and territorial coverage (vehicle-km, journeys) - annual data",
+        "road_go_tot": "Total road freight transport",
+        "road_go_tot_h": "Total road freight transport - historical data (1999-2007)",
+        "road_go_tq_tott": "Road freight transport by type of operation and type of transport - (t, tkm, vehicle-km) - quarterly data",
+        "road_go_tq_trat": "Road freight transport vehicle transit movements by transit country, loading status and maximum permissible laden weight (MPLW) of vehicle (t, journeys) - quarterly data, EU totals"
+      },
+      "eurostat_chosen": "road_go"
+    },
+    "family": "road_freight",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "estat_jp_truck",
+    "status": "AUTH_MISSING",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [],
+    "http_status": [],
+    "message": "ESTAT_APP_ID nicht gesetzt -> kein API-Call ausgef\u00fchrt.",
+    "discovered_ids": {},
+    "family": "road_freight",
+    "license_status": "REVIEW_REQUIRED",
+    "archiving": "blocked_until_license_review"
+  },
+  {
+    "source_id": "fhwa_faf",
+    "status": "status_override=DEFERRED",
+    "reason": "status_override=DEFERRED",
+    "family": "road_freight"
+  },
+  {
+    "source_id": "viapass_be",
+    "status": "status_override=REVIEW_REQUIRED",
+    "reason": "status_override=REVIEW_REQUIRED",
+    "family": "road_freight"
+  },
+  {
+    "source_id": "asfinag_at",
+    "status": "status_override=REVIEW_REQUIRED",
+    "reason": "status_override=REVIEW_REQUIRED",
+    "family": "road_freight"
+  },
+  {
+    "source_id": "nbs_cn",
+    "status": "status_override=DEFERRED",
+    "reason": "status_override=DEFERRED",
+    "family": "road_freight"
+  },
+  {
+    "source_id": "mot_cn",
+    "status": "status_override=DEFERRED",
+    "reason": "status_override=DEFERRED",
+    "family": "road_freight"
+  },
+  {
+    "source_id": "kosis_kr",
+    "status": "status_override=DEFERRED",
+    "reason": "status_override=DEFERRED",
+    "family": "road_freight"
+  },
+  {
+    "source_id": "nws_forecast",
+    "status": "PASS",
+    "n_observations": 20048,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://api.weather.gov/gridpoints/BOU/74,66",
+      "https://api.weather.gov/gridpoints/BOX/71,101",
+      "https://api.weather.gov/gridpoints/BOX/73,102",
+      "https://api.weather.gov/gridpoints/DTX/56,28",
+      "https://api.weather.gov/gridpoints/DTX/66,34",
+      "https://api.weather.gov/gridpoints/EWX/156,91",
+      "https://api.weather.gov/gridpoints/FFC/50,82",
+      "https://api.weather.gov/gridpoints/FFC/51,87",
+      "https://api.weather.gov/gridpoints/FWD/80,109",
+      "https://api.weather.gov/gridpoints/FWD/89,104",
+      "https://api.weather.gov/gridpoints/GSP/115,64",
+      "https://api.weather.gov/gridpoints/GSP/119,65",
+      "https://api.weather.gov/gridpoints/HGX/63,59",
+      "https://api.weather.gov/gridpoints/HGX/63,95",
+      "https://api.weather.gov/gridpoints/HGX/64,105",
+      "https://api.weather.gov/gridpoints/ILM/31,51",
+      "https://api.weather.gov/gridpoints/IND/58,69",
+      "https://api.weather.gov/gridpoints/LIX/68,88",
+      "https://api.weather.gov/gridpoints/LMK/51,74",
+      "https://api.weather.gov/gridpoints/LOT/66,77",
+      "https://api.weather.gov/gridpoints/LOT/76,73",
+      "https://api.weather.gov/gridpoints/LOX/148,41",
+      "https://api.weather.gov/gridpoints/LOX/155,45",
+      "https://api.weather.gov/gridpoints/MEG/45,62",
+      "https://api.weather.gov/gridpoints/MFL/106,51",
+      "https://api.weather.gov/gridpoints/MLB/26,68",
+      "https://api.weather.gov/gridpoints/MLB/29,64",
+      "https://api.weather.gov/gridpoints/MPX/108,72",
+      "https://api.weather.gov/gridpoints/MPX/110,68",
+      "https://api.weather.gov/gridpoints/MTR/85,98",
+      "https://api.weather.gov/gridpoints/OKX/28,40",
+      "https://api.weather.gov/gridpoints/OKX/33,42",
+      "https://api.weather.gov/gridpoints/OKX/42,40",
+      "https://api.weather.gov/gridpoints/PHI/48,75",
+      "https://api.weather.gov/gridpoints/PHI/50,79",
+      "https://api.weather.gov/gridpoints/PSR/159,58",
+      "https://api.weather.gov/gridpoints/PSR/161,57",
+      "https://api.weather.gov/gridpoints/SEW/124,61",
+      "https://api.weather.gov/gridpoints/TBW/98,102",
+      "https://api.weather.gov/gridpoints/VEF/122,94",
+      "https://api.weather.gov/points/25.7959,-80.287",
+      "https://api.weather.gov/points/27.9944,-81.7603",
+      "https://api.weather.gov/points/28.4312,-81.3081",
+      "https://api.weather.gov/points/28.5383,-81.3792",
+      "https://api.weather.gov/points/28.9541,-95.3698",
+      "https://api.weather.gov/points/29.7604,-95.3698",
+      "https://api.weather.gov/points/29.9511,-90.0715",
+      "https://api.weather.gov/points/29.9902,-95.3368",
+      "https://api.weather.gov/points/30.2672,-97.7431",
+      "https://api.weather.gov/points/32.7767,-96.797",
+      "https://api.weather.gov/points/32.8998,-97.0403",
+      "https://api.weather.gov/points/33.4352,-112.0101",
+      "https://api.weather.gov/points/33.4484,-112.074",
+      "https://api.weather.gov/points/33.6407,-84.4277",
+      "https://api.weather.gov/points/33.749,-84.388",
+      "https://api.weather.gov/points/33.8361,-79.5804",
+      "https://api.weather.gov/points/33.9416,-118.4085",
+      "https://api.weather.gov/points/34.0522,-118.2437",
+      "https://api.weather.gov/points/35.0424,-89.9767",
+      "https://api.weather.gov/points/35.2144,-80.9473",
+      "https://api.weather.gov/points/35.2271,-80.8431",
+      "https://api.weather.gov/points/36.084,-115.1537",
+      "https://api.weather.gov/points/37.6213,-122.379",
+      "https://api.weather.gov/points/38.174,-85.7365",
+      "https://api.weather.gov/points/39.7684,-86.1581",
+      "https://api.weather.gov/points/39.8561,-104.6737",
+      "https://api.weather.gov/points/39.8744,-75.2424",
+      "https://api.weather.gov/points/39.9526,-75.1652",
+      "https://api.weather.gov/points/40.6413,-73.7781",
+      "https://api.weather.gov/points/40.6895,-74.1745",
+      "https://api.weather.gov/points/40.7128,-74.006",
+      "https://api.weather.gov/points/41.8781,-87.6298",
+      "https://api.weather.gov/points/41.9742,-87.9073",
+      "https://api.weather.gov/points/42.2124,-83.3534",
+      "https://api.weather.gov/points/42.3314,-83.0458",
+      "https://api.weather.gov/points/42.3601,-71.0589",
+      "https://api.weather.gov/points/42.3656,-71.0096",
+      "https://api.weather.gov/points/44.8848,-93.2223",
+      "https://api.weather.gov/points/44.9778,-93.265",
+      "https://api.weather.gov/points/47.4502,-122.3088"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "",
+    "discovered_ids": {
+      "ATL": {
+        "gridId": "FFC",
+        "gridX": 50,
+        "gridY": 82
+      },
+      "DFW": {
+        "gridId": "FWD",
+        "gridX": 80,
+        "gridY": 109
+      },
+      "DEN": {
+        "gridId": "BOU",
+        "gridX": 74,
+        "gridY": 66
+      },
+      "ORD": {
+        "gridId": "LOT",
+        "gridX": 66,
+        "gridY": 77
+      },
+      "LAX": {
+        "gridId": "LOX",
+        "gridX": 148,
+        "gridY": 41
+      },
+      "CLT": {
+        "gridId": "GSP",
+        "gridX": 115,
+        "gridY": 64
+      },
+      "JFK": {
+        "gridId": "OKX",
+        "gridX": 42,
+        "gridY": 40
+      },
+      "LAS": {
+        "gridId": "VEF",
+        "gridX": 122,
+        "gridY": 94
+      },
+      "MCO": {
+        "gridId": "MLB",
+        "gridX": 29,
+        "gridY": 64
+      },
+      "MIA": {
+        "gridId": "MFL",
+        "gridX": 106,
+        "gridY": 51
+      },
+      "PHX": {
+        "gridId": "PSR",
+        "gridX": 161,
+        "gridY": 57
+      },
+      "SEA": {
+        "gridId": "SEW",
+        "gridX": 124,
+        "gridY": 61
+      },
+      "SFO": {
+        "gridId": "MTR",
+        "gridX": 85,
+        "gridY": 98
+      },
+      "IAH": {
+        "gridId": "HGX",
+        "gridX": 64,
+        "gridY": 105
+      },
+      "EWR": {
+        "gridId": "OKX",
+        "gridX": 28,
+        "gridY": 40
+      },
+      "MSP": {
+        "gridId": "MPX",
+        "gridX": 110,
+        "gridY": 68
+      },
+      "BOS": {
+        "gridId": "BOX",
+        "gridX": 73,
+        "gridY": 102
+      },
+      "DTW": {
+        "gridId": "DTX",
+        "gridX": 56,
+        "gridY": 28
+      },
+      "PHL": {
+        "gridId": "PHI",
+        "gridX": 48,
+        "gridY": 75
+      },
+      "NYC": {
+        "gridId": "OKX",
+        "gridX": 33,
+        "gridY": 42
+      },
+      "CHI": {
+        "gridId": "LOT",
+        "gridX": 76,
+        "gridY": 73
+      },
+      "HOU": {
+        "gridId": "HGX",
+        "gridX": 63,
+        "gridY": 95
+      },
+      "DAL": {
+        "gridId": "FWD",
+        "gridX": 89,
+        "gridY": 104
+      },
+      "ATL_METRO": {
+        "gridId": "FFC",
+        "gridX": 51,
+        "gridY": 87
+      },
+      "PHX_METRO": {
+        "gridId": "PSR",
+        "gridX": 159,
+        "gridY": 58
+      },
+      "LA_METRO": {
+        "gridId": "LOX",
+        "gridX": 155,
+        "gridY": 45
+      },
+      "BOS_METRO": {
+        "gridId": "BOX",
+        "gridX": 71,
+        "gridY": 101
+      },
+      "PHL_METRO": {
+        "gridId": "PHI",
+        "gridX": 50,
+        "gridY": 79
+      },
+      "DET_METRO": {
+        "gridId": "DTX",
+        "gridX": 66,
+        "gridY": 34
+      },
+      "MSP_METRO": {
+        "gridId": "MPX",
+        "gridX": 108,
+        "gridY": 72
+      },
+      "FL_COAST": {
+        "gridId": "TBW",
+        "gridX": 98,
+        "gridY": 102
+      },
+      "TX_COAST": {
+        "gridId": "HGX",
+        "gridX": 63,
+        "gridY": 59
+      },
+      "LA_COAST": {
+        "gridId": "LIX",
+        "gridX": 68,
+        "gridY": 88
+      },
+      "CAROLINAS_COAST": {
+        "gridId": "ILM",
+        "gridX": 31,
+        "gridY": 51
+      },
+      "TX_CONSTR": {
+        "gridId": "EWX",
+        "gridX": 156,
+        "gridY": 91
+      },
+      "FL_CONSTR": {
+        "gridId": "MLB",
+        "gridX": 26,
+        "gridY": 68
+      },
+      "AZ_CONSTR": {
+        "gridId": "PSR",
+        "gridX": 159,
+        "gridY": 58
+      },
+      "GA_CONSTR": {
+        "gridId": "FFC",
+        "gridX": 51,
+        "gridY": 87
+      },
+      "NC_CONSTR": {
+        "gridId": "GSP",
+        "gridX": 119,
+        "gridY": 65
+      },
+      "CA_CONSTR": {
+        "gridId": "LOX",
+        "gridX": 155,
+        "gridY": 45
+      },
+      "MEM_FDX": {
+        "gridId": "MEG",
+        "gridX": 45,
+        "gridY": 62
+      },
+      "SDF_UPS": {
+        "gridId": "LMK",
+        "gridX": 51,
+        "gridY": 74
+      },
+      "IND_LOGISTICS": {
+        "gridId": "IND",
+        "gridX": 58,
+        "gridY": 69
+      },
+      "CHI_RAIL": {
+        "gridId": "LOT",
+        "gridX": 76,
+        "gridY": 73
+      },
+      "DAL_LOGISTICS": {
+        "gridId": "FWD",
+        "gridX": 89,
+        "gridY": 104
+      }
+    },
+    "family": "weather",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "nws_alerts",
+    "status": "PASS",
+    "n_observations": 0,
+    "latest_observation_time": null,
+    "endpoints": [
+      "https://api.weather.gov/alerts/active"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "",
+    "discovered_ids": {},
+    "family": "weather",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "ncei_normals",
+    "status": "AUTH_MISSING",
+    "reason": "AUTH_MISSING",
+    "family": "weather"
+  },
+  {
+    "source_id": "nhc_storms",
+    "status": "FAIL",
+    "message": "AttributeError(\"'str' object has no attribute 'get'\")",
+    "family": "weather",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "noaa_storm_events",
+    "status": "disabled",
+    "reason": "disabled",
+    "family": "weather"
+  },
+  {
+    "source_id": "ecmwf_open_data",
+    "status": "status_override=DEFERRED",
+    "reason": "status_override=DEFERRED",
+    "family": "weather"
+  }
+]
