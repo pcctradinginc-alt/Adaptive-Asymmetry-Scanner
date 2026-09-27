@@ -19,6 +19,7 @@ sources:
     machine_endpoint: "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
     access_method: "genesis_online_rest_2020"
     requires_auth: false   # anonymer GAST/GAST-Zugang moeglich; DESTATIS_USER/PASSWORD optional
+    auth_optional: true
     auth_env_variable: "DESTATIS_USER"   # optional; zweite Variable DESTATIS_PASSWORD siehe Connector
     license_reference: "Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)"
     commercial_use_status_if_known: "erlaubt unter Namensnennung (DL-DE-BY-2.0)"
@@ -45,8 +46,9 @@ sources:
     official_homepage: "https://www.bts.gov/topics/national-transportation-statistics/freight-transportation-services-index-tsi"
     machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
     access_method: "fred_alfred_api_with_fredgraph_csv_fallback"
-    requires_auth: false
-    auth_env_variable: "FRED_API_KEY"   # optional: aktiviert ALFRED-Vintages statt CSV-Fallback
+    requires_auth: true                 # fred.stlouisfed.org (CSV) antwortet GitHub Actions nicht -> nur mit Key
+    auth_env_variable: "FRED_API_KEY"   # kostenlos; aktiviert ALFRED-Vintages
+    auth_optional: true                 # US-Fracht ohne Key über bts_open_data_tsi
     license_reference: "FRED/ALFRED Terms of Use; BTS-Daten sind US-Bundesstatistik (public domain, 17 U.S.C. §105)"
     commercial_use_status_if_known: "public domain (US federal statistics) / FRED ToU beachten"
     frequency: monthly
@@ -112,6 +114,7 @@ sources:
     machine_endpoint: "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
     access_method: "estat_api_v3"
     requires_auth: true
+    auth_optional: true
     auth_env_variable: "ESTAT_APP_ID"
     license_reference: "e-Stat Terms of Use (im Allgemeinen freie Wiederverwendung mit Quellenangabe)"
     commercial_use_status_if_known: "REVIEW_REQUIRED — e-Stat ToU im Detail prüfen"

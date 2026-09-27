@@ -646,3 +646,34 @@ def test_volume_guard_allows_first_import_backfill_but_blocks_large_increment(tm
     # späterer großer Zuwachs -> blockiert
     arch.store_observations(batch(50, 1000), max_new_normalized_bytes_per_source_per_run=1000)
     assert arch.last_guard_blocked["src"]["first_import"] is False
+
+
+def test_consecutive_failures_alert_only_when_crossing_threshold():
+    """Alert-Mail einmal beim Überschreiten (3), nicht bei 4, 5, … erneut."""
+    from modules.external.alerts import decide_alerts
+    crossed = decide_alerts({"s": {"consecutive_failures": 2}},
+                            {"s": {"status": "FAIL", "consecutive_failures": 3}})
+    again = decide_alerts({"s": {"consecutive_failures": 3}},
+                          {"s": {"status": "FAIL", "consecutive_failures": 4}})
+    assert [a["type"] for a in crossed] == ["CONSECUTIVE_FAILURES"]
+    assert again == []
+
+
+def test_auth_missing_no_alert_when_auth_optional():
+    from modules.external.alerts import decide_alerts
+    opt = decide_alerts({"s": {"status": "FAIL"}},
+                        {"s": {"status": "AUTH_MISSING", "auth_optional": True}})
+    req = decide_alerts({"s": {"status": "FAIL"}},
+                        {"s": {"status": "AUTH_MISSING", "auth_optional": False}})
+    assert opt == []
+    assert [a["type"] for a in req] == ["AUTH_MISSING"]
+
+
+def test_bts_fred_gated_without_key_and_failures_reset(monkeypatch):
+    """Ohne FRED_API_KEY kein Abrufversuch für bts_freight_tsi -> AUTH_MISSING,
+    Fehlerserie zurückgesetzt, kein Alert (auth_optional)."""
+    from modules.external.registry import SourceRegistry, gate_source
+    monkeypatch.delenv("FRED_API_KEY", raising=False)
+    cfg = next(s for s in SourceRegistry().iter_sources() if s["source_id"] == "bts_freight_tsi")
+    assert cfg["requires_auth"] is True and cfg["auth_optional"] is True
+    assert gate_source(cfg) == (False, "AUTH_MISSING")
