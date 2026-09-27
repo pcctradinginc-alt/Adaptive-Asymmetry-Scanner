@@ -1981,16 +1981,22 @@ class EstatJpTruckConnector(Connector):
                 parse_failures += 1
                 continue
             cat_code = v.get("@cat01", "")
-            metric_name = class_names.get(cat_code, cat_code or "value")
+            # ALLE Klassifikationsdimensionen (@tab, @cat01..@cat15) bilden die
+            # Serienidentität -- nur @cat01 ließ verschiedene Reihen (z.B. je
+            # @tab/@cat02) auf dieselbe Identität kollabieren.
+            dims = sorted(k for k in v if k.startswith("@") and k not in ("@time", "@area", "@unit"))
+            dim_key = "|".join(f"{k[1:]}={v[k]}" for k in dims)
+            metric_name = "|".join(class_names.get(v[k], v[k]) for k in dims) or "value"
             area_code = v.get("@area", "")
             value = None if val_raw in (None, "", "-", "***") else self._safe_float(val_raw)
             observations.append(Observation(
                 source_id="estat_jp_truck", dataset="motor_vehicle_transport",
                 series_id=stats_data_id, entity_id=area_code or "JP",
-                metric=f"jp_truck_{metric_name}", value=value, unit="see_metric",
+                metric=f"jp_truck_{metric_name}", value=value, unit=v.get("@unit") or "see_metric",
                 observation_time=obs_time, available_at=retrieved_at, retrieved_at=retrieved_at,
                 availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
-                parser_version=PARSER_VERSION, attrs={"cat01": cat_code, "area": area_code},
+                parser_version=PARSER_VERSION,
+                attrs={"cat01": cat_code, "area": area_code, "dims": dim_key},
             ))
             if latest is None or obs_time > latest:
                 latest = obs_time
@@ -2012,6 +2018,15 @@ class EstatJpTruckConnector(Connector):
             return datetime(int(code), 1, 1, tzinfo=timezone.utc)
         if len(code) == 8:  # YYYYMMDD
             return datetime(int(code[:4]), int(code[4:6]), int(code[6:8]), tzinfo=timezone.utc)
+        if len(code) == 10 and code.isdigit():
+            # e-Stat-Standard (Live 2026-09-27): YYYY + Kennung(2) + MM(Start) + MM(Ende)
+            # z.B. 2024000101 = Jan 2024, 2024000103 = Q1 2024, 2024000000 =
+            # Kalenderjahr, 2024100000 = Fiskaljahr 2024 (ab April).
+            year, kind, m_start = int(code[:4]), code[4:6], int(code[6:8])
+            if 1 <= m_start <= 12:
+                return datetime(year, m_start, 1, tzinfo=timezone.utc)
+            if code[6:] == "0000":
+                return datetime(year, 4 if kind == "10" else 1, 1, tzinfo=timezone.utc)
         raise ValueError(f"Unbekanntes e-Stat-Zeitformat: {code}")
 
 
