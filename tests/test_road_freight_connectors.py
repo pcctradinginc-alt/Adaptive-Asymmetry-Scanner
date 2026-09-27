@@ -648,3 +648,15 @@ def test_eurostat_quarterly_preflight_does_not_touch_first_seen_state(tmp_path):
         rep = conn.preflight(NOW)
     assert rep["status"] == "PASS"
     assert not state_path.exists()
+
+
+def test_genesis_tablefile_zip_and_cp1252_are_decoded():
+    import io
+    import zipfile
+    body = "Zeit;Wert\n01.09.2026;101,5\n".encode("cp1252")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("42191-0001_de.csv", body)
+    assert rf._decode_genesis_tablefile(buf.getvalue()).startswith("Zeit;Wert")
+    assert "Größe" in rf._decode_genesis_tablefile("Größe".encode("cp1252"))
+    assert rf._decode_genesis_tablefile(b"PK\x03\x04kaputt") is None

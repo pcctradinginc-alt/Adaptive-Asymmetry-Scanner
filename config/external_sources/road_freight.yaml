@@ -56,7 +56,10 @@ sources:
     supports_vintages: false
     supports_release_time: false
     pit_quality: CONSERVATIVE_DATE
-    enabled: true
+    # Preflight 2026-09-27: die EXDAT-Seite enthält keinen direkten
+    # .xlsx/.csv-Link (dynamisch geladen) -> dauerhaft FAIL. Deaktiviert;
+    # GENESIS (destatis_truck_toll) läuft mit DESTATIS_USER/-PASSWORD.
+    enabled: false
     criticality: medium
     license_status: OK
     notes: >
@@ -160,7 +163,10 @@ sources:
       zusätzlich die First-Seen-PIT-Präzision über eine lokale
       Zustandsdatei (outputs/external_data/manifests/eurostat_seen_periods.json,
       siehe EurostatRoadFreightQuarterlyConnector-Docstring).
-    expected_dataset_code: ""  # kein bekannter fester Fallback -- verify in preflight
+    # Preflight 2026-09-27: TOC-Kandidaten u.a. road_go_ctq_tt (Cross-Trade
+    # nach Länderpaaren -> 413, falscher Inhalt) und road_go_tq_tott
+    # (Gesamtverkehr, Quartals-Pendant zu road_go_ta_tott).
+    expected_dataset_code: "road_go_tq_tott"
 
   - source_id: eurostat_road_freight
     display_name: "Eurostat Road freight transport (road_go_ta_* Familie)"

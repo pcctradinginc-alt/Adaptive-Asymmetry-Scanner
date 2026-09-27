@@ -81,6 +81,8 @@ sources:
     # EurostatIndustrialProductionConnector._metric_fn).
     dimension_filters:
       s_adj: [SCA]
+      nace_r2: [B-D]   # nur s_adj -> 413 (Antwort zu groß), Preflight 2026-09-27
+      unit: [I21]
     notes: >
       Datensatz-Code wird zur Laufzeit über die offizielle TOC
       (catalogue/toc/txt) per Titelsuche "Production in industry" ermittelt

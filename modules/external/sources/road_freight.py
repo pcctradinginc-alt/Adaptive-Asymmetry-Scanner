@@ -49,6 +49,30 @@ def _raw(source_id: str, dataset: str, res: http.FetchResult) -> RawRecord:
 # 1) destatis_truck_toll – Destatis/BALM Lkw-Maut-Fahrleistungsindex
 # ---------------------------------------------------------------------------
 
+def _decode_genesis_tablefile(content: bytes) -> str | None:
+    """GENESIS liefert data/tablefile je nach Konto/Format als ZIP mit genau
+    einer CSV (Content-Type application/zip) oder direkt als Text. Text:
+    UTF-8 (mit BOM), sonst CP1252 (klassisches GENESIS-CSV). None, wenn
+    weder Text noch ein ZIP mit CSV/TXT."""
+    import io
+    import zipfile
+    if content[:2] == b"PK":
+        try:
+            with zipfile.ZipFile(io.BytesIO(content)) as zf:
+                names = [n for n in zf.namelist() if n.lower().endswith((".csv", ".txt"))]
+                if not names:
+                    return None
+                content = zf.read(names[0])
+        except zipfile.BadZipFile:
+            return None
+    for enc in ("utf-8-sig", "cp1252"):
+        try:
+            return content.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return None
+
+
 class DestatisTruckTollConnector(Connector):
     """GENESIS-Online REST API 2020 (Destatis).
 
@@ -194,11 +218,10 @@ class DestatisTruckTollConnector(Connector):
                 err.discovered_ids = discovered
                 return err
 
-            try:
-                text = res.content.decode("utf-8-sig")
-            except UnicodeDecodeError:
+            text = _decode_genesis_tablefile(res.content)
+            if text is None:
                 last_diag = {"format": fmt, "content_type": res.content_type,
-                             "body_snippet": "<nicht UTF-8-dekodierbar>"}
+                             "body_snippet": "<nicht dekodierbar (weder UTF-8/CP1252 noch ZIP mit CSV)>"}
                 continue
 
             # Manche GENESIS-Antworten sind JSON-Umschläge mit Fehlerstatus

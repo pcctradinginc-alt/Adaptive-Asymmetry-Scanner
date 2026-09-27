@@ -738,6 +738,7 @@ class NceiNormalsConnector(Connector):
         discovered: dict = {}
         failures = 0
         auth_missing = False
+        first_error = ""
 
         locations = self._locations()
         for loc in locations:
@@ -749,7 +750,9 @@ class NceiNormalsConnector(Connector):
                 discovered[loc["code"]] = station
                 res = http.fetch(base_url, params={
                     "dataset": self.cfg.get("dataset", "normals-daily-1991-2020"),
-                    "stations": station["id"],
+                    # CDO-Stationssuche liefert "GHCND:USC00090444", der
+                    # Access-Data-Service erwartet die nackte ID.
+                    "stations": str(station["id"]).split(":", 1)[-1],
                     "dataTypes": ",".join(NORMALS_DATATYPES),
                     "format": "json",
                 }, headers=headers)
@@ -761,8 +764,9 @@ class NceiNormalsConnector(Connector):
                                               retrieved_at=res.retrieved_at,
                                               source_id=self.source_id, parser_version=self.parser_version)
                 observations.extend(obs)
-            except (http.FetchError, ValueError, KeyError):
+            except (http.FetchError, ValueError, KeyError) as e:
                 failures += 1
+                first_error = first_error or f"{loc.get('code')}: {e}"
                 continue
 
         if not observations and auth_missing and not failures:
@@ -775,7 +779,10 @@ class NceiNormalsConnector(Connector):
             status = SourceStatus.PASS
 
         return ConnectorResult(source_id=self.source_id, status=status, observations=observations, raw=raw,
-                                message="NCEI CDO Token fehlt (NCEI_CDO_TOKEN/cdo_token) für Stationssuche" if auth_missing else "",
+                                message=("NCEI CDO Token fehlt (NCEI_CDO_TOKEN/cdo_token) für Stationssuche"
+                                         if auth_missing else
+                                         f"{failures} Standorte fehlgeschlagen, erster Fehler: {first_error}"
+                                         if failures else ""),
                                 discovered_ids=discovered, parse_failures=failures)
 
 
