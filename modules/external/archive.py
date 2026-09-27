@@ -41,6 +41,7 @@ DEFAULT_RAW_MAX_BYTES = 2_000_000
 DEFAULT_RAW_POLICY = "hash_only"
 DEFAULT_STORAGE_WARN_MB_1Y = 200
 DEFAULT_MAX_BACKFILL_BYTES_PER_SOURCE = 30_000_000
+MAX_BACKFILL_BYTES_HARD_CAP = 80_000_000
 DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN = 2_000_000
 DEFAULT_ARCHIVE_BACKEND = "git"
 DEFAULT_GIT_RETENTION_MONTHS = 3
@@ -223,7 +224,8 @@ class ExternalArchive:
     # ── Observations ─────────────────────────────────────────────────────
 
     def store_observations(self, observations: Iterable[Observation],
-                            max_new_normalized_bytes_per_source_per_run: int | None = None) -> dict:
+                            max_new_normalized_bytes_per_source_per_run: int | None = None,
+                            max_backfill_bytes: int | None = None) -> dict:
         """Idempotente Ablage: gleiche Identität + gleicher Wert = duplicate
         (skip); gleiche Identität + anderer Wert = NEUE Vintage-Zeile (nie
         überschreiben).
@@ -298,9 +300,13 @@ class ExternalArchive:
             # inkrementellen Zuwachs; beides schreibt nie gekürzt.
             is_first_import = not self._normalized_dir(source_id).exists() or not any(
                 self._normalized_dir(source_id).glob("*.jsonl"))
-            limit = (max(max_bytes_per_source,
-                         int(defaults.get("max_backfill_bytes_per_source",
-                                          DEFAULT_MAX_BACKFILL_BYTES_PER_SOURCE)))
+            # max_backfill_bytes: Quellen-Override (Registry) für einmalige
+            # große Referenz-/Historienimporte, hart gedeckelt.
+            backfill_limit = int(defaults.get("max_backfill_bytes_per_source",
+                                              DEFAULT_MAX_BACKFILL_BYTES_PER_SOURCE))
+            if max_backfill_bytes:
+                backfill_limit = min(int(max_backfill_bytes), MAX_BACKFILL_BYTES_HARD_CAP)
+            limit = (max(max_bytes_per_source, backfill_limit)
                      if is_first_import else max_bytes_per_source)
             if estimated_bytes > limit:
                 self.last_guard_blocked[source_id] = {

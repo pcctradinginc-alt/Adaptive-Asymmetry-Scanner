@@ -110,7 +110,9 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
                 for raw in result.raw:
                     archive.store_raw(raw, policy=policy)
                 bytes_before = archive.normalized_bytes_written_estimate(source_id)
-                counts = archive.store_observations(result.observations)
+                counts = archive.store_observations(
+                    result.observations,
+                    max_backfill_bytes=source_cfg.get("max_backfill_bytes"))
                 bytes_written = archive.normalized_bytes_written_estimate(source_id) - bytes_before
                 guard_blocked = archive.last_guard_blocked.get(source_id)
             except Exception as e:  # noqa: BLE001
