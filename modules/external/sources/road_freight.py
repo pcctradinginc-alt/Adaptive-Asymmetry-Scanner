@@ -245,14 +245,17 @@ class DestatisTruckTollConnector(Connector):
                     pass
 
             observations, latest_obs, parse_failures = self._parse_ffcsv(text, table_code, res.retrieved_at)
-            if not observations and not parse_failures:
+            if not observations:
                 # klassisches GENESIS-CSV (Kopfblock, Jahr;Monat;Werte je
                 # Bereinigungsart) -- so liefert GENESIS 42191-0001 mit Konto
                 observations, latest_obs, parse_failures = self._parse_classic_csv(
                     text, table_code, res.retrieved_at)
-            if observations or parse_failures:
+            if observations:
                 break
-            last_diag = {"format": fmt, "content_type": res.content_type, "body_snippet": text[:600]}
+            # 0 Beobachtungen (auch bei unparsebaren Zeilen, z.B. ffcsv einer
+            # Monatstabelle mit Zeit=Jahr) -> nächstes Format versuchen
+            last_diag = {"format": fmt, "content_type": res.content_type, "body_snippet": text[:600],
+                         "parse_failures": parse_failures}
         else:
             discovered["diagnostics"] = last_diag
             return ConnectorResult(
