@@ -157,7 +157,10 @@ class DestatisTruckTollConnector(Connector):
         stillschweigend per GET erneut versucht."""
         user, pw = self._credentials()
         url = f"{self.BASE}/data/tablefile"
-        body = {"name": table_code, "area": "all", "format": fmt, "language": "de"}
+        body = {"name": table_code, "area": "all", "format": fmt, "language": "de",
+                # ohne startyear liefert GENESIS nur die letzten ~2 Jahre
+                # (Preflight 2026-09-27: 24 Monate) -> zu kurz für 3J-Z-Scores
+                "startyear": str(self.cfg.get("start_year", 2008))}
         try:
             res = http.fetch(url, method="POST", data=body, headers={"username": user, "password": pw})
             raw.append(_raw(self.source_id, "daily_index", res))
@@ -404,11 +407,19 @@ class DestatisTruckTollConnector(Connector):
                 if any(ch.strip() for ch in row[2:]) and (c0 or c1):
                     parse_failures += 1
                 continue
+            values = {}
             for i, metric in metric_cols.items():
                 if i >= len(row):
                     continue
                 raw_val = row[i].strip().replace(".", "").replace(",", ".")
-                value = None if raw_val in ("", "-", "x", "...") else self._safe_float(raw_val)
+                values[i] = None if raw_val in ("", "-", "x", "...") else self._safe_float(raw_val)
+            if all(v is None for v in values.values()):
+                # Platzhalterzeilen für noch nicht veröffentlichte Monate
+                # (GENESIS listet das ganze laufende Jahr) -> keine Beobachtung,
+                # sonst läge latest_observation_time in der Zukunft.
+                continue
+            for i, value in values.items():
+                metric = metric_cols[i]
                 observations.append(Observation(
                     source_id=self.source_id, dataset=dataset, series_id=table_code,
                     entity_id="", metric=metric, value=value, unit="index_points",
