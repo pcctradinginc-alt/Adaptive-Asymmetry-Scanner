@@ -1,7 +1,7 @@
 {
-  "measured_at": "2026-09-27T11:11:59+00:00",
+  "measured_at": "2026-09-27T11:24:22+00:00",
   "total_bytes_per_day": 0.0,
-  "one_off_backfill_bytes": 43620765,
+  "one_off_backfill_bytes": 68013071,
   "projections_bytes": {
     "30d": 0.0,
     "1y": 0.0,
@@ -13,35 +13,35 @@
     "destatis_truck_toll": {
       "retrieval_days": 1,
       "rows": 0,
-      "one_off_backfill_bytes": 7518,
+      "one_off_backfill_bytes": 10024,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_road_freight": {
       "retrieval_days": 1,
-      "rows": 0,
-      "one_off_backfill_bytes": 6479361,
+      "rows": 15128,
+      "one_off_backfill_bytes": 18952510,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nhc_storms": {
       "retrieval_days": 1,
       "rows": 30,
-      "one_off_backfill_bytes": 70041,
+      "one_off_backfill_bytes": 93388,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nws_alerts": {
       "retrieval_days": 1,
       "rows": 0,
-      "one_off_backfill_bytes": 584607,
+      "one_off_backfill_bytes": 779476,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "nws_forecast": {
       "retrieval_days": 1,
-      "rows": 2712,
-      "one_off_backfill_bytes": 36479238,
+      "rows": 2924,
+      "one_off_backfill_bytes": 48177673,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     }
