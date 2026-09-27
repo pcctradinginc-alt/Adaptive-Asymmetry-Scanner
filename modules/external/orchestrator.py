@@ -168,7 +168,13 @@ def preflight(now: datetime | None = None, families: list[str] | None = None,
         if families is not None and source_cfg.get("family") not in families:
             continue
         fetchable, reason = gate_source(source_cfg)
-        if not fetchable:
+        # Lizenz-Review betrifft nur die ARCHIVIERUNG. Ein lesender Live-Check
+        # (nichts wird gespeichert) ist zulässig und nötig, um Endpoint/Schema
+        # zu verifizieren. Overrides (DEFERRED/REVIEW_REQUIRED für den Zugang),
+        # disabled und AUTH_MISSING bleiben übersprungen.
+        license_review_only = (not fetchable and reason == "license_status=REVIEW_REQUIRED"
+                               and not source_cfg.get("status_override"))
+        if not fetchable and not license_review_only:
             out.append({"source_id": source_id, "status": reason, "reason": reason,
                         "family": source_cfg.get("family")})
             continue
@@ -179,6 +185,9 @@ def preflight(now: datetime | None = None, families: list[str] | None = None,
             continue
         report = connector.preflight(now)
         report["family"] = source_cfg.get("family")
+        report["license_status"] = source_cfg.get("license_status", "OK")
+        if license_review_only:
+            report["archiving"] = "blocked_until_license_review"
         out.append(report)
     return out
 

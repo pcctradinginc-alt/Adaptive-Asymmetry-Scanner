@@ -485,3 +485,27 @@ def test_revision_back_to_earlier_value_is_new_vintage(tmp_path):
     assert arch.store_observations([ob(1.0, 4)])["duplicate"] == 1
     known = arch.as_of("src", t0 + timedelta(days=2, hours=1))
     assert [o.value for o in known] == [2.0]
+
+
+def test_preflight_reads_license_review_sources_but_skips_overrides(monkeypatch):
+    """REVIEW_REQUIRED-Lizenz: lesender Preflight ja (keine Archivierung),
+    status_override/disabled: kein Abruf."""
+    from modules.external import orchestrator
+
+    class FakeConn:
+        def preflight(self, now):
+            return {"source_id": "x", "status": "PASS"}
+
+    class FakeReg:
+        def iter_sources(self, family=None):
+            return [
+                {"source_id": "lic", "family": "f", "enabled": True, "license_status": "REVIEW_REQUIRED"},
+                {"source_id": "def", "family": "f", "enabled": True, "status_override": "DEFERRED"},
+            ]
+        def build_connector(self, sid):
+            return FakeConn()
+
+    out = {r["source_id"] if r["source_id"] != "x" else "lic": r
+           for r in orchestrator.preflight(registry=FakeReg())}
+    assert out["lic"]["archiving"] == "blocked_until_license_review"
+    assert out["def"]["status"].startswith("status_override")
