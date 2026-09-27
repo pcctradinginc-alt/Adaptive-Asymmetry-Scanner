@@ -1,0 +1,123 @@
+# config/external_sources/real_economy.yaml
+#
+# Registry-Einträge für die Datenfamilie "real_economy" (Umfrage- vs.
+# Hard-Data-Signale, siehe modules/external/context.py:
+# hard_data_vs_survey_divergence). Konnektor-Implementierungen:
+#   modules/external/sources/real_economy.py (CONNECTORS)
+# Feature-Funktionen:
+#   modules/external/sources/real_economy_features.py
+#
+# license_status: "OK" nur, wenn eine offizielle offene Lizenz mit
+# vertretbarer Sicherheit bekannt ist; sonst "REVIEW_REQUIRED".
+
+sources:
+
+  - source_id: eurostat_sentiment
+    display_name: "Eurostat Business & Consumer Surveys – Economic Sentiment Indicator + Industrial confidence indicator"
+    family: real_economy
+    authority: "Eurostat / Europäische Kommission (DG ECFIN Business and Consumer Survey)"
+    official_homepage: "https://ec.europa.eu/eurostat/web/economy/business-consumer-surveys"
+    machine_endpoint: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+    access_method: "eurostat_dissemination_api_jsonstat2"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "Eurostat reuse policy (Commission Decision 2011/833/EU, i.d.R. CC BY 4.0)"
+    commercial_use_status_if_known: "erlaubt unter Namensnennung (Eurostat reuse policy)"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: medium
+    license_status: OK
+    role: SURVEY
+    countries: [EU27_2020, DE, FR, IT, ES, NL, PL]
+    # s_adj=SA ist ein Eurostat-weit harmonisierter Code (nicht
+    # datensatzspezifisch geraten) -- reduziert das Antwortvolumen auf
+    # ausschließlich saisonbereinigte Reihen (Aufgabenstellung: "nur SA").
+    # Die konkreten indic-Codes für ESI/Industrial confidence werden NIE
+    # als Query-Filter geraten -- sie werden nach dem Abruf über den
+    # offiziellen Label-Text ausgewählt (siehe
+    # EurostatSentimentConnector._metric_fn).
+    dimension_filters:
+      s_adj: [SA]
+    notes: >
+      Datensatz-Code wird zur Laufzeit über die offizielle TOC
+      (catalogue/toc/txt) per Titelsuche "sentiment indicators" ermittelt
+      (i.d.R. Datensatzfamilie ei_bssi_m_r2). expected_dataset_code ist nur
+      Notfall-Fallback -- verify in preflight, da zur Erstellungszeit keine
+      Live-Katalogabfrage möglich war.
+    expected_dataset_code: "ei_bssi_m_r2"  # verify in preflight
+
+  - source_id: eurostat_industrial_production
+    display_name: "Eurostat Volume index of production in industry (total industry excl. construction, calendar & seasonally adjusted)"
+    family: real_economy
+    authority: "Eurostat"
+    official_homepage: "https://ec.europa.eu/eurostat/web/short-term-business-statistics"
+    machine_endpoint: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+    access_method: "eurostat_dissemination_api_jsonstat2"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "Eurostat reuse policy (Commission Decision 2011/833/EU, i.d.R. CC BY 4.0)"
+    commercial_use_status_if_known: "erlaubt unter Namensnennung (Eurostat reuse policy)"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    criticality: medium
+    license_status: OK
+    role: HARD_DATA
+    countries: [EU27_2020, DE, FR, IT, ES, NL, PL]
+    # s_adj=SCA (calendar and seasonally adjusted data) ist ebenfalls ein
+    # Eurostat-weit harmonisierter Code. nace_r2 ("total industry excluding
+    # construction") und indic_bt (Produktionsvolumenindex) werden NIE als
+    # Query-Filter geraten -- sie werden nach dem Abruf über den offiziellen
+    # Label-Text ausgewählt (siehe
+    # EurostatIndustrialProductionConnector._metric_fn).
+    dimension_filters:
+      s_adj: [SCA]
+    notes: >
+      Datensatz-Code wird zur Laufzeit über die offizielle TOC
+      (catalogue/toc/txt) per Titelsuche "Production in industry" ermittelt
+      (i.d.R. Datensatzfamilie sts_inpr_m). expected_dataset_code ist nur
+      Notfall-Fallback -- verify in preflight.
+    expected_dataset_code: "sts_inpr_m"  # verify in preflight
+
+  - source_id: fred_us_macro
+    display_name: "FRED/ALFRED US-Konjunkturdaten: UMCSENT (Umfrage) + INDPRO (Hard Data)"
+    family: real_economy
+    authority: "Federal Reserve Bank of St. Louis (FRED/ALFRED) / University of Michigan / Federal Reserve Board"
+    official_homepage: "https://fred.stlouisfed.org/series/UMCSENT"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api"
+    requires_auth: true
+    auth_env_variable: "FRED_API_KEY"
+    license_reference: "FRED/ALFRED Terms of Use"
+    commercial_use_status_if_known: "FRED ToU beachten (überwiegend frei mit Quellenangabe)"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    role: SURVEY_AND_HARD_DATA
+    notes: >
+      Ohne FRED_API_KEY wird KEIN HTTP-Call ausgeführt (sofort
+      AUTH_MISSING) -- anders als bts_freight_tsi gibt es hier bewusst
+      KEINEN fredgraph.csv-Fallback (Aufgabenstellung). Series-IDs UMCSENT
+      (University of Michigan: Consumer Sentiment) und INDPRO (Industrial
+      Production: Total Index) sind offizielle, stabile FRED-Kennungen,
+      dennoch verify in preflight (keine Live-Verifikation zur
+      Erstellungszeit möglich); series/search dient als Discovery-Fallback,
+      falls eine erwartete ID vom Server abgelehnt wird.
+    expected_series_ids:
+      UMCSENT: "UMCSENT"  # verify in preflight
+      INDPRO: "INDPRO"    # verify in preflight

@@ -1,0 +1,65 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Production in industry - monthly data",
+  "updated": "2026-08-30T09:00:00+02:00",
+  "id": ["s_adj", "nace_r2", "indic_bt", "geo", "time"],
+  "size": [3, 2, 2, 2, 3],
+  "dimension": {
+    "s_adj": {
+      "label": "seasonal adjustment",
+      "category": {
+        "index": {"SCA": 0, "SA": 1, "NSA": 2},
+        "label": {
+          "SCA": "Calendar and seasonally adjusted data",
+          "SA": "Seasonally adjusted data",
+          "NSA": "Unadjusted data"
+        }
+      }
+    },
+    "nace_r2": {
+      "label": "economic activity (NACE Rev. 2)",
+      "category": {
+        "index": {"B-D": 0, "C": 1},
+        "label": {
+          "B-D": "Industry (except construction)",
+          "C": "Manufacturing"
+        }
+      }
+    },
+    "indic_bt": {
+      "label": "indicator",
+      "category": {
+        "index": {"PROD": 0, "TOVV": 1},
+        "label": {
+          "PROD": "Production (volume)",
+          "TOVV": "Turnover (value)"
+        }
+      }
+    },
+    "geo": {
+      "label": "geo",
+      "category": {
+        "index": {"DE": 0, "EU27_2020": 1},
+        "label": {"DE": "Germany", "EU27_2020": "European Union - 27 countries (from 2020)"}
+      }
+    },
+    "time": {
+      "label": "time",
+      "category": {
+        "index": {"2026-06": 0, "2026-07": 1, "2026-08": 2},
+        "label": {"2026-06": "2026-06", "2026-07": "2026-07", "2026-08": "2026-08"}
+      }
+    }
+  },
+  "value": {
+    "0": 108.0,
+    "1": 109.0,
+    "2": 110.0,
+    "4": 105.5,
+    "5": 106.0,
+    "14": 555.0,
+    "26": 777.0,
+    "8": 333.0
+  }
+}
