@@ -191,7 +191,11 @@ class ExternalArchive:
             for obs in obs_list:
                 key = obs.identity_key()
                 prior = existing_by_key[key]
-                if any(p.value == obs.value for p in prior):
+                # Duplikat nur, wenn der Wert der JÜNGSTEN Version entspricht —
+                # eine Revision zurück auf einen früheren Wert (A→B→A) ist eine
+                # echte neue Vintage und muss erhalten bleiben.
+                latest = max(prior, key=lambda p: (p.vintage_time or p.available_at), default=None)
+                if latest is not None and latest.value == obs.value:
                     counts["duplicate"] += 1
                     continue
                 if prior:

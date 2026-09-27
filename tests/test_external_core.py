@@ -464,3 +464,24 @@ def test_check_pit_integrity_allows_available_before_observation():
     ok = mk_obs(obs_time="2026-02-01T00:00:00+00:00", available_at="2026-01-01T00:00:00+00:00",
                 retrieved_at="2026-01-01T00:00:00+00:00")
     assert al.check_pit_integrity([ok]) == []
+
+
+def test_revision_back_to_earlier_value_is_new_vintage(tmp_path):
+    """A → B → A: die Rückkehr auf A ist eine echte Revision, kein Duplikat."""
+    from datetime import datetime, timezone, timedelta
+    from modules.external.archive import ExternalArchive
+    from modules.external.pit import Observation, AvailabilityPrecision
+    arch = ExternalArchive(root=str(tmp_path))
+    t0 = datetime(2026, 9, 1, tzinfo=timezone.utc)
+
+    def ob(v, days):
+        ts = t0 + timedelta(days=days)
+        return Observation("src", "ds", "ser", "", "m", v, "idx", t0, ts, ts,
+                           AvailabilityPrecision.EXACT_DATE, "1")
+
+    assert arch.store_observations([ob(1.0, 1)])["new"] == 1
+    assert arch.store_observations([ob(2.0, 2)])["revision"] == 1
+    assert arch.store_observations([ob(1.0, 3)])["revision"] == 1
+    assert arch.store_observations([ob(1.0, 4)])["duplicate"] == 1
+    known = arch.as_of("src", t0 + timedelta(days=2, hours=1))
+    assert [o.value for o in known] == [2.0]
