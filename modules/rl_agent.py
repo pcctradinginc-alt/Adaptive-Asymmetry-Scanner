@@ -28,6 +28,7 @@ from typing import Optional
 import numpy as np
 
 from modules.rl_environment import (
+    OBS_DIM,
     OptionsRLEnv,
     features_to_obs,
     ACTION_SKIP,
@@ -151,6 +152,25 @@ class RLScorer:
             log.info(
                 "Kein trainiertes RL-Modell gefunden → QuasiML-Fallback aktiv. "
                 "Führe feedback.py aus um das erste Modell zu trainieren."
+            )
+            return
+
+        # Schema-Guard: rl_feature_schema_version muss zur hier hart codierten
+        # OBS_DIM passen. Ein Config-Downgrade/eine fremde Schema-Version darf
+        # NIE stillschweigend ein dimensions-inkompatibles Modell laden (würde
+        # sonst mit falsch ausgerichteten Features scoren) — stattdessen wird
+        # das Laden übersprungen und auf den QuasiML-Fallback zurückgefallen.
+        try:
+            from modules.config import cfg
+            schema_version = str(getattr(cfg, "rl_feature_schema_version", "v1") or "v1")
+        except Exception:
+            schema_version = "v1"
+        if schema_version != "v1":
+            log.error(
+                f"rl_feature_schema_version={schema_version!r} != 'v1' (OBS_DIM={OBS_DIM} "
+                f"ist an Schema v1 gebunden) → RL-Modell-Laden ABGELEHNT, "
+                f"QuasiML-Fallback aktiv. Ein Schema-Wechsel erfordert ein neu "
+                f"trainiertes Modell + eine explizite Code-Änderung hier."
             )
             return
 

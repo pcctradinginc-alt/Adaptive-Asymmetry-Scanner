@@ -764,6 +764,9 @@ class OptionsDesigner:
                     "mc_ou_method":        mc_result.get("ou_method"),
                     "mc_ou_n_days":        mc_result.get("ou_n_days"),
                     "trade_bep_pct":       round(trade_bep * 100, 2) if trade_bep is not None else None,
+                    # Reine Observability-Weiterleitung (SHADOW external_context) —
+                    # wird an keiner Stelle oben für die Entscheidung gelesen.
+                    "external_context":    s.get("external_context"),
                 }
 
         tried = ", ".join(
@@ -797,6 +800,10 @@ class OptionsDesigner:
                 "vix":           round(vix_current, 2),
                 "roi_factor":    round(_roi_factor, 3),
                 "mc_hit_rate":   round(mc_hit_rate, 4),
+                # Reine Observability-Weiterleitung (SHADOW external_context,
+                # siehe modules/external/context.py) — nie gelesen für die
+                # Entscheidung oben, nur für den Ledger/Schatten-Trade-Eintrag.
+                "external_context": s.get("external_context"),
             })
         return None
 

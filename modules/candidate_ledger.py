@@ -337,6 +337,9 @@ def _new_signal(ticker: str, event_key=None) -> dict:
         "reject_reason":    None,
         "direction":        None,
         "features":         {},
+        # Frozen einmal je Signal befüllt (siehe note(): key "external") —
+        # externer Kontext zum Zeitpunkt der Notiz, NIE danach überschrieben.
+        "external":         None,
         # Erster Zeitpunkt, zu dem dieses Signal in diesem Lauf notiert
         # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
         # Walk-forward-Prüfung im Challenger-Modul (registered_at).
@@ -413,6 +416,17 @@ def note(ticker, stage: str | None = None, **fields) -> None:
             for k, v in fields.items():
                 if k == "direction":
                     e["direction"] = v
+                elif k == "external":
+                    # Frozen: einmal je Signal gesetzt, danach NIE überschrieben
+                    # (Vertrag: candidate_ledger friert external_context zum
+                    # Notiz-Zeitpunkt ein — spätere note()-Aufrufe dürfen das
+                    # nicht mehr ändern, auch wenn ein neuer Snapshot existiert).
+                    if e.get("external") is None and v is not None:
+                        try:
+                            json.dumps(v, default=str)
+                            e["external"] = v
+                        except Exception:
+                            e["external"] = str(v)
                 else:
                     try:
                         json.dumps(v, default=str)  # nur JSON-serialisierbare Werte

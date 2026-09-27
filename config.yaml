@@ -193,6 +193,15 @@ external_context:
     email: true
   learning:
     promoted_external_features: []   # Erst nach Challenger-Validierung + gemergtem PR befüllen
+  shadow_analysis:
+    # Separater, read-only LLM-Call (siehe modules/external/shadow_analysis.py):
+    # bewertet NUR, ob der externe Kontext zur bereits produktiv erzeugten
+    # Deep-Analysis-These passt. Verändert NIE Prompt/Ergebnis der Produktions-
+    # Deep-Analysis. Wird übersprungen wenn mode==off, kein API-Key oder zu
+    # wenig verifizierte Eingabedaten vorliegen.
+    enabled: true
+    model: null              # null -> models.prescreener wiederverwendet
+    max_candidates_per_run: 25
 
 # RL-Feature-Schema für externe Signale (siehe modules/external/features.py)
 learning_features:
