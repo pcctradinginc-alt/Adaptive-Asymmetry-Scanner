@@ -282,6 +282,13 @@ class ExternalArchive:
                     if latest is not None and latest.value == obs.value:
                         source_counts["duplicate"] += 1
                         continue
+                    # Quellen mit echten Vintages (ALFRED) liefern bei jedem
+                    # Abruf ALLE historischen Vintages erneut: dieselbe
+                    # (Vintage-Zeit, Wert)-Kombination ist schon archiviert
+                    # -> Duplikat, keine neue Revision.
+                    if any(p.vintage_time == obs.vintage_time and p.value == obs.value for p in prior):
+                        source_counts["duplicate"] += 1
+                        continue
                     if prior:
                         source_counts["revision"] += 1
                     else:
