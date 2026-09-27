@@ -141,8 +141,36 @@ def _first_with_data(archive, now, *source_ids):
     return source_ids[0], []
 
 
-def _region_entry(z, source_id):
-    return {"source_id": source_id, "z": z, "is_fresh": z is not None, "age_days": None}
+# Maximales Alter (Tage seit Beginn der jüngsten Beobachtungsperiode) je
+# Frequenz, bevor eine Quelle als 'stale' gilt: Kadenz + übliche
+# Veröffentlichungsverzögerung (BTS TSI ~3-4 Monate, Eurostat quartalsweise
+# ~2-3 Quartale, jährlich ~1,5 Jahre). Methodisch, nicht renditeoptimiert.
+MAX_AGE_DAYS_BY_FREQUENCY = {"daily": 21, "monthly": 150, "quarterly": 400, "annual": 800}
+
+
+def _latest_observation_time(observations, metric: str | None = None,
+                             entity_id: str | None = None):
+    times = [o.observation_time for o in observations or []
+             if o.value is not None
+             and (metric is None or o.metric == metric)
+             and (entity_id is None or o.entity_id == entity_id)]
+    return max(times) if times else None
+
+
+def _region_entry(z, source_id, observations=None, now=None, frequency: str = "monthly",
+                  metric: str | None = None, entity_id: str | None = None):
+    """is_fresh aus dem echten Alter der jüngsten Beobachtung (vorher fest
+    'z is not None' -> eine seit Jahren veraltete Quelle zählte als frisch
+    und konnte mit einer zweiten Quelle Konfidenz 1.0 erzeugen)."""
+    age_days = None
+    if observations is not None and now is not None:
+        latest = _latest_observation_time(observations, metric, entity_id)
+        if latest is not None:
+            age_days = (ensure_utc(now) - latest).days
+    max_age = MAX_AGE_DAYS_BY_FREQUENCY.get(frequency, 150)
+    is_fresh = z is not None and age_days is not None and age_days <= max_age
+    return {"source_id": source_id, "z": z, "is_fresh": is_fresh, "age_days": age_days,
+            "frequency": frequency}
 
 
 def _chokepoint_zscore(observations, slug: str, metric: str = "n_total",
@@ -189,11 +217,13 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         # ── US: bts_freight_tsi (+ trucking-Komponente, falls vorhanden) ────
         us_sources = []
         if us_obs:
-            us_sources.append(_region_entry(out["us_z"], us_src))
+            us_sources.append(_region_entry(out["us_z"], us_src, us_obs, now, "monthly",
+                                            metric="us_freight_tsi"))
             us_metrics = {o.metric for o in us_obs}
             if "us_trucking" in us_metrics:
                 trucking_z = _zscore_for_metric(us_obs, "us_trucking")
-                us_sources.append(_region_entry(trucking_z, f"{us_src}_trucking"))
+                us_sources.append(_region_entry(trucking_z, f"{us_src}_trucking", us_obs, now,
+                                                "monthly", metric="us_trucking"))
         out["us_combined"] = feat.combine_states(us_sources)
 
         # ── EU: DE (destatis) + jede eurostat-Länderserie/EU-Aggregat als
@@ -203,7 +233,8 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         # ist der Mittelwert der tatsächlich vorhandenen EU-Quellen.
         eu_sources = []
         if de_obs:
-            eu_sources.append(_region_entry(out["de_z_1y"], de_src))
+            eu_sources.append(_region_entry(out["de_z_1y"], de_src, de_obs, now, "monthly",
+                                            metric="index_sa"))
         eu_country_entities = sorted({
             o.entity_id for o in eu_obs + eu_q_obs if o.metric == "road_freight_ths_t"
         })
@@ -214,7 +245,10 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
             z, freq = _safe(rff.eu_road_freight_z_preferred, eu_obs + eu_q_obs, eid,
                             "road_freight_ths_t", default=(None, "none"))
             eu_frequency[eid] = freq
-            eu_sources.append(_region_entry(z, f"eurostat_road_freight:{eid}"))
+            freq_obs = eu_q_obs if freq == "quarterly" else eu_obs
+            eu_sources.append(_region_entry(z, f"eurostat_road_freight:{eid}", freq_obs, now,
+                                            freq if freq in ("quarterly", "annual") else "annual",
+                                            metric="road_freight_ths_t", entity_id=eid))
         out["eu_frequency"] = eu_frequency
         out["eu_sources"] = [e["source_id"] for e in eu_sources]
         out["eu_source_count"] = len(eu_sources)
@@ -234,7 +268,7 @@ def _build_road_freight(archive, now: datetime, errors: list) -> dict:
         out["asia_z"] = asia_z
         asia_sources = []
         if jp_obs:
-            asia_sources.append(_region_entry(asia_z, "estat_jp_truck"))
+            asia_sources.append(_region_entry(asia_z, "estat_jp_truck", jp_obs, now, "monthly"))
         out["asia_combined"] = feat.combine_states(asia_sources)
 
         out["global_z"] = _mean_of([out["us_z"], out["eu_z"], out["asia_z"]])
@@ -253,6 +287,8 @@ def _build_maritime(archive, now: datetime, errors: list) -> dict:
            "malacca_z": None, "bab_el_mandeb_z": None}
     try:
         port_obs = _load_observations(archive, "imf_portwatch_ports", now)
+        latest_port = _latest_observation_time(port_obs, metric="portcalls_total")
+        out["data_age_days"] = (ensure_utc(now) - latest_port).days if latest_port else None
         choke_obs = _load_observations(archive, "imf_portwatch_chokepoints", now)
 
         for metric_key, out_key in (
@@ -655,9 +691,6 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
     drybulk_state = feat.classify_state(maritime.get("drybulk_z"))
     tanker_state = feat.classify_state(maritime.get("tanker_z"))
 
-    def _entry(z, source_id):
-        return {"source_id": source_id, "z": z, "is_fresh": z is not None, "age_days": None}
-
     # Global-Freight-State: Combine über die REGIONALEN Zustände (nicht über
     # einen Mittelwert der Roh-Z-Scores) -- is_fresh richtet sich danach, ob
     # die jeweilige Region überhaupt eine frische Quelle hatte; dadurch erbt
@@ -674,9 +707,16 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
          "is_fresh": asia_combined.get("fresh_source_count", 0) > 0,
          "age_days": asia_combined.get("data_age_days")},
     ])
+    maritime_age = maritime.get("data_age_days")
     combined_global = feat.combine_states([
-        _entry(road.get("global_z"), "road_freight_composite"),
-        _entry(maritime.get("global_z"), "maritime_composite"),
+        {"source_id": "road_freight_composite", "z": road.get("global_z"),
+         "is_fresh": road.get("global_z") is not None
+                     and combined_freight.get("fresh_source_count", 0) > 0,
+         "age_days": combined_freight.get("data_age_days")},
+        {"source_id": "maritime_composite", "z": maritime.get("global_z"),
+         "is_fresh": maritime.get("global_z") is not None and maritime_age is not None
+                     and maritime_age <= MAX_AGE_DAYS_BY_FREQUENCY["daily"],
+         "age_days": maritime_age},
     ])
 
     weather_risk = _weather_operational_risk(
