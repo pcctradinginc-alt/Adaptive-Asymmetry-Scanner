@@ -124,3 +124,45 @@ def test_zscore_excludes_current_value_from_baseline():
     z = feat.de_truck_z_1y(obs)
     assert z is not None
     assert z > 5
+
+
+def _eu_obs(series_id, attrs, values):
+    from datetime import datetime, timezone
+    from modules.external.pit import Observation, AvailabilityPrecision
+    out = []
+    for i, v in enumerate(values):
+        t = datetime(2015 + i, 1, 1, tzinfo=timezone.utc)
+        out.append(Observation("eurostat_road_freight", "road_freight", series_id, "DE",
+                               "road_freight_ths_t", v, "THS_T", t, t, t,
+                               AvailabilityPrecision.EXACT_DATE, "1", attrs=attrs))
+    return out
+
+
+def test_eurostat_selects_single_total_series_never_mixes_variants():
+    from modules.external.sources.road_freight_features import select_eurostat_total_series
+    obs = (_eu_obs("x:carriage=HIRE|unit=THS_T", {"carriage": "HIRE", "unit": "THS_T"}, [60] * 6)
+           + _eu_obs("x:carriage=OWN|unit=THS_T", {"carriage": "OWN", "unit": "THS_T"}, [40] * 6)
+           + _eu_obs("x:carriage=TOTAL|unit=THS_T", {"carriage": "TOTAL", "unit": "THS_T"}, [100] * 6))
+    assert select_eurostat_total_series(obs, "DE", "road_freight_ths_t") == "x:carriage=TOTAL|unit=THS_T"
+    # ohne TOTAL-Code: größtes Niveau (Summe >= Komponenten), deterministisch
+    obs2 = [o for o in obs if "TOTAL" not in o.series_id]
+    assert select_eurostat_total_series(obs2, "DE", "road_freight_ths_t") == "x:carriage=HIRE|unit=THS_T"
+
+
+def test_eurostat_400_retries_without_dimension_filters(monkeypatch):
+    from modules.external import http
+    from modules.external.sources import road_freight as rf
+    calls = []
+
+    def fake_fetch(url, params=None, **kw):
+        calls.append(dict(params or {}))
+        if "unit" in (params or {}):
+            raise http.FetchError(f"400 für {url} (nicht retrybar)")
+        return http.FetchResult(url=url, status=200, content=b"{}", content_type="application/json",
+                                retrieved_at=None, content_hash="h", fingerprint="f", bytes=2)
+
+    monkeypatch.setattr(rf.http, "fetch", fake_fetch)
+    conn = rf.EurostatRoadFreightConnector({})
+    res, err = conn._fetch_dataset("road_go_ta_tott", [])
+    assert err is None and res is not None
+    assert "unit" in calls[0] and "unit" not in calls[1]

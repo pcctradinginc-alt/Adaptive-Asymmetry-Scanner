@@ -257,16 +257,54 @@ def eu_road_freight_yoy(observations: Iterable[Observation], entity_id: str = "D
     return _pct_change(_last_value(s), _value_n_periods_back(s, 1))
 
 
+_TOTAL_CODES = {"TOTAL", "TOT", "T"}
+
+
+def select_eurostat_total_series(observations: Iterable[Observation], entity_id: str,
+                                 metric: str) -> str | None:
+    """Wählt deterministisch GENAU EINE Eurostat-Reihe (series_id) je Land und
+    Einheit, damit Varianten (z.B. gewerblich/Werkverkehr) nie vermischt
+    werden: bevorzugt die Reihe, deren Nicht-geo/time/unit-Dimensionen alle
+    Gesamt-Codes (TOTAL/TOT/T) tragen; sonst die mit dem größten mittleren
+    Niveau (Gesamt >= Komponenten); Gleichstand -> lexikografisch kleinste ID."""
+    by_series: dict[str, list] = {}
+    attrs_of: dict[str, dict] = {}
+    for o in observations:
+        if (o.source_id != "eurostat_road_freight" or o.metric != metric
+                or o.entity_id != entity_id or o.value is None):
+            continue
+        by_series.setdefault(o.series_id, []).append(o.value)
+        attrs_of.setdefault(o.series_id, o.attrs or {})
+    if not by_series:
+        return None
+
+    def is_total(sid: str) -> bool:
+        dims = {k: v for k, v in attrs_of[sid].items() if k not in ("geo", "time", "unit", "freq")}
+        return bool(dims) and all(str(v).upper() in _TOTAL_CODES for v in dims.values())
+
+    totals = sorted(sid for sid in by_series if is_total(sid))
+    if totals:
+        return totals[0]
+    return sorted(by_series, key=lambda sid: (-(sum(by_series[sid]) / len(by_series[sid])), sid))[0]
+
+
+def _eu_series(observations, entity_id: str, metric: str):
+    obs = list(observations)
+    sid = select_eurostat_total_series(obs, entity_id, metric)
+    if sid is None:
+        return []
+    return _series([o for o in obs if o.series_id == sid], source_id="eurostat_road_freight",
+                   metric=metric, entity_id=entity_id)
+
+
 def eu_road_freight_z(observations: Iterable[Observation], entity_id: str = "DE",
                        metric: str = "road_freight_ths_t", window_days: int = 365 * 3) -> float | None:
-    s = _series(observations, source_id="eurostat_road_freight", metric=metric, entity_id=entity_id)
-    return _zscore(s, window_days)
+    return _zscore(_eu_series(observations, entity_id, metric), window_days)
 
 
 def eu_road_freight_acceleration(observations: Iterable[Observation], entity_id: str = "DE",
                                   metric: str = "road_freight_ths_t") -> float | None:
-    s = _series(observations, source_id="eurostat_road_freight", metric=metric, entity_id=entity_id)
-    return _acceleration(s, 1)
+    return _acceleration(_eu_series(observations, entity_id, metric), 1)
 
 
 # ---------------------------------------------------------------------------
