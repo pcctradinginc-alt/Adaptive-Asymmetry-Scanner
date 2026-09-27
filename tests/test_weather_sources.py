@@ -499,7 +499,7 @@ def test_nhc_forecast_issue_time_is_advisory_issuance():
     assert all(o.forecast_issue_time == expected for o in obs)
 
 
-def test_nhc_distance_to_exposure_uses_forecast_track_when_present():
+def test_nhc_distance_to_exposure_uses_current_position():
     storms = _load("nhc_current_storms_active.json")
     retrieved_at = datetime(2024, 9, 27, tzinfo=timezone.utc)
     regions = [{"code": "FL_COAST", "lat": 27.9944, "lon": -81.7603}]
@@ -510,15 +510,183 @@ def test_nhc_distance_to_exposure_uses_forecast_track_when_present():
     assert dist.attrs["nearest_region"] == "FL_COAST"
 
 
-def test_nhc_distance_is_none_without_forecast_track():
+def test_nhc_distance_to_exposure_unaffected_by_legacy_forecast_track_field():
+    """CurrentStorms.json.forecastTrack ist live nur ein GIS-Verweis (KMZ/
+    ZIP), keine Punktliste -- egal ob das Feld vorhanden ist, die
+    current-position-Distanz (min_distance_to_exposure_km) hängt allein an
+    latitudeNumeric/longitudeNumeric bzw. lat/lon."""
     storms = json.loads(json.dumps(_load("nhc_current_storms_active.json")))
     del storms["activeStorms"][0]["forecastTrack"]
     retrieved_at = datetime(2024, 9, 27, tzinfo=timezone.utc)
     regions = [{"code": "FL_COAST", "lat": 27.9944, "lon": -81.7603}]
     obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=regions)
     dist = [o for o in obs if o.metric == "min_distance_to_exposure_km"][0]
+    assert dist.value is not None
+
+
+def test_nhc_distance_is_none_without_current_position():
+    storms = json.loads(json.dumps(_load("nhc_current_storms_active.json")))
+    for key in ("lat", "latitude", "latitudeNumeric", "lon", "longitude", "longitudeNumeric"):
+        storms["activeStorms"][0].pop(key, None)
+    retrieved_at = datetime(2024, 9, 27, tzinfo=timezone.utc)
+    regions = [{"code": "FL_COAST", "lat": 27.9944, "lon": -81.7603}]
+    obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=regions)
+    dist = [o for o in obs if o.metric == "min_distance_to_exposure_km"][0]
     assert dist.value is None
     assert dist.attrs["limitation"] is not None
+
+
+# --------------------------------------------------------------------------- #
+# Forecast/Advisory-TEXT (TCM) -> Forecast-Track (parse_forecast_advisory_text)
+# --------------------------------------------------------------------------- #
+
+def _read_fixture_text(name: str) -> str:
+    return (FIXTURES / name).read_text(encoding="utf-8")
+
+
+def test_advisory_points_parses_forecast_and_outlook_lines():
+    text = _read_fixture_text("nhc_tcm_advisory_sample.html")
+    body = w._extract_advisory_pre_text(text)
+    issuance = datetime(2024, 9, 26, 21, 0, 0, tzinfo=timezone.utc)
+    points = w.parse_forecast_advisory_points(body, issuance)
+    kinds = [p["kind"] for p in points]
+    # 3x FORECAST VALID + 1x EXTENDED FORECAST VALID (zählt als 'forecast').
+    assert kinds.count("forecast") == 4
+    assert kinds.count("outlook") == 1
+    assert kinds.count("initial") == 1
+
+    first_forecast = next(p for p in points if p["kind"] == "forecast"
+                           and p["valid_time"] == datetime(2024, 9, 27, 9, 0, tzinfo=timezone.utc))
+    assert first_forecast["lat"] == pytest.approx(26.5)
+    assert first_forecast["lon"] == pytest.approx(-84.8)
+    assert first_forecast["max_wind_kt"] == pytest.approx(95.0)
+    assert first_forecast["gust_kt"] == pytest.approx(115.0)
+    assert first_forecast["wind_radii_nm"]["64"] == {"NE": 40.0, "SE": 30.0, "SW": 25.0, "NW": 35.0}
+
+    outlook = next(p for p in points if p["kind"] == "outlook")
+    assert outlook["valid_time"] == datetime(2024, 9, 30, 9, 0, tzinfo=timezone.utc)
+    assert outlook["lat"] == pytest.approx(31.0)
+    assert outlook["lon"] == pytest.approx(-88.5)
+
+    initial = next(p for p in points if p["kind"] == "initial")
+    assert initial["lat"] == pytest.approx(25.5)
+    assert initial["lon"] == pytest.approx(-84.0)
+    assert initial["valid_time"] == datetime(2024, 9, 26, 21, 0, tzinfo=timezone.utc)
+
+
+def test_advisory_valid_time_handles_month_rollover():
+    """Issuance 30. Sep 21Z, FORECAST VALID 01/0000Z -> 1. Okt (nicht 1. Sep)."""
+    text = _read_fixture_text("nhc_tcm_advisory_month_rollover.html")
+    body = w._extract_advisory_pre_text(text)
+    issuance = datetime(2026, 9, 30, 21, 0, 0, tzinfo=timezone.utc)
+    points = w.parse_forecast_advisory_points(body, issuance)
+    first = next(p for p in points if p["kind"] == "forecast"
+                 and p["lat"] == pytest.approx(17.5))
+    assert first["valid_time"] == datetime(2026, 10, 1, 0, 0, tzinfo=timezone.utc)
+    second = next(p for p in points if p["kind"] == "forecast" and p["lat"] == pytest.approx(18.5))
+    assert second["valid_time"] == datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)
+    outlook = next(p for p in points if p["kind"] == "outlook")
+    assert outlook["valid_time"] == datetime(2026, 10, 2, 12, 0, tzinfo=timezone.utc)
+    initial = next(p for p in points if p["kind"] == "initial")
+    assert initial["valid_time"] == datetime(2026, 9, 30, 21, 0, tzinfo=timezone.utc)
+
+
+def test_parse_forecast_advisory_text_builds_observations_with_forecast_issue_time():
+    text = _read_fixture_text("nhc_tcm_advisory_sample.html")
+    issuance = datetime(2024, 9, 26, 21, 0, 0, tzinfo=timezone.utc)
+    retrieved_at = datetime(2024, 9, 27, 0, 0, 0, tzinfo=timezone.utc)
+    obs = w.parse_forecast_advisory_text(text, "AL052024", issuance, "010", retrieved_at)
+    assert obs, "erwartet mindestens eine Track-Observation"
+    for o in obs:
+        assert o.forecast_issue_time == issuance
+        assert o.availability_precision == AvailabilityPrecision.EXACT_TIMESTAMP
+        assert o.attrs["advisory"] == "010"
+        assert o.attrs["kind"] in ("forecast", "outlook", "initial")
+    lat_metrics = [o for o in obs if o.metric == "track_lat"]
+    assert any(o.forecast_valid_time == datetime(2024, 9, 30, 9, 0, tzinfo=timezone.utc) for o in lat_metrics)
+
+
+def test_parse_forecast_advisory_points_raises_on_unrecognized_format():
+    with pytest.raises(w.NhcAdvisoryParseError):
+        w.parse_forecast_advisory_points(
+            "TOTALLY DIFFERENT PRODUCT FORMAT WITH NO RECOGNIZABLE LINES AT ALL",
+            datetime(2024, 9, 26, 21, 0, tzinfo=timezone.utc),
+        )
+
+
+def test_parse_current_storms_min_track_distance_uses_forecast_track():
+    storms = _load("nhc_current_storms_active.json")
+    advisory_texts = {"AL052024": _read_fixture_text("nhc_tcm_advisory_sample.html")}
+    retrieved_at = datetime(2024, 9, 27, tzinfo=timezone.utc)
+    regions = [{"code": "GULF_COAST", "lat": 30.0, "lon": -88.0}]
+    obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=regions,
+                                  advisory_texts=advisory_texts)
+    track_dist = [o for o in obs if o.metric == "min_track_distance_km"][0]
+    current_dist = [o for o in obs if o.metric == "min_distance_to_exposure_km"][0]
+    # Der Track führt näher an GULF_COAST heran als die aktuelle Position ->
+    # min_track_distance_km < min_distance_to_exposure_km.
+    assert track_dist.value is not None
+    assert track_dist.value < current_dist.value
+    assert track_dist.attrs["nearest_region"] == "GULF_COAST"
+
+    hours = [o for o in obs if o.metric == "hours_until_closest_approach"][0]
+    assert hours.value is not None
+    assert hours.value > 0
+
+    track_points = [o for o in obs if o.metric == "track_lat"]
+    # Fixture: 1 initial (CENTER LOCATED NEAR) + 3 FORECAST VALID +
+    # 1 EXTENDED FORECAST VALID (zählt als kind='forecast') + 1 OUTLOOK VALID.
+    assert len(track_points) == 6
+
+
+def test_parse_current_storms_unparseable_advisory_marks_schema_changed_for_storm_only():
+    storms = _load("nhc_current_storms_active.json")
+    advisory_texts = {"AL052024": "<pre>GARBLED NOT A REAL FORMAT</pre>"}
+    retrieved_at = datetime(2024, 9, 27, tzinfo=timezone.utc)
+    regions = [{"code": "FL_COAST", "lat": 27.9944, "lon": -81.7603}]
+    # darf nicht werfen:
+    obs = w.parse_current_storms(storms, retrieved_at, exposure_regions=regions,
+                                  advisory_texts=advisory_texts)
+    track_dist = [o for o in obs if o.metric == "min_track_distance_km"][0]
+    current_dist = [o for o in obs if o.metric == "min_distance_to_exposure_km"][0]
+    assert track_dist.attrs["advisory_status"] == "SCHEMA_CHANGED"
+    # ohne verwertbaren Track fällt min_track_distance_km auf die aktuelle
+    # Position zurück (die bleibt unbeeinflusst von dem kaputten Advisory-Text):
+    assert current_dist.value is not None
+    assert track_dist.value == pytest.approx(current_dist.value)
+
+
+def test_nhc_connector_fetches_forecast_advisory_text_for_each_storm():
+    connector = w.NhcStormsConnector(source_cfg={})
+    storms_json = _load("nhc_current_storms_active.json")
+    current_storms_res = SimpleNamespace(
+        json=lambda: storms_json,
+        content=json.dumps(storms_json).encode("utf-8"),
+        content_type="application/json",
+        retrieved_at=datetime(2024, 9, 27, tzinfo=timezone.utc),
+        url="https://www.nhc.noaa.gov/CurrentStorms.json", status=200,
+        fingerprint="fp1", content_hash="hash1", bytes=10,
+    )
+    advisory_html = _read_fixture_text("nhc_tcm_advisory_sample.html")
+    advisory_res = SimpleNamespace(
+        content=advisory_html.encode("utf-8"), content_type="text/html",
+        retrieved_at=datetime(2024, 9, 27, tzinfo=timezone.utc),
+        url="https://www.nhc.noaa.gov/text/refresh/MIATCMAT4+shtml/262100.shtml", status=200,
+        fingerprint="fp2", content_hash="hash2", bytes=len(advisory_html),
+    )
+
+    def _fake_fetch(url, headers=None):
+        if "CurrentStorms.json" in url:
+            return current_storms_res
+        return advisory_res
+
+    with patch.object(w.http, "fetch", side_effect=_fake_fetch):
+        result = connector.fetch(datetime(2024, 9, 27, tzinfo=timezone.utc))
+
+    assert result.status.value == "PASS"
+    track_dist = [o for o in result.observations if o.metric == "min_track_distance_km"][0]
+    assert track_dist.value is not None
+    assert any(r.dataset.startswith("forecast_advisory:") for r in result.raw)
 
 
 # --------------------------------------------------------------------------- #
@@ -617,7 +785,10 @@ def test_location_by_code_returns_none_for_unknown_code():
 
 def test_nhc_forecast_track_as_reference_does_not_crash():
     """Live-Schema: forecastTrack ist ein Verweis (Objekt/String), keine
-    Punktliste -> keine Distanzberechnung, aber kein Absturz."""
+    Punktliste -> wird nicht mehr für Distanzen verwendet, aber egal welche
+    Form das Feld hat, es darf nie zu einem Absturz führen. Ohne
+    forecastAdvisory-Text fällt min_track_distance_km auf die aktuelle
+    Position zurück (kein Crash, kein stiller Fehler)."""
     from datetime import datetime, timezone
     from modules.external.sources.weather import parse_current_storms
     for track in ({"kmzFile": "https://example/track.kmz"}, "https://example/track.kmz"):
@@ -631,5 +802,12 @@ def test_nhc_forecast_track_as_reference_does_not_crash():
                                    [{"lat": 27.0, "lon": -81.0, "code": "FL"}])
         by_metric = {o.metric: o for o in obs}
         assert "lat" in by_metric
-        dist = by_metric["min_distance_to_exposure_km"]
-        assert dist.value is None and dist.attrs.get("limitation")
+        # current-position-Distanz ist weiterhin gesetzt (unabhängig vom
+        # (ignorierten) forecastTrack-Feld) ...
+        current_dist = by_metric["min_distance_to_exposure_km"]
+        assert current_dist.value is not None
+        # ... und ohne forecastAdvisory-Objekt/-Text fällt
+        # min_track_distance_km auf dieselbe aktuelle Position zurück.
+        track_dist = by_metric["min_track_distance_km"]
+        assert track_dist.value == pytest.approx(current_dist.value)
+        assert track_dist.attrs.get("advisory_status") in (None, "NO_TEXT_FETCHED")

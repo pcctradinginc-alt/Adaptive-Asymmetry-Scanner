@@ -723,3 +723,108 @@ def test_weather_risk_requires_storm_near_exposure():
     # ohne Position -> kein HIGH allein wegen "aktiv"
     assert _weather_operational_risk(None, True, None) == "LOW"
     assert _weather_operational_risk(None, False, None) == "UNKNOWN"
+
+
+# --------------------------------------------------------------------------- #
+# _tropical_min_distance_km – aktuelle Position + Forecast-Track (aus dem
+# offiziellen Forecast/Advisory-Text, siehe weather.py parse_forecast_
+# advisory_text), inkl. as-of-Filterung (nur die neueste bis as_of
+# verfügbare Advisory je Sturm zählt).
+# --------------------------------------------------------------------------- #
+
+FL_COAST = (27.9944, -81.7603)
+LA_COAST = (29.9511, -90.0715)
+
+
+def _mk_storm_obs(series_id, metric, value, obs_time, available_at, **kw):
+    """Wie mk_obs(), aber mit frei wählbarem series_id -- _tropical_min_
+    distance_km gruppiert Sturm-Punkte über o.series_id (== storm_id, siehe
+    parse_current_storms/parse_forecast_advisory_text in weather.py), nicht
+    über entity_id."""
+    return Observation(
+        source_id="nhc_storms", dataset="active_storms", series_id=series_id,
+        entity_id=series_id, metric=metric, value=value, unit="deg",
+        observation_time=obs_time, available_at=available_at, retrieved_at=available_at,
+        availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP, parser_version="1", **kw,
+    )
+
+
+def _storm_current_pos(series_id, lat, lon, t):
+    """lat/lon-Observations wie sie parse_current_storms liefert
+    (kein forecast_valid_time)."""
+    return [
+        _mk_storm_obs(series_id, "lat", lat, t, t),
+        _mk_storm_obs(series_id, "lon", lon, t, t),
+    ]
+
+
+def _storm_track_point(series_id, lat, lon, issuance, valid_time, available_at=None):
+    """track_lat/track_lon-Observations wie sie parse_forecast_advisory_text
+    liefert (forecast_issue_time=Advisory-Issuance, forecast_valid_time=
+    geparste VALID-Zeit)."""
+    available_at = available_at or issuance
+    common = dict(forecast_issue_time=issuance, forecast_valid_time=valid_time)
+    return [
+        _mk_storm_obs(series_id, "track_lat", lat, valid_time, available_at, **common),
+        _mk_storm_obs(series_id, "track_lon", lon, valid_time, available_at, **common),
+    ]
+
+
+def test_tropical_min_distance_uses_forecast_track_when_closer_than_current_position():
+    from modules.external.context import _tropical_min_distance_km
+    issuance = datetime(2026, 9, 27, 21, 0, tzinfo=UTC)
+    storm_obs = (
+        _storm_current_pos("AL012026", 20.0, -95.0, issuance)   # weit von jeder Region
+        + _storm_track_point("AL012026", LA_COAST[0], LA_COAST[1],
+                              issuance, issuance + timedelta(hours=24))
+    )
+    dist = _tropical_min_distance_km(storm_obs)
+    assert dist is not None
+    assert dist < 5.0   # Track-Punkt liegt praktisch auf LA_COAST
+
+
+def test_tropical_min_distance_falls_back_to_current_position_without_track():
+    from modules.external.context import _tropical_min_distance_km
+    issuance = datetime(2026, 9, 27, 21, 0, tzinfo=UTC)
+    storm_obs = _storm_current_pos("AL012026", FL_COAST[0], FL_COAST[1], issuance)
+    dist = _tropical_min_distance_km(storm_obs)
+    assert dist is not None
+    assert dist < 5.0
+
+
+def test_tropical_min_distance_none_without_any_position():
+    from modules.external.context import _tropical_min_distance_km
+    assert _tropical_min_distance_km([]) is None
+
+
+def test_tropical_min_distance_as_of_uses_only_latest_available_advisory_per_storm():
+    """Zwei Advisories desselben Sturms: die ältere (Nr. 9, Track weit weg)
+    ist ab t0 verfügbar, die neuere (Nr. 10, Track nahe LA_COAST) erst ab
+    t0+6h. build_external_context ruft archive.as_of(..., now) auf und
+    übergibt DAS Ergebnis (PIT-gefiltert) hierher -- _tropical_min_
+    distance_km selbst muss unter den so übergebenen Beobachtungen trotzdem
+    pro Sturm nur die Advisory mit der höchsten forecast_issue_time
+    berücksichtigen, nie eine ältere Advisory zusätzlich mischen."""
+    from modules.external.context import _tropical_min_distance_km
+    issuance_old = datetime(2026, 9, 27, 15, 0, tzinfo=UTC)
+    issuance_new = datetime(2026, 9, 27, 21, 0, tzinfo=UTC)
+
+    old_track = _storm_track_point("AL012026", 10.0, -60.0, issuance_old,
+                                    issuance_old + timedelta(hours=24))
+    new_track = _storm_track_point("AL012026", LA_COAST[0], LA_COAST[1], issuance_new,
+                                    issuance_new + timedelta(hours=24))
+    current_pos = _storm_current_pos("AL012026", 20.0, -95.0, issuance_new)
+
+    # Simuliert, was archive.as_of(...) VOR der neuen Advisory zurückgeben würde:
+    # nur die alte Advisory ist bis dahin bekannt.
+    only_old = _tropical_min_distance_km(old_track + current_pos)
+    assert only_old is not None
+    assert only_old > 500.0   # alter Track liegt weit im Atlantik
+
+    # Nach der neuen Advisory: BEIDE Vintages liegen (hypothetisch) im
+    # PIT-gefilterten Observation-Satz -- die Funktion darf trotzdem NICHT
+    # die alte, weiter entfernte Advisory für die Distanz heranziehen.
+    both = _tropical_min_distance_km(old_track + new_track + current_pos)
+    assert both is not None
+    assert both < 5.0
+    assert both != pytest.approx(only_old)
