@@ -85,4 +85,8 @@ class Connector:
                 "message": res.message, "discovered_ids": res.discovered_ids,
             }
         except Exception as e:  # noqa: BLE001 - preflight darf nie werfen
-            return {"source_id": self.source_id, "status": "FAIL", "message": repr(e)}
+            import traceback
+            # Traceback-Auszug (nur Codepfade, keine Request-Daten) für die Diagnose
+            tb = traceback.format_exc().strip().splitlines()[-12:]
+            return {"source_id": self.source_id, "status": "FAIL", "message": repr(e),
+                    "discovered_ids": {"diagnostics": {"traceback_tail": tb}}}

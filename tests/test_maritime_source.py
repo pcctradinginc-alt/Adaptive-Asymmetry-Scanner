@@ -61,9 +61,9 @@ def make_fake_fetch(search_ports_daily_fixture="search_daily_ports_data.json",
                 return FakeResponse(_load(search_ports_daily_fixture))
             if "Daily Chokepoints Data" in q:
                 return FakeResponse(_load("search_daily_chokepoints_data.json"))
-            if q.strip() == 'title:"Ports"':
+            if 'title:"Ports"' in q:
                 return FakeResponse(_load("search_ports_reference.json"))
-            if q.strip() == 'title:"Chokepoints"':
+            if 'title:"Chokepoints"' in q:
                 return FakeResponse(_load("search_chokepoints_reference.json"))
             raise AssertionError(f"unerwartete ArcGIS-Suche: {q!r}")
 
@@ -139,6 +139,87 @@ def test_discovery_by_name_with_ambiguity_marks_result():
     assert item["n_candidates"] == 2
     # nimmt den zuletzt geänderten Kandidaten, nicht irgendeinen
     assert item["service_url"] == SERVICE_URLS["ports_daily"]
+
+
+def test_search_arcgis_item_rejects_wrong_org_candidate_even_if_returned():
+    """Verteidigung gegen den live beobachteten Fehler: die q-Restriktion
+    (orgid:...) greift serverseitig aus irgendeinem Grund nicht und liefert
+    trotzdem ein Item aus fremder Organisation zurück -- muss client-seitig
+    verworfen werden, nie akzeptiert."""
+    def fake_fetch(url, params=None, **kwargs):
+        return FakeResponse(_load("search_ports_reference_wrong_org.json"))
+
+    with pytest.raises(mw.DiscoveryError):
+        mw._search_arcgis_item(
+            "Ports", fake_fetch, require_owner="PortWatch_IMF", require_orgid="portwatchorg001",
+        )
+
+
+def test_discovery_falls_back_to_daily_layer_when_reference_org_mismatched(tmp_path):
+    """item 1 im Fix: 'Ports' liefert (wie live beobachtet) ein Item einer
+    fremden Organisation -> wird verworfen, ports_reference wird stattdessen
+    als Fallback auf den Daily-Ports-Layer selbst markiert."""
+    def fake_fetch(url, params=None, **kwargs):
+        params = params or {}
+        if url == mw.ARCGIS_SEARCH_URL:
+            q = params.get("q", "")
+            if "Daily Ports Data" in q:
+                return FakeResponse(_load("search_daily_ports_data.json"))
+            if "Daily Chokepoints Data" in q:
+                return FakeResponse(_load("search_daily_chokepoints_data.json"))
+            if 'title:"Ports"' in q:
+                return FakeResponse(_load("search_ports_reference_wrong_org.json"))
+            if 'title:"Chokepoints"' in q:
+                return FakeResponse(_load("search_chokepoints_reference.json"))
+            raise AssertionError(f"unerwartete ArcGIS-Suche: {q!r}")
+        if url in SERVICE_URLS.values():
+            return FakeResponse(_load("featureserver_root.json"))
+        raise AssertionError(f"kein Fixture für url={url!r} params={params!r}")
+
+    cache_path = str(tmp_path / "portwatch_endpoints.json")
+    endpoints = mw.discover_endpoints(http_fetch=fake_fetch, cache_path=cache_path, now=NOW)
+    assert endpoints["ports_reference"]["fallback_to_daily_layer"] is True
+    assert endpoints["ports_reference"]["service_url"] == SERVICE_URLS["ports_daily"]
+    # Chokepoints-Referenz-Suche war org-verifiziert erfolgreich -> kein Fallback
+    assert endpoints["chokepoints_reference"]["fallback_to_daily_layer"] is False
+    assert endpoints["chokepoints_reference"]["service_url"] == SERVICE_URLS["chokepoints_reference"]
+
+
+def test_connector_uses_distinct_values_fallback_for_ports_reference(tmp_path):
+    """Voller fetch()-Flow: wenn die Ports-Referenz-Suche org-verworfen
+    wird, leitet der Konnektor portid/portname/country per
+    returnDistinctValues-Query direkt aus dem Daily-Ports-Layer ab (statt
+    IDs zu erraten oder die falsche USDA-Layer zu benutzen)."""
+    def fake_fetch(url, params=None, **kwargs):
+        params = params or {}
+        if url == mw.ARCGIS_SEARCH_URL:
+            q = params.get("q", "")
+            if "Daily Ports Data" in q:
+                return FakeResponse(_load("search_daily_ports_data.json"))
+            if "Daily Chokepoints Data" in q:
+                return FakeResponse(_load("search_daily_chokepoints_data.json"))
+            if 'title:"Ports"' in q:
+                return FakeResponse(_load("search_ports_reference_wrong_org.json"))
+            if 'title:"Chokepoints"' in q:
+                return FakeResponse(_load("search_chokepoints_reference.json"))
+            raise AssertionError(f"unerwartete ArcGIS-Suche: {q!r}")
+        if url in SERVICE_URLS.values():
+            return FakeResponse(_load("featureserver_root.json"))
+        if url.endswith("/0") and url.startswith(SERVICE_URLS["ports_daily"]):
+            return FakeResponse(_load("layer_metadata_ports_daily.json"))
+        if url.endswith("/query") and url.startswith(SERVICE_URLS["ports_daily"]):
+            if params.get("returnDistinctValues") == "true":
+                return FakeResponse(_load("query_ports_daily_distinct.json"))
+            return FakeResponse(_load("query_ports_daily_single_page.json"))
+        raise AssertionError(f"kein Fixture für url={url!r} params={params!r}")
+
+    cache_path = str(tmp_path / "portwatch_endpoints.json")
+    connector = mw.PortWatchPortsConnector(http_fetch=fake_fetch, cache_path=cache_path)
+    result = connector.fetch(NOW)
+    assert result.status in (SourceStatus.PASS, SourceStatus.WARN)
+    assert result.discovered_ids["ports"]["Los Angeles"] == "port_la"
+    assert result.discovered_ids["diagnostics"]["ports_reference_fallback_to_daily_layer"] is True
+    assert "port_la" in {v for v in result.discovered_ids["ports"].values()}
 
 
 def test_config_override_marks_verify_in_preflight(tmp_path):
@@ -377,3 +458,78 @@ def test_chokepoints_connector_end_to_end(tmp_path):
     assert "Bab el-Mandeb" in result.discovered_ids["unresolved_chokepoints"]
     metrics = {o.metric for o in result.observations}
     assert {"n_total", "n_tanker", "n_container"} <= metrics
+
+
+# --------------------------------------------------------------------------
+# Chokepoint-Name-Alias-Matching (item 2 im Fix) & Diagnostics (item 3)
+# --------------------------------------------------------------------------
+
+def test_normalize_name_reorders_strait_of_without_needing_an_alias():
+    assert mw.normalize_name("Strait of Gibraltar") == mw.normalize_name("Gibraltar Strait")
+    assert mw.normalize_name("Strait of Malacca") == mw.normalize_name("Malacca Strait")
+
+
+def test_resolve_entities_by_name_uses_documented_alias_map_for_spelling_variants():
+    # "Bosporus Strait" (kuratiert) vs. "Bosphorus Strait" (Referenz-Layer) --
+    # eine reine Wortstellungs-Normalisierung löst das NICHT, nur der
+    # dokumentierte Alias in config/port_universe.yaml.
+    ref = [{"attributes": {"chokepointid": "cp_bosporus", "chokepointname": "Bosphorus Strait"}}]
+    wanted = [{"name": "Bosporus Strait", "country": "Turkey"}]
+    alias_map = {"Bosporus Strait": ["Bosphorus Strait", "Turkish Straits"]}
+    resolved = mw.resolve_entities_by_name(
+        wanted, ref, "chokepointid", "chokepointname", country_field=None, alias_map=alias_map,
+    )
+    assert resolved[0].status == "resolved"
+    assert resolved[0].entity_id == "cp_bosporus"
+
+
+def test_resolve_entities_by_name_never_matches_undocumented_alias():
+    # Kein Alias-Eintrag für "Taiwan Strait" auf einen abweichenden Namen ->
+    # bleibt no_match, wird nie erraten.
+    ref = [{"attributes": {"chokepointid": "cp_x", "chokepointname": "Formosa Strait"}}]
+    wanted = [{"name": "Taiwan Strait", "country": None}]
+    resolved = mw.resolve_entities_by_name(
+        wanted, ref, "chokepointid", "chokepointname", country_field=None, alias_map={},
+    )
+    assert resolved[0].status == "no_match"
+    assert resolved[0].entity_id is None
+
+
+def test_load_chokepoint_aliases_from_port_universe_yaml():
+    universe = mw.load_port_universe("config/port_universe.yaml")
+    aliases = mw.load_chokepoint_aliases(universe)
+    assert "Strait of Malacca" in aliases["Malacca Strait"]
+    assert any("Bosphorus" in a for a in aliases["Bosporus Strait"])
+
+
+def test_close_name_matches_ranks_by_normalized_similarity():
+    candidates = ["Strait of Hormuz", "Suez Canal", "Panama Canal", "Taiwan Strait"]
+    top = mw.close_name_matches("Taiwan Straight", candidates, k=2)
+    assert top[0] == "Taiwan Strait"
+
+
+def test_chokepoints_connector_resolves_via_alias_and_reports_diagnostics(tmp_path):
+    """End-to-end: config-Aliase lösen Malacca/Gibraltar/Bosporus gegen die
+    (abweichend benannten) Referenz-Layer-Einträge auf; Taiwan Strait bleibt
+    unresolved (kein passender Alias/Name in der Referenz) und taucht mit
+    Diagnostics (verfügbare Namen + Top-3-Näherungen) auf -- nie geraten."""
+    fake_fetch, _ = make_fake_fetch()
+    cache_path = str(tmp_path / "portwatch_endpoints.json")
+    connector = mw.PortWatchChokepointsConnector(http_fetch=fake_fetch, cache_path=cache_path)
+    result = connector.fetch(NOW)
+
+    resolved = result.discovered_ids["chokepoints"]
+    assert resolved["Malacca Strait"] == "cp_malacca"
+    assert resolved["Gibraltar Strait"] == "cp_gibraltar"
+    assert resolved["Bosporus Strait"] == "cp_bosporus"
+
+    unresolved = result.discovered_ids["unresolved_chokepoints"]
+    assert "Taiwan Strait" in unresolved
+    assert "Malacca Strait" not in unresolved
+
+    diagnostics = result.discovered_ids["diagnostics"]
+    assert "Strait of Hormuz" in diagnostics["available_chokepoints"]
+    assert len(diagnostics["available_chokepoints"]) <= 60
+    assert diagnostics["chokepoints_reference_fallback_to_daily_layer"] is False
+    assert "Taiwan Strait" in diagnostics["unresolved_chokepoints_close_matches"]
+    assert diagnostics["unresolved_chokepoints_close_matches"]["Taiwan Strait"]

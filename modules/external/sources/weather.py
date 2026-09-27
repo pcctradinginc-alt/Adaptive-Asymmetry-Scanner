@@ -675,8 +675,13 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
         storm_id = storm.get("id") or storm.get("binNumber")
         if not storm_id:
             continue
-        advisory = storm.get("publicAdvisory") or {}
-        issuance = ensure_utc(advisory.get("issuance")) or ensure_utc(storm.get("lastUpdate"))
+        advisory = storm.get("publicAdvisory")
+        if not isinstance(advisory, dict):
+            advisory = {}   # offizielles Schema: Objekt {advNum, issuance, url}; alles andere ignorieren
+        try:
+            issuance = ensure_utc(advisory.get("issuance")) or ensure_utc(storm.get("lastUpdate"))
+        except (TypeError, ValueError):
+            issuance = None
         if issuance is None:
             continue
 
@@ -688,8 +693,14 @@ def parse_current_storms(storms_json: dict, retrieved_at: datetime,
             except ValueError:
                 return None
 
-        lat = _signed_latlon(storm.get("lat"))
-        lon = _signed_latlon(storm.get("lon"))
+        # Offizielles Schema liefert latitudeNumeric/longitudeNumeric (signiert)
+        # sowie latitude/longitude als Text ("25.1N"); ältere Fixtures lat/lon.
+        lat = _num(storm.get("latitudeNumeric"))
+        lon = _num(storm.get("longitudeNumeric"))
+        if lat is None:
+            lat = _signed_latlon(storm.get("lat") or storm.get("latitude"))
+        if lon is None:
+            lon = _signed_latlon(storm.get("lon") or storm.get("longitude"))
 
         fields = {
             "intensity_kt": _num(storm.get("intensity")),
