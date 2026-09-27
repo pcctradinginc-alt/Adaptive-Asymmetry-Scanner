@@ -1,0 +1,88 @@
+{
+  "run_id": "20260927T103453Z-aa82ac34",
+  "generated_at": "2026-09-27T10:34:53+00:00",
+  "git_sha": "d5bc14f4b815698a32793074884784e8e0a2e8e6",
+  "config_hash": "60db566958cb",
+  "entries": [
+    {
+      "source_id": "destatis_truck_toll",
+      "dataset": "catalogue",
+      "fingerprint": "413f3e4d91702eec",
+      "retrieved_at": "2026-09-27T10:34:53+00:00",
+      "content_hash": "062688f4ed510d2d1b67030d9a7545b052ad661f6b8d14297b60ff576f0244df",
+      "content_type": "text/html",
+      "bytes": 2506,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "eurostat_road_freight",
+      "dataset": "toc",
+      "fingerprint": "1d10998517c17e15",
+      "retrieved_at": "2026-09-27T10:34:53+00:00",
+      "content_hash": "03c332a917f2501e8e53c6c259429de0d031d62e7709223a963325386f7b3dd6",
+      "content_type": "text/plain;charset=UTF-8",
+      "bytes": 2307688,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 562,
+        "duplicate": 1844,
+        "revision": 21411
+      }
+    },
+    {
+      "source_id": "nws_forecast",
+      "dataset": "points",
+      "fingerprint": "bb8c5744ed99e6bf",
+      "retrieved_at": "2026-09-27T10:34:53+00:00",
+      "content_hash": "1f2e8cafca343d35b68d41fd37754ea1aa816bc28890dc2b8b7a60fd4ff3042f",
+      "content_type": "application/geo+json",
+      "bytes": 11595356,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 20011,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "nws_alerts",
+      "dataset": "alerts_active",
+      "fingerprint": "1dbb2b88f029e4e5",
+      "retrieved_at": "2026-09-27T10:34:53+00:00",
+      "content_hash": "2aacc35cf8e990d88a1ac54f2b1d2f45b9d9aaa2bd1ce3c8050c05f5cdef59ad",
+      "content_type": "application/geo+json",
+      "bytes": 194869,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "nhc_storms",
+      "dataset": "current_storms",
+      "fingerprint": "09f9d997f0185c82",
+      "retrieved_at": "2026-09-27T10:34:53+00:00",
+      "content_hash": "95a8b0556c035087b3fc33c2fd6d749f222a508c9dacd51a6eed98fa1dd63b04",
+      "content_type": "application/json",
+      "bytes": 23347,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 30,
+        "duplicate": 0,
+        "revision": 0
+      }
+    }
+  ]
+}

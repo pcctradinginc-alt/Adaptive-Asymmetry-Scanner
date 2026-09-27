@@ -1,0 +1,53 @@
+{
+  "measured_at": "2026-09-27T10:37:26+00:00",
+  "total_bytes_per_day": 280651.29876543215,
+  "projections_bytes": {
+    "30d": 8419538.962962965,
+    "1y": 102437724.04938273,
+    "5y": 512188620.2469137
+  },
+  "warn_mb_1y": 200.0,
+  "flagged": false,
+  "per_source": {
+    "destatis_truck_toll": {
+      "raw_bytes": 492,
+      "normalized_bytes": 0,
+      "rows": 0,
+      "rows_per_day": 0.0,
+      "raw_bytes_per_day": 16.4,
+      "normalized_bytes_per_day": 0.0
+    },
+    "eurostat_road_freight": {
+      "raw_bytes": 1026,
+      "normalized_bytes": 12270689,
+      "rows": 21973,
+      "rows_per_day": 27.127160493827162,
+      "raw_bytes_per_day": 1.2666666666666666,
+      "normalized_bytes_per_day": 15148.9987654321
+    },
+    "nhc_storms": {
+      "raw_bytes": 471,
+      "normalized_bytes": 19918,
+      "rows": 30,
+      "rows_per_day": 1.0,
+      "raw_bytes_per_day": 15.7,
+      "normalized_bytes_per_day": 663.9333333333333
+    },
+    "nws_alerts": {
+      "raw_bytes": 18581,
+      "normalized_bytes": 0,
+      "rows": 0,
+      "rows_per_day": 0.0,
+      "raw_bytes_per_day": 619.3666666666667,
+      "normalized_bytes_per_day": 0.0
+    },
+    "nws_forecast": {
+      "raw_bytes": 37858,
+      "normalized_bytes": 15813280,
+      "rows": 20011,
+      "rows_per_day": 333.51666666666665,
+      "raw_bytes_per_day": 630.9666666666667,
+      "normalized_bytes_per_day": 263554.6666666667
+    }
+  }
+}
