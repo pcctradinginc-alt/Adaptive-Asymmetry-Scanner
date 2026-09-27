@@ -157,13 +157,33 @@ class FafSchemaError(RuntimeError):
 # Discovery + download
 # --------------------------------------------------------------------------- #
 
+# faf.ornl.gov setzte Anfragen ohne User-Agent zurück (Connection reset,
+# faf_build 2026-09-27) -> identifizierbarer UA + Retry mit Backoff.
+HTTP_HEADERS = {"User-Agent": "AdaptiveAsymmetryScanner/1.0 (research; official-data-only)",
+                "Accept": "*/*"}
+
+
+def _get(url: str, timeout: int, stream: bool = False, retries: int = 4):
+    import time
+    last = None
+    for attempt in range(retries):
+        try:
+            resp = requests.get(url, headers=HTTP_HEADERS, timeout=timeout, stream=stream)
+            resp.raise_for_status()
+            return resp
+        except requests.RequestException as e:  # type: ignore[union-attr]
+            last = e
+            if attempt < retries - 1:
+                time.sleep(5 * 2 ** attempt)
+    raise RuntimeError(f"FAF-Abruf fehlgeschlagen nach {retries} Versuchen: {url}: {last!r}")
+
+
 def discover_faf_zip_url(page_url: str = FAF_PAGE_URL, timeout: int = 30) -> str:
     """Fetch the official FAF5 Data Download page and find the state-level
     database zip link (FAF5*State*.zip). Raises RuntimeError if none found."""
     if requests is None:
         raise RuntimeError("requests is required for FAF download-page discovery")
-    resp = requests.get(page_url, timeout=timeout)
-    resp.raise_for_status()
+    resp = _get(page_url, timeout)
     html = resp.text
     matches = FAF_ZIP_LINK_RE.findall(html)
     if not matches:
@@ -189,8 +209,7 @@ def download_zip(url: str, dest_path: Path, timeout: int = 120, chunk_size: int 
     if requests is None:
         raise RuntimeError("requests is required to download the FAF5 zip")
     sha256 = hashlib.sha256()
-    with requests.get(url, stream=True, timeout=timeout) as resp:
-        resp.raise_for_status()
+    with _get(url, timeout, stream=True) as resp:
         with open(dest_path, "wb") as f:
             for chunk in resp.iter_content(chunk_size=chunk_size):
                 if not chunk:
