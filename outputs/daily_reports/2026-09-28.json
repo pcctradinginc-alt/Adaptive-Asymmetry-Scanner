@@ -2,27 +2,27 @@
   "date": "2026-09-28",
   "proposals": [],
   "stats": {
-    "vix": 16.010000228881836,
-    "universe": 128,
-    "candidates": 128,
-    "prescreened": 25,
-    "sector_ok": 116,
-    "pre_mc": 22,
-    "roi_precheck": 23,
-    "analyzed": 18,
-    "mismatch_ok": 9,
-    "quick_mc": 8,
-    "intraday_ok": 8,
-    "final_mc": 8,
-    "rl_scored": 8,
+    "vix": 16.200000762939453,
+    "universe": 52,
+    "candidates": 52,
+    "prescreened": 19,
+    "sector_ok": 49,
+    "pre_mc": 19,
+    "roi_precheck": 19,
+    "analyzed": 17,
+    "mismatch_ok": 10,
+    "quick_mc": 7,
+    "intraday_ok": 7,
+    "final_mc": 7,
+    "rl_scored": 7,
     "roi_ok": 0,
     "trades": 0,
     "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
     "external_context": {
       "enabled": true,
       "mode": "shadow",
-      "snapshot_id": "26349de7fc883cfe",
-      "as_of": "2026-09-28T19:26:15+00:00",
+      "snapshot_id": "1d651d88fd2eeec4",
+      "as_of": "2026-09-28T20:17:09+00:00",
       "sources": {
         "destatis_truck_toll": "OK",
         "destatis_truck_toll_download": "NO_DATA",
@@ -53,35 +53,15 @@
         "hard_data_vs_survey_divergence_reason": null
       }
     },
-    "after_isf": 15,
+    "after_isf": 12,
     "final_mc_shadow": [
-      {
-        "ticker": "ABBV",
-        "mode": "legacy_45",
-        "dte_used": 45,
-        "hit_rate_used": 0.6788,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.75,
-        "passed_real": true,
-        "would_pass_shadow": true
-      },
-      {
-        "ticker": "MMM",
-        "mode": "legacy_45",
-        "dte_used": 45,
-        "hit_rate_used": 0.6126,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.75,
-        "passed_real": true,
-        "would_pass_shadow": true
-      },
       {
         "ticker": "AMAT",
         "mode": "legacy_45",
         "dte_used": 45,
-        "hit_rate_used": 0.6736,
+        "hit_rate_used": 0.708,
         "dte_shadow": 120,
-        "hit_rate_shadow": 0.7006,
+        "hit_rate_shadow": 0.744,
         "passed_real": true,
         "would_pass_shadow": true
       },
@@ -89,9 +69,9 @@
         "ticker": "APP",
         "mode": "legacy_45",
         "dte_used": 45,
-        "hit_rate_used": 0.5218,
+        "hit_rate_used": 0.5266,
         "dte_shadow": 120,
-        "hit_rate_shadow": 0.5291,
+        "hit_rate_shadow": 0.5328,
         "passed_real": true,
         "would_pass_shadow": true
       },
@@ -99,19 +79,9 @@
         "ticker": "ADM",
         "mode": "legacy_45",
         "dte_used": 45,
-        "hit_rate_used": 0.6188,
+        "hit_rate_used": 0.5962,
         "dte_shadow": 120,
-        "hit_rate_shadow": 0.7475,
-        "passed_real": true,
-        "would_pass_shadow": true
-      },
-      {
-        "ticker": "ARES",
-        "mode": "legacy_45",
-        "dte_used": 45,
-        "hit_rate_used": 0.633,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.6474,
+        "hit_rate_shadow": 0.7393,
         "passed_real": true,
         "would_pass_shadow": true
       },
@@ -119,17 +89,37 @@
         "ticker": "ANET",
         "mode": "legacy_45",
         "dte_used": 45,
-        "hit_rate_used": 0.5648,
+        "hit_rate_used": 0.5606,
         "dte_shadow": 120,
-        "hit_rate_shadow": 0.5695,
+        "hit_rate_shadow": 0.5751,
         "passed_real": true,
         "would_pass_shadow": true
       },
       {
-        "ticker": "BDX",
+        "ticker": "ARES",
         "mode": "legacy_45",
         "dte_used": 45,
-        "hit_rate_used": 0.633,
+        "hit_rate_used": 0.6502,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6915,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "BBY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "XYZ",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7178,
         "dte_shadow": 120,
         "hit_rate_shadow": 0.75,
         "passed_real": true,
@@ -138,67 +128,51 @@
     ],
     "roi_rejects": {
       "n": 4,
-      "gap_min": 0.0144,
-      "gap_median": 0.1009,
-      "gap_max": 0.1918
+      "gap_min": -0.0283,
+      "gap_median": 0.0954,
+      "gap_max": 0.1664
     }
   },
   "rejects": {
     "sector_momentum_weak": {
-      "count": 12,
+      "count": 3,
       "tickers": [
         "ADBE",
         "AON",
-        "ADSK",
-        "BAX",
-        "AVGO",
-        "BSX",
-        "CHTR",
-        "CSCO",
-        "COHR",
-        "CLX"
+        "ADSK"
       ]
     },
     "prescreen_no": {
-      "count": 91,
+      "count": 30,
       "tickers": [
-        "AMD",
-        "ALB",
-        "ABT",
-        "ABNB",
-        "GOOGL",
-        "GOOG",
-        "MO",
-        "A",
         "LNT",
-        "ARE"
-      ]
-    },
-    "earnings_gate": {
-      "count": 2,
-      "tickers": [
+        "ALLE",
+        "ABT",
+        "AMD",
+        "MMM",
+        "ABNB",
+        "A",
+        "ALB",
         "ACN",
-        "CCL"
-      ]
-    },
-    "pre_mc_sigma_too_low": {
-      "count": 1,
-      "tickers": [
-        "BRK-B"
+        "MO"
       ]
     },
     "bearish_disabled": {
-      "count": 3,
+      "count": 5,
       "tickers": [
-        "ALL",
+        "GOOGL",
         "AMZN",
-        "CBRE"
+        "APO",
+        "BMY",
+        "BSX"
       ]
     },
     "mc_below_threshold": {
-      "count": 1,
+      "count": 3,
       "tickers": [
-        "APTV"
+        "ALL",
+        "APTV",
+        "T"
       ]
     }
   },
@@ -206,6 +180,15 @@
     "status": "WARN",
     "warnings": [
       "Lern-Loop eingefroren: alle Feature-Korrelationen \u2264 0 (eps_drift=-0.051, impact=-0.064, mismatch=-0.058) \u2192 model_weights bleiben auf Startwerten; Features haben keine positive Vorhersagekraft.",
+      "Externes Primitiv 'freight_global_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-0.8593665498960744) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'us_freight_tsi_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-2.6040129784507187) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'shipping_global_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-0.42444383878850395) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'suez_z' ist \u00fcber die letzten 30 Ledger-Tage zu 100% missing (>80%-Schwelle).",
+      "Externes Primitiv 'panama_z' ist \u00fcber die letzten 30 Ledger-Tage zu 100% missing (>80%-Schwelle).",
+      "Externes Primitiv 'hormuz_z' ist \u00fcber die letzten 30 Ledger-Tage zu 100% missing (>80%-Schwelle).",
+      "Externes Primitiv 'malacca_z' ist \u00fcber die letzten 30 Ledger-Tage zu 100% missing (>80%-Schwelle).",
+      "Externes Primitiv 'bab_el_mandeb_z' ist \u00fcber die letzten 30 Ledger-Tage zu 100% missing (>80%-Schwelle).",
+      "Externes Primitiv 'weather_disruption_index' ist \u00fcber die letzten 30 Ledger-Tage zu 100% missing (>80%-Schwelle).",
       "PPO-Policy kollabiert: 100% BOOST \u00fcber 117 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
     ],
     "metrics": {
@@ -300,16 +283,16 @@
             "next_eval_date": "2026-10-12"
           },
           "final_mc_survivor": {
-            "total": 141,
-            "evaluated": 36,
-            "ready_in_14d": 16,
-            "next_eval_date": "2026-09-28"
+            "total": 143,
+            "evaluated": 37,
+            "ready_in_14d": 15,
+            "next_eval_date": "2026-10-11"
           },
           "roi_gate": {
-            "total": 87,
-            "evaluated": 19,
-            "ready_in_14d": 10,
-            "next_eval_date": "2026-09-28"
+            "total": 88,
+            "evaluated": 20,
+            "ready_in_14d": 9,
+            "next_eval_date": "2026-10-11"
           },
           "score_48": {
             "total": 5,
@@ -351,7 +334,53 @@
         }
       },
       "external": {
-        "missingness": {},
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": true,
+            "n": 23
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": true,
+            "n": 23
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": true,
+            "n": 23
+          },
+          "suez_z": {
+            "missing_ratio": 1.0,
+            "constant": false,
+            "n": 23
+          },
+          "panama_z": {
+            "missing_ratio": 1.0,
+            "constant": false,
+            "n": 23
+          },
+          "hormuz_z": {
+            "missing_ratio": 1.0,
+            "constant": false,
+            "n": 23
+          },
+          "malacca_z": {
+            "missing_ratio": 1.0,
+            "constant": false,
+            "n": 23
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 1.0,
+            "constant": false,
+            "n": 23
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 1.0,
+            "constant": false,
+            "n": 23
+          }
+        },
         "source_health": {
           "stale_high_criticality": []
         },
