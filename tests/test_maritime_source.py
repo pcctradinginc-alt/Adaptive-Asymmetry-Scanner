@@ -650,3 +650,25 @@ def test_disruption_extension_creates_new_vintage(tmp_path):
 def test_disruptions_schema_change_is_reported():
     conn = mw.PortWatchDisruptionsConnector({}, http_fetch=_disruptions_fetch([IDAI], fields=["eventid"]))
     assert conn.fetch(NOW).status.value == "SCHEMA_CHANGED"
+
+
+def test_membership_aggregates_only_for_used_metrics():
+    """Volumen-Guard 2026-09-28: Länder-/Industrie-Aggregate nur für die im
+    Kontext genutzten Kennzahlen, GLOBAL weiter für alle."""
+    from datetime import datetime, timezone
+    from modules.external.pit import AvailabilityPrecision, Observation
+    t = datetime(2026, 9, 1, tzinfo=timezone.utc)
+
+    def o(metric):
+        return Observation(source_id="imf_portwatch_ports", dataset="d", series_id="x",
+                           entity_id="p1", metric=metric, value=1.0, unit="count",
+                           observation_time=t, available_at=t, retrieved_at=t,
+                           availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE, parser_version="1")
+    mem = {"p1": ["COUNTRY:CHN", "INDUSTRY:Metals"]}
+    out = mw.reduce_port_observations([o(m) for m in ("portcalls_total", "export_total",
+                                                       "portcalls_tanker", "export_container")], {}, mem)
+    keys = {(x.entity_id, x.metric) for x in out}
+    assert ("COUNTRY:CHN", "export_total") in keys and ("COUNTRY:CHN", "portcalls_total") in keys
+    assert ("COUNTRY:CHN", "portcalls_tanker") not in keys
+    assert {m for e, m in keys if e == "INDUSTRY:Metals"} == {"portcalls_total"}
+    assert ("GLOBAL", "export_container") in keys

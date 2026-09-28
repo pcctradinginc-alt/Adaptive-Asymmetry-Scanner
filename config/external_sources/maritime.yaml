@@ -83,7 +83,7 @@ sources:
     commercial_use_status_if_known: "requires permission (copyright@imf.org)"
     attribution: "Source: International Monetary Fund, IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
     frequency: event
-    expected_update_cadence: 7d
+    expected_update_cadence: 60d  # Ereignisquelle: Beginn des jüngsten Ereignisses, keine Tageswerte
     supports_history: true
     supports_vintages: false
     supports_release_time: false
