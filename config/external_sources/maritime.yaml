@@ -67,3 +67,32 @@ sources:
     pit_quality: CONSERVATIVE_DATE
     enabled: true
     criticality: medium
+
+  - source_id: imf_portwatch_disruptions
+    display_name: "IMF PortWatch – Disruption Monitor (Störungsereignisse mit betroffenen Häfen)"
+    family: maritime
+    authority: "IMF PortWatch (IMF & University of Oxford), Ereignisse u. a. aus GDACS"
+    official_homepage: "https://portwatch.imf.org/pages/disruption-monitor"
+    machine_endpoint: "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions_database/FeatureServer/0"
+    access_method: "ArcGIS FeatureServer REST (query)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "IMF Copyright and Terms (imf.org/en/about/copyright-and-terms): Nutzung mit Attribution; kommerzielle Wiederverwendung genehmigungspflichtig"
+    license_status: OK
+    usage_restriction: "private, non-commercial research only"
+    commercial_use_status_if_known: "requires permission (copyright@imf.org)"
+    attribution: "Source: International Monetary Fund, IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
+    frequency: event
+    expected_update_cadence: 7d
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    notes: >
+      Schema live geprüft 2026-09-28 (source_discovery layer_schemas): 132
+      Ereignisse seit 2019, Felder eventid/eventtype/alertlevel/fromdate/
+      todate/affectedports. available_at = Abrufzeit (Ereignisdatum nie als
+      Verfügbarkeit); Verlängerungen erzeugen neue Vintages (disruption_end_ts).
+

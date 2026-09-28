@@ -195,17 +195,21 @@ def imf_series_sample(url: str, n: int = 12) -> dict:
         r = requests.get(url, headers={**UA, "Accept": "application/xml"}, timeout=90)
         txt = r.text
         ds = _re.search(r"<message:DataSet[^>]*>", txt)
-        series = []
+        series, index = [], []
         for m in _re.finditer(r"<Series ([^>]*)>(.*?)</Series>", txt, flags=_re.S):
             attrs = dict(_re.findall(r'(\w+)="([^"]*)"', m.group(1)))
             obs = _re.findall(r"<Obs ([^>]*)/>", m.group(2))
+            last = dict(_re.findall(r'(\w+)="([^"]*)"', obs[-1])) if obs else {}
+            index.append("|".join(str(attrs.get(k, "-")) for k in
+                                  ("COUNTRY", "PRODUCTION_INDEX", "FREQUENCY", "TYPE_OF_TRANSFORMATION"))
+                         + f"|last={last.get('TIME_PERIOD')}")
+            if len(series) >= n:
+                continue
             series.append({"attrs": attrs, "n_obs": len(obs),
                            "first_obs": dict(_re.findall(r'(\w+)="([^"]*)"', obs[0])) if obs else None,
                            "last_obs": dict(_re.findall(r'(\w+)="([^"]*)"', obs[-1])) if obs else None})
-            if len(series) >= n:
-                break
         return {"status": r.status_code, "dataset_attrs": dict(_re.findall(r'(\w+)="([^"]*)"', ds.group(0))) if ds else None,
-                "n_series_total": txt.count("<Series "), "series": series}
+                "n_series_total": txt.count("<Series "), "series_index": index, "series": series}
     except Exception as e:  # noqa: BLE001
         return {"error": repr(e)}
 
@@ -234,7 +238,7 @@ def main() -> int:
     out["layer_schemas"] = layer_schemas()
     out["imf_probes"] = imf_probes()
     out["imf_pi_series"] = imf_series_sample(
-        "https://api.imf.org/external/sdmx/2.1/data/PI/CHN+KOR+TWN+JPN+IND+USA.*.*?startPeriod=2025-01")
+        "https://api.imf.org/external/sdmx/2.1/data/PI/CHN+KOR+TWN+JPN+IND+DEU+MEX+VNM.*.*?startPeriod=2025-01")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, ensure_ascii=False)[:5000])

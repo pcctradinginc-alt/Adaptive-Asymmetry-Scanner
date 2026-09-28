@@ -787,13 +787,44 @@ def _arcgis_date_to_utc(raw: Any) -> datetime | None:
 
 AGGREGATE_GLOBAL = "GLOBAL"
 AGGREGATE_GROUP_PREFIX = "GROUP:"
+AGGREGATE_COUNTRY_PREFIX = "COUNTRY:"     # Länder-Hafenhandel (alle Häfen eines Landes)
+AGGREGATE_INDUSTRY_PREFIX = "INDUSTRY:"   # Häfen, deren Top-3-Industrie X ist
+PORTS_DATABASE_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/"
+                      "PortWatch_ports_database/FeatureServer")
 
 
 def is_aggregate_entity(entity_id: str) -> bool:
-    return entity_id == AGGREGATE_GLOBAL or str(entity_id).startswith(AGGREGATE_GROUP_PREFIX)
+    e = str(entity_id)
+    return e == AGGREGATE_GLOBAL or e.startswith((AGGREGATE_GROUP_PREFIX, AGGREGATE_COUNTRY_PREFIX,
+                                                    AGGREGATE_INDUSTRY_PREFIX))
 
 
-def reduce_port_observations(observations: list, curated_groups: dict[str, str]) -> list:
+def port_memberships(ports_db_features: list, countries: Iterable[str]) -> dict[str, list[str]]:
+    """port_id -> zusätzliche Aggregat-Entitäten aus der offiziellen
+    PortWatch-Hafendatenbank: COUNTRY:<ISO3> (nur konfigurierte Länder) und
+    INDUSTRY:<Name> für jede der Top-3-Industrien des Hafens."""
+    countries = {c.upper() for c in countries or []}
+    out: dict[str, list[str]] = {}
+    for f in ports_db_features or []:
+        a = f.get("attributes", f)
+        pid = a.get("portid")
+        if not pid:
+            continue
+        keys = []
+        iso = str(a.get("ISO3") or "").upper()
+        if iso and iso in countries:
+            keys.append(AGGREGATE_COUNTRY_PREFIX + iso)
+        for k in ("industry_top1", "industry_top2", "industry_top3"):
+            ind = a.get(k)
+            if ind:
+                keys.append(AGGREGATE_INDUSTRY_PREFIX + str(ind).strip())
+        if keys:
+            out[str(pid)] = keys
+    return out
+
+
+def reduce_port_observations(observations: list, curated_groups: dict[str, str],
+                             memberships: dict[str, list[str]] | None = None) -> list:
     """Archiv-Volumen begrenzen, ohne globale Information zu verlieren:
       - behält Einzelbeobachtungen NUR für kuratierte Häfen (curated_groups:
         port_id -> Gruppe), ergänzt attrs.group
@@ -805,6 +836,8 @@ def reduce_port_observations(observations: list, curated_groups: dict[str, str])
     kept, sums = [], {}
     for o in observations:
         keys = [(AGGREGATE_GLOBAL, o.observation_time, o.metric)]
+        for extra in (memberships or {}).get(o.entity_id, []):
+            keys.append((extra, o.observation_time, o.metric))
         grp = curated_groups.get(o.entity_id)
         if grp is not None:
             o.attrs = {**(o.attrs or {}), "group": grp}
@@ -1053,7 +1086,19 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             groups_by_name = {p["name"]: p["group"] for p in wanted}
             curated_groups = {pid: groups_by_name.get(name) for name, pid in discovered_ids.items()
                               if groups_by_name.get(name)}
-            observations = reduce_port_observations(observations, curated_groups)
+            # Länder-/Industrie-Aggregate aus der offiziellen Hafendatenbank;
+            # ein Fehler dort kostet nur diese Aggregate, nie die Quelle
+            memberships = {}
+            try:
+                pdb_url = self.cfg.get("ports_database_url", PORTS_DATABASE_URL)
+                pdb = query_features(pdb_url, 0, "1=1", ["portid", "ISO3", "industry_top1",
+                                                          "industry_top2", "industry_top3"],
+                                     self._fetch, max_record_count=1000)
+                memberships = port_memberships(pdb, universe.get("country_aggregates") or [])
+                diagnostics["ports_database_rows"] = len(pdb)
+            except Exception as e:  # noqa: BLE001
+                diagnostics["ports_database_error"] = repr(e)
+            observations = reduce_port_observations(observations, curated_groups, memberships)
             diagnostics["n_observations_before_reduction"] = n_raw_obs
 
             raw = [self._raw_record(f"{ep['service_url']}/{ep['layer_id']}/query", where, retrieved_at)]
@@ -1172,7 +1217,83 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
 
 
+DISRUPTIONS_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/"
+                   "portwatch_disruptions_database/FeatureServer")
+DISRUPTION_FIELDS = ["eventid", "eventtype", "eventname", "alertlevel", "country", "fromdate",
+                     "todate", "affectedports", "n_affectedports", "severitytext", "editdate"]
+ALERT_LEVEL_VALUE = {"GREEN": 1.0, "ORANGE": 2.0, "RED": 3.0}
+
+
+def build_disruption_observations(attrs: dict, retrieved_at: datetime, source_id: str,
+                                  parser_version: str) -> list[Observation]:
+    """Ein PortWatch-Störungsereignis -> je betroffenem Hafen eine
+    Beobachtung (entity_id = portid, metric disruption_alert_level: GREEN 1,
+    ORANGE 2, RED 3) plus disruption_end_ts (Ende als Epoch-Sekunden): eine
+    spätere Verlängerung des Ereignisses erzeugt so eine neue Vintage.
+    observation_time = Ereignisbeginn; available_at = Abrufzeit (nie das
+    Ereignisdatum -- rückwirkend nur konservativ, PIT via Forward-Archiv)."""
+    eid = attrs.get("eventid")
+    start = _arcgis_date_to_utc(attrs.get("fromdate"))
+    if eid is None or start is None:
+        return []
+    end = _arcgis_date_to_utc(attrs.get("todate"))
+    level = ALERT_LEVEL_VALUE.get(str(attrs.get("alertlevel") or "").upper())
+    ports = [p.strip() for p in str(attrs.get("affectedports") or "").split(";") if p.strip()]
+    meta = {"eventid": eid, "eventtype": attrs.get("eventtype"), "eventname": attrs.get("eventname"),
+            "alertlevel": attrs.get("alertlevel"), "country": attrs.get("country"),
+            "todate": end.isoformat() if end else None, "severitytext": attrs.get("severitytext")}
+    out = []
+    for pid in ports:
+        for metric, value in (("disruption_alert_level", level),
+                              ("disruption_end_ts", end.timestamp() if end else None)):
+            out.append(Observation(
+                source_id=source_id, dataset="disruptions", series_id=str(eid), entity_id=pid,
+                metric=metric, value=value, unit="level" if metric.endswith("level") else "epoch_s",
+                observation_time=start, available_at=retrieved_at, retrieved_at=retrieved_at,
+                availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
+                parser_version=parser_version, attrs=dict(meta)))
+    return out
+
+
+class PortWatchDisruptionsConnector(_PortWatchConnectorBase):
+    """IMF PortWatch Disruption Monitor: laufende Störungsereignisse
+    (Stürme, Überschwemmungen, Konflikte) mit betroffenen Häfen."""
+    source_id = "imf_portwatch_disruptions"
+    dataset = "disruptions"
+    parser_version = "1"
+
+    def fetch(self, now: datetime, backfill: bool = False) -> ConnectorResult:
+        url = self.cfg.get("service_url", DISRUPTIONS_URL)
+        try:
+            meta = fetch_layer_metadata(url, 0, self._fetch)
+            missing = [f for f in ("eventid", "fromdate", "todate", "affectedports", "alertlevel")
+                       if f not in _field_names(meta)]
+            if missing:
+                return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
+                                       message=f"Disruptions-Layer: Felder fehlen {missing}",
+                                       discovered_ids={"diagnostics": _layer_diagnostics(meta, url, 0)})
+            feats = query_features(url, 0, "1=1", DISRUPTION_FIELDS, self._fetch,
+                                   max_record_count=meta.get("maxRecordCount", 2000))
+        except SchemaError as e:
+            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
+                                   message=str(e), discovered_ids={"diagnostics": e.diagnostics})
+        except FetchError as e:
+            return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
+        retrieved_at = now
+        obs = []
+        for f in feats:
+            obs.extend(build_disruption_observations(f.get("attributes", f), retrieved_at,
+                                                     self.source_id, self.parser_version))
+        latest = max((o.observation_time for o in obs), default=None)
+        return ConnectorResult(
+            source_id=self.source_id, status=SourceStatus.PASS, observations=obs,
+            raw=[self._raw_record(f"{url}/0/query", "1=1", retrieved_at)],
+            message=f"{len(feats)} Ereignisse, {len(obs)} Hafen-Beobachtungen",
+            latest_observation_time=latest)
+
+
 CONNECTORS: dict[str, type[Connector]] = {
     PortWatchPortsConnector.source_id: PortWatchPortsConnector,
     PortWatchChokepointsConnector.source_id: PortWatchChokepointsConnector,
+    PortWatchDisruptionsConnector.source_id: PortWatchDisruptionsConnector,
 }

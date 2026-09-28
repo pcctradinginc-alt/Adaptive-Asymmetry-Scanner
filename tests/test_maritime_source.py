@@ -568,3 +568,85 @@ def test_reduce_port_observations_keeps_curated_and_builds_aggregates():
     assert by_entity["GLOBAL"].value == 60 and by_entity["GLOBAL"].attrs["n_ports"] == 3
     assert by_entity["GROUP:NORTH_EUROPE"].value == 30
     assert by_entity["p1"].attrs["group"] == "NORTH_EUROPE"
+
+
+def test_country_and_industry_aggregates_from_ports_database():
+    from datetime import datetime, timezone
+    from modules.external.pit import AvailabilityPrecision, Observation
+    pdb = [{"attributes": {"portid": "p1", "ISO3": "CHN", "industry_top1": "Machinery & Electrical",
+                           "industry_top2": "Metals", "industry_top3": None}},
+           {"attributes": {"portid": "p2", "ISO3": "BRA", "industry_top1": "Machinery & Electrical"}},
+           {"attributes": {"portid": "p3", "ISO3": "CHN", "industry_top1": "Mineral Products"}}]
+    mem = mw.port_memberships(pdb, ["CHN"])
+    assert mem["p1"] == ["COUNTRY:CHN", "INDUSTRY:Machinery & Electrical", "INDUSTRY:Metals"]
+    assert mem["p2"] == ["INDUSTRY:Machinery & Electrical"]          # BRA nicht konfiguriert
+    t = datetime(2026, 9, 1, tzinfo=timezone.utc)
+
+    def o(pid, v):
+        return Observation(source_id="imf_portwatch_ports", dataset="d", series_id="portcalls",
+                           entity_id=pid, metric="portcalls_total", value=v, unit="count",
+                           observation_time=t, available_at=t, retrieved_at=t,
+                           availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE, parser_version="1")
+    out = mw.reduce_port_observations([o("p1", 10), o("p2", 5), o("p3", 7)], {}, mem)
+    agg = {x.entity_id: (x.value, x.attrs["n_ports"]) for x in out}
+    assert agg["GLOBAL"] == (22, 3)
+    assert agg["COUNTRY:CHN"] == (17, 2)
+    assert agg["INDUSTRY:Machinery & Electrical"] == (15, 2)
+    assert agg["INDUSTRY:Mineral Products"] == (7, 1)
+    assert all(mw.is_aggregate_entity(e) for e in agg)
+    assert "p1" not in agg                                          # nur kuratierte Einzelhäfen bleiben
+
+
+def _disruptions_fetch(features, fields=None):
+    fields = fields or ["eventid", "eventtype", "eventname", "alertlevel", "country", "fromdate", "todate",
+                        "affectedports", "n_affectedports", "severitytext", "editdate"]
+
+    def fetch(url, params=None, **kwargs):
+        params = params or {}
+        if url.endswith("/FeatureServer/0") and "where" not in params:
+            return FakeResponse({"name": "disruptions", "maxRecordCount": 2000,
+                                 "fields": [{"name": f, "type": "esriFieldTypeString"} for f in fields]})
+        if url.endswith("/query"):
+            if params.get("returnCountOnly") in (True, "true"):
+                return FakeResponse({"count": len(features)})
+            return FakeResponse({"features": [{"attributes": a} for a in features],
+                                 "exceededTransferLimit": False})
+        raise AssertionError(f"unerwartete URL {url} {params}")
+    return fetch
+
+
+IDAI = {"eventid": 1000552, "eventtype": "TC", "eventname": "IDAI-19", "alertlevel": "RED",
+        "country": "Mozambique", "fromdate": 1552111200000, "todate": 1552608000000,
+        "affectedports": "port137; port784", "n_affectedports": 2, "severitytext": "Hurricane",
+        "editdate": 1694310439405}
+
+
+def test_disruptions_connector_one_observation_per_affected_port():
+    conn = mw.PortWatchDisruptionsConnector({}, http_fetch=_disruptions_fetch([IDAI]))
+    res = conn.fetch(NOW)
+    assert res.status.value == "PASS"
+    levels = [o for o in res.observations if o.metric == "disruption_alert_level"]
+    assert sorted(o.entity_id for o in levels) == ["port137", "port784"]
+    assert all(o.value == 3.0 for o in levels)                       # RED
+    o = levels[0]
+    assert o.observation_time.year == 2019 and o.available_at == NOW  # Ereignisdatum ≠ Verfügbarkeit
+    assert o.attrs["eventtype"] == "TC"
+
+
+def test_disruption_extension_creates_new_vintage(tmp_path):
+    from datetime import timedelta
+    from modules.external.archive import ExternalArchive
+    a = ExternalArchive(root=tmp_path)
+    first = mw.build_disruption_observations(IDAI, NOW, "imf_portwatch_disruptions", "1")
+    later = mw.build_disruption_observations({**IDAI, "todate": IDAI["todate"] + 86400000},
+                                             NOW + timedelta(days=1), "imf_portwatch_disruptions", "1")
+    a.store_observations(first)
+    c = a.store_observations(later)
+    assert c["revision"] == 2 and c["duplicate"] == 2               # nur das Ende hat sich geändert
+    assert [o.value for o in a.as_of("imf_portwatch_disruptions", NOW)
+            if o.metric == "disruption_end_ts" and o.entity_id == "port137"] == [IDAI["todate"] / 1000]
+
+
+def test_disruptions_schema_change_is_reported():
+    conn = mw.PortWatchDisruptionsConnector({}, http_fetch=_disruptions_fetch([IDAI], fields=["eventid"]))
+    assert conn.fetch(NOW).status.value == "SCHEMA_CHANGED"

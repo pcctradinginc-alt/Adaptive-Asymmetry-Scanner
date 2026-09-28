@@ -148,6 +148,11 @@ port_aliases:
   "Qingdao": ["Qingdao Gang"]            # port1069, 364 (Qingdao Port port1070: 81)
   "Laem Chabang": ["Si Racha"]           # port1197, Thailand, 229 (Laem Chabang liegt in Si Racha)
 
+# Länder-Hafenhandel als eigene Aggregate (COUNTRY:<ISO3>, alle Häfen des
+# Landes laut PortWatch-Hafendatenbank): große Export-/Importnationen mit
+# Bezug zu US-Titeln (Halbleiter, Industrie, Konsum, Energie).
+country_aggregates: [CHN, KOR, TWN, JPN, USA, DEU, NLD, SGP, VNM, MEX, IND, SAU]
+
 # Suchwörter für die Preflight-Diagnose unaufgelöster Häfen (nur Anzeige,
 # kein automatisches Matching; Treffer werden manuell zu port_aliases).
 port_search_hints:
