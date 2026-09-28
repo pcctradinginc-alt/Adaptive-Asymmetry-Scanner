@@ -12,7 +12,7 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 45        # Hartes Limit: kein Run > 45 Min
+    timeout-minutes: 75        # Hartes Limit. 45 -> 75: gedrosselter Finnhub-Abruf (55/min) und volles Universum statt nur A–E (2026-09-28)
 
     steps:
       - name: Checkout

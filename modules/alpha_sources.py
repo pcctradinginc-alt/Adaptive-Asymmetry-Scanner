@@ -159,99 +159,170 @@ def match_fda_to_ticker(ticker: str, company_info: dict, days_back: int = 7) -> 
 
 # ── SEC Insider-Käufe ─────────────────────────────────────────────────────────
 
+# ── SEC Form 4: echte Insider-KÄUFE (offizielle EDGAR-API) ───────────────────
+#
+# Fix 2026-09-28: vorher Volltextsuche efts "q=%22TICKER%22&forms=4" -> traf
+# jedes Form-4-Dokument, das den String enthielt ("ARE", "BE", "MMM" ...),
+# zählte Verkäufe/Zuteilungen mit und erzeugte für fast JEDEN Kandidaten die
+# Schlagzeile "N Insider kaufen X (Cluster-Signal)", die der Deep Analysis
+# VORANGESTELLT wurde (falscher bullisher Katalysator). Jetzt: Ticker -> CIK
+# (company_tickers.json), Emittenten-Filings (data.sec.gov/submissions),
+# Form-4-XML parsen, nur Open-Market-Käufe (transactionCode P, Acquired) zählen.
+
+SEC_TICKERS_URL     = "https://www.sec.gov/files/company_tickers.json"
+SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
+SEC_ARCHIVE_URL     = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
+SEC_MAX_FORM4_PER_TICKER = 25
+SEC_MIN_INTERVAL_S  = 0.12          # SEC Fair Access: <= 10 Requests/s
+CLUSTER_WINDOW_DAYS = 3             # "mehrere Insider innerhalb 72 h"
+
+_sec_cik_map: dict | None = None
+_sec_last_call = [0.0]
+
+
+def _sec_get(url: str, timeout: int = 10):
+    wait = SEC_MIN_INTERVAL_S - (time.monotonic() - _sec_last_call[0])
+    if wait > 0:
+        time.sleep(wait)
+    _sec_last_call[0] = time.monotonic()
+    return requests.get(url, headers=_HEADERS, timeout=timeout)
+
+
+def sec_cik_for_ticker(ticker: str) -> Optional[int]:
+    global _sec_cik_map
+    if _sec_cik_map is None:
+        try:
+            resp = _sec_get(SEC_TICKERS_URL, timeout=15)
+            resp.raise_for_status()
+            _sec_cik_map = {str(v.get("ticker", "")).upper(): int(v["cik_str"])
+                            for v in (resp.json() or {}).values() if v.get("cik_str")}
+        except Exception as e:
+            log.debug(f"SEC Ticker-CIK-Liste nicht abrufbar: {e}")
+            return None
+    t = ticker.upper()
+    return _sec_cik_map.get(t) or _sec_cik_map.get(t.replace(".", "-"))
+
+
+def _xml_text(node, path: str) -> Optional[str]:
+    el = node.find(path) if node is not None else None
+    return el.text.strip() if el is not None and el.text else None
+
+
+def parse_form4_xml(xml_text: str) -> dict:
+    """Form-4-XML -> Emittent, meldende Person(en), Transaktionen der
+    nonDerivativeTable (Code, Datum, Stückzahl, Preis, A/D)."""
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(xml_text)
+    owners = [_xml_text(o, "reportingOwnerId/rptOwnerName") for o in root.findall("reportingOwner")]
+    txs = []
+    for t in root.findall("nonDerivativeTable/nonDerivativeTransaction"):
+        def num(path):
+            v = _xml_text(t, path)
+            try:
+                return float(v) if v is not None else None
+            except ValueError:
+                return None
+        txs.append({
+            "date":   _xml_text(t, "transactionDate/value"),
+            "code":   _xml_text(t, "transactionCoding/transactionCode"),
+            "shares": num("transactionAmounts/transactionShares/value"),
+            "price":  num("transactionAmounts/transactionPricePerShare/value"),
+            "ad":     _xml_text(t, "transactionAmounts/transactionAcquiredDisposedCode/value"),
+        })
+    return {"issuer_cik": _xml_text(root, "issuer/issuerCik"),
+            "issuer_symbol": _xml_text(root, "issuer/issuerTradingSymbol"),
+            "owners": [o for o in owners if o], "transactions": txs}
+
+
 def fetch_sec_insider_trades(ticker: str, days_back: int = 14) -> list[dict]:
-    """
-    Ruft Insider-Käufe für einen Ticker via SEC EDGAR ab.
-    """
-    try:
-        search_url = (
-            f"https://efts.sec.gov/LATEST/search-index?q=%22{ticker}%22"
-            f"&dateRange=custom&startdt="
-            f"{(datetime.utcnow() - timedelta(days=days_back)).strftime('%Y-%m-%d')}"
-            f"&forms=4"
-        )
-        resp = requests.get(search_url, headers=_HEADERS, timeout=10)
-
-        if resp.status_code != 200:
-            return _fetch_sec_form4_fallback(ticker, days_back)
-
-        hits   = resp.json().get("hits", {}).get("hits", [])
-        trades = []
-
-        for hit in hits[:10]:
-            src = hit.get("_source", {})
-            trades.append({
-                "date":        src.get("period_of_report", ""),
-                "insider":     src.get("display_names", ["Unknown"])[0]
-                               if src.get("display_names") else "Unknown",
-                "filing_url":  src.get("file_date", ""),
-                "form":        "Form 4",
-                "source":      "SEC",
-            })
-
-        return trades
-
-    except Exception as e:
-        log.debug(f"SEC EDGAR Fehler für {ticker}: {e}")
-        return _fetch_sec_form4_fallback(ticker, days_back)
-
-
-def _fetch_sec_form4_fallback(ticker: str, days_back: int) -> list[dict]:
-    try:
-        url = (
-            f"https://efts.sec.gov/LATEST/search-index?q=%22{ticker}%22"
-            f"&forms=4&dateRange=custom"
-            f"&startdt={(datetime.utcnow()-timedelta(days=days_back)).strftime('%Y-%m-%d')}"
-        )
-        resp = requests.get(url, headers=_HEADERS, timeout=8)
-        if resp.status_code != 200:
-            return []
-
-        hits   = resp.json().get("hits", {}).get("hits", [])
-        result = []
-        for h in hits[:5]:
-            s = h.get("_source", {})
-            result.append({
-                "date":    s.get("file_date", ""),
-                "insider": (s.get("display_names") or ["Unknown"])[0],
-                "form":    "Form 4",
-                "source":  "SEC",
-            })
-        return result
-    except Exception:
+    """Open-Market-Transaktionen (P = Kauf, S = Verkauf) aus den Form-4-
+    Filings des Emittenten der letzten days_back Tage. Leere Liste, wenn
+    keine Daten (fehlend != kein Insider-Kauf -> siehe data_available)."""
+    cik = sec_cik_for_ticker(ticker)
+    if cik is None:
         return []
+    try:
+        resp = _sec_get(SEC_SUBMISSIONS_URL.format(cik=cik))
+        resp.raise_for_status()
+        recent = (resp.json().get("filings") or {}).get("recent") or {}
+    except Exception as e:
+        log.debug(f"SEC Submissions Fehler für {ticker}: {e}")
+        return []
+    since = (datetime.utcnow() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    forms, dates = recent.get("form") or [], recent.get("filingDate") or []
+    accs, docs = recent.get("accessionNumber") or [], recent.get("primaryDocument") or []
+    trades, n = [], 0
+    for form, fdate, acc, doc in zip(forms, dates, accs, docs):
+        if form != "4" or fdate < since:
+            continue
+        n += 1
+        if n > SEC_MAX_FORM4_PER_TICKER:
+            break
+        raw_doc = str(doc).split("/")[-1]           # "xslF345X05/x.xml" -> Roh-XML "x.xml"
+        url = SEC_ARCHIVE_URL.format(cik=cik, acc=acc.replace("-", ""), doc=raw_doc)
+        try:
+            r = _sec_get(url)
+            r.raise_for_status()
+            parsed = parse_form4_xml(r.text)
+        except Exception as e:
+            log.debug(f"SEC Form 4 {acc} ({ticker}) nicht lesbar: {e}")
+            continue
+        if parsed["issuer_cik"] and int(parsed["issuer_cik"]) != cik:
+            continue                                    # Filing eines anderen Emittenten
+        insider = ", ".join(parsed["owners"]) or "Unknown"
+        for tx in parsed["transactions"]:
+            if tx["code"] not in ("P", "S"):
+                continue                                # Zuteilung/Ausübung/Steuer != Marktsignal
+            trades.append({"date": tx["date"] or fdate, "filing_date": fdate, "insider": insider,
+                           "code": tx["code"], "shares": tx["shares"], "price": tx["price"],
+                           "value": (tx["shares"] or 0) * (tx["price"] or 0),
+                           "accession": acc, "form": "Form 4", "source": "SEC"})
+    return trades
+
+
+def _max_buyers_in_window(buys: list[dict], window_days: int) -> int:
+    best = 0
+    parsed = []
+    for b in buys:
+        try:
+            parsed.append((datetime.strptime(str(b["date"])[:10], "%Y-%m-%d"), b["insider"]))
+        except ValueError:
+            continue
+    for d0, _ in parsed:
+        names = {n for d, n in parsed if timedelta(0) <= d - d0 <= timedelta(days=window_days)}
+        best = max(best, len(names))
+    return best
 
 
 def detect_insider_cluster(ticker: str, days_back: int = 14) -> dict:
-    """
-    Erkennt Cluster-Insider-Käufe: Mehrere verschiedene Insider kaufen
-    innerhalb von 72 Stunden → starkes Signal.
-    """
-    trades = fetch_sec_insider_trades(ticker, days_back)
-
-    if not trades:
-        return {"cluster_detected": False, "insider_count": 0, "trades": []}
-
-    unique_insiders = set(t["insider"] for t in trades)
-    cluster         = len(unique_insiders) >= 2
-
+    """Cluster = >= 2 verschiedene Insider mit Open-Market-KÄUFEN (Code P)
+    innerhalb von 72 h. Verkäufe werden separat gezählt, nie als Kauf."""
+    cik = sec_cik_for_ticker(ticker)
+    trades = fetch_sec_insider_trades(ticker, days_back) if cik is not None else []
+    buys = [t for t in trades if t["code"] == "P"]
+    sells = [t for t in trades if t["code"] == "S"]
+    buyers = {t["insider"] for t in buys}
+    window_buyers = _max_buyers_in_window(buys, CLUSTER_WINDOW_DAYS)
+    cluster = window_buyers >= 2
     result = {
+        "data_available": cik is not None,
         "cluster_detected": cluster,
-        "insider_count":    len(unique_insiders),
-        "trades":           trades[:5],
-        "headline":         "",
+        "insider_count": len(buyers),                  # Anzahl KÄUFER (nicht Filings)
+        "buy_count": len(buys), "sell_count": len(sells),
+        "buy_value": round(sum(t["value"] for t in buys), 2),
+        "sell_value": round(sum(t["value"] for t in sells), 2),
+        "trades": buys[:5],
+        "headline": "",
     }
-
     if cluster:
         result["headline"] = (
-            f"SEC Form 4: {len(unique_insiders)} Insider kaufen {ticker} "
-            f"innerhalb {days_back} Tagen (Cluster-Signal)"
+            f"SEC Form 4: {window_buyers} Insider kaufen {ticker} am offenen Markt "
+            f"innerhalb {CLUSTER_WINDOW_DAYS * 24} h (Cluster-Signal, "
+            f"${result['buy_value']:,.0f} gesamt)"
         )
-        log.info(
-            f"  [{ticker}] SEC Insider-Cluster: "
-            f"{len(unique_insiders)} Insider, {len(trades)} Trades"
-        )
-
+    if buys or sells:
+        log.info(f"  [{ticker}] SEC Form 4 ({days_back}d): {len(buyers)} Käufer/{len(buys)} Käufe, "
+                 f"{len(sells)} Verkäufe{' → CLUSTER' if cluster else ''}")
     return result
 
 
@@ -347,6 +418,11 @@ def fetch_options_skew(ticker: str, current_price: float) -> dict:
     Berechnet Put/Call IV-Skew aus der 30-50 DTE Options-Chain.
 
     Methode: ATM-Put-IV / ATM-Call-IV für das nächste Expiry im 20-50d Fenster.
+    ACHTUNG (Audit 2026-09-28): gleicher Strike -> Put-Call-Parität -> Quotient
+    strukturell ~1.0, misst KEINE Schiefe. skew_ratio/signal bleiben aus
+    Governance-Gründen unverändert (Produktionsverhalten); die echte Schiefe
+    steht als Forschungsfeature in skew_25d (25-Delta-Put-IV / 25-Delta-Call-IV,
+    yfinance-Fallback: Strikes +-7 %), ohne Schlagzeile/Score-Wirkung.
     Skew > 1.20: Markt ist bearish (Puts teurer → erhöhter Downside-Schutz)
     Skew < 0.85: Markt sieht kaum Downside (bullish neutral)
     Skew ~1.0:   Ausgeglichen
@@ -447,7 +523,18 @@ def _fetch_skew_yfinance(ticker: str, current_price: float) -> Optional[dict]:
             return None
 
         skew_ratio = put_iv / call_iv
-        return _build_skew_result(ticker, skew_ratio, put_iv, call_iv, target_expiry)
+        res = _build_skew_result(ticker, skew_ratio, put_iv, call_iv, target_expiry)
+        try:
+            k_put = min(chain.puts["strike"].tolist(), key=lambda x: abs(x - 0.93 * current_price))
+            k_call = min(chain.calls["strike"].tolist(), key=lambda x: abs(x - 1.07 * current_price))
+            piv = float(chain.puts[chain.puts["strike"] == k_put]["impliedVolatility"].iloc[0])
+            civ = float(chain.calls[chain.calls["strike"] == k_call]["impliedVolatility"].iloc[0])
+            if piv > 0.01 and civ > 0.01:
+                res["skew_25d"] = round(piv / civ, 3)
+                res["skew_25d_method"] = "yfinance_moneyness_7pct"
+        except Exception:
+            pass
+        return res
 
     except Exception as e:
         log.debug(f"  [{ticker}] yfinance Skew Fehler: {e}")
@@ -501,6 +588,7 @@ def _fetch_skew_tradier(ticker: str, current_price: float, api_key: str) -> Opti
 
         call_iv_atm, put_iv_atm = None, None
         best_call_dist, best_put_dist = float("inf"), float("inf")
+        c25 = p25 = None   # (|delta-0.25|, iv)
 
         for o in options:
             strike = float(o.get("strike", 0))
@@ -509,6 +597,16 @@ def _fetch_skew_tradier(ticker: str, current_price: float, api_key: str) -> Opti
             iv     = greeks.get("mid_iv") or greeks.get("smv_vol") or 0.0
             if not isinstance(iv, (int, float)) or iv <= 0.01:
                 continue
+            delta = greeks.get("delta")
+            if isinstance(delta, (int, float)):
+                if o.get("option_type") == "call" and 0.10 <= delta <= 0.40:
+                    d = abs(delta - 0.25)
+                    if c25 is None or d < c25[0]:
+                        c25 = (d, float(iv))
+                elif o.get("option_type") == "put" and -0.40 <= delta <= -0.10:
+                    d = abs(delta + 0.25)
+                    if p25 is None or d < p25[0]:
+                        p25 = (d, float(iv))
 
             if o.get("option_type") == "call" and dist < best_call_dist:
                 best_call_dist = dist
@@ -521,7 +619,11 @@ def _fetch_skew_tradier(ticker: str, current_price: float, api_key: str) -> Opti
             return None
 
         skew_ratio = put_iv_atm / call_iv_atm
-        return _build_skew_result(ticker, skew_ratio, put_iv_atm, call_iv_atm, target_expiry)
+        res = _build_skew_result(ticker, skew_ratio, put_iv_atm, call_iv_atm, target_expiry)
+        if c25 and p25:
+            res["skew_25d"] = round(p25[1] / c25[1], 3)
+            res["skew_25d_method"] = "tradier_delta"
+        return res
 
     except Exception as e:
         log.debug(f"  [{ticker}] Tradier Skew Fehler: {e}")
