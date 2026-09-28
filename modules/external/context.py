@@ -51,7 +51,7 @@ DEFAULT_ARCHIVE_ROOT = "outputs/external_data"
 ROAD_FREIGHT_SOURCES = ["destatis_truck_toll", "destatis_truck_toll_download",
                          "bts_freight_tsi", "bts_open_data_tsi", "eurostat_road_freight",
                          "eurostat_road_freight_quarterly", "estat_jp_truck"]
-MARITIME_SOURCES = ["imf_portwatch_ports", "imf_portwatch_chokepoints"]
+MARITIME_SOURCES = ["imf_portwatch_ports", "imf_portwatch_chokepoints", "imf_portwatch_disruptions"]
 WEATHER_SOURCES = ["nws_forecast", "nws_alerts", "ncei_normals", "nhc_storms"]
 REAL_ECONOMY_SOURCES = ["eurostat_sentiment", "eurostat_industrial_production", "fred_us_macro"]
 
@@ -289,7 +289,11 @@ def _build_maritime(archive, now: datetime, errors: list) -> dict:
     out = {"global_z": None, "container_z": None, "drybulk_z": None, "tanker_z": None,
            "negative_breadth": None, "valid_port_count": 0,
            "suez_z": None, "panama_z": None, "hormuz_z": None,
-           "malacca_z": None, "bab_el_mandeb_z": None}
+           "malacca_z": None, "bab_el_mandeb_z": None,
+           "country_export_z": {}, "industry_portcalls_z": {}, "asia_export_z": None,
+           "disruption_active_events": None, "disruption_active_ports": None,
+           "disruption_curated_ports": None, "disruption_curated_max_level": None}
+    port_obs = []
     try:
         port_obs = _load_observations(archive, "imf_portwatch_ports", now)
         latest_port = _latest_observation_time(port_obs, metric="portcalls_total")
@@ -332,9 +336,79 @@ def _build_maritime(archive, now: datetime, errors: list) -> dict:
 
         for slug in CHOKEPOINT_SLUGS:
             out[f"{slug}_z"] = _chokepoint_zscore(choke_obs, slug)
+
+        # Länder-Exporte (COUNTRY:<ISO3>, aus Tages-Hafendaten aggregiert) und
+        # Hafen-Industrie-Aggregate (INDUSTRY:<Name>): je Entity nur vollständige Tage.
+        out["country_export_z"] = _aggregate_entity_z(port_obs, "COUNTRY:", "export_total")
+        out["industry_portcalls_z"] = _aggregate_entity_z(port_obs, "INDUSTRY:", "portcalls_total")
+        try:
+            _pmap = (load_industry_exposure() or {}).get("portwatch_industry_map") or {}
+            _known = set(out["industry_portcalls_z"])
+            out["industry_mapping_unmatched"] = sorted(
+                {n for v in _pmap.values() for n in v} - _known) if _known else None
+        except Exception:
+            out["industry_mapping_unmatched"] = None
+        asia = [out["country_export_z"].get(c) for c in ASIA_EXPORT_COUNTRIES]
+        out["asia_export_z"] = _mean_of(asia) if sum(v is not None for v in asia) >= 2 else None
     except Exception as e:  # noqa: BLE001
         errors.append(f"maritime: {e!r}")
+    try:
+        curated = {o.entity_id for o in port_obs if not (o.attrs or {}).get("aggregate")}
+        out.update(active_port_disruptions(
+            _load_observations(archive, "imf_portwatch_disruptions", now), now, curated))
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"maritime_disruptions: {e!r}")
     return out
+
+
+ASIA_EXPORT_COUNTRIES = ("CHN", "KOR", "TWN", "JPN")
+
+
+def _aggregate_entity_z(port_obs, prefix: str, metric: str) -> dict[str, float | None]:
+    """z-Score (365 T) der jüngsten vollständigen Tage je Aggregat-Entity mit
+    Präfix; Tage mit < 90 % der maximal beobachteten Hafenzahl der Entity
+    werden verworfen (jüngster Tag oft unvollständig)."""
+    by_entity: dict[str, list] = {}
+    for o in port_obs:
+        if o.metric == metric and str(o.entity_id).startswith(prefix) and o.value is not None:
+            by_entity.setdefault(o.entity_id, []).append(o)
+    out = {}
+    for entity, rows in by_entity.items():
+        max_n = max(((o.attrs or {}).get("n_ports") or 0) for o in rows)
+        rows = [o for o in rows if ((o.attrs or {}).get("n_ports") or 0) >= 0.9 * max_n]
+        z = feat.rolling_zscore(_series_for(rows, metric), window_days=365, min_periods=5)
+        out[entity[len(prefix):]] = z[-1] if z else None
+    return out
+
+
+def active_port_disruptions(disruption_obs, now: datetime, port_ids: set | None = None) -> dict:
+    """Aktive PortWatch-Störungen zum Zeitpunkt now (PIT: nur bis now
+    verfügbare Vintages; Beginn <= now <= Ende, Stufe ORANGE/RED >= 2).
+    port_ids: kuratierte Häfen -> zusätzlich Zählung nur für diese."""
+    now = ensure_utc(now)
+    level, end = {}, {}
+    for o in disruption_obs:
+        key = (o.series_id, o.entity_id)
+        if o.metric == "disruption_alert_level":
+            level[key] = o
+        elif o.metric == "disruption_end_ts":
+            end[key] = o.value
+    active_events, active_ports, curated_hits, curated_max = set(), set(), set(), 0
+    for key, o in level.items():
+        if o.value is None or o.value < 2 or ensure_utc(o.observation_time) > now:
+            continue
+        e = end.get(key)
+        if e is not None and e < now.timestamp():
+            continue
+        active_events.add(key[0])
+        active_ports.add(key[1])
+        if port_ids and key[1] in port_ids:
+            curated_hits.add(key[1])
+            curated_max = max(curated_max, int(o.value))
+    return {"disruption_active_events": len(active_events),
+            "disruption_active_ports": len(active_ports),
+            "disruption_curated_ports": len(curated_hits) if port_ids else None,
+            "disruption_curated_max_level": curated_max if port_ids else None}
 
 
 def _build_weather(archive, now: datetime, errors: list) -> dict:
@@ -771,6 +845,10 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         "hormuz_z": maritime.get("hormuz_z"),
         "malacca_z": maritime.get("malacca_z"),
         "bab_el_mandeb_z": maritime.get("bab_el_mandeb_z"),
+        "asia_export_z": maritime.get("asia_export_z"),
+        "port_disruption_active_events": maritime.get("disruption_active_events"),
+        "port_disruption_curated_ports": maritime.get("disruption_curated_ports"),
+        "port_disruption_curated_max_level": maritime.get("disruption_curated_max_level"),
         "weather_disruption_index": weather.get("disruption_index"),
         "hdd_anomaly": weather.get("hdd_anomaly"),
         "cdd_anomaly": weather.get("cdd_anomaly"),
@@ -927,6 +1005,14 @@ def _resolve_ticker_exposure(ticker: str | None, yf_sector: str | None, yf_indus
     }
 
 
+def industry_shipping_z(industry: str | None, industry_z: dict | None, industry_cfg: dict) -> float | None:
+    """Mittel der PortWatch-Industrie-z (Hafenanläufe) der zur internen
+    Industrie gemappten HS-Abschnitte; None ohne Mapping/Daten."""
+    names = (industry_cfg.get("portwatch_industry_map") or {}).get(industry) or []
+    vals = [(industry_z or {}).get(n) for n in names]
+    return _mean_of(vals)
+
+
 def _resolve_catalyst_relevance(catalyst_text: str | None, industry_cfg: dict) -> dict | None:
     if not catalyst_text:
         return None
@@ -984,6 +1070,9 @@ def attach_candidate_context(candidate: dict, snapshot: dict | None,
     exposure["catalyst_relevance"] = catalyst_rel
 
     primitives = dict(snapshot.get("primitives") or {})
+    primitives["industry_shipping_z"] = industry_shipping_z(
+        exposure.get("industry"), (snapshot.get("maritime_freight") or {}).get("industry_portcalls_z"),
+        industry_cfg)
     states = snapshot.get("states") or {}
     divergences = snapshot.get("divergences") or {}
     road_freight_block = snapshot.get("road_freight") or {}
