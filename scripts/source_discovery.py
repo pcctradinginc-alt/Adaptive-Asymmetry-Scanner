@@ -98,11 +98,65 @@ def portwatch_catalog() -> list[dict]:
     return out
 
 
+PORTWATCH_MAP_KEYWORDS = ("disruption", "impact", "trade risks", "nowcast", "economy",
+                          "country", "industr", "spillover", "trade network")
+
+
+def portwatch_map_layers(catalog: list[dict]) -> list[dict]:
+    """Daten-Layer hinter relevanten PortWatch-Web-Karten/Dashboards/Experiences
+    (operationalLayers bzw. dataSources) -- welche maschinenlesbaren Dienste
+    stecken hinter Disruption Monitor, Trade Nowcast, Impact Maps usw.?"""
+    out = []
+    for it in catalog:
+        title = str(it.get("title") or "").lower()
+        if it.get("type") not in ("Web Map", "Dashboard", "Web Experience") or \
+                not any(k in title for k in PORTWATCH_MAP_KEYWORDS) or not it.get("id"):
+            continue
+        try:
+            r = requests.get(f"https://www.arcgis.com/sharing/rest/content/items/{it['id']}/data",
+                             params={"f": "json"}, headers=UA, timeout=30)
+            txt = r.text
+            urls = sorted({u for u in __import__("re").findall(
+                r"https://[^\"\s]+/(?:FeatureServer|MapServer|ImageServer)(?:/\d+)?", txt)})
+            out.append({"title": it.get("title"), "type": it.get("type"), "id": it["id"], "layers": urls[:20]})
+        except Exception as e:  # noqa: BLE001
+            out.append({"title": it.get("title"), "error": repr(e)})
+    return out
+
+
+IMF_DATAFLOW_URLS = [
+    "https://api.imf.org/external/sdmx/2.1/dataflow",
+    "https://api.imf.org/external/sdmx/3.0/structure/dataflow",
+]
+
+
+def imf_dataflows() -> dict:
+    """Liste der Datenflüsse der offiziellen IMF-Daten-API (SDMX): ID + Name.
+    Grundlage für die Frage, welche IMF-Statistiken maschinenlesbar sind."""
+    import re as _re
+    res = {}
+    for url in IMF_DATAFLOW_URLS:
+        try:
+            r = requests.get(url, headers={**UA, "Accept": "application/xml"}, timeout=60)
+            txt = r.text
+            flows = _re.findall(r'<(?:str|structure):Dataflow[^>]*\bid="([^"]+)".*?<(?:com|common):Name[^>]*>([^<]+)<',
+                                txt, flags=_re.S)
+            res[url] = {"http_status": r.status_code, "n": len(flows),
+                        "dataflows": [{"id": i, "name": n.strip()} for i, n in flows[:400]]}
+            if flows:
+                break
+        except Exception as e:  # noqa: BLE001
+            res[url] = {"error": repr(e)}
+    return res
+
+
 def main() -> int:
     out = {"retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
            "results": {sid: {f"{k}:{q}": search(k, q) for k, q in qs} for sid, qs in QUERIES.items()},
            "portwatch_catalog": portwatch_catalog()}
+    out["portwatch_map_layers"] = portwatch_map_layers(out["portwatch_catalog"])
+    out["imf_dataflows"] = imf_dataflows()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, ensure_ascii=False)[:5000])
