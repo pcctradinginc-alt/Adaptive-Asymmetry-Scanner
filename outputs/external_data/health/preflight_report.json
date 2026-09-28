@@ -307,6 +307,11 @@
           "updatedAt": "2026-09-28T17:13:54.000Z"
         },
         {
+          "id": "s539-c8h7",
+          "name": "Transportation Services Index - Passenger",
+          "updatedAt": "2026-09-28T17:20:57.000Z"
+        },
+        {
           "id": "ni8u-e22d",
           "name": "Transportation Services Index - Combined",
           "updatedAt": "2026-09-28T17:18:44.000Z"
@@ -315,11 +320,6 @@
           "id": "n68x-u7m7",
           "name": "Freight Transportation Service Index",
           "updatedAt": "2026-09-28T17:18:17.000Z"
-        },
-        {
-          "id": "s539-c8h7",
-          "name": "Transportation Services Index - Passenger",
-          "updatedAt": "2026-09-28T17:20:57.000Z"
         },
         {
           "id": "xkwi-7rvx",
@@ -873,7 +873,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 2385,
+    "n_observations": 2383,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",

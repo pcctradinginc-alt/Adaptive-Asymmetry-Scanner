@@ -1,5 +1,5 @@
 {
-  "retrieved_at": "2026-09-28T18:50:01+00:00",
+  "retrieved_at": "2026-09-28T18:55:23+00:00",
   "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
   "results": {
     "asfinag_at": {
@@ -137,44 +137,6 @@
           ]
         },
         {
-          "title": "Trucks (N.º)",
-          "id": "ine-0007247",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
-            "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
-          ]
-        },
-        {
-          "title": "Lorry Parks",
-          "id": "lorry-parks",
-          "publisher": "City of York Council",
-          "catalog": "data-gov-uk",
-          "license": [
-            "OGL-UK-3.0",
-            "OGL-UK-3.0",
-            "OGL-UK-3.0"
-          ],
-          "formats": [
-            "CSV",
-            "GEOJSON",
-            "KML"
-          ],
-          "access_urls": [
-            "https://opendata.arcgis.com/datasets/0f43d38cbcae48ff82532dce42bba50d_15.kml",
-            "https://opendata.arcgis.com/datasets/0f43d38cbcae48ff82532dce42bba50d_15.csv",
-            "https://opendata.arcgis.com/datasets/0f43d38cbcae48ff82532dce42bba50d_15.geojson"
-          ]
-        },
-        {
           "title": "City of Duisburg: Truck priority routes",
           "id": "50031056-704a-4be1-9bed-f09b7b57ccfc",
           "publisher": "",
@@ -193,24 +155,20 @@
           "access_urls": []
         },
         {
-          "title": "Road vehicle fleet",
-          "id": "689c430e4bdb87869ae1fce7",
-          "publisher": "Service des données et études statistiques (SDES)",
-          "catalog": "plateforme-ouverte-des-donnees-publiques-francaises",
+          "title": "Trucks (N.º)",
+          "id": "ine-0007247",
+          "publisher": "Instituto Nacional de Estatística",
+          "catalog": "dados-gov-pt",
           "license": [
-            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
-            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
-            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf"
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://creativecommons.org/licenses/by/4.0/"
           ],
           "formats": [
-            "CSV",
-            "HTML",
-            "PDF"
+            "JSON"
           ],
           "access_urls": [
-            "https://www.data.gouv.fr/api/1/datasets/r/d24b2399-07be-4d53-b364-1f799118cf8e",
-            "https://www.data.gouv.fr/api/1/datasets/r/cdf846e6-be5d-4608-b33c-2952d1caef96",
-            "https://www.data.gouv.fr/api/1/datasets/r/2f9fd9c8-e6e1-450e-8548-f479b8a401cd"
+            "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
+            "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
           ]
         },
         {
@@ -243,6 +201,48 @@
             "https://api.hamburg.de/datasets/v1/positivnetz_feldversuch_langlkw",
             "https://geodienste.hamburg.de/HH_WFS_Positivnetz_Feldversuch_LangLKW?service=WFS&request=DescribeFeatureType&version=1.1.0&typename=app:lang_lkw",
             "https://daten-hamburg.de/transport_verkehr/positinetz_feldvergleich_lang_lkw/Positivnetz_Feldversuch_LangLKW_HH_2017-03-03.zip"
+          ]
+        },
+        {
+          "title": "Positivnetz Lang-LKW Hamburg",
+          "id": "3d677a5c-97c1-4dd3-b511-653f27620364~~1",
+          "publisher": "Behörde für Verkehr und Mobilitätswende (BVM)",
+          "catalog": "gdi-de",
+          "license": [
+            null,
+            null,
+            null
+          ],
+          "formats": [
+            "None",
+            "WFS_SRVC",
+            "WMS_SRVC"
+          ],
+          "access_urls": [
+            "https://daten-hamburg.de/transport_verkehr/positinetz_feldvergleich_lang_lkw/Positivnetz_Feldversuch_LangLKW_HH_2015-09-25.zip",
+            "https://geodienste.hamburg.de/HH_WFS_Positivnetz_Feldversuch_LangLKW?service=WFS&request=DescribeFeatureType&version=1.1.0&typename=app:lang_lkw",
+            "https://geodienste.hamburg.de/HH_WMS_Positivnetz_Feldversuch_LangLKW?SERVICE=WMS&Request=GetCapabilities"
+          ]
+        },
+        {
+          "title": "Lorry Parks",
+          "id": "lorry-parks",
+          "publisher": "City of York Council",
+          "catalog": "data-gov-uk",
+          "license": [
+            "OGL-UK-3.0",
+            "OGL-UK-3.0",
+            "OGL-UK-3.0"
+          ],
+          "formats": [
+            "CSV",
+            "GEOJSON",
+            "KML"
+          ],
+          "access_urls": [
+            "https://opendata.arcgis.com/datasets/0f43d38cbcae48ff82532dce42bba50d_15.kml",
+            "https://opendata.arcgis.com/datasets/0f43d38cbcae48ff82532dce42bba50d_15.csv",
+            "https://opendata.arcgis.com/datasets/0f43d38cbcae48ff82532dce42bba50d_15.geojson"
           ]
         }
       ],
@@ -621,6 +621,21 @@
           "access_urls": []
         },
         {
+          "title": "Truck fast-charging network at rest stops",
+          "id": "919585005898530816",
+          "publisher": "NOW GmbH",
+          "catalog": "govdata",
+          "license": [
+            "http://dcat-ap.de/def/licenses/cc-by/4.0"
+          ],
+          "formats": [
+            "CSV"
+          ],
+          "access_urls": [
+            "https://d1269bxe5ubfat.cloudfront.net/lkw_schnellladenetz/lkw_schnellladenetz_karte_000.csv"
+          ]
+        },
+        {
           "title": "Trucks and Vans Statistics",
           "id": "https-datosabiertos-jcyl-es-web-jcyl-set-es-transporte-camiones-furgonetas-1284801728224",
           "publisher": "Junta de Castilla y León",
@@ -633,25 +648,6 @@
           ],
           "access_urls": [
             "https://datosabiertos.jcyl.es/web/jcyl/risp/es/transporte/camiones-furgonetas/1284801728224.csv"
-          ]
-        },
-        {
-          "title": "Register of Vehicles year 2005. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=140&tipo=XLS",
-            "https://opendata.gijon.es/descargar.php?id=140&tipo=TSV",
-            "https://opendata.gijon.es/descargar.php?id=140&tipo=XML"
           ]
         },
         {
@@ -671,44 +667,6 @@
             "https://opendata.gijon.es/descargar.php?id=1004&tipo=PDF",
             "https://opendata.gijon.es/descargar.php?id=1004&tipo=TXT",
             "https://opendata.gijon.es/descargar.php?id=1004&tipo=XHTML"
-          ]
-        },
-        {
-          "title": "Vehicle Register year 2018. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padro-n_2018_camiones",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=714&tipo=TSV",
-            "https://opendata.gijon.es/descargar.php?id=714&tipo=XHTML",
-            "https://opendata.gijon.es/descargar.php?id=714&tipo=CSV"
-          ]
-        },
-        {
-          "title": "Vehicle Registration Year 2012. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_2012_camiones",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=87&tipo=TSV",
-            "https://opendata.gijon.es/descargar.php?id=87&tipo=CSV",
-            "https://opendata.gijon.es/descargar.php?id=87&tipo=XML"
           ]
         },
         {
@@ -750,6 +708,63 @@
           ]
         },
         {
+          "title": "Vehicle Registration Year 2012. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_2012_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=87&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=87&tipo=CSV",
+            "https://opendata.gijon.es/descargar.php?id=87&tipo=XML"
+          ]
+        },
+        {
+          "title": "Vehicle Register year 2018. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padro-n_2018_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=714&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=714&tipo=XHTML",
+            "https://opendata.gijon.es/descargar.php?id=714&tipo=CSV"
+          ]
+        },
+        {
+          "title": "Register of Vehicles year 2005. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=140&tipo=XLS",
+            "https://opendata.gijon.es/descargar.php?id=140&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=140&tipo=XML"
+          ]
+        },
+        {
           "title": "Controlled Parking Zones - HGVs",
           "id": "controlled-parking-zones-hgvs",
           "publisher": "Oldham Council",
@@ -759,41 +774,18 @@
           "access_urls": []
         },
         {
-          "title": "Vehicle Registration Year 2014. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padro-n_2014_camiones",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
+          "title": "Static truck parking data",
+          "id": "110000000002465001",
+          "publisher": "Lkw-Parken BAB Deutschland",
+          "catalog": "govdata",
           "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
+            "http://dcat-ap.de/def/licenses/geonutz/20130319"
           ],
           "formats": [
-            "None"
+            "XML"
           ],
           "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=687&tipo=Excel",
-            "https://opendata.gijon.es/descargar.php?id=687&tipo=PDF",
-            "https://opendata.gijon.es/descargar.php?id=687&tipo=JSON"
-          ]
-        },
-        {
-          "title": "Vehicle registration year 2006. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_2006_camiones",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=132&tipo=CSV",
-            "https://opendata.gijon.es/descargar.php?id=132&tipo=JSON",
-            "https://opendata.gijon.es/descargar.php?id=132&tipo=XML"
+            "https://mobilithek.info//mdp-api/files/aux/110000000002465001/ITP_StatischeDaten_bundesweit_20260225_1205.xml"
           ]
         }
       ],
@@ -1065,8 +1057,8 @@
           ]
         },
         {
-          "title": "Vehicle kilometres goods vehicles; kilometres, load capacity, territory",
-          "id": "33131-vehicle-kilometres-goods-vehicles-kilometres-load-capacity-territory",
+          "title": "Vehicle kilometres goods vehicles; kilometres, load capacity 1990-2020",
+          "id": "4456-vehicle-kilometres-goods-vehicles-kilometres-load-capacity-territory",
           "publisher": "",
           "catalog": "dataportaal-van-de-nederlandse-overheid",
           "license": [
@@ -1078,8 +1070,8 @@
             "JSON"
           ],
           "access_urls": [
-            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/85415ENG/table",
-            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/85415ENG/table"
+            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/80392ENG/table",
+            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/80392ENG/table"
           ]
         },
         {
@@ -1101,6 +1093,24 @@
           ]
         },
         {
+          "title": "Vehicle kilometres goods vehicles; kilometres, load capacity, territory",
+          "id": "33131-vehicle-kilometres-goods-vehicles-kilometres-load-capacity-territory",
+          "publisher": "",
+          "catalog": "dataportaal-van-de-nederlandse-overheid",
+          "license": [
+            "http://creativecommons.org/licenses/by/4.0/deed.nl",
+            "http://creativecommons.org/licenses/by/4.0/deed.nl"
+          ],
+          "formats": [
+            "ATOM",
+            "JSON"
+          ],
+          "access_urls": [
+            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/85415ENG/table",
+            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/85415ENG/table"
+          ]
+        },
+        {
           "title": "Vehicle kilometres goods vehicles; kilometre, vehicle weight 2001-2020",
           "id": "4457-vehicle-kilometres-goods-vehicles-kilometres-vehicle-weight-territory",
           "publisher": "",
@@ -1116,24 +1126,6 @@
           "access_urls": [
             "https://opendata.cbs.nl/statline/#/CBS/en/dataset/84651ENG/table",
             "https://opendata.cbs.nl/statline/#/CBS/en/dataset/84651ENG/table"
-          ]
-        },
-        {
-          "title": "Vehicle kilometres goods vehicles; kilometres, load capacity 1990-2020",
-          "id": "4456-vehicle-kilometres-goods-vehicles-kilometres-load-capacity-territory",
-          "publisher": "",
-          "catalog": "dataportaal-van-de-nederlandse-overheid",
-          "license": [
-            "http://creativecommons.org/licenses/by/4.0/deed.nl",
-            "http://creativecommons.org/licenses/by/4.0/deed.nl"
-          ],
-          "formats": [
-            "ATOM",
-            "JSON"
-          ],
-          "access_urls": [
-            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/80392ENG/table",
-            "https://opendata.cbs.nl/statline/#/CBS/en/dataset/80392ENG/table"
           ]
         },
         {
@@ -1155,7 +1147,7 @@
         },
         {
           "title": "Tonne-kilometre of foreign heavy goods vehicles (tkm)",
-          "id": "ine-0014572",
+          "id": "ine-0014569",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
           "license": [
@@ -1166,8 +1158,8 @@
             "JSON"
           ],
           "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/bf6a687b-8a8b-4736-b08e-3f94f503135c",
-            "https://dados.gov.pt/api/1/datasets/r/330996f3-4a60-40fb-b387-46948bda7574"
+            "https://dados.gov.pt/api/1/datasets/r/347729b8-a2e4-41db-a717-90dc6aca6a24",
+            "https://dados.gov.pt/api/1/datasets/r/3c7b393f-ad50-47d4-8076-f46f739474b8"
           ]
         },
         {
@@ -1189,7 +1181,7 @@
         },
         {
           "title": "Tonne-kilometre of foreign heavy goods vehicles (tkm)",
-          "id": "ine-0014569",
+          "id": "ine-0014572",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
           "license": [
@@ -1200,8 +1192,8 @@
             "JSON"
           ],
           "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/347729b8-a2e4-41db-a717-90dc6aca6a24",
-            "https://dados.gov.pt/api/1/datasets/r/3c7b393f-ad50-47d4-8076-f46f739474b8"
+            "https://dados.gov.pt/api/1/datasets/r/bf6a687b-8a8b-4736-b08e-3f94f503135c",
+            "https://dados.gov.pt/api/1/datasets/r/330996f3-4a60-40fb-b387-46948bda7574"
           ]
         },
         {
@@ -1224,23 +1216,6 @@
         },
         {
           "title": "Tonne-kilometre in national transport (tkm) in heavy goods vehicles",
-          "id": "ine-0006266",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/c58b0e9a-b189-4afc-a114-22739bdcf5ad",
-            "https://dados.gov.pt/api/1/datasets/r/28a29618-e1c1-4dc2-8af6-f3574d7a3754"
-          ]
-        },
-        {
-          "title": "Tonne-kilometre in national transport (tkm) in heavy goods vehicles",
           "id": "ine-0000380",
           "publisher": "Instituto Nacional de Estatística",
           "catalog": "dados-gov-pt",
@@ -1254,6 +1229,23 @@
           "access_urls": [
             "https://dados.gov.pt/api/1/datasets/r/d1d412e9-c54e-422e-9e3a-0e10abfcf287",
             "https://dados.gov.pt/api/1/datasets/r/c4d32a96-394c-4a6d-af87-de02fb5b5dee"
+          ]
+        },
+        {
+          "title": "Tonne-kilometre in national transport (tkm) in heavy goods vehicles",
+          "id": "ine-0006266",
+          "publisher": "Instituto Nacional de Estatística",
+          "catalog": "dados-gov-pt",
+          "license": [
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://creativecommons.org/licenses/by/4.0/"
+          ],
+          "formats": [
+            "JSON"
+          ],
+          "access_urls": [
+            "https://dados.gov.pt/api/1/datasets/r/c58b0e9a-b189-4afc-a114-22739bdcf5ad",
+            "https://dados.gov.pt/api/1/datasets/r/28a29618-e1c1-4dc2-8af6-f3574d7a3754"
           ]
         },
         {
@@ -1389,22 +1381,18 @@
           ]
         },
         {
-          "title": "GEOLAB - Transnational Access project RELIAS - REliability analysis of retrogressive, Large deformation failure in quIck clAy with SPH framework",
-          "id": "oai-zenodo-org-14921780",
-          "publisher": "Zenodo",
-          "catalog": "zenodo",
+          "title": "WMS XPlanung BPL ‘Framework Bakers and In Betzen (Framework Bakers, Amendment)’",
+          "id": "bd8ca601-f67c-4c34-9e1b-a67bda0b47d0",
+          "publisher": "",
+          "catalog": "gdi-de",
           "license": [
-            null,
-            null,
             null
           ],
           "formats": [
-            "None"
+            "WMS_SRVC"
           ],
           "access_urls": [
-            "http://data.europa.eu/88u/dataset/oai-zenodo-org-14921780",
-            "http://data.europa.eu/88u/dataset/oai-zenodo-org-14921780",
-            "http://data.europa.eu/88u/dataset/oai-zenodo-org-14921780"
+            "https://geodienste.komm.one/ows/services/org.109.ec952f9b-35d9-47b3-9ba9-9dd60c08adec_wms/org.109.066de68a-2d3d-4003-9ca1-7e5f771ca15e?SERVICE=WMS&Request=GetCapabilities"
           ]
         },
         {
@@ -1438,18 +1426,22 @@
           ]
         },
         {
-          "title": "WMS XPlanung BPL ‘Framework Bakers and In Betzen (Framework Bakers, Amendment)’",
-          "id": "bd8ca601-f67c-4c34-9e1b-a67bda0b47d0",
-          "publisher": "",
-          "catalog": "gdi-de",
+          "title": "GEOLAB - Transnational Access project RELIAS - REliability analysis of retrogressive, Large deformation failure in quIck clAy with SPH framework",
+          "id": "oai-zenodo-org-14921780",
+          "publisher": "Zenodo",
+          "catalog": "zenodo",
           "license": [
+            null,
+            null,
             null
           ],
           "formats": [
-            "WMS_SRVC"
+            "None"
           ],
           "access_urls": [
-            "https://geodienste.komm.one/ows/services/org.109.ec952f9b-35d9-47b3-9ba9-9dd60c08adec_wms/org.109.066de68a-2d3d-4003-9ca1-7e5f771ca15e?SERVICE=WMS&Request=GetCapabilities"
+            "http://data.europa.eu/88u/dataset/oai-zenodo-org-14921780",
+            "http://data.europa.eu/88u/dataset/oai-zenodo-org-14921780",
+            "http://data.europa.eu/88u/dataset/oai-zenodo-org-14921780"
           ]
         },
         {
@@ -1486,24 +1478,6 @@
           "access_urls": [
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-7329866",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-7329866"
-          ]
-        },
-        {
-          "title": "Holmeside Planning Framework",
-          "id": "holmeside-planning-framework",
-          "publisher": "Sunderland City Council",
-          "catalog": "data-gov-uk",
-          "license": [
-            null,
-            null
-          ],
-          "formats": [
-            "KML",
-            "PDF"
-          ],
-          "access_urls": [
-            "http://www.sunderland.gov.uk/CHttpHandler.ashx?id=7153&p=0&fsize=881kb&ftype=HolmesideDevelopmentFramework.PDF",
-            "http://www.sunderland.gov.uk/CHttpHandler.ashx?id=16474&p=0&fsize=1kb&ftype=Holmeside_Planning_Framework.KMZ"
           ]
         },
         {
@@ -1558,6 +1532,25 @@
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102"
+          ]
+        },
+        {
+          "title": "Waterborne Freight in the United Kingdom",
+          "id": "waterborne_freight_in_the_united_kingdom",
+          "publisher": "Department for Transport",
+          "catalog": "data-gov-uk",
+          "license": [
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+          ],
+          "formats": [
+            "HTML"
+          ],
+          "access_urls": [
+            "http://webarchive.nationalarchives.gov.uk/20140109181812/https://www.gov.uk/government/policies?departments%5B%5D=department-for-transport",
+            "http://webarchive.nationalarchives.gov.uk/20140109181626/https://www.gov.uk/government/policies?departments%5B%5D=department-for-transport",
+            "http://webarchive.nationalarchives.gov.uk/20140109181703/https://www.gov.uk/government/policies?departments%5B%5D=department-for-transport"
           ]
         }
       ]
@@ -6371,61 +6364,372 @@
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/ECFIE/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF7183</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:50:18.677803905Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF7288</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:55:47.985223580Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
     },
     "ECFIE_structure|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/ECFIE/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF6682</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:50:19.134759323Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF2612</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:55:48.299564252Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
     },
     "ECFIE_data_json|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/all/ECFIE/+/*?lastNObservations=2",
       "status": 500,
       "content_type": "application/json",
-      "head": "{\"status\":500,\"code\":50000,\"message\":\"Internal Server Error\",\"devMessage\":null,\"timestamp\":\"2026-09-28T18:50:19.328502Z\",\"correlationId\":\"4c78d6efdc8325498e08c7c80be6921a\",\"path\":\"/api/v1/workspaces/default:integration/registry/sdmx/3.0/data/dataflow/all/ECFIE/+/*\",\"details\":{}}"
+      "head": "{\"status\":500,\"code\":50000,\"message\":\"Internal Server Error\",\"devMessage\":null,\"timestamp\":\"2026-09-28T18:55:48.615053Z\",\"correlationId\":\"01e2dddd6f9a4ad11b4a9c9ca7de833e\",\"path\":\"/api/v1/workspaces/default:integration/registry/sdmx/3.0/data/dataflow/all/ECFIE/+/*\",\"details\":{}}"
     },
     "ECFIE_data_json|application/xml": {
       "url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/all/ECFIE/+/*?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:metadata=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/metadata/generic\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/common\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/data/structurespecific\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0):ObsLevelDim:TIME_PERIOD\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message ../../schemas/SDMXMessage.xsd\"><message:Header><message:ID>IDREF6934</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:50:19.736986791Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES.DSD_ECFIE.2.0.0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" dimensionAtObservation=\"TIME_PERIOD\"><common:Structure>urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)</common:Structure></message:Structure></message:Header><message:DataSet ss:structureRef=\"IMF.RES.DSD_ECFIE.2.0.0\" action=\"Replace\"><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"5.24145164324627\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"15.7253929413788\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"85.179048041971\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"555.394291113057\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"33.559814453125\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"31.9715919494629\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"0.732955094380395\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"0.699653927857622\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.8204397607403\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"4.29711270207231\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.16404581069946\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"3.11573529243469\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"1.29280615341098\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.78559093578547\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"6.26995022621444\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"50.426631125281\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"2.68649554252625\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.93711471557617\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"BEL\" INDI"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:metadata=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/metadata/generic\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/common\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/data/structurespecific\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0):ObsLevelDim:TIME_PERIOD\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message ../../schemas/SDMXMessage.xsd\"><message:Header><message:ID>IDREF8383</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:55:49.197514669Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES.DSD_ECFIE.2.0.0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" dimensionAtObservation=\"TIME_PERIOD\"><common:Structure>urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)</common:Structure></message:Structure></message:Header><message:DataSet ss:structureRef=\"IMF.RES.DSD_ECFIE.2.0.0\" action=\"Replace\"><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"5.24145164324627\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"15.7253929413788\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"85.179048041971\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"555.394291113057\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"33.559814453125\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"31.9715919494629\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"0.732955094380395\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"0.699653927857622\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.8204397607403\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"4.29711270207231\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.16404581069946\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"3.11573529243469\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"1.29280615341098\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.78559093578547\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"6.26995022621444\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"50.426631125281\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"2.68649554252625\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.93711471557617\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"BEL\" INDI"
     },
     "ECFIE_data_21|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/ECFIE/all?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621420387</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:50:20Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621749691</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:55:49Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
     },
     "ECFIE_data_21|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/ECFIE/all?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621420731</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:50:20Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621750159</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:55:50Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
     },
     "PI_structure|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/PI/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF9478</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:50:21.004055367Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF8197</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:55:50.504215631Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
     },
     "PI_structure|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/PI/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF5367</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:50:21.226429905Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF3752</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T18:55:50.816288930Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
     },
     "PI_data_21|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/PI/JPN+KOR+CHN+TWN.*.*?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621421764</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:50:21Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621751433</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:55:51Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
     },
     "PI_data_21|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/PI/JPN+KOR+CHN+TWN.*.*?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621422701</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:50:22Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790621752349</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T18:55:52Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
     }
+  },
+  "imf_pi_series": {
+    "status": 200,
+    "dataset_attrs": {},
+    "n_series_total": 30,
+    "series": [
+      {
+        "attrs": {
+          "COUNTRY": "IND",
+          "PRODUCTION_INDEX": "IND",
+          "TYPE_OF_TRANSFORMATION": "IX",
+          "FREQUENCY": "Q",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "REFERENCE_PERIOD": "2010=100",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 6,
+        "first_obs": {
+          "TIME_PERIOD": "2025-Q1",
+          "OBS_VALUE": "167.9400115967095",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-Q2",
+          "OBS_VALUE": "171.938583301393",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "IND",
+          "PRODUCTION_INDEX": "IND",
+          "TYPE_OF_TRANSFORMATION": "POP_PCH_PT",
+          "FREQUENCY": "Q",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 6,
+        "first_obs": {
+          "TIME_PERIOD": "2025-Q1",
+          "OBS_VALUE": "6.440071556350659",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-Q2",
+          "OBS_VALUE": "-1.376146788990806",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "IND",
+          "PRODUCTION_INDEX": "IND",
+          "TYPE_OF_TRANSFORMATION": "YOY_PCH_PT",
+          "FREQUENCY": "Q",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 6,
+        "first_obs": {
+          "TIME_PERIOD": "2025-Q1",
+          "OBS_VALUE": "5.030891438658416",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-Q2",
+          "OBS_VALUE": "6.219122348154576",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "IX",
+          "FREQUENCY": "A",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "REFERENCE_PERIOD": "2010=100",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 1,
+        "first_obs": {
+          "TIME_PERIOD": "2025",
+          "OBS_VALUE": "104.7502408334343",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2025",
+          "OBS_VALUE": "104.7502408334343",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "IX",
+          "FREQUENCY": "M",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "REFERENCE_PERIOD": "2010=100",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 19,
+        "first_obs": {
+          "TIME_PERIOD": "2025-M01",
+          "OBS_VALUE": "100.590387159131",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-M07",
+          "OBS_VALUE": "104.7347292738748",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "IX",
+          "FREQUENCY": "Q",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "REFERENCE_PERIOD": "2010=100",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 6,
+        "first_obs": {
+          "TIME_PERIOD": "2025-Q1",
+          "OBS_VALUE": "103.4430486936481",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-Q2",
+          "OBS_VALUE": "106.0674413824783",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "POP_PCH_PT",
+          "FREQUENCY": "A",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 1,
+        "first_obs": {
+          "TIME_PERIOD": "2025",
+          "OBS_VALUE": "0.8355972224371589",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2025",
+          "OBS_VALUE": "0.8355972224371589",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "POP_PCH_PT",
+          "FREQUENCY": "M",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 19,
+        "first_obs": {
+          "TIME_PERIOD": "2025-M01",
+          "OBS_VALUE": "-0.6626445707029701",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-M07",
+          "OBS_VALUE": "-2.069911450874376",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "POP_PCH_PT",
+          "FREQUENCY": "Q",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 6,
+        "first_obs": {
+          "TIME_PERIOD": "2025-Q1",
+          "OBS_VALUE": "1.050098946561811",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-Q2",
+          "OBS_VALUE": "1.818957417999921",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "YOY_PCH_PT",
+          "FREQUENCY": "A",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 1,
+        "first_obs": {
+          "TIME_PERIOD": "2025",
+          "OBS_VALUE": "0.8355972224371589",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2025",
+          "OBS_VALUE": "0.8355972224371589",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "YOY_PCH_PT",
+          "FREQUENCY": "M",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 19,
+        "first_obs": {
+          "TIME_PERIOD": "2025-M01",
+          "OBS_VALUE": "-0.07521737499930472",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-M07",
+          "OBS_VALUE": "1.165203910684352",
+          "DERIVATION_TYPE": "O"
+        }
+      },
+      {
+        "attrs": {
+          "COUNTRY": "USA",
+          "PRODUCTION_INDEX": "C",
+          "TYPE_OF_TRANSFORMATION": "YOY_PCH_PT",
+          "FREQUENCY": "Q",
+          "IFS_FLAG": "true",
+          "OVERLAP": "OL",
+          "SCALE": "0",
+          "METHODOLOGY": "IRIIP",
+          "ACCESS_SHARING_LEVEL": "PUBLIC_OPEN",
+          "SECURITY_CLASSIFICATION": "PUB"
+        },
+        "n_obs": 6,
+        "first_obs": {
+          "TIME_PERIOD": "2025-Q1",
+          "OBS_VALUE": "0.1659534466262481",
+          "DERIVATION_TYPE": "O"
+        },
+        "last_obs": {
+          "TIME_PERIOD": "2026-Q2",
+          "OBS_VALUE": "1.241328764083968",
+          "DERIVATION_TYPE": "O"
+        }
+      }
+    ]
   }
 }
