@@ -76,10 +76,33 @@ def search(kind: str, q: str) -> list[dict]:
     return []
 
 
+PORTWATCH_OWNER = "IMF-portwatch_imf_dataviz"
+ARCGIS_SEARCH = "https://www.arcgis.com/sharing/rest/search"
+
+
+def portwatch_catalog() -> list[dict]:
+    """Alle öffentlichen ArcGIS-Items des offiziellen PortWatch-Besitzers
+    (Titel, Typ, URL, Änderungsdatum, Kurzbeschreibung) -- Grundlage für die
+    Auswahl weiterer PortWatch-Datensätze (keine Aktivierung)."""
+    out, start = [], 1
+    try:
+        while start and start > 0 and len(out) < 300:
+            r = requests.get(ARCGIS_SEARCH, params={"q": f'owner:"{PORTWATCH_OWNER}"', "f": "json",
+                                                    "num": 100, "start": start}, headers=UA, timeout=30)
+            d = r.json()
+            for it in d.get("results", []):
+                out.append({k: it.get(k) for k in ("id", "title", "type", "url", "modified", "snippet", "tags")})
+            start = d.get("nextStart", -1)
+    except Exception as e:  # noqa: BLE001
+        out.append({"error": repr(e)})
+    return out
+
+
 def main() -> int:
     out = {"retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
-           "results": {sid: {f"{k}:{q}": search(k, q) for k, q in qs} for sid, qs in QUERIES.items()}}
+           "results": {sid: {f"{k}:{q}": search(k, q) for k, q in qs} for sid, qs in QUERIES.items()},
+           "portwatch_catalog": portwatch_catalog()}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, ensure_ascii=False)[:5000])
