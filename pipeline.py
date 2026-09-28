@@ -337,6 +337,32 @@ def bearish_trading_allowed(options_cfg) -> bool:
     return allow
 
 
+def note_research_features(c: dict) -> None:
+    """Zusätzliche, zum Signalzeitpunkt bekannte Merkmale in den Candidate
+    Ledger für die Alpha-Suche (modules/alpha_discovery.py): Sektor/Branche,
+    Prescreen-Kategorie, Alpha-Quellen. Reine Observability."""
+    try:
+        info = c.get("info") or {}
+        al = c.get("alpha_signals") or {}
+        ins = al.get("sec_insider") or {}
+        skew = al.get("options_skew") or {}
+        gamma = al.get("dealer_gamma") or {}
+        candidate_ledger.note(
+            c.get("ticker"),
+            sector=info.get("sector"), industry=info.get("industry"),
+            prescreen_category=c.get("prescreen_category"),
+            fda_headline_count=len(al.get("fda_headlines") or []),
+            insider_count=ins.get("insider_count"),
+            insider_cluster=ins.get("cluster_detected"),
+            options_skew_ratio=skew.get("skew_ratio"),
+            dealer_gamma_sign=gamma.get("net_gamma_sign") if gamma.get("data_available") else None,
+            dealer_oi_ratio=gamma.get("oi_ratio") if gamma.get("data_available") else None,
+            has_near_earnings=bool(c.get("has_near_earnings")),
+        )
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"note_research_features Fehler (ignoriert): {e}")
+
+
 def directional_move(move_pct: float, direction: str | None) -> float:
     """Intraday-Bewegung in Signalrichtung (positiv = schon mitgelaufen).
     Für das 'zu spät'-Gate: BULLISH -> +move, BEARISH -> -move."""
@@ -552,6 +578,13 @@ def main() -> None:
     shortlist = _prescreener.run(candidates)
     stats["prescreened"] = len(shortlist)
     _failed = [t for t in _prescreener.failed_tickers if t]
+    # Prescreen-Absagen explizit im Ledger (vorher Status 'seen' ohne Grund):
+    # Grundlage der Gate-Wirksamkeit (vernichtet ein Gate Alpha?)
+    _passed = {c.get("ticker") for c in shortlist}
+    for c in candidates:
+        _t = c.get("ticker")
+        if _t and _t not in _passed and _t not in _failed:
+            reject("prescreen_no", _t)
     if _failed:
         stats["prescreen_api_failed"] = len(_failed)
         for _t in _failed:
@@ -571,9 +604,12 @@ def main() -> None:
     enriched_with_alpha = []
     for c in shortlist:
         c = enrich_with_alpha_sources(c)
+        note_research_features(c)
         if c.get("has_near_earnings"):
             earnings_date = c.get("alpha_signals", {}).get("earnings_date", "?")
             log.info(f"  [{c['ticker']}] EARNINGS-GATE: Earnings in 7d ({earnings_date}) → Hard-Block.")
+            # im Ledger festhalten (vorher fehlte der Kandidat dort komplett)
+            reject("earnings_gate", c.get("ticker"))
             continue
         enriched_with_alpha.append(c)
     shortlist = enriched_with_alpha

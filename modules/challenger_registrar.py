@@ -133,6 +133,51 @@ def run(today: date | None = None, proposals_path: Path = PROPOSALS_PATH,
     return report
 
 
+AUTO_PROPOSALS_PATH = Path("config/challenger_proposals_auto.yaml")
+MAX_ACTIVE_AUTO = 6
+
+
+def run_auto(today: date | None = None, proposals_path: Path = AUTO_PROPOSALS_PATH,
+             registry_path: Path = REGISTRY_PATH, now: datetime | None = None) -> dict:
+    """Registriert Vorschläge aus modules/alpha_discovery.py. Jeder Vorschlag
+    trägt seinen eigenen spec_sha256 vom Entdeckungstag; stimmt er nicht mehr,
+    wird nicht registriert. start_date = Folgetag (nur zukünftige Daten).
+    Höchstens MAX_ACTIVE_AUTO aktive Auto-Challenger gleichzeitig."""
+    now = now or datetime.now(timezone.utc)
+    today = today or now.date()
+    report = {"registered": [], "skipped": {}}
+    if not Path(proposals_path).exists():
+        return report
+    cfg = yaml.safe_load(Path(proposals_path).read_text(encoding="utf-8")) or {}
+    reg = yaml.safe_load(Path(registry_path).read_text(encoding="utf-8")) or {}
+    entries = reg.get("challengers") or []
+    existing = {c.get("id") for c in entries}
+    active_auto = sum(1 for c in entries if str(c.get("id", "")).startswith("auto_")
+                      and c.get("status") == "active")
+    new_entries = []
+    for p in cfg.get("proposals") or []:
+        pid = p.get("id")
+        if pid in existing:
+            continue
+        spec = {k: v for k, v in p.items() if k != "spec_sha256"}
+        if spec_sha256(spec) != p.get("spec_sha256"):
+            report["skipped"][pid] = "Spezifikation seit dem Einfrieren geändert (Hash)"
+            continue
+        if active_auto + len(new_entries) >= MAX_ACTIVE_AUTO:
+            report["skipped"][pid] = f"Deckel {MAX_ACTIVE_AUTO} aktive Auto-Challenger erreicht"
+            continue
+        new_entries.append(_entry(p, today, now, p["spec_sha256"]))
+    if new_entries:
+        block = yaml.safe_dump(new_entries, sort_keys=False, allow_unicode=True, width=100)
+        indented = "\n".join(("  " + ln) if ln else ln for ln in block.splitlines())
+        text = Path(registry_path).read_text(encoding="utf-8").rstrip("\n")
+        Path(registry_path).write_text(
+            text + "\n\n  # ── automatisch entdeckt + registriert (alpha_discovery) ──\n"
+            + indented + "\n", encoding="utf-8")
+        report["registered"] = [e["id"] for e in new_entries]
+    return report
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    print(json.dumps(run(), indent=2, ensure_ascii=False))
+    print(json.dumps({"curated": run(), "auto": run_auto()}, indent=2, ensure_ascii=False))

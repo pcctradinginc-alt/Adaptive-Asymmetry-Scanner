@@ -450,3 +450,44 @@ Drei parallele Reviews: Signalgenerierung, Trade-Konstruktion/Scoring, Outcomes/
 2. **Die Ökonomie** ist die Hauptbaustelle: Median −42 %, 25 % Totalverluste, geometrisch −54 % pro Trade bei vollem Einsatz. Das Kapital überlebt nur bei kleinen Positionen. Hebel sind Exit-Regeln, Laufzeit/Edge-Gate (Challenger läuft) und Positionsgröße, nicht mehr Features.
 3. **Die Lernmechanik** ist intakt und abgesichert: Ledger mit eingefrorenem Kontext, vorregistrierte Challenger mit Alpha-Spending, menschliche Promotion. Quasi-ML und PPO lernen derzeit nichts, weil die Basis-Features keine Vorhersagekraft haben. Die Challenger sind der vorgesehene Weg zu neuen, geprüften Signalen.
 4. **Trade-Mails:** Der Versandpfad funktioniert. Die Bear-Spread- und Intraday-Fehler haben Empfehlungen verhindert, das ist behoben.
+
+---
+
+# Alpha-Findung (2026-09-28)
+
+**Ziel:** die Fähigkeit steigern, echte Signale zu **entdecken und sauber zu bestätigen**. Kein rückwirkendes Tuning, denn das erzeugt nur Scheinalpha.
+
+1. **Mehr und bessere Daten je Tag.** Der Ledger speichert jetzt zusätzlich:
+   - Sektor, Branche, Prescreen-Kategorie
+   - FDA-Meldungen, Insider-Anzahl und -Cluster, Options-Skew, Dealer-Gamma-Vorzeichen und OI-Verhältnis, Earnings-Nähe
+
+   Außerdem werden Prescreen-Absagen (`prescreen_no`) und der Earnings-Block als Reject-Gründe protokolliert. Vorher fehlten sie bzw. standen ohne Grund im Ledger.
+
+2. **Entdeckungsmaschine `modules/alpha_discovery.py`** (monatlich):
+   - **Basis:** alle analysierten Kandidaten, nicht nur Trades. Das ergibt ein Vielfaches an Beobachtungen.
+   - **Zielgröße:** richtungsbereinigte 20- und 45-Tage-Rendite, **tagesbereinigt**. Markt- und Kalendereffekte (die April/Mai-Falle) fallen damit heraus.
+   - **Tests:**
+     - Querschnitt als Rang-IC je Tag mit t über Tage (Tage sind die unabhängige Einheit).
+     - Innerhalb eines Tages konstante Merkmale (Makro/extern) werden über Tage getestet.
+     - Kategoriale Merkmale über Tagesmittel.
+   - **Absicherung:**
+     - Chronologisch 60 % Entdeckung, 40 % interne Bestätigung.
+     - Benjamini-Hochberg (q ≤ 0,10) über alle Tests.
+     - Bestätigung mit gleichem Vorzeichen und p ≤ 0,10.
+     - Ökonomische Mindestgröße: Terzil-Spread ≥ 2 % (20 Tage) bzw. 3 % (45 Tage).
+     - Outcome-nahe Merkmale sind ausgeschlossen.
+     - Mindestdaten: 300 Zeilen und 30 Tage.
+   - **Kalibrierung (Simulation mit großen Tageseffekten):**
+     - Rauschen mit 20 Merkmalen: **0 von 30** Läufen mit Falschtreffer.
+     - Schwaches echtes Signal (IC ≈ 0,15): in **19 von 30** Läufen gefunden.
+
+3. **Gate-Wirksamkeit.** Tagesbereinigte Rendite je Reject-Grund gegenüber den vorgeschlagenen Kandidaten. Laufen die von einem Gate Verworfenen besser als die Durchgelassenen, vernichtet dieses Gate Alpha. Das ist ein Kandidat für einen Challenger, ohne automatische Änderung.
+
+4. **Automatische Überführung in prospektive Tests.**
+   - Ein akzeptierter Fund wird zum eingefrorenen Vorschlag (`config/challenger_proposals_auto.yaml`, eigener SHA-256).
+   - `challenger_registrar.run_auto` registriert ihn mit `start_date` = Folgetag.
+   - Die endgültige Bestätigung passiert **nur auf zukünftigen Daten** (min_n 60, 20 unabhängige Tage, Alpha-Spending über alle aktiven Challenger).
+   - Deckel: höchstens 2 neue Vorschläge je Lauf und 6 aktive Auto-Challenger.
+   - Die Promotion in die Produktion bleibt ein menschlicher PR.
+
+**Erwartung:** Mit etwa 30 bis 60 analysierten Kandidaten pro Handelstag erreicht der Ledger die Mindestdaten nach rund 6 bis 10 Wochen. Ab dann sucht das System monatlich selbstständig nach Signalen und testet Treffer prospektiv. Ob echtes Alpha existiert, entscheiden die zukünftigen Daten, nicht dieser Code.
