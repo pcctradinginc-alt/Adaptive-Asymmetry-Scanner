@@ -2,7 +2,7 @@
   {
     "source_id": "imf_portwatch_ports",
     "status": "PASS",
-    "n_observations": 9282,
+    "n_observations": 8568,
     "latest_observation_time": "2026-09-18T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query"
@@ -10,7 +10,7 @@
     "http_status": [
       200
     ],
-    "message": "9282 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 563745 Rohbeobachtungen); 0 unresolved ports: []",
+    "message": "8568 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 520380 Rohbeobachtungen); 0 unresolved ports: []",
     "discovered_ids": {
       "ports": {
         "Los Angeles": "port664",
@@ -107,7 +107,7 @@
         "unresolved_ports_close_matches": {},
         "unresolved_ports_hint_matches": {},
         "unresolved_ports_hint_activity": {},
-        "n_observations_before_reduction": 563745
+        "n_observations_before_reduction": 520380
       }
     },
     "family": "maritime",
@@ -116,7 +116,7 @@
   {
     "source_id": "imf_portwatch_chokepoints",
     "status": "PASS",
-    "n_observations": 5880,
+    "n_observations": 5488,
     "latest_observation_time": "2026-09-20T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0/query"
@@ -124,7 +124,7 @@
     "http_status": [
       200
     ],
-    "message": "5880 observations; 0 unresolved chokepoints: []",
+    "message": "5488 observations; 0 unresolved chokepoints: []",
     "discovered_ids": {
       "chokepoints": {
         "Suez Canal": "chokepoint1",
@@ -283,69 +283,68 @@
   },
   {
     "source_id": "bts_open_data_tsi",
-    "status": "PASS",
-    "n_observations": 638,
-    "latest_observation_time": "2026-07-01T00:00:00+00:00",
+    "status": "SCHEMA_CHANGED",
+    "n_observations": 0,
+    "latest_observation_time": null,
     "endpoints": [
       "https://api.us.socrata.com/api/catalog/v1",
-      "https://data.bts.gov/api/views/bw6n-ddqk.json",
-      "https://data.bts.gov/resource/bw6n-ddqk.json"
+      "https://data.bts.gov/api/views/s539-c8h7.json"
     ],
     "http_status": [
       200
     ],
-    "message": "638 Beobachtungen aus Datensatz bw6n-ddqk (freight_field=tsi_freight, truck_field=idx_truck_d11)",
+    "message": "views-Metadaten ohne 'columns' -> Schema ge\u00e4ndert.",
     "discovered_ids": {
       "bts_open_data_tsi_candidates": [
         {
           "id": "bw6n-ddqk",
           "name": "Transportation Services Index and Seasonally-Adjusted Transportation Data",
-          "updatedAt": "2026-09-14T15:00:14.000Z"
+          "updatedAt": "2026-09-28T17:06:57.000Z"
         },
         {
           "id": "gutz-h9fp",
           "name": "Transportation Services Index - Freight",
-          "updatedAt": "2025-01-03T13:25:19.000Z"
+          "updatedAt": "2026-09-28T17:13:54.000Z"
         },
         {
           "id": "ni8u-e22d",
           "name": "Transportation Services Index - Combined",
-          "updatedAt": "2025-01-02T18:04:20.000Z"
+          "updatedAt": "2026-09-28T17:18:44.000Z"
         },
         {
           "id": "n68x-u7m7",
           "name": "Freight Transportation Service Index",
-          "updatedAt": "2026-09-25T17:49:30.000Z"
+          "updatedAt": "2026-09-28T17:18:17.000Z"
         },
         {
           "id": "s539-c8h7",
           "name": "Transportation Services Index - Passenger",
-          "updatedAt": "2025-01-02T18:04:14.000Z"
+          "updatedAt": "2026-09-28T17:20:57.000Z"
         },
         {
           "id": "xkwi-7rvx",
           "name": "Passenger Transportation Service Index",
-          "updatedAt": "2026-09-25T17:49:08.000Z"
+          "updatedAt": "2026-09-28T17:27:50.000Z"
         },
         {
           "id": "4h5v-s7mv",
           "name": "Pocket Guide to Transportation-Passenger Transportation Service Index",
-          "updatedAt": "2026-09-25T17:46:41.000Z"
+          "updatedAt": "2026-09-28T16:58:40.000Z"
         },
         {
           "id": "erq7-v5ry",
           "name": "Pocket Guide to Transportation-Combined Transportation Service Index",
-          "updatedAt": "2026-09-25T17:46:40.000Z"
+          "updatedAt": "2026-09-28T17:10:52.000Z"
         },
         {
           "id": "6zn8-4eyz",
           "name": "Pocket Guide to Transportation-Freight Transportation Service Index",
-          "updatedAt": "2026-09-25T17:46:49.000Z"
+          "updatedAt": "2026-09-28T17:00:25.000Z"
         },
         {
           "id": "3w2s-iysp",
           "name": "Pocket Guide to Transportation-Transportation Services Index (TSI)",
-          "updatedAt": "2026-06-10T11:17:47.000Z"
+          "updatedAt": "2026-09-28T16:58:14.000Z"
         },
         {
           "id": "9czv-tjte",
@@ -365,90 +364,17 @@
         {
           "id": "crem-w557",
           "name": "Monthly Transportation Statistics",
-          "updatedAt": "2026-09-24T18:05:10.000Z"
+          "updatedAt": "2026-09-28T17:08:05.000Z"
         }
       ],
       "bts_open_data_tsi_ambiguous": [
-        "bw6n-ddqk",
-        "3w2s-iysp",
-        "gutz-h9fp",
+        "s539-c8h7",
         "ni8u-e22d",
-        "s539-c8h7"
+        "gutz-h9fp",
+        "bw6n-ddqk",
+        "3w2s-iysp"
       ],
-      "bts_open_data_tsi_dataset_id": "bw6n-ddqk",
-      "bts_open_data_tsi_columns": {
-        "date_field": "obs_date",
-        "freight_field": "tsi_freight",
-        "truck_field": "idx_truck_d11",
-        "all_field_names": [
-          "id",
-          "obs_date",
-          "asm",
-          "asm_d11",
-          "asm_d",
-          "asm_d_d11",
-          "asm_i",
-          "asm_i_d11",
-          "rpm",
-          "rpm_d11",
-          "rpm_d",
-          "rpm_d_d11",
-          "rpm_i",
-          "rpm_i_d11",
-          "load_factor",
-          "load_factor_d11",
-          "load_factor_d",
-          "load_factor_d_d11",
-          "load_factor_i",
-          "load_factor_i_d11",
-          "enplane_i",
-          "enplane_i_d11",
-          "enplane_d",
-          "enplane_d_d11",
-          "enplane",
-          "enplane_d11",
-          "air_rpm_tsi",
-          "air_rpm_tsi_d11",
-          "air_rtmfm",
-          "air_rtmfm_d11",
-          "rail_frt_carloads",
-          "rail_frt_carloads_d11",
-          "rail_frt_intermodal",
-          "rail_frt_intermodal_d11",
-          "rail_pm",
-          "rail_pm_d11",
-          "transit",
-          "transit_d11",
-          "petroleum",
-          "petroleum_d11",
-          "natural_gas",
-          "natural_gas_d11",
-          "waterborne",
-          "waterborne_d11",
-          "truck_d11",
-          "vmt",
-          "vmt_d11",
-          "tsi_freight",
-          "tsi_freight_c",
-          "tsi_passenger",
-          "tsi_passenger_c",
-          "tsi_total",
-          "tsi_total_c",
-          "ind_pro",
-          "manuf",
-          "inv_to_sales",
-          "idx_air_rpm",
-          "idx_air_rtmfm",
-          "idx_rail_frt_carloads",
-          "idx_rail_frt_intermodal",
-          "idx_rail_pm",
-          "idx_transit_d11",
-          "idx_petroleum_d11",
-          "idx_natural_gas_d11",
-          "idx_waterborne_d11",
-          "idx_truck_d11"
-        ]
-      }
+      "bts_open_data_tsi_dataset_id": "s539-c8h7"
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -520,8 +446,8 @@
   {
     "source_id": "estat_jp_truck",
     "status": "PASS",
-    "n_observations": 4560,
-    "latest_observation_time": "2020-03-01T00:00:00+00:00",
+    "n_observations": 4320,
+    "latest_observation_time": "2026-03-01T00:00:00+00:00",
     "endpoints": [
       "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData",
       "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList"
@@ -529,7 +455,7 @@
     "http_status": [
       200
     ],
-    "message": "4560 Beobachtungen aus statsDataId 0003091286",
+    "message": "4320 Beobachtungen aus statsDataId 0003422293",
     "discovered_ids": {
       "estat_jp_truck_attempts": [
         {
@@ -900,10 +826,10 @@
           "stat_code": "00600330",
           "cycle": "\u5e74\u5ea6\u6b21",
           "survey_date": 0,
-          "updated": "2026-08-05"
+          "updated": "2026-09-28"
         }
       ],
-      "estat_jp_truck_stats_data_id": "0003091286"
+      "estat_jp_truck_stats_data_id": "0003422293"
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -946,8 +872,8 @@
   },
   {
     "source_id": "nws_forecast",
-    "status": "WARN",
-    "n_observations": 2227,
+    "status": "PASS",
+    "n_observations": 2386,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -985,6 +911,8 @@
       "https://api.weather.gov/gridpoints/OKX/42,40",
       "https://api.weather.gov/gridpoints/PHI/48,75",
       "https://api.weather.gov/gridpoints/PHI/50,79",
+      "https://api.weather.gov/gridpoints/PSR/159,58",
+      "https://api.weather.gov/gridpoints/PSR/161,57",
       "https://api.weather.gov/gridpoints/SEW/124,61",
       "https://api.weather.gov/gridpoints/TBW/98,102",
       "https://api.weather.gov/gridpoints/VEF/122,94",
@@ -1032,7 +960,7 @@
     "http_status": [
       200
     ],
-    "message": "3 von 45 Locations fehlgeschlagen",
+    "message": "",
     "discovered_ids": {
       "ATL": {
         "gridId": "FFC",
@@ -1093,6 +1021,12 @@
         "gridX": 106,
         "gridY": 51,
         "timezone": "America/New_York"
+      },
+      "PHX": {
+        "gridId": "PSR",
+        "gridX": 161,
+        "gridY": 57,
+        "timezone": "America/Phoenix"
       },
       "SEA": {
         "gridId": "SEW",
@@ -1172,6 +1106,12 @@
         "gridY": 87,
         "timezone": "America/New_York"
       },
+      "PHX_METRO": {
+        "gridId": "PSR",
+        "gridX": 159,
+        "gridY": 58,
+        "timezone": "America/Phoenix"
+      },
       "LA_METRO": {
         "gridId": "LOX",
         "gridX": 155,
@@ -1237,6 +1177,12 @@
         "gridX": 26,
         "gridY": 68,
         "timezone": "America/New_York"
+      },
+      "AZ_CONSTR": {
+        "gridId": "PSR",
+        "gridX": 159,
+        "gridY": 58,
+        "timezone": "America/Phoenix"
       },
       "GA_CONSTR": {
         "gridId": "FFC",
@@ -1642,13 +1588,13 @@
   {
     "source_id": "nhc_storms",
     "status": "PASS",
-    "n_observations": 160,
+    "n_observations": 148,
     "latest_observation_time": null,
     "endpoints": [
       "https://www.nhc.noaa.gov/CurrentStorms.json",
       "https://www.nhc.noaa.gov/text/HFOTCMCP2.shtml",
       "https://www.nhc.noaa.gov/text/MIATCMAT1.shtml",
-      "https://www.nhc.noaa.gov/text/MIATCMEP1.shtml",
+      "https://www.nhc.noaa.gov/text/MIATCMAT3.shtml",
       "https://www.nhc.noaa.gov/text/MIATCMEP2.shtml",
       "https://www.nhc.noaa.gov/text/MIATCMEP3.shtml"
     ],
