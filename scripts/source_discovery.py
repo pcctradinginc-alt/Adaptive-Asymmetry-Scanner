@@ -150,6 +150,58 @@ def imf_dataflows() -> dict:
     return res
 
 
+PW = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services"
+SCHEMA_LAYERS = {
+    "disruptions_database": f"{PW}/portwatch_disruptions_database/FeatureServer/0",
+    "disruptions_with_ports": f"{PW}/disruptions_with_ports/FeatureServer/0",
+    "countries_database": f"{PW}/PortWatch_countries_database/FeatureServer/0",
+    "ports_database": f"{PW}/PortWatch_ports_database/FeatureServer/0",
+}
+IMF_PROBES = {
+    "ECFIE_structure": "https://api.imf.org/external/sdmx/2.1/dataflow/all/ECFIE/latest?references=datastructure",
+    "ECFIE_data_json": "https://api.imf.org/external/sdmx/3.0/data/dataflow/all/ECFIE/+/*?lastNObservations=2",
+    "ECFIE_data_21": "https://api.imf.org/external/sdmx/2.1/data/ECFIE/all?lastNObservations=2",
+    "PI_structure": "https://api.imf.org/external/sdmx/2.1/dataflow/all/PI/latest?references=datastructure",
+    "PI_data_21": "https://api.imf.org/external/sdmx/2.1/data/PI/JPN+KOR+CHN+TWN.*.*?lastNObservations=2",
+}
+
+
+def layer_schemas() -> dict:
+    """Felder, Datensatzzahl und 3 Beispielzeilen je Layer (Schema vor dem
+    Konnektor-Bau prüfen, nichts raten)."""
+    out = {}
+    for name, url in SCHEMA_LAYERS.items():
+        try:
+            meta = requests.get(url, params={"f": "json"}, headers=UA, timeout=30).json()
+            cnt = requests.get(f"{url}/query", params={"where": "1=1", "returnCountOnly": "true", "f": "json"},
+                               headers=UA, timeout=30).json()
+            sample = requests.get(f"{url}/query", params={"where": "1=1", "outFields": "*", "resultRecordCount": 3,
+                                                          "f": "json"}, headers=UA, timeout=30).json()
+            out[name] = {"url": url, "name": meta.get("name"), "maxRecordCount": meta.get("maxRecordCount"),
+                         "count": cnt.get("count"), "editing": meta.get("editingInfo"),
+                         "fields": [{"name": f.get("name"), "type": f.get("type"), "alias": f.get("alias")}
+                                    for f in meta.get("fields") or []],
+                         "sample": [ft.get("attributes") for ft in (sample.get("features") or [])][:3],
+                         "error": meta.get("error") or sample.get("error")}
+        except Exception as e:  # noqa: BLE001
+            out[name] = {"url": url, "error": repr(e)}
+    return out
+
+
+def imf_probes() -> dict:
+    out = {}
+    for name, url in IMF_PROBES.items():
+        for accept in ("application/vnd.sdmx.data+json;version=1.0.0", "application/xml"):
+            try:
+                r = requests.get(url, headers={**UA, "Accept": accept}, timeout=60)
+                out[f"{name}|{accept.split(';')[0]}"] = {"url": url, "status": r.status_code,
+                                                         "content_type": r.headers.get("Content-Type"),
+                                                         "head": r.text[:3000]}
+            except Exception as e:  # noqa: BLE001
+                out[f"{name}|{accept.split(';')[0]}"] = {"url": url, "error": repr(e)}
+    return out
+
+
 def main() -> int:
     out = {"retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
@@ -157,6 +209,8 @@ def main() -> int:
            "portwatch_catalog": portwatch_catalog()}
     out["portwatch_map_layers"] = portwatch_map_layers(out["portwatch_catalog"])
     out["imf_dataflows"] = imf_dataflows()
+    out["layer_schemas"] = layer_schemas()
+    out["imf_probes"] = imf_probes()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, ensure_ascii=False)[:5000])
