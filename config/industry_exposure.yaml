@@ -204,13 +204,13 @@ catalyst_relevance:
 # maritime_freight.industry_mapping_unmatched gemeldet und ignoriert (nie geraten).
 # Nur SHADOW-Feature industry_shipping_z, kein Score-Einfluss.
 portwatch_industry_map:
-  Autos: [Transportation]
-  Machinery: [Machinery & Electrical]
-  Industrials: [Machinery & Electrical, Metals]
-  Semiconductors: [Machinery & Electrical]
-  Chemicals: [Chemicals & Allied Industries, Plastics & Rubber]
+  Autos: [Vehicles & Equipment]
+  Machinery: [Machinery & Electrical Equipment]
+  Industrials: [Machinery & Electrical Equipment, Metals]
+  Semiconductors: [Machinery & Electrical Equipment]
+  Chemicals: [Chemical & Allied Industries, "Plastics, Rubber, Leather"]
   Energy: [Mineral Products]
   Utilities: [Mineral Products]
   Homebuilders: [Wood & Wood Products, Stone & Glass]
   Construction: [Stone & Glass, Metals]
-  Retail: [Textiles, Footwear & Headwear]
+  Retail: [Textiles & Footwear]
