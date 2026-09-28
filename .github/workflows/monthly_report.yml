@@ -11,7 +11,7 @@ permissions:
 jobs:
   report:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -38,13 +38,18 @@ jobs:
       - name: Inkrementalanalyse Base vs. externe Familien (EXPLORATIV)
         run: python scripts/incremental_analysis.py > /dev/null || true
 
+      - name: Alpha-Entdeckung + Registrierung prospektiver Challenger
+        run: |
+          python -m modules.alpha_discovery || true
+          python -c "from modules.challenger_registrar import run_auto; print(run_auto())" || true
+
       - name: Commit research outputs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/research/ 2>/dev/null || true
+          git add outputs/research/ challengers.yaml config/challenger_proposals_auto.yaml 2>/dev/null || git add outputs/research/ challengers.yaml || true
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: incremental analysis $(date -u +%Y-%m-%dT%H:%M)"
           git stash --include-untracked || true
