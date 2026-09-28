@@ -188,6 +188,28 @@ def layer_schemas() -> dict:
     return out
 
 
+def imf_series_sample(url: str, n: int = 12) -> dict:
+    """Erste Series-Elemente (alle Attribute) + deren erste/letzte Obs."""
+    import re as _re
+    try:
+        r = requests.get(url, headers={**UA, "Accept": "application/xml"}, timeout=90)
+        txt = r.text
+        ds = _re.search(r"<message:DataSet[^>]*>", txt)
+        series = []
+        for m in _re.finditer(r"<Series ([^>]*)>(.*?)</Series>", txt, flags=_re.S):
+            attrs = dict(_re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+            obs = _re.findall(r"<Obs ([^>]*)/>", m.group(2))
+            series.append({"attrs": attrs, "n_obs": len(obs),
+                           "first_obs": dict(_re.findall(r'(\w+)="([^"]*)"', obs[0])) if obs else None,
+                           "last_obs": dict(_re.findall(r'(\w+)="([^"]*)"', obs[-1])) if obs else None})
+            if len(series) >= n:
+                break
+        return {"status": r.status_code, "dataset_attrs": dict(_re.findall(r'(\w+)="([^"]*)"', ds.group(0))) if ds else None,
+                "n_series_total": txt.count("<Series "), "series": series}
+    except Exception as e:  # noqa: BLE001
+        return {"error": repr(e)}
+
+
 def imf_probes() -> dict:
     out = {}
     for name, url in IMF_PROBES.items():
@@ -211,6 +233,8 @@ def main() -> int:
     out["imf_dataflows"] = imf_dataflows()
     out["layer_schemas"] = layer_schemas()
     out["imf_probes"] = imf_probes()
+    out["imf_pi_series"] = imf_series_sample(
+        "https://api.imf.org/external/sdmx/2.1/data/PI/CHN+KOR+TWN+JPN+IND+USA.*.*?startPeriod=2025-01")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, ensure_ascii=False)[:5000])
