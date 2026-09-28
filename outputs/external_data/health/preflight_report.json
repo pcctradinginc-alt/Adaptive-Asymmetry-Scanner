@@ -2,7 +2,7 @@
   {
     "source_id": "imf_portwatch_ports",
     "status": "PASS",
-    "n_observations": 8568,
+    "n_observations": 14868,
     "latest_observation_time": "2026-09-18T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query"
@@ -10,7 +10,7 @@
     "http_status": [
       200
     ],
-    "message": "8568 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 520380 Rohbeobachtungen); 0 unresolved ports: []",
+    "message": "14868 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 520380 Rohbeobachtungen); 0 unresolved ports: []",
     "discovered_ids": {
       "ports": {
         "Los Angeles": "port664",
@@ -107,6 +107,7 @@
         "unresolved_ports_close_matches": {},
         "unresolved_ports_hint_matches": {},
         "unresolved_ports_hint_activity": {},
+        "ports_database_rows": 2065,
         "n_observations_before_reduction": 520380
       }
     },
@@ -173,6 +174,22 @@
         "unresolved_chokepoints_close_matches": {}
       }
     },
+    "family": "maritime",
+    "license_status": "OK"
+  },
+  {
+    "source_id": "imf_portwatch_disruptions",
+    "status": "PASS",
+    "n_observations": 944,
+    "latest_observation_time": "2026-08-14T21:58:21+00:00",
+    "endpoints": [
+      "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions_database/FeatureServer/0/query"
+    ],
+    "http_status": [
+      200
+    ],
+    "message": "132 Ereignisse, 944 Hafen-Beobachtungen",
+    "discovered_ids": {},
     "family": "maritime",
     "license_status": "OK"
   },
@@ -307,14 +324,14 @@
           "updatedAt": "2026-09-28T17:13:54.000Z"
         },
         {
-          "id": "s539-c8h7",
-          "name": "Transportation Services Index - Passenger",
-          "updatedAt": "2026-09-28T17:20:57.000Z"
-        },
-        {
           "id": "ni8u-e22d",
           "name": "Transportation Services Index - Combined",
           "updatedAt": "2026-09-28T17:18:44.000Z"
+        },
+        {
+          "id": "s539-c8h7",
+          "name": "Transportation Services Index - Passenger",
+          "updatedAt": "2026-09-28T17:20:57.000Z"
         },
         {
           "id": "n68x-u7m7",
@@ -873,7 +890,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 2383,
+    "n_observations": 2387,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
