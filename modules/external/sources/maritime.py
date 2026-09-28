@@ -823,6 +823,20 @@ def port_memberships(ports_db_features: list, countries: Iterable[str]) -> dict[
     return out
 
 
+# Länder-/Industrie-Aggregate nur für die im Kontext genutzten Kennzahlen
+# (Archiv-Volumen: alle ~20 Kennzahlen je Aggregat sprengen den Volumen-Guard).
+COUNTRY_AGGREGATE_METRICS = frozenset({"export_total", "import_total", "portcalls_total"})
+INDUSTRY_AGGREGATE_METRICS = frozenset({"portcalls_total"})
+
+
+def _membership_metrics(key: str) -> frozenset:
+    if key.startswith(AGGREGATE_COUNTRY_PREFIX):
+        return COUNTRY_AGGREGATE_METRICS
+    if key.startswith(AGGREGATE_INDUSTRY_PREFIX):
+        return INDUSTRY_AGGREGATE_METRICS
+    return frozenset()
+
+
 def reduce_port_observations(observations: list, curated_groups: dict[str, str],
                              memberships: dict[str, list[str]] | None = None) -> list:
     """Archiv-Volumen begrenzen, ohne globale Information zu verlieren:
@@ -837,7 +851,8 @@ def reduce_port_observations(observations: list, curated_groups: dict[str, str],
     for o in observations:
         keys = [(AGGREGATE_GLOBAL, o.observation_time, o.metric)]
         for extra in (memberships or {}).get(o.entity_id, []):
-            keys.append((extra, o.observation_time, o.metric))
+            if o.metric in _membership_metrics(extra):
+                keys.append((extra, o.observation_time, o.metric))
         grp = curated_groups.get(o.entity_id)
         if grp is not None:
             o.attrs = {**(o.attrs or {}), "group": grp}

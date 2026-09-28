@@ -491,3 +491,18 @@ Drei parallele Reviews: Signalgenerierung, Trade-Konstruktion/Scoring, Outcomes/
    - Die Promotion in die Produktion bleibt ein menschlicher PR.
 
 **Erwartung:** Mit etwa 30 bis 60 analysierten Kandidaten pro Handelstag erreicht der Ledger die Mindestdaten nach rund 6 bis 10 Wochen. Ab dann sucht das System monatlich selbstständig nach Signalen und testet Treffer prospektiv. Ob echtes Alpha existiert, entscheiden die zukünftigen Daten, nicht dieser Code.
+
+## N10. IMF PortWatch / IMF-Daten: Integrationsentscheidungen (2026-09-28)
+
+Alle neuen Größen sind reine SHADOW-Primitive (Kandidaten-Ledger, alpha_discovery),
+ohne Score-/Gate-/PPO-Wirkung. Nutzung privat/nicht-kommerziell, Attribution „IMF PortWatch“.
+
+| Quelle / Layer | Entscheidung | Begründung |
+|---|---|---|
+| PortWatch Disruption Monitor (`imf_portwatch_disruptions`) | **integriert** | Ereignisse (Sturm, Flut, Konflikt) mit betroffenen Häfen (`portNNN`, identisch zu den Tages-Hafendaten). Alarmstufe + Ende je Hafen; Verlängerung = neue Vintage; `available_at` = Abrufzeit (PIT). Primitive: `port_disruption_active_events`, `port_disruption_curated_ports`, `port_disruption_curated_max_level`. Kadenz 60 d (Ereignisquelle). |
+| Länderhandel | **integriert** als `COUNTRY:<ISO3>`-Aggregat aus den täglichen Hafendaten | `countries_database` ist statisch (Jahresanteile), tägliche Hafendaten sind aktueller. Primitive `asia_export_z` (CHN/KOR/TWN/JPN, ≥ 2 gültig), `country_export_z` im Snapshot. Nur Tage mit ≥ 90 % der Hafenzahl. |
+| Hafenindustrien (`PortWatch_ports_database` industry_top1..3) | **integriert** als `INDUSTRY:<HS-Abschnitt>`-Aggregat (portcalls_total) | Kandidatenfeature `industry_shipping_z` über `portwatch_industry_map` (config/industry_exposure.yaml). Nicht vorhandene Namen → `maritime_freight.industry_mapping_unmatched`, nie geraten. |
+| Volumen | Aggregate nur für genutzte Kennzahlen | Erster Lauf mit allen ~20 Kennzahlen je Aggregat löste den Volumen-Guard aus (nichts geschrieben, korrekt WARN). Jetzt COUNTRY: export/import/portcalls_total, INDUSTRY: portcalls_total. |
+| IMF ECFIE (Inflationserwartungen aus Earnings Calls) | nicht integriert | nur Länderebene, quartalsweise, redundant zu FRED-/Eurostat-Kontext; kein Kandidatenbezug. |
+| IMF PI (Produktionsindizes) | nicht integriert | Probe 2026-09-28 (alle 63 Reihen): **keine** Reihen für CHN/KOR/TWN/JPN/MEX; DEU nur bis 2026-M03 (Eurostat aktueller), IND nur quartalsweise, VNM endet 2025-M03, USA redundant zu FRED. Kein Zusatznutzen. |
+| PortWatch Impact-/Klima-Szenario-Layer, `countries_database` | nicht integriert | statisch/modellbasiert, keine PIT-fähigen Zeitreihen. |
