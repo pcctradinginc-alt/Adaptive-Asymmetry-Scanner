@@ -156,7 +156,8 @@ def note_base_features(c: dict) -> None:
             rel_volume=c.get("rel_volume"), news_count=len(c.get("news") or []),
             log_market_cap=(round(math.log10(c["market_cap"]), 3)
                             if isinstance(c.get("market_cap"), (int, float)) and c["market_cap"] > 0 else None),
-            **{k: f.get(k) for k in ("sentiment_score", "sentiment_confidence", "sentiment_drift", "short_pct_float", "short_mom")
+            **{k: f.get(k) for k in ("sentiment_score", "sentiment_confidence", "sentiment_status", "sentiment_drift",
+                                 "short_pct_float", "short_mom")
                if f.get(k) is not None},
         )
     except Exception as e:
@@ -584,7 +585,8 @@ def main() -> None:
             sentiment = score_candidate(c)
             c.setdefault("features", {}).update(sentiment)
         except Exception:
-            c.setdefault("features", {}).update({"sentiment_score": 0.0})
+            c.setdefault("features", {}).update({"sentiment_score": 0.0,
+                                                 "sentiment_status": "scoring_error"})
         c = enrich_with_sentiment_drift(c, history)
         note_base_features(c)
         enriched.append(c)
@@ -830,7 +832,10 @@ def main() -> None:
 
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
-    scored = MismatchScorer().run(analyses)
+    _mm = MismatchScorer()
+    scored = _mm.run(analyses)
+    for _t in _mm.data_missing:
+        reject("mismatch_price_data_missing", _t)
     label_dropped(analyses, scored, "mismatch_below_min")
 
     # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
@@ -863,6 +868,8 @@ def main() -> None:
                 # bewusst für ALLE Kandidaten gleich (keine implied IV nur für
                 # Proposals, sonst wäre der Gate-Vergleich verzerrt).
                 sigma_30d=s.get("features", {}).get("sigma_30d"),
+                price_move_48h_signed=s.get("features", {}).get("price_move_48h_signed"),
+                z_score_2d_scaled=s.get("features", {}).get("z_score_2d_scaled"),
             )
         except Exception as e:
             log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")

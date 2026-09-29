@@ -60,6 +60,9 @@ def _bin_eps_drift(drift: float) -> str:
 
 class MismatchScorer:
 
+    def __init__(self):
+        self.data_missing: list[str] = []
+
     def run(self, analyses: list[dict]) -> list[dict]:
         scored = []
         for a in analyses:
@@ -79,7 +82,15 @@ class MismatchScorer:
         #          Nur in Tests als Mock-Daten vorhanden.
         #          → r_2d war IMMER 0 → Z-Score IMMER 0 → Mismatch = Impact.
         # Jetzt:   Eigene Berechnung, gleiche Logik wie deep_analysis v8.2.
-        r_2d = abs(self._compute_48h_move(ticker))
+        # Fehlende Kursdaten NIE als 0-Move werten: 0 bedeutet "Markt hat noch
+        # nicht reagiert" -> Mismatch = Impact = stärkstes Signal. Ein
+        # Datenfehler würde so zum Top-Kandidaten (Audit 2026-09-29).
+        move_signed = self._compute_48h_move(ticker)
+        if move_signed is None:
+            log.warning(f"  [{ticker}] Keine 48h-Kursdaten → verworfen (kein 0-Default)")
+            self.data_missing.append(ticker)
+            return None
+        r_2d = abs(move_signed)
 
         sigma = self._compute_sigma(ticker)
         if sigma == 0:
@@ -117,6 +128,12 @@ class MismatchScorer:
             "z_score":       round(z_score, 3),
             "sigma_30d":     round(sigma, 4),
             "price_move_48h": round(r_2d, 4),   # NEU: für Reports & Debugging
+            # Forschungsfeatures (Audit 2026-09-29, KEINE Gate-Wirkung):
+            # z_score teilt einen 2-Tages-Move durch die TÄGLICHE σ (korrekt
+            # wäre σ·√2), abs() ignoriert die Richtung. Beide Varianten werden
+            # mitgeloggt, damit der Faktor-Monitor sie gegen Forward-Returns prüft.
+            "price_move_48h_signed": round(move_signed, 4),
+            "z_score_2d_scaled":     round(r_2d / (sigma * np.sqrt(2)), 3),
             "eps_drift":     round(eps_drift_val, 4),
             "bin_impact":    _bin_impact(impact),
             "bin_mismatch":  _bin_mismatch(mismatch),
@@ -159,7 +176,11 @@ class MismatchScorer:
             if hasattr(close, "iloc"):
                 close = close.squeeze()
             if len(close) < 5:
-                return 0.0
-            return float((close.iloc[-2] - close.iloc[-4]) / close.iloc[-4])
-        except Exception:
-            return 0.0
+                return None
+            base = float(close.iloc[-4])
+            if not base > 0:
+                return None
+            return float((close.iloc[-2] - base) / base)
+        except Exception as e:
+            log.warning(f"  [{ticker}] 48h-Move nicht berechenbar: {e}")
+            return None

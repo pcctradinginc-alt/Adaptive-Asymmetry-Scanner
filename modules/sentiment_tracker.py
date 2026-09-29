@@ -189,13 +189,16 @@ def enrich_with_sentiment_drift(
     today_score   = features.get("sentiment_score", 0.0)
     headline_cnt  = len(candidate.get("news", []))
 
-    # Heutigen Score speichern
-    update_sentiment_history(
-        history        = history,
-        ticker         = ticker,
-        score          = today_score,
-        headline_count = headline_cnt,
-    )
+    # Heutigen Score speichern -- aber nur einen GEMESSENEN Wert: ein
+    # Fallback-0.0 (Modell nicht ladbar, Inferenzfehler) würde den Drift
+    # künstlich Richtung neutral ziehen (Audit 2026-09-29).
+    if features.get("sentiment_status", "ok") == "ok":
+        update_sentiment_history(
+            history        = history,
+            ticker         = ticker,
+            score          = today_score,
+            headline_count = headline_cnt,
+        )
 
     # Historischen Drift berechnen
     drift_data = get_sentiment_drift(history, ticker)

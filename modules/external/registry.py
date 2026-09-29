@@ -160,6 +160,7 @@ class SourceHealth:
     auth_optional: bool = False   # optionale Zugangsdaten: AUTH_MISSING ohne Alert-Mail
     pit_integrity_failures: int = 0
     archive_error: str = ""
+    dq: dict | None = None        # Data-Quality-Befund des letzten Abrufs (data_quality.assess)
 
     def to_dict(self) -> dict:
         return asdict(self)
