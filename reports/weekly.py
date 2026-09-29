@@ -55,6 +55,12 @@ SECTION_TITLES = {
     8: "WHAT THE SYSTEM LEARNED THIS WEEK",
     9: "RESEARCH PIPELINE",
     10: "RISK / HEALTH WARNINGS",
+    11: "WORLD MODEL",
+    12: "META-COGNITION",
+    13: "ALPHA HEALTH",
+    14: "RESEARCH INTELLIGENCE",
+    15: "MODEL BLIND SPOTS",
+    16: "ACTIVE LEARNING",
 }
 
 
@@ -358,6 +364,12 @@ def collect(root, date, state_path=None) -> dict:
     memory = _load_jsonl(rs / "trade_memory.jsonl")
     history = _load_json(out_dir / "history.json")
     health_raw = _load_json(out_dir / "external_data" / "health" / "source_health.json")
+    world = _load_json(rs / "world_model.json")
+    mstate = _load_json(rs / "machine_state.json")
+    safe = _load_json(rs / "safe_mode.json")
+    nextv = _load_json(rs / "next_validation.json")
+    director = _load_json(rs / "research_candidates.json")
+    alearn = _load_json(rs / "active_learning.json")
     ledger_rows = ledger_open = 0
     ledger_dir = out_dir / "candidate_ledger"
     if ledger_dir.is_dir():
@@ -370,7 +382,8 @@ def collect(root, date, state_path=None) -> dict:
     data = {
         "date": today.isoformat(), "root": str(root),
         "ml": ml, "meta": meta, "meta_state": meta_state, "hc": hc, "ml_fwd": ml_fwd,
-        "hyp": hyp, "fail": fail, "history": history,
+        "hyp": hyp, "fail": fail, "history": history, "world": world, "mstate": mstate, "safe": safe,
+        "nextv": nextv, "director": director, "alearn": alearn,
         "missing": [n for n, v in (("ml_research.json", ml), ("meta_learning.json", meta),
                                    ("meta_state.json", meta_state), ("hc_candidates.json", hc),
                                    ("ml_forward.json", ml_fwd), ("hypothesis_db.json", hyp),
@@ -466,9 +479,12 @@ def compute_warnings(data: dict) -> list[dict]:
                         f"Forward 4W-Expectancy {r4['expectancy']:+.3f} (n={r4['closed']}, {key}) "
                         f"< langfristig {lt['expectancy']:+.3f} (n={lt['closed']})")
                 break
-    st = _d(data["meta_state"])
-    if st.get("safe_mode") is True:
-        add("SAFE MODE", "Safe Mode aktiv: " + ("; ".join(map(str, st.get("reasons") or [])) or "ohne Grund angegeben"))
+    sm = _d(data.get("safe"))
+    if sm.get("active") is True:
+        add("SAFE MODE", "Safe Mode aktiv (keine HC-Alerts, stabiler Champion): " + "; ".join(map(str, sm.get("reasons") or [])))
+    wc = _d(_d(data.get("world")).get("current"))
+    if _num(wc.get("uncertainty")) is not None and wc["uncertainty"] >= 0.6:
+        add("REGIME UNCERTAINTY", f"World-Model-Unsicherheit {wc['uncertainty']}")
     return w
 
 
@@ -705,7 +721,16 @@ def build_sections(data: dict) -> list[tuple[int, str, list]]:
         cnt = {"accepted": 0, "rejected": 0, "inconclusive": 0, "currently testing": 0, "sonstige": 0}
         for v in hs.values():
             s = str(_d(v).get("status", ""))
-            if s.startswith("accepted"):
+            cs = str(_d(v).get("canonical_status", ""))
+            if cs == "RETEST_LATER" or s in ("testing", "running", "in_test", "currently_testing"):
+                cnt["currently testing"] += 1
+            elif cs == "INCONCLUSIVE":
+                cnt["inconclusive"] += 1
+            elif cs == "ACCEPTED" or s.startswith("accepted"):
+                cnt["accepted"] += 1
+            elif cs == "REJECTED":
+                cnt["rejected"] += 1
+            elif s.startswith("accepted"):
                 cnt["accepted"] += 1
             elif s.startswith("rejected"):
                 cnt["rejected"] += 1
@@ -740,7 +765,73 @@ def build_sections(data: dict) -> list[tuple[int, str, list]]:
     if data["missing"]:
         b10.append(("note", "Fehlende Eingaben: " + ", ".join(data["missing"])))
     secs.append((10, SECTION_TITLES[10], b10))
+    secs.extend(intelligence_sections(data))
     return secs
+
+
+def intelligence_sections(data: dict) -> list:
+    """Abschnitte 11–16 (nächste Intelligenz-Stufe). Nur gemessene Inhalte."""
+    out = []
+    w = _d(data.get("world"))
+    cur, prev = _d(w.get("current")), _d(w.get("previous"))
+    if cur:
+        rows = [[k[:-6], str(v), _fv(cur.get(k[:-6] + "_score")), _fv(cur.get(k[:-6] + "_uncertainty")),
+                 str(prev.get(k, NA))] for k, v in cur.items() if k.endswith("_state")]
+        val = _d(w.get("validation"))
+        b = [("kv", [("Stichtag", str(cur.get("date", NA))), ("Gesamt-Unsicherheit", _fv(cur.get("uncertainty"))),
+                     ("Validierung gegen Regime-Engine", f"{val.get('verdict', NA)} (besser: {val.get('better')}, schlechter: {val.get('worse')})")]),
+             ("table", ["Dimension", "Zustand", "Score", "Unsicherheit", "Vorwoche"], rows, [])]
+        if w.get("changes"):
+            b.append(("list", [str(x) for x in w["changes"]]))
+    else:
+        b = [("para", NO_DATA)]
+    out.append((11, SECTION_TITLES[11], b))
+    ms = _d(data.get("mstate"))
+    if ms:
+        sa = _d(ms.get("self_assessment"))
+        b = [("kv", [(k, _fv(v)) for k, v in sa.items()]),
+             ("para", "Stärken (was wir wissen):"), ("list", [str(x) for x in (ms.get("what_do_we_know") or [])[:6]] or [NO_DATA]),
+             ("para", "Schwächen (wo wir systematisch irren):"),
+             ("list", [str(x) for x in (ms.get("where_are_we_systematically_wrong") or [])[:6]] or [NO_DATA]),
+             ("para", "Größte Unsicherheiten:"), ("list", [str(x) for x in (ms.get("what_are_we_uncertain_about") or [])[:5]] or [NO_DATA])]
+    else:
+        b = [("para", NO_DATA)]
+    out.append((12, SECTION_TITLES[12], b))
+    meta = _d(data.get("meta"))
+    mi = _d(meta.get("model_intelligence"))
+    strong = sorted(((k, _d(v)) for k, v in mi.items()), key=lambda kv: -(kv[1].get("recent_ic") or -9))[:3]
+    decay = (ms.get("which_features_are_decaying") or []) if ms else []
+    hyp = _d(_d(data.get("hyp")).get("hypotheses"))
+    newc = [f"{k}: {_d(v).get('title')} ({_d(v).get('canonical_status')})" for k, v in hyp.items()
+            if _d(v).get("source") in ("director", "discovery")][:5]
+    out.append((13, SECTION_TITLES[13], [
+        ("para", "Stärkste Alpha-Quellen (jüngster 13-Wochen-IC):"),
+        ("list", [f"{k}: IC {v.get('recent_ic')} (Trend {v.get('trend')}, t={v.get('trend_t')})" for k, v in strong] or [NO_DATA]),
+        ("para", "Schwächer werdend (Decay/Strukturbruch, gemessen):"), ("list", [str(x) for x in decay[:6]] or ["keine gemessene Abschwächung"]),
+        ("para", "Neue Alpha-Kandidaten (Director/Discovery):"), ("list", newc or ["keine"])]))
+    counts = _d(_d(data.get("hyp")).get("status_counts"))
+    nv = _d(data.get("nextv"))
+    insight = None
+    ab = _d(nv.get("abstention_confirmation"))
+    if ab:
+        insight = (f"Abstinenz-Regel auf ungesehenen Jahren: aktiv {ab.get('active_expectancy')} vs. inaktiv "
+                   f"{ab.get('inactive_expectancy')} (t={ab.get('diff_t')}) -> bestätigt={ab.get('confirmed')}")
+    out.append((14, SECTION_TITLES[14], [
+        ("kv", [(k, str(v)) for k, v in counts.items()] + [("Gesamtvalidierung", str(nv.get("decision", NA))),
+                                                             ("G-Komponenten", str(nv.get("G_components", NA)))]),
+        ("para", "Größte Erkenntnis: " + (insight or NO_DATA))]))
+    cl = nv.get("blind_spot_clusters") or []
+    out.append((15, SECTION_TITLES[15], [("table", ["Cluster", "n", "typischer Fehler", "Lift", "Eigenschaften", "Abdeckung"],
+                                         [[c.get("id"), str(c.get("n")), _fv(c.get("typical_error")), _fv(c.get("lift")),
+                                           str(c.get("common_properties")), str(c.get("existing_model_coverage"))] for c in cl], [])]
+                if cl else [("para", "Keine signifikanten Fehlercluster.")]))
+    al = _d(data.get("alearn")).get("data_gaps") or []
+    out.append((16, SECTION_TITLES[16], [("table", ["Quelle", "Dimensionen", "Info-Gewinn", "Kosten", "Priorität", "Status"],
+                                         [[a.get("source"), str(a.get("dimensions")), _fv(a.get("expected_information_gain")),
+                                           str(a.get("acquisition_cost")), _fv(a.get("priority")),
+                                           "ungeprüft (Aufnahmeprüfung offen)"] for a in al[:6]], [])]
+                if al else [("para", NO_DATA)]))
+    return out
 
 
 def subject_for(date_s: str) -> str:

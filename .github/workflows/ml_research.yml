@@ -21,7 +21,7 @@ concurrency:
 jobs:
   ml:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,15 +46,36 @@ jobs:
           echo "MODE=$MODE" >> "$GITHUB_ENV"
           ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.ml_research --mode "$MODE"
 
-      - name: Research-Lab (Hypothesen-Datenbank + Discovery, nur full)
+      - name: Research Director + Active Learning (nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: python -m modules.research_director
+
+      - name: Research-Lab (Hypothesen-Datenbank, Discovery, Director-Hypothesen – nur full)
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.research_lab
 
-      - name: Meta-Learning (Walk-Forward, Ablation, Gate – nur full)
+      - name: Meta-Learning (Walk-Forward, Counterfactuals, Ablation, Gate – nur full)
         if: env.MODE == 'full'
         continue-on-error: true
-        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.meta_learning
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta.pkl" python -m modules.meta_learning
+
+      - name: Kausalschicht + Knowledge Graph (nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: |
+          python -m modules.causal_research
+          python -m modules.knowledge_graph
+
+      - name: Gesamtvalidierung A–G, Blind Spots, Stress, Decision Intelligence (nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta.pkl" python -m modules.next_intelligence
+
+      - name: Meta-Cognition + Safe Mode (vor den Alerts)
+        continue-on-error: true
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.meta_cognition
 
       - name: High-Confidence-Scanner + Alerts (keine Orderausführung)
         continue-on-error: true

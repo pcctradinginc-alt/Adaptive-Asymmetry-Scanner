@@ -114,3 +114,35 @@ def test_seed_file_is_valid():
         else:
             lab.validate_expr(h["signal"])
             assert h["direction"] in (1, -1)
+
+
+def test_step_function_and_regime_gating(panel):
+    s = lab.eval_signal(panel, "rev_1m * step(vix - 20)")
+    hi = panel["vix"] > 20
+    assert (s[~hi & s.notna()] == 0).all() and s[hi].notna().any()
+
+
+def test_similar_to_rejected_is_blocked_and_memory_review_written(tmp_path, panel):
+    hp = _hyps(tmp_path, [{"id": "H-NOISE", "title": "relatives Volumen Anomalie Test", "statement": "hohes relatives Volumen schlägt",
+                           "signal": "relvol_5_60", "direction": 1}])
+    dbp = tmp_path / "db.json"
+    db = lab.run(panel, hyp_path=hp, db_path=dbp, with_discovery=False)
+    assert db["hypotheses"]["H-NOISE"]["canonical_status"] in ("REJECTED", "INCONCLUSIVE")
+    if db["hypotheses"]["H-NOISE"]["canonical_status"] == "REJECTED":
+        hp2 = _hyps(tmp_path, [{"id": "H-NOISE", "title": "relatives Volumen Anomalie Test", "signal": "relvol_5_60",
+                                "direction": 1, "statement": "hohes relatives Volumen schlägt"},
+                               {"id": "H-NOISE2", "title": "relatives Volumen Anomalie Test neu",
+                                "statement": "hohes relatives Volumen schlägt", "signal": "rank(relvol_5_60) * 3", "direction": 1}])
+        db2 = lab.run(panel, hyp_path=hp2, db_path=dbp, with_discovery=False)
+        assert db2["hypotheses"]["H-NOISE2"]["status"] == "blocked_similar_to_rejected"
+    r = db["hypotheses"]["H-NOISE"]
+    assert r["memory"]["validation_design"] and "relvol_5_60" in r["memory"]["data_used"]
+    assert r["adversarial_review"]["final_decision_by"].startswith("vorab")
+    assert set(db["status_counts"]) == {"ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER"}
+
+
+def test_canonical_status_mapping():
+    assert lab.canonical_status({"status": "not_significant_after_fdr"}) == "INCONCLUSIVE"
+    assert lab.canonical_status({"status": "passed_pending_locked"}) == "RETEST_LATER"
+    assert lab.canonical_status({"status": "accepted"}) == "ACCEPTED"
+    assert lab.canonical_status({"status": "prior_result", "canonical_status": "INCONCLUSIVE"}) == "INCONCLUSIVE"

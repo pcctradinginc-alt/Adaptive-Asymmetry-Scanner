@@ -242,6 +242,8 @@ def evaluate(last: dict, panel: pd.DataFrame | None = None) -> dict:
     from modules import blind_spots as bs
     bsr = bs.filter_walk_forward(res, base, "s_static_equal")
     res = res.merge(bsr.pop("scores"), on=["date", "ticker"], how="left")
+    all_top = bs.top_rows(base.assign(s_static_equal=meta.score_static(base, models)), "s_static_equal")
+    clusters_now = bs.describe(bs.find_clusters(all_top), last.get("failure_profiles") or {})
     act = abstention_active(res)
     variants = {"A": ("s_static_equal", None), "B": ("s_meta_regime_weights", None), "C": ("s_C", None),
                 "D": ("s_D", None), "E": ("s_E", None), "F": ("s_F", None),
@@ -308,6 +310,7 @@ def evaluate(last: dict, panel: pd.DataFrame | None = None) -> dict:
             "protocol": "config/next_protocol.yaml", "metrics": clean,
             "component_vs_A": comp, "component_verdicts": {**comp_keep, "decision_intelligence": di.get("verdict")},
             "abstention_confirmation": abst, "blind_spots": {k: v for k, v in bsr.items()},
+            "blind_spot_clusters": clusters_now,
             "G_components": g_parts, "G_vs_A": boot_g, "ablation_delta_expectancy": abl,
             "gate": gres, "decision": "PROMOTE" if gres["pass"] else "KEEP_CHAMPION",
             "stress": stress, "decision_intelligence": di, "notes": notes,
@@ -337,7 +340,10 @@ def render_md(rep: dict) -> str:
           "", f"Gate: {rep['gate']}", "", f"Stress: {rep['stress']}", "",
           f"Decision Intelligence: { {k: v for k, v in rep['decision_intelligence'].items()} }",
           "", f"Anteil fragiler Positionen im Top-Dezil: {rep.get('fragile_share_top_decile')}", "",
-          f"Hinweise: {rep.get('notes')}"]
+          f"Hinweise: {rep.get('notes')}", "", "## Unknown-Unknown-Cluster", ""] + \
+        [f"- {c['id']}: n={c['n']} (Segment {c['n_segment']}), typischer Fehler {c['typical_error']}, Lift {c['lift']}, "
+         f"Eigenschaften {c['common_properties']}, Abdeckung {c['existing_model_coverage']} -> {c['recommendation']}"
+         for c in rep.get("blind_spot_clusters") or []] + [""]
     return "\n".join(L) + "\n"
 
 
@@ -356,6 +362,7 @@ def run() -> dict:
         last = meta.LAST_RUN
     mj = json.loads(meta.OUT_JSON.read_text()) if meta.OUT_JSON.exists() else {}
     last["leak_ok"] = (mj.get("leakage_checks") or {}).get("ok", True)
+    last["failure_profiles"] = mj.get("failure_profiles") or {}
     rep = evaluate(last, panel)
     ml.OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(rep, indent=1, default=str, ensure_ascii=False))

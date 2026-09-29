@@ -986,7 +986,9 @@ def run(panel: pd.DataFrame | None = None) -> dict:
     if cache:
         with open(cache, "wb") as fh:
             pickle.dump(LAST_RUN, fh)
-    state = {"safe_mode": rep["decision"]["verdict"] != "PROMOTE", "active_ensemble": rep["active_ensemble"],
+    # safe_mode.json (modules/meta_cognition) ist der echte Safe Mode; hier nur, ob Meta aktiv ist
+    state = {"meta_active": rep["decision"]["verdict"] == "PROMOTE", "safe_mode": False,
+             "active_ensemble": rep["active_ensemble"],
              "meta_version": rep["meta_version"],
              "reasons": ([f"Meta-Learning nicht promoted ({rep['decision']['verdict']}) – Referenz aktiv"]
                          if rep["decision"]["verdict"] != "PROMOTE" else []),
