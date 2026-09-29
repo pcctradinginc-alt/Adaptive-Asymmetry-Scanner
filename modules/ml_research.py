@@ -44,18 +44,28 @@ import yaml
 log = logging.getLogger(__name__)
 
 REGISTRY_PATH = Path("config/model_registry.yaml")
+PROTOCOL_PATH = Path(__file__).resolve().parent.parent / "config" / "research_protocol.yaml"
+
+
+def load_protocol(path: Path = PROTOCOL_PATH) -> dict:
+    """Geschütztes Bewertungsprotokoll (Kosten, Zeiträume, Kriterien)."""
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+
+PROTOCOL = load_protocol()
 OUT_DIR = Path("outputs/research")
 PRED_DIR = OUT_DIR / "ml_predictions"
 REGISTRY_LOG = OUT_DIR / "ml_registry_log.json"
 SECTOR_CACHE = OUT_DIR / "sector_map.json"
 
 LABEL_HORIZONS = (20, 60)
-TRAIN_START = "2015-01-01"
-FIRST_TEST_YEAR = 2019
-COST_BASE = 0.0010
-COST_STRESS = 0.0025
-TOP_Q = 0.10
-MIN_CROSS_SECTION = 50
+TRAIN_START = PROTOCOL["periods"]["train_start"]
+FIRST_TEST_YEAR = int(PROTOCOL["periods"]["first_test_year"])
+LOCKED_FROM = pd.Timestamp(PROTOCOL["periods"]["locked_from"])
+COST_BASE = float(PROTOCOL["costs"]["base_per_side"])
+COST_STRESS = float(PROTOCOL["costs"]["stress_per_side"])
+TOP_Q = float(PROTOCOL["portfolio"]["top_quantile"])
+MIN_CROSS_SECTION = int(PROTOCOL["portfolio"]["min_cross_section"])
 TARGET_CLIP = {"fwd_xs_20": 0.5, "fwd_xs_60": 0.8, "asym_20": 5.0, "asym_60": 5.0}
 
 STOCK_FEATURES = ("mom_12_1", "mom_3m", "rev_1m", "ret_5d", "rs_63", "vol_20", "vol_60", "vol_ratio",
@@ -215,8 +225,15 @@ def _grid(spec: dict) -> list[dict]:
 
 
 def feature_list(spec: dict) -> list[str]:
+    """features: "all" oder Liste aus Feature-Namen und "group:<name>"."""
     f = spec.get("features", "all")
-    return list(ALL_FEATURES) if f == "all" else [x for x in f if x in ALL_FEATURES]
+    if f == "all":
+        return list(ALL_FEATURES)
+    out = []
+    for x in f:
+        names = FEATURE_GROUPS.get(x[6:], ()) if str(x).startswith("group:") else (x,)
+        out += [n for n in names if n in ALL_FEATURES and n not in out]
+    return out
 
 
 def _xy(df: pd.DataFrame, spec: dict, cols: list[str]):
@@ -659,6 +676,170 @@ def latest_scores(max_age_days: int = 8, pred_dir: Path = PRED_DIR, today=None) 
     return {mid: r["rank_pct"] for mid, r in best.items()}
 
 
+# ── Unsicherheit, Analogien, Kontrafaktisches ────────────────────────────────
+
+UNC = PROTOCOL["uncertainty"]
+CARDS_PATH = OUT_DIR / "ml_cards.json"
+_UNC_PARAMS = {"max_iter": 200, "learning_rate": 0.05, "max_depth": 3, "min_samples_leaf": 300}
+
+
+def fit_uncertainty(train: pd.DataFrame) -> dict:
+    """Quantil-Modelle für die 60-Tage-Rendite (80-%-Intervall + Median),
+    Median-Drawdown (MAE_60) und P(Rendite_60 > up_threshold)."""
+    from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+    t = train[train["fwd_ret_60"].notna() & train["mae_60"].notna()]
+    cols = [c for c in ALL_FEATURES if t[c].notna().any()]
+    X = t[cols].to_numpy(float)
+    y = t["fwd_ret_60"].clip(-0.9, 1.5).to_numpy(float)
+    lo, hi = UNC["interval"]
+    out = {"cols": cols}
+    for name, q in (("q_lo", lo), ("q_mid", 0.5), ("q_hi", hi)):
+        out[name] = HistGradientBoostingRegressor(loss="quantile", quantile=q, random_state=0,
+                                                  early_stopping=False, **_UNC_PARAMS).fit(X, y)
+    out["mae_mid"] = HistGradientBoostingRegressor(loss="quantile", quantile=0.5, random_state=0, early_stopping=False,
+                                                   **_UNC_PARAMS).fit(X, t["mae_60"].clip(-0.95, 0).to_numpy(float))
+    up = (t["fwd_ret_60"] > UNC["up_threshold"]).astype(int).to_numpy()
+    out["p_up"] = HistGradientBoostingClassifier(random_state=0, early_stopping=False, **_UNC_PARAMS).fit(X, up) \
+        if up.min() != up.max() else None
+    out["base_rate_up"] = float(up.mean())
+    return out
+
+
+def predict_uncertainty(models: dict, df: pd.DataFrame) -> pd.DataFrame:
+    X = df[models["cols"]].to_numpy(float)
+    q = np.sort(np.column_stack([models[k].predict(X) for k in ("q_lo", "q_mid", "q_hi")]), axis=1)
+    out = pd.DataFrame({"q_lo": q[:, 0], "q_mid": q[:, 1], "q_hi": q[:, 2],
+                        "mae_mid": np.minimum(models["mae_mid"].predict(X), 0.0)}, index=df.index)
+    out["p_up"] = models["p_up"].predict_proba(X)[:, 1] if models["p_up"] is not None else models["base_rate_up"]
+    return out
+
+
+def calibration_wf(panel: pd.DataFrame, locked_from: pd.Timestamp, first_test_year: int = FIRST_TEST_YEAR) -> dict:
+    """Weiß das System, wann es wenig weiß? Walk-Forward-Prüfung: Abdeckung des
+    80-%-Intervalls und Brier-Score von P(>+10 %) gegen die Basisrate."""
+    rows = []
+    for y in range(first_test_year, (locked_from - pd.Timedelta(days=1)).year + 1):
+        ts = pd.Timestamp(year=y, month=1, day=1)
+        train = purged(panel, ts, 60)
+        test = panel[(panel["date"] >= ts) & (panel["date"] < min(ts + pd.DateOffset(years=1), locked_from))]
+        test = test[test["label_end_60"].notna() & (test["label_end_60"] < locked_from) & test["fwd_ret_60"].notna()]
+        if len(train) < 5000 or test.empty:
+            continue
+        m = fit_uncertainty(train)
+        p = predict_uncertainty(m, test)
+        r = test["fwd_ret_60"]
+        up = (r > UNC["up_threshold"]).astype(float)
+        rows.append({"year": y, "n": int(len(test)),
+                     "coverage_80": _r(((r >= p["q_lo"]) & (r <= p["q_hi"])).mean(), 4),
+                     "below_lo": _r((r < p["q_lo"]).mean(), 4), "above_hi": _r((r > p["q_hi"]).mean(), 4),
+                     "brier": _r(((p["p_up"] - up) ** 2).mean(), 5),
+                     "brier_base": _r(((m["base_rate_up"] - up) ** 2).mean(), 5),
+                     "mae_coverage_50": _r((test["mae_60"] >= p["mae_mid"]).mean(), 4)})
+    if not rows:
+        return {"status": "no_data"}
+    df = pd.DataFrame(rows)
+    target = UNC["interval"][1] - UNC["interval"][0]
+    cov = float(np.average(df["coverage_80"], weights=df["n"]))
+    brier, base = float(np.average(df["brier"], weights=df["n"])), float(np.average(df["brier_base"], weights=df["n"]))
+    return {"status": "ok", "by_year": rows, "coverage": _r(cov, 4), "target": target,
+            "interval_calibrated": abs(cov - target) <= UNC["coverage_tolerance"],
+            "brier": _r(brier, 5), "brier_base": _r(base, 5), "p_up_skill": _r(1 - brier / base, 4) if base > 0 else None}
+
+
+def _level(x: float | None, cuts: tuple[float, float], labels=("LOW", "MEDIUM", "HIGH")) -> str:
+    if x is None or not np.isfinite(x):
+        return "UNKNOWN"
+    return labels[0] if x < cuts[0] else labels[1] if x < cuts[1] else labels[2]
+
+
+def analogs(hist: pd.DataFrame, query: pd.DataFrame, k: int) -> pd.DataFrame:
+    """k nächste historische Situationen (Aktienmerkmals-Ränge) mit fertigem
+    60-Tage-Label vor dem Stichtag: Verteilung dessen, was danach geschah."""
+    from sklearn.neighbors import NearestNeighbors
+    cols = list(STOCK_FEATURES)
+    h = hist[hist["fwd_ret_60"].notna()]
+    if len(h) < k or query.empty:
+        return pd.DataFrame(index=query.index)
+    nn = NearestNeighbors(n_neighbors=k).fit(h[cols].fillna(0.0).to_numpy(float))
+    _, idx = nn.kneighbors(query[cols].fillna(0.0).to_numpy(float))
+    r = h["fwd_ret_60"].to_numpy()[idx]
+    mae = h["mae_60"].to_numpy()[idx]
+    years = pd.DatetimeIndex(h["date"]).year.to_numpy()[idx]
+    return pd.DataFrame({"analog_median_ret_60": np.nanmedian(r, axis=1), "analog_share_positive": (r > 0).mean(axis=1),
+                         "analog_median_mae_60": np.nanmedian(mae, axis=1),
+                         "analog_years": [f"{a.min()}-{a.max()}" for a in years]}, index=query.index)
+
+
+def counterfactual_drivers(models: dict, row: pd.DataFrame, top: int = 3) -> dict:
+    """Welche Merkmale tragen die Median-Prognose? Jedes Aktienmerkmal wird auf
+    neutral (Querschnittsmitte) gesetzt; die größten Rückgänge sind das, was
+    kippen müsste, damit das Setup schlechter wird."""
+    base = float(predict_uncertainty(models, row)["q_mid"].iloc[0])
+    deltas = {}
+    for f in STOCK_FEATURES:
+        if f not in models["cols"] or pd.isna(row[f].iloc[0]):
+            continue
+        r2 = row.copy()
+        r2[f] = 0.0
+        deltas[f] = base - float(predict_uncertainty(models, r2)["q_mid"].iloc[0])
+    pos = sorted(((k, v) for k, v in deltas.items() if v > 0), key=lambda kv: -kv[1])[:top]
+    neg = sorted(((k, v) for k, v in deltas.items() if v < 0), key=lambda kv: kv[1])[:top]
+    return {"supports": {k: _r(v, 4) for k, v in pos}, "weighs_against": {k: _r(v, 4) for k, v in neg}}
+
+
+def build_cards(panel: pd.DataFrame, rank_by_model: dict[str, dict], calibration: dict | None = None,
+                top_n_drivers: int = 60) -> dict:
+    """Entscheidungskarte je Ticker des jüngsten Stichtags."""
+    latest = panel["date"].max()
+    snap = panel[panel["date"] == latest]
+    train = purged(panel, latest + pd.Timedelta(days=1), 60)
+    if len(train) < 5000 or snap.empty:
+        return {}
+    m = fit_uncertainty(train)
+    u = predict_uncertainty(m, snap)
+    an = analogs(train, snap, int(UNC["analogs_k"]))
+    ranks = pd.DataFrame(rank_by_model).reindex(snap["ticker"])
+    challengers = [c for c in ranks.columns if not c.startswith("momentum")]
+    disagree = ranks[challengers].std(axis=1) if len(challengers) >= 2 else pd.Series(np.nan, index=ranks.index)
+    mean_rank = ranks[challengers].mean(axis=1) if challengers else pd.Series(np.nan, index=ranks.index)
+    feat_cov = snap[list(ALL_FEATURES)].notna().mean(axis=1)
+    d = snap.iloc[0]
+    date_avail = float(pd.Series([d[c] for c in DATE_FEATURES]).notna().mean())
+    near_edge = (abs((d["vix"] or 20) - 20) < 2) or (abs(d["spy_trend_200"] or 0) < 0.02)
+    regime_conf = "HIGH" if date_avail >= 0.9 and not near_edge else "MEDIUM" if date_avail >= 0.7 else "LOW"
+    top_tickers = set(mean_rank.sort_values(ascending=False).head(top_n_drivers).index)
+    cards = {}
+    for i, row in snap.iterrows():
+        t = row["ticker"]
+        c = {"expected_return_60": _r(u.at[i, "q_mid"], 4),
+             "interval_80": [_r(u.at[i, "q_lo"], 4), _r(u.at[i, "q_hi"], 4)],
+             "expected_drawdown_60": _r(u.at[i, "mae_mid"], 4),
+             "p_return_gt_10": _r(u.at[i, "p_up"], 3),
+             "model_disagreement": _level(disagree.get(t), (0.15, 0.25), ("LOW", "MEDIUM", "HIGH")),
+             "model_disagreement_sd": _r(disagree.get(t), 3), "mean_challenger_rank": _r(mean_rank.get(t), 3),
+             "data_quality": _level(feat_cov.at[i], (0.8, 0.95)), "regime_confidence": regime_conf,
+             "interval_calibrated": (calibration or {}).get("interval_calibrated"),
+             "p_up_skill": (calibration or {}).get("p_up_skill")}
+        if i in an.index and len(an.columns):
+            c["analogs"] = {k: (_r(v, 4) if not isinstance(v, str) else v) for k, v in an.loc[i].items()}
+        if t in top_tickers:
+            c["counterfactual"] = counterfactual_drivers(m, snap.loc[[i]])
+        cards[t] = c
+    return {"date": str(latest.date()), "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "note": "SHADOW – Forschungskarte, keine Handelsempfehlung", "cards": cards}
+
+
+def latest_cards(max_age_days: int = 8, path: Path | None = None, today=None) -> dict:
+    path = path or CARDS_PATH
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text())
+    today = pd.Timestamp(today or datetime.now(timezone.utc).date())
+    if (today - pd.Timestamp(data.get("date", "1900-01-01"))).days > max_age_days:
+        return {}
+    return data.get("cards", {})
+
+
 # ── Daten (nur CI, Netzwerk) ─────────────────────────────────────────────────
 
 def fetch_data(tickers: list[str], start: str = "2014-01-01"):
@@ -746,6 +927,13 @@ def render_md(rep: dict) -> str:
                  f"{b.get('max_dd')} | {b.get('years_positive_share')} | {ic.get('mean_ic')} | {ic.get('t_months')} | "
                  f"{s.get('mean')} | {lk.get('mean')} | {fw.get('n_cohorts', 0)} | {fw.get('mean')} | "
                  f"{b.get('top_asymmetry')}/{b.get('univ_asymmetry')} | {m.get('decision', {}).get('verdict')} |")
+    cal = rep.get("calibration") or {}
+    if cal.get("status") == "ok":
+        L += ["", "## Unsicherheit (Walk-Forward-Kalibrierung)", "",
+              f"- 80-%-Intervall der 60-Tage-Rendite deckt {cal['coverage']} ab (Soll {cal['target']}) -> "
+              f"{'kalibriert' if cal['interval_calibrated'] else 'NICHT kalibriert'}",
+              f"- P(Rendite_60 > +10 %): Brier {cal['brier']} vs. Basisrate {cal['brier_base']} "
+              f"(Skill {cal['p_up_skill']}; <= 0 heißt: keine Information über die Basisrate hinaus)"]
     for mid, m in rep.get("models", {}).items():
         L += ["", f"## {mid}", ""]
         for r in m.get("decision", {}).get("reasons", []):
@@ -767,11 +955,8 @@ def render_md(rep: dict) -> str:
     return "\n".join(L) + "\n"
 
 
-def run(mode: str = "full") -> dict:
+def build_research_panel(mode: str = "full") -> pd.DataFrame:
     from modules.universe import get_universe
-    reg = load_registry()
-    status, book = check_registry(reg)
-    locked_from = pd.Timestamp(reg.get("locked_from", "2025-07-01"))
     tickers = sorted(set(get_universe()))
     frames, spy, vix, tnx, irx = fetch_data(tickers)
     now = datetime.now(timezone.utc)
@@ -779,9 +964,22 @@ def run(mode: str = "full") -> dict:
         spy = spy[spy.index.date < now.date()]
     log.info(f"ml_research: {len(frames)}/{len(tickers)} Ticker geladen")
     pred_dates = {r["prediction_date"] for r in _read_predictions()}
-    panel = build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
-                        sectors=sector_map(tickers) if mode == "full" else
-                        (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}))
+    return build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
+                       sectors=sector_map(tickers) if mode == "full" else
+                       (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}))
+
+
+def run(mode: str = "full") -> dict:
+    import os
+    import pickle
+    reg = load_registry()
+    status, book = check_registry(reg)
+    locked_from = LOCKED_FROM
+    panel = build_research_panel(mode)
+    cache = os.environ.get("ML_PANEL_CACHE")
+    if cache:
+        with open(cache, "wb") as fh:
+            pickle.dump(panel, fh)
     rep = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "mode": mode,
            "n_rows": int(len(panel)), "n_tickers": int(panel["ticker"].nunique()),
            "period": f"{panel['date'].min().date()}..{panel['date'].max().date()}",
@@ -790,7 +988,18 @@ def run(mode: str = "full") -> dict:
     new = predict_latest(panel, reg, status)
     rep["new_predictions"] = [f"{r['model_id']}@{r['prediction_date']}" for r in new]
     fwd = forward_eval(panel, reg)
-    crit = reg.get("promotion_criteria") or {}
+    calib = calibration_wf(panel, locked_from) if mode == "full" else \
+        (json.loads((OUT_DIR / "ml_research.json").read_text()).get("calibration")
+         if (OUT_DIR / "ml_research.json").exists() else None)
+    rep["calibration"] = calib
+    latest = panel["date"].max().date().isoformat()
+    ranks = {r["model_id"]: r["rank_pct"] for r in _read_predictions() if r["prediction_date"] == latest}
+    cards = build_cards(panel, ranks, calib)
+    if cards:
+        CARDS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        CARDS_PATH.write_text(json.dumps(cards, indent=1, ensure_ascii=False, default=str))
+        rep["cards"] = {"date": cards["date"], "n": len(cards["cards"])}
+    crit = PROTOCOL["promotion_criteria"]
     bench_id = reg.get("champion") or next((s["id"] for s in reg.get("models", []) if s.get("role") == "benchmark"), None)
     if mode == "full":
         results = {}

@@ -15,18 +15,8 @@
 #   * champion wird ausschließlich per menschlichem PR gesetzt. Auch ein
 #     Champion hat keine Produktionswirkung ohne separaten, begründeten PR.
 
-locked_from: "2025-07-01"      # Locked-Holdout: Signaldaten ab hier nie in Entwicklung/Selektion
 champion: null                 # Produktion nutzt kein ML-Modell
-
-promotion_criteria:            # vorab festgelegt, gelten für jeden Challenger
-  wf_min_t_months: 2.0         # Walk-Forward Top-Dezil netto: t >= 2 über Monate
-  wf_min_years_positive: 0.6   # positiv in >= 60 % der Testjahre
-  min_sharpe_margin: 0.10      # Sharpe > Benchmark (Champion, sonst momentum_12_1) + 0.10
-  max_dd_not_worse: true       # Max-Drawdown nicht schlechter als Benchmark
-  min_ic_t: 2.0                # mittlerer Rank-IC > 0 mit t >= 2
-  locked_positive: true        # Locked-Holdout netto > 0
-  fwd_min_cohorts: 26          # Forward-Shadow: >= 26 Wochen-Kohorten mit fertigen Labels
-  fwd_positive: true           # Forward-Shadow netto > 0 und >= Benchmark
+# Locked-Holdout, Kosten und Promotionskriterien: config/research_protocol.yaml (geschützt)
 
 models:
   - id: momentum_12_1
@@ -64,6 +54,33 @@ models:
     model: hist_gbm
     target: asym_20          # (MFE_20 + MAE_20) / (sigma20 * sqrt(20)): Chance minus Risiko, vol-normiert
     features: all
+    params_grid:
+      max_iter: [150, 400]
+      learning_rate: [0.05]
+      max_depth: [3]
+      min_samples_leaf: [300]
+
+  # Spezialisten (Registrierung 2026-09-29, zweite Welle): je Merkmalsgruppe ein
+  # eigenes Modell; ein Meta-Modell kommt erst, wenn mindestens zwei Spezialisten
+  # einzeln belegt sind (Präregistrierung).
+  - id: hgb_xs20_momentum_v1
+    registered_at: "2026-09-29T15:00:00Z"
+    role: challenger
+    model: hist_gbm
+    target: fwd_xs_20
+    features: ["group:momentum", "group:liquidity"]
+    params_grid:
+      max_iter: [150, 400]
+      learning_rate: [0.05]
+      max_depth: [3]
+      min_samples_leaf: [300]
+
+  - id: hgb_xs20_risk_regime_v1
+    registered_at: "2026-09-29T15:00:00Z"
+    role: challenger
+    model: hist_gbm
+    target: fwd_xs_20
+    features: ["group:risk", "group:market", "group:macro"]
     params_grid:
       max_iter: [150, 400]
       learning_rate: [0.05]
