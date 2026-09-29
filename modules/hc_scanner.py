@@ -137,6 +137,86 @@ def global_gate(rule: dict, cards_meta: dict, calibration: dict | None) -> list[
     return reasons
 
 
+def regime_compatible(meta_json: dict, nextv: dict, regime: dict) -> tuple[bool, str]:
+    """World-State-Kompatibilität: Nur handeln, wo das aktive Ensemble historisch
+    OOS verdient hat. Bestätigte Abstinenz-Regel hat Vorrang (next_validation)."""
+    vix, tr = regime.get("vix"), regime.get("spy_trend_200")
+    if vix is None or tr is None:
+        return False, "Regime unbekannt"
+    ab = (nextv or {}).get("abstention_confirmation") or {}
+    if ab.get("confirmed"):
+        ok = vix >= 20 or tr <= 0
+        return ok, f"Abstinenz-Regel (bestätigt): {'aktiv' if ok else 'ruhiges Aufwärts-Regime -> nichts tun'}"
+    act = (meta_json or {}).get("active_ensemble", "static_equal")
+    reg = (((meta_json or {}).get("approaches") or {}).get(act) or {}).get("by_regime") or {}
+    kv = "vix_ge_20" if vix >= 20 else "vix_lt_20"
+    kt = "spy_uptrend" if tr > 0 else "spy_downtrend"
+    ev, et = (reg.get(kv) or {}).get("expectancy"), (reg.get(kt) or {}).get("expectancy")
+    if ev is None or et is None:
+        return False, "keine Regime-Historie"
+    ok = ev > 0 and et > 0
+    return ok, f"historische Expectancy {kv}={ev}, {kt}={et}"
+
+
+def intelligence_checks(cands: list[dict], panel, specs: list[dict], out_dir: Path) -> tuple[list[dict], list[dict]]:
+    """Phase 16: Ein Signal wird trotz hoher Wahrscheinlichkeit abgelehnt bei
+    Counterfactual-Fragilität, KG-Widerspruch, Unknown-Risk (Blind-Spot-Segment)
+    oder negativem Portfolio-Beitrag. -> (behalten, abgelehnt mit Grund)."""
+    if not cands:
+        return [], []
+    from modules import blind_spots as bs
+    from modules import counterfactual as cf
+    from modules import decision_intel as dint
+    nextv = _load(out_dir / "next_validation.json", {})
+    kept, rejected = [], []
+    cfx = cf.latest_counterfactuals(panel, specs) if specs else {}
+    per = (cfx or {}).get("per_ticker") or {}
+    try:
+        from modules import knowledge_graph as kg
+        graph = kg.build_graph(**kg.load_inputs())
+    except (ImportError, OSError, ValueError, KeyError, TypeError) as e:
+        log.warning(f"hc_scanner: Knowledge Graph nicht verfügbar ({e})")
+        graph = None
+    clusters = [{"properties": c.get("common_properties") or {}} for c in nextv.get("blind_spot_clusters") or []]
+    snap = panel[panel["date"] == panel["date"].max()].set_index("ticker")
+    for c in cands:
+        t = c["ticker"]
+        why = []
+        cft = per.get(t)
+        if cft is None:
+            why.append("keine Counterfactual-Auswertung")
+        elif cft.get("fragile"):
+            why.append(f"fragil: fällt unter '{cft.get('worst_case')}' aus dem Top-Dezil")
+        if graph is not None:
+            ev = kg.ticker_evidence(graph, t)
+            if ev.get("contradictions"):
+                why.append(f"Knowledge Graph widersprüchlich: {ev['contradictions'][:2]}")
+            c["kg_evidence"] = {k: ev.get(k) for k in ("leading_indicators", "exposures")}
+        if t in snap.index and clusters and bool(bs.match(snap.loc[[t]].reset_index(), clusters).iloc[0]):
+            why.append("Unknown-Risk: Titel liegt in einem Blind-Spot-Segment")
+        c["counterfactual"] = cft
+        if why:
+            rejected.append({"ticker": t, "reasons": why})
+        else:
+            kept.append(c)
+    if kept:
+        info = {c["ticker"]: {"exp": (c["card"] or {}).get("expected_return_60"), "prob": c["prob"],
+                              "downside": ((c["card"] or {}).get("interval_80") or [None])[0],
+                              "drawdown": (c["card"] or {}).get("expected_drawdown_60"), "asymmetry": c["asymmetry"]}
+                for c in kept}
+        prof = dint.candidate_profile(list(info), panel, info)
+        final = []
+        for c in kept:
+            p = prof.get(c["ticker"]) or {}
+            c["portfolio"] = p
+            if (p.get("portfolio_utility") or 0) <= 0:
+                rejected.append({"ticker": c["ticker"], "reasons": [f"Portfolio-Nutzen {p.get('portfolio_utility')} <= 0"]})
+            else:
+                final.append(c)
+        kept = final
+    return kept, rejected
+
+
 def evaluate_candidates(ens: dict, cards: dict, rule: dict, liquidity: dict, today: date,
                         earnings_fn=earnings_days) -> list[dict]:
     r = rule.get("rule") or {}
@@ -226,6 +306,10 @@ def build_alert(c: dict, rule: dict, signal_date: str, regime: dict, versions: d
             "Regimewechsel (VIX-Schwelle 20 / SPY unter 200-Tage-Linie)"] if x],
         "model_version": versions.get("models"), "meta_model_version": versions.get("meta"),
         "confidence": c["confidence"],
+        "counterfactual": {k: (c.get("counterfactual") or {}).get(k) for k in
+                           ("expected_return_60", "scenario_ranks", "worst_case", "fragile", "dominant_assumption")},
+        "knowledge_graph_evidence": c.get("kg_evidence"),
+        "portfolio": c.get("portfolio"),
         "uncertainty_note": "Kalibrierte Wahrscheinlichkeiten im Querschnitt liegen typischerweise nur wenige "
                             "Prozentpunkte über 50 %; alle Angaben sind Schätzungen mit breiten Bändern.",
     }
@@ -313,6 +397,12 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
     active = rule.get("active_ensemble", "static_equal")
     weights = rule.get("current_weights") if active != "static_equal" else None
     reasons = global_gate(rule, cards_doc.get("cards", {}), calibration)
+    sm = _load(out_dir / "safe_mode.json", {})
+    if sm.get("active"):
+        reasons.append(f"SAFE MODE aktiv: {'; '.join(sm.get('reasons') or [])}")
+    mi = (_load(out_dir / "meta_learning.json", {}) or {}).get("model_intelligence") or {}
+    if mi and sum(1 for m in mi.values() if m.get("trend") == "deteriorating") / len(mi) >= 0.5:
+        reasons.append("Alpha Decay: Mehrheit der Modelle 'deteriorating'")
     if latest is None:
         reasons.append("keine aktuellen Modellprognosen")
     elif (today - date.fromisoformat(latest)).days > 8:
@@ -326,7 +416,16 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
         liquidity = dict(zip(snap["ticker"], snap["log_dollar_vol"]))
         regime = {"vix": float(snap["vix"].iloc[0]) if len(snap) else None,
                   "spy_trend_200": float(snap["spy_trend_200"].iloc[0]) if len(snap) else None}
-        cands = evaluate_candidates(ens, cards_doc.get("cards", {}), rule, liquidity, today, earnings_fn)
+        ok_reg, why_reg = regime_compatible(_load(out_dir / "meta_learning.json", {}),
+                                            _load(out_dir / "next_validation.json", {}), regime)
+        result["regime_compatibility"] = why_reg
+        cands = evaluate_candidates(ens, cards_doc.get("cards", {}), rule, liquidity, today, earnings_fn) if ok_reg else []
+        if not ok_reg:
+            result["disabled_reason"] = f"Regime nicht kompatibel – besser nichts tun ({why_reg})"
+        reg = ml.load_registry()
+        st_reg, _ = ml.check_registry(reg)
+        specs = [x for x in reg.get("models") or [] if st_reg.get(x["id"]) == "valid"]
+        cands, result["rejected_by_intelligence"] = intelligence_checks(cands, panel, specs, out_dir)
         versions = {"models": {m: r.get("spec_hash") for r in preds if r["prediction_date"] == latest
                                for m in [r["model_id"]]}, "meta": rule.get("meta_version"), "ensemble": active}
         alerts = [build_alert(c, rule, latest, regime, versions, name_fn(c["ticker"])) for c in cands]

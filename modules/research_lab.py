@@ -47,9 +47,16 @@ from modules import ml_research as ml
 log = logging.getLogger(__name__)
 
 HYP_CONFIG = Path("config/hypotheses.yaml")
+DIRECTOR_PATH = Path("outputs/research/director_hypotheses.json")   # vom Research Director erzeugt (maschinell)
+SIMILARITY_BLOCK = 0.6            # Jaccard der Wort-Tokens (Titel+Aussage) zu einer verworfenen Hypothese
+CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
+             "rejected_locked": "REJECTED", "duplicate": "REJECTED", "blocked_similar_to_rejected": "REJECTED",
+             "invalid_modified": "REJECTED", "not_significant_after_fdr": "INCONCLUSIVE",
+             "passed_pre_fdr": "INCONCLUSIVE", "passed_pending_locked": "RETEST_LATER",
+             "insufficient_coverage": "RETEST_LATER", "blocked_data": "RETEST_LATER"}
 DB_PATH = ml.OUT_DIR / "hypothesis_db.json"
 ALLOWED_NAMES = frozenset(ml.ALL_FEATURES)
-ALLOWED_FUNCS = frozenset({"rank", "sign", "abs"})
+ALLOWED_FUNCS = frozenset({"rank", "sign", "abs", "step"})
 _BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div)
 
 
@@ -73,7 +80,7 @@ def validate_expr(expr: str) -> ast.Expression:
         elif isinstance(node, ast.Call):
             if not isinstance(node.func, ast.Name) or node.func.id not in ALLOWED_FUNCS or len(node.args) != 1 \
                     or node.keywords:
-                raise SignalError("nur rank(x), sign(x), abs(x) erlaubt")
+                raise SignalError("nur rank(x), sign(x), abs(x), step(x) erlaubt")
         elif isinstance(node, ast.BinOp):
             if not isinstance(node.op, _BINOPS):
                 raise SignalError("nur + - * / erlaubt")
@@ -96,7 +103,8 @@ def eval_signal(panel: pd.DataFrame, expr: str) -> pd.Series:
         s = s if isinstance(s, pd.Series) else pd.Series(s, index=panel.index)
         return s.groupby(dates).rank(pct=True) - 0.5
     ns = {n: panel[n] for n in ALLOWED_NAMES if n in panel.columns}
-    ns.update({"rank": rank, "sign": np.sign, "abs": np.abs})
+    ns.update({"rank": rank, "sign": np.sign, "abs": np.abs,
+               "step": lambda x: (x > 0).astype(float).where(pd.notna(x)) if isinstance(x, pd.Series) else float(x > 0)})
     out = eval(compile(tree, "<signal>", "eval"), {"__builtins__": {}}, ns)  # noqa: S307 – AST vorab auf Whitelist geprüft
     if not isinstance(out, pd.Series):
         raise SignalError("Ausdruck ergibt kein Merkmal je Zeile")
@@ -297,6 +305,71 @@ def discover(panel: pd.DataFrame, protocol: dict) -> dict:
 
 # ── Datenbank + Lauf ─────────────────────────────────────────────────────────
 
+def _tokens(h: dict) -> set:
+    import re
+    txt = f"{h.get('title') or ''} {h.get('statement') or ''} {h.get('signal') or ''}".lower()
+    return {w for w in re.findall(r"[a-zäöüß0-9_]+", txt) if len(w) > 2}
+
+
+def text_similarity(a: dict, b: dict) -> float:
+    ta, tb = _tokens(a), _tokens(b)
+    return len(ta & tb) / len(ta | tb) if ta and tb else 0.0
+
+
+def canonical_status(rec: dict) -> str:
+    if rec.get("canonical_status"):
+        return rec["canonical_status"]
+    if rec.get("status") == "prior_result":
+        return "REJECTED"
+    return CANONICAL.get(rec.get("status"), "INCONCLUSIVE")
+
+
+def memory_fields(rec: dict, hyp: dict) -> dict:
+    """Forschungsgedächtnis: was, warum, womit, wie validiert, Ergebnis."""
+    names = []
+    try:
+        names = sorted({n.id for n in ast.walk(validate_expr(hyp["signal"])) if isinstance(n, ast.Name)
+                        and n.id in ALLOWED_NAMES})
+    except (SignalError, KeyError):
+        names = []
+    return {"question": hyp.get("statement") or hyp.get("title"), "why_tested": hyp.get("rationale") or hyp.get("why")
+            or hyp.get("source"), "data_used": ["ml_research Feature-Store (wöchentliche PIT-Querschnitte)"] + names,
+            "feature_definitions": {n: "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py" for n in names},
+            "parameters": "keine (festes Signal, Richtung vorab)", "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+            "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+            "decision_date": datetime.now(timezone.utc).date().isoformat(), "model_version": ml._code_sha()}
+
+
+def adversarial_review(rec: dict, protocol: dict) -> dict:
+    """Self-Play: strukturierte Rollen, alle aus gemessenen Werten; keine Rolle
+    entscheidet – die Entscheidung trifft allein die vorab definierte Prüfkette."""
+    wf = rec.get("walk_forward") or {}
+    b, st, ic = wf.get("base", {}), wf.get("stress", {}), wf.get("ic", {})
+    rg = rec.get("regimes") or {}
+    return {
+        "researcher": f"Evidenz: netto {b.get('mean')} je 20 Tage, t={b.get('t_months')}, Rank-IC {ic.get('mean_ic')}, "
+                      f"Asymmetrie Top/Univ {b.get('top_asymmetry')}/{b.get('univ_asymmetry')}",
+        "skeptic": f"Hälften {wf.get('halves')}; Jahre positiv {b.get('years_positive_share')}; "
+                   f"Regime mit Versagen: {[k for k, v in rg.items() if v == 'fails'] or 'keine'}",
+        "statistician": f"n={b.get('n_cohorts')} Kohorten/{b.get('n_months')} Monate, p={rec.get('p_value')}, "
+                        f"BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; "
+                           "Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": f"Regime-Urteile {rg}",
+        "execution_agent": f"Stresskosten 25 bp/Seite: netto {st.get('mean')}; Max-DD {b.get('max_dd')}",
+        "failure_agent": f"Schlechteste Phase laut Max-DD {b.get('max_dd')}; Jahre positiv {b.get('years_positive_share')}",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle",
+    }
+
+
+def load_director(path: Path = DIRECTOR_PATH) -> list[dict]:
+    try:
+        return [{**h, "source": "director"} for h in json.loads(path.read_text()).get("hypotheses", [])] if path.exists() else []
+    except (OSError, json.JSONDecodeError) as e:
+        log.warning(f"research_lab: Director-Hypothesen nicht lesbar ({e})")
+        return []
+
+
 def load_hypotheses(path: Path = HYP_CONFIG) -> list[dict]:
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     return data.get("hypotheses") or []
@@ -311,7 +384,7 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
     protocol = protocol or ml.PROTOCOL
     db = load_db(db_path)
     recs: dict = db.setdefault("hypotheses", {})
-    hyps = load_hypotheses(hyp_path)
+    hyps = load_hypotheses(hyp_path) + (load_director() if hyp_path == HYP_CONFIG else [])
     if with_discovery:
         d = discover(panel, protocol)
         db["discovery"] = {k: v for k, v in d.items() if k != "survivors"}
@@ -332,7 +405,21 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
             recs[hyp["id"]] = {**prev, "status": "invalid_modified",
                                "reasons": ["Signal nach Test geändert – neue id nötig"]}
             continue
+        if not prev:                                            # neue Idee: Ähnlichkeit zu Verworfenem?
+            sim = [(k, text_similarity(hyp, r)) for k, r in recs.items() if canonical_status(r) == "REJECTED"
+                   and k != hyp["id"] and not r.get("retest_after")]
+            k_best, s_best = max(sim, key=lambda x: x[1], default=(None, 0.0))
+            if s_best >= SIMILARITY_BLOCK:
+                recs[hyp["id"]] = {"id": hyp["id"], "title": hyp.get("title"), "signal": hyp.get("signal"),
+                                   "source": hyp.get("source"), "status": "blocked_similar_to_rejected",
+                                   "similar_to": k_best, "similarity": round(s_best, 3),
+                                   "reasons": [f"zu ähnlich zu verworfener Hypothese {k_best} (Jaccard {s_best:.2f})"],
+                                   "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+                continue
         rec = evaluate_hypothesis(panel, hyp, tested_signals, protocol)
+        rec["memory"] = memory_fields(rec, hyp)
+        if rec.get("walk_forward"):
+            rec["adversarial_review"] = adversarial_review(rec, protocol)
         if prev and prev.get("locked"):
             rec["locked"] = prev["locked"]                     # Locked nie erneut
         recs[hyp["id"]] = rec
@@ -362,6 +449,11 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         lb = (r.get("locked") or {}).get("base", {})
         ok = (lb.get("mean") or -1) > 0 or not protocol["hypothesis_acceptance"].get("locked_must_be_positive")
         r["status"] = "accepted" if ok else "rejected_locked"
+    for k, r in recs.items():
+        r["canonical_status"] = canonical_status(r) if r.get("status") != "prior_result" or not r.get("canonical_status") \
+            else r["canonical_status"]
+    db["status_counts"] = {c: sum(1 for r in recs.values() if r["canonical_status"] == c)
+                           for c in ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER")}
     db["generated"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     db_path.parent.mkdir(parents=True, exist_ok=True)
     db_path.write_text(json.dumps(db, indent=2, ensure_ascii=False, default=str))
@@ -374,12 +466,13 @@ def render_md(db: dict) -> str:
          f"Getestet (mit p-Wert): {db.get('n_tested_total')} · Mehrfachtest: Benjamini-Hochberg über alle · "
          f"Discovery: {db.get('discovery', {}).get('n_tested')} Relationen im Fenster "
          f"{db.get('discovery', {}).get('window')}, {db.get('discovery', {}).get('n_survivors')} überlebt", "",
-         "| ID | Titel | Quelle | Status | netto (WF) | t | p | Regime | Gründe |", "|---|---|---|---|---|---|---|---|---|"]
+         f"Status: {db.get('status_counts')}", "",
+         "| ID | Titel | Quelle | Status | Kanon | netto (WF) | t | p | Regime | Gründe |", "|---|---|---|---|---|---|---|---|---|---|"]
     order = {"accepted": 0, "passed_pre_fdr": 1, "rejected_locked": 2, "not_significant_after_fdr": 3}
     for k, r in sorted(db.get("hypotheses", {}).items(), key=lambda kv: (order.get(kv[1].get("status"), 9), kv[0])):
         b = (r.get("walk_forward") or {}).get("base", {})
         reasons = "; ".join(r.get("reasons") or ([r.get("evidence")] if r.get("evidence") else []))[:160]
-        L.append(f"| {k} | {r.get('title')} | {r.get('source')} | {r.get('status')} | {b.get('mean')} | "
+        L.append(f"| {k} | {r.get('title')} | {r.get('source')} | {r.get('status')} | {r.get('canonical_status')} | {b.get('mean')} | "
                  f"{b.get('t_months')} | {r.get('p_value')} | {r.get('regimes', '')} | {reasons} |")
     return "\n".join(L) + "\n"
 

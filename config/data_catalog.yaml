@@ -1,0 +1,73 @@
+# config/data_catalog.yaml – Kandidaten-Datenquellen für Active Learning
+#
+# Kuratiert, NICHT vertrauenswürdig per se: Jede Quelle durchläuft vor Nutzung
+# die Aufnahmeprüfung (modules/research_director.py -> onboarding_checklist):
+# provenance, historical coverage, timestamp integrity, revision analysis,
+# missing-data analysis, leakage audit, incremental OOS test.
+# Kosten: 1 = frei/offizielle API, 3 = Aufwand/Registrierung, 5 = kommerziell.
+
+sources:
+  - id: alfred_payems_icsa_rsafs_isratio
+    dimension: [labour_market, consumer_demand, inventories]
+    provider: "FRED/ALFRED (BLS, DOL, Census)"
+    license: "US Government Works (gemeinfrei)"
+    pit: vintages
+    history_from: 2015
+    acquisition_cost: 1
+    status: integrated          # fred_world_macro
+  - id: earnings_calendar_history
+    dimension: [event_risk, earnings_momentum]
+    provider: "SEC EDGAR 8-K Item 2.02 (Ergebnis-Veröffentlichungen, Filing-Zeitstempel)"
+    license: "gemeinfrei (US Government)"
+    pit: filing_timestamp
+    history_from: 2004
+    acquisition_cost: 3
+    status: candidate
+  - id: ibes_estimate_revisions
+    dimension: [earnings_momentum]
+    provider: "Refinitiv I/B/E/S (kommerziell)"
+    license: "kommerziell, REVIEW_REQUIRED"
+    pit: vintages
+    history_from: 1980
+    acquisition_cost: 5
+    status: candidate
+  - id: sec_financial_statements
+    dimension: [earnings_momentum, fundamentals]
+    provider: "SEC EDGAR XBRL Financial Statement Data Sets (Filing-Datum)"
+    license: "gemeinfrei (US Government)"
+    pit: filing_timestamp
+    history_from: 2009
+    acquisition_cost: 3
+    status: candidate
+  - id: finra_short_interest
+    dimension: [positioning]
+    provider: "FINRA Equity Short Interest (zweimal monatlich, Veröffentlichungsdatum)"
+    license: "frei mit Quellenangabe (Nutzungsbedingungen prüfen: REVIEW_REQUIRED)"
+    pit: publication_date
+    history_from: 2018
+    acquisition_cost: 3
+    status: candidate
+  - id: cboe_put_call
+    dimension: [positioning, risk_appetite]
+    provider: "Cboe Market Statistics (täglich)"
+    license: "Nutzungsbedingungen prüfen: REVIEW_REQUIRED"
+    pit: daily_close
+    history_from: 2006
+    acquisition_cost: 3
+    status: candidate
+  - id: portwatch_history_pit
+    dimension: [freight_supply_chain]
+    provider: "IMF PortWatch (tägliche Archivierung seit 2026-09)"
+    license: "IMF Terms (frei mit Quellenangabe)"
+    pit: forward_archive_only
+    history_from: 2026
+    acquisition_cost: 1
+    status: accumulating        # historisch nicht PIT (available_at = Abrufdatum)
+  - id: destatis_truck_toll_pit
+    dimension: [freight_supply_chain, industrial_activity]
+    provider: "Destatis LKW-Maut-Fahrleistungsindex"
+    license: "DL-DE-BY-2.0"
+    pit: forward_archive_only
+    history_from: 2026
+    acquisition_cost: 1
+    status: accumulating

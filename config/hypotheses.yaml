@@ -44,6 +44,7 @@ hypotheses:
     status: prior_result
     source: prospective
     evidence: "läuft prospektiv (factor_monitor.llm_value_add), Urteil frühestens Mitte November 2026"
+    canonical_status: INCONCLUSIVE
 
   # ── Nicht testbar mit aktuellen Daten (Erinnerung) ─────────────────────────
   - id: HYP-0201
@@ -51,11 +52,13 @@ hypotheses:
     status: blocked_data
     source: human
     evidence: "Universum ist US (S&P 500); Maut-Archiv < 3 Jahre PIT; keine Gewinnrevisions-Historie (PIT)"
+    retest_after: "2029-09-01"
   - id: HYP-0202
     title: Hafenaktivität steigt, Aktie fällt -> Aufholpotenzial (Divergenz Realwirtschaft vs. Preis)
     status: blocked_data
     source: human
     evidence: "PortWatch ohne belastbare Ticker-Zuordnung; Archiv-Historie zu kurz für Walk-Forward ab 2019"
+    retest_after: "2029-09-01"
 
   # ── Testbar (Preis/Volumen/Makro, 2019 bis Locked) ─────────────────────────
   - id: HYP-0101

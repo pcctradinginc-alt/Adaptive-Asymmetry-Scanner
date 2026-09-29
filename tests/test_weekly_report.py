@@ -45,6 +45,21 @@ def make_full(root: Path, weight=0.12, coverage=0.65, status="rejected"):
                                       "calibration": "ok", "contribution": 0.4, "meta_weight": weight}},
     })
     _w(rs / "meta_state.json", {"safe_mode": True, "active_ensemble": "static", "reasons": ["drift"], "updated": "x"})
+    _w(rs / "safe_mode.json", {"active": True, "reasons": ["FEATURE/DATA DRIFT"], "updated": "x"})
+    _w(rs / "world_model.json", {"current": {"date": "2026-09-28", "growth_state": "neutral", "growth_score": 0.1,
+                                             "growth_uncertainty": 0.2, "uncertainty": 0.3},
+                                 "previous": {"growth_state": "low"}, "changes": ["growth: low -> neutral"],
+                                 "validation": {"verdict": "MODIFY", "better": ["dd60"], "worse": ["rv20"]}})
+    _w(rs / "machine_state.json", {"self_assessment": {"overall_calibration": "WEAK"}, "what_do_we_know": ["K1"],
+                                   "where_are_we_systematically_wrong": ["W1"], "what_are_we_uncertain_about": ["U1"],
+                                   "which_features_are_decaying": ["mom_12_1: IC 0.07 -> -0.1"]})
+    _w(rs / "next_validation.json", {"decision": "KEEP_CHAMPION", "G_components": [],
+                                     "abstention_confirmation": {"confirmed": False, "active_expectancy": 0.01},
+                                     "blind_spot_clusters": [{"id": "UNKNOWN_CLUSTER_001", "n": 40, "typical_error": -0.1,
+                                                              "lift": 1.8, "common_properties": {"trend": "downtrend"},
+                                                              "existing_model_coverage": "LOW"}]})
+    _w(rs / "active_learning.json", {"data_gaps": [{"source": "earnings_calendar_history", "dimensions": ["event_risk"],
+                                                    "expected_information_gain": 0.8, "acquisition_cost": 3, "priority": 0.2}]})
     _w(rs / "hc_candidates.json", {"date": "2026-09-29", "enabled": True, "disabled_reason": None, "rule": {},
                                    "candidates": [{"ticker": "ZZZ", "confidence": "HIGH", "calibrated_probability": 0.71,
                                                    "expected_return_20d": 0.06, "expected_downside": -0.03,
@@ -206,3 +221,17 @@ def test_real_repo_dry_run_does_not_crash(tmp_path):
     rc = weekly.main(["--dry-run", "--root", str(REPO), "--out-dir", str(tmp_path), "--date", "2026-09-29"])
     assert rc == 0
     assert (tmp_path / "weekly_2026-09-29.txt").exists()
+
+
+def test_intelligence_sections_present(tmp_path):
+    import importlib
+    wk = importlib.import_module("reports.weekly")
+    root = tmp_path
+    rs = root / "outputs" / "research"
+    rs.mkdir(parents=True)
+    (rs / "world_model.json").write_text('{"current": {"date": "2026-09-28", "growth_state": "high", "uncertainty": 0.7}}')
+    data = wk.collect(root, "2026-09-29")
+    t = wk.render_text(data)
+    for title in ("WORLD MODEL", "META-COGNITION", "ALPHA HEALTH", "RESEARCH INTELLIGENCE", "MODEL BLIND SPOTS", "ACTIVE LEARNING"):
+        assert title in t
+    assert "REGIME UNCERTAINTY" in t

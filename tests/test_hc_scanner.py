@@ -124,3 +124,38 @@ def test_no_broker_or_order_code_anywhere():
         src = (root / f).read_text().lower()
         for bad in ("place_order", "submit_order", "alpaca", "ib_insync", "/orders"):
             assert bad not in src, (f, bad)
+
+
+def test_regime_compatibility_prefers_confirmed_abstention():
+    ok, why = hc.regime_compatible({}, {"abstention_confirmation": {"confirmed": True}}, {"vix": 15, "spy_trend_200": 0.05})
+    assert not ok and "nichts tun" in why
+    ok2, _ = hc.regime_compatible({}, {"abstention_confirmation": {"confirmed": True}}, {"vix": 24, "spy_trend_200": 0.05})
+    assert ok2
+    meta = {"active_ensemble": "static_equal", "approaches": {"static_equal": {"by_regime": {
+        "vix_lt_20": {"expectancy": -0.002}, "vix_ge_20": {"expectancy": 0.012},
+        "spy_uptrend": {"expectancy": -0.0004}, "spy_downtrend": {"expectancy": 0.015}}}}}
+    assert not hc.regime_compatible(meta, {}, {"vix": 15, "spy_trend_200": 0.05})[0]
+    assert hc.regime_compatible(meta, {}, {"vix": 25, "spy_trend_200": -0.02})[0]
+
+
+def test_intelligence_checks_reject_fragile_and_blindspot(tmp_path, monkeypatch):
+    import sys
+    from pathlib import Path as _P
+    sys.path.insert(0, str(_P(__file__).resolve().parent))
+    import test_ml_research as T
+    from modules import counterfactual as cf
+    p = T._panel(n_days=900, n_stocks=55, signal=False)
+    p["sector"] = "Tech"
+    snap = p[p["date"] == p["date"].max()]
+    ticks = list(snap["ticker"])[:3]
+    monkeypatch.setattr(cf, "latest_counterfactuals", lambda panel, specs: {"per_ticker": {
+        ticks[0]: {"fragile": True, "worst_case": "rate_shock"}, ticks[1]: {"fragile": False}, ticks[2]: {"fragile": False}}})
+    (tmp_path / "next_validation.json").write_text(json.dumps({"blind_spot_clusters": [
+        {"common_properties": {"liquidity": "liquid" if snap.set_index("ticker").at[ticks[2], "log_dollar_vol"] > 0
+                               else "less_liquid"}}]}))
+    cands = [{"ticker": t, "prob": 0.6, "asymmetry": 1.5, "card": _card()} for t in ticks]
+    kept, rej = hc.intelligence_checks(cands, p, [{"id": "x"}], tmp_path)
+    rt = {r["ticker"]: r["reasons"] for r in rej}
+    assert "fragil" in rt[ticks[0]][0]
+    assert any("Unknown-Risk" in x for x in rt[ticks[2]])
+    assert all(k["ticker"] == ticks[1] for k in kept)
