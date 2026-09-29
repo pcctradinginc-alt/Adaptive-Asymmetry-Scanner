@@ -9,6 +9,9 @@ concurrency:
   group: history-write    # nie parallel zum Feedback-Workflow auf history.json schreiben
   cancel-in-progress: false
 
+env:
+  PYTHONUNBUFFERED: "1"   # Log-Zeilen sofort sichtbar (Hänger lokalisierbar)
+
 jobs:
   scan:
     runs-on: ubuntu-latest

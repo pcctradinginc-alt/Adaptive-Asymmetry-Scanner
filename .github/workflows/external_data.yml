@@ -13,10 +13,13 @@ concurrency:
   group: external-data-write   # nie parallel auf outputs/external_data/ schreiben
   cancel-in-progress: false
 
+env:
+  PYTHONUNBUFFERED: "1"   # Log-Zeilen sofort sichtbar (Hänger lokalisierbar)
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45   # je Quelle Zeitbudget (orchestrator), Hänger blockieren nicht mehr alle
 
     steps:
       - name: Checkout
