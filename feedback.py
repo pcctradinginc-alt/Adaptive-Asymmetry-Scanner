@@ -429,7 +429,11 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
             return result
         if entry_stock > 0:
             leverage = (entry_stock / entry_debit) * 0.65
-            result   = stock_return * leverage
+            # Put: Aktie fällt -> Put gewinnt. Vorher OHNE Vorzeichenwechsel ->
+            # jeder Long-Put-Outcome der Näherung war invertiert (Audit 2026-09-29:
+            # AMAT +43.6 % Aktie -> "+500 %" Put; META -5.9 % -> "-100 %").
+            direction = -1.0 if _option_type_from_strategy(strategy) == "put" else 1.0
+            result   = direction * stock_return * leverage
             unclipped_result = result
             result   = max(-1.0, min(result, 5.0))   # Options: Max-Verlust=-100%, Cap=+500%
             # Record whether clipping was applied
