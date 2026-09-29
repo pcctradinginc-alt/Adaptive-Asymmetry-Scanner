@@ -1,0 +1,81 @@
+# config/next_protocol.yaml – Präregistrierung: Blind Spots, Counterfactuals/Stress,
+# Abstinenz, Decision Intelligence, Gesamtvalidierung (Challenger A–G), Ablation, Gate
+#
+# Registriert 2026-09-29 VOR der ersten Auswertung auf echten Daten.
+# Hash gepinnt in tests/test_next_intelligence.py, CODEOWNERS. Nur strenger
+# oder bei belegtem Fehler ändern – nie, um ein Ergebnis zu schönen.
+
+version: "next-v1"
+
+# ── Hypothese aus der Meta-Validierung (post hoc entdeckt, daher NUR auf
+#    ungesehenen Daten geprüft: Basis-OOS 2019–2020 [nicht Teil der Meta-Testjahre],
+#    danach Forward). Locked-Holdout wurde aggregiert bereits gesehen -> nur Bericht.
+abstention:
+  rule: "handeln nur wenn VIX >= 20 ODER SPY unter SMA200 (spy_trend_200 <= 0)"
+  confirm_years: [2019, 2020]
+  confirm_min_cohorts: 20            # aktive Kohorten in den Bestätigungsjahren
+  confirm_rule: "Expectancy aktiv > 0 UND aktiv − inaktiv > 0 (einseitig t >= 1.65)"
+
+blind_spots:
+  big_error_quantile: 0.10           # schlechteste 10 % der Top-Dezil-Positionen (rel20)
+  min_cluster_n: 30
+  min_lift: 1.5
+  fdr_q: 0.10
+  keep_rule: "Filter aus Vorjahren verbessert Expectancy im Folgejahr (Bootstrap-Untergrenze > 0) ohne Trefferquote zu senken"
+
+counterfactual:
+  scenarios:                          # Verschiebung der Datumsmerkmale (absolut)
+    vol_spike: {vix: 10.0, vix_chg_21: 10.0}
+    rate_shock: {tnx: 1.0, curve_10y_3m: -0.5}
+    crash: {spy_trend_200: -0.12, spy_mom_63: -0.15, vix: 15.0}
+    usd_shock: {usd_63d_chg: 0.06}
+    oil_shock: {wti_63d_chg: 0.25}
+    inflation_shock: {cpi_yoy: 0.02}
+    liquidity_shock: {fed_assets_13w_chg: -0.04}
+  feature_flips: [momentum_reversal, volatility_flip]   # Aktienmerkmale spiegeln
+  fragile_if: "fällt unter einem einzelnen Szenario/Flip aus dem Top-Dezil (Rang < 0.9)"
+  keep_rule: "Ausschluss fragiler Top-Dezil-Positionen erhöht Expectancy (Bootstrap-Untergrenze > 0)"
+
+decision_intelligence:
+  shrinkage: ledoit_wolf
+  lookback_weeks: 104
+  max_sector_share: 0.25
+  risk_aversion: 1.0
+  keep_rule: "diversifizierte Auswahl: Sharpe >= Top-Dezil UND ES5 % oder MaxDD besser"
+
+validation:
+  challengers:
+    A: static_equal                        # Champion vor Meta-Learning
+    B: meta_regime_weights                 # Champion + Meta-Learning (REJECT, nur Referenz)
+    C: meta_regime_weights + world_model_state
+    D: C + causal_sector_tilt (Gewicht 0.25 auf Rang)
+    E: D + knowledge_graph (Kanten-Evidenz / Widersprüche)
+    F: A + counterfactual_filter
+    G: A + alle akzeptierten Komponenten (Filter + Abstinenz + Tilt)
+  reference: A
+  bootstrap_n: 2000
+  bootstrap_seed: 23
+  alpha_one_sided: 0.05                    # Bonferroni über 6 Challenger
+  high_confidence_prob: 0.55               # HC-Präzision: Positionen mit kalibrierter P >= Schwelle
+
+gate:                                      # neue Architektur ersetzt Champion nur wenn ALLE
+  1_no_leakage: true
+  2_reproducible: true
+  3_min_cohorts: 150
+  4_calibration_not_worse: {brier: 0.001, ece: 0.01}
+  5_risk_adjusted: "Δ Sharpe > 0 UND Bootstrap-Untergrenze Δ Monatsrendite > 0"
+  6_max_regime_drop: -0.005
+  7_hc_hit_rate_higher: true               # realisierte Trefferquote der HC-Positionen > Referenz
+  8_max_dd_worsening: 0.05                 # MaxDD nicht mehr als 5 Pp. schlechter
+  9_trimmed_positive: 0.05                 # ohne beste 5 % Monate weiterhin > 0
+  10_complexity_pays: "jede Komponente in G hat in der Ablation Δ Expectancy > 0"
+
+safe_mode:
+  triggers:
+    feature_drift: true
+    model_drift_share: 0.5                 # >= 50 % der Modelle 'deteriorating'
+    calibration_failure: true              # Intervalle nicht kalibriert ODER ECE > 0.05
+    pipeline_fail_share: 0.25              # >= 25 % der Quellen FAIL
+    disagreement_level: HIGH
+    world_model_uncertainty: 0.6
+    performance_breakdown_t: -2.0          # Forward-Expectancy (12 Kohorten) t <= -2

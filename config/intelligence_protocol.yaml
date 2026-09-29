@@ -33,3 +33,82 @@ world_model:                      # Phase 2, registriert 2026-09-29
     keep_max_targets_worse: 0     # und bei keinem signifikant schlechter
     # sonst: besser bei >= 1 Ziel -> MODIFY (nur Beobachtung/Report, kein Modell-Input); 0 -> REJECT
     # (bestehende Regime-Engine bleibt Referenz)
+
+causal_research:                  # Phase 3, registriert 2026-09-29
+  version: "cr-v1"
+  horizons_weeks: [4, 13]         # Ziel: Sektor-ETF minus SPY, Close t -> Close t+h Wochen (Wochenraster)
+  first_test_year: 2019           # Walk-Forward jahresweise; Training nur mit Zielen, deren Ende vor dem Testjahr liegt
+  min_train_samples: 100
+  ridge_alpha: 10.0
+  bootstrap_n: 2000               # Monats-Block-Bootstrap der Verlustdifferenz (einseitig)
+  bootstrap_seed: 13
+  fdr_q: 0.10                     # Benjamini-Hochberg ueber ALLE getesteten (Treiber, Ziel, h)-Kombinationen
+  controls: [vix, spy_trend_200]  # Markt-Kontrollen (+ eigene vergangene Relativrendite, gleicher Horizont)
+  min_year_obs: 20                # Jahre mit weniger Beobachtungen zaehlen in der Stabilitaet nicht
+  stability_min_year_share: 0.6   # >= 60 % der Jahre mit gleichem Vorzeichen (und beide Haelften)
+  robustness_ratio: {high: 0.7, medium: 0.4}   # |partielle Korr.| / |Korr.| bei gleichem Vorzeichen
+  # Vorab erklaerte oekonomische Priors (KEIN LLM, keine Anpassung nach Sicht der Daten, keine Parameter-Suche).
+  # Plausibilitaet = beobachtetes Vorzeichen der Vorlauf-Korrelation stimmt mit dem Prior ueberein.
+  priors:
+    - {driver: indpro_yoy,     target: XLI, sign: 1,  why: "Industrieproduktion treibt zyklische Industrie-Nachfrage"}
+    - {driver: indpro_3m,      target: XLI, sign: 1,  why: "wie oben, kurzfristige Dynamik"}
+    - {driver: freight_yoy,    target: XLI, sign: 1,  why: "Frachtvolumen als Nachfrage-Proxy fuer Industrie/Transport"}
+    - {driver: wti_63d,        target: XLE, sign: 1,  why: "Oelpreis-Anstieg -> Energie-Erloese"}
+    - {driver: tnx_63d,        target: XLF, sign: 1,  why: "steigende Zinsen -> Zinsmarge der Banken"}
+    - {driver: curve,          target: XLF, sign: 1,  why: "steilere Kurve -> Zinsmarge der Banken"}
+    - {driver: hyg_lqd_63d,    target: XLF, sign: 1,  why: "engere Kreditspreads -> Kreditzyklus guenstig fuer Finanzwerte"}
+    - {driver: nfci_neg,       target: XLF, sign: 1,  why: "lockere Finanzierungsbedingungen -> Finanzwerte"}
+    - {driver: tnx_63d,        target: XLU, sign: -1, why: "steigende Zinsen -> Bond-Proxy Versorger unter Druck"}
+    - {driver: retail_yoy,     target: XLY, sign: 1,  why: "Einzelhandelsumsatz -> zyklischer Konsum"}
+    - {driver: claims_13w_neg, target: XLY, sign: 1,  why: "fallende Erstanträge -> Konsum"}
+    - {driver: umcsent,        target: XLY, sign: 1,  why: "Konsumentenstimmung -> zyklischer Konsum"}
+    - {driver: payems_3m,      target: XLY, sign: 1,  why: "Beschaeftigung -> Konsum"}
+    - {driver: usd_63d,        target: XLB, sign: -1, why: "starker USD belastet Rohstoffe/Materialien"}
+    - {driver: copper_63d,     target: XLB, sign: 1,  why: "Kupferpreis -> Materialien"}
+    - {driver: cpi_trend,      target: XLP, sign: 1,  why: "beschleunigte Inflation -> Preissetzungsmacht Basiskonsum"}
+  # Evidence-Level (deterministisch, aufsteigend). KEIN Level bedeutet "kausal bewiesen":
+  #   correlation             Standard; keine OOS-Evidenz nach BH
+  #   predictive_relationship OOS-Granger (Ridge mit Treiber vs. ohne) signifikant nach BH (q <= fdr_q), Gewinn > 0
+  #   temporally_leading      zusaetzlich |Korr.(Treiber_t, Ziel t->t+h)| > |Korr.(Treiber_t, Ziel t-h->t)|
+  #   causal_hypothesis       zusaetzlich Prior-plausibel + Stabilitaet HIGH + Replikation >= MEDIUM
+  #   causal_evidence         NIE automatisch (braucht Quasi-Experiment/Instrument) -> Feld immer "none"
+  # causal_confidence: LOW | MODERATE (nur bei causal_hypothesis mit Robustheit >= MEDIUM); HIGH nie ohne Quasi-Experiment.
+  tilt:
+    eval_horizon_weeks: 13        # Rang-IC der Sektor-Tilts gegen realisierte Relativrendite dieses Horizonts
+    min_train: 52
+    ridge_alpha: 10.0
+    min_sectors: 4                # Mindestzahl Sektoren je Stichtag fuer Querschnitts-IC
+    bootstrap_alpha: 0.05         # einseitig, Untergrenze des Monats-Block-Bootstraps der IC
+    tilt_levels: [predictive_relationship, temporally_leading, causal_hypothesis]
+  decision:
+    # KEEP: >= 1 Beziehung mit Level temporally_leading (oder hoeher) nach BH UND tilt-Rang-IC-Untergrenze > 0
+    # MODIFY: >= 1 Beziehung predictive_relationship (oder hoeher) (nur Beobachtung/Report)
+    # REJECT: sonst
+    keep_min_leading: 1
+
+knowledge_graph:                  # Phase 4, registriert 2026-09-29
+  version: "kg-v1"
+  confidence_weight: {HIGH: 1.0, MEDIUM: 0.66, LOW: 0.33}   # Pfad-Konfidenz = Produkt der Kanten-Gewichte
+  confidence_label_min: {HIGH: 0.6, MEDIUM: 0.3}            # Produkt >= 0.6 HIGH, >= 0.3 MEDIUM, sonst LOW
+  relevance_to_confidence: {HIGH: HIGH, MEDIUM: MEDIUM, LOW: LOW}   # NONE -> keine Kante; LOW -> uncertain=true
+  causal_confidence_to_confidence: {HIGH: HIGH, MODERATE: MEDIUM, LOW: LOW}
+  causal_edge_levels: [predictive_relationship, temporally_leading, causal_hypothesis]   # nur diese Beziehungen werden Kanten
+  # Validierung "Historical evidence propagation": Hilft der KG-Indikator-Schock (Propagation, Tiefe 1 zum Sektor-ETF)
+  # ueber causal_research.sector_tilts hinaus? Walk-Forward ab first_test_year, Indikatoren expandierend z-normiert
+  # (nur Vergangenheit), Rang-IC der kombinierten Score minus Rang-IC der Tilts, Monats-Block-Bootstrap (einseitig).
+  # Ehrlicher Hinweis: Die Messkanten stammen aus causal_research (Kanten-Auswahl nutzt Daten bis Locked-Holdout) ->
+  # erwarteter Zusatznutzen gering, Ergebnis eher optimistisch.
+  validation:
+    first_test_year: 2019
+    eval_horizon_weeks: 13
+    indicator_min_history_weeks: 104
+    z_clip: 3.0
+    min_sectors: 4
+    bootstrap_n: 2000
+    bootstrap_seed: 17
+    bootstrap_alpha: 0.05
+  decision:
+    # KEEP: IC(kombiniert) - IC(Tilts) hat Bootstrap-Untergrenze > 0
+    # MODIFY: KG-Score allein hat positive Rang-IC mit Untergrenze > 0 (nur Evidenz-/Widerspruchsquelle)
+    # REJECT: sonst (KG bleibt reine Dokumentation, keine Score-Wirkung)
+    keep: ic_diff_lower_bound_gt_0

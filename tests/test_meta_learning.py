@@ -110,7 +110,7 @@ def test_noise_is_not_promoted():
 def test_calibration_buckets_flag_overconfidence():
     rnd = np.random.default_rng(0)
     n = 5000
-    cal = pd.DataFrame({"prob": np.full(n, 0.82), "fwd_xs_20": np.where(rnd.uniform(size=n) < 0.61, 0.02, -0.02),
+    cal = pd.DataFrame({"prob": np.full(n, 0.82), "rel20": np.where(rnd.uniform(size=n) < 0.61, 0.02, -0.02),
                         "mae_20": -0.03, "exp_xs20": 0.01})
     b = [x for x in meta.calibration_buckets(cal) if x["n"]][0]
     assert b["bucket"].startswith("80") and b["flag"] == "overconfident"

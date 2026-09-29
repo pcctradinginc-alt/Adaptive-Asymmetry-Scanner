@@ -16,7 +16,7 @@ from modules.external.pit import AvailabilityPrecision, Observation
 
 ROOT = Path(__file__).resolve().parent.parent
 UTC = timezone.utc
-EXPECTED_SHA = "d3f7ed7bae3586a12b82cc36218f545e95da6e815ef5ba17e41f42a742307709"
+EXPECTED_SHA = "b31cb4fcb325a218294bc58dcf69daeeb40ac32cda0f8bd36e582680d06de8b0"
 
 
 def test_intelligence_protocol_hash_pinned():

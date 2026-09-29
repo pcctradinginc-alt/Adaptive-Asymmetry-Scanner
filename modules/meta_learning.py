@@ -58,6 +58,7 @@ TRAIL_W = int(MP["periods"]["trailing_weeks"])
 RECENT_W = int(MP["periods"]["recent_weeks"])
 _STACK_PARAMS = {"max_iter": 200, "learning_rate": 0.05, "max_depth": 3, "min_samples_leaf": 500}
 RIDGE_ALPHA = 10.0
+LAST_RUN: dict = {}          # letzte Auswertung (res, meta_d, models) für nachgelagerte Module im selben Job
 
 
 def _mcol(mid: str) -> str:
@@ -67,7 +68,7 @@ def _mcol(mid: str) -> str:
 # ── 1. Basis-OOS-Prognosen ───────────────────────────────────────────────────
 
 def base_oos(panel: pd.DataFrame, specs: list[dict], locked_from: pd.Timestamp = ml.LOCKED_FROM,
-             first_test_year: int = ml.FIRST_TEST_YEAR) -> tuple[pd.DataFrame, dict]:
+             first_test_year: int = ml.FIRST_TEST_YEAR, with_counterfactuals: bool = False) -> tuple[pd.DataFrame, dict]:
     """-> (Zeilen mit Querschnittsrang r_<id> und Rohprognose p_<id> je Modell,
     Provenienz je Fold). Fold = Testjahr oder 'locked'."""
     folds = []
@@ -84,6 +85,7 @@ def base_oos(panel: pd.DataFrame, specs: list[dict], locked_from: pd.Timestamp =
         if test.empty:
             continue
         test = test.copy()
+        n_models = 0
         prov[name] = {"train_label_end_before": str(cutoff.date()), "n_test": int(len(test))}
         for spec in specs:
             mid = spec["id"]
@@ -94,9 +96,20 @@ def base_oos(panel: pd.DataFrame, specs: list[dict], locked_from: pd.Timestamp =
             params = ml.select_params(spec, train, cutoff)
             m = ml.fit(spec, train, params)
             test[f"p_{mid}"] = m.predict(test)
+            if with_counterfactuals:                    # Szenario-Ränge je Modell aufsummieren
+                from modules import counterfactual as cf
+                for case in cf.ALL_CASES:
+                    r = pd.Series(m.predict(cf.apply_case(test, case)), index=test.index).groupby(test["date"]).rank(pct=True)
+                    test[f"cfsum_{case}"] = test.get(f"cfsum_{case}", 0.0) + r
+            n_models = n_models + 1 if with_counterfactuals else n_models
             prov[name][mid] = {"params": params,
                                "train_max_label_end": str(train["label_end_20"].max().date()) if len(train) else None}
         test["fold"] = name
+        if with_counterfactuals and n_models:
+            from modules import counterfactual as cf
+            for case in cf.ALL_CASES:
+                test[f"cfrank_{case}"] = (test[f"cfsum_{case}"] / n_models).groupby(test["date"]).rank(pct=True)
+                test = test.drop(columns=[f"cfsum_{case}"])
         parts.append(test)
     df = pd.concat(parts, ignore_index=True)
     for spec in specs:
@@ -155,6 +168,8 @@ def disagreement_features(df: pd.DataFrame, models: list[str]) -> pd.DataFrame:
 
 
 def build_meta_frame(df: pd.DataFrame, models: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    if PROB_TARGET not in df:
+        df = add_rel_target(df)
     df = df.join(disagreement_features(df, models))
     ic = per_date_ic(df, models)
     dates = sorted(df["date"].unique())
@@ -188,7 +203,8 @@ def _phi(x):
 
 
 def regime_weight_model(meta_d: pd.DataFrame, models: list[str], train_end: pd.Timestamp,
-                        use_regime=True, use_trailing=True, use_disagreement=True) -> dict:
+                        use_regime=True, use_trailing=True, use_disagreement=True,
+                        state_cols: tuple | list = STATE_FEATURES) -> dict:
     """Je Basismodell: Ridge  IC(d) ~ Regime + eigene Historie + Uneinigkeit,
     trainiert nur auf Stichtagen, deren Label vor train_end feststand."""
     tr = meta_d[(meta_d["label_end"] < train_end)]
@@ -196,7 +212,7 @@ def regime_weight_model(meta_d: pd.DataFrame, models: list[str], train_end: pd.T
     for mid in models:
         cols = []
         if use_regime:
-            cols += list(STATE_FEATURES)
+            cols += [c for c in state_cols if c in meta_d]
         if use_trailing:
             cols += [f"tic_{mid}", f"tslope_{mid}", f"thit_{mid}", f"recent_tic_{mid}"]
         if use_disagreement:
@@ -405,10 +421,23 @@ def monthly_series(pos: pd.DataFrame) -> pd.Series:
     return coh.groupby(coh.index.to_period("M")).mean()
 
 
+PROB_TARGET = "rel20"   # Netto-Rendite relativ zum Querschnitt (die gehandelte Größe), nicht "schlägt SPY"
+
+
+def add_rel_target(df: pd.DataFrame) -> pd.DataFrame:
+    """rel20 = fwd_xs_20 − Querschnittsmittel des Stichtags − Round-Trip-Kosten.
+    Bis 2026-09-29 bezog sich die Wahrscheinlichkeit auf fwd_xs_20 > 0 (schlägt
+    SPY); das war in Mega-Cap-Jahren strukturell < 50 % und passte nicht zur
+    Bewertung der Positionen (Validierung: überkonfidente Buckets)."""
+    df = df.copy()
+    df[PROB_TARGET] = df["fwd_xs_20"] - df.groupby("date")["fwd_xs_20"].transform("mean") - 2 * ml.COST_BASE
+    return df
+
+
 def lagged_calibration(res: pd.DataFrame, score: str) -> pd.DataFrame:
-    """P(fwd_xs_20 > 0) aus dem Score: isotonische Abbildung, gefittet auf den
+    """P(rel20 > 0) aus dem Score: isotonische Abbildung, gefittet auf den
     OOS-Scores des VORJAHRES derselben Variante (echt out-of-sample).
-    Zusätzlich erwartete 20d-Überrendite je Score (ebenfalls Vorjahr)."""
+    Zusätzlich erwartete Netto-Relativrendite je Score (ebenfalls Vorjahr)."""
     from sklearn.isotonic import IsotonicRegression
     out = []
     years = sorted({f for f in res["fold"].unique() if f != "locked"})
@@ -416,25 +445,25 @@ def lagged_calibration(res: pd.DataFrame, score: str) -> pd.DataFrame:
     for i, f in enumerate(order):
         if i == 0:
             continue
-        prev = res[(res["fold"] == order[i - 1]) & res[score].notna() & res["fwd_xs_20"].notna()]
+        prev = res[(res["fold"] == order[i - 1]) & res[score].notna() & res[PROB_TARGET].notna()]
         cur = res[(res["fold"] == f) & res[score].notna()].copy()
         if len(prev) < 1000 or cur.empty:
             continue
         rk_prev = prev.groupby("date")[score].rank(pct=True)
         rk_cur = cur.groupby("date")[score].rank(pct=True)
-        iso = IsotonicRegression(y_min=0.001, y_max=0.999, out_of_bounds="clip").fit(rk_prev, (prev["fwd_xs_20"] > 0))
-        iso_r = IsotonicRegression(out_of_bounds="clip").fit(rk_prev, prev["fwd_xs_20"])
+        iso = IsotonicRegression(y_min=0.001, y_max=0.999, out_of_bounds="clip").fit(rk_prev, (prev[PROB_TARGET] > 0))
+        iso_r = IsotonicRegression(out_of_bounds="clip").fit(rk_prev, prev[PROB_TARGET])
         cur["prob"] = iso.predict(rk_cur)
         cur["exp_xs20"] = iso_r.predict(rk_cur)
-        out.append(cur[["date", "ticker", "fold", "prob", "exp_xs20", "fwd_xs_20", "mae_20"]])
+        out.append(cur[["date", "ticker", "fold", "prob", "exp_xs20", PROB_TARGET, "fwd_xs_20", "mae_20"]])
     return pd.concat(out, ignore_index=True) if out else pd.DataFrame()
 
 
 def prob_metrics(cal: pd.DataFrame) -> dict:
     if cal.empty:
         return {}
-    c = cal[cal["fwd_xs_20"].notna()]
-    y = (c["fwd_xs_20"] > 0).astype(float)
+    c = cal[cal[PROB_TARGET].notna()]
+    y = (c[PROB_TARGET] > 0).astype(float)
     p = c["prob"].clip(1e-4, 1 - 1e-4)
     bins = np.clip((p * 10).astype(int), 0, 9)
     ece = float(sum(abs(y[bins == b].mean() - p[bins == b].mean()) * (bins == b).mean()
@@ -447,19 +476,19 @@ def calibration_buckets(cal: pd.DataFrame) -> list[dict]:
     edges = MP["calibration_buckets"]
     tol, min_n = MP["calibration_flag_tolerance"], MP["min_bucket_n"]
     out = []
-    c = cal[cal["fwd_xs_20"].notna()]
+    c = cal[cal[PROB_TARGET].notna()]
     for lo, hi in zip(edges[:-1], edges[1:]):
         g = c[(c["prob"] >= lo) & (c["prob"] < hi)]
         n = len(g)
         rec = {"bucket": f"{int(lo * 100)}–{int(hi * 100)} %" if hi < 1 else f">= {int(lo * 100)} %", "n": n}
         if n:
-            win = float((g["fwd_xs_20"] > 0).mean())
+            win = float((g[PROB_TARGET] > 0).mean())
             pred = float(g["prob"].mean())
             err = win - pred
-            rec.update(win_rate=ml._r(win, 4), predicted=ml._r(pred, 4), avg_return=ml._r(g["fwd_xs_20"].mean(), 5),
-                       median_return=ml._r(g["fwd_xs_20"].median(), 5), avg_drawdown=ml._r(g["mae_20"].mean(), 5),
+            rec.update(win_rate=ml._r(win, 4), predicted=ml._r(pred, 4), avg_return=ml._r(g[PROB_TARGET].mean(), 5),
+                       median_return=ml._r(g[PROB_TARGET].median(), 5), avg_drawdown=ml._r(g["mae_20"].mean(), 5),
                        expected_return=ml._r(g["exp_xs20"].mean(), 5),
-                       expected_value=ml._r(g["fwd_xs_20"].mean() - 2 * ml.COST_BASE, 5),
+                       expected_value=ml._r(g[PROB_TARGET].mean(), 5),
                        calibration_error=ml._r(err, 4),
                        flag="low_n" if n < min_n else "overconfident" if err < -tol else
                        "underconfident" if err > tol else "calibrated")
@@ -683,7 +712,7 @@ def calibrate_hc_rule(cal: pd.DataFrame, res: pd.DataFrame, score: str, use_agre
         return {"enabled": False, "disabled_reason": "keine kalibrierten OOS-Wahrscheinlichkeiten"}
     j = cal.merge(res[["date", "ticker", "dis_rank_sd", "log_dollar_vol", "fwd_xs_20"]].rename(
         columns={"fwd_xs_20": "_y"}), on=["date", "ticker"], how="left")
-    j["net"] = j["fwd_xs_20"] - j.groupby("date")["fwd_xs_20"].transform("mean") - 2 * ml.COST_BASE
+    j["net"] = j[PROB_TARGET]
     folds = [f for f in sorted(j["fold"].unique()) if f != "locked"]
     if len(folds) < 2:
         return {"enabled": False, "disabled_reason": "zu wenige Jahre für Kalibrierung + Validierung"}
@@ -724,10 +753,10 @@ def prob_maps(res: pd.DataFrame, score: str) -> dict:
     use = "locked" if ((res["fold"] == "locked") & res[score].notna()).sum() >= 1000 else (folds[-1] if folds else None)
     if use is None:
         return {}
-    d = res[(res["fold"] == use) & res[score].notna() & res["fwd_xs_20"].notna()]
+    d = res[(res["fold"] == use) & res[score].notna() & res[PROB_TARGET].notna()]
     rk = d.groupby("date")[score].rank(pct=True)
-    iso = IsotonicRegression(y_min=0.001, y_max=0.999, out_of_bounds="clip").fit(rk, (d["fwd_xs_20"] > 0))
-    iso_r = IsotonicRegression(out_of_bounds="clip").fit(rk, d["fwd_xs_20"])
+    iso = IsotonicRegression(y_min=0.001, y_max=0.999, out_of_bounds="clip").fit(rk, (d[PROB_TARGET] > 0))
+    iso_r = IsotonicRegression(out_of_bounds="clip").fit(rk, d[PROB_TARGET])
     return {"fold": use, "n": int(len(d)),
             "prob": {"x": [ml._r(v, 5) for v in iso.X_thresholds_], "y": [ml._r(v, 5) for v in iso.y_thresholds_]},
             "exp_xs20": {"x": [ml._r(v, 5) for v in iso_r.X_thresholds_], "y": [ml._r(v, 6) for v in iso_r.y_thresholds_]}}
@@ -785,11 +814,13 @@ def panel_hash(panel: pd.DataFrame) -> str:
 
 def evaluate(panel: pd.DataFrame, specs: list[dict], latest_ranks: dict | None = None) -> dict:
     models = [s["id"] for s in specs]
-    base, prov = base_oos(panel, specs)
+    base, prov = base_oos(panel, specs, with_counterfactuals=True)
     base["sector_code"] = base["sector"].astype("category").cat.codes.astype(float)
+    base = add_rel_target(base)
     df, meta_d = build_meta_frame(base, models)
     res, mprov = meta_walk_forward(df, meta_d, models)
     leak_ok, leak_issues = leakage_checks(prov, mprov["folds"])
+    LAST_RUN.update(res=res, meta_d=meta_d, models=models, base=df)
     names = [c[2:] for c in res.columns if c.startswith("s_")]
     ref, meta = MP["variants"]["reference"], MP["variants"]["primary_meta"]
     approaches, pos_by, cal_by = {}, {}, {}
@@ -951,6 +982,10 @@ def run(panel: pd.DataFrame | None = None) -> dict:
     latest = panel["date"].max().date().isoformat()
     ranks = {r["model_id"]: r["rank_pct"] for r in ml._read_predictions() if r["prediction_date"] == latest}
     rep = evaluate(panel, specs, ranks)
+    cache = os.environ.get("META_RES_CACHE")
+    if cache:
+        with open(cache, "wb") as fh:
+            pickle.dump(LAST_RUN, fh)
     state = {"safe_mode": rep["decision"]["verdict"] != "PROMOTE", "active_ensemble": rep["active_ensemble"],
              "meta_version": rep["meta_version"],
              "reasons": ([f"Meta-Learning nicht promoted ({rep['decision']['verdict']}) – Referenz aktiv"]
