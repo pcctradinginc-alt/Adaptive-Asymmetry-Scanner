@@ -449,6 +449,14 @@ def mark_rejected(ticker, reason: str, event_key=None) -> None:
         log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
+def is_rejected(ticker) -> bool:
+    """True, wenn mindestens ein Signal des Tickers schon einen Ablehnungsgrund trägt."""
+    try:
+        return any(e.get("status") == "rejected" for e in _state["entries"].get(ticker, []))
+    except Exception:
+        return False
+
+
 def mark_passed(ticker, event_key=None) -> None:
     try:
         if not ticker or not isinstance(ticker, str):

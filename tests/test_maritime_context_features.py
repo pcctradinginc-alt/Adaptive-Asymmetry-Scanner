@@ -99,3 +99,56 @@ def test_empty_archive_new_primitives_are_none(tmp_path):
     p = snap["primitives"]
     assert p["asia_export_z"] is None
     assert p["port_disruption_active_events"] == 0
+
+
+def test_chokepoint_z_matches_portwatch_names_in_attrs():
+    """Regression 2026-09-29: Entities heißen chokepoint<N>, Name in attrs.port_name
+    -> vorher nie ein Treffer, alle Chokepoint-z immer None."""
+    names = {"chokepoint1": "Suez Canal", "chokepoint2": "Panama Canal", "chokepoint4": "Bab el-Mandeb Strait",
+             "chokepoint5": "Malacca Strait", "chokepoint6": "Strait of Hormuz", "chokepoint9": "Dover Strait",
+             "chokepoint20": "Makassar Strait"}
+    obs = []
+    for eid, name in names.items():
+        for i in range(30):
+            t = NOW - timedelta(days=32 - i)
+            v = 50.0 + (i % 4) if i < 29 else 80.0
+            obs.append(_o("imf_portwatch_chokepoints", eid, "n_total", v, t, t, attrs={"port_name": name}))
+    for slug in ctxmod.CHOKEPOINT_SLUGS:
+        z = ctxmod._chokepoint_zscore(obs, slug)
+        assert z is not None and z > 3, slug
+    matched = {slug: {o.entity_id for o in obs
+                      if any(a in ctxmod._norm_name(o.attrs["port_name"]) for a in
+                             [ctxmod._norm_name(x) for x in ctxmod.CHOKEPOINT_SLUGS[slug]])}
+               for slug in ctxmod.CHOKEPOINT_SLUGS}
+    assert all(len(v) == 1 for v in matched.values()), matched
+
+
+def _poll(entity, n, t):
+    return _o("nws_alerts", entity, "alerts_polled", float(n), t, t, series="poll")
+
+
+def _alert_count(entity, event, n, t):
+    return _o("nws_alerts", entity, "alert_count", float(n), t, t, series=f"count:{event}",
+              attrs={"event": event})
+
+
+def test_weather_index_zero_when_polled_without_alerts_and_none_when_stale():
+    t = NOW - timedelta(hours=2)
+    obs = [_poll("ATL", 0, t), _poll("HOU", 0, t)]
+    assert ctxmod.weather_disruption_index(obs, NOW) == 0.0
+    assert ctxmod.weather_disruption_index(obs, NOW + timedelta(days=3)) is None
+    assert ctxmod.weather_disruption_index([], NOW) is None
+
+
+def test_weather_index_uses_only_latest_poll():
+    severe = next(iter(ctxmod.SEVERE_ALERT_EVENTS))
+    old, new = NOW - timedelta(days=5), NOW - timedelta(hours=1)
+    obs = [_poll("ATL", 1, old), _alert_count("ATL", severe, 1, old),     # alte Warnung, vorbei
+           _poll("ATL", 0, new), _poll("HOU", 1, new), _alert_count("HOU", severe, 1, new)]
+    assert ctxmod.weather_disruption_index(obs, NOW) == 0.5
+
+
+def test_alerts_parser_writes_poll_row_even_without_alerts():
+    from modules.external.sources import weather as w
+    obs = w.parse_alerts_response({"features": []}, "ATL", ["Hurricane Warning"], NOW)
+    assert [(o.metric, o.value) for o in obs] == [("alerts_polled", 0.0)]

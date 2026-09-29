@@ -506,3 +506,22 @@ ohne Score-/Gate-/PPO-Wirkung. Nutzung privat/nicht-kommerziell, Attribution „
 | IMF ECFIE (Inflationserwartungen aus Earnings Calls) | nicht integriert | nur Länderebene, quartalsweise, redundant zu FRED-/Eurostat-Kontext; kein Kandidatenbezug. |
 | IMF PI (Produktionsindizes) | nicht integriert | Probe 2026-09-28 (alle 63 Reihen): **keine** Reihen für CHN/KOR/TWN/JPN/MEX; DEU nur bis 2026-M03 (Eurostat aktueller), IND nur quartalsweise, VNM endet 2025-M03, USA redundant zu FRED. Kein Zusatznutzen. |
 | PortWatch Impact-/Klima-Szenario-Layer, `countries_database` | nicht integriert | statisch/modellbasiert, keine PIT-fähigen Zeitreihen. |
+
+## N11. Testlauf 2026-09-28 (erster Lauf mit Candidate Ledger): Log-Befunde
+
+Manueller Scanner-Lauf 36471094953 (19:17 UTC) + verspäteter geplanter Lauf (~20:05 UTC).
+Beide erfolgreich, 0 Trades, Ledger erstmals geschrieben (153 Zeilen).
+
+| # | Befund | Wirkung auf Alpha | Status |
+|---|---|---|---|
+| 1 | Hard-Filter ließ fast nur Ticker A–E durch (25.09.: 116/126; 28.09.: 187× „Keine News“). Finnhub 60/min ohne Drossel bei 20 Threads → 429 still als leer; yfinance-Fallback las altes News-Format → immer leer | ~80 % des Universums nie bewertet; Ledger/Lernen alphabetisch verzerrt | **behoben** (PR #52): Limiter 55/min, 429-Retry, neues Format, gemischte Reihenfolge, Warnung |
+| 2 | SEC-Insider: Volltextsuche nach Ticker-String, Verkäufe als Käufe, Schlagzeile „N Insider kaufen X“ der Deep Analysis vorangestellt | falscher bullisher Katalysator für fast jeden Kandidaten | **behoben** (PR #52): EDGAR-API, nur Code P, 72-h-Cluster |
+| 3 | Put/Call-Skew ATM/ATM am selben Strike ≈ 1 (Parität) | Feature ohne Information | Forschungsfeature `skew_25d` ergänzt; Produktionssignal unverändert |
+| 4 | NewsAPI-Suche mit erstem Wort des Firmennamens („Bank“, „The“) | fremde Artikel (BAC-Veto: News über IonQ) | **behoben** |
+| 5 | Alle 5 Chokepoint-z immer None: Abgleich auf entity_id `chokepoint<N>` statt `attrs.port_name` | Chokepoint-Features nie verfügbar | **behoben**, Werte jetzt z. B. Hormuz −1,40 |
+| 6 | `nws_alerts` PASS mit 0 Zeilen; `weather_disruption_index` immer None; Index hätte alle historischen Warnungen gezählt | Wetterindex nie verfügbar | **behoben**: Poll-Beleg je Location (auch 0), nur jüngste Abfrage |
+| 7 | 28/153 Ledger-Zeilen `unlabeled_after_*` (Red-Team-Veto, Mismatch-Minimum, ROI/Edge) | Gate-Wirksamkeit nicht messbar | **behoben**: `label_dropped()` an den Stufenübergängen |
+| 8 | Prescreen-Absagen ohne Basismerkmale | Prescreening-Gate nicht prüfbar | **behoben**: Sentiment, RV, News-Zahl, Sektor, log Market Cap für alle |
+| 9 | Engine-Monitor-Tests lasen den echten Ledger | Testisolation | **behoben** |
+| 10 | Edge-Check: „Model“ = MC-Zielschwelle max(8 %, 0,5·σ·√T), keine Prognose → Edge ≈ RV/IV-Vergleich, fast immer negativ | Hauptgrund für 0 Trades | **nicht geändert** (Produktions-Gate, Evidenz nötig); ROI/Edge-Rejects laufen als Schatten-Trades und liefern die Evidenz |
+| 11 | Chokepoint-/Hafen-Historie im Archiv nur ~15 Tage | z-Scores auf kurzer Basis | offen: einmaliger Backfill prüfen (PIT: Baseline-Werte sind zum heutigen Zeitpunkt bekannt) |

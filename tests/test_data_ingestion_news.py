@@ -104,3 +104,10 @@ def test_news_override_still_possible_between_override_min_and_threshold(monkeyp
     monkeypatch.setattr(ing, "_fetch_news", lambda *a: ["a", "b", "c"], raising=False)
     res, st = ing._evaluate_ticker("ZZZ", {}, 20.0)
     assert res is not None and res["ticker"] == "ZZZ"
+
+
+def test_newsapi_company_name_uses_full_name():
+    assert di.newsapi_company_name("Bank of America Corporation") == "Bank of America"
+    assert di.newsapi_company_name("The Home Depot, Inc.") == "Home Depot"
+    assert di.newsapi_company_name("3M Company") is None           # zu kurz -> Ticker-Suche
+    assert di.newsapi_company_name("Apple Inc.") == "Apple"
