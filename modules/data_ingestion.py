@@ -244,8 +244,11 @@ class DataIngestion:
         try:
             import yfinance as _yf
             val = _yf.Ticker("^VIX").fast_info.last_price
+            if not val:
+                log.warning("VIX nicht verfügbar → RV-Schwelle mit VIX=20 (neutral) berechnet")
             return float(val or 20.0)
-        except Exception:
+        except Exception as e:
+            log.warning(f"VIX-Abruf Fehler: {e} → RV-Schwelle mit VIX=20 (neutral) berechnet")
             return 20.0
 
     def run(self) -> list[dict]:

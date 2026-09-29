@@ -97,6 +97,26 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         h.criticality = source_cfg.get("criticality", "low")
         h.auth_optional = bool(source_cfg.get("auth_optional", False))
         h.expected_cadence = source_cfg.get("expected_update_cadence")
+
+        # Statische Quellen (z.B. NCEI-Normalwerte 1991-2020) nicht bei jedem
+        # Lauf neu abrufen: min_refetch_days seit dem letzten Erfolg -> sichtbar
+        # übersprungen (NCEI brach 2026-09-29 zweimal am Zeitbudget ab, obwohl
+        # sich die Daten nie ändern).
+        _min_refetch = source_cfg.get("min_refetch_days")
+        if _min_refetch and h.last_success:
+            try:
+                _age = (now - ensure_utc(datetime.fromisoformat(h.last_success))).total_seconds() / 86400
+            except (TypeError, ValueError):
+                _age = None
+            if _age is not None and _age < float(_min_refetch):
+                h.status = SourceStatus.PASS.value
+                h.message = (f"übersprungen: statisch, letzter Erfolg vor {_age:.1f} T "
+                             f"(< min_refetch_days={_min_refetch})")
+                health[source_id] = h.to_dict()
+                summary["sources"][source_id] = {"status": h.status, "skipped": "min_refetch_days"}
+                _log(f"[ingest] {source_id}: {h.message}")
+                continue
+
         h.last_attempt = _now_iso(now)
 
         fetchable, reason = gate_source(source_cfg)

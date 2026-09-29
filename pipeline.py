@@ -124,7 +124,7 @@ def reject(reason: str, ticker: str | None = None) -> None:
         if ticker:
             candidate_ledger.mark_rejected(ticker, reason)
     except Exception as e:
-        log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
 def label_dropped(before: list, after: list, reason: str) -> int:
@@ -161,7 +161,7 @@ def note_base_features(c: dict) -> None:
                if f.get(k) is not None},
         )
     except Exception as e:
-        log.debug(f"note_base_features Fehler (ignoriert): {e}")
+        log.warning(f"note_base_features Fehler (ignoriert): {e}")
 
 
 # ── Validation Layer ──────────────────────────────────────────────────────────
@@ -318,7 +318,7 @@ def filter_correlated_proposals(
         return [p for idx, p in enumerate(proposals) if idx not in to_remove]
 
     except Exception as e:
-        log.debug(f"Korrelations-Check Fehler: {e} → alle behalten")
+        log.warning(f"Korrelations-Check Fehler: {e} → alle behalten (Klumpenrisiko ungeprüft)")
         return proposals
 
 
@@ -399,9 +399,10 @@ def note_research_features(c: dict) -> None:
             dealer_gamma_sign=gamma.get("net_gamma_sign") if gamma.get("data_available") else None,
             dealer_oi_ratio=gamma.get("oi_ratio") if gamma.get("data_available") else None,
             has_near_earnings=bool(c.get("has_near_earnings")),
+            earnings_known=al.get("earnings_date") is not None,
         )
     except Exception as e:  # noqa: BLE001
-        log.debug(f"note_research_features Fehler (ignoriert): {e}")
+        log.warning(f"note_research_features Fehler (ignoriert): {e}")
 
 
 def directional_move(move_pct: float, direction: str | None) -> float:
@@ -449,7 +450,7 @@ def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], d
                 # für denselben Signal-Key bauen.
                 candidate_ledger.note(c.get("ticker"), external=ctx)
         except Exception as e:  # noqa: BLE001
-            log.debug(f"attach_candidate_context Fehler ({c.get('ticker')}, ignoriert): {e}")
+            log.warning(f"attach_candidate_context Fehler ({c.get('ticker')}, ignoriert): {e}")
 
     source_status = {
         sid: info.get("status") for sid, info in (snapshot.get("sources") or {}).items()
@@ -473,7 +474,7 @@ def main() -> None:
     try:
         candidate_ledger.start_run(today)
     except Exception as e:
-        log.debug(f"candidate_ledger.start_run Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.start_run Fehler (ignoriert): {e}")
 
     stats = {
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
@@ -525,7 +526,7 @@ def main() -> None:
         try:
             candidate_ledger.flush()
         except Exception as e:
-            log.debug(f"candidate_ledger.flush Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.flush Fehler (ignoriert): {e}")
 
     def send_email():
         save_stats_snapshot()
@@ -572,7 +573,7 @@ def main() -> None:
         try:
             candidate_ledger.note(c.get("ticker"), stage="universe")
         except Exception as e:
-            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     if not candidates:
         stats["stop_reason"] = "Keine Kandidaten nach Hard-Filter."
         send_email(); return
@@ -606,7 +607,7 @@ def main() -> None:
             else:
                 reject("sector_momentum_weak", ticker)
         except Exception as e:
-            log.debug(f"  [{ticker}] Sector-Check Fehler: {e} → durchgelassen")
+            log.warning(f"  [{ticker}] Sector-Check Fehler: {e} → durchgelassen")
             sector_pre.append(c)
     candidates = sector_pre
     stats["sector_ok"] = len(candidates)
@@ -698,6 +699,11 @@ def main() -> None:
             if current <= 0:
                 roi_viable.append(c); continue
             iv_rank  = designer._get_iv_rank(ticker)
+            if iv_rank is None:
+                # Precheck kann ohne IV-Rank nicht urteilen -> nicht verwerfen;
+                # Stufe 10 überspringt den Kandidaten dann explizit.
+                roi_viable.append(c)
+                continue
             strategy = designer._select_strategy(ticker, "BULLISH", iv_rank)
             option   = designer._find_option_for_dte(ticker, strategy, current, 21, 45)
             if option:
@@ -770,7 +776,7 @@ def main() -> None:
                 event_key=_da.get("catalyst"),
             )
         except Exception as e:
-            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(analyses)} nach Deep Analysis")
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
@@ -784,11 +790,11 @@ def main() -> None:
         try:
             refresh_catalyst_relevance(a)
         except Exception as e:  # noqa: BLE001
-            log.debug(f"catalyst_relevance Fehler ({a.get('ticker')}, ignoriert): {e}")
+            log.warning(f"catalyst_relevance Fehler ({a.get('ticker')}, ignoriert): {e}")
     try:
         run_shadow_relation_analysis(analyses)
     except Exception as e:  # noqa: BLE001
-        log.debug(f"Shadow-Relation-Analyse Fehler (ignoriert): {e}")
+        log.warning(f"Shadow-Relation-Analyse Fehler (ignoriert): {e}")
 
     # ── STUFE 4a: Bearish-Gate ───────────────────────────────────────────────
     # Track Record bearisher Trades: 0/6 Wins (LONG_PUT mean −86%).
@@ -872,7 +878,7 @@ def main() -> None:
                 z_score_2d_scaled=s.get("features", {}).get("z_score_2d_scaled"),
             )
         except Exception as e:
-            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(scored)} nach Mismatch-Score")
     if not scored:
         stats["stop_reason"] = "Kein Signal hat Mismatch-Filter bestanden."
@@ -914,7 +920,7 @@ def main() -> None:
         try:
             candidate_ledger.note(ticker, stage="quick_mc", quick_mc_hit_rate=hit_rate)
         except Exception as e:
-            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
         log.info(f"  [{ticker}] Quick MC: {hit_rate:.1%} ✅ PASS")
 
     stats["quick_mc"] = len(mc_viable)
@@ -1020,7 +1026,7 @@ def main() -> None:
                     final_mc_shadow_dte=shadow["dte_shadow"],
                 )
             except Exception as e:
-                log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+                log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
             # Log shadow comparison
             log.info(
                 f"  [{ticker}] Final MC ({gate_cfg_mode}): "
@@ -1127,7 +1133,7 @@ def main() -> None:
         for _tk, _act in shadow_actions(final_sims).items():
             candidate_ledger.note(_tk, rl_robust_action=_act)
     except Exception as e:  # noqa: BLE001
-        log.debug(f"robustes PPO Shadow Fehler (ignoriert): {e}")
+        log.warning(f"robustes PPO Shadow Fehler (ignoriert): {e}")
     for fs in final_signals:
         try:
             candidate_ledger.note(
@@ -1135,7 +1141,7 @@ def main() -> None:
                 final_mc_hit_rate=fs.get("simulation", {}).get("hit_rate"),
             )
         except Exception as e:
-            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     log.info(f"  → {len(final_signals)} nach RL-Scoring")
     if not final_signals:
         stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
@@ -1158,10 +1164,13 @@ def main() -> None:
                 vix_structure=_vix_structure,
             )
         except Exception as e:
-            log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     # Nutzt dieselbe designer-Instanz von oben (Tradier-Status bereits geloggt)
     try:
         trade_proposals = designer.run(final_signals)
+        for _t, _why in (getattr(designer, "skip_reasons", {}) or {}).items():
+            if not candidate_ledger.is_rejected(_t):
+                reject(_why, _t)
         label_dropped(final_signals, trade_proposals, "options_design_roi_or_edge")
     except Exception as e:
         log.error(f"Options Design Fehler: {e} → Email wird trotzdem gesendet")
@@ -1324,7 +1333,7 @@ def main() -> None:
             )
             candidate_ledger.mark_passed(p.get("ticker"))
         except Exception as e:
-            log.debug(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
 
     if trade_proposals:
         _proposals_ref.append(trade_proposals)

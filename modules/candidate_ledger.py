@@ -153,7 +153,7 @@ def _build_hypo_option(entry: dict, entry_price: float) -> dict | None:
             "spread_cost":    HYPO_SPREAD_COST,
         }
     except Exception as e:
-        log.debug(f"candidate_ledger._build_hypo_option Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger._build_hypo_option Fehler (ignoriert): {e}")
         return None
 
 # ── In-Memory-Run-State ──────────────────────────────────────────────────────
@@ -173,7 +173,7 @@ def _safe(fn):
         try:
             return fn(*args, **kwargs)
         except Exception as e:
-            log.debug(f"candidate_ledger: {fn.__name__} Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger: {fn.__name__} Fehler (ignoriert): {e}")
             return None
     return wrapped
 
@@ -295,7 +295,7 @@ def start_run(today: str) -> None:
         _state["entries"]          = {}
         _state["flushed"]          = False
     except Exception as e:
-        log.debug(f"candidate_ledger.start_run Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.start_run Fehler (ignoriert): {e}")
         _state["date"]             = today
         _state["config_hash"]      = "unknown"
         _state["pipeline_version"] = "unknown"
@@ -438,7 +438,7 @@ def note(ticker, stage: str | None = None, **fields) -> None:
                     except Exception:
                         e["features"][k] = str(v)
     except Exception as e:
-        log.debug(f"candidate_ledger.note Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
 
 
 def mark_rejected(ticker, reason: str, event_key=None) -> None:
@@ -450,7 +450,7 @@ def mark_rejected(ticker, reason: str, event_key=None) -> None:
             e["reject_reason"] = reason
             e["reject_stage"]  = e.get("stage")
     except Exception as e:
-        log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
 def is_rejected(ticker) -> bool:
@@ -468,7 +468,7 @@ def mark_passed(ticker, event_key=None) -> None:
         for e in _resolve_signal_for_mark(ticker, event_key):
             e["status"] = "proposed"
     except Exception as e:
-        log.debug(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.mark_passed Fehler (ignoriert): {e}")
 
 
 def _parse_iso_dt(ts: str):
@@ -533,7 +533,7 @@ def _resolve_entry(ticker: str, e: dict, underlying_quotes: dict, yf_prices: dic
             "gap_at_entry": gap_at_entry,
         }
     except Exception as ex:
-        log.debug(f"candidate_ledger._resolve_entry Fehler (ignoriert): {ex}")
+        log.warning(f"candidate_ledger._resolve_entry Fehler (ignoriert): {ex}")
         return {
             "entry_price":  None,
             "entry_basis":  "next_open",
@@ -564,7 +564,7 @@ def _build_real_option(e: dict, spot) -> dict | None:
             dte_floor = 120
         return market_snapshot.select_contract(e.get("ticker") or "", direction, dte_floor, spot)
     except Exception as ex:
-        log.debug(f"candidate_ledger._build_real_option Fehler (ignoriert): {ex}")
+        log.warning(f"candidate_ledger._build_real_option Fehler (ignoriert): {ex}")
         return None
 
 
@@ -622,7 +622,7 @@ def _load_iv_history(ticker: str) -> list:
             return []
         return (data.get("iv_history") or {}).get(ticker, []) or []
     except Exception as e:
-        log.debug(f"candidate_ledger._load_iv_history [{ticker}] Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger._load_iv_history [{ticker}] Fehler (ignoriert): {e}")
         return []
 
 
@@ -656,7 +656,7 @@ def _resolve_candidate_iv_rank(ticker: str, chain_iv) -> float | None:
         rank = (chain_iv - lo) / (hi - lo) * 100.0
         return max(0.0, min(100.0, rank))
     except Exception as e:
-        log.debug(f"candidate_ledger._resolve_candidate_iv_rank [{ticker}] Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger._resolve_candidate_iv_rank [{ticker}] Fehler (ignoriert): {e}")
         return None
 
 
@@ -693,7 +693,7 @@ def _resolve_replicated_iv_rank(long_raw: dict, closes: list | None, term_point2
         parts = compute_iv_rank_components(closes, term_points)
         return parts["combined"], parts
     except Exception as e:
-        log.debug(f"candidate_ledger._resolve_replicated_iv_rank Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger._resolve_replicated_iv_rank Fehler (ignoriert): {e}")
         return None, {}
 
 
@@ -836,7 +836,7 @@ def _build_real_strategy(
 
         return row
     except Exception as ex:
-        log.debug(f"candidate_ledger._build_real_strategy Fehler (ignoriert): {ex}")
+        log.warning(f"candidate_ledger._build_real_strategy Fehler (ignoriert): {ex}")
         return None
 
 
@@ -1217,13 +1217,14 @@ def update_outcomes(today: str, root: Path = LEDGER_ROOT) -> None:
             try:
                 _update_outcomes_in_file(path, today_dt)
             except Exception as e:
-                log.debug(f"candidate_ledger.update_outcomes: {path} Fehler (ignoriert): {e}")
+                log.warning(f"candidate_ledger.update_outcomes: {path} Fehler (ignoriert): {e}")
     except Exception as e:
         log.error(f"candidate_ledger.update_outcomes Fehler (ignoriert): {e}")
 
 
 def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     rows = []
+    corrupt: list[str] = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -1232,7 +1233,12 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
             try:
                 rows.append(json.loads(line))
             except Exception:
-                continue
+                # Nie still verwerfen: die Datei wird unten NEU geschrieben --
+                # vorher ging eine unlesbare Zeile dabei dauerhaft verloren.
+                corrupt.append(line)
+    if corrupt:
+        log.error(f"candidate_ledger: {len(corrupt)} unlesbare Zeile(n) in {path} "
+                  f"-> unverändert erhalten, bitte prüfen")
     if not rows:
         return
 
@@ -1240,30 +1246,30 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     try:
         changed |= _fill_next_open_entries(rows, today_dt)
     except Exception as e:
-        log.debug(f"candidate_ledger: next_open-Fill Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger: next_open-Fill Fehler (ignoriert): {e}")
     try:
         changed |= _fill_real_option_entries(rows)
     except Exception as e:
-        log.debug(f"candidate_ledger: real_option Entry-Fill Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger: real_option Entry-Fill Fehler (ignoriert): {e}")
     try:
         changed |= _fill_real_strategy_entries(rows)
     except Exception as e:
-        log.debug(f"candidate_ledger: real_strategy Entry-Fill Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger: real_strategy Entry-Fill Fehler (ignoriert): {e}")
     try:
         changed |= _fill_return_horizons(rows, today_dt)
     except Exception as e:
-        log.debug(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
     try:
         changed |= _fill_real_option_marks(rows, today_dt)
     except Exception as e:
-        log.debug(f"candidate_ledger: real_opt_ret-Marks Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger: real_opt_ret-Marks Fehler (ignoriert): {e}")
     try:
         changed |= _fill_real_strategy_marks(rows, today_dt)
     except Exception as e:
-        log.debug(f"candidate_ledger: real_strat_ret-Marks Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger: real_strat_ret-Marks Fehler (ignoriert): {e}")
 
     if changed:
-        _atomic_write_jsonl(path, rows)
+        _atomic_write_jsonl(path, rows, passthrough_lines=corrupt)
 
 
 def _fill_real_option_entries(rows: list[dict]) -> bool:
@@ -1311,7 +1317,7 @@ def _fill_real_option_entries(rows: list[dict]) -> bool:
             ro["entry_date"]      = now.strftime("%Y-%m-%d")
             changed = True
         except Exception as e:
-            log.debug(f"candidate_ledger._fill_real_option_entries Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger._fill_real_option_entries Fehler (ignoriert): {e}")
     return changed
 
 
@@ -1380,7 +1386,7 @@ def _fill_real_strategy_entries(rows: list[dict]) -> bool:
             rs["entry_date"]      = now.strftime("%Y-%m-%d")
             changed = True
         except Exception as e:
-            log.debug(f"candidate_ledger._fill_real_strategy_entries Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger._fill_real_strategy_entries Fehler (ignoriert): {e}")
     return changed
 
 
@@ -1452,11 +1458,11 @@ def _fill_next_open_entries(rows: list[dict], today_dt: datetime) -> bool:
                     if hypo is not None:
                         row["hypo_option"] = hypo
                 except Exception as e:
-                    log.debug(f"candidate_ledger: hypo_option-Backfill (next_open) Fehler (ignoriert): {e}")
+                    log.warning(f"candidate_ledger: hypo_option-Backfill (next_open) Fehler (ignoriert): {e}")
 
             changed = True
         except Exception as e:
-            log.debug(f"candidate_ledger._fill_next_open_entries Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger._fill_next_open_entries Fehler (ignoriert): {e}")
     return changed
 
 
@@ -1526,7 +1532,7 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
                     if hypo is not None:
                         row["hypo_option"] = hypo
                 except Exception as e:
-                    log.debug(f"candidate_ledger: hypo_option-Backfill Fehler (ignoriert): {e}")
+                    log.warning(f"candidate_ledger: hypo_option-Backfill Fehler (ignoriert): {e}")
 
         direction = row.get("direction")
         outcomes  = row.setdefault("outcomes", {})
@@ -1664,7 +1670,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
 
             changed = True
         except Exception as e:
-            log.debug(f"candidate_ledger._fill_real_option_marks Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger._fill_real_option_marks Fehler (ignoriert): {e}")
     return changed
 
 
@@ -1785,7 +1791,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
 
             changed = True
         except Exception as e:
-            log.debug(f"candidate_ledger._fill_real_strategy_marks Fehler (ignoriert): {e}")
+            log.warning(f"candidate_ledger._fill_real_strategy_marks Fehler (ignoriert): {e}")
     return changed
 
 
@@ -1817,7 +1823,7 @@ def _compute_opt_ret(hypo: dict, price_h: float, h: int):
         opt_ret = (exit_net / entry_net) - 1.0
         return round(max(opt_ret, -1.0), 4)
     except Exception as e:
-        log.debug(f"candidate_ledger._compute_opt_ret Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger._compute_opt_ret Fehler (ignoriert): {e}")
         return None
 
 
@@ -1910,13 +1916,15 @@ def _prices_between(hist, start_dt: datetime, end_dt: datetime):
     return out
 
 
-def _atomic_write_jsonl(path: Path, rows: list[dict]) -> None:
+def _atomic_write_jsonl(path: Path, rows: list[dict], passthrough_lines: list[str] | None = None) -> None:
     dir_ = path.parent
     fd, tmp_path = tempfile.mkstemp(prefix=path.stem, suffix=".tmp", dir=str(dir_))
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             for row in rows:
                 f.write(json.dumps(row, default=str) + "\n")
+            for line in passthrough_lines or []:
+                f.write(line + "\n")
         os.replace(tmp_path, path)
     except Exception:
         try:
@@ -1977,7 +1985,7 @@ def summarize(root: Path = LEDGER_ROOT) -> dict:
                         if isinstance(opt45, (int, float)):
                             b["opt_ret_45d"].append(opt45)
             except Exception as e:
-                log.debug(f"candidate_ledger.summarize: {path} Fehler (ignoriert): {e}")
+                log.warning(f"candidate_ledger.summarize: {path} Fehler (ignoriert): {e}")
 
         result = {}
         for key, b in buckets.items():

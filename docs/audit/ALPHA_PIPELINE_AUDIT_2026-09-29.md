@@ -162,3 +162,48 @@ von Shadow-Gewichten bleibt eine menschliche Entscheidung (PR).
    und Slippage über den Quote-Spread hinaus sind nicht modelliert. Der
    Ledger-Vergleich brutto/netto (`cost_check`) greift, sobald `real_strat_ret_45d`
    reift.
+
+## 7. Nachtrag: except-Handler-Audit und Regime-Daten (2026-09-29)
+
+**Inventar (AST):** 333 Handler für `Exception` bzw. bare `except` (die 134 waren nur die
+ohne `as e`). Davon liegen 108 still (ohne Log oder nur DEBUG) im Entscheidungs- oder
+Lernpfad. Sie wurden einzeln klassifiziert:
+
+| Klasse | Beispiele | Maßnahme |
+|---|---|---|
+| **Erfundener Wert fließt in ein Gate** | IV-Rank → 50 (IV-Gate „günstig“ → Long Call); MC-σ-Default bei fehlender Historie (Trefferquote ist ein Gate); Mismatch-Move → 0 (A1) | **behoben**: None → Kandidat mit Grund (`iv_rank_unavailable`, MC übersprungen); `sigma_source` in der Simulation; `rv_measured` im IV-Rank |
+| **Unbekannt = unbedenklich** | Earnings-Termin unbekannt oder Fehler → „keine Earnings“ | Verhalten unverändert (yfinance hat oft keinen Termin), aber WARNING + Ledger `earnings_known` |
+| **Datenverlust** | Ledger-Rewrite verwarf unlesbare Zeilen dauerhaft | **behoben**: Zeilen bleiben unverändert erhalten, ERROR-Log |
+| **Lernpfad unsichtbar** | Outcome-Fill-, Ledger-Note- und Flush-Fehler nur DEBUG → das Lernen konnte still stoppen | 50 Stellen (Ledger, Pipeline, Feedback) → WARNING; Policy-Regelfehler → WARNING |
+| **Fallback bewusst, jetzt sichtbar** | VIX → 20, Sektor-/Liquiditätsprüfung „durchlassen“, Korrelations-Check „alle behalten“ | WARNING; Sektor-Status im Kandidaten |
+| **Mislabel** | Options-Design-Skips (Earnings-Gate, Sektor, Bear-Case, IV unbekannt) liefen als „ROI/Edge“ | explizite `skip_reasons` |
+| **Unkritisch** | Parse-Schleifen über Verfallstermine, Git-/Config-Fallbacks, Temp-Aufräumen, optionale Forschungswerte, `return None`/`[]` als sauberes „fehlend“ | unverändert, 32 stille Handler in einer Allowlist mit Begründung |
+
+**Guard:** `tests/test_exception_hygiene.py` lässt CI scheitern, sobald ein **neuer** stiller
+Handler (`pass`/`continue` ohne Log) hinzukommt.
+
+**Regime-Daten:** `fred_regime_macro` liefert Inflation (CPIAUCSL), Credit (NFCICREDIT),
+Finanzierungsbedingungen (NFCI), Liquidität (WALCL) sowie Dollar (DTWEXBGS) und Öl
+(DCOILWTICO) mit ALFRED-Veröffentlichungszeitpunkten. Die Regime-Regeln stehen in
+`modules/external/regime.py` und werden im Faktor-Monitor je Entry-Tag ausgewertet.
+ICE-BofA-Spreads sind wegen der Lizenz bewusst ausgeschlossen.
+
+**Live-Verifikation (Ingestion 2026-09-29 08:00 UTC):**
+- `fred_regime_macro` FRESH mit 25.693 Vintage-Beobachtungen.
+- Stand heute: CPI im Jahresvergleich 3,35 % (August, im September veröffentlicht;
+  drei Monate zuvor 4,17 % → Disinflation), WTI 96,4 $ (63 Tage +29 %), NFCI −0,56
+  (locker), NFCI-Credit −0,07 (locker), Fed-Bilanz +0,2 % (13 Wochen), Dollar −0,5 %.
+- An den 53 Trade-Tagen gibt es erstmals Regime-Variation: Öl steigend/fallend 31/22
+  Tage, Dollar 42/11, Credit locker/eng 50/3.
+- **Kein Faktor ist signifikant regime-abhängig** (Fisher-z-Differenz, |z| < 1,96).
+  Die Faktoren sind in allen Regimen gleich schwach bzw. negativ. Regime-adaptive
+  Gewichte sind damit **noch nicht** gerechtfertigt; der Monitor meldet es
+  automatisch, sobald die Evidenz entsteht.
+
+**Folgekorrekturen:**
+- DQ-`DUPLICATE_CONFLICT` schlug bei ALFRED-Quellen fälschlich an (Revisionen
+  derselben Periode); der Schlüssel enthält jetzt `vintage_time`.
+- `ncei_normals` scheiterte zweimal am Zeitbudget, obwohl die Normalwerte statisch
+  sind; jetzt `min_refetch_days: 30`, und das Überspringen ist sichtbar.
+- `bts_open_data_tsi` (nur Fallback) meldet weiterhin SCHEMA_CHANGED. Die
+  Primärquelle `bts_freight_tsi` liefert; das bleibt offen.

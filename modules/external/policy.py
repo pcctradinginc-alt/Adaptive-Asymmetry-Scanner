@@ -19,7 +19,11 @@ an der Stelle, an der das geprüft wird — Guard ist dort im Code, nicht hier).
 
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass, field
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -89,7 +93,8 @@ class ExternalContextPolicy:
             try:
                 if rule.condition(primitives):
                     total += rule.delta
-            except Exception:
+            except Exception as e:
+                log.warning(f"Policy-Regel {getattr(rule, 'name', rule)} nicht auswertbar: {e} -> ignoriert")
                 continue
         return total
 

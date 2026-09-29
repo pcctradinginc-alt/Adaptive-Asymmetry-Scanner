@@ -102,6 +102,7 @@ sources:
     license_status: OK
     frequency: static
     max_fetch_seconds: 900       # statische Normalwerte, NCEI nachts langsam (2026-09-29: >300 s)
+    min_refetch_days: 30         # Normalwerte 1991-2020 ändern sich nicht
     max_preflight_seconds: 300
     expected_update_cadence: 365d
     supports_history: false

@@ -125,8 +125,9 @@ class RiskGates:
                                 f"→ Earnings-Gate aktiv"
                             )
                             return True
-                    except Exception:
+                    except Exception as e:
+                        log.warning(f"  [{ticker}] Earnings-Datum nicht lesbar: {e}")
                         continue
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning(f"  [{ticker}] Earnings-Kalender Fehler: {e} → Earnings-Gate ohne Datengrundlage")
         return False

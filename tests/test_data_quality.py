@@ -74,3 +74,13 @@ def test_event_sources_are_marked_may_be_empty():
     r = reg.SourceRegistry()
     assert r.sources["nhc_storms"].get("may_be_empty") is True
     assert r.sources["imf_portwatch_disruptions"].get("may_be_empty") is True
+
+
+def test_revisions_across_vintages_are_not_duplicate_conflicts():
+    a = _o(1.0, entity="X")
+    b = _o(2.0, entity="X")
+    a.vintage_time, b.vintage_time = NOW - timedelta(days=30), NOW - timedelta(days=1)
+    assert "DUPLICATE_CONFLICT" not in dq.assess([a, b], {}, NOW)["issues"]
+    c = _o(3.0, entity="X")
+    c.vintage_time = b.vintage_time                    # gleiche Vintage, anderer Wert -> Konflikt
+    assert "DUPLICATE_CONFLICT" in dq.assess([a, b, c], {}, NOW)["issues"]
