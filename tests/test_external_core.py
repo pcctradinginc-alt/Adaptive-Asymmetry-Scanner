@@ -807,3 +807,20 @@ def test_enabled_sources_have_known_frequency_or_limit():
               or reg.parse_cadence(c.get("expected_update_cadence") or "") != timedelta(days=1)
               or c.get("expected_update_cadence") in ("1d", "P1D"))
         assert ok, sid
+
+
+def test_static_source_skipped_within_min_refetch_days(tmp_path):
+    calls = []
+
+    class _Counting(_OkConnector):
+        def fetch(self, now):
+            calls.append(now)
+            return super().fetch(now)
+    sources = {"ok_src": dict(VALID_SOURCE, source_id="ok_src", family="maritime", min_refetch_days=30)}
+    registry = _fake_registry(tmp_path, sources, {"ok_src": _Counting})
+    t0 = datetime(2026, 2, 1, tzinfo=UTC)
+    orch.run_ingestion(t0, registry=registry)
+    s2 = orch.run_ingestion(t0 + timedelta(days=3), registry=registry)
+    assert len(calls) == 1 and s2["sources"]["ok_src"]["skipped"] == "min_refetch_days"
+    orch.run_ingestion(t0 + timedelta(days=31), registry=registry)
+    assert len(calls) == 2

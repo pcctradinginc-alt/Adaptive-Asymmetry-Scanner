@@ -187,3 +187,23 @@ Finanzierungsbedingungen (NFCI), Liquidität (WALCL) sowie Dollar (DTWEXBGS) und
 (DCOILWTICO) mit ALFRED-Veröffentlichungszeitpunkten. Die Regime-Regeln stehen in
 `modules/external/regime.py` und werden im Faktor-Monitor je Entry-Tag ausgewertet.
 ICE-BofA-Spreads sind wegen der Lizenz bewusst ausgeschlossen.
+
+**Live-Verifikation (Ingestion 2026-09-29 08:00 UTC):**
+- `fred_regime_macro` FRESH mit 25.693 Vintage-Beobachtungen.
+- Stand heute: CPI im Jahresvergleich 3,35 % (August, im September veröffentlicht;
+  drei Monate zuvor 4,17 % → Disinflation), WTI 96,4 $ (63 Tage +29 %), NFCI −0,56
+  (locker), NFCI-Credit −0,07 (locker), Fed-Bilanz +0,2 % (13 Wochen), Dollar −0,5 %.
+- An den 53 Trade-Tagen gibt es erstmals Regime-Variation: Öl steigend/fallend 31/22
+  Tage, Dollar 42/11, Credit locker/eng 50/3.
+- **Kein Faktor ist signifikant regime-abhängig** (Fisher-z-Differenz, |z| < 1,96).
+  Die Faktoren sind in allen Regimen gleich schwach bzw. negativ. Regime-adaptive
+  Gewichte sind damit **noch nicht** gerechtfertigt; der Monitor meldet es
+  automatisch, sobald die Evidenz entsteht.
+
+**Folgekorrekturen:**
+- DQ-`DUPLICATE_CONFLICT` schlug bei ALFRED-Quellen fälschlich an (Revisionen
+  derselben Periode); der Schlüssel enthält jetzt `vintage_time`.
+- `ncei_normals` scheiterte zweimal am Zeitbudget, obwohl die Normalwerte statisch
+  sind; jetzt `min_refetch_days: 30`, und das Überspringen ist sichtbar.
+- `bts_open_data_tsi` (nur Fallback) meldet weiterhin SCHEMA_CHANGED. Die
+  Primärquelle `bts_freight_tsi` liefert; das bleibt offen.

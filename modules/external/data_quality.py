@@ -72,7 +72,9 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
     seen: dict = {}
     conflicts = 0
     for o in obs:
-        k = o.identity_key()
+        # Vintage-Quellen (ALFRED) liefern je Periode MEHRERE Vintages mit
+        # legitim verschiedenen Werten (Revisionen) -> Schlüssel inkl. vintage_time.
+        k = (o.identity_key(), o.vintage_time)
         if k in seen and seen[k] != o.value:
             conflicts += 1
         seen.setdefault(k, o.value)
