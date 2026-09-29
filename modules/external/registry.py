@@ -15,6 +15,8 @@ Beobachtungszahl abgeleitet — NIE aus Returns/P&L.
 
 from __future__ import annotations
 
+import re
+
 import importlib
 import pkgutil
 from dataclasses import asdict, dataclass, field
@@ -167,25 +169,47 @@ class SourceHealth:
         return cls(**{k: v for k, v in d.items() if k in cls.__dataclass_fields__})
 
 
+# Maximales Alter der jüngsten Beobachtung je Frequenz (Referenzperiode +
+# Publikationsverzug). EINE Quelle der Wahrheit für Source-Health UND die
+# Feature-Frische in modules/external/context.py.
+MAX_AGE_DAYS_BY_FREQUENCY = {"hourly": 3, "daily": 21, "monthly": 150, "monthly_lagged": 240,
+                             "quarterly": 400, "annual": 800}
+
+
 def parse_cadence(cadence: str) -> timedelta:
-    """'1d' / '7d' / '31d' → timedelta. Unbekanntes Format → 1 Tag (konservativ)."""
-    try:
-        if cadence.endswith("d"):
-            return timedelta(days=int(cadence[:-1]))
-    except Exception:
-        pass
+    """'7d' / '6h' / '2w' / ISO-8601 'P1D' / 'P7D' / 'P1M' / 'P1Y' -> timedelta.
+    Unbekanntes Format -> 1 Tag (konservativ). Vorher verstand die Funktion
+    nur 'Nd': 'P1M' usw. fielen auf 1 Tag -> alle Monatsquellen dauerhaft STALE
+    -> DataReadiness DEGRADED (Audit 2026-09-29)."""
+    c = str(cadence or "").strip().upper()
+    m = re.fullmatch(r"(\d+)\s*([DHW])", c)
+    if m:
+        n, u = int(m.group(1)), m.group(2)
+        return {"D": timedelta(days=n), "H": timedelta(hours=n), "W": timedelta(weeks=n)}[u]
+    m = re.fullmatch(r"P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?)?", c)
+    if m and any(m.groups()):
+        y, mo, w, d, h = (int(g) if g else 0 for g in m.groups())
+        return timedelta(days=365 * y + 30 * mo + 7 * w + d, hours=h)
     return timedelta(days=1)
 
 
 def evaluate_staleness(latest_observation: datetime | None, cadence: str | None,
-                        now: datetime | None = None) -> str:
-    """STALE wenn now - latest_observation > 2x erwartete Cadence."""
-    if latest_observation is None or not cadence:
+                        now: datetime | None = None, frequency: str | None = None,
+                        max_age_days: float | None = None) -> str:
+    """STALE, wenn die jüngste Beobachtung älter ist als erlaubt: explizites
+    max_age_days (Registry max_staleness_days) > Frequenz-Tabelle
+    (Referenzperiode + Publikationsverzug) > 2x erwartete Update-Kadenz."""
+    if latest_observation is None or (not cadence and not frequency and not max_age_days):
         return "UNKNOWN"
     now = ensure_utc(now) or utc_now()
-    latest_observation = ensure_utc(latest_observation)
-    age = now - latest_observation
-    return "STALE" if age > 2 * parse_cadence(cadence) else "FRESH"
+    age = now - ensure_utc(latest_observation)
+    if max_age_days:
+        limit = timedelta(days=float(max_age_days))
+    elif frequency in MAX_AGE_DAYS_BY_FREQUENCY:
+        limit = timedelta(days=MAX_AGE_DAYS_BY_FREQUENCY[frequency])
+    else:
+        limit = 2 * parse_cadence(cadence)
+    return "STALE" if age > limit else "FRESH"
 
 
 def load_health(archive_root: str | Path) -> dict[str, dict]:

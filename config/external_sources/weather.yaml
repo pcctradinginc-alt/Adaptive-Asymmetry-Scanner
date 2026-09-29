@@ -101,6 +101,8 @@ sources:
     license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
     license_status: OK
     frequency: static
+    max_fetch_seconds: 900       # statische Normalwerte, NCEI nachts langsam (2026-09-29: >300 s)
+    max_preflight_seconds: 300
     expected_update_cadence: 365d
     supports_history: false
     supports_vintages: false

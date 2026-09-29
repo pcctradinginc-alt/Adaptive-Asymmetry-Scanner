@@ -187,7 +187,9 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         elif h.status in (SourceStatus.FAIL.value,):
             h.consecutive_failures = int(h.consecutive_failures or 0) + 1
 
-        h.staleness = evaluate_staleness(result.latest_observation_time, h.expected_cadence, now)
+        h.staleness = evaluate_staleness(result.latest_observation_time, h.expected_cadence, now,
+                                         frequency=source_cfg.get("frequency"),
+                                         max_age_days=source_cfg.get("max_staleness_days"))
 
         health[source_id] = h.to_dict()
         summary["sources"][source_id] = {

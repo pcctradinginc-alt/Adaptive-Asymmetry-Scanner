@@ -23,7 +23,7 @@ sources:
     auth_env_variable: "DESTATIS_USER"   # optional; zweite Variable DESTATIS_PASSWORD siehe Connector
     license_reference: "Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)"
     commercial_use_status_if_known: "erlaubt unter Namensnennung (DL-DE-BY-2.0)"
-    frequency: daily
+    frequency: monthly   # Tabelle 42191-0001 = Monatsindex (Live 2026-09-29: jüngster Wert 2026-08); vorher 'daily'
     expected_update_cadence: "P1D"
     supports_history: true
     supports_vintages: true
@@ -182,7 +182,7 @@ sources:
     auth_env_variable: ""
     license_reference: "Eurostat reuse policy (Commission Decision 2011/833/EU, i.d.R. CC BY 4.0)"
     commercial_use_status_if_known: "erlaubt unter Namensnennung (Eurostat reuse policy)"
-    frequency: quarterly
+    frequency: annual   # road_go_ta_tott ist eine Jahresreihe (jüngster Wert 2025); vorher 'quarterly'
     expected_update_cadence: "P7D"   # role SLOW_CONFIRMATION -> wöchentlicher Check auf neue Releases
     supports_history: true
     supports_vintages: false
@@ -224,6 +224,7 @@ sources:
     license_reference: "e-Stat Terms of Use (im Allgemeinen freie Wiederverwendung mit Quellenangabe)"
     commercial_use_status_if_known: "REVIEW_REQUIRED — e-Stat ToU im Detail prüfen"
     frequency: monthly
+    max_staleness_days: 240   # 自動車輸送統計 erscheint mit ~5-6 Monaten Verzug (wie context monthly_lagged)
     expected_update_cadence: "P1M"
     supports_history: true
     supports_vintages: false
