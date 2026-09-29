@@ -143,6 +143,15 @@ def label_dropped(before: list, after: list, reason: str) -> int:
     return n
 
 
+def _scan_day_ret(info: dict) -> float | None:
+    px = info.get("currentPrice") or info.get("regularMarketPrice")
+    prev = info.get("previousClose") or info.get("regularMarketPreviousClose")
+    try:
+        return round(float(px) / float(prev) - 1.0, 5) if px and prev else None
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
 def note_base_features(c: dict) -> None:
     """Basismerkmale für ALLE Hard-Filter-Kandidaten (auch spätere Prescreen-
     Absagen), damit alpha_discovery die Gate-Wirksamkeit des Prescreenings
@@ -154,6 +163,9 @@ def note_base_features(c: dict) -> None:
             c.get("ticker"),
             sector=info.get("sector"), industry=info.get("industry"),
             rel_volume=c.get("rel_volume"), news_count=len(c.get("news") or []),
+            # Tagesrendite zum Scan-Zeitpunkt (PIT): naive Preis-Baseline für den
+            # gepaarten LLM-Mehrwert-Test (factor_monitor.llm_value_add).
+            scan_day_ret=_scan_day_ret(info),
             log_market_cap=(round(math.log10(c["market_cap"]), 3)
                             if isinstance(c.get("market_cap"), (int, float)) and c["market_cap"] > 0 else None),
             **{k: f.get(k) for k in ("sentiment_score", "sentiment_confidence", "sentiment_status", "sentiment_drift",

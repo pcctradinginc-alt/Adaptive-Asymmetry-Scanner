@@ -207,3 +207,18 @@ ICE-BofA-Spreads sind wegen der Lizenz bewusst ausgeschlossen.
   sind; jetzt `min_refetch_days: 30`, und das Überspringen ist sichtbar.
 - `bts_open_data_tsi` (nur Fallback) meldet weiterhin SCHEMA_CHANGED. Die
   Primärquelle `bts_freight_tsi` liefert; das bleibt offen.
+
+## 8. Engpass-Analyse und erste Research-Iteration (2026-09-29)
+
+- **Engpass:** Es gibt keine belastbare Evidenzbasis (184 selektionsverzerrte Trades
+  an 52 Tagen), und die Gates wurden nie historisch validiert.
+- **Iteration 1:** präregistrierte PIT-Event-Studie über 10 Jahre
+  (`modules/price_event_study.py`, Workflow `research.yml`). Ergebnis: keine
+  Preis-Hypothese gestützt, und die Drift-/Unterreaktions-Prämisse des Scanners ist
+  historisch nicht belegt. Details:
+  `docs/research/PREREG_price_event_study_2026-09-29.md`.
+- **Iteration 2:** prospektiver, gepaarter Test, ob die LLM-Richtung die naive
+  Preis-Baseline schlägt (`scan_day_ret` im Ledger, `llm_value_add` im monatlichen
+  Faktor-Report). Dieser Test entscheidet, ob der Scanner überhaupt einen Mehrwert
+  hat. Das Urteil lautet `insufficient_data`, bis ≥ 30 unabhängige Tage mit gereiften
+  Outcomes vorliegen, also frühestens etwa Mitte November 2026 (h = 20).

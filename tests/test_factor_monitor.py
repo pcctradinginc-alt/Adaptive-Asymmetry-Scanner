@@ -132,3 +132,26 @@ def test_regime_dependent_detection():
     assert fm._regime_dependent(reg)
     assert not fm._regime_dependent({"a": {"rank_ic": 0.1, "n_eff_dates": 60},
                                      "b": {"rank_ic": 0.12, "n_eff_dates": 60}})
+
+
+def test_llm_value_add_paired_against_price_baseline(tmp_path):
+    import random as _r
+    rnd = _r.Random(2)
+    rows = []
+    for d in range(40):
+        day = f"2026-{1 + d // 28:02d}-{1 + d % 28:02d}"
+        for _ in range(4):
+            dr = rnd.choice([-0.02, 0.02])
+            true_up = rnd.random() < 0.5
+            raw = (0.03 if true_up else -0.03) + rnd.gauss(0, 0.01)
+            direction = "BULLISH" if true_up else "BEARISH"          # LLM "weiß" die Richtung
+            llm = raw if direction == "BULLISH" else -raw
+            rows.append({"date": day, "ticker": "T", "direction": direction,
+                         "features": {"scan_day_ret": dr}, "outcomes": {"ret_20d": llm}})
+    rows.append({"date": "2026-03-01", "ticker": "X", "direction": None, "features": {}, "outcomes": {}})
+    led = tmp_path / "led"
+    led.mkdir()
+    (led / "2026-01.jsonl").write_text("\n".join(json.dumps(r) for r in rows))
+    res = fm.llm_value_add(led, horizons=(20,))["h20"]
+    assert res["n"] == 160 and res["verdict"] == "llm_beats_baseline"
+    assert res["llm_mean"] > 0.02 and abs(res["baseline_mean"]) < 0.01
