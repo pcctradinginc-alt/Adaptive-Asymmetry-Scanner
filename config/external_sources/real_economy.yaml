@@ -163,3 +163,38 @@ sources:
       WALCL: "WALCL"
       DTWEXBGS: "DTWEXBGS"
       DCOILWTICO: "DCOILWTICO"
+
+  - source_id: fred_world_macro
+    display_name: "FRED/ALFRED World-Model-Reihen: Arbeitsmarkt, Konsum, Lagerbestände"
+    family: real_economy
+    authority: "FRED/ALFRED (St. Louis Fed); Originale: BLS (PAYEMS), US DOL (ICSA), US Census Bureau (RSAFS, ISRATIO)"
+    official_homepage: "https://fred.stlouisfed.org"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api"
+    requires_auth: true
+    auth_env_variable: "FRED_API_KEY"
+    auth_optional: true
+    license_reference: "FRED ToU; BLS/DOL/Census gemeinfrei (US Government Works)"
+    commercial_use_status_if_known: "gemeinfrei"
+    attribution: "Source: FRED/ALFRED, Federal Reserve Bank of St. Louis; BLS; US Department of Labor; US Census Bureau"
+    frequency: weekly           # ICSA wöchentlich bestimmt die Frische; übrige monatlich
+    max_staleness_days: 21
+    expected_update_cadence: "P7D"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: low
+    license_status: OK
+    role: REGIME
+    max_backfill_bytes: 20000000
+    notes: >
+      World Model (modules/world_model.py): Arbeitsmarkt, Konsum, Lagerbestände.
+      available_at = ALFRED realtime_start (Revisionen als eigene Vintages).
+      Beobachtungen ab 2015-01-01. Nur SHADOW/Research.
+    expected_series_ids:
+      PAYEMS: "PAYEMS"
+      ICSA: "ICSA"
+      RSAFS: "RSAFS"
+      ISRATIO: "ISRATIO"
