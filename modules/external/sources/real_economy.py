@@ -557,6 +557,8 @@ class FredUsMacroConnector(Connector):
     parser_version = PARSER_VERSION
 
     FRED_API_BASE = "https://api.stlouisfed.org/fred"
+    OBSERVATION_START: str | None = None
+    LABEL = "UMCSENT+INDPRO"
 
     SERIES = {
         "UMCSENT": {"metric": "us_umcsent", "dataset": "survey",
@@ -594,6 +596,12 @@ class FredUsMacroConnector(Connector):
             "series_id": expected_series_id, "api_key": api_key, "file_type": "json",
             "realtime_start": "1776-07-04", "realtime_end": "9999-12-31",
         }
+        if spec.get("observation_start") or self.OBSERVATION_START:
+            params["observation_start"] = spec.get("observation_start") or self.OBSERVATION_START
+        if spec.get("realtime_start"):
+            # ALFRED kappt frühere realtime_start auf diesen Wert -> available_at
+            # konservativ SPÄTER als die Wahrheit, nie früher (kein Look-ahead).
+            params["realtime_start"] = spec["realtime_start"]
         try:
             res = http.fetch(url, params=params)
         except http.AuthError:
@@ -673,7 +681,7 @@ class FredUsMacroConnector(Connector):
             value = None if raw_val in (".", "", None) else self._safe_float(raw_val)
             observations.append(Observation(
                 source_id=self.source_id, dataset=spec["dataset"], series_id=series_id,
-                entity_id="US", metric=spec["metric"], value=value, unit="index_points",
+                entity_id="US", metric=spec["metric"], value=value, unit=spec.get("unit", "index_points"),
                 observation_time=obs_time, available_at=vintage, retrieved_at=res.retrieved_at,
                 availability_precision=AvailabilityPrecision.EXACT_DATE,
                 vintage_time=vintage, parser_version=self.parser_version,
@@ -711,13 +719,13 @@ class FredUsMacroConnector(Connector):
         if not all_observations and total_parse_failures == 0:
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
-                message="Keine auswertbaren Beobachtungen in ALFRED-Antworten (UMCSENT/INDPRO).",
+                message=f"Keine auswertbaren Beobachtungen in ALFRED-Antworten ({self.LABEL}).",
                 discovered_ids=discovered,
             )
         status = SourceStatus.WARN if total_parse_failures else SourceStatus.PASS
         return ConnectorResult(
             source_id=self.source_id, status=status, observations=all_observations, raw=raw,
-            message=f"{len(all_observations)} ALFRED-Vintage-Beobachtungen (UMCSENT+INDPRO)",
+            message=f"{len(all_observations)} ALFRED-Vintage-Beobachtungen ({self.LABEL})",
             latest_observation_time=latest, discovered_ids=discovered,
             parse_failures=total_parse_failures,
         )
@@ -730,8 +738,46 @@ class FredUsMacroConnector(Connector):
             return None
 
 
+class FredRegimeMacroConnector(FredUsMacroConnector):
+    """Regime-Reihen mit Veröffentlichungszeitpunkt (ALFRED-Vintages:
+    available_at = realtime_start = Tag, ab dem der Wert öffentlich war;
+    Revisionen als eigene Vintages). Nur lizenzfreie Reihen:
+      Inflation     CPIAUCSL     BLS, monatlich, SA-Index 1982-84=100
+      Credit        NFCICREDIT   Chicago Fed NFCI Credit-Subindex, wöchentlich
+      Liquidität    NFCI         Chicago Fed Financial Conditions, wöchentlich
+                    WALCL        Fed-Bilanzsumme (H.4.1), wöchentlich, Mio. USD
+      Dollar        DTWEXBGS     Fed Broad Dollar Index (H.10), täglich
+      Öl            DCOILWTICO   EIA WTI Spot, täglich, USD/Barrel
+    NICHT: ICE BofA HY OAS (BAMLH0A0HYM2) -- ICE-Lizenz schränkt Nutzung/
+    Historie auf FRED ein (REVIEW_REQUIRED, bewusst nicht archiviert)."""
+
+    source_id = "fred_regime_macro"
+    OBSERVATION_START = "2015-01-01"   # Volumen der Tagesreihen begrenzen
+    LABEL = "CPI/NFCI/WALCL/Dollar/WTI"
+    SERIES = {
+        "CPIAUCSL":   {"metric": "us_cpi", "dataset": "inflation", "unit": "index_1982_84",
+                       "search_text": "Consumer Price Index for All Urban Consumers: All Items in U.S. City Average"},
+        # NFCI wird wöchentlich für die GESAMTE Historie neu geschätzt -> alle
+        # Vintages seit Beginn wären Hunderttausende Zeilen. Für das Regime
+        # zählt der jeweils zuletzt veröffentlichte Wert: Fenster ab 2025.
+        "NFCICREDIT": {"metric": "nfci_credit", "dataset": "credit", "unit": "index_std",
+                       "observation_start": "2025-01-01", "realtime_start": "2025-01-01",
+                       "search_text": "Chicago Fed National Financial Conditions Credit Subindex"},
+        "NFCI":       {"metric": "nfci", "dataset": "liquidity", "unit": "index_std",
+                       "observation_start": "2025-01-01", "realtime_start": "2025-01-01",
+                       "search_text": "Chicago Fed National Financial Conditions Index"},
+        "WALCL":      {"metric": "fed_total_assets", "dataset": "liquidity", "unit": "usd_millions",
+                       "search_text": "Assets: Total Assets: Total Assets (Less Eliminations from Consolidation): Wednesday Level"},
+        "DTWEXBGS":   {"metric": "usd_broad", "dataset": "fx", "unit": "index_2006_01",
+                       "search_text": "Nominal Broad U.S. Dollar Index"},
+        "DCOILWTICO": {"metric": "wti", "dataset": "commodities", "unit": "usd_per_barrel",
+                       "search_text": "Crude Oil Prices: West Texas Intermediate (WTI) - Cushing, Oklahoma"},
+    }
+
+
 CONNECTORS: dict[str, type[Connector]] = {
     "eurostat_sentiment": EurostatSentimentConnector,
     "eurostat_industrial_production": EurostatIndustrialProductionConnector,
     "fred_us_macro": FredUsMacroConnector,
+    "fred_regime_macro": FredRegimeMacroConnector,
 }

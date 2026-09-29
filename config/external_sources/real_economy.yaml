@@ -125,3 +125,41 @@ sources:
     expected_series_ids:
       UMCSENT: "UMCSENT"  # verify in preflight
       INDPRO: "INDPRO"    # verify in preflight
+
+  - source_id: fred_regime_macro
+    display_name: "FRED/ALFRED Regime-Reihen: Inflation, Credit, Liquidität, Dollar, Öl"
+    family: real_economy
+    authority: "FRED/ALFRED (St. Louis Fed); Originale: BLS (CPI), Chicago Fed (NFCI), Federal Reserve Board (H.4.1, H.10), EIA (WTI)"
+    official_homepage: "https://fred.stlouisfed.org"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api"
+    requires_auth: true
+    auth_env_variable: "FRED_API_KEY"
+    auth_optional: true
+    license_reference: "FRED ToU; BLS/Fed Board/EIA gemeinfrei (US Government Works); Chicago Fed NFCI frei mit Quellenangabe"
+    commercial_use_status_if_known: "gemeinfrei bzw. frei mit Quellenangabe; ICE-BofA-Spreads bewusst ausgeschlossen (Lizenz)"
+    attribution: "Source: FRED/ALFRED, Federal Reserve Bank of St. Louis; BLS; Federal Reserve Board; Chicago Fed; EIA"
+    frequency: daily            # Tagesreihen bestimmen die Frische; CPI/NFCI/WALCL langsamer
+    max_staleness_days: 21
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    role: REGIME
+    max_backfill_bytes: 20000000
+    notes: >
+      Regime-Layer (modules/factor_monitor.py) und Kontext-Primitive. available_at =
+      ALFRED realtime_start (Veröffentlichungstag, Revisionen als eigene
+      Vintages; vor Beginn der ALFRED-Aufzeichnung konservativ = erstes
+      Vintage-Datum). Beobachtungen ab 2015-01-01.
+    expected_series_ids:
+      CPIAUCSL: "CPIAUCSL"
+      NFCICREDIT: "NFCICREDIT"
+      NFCI: "NFCI"
+      WALCL: "WALCL"
+      DTWEXBGS: "DTWEXBGS"
+      DCOILWTICO: "DCOILWTICO"

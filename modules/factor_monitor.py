@@ -262,6 +262,19 @@ def indpro_regimes(dates: list[str], archive_root: str = "outputs/external_data"
     return out
 
 
+def macro_regimes(dates: list[str], archive_root: str = "outputs/external_data") -> dict[str, dict]:
+    """Inflation, Credit, Finanzierungsbedingungen, Liquidität, Dollar, Öl
+    (fred_regime_macro, ALFRED-Vintages, PIT je Tag; modules/external/regime.py)."""
+    try:
+        from modules.external import regime
+        from modules.external.archive import ExternalArchive
+        obs = ExternalArchive(archive_root).load(regime.SOURCE_ID)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"factor_monitor: Makro-Regime nicht verfügbar: {e}")
+        return {}
+    return regime.regimes_by_date(obs, dates)
+
+
 def market_regimes(dates: list[str]) -> dict[str, dict]:
     """Markt-Regime je Tag aus Schlusskursen des VORTAGS (PIT): Trend (SPY vs.
     SMA200, Seitwärts bei |60d-Return| < 3 %), Zinsniveau (^TNX >= 4 %),
@@ -538,14 +551,16 @@ def run(history_path: Path = HISTORY_PATH, ledger_dir: Path = LEDGER_DIR,
     dates = sorted({e["date"] for e in events})
     regimes = merge_regimes(load_regimes(reports_dir),
                             market_regimes(dates) if with_market_regimes else {},
-                            indpro_regimes(dates) if with_market_regimes else {})
+                            indpro_regimes(dates) if with_market_regimes else {},
+                            macro_regimes(dates) if with_market_regimes else {})
     outcome_keys = sorted({k for e in events for k in e["outcomes"]})
     report = {"generated": today.isoformat(), "n_events": len(events),
               "sources": dict(_count(e["source"] for e in events)),
               "outcomes": {}, "note": "SHADOW: keine Produktionswirkung. Gewichte nur Forschung.",
               "regime_coverage": dict(_count(f"{k}={v}" for r in regimes.values() for k, v in r.items())),
-              "regimes_missing": ["inflation (keine PIT-Inflationsreihe im Archiv)",
-                                  "credit_spreads", "dollar", "oil", "liquidity"]}
+              "regimes_missing": [k for k in ("inflation", "inflation_trend", "credit", "fin_conditions",
+                                              "liquidity", "dollar", "oil", "trend", "rates", "curve", "cycle")
+                                  if not any(k in r for r in regimes.values())]}
     db_rows = []
     weights_out = {}
     for ok in outcome_keys:
