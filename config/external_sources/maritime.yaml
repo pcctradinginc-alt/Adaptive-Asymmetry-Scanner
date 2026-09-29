@@ -24,6 +24,7 @@
 sources:
   - source_id: imf_portwatch_ports
     display_name: "IMF PortWatch – Daily Ports Data"
+    max_fetch_seconds: 600   # ~260 Seiten Paginierung; Standard 300s (orchestrator)
     family: maritime
     authority: "IMF PortWatch (IMF & University of Oxford)"
     official_homepage: "https://portwatch.imf.org"

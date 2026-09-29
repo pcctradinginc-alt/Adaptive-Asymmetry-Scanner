@@ -735,3 +735,39 @@ def test_refetched_historical_vintages_are_duplicates(tmp_path):
     second = a.store_observations(batch)
     assert first["new"] + first["revision"] == 2
     assert second["new"] == 0 and second["revision"] == 0 and second["duplicate"] == 2
+
+
+class _HangingConnector(Connector):
+    source_id = "hangs"
+
+    def fetch(self, now):
+        import time as _t
+        _t.sleep(5)
+        raise AssertionError("darf nie zurückkehren, bevor das Budget greift")
+
+
+def test_orchestrator_hanging_source_times_out_and_others_continue(tmp_path):
+    """Regression 2026-09-29: eine hängende Quelle ließ Preflight/Ingestion nach
+    20 min ohne Health für ALLE Quellen abbrechen."""
+    sources = {"hangs": dict(VALID_SOURCE, source_id="hangs", family="road_freight", max_fetch_seconds=0.2),
+               "ok_src": dict(VALID_SOURCE, source_id="ok_src", family="maritime")}
+    registry = _fake_registry(tmp_path, sources, {"hangs": _HangingConnector, "ok_src": _OkConnector})
+    import time as _t
+    t0 = _t.monotonic()
+    summary = orch.run_ingestion(datetime(2026, 2, 1, tzinfo=UTC), registry=registry)
+    assert _t.monotonic() - t0 < 3
+    assert summary["sources"]["hangs"]["status"] == "FAIL"
+    assert "Zeitbudget" in summary["sources"]["hangs"]["error"]
+    assert summary["sources"]["ok_src"]["status"] == "PASS"
+    health = registry.load_health()
+    assert health["hangs"]["status"] == "FAIL" and health["hangs"]["consecutive_failures"] == 1
+
+
+def test_call_with_deadline_passes_result_and_errors():
+    assert orch._call_with_deadline(lambda: 42, 1.0) == 42
+    try:
+        orch._call_with_deadline(lambda: (_ for _ in ()).throw(ValueError("x")), 1.0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Fehler wurde verschluckt")

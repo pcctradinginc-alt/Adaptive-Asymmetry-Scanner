@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 import uuid
 from datetime import datetime
 
@@ -27,6 +28,48 @@ from modules.external.sources.base import SourceStatus
 
 def _now_iso(dt: datetime | None) -> str | None:
     return dt.isoformat(timespec="seconds") if dt else None
+
+
+# Wall-Clock-Budget je Quelle. Einzel-Requests haben Timeouts, aber Quellen mit
+# hunderten Requests (PortWatch-Paginierung, 45 NWS-Locations) summierten sich
+# bei langsamem Upstream auf > Job-Timeout: Preflight/Ingestion 2026-09-29
+# 04:00 UTC wurden nach 20 min ohne eine Log-Zeile abgebrochen, KEINE Quelle
+# bekam Health, niemand sah welche hing. Jetzt: Überschreitung -> FAIL
+# "timeout", die übrigen Quellen laufen weiter. Override je Quelle:
+# max_fetch_seconds in der Registry.
+DEFAULT_FETCH_BUDGET_S = 300
+DEFAULT_PREFLIGHT_BUDGET_S = 120
+
+
+class SourceTimeout(Exception):
+    pass
+
+
+def _call_with_deadline(fn, seconds: float):
+    """fn() in einem Daemon-Thread; nach `seconds` SourceTimeout. Der Thread
+    läuft ggf. weiter, sein Ergebnis wird verworfen (Archivierung passiert erst
+    im Orchestrator NACH fetch -> ein verspäteter Abruf schreibt nie)."""
+    import threading
+    box: dict = {}
+
+    def run():
+        try:
+            box["result"] = fn()
+        except BaseException as e:  # noqa: BLE001
+            box["error"] = e
+
+    th = threading.Thread(target=run, daemon=True)
+    th.start()
+    th.join(seconds)
+    if th.is_alive():
+        raise SourceTimeout(f"Zeitbudget {seconds:.0f}s überschritten")
+    if "error" in box:
+        raise box["error"]
+    return box.get("result")
+
+
+def _log(msg: str) -> None:
+    print(msg, file=sys.stderr, flush=True)
 
 
 def run_ingestion(now: datetime | None = None, families: list[str] | None = None,
@@ -77,9 +120,14 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
             summary["sources"][source_id] = {"status": h.status}
             continue
 
+        budget = float(source_cfg.get("max_fetch_seconds") or DEFAULT_FETCH_BUDGET_S)
+        _t0 = time.monotonic()
+        _log(f"[ingest] {source_id}: start (Budget {budget:.0f}s)")
         try:
-            result = connector.fetch(now)
+            result = _call_with_deadline(lambda: connector.fetch(now), budget)
+            _log(f"[ingest] {source_id}: fertig in {time.monotonic() - _t0:.1f}s")
         except Exception as e:  # noqa: BLE001 - Konnektor-Fehler ist nicht fatal
+            _log(f"[ingest] {source_id}: FEHLER nach {time.monotonic() - _t0:.1f}s: {e!r}")
             h.status = SourceStatus.FAIL.value
             h.message = repr(e)
             h.consecutive_failures = int(h.consecutive_failures or 0) + 1
@@ -231,7 +279,14 @@ def preflight(now: datetime | None = None, families: list[str] | None = None,
             out.append({"source_id": source_id, "status": "NO_CONNECTOR",
                         "family": source_cfg.get("family")})
             continue
-        report = connector.preflight(now)
+        budget = float(source_cfg.get("max_preflight_seconds") or DEFAULT_PREFLIGHT_BUDGET_S)
+        _t0 = time.monotonic()
+        _log(f"[preflight] {source_id}: start (Budget {budget:.0f}s)")
+        try:
+            report = _call_with_deadline(lambda: connector.preflight(now), budget)
+        except Exception as e:  # noqa: BLE001
+            report = {"source_id": source_id, "status": "FAIL", "reason": repr(e)}
+        _log(f"[preflight] {source_id}: {report.get('status')} in {time.monotonic() - _t0:.1f}s")
         report["family"] = source_cfg.get("family")
         report["license_status"] = source_cfg.get("license_status", "OK")
         if license_review_only:
