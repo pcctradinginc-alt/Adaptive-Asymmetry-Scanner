@@ -1,0 +1,73 @@
+# config/meta_protocol.yaml – Präregistrierung der Meta-Learning-Validierung (GESCHÜTZT)
+#
+# Festgelegt am 2026-09-29, VOR der ersten Auswertung auf echten Daten.
+# Hash gepinnt in tests/test_meta_protocol.py, CODEOWNERS. Änderungen nur,
+# um strenger zu werden oder einen belegten Fehler zu beheben – nie, um ein
+# Ergebnis besser aussehen zu lassen. Gemeinsame Konstanten (Kosten,
+# locked_from, Top-Quantil) kommen aus config/research_protocol.yaml.
+
+meta_version: "meta-v1"
+
+periods:
+  first_meta_test_year: 2021     # Meta-Learner braucht >= 2 Jahre Basis-OOS-Prognosen (2019, 2020)
+  trailing_weeks: 52             # Rückblick für "historische Modellleistung" (nur fertige Labels)
+  recent_weeks: 13
+
+# Vorab festgelegte Varianten (Anzahl -> Mehrfachtest-Korrektur)
+variants:
+  reference: static_equal        # "Champion ohne Meta-Learning": gleichgewichtetes Rang-Ensemble
+  primary_meta: meta_regime_weights
+  compared:
+    - best_single_ex_ante        # Modell mit bestem OOS-IC in den Vorjahren (PIT)
+    - static_equal
+    - trailing_ic_weighted       # einfaches gewichtetes Ensemble
+    - meta_regime_weights        # Meta-Learner: Modellgewicht = f(Regime, Historie, Disagreement)
+    - meta_stacking              # Meta-Learner: Stacking auf Zeilenebene
+  n_meta_variants: 2             # Bonferroni über die beiden Meta-Learner
+
+bootstrap:
+  n: 2000
+  seed: 7
+  block: month                   # Monats-Blöcke (Kohorten überlappen)
+  alpha_one_sided: 0.05          # vor Bonferroni; effektiv 0.025
+
+promotion_gate:
+  min_cohorts: 150               # wöchentliche OOS-Kohorten
+  min_months: 36
+  delta_sharpe_min: 0.0          # Δ Sharpe > 0
+  ci_lower_delta_monthly_gt: 0.0 # Bootstrap-Untergrenze Δ Monatsrendite > 0 (Bonferroni)
+  min_share_years_positive: 0.6  # Δ > 0 in >= 60 % der Meta-Testjahre
+  halves_positive: true          # Δ > 0 in beiden Hälften
+  max_regime_delta_drop: -0.005  # kein Regime (>= 24 Kohorten) mit Δ Expectancy < -0,5 %/Kohorte
+  max_brier_worsening: 0.001
+  max_ece_worsening: 0.01
+  trimmed_share: 0.05            # Δ muss ohne die besten 5 % der Monate > 0 bleiben
+  locked_delta_positive: true    # Locked-Holdout: Δ > 0
+
+disagreement_rule:               # G: nur nutzen, wenn empirisch belegt
+  min_t: 2.0                     # Differenz Top-Dezil-Rendite (niedrige − hohe Uneinigkeit), t über Monate
+  must_be_positive_share_years: 0.6
+
+calibration_buckets: [0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 1.00]
+calibration_flag_tolerance: 0.05 # |Trefferquote − Prognose| darüber -> over-/underconfident
+min_bucket_n: 200
+
+high_confidence:                 # I: Schwellen werden NUR auf Meta-Trainingsjahren kalibriert
+  prob_grid: [0.55, 0.58, 0.60, 0.62, 0.65, 0.70]
+  agreement_sd_grid: [0.10, 0.15, 0.20]
+  min_n_calibration: 150         # Positionen, die die Regel in den Kalibrierjahren erfüllt
+  lcb_z: 1.645                   # Regel nur aktiv, wenn untere 95-%-Schranke der Netto-Expectancy > 0
+  min_dollar_vol_rank: 0.0       # obere Hälfte der Liquidität (Rang > Median)
+  very_high_extra_prob: 0.05
+  earnings_block_days: 10        # bekanntes Earnings-Datum innerhalb -> kein Alert
+  require_event_data: true       # Earnings-Datum unbekannt -> kein Alert (Datenzweifel)
+
+safe_mode:                       # S: Rückfall auf Referenz
+  window_cohorts: 12
+  max_delta_t: -1.0              # Meta schlechter als Referenz mit t <= -1
+  max_ece: 0.10
+
+alerts:
+  reprobability_delta: 0.05      # erneute Meldung nur bei +5 Pp. Wahrscheinlichkeit
+  reexpected_return_delta: 0.02  # oder +2 Pp. erwartete 20d-Rendite
+  gap_days_new_signal: 21        # verschwunden und > 21 Tage später neu -> neues Signal

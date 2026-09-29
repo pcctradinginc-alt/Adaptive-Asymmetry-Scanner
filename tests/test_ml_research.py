@@ -282,3 +282,19 @@ def test_analogs_never_use_unfinished_labels():
     assert (hist["label_end_60"] <= latest).all()
     a = ml.analogs(hist, p[p["date"] == latest], 10)
     assert a["analog_share_positive"].between(0, 1).all()
+
+
+def test_conformal_correction_repairs_overconfident_intervals():
+    """Streuung wächst über die Jahre: rohe Intervalle (aus der Vergangenheit
+    gelernt) werden zu eng; die Vorjahres-Konformalkorrektur muss näher an 80 %."""
+    p = _panel(n_days=2600, n_stocks=60, signal=False)
+    rnd = np.random.default_rng(8)
+    years = p["date"].dt.year - 2014
+    scale = 0.03 * (1.25 ** years)
+    p["fwd_ret_60"] = rnd.normal(0, 1, len(p)) * scale
+    p["mae_60"] = -np.abs(rnd.normal(0, 1, len(p))) * scale
+    p.loc[p["label_end_60"].isna(), ["fwd_ret_60", "mae_60"]] = np.nan
+    cal = ml.calibration_wf(p, pd.Timestamp("2023-06-01"), first_test_year=2018)
+    assert cal["coverage"] < 0.75                                   # roh überkonfident
+    assert abs(cal["coverage_conformal"] - 0.8) < abs(cal["coverage"] - 0.8)
+    assert cal["correction"]["qhat"] > 0 and cal["correction"]["from_year"] >= 2022

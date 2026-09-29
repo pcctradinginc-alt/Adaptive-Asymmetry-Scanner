@@ -716,8 +716,12 @@ def predict_uncertainty(models: dict, df: pd.DataFrame) -> pd.DataFrame:
 
 def calibration_wf(panel: pd.DataFrame, locked_from: pd.Timestamp, first_test_year: int = FIRST_TEST_YEAR) -> dict:
     """Weiß das System, wann es wenig weiß? Walk-Forward-Prüfung: Abdeckung des
-    80-%-Intervalls und Brier-Score von P(>+10 %) gegen die Basisrate."""
-    rows = []
+    80-%-Intervalls und Brier-Score von P(>+10 %) gegen die Basisrate – roh UND
+    nach PIT-Korrektur: konformale Verbreiterung (CQR) und isotonische
+    Rekalibrierung, beide NUR aus den OOS-Residuen des Vorjahres gelernt."""
+    from sklearn.isotonic import IsotonicRegression
+    rows, prev = [], None
+    target = UNC["interval"][1] - UNC["interval"][0]
     for y in range(first_test_year, (locked_from - pd.Timedelta(days=1)).year + 1):
         ts = pd.Timestamp(year=y, month=1, day=1)
         train = purged(panel, ts, 60)
@@ -729,21 +733,48 @@ def calibration_wf(panel: pd.DataFrame, locked_from: pd.Timestamp, first_test_ye
         p = predict_uncertainty(m, test)
         r = test["fwd_ret_60"]
         up = (r > UNC["up_threshold"]).astype(float)
-        rows.append({"year": y, "n": int(len(test)),
-                     "coverage_80": _r(((r >= p["q_lo"]) & (r <= p["q_hi"])).mean(), 4),
-                     "below_lo": _r((r < p["q_lo"]).mean(), 4), "above_hi": _r((r > p["q_hi"]).mean(), 4),
-                     "brier": _r(((p["p_up"] - up) ** 2).mean(), 5),
-                     "brier_base": _r(((m["base_rate_up"] - up) ** 2).mean(), 5),
-                     "mae_coverage_50": _r((test["mae_60"] >= p["mae_mid"]).mean(), 4)})
+        row = {"year": y, "n": int(len(test)),
+               "coverage_80": _r(((r >= p["q_lo"]) & (r <= p["q_hi"])).mean(), 4),
+               "below_lo": _r((r < p["q_lo"]).mean(), 4), "above_hi": _r((r > p["q_hi"]).mean(), 4),
+               "brier": _r(((p["p_up"] - up) ** 2).mean(), 5),
+               "brier_base": _r(((m["base_rate_up"] - up) ** 2).mean(), 5),
+               "mae_coverage_50": _r((test["mae_60"] >= p["mae_mid"]).mean(), 4)}
+        if prev is not None:
+            lo, hi = p["q_lo"] - prev["qhat"], p["q_hi"] + prev["qhat"]
+            p_rc = np.interp(p["p_up"], prev["iso_x"], prev["iso_y"])
+            row.update(coverage_80_conformal=_r(((r >= lo) & (r <= hi)).mean(), 4),
+                       brier_recal=_r(((p_rc - up) ** 2).mean(), 5), qhat_used=_r(prev["qhat"], 4))
+        # Nonkonformität dieses Jahres -> Korrektur für das FOLGEJAHR
+        E = np.maximum(p["q_lo"] - r, r - p["q_hi"])
+        iso = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip").fit(p["p_up"], up)
+        prev = {"qhat": float(np.quantile(E, target)), "iso_x": iso.X_thresholds_.tolist(),
+                "iso_y": iso.y_thresholds_.tolist()}
+        rows.append(row)
     if not rows:
         return {"status": "no_data"}
     df = pd.DataFrame(rows)
-    target = UNC["interval"][1] - UNC["interval"][0]
     cov = float(np.average(df["coverage_80"], weights=df["n"]))
     brier, base = float(np.average(df["brier"], weights=df["n"])), float(np.average(df["brier_base"], weights=df["n"]))
-    return {"status": "ok", "by_year": rows, "coverage": _r(cov, 4), "target": target,
-            "interval_calibrated": abs(cov - target) <= UNC["coverage_tolerance"],
-            "brier": _r(brier, 5), "brier_base": _r(base, 5), "p_up_skill": _r(1 - brier / base, 4) if base > 0 else None}
+    out = {"status": "ok", "by_year": rows, "coverage": _r(cov, 4), "target": target,
+           "interval_calibrated_raw": abs(cov - target) <= UNC["coverage_tolerance"],
+           "brier": _r(brier, 5), "brier_base": _r(base, 5), "p_up_skill": _r(1 - brier / base, 4) if base > 0 else None}
+    c = df.dropna(subset=["coverage_80_conformal"]) if "coverage_80_conformal" in df else df.iloc[0:0]
+    if len(c):
+        cc = float(np.average(c["coverage_80_conformal"], weights=c["n"]))
+        br = float(np.average(c["brier_recal"], weights=c["n"]))
+        bb = float(np.average(c["brier_base"], weights=c["n"]))
+        worst = float((c["coverage_80_conformal"] - target).abs().max())
+        out.update(coverage_conformal=_r(cc, 4), worst_year_gap_conformal=_r(worst, 4),
+                   brier_recal=_r(br, 5), p_up_skill_recal=_r(1 - br / bb, 4) if bb > 0 else None,
+                   correction={"qhat": _r(prev["qhat"], 5), "iso_x": [_r(x, 5) for x in prev["iso_x"]],
+                               "iso_y": [_r(x, 5) for x in prev["iso_y"]], "from_year": rows[-1]["year"]})
+        # kalibriert nur, wenn die KORRIGIERTE Abdeckung im Mittel passt; Skill nur, wenn > 0
+        out["interval_calibrated"] = abs(cc - target) <= UNC["coverage_tolerance"]
+        out["p_up_informative"] = (out["p_up_skill_recal"] or 0) > 0
+    else:
+        out["interval_calibrated"] = out["interval_calibrated_raw"]
+        out["p_up_informative"] = (out["p_up_skill"] or 0) > 0
+    return out
 
 
 def _level(x: float | None, cuts: tuple[float, float], labels=("LOW", "MEDIUM", "HIGH")) -> str:
@@ -764,9 +795,11 @@ def analogs(hist: pd.DataFrame, query: pd.DataFrame, k: int) -> pd.DataFrame:
     _, idx = nn.kneighbors(query[cols].fillna(0.0).to_numpy(float))
     r = h["fwd_ret_60"].to_numpy()[idx]
     mae = h["mae_60"].to_numpy()[idx]
+    mfe = h["mfe_60"].to_numpy()[idx] if "mfe_60" in h else np.full(idx.shape, np.nan)
     years = pd.DatetimeIndex(h["date"]).year.to_numpy()[idx]
     return pd.DataFrame({"analog_median_ret_60": np.nanmedian(r, axis=1), "analog_share_positive": (r > 0).mean(axis=1),
                          "analog_median_mae_60": np.nanmedian(mae, axis=1),
+                         "analog_median_mfe_60": np.nanmedian(mfe, axis=1), "analog_n": k,
                          "analog_years": [f"{a.min()}-{a.max()}" for a in years]}, index=query.index)
 
 
@@ -809,6 +842,11 @@ def build_cards(panel: pd.DataFrame, rank_by_model: dict[str, dict], calibration
     regime_conf = "HIGH" if date_avail >= 0.9 and not near_edge else "MEDIUM" if date_avail >= 0.7 else "LOW"
     top_tickers = set(mean_rank.sort_values(ascending=False).head(top_n_drivers).index)
     cards = {}
+    corr = (calibration or {}).get("correction") or {}
+    if corr:
+        u["q_lo"] = u["q_lo"] - corr["qhat"]
+        u["q_hi"] = u["q_hi"] + corr["qhat"]
+        u["p_up"] = np.interp(u["p_up"], corr["iso_x"], corr["iso_y"])
     for i, row in snap.iterrows():
         t = row["ticker"]
         c = {"expected_return_60": _r(u.at[i, "q_mid"], 4),
@@ -819,7 +857,8 @@ def build_cards(panel: pd.DataFrame, rank_by_model: dict[str, dict], calibration
              "model_disagreement_sd": _r(disagree.get(t), 3), "mean_challenger_rank": _r(mean_rank.get(t), 3),
              "data_quality": _level(feat_cov.at[i], (0.8, 0.95)), "regime_confidence": regime_conf,
              "interval_calibrated": (calibration or {}).get("interval_calibrated"),
-             "p_up_skill": (calibration or {}).get("p_up_skill")}
+             "interval_corrected": bool(corr), "p_up_informative": (calibration or {}).get("p_up_informative"),
+             "p_up_skill": (calibration or {}).get("p_up_skill_recal", (calibration or {}).get("p_up_skill"))}
         if i in an.index and len(an.columns):
             c["analogs"] = {k: (_r(v, 4) if not isinstance(v, str) else v) for k, v in an.loc[i].items()}
         if t in top_tickers:
@@ -930,8 +969,11 @@ def render_md(rep: dict) -> str:
     cal = rep.get("calibration") or {}
     if cal.get("status") == "ok":
         L += ["", "## Unsicherheit (Walk-Forward-Kalibrierung)", "",
-              f"- 80-%-Intervall der 60-Tage-Rendite deckt {cal['coverage']} ab (Soll {cal['target']}) -> "
+              f"- 80-%-Intervall der 60-Tage-Rendite deckt roh {cal['coverage']} ab (Soll {cal['target']}); "
+              f"nach konformaler Vorjahres-Korrektur {cal.get('coverage_conformal')} "
+              f"(schlechtestes Jahr ±{cal.get('worst_year_gap_conformal')}) -> "
               f"{'kalibriert' if cal['interval_calibrated'] else 'NICHT kalibriert'}",
+              f"- P(>+10 %) nach isotonischer Vorjahres-Rekalibrierung: Skill {cal.get('p_up_skill_recal')}",
               f"- P(Rendite_60 > +10 %): Brier {cal['brier']} vs. Basisrate {cal['brier_base']} "
               f"(Skill {cal['p_up_skill']}; <= 0 heißt: keine Information über die Basisrate hinaus)"]
     for mid, m in rep.get("models", {}).items():
