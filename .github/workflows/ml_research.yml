@@ -21,7 +21,7 @@ concurrency:
 jobs:
   ml:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +50,19 @@ jobs:
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.research_lab
+
+      - name: Meta-Learning (Walk-Forward, Ablation, Gate – nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.meta_learning
+
+      - name: High-Confidence-Scanner + Alerts (keine Orderausführung)
+        continue-on-error: true
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hc_scanner --send
 
       - name: Trade-Gedächtnis + Failure Analyzer
         continue-on-error: true
