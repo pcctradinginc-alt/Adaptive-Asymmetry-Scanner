@@ -169,6 +169,23 @@ def _scan_day_ret(info: dict) -> float | None:
         return None
 
 
+_ML_SHADOW: dict | None = None
+
+
+def _ml_shadow_ranks(ticker: str | None) -> dict:
+    """Jüngste wöchentliche ML-Shadow-Ränge (modules/ml_research, <= 8 Tage alt)
+    als Ledger-Merkmal ml_<model_id>: reine Beobachtung, fließt in kein Scoring."""
+    global _ML_SHADOW
+    if _ML_SHADOW is None:
+        try:
+            from modules.ml_research import latest_scores
+            _ML_SHADOW = latest_scores()
+        except (OSError, ValueError, KeyError) as e:
+            log.warning(f"ML-Shadow-Ränge nicht lesbar (ignoriert): {e}")
+            _ML_SHADOW = {}
+    return {f"ml_{mid}": ranks[ticker] for mid, ranks in _ML_SHADOW.items() if ticker in ranks}
+
+
 def note_base_features(c: dict) -> None:
     """Basismerkmale für ALLE Hard-Filter-Kandidaten (auch spätere Prescreen-
     Absagen), damit alpha_discovery die Gate-Wirksamkeit des Prescreenings
@@ -183,6 +200,7 @@ def note_base_features(c: dict) -> None:
             # Tagesrendite zum Scan-Zeitpunkt (PIT): naive Preis-Baseline für den
             # gepaarten LLM-Mehrwert-Test (factor_monitor.llm_value_add).
             scan_day_ret=_scan_day_ret(info),
+            **_ml_shadow_ranks(c.get("ticker")),
             log_market_cap=(round(math.log10(c["market_cap"]), 3)
                             if isinstance(c.get("market_cap"), (int, float)) and c["market_cap"] > 0 else None),
             **{k: f.get(k) for k in ("sentiment_score", "sentiment_confidence", "sentiment_status", "sentiment_drift",
