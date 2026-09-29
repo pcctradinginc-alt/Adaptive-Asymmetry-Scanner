@@ -228,6 +228,29 @@ def imf_probes() -> dict:
     return out
 
 
+def sec_form4_canary(tickers=("AAPL", "MMM", "ARE", "JPM", "BE")) -> dict:
+    """Live-Canary für modules.alpha_sources (Form-4-Parsing, offizielle SEC-API):
+    CIK-Auflösung, Kauf/Verkauf-Zählung 30 Tage, Beispieltransaktion."""
+    import os
+    import sys as _sys
+    _sys.path.insert(0, os.getcwd())
+    out = {}
+    try:
+        from modules import alpha_sources as al
+    except Exception as e:  # noqa: BLE001
+        return {"error": repr(e)}
+    for t in tickers:
+        try:
+            trades = al.fetch_sec_insider_trades(t, days_back=30)
+            cl = al.detect_insider_cluster(t, days_back=30)
+            out[t] = {"cik": al.sec_cik_for_ticker(t), "n_trades": len(trades),
+                      "buys": cl["buy_count"], "sells": cl["sell_count"],
+                      "cluster": cl["cluster_detected"], "sample": trades[:2]}
+        except Exception as e:  # noqa: BLE001
+            out[t] = {"error": repr(e)}
+    return out
+
+
 def main() -> int:
     out = {"retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
@@ -239,6 +262,7 @@ def main() -> int:
     out["imf_probes"] = imf_probes()
     out["imf_pi_series"] = imf_series_sample(
         "https://api.imf.org/external/sdmx/2.1/data/PI/CHN+KOR+TWN+JPN+IND+DEU+MEX+VNM.*.*?startPeriod=2025-01")
+    out["sec_form4_canary"] = sec_form4_canary()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, ensure_ascii=False)[:5000])

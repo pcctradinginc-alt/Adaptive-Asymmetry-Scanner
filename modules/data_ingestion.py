@@ -36,6 +36,8 @@ Fix 2: Haiku↔Sonnet Konsistenz-Check
 from __future__ import annotations
 import logging
 import os
+import random
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
@@ -54,6 +56,68 @@ MIN_AVG_VOLUME        = 1_000_000
 MIN_DOLLAR_VOLUME_USD = 10_000_000
 RV_BASE_THRESHOLD     = 0.6   # Basis-Schwelle (skaliert mit VIX dynamisch)
 MAX_WORKERS           = 20   # Parallel Threads — empirisch für Yahoo Finance
+RV_NEWS_OVERRIDE_MIN  = 0.25  # News-Override greift nur ab diesem RV (siehe _evaluate_ticker)
+
+# Finnhub Free-Tier: 60 Aufrufe/Minute. 20 parallele Threads ohne Drossel
+# liefen nach ~60 Tickern in HTTP 429, das still als "keine News" galt ->
+# der Hard-Filter ließ fast nur Ticker A–E durch (Log 2026-09-25: 116/126).
+FINNHUB_CALLS_PER_MIN = 55
+FINNHUB_MAX_429_RETRIES = 3
+
+
+class _RateLimiter:
+    """Thread-sicherer Sliding-Window-Limiter (max_calls je period Sekunden)."""
+
+    def __init__(self, max_calls: int, period: float = 60.0,
+                 clock=time.monotonic, sleep=time.sleep):
+        self.max_calls, self.period = max_calls, period
+        self._clock, self._sleep = clock, sleep
+        self._calls: list[float] = []
+        self._lock = threading.Lock()
+
+    def acquire(self) -> None:
+        while True:
+            with self._lock:
+                now = self._clock()
+                self._calls = [t for t in self._calls if now - t < self.period]
+                if len(self._calls) < self.max_calls:
+                    self._calls.append(now)
+                    return
+                wait = self.period - (now - self._calls[0])
+            self._sleep(max(wait, 0.05))
+
+
+_FINNHUB_LIMITER = _RateLimiter(FINNHUB_CALLS_PER_MIN, 60.0)
+_STATS_LOCK = threading.Lock()
+
+
+def parse_yfinance_news(items: list, since: datetime, limit: int = 5) -> list[str]:
+    """Headlines der letzten Zeit aus yfinance .news -- altes Format
+    (title/providerPublishTime) UND neues Format ab yfinance 0.2.5x
+    (content.title/content.pubDate ISO-8601). Vorher las der Fallback nur das
+    alte Format und lieferte mit aktuellem yfinance IMMER eine leere Liste."""
+    out = []
+    for n in (items or [])[:limit]:
+        if not isinstance(n, dict):
+            continue
+        content = n.get("content") if isinstance(n.get("content"), dict) else {}
+        title = n.get("title") or content.get("title")
+        published = None
+        if n.get("providerPublishTime"):
+            try:
+                published = datetime.utcfromtimestamp(int(n["providerPublishTime"]))
+            except (TypeError, ValueError, OSError):
+                published = None
+        elif content.get("pubDate") or content.get("displayTime"):
+            raw = str(content.get("pubDate") or content.get("displayTime"))
+            try:
+                dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+                published = dt.replace(tzinfo=None) - (dt.utcoffset() or timedelta(0))
+            except ValueError:
+                published = None
+        if title and published is not None and published >= since:
+            out.append(title)
+    return out
 
 # v7.1: Short Interest Schwellenwerte
 SHORT_INTEREST_HIGH   = 0.15   # 15% Short Float → "high" (Squeeze-Potential)
@@ -167,7 +231,11 @@ class DataIngestion:
             return 20.0
 
     def run(self) -> list[dict]:
-        tickers = get_universe()
+        tickers = list(get_universe())
+        # Reihenfolge je Tag deterministisch mischen: sollte eine Quelle doch
+        # ins Limit laufen, trifft es nie systematisch dieselben (alphabetisch
+        # späten) Ticker.
+        random.Random(datetime.utcnow().strftime("%Y-%m-%d")).shuffle(tickers)
         log.info(f"Stufe 1: Hard-Filter auf {len(tickers)} Ticker "
                  f"(parallel, {MAX_WORKERS} Workers)")
 
@@ -186,6 +254,9 @@ class DataIngestion:
             "avg_volume": 0, "dollar_volume": 0, "rel_volume": 0,
             "no_news": 0, "passed": 0,
         }
+        self.news_source_stats = {"finnhub_ok": 0, "finnhub_empty": 0, "finnhub_error": 0,
+                                  "finnhub_429": 0, "newsapi_ok": 0, "newsapi_error": 0,
+                                  "yfinance_ok": 0, "yfinance_empty": 0}
 
         candidates = []
         # Parallel-Requests — massiv schneller als sequenziell
@@ -207,7 +278,14 @@ class DataIngestion:
                     stats["no_data"] += 1
 
         self._log_filter_stats(stats)
-        log.info(f"  → {len(candidates)} Kandidaten nach Hard-Filter")
+        ns = self.news_source_stats
+        log.info(f"  News-Quellen: {ns}")
+        if ns["finnhub_error"] or ns["finnhub_429"] or ns["newsapi_error"]:
+            log.warning(f"  News-Abruf mit Fehlern (Finnhub 429={ns['finnhub_429']}, "
+                        f"Finnhub Fehler={ns['finnhub_error']}, NewsAPI Fehler={ns['newsapi_error']}) "
+                        f"-> 'Keine News'-Rejects können Datenlücken statt fehlender News sein")
+        passed_initials = sorted({c["ticker"][0] for c in candidates if c.get("ticker")})
+        log.info(f"  Anfangsbuchstaben der Kandidaten: {''.join(passed_initials)}")
         return candidates
 
     def _evaluate_ticker(
@@ -264,10 +342,15 @@ class DataIngestion:
             rv_threshold = RV_BASE_THRESHOLD * max(0.5, min(1.5, vix_current / vix_avg))
             rv_threshold = round(rv_threshold, 2)
 
-            # News-Override: Ticker mit starker News-Aktivität trotz niedrigem RV erlauben
+            # News-Override: Ticker mit starker News-Aktivität trotz niedrigem RV erlauben.
+            # Unterhalb RV_NEWS_OVERRIDE_MIN kann auch der Override nicht greifen ->
+            # verwerfen OHNE News-Abruf (spart das knappe Finnhub-Budget).
+            if rel_volume < rv_threshold and rel_volume < RV_NEWS_OVERRIDE_MIN:
+                local_stats["rel_volume"] += 1
+                return None, local_stats
             news = self._fetch_news(ticker, info)
             news_count   = len(news) if news else 0
-            news_override = (news_count >= 3 and rel_volume >= 0.25)
+            news_override = (news_count >= 3 and rel_volume >= RV_NEWS_OVERRIDE_MIN)
 
             if rel_volume < rv_threshold and not news_override:
                 local_stats["rel_volume"] += 1
@@ -350,20 +433,43 @@ class DataIngestion:
                 return news
         return self._fetch_yfinance_news(ticker)
 
+    def _count(self, key: str) -> None:
+        st = getattr(self, "news_source_stats", None)
+        if st is not None:
+            with _STATS_LOCK:
+                st[key] = st.get(key, 0) + 1
+
     def _fetch_finnhub_news(self, ticker: str, api_key: str) -> list[str]:
-        try:
-            since = (datetime.utcnow() - timedelta(days=2)).strftime("%Y-%m-%d")
-            today = datetime.utcnow().strftime("%Y-%m-%d")
-            resp  = requests.get(
-                "https://finnhub.io/api/v1/company-news",
-                params={"symbol": ticker, "from": since, "to": today, "token": api_key},
-                timeout=8,
-            )
-            resp.raise_for_status()
-            articles = resp.json()
-            return [a["headline"] for a in (articles or [])[:5] if a.get("headline")]
-        except Exception:
-            return []
+        since = (datetime.utcnow() - timedelta(days=2)).strftime("%Y-%m-%d")
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        for attempt in range(FINNHUB_MAX_429_RETRIES + 1):
+            try:
+                _FINNHUB_LIMITER.acquire()
+                resp = requests.get(
+                    "https://finnhub.io/api/v1/company-news",
+                    params={"symbol": ticker, "from": since, "to": today, "token": api_key},
+                    timeout=8,
+                )
+                if resp.status_code == 429:
+                    self._count("finnhub_429")
+                    if attempt < FINNHUB_MAX_429_RETRIES:
+                        try:
+                            wait = float(resp.headers.get("Retry-After") or 0)
+                        except ValueError:
+                            wait = 0.0
+                        time.sleep(min(max(wait, 2.0 * (attempt + 1)), 20.0))
+                        continue
+                    self._count("finnhub_error")
+                    return []
+                resp.raise_for_status()
+                articles = resp.json()
+                out = [a["headline"] for a in (articles or [])[:5] if a.get("headline")]
+                self._count("finnhub_ok" if out else "finnhub_empty")
+                return out
+            except Exception:
+                self._count("finnhub_error")
+                return []
+        return []
 
     def _fetch_newsapi(self, ticker: str, company_name: str) -> list[str]:
         try:
@@ -378,19 +484,20 @@ class DataIngestion:
                 timeout=8,
             )
             resp.raise_for_status()
-            return [a["title"] for a in resp.json().get("articles", []) if a.get("title")]
+            out = [a["title"] for a in resp.json().get("articles", []) if a.get("title")]
+            if out:
+                self._count("newsapi_ok")
+            return out
         except Exception:
+            self._count("newsapi_error")
             return []
 
     def _fetch_yfinance_news(self, ticker: str) -> list[str]:
         try:
-            t     = yf.Ticker(ticker)
-            news  = t.news or []
-            since = datetime.utcnow() - timedelta(hours=48)
-            return [
-                n["title"] for n in news[:5]
-                if n.get("title") and
-                datetime.fromtimestamp(n.get("providerPublishTime", 0)) >= since
-            ]
+            news = yf.Ticker(ticker).news or []
+            out = parse_yfinance_news(news, datetime.utcnow() - timedelta(hours=48))
+            self._count("yfinance_ok" if out else "yfinance_empty")
+            return out
         except Exception:
+            self._count("yfinance_empty")
             return []
