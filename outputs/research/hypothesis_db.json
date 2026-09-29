@@ -7,7 +7,8 @@
       "source": "prior_study",
       "evidence": "Event-Studie 2026-09-29: -0,35 % netto (t -2,4), 1/8 Jahre positiv -> abgelehnt",
       "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
-      "evaluated_at": null
+      "evaluated_at": null,
+      "canonical_status": "REJECTED"
     },
     "PRIOR-ES-H2": {
       "id": "PRIOR-ES-H2",
@@ -16,7 +17,8 @@
       "source": "prior_study",
       "evidence": "-0,47 % netto (t -3,6), 0/8 Jahre positiv -> abgelehnt, eher umgekehrt",
       "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
-      "evaluated_at": null
+      "evaluated_at": null,
+      "canonical_status": "REJECTED"
     },
     "PRIOR-ES-H3": {
       "id": "PRIOR-ES-H3",
@@ -25,7 +27,8 @@
       "source": "prior_study",
       "evidence": "-0,16 % netto (t -1,1) -> abgelehnt",
       "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
-      "evaluated_at": null
+      "evaluated_at": null,
+      "canonical_status": "REJECTED"
     },
     "PRIOR-ES-H4": {
       "id": "PRIOR-ES-H4",
@@ -34,7 +37,8 @@
       "source": "prior_study",
       "evidence": "-0,39 % netto (t -2,3) -> abgelehnt",
       "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
-      "evaluated_at": null
+      "evaluated_at": null,
+      "canonical_status": "REJECTED"
     },
     "PRIOR-LLM-VALUE": {
       "id": "PRIOR-LLM-VALUE",
@@ -42,6 +46,7 @@
       "status": "prior_result",
       "source": "prospective",
       "evidence": "läuft prospektiv (factor_monitor.llm_value_add), Urteil frühestens Mitte November 2026",
+      "canonical_status": "INCONCLUSIVE",
       "evaluated_at": null
     },
     "HYP-0201": {
@@ -50,7 +55,9 @@
       "status": "blocked_data",
       "source": "human",
       "evidence": "Universum ist US (S&P 500); Maut-Archiv < 3 Jahre PIT; keine Gewinnrevisions-Historie (PIT)",
-      "evaluated_at": null
+      "retest_after": "2029-09-01",
+      "evaluated_at": null,
+      "canonical_status": "RETEST_LATER"
     },
     "HYP-0202": {
       "id": "HYP-0202",
@@ -58,7 +65,9 @@
       "status": "blocked_data",
       "source": "human",
       "evidence": "PortWatch ohne belastbare Ticker-Zuordnung; Archiv-Historie zu kurz für Walk-Forward ab 2019",
-      "evaluated_at": null
+      "retest_after": "2029-09-01",
+      "evaluated_at": null,
+      "canonical_status": "RETEST_LATER"
     },
     "HYP-0101": {
       "id": "HYP-0101",
@@ -68,7 +77,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:11:59+00:00",
+      "evaluated_at": "2026-09-29T16:19:22+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -191,7 +200,34 @@
         "spy_uptrend": "works",
         "spy_downtrend": "works"
       },
-      "status": "not_significant_after_fdr"
+      "status": "not_significant_after_fdr",
+      "memory": {
+        "question": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage.",
+        "why_tested": "literature",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "rev_1m"
+        ],
+        "feature_definitions": {
+          "rev_1m": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto 0.0051 je 20 Tage, t=2.13, Rank-IC 0.0216, Asymmetrie Top/Univ 1.313/1.212",
+        "skeptic": "Hälften {'first': 0.00778, 'second': 0.00244}; Jahre positiv 0.857; Regime mit Versagen: keine",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.016586, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'works', 'vix_ge_20': 'works', 'spy_uptrend': 'works', 'spy_downtrend': 'works'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto 0.0021; Max-DD -0.08298",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.08298; Jahre positiv 0.857",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "INCONCLUSIVE"
     },
     "HYP-0102": {
       "id": "HYP-0102",
@@ -201,7 +237,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:12:01+00:00",
+      "evaluated_at": "2026-09-29T16:19:24+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -329,7 +365,34 @@
         "spy_downtrend": "fails"
       },
       "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
-      "status": "rejected"
+      "status": "rejected",
+      "memory": {
+        "question": "Aktien mit niedriger 60-Tage-Volatilität liefern risikoadjustiert mehr.",
+        "why_tested": "literature",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "vol_60"
+        ],
+        "feature_definitions": {
+          "vol_60": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto -0.00668 je 20 Tage, t=-2.0, Rank-IC -0.03649, Asymmetrie Top/Univ 1.155/1.211",
+        "skeptic": "Hälften {'first': -0.0065, 'second': -0.00686}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.97725, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto -0.00968; Max-DD -0.41552",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.41552; Jahre positiv 0.0",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
     },
     "HYP-0103": {
       "id": "HYP-0103",
@@ -339,7 +402,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:12:02+00:00",
+      "evaluated_at": "2026-09-29T16:19:25+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -467,7 +530,34 @@
         "spy_downtrend": "fails"
       },
       "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
-      "status": "rejected"
+      "status": "rejected",
+      "memory": {
+        "question": "Aktien mit extremer bester Tagesrendite im letzten Monat sind überbewertet.",
+        "why_tested": "literature",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "max_ret_21"
+        ],
+        "feature_definitions": {
+          "max_ret_21": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto -0.00659 je 20 Tage, t=-2.42, Rank-IC -0.02066, Asymmetrie Top/Univ 1.153/1.212",
+        "skeptic": "Hälften {'first': -0.00372, 'second': -0.00944}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.99224, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto -0.00959; Max-DD -0.40985",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.40985; Jahre positiv 0.143",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
     },
     "HYP-0104": {
       "id": "HYP-0104",
@@ -477,7 +567,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:12:03+00:00",
+      "evaluated_at": "2026-09-29T16:19:26+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -605,7 +695,34 @@
         "spy_downtrend": "fails"
       },
       "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
-      "status": "rejected"
+      "status": "rejected",
+      "memory": {
+        "question": "Aktien nahe ihrem 52-Wochen-Hoch reagieren verzögert auf gute Nachrichten (Anker-Effekt).",
+        "why_tested": "literature",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "dist_52w_high"
+        ],
+        "feature_definitions": {
+          "dist_52w_high": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto -0.00764 je 20 Tage, t=-2.85, Rank-IC -0.02417, Asymmetrie Top/Univ 1.088/1.21",
+        "skeptic": "Hälften {'first': -0.00697, 'second': -0.0083}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.997814, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto -0.01064; Max-DD -0.42991",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.42991; Jahre positiv 0.0",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
     },
     "HYP-0105": {
       "id": "HYP-0105",
@@ -615,7 +732,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:12:05+00:00",
+      "evaluated_at": "2026-09-29T16:19:28+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -738,7 +855,36 @@
         "spy_uptrend": "works",
         "spy_downtrend": "works"
       },
-      "status": "rejected"
+      "status": "rejected",
+      "memory": {
+        "question": "Starkes 12-1-Momentum bei schwachem letzten Monat bietet asymmetrisches Aufholpotenzial.",
+        "why_tested": "human",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "mom_12_1",
+          "rev_1m"
+        ],
+        "feature_definitions": {
+          "mom_12_1": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "rev_1m": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto 0.00357 je 20 Tage, t=1.62, Rank-IC 0.01467, Asymmetrie Top/Univ 1.282/1.211",
+        "skeptic": "Hälften {'first': 0.00348, 'second': 0.00365}; Jahre positiv 0.714; Regime mit Versagen: keine",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.052616, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'works', 'vix_ge_20': 'works', 'spy_uptrend': 'works', 'spy_downtrend': 'works'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto 0.00057; Max-DD -0.09215",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.09215; Jahre positiv 0.714",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
     },
     "HYP-0106": {
       "id": "HYP-0106",
@@ -748,7 +894,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:12:06+00:00",
+      "evaluated_at": "2026-09-29T16:19:29+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -872,7 +1018,36 @@
         "spy_uptrend": "works",
         "spy_downtrend": "works"
       },
-      "status": "rejected"
+      "status": "rejected",
+      "memory": {
+        "question": "12-1-Momentum funktioniert oberhalb der SPY-200-Tage-Linie, kehrt sich darunter um.",
+        "why_tested": "literature",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "mom_12_1",
+          "spy_trend_200"
+        ],
+        "feature_definitions": {
+          "mom_12_1": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "spy_trend_200": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto 0.00517 je 20 Tage, t=1.22, Rank-IC 0.00606, Asymmetrie Top/Univ 1.281/1.211",
+        "skeptic": "Hälften {'first': 0.00446, 'second': 0.00588}; Jahre positiv 0.571; Regime mit Versagen: keine",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.111232, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'works', 'vix_ge_20': 'works', 'spy_uptrend': 'works', 'spy_downtrend': 'works'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto 0.00217; Max-DD -0.30714",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.30714; Jahre positiv 0.571",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
     },
     "HYP-0107": {
       "id": "HYP-0107",
@@ -882,7 +1057,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-09-29T15:12:08+00:00",
+      "evaluated_at": "2026-09-29T16:19:30+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -890,7 +1065,7 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00327 mit t=-4.13",
+        "Walk-Forward netto -0.00327 mit t=-4.14",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
         "instabil über Hälften {'first': -0.00304, 'second': -0.0035}",
@@ -905,9 +1080,9 @@
           "mean": -0.00327,
           "median": -0.00324,
           "hit_rate": 0.373,
-          "t_months": -4.13,
+          "t_months": -4.14,
           "sharpe_ann": -1.63,
-          "max_dd": -0.22786,
+          "max_dd": -0.22807,
           "years_positive_share": 0.143,
           "top_mfe": 0.06914,
           "top_mae": -0.05725,
@@ -921,8 +1096,8 @@
           "median": -0.00624,
           "hit_rate": 0.287,
           "t_months": -7.84,
-          "sharpe_ann": -3.09,
-          "max_dd": -0.38136,
+          "sharpe_ann": -3.1,
+          "max_dd": -0.38152,
           "years_positive_share": 0.0,
           "top_mfe": 0.06914,
           "top_mae": -0.05725,
@@ -957,27 +1132,27 @@
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00458,
+            "mean": -0.00459,
             "median": -0.00441,
             "hit_rate": 0.338,
-            "t_months": -3.67,
-            "sharpe_ann": -1.92,
-            "max_dd": -0.21598,
+            "t_months": -3.71,
+            "sharpe_ann": -1.94,
+            "max_dd": -0.21703,
             "years_positive_share": 0.0,
             "top_mfe": 0.08717,
-            "top_mae": -0.06379,
+            "top_mae": -0.06378,
             "top_asymmetry": 1.367,
             "univ_asymmetry": 1.379
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00299,
+            "mean": -0.003,
             "median": -0.00315,
             "hit_rate": 0.385,
-            "t_months": -2.5,
+            "t_months": -2.51,
             "sharpe_ann": -1.07,
-            "max_dd": -0.1746,
+            "max_dd": -0.17482,
             "years_positive_share": 0.286,
             "top_mfe": 0.06176,
             "top_mae": -0.05298,
@@ -1000,9 +1175,9 @@
             "univ_asymmetry": 1.317
           }
         },
-        "p_value": 0.999982
+        "p_value": 0.999983
       },
-      "p_value": 0.999982,
+      "p_value": 0.999983,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -1010,7 +1185,36 @@
         "spy_downtrend": "fails"
       },
       "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
-      "status": "rejected"
+      "status": "rejected",
+      "memory": {
+        "question": "Stark steigendes Volumen bei kaum veränderter Wochenrendite deutet auf Informationsaufbau (Akkumulation).",
+        "why_tested": "human",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "relvol_5_60",
+          "ret_5d"
+        ],
+        "feature_definitions": {
+          "relvol_5_60": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "ret_5d": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-09-29",
+        "model_version": "b68b40b4df3b"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto -0.00327 je 20 Tage, t=-4.14, Rank-IC -0.0066, Asymmetrie Top/Univ 1.208/1.211",
+        "skeptic": "Hälften {'first': -0.00304, 'second': -0.0035}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.999983, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto -0.00627; Max-DD -0.22807",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.22807; Jahre positiv 0.143",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
     }
   },
   "discovery": {
@@ -1020,5 +1224,11 @@
     "survivor_ids": []
   },
   "n_tested_total": 7,
-  "generated": "2026-09-29T15:12:09+00:00"
+  "generated": "2026-09-29T16:19:32+00:00",
+  "status_counts": {
+    "ACCEPTED": 0,
+    "REJECTED": 10,
+    "INCONCLUSIVE": 2,
+    "RETEST_LATER": 2
+  }
 }

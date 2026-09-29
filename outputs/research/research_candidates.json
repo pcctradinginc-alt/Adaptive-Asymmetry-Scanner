@@ -1,0 +1,203 @@
+{
+ "generated": "2026-09-29T16:18:47+00:00",
+ "n_candidates": 1,
+ "n_selected_for_testing": 0,
+ "max_new_per_run": 5,
+ "candidates": [
+  {
+   "kind": "diagnostic",
+   "question": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.65)?",
+   "required_data": [
+    "Basis-OOS je Segment"
+   ],
+   "available_data": true,
+   "evidence_t": 2.65,
+   "value": 0.1883,
+   "source_finding": "model_drift:momentum_12_1",
+   "research_id": "RD-2ba2ff05",
+   "hypothesis": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.65)?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.883,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 3.25887
+  }
+ ],
+ "selected": [],
+ "hypotheses": [],
+ "active_learning": [
+  {
+   "source": "earnings_calendar_history",
+   "dimensions": [
+    "event_risk",
+    "earnings_momentum"
+   ],
+   "current_uncertainty": 1.0,
+   "expected_information_gain": 1.0,
+   "available": true,
+   "reliability": 1.0,
+   "acquisition_cost": 3,
+   "priority": 0.33333,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "ok",
+    "historical_coverage": "ok",
+    "timestamp_integrity": "ok",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "gemeinfrei (US Government)",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "sec_financial_statements",
+   "dimensions": [
+    "earnings_momentum",
+    "fundamentals"
+   ],
+   "current_uncertainty": 1.0,
+   "expected_information_gain": 1.0,
+   "available": true,
+   "reliability": 1.0,
+   "acquisition_cost": 3,
+   "priority": 0.33333,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "ok",
+    "historical_coverage": "ok",
+    "timestamp_integrity": "ok",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "gemeinfrei (US Government)",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "cboe_put_call",
+   "dimensions": [
+    "positioning",
+    "risk_appetite"
+   ],
+   "current_uncertainty": 0.809,
+   "expected_information_gain": 0.809,
+   "available": true,
+   "reliability": 1.0,
+   "acquisition_cost": 3,
+   "priority": 0.26967,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "review_required",
+    "historical_coverage": "ok",
+    "timestamp_integrity": "ok",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "Nutzungsbedingungen prüfen: REVIEW_REQUIRED",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "ibes_estimate_revisions",
+   "dimensions": [
+    "earnings_momentum"
+   ],
+   "current_uncertainty": 1.0,
+   "expected_information_gain": 1.0,
+   "available": true,
+   "reliability": 1.0,
+   "acquisition_cost": 5,
+   "priority": 0.2,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "review_required",
+    "historical_coverage": "ok",
+    "timestamp_integrity": "ok",
+    "revision_analysis": "ok",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "kommerziell, REVIEW_REQUIRED",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "portwatch_history_pit",
+   "dimensions": [
+    "freight_supply_chain"
+   ],
+   "current_uncertainty": 0.197,
+   "expected_information_gain": 0.039,
+   "available": true,
+   "reliability": 0.3,
+   "acquisition_cost": 1,
+   "priority": 0.0591,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "ok",
+    "historical_coverage": "insufficient",
+    "timestamp_integrity": "forward_only",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "IMF Terms (frei mit Quellenangabe)",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "destatis_truck_toll_pit",
+   "dimensions": [
+    "freight_supply_chain",
+    "industrial_activity"
+   ],
+   "current_uncertainty": 0.197,
+   "expected_information_gain": 0.039,
+   "available": true,
+   "reliability": 0.3,
+   "acquisition_cost": 1,
+   "priority": 0.0591,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "ok",
+    "historical_coverage": "insufficient",
+    "timestamp_integrity": "forward_only",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "DL-DE-BY-2.0",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "finra_short_interest",
+   "dimensions": [
+    "positioning"
+   ],
+   "current_uncertainty": 0.0,
+   "expected_information_gain": 0.0,
+   "available": false,
+   "reliability": 1.0,
+   "acquisition_cost": 3,
+   "priority": 0.0,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "review_required",
+    "historical_coverage": "insufficient",
+    "timestamp_integrity": "ok",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "frei mit Quellenangabe (Nutzungsbedingungen prüfen: REVIEW_REQUIRED)",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  }
+ ]
+}

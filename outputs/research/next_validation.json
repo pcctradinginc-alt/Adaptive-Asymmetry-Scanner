@@ -1,0 +1,991 @@
+{
+ "generated": "2026-09-29T16:35:13+00:00",
+ "version": "next-v1",
+ "protocol": "config/next_protocol.yaml",
+ "metrics": {
+  "A": {
+   "cagr": 0.0219,
+   "sharpe": 0.227,
+   "sortino": 0.245,
+   "max_dd": -0.1875,
+   "calmar": 0.117,
+   "profit_factor": 1.068,
+   "hit_rate": 0.4742,
+   "avg_winner": 0.08871,
+   "avg_loser": -0.07492,
+   "payoff": 1.184,
+   "expectancy": 0.00267,
+   "precision_at_k": 0.2657,
+   "recall_strong": 0.1677,
+   "turnover": 0.3456,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0983,
+   "avg_mae": -0.0812,
+   "es5_monthly": -0.08156,
+   "es5_position": -0.23326,
+   "stability_sd_yearly": 0.01223,
+   "regime_min_expectancy": -0.00303,
+   "active_share_cohorts": 1.0,
+   "brier": 0.24954,
+   "log_loss": 0.69223,
+   "ece": 0.00309,
+   "base_rate": 0.4701,
+   "n": 89972,
+   "hc_n": 288,
+   "hc_hit_rate": 0.4861,
+   "locked_expectancy": 0.01883
+  },
+  "B": {
+   "cagr": 0.0154,
+   "sharpe": 0.191,
+   "sortino": 0.193,
+   "max_dd": -0.1723,
+   "calmar": 0.089,
+   "profit_factor": 1.056,
+   "hit_rate": 0.4723,
+   "avg_winner": 0.08848,
+   "avg_loser": -0.075,
+   "payoff": 1.18,
+   "expectancy": 0.00222,
+   "precision_at_k": 0.2618,
+   "recall_strong": 0.166,
+   "turnover": 0.3524,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0988,
+   "avg_mae": -0.0825,
+   "es5_monthly": -0.06514,
+   "es5_position": -0.23479,
+   "stability_sd_yearly": 0.01119,
+   "regime_min_expectancy": -0.00528,
+   "active_share_cohorts": 1.0,
+   "brier": 0.2497,
+   "log_loss": 0.69255,
+   "ece": 0.01007,
+   "base_rate": 0.4701,
+   "n": 89972,
+   "hc_n": 980,
+   "hc_hit_rate": 0.45,
+   "locked_expectancy": 0.01169
+  },
+  "C": {
+   "cagr": 0.0186,
+   "sharpe": 0.208,
+   "sortino": 0.2,
+   "max_dd": -0.1696,
+   "calmar": 0.11,
+   "profit_factor": 1.072,
+   "hit_rate": 0.4741,
+   "avg_winner": 0.0883,
+   "avg_loser": -0.07426,
+   "payoff": 1.189,
+   "expectancy": 0.0028,
+   "precision_at_k": 0.261,
+   "recall_strong": 0.1644,
+   "turnover": 0.3677,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0977,
+   "avg_mae": -0.0819,
+   "es5_monthly": -0.07766,
+   "es5_position": -0.23366,
+   "stability_sd_yearly": 0.01189,
+   "regime_min_expectancy": -0.00736,
+   "active_share_cohorts": 1.0,
+   "brier": 0.25025,
+   "log_loss": 0.69536,
+   "ece": 0.01589,
+   "base_rate": 0.4701,
+   "n": 89972,
+   "hc_n": 988,
+   "hc_hit_rate": 0.4494,
+   "locked_expectancy": 0.01213
+  },
+  "D": {
+   "cagr": 0.0238,
+   "sharpe": 0.255,
+   "sortino": 0.25,
+   "max_dd": -0.1579,
+   "calmar": 0.151,
+   "profit_factor": 1.082,
+   "hit_rate": 0.4764,
+   "avg_winner": 0.08541,
+   "avg_loser": -0.07183,
+   "payoff": 1.189,
+   "expectancy": 0.00308,
+   "precision_at_k": 0.2553,
+   "recall_strong": 0.1566,
+   "turnover": 0.3642,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0951,
+   "avg_mae": -0.0795,
+   "es5_monthly": -0.08014,
+   "es5_position": -0.22869,
+   "stability_sd_yearly": 0.01161,
+   "regime_min_expectancy": -0.00675,
+   "active_share_cohorts": 1.0,
+   "brier": 0.25013,
+   "log_loss": 0.69342,
+   "ece": 0.01981,
+   "base_rate": 0.4701,
+   "n": 89972,
+   "hc_n": 728,
+   "hc_hit_rate": 0.4093,
+   "locked_expectancy": 0.01332
+  },
+  "E": {
+   "cagr": 0.0236,
+   "sharpe": 0.252,
+   "sortino": 0.248,
+   "max_dd": -0.1572,
+   "calmar": 0.15,
+   "profit_factor": 1.081,
+   "hit_rate": 0.4752,
+   "avg_winner": 0.08564,
+   "avg_loser": -0.0717,
+   "payoff": 1.194,
+   "expectancy": 0.00307,
+   "precision_at_k": 0.2557,
+   "recall_strong": 0.157,
+   "turnover": 0.3664,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0953,
+   "avg_mae": -0.0796,
+   "es5_monthly": -0.08045,
+   "es5_position": -0.2287,
+   "stability_sd_yearly": 0.01157,
+   "regime_min_expectancy": -0.00686,
+   "active_share_cohorts": 1.0,
+   "brier": 0.25012,
+   "log_loss": 0.69341,
+   "ece": 0.01999,
+   "base_rate": 0.4701,
+   "n": 89972,
+   "hc_n": 744,
+   "hc_hit_rate": 0.4126,
+   "locked_expectancy": 0.0132
+  },
+  "F": {
+   "cagr": 0.0157,
+   "sharpe": 0.231,
+   "sortino": 0.269,
+   "max_dd": -0.1317,
+   "calmar": 0.119,
+   "profit_factor": 1.047,
+   "hit_rate": 0.4799,
+   "avg_winner": 0.07309,
+   "avg_loser": -0.06441,
+   "payoff": 1.135,
+   "expectancy": 0.00157,
+   "precision_at_k": 0.2421,
+   "recall_strong": 0.1464,
+   "turnover": 0.6461,
+   "exposure": 1.0,
+   "n_trades": 10505,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0838,
+   "avg_mae": -0.07,
+   "es5_monthly": -0.04695,
+   "es5_position": -0.19762,
+   "stability_sd_yearly": 0.00579,
+   "regime_min_expectancy": -0.00347,
+   "active_share_cohorts": 1.0,
+   "brier": 0.2495,
+   "log_loss": 0.69253,
+   "ece": 0.00518,
+   "base_rate": 0.4692,
+   "n": 81257,
+   "hc_n": 616,
+   "hc_hit_rate": 0.4334,
+   "locked_expectancy": 0.00748
+  },
+  "A_blindspot": {
+   "cagr": 0.0153,
+   "sharpe": 0.249,
+   "sortino": 0.277,
+   "max_dd": -0.1015,
+   "calmar": 0.151,
+   "profit_factor": 1.021,
+   "hit_rate": 0.4782,
+   "avg_winner": 0.06065,
+   "avg_loser": -0.05444,
+   "payoff": 1.114,
+   "expectancy": 0.0006,
+   "precision_at_k": 0.238,
+   "recall_strong": 0.1417,
+   "turnover": 0.5386,
+   "exposure": 1.0,
+   "n_trades": 4504,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0743,
+   "avg_mae": -0.0616,
+   "es5_monthly": -0.04323,
+   "es5_position": -0.16633,
+   "stability_sd_yearly": 0.00527,
+   "regime_min_expectancy": -0.0017,
+   "active_share_cohorts": 1.0,
+   "brier": 0.24914,
+   "log_loss": 0.69144,
+   "ece": 0.01289,
+   "base_rate": 0.4604,
+   "n": 35918,
+   "hc_n": 157,
+   "hc_hit_rate": 0.4777,
+   "locked_expectancy": 0.00496
+  },
+  "A_abstention": {
+   "cagr": 0.0835,
+   "sharpe": 0.677,
+   "sortino": 0.785,
+   "max_dd": -0.1283,
+   "calmar": 0.651,
+   "profit_factor": 1.296,
+   "hit_rate": 0.5092,
+   "avg_winner": 0.09159,
+   "avg_loser": -0.0733,
+   "payoff": 1.25,
+   "expectancy": 0.01066,
+   "precision_at_k": 0.2741,
+   "recall_strong": 0.1715,
+   "turnover": 0.3806,
+   "exposure": 1.0,
+   "n_trades": 4619,
+   "n_cohorts": 92,
+   "n_months": 32,
+   "avg_mfe": 0.1086,
+   "avg_mae": -0.0795,
+   "es5_monthly": -0.05717,
+   "es5_position": -0.23066,
+   "stability_sd_yearly": 0.03598,
+   "regime_min_expectancy": -0.03035,
+   "active_share_cohorts": 0.4,
+   "brier": 0.24842,
+   "log_loss": 0.68994,
+   "ece": 0.01102,
+   "base_rate": 0.4796,
+   "n": 37296,
+   "hc_n": 269,
+   "hc_hit_rate": 0.6134,
+   "locked_expectancy": 0.03389
+  },
+  "G": {
+   "cagr": 0.0835,
+   "sharpe": 0.677,
+   "sortino": 0.785,
+   "max_dd": -0.1283,
+   "calmar": 0.651,
+   "profit_factor": 1.296,
+   "hit_rate": 0.5092,
+   "avg_winner": 0.09159,
+   "avg_loser": -0.0733,
+   "payoff": 1.25,
+   "expectancy": 0.01066,
+   "precision_at_k": 0.2741,
+   "recall_strong": 0.1715,
+   "turnover": 0.3806,
+   "exposure": 1.0,
+   "n_trades": 4619,
+   "n_cohorts": 92,
+   "n_months": 32,
+   "avg_mfe": 0.1086,
+   "avg_mae": -0.0795,
+   "es5_monthly": -0.05717,
+   "es5_position": -0.23066,
+   "stability_sd_yearly": 0.03598,
+   "regime_min_expectancy": -0.03035,
+   "active_share_cohorts": 0.4,
+   "brier": 0.24842,
+   "log_loss": 0.68994,
+   "ece": 0.01102,
+   "base_rate": 0.4796,
+   "n": 37296,
+   "hc_n": 269,
+   "hc_hit_rate": 0.6134,
+   "locked_expectancy": 0.03389
+  }
+ },
+ "component_vs_A": {
+  "C": {
+   "delta_monthly_mean": -0.000344,
+   "ci_monthly_mean": [
+    -0.006263,
+    0.006265
+   ],
+   "ci_sharpe": [
+    -0.592,
+    0.654
+   ],
+   "alpha_one_sided": 0.008333333333333333,
+   "n_months": 54,
+   "trimmed_mean": -0.003185729679488757
+  },
+  "D": {
+   "delta_monthly_mean": 3.3e-05,
+   "ci_monthly_mean": [
+    -0.005994,
+    0.006571
+   ],
+   "ci_sharpe": [
+    -0.576,
+    0.722
+   ],
+   "alpha_one_sided": 0.008333333333333333,
+   "n_months": 54,
+   "trimmed_mean": -0.002583810577772608
+  },
+  "E": {
+   "delta_monthly_mean": 1.7e-05,
+   "ci_monthly_mean": [
+    -0.006024,
+    0.006489
+   ],
+   "ci_sharpe": [
+    -0.579,
+    0.728
+   ],
+   "alpha_one_sided": 0.008333333333333333,
+   "n_months": 54,
+   "trimmed_mean": -0.0026299104736295796
+  },
+  "F": {
+   "delta_monthly_mean": -0.000963,
+   "ci_monthly_mean": [
+    -0.007878,
+    0.005856
+   ],
+   "ci_sharpe": [
+    -0.619,
+    0.555
+   ],
+   "alpha_one_sided": 0.008333333333333333,
+   "n_months": 54,
+   "trimmed_mean": -0.0042379493395977375
+  },
+  "A_blindspot": {
+   "delta_monthly_mean": -0.001061,
+   "ci_monthly_mean": [
+    -0.009873,
+    0.007738
+   ],
+   "ci_sharpe": [
+    -0.809,
+    0.853
+   ],
+   "alpha_one_sided": 0.008333333333333333,
+   "n_months": 54,
+   "trimmed_mean": -0.004933438773957185
+  },
+  "A_abstention": {
+   "delta_monthly_mean": 0.004846,
+   "ci_monthly_mean": [
+    -0.002571,
+    0.013141
+   ],
+   "ci_sharpe": [
+    -0.29,
+    1.186
+   ],
+   "alpha_one_sided": 0.008333333333333333,
+   "n_months": 54,
+   "trimmed_mean": 0.0006398292825470706
+  }
+ },
+ "component_verdicts": {
+  "counterfactual_filter": "REJECT",
+  "blind_spot_filter": "REJECT",
+  "abstention": true,
+  "decision_intelligence": "KEEP"
+ },
+ "abstention_confirmation": {
+  "active_cohorts": 52,
+  "inactive_cohorts": 53,
+  "active_expectancy": 0.0302,
+  "inactive_expectancy": 0.00239,
+  "diff_t": 3.4,
+  "confirmed": true,
+  "years": [
+   2019,
+   2020
+  ]
+ },
+ "blind_spots": {
+  "per_fold": [
+   {
+    "fold": "2021",
+    "n_clusters": 15,
+    "share_excluded_top": 0.8578
+   },
+   {
+    "fold": "2022",
+    "n_clusters": 15,
+    "share_excluded_top": 0.7587
+   },
+   {
+    "fold": "2023",
+    "n_clusters": 15,
+    "share_excluded_top": 0.379
+   },
+   {
+    "fold": "2024",
+    "n_clusters": 15,
+    "share_excluded_top": 0.8194
+   },
+   {
+    "fold": "2025",
+    "n_clusters": 15,
+    "share_excluded_top": 0.8708
+   },
+   {
+    "fold": "locked",
+    "n_clusters": 15,
+    "share_excluded_top": 0.7305
+   }
+  ],
+  "reference": {
+   "cagr": 0.0223,
+   "sharpe": 0.229,
+   "sortino": 0.249,
+   "max_dd": -0.1875,
+   "calmar": 0.119,
+   "profit_factor": 1.068,
+   "hit_rate": 0.4742,
+   "avg_winner": 0.08871,
+   "avg_loser": -0.07492,
+   "payoff": 1.184,
+   "expectancy": 0.00267,
+   "precision_at_k": 0.2657,
+   "recall_strong": 0.1677,
+   "turnover": 0.3456,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0983,
+   "avg_mae": -0.0812
+  },
+  "filtered": {
+   "cagr": 0.0156,
+   "sharpe": 0.252,
+   "sortino": 0.283,
+   "max_dd": -0.1015,
+   "calmar": 0.154,
+   "profit_factor": 1.021,
+   "hit_rate": 0.4782,
+   "avg_winner": 0.06065,
+   "avg_loser": -0.05444,
+   "payoff": 1.114,
+   "expectancy": 0.0006,
+   "precision_at_k": 0.238,
+   "recall_strong": 0.1417,
+   "turnover": 0.5386,
+   "exposure": 1.0,
+   "n_trades": 4504,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0743,
+   "avg_mae": -0.0616
+  },
+  "bootstrap": {
+   "delta_monthly_mean": -0.001081,
+   "ci_monthly_mean": [
+    -0.008393,
+    0.006138
+   ],
+   "ci_sharpe": [
+    -0.714,
+    0.705
+   ],
+   "alpha_one_sided": 0.025,
+   "n_months": 53
+  },
+  "locked": {
+   "reference": 0.01883,
+   "filtered": 0.00496
+  },
+  "verdict": "REJECT"
+ },
+ "blind_spot_clusters": [
+  {
+   "id": "UNKNOWN_CLUSTER_001",
+   "n": 94,
+   "n_segment": 465,
+   "typical_error": -0.2329,
+   "segment_expectancy": 0.0245,
+   "lift": 2.02,
+   "p": 1.0643483588696732e-13,
+   "common_properties": {
+    "sector": "Energy",
+    "momentum": "loser_12m"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_002",
+   "n": 98,
+   "n_segment": 562,
+   "typical_error": -0.2082,
+   "segment_expectancy": 0.0082,
+   "lift": 1.74,
+   "p": 2.109991273279348e-09,
+   "common_properties": {
+    "sector": "Communication Services",
+    "recent_move": "extreme_5d_move"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_003",
+   "n": 177,
+   "n_segment": 1032,
+   "typical_error": -0.2191,
+   "segment_expectancy": 0.0089,
+   "lift": 1.71,
+   "p": 9.677671821304463e-15,
+   "common_properties": {
+    "sector": "Communication Services",
+    "volatility": "high_vol"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_004",
+   "n": 92,
+   "n_segment": 547,
+   "typical_error": -0.2041,
+   "segment_expectancy": 0.0126,
+   "lift": 1.68,
+   "p": 5.359592470033275e-08,
+   "common_properties": {
+    "recent_move": "extreme_5d_move",
+    "near_high": "near_52w_high"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_005",
+   "n": 768,
+   "n_segment": 4584,
+   "typical_error": -0.2048,
+   "segment_expectancy": 0.0325,
+   "lift": 1.68,
+   "p": 1.0089270410085886e-52,
+   "common_properties": {
+    "lottery": "lottery_profile"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_006",
+   "n": 205,
+   "n_segment": 1243,
+   "typical_error": -0.2015,
+   "segment_expectancy": -0.0009,
+   "lift": 1.65,
+   "p": 1.2027799844682593e-14,
+   "common_properties": {
+    "liquidity": "liquid",
+    "momentum": "mid"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_007",
+   "n": 618,
+   "n_segment": 3815,
+   "typical_error": -0.1993,
+   "segment_expectancy": 0.0171,
+   "lift": 1.62,
+   "p": 1.4054302610111322e-37,
+   "common_properties": {
+    "liquidity": "liquid",
+    "recent_move": "extreme_5d_move"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_008",
+   "n": 1135,
+   "n_segment": 7072,
+   "typical_error": -0.1991,
+   "segment_expectancy": 0.0143,
+   "lift": 1.6,
+   "p": 9.638433564014318e-65,
+   "common_properties": {
+    "volatility": "high_vol",
+    "liquidity": "liquid"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_009",
+   "n": 56,
+   "n_segment": 352,
+   "typical_error": -0.2098,
+   "segment_expectancy": -0.0149,
+   "lift": 1.59,
+   "p": 0.00011041639125178886,
+   "common_properties": {
+    "sector": "Communication Services",
+    "momentum": "loser_12m"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_010",
+   "n": 860,
+   "n_segment": 5432,
+   "typical_error": -0.1975,
+   "segment_expectancy": 0.0022,
+   "lift": 1.58,
+   "p": 7.99649542056258e-47,
+   "common_properties": {
+    "liquidity": "liquid",
+    "vix": "vix_lt_20"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_011",
+   "n": 44,
+   "n_segment": 278,
+   "typical_error": -0.1765,
+   "segment_expectancy": -0.0273,
+   "lift": 1.58,
+   "p": 0.0006033037890671242,
+   "common_properties": {
+    "sector": "Technology",
+    "beta": "low_beta"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_012",
+   "n": 190,
+   "n_segment": 1213,
+   "typical_error": -0.2017,
+   "segment_expectancy": 0.0182,
+   "lift": 1.57,
+   "p": 2.4779963033882525e-11,
+   "common_properties": {
+    "liquidity": "liquid",
+    "momentum": "loser_12m"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_013",
+   "n": 470,
+   "n_segment": 3006,
+   "typical_error": -0.195,
+   "segment_expectancy": 0.0166,
+   "lift": 1.56,
+   "p": 3.729610517546976e-25,
+   "common_properties": {
+    "sector": "Technology",
+    "liquidity": "liquid"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_014",
+   "n": 1098,
+   "n_segment": 7034,
+   "typical_error": -0.1975,
+   "segment_expectancy": 0.0057,
+   "lift": 1.56,
+   "p": 1.0992088519592392e-55,
+   "common_properties": {
+    "liquidity": "liquid",
+    "trend": "uptrend"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  },
+  {
+   "id": "UNKNOWN_CLUSTER_015",
+   "n": 63,
+   "n_segment": 406,
+   "typical_error": -0.1984,
+   "segment_expectancy": 0.0067,
+   "lift": 1.55,
+   "p": 0.00010612084024740703,
+   "common_properties": {
+    "sector": "Healthcare",
+    "beta": "high_beta"
+   },
+   "existing_model_coverage": "LOW",
+   "recommendation": "dedizierten Research-Track anlegen"
+  }
+ ],
+ "G_components": [
+  "abstention"
+ ],
+ "G_vs_A": {
+  "delta_monthly_mean": 0.004846,
+  "ci_monthly_mean": [
+   -0.002571,
+   0.013141
+  ],
+  "ci_sharpe": [
+   -0.29,
+   1.186
+  ],
+  "alpha_one_sided": 0.008333333333333333,
+  "n_months": 54,
+  "trimmed_mean": 0.0006398292825470706
+ },
+ "ablation_delta_expectancy": {
+  "abstention": 0.00799
+ },
+ "gate": {
+  "pass": false,
+  "criteria": {
+   "1_no_leakage": true,
+   "2_reproducible": true,
+   "3_min_cohorts": false,
+   "4_calibration_not_worse": true,
+   "5_risk_adjusted": false,
+   "6_no_regime_collapse": false,
+   "7_hc_hit_rate_higher": true,
+   "8_drawdown": true,
+   "9_not_outlier_driven": true,
+   "10_complexity_pays": true
+  },
+  "failed": [
+   "3_min_cohorts",
+   "5_risk_adjusted",
+   "6_no_regime_collapse"
+  ]
+ },
+ "decision": "KEEP_CHAMPION",
+ "stress": {
+  "historical_windows": {
+   "covid_crash_2020": {
+    "n_cohorts": 0,
+    "note": "außerhalb des OOS-Zeitraums"
+   },
+   "rate_inflation_shock_2022": {
+    "A": {
+     "expectancy": 0.00583,
+     "hit_rate": 0.5186,
+     "n_cohorts": 43
+    },
+    "B": {
+     "expectancy": 0.01198,
+     "hit_rate": 0.5363,
+     "n_cohorts": 43
+    },
+    "C": {
+     "expectancy": 0.01539,
+     "hit_rate": 0.5498,
+     "n_cohorts": 43
+    },
+    "D": {
+     "expectancy": 0.0148,
+     "hit_rate": 0.5577,
+     "n_cohorts": 43
+    },
+    "E": {
+     "expectancy": 0.01464,
+     "hit_rate": 0.5572,
+     "n_cohorts": 43
+    },
+    "F": {
+     "expectancy": 0.00765,
+     "hit_rate": 0.5172,
+     "n_cohorts": 43
+    },
+    "A_blindspot": {
+     "expectancy": 0.00684,
+     "hit_rate": 0.5445,
+     "n_cohorts": 43
+    },
+    "A_abstention": {
+     "expectancy": 0.00583,
+     "hit_rate": 0.5186,
+     "n_cohorts": 43
+    }
+   },
+   "q4_selloff_2018": {
+    "n_cohorts": 0,
+    "note": "außerhalb des OOS-Zeitraums"
+   },
+   "regional_banks_2023": {
+    "A": {
+     "expectancy": -0.00721,
+     "hit_rate": 0.4169,
+     "n_cohorts": 13
+    },
+    "B": {
+     "expectancy": -0.00434,
+     "hit_rate": 0.4323,
+     "n_cohorts": 13
+    },
+    "C": {
+     "expectancy": -0.00818,
+     "hit_rate": 0.4431,
+     "n_cohorts": 13
+    },
+    "D": {
+     "expectancy": -0.00514,
+     "hit_rate": 0.4523,
+     "n_cohorts": 13
+    },
+    "E": {
+     "expectancy": -0.00459,
+     "hit_rate": 0.4538,
+     "n_cohorts": 13
+    },
+    "F": {
+     "expectancy": -0.00538,
+     "hit_rate": 0.4467,
+     "n_cohorts": 13
+    },
+    "A_blindspot": {
+     "expectancy": -0.00532,
+     "hit_rate": 0.3861,
+     "n_cohorts": 13
+    },
+    "A_abstention": {
+     "expectancy": -0.00721,
+     "hit_rate": 0.4169,
+     "n_cohorts": 13
+    }
+   },
+   "tariff_shock_2025": {
+    "A": {
+     "expectancy": 0.08646,
+     "hit_rate": 0.7132,
+     "n_cohorts": 8
+    },
+    "B": {
+     "expectancy": 0.06717,
+     "hit_rate": 0.6495,
+     "n_cohorts": 8
+    },
+    "C": {
+     "expectancy": 0.07393,
+     "hit_rate": 0.6593,
+     "n_cohorts": 8
+    },
+    "D": {
+     "expectancy": 0.07043,
+     "hit_rate": 0.6373,
+     "n_cohorts": 8
+    },
+    "E": {
+     "expectancy": 0.07022,
+     "hit_rate": 0.6348,
+     "n_cohorts": 8
+    },
+    "F": {
+     "expectancy": 0.04362,
+     "hit_rate": 0.6522,
+     "n_cohorts": 8
+    },
+    "A_blindspot": {
+     "expectancy": 0.03105,
+     "hit_rate": 0.6026,
+     "n_cohorts": 8
+    },
+    "A_abstention": {
+     "expectancy": 0.08646,
+     "hit_rate": 0.7132,
+     "n_cohorts": 8
+    }
+   }
+  },
+  "scenario_turnover_top_decile": {
+   "vol_spike": 0.1293,
+   "rate_shock": 0.148,
+   "crash": 0.2937,
+   "usd_shock": 0.164,
+   "oil_shock": 0.1488,
+   "inflation_shock": 0.0496,
+   "liquidity_shock": 0.1657,
+   "momentum_reversal": 0.5028,
+   "volatility_flip": 0.8171
+  }
+ },
+ "decision_intelligence": {
+  "top_decile": {
+   "cagr": 0.0223,
+   "sharpe": 0.229,
+   "sortino": 0.249,
+   "max_dd": -0.1875,
+   "calmar": 0.119,
+   "profit_factor": 1.068,
+   "hit_rate": 0.4742,
+   "avg_winner": 0.08871,
+   "avg_loser": -0.07492,
+   "payoff": 1.184,
+   "expectancy": 0.00267,
+   "precision_at_k": 0.0,
+   "recall_strong": 0.0,
+   "turnover": 0.3456,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0983,
+   "avg_mae": -0.0812,
+   "es5_monthly": -0.08156,
+   "sector_hhi": 0.1793
+  },
+  "diversified": {
+   "cagr": 0.0248,
+   "sharpe": 0.252,
+   "sortino": 0.288,
+   "max_dd": -0.1857,
+   "calmar": 0.134,
+   "profit_factor": 1.072,
+   "hit_rate": 0.4746,
+   "avg_winner": 0.08864,
+   "avg_loser": -0.07469,
+   "payoff": 1.187,
+   "expectancy": 0.00282,
+   "precision_at_k": 0.0,
+   "recall_strong": 0.0,
+   "turnover": 0.3511,
+   "exposure": 1.0,
+   "n_trades": 11587,
+   "n_cohorts": 230,
+   "n_months": 53,
+   "avg_mfe": 0.0977,
+   "avg_mae": -0.0806,
+   "es5_monthly": -0.07663,
+   "sector_hhi": 0.1518
+  },
+  "verdict": "KEEP"
+ },
+ "notes": {},
+ "fragile_share_top_decile": 0.9406
+}

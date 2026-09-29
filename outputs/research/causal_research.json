@@ -1,0 +1,1489 @@
+{
+ "generated": "2026-09-29T16:26:37+00:00",
+ "version": "cr-v1",
+ "n_tested": 32,
+ "fdr_q": 0.1,
+ "relations": [
+  {
+   "driver": "claims_13w_neg",
+   "target": "XLY",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "MEDIUM",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 521,
+    "corr_contemporaneous": -0.109474,
+    "corr_lead": -0.241457,
+    "corr_lag": -0.027714,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": 0.000326,
+     "n_months": 75,
+     "p_one_sided": 0.003498,
+     "ci": [
+      0.000106,
+      0.000594
+     ]
+    },
+    "partial_corr": -0.209252,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 10,
+     "year_share_same": 0.8
+    },
+    "q_bh": 0.111944
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_001"
+  },
+  {
+   "driver": "hyg_lqd_63d",
+   "target": "XLF",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "HIGH",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 687,
+    "corr_contemporaneous": 0.301527,
+    "corr_lead": 0.138874,
+    "corr_lag": 0.301527,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": 4.6e-05,
+     "n_months": 77,
+     "p_one_sided": 0.052474,
+     "ci": [
+      -0.0,
+      0.000102
+     ]
+    },
+    "partial_corr": 0.149812,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 14,
+     "year_share_same": 0.3571
+    },
+    "q_bh": 0.55972
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_002"
+  },
+  {
+   "driver": "hyg_lqd_63d",
+   "target": "XLF",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "MEDIUM",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "HIGH",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 678,
+    "corr_contemporaneous": 0.306246,
+    "corr_lead": 0.189085,
+    "corr_lag": 0.488656,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": 0.000122,
+     "n_months": 75,
+     "p_one_sided": 0.03948,
+     "ci": [
+      9e-06,
+      0.000238
+     ]
+    },
+    "partial_corr": 0.159315,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 13,
+     "year_share_same": 0.3846
+    },
+    "q_bh": 0.55972
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_003"
+  },
+  {
+   "driver": "tnx_63d",
+   "target": "XLU",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 686,
+    "corr_contemporaneous": -0.05437,
+    "corr_lead": 0.178769,
+    "corr_lag": -0.05437,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": 9.8e-05,
+     "n_months": 77,
+     "p_one_sided": 0.163918,
+     "ci": [
+      -6.2e-05,
+      0.000267
+     ]
+    },
+    "partial_corr": 0.171405,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 14,
+     "year_share_same": 0.7857
+    },
+    "q_bh": 0.87423
+   },
+   "prior_sign": -1,
+   "observed_sign": 1,
+   "id": "REL_004"
+  },
+  {
+   "driver": "tnx_63d",
+   "target": "XLU",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 677,
+    "corr_contemporaneous": -0.048751,
+    "corr_lead": 0.215736,
+    "corr_lag": -0.25671,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": 0.000229,
+     "n_months": 75,
+     "p_one_sided": 0.145927,
+     "ci": [
+      -0.00013,
+      0.000566
+     ]
+    },
+    "partial_corr": 0.176956,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 13,
+     "year_share_same": 0.8462
+    },
+    "q_bh": 0.87423
+   },
+   "prior_sign": -1,
+   "observed_sign": 1,
+   "id": "REL_005"
+  },
+  {
+   "driver": "wti_63d",
+   "target": "XLE",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 512,
+    "corr_contemporaneous": 0.067493,
+    "corr_lead": -0.065222,
+    "corr_lag": 0.404211,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 318,
+     "mean_gain": 0.000369,
+     "n_months": 75,
+     "p_one_sided": 0.144428,
+     "ci": [
+      -0.000176,
+      0.000995
+     ]
+    },
+    "partial_corr": -0.115181,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 10,
+     "year_share_same": 0.8
+    },
+    "q_bh": 0.87423
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_006"
+  },
+  {
+   "driver": "claims_13w_neg",
+   "target": "XLY",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 530,
+    "corr_contemporaneous": -0.107923,
+    "corr_lead": -0.19125,
+    "corr_lag": -0.107923,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": -0.008561,
+     "n_months": 77,
+     "p_one_sided": 0.987006,
+     "ci": [
+      -0.020738,
+      -0.000452
+     ]
+    },
+    "partial_corr": -0.17437,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 11,
+     "year_share_same": 0.4545
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_007"
+  },
+  {
+   "driver": "copper_63d",
+   "target": "XLB",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "LOW",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 686,
+    "corr_contemporaneous": 0.216668,
+    "corr_lead": 0.006887,
+    "corr_lag": 0.216668,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": -1.1e-05,
+     "n_months": 77,
+     "p_one_sided": 0.635182,
+     "ci": [
+      -6e-05,
+      4.3e-05
+     ]
+    },
+    "partial_corr": 0.068267,
+    "stability": {
+     "half_signs": [
+      1,
+      -1
+     ],
+     "both_halves_same": false,
+     "n_years": 14,
+     "year_share_same": 0.4286
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_008"
+  },
+  {
+   "driver": "copper_63d",
+   "target": "XLB",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "LOW",
+    "stability": "HIGH",
+    "replication": "LOW",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 677,
+    "corr_contemporaneous": 0.219301,
+    "corr_lead": -0.074004,
+    "corr_lag": 0.469378,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": 2.9e-05,
+     "n_months": 75,
+     "p_one_sided": 0.244378,
+     "ci": [
+      -4e-05,
+      0.000101
+     ]
+    },
+    "partial_corr": 0.113308,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 13,
+     "year_share_same": 0.7692
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_009"
+  },
+  {
+   "driver": "cpi_trend",
+   "target": "XLP",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 483,
+    "corr_contemporaneous": 0.104018,
+    "corr_lead": 0.025534,
+    "corr_lag": 0.104018,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": -8e-06,
+     "n_months": 77,
+     "p_one_sided": 0.735632,
+     "ci": [
+      -3.1e-05,
+      1.1e-05
+     ]
+    },
+    "partial_corr": 0.019939,
+    "stability": {
+     "half_signs": [
+      1,
+      -1
+     ],
+     "both_halves_same": false,
+     "n_years": 10,
+     "year_share_same": 0.4
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_010"
+  },
+  {
+   "driver": "cpi_trend",
+   "target": "XLP",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 474,
+    "corr_contemporaneous": 0.107951,
+    "corr_lead": 0.024136,
+    "corr_lag": 0.086043,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": -0.000101,
+     "n_months": 75,
+     "p_one_sided": 0.883558,
+     "ci": [
+      -0.000245,
+      3.3e-05
+     ]
+    },
+    "partial_corr": 0.060603,
+    "stability": {
+     "half_signs": [
+      -1,
+      1
+     ],
+     "both_halves_same": false,
+     "n_years": 9,
+     "year_share_same": 0.4444
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_011"
+  },
+  {
+   "driver": "curve",
+   "target": "XLF",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 699,
+    "corr_contemporaneous": 0.065587,
+    "corr_lead": 0.021364,
+    "corr_lag": 0.065587,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": -2.8e-05,
+     "n_months": 77,
+     "p_one_sided": 0.988506,
+     "ci": [
+      -5e-05,
+      -7e-06
+     ]
+    },
+    "partial_corr": 0.029137,
+    "stability": {
+     "half_signs": [
+      -1,
+      1
+     ],
+     "both_halves_same": false,
+     "n_years": 14,
+     "year_share_same": 0.1429
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_012"
+  },
+  {
+   "driver": "curve",
+   "target": "XLF",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 690,
+    "corr_contemporaneous": 0.066245,
+    "corr_lead": 0.018385,
+    "corr_lag": 0.151793,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": -0.000269,
+     "n_months": 75,
+     "p_one_sided": 0.98051,
+     "ci": [
+      -0.000499,
+      -4.9e-05
+     ]
+    },
+    "partial_corr": 0.031599,
+    "stability": {
+     "half_signs": [
+      -1,
+      1
+     ],
+     "both_halves_same": false,
+     "n_years": 13,
+     "year_share_same": 0.1538
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_013"
+  },
+  {
+   "driver": "freight_yoy",
+   "target": "XLI",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 538,
+    "corr_contemporaneous": -0.079307,
+    "corr_lead": -0.060523,
+    "corr_lag": -0.079307,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 317,
+     "mean_gain": -2.3e-05,
+     "n_months": 77,
+     "p_one_sided": 0.878561,
+     "ci": [
+      -5.6e-05,
+      1e-05
+     ]
+    },
+    "partial_corr": -0.120204,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 11,
+     "year_share_same": 0.3636
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_014"
+  },
+  {
+   "driver": "freight_yoy",
+   "target": "XLI",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 529,
+    "corr_contemporaneous": -0.07712,
+    "corr_lead": -0.167827,
+    "corr_lag": -0.135398,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 308,
+     "mean_gain": 4.2e-05,
+     "n_months": 75,
+     "p_one_sided": 0.363318,
+     "ci": [
+      -0.000189,
+      0.00029
+     ]
+    },
+    "partial_corr": -0.248359,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 10,
+     "year_share_same": 0.4
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_015"
+  },
+  {
+   "driver": "indpro_3m",
+   "target": "XLI",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "LOW",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 684,
+    "corr_contemporaneous": 0.036932,
+    "corr_lead": 0.041695,
+    "corr_lag": 0.036932,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 328,
+     "mean_gain": -5.9e-05,
+     "n_months": 77,
+     "p_one_sided": 1.0,
+     "ci": [
+      -0.000112,
+      -2.2e-05
+     ]
+    },
+    "partial_corr": 0.065841,
+    "stability": {
+     "half_signs": [
+      -1,
+      1
+     ],
+     "both_halves_same": false,
+     "n_years": 14,
+     "year_share_same": 0.5
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_016"
+  },
+  {
+   "driver": "indpro_3m",
+   "target": "XLI",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "LOW",
+    "stability": "HIGH",
+    "replication": "LOW",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 675,
+    "corr_contemporaneous": 0.033068,
+    "corr_lead": -0.043164,
+    "corr_lag": 0.199426,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 319,
+     "mean_gain": -0.000545,
+     "n_months": 75,
+     "p_one_sided": 1.0,
+     "ci": [
+      -0.000865,
+      -0.000281
+     ]
+    },
+    "partial_corr": 0.020882,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 13,
+     "year_share_same": 0.6154
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_017"
+  },
+  {
+   "driver": "indpro_yoy",
+   "target": "XLI",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 684,
+    "corr_contemporaneous": -0.110279,
+    "corr_lead": -0.110348,
+    "corr_lag": -0.110279,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 328,
+     "mean_gain": -7.6e-05,
+     "n_months": 77,
+     "p_one_sided": 0.985007,
+     "ci": [
+      -0.00014,
+      -1.7e-05
+     ]
+    },
+    "partial_corr": -0.146115,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 14,
+     "year_share_same": 0.6429
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_018"
+  },
+  {
+   "driver": "indpro_yoy",
+   "target": "XLI",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 675,
+    "corr_contemporaneous": -0.110484,
+    "corr_lead": -0.230064,
+    "corr_lag": -0.034772,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 319,
+     "mean_gain": -0.000751,
+     "n_months": 75,
+     "p_one_sided": 0.9995,
+     "ci": [
+      -0.001172,
+      -0.000338
+     ]
+    },
+    "partial_corr": -0.253911,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 13,
+     "year_share_same": 0.6923
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_019"
+  },
+  {
+   "driver": "nfci_neg",
+   "target": "XLF",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "LOW",
+    "stability": "LOW",
+    "replication": "LOW",
+    "economic_plausibility": "UNKNOWN",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 21,
+    "corr_contemporaneous": null,
+    "corr_lead": null,
+    "corr_lag": null,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 0,
+     "mean_gain": null,
+     "n_months": 0,
+     "p_one_sided": null,
+     "ci": [
+      null,
+      null
+     ]
+    },
+    "partial_corr": null,
+    "stability": {
+     "half_signs": [],
+     "both_halves_same": false,
+     "n_years": 1,
+     "year_share_same": null
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 0,
+   "id": "REL_020"
+  },
+  {
+   "driver": "nfci_neg",
+   "target": "XLF",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "LOW",
+    "stability": "LOW",
+    "replication": "LOW",
+    "economic_plausibility": "UNKNOWN",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 12,
+    "corr_contemporaneous": null,
+    "corr_lead": null,
+    "corr_lag": null,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 0,
+     "mean_gain": null,
+     "n_months": 0,
+     "p_one_sided": null,
+     "ci": [
+      null,
+      null
+     ]
+    },
+    "partial_corr": null,
+    "stability": {
+     "half_signs": [],
+     "both_halves_same": false,
+     "n_years": 0,
+     "year_share_same": null
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 0,
+   "id": "REL_021"
+  },
+  {
+   "driver": "payems_3m",
+   "target": "XLY",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 521,
+    "corr_contemporaneous": -0.075817,
+    "corr_lead": -0.070036,
+    "corr_lag": -0.075817,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": -0.001646,
+     "n_months": 77,
+     "p_one_sided": 1.0,
+     "ci": [
+      -0.003151,
+      -0.000477
+     ]
+    },
+    "partial_corr": -0.059193,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 11,
+     "year_share_same": 0.2727
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_022"
+  },
+  {
+   "driver": "payems_3m",
+   "target": "XLY",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 512,
+    "corr_contemporaneous": -0.076257,
+    "corr_lead": -0.186616,
+    "corr_lag": -0.178548,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": -0.001099,
+     "n_months": 75,
+     "p_one_sided": 0.993003,
+     "ci": [
+      -0.002205,
+      -0.000266
+     ]
+    },
+    "partial_corr": -0.201868,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 10,
+     "year_share_same": 0.3
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_023"
+  },
+  {
+   "driver": "retail_yoy",
+   "target": "XLY",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 471,
+    "corr_contemporaneous": -0.169548,
+    "corr_lead": -0.09932,
+    "corr_lag": -0.169548,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 322,
+     "mean_gain": -8.1e-05,
+     "n_months": 76,
+     "p_one_sided": 0.994003,
+     "ci": [
+      -0.00016,
+      -1.7e-05
+     ]
+    },
+    "partial_corr": -0.092851,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 10,
+     "year_share_same": 0.6
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_024"
+  },
+  {
+   "driver": "retail_yoy",
+   "target": "XLY",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 462,
+    "corr_contemporaneous": -0.169169,
+    "corr_lead": -0.188201,
+    "corr_lag": -0.203398,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 313,
+     "mean_gain": -0.000495,
+     "n_months": 74,
+     "p_one_sided": 0.970015,
+     "ci": [
+      -0.001057,
+      -6.1e-05
+     ]
+    },
+    "partial_corr": -0.238025,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 9,
+     "year_share_same": 0.5556
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_025"
+  },
+  {
+   "driver": "tnx_63d",
+   "target": "XLF",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 686,
+    "corr_contemporaneous": 0.253944,
+    "corr_lead": 0.048341,
+    "corr_lag": 0.253944,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": 9e-06,
+     "n_months": 77,
+     "p_one_sided": 0.327836,
+     "ci": [
+      -1.7e-05,
+      4e-05
+     ]
+    },
+    "partial_corr": 0.07697,
+    "stability": {
+     "half_signs": [
+      -1,
+      1
+     ],
+     "both_halves_same": false,
+     "n_years": 14,
+     "year_share_same": 0.4286
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_026"
+  },
+  {
+   "driver": "tnx_63d",
+   "target": "XLF",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "HIGH",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 677,
+    "corr_contemporaneous": 0.257987,
+    "corr_lead": 0.046221,
+    "corr_lag": 0.466514,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": -0.000286,
+     "n_months": 75,
+     "p_one_sided": 0.998501,
+     "ci": [
+      -0.000469,
+      -0.0001
+     ]
+    },
+    "partial_corr": 0.050388,
+    "stability": {
+     "half_signs": [
+      -1,
+      1
+     ],
+     "both_halves_same": false,
+     "n_years": 13,
+     "year_share_same": 0.4615
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_027"
+  },
+  {
+   "driver": "umcsent",
+   "target": "XLY",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "LOW",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 698,
+    "corr_contemporaneous": 0.008212,
+    "corr_lead": 0.032215,
+    "corr_lag": 0.008212,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 335,
+     "mean_gain": -9.5e-05,
+     "n_months": 77,
+     "p_one_sided": 0.999,
+     "ci": [
+      -0.000159,
+      -3.7e-05
+     ]
+    },
+    "partial_corr": 0.056861,
+    "stability": {
+     "half_signs": [
+      1,
+      -1
+     ],
+     "both_halves_same": false,
+     "n_years": 14,
+     "year_share_same": 0.5
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_028"
+  },
+  {
+   "driver": "umcsent",
+   "target": "XLY",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "MEDIUM",
+    "economic_plausibility": "HIGH",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 689,
+    "corr_contemporaneous": 0.023302,
+    "corr_lead": 0.122924,
+    "corr_lag": 0.079438,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 326,
+     "mean_gain": -0.000187,
+     "n_months": 75,
+     "p_one_sided": 0.946027,
+     "ci": [
+      -0.00039,
+      4e-06
+     ]
+    },
+    "partial_corr": 0.186333,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 13,
+     "year_share_same": 0.7692
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": 1,
+   "id": "REL_029"
+  },
+  {
+   "driver": "usd_63d",
+   "target": "XLB",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "MEDIUM",
+    "replication": "MEDIUM",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 330,
+    "corr_contemporaneous": 0.002927,
+    "corr_lead": 0.116807,
+    "corr_lag": 0.002927,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 178,
+     "mean_gain": 8e-06,
+     "n_months": 41,
+     "p_one_sided": 0.316842,
+     "ci": [
+      -2.2e-05,
+      3.7e-05
+     ]
+    },
+    "partial_corr": 0.112501,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 7,
+     "year_share_same": 0.4286
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": -1,
+   "observed_sign": 1,
+   "id": "REL_030"
+  },
+  {
+   "driver": "usd_63d",
+   "target": "XLB",
+   "horizon_weeks": 13,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "LOW",
+    "stability": "HIGH",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 321,
+    "corr_contemporaneous": -0.015895,
+    "corr_lead": 0.152624,
+    "corr_lag": -0.290203,
+    "lead_gt_lag": false,
+    "oos": {
+     "n_oos": 169,
+     "mean_gain": -0.000153,
+     "n_months": 39,
+     "p_one_sided": 0.941529,
+     "ci": [
+      -0.000346,
+      9e-06
+     ]
+    },
+    "partial_corr": -0.028462,
+    "stability": {
+     "half_signs": [
+      1,
+      1
+     ],
+     "both_halves_same": true,
+     "n_years": 6,
+     "year_share_same": 0.8333
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": -1,
+   "observed_sign": 1,
+   "id": "REL_031"
+  },
+  {
+   "driver": "wti_63d",
+   "target": "XLE",
+   "horizon_weeks": 4,
+   "level": "correlation",
+   "causal_evidence": "none",
+   "evidence": {
+    "predictive_lead": "LOW",
+    "conditional_robustness": "HIGH",
+    "stability": "HIGH",
+    "replication": "HIGH",
+    "economic_plausibility": "LOW",
+    "causal_confidence": "LOW"
+   },
+   "stats": {
+    "n": 521,
+    "corr_contemporaneous": 0.076011,
+    "corr_lead": -0.086589,
+    "corr_lag": 0.076011,
+    "lead_gt_lag": true,
+    "oos": {
+     "n_oos": 327,
+     "mean_gain": 2.7e-05,
+     "n_months": 77,
+     "p_one_sided": 0.355322,
+     "ci": [
+      -9.4e-05,
+      0.00015
+     ]
+    },
+    "partial_corr": -0.077145,
+    "stability": {
+     "half_signs": [
+      -1,
+      -1
+     ],
+     "both_halves_same": true,
+     "n_years": 11,
+     "year_share_same": 0.6364
+    },
+    "q_bh": 1.0
+   },
+   "prior_sign": 1,
+   "observed_sign": -1,
+   "id": "REL_032"
+  }
+ ],
+ "tilt_eval": {
+  "n_dates": 0,
+  "positive": false
+ },
+ "tilt_eval_selection_free": {
+  "n_dates": 326,
+  "ic_mean": 0.0178,
+  "ci_lo": -0.0459,
+  "ci_hi": 0.0802,
+  "n_months": 75,
+  "positive": false
+ },
+ "selection_note": "Beziehungs-Auswahl nutzt OOS-Tests bis zum Locked-Holdout (leichter Selektionsbias); tilt_eval_selection_free nutzt alle Prior-Paare ohne Auswahl.",
+ "verdict": "REJECT",
+ "verdict_reason": "keine Beziehung überlebt BH auf dem OOS-Granger-Test"
+}
