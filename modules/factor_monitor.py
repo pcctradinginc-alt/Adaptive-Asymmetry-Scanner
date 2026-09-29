@@ -456,6 +456,56 @@ def feature_drift(events: list[dict], feature: str, recent_days: int = 30) -> fl
     return _r(p)
 
 
+# ── LLM-Mehrwert gegen naive Preis-Baseline (gepaart, prospektiv) ──────────
+
+def llm_value_add(ledger_dir: Path = LEDGER_DIR, horizons=(5, 20, 45)) -> dict:
+    """Auf DENSELBEN Ledger-Zeilen: LLM-Richtung (Deep Analysis) vs. naive
+    Richtung sign(scan_day_ret). ret_{h}d im Ledger ist bereits nach der LLM-
+    Richtung signiert. Differenz je Entry-Tag gemittelt (Cluster), t über Tage.
+    Historische Event-Studie (2026-09-29): die Preis-Baseline allein hat nach
+    Kosten KEIN Alpha -> der Scanner hat nur dann Wert, wenn die LLM-Richtung
+    diese Baseline schlägt."""
+    rows = []
+    for f in sorted(Path(ledger_dir).glob("*.jsonl")):
+        for line in f.read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if r.get("direction") in ("BULLISH", "BEARISH"):
+                rows.append(r)
+    out = {}
+    for h in horizons:
+        per_date = defaultdict(list)
+        llm_all, base_all, agree = [], [], 0
+        for r in rows:
+            llm = (r.get("outcomes") or {}).get(f"ret_{h}d")
+            dr = (r.get("features") or {}).get("scan_day_ret")
+            if not _finite(llm) or not _finite(dr) or dr == 0:
+                continue
+            raw = -llm if r["direction"] == "BEARISH" else llm
+            base = raw * (1.0 if dr > 0 else -1.0)
+            per_date[str(r.get("date"))[:10]].append(llm - base)
+            llm_all.append(llm), base_all.append(base)
+            agree += (r["direction"] == "BULLISH") == (dr > 0)
+        daily = [statistics.fmean(v) for v in per_date.values()]
+        n_d = len(daily)
+        t = (statistics.fmean(daily) / (statistics.stdev(daily) / math.sqrt(n_d))
+             if n_d > 2 and statistics.stdev(daily) > 0 else None)
+        verdict = ("insufficient_data" if n_d < MIN_EFF_N else
+                   "llm_beats_baseline" if t is not None and t >= 2.0 else
+                   "llm_worse_than_baseline" if t is not None and t <= -2.0 else "no_difference")
+        out[f"h{h}"] = {"n": len(llm_all), "n_dates": n_d,
+                        "llm_mean": _r(statistics.fmean(llm_all)) if llm_all else None,
+                        "baseline_mean": _r(statistics.fmean(base_all)) if base_all else None,
+                        "llm_hit": _r(sum(x > 0 for x in llm_all) / len(llm_all)) if llm_all else None,
+                        "baseline_hit": _r(sum(x > 0 for x in base_all) / len(base_all)) if base_all else None,
+                        "direction_agreement": _r(agree / len(llm_all)) if llm_all else None,
+                        "mean_diff_per_date": _r(statistics.fmean(daily)) if daily else None,
+                        "t_dates": _r(t), "verdict": verdict}
+    return out
+
+
 # ── Walk-Forward adaptive Gewichte ───────────────────────────────────────────
 
 def weights_from(events: list[dict], features: list[str], outcome_key: str) -> dict[str, float]:
@@ -594,6 +644,7 @@ def run(history_path: Path = HISTORY_PATH, ledger_dir: Path = LEDGER_DIR,
                                     "potential_leakage", "data_drift")},
         }
     report["cost_check"] = _cost_check(report)
+    report["llm_value_add"] = llm_value_add(ledger_dir)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "factor_report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False))
@@ -646,6 +697,15 @@ def render_markdown(rep: dict) -> str:
         if block.get("redundant_pairs"):
             lines += ["Redundant: " + "; ".join(f"{p['a']}~{p['b']} (ρ={p['rho']})"
                                                 for p in block["redundant_pairs"]), ""]
+    lva = rep.get("llm_value_add") or {}
+    if lva:
+        lines += ["## LLM-Richtung vs. naive Preis-Baseline (gepaart)", "",
+                  "| h | n | Tage | LLM-Mittel | Baseline-Mittel | Diff/Tag | t | Urteil |",
+                  "|---|---|---|---|---|---|---|---|"]
+        for h, v in lva.items():
+            lines.append(f"| {h} | {v['n']} | {v['n_dates']} | {v['llm_mean']} | {v['baseline_mean']} | "
+                         f"{v['mean_diff_per_date']} | {v['t_dates']} | {v['verdict']} |")
+        lines.append("")
     if rep.get("cost_check"):
         lines += ["## Nur vor Kosten profitabel", ""] + \
                  [f"- {c['feature']}: brutto {c['gross_spread']} / netto {c['net_spread']}"
