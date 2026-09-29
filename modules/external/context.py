@@ -176,15 +176,24 @@ def _region_entry(z, source_id, observations=None, now=None, frequency: str = "m
             "frequency": frequency}
 
 
+def _norm_name(x) -> str:
+    return " ".join(str(x or "").lower().replace("-", " ").split())
+
+
 def _chokepoint_zscore(observations, slug: str, metric: str = "n_total",
                         window_days: int = 365) -> float | None:
-    aliases = CHOKEPOINT_SLUGS.get(slug, (slug,))
-    for o in observations:
-        pass
-    matched_entities = {
-        o.entity_id for o in observations
-        if o.entity_id and o.entity_id.strip().lower() in aliases
-    }
+    # PortWatch-Entities heißen "chokepoint1..28", der Name steht in
+    # attrs.port_name ("Suez Canal", "Malacca Strait", "Bab el-Mandeb Strait").
+    # Vorher Abgleich nur auf entity_id -> nie ein Treffer, alle fünf
+    # Chokepoint-z waren immer None (Ledger-Audit 2026-09-29).
+    aliases = [_norm_name(a) for a in CHOKEPOINT_SLUGS.get(slug, (slug,))]
+
+    def _matches(o) -> bool:
+        names = (_norm_name(o.entity_id), _norm_name((o.attrs or {}).get("port_name")))
+        return any(a and n and (a == n or a in n.split(" ") or f" {a} " in f" {n} ")
+                   for a in aliases for n in names)
+
+    matched_entities = {o.entity_id for o in observations if o.entity_id and _matches(o)}
     if not matched_entities:
         return None
     zs = _entity_zscores(observations, metric, window_days=window_days)
@@ -457,17 +466,36 @@ def _build_weather(archive, now: datetime, errors: list) -> dict:
         # US-Küsten-Expositionsregion. Ohne Position/Track -> None.
         out["tropical_min_distance_km"] = _tropical_min_distance_km(storm_obs)
 
-        alert_entities = {o.entity_id for o in alert_obs if o.metric == "alert_count"}
-        if alert_entities:
-            severe_entities = {
-                o.entity_id for o in alert_obs
-                if o.metric == "alert_count" and o.attrs.get("event") in SEVERE_ALERT_EVENTS
-                and (o.value or 0) > 0
-            }
-            out["disruption_index"] = len(severe_entities) / len(alert_entities)
+        out["disruption_index"] = weather_disruption_index(alert_obs, now)
     except Exception as e:  # noqa: BLE001
         errors.append(f"weather: {e!r}")
     return out
+
+
+ALERT_POLL_MAX_AGE = timedelta(hours=36)
+
+
+def weather_disruption_index(alert_obs, now: datetime) -> float | None:
+    """Anteil der zuletzt abgefragten Locations mit aktiver schwerer Warnung.
+    Nur die JÜNGSTE Abfrage je Location zählt (vorher: alle historischen
+    alert_count-Zeilen); ohne frische Abfrage (<= 36 h) -> None."""
+    now = ensure_utc(now)
+    last_poll: dict = {}
+    for o in alert_obs:
+        if o.metric == "alerts_polled":
+            t = ensure_utc(o.observation_time)
+            if t <= now and (o.entity_id not in last_poll or t > last_poll[o.entity_id]):
+                last_poll[o.entity_id] = t
+    if not last_poll or now - max(last_poll.values()) > ALERT_POLL_MAX_AGE:
+        return None
+    polled = {e for e, t in last_poll.items() if now - t <= ALERT_POLL_MAX_AGE}
+    severe = {
+        o.entity_id for o in alert_obs
+        if o.metric == "alert_count" and o.entity_id in polled
+        and ensure_utc(o.observation_time) == last_poll[o.entity_id]
+        and (o.attrs or {}).get("event") in SEVERE_ALERT_EVENTS and (o.value or 0) > 0
+    }
+    return len(severe) / len(polled)
 
 
 EU_REAL_ECONOMY_ENTITY = "EU27_2020"

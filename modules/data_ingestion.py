@@ -91,6 +91,24 @@ _FINNHUB_LIMITER = _RateLimiter(FINNHUB_CALLS_PER_MIN, 60.0)
 _STATS_LOCK = threading.Lock()
 
 
+_CORP_SUFFIXES = {"inc", "inc.", "corp", "corp.", "corporation", "co", "co.", "company", "ltd", "ltd.",
+                  "plc", "n.v.", "s.a.", "ag", "se", "holdings", "group", "the", "&", "incorporated", "llc",
+                  "l.p.", "lp"}
+
+
+def newsapi_company_name(long_name: str) -> str | None:
+    """Vollständiger Firmenname ohne Rechtsform-Suffixe für die NewsAPI-Phrase.
+    Vorher: erstes Wort ("Bank" of America, "The" Home Depot) -> fremde Artikel
+    (Lauf 2026-09-28: BAC-News handelten von IonQ, Red-Team-Veto)."""
+    words = [w for w in str(long_name).replace(",", " ").split()]
+    while words and words[-1].lower() in _CORP_SUFFIXES:
+        words.pop()
+    while words and words[0].lower() == "the":
+        words.pop(0)
+    name = " ".join(words).strip()
+    return name if len(name) >= 4 else None
+
+
 def parse_yfinance_news(items: list, since: datetime, limit: int = 5) -> list[str]:
     """Headlines der letzten Zeit aus yfinance .news -- altes Format
     (title/providerPublishTime) UND neues Format ab yfinance 0.2.5x
@@ -427,7 +445,7 @@ class DataIngestion:
             if news:
                 return news
         if self.news_api_key:
-            company_name = info.get("longName", ticker).split()[0]
+            company_name = newsapi_company_name(info.get("longName") or info.get("shortName") or "")
             news = self._fetch_newsapi(ticker, company_name)
             if news:
                 return news
@@ -477,7 +495,7 @@ class DataIngestion:
             resp  = requests.get(
                 "https://newsapi.org/v2/everything",
                 params={
-                    "q": f'"{ticker}" OR "{company_name}"', "from": since,
+                    "q": f'"{company_name}"' if company_name else f'"{ticker}"', "from": since,
                     "sortBy": "publishedAt", "pageSize": 5,
                     "apiKey": self.news_api_key, "language": "en",
                 },

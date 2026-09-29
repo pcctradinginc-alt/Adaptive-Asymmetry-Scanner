@@ -59,6 +59,14 @@ def _empty_history(**overrides) -> dict:
 
 # ── a) Dürre-Streak + Killer-Diagnose ────────────────────────────────────────
 
+@pytest.fixture(autouse=True)
+def _isolate_from_real_ledger(monkeypatch):
+    """Seit dem ersten echten Lauf (2026-09-28) liegt ein Candidate Ledger im
+    Repo; die Health-Checks dürfen in diesen Tests nicht davon abhängen."""
+    import modules.engine_monitor as _em
+    monkeypatch.setattr(_em, "_external_ledger_rows_last_30d", lambda today: [])
+
+
 class TestKillerGate:
     def test_killer_is_stage_after_last_positive(self):
         stats = _base_stats(universe=20, prescreened=6, analyzed=3, mismatch_ok=0)

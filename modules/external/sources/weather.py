@@ -573,6 +573,17 @@ def parse_alerts_response(alerts_json: dict, location_code: str, event_types: li
             parser_version=parser_version, source_release_time=None,
             attrs={"event": event, "location_code": location_code},
         ))
+    # Abfrage-Beleg je Location, AUCH ohne Warnung (Wert 0): "abgefragt, keine
+    # Warnung" ist sonst nicht von "fehlt" unterscheidbar (Audit 2026-09-29:
+    # nws_alerts PASS mit 0 Zeilen, weather_disruption_index immer None).
+    observations.append(Observation(
+        source_id=source_id, dataset="alerts_active", series_id="poll",
+        entity_id=location_code, metric="alerts_polled", value=float(sum(counts.values())),
+        unit="count", observation_time=now_for_count, available_at=retrieved_at,
+        retrieved_at=retrieved_at, availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+        parser_version=parser_version, source_release_time=None,
+        attrs={"location_code": location_code},
+    ))
     return observations
 
 

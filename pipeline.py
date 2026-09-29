@@ -127,6 +127,42 @@ def reject(reason: str, ticker: str | None = None) -> None:
         log.debug(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
 
 
+def label_dropped(before: list, after: list, reason: str) -> int:
+    """Kandidaten, die eine Stufe OHNE eigenen reject()-Grund verlassen haben
+    (z.B. Red-Team-Veto, Mismatch unter Minimum, ROI/Edge im Options-Design),
+    mit stufenspezifischem Grund markieren. Vorher landeten sie im Ledger als
+    'unlabeled_after_<stage>' -> Gate-Wirksamkeit nicht messbar (Lauf 2026-09-28:
+    28 von 153 Zeilen)."""
+    kept = {c.get("ticker") for c in (after or [])}
+    n = 0
+    for c in before or []:
+        t = c.get("ticker")
+        if t and t not in kept and not candidate_ledger.is_rejected(t):
+            reject(reason, t)
+            n += 1
+    return n
+
+
+def note_base_features(c: dict) -> None:
+    """Basismerkmale für ALLE Hard-Filter-Kandidaten (auch spätere Prescreen-
+    Absagen), damit alpha_discovery die Gate-Wirksamkeit des Prescreenings
+    prüfen kann. Nur zum Signalzeitpunkt bekannte Werte."""
+    try:
+        f = c.get("features") or {}
+        info = c.get("info") or {}
+        candidate_ledger.note(
+            c.get("ticker"),
+            sector=info.get("sector"), industry=info.get("industry"),
+            rel_volume=c.get("rel_volume"), news_count=len(c.get("news") or []),
+            log_market_cap=(round(math.log10(c["market_cap"]), 3)
+                            if isinstance(c.get("market_cap"), (int, float)) and c["market_cap"] > 0 else None),
+            **{k: f.get(k) for k in ("sentiment_score", "sentiment_confidence", "sentiment_drift", "short_pct_float", "short_mom")
+               if f.get(k) is not None},
+        )
+    except Exception as e:
+        log.debug(f"note_base_features Fehler (ignoriert): {e}")
+
+
 # ── Validation Layer ──────────────────────────────────────────────────────────
 
 def validate_strict(c: dict):
@@ -550,6 +586,7 @@ def main() -> None:
         except Exception:
             c.setdefault("features", {}).update({"sentiment_score": 0.0})
         c = enrich_with_sentiment_drift(c, history)
+        note_base_features(c)
         enriched.append(c)
     candidates = enriched
 
@@ -715,6 +752,7 @@ def main() -> None:
     log.info("Stufe 4: Deep Analysis (Claude Sonnet + Red Team)")
     analyses = DeepAnalysis().run(pre_mc_viable)
     stats["analyzed"] = len(analyses)
+    label_dropped(pre_mc_viable, analyses, "deep_analysis_veto_or_invalid")
     for a in analyses:
         try:
             _da = a.get("deep_analysis", {}) or {}
@@ -793,6 +831,7 @@ def main() -> None:
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
     scored = MismatchScorer().run(analyses)
+    label_dropped(analyses, scored, "mismatch_below_min")
 
     # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
     # (4 Trades: 25% Win, mean −73%) — extreme Werte deuten auf eine
@@ -1116,6 +1155,7 @@ def main() -> None:
     # Nutzt dieselbe designer-Instanz von oben (Tradier-Status bereits geloggt)
     try:
         trade_proposals = designer.run(final_signals)
+        label_dropped(final_signals, trade_proposals, "options_design_roi_or_edge")
     except Exception as e:
         log.error(f"Options Design Fehler: {e} → Email wird trotzdem gesendet")
         stats["stop_reason"] = f"Options Design Fehler: {type(e).__name__}: {e}"
