@@ -108,7 +108,7 @@ WICHTIG: Wenn deine Bewertung der Direction von der Haiku-Einschätzung abweicht
 erkläre explizit warum im asymmetry_reasoning.
 EPS (yfinance): {forward_eps} | EPS (SEC EDGAR): {sec_eps}
 EPS-Abweichung: {eps_deviation}
-48h-Preisbewegung: {move_48h:+.1%}
+48h-Preisbewegung: {move_48h}
 
 === QUICK MONTE CARLO (Vorfilter) ===
 Hit-Rate: {mc_hit_rate:.1%} ({mc_paths} Pfade, {mc_days}d)
@@ -331,7 +331,8 @@ class DeepAnalysis:
             forward_eps        = forward_eps,
             sec_eps            = sec_eps,
             eps_deviation      = eps_deviation,
-            move_48h           = move_48h,
+            move_48h           = (f"{move_48h:+.1%}" if move_48h is not None
+                                  else "n/a (keine Kursdaten – NICHT als 0 % interpretieren)"),
             mc_hit_rate        = mc_hit_rate,
             mc_paths           = mc_paths,
             mc_days            = mc_days,
@@ -398,7 +399,7 @@ class DeepAnalysis:
             return None
 
     # ── FIX v8.2: 48h-Move Timing ────────────────────────────────────────────
-    def _get_48h_move(self, ticker: str) -> float:
+    def _get_48h_move(self, ticker: str) -> float | None:
         """
         Berechnet die Preisbewegung der letzten 2 vollen Handelstage.
 
@@ -412,7 +413,11 @@ class DeepAnalysis:
             if hasattr(close, "iloc"):
                 close = close.squeeze()
             if len(close) < 5:
-                return 0.0
-            return float((close.iloc[-2] - close.iloc[-4]) / close.iloc[-4])
-        except Exception:
-            return 0.0
+                return None
+            base = float(close.iloc[-4])
+            return float((close.iloc[-2] - base) / base) if base > 0 else None
+        except Exception as e:
+            # Nie 0.0: "+0.0%" läse das LLM als "Markt hat nicht reagiert"
+            # (= maximale Unterreaktion), obwohl nur Daten fehlen.
+            log.warning(f"  [{ticker}] 48h-Move nicht berechenbar: {e}")
+            return None

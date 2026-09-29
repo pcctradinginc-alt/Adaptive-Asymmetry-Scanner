@@ -62,10 +62,10 @@ def score_headlines(headlines: list[str]) -> dict:
     Gibt neutral (0.0) zurück wenn Modell nicht verfügbar.
     """
     if not headlines:
-        return _neutral_result()
+        return _neutral_result("no_headlines")
 
     if not _load_model():
-        return _neutral_result()
+        return _neutral_result("model_unavailable")
 
     try:
         import torch
@@ -96,18 +96,22 @@ def score_headlines(headlines: list[str]) -> dict:
             "sentiment_score":      round(mean_score, 4),
             "sentiment_label":      label,
             "sentiment_confidence": round(confidence, 4),
+            "sentiment_status":     "ok",
         }
 
     except Exception as e:
         log.warning(f"FinBERT Inference-Fehler: {e}")
-        return _neutral_result()
+        return _neutral_result("inference_error")
 
 
-def _neutral_result() -> dict:
+def _neutral_result(status: str = "no_headlines") -> dict:
+    """0.0 bleibt aus Kompatibilität der Wert, aber sentiment_status macht
+    kenntlich, dass es KEIN gemessenes neutrales Sentiment ist."""
     return {
         "sentiment_score":      0.0,
         "sentiment_label":      "neutral",
         "sentiment_confidence": 0.0,
+        "sentiment_status":     status,
     }
 
 

@@ -144,6 +144,7 @@ sources:
     license_reference: "17 U.S.C. §105 – US federal government works are Public Domain in the US"
     license_status: OK
     frequency: hourly
+    may_be_empty: true   # keine aktiven Stürme = legitim leer (Data-Quality-Gate EMPTY_RESULT)
     expected_update_cadence: 6h
     supports_history: false
     supports_vintages: true

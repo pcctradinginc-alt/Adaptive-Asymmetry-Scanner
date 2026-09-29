@@ -148,6 +148,19 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         if pit_errors:
             h.message = (h.message + " | " if h.message else "") + "; ".join(pit_errors[:3])
 
+        # Data-Quality-Gate: kein PASS nur weil keine Exception auftrat.
+        try:
+            from modules.external import data_quality
+            _hist = archive.as_of(source_id, now) if result.observations else None
+            dq = data_quality.assess(result.observations, source_cfg, now, history=_hist)
+        except Exception as e:  # noqa: BLE001
+            dq = {"issues": ["DQ_CHECK_FAILED"], "error": repr(e), "severe": False}
+        h.dq = dq
+        if dq.get("severe") and h.status == SourceStatus.PASS.value:
+            h.status = SourceStatus.WARN.value
+            h.message = (h.message + " | " if h.message else "") + "DQ: " + ",".join(dq["issues"])
+        _log(f"[ingest] {source_id}: DQ n={dq.get('n_observations')} issues={dq.get('issues')}")
+
         counts = {"new": 0, "duplicate": 0, "revision": 0}
         archive_error = ""
         bytes_written = 0
@@ -194,7 +207,7 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         health[source_id] = h.to_dict()
         summary["sources"][source_id] = {
             "status": h.status, "counts": counts, "pit_errors": len(pit_errors),
-            "archive_error": archive_error,
+            "archive_error": archive_error, "dq_issues": (h.dq or {}).get("issues", []),
         }
 
         if not dry_run and (result.raw or result.observations):

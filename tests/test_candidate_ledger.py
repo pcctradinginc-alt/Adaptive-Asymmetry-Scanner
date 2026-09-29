@@ -832,11 +832,18 @@ def test_update_outcomes_horizons_measured_from_entry_effective_date(monkeypatch
     row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
     assert "ret_5d" not in row["outcomes"]
 
-    # Ein Tag später (5 Tage nach 08-05) ist der Horizont erreicht.
+    # Am Zieltag selbst (08-10 = Entry + 5) ist der Tagesbalken noch nicht
+    # abgeschlossen (Feedback läuft während der Handelszeit) -> noch nicht füllen.
     cl.update_outcomes("2026-08-10", root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
+    assert "ret_5d" not in row["outcomes"]
+
+    # Am Folgetag mit dem Schlusskurs des Zieltags (Audit 2026-09-29).
+    cl.update_outcomes("2026-08-11", root=ledger_root)
     row = _read_jsonl(ledger_root / "2026-08.jsonl")[0]
     assert "ret_5d" in row["outcomes"]
     assert row["outcomes"]["ret_5d"] == pytest.approx(0.05, abs=1e-4)
+    assert row["outcomes"]["ret_1d"] == pytest.approx(0.01, abs=1e-4)
 
 
 # ── P0-B: echter Options-Kontrakt bei flush() ────────────────────────────────
