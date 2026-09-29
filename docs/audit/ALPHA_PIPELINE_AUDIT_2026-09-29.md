@@ -162,3 +162,28 @@ von Shadow-Gewichten bleibt eine menschliche Entscheidung (PR).
    und Slippage über den Quote-Spread hinaus sind nicht modelliert. Der
    Ledger-Vergleich brutto/netto (`cost_check`) greift, sobald `real_strat_ret_45d`
    reift.
+
+## 7. Nachtrag: except-Handler-Audit und Regime-Daten (2026-09-29)
+
+**Inventar (AST):** 333 Handler für `Exception` bzw. bare `except` (die 134 waren nur die
+ohne `as e`). Davon liegen 108 still (ohne Log oder nur DEBUG) im Entscheidungs- oder
+Lernpfad. Sie wurden einzeln klassifiziert:
+
+| Klasse | Beispiele | Maßnahme |
+|---|---|---|
+| **Erfundener Wert fließt in ein Gate** | IV-Rank → 50 (IV-Gate „günstig“ → Long Call); MC-σ-Default bei fehlender Historie (Trefferquote ist ein Gate); Mismatch-Move → 0 (A1) | **behoben**: None → Kandidat mit Grund (`iv_rank_unavailable`, MC übersprungen); `sigma_source` in der Simulation; `rv_measured` im IV-Rank |
+| **Unbekannt = unbedenklich** | Earnings-Termin unbekannt oder Fehler → „keine Earnings“ | Verhalten unverändert (yfinance hat oft keinen Termin), aber WARNING + Ledger `earnings_known` |
+| **Datenverlust** | Ledger-Rewrite verwarf unlesbare Zeilen dauerhaft | **behoben**: Zeilen bleiben unverändert erhalten, ERROR-Log |
+| **Lernpfad unsichtbar** | Outcome-Fill-, Ledger-Note- und Flush-Fehler nur DEBUG → das Lernen konnte still stoppen | 50 Stellen (Ledger, Pipeline, Feedback) → WARNING; Policy-Regelfehler → WARNING |
+| **Fallback bewusst, jetzt sichtbar** | VIX → 20, Sektor-/Liquiditätsprüfung „durchlassen“, Korrelations-Check „alle behalten“ | WARNING; Sektor-Status im Kandidaten |
+| **Mislabel** | Options-Design-Skips (Earnings-Gate, Sektor, Bear-Case, IV unbekannt) liefen als „ROI/Edge“ | explizite `skip_reasons` |
+| **Unkritisch** | Parse-Schleifen über Verfallstermine, Git-/Config-Fallbacks, Temp-Aufräumen, optionale Forschungswerte, `return None`/`[]` als sauberes „fehlend“ | unverändert, 32 stille Handler in einer Allowlist mit Begründung |
+
+**Guard:** `tests/test_exception_hygiene.py` lässt CI scheitern, sobald ein **neuer** stiller
+Handler (`pass`/`continue` ohne Log) hinzukommt.
+
+**Regime-Daten:** `fred_regime_macro` liefert Inflation (CPIAUCSL), Credit (NFCICREDIT),
+Finanzierungsbedingungen (NFCI), Liquidität (WALCL) sowie Dollar (DTWEXBGS) und Öl
+(DCOILWTICO) mit ALFRED-Veröffentlichungszeitpunkten. Die Regime-Regeln stehen in
+`modules/external/regime.py` und werden im Faktor-Monitor je Entry-Tag ausgewertet.
+ICE-BofA-Spreads sind wegen der Lizenz bewusst ausgeschlossen.

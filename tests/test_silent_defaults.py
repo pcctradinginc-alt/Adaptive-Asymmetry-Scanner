@@ -88,3 +88,41 @@ def test_pearson_weights_unchanged_on_current_history():
     import feedback
     h = json.load(open("outputs/history.json"))
     assert feedback.compute_pearson_weights(h) == {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.2}
+
+
+def test_mc_skips_when_price_history_missing():
+    import modules.mirofish_simulation as ms
+    ms._get_hist_params.cache_clear()
+    with patch("modules.mirofish_simulation.yf.download", side_effect=RuntimeError("down")):
+        ms._get_hist_params("ZZZ")
+    assert ms.PARAM_SOURCE["ZZZ"] == "default_error"
+    cand = {"ticker": "ZZZ", "current_price": 100.0, "deep_analysis": {"impact": 7, "surprise": 5}}
+    assert ms.MirofishSimulation().run_for_dte(cand, days_to_expiry=30) is None
+    ms._get_hist_params.cache_clear()
+
+
+def test_iv_rank_components_flag_unmeasured_history():
+    from modules.options_designer import compute_iv_rank_components
+    assert compute_iv_rank_components([100.0] * 10, [])["rv_measured"] is False
+    closes = [100 * (1 + 0.01 * ((i * 7919) % 13 - 6) / 6) for i in range(260)]
+    assert compute_iv_rank_components(closes, [])["rv_measured"] is True
+
+
+def test_iv_rank_error_is_none_not_50():
+    from modules.options_designer import OptionsDesigner
+    od = OptionsDesigner.__new__(OptionsDesigner)
+
+    class _Boom:
+        @property
+        def info(self):
+            raise RuntimeError("down")
+    assert od._get_iv_rank("ZZZ", _Boom()) is None
+
+
+def test_earnings_unknown_is_flagged_not_silent(caplog):
+    from modules import alpha_sources as al
+    with patch.object(al, "get_earnings_date_finnhub", return_value=None), \
+         patch("yfinance.Ticker", side_effect=RuntimeError("down")):
+        caplog.set_level("WARNING")
+        assert al.has_earnings_within_days("ZZZ", use_finnhub=False) == (False, None)
+    assert "unbekannt" in caplog.text

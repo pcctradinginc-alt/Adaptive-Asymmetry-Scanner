@@ -274,7 +274,7 @@ def _yfinance_option_price(
                 return float((row["bid"] + row["ask"]) / 2)
         return 0.0
     except Exception as e:
-        log.debug(f"yfinance Options-Preis Fehler für {ticker}: {e}")
+        log.warning(f"yfinance Options-Preis Fehler für {ticker}: {e}")
         return 0.0
 
 
@@ -321,7 +321,7 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
         return intrinsic
 
     except Exception as e:
-        log.debug(f"    [{ticker}] Expired-Spread Fehler: {e}")
+        log.warning(f"    [{ticker}] Expired-Spread Fehler: {e}")
         return None
 
 
@@ -554,7 +554,7 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
         try:
             update_feature_stats_external(history, st)
         except Exception as e:
-            log.debug(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
+            log.warning(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
         log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
     # Liste begrenzen: nur die letzten 300 behalten
     if len(shadows) > 300:
@@ -1029,7 +1029,7 @@ def main() -> None:
             try:
                 update_feature_stats_external(history, trade)
             except Exception as e:
-                log.debug(f"  [{ticker}] feature_stats_external-Update Fehler (ignoriert): {e}")
+                log.warning(f"  [{ticker}] feature_stats_external-Update Fehler (ignoriert): {e}")
             log.info(
                 f"  [{ticker}] Trade abgeschlossen "
                 f"({trade['close_reason']}, Return={outcome:+.2%})"
@@ -1103,7 +1103,7 @@ def main() -> None:
     try:
         candidate_ledger.update_outcomes(today.strftime("%Y-%m-%d"))
     except Exception as e:
-        log.debug(f"candidate_ledger.update_outcomes Fehler (ignoriert): {e}")
+        log.warning(f"candidate_ledger.update_outcomes Fehler (ignoriert): {e}")
 
     log.info("=== Feedback-Loop abgeschlossen ===")
 

@@ -80,6 +80,13 @@ HIT_RATE_CAP_LONG  = 0.75
 MAX_SIGNAL_ALPHA = 0.001
 
 
+# Herkunft der MC-Parameter je Ticker (Audit 2026-09-29): "measured",
+# "clamped" (Messwert außerhalb 0.5–15 %/Tag -> Default), "default_no_data",
+# "default_error". Bei default_* simuliert run_for_dte NICHT (keine
+# Trefferquote aus erfundener Volatilität für ein Gate).
+PARAM_SOURCE: dict[str, str] = {}
+
+
 @lru_cache(maxsize=128)
 def _get_hist_params(ticker: str) -> tuple[float, float]:
     """
@@ -93,7 +100,8 @@ def _get_hist_params(ticker: str) -> tuple[float, float]:
     try:
         hist = yf.download(ticker, period="6mo", progress=False, auto_adjust=True)
         if hist.empty or len(hist) < 30:
-            log.debug(f"  [{ticker}] Hist-Daten zu wenig → Default sigma")
+            log.warning(f"  [{ticker}] Hist-Daten zu wenig ({len(hist)}) → keine MC-Parameter")
+            PARAM_SOURCE[ticker] = "default_no_data"
             return DEFAULT_SIGMA, 0.0
 
         close = hist["Close"]
@@ -105,7 +113,10 @@ def _get_hist_params(ticker: str) -> tuple[float, float]:
         mu      = float(returns.mean())
 
         # Sanity checks
+        PARAM_SOURCE[ticker] = "measured"
         if not (0.005 <= sigma <= 0.15):
+            log.warning(f"  [{ticker}] σ={sigma:.4f} außerhalb 0.5–15 %/Tag → Default {DEFAULT_SIGMA}")
+            PARAM_SOURCE[ticker] = "clamped"
             sigma = DEFAULT_SIGMA
         if not (-0.005 <= mu <= 0.005):
             mu = 0.0
@@ -114,7 +125,8 @@ def _get_hist_params(ticker: str) -> tuple[float, float]:
         return sigma, mu
 
     except Exception as e:
-        log.debug(f"  [{ticker}] yfinance Hist-Fehler: {e} → Default")
+        log.warning(f"  [{ticker}] yfinance Hist-Fehler: {e} → keine MC-Parameter")
+        PARAM_SOURCE[ticker] = "default_error"
         return DEFAULT_SIGMA, 0.0
 
 
@@ -199,6 +211,11 @@ class MirofishSimulation:
 
         # ── Historische Parameter von yfinance ───────────────────────────────
         sigma, hist_mu = _get_hist_params(ticker)
+        sigma_source = PARAM_SOURCE.get(ticker, "measured")
+        if sigma_source.startswith("default_"):
+            log.warning(f"  [{ticker}] MC übersprungen: keine Kurshistorie ({sigma_source}) "
+                        f"-> keine Trefferquote aus Default-σ")
+            return None
 
         # ── Signal-Alpha (News-Drift) ─────────────────────────────────────────
         impact   = float(da.get("impact", 5) or 5)
@@ -292,6 +309,7 @@ class MirofishSimulation:
                 "n_paths":       n_paths,
                 "days":          days_to_expiry,
                 "sigma":         round(sigma, 4),
+                "sigma_source":  sigma_source,
                 "alpha":         round(base_alpha, 5),
             }
         }

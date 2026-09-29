@@ -165,7 +165,8 @@ class Prescreener:
                 return False
             # Mindestens 2 Verfallsdaten → ausreichend liquide
             return True
-        except Exception:
+        except Exception as e:
+            log.warning(f"  [{ticker}] Options-Liquidität nicht prüfbar: {e} → durchgelassen")
             return True  # Im Zweifel durchlassen
 
     def _call_with_retry(self, batch: list[dict]) -> list | None:

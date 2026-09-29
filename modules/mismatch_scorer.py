@@ -157,7 +157,7 @@ class MismatchScorer:
             returns = hist["Close"].pct_change().dropna()
             return float(np.std(returns))
         except Exception as e:
-            log.debug(f"Sigma-Berechnung Fehler für {ticker}: {e}")
+            log.warning(f"Sigma-Berechnung Fehler für {ticker}: {e}")
             return 0.0
 
     def _compute_48h_move(self, ticker: str) -> float:

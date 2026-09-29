@@ -171,6 +171,7 @@ def load_ledger_rows(root: Path | str = LEDGER_ROOT) -> list[dict]:
                     try:
                         rows.append(json.loads(line))
                     except Exception:
+                        log.error(f"challenger.load_ledger_rows: unlesbare Zeile in {path} übersprungen")
                         continue
         except Exception as e:
             log.debug(f"challenger.load_ledger_rows: {path} nicht lesbar (ignoriert): {e}")

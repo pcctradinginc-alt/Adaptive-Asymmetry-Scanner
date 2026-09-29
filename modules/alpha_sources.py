@@ -386,10 +386,13 @@ def has_earnings_within_days(
             earnings_ts = info.get("earningsTimestamp")
             if earnings_ts:
                 earnings_date = datetime.fromtimestamp(earnings_ts).strftime("%Y-%m-%d")
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning(f"  [{ticker}] Earnings-Datum yfinance Fehler: {e}")
 
     if not earnings_date:
+        # Unbekannt != keine Earnings: Gate kann nicht greifen -> sichtbar machen
+        # (alpha_signals.earnings_date=None -> Ledger earnings_known=False).
+        log.warning(f"  [{ticker}] Earnings-Termin unbekannt → Earnings-Gate ohne Datengrundlage")
         return False, None
 
     try:

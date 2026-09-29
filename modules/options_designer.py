@@ -187,6 +187,7 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
     term_points: Liste von (dte, iv)-Tupeln.
     """
     rv_score = 50.0
+    rv_measured = False
     try:
         clean = [float(c) for c in (closes or []) if c is not None]
         if len(clean) >= 60:
@@ -200,8 +201,10 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
                 if rv_max > rv_min:
                     rv_score = ((rv_current - rv_min) / (rv_max - rv_min)) * 100
                     rv_score = max(0.0, min(100.0, rv_score))
+                    rv_measured = True
     except Exception:
         rv_score = 50.0
+        rv_measured = False
 
     term_score    = 20.0
     pts           = sorted(term_points or [])
@@ -218,6 +221,7 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
 
     combined = round(rv_score * 0.80 + term_score * 0.20, 1)
     return {
+        "rv_measured":   rv_measured,
         "rv_score":      round(rv_score, 1),
         "term_score":    round(term_score, 1),
         "n_term_points": n_term_points,
@@ -489,16 +493,21 @@ class OptionsDesigner:
         # feedback.py ihr hypothetisches Outcome misst und das ROI-Gate irgendwann
         # datengestützt (statt geraten) kalibriert werden kann.
         self.roi_reject_log: list[dict] = []
+        # Explizite Gründe, wenn ein Kandidat VOR der ROI-Prüfung ausscheidet
+        # (sonst im Ledger fälschlich als ROI/Edge-Reject gelabelt).
+        self.skip_reasons: dict[str, str] = {}
 
     def run(self, signals: list[dict]) -> list[dict]:
         proposals = []
         for s in signals:
             ticker = s.get("ticker", "")
             if not self._bear_case_ok(s):
+                self.skip_reasons[ticker] = "options_design_bear_case"
                 continue
             t_obj = yf.Ticker(ticker)
             if not self._sector_momentum_ok(s, t=t_obj):
                 log.info(f"  [{ticker}] SECTOR-GATE → verworfen")
+                self.skip_reasons[ticker] = "sector_momentum_weak"
                 continue
             proposal = self._design_with_adaptive_dte(s, t_obj)
             if proposal:
@@ -516,11 +525,16 @@ class OptionsDesigner:
 
         if self.gates.has_upcoming_earnings(ticker):
             log.info(f"  [{ticker}] EARNINGS-GATE → blockiert")
+            self.skip_reasons[ticker] = "earnings_gate"
             return None
 
         if t is None:
             t = yf.Ticker(ticker)
         iv_rank = self._get_iv_rank(ticker, t)
+        if iv_rank is None:
+            log.warning(f"  [{ticker}] IV-Rank unbekannt → kein Options-Design")
+            self.skip_reasons[ticker] = "iv_rank_unavailable"
+            return None
 
         # v9.0 #6: time_to_materialization → DTE-Minimum
         da  = s.get("deep_analysis", {})
@@ -1247,6 +1261,11 @@ class OptionsDesigner:
             # Term-Structure-Call, KEIN Combine mit dem term_score-Default):
             # exakt erhalten, indem term_points hier bewusst leer bleiben.
             rv_only = compute_iv_rank_components(closes, [])
+            if not rv_only["rv_measured"]:
+                # Zu wenig Kurshistorie: vorher still 50/20 -> "IV günstig" ->
+                # Long Call. Fehlend != mittlerer IV-Rank (Audit 2026-09-29).
+                log.warning(f"  [{ticker}] IV-Rank nicht messbar ({len(closes)} Closes) → None")
+                return None
             if current <= 0:
                 return rv_only["rv_score"]
 
@@ -1260,8 +1279,9 @@ class OptionsDesigner:
             )
             return combined
 
-        except Exception:
-            return 50.0
+        except Exception as e:
+            log.warning(f"  [{ticker}] IV-Rank Fehler: {e} → None (kein 50er-Default)")
+            return None
 
     def _get_term_structure_iv(
         self, ticker: str, current: float, t=None
@@ -1342,13 +1362,17 @@ class OptionsDesigner:
             sh = ticker_obj.history(period="35d")
             eh = yf.Ticker(etf).history(period="35d")
             if sh.empty or eh.empty or len(sh) < 5:
+                log.warning(f"  [{s.get('ticker')}] Sektor-Momentum nicht messbar ({etf}) → durchgelassen")
+                s["sector_momentum"] = {"etf": etf, "rel_strength": None, "status": "no_data"}
                 return True
             sr = float((sh["Close"].iloc[-1] - sh["Close"].iloc[0]) / sh["Close"].iloc[0])
             er = float((eh["Close"].iloc[-1] - eh["Close"].iloc[0]) / eh["Close"].iloc[0])
             rs = sr - er
             s["sector_momentum"] = {"etf": etf, "rel_strength": round(rs, 4)}
             return rs >= RELATIVE_STRENGTH_MIN if direction == "BULLISH" else rs <= -RELATIVE_STRENGTH_MIN
-        except Exception:
+        except Exception as e:
+            log.warning(f"  [{s.get('ticker')}] Sektor-Momentum Fehler: {e} → durchgelassen")
+            s["sector_momentum"] = {"etf": etf, "rel_strength": None, "status": "error"}
             return True
 
     def _bear_case_ok(self, s: dict) -> bool:
