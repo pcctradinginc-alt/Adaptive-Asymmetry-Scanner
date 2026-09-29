@@ -43,7 +43,17 @@ jobs:
           if [ -z "$MODE" ]; then
             if [ "${{ github.event.schedule }}" = "23 8 * * 6" ]; then MODE=weekly; else MODE=full; fi
           fi
-          python -m modules.ml_research --mode "$MODE"
+          echo "MODE=$MODE" >> "$GITHUB_ENV"
+          ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.ml_research --mode "$MODE"
+
+      - name: Research-Lab (Hypothesen-Datenbank + Discovery, nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.research_lab
+
+      - name: Trade-Gedächtnis + Failure Analyzer
+        continue-on-error: true
+        run: python -m modules.trade_memory
 
       - name: Commit research outputs
         env:

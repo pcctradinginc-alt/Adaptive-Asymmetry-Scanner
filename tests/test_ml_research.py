@@ -155,8 +155,8 @@ def test_registry_hash_detects_modified_spec(tmp_path):
 
 def test_registry_file_is_valid_and_has_no_champion():
     reg = ml.load_registry()
-    assert reg["champion"] is None
-    assert pd.Timestamp(reg["locked_from"]) < pd.Timestamp.now()
+    assert reg["champion"] is None and "promotion_criteria" not in reg and "locked_from" not in reg
+    assert ml.LOCKED_FROM < pd.Timestamp.now()
     ids = [m["id"] for m in reg["models"]]
     assert len(ids) == len(set(ids)) and any(m.get("role") == "benchmark" for m in reg["models"])
     for m in reg["models"]:
@@ -166,7 +166,7 @@ def test_registry_file_is_valid_and_has_no_champion():
 
 
 def test_decide_requires_all_criteria_and_forward():
-    crit = ml.load_registry()["promotion_criteria"]
+    crit = ml.PROTOCOL["promotion_criteria"]
     good = {"base": {"mean": 0.004, "t_months": 3.0, "sharpe_ann": 1.2, "max_dd": -0.05, "years_positive_share": 0.8},
             "stress": {"mean": 0.001}, "ic": {"mean_ic": 0.03, "t_months": 3.0}}
     bench = {"base": {"sharpe_ann": 0.5, "max_dd": -0.10}}
@@ -223,3 +223,62 @@ def test_hgb_trains_on_both_targets(target):
             "params_grid": {"max_iter": [20], "max_depth": [2], "min_samples_leaf": [50]}}
     m = ml.fit(spec, ml.purged(p, p["date"].max()), {"max_iter": 20, "max_depth": 2, "min_samples_leaf": 50})
     assert np.isfinite(m.predict(p.tail(100))).all()
+
+
+def test_feature_groups_in_spec():
+    cols = ml.feature_list({"features": ["group:momentum", "vix", "group:nope", "fwd_xs_20"]})
+    assert cols[:6] == list(ml.FEATURE_GROUPS["momentum"]) and cols[-1] == "vix" and "fwd_xs_20" not in cols
+
+
+def _unc_panel():
+    p = _panel(n_days=2000, n_stocks=60, signal=False)
+    rnd = np.random.default_rng(3)
+    # heteroskedastisch: Streuung wächst mit vol_60-Rang -> Intervall muss breiter werden
+    scale = 0.05 + 0.2 * (p["vol_60"].fillna(0) + 0.5)
+    p["fwd_ret_60"] = rnd.normal(0.01, 1, len(p)) * scale
+    p["mae_60"] = -np.abs(rnd.normal(0, 1, len(p))) * scale
+    p.loc[p["label_end_60"].isna(), ["fwd_ret_60", "mae_60"]] = np.nan
+    return p
+
+
+def test_uncertainty_interval_calibrated_and_adapts():
+    p = _unc_panel()
+    cal = ml.calibration_wf(p, pd.Timestamp("2021-06-01"), first_test_year=2018)
+    assert cal["status"] == "ok"
+    assert abs(cal["coverage"] - 0.8) < 0.06
+    train = ml.purged(p, pd.Timestamp("2019-01-01"), 60)
+    m = ml.fit_uncertainty(train)
+    test = p[(p["date"] >= "2019-01-01") & p["vol_60"].notna()].head(3000)
+    u = ml.predict_uncertainty(m, test)
+    width = u["q_hi"] - u["q_lo"]
+    assert width[test["vol_60"] > 0.3].mean() > 1.5 * width[test["vol_60"] < -0.3].mean()
+    assert (u["q_lo"] <= u["q_mid"]).all() and (u["q_mid"] <= u["q_hi"]).all() and (u["mae_mid"] <= 0).all()
+
+
+def test_cards_fields_analogs_and_counterfactual(tmp_path):
+    p = _unc_panel()
+    latest = p["date"].max()
+    tick = sorted(p.loc[p["date"] == latest, "ticker"])
+    ranks = {"a": {t: i / len(tick) for i, t in enumerate(tick)},
+             "b": {t: 1 - i / len(tick) for i, t in enumerate(tick)}}
+    cards = ml.build_cards(p, ranks, {"interval_calibrated": True, "p_up_skill": 0.01}, top_n_drivers=5)
+    c = cards["cards"][tick[0]]
+    for k in ("expected_return_60", "interval_80", "expected_drawdown_60", "p_return_gt_10", "model_disagreement",
+              "data_quality", "regime_confidence", "analogs"):
+        assert k in c, k
+    assert c["model_disagreement"] == "HIGH"                     # Modelle widersprechen sich maximal
+    assert c["interval_80"][0] <= c["expected_return_60"] <= c["interval_80"][1]
+    assert sum("counterfactual" in v for v in cards["cards"].values()) == 5
+    path = tmp_path / "cards.json"
+    path.write_text(json.dumps(cards, default=str))
+    assert ml.latest_cards(path=path, today=latest + pd.Timedelta(days=2))[tick[0]]
+    assert ml.latest_cards(path=path, today=latest + pd.Timedelta(days=20)) == {}
+
+
+def test_analogs_never_use_unfinished_labels():
+    p = _unc_panel()
+    latest = p["date"].max()
+    hist = ml.purged(p, latest + pd.Timedelta(days=1), 60)
+    assert (hist["label_end_60"] <= latest).all()
+    a = ml.analogs(hist, p[p["date"] == latest], 10)
+    assert a["analog_share_positive"].between(0, 1).all()

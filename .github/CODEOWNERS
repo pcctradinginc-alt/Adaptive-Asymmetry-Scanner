@@ -7,3 +7,7 @@ config.yaml                   @pcctradinginc-alt
 outputs/candidate_ledger/     @pcctradinginc-alt
 config/model_registry.yaml    @pcctradinginc-alt
 modules/ml_research.py        @pcctradinginc-alt
+# Bewertungsprotokoll: außerhalb der Kontrolle jedes Research-Agenten
+config/research_protocol.yaml @pcctradinginc-alt
+tests/test_research_protocol.py @pcctradinginc-alt
+modules/research_lab.py       @pcctradinginc-alt

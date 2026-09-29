@@ -1,0 +1,55 @@
+# config/research_protocol.yaml – Bewertungsprotokoll (GESCHÜTZT)
+#
+# Diese Datei legt fest, WIE bewertet wird: Kosten, Testzeiträume,
+# Locked-Holdout, Mehrfachtest-Korrektur, Annahme-/Promotionskriterien.
+# Sie liegt bewusst AUSSERHALB der Kontrolle jedes Research-Agenten:
+#   * CODEOWNERS: Änderungen brauchen Review durch den Repo-Owner.
+#   * tests/test_research_protocol.py pinnt den SHA-256 dieser Datei; jede
+#     Änderung muss dort sichtbar mitgeändert werden (kein stilles Aufweichen).
+#   * modules/ml_research.py und modules/research_lab.py lesen sie nur.
+# Eine Änderung ist nur zulässig, um das Protokoll STRENGER zu machen oder
+# einen belegten Fehler zu beheben – nie, um ein Ergebnis besser aussehen zu lassen.
+
+costs:
+  base_per_side: 0.0010        # 10 bp je Seite
+  stress_per_side: 0.0025      # 25 bp je Seite
+
+periods:
+  train_start: "2015-01-01"
+  discovery_end: "2019-01-01"  # Discovery-Engine sieht nur Labels, die davor enden
+  first_test_year: 2019        # Walk-Forward-/Validierungsjahre ab hier
+  locked_from: "2025-07-01"    # Locked-Holdout: nie in Entwicklung/Selektion
+
+portfolio:
+  top_quantile: 0.10           # Top-Dezil gegen Querschnittsmittel
+  min_cross_section: 50
+
+multiple_testing:
+  method: benjamini_hochberg
+  fdr_q: 0.10                  # über ALLE jemals getesteten Hypothesen (Datenbank)
+
+hypothesis_acceptance:         # Research-Lab (festes Signal, keine Anpassung)
+  min_t_months: 2.0
+  min_years_positive: 0.6
+  stress_must_be_positive: true
+  halves_same_sign: true       # erste und zweite Hälfte des Testzeitraums gleiches Vorzeichen
+  min_regimes_same_sign: 3     # von 4 (VIX<20, VIX>=20, Aufwärts-, Abwärtstrend)
+  min_coverage: 0.5
+  duplicate_rank_corr: 0.9     # |Rank-Korrelation| zu bereits getesteter Hypothese -> Duplikat
+  locked_must_be_positive: true
+
+promotion_criteria:            # ML-Modelle (config/model_registry.yaml)
+  wf_min_t_months: 2.0
+  wf_min_years_positive: 0.6
+  min_sharpe_margin: 0.10
+  max_dd_not_worse: true
+  min_ic_t: 2.0
+  locked_positive: true
+  fwd_min_cohorts: 26
+  fwd_positive: true
+
+uncertainty:
+  interval: [0.1, 0.9]         # 80-%-Intervall; Kalibrierung wird im Walk-Forward geprüft
+  coverage_tolerance: 0.05     # |Abdeckung - 0.8| darüber -> "schlecht kalibriert"
+  up_threshold: 0.10           # P(Rendite_60 > +10 %)
+  analogs_k: 25

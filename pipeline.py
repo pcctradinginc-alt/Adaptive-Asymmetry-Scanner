@@ -178,12 +178,19 @@ def _ml_shadow_ranks(ticker: str | None) -> dict:
     global _ML_SHADOW
     if _ML_SHADOW is None:
         try:
-            from modules.ml_research import latest_scores
-            _ML_SHADOW = latest_scores()
+            from modules.ml_research import latest_cards, latest_scores
+            _ML_SHADOW = {"ranks": latest_scores(), "cards": latest_cards()}
         except (OSError, ValueError, KeyError) as e:
             log.warning(f"ML-Shadow-Ränge nicht lesbar (ignoriert): {e}")
-            _ML_SHADOW = {}
-    return {f"ml_{mid}": ranks[ticker] for mid, ranks in _ML_SHADOW.items() if ticker in ranks}
+            _ML_SHADOW = {"ranks": {}, "cards": {}}
+    out = {f"ml_{mid}": ranks[ticker] for mid, ranks in _ML_SHADOW["ranks"].items() if ticker in ranks}
+    card = _ML_SHADOW["cards"].get(ticker) or {}
+    if card:
+        lo, hi = (card.get("interval_80") or [None, None])[:2]
+        out.update({"ml_exp_ret_60": card.get("expected_return_60"), "ml_q10_ret_60": lo, "ml_q90_ret_60": hi,
+                    "ml_exp_dd_60": card.get("expected_drawdown_60"), "ml_p_gt10_60": card.get("p_return_gt_10"),
+                    "ml_disagreement_sd": card.get("model_disagreement_sd")})
+    return {k: v for k, v in out.items() if v is not None}
 
 
 def note_base_features(c: dict) -> None:

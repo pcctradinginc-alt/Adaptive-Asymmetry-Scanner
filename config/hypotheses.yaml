@@ -1,0 +1,109 @@
+# config/hypotheses.yaml – Hypothesen (von Mensch oder Research-Agent formuliert)
+#
+# Geprüft von modules/research_lab.py mit der festen Kette aus
+# config/research_protocol.yaml (geschützt). Ergebnisse (Gedächtnis):
+# outputs/research/hypothesis_db.{json,md}.
+#
+# Regeln:
+#   * Eine getestete Hypothese wird nicht umformuliert: anderes Signal -> neue id
+#     (sonst "invalid_modified").
+#   * signal: nur PIT-Merkmale des Feature-Stores (modules/ml_research.py,
+#     ALL_FEATURES), + - * /, rank(), sign(), abs(). Labels sind unmöglich.
+#   * direction: +1 = höheres Signal -> höhere Forward-Rendite erwartet.
+#   * status blocked_data / prior_result: nicht testbar bzw. bereits anderweitig
+#     geprüft – bleibt als Erinnerung in der Datenbank (keine Wiederentdeckung).
+
+hypotheses:
+  # ── Bereits geprüft (Gedächtnis) ────────────────────────────────────────────
+  - id: PRIOR-ES-H1
+    title: Drift nach Volumen-Event in Richtung des Event-Tags
+    status: prior_result
+    source: prior_study
+    evidence: "Event-Studie 2026-09-29: -0,35 % netto (t -2,4), 1/8 Jahre positiv -> abgelehnt"
+    reference: docs/research/PREREG_price_event_study_2026-09-29.md
+  - id: PRIOR-ES-H2
+    title: Kleine Bewegung am Event-Tag (Überreaktions-Gate) ist besser
+    status: prior_result
+    source: prior_study
+    evidence: "-0,47 % netto (t -3,6), 0/8 Jahre positiv -> abgelehnt, eher umgekehrt"
+    reference: docs/research/PREREG_price_event_study_2026-09-29.md
+  - id: PRIOR-ES-H3
+    title: Positive relative Stärke verstärkt die Event-Drift
+    status: prior_result
+    source: prior_study
+    evidence: "-0,16 % netto (t -1,1) -> abgelehnt"
+    reference: docs/research/PREREG_price_event_study_2026-09-29.md
+  - id: PRIOR-ES-H4
+    title: Hohes relatives Volumen verstärkt die Drift
+    status: prior_result
+    source: prior_study
+    evidence: "-0,39 % netto (t -2,3) -> abgelehnt"
+    reference: docs/research/PREREG_price_event_study_2026-09-29.md
+  - id: PRIOR-LLM-VALUE
+    title: LLM-Richtung schlägt naive Preis-Baseline
+    status: prior_result
+    source: prospective
+    evidence: "läuft prospektiv (factor_monitor.llm_value_add), Urteil frühestens Mitte November 2026"
+
+  # ── Nicht testbar mit aktuellen Daten (Erinnerung) ─────────────────────────
+  - id: HYP-0201
+    title: LKW-Maut führt europäische Industriegewinne (30–90 Tage)
+    status: blocked_data
+    source: human
+    evidence: "Universum ist US (S&P 500); Maut-Archiv < 3 Jahre PIT; keine Gewinnrevisions-Historie (PIT)"
+  - id: HYP-0202
+    title: Hafenaktivität steigt, Aktie fällt -> Aufholpotenzial (Divergenz Realwirtschaft vs. Preis)
+    status: blocked_data
+    source: human
+    evidence: "PortWatch ohne belastbare Ticker-Zuordnung; Archiv-Historie zu kurz für Walk-Forward ab 2019"
+
+  # ── Testbar (Preis/Volumen/Makro, 2019 bis Locked) ─────────────────────────
+  - id: HYP-0101
+    title: Kurzfrist-Umkehr (1 Monat)
+    statement: Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage.
+    signal: rev_1m
+    direction: -1
+    source: literature
+    created_at: "2026-09-29"
+  - id: HYP-0102
+    title: Niedrig-Volatilitäts-Anomalie
+    statement: Aktien mit niedriger 60-Tage-Volatilität liefern risikoadjustiert mehr.
+    signal: vol_60
+    direction: -1
+    source: literature
+    created_at: "2026-09-29"
+  - id: HYP-0103
+    title: Lotterie-Effekt (MAX)
+    statement: Aktien mit extremer bester Tagesrendite im letzten Monat sind überbewertet.
+    signal: max_ret_21
+    direction: -1
+    source: literature
+    created_at: "2026-09-29"
+  - id: HYP-0104
+    title: Nähe zum 52-Wochen-Hoch
+    statement: Aktien nahe ihrem 52-Wochen-Hoch reagieren verzögert auf gute Nachrichten (Anker-Effekt).
+    signal: dist_52w_high
+    direction: 1
+    source: literature
+    created_at: "2026-09-29"
+  - id: HYP-0105
+    title: Intakter Trend, kurzer Rücksetzer (Asymmetrie-Divergenz)
+    statement: Starkes 12-1-Momentum bei schwachem letzten Monat bietet asymmetrisches Aufholpotenzial.
+    signal: rank(mom_12_1) - rank(rev_1m)
+    direction: 1
+    source: human
+    created_at: "2026-09-29"
+  - id: HYP-0106
+    title: Momentum nur im Aufwärtstrend
+    statement: 12-1-Momentum funktioniert oberhalb der SPY-200-Tage-Linie, kehrt sich darunter um.
+    signal: mom_12_1 * sign(spy_trend_200)
+    direction: 1
+    source: literature
+    created_at: "2026-09-29"
+  - id: HYP-0107
+    title: Aufmerksamkeitsschock ohne Kursreaktion
+    statement: Stark steigendes Volumen bei kaum veränderter Wochenrendite deutet auf Informationsaufbau (Akkumulation).
+    signal: rank(relvol_5_60) - rank(abs(ret_5d))
+    direction: 1
+    source: human
+    created_at: "2026-09-29"
