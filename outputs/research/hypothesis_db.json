@@ -1,0 +1,1024 @@
+{
+  "hypotheses": {
+    "PRIOR-ES-H1": {
+      "id": "PRIOR-ES-H1",
+      "title": "Drift nach Volumen-Event in Richtung des Event-Tags",
+      "status": "prior_result",
+      "source": "prior_study",
+      "evidence": "Event-Studie 2026-09-29: -0,35 % netto (t -2,4), 1/8 Jahre positiv -> abgelehnt",
+      "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
+      "evaluated_at": null
+    },
+    "PRIOR-ES-H2": {
+      "id": "PRIOR-ES-H2",
+      "title": "Kleine Bewegung am Event-Tag (Überreaktions-Gate) ist besser",
+      "status": "prior_result",
+      "source": "prior_study",
+      "evidence": "-0,47 % netto (t -3,6), 0/8 Jahre positiv -> abgelehnt, eher umgekehrt",
+      "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
+      "evaluated_at": null
+    },
+    "PRIOR-ES-H3": {
+      "id": "PRIOR-ES-H3",
+      "title": "Positive relative Stärke verstärkt die Event-Drift",
+      "status": "prior_result",
+      "source": "prior_study",
+      "evidence": "-0,16 % netto (t -1,1) -> abgelehnt",
+      "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
+      "evaluated_at": null
+    },
+    "PRIOR-ES-H4": {
+      "id": "PRIOR-ES-H4",
+      "title": "Hohes relatives Volumen verstärkt die Drift",
+      "status": "prior_result",
+      "source": "prior_study",
+      "evidence": "-0,39 % netto (t -2,3) -> abgelehnt",
+      "reference": "docs/research/PREREG_price_event_study_2026-09-29.md",
+      "evaluated_at": null
+    },
+    "PRIOR-LLM-VALUE": {
+      "id": "PRIOR-LLM-VALUE",
+      "title": "LLM-Richtung schlägt naive Preis-Baseline",
+      "status": "prior_result",
+      "source": "prospective",
+      "evidence": "läuft prospektiv (factor_monitor.llm_value_add), Urteil frühestens Mitte November 2026",
+      "evaluated_at": null
+    },
+    "HYP-0201": {
+      "id": "HYP-0201",
+      "title": "LKW-Maut führt europäische Industriegewinne (30–90 Tage)",
+      "status": "blocked_data",
+      "source": "human",
+      "evidence": "Universum ist US (S&P 500); Maut-Archiv < 3 Jahre PIT; keine Gewinnrevisions-Historie (PIT)",
+      "evaluated_at": null
+    },
+    "HYP-0202": {
+      "id": "HYP-0202",
+      "title": "Hafenaktivität steigt, Aktie fällt -> Aufholpotenzial (Divergenz Realwirtschaft vs. Preis)",
+      "status": "blocked_data",
+      "source": "human",
+      "evidence": "PortWatch ohne belastbare Ticker-Zuordnung; Archiv-Historie zu kurz für Walk-Forward ab 2019",
+      "evaluated_at": null
+    },
+    "HYP-0101": {
+      "id": "HYP-0101",
+      "title": "Kurzfrist-Umkehr (1 Monat)",
+      "statement": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage.",
+      "signal": "rev_1m",
+      "direction": -1,
+      "source": "literature",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:00+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "pass"
+      },
+      "reasons": [
+        "p=0.017429 nicht signifikant nach BH (q=0.1, n=7)"
+      ],
+      "signal_key": "cf1f1c3fc00c",
+      "coverage": 0.999,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00502,
+          "median": 0.00384,
+          "hit_rate": 0.567,
+          "t_months": 2.11,
+          "sharpe_ann": 0.83,
+          "max_dd": -0.08289,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.10075,
+          "top_mae": -0.07682,
+          "top_asymmetry": 1.311,
+          "univ_asymmetry": 1.212
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00202,
+          "median": 0.00084,
+          "hit_rate": 0.501,
+          "t_months": 0.92,
+          "sharpe_ann": 0.36,
+          "max_dd": -0.13671,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.10075,
+          "top_mae": -0.07682,
+          "top_asymmetry": 1.311,
+          "univ_asymmetry": 1.212
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.02142,
+          "t_months": 1.68
+        },
+        "halves": {
+          "first": 0.00769,
+          "second": 0.00237
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.00141,
+            "median": 0.00386,
+            "hit_rate": 0.568,
+            "t_months": 0.36,
+            "sharpe_ann": 0.17,
+            "max_dd": -0.14093,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.08118,
+            "top_mae": -0.07144,
+            "top_asymmetry": 1.136,
+            "univ_asymmetry": 1.077
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.01031,
+            "median": 0.00325,
+            "hit_rate": 0.566,
+            "t_months": 1.68,
+            "sharpe_ann": 0.88,
+            "max_dd": -0.10861,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.12938,
+            "top_mae": -0.08471,
+            "top_asymmetry": 1.527,
+            "univ_asymmetry": 1.38
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.00277,
+            "median": 0.00263,
+            "hit_rate": 0.573,
+            "t_months": 0.66,
+            "sharpe_ann": 0.28,
+            "max_dd": -0.13432,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.0875,
+            "top_mae": -0.0696,
+            "top_asymmetry": 1.257,
+            "univ_asymmetry": 1.172
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.01282,
+            "median": 0.00691,
+            "hit_rate": 0.547,
+            "t_months": 1.51,
+            "sharpe_ann": 1.05,
+            "max_dd": -0.10861,
+            "years_positive_share": 1.0,
+            "top_mfe": 0.1467,
+            "top_mae": -0.10186,
+            "top_asymmetry": 1.44,
+            "univ_asymmetry": 1.317
+          }
+        },
+        "p_value": 0.017429
+      },
+      "p_value": 0.017429,
+      "regimes": {
+        "vix_lt_20": "works",
+        "vix_ge_20": "works",
+        "spy_uptrend": "works",
+        "spy_downtrend": "works"
+      },
+      "status": "not_significant_after_fdr"
+    },
+    "HYP-0102": {
+      "id": "HYP-0102",
+      "title": "Niedrig-Volatilitäts-Anomalie",
+      "statement": "Aktien mit niedriger 60-Tage-Volatilität liefern risikoadjustiert mehr.",
+      "signal": "vol_60",
+      "direction": -1,
+      "source": "literature",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:01+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.0067 mit t=-2.01",
+        "nur 0.0 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.0065, 'second': -0.00689}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "signal_key": "2015ffe1998a",
+      "coverage": 0.998,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.0067,
+          "median": -0.00667,
+          "hit_rate": 0.424,
+          "t_months": -2.01,
+          "sharpe_ann": -0.79,
+          "max_dd": -0.41655,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.05,
+          "top_mae": -0.04336,
+          "top_asymmetry": 1.153,
+          "univ_asymmetry": 1.211
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.0097,
+          "median": -0.00967,
+          "hit_rate": 0.403,
+          "t_months": -2.95,
+          "sharpe_ann": -1.16,
+          "max_dd": -0.52652,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.05,
+          "top_mae": -0.04336,
+          "top_asymmetry": 1.153,
+          "univ_asymmetry": 1.211
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": -0.03606,
+          "t_months": -1.46
+        },
+        "halves": {
+          "first": -0.0065,
+          "second": -0.00689
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00221,
+            "median": -0.00264,
+            "hit_rate": 0.467,
+            "t_months": -0.17,
+            "sharpe_ann": -0.08,
+            "max_dd": -0.18025,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.04214,
+            "top_mae": -0.0385,
+            "top_asymmetry": 1.095,
+            "univ_asymmetry": 1.077
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.01326,
+            "median": -0.01227,
+            "hit_rate": 0.36,
+            "t_months": -2.51,
+            "sharpe_ann": -1.31,
+            "max_dd": -0.45435,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.0615,
+            "top_mae": -0.05047,
+            "top_asymmetry": 1.219,
+            "univ_asymmetry": 1.378
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00393,
+            "median": -0.00496,
+            "hit_rate": 0.45,
+            "t_months": -0.26,
+            "sharpe_ann": -0.11,
+            "max_dd": -0.2333,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.04545,
+            "top_mae": -0.03893,
+            "top_asymmetry": 1.168,
+            "univ_asymmetry": 1.171
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.0163,
+            "median": -0.01288,
+            "hit_rate": 0.333,
+            "t_months": -2.07,
+            "sharpe_ann": -1.43,
+            "max_dd": -0.31387,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.06577,
+            "top_mae": -0.05872,
+            "top_asymmetry": 1.12,
+            "univ_asymmetry": 1.316
+          }
+        },
+        "p_value": 0.977784
+      },
+      "p_value": 0.977784,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
+      "status": "rejected"
+    },
+    "HYP-0103": {
+      "id": "HYP-0103",
+      "title": "Lotterie-Effekt (MAX)",
+      "statement": "Aktien mit extremer bester Tagesrendite im letzten Monat sind überbewertet.",
+      "signal": "max_ret_21",
+      "direction": -1,
+      "source": "literature",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:02+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.00653 mit t=-2.4",
+        "nur 0.143 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.00366, 'second': -0.00939}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "signal_key": "e3b02741a37e",
+      "coverage": 0.999,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00653,
+          "median": -0.00519,
+          "hit_rate": 0.406,
+          "t_months": -2.4,
+          "sharpe_ann": -0.95,
+          "max_dd": -0.40754,
+          "years_positive_share": 0.143,
+          "top_mfe": 0.05608,
+          "top_mae": -0.04864,
+          "top_asymmetry": 1.153,
+          "univ_asymmetry": 1.212
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00953,
+          "median": -0.00819,
+          "hit_rate": 0.34,
+          "t_months": -3.55,
+          "sharpe_ann": -1.4,
+          "max_dd": -0.51877,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.05608,
+          "top_mae": -0.04864,
+          "top_asymmetry": 1.153,
+          "univ_asymmetry": 1.212
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": -0.0203,
+          "t_months": -1.02
+        },
+        "halves": {
+          "first": -0.00366,
+          "second": -0.00939
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00319,
+            "median": -0.00454,
+            "hit_rate": 0.412,
+            "t_months": -0.72,
+            "sharpe_ann": -0.33,
+            "max_dd": -0.18393,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.04742,
+            "top_mae": -0.04407,
+            "top_asymmetry": 1.076,
+            "univ_asymmetry": 1.078
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.01142,
+            "median": -0.00632,
+            "hit_rate": 0.397,
+            "t_months": -2.77,
+            "sharpe_ann": -1.45,
+            "max_dd": -0.41603,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.06875,
+            "top_mae": -0.05533,
+            "top_asymmetry": 1.243,
+            "univ_asymmetry": 1.38
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00404,
+            "median": -0.0045,
+            "hit_rate": 0.423,
+            "t_months": -0.97,
+            "sharpe_ann": -0.41,
+            "max_dd": -0.22138,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.05133,
+            "top_mae": -0.04411,
+            "top_asymmetry": 1.164,
+            "univ_asymmetry": 1.172
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.01517,
+            "median": -0.00697,
+            "hit_rate": 0.347,
+            "t_months": -2.5,
+            "sharpe_ann": -1.73,
+            "max_dd": -0.3225,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.07257,
+            "top_mae": -0.06436,
+            "top_asymmetry": 1.128,
+            "univ_asymmetry": 1.317
+          }
+        },
+        "p_value": 0.991802
+      },
+      "p_value": 0.991802,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
+      "status": "rejected"
+    },
+    "HYP-0104": {
+      "id": "HYP-0104",
+      "title": "Nähe zum 52-Wochen-Hoch",
+      "statement": "Aktien nahe ihrem 52-Wochen-Hoch reagieren verzögert auf gute Nachrichten (Anker-Effekt).",
+      "signal": "dist_52w_high",
+      "direction": 1,
+      "source": "literature",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:04+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.00758 mit t=-2.83",
+        "nur 0.0 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.00693, 'second': -0.00823}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "signal_key": "800e00cc5a43",
+      "coverage": 0.993,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00758,
+          "median": -0.0056,
+          "hit_rate": 0.397,
+          "t_months": -2.83,
+          "sharpe_ann": -1.12,
+          "max_dd": -0.42748,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.05861,
+          "top_mae": -0.05383,
+          "top_asymmetry": 1.089,
+          "univ_asymmetry": 1.21
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.01058,
+          "median": -0.0086,
+          "hit_rate": 0.352,
+          "t_months": -3.99,
+          "sharpe_ann": -1.57,
+          "max_dd": -0.54379,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.05861,
+          "top_mae": -0.05383,
+          "top_asymmetry": 1.089,
+          "univ_asymmetry": 1.21
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": -0.02429,
+          "t_months": -1.17
+        },
+        "halves": {
+          "first": -0.00693,
+          "second": -0.00823
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00387,
+            "median": -0.00398,
+            "hit_rate": 0.417,
+            "t_months": -1.28,
+            "sharpe_ann": -0.59,
+            "max_dd": -0.17409,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.05008,
+            "top_mae": -0.04954,
+            "top_asymmetry": 1.011,
+            "univ_asymmetry": 1.077
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.01301,
+            "median": -0.00936,
+            "hit_rate": 0.368,
+            "t_months": -2.16,
+            "sharpe_ann": -1.13,
+            "max_dd": -0.40324,
+            "years_positive_share": 0.143,
+            "top_mfe": 0.07111,
+            "top_mae": -0.06011,
+            "top_asymmetry": 1.183,
+            "univ_asymmetry": 1.376
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00392,
+            "median": -0.00417,
+            "hit_rate": 0.415,
+            "t_months": -0.49,
+            "sharpe_ann": -0.21,
+            "max_dd": -0.18106,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.05544,
+            "top_mae": -0.0501,
+            "top_asymmetry": 1.106,
+            "univ_asymmetry": 1.17
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.02028,
+            "median": -0.01359,
+            "hit_rate": 0.333,
+            "t_months": -2.41,
+            "sharpe_ann": -1.67,
+            "max_dd": -0.34308,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.06963,
+            "top_mae": -0.06676,
+            "top_asymmetry": 1.043,
+            "univ_asymmetry": 1.313
+          }
+        },
+        "p_value": 0.997673
+      },
+      "p_value": 0.997673,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
+      "status": "rejected"
+    },
+    "HYP-0105": {
+      "id": "HYP-0105",
+      "title": "Intakter Trend, kurzer Rücksetzer (Asymmetrie-Divergenz)",
+      "statement": "Starkes 12-1-Momentum bei schwachem letzten Monat bietet asymmetrisches Aufholpotenzial.",
+      "signal": "rank(mom_12_1) - rank(rev_1m)",
+      "direction": 1,
+      "source": "human",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:05+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto 0.00346 mit t=1.58"
+      ],
+      "signal_key": "fe18423f7446",
+      "coverage": 0.991,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00346,
+          "median": 0.00392,
+          "hit_rate": 0.576,
+          "t_months": 1.58,
+          "sharpe_ann": 0.62,
+          "max_dd": -0.09257,
+          "years_positive_share": 0.714,
+          "top_mfe": 0.08734,
+          "top_mae": -0.06821,
+          "top_asymmetry": 1.28,
+          "univ_asymmetry": 1.21
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00046,
+          "median": 0.00092,
+          "hit_rate": 0.516,
+          "t_months": 0.34,
+          "sharpe_ann": 0.13,
+          "max_dd": -0.10768,
+          "years_positive_share": 0.571,
+          "top_mfe": 0.08734,
+          "top_mae": -0.06821,
+          "top_asymmetry": 1.28,
+          "univ_asymmetry": 1.21
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.01407,
+          "t_months": 1.14
+        },
+        "halves": {
+          "first": 0.00345,
+          "second": 0.00346
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.00141,
+            "median": 0.00244,
+            "hit_rate": 0.543,
+            "t_months": 0.27,
+            "sharpe_ann": 0.12,
+            "max_dd": -0.14025,
+            "years_positive_share": 0.714,
+            "top_mfe": 0.07471,
+            "top_mae": -0.06642,
+            "top_asymmetry": 1.125,
+            "univ_asymmetry": 1.077
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.00646,
+            "median": 0.00536,
+            "hit_rate": 0.625,
+            "t_months": 1.52,
+            "sharpe_ann": 0.79,
+            "max_dd": -0.06239,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.10581,
+            "top_mae": -0.07083,
+            "top_asymmetry": 1.494,
+            "univ_asymmetry": 1.376
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.00246,
+            "median": 0.0029,
+            "hit_rate": 0.562,
+            "t_months": 0.56,
+            "sharpe_ann": 0.24,
+            "max_dd": -0.12552,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.08105,
+            "top_mae": -0.06527,
+            "top_asymmetry": 1.242,
+            "univ_asymmetry": 1.171
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.00692,
+            "median": 0.00671,
+            "hit_rate": 0.627,
+            "t_months": 1.41,
+            "sharpe_ann": 0.97,
+            "max_dd": -0.06158,
+            "years_positive_share": 0.6,
+            "top_mfe": 0.10913,
+            "top_mae": -0.0784,
+            "top_asymmetry": 1.392,
+            "univ_asymmetry": 1.313
+          }
+        },
+        "p_value": 0.057053
+      },
+      "p_value": 0.057053,
+      "regimes": {
+        "vix_lt_20": "works",
+        "vix_ge_20": "works",
+        "spy_uptrend": "works",
+        "spy_downtrend": "works"
+      },
+      "status": "rejected"
+    },
+    "HYP-0106": {
+      "id": "HYP-0106",
+      "title": "Momentum nur im Aufwärtstrend",
+      "statement": "12-1-Momentum funktioniert oberhalb der SPY-200-Tage-Linie, kehrt sich darunter um.",
+      "signal": "mom_12_1 * sign(spy_trend_200)",
+      "direction": 1,
+      "source": "literature",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:06+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto 0.00523 mit t=1.23",
+        "nur 0.571 der Jahre positiv"
+      ],
+      "signal_key": "2e19bdc2f600",
+      "coverage": 0.991,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00523,
+          "median": 0.00426,
+          "hit_rate": 0.561,
+          "t_months": 1.23,
+          "sharpe_ann": 0.49,
+          "max_dd": -0.30406,
+          "years_positive_share": 0.571,
+          "top_mfe": 0.10764,
+          "top_mae": -0.08402,
+          "top_asymmetry": 1.281,
+          "univ_asymmetry": 1.21
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00223,
+          "median": 0.00126,
+          "hit_rate": 0.516,
+          "t_months": 0.49,
+          "sharpe_ann": 0.19,
+          "max_dd": -0.35124,
+          "years_positive_share": 0.429,
+          "top_mfe": 0.10764,
+          "top_mae": -0.08402,
+          "top_asymmetry": 1.281,
+          "univ_asymmetry": 1.21
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.00569,
+          "t_months": 0.25
+        },
+        "halves": {
+          "first": 0.00458,
+          "second": 0.00587
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.00131,
+            "median": 0.00322,
+            "hit_rate": 0.573,
+            "t_months": -0.17,
+            "sharpe_ann": -0.08,
+            "max_dd": -0.29298,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.08497,
+            "top_mae": -0.0771,
+            "top_asymmetry": 1.102,
+            "univ_asymmetry": 1.077
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.01095,
+            "median": 0.00714,
+            "hit_rate": 0.544,
+            "t_months": 1.51,
+            "sharpe_ann": 0.79,
+            "max_dd": -0.28628,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.14082,
+            "top_mae": -0.09413,
+            "top_asymmetry": 1.496,
+            "univ_asymmetry": 1.376
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.00327,
+            "median": 0.00523,
+            "hit_rate": 0.581,
+            "t_months": 0.75,
+            "sharpe_ann": 0.32,
+            "max_dd": -0.24792,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.09275,
+            "top_mae": -0.07646,
+            "top_asymmetry": 1.213,
+            "univ_asymmetry": 1.171
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.012,
+            "median": -0.00016,
+            "hit_rate": 0.493,
+            "t_months": 1.1,
+            "sharpe_ann": 0.76,
+            "max_dd": -0.1532,
+            "years_positive_share": 0.6,
+            "top_mfe": 0.15929,
+            "top_mae": -0.1102,
+            "top_asymmetry": 1.445,
+            "univ_asymmetry": 1.313
+          }
+        },
+        "p_value": 0.109349
+      },
+      "p_value": 0.109349,
+      "regimes": {
+        "vix_lt_20": "works",
+        "vix_ge_20": "works",
+        "spy_uptrend": "works",
+        "spy_downtrend": "works"
+      },
+      "status": "rejected"
+    },
+    "HYP-0107": {
+      "id": "HYP-0107",
+      "title": "Aufmerksamkeitsschock ohne Kursreaktion",
+      "statement": "Stark steigendes Volumen bei kaum veränderter Wochenrendite deutet auf Informationsaufbau (Akkumulation).",
+      "signal": "rank(relvol_5_60) - rank(abs(ret_5d))",
+      "direction": 1,
+      "source": "human",
+      "created_at": "2026-09-29",
+      "evaluated_at": "2026-09-29T14:28:08+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.00321 mit t=-3.99",
+        "nur 0.286 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.00306, 'second': -0.00335}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "signal_key": "7bbbb8e56115",
+      "coverage": 0.998,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00321,
+          "median": -0.00354,
+          "hit_rate": 0.391,
+          "t_months": -3.99,
+          "sharpe_ann": -1.58,
+          "max_dd": -0.22557,
+          "years_positive_share": 0.286,
+          "top_mfe": 0.06919,
+          "top_mae": -0.05719,
+          "top_asymmetry": 1.21,
+          "univ_asymmetry": 1.211
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00621,
+          "median": -0.00654,
+          "hit_rate": 0.29,
+          "t_months": -7.64,
+          "sharpe_ann": -3.01,
+          "max_dd": -0.37859,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.06919,
+          "top_mae": -0.05719,
+          "top_asymmetry": 1.21,
+          "univ_asymmetry": 1.211
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": -0.00639,
+          "t_months": -0.97
+        },
+        "halves": {
+          "first": -0.00306,
+          "second": -0.00335
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00231,
+            "median": -0.00255,
+            "hit_rate": 0.402,
+            "t_months": -2.22,
+            "sharpe_ann": -1.02,
+            "max_dd": -0.13016,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.05685,
+            "top_mae": -0.05273,
+            "top_asymmetry": 1.078,
+            "univ_asymmetry": 1.077
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.00451,
+            "median": -0.00542,
+            "hit_rate": 0.375,
+            "t_months": -3.65,
+            "sharpe_ann": -1.9,
+            "max_dd": -0.21493,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.08725,
+            "top_mae": -0.06371,
+            "top_asymmetry": 1.37,
+            "univ_asymmetry": 1.378
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00295,
+            "median": -0.00328,
+            "hit_rate": 0.392,
+            "t_months": -2.45,
+            "sharpe_ann": -1.04,
+            "max_dd": -0.17371,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.06183,
+            "top_mae": -0.05294,
+            "top_asymmetry": 1.168,
+            "univ_asymmetry": 1.171
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.00409,
+            "median": -0.0047,
+            "hit_rate": 0.387,
+            "t_months": -3.22,
+            "sharpe_ann": -2.23,
+            "max_dd": -0.13835,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.09471,
+            "top_mae": -0.0719,
+            "top_asymmetry": 1.317,
+            "univ_asymmetry": 1.316
+          }
+        },
+        "p_value": 0.999967
+      },
+      "p_value": 0.999967,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
+      "status": "rejected"
+    }
+  },
+  "discovery": {
+    "n_tested": 117,
+    "n_survivors": 0,
+    "window": "2015-01-01..2019-01-01",
+    "survivor_ids": []
+  },
+  "n_tested_total": 7,
+  "generated": "2026-09-29T14:28:09+00:00"
+}

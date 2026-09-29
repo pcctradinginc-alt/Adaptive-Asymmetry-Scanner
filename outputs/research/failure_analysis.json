@@ -1,0 +1,163 @@
+{
+  "last_n": 100,
+  "n_cases": 177,
+  "n_losses_total": 119,
+  "n_wins_total": 55,
+  "reliable": {
+    "n": 92,
+    "mean_outcome": -0.48936086956521746,
+    "primary": {
+      "underlying_unknown": {
+        "n": 52,
+        "share": 0.5652173913043478,
+        "mean_outcome": -0.39501730769230764
+      },
+      "signal_wrong": {
+        "n": 23,
+        "share": 0.25,
+        "mean_outcome": -0.6959217391304346
+      },
+      "timing_too_early": {
+        "n": 11,
+        "share": 0.11956521739130435,
+        "mean_outcome": -0.5738727272727272
+      },
+      "weak_adverse_move": {
+        "n": 5,
+        "share": 0.05434782608695652,
+        "mean_outcome": -0.39968000000000004
+      },
+      "exit_gave_back": {
+        "n": 1,
+        "share": 0.010869565217391304,
+        "mean_outcome": -0.1631
+      }
+    },
+    "labels": {
+      "underlying_unknown": {
+        "n": 52,
+        "share": 0.5652173913043478
+      },
+      "signal_wrong": {
+        "n": 23,
+        "share": 0.25
+      },
+      "low_data_confidence": {
+        "n": 16,
+        "share": 0.17391304347826086
+      },
+      "weak_adverse_move": {
+        "n": 16,
+        "share": 0.17391304347826086
+      },
+      "timing_too_early": {
+        "n": 11,
+        "share": 0.11956521739130435
+      },
+      "regime_changed": {
+        "n": 7,
+        "share": 0.07608695652173914
+      },
+      "exit_gave_back": {
+        "n": 1,
+        "share": 0.010869565217391304
+      },
+      "structure_decay": {
+        "n": 1,
+        "share": 0.010869565217391304
+      }
+    }
+  },
+  "unreliable": {
+    "n": 27,
+    "mean_outcome": -0.7967629629629629,
+    "primary": {
+      "unreliable_outcome": {
+        "n": 27,
+        "share": 1.0,
+        "mean_outcome": -0.7967629629629629
+      }
+    },
+    "labels": {
+      "unreliable_outcome": {
+        "n": 27,
+        "share": 1.0
+      }
+    }
+  },
+  "winner_vs_loser": {
+    "impact": {
+      "mean_winners": 5.071428571428571,
+      "mean_losers": 5.010869565217392,
+      "n_winners": 42,
+      "n_losers": 92,
+      "diff": 0.0605590062111796,
+      "effect_size": 0.07654210160576705
+    },
+    "surprise": {
+      "mean_winners": 4.119047619047619,
+      "mean_losers": 3.880434782608696,
+      "n_winners": 42,
+      "n_losers": 92,
+      "diff": 0.23861283643892284,
+      "effect_size": 0.2320134974719755
+    },
+    "mismatch": {
+      "mean_winners": 3.524428571428571,
+      "mean_losers": 3.365326086956521,
+      "n_winners": 42,
+      "n_losers": 92,
+      "diff": 0.1591024844720499,
+      "effect_size": 0.09123762756068236
+    },
+    "z_score": {
+      "mean_winners": 0.3094523809523809,
+      "mean_losers": 0.3291304347826087,
+      "n_winners": 42,
+      "n_losers": 92,
+      "diff": -0.019678053830227804,
+      "effect_size": -0.06326388720658262
+    },
+    "sigma_30d": {
+      "mean_winners": 0.02722380952380952,
+      "mean_losers": 0.03008478260869565,
+      "n_winners": 42,
+      "n_losers": 92,
+      "diff": -0.0028609730848861287,
+      "effect_size": -0.23301415668021744
+    },
+    "price_move_48h": {
+      "mean_winners": 0.012381481481481481,
+      "mean_losers": 0.012352777777777773,
+      "n_winners": 27,
+      "n_losers": 72,
+      "diff": 2.8703703703707867e-05,
+      "effect_size": 0.002353774252022659
+    },
+    "eps_drift": {
+      "mean_winners": 0.003471428571428571,
+      "mean_losers": 0.01558695652173913,
+      "n_winners": 42,
+      "n_losers": 92,
+      "diff": -0.012115527950310559,
+      "effect_size": -0.19971654587526091
+    },
+    "iv_rank": {
+      "mean_winners": 66.86727272727273,
+      "mean_losers": 68.85000000000001,
+      "n_winners": 11,
+      "n_losers": 22,
+      "diff": -1.9827272727272742,
+      "effect_size": -0.07304590485111936
+    },
+    "quick_mc_hit_rate": {
+      "mean_winners": 0.6689526315789474,
+      "mean_losers": 0.6173113636363632,
+      "n_winners": 38,
+      "n_losers": 88,
+      "diff": 0.05164126794258417,
+      "effect_size": 0.42740791779440684
+    }
+  },
+  "note": "Kleine Stichprobe: Anteile sind deskriptiv, keine Signifikanzaussage."
+}
