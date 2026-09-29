@@ -10,8 +10,8 @@
         "avg_return": 0.027511
       },
       "low": {
-        "count": 12,
-        "avg_return": 0.752925
+        "count": 13,
+        "avg_return": 0.638231
       }
     },
     "mismatch": {
@@ -20,8 +20,8 @@
         "avg_return": 0.111282
       },
       "weak": {
-        "count": 33,
-        "avg_return": 0.227587
+        "count": 34,
+        "avg_return": 0.199185
       },
       "strong": {
         "count": 4,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 111,
-        "avg_return": 0.121866
+        "count": 112,
+        "avg_return": 0.114188
       },
       "massive": {
         "count": 2,
@@ -136,103 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 247.08,
-      "current_return": -0.4192
-    },
-    {
-      "ticker": "BBY",
-      "entry_date": "2026-09-02",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 1.81,
-        "z_score": 0.438,
-        "sigma_30d": 0.0254,
-        "price_move_48h": 0.0111,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.718
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 4.2,
-      "entry_quote": {
-        "bid": 8.1,
-        "ask": 8.9,
-        "mid": 8.5,
-        "spread_pct": 0.0899,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "EARNINGS",
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 90.0,
-        "bid": 8.1,
-        "ask": 8.9,
-        "open_interest": 217,
-        "implied_vol": 0.3988,
-        "spread_ratio": 0.0899,
-        "dte": 197,
-        "delta": 0.491,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 100.0,
-          "bid": 4.7,
-          "ask": 5.5
-        },
-        "net_debit": 4.2
-      },
-      "simulation": {
-        "current_price": 87.46,
-        "target_price": 95.23,
-        "hit_rate": 0.75,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0265,
-        "alpha": 0.00365
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Best Buy operiert in einem strukturell r\u00fcckl\u00e4ufigen Markt f\u00fcr Consumer Electronics: S\u00e4ttigungseffekte bei TVs, PCs und Smartphones sowie zunehmender E-Commerce-Druck von Amazon und Walmart setzen die Margen dauerhaft unter Druck. Eine Forward-Guidance-Erh\u00f6hung in Q2 kann zyklisch durch tempor\u00e4re Nachholeffekte getrieben sein und muss keinen strukturellen Turnaround signalisieren.",
-          "argument_2": "Die Aktie wird laut News-Analyse als 'fairly valued' eingestuft \u2014 das bedeutet, die Guidance-Erh\u00f6hung ist bereits im Kurs eingepreist. Bei einem Kurs von $87.46 und EPS von ca. $6-7 ergibt sich ein KGV von ~12-14x, was f\u00fcr einen zyklischen Retailer mit sinkendem Same-Store-Sales-Trend wenig Margin of Safety l\u00e4sst. Das Signal hat kaum verbleibende Upside-Asymmetrie.",
-          "argument_3": "Das Dealer-Gamma-Profil (Call-OI 2.770 vs. Put-OI 758 ATM) deutet auf eine Dealer-Short-Gamma-Position hin, die Aufw\u00e4rtsbewegungen aktiv d\u00e4mpft: Dealer m\u00fcssen bei steigendem Kurs Aktien verkaufen (Short-Delta-Hedge), was als nat\u00fcrlicher Deckel wirkt. Kombiniert mit der 48h-Bewegung von nur +0,2% trotz Guidance-Erh\u00f6hung zeigt dies, dass der Markt das Signal bereits weitgehend verdaut hat.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt, daher ist die 0% Hit-Rate ein Datenartefakt und nicht interpretierbar. Bei BBY mit historischer 30d-Volatilit\u00e4t im Bereich 25-35% w\u00e4ren bei einem bullishen ATM-Setup Hit-Rates von 45-55% f\u00fcr moderate Kursziele realistisch. Die fehlende MC-Statistik reduziert die Modell-Validierbarkeit.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen kombiniert mit Guidance-Erh\u00f6hung erzeugen ein mehrschichtiges Signal, das Retail-Investoren oft untersch\u00e4tzen. Der Turnaround-Narrativ unter neuer F\u00fchrung ist noch nicht vollst\u00e4ndig im Konsensus verankert, was bei Q3-Earnings eine positive \u00dcberraschung erm\u00f6glicht. Der Markt preist BBY prim\u00e4r als stagnierenden Retailer \u2014 eine Neubewertung als Turnaround-Story h\u00e4tte moderate Upside.",
-        "catalyst": "Q3-Earnings-Report (ca. November 2026) mit potenzieller erneuter Guidance-Erh\u00f6hung und Best\u00e4tigung des Turnaround-Momentum unter neuer F\u00fchrung",
-        "bear_case": "Aktie bereits als 'fairly valued' eingestuft, struktureller Consumer-Electronics-Gegenwind unver\u00e4ndert, und Dealer-Gamma-Positionierung d\u00e4mpft Aufw\u00e4rtsbewegungen mechanisch.",
-        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3,63%) ist weder R\u00fccken- noch Gegenwind f\u00fcr zyklische Consumer-Aktien. VIX-Contango (slope +40%) reduziert das Vol-Crush-Risiko bei Long-Optionspositionen, macht aber Spreads gegen\u00fcber nackten Calls dennoch sinnvoll um Theta-Kosten zu begrenzen. Kein makro\u00f6konmischer Veto f\u00fcr BBY-Bullish-Position.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.4,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 18433691648,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.8662,
-        "annualized_roi": null,
-        "dte": 197
-      },
-      "outcome": null,
-      "peak_return": 0.1905,
-      "last_price": 88.99,
-      "current_return": -0.4048
+      "last_price": 246.67,
+      "current_return": -0.4231
     },
     {
       "ticker": "ADM",
@@ -326,8 +231,8 @@
       },
       "outcome": null,
       "peak_return": -0.1327,
-      "last_price": 79.38,
-      "current_return": -0.449
+      "last_price": 79.4,
+      "current_return": -0.4286
     },
     {
       "ticker": "AAPL",
@@ -415,8 +320,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 330.17,
-      "current_return": -0.2358
+      "last_price": 329.59,
+      "current_return": -0.2528
     },
     {
       "ticker": "MO",
@@ -504,7 +409,7 @@
       },
       "outcome": null,
       "peak_return": -0.0306,
-      "last_price": 68.645,
+      "last_price": 68.72,
       "current_return": -0.1973
     }
   ],
@@ -9449,6 +9354,105 @@
       "close_date": "2026-09-23",
       "close_price": 124.36,
       "close_reason": "stop_loss"
+    },
+    {
+      "ticker": "BBY",
+      "entry_date": "2026-09-02",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.81,
+        "z_score": 0.438,
+        "sigma_30d": 0.0254,
+        "price_move_48h": 0.0111,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.718
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 4.2,
+      "entry_quote": {
+        "bid": 8.1,
+        "ask": 8.9,
+        "mid": 8.5,
+        "spread_pct": 0.0899,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 90.0,
+        "bid": 8.1,
+        "ask": 8.9,
+        "open_interest": 217,
+        "implied_vol": 0.3988,
+        "spread_ratio": 0.0899,
+        "dte": 197,
+        "delta": 0.491,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 100.0,
+          "bid": 4.7,
+          "ask": 5.5
+        },
+        "net_debit": 4.2
+      },
+      "simulation": {
+        "current_price": 87.46,
+        "target_price": 95.23,
+        "hit_rate": 0.75,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0265,
+        "alpha": 0.00365
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Best Buy operiert in einem strukturell r\u00fcckl\u00e4ufigen Markt f\u00fcr Consumer Electronics: S\u00e4ttigungseffekte bei TVs, PCs und Smartphones sowie zunehmender E-Commerce-Druck von Amazon und Walmart setzen die Margen dauerhaft unter Druck. Eine Forward-Guidance-Erh\u00f6hung in Q2 kann zyklisch durch tempor\u00e4re Nachholeffekte getrieben sein und muss keinen strukturellen Turnaround signalisieren.",
+          "argument_2": "Die Aktie wird laut News-Analyse als 'fairly valued' eingestuft \u2014 das bedeutet, die Guidance-Erh\u00f6hung ist bereits im Kurs eingepreist. Bei einem Kurs von $87.46 und EPS von ca. $6-7 ergibt sich ein KGV von ~12-14x, was f\u00fcr einen zyklischen Retailer mit sinkendem Same-Store-Sales-Trend wenig Margin of Safety l\u00e4sst. Das Signal hat kaum verbleibende Upside-Asymmetrie.",
+          "argument_3": "Das Dealer-Gamma-Profil (Call-OI 2.770 vs. Put-OI 758 ATM) deutet auf eine Dealer-Short-Gamma-Position hin, die Aufw\u00e4rtsbewegungen aktiv d\u00e4mpft: Dealer m\u00fcssen bei steigendem Kurs Aktien verkaufen (Short-Delta-Hedge), was als nat\u00fcrlicher Deckel wirkt. Kombiniert mit der 48h-Bewegung von nur +0,2% trotz Guidance-Erh\u00f6hung zeigt dies, dass der Markt das Signal bereits weitgehend verdaut hat.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt, daher ist die 0% Hit-Rate ein Datenartefakt und nicht interpretierbar. Bei BBY mit historischer 30d-Volatilit\u00e4t im Bereich 25-35% w\u00e4ren bei einem bullishen ATM-Setup Hit-Rates von 45-55% f\u00fcr moderate Kursziele realistisch. Die fehlende MC-Statistik reduziert die Modell-Validierbarkeit.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Insider-Cluster-K\u00e4ufe innerhalb von 14 Tagen kombiniert mit Guidance-Erh\u00f6hung erzeugen ein mehrschichtiges Signal, das Retail-Investoren oft untersch\u00e4tzen. Der Turnaround-Narrativ unter neuer F\u00fchrung ist noch nicht vollst\u00e4ndig im Konsensus verankert, was bei Q3-Earnings eine positive \u00dcberraschung erm\u00f6glicht. Der Markt preist BBY prim\u00e4r als stagnierenden Retailer \u2014 eine Neubewertung als Turnaround-Story h\u00e4tte moderate Upside.",
+        "catalyst": "Q3-Earnings-Report (ca. November 2026) mit potenzieller erneuter Guidance-Erh\u00f6hung und Best\u00e4tigung des Turnaround-Momentum unter neuer F\u00fchrung",
+        "bear_case": "Aktie bereits als 'fairly valued' eingestuft, struktureller Consumer-Electronics-Gegenwind unver\u00e4ndert, und Dealer-Gamma-Positionierung d\u00e4mpft Aufw\u00e4rtsbewegungen mechanisch.",
+        "macro_assessment": "Neutrales Makro-Umfeld (flache Kurve, Fed Funds 3,63%) ist weder R\u00fccken- noch Gegenwind f\u00fcr zyklische Consumer-Aktien. VIX-Contango (slope +40%) reduziert das Vol-Crush-Risiko bei Long-Optionspositionen, macht aber Spreads gegen\u00fcber nackten Calls dennoch sinnvoll um Theta-Kosten zu begrenzen. Kein makro\u00f6konmischer Veto f\u00fcr BBY-Bullish-Position.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.4,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 18433691648,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.8662,
+        "annualized_roi": null,
+        "dte": 197
+      },
+      "outcome": -0.7381,
+      "peak_return": 0.1905,
+      "last_price": 88.99,
+      "current_return": -0.4048,
+      "close_date": "2026-09-29",
+      "close_price": 88.75,
+      "close_reason": "stop_loss",
+      "outcome_method": "spread_quote"
     }
   ],
   "model_weights": {
@@ -66064,7 +66068,7 @@
       "entry_date": "2026-08-31",
       "created": "2026-09-28",
       "mfe": 0.0,
-      "mae": -0.4192,
+      "mae": -0.4231,
       "closed": false,
       "variants": {
         "tp50_sl45": {
@@ -66139,38 +66143,43 @@
       "entry_date": "2026-09-02",
       "created": "2026-09-28",
       "mfe": 0.0,
-      "mae": -0.4048,
+      "mae": -0.7381,
       "closed": false,
       "variants": {
         "tp50_sl45": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.7381,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-29",
+          "close_reason": "stop_loss"
         },
         "no_tp": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.7381,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-29",
+          "close_reason": "stop_loss"
         },
         "trail35": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.7381,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-29",
+          "close_reason": "stop_loss"
         },
         "trail50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.7381,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-29",
+          "close_reason": "stop_loss"
         },
         "partial50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.7381,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-29",
+          "close_reason": "stop_loss"
         },
         "time_only": {
           "outcome": null,
@@ -66283,7 +66292,7 @@
       "entry_date": "2026-09-22",
       "created": "2026-09-28",
       "mfe": 0.0,
-      "mae": -0.2358,
+      "mae": -0.2528,
       "closed": false,
       "variants": {
         "tp50_sl45": {

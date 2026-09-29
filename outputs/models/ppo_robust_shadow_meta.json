@@ -1,11 +1,11 @@
 {
-  "trained_at": "2026-09-27T20:22:04+00:00",
+  "trained_at": "2026-09-29T20:04:45+00:00",
   "reward": "log(1 + f*s*r)/f, f = portfolio.max_position_pct; SKIP=0, BOOST s=1.5",
-  "n_trades": 117,
+  "n_trades": 118,
   "seed": 7,
-  "timesteps": 4680,
+  "timesteps": 4720,
   "walk_forward": {
-    "train_n": 93,
+    "train_n": 94,
     "test_n": 24,
     "train_until": "2026-05-18",
     "test_from": "2026-05-18",
@@ -13,22 +13,22 @@
       "n": 24,
       "action_counts": {
         "SKIP": 0,
-        "NORMAL": 24,
-        "BOOST": 0
+        "NORMAL": 0,
+        "BOOST": 24
       },
       "max_share": 1.0,
       "collapsed": true,
       "all": {
         "n": 24,
-        "mean": -0.221,
-        "median": -0.435,
-        "win_rate": 0.208
+        "mean": -0.335,
+        "median": -0.5047,
+        "win_rate": 0.167
       },
       "taken": {
         "n": 24,
-        "mean": -0.221,
-        "median": -0.435,
-        "win_rate": 0.208
+        "mean": -0.335,
+        "median": -0.5047,
+        "win_rate": 0.167
       },
       "skipped": {
         "n": 0,
@@ -42,36 +42,36 @@
     }
   },
   "in_sample": {
-    "n": 117,
+    "n": 118,
     "action_counts": {
-      "SKIP": 0,
-      "NORMAL": 117,
+      "SKIP": 118,
+      "NORMAL": 0,
       "BOOST": 0
     },
     "max_share": 1.0,
     "collapsed": true,
     "all": {
-      "n": 117,
-      "mean": 0.0954,
-      "median": -0.4184,
-      "win_rate": 0.333
+      "n": 118,
+      "mean": 0.1082,
+      "median": -0.3571,
+      "win_rate": 0.347
     },
     "taken": {
-      "n": 117,
-      "mean": 0.0954,
-      "median": -0.4184,
-      "win_rate": 0.333
-    },
-    "skipped": {
       "n": 0,
       "mean": null,
       "median": null,
       "win_rate": null
     },
-    "avoided_losers": 0,
-    "lost_winners": 0,
-    "lost_big_winners": 0
+    "skipped": {
+      "n": 118,
+      "mean": 0.1082,
+      "median": -0.3571,
+      "win_rate": 0.347
+    },
+    "avoided_losers": 74,
+    "lost_winners": 41,
+    "lost_big_winners": 21
   },
-  "model_sha256": "daf4e082807bd7f4060f788502eadd33c15ac52dae0f9b7d05ee7d054ece5d0c",
+  "model_sha256": "0f62f9b77d8b9d117db62aa96721c53a6a601c8d66f9809ac7751ac487d7fefb",
   "status": "SHADOW_ONLY"
 }
