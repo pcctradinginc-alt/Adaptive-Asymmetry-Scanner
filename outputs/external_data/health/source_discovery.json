@@ -1,5 +1,5 @@
 {
-  "retrieved_at": "2026-09-28T19:04:19+00:00",
+  "retrieved_at": "2026-09-29T04:33:36+00:00",
   "note": "Katalogtreffer, keine Entscheidung. Aktivierung nur per PR nach Sichtung.",
   "results": {
     "asfinag_at": {
@@ -92,21 +92,6 @@
           ]
         },
         {
-          "title": "Truck network City of Bremen",
-          "id": "652636a4-13fd-4a03-8ea8-87660ccb5176",
-          "publisher": "",
-          "catalog": "gdi-de",
-          "license": [
-            null
-          ],
-          "formats": [
-            "WMS_SRVC"
-          ],
-          "access_urls": [
-            "https://gdi1.geo.bremen.de/mapproxy/LKW/service?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.3.0"
-          ]
-        },
-        {
           "title": "Lkw-Maut-Farleistungsindex",
           "id": "https-www-destatis-de-de-themen-wirtschaft-konjunkturindikatoren-lkw-maut-fahrleistungsindex-kmau110",
           "publisher": "Statistisches Bundesamt",
@@ -137,20 +122,18 @@
           ]
         },
         {
-          "title": "Trucks (N.º)",
-          "id": "ine-0007247",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
+          "title": "Truck network City of Bremen",
+          "id": "652636a4-13fd-4a03-8ea8-87660ccb5176",
+          "publisher": "",
+          "catalog": "gdi-de",
           "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
+            null
           ],
           "formats": [
-            "JSON"
+            "WMS_SRVC"
           ],
           "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
-            "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
+            "https://gdi1.geo.bremen.de/mapproxy/LKW/service?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.3.0"
           ]
         },
         {
@@ -175,52 +158,25 @@
           ]
         },
         {
-          "title": "City of Duisburg: Truck priority routes",
-          "id": "50031056-704a-4be1-9bed-f09b7b57ccfc",
-          "publisher": "",
+          "title": "Positivnetz Lang-LKW Hamburg",
+          "id": "3d677a5c-97c1-4dd3-b511-653f27620364~~1",
+          "publisher": "Behörde für Verkehr und Mobilitätswende (BVM)",
           "catalog": "gdi-de",
-          "license": [],
-          "formats": [],
-          "access_urls": []
-        },
-        {
-          "title": "Truck parking lot occupancy Hamburger Hafen",
-          "id": "658425730381381632",
-          "publisher": "Hamburg Port Authority AöR",
-          "catalog": "gdi-de",
-          "license": [],
-          "formats": [],
-          "access_urls": []
-        },
-        {
-          "title": "Road vehicle fleet",
-          "id": "689c430e4bdb87869ae1fce7",
-          "publisher": "Service des données et études statistiques (SDES)",
-          "catalog": "plateforme-ouverte-des-donnees-publiques-francaises",
           "license": [
-            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
-            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
-            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf"
+            null,
+            null,
+            null
           ],
           "formats": [
-            "CSV",
-            "HTML",
-            "PDF"
+            "None",
+            "WFS_SRVC",
+            "WMS_SRVC"
           ],
           "access_urls": [
-            "https://www.data.gouv.fr/api/1/datasets/r/d24b2399-07be-4d53-b364-1f799118cf8e",
-            "https://www.data.gouv.fr/api/1/datasets/r/cdf846e6-be5d-4608-b33c-2952d1caef96",
-            "https://www.data.gouv.fr/api/1/datasets/r/2f9fd9c8-e6e1-450e-8548-f479b8a401cd"
+            "https://daten-hamburg.de/transport_verkehr/positinetz_feldvergleich_lang_lkw/Positivnetz_Feldversuch_LangLKW_HH_2015-09-25.zip",
+            "https://geodienste.hamburg.de/HH_WFS_Positivnetz_Feldversuch_LangLKW?service=WFS&request=DescribeFeatureType&version=1.1.0&typename=app:lang_lkw",
+            "https://geodienste.hamburg.de/HH_WMS_Positivnetz_Feldversuch_LangLKW?SERVICE=WMS&Request=GetCapabilities"
           ]
-        },
-        {
-          "title": "Truck route map of the city of Hamm",
-          "id": "47aa2968-9e21-46f7-a957-cc32f83d6d69",
-          "publisher": "",
-          "catalog": "gdi-de",
-          "license": [],
-          "formats": [],
-          "access_urls": []
         },
         {
           "title": "Positive network long truck Hamburg",
@@ -243,6 +199,62 @@
             "https://api.hamburg.de/datasets/v1/positivnetz_feldversuch_langlkw",
             "https://geodienste.hamburg.de/HH_WFS_Positivnetz_Feldversuch_LangLKW?service=WFS&request=DescribeFeatureType&version=1.1.0&typename=app:lang_lkw",
             "https://daten-hamburg.de/transport_verkehr/positinetz_feldvergleich_lang_lkw/Positivnetz_Feldversuch_LangLKW_HH_2017-03-03.zip"
+          ]
+        },
+        {
+          "title": "City of Duisburg: Truck priority routes",
+          "id": "50031056-704a-4be1-9bed-f09b7b57ccfc",
+          "publisher": "",
+          "catalog": "gdi-de",
+          "license": [],
+          "formats": [],
+          "access_urls": []
+        },
+        {
+          "title": "Truck parking lot occupancy Hamburger Hafen",
+          "id": "658425730381381632",
+          "publisher": "Hamburg Port Authority AöR",
+          "catalog": "gdi-de",
+          "license": [],
+          "formats": [],
+          "access_urls": []
+        },
+        {
+          "title": "Trucks (N.º)",
+          "id": "ine-0007247",
+          "publisher": "Instituto Nacional de Estatística",
+          "catalog": "dados-gov-pt",
+          "license": [
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://creativecommons.org/licenses/by/4.0/"
+          ],
+          "formats": [
+            "JSON"
+          ],
+          "access_urls": [
+            "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
+            "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
+          ]
+        },
+        {
+          "title": "Road vehicle fleet",
+          "id": "689c430e4bdb87869ae1fce7",
+          "publisher": "Service des données et études statistiques (SDES)",
+          "catalog": "plateforme-ouverte-des-donnees-publiques-francaises",
+          "license": [
+            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
+            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
+            "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf"
+          ],
+          "formats": [
+            "CSV",
+            "HTML",
+            "PDF"
+          ],
+          "access_urls": [
+            "https://www.data.gouv.fr/api/1/datasets/r/d24b2399-07be-4d53-b364-1f799118cf8e",
+            "https://www.data.gouv.fr/api/1/datasets/r/cdf846e6-be5d-4608-b33c-2952d1caef96",
+            "https://www.data.gouv.fr/api/1/datasets/r/2f9fd9c8-e6e1-450e-8548-f479b8a401cd"
           ]
         }
       ],
@@ -337,6 +349,21 @@
           ]
         },
         {
+          "title": "Driving performance survey (FLE) 2014 - reporting data",
+          "id": "573289068131950592",
+          "publisher": "Bundesanstalt für Straßen- und Verkehrswesen (BASt)",
+          "catalog": "govdata",
+          "license": [
+            "http://dcat-ap.de/def/licenses/cc-by/4.0"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://www.bast.de/DE/Publikationen/BerichteBASt/Berichte/unterreihe-v/2018-2017/Daten/V290-Tabellenanhang.xlsx%3F__blob=publicationFile"
+          ]
+        },
+        {
           "title": "Truck toll mileage index for federal states",
           "id": "819642987198701568",
           "publisher": "Bundesamt für Logistik und Mobilität BALM",
@@ -355,36 +382,6 @@
           ]
         },
         {
-          "title": "Driving performance survey (FLE) 2014 - reporting data",
-          "id": "573289068131950592",
-          "publisher": "Bundesanstalt für Straßen- und Verkehrswesen (BASt)",
-          "catalog": "govdata",
-          "license": [
-            "http://dcat-ap.de/def/licenses/cc-by/4.0"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://www.bast.de/DE/Publikationen/BerichteBASt/Berichte/unterreihe-v/2018-2017/Daten/V290-Tabellenanhang.xlsx%3F__blob=publicationFile"
-          ]
-        },
-        {
-          "title": "Subnet 13001 ASFINAG: Motorways and expressways, Road sections and characteristics, Transport networks, ÖVDAT",
-          "id": "5ce66e1a-8743-4261-bdf4-cb85a23d67a0",
-          "publisher": "",
-          "catalog": "bmlfuw-at",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/deed.de"
-          ],
-          "formats": [
-            "WMS_SRVC"
-          ],
-          "access_urls": [
-            "https://haleconnect.com/ows/services/org.789.30f487bd-4d22-4e3a-982a-f6a4d0eb51eb_wms?SERVICE=WMS&Request=GetCapabilities"
-          ]
-        },
-        {
           "title": "Subnetz 13002 ASFINAG: Rampen, Straßenabschnitte und Eigenschaften, Verkehrsnetze, ÖVDAT",
           "id": "603653c3-a161-41b8-aba8-38aa8fb7a33e",
           "publisher": "",
@@ -400,6 +397,21 @@
           "access_urls": [
             "https://haleconnect.com/ows/services/org.789.fd991cb4-320a-49e0-9f59-be62c62b5437_wfs?SERVICE=WFS&Request=GetCapabilities",
             "https://haleconnect.com/ows/services/org.789.fd991cb4-320a-49e0-9f59-be62c62b5437_wms?SERVICE=WMS&Request=GetCapabilities"
+          ]
+        },
+        {
+          "title": "Subnet 13001 ASFINAG: Motorways and expressways, Road sections and characteristics, Transport networks, ÖVDAT",
+          "id": "5ce66e1a-8743-4261-bdf4-cb85a23d67a0",
+          "publisher": "",
+          "catalog": "bmlfuw-at",
+          "license": [
+            "https://creativecommons.org/licenses/by/4.0/deed.de"
+          ],
+          "formats": [
+            "WMS_SRVC"
+          ],
+          "access_urls": [
+            "https://haleconnect.com/ows/services/org.789.30f487bd-4d22-4e3a-982a-f6a4d0eb51eb_wms?SERVICE=WMS&Request=GetCapabilities"
           ]
         },
         {
@@ -468,20 +480,23 @@
           ]
         },
         {
-          "title": "VK - Time series 2023-2025 - Traffic in kilometres - Driving performances",
-          "id": "1034474355240665088",
-          "publisher": "Kraftfahrt-Bundesamt (KBA)",
-          "catalog": "govdata",
+          "title": "Truck toll mileage index: Federal States, months, original and adjusted data",
+          "id": "30303034-3231-4039-312d-303031300000",
+          "publisher": "",
+          "catalog": "gdi-de",
           "license": [
-            "http://dcat-ap.de/def/licenses/dl-by-de/2.0",
-            "http://dcat-ap.de/def/licenses/dl-by-de/2.0"
+            null,
+            null,
+            null
           ],
           "formats": [
-            "BIN"
+            "None",
+            "WMS_SRVC"
           ],
           "access_urls": [
-            "https://www.kba.de/DE/Statistik/Kraftverkehr/VerkehrKilometer/verkehr_in_kilometern_node.html",
-            "https://www.kba.de/SharedDocs/Downloads/DE/Statistik/Kraftverkehr/VK/vk_2025.xlsx%3F__blob=publicationFile&v=4"
+            "https://www-genesis.destatis.de/gis/cgi-bin/mapserv?map=/home/fgs/gis/gisdocs/wms/42191-0010_00.map&request=GetCapabilities&service=WMS&version=1.3.0",
+            "https://www-genesis.destatis.de/genesis-old/downloads/00/tables/42191-0010_00.csv",
+            "https://www-genesis.destatis.de/genesisWS/inspire/pd/00/feeds/sf_42191-0010.xml"
           ]
         },
         {
@@ -536,6 +551,38 @@
       ],
       "eu:kilometerheffing vrachtwagens": [
         {
+          "title": "Trucks (N.º)",
+          "id": "ine-0007247",
+          "publisher": "Instituto Nacional de Estatística",
+          "catalog": "dados-gov-pt",
+          "license": [
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://creativecommons.org/licenses/by/4.0/"
+          ],
+          "formats": [
+            "JSON"
+          ],
+          "access_urls": [
+            "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
+            "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
+          ]
+        },
+        {
+          "title": "Bumper data Freight wagons",
+          "id": "573487566471229440",
+          "publisher": "DB Cargo AG",
+          "catalog": "govdata",
+          "license": [
+            "http://dcat-ap.de/def/licenses/cc-by-nc/4.0"
+          ],
+          "formats": [
+            "BIN"
+          ],
+          "access_urls": [
+            "https://mobilithek.info//mdp-api/files/aux/573487566471229440/ShockData.csv"
+          ]
+        },
+        {
           "title": "Perimeter Trucks",
           "id": "https-opendata-vlci-valencia-es-dataset-f3c93f5e-5f35-4d89-87d6-05415a2e004a",
           "publisher": "Ayuntamiento de Valencia",
@@ -577,213 +624,32 @@
           ]
         },
         {
-          "title": "Trucks (N.º)",
-          "id": "ine-0007247",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/898f5d49-10d1-4c73-88bf-0a19439d6e3c",
-            "https://dados.gov.pt/api/1/datasets/r/4b0963c3-207c-42f6-b9af-a149684cf164"
-          ]
-        },
-        {
-          "title": "Bumper data Freight wagons",
-          "id": "573487566471229440",
-          "publisher": "DB Cargo AG",
-          "catalog": "govdata",
-          "license": [
-            "http://dcat-ap.de/def/licenses/cc-by-nc/4.0"
-          ],
-          "formats": [
-            "BIN"
-          ],
-          "access_urls": [
-            "https://mobilithek.info//mdp-api/files/aux/573487566471229440/ShockData.csv"
-          ]
-        },
-        {
-          "title": "Heavy goods vehicles used (N.º)",
-          "id": "ine-0000371",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/5406a3e3-8485-4ffb-82b2-aeb62db7e45f",
-            "https://dados.gov.pt/api/1/datasets/r/90d3c10a-ae44-40c1-adc7-08362ed9b1c6"
-          ]
-        },
-        {
-          "title": "Tonne-kilometre (tkm) of heavy goods vehicles",
-          "id": "ine-0000378",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/9a2418d0-698a-4507-9408-0996a24ad3e5",
-            "https://dados.gov.pt/api/1/datasets/r/e4c714f4-73a2-4a7f-bbee-acfdc54badaf"
-          ]
-        },
-        {
-          "title": "Tonne-kilometre (tkm) of heavy goods vehicles",
-          "id": "ine-0007154",
-          "publisher": "Instituto Nacional de Estatística",
-          "catalog": "dados-gov-pt",
-          "license": [
-            "https://creativecommons.org/licenses/by/4.0/",
-            "https://creativecommons.org/licenses/by/4.0/"
-          ],
-          "formats": [
-            "JSON"
-          ],
-          "access_urls": [
-            "https://dados.gov.pt/api/1/datasets/r/d8d7cacd-1c5e-4b9d-bb27-624d735227dc",
-            "https://dados.gov.pt/api/1/datasets/r/5fe87bb2-2bb2-4b1f-b018-e4c83af132bb"
-          ]
-        },
-        {
-          "title": "Vehicle registration year 2020. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones_2020",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=988&tipo=XML",
-            "https://opendata.gijon.es/descargar.php?id=988&tipo=TSV",
-            "https://opendata.gijon.es/descargar.php?id=988&tipo=XHTML"
-          ]
-        },
-        {
-          "title": "Vehicle Register year 2023. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones_2023",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=1012&tipo=JSON",
-            "https://opendata.gijon.es/descargar.php?id=1012&tipo=CSV",
-            "https://opendata.gijon.es/descargar.php?id=1012&tipo=XLS"
-          ]
-        },
-        {
-          "title": "Vehicle Register year 2024. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones_2024",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=1020&tipo=CHART",
-            "https://opendata.gijon.es/descargar.php?id=1020&tipo=XLS",
-            "https://opendata.gijon.es/descargar.php?id=1020&tipo=TSV"
-          ]
-        },
-        {
-          "title": "Vehicle Register year 2021. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones_2021",
-          "publisher": "Ayuntamiento de Gijón",
-          "catalog": "datos-gob-es",
-          "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
-          ],
-          "formats": [
-            "None"
-          ],
-          "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=996&tipo=TSV",
-            "https://opendata.gijon.es/descargar.php?id=996&tipo=XLS",
-            "https://opendata.gijon.es/descargar.php?id=996&tipo=PDF"
-          ]
-        },
-        {
-          "title": "Truck ban zones",
-          "id": "01761369-8700-45e7-ae06-d4fcc8dd5bf0~~1",
-          "publisher": "",
-          "catalog": "gdi-de",
-          "license": [
-            null,
-            null
-          ],
-          "formats": [
-            "WFS_SRVC",
-            "WMS_SRVC"
-          ],
-          "access_urls": [
-            "https://kommisdd.dresden.de/net3/public/ogc.ashx?NodeId=2011&Service=WFS&Request=GetCapabilities",
-            "https://kommisdd.dresden.de/net3/public/ogc.ashx?NodeId=2011&Service=WMS&Request=GetCapabilities"
-          ]
-        },
-        {
-          "title": "Static truck parking data",
-          "id": "110000000002465001~~1",
-          "publisher": "Lkw-Parken BAB Deutschland",
-          "catalog": "gdi-de",
+          "title": "New lorries (excluding light goods road vehicles), by permissible maximum gross weight",
+          "id": "m6sga8ta3rkug48pgnxdw",
+          "publisher": "Eurostat",
+          "catalog": "estat",
           "license": [],
           "formats": [],
           "access_urls": []
         },
         {
-          "title": "Vehicle Register year 2016. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padro-n_2016_camiones",
-          "publisher": "Ayuntamiento de Gijón",
+          "title": "Trucks and Vans Statistics",
+          "id": "https-datosabiertos-jcyl-es-web-jcyl-set-es-transporte-camiones-furgonetas-1284801728224",
+          "publisher": "Junta de Castilla y León",
           "catalog": "datos-gob-es",
           "license": [
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es",
-            "http://creativecommons.org/licenses/by/3.0/es"
+            "https://creativecommons.org/licenses/by/4.0/deed.es_ES"
           ],
           "formats": [
             "None"
           ],
           "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=703&tipo=Excel",
-            "https://opendata.gijon.es/descargar.php?id=703&tipo=XML",
-            "https://opendata.gijon.es/descargar.php?id=703&tipo=CSV"
+            "https://datosabiertos.jcyl.es/web/jcyl/risp/es/transporte/camiones-furgonetas/1284801728224.csv"
           ]
         },
         {
-          "title": "Vehicle Register year 2008. Trucks",
-          "id": "https-opendata-gijon-es-catalogo-padron_2008_camiones",
+          "title": "Register of Vehicles year 2005. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones",
           "publisher": "Ayuntamiento de Gijón",
           "catalog": "datos-gob-es",
           "license": [
@@ -795,9 +661,151 @@
             "None"
           ],
           "access_urls": [
-            "https://opendata.gijon.es/descargar.php?id=116&tipo=JSON",
-            "https://opendata.gijon.es/descargar.php?id=116&tipo=Excel",
-            "https://opendata.gijon.es/descargar.php?id=116&tipo=TSV"
+            "https://opendata.gijon.es/descargar.php?id=140&tipo=XLS",
+            "https://opendata.gijon.es/descargar.php?id=140&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=140&tipo=XML"
+          ]
+        },
+        {
+          "title": "Vehicle Register year 2022. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_vehiculos_camiones_2022",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=1004&tipo=PDF",
+            "https://opendata.gijon.es/descargar.php?id=1004&tipo=TXT",
+            "https://opendata.gijon.es/descargar.php?id=1004&tipo=XHTML"
+          ]
+        },
+        {
+          "title": "Vehicle Register year 2018. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padro-n_2018_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=714&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=714&tipo=XHTML",
+            "https://opendata.gijon.es/descargar.php?id=714&tipo=CSV"
+          ]
+        },
+        {
+          "title": "Vehicle Registration Year 2012. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_2012_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=87&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=87&tipo=CSV",
+            "https://opendata.gijon.es/descargar.php?id=87&tipo=XML"
+          ]
+        },
+        {
+          "title": "Vehicle Registration Year 2011. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_2011_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=96&tipo=PDF",
+            "https://opendata.gijon.es/descargar.php?id=96&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=96&tipo=TXT"
+          ]
+        },
+        {
+          "title": "Vehicle Register year 2009. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_2009_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=107&tipo=XML",
+            "https://opendata.gijon.es/descargar.php?id=107&tipo=TSV",
+            "https://opendata.gijon.es/descargar.php?id=107&tipo=JSON"
+          ]
+        },
+        {
+          "title": "Controlled Parking Zones - HGVs",
+          "id": "controlled-parking-zones-hgvs",
+          "publisher": "Oldham Council",
+          "catalog": "data-gov-uk",
+          "license": [],
+          "formats": [],
+          "access_urls": []
+        },
+        {
+          "title": "Vehicle Registration Year 2014. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padro-n_2014_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=687&tipo=Excel",
+            "https://opendata.gijon.es/descargar.php?id=687&tipo=PDF",
+            "https://opendata.gijon.es/descargar.php?id=687&tipo=JSON"
+          ]
+        },
+        {
+          "title": "Vehicle registration year 2006. Trucks",
+          "id": "https-opendata-gijon-es-catalogo-padron_2006_camiones",
+          "publisher": "Ayuntamiento de Gijón",
+          "catalog": "datos-gob-es",
+          "license": [
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es",
+            "http://creativecommons.org/licenses/by/3.0/es"
+          ],
+          "formats": [
+            "None"
+          ],
+          "access_urls": [
+            "https://opendata.gijon.es/descargar.php?id=132&tipo=CSV",
+            "https://opendata.gijon.es/descargar.php?id=132&tipo=JSON",
+            "https://opendata.gijon.es/descargar.php?id=132&tipo=XML"
           ]
         }
       ],
@@ -1493,24 +1501,6 @@
           ]
         },
         {
-          "title": "Holmeside Planning Framework",
-          "id": "holmeside-planning-framework",
-          "publisher": "Sunderland City Council",
-          "catalog": "data-gov-uk",
-          "license": [
-            null,
-            null
-          ],
-          "formats": [
-            "KML",
-            "PDF"
-          ],
-          "access_urls": [
-            "http://www.sunderland.gov.uk/CHttpHandler.ashx?id=7153&p=0&fsize=881kb&ftype=HolmesideDevelopmentFramework.PDF",
-            "http://www.sunderland.gov.uk/CHttpHandler.ashx?id=16474&p=0&fsize=1kb&ftype=Holmeside_Planning_Framework.KMZ"
-          ]
-        },
-        {
           "title": "VD Freight Fleet",
           "id": "https-www-arcgis-com-home-item-html-id-1ca54849c9384b289edccd2a29f2f21c-sublayer-0",
           "publisher": "Kraftfahrt-Bundesamt (KBA)",
@@ -1531,18 +1521,21 @@
           ]
         },
         {
-          "title": "WFS Freight Station",
-          "id": "c4fb695d-2f91-4271-a599-cd9bc55b6d71",
-          "publisher": "",
-          "catalog": "gdi-de",
+          "title": "Holmeside Planning Framework",
+          "id": "holmeside-planning-framework",
+          "publisher": "Sunderland City Council",
+          "catalog": "data-gov-uk",
           "license": [
+            null,
             null
           ],
           "formats": [
-            "WFS_SRVC"
+            "KML",
+            "PDF"
           ],
           "access_urls": [
-            "https://haleconnect.com/ows/services/org.1120.a3c6fa30-fd89-4bbf-abad-71720506f204_wfs/org.1120.464e6a20-c850-41e3-8c6b-2b2a996adc47?SERVICE=WFS&Request=GetCapabilities"
+            "http://www.sunderland.gov.uk/CHttpHandler.ashx?id=7153&p=0&fsize=881kb&ftype=HolmesideDevelopmentFramework.PDF",
+            "http://www.sunderland.gov.uk/CHttpHandler.ashx?id=16474&p=0&fsize=1kb&ftype=Holmeside_Planning_Framework.KMZ"
           ]
         },
         {
@@ -1562,6 +1555,25 @@
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102",
             "http://data.europa.eu/88u/dataset/oai-zenodo-org-10409102"
+          ]
+        },
+        {
+          "title": "Waterborne Freight in the United Kingdom",
+          "id": "waterborne_freight_in_the_united_kingdom",
+          "publisher": "Department for Transport",
+          "catalog": "data-gov-uk",
+          "license": [
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+          ],
+          "formats": [
+            "HTML"
+          ],
+          "access_urls": [
+            "http://webarchive.nationalarchives.gov.uk/20140109181812/https://www.gov.uk/government/policies?departments%5B%5D=department-for-transport",
+            "http://webarchive.nationalarchives.gov.uk/20140109181626/https://www.gov.uk/government/policies?departments%5B%5D=department-for-transport",
+            "http://webarchive.nationalarchives.gov.uk/20140109181703/https://www.gov.uk/government/policies?departments%5B%5D=department-for-transport"
           ]
         }
       ]
@@ -1602,28 +1614,6 @@
       ]
     },
     {
-      "id": "19b92a4413c34407878791299acde8d7",
-      "title": "Data & Methodology",
-      "type": "Hub Page",
-      "url": "",
-      "modified": 1787673011000,
-      "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "534ea99abdd44624b9aa2712cd4812d3",
-      "title": "Disruption Monitor",
-      "type": "Hub Page",
-      "url": "",
-      "modified": 1708958465000,
-      "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "1c82d238bacb41c9a0cfb08c07bd028f",
       "title": "PortWatch",
       "type": "Hub Site Application",
@@ -1640,6 +1630,28 @@
       "type": "Hub Page",
       "url": "",
       "modified": 1785875375000,
+      "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "19b92a4413c34407878791299acde8d7",
+      "title": "Data & Methodology",
+      "type": "Hub Page",
+      "url": "",
+      "modified": 1787673011000,
+      "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "534ea99abdd44624b9aa2712cd4812d3",
+      "title": "Disruption Monitor",
+      "type": "Hub Page",
+      "url": "",
+      "modified": 1708958465000,
       "snippet": null,
       "tags": [
         ""
@@ -1701,23 +1713,23 @@
       ]
     },
     {
-      "id": "8ab36730792549eebf77fa419da79609",
-      "title": "Port Map",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1699607539000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "b3d206f05f8f435a820dd21d49a27218",
       "title": "Climate Scenarios",
       "type": "Hub Page",
       "url": "",
       "modified": 1693919854000,
       "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "8ab36730792549eebf77fa419da79609",
+      "title": "Port Map",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1699607539000,
+      "snippet": "",
       "tags": [
         ""
       ]
@@ -1750,6 +1762,17 @@
       "type": "Hub Page",
       "url": "",
       "modified": 1777579630000,
+      "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "342419f5b47145eb9f006f4a3add99f9",
+      "title": "eventc10000004",
+      "type": "Hub Page",
+      "url": "",
+      "modified": 1769696434000,
       "snippet": null,
       "tags": [
         ""
@@ -1789,17 +1812,6 @@
       ]
     },
     {
-      "id": "880393cb1a5c472aa0c72cd7f18c0b80",
-      "title": "Disruption Monitor - Map",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1700016479000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "839075a6c89e407b8f99b0ec19f9c116",
       "title": "Single Chokepoint - Top 3 Industries and Vessel Composition",
       "type": "Dashboard",
@@ -1811,23 +1823,12 @@
       ]
     },
     {
-      "id": "4b45b594fd8a4c0eb553d1d42d17f75f",
-      "title": "Spillover Simulator - LATEST",
-      "type": "Web Experience",
-      "url": "https://experience.arcgis.com/experience/4b45b594fd8a4c0eb553d1d42d17f75f",
-      "modified": 1759824186000,
-      "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "342419f5b47145eb9f006f4a3add99f9",
-      "title": "eventc10000004",
-      "type": "Hub Page",
+      "id": "880393cb1a5c472aa0c72cd7f18c0b80",
+      "title": "Disruption Monitor - Map",
+      "type": "Web Map",
       "url": "",
-      "modified": 1769696434000,
-      "snippet": null,
+      "modified": 1700016479000,
+      "snippet": "",
       "tags": [
         ""
       ]
@@ -1855,11 +1856,11 @@
       ]
     },
     {
-      "id": "f47027ca577c458bb00a14c389cd8ec4",
-      "title": "event1001067",
-      "type": "Hub Page",
-      "url": "",
-      "modified": 1728466627000,
+      "id": "4b45b594fd8a4c0eb553d1d42d17f75f",
+      "title": "Spillover Simulator - LATEST",
+      "type": "Web Experience",
+      "url": "https://experience.arcgis.com/experience/4b45b594fd8a4c0eb553d1d42d17f75f",
+      "modified": 1759824186000,
       "snippet": null,
       "tags": [
         ""
@@ -1877,11 +1878,33 @@
       ]
     },
     {
+      "id": "f47027ca577c458bb00a14c389cd8ec4",
+      "title": "event1001067",
+      "type": "Hub Page",
+      "url": "",
+      "modified": 1728466627000,
+      "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
       "id": "2116586ea519488389e905f9bcd536dd",
       "title": "Ports - Instant App",
       "type": "Web Mapping Application",
       "url": "https://imf-dataviz.maps.arcgis.com/apps/instant/3dviewer/index.html?appid=2116586ea519488389e905f9bcd536dd",
       "modified": 1776361880000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "ff81e9a443354f779b8164f572f88af0",
+      "title": "Supplychain Impact Map (7 days disruption) NEW",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1720912591000,
       "snippet": "",
       "tags": [
         ""
@@ -1894,17 +1917,6 @@
       "url": "",
       "modified": 1748891870000,
       "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "ff81e9a443354f779b8164f572f88af0",
-      "title": "Supplychain Impact Map (7 days disruption) NEW",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1720912591000,
-      "snippet": "",
       "tags": [
         ""
       ]
@@ -1932,44 +1944,22 @@
       ]
     },
     {
+      "id": "cf039ba72a4749ee920bb9263be1106e",
+      "title": "Trade Impact Map (30 days disruption) NEW",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1720910887000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
       "id": "3396cd7c5598402fb7630f5eb6240199",
       "title": "Single Port - Top 3 Industries and Trade Share",
       "type": "Dashboard",
       "url": "",
       "modified": 1769528226000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "e2ac2bb6fe1f446a86c1cbd451eed92c",
-      "title": "Supplychain Impact Map (30 days disruption) NEW",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1720912617000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "ad4185d65f564f0995e2c12422850e84",
-      "title": "Supplychain Impact Map (90 days disruption) NEW",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1720912611000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "ac426251a4ed4bf69114bedf69f47a19",
-      "title": "Port Impact Map (7 days disruption) - NEW",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1718101644000,
       "snippet": "",
       "tags": [
         ""
@@ -1987,11 +1977,55 @@
       ]
     },
     {
+      "id": "ac426251a4ed4bf69114bedf69f47a19",
+      "title": "Port Impact Map (7 days disruption) - NEW",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1718101644000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "e2ac2bb6fe1f446a86c1cbd451eed92c",
+      "title": "Supplychain Impact Map (30 days disruption) NEW",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1720912617000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
       "id": "2e78ee3c5785460984ef6c681de1ded9",
       "title": "Climate Risks (PRESENT)",
       "type": "Web Map",
       "url": "",
       "modified": 1699720661000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "ad4185d65f564f0995e2c12422850e84",
+      "title": "Supplychain Impact Map (90 days disruption) NEW",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1720912611000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "d560c2be3a854725a3ad7d16625e1d36",
+      "title": "Supplychain Impact Map (14 days disruption) NEW",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1720912649000,
       "snippet": "",
       "tags": [
         ""
@@ -2009,12 +2043,12 @@
       ]
     },
     {
-      "id": "cf039ba72a4749ee920bb9263be1106e",
-      "title": "Trade Impact Map (30 days disruption) NEW",
-      "type": "Web Map",
+      "id": "a1d95a413f0a43b8bd80bb841b24a11f",
+      "title": "Trade Nowcast",
+      "type": "Hub Page",
       "url": "",
-      "modified": 1720910887000,
-      "snippet": "",
+      "modified": 1769198659000,
+      "snippet": null,
       "tags": [
         ""
       ]
@@ -2042,33 +2076,22 @@
       ]
     },
     {
-      "id": "d560c2be3a854725a3ad7d16625e1d36",
-      "title": "Supplychain Impact Map (14 days disruption) NEW",
+      "id": "799af871436a4dfeaa59d1780f5f983c",
+      "title": "Climate Risks (RCP2.6)",
       "type": "Web Map",
       "url": "",
-      "modified": 1720912649000,
+      "modified": 1699746501000,
       "snippet": "",
       "tags": [
         ""
       ]
     },
     {
-      "id": "a1d95a413f0a43b8bd80bb841b24a11f",
-      "title": "Trade Nowcast",
-      "type": "Hub Page",
-      "url": "",
-      "modified": 1769198659000,
-      "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "799af871436a4dfeaa59d1780f5f983c",
-      "title": "Climate Risks (RCP2.6)",
+      "id": "4f446ce425c6475f876726ee0c845e3f",
+      "title": "Country Map",
       "type": "Web Map",
       "url": "",
-      "modified": 1699746501000,
+      "modified": 1769041906000,
       "snippet": "",
       "tags": [
         ""
@@ -2086,17 +2109,6 @@
       ]
     },
     {
-      "id": "f8d34a4a5209444fb56229fadbbfa342",
-      "title": "Single Port - Vessels Breakdown",
-      "type": "Dashboard",
-      "url": "",
-      "modified": 1769526968000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "dac54a37987649e888a4d23e5a23851e",
       "title": "port19",
       "type": "Hub Page",
@@ -2108,11 +2120,11 @@
       ]
     },
     {
-      "id": "4f446ce425c6475f876726ee0c845e3f",
-      "title": "Country Map",
-      "type": "Web Map",
+      "id": "f8d34a4a5209444fb56229fadbbfa342",
+      "title": "Single Port - Vessels Breakdown",
+      "type": "Dashboard",
       "url": "",
-      "modified": 1769041906000,
+      "modified": 1769526968000,
       "snippet": "",
       "tags": [
         ""
@@ -2141,11 +2153,11 @@
       ]
     },
     {
-      "id": "75b0bd57a2ed4c84b79dc2732b6f3c87",
-      "title": "Trade Risks Map (RCP4.5) NEW",
+      "id": "0057c7a8ee32427cb66abef3184ba1e0",
+      "title": "Trade Risks Map (RCP8.5) NEW",
       "type": "Web Map",
       "url": "",
-      "modified": 1720930188000,
+      "modified": 1720930200000,
       "snippet": "",
       "tags": [
         ""
@@ -2163,11 +2175,11 @@
       ]
     },
     {
-      "id": "0057c7a8ee32427cb66abef3184ba1e0",
-      "title": "Trade Risks Map (RCP8.5) NEW",
+      "id": "75b0bd57a2ed4c84b79dc2732b6f3c87",
+      "title": "Trade Risks Map (RCP4.5) NEW",
       "type": "Web Map",
       "url": "",
-      "modified": 1720930200000,
+      "modified": 1720930188000,
       "snippet": "",
       "tags": [
         ""
@@ -2218,23 +2230,23 @@
       ]
     },
     {
-      "id": "685ee092055249f4b09ab98c05723f0e",
-      "title": "Trade Risks Map (RCP2.6)",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1699767875000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "ce951f9474d843f48c48b47b21b7bab0",
       "title": "eventc10000002",
       "type": "Hub Page",
       "url": "",
       "modified": 1728466629000,
       "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "685ee092055249f4b09ab98c05723f0e",
+      "title": "Trade Risks Map (RCP2.6)",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1699767875000,
+      "snippet": "",
       "tags": [
         ""
       ]
@@ -2273,17 +2285,6 @@
       ]
     },
     {
-      "id": "9e9f1ca4abad4948af5caed716c137f3",
-      "title": "eventc10000003",
-      "type": "Hub Page",
-      "url": "",
-      "modified": 1728466617000,
-      "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "ddc7239167c3473b9c9ae3db9cdf11e7",
       "title": "Economy Monitor",
       "type": "Web Experience",
@@ -2295,11 +2296,11 @@
       ]
     },
     {
-      "id": "18e896cce55349e48d994f5ceef19bf0",
-      "title": "port362",
+      "id": "9e9f1ca4abad4948af5caed716c137f3",
+      "title": "eventc10000003",
       "type": "Hub Page",
       "url": "",
-      "modified": 1789803586000,
+      "modified": 1728466617000,
       "snippet": null,
       "tags": [
         ""
@@ -2311,6 +2312,17 @@
       "type": "Hub Page",
       "url": "",
       "modified": 1789810583000,
+      "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "18e896cce55349e48d994f5ceef19bf0",
+      "title": "port362",
+      "type": "Hub Page",
+      "url": "",
+      "modified": 1789803586000,
       "snippet": null,
       "tags": [
         ""
@@ -2504,6 +2516,17 @@
       ]
     },
     {
+      "id": "8190c679c5784462892a8b70c37e09da",
+      "title": "Disruption Map event1000961",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1687845260000,
+      "snippet": "",
+      "tags": [
+        ""
+      ]
+    },
+    {
       "id": "a6781bb161cf4d568260a5e2275b723e",
       "title": "Disruption Map event1000965",
       "type": "Web Map",
@@ -2521,17 +2544,6 @@
       "url": "",
       "modified": 1769644368000,
       "snippet": null,
-      "tags": [
-        ""
-      ]
-    },
-    {
-      "id": "8190c679c5784462892a8b70c37e09da",
-      "title": "Disruption Map event1000961",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1687845260000,
-      "snippet": "",
       "tags": [
         ""
       ]
@@ -2604,23 +2616,23 @@
       ]
     },
     {
-      "id": "c39608a73ac94e79b2e25097660260c3",
-      "title": "Single Port Map",
-      "type": "Dashboard",
-      "url": "",
-      "modified": 1676267259000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "8e605de5cc34457d94bb70cf1f221acd",
       "title": "reports",
       "type": "Hub Page",
       "url": null,
       "modified": 1719291314000,
       "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "c39608a73ac94e79b2e25097660260c3",
+      "title": "Single Port Map",
+      "type": "Dashboard",
+      "url": "",
+      "modified": 1676267259000,
+      "snippet": "",
       "tags": [
         ""
       ]
@@ -2692,23 +2704,23 @@
       ]
     },
     {
-      "id": "f41d68b6a1f1469886e1e9b317c46c87",
-      "title": "Country Trade Network  (10 Days) hosted Test",
-      "type": "Web Map",
-      "url": "",
-      "modified": 1679400295000,
-      "snippet": "",
-      "tags": [
-        ""
-      ]
-    },
-    {
       "id": "5d6fb19d83a142fda7dfd486bf37305f",
       "title": "test",
       "type": "Hub Page",
       "url": "",
       "modified": 1768944022000,
       "snippet": null,
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "id": "f41d68b6a1f1469886e1e9b317c46c87",
+      "title": "Country Trade Network  (10 Days) hosted Test",
+      "type": "Web Map",
+      "url": "",
+      "modified": 1679400295000,
+      "snippet": "",
       "tags": [
         ""
       ]
@@ -2728,15 +2740,6 @@
       "type": "Hub Page",
       "url": null,
       "modified": 1789804309000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "80640fdfe9bf495babe85a86f30a47b9",
-      "title": "port2433",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789804347000,
       "snippet": null,
       "tags": []
     },
@@ -2881,15 +2884,6 @@
       "type": "Hub Page",
       "url": null,
       "modified": 1789809476000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "7eaad0054dad4ae7acdae2d86c612fbe",
-      "title": "chokepoint14",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1778594002000,
       "snippet": null,
       "tags": []
     },
@@ -3218,6 +3212,213 @@
       "tags": []
     },
     {
+      "id": "80640fdfe9bf495babe85a86f30a47b9",
+      "title": "port2433",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789804347000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "583d158755a04ef0933fa070f66e6d42",
+      "title": "port159",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789811268000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "1b6d3e32b14041d6a99b6e934e504255",
+      "title": "fso133",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789809874000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "ff27216426bc41baaabbf674adefd1ea",
+      "title": "port993",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789811202000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "a99340ed62c249828bdcff63dabb4df7",
+      "title": "port70",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789805206000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "451faf8f25024ce9b57504e5909fed47",
+      "title": "GTM",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1769644562000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "3201fee622504ba99fcf81fc26af2e5e",
+      "title": "port1036",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789808068000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "702262de5ce24882a5a918ef24a77063",
+      "title": "TCA",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1769644729000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "faa414072305411a8866178c1cbde286",
+      "title": "port1089",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810596000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "8fa40bb5c1434534b4d55446e45b708a",
+      "title": "port594",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810486000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "1c523ecd50c049b087a8b09c6b562806",
+      "title": "ITA",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1769644494000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "421350810373480aa760dd938972ec20",
+      "title": "port874",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789807180000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "fa8b666a78cc492eaa40464355d04379",
+      "title": "port779",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810494000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "cb11183f86f64d3c9ded8ed7cae0fd82",
+      "title": "port1249",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810234000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "f2b77dc11761441b89d760a1f4ad6d16",
+      "title": "port597",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789807247000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "2ed590a6b51a4fa1839e813f5bb33587",
+      "title": "port2439",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810970000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "bffa2ba1727a4233b0319a070d870595",
+      "title": "port1020",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810512000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "b4c1e3755eb54d3f89d2f6470a7aa0e1",
+      "title": "port2025",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789804103000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "07a9adf750f44bce921f3c773f96d7b1",
+      "title": "port554",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810479000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "f79ec47cf61b455ca666766ca9ca84d8",
+      "title": "Minju",
+      "type": "Image",
+      "url": null,
+      "modified": 1770238748000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "92ca29c6174a4141af0605b72968fe5a",
+      "title": "Jasper JPG",
+      "type": "Image",
+      "url": null,
+      "modified": 1732312084000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "7432fc7bd00d4225b1e78d146e1bcbc3",
+      "title": "port787",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810498000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "72e1df66fa7a43e5969760990c790049",
+      "title": "port509",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789810467000,
+      "snippet": null,
+      "tags": []
+    },
+    {
       "id": "98af1e99765340109c2b8365d9ead08e",
       "title": "port505",
       "type": "Hub Page",
@@ -3227,11 +3428,20 @@
       "tags": []
     },
     {
-      "id": "403d418942854281bde5faaad83ab96e",
-      "title": "YEM",
+      "id": "9938019873fb4ee8a3f69bc0b9d8bcdc",
+      "title": "fso65",
       "type": "Hub Page",
       "url": null,
-      "modified": 1769644675000,
+      "modified": 1789805871000,
+      "snippet": null,
+      "tags": []
+    },
+    {
+      "id": "23b00a5a764b47e885eb637dd3f6a312",
+      "title": "port839",
+      "type": "Hub Page",
+      "url": null,
+      "modified": 1789811103000,
       "snippet": null,
       "tags": []
     },
@@ -3421,15 +3631,6 @@
       "type": "Hub Page",
       "url": null,
       "modified": 1789810547000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "a99340ed62c249828bdcff63dabb4df7",
-      "title": "port70",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789805206000,
       "snippet": null,
       "tags": []
     },
@@ -3668,15 +3869,6 @@
       "tags": []
     },
     {
-      "id": "51b5c950e1e946cd8dd3fb1ecfa59e99",
-      "title": "port977",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789810720000,
-      "snippet": null,
-      "tags": []
-    },
-    {
       "id": "4c3c83b2706240c2bb6b370714fed5d2",
       "title": "port2036",
       "type": "Hub Page",
@@ -3803,15 +3995,6 @@
       "tags": []
     },
     {
-      "id": "803618f6d0984b6dbd0e247ca14b1d16",
-      "title": "port156",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789807752000,
-      "snippet": null,
-      "tags": []
-    },
-    {
       "id": "4877524fdb7c445db72a442c5f4c6f97",
       "title": "event1001214",
       "type": "Hub Page",
@@ -3826,15 +4009,6 @@
       "type": "Hub Page",
       "url": null,
       "modified": 1778594037000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "583d158755a04ef0933fa070f66e6d42",
-      "title": "port159",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789811268000,
       "snippet": null,
       "tags": []
     },
@@ -3965,15 +4139,6 @@
       "tags": []
     },
     {
-      "id": "451faf8f25024ce9b57504e5909fed47",
-      "title": "GTM",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1769644562000,
-      "snippet": null,
-      "tags": []
-    },
-    {
       "id": "1734eb93b6ea40f4867229955debf2cf",
       "title": "event1001233",
       "type": "Hub Page",
@@ -3988,15 +4153,6 @@
       "type": "Hub Page",
       "url": null,
       "modified": 1728466733000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "1b6d3e32b14041d6a99b6e934e504255",
-      "title": "fso133",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789809874000,
       "snippet": null,
       "tags": []
     },
@@ -4199,15 +4355,6 @@
       "tags": []
     },
     {
-      "id": "438752bf99c44db5964e59cd47ec215c",
-      "title": "port673",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789803711000,
-      "snippet": null,
-      "tags": []
-    },
-    {
       "id": "fe1788bd2872444186a111bfe8f19d92",
       "title": "port1073",
       "type": "Hub Page",
@@ -4350,141 +4497,6 @@
       "modified": 1789811182000,
       "snippet": null,
       "tags": []
-    },
-    {
-      "id": "c33845cab8e143b5b46b43ca946b6e57",
-      "title": "port714",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789806328000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "c51cd9cc46b6452f80b6dc31b5d49ef3",
-      "title": "port1000",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789803742000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "409080d01ac843a894a8574f5f79465d",
-      "title": "port477",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789811091000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "036f36611736484ba3d34006c4dc846d",
-      "title": "port912",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789807649000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "b7a873dac9604debaf14a397f782afcf",
-      "title": "port102",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789807677000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "a9a2f7149e644c0285534e7cbd80f5c0",
-      "title": "port686",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789805379000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "bb3b31f2483044f3a5ddcfda7da08ecd",
-      "title": "port295",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789806027000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "880aa44823db4f24a322e12460908774",
-      "title": "port160",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789806890000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "5e934fd29d9843bc9032ae6d5aeeacd2",
-      "title": "port850",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789806393000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "31e5c5478a694befa060c4f83ad52bbc",
-      "title": "port394",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789805358000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "c4c31b90042a4691840d3fcb4fbab552",
-      "title": "port904",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789810389000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "3396e836821749f7810c6e733ffb45f6",
-      "title": "port344",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789805355000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "abf3d3daa9ef49c1978d0d122e365cfc",
-      "title": "port467",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789805271000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "4bc5c4847ee746d0850a500443f9dcc1",
-      "title": "port419",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789805243000,
-      "snippet": null,
-      "tags": []
-    },
-    {
-      "id": "5b99febc965b448a86420a87095e493b",
-      "title": "port1192",
-      "type": "Hub Page",
-      "url": null,
-      "modified": 1789804415000,
-      "snippet": null,
-      "tags": []
     }
   ],
   "portwatch_map_layers": [
@@ -4499,6 +4511,12 @@
       ]
     },
     {
+      "title": "Single Chokepoint - Top 3 Industries and Vessel Composition",
+      "type": "Dashboard",
+      "id": "839075a6c89e407b8f99b0ec19f9c116",
+      "layers": []
+    },
+    {
       "title": "Disruption Monitor - Map",
       "type": "Web Map",
       "id": "880393cb1a5c472aa0c72cd7f18c0b80",
@@ -4508,12 +4526,6 @@
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/disruptions_with_ports/FeatureServer/0",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions_database/FeatureServer/0"
       ]
-    },
-    {
-      "title": "Single Chokepoint - Top 3 Industries and Vessel Composition",
-      "type": "Dashboard",
-      "id": "839075a6c89e407b8f99b0ec19f9c116",
-      "layers": []
     },
     {
       "title": "Spillover Simulator - LATEST",
@@ -4536,10 +4548,43 @@
       ]
     },
     {
+      "title": "Trade Impact Map (30 days disruption) NEW",
+      "type": "Web Map",
+      "id": "cf039ba72a4749ee920bb9263be1106e",
+      "layers": [
+        "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_trade_geo/FeatureServer/0"
+      ]
+    },
+    {
       "title": "Single Port - Top 3 Industries and Trade Share",
       "type": "Dashboard",
       "id": "3396cd7c5598402fb7630f5eb6240199",
       "layers": []
+    },
+    {
+      "title": "Trade Impact Map (90 days disruption) NEW",
+      "type": "Web Map",
+      "id": "291bb53de3664292b0c97e260391ab49",
+      "layers": [
+        "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_trade_geo/FeatureServer/0"
+      ]
+    },
+    {
+      "title": "Port Impact Map (7 days disruption) - NEW",
+      "type": "Web Map",
+      "id": "ac426251a4ed4bf69114bedf69f47a19",
+      "layers": [
+        "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Global_Shipping_Routes/FeatureServer/15",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_port_level_impact_geo_v2/FeatureServer/0"
+      ]
     },
     {
       "title": "Supplychain Impact Map (30 days disruption) NEW",
@@ -4564,42 +4609,20 @@
       ]
     },
     {
-      "title": "Port Impact Map (7 days disruption) - NEW",
+      "title": "Supplychain Impact Map (14 days disruption) NEW",
       "type": "Web Map",
-      "id": "ac426251a4ed4bf69114bedf69f47a19",
-      "layers": [
-        "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Global_Shipping_Routes/FeatureServer/15",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_port_level_impact_geo_v2/FeatureServer/0"
-      ]
-    },
-    {
-      "title": "Trade Impact Map (90 days disruption) NEW",
-      "type": "Web Map",
-      "id": "291bb53de3664292b0c97e260391ab49",
+      "id": "d560c2be3a854725a3ad7d16625e1d36",
       "layers": [
         "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_trade_geo/FeatureServer/0"
+        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_supplychain_geo/FeatureServer/0"
       ]
     },
     {
       "title": "Trade Impact Map (7 days disruption) NEW",
       "type": "Web Map",
       "id": "1b9b490beb5a41f1b5c15ce111b3d7e3",
-      "layers": [
-        "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_trade_geo/FeatureServer/0"
-      ]
-    },
-    {
-      "title": "Trade Impact Map (30 days disruption) NEW",
-      "type": "Web Map",
-      "id": "cf039ba72a4749ee920bb9263be1106e",
       "layers": [
         "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
@@ -4616,17 +4639,6 @@
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_trade_geo/FeatureServer/0"
-      ]
-    },
-    {
-      "title": "Supplychain Impact Map (14 days disruption) NEW",
-      "type": "Web Map",
-      "id": "d560c2be3a854725a3ad7d16625e1d36",
-      "layers": [
-        "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_Countries_Simplified/FeatureServer/5",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer/0",
-        "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_supplychain_geo/FeatureServer/0"
       ]
     },
     {
@@ -4662,9 +4674,9 @@
       ]
     },
     {
-      "title": "Trade Risks Map (RCP4.5) NEW",
+      "title": "Trade Risks Map (RCP8.5) NEW",
       "type": "Web Map",
-      "id": "75b0bd57a2ed4c84b79dc2732b6f3c87",
+      "id": "0057c7a8ee32427cb66abef3184ba1e0",
       "layers": [
         "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_boundaries/FeatureServer/0",
@@ -4672,9 +4684,9 @@
       ]
     },
     {
-      "title": "Trade Risks Map (RCP8.5) NEW",
+      "title": "Trade Risks Map (RCP4.5) NEW",
       "type": "Web Map",
-      "id": "0057c7a8ee32427cb66abef3184ba1e0",
+      "id": "75b0bd57a2ed4c84b79dc2732b6f3c87",
       "layers": [
         "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_boundaries/FeatureServer/0",
@@ -4802,9 +4814,9 @@
       ]
     },
     {
-      "title": "Disruption Map event1000965",
+      "title": "Disruption Map event1000961",
       "type": "Web Map",
-      "id": "a6781bb161cf4d568260a5e2275b723e",
+      "id": "8190c679c5784462892a8b70c37e09da",
       "layers": [
         "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Global_Shipping_Routes/FeatureServer/15",
@@ -4813,9 +4825,9 @@
       ]
     },
     {
-      "title": "Disruption Map event1000961",
+      "title": "Disruption Map event1000965",
       "type": "Web Map",
-      "id": "8190c679c5784462892a8b70c37e09da",
+      "id": "a6781bb161cf4d568260a5e2275b723e",
       "layers": [
         "https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer",
         "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Global_Shipping_Routes/FeatureServer/15",
@@ -4842,108 +4854,24 @@
       "n": 221,
       "dataflows": [
         {
-          "id": "MFS_DC_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 January"
+          "id": "QNEA_2026_APR_VINTAGE",
+          "name": "National Economic Accounts (NEA), Quarterly Data 2026 April"
         },
         {
-          "id": "IMTS_2025_DEC_VINTAGE",
-          "name": "International Trade in Goods (by partner country) (IMTS) 2025 December"
+          "id": "QNEA_2026_FEB_VINTAGE",
+          "name": "National Economic Accounts (NEA), Quarterly Data 2026 February"
         },
         {
-          "id": "SRD",
-          "name": "Structural Reform Database (SRD)"
+          "id": "GS_HEALTH",
+          "name": "Gender Statistics (GS) Health"
         },
         {
-          "id": "PI_WCA_2026_MAY_VINTAGE",
-          "name": "Production Indexes, World and Country Group Aggregates 2026 May"
+          "id": "GFS_SOEF",
+          "name": "GFS Statement of Other Economic Flows"
         },
         {
-          "id": "FFS",
-          "name": "Fossil Fuel Subsidies"
-        },
-        {
-          "id": "NA_MAIN",
-          "name": "National Accounts Main Aggregates (SDMX)"
-        },
-        {
-          "id": "ER_2026_FEB_VINTAGE",
-          "name": "Exchange Rates (ER) 2026 February"
-        },
-        {
-          "id": "MFS_OFC_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 January"
-        },
-        {
-          "id": "GFS_SFCP",
-          "name": "GFS Stocks and Flows by Counterparty"
-        },
-        {
-          "id": "BOP_2026_APR_VINTAGE",
-          "name": "Balance of Payments (BOP) 2026 April"
-        },
-        {
-          "id": "IMTS_2026_APR_VINTAGE",
-          "name": "International Trade in Goods (by partner country) (IMTS) 2026 April"
-        },
-        {
-          "id": "ER_2026_MAY_VINTAGE",
-          "name": "Exchange Rates (ER) 2026 May"
-        },
-        {
-          "id": "CPI_2026_JAN_VINTAGE",
-          "name": "Consumer Price Index (CPI) 2026 January"
-        },
-        {
-          "id": "SPE",
-          "name": "Special Purpose Entities (SPEs)"
-        },
-        {
-          "id": "ESG_FINANCE_ISSUER",
-          "name": "Sustainable Bonds by Type of Issuer"
-        },
-        {
-          "id": "ITG_2026_APR_VINTAGE",
-          "name": "International Trade in Goods (ITG) 2026 April"
-        },
-        {
-          "id": "CPI_2026_FEB_VINTAGE",
-          "name": "Consumer Price Index (CPI) 2026 February"
-        },
-        {
-          "id": "AFRREO_2025_OCT_VINTAGE",
-          "name": "Sub-Saharan Africa Regional Economic Outlook (AFRREO) 2025 October"
-        },
-        {
-          "id": "IIP_2026_MAY_VINTAGE",
-          "name": "International Investment Position (IIP) 2026 May"
-        },
-        {
-          "id": "EER_2026_FEB_VINTAGE",
-          "name": "Effective Exchange Rates (ER) 2026 February"
-        },
-        {
-          "id": "CPI_2026_MAY_VINTAGE",
-          "name": "Consumer Price Index (CPI) 2026 May"
-        },
-        {
-          "id": "IL_2026_FEB_VINTAGE",
-          "name": "International Liquidity (IL) 2026 February"
-        },
-        {
-          "id": "MFS_IR_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 May"
-        },
-        {
-          "id": "NDGAIN",
-          "name": "IMF-Adapted ND-GAIN Index (NDGAIN)"
-        },
-        {
-          "id": "IIPCC",
-          "name": "Currency Composition of the International Investment Position (IIPCC)"
-        },
-        {
-          "id": "MFS_FC_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 May"
+          "id": "SPE_2026_APR_VINTAGE",
+          "name": "Special Purpose Entities (SPEs) 2026 April"
         },
         {
           "id": "QGFS_2026_MAY_VINTAGE",
@@ -4954,776 +4882,860 @@
           "name": "GFS Balance Sheet"
         },
         {
-          "id": "MFS_MA",
-          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates"
-        },
-        {
-          "id": "MFS_MA_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 February"
-        },
-        {
-          "id": "PI_2026_APR_VINTAGE",
-          "name": "Production Indexes (PI) 2026 April"
-        },
-        {
-          "id": "MFS_DC",
-          "name": "Monetary and Financial Statistics (MFS), Depository Corporations"
+          "id": "CO2EEIEM",
+          "name": "Carbon Emission Per Unit of Output (CO2EEIEM)"
         },
         {
           "id": "WEO",
           "name": "World Economic Outlook (WEO)"
         },
         {
-          "id": "MFS_ODC_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 January"
-        },
-        {
-          "id": "MFS_CBS_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 February"
-        },
-        {
-          "id": "QNEA_2026_APR_VINTAGE",
-          "name": "National Economic Accounts (NEA), Quarterly Data 2026 April"
-        },
-        {
-          "id": "MFS_CBS_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 April"
-        },
-        {
-          "id": "GFS_SOO",
-          "name": "GFS Statement of Operations"
-        },
-        {
-          "id": "CCI",
-          "name": "Climate Change Indicators"
-        },
-        {
-          "id": "MFS_FMP",
-          "name": "Monetary and Financial Statistics (MFS): Financial Market Prices"
-        },
-        {
-          "id": "QNEA_2026_FEB_VINTAGE",
-          "name": "National Economic Accounts (NEA), Quarterly Data 2026 February"
-        },
-        {
-          "id": "PPI_2026_JAN_VINTAGE",
-          "name": "Producer Price Index (PPI) 2026 January"
-        },
-        {
-          "id": "FAS",
-          "name": "Financial Access Survey (FAS)"
-        },
-        {
-          "id": "COFER",
-          "name": "تكوين عملات احتياطيات النقد الأجنبي الرسمية"
-        },
-        {
-          "id": "QGDP_WCA",
-          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates"
-        },
-        {
-          "id": "HPD",
-          "name": "Historical Public Debt (HPD)"
-        },
-        {
-          "id": "QGFS",
-          "name": "Quarterly Government Finance Statistics (QGFS)"
-        },
-        {
-          "id": "FA_2026_APR_VINTAGE",
-          "name": "Fund Accounts (FA) 2026 April"
-        },
-        {
-          "id": "SPE_2026_APR_VINTAGE",
-          "name": "Special Purpose Entities (SPEs) 2026 April"
-        },
-        {
-          "id": "GS_LEPM",
-          "name": "Gender Statistics (GS) Leadership and empowerment (LEPM)"
-        },
-        {
-          "id": "QGFS_2026_JAN_VINTAGE",
-          "name": "Quarterly Government Finance Statistics (QGFS) 2026 January"
-        },
-        {
-          "id": "PPI",
-          "name": "Producer Price Index (PPI)"
-        },
-        {
-          "id": "GDD",
-          "name": "Global Debt Database (GDD)"
-        },
-        {
-          "id": "WORLD",
-          "name": "World Revenue Longitudinal Database (WoRLD)"
-        },
-        {
-          "id": "IRFCL",
-          "name": "International Reserves and Foreign Currency Liquidity (IRFCL)"
-        },
-        {
-          "id": "CFBL",
-          "name": "Carbon Footprint of Bank Loans"
-        },
-        {
-          "id": "QGDP_WCA_2026_APR_VINTAGE",
-          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 April"
-        },
-        {
-          "id": "PSBS",
-          "name": "Public Sector Balance Sheet (PSBS)"
-        },
-        {
-          "id": "CPI",
-          "name": "Consumer Price Index (CPI)"
-        },
-        {
-          "id": "MFS_CBS",
-          "name": "Monetary and Financial Statistics (MFS), Central Bank Data"
-        },
-        {
-          "id": "MFS_FC",
-          "name": "Monetary and Financial Statistics (MFS), Financial Corporations"
-        },
-        {
-          "id": "LS_2026_FEB_VINTAGE",
-          "name": "Labor Statistics (LS) 2026 February"
-        },
-        {
-          "id": "ISORA_2018_DATA_PUB",
-          "name": "ISORA 2018 Data"
-        },
-        {
-          "id": "SPE_2026_JAN_VINTAGE",
-          "name": "Special Purpose Entities (SPEs) 2026 January"
-        },
-        {
-          "id": "CPI_WCA_2026_JAN_VINTAGE",
-          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 January"
-        },
-        {
-          "id": "ISORA_2016_DATA_PUB",
-          "name": "ISORA 2016 Data"
-        },
-        {
-          "id": "FLTRI",
-          "name": "Forward Looking Transition Risk Indicators"
-        },
-        {
-          "id": "WHDREO",
-          "name": "Western Hemisphere Regional Economic Outlook (WHDREO)"
-        },
-        {
-          "id": "MFS_CBS_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 January"
-        },
-        {
-          "id": "MFS_ODC_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 February"
-        },
-        {
-          "id": "QGDP_WCA_2026_JAN_VINTAGE",
-          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 January"
-        },
-        {
-          "id": "GS_HEALTH",
-          "name": "Gender Statistics (GS) Health"
-        },
-        {
-          "id": "IIPCC_2026_APR_VINTAGE",
-          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 April"
-        },
-        {
-          "id": "MFS_IR",
-          "name": "Monetary and Financial Statistics (MFS), Interest Rate"
-        },
-        {
-          "id": "FA_2026_FEB_VINTAGE",
-          "name": "Fund Accounts (FA) 2026 February"
-        },
-        {
-          "id": "UNFCCC",
-          "name": "Greenhouse Gas Emissions (UNFCCC)"
-        },
-        {
-          "id": "CPI_WCA_2026_APR_VINTAGE",
-          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 April"
-        },
-        {
           "id": "SPE_2026_FEB_VINTAGE",
           "name": "Special Purpose Entities (SPEs) 2026 February"
-        },
-        {
-          "id": "ED",
-          "name": "Export Diversification (ED)"
-        },
-        {
-          "id": "MFS_FMP_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 February"
-        },
-        {
-          "id": "GS_LI",
-          "name": "Gender Statistics (GS) Labor and Income"
-        },
-        {
-          "id": "ESG_FINANCE",
-          "name": "Sustainable Bonds"
-        },
-        {
-          "id": "BOP_2026_JAN_VINTAGE",
-          "name": "Balance of Payments (BOP) 2026 January"
-        },
-        {
-          "id": "IIPCC_2026_MAY_VINTAGE",
-          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 May"
-        },
-        {
-          "id": "NSDP",
-          "name": "National Summary Data Page (NSDP)"
-        },
-        {
-          "id": "ER",
-          "name": "Exchange Rates (ER)"
-        },
-        {
-          "id": "PPI_2026_FEB_VINTAGE",
-          "name": "Producer Price Index (PPI) 2026 February"
-        },
-        {
-          "id": "WPCPER",
-          "name": "Crypto-based Parallel Exchange Rates (Working Paper dataset WP-CPER)"
-        },
-        {
-          "id": "PCPS",
-          "name": "Primary Commodity Price System (PCPS)"
-        },
-        {
-          "id": "ITS",
-          "name": "International Trade in Services (ITS)"
-        },
-        {
-          "id": "MFS_OFC_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 February"
-        },
-        {
-          "id": "CPI_WCA_2026_MAY_VINTAGE",
-          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 May"
-        },
-        {
-          "id": "PIP",
-          "name": "Portfolio Investment Positions by Counterpart Economy (formerly CPIS)"
-        },
-        {
-          "id": "FSIC",
-          "name": "Financial Soundness Indicators (FSI), Core and Additional Indicators"
-        },
-        {
-          "id": "QGFS_2026_APR_VINTAGE",
-          "name": "Quarterly Government Finance Statistics (QGFS) 2026 April"
-        },
-        {
-          "id": "MFS_DC_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 February"
-        },
-        {
-          "id": "CRBRATE",
-          "name": "Carbon Rates"
-        },
-        {
-          "id": "MPFT",
-          "name": "Monetary Policy Frameworks Toolkit (MPFT)"
-        },
-        {
-          "id": "QGDP_WCA_2026_MAY_VINTAGE",
-          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 May"
-        },
-        {
-          "id": "ITG_2026_FEB_VINTAGE",
-          "name": "International Trade in Goods (ITG) 2026 February"
-        },
-        {
-          "id": "FM_2025_OCT_VINTAGE",
-          "name": "Fiscal Monitor (FM) 2025 October"
-        },
-        {
-          "id": "COFER_2025_OCT_VINTAGE",
-          "name": "Currency Composition of Official Foreign Exchange Reserves (COFER) 2025 October"
-        },
-        {
-          "id": "IIPCC_2026_JAN_VINTAGE",
-          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 January"
-        },
-        {
-          "id": "MFS_IR_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 January"
-        },
-        {
-          "id": "BOP_AGG",
-          "name": "Balance of Payments and International Investment Position Statistics (BOP/IIP), World and Country Group Aggregates"
-        },
-        {
-          "id": "GFS_COFOG",
-          "name": "GFS Government Expenditures by Function"
-        },
-        {
-          "id": "ANEA",
-          "name": "National Economic Accounts (NEA), Annual Data"
-        },
-        {
-          "id": "FM",
-          "name": "Fiscal Monitor (FM)"
-        },
-        {
-          "id": "PI_2026_FEB_VINTAGE",
-          "name": "Production Indexes (PI) 2026 February"
-        },
-        {
-          "id": "AEA",
-          "name": "Air Emissions Accounts (AEA)"
-        },
-        {
-          "id": "FSICDM",
-          "name": "Financial Soundness Indicators (FSI), Concentration and Distribution Measures"
-        },
-        {
-          "id": "EQ",
-          "name": "Export Quality (EQ)"
-        },
-        {
-          "id": "MFS_FC_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 April"
-        },
-        {
-          "id": "CPI_WCA",
-          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA)"
-        },
-        {
-          "id": "INFORMRISK",
-          "name": "Climate-Driven INFORM Risk Indicator"
-        },
-        {
-          "id": "EER_2026_MAY_VINTAGE",
-          "name": "Effective Exchange Rates (ER) 2026 May"
-        },
-        {
-          "id": "ER_2026_APR_VINTAGE",
-          "name": "Exchange Rates (ER) 2026 April"
-        },
-        {
-          "id": "BOP_2026_MAY_VINTAGE",
-          "name": "Balance of Payments (BOP) 2026 May"
-        },
-        {
-          "id": "MFS_FC_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 February"
-        },
-        {
-          "id": "WPFXI",
-          "name": "Working Paper Foreign Exchange Intervention (WPFXI) A Dataset of Public Data and Proxies"
-        },
-        {
-          "id": "IIP_2026_APR_VINTAGE",
-          "name": "International Investment Position (IIP) 2026 April"
-        },
-        {
-          "id": "RE",
-          "name": "Renewable Energy"
-        },
-        {
-          "id": "MFS_MA_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 January"
-        },
-        {
-          "id": "IMTS_2026_MAY_VINTAGE",
-          "name": "International Trade in Goods (by partner country) (IMTS) 2026 May"
-        },
-        {
-          "id": "MFS_FMP_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 January"
-        },
-        {
-          "id": "GS_ATF",
-          "name": "Gender Statistics (GS) Access to Finance (ATF)"
-        },
-        {
-          "id": "IIP",
-          "name": "International Investment Position (IIP)"
-        },
-        {
-          "id": "MFS_IR_2026_FEB_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 February"
-        },
-        {
-          "id": "IIP_2026_FEB_VINTAGE",
-          "name": "International Investment Position (IIP) 2026 February"
-        },
-        {
-          "id": "PI_2026_JAN_VINTAGE",
-          "name": "Production Indexes (PI) 2026 January"
-        },
-        {
-          "id": "FSIBSIS",
-          "name": "Financial Soundness Indicators (FSI), Balance Sheet, Income Statement and Memorandum Series"
-        },
-        {
-          "id": "MFS_IR_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 April"
-        },
-        {
-          "id": "GFS_SSUC",
-          "name": "GFS Statement of Sources and Uses of Cash"
-        },
-        {
-          "id": "ITG_2026_JAN_VINTAGE",
-          "name": "International Trade in Goods (ITG) 2026 January"
-        },
-        {
-          "id": "PI_WCA_2026_FEB_VINTAGE",
-          "name": "Production Indexes, World and Country Group Aggregates 2026 February"
-        },
-        {
-          "id": "ITG",
-          "name": "International Trade in Goods (ITG)"
-        },
-        {
-          "id": "CPI_2026_APR_VINTAGE",
-          "name": "Consumer Price Index (CPI) 2026 April"
-        },
-        {
-          "id": "GS_ED",
-          "name": "Gender Statistics (GS) Education"
-        },
-        {
-          "id": "MFS_OFC_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 April"
-        },
-        {
-          "id": "IL",
-          "name": "International Liquidity (IL)"
-        },
-        {
-          "id": "WEO_2025_OCT_VINTAGE",
-          "name": "World Economic Outlook (WEO) 2025 October"
-        },
-        {
-          "id": "FDI",
-          "name": "Financial Development Index (FDI)"
-        },
-        {
-          "id": "PPI_2026_APR_VINTAGE",
-          "name": "Producer Price Index (PPI) 2026 April"
-        },
-        {
-          "id": "MFS_NSRF",
-          "name": "Monetary and Financial Statistics (MFS),  Non-Standard Data"
-        },
-        {
-          "id": "IIPCC_2026_FEB_VINTAGE",
-          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 February"
-        },
-        {
-          "id": "ISORA_LATEST_DATA_PUB",
-          "name": "ISORA Latest Data"
-        },
-        {
-          "id": "TEG",
-          "name": "Trade in Low Carbon Technology Goods (TEG)"
-        },
-        {
-          "id": "FA_2026_JAN_VINTAGE",
-          "name": "Fund Accounts (FA) 2026 January"
-        },
-        {
-          "id": "QNEA",
-          "name": "National Economic Accounts (NEA), Quarterly Data"
-        },
-        {
-          "id": "QNEA_2026_MAY_VINTAGE",
-          "name": "National Economic Accounts (NEA), Quarterly Data 2026 May"
-        },
-        {
-          "id": "APDREO_2025_OCT_VINTAGE",
-          "name": "Asia and Pacific Regional Economic Outlook (APDREO) 2025 October"
-        },
-        {
-          "id": "QGFS_2026_FEB_VINTAGE",
-          "name": "Quarterly Government Finance Statistics (QGFS) 2026 February"
-        },
-        {
-          "id": "GS_CGI",
-          "name": "Gender Statistics (GS) Composite Gender Indices (CGI)"
-        },
-        {
-          "id": "RSUI",
-          "name": "Reported Social Unrest Index (RSUI)"
-        },
-        {
-          "id": "MFS_ODC_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 April"
-        },
-        {
-          "id": "ECFIE",
-          "name": "Earnings-Calls-based Firm Inflation Expectations (ECFIE)"
-        },
-        {
-          "id": "SPE_2026_MAY_VINTAGE",
-          "name": "Special Purpose Entities (SPEs) 2026 May"
-        },
-        {
-          "id": "MFS_CBS_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 May"
-        },
-        {
-          "id": "MFS_ODC_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 May"
-        },
-        {
-          "id": "ANEA_2026_FEB_VINTAGE",
-          "name": "National Economic Accounts (NEA), Annual Data 2026 February"
-        },
-        {
-          "id": "QGDP_WCA_2026_FEB_VINTAGE",
-          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 February"
-        },
-        {
-          "id": "GS_LGRGHTS",
-          "name": "Gender Statistics (GS) Legal Rights"
-        },
-        {
-          "id": "QNEA_2026_JAN_VINTAGE",
-          "name": "National Economic Accounts (NEA), Quarterly Data 2026 January"
-        },
-        {
-          "id": "ANEA_2026_APR_VINTAGE",
-          "name": "National Economic Accounts (NEA), Annual Data 2026 April"
-        },
-        {
-          "id": "FA",
-          "name": "Fund Accounts (FA)"
-        },
-        {
-          "id": "GS_SDO",
-          "name": "Gender Statistics (GS) Social, demographic and other"
-        },
-        {
-          "id": "GENENVPROEXP",
-          "name": "Government Environmental Protection Expenditures"
-        },
-        {
-          "id": "LS_2026_APR_VINTAGE",
-          "name": "Labor Statistics (LS) 2026 April"
-        },
-        {
-          "id": "FA_2026_MAY_VINTAGE",
-          "name": "Fund Accounts (FA) 2026 May"
-        },
-        {
-          "id": "ITG_WCA_2026_FEB_VINTAGE",
-          "name": "International Trade in Goods, World and Country Aggregates 2026 February"
-        },
-        {
-          "id": "PPI_2026_MAY_VINTAGE",
-          "name": "Producer Price Index (PPI) 2026 May"
-        },
-        {
-          "id": "MFS_ODC",
-          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations"
-        },
-        {
-          "id": "ANEA_2026_MAY_VINTAGE",
-          "name": "National Economic Accounts (NEA), Annual Data 2026 May"
-        },
-        {
-          "id": "CO2E",
-          "name": "CO2 emissions embodied in domestic final demand, production, and trade (CO2E)"
-        },
-        {
-          "id": "PI",
-          "name": "Production Indexes (PI)"
-        },
-        {
-          "id": "ANEA_2026_JAN_VINTAGE",
-          "name": "National Economic Accounts (NEA), Annual Data 2026 January"
-        },
-        {
-          "id": "ICSD",
-          "name": "Investment and Capital Stock Dataset (ICSD)"
-        },
-        {
-          "id": "MFS_OFC_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 May"
-        },
-        {
-          "id": "EER",
-          "name": "Effective Exchange Rate (EER)"
         },
         {
           "id": "IMTS",
           "name": "International Trade in Goods (by partner country) (IMTS)"
         },
         {
-          "id": "DIP",
-          "name": "Direct Investment Positions by Counterpart Economy (formerly CDIS)"
+          "id": "FSIC",
+          "name": "Financial Soundness Indicators (FSI), Core and Additional Indicators"
         },
         {
-          "id": "TAXFIT",
-          "name": "Tax and Benefits Analysis Tool (TAXFIT)"
+          "id": "AFRREO_2025_OCT_VINTAGE",
+          "name": "Sub-Saharan Africa Regional Economic Outlook (AFRREO) 2025 October"
         },
         {
-          "id": "WHDREO_2025_OCT_VINTAGE",
-          "name": "Western Hemisphere Regional Economic Outlook (WHDREO) 2025 October"
+          "id": "MFS_MA",
+          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates"
         },
         {
-          "id": "MCDREO",
-          "name": "Middle East and Central Asia Regional Economic Outlook (MCDREO)"
+          "id": "ANEA_2026_APR_VINTAGE",
+          "name": "National Economic Accounts (NEA), Annual Data 2026 April"
         },
         {
-          "id": "LS_2026_MAY_VINTAGE",
-          "name": "Labor Statistics (LS) 2026 May"
+          "id": "MFS_CBS_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 April"
         },
         {
-          "id": "APDREO",
-          "name": "Asia and Pacific Regional Economic Outlook (APDREO)"
+          "id": "QGDP_WCA_2026_APR_VINTAGE",
+          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 April"
         },
         {
           "id": "PI_WCA_2026_JAN_VINTAGE",
           "name": "Production Indexes, World and Country Group Aggregates 2026 January"
         },
         {
-          "id": "LS_2026_JAN_VINTAGE",
-          "name": "Labor Statistics (LS) 2026 January"
+          "id": "IMTS_2026_APR_VINTAGE",
+          "name": "International Trade in Goods (by partner country) (IMTS) 2026 April"
         },
         {
-          "id": "PI_WCA",
-          "name": "Production Indexes, World and Country Group Aggregates"
+          "id": "ESG_FINANCE_ISSUER",
+          "name": "Sustainable Bonds by Type of Issuer"
         },
         {
-          "id": "FD",
-          "name": "Fiscal Decentralization (FD)"
+          "id": "CPI_WCA_2026_MAY_VINTAGE",
+          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 May"
         },
         {
-          "id": "BOP",
-          "name": "Balance of Payments (BOP)"
+          "id": "GFS_SOO",
+          "name": "GFS Statement of Operations"
         },
         {
-          "id": "MFS_MA_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 May"
+          "id": "IRFCL",
+          "name": "International Reserves and Foreign Currency Liquidity (IRFCL)"
         },
         {
-          "id": "CO2EEIEM",
-          "name": "Carbon Emission Per Unit of Output (CO2EEIEM)"
-        },
-        {
-          "id": "PI_2026_MAY_VINTAGE",
-          "name": "Production Indexes (PI) 2026 May"
-        },
-        {
-          "id": "EER_2026_JAN_VINTAGE",
-          "name": "Effective Exchange Rates (ER) 2026 January"
-        },
-        {
-          "id": "EER_INPUTS_2026_APR_VINTAGE",
-          "name": "Effective Exchange Rates (EER), Inputs 2026 April"
-        },
-        {
-          "id": "MFS_DC_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 April"
-        },
-        {
-          "id": "ENVTX",
-          "name": "Environmental Taxes"
-        },
-        {
-          "id": "MFS_FC_2026_JAN_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 January"
+          "id": "BOP_2026_APR_VINTAGE",
+          "name": "Balance of Payments (BOP) 2026 April"
         },
         {
           "id": "FSI_COUNTRY_METADATA_TABLE_2",
           "name": "Financial Soundness Indicators (FSI), Country Metadata Table 2"
         },
         {
-          "id": "ITG_2026_MAY_VINTAGE",
-          "name": "International Trade in Goods (ITG) 2026 May"
+          "id": "LS_2026_APR_VINTAGE",
+          "name": "Labor Statistics (LS) 2026 April"
         },
         {
-          "id": "IL_2026_MAY_VINTAGE",
-          "name": "International Liquidity (IL) 2026 May"
+          "id": "MFS_IR_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 January"
         },
         {
-          "id": "MFS_OFC",
-          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations"
-        },
-        {
-          "id": "MFS_FMP_2026_MAY_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 May"
-        },
-        {
-          "id": "MFS_MA_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 April"
-        },
-        {
-          "id": "CPI_WCA_2026_FEB_VINTAGE",
-          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 February"
-        },
-        {
-          "id": "BOP_2026_FEB_VINTAGE",
-          "name": "Balance of Payments (BOP) 2026 February"
-        },
-        {
-          "id": "EER_2026_APR_VINTAGE",
-          "name": "Effective Exchange Rates (ER) 2026 April"
-        },
-        {
-          "id": "IIP_2026_JAN_VINTAGE",
-          "name": "International Investment Position (IIP) 2026 January"
-        },
-        {
-          "id": "IL_2026_APR_VINTAGE",
-          "name": "International Liquidity (IL) 2026 April"
-        },
-        {
-          "id": "IL_2026_JAN_VINTAGE",
-          "name": "International Liquidity (IL) 2026 January"
-        },
-        {
-          "id": "ESG_FINANCE_CURRENCY",
-          "name": "Sustainable Bonds by Type of Currency"
-        },
-        {
-          "id": "AFRREO",
-          "name": "Sub-Saharan Africa Regional Economic Outlook (AFRREO)"
-        },
-        {
-          "id": "LS",
-          "name": "Labor Statistics (LS)"
-        },
-        {
-          "id": "GFS_SOEF",
-          "name": "GFS Statement of Other Economic Flows"
+          "id": "CO2E",
+          "name": "CO2 emissions embodied in domestic final demand, production, and trade (CO2E)"
         },
         {
           "id": "CTOT",
           "name": "Commodity Terms of Trade (CTOT)"
         },
         {
+          "id": "EER_2026_FEB_VINTAGE",
+          "name": "Effective Exchange Rates (ER) 2026 February"
+        },
+        {
+          "id": "IIPCC_2026_APR_VINTAGE",
+          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 April"
+        },
+        {
+          "id": "FM",
+          "name": "Fiscal Monitor (FM)"
+        },
+        {
           "id": "ER_2026_JAN_VINTAGE",
           "name": "Exchange Rates (ER) 2026 January"
         },
         {
-          "id": "SDG",
-          "name": "IMF Reported SDG Data"
+          "id": "AEA",
+          "name": "Air Emissions Accounts (AEA)"
+        },
+        {
+          "id": "EER_2026_APR_VINTAGE",
+          "name": "Effective Exchange Rates (ER) 2026 April"
+        },
+        {
+          "id": "AFRREO",
+          "name": "Sub-Saharan Africa Regional Economic Outlook (AFRREO)"
+        },
+        {
+          "id": "EER_INPUTS_2026_APR_VINTAGE",
+          "name": "Effective Exchange Rates (EER), Inputs 2026 April"
+        },
+        {
+          "id": "ANEA",
+          "name": "National Economic Accounts (NEA), Annual Data"
+        },
+        {
+          "id": "CRBRATE",
+          "name": "Carbon Rates"
+        },
+        {
+          "id": "IL_2026_APR_VINTAGE",
+          "name": "International Liquidity (IL) 2026 April"
+        },
+        {
+          "id": "ITG_2026_FEB_VINTAGE",
+          "name": "International Trade in Goods (ITG) 2026 February"
+        },
+        {
+          "id": "IIP_2026_JAN_VINTAGE",
+          "name": "International Investment Position (IIP) 2026 January"
+        },
+        {
+          "id": "QGDP_WCA_2026_FEB_VINTAGE",
+          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 February"
+        },
+        {
+          "id": "ER",
+          "name": "Exchange Rates (ER)"
+        },
+        {
+          "id": "FD",
+          "name": "Fiscal Decentralization (FD)"
+        },
+        {
+          "id": "FFS",
+          "name": "Fossil Fuel Subsidies"
+        },
+        {
+          "id": "MFS_FMP_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 May"
+        },
+        {
+          "id": "ER_2026_MAY_VINTAGE",
+          "name": "Exchange Rates (ER) 2026 May"
+        },
+        {
+          "id": "QGFS_2026_JAN_VINTAGE",
+          "name": "Quarterly Government Finance Statistics (QGFS) 2026 January"
+        },
+        {
+          "id": "BOP_2026_FEB_VINTAGE",
+          "name": "Balance of Payments (BOP) 2026 February"
+        },
+        {
+          "id": "BOP_AGG",
+          "name": "Balance of Payments and International Investment Position Statistics (BOP/IIP), World and Country Group Aggregates"
+        },
+        {
+          "id": "IIPCC_2026_JAN_VINTAGE",
+          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 January"
+        },
+        {
+          "id": "MFS_MA_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 May"
+        },
+        {
+          "id": "PI_WCA_2026_MAY_VINTAGE",
+          "name": "Production Indexes, World and Country Group Aggregates 2026 May"
+        },
+        {
+          "id": "MFS_FC_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 January"
+        },
+        {
+          "id": "MFS_IR_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 May"
+        },
+        {
+          "id": "NDGAIN",
+          "name": "IMF-Adapted ND-GAIN Index (NDGAIN)"
+        },
+        {
+          "id": "MFS_DC_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 April"
+        },
+        {
+          "id": "PI_2026_MAY_VINTAGE",
+          "name": "Production Indexes (PI) 2026 May"
+        },
+        {
+          "id": "GS_CGI",
+          "name": "Gender Statistics (GS) Composite Gender Indices (CGI)"
+        },
+        {
+          "id": "FA_2026_JAN_VINTAGE",
+          "name": "Fund Accounts (FA) 2026 January"
+        },
+        {
+          "id": "MFS_DC_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 February"
+        },
+        {
+          "id": "MFS_MA_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 April"
+        },
+        {
+          "id": "PI_2026_APR_VINTAGE",
+          "name": "Production Indexes (PI) 2026 April"
+        },
+        {
+          "id": "MFS_FMP_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 February"
         },
         {
           "id": "MFS_DC_2026_MAY_VINTAGE",
           "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 May"
         },
         {
-          "id": "MFS_FMP_2026_APR_VINTAGE",
-          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 April"
+          "id": "PPI_2026_JAN_VINTAGE",
+          "name": "Producer Price Index (PPI) 2026 January"
+        },
+        {
+          "id": "WHDREO_2025_OCT_VINTAGE",
+          "name": "Western Hemisphere Regional Economic Outlook (WHDREO) 2025 October"
+        },
+        {
+          "id": "HPD",
+          "name": "Historical Public Debt (HPD)"
+        },
+        {
+          "id": "MFS_MA_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 February"
+        },
+        {
+          "id": "MFS_DC",
+          "name": "Monetary and Financial Statistics (MFS), Depository Corporations"
+        },
+        {
+          "id": "LS",
+          "name": "Labor Statistics (LS)"
+        },
+        {
+          "id": "MFS_OFC_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 April"
+        },
+        {
+          "id": "MFS_OFC_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 May"
+        },
+        {
+          "id": "IL_2026_FEB_VINTAGE",
+          "name": "International Liquidity (IL) 2026 February"
+        },
+        {
+          "id": "RE",
+          "name": "Renewable Energy"
+        },
+        {
+          "id": "GS_ATF",
+          "name": "Gender Statistics (GS) Access to Finance (ATF)"
+        },
+        {
+          "id": "MFS_FMP_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 January"
+        },
+        {
+          "id": "ITG_2026_APR_VINTAGE",
+          "name": "International Trade in Goods (ITG) 2026 April"
+        },
+        {
+          "id": "MFS_DC_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Depository Corporations 2026 January"
+        },
+        {
+          "id": "MFS_ODC_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 January"
+        },
+        {
+          "id": "ITG_2026_MAY_VINTAGE",
+          "name": "International Trade in Goods (ITG) 2026 May"
+        },
+        {
+          "id": "GFS_SFCP",
+          "name": "GFS Stocks and Flows by Counterparty"
+        },
+        {
+          "id": "IIP_2026_FEB_VINTAGE",
+          "name": "International Investment Position (IIP) 2026 February"
+        },
+        {
+          "id": "ENVTX",
+          "name": "Environmental Taxes"
+        },
+        {
+          "id": "FA_2026_MAY_VINTAGE",
+          "name": "Fund Accounts (FA) 2026 May"
+        },
+        {
+          "id": "ICSD",
+          "name": "Investment and Capital Stock Dataset (ICSD)"
+        },
+        {
+          "id": "MFS_ODC_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 April"
+        },
+        {
+          "id": "IIPCC",
+          "name": "Currency Composition of the International Investment Position (IIPCC)"
+        },
+        {
+          "id": "ITG_2026_JAN_VINTAGE",
+          "name": "International Trade in Goods (ITG) 2026 January"
+        },
+        {
+          "id": "PI_2026_JAN_VINTAGE",
+          "name": "Production Indexes (PI) 2026 January"
+        },
+        {
+          "id": "DIP",
+          "name": "Direct Investment Positions by Counterpart Economy (formerly CDIS)"
+        },
+        {
+          "id": "LS_2026_FEB_VINTAGE",
+          "name": "Labor Statistics (LS) 2026 February"
+        },
+        {
+          "id": "NA_MAIN",
+          "name": "National Accounts Main Aggregates (SDMX)"
+        },
+        {
+          "id": "SPE",
+          "name": "Special Purpose Entities (SPEs)"
+        },
+        {
+          "id": "ANEA_2026_FEB_VINTAGE",
+          "name": "National Economic Accounts (NEA), Annual Data 2026 February"
+        },
+        {
+          "id": "QGFS",
+          "name": "Quarterly Government Finance Statistics (QGFS)"
+        },
+        {
+          "id": "MFS_FC_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 February"
+        },
+        {
+          "id": "GS_SDO",
+          "name": "Gender Statistics (GS) Social, demographic and other"
+        },
+        {
+          "id": "MFS_ODC_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 May"
+        },
+        {
+          "id": "PSBS",
+          "name": "Public Sector Balance Sheet (PSBS)"
+        },
+        {
+          "id": "FA_2026_APR_VINTAGE",
+          "name": "Fund Accounts (FA) 2026 April"
+        },
+        {
+          "id": "MFS_CBS_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 May"
+        },
+        {
+          "id": "COFER",
+          "name": "تكوين عملات احتياطيات النقد الأجنبي الرسمية"
+        },
+        {
+          "id": "ECFIE",
+          "name": "Earnings-Calls-based Firm Inflation Expectations (ECFIE)"
+        },
+        {
+          "id": "MFS_NSRF",
+          "name": "Monetary and Financial Statistics (MFS),  Non-Standard Data"
+        },
+        {
+          "id": "PPI_2026_APR_VINTAGE",
+          "name": "Producer Price Index (PPI) 2026 April"
+        },
+        {
+          "id": "FA",
+          "name": "Fund Accounts (FA)"
+        },
+        {
+          "id": "SPE_2026_MAY_VINTAGE",
+          "name": "Special Purpose Entities (SPEs) 2026 May"
+        },
+        {
+          "id": "ER_2026_FEB_VINTAGE",
+          "name": "Exchange Rates (ER) 2026 February"
+        },
+        {
+          "id": "QNEA",
+          "name": "National Economic Accounts (NEA), Quarterly Data"
+        },
+        {
+          "id": "ISORA_LATEST_DATA_PUB",
+          "name": "ISORA Latest Data"
+        },
+        {
+          "id": "MFS_FMP",
+          "name": "Monetary and Financial Statistics (MFS): Financial Market Prices"
+        },
+        {
+          "id": "PPI_2026_MAY_VINTAGE",
+          "name": "Producer Price Index (PPI) 2026 May"
+        },
+        {
+          "id": "IIP",
+          "name": "International Investment Position (IIP)"
+        },
+        {
+          "id": "MFS_OFC_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 January"
+        },
+        {
+          "id": "EER_2026_JAN_VINTAGE",
+          "name": "Effective Exchange Rates (ER) 2026 January"
+        },
+        {
+          "id": "QGFS_2026_FEB_VINTAGE",
+          "name": "Quarterly Government Finance Statistics (QGFS) 2026 February"
+        },
+        {
+          "id": "MFS_OFC",
+          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations"
+        },
+        {
+          "id": "BOP_2026_JAN_VINTAGE",
+          "name": "Balance of Payments (BOP) 2026 January"
+        },
+        {
+          "id": "ITS",
+          "name": "International Trade in Services (ITS)"
+        },
+        {
+          "id": "ED",
+          "name": "Export Diversification (ED)"
+        },
+        {
+          "id": "RSUI",
+          "name": "Reported Social Unrest Index (RSUI)"
+        },
+        {
+          "id": "PI_WCA",
+          "name": "Production Indexes, World and Country Group Aggregates"
+        },
+        {
+          "id": "QGFS_2026_APR_VINTAGE",
+          "name": "Quarterly Government Finance Statistics (QGFS) 2026 April"
+        },
+        {
+          "id": "MFS_CBS_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 January"
+        },
+        {
+          "id": "SDG",
+          "name": "IMF Reported SDG Data"
+        },
+        {
+          "id": "UNFCCC",
+          "name": "Greenhouse Gas Emissions (UNFCCC)"
+        },
+        {
+          "id": "CPI_WCA_2026_FEB_VINTAGE",
+          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 February"
+        },
+        {
+          "id": "MFS_ODC",
+          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations"
+        },
+        {
+          "id": "QGDP_WCA_2026_MAY_VINTAGE",
+          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 May"
+        },
+        {
+          "id": "APDREO",
+          "name": "Asia and Pacific Regional Economic Outlook (APDREO)"
+        },
+        {
+          "id": "CPI_WCA_2026_APR_VINTAGE",
+          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 April"
+        },
+        {
+          "id": "TAXFIT",
+          "name": "Tax and Benefits Analysis Tool (TAXFIT)"
+        },
+        {
+          "id": "ITG_WCA_2026_FEB_VINTAGE",
+          "name": "International Trade in Goods, World and Country Aggregates 2026 February"
+        },
+        {
+          "id": "GS_LI",
+          "name": "Gender Statistics (GS) Labor and Income"
+        },
+        {
+          "id": "ISORA_2016_DATA_PUB",
+          "name": "ISORA 2016 Data"
+        },
+        {
+          "id": "SPE_2026_JAN_VINTAGE",
+          "name": "Special Purpose Entities (SPEs) 2026 January"
+        },
+        {
+          "id": "QNEA_2026_MAY_VINTAGE",
+          "name": "National Economic Accounts (NEA), Quarterly Data 2026 May"
+        },
+        {
+          "id": "FDI",
+          "name": "Financial Development Index (FDI)"
+        },
+        {
+          "id": "ISORA_2018_DATA_PUB",
+          "name": "ISORA 2018 Data"
+        },
+        {
+          "id": "ANEA_2026_MAY_VINTAGE",
+          "name": "National Economic Accounts (NEA), Annual Data 2026 May"
+        },
+        {
+          "id": "GFS_SSUC",
+          "name": "GFS Statement of Sources and Uses of Cash"
+        },
+        {
+          "id": "EER",
+          "name": "Effective Exchange Rate (EER)"
+        },
+        {
+          "id": "ITG",
+          "name": "International Trade in Goods (ITG)"
         },
         {
           "id": "PI_WCA_2026_APR_VINTAGE",
           "name": "Production Indexes, World and Country Group Aggregates 2026 April"
+        },
+        {
+          "id": "IIPCC_2026_MAY_VINTAGE",
+          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 May"
+        },
+        {
+          "id": "ESG_FINANCE_CURRENCY",
+          "name": "Sustainable Bonds by Type of Currency"
+        },
+        {
+          "id": "FSICDM",
+          "name": "Financial Soundness Indicators (FSI), Concentration and Distribution Measures"
+        },
+        {
+          "id": "EER_2026_MAY_VINTAGE",
+          "name": "Effective Exchange Rates (ER) 2026 May"
+        },
+        {
+          "id": "BOP_2026_MAY_VINTAGE",
+          "name": "Balance of Payments (BOP) 2026 May"
+        },
+        {
+          "id": "MFS_MA_2026_JAN_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Monetary Aggregates 2026 January"
+        },
+        {
+          "id": "MFS_FC",
+          "name": "Monetary and Financial Statistics (MFS), Financial Corporations"
+        },
+        {
+          "id": "IMTS_2026_MAY_VINTAGE",
+          "name": "International Trade in Goods (by partner country) (IMTS) 2026 May"
+        },
+        {
+          "id": "INFORMRISK",
+          "name": "Climate-Driven INFORM Risk Indicator"
+        },
+        {
+          "id": "MFS_FC_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 April"
+        },
+        {
+          "id": "GENENVPROEXP",
+          "name": "Government Environmental Protection Expenditures"
+        },
+        {
+          "id": "WHDREO",
+          "name": "Western Hemisphere Regional Economic Outlook (WHDREO)"
+        },
+        {
+          "id": "ESG_FINANCE",
+          "name": "Sustainable Bonds"
+        },
+        {
+          "id": "LS_2026_MAY_VINTAGE",
+          "name": "Labor Statistics (LS) 2026 May"
+        },
+        {
+          "id": "IL_2026_JAN_VINTAGE",
+          "name": "International Liquidity (IL) 2026 January"
+        },
+        {
+          "id": "QNEA_2026_JAN_VINTAGE",
+          "name": "National Economic Accounts (NEA), Quarterly Data 2026 January"
+        },
+        {
+          "id": "PI_WCA_2026_FEB_VINTAGE",
+          "name": "Production Indexes, World and Country Group Aggregates 2026 February"
+        },
+        {
+          "id": "GS_LGRGHTS",
+          "name": "Gender Statistics (GS) Legal Rights"
+        },
+        {
+          "id": "IIP_2026_APR_VINTAGE",
+          "name": "International Investment Position (IIP) 2026 April"
+        },
+        {
+          "id": "MFS_IR",
+          "name": "Monetary and Financial Statistics (MFS), Interest Rate"
+        },
+        {
+          "id": "CPI",
+          "name": "Consumer Price Index (CPI)"
+        },
+        {
+          "id": "ANEA_2026_JAN_VINTAGE",
+          "name": "National Economic Accounts (NEA), Annual Data 2026 January"
+        },
+        {
+          "id": "PI",
+          "name": "Production Indexes (PI)"
+        },
+        {
+          "id": "BOP",
+          "name": "Balance of Payments (BOP)"
+        },
+        {
+          "id": "MFS_FMP_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Market Prices 2026 April"
+        },
+        {
+          "id": "MFS_IR_2026_APR_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 April"
+        },
+        {
+          "id": "CPI_WCA",
+          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA)"
+        },
+        {
+          "id": "LS_2026_JAN_VINTAGE",
+          "name": "Labor Statistics (LS) 2026 January"
+        },
+        {
+          "id": "FLTRI",
+          "name": "Forward Looking Transition Risk Indicators"
+        },
+        {
+          "id": "PIP",
+          "name": "Portfolio Investment Positions by Counterpart Economy (formerly CPIS)"
+        },
+        {
+          "id": "WPFXI",
+          "name": "Working Paper Foreign Exchange Intervention (WPFXI) A Dataset of Public Data and Proxies"
+        },
+        {
+          "id": "IL_2026_MAY_VINTAGE",
+          "name": "International Liquidity (IL) 2026 May"
+        },
+        {
+          "id": "ER_2026_APR_VINTAGE",
+          "name": "Exchange Rates (ER) 2026 April"
+        },
+        {
+          "id": "CCI",
+          "name": "Climate Change Indicators"
+        },
+        {
+          "id": "MFS_OFC_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Financial Corporations 2026 February"
+        },
+        {
+          "id": "CPI_2026_MAY_VINTAGE",
+          "name": "Consumer Price Index (CPI) 2026 May"
+        },
+        {
+          "id": "COFER_2025_OCT_VINTAGE",
+          "name": "Currency Composition of Official Foreign Exchange Reserves (COFER) 2025 October"
+        },
+        {
+          "id": "CPI_2026_FEB_VINTAGE",
+          "name": "Consumer Price Index (CPI) 2026 February"
+        },
+        {
+          "id": "WEO_2025_OCT_VINTAGE",
+          "name": "World Economic Outlook (WEO) 2025 October"
+        },
+        {
+          "id": "IIP_2026_MAY_VINTAGE",
+          "name": "International Investment Position (IIP) 2026 May"
+        },
+        {
+          "id": "PI_2026_FEB_VINTAGE",
+          "name": "Production Indexes (PI) 2026 February"
+        },
+        {
+          "id": "CPI_2026_APR_VINTAGE",
+          "name": "Consumer Price Index (CPI) 2026 April"
+        },
+        {
+          "id": "MFS_IR_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Interest Rate 2026 February"
+        },
+        {
+          "id": "QGDP_WCA_2026_JAN_VINTAGE",
+          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates 2026 January"
+        },
+        {
+          "id": "GFS_COFOG",
+          "name": "GFS Government Expenditures by Function"
+        },
+        {
+          "id": "FM_2025_OCT_VINTAGE",
+          "name": "Fiscal Monitor (FM) 2025 October"
+        },
+        {
+          "id": "MCDREO",
+          "name": "Middle East and Central Asia Regional Economic Outlook (MCDREO)"
+        },
+        {
+          "id": "IIPCC_2026_FEB_VINTAGE",
+          "name": "Currency Composition of the International Investment Position (IIPCC) 2026 February"
+        },
+        {
+          "id": "MFS_FC_2026_MAY_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Financial Corporations 2026 May"
+        },
+        {
+          "id": "PPI_2026_FEB_VINTAGE",
+          "name": "Producer Price Index (PPI) 2026 February"
+        },
+        {
+          "id": "NSDP",
+          "name": "National Summary Data Page (NSDP)"
+        },
+        {
+          "id": "PCPS",
+          "name": "Primary Commodity Price System (PCPS)"
+        },
+        {
+          "id": "MPFT",
+          "name": "Monetary Policy Frameworks Toolkit (MPFT)"
+        },
+        {
+          "id": "TEG",
+          "name": "Trade in Low Carbon Technology Goods (TEG)"
+        },
+        {
+          "id": "WPCPER",
+          "name": "Crypto-based Parallel Exchange Rates (Working Paper dataset WP-CPER)"
+        },
+        {
+          "id": "IL",
+          "name": "International Liquidity (IL)"
+        },
+        {
+          "id": "FSIBSIS",
+          "name": "Financial Soundness Indicators (FSI), Balance Sheet, Income Statement and Memorandum Series"
+        },
+        {
+          "id": "CPI_WCA_2026_JAN_VINTAGE",
+          "name": "Consumer Price Index (CPI), World and Country Aggregates (CPI_WCA) 2026 January"
+        },
+        {
+          "id": "GDD",
+          "name": "Global Debt Database (GDD)"
+        },
+        {
+          "id": "QGDP_WCA",
+          "name": "Quarterly Gross Domestic Product (GDP), World and Country Aggregates"
+        },
+        {
+          "id": "MFS_ODC_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Other Depository Corporations 2026 February"
+        },
+        {
+          "id": "GS_LEPM",
+          "name": "Gender Statistics (GS) Leadership and empowerment (LEPM)"
+        },
+        {
+          "id": "EQ",
+          "name": "Export Quality (EQ)"
+        },
+        {
+          "id": "PPI",
+          "name": "Producer Price Index (PPI)"
+        },
+        {
+          "id": "FAS",
+          "name": "Financial Access Survey (FAS)"
+        },
+        {
+          "id": "SRD",
+          "name": "Structural Reform Database (SRD)"
+        },
+        {
+          "id": "CFBL",
+          "name": "Carbon Footprint of Bank Loans"
+        },
+        {
+          "id": "IMTS_2025_DEC_VINTAGE",
+          "name": "International Trade in Goods (by partner country) (IMTS) 2025 December"
+        },
+        {
+          "id": "WORLD",
+          "name": "World Revenue Longitudinal Database (WoRLD)"
+        },
+        {
+          "id": "FA_2026_FEB_VINTAGE",
+          "name": "Fund Accounts (FA) 2026 February"
+        },
+        {
+          "id": "MFS_CBS_2026_FEB_VINTAGE",
+          "name": "Monetary and Financial Statistics (MFS), Central Bank Data 2026 February"
+        },
+        {
+          "id": "MFS_CBS",
+          "name": "Monetary and Financial Statistics (MFS), Central Bank Data"
+        },
+        {
+          "id": "CPI_2026_JAN_VINTAGE",
+          "name": "Consumer Price Index (CPI) 2026 January"
+        },
+        {
+          "id": "GS_ED",
+          "name": "Gender Statistics (GS) Education"
+        },
+        {
+          "id": "APDREO_2025_OCT_VINTAGE",
+          "name": "Asia and Pacific Regional Economic Outlook (APDREO) 2025 October"
         }
       ]
     }
@@ -6375,61 +6387,61 @@
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/ECFIE/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF1861</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T19:04:37.322871905Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF4011</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-29T04:34:06.486537322Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
     },
     "ECFIE_structure|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/ECFIE/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF7816</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T19:04:37.419749541Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF3820</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-29T04:34:06.994231593Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3)\" agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-Calls-based Firm Inflation Expectations (ECFIE)</com:Name>\n        <com:Description xml:lang=\"en\">The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. In addition to ECFIE, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and Mapped Earnings-Calls-based Firm Inflation Expectations  (MECFIE), a transformed version of the ECFIE mapped into percentage-change units, which maps the index into the same units as inflation expectations. A detailed description of the methodology, validation, and benchmarking is provided in the methodology note linked below. Suggested citation: Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.</com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" agencyID=\"IMF.RES\" id=\"DSD_ECFIE\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Earnings-"
     },
     "ECFIE_data_json|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/all/ECFIE/+/*?lastNObservations=2",
       "status": 500,
       "content_type": "application/json",
-      "head": "{\"status\":500,\"code\":50000,\"message\":\"Internal Server Error\",\"devMessage\":null,\"timestamp\":\"2026-09-28T19:04:37.653190Z\",\"correlationId\":\"651de8dd31f920ccbe5698e5cf2cc9a5\",\"path\":\"/api/v1/workspaces/default:integration/registry/sdmx/3.0/data/dataflow/all/ECFIE/+/*\",\"details\":{}}"
+      "head": "{\"status\":500,\"code\":50000,\"message\":\"Internal Server Error\",\"devMessage\":null,\"timestamp\":\"2026-09-29T04:34:07.277732Z\",\"correlationId\":\"923bf30a7c87cfd7f31370e76e55bc63\",\"path\":\"/api/v1/workspaces/default:integration/registry/sdmx/3.0/data/dataflow/all/ECFIE/+/*\",\"details\":{}}"
     },
     "ECFIE_data_json|application/xml": {
       "url": "https://api.imf.org/external/sdmx/3.0/data/dataflow/all/ECFIE/+/*?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:metadata=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/metadata/generic\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/common\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/data/structurespecific\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0):ObsLevelDim:TIME_PERIOD\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message ../../schemas/SDMXMessage.xsd\"><message:Header><message:ID>IDREF9765</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T19:04:38.032984690Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES.DSD_ECFIE.2.0.0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" dimensionAtObservation=\"TIME_PERIOD\"><common:Structure>urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)</common:Structure></message:Structure></message:Header><message:DataSet ss:structureRef=\"IMF.RES.DSD_ECFIE.2.0.0\" action=\"Replace\"><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"5.24145164324627\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"15.7253929413788\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"85.179048041971\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"555.394291113057\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"33.559814453125\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"31.9715919494629\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"0.732955094380395\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"0.699653927857622\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.8204397607403\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"4.29711270207231\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.16404581069946\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"3.11573529243469\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"1.29280615341098\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.78559093578547\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"6.26995022621444\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"50.426631125281\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"2.68649554252625\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.93711471557617\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"BEL\" INDI"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:metadata=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/metadata/generic\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/common\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/data/structurespecific\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0):ObsLevelDim:TIME_PERIOD\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v3_0/message ../../schemas/SDMXMessage.xsd\"><message:Header><message:ID>IDREF5508</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-29T04:34:07.907686271Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES.DSD_ECFIE.2.0.0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)\" dimensionAtObservation=\"TIME_PERIOD\"><common:Structure>urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.RES:DSD_ECFIE(2.0.0)</common:Structure></message:Structure></message:Header><message:DataSet ss:structureRef=\"IMF.RES.DSD_ECFIE.2.0.0\" action=\"Replace\"><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"5.24145164324627\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"15.7253929413788\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"85.179048041971\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"555.394291113057\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"ARG\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"33.559814453125\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"31.9715919494629\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"0.732955094380395\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"0.699653927857622\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.8204397607403\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"4.29711270207231\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUS\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"3.16404581069946\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"3.11573529243469\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"1.29280615341098\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.78559093578547\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"ECFIE_VAR_SA\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"6.26995022621444\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"50.426631125281\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"AUT\" INDICATOR=\"MECFIE\" FREQUENCY=\"Q\"><Obs OBS_VALUE=\"2.68649554252625\" TIME_PERIOD=\"2026-Q1\"/><Obs OBS_VALUE=\"2.93711471557617\" TIME_PERIOD=\"2026-Q2\"/></Series><Series COUNTRY=\"BEL\" INDI"
     },
     "ECFIE_data_21|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/ECFIE/all?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790622278288</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T19:04:38Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790656448543</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-29T04:34:08Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
     },
     "ECFIE_data_21|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/ECFIE/all?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790622278588</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T19:04:38Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790656449228</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-29T04:34:09Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.RES_ECFIE_2_0_3\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.RES:ECFIE(2.0.3):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.RES\" id=\"ECFIE\" version=\"2.0.3\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.RES_ECFIE_2_0_3\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" CONTACT_POINT=\"salbrizio@imf.org\" ACCESS_SHARING_LEVEL=\"PUBLIC_OPEN\" DEPARTMENT=\"EUR\" SECURITY_CLASSIFICATION=\"PUB\" TOPIC_DATASET=\"E31,WP\" AUTHOR=\"Silvia Albrizio, Allan Dizioli, Pedro Vitale Simon\" SHORT_SOURCE_CITATION=\"IMF Staff Calculations\" SUGGESTED_CITATION=\"Albrizio, S., Dizioli, A., and Simon, P. (2023). Mining the Gap: Extracting Firms’ Inflation Expectations from Earnings Calls. IMF Working Paper No. 2023/202. International Monetary Fund.\" ACCESS_SHARING_NOTES=\"Internal and external users\" METHODOLOGY_NOTES=\"Mining the Gap: Extracting Firms’ Inflation Expectations From Earnings Calls\" KEYWORDS_DATASET=\"Inflation, Expectations, Firms\" FULL_DESCRIPTION=\"The Earnings-Calls-based Firm Inflation Expectations (ECFIE) index is a proxy for firms’ near-term inflation expectations, constructed through text analysis of earnings call transcripts from publicly listed companies. The index captures the intensity of discussions related to firms’ inflation expectations and translates this information into a quantitative measure using regression analysis. The ECFIE index comes in both ways seasonally adjusted and not seasonally adjusted. The indicator has been shown to closely track available survey-based measures of firms’ one-year-ahead inflation expectations, providing a reliable alternative when such surveys are unavailable. In addition to the baseline index, the dataset includes: a firms inflation expectations disagreement indicator, defined as the cross-firm variance of ECFIE within each country; and MECFIE, a transformed version of the ECFIE mapped into percentage-change units, which allows for direct economic interpretability of the index values. A detailed desc"
     },
     "PI_structure|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/PI/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF2975</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T19:04:38.733356625Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF8993</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-29T04:34:09.558031229Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
     },
     "PI_structure|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/dataflow/all/PI/latest?references=datastructure",
       "status": 200,
       "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
-      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF7228</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-28T19:04:38.848115168Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
+      "head": "<?xml version='1.0' encoding='UTF-8'?>\n<mes:Structure xmlns:mes=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:str=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure\" xmlns:com=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xsi:schemaLocation=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message ../../schemas/SDMXMessage.xsd\">\n  <mes:Header>\n    <mes:ID>IDREF5429</mes:ID>\n    <mes:Test>false</mes:Test>\n    <mes:Prepared>2026-09-29T04:34:10.030193827Z</mes:Prepared>\n    <mes:Sender id=\"IMF\"/>\n  </mes:Header>\n  <mes:Structures>\n    <str:Dataflows>\n      <str:Dataflow urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0)\" agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"dataEngineSettings\"/>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"DataEngine\">\n            <com:AnnotationTitle>timeseries_v2</com:AnnotationTitle>\n          </com:Annotation>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI)</com:Name>\n        <com:Description xml:lang=\"en\">The Production Indexes dataset presents data on industrial production, construction, and retail sales indexes. These statistics are widely used to monitor economic activity. </com:Description>\n        <str:Structure>\n          <Ref agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" package=\"datastructure\" class=\"DataStructure\"/>\n        </str:Structure>\n      </str:Dataflow>\n    </str:Dataflows>\n    <str:DataStructures>\n      <str:DataStructure urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=IMF.STA:DSD_IPI(8.0.0)\" agencyID=\"IMF.STA\" id=\"DSD_IPI\" version=\"8.0.0\" isFinal=\"true\" isExternalReference=\"false\">\n        <com:Annotations>\n          <com:Annotation id=\"origin\"/>\n          <com:Annotation id=\"isFinal\"/>\n          <com:Annotation id=\"lastUpdatedAt\"/>\n        </com:Annotations>\n        <com:Name xml:lang=\"en\">Production Indexes (PI) Dataset Structure Definition</com:Name>\n        <str:DataStructureComponents>\n          <str:DimensionList id=\"DimensionDescriptor\">\n            <str:Dimension id=\"COUNTRY\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).COUNTRY\" position=\"0\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentID=\"CS_MASTER_DATA\" maintainableParentVersion=\"1.0.0\" agencyID=\"IMF\" id=\"COUNTRY\" package=\"conceptscheme\" class=\"Concept\"/>\n              </str:ConceptIdentity>\n            </str:Dimension>\n            <str:Dimension id=\"PRODUCTION_INDEX\" urn=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dimension=IMF.STA:DSD_IPI(8.0.0).PRODUCTION_INDEX\" position=\"1\">\n              <str:ConceptIdentity>\n                <Ref maintainableParentI"
     },
     "PI_data_21|application/vnd.sdmx.data+json": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/PI/JPN+KOR+CHN+TWN.*.*?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790622279143</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T19:04:39Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790656450680</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-29T04:34:10Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
     },
     "PI_data_21|application/xml": {
       "url": "https://api.imf.org/external/sdmx/2.1/data/PI/JPN+KOR+CHN+TWN.*.*?lastNObservations=2",
       "status": 200,
       "content_type": "application/xml",
-      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790622279946</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-28T19:04:39Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
+      "head": "<?xml version='1.0' encoding='UTF-8'?><message:StructureSpecificData xmlns:ss=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/structurespecific\" xmlns:footer=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message/footer\" xmlns:ns1=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" xmlns:message=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message\" xmlns:common=\"http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"><message:Header><message:ID>DS1790656451764</message:ID><message:Test>false</message:Test><message:Prepared>2026-09-29T04:34:11Z</message:Prepared><message:Sender id=\"IMF\"/><message:Structure structureID=\"IMF.STA_PI_2_0_0\" namespace=\"urn:sdmx:org.sdmx.infomodel.datastructure.Dataflow=IMF.STA:PI(2.0.0):ObsLevelDim:TIME_PERIOD\" dimensionAtObservation=\"TIME_PERIOD\"><common:StructureUsage><Ref agencyID=\"IMF.STA\" id=\"PI\" version=\"2.0.0\"/></common:StructureUsage></message:Structure><message:DataSetAction>Replace</message:DataSetAction></message:Header><message:DataSet ss:dataScope=\"DataStructure\" xsi:type=\"ns1:DataSetType\" ss:structureRef=\"IMF.STA_PI_2_0_0\" action=\"Replace\" LANGUAGE=\"EN\" PUBLISHER=\"IMF\" UPDATE_DATE=\"2026-09-28T07:45:38.226744Z\" PUBLICATION_DATE=\"2026-09-28T07:45:37.805995800Z\" CONTACT_POINT=\"datahelp@imf.org\" DEPARTMENT=\"STA\" TOPIC_DATASET=\"E23,IFS\" SHORT_SOURCE_CITATION=\"Country authorities\" SUGGESTED_CITATION=\"International Monetary Fund. Production Indexes, https://data.imf.org/en/datasets/PI. Accessed on [current date].\" KEYWORDS_DATASET=\"production index, mining and quarrying, manufacturing, electricity, gas and water supply, construction, retail sales indexes\" FULL_DESCRIPTION=\"The Production Indexes dataset presents data on industrial production, mining and quarrying, manufacturing, electricity, gas and water supply, construction, and retail sales indexes. These statistics are collected from national authorities, and when possible, from international organizations -via data-sharing agreements- that collect similar information to reduce the reporting burden on countries.\" LICENSE=\"© International Monetary Fund Copyright. All Rights Reserved. https://www.imf.org/external/terms.htm\"><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"D\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Electricity, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"F\" TYPE_OF_TRANSFORMATION=\"POP_PCH_PT\" TOPIC=\"E23\" SERIES_NAME=\"Construction, Production index, Period-over-preceding period percent change\"/><Group xsi:type=\"ns1:GROUP_TYPE_OF_TRANSFORMATION\" TYPE_OF_TRANSFORMATION=\"YOY_PCH_PT\" UNIT=\"PT\" TRANSFORMATION=\"YOY_PCH\"/><Group xsi:type=\"ns1:GROUP_PRODUCTION_INDEX__TYPE_OF_TRANSFORMATION\" PRODUCTION_INDEX=\"C\" TYPE_OF_TRANSFOR"
     }
   },
   "imf_pi_series": {
@@ -6809,5 +6821,135 @@
         }
       }
     ]
+  },
+  "sec_form4_canary": {
+    "AAPL": {
+      "cik": 320193,
+      "n_trades": 4,
+      "buys": 0,
+      "sells": 4,
+      "cluster": false,
+      "sample": [
+        {
+          "date": "2026-09-22",
+          "filing_date": "2026-09-24",
+          "insider": "Newstead Jennifer",
+          "code": "S",
+          "shares": 2399.0,
+          "price": 340.06,
+          "value": 815803.9400000001,
+          "accession": "0001140361-26-037584",
+          "form": "Form 4",
+          "source": "SEC"
+        },
+        {
+          "date": "2026-09-15",
+          "filing_date": "2026-09-17",
+          "insider": "Newstead Jennifer",
+          "code": "S",
+          "shares": 1438.0,
+          "price": 330.19,
+          "value": 474813.22,
+          "accession": "0001140361-26-037020",
+          "form": "Form 4",
+          "source": "SEC"
+        }
+      ]
+    },
+    "MMM": {
+      "cik": 66740,
+      "n_trades": 0,
+      "buys": 0,
+      "sells": 0,
+      "cluster": false,
+      "sample": []
+    },
+    "ARE": {
+      "cik": 1035443,
+      "n_trades": 3,
+      "buys": 1,
+      "sells": 2,
+      "cluster": false,
+      "sample": [
+        {
+          "date": "2026-09-11",
+          "filing_date": "2026-09-15",
+          "insider": "Fukuzaki-Carlson Kristina",
+          "code": "S",
+          "shares": 16810.0,
+          "price": 50.51,
+          "value": 849073.1,
+          "accession": "0001919198-26-000011",
+          "form": "Form 4",
+          "source": "SEC"
+        },
+        {
+          "date": "2026-09-11",
+          "filing_date": "2026-09-15",
+          "insider": "MARCUS JOEL S",
+          "code": "P",
+          "shares": 5000.0,
+          "price": 49.68,
+          "value": 248400.0,
+          "accession": "0001216955-26-000021",
+          "form": "Form 4",
+          "source": "SEC"
+        }
+      ]
+    },
+    "JPM": {
+      "cik": 19617,
+      "n_trades": 1,
+      "buys": 0,
+      "sells": 1,
+      "cluster": false,
+      "sample": [
+        {
+          "date": "2026-09-10",
+          "filing_date": "2026-09-10",
+          "insider": "Leopold Robin",
+          "code": "S",
+          "shares": 2500.0,
+          "price": 352.8106,
+          "value": 882026.5,
+          "accession": "0001225208-26-007727",
+          "form": "Form 4",
+          "source": "SEC"
+        }
+      ]
+    },
+    "BE": {
+      "cik": 1664703,
+      "n_trades": 4,
+      "buys": 0,
+      "sells": 4,
+      "cluster": false,
+      "sample": [
+        {
+          "date": "2026-09-16",
+          "filing_date": "2026-09-18",
+          "insider": "Joshi Aman",
+          "code": "S",
+          "shares": 3601.0,
+          "price": 269.94,
+          "value": 972053.94,
+          "accession": "0001193125-26-395806",
+          "form": "Form 4",
+          "source": "SEC"
+        },
+        {
+          "date": "2026-09-16",
+          "filing_date": "2026-09-18",
+          "insider": "Kurzymski Maciej",
+          "code": "S",
+          "shares": 2295.0,
+          "price": 268.42,
+          "value": 616023.9,
+          "accession": "0001193125-26-395797",
+          "form": "Form 4",
+          "source": "SEC"
+        }
+      ]
+    }
   }
 }

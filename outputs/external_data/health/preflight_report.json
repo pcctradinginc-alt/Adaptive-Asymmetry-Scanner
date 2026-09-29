@@ -2,7 +2,7 @@
   {
     "source_id": "imf_portwatch_ports",
     "status": "PASS",
-    "n_observations": 14868,
+    "n_observations": 8393,
     "latest_observation_time": "2026-09-18T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query"
@@ -10,7 +10,7 @@
     "http_status": [
       200
     ],
-    "message": "14868 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 520380 Rohbeobachtungen); 0 unresolved ports: []",
+    "message": "8393 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 477015 Rohbeobachtungen); 0 unresolved ports: []",
     "discovered_ids": {
       "ports": {
         "Los Angeles": "port664",
@@ -108,7 +108,7 @@
         "unresolved_ports_hint_matches": {},
         "unresolved_ports_hint_activity": {},
         "ports_database_rows": 2065,
-        "n_observations_before_reduction": 520380
+        "n_observations_before_reduction": 477015
       }
     },
     "family": "maritime",
@@ -117,7 +117,7 @@
   {
     "source_id": "imf_portwatch_chokepoints",
     "status": "PASS",
-    "n_observations": 5488,
+    "n_observations": 5096,
     "latest_observation_time": "2026-09-20T00:00:00+00:00",
     "endpoints": [
       "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0/query"
@@ -125,7 +125,7 @@
     "http_status": [
       200
     ],
-    "message": "5488 observations; 0 unresolved chokepoints: []",
+    "message": "5096 observations; 0 unresolved chokepoints: []",
     "discovered_ids": {
       "chokepoints": {
         "Suez Canal": "chokepoint1",
@@ -305,7 +305,7 @@
     "latest_observation_time": null,
     "endpoints": [
       "https://api.us.socrata.com/api/catalog/v1",
-      "https://data.bts.gov/api/views/s539-c8h7.json"
+      "https://data.bts.gov/api/views/ni8u-e22d.json"
     ],
     "http_status": [
       200
@@ -321,17 +321,17 @@
         {
           "id": "gutz-h9fp",
           "name": "Transportation Services Index - Freight",
-          "updatedAt": "2026-09-28T17:13:54.000Z"
+          "updatedAt": "2026-09-28T19:36:50.000Z"
         },
         {
           "id": "ni8u-e22d",
           "name": "Transportation Services Index - Combined",
-          "updatedAt": "2026-09-28T17:18:44.000Z"
+          "updatedAt": "2026-09-28T19:41:18.000Z"
         },
         {
           "id": "s539-c8h7",
           "name": "Transportation Services Index - Passenger",
-          "updatedAt": "2026-09-28T17:20:57.000Z"
+          "updatedAt": "2026-09-28T19:37:36.000Z"
         },
         {
           "id": "n68x-u7m7",
@@ -385,13 +385,13 @@
         }
       ],
       "bts_open_data_tsi_ambiguous": [
-        "s539-c8h7",
         "ni8u-e22d",
+        "s539-c8h7",
         "gutz-h9fp",
         "bw6n-ddqk",
         "3w2s-iysp"
       ],
-      "bts_open_data_tsi_dataset_id": "s539-c8h7"
+      "bts_open_data_tsi_dataset_id": "ni8u-e22d"
     },
     "family": "road_freight",
     "license_status": "OK"
@@ -890,7 +890,7 @@
   {
     "source_id": "nws_forecast",
     "status": "PASS",
-    "n_observations": 2387,
+    "n_observations": 2379,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/gridpoints/BOU/74,66",
@@ -1256,7 +1256,7 @@
   {
     "source_id": "nws_alerts",
     "status": "PASS",
-    "n_observations": 0,
+    "n_observations": 45,
     "latest_observation_time": null,
     "endpoints": [
       "https://api.weather.gov/alerts/active"
@@ -1271,341 +1271,15 @@
   },
   {
     "source_id": "ncei_normals",
-    "status": "PASS",
-    "n_observations": 87600,
-    "latest_observation_time": null,
-    "endpoints": [
-      "https://www.ncei.noaa.gov/access/services/data/v1",
-      "https://www.ncei.noaa.gov/cdo-web/api/v2/stations"
-    ],
-    "http_status": [
-      200
-    ],
-    "message": "",
-    "discovered_ids": {
-      "ATL": {
-        "id": "GHCND:USC00090444",
-        "name": "ATLANTA 9 NW, GA US",
-        "lat": 33.8263,
-        "lon": -84.4961,
-        "distance_km": 21.58533423703047
-      },
-      "DFW": {
-        "id": "GHCND:USC00411490",
-        "name": "CARROLLTON, TX US",
-        "lat": 32.985,
-        "lon": -96.92583,
-        "distance_km": 14.277884319791236
-      },
-      "DEN": {
-        "id": "GHCND:USC00050950",
-        "name": "BRIGHTON 3 SE, CO US",
-        "lat": 39.9428,
-        "lon": -104.83504,
-        "distance_km": 16.803791966613172
-      },
-      "ORD": {
-        "id": "GHCND:USC00114816",
-        "name": "LA GRANGE, IL US",
-        "lat": 41.79528,
-        "lon": -87.87083,
-        "distance_km": 20.122798221240938
-      },
-      "LAX": {
-        "id": "GHCND:USC00042214",
-        "name": "CULVER CITY, CA US",
-        "lat": 34.005,
-        "lon": -118.4139,
-        "distance_km": 7.06733252879995
-      },
-      "CLT": {
-        "id": "GHCND:USC00315913",
-        "name": "MOUNT HOLLY 4 NE, NC US",
-        "lat": 35.3338,
-        "lon": -80.9868,
-        "distance_km": 13.752398038825538
-      },
-      "JFK": {
-        "id": "GHCND:USC00283704",
-        "name": "HARRISON, NJ US",
-        "lat": 40.7481,
-        "lon": -74.152,
-        "distance_km": 33.685327966930586
-      },
-      "LAS": {
-        "id": "GHCND:USW00023169",
-        "name": "HARRY REID INTERNATIONAL AIRPORT, NV US",
-        "lat": 36.0719,
-        "lon": -115.16343,
-        "distance_km": 1.604648130943501
-      },
-      "MCO": {
-        "id": "GHCND:USC00084625",
-        "name": "KISSIMMEE 2, FL US",
-        "lat": 28.2763,
-        "lon": -81.424,
-        "distance_km": 20.622753841849672
-      },
-      "MIA": {
-        "id": "GHCND:USC00083909",
-        "name": "HIALEAH, FL US",
-        "lat": 25.82726,
-        "lon": -80.28592,
-        "distance_km": 3.488753162061643
-      },
-      "PHX": {
-        "id": "GHCND:USC00024829",
-        "name": "LAVEEN 3 SSE, AZ US",
-        "lat": 33.3371,
-        "lon": -112.147,
-        "distance_km": 16.749582633432496
-      },
-      "SEA": {
-        "id": "GHCND:USC00454169",
-        "name": "KENT, WA US",
-        "lat": 47.41735,
-        "lon": -122.2433,
-        "distance_km": 6.133119518577213
-      },
-      "SFO": {
-        "id": "GHCND:USC00043714",
-        "name": "HALF MOON BAY, CA US",
-        "lat": 37.4725,
-        "lon": -122.4433,
-        "distance_km": 17.48998353459396
-      },
-      "IAH": {
-        "id": "GHCND:USC00414328",
-        "name": "HOUSTON SAN JACINTO, TX US",
-        "lat": 29.91667,
-        "lon": -95.15,
-        "distance_km": 19.767056559762157
-      },
-      "EWR": {
-        "id": "GHCND:USC00283704",
-        "name": "HARRISON, NJ US",
-        "lat": 40.7481,
-        "lon": -74.152,
-        "distance_km": 6.7863367728852415
-      },
-      "MSP": {
-        "id": "GHCND:USC00214884",
-        "name": "LOWER ST. ANTHONY FALLS, MN US",
-        "lat": 44.97855,
-        "lon": -93.24695,
-        "distance_km": 10.60360276723622
-      },
-      "BOS": {
-        "id": "GHCND:USC00193890",
-        "name": "JAMAICA PLAIN, MA US",
-        "lat": 42.30298,
-        "lon": -71.12415,
-        "distance_km": 11.710760588911006
-      },
-      "DTW": {
-        "id": "GHCND:USC00202015",
-        "name": "DEARBORN, MI US",
-        "lat": 42.31917,
-        "lon": -83.23839,
-        "distance_km": 15.182806633205699
-      },
-      "PHL": {
-        "id": "GHCND:USC00283291",
-        "name": "GLASSBORO 2 NE, NJ US",
-        "lat": 39.73583,
-        "lon": -75.09528,
-        "distance_km": 19.88355659264125
-      },
-      "NYC": {
-        "id": "GHCND:USC00283704",
-        "name": "HARRISON, NJ US",
-        "lat": 40.7481,
-        "lon": -74.152,
-        "distance_km": 12.913302378265945
-      },
-      "CHI": {
-        "id": "GHCND:USC00111550",
-        "name": "CHICAGO NORTHERLY ISLAND, IL US",
-        "lat": 41.8558,
-        "lon": -87.6094,
-        "distance_km": 3.000374461746446
-      },
-      "HOU": {
-        "id": "GHCND:USC00414321",
-        "name": "HOUSTON HEIGHTS, TX US",
-        "lat": 29.79139,
-        "lon": -95.42611,
-        "distance_km": 6.435120029187962
-      },
-      "DAL": {
-        "id": "GHCND:USC00410337",
-        "name": "ARLINGTON SIX FLAGS, TX US",
-        "lat": 32.7572,
-        "lon": -97.0736,
-        "distance_km": 25.953270873032093
-      },
-      "ATL_METRO": {
-        "id": "GHCND:USC00090444",
-        "name": "ATLANTA 9 NW, GA US",
-        "lat": 33.8263,
-        "lon": -84.4961,
-        "distance_km": 13.178817192314208
-      },
-      "PHX_METRO": {
-        "id": "GHCND:USC00024829",
-        "name": "LAVEEN 3 SSE, AZ US",
-        "lat": 33.3371,
-        "lon": -112.147,
-        "distance_km": 14.110154079329744
-      },
-      "LA_METRO": {
-        "id": "GHCND:USC00045790",
-        "name": "MONTEBELLO, CA US",
-        "lat": 34.0191,
-        "lon": -118.1052,
-        "distance_km": 13.282372981775351
-      },
-      "BOS_METRO": {
-        "id": "GHCND:USC00193890",
-        "name": "JAMAICA PLAIN, MA US",
-        "lat": 42.30298,
-        "lon": -71.12415,
-        "distance_km": 8.313256439388342
-      },
-      "PHL_METRO": {
-        "id": "GHCND:USC00283291",
-        "name": "GLASSBORO 2 NE, NJ US",
-        "lat": 39.73583,
-        "lon": -75.09528,
-        "distance_km": 24.831924312187937
-      },
-      "DET_METRO": {
-        "id": "GHCND:USC00202016",
-        "name": "DEARBORN NUMBER 2, MI US",
-        "lat": 42.3469,
-        "lon": -83.1736,
-        "distance_km": 10.644619010711589
-      },
-      "MSP_METRO": {
-        "id": "GHCND:USC00214884",
-        "name": "LOWER ST. ANTHONY FALLS, MN US",
-        "lat": 44.97855,
-        "lon": -93.24695,
-        "distance_km": 1.4222013918516971
-      },
-      "FL_COAST": {
-        "id": "GHCND:USC00084707",
-        "name": "LAKE ALFRED EXPERIMENTAL STATION, FL US",
-        "lat": 28.10417,
-        "lon": -81.71444,
-        "distance_km": 13.009136028476084
-      },
-      "TX_COAST": {
-        "id": "GHCND:USC00413340",
-        "name": "FREEPORT 2 NW, TX US",
-        "lat": 28.9845,
-        "lon": -95.3809,
-        "distance_km": 3.5486157564078247
-      },
-      "LA_COAST": {
-        "id": "GHCND:USC00163829",
-        "name": "GRETNA, LA US",
-        "lat": 29.91694,
-        "lon": -90.06167,
-        "distance_km": 3.914751582745038
-      },
-      "CAROLINAS_COAST": {
-        "id": "GHCND:USC00381241",
-        "name": "CADES 4 W, SC US",
-        "lat": 33.8083,
-        "lon": -79.8566,
-        "distance_km": 25.701208779415044
-      },
-      "TX_CONSTR": {
-        "id": "GHCND:USC00410431",
-        "name": "AUSTIN 6 S, TX US",
-        "lat": 30.2247,
-        "lon": -97.7327,
-        "distance_km": 4.830228933320616
-      },
-      "FL_CONSTR": {
-        "id": "GHCND:USC00084625",
-        "name": "KISSIMMEE 2, FL US",
-        "lat": 28.2763,
-        "lon": -81.424,
-        "distance_km": 29.460777478562097
-      },
-      "AZ_CONSTR": {
-        "id": "GHCND:USC00024829",
-        "name": "LAVEEN 3 SSE, AZ US",
-        "lat": 33.3371,
-        "lon": -112.147,
-        "distance_km": 14.110154079329744
-      },
-      "GA_CONSTR": {
-        "id": "GHCND:USC00090444",
-        "name": "ATLANTA 9 NW, GA US",
-        "lat": 33.8263,
-        "lon": -84.4961,
-        "distance_km": 13.178817192314208
-      },
-      "NC_CONSTR": {
-        "id": "GHCND:USC00315913",
-        "name": "MOUNT HOLLY 4 NE, NC US",
-        "lat": 35.3338,
-        "lon": -80.9868,
-        "distance_km": 17.632707008815167
-      },
-      "CA_CONSTR": {
-        "id": "GHCND:USC00045790",
-        "name": "MONTEBELLO, CA US",
-        "lat": 34.0191,
-        "lon": -118.1052,
-        "distance_km": 13.282372981775351
-      },
-      "MEM_FDX": {
-        "id": "GHCND:USC00037712",
-        "name": "WEST MEMPHIS, AR US",
-        "lat": 35.12407,
-        "lon": -90.18048,
-        "distance_km": 20.646925524748582
-      },
-      "SDF_UPS": {
-        "id": "GHCND:USC00121814",
-        "name": "CORYDON, IN US",
-        "lat": 38.218,
-        "lon": -86.1183,
-        "distance_km": 33.721610782152624
-      },
-      "IND_LOGISTICS": {
-        "id": "GHCND:USC00121326",
-        "name": "CASTLETON 2 S, IN US",
-        "lat": 39.8801,
-        "lon": -86.0514,
-        "distance_km": 15.404505532921338
-      },
-      "CHI_RAIL": {
-        "id": "GHCND:USC00111550",
-        "name": "CHICAGO NORTHERLY ISLAND, IL US",
-        "lat": 41.8558,
-        "lon": -87.6094,
-        "distance_km": 3.000374461746446
-      },
-      "DAL_LOGISTICS": {
-        "id": "GHCND:USC00410337",
-        "name": "ARLINGTON SIX FLAGS, TX US",
-        "lat": 32.7572,
-        "lon": -97.0736,
-        "distance_km": 25.953270873032093
-      }
-    },
+    "status": "FAIL",
+    "reason": "SourceTimeout('Zeitbudget 120s \u00fcberschritten')",
     "family": "weather",
     "license_status": "OK"
   },
   {
     "source_id": "nhc_storms",
     "status": "PASS",
-    "n_observations": 148,
+    "n_observations": 145,
     "latest_observation_time": null,
     "endpoints": [
       "https://www.nhc.noaa.gov/CurrentStorms.json",
