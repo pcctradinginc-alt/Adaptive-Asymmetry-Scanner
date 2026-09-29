@@ -1,0 +1,1303 @@
+{
+  "generated": "2026-09-29T14:02:46+00:00",
+  "mode": "full",
+  "n_rows": 315876,
+  "n_tickers": 513,
+  "period": "2014-06-06..2026-09-28",
+  "locked_from": "2025-07-01",
+  "champion": null,
+  "prereg": "docs/research/PREREG_ml_research_2026-09-29.md",
+  "models": {
+    "momentum_12_1": {
+      "registry_status": "valid",
+      "role": "benchmark",
+      "wf": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00352,
+          "median": 0.00581,
+          "hit_rate": 0.588,
+          "t_months": 1.01,
+          "sharpe_ann": 0.4,
+          "max_dd": -0.21179,
+          "years_positive_share": 0.571,
+          "top_mfe": 0.09642,
+          "top_mae": -0.07769,
+          "top_asymmetry": 1.241,
+          "univ_asymmetry": 1.211
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00052,
+          "median": 0.00281,
+          "hit_rate": 0.543,
+          "t_months": 0.2,
+          "sharpe_ann": 0.08,
+          "max_dd": -0.26938,
+          "years_positive_share": 0.429,
+          "top_mfe": 0.09642,
+          "top_mae": -0.07769,
+          "top_asymmetry": 1.241,
+          "univ_asymmetry": 1.211
+        },
+        "long_short_gross": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00055,
+          "median": 0.00708,
+          "hit_rate": 0.561,
+          "t_months": 0.16,
+          "sharpe_ann": 0.06,
+          "max_dd": -0.44067,
+          "years_positive_share": 0.429,
+          "top_mfe": 0.09642,
+          "top_mae": -0.07769,
+          "top_asymmetry": 1.241,
+          "univ_asymmetry": 1.211
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.00184,
+          "t_months": 0.22
+        }
+      },
+      "locked": {
+        "status": "ok",
+        "params": {},
+        "base": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.02851,
+          "median": 0.02647,
+          "hit_rate": 0.689,
+          "t_months": 1.91,
+          "sharpe_ann": 1.77,
+          "max_dd": -0.12847,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.14123,
+          "top_mae": -0.09035,
+          "top_asymmetry": 1.563,
+          "univ_asymmetry": 1.267
+        },
+        "stress": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.02551,
+          "median": 0.02347,
+          "hit_rate": 0.689,
+          "t_months": 1.71,
+          "sharpe_ann": 1.58,
+          "max_dd": -0.13407,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.14123,
+          "top_mae": -0.09035,
+          "top_asymmetry": 1.563,
+          "univ_asymmetry": 1.267
+        },
+        "long_short_gross": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.0309,
+          "median": 0.02481,
+          "hit_rate": 0.656,
+          "t_months": 1.43,
+          "sharpe_ann": 1.33,
+          "max_dd": -0.22851,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.14123,
+          "top_mae": -0.09035,
+          "top_asymmetry": 1.563,
+          "univ_asymmetry": 1.267
+        },
+        "ic": {
+          "n_dates": 61,
+          "mean_ic": 0.04158,
+          "t_months": 1.02
+        }
+      },
+      "forward": null,
+      "params_by_year": {
+        "2019": {},
+        "2020": {},
+        "2021": {},
+        "2022": {},
+        "2023": {},
+        "2024": {},
+        "2025": {}
+      },
+      "attribution": {
+        "importance": {
+          "feature_ic_drop": {},
+          "groups": {
+            "momentum": 0.0,
+            "risk": 0.0,
+            "liquidity": 0.0,
+            "market": 0.0,
+            "macro": 0.0
+          },
+          "share_years_positive": {}
+        },
+        "sectors": {
+          "Basic Materials": {
+            "n_dates": 335,
+            "mean_ic": 0.0255,
+            "t_naive": 1.39
+          },
+          "Communication Services": {
+            "n_dates": 335,
+            "mean_ic": 0.02437,
+            "t_naive": 1.47
+          },
+          "Energy": {
+            "n_dates": 335,
+            "mean_ic": 0.01113,
+            "t_naive": 0.58
+          },
+          "Industrials": {
+            "n_dates": 335,
+            "mean_ic": 0.00806,
+            "t_naive": 0.62
+          },
+          "Consumer Cyclical": {
+            "n_dates": 335,
+            "mean_ic": -0.00097,
+            "t_naive": -0.06
+          },
+          "Real Estate": {
+            "n_dates": 335,
+            "mean_ic": -0.00395,
+            "t_naive": -0.21
+          },
+          "Healthcare": {
+            "n_dates": 335,
+            "mean_ic": -0.00414,
+            "t_naive": -0.3
+          },
+          "Technology": {
+            "n_dates": 335,
+            "mean_ic": -0.00678,
+            "t_naive": -0.55
+          },
+          "Consumer Defensive": {
+            "n_dates": 335,
+            "mean_ic": -0.00726,
+            "t_naive": -0.47
+          },
+          "Utilities": {
+            "n_dates": 335,
+            "mean_ic": -0.00781,
+            "t_naive": -0.53
+          },
+          "Financial Services": {
+            "n_dates": 335,
+            "mean_ic": -0.01526,
+            "t_naive": -0.85
+          }
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.00147,
+            "median": 0.0033,
+            "hit_rate": 0.578,
+            "t_months": 0.17,
+            "sharpe_ann": 0.08,
+            "max_dd": -0.22934,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.08465,
+            "top_mae": -0.0762,
+            "top_asymmetry": 1.111,
+            "univ_asymmetry": 1.078
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.0065,
+            "median": 0.00872,
+            "hit_rate": 0.603,
+            "t_months": 1.31,
+            "sharpe_ann": 0.68,
+            "max_dd": -0.21749,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.11363,
+            "top_mae": -0.07986,
+            "top_asymmetry": 1.423,
+            "univ_asymmetry": 1.377
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.00324,
+            "median": 0.00461,
+            "hit_rate": 0.581,
+            "t_months": 0.74,
+            "sharpe_ann": 0.31,
+            "max_dd": -0.25262,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.09267,
+            "top_mae": -0.0764,
+            "top_asymmetry": 1.213,
+            "univ_asymmetry": 1.171
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.00448,
+            "median": 0.00752,
+            "hit_rate": 0.613,
+            "t_months": 0.54,
+            "sharpe_ann": 0.38,
+            "max_dd": -0.15826,
+            "years_positive_share": 0.6,
+            "top_mfe": 0.10941,
+            "top_mae": -0.08215,
+            "top_asymmetry": 1.332,
+            "univ_asymmetry": 1.314
+          }
+        }
+      }
+    },
+    "enet_xs20_v1": {
+      "registry_status": "valid",
+      "role": "challenger",
+      "wf": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00732,
+          "median": 0.00154,
+          "hit_rate": 0.516,
+          "t_months": 1.6,
+          "sharpe_ann": 0.63,
+          "max_dd": -0.1953,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.12216,
+          "top_mae": -0.09418,
+          "top_asymmetry": 1.297,
+          "univ_asymmetry": 1.213
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00432,
+          "median": -0.00146,
+          "hit_rate": 0.493,
+          "t_months": 0.93,
+          "sharpe_ann": 0.37,
+          "max_dd": -0.22665,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.12216,
+          "top_mae": -0.09418,
+          "top_asymmetry": 1.297,
+          "univ_asymmetry": 1.213
+        },
+        "long_short_gross": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.01318,
+          "median": 0.00509,
+          "hit_rate": 0.555,
+          "t_months": 1.78,
+          "sharpe_ann": 0.7,
+          "max_dd": -0.28592,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.12216,
+          "top_mae": -0.09418,
+          "top_asymmetry": 1.297,
+          "univ_asymmetry": 1.213
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.02559,
+          "t_months": 1.09
+        }
+      },
+      "locked": {
+        "status": "ok",
+        "params": {
+          "alpha": 0.003,
+          "l1_ratio": 0.5
+        },
+        "base": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.03908,
+          "median": 0.03745,
+          "hit_rate": 0.787,
+          "t_months": 2.54,
+          "sharpe_ann": 2.35,
+          "max_dd": -0.10315,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.17359,
+          "top_mae": -0.10613,
+          "top_asymmetry": 1.636,
+          "univ_asymmetry": 1.274
+        },
+        "stress": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.03608,
+          "median": 0.03445,
+          "hit_rate": 0.787,
+          "t_months": 2.34,
+          "sharpe_ann": 2.17,
+          "max_dd": -0.10883,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.17359,
+          "top_mae": -0.10613,
+          "top_asymmetry": 1.636,
+          "univ_asymmetry": 1.274
+        },
+        "long_short_gross": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.05253,
+          "median": 0.04216,
+          "hit_rate": 0.754,
+          "t_months": 2.66,
+          "sharpe_ann": 2.47,
+          "max_dd": -0.11199,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.17359,
+          "top_mae": -0.10613,
+          "top_asymmetry": 1.636,
+          "univ_asymmetry": 1.274
+        },
+        "ic": {
+          "n_dates": 61,
+          "mean_ic": 0.06864,
+          "t_months": 1.75
+        }
+      },
+      "forward": null,
+      "params_by_year": {
+        "2019": {
+          "alpha": 0.0003,
+          "l1_ratio": 0.5
+        },
+        "2020": {
+          "alpha": 0.0003,
+          "l1_ratio": 0.5
+        },
+        "2021": {
+          "alpha": 0.003,
+          "l1_ratio": 0.5
+        },
+        "2022": {
+          "alpha": 0.0003,
+          "l1_ratio": 0.5
+        },
+        "2023": {
+          "alpha": 0.0003,
+          "l1_ratio": 0.5
+        },
+        "2024": {
+          "alpha": 0.003,
+          "l1_ratio": 0.5
+        },
+        "2025": {
+          "alpha": 0.003,
+          "l1_ratio": 0.5
+        }
+      },
+      "attribution": {
+        "importance": {
+          "feature_ic_drop": {
+            "vol_60": 0.01342,
+            "rev_1m": 0.00637,
+            "max_ret_21": 0.00492,
+            "log_dollar_vol": 0.00162,
+            "vol_20": 0.00153,
+            "ret_5d": 0.00019,
+            "relvol_5_60": 0.0,
+            "cpi_yoy": 0.0,
+            "fed_assets_13w_chg": 0.0,
+            "wti_63d_chg": 0.0,
+            "vix": 0.0,
+            "vix_chg_21": 0.0,
+            "tnx": 0.0,
+            "spy_mom_63": 0.0,
+            "spy_trend_200": 0.0,
+            "usd_63d_chg": 0.0,
+            "curve_10y_3m": 0.0,
+            "mom_3m": -0.0,
+            "rs_63": -0.00018,
+            "dist_52w_high": -0.00102,
+            "vol_ratio": -0.00111,
+            "mom_12_1": -0.00151,
+            "beta_126": -0.00171
+          },
+          "groups": {
+            "momentum": 0.00384,
+            "risk": 0.01706,
+            "liquidity": 0.00162,
+            "market": 0.0,
+            "macro": 0.0
+          },
+          "share_years_positive": {
+            "mom_12_1": 0.0,
+            "mom_3m": 0.0,
+            "rev_1m": 0.43,
+            "ret_5d": 0.29,
+            "rs_63": 0.14,
+            "vol_20": 0.29,
+            "vol_60": 0.71,
+            "vol_ratio": 0.14,
+            "relvol_5_60": 0.14,
+            "log_dollar_vol": 0.43,
+            "dist_52w_high": 0.14,
+            "max_ret_21": 0.43,
+            "beta_126": 0.43,
+            "vix": 0.0,
+            "vix_chg_21": 0.0,
+            "spy_trend_200": 0.0,
+            "spy_mom_63": 0.0,
+            "tnx": 0.0,
+            "curve_10y_3m": 0.0,
+            "cpi_yoy": 0.0,
+            "fed_assets_13w_chg": 0.0,
+            "wti_63d_chg": 0.0,
+            "usd_63d_chg": 0.0
+          }
+        },
+        "sectors": {
+          "Industrials": {
+            "n_dates": 335,
+            "mean_ic": 0.05426,
+            "t_naive": 4.0
+          },
+          "Financial Services": {
+            "n_dates": 335,
+            "mean_ic": 0.02994,
+            "t_naive": 1.74
+          },
+          "Real Estate": {
+            "n_dates": 335,
+            "mean_ic": 0.02414,
+            "t_naive": 1.29
+          },
+          "Consumer Cyclical": {
+            "n_dates": 335,
+            "mean_ic": 0.02259,
+            "t_naive": 1.52
+          },
+          "Technology": {
+            "n_dates": 335,
+            "mean_ic": 0.01786,
+            "t_naive": 1.28
+          },
+          "Utilities": {
+            "n_dates": 335,
+            "mean_ic": 0.01008,
+            "t_naive": 0.64
+          },
+          "Healthcare": {
+            "n_dates": 335,
+            "mean_ic": 0.00583,
+            "t_naive": 0.44
+          },
+          "Basic Materials": {
+            "n_dates": 335,
+            "mean_ic": -0.00056,
+            "t_naive": -0.03
+          },
+          "Energy": {
+            "n_dates": 335,
+            "mean_ic": -0.00226,
+            "t_naive": -0.12
+          },
+          "Consumer Defensive": {
+            "n_dates": 335,
+            "mean_ic": -0.0061,
+            "t_naive": -0.43
+          },
+          "Communication Services": {
+            "n_dates": 335,
+            "mean_ic": -0.0331,
+            "t_naive": -1.9
+          }
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.00046,
+            "median": 0.00043,
+            "hit_rate": 0.513,
+            "t_months": -0.17,
+            "sharpe_ann": -0.08,
+            "max_dd": -0.27296,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.10051,
+            "top_mae": -0.08998,
+            "top_asymmetry": 1.117,
+            "univ_asymmetry": 1.079
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.01736,
+            "median": 0.00267,
+            "hit_rate": 0.522,
+            "t_months": 2.13,
+            "sharpe_ann": 1.11,
+            "max_dd": -0.13318,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.15384,
+            "top_mae": -0.10032,
+            "top_asymmetry": 1.533,
+            "univ_asymmetry": 1.381
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.00328,
+            "median": -5e-05,
+            "hit_rate": 0.5,
+            "t_months": 0.24,
+            "sharpe_ann": 0.1,
+            "max_dd": -0.25737,
+            "years_positive_share": 0.714,
+            "top_mfe": 0.10876,
+            "top_mae": -0.08789,
+            "top_asymmetry": 1.237,
+            "univ_asymmetry": 1.173
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.02136,
+            "median": 0.00578,
+            "hit_rate": 0.573,
+            "t_months": 1.7,
+            "sharpe_ann": 1.18,
+            "max_dd": -0.12949,
+            "years_positive_share": 1.0,
+            "top_mfe": 0.16864,
+            "top_mae": -0.116,
+            "top_asymmetry": 1.454,
+            "univ_asymmetry": 1.317
+          }
+        }
+      },
+      "decision": {
+        "verdict": "rejected_so_far",
+        "reasons": [
+          "Walk-Forward netto 0.00732 mit t=1.6 (< 2.0)",
+          "Rank-IC 0.02559 (t=1.09) nicht signifikant",
+          "Forward-Shadow: 0/26 fertige Kohorten"
+        ]
+      }
+    },
+    "hgb_xs20_v1": {
+      "registry_status": "valid",
+      "role": "challenger",
+      "wf": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00798,
+          "median": 0.00298,
+          "hit_rate": 0.552,
+          "t_months": 1.9,
+          "sharpe_ann": 0.75,
+          "max_dd": -0.1869,
+          "years_positive_share": 0.571,
+          "top_mfe": 0.10936,
+          "top_mae": -0.08101,
+          "top_asymmetry": 1.35,
+          "univ_asymmetry": 1.213
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00498,
+          "median": -2e-05,
+          "hit_rate": 0.499,
+          "t_months": 1.18,
+          "sharpe_ann": 0.47,
+          "max_dd": -0.25595,
+          "years_positive_share": 0.571,
+          "top_mfe": 0.10936,
+          "top_mae": -0.08101,
+          "top_asymmetry": 1.35,
+          "univ_asymmetry": 1.213
+        },
+        "long_short_gross": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.011,
+          "median": 0.00765,
+          "hit_rate": 0.555,
+          "t_months": 1.64,
+          "sharpe_ann": 0.65,
+          "max_dd": -0.36648,
+          "years_positive_share": 0.714,
+          "top_mfe": 0.10936,
+          "top_mae": -0.08101,
+          "top_asymmetry": 1.35,
+          "univ_asymmetry": 1.213
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.02297,
+          "t_months": 1.28
+        }
+      },
+      "locked": {
+        "status": "ok",
+        "params": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "base": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.01505,
+          "median": 0.01522,
+          "hit_rate": 0.689,
+          "t_months": 1.54,
+          "sharpe_ann": 1.42,
+          "max_dd": -0.11029,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.12216,
+          "top_mae": -0.08312,
+          "top_asymmetry": 1.47,
+          "univ_asymmetry": 1.274
+        },
+        "stress": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.01205,
+          "median": 0.01222,
+          "hit_rate": 0.639,
+          "t_months": 1.22,
+          "sharpe_ann": 1.13,
+          "max_dd": -0.12123,
+          "years_positive_share": 0.5,
+          "top_mfe": 0.12216,
+          "top_mae": -0.08312,
+          "top_asymmetry": 1.47,
+          "univ_asymmetry": 1.274
+        },
+        "long_short_gross": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.01548,
+          "median": 0.01724,
+          "hit_rate": 0.607,
+          "t_months": 1.05,
+          "sharpe_ann": 0.97,
+          "max_dd": -0.18147,
+          "years_positive_share": 0.5,
+          "top_mfe": 0.12216,
+          "top_mae": -0.08312,
+          "top_asymmetry": 1.47,
+          "univ_asymmetry": 1.274
+        },
+        "ic": {
+          "n_dates": 61,
+          "mean_ic": 0.00986,
+          "t_months": 0.36
+        }
+      },
+      "forward": null,
+      "params_by_year": {
+        "2019": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2020": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2021": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2022": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2023": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2024": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2025": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        }
+      },
+      "attribution": {
+        "importance": {
+          "feature_ic_drop": {
+            "spy_mom_63": 0.01135,
+            "vol_60": 0.00866,
+            "usd_63d_chg": 0.00798,
+            "rev_1m": 0.00793,
+            "log_dollar_vol": 0.00743,
+            "fed_assets_13w_chg": 0.00617,
+            "wti_63d_chg": 0.00505,
+            "dist_52w_high": 0.00438,
+            "cpi_yoy": 0.0011,
+            "vol_ratio": 0.00072,
+            "max_ret_21": 0.00048,
+            "relvol_5_60": 0.00027,
+            "rs_63": 0.0,
+            "mom_3m": -0.00063,
+            "vix_chg_21": -0.00078,
+            "vix": -0.00086,
+            "vol_20": -0.00126,
+            "spy_trend_200": -0.00138,
+            "beta_126": -0.00237,
+            "ret_5d": -0.00284,
+            "tnx": -0.00315,
+            "mom_12_1": -0.00334,
+            "curve_10y_3m": -0.0046
+          },
+          "groups": {
+            "momentum": 0.0055,
+            "risk": 0.00623,
+            "liquidity": 0.0077,
+            "market": 0.00058,
+            "macro": 0.0203
+          },
+          "share_years_positive": {
+            "mom_12_1": 0.29,
+            "mom_3m": 0.43,
+            "rev_1m": 0.43,
+            "ret_5d": 0.29,
+            "rs_63": 0.0,
+            "vol_20": 0.43,
+            "vol_60": 1.0,
+            "vol_ratio": 0.57,
+            "relvol_5_60": 0.57,
+            "log_dollar_vol": 1.0,
+            "dist_52w_high": 0.71,
+            "max_ret_21": 0.57,
+            "beta_126": 0.57,
+            "vix": 0.43,
+            "vix_chg_21": 0.43,
+            "spy_trend_200": 0.29,
+            "spy_mom_63": 0.71,
+            "tnx": 0.43,
+            "curve_10y_3m": 0.14,
+            "cpi_yoy": 0.57,
+            "fed_assets_13w_chg": 0.57,
+            "wti_63d_chg": 0.86,
+            "usd_63d_chg": 0.57
+          }
+        },
+        "sectors": {
+          "Financial Services": {
+            "n_dates": 335,
+            "mean_ic": 0.0372,
+            "t_naive": 2.56
+          },
+          "Consumer Cyclical": {
+            "n_dates": 335,
+            "mean_ic": 0.03472,
+            "t_naive": 2.65
+          },
+          "Communication Services": {
+            "n_dates": 335,
+            "mean_ic": 0.02627,
+            "t_naive": 1.77
+          },
+          "Technology": {
+            "n_dates": 335,
+            "mean_ic": 0.02205,
+            "t_naive": 1.95
+          },
+          "Healthcare": {
+            "n_dates": 335,
+            "mean_ic": 0.01934,
+            "t_naive": 1.74
+          },
+          "Energy": {
+            "n_dates": 335,
+            "mean_ic": 0.01815,
+            "t_naive": 1.03
+          },
+          "Consumer Defensive": {
+            "n_dates": 335,
+            "mean_ic": 0.01686,
+            "t_naive": 1.21
+          },
+          "Industrials": {
+            "n_dates": 335,
+            "mean_ic": 0.00827,
+            "t_naive": 0.68
+          },
+          "Real Estate": {
+            "n_dates": 335,
+            "mean_ic": -0.00538,
+            "t_naive": -0.32
+          },
+          "Basic Materials": {
+            "n_dates": 335,
+            "mean_ic": -0.00657,
+            "t_naive": -0.39
+          },
+          "Utilities": {
+            "n_dates": 335,
+            "mean_ic": -0.01258,
+            "t_naive": -0.92
+          }
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.002,
+            "median": 0.0018,
+            "hit_rate": 0.553,
+            "t_months": 0.67,
+            "sharpe_ann": 0.31,
+            "max_dd": -0.16724,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.0877,
+            "top_mae": -0.07614,
+            "top_asymmetry": 1.152,
+            "univ_asymmetry": 1.079
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.01674,
+            "median": 0.00599,
+            "hit_rate": 0.551,
+            "t_months": 1.61,
+            "sharpe_ann": 0.84,
+            "max_dd": -0.15178,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.14105,
+            "top_mae": -0.08813,
+            "top_asymmetry": 1.6,
+            "univ_asymmetry": 1.381
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.00369,
+            "median": 0.0013,
+            "hit_rate": 0.531,
+            "t_months": 0.96,
+            "sharpe_ann": 0.41,
+            "max_dd": -0.19279,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.09852,
+            "top_mae": -0.07785,
+            "top_asymmetry": 1.266,
+            "univ_asymmetry": 1.173
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.02287,
+            "median": 0.00945,
+            "hit_rate": 0.627,
+            "t_months": 1.15,
+            "sharpe_ann": 0.8,
+            "max_dd": -0.14816,
+            "years_positive_share": 0.8,
+            "top_mfe": 0.14693,
+            "top_mae": -0.09196,
+            "top_asymmetry": 1.598,
+            "univ_asymmetry": 1.317
+          }
+        }
+      },
+      "decision": {
+        "verdict": "rejected_so_far",
+        "reasons": [
+          "Walk-Forward netto 0.00798 mit t=1.9 (< 2.0)",
+          "nur 0.571 der Testjahre positiv",
+          "Rank-IC 0.02297 (t=1.28) nicht signifikant",
+          "Forward-Shadow: 0/26 fertige Kohorten"
+        ]
+      }
+    },
+    "hgb_asym20_v1": {
+      "registry_status": "valid",
+      "role": "challenger",
+      "wf": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00312,
+          "median": -0.00149,
+          "hit_rate": 0.469,
+          "t_months": 1.03,
+          "sharpe_ann": 0.41,
+          "max_dd": -0.18746,
+          "years_positive_share": 0.429,
+          "top_mfe": 0.09145,
+          "top_mae": -0.06993,
+          "top_asymmetry": 1.308,
+          "univ_asymmetry": 1.213
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00012,
+          "median": -0.00449,
+          "hit_rate": 0.439,
+          "t_months": 0.1,
+          "sharpe_ann": 0.04,
+          "max_dd": -0.25167,
+          "years_positive_share": 0.429,
+          "top_mfe": 0.09145,
+          "top_mae": -0.06993,
+          "top_asymmetry": 1.308,
+          "univ_asymmetry": 1.213
+        },
+        "long_short_gross": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.01004,
+          "median": 0.00268,
+          "hit_rate": 0.516,
+          "t_months": 1.85,
+          "sharpe_ann": 0.73,
+          "max_dd": -0.20849,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.09145,
+          "top_mae": -0.06993,
+          "top_asymmetry": 1.308,
+          "univ_asymmetry": 1.213
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.0233,
+          "t_months": 1.34
+        }
+      },
+      "locked": {
+        "status": "ok",
+        "params": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "base": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.01176,
+          "median": 0.01329,
+          "hit_rate": 0.656,
+          "t_months": 1.51,
+          "sharpe_ann": 1.4,
+          "max_dd": -0.07902,
+          "years_positive_share": 1.0,
+          "top_mfe": 0.11869,
+          "top_mae": -0.08269,
+          "top_asymmetry": 1.435,
+          "univ_asymmetry": 1.274
+        },
+        "stress": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.00876,
+          "median": 0.01029,
+          "hit_rate": 0.623,
+          "t_months": 1.13,
+          "sharpe_ann": 1.05,
+          "max_dd": -0.08752,
+          "years_positive_share": 0.5,
+          "top_mfe": 0.11869,
+          "top_mae": -0.08269,
+          "top_asymmetry": 1.435,
+          "univ_asymmetry": 1.274
+        },
+        "long_short_gross": {
+          "n_cohorts": 61,
+          "n_months": 14,
+          "mean": 0.00428,
+          "median": 0.01659,
+          "hit_rate": 0.639,
+          "t_months": 0.37,
+          "sharpe_ann": 0.34,
+          "max_dd": -0.19406,
+          "years_positive_share": 0.5,
+          "top_mfe": 0.11869,
+          "top_mae": -0.08269,
+          "top_asymmetry": 1.435,
+          "univ_asymmetry": 1.274
+        },
+        "ic": {
+          "n_dates": 61,
+          "mean_ic": -0.01475,
+          "t_months": -0.61
+        }
+      },
+      "forward": null,
+      "params_by_year": {
+        "2019": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2020": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2021": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2022": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2023": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2024": {
+          "max_iter": 150,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        },
+        "2025": {
+          "max_iter": 400,
+          "learning_rate": 0.05,
+          "max_depth": 3,
+          "min_samples_leaf": 300
+        }
+      },
+      "attribution": {
+        "importance": {
+          "feature_ic_drop": {
+            "vol_60": 0.01037,
+            "spy_trend_200": 0.01025,
+            "usd_63d_chg": 0.00948,
+            "beta_126": 0.00795,
+            "rev_1m": 0.00639,
+            "log_dollar_vol": 0.00447,
+            "tnx": 0.00434,
+            "mom_3m": 0.00187,
+            "wti_63d_chg": 0.00138,
+            "vol_ratio": 0.00136,
+            "cpi_yoy": 0.00109,
+            "vix_chg_21": 0.00092,
+            "curve_10y_3m": 0.00043,
+            "spy_mom_63": 0.00033,
+            "relvol_5_60": 0.00014,
+            "max_ret_21": 0.0001,
+            "rs_63": 0.0,
+            "vol_20": -3e-05,
+            "ret_5d": -7e-05,
+            "mom_12_1": -0.00061,
+            "dist_52w_high": -0.0009,
+            "fed_assets_13w_chg": -0.00152,
+            "vix": -0.00168
+          },
+          "groups": {
+            "momentum": 0.0067,
+            "risk": 0.01974,
+            "liquidity": 0.00461,
+            "market": 0.01459,
+            "macro": 0.01043
+          },
+          "share_years_positive": {
+            "mom_12_1": 0.29,
+            "mom_3m": 0.71,
+            "rev_1m": 0.43,
+            "ret_5d": 0.57,
+            "rs_63": 0.0,
+            "vol_20": 0.57,
+            "vol_60": 0.86,
+            "vol_ratio": 0.71,
+            "relvol_5_60": 0.29,
+            "log_dollar_vol": 0.86,
+            "dist_52w_high": 0.29,
+            "max_ret_21": 0.43,
+            "beta_126": 0.71,
+            "vix": 0.43,
+            "vix_chg_21": 0.43,
+            "spy_trend_200": 0.71,
+            "spy_mom_63": 0.43,
+            "tnx": 0.71,
+            "curve_10y_3m": 0.29,
+            "cpi_yoy": 0.71,
+            "fed_assets_13w_chg": 0.57,
+            "wti_63d_chg": 0.57,
+            "usd_63d_chg": 0.29
+          }
+        },
+        "sectors": {
+          "Communication Services": {
+            "n_dates": 335,
+            "mean_ic": 0.04367,
+            "t_naive": 2.93
+          },
+          "Financial Services": {
+            "n_dates": 335,
+            "mean_ic": 0.0354,
+            "t_naive": 2.27
+          },
+          "Consumer Cyclical": {
+            "n_dates": 335,
+            "mean_ic": 0.02753,
+            "t_naive": 2.18
+          },
+          "Healthcare": {
+            "n_dates": 335,
+            "mean_ic": 0.02728,
+            "t_naive": 2.28
+          },
+          "Technology": {
+            "n_dates": 335,
+            "mean_ic": 0.00895,
+            "t_naive": 0.96
+          },
+          "Industrials": {
+            "n_dates": 335,
+            "mean_ic": 0.00621,
+            "t_naive": 0.53
+          },
+          "Real Estate": {
+            "n_dates": 335,
+            "mean_ic": 0.0026,
+            "t_naive": 0.15
+          },
+          "Consumer Defensive": {
+            "n_dates": 335,
+            "mean_ic": 4e-05,
+            "t_naive": 0.0
+          },
+          "Energy": {
+            "n_dates": 335,
+            "mean_ic": -0.00892,
+            "t_naive": -0.56
+          },
+          "Basic Materials": {
+            "n_dates": 335,
+            "mean_ic": -0.0099,
+            "t_naive": -0.6
+          },
+          "Utilities": {
+            "n_dates": 335,
+            "mean_ic": -0.01044,
+            "t_naive": -0.77
+          }
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00114,
+            "median": -0.00337,
+            "hit_rate": 0.437,
+            "t_months": 0.23,
+            "sharpe_ann": 0.1,
+            "max_dd": -0.11696,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.07723,
+            "top_mae": -0.06944,
+            "top_asymmetry": 1.112,
+            "univ_asymmetry": 1.079
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.00936,
+            "median": 0.00078,
+            "hit_rate": 0.515,
+            "t_months": 1.55,
+            "sharpe_ann": 0.81,
+            "max_dd": -0.16509,
+            "years_positive_share": 0.714,
+            "top_mfe": 0.11226,
+            "top_mae": -0.07065,
+            "top_asymmetry": 1.589,
+            "univ_asymmetry": 1.381
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": 0.0013,
+            "median": -0.00191,
+            "hit_rate": 0.458,
+            "t_months": 0.97,
+            "sharpe_ann": 0.41,
+            "max_dd": -0.12121,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.08519,
+            "top_mae": -0.06881,
+            "top_asymmetry": 1.238,
+            "univ_asymmetry": 1.173
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.00941,
+            "median": 0.00062,
+            "hit_rate": 0.507,
+            "t_months": 0.71,
+            "sharpe_ann": 0.49,
+            "max_dd": -0.15438,
+            "years_positive_share": 0.6,
+            "top_mfe": 0.11314,
+            "top_mae": -0.07381,
+            "top_asymmetry": 1.533,
+            "univ_asymmetry": 1.317
+          }
+        }
+      },
+      "decision": {
+        "verdict": "rejected_so_far",
+        "reasons": [
+          "Walk-Forward netto 0.00312 mit t=1.03 (< 2.0)",
+          "nur 0.429 der Testjahre positiv",
+          "Rank-IC 0.0233 (t=1.34) nicht signifikant",
+          "Sharpe 0.41 nicht > Benchmark 0.4 + Marge",
+          "Forward-Shadow: 0/26 fertige Kohorten"
+        ]
+      }
+    }
+  },
+  "new_predictions": [
+    "momentum_12_1@2026-09-28",
+    "enet_xs20_v1@2026-09-28",
+    "hgb_xs20_v1@2026-09-28",
+    "hgb_asym20_v1@2026-09-28"
+  ],
+  "benchmark": "momentum_12_1",
+  "locked_evaluations_total": 4
+}
