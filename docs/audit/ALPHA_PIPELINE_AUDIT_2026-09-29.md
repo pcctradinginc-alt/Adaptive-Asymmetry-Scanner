@@ -222,3 +222,25 @@ ICE-BofA-Spreads sind wegen der Lizenz bewusst ausgeschlossen.
   Faktor-Report). Dieser Test entscheidet, ob der Scanner überhaupt einen Mehrwert
   hat. Das Urteil lautet `insufficient_data`, bis ≥ 30 unabhängige Tage mit gereiften
   Outcomes vorliegen, also frühestens etwa Mitte November 2026 (h = 20).
+
+## 9. Scheinbares Alpha durch Outcome-Bewertung (2026-09-29)
+
+`feedback.compute_outcome` bewertete Options-Exits zum **Mid** (ohne Bid sogar zum **Ask**),
+Entries dagegen zum Ask. Der halbe Spread beim Verkauf fehlte also: Bei einem
+Median-Spread von 5 % des Ask war jedes Outcome **im Median ~2,5 Prozentpunkte zu
+gut** (227 Entry-Quotes ausgewertet, p90-Spread 9 %). Diese Outcomes speisen die
+Lern-Bins, Pearson-Gewichte, das RL und den Faktor-Monitor.
+
+Weitere Fehler im selben Pfad:
+- Wurde der Call nicht gefunden, lieferte der Code still den **Put** gleichen Strikes.
+- Verfallene **Bear-Put-Spreads** ergaben `None`, weil nur die Bull-Call-Intrinsic
+  gerechnet wurde, und fielen damit aus der Auswertung.
+
+**Behoben:**
+- Exit zum Bid; Spreads werden als Long-Bid minus Short-Ask bewertet.
+- Bid 0 bei vorhandenem Quote ergibt −100 % statt der Delta-Näherung.
+- Den Gegentyp gibt es nur noch ohne Strategie-Info.
+- Die Put-Spread-Intrinsic wird korrekt gerechnet.
+
+Die bisherigen 184 Outcomes in `history.json` bleiben Mid-basiert und sind damit
+leicht zu optimistisch. Das ändert die ohnehin negativen Befunde nicht.

@@ -6,7 +6,7 @@ feedback.py – Adaptive Lern-Loop v5.0
       Endpoint: /v1/markets/options/chains (Optionspreis via Strike-Filter)
       Endpoint: /v1/markets/quotes        (Aktienkurs Real-Time)
     - get_current_price():        Tradier Primary → yfinance Fallback
-    - get_current_option_price(): Tradier Primary → yfinance Fallback
+    - get_current_option_price(): realisierbarer Preis (Verkauf=Bid), Tradier → yfinance
     - compute_outcome():          strategy-Parameter für saubere Call/Put-Erkennung
     - TRADIER_API_KEY via os.environ (bereits als GitHub Secret hinterlegt)
     - Warum wichtig: RL-Agent trainiert auf Outcomes — falsche Preise (yfinance
@@ -143,42 +143,36 @@ def _tradier_stock_price(ticker: str) -> float:
 
 # ── Preis-Abruf: Optionspreis ─────────────────────────────────────────────────
 
-def get_current_option_price(
-    ticker: str, option: dict, strategy: str = ""
-) -> float:
-    """
-    Aktueller Mid-Price einer Options-Position: Tradier Primary → yfinance Fallback.
-
-    Args:
-        ticker:   Ticker-Symbol (z.B. "AAPL")
-        option:   Option-Dict aus history.json (strike, expiry, ...)
-        strategy: Trade-Strategie (z.B. "LONG_CALL", "BEAR_PUT_SPREAD")
-                  → bestimmt ob Call oder Put gesucht wird.
-                  Leer → versucht Call zuerst, dann Put.
-    """
+def get_option_quote(ticker: str, option: dict, strategy: str) -> dict | None:
+    """Bid/Ask einer Options-Position: Tradier Primary -> yfinance Fallback.
+    None = kein Quote gefunden. Der Gegentyp (Put statt Call) wird NUR bei
+    fehlender Strategie-Info versucht -- vorher lieferte ein nicht gefundener
+    Call still den Preis des PUTS gleichen Strikes (falsches Instrument)."""
     if not option:
-        return 0.0
-    strike = option.get("strike")
-    expiry = option.get("expiry")
+        return None
+    strike, expiry = option.get("strike"), option.get("expiry")
     if not strike or not expiry:
-        return 0.0
-
-    # Option-Type aus Strategie ableiten
+        return None
     option_type = _option_type_from_strategy(strategy)
+    types = [option_type] + ([("put" if option_type == "call" else "call")] if not strategy else [])
+    for t in types:
+        q = _tradier_option_quote(ticker, strike, expiry, t) if _use_tradier() else None
+        if q is None:
+            q = _yfinance_option_quote(ticker, strike, expiry, t)
+        if q is not None:
+            return q
+    return None
 
-    # ── Versuch 1: Tradier ────────────────────────────────────────────────────
-    if _use_tradier():
-        price = _tradier_option_price(ticker, strike, expiry, option_type)
-        if price > 0:
-            log.debug(
-                f"[{ticker}] Tradier Options-Mid: strike={strike} "
-                f"expiry={expiry} → ${price:.2f}"
-            )
-            return price
-        log.debug(f"[{ticker}] Tradier Options-Preis fehlgeschlagen → yfinance")
 
-    # ── Versuch 2: yfinance Fallback ──────────────────────────────────────────
-    return _yfinance_option_price(ticker, strike, expiry)
+def get_current_option_price(ticker: str, option: dict, strategy: str, side: str = "sell") -> float:
+    """REALISIERBARER Preis (Audit 2026-09-29): Verkauf zum Bid, Kauf zum Ask.
+    Vorher Mid (bzw. Ask, wenn kein Bid) -> Exit ohne halben Spread, jedes
+    Outcome im Median ~2,5 Prozentpunkte zu gut (Spread ~5 % des Ask).
+    0.0 = kein Quote ODER Bid 0 (siehe compute_outcome zur Unterscheidung)."""
+    q = get_option_quote(ticker, option, strategy)
+    if q is None:
+        return 0.0
+    return float(q["bid"] if side == "sell" else q["ask"])
 
 
 def _option_type_from_strategy(strategy: str) -> str:
@@ -196,86 +190,48 @@ def _option_type_from_strategy(strategy: str) -> str:
     return "call"  # Default: Call (häufiger Fall)
 
 
-def _tradier_option_price(
-    ticker: str, strike: float, expiry: str, option_type: str
-) -> float:
-    """
-    Options-Mid-Price via Tradier /v1/markets/options/chains.
-
-    Filtert die Chain nach Strike ± 0.01 und option_type.
-    Wenn option_type="call" und nichts gefunden → versucht "put" (Fallback
-    bei alten Trades ohne Strategy-Info in history.json).
-    """
-    def _fetch_mid(o_type: str) -> float:
-        try:
-            resp = requests.get(
-                f"{TRADIER_BASE}/markets/options/chains",
-                params={
-                    "symbol":     ticker,
-                    "expiration": expiry,
-                    "greeks":     "false",
-                },
-                headers=_tradier_headers(),
-                timeout=TRADIER_TIMEOUT,
-            )
-            resp.raise_for_status()
-            data    = resp.json()
-            options = data.get("options", {}).get("option", []) or []
-
-            # Einzelner Kontrakt kommt als Dict
-            if isinstance(options, dict):
-                options = [options]
-
-            for o in options:
-                if o.get("option_type") != o_type:
-                    continue
-                # Strike-Vergleich mit Float-Toleranz
-                if abs(float(o.get("strike", 0)) - float(strike)) > 0.01:
-                    continue
-
-                bid = float(o.get("bid") or 0)
-                ask = float(o.get("ask") or 0)
-                if bid > 0 and ask > 0:
-                    return round((bid + ask) / 2, 4)
-                # Nur Ask vorhanden
-                if ask > 0:
-                    return float(ask)
-
-            return 0.0
-
-        except Exception as e:
-            log.debug(f"Tradier Options-Chain [{ticker} {expiry}]: {e}")
-            return 0.0
-
-    # Primärer Versuch
-    price = _fetch_mid(option_type)
-    if price > 0:
-        return price
-
-    # Fallback: anderer Option-Type (für alte Trades ohne Strategy-Info)
-    other_type = "put" if option_type == "call" else "call"
-    return _fetch_mid(other_type)
+def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: str) -> dict | None:
+    """Bid/Ask via Tradier /v1/markets/options/chains (Strike ± 0.01)."""
+    try:
+        resp = requests.get(
+            f"{TRADIER_BASE}/markets/options/chains",
+            params={"symbol": ticker, "expiration": expiry, "greeks": "false"},
+            headers=_tradier_headers(), timeout=TRADIER_TIMEOUT,
+        )
+        resp.raise_for_status()
+        options = (resp.json().get("options") or {}).get("option") or []
+        if isinstance(options, dict):
+            options = [options]
+        for o in options:
+            if o.get("option_type") != option_type:
+                continue
+            if abs(float(o.get("strike", 0)) - float(strike)) > 0.01:
+                continue
+            bid, ask = float(o.get("bid") or 0), float(o.get("ask") or 0)
+            if bid > 0 or ask > 0:
+                return {"bid": bid, "ask": ask, "source": "tradier"}
+        return None
+    except Exception as e:
+        log.warning(f"Tradier Options-Chain [{ticker} {expiry}]: {e}")
+        return None
 
 
-def _yfinance_option_price(
-    ticker: str, strike: float, expiry: str
-) -> float:
-    """Options-Mid-Price via yfinance (Fallback, unveränderte v4.0-Logik)."""
+def _yfinance_option_quote(ticker: str, strike: float, expiry: str, option_type: str) -> dict | None:
+    """Bid/Ask via yfinance (Fallback)."""
     try:
         t = yf.Ticker(ticker)
         if expiry not in t.options:
-            return 0.0
-        chain   = t.option_chain(expiry)
-        # Versuche Calls zuerst, dann Puts
-        for opts in [chain.calls, chain.puts]:
-            matches = opts[(opts["strike"] == strike) & (opts["ask"] > 0)]
-            if not matches.empty:
-                row = matches.iloc[0]
-                return float((row["bid"] + row["ask"]) / 2)
-        return 0.0
+            return None
+        chain = t.option_chain(expiry)
+        opts = chain.calls if option_type == "call" else chain.puts
+        matches = opts[(opts["strike"] == strike) & ((opts["ask"] > 0) | (opts["bid"] > 0))]
+        if matches.empty:
+            return None
+        row = matches.iloc[0]
+        return {"bid": float(row["bid"] or 0), "ask": float(row["ask"] or 0), "source": "yfinance"}
     except Exception as e:
         log.warning(f"yfinance Options-Preis Fehler für {ticker}: {e}")
-        return 0.0
+        return None
 
 
 # ── Spread-Preis (beide Legs) ─────────────────────────────────────────────────
@@ -293,7 +249,8 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
         long_k     = float(option.get("strike", 0))
         sl         = option.get("spread_leg") or {}
         short_k    = float(sl.get("strike", 0))
-        width      = round(short_k - long_k, 2) if short_k > long_k > 0 else 0
+        is_put     = short_k < long_k      # Bear-Put-Spread: Long-Put-Strike > Short-Put-Strike
+        width      = round(abs(short_k - long_k), 2) if long_k > 0 and short_k > 0 else 0
 
         if width <= 0 or long_k <= 0:
             return None
@@ -306,7 +263,9 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
 
         close = float(hist["Close"].iloc[0])  # Schlusskurs am Verfallstag
 
-        if close <= long_k:
+        if is_put:     # vorher nur Bull-Call -> verfallene Put-Spreads fielen still aus
+            intrinsic = round(min(max(long_k - close, 0.0), width), 4)
+        elif close <= long_k:
             intrinsic = 0.0
         elif close >= short_k:
             intrinsic = width
@@ -352,12 +311,13 @@ def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float 
     except ValueError:
         pass
 
-    long_mid  = get_current_option_price(ticker, option, strategy)
-    short_mid = get_current_option_price(
-        ticker, {"strike": sl.get("strike"), "expiry": expiry}, strategy
-    )
+    # Realisierbar schließen: Long-Leg zum Bid verkaufen, Short-Leg zum Ask zurückkaufen.
+    long_q  = get_option_quote(ticker, option, strategy)
+    short_q = get_option_quote(ticker, {"strike": sl.get("strike"), "expiry": expiry}, strategy)
+    long_mid  = long_q["bid"] if long_q else 0.0
+    short_mid = short_q["ask"] if short_q else 0.0
 
-    if long_mid > 0 and short_mid > 0:
+    if long_q is not None and short_q is not None and short_mid > 0:
         net = round(long_mid - short_mid, 4)
         log.info(
             f"    [{ticker}] Spread-Legs: "
@@ -449,6 +409,15 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
 
     if entry_debit > 0:
         current_option = get_current_option_price(ticker, option, strategy)
+        if current_option <= 0:
+            q = get_option_quote(ticker, option, strategy)
+            if q is not None and q.get("ask", 0) > 0 and q.get("bid", 0) <= 0:
+                # Quote vorhanden, aber kein Bid: realisierbar 0 -> -100 %,
+                # NICHT die (optimistische) Delta-Näherung.
+                if meta is not None:
+                    meta["method"] = "option_quote_bid_zero"
+                log.info(f"    Options-P&L: entry=${entry_debit:.2f} → Bid 0 (realisierbar) = -100.00%")
+                return -1.0
         if current_option > 0:
             result = (current_option - entry_debit) / entry_debit
             if meta is not None:
