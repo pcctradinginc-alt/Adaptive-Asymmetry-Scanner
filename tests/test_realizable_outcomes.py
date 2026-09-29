@@ -55,3 +55,14 @@ def test_expired_bear_put_spread_intrinsic(monkeypatch):
     monkeypatch.setattr(fb.yf, "Ticker", lambda t: _T())
     opt = {"strike": 100, "expiry": "2026-01-16", "spread_leg": {"strike": 90}}
     assert fb._expired_spread_intrinsic("A", opt) == 8.0                     # Long-Put 100 / Short-Put 90
+
+
+def test_delta_approx_sign_for_puts(monkeypatch):
+    monkeypatch.setattr(fb, "get_option_quote", lambda *a: None)
+    monkeypatch.setattr(fb, "get_current_option_price", lambda *a, **k: 0.0)
+    base = {"ticker": "A", "entry_debit": 5.0, "option": {"strike": 100, "expiry": "2099-01-01"},
+            "simulation": {"current_price": 100.0}}
+    put_up = fb.compute_outcome({**base, "strategy": "LONG_PUT"}, 110.0, {})      # Aktie +10 %
+    call_up = fb.compute_outcome({**base, "strategy": "LONG_CALL"}, 110.0, {})
+    assert put_up < 0 < call_up
+    assert fb.compute_outcome({**base, "strategy": "LONG_PUT"}, 90.0, {}) > 0     # Aktie -10 % -> Put +
