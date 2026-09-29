@@ -7,6 +7,12 @@ pipeline:
   min_impact_threshold: 4    # Legacy-Key, siehe gates.impact_min (dieser gewinnt bei Konflikt)
   max_intraday_move: 0.07    # NEU: 7% → Signal verwerfen wenn zu spät
   max_mismatch: 7.0          # Legacy-Key, siehe gates.mismatch_max (dieser gewinnt bei Konflikt)
+  # Laufzeitbudget (Job-Timeout 75 min): ab max_runtime_minutes - finalize_reserve_minutes
+  # werden in Stufe 2b/4 keine neuen Kandidaten begonnen (Reject time_budget_exceeded);
+  # Report, Ledger und Mail werden immer geschrieben (Testlauf 2026-09-29 brach ohne
+  # jede Ausgabe am Job-Timeout ab).
+  max_runtime_minutes: 60
+  finalize_reserve_minutes: 10
 
 # Zentrale Gate-Schwellen: Pipeline, Mail und Monats-Report lesen ausschließlich
 # von hier (mit Fallback auf die Legacy-Keys oben, dann auf den Code-Default).
