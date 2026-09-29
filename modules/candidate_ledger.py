@@ -68,6 +68,10 @@ CONFIG_PATH   = Path(__file__).resolve().parent.parent / "config.yaml"
 PIPELINE_PATH = Path(__file__).resolve().parent.parent / "pipeline.py"
 
 HORIZONS = (5, 20, 45, 120)
+# Underlying-Forward-Returns zusätzlich 1d/60d (Audit 2026-09-29) -- aus der
+# ohnehin geladenen Kurshistorie, keine zusätzlichen API-Calls. Options-Marks
+# (real_opt/real_strat) bleiben bei HORIZONS (Tradier-Budget).
+RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
@@ -1468,11 +1472,11 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
         if row.get("entry_price") in (None, 0) and row.get("entry_basis") == "next_open":
             continue  # Open noch nicht verfügbar — nächster Lauf versucht es erneut
         outcomes = row.setdefault("outcomes", {})
-        for h in HORIZONS:
+        for h in RETURN_HORIZONS:
             key = f"ret_{h}d"
             if key in outcomes:
                 continue
-            if (today_dt - entry_dt).days >= h:
+            if (today_dt - entry_dt).days > h:
                 pending_tickers.add(row["ticker"])
                 break
 
@@ -1529,11 +1533,14 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
         hypo      = row.get("hypo_option")
 
         filled_any = False
-        for h in HORIZONS:
+        for h in RETURN_HORIZONS:
             key = f"ret_{h}d"
             if key in outcomes:
                 continue
-            if (today_dt - entry_dt).days < h:
+            # Erst füllen, wenn der Zieltag ABGESCHLOSSEN ist: der Feedback-Loop
+            # läuft während der Handelszeit, ein Zieltag == heute läse den
+            # unfertigen Tagesbalken (wurde danach nie korrigiert).
+            if (today_dt - entry_dt).days <= h:
                 continue
             target_dt = entry_dt + timedelta(days=h)
             price = _price_on_or_before(hist, target_dt)
@@ -1551,7 +1558,7 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
             # MFE/MAE über den bislang gefüllten Zeitraum (bis zum letzten
             # tatsächlich erreichten Horizont) neu berechnen.
             latest_horizon = max(
-                (h for h in HORIZONS if f"ret_{h}d" in outcomes),
+                (h for h in RETURN_HORIZONS if f"ret_{h}d" in outcomes),
                 default=None,
             )
             if latest_horizon is not None:

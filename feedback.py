@@ -892,13 +892,14 @@ def compute_pearson_weights(history: dict) -> dict:
     if len(closed) < 5:
         return history.get("model_weights", {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20})
 
-    outcomes, impacts, mismatches, drifts = [], [], [], []
+    outcomes, impacts, mismatches, drifts, entry_days = [], [], [], [], set()
     for t in closed:
         outcome = t.get("outcome")
         if outcome is None:
             continue
         feat = t.get("features", {})
         outcomes.append(outcome)
+        entry_days.add(str(t.get("entry_date", ""))[:10])
         impacts.append(_bin_to_num("impact",    feat.get("bin_impact",    "mid")))
         mismatches.append(_bin_to_num("mismatch", feat.get("bin_mismatch",  "good")))
         drifts.append(_bin_to_num("eps_drift", feat.get("bin_eps_drift", "noise")))
@@ -917,6 +918,16 @@ def compute_pearson_weights(history: dict) -> dict:
         else:
             r, _ = stats.pearsonr(arr, outcomes_arr)
         if not np.isfinite(r):
+            r = 0.0
+        # Sicherheitsbremse (Audit 2026-09-29): nur statistisch belastbare
+        # positive Korrelationen zählen. Vorher bekam ein Feature mit zufällig
+        # r=+0.02 das Zielgewicht 100 % und setzte sich bei 2 Läufen/Werktag
+        # mit Lernrate 0.05 binnen Wochen durch (Overfitting auf Rauschen).
+        # Gleiche Regel wie modules/factor_monitor.py: >= MIN_EFF_N
+        # unabhängige Entry-Tage UND 90%-KI (Fisher-z) oberhalb 0.
+        from modules.factor_monitor import MIN_EFF_N, fisher_ci
+        lo, _hi = fisher_ci(float(r), len(entry_days))
+        if len(entry_days) < MIN_EFF_N or lo is None or lo <= 0:
             r = 0.0
         correlations[name] = max(r, 0)
 

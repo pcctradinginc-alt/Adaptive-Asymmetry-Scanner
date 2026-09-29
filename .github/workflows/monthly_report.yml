@@ -43,6 +43,11 @@ jobs:
           python -m modules.alpha_discovery || true
           python -c "from modules.challenger_registrar import run_auto; print(run_auto())" || true
 
+      - name: Faktor-Monitor (Walk-Forward, Decay, Regime, Drift; nur SHADOW)
+        # continue-on-error statt "|| true": ein Fehler bleibt im Lauf sichtbar
+        continue-on-error: true
+        run: python -m modules.factor_monitor
+
       - name: Commit research outputs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

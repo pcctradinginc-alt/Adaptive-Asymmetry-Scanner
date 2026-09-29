@@ -59,3 +59,32 @@ def test_deep_analysis_48h_move_missing_is_none():
     da = DeepAnalysis.__new__(DeepAnalysis)
     with patch("modules.deep_analysis.yf.Ticker", side_effect=RuntimeError("down")):
         assert da._get_48h_move("ZZZ") is None
+
+
+def _hist(n_days, rho_sign=1.0, seed=3):
+    import random
+    rnd = random.Random(seed)
+    closed = []
+    for d in range(n_days):
+        imp = rnd.choice(["low", "mid", "high"])
+        base = {"low": 0.0, "mid": 0.5, "high": 1.0}[imp]
+        closed.append({"entry_date": f"2026-{1 + d // 28:02d}-{1 + d % 28:02d}",
+                       "outcome": rho_sign * base + rnd.gauss(0, 0.2),
+                       "features": {"bin_impact": imp, "bin_mismatch": rnd.choice(["weak", "good", "strong"]),
+                                    "bin_eps_drift": "noise"}})
+    return {"closed_trades": closed, "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}}
+
+
+def test_pearson_weights_ignore_weak_noise_correlations():
+    import feedback
+    h = _hist(12)                       # zu wenige Tage -> keine Anpassung trotz echter Korrelation
+    assert feedback.compute_pearson_weights(h) == {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.2}
+    strong = feedback.compute_pearson_weights(_hist(120))
+    assert strong["impact"] > 0.35      # belastbare Evidenz -> Gewicht steigt (langsam)
+
+
+def test_pearson_weights_unchanged_on_current_history():
+    import json
+    import feedback
+    h = json.load(open("outputs/history.json"))
+    assert feedback.compute_pearson_weights(h) == {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.2}
