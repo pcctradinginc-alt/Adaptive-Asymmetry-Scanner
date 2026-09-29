@@ -54,7 +54,7 @@ ROAD_FREIGHT_SOURCES = ["destatis_truck_toll", "destatis_truck_toll_download",
 MARITIME_SOURCES = ["imf_portwatch_ports", "imf_portwatch_chokepoints", "imf_portwatch_disruptions"]
 WEATHER_SOURCES = ["nws_forecast", "nws_alerts", "ncei_normals", "nhc_storms"]
 REAL_ECONOMY_SOURCES = ["eurostat_sentiment", "eurostat_industrial_production", "fred_us_macro",
-                        "fred_regime_macro"]
+                        "fred_regime_macro", "entsoe_power"]
 
 CHOKEPOINT_SLUGS = {
     "suez": ("suez", "suez canal"),
@@ -567,6 +567,12 @@ def _build_real_economy(archive, now: datetime, errors: list) -> dict:
         out["regime"] = _regime.regime_state(_load_observations(archive, _regime.SOURCE_ID, now), now)
     except Exception as e:  # noqa: BLE001
         errors.append(f"regime: {e!r}")
+    out["energy"] = {"labels": {}}
+    try:
+        from modules.external import regime as _regime
+        out["energy"] = _regime.energy_state(_load_observations(archive, _regime.ENERGY_SOURCE_ID, now), now)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"energy: {e!r}")
     return out
 
 
@@ -893,6 +899,9 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         "fed_assets_13w_chg": (real_economy.get("regime") or {}).get("fed_assets_13w_chg"),
         "usd_63d_chg": (real_economy.get("regime") or {}).get("usd_63d_chg"),
         "wti_63d_chg": (real_economy.get("regime") or {}).get("wti_63d_chg"),
+        "de_power_price_7d": (real_economy.get("energy") or {}).get("de_power_price_7d"),
+        "de_power_price_z": (real_economy.get("energy") or {}).get("de_power_price_z"),
+        "de_load_yoy": (real_economy.get("energy") or {}).get("de_load_yoy"),
         "hdd_anomaly": weather.get("hdd_anomaly"),
         "cdd_anomaly": weather.get("cdd_anomaly"),
         "forecast_revision_hdd": weather.get("forecast_revision_hdd"),

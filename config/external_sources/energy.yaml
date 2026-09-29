@@ -1,0 +1,39 @@
+# ENTSO-E Transparency Platform – Strommarkt Europa (offizielle REST-API).
+# Token: GitHub-Secret ENTSOE_API_TOKEN (Parameter securityToken; nie in URL-/
+# Raw-Metadaten gespeichert, Fehlermeldungen werden maskiert).
+sources:
+  - source_id: entsoe_power
+    display_name: "ENTSO-E: Day-Ahead-Strompreise (DE-LU, FR, NL, IT-Nord, ES) + Ist-Last DE"
+    family: real_economy
+    authority: "ENTSO-E (European Network of Transmission System Operators for Electricity)"
+    official_homepage: "https://transparency.entsoe.eu"
+    machine_endpoint: "https://web-api.tp.entsoe.eu/api"
+    access_method: "entsoe_transparency_rest_api (XML, IEC 62325)"
+    requires_auth: true
+    auth_env_variable: "ENTSOE_API_TOKEN"
+    license_reference: "ENTSO-E Transparency Platform Terms and Conditions (Daten frei nutzbar mit Quellenangabe)"
+    license_status: OK
+    usage_restriction: "private, non-commercial research; attribution required"
+    commercial_use_status_if_known: "Nutzung mit Quellenangabe zulässig; Weiterverbreitung gemäß ENTSO-E-T&C"
+    attribution: "Source: ENTSO-E Transparency Platform (transparency.entsoe.eu)"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    max_staleness_days: 7
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    role: REGIME
+    lookback_days: 400          # rollierendes Fenster je Lauf (365-T-z-Score sofort möglich)
+    max_fetch_seconds: 420
+    max_backfill_bytes: 5000000
+    price_zones: [DE_LU, FR, NL, IT_NORD, ES]
+    load_areas: {DE: "10Y1001A1001A83F"}
+    notes: >
+      Day-Ahead-Preis Lieferungstag D: available_at = D-1 23:59:59 Europe/Berlin
+      (SDAC-Auktion ~12:45 CET, keine Revision). Ist-Last: available_at =
+      max(D+1 06:00 Berlin, Abrufzeit), Revisionen nur vorwärts. Tagesmittel
+      je Lieferungstag in Ortszeit (23/25-h-Tage bei Zeitumstellung berücksichtigt),
+      feinste Auflösung je Tag (SDAC seit 2025-10 in 15 Minuten).

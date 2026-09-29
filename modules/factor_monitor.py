@@ -268,11 +268,13 @@ def macro_regimes(dates: list[str], archive_root: str = "outputs/external_data")
     try:
         from modules.external import regime
         from modules.external.archive import ExternalArchive
-        obs = ExternalArchive(archive_root).load(regime.SOURCE_ID)
+        arch = ExternalArchive(archive_root)
+        obs = arch.load(regime.SOURCE_ID)
+        energy = arch.load(regime.ENERGY_SOURCE_ID)
     except Exception as e:  # noqa: BLE001
         log.warning(f"factor_monitor: Makro-Regime nicht verfügbar: {e}")
         return {}
-    return regime.regimes_by_date(obs, dates)
+    return merge_regimes(regime.regimes_by_date(obs, dates), regime.energy_regimes_by_date(energy, dates))
 
 
 def market_regimes(dates: list[str]) -> dict[str, dict]:
@@ -609,7 +611,8 @@ def run(history_path: Path = HISTORY_PATH, ledger_dir: Path = LEDGER_DIR,
               "outcomes": {}, "note": "SHADOW: keine Produktionswirkung. Gewichte nur Forschung.",
               "regime_coverage": dict(_count(f"{k}={v}" for r in regimes.values() for k, v in r.items())),
               "regimes_missing": [k for k in ("inflation", "inflation_trend", "credit", "fin_conditions",
-                                              "liquidity", "dollar", "oil", "trend", "rates", "curve", "cycle")
+                                              "liquidity", "dollar", "oil", "power", "demand",
+                                              "trend", "rates", "curve", "cycle")
                                   if not any(k in r for r in regimes.values())]}
     db_rows = []
     weights_out = {}

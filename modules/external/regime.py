@@ -20,6 +20,7 @@ Regeln (bewusst einfach, NICHT auf Returns optimiert):
 
 from __future__ import annotations
 
+import statistics
 from datetime import datetime, timedelta
 
 from modules.external.pit import ensure_utc
@@ -29,13 +30,16 @@ MAX_AGE = {"us_cpi": 75, "nfci_credit": 21, "nfci": 21, "fed_total_assets": 21,
            "usd_broad": 10, "wti": 10}
 
 
-def pit_series(observations, metric: str, as_of: datetime) -> list[tuple[datetime, float]]:
+def pit_series(observations, metric: str, as_of: datetime,
+               entity: str | None = None) -> list[tuple[datetime, float]]:
     """(Periode, Wert) aufsteigend, je Periode die zum Stichtag jüngste
     veröffentlichte Vintage; None-Werte ("." bei FRED) ausgeschlossen."""
     as_of = ensure_utc(as_of)
     best: dict = {}
     for o in observations:
         if o.metric != metric or o.available_at is None:
+            continue
+        if entity is not None and o.entity_id != entity:
             continue
         av = ensure_utc(o.available_at)
         if av > as_of:
@@ -103,6 +107,48 @@ def regimes_by_date(observations, dates: list[str]) -> dict[str, dict]:
     for d in sorted(set(dates)):
         as_of = ensure_utc(datetime.fromisoformat(d)) - timedelta(seconds=1)
         lab = regime_state(observations, as_of)["labels"]
+        if lab:
+            out[d] = lab
+    return out
+
+
+# ── Strommarkt (entsoe_power) ────────────────────────────────────────────────
+
+ENERGY_SOURCE_ID = "entsoe_power"
+
+
+def energy_state(observations, as_of: datetime) -> dict:
+    """PIT-Energie-Kontext:
+      de_power_price_7d   Mittel DE-LU Day-Ahead der letzten 7 bekannten Tage
+      de_power_price_z    dieses 7-T-Mittel vs. Verteilung der Tageswerte der
+                          vorangehenden 365 Tage (>= 200 Tage nötig)
+      de_load_yoy         DE-Last 7-T-Mittel vs. dieselben 7 Tage im Vorjahr
+                          (saisonbereinigt; Industrie-Nachfrage-Proxy)
+    Labels: power = power_expensive/power_cheap (z > 0), demand = load_up/down."""
+    out = {"de_power_price_7d": None, "de_power_price_z": None, "de_load_yoy": None, "labels": {}}
+    px = pit_series(observations, "da_price_daily_mean", as_of, entity="DE_LU")
+    if px and (ensure_utc(as_of) - ensure_utc(px[-1][0])).days <= 7:
+        last7 = [v for _, v in px[-7:]]
+        hist = [v for t, v in px[:-7] if (px[-7][0] - t).days <= 365]
+        out["de_power_price_7d"] = statistics.fmean(last7)
+        if len(hist) >= 200 and statistics.pstdev(hist) > 0:
+            out["de_power_price_z"] = (out["de_power_price_7d"] - statistics.fmean(hist)) / statistics.pstdev(hist)
+            out["labels"]["power"] = "power_expensive" if out["de_power_price_z"] > 0 else "power_cheap"
+    ld = pit_series(observations, "load_daily_mean", as_of, entity="DE")
+    if ld and (ensure_utc(as_of) - ensure_utc(ld[-1][0])).days <= 7:
+        by_t = dict(ld)
+        last = ld[-7:]
+        prev = [by_t.get(t - timedelta(days=364)) for t, _ in last]      # gleicher Wochentag
+        if all(v is not None for v in prev):
+            out["de_load_yoy"] = statistics.fmean(v for _, v in last) / statistics.fmean(prev) - 1.0
+            out["labels"]["demand"] = "load_up" if out["de_load_yoy"] > 0 else "load_down"
+    return out
+
+
+def energy_regimes_by_date(observations, dates: list[str]) -> dict[str, dict]:
+    out = {}
+    for d in sorted(set(dates)):
+        lab = energy_state(observations, ensure_utc(datetime.fromisoformat(d)) - timedelta(seconds=1))["labels"]
         if lab:
             out[d] = lab
     return out

@@ -19,6 +19,7 @@ from datetime import datetime
 
 from modules.external.alerts import check_pit_integrity, decide_alerts, send_alerts
 from modules.external.archive import ExternalArchive
+from modules.external.http import redact_secrets
 from modules.external.pit import ensure_utc, utc_now
 from modules.external.registry import (
     SourceRegistry, SourceHealth, evaluate_staleness, gate_source,
@@ -149,10 +150,10 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         except Exception as e:  # noqa: BLE001 - Konnektor-Fehler ist nicht fatal
             _log(f"[ingest] {source_id}: FEHLER nach {time.monotonic() - _t0:.1f}s: {e!r}")
             h.status = SourceStatus.FAIL.value
-            h.message = repr(e)
+            h.message = redact_secrets(repr(e))
             h.consecutive_failures = int(h.consecutive_failures or 0) + 1
             health[source_id] = h.to_dict()
-            summary["sources"][source_id] = {"status": h.status, "error": repr(e)}
+            summary["sources"][source_id] = {"status": h.status, "error": redact_secrets(repr(e))}
             continue
 
         h.status = result.status.value if hasattr(result.status, "value") else str(result.status)
@@ -320,7 +321,7 @@ def preflight(now: datetime | None = None, families: list[str] | None = None,
         try:
             report = _call_with_deadline(lambda: connector.preflight(now), budget)
         except Exception as e:  # noqa: BLE001
-            report = {"source_id": source_id, "status": "FAIL", "reason": repr(e)}
+            report = {"source_id": source_id, "status": "FAIL", "reason": redact_secrets(repr(e))}
         _log(f"[preflight] {source_id}: {report.get('status')} in {time.monotonic() - _t0:.1f}s")
         report["family"] = source_cfg.get("family")
         report["license_status"] = source_cfg.get("license_status", "OK")

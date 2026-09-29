@@ -23,6 +23,22 @@ USER_AGENT = "AdaptiveAsymmetryScanner/1.0 (research; official-data-only)"
 DEFAULT_TIMEOUT = 30
 
 
+_SECRET_PARAM_RE = None
+
+
+def redact_secrets(text: str) -> str:
+    """Maskiert Credentials in URLs/Fehlertexten (api_key=, securityToken=,
+    appId=, token=, ...). requests-Exceptions enthalten die volle URL MIT
+    Query-String; ohne Maskierung landete ein Key über repr(e) in der
+    committeten source_health.json (Audit 2026-09-29, kein Leak gefunden)."""
+    import re
+    global _SECRET_PARAM_RE
+    if _SECRET_PARAM_RE is None:
+        _SECRET_PARAM_RE = re.compile(
+            r"(?i)([?&;\s](?:[a-z_]*api[_-]?key|[a-z_]*token|app[_-]?id|secret|password|passwd|key)=)[^&\s'\"<>)]+")
+    return _SECRET_PARAM_RE.sub(r"\1***", str(text))
+
+
 class FetchError(Exception):
     """Netz-/Serverfehler nach allen Retries."""
 
@@ -99,4 +115,4 @@ def fetch(url: str, params: dict | None = None, headers: dict | None = None,
                 break
             if attempt < retries - 1:
                 time.sleep(backoff * (2 ** attempt))
-    raise FetchError(str(last_err))
+    raise FetchError(redact_secrets(str(last_err)))

@@ -50,6 +50,7 @@ jobs:
         env:
           ESTAT_APP_ID:   ${{ secrets.ESTAT_APP_ID }}
           FRED_API_KEY:   ${{ secrets.FRED_API_KEY }}
+          ENTSOE_API_TOKEN: ${{ secrets.ENTSOE_API_TOKEN }}
           DESTATIS_USER:     ${{ secrets.DESTATIS_USER }}
           DESTATIS_PASSWORD: ${{ secrets.DESTATIS_PASSWORD }}
           NCEI_CDO_TOKEN: ${{ secrets.NCEI_CDO_TOKEN }}
