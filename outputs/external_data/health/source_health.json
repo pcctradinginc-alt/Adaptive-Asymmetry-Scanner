@@ -1,8 +1,8 @@
 {
   "imf_portwatch_ports": {
     "source_id": "imf_portwatch_ports",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-09-18T00:00:00+00:00",
     "latest_release": null,
@@ -12,7 +12,7 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 435,
-    "duplicate_count": 94982,
+    "duplicate_count": 103375,
     "rows_ingested": 10305,
     "bytes_downloaded": 0,
     "consecutive_failures": 0,
@@ -20,12 +20,27 @@
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 8393,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2026-09-08T00:00:00+00:00",
+        "2026-09-18T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "imf_portwatch_chokepoints": {
     "source_id": "imf_portwatch_chokepoints",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-09-20T00:00:00+00:00",
     "latest_release": null,
@@ -35,7 +50,7 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 68600,
+    "duplicate_count": 73696,
     "rows_ingested": 5880,
     "bytes_downloaded": 0,
     "consecutive_failures": 0,
@@ -43,103 +58,180 @@
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 5096,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2026-09-08T00:00:00+00:00",
+        "2026-09-20T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "destatis_truck_toll": {
     "source_id": "destatis_truck_toll",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-08-01T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1D",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 12320,
+    "duplicate_count": 13440,
     "rows_ingested": 1120,
-    "bytes_downloaded": 195380,
+    "bytes_downloaded": 210409,
     "consecutive_failures": 0,
     "message": "1120 Beobachtungen aus Tabelle 42191-0001",
     "criticality": "medium",
     "auth_optional": true,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 1120,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2008-01-01T00:00:00+00:00",
+        "2026-08-01T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "bts_freight_tsi": {
     "source_id": "bts_freight_tsi",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
-    "status": "PASS",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
+    "status": "WARN",
     "latest_observation": "2026-06-01T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1M",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 7471,
-    "duplicate_count": 77890,
+    "duplicate_count": 85679,
     "rows_ingested": 7789,
-    "bytes_downloaded": 8965824,
+    "bytes_downloaded": 9712976,
     "consecutive_failures": 0,
-    "message": "7789 ALFRED-Vintage-Beobachtungen f\u00fcr TSIFRGHT",
+    "message": "7789 ALFRED-Vintage-Beobachtungen f\u00fcr TSIFRGHT | DQ: DUPLICATE_CONFLICT",
     "criticality": "medium",
     "auth_optional": true,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 7789,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 6776,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2000-01-01T00:00:00+00:00",
+        "2026-06-01T00:00:00+00:00"
+      ],
+      "issues": [
+        "DUPLICATE_CONFLICT"
+      ],
+      "details": {},
+      "severe": true
+    }
   },
   "eurostat_road_freight": {
     "source_id": "eurostat_road_freight",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2025-01-01T00:00:00+00:00",
     "latest_release": "2026-07-30T23:00:00+02:00",
     "retrieval_lag": null,
     "expected_cadence": "P7D",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 21411,
-    "duplicate_count": 213636,
+    "duplicate_count": 228764,
     "rows_ingested": 37101,
-    "bytes_downloaded": 39460533,
+    "bytes_downloaded": 41658685,
     "consecutive_failures": 0,
     "message": "15128 Beobachtungen aus Datensatz road_go_ta_tott",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 15128,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "1999-01-01T00:00:00+00:00",
+        "2025-01-01T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "estat_jp_truck": {
     "source_id": "estat_jp_truck",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-03-01T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1M",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 17280,
+    "duplicate_count": 21600,
     "rows_ingested": 14776,
-    "bytes_downloaded": 5192477,
+    "bytes_downloaded": 5751011,
     "consecutive_failures": 0,
     "message": "4320 Beobachtungen aus statsDataId 0003422293",
     "criticality": "low",
     "auth_optional": true,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 4320,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2020-04-01T00:00:00+00:00",
+        "2026-03-01T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "fhwa_faf": {
     "source_id": "fhwa_faf",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -158,11 +250,12 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "viapass_be": {
     "source_id": "viapass_be",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -181,11 +274,12 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "asfinag_at": {
     "source_id": "asfinag_at",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -204,11 +298,12 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "nbs_cn": {
     "source_id": "nbs_cn",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -227,11 +322,12 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "mot_cn": {
     "source_id": "mot_cn",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -250,11 +346,12 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "kosis_kr": {
     "source_id": "kosis_kr",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -273,35 +370,51 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "nws_forecast": {
     "source_id": "nws_forecast",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": null,
-    "latest_release": "2026-09-29T04:16:43+00:00",
+    "latest_release": "2026-09-29T07:35:49+00:00",
     "retrieval_lag": null,
     "expected_cadence": "6h",
     "staleness": "UNKNOWN",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 23957,
-    "rows_ingested": 35768,
-    "bytes_downloaded": 198915044,
+    "duplicate_count": 24057,
+    "rows_ingested": 38054,
+    "bytes_downloaded": 210622783,
     "consecutive_failures": 0,
     "message": "",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 2386,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2026-09-28T04:00:00+00:00",
+        "2026-10-03T06:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "nws_alerts": {
     "source_id": "nws_alerts",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": null,
     "latest_release": null,
@@ -312,18 +425,33 @@
     "parse_failures": 0,
     "revision_count": 0,
     "duplicate_count": 0,
-    "rows_ingested": 45,
-    "bytes_downloaded": 2574929,
+    "rows_ingested": 90,
+    "bytes_downloaded": 2657366,
     "consecutive_failures": 0,
     "message": "",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 45,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2026-09-29T07:45:19.679492+00:00",
+        "2026-09-29T07:45:28.771222+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "ncei_normals": {
     "source_id": "ncei_normals",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": "2026-09-28T19:09:50+00:00",
     "status": "FAIL",
     "latest_observation": null,
@@ -337,39 +465,55 @@
     "duplicate_count": 788400,
     "rows_ingested": 87600,
     "bytes_downloaded": 27413551,
-    "consecutive_failures": 1,
-    "message": "SourceTimeout('Zeitbudget 300s \u00fcberschritten')",
+    "consecutive_failures": 2,
+    "message": "SourceTimeout('Zeitbudget 900s \u00fcberschritten')",
     "criticality": "low",
     "auth_optional": true,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "nhc_storms": {
     "source_id": "nhc_storms",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": null,
-    "latest_release": "2026-09-29T03:00:00+00:00",
+    "latest_release": "2026-09-29T06:00:00+00:00",
     "retrieval_lag": null,
     "expected_cadence": "6h",
     "staleness": "UNKNOWN",
     "missingness": 0.0,
     "parse_failures": 0,
-    "revision_count": 44,
-    "duplicate_count": 1396,
-    "rows_ingested": 623,
-    "bytes_downloaded": 1951240,
+    "revision_count": 46,
+    "duplicate_count": 1514,
+    "rows_ingested": 650,
+    "bytes_downloaded": 2104857,
     "consecutive_failures": 0,
     "message": "",
     "criticality": "high",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 145,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2026-09-29T03:00:00+00:00",
+        "2026-10-04T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "noaa_storm_events": {
     "source_id": "noaa_storm_events",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -388,11 +532,12 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "ecmwf_open_data": {
     "source_id": "ecmwf_open_data",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -411,80 +556,128 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "eurostat_sentiment": {
     "source_id": "eurostat_sentiment",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-08-01T00:00:00+00:00",
     "latest_release": "2026-08-28T11:00:00+02:00",
     "retrieval_lag": null,
     "expected_cadence": "P1M",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 78782,
+    "duplicate_count": 85944,
     "rows_ingested": 7162,
-    "bytes_downloaded": 26985351,
+    "bytes_downloaded": 29233549,
     "consecutive_failures": 0,
     "message": "7162 Beobachtungen aus Datensatz ei_bssi_m_r2",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 7162,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "1980-01-01T00:00:00+00:00",
+        "2026-08-01T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "eurostat_industrial_production": {
     "source_id": "eurostat_industrial_production",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-07-01T00:00:00+00:00",
     "latest_release": "2026-09-17T11:00:00+02:00",
     "retrieval_lag": null,
     "expected_cadence": "P1M",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 30635,
+    "duplicate_count": 33420,
     "rows_ingested": 2785,
-    "bytes_downloaded": 24582231,
+    "bytes_downloaded": 26630169,
     "consecutive_failures": 0,
     "message": "2785 Beobachtungen aus Datensatz sts_inpr_m",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 2785,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "1990-01-01T00:00:00+00:00",
+        "2026-07-01T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "fred_us_macro": {
     "source_id": "fred_us_macro",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
-    "status": "PASS",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
+    "status": "WARN",
     "latest_observation": "2026-08-01T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1M",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 38267,
-    "duplicate_count": 404450,
+    "duplicate_count": 444895,
     "rows_ingested": 40445,
-    "bytes_downloaded": 47067012,
+    "bytes_downloaded": 50989263,
     "consecutive_failures": 0,
-    "message": "40445 ALFRED-Vintage-Beobachtungen (UMCSENT+INDPRO)",
+    "message": "40445 ALFRED-Vintage-Beobachtungen (UMCSENT+INDPRO) | DQ: DUPLICATE_CONFLICT",
     "criticality": "medium",
     "auth_optional": true,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 40445,
+      "null_rate": 0.0223,
+      "non_finite": 0,
+      "duplicate_conflicts": 38005,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "1919-01-01T00:00:00+00:00",
+        "2026-08-01T00:00:00+00:00"
+      ],
+      "issues": [
+        "DUPLICATE_CONFLICT"
+      ],
+      "details": {},
+      "severe": true
+    }
   },
   "destatis_truck_toll_download": {
     "source_id": "destatis_truck_toll_download",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -503,11 +696,12 @@
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": null
   },
   "bts_open_data_tsi": {
     "source_id": "bts_open_data_tsi",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
     "last_success": "2026-09-28T14:00:43+00:00",
     "status": "SCHEMA_CHANGED",
     "latest_observation": "2026-07-01T00:00:00+00:00",
@@ -520,41 +714,64 @@
     "revision_count": 0,
     "duplicate_count": 5104,
     "rows_ingested": 638,
-    "bytes_downloaded": 7259305,
+    "bytes_downloaded": 7394596,
     "consecutive_failures": 0,
     "message": "views-Metadaten ohne 'columns' -> Schema ge\u00e4ndert.",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 0,
+      "issues": [
+        "EMPTY_RESULT"
+      ],
+      "details": {},
+      "severe": true
+    }
   },
   "eurostat_road_freight_quarterly": {
     "source_id": "eurostat_road_freight_quarterly",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2025-10-01T00:00:00+00:00",
     "latest_release": "2026-07-30T23:00:00+02:00",
     "retrieval_lag": null,
     "expected_cadence": "P7D",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 602820,
+    "duplicate_count": 663102,
     "rows_ingested": 60282,
-    "bytes_downloaded": 34565199,
+    "bytes_downloaded": 37445051,
     "consecutive_failures": 0,
     "message": "60282 Beobachtungen aus Datensatz road_go_tq_tott (quarterly)",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 60282,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "1990-01-01T00:00:00+00:00",
+        "2025-10-01T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
   },
   "imf_portwatch_disruptions": {
     "source_id": "imf_portwatch_disruptions",
-    "last_attempt": "2026-09-29T04:29:51+00:00",
-    "last_success": "2026-09-29T04:29:51+00:00",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
     "status": "PASS",
     "latest_observation": "2026-08-14T21:58:21+00:00",
     "latest_release": null,
@@ -564,7 +781,7 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 1888,
+    "duplicate_count": 2832,
     "rows_ingested": 944,
     "bytes_downloaded": 0,
     "consecutive_failures": 0,
@@ -572,6 +789,61 @@
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
-    "archive_error": ""
+    "archive_error": "",
+    "dq": {
+      "n_observations": 944,
+      "null_rate": 0.0042,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2018-12-21T00:00:00+00:00",
+        "2026-08-14T21:58:21+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    }
+  },
+  "fred_regime_macro": {
+    "source_id": "fred_regime_macro",
+    "last_attempt": "2026-09-29T07:43:54+00:00",
+    "last_success": "2026-09-29T07:43:54+00:00",
+    "status": "WARN",
+    "latest_observation": "2026-09-25T00:00:00+00:00",
+    "latest_release": null,
+    "retrieval_lag": null,
+    "expected_cadence": "P1D",
+    "staleness": "FRESH",
+    "missingness": 0.0,
+    "parse_failures": 0,
+    "revision_count": 18640,
+    "duplicate_count": 0,
+    "rows_ingested": 25693,
+    "bytes_downloaded": 2531558,
+    "consecutive_failures": 0,
+    "message": "25693 ALFRED-Vintage-Beobachtungen (CPI/NFCI/WALCL/Dollar/WTI) | DQ: DUPLICATE_CONFLICT",
+    "criticality": "medium",
+    "auth_optional": true,
+    "pit_integrity_failures": 0,
+    "archive_error": "",
+    "dq": {
+      "n_observations": 25693,
+      "null_rate": 0.0114,
+      "non_finite": 0,
+      "duplicate_conflicts": 18616,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2015-01-01T00:00:00+00:00",
+        "2026-09-25T00:00:00+00:00"
+      ],
+      "issues": [
+        "DUPLICATE_CONFLICT"
+      ],
+      "details": {},
+      "severe": true
+    }
   }
 }

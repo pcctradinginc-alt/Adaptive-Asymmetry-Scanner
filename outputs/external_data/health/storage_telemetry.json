@@ -1,79 +1,86 @@
 {
-  "measured_at": "2026-09-29T04:36:18+00:00",
-  "total_bytes_per_day": 63096119.5,
-  "one_off_backfill_bytes": 478222891,
+  "measured_at": "2026-09-29T08:00:32+00:00",
+  "total_bytes_per_day": 77190774.5,
+  "one_off_backfill_bytes": 495094195,
   "projections_bytes": {
-    "30d": 1892883585.0,
-    "1y": 23030083617.5,
-    "5y": 115150418087.5
+    "30d": 2315723235.0,
+    "1y": 28174632692.5,
+    "5y": 140873163462.5
   },
   "warn_mb_1y": 200.0,
   "flagged": true,
   "backend": "git",
-  "bytes_in_git": 165206129,
+  "bytes_in_git": 181086370,
   "bytes_offloaded": 0,
   "per_source": {
     "bts_freight_tsi": {
       "retrieval_days": 3,
       "rows": 7789,
       "one_off_backfill_bytes": 10385195,
-      "raw_bytes_per_day": 1494304.0,
+      "raw_bytes_per_day": 1867880.0,
       "normalized_bytes_per_day": 0.0
     },
     "bts_open_data_tsi": {
       "retrieval_days": 3,
       "rows": 638,
       "one_off_backfill_bytes": 6475131,
-      "raw_bytes_per_day": 583773.0,
+      "raw_bytes_per_day": 651418.5,
       "normalized_bytes_per_day": 0.0
     },
     "destatis_truck_toll": {
       "retrieval_days": 3,
       "rows": 1120,
       "one_off_backfill_bytes": 837809,
-      "raw_bytes_per_day": 30056.5,
+      "raw_bytes_per_day": 37571.0,
       "normalized_bytes_per_day": 0.0
     },
     "estat_jp_truck": {
       "retrieval_days": 3,
       "rows": 4320,
       "one_off_backfill_bytes": 13564181,
-      "raw_bytes_per_day": 1117068.0,
+      "raw_bytes_per_day": 1396335.0,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_industrial_production": {
       "retrieval_days": 3,
       "rows": 2785,
       "one_off_backfill_bytes": 18339613,
-      "raw_bytes_per_day": 4096807.5,
+      "raw_bytes_per_day": 5120776.5,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_road_freight": {
       "retrieval_days": 3,
       "rows": 15128,
       "one_off_backfill_bytes": 40940420,
-      "raw_bytes_per_day": 4397235.5,
+      "raw_bytes_per_day": 5496311.5,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_road_freight_quarterly": {
       "retrieval_days": 3,
       "rows": 60282,
       "one_off_backfill_bytes": 64667759,
-      "raw_bytes_per_day": 5760635.5,
+      "raw_bytes_per_day": 7200561.5,
       "normalized_bytes_per_day": 0.0
     },
     "eurostat_sentiment": {
       "retrieval_days": 3,
       "rows": 7162,
       "one_off_backfill_bytes": 22440721,
-      "raw_bytes_per_day": 4497327.5,
+      "raw_bytes_per_day": 5621426.5,
+      "normalized_bytes_per_day": 0.0
+    },
+    "fred_regime_macro": {
+      "retrieval_days": 1,
+      "rows": 25693,
+      "one_off_backfill_bytes": 16871304,
+      "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "fred_us_macro": {
       "retrieval_days": 3,
       "rows": 40445,
       "one_off_backfill_bytes": 53866311,
-      "raw_bytes_per_day": 7844502.0,
+      "raw_bytes_per_day": 9805627.5,
       "normalized_bytes_per_day": 0.0
     },
     "imf_portwatch_chokepoints": {
@@ -106,24 +113,24 @@
     },
     "nhc_storms": {
       "retrieval_days": 3,
-      "rows": 623,
+      "rows": 650,
       "one_off_backfill_bytes": 1514550,
-      "raw_bytes_per_day": 292145.5,
-      "normalized_bytes_per_day": 142688.5
+      "raw_bytes_per_day": 368954.0,
+      "normalized_bytes_per_day": 151727.0
     },
     "nws_alerts": {
       "retrieval_days": 3,
-      "rows": 45,
+      "rows": 90,
       "one_off_backfill_bytes": 2211981,
-      "raw_bytes_per_day": 181474.0,
-      "normalized_bytes_per_day": 12489.5
+      "raw_bytes_per_day": 222692.5,
+      "normalized_bytes_per_day": 24979.0
     },
     "nws_forecast": {
       "retrieval_days": 3,
-      "rows": 15757,
+      "rows": 18043,
       "one_off_backfill_bytes": 158927790,
-      "raw_bytes_per_day": 22625339.5,
-      "normalized_bytes_per_day": 2370374.0
+      "raw_bytes_per_day": 28479209.0,
+      "normalized_bytes_per_day": 3095406.0
     }
   },
   "migration_note": "1y-Projektion \u00fcberschreitet die konfigurierte Schwelle. GitHub-Actions- Artefakte/Checkout sind KEIN dauerhafter Speicher \u2014 bei anhaltendem Wachstum auf Object Storage (z.B. S3/GCS/Backblaze B2) migrieren, outputs/external_data als Git-Verlauf entlasten (z.B. Kompaktierung alter raw/-Monate oder externe Ablage der normalisierten JSONL-Dateien)."
