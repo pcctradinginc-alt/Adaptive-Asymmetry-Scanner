@@ -53,7 +53,8 @@ ROAD_FREIGHT_SOURCES = ["destatis_truck_toll", "destatis_truck_toll_download",
                          "eurostat_road_freight_quarterly", "estat_jp_truck"]
 MARITIME_SOURCES = ["imf_portwatch_ports", "imf_portwatch_chokepoints", "imf_portwatch_disruptions"]
 WEATHER_SOURCES = ["nws_forecast", "nws_alerts", "ncei_normals", "nhc_storms"]
-REAL_ECONOMY_SOURCES = ["eurostat_sentiment", "eurostat_industrial_production", "fred_us_macro"]
+REAL_ECONOMY_SOURCES = ["eurostat_sentiment", "eurostat_industrial_production", "fred_us_macro",
+                        "fred_regime_macro"]
 
 CHOKEPOINT_SLUGS = {
     "suez": ("suez", "suez canal"),
@@ -558,6 +559,14 @@ def _build_real_economy(archive, now: datetime, errors: list) -> dict:
         out["us"]["agreement"] = us_div.get("agreement", "UNKNOWN")
     except Exception as e:  # noqa: BLE001 - Familie darf nie den Snapshot brechen
         errors.append(f"real_economy: {e!r}")
+    # Makro-Regime (Inflation, Credit, Liquidität, Dollar, Öl) -- PIT aus
+    # ALFRED-Vintages, siehe modules/external/regime.py.
+    out["regime"] = {"labels": {}}
+    try:
+        from modules.external import regime as _regime
+        out["regime"] = _regime.regime_state(_load_observations(archive, _regime.SOURCE_ID, now), now)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"regime: {e!r}")
     return out
 
 
@@ -877,6 +886,13 @@ def build_external_context(now: datetime | None = None, archive=None, registry=N
         "port_disruption_curated_ports": maritime.get("disruption_curated_ports"),
         "port_disruption_curated_max_level": maritime.get("disruption_curated_max_level"),
         "weather_disruption_index": weather.get("disruption_index"),
+        "us_cpi_yoy": (real_economy.get("regime") or {}).get("cpi_yoy"),
+        "us_cpi_yoy_3m_ago": (real_economy.get("regime") or {}).get("cpi_yoy_3m_ago"),
+        "nfci_credit": (real_economy.get("regime") or {}).get("nfci_credit"),
+        "nfci": (real_economy.get("regime") or {}).get("nfci"),
+        "fed_assets_13w_chg": (real_economy.get("regime") or {}).get("fed_assets_13w_chg"),
+        "usd_63d_chg": (real_economy.get("regime") or {}).get("usd_63d_chg"),
+        "wti_63d_chg": (real_economy.get("regime") or {}).get("wti_63d_chg"),
         "hdd_anomaly": weather.get("hdd_anomaly"),
         "cdd_anomaly": weather.get("cdd_anomaly"),
         "forecast_revision_hdd": weather.get("forecast_revision_hdd"),
