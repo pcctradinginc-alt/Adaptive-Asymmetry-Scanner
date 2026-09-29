@@ -41,6 +41,7 @@ import json
 import math
 import logging
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -125,6 +126,22 @@ def reject(reason: str, ticker: str | None = None) -> None:
             candidate_ledger.mark_rejected(ticker, reason)
     except Exception as e:
         log.warning(f"candidate_ledger.mark_rejected Fehler (ignoriert): {e}")
+
+
+_RUN_DEADLINE: list[float] = []      # monotone Zeit, ab der keine teuren Schritte mehr starten
+
+
+def _set_run_deadline(start: float | None = None) -> float:
+    p = getattr(cfg, "pipeline", None)
+    total = float(getattr(p, "max_runtime_minutes", 60) or 60)
+    reserve = float(getattr(p, "finalize_reserve_minutes", 10) or 10)
+    deadline = (start if start is not None else time.monotonic()) + max(total - reserve, 1.0) * 60
+    _RUN_DEADLINE[:] = [deadline]
+    return deadline
+
+
+def over_budget() -> bool:
+    return bool(_RUN_DEADLINE) and time.monotonic() > _RUN_DEADLINE[0]
 
 
 def label_dropped(before: list, after: list, reason: str) -> int:
@@ -480,6 +497,7 @@ def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], d
 def main() -> None:
     log.info("=== Adaptive Asymmetry-Scanner v8.3 gestartet ===")
     today   = datetime.utcnow().strftime("%Y-%m-%d")
+    _set_run_deadline()
     history = load_history()
 
     reject_stats.clear()
@@ -494,6 +512,17 @@ def main() -> None:
         "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
+    try:
+        from modules import market_snapshot as _ms
+        from datetime import timezone as _tz
+        stats["session"] = _ms.us_market_session(datetime.now(_tz.utc))
+    except Exception as e:  # noqa: BLE001
+        stats["session"] = "unknown"
+        log.warning(f"US-Session nicht bestimmbar: {e}")
+    if stats["session"] != "regular":
+        log.warning(f"Lauf AUSSERHALB der regulären US-Session (session={stats['session']}): "
+                    f"relatives Volumen/Intraday beziehen sich auf den Vortag bzw. Pre-Market -> "
+                    f"Funnel nicht repräsentativ (Testlauf 2026-09-29: RV-Filter verwarf 0 Ticker)")
 
     _proposals_ref = []
     _health_ref    = []   # letzter Engine-Health-Report, für die Status-Mail wiederverwendet
@@ -658,7 +687,13 @@ def main() -> None:
 
     # ── STUFE 2b: Alpha Sources + Data Validation ────────────────────────────
     enriched_with_alpha = []
-    for c in shortlist:
+    for i, c in enumerate(shortlist):
+        if over_budget():
+            for rest in shortlist[i:]:
+                reject("time_budget_exceeded", rest.get("ticker"))
+            log.warning(f"Laufzeitbudget erreicht in Stufe 2b: {len(shortlist) - i} Kandidaten nicht bewertet")
+            stats["time_budget_exceeded"] = stats.get("time_budget_exceeded", 0) + len(shortlist) - i
+            break
         c = enrich_with_alpha_sources(c)
         note_research_features(c)
         if c.get("has_near_earnings"):
@@ -770,7 +805,13 @@ def main() -> None:
 
     # ── STUFE 4: Deep Analysis (Sonnet) ──────────────────────────────────────
     log.info("Stufe 4: Deep Analysis (Claude Sonnet + Red Team)")
-    analyses = DeepAnalysis().run(pre_mc_viable)
+    _da = DeepAnalysis()
+    analyses = _da.run(pre_mc_viable, deadline=_RUN_DEADLINE[0] if _RUN_DEADLINE else None)
+    for _t in getattr(_da, "skipped_for_time", []):
+        reject("time_budget_exceeded", _t)
+    if getattr(_da, "skipped_for_time", []):
+        stats["time_budget_exceeded"] = stats.get("time_budget_exceeded", 0) + len(_da.skipped_for_time)
+        log.warning(f"Laufzeitbudget erreicht in Stufe 4: {len(_da.skipped_for_time)} Kandidaten ohne Deep Analysis")
     stats["analyzed"] = len(analyses)
     label_dropped(pre_mc_viable, analyses, "deep_analysis_veto_or_invalid")
     for a in analyses:

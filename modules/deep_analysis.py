@@ -169,9 +169,16 @@ class DeepAnalysis:
                 f"YC={self._macro.get('yield_curve_desc', 'n/a')}"
             )
 
-    def run(self, shortlist: list[dict]) -> list[dict]:
+    def run(self, shortlist: list[dict], deadline: float | None = None) -> list[dict]:
+        """deadline: time.monotonic()-Wert, ab dem keine weitere Analyse mehr
+        beginnt (Laufzeitbudget der Pipeline); übersprungene -> skipped_for_time."""
+        import time as _time
         analyses = []
-        for candidate in shortlist:
+        self.skipped_for_time = []
+        for idx, candidate in enumerate(shortlist):
+            if deadline is not None and _time.monotonic() > deadline:
+                self.skipped_for_time = [c.get("ticker") for c in shortlist[idx:]]
+                break
             analysis = self._analyze(candidate)
             if not analysis:
                 continue
