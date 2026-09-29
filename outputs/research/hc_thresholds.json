@@ -1,0 +1,237 @@
+{
+ "enabled": false,
+ "n_rules_tested": 6,
+ "best": {
+  "prob": 0.55,
+  "agreement_sd": 9.0,
+  "lcb": -0.008353031150829866,
+  "n": 2425,
+  "mean": -0.005868681352518407
+ },
+ "disabled_reason": "keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre)",
+ "generated": "2026-09-29T15:17:56+00:00",
+ "prob_map": {
+  "fold": "locked",
+  "n": 31179,
+  "prob": {
+   "x": [
+    0.00195,
+    0.0078,
+    0.00781,
+    0.01566,
+    0.01569,
+    0.01949,
+    0.01953,
+    0.4,
+    0.40039,
+    0.423,
+    0.42353,
+    0.48627,
+    0.48633,
+    0.56275,
+    0.56335,
+    0.65302,
+    0.65362,
+    0.96296,
+    0.96471,
+    0.97271,
+    0.97451,
+    0.99608,
+    0.99609,
+    1.0
+   ],
+   "y": [
+    0.43814,
+    0.43814,
+    0.44043,
+    0.44043,
+    0.44944,
+    0.44944,
+    0.45128,
+    0.45128,
+    0.45594,
+    0.45594,
+    0.45861,
+    0.45861,
+    0.46222,
+    0.46222,
+    0.46503,
+    0.46503,
+    0.47924,
+    0.47924,
+    0.49836,
+    0.49836,
+    0.53779,
+    0.53779,
+    0.62048,
+    0.62048
+   ]
+  },
+  "exp_xs20": {
+   "x": [
+    0.00195,
+    0.00195,
+    0.00196,
+    0.0039,
+    0.00588,
+    0.0078,
+    0.00781,
+    0.00783,
+    0.02148,
+    0.02153,
+    0.28824,
+    0.2885,
+    0.47255,
+    0.47266,
+    0.65107,
+    0.65166,
+    0.71345,
+    0.71373,
+    0.76908,
+    0.76953,
+    0.89804,
+    0.89824,
+    0.92969,
+    0.92982,
+    0.96296,
+    0.96471,
+    0.97271,
+    0.97451,
+    0.97466,
+    0.97647,
+    0.97661,
+    0.97843,
+    0.98246,
+    0.98431,
+    0.99608,
+    0.99609,
+    0.99805,
+    1.0
+   ],
+   "y": [
+    -0.023381,
+    -0.010835,
+    -0.010835,
+    -0.009786,
+    -0.009786,
+    -0.008494,
+    -0.008494,
+    -0.00761,
+    -0.00761,
+    -0.004303,
+    -0.004303,
+    -0.004281,
+    -0.004281,
+    -0.002957,
+    -0.002957,
+    0.000651,
+    0.000651,
+    0.000919,
+    0.000919,
+    0.001829,
+    0.001829,
+    0.004269,
+    0.004269,
+    0.006299,
+    0.006299,
+    0.022083,
+    0.022083,
+    0.033302,
+    0.033302,
+    0.037227,
+    0.037227,
+    0.044595,
+    0.044595,
+    0.056091,
+    0.056091,
+    0.06267,
+    0.06267,
+    0.123543
+   ]
+  }
+ },
+ "active_ece": 0.0463,
+ "current_weights": {
+  "momentum_12_1": {
+   "weight": 0.8468,
+   "fallback_equal": false,
+   "expected_reliability": 0.0621,
+   "p_adds_value": 0.6212,
+   "confidence": 0.3085
+  },
+  "enet_xs20_v1": {
+   "weight": 0.1532,
+   "fallback_equal": false,
+   "expected_reliability": 0.0112,
+   "p_adds_value": 0.5196,
+   "confidence": 0.0492
+  },
+  "hgb_xs20_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0414,
+   "p_adds_value": 0.4109,
+   "confidence": 0.2252
+  },
+  "hgb_asym20_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0035,
+   "p_adds_value": 0.4923,
+   "confidence": 0.0193
+  },
+  "hgb_xs20_momentum_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0414,
+   "p_adds_value": 0.3752,
+   "confidence": 0.3182
+  },
+  "hgb_xs20_risk_regime_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0252,
+   "p_adds_value": 0.4518,
+   "confidence": 0.1211
+  }
+ },
+ "feature_drift_flag": true,
+ "failure_profiles": {
+  "momentum_12_1": {
+   "works": [],
+   "fails": []
+  },
+  "enet_xs20_v1": {
+   "works": [],
+   "fails": []
+  },
+  "hgb_xs20_v1": {
+   "works": [],
+   "fails": []
+  },
+  "hgb_asym20_v1": {
+   "works": [
+    "Consumer Cyclical (IC 0.0424, t 2.16)"
+   ],
+   "fails": []
+  },
+  "hgb_xs20_momentum_v1": {
+   "works": [],
+   "fails": []
+  },
+  "hgb_xs20_risk_regime_v1": {
+   "works": [],
+   "fails": []
+  }
+ },
+ "meta_version": "meta-v1",
+ "active_ensemble": "static_equal",
+ "models": [
+  "momentum_12_1",
+  "enet_xs20_v1",
+  "hgb_xs20_v1",
+  "hgb_asym20_v1",
+  "hgb_xs20_momentum_v1",
+  "hgb_xs20_risk_regime_v1"
+ ]
+}

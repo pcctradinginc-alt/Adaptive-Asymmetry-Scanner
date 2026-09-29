@@ -1,0 +1,5087 @@
+{
+ "generated": "2026-09-29T15:17:56+00:00",
+ "meta_version": "meta-v1",
+ "panel_hash": "776a327d3d005250",
+ "protocol": "config/meta_protocol.yaml",
+ "reference": "static_equal",
+ "primary_meta": "meta_regime_weights",
+ "models": [
+  "momentum_12_1",
+  "enet_xs20_v1",
+  "hgb_xs20_v1",
+  "hgb_asym20_v1",
+  "hgb_xs20_momentum_v1",
+  "hgb_xs20_risk_regime_v1"
+ ],
+ "base_provenance": {
+  "2019": {
+   "train_label_end_before": "2019-01-01",
+   "n_test": 25403,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2018-12-24"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.0003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2018-12-24"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2018-12-24"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2018-12-24"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2018-12-24"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2018-12-24"
+   }
+  },
+  "2020": {
+   "train_label_end_before": "2020-01-01",
+   "n_test": 26129,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2019-12-30"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.0003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2019-12-30"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2019-12-30"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2019-12-30"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2019-12-30"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2019-12-30"
+   }
+  },
+  "2021": {
+   "train_label_end_before": "2021-01-01",
+   "n_test": 25948,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2020-12-28"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2020-12-28"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2020-12-28"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2020-12-28"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2020-12-28"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2020-12-28"
+   }
+  },
+  "2022": {
+   "train_label_end_before": "2022-01-01",
+   "n_test": 26105,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2021-12-27"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.0003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2021-12-27"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2021-12-27"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2021-12-27"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2021-12-27"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2021-12-27"
+   }
+  },
+  "2023": {
+   "train_label_end_before": "2023-01-01",
+   "n_test": 26220,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2022-12-23"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.0003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2022-12-23"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2022-12-23"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2022-12-23"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2022-12-23"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2022-12-23"
+   }
+  },
+  "2024": {
+   "train_label_end_before": "2024-01-01",
+   "n_test": 26433,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2023-12-22"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2023-12-22"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2023-12-22"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2023-12-22"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2023-12-22"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2023-12-22"
+   }
+  },
+  "2025": {
+   "train_label_end_before": "2025-01-01",
+   "n_test": 11214,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2024-12-30"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2024-12-30"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2024-12-30"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2024-12-30"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2024-12-30"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2024-12-30"
+   }
+  },
+  "locked": {
+   "train_label_end_before": "2025-07-01",
+   "n_test": 31179,
+   "momentum_12_1": {
+    "params": {},
+    "train_max_label_end": "2025-06-30"
+   },
+   "enet_xs20_v1": {
+    "params": {
+     "alpha": 0.003,
+     "l1_ratio": 0.5
+    },
+    "train_max_label_end": "2025-06-30"
+   },
+   "hgb_xs20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2025-06-30"
+   },
+   "hgb_asym20_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2025-06-30"
+   },
+   "hgb_xs20_momentum_v1": {
+    "params": {
+     "max_iter": 150,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2025-06-30"
+   },
+   "hgb_xs20_risk_regime_v1": {
+    "params": {
+     "max_iter": 400,
+     "learning_rate": 0.05,
+     "max_depth": 3,
+     "min_samples_leaf": 300
+    },
+    "train_max_label_end": "2025-06-30"
+   }
+  }
+ },
+ "meta_provenance": {
+  "2021": {
+   "meta_train_label_end_before": "2021-01-01",
+   "n_meta_train_rows": 49054,
+   "meta_train_max_label_end": "2020-12-28",
+   "test_start": "2021-01-08",
+   "best_single": "hgb_xs20_risk_regime_v1"
+  },
+  "2022": {
+   "meta_train_label_end_before": "2022-01-01",
+   "n_meta_train_rows": 74975,
+   "meta_train_max_label_end": "2021-12-27",
+   "test_start": "2022-01-07",
+   "best_single": "hgb_xs20_risk_regime_v1"
+  },
+  "2023": {
+   "meta_train_label_end_before": "2023-01-01",
+   "n_meta_train_rows": 101072,
+   "meta_train_max_label_end": "2022-12-23",
+   "test_start": "2023-01-06",
+   "best_single": "hgb_xs20_risk_regime_v1"
+  },
+  "2024": {
+   "meta_train_label_end_before": "2024-01-01",
+   "n_meta_train_rows": 127275,
+   "meta_train_max_label_end": "2023-12-22",
+   "test_start": "2024-01-05",
+   "best_single": "enet_xs20_v1"
+  },
+  "2025": {
+   "meta_train_label_end_before": "2025-01-01",
+   "n_meta_train_rows": 154202,
+   "meta_train_max_label_end": "2024-12-30",
+   "test_start": "2025-01-03",
+   "best_single": "hgb_xs20_risk_regime_v1"
+  },
+  "locked": {
+   "meta_train_label_end_before": "2025-07-01",
+   "n_meta_train_rows": 167452,
+   "meta_train_max_label_end": "2025-06-30",
+   "test_start": "2025-07-01",
+   "best_single": "hgb_xs20_risk_regime_v1"
+  }
+ },
+ "leakage_checks": {
+  "ok": true,
+  "issues": []
+ },
+ "approaches": {
+  "static_equal": {
+   "metrics": {
+    "cagr": 0.0297,
+    "sharpe": 0.284,
+    "sortino": 0.305,
+    "max_dd": -0.1603,
+    "calmar": 0.186,
+    "profit_factor": 1.085,
+    "hit_rate": 0.4765,
+    "avg_winner": 0.08898,
+    "avg_loser": -0.07466,
+    "payoff": 1.192,
+    "expectancy": 0.00331,
+    "precision_at_k": 0.2669,
+    "recall_strong": 0.1688,
+    "turnover": 0.3528,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.0986,
+    "avg_mae": -0.0813,
+    "brier": 0.25179,
+    "log_loss": 0.69676,
+    "ece": 0.0463,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.243,
+    "sharpe": 1.589,
+    "sortino": 1.259,
+    "max_dd": -0.1112,
+    "calmar": 2.185,
+    "profit_factor": 1.408,
+    "hit_rate": 0.4889,
+    "avg_winner": 0.13464,
+    "avg_loser": -0.09146,
+    "payoff": 1.472,
+    "expectancy": 0.01908,
+    "precision_at_k": 0.3054,
+    "recall_strong": 0.2086,
+    "turnover": 0.3402,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1344,
+    "avg_mae": -0.0894,
+    "brier": 0.24915,
+    "log_loss": 0.69146,
+    "ece": 0.01448,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.00736,
+     "n": 2600,
+     "hit_rate": 0.44
+    },
+    "2022": {
+     "expectancy": 0.00362,
+     "n": 2600,
+     "hit_rate": 0.51
+    },
+    "2023": {
+     "expectancy": -0.00641,
+     "n": 2613,
+     "hit_rate": 0.434
+    },
+    "2024": {
+     "expectancy": 0.02021,
+     "n": 2652,
+     "hit_rate": 0.514
+    },
+    "2025": {
+     "expectancy": 0.01002,
+     "n": 1122,
+     "hit_rate": 0.495
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00238,
+     "n_cohorts": 140,
+     "hit_rate": 0.454
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01222,
+     "n_cohorts": 90,
+     "hit_rate": 0.512
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00044,
+     "n_cohorts": 175,
+     "hit_rate": 0.461
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01531,
+     "n_cohorts": 55,
+     "hit_rate": 0.527
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": 0.00393,
+     "n": 379
+    },
+    "Communication Services": {
+     "expectancy": 0.00429,
+     "n": 942
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.0026,
+     "n": 1585
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.00463,
+     "n": 435
+    },
+    "Energy": {
+     "expectancy": 0.01359,
+     "n": 805
+    },
+    "Financial Services": {
+     "expectancy": 0.01094,
+     "n": 1177
+    },
+    "Healthcare": {
+     "expectancy": -0.00849,
+     "n": 969
+    },
+    "Industrials": {
+     "expectancy": 0.00894,
+     "n": 1322
+    },
+    "Real Estate": {
+     "expectancy": -0.01049,
+     "n": 594
+    },
+    "Technology": {
+     "expectancy": 0.00501,
+     "n": 2596
+    },
+    "Utilities": {
+     "expectancy": -0.0044,
+     "n": 783
+    }
+   }
+  },
+  "best_single_ex_ante": {
+   "metrics": {
+    "cagr": -0.0097,
+    "sharpe": -0.013,
+    "sortino": -0.016,
+    "max_dd": -0.2822,
+    "calmar": -0.034,
+    "profit_factor": 0.999,
+    "hit_rate": 0.4637,
+    "avg_winner": 0.0869,
+    "avg_loser": -0.07522,
+    "payoff": 1.155,
+    "expectancy": -4e-05,
+    "precision_at_k": 0.2545,
+    "recall_strong": 0.1582,
+    "turnover": 0.3393,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.0962,
+    "avg_mae": -0.0824,
+    "brier": 0.25221,
+    "log_loss": 0.6976,
+    "ece": 0.04735,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.1666,
+    "sharpe": 1.448,
+    "sortino": 2.277,
+    "max_dd": -0.0837,
+    "calmar": 1.99,
+    "profit_factor": 1.316,
+    "hit_rate": 0.4831,
+    "avg_winner": 0.11488,
+    "avg_loser": -0.0816,
+    "payoff": 1.408,
+    "expectancy": 0.01332,
+    "precision_at_k": 0.27,
+    "recall_strong": 0.1816,
+    "turnover": 0.4376,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1138,
+    "avg_mae": -0.0766,
+    "brier": 0.25016,
+    "log_loss": 0.69355,
+    "ece": 0.0141,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.00681,
+     "n": 2600,
+     "hit_rate": 0.453
+    },
+    "2022": {
+     "expectancy": 0.00102,
+     "n": 2600,
+     "hit_rate": 0.496
+    },
+    "2023": {
+     "expectancy": -0.00963,
+     "n": 2613,
+     "hit_rate": 0.415
+    },
+    "2024": {
+     "expectancy": 0.00738,
+     "n": 2652,
+     "hit_rate": 0.468
+    },
+    "2025": {
+     "expectancy": 0.01795,
+     "n": 1122,
+     "hit_rate": 0.516
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00756,
+     "n_cohorts": 140,
+     "hit_rate": 0.428
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01172,
+     "n_cohorts": 90,
+     "hit_rate": 0.52
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00425,
+     "n_cohorts": 175,
+     "hit_rate": 0.447
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01343,
+     "n_cohorts": 55,
+     "hit_rate": 0.518
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.01001,
+     "n": 473
+    },
+    "Communication Services": {
+     "expectancy": -0.00043,
+     "n": 690
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00239,
+     "n": 1519
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.01094,
+     "n": 655
+    },
+    "Energy": {
+     "expectancy": 0.01123,
+     "n": 805
+    },
+    "Financial Services": {
+     "expectancy": 0.0053,
+     "n": 978
+    },
+    "Healthcare": {
+     "expectancy": -0.00614,
+     "n": 1302
+    },
+    "Industrials": {
+     "expectancy": 0.00761,
+     "n": 1217
+    },
+    "Real Estate": {
+     "expectancy": -0.01199,
+     "n": 427
+    },
+    "Technology": {
+     "expectancy": 0.00193,
+     "n": 2838
+    },
+    "Utilities": {
+     "expectancy": -0.01117,
+     "n": 671
+    }
+   }
+  },
+  "trailing_ic_weighted": {
+   "metrics": {
+    "cagr": 0.0002,
+    "sharpe": 0.064,
+    "sortino": 0.063,
+    "max_dd": -0.2444,
+    "calmar": 0.001,
+    "profit_factor": 1.008,
+    "hit_rate": 0.4698,
+    "avg_winner": 0.08649,
+    "avg_loser": -0.07608,
+    "payoff": 1.137,
+    "expectancy": 0.0003,
+    "precision_at_k": 0.2585,
+    "recall_strong": 0.1611,
+    "turnover": 0.3062,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.096,
+    "avg_mae": -0.0827,
+    "brier": 0.25176,
+    "log_loss": 0.69668,
+    "ece": 0.04664,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.1525,
+    "sharpe": 1.023,
+    "sortino": 0.818,
+    "max_dd": -0.1363,
+    "calmar": 1.119,
+    "profit_factor": 1.265,
+    "hit_rate": 0.4661,
+    "avg_winner": 0.13507,
+    "avg_loser": -0.09322,
+    "payoff": 1.449,
+    "expectancy": 0.01318,
+    "precision_at_k": 0.2935,
+    "recall_strong": 0.2009,
+    "turnover": 0.331,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1342,
+    "avg_mae": -0.0931,
+    "brier": 0.24953,
+    "log_loss": 0.69226,
+    "ece": 0.01894,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.0022,
+     "n": 2600,
+     "hit_rate": 0.465
+    },
+    "2022": {
+     "expectancy": -0.00739,
+     "n": 2600,
+     "hit_rate": 0.467
+    },
+    "2023": {
+     "expectancy": -0.00433,
+     "n": 2613,
+     "hit_rate": 0.441
+    },
+    "2024": {
+     "expectancy": 0.01532,
+     "n": 2652,
+     "hit_rate": 0.506
+    },
+    "2025": {
+     "expectancy": -0.00074,
+     "n": 1122,
+     "hit_rate": 0.471
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00239,
+     "n_cohorts": 140,
+     "hit_rate": 0.457
+    },
+    "vix_ge_20": {
+     "expectancy": 0.00453,
+     "n_cohorts": 90,
+     "hit_rate": 0.489
+    },
+    "spy_uptrend": {
+     "expectancy": 0.0002,
+     "n_cohorts": 175,
+     "hit_rate": 0.468
+    },
+    "spy_downtrend": {
+     "expectancy": 0.00063,
+     "n_cohorts": 55,
+     "hit_rate": 0.476
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00543,
+     "n": 278
+    },
+    "Communication Services": {
+     "expectancy": 0.00593,
+     "n": 936
+    },
+    "Consumer Cyclical": {
+     "expectancy": -0.00039,
+     "n": 1683
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.01191,
+     "n": 610
+    },
+    "Energy": {
+     "expectancy": 0.01336,
+     "n": 652
+    },
+    "Financial Services": {
+     "expectancy": 0.00698,
+     "n": 1241
+    },
+    "Healthcare": {
+     "expectancy": -0.00516,
+     "n": 967
+    },
+    "Industrials": {
+     "expectancy": 0.00137,
+     "n": 1211
+    },
+    "Real Estate": {
+     "expectancy": -0.01084,
+     "n": 428
+    },
+    "Technology": {
+     "expectancy": 0.00152,
+     "n": 2568
+    },
+    "Utilities": {
+     "expectancy": -0.0057,
+     "n": 1008
+    }
+   }
+  },
+  "meta_regime_weights": {
+   "metrics": {
+    "cagr": 0.024,
+    "sharpe": 0.257,
+    "sortino": 0.273,
+    "max_dd": -0.1877,
+    "calmar": 0.128,
+    "profit_factor": 1.078,
+    "hit_rate": 0.4729,
+    "avg_winner": 0.08717,
+    "avg_loser": -0.07258,
+    "payoff": 1.201,
+    "expectancy": 0.00297,
+    "precision_at_k": 0.2582,
+    "recall_strong": 0.1641,
+    "turnover": 0.3921,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.0981,
+    "avg_mae": -0.0808,
+    "brier": 0.25186,
+    "log_loss": 0.6969,
+    "ece": 0.04635,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.3138,
+    "sharpe": 1.901,
+    "sortino": 1.607,
+    "max_dd": -0.0989,
+    "calmar": 3.174,
+    "profit_factor": 1.588,
+    "hit_rate": 0.5108,
+    "avg_winner": 0.12524,
+    "avg_loser": -0.08233,
+    "payoff": 1.521,
+    "expectancy": 0.02369,
+    "precision_at_k": 0.3163,
+    "recall_strong": 0.2109,
+    "turnover": 0.3631,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1282,
+    "avg_mae": -0.082,
+    "brier": 0.24899,
+    "log_loss": 0.69114,
+    "ece": 0.01501,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.01291,
+     "n": 2600,
+     "hit_rate": 0.418
+    },
+    "2022": {
+     "expectancy": 0.01197,
+     "n": 2600,
+     "hit_rate": 0.537
+    },
+    "2023": {
+     "expectancy": -0.00763,
+     "n": 2613,
+     "hit_rate": 0.433
+    },
+    "2024": {
+     "expectancy": 0.01666,
+     "n": 2652,
+     "hit_rate": 0.495
+    },
+    "2025": {
+     "expectancy": 0.01127,
+     "n": 1122,
+     "hit_rate": 0.494
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.0048,
+     "n_cohorts": 140,
+     "hit_rate": 0.44
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01514,
+     "n_cohorts": 90,
+     "hit_rate": 0.524
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00242,
+     "n_cohorts": 175,
+     "hit_rate": 0.451
+    },
+    "spy_downtrend": {
+     "expectancy": 0.02021,
+     "n_cohorts": 55,
+     "hit_rate": 0.543
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00498,
+     "n": 456
+    },
+    "Communication Services": {
+     "expectancy": -0.0054,
+     "n": 813
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00529,
+     "n": 1763
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.01151,
+     "n": 347
+    },
+    "Energy": {
+     "expectancy": 0.00522,
+     "n": 914
+    },
+    "Financial Services": {
+     "expectancy": 0.01098,
+     "n": 1175
+    },
+    "Healthcare": {
+     "expectancy": -0.01004,
+     "n": 1108
+    },
+    "Industrials": {
+     "expectancy": 0.00809,
+     "n": 1562
+    },
+    "Real Estate": {
+     "expectancy": 0.00045,
+     "n": 456
+    },
+    "Technology": {
+     "expectancy": 0.00421,
+     "n": 2621
+    },
+    "Utilities": {
+     "expectancy": 0.015,
+     "n": 361
+    }
+   }
+  },
+  "meta_regime_weights__no_regime": {
+   "metrics": {
+    "cagr": 0.0418,
+    "sharpe": 0.428,
+    "sortino": 0.66,
+    "max_dd": -0.176,
+    "calmar": 0.237,
+    "profit_factor": 1.12,
+    "hit_rate": 0.4779,
+    "avg_winner": 0.08546,
+    "avg_loser": -0.06989,
+    "payoff": 1.223,
+    "expectancy": 0.00436,
+    "precision_at_k": 0.2554,
+    "recall_strong": 0.1597,
+    "turnover": 0.3973,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.0972,
+    "avg_mae": -0.0787,
+    "brier": 0.25205,
+    "log_loss": 0.69884,
+    "ece": 0.04718,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.1666,
+    "sharpe": 1.359,
+    "sortino": 1.708,
+    "max_dd": -0.1056,
+    "calmar": 1.578,
+    "profit_factor": 1.336,
+    "hit_rate": 0.4883,
+    "avg_winner": 0.11258,
+    "avg_loser": -0.08037,
+    "payoff": 1.401,
+    "expectancy": 0.01384,
+    "precision_at_k": 0.2562,
+    "recall_strong": 0.1729,
+    "turnover": 0.4719,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1148,
+    "avg_mae": -0.0767,
+    "brier": 0.25183,
+    "log_loss": 0.69692,
+    "ece": 0.04087,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.01149,
+     "n": 2600,
+     "hit_rate": 0.413
+    },
+    "2022": {
+     "expectancy": 0.011,
+     "n": 2600,
+     "hit_rate": 0.529
+    },
+    "2023": {
+     "expectancy": -0.00461,
+     "n": 2613,
+     "hit_rate": 0.443
+    },
+    "2024": {
+     "expectancy": 0.01085,
+     "n": 2652,
+     "hit_rate": 0.484
+    },
+    "2025": {
+     "expectancy": 0.0313,
+     "n": 1122,
+     "hit_rate": 0.575
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00306,
+     "n_cohorts": 140,
+     "hit_rate": 0.445
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01598,
+     "n_cohorts": 90,
+     "hit_rate": 0.529
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00126,
+     "n_cohorts": 175,
+     "hit_rate": 0.456
+    },
+    "spy_downtrend": {
+     "expectancy": 0.02235,
+     "n_cohorts": 55,
+     "hit_rate": 0.549
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00477,
+     "n": 433
+    },
+    "Communication Services": {
+     "expectancy": -0.00369,
+     "n": 912
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.01099,
+     "n": 1600
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.00649,
+     "n": 413
+    },
+    "Energy": {
+     "expectancy": 0.01293,
+     "n": 746
+    },
+    "Financial Services": {
+     "expectancy": 0.01455,
+     "n": 1179
+    },
+    "Healthcare": {
+     "expectancy": -0.00716,
+     "n": 1197
+    },
+    "Industrials": {
+     "expectancy": 0.00462,
+     "n": 1486
+    },
+    "Real Estate": {
+     "expectancy": -0.00281,
+     "n": 653
+    },
+    "Technology": {
+     "expectancy": 0.00677,
+     "n": 2461
+    },
+    "Utilities": {
+     "expectancy": 0.0021,
+     "n": 504
+    }
+   }
+  },
+  "meta_regime_weights__no_failure_memory": {
+   "metrics": {
+    "cagr": 0.0169,
+    "sharpe": 0.188,
+    "sortino": 0.194,
+    "max_dd": -0.2288,
+    "calmar": 0.074,
+    "profit_factor": 1.065,
+    "hit_rate": 0.472,
+    "avg_winner": 0.08945,
+    "avg_loser": -0.07505,
+    "payoff": 1.192,
+    "expectancy": 0.00259,
+    "precision_at_k": 0.2649,
+    "recall_strong": 0.1711,
+    "turnover": 0.3241,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.0991,
+    "avg_mae": -0.0829,
+    "brier": 0.25181,
+    "log_loss": 0.69678,
+    "ece": 0.04668,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.2479,
+    "sharpe": 1.525,
+    "sortino": 1.07,
+    "max_dd": -0.1289,
+    "calmar": 1.923,
+    "profit_factor": 1.437,
+    "hit_rate": 0.487,
+    "avg_winner": 0.13282,
+    "avg_loser": -0.08771,
+    "payoff": 1.514,
+    "expectancy": 0.01968,
+    "precision_at_k": 0.3067,
+    "recall_strong": 0.2086,
+    "turnover": 0.2644,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1348,
+    "avg_mae": -0.0906,
+    "brier": 0.25305,
+    "log_loss": 0.69947,
+    "ece": 0.05576,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.01684,
+     "n": 2600,
+     "hit_rate": 0.409
+    },
+    "2022": {
+     "expectancy": 0.00751,
+     "n": 2600,
+     "hit_rate": 0.501
+    },
+    "2023": {
+     "expectancy": -0.00685,
+     "n": 2613,
+     "hit_rate": 0.445
+    },
+    "2024": {
+     "expectancy": 0.02029,
+     "n": 2652,
+     "hit_rate": 0.512
+    },
+    "2025": {
+     "expectancy": 0.01639,
+     "n": 1122,
+     "hit_rate": 0.517
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00334,
+     "n_cohorts": 140,
+     "hit_rate": 0.453
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01188,
+     "n_cohorts": 90,
+     "hit_rate": 0.501
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00341,
+     "n_cohorts": 175,
+     "hit_rate": 0.452
+    },
+    "spy_downtrend": {
+     "expectancy": 0.02179,
+     "n_cohorts": 55,
+     "hit_rate": 0.535
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00346,
+     "n": 465
+    },
+    "Communication Services": {
+     "expectancy": 0.00577,
+     "n": 820
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00081,
+     "n": 1738
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.00686,
+     "n": 359
+    },
+    "Energy": {
+     "expectancy": 0.00971,
+     "n": 1071
+    },
+    "Financial Services": {
+     "expectancy": 0.00221,
+     "n": 1172
+    },
+    "Healthcare": {
+     "expectancy": -0.0104,
+     "n": 1018
+    },
+    "Industrials": {
+     "expectancy": 0.00713,
+     "n": 1518
+    },
+    "Real Estate": {
+     "expectancy": -0.01141,
+     "n": 234
+    },
+    "Technology": {
+     "expectancy": 0.00409,
+     "n": 2719
+    },
+    "Utilities": {
+     "expectancy": 0.01416,
+     "n": 455
+    }
+   }
+  },
+  "meta_regime_weights__no_disagreement": {
+   "metrics": {
+    "cagr": 0.0181,
+    "sharpe": 0.211,
+    "sortino": 0.227,
+    "max_dd": -0.198,
+    "calmar": 0.092,
+    "profit_factor": 1.064,
+    "hit_rate": 0.4707,
+    "avg_winner": 0.08674,
+    "avg_loser": -0.07249,
+    "payoff": 1.197,
+    "expectancy": 0.00246,
+    "precision_at_k": 0.259,
+    "recall_strong": 0.1632,
+    "turnover": 0.4003,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.0972,
+    "avg_mae": -0.0806,
+    "brier": 0.25188,
+    "log_loss": 0.69693,
+    "ece": 0.04653,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.1431,
+    "sharpe": 0.971,
+    "sortino": 0.953,
+    "max_dd": -0.1514,
+    "calmar": 0.945,
+    "profit_factor": 1.278,
+    "hit_rate": 0.4777,
+    "avg_winner": 0.11773,
+    "avg_loser": -0.08424,
+    "payoff": 1.398,
+    "expectancy": 0.01223,
+    "precision_at_k": 0.2912,
+    "recall_strong": 0.1919,
+    "turnover": 0.3451,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1185,
+    "avg_mae": -0.0845,
+    "brier": 0.24937,
+    "log_loss": 0.6919,
+    "ece": 0.01487,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.01375,
+     "n": 2600,
+     "hit_rate": 0.412
+    },
+    "2022": {
+     "expectancy": 0.01178,
+     "n": 2600,
+     "hit_rate": 0.533
+    },
+    "2023": {
+     "expectancy": -0.00841,
+     "n": 2613,
+     "hit_rate": 0.428
+    },
+    "2024": {
+     "expectancy": 0.01566,
+     "n": 2652,
+     "hit_rate": 0.496
+    },
+    "2025": {
+     "expectancy": 0.01252,
+     "n": 1122,
+     "hit_rate": 0.5
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00494,
+     "n_cohorts": 140,
+     "hit_rate": 0.441
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01403,
+     "n_cohorts": 90,
+     "hit_rate": 0.517
+    },
+    "spy_uptrend": {
+     "expectancy": -0.0027,
+     "n_cohorts": 175,
+     "hit_rate": 0.45
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01896,
+     "n_cohorts": 55,
+     "hit_rate": 0.537
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00166,
+     "n": 451
+    },
+    "Communication Services": {
+     "expectancy": -0.0052,
+     "n": 800
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00352,
+     "n": 1770
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.01223,
+     "n": 333
+    },
+    "Energy": {
+     "expectancy": 0.00269,
+     "n": 941
+    },
+    "Financial Services": {
+     "expectancy": 0.01015,
+     "n": 1168
+    },
+    "Healthcare": {
+     "expectancy": -0.01003,
+     "n": 1133
+    },
+    "Industrials": {
+     "expectancy": 0.00701,
+     "n": 1598
+    },
+    "Real Estate": {
+     "expectancy": -0.00058,
+     "n": 447
+    },
+    "Technology": {
+     "expectancy": 0.00458,
+     "n": 2594
+    },
+    "Utilities": {
+     "expectancy": 0.01566,
+     "n": 344
+    }
+   }
+  },
+  "meta_stacking": {
+   "metrics": {
+    "cagr": -0.0189,
+    "sharpe": -0.052,
+    "sortino": -0.056,
+    "max_dd": -0.2909,
+    "calmar": -0.065,
+    "profit_factor": 0.996,
+    "hit_rate": 0.4657,
+    "avg_winner": 0.09504,
+    "avg_loser": -0.08318,
+    "payoff": 1.143,
+    "expectancy": -0.00018,
+    "precision_at_k": 0.2674,
+    "recall_strong": 0.1721,
+    "turnover": 0.2996,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.1088,
+    "avg_mae": -0.0929,
+    "brier": 0.2517,
+    "log_loss": 0.69657,
+    "ece": 0.04627,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.2767,
+    "sharpe": 2.669,
+    "sortino": 3.425,
+    "max_dd": -0.0448,
+    "calmar": 6.18,
+    "profit_factor": 1.439,
+    "hit_rate": 0.5092,
+    "avg_winner": 0.1304,
+    "avg_loser": -0.094,
+    "payoff": 1.387,
+    "expectancy": 0.02026,
+    "precision_at_k": 0.3288,
+    "recall_strong": 0.217,
+    "turnover": 0.3497,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1353,
+    "avg_mae": -0.0886,
+    "brier": 0.24838,
+    "log_loss": 0.68992,
+    "ece": 0.01251,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.01063,
+     "n": 2600,
+     "hit_rate": 0.444
+    },
+    "2022": {
+     "expectancy": -0.00319,
+     "n": 2600,
+     "hit_rate": 0.475
+    },
+    "2023": {
+     "expectancy": -0.00745,
+     "n": 2613,
+     "hit_rate": 0.431
+    },
+    "2024": {
+     "expectancy": 0.01689,
+     "n": 2652,
+     "hit_rate": 0.504
+    },
+    "2025": {
+     "expectancy": 0.00755,
+     "n": 1122,
+     "hit_rate": 0.483
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.005,
+     "n_cohorts": 140,
+     "hit_rate": 0.442
+    },
+    "vix_ge_20": {
+     "expectancy": 0.00735,
+     "n_cohorts": 90,
+     "hit_rate": 0.504
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00402,
+     "n_cohorts": 175,
+     "hit_rate": 0.449
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01208,
+     "n_cohorts": 55,
+     "hit_rate": 0.518
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.01496,
+     "n": 287
+    },
+    "Communication Services": {
+     "expectancy": 0.00309,
+     "n": 486
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00029,
+     "n": 1748
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.00771,
+     "n": 238
+    },
+    "Energy": {
+     "expectancy": -0.00354,
+     "n": 119
+    },
+    "Financial Services": {
+     "expectancy": 0.01834,
+     "n": 413
+    },
+    "Healthcare": {
+     "expectancy": -0.01104,
+     "n": 1843
+    },
+    "Industrials": {
+     "expectancy": 0.01124,
+     "n": 1037
+    },
+    "Technology": {
+     "expectancy": 0.00029,
+     "n": 5262
+    },
+    "Utilities": {
+     "expectancy": 0.01238,
+     "n": 104
+    }
+   }
+  },
+  "meta_stacking__no_regime": {
+   "metrics": {
+    "cagr": 0.0082,
+    "sharpe": 0.126,
+    "sortino": 0.138,
+    "max_dd": -0.1928,
+    "calmar": 0.042,
+    "profit_factor": 1.048,
+    "hit_rate": 0.4746,
+    "avg_winner": 0.09182,
+    "avg_loser": -0.07914,
+    "payoff": 1.16,
+    "expectancy": 0.002,
+    "precision_at_k": 0.2694,
+    "recall_strong": 0.1727,
+    "turnover": 0.339,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.1043,
+    "avg_mae": -0.0866,
+    "brier": 0.25169,
+    "log_loss": 0.69655,
+    "ece": 0.04592,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.4685,
+    "sharpe": 2.764,
+    "sortino": 9.455,
+    "max_dd": -0.0247,
+    "calmar": 18.958,
+    "profit_factor": 1.853,
+    "hit_rate": 0.5256,
+    "avg_winner": 0.13153,
+    "avg_loser": -0.07865,
+    "payoff": 1.673,
+    "expectancy": 0.03182,
+    "precision_at_k": 0.3173,
+    "recall_strong": 0.2154,
+    "turnover": 0.383,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1338,
+    "avg_mae": -0.0791,
+    "brier": 0.24837,
+    "log_loss": 0.68987,
+    "ece": 0.01402,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.00697,
+     "n": 2600,
+     "hit_rate": 0.456
+    },
+    "2022": {
+     "expectancy": 0.00546,
+     "n": 2600,
+     "hit_rate": 0.515
+    },
+    "2023": {
+     "expectancy": -0.01163,
+     "n": 2613,
+     "hit_rate": 0.413
+    },
+    "2024": {
+     "expectancy": 0.01775,
+     "n": 2652,
+     "hit_rate": 0.505
+    },
+    "2025": {
+     "expectancy": 0.00925,
+     "n": 1122,
+     "hit_rate": 0.496
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00462,
+     "n_cohorts": 140,
+     "hit_rate": 0.443
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01235,
+     "n_cohorts": 90,
+     "hit_rate": 0.525
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00274,
+     "n_cohorts": 175,
+     "hit_rate": 0.454
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01713,
+     "n_cohorts": 55,
+     "hit_rate": 0.542
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00514,
+     "n": 344
+    },
+    "Communication Services": {
+     "expectancy": 0.01272,
+     "n": 573
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00453,
+     "n": 1643
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.0039,
+     "n": 541
+    },
+    "Energy": {
+     "expectancy": -0.02116,
+     "n": 557
+    },
+    "Financial Services": {
+     "expectancy": 0.02572,
+     "n": 366
+    },
+    "Healthcare": {
+     "expectancy": -0.01088,
+     "n": 1756
+    },
+    "Industrials": {
+     "expectancy": 0.01545,
+     "n": 1110
+    },
+    "Real Estate": {
+     "expectancy": -0.00459,
+     "n": 60
+    },
+    "Technology": {
+     "expectancy": 0.0034,
+     "n": 4453
+    },
+    "Utilities": {
+     "expectancy": 0.01009,
+     "n": 177
+    }
+   }
+  },
+  "meta_stacking__no_disagreement": {
+   "metrics": {
+    "cagr": -0.0105,
+    "sharpe": -0.0,
+    "sortino": -0.001,
+    "max_dd": -0.2537,
+    "calmar": -0.042,
+    "profit_factor": 1.008,
+    "hit_rate": 0.4684,
+    "avg_winner": 0.09392,
+    "avg_loser": -0.0821,
+    "payoff": 1.144,
+    "expectancy": 0.00034,
+    "precision_at_k": 0.267,
+    "recall_strong": 0.1692,
+    "turnover": 0.2901,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.1074,
+    "avg_mae": -0.0909,
+    "brier": 0.25191,
+    "log_loss": 0.69823,
+    "ece": 0.04642,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.3347,
+    "sharpe": 3.394,
+    "sortino": 2.121,
+    "max_dd": -0.0402,
+    "calmar": 8.317,
+    "profit_factor": 1.55,
+    "hit_rate": 0.5211,
+    "avg_winner": 0.13064,
+    "avg_loser": -0.09172,
+    "payoff": 1.424,
+    "expectancy": 0.02414,
+    "precision_at_k": 0.3369,
+    "recall_strong": 0.2253,
+    "turnover": 0.2987,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1366,
+    "avg_mae": -0.0872,
+    "brier": 0.24844,
+    "log_loss": 0.69004,
+    "ece": 0.01264,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.00713,
+     "n": 2600,
+     "hit_rate": 0.465
+    },
+    "2022": {
+     "expectancy": -0.00098,
+     "n": 2600,
+     "hit_rate": 0.487
+    },
+    "2023": {
+     "expectancy": -0.01012,
+     "n": 2613,
+     "hit_rate": 0.412
+    },
+    "2024": {
+     "expectancy": 0.01659,
+     "n": 2652,
+     "hit_rate": 0.505
+    },
+    "2025": {
+     "expectancy": 0.0067,
+     "n": 1122,
+     "hit_rate": 0.48
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00551,
+     "n_cohorts": 140,
+     "hit_rate": 0.44
+    },
+    "vix_ge_20": {
+     "expectancy": 0.0095,
+     "n_cohorts": 90,
+     "hit_rate": 0.514
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00416,
+     "n_cohorts": 175,
+     "hit_rate": 0.45
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01475,
+     "n_cohorts": 55,
+     "hit_rate": 0.528
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.01091,
+     "n": 334
+    },
+    "Communication Services": {
+     "expectancy": 0.0061,
+     "n": 569
+    },
+    "Consumer Cyclical": {
+     "expectancy": 0.00147,
+     "n": 1749
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.0135,
+     "n": 735
+    },
+    "Energy": {
+     "expectancy": 0.01141,
+     "n": 192
+    },
+    "Financial Services": {
+     "expectancy": 0.01021,
+     "n": 399
+    },
+    "Healthcare": {
+     "expectancy": -0.01211,
+     "n": 1325
+    },
+    "Industrials": {
+     "expectancy": 0.01669,
+     "n": 934
+    },
+    "Real Estate": {
+     "expectancy": 0.00827,
+     "n": 127
+    },
+    "Technology": {
+     "expectancy": 0.00101,
+     "n": 4889
+    },
+    "Utilities": {
+     "expectancy": -0.00152,
+     "n": 305
+    }
+   }
+  },
+  "meta_stacking__no_failure_memory": {
+   "metrics": {
+    "cagr": -0.0405,
+    "sharpe": -0.207,
+    "sortino": -0.214,
+    "max_dd": -0.3266,
+    "calmar": -0.124,
+    "profit_factor": 0.953,
+    "hit_rate": 0.4584,
+    "avg_winner": 0.09428,
+    "avg_loser": -0.08367,
+    "payoff": 1.127,
+    "expectancy": -0.00211,
+    "precision_at_k": 0.265,
+    "recall_strong": 0.173,
+    "turnover": 0.3157,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.1075,
+    "avg_mae": -0.0944,
+    "brier": 0.25185,
+    "log_loss": 0.69822,
+    "ece": 0.04675,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.3866,
+    "sharpe": 2.65,
+    "sortino": 1.46,
+    "max_dd": -0.067,
+    "calmar": 5.769,
+    "profit_factor": 1.597,
+    "hit_rate": 0.5111,
+    "avg_winner": 0.14721,
+    "avg_loser": -0.09633,
+    "payoff": 1.528,
+    "expectancy": 0.02814,
+    "precision_at_k": 0.3452,
+    "recall_strong": 0.2433,
+    "turnover": 0.281,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1486,
+    "avg_mae": -0.0947,
+    "brier": 0.24854,
+    "log_loss": 0.69022,
+    "ece": 0.01255,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.01244,
+     "n": 2600,
+     "hit_rate": 0.429
+    },
+    "2022": {
+     "expectancy": -0.00646,
+     "n": 2600,
+     "hit_rate": 0.453
+    },
+    "2023": {
+     "expectancy": -0.00703,
+     "n": 2613,
+     "hit_rate": 0.432
+    },
+    "2024": {
+     "expectancy": 0.01241,
+     "n": 2652,
+     "hit_rate": 0.502
+    },
+    "2025": {
+     "expectancy": 0.00904,
+     "n": 1122,
+     "hit_rate": 0.496
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00689,
+     "n_cohorts": 140,
+     "hit_rate": 0.44
+    },
+    "vix_ge_20": {
+     "expectancy": 0.00538,
+     "n_cohorts": 90,
+     "hit_rate": 0.488
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00579,
+     "n_cohorts": 175,
+     "hit_rate": 0.446
+    },
+    "spy_downtrend": {
+     "expectancy": 0.00965,
+     "n_cohorts": 55,
+     "hit_rate": 0.499
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.004,
+     "n": 212
+    },
+    "Communication Services": {
+     "expectancy": -0.00592,
+     "n": 546
+    },
+    "Consumer Cyclical": {
+     "expectancy": -0.00376,
+     "n": 1759
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.01925,
+     "n": 197
+    },
+    "Energy": {
+     "expectancy": 0.0043,
+     "n": 272
+    },
+    "Financial Services": {
+     "expectancy": -0.01193,
+     "n": 479
+    },
+    "Healthcare": {
+     "expectancy": -0.00701,
+     "n": 1019
+    },
+    "Industrials": {
+     "expectancy": 0.00479,
+     "n": 1452
+    },
+    "Technology": {
+     "expectancy": -0.00059,
+     "n": 5358
+    },
+    "Utilities": {
+     "expectancy": -0.01485,
+     "n": 252
+    }
+   }
+  },
+  "meta_stacking__no_sector": {
+   "metrics": {
+    "cagr": 0.0068,
+    "sharpe": 0.116,
+    "sortino": 0.133,
+    "max_dd": -0.232,
+    "calmar": 0.029,
+    "profit_factor": 1.042,
+    "hit_rate": 0.4739,
+    "avg_winner": 0.09625,
+    "avg_loser": -0.08319,
+    "payoff": 1.157,
+    "expectancy": 0.00184,
+    "precision_at_k": 0.2739,
+    "recall_strong": 0.1786,
+    "turnover": 0.3608,
+    "exposure": 1.0,
+    "n_trades": 11587,
+    "n_cohorts": 230,
+    "n_months": 53,
+    "avg_mfe": 0.1088,
+    "avg_mae": -0.0917,
+    "brier": 0.25196,
+    "log_loss": 0.6971,
+    "ece": 0.04674,
+    "base_rate": 0.4851,
+    "n": 89972
+   },
+   "locked": {
+    "cagr": 0.3142,
+    "sharpe": 2.142,
+    "sortino": 1.586,
+    "max_dd": -0.0715,
+    "calmar": 4.394,
+    "profit_factor": 1.472,
+    "hit_rate": 0.5121,
+    "avg_winner": 0.139,
+    "avg_loser": -0.09908,
+    "payoff": 1.403,
+    "expectancy": 0.02283,
+    "precision_at_k": 0.3401,
+    "recall_strong": 0.2311,
+    "turnover": 0.2507,
+    "exposure": 1.0,
+    "n_trades": 3111,
+    "n_cohorts": 61,
+    "n_months": 14,
+    "avg_mfe": 0.1461,
+    "avg_mae": -0.0971,
+    "brier": 0.24868,
+    "log_loss": 0.69055,
+    "ece": 0.01289,
+    "base_rate": 0.4657,
+    "n": 31179
+   },
+   "by_year": {
+    "2021": {
+     "expectancy": -0.00978,
+     "n": 2600,
+     "hit_rate": 0.438
+    },
+    "2022": {
+     "expectancy": 0.00284,
+     "n": 2600,
+     "hit_rate": 0.503
+    },
+    "2023": {
+     "expectancy": -0.00726,
+     "n": 2613,
+     "hit_rate": 0.434
+    },
+    "2024": {
+     "expectancy": 0.01752,
+     "n": 2652,
+     "hit_rate": 0.511
+    },
+    "2025": {
+     "expectancy": 0.01057,
+     "n": 1122,
+     "hit_rate": 0.494
+    }
+   },
+   "by_regime": {
+    "vix_lt_20": {
+     "expectancy": -0.00436,
+     "n_cohorts": 140,
+     "hit_rate": 0.448
+    },
+    "vix_ge_20": {
+     "expectancy": 0.01154,
+     "n_cohorts": 90,
+     "hit_rate": 0.514
+    },
+    "spy_uptrend": {
+     "expectancy": -0.00257,
+     "n_cohorts": 175,
+     "hit_rate": 0.456
+    },
+    "spy_downtrend": {
+     "expectancy": 0.01595,
+     "n_cohorts": 55,
+     "hit_rate": 0.532
+    }
+   },
+   "by_sector": {
+    "Basic Materials": {
+     "expectancy": -0.00749,
+     "n": 427
+    },
+    "Communication Services": {
+     "expectancy": 0.00914,
+     "n": 945
+    },
+    "Consumer Cyclical": {
+     "expectancy": -0.00276,
+     "n": 1815
+    },
+    "Consumer Defensive": {
+     "expectancy": -0.00948,
+     "n": 388
+    },
+    "Energy": {
+     "expectancy": 0.00788,
+     "n": 787
+    },
+    "Financial Services": {
+     "expectancy": 0.00566,
+     "n": 1009
+    },
+    "Healthcare": {
+     "expectancy": -0.00987,
+     "n": 1055
+    },
+    "Industrials": {
+     "expectancy": 0.00971,
+     "n": 1334
+    },
+    "Real Estate": {
+     "expectancy": -0.00723,
+     "n": 296
+    },
+    "Technology": {
+     "expectancy": 0.00165,
+     "n": 3151
+    },
+    "Utilities": {
+     "expectancy": 0.01923,
+     "n": 368
+    }
+   }
+  }
+ },
+ "deltas": {
+  "best_single_ex_ante": {
+   "sharpe": -0.297,
+   "cagr": -0.0394,
+   "max_dd": -0.1219,
+   "expectancy": -0.00335,
+   "profit_factor": -0.086,
+   "hit_rate": -0.0128,
+   "brier": 0.00042,
+   "ece": 0.00105,
+   "precision_at_k": -0.0124,
+   "recall_strong": -0.0106,
+   "turnover": -0.0135,
+   "bootstrap": {
+    "delta_monthly_mean": -0.003323,
+    "ci_monthly_mean": [
+     -0.007438,
+     0.000767
+    ],
+    "ci_sharpe": [
+     -0.826,
+     0.056
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "trailing_ic_weighted": {
+   "sharpe": -0.22,
+   "cagr": -0.0295,
+   "max_dd": -0.0841,
+   "expectancy": -0.00301,
+   "profit_factor": -0.077,
+   "hit_rate": -0.0067,
+   "brier": -3e-05,
+   "ece": 0.00034,
+   "precision_at_k": -0.0084,
+   "recall_strong": -0.0077,
+   "turnover": -0.0466,
+   "bootstrap": {
+    "delta_monthly_mean": -0.002504,
+    "ci_monthly_mean": [
+     -0.008298,
+     0.003453
+    ],
+    "ci_sharpe": [
+     -0.735,
+     0.366
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_regime_weights": {
+   "sharpe": -0.027,
+   "cagr": -0.0057,
+   "max_dd": -0.0274,
+   "expectancy": -0.00034,
+   "profit_factor": -0.007,
+   "hit_rate": -0.0036,
+   "brier": 7e-05,
+   "ece": 5e-05,
+   "precision_at_k": -0.0087,
+   "recall_strong": -0.0047,
+   "turnover": 0.0393,
+   "bootstrap": {
+    "delta_monthly_mean": -0.000628,
+    "ci_monthly_mean": [
+     -0.005028,
+     0.004005
+    ],
+    "ci_sharpe": [
+     -0.476,
+     0.393
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_regime_weights__no_regime": {
+   "sharpe": 0.144,
+   "cagr": 0.0121,
+   "max_dd": -0.0157,
+   "expectancy": 0.00105,
+   "profit_factor": 0.035,
+   "hit_rate": 0.0014,
+   "brier": 0.00026,
+   "ece": 0.00088,
+   "precision_at_k": -0.0115,
+   "recall_strong": -0.0091,
+   "turnover": 0.0445,
+   "bootstrap": {
+    "delta_monthly_mean": 0.000702,
+    "ci_monthly_mean": [
+     -0.005144,
+     0.007217
+    ],
+    "ci_sharpe": [
+     -0.528,
+     0.694
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_regime_weights__no_failure_memory": {
+   "sharpe": -0.096,
+   "cagr": -0.0128,
+   "max_dd": -0.0685,
+   "expectancy": -0.00072,
+   "profit_factor": -0.02,
+   "hit_rate": -0.0045,
+   "brier": 2e-05,
+   "ece": 0.00038,
+   "precision_at_k": -0.002,
+   "recall_strong": 0.0023,
+   "turnover": -0.0287,
+   "bootstrap": {
+    "delta_monthly_mean": -0.000971,
+    "ci_monthly_mean": [
+     -0.004812,
+     0.003367
+    ],
+    "ci_sharpe": [
+     -0.477,
+     0.32
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_regime_weights__no_disagreement": {
+   "sharpe": -0.073,
+   "cagr": -0.0116,
+   "max_dd": -0.0377,
+   "expectancy": -0.00085,
+   "profit_factor": -0.021,
+   "hit_rate": -0.0058,
+   "brier": 9e-05,
+   "ece": 0.00023,
+   "precision_at_k": -0.0079,
+   "recall_strong": -0.0056,
+   "turnover": 0.0475,
+   "bootstrap": {
+    "delta_monthly_mean": -0.001134,
+    "ci_monthly_mean": [
+     -0.006007,
+     0.003947
+    ],
+    "ci_sharpe": [
+     -0.59,
+     0.375
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_stacking": {
+   "sharpe": -0.336,
+   "cagr": -0.0486,
+   "max_dd": -0.1306,
+   "expectancy": -0.00349,
+   "profit_factor": -0.089,
+   "hit_rate": -0.0108,
+   "brier": -9e-05,
+   "ece": -3e-05,
+   "precision_at_k": 0.0005,
+   "recall_strong": 0.0033,
+   "turnover": -0.0532,
+   "bootstrap": {
+    "delta_monthly_mean": -0.00383,
+    "ci_monthly_mean": [
+     -0.010244,
+     0.002324
+    ],
+    "ci_sharpe": [
+     -0.938,
+     0.195
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_stacking__no_regime": {
+   "sharpe": -0.158,
+   "cagr": -0.0215,
+   "max_dd": -0.0325,
+   "expectancy": -0.00131,
+   "profit_factor": -0.037,
+   "hit_rate": -0.0019,
+   "brier": -0.0001,
+   "ece": -0.00038,
+   "precision_at_k": 0.0025,
+   "recall_strong": 0.0039,
+   "turnover": -0.0138,
+   "bootstrap": {
+    "delta_monthly_mean": -0.001807,
+    "ci_monthly_mean": [
+     -0.007739,
+     0.004348
+    ],
+    "ci_sharpe": [
+     -0.765,
+     0.403
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_stacking__no_disagreement": {
+   "sharpe": -0.284,
+   "cagr": -0.0402,
+   "max_dd": -0.0934,
+   "expectancy": -0.00297,
+   "profit_factor": -0.077,
+   "hit_rate": -0.0081,
+   "brier": 0.00012,
+   "ece": 0.00012,
+   "precision_at_k": 0.0001,
+   "recall_strong": 0.0004,
+   "turnover": -0.0627,
+   "bootstrap": {
+    "delta_monthly_mean": -0.003186,
+    "ci_monthly_mean": [
+     -0.009348,
+     0.002718
+    ],
+    "ci_sharpe": [
+     -0.881,
+     0.211
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_stacking__no_failure_memory": {
+   "sharpe": -0.491,
+   "cagr": -0.0702,
+   "max_dd": -0.1663,
+   "expectancy": -0.00542,
+   "profit_factor": -0.132,
+   "hit_rate": -0.0181,
+   "brier": 6e-05,
+   "ece": 0.00045,
+   "precision_at_k": -0.0019,
+   "recall_strong": 0.0042,
+   "turnover": -0.0371,
+   "bootstrap": {
+    "delta_monthly_mean": -0.005729,
+    "ci_monthly_mean": [
+     -0.011709,
+     0.000122
+    ],
+    "ci_sharpe": [
+     -1.12,
+     0.004
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  },
+  "meta_stacking__no_sector": {
+   "sharpe": -0.168,
+   "cagr": -0.0229,
+   "max_dd": -0.0717,
+   "expectancy": -0.00147,
+   "profit_factor": -0.043,
+   "hit_rate": -0.0026,
+   "brier": 0.00017,
+   "ece": 0.00044,
+   "precision_at_k": 0.007,
+   "recall_strong": 0.0098,
+   "turnover": 0.008,
+   "bootstrap": {
+    "delta_monthly_mean": -0.001838,
+    "ci_monthly_mean": [
+     -0.006689,
+     0.003491
+    ],
+    "ci_sharpe": [
+     -0.661,
+     0.303
+    ],
+    "alpha_one_sided": 0.025,
+    "n_months": 53
+   }
+  }
+ },
+ "robustness": {
+  "meta_regime_weights": {
+   "rebalance_4w": 0.00093,
+   "liquid_half": 0.00142,
+   "less_liquid_half": 0.00433
+  },
+  "meta_stacking": {
+   "rebalance_4w": -0.00135,
+   "liquid_half": -0.00114,
+   "less_liquid_half": 0.00375
+  },
+  "static_equal": {
+   "rebalance_4w": 0.00231,
+   "liquid_half": 0.00277,
+   "less_liquid_half": 0.00386
+  },
+  "best_single_ex_ante": {
+   "rebalance_4w": -0.00172,
+   "liquid_half": -0.00066,
+   "less_liquid_half": 0.00132
+  }
+ },
+ "decision": {
+  "verdict": "REJECT",
+  "criteria": {
+   "reproducible_leakage_checks": {
+    "pass": true
+   },
+   "enough_oos": {
+    "pass": true,
+    "value": [
+     230,
+     53
+    ]
+   },
+   "delta_sharpe_positive": {
+    "pass": false,
+    "value": -0.027
+   },
+   "bootstrap_ci_positive": {
+    "pass": false,
+    "value": [
+     -0.005028,
+     0.004005
+    ]
+   },
+   "years_positive": {
+    "pass": "False",
+    "value": 0.4
+   },
+   "halves_positive": {
+    "pass": "False",
+    "value": [
+     0.00104,
+     -0.00224
+    ]
+   },
+   "no_regime_collapse": {
+    "pass": true,
+    "value": {
+     "vix_lt_20": -0.00242,
+     "vix_ge_20": 0.00292,
+     "spy_uptrend": -0.00198,
+     "spy_downtrend": 0.0049
+    }
+   },
+   "calibration_not_worse": {
+    "pass": true,
+    "value": {
+     "brier": [
+      0.25186,
+      0.25179
+     ],
+     "ece": [
+      0.04635,
+      0.0463
+     ]
+    }
+   },
+   "not_outlier_driven": {
+    "pass": "False",
+    "value": -0.003026
+   },
+   "locked_delta_positive": {
+    "pass": "True",
+    "value": 0.00461
+   }
+  },
+  "bootstrap": {
+   "delta_monthly_mean": -0.000628,
+   "ci_monthly_mean": [
+    -0.005028,
+    0.004005
+   ],
+   "ci_sharpe": [
+    -0.476,
+    0.393
+   ],
+   "alpha_one_sided": 0.025,
+   "n_months": 53
+  },
+  "reasons": [
+   "delta_sharpe_positive",
+   "bootstrap_ci_positive",
+   "years_positive",
+   "halves_positive",
+   "not_outlier_driven"
+  ]
+ },
+ "decision_stacking": {
+  "verdict": "REJECT",
+  "criteria": {
+   "reproducible_leakage_checks": {
+    "pass": true
+   },
+   "enough_oos": {
+    "pass": true,
+    "value": [
+     230,
+     53
+    ]
+   },
+   "delta_sharpe_positive": {
+    "pass": false,
+    "value": -0.336
+   },
+   "bootstrap_ci_positive": {
+    "pass": false,
+    "value": [
+     -0.010244,
+     0.002324
+    ]
+   },
+   "years_positive": {
+    "pass": "False",
+    "value": 0.0
+   },
+   "halves_positive": {
+    "pass": "False",
+    "value": [
+     -0.00423,
+     -0.00344
+    ]
+   },
+   "no_regime_collapse": {
+    "pass": true,
+    "value": {
+     "vix_lt_20": -0.00262,
+     "vix_ge_20": -0.00487,
+     "spy_uptrend": -0.00358,
+     "spy_downtrend": -0.00323
+    }
+   },
+   "calibration_not_worse": {
+    "pass": true,
+    "value": {
+     "brier": [
+      0.2517,
+      0.25179
+     ],
+     "ece": [
+      0.04627,
+      0.0463
+     ]
+    }
+   },
+   "not_outlier_driven": {
+    "pass": "False",
+    "value": -0.007161
+   },
+   "locked_delta_positive": {
+    "pass": "True",
+    "value": 0.00118
+   }
+  },
+  "bootstrap": {
+   "delta_monthly_mean": -0.00383,
+   "ci_monthly_mean": [
+    -0.010244,
+    0.002324
+   ],
+   "ci_sharpe": [
+    -0.938,
+    0.195
+   ],
+   "alpha_one_sided": 0.025,
+   "n_months": 53
+  },
+  "reasons": [
+   "delta_sharpe_positive",
+   "bootstrap_ci_positive",
+   "years_positive",
+   "halves_positive",
+   "not_outlier_driven"
+  ]
+ },
+ "ablations": {
+  "meta_regime_weights__no_regime": {
+   "expectancy": 0.00436,
+   "sharpe": 0.428,
+   "brier": 0.25205,
+   "delta_vs_full_expectancy": 0.00139
+  },
+  "meta_regime_weights__no_failure_memory": {
+   "expectancy": 0.00259,
+   "sharpe": 0.188,
+   "brier": 0.25181,
+   "delta_vs_full_expectancy": -0.00038
+  },
+  "meta_regime_weights__no_disagreement": {
+   "expectancy": 0.00246,
+   "sharpe": 0.211,
+   "brier": 0.25188,
+   "delta_vs_full_expectancy": -0.00051
+  },
+  "meta_stacking__no_regime": {
+   "expectancy": 0.002,
+   "sharpe": 0.126,
+   "brier": 0.25169,
+   "delta_vs_full_expectancy": 0.00218
+  },
+  "meta_stacking__no_disagreement": {
+   "expectancy": 0.00034,
+   "sharpe": -0.0,
+   "brier": 0.25191,
+   "delta_vs_full_expectancy": 0.00052
+  },
+  "meta_stacking__no_failure_memory": {
+   "expectancy": -0.00211,
+   "sharpe": -0.207,
+   "brier": 0.25185,
+   "delta_vs_full_expectancy": -0.00193
+  },
+  "meta_stacking__no_sector": {
+   "expectancy": 0.00184,
+   "sharpe": 0.116,
+   "brier": 0.25196,
+   "delta_vs_full_expectancy": 0.00202
+  },
+  "without_dynamic_weighting (= static_equal)": {
+   "expectancy": 0.00331,
+   "sharpe": 0.284
+  },
+  "without_historical_analogies": "n/a – Analogie-Engine ist nicht Teil der Basismodelle/Meta-Merkmale",
+  "without_alternative_data": "n/a – kein Basismodell nutzt alternative Daten (PIT-Historie zu kurz)"
+ },
+ "calibration_buckets": {
+  "static_equal": [
+   {
+    "bucket": "50–55 %",
+    "n": 30376,
+    "win_rate": 0.4745,
+    "predicted": 0.5269,
+    "avg_return": 0.0017,
+    "median_return": -0.00458,
+    "avg_drawdown": -0.06416,
+    "expected_return": 0.00702,
+    "expected_value": -0.0003,
+    "calibration_error": -0.0524,
+    "flag": "overconfident"
+   },
+   {
+    "bucket": "55–60 %",
+    "n": 7868,
+    "win_rate": 0.4235,
+    "predicted": 0.5517,
+    "avg_return": -0.00872,
+    "median_return": -0.01073,
+    "avg_drawdown": -0.05338,
+    "expected_return": 0.01035,
+    "expected_value": -0.01072,
+    "calibration_error": -0.1282,
+    "flag": "overconfident"
+   },
+   {
+    "bucket": "60–65 %",
+    "n": 468,
+    "win_rate": 0.4444,
+    "predicted": 0.6255,
+    "avg_return": -0.00519,
+    "median_return": -0.00769,
+    "avg_drawdown": -0.05184,
+    "expected_return": 0.02484,
+    "expected_value": -0.00719,
+    "calibration_error": -0.1811,
+    "flag": "overconfident"
+   },
+   {
+    "bucket": "65–70 %",
+    "n": 104,
+    "win_rate": 0.4327,
+    "predicted": 0.6569,
+    "avg_return": -0.00871,
+    "median_return": -0.00955,
+    "avg_drawdown": -0.05445,
+    "expected_return": 0.04234,
+    "expected_value": -0.01071,
+    "calibration_error": -0.2242,
+    "flag": "low_n"
+   },
+   {
+    "bucket": "70–75 %",
+    "n": 61,
+    "win_rate": 0.6066,
+    "predicted": 0.7273,
+    "avg_return": 0.12354,
+    "median_return": 0.06613,
+    "avg_drawdown": -0.1008,
+    "expected_return": 0.10495,
+    "expected_value": 0.12154,
+    "calibration_error": -0.1207,
+    "flag": "low_n"
+   },
+   {
+    "bucket": "75–80 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "80–85 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "85–90 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": ">= 90 %",
+    "n": 0,
+    "flag": "empty"
+   }
+  ],
+  "meta_regime_weights": [
+   {
+    "bucket": "50–55 %",
+    "n": 30958,
+    "win_rate": 0.4699,
+    "predicted": 0.5303,
+    "avg_return": 0.00047,
+    "median_return": -0.00512,
+    "avg_drawdown": -0.0597,
+    "expected_return": 0.00554,
+    "expected_value": -0.00153,
+    "calibration_error": -0.0604,
+    "flag": "overconfident"
+   },
+   {
+    "bucket": "55–60 %",
+    "n": 5471,
+    "win_rate": 0.4341,
+    "predicted": 0.5688,
+    "avg_return": -0.00479,
+    "median_return": -0.00874,
+    "avg_drawdown": -0.05458,
+    "expected_return": 0.02378,
+    "expected_value": -0.00679,
+    "calibration_error": -0.1347,
+    "flag": "overconfident"
+   },
+   {
+    "bucket": "60–65 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "65–70 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "70–75 %",
+    "n": 61,
+    "win_rate": 0.5902,
+    "predicted": 0.7273,
+    "avg_return": 0.09135,
+    "median_return": 0.04753,
+    "avg_drawdown": -0.10304,
+    "expected_return": 0.09479,
+    "expected_value": 0.08935,
+    "calibration_error": -0.1371,
+    "flag": "low_n"
+   },
+   {
+    "bucket": "75–80 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "80–85 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "85–90 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": ">= 90 %",
+    "n": 0,
+    "flag": "empty"
+   }
+  ],
+  "meta_stacking": [
+   {
+    "bucket": "50–55 %",
+    "n": 34916,
+    "win_rate": 0.4672,
+    "predicted": 0.5334,
+    "avg_return": 0.00109,
+    "median_return": -0.00555,
+    "avg_drawdown": -0.06113,
+    "expected_return": 0.00796,
+    "expected_value": -0.00091,
+    "calibration_error": -0.0662,
+    "flag": "overconfident"
+   },
+   {
+    "bucket": "55–60 %",
+    "n": 61,
+    "win_rate": 0.6066,
+    "predicted": 0.563,
+    "avg_return": 0.04188,
+    "median_return": 0.02652,
+    "avg_drawdown": -0.08446,
+    "expected_return": 0.02193,
+    "expected_value": 0.03988,
+    "calibration_error": 0.0435,
+    "flag": "low_n"
+   },
+   {
+    "bucket": "60–65 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "65–70 %",
+    "n": 60,
+    "win_rate": 0.6167,
+    "predicted": 0.6819,
+    "avg_return": 0.05619,
+    "median_return": 0.04511,
+    "avg_drawdown": -0.10286,
+    "expected_return": 0.10526,
+    "expected_value": 0.05419,
+    "calibration_error": -0.0652,
+    "flag": "low_n"
+   },
+   {
+    "bucket": "70–75 %",
+    "n": 62,
+    "win_rate": 0.5645,
+    "predicted": 0.7265,
+    "avg_return": 0.04952,
+    "median_return": 0.00752,
+    "avg_drawdown": -0.09643,
+    "expected_return": 0.10526,
+    "expected_value": 0.04752,
+    "calibration_error": -0.162,
+    "flag": "low_n"
+   },
+   {
+    "bucket": "75–80 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "80–85 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": "85–90 %",
+    "n": 0,
+    "flag": "empty"
+   },
+   {
+    "bucket": ">= 90 %",
+    "n": 0,
+    "flag": "empty"
+   }
+  ]
+ },
+ "disagreement": {
+  "dis_rank_sd": {
+   "low_minus_high_mean": 0.00037,
+   "t_months": 0.07,
+   "share_years_positive": 0.6,
+   "empirically_supported": false
+  },
+  "dis_bull_bear": {
+   "low_minus_high_mean": -0.00181,
+   "t_months": -0.51,
+   "share_years_positive": 0.2,
+   "empirically_supported": false
+  },
+  "dis_rank_range": {
+   "low_minus_high_mean": -0.00151,
+   "t_months": -0.42,
+   "share_years_positive": 0.4,
+   "empirically_supported": false
+  },
+  "dis_pred_sd": {
+   "low_minus_high_mean": -0.01118,
+   "t_months": -2.77,
+   "share_years_positive": 0.2,
+   "empirically_supported": false
+  },
+  "use_in_score": false,
+  "probability_disagreement": "n/a – Basismodelle liefern Renditen/Ränge, keine Wahrscheinlichkeiten",
+  "current_mean_rank_sd": 0.2512,
+  "current_level": "NORMAL"
+ },
+ "failure_profiles": {
+  "momentum_12_1": {
+   "segments": [
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_ge_20",
+     "mean_ic": -0.0026,
+     "t": -0.3,
+     "n_dates": 90,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_lt_20",
+     "mean_ic": 0.004,
+     "t": 0.17,
+     "n_dates": 140,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "downtrend",
+     "mean_ic": 0.0199,
+     "t": 0.02,
+     "n_dates": 55,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "uptrend",
+     "mean_ic": -0.0044,
+     "t": -0.14,
+     "n_dates": 175,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_down_3m",
+     "mean_ic": 0.0121,
+     "t": -0.04,
+     "n_dates": 67,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_up_3m",
+     "mean_ic": -0.0029,
+     "t": -0.14,
+     "n_dates": 163,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "low_vol",
+     "mean_ic": 0.0098,
+     "t": 0.52,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "mid_vol",
+     "mean_ic": 0.0151,
+     "t": 0.68,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "high_vol",
+     "mean_ic": 0.0148,
+     "t": 0.56,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "less_liquid",
+     "mean_ic": 0.0001,
+     "t": 0.03,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "liquid",
+     "mean_ic": 0.0036,
+     "t": 0.18,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Basic Materials",
+     "mean_ic": 0.0377,
+     "t": 0.96,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Communication Services",
+     "mean_ic": 0.02,
+     "t": 0.53,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Cyclical",
+     "mean_ic": -0.0162,
+     "t": -0.55,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Defensive",
+     "mean_ic": 0.0214,
+     "t": 0.62,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Energy",
+     "mean_ic": 0.042,
+     "t": 1.13,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Financial Services",
+     "mean_ic": -0.0296,
+     "t": -0.88,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Healthcare",
+     "mean_ic": 0.0111,
+     "t": 0.4,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Industrials",
+     "mean_ic": -0.0023,
+     "t": 0.11,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Real Estate",
+     "mean_ic": -0.0158,
+     "t": -0.5,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Technology",
+     "mean_ic": -0.0063,
+     "t": -0.25,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Utilities",
+     "mean_ic": -0.0092,
+     "t": -0.29,
+     "n_dates": 230,
+     "verdict": "neutral"
+    }
+   ],
+   "works": [],
+   "fails": []
+  },
+  "enet_xs20_v1": {
+   "segments": [
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_ge_20",
+     "mean_ic": 0.0562,
+     "t": 1.35,
+     "n_dates": 90,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_lt_20",
+     "mean_ic": -0.0148,
+     "t": -0.79,
+     "n_dates": 140,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "downtrend",
+     "mean_ic": 0.0702,
+     "t": 1.18,
+     "n_dates": 55,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "uptrend",
+     "mean_ic": -0.0051,
+     "t": -0.71,
+     "n_dates": 175,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_down_3m",
+     "mean_ic": 0.0366,
+     "t": 0.16,
+     "n_dates": 67,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_up_3m",
+     "mean_ic": 0.0032,
+     "t": -0.06,
+     "n_dates": 163,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "low_vol",
+     "mean_ic": -0.0071,
+     "t": -0.39,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "mid_vol",
+     "mean_ic": 0.0166,
+     "t": 0.87,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "high_vol",
+     "mean_ic": 0.0011,
+     "t": 0.11,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "less_liquid",
+     "mean_ic": 0.0181,
+     "t": 0.64,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "liquid",
+     "mean_ic": 0.011,
+     "t": 0.36,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Basic Materials",
+     "mean_ic": 0.0159,
+     "t": 0.45,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Communication Services",
+     "mean_ic": -0.0239,
+     "t": -0.7,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Cyclical",
+     "mean_ic": 0.0097,
+     "t": 0.36,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Defensive",
+     "mean_ic": -0.0139,
+     "t": -0.32,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Energy",
+     "mean_ic": -0.0275,
+     "t": -0.79,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Financial Services",
+     "mean_ic": 0.0231,
+     "t": 0.57,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Healthcare",
+     "mean_ic": -0.0284,
+     "t": -0.88,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Industrials",
+     "mean_ic": 0.0341,
+     "t": 1.19,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Real Estate",
+     "mean_ic": 0.0225,
+     "t": 0.56,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Technology",
+     "mean_ic": -0.0027,
+     "t": -0.12,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Utilities",
+     "mean_ic": 0.037,
+     "t": 1.08,
+     "n_dates": 230,
+     "verdict": "neutral"
+    }
+   ],
+   "works": [],
+   "fails": []
+  },
+  "hgb_xs20_v1": {
+   "segments": [
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_ge_20",
+     "mean_ic": 0.0471,
+     "t": 0.68,
+     "n_dates": 90,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_lt_20",
+     "mean_ic": -0.0274,
+     "t": -0.18,
+     "n_dates": 140,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "downtrend",
+     "mean_ic": 0.0669,
+     "t": 0.58,
+     "n_dates": 55,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "uptrend",
+     "mean_ic": -0.0188,
+     "t": -0.46,
+     "n_dates": 175,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_down_3m",
+     "mean_ic": 0.0802,
+     "t": 0.97,
+     "n_dates": 67,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_up_3m",
+     "mean_ic": -0.0305,
+     "t": -1.5,
+     "n_dates": 163,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "low_vol",
+     "mean_ic": -0.0049,
+     "t": -0.21,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "mid_vol",
+     "mean_ic": -0.0019,
+     "t": -0.05,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "high_vol",
+     "mean_ic": -0.0075,
+     "t": -0.46,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "less_liquid",
+     "mean_ic": -0.0035,
+     "t": -0.18,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "liquid",
+     "mean_ic": 0.0036,
+     "t": 0.11,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Basic Materials",
+     "mean_ic": -0.0515,
+     "t": -1.77,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Communication Services",
+     "mean_ic": 0.0135,
+     "t": 0.44,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Cyclical",
+     "mean_ic": 0.0259,
+     "t": 0.85,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Defensive",
+     "mean_ic": 0.0367,
+     "t": 1.43,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Energy",
+     "mean_ic": -0.0283,
+     "t": -0.95,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Financial Services",
+     "mean_ic": 0.0316,
+     "t": 1.06,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Healthcare",
+     "mean_ic": 0.015,
+     "t": 0.74,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Industrials",
+     "mean_ic": -0.0159,
+     "t": -0.68,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Real Estate",
+     "mean_ic": -0.0272,
+     "t": -1.1,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Technology",
+     "mean_ic": -0.003,
+     "t": -0.19,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Utilities",
+     "mean_ic": -0.0215,
+     "t": -1.1,
+     "n_dates": 230,
+     "verdict": "neutral"
+    }
+   ],
+   "works": [],
+   "fails": []
+  },
+  "hgb_asym20_v1": {
+   "segments": [
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_ge_20",
+     "mean_ic": 0.0593,
+     "t": 1.78,
+     "n_dates": 90,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_lt_20",
+     "mean_ic": -0.0114,
+     "t": 0.8,
+     "n_dates": 140,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "downtrend",
+     "mean_ic": 0.0403,
+     "t": 0.78,
+     "n_dates": 55,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "uptrend",
+     "mean_ic": 0.0087,
+     "t": 1.41,
+     "n_dates": 175,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_down_3m",
+     "mean_ic": 0.0705,
+     "t": 0.94,
+     "n_dates": 67,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_up_3m",
+     "mean_ic": -0.0061,
+     "t": -0.57,
+     "n_dates": 163,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "low_vol",
+     "mean_ic": -0.0118,
+     "t": -0.61,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "mid_vol",
+     "mean_ic": 0.0061,
+     "t": 0.58,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "high_vol",
+     "mean_ic": 0.0151,
+     "t": 1.12,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "less_liquid",
+     "mean_ic": 0.0097,
+     "t": 0.74,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "liquid",
+     "mean_ic": 0.0213,
+     "t": 1.08,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Basic Materials",
+     "mean_ic": -0.0119,
+     "t": -0.49,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Communication Services",
+     "mean_ic": 0.0484,
+     "t": 1.99,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Cyclical",
+     "mean_ic": 0.0424,
+     "t": 2.16,
+     "n_dates": 230,
+     "verdict": "works"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Defensive",
+     "mean_ic": -0.0164,
+     "t": -0.66,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Energy",
+     "mean_ic": -0.0226,
+     "t": -0.74,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Financial Services",
+     "mean_ic": 0.0339,
+     "t": 1.39,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Healthcare",
+     "mean_ic": 0.0104,
+     "t": 0.56,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Industrials",
+     "mean_ic": -0.0027,
+     "t": -0.03,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Real Estate",
+     "mean_ic": 0.0047,
+     "t": 0.27,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Technology",
+     "mean_ic": 0.0029,
+     "t": 0.25,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Utilities",
+     "mean_ic": -0.0107,
+     "t": -0.47,
+     "n_dates": 230,
+     "verdict": "neutral"
+    }
+   ],
+   "works": [
+    "Consumer Cyclical (IC 0.0424, t 2.16)"
+   ],
+   "fails": []
+  },
+  "hgb_xs20_momentum_v1": {
+   "segments": [
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_ge_20",
+     "mean_ic": 0.0339,
+     "t": 1.22,
+     "n_dates": 90,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_lt_20",
+     "mean_ic": -0.0034,
+     "t": -0.67,
+     "n_dates": 140,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "downtrend",
+     "mean_ic": 0.035,
+     "t": 0.87,
+     "n_dates": 55,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "uptrend",
+     "mean_ic": 0.0038,
+     "t": -0.44,
+     "n_dates": 175,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_down_3m",
+     "mean_ic": 0.0089,
+     "t": -0.14,
+     "n_dates": 67,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_up_3m",
+     "mean_ic": 0.0122,
+     "t": 0.44,
+     "n_dates": 163,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "low_vol",
+     "mean_ic": 0.0069,
+     "t": 0.42,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "mid_vol",
+     "mean_ic": 0.0122,
+     "t": 0.77,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "high_vol",
+     "mean_ic": 0.009,
+     "t": 0.72,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "less_liquid",
+     "mean_ic": 0.0193,
+     "t": 1.27,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "liquid",
+     "mean_ic": 0.0027,
+     "t": 0.13,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Basic Materials",
+     "mean_ic": 0.0148,
+     "t": 0.42,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Communication Services",
+     "mean_ic": 0.0363,
+     "t": 1.31,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Cyclical",
+     "mean_ic": -0.004,
+     "t": -0.14,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Defensive",
+     "mean_ic": -0.0312,
+     "t": -1.31,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Energy",
+     "mean_ic": -0.0286,
+     "t": -1.08,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Financial Services",
+     "mean_ic": 0.01,
+     "t": 0.63,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Healthcare",
+     "mean_ic": -0.0063,
+     "t": -0.31,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Industrials",
+     "mean_ic": -0.0025,
+     "t": -0.15,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Real Estate",
+     "mean_ic": 0.0365,
+     "t": 1.21,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Technology",
+     "mean_ic": 0.0236,
+     "t": 1.38,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Utilities",
+     "mean_ic": 0.0047,
+     "t": 0.26,
+     "n_dates": 230,
+     "verdict": "neutral"
+    }
+   ],
+   "works": [],
+   "fails": []
+  },
+  "hgb_xs20_risk_regime_v1": {
+   "segments": [
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_ge_20",
+     "mean_ic": 0.0709,
+     "t": 1.98,
+     "n_dates": 90,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vix_bucket",
+     "segment": "vix_lt_20",
+     "mean_ic": -0.0367,
+     "t": -0.46,
+     "n_dates": 140,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "downtrend",
+     "mean_ic": 0.0629,
+     "t": 1.05,
+     "n_dates": 55,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "trend_bucket",
+     "segment": "uptrend",
+     "mean_ic": -0.0126,
+     "t": -0.31,
+     "n_dates": 175,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_down_3m",
+     "mean_ic": 0.0696,
+     "t": 0.31,
+     "n_dates": 67,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "mkt_move",
+     "segment": "market_up_3m",
+     "mean_ic": -0.021,
+     "t": -0.73,
+     "n_dates": 163,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "low_vol",
+     "mean_ic": -0.0214,
+     "t": -0.96,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "mid_vol",
+     "mean_ic": -0.0081,
+     "t": -0.41,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "vol_bucket",
+     "segment": "high_vol",
+     "mean_ic": -0.0096,
+     "t": -0.55,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "less_liquid",
+     "mean_ic": -0.0057,
+     "t": -0.2,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "liq_bucket",
+     "segment": "liquid",
+     "mean_ic": 0.0151,
+     "t": 0.51,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Basic Materials",
+     "mean_ic": -0.0188,
+     "t": -0.66,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Communication Services",
+     "mean_ic": -0.008,
+     "t": -0.37,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Cyclical",
+     "mean_ic": 0.0292,
+     "t": 0.99,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Consumer Defensive",
+     "mean_ic": 0.032,
+     "t": 1.41,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Energy",
+     "mean_ic": -0.0068,
+     "t": -0.21,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Financial Services",
+     "mean_ic": 0.0501,
+     "t": 1.38,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Healthcare",
+     "mean_ic": 0.0047,
+     "t": 0.23,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Industrials",
+     "mean_ic": 0.0122,
+     "t": 0.51,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Real Estate",
+     "mean_ic": -0.0453,
+     "t": -1.36,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Technology",
+     "mean_ic": -0.003,
+     "t": -0.15,
+     "n_dates": 230,
+     "verdict": "neutral"
+    },
+    {
+     "dimension": "sector",
+     "segment": "Utilities",
+     "mean_ic": 0.0013,
+     "t": 0.03,
+     "n_dates": 230,
+     "verdict": "neutral"
+    }
+   ],
+   "works": [],
+   "fails": []
+  }
+ },
+ "model_intelligence": {
+  "momentum_12_1": {
+   "oos_ic": 0.008,
+   "recent_ic": -0.1172,
+   "prior_ic": 0.0711,
+   "trend": "deteriorating",
+   "trend_t": -2.65,
+   "calibration_slope_recent": -0.04374,
+   "meta_weight": 0.8468,
+   "contribution": 0.00028
+  },
+  "enet_xs20_v1": {
+   "oos_ic": 0.0322,
+   "recent_ic": -0.0052,
+   "prior_ic": 0.1107,
+   "trend": "stable",
+   "trend_t": -1.82,
+   "calibration_slope_recent": 0.00555,
+   "meta_weight": 0.1532,
+   "contribution": 0.00079
+  },
+  "hgb_xs20_v1": {
+   "oos_ic": 0.0166,
+   "recent_ic": -0.0227,
+   "prior_ic": 0.0419,
+   "trend": "stable",
+   "trend_t": -0.92,
+   "calibration_slope_recent": -0.01109,
+   "meta_weight": 0.0,
+   "contribution": -0.00099
+  },
+  "hgb_asym20_v1": {
+   "oos_ic": 0.0166,
+   "recent_ic": -0.0495,
+   "prior_ic": 0.0282,
+   "trend": "stable",
+   "trend_t": -1.49,
+   "calibration_slope_recent": -0.00985,
+   "meta_weight": 0.0,
+   "contribution": 6e-05
+  },
+  "hgb_xs20_momentum_v1": {
+   "oos_ic": 0.0176,
+   "recent_ic": 0.0674,
+   "prior_ic": 0.0307,
+   "trend": "stable",
+   "trend_t": 1.22,
+   "calibration_slope_recent": 0.02771,
+   "meta_weight": 0.0,
+   "contribution": 0.00137
+  },
+  "hgb_xs20_risk_regime_v1": {
+   "oos_ic": 0.0172,
+   "recent_ic": 0.0027,
+   "prior_ic": -0.01,
+   "trend": "stable",
+   "trend_t": 0.25,
+   "calibration_slope_recent": -0.00655,
+   "meta_weight": 0.0,
+   "contribution": -0.00103
+  }
+ },
+ "current_weights": {
+  "momentum_12_1": {
+   "weight": 0.8468,
+   "fallback_equal": false,
+   "expected_reliability": 0.0621,
+   "p_adds_value": 0.6212,
+   "confidence": 0.3085
+  },
+  "enet_xs20_v1": {
+   "weight": 0.1532,
+   "fallback_equal": false,
+   "expected_reliability": 0.0112,
+   "p_adds_value": 0.5196,
+   "confidence": 0.0492
+  },
+  "hgb_xs20_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0414,
+   "p_adds_value": 0.4109,
+   "confidence": 0.2252
+  },
+  "hgb_asym20_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0035,
+   "p_adds_value": 0.4923,
+   "confidence": 0.0193
+  },
+  "hgb_xs20_momentum_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0414,
+   "p_adds_value": 0.3752,
+   "confidence": 0.3182
+  },
+  "hgb_xs20_risk_regime_v1": {
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0252,
+   "p_adds_value": 0.4518,
+   "confidence": 0.1211
+  }
+ },
+ "active_ensemble": "static_equal",
+ "hc_rule": {
+  "enabled": false,
+  "n_rules_tested": 6,
+  "best": {
+   "prob": 0.55,
+   "agreement_sd": 9.0,
+   "lcb": -0.008353031150829866,
+   "n": 2425,
+   "mean": -0.005868681352518407
+  },
+  "disabled_reason": "keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre)"
+ },
+ "prob_map": {
+  "fold": "locked",
+  "n": 31179,
+  "prob": {
+   "x": [
+    0.00195,
+    0.0078,
+    0.00781,
+    0.01566,
+    0.01569,
+    0.01949,
+    0.01953,
+    0.4,
+    0.40039,
+    0.423,
+    0.42353,
+    0.48627,
+    0.48633,
+    0.56275,
+    0.56335,
+    0.65302,
+    0.65362,
+    0.96296,
+    0.96471,
+    0.97271,
+    0.97451,
+    0.99608,
+    0.99609,
+    1.0
+   ],
+   "y": [
+    0.43814,
+    0.43814,
+    0.44043,
+    0.44043,
+    0.44944,
+    0.44944,
+    0.45128,
+    0.45128,
+    0.45594,
+    0.45594,
+    0.45861,
+    0.45861,
+    0.46222,
+    0.46222,
+    0.46503,
+    0.46503,
+    0.47924,
+    0.47924,
+    0.49836,
+    0.49836,
+    0.53779,
+    0.53779,
+    0.62048,
+    0.62048
+   ]
+  },
+  "exp_xs20": {
+   "x": [
+    0.00195,
+    0.00195,
+    0.00196,
+    0.0039,
+    0.00588,
+    0.0078,
+    0.00781,
+    0.00783,
+    0.02148,
+    0.02153,
+    0.28824,
+    0.2885,
+    0.47255,
+    0.47266,
+    0.65107,
+    0.65166,
+    0.71345,
+    0.71373,
+    0.76908,
+    0.76953,
+    0.89804,
+    0.89824,
+    0.92969,
+    0.92982,
+    0.96296,
+    0.96471,
+    0.97271,
+    0.97451,
+    0.97466,
+    0.97647,
+    0.97661,
+    0.97843,
+    0.98246,
+    0.98431,
+    0.99608,
+    0.99609,
+    0.99805,
+    1.0
+   ],
+   "y": [
+    -0.023381,
+    -0.010835,
+    -0.010835,
+    -0.009786,
+    -0.009786,
+    -0.008494,
+    -0.008494,
+    -0.00761,
+    -0.00761,
+    -0.004303,
+    -0.004303,
+    -0.004281,
+    -0.004281,
+    -0.002957,
+    -0.002957,
+    0.000651,
+    0.000651,
+    0.000919,
+    0.000919,
+    0.001829,
+    0.001829,
+    0.004269,
+    0.004269,
+    0.006299,
+    0.006299,
+    0.022083,
+    0.022083,
+    0.033302,
+    0.033302,
+    0.037227,
+    0.037227,
+    0.044595,
+    0.044595,
+    0.056091,
+    0.056091,
+    0.06267,
+    0.06267,
+    0.123543
+   ]
+  }
+ },
+ "current_regime": {
+  "vix": 16.07,
+  "spy_trend_200": 0.0704,
+  "confidence": "LOW"
+ },
+ "drift": {
+  "feature_drift": {
+   "vix": {
+    "value": 16.07,
+    "p01": 12.2374,
+    "p99": 33.3101,
+    "out_of_range": false
+   },
+   "vix_chg_21": {
+    "value": 1.56,
+    "p01": -11.8762,
+    "p99": 13.7307,
+    "out_of_range": false
+   },
+   "spy_trend_200": {
+    "value": 0.0704,
+    "p01": -0.1303,
+    "p99": 0.1626,
+    "out_of_range": false
+   },
+   "spy_mom_63": {
+    "value": 0.0358,
+    "p01": -0.1323,
+    "p99": 0.1471,
+    "out_of_range": false
+   },
+   "tnx": {
+    "value": 5.24,
+    "p01": 1.0993,
+    "p99": 4.7817,
+    "out_of_range": true
+   },
+   "curve_10y_3m": {
+    "value": 1.183,
+    "p01": -1.5086,
+    "p99": 2.0797,
+    "out_of_range": false
+   }
+  },
+  "feature_drift_flag": true,
+  "model_drift_flag": true
+ },
+ "weights_history_tail": [
+  {
+   "date": "2026-06-26 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.02987445643084356,
+   "p_adds_value": 0.4418764845112241,
+   "confidence": 0.14621334749322762,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-06-26 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.140867542251827,
+   "p_adds_value": 0.27178234659755485,
+   "confidence": 0.6074313431109516,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-06-26 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.12551863760081428,
+   "p_adds_value": 0.252819897166633,
+   "confidence": 0.6656422498608277,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-06-26 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.07534602171054107,
+   "p_adds_value": 0.3450743653557228,
+   "confidence": 0.3986532345531917,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-06-26 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.15322490436524128,
+   "p_adds_value": 0.1177503002252881,
+   "confidence": 1.186308222993313,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-06-26 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.054979780385935734,
+   "p_adds_value": 0.39874627063311274,
+   "confidence": 0.2565935673914095,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-02 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.021172574890747062,
+   "p_adds_value": 0.4587338389061903,
+   "confidence": 0.10362407955416557,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-02 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.1062871583016611,
+   "p_adds_value": 0.3233619432446056,
+   "confidence": 0.45831814973535534,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-02 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.056655547788873425,
+   "p_adds_value": 0.3819162004105508,
+   "confidence": 0.30045200472315114,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-02 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.05116034706704592,
+   "p_adds_value": 0.39331563664062186,
+   "confidence": 0.27068765378873894,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-02 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.13185782614026534,
+   "p_adds_value": 0.15365598336329084,
+   "confidence": 1.0208785840933037,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-02 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 1.0,
+   "fallback_equal": false,
+   "expected_reliability": 0.03400815009030002,
+   "p_adds_value": 0.5630544130204735,
+   "confidence": 0.15871785028600835,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-10 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.03844683654637833,
+   "p_adds_value": 0.42537216406986345,
+   "confidence": 0.1881688018318935,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-10 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.12044711296340374,
+   "p_adds_value": 0.3017489580168958,
+   "confidence": 0.5193769297855976,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-10 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.06417879623160917,
+   "p_adds_value": 0.36679693369662014,
+   "confidence": 0.3403488050342796,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-10 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.030776768979529006,
+   "p_adds_value": 0.43532266466399827,
+   "confidence": 0.16283883640095462,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-10 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.13887398118823047,
+   "p_adds_value": 0.14114270191009487,
+   "confidence": 1.0751995344745604,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-10 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 1.0,
+   "fallback_equal": false,
+   "expected_reliability": 0.026754020170186903,
+   "p_adds_value": 0.54968377255465,
+   "confidence": 0.124862439051977,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-17 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.04483155407212804,
+   "p_adds_value": 0.41316251016181016,
+   "confidence": 0.21941726736965403,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-17 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.109054019858972,
+   "p_adds_value": 0.31908854237058737,
+   "confidence": 0.4702490630251953,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-17 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.07591441012811406,
+   "p_adds_value": 0.3436270133716214,
+   "confidence": 0.40258434699746637,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-17 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.02142269620742288,
+   "p_adds_value": 0.4548778250768769,
+   "confidence": 0.11334675596740534,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-17 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.12687291543590867,
+   "p_adds_value": 0.16297995984136415,
+   "confidence": 0.982284071119294,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-17 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.021636388630441625,
+   "p_adds_value": 0.4597838908479539,
+   "confidence": 0.10097817970862853,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-24 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.05314958536720077,
+   "p_adds_value": 0.3973825693091033,
+   "confidence": 0.2601278725323425,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-24 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.10978339221876451,
+   "p_adds_value": 0.3179659938640437,
+   "confidence": 0.473394171011425,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-24 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.08623015783869367,
+   "p_adds_value": 0.3237312553084279,
+   "confidence": 0.45729014723810213,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-24 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.007425004105690174,
+   "p_adds_value": 0.4843314059016491,
+   "confidence": 0.03928544382443494,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-24 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.135041555356608,
+   "p_adds_value": 0.14788953378566255,
+   "confidence": 1.045527867868534,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-24 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.16666666666666666,
+   "fallback_equal": true,
+   "expected_reliability": -0.022197661594323712,
+   "p_adds_value": 0.4587443181682074,
+   "confidence": 0.10359767056639296,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-31 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.04861064137771925,
+   "p_adds_value": 0.4059742466677784,
+   "confidence": 0.2379131019867209,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-31 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.06766412013824762,
+   "p_adds_value": 0.38523019835994743,
+   "confidence": 0.29177273003400805,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-31 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0112572538567671,
+   "p_adds_value": 0.47619778994663925,
+   "confidence": 0.05969873420952683,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-31 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.35437273847171546,
+   "fallback_equal": false,
+   "expected_reliability": 0.031599990931846664,
+   "p_adds_value": 0.5663914845084572,
+   "confidence": 0.1671944757113804,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-31 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.10379668050335096,
+   "p_adds_value": 0.2108077481939537,
+   "confidence": 0.803621683502697,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-07-31 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.6456272615282845,
+   "fallback_equal": false,
+   "expected_reliability": 0.05757162838663216,
+   "p_adds_value": 0.6059158223521711,
+   "confidence": 0.26868986024610253,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-07 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.030164056736603762,
+   "p_adds_value": 0.4413171022428462,
+   "confidence": 0.1476307265922677,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-07 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.0744221779092984,
+   "p_adds_value": 0.37413779006925363,
+   "confidence": 0.3209139789198034,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-07 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.050660583161164036,
+   "p_adds_value": 0.394095706568359,
+   "confidence": 0.2686598994318596,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-07 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.48139274297838375,
+   "fallback_equal": false,
+   "expected_reliability": 0.01733971358590132,
+   "p_adds_value": 0.5365492151286374,
+   "confidence": 0.0917438339850451,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-07 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.11473654018828057,
+   "p_adds_value": 0.18718405188739012,
+   "confidence": 0.8883210054333496,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-07 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.5186072570216164,
+   "fallback_equal": false,
+   "expected_reliability": 0.018680176283273415,
+   "p_adds_value": 0.534736329806723,
+   "confidence": 0.08718137901568752,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-14 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.026940923096874753,
+   "p_adds_value": 0.4475491457893352,
+   "confidence": 0.13185587358452372,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-14 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.06472399661488527,
+   "p_adds_value": 0.390086075870417,
+   "confidence": 0.2790946982308023,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-14 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.03845657220215377,
+   "p_adds_value": 0.419200042885547,
+   "confidence": 0.20394038472586906,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-14 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.6029662833916964,
+   "fallback_equal": false,
+   "expected_reliability": 0.026661624361574217,
+   "p_adds_value": 0.5560909982853877,
+   "confidence": 0.14106574639091732,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-14 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.1089302541035329,
+   "p_adds_value": 0.19951155945169752,
+   "confidence": 0.84336718440848,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-14 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.3970337166083036,
+   "fallback_equal": false,
+   "expected_reliability": 0.017555813820212814,
+   "p_adds_value": 0.5326503693495156,
+   "confidence": 0.08193391943304588,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-21 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.01964677184804758,
+   "p_adds_value": 0.4616981777392148,
+   "confidence": 0.09615640324665245,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-21 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.061438725282489656,
+   "p_adds_value": 0.3955323239959939,
+   "confidence": 0.26492836334612385,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-21 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.028954659812447867,
+   "p_adds_value": 0.43898209924459386,
+   "confidence": 0.15355046286279683,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-21 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.38252201532418784,
+   "fallback_equal": false,
+   "expected_reliability": 0.02886222292935798,
+   "p_adds_value": 0.560686133643912,
+   "confidence": 0.15270903845974576,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-21 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.11057852849099256,
+   "p_adds_value": 0.19596333474727784,
+   "confidence": 0.856128565906436,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-21 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.6174779846758122,
+   "fallback_equal": false,
+   "expected_reliability": 0.04659022627123826,
+   "p_adds_value": 0.5860669073385529,
+   "confidence": 0.21743907088374095,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-28 00:00:00",
+   "model": "momentum_12_1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.006056707312607237,
+   "p_adds_value": 0.48817584643381184,
+   "confidence": 0.029643098377807337,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-28 00:00:00",
+   "model": "enet_xs20_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.02762241739680447,
+   "p_adds_value": 0.4525941346799156,
+   "confidence": 0.11910992291834809,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-28 00:00:00",
+   "model": "hgb_xs20_v1",
+   "weight": 0.14498710395966866,
+   "fallback_equal": false,
+   "expected_reliability": 0.023329494862321887,
+   "p_adds_value": 0.5492312964650795,
+   "confidence": 0.12371945509526323,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-28 00:00:00",
+   "model": "hgb_asym20_v1",
+   "weight": 0.29913436223831946,
+   "fallback_equal": false,
+   "expected_reliability": 0.04813292614579069,
+   "p_adds_value": 0.6005108791748396,
+   "confidence": 0.2546696728096111,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-28 00:00:00",
+   "model": "hgb_xs20_momentum_v1",
+   "weight": 0.0,
+   "fallback_equal": false,
+   "expected_reliability": -0.08768828671009027,
+   "p_adds_value": 0.24859865262264363,
+   "confidence": 0.6789061870543627,
+   "fold": "locked"
+  },
+  {
+   "date": "2026-08-28 00:00:00",
+   "model": "hgb_xs20_risk_regime_v1",
+   "weight": 0.5558785338020119,
+   "fallback_equal": false,
+   "expected_reliability": 0.08944495782201772,
+   "p_adds_value": 0.661823303593994,
+   "confidence": 0.4174443886755999,
+   "fold": "locked"
+  }
+ ]
+}
