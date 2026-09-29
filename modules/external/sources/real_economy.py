@@ -775,9 +775,33 @@ class FredRegimeMacroConnector(FredUsMacroConnector):
     }
 
 
+class FredWorldMacroConnector(FredUsMacroConnector):
+    """World-Model-Reihen mit Veröffentlichungszeitpunkt (ALFRED-Vintages,
+    available_at = realtime_start). Lizenzfrei (US Government Works):
+      Arbeitsmarkt  PAYEMS   BLS Nonfarm Payrolls, monatlich, Tsd. (Benchmark-Revisionen als Vintages)
+                    ICSA     DOL Initial Claims, wöchentlich, Personen
+      Konsum        RSAFS    Census Advance Retail Sales, monatlich, Mio. USD
+      Lager         ISRATIO  Census Total Business Inventories/Sales, monatlich, Verhältnis"""
+
+    source_id = "fred_world_macro"
+    OBSERVATION_START = "2015-01-01"
+    LABEL = "PAYEMS/ICSA/RSAFS/ISRATIO"
+    SERIES = {
+        "PAYEMS":  {"metric": "us_payems", "dataset": "labour", "unit": "thousands_persons",
+                    "search_text": "All Employees, Total Nonfarm"},
+        "ICSA":    {"metric": "us_initial_claims", "dataset": "labour", "unit": "persons",
+                    "search_text": "Initial Claims"},
+        "RSAFS":   {"metric": "us_retail_sales", "dataset": "consumer", "unit": "usd_millions",
+                    "search_text": "Advance Retail Sales: Retail Trade and Food Services"},
+        "ISRATIO": {"metric": "us_inventory_sales_ratio", "dataset": "inventories", "unit": "ratio",
+                    "search_text": "Total Business: Inventories to Sales Ratio"},
+    }
+
+
 CONNECTORS: dict[str, type[Connector]] = {
     "eurostat_sentiment": EurostatSentimentConnector,
     "eurostat_industrial_production": EurostatIndustrialProductionConnector,
     "fred_us_macro": FredUsMacroConnector,
     "fred_regime_macro": FredRegimeMacroConnector,
+    "fred_world_macro": FredWorldMacroConnector,
 }

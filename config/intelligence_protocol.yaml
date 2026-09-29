@@ -1,0 +1,35 @@
+# config/intelligence_protocol.yaml – Präregistrierung der Intelligenz-Phasen (GESCHÜTZT)
+#
+# Jede Phase wird hier VOR ihrer ersten Auswertung auf echten Daten eingetragen.
+# Hash gepinnt in tests/test_intelligence_protocol.py, CODEOWNERS. Spätere
+# Phasen dürfen nur NEUE Abschnitte anhängen; bestehende Abschnitte werden nur
+# strenger oder bei belegtem Fehler geändert – nie, um ein Ergebnis zu schönen.
+
+world_model:                      # Phase 2, registriert 2026-09-29
+  version: "wm-v1"
+  zscore_min_history_weeks: 104   # expandierende PIT-Normierung, frühestens nach 2 Jahren
+  state_threshold: 0.5            # |Score| > 0.5 sigma -> high/low, sonst neutral
+  first_test_year: 2019
+  ridge_alpha: 10.0
+  logistic_c: 0.1
+  bootstrap_n: 2000
+  bootstrap_seed: 11
+  alpha_one_sided: 0.05           # je Ziel Bonferroni über die Zahl der Ziele
+  targets:                        # Horizont in Handelstagen
+    dd60: {kind: regression, horizon: 60, desc: "SPY max. Drawdown nächste 60 Tage"}
+    dd60_bin: {kind: binary, horizon: 60, threshold: -0.08, desc: "Drawdown < -8 %"}
+    rv20: {kind: regression, horizon: 20, desc: "log realisierte SPY-Vola nächste 20 Tage"}
+    rot60: {kind: regression, horizon: 60, desc: "Zyklische minus defensive Sektoren, 60 Tage"}
+    sb60: {kind: regression, horizon: 60, desc: "SPY minus IEF (Aktien vs. Anleihen), 60 Tage"}
+    regime_flip20: {kind: binary, horizon: 20, desc: "Wechsel des bestehenden Regime-Labels (VIX>=20 / SPY<SMA200) in 20 Tagen"}
+    ic_mom20: {kind: regression, horizon: 20, desc: "Querschnitts-IC Momentum 12-1 (Wann wirkt das Signal?)"}
+    ic_rev20: {kind: regression, horizon: 20, desc: "Querschnitts-IC 1-Monats-Umkehr"}
+  baseline_features: [vix, vix_chg_21, spy_trend_200, spy_mom_63, tnx, curve_10y_3m,
+                      cpi_yoy, fed_assets_13w_chg, usd_63d_chg, wti_63d_chg]   # bestehende Regime-Engine
+  decision:
+    primary: wm_vs_baseline       # World Model allein gegen bestehende Regime-Engine
+    secondary: combined_vs_baseline   # berichtet (inkrementeller Nutzen), nicht entscheidend
+    keep_min_targets_better: 2    # signifikant besser (Bootstrap-Untergrenze > 0) bei >= 2 Zielen
+    keep_max_targets_worse: 0     # und bei keinem signifikant schlechter
+    # sonst: besser bei >= 1 Ziel -> MODIFY (nur Beobachtung/Report, kein Modell-Input); 0 -> REJECT
+    # (bestehende Regime-Engine bleibt Referenz)
