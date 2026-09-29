@@ -1,0 +1,71 @@
+# config/model_registry.yaml – Champion/Challenger-Registry der ML-Research-Modelle
+#
+# NUR SHADOW. Kein Modell dieser Datei beeinflusst Scoring, Gates, PPO oder
+# Trades. modules/ml_research.py liest diese Datei, schreibt sie aber NIE.
+#
+# Regeln (Präregistrierung: docs/research/PREREG_ml_research_2026-09-29.md):
+#   * Ein Eintrag wird nach der Registrierung nicht mehr geändert. Jede Änderung
+#     an model/target/params/features braucht eine NEUE id (die Spezifikation
+#     wird gehasht; ein geänderter Hash unter alter id -> "invalid_modified").
+#   * Hyperparameter werden nur auf dem inneren Validierungsjahr gewählt, nie
+#     auf Test- oder Locked-Daten.
+#   * Der Locked-Holdout (ab locked_from) wird nur für registrierte Einträge
+#     ausgewertet; jede Auswertung wird im Lock-Log gezählt (Mehrfachtests).
+#   * Forward-Shadow zählt nur Prognosen NACH registered_at.
+#   * champion wird ausschließlich per menschlichem PR gesetzt. Auch ein
+#     Champion hat keine Produktionswirkung ohne separaten, begründeten PR.
+
+locked_from: "2025-07-01"      # Locked-Holdout: Signaldaten ab hier nie in Entwicklung/Selektion
+champion: null                 # Produktion nutzt kein ML-Modell
+
+promotion_criteria:            # vorab festgelegt, gelten für jeden Challenger
+  wf_min_t_months: 2.0         # Walk-Forward Top-Dezil netto: t >= 2 über Monate
+  wf_min_years_positive: 0.6   # positiv in >= 60 % der Testjahre
+  min_sharpe_margin: 0.10      # Sharpe > Benchmark (Champion, sonst momentum_12_1) + 0.10
+  max_dd_not_worse: true       # Max-Drawdown nicht schlechter als Benchmark
+  min_ic_t: 2.0                # mittlerer Rank-IC > 0 mit t >= 2
+  locked_positive: true        # Locked-Holdout netto > 0
+  fwd_min_cohorts: 26          # Forward-Shadow: >= 26 Wochen-Kohorten mit fertigen Labels
+  fwd_positive: true           # Forward-Shadow netto > 0 und >= Benchmark
+
+models:
+  - id: momentum_12_1
+    registered_at: "2026-09-29T16:00:00Z"
+    role: benchmark
+    model: rule
+    rule_feature: mom_12_1
+    target: fwd_xs_20
+
+  - id: enet_xs20_v1
+    registered_at: "2026-09-29T16:00:00Z"
+    role: challenger
+    model: elastic_net
+    target: fwd_xs_20
+    features: all
+    params_grid:
+      alpha: [0.0003, 0.003]
+      l1_ratio: [0.5]
+
+  - id: hgb_xs20_v1
+    registered_at: "2026-09-29T16:00:00Z"
+    role: challenger
+    model: hist_gbm
+    target: fwd_xs_20
+    features: all
+    params_grid:
+      max_iter: [150, 400]
+      learning_rate: [0.05]
+      max_depth: [3]
+      min_samples_leaf: [300]
+
+  - id: hgb_asym20_v1
+    registered_at: "2026-09-29T16:00:00Z"
+    role: challenger
+    model: hist_gbm
+    target: asym_20          # (MFE_20 + MAE_20) / (sigma20 * sqrt(20)): Chance minus Risiko, vol-normiert
+    features: all
+    params_grid:
+      max_iter: [150, 400]
+      learning_rate: [0.05]
+      max_depth: [3]
+      min_samples_leaf: [300]

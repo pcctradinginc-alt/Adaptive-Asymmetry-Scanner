@@ -1,0 +1,59 @@
+name: Research – ML-Kreislauf (Shadow, Walk-Forward, Champion/Challenger)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full (Walk-Forward+Locked+Attribution) oder weekly (Prognosen+Forward)"
+        required: false
+        default: full
+  schedule:
+    - cron: '41 7 3 * *'   # monatlich, 3. des Monats: full
+    - cron: '23 8 * * 6'   # wöchentlich, Samstag: weekly
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: research-write
+  cancel-in-progress: false
+
+jobs:
+  ml:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: ML-Research (präregistriert, nur SHADOW)
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then
+            if [ "${{ github.event.schedule }}" = "23 8 * * 6" ]; then MODE=weekly; else MODE=full; fi
+          fi
+          python -m modules.ml_research --mode "$MODE"
+
+      - name: Commit research outputs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/research/
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -m "chore: ml research $(date -u +%Y-%m-%dT%H:%M)"
+          git stash --include-untracked || true
+          git pull --rebase origin main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
