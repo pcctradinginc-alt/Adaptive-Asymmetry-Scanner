@@ -771,3 +771,39 @@ def test_call_with_deadline_passes_result_and_errors():
         pass
     else:
         raise AssertionError("Fehler wurde verschluckt")
+
+
+def test_parse_cadence_iso_and_units():
+    """Regression 2026-09-29: 'P1M'/'P7D'/'6h' fielen auf 1 Tag -> alle
+    Monatsquellen STALE -> Readiness DEGRADED."""
+    assert reg.parse_cadence("P1M") == timedelta(days=30)
+    assert reg.parse_cadence("P7D") == timedelta(days=7)
+    assert reg.parse_cadence("P365D") == timedelta(days=365)
+    assert reg.parse_cadence("6h") == timedelta(hours=6)
+    assert reg.parse_cadence("7d") == timedelta(days=7)
+    assert reg.parse_cadence("garbage") == timedelta(days=1)
+
+
+def test_staleness_uses_frequency_with_publication_lag():
+    now = datetime(2026, 9, 29, tzinfo=UTC)
+    aug = datetime(2026, 8, 1, tzinfo=UTC)
+    assert reg.evaluate_staleness(aug, "P1M", now, frequency="monthly") == "FRESH"
+    assert reg.evaluate_staleness(datetime(2026, 3, 1, tzinfo=UTC), "P1M", now,
+                                  frequency="monthly") == "STALE"
+    assert reg.evaluate_staleness(datetime(2026, 3, 1, tzinfo=UTC), "P1M", now,
+                                  frequency="monthly", max_age_days=240) == "FRESH"
+    assert reg.evaluate_staleness(datetime(2026, 9, 1, tzinfo=UTC), "P1D", now,
+                                  frequency="daily") == "STALE"
+    assert reg.evaluate_staleness(None, "P1M", now, frequency="monthly") == "UNKNOWN"
+
+
+def test_enabled_sources_have_known_frequency_or_limit():
+    """Jede aktive Quelle braucht eine auswertbare Frische-Regel."""
+    r = reg.SourceRegistry()
+    for sid, c in r.sources.items():
+        if not c.get("enabled"):
+            continue
+        ok = (c.get("max_staleness_days") or c.get("frequency") in reg.MAX_AGE_DAYS_BY_FREQUENCY
+              or reg.parse_cadence(c.get("expected_update_cadence") or "") != timedelta(days=1)
+              or c.get("expected_update_cadence") in ("1d", "P1D"))
+        assert ok, sid

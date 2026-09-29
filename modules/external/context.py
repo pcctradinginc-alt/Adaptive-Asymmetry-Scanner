@@ -145,8 +145,7 @@ def _first_with_data(archive, now, *source_ids):
 # Frequenz, bevor eine Quelle als 'stale' gilt: Kadenz + übliche
 # Veröffentlichungsverzögerung (BTS TSI ~3-4 Monate, Eurostat quartalsweise
 # ~2-3 Quartale, jährlich ~1,5 Jahre). Methodisch, nicht renditeoptimiert.
-MAX_AGE_DAYS_BY_FREQUENCY = {"daily": 21, "monthly": 150, "monthly_lagged": 240,
-                             "quarterly": 400, "annual": 800}
+from modules.external.registry import MAX_AGE_DAYS_BY_FREQUENCY  # noqa: E402 (eine Quelle der Wahrheit)
 # monthly_lagged: e-Stat 自動車輸送統計 erscheint mit ~5-6 Monaten Verzug
 # (Live 2026-09-27: jüngster Wert 2026-03).
 
