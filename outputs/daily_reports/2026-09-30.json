@@ -1,0 +1,471 @@
+{
+  "date": "2026-09-30",
+  "proposals": [],
+  "stats": {
+    "vix": 15.8100004196167,
+    "universe": 344,
+    "candidates": 344,
+    "prescreened": 100,
+    "sector_ok": 317,
+    "pre_mc": 80,
+    "roi_precheck": 96,
+    "analyzed": 23,
+    "mismatch_ok": 6,
+    "quick_mc": 6,
+    "intraday_ok": 6,
+    "final_mc": 6,
+    "rl_scored": 6,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "session": "regular",
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "6ea6140aa67297fb",
+      "as_of": "2026-09-30T19:04:38+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "time_budget_exceeded": 51,
+    "after_isf": 9,
+    "final_mc_shadow": [
+      {
+        "ticker": "PLTR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6772,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7133,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "MRVL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5242,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5442,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "LLY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7358,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "COIN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6362,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6659,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "IRM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.651,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7255,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CAT",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6772,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7271,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "roi_rejects": {
+      "n": 4,
+      "gap_min": 0.0031,
+      "gap_median": 0.2122,
+      "gap_max": 0.5942
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 27,
+      "tickers": [
+        "ADSK",
+        "CHTR",
+        "NCLH",
+        "AKAM",
+        "FSLR",
+        "COO",
+        "AVGO",
+        "INTU",
+        "MGM",
+        "BSX"
+      ]
+    },
+    "prescreen_no": {
+      "count": 217,
+      "tickers": [
+        "EOG",
+        "MRK",
+        "LUV",
+        "LOW",
+        "T",
+        "AAPL",
+        "IP",
+        "META",
+        "USB",
+        "WEC"
+      ]
+    },
+    "earnings_gate": {
+      "count": 4,
+      "tickers": [
+        "NKE",
+        "ACN",
+        "MU",
+        "MKC"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 16,
+      "tickers": [
+        "ROL",
+        "TJX",
+        "ES",
+        "MCD",
+        "CNP",
+        "HIG",
+        "TSN",
+        "AZN",
+        "DOW",
+        "TTD"
+      ]
+    },
+    "time_budget_exceeded": {
+      "count": 51,
+      "tickers": [
+        "STT",
+        "PSKY",
+        "CDW",
+        "XOM",
+        "DE",
+        "MRSH",
+        "NTRS",
+        "TEAM",
+        "AON",
+        "GILD"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 6,
+      "tickers": [
+        "ADM",
+        "EIX",
+        "DHI",
+        "V",
+        "GIS",
+        "APO"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 14,
+      "tickers": [
+        "CTVA",
+        "KKR",
+        "SCHW",
+        "PSX",
+        "CVNA",
+        "ABNB",
+        "MS",
+        "UNH",
+        "D",
+        "RDDT"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 3,
+      "tickers": [
+        "RCL",
+        "NTAP",
+        "MDT"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 6,
+      "tickers": [
+        "PLTR",
+        "CAT",
+        "MRVL",
+        "COIN",
+        "LLY",
+        "IRM"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Lern-Loop eingefroren: alle Feature-Korrelationen \u2264 0 (eps_drift=-0.055, impact=-0.105, mismatch=-0.084) \u2192 model_weights bleiben auf Startwerten; Features haben keine positive Vorhersagekraft.",
+      "Externes Primitiv 'freight_global_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-0.8593665498960744) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'us_freight_tsi_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-2.6040129784507187) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'suez_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-0.34976558208291475) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'panama_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (0.9233805168766382) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'hormuz_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-1.365775297534484) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'malacca_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (-1.3771156607782402) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'bab_el_mandeb_z' ist \u00fcber die letzten 30 Ledger-Tage konstant (0.1894863619804037) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "Externes Primitiv 'weather_disruption_index' ist \u00fcber die letzten 30 Ledger-Tage konstant (0.0) \u2014 evtl. Quelle eingefroren/gestuckt.",
+      "PPO-Policy kollabiert: 100% BOOST \u00fcber 118 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 4,
+        "killer_counts": {
+          "roi_ok": 4
+        },
+        "last_10_days": [
+          {
+            "date": "2026-09-30",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-28",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-25",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-24",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-09-23",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-22",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-09-21",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-09-18",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-17",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_44": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 3,
+            "evaluated": 1,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-12"
+          },
+          "final_mc_survivor": {
+            "total": 153,
+            "evaluated": 37,
+            "ready_in_14d": 15,
+            "next_eval_date": "2026-10-11"
+          },
+          "roi_gate": {
+            "total": 94,
+            "evaluated": 20,
+            "ready_in_14d": 9,
+            "next_eval_date": "2026-10-11"
+          },
+          "score_48": {
+            "total": 5,
+            "evaluated": 3,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_51": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-23"
+          },
+          "score_52": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": true,
+        "feature_corr": {
+          "impact": -0.105,
+          "mismatch": -0.084,
+          "eps_drift": -0.055
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": true,
+            "n": 151
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": true,
+            "n": 151
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "n": 151
+          },
+          "suez_z": {
+            "missing_ratio": 0.272,
+            "constant": true,
+            "n": 151
+          },
+          "panama_z": {
+            "missing_ratio": 0.272,
+            "constant": true,
+            "n": 151
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.272,
+            "constant": true,
+            "n": 151
+          },
+          "malacca_z": {
+            "missing_ratio": 0.272,
+            "constant": true,
+            "n": 151
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.272,
+            "constant": true,
+            "n": 151
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.272,
+            "constant": true,
+            "n": 151
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {
+        "n": 118,
+        "counts": {
+          "SKIP": 0,
+          "NORMAL": 0,
+          "BOOST": 118
+        },
+        "max_share": 1.0
+      }
+    }
+  }
+}

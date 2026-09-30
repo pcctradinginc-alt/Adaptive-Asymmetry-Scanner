@@ -10,14 +10,14 @@
         "avg_return": 0.027511
       },
       "low": {
-        "count": 13,
-        "avg_return": 0.638231
+        "count": 14,
+        "avg_return": 0.550369
       }
     },
     "mismatch": {
       "good": {
-        "count": 80,
-        "avg_return": 0.111282
+        "count": 81,
+        "avg_return": 0.102602
       },
       "weak": {
         "count": 34,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 112,
-        "avg_return": 0.114188
+        "count": 113,
+        "avg_return": 0.10794
       },
       "massive": {
         "count": 2,
@@ -136,103 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 246.67,
-      "current_return": -0.4231
-    },
-    {
-      "ticker": "ADM",
-      "entry_date": "2026-09-21",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.447,
-        "z_score": 0.111,
-        "sigma_30d": 0.0191,
-        "price_move_48h": 0.0021,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5856
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 4.9,
-      "entry_quote": {
-        "bid": 11.5,
-        "ask": 12.4,
-        "mid": 11.95,
-        "spread_pct": 0.0726,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "OTHER",
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 77.5,
-        "bid": 11.5,
-        "ask": 12.4,
-        "open_interest": 740,
-        "implied_vol": 0.3377,
-        "spread_ratio": 0.0726,
-        "dte": 178,
-        "delta": 0.6923,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 85.0,
-          "bid": 7.5,
-          "ask": 8.0
-        },
-        "net_debit": 4.9
-      },
-      "simulation": {
-        "current_price": 84.39,
-        "target_price": 91.14,
-        "hit_rate": 0.6836,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0177,
-        "alpha": 0.00233
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Der Voluntary Carbon Market (VCM) ist strukturell fragil: Regulatorische Unsicherheit, sinkende Carbonpreise seit 2023 und wachsende Kritik an Qualit\u00e4tsstandards (Addizionalit\u00e4t, Permanenz) machen neue Kapazit\u00e4ten von 800k Tonnen zu einem spekulativen Revenue-Stream ohne gesicherte Abnahmepreise. ADM hat keine nachgewiesene Kernkompetenz im Carbonhandel, und der Markt wird von erfahreneren Playern dominiert.",
-          "argument_2": "Die EPS-Divergenz zwischen yfinance ($5.73) und SEC EDGAR ($3.66) ist erheblich und ein klares Warnsignal f\u00fcr die Datenqualit\u00e4t. ADM hatte 2024-2025 erhebliche Accounting-Probleme (Interner Betrug im Nutrition-Segment), und die unklare EPS-Basis macht eine saubere Bewertung unm\u00f6glich. Anleger, die auf verzerrten Earnings-Multiples handeln, sind einem erheblichen Restatement-Risiko ausgesetzt.",
-          "argument_3": "Das Insider-Kaufcluster klingt bullish, ist aber bei ADM im historischen Kontext ambivalent: Insider kauften auch vor fr\u00fcheren fundamentalen Entt\u00e4uschungen. Der Aktienpreis ist seit dem 52-Wochen-Tief bereits erholt, sodass das 'Value-Signal' aus dem Zacks-Artikel m\u00f6glicherweise bereits eingepreist ist. Der Natural Colors-Expansion-Artikel ist generisch und ohne konkreten Umsatzbeitrag quantifizierbar.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Bei einer Aktie mit ~$40 Mrd. Marktkapitalisierung und aktuell moderater Volatilit\u00e4t (VIX-Umfeld ~13-18) ist das Fehlen der Simulation kein Informationsgewinn. Die Hit-Rate von 0% reflektiert nur den nicht-durchgef\u00fchrten Prozess, nicht eine negative Prognose. Concern: medium, da kein statistischer R\u00fcckhalt vorhanden ist.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "6 Monate",
-        "catalyst_confidence": 4,
-        "asymmetry_reasoning": "Der Markt diskontiert VCM-Einstiege bei Agrar-Unternehmen stark wegen Qualit\u00e4tszweifeln an Carbon Credits, was bei echter regulatorischer Aufwertung des VCM eine Neubewertung ausl\u00f6sen k\u00f6nnte. Das Insider-Cluster kombiniert mit dem strukturellen ESG-Pivot ist ein moderates Signal, das der Markt als Timing-Asymmetrie untergewichtet. Das EPS-Accounting-Risiko begrenzt jedoch das Aufw\u00e4rtspotenzial erheblich.",
-        "catalyst": "Konkrete Offtake-Vereinbarungen f\u00fcr ADMs Carbon-Removal-Kapazit\u00e4t oder regulatorische Aufwertung des VCM durch EPA/CFTC bis Q1 2027",
-        "bear_case": "Der VCM bleibt unregulierted und preisunsicher; ADMs Accounting-Altlasten k\u00f6nnten Restatements produzieren, die jeden Kurszuwachs \u00fcberlagern",
-        "macro_assessment": "Flache Zinskurve (+0.25%) und neutrales Regime sind f\u00fcr ADM als Consumer-Defensive moderat positiv \u2014 keine makro\u00f6konomischen R\u00fccken- oder Gegenwinde. Der VIX-Contango (9d=13.2 \u2192 3M=18.2) deutet auf steigende Volatilit\u00e4tserwartung hin, was Long-Optionen auf 6 Monate teurer macht und den Edge reduziert. Insgesamt neutrales Makro-Umfeld ohne spezifischen Katalysator-R\u00fcckenwind.",
-        "data_confidence": "low",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.25,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 40672309248,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.3155,
-        "annualized_roi": 1.4941,
-        "dte": 178
-      },
-      "outcome": null,
-      "peak_return": -0.1327,
-      "last_price": 79.4,
-      "current_return": -0.4286
+      "last_price": 250.18,
+      "current_return": -0.3692
     },
     {
       "ticker": "AAPL",
@@ -320,8 +225,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 329.4,
-      "current_return": -0.2528
+      "last_price": 335.68,
+      "current_return": -0.1307
     },
     {
       "ticker": "MO",
@@ -409,8 +314,8 @@
       },
       "outcome": null,
       "peak_return": -0.0306,
-      "last_price": 68.72,
-      "current_return": -0.1973
+      "last_price": 67.22,
+      "current_return": -0.2449
     }
   ],
   "closed_trades": [
@@ -9453,6 +9358,105 @@
       "close_price": 88.75,
       "close_reason": "stop_loss",
       "outcome_method": "spread_quote"
+    },
+    {
+      "ticker": "ADM",
+      "entry_date": "2026-09-21",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.447,
+        "z_score": 0.111,
+        "sigma_30d": 0.0191,
+        "price_move_48h": 0.0021,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5856
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 4.9,
+      "entry_quote": {
+        "bid": 11.5,
+        "ask": 12.4,
+        "mid": 11.95,
+        "spread_pct": 0.0726,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "OTHER",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 77.5,
+        "bid": 11.5,
+        "ask": 12.4,
+        "open_interest": 740,
+        "implied_vol": 0.3377,
+        "spread_ratio": 0.0726,
+        "dte": 178,
+        "delta": 0.6923,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 85.0,
+          "bid": 7.5,
+          "ask": 8.0
+        },
+        "net_debit": 4.9
+      },
+      "simulation": {
+        "current_price": 84.39,
+        "target_price": 91.14,
+        "hit_rate": 0.6836,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0177,
+        "alpha": 0.00233
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der Voluntary Carbon Market (VCM) ist strukturell fragil: Regulatorische Unsicherheit, sinkende Carbonpreise seit 2023 und wachsende Kritik an Qualit\u00e4tsstandards (Addizionalit\u00e4t, Permanenz) machen neue Kapazit\u00e4ten von 800k Tonnen zu einem spekulativen Revenue-Stream ohne gesicherte Abnahmepreise. ADM hat keine nachgewiesene Kernkompetenz im Carbonhandel, und der Markt wird von erfahreneren Playern dominiert.",
+          "argument_2": "Die EPS-Divergenz zwischen yfinance ($5.73) und SEC EDGAR ($3.66) ist erheblich und ein klares Warnsignal f\u00fcr die Datenqualit\u00e4t. ADM hatte 2024-2025 erhebliche Accounting-Probleme (Interner Betrug im Nutrition-Segment), und die unklare EPS-Basis macht eine saubere Bewertung unm\u00f6glich. Anleger, die auf verzerrten Earnings-Multiples handeln, sind einem erheblichen Restatement-Risiko ausgesetzt.",
+          "argument_3": "Das Insider-Kaufcluster klingt bullish, ist aber bei ADM im historischen Kontext ambivalent: Insider kauften auch vor fr\u00fcheren fundamentalen Entt\u00e4uschungen. Der Aktienpreis ist seit dem 52-Wochen-Tief bereits erholt, sodass das 'Value-Signal' aus dem Zacks-Artikel m\u00f6glicherweise bereits eingepreist ist. Der Natural Colors-Expansion-Artikel ist generisch und ohne konkreten Umsatzbeitrag quantifizierbar.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt (0 Pfade). Bei einer Aktie mit ~$40 Mrd. Marktkapitalisierung und aktuell moderater Volatilit\u00e4t (VIX-Umfeld ~13-18) ist das Fehlen der Simulation kein Informationsgewinn. Die Hit-Rate von 0% reflektiert nur den nicht-durchgef\u00fchrten Prozess, nicht eine negative Prognose. Concern: medium, da kein statistischer R\u00fcckhalt vorhanden ist.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "6 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt diskontiert VCM-Einstiege bei Agrar-Unternehmen stark wegen Qualit\u00e4tszweifeln an Carbon Credits, was bei echter regulatorischer Aufwertung des VCM eine Neubewertung ausl\u00f6sen k\u00f6nnte. Das Insider-Cluster kombiniert mit dem strukturellen ESG-Pivot ist ein moderates Signal, das der Markt als Timing-Asymmetrie untergewichtet. Das EPS-Accounting-Risiko begrenzt jedoch das Aufw\u00e4rtspotenzial erheblich.",
+        "catalyst": "Konkrete Offtake-Vereinbarungen f\u00fcr ADMs Carbon-Removal-Kapazit\u00e4t oder regulatorische Aufwertung des VCM durch EPA/CFTC bis Q1 2027",
+        "bear_case": "Der VCM bleibt unregulierted und preisunsicher; ADMs Accounting-Altlasten k\u00f6nnten Restatements produzieren, die jeden Kurszuwachs \u00fcberlagern",
+        "macro_assessment": "Flache Zinskurve (+0.25%) und neutrales Regime sind f\u00fcr ADM als Consumer-Defensive moderat positiv \u2014 keine makro\u00f6konomischen R\u00fccken- oder Gegenwinde. Der VIX-Contango (9d=13.2 \u2192 3M=18.2) deutet auf steigende Volatilit\u00e4tserwartung hin, was Long-Optionen auf 6 Monate teurer macht und den Edge reduziert. Insgesamt neutrales Makro-Umfeld ohne spezifischen Katalysator-R\u00fcckenwind.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.25,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 40672309248,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.3155,
+        "annualized_roi": 1.4941,
+        "dte": 178
+      },
+      "outcome": -0.5918,
+      "peak_return": -0.1327,
+      "last_price": 79.4,
+      "current_return": -0.4286,
+      "close_date": "2026-09-30",
+      "close_price": 79.79,
+      "close_reason": "stop_loss",
+      "outcome_method": "spread_quote"
     }
   ],
   "model_weights": {
@@ -9763,6 +9767,11 @@
         "date": "2026-09-29",
         "score": 0.0046,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0192,
+        "headline_count": 5
       }
     ],
     "HAS": [
@@ -10049,14 +10058,14 @@
         "date": "2026-09-29",
         "score": 0.3072,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4158,
+        "headline_count": 5
       }
     ],
     "AMZN": [
-      {
-        "date": "2026-06-04",
-        "score": 0.3062,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-05",
         "score": -0.0264,
@@ -10350,6 +10359,11 @@
       {
         "date": "2026-09-29",
         "score": 0.18,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0909,
         "headline_count": 5
       }
     ],
@@ -10669,11 +10683,6 @@
     ],
     "DAL": [
       {
-        "date": "2026-04-14",
-        "score": -0.181,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-15",
         "score": 0.0512,
         "headline_count": 5
@@ -10967,6 +10976,11 @@
         "date": "2026-09-29",
         "score": -0.0131,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0323,
+        "headline_count": 5
       }
     ],
     "HOLX": [
@@ -11021,6 +11035,11 @@
         "date": "2026-09-29",
         "score": 0.2639,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1329,
+        "headline_count": 5
       }
     ],
     "MU": [
@@ -11047,6 +11066,11 @@
       {
         "date": "2026-09-29",
         "score": 0.4034,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3576,
         "headline_count": 5
       }
     ],
@@ -11075,6 +11099,11 @@
         "date": "2026-09-29",
         "score": 0.3582,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.5662,
+        "headline_count": 5
       }
     ],
     "USB": [
@@ -11097,6 +11126,11 @@
         "date": "2026-09-29",
         "score": 0.3902,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2589,
+        "headline_count": 5
       }
     ],
     "UAL": [
@@ -11118,6 +11152,11 @@
       {
         "date": "2026-09-29",
         "score": -0.3664,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.4319,
         "headline_count": 5
       }
     ],
@@ -11145,6 +11184,11 @@
       {
         "date": "2026-09-29",
         "score": 0.2753,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0126,
         "headline_count": 5
       }
     ],
@@ -11177,6 +11221,11 @@
       {
         "date": "2026-09-29",
         "score": -0.1796,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3859,
         "headline_count": 5
       }
     ],
@@ -11377,14 +11426,14 @@
         "date": "2026-09-29",
         "score": -0.3813,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0352,
+        "headline_count": 5
       }
     ],
     "ADBE": [
-      {
-        "date": "2026-05-14",
-        "score": 0.289,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-15",
         "score": 0.4656,
@@ -11679,6 +11728,11 @@
         "date": "2026-09-29",
         "score": 0.3224,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1125,
+        "headline_count": 5
       }
     ],
     "META": [
@@ -11800,6 +11854,11 @@
       {
         "date": "2026-09-29",
         "score": -0.059,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0282,
         "headline_count": 5
       }
     ],
@@ -12305,14 +12364,14 @@
         "date": "2026-09-29",
         "score": 0.3863,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3863,
+        "headline_count": 2
       }
     ],
     "BX": [
-      {
-        "date": "2026-04-28",
-        "score": 0.0589,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-30",
         "score": 0.2352,
@@ -12607,14 +12666,14 @@
         "date": "2026-09-29",
         "score": 0.0711,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0711,
+        "headline_count": 5
       }
     ],
     "CHTR": [
-      {
-        "date": "2026-05-07",
-        "score": -0.1955,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-11",
         "score": -0.0854,
@@ -12909,14 +12968,14 @@
         "date": "2026-09-29",
         "score": 0.49,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3772,
+        "headline_count": 5
       }
     ],
     "C": [
-      {
-        "date": "2026-05-12",
-        "score": -0.0323,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-14",
         "score": 0.0203,
@@ -13210,6 +13269,11 @@
       {
         "date": "2026-09-29",
         "score": 0.5627,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3655,
         "headline_count": 5
       }
     ],
@@ -13645,6 +13709,11 @@
         "date": "2026-09-29",
         "score": -0.336,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1472,
+        "headline_count": 5
       }
     ],
     "FANG": [
@@ -13881,6 +13950,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0264,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1345,
         "headline_count": 5
       }
     ],
@@ -14164,6 +14238,11 @@
         "date": "2026-09-29",
         "score": -0.3289,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2834,
+        "headline_count": 5
       }
     ],
     "EW": [
@@ -14448,6 +14527,11 @@
         "date": "2026-09-29",
         "score": 0.0359,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0332,
+        "headline_count": 5
       }
     ],
     "GDDY": [
@@ -14458,6 +14542,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": -0.0636,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
         "score": -0.0636,
         "headline_count": 5
       }
@@ -14477,6 +14566,11 @@
         "date": "2026-09-29",
         "score": 0.0799,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0109,
+        "headline_count": 5
       }
     ],
     "HSY": [
@@ -14493,6 +14587,11 @@
       {
         "date": "2026-09-29",
         "score": -0.135,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0946,
         "headline_count": 4
       }
     ],
@@ -14523,6 +14622,11 @@
         "date": "2026-09-29",
         "score": 0.1882,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1017,
+        "headline_count": 5
       }
     ],
     "LULU": [
@@ -14534,6 +14638,11 @@
       {
         "date": "2026-09-29",
         "score": -0.1418,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.194,
         "headline_count": 5
       }
     ],
@@ -14574,6 +14683,11 @@
         "date": "2026-09-29",
         "score": -0.0646,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0209,
+        "headline_count": 4
       }
     ],
     "MSFT": [
@@ -14601,6 +14715,11 @@
         "date": "2026-09-29",
         "score": -0.7379,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1005,
+        "headline_count": 5
       }
     ],
     "MS": [
@@ -14622,6 +14741,11 @@
       {
         "date": "2026-09-29",
         "score": 0.4546,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0001,
         "headline_count": 5
       }
     ],
@@ -14650,6 +14774,11 @@
         "date": "2026-04-20",
         "score": 0.0234,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0164,
+        "headline_count": 1
       }
     ],
     "NKE": [
@@ -14682,6 +14811,11 @@
         "date": "2026-09-29",
         "score": -0.1318,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3065,
+        "headline_count": 5
       }
     ],
     "NVDA": [
@@ -14698,6 +14832,11 @@
       {
         "date": "2026-09-29",
         "score": -0.0544,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0571,
         "headline_count": 5
       }
     ],
@@ -14716,6 +14855,11 @@
         "date": "2026-09-29",
         "score": 0.0249,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1437,
+        "headline_count": 5
       }
     ],
     "PCG": [
@@ -14732,6 +14876,11 @@
       {
         "date": "2026-09-29",
         "score": 0.4481,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2755,
         "headline_count": 5
       }
     ],
@@ -14767,6 +14916,11 @@
         "date": "2026-09-29",
         "score": -0.2707,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3579,
+        "headline_count": 5
       }
     ],
     "SYK": [
@@ -14784,6 +14938,11 @@
         "date": "2026-09-29",
         "score": -0.4276,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3399,
+        "headline_count": 5
       }
     ],
     "SYY": [
@@ -14833,6 +14992,11 @@
         "date": "2026-09-29",
         "score": -0.6305,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1312,
+        "headline_count": 5
       }
     ],
     "TMO": [
@@ -14844,6 +15008,11 @@
       {
         "date": "2026-09-29",
         "score": 0.323,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0804,
         "headline_count": 5
       }
     ],
@@ -14857,6 +15026,11 @@
         "date": "2026-09-29",
         "score": 0.5108,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5365,
+        "headline_count": 5
       }
     ],
     "ZBH": [
@@ -14869,6 +15043,11 @@
         "date": "2026-04-15",
         "score": -0.0466,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0331,
+        "headline_count": 2
       }
     ],
     "ARES": [
@@ -15086,6 +15265,11 @@
         "date": "2026-09-29",
         "score": -0.0303,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2281,
+        "headline_count": 5
       }
     ],
     "CVNA": [
@@ -15203,6 +15387,11 @@
         "date": "2026-09-29",
         "score": 0.3978,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0459,
+        "headline_count": 5
       }
     ],
     "PLTR": [
@@ -15224,6 +15413,11 @@
       {
         "date": "2026-04-17",
         "score": 0.4118,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0547,
         "headline_count": 5
       }
     ],
@@ -15251,6 +15445,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0358,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0055,
         "headline_count": 5
       }
     ],
@@ -15284,6 +15483,11 @@
         "date": "2026-09-29",
         "score": 0.1224,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0981,
+        "headline_count": 5
       }
     ],
     "PDD": [
@@ -15306,6 +15510,11 @@
         "date": "2026-09-29",
         "score": -0.6292,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1914,
+        "headline_count": 1
       }
     ],
     "ZS": [
@@ -15328,14 +15537,14 @@
         "date": "2026-09-29",
         "score": 0.2696,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4431,
+        "headline_count": 5
       }
     ],
     "T": [
-      {
-        "date": "2026-06-03",
-        "score": 0.1322,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-04",
         "score": -0.1609,
@@ -15630,6 +15839,11 @@
         "date": "2026-09-29",
         "score": 0.3817,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2791,
+        "headline_count": 5
       }
     ],
     "BDX": [
@@ -15835,6 +16049,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": 0.1932,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.1932,
         "headline_count": 5
       }
@@ -16186,6 +16405,11 @@
         "date": "2026-09-29",
         "score": 0.3081,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.331,
+        "headline_count": 5
       }
     ],
     "CSGP": [
@@ -16453,6 +16677,11 @@
         "date": "2026-09-29",
         "score": -0.197,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1971,
+        "headline_count": 4
       }
     ],
     "HRL": [
@@ -16469,6 +16698,11 @@
       {
         "date": "2026-09-29",
         "score": -0.1348,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1331,
         "headline_count": 5
       }
     ],
@@ -16587,14 +16821,14 @@
         "date": "2026-09-29",
         "score": 0.9385,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.9385,
+        "headline_count": 1
       }
     ],
     "ABT": [
-      {
-        "date": "2026-05-05",
-        "score": 0.0718,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-07",
         "score": 0.3578,
@@ -16889,6 +17123,11 @@
         "date": "2026-09-29",
         "score": -0.347,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0674,
+        "headline_count": 5
       }
     ],
     "AOS": [
@@ -17106,6 +17345,11 @@
         "date": "2026-09-28",
         "score": 0.1107,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1107,
+        "headline_count": 2
       }
     ],
     "AIG": [
@@ -17301,6 +17545,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": 0.2132,
+        "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.2132,
         "headline_count": 2
       }
@@ -17604,11 +17853,6 @@
     ],
     "AAPL": [
       {
-        "date": "2026-06-09",
-        "score": -0.1483,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-10",
         "score": 0.2809,
         "headline_count": 5
@@ -17902,14 +18146,14 @@
         "date": "2026-09-29",
         "score": -0.3787,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0199,
+        "headline_count": 5
       }
     ],
     "BAC": [
-      {
-        "date": "2026-06-05",
-        "score": 0.2949,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-08",
         "score": -0.0233,
@@ -18204,6 +18448,11 @@
         "date": "2026-09-29",
         "score": -0.3778,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0881,
+        "headline_count": 5
       }
     ],
     "BK": [
@@ -18319,11 +18568,6 @@
       }
     ],
     "AVGO": [
-      {
-        "date": "2026-05-27",
-        "score": 0.2528,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-28",
         "score": 0.0424,
@@ -18618,14 +18862,14 @@
         "date": "2026-09-29",
         "score": -0.0106,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3899,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
-      {
-        "date": "2026-05-15",
-        "score": -0.2755,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-17",
         "score": -0.1222,
@@ -18920,6 +19164,11 @@
         "date": "2026-09-29",
         "score": -0.176,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0502,
+        "headline_count": 5
       }
     ],
     "CARR": [
@@ -19212,14 +19461,14 @@
         "date": "2026-09-28",
         "score": -0.2315,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3657,
+        "headline_count": 5
       }
     ],
     "CAT": [
-      {
-        "date": "2026-05-19",
-        "score": 0.0195,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-20",
         "score": 0.2729,
@@ -19514,6 +19763,11 @@
         "date": "2026-09-29",
         "score": 0.0237,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.109,
+        "headline_count": 5
       }
     ],
     "BF-B": [
@@ -19628,6 +19882,11 @@
         "date": "2026-09-29",
         "score": 0.2821,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0828,
+        "headline_count": 5
       }
     ],
     "FE": [
@@ -19650,6 +19909,11 @@
         "date": "2026-09-29",
         "score": 0.3708,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4294,
+        "headline_count": 5
       }
     ],
     "ITW": [
@@ -19662,6 +19926,11 @@
         "date": "2026-09-29",
         "score": 0.0906,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1945,
+        "headline_count": 4
       }
     ],
     "IR": [
@@ -19678,6 +19947,11 @@
       {
         "date": "2026-09-29",
         "score": 0.3908,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3907,
         "headline_count": 1
       }
     ],
@@ -19708,6 +19982,11 @@
         "date": "2026-09-29",
         "score": 0.1029,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0745,
+        "headline_count": 5
       }
     ],
     "LRCX": [
@@ -19719,6 +19998,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1918,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0044,
         "headline_count": 5
       }
     ],
@@ -19756,6 +20040,11 @@
         "date": "2026-09-29",
         "score": 0.1884,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.6169,
+        "headline_count": 5
       }
     ],
     "MOH": [
@@ -19774,6 +20063,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0074,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5918,
         "headline_count": 5
       }
     ],
@@ -19799,6 +20093,11 @@
         "date": "2026-04-15",
         "score": 0.3275,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2202,
+        "headline_count": 3
       }
     ],
     "NRG": [
@@ -19821,6 +20120,11 @@
         "date": "2026-09-29",
         "score": 0.1115,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.4325,
+        "headline_count": 2
       }
     ],
     "PNC": [
@@ -19832,6 +20136,11 @@
       {
         "date": "2026-09-29",
         "score": 0.2707,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2631,
         "headline_count": 5
       }
     ],
@@ -19859,6 +20168,11 @@
         "date": "2026-09-29",
         "score": 0.1904,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2118,
+        "headline_count": 4
       }
     ],
     "STX": [
@@ -19870,6 +20184,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1499,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2327,
         "headline_count": 5
       }
     ],
@@ -19910,6 +20229,11 @@
         "date": "2026-09-29",
         "score": -0.1118,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1799,
+        "headline_count": 5
       }
     ],
     "XYL": [
@@ -19930,11 +20254,6 @@
       }
     ],
     "APP": [
-      {
-        "date": "2026-06-08",
-        "score": 0.0275,
-        "headline_count": 3
-      },
       {
         "date": "2026-06-09",
         "score": 0.1172,
@@ -20229,6 +20548,11 @@
         "date": "2026-09-29",
         "score": -0.1486,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2689,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -20240,6 +20564,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0716,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0955,
         "headline_count": 5
       }
     ],
@@ -20267,6 +20596,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0261,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0195,
         "headline_count": 5
       }
     ],
@@ -20449,6 +20783,11 @@
       {
         "date": "2026-09-29",
         "score": 0.2365,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3738,
         "headline_count": 5
       }
     ],
@@ -20707,6 +21046,11 @@
         "date": "2026-09-29",
         "score": -0.3154,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1445,
+        "headline_count": 5
       }
     ],
     "MDB": [
@@ -20719,14 +21063,14 @@
         "date": "2026-09-29",
         "score": -0.1905,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.137,
+        "headline_count": 5
       }
     ],
     "CCL": [
-      {
-        "date": "2026-05-14",
-        "score": -0.43,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-17",
         "score": -0.6746,
@@ -21020,6 +21364,11 @@
       {
         "date": "2026-09-29",
         "score": 0.4292,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.451,
         "headline_count": 5
       }
     ],
@@ -21318,6 +21667,11 @@
         "date": "2026-09-29",
         "score": 0.222,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3637,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -21493,6 +21847,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": -0.0857,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
         "score": -0.0857,
         "headline_count": 5
       }
@@ -21762,6 +22121,11 @@
         "date": "2026-09-29",
         "score": 0.0955,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.065,
+        "headline_count": 5
       }
     ],
     "ETR": [
@@ -21951,6 +22315,11 @@
         "date": "2026-09-29",
         "score": 0.3668,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3025,
+        "headline_count": 5
       }
     ],
     "UNP": [
@@ -21963,6 +22332,11 @@
         "date": "2026-09-29",
         "score": 0.0231,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1758,
+        "headline_count": 4
       }
     ],
     "TSCO": [
@@ -22225,11 +22599,6 @@
       }
     ],
     "CDNS": [
-      {
-        "date": "2026-04-21",
-        "score": 0.3377,
-        "headline_count": 3
-      },
       {
         "date": "2026-04-22",
         "score": 0.3919,
@@ -22522,6 +22891,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": -0.2618,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
         "score": -0.2618,
         "headline_count": 5
       }
@@ -23113,6 +23487,11 @@
         "date": "2026-09-29",
         "score": -0.1815,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1538,
+        "headline_count": 5
       }
     ],
     "EMN": [
@@ -23141,6 +23520,11 @@
       {
         "date": "2026-09-29",
         "score": -0.3639,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3656,
         "headline_count": 5
       }
     ],
@@ -23578,6 +23962,11 @@
         "date": "2026-09-29",
         "score": 0.4512,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3755,
+        "headline_count": 5
       }
     ],
     "BALL": [
@@ -23749,6 +24138,11 @@
       {
         "date": "2026-09-29",
         "score": -0.2602,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.018,
         "headline_count": 5
       }
     ],
@@ -24546,6 +24940,11 @@
         "date": "2026-09-29",
         "score": 0.056,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1276,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -25342,6 +25741,11 @@
         "date": "2026-09-29",
         "score": 0.3711,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4725,
+        "headline_count": 5
       }
     ],
     "CMS": [
@@ -25619,14 +26023,14 @@
         "date": "2026-09-29",
         "score": 0.9056,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.8699,
+        "headline_count": 1
       }
     ],
     "KO": [
-      {
-        "date": "2026-05-21",
-        "score": -0.1711,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-25",
         "score": -0.5066,
@@ -25921,14 +26325,14 @@
         "date": "2026-09-29",
         "score": 0.0343,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1194,
+        "headline_count": 5
       }
     ],
     "GLW": [
-      {
-        "date": "2026-05-17",
-        "score": 0.1337,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-18",
         "score": 0.1854,
@@ -26223,14 +26627,14 @@
         "date": "2026-09-29",
         "score": 0.3922,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0322,
+        "headline_count": 5
       }
     ],
     "COST": [
-      {
-        "date": "2026-05-21",
-        "score": 0.2924,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-25",
         "score": 0.0022,
@@ -26525,6 +26929,11 @@
         "date": "2026-09-29",
         "score": 0.7371,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0366,
+        "headline_count": 5
       }
     ],
     "DVA": [
@@ -26774,14 +27183,14 @@
         "date": "2026-09-29",
         "score": 0.0066,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4039,
+        "headline_count": 4
       }
     ],
     "ETN": [
-      {
-        "date": "2026-05-11",
-        "score": -0.0067,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-12",
         "score": -0.0132,
@@ -27076,6 +27485,11 @@
         "date": "2026-09-29",
         "score": -0.152,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0717,
+        "headline_count": 5
       }
     ],
     "EXR": [
@@ -27195,14 +27609,14 @@
         "date": "2026-09-29",
         "score": 0.9235,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.9235,
+        "headline_count": 1
       }
     ],
     "AMD": [
-      {
-        "date": "2026-05-28",
-        "score": -0.1518,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-29",
         "score": 0.4802,
@@ -27497,14 +27911,14 @@
         "date": "2026-09-29",
         "score": -0.1061,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3272,
+        "headline_count": 5
       }
     ],
     "GOOG": [
-      {
-        "date": "2026-06-02",
-        "score": -0.1646,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-03",
         "score": -0.02,
@@ -27799,6 +28213,11 @@
         "date": "2026-09-29",
         "score": -0.1243,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.17,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -27986,6 +28405,11 @@
         "date": "2026-09-29",
         "score": 0.1892,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.188,
+        "headline_count": 2
       }
     ],
     "AEP": [
@@ -28469,11 +28893,6 @@
     ],
     "GOOGL": [
       {
-        "date": "2026-05-13",
-        "score": 0.1857,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-14",
         "score": 0.0909,
         "headline_count": 5
@@ -28767,14 +29186,14 @@
         "date": "2026-09-29",
         "score": -0.1243,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1721,
+        "headline_count": 5
       }
     ],
     "AMGN": [
-      {
-        "date": "2026-04-23",
-        "score": -0.0747,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-28",
         "score": -0.1151,
@@ -29068,6 +29487,11 @@
       {
         "date": "2026-09-29",
         "score": 0.391,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1342,
         "headline_count": 5
       }
     ],
@@ -29375,11 +29799,6 @@
     ],
     "AMAT": [
       {
-        "date": "2026-05-28",
-        "score": 0.2793,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-29",
         "score": 0.3744,
         "headline_count": 5
@@ -29673,6 +30092,11 @@
         "date": "2026-09-29",
         "score": 0.0477,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2604,
+        "headline_count": 5
       }
     ],
     "ADM": [
@@ -29924,6 +30348,11 @@
       {
         "date": "2026-09-29",
         "score": 0.6837,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1025,
         "headline_count": 5
       }
     ],
@@ -30197,14 +30626,14 @@
         "date": "2026-09-29",
         "score": -0.0016,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0016,
+        "headline_count": 2
       }
     ],
     "ANET": [
-      {
-        "date": "2026-05-18",
-        "score": 0.0615,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-19",
         "score": 0.038,
@@ -30499,14 +30928,14 @@
         "date": "2026-09-29",
         "score": 0.1362,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2781,
+        "headline_count": 5
       }
     ],
     "ADSK": [
-      {
-        "date": "2026-05-12",
-        "score": 0.2084,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-14",
         "score": 0.3813,
@@ -30801,14 +31230,14 @@
         "date": "2026-09-29",
         "score": 0.2147,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0927,
+        "headline_count": 5
       }
     ],
     "BKR": [
-      {
-        "date": "2026-04-22",
-        "score": 0.4434,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-23",
         "score": 0.1657,
@@ -31103,6 +31532,11 @@
         "date": "2026-09-29",
         "score": 0.4763,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3531,
+        "headline_count": 5
       }
     ],
     "BBWI": [
@@ -31148,11 +31582,6 @@
       }
     ],
     "BA": [
-      {
-        "date": "2026-05-25",
-        "score": 0.2102,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-26",
         "score": 0.4798,
@@ -31446,6 +31875,11 @@
       {
         "date": "2026-09-29",
         "score": -0.5217,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3929,
         "headline_count": 5
       }
     ],
@@ -31900,11 +32334,6 @@
     ],
     "CL": [
       {
-        "date": "2026-04-29",
-        "score": -0.0907,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-01",
         "score": 0.1149,
         "headline_count": 5
@@ -32198,6 +32627,11 @@
         "date": "2026-09-29",
         "score": -0.332,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3153,
+        "headline_count": 5
       }
     ],
     "CME": [
@@ -32490,6 +32924,11 @@
         "date": "2026-09-29",
         "score": -0.1685,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3401,
+        "headline_count": 5
       }
     ],
     "APD": [
@@ -32705,11 +33144,6 @@
       }
     ],
     "ABNB": [
-      {
-        "date": "2026-05-12",
-        "score": 0.3533,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-14",
         "score": 0.0587,
@@ -33004,14 +33438,14 @@
         "date": "2026-09-29",
         "score": 0.0398,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0843,
+        "headline_count": 5
       }
     ],
     "CTSH": [
-      {
-        "date": "2026-04-30",
-        "score": 0.066,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-05",
         "score": -0.0937,
@@ -33306,6 +33740,11 @@
         "date": "2026-09-29",
         "score": 0.0333,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2179,
+        "headline_count": 5
       }
     ],
     "CTVA": [
@@ -33398,14 +33837,14 @@
         "date": "2026-09-29",
         "score": 0.0979,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2006,
+        "headline_count": 5
       }
     ],
     "ALB": [
-      {
-        "date": "2026-04-22",
-        "score": 0.1506,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-23",
         "score": 0.2821,
@@ -33700,6 +34139,11 @@
         "date": "2026-09-29",
         "score": 0.1389,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2356,
+        "headline_count": 5
       }
     ],
     "GE": [
@@ -33716,6 +34160,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1922,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0917,
         "headline_count": 5
       }
     ],
@@ -33738,6 +34187,11 @@
       {
         "date": "2026-09-29",
         "score": -0.2299,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1105,
         "headline_count": 5
       }
     ],
@@ -33768,6 +34222,11 @@
         "date": "2026-09-29",
         "score": 0.0404,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2803,
+        "headline_count": 5
       }
     ],
     "PPG": [
@@ -33785,6 +34244,11 @@
         "date": "2026-09-29",
         "score": 0.2651,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.204,
+        "headline_count": 4
       }
     ],
     "PLD": [
@@ -33796,6 +34260,11 @@
       {
         "date": "2026-09-29",
         "score": 0.157,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0054,
         "headline_count": 5
       }
     ],
@@ -33819,6 +34288,11 @@
         "date": "2026-09-29",
         "score": -0.0895,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1588,
+        "headline_count": 5
       }
     ],
     "STT": [
@@ -33831,6 +34305,11 @@
         "date": "2026-04-17",
         "score": -0.2935,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0141,
+        "headline_count": 3
       }
     ],
     "GFS": [
@@ -33870,14 +34349,14 @@
         "date": "2026-09-29",
         "score": -0.2552,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2812,
+        "headline_count": 5
       }
     ],
     "COO": [
-      {
-        "date": "2026-04-16",
-        "score": 0.1159,
-        "headline_count": 1
-      },
       {
         "date": "2026-04-17",
         "score": 0.1159,
@@ -34172,6 +34651,11 @@
         "date": "2026-09-29",
         "score": 0.3916,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3916,
+        "headline_count": 2
       }
     ],
     "DG": [
@@ -34454,6 +34938,11 @@
         "date": "2026-09-29",
         "score": 0.1222,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2193,
+        "headline_count": 5
       }
     ],
     "PPL": [
@@ -34466,6 +34955,11 @@
         "date": "2026-09-29",
         "score": 0.7008,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5582,
+        "headline_count": 5
       }
     ],
     "RF": [
@@ -34476,6 +34970,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": 0.6475,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.6475,
         "headline_count": 1
       }
@@ -34499,6 +34998,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1078,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2127,
         "headline_count": 5
       }
     ],
@@ -34747,14 +35251,14 @@
         "date": "2026-09-29",
         "score": 0.2068,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1691,
+        "headline_count": 5
       }
     ],
     "CVX": [
-      {
-        "date": "2026-05-12",
-        "score": 0.0008,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-14",
         "score": -0.0972,
@@ -35049,14 +35553,14 @@
         "date": "2026-09-29",
         "score": -0.0987,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2852,
+        "headline_count": 5
       }
     ],
     "DVN": [
-      {
-        "date": "2026-04-22",
-        "score": -0.1445,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-23",
         "score": 0.039,
@@ -35351,6 +35855,11 @@
         "date": "2026-09-29",
         "score": 0.0272,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0614,
+        "headline_count": 5
       }
     ],
     "EXC": [
@@ -35393,6 +35902,11 @@
         "date": "2026-09-10",
         "score": 0.1943,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1102,
+        "headline_count": 1
       }
     ],
     "LYB": [
@@ -35417,6 +35931,11 @@
         "date": "2026-09-29",
         "score": -0.2217,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1728,
+        "headline_count": 5
       }
     ],
     "VLO": [
@@ -35428,6 +35947,11 @@
       {
         "date": "2026-09-29",
         "score": 0.265,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4124,
         "headline_count": 5
       }
     ],
@@ -35704,11 +36228,6 @@
       }
     ],
     "CLX": [
-      {
-        "date": "2026-05-01",
-        "score": -0.1364,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-04",
         "score": -0.067,
@@ -36003,6 +36522,11 @@
         "date": "2026-09-29",
         "score": 0.0678,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1896,
+        "headline_count": 5
       }
     ],
     "EOG": [
@@ -36050,6 +36574,11 @@
         "date": "2026-09-25",
         "score": -0.0777,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.9566,
+        "headline_count": 1
       }
     ],
     "XOM": [
@@ -36107,6 +36636,11 @@
         "date": "2026-09-29",
         "score": 0.113,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2806,
+        "headline_count": 5
       }
     ],
     "FCX": [
@@ -36119,6 +36653,11 @@
         "date": "2026-09-29",
         "score": 0.4,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.119,
+        "headline_count": 5
       }
     ],
     "GPN": [
@@ -36143,6 +36682,11 @@
         "date": "2026-09-29",
         "score": 0.0583,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2392,
+        "headline_count": 5
       }
     ],
     "LEN": [
@@ -36153,6 +36697,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": 0.1563,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.1563,
         "headline_count": 5
       }
@@ -36167,6 +36716,11 @@
         "date": "2026-09-29",
         "score": -0.218,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0734,
+        "headline_count": 5
       }
     ],
     "MPC": [
@@ -36179,6 +36733,11 @@
         "date": "2026-09-29",
         "score": 0.0049,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3912,
+        "headline_count": 5
       }
     ],
     "NXPI": [
@@ -36190,6 +36749,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1063,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0851,
         "headline_count": 5
       }
     ],
@@ -36207,6 +36771,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0736,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.8668,
         "headline_count": 5
       }
     ],
@@ -36227,6 +36796,11 @@
         "date": "2026-09-29",
         "score": 0.1571,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0174,
+        "headline_count": 5
       }
     ],
     "SHW": [
@@ -36238,6 +36812,11 @@
       {
         "date": "2026-09-29",
         "score": -0.1239,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1546,
         "headline_count": 5
       }
     ],
@@ -36251,6 +36830,11 @@
         "date": "2026-09-29",
         "score": -0.3407,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3236,
+        "headline_count": 5
       }
     ],
     "SYF": [
@@ -36258,6 +36842,11 @@
         "date": "2026-04-17",
         "score": 0.1316,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2907,
+        "headline_count": 4
       }
     ],
     "TFC": [
@@ -36269,6 +36858,11 @@
       {
         "date": "2026-09-29",
         "score": 0.3423,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2133,
         "headline_count": 5
       }
     ],
@@ -36287,6 +36881,11 @@
         "date": "2026-09-29",
         "score": 0.0056,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0351,
+        "headline_count": 5
       }
     ],
     "HPE": [
@@ -36298,6 +36897,11 @@
       {
         "date": "2026-09-29",
         "score": 0.3421,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1674,
         "headline_count": 5
       }
     ],
@@ -36311,6 +36915,11 @@
         "date": "2026-09-29",
         "score": -0.072,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0153,
+        "headline_count": 5
       }
     ],
     "VTRS": [
@@ -36323,6 +36932,11 @@
         "date": "2026-09-29",
         "score": 0.1184,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5711,
+        "headline_count": 3
       }
     ],
     "EFX": [
@@ -36425,6 +37039,11 @@
         "date": "2026-09-29",
         "score": -0.7419,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.333,
+        "headline_count": 5
       }
     ],
     "LMT": [
@@ -36436,6 +37055,11 @@
       {
         "date": "2026-09-29",
         "score": 0.323,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.302,
         "headline_count": 5
       }
     ],
@@ -36714,6 +37338,11 @@
         "date": "2026-09-29",
         "score": 0.058,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2546,
+        "headline_count": 5
       }
     ],
     "EQT": [
@@ -36826,6 +37455,11 @@
         "date": "2026-09-29",
         "score": 0.0552,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.022,
+        "headline_count": 2
       }
     ],
     "MKC": [
@@ -36838,6 +37472,11 @@
         "date": "2026-09-29",
         "score": 0.0128,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0293,
+        "headline_count": 4
       }
     ],
     "DHI": [
@@ -37015,6 +37654,11 @@
         "date": "2026-09-29",
         "score": -0.1133,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1133,
+        "headline_count": 5
       }
     ],
     "MCHP": [
@@ -37034,6 +37678,11 @@
         "date": "2026-04-20",
         "score": -0.0327,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2335,
+        "headline_count": 5
       }
     ],
     "ALGN": [
@@ -37403,14 +38052,14 @@
         "date": "2026-09-29",
         "score": 0.0027,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.092,
+        "headline_count": 2
       }
     ],
     "ACN": [
-      {
-        "date": "2026-05-05",
-        "score": 0.2209,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-06",
         "score": 0.5007,
@@ -37705,14 +38354,14 @@
         "date": "2026-09-29",
         "score": 0.3844,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1983,
+        "headline_count": 5
       }
     ],
     "AXP": [
-      {
-        "date": "2026-05-05",
-        "score": 0.4925,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-07",
         "score": 0.2452,
@@ -38007,14 +38656,14 @@
         "date": "2026-09-29",
         "score": -0.0227,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0672,
+        "headline_count": 5
       }
     ],
     "BMY": [
-      {
-        "date": "2026-04-21",
-        "score": 0.076,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-22",
         "score": 0.0021,
@@ -38309,6 +38958,11 @@
         "date": "2026-09-29",
         "score": 0.2769,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0727,
+        "headline_count": 5
       }
     ],
     "BBY": [
@@ -38561,6 +39215,11 @@
         "date": "2026-09-29",
         "score": -0.0509,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1376,
+        "headline_count": 5
       }
     ],
     "BR": [
@@ -38990,14 +39649,14 @@
         "date": "2026-09-29",
         "score": 0.2395,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0597,
+        "headline_count": 4
       }
     ],
     "COF": [
-      {
-        "date": "2026-04-28",
-        "score": 0.0005,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-29",
         "score": -0.3004,
@@ -39292,6 +39951,11 @@
         "date": "2026-09-29",
         "score": 0.309,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0229,
+        "headline_count": 5
       }
     ],
     "COR": [
@@ -39539,14 +40203,14 @@
         "date": "2026-09-25",
         "score": 0.1564,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0071,
+        "headline_count": 3
       }
     ],
     "CMG": [
-      {
-        "date": "2026-05-06",
-        "score": -0.0457,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-07",
         "score": 0.2372,
@@ -39841,6 +40505,11 @@
         "date": "2026-09-29",
         "score": 0.2527,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2388,
+        "headline_count": 5
       }
     ],
     "CHD": [
@@ -40083,6 +40752,11 @@
         "date": "2026-09-29",
         "score": 0.4273,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3036,
+        "headline_count": 5
       }
     ],
     "CI": [
@@ -40365,6 +41039,11 @@
         "date": "2026-09-29",
         "score": 0.1903,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.047,
+        "headline_count": 5
       }
     ],
     "CSCO": [
@@ -40671,11 +41350,6 @@
     ],
     "CEG": [
       {
-        "date": "2026-05-18",
-        "score": 0.1726,
-        "headline_count": 4
-      },
-      {
         "date": "2026-05-19",
         "score": 0.2368,
         "headline_count": 5
@@ -40969,14 +41643,14 @@
         "date": "2026-09-29",
         "score": 0.2242,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.463,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
-      {
-        "date": "2026-05-13",
-        "score": -0.2481,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-14",
         "score": 0.0656,
@@ -41271,6 +41945,11 @@
         "date": "2026-09-29",
         "score": 0.3764,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3662,
+        "headline_count": 5
       }
     ],
     "DHR": [
@@ -41523,6 +42202,11 @@
         "date": "2026-09-29",
         "score": 0.4639,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5509,
+        "headline_count": 5
       }
     ],
     "DOV": [
@@ -41679,6 +42363,11 @@
       {
         "date": "2026-09-29",
         "score": -0.0096,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2232,
         "headline_count": 5
       }
     ],
@@ -41972,6 +42661,11 @@
         "date": "2026-09-29",
         "score": -0.5022,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0129,
+        "headline_count": 5
       }
     ],
     "EBAY": [
@@ -42173,6 +42867,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1531,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3585,
         "headline_count": 4
       }
     ],
@@ -42538,6 +43237,11 @@
         "date": "2026-09-28",
         "score": 0.4121,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1643,
+        "headline_count": 2
       }
     ],
     "AME": [
@@ -42693,6 +43397,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": 0.0231,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.0231,
         "headline_count": 1
       }
@@ -42992,6 +43701,11 @@
         "date": "2026-09-29",
         "score": 0.5421,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4834,
+        "headline_count": 5
       }
     ],
     "AEE": [
@@ -43129,6 +43843,11 @@
         "date": "2026-09-29",
         "score": 0.3687,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2649,
+        "headline_count": 5
       }
     ],
     "AMCR": [
@@ -43291,6 +44010,11 @@
         "date": "2026-09-29",
         "score": 0.0073,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0015,
+        "headline_count": 4
       }
     ],
     "AVB": [
@@ -43664,11 +44388,6 @@
     ],
     "CCI": [
       {
-        "date": "2026-05-13",
-        "score": 0.1793,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-14",
         "score": 0.2223,
         "headline_count": 4
@@ -43962,6 +44681,11 @@
         "date": "2026-09-29",
         "score": -0.0516,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1114,
+        "headline_count": 3
       }
     ],
     "CSX": [
@@ -44054,6 +44778,11 @@
         "date": "2026-09-25",
         "score": -0.3519,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0339,
+        "headline_count": 4
       }
     ],
     "DLR": [
@@ -44545,6 +45274,11 @@
         "date": "2026-09-24",
         "score": 0.1787,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.042,
+        "headline_count": 3
       }
     ],
     "CNC": [
@@ -45060,11 +45794,6 @@
     ],
     "DECK": [
       {
-        "date": "2026-05-07",
-        "score": 0.1205,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-08",
         "score": -0.3389,
         "headline_count": 4
@@ -45358,6 +46087,11 @@
         "date": "2026-09-29",
         "score": 0.1982,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0722,
+        "headline_count": 5
       }
     ],
     "ECL": [
@@ -45555,6 +46289,11 @@
         "date": "2026-09-29",
         "score": -0.3445,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2616,
+        "headline_count": 4
       }
     ],
     "EA": [
@@ -45722,6 +46461,11 @@
         "date": "2026-09-29",
         "score": 0.1722,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0669,
+        "headline_count": 2
       }
     ],
     "ELV": [
@@ -45966,6 +46710,11 @@
         "date": "2026-09-29",
         "score": 0.2306,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1927,
+        "headline_count": 5
       }
     ],
     "EL": [
@@ -46028,6 +46777,11 @@
         "date": "2026-09-25",
         "score": 0.0243,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1047,
+        "headline_count": 1
       }
     ],
     "ETSY": [
@@ -46121,6 +46875,11 @@
       {
         "date": "2026-09-29",
         "score": -0.3141,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2818,
         "headline_count": 5
       }
     ],
@@ -46613,6 +47372,11 @@
         "date": "2026-09-29",
         "score": 0.4906,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4718,
+        "headline_count": 5
       }
     ],
     "AJG": [
@@ -46785,6 +47549,11 @@
         "date": "2026-09-29",
         "score": -0.1132,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1099,
+        "headline_count": 4
       }
     ],
     "BAX": [
@@ -47027,6 +47796,11 @@
         "date": "2026-09-29",
         "score": 0.0945,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0346,
+        "headline_count": 2
       }
     ],
     "CRL": [
@@ -47192,6 +47966,11 @@
         "date": "2026-09-29",
         "score": 0.087,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4901,
+        "headline_count": 5
       }
     ],
     "CPRT": [
@@ -47259,14 +48038,14 @@
         "date": "2026-09-29",
         "score": 0.3096,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3096,
+        "headline_count": 3
       }
     ],
     "MO": [
-      {
-        "date": "2026-05-21",
-        "score": 0.1289,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-25",
         "score": -0.0652,
@@ -47561,6 +48340,11 @@
         "date": "2026-09-29",
         "score": 0.0384,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0839,
+        "headline_count": 5
       }
     ],
     "APO": [
@@ -47777,6 +48561,11 @@
       {
         "date": "2026-09-29",
         "score": -0.5349,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1162,
         "headline_count": 5
       }
     ],
@@ -48050,14 +48839,14 @@
         "date": "2026-09-29",
         "score": -0.1078,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5399,
+        "headline_count": 5
       }
     ],
     "BSX": [
-      {
-        "date": "2026-05-27",
-        "score": 0.2042,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-28",
         "score": -0.2283,
@@ -48352,6 +49141,11 @@
         "date": "2026-09-29",
         "score": -0.4496,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2735,
+        "headline_count": 5
       }
     ],
     "BKNG": [
@@ -48643,6 +49437,11 @@
       {
         "date": "2026-09-29",
         "score": -0.1309,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0145,
         "headline_count": 5
       }
     ],
@@ -48988,14 +49787,14 @@
         "date": "2026-09-29",
         "score": 0.1887,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.091,
+        "headline_count": 4
       }
     ],
     "COIN": [
-      {
-        "date": "2026-06-02",
-        "score": 0.2266,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-03",
         "score": 0.2505,
@@ -49290,14 +50089,14 @@
         "date": "2026-09-29",
         "score": -0.1037,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4908,
+        "headline_count": 5
       }
     ],
     "COHR": [
-      {
-        "date": "2026-06-10",
-        "score": 0.0413,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-12",
         "score": -0.027,
@@ -49592,6 +50391,11 @@
         "date": "2026-09-29",
         "score": 0.3799,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0226,
+        "headline_count": 5
       }
     ],
     "CRWD": [
@@ -49864,14 +50668,14 @@
         "date": "2026-09-29",
         "score": 0.6631,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4161,
+        "headline_count": 5
       }
     ],
     "DELL": [
-      {
-        "date": "2026-05-26",
-        "score": -0.2925,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-27",
         "score": 0.2549,
@@ -50166,6 +50970,11 @@
         "date": "2026-09-29",
         "score": 0.007,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1715,
+        "headline_count": 5
       }
     ],
     "DASH": [
@@ -50392,6 +51201,11 @@
       {
         "date": "2026-09-29",
         "score": 0.316,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1032,
         "headline_count": 5
       }
     ],
@@ -50672,6 +51486,11 @@
         "date": "2026-09-29",
         "score": 0.4482,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2865,
+        "headline_count": 3
       }
     ],
     "CIEN": [
@@ -50843,6 +51662,11 @@
       {
         "date": "2026-09-29",
         "score": 0.0556,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0126,
         "headline_count": 5
       }
     ],
@@ -51068,6 +51892,11 @@
         "date": "2026-09-29",
         "score": 0.2895,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3819,
+        "headline_count": 5
       }
     ],
     "DTE": [
@@ -51098,6 +51927,11 @@
       },
       {
         "date": "2026-09-29",
+        "score": 0.0015,
+        "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.0015,
         "headline_count": 2
       }
@@ -51176,6 +52010,11 @@
         "date": "2026-09-29",
         "score": 0.2483,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0584,
+        "headline_count": 5
       }
     ],
     "FDXF": [
@@ -51188,6 +52027,11 @@
         "date": "2026-09-29",
         "score": -0.5999,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.4621,
+        "headline_count": 2
       }
     ],
     "FIS": [
@@ -51205,6 +52049,11 @@
         "date": "2026-09-29",
         "score": -0.2766,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1219,
+        "headline_count": 5
       }
     ],
     "CMI": [
@@ -51356,6 +52205,11 @@
         "date": "2026-09-29",
         "score": -0.1826,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1092,
+        "headline_count": 5
       }
     ],
     "IBM": [
@@ -51397,6 +52251,11 @@
         "date": "2026-09-29",
         "score": 0.1769,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0701,
+        "headline_count": 5
       }
     ],
     "WDAY": [
@@ -51420,6 +52279,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1052,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0543,
         "headline_count": 5
       }
     ],
@@ -51458,12 +52322,22 @@
         "date": "2026-09-29",
         "score": 0.1006,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0376,
+        "headline_count": 5
       }
     ],
     "IT": [
       {
         "date": "2026-09-29",
         "score": 0.2065,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2143,
         "headline_count": 5
       }
     ],
@@ -51479,6 +52353,11 @@
         "date": "2026-09-29",
         "score": 0.2804,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1059,
+        "headline_count": 5
       }
     ],
     "SO": [
@@ -51486,6 +52365,11 @@
         "date": "2026-09-29",
         "score": -0.4147,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.012,
+        "headline_count": 5
       }
     ],
     "PNW": [
@@ -51493,6 +52377,11 @@
         "date": "2026-09-29",
         "score": 0.1847,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4072,
+        "headline_count": 3
       }
     ],
     "OKE": [
@@ -51500,12 +52389,22 @@
         "date": "2026-09-29",
         "score": 0.3955,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1232,
+        "headline_count": 3
       }
     ],
     "FITB": [
       {
         "date": "2026-09-29",
         "score": 0.9171,
+        "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4671,
         "headline_count": 2
       }
     ],
@@ -51514,12 +52413,22 @@
         "date": "2026-09-29",
         "score": 0.4621,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5568,
+        "headline_count": 5
       }
     ],
     "PG": [
       {
         "date": "2026-09-29",
         "score": 0.0457,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1197,
         "headline_count": 5
       }
     ],
@@ -51528,12 +52437,22 @@
         "date": "2026-09-29",
         "score": 0.1978,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2952,
+        "headline_count": 5
       }
     ],
     "JKHY": [
       {
         "date": "2026-09-29",
         "score": -0.094,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2683,
         "headline_count": 5
       }
     ],
@@ -51542,12 +52461,22 @@
         "date": "2026-09-29",
         "score": 0.1891,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3256,
+        "headline_count": 5
       }
     ],
     "SBUX": [
       {
         "date": "2026-09-29",
         "score": -0.3279,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1826,
         "headline_count": 5
       }
     ],
@@ -51563,6 +52492,11 @@
         "date": "2026-09-29",
         "score": 0.1,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1848,
+        "headline_count": 5
       }
     ],
     "ILMN": [
@@ -51570,11 +52504,21 @@
         "date": "2026-09-29",
         "score": 0.1828,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1632,
+        "headline_count": 5
       }
     ],
     "WEC": [
       {
         "date": "2026-09-29",
+        "score": -0.7102,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
         "score": -0.7102,
         "headline_count": 1
       }
@@ -51584,12 +52528,22 @@
         "date": "2026-09-29",
         "score": 0.0212,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0174,
+        "headline_count": 5
       }
     ],
     "KMI": [
       {
         "date": "2026-09-29",
         "score": 0.0874,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3082,
         "headline_count": 5
       }
     ],
@@ -51598,12 +52552,22 @@
         "date": "2026-09-29",
         "score": 0.0054,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1746,
+        "headline_count": 5
       }
     ],
     "JNJ": [
       {
         "date": "2026-09-29",
         "score": 0.2552,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2245,
         "headline_count": 5
       }
     ],
@@ -51612,12 +52576,22 @@
         "date": "2026-09-29",
         "score": 0.0779,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4118,
+        "headline_count": 5
       }
     ],
     "ROL": [
       {
         "date": "2026-09-29",
         "score": -0.3033,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.502,
         "headline_count": 5
       }
     ],
@@ -51633,12 +52607,22 @@
         "date": "2026-09-29",
         "score": 0.3537,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3537,
+        "headline_count": 4
       }
     ],
     "FLEX": [
       {
         "date": "2026-09-29",
         "score": 0.0984,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.053,
         "headline_count": 5
       }
     ],
@@ -51654,6 +52638,11 @@
         "date": "2026-09-29",
         "score": -0.2101,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1685,
+        "headline_count": 5
       }
     ],
     "ORLY": [
@@ -51668,12 +52657,22 @@
         "date": "2026-09-29",
         "score": 0.3273,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0629,
+        "headline_count": 5
       }
     ],
     "MRNA": [
       {
         "date": "2026-09-29",
         "score": 0.0666,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1158,
         "headline_count": 5
       }
     ],
@@ -51682,12 +52681,22 @@
         "date": "2026-09-29",
         "score": -0.0814,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1745,
+        "headline_count": 5
       }
     ],
     "VZ": [
       {
         "date": "2026-09-29",
         "score": -0.1827,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1267,
         "headline_count": 5
       }
     ],
@@ -51703,6 +52712,11 @@
         "date": "2026-09-29",
         "score": 0.4695,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.6288,
+        "headline_count": 5
       }
     ],
     "TROW": [
@@ -51710,11 +52724,21 @@
         "date": "2026-09-29",
         "score": 0.0966,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0827,
+        "headline_count": 4
       }
     ],
     "VMC": [
       {
         "date": "2026-09-29",
+        "score": 0.9385,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.9385,
         "headline_count": 1
       }
@@ -51724,12 +52748,22 @@
         "date": "2026-09-29",
         "score": 0.0917,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2437,
+        "headline_count": 5
       }
     ],
     "PSX": [
       {
         "date": "2026-09-29",
         "score": 0.2658,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1575,
         "headline_count": 5
       }
     ],
@@ -51738,12 +52772,22 @@
         "date": "2026-09-29",
         "score": 0.2214,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1704,
+        "headline_count": 5
       }
     ],
     "SNPS": [
       {
         "date": "2026-09-29",
         "score": -0.1078,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5412,
         "headline_count": 5
       }
     ],
@@ -51752,12 +52796,22 @@
         "date": "2026-09-29",
         "score": 0.1808,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0819,
+        "headline_count": 5
       }
     ],
     "PWR": [
       {
         "date": "2026-09-29",
         "score": 0.174,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.6431,
         "headline_count": 5
       }
     ],
@@ -51766,6 +52820,11 @@
         "date": "2026-09-29",
         "score": 0.3592,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2076,
+        "headline_count": 5
       }
     ],
     "DIS": [
@@ -51773,11 +52832,21 @@
         "date": "2026-09-29",
         "score": 0.0419,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2379,
+        "headline_count": 5
       }
     ],
     "KHC": [
       {
         "date": "2026-09-29",
+        "score": 0.2081,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.2081,
         "headline_count": 4
       }
@@ -51787,6 +52856,11 @@
         "date": "2026-09-29",
         "score": 0.3833,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.6447,
+        "headline_count": 5
       }
     ],
     "INVH": [
@@ -51794,12 +52868,22 @@
         "date": "2026-09-29",
         "score": -0.3184,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3126,
+        "headline_count": 3
       }
     ],
     "MDLZ": [
       {
         "date": "2026-09-29",
         "score": -0.0185,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0733,
         "headline_count": 5
       }
     ],
@@ -51808,12 +52892,22 @@
         "date": "2026-09-29",
         "score": -0.1012,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0251,
+        "headline_count": 5
       }
     ],
     "UNH": [
       {
         "date": "2026-09-29",
         "score": -0.0306,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1092,
         "headline_count": 5
       }
     ],
@@ -51822,6 +52916,11 @@
         "date": "2026-09-29",
         "score": -0.1533,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1904,
+        "headline_count": 5
       }
     ],
     "V": [
@@ -51829,11 +52928,21 @@
         "date": "2026-09-29",
         "score": -0.025,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0483,
+        "headline_count": 5
       }
     ],
     "LDOS": [
       {
         "date": "2026-09-29",
+        "score": 0.1043,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.1043,
         "headline_count": 3
       }
@@ -51843,6 +52952,11 @@
         "date": "2026-09-29",
         "score": -0.0535,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0089,
+        "headline_count": 5
       }
     ],
     "PFE": [
@@ -51850,12 +52964,22 @@
         "date": "2026-09-29",
         "score": 0.2643,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0549,
+        "headline_count": 5
       }
     ],
     "NEE": [
       {
         "date": "2026-09-29",
         "score": 0.0776,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0896,
         "headline_count": 5
       }
     ],
@@ -51871,6 +52995,11 @@
         "date": "2026-09-29",
         "score": 0.0374,
         "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1913,
+        "headline_count": 5
       }
     ],
     "KDP": [
@@ -51878,6 +53007,11 @@
         "date": "2026-09-29",
         "score": 0.016,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0391,
+        "headline_count": 3
       }
     ],
     "TTWO": [
@@ -51885,6 +53019,11 @@
         "date": "2026-09-29",
         "score": -0.0512,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3401,
+        "headline_count": 5
       }
     ],
     "SWKS": [
@@ -51892,12 +53031,22 @@
         "date": "2026-09-29",
         "score": -0.4086,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.2696,
+        "headline_count": 5
       }
     ],
     "HLT": [
       {
         "date": "2026-09-29",
         "score": 0.132,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0781,
         "headline_count": 5
       }
     ],
@@ -51906,12 +53055,22 @@
         "date": "2026-09-29",
         "score": 0.3563,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3434,
+        "headline_count": 5
       }
     ],
     "GIS": [
       {
         "date": "2026-09-29",
         "score": 0.4464,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0049,
         "headline_count": 5
       }
     ],
@@ -51920,11 +53079,21 @@
         "date": "2026-09-29",
         "score": 0.2927,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2505,
+        "headline_count": 5
       }
     ],
     "TKO": [
       {
         "date": "2026-09-29",
+        "score": 0.2094,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.2094,
         "headline_count": 3
       }
@@ -51934,6 +53103,11 @@
         "date": "2026-09-29",
         "score": -0.0071,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.144,
+        "headline_count": 5
       }
     ],
     "LHX": [
@@ -51941,11 +53115,21 @@
         "date": "2026-09-29",
         "score": 0.5645,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5349,
+        "headline_count": 5
       }
     ],
     "TSN": [
       {
         "date": "2026-09-29",
+        "score": -0.0176,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
         "score": -0.0176,
         "headline_count": 5
       }
@@ -51955,6 +53139,11 @@
         "date": "2026-09-29",
         "score": -0.1178,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1331,
+        "headline_count": 5
       }
     ],
     "HCA": [
@@ -51962,6 +53151,11 @@
         "date": "2026-09-29",
         "score": 0.6649,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4644,
+        "headline_count": 5
       }
     ],
     "HWM": [
@@ -51969,12 +53163,22 @@
         "date": "2026-09-29",
         "score": 0.6591,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.5727,
+        "headline_count": 5
       }
     ],
     "KIM": [
       {
         "date": "2026-09-29",
         "score": -0.1963,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2124,
         "headline_count": 3
       }
     ],
@@ -51983,6 +53187,11 @@
         "date": "2026-09-29",
         "score": -0.2555,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3321,
+        "headline_count": 5
       }
     ],
     "LITE": [
@@ -51990,11 +53199,21 @@
         "date": "2026-09-29",
         "score": 0.0061,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1536,
+        "headline_count": 5
       }
     ],
     "JBHT": [
       {
         "date": "2026-09-29",
+        "score": 0.1341,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.1341,
         "headline_count": 3
       }
@@ -52004,12 +53223,22 @@
         "date": "2026-09-29",
         "score": -0.7729,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.061,
+        "headline_count": 1
       }
     ],
     "HUM": [
       {
         "date": "2026-09-29",
         "score": -0.31,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.3244,
         "headline_count": 3
       }
     ],
@@ -52025,11 +53254,21 @@
         "date": "2026-09-29",
         "score": -0.1711,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0499,
+        "headline_count": 5
       }
     ],
     "SJM": [
       {
         "date": "2026-09-29",
+        "score": 0.1123,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.1123,
         "headline_count": 3
       }
@@ -52038,6 +53277,11 @@
       {
         "date": "2026-09-29",
         "score": 0.1852,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3947,
         "headline_count": 5
       }
     ],
@@ -52053,6 +53297,11 @@
         "date": "2026-09-29",
         "score": 0.5733,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4296,
+        "headline_count": 5
       }
     ],
     "TRV": [
@@ -52067,6 +53316,11 @@
         "date": "2026-09-29",
         "score": 0.0962,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0563,
+        "headline_count": 5
       }
     ],
     "VEEV": [
@@ -52074,6 +53328,11 @@
         "date": "2026-09-29",
         "score": -0.56,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1041,
+        "headline_count": 5
       }
     ],
     "PFG": [
@@ -52087,6 +53346,11 @@
       {
         "date": "2026-09-29",
         "score": 0.4089,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.495,
         "headline_count": 5
       }
     ],
@@ -52102,12 +53366,22 @@
         "date": "2026-09-29",
         "score": 0.0344,
         "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.4449,
+        "headline_count": 2
       }
     ],
     "HPQ": [
       {
         "date": "2026-09-29",
         "score": 0.1425,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1406,
         "headline_count": 5
       }
     ],
@@ -52116,11 +53390,21 @@
         "date": "2026-09-29",
         "score": 0.0529,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0983,
+        "headline_count": 5
       }
     ],
     "PEG": [
       {
         "date": "2026-09-29",
+        "score": 0.4909,
+        "headline_count": 2
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.4909,
         "headline_count": 2
       }
@@ -52130,12 +53414,22 @@
         "date": "2026-09-29",
         "score": 0.3212,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0533,
+        "headline_count": 5
       }
     ],
     "TJX": [
       {
         "date": "2026-09-29",
         "score": -0.0478,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1408,
         "headline_count": 5
       }
     ],
@@ -52151,12 +53445,22 @@
         "date": "2026-09-29",
         "score": 0.054,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2367,
+        "headline_count": 5
       }
     ],
     "SPGI": [
       {
         "date": "2026-09-29",
         "score": 0.2897,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1229,
         "headline_count": 5
       }
     ],
@@ -52172,11 +53476,21 @@
         "date": "2026-09-29",
         "score": 0.4153,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0202,
+        "headline_count": 5
       }
     ],
     "LIN": [
       {
         "date": "2026-09-29",
+        "score": -0.3149,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
         "score": -0.3149,
         "headline_count": 3
       }
@@ -52186,12 +53500,22 @@
         "date": "2026-09-29",
         "score": -0.1895,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.17,
+        "headline_count": 5
       }
     ],
     "KKR": [
       {
         "date": "2026-09-29",
         "score": 0.1921,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.2261,
         "headline_count": 5
       }
     ],
@@ -52207,12 +53531,22 @@
         "date": "2026-09-29",
         "score": 0.1974,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0624,
+        "headline_count": 5
       }
     ],
     "NUE": [
       {
         "date": "2026-09-29",
         "score": -0.2538,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0291,
         "headline_count": 5
       }
     ],
@@ -52221,12 +53555,22 @@
         "date": "2026-09-29",
         "score": -0.1413,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0419,
+        "headline_count": 5
       }
     ],
     "MA": [
       {
         "date": "2026-09-29",
         "score": 0.2927,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.081,
         "headline_count": 5
       }
     ],
@@ -52235,12 +53579,22 @@
         "date": "2026-09-29",
         "score": 0.5646,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.1336,
+        "headline_count": 5
       }
     ],
     "MCD": [
       {
         "date": "2026-09-29",
         "score": -0.3065,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.1902,
         "headline_count": 5
       }
     ],
@@ -52249,6 +53603,11 @@
         "date": "2026-09-29",
         "score": -0.358,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.0675,
+        "headline_count": 5
       }
     ],
     "RVTY": [
@@ -52256,11 +53615,21 @@
         "date": "2026-09-29",
         "score": -0.2725,
         "headline_count": 3
+      },
+      {
+        "date": "2026-09-30",
+        "score": -0.225,
+        "headline_count": 4
       }
     ],
     "OTIS": [
       {
         "date": "2026-09-29",
+        "score": 0.0166,
+        "headline_count": 1
+      },
+      {
+        "date": "2026-09-30",
         "score": 0.0166,
         "headline_count": 1
       }
@@ -52270,12 +53639,22 @@
         "date": "2026-09-29",
         "score": 0.2686,
         "headline_count": 4
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3761,
+        "headline_count": 5
       }
     ],
     "IRM": [
       {
         "date": "2026-09-29",
         "score": 0.3597,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.3756,
         "headline_count": 5
       }
     ],
@@ -52284,6 +53663,11 @@
         "date": "2026-09-29",
         "score": -0.5032,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.32,
+        "headline_count": 5
       }
     ],
     "PAYX": [
@@ -52291,6 +53675,123 @@
         "date": "2026-09-29",
         "score": -0.0926,
         "headline_count": 5
+      },
+      {
+        "date": "2026-09-30",
+        "score": 0.0676,
+        "headline_count": 5
+      }
+    ],
+    "VRTX": [
+      {
+        "date": "2026-09-30",
+        "score": -0.0166,
+        "headline_count": 5
+      }
+    ],
+    "LVS": [
+      {
+        "date": "2026-09-30",
+        "score": 0.0205,
+        "headline_count": 1
+      }
+    ],
+    "UDR": [
+      {
+        "date": "2026-09-30",
+        "score": 0.3332,
+        "headline_count": 3
+      }
+    ],
+    "FOX": [
+      {
+        "date": "2026-09-30",
+        "score": -0.269,
+        "headline_count": 3
+      }
+    ],
+    "JCI": [
+      {
+        "date": "2026-09-30",
+        "score": 0.5852,
+        "headline_count": 4
+      }
+    ],
+    "HBAN": [
+      {
+        "date": "2026-09-30",
+        "score": 0.6933,
+        "headline_count": 2
+      }
+    ],
+    "WMB": [
+      {
+        "date": "2026-09-30",
+        "score": 0.0411,
+        "headline_count": 3
+      }
+    ],
+    "HIG": [
+      {
+        "date": "2026-09-30",
+        "score": -0.0614,
+        "headline_count": 1
+      }
+    ],
+    "WY": [
+      {
+        "date": "2026-09-30",
+        "score": 0.4294,
+        "headline_count": 2
+      }
+    ],
+    "SRE": [
+      {
+        "date": "2026-09-30",
+        "score": 0.4888,
+        "headline_count": 3
+      }
+    ],
+    "WM": [
+      {
+        "date": "2026-09-30",
+        "score": 0.1048,
+        "headline_count": 5
+      }
+    ],
+    "TEL": [
+      {
+        "date": "2026-09-30",
+        "score": 0.3513,
+        "headline_count": 3
+      }
+    ],
+    "TXT": [
+      {
+        "date": "2026-09-30",
+        "score": 0.2408,
+        "headline_count": 4
+      }
+    ],
+    "KVUE": [
+      {
+        "date": "2026-09-30",
+        "score": 0.2809,
+        "headline_count": 4
+      }
+    ],
+    "ICE": [
+      {
+        "date": "2026-09-30",
+        "score": 0.3701,
+        "headline_count": 5
+      }
+    ],
+    "IQV": [
+      {
+        "date": "2026-09-30",
+        "score": 0.3948,
+        "headline_count": 4
       }
     ]
   },
@@ -65989,6 +67490,1737 @@
           "veto": false
         }
       }
+    },
+    {
+      "ticker": "PLTR",
+      "entry_date": "2026-09-30",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 188.48,
+        "target_price": 215.46,
+        "hit_rate": 0.6772,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0427,
+        "sigma_source": "measured",
+        "alpha": 0.00366
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.442,
+        "z_score": 0.512,
+        "sigma_30d": 0.0278,
+        "price_move_48h": 0.0142,
+        "price_move_48h_signed": -0.0142,
+        "z_score_2d_scaled": 0.362,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6614
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6772,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7133,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Technology / Software",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "NONE",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.98,
+          "mechanism": "1. MECHANISMUS: Fracht- und Schifffahrts-Primitive k\u00f6nnten theoretisch auf US-Konjunktur und damit indirekt auf Enterprise-Software-Nachfrage (PLTR) wirken, indem sie zyklische Wirtschaftsaktivit\u00e4t signalisieren. 2. EXPOSURE: PLTR hat KEINE Exposure in den relevanten Kan\u00e4len (road_freight_relevance=NONE, maritime_relevance=NONE, weather_relevance=NONE). Der Ticker ist im Sektor-Exposures verankert (Software/Defense/AI), nicht in Logistik- oder Transportketten. 3. KATALYSATOR-BEZUG: Der Q3 2026 Earnings-Katalysator bezieht sich auf kommerzielle AI-Bookings und US-Software-Wachstum, nicht auf Fracht- oder Maritim-Zykliken. Die aktuellen Fracht-Kontraktionen (US STRONG_CONTRACTION, global STRONG_CONTRACTION) sind f\u00fcr PLTR nicht expositions-relevant.",
+          "relevant_sources": [],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "MRVL",
+      "entry_date": "2026-09-30",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 262.38,
+        "target_price": 315.8,
+        "hit_rate": 0.5242,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0607,
+        "sigma_source": "measured",
+        "alpha": 0.00035
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.424,
+        "z_score": 0.115,
+        "sigma_30d": 0.0441,
+        "price_move_48h": 0.0051,
+        "price_move_48h_signed": 0.0051,
+        "z_score_2d_scaled": 0.081,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5258
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.5242,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5442,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": -0.9645830702137421
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Semiconductors",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.92,
+          "mechanism": "MECHANISMUS: Maritime und Stra\u00dfenfrachtstr\u00f6me k\u00f6nnten Marvell's HPC-Kundenbasis (Cloud-Infrastruktur, Datencentren) durch Lieferketten-Volatilit\u00e4t oder Nachfrage-Signale beeinflussen. EXPOSURE: Marvell hat MEDIUM maritime_relevance, aber LOW road_freight_relevance. Die exponierten Kan\u00e4le sind Schifffahrts- und begrenzt Stra\u00dfentransport. KATALYSATOR-BEZUG: Der Katalysator ist Q3 FY2027-Earnings (Dezember 2026, 2-3 Monate), fokussiert auf Custom-ASIC-Revenue und HPC-Margin-Guidance. Externe Primitive sind aktuelle Frachtindikatoren (Dezember 2024), die bis Dezember 2026 nicht direkt prognosewertig sind und keine direkten HPC-Demand- oder Supply-Chain-Signale liefern.",
+          "relevant_sources": [
+            "maritime_relevance",
+            "industry_shipping_z",
+            "global_maritime_state",
+            "shipping_global_z",
+            "asia_freight_state",
+            "global_freight_state"
+          ],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-09-30",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 1167.27,
+        "target_price": 1260.65,
+        "hit_rate": 0.7358,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0216,
+        "sigma_source": "measured",
+        "alpha": 0.00284
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.699,
+        "z_score": 0.06,
+        "sigma_30d": 0.0164,
+        "price_move_48h": 0.001,
+        "price_move_48h_signed": 0.001,
+        "z_score_2d_scaled": 0.043,
+        "eps_drift": 0.0003,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6394
+      },
+      "sector": "Healthcare",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 4,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.7358,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Healthcare",
+          "level": "sector",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "LOW",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.95,
+          "mechanism": "1. MECHANISMUS: Fracht- und Schifffahrtsprimitives k\u00f6nnten LLYs Lieferkette f\u00fcr pharmazeutische Rohstoffe und Fertigprodukte beeinflussen (Transportkosten, Lieferzuverl\u00e4ssigkeit). 2. EXPOSURE: LLY hat road_freight_relevance=LOW und maritime_relevance=NONE \u2014 das Unternehmen ist in diesen Kan\u00e4len nicht signifikant exponiert. Pharmazeutische Supply-Chains sind zwar vorhanden, aber nicht prim\u00e4r durch Massengutfrachten oder allgemeine Schifffahrtszust\u00e4nde bestimmt. 3. KATALYSATOR-BEZUG: Der Katalysator ist klinische Studiendaten f\u00fcr ein Obesity-Drug mit Q4 2026 Guidance-Revision. Fracht-/Schifffahrtsdaten (z.B. global_freight_state=STRONG_CONTRACTION, us_freight_z=-2.6) haben keinen direkten Zeithorizont- oder Inhaltsbezug zu pharmazeutischen Studienergebnissen oder Partnerdeals.",
+          "relevant_sources": [],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-09-30",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 186.24,
+        "target_price": 214.2,
+        "hit_rate": 0.6362,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0448,
+        "sigma_source": "measured",
+        "alpha": 0.00264
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 2.519,
+        "z_score": 0.496,
+        "sigma_30d": 0.0526,
+        "price_move_48h": 0.0261,
+        "price_move_48h_signed": -0.0261,
+        "z_score_2d_scaled": 0.351,
+        "eps_drift": 0.0103,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6278
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 4,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6362,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6659,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "P&C Insurance",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "LOW",
+          "weather_relevance": "HIGH",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "exception:JSONDecodeError"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "IRM",
+      "entry_date": "2026-09-30",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 110.94,
+        "target_price": 119.81,
+        "hit_rate": 0.651,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0206,
+        "sigma_source": "measured",
+        "alpha": 0.00174
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 4.693,
+        "z_score": 0.061,
+        "sigma_30d": 0.0175,
+        "price_move_48h": 0.0011,
+        "price_move_48h_signed": 0.0011,
+        "z_score_2d_scaled": 0.043,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5538
+      },
+      "sector": "Real Estate",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.651,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7255,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": null,
+          "level": "unknown",
+          "road_freight_relevance": null,
+          "maritime_relevance": null,
+          "weather_relevance": null,
+          "exposure_source": "unknown",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.98,
+          "mechanism": "1. MECHANISMUS: IRM (Iron Mountain) ist ein Datacenter- und Infrastruktur-REIT mit Exposure gegen\u00fcber globalen Energiepreisen (via Stromkosten f\u00fcr Datencenter-Betrieb). Externe Primitive zu Fracht/Schifffahrt/Wetter k\u00f6nnten Energienachfrage und -preise signalisieren. 2. EXPOSURE: ticker_exposure zeigt road_freight_relevance=None, maritime_relevance=None, weather_relevance=None. IRM hat KEINE dokumentierte Exposure in diesen Kan\u00e4len. Damit ist jede Relation zu Fracht-/Schifffahrts-/Wetter-Primitiven strukturell NEUTRAL. 3. KATALYSATOR-BEZUG: Der Catalyst (Q3 2026 Earnings mit Guidance-Erh\u00f6hung auf Basis 300MW Datacenter Pipeline & ALM-Wachstum) ist fundamental auf Kapazit\u00e4tsausbau und Kundenakquisition fokussiert, nicht auf externe Schiffs-/Fracht-/Wetter-Makrodynamiken.",
+          "relevant_sources": [],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "CAT",
+      "entry_date": "2026-09-30",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 816.75,
+        "target_price": 890.19,
+        "hit_rate": 0.6772,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0268,
+        "sigma_source": "measured",
+        "alpha": 0.0023
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 2.229,
+        "z_score": 0.354,
+        "sigma_30d": 0.0174,
+        "price_move_48h": 0.0062,
+        "price_move_48h_signed": 0.0062,
+        "z_score_2d_scaled": 0.25,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6366
+      },
+      "sector": "Industrials",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6772,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7271,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": -0.9645830702137421
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Machinery",
+          "level": "industry",
+          "road_freight_relevance": "MEDIUM",
+          "maritime_relevance": "LOW",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "CONTRADICT",
+          "materiality": "MEDIUM",
+          "confidence": 0.72,
+          "mechanism": "1. MECHANISMUS: CAT's Bauausr\u00fcstungs- und Motorenverk\u00e4ufe werden durch Road-Freight-Aktivit\u00e4t (Lkw-Nachfrage, Auslastung) und allgemeine Konjunktur-Signals (Frachtkontraktionen, Logistik-Breadth) beeinflusst. Starke Frachtkontraktionen signalisieren schw\u00e4chere Nachfrage nach Equipment und Ersatzteilen. 2. EXPOSURE: CAT hat MEDIUM-Relevanz in road_freight (primary), aber auch implizite Exposure \u00fcber globale Frachtkontraktionen, da Bauausr\u00fcstung und Motorenauslastung konjunktur-zyklisch sind. Freight-Primitive sind daher direkt relevant. 3. KATALYSATOR-BEZUG: Der Q3-Earnings-Catalyst (2-3 Monate) soll auf NC-Plant-Kapazit\u00e4t, CAPEX und Dealer-Inventory hindeuten. Die gegenw\u00e4rtigen Primitive zeigen global STRONG_CONTRACTION (global_freight_state), US STRONG_CONTRACTION (freight_us_z: -2.60), Asia CONTRACTION (asia_freight_state), mit niedriger Confidence (0.22 global). Dealer-Inventory-Normalisierung wird durch schwache Frachtsignale in Frage gestellt.",
+          "relevant_sources": [
+            "global_freight_state",
+            "us_freight_tsi_z",
+            "freight_us_z",
+            "asia_freight_state",
+            "freight_global_z",
+            "road_shipping_agreement",
+            "global_freight_confidence",
+            "de_truck_z_1y"
+          ],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "PLTR",
+      "entry_date": "2026-09-30",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 29.4,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 190.0,
+        "bid": 28.7,
+        "ask": 29.4,
+        "open_interest": 2859,
+        "implied_vol": 0.5484,
+        "spread_ratio": 0.0238,
+        "dte": 169,
+        "delta": 0.5884,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 188.48,
+        "target_price": 215.46,
+        "hit_rate": 0.6772,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0427,
+        "sigma_source": "measured",
+        "alpha": 0.00366
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.442,
+        "z_score": 0.512,
+        "sigma_30d": 0.0278,
+        "price_move_48h": 0.0142,
+        "price_move_48h_signed": -0.0142,
+        "z_score_2d_scaled": 0.362,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6614
+      },
+      "roi_net": 0.2822,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.2122,
+      "vix": 15.81,
+      "mc_hit_rate": 0.6614,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Technology / Software",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "NONE",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.98,
+          "mechanism": "1. MECHANISMUS: Fracht- und Schifffahrts-Primitive k\u00f6nnten theoretisch auf US-Konjunktur und damit indirekt auf Enterprise-Software-Nachfrage (PLTR) wirken, indem sie zyklische Wirtschaftsaktivit\u00e4t signalisieren. 2. EXPOSURE: PLTR hat KEINE Exposure in den relevanten Kan\u00e4len (road_freight_relevance=NONE, maritime_relevance=NONE, weather_relevance=NONE). Der Ticker ist im Sektor-Exposures verankert (Software/Defense/AI), nicht in Logistik- oder Transportketten. 3. KATALYSATOR-BEZUG: Der Q3 2026 Earnings-Katalysator bezieht sich auf kommerzielle AI-Bookings und US-Software-Wachstum, nicht auf Fracht- oder Maritim-Zykliken. Die aktuellen Fracht-Kontraktionen (US STRONG_CONTRACTION, global STRONG_CONTRACTION) sind f\u00fcr PLTR nicht expositions-relevant.",
+          "relevant_sources": [],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "MRVL",
+      "entry_date": "2026-09-30",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 47.5,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 270.0,
+        "bid": 46.55,
+        "ask": 47.5,
+        "open_interest": 2873,
+        "implied_vol": 0.6584,
+        "spread_ratio": 0.02,
+        "dte": 169,
+        "delta": 0.5857,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 262.38,
+        "target_price": 315.8,
+        "hit_rate": 0.5242,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0607,
+        "sigma_source": "measured",
+        "alpha": 0.00035
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.424,
+        "z_score": 0.115,
+        "sigma_30d": 0.0441,
+        "price_move_48h": 0.0051,
+        "price_move_48h_signed": 0.0051,
+        "z_score_2d_scaled": 0.081,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5258
+      },
+      "roi_net": 0.2772,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.2072,
+      "vix": 15.81,
+      "mc_hit_rate": 0.5258,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": -0.9645830702137421
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Semiconductors",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.92,
+          "mechanism": "MECHANISMUS: Maritime und Stra\u00dfenfrachtstr\u00f6me k\u00f6nnten Marvell's HPC-Kundenbasis (Cloud-Infrastruktur, Datencentren) durch Lieferketten-Volatilit\u00e4t oder Nachfrage-Signale beeinflussen. EXPOSURE: Marvell hat MEDIUM maritime_relevance, aber LOW road_freight_relevance. Die exponierten Kan\u00e4le sind Schifffahrts- und begrenzt Stra\u00dfentransport. KATALYSATOR-BEZUG: Der Katalysator ist Q3 FY2027-Earnings (Dezember 2026, 2-3 Monate), fokussiert auf Custom-ASIC-Revenue und HPC-Margin-Guidance. Externe Primitive sind aktuelle Frachtindikatoren (Dezember 2024), die bis Dezember 2026 nicht direkt prognosewertig sind und keine direkten HPC-Demand- oder Supply-Chain-Signale liefern.",
+          "relevant_sources": [
+            "maritime_relevance",
+            "industry_shipping_z",
+            "global_maritime_state",
+            "shipping_global_z",
+            "asia_freight_state",
+            "global_freight_state"
+          ],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-09-30",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 38.85,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 180.0,
+        "bid": 36.5,
+        "ask": 38.85,
+        "open_interest": 2618,
+        "implied_vol": 0.6456,
+        "spread_ratio": 0.0605,
+        "dte": 169,
+        "delta": 0.6404,
+        "data_source": "tradier",
+        "spread_leg": {
+          "strike": 200.0,
+          "bid": 29.0,
+          "ask": 30.6
+        },
+        "net_debit": 9.85
+      },
+      "simulation": {
+        "current_price": 186.24,
+        "target_price": 214.2,
+        "hit_rate": 0.6362,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0448,
+        "sigma_source": "measured",
+        "alpha": 0.00264
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 2.519,
+        "z_score": 0.496,
+        "sigma_30d": 0.0526,
+        "price_move_48h": 0.0261,
+        "price_move_48h_signed": -0.0261,
+        "z_score_2d_scaled": 0.351,
+        "eps_drift": 0.0103,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6278
+      },
+      "roi_net": 0.6642,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.5942,
+      "vix": 15.81,
+      "mc_hit_rate": 0.6278,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "P&C Insurance",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "LOW",
+          "weather_relevance": "HIGH",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "exception:JSONDecodeError"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "LLY",
+      "entry_date": "2026-09-30",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 136.2,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 1160.0,
+        "bid": 124.95,
+        "ask": 136.2,
+        "open_interest": 158,
+        "implied_vol": 0.3754,
+        "spread_ratio": 0.0826,
+        "dte": 169,
+        "delta": 0.5946,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 1167.27,
+        "target_price": 1260.65,
+        "hit_rate": 0.7358,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0216,
+        "sigma_source": "measured",
+        "alpha": 0.00284
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.699,
+        "z_score": 0.06,
+        "sigma_30d": 0.0164,
+        "price_move_48h": 0.001,
+        "price_move_48h_signed": 0.001,
+        "z_score_2d_scaled": 0.043,
+        "eps_drift": 0.0003,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6394
+      },
+      "roi_net": 0.0731,
+      "roi_hurdle": 0.07,
+      "roi_gap": 0.0031,
+      "vix": 15.81,
+      "mc_hit_rate": 0.6394,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "6ea6140aa67297fb",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-09-30T12:43:04+00:00",
+        "primitives": {
+          "freight_global_z": -0.8593665498960744,
+          "freight_us_z": -2.6040129784507187,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.017479970866715263,
+          "us_freight_tsi_z": -2.6040129784507187,
+          "shipping_global_z": 0.30385386065398823,
+          "shipping_container_z": 0.6894660191550944,
+          "shipping_drybulk_z": -0.4694801867859404,
+          "shipping_tanker_z": 0.3309751932662976,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": -0.34976558208291475,
+          "panama_z": 0.9233805168766382,
+          "hormuz_z": -1.365775297534484,
+          "malacca_z": -1.3771156607782402,
+          "bab_el_mandeb_z": 0.1894863619804037,
+          "asia_export_z": -0.5032640402329999,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.555,
+          "fed_assets_13w_chg": 0.0017903259450282594,
+          "usd_63d_chg": -0.004604315118466373,
+          "wti_63d_chg": 0.2920128651835967,
+          "de_power_price_7d": 153.97805714285712,
+          "de_power_price_z": 1.393483014961661,
+          "de_load_yoy": -0.02234614676445712,
+          "hdd_anomaly": -2.8491886829173354,
+          "cdd_anomaly": 1.530778357543564,
+          "forecast_revision_hdd": -0.4437062832714491,
+          "forecast_revision_cdd": 0.4437062832714491,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.1454,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.2187
+        },
+        "ticker_exposure": {
+          "industry": "Healthcare",
+          "level": "sector",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "LOW",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1632204105500628,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.95,
+          "mechanism": "1. MECHANISMUS: Fracht- und Schifffahrtsprimitives k\u00f6nnten LLYs Lieferkette f\u00fcr pharmazeutische Rohstoffe und Fertigprodukte beeinflussen (Transportkosten, Lieferzuverl\u00e4ssigkeit). 2. EXPOSURE: LLY hat road_freight_relevance=LOW und maritime_relevance=NONE \u2014 das Unternehmen ist in diesen Kan\u00e4len nicht signifikant exponiert. Pharmazeutische Supply-Chains sind zwar vorhanden, aber nicht prim\u00e4r durch Massengutfrachten oder allgemeine Schifffahrtszust\u00e4nde bestimmt. 3. KATALYSATOR-BEZUG: Der Katalysator ist klinische Studiendaten f\u00fcr ein Obesity-Drug mit Q4 2026 Guidance-Revision. Fracht-/Schifffahrtsdaten (z.B. global_freight_state=STRONG_CONTRACTION, us_freight_z=-2.6) haben keinen direkten Zeithorizont- oder Inhaltsbezug zu pharmazeutischen Studienergebnissen oder Partnerdeals.",
+          "relevant_sources": [],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
     }
   ],
   "trailing_sim": [
@@ -66223,38 +69455,43 @@
       "entry_date": "2026-09-21",
       "created": "2026-09-28",
       "mfe": 0.0,
-      "mae": -0.449,
+      "mae": -0.5918,
       "closed": false,
       "variants": {
         "tp50_sl45": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.5918,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-30",
+          "close_reason": "stop_loss"
         },
         "no_tp": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.5918,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-30",
+          "close_reason": "stop_loss"
         },
         "trail35": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.5918,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-30",
+          "close_reason": "stop_loss"
         },
         "trail50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.5918,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-30",
+          "close_reason": "stop_loss"
         },
         "partial50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.5918,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-09-30",
+          "close_reason": "stop_loss"
         },
         "time_only": {
           "outcome": null,
@@ -66361,7 +69598,7 @@
       "entry_date": "2026-09-24",
       "created": "2026-09-28",
       "mfe": 0.0,
-      "mae": -0.1973,
+      "mae": -0.2449,
       "closed": false,
       "variants": {
         "tp50_sl45": {
