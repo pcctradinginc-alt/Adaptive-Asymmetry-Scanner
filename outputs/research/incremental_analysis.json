@@ -1,20 +1,21 @@
 {
-  "generated_at": "2026-09-27T20:28:01+00:00",
+  "generated_at": "2026-10-01T14:18:38+00:00",
   "label": "EXPLORATORY ONLY — keine Produktions- oder Promotionsaussage",
   "closed_trades_pit_safe": {
     "sample": {
-      "n_trades": 117,
-      "n_independent_dates": 34,
+      "n_trades": 119,
+      "n_independent_dates": 36,
       "calendar_span": [
         "2026-04-11",
-        "2026-08-28"
+        "2026-09-21"
       ],
-      "n_months": 4,
+      "n_months": 5,
       "n_sectors": null,
-      "n_regimes": 2,
+      "n_regimes": 3,
       "regimes": {
         "CONTRACTION": 74,
-        "STRONG_EXPANSION": 43
+        "STRONG_EXPANSION": 43,
+        "STRONG_CONTRACTION": 2
       },
       "regime_x_month": {
         "CONTRACTION": {
@@ -24,71 +25,74 @@
         "STRONG_EXPANSION": {
           "2026-05": 40,
           "2026-07": 3
+        },
+        "STRONG_CONTRACTION": {
+          "2026-09": 2
         }
       }
     },
     "us_freight_filter": {
       "base": {
-        "n": 117,
-        "mean": 0.0954,
-        "median": -0.4184,
-        "win_rate": 0.333,
-        "large_loss_rate": 0.291
+        "n": 119,
+        "mean": 0.1023,
+        "median": -0.367,
+        "win_rate": 0.345,
+        "large_loss_rate": 0.269
       },
       "with_filter": {
         "n": 52,
-        "mean": -0.112,
-        "median": -0.5188,
-        "win_rate": 0.231,
-        "large_loss_rate": 0.269
+        "mean": -0.0671,
+        "median": -0.4302,
+        "win_rate": 0.269,
+        "large_loss_rate": 0.231
       },
-      "n_removed": 65,
-      "removed_dates": 17,
-      "avoided_losers": 38,
+      "n_removed": 67,
+      "removed_dates": 19,
+      "avoided_losers": 40,
       "lost_winners": 27,
       "lost_big_winners": 15,
-      "net_removed_return": 16.9923,
-      "expected_return_per_signal_base": 0.0954,
-      "expected_return_per_signal_filter": -0.0498,
-      "delta_mean": -0.2074,
-      "delta_median": -0.1004,
-      "delta_large_loss_rate": -0.022,
-      "delta_expected_per_signal": -0.1452,
+      "net_removed_return": 15.6624,
+      "expected_return_per_signal_base": 0.1023,
+      "expected_return_per_signal_filter": -0.0293,
+      "delta_mean": -0.1694,
+      "delta_median": -0.0632,
+      "delta_large_loss_rate": -0.038,
+      "delta_expected_per_signal": -0.1316,
       "cluster_ci_delta_expected_per_signal": [
-        -0.3605,
-        0.1079
+        -0.3493,
+        0.112
       ]
     },
     "orthogonality_us_freight_z": {
       "impact": {
-        "per_trade": -0.275,
-        "per_date": -0.283,
-        "n_dates": 34
+        "per_trade": -0.217,
+        "per_date": -0.093,
+        "n_dates": 36
       },
       "surprise": {
-        "per_trade": -0.209,
-        "per_date": -0.183,
-        "n_dates": 34
+        "per_trade": -0.161,
+        "per_date": -0.013,
+        "n_dates": 36
       },
       "mismatch": {
-        "per_trade": -0.493,
-        "per_date": -0.601,
-        "n_dates": 34
+        "per_trade": -0.461,
+        "per_date": -0.458,
+        "n_dates": 36
       },
       "z_score": {
-        "per_trade": 0.436,
-        "per_date": 0.576,
-        "n_dates": 34
+        "per_trade": 0.428,
+        "per_date": 0.523,
+        "n_dates": 36
       },
       "eps_drift": {
-        "per_trade": 0.118,
-        "per_date": 0.132,
-        "n_dates": 34
+        "per_trade": 0.12,
+        "per_date": 0.145,
+        "n_dates": 36
       },
       "sigma_30d": {
-        "per_trade": 0.122,
-        "per_date": 0.084,
-        "n_dates": 34
+        "per_trade": 0.13,
+        "per_date": 0.154,
+        "n_dates": 36
       }
     },
     "not_pit_safe_families": [

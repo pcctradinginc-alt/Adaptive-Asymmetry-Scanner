@@ -1,27 +1,45 @@
 {
-  "generated": "2026-09-29",
-  "n_events": 337,
+  "generated": "2026-10-01",
+  "n_events": 1038,
   "sources": {
-    "closed_trades": 117,
+    "closed_trades": 119,
     "shadow_trades": 67,
-    "ledger": 153
+    "ledger": 852
   },
   "outcomes": {
+    "gross_1d": {
+      "n": 128,
+      "n_eff_dates": 1,
+      "features": {},
+      "redundant_pairs": [],
+      "walk_forward": {
+        "folds": []
+      },
+      "summary": {
+        "high_value": [],
+        "dead": [],
+        "unstable": [],
+        "decaying": [],
+        "regime_dependent": [],
+        "potential_leakage": [],
+        "data_drift": []
+      }
+    },
     "net": {
-      "n": 184,
-      "n_eff_dates": 52,
+      "n": 186,
+      "n_eff_dates": 54,
       "features": {
         "eps_drift": {
           "feature": "eps_drift",
           "outcome": "net",
-          "n": 184,
-          "n_eff_dates": 52,
+          "n": 186,
+          "n_eff_dates": 54,
           "coverage": 1.0,
-          "ic": -0.0641,
-          "rank_ic": -0.1143,
+          "ic": -0.0667,
+          "rank_ic": -0.0762,
           "rank_ic_ci90": [
-            -0.3362,
-            0.1197
+            -0.2974,
+            0.1528
           ],
           "monthly_rank_ic": [
             [
@@ -30,7 +48,7 @@
             ],
             [
               "2026-05",
-              -0.0078
+              0.1265
             ],
             [
               "2026-07",
@@ -41,63 +59,155 @@
               0.0275
             ]
           ],
-          "ewma_rank_ic": -0.1317,
-          "ic_ir": -0.7486,
-          "sign_consistency": 0.75,
-          "recent_3m_rank_ic": -0.1375,
+          "ewma_rank_ic": -0.1028,
+          "ic_ir": -0.482,
+          "sign_consistency": 0.5,
+          "recent_3m_rank_ic": -0.0928,
           "prior_rank_ic": -0.1293,
-          "tercile_spread": -0.5925,
+          "tercile_spread": -0.5551,
           "top_tercile": {
-            "n": 61,
-            "hit_rate": 0.1967,
-            "mean": -0.2666,
-            "median": -0.2665,
-            "sharpe_per_trade": -0.4255,
-            "sortino_per_trade": -0.5167,
-            "profit_factor": 0.2825,
-            "max_drawdown_10pct_sizing": -0.8491
+            "n": 62,
+            "hit_rate": 0.2097,
+            "mean": -0.2046,
+            "median": -0.2323,
+            "sharpe_per_trade": -0.2894,
+            "sortino_per_trade": -0.4142,
+            "profit_factor": 0.4231,
+            "max_drawdown_10pct_sizing": -0.7828
           },
           "all": {
-            "n": 184,
-            "hit_rate": 0.3152,
-            "mean": -0.0174,
-            "median": -0.1993,
-            "sharpe_per_trade": -0.0157,
-            "sortino_per_trade": -0.032,
-            "profit_factor": 0.9537,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 186,
+            "hit_rate": 0.3226,
+            "mean": -0.0118,
+            "median": -0.1963,
+            "sharpe_per_trade": -0.0111,
+            "sortino_per_trade": -0.022,
+            "profit_factor": 0.968,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": -0.0264
+            },
+            "credit=credit_tight": {
+              "n": 24,
+              "n_eff_dates": 3,
+              "rank_ic": null
+            },
+            "curve=normal": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0762
+            },
+            "cycle=expansion": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0762
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": -0.0103
+            },
+            "dollar=dollar_up": {
+              "n": 137,
+              "n_eff_dates": 42,
+              "rank_ic": -0.1226
+            },
+            "fin_conditions=loose": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0762
+            },
+            "inflation=high_inflation": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0762
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": 0.5798
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 181,
+              "n_eff_dates": 50,
+              "rank_ic": -0.0786
+            },
+            "liquidity=expanding": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0762
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": -0.2947
+            },
+            "oil=oil_up": {
+              "n": 116,
+              "n_eff_dates": 31,
+              "rank_ic": 0.0023
+            },
+            "power=power_cheap": {
+              "n": 72,
+              "n_eff_dates": 17,
+              "rank_ic": -0.0559
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": -0.0926
+            },
+            "rates=high_rates": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0762
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": -0.0475
+            },
+            "trend=sideways": {
+              "n": 51,
+              "n_eff_dates": 10,
+              "rank_ic": -0.1197
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.235
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.2027
             }
           },
           "regime_dependent": false,
-          "tags": [],
+          "tags": [
+            "unstable"
+          ],
           "psi_drift_30d": null
         },
         "impact": {
           "feature": "impact",
           "outcome": "net",
-          "n": 184,
-          "n_eff_dates": 52,
+          "n": 186,
+          "n_eff_dates": 54,
           "coverage": 1.0,
-          "ic": 0.0589,
-          "rank_ic": -0.0967,
+          "ic": 0.0521,
+          "rank_ic": -0.078,
           "rank_ic_ci90": [
-            -0.3203,
-            0.1371
+            -0.2991,
+            0.151
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              -0.1595
+              -0.1424
             ],
             [
               "2026-05",
-              0.0855
+              0.0603
             ],
             [
               "2026-07",
@@ -108,37 +218,127 @@
               -0.2111
             ]
           ],
-          "ewma_rank_ic": -0.0911,
-          "ic_ir": -0.7015,
+          "ewma_rank_ic": -0.0936,
+          "ic_ir": -0.7999,
           "sign_consistency": 0.75,
-          "recent_3m_rank_ic": -0.0542,
-          "prior_rank_ic": -0.1595,
-          "tercile_spread": 0.1949,
+          "recent_3m_rank_ic": -0.0626,
+          "prior_rank_ic": -0.1424,
+          "tercile_spread": 0.229,
           "top_tercile": {
-            "n": 61,
-            "hit_rate": 0.3443,
-            "mean": 0.1789,
-            "median": -0.367,
-            "sharpe_per_trade": 0.1145,
-            "sortino_per_trade": 0.2848,
-            "profit_factor": 1.3972,
+            "n": 62,
+            "hit_rate": 0.3871,
+            "mean": 0.2095,
+            "median": -0.2218,
+            "sharpe_per_trade": 0.1444,
+            "sortino_per_trade": 0.3458,
+            "profit_factor": 1.501,
             "max_drawdown_10pct_sizing": -0.5635
           },
           "all": {
-            "n": 184,
-            "hit_rate": 0.3152,
-            "mean": -0.0174,
-            "median": -0.1993,
-            "sharpe_per_trade": -0.0157,
-            "sortino_per_trade": -0.032,
-            "profit_factor": 0.9537,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 186,
+            "hit_rate": 0.3226,
+            "mean": -0.0118,
+            "median": -0.1963,
+            "sharpe_per_trade": -0.0111,
+            "sortino_per_trade": -0.022,
+            "profit_factor": 0.968,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": -0.0848
+            },
+            "credit=credit_tight": {
+              "n": 24,
+              "n_eff_dates": 3,
+              "rank_ic": -0.095
+            },
+            "curve=normal": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.078
+            },
+            "cycle=expansion": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.078
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": -0.0399
+            },
+            "dollar=dollar_up": {
+              "n": 137,
+              "n_eff_dates": 42,
+              "rank_ic": -0.1515
+            },
+            "fin_conditions=loose": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.078
+            },
+            "inflation=high_inflation": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.078
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": 0.2887
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 181,
+              "n_eff_dates": 50,
+              "rank_ic": -0.0929
+            },
+            "liquidity=expanding": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.078
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": -0.0642
+            },
+            "oil=oil_up": {
+              "n": 116,
+              "n_eff_dates": 31,
+              "rank_ic": -0.0367
+            },
+            "power=power_cheap": {
+              "n": 72,
+              "n_eff_dates": 17,
+              "rank_ic": -0.0496
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": -0.0806
+            },
+            "rates=high_rates": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.078
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": -0.0932
+            },
+            "trend=sideways": {
+              "n": 51,
+              "n_eff_dates": 10,
+              "rank_ic": -0.1623
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.0807
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.0411
             }
           },
           "regime_dependent": false,
@@ -152,74 +352,157 @@
           "outcome": "net",
           "n": 59,
           "n_eff_dates": 26,
-          "coverage": 0.3207,
-          "ic": 0.1004,
-          "rank_ic": 0.1418,
+          "coverage": 0.3172,
+          "ic": 0.0897,
+          "rank_ic": 0.1035,
           "rank_ic_ci90": [
-            -0.1976,
-            0.4508
+            -0.2347,
+            0.4193
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              0.1817
+              0.1903
             ],
             [
               "2026-05",
-              -0.0113
+              -0.0877
             ]
           ],
-          "ewma_rank_ic": 0.0741,
+          "ewma_rank_ic": 0.0353,
           "ic_ir": null,
           "sign_consistency": 0.5,
           "recent_3m_rank_ic": null,
           "prior_rank_ic": null,
-          "tercile_spread": 0.3359,
+          "tercile_spread": 0.2647,
           "top_tercile": {
             "n": 19,
-            "hit_rate": 0.3684,
-            "mean": 0.2907,
-            "median": -0.4184,
-            "sharpe_per_trade": 0.1904,
-            "sortino_per_trade": 0.486,
-            "profit_factor": 1.6656,
-            "max_drawdown_10pct_sizing": -0.3439
+            "hit_rate": 0.3158,
+            "mean": 0.2195,
+            "median": -0.5263,
+            "sharpe_per_trade": 0.1427,
+            "sortino_per_trade": 0.3553,
+            "profit_factor": 1.4648,
+            "max_drawdown_10pct_sizing": -0.427
           },
           "all": {
             "n": 59,
             "hit_rate": 0.339,
-            "mean": 0.1466,
+            "mean": 0.1227,
             "median": -0.5609,
-            "sharpe_per_trade": 0.0968,
-            "sortino_per_trade": 0.2231,
-            "profit_factor": 1.2956,
-            "max_drawdown_10pct_sizing": -0.6233
+            "sharpe_per_trade": 0.087,
+            "sortino_per_trade": 0.1888,
+            "profit_factor": 1.2503,
+            "max_drawdown_10pct_sizing": -0.4937
           },
-          "regimes": {},
+          "regimes": {
+            "credit=credit_loose": {
+              "n": 53,
+              "n_eff_dates": 24,
+              "rank_ic": 0.0176
+            },
+            "credit=credit_tight": {
+              "n": 6,
+              "n_eff_dates": 2,
+              "rank_ic": 0.1309
+            },
+            "curve=normal": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "cycle=expansion": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "dollar=dollar_down": {
+              "n": 25,
+              "n_eff_dates": 9,
+              "rank_ic": 0.1306
+            },
+            "dollar=dollar_up": {
+              "n": 34,
+              "n_eff_dates": 17,
+              "rank_ic": -0.0167
+            },
+            "fin_conditions=loose": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "inflation=high_inflation": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "liquidity=expanding": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "oil=oil_up": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "power=power_cheap": {
+              "n": 28,
+              "n_eff_dates": 12,
+              "rank_ic": 0.0818
+            },
+            "power=power_expensive": {
+              "n": 31,
+              "n_eff_dates": 14,
+              "rank_ic": 0.111
+            },
+            "rates=high_rates": {
+              "n": 59,
+              "n_eff_dates": 26,
+              "rank_ic": 0.1035
+            },
+            "trend=bull": {
+              "n": 35,
+              "n_eff_dates": 18,
+              "rank_ic": -0.1377
+            },
+            "trend=sideways": {
+              "n": 24,
+              "n_eff_dates": 8,
+              "rank_ic": 0.3495
+            }
+          },
           "regime_dependent": false,
-          "tags": [],
+          "tags": [
+            "decaying"
+          ],
           "psi_drift_30d": null
         },
         "mismatch": {
           "feature": "mismatch",
           "outcome": "net",
-          "n": 184,
-          "n_eff_dates": 52,
+          "n": 186,
+          "n_eff_dates": 54,
           "coverage": 1.0,
-          "ic": 0.0484,
-          "rank_ic": -0.1071,
+          "ic": 0.0458,
+          "rank_ic": -0.0874,
           "rank_ic_ci90": [
-            -0.3298,
-            0.1268
+            -0.3077,
+            0.1418
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              -0.1698
+              -0.11
             ],
             [
               "2026-05",
-              -0.465
+              -0.3851
             ],
             [
               "2026-07",
@@ -230,37 +513,127 @@
               -0.6514
             ]
           ],
-          "ewma_rank_ic": -0.3504,
-          "ic_ir": -1.2563,
+          "ewma_rank_ic": -0.323,
+          "ic_ir": -1.1194,
           "sign_consistency": 0.75,
-          "recent_3m_rank_ic": -0.3702,
-          "prior_rank_ic": -0.1698,
-          "tercile_spread": 0.2251,
+          "recent_3m_rank_ic": -0.3435,
+          "prior_rank_ic": -0.11,
+          "tercile_spread": 0.2061,
           "top_tercile": {
-            "n": 61,
-            "hit_rate": 0.3607,
-            "mean": 0.1736,
-            "median": -0.4184,
-            "sharpe_per_trade": 0.1139,
-            "sortino_per_trade": 0.275,
-            "profit_factor": 1.3859,
-            "max_drawdown_10pct_sizing": -0.51
+            "n": 62,
+            "hit_rate": 0.4032,
+            "mean": 0.1935,
+            "median": -0.2179,
+            "sharpe_per_trade": 0.1379,
+            "sortino_per_trade": 0.3177,
+            "profit_factor": 1.4634,
+            "max_drawdown_10pct_sizing": -0.3661
           },
           "all": {
-            "n": 184,
-            "hit_rate": 0.3152,
-            "mean": -0.0174,
-            "median": -0.1993,
-            "sharpe_per_trade": -0.0157,
-            "sortino_per_trade": -0.032,
-            "profit_factor": 0.9537,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 186,
+            "hit_rate": 0.3226,
+            "mean": -0.0118,
+            "median": -0.1963,
+            "sharpe_per_trade": -0.0111,
+            "sortino_per_trade": -0.022,
+            "profit_factor": 0.968,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": -0.109
+            },
+            "credit=credit_tight": {
+              "n": 24,
+              "n_eff_dates": 3,
+              "rank_ic": 0.0623
+            },
+            "curve=normal": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0874
+            },
+            "cycle=expansion": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0874
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": -0.0392
+            },
+            "dollar=dollar_up": {
+              "n": 137,
+              "n_eff_dates": 42,
+              "rank_ic": -0.1434
+            },
+            "fin_conditions=loose": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0874
+            },
+            "inflation=high_inflation": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0874
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": 0.5643
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 181,
+              "n_eff_dates": 50,
+              "rank_ic": -0.0891
+            },
+            "liquidity=expanding": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0874
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": -0.0644
+            },
+            "oil=oil_up": {
+              "n": 116,
+              "n_eff_dates": 31,
+              "rank_ic": -0.0911
+            },
+            "power=power_cheap": {
+              "n": 72,
+              "n_eff_dates": 17,
+              "rank_ic": -0.145
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": -0.0402
+            },
+            "rates=high_rates": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.0874
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": -0.1305
+            },
+            "trend=sideways": {
+              "n": 51,
+              "n_eff_dates": 10,
+              "rank_ic": -0.1858
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.0584
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.0399
             }
           },
           "regime_dependent": false,
@@ -270,23 +643,23 @@
         "price_move_48h": {
           "feature": "price_move_48h",
           "outcome": "net",
-          "n": 121,
-          "n_eff_dates": 41,
-          "coverage": 0.6576,
-          "ic": 0.1049,
-          "rank_ic": 0.007,
+          "n": 123,
+          "n_eff_dates": 43,
+          "coverage": 0.6613,
+          "ic": 0.1612,
+          "rank_ic": 0.0374,
           "rank_ic_ci90": [
-            -0.2542,
-            0.2672
+            -0.2191,
+            0.289
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              -0.8959
+              -0.5423
             ],
             [
               "2026-05",
-              0.4428
+              0.3485
             ],
             [
               "2026-07",
@@ -297,37 +670,112 @@
               0.211
             ]
           ],
-          "ewma_rank_ic": -0.0185,
-          "ic_ir": -0.1794,
+          "ewma_rank_ic": 0.0216,
+          "ic_ir": -0.0756,
           "sign_consistency": 0.5,
-          "recent_3m_rank_ic": 0.1776,
-          "prior_rank_ic": -0.8959,
-          "tercile_spread": 0.1122,
+          "recent_3m_rank_ic": 0.1461,
+          "prior_rank_ic": -0.5423,
+          "tercile_spread": 0.2338,
           "top_tercile": {
-            "n": 40,
-            "hit_rate": 0.35,
-            "mean": 0.0021,
-            "median": -0.0984,
-            "sharpe_per_trade": 0.0024,
-            "sortino_per_trade": 0.0046,
-            "profit_factor": 1.0071,
+            "n": 41,
+            "hit_rate": 0.3415,
+            "mean": -0.0027,
+            "median": -0.102,
+            "sharpe_per_trade": -0.003,
+            "sortino_per_trade": -0.0059,
+            "profit_factor": 0.991,
             "max_drawdown_10pct_sizing": -0.5173
           },
           "all": {
-            "n": 121,
-            "hit_rate": 0.2645,
-            "mean": -0.178,
-            "median": -0.1945,
-            "sharpe_per_trade": -0.2175,
-            "sortino_per_trade": -0.3443,
-            "profit_factor": 0.5055,
-            "max_drawdown_10pct_sizing": -0.954
+            "n": 123,
+            "hit_rate": 0.2602,
+            "mean": -0.1989,
+            "median": -0.198,
+            "sharpe_per_trade": -0.2801,
+            "sortino_per_trade": -0.3859,
+            "profit_factor": 0.4509,
+            "max_drawdown_10pct_sizing": -0.9461
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "curve=normal": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "cycle=expansion": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "dollar=dollar_up": {
+              "n": 120,
+              "n_eff_dates": 40,
+              "rank_ic": 0.0327
+            },
+            "fin_conditions=loose": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "inflation=high_inflation": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": -0.5643
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 118,
+              "n_eff_dates": 39,
+              "rank_ic": 0.0274
+            },
+            "liquidity=expanding": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": -0.072
+            },
+            "oil=oil_up": {
+              "n": 53,
+              "n_eff_dates": 20,
+              "rank_ic": 0.2301
+            },
+            "power=power_cheap": {
+              "n": 32,
+              "n_eff_dates": 11,
+              "rank_ic": 0.0998
+            },
+            "power=power_expensive": {
+              "n": 91,
+              "n_eff_dates": 32,
+              "rank_ic": 0.0061
+            },
+            "rates=high_rates": {
+              "n": 123,
+              "n_eff_dates": 43,
+              "rank_ic": 0.0374
+            },
+            "trend=bull": {
+              "n": 120,
+              "n_eff_dates": 41,
+              "rank_ic": 0.052
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.0696
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.0646
             }
           },
           "regime_dependent": false,
@@ -340,23 +788,23 @@
         "quick_mc_hit_rate": {
           "feature": "quick_mc_hit_rate",
           "outcome": "net",
-          "n": 169,
-          "n_eff_dates": 50,
-          "coverage": 0.9185,
-          "ic": 0.2869,
-          "rank_ic": 0.0691,
+          "n": 171,
+          "n_eff_dates": 52,
+          "coverage": 0.9194,
+          "ic": 0.2394,
+          "rank_ic": 0.0111,
           "rank_ic_ci90": [
-            -0.1691,
-            0.2997
+            -0.2202,
+            0.2413
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              0.2648
+              0.2353
             ],
             [
               "2026-05",
-              0.124
+              -0.0812
             ],
             [
               "2026-07",
@@ -367,41 +815,132 @@
               -0.6422
             ]
           ],
-          "ewma_rank_ic": -0.1275,
-          "ic_ir": -0.1272,
-          "sign_consistency": 0.75,
-          "recent_3m_rank_ic": -0.148,
-          "prior_rank_ic": 0.2648,
-          "tercile_spread": 0.5009,
+          "ewma_rank_ic": -0.1767,
+          "ic_ir": -0.3129,
+          "sign_consistency": 0.5,
+          "recent_3m_rank_ic": -0.2164,
+          "prior_rank_ic": 0.2353,
+          "tercile_spread": 0.304,
           "top_tercile": {
-            "n": 56,
-            "hit_rate": 0.375,
-            "mean": 0.2223,
-            "median": -0.1341,
-            "sharpe_per_trade": 0.146,
-            "sortino_per_trade": 0.3813,
-            "profit_factor": 1.5604,
-            "max_drawdown_10pct_sizing": -0.6902
+            "n": 57,
+            "hit_rate": 0.3684,
+            "mean": 0.1193,
+            "median": -0.1631,
+            "sharpe_per_trade": 0.0865,
+            "sortino_per_trade": 0.2,
+            "profit_factor": 1.2904,
+            "max_drawdown_10pct_sizing": -0.7031
           },
           "all": {
-            "n": 169,
-            "hit_rate": 0.2899,
-            "mean": -0.0754,
-            "median": -0.2353,
-            "sharpe_per_trade": -0.0698,
-            "sortino_per_trade": -0.1354,
-            "profit_factor": 0.8072,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 171,
+            "hit_rate": 0.2982,
+            "mean": -0.0687,
+            "median": -0.2005,
+            "sharpe_per_trade": -0.0666,
+            "sortino_per_trade": -0.1251,
+            "profit_factor": 0.8209,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": -0.0381
+            },
+            "credit=credit_tight": {
+              "n": 9,
+              "n_eff_dates": 1,
+              "rank_ic": null
+            },
+            "curve=normal": {
+              "n": 171,
+              "n_eff_dates": 52,
+              "rank_ic": 0.0111
+            },
+            "cycle=expansion": {
+              "n": 171,
+              "n_eff_dates": 52,
+              "rank_ic": 0.0111
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": 0.2485
+            },
+            "dollar=dollar_up": {
+              "n": 122,
+              "n_eff_dates": 40,
+              "rank_ic": -0.1069
+            },
+            "fin_conditions=loose": {
+              "n": 171,
+              "n_eff_dates": 52,
+              "rank_ic": 0.0111
+            },
+            "inflation=high_inflation": {
+              "n": 171,
+              "n_eff_dates": 52,
+              "rank_ic": 0.0111
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": -0.4617
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 166,
+              "n_eff_dates": 48,
+              "rank_ic": 0.0197
+            },
+            "liquidity=expanding": {
+              "n": 171,
+              "n_eff_dates": 52,
+              "rank_ic": 0.0111
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": -0.0807
+            },
+            "oil=oil_up": {
+              "n": 101,
+              "n_eff_dates": 29,
+              "rank_ic": 0.0822
+            },
+            "power=power_cheap": {
+              "n": 57,
+              "n_eff_dates": 15,
+              "rank_ic": -0.0304
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": 0.0262
+            },
+            "rates=high_rates": {
+              "n": 171,
+              "n_eff_dates": 52,
+              "rank_ic": 0.0111
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": -0.0901
+            },
+            "trend=sideways": {
+              "n": 36,
+              "n_eff_dates": 8,
+              "rank_ic": 0.242
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.1028
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.1196
             }
           },
           "regime_dependent": false,
           "tags": [
+            "unstable",
             "decaying"
           ],
           "psi_drift_30d": null
@@ -409,23 +948,23 @@
         "sigma_30d": {
           "feature": "sigma_30d",
           "outcome": "net",
-          "n": 184,
-          "n_eff_dates": 52,
+          "n": 186,
+          "n_eff_dates": 54,
           "coverage": 1.0,
-          "ic": 0.0161,
-          "rank_ic": 0.006,
+          "ic": 0.0129,
+          "rank_ic": 0.0182,
           "rank_ic_ci90": [
-            -0.2251,
-            0.2364
+            -0.209,
+            0.2436
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              0.0676
+              0.0468
             ],
             [
               "2026-05",
-              0.001
+              0.1301
             ],
             [
               "2026-07",
@@ -436,66 +975,155 @@
               -0.0367
             ]
           ],
-          "ewma_rank_ic": -0.085,
-          "ic_ir": -0.4837,
+          "ewma_rank_ic": -0.0608,
+          "ic_ir": -0.257,
           "sign_consistency": 0.5,
-          "recent_3m_rank_ic": -0.1153,
-          "prior_rank_ic": 0.0676,
-          "tercile_spread": 0.3597,
+          "recent_3m_rank_ic": -0.0723,
+          "prior_rank_ic": 0.0468,
+          "tercile_spread": 0.3215,
           "top_tercile": {
-            "n": 61,
-            "hit_rate": 0.377,
-            "mean": 0.3043,
-            "median": -0.0948,
-            "sharpe_per_trade": 0.2044,
-            "sortino_per_trade": 0.6144,
-            "profit_factor": 1.9488,
+            "n": 62,
+            "hit_rate": 0.371,
+            "mean": 0.2574,
+            "median": -0.1011,
+            "sharpe_per_trade": 0.1859,
+            "sortino_per_trade": 0.5162,
+            "profit_factor": 1.7885,
             "max_drawdown_10pct_sizing": -0.6563
           },
           "all": {
-            "n": 184,
-            "hit_rate": 0.3152,
-            "mean": -0.0174,
-            "median": -0.1993,
-            "sharpe_per_trade": -0.0157,
-            "sortino_per_trade": -0.032,
-            "profit_factor": 0.9537,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 186,
+            "hit_rate": 0.3226,
+            "mean": -0.0118,
+            "median": -0.1963,
+            "sharpe_per_trade": -0.0111,
+            "sortino_per_trade": -0.022,
+            "profit_factor": 0.968,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": 0.053
+            },
+            "credit=credit_tight": {
+              "n": 24,
+              "n_eff_dates": 3,
+              "rank_ic": 0.0048
+            },
+            "curve=normal": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0182
+            },
+            "cycle=expansion": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0182
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": 0.1614
+            },
+            "dollar=dollar_up": {
+              "n": 137,
+              "n_eff_dates": 42,
+              "rank_ic": -0.0637
+            },
+            "fin_conditions=loose": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0182
+            },
+            "inflation=high_inflation": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0182
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": 0.0513
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 181,
+              "n_eff_dates": 50,
+              "rank_ic": 0.014
+            },
+            "liquidity=expanding": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0182
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": -0.2813
+            },
+            "oil=oil_up": {
+              "n": 116,
+              "n_eff_dates": 31,
+              "rank_ic": 0.0807
+            },
+            "power=power_cheap": {
+              "n": 72,
+              "n_eff_dates": 17,
+              "rank_ic": 0.0168
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": 0.0852
+            },
+            "rates=high_rates": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0182
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": 0.0046
+            },
+            "trend=sideways": {
+              "n": 51,
+              "n_eff_dates": 10,
+              "rank_ic": 0.0807
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.2203
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.1958
             }
           },
           "regime_dependent": false,
           "tags": [
-            "unstable",
-            "decaying"
+            "unstable"
           ],
           "psi_drift_30d": null
         },
         "surprise": {
           "feature": "surprise",
           "outcome": "net",
-          "n": 184,
-          "n_eff_dates": 52,
+          "n": 186,
+          "n_eff_dates": 54,
           "coverage": 1.0,
-          "ic": 0.0027,
-          "rank_ic": -0.1342,
+          "ic": 0.0124,
+          "rank_ic": -0.1012,
           "rank_ic_ci90": [
-            -0.354,
-            0.0997
+            -0.3202,
+            0.1281
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              -0.2028
+              -0.2252
             ],
             [
               "2026-05",
-              -0.0767
+              0.0938
             ],
             [
               "2026-07",
@@ -506,41 +1134,132 @@
               -0.143
             ]
           ],
-          "ewma_rank_ic": -0.0731,
-          "ic_ir": -0.7131,
-          "sign_consistency": 0.75,
-          "recent_3m_rank_ic": -0.0401,
-          "prior_rank_ic": -0.2028,
-          "tercile_spread": -0.0752,
+          "ewma_rank_ic": -0.0402,
+          "ic_ir": -0.305,
+          "sign_consistency": 0.5,
+          "recent_3m_rank_ic": 0.0168,
+          "prior_rank_ic": -0.2252,
+          "tercile_spread": 0.0247,
           "top_tercile": {
-            "n": 61,
-            "hit_rate": 0.3115,
-            "mean": 0.0377,
-            "median": -0.503,
-            "sharpe_per_trade": 0.0261,
-            "sortino_per_trade": 0.0576,
-            "profit_factor": 1.0769,
-            "max_drawdown_10pct_sizing": -0.6414
+            "n": 62,
+            "hit_rate": 0.3548,
+            "mean": 0.095,
+            "median": -0.4933,
+            "sharpe_per_trade": 0.0707,
+            "sortino_per_trade": 0.1517,
+            "profit_factor": 1.2098,
+            "max_drawdown_10pct_sizing": -0.5933
           },
           "all": {
-            "n": 184,
-            "hit_rate": 0.3152,
-            "mean": -0.0174,
-            "median": -0.1993,
-            "sharpe_per_trade": -0.0157,
-            "sortino_per_trade": -0.032,
-            "profit_factor": 0.9537,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 186,
+            "hit_rate": 0.3226,
+            "mean": -0.0118,
+            "median": -0.1963,
+            "sharpe_per_trade": -0.0111,
+            "sortino_per_trade": -0.022,
+            "profit_factor": 0.968,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": -0.0687
+            },
+            "credit=credit_tight": {
+              "n": 24,
+              "n_eff_dates": 3,
+              "rank_ic": -0.3371
+            },
+            "curve=normal": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.1012
+            },
+            "cycle=expansion": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.1012
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": -0.1042
+            },
+            "dollar=dollar_up": {
+              "n": 137,
+              "n_eff_dates": 42,
+              "rank_ic": -0.1469
+            },
+            "fin_conditions=loose": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.1012
+            },
+            "inflation=high_inflation": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.1012
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": 0.2887
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 181,
+              "n_eff_dates": 50,
+              "rank_ic": -0.1132
+            },
+            "liquidity=expanding": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.1012
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": 0.0743
+            },
+            "oil=oil_up": {
+              "n": 116,
+              "n_eff_dates": 31,
+              "rank_ic": -0.0945
+            },
+            "power=power_cheap": {
+              "n": 72,
+              "n_eff_dates": 17,
+              "rank_ic": -0.1061
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": -0.0576
+            },
+            "rates=high_rates": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": -0.1012
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": -0.069
+            },
+            "trend=sideways": {
+              "n": 51,
+              "n_eff_dates": 10,
+              "rank_ic": -0.2509
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": 0.0733
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": 0.0926
             }
           },
           "regime_dependent": false,
           "tags": [
+            "unstable",
             "decaying"
           ],
           "psi_drift_30d": null
@@ -548,23 +1267,23 @@
         "z_score": {
           "feature": "z_score",
           "outcome": "net",
-          "n": 184,
-          "n_eff_dates": 52,
+          "n": 186,
+          "n_eff_dates": 54,
           "coverage": 1.0,
-          "ic": -0.0246,
-          "rank_ic": 0.0778,
+          "ic": -0.025,
+          "rank_ic": 0.0546,
           "rank_ic_ci90": [
-            -0.1558,
-            0.3031
+            -0.1739,
+            0.2775
           ],
           "monthly_rank_ic": [
             [
               "2026-04",
-              0.1361
+              0.0539
             ],
             [
               "2026-05",
-              0.4773
+              0.3328
             ],
             [
               "2026-07",
@@ -575,37 +1294,127 @@
               0.3395
             ]
           ],
-          "ewma_rank_ic": 0.2303,
-          "ic_ir": 1.1476,
+          "ewma_rank_ic": 0.1852,
+          "ic_ir": 1.0088,
           "sign_consistency": 0.75,
-          "recent_3m_rank_ic": 0.2577,
-          "prior_rank_ic": 0.1361,
-          "tercile_spread": -0.0273,
+          "recent_3m_rank_ic": 0.2095,
+          "prior_rank_ic": 0.0539,
+          "tercile_spread": -0.1142,
           "top_tercile": {
-            "n": 61,
-            "hit_rate": 0.377,
-            "mean": 0.0413,
-            "median": -0.1051,
-            "sharpe_per_trade": 0.043,
-            "sortino_per_trade": 0.0869,
-            "profit_factor": 1.1292,
-            "max_drawdown_10pct_sizing": -0.3693
+            "n": 62,
+            "hit_rate": 0.371,
+            "mean": 0.0287,
+            "median": -0.1498,
+            "sharpe_per_trade": 0.03,
+            "sortino_per_trade": 0.0598,
+            "profit_factor": 1.088,
+            "max_drawdown_10pct_sizing": -0.4158
           },
           "all": {
-            "n": 184,
-            "hit_rate": 0.3152,
-            "mean": -0.0174,
-            "median": -0.1993,
-            "sharpe_per_trade": -0.0157,
-            "sortino_per_trade": -0.032,
-            "profit_factor": 0.9537,
-            "max_drawdown_10pct_sizing": -0.9557
+            "n": 186,
+            "hit_rate": 0.3226,
+            "mean": -0.0118,
+            "median": -0.1963,
+            "sharpe_per_trade": -0.0111,
+            "sortino_per_trade": -0.022,
+            "profit_factor": 0.968,
+            "max_drawdown_10pct_sizing": -0.9483
           },
           "regimes": {
+            "credit=credit_loose": {
+              "n": 162,
+              "n_eff_dates": 51,
+              "rank_ic": 0.0546
+            },
+            "credit=credit_tight": {
+              "n": 24,
+              "n_eff_dates": 3,
+              "rank_ic": -0.162
+            },
+            "curve=normal": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0546
+            },
+            "cycle=expansion": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0546
+            },
+            "dollar=dollar_down": {
+              "n": 49,
+              "n_eff_dates": 12,
+              "rank_ic": -0.0745
+            },
+            "dollar=dollar_up": {
+              "n": 137,
+              "n_eff_dates": 42,
+              "rank_ic": 0.0797
+            },
+            "fin_conditions=loose": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0546
+            },
+            "inflation=high_inflation": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0546
+            },
+            "inflation_trend=disinflation": {
+              "n": 5,
+              "n_eff_dates": 4,
+              "rank_ic": -0.5643
+            },
+            "inflation_trend=inflation_rising": {
+              "n": 181,
+              "n_eff_dates": 50,
+              "rank_ic": 0.0518
+            },
+            "liquidity=expanding": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0546
+            },
+            "oil=oil_down": {
+              "n": 70,
+              "n_eff_dates": 23,
+              "rank_ic": 0.0026
+            },
+            "oil=oil_up": {
+              "n": 116,
+              "n_eff_dates": 31,
+              "rank_ic": 0.0687
+            },
+            "power=power_cheap": {
+              "n": 72,
+              "n_eff_dates": 17,
+              "rank_ic": 0.1371
+            },
+            "power=power_expensive": {
+              "n": 114,
+              "n_eff_dates": 37,
+              "rank_ic": -0.0408
+            },
+            "rates=high_rates": {
+              "n": 186,
+              "n_eff_dates": 54,
+              "rank_ic": 0.0546
+            },
+            "trend=bull": {
+              "n": 135,
+              "n_eff_dates": 44,
+              "rank_ic": 0.0598
+            },
+            "trend=sideways": {
+              "n": 51,
+              "n_eff_dates": 10,
+              "rank_ic": 0.1369
+            },
             "vix=low_vol": {
-              "n": 73,
-              "n_eff_dates": 24,
-              "rank_ic": -0.0046
+              "n": 75,
+              "n_eff_dates": 26,
+              "rank_ic": -0.0078
             }
           },
           "regime_dependent": false,
@@ -617,20 +1426,20 @@
         {
           "a": "mismatch",
           "b": "price_move_48h",
-          "rho": -0.8157,
-          "n": 121
+          "rho": -0.8129,
+          "n": 123
         },
         {
           "a": "mismatch",
           "b": "z_score",
-          "rho": -0.9222,
-          "n": 184
+          "rho": -0.9211,
+          "n": 186
         },
         {
           "a": "price_move_48h",
           "b": "z_score",
-          "rho": 0.9298,
-          "n": 121
+          "rho": 0.9304,
+          "n": 123
         }
       ],
       "walk_forward": {
@@ -683,14 +1492,17 @@
         "high_value": [],
         "dead": [],
         "unstable": [
-          "price_move_48h",
-          "sigma_30d"
-        ],
-        "decaying": [
-          "impact",
+          "eps_drift",
           "price_move_48h",
           "quick_mc_hit_rate",
           "sigma_30d",
+          "surprise"
+        ],
+        "decaying": [
+          "impact",
+          "iv_rank",
+          "price_move_48h",
+          "quick_mc_hit_rate",
           "surprise"
         ],
         "regime_dependent": [],
@@ -701,14 +1513,65 @@
   },
   "note": "SHADOW: keine Produktionswirkung. Gewichte nur Forschung.",
   "regime_coverage": {
-    "vix=low_vol": 76
+    "vix=low_vol": 78,
+    "trend=bull": 46,
+    "rates=high_rates": 57,
+    "curve=normal": 57,
+    "cycle=expansion": 57,
+    "inflation=high_inflation": 57,
+    "inflation_trend=inflation_rising": 50,
+    "credit=credit_loose": 54,
+    "fin_conditions=loose": 57,
+    "liquidity=expanding": 57,
+    "dollar=dollar_up": 42,
+    "oil=oil_up": 34,
+    "power=power_expensive": 40,
+    "power=power_cheap": 17,
+    "oil=oil_down": 23,
+    "inflation_trend=disinflation": 7,
+    "trend=sideways": 11,
+    "dollar=dollar_down": 15,
+    "demand=load_down": 1,
+    "credit=credit_tight": 3
   },
-  "regimes_missing": [
-    "inflation (keine PIT-Inflationsreihe im Archiv)",
-    "credit_spreads",
-    "dollar",
-    "oil",
-    "liquidity"
-  ],
-  "cost_check": []
+  "regimes_missing": [],
+  "cost_check": [],
+  "llm_value_add": {
+    "h5": {
+      "n": 0,
+      "n_dates": 0,
+      "llm_mean": null,
+      "baseline_mean": null,
+      "llm_hit": null,
+      "baseline_hit": null,
+      "direction_agreement": null,
+      "mean_diff_per_date": null,
+      "t_dates": null,
+      "verdict": "insufficient_data"
+    },
+    "h20": {
+      "n": 0,
+      "n_dates": 0,
+      "llm_mean": null,
+      "baseline_mean": null,
+      "llm_hit": null,
+      "baseline_hit": null,
+      "direction_agreement": null,
+      "mean_diff_per_date": null,
+      "t_dates": null,
+      "verdict": "insufficient_data"
+    },
+    "h45": {
+      "n": 0,
+      "n_dates": 0,
+      "llm_mean": null,
+      "baseline_mean": null,
+      "llm_hit": null,
+      "baseline_hit": null,
+      "direction_agreement": null,
+      "mean_diff_per_date": null,
+      "t_dates": null,
+      "verdict": "insufficient_data"
+    }
+  }
 }
