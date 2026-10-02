@@ -44,3 +44,24 @@ Status-Vokabular:
 verworfenen wird nicht getestet (`blocked_similar_to_rejected`). Ist das Signal
 rangähnlich (|ρ| ≥ 0,9), wird sie als Duplikat erkannt. Das verhindert, dass
 eine widerlegte Idee leicht verändert immer wieder getestet wird.
+
+## Erster geschlossener Kreislauf (CI 37021907362, 2026-10-02)
+Der Director hat aus den Blind-Spot-Clustern 5 Hypothesen entworfen. Das Lab
+hat alle verworfen. Die Prüfung war:
+- automatisch;
+- Walk-Forward;
+- regime-getrennt;
+- BH-korrigiert über alle Tests.
+
+| ID | Signal (Segment meiden) | Ergebnis |
+|---|---|---|
+| RD-5f792ced | extreme 5T-Bewegung × Nähe 52W-Hoch | REJECTED (netto −0,19 %, t = −1,85) |
+| RD-de4cb989 | Lotterie-Profil (max. Tagesrendite 21T) | REJECTED (netto −0,30 %, t = −3,11) |
+| RD-9af21f36 | Cluster-Segment | REJECTED (netto −0,23 %, t = −2,25) |
+| RD-38d323d8 | – | gesperrt: Jaccard 0,64 zu RD-5f792ced |
+| RD-d0093d4e | – | gesperrt: Jaccard 0,65 zu RD-9af21f36 |
+
+**Erkenntnis:** Diese Segmente liefern zwar die größten Einzelfehler, als
+Gruppe aber **überdurchschnittliche** Renditen. Ein Ausschluss kostet Alpha;
+es ist ein Varianz-, kein Erwartungswertproblem. Das bestätigt das REJECT des
+Blind-Spot-Filters. Die Ähnlichkeitssperre hat 2 Varianten-Tests verhindert.

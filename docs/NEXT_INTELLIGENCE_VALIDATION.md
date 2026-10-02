@@ -102,3 +102,23 @@ der OOS-Basis; 2019–2020 ist durch die Abstinenz-Bestätigung abgedeckt.
 - **Konsequenz für „wann nichts tun“:** In ruhigen Aufwärtsmärkten (VIX < 20
   und SPY über SMA200) hat das Ranking historisch keinen nutzbaren Vorsprung.
   Das System soll dort schweigen.
+
+## Reproduktion (Nachlauf CI 37021907362, 2026-10-02)
+Neu trainiert mit einer weiteren Woche Daten.
+
+| Variante | Sharpe | MaxDD | Hit | HC-Hit (n) |
+|---|---|---|---|---|
+| A | 0,262 | −17,9 % | 47,6 % | 46,4 % (356) |
+| G | 0,706 | −12,4 % | 51,2 % | 62,4 % (340) |
+
+- Die Abstinenz ist erneut bestätigt: 2019–2020 aktiv +3,02 % gegen inaktiv
+  +0,34 %, t = 3,27. G gegen A: Monats-Δ +0,48 % (CI [−0,26 %, +1,29 %]).
+- Gate und Entscheidung sind unverändert: **KEEP_CHAMPION**, Abstinenz
+  **NEED MORE DATA**.
+- **Decision Intelligence kippt auf MODIFY:** Sharpe 0,264 → 0,242 bei
+  besserem ES und MaxDD. Der Vorteil war also nicht robust. Die Auswahl bleibt
+  nur eine Risiko-Information im HC-Scanner (Portfolio-Nutzen), ohne
+  Ranking-Einfluss.
+- Das Basismodell B zeigt diesmal eine höhere Sharpe (0,468), aber nur 22
+  HC-Fälle. Ein Wechsel ist daraus nicht ableitbar; die Frage bleibt in der
+  Champion/Challenger-Registry.
