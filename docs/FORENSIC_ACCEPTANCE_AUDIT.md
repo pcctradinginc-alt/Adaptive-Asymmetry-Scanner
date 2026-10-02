@@ -514,7 +514,59 @@ SIEHE_REPRO
 
 ## 21. Testqualität
 
-TESTQUAL
+**Gesamtlauf mit Coverage** (lokal, `e5de692`): **1103 bestanden, 1
+übersprungen**, 0 fehlgeschlagen. Line-Coverage `modules/` + `reports/`: **73 %**
+(19 172 Statements). `pipeline.py`, `feedback.py` und `scripts/` wurden nicht
+gemessen.
+
+**Übersprungen und xfail:**
+- `test_external_storage.py:356` wird übersprungen (boto3 fehlt).
+- `test_trade_memory.py:276` ist `skipif` ohne echte `history.json`; lief hier.
+- Vor dem Audit gab es kein xfail. Jetzt 7 xfail(strict) in
+  `test_forensic_audit.py`, alle mit Audit-ID.
+- **Triviale Asserts** (`assert True` u.ä.): keine gefunden.
+- **Flaky:** nicht beobachtet; drei Gesamtläufe heute identisch grün.
+
+**Niedrigste Abdeckung:** Das ist ausgerechnet der **Produktionspfad**
+der täglichen Mail.
+
+| Modul | Coverage | Rolle |
+|---|---|---|
+| news_fetcher, reddit_signals | 0 % | Dead Code |
+| rl_robust_shadow | 0 % | Produktion (Shadow) |
+| premium_signals | 13 % | Produktion |
+| macro_context | 15 % | Produktion |
+| universe | 18 % | Produktion und Research |
+| email_reporter | 20 % | tägliche Mail |
+| intraday_delta | 22 % | Produktion |
+| options_designer | 30 % | Produktion: Trade-Konstruktion |
+| reporter | 30 % | Produktion |
+| risk_gates | 34 % | Produktion: Risiko-Gates |
+| prescreener | 40 % | Produktion (LLM) |
+| mirofish_simulation | 40 % | Produktion (MC) |
+
+**Research-Stack:**
+- 64–98 %: hc_scanner 64 %, world_model 65 %, meta_cognition 69 %,
+  ml_research 69 %, next_intelligence 70 %, meta_learning 90 %,
+  blind_spots 98 %, weekly 95 %.
+
+**Bedeutung der Tests:**
+- Nahezu alle ML-Tests laufen auf **synthetischen** Panels. Sie belegen Logik,
+  nicht OOS-Wert.
+- Echte Daten fließen nur in CI-Läufen, und die prüfen nichts (keine
+  Assertions).
+- 41 Testdateien nutzen `monkeypatch` oder Mocks; für Netz-I/O ist das
+  sinnvoll.
+- Mindestens 10 Testdateien enthalten keinen einzigen negativen Fall
+  (z.B. `test_bs_pricing`, `test_market_snapshot`,
+  `test_options_designer_spread_legs`).
+
+**Test, der eine fehlerhafte Aussage festschreibt:**
+`test_meta_cognition.py::test_machine_state_only_metric_statements` verlangt
+`overall_calibration == "GOOD"`, obwohl seine eigene Eingabe einen
+überkonfidenten Bucket enthält (F09).
+
+**Tests, die nie in CI laufen:** **alle** (F04).
 
 ## 22. CI / Automation
 
