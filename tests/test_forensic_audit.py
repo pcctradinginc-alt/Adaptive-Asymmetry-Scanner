@@ -430,3 +430,13 @@ def test_P25_meta_evaluate_is_deterministic_on_same_panel():
         rc._flatten(name, ap.get("metrics"), flat_b)
     assert flat_a and rc.compare(flat_a, flat_b, 1e-12) == []
     assert a["panel_hash"] == b["panel_hash"] and a["decision"]["verdict"] == b["decision"]["verdict"]
+
+
+def test_A5_changes_table_selected_by_columns_not_html_id():
+    """Regression CI 2026-10-02: Auswahl der Änderungstabelle ohne HTML-id."""
+    from modules import universe as u
+    constituents = pd.DataFrame({"Symbol": ["AAA"], "Security": ["A Corp"]})
+    ch = u.select_changes_table([constituents, _changes_table()])
+    assert len(ch) == 3 and ch[-1]["added"] == "CCC"
+    with pytest.raises(ValueError):
+        u.select_changes_table([constituents])

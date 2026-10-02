@@ -301,8 +301,24 @@ def _fetch_sp500_changes() -> list[dict]:
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     resp = requests.get(url, headers=_WP_HEADERS, timeout=20)
     resp.raise_for_status()
-    tables = pd.read_html(StringIO(resp.text), attrs={"id": "changes"})
-    return parse_sp500_changes(tables[0])
+    return select_changes_table(pd.read_html(StringIO(resp.text), flavor="lxml"))
+
+
+def select_changes_table(tables) -> list[dict]:
+    """Die Änderungstabelle über ihre Spalten finden (Datum + Added/Removed-Ticker),
+    nicht über eine HTML-id (CI 2026-10-02: id-Suche schlug fehl -> html5lib-Fallback
+    -> ImportError). Nimmt die Tabelle mit den meisten parsebaren Änderungen."""
+    best: list[dict] = []
+    for t in tables:
+        try:
+            ch = parse_sp500_changes(t)
+        except (ValueError, KeyError):
+            continue
+        if len(ch) > len(best):
+            best = ch
+    if not best:
+        raise ValueError("keine S&P-500-Änderungstabelle auf der Seite gefunden")
+    return best
 
 
 @lru_cache(maxsize=1)
