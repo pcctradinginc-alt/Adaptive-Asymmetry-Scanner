@@ -1,12 +1,12 @@
-# Hypothesen-Datenbank – 2026-10-02T14:56:55+00:00
+# Hypothesen-Datenbank – 2026-10-02T19:05:08+00:00
 
-Getestet (mit p-Wert): 10 · Mehrfachtest: Benjamini-Hochberg über alle · Discovery: 117 Relationen im Fenster 2015-01-01..2019-01-01, 0 überlebt
+Getestet (mit p-Wert): 11 · Mehrfachtest: Benjamini-Hochberg über alle · Discovery: 117 Relationen im Fenster 2015-01-01..2019-01-01, 0 überlebt
 
-Status: {'ACCEPTED': 1, 'REJECTED': 15, 'INCONCLUSIVE': 2, 'RETEST_LATER': 2}
+Status: {'ACCEPTED': 1, 'REJECTED': 19, 'INCONCLUSIVE': 2, 'RETEST_LATER': 2}
 
 | ID | Titel | Quelle | Status | Kanon | netto (WF) | t | p | Regime | Gründe |
 |---|---|---|---|---|---|---|---|---|---|
-| HYP-0101 | Kurzfrist-Umkehr (1 Monat) | literature | not_significant_after_fdr | INCONCLUSIVE | 0.0051 | 2.13 | 0.016586 | {'vix_lt_20': 'works', 'vix_ge_20': 'works', 'spy_uptrend': 'works', 'spy_downtrend': 'works'} | p=0.016586 nicht signifikant nach BH (q=0.1, n=10) |
+| HYP-0101 | Kurzfrist-Umkehr (1 Monat) | literature | not_significant_after_fdr | INCONCLUSIVE | 0.0051 | 2.13 | 0.016586 | {'vix_lt_20': 'works', 'vix_ge_20': 'works', 'spy_uptrend': 'works', 'spy_downtrend': 'works'} | p=0.016586 nicht signifikant nach BH (q=0.1, n=11) |
 | HYP-0102 | Niedrig-Volatilitäts-Anomalie | literature | rejected | REJECTED | -0.00668 | -2.0 | 0.97725 | {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'} | Walk-Forward netto -0.00668 mit t=-2.0; nur 0.0 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.0065, 'second': -0.00686}; |
 | HYP-0103 | Lotterie-Effekt (MAX) | literature | rejected | REJECTED | -0.00659 | -2.42 | 0.99224 | {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'} | Walk-Forward netto -0.00659 mit t=-2.42; nur 0.143 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.00372, 'second': -0.009 |
 | HYP-0104 | Nähe zum 52-Wochen-Hoch | literature | rejected | REJECTED | -0.00764 | -2.85 | 0.997814 | {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'} | Walk-Forward netto -0.00764 mit t=-2.85; nur 0.0 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.00697, 'second': -0.0083} |
@@ -21,8 +21,12 @@ Status: {'ACCEPTED': 1, 'REJECTED': 15, 'INCONCLUSIVE': 2, 'RETEST_LATER': 2}
 | PRIOR-ES-H3 | Positive relative Stärke verstärkt die Event-Drift | prior_study | prior_result | REJECTED | None | None | None |  | -0,16 % netto (t -1,1) -> abgelehnt |
 | PRIOR-ES-H4 | Hohes relatives Volumen verstärkt die Drift | prior_study | prior_result | REJECTED | None | None | None |  | -0,39 % netto (t -2,3) -> abgelehnt |
 | PRIOR-LLM-VALUE | LLM-Richtung schlägt naive Preis-Baseline | prospective | prior_result | INCONCLUSIVE | None | None | None |  | läuft prospektiv (factor_monitor.llm_value_add), Urteil frühestens Mitte November 2026 |
+| RD-034c5e10 | Kurzfrist-Umkehr (1 Monat) – nur bei SPY unter SMA200 | director | rejected | REJECTED | 0.00029 | 0.18 | 0.428576 | {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'} | Walk-Forward netto 0.00029 mit t=0.18; nur 0.429 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.0017, 'second': 0.00226}; |
+| RD-0a08304b | Segment meiden: {'liquidity': 'liquid', 'trend': 'uptrend'} | director | blocked_similar_to_rejected | REJECTED | None | None | None |  | zu ähnlich zu verworfener Hypothese RD-9af21f36 (Jaccard 0.65) |
 | RD-38d323d8 | Segment meiden: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} | director | blocked_similar_to_rejected | REJECTED | None | None | None |  | zu ähnlich zu verworfener Hypothese RD-5f792ced (Jaccard 0.64) |
+| RD-53a5a5aa | Kurzfrist-Umkehr (1 Monat) – nur bei VIX >= 20 | director | blocked_similar_to_rejected | REJECTED | None | None | None |  | zu ähnlich zu verworfener Hypothese RD-034c5e10 (Jaccard 0.77) |
 | RD-5f792ced | Segment meiden: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} | director | rejected | REJECTED | -0.00186 | -1.85 | 0.967843 | {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'} | Walk-Forward netto -0.00186 mit t=-1.85; nur 0.286 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.00112, 'second': -0.002 |
 | RD-9af21f36 | Segment meiden: {'liquidity': 'liquid', 'vix': 'vix_lt_20'} | director | rejected | REJECTED | -0.00225 | -2.25 | 0.987776 | {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'} | Walk-Forward netto -0.00225 mit t=-2.25; nur 0.143 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.00226, 'second': -0.002 |
+| RD-c6929d07 | Segment meiden: {'volatility': 'high_vol', 'recent_move': 'extreme_5d_move'} | director | blocked_similar_to_rejected | REJECTED | None | None | None |  | zu ähnlich zu verworfener Hypothese RD-5f792ced (Jaccard 0.64) |
 | RD-d0093d4e | Segment meiden: {'volatility': 'high_vol', 'liquidity': 'liquid'} | director | blocked_similar_to_rejected | REJECTED | None | None | None |  | zu ähnlich zu verworfener Hypothese RD-9af21f36 (Jaccard 0.65) |
 | RD-de4cb989 | Segment meiden: {'lottery': 'lottery_profile'} | director | rejected | REJECTED | -0.00302 | -3.11 | 0.999065 | {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'} | Walk-Forward netto -0.00302 mit t=-3.11; nur 0.143 der Jahre positiv; bei Stresskosten nicht positiv; instabil über Hälften {'first': -0.00154, 'second': -0.004 |

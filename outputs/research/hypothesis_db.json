@@ -77,7 +77,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:42+00:00",
+      "evaluated_at": "2026-10-02T19:04:59+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -85,7 +85,7 @@
         "walk_forward": "pass"
       },
       "reasons": [
-        "p=0.016586 nicht signifikant nach BH (q=0.1, n=10)"
+        "p=0.016586 nicht signifikant nach BH (q=0.1, n=11)"
       ],
       "signal_key": "cf1f1c3fc00c",
       "coverage": 0.999,
@@ -113,7 +113,7 @@
           "hit_rate": 0.507,
           "t_months": 0.95,
           "sharpe_ann": 0.37,
-          "max_dd": -0.13524,
+          "max_dd": -0.13521,
           "years_positive_share": 0.857,
           "top_mfe": 0.10084,
           "top_mae": -0.07678,
@@ -136,9 +136,9 @@
             "mean": 0.00152,
             "median": 0.00382,
             "hit_rate": 0.568,
-            "t_months": 0.4,
+            "t_months": 0.41,
             "sharpe_ann": 0.19,
-            "max_dd": -0.13785,
+            "max_dd": -0.13782,
             "years_positive_share": 0.429,
             "top_mfe": 0.08126,
             "top_mae": -0.07135,
@@ -168,7 +168,7 @@
             "hit_rate": 0.573,
             "t_months": 0.66,
             "sharpe_ann": 0.28,
-            "max_dd": -0.13641,
+            "max_dd": -0.13638,
             "years_positive_share": 0.571,
             "top_mfe": 0.08754,
             "top_mae": -0.06954,
@@ -215,7 +215,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
         "researcher": "Evidenz: netto 0.0051 je 20 Tage, t=2.13, Rank-IC 0.02159, Asymmetrie Top/Univ 1.313/1.212",
@@ -237,7 +237,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:43+00:00",
+      "evaluated_at": "2026-10-02T19:05:00+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -286,7 +286,7 @@
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.03649,
+          "mean_ic": -0.0365,
           "t_months": -1.48
         },
         "halves": {
@@ -380,10 +380,10 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
-        "researcher": "Evidenz: netto -0.00668 je 20 Tage, t=-2.0, Rank-IC -0.03649, Asymmetrie Top/Univ 1.155/1.211",
+        "researcher": "Evidenz: netto -0.00668 je 20 Tage, t=-2.0, Rank-IC -0.0365, Asymmetrie Top/Univ 1.155/1.211",
         "skeptic": "Hälften {'first': -0.0065, 'second': -0.00686}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']",
         "statistician": "n=335 Kohorten/77 Monate, p=0.97725, BH über alle getesteten Hypothesen, Locked höchstens einmal",
         "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
@@ -402,7 +402,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:44+00:00",
+      "evaluated_at": "2026-10-02T19:05:01+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -545,7 +545,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
         "researcher": "Evidenz: netto -0.00659 je 20 Tage, t=-2.42, Rank-IC -0.02067, Asymmetrie Top/Univ 1.153/1.212",
@@ -567,7 +567,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:45+00:00",
+      "evaluated_at": "2026-10-02T19:05:02+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -710,7 +710,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
         "researcher": "Evidenz: netto -0.00764 je 20 Tage, t=-2.85, Rank-IC -0.02417, Asymmetrie Top/Univ 1.088/1.21",
@@ -732,7 +732,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:47+00:00",
+      "evaluated_at": "2026-10-02T19:05:03+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -872,7 +872,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
         "researcher": "Evidenz: netto 0.00357 je 20 Tage, t=1.62, Rank-IC 0.01467, Asymmetrie Top/Univ 1.282/1.211",
@@ -894,7 +894,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:48+00:00",
+      "evaluated_at": "2026-10-02T19:05:04+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -1035,7 +1035,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
         "researcher": "Evidenz: netto 0.00517 je 20 Tage, t=1.22, Rank-IC 0.00606, Asymmetrie Top/Univ 1.281/1.211",
@@ -1057,7 +1057,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-02T14:56:50+00:00",
+      "evaluated_at": "2026-10-02T19:05:06+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -1106,7 +1106,7 @@
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.0066,
+          "mean_ic": -0.00661,
           "t_months": -1.0
         },
         "halves": {
@@ -1202,10 +1202,10 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-02",
-        "model_version": "7fbb9d334681"
+        "model_version": "e5de692f9893"
       },
       "adversarial_review": {
-        "researcher": "Evidenz: netto -0.00327 je 20 Tage, t=-4.14, Rank-IC -0.0066, Asymmetrie Top/Univ 1.208/1.211",
+        "researcher": "Evidenz: netto -0.00327 je 20 Tage, t=-4.14, Rank-IC -0.00661, Asymmetrie Top/Univ 1.208/1.211",
         "skeptic": "Hälften {'first': -0.00304, 'second': -0.0035}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']",
         "statistician": "n=335 Kohorten/77 Monate, p=0.999983, BH über alle getesteten Hypothesen, Locked höchstens einmal",
         "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
@@ -1751,6 +1751,214 @@
       ],
       "evaluated_at": "2026-10-02T14:56:55+00:00",
       "canonical_status": "REJECTED"
+    },
+    "RD-c6929d07": {
+      "id": "RD-c6929d07",
+      "title": "Segment meiden: {'volatility': 'high_vol', 'recent_move': 'extreme_5d_move'}",
+      "signal": "-(step(vol_60 - 0.17) * step(abs(ret_5d) - 0.4))",
+      "source": "director",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "RD-5f792ced",
+      "similarity": 0.636,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese RD-5f792ced (Jaccard 0.64)"
+      ],
+      "evaluated_at": "2026-10-02T19:05:07+00:00",
+      "canonical_status": "REJECTED"
+    },
+    "RD-0a08304b": {
+      "id": "RD-0a08304b",
+      "title": "Segment meiden: {'liquidity': 'liquid', 'trend': 'uptrend'}",
+      "signal": "-(step(log_dollar_vol) * step(spy_trend_200))",
+      "source": "director",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "RD-9af21f36",
+      "similarity": 0.65,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese RD-9af21f36 (Jaccard 0.65)"
+      ],
+      "evaluated_at": "2026-10-02T19:05:07+00:00",
+      "canonical_status": "REJECTED"
+    },
+    "RD-034c5e10": {
+      "id": "RD-034c5e10",
+      "title": "Kurzfrist-Umkehr (1 Monat) – nur bei SPY unter SMA200",
+      "statement": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf SPY unter SMA200",
+      "signal": "(rev_1m) * step(-spy_trend_200)",
+      "direction": -1,
+      "source": "director",
+      "created_at": "2026-10-02",
+      "evaluated_at": "2026-10-02T19:05:07+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto 0.00029 mit t=0.18",
+        "nur 0.429 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.0017, 'second': 0.00226}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+      ],
+      "signal_key": "f279f5ae1fa6",
+      "coverage": 0.999,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00029,
+          "median": -0.00209,
+          "hit_rate": 0.421,
+          "t_months": 0.18,
+          "sharpe_ann": 0.07,
+          "max_dd": -0.14538,
+          "years_positive_share": 0.429,
+          "top_mfe": 0.08607,
+          "top_mae": -0.06929,
+          "top_asymmetry": 1.242,
+          "univ_asymmetry": 1.212
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00271,
+          "median": -0.00509,
+          "hit_rate": 0.337,
+          "t_months": -1.35,
+          "sharpe_ann": -0.53,
+          "max_dd": -0.25981,
+          "years_positive_share": 0.286,
+          "top_mfe": 0.08607,
+          "top_mae": -0.06929,
+          "top_asymmetry": 1.242,
+          "univ_asymmetry": 1.212
+        },
+        "ic": {
+          "n_dates": 75,
+          "mean_ic": 0.0454,
+          "t_months": 1.01
+        },
+        "halves": {
+          "first": -0.0017,
+          "second": 0.00226
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00253,
+            "median": -0.0016,
+            "hit_rate": 0.417,
+            "t_months": -1.46,
+            "sharpe_ann": -0.67,
+            "max_dd": -0.17431,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.0637,
+            "top_mae": -0.06018,
+            "top_asymmetry": 1.059,
+            "univ_asymmetry": 1.078
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": 0.0044,
+            "median": -0.0024,
+            "hit_rate": 0.426,
+            "t_months": 0.77,
+            "sharpe_ann": 0.4,
+            "max_dd": -0.14191,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.1188,
+            "top_mae": -0.08262,
+            "top_asymmetry": 1.438,
+            "univ_asymmetry": 1.38
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00339,
+            "median": -0.00246,
+            "hit_rate": 0.385,
+            "t_months": -3.16,
+            "sharpe_ann": -1.35,
+            "max_dd": -0.22275,
+            "years_positive_share": 0.143,
+            "top_mfe": 0.06851,
+            "top_mae": -0.05989,
+            "top_asymmetry": 1.144,
+            "univ_asymmetry": 1.172
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.01302,
+            "median": 0.00712,
+            "hit_rate": 0.547,
+            "t_months": 1.52,
+            "sharpe_ann": 1.05,
+            "max_dd": -0.10871,
+            "years_positive_share": 1.0,
+            "top_mfe": 0.14694,
+            "top_mae": -0.10187,
+            "top_asymmetry": 1.442,
+            "univ_asymmetry": 1.317
+          }
+        },
+        "p_value": 0.428576
+      },
+      "p_value": 0.428576,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "works",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "works"
+      },
+      "status": "rejected",
+      "memory": {
+        "question": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf SPY unter SMA200",
+        "why_tested": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.015; HYP-0101 knapp gescheitert (t=2.13)",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "rev_1m",
+          "spy_trend_200"
+        ],
+        "feature_definitions": {
+          "rev_1m": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "spy_trend_200": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-10-02",
+        "model_version": "e5de692f9893"
+      },
+      "adversarial_review": {
+        "researcher": "Evidenz: netto 0.00029 je 20 Tage, t=0.18, Rank-IC 0.0454, Asymmetrie Top/Univ 1.242/1.212",
+        "skeptic": "Hälften {'first': -0.0017, 'second': 0.00226}; Jahre positiv 0.429; Regime mit Versagen: ['vix_lt_20', 'spy_uptrend']",
+        "statistician": "n=335 Kohorten/77 Monate, p=0.428576, BH über alle getesteten Hypothesen, Locked höchstens einmal",
+        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
+        "regime_agent": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}",
+        "execution_agent": "Stresskosten 25 bp/Seite: netto -0.00271; Max-DD -0.14538",
+        "failure_agent": "Schlechteste Phase laut Max-DD -0.14538; Jahre positiv 0.429",
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
+    },
+    "RD-53a5a5aa": {
+      "id": "RD-53a5a5aa",
+      "title": "Kurzfrist-Umkehr (1 Monat) – nur bei VIX >= 20",
+      "signal": "(rev_1m) * step(vix - 20)",
+      "source": "director",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "RD-034c5e10",
+      "similarity": 0.773,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese RD-034c5e10 (Jaccard 0.77)"
+      ],
+      "evaluated_at": "2026-10-02T19:05:08+00:00",
+      "canonical_status": "REJECTED"
     }
   },
   "discovery": {
@@ -1759,11 +1967,11 @@
     "window": "2015-01-01..2019-01-01",
     "survivor_ids": []
   },
-  "n_tested_total": 10,
-  "generated": "2026-10-02T14:56:55+00:00",
+  "n_tested_total": 11,
+  "generated": "2026-10-02T19:05:08+00:00",
   "status_counts": {
     "ACCEPTED": 1,
-    "REJECTED": 15,
+    "REJECTED": 19,
     "INCONCLUSIVE": 2,
     "RETEST_LATER": 2
   }

@@ -1,4 +1,4 @@
-# Causal Research (cr-v1) – 2026-10-02T15:03:47+00:00
+# Causal Research (cr-v1) – 2026-10-02T19:12:03+00:00
 
 Verdikt: **REJECT** – keine Beziehung überlebt BH auf dem OOS-Granger-Test
 
