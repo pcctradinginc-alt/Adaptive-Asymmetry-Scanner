@@ -61,7 +61,24 @@ vorab festgelegt und wurde nicht angepasst.
 - Inaktive Kohorten (n = 53): +0,24 %.
 - Differenz: t = 3,4, also **bestätigt**.
 
-**Ablation:** Ohne Abstinenz sinkt die Expectancy von G um 0,80 pp.
+**Ablation (Phase 19):** G enthält nach Regel nur Komponenten, die einzeln
+gegen A bestehen. Für jede verworfene Komponente gilt daher: „G ohne X“ = G.
+Ihr Beitrag wurde stattdessen inkrementell gemessen, also „A mit X“ gegen A.
+
+| Komponente | gemessener Beitrag | behalten? |
+|---|---|---|
+| Abstinenz (aus World-Model-Regime) | G ohne sie: Expectancy −0,80 pp | **ja** (Shadow, NEED MORE DATA) |
+| World Model als Modell-Input (C) | −0,03 %/Monat, n.s. | nein (nur Bericht) |
+| Causal Engine (D) | +0,00 %/Monat, n.s. | nein |
+| Knowledge Graph (E) | +0,00 %/Monat, n.s.; keine Messkanten | nein (nur Evidenz) |
+| Counterfactuals (F) | −0,10 %/Monat; Locked 1,9 % → 0,7 % | nein (nur HC-Diagnose) |
+| Unknown-Unknown-Filter | −0,11 %/Monat; Locked 1,9 % → 0,5 % | nein (nur Diagnose) |
+| Active Learning / Director | keine Renditegröße; 5 Hypothesen ohne Ressourcenverschwendung verworfen | ja (Prozess) |
+| Self-Play (Lab-Prüfkette) | verhindert 2 Varianten-Tests; keine Renditegröße | ja (Governance) |
+| Meta-Cognition / Safe Mode | verhindert HC-Alerts außerhalb des Trainingsbandes; nicht OOS-renditemessbar | ja (Risikokontrolle) |
+
+Prozess- und Governance-Komponenten verändern kein Ranking. Sie werden daran
+gemessen, wie viele Fehlentscheidungen sie verhindern, nicht an der Rendite.
 
 **Stress** (nur OOS-Fenster):
 
