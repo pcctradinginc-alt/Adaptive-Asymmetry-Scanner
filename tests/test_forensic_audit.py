@@ -440,3 +440,14 @@ def test_A5_changes_table_selected_by_columns_not_html_id():
     assert len(ch) == 3 and ch[-1]["added"] == "CCC"
     with pytest.raises(ValueError):
         u.select_changes_table([constituents])
+
+
+def test_A5_changes_table_with_header_rows_as_data():
+    """Wikipedia-Markup, bei dem pandas die zwei Kopfzeilen als Daten liest."""
+    from modules import universe as u
+    raw = pd.DataFrame([["Effective Date", "Added", "Added", "Removed", "Removed", "Reason"],
+                        ["Effective Date", "Ticker", "Security", "Ticker", "Security", "Reason"],
+                        ["January 10, 2020", "CCC", "C Corp", "XXX", "X Corp", "Marktkap."],
+                        ["May 1, 2018", "BRK.B", "B Corp", "YYY", "Y Inc", "Übernahme"]])
+    ch = u.select_changes_table([raw])
+    assert [c["added"] for c in ch] == ["BRK-B", "CCC"] and ch[1]["removed"] == "XXX"

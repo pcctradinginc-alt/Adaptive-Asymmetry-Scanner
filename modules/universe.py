@@ -304,20 +304,42 @@ def _fetch_sp500_changes() -> list[dict]:
     return select_changes_table(pd.read_html(StringIO(resp.text), flavor="lxml"))
 
 
+def _header_from_rows(table, n_rows: int):
+    """Kopf aus Spaltennamen + den ersten n_rows Datenzeilen (pandas liest
+    Wikipedia-Köpfe aus <td>/<th> in tbody teils als Daten)."""
+    import pandas as pd
+    df = table.copy()
+    heads = []
+    for j, c in enumerate(df.columns):
+        parts = [str(x) for x in (c if isinstance(c, tuple) else (c,))]
+        parts += [str(df.iloc[i, j]) for i in range(min(n_rows, len(df)))]
+        heads.append(tuple(p for p in parts if p and p.lower() != "nan" and not p.isdigit()))
+    out = df.iloc[n_rows:].reset_index(drop=True)
+    out.columns = pd.MultiIndex.from_tuples([h if h else (f"col{j}",) for j, h in enumerate(heads)]) \
+        if any(len(h) > 1 for h in heads) else [" ".join(h) for h in heads]
+    return out
+
+
 def select_changes_table(tables) -> list[dict]:
     """Die Änderungstabelle über ihre Spalten finden (Datum + Added/Removed-Ticker),
     nicht über eine HTML-id (CI 2026-10-02: id-Suche schlug fehl -> html5lib-Fallback
-    -> ImportError). Nimmt die Tabelle mit den meisten parsebaren Änderungen."""
+    -> ImportError; danach fanden sich keine passenden Spaltenköpfe, weil pandas
+    den Kopf je nach Markup als Datenzeilen liest). Versucht je Tabelle den
+    Original-Kopf und Köpfe aus den ersten 1–2 Zeilen; nimmt die Tabelle mit den
+    meisten parsebaren Änderungen."""
     best: list[dict] = []
+    seen_cols = []
     for t in tables:
-        try:
-            ch = parse_sp500_changes(t)
-        except (ValueError, KeyError):
-            continue
-        if len(ch) > len(best):
-            best = ch
+        seen_cols.append([_flat_col(c) for c in t.columns][:8])
+        for variant in (t, _header_from_rows(t, 1), _header_from_rows(t, 2)):
+            try:
+                ch = parse_sp500_changes(variant)
+            except (ValueError, KeyError, IndexError):
+                continue
+            if len(ch) > len(best):
+                best = ch
     if not best:
-        raise ValueError("keine S&P-500-Änderungstabelle auf der Seite gefunden")
+        raise ValueError(f"keine S&P-500-Änderungstabelle auf der Seite gefunden; Spaltenköpfe: {seen_cols[:6]}")
     return best
 
 
