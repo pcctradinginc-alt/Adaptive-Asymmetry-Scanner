@@ -298,3 +298,13 @@ def test_conformal_correction_repairs_overconfident_intervals():
     assert cal["coverage"] < 0.75                                   # roh überkonfident
     assert abs(cal["coverage_conformal"] - 0.8) < abs(cal["coverage"] - 0.8)
     assert cal["correction"]["qhat"] > 0 and cal["correction"]["from_year"] >= 2022
+
+
+def test_report_names_pit_universe_not_todays_list():
+    from modules import ml_research as m
+    rep = {"generated": "x", "models": {}, "universe": {"pit": True, "n_tickers_ever": 758, "n_changes": 409,
+                                                          "n_removed_with_prices": 120, "n_removed_since_start": 255,
+                                                          "residual_bias": "r"}}
+    md = m.render_md(rep)
+    assert "PIT-Universum (758" in md and "120/255" in md and "heutige Indexliste" not in md
+    assert "heutige Indexliste" in m.render_md({"generated": "x", "models": {}})

@@ -974,12 +974,20 @@ def load_macro(archive_root: str = "outputs/external_data") -> list:
 
 # ── Report ───────────────────────────────────────────────────────────────────
 
+def _survivorship_line(u: dict) -> str:
+    if u.get("pit"):
+        return (f"Survivorship: PIT-Universum ({u.get('n_tickers_ever')} Titel je Mitglied, {u.get('n_changes')} Änderungen; "
+                f"entfernte Titel mit Kursen {u.get('n_removed_with_prices')}/{u.get('n_removed_since_start')} – "
+                f"Restbias: {u.get('residual_bias')}).")
+    return "Survivorship: heutige Indexliste (Querschnittsvergleich dämpft den Bias)."
+
+
 def render_md(rep: dict) -> str:
     L = [f"# ML-Research (Shadow) – {rep['generated']}", "",
          f"Panel: {rep.get('n_rows')} Zeilen, {rep.get('n_tickers')} Ticker, {rep.get('period')} · "
          f"Locked-Holdout ab {rep.get('locked_from')} · Champion: {rep.get('champion') or '— (keiner)'}",
-         "Bewertung: Top-Dezil minus Querschnittsmittel, 20 Handelstage, netto 10 bp/Seite. "
-         "Survivorship: heutige Indexliste (Querschnittsvergleich dämpft den Bias). Keine Produktionswirkung.", "",
+         "Bewertung: Top-Dezil minus Querschnittsmittel, 20 Handelstage, netto 10 bp/Seite. " +
+         _survivorship_line(rep.get("universe") or {}) + " Keine Produktionswirkung.", "",
          "| Modell | Status | WF netto | t | Sharpe | Max-DD | Jahre + | IC | IC t | 25bp | Locked netto | Forward n | Forward netto | Asym Top/Univ | Verdikt |",
          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for mid, m in rep.get("models", {}).items():
