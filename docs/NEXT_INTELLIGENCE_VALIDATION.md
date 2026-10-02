@@ -1,5 +1,20 @@
 # Gesamtvalidierung der Intelligenz-Komponenten
 
+> **Korrekturhinweis (Audit 2026-10-02, `docs/FORENSIC_ACCEPTANCE_AUDIT.md`).**
+> Die Zahlen unten wurden mit Survivorship-Bias erhoben (F01, inzwischen
+> behoben). Sie sind deshalb neu zu messen.
+>
+> Weitere Korrekturen:
+> - **Locked Holdout:** KONTAMINIERT (F02). Locked-Werte sind nur informativ.
+> - **Abstinenz-„Bestätigung“ 2019–2020:** nicht ungesehen (F03). Sie zählt
+>   nicht. Die Regel ist INCONCLUSIVE und nur vorwärts bestätigbar.
+> - **Variante B:** ist „A + Meta-Learning (Regime-Gewichte)“, nicht ein
+>   Basis-Faktormodell.
+> - **„Champion“ A:** ist eine Referenz; die Registry hat keinen Champion.
+> - **Reproduzierbarkeit:** Einzelurteile kippen zwischen Läufen ohne
+>   Daten-Snapshot (F14).
+
+
 Modul: `modules/next_intelligence.py`. Protokoll (hash-gepinnt):
 `config/next_protocol.yaml`.
 Ausgaben: `outputs/research/next_validation.{json,md}`.
@@ -14,7 +29,7 @@ asymmetrische Chance hat, und wann es besser nichts tut?*
   2 × 10 bp Kosten.
 - **Auswahl:** jeweils das Top-Dezil.
 - **Walk-Forward:** gepurgt, OOS 2021 bis 2025-06.
-- **Locked Holdout:** ab 2025-07-01. Dort wurde nichts angepasst.
+- **Locked Holdout:** ab 2025-07-01. **KONTAMINIERT** (28 Auswertungen, Ergebnisse in Verdikten zitiert; Audit F02).
 - **Statistik:**
   - monatlicher Block-Bootstrap;
   - Bonferroni über 6 Komponenten (α = 0,0083 einseitig);
@@ -22,8 +37,8 @@ asymmetrische Chance hat, und wann es besser nichts tut?*
 
 | Variante | Beschreibung |
 |---|---|
-| A | Champion: statisches Ensemble (Baseline) |
-| B | Basis-Faktormodell |
+| A | Referenz: statisches Ensemble (Baseline; kein registrierter Champion) |
+| B | A + Meta-Learning (Regime-Gewichte) |
 | C | A + Meta-Learning + World-Model-Zustand |
 | D / E | A + Causal-Sektor-Tilts (zwei Gewichtungen) |
 | F | A ohne kontrafaktisch fragile Positionen |
@@ -55,11 +70,11 @@ Bei G ist das System nur in 40 % der Wochen aktiv.
 | Abstinenz | **+0,48 %** | [−0,26 %, +1,31 %] | +0,06 % | **KEEP (Shadow), NEED MORE DATA** |
 | Decision Intelligence | Sharpe 0,229 → 0,252, ES −8,2 % → −7,7 % | – | – | **KEEP (knapp)** |
 
-**Abstinenz-Bestätigung auf ungesehenen Jahren 2019–2020.** Die Regel ist
+**Abstinenz 2019–2020 (KONTAMINIERT, zählt nicht – Audit F03).** Die Regel ist
 vorab festgelegt und wurde nicht angepasst.
 - Aktive Kohorten (n = 52): +3,02 %.
 - Inaktive Kohorten (n = 53): +0,24 %.
-- Differenz: t = 3,4, also **bestätigt**.
+- Differenz: t = 3,4. Die Jahre waren vor der Regel gesehen, daher **keine Bestätigung**.
 
 **Ablation (Phase 19):** G enthält nach Regel nur Komponenten, die einzeln
 gegen A bestehen. Für jede verworfene Komponente gilt daher: „G ohne X“ = G.
@@ -106,11 +121,12 @@ der OOS-Basis; 2019–2020 ist durch die Abstinenz-Bestätigung abgedeckt.
 | 10 Komplexität lohnt | ✅ |
 
 ## Entscheidung: **KEEP_CHAMPION**
-- Der Champion A bleibt das Produktions-Ranking. Es gibt keine automatische
+- Die Referenz A bleibt das Research-Ranking (kein registrierter Champion; die tägliche Mail nutzt ihn nicht, F13). Es gibt keine automatische
   Promotion; über eine Promotion entscheidet nur ein Mensch.
 - **Abstinenz:** Die Regel ist die einzige Komponente mit konsistentem
-  Mehrwert: Sharpe ×3, Hit +3,5 pp, HC-Hit +12,7 pp, Locked +1,5 pp, und
-  bestätigt auf ungesehenen Jahren.
+  Mehrwert in-sample: Sharpe ×3, Hit +3,5 pp, HC-Hit +12,7 pp. Die Bestätigung
+  2019–2020 und Locked sind aber kontaminiert (F02, F03). Status INCONCLUSIVE;
+  bindend ist die Vorwärts-Bestätigung ab 2026-09-29.
   - Sie ist als `HYP-ABST-001` (ACCEPTED) in der Hypothesen-DB.
   - Der HC-Scanner nutzt sie als Regime-Gate: Liegt kein Stress-Regime vor,
     gibt es keine High-Confidence-Alerts.
@@ -128,7 +144,7 @@ Neu trainiert mit einer weiteren Woche Daten.
 | A | 0,262 | −17,9 % | 47,6 % | 46,4 % (356) |
 | G | 0,706 | −12,4 % | 51,2 % | 62,4 % (340) |
 
-- Die Abstinenz ist erneut bestätigt: 2019–2020 aktiv +3,02 % gegen inaktiv
+- Abstinenz in-sample erneut gleiche Richtung (kontaminiert, F03): 2019–2020 aktiv +3,02 % gegen inaktiv
   +0,34 %, t = 3,27. G gegen A: Monats-Δ +0,48 % (CI [−0,26 %, +1,29 %]).
 - Gate und Entscheidung sind unverändert: **KEEP_CHAMPION**, Abstinenz
   **NEED MORE DATA**.

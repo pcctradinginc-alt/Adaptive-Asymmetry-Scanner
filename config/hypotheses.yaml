@@ -50,9 +50,10 @@ hypotheses:
     title: Regime-Abstinenz – Ensemble nur bei VIX >= 20 oder SPY unter SMA200 handeln
     status: prior_result
     source: meta_validation
-    canonical_status: ACCEPTED
-    evidence: "Vorab registriert (config/next_protocol.yaml abstention), bestätigt auf ungesehenen Basis-OOS-Jahren 2019–2020: aktiv +3,02 % vs. inaktiv +0,24 % je 20T (t=3,4, 52/53 Kohorten). Dev 2021–2025H1: Sharpe 0,68 vs. 0,23, Trefferquote 50,9 % vs. 47,4 %, MaxDD −12,8 % vs. −18,8 %. Produktions-Gate NICHT bestanden (Bootstrap-KI schließt 0 ein, < 150 aktive Kohorten) -> Forward-Beobachtung; im HC-Scanner als Regime-Kompatibilität aktiv."
-    reference: docs/NEXT_INTELLIGENCE_VALIDATION.md
+    canonical_status: INCONCLUSIVE
+    evidence: "IN-SAMPLE abgeleitet. Die 'Bestätigung' auf 2019–2020 (t=3,3–3,5) ist KONTAMINIERT (Audit F03): diese Jahre waren vor Registrierung der Regel Teil der gesehenen Regime-Attribution. Zusätzlich Survivorship-Bias der Basisdaten (F01, inzwischen behoben -> neu zu messen). Bindend ist nur die Vorwärts-Bestätigung ab 2026-09-29 (next_intelligence.forward_abstention, je >= 26 aktive/inaktive Kohorten). Bis dahin keine Wirkung auf Alerts."
+    retest_after: "2027-06-01"
+    reference: docs/FORENSIC_ACCEPTANCE_AUDIT.md
 
   # ── Nicht testbar mit aktuellen Daten (Erinnerung) ─────────────────────────
   - id: HYP-0201

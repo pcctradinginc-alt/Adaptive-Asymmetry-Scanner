@@ -282,9 +282,26 @@ def build_snapshot(data: dict) -> dict:
         "meta_weights": {k: _num(_d(v).get("meta_weight")) for k, v in _d(_d(meta).get("model_intelligence")).items()},
         "calibration_coverage": _num(_d(_d(ml).get("calibration")).get("coverage")),
         "champion": _d(ml).get("champion"),
-        "safe_mode": _d(st).get("safe_mode") if isinstance(_d(st).get("safe_mode"), bool) else None,
+        "safe_mode": safe_mode_status(data.get("safe"))[0],
         "meta_verdict": _d(_d(meta).get("decision")).get("verdict"),
     }
+
+
+def data_stand(data: dict) -> str:
+    """Zeitstempel je Artefakt + Warnung bei Alter > 8 Tage (Audit F11: Report
+    zeigte unbemerkt Zahlen eines älteren Laufs)."""
+    parts, stale = [], []
+    today = _date.fromisoformat(data["date"])
+    for name, key in (("ml_research", "ml"), ("meta_learning", "meta"), ("next_validation", "nextv"),
+                      ("safe_mode", "safe")):
+        g = _d(data.get(key)).get("generated") or _d(data.get(key)).get("updated")
+        parts.append(f"{name} {g or NA}")
+        try:
+            if g and (today - _date.fromisoformat(str(g)[:10])).days > 8:
+                stale.append(name)
+        except ValueError:
+            pass
+    return "; ".join(parts) + (f" – VERALTET: {', '.join(stale)}" if stale else "")
 
 
 def _fv(x):
@@ -488,13 +505,35 @@ def compute_warnings(data: dict) -> list[dict]:
     return w
 
 
+def _bucket_key(meta) -> str | None:
+    """Kalibrierung des AKTIVEN Ensembles (Audit F11: vorher das verworfene primary_meta)."""
+    meta = _d(meta)
+    cb = meta.get("calibration_buckets")
+    if not isinstance(cb, dict):
+        return None
+    for key in (meta.get("active_ensemble"), "static_equal", meta.get("primary_meta")):
+        if key in cb:
+            return key
+    return None
+
+
 def _buckets(meta) -> list[dict]:
     meta = _d(meta)
     cb = meta.get("calibration_buckets")
     if isinstance(cb, dict):
-        key = meta.get("primary_meta")
-        cb = cb.get(key) if key in cb else None
+        key = _bucket_key(meta)
+        cb = cb.get(key) if key else None
     return [b for b in (cb or []) if isinstance(b, dict)]
+
+
+def safe_mode_status(safe) -> tuple[bool | None, str]:
+    """Safe Mode ausschließlich aus safe_mode.json (Audit F11: vorher meta_state.safe_mode,
+    das seit der Entkopplung immer false war). Fehlt die Datei -> unbekannt, nie 'aus'."""
+    if not isinstance(safe, dict) or "active" not in safe:
+        return None, "UNBEKANNT (safe_mode.json fehlt/unlesbar – HC-Alerts gesperrt)"
+    if safe.get("active"):
+        return True, "AKTIV: " + "; ".join(map(str, safe.get("reasons") or []))
+    return False, "aus"
 
 
 # ── Formatierung ───────────────────────────────────────────────────────────
@@ -573,8 +612,11 @@ def build_sections(data: dict) -> list[tuple[int, str, list]]:
             ("Model drift", fmt_flag(ds["model"]) if meta else NO_DATA),
             ("Feature drift", fmt_flag(ds["feature"]) if meta else NO_DATA),
             ("Calibration status", " | ".join(cal_parts) if cal_parts else NO_DATA),
-            ("Safe Mode", (f"aktiv" if st.get("safe_mode") else "aus") + (f", Ensemble {st.get('active_ensemble')}" if st.get("active_ensemble") else "")
-             if st else NO_DATA),
+            ("Safe Mode", safe_mode_status(data.get("safe"))[1]
+             + (f" · aktives Ensemble {st.get('active_ensemble')}" if st.get("active_ensemble") else "")),
+            ("Datenstand der Artefakte", data_stand(data)),
+            ("Tägliche Scanner-Mail", "wird NICHT vom Research-/Intelligenz-Stack gesteuert (LLM-Pipeline, "
+                                      "eigene Gates; Audit F13)"),
         ])]))
 
     # 2 Forward
@@ -597,7 +639,8 @@ def build_sections(data: dict) -> list[tuple[int, str, list]]:
 
     # 3 Confidence
     bk = _buckets(meta)
-    b3 = [("note", f"Quelle: meta_learning.calibration_buckets[{meta.get('primary_meta') or 'aktiver Ansatz'}] (Backtest-Kalibrierung).")]
+    b3 = [("note", f"Quelle: meta_learning.calibration_buckets[{_bucket_key(meta) or NA}] – aktives Ensemble, "
+                   f"Walk-Forward-OOS mit Vorjahres-Kalibrierung (Backtest, kein Forward).")]
     if bk:
         rows, cls = [], []
         for b in bk:
@@ -814,8 +857,11 @@ def intelligence_sections(data: dict) -> list:
     insight = None
     ab = _d(nv.get("abstention_confirmation"))
     if ab:
-        insight = (f"Abstinenz-Regel auf ungesehenen Jahren: aktiv {ab.get('active_expectancy')} vs. inaktiv "
-                   f"{ab.get('inactive_expectancy')} (t={ab.get('diff_t')}) -> bestätigt={ab.get('confirmed')}")
+        fw = _d(ab.get("forward"))
+        insight = (f"Abstinenz-Regel: historisch (Status {ab.get('status', 'n/a')}, in-sample, zählt nicht) aktiv "
+                   f"{ab.get('active_expectancy')} vs. inaktiv {ab.get('inactive_expectancy')} (t={ab.get('diff_t')}); "
+                   f"VORWÄRTS ab {fw.get('forward_from', 'n/a')}: {fw.get('active_cohorts', 0)} aktive / "
+                   f"{fw.get('inactive_cohorts', 0)} inaktive Kohorten, Status {fw.get('status', 'n/a')}")
     out.append((14, SECTION_TITLES[14], [
         ("kv", [(k, str(v)) for k, v in counts.items()] + [("Gesamtvalidierung", str(nv.get("decision", NA))),
                                                              ("G-Komponenten", str(nv.get("G_components", NA)))]),

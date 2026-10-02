@@ -1,0 +1,49 @@
+name: Reproduzierbarkeit (Replay auf eingefrorenem Panel)
+
+# Audit F14 / Remediation P2-5: zwei Läufe von Meta-Learning + Gesamtvalidierung
+# auf DEMSELBEN Panel-Snapshot (Artefakt eines ml_research-Laufs), gleichem
+# Commit und festen Seeds; Vergleich der Kernmetriken. Schreibt nichts ins Repo.
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Run-ID eines ml_research-Laufs mit Artefakt panel-<run_id>"
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - name: Snapshot laden
+        uses: actions/download-artifact@v4
+        with:
+          name: panel-${{ github.event.inputs.source_run_id }}
+          run-id: ${{ github.event.inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/snap
+      - name: Zwei identische Läufe
+        run: |
+          set -e
+          for i in 1 2; do
+            ML_PANEL_SNAPSHOT="$RUNNER_TEMP/snap/panel.pkl" ML_PANEL_CACHE="$RUNNER_TEMP/snap/panel.pkl" \
+              META_RES_CACHE="$RUNNER_TEMP/meta_$i.pkl" python -m modules.meta_learning > /dev/null
+            ML_PANEL_CACHE="$RUNNER_TEMP/snap/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta_$i.pkl" \
+              python -m modules.next_intelligence > /dev/null
+            mkdir -p "$RUNNER_TEMP/run_$i"
+            cp outputs/research/meta_learning.json outputs/research/next_validation.json "$RUNNER_TEMP/run_$i/"
+          done
+      - name: Vergleich
+        run: python scripts/repro_check.py "$RUNNER_TEMP/run_1" "$RUNNER_TEMP/run_2"

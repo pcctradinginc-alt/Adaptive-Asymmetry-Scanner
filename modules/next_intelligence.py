@@ -182,10 +182,72 @@ def confirm_abstention(base: pd.DataFrame, models: list[str]) -> dict:
         se = math.sqrt(ca.var(ddof=1) / len(ca) + ci.var(ddof=1) / len(ci))
         diff_t = (ca.mean() - ci.mean()) / se if se > 0 else None
     ok = len(ca) >= cfg["confirm_min_cohorts"] and ca.mean() > 0 and diff_t is not None and diff_t >= 1.65
+    contaminated = cfg.get("confirmation_status") == "CONTAMINATED"
     return {"active_cohorts": int(len(ca)), "inactive_cohorts": int(len(ci)),
             "active_expectancy": ml._r(ca.mean(), 5) if len(ca) else None,
             "inactive_expectancy": ml._r(ci.mean(), 5) if len(ci) else None,
-            "diff_t": ml._r(diff_t, 2), "confirmed": bool(ok), "years": cfg["confirm_years"]}
+            "diff_t": ml._r(diff_t, 2), "in_sample_rule_holds": bool(ok),
+            # Audit F03: diese Jahre waren vor der Regel gesehen -> nie "bestätigt"
+            "confirmed": bool(ok) and not contaminated,
+            "status": "CONTAMINATED" if contaminated else ("CONFIRMED" if ok else "NOT_CONFIRMED"),
+            "years": cfg["confirm_years"]}
+
+
+def _static_rank_by_date(preds: list[dict], since: str) -> dict[str, dict[str, float]]:
+    """Statisches Ensemble aus dem unveränderlichen Prognose-Ledger: je
+    Prognosedatum Mittel der Modell-Ränge (nur Daten ab `since`)."""
+    by: dict[str, list[dict]] = {}
+    for r in preds:
+        if r.get("prediction_date", "") >= since and r.get("rank_pct"):
+            by.setdefault(r["prediction_date"], []).append(r["rank_pct"])
+    out = {}
+    for d, ranks in by.items():
+        tick = set().union(*ranks)
+        out[d] = {t: float(np.mean([rk[t] for rk in ranks if t in rk])) for t in tick}
+    return out
+
+
+def forward_abstention(panel: pd.DataFrame | None, preds: list[dict]) -> dict:
+    """Vorwärts-Bestätigung der Abstinenz-Regel (Audit F03): Top-Dezil des
+    statischen Ensembles je Prognosedatum ab forward_from, Outcome rel20 nur
+    mit fertigem Label, aktiv/inaktiv nach der unveränderten Regel."""
+    cfg = NP["abstention"]
+    since = cfg.get("forward_from", "2026-09-29")
+    res = {"forward_from": since, "active_cohorts": 0, "inactive_cohorts": 0, "pending_cohorts": 0,
+           "active_expectancy": None, "inactive_expectancy": None, "diff_t": None, "confirmed": False,
+           "status": "ACCUMULATING"}
+    if panel is None or panel.empty:
+        res["status"] = "NO_PANEL"
+        return res
+    ranks = _static_rank_by_date(preds, since)
+    p = meta.add_rel_target(panel) if meta.PROB_TARGET not in panel else panel
+    last_date = p["date"].max()
+    act_r, ina_r = [], []
+    for d, rk in sorted(ranks.items()):
+        rows = p[p["date"] == pd.Timestamp(d)]
+        if rows.empty:
+            continue
+        s = pd.Series(rk)
+        top = set(s[s >= s.quantile(0.9)].index)
+        sel = rows[rows["ticker"].isin(top)]
+        done = sel[sel["label_end_20"].notna() & (sel["label_end_20"] <= last_date) & sel[meta.PROB_TARGET].notna()]
+        if done.empty:
+            res["pending_cohorts"] += 1
+            continue
+        active = bool(abstention_active(rows.iloc[[0]]).iloc[0])
+        (act_r if active else ina_r).append(float(done[meta.PROB_TARGET].mean()))
+    ca, ci = pd.Series(act_r, dtype=float), pd.Series(ina_r, dtype=float)
+    res.update({"active_cohorts": len(ca), "inactive_cohorts": len(ci),
+                "active_expectancy": ml._r(ca.mean(), 5) if len(ca) else None,
+                "inactive_expectancy": ml._r(ci.mean(), 5) if len(ci) else None})
+    if len(ca) > 3 and len(ci) > 3:
+        se = math.sqrt(ca.var(ddof=1) / len(ca) + ci.var(ddof=1) / len(ci))
+        res["diff_t"] = ml._r((ca.mean() - ci.mean()) / se, 2) if se > 0 else None
+    enough = len(ca) >= cfg.get("forward_min_active_cohorts", 26) and len(ci) >= cfg.get("forward_min_inactive_cohorts", 26)
+    if enough:
+        ok = ca.mean() > 0 and res["diff_t"] is not None and res["diff_t"] >= 1.65
+        res["confirmed"], res["status"] = bool(ok), ("CONFIRMED" if ok else "NOT_CONFIRMED")
+    return res
 
 
 def gate(m: dict, ref: dict, boot: dict, ablation: dict, leak_ok: bool) -> dict:
@@ -250,7 +312,10 @@ def evaluate(last: dict, panel: pd.DataFrame | None = None) -> dict:
                 "A_blindspot": ("s_static_equal__bs", None), "A_abstention": ("s_static_equal", act)}
     metrics = {k: full_metrics(res, col, months, a) for k, (col, a) in variants.items() if col in res and res[col].notna().any()}
     abst = confirm_abstention(base, models)
-    comp_keep = {"counterfactual_filter": None, "blind_spot_filter": bsr["verdict"], "abstention": abst.get("confirmed")}
+    abst["forward"] = forward_abstention(panel, ml._read_predictions())
+    # Nur eine VORWÄRTS bestätigte Regel geht in G ein (Audit F03)
+    comp_keep = {"counterfactual_filter": None, "blind_spot_filter": bsr["verdict"],
+                 "abstention": bool(abst["forward"].get("confirmed"))}
     # Komponenten-Nutzen (Bootstrap gegen A)
     comp = {}
     for k in ("C", "D", "E", "F", "A_blindspot", "A_abstention"):
@@ -335,7 +400,10 @@ def render_md(rep: dict) -> str:
     for k, b in rep["component_vs_A"].items():
         L.append(f"- {k}: Monats-Δ {b.get('delta_monthly_mean')} CI {b.get('ci_monthly_mean')} · ohne Top-5 %-Monate {ml._r(b.get('trimmed_mean'), 6)}")
     L += ["", f"Verdikte: {rep['component_verdicts']}", "",
-          f"Abstinenz-Bestätigung (ungesehene Jahre {rep['abstention_confirmation'].get('years')}): {rep['abstention_confirmation']}",
+          f"Abstinenz-Regel – historisch (Jahre {rep['abstention_confirmation'].get('years')}, Status "
+          f"{rep['abstention_confirmation'].get('status')}, zählt nicht als Bestätigung): "
+          f"{ {k: v for k, v in rep['abstention_confirmation'].items() if k != 'forward'} }",
+          f"Abstinenz-Regel – VORWÄRTS (bindend): {rep['abstention_confirmation'].get('forward')}",
           "", f"Ablation (Δ Expectancy G − G ohne Komponente): {rep['ablation_delta_expectancy'] or '–'}",
           "", f"Gate: {rep['gate']}", "", f"Stress: {rep['stress']}", "",
           f"Decision Intelligence: { {k: v for k, v in rep['decision_intelligence'].items()} }",

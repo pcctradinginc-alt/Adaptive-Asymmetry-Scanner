@@ -294,14 +294,20 @@ def render_md(res: dict) -> str:
 
 def main() -> int:
     logging.basicConfig(level=logging.INFO)
-    from modules.universe import get_universe
-    tickers = sorted(set(get_universe()))
+    from modules.universe import is_member, research_universe
+    uni = research_universe("2014-01-01")                  # PIT-Universum (Audit F01)
+    tickers = uni["tickers"]
     frames, spy, vix = fetch_frames(tickers)
-    log.info(f"price_event_study: {len(frames)}/{len(tickers)} Ticker geladen")
+    log.info(f"price_event_study: {len(frames)}/{len(tickers)} Ticker geladen (PIT, inkl. entfernter)")
     ev = build_events(frames, spy, vix)
+    if not ev.empty:                                       # nur Events während der Indexmitgliedschaft
+        ev = ev[[is_member(uni["intervals"].get(t, []), str(pd.Timestamp(d).date()))
+                 for t, d in zip(ev["ticker"], ev["date"])]].reset_index(drop=True)
     res = evaluate(ev)
     res.update({"generated": datetime.utcnow().isoformat(timespec="seconds"),
                 "tickers_requested": len(tickers), "tickers_loaded": len(frames),
+                "universe": {"pit": True, "n_removed_since_start": len(uni["removed_since_start"]),
+                             "n_removed_with_prices": sum(1 for t in uni["removed_since_start"] if t in frames)},
                 "prereg": "docs/research/PREREG_price_event_study_2026-09-29.md"})
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "price_event_study.json").write_text(json.dumps(res, indent=2, ensure_ascii=False))

@@ -11,7 +11,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 PROTOCOL = ROOT / "config" / "research_protocol.yaml"
-PINNED_SHA256 = "cf0427cef935c41085f6ae4e685633222cd0b1279298bd050a0e2002c93113a3"
+PINNED_SHA256 = "d70dc83de777724ef1eb66eb6df31ddbbb447d600e65beb820ed8d3535811eca"
 
 
 def test_protocol_hash_is_pinned():
@@ -35,3 +35,10 @@ def test_protected_paths_in_codeowners():
     for path in ("config/research_protocol.yaml", "tests/test_research_protocol.py", "modules/research_lab.py",
                  "modules/ml_research.py", "config/model_registry.yaml"):
         assert path in owners, path
+
+
+def test_contaminated_holdout_never_reset():
+    """Audit F02: ein einmal kontaminierter Holdout wird nie wieder 'sauber'."""
+    p = yaml.safe_load(PROTOCOL.read_text())
+    assert p["periods"]["locked_status"] == "CONTAMINATED"
+    assert p["periods"]["forward_holdout_from"] >= "2026-09-29"

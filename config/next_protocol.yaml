@@ -15,6 +15,14 @@ abstention:
   confirm_years: [2019, 2020]
   confirm_min_cohorts: 20            # aktive Kohorten in den Bestätigungsjahren
   confirm_rule: "Expectancy aktiv > 0 UND aktiv − inaktiv > 0 (einseitig t >= 1.65)"
+  # Audit F03 (2026-10-02): 2019–2020 waren vor Registrierung der Regel bereits
+  # Teil der gesehenen Regime-Attribution (ml_research.json 16:15 vs. Regel
+  # 18:06) -> Bestätigung KONTAMINIERT, zählt nicht. Bestätigung nur noch
+  # vorwärts: Kohorten ab forward_from (Prognose-Ledger), gleiche confirm_rule.
+  confirmation_status: CONTAMINATED
+  forward_from: "2026-09-29"
+  forward_min_active_cohorts: 26
+  forward_min_inactive_cohorts: 26
 
 blind_spots:
   big_error_quantile: 0.10           # schlechteste 10 % der Top-Dezil-Positionen (rel20)

@@ -1,0 +1,41 @@
+name: Tests (Pflicht-Check)
+
+# Audit F04 / Remediation P0-1: Bis 2026-10-02 lief KEIN Test automatisch.
+# Dieser Workflow läuft bei jedem Push und jedem PR und ist als Pflicht-Check
+# für main vorgesehen (Branch-Protection: siehe docs/AUDIT_REMEDIATION_PLAN.md).
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Leakage-, Audit- und Protokoll-Tests (zuerst, schnell)
+        run: python -m pytest -q -p no:cacheprovider tests/test_forensic_audit.py tests/test_research_protocol.py tests/test_next_intelligence.py tests/test_world_model.py
+
+      - name: Gesamte Testsuite
+        run: python -m pytest -q -p no:cacheprovider

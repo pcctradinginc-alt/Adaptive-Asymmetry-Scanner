@@ -34,10 +34,11 @@ def _card(dq="HIGH"):
                         "analog_median_mae_60": -0.07, "analog_median_ret_60": 0.04}}
 
 
-def _write_env(d, *, rule_enabled=True, ece=0.02, interval_calibrated=True, safe_mode=None,
+def _write_env(d, *, rule_enabled=True, prob_validated=True, ece=0.02, interval_calibrated=True, safe_mode={"active": False, "reasons": []},
                signal_date=SIGNAL, dq="HIGH", cards=True):
     rule = {"enabled": rule_enabled, "disabled_reason": None if rule_enabled else "keine Regel",
             "active_ece": ece, "rule": {"prob": 0.55}, "agreement_used": False, "feature_drift_flag": False,
+            "probability_validated": prob_validated,
             "prob_map": {"prob": {"x": [0.0, 0.9, 1.0], "y": [0.40, 0.52, 0.62]},
                          "exp_xs20": {"x": [0.0, 1.0], "y": [-0.01, 0.015]}},
             "models": ["a", "b"], "meta_version": "meta-test", "active_ensemble": "static_equal"}
@@ -73,6 +74,9 @@ def robust_world(monkeypatch):
     monkeypatch.setattr(kg, "load_inputs", lambda: (_ for _ in ()).throw(OSError("kein KG im Test")))
     monkeypatch.setattr(dint, "candidate_profile",
                         lambda tickers, panel, info: {t: {"portfolio_utility": 0.01} for t in tickers})
+    from modules import mailer
+    monkeypatch.setattr(mailer, "send_mail", lambda subj, html, text, dry_run=False, **k:
+                        {"status": "dry_run" if dry_run else "sent"})     # Test-Transport
 
 
 def _run(d, **kw):
@@ -98,6 +102,7 @@ def test_A16_calm_regime_no_alert(tmp_path, robust_world):
 
 @pytest.mark.parametrize("kw, needle", [
     ({"rule_enabled": False}, "keine OOS-validierte Regel"),
+    ({"prob_validated": False}, "Wahrscheinlichkeiten nicht validiert"),
     ({"ece": 0.09}, "Kalibrierung"),
     ({"interval_calibrated": False}, "intervalle nicht kalibriert"),
     ({"safe_mode": {"active": True, "reasons": ["TEST"]}}, "SAFE MODE"),
@@ -125,7 +130,7 @@ def test_A16_fragile_counterfactual_blocks(tmp_path, robust_world, monkeypatch):
 
 
 def _send(d, panel, day=TODAY):
-    return hc.run(send=True, dry_run=True, today=day, out_dir=d, panel=panel,
+    return hc.run(send=True, dry_run=False, today=day, out_dir=d, panel=panel,
                   earnings_fn=lambda t, x: 40, name_fn=lambda t: t)
 
 
@@ -137,13 +142,17 @@ def test_A16_duplicate_suppressed_and_material_change_realerted(tmp_path, robust
     assert re["sent"] and {s["reason"] for s in re["sent"]} == {"Regimewechsel"}
 
 
-@pytest.mark.xfail(strict=True, reason="AUDIT-F10: fehlgeschlagener Versand wird im Dedup-Zustand als gemeldet "
-                                       "gespeichert -> Alert geht verloren, kein Retry")
-def test_A16_failed_delivery_is_retried(tmp_path, robust_world):
+def test_A16_failed_delivery_is_retried(tmp_path, robust_world, monkeypatch):
+    """Remediation P1-3 (Audit F10)."""
+    from modules import mailer
     _write_env(tmp_path)
-    first = _send(tmp_path, _panel())                                # Mail nicht konfiguriert -> nicht zugestellt
+    monkeypatch.setattr(mailer, "send_mail", lambda *a, **k: {"status": "failed"})
+    first = _send(tmp_path, _panel())                                # nicht zugestellt
     assert first["sent"] and all(s["status"] != "sent" for s in first["sent"])
-    assert _send(tmp_path, _panel())["sent"]                         # muss erneut versucht werden
+    monkeypatch.setattr(mailer, "send_mail", lambda *a, **k: {"status": "sent"})
+    again = _send(tmp_path, _panel())                                # erneuter Versuch
+    assert again["sent"] and {s["reason"] for s in again["sent"]} == {"neu"}
+    assert _send(tmp_path, _panel())["sent"] == []                   # jetzt zugestellt -> Duplikat
 
 
 # ── 18. Safe-Mode-Angriffe ──────────────────────────────────────────────────
@@ -155,19 +164,19 @@ def test_A18_corrupt_threshold_file_fails_closed(tmp_path, robust_world):
     assert res["candidates"] == [] and not res["enabled"]
 
 
-@pytest.mark.xfail(strict=True, reason="AUDIT-F07: beschädigtes safe_mode.json wird als 'nicht aktiv' gelesen (fail-open)")
 def test_A18_corrupt_safe_mode_file_must_fail_closed(tmp_path, robust_world):
     _write_env(tmp_path)
     (tmp_path / "safe_mode.json").write_text("{kaputt")
     res = _run(tmp_path, panel=_panel())
-    assert res["candidates"] == []
+    assert res["candidates"] == [] and "SAFE MODE unbekannt" in res["disabled_reason"]
 
 
-@pytest.mark.xfail(strict=True, reason="AUDIT-F07: fehlendes safe_mode.json blockiert nicht (fail-open)")
 def test_A18_missing_safe_mode_file_must_fail_closed(tmp_path, robust_world):
-    _write_env(tmp_path)                                             # kein safe_mode.json
+    """Remediation P1-2 (Audit F07)."""
+    _write_env(tmp_path)
+    (tmp_path / "safe_mode.json").unlink()
     res = _run(tmp_path, panel=_panel())
-    assert res["candidates"] == []
+    assert res["candidates"] == [] and "SAFE MODE unbekannt" in res["disabled_reason"]
 
 
 @pytest.mark.parametrize("meta, world, health, fwd, mlr, needle", [
@@ -183,15 +192,28 @@ def test_A18_safe_mode_triggers(meta, world, health, fwd, mlr, needle):
     assert sm["active"] and any(needle in r for r in sm["reasons"])
 
 
-@pytest.mark.xfail(strict=True, reason="AUDIT-F08: stale Quellen (STALE) lösen keinen Safe Mode aus, nur FAIL")
 def test_A18_stale_sources_trigger_safe_mode():
+    """Remediation P2-2 (Audit F08)."""
     health = {k: {"status": "PASS", "staleness": "STALE"} for k in "abcd"}
     assert mc.safe_mode({}, {}, health, None, {})["active"]
+    one_high = {"a": {"status": "PASS", "staleness": "STALE", "criticality": "high"},
+                **{k: {"status": "PASS", "staleness": "FRESH"} for k in "bcdefgh"}}
+    assert any("STALE" in r for r in mc.safe_mode({}, {}, one_high, None, {})["reasons"])
+    fresh = {k: {"status": "PASS", "staleness": "FRESH"} for k in "abcd"}
+    assert not mc.safe_mode({}, {}, fresh, None, {})["active"]
+
+
+def test_A18_corrupt_artifact_triggers_safe_mode(tmp_path, monkeypatch):
+    monkeypatch.setattr(mc, "OUT", tmp_path)
+    (tmp_path / "hc_thresholds.json").write_text("{kaputt")
+    mc.CORRUPT.clear()
+    mc._load("hc_thresholds.json", {})
+    sm = mc.safe_mode({}, {}, {}, None, {}, corrupt=list(mc.CORRUPT))
+    assert sm["active"] and any("CORRUPT" in r for r in sm["reasons"])
 
 
 # ── 14. Meta-Cognition: Aussage muss zur Metrik passen ──────────────────────
 
-@pytest.mark.xfail(strict=True, reason="AUDIT-F09: 'overall_calibration GOOD' trotz überkonfidentem Top-Bucket")
 def test_A14_calibration_label_respects_overconfident_buckets():
     meta = {"approaches": {"static_equal": {"metrics": {"ece": 0.006}}},
             "calibration_buckets": {"static_equal": [
@@ -243,7 +265,6 @@ def test_A5_purge_excludes_labels_overlapping_test():
     assert list(tr["date"]) == [pd.Timestamp("2020-12-01")]
 
 
-@pytest.mark.xfail(strict=True, reason="AUDIT-F05: lagged_calibration nutzt Vorjahres-Labels, die nach Testbeginn enden (kein Purge)")
 def test_A5_lagged_calibration_purges_overlapping_labels():
     from modules import meta_learning as mlm
     rows = []
@@ -273,13 +294,139 @@ def test_A5_lagged_calibration_purges_overlapping_labels():
     assert used["n"][0] <= n_prev - len(leaking)
 
 
-def test_A5_research_universe_is_survivorship_free():
-    """Universum muss je Stichtag rekonstruiert werden (PIT-Mitgliedschaft)."""
-    import inspect
-    from modules import universe
-    src = inspect.getsource(universe.get_universe)
-    pit = "as_of" in inspect.signature(universe.get_universe).parameters
-    if not pit:
-        pytest.xfail("AUDIT-F01: get_universe() liefert die HEUTIGE Indexliste ohne PIT-Mitgliedschaft "
-                     "(Survivorship-Bias im gesamten Research-Stack)")
-    assert "delist" in src
+def _changes_table():
+    cols = pd.MultiIndex.from_tuples([("Effective Date", "Effective Date"), ("Added", "Ticker"), ("Added", "Security"),
+                                      ("Removed", "Ticker"), ("Removed", "Security"), ("Reason", "Reason")])
+    return pd.DataFrame([["January 10, 2020", "CCC", "C Corp", "XXX", "X Corp", "Marktkap."],
+                         ["May 1, 2018", "BRK.B", "B Corp", "YYY", "Y Inc", "Übernahme[1]"],
+                         ["June 3, 2016", np.nan, np.nan, "ZZZ", "Z Inc", "Insolvenz"]], columns=cols)
+
+
+def test_A5_sp500_changes_parser_and_pit_membership():
+    """Remediation P0-2 (Audit F01): Mitgliedschaft je Stichtag statt heutiger Liste."""
+    from modules import universe as u
+    ch = u.parse_sp500_changes(_changes_table())
+    assert ch[0] == {"date": "2016-06-03", "added": None, "removed": "ZZZ"}
+    assert ch[1]["added"] == "BRK-B" and ch[2]["removed"] == "XXX"
+    iv = u.membership_intervals(["AAA", "BRK-B", "CCC"], ch)
+    at = lambda d: sorted(t for t, x in iv.items() if u.is_member(x, d))
+    assert at("2021-03-01") == ["AAA", "BRK-B", "CCC"]
+    assert at("2019-03-01") == ["AAA", "BRK-B", "XXX"]          # CCC noch nicht, XXX noch Mitglied
+    assert at("2017-03-01") == ["AAA", "XXX", "YYY"]
+    assert at("2015-03-01") == ["AAA", "XXX", "YYY", "ZZZ"]
+    assert at("2020-01-10") == ["AAA", "BRK-B", "CCC"]          # Stichtag der Änderung: neue Zusammensetzung
+
+
+def test_A5_research_universe_includes_removed_names(monkeypatch):
+    from modules import universe as u
+    monkeypatch.setattr(u, "sp500_history", lambda: {"intervals": u.membership_intervals(
+        ["AAA", "BRK-B", "CCC"], u.parse_sp500_changes(_changes_table())), "n_changes": 3,
+        "first_change": "2016-06-03", "source": "test"})
+    uni = u.research_universe("2014-01-01")
+    assert set(uni["tickers"]) == {"AAA", "BRK-B", "CCC", "XXX", "YYY", "ZZZ"}
+    assert set(uni["removed_since_start"]) == {"XXX", "YYY", "ZZZ"}
+    assert u.research_universe("2019-01-01")["removed_since_start"] == ["XXX"]
+
+
+def test_A5_panel_rows_only_during_membership():
+    spy = _toy_prices(n=400, seed=9)
+    frames = {"IN": _toy_prices(seed=10), "OUT": _toy_prices(seed=11)}
+    cut = str(spy.index[300].date())
+    p = ml.build_panel(frames, spy, start=str(spy.index[0].date()),
+                       membership={"IN": [[None, None]], "OUT": [[None, cut]]})
+    late = p[p["date"] >= pd.Timestamp(cut)]
+    assert set(late["ticker"]) == {"IN"} and "OUT" in set(p[p["date"] < pd.Timestamp(cut)]["ticker"])
+    # Querschnittsränge nach dem Filter: einziger Titel -> Rang 0.5 (pct=1.0 - 0.5)
+    assert (late["mom_3m"].dropna() == 0.5).all()
+
+
+def test_A5_research_panel_never_falls_back_to_todays_list(monkeypatch):
+    from modules import universe as u
+    monkeypatch.setattr(u, "sp500_history", lambda: (_ for _ in ()).throw(RuntimeError("keine Historie")))
+    with pytest.raises(RuntimeError):
+        ml.build_research_panel("weekly")
+
+
+# ── Remediation P0-4 (Audit F03): Abstinenz nur vorwärts bestätigbar ────────
+
+def test_P04_contaminated_confirmation_never_counts():
+    from modules import next_intelligence as ni
+    assert ni.NP["abstention"]["confirmation_status"] == "CONTAMINATED"
+    nv = {"abstention_confirmation": {"confirmed": False, "status": "CONTAMINATED", "in_sample_rule_holds": True,
+                                      "forward": {"confirmed": False, "status": "ACCUMULATING"}},
+          "approaches": {}}
+    ok, why = hc.regime_compatible({}, nv, {"vix": 15.0, "spy_trend_200": 0.05})
+    assert "Abstinenz-Regel (bestätigt)" not in why
+
+
+def _fwd_panel(dates, vix):
+    rows = []
+    rng = np.random.default_rng(5)
+    for d, v in zip(dates, vix):
+        shock = rng.normal(0, 0.01)                         # Kohorten-Rauschen
+        for i, t in enumerate(TICKERS):
+            rows.append({"date": pd.Timestamp(d), "ticker": t, "vix": v, "spy_trend_200": 0.05,
+                         "fwd_xs_20": 0.002 * (i - 50) / 50 + (0.03 + shock if (v >= 20 and i >= 90) else
+                                                               (shock if i >= 90 else 0.0)),
+                         "label_end_20": pd.Timestamp(d) + pd.Timedelta(days=28)})
+    return pd.DataFrame(rows)
+
+
+def test_P04_forward_abstention_ledger_counts_only_matured_cohorts():
+    from modules import next_intelligence as ni
+    dates = list(pd.date_range("2026-10-02", periods=70, freq="W-FRI").strftime("%Y-%m-%d"))
+    vix = [25.0 if k % 2 else 15.0 for k in range(len(dates))]
+    panel = _fwd_panel(dates, vix)
+    preds = [{"model_id": m, "prediction_date": d, "rank_pct": {t: (i + 1) / 100 for i, t in enumerate(TICKERS)}}
+             for d in dates for m in ("a", "b")] + \
+            [{"model_id": "a", "prediction_date": "2026-09-01", "rank_pct": {"T001": 1.0}}]   # vor forward_from: ignoriert
+    r = ni.forward_abstention(panel, preds)
+    assert r["pending_cohorts"] >= 4                       # jüngste Labels noch offen -> nicht gezählt
+    assert r["active_cohorts"] + r["inactive_cohorts"] + r["pending_cohorts"] == len(dates)
+    assert r["active_expectancy"] > r["inactive_expectancy"]
+    assert r["status"] == "CONFIRMED" and r["confirmed"]
+    short = ni.forward_abstention(_fwd_panel(dates[:10], vix[:10]), preds)
+    assert short["status"] == "ACCUMULATING" and not short["confirmed"]
+
+
+def test_P14_probability_validation_requires_monotone_calibrated_buckets():
+    from modules import meta_learning as mlm
+    real = [{"bucket": "50–55 %", "n": 15659, "win_rate": 0.4606, "predicted": 0.5053, "calibration_error": -0.0447},
+            {"bucket": "55–60 %", "n": 356, "win_rate": 0.4635, "predicted": 0.5717, "calibration_error": -0.1082},
+            {"bucket": "65–70 %", "n": 61, "win_rate": 0.5738, "predicted": 0.6818, "calibration_error": -0.108}]
+    v = mlm.probability_validation(real)                           # echte Buckets vom 2026-10-02
+    assert not v["probability_validated"] and any("55–60" in r for r in v["probability_validation_reasons"])
+    good = [{"bucket": "50–55 %", "n": 500, "win_rate": 0.52, "calibration_error": 0.0},
+            {"bucket": "55–60 %", "n": 300, "win_rate": 0.57, "calibration_error": 0.0},
+            {"bucket": "60–65 %", "n": 150, "win_rate": 0.62, "calibration_error": 0.0}]
+    assert mlm.probability_validation(good)["probability_validated"]
+    nonmono = [dict(good[0]), dict(good[1], win_rate=0.50, calibration_error=-0.04)]
+    assert not mlm.probability_validation(nonmono)["probability_validated"]
+
+
+# ── Remediation P2-5 (Audit F14): Determinismus bei gleichem Panel ──────────
+
+def test_P25_meta_evaluate_is_deterministic_on_same_panel():
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import test_ml_research as T
+    from modules import meta_learning as mlm
+    p = T._panel(n_days=2600, n_stocks=55, signal=True)
+    p["vix"] = 15.0 + 10 * (p["date"].dt.month % 2)
+    specs = [{"id": "mom", "model": "rule", "rule_feature": "mom_3m", "target": "fwd_xs_20"},
+             {"id": "hgb", "model": "hist_gbm", "target": "fwd_xs_20", "features": "all",
+              "params_grid": {"max_iter": [30], "learning_rate": [0.1], "max_depth": [2], "min_samples_leaf": [50]}}]
+    a = mlm.evaluate(p.copy(), specs, latest_ranks={})
+    b = mlm.evaluate(p.copy(), specs, latest_ranks={})
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("repro_check", Path(__file__).resolve().parent.parent / "scripts" / "repro_check.py")
+    rc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rc)
+    flat_a, flat_b = {}, {}
+    for name, ap in a["approaches"].items():
+        rc._flatten(name, ap.get("metrics"), flat_a)
+    for name, ap in b["approaches"].items():
+        rc._flatten(name, ap.get("metrics"), flat_b)
+    assert flat_a and rc.compare(flat_a, flat_b, 1e-12) == []
+    assert a["panel_hash"] == b["panel_hash"] and a["decision"]["verdict"] == b["decision"]["verdict"]

@@ -57,5 +57,10 @@ def test_machine_state_only_metric_statements():
                           {}, {}, {}, {"active": False, "reasons": []})
     assert any("Überkonfident" in x for x in st["where_are_we_systematically_wrong"])
     assert any("m:" in x for x in st["which_models_are_redundant"])
-    assert st["self_assessment"]["overall_calibration"] == "GOOD"
+    # Audit F09: überkonfidenter Bucket mit n=7868 -> nie GOOD
+    assert st["self_assessment"]["overall_calibration"] == "WEAK"
+    meta["calibration_buckets"]["static_equal"][0]["flag"] = "calibrated"
+    st2 = mc.machine_state({"meta": meta, "ml": {"calibration": {"interval_calibrated": True, "coverage": 0.65}}},
+                           {}, {}, {}, {"active": False, "reasons": []})
+    assert st2["self_assessment"]["overall_calibration"] == "GOOD"
     assert mc.render_md(st)

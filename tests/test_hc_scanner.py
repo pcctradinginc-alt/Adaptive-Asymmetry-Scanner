@@ -25,6 +25,7 @@ def _card(q=0.05, dq="HIGH", share=0.7, mfe=0.15, mae=-0.08):
 
 def _rule(enabled=True, ece=0.02):
     return {"enabled": enabled, "disabled_reason": None if enabled else "keine Regel", "active_ece": ece,
+            "probability_validated": True,
             "rule": {"prob": 0.55, "agreement_sd": 0.2}, "agreement_used": True, "feature_drift_flag": False,
             "prob_map": {"prob": {"x": [0.0, 0.9, 1.0], "y": [0.45, 0.52, 0.6]},
                          "exp_xs20": {"x": [0.0, 1.0], "y": [-0.01, 0.012]}},
