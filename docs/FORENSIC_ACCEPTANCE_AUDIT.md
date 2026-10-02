@@ -43,6 +43,8 @@ Kursdaten konnten daher nur in GitHub Actions laufen, nicht lokal.
 | **F12** | **HC-System nie in Produktion aktiv, Wahrscheinlichkeiten nicht kalibriert.** `hc_thresholds.enabled = false` in allen 3 Läufen. Es wurde nie ein HC-Alert erzeugt, `alerts_log.jsonl` existiert nicht. Die Intelligenz-Prüfungen (Counterfactual, KG, Blind Spot, Portfolio) liefen **nie** auf echten Kandidaten. | `outputs/research/hc_candidates.json` (Historie 3d7f14d, 26d0456, 7fa38cc) |
 | **F13** | **Zwei getrennte Systeme.** Der tägliche Produktions-Scanner `pipeline.py` (LLM-Prescreen → Deep Analysis → MC → Optionen → Mail) importiert **kein** Modul des ML-/Intelligenz-Stacks. World Model, Meta-Learning, Causal, KG, Counterfactual, Blind Spots, DI, Meta-Cognition und Safe Mode haben **keinen** Einfluss auf die täglichen Trade-Vorschläge. | Importgraph (Abschnitt 3); `scanner.yml` ruft nur `pipeline.py` und `feedback.py` auf |
 
+| **F14** | **Nicht reproduzierbar, Verdikte instabil.** Zwei Läufe mit gleichem Code und gleicher Datenperiode (vor Börsenschluss): Meta-Sharpe 0,468 → 0,013, Meta-Verdikt NEED_MORE_DATA → REJECT, F-Sharpe 0,102 → 0,277. Ursache: kein Daten-Snapshot (Yahoo wird bei jedem Lauf neu geladen). | §19; CI 37021907362 vs. 37050354688 |
+
 ### PARTIAL IMPLEMENTATIONS
 - **Knowledge Graph:** 612 Kanten, alle `reference_data` oder `curated_config`, **0 gemessene Kanten**. `contradictions` kann damit nie auftreten; die HC-Prüfung ist faktisch wirkungslos. Für SNDK und MU ist der Teilgraph leer.
 - **Active Learning, Research Value Attribution, Failure Analyzer:** erzeugen nur Text (Weekly/Machine-State). Keine operative Konsequenz.
@@ -493,7 +495,54 @@ tnx-Drift. HC war blockiert (`hc_candidates.json`).
 
 ## 19. Reproduzierbarkeit
 
-SIEHE_REPRO
+**Test:** zwei vollständige CI-Läufe von `ml_research.yml`, beide **vor
+US-Börsenschluss** am 2026-10-02:
+- Lauf 37021907362, Code `7fbb9d3`, Artefakte `7fa38cc`;
+- Lauf 37050354688, Code `e5de692`, Artefakte `0a3b92b`.
+
+Zwischen den Commits ist im Research-Code nichts geändert
+(`git diff 7fbb9d3 e5de692 -- modules/ config/`: nur `engine_monitor.py`).
+Seeds sind fest (`random_state=0`, `bootstrap_seed 23`).
+
+| Größe | Lauf 1 | Lauf 2 | identisch? |
+|---|---|---|---|
+| Panel-Zeilen / Zeitraum | 316 389 / 2014-06-06..2026-10-01 | 316 389 / gleich | ja |
+| `panel_hash` | e722d05e49dcc5d0 | 4841a6db129b4a6f | **nein** |
+| momentum_12_1 WF-Mean (deterministisch, nur Close) | 0,00352 | 0,00352 | ja |
+| hgb_xs20_v1 WF-Mean | 0,00679 | 0,00737 | nein |
+| Static Ensemble (A) Sharpe | 0,262 | 0,218 | nein |
+| **Meta (B) Sharpe** | **0,468** | **0,013** | **nein** |
+| Meta-Verdikt | NEED_MORE_DATA | REJECT | **nein** |
+| Counterfactual-Filter (F) Sharpe | 0,102 | 0,277 | nein |
+| G Sharpe | 0,706 | 0,654 | nein |
+| Abstinenz t | 3,27 | 3,54 | nein |
+| Gesamtentscheidung / Gate-Fehler / DI | KEEP_CHAMPION / 3,5,6 / MODIFY | gleich | ja |
+
+**Ursache:** Die Eingangsdaten unterscheiden sich, der Code nicht. Seeds sind
+gesetzt, und das reine Close-Modell ist bitgleich. Kurse, Volumen und High/Low
+werden in jedem Lauf neu von Yahoo geladen (`fetch_data`, `auto_adjust=True`).
+Es gibt keinen eingefrorenen Daten-Snapshot und keine Datenversion; geloggt
+wird nur der `panel_hash`.
+
+**Dokumentation je Lauf:**
+
+| Merkmal | vorhanden |
+|---|---|
+| Commit | ja (`code_sha`) |
+| Config-Hash | teilweise (Protokoll-Pins in Tests, `spec_hash` je Modell) |
+| Daten-Snapshot | **nein** |
+| Feature-Version | `features_hash`, `fs-v1` |
+| Modellversion | `spec_hash` |
+| Seed | im Code fest |
+
+**Urteil: FAIL (nicht reproduzierbar).**
+
+Wichtiger noch: Die Ergebnisse sind **nicht robust**. Kleinste Datenrevisionen
+verschieben die Meta-Sharpe von 0,47 auf 0,01 und kippen Verdikte (Meta, F).
+Damit sind alle Einzelurteile mit |Δ| in dieser Größenordnung Rauschen. Stabil
+über beide Läufe sind nur die Gesamtentscheidung KEEP_CHAMPION, die
+Gate-Fehler und das Vorzeichen des Abstinenz-Effekts. Dieser ist aber
+kontaminiert (F03).
 
 ## 20. Ablationsmatrix (Lauf 2026-10-02, Referenz A, identische OOS-Zeilen)
 
@@ -511,6 +560,17 @@ SIEHE_REPRO
 | Historical Analogies | – | – | – | – | – | – | – | **nicht gemessen** |
 | Failure Memory (Meta-Ablation) | Stacking ohne Failure Memory: Locked 2,37 gegen 2,96 | – | – | – | – | – | – | uneinheitlich |
 | Dynamic Weighting (trailing IC) | −0,171 | −0,27 pp | −3,5 pp | −0,0000 | −0,0038 | −0,008 | – | schädlich |
+
+## 19b. Produktions-Scanner: Laufzeit-Fix (Nachweis aus echtem Lauf)
+
+Scanner-Lauf 37048103276 vom 2026-10-02 auf `f6612d7` (mit EPS-Budget-Fix):
+- Stufe 2b Datenvalidierung: **50 s** (am 01.10.: ~26 min stille Lücke).
+- External Context: 13 s.
+- Deep Analysis: 81 von 94 Kandidaten analysiert, 13 `time_budget_exceeded`
+  (am 01.10.: 0 von 110).
+- Pipeline bis Stufe 10 durchlaufen; Ergebnis **0 Trade-Vorschläge**.
+
+Der Fix wirkt. Neuer Engpass: Deep Analysis braucht ~30 min für 81 LLM-Aufrufe.
 
 ## 21. Testqualität
 
@@ -628,10 +688,131 @@ der täglichen Mail.
 | Alert Deduplication | ja | ja | ja | – | nie | PARTIAL | F10 |
 | Weekly Intelligence Email | ja | ja | ja | – | ja | PARTIAL | F11 |
 | High-Confidence Email Alerts | ja | ja | Dry-Run | – | nie | UNUSED | nie gesendet |
+| Reproduzierbarkeit (Research-Pipeline) | – | – | nein | – | – | FAIL | §19, F14 |
 | (Produktion) tägliche Scanner-Mail | ja | ja | ja | **Forward: PF 1,12 gesamt, 0,42 letzte 3 M** | ja | NOT VALIDATED | Weekly §2 |
 
 ---
 
 ## Abschluss: Antworten
 
-ANTWORTEN
+### 1. Was ist vollständig implementiert?
+
+PASS mit realem Aufrufer, Test und CI-Nachweis:
+- Label Engine;
+- Baseline-Modell;
+- Research Engine bzw. Lab;
+- Experiment Registry;
+- Research Memory;
+- Hypothesen-Ähnlichkeitssperre;
+- Research Director (Kreislauf CI 37021907362);
+- Feature Factory (Discovery);
+- Performance Attribution.
+
+Alle sind **Research-Prozesse**, keine Signal-Komponenten.
+
+### 2. Was existiert nur teilweise?
+- Feature Store (Survivorship);
+- Walk-Forward und Purging (F05, kein Embargo);
+- Regime Engine;
+- Prediction Memory und Trade Memory;
+- Uncertainty;
+- Champion–Challenger (kein Champion);
+- Disagreement;
+- Active Learning;
+- Counterfactual;
+- Self-Play;
+- Unknown-Unknown;
+- Portfolio Layer;
+- Meta-Cognition (F09);
+- Alpha Decay;
+- Safe Mode (F07, F08);
+- Dedup (F10);
+- Weekly Report (F11).
+
+### 3. Was ist Dead Code?
+- `news_fetcher.py` und `reddit_signals.py`.
+- **Faktisch wirkungslos:** die KG-Widerspruchsprüfung (keine Messkanten),
+  Failure Analyzer, Research Value und Active Learning (nur Text).
+- **Hinter einem nie geöffneten Gate:** HC-Intelligenz-Checks und HC-Alerts.
+- **Ohne Verbindung zur täglichen Produktions-Mail:** der gesamte
+  ML-/Intelligenz-Stack (F13).
+
+### 4. Was ist nicht validiert?
+- World Model;
+- Causal Layer;
+- Knowledge Graph;
+- Meta-Learning;
+- Dynamic Weighting;
+- Decision Intelligence;
+- Analogy Engine;
+- spezialisierte Modelle;
+- HC-Scanner;
+- Wahrscheinlichkeitskalibrierung (FAIL).
+
+### 5. Gibt es Leakage?
+**Ja.**
+- Survivorship-Bias im gesamten Research-Stack (F01, kritisch).
+- Abstinenz-Regel aus gesehenen Daten abgeleitet und „bestätigt“ (F03).
+- Kleine Kalibrierungs-Leakage (F05).
+- Heutige Sektoren und heutiger KG rückwirkend.
+
+**Kein Leakage gefunden:**
+- Zukunftspreise in Features: PIT-Test bestanden.
+- Makro-Revisionen: ALFRED.
+- Hyperparameter.
+- Stacking.
+- Analogien.
+
+### 6. Ist der Locked Holdout sauber?
+**Nein, KONTAMINIERT.**
+- 28 Auswertungen.
+- Ergebnisse in Verdikten verwendet.
+- Die Live-`prob_map` ist auf ihm gefittet.
+
+### 7. Liefert Meta-Learning echten OOS-Mehrwert?
+**Nicht belegt.** Δ-CI enthält 0. Zwei identisch konfigurierte Läufe ergeben
+Sharpe 0,468 bzw. 0,013 und gegensätzliche Verdikte. Locked ist schlechter und
+ohnehin kontaminiert.
+
+### 8. Liefert das neue Intelligence-System zusätzlichen OOS-Mehrwert?
+**Nein.** Keine Komponente verbessert A signifikant: C, D, E n.s.; F und der
+Blind-Spot-Filter schaden.
+
+Die einzige große Verbesserung ist die Abstinenz-Regel. Sie ist in-sample
+abgeleitet, ihre „Bestätigung“ ist kontaminiert (F03), und alles unterliegt dem
+Survivorship-Bias. Sie ist eine **Hypothese**, kein Nachweis.
+
+### 9. Sind die angegebenen Gewinnwahrscheinlichkeiten kalibriert?
+**Nein.**
+- Im Bereich 55–60 %: vorhergesagt 57 %, realisiert 46 %.
+- Brier ≈ 0,2495, also Zufallsniveau.
+- 99 % aller Prognosen liegen unter 60 %.
+- P(>+10 %) hat negativen Skill (−0,15).
+
+### 10. Funktionieren High-Confidence-Alerts wirklich?
+- **Mechanisch:** größtenteils ja. Die E2E-Tests zu Gates, Safe Mode,
+  Duplikat und Regimewechsel bestehen.
+- **Defekte:** Versandfehler führt zu Alert-Verlust (F10); Safe Mode ist
+  fail-open (F07).
+- **In Produktion:** wurde nie ein Alert erzeugt, weil die Regel in allen
+  Läufen deaktiviert war.
+- **Inhaltlich:** nicht validiert (Q9).
+
+### 11. Funktioniert der Weekly Report mit echten Daten?
+**Teilweise.**
+- Er läuft mit echten Daten und trennt Paper-, Backtest- und Forward-Daten
+  korrekt.
+- Er widerspricht sich beim Safe Mode, zeigt veraltete Meta-Zahlen und
+  Kalibrierung des falschen Modells (F11).
+
+### 12. Was verhindert einen vertrauenswürdigen produktiven Einsatz?
+1. Kein CI-Testlauf und keine erzwungene Review (F04, F06).
+2. Survivorship-Bias (F01).
+3. Kontaminierter Holdout und kontaminierte Abstinenz-Bestätigung (F02, F03).
+4. Nicht reproduzierbare, instabile Ergebnisse ohne Daten-Snapshot (F14).
+5. Unkalibrierte Wahrscheinlichkeiten (F12).
+6. Der Intelligenz-Stack steuert die tägliche Mail nicht (F13). Diese hat
+   ihrerseits eine schwache echte Paper-Bilanz: PF 1,12 gesamt, 0,42 in den
+   letzten 3 Monaten. Ihre Kernmodule sind zu 30–40 % getestet.
+
+Maßnahmen und Prioritäten: `docs/AUDIT_REMEDIATION_PLAN.md`.
