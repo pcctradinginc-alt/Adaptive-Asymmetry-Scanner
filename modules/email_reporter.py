@@ -330,6 +330,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
             </tr>
             {implied_row}
           </table>
+          <div style="margin-top:6px;color:#b91c1c;font-size:11px;">{MC_CALIBRATION_NOTE}</div>
         </div>"""
 
         # ── Ausführungs-Block (Tradier-Sprache) ──────────────────────────────
@@ -553,6 +554,13 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
   </div>
   <div style="padding:24px 32px;">{cards}{_external_context_html()}</div>
 </div></body></html>"""
+
+
+# Audit P1-4/P1-9: Die MC-Trefferquote ist eine Modellgröße, keine kalibrierte
+# Gewinnwahrscheinlichkeit (Paper-Trades: vorhergesagt ~0,86 -> realisiert 0,41;
+# scripts/paper_performance_analysis.py). Darf nicht als solche gelesen werden.
+MC_CALIBRATION_NOTE = ("⚠️ MC Hit-Rate ist NICHT kalibriert – keine Gewinnwahrscheinlichkeit "
+                       "(Paper-Trades: vorhergesagt ~86 %, realisiert ~41 %).")
 
 
 def _send_smtp(subject: str, html: str) -> None:

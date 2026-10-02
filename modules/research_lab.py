@@ -341,25 +341,40 @@ def memory_fields(rec: dict, hyp: dict) -> dict:
 
 
 def adversarial_review(rec: dict, protocol: dict) -> dict:
-    """Self-Play: strukturierte Rollen, alle aus gemessenen Werten; keine Rolle
-    entscheidet – die Entscheidung trifft allein die vorab definierte Prüfkette."""
+    """Self-Play: getrennte Rollen mit EIGENEM, aus Messwerten abgeleitetem
+    Urteil (objection True/False + Befund) – protokolliert je Hypothese.
+    Keine Rolle entscheidet: die Entscheidung trifft allein die vorab
+    definierte Prüfkette; die Rollen machen sichtbar, WER WARUM widerspricht."""
     wf = rec.get("walk_forward") or {}
     b, st, ic = wf.get("base", {}), wf.get("stress", {}), wf.get("ic", {})
     rg = rec.get("regimes") or {}
-    return {
-        "researcher": f"Evidenz: netto {b.get('mean')} je 20 Tage, t={b.get('t_months')}, Rank-IC {ic.get('mean_ic')}, "
-                      f"Asymmetrie Top/Univ {b.get('top_asymmetry')}/{b.get('univ_asymmetry')}",
-        "skeptic": f"Hälften {wf.get('halves')}; Jahre positiv {b.get('years_positive_share')}; "
-                   f"Regime mit Versagen: {[k for k, v in rg.items() if v == 'fails'] or 'keine'}",
-        "statistician": f"n={b.get('n_cohorts')} Kohorten/{b.get('n_months')} Monate, p={rec.get('p_value')}, "
-                        f"BH über alle getesteten Hypothesen, Locked höchstens einmal",
-        "leakage_auditor": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; "
-                           "Survivorship: heutiges Universum (Querschnittsvergleich dämpft)",
-        "regime_agent": f"Regime-Urteile {rg}",
-        "execution_agent": f"Stresskosten 25 bp/Seite: netto {st.get('mean')}; Max-DD {b.get('max_dd')}",
-        "failure_agent": f"Schlechteste Phase laut Max-DD {b.get('max_dd')}; Jahre positiv {b.get('years_positive_share')}",
-        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle",
+    acc = protocol.get("hypothesis_acceptance", {})
+    halves = wf.get("halves") or {}
+    fails = [k for k, v in rg.items() if v == "fails"]
+
+    def role(objection: bool, finding: str) -> dict:
+        return {"objection": bool(objection), "finding": finding}
+    mean, t = b.get("mean"), b.get("t_months")
+    roles = {
+        "researcher": role((mean or 0) <= 0, f"Evidenz: netto {mean} je 20 Tage, t={t}, Rank-IC {ic.get('mean_ic')}, "
+                                             f"Asymmetrie Top/Univ {b.get('top_asymmetry')}/{b.get('univ_asymmetry')}"),
+        "skeptic": role(len({(v or 0) > 0 for v in halves.values()}) > 1
+                        or (b.get("years_positive_share") or 0) < acc.get("min_years_positive", 0.6) or bool(fails),
+                        f"Hälften {halves}; Jahre positiv {b.get('years_positive_share')}; "
+                        f"Regime mit Versagen: {fails or 'keine'}"),
+        "statistician": role((t or 0) < acc.get("min_t_months", 2.0),
+                             f"n={b.get('n_cohorts')} Kohorten/{b.get('n_months')} Monate, t={t}, p={rec.get('p_value')}, "
+                             f"BH über alle getesteten Hypothesen"),
+        "leakage_auditor": role(False, "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden "
+                                       "vor Locked; PIT-Universum (Audit F01); Locked KONTAMINIERT (nur Ablehnung)"),
+        "regime_agent": role(len(fails) > 4 - acc.get("min_regimes_same_sign", 3), f"Regime-Urteile {rg}"),
+        "execution_agent": role((st.get("mean") or -1) <= 0, f"Stresskosten 25 bp/Seite: netto {st.get('mean')}; "
+                                                             f"Max-DD {b.get('max_dd')}"),
+        "failure_agent": role((b.get("max_dd") or 0) < -0.3, f"Schlechteste Phase laut Max-DD {b.get('max_dd')}; "
+                                                             f"Jahre positiv {b.get('years_positive_share')}"),
     }
+    return {**roles, "objections": sorted(k for k, v in roles.items() if v["objection"]),
+            "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"}
 
 
 def load_director(path: Path = DIRECTOR_PATH) -> list[dict]:

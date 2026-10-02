@@ -22,3 +22,11 @@ tests/test_world_model.py     @pcctradinginc-alt
 config/next_protocol.yaml     @pcctradinginc-alt
 tests/test_next_intelligence.py @pcctradinginc-alt
 modules/next_intelligence.py  @pcctradinginc-alt
+# Audit F06 / Remediation P0-5: CI-Workflows, Branch-Regeln und Audit-Tests
+# dürfen nicht von derselben Automatisierung geändert UND gemergt werden,
+# die sie prüfen. Wirksam erst mit Branch-Protection "Require review from
+# Code Owners" auf main (Repo-Einstellung, nur durch Owner setzbar).
+.github/                      @pcctradinginc-alt
+tests/test_forensic_audit.py  @pcctradinginc-alt
+config/next_protocol.yaml     @pcctradinginc-alt
+config/data_catalog.yaml      @pcctradinginc-alt

@@ -156,7 +156,14 @@ konformaler Korrektur. P(>+10 %) hat auch rekalibriert keinen Skill (−0,14).
 - Momentum wird aktuell zu 85 % gewichtet, obwohl der Trend „deteriorating“ ist
   (t −2,65). Das ist ein Beleg für die Instabilität.
 
-## 14. Entscheidung: **REJECT**
+## 14. Entscheidung: **REJECT** (instabil)
+
+> Nachtrag Audit 2026-10-02 (F14): Zwei Läufe mit gleichem Code und gleicher
+> Datenperiode ergaben einmal NEED_MORE_DATA (Δ Sharpe +0,21) und einmal
+> REJECT (Meta-Sharpe 0,013). Ohne eingefrorenen Daten-Snapshot sind
+> Meta-Urteile nicht reproduzierbar. Inzwischen gibt es Replay mit Snapshot
+> (`repro.yml`). Zusätzlich war der Survivorship-Bias (F01) wirksam. Das Urteil
+> ist auf dem PIT-Universum neu zu erheben.
 Nicht bestanden:
 - Δ Sharpe > 0
 - Bootstrap-Untergrenze > 0

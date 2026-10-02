@@ -19,6 +19,14 @@ periods:
   discovery_end: "2019-01-01"  # Discovery-Engine sieht nur Labels, die davor enden
   first_test_year: 2019        # Walk-Forward-/Validierungsjahre ab hier
   locked_from: "2025-07-01"    # Locked-Holdout: nie in Entwicklung/Selektion
+  # Audit F02 (2026-10-02): Der Locked-Holdout wurde 28x ausgewertet und in
+  # Verdikten zitiert -> KONTAMINIERT. Er bleibt nur informativ und kann ein
+  # Modell nie mehr BESTÄTIGEN (nur noch ablehnen). Bindender Holdout ist der
+  # unveränderliche Forward-Shadow (Prognose-Ledger ab forward_holdout_from,
+  # promotion_criteria.fwd_min_cohorts). Je spec_hash höchstens eine
+  # Locked-Auswertung.
+  locked_status: CONTAMINATED
+  forward_holdout_from: "2026-09-29"
 
 portfolio:
   top_quantile: 0.10           # Top-Dezil gegen Querschnittsmittel

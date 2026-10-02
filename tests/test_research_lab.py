@@ -146,3 +146,20 @@ def test_canonical_status_mapping():
     assert lab.canonical_status({"status": "passed_pending_locked"}) == "RETEST_LATER"
     assert lab.canonical_status({"status": "accepted"}) == "ACCEPTED"
     assert lab.canonical_status({"status": "prior_result", "canonical_status": "INCONCLUSIVE"}) == "INCONCLUSIVE"
+
+
+def test_self_play_roles_have_own_measured_verdicts():
+    """Audit P3-4: jede Rolle mit eigenem Einwand aus Messwerten, keine Rolle entscheidet."""
+    from modules import research_lab as rl
+    proto = {"hypothesis_acceptance": {"min_t_months": 2.0, "min_years_positive": 0.6, "min_regimes_same_sign": 3}}
+    weak = {"walk_forward": {"base": {"mean": -0.001, "t_months": -1.2, "years_positive_share": 0.3, "max_dd": -0.4},
+                             "stress": {"mean": -0.003}, "ic": {}, "halves": {"first": 0.001, "second": -0.002}},
+            "regimes": {"vix_lt_20": "fails", "vix_ge_20": "fails"}}
+    r = rl.adversarial_review(weak, proto)
+    assert set(r["objections"]) >= {"researcher", "skeptic", "statistician", "regime_agent", "execution_agent",
+                                    "failure_agent"}
+    strong = {"walk_forward": {"base": {"mean": 0.004, "t_months": 3.1, "years_positive_share": 0.8, "max_dd": -0.1},
+                               "stress": {"mean": 0.002}, "ic": {}, "halves": {"first": 0.003, "second": 0.004}},
+              "regimes": {"vix_lt_20": "works"}}
+    assert rl.adversarial_review(strong, proto)["objections"] == []
+    assert rl.adversarial_review(strong, proto)["final_decision_by"].startswith("vorab")

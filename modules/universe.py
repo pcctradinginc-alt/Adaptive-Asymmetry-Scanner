@@ -174,9 +174,18 @@ def _clean(tickers: list[str]) -> list[str]:
     return result
 
 
-@lru_cache(maxsize=1)
-def get_universe(universe: str = "") -> list[str]:
-    """Gibt die konfigurierte Ticker-Liste zurück (ohne delistete Ticker)."""
+@lru_cache(maxsize=8)
+def get_universe(universe: str = "", as_of: str | None = None) -> list[str]:
+    """Gibt die konfigurierte Ticker-Liste zurück (ohne delistete Ticker).
+
+    as_of (ISO-Datum): Point-in-Time-Mitgliedschaft des S&P 500 zu diesem
+    Stichtag statt der heutigen Liste (Audit F01, Survivorship). Für
+    historische Forschung IMMER as_of bzw. research_universe() verwenden; die
+    heutige Liste ist nur für Live-Signale korrekt. Nasdaq-100 hat keine
+    Änderungshistorie und ist mit as_of nicht enthalten."""
+    if as_of is not None:
+        hist = sp500_history()
+        return sorted(t for t, iv in hist["intervals"].items() if is_member(iv, as_of))
     if not universe:
         try:
             from modules.config import cfg
@@ -212,3 +221,111 @@ def get_universe(universe: str = "") -> list[str]:
         f"nach Deduplizierung+Delisting-Filter={len(combined)})"
     )
     return combined
+
+
+# ── Point-in-Time-Mitgliedschaft (Audit F01 / Remediation P0-2) ─────────────
+# Quelle: Wikipedia "List of S&P 500 companies", Tabelle "Selected changes"
+# (dieselbe Seite wie die heutige Liste; Lizenz CC BY-SA). Rekonstruktion:
+# ausgehend von der HEUTIGEN Liste werden die Änderungen rückwärts
+# angewendet (vor dem Stichtag einer Aufnahme war der Titel kein Mitglied,
+# vor einer Entfernung war er es). Grenzen (dokumentiert, nicht versteckt):
+#   * die Tabelle ist für frühe Jahre unvollständig ("selected");
+#   * für entfernte Titel ohne Kursdaten bei Yahoo (Insolvenz/Übernahme)
+#     bleibt der Survivorship-Bias bestehen -> Abdeckung wird gemessen.
+
+def _flat_col(c) -> str:
+    if isinstance(c, tuple):
+        parts = [str(x) for x in c if str(x) and not str(x).startswith("Unnamed")]
+        uniq = []
+        for x in parts:
+            if x not in uniq:
+                uniq.append(x)
+        return " ".join(uniq).strip().lower()
+    return str(c).strip().lower()
+
+
+def parse_sp500_changes(table) -> list[dict]:
+    """Wikipedia-Änderungstabelle -> [{date, added, removed}] (Ticker in
+    Yahoo-Schreibweise, leere Felder = None). Robust gegen MultiIndex-Header
+    ("Added"/"Ticker") und flache Header ("Added Ticker")."""
+    import pandas as pd
+    df = table.copy()
+    df.columns = [_flat_col(c) for c in df.columns]
+    date_col = next((c for c in df.columns if "date" in c), None)
+    add_col = next((c for c in df.columns if "added" in c and ("ticker" in c or "symbol" in c)), None)
+    rem_col = next((c for c in df.columns if "removed" in c and ("ticker" in c or "symbol" in c)), None)
+    if not (date_col and add_col and rem_col):
+        raise ValueError(f"Änderungstabelle unbekannt: {list(df.columns)}")
+    out = []
+    for _, r in df.iterrows():
+        d = pd.to_datetime(str(r[date_col]).split("[")[0].strip(), errors="coerce")
+        if pd.isna(d):
+            continue
+
+        def tk(v):
+            if v is None or (isinstance(v, float) and v != v):
+                return None
+            v = str(v).strip().upper().replace(".", "-")
+            return v if v and v != "NAN" else None
+        out.append({"date": d.date().isoformat(), "added": tk(r[add_col]), "removed": tk(r[rem_col])})
+    return sorted(out, key=lambda x: x["date"])
+
+
+def membership_intervals(current: list[str], changes: list[dict]) -> dict[str, list[list]]:
+    """{ticker: [[start, end], ...]} mit ISO-Daten; start None = vor Beginn
+    der Aufzeichnung, end None = bis heute. Rückwärts von der heutigen Liste."""
+    ends: dict[str, str | None] = {t: None for t in current}      # aktuell "offene" Mitglieder -> Endedatum
+    out: dict[str, list[list]] = {}
+    for ch in sorted(changes, key=lambda x: x["date"], reverse=True):
+        d = ch["date"]
+        a, r = ch.get("added"), ch.get("removed")
+        if a and a in ends:                        # vor d war a kein Mitglied: Intervall schließen
+            out.setdefault(a, []).append([d, ends.pop(a)])
+        if r and r not in ends:                    # vor d war r Mitglied: Intervall öffnen, endet am Tag d
+            ends[r] = d
+    for t, e in ends.items():                      # seit Beginn der Aufzeichnung Mitglied
+        out.setdefault(t, []).append([None, e])
+    for t in out:
+        out[t].sort(key=lambda iv: iv[0] or "")
+    return out
+
+
+def is_member(intervals: list[list], as_of) -> bool:
+    d = str(getattr(as_of, "date", lambda: as_of)()) if hasattr(as_of, "date") else str(as_of)
+    d = d[:10]
+    return any((s is None or s <= d) and (e is None or d < e) for s, e in intervals)
+
+
+def _fetch_sp500_changes() -> list[dict]:
+    import pandas as pd
+    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    resp = requests.get(url, headers=_WP_HEADERS, timeout=20)
+    resp.raise_for_status()
+    tables = pd.read_html(StringIO(resp.text), attrs={"id": "changes"})
+    return parse_sp500_changes(tables[0])
+
+
+@lru_cache(maxsize=1)
+def sp500_history() -> dict:
+    """{'intervals': {ticker: [[start,end],...]}, 'n_changes', 'first_change', 'source'}.
+    Ohne Änderungshistorie (Netz/Format) -> Fehler statt stiller Rückfall auf
+    die heutige Liste (das wäre genau der Survivorship-Bias)."""
+    current = _fetch_sp500()
+    if not current:
+        raise RuntimeError("S&P-500-Liste nicht verfügbar – PIT-Universum nicht rekonstruierbar")
+    changes = _fetch_sp500_changes()
+    if not changes:
+        raise RuntimeError("S&P-500-Änderungshistorie leer – PIT-Universum nicht rekonstruierbar")
+    current = [t.strip().upper().replace(".", "-") for t in current]
+    return {"intervals": membership_intervals(current, changes), "n_changes": len(changes),
+            "first_change": changes[0]["date"], "source": "wikipedia:List_of_S&P_500_companies#changes"}
+
+
+def research_universe(start: str) -> dict:
+    """Alle Titel, die seit `start` IRGENDWANN Mitglied waren (inkl. später
+    entfernter), plus Mitgliedschaftsintervalle für die Stichtagsmaske."""
+    hist = sp500_history()
+    iv = hist["intervals"]
+    tickers = sorted(t for t, ivs in iv.items() if any(e is None or e > start for _, e in ivs))
+    removed = sorted(t for t in tickers if all(e is not None for _, e in iv[t]))
+    return {**hist, "tickers": tickers, "removed_since_start": removed, "start": start}

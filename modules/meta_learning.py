@@ -447,6 +447,8 @@ def lagged_calibration(res: pd.DataFrame, score: str) -> pd.DataFrame:
             continue
         prev = res[(res["fold"] == order[i - 1]) & res[score].notna() & res[PROB_TARGET].notna()]
         cur = res[(res["fold"] == f) & res[score].notna()].copy()
+        if "label_end_20" in prev and not cur.empty:   # Purge: nur Labels, die VOR dem Testbeginn feststanden (Audit F05)
+            prev = prev[prev["label_end_20"] < cur["date"].min()]
         if len(prev) < 1000 or cur.empty:
             continue
         rk_prev = prev.groupby("date")[score].rank(pct=True)
@@ -455,7 +457,8 @@ def lagged_calibration(res: pd.DataFrame, score: str) -> pd.DataFrame:
         iso_r = IsotonicRegression(out_of_bounds="clip").fit(rk_prev, prev[PROB_TARGET])
         cur["prob"] = iso.predict(rk_cur)
         cur["exp_xs20"] = iso_r.predict(rk_cur)
-        out.append(cur[["date", "ticker", "fold", "prob", "exp_xs20", PROB_TARGET, "fwd_xs_20", "mae_20"]])
+        out.append(cur[["date", "ticker", "fold", "prob", "exp_xs20", PROB_TARGET, "fwd_xs_20", "mae_20"]
+                       + (["mfe_20"] if "mfe_20" in cur else [])])
     return pd.concat(out, ignore_index=True) if out else pd.DataFrame()
 
 
@@ -470,6 +473,25 @@ def prob_metrics(cal: pd.DataFrame) -> dict:
                     for b in range(10) if (bins == b).any()))
     return {"brier": ml._r(((p - y) ** 2).mean(), 5), "log_loss": ml._r(-(y * np.log(p) + (1 - y) * np.log(1 - p)).mean(), 5),
             "ece": ml._r(ece, 5), "base_rate": ml._r(y.mean(), 4), "n": int(len(c))}
+
+
+def probability_validation(buckets: list[dict], min_n: int = 100, tol: float = 0.05) -> dict:
+    """Audit F12 / Remediation P1-4: Wahrscheinlichkeiten gelten nur als
+    validiert, wenn (a) mindestens zwei Buckets n >= min_n haben, (b) jeder
+    davon |realisiert − vorhergesagt| <= tol erfüllt und (c) die realisierte
+    Trefferquote über diese Buckets nicht fällt (Monotonie). Sonst werden
+    keine High-Confidence-Alerts mit Prozentangaben erzeugt."""
+    big = [b for b in buckets if (b.get("n") or 0) >= min_n and b.get("win_rate") is not None]
+    reasons = []
+    if len(big) < 2:
+        reasons.append(f"nur {len(big)} Bucket(s) mit n >= {min_n}")
+    bad = [b["bucket"] for b in big if b.get("calibration_error") is None or abs(b["calibration_error"]) > tol]
+    if bad:
+        reasons.append(f"Kalibrierungsfehler > {tol} in {bad}")
+    wins = [b["win_rate"] for b in big]
+    if any(b < a for a, b in zip(wins, wins[1:])):
+        reasons.append(f"Trefferquote nicht monoton steigend {wins}")
+    return {"probability_validated": not reasons, "probability_validation_reasons": reasons}
 
 
 def calibration_buckets(cal: pd.DataFrame) -> list[dict]:
@@ -487,6 +509,8 @@ def calibration_buckets(cal: pd.DataFrame) -> list[dict]:
             err = win - pred
             rec.update(win_rate=ml._r(win, 4), predicted=ml._r(pred, 4), avg_return=ml._r(g[PROB_TARGET].mean(), 5),
                        median_return=ml._r(g[PROB_TARGET].median(), 5), avg_drawdown=ml._r(g["mae_20"].mean(), 5),
+                       avg_mae=ml._r(g["mae_20"].mean(), 5),
+                       avg_mfe=ml._r(g["mfe_20"].mean(), 5) if "mfe_20" in g else None,
                        expected_return=ml._r(g["exp_xs20"].mean(), 5),
                        expected_value=ml._r(g[PROB_TARGET].mean(), 5),
                        calibration_error=ml._r(err, 4),
@@ -746,11 +770,11 @@ def calibrate_hc_rule(cal: pd.DataFrame, res: pd.DataFrame, score: str, use_agre
 
 def prob_maps(res: pd.DataFrame, score: str) -> dict:
     """Abbildung Querschnittsrang -> P(Überrendite > 0) bzw. erwartete 20d-
-    Überrendite für LIVE-Signale, gelernt auf dem jüngsten Fold mit fertigen
-    Labels (Locked, sonst letztes Dev-Jahr). Nie für die Bewertung verwendet."""
+    Überrendite für LIVE-Signale, gelernt auf dem jüngsten Dev-Fold mit
+    fertigen Labels (nie auf dem Locked-Holdout). Nie für die Bewertung verwendet."""
     from sklearn.isotonic import IsotonicRegression
     folds = [f for f in sorted(res["fold"].unique()) if f != "locked"]
-    use = "locked" if ((res["fold"] == "locked") & res[score].notna()).sum() >= 1000 else (folds[-1] if folds else None)
+    use = folds[-1] if folds else None        # nie auf dem (kontaminierten) Locked-Holdout fitten (Audit F02)
     if use is None:
         return {}
     d = res[(res["fold"] == use) & res[score].notna() & res[PROB_TARGET].notna()]
@@ -1000,6 +1024,8 @@ def run(panel: pd.DataFrame | None = None) -> dict:
     HC_THRESHOLDS_PATH.write_text(json.dumps({**rep["hc_rule"], "generated": rep["generated"],
                                               "prob_map": rep["prob_map"],
                                               "active_ece": rep["approaches"][rep["active_ensemble"]]["metrics"].get("ece"),
+                                              **probability_validation((rep["calibration_buckets"] or {}).get(
+                                                  rep["active_ensemble"]) or []),
                                               "current_weights": rep["current_weights"],
                                               "feature_drift_flag": rep["drift"]["feature_drift_flag"],
                                               "failure_profiles": {m: {"works": p["works"], "fails": p["fails"]}

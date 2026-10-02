@@ -134,6 +134,9 @@ def global_gate(rule: dict, cards_meta: dict, calibration: dict | None) -> list[
         reasons.append("Feature-Drift außerhalb des Trainingsbereichs")
     if not cards_meta:
         reasons.append("keine aktuellen Unsicherheitskarten")
+    if rule.get("probability_validated") is not True:               # Audit F12 / P1-4
+        reasons.append("Wahrscheinlichkeiten nicht validiert: "
+                       + ("; ".join(rule.get("probability_validation_reasons") or []) or "kein Bucket-Test"))
     return reasons
 
 
@@ -144,7 +147,7 @@ def regime_compatible(meta_json: dict, nextv: dict, regime: dict) -> tuple[bool,
     if vix is None or tr is None:
         return False, "Regime unbekannt"
     ab = (nextv or {}).get("abstention_confirmation") or {}
-    if ab.get("confirmed"):
+    if ab.get("confirmed") or (ab.get("forward") or {}).get("confirmed"):   # kontaminierte Bestätigung zählt nicht (F03)
         ok = vix >= 20 or tr <= 0
         return ok, f"Abstinenz-Regel (bestätigt): {'aktiv' if ok else 'ruhiges Aufwärts-Regime -> nichts tun'}"
     act = (meta_json or {}).get("active_ensemble", "static_equal")
@@ -156,6 +159,13 @@ def regime_compatible(meta_json: dict, nextv: dict, regime: dict) -> tuple[bool,
         return False, "keine Regime-Historie"
     ok = ev > 0 and et > 0
     return ok, f"historische Expectancy {kv}={ev}, {kt}={et}"
+
+
+def _kg_edges(graph) -> list[dict]:
+    edges = graph.get("edges") if isinstance(graph, dict) else getattr(graph, "edges", None)
+    if isinstance(edges, dict):
+        edges = list(edges.values())
+    return [e for e in (edges or []) if isinstance(e, dict)]
 
 
 def intelligence_checks(cands: list[dict], panel, specs: list[dict], out_dir: Path) -> tuple[list[dict], list[dict]]:
@@ -177,6 +187,7 @@ def intelligence_checks(cands: list[dict], panel, specs: list[dict], out_dir: Pa
     except (ImportError, OSError, ValueError, KeyError, TypeError) as e:
         log.warning(f"hc_scanner: Knowledge Graph nicht verfügbar ({e})")
         graph = None
+    kg_measured = graph is not None and any(e.get("evidence_type") == "measured_oos" for e in _kg_edges(graph))
     clusters = [{"properties": c.get("common_properties") or {}} for c in nextv.get("blind_spot_clusters") or []]
     snap = panel[panel["date"] == panel["date"].max()].set_index("ticker")
     for c in cands:
@@ -189,9 +200,12 @@ def intelligence_checks(cands: list[dict], panel, specs: list[dict], out_dir: Pa
             why.append(f"fragil: fällt unter '{cft.get('worst_case')}' aus dem Top-Dezil")
         if graph is not None:
             ev = kg.ticker_evidence(graph, t)
-            if ev.get("contradictions"):
+            # Widersprüche sind nur mit GEMESSENEN Kanten möglich; ohne sie ist der
+            # Check wirkungslos und wird als inaktiv ausgewiesen (Audit P3-2).
+            if kg_measured and ev.get("contradictions"):
                 why.append(f"Knowledge Graph widersprüchlich: {ev['contradictions'][:2]}")
             c["kg_evidence"] = {k: ev.get(k) for k in ("leading_indicators", "exposures")}
+            c["kg_check"] = "aktiv" if kg_measured else "inaktiv (0 gemessene Kanten)"
         if t in snap.index and clusters and bool(bs.match(snap.loc[[t]].reset_index(), clusters).iloc[0]):
             why.append("Unknown-Risk: Titel liegt in einem Blind-Spot-Segment")
         c["counterfactual"] = cft
@@ -288,6 +302,7 @@ def build_alert(c: dict, rule: dict, signal_date: str, regime: dict, versions: d
         "historical_analogue_confidence": an.get("analog_share_positive"),
         "number_historical_analogues": an.get("analog_n"),
         "historical_analogue_win_rate": an.get("analog_share_positive"),
+        "historical_analogues_note": "Analogie-Engine: OOS-Nutzen nicht validiert (Audit P3-3) – nur Kontext",
         "historical_analogue_median_return": an.get("analog_median_ret_60"),
         "bull_case": [f"{f}: stützt die Prognose (Beitrag {v})" for f, v in (cf.get("supports") or {}).items()]
         + [f"Modell {top_model} funktioniert empirisch in: {', '.join(fp.get('works', [])[:3]) or '–'}"],
@@ -397,8 +412,10 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
     active = rule.get("active_ensemble", "static_equal")
     weights = rule.get("current_weights") if active != "static_equal" else None
     reasons = global_gate(rule, cards_doc.get("cards", {}), calibration)
-    sm = _load(out_dir / "safe_mode.json", {})
-    if sm.get("active"):
+    sm = _load(out_dir / "safe_mode.json", None)
+    if not isinstance(sm, dict) or "active" not in sm:              # fail-closed (Audit F07)
+        reasons.append("SAFE MODE unbekannt: safe_mode.json fehlt oder ist unlesbar")
+    elif sm.get("active"):
         reasons.append(f"SAFE MODE aktiv: {'; '.join(sm.get('reasons') or [])}")
     mi = (_load(out_dir / "meta_learning.json", {}) or {}).get("model_intelligence") or {}
     if mi and sum(1 for m in mi.values() if m.get("trend") == "deteriorating") / len(mi) >= 0.5:
@@ -432,8 +449,8 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
         result["candidates"] = alerts
         regime_key = f"{'vix_ge_20' if (regime['vix'] or 0) >= 20 else 'vix_lt_20'}|" \
                      f"{'up' if (regime['spy_trend_200'] or 0) > 0 else 'down'}"
-        state = _load(out_dir / "alerts_state.json", {})
-        to_send, state = dedup(alerts, state, today, regime_key)
+        prev_state = _load(out_dir / "alerts_state.json", {})
+        to_send, state = dedup(alerts, json.loads(json.dumps(prev_state)), today, regime_key)
         if send or dry_run:
             from modules.mailer import send_mail
             for a in to_send:
@@ -442,6 +459,11 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
                 result["sent"].append({"ticker": a["ticker"], "status": res.get("status"), "reason": a["alert_reason"]})
                 if not send:
                     continue                                   # Dry-Run verändert keinen Zustand
+                if res.get("status") != "sent":                # nicht zugestellt -> Zustand zurück, nächster Lauf versucht erneut (F10)
+                    if a["ticker"] in prev_state:
+                        state[a["ticker"]] = prev_state[a["ticker"]]
+                    else:
+                        state.pop(a["ticker"], None)
                 with open(out_dir / "alerts_log.jsonl", "a", encoding="utf-8") as fh:
                     fh.write(json.dumps({"date": today.isoformat(), "ticker": a["ticker"], "signal_id": a["signal_id"],
                                          "reason": a["alert_reason"], "status": res.get("status"),
@@ -452,13 +474,15 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
     if ens and latest and send:
         from modules import prediction_memory as pm
         top = sorted(ens.items(), key=lambda kv: -kv[1]["score"])[:50]
+        spec_by_model = {r["model_id"]: r.get("spec_hash") for r in preds if r["prediction_date"] == latest}
         cards = cards_doc.get("cards", {})
         cand_t = {a["ticker"] for a in result["candidates"]}
         rows = []
         for t, e in top:
             c = cards.get(t) or {}
             rows.append({"signal_date": latest, "ticker": t,
-                         "model_versions": {m: None for m in e["model_ranks"]}, "meta_model_version": rule.get("meta_version"),
+                         "model_versions": {m: spec_by_model.get(m) for m in e["model_ranks"]},   # spec_hash (Audit P2-4)
+                         "meta_model_version": rule.get("meta_version"),
                          "ensemble": active, "raw_model_predictions": e["model_ranks"], "model_weights": weights or "equal",
                          "final_prediction": round(e["score"], 5),
                          "predicted_return": c.get("expected_return_60"), "predicted_drawdown": c.get("expected_drawdown_60"),

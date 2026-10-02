@@ -98,7 +98,11 @@ class _Builder:
         self.edges[eid] = {"id": eid, "type": etype, "from": frm, "to": to, "source": source,
                            "timestamp": timestamp or self.now, "confidence": confidence,
                            "evidence_type": evidence_type, "version": None, "uncertain": bool(uncertain),
-                           "sign": sign, "attrs": attrs}
+                           "sign": sign, "attrs": attrs,
+                           # Audit P2-3: nur gemessene Kanten haben einen belegten Gültigkeitsbeginn;
+                           # Referenz-/Config-Kanten sind HEUTIGER Stand und nicht point-in-time.
+                           "point_in_time": evidence_type == "measured_oos",
+                           "valid_from": (timestamp or self.now) if evidence_type == "measured_oos" else None}
 
 
 def content_hash(nodes: dict, edges: dict) -> str:

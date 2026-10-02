@@ -37,12 +37,16 @@ NP = yaml.safe_load((Path(__file__).resolve().parent.parent / "config" / "next_p
 CUSUM_CRIT = 1.36                   # 5 %-Schwelle des Kolmogorov-artigen CUSUM-Tests
 
 
+CORRUPT: list[str] = []          # in diesem Lauf vorhandene, aber unlesbare Artefakte
+
+
 def _load(name: str, default=None):
     p = OUT / name
     try:
         return json.loads(p.read_text()) if p.exists() else default
     except (OSError, json.JSONDecodeError) as e:
         log.warning(f"meta_cognition: {name} nicht lesbar ({e})")
+        CORRUPT.append(name)
         return default
 
 
@@ -122,7 +126,8 @@ def research_value(hyp_db: dict, ml_rep: dict, meta: dict) -> dict:
 
 # ── Safe Mode ───────────────────────────────────────────────────────────────
 
-def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float] | None, ml_rep: dict) -> dict:
+def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float] | None, ml_rep: dict,
+              corrupt: list[str] | None = None) -> dict:
     tr = NP["safe_mode"]["triggers"]
     reasons = []
     drift = (meta or {}).get("drift") or {}
@@ -154,11 +159,23 @@ def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float]
         t = f.mean() / f.std(ddof=1) * math.sqrt(len(f)) if f.std(ddof=1) > 0 else 0
         if t <= tr["performance_breakdown_t"]:
             reasons.append(f"PERFORMANCE BREAKDOWN: Forward-Expectancy t={t:.2f}")
-    return {"active": bool(reasons), "reasons": reasons, "fallback": "stabiler Champion (statisches Ensemble); keine HC-Alerts",
+    if health:                                       # Audit F08: veraltete Quellen
+        items = [v for v in health.values() if isinstance(v, dict)]
+        stale = [v for v in items if str(v.get("staleness", "")).upper() == "STALE"]
+        stale_high = [v for v in stale if str(v.get("criticality", "")).lower() == "high"]
+        if stale_high or (items and len(stale) / len(items) >= tr["pipeline_fail_share"]):
+            reasons.append(f"STALE DATA: {len(stale)} von {len(items)} Quellen veraltet "
+                           f"({len(stale_high)} mit hoher Kritikalität)")
+    if corrupt:                                      # Audit F08: beschädigte Modell-/Ergebnisdateien
+        reasons.append(f"CORRUPT ARTIFACT: {', '.join(corrupt)} vorhanden, aber unlesbar")
+    return {"active": bool(reasons), "reasons": reasons, "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
             "updated": datetime.now(timezone.utc).isoformat(timespec="seconds")}
 
 
 # ── Machine Intelligence State ───────────────────────────────────────────────
+
+MIN_BUCKET_N = 100
+
 
 def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict) -> dict:
     meta, nextv, world, ml_rep = inp.get("meta") or {}, inp.get("nextv") or {}, inp.get("world") or {}, inp.get("ml") or {}
@@ -166,15 +183,18 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
     know = []
     ref = ((meta.get("approaches") or {}).get("static_equal") or {}).get("metrics") or {}
     if ref:
-        know.append(f"Champion (statisches Ensemble) OOS 2021–2025H1: Expectancy {ref.get('expectancy')} je Position, "
+        know.append(f"Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy {ref.get('expectancy')} je Position, "
                     f"Sharpe {ref.get('sharpe')}, Trefferquote {ref.get('hit_rate')}")
     reg = ((meta.get("approaches") or {}).get("static_equal") or {}).get("by_regime") or {}
     if reg:
         know.append("Regime-Abhängigkeit: " + ", ".join(f"{k} {v.get('expectancy')}" for k, v in reg.items()))
     ab = nextv.get("abstention_confirmation") or {}
     if ab:
-        know.append(f"Abstinenz-Regel auf ungesehenen Jahren {ab.get('years')}: aktiv {ab.get('active_expectancy')} "
-                    f"vs. inaktiv {ab.get('inactive_expectancy')} (t={ab.get('diff_t')}) -> bestätigt={ab.get('confirmed')}")
+        fw = ab.get("forward") or {}
+        know.append(f"Abstinenz-Regel historisch {ab.get('years')} (Status {ab.get('status')}, zählt nicht): "
+                    f"aktiv {ab.get('active_expectancy')} vs. inaktiv {ab.get('inactive_expectancy')} (t={ab.get('diff_t')})")
+        know.append(f"Abstinenz-Regel VORWÄRTS ab {fw.get('forward_from')}: {fw.get('active_cohorts', 0)} aktive / "
+                    f"{fw.get('inactive_cohorts', 0)} inaktive fertige Kohorten, Status {fw.get('status')}")
     for d in (hyp.get("hypotheses") or {}).values():
         if d.get("canonical_status") == "ACCEPTED":
             know.append(f"Akzeptierte Hypothese {d.get('id')}: {d.get('title')}")
@@ -213,7 +233,12 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
                 if v["research_efficiency"] in ("HIGH", "MEDIUM")]
     waste = [f"{k}: {v['accepted']}/{v['experiments']} akzeptiert" for k, v in rv.items()
              if v["research_efficiency"] == "LOW" and v["experiments"] >= 5]
-    calib_label = "GOOD" if cal.get("interval_calibrated") and (ref.get("ece") or 1) <= 0.05 else "WEAK"
+    # Audit F09: aggregierte ECE verdeckt überkonfidente Buckets -> jeder
+    # schlecht kalibrierte Bucket mit n >= 100 macht die Kalibrierung WEAK.
+    bad_buckets = [b for b in buckets if (b.get("n") or 0) >= MIN_BUCKET_N
+                   and b.get("flag") in ("overconfident", "underconfident")]
+    calib_label = "GOOD" if (cal.get("interval_calibrated") and (ref.get("ece") or 1) <= 0.05
+                             and not bad_buckets) else "WEAK"
     return {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "self_assessment": {"overall_calibration": calib_label,
@@ -236,6 +261,9 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
 
 
 def run() -> dict:
+    CORRUPT.clear()
+    for extra in ("hc_thresholds.json", "ml_cards.json"):           # vom HC-Scanner gelesen
+        _load(extra, {})
     inp = {"meta": _load("meta_learning.json", {}), "nextv": _load("next_validation.json", {}),
            "world": _load("world_model.json", {}), "ml": _load("ml_research.json", {}),
            "hyp": _load("hypothesis_db.json", {}), "director": _load("research_candidates.json", {})}
@@ -254,7 +282,8 @@ def run() -> dict:
                        "prior_ic": v.get("prior_ic")} for m, v in ((inp["meta"].get("model_intelligence")) or {}).items()}
     rv = research_value(inp["hyp"], inp["ml"], inp["meta"])
     fwd = [e.get("actual_return") for e in _memory_outcomes()]
-    sm = safe_mode(inp["meta"], inp["world"], inp["health"], [x for x in fwd if x is not None], inp["ml"])
+    sm = safe_mode(inp["meta"], inp["world"], inp["health"], [x for x in fwd if x is not None], inp["ml"],
+                   corrupt=list(CORRUPT))
     st = machine_state(inp, decay, model_decay, rv, sm)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "safe_mode.json").write_text(json.dumps(sm, indent=1, ensure_ascii=False))

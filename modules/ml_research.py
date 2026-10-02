@@ -62,6 +62,8 @@ LABEL_HORIZONS = (20, 60)
 TRAIN_START = PROTOCOL["periods"]["train_start"]
 FIRST_TEST_YEAR = int(PROTOCOL["periods"]["first_test_year"])
 LOCKED_FROM = pd.Timestamp(PROTOCOL["periods"]["locked_from"])
+LOCKED_STATUS = PROTOCOL["periods"].get("locked_status", "CLEAN")
+FORWARD_HOLDOUT_FROM = PROTOCOL["periods"].get("forward_holdout_from")
 COST_BASE = float(PROTOCOL["costs"]["base_per_side"])
 COST_STRESS = float(PROTOCOL["costs"]["stress_per_side"])
 TOP_Q = float(PROTOCOL["portfolio"]["top_quantile"])
@@ -172,8 +174,11 @@ def macro_features(observations, dates: list[pd.Timestamp]) -> pd.DataFrame:
 
 def build_panel(frames: dict[str, pd.DataFrame], spy: pd.DataFrame, vix=None, tnx=None, irx=None,
                 macro_obs=None, extra_dates=(), sectors: dict | None = None,
-                start: str = "2014-06-01") -> pd.DataFrame:
-    """Historische Trainingsmatrix: eine Zeile je (Stichtag, Ticker)."""
+                start: str = "2014-06-01", membership: dict | None = None) -> pd.DataFrame:
+    """Historische Trainingsmatrix: eine Zeile je (Stichtag, Ticker).
+    membership {ticker: [[start,end],...]}: nur Zeilen, an deren Stichtag der
+    Titel Indexmitglied war (Point-in-Time-Universum, Audit F01). Die
+    Querschnittsränge werden NACH dem Filter gebildet."""
     cal = spy.index
     dates = sorted(set(weekly_dates(cal, start)) | {pd.Timestamp(d) for d in extra_dates if pd.Timestamp(d) in cal})
     parts = []
@@ -190,6 +195,12 @@ def build_panel(frames: dict[str, pd.DataFrame], spy: pd.DataFrame, vix=None, tn
     p = pd.concat(parts)
     p.index.name = "date"
     p = p.reset_index()
+    if membership is not None:
+        from modules.universe import is_member
+        keep = [is_member(membership.get(t, []), d) for t, d in zip(p["ticker"], p["date"].dt.strftime("%Y-%m-%d"))]
+        p = p[keep].reset_index(drop=True)
+        if p.empty:
+            return pd.DataFrame()
     mk = market_features(spy, vix, tnx, irx)
     p = p.join(mk, on="date")
     mac = macro_features(macro_obs, dates)
@@ -537,6 +548,8 @@ def decide(res: dict, bench: dict | None, crit: dict, fwd: dict | None, locked: 
         if (lb.get("mean") or -1) <= 0:
             ok = False
             reasons.append(f"Locked-Holdout netto {lb.get('mean')} nicht > 0")
+        if LOCKED_STATUS == "CONTAMINATED":                 # kann nur ablehnen, nie bestätigen (Audit F02)
+            reasons.append("Locked-Holdout KONTAMINIERT – nur informativ; bindend ist der Forward-Shadow")
     fb = (fwd or {}).get("base", {})
     fwd_ready = (fb.get("n_cohorts") or 0) >= crit.get("fwd_min_cohorts", 26)
     if not fwd_ready:
@@ -861,6 +874,7 @@ def build_cards(panel: pd.DataFrame, rank_by_model: dict[str, dict], calibration
              "p_up_skill": (calibration or {}).get("p_up_skill_recal", (calibration or {}).get("p_up_skill"))}
         if i in an.index and len(an.columns):
             c["analogs"] = {k: (_r(v, 4) if not isinstance(v, str) else v) for k, v in an.loc[i].items()}
+            c["analogs"]["oos_validated"] = False          # Audit P3-3: Nutzen nie OOS gemessen
         if t in top_tickers:
             c["counterfactual"] = counterfactual_drivers(m, snap.loc[[i]])
         cards[t] = c
@@ -997,10 +1011,43 @@ def render_md(rep: dict) -> str:
     return "\n".join(L) + "\n"
 
 
+UNIVERSE_INFO: dict = {}
+
+
 def build_research_panel(mode: str = "full") -> pd.DataFrame:
-    from modules.universe import get_universe
-    tickers = sorted(set(get_universe()))
+    """Point-in-Time-Universum (S&P 500 inkl. später entfernter Titel, Zeilen
+    nur während der Mitgliedschaft). Ist die Historie nicht verfügbar, bricht
+    der Lauf ab – kein stiller Rückfall auf die heutige Liste (Audit F01).
+
+    Replay (Audit F14 / P2-5): ML_PANEL_SNAPSHOT=<pickle> lädt einen
+    eingefrorenen Panel-Snapshot statt neu bei Yahoo zu laden -> identische
+    Eingangsdaten für Reproduktionsläufe."""
+    import os
+    import pickle
+    snap = os.environ.get("ML_PANEL_SNAPSHOT")
+    if snap:
+        with open(snap, "rb") as fh:
+            panel = pickle.load(fh)  # noqa: S301 – eigener, als CI-Artefakt gesicherter Snapshot
+        UNIVERSE_INFO.clear()
+        UNIVERSE_INFO.update({"replay_snapshot": snap})
+        log.info(f"ml_research: REPLAY aus Snapshot {snap} ({len(panel)} Zeilen)")
+        return panel
+    from modules.universe import research_universe
+    uni = research_universe("2014-01-01")
+    tickers = uni["tickers"]
     frames, spy, vix, tnx, irx = fetch_data(tickers)
+    removed = uni["removed_since_start"]
+    with_data = [t for t in removed if t in frames]
+    UNIVERSE_INFO.clear()
+    UNIVERSE_INFO.update({"pit": True, "source": uni["source"], "n_changes": uni["n_changes"],
+                          "first_change": uni["first_change"], "n_tickers_ever": len(tickers),
+                          "n_removed_since_start": len(removed), "n_removed_with_prices": len(with_data),
+                          "removed_price_coverage": _r(len(with_data) / len(removed), 3) if removed else None,
+                          "residual_bias": "entfernte Titel ohne Yahoo-Kurse fehlen weiterhin",
+                          "sector_assignment": "heutiger Sektor (yfinance), NICHT point-in-time – Bias für "
+                                               "Sektor-Cluster, Sektor-Attribution und Sektorkappe (Audit P2-3)"})
+    log.info(f"ml_research: PIT-Universum {len(tickers)} Titel, davon {len(removed)} entfernt "
+             f"({len(with_data)} mit Kursen)")
     now = datetime.now(timezone.utc)
     if now.hour < 21:      # heutiger Balken evtl. unfertig (US-Close 20/21 UTC) -> nie als Close_t nutzen
         spy = spy[spy.index.date < now.date()]
@@ -1008,7 +1055,8 @@ def build_research_panel(mode: str = "full") -> pd.DataFrame:
     pred_dates = {r["prediction_date"] for r in _read_predictions()}
     return build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
                        sectors=sector_map(tickers) if mode == "full" else
-                       (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}))
+                       (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}),
+                       membership=uni["intervals"])
 
 
 def run(mode: str = "full") -> dict:
@@ -1022,11 +1070,15 @@ def run(mode: str = "full") -> dict:
     if cache:
         with open(cache, "wb") as fh:
             pickle.dump(panel, fh)
+    from modules.meta_learning import panel_hash
     rep = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "mode": mode,
            "n_rows": int(len(panel)), "n_tickers": int(panel["ticker"].nunique()),
+           "panel_hash": panel_hash(panel), "code_sha": _code_sha(),
            "period": f"{panel['date'].min().date()}..{panel['date'].max().date()}",
-           "locked_from": str(locked_from.date()), "champion": reg.get("champion"),
-           "prereg": "docs/research/PREREG_ml_research_2026-09-29.md", "models": {}}
+           "locked_from": str(locked_from.date()), "locked_status": LOCKED_STATUS,
+           "forward_holdout_from": FORWARD_HOLDOUT_FROM, "champion": reg.get("champion"),
+           "prereg": "docs/research/PREREG_ml_research_2026-09-29.md", "models": {},
+           "universe": dict(UNIVERSE_INFO)}
     new = predict_latest(panel, reg, status)
     rep["new_predictions"] = [f"{r['model_id']}@{r['prediction_date']}" for r in new]
     fwd = forward_eval(panel, reg)
@@ -1056,8 +1108,14 @@ def run(mode: str = "full") -> dict:
                 continue
             ev = evaluate_oos(wf["oos"])
             coh = ev.pop("_cohorts")
-            locked = locked_eval(panel, spec, locked_from)
-            book[mid]["locked_evaluations"] = book[mid].get("locked_evaluations", 0) + 1
+            if book[mid].get("locked_result") is not None:      # je spec_hash nur EINE Locked-Auswertung (F02)
+                locked = {**book[mid]["locked_result"], "reused": True}
+            else:
+                locked = locked_eval(panel, spec, locked_from)
+                book[mid]["locked_evaluations"] = book[mid].get("locked_evaluations", 0) + 1
+                book[mid]["locked_result"] = {k: v for k, v in locked.items() if k in ("status", "params", "base", "stress", "ic")}
+                book[mid]["locked_result"]["evaluated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            locked["holdout_status"] = LOCKED_STATUS
             results[mid] = ev
             rep["models"][mid] = {
                 "registry_status": "valid", "role": spec.get("role"), "wf": ev, "locked": locked,

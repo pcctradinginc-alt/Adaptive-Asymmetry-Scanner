@@ -129,4 +129,4 @@ verlinkten Dokumenten.
 **Antwort auf die Leitfrage:** Wann eine Chance besteht, erkennt das System
 nicht besser als zuvor; keine Komponente verbessert das Ranking signifikant.
 Wann es nichts tun sollte, erkennt es dagegen deutlich besser: Die
-Abstinenz-Regel ist zweimal auf ungesehenen Jahren bestätigt (t ≈ 3,3).
+Abstinenz-Regel zeigt in-sample einen großen Effekt (t ≈ 3,3); die angebliche Bestätigung auf „ungesehenen“ Jahren ist laut Audit F03 kontaminiert -> INCONCLUSIVE, nur vorwärts bestätigbar.

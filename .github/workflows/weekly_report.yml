@@ -30,6 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: main      # aktuellen Stand, nicht die SHA zum Auslösezeitpunkt (Audit F11: wartende Läufe nutzten alte Artefakte)
 
       - name: Setup Python
         uses: actions/setup-python@v5

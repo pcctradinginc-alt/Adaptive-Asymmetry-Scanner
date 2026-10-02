@@ -21,7 +21,7 @@ from modules import meta_learning as meta  # noqa: E402
 from modules import next_intelligence as ni  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_SHA = "5b4c3c8e1dd5c058074066c455f49cb8b72e8b837188fbc9d979752b6f13a4ad"
+EXPECTED_SHA = "6cf614f6bbd8039c5b7946a8ac1f82dd5d6f31845fb429f9ad0c4221ff585915"
 
 
 def test_next_protocol_hash_pinned():
