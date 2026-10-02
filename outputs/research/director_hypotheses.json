@@ -1,41 +1,4 @@
 {
- "generated": "2026-10-02T19:04:28+00:00",
- "hypotheses": [
-  {
-   "id": "RD-c6929d07",
-   "title": "Segment meiden: {'volatility': 'high_vol', 'recent_move': 'extreme_5d_move'}",
-   "statement": "Titel im Segment {'volatility': 'high_vol', 'recent_move': 'extreme_5d_move'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_014)",
-   "signal": "-(step(vol_60 - 0.17) * step(abs(ret_5d) - 0.4))",
-   "direction": 1,
-   "rationale": "Unknown-Unknown-Detektor: Lift 1.55, typischer Fehler -0.2012",
-   "created_at": "2026-10-02"
-  },
-  {
-   "id": "RD-0a08304b",
-   "title": "Segment meiden: {'liquidity': 'liquid', 'trend': 'uptrend'}",
-   "statement": "Titel im Segment {'liquidity': 'liquid', 'trend': 'uptrend'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_015)",
-   "signal": "-(step(log_dollar_vol) * step(spy_trend_200))",
-   "direction": 1,
-   "rationale": "Unknown-Unknown-Detektor: Lift 1.55, typischer Fehler -0.1984",
-   "created_at": "2026-10-02"
-  },
-  {
-   "id": "RD-034c5e10",
-   "title": "Kurzfrist-Umkehr (1 Monat) – nur bei SPY unter SMA200",
-   "statement": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf SPY unter SMA200",
-   "signal": "(rev_1m) * step(-spy_trend_200)",
-   "direction": -1,
-   "rationale": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.015; HYP-0101 knapp gescheitert (t=2.13)",
-   "created_at": "2026-10-02"
-  },
-  {
-   "id": "RD-53a5a5aa",
-   "title": "Kurzfrist-Umkehr (1 Monat) – nur bei VIX >= 20",
-   "statement": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf VIX >= 20",
-   "signal": "(rev_1m) * step(vix - 20)",
-   "direction": -1,
-   "rationale": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.015; HYP-0101 knapp gescheitert (t=2.13)",
-   "created_at": "2026-10-02"
-  }
- ]
+ "generated": "2026-10-02T21:18:28+00:00",
+ "hypotheses": []
 }

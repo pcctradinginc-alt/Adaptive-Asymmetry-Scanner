@@ -1,75 +1,75 @@
 {
   "last_n": 100,
-  "n_cases": 179,
-  "n_losses_total": 121,
+  "n_cases": 178,
+  "n_losses_total": 120,
   "n_wins_total": 55,
   "reliable": {
-    "n": 94,
-    "mean_outcome": -0.4930968085106384,
+    "n": 93,
+    "mean_outcome": -0.49443978494623664,
     "primary": {
       "underlying_unknown": {
-        "n": 52,
-        "share": 0.5531914893617021,
-        "mean_outcome": -0.39501730769230764
+        "n": 51,
+        "share": 0.5483870967741935,
+        "mean_outcome": -0.3955431372549019
       },
       "signal_wrong": {
         "n": 24,
-        "share": 0.2553191489361702,
+        "share": 0.25806451612903225,
         "mean_outcome": -0.6915833333333331
       },
       "timing_too_early": {
         "n": 11,
-        "share": 0.11702127659574468,
+        "share": 0.11827956989247312,
         "mean_outcome": -0.5738727272727272
       },
       "weak_adverse_move": {
         "n": 5,
-        "share": 0.05319148936170213,
+        "share": 0.053763440860215055,
         "mean_outcome": -0.39968000000000004
       },
       "exit_gave_back": {
         "n": 1,
-        "share": 0.010638297872340425,
+        "share": 0.010752688172043012,
         "mean_outcome": -0.1631
       },
       "structure_decay": {
         "n": 1,
-        "share": 0.010638297872340425,
+        "share": 0.010752688172043012,
         "mean_outcome": -0.7381
       }
     },
     "labels": {
       "underlying_unknown": {
-        "n": 52,
-        "share": 0.5531914893617021
+        "n": 51,
+        "share": 0.5483870967741935
       },
       "signal_wrong": {
         "n": 24,
-        "share": 0.2553191489361702
+        "share": 0.25806451612903225
       },
       "low_data_confidence": {
         "n": 17,
-        "share": 0.18085106382978725
+        "share": 0.1827956989247312
       },
       "weak_adverse_move": {
         "n": 16,
-        "share": 0.1702127659574468
+        "share": 0.17204301075268819
       },
       "timing_too_early": {
         "n": 11,
-        "share": 0.11702127659574468
+        "share": 0.11827956989247312
       },
       "regime_changed": {
         "n": 7,
-        "share": 0.07446808510638298
+        "share": 0.07526881720430108
       },
       "structure_decay": {
         "n": 2,
-        "share": 0.02127659574468085
+        "share": 0.021505376344086023
       },
       "exit_gave_back": {
         "n": 1,
-        "share": 0.010638297872340425
+        "share": 0.010752688172043012
       }
     }
   },
@@ -93,59 +93,59 @@
   "winner_vs_loser": {
     "impact": {
       "mean_winners": 5.071428571428571,
-      "mean_losers": 4.98936170212766,
+      "mean_losers": 4.989247311827957,
       "n_winners": 42,
-      "n_losers": 94,
-      "diff": 0.08206686930091145,
-      "effect_size": 0.10321964741357098
+      "n_losers": 93,
+      "diff": 0.08218125960061418,
+      "effect_size": 0.1029829382797054
     },
     "surprise": {
       "mean_winners": 4.119047619047619,
-      "mean_losers": 3.8617021276595747,
+      "mean_losers": 3.870967741935484,
       "n_winners": 42,
-      "n_losers": 94,
-      "diff": 0.25734549138804397,
-      "effect_size": 0.2505045195103624
+      "n_losers": 93,
+      "diff": 0.24807987711213464,
+      "effect_size": 0.2413472018131908
     },
     "mismatch": {
       "mean_winners": 3.524428571428571,
-      "mean_losers": 3.349648936170212,
+      "mean_losers": 3.3487956989247305,
       "n_winners": 42,
-      "n_losers": 94,
-      "diff": 0.17477963525835882,
-      "effect_size": 0.1006572923747752
+      "n_losers": 93,
+      "diff": 0.17563287250384052,
+      "effect_size": 0.1007762034593514
     },
     "z_score": {
       "mean_winners": 0.3094523809523809,
-      "mean_losers": 0.32796808510638303,
+      "mean_losers": 0.32811827956989253,
       "n_winners": 42,
-      "n_losers": 94,
-      "diff": -0.01851570415400211,
-      "effect_size": -0.059835672706111585
+      "n_losers": 93,
+      "diff": -0.01866589861751161,
+      "effect_size": -0.06009902426071515
     },
     "sigma_30d": {
       "mean_winners": 0.02722380952380952,
-      "mean_losers": 0.029918085106382976,
+      "mean_losers": 0.030067741935483866,
       "n_winners": 42,
-      "n_losers": 94,
-      "diff": -0.002694275582573454,
-      "effect_size": -0.22044390837230066
+      "n_losers": 93,
+      "diff": -0.0028439324116743443,
+      "effect_size": -0.23282231807648238
     },
     "price_move_48h": {
       "mean_winners": 0.012381481481481481,
-      "mean_losers": 0.012197297297297292,
+      "mean_losers": 0.0122958904109589,
       "n_winners": 27,
-      "n_losers": 74,
-      "diff": 0.00018418418418418916,
-      "effect_size": 0.01520095880029296
+      "n_losers": 73,
+      "diff": 8.559107052258201e-05,
+      "effect_size": 0.00704148906592062
     },
     "eps_drift": {
       "mean_winners": 0.003471428571428571,
-      "mean_losers": 0.015255319148936169,
+      "mean_losers": 0.015419354838709676,
       "n_winners": 42,
-      "n_losers": 94,
-      "diff": -0.011783890577507597,
-      "effect_size": -0.19563965214949122
+      "n_losers": 93,
+      "diff": -0.011947926267281105,
+      "effect_size": -0.19765963001038037
     },
     "iv_rank": {
       "mean_winners": 66.86727272727273,
@@ -157,11 +157,11 @@
     },
     "quick_mc_hit_rate": {
       "mean_winners": 0.6689526315789474,
-      "mean_losers": 0.6180777777777774,
+      "mean_losers": 0.6188359550561794,
       "n_winners": 38,
-      "n_losers": 90,
-      "diff": 0.05087485380116996,
-      "effect_size": 0.4233051554000291
+      "n_losers": 89,
+      "diff": 0.05011667652276797,
+      "effect_size": 0.41613887439740077
     }
   },
   "note": "Kleine Stichprobe: Anteile sind deskriptiv, keine Signifikanzaussage."

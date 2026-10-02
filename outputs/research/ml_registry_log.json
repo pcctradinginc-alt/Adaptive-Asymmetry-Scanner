@@ -1,32 +1,295 @@
 {
   "enet_xs20_v1": {
     "first_seen": "2026-09-29T14:00:22+00:00",
-    "locked_evaluations": 6,
+    "locked_evaluations": 7,
+    "locked_result": {
+      "base": {
+        "hit_rate": 0.59,
+        "max_dd": -0.06675,
+        "mean": 0.00863,
+        "median": 0.01377,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 0.82,
+        "t_months": 0.88,
+        "top_asymmetry": 1.337,
+        "top_mae": -0.08698,
+        "top_mfe": 0.11632,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 1.0
+      },
+      "evaluated_at": "2026-10-02T21:12:36+00:00",
+      "ic": {
+        "mean_ic": 0.04124,
+        "n_dates": 61,
+        "t_months": 0.77
+      },
+      "params": {
+        "alpha": 0.003,
+        "l1_ratio": 0.5
+      },
+      "status": "ok",
+      "stress": {
+        "hit_rate": 0.557,
+        "max_dd": -0.07254,
+        "mean": 0.00563,
+        "median": 0.01077,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 0.56,
+        "t_months": 0.61,
+        "top_asymmetry": 1.337,
+        "top_mae": -0.08698,
+        "top_mfe": 0.11632,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 1.0
+      }
+    },
     "spec_hash": "8de25a33fe281eb9"
   },
   "hgb_asym20_v1": {
     "first_seen": "2026-09-29T14:00:22+00:00",
-    "locked_evaluations": 6,
+    "locked_evaluations": 7,
+    "locked_result": {
+      "base": {
+        "hit_rate": 0.459,
+        "max_dd": -0.04524,
+        "mean": 0.00075,
+        "median": -0.00366,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 0.29,
+        "t_months": 0.32,
+        "top_asymmetry": 1.27,
+        "top_mae": -0.06583,
+        "top_mfe": 0.08361,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      },
+      "evaluated_at": "2026-10-02T21:16:23+00:00",
+      "ic": {
+        "mean_ic": -0.01185,
+        "n_dates": 61,
+        "t_months": -0.53
+      },
+      "params": {
+        "learning_rate": 0.05,
+        "max_depth": 3,
+        "max_iter": 150,
+        "min_samples_leaf": 300
+      },
+      "status": "ok",
+      "stress": {
+        "hit_rate": 0.443,
+        "max_dd": -0.06639,
+        "mean": -0.00225,
+        "median": -0.00666,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": -0.44,
+        "t_months": -0.48,
+        "top_asymmetry": 1.27,
+        "top_mae": -0.06583,
+        "top_mfe": 0.08361,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      }
+    },
     "spec_hash": "7422b09c3c93c911"
   },
   "hgb_xs20_momentum_v1": {
     "first_seen": "2026-09-29T14:17:00+00:00",
-    "locked_evaluations": 5,
+    "locked_evaluations": 6,
+    "locked_result": {
+      "base": {
+        "hit_rate": 0.525,
+        "max_dd": -0.11867,
+        "mean": -0.00029,
+        "median": 0.0022,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 0.1,
+        "t_months": 0.11,
+        "top_asymmetry": 1.192,
+        "top_mae": -0.08301,
+        "top_mfe": 0.09891,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      },
+      "evaluated_at": "2026-10-02T21:17:05+00:00",
+      "ic": {
+        "mean_ic": -0.00054,
+        "n_dates": 61,
+        "t_months": 0.1
+      },
+      "params": {
+        "learning_rate": 0.05,
+        "max_depth": 3,
+        "max_iter": 400,
+        "min_samples_leaf": 300
+      },
+      "status": "ok",
+      "stress": {
+        "hit_rate": 0.475,
+        "max_dd": -0.12953,
+        "mean": -0.00329,
+        "median": -0.0008,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": -0.23,
+        "t_months": -0.25,
+        "top_asymmetry": 1.192,
+        "top_mae": -0.08301,
+        "top_mfe": 0.09891,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      }
+    },
     "spec_hash": "dbbebe4ad1475752"
   },
   "hgb_xs20_risk_regime_v1": {
     "first_seen": "2026-09-29T14:17:00+00:00",
-    "locked_evaluations": 5,
+    "locked_evaluations": 6,
+    "locked_result": {
+      "base": {
+        "hit_rate": 0.492,
+        "max_dd": -0.11562,
+        "mean": 0.00116,
+        "median": -0.00165,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 0.22,
+        "t_months": 0.24,
+        "top_asymmetry": 1.244,
+        "top_mae": -0.06833,
+        "top_mfe": 0.08499,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      },
+      "evaluated_at": "2026-10-02T21:18:24+00:00",
+      "ic": {
+        "mean_ic": -0.02997,
+        "n_dates": 61,
+        "t_months": -1.36
+      },
+      "params": {
+        "learning_rate": 0.05,
+        "max_depth": 3,
+        "max_iter": 400,
+        "min_samples_leaf": 300
+      },
+      "status": "ok",
+      "stress": {
+        "hit_rate": 0.492,
+        "max_dd": -0.12652,
+        "mean": -0.00184,
+        "median": -0.00465,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": -0.2,
+        "t_months": -0.22,
+        "top_asymmetry": 1.244,
+        "top_mae": -0.06833,
+        "top_mfe": 0.08499,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      }
+    },
     "spec_hash": "bc68f4e5430f286f"
   },
   "hgb_xs20_v1": {
     "first_seen": "2026-09-29T14:00:22+00:00",
-    "locked_evaluations": 6,
+    "locked_evaluations": 7,
+    "locked_result": {
+      "base": {
+        "hit_rate": 0.443,
+        "max_dd": -0.1073,
+        "mean": -0.00437,
+        "median": -0.00486,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": -0.74,
+        "t_months": -0.8,
+        "top_asymmetry": 1.166,
+        "top_mae": -0.06815,
+        "top_mfe": 0.07945,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      },
+      "evaluated_at": "2026-10-02T21:14:32+00:00",
+      "ic": {
+        "mean_ic": -0.05535,
+        "n_dates": 61,
+        "t_months": -2.9
+      },
+      "params": {
+        "learning_rate": 0.05,
+        "max_depth": 3,
+        "max_iter": 400,
+        "min_samples_leaf": 300
+      },
+      "status": "ok",
+      "stress": {
+        "hit_rate": 0.443,
+        "max_dd": -0.1288,
+        "mean": -0.00737,
+        "median": -0.00786,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": -1.23,
+        "t_months": -1.33,
+        "top_asymmetry": 1.166,
+        "top_mae": -0.06815,
+        "top_mfe": 0.07945,
+        "univ_asymmetry": 1.221,
+        "years_positive_share": 0.5
+      }
+    },
     "spec_hash": "1d342821148821bd"
   },
   "momentum_12_1": {
     "first_seen": "2026-09-29T14:00:22+00:00",
-    "locked_evaluations": 6,
+    "locked_evaluations": 7,
+    "locked_result": {
+      "base": {
+        "hit_rate": 0.656,
+        "max_dd": -0.10868,
+        "mean": 0.02165,
+        "median": 0.02282,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 1.52,
+        "t_months": 1.64,
+        "top_asymmetry": 1.482,
+        "top_mae": -0.08463,
+        "top_mfe": 0.12539,
+        "univ_asymmetry": 1.218,
+        "years_positive_share": 1.0
+      },
+      "evaluated_at": "2026-10-02T21:11:56+00:00",
+      "ic": {
+        "mean_ic": 0.0381,
+        "n_dates": 61,
+        "t_months": 1.0
+      },
+      "params": {},
+      "status": "ok",
+      "stress": {
+        "hit_rate": 0.639,
+        "max_dd": -0.11434,
+        "mean": 0.01865,
+        "median": 0.01982,
+        "n_cohorts": 61,
+        "n_months": 14,
+        "sharpe_ann": 1.31,
+        "t_months": 1.42,
+        "top_asymmetry": 1.482,
+        "top_mae": -0.08463,
+        "top_mfe": 0.12539,
+        "univ_asymmetry": 1.218,
+        "years_positive_share": 1.0
+      }
+    },
     "spec_hash": "60f816ac9441b233"
   }
 }
