@@ -35,7 +35,7 @@ Modul: `modules/decision_intel.py`. Protokoll: `config/next_protocol.yaml`
 
 Ergebnis: `docs/NEXT_INTELLIGENCE_VALIDATION.md`.
 
-**Ergebnis (Lauf 2026-09-29): KEEP (knapp).**
+**Ergebnis Lauf 2026-09-29: KEEP (knapp). Nachlauf 2026-10-02: MODIFY.**
 
 | | Top-Dezil | diversifiziert |
 |---|---|---|
@@ -47,3 +47,12 @@ Ergebnis: `docs/NEXT_INTELLIGENCE_VALIDATION.md`.
 Die Regel ist erfüllt (Sharpe nicht schlechter, ES besser). Der Effekt ist
 klein und nicht signifikant. Eingesetzt wird die Auswahl nur im HC-Scanner
 (Portfolio-Nutzen), nicht im Ranking.
+
+Im Nachlauf vom 2026-10-02:
+- Sharpe 0,264 → 0,242;
+- ES −8,6 % → −7,8 %;
+- MaxDD −17,9 % → −16,9 %.
+
+Die Diversifikation senkt also zuverlässig das Risiko, aber nicht verlässlich
+die Sharpe. Endgültiges Urteil: **MODIFY**. Sie wird nur als
+Risiko-Information im HC-Scanner genutzt.
