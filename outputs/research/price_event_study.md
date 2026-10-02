@@ -1,51 +1,51 @@
 # Volumen-Event-Studie (Walk-Forward, OOS ab 2019)
 
-Events: 42869 · Ticker: 510 · Zeitraum: ['2014-02-03', '2026-09-28']
+Events: 42894 · Ticker: 510 · Zeitraum: ['2014-02-03', '2026-10-01']
 Präregistrierung: docs/research/PREREG_price_event_study_2026-09-29.md
 Renditen marktbereinigt (minus SPY), netto 10 bp/Seite; Survivorship-Bias: heutige Indexliste.
 
 | Hypothese | h | n | Mittel | Median | Hit | t (Monate) | Sharpe | Jahre + | 25bp-Mittel | Entscheid |
 |---|---|---|---|---|---|---|---|---|---|---|
-| H1_drift | 1 | 27579 | -0.00233 | -0.00245 | 0.43656 | -8.26096 | -2.96742 | 0.0 | -0.00533 |  |
-| H1_drift | 5 | 27567 | -0.0032 | -0.0031 | 0.46164 | -5.40584 | -1.94184 | 0.0 | -0.0062 |  |
-| H1_drift | 20 | 27131 | -0.00353 | -0.00351 | 0.47849 | -2.43073 | -0.87788 | 0.125 | -0.00653 | nicht gestützt |
-| H1_drift | 60 | 26777 | -0.00489 | -0.00512 | 0.4806 | -2.01378 | -0.73128 | 0.125 | -0.00789 |  |
-| H1L_long_up | 1 | 13024 | -0.00275 | -0.00274 | 0.42337 | -5.27597 | -1.89518 | 0.0 | -0.00575 |  |
-| H1L_long_up | 5 | 13020 | -0.00323 | -0.00392 | 0.45115 | -2.73376 | -0.98199 | 0.125 | -0.00623 |  |
-| H1L_long_up | 20 | 12893 | -0.0023 | -0.00599 | 0.46079 | -0.55561 | -0.20066 | 0.125 | -0.0053 | nicht gestützt |
-| H1L_long_up | 60 | 12731 | 0.00023 | -0.01264 | 0.45825 | 1.64965 | 0.59905 | 0.5 | -0.00277 |  |
-| H2_small_move_gate | 1 | 10235 | -0.00224 | -0.00229 | 0.43214 | -4.0484 | -1.45423 | 0.0 | -0.00524 |  |
-| H2_small_move_gate | 5 | 10231 | -0.00331 | -0.00303 | 0.45792 | -5.22123 | -1.87552 | 0.0 | -0.00631 |  |
-| H2_small_move_gate | 20 | 10079 | -0.00474 | -0.0038 | 0.47435 | -3.58366 | -1.29426 | 0.0 | -0.00774 | nicht gestützt |
-| H2_small_move_gate | 60 | 9944 | -0.00579 | -0.00564 | 0.47788 | -1.23206 | -0.44741 | 0.25 | -0.00879 |  |
-| H2_large_move | 1 | 8274 | -0.00223 | -0.00259 | 0.44283 | -3.63531 | -1.30584 | 0.125 | -0.00523 |  |
-| H2_large_move | 5 | 8268 | -0.00213 | -0.00269 | 0.47339 | -2.49619 | -0.89666 | 0.125 | -0.00513 |  |
-| H2_large_move | 20 | 8168 | -0.00062 | -0.00161 | 0.49204 | -0.8548 | -0.30872 | 0.375 | -0.00362 | nicht gestützt |
-| H2_large_move | 60 | 8039 | -0.00067 | -0.00236 | 0.49024 | -0.0728 | -0.02644 | 0.625 | -0.00367 |  |
-| H3_up_rs_positive | 1 | 8031 | -0.00237 | -0.00237 | 0.43295 | -4.41494 | -1.58589 | 0.0 | -0.00537 |  |
-| H3_up_rs_positive | 5 | 8030 | -0.00228 | -0.0032 | 0.46326 | -2.63304 | -0.94582 | 0.25 | -0.00528 |  |
-| H3_up_rs_positive | 20 | 7985 | -0.00155 | -0.00547 | 0.46387 | -1.07256 | -0.38736 | 0.5 | -0.00455 | nicht gestützt |
-| H3_up_rs_positive | 60 | 7862 | 0.00141 | -0.0124 | 0.45764 | 0.85234 | 0.30951 | 0.5 | -0.00159 |  |
-| H3_up_rs_negative | 1 | 4985 | -0.00339 | -0.00331 | 0.40762 | -5.05141 | -1.81452 | 0.0 | -0.00639 |  |
-| H3_up_rs_negative | 5 | 4982 | -0.00485 | -0.00499 | 0.43115 | -2.00837 | -0.72143 | 0.0 | -0.00785 |  |
-| H3_up_rs_negative | 20 | 4900 | -0.00381 | -0.00724 | 0.4551 | 0.44771 | 0.16169 | 0.125 | -0.00681 | nicht gestützt |
-| H3_up_rs_negative | 60 | 4861 | -0.00177 | -0.01292 | 0.45937 | 0.87298 | 0.31701 | 0.625 | -0.00477 |  |
-| H4_high_relvol | 1 | 9188 | -0.00251 | -0.00242 | 0.43655 | -5.43108 | -1.9509 | 0.0 | -0.00551 |  |
-| H4_high_relvol | 5 | 9182 | -0.00361 | -0.0032 | 0.46243 | -3.50674 | -1.25966 | 0.0 | -0.00661 |  |
-| H4_high_relvol | 20 | 9004 | -0.0039 | -0.00352 | 0.47901 | -2.25088 | -0.81292 | 0.0 | -0.0069 | nicht gestützt |
-| H4_high_relvol | 60 | 8890 | -0.0051 | -0.00581 | 0.47773 | -1.35914 | -0.49355 | 0.125 | -0.0081 |  |
-| H4_low_relvol | 1 | 8984 | -0.00202 | -0.00225 | 0.43967 | -3.99145 | -1.43377 | 0.0 | -0.00502 |  |
-| H4_low_relvol | 5 | 8979 | -0.00288 | -0.00304 | 0.46108 | -2.25846 | -0.81126 | 0.0 | -0.00588 |  |
-| H4_low_relvol | 20 | 8866 | -0.00402 | -0.00351 | 0.47755 | -1.71186 | -0.61825 | 0.125 | -0.00702 | nicht gestützt |
-| H4_low_relvol | 60 | 8749 | -0.00786 | -0.00755 | 0.47537 | -2.59013 | -0.94057 | 0.0 | -0.01086 |  |
+| H1_drift | 1 | 27603 | -0.00233 | -0.00245 | 0.43647 | -8.42849 | -3.0276 | 0.0 | -0.00533 |  |
+| H1_drift | 5 | 27573 | -0.0032 | -0.0031 | 0.46172 | -5.32882 | -1.91417 | 0.0 | -0.0062 |  |
+| H1_drift | 20 | 27176 | -0.00347 | -0.00348 | 0.47884 | -2.46203 | -0.88439 | 0.125 | -0.00647 | nicht gestützt |
+| H1_drift | 60 | 26781 | -0.00489 | -0.00514 | 0.48049 | -2.02056 | -0.73374 | 0.125 | -0.00789 |  |
+| H1L_long_up | 1 | 13034 | -0.00274 | -0.00274 | 0.42328 | -5.29014 | -1.90027 | 0.0 | -0.00574 |  |
+| H1L_long_up | 5 | 13021 | -0.00323 | -0.00392 | 0.45119 | -2.7259 | -0.97917 | 0.125 | -0.00623 |  |
+| H1L_long_up | 20 | 12906 | -0.0023 | -0.00605 | 0.46056 | -0.51519 | -0.18506 | 0.125 | -0.0053 | nicht gestützt |
+| H1L_long_up | 60 | 12734 | 0.00024 | -0.01258 | 0.45822 | 1.67807 | 0.60937 | 0.5 | -0.00276 |  |
+| H2_small_move_gate | 1 | 10246 | -0.00223 | -0.00229 | 0.43207 | -4.00012 | -1.43689 | 0.0 | -0.00523 |  |
+| H2_small_move_gate | 5 | 10238 | -0.00331 | -0.00302 | 0.458 | -5.18736 | -1.86335 | 0.0 | -0.00631 |  |
+| H2_small_move_gate | 20 | 10099 | -0.00465 | -0.00378 | 0.4747 | -3.43489 | -1.23385 | 0.0 | -0.00765 | nicht gestützt |
+| H2_small_move_gate | 60 | 9944 | -0.0058 | -0.00565 | 0.47778 | -1.42941 | -0.51907 | 0.25 | -0.0088 |  |
+| H2_large_move | 1 | 8280 | -0.00224 | -0.00263 | 0.44263 | -3.69929 | -1.32883 | 0.125 | -0.00524 |  |
+| H2_large_move | 5 | 8271 | -0.00215 | -0.00269 | 0.47346 | -2.50725 | -0.90063 | 0.125 | -0.00515 |  |
+| H2_large_move | 20 | 8175 | -0.00062 | -0.00154 | 0.49223 | -0.84696 | -0.30424 | 0.375 | -0.00362 | nicht gestützt |
+| H2_large_move | 60 | 8042 | -0.00067 | -0.0025 | 0.49005 | -0.08271 | -0.03004 | 0.625 | -0.00367 |  |
+| H3_up_rs_positive | 1 | 8036 | -0.00237 | -0.00237 | 0.4328 | -4.55365 | -1.63572 | 0.0 | -0.00537 |  |
+| H3_up_rs_positive | 5 | 8030 | -0.00228 | -0.0032 | 0.46326 | -2.63281 | -0.94573 | 0.25 | -0.00528 |  |
+| H3_up_rs_positive | 20 | 7993 | -0.00152 | -0.0055 | 0.46366 | -0.80351 | -0.28863 | 0.5 | -0.00452 | nicht gestützt |
+| H3_up_rs_positive | 60 | 7864 | 0.0014 | -0.01241 | 0.45753 | 0.80935 | 0.29391 | 0.5 | -0.0016 |  |
+| H3_up_rs_negative | 1 | 4990 | -0.00338 | -0.00331 | 0.40762 | -5.02649 | -1.80557 | 0.0 | -0.00638 |  |
+| H3_up_rs_negative | 5 | 4983 | -0.00485 | -0.00498 | 0.43127 | -1.98914 | -0.71452 | 0.0 | -0.00785 |  |
+| H3_up_rs_negative | 20 | 4905 | -0.00389 | -0.00726 | 0.45484 | 0.10889 | 0.03912 | 0.125 | -0.00689 | nicht gestützt |
+| H3_up_rs_negative | 60 | 4862 | -0.00174 | -0.01287 | 0.45948 | 0.97279 | 0.35326 | 0.625 | -0.00474 |  |
+| H4_high_relvol | 1 | 9193 | -0.00251 | -0.00242 | 0.43642 | -5.53661 | -1.98881 | 0.0 | -0.00551 |  |
+| H4_high_relvol | 5 | 9186 | -0.00362 | -0.00319 | 0.46255 | -3.50588 | -1.25935 | 0.0 | -0.00662 |  |
+| H4_high_relvol | 20 | 9027 | -0.00374 | -0.00346 | 0.47967 | -1.26026 | -0.4527 | 0.0 | -0.00674 | nicht gestützt |
+| H4_high_relvol | 60 | 8891 | -0.0051 | -0.00585 | 0.47756 | -1.34737 | -0.48928 | 0.125 | -0.0081 |  |
+| H4_low_relvol | 1 | 8995 | -0.00203 | -0.00225 | 0.43947 | -4.00061 | -1.43706 | 0.0 | -0.00503 |  |
+| H4_low_relvol | 5 | 8980 | -0.00287 | -0.00304 | 0.46114 | -2.13586 | -0.76722 | 0.0 | -0.00587 |  |
+| H4_low_relvol | 20 | 8878 | -0.00404 | -0.0035 | 0.4777 | -1.83135 | -0.65784 | 0.125 | -0.00704 | nicht gestützt |
+| H4_low_relvol | 60 | 8751 | -0.00787 | -0.00755 | 0.47537 | -2.54528 | -0.92428 | 0.0 | -0.01087 |  |
 
 ## Entscheidungen (h=20)
 
-- **H1_drift**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00353, t=-2.43073); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H1L_long_up**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.0023, t=-0.55561); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H2_small_move_gate**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00474, t=-3.58366); nur 0.0 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H2_large_move**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00062, t=-0.8548); nur 0.375 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H3_up_rs_positive**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00155, t=-1.07256); nur 0.5 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H3_up_rs_negative**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00381, t=0.44771); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H4_high_relvol**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.0039, t=-2.25088); nur 0.0 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
-- **H4_low_relvol**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00402, t=-1.71186); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H1_drift**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00347, t=-2.46203); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H1L_long_up**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.0023, t=-0.51519); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H2_small_move_gate**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00465, t=-3.43489); nur 0.0 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H2_large_move**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00062, t=-0.84696); nur 0.375 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H3_up_rs_positive**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00152, t=-0.80351); nur 0.5 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H3_up_rs_negative**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00389, t=0.10889); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H4_high_relvol**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00374, t=-1.26026); nur 0.0 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv
+- **H4_low_relvol**: nicht gestützt – OOS-Mittel/t nicht ausreichend (mean=-0.00404, t=-1.83135); nur 0.125 der Jahre positiv; nicht in allen Regimen positiv; bei 25 bp/Seite nicht mehr positiv

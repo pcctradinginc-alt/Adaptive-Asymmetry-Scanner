@@ -1,23 +1,23 @@
 {
-  "n_events": 42869,
+  "n_events": 42894,
   "n_tickers": 510,
   "period": [
     "2014-02-03",
-    "2026-09-28"
+    "2026-10-01"
   ],
   "hypotheses": {
     "H1_drift": {
       "h1": {
         "base_cost": {
-          "n": 27579,
-          "n_dates": 1881,
+          "n": 27603,
+          "n_dates": 1884,
           "n_months": 93,
           "mean": -0.00233,
           "median": -0.00245,
-          "hit_rate": 0.43656,
-          "t_months": -8.26096,
-          "sharpe_ann": -2.96742,
-          "sortino_ann": -2.32729,
+          "hit_rate": 0.43647,
+          "t_months": -8.42849,
+          "sharpe_ann": -3.0276,
+          "sortino_ann": -2.34215,
           "max_dd_monthly_cohorts": -0.20738,
           "years_positive_share": 0.0,
           "by_year": {
@@ -28,19 +28,19 @@
             "2023": -0.00222,
             "2024": -0.00236,
             "2025": -0.00238,
-            "2026": -0.002
+            "2026": -0.00203
           }
         },
         "stress_cost": {
           "mean": -0.00533,
-          "t_months": -19.31662,
-          "sharpe_ann": -6.93873
+          "t_months": -19.63679,
+          "sharpe_ann": -7.05374
         },
         "regimes": {
           "vix_low": {
-            "n": 17018,
+            "n": 17042,
             "mean": -0.00206,
-            "t_months": -5.10818
+            "t_months": -5.2203
           },
           "vix_high": {
             "n": 10561,
@@ -48,9 +48,9 @@
             "t_months": -5.88755
           },
           "trend_up": {
-            "n": 22733,
-            "mean": -0.00219,
-            "t_months": -7.35067
+            "n": 22757,
+            "mean": -0.0022,
+            "t_months": -7.51444
           },
           "trend_down": {
             "n": 4846,
@@ -61,16 +61,16 @@
       },
       "h5": {
         "base_cost": {
-          "n": 27567,
-          "n_dates": 1878,
+          "n": 27573,
+          "n_dates": 1880,
           "n_months": 93,
           "mean": -0.0032,
           "median": -0.0031,
-          "hit_rate": 0.46164,
-          "t_months": -5.40584,
-          "sharpe_ann": -1.94184,
-          "sortino_ann": -1.83634,
-          "max_dd_monthly_cohorts": -0.27795,
+          "hit_rate": 0.46172,
+          "t_months": -5.32882,
+          "sharpe_ann": -1.91417,
+          "sortino_ann": -1.81684,
+          "max_dd_monthly_cohorts": -0.27467,
           "years_positive_share": 0.0,
           "by_year": {
             "2019": -0.00255,
@@ -78,95 +78,95 @@
             "2021": -0.00191,
             "2022": -0.00204,
             "2023": -0.00196,
-            "2024": -0.00351,
+            "2024": -0.0035,
             "2025": -0.00468,
-            "2026": -0.00387
+            "2026": -0.00384
           }
         },
         "stress_cost": {
           "mean": -0.0062,
-          "t_months": -10.75235,
-          "sharpe_ann": -3.86236
+          "t_months": -10.66505,
+          "sharpe_ann": -3.831
         },
         "regimes": {
           "vix_low": {
-            "n": 17006,
+            "n": 17012,
             "mean": -0.00309,
-            "t_months": -4.10905
+            "t_months": -4.03613
           },
           "vix_high": {
             "n": 10561,
             "mean": -0.00337,
-            "t_months": -2.40867
+            "t_months": -2.40862
           },
           "trend_up": {
-            "n": 22721,
-            "mean": -0.00331,
-            "t_months": -2.99138
+            "n": 22727,
+            "mean": -0.0033,
+            "t_months": -2.94269
           },
           "trend_down": {
             "n": 4846,
             "mean": -0.00271,
-            "t_months": -3.52102
+            "t_months": -3.52104
           }
         }
       },
       "h20": {
         "base_cost": {
-          "n": 27131,
-          "n_dates": 1863,
-          "n_months": 92,
-          "mean": -0.00353,
-          "median": -0.00351,
-          "hit_rate": 0.47849,
-          "t_months": -2.43073,
-          "sharpe_ann": -0.87788,
-          "sortino_ann": -1.05619,
-          "max_dd_monthly_cohorts": -0.32872,
+          "n": 27176,
+          "n_dates": 1866,
+          "n_months": 93,
+          "mean": -0.00347,
+          "median": -0.00348,
+          "hit_rate": 0.47884,
+          "t_months": -2.46203,
+          "sharpe_ann": -0.88439,
+          "sortino_ann": -1.06288,
+          "max_dd_monthly_cohorts": -0.33305,
           "years_positive_share": 0.125,
           "by_year": {
             "2019": -0.00373,
-            "2020": 0.00167,
+            "2020": 0.00168,
             "2021": -0.00418,
             "2022": -0.00661,
-            "2023": -0.00348,
-            "2024": -0.00115,
-            "2025": -0.00468,
-            "2026": -0.00811
+            "2023": -0.00349,
+            "2024": -0.00114,
+            "2025": -0.00469,
+            "2026": -0.00732
           }
         },
         "stress_cost": {
-          "mean": -0.00653,
-          "t_months": -4.54429,
-          "sharpe_ann": -1.6412
+          "mean": -0.00647,
+          "t_months": -4.597,
+          "sharpe_ann": -1.65129
         },
         "regimes": {
           "vix_low": {
-            "n": 16570,
-            "mean": -0.0031,
-            "t_months": -1.52592
+            "n": 16615,
+            "mean": -0.00301,
+            "t_months": -1.55837
           },
           "vix_high": {
             "n": 10561,
-            "mean": -0.0042,
-            "t_months": -0.84863
+            "mean": -0.00419,
+            "t_months": -0.84892
           },
           "trend_up": {
-            "n": 22285,
-            "mean": -0.00285,
-            "t_months": -1.77694
+            "n": 22330,
+            "mean": -0.00278,
+            "t_months": -1.80998
           },
           "trend_down": {
             "n": 4846,
             "mean": -0.00664,
-            "t_months": -1.73509
+            "t_months": -1.73523
           }
         }
       },
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00353, t=-2.43073)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00347, t=-2.46203)",
           "nur 0.125 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -174,53 +174,53 @@
       },
       "h60": {
         "base_cost": {
-          "n": 26777,
-          "n_dates": 1823,
+          "n": 26781,
+          "n_dates": 1826,
           "n_months": 91,
           "mean": -0.00489,
-          "median": -0.00512,
-          "hit_rate": 0.4806,
-          "t_months": -2.01378,
-          "sharpe_ann": -0.73128,
-          "sortino_ann": -0.89859,
-          "max_dd_monthly_cohorts": -0.37854,
+          "median": -0.00514,
+          "hit_rate": 0.48049,
+          "t_months": -2.02056,
+          "sharpe_ann": -0.73374,
+          "sortino_ann": -0.90066,
+          "max_dd_monthly_cohorts": -0.37881,
           "years_positive_share": 0.125,
           "by_year": {
             "2019": -0.00924,
             "2020": -0.00225,
-            "2021": -0.01094,
-            "2022": -0.00712,
+            "2021": -0.01093,
+            "2022": -0.00713,
             "2023": -0.00369,
             "2024": 0.00425,
             "2025": -0.00473,
-            "2026": -0.01022
+            "2026": -0.01026
           }
         },
         "stress_cost": {
           "mean": -0.00789,
-          "t_months": -3.3589,
-          "sharpe_ann": -1.21974
+          "t_months": -3.36421,
+          "sharpe_ann": -1.22167
         },
         "regimes": {
           "vix_low": {
-            "n": 16239,
-            "mean": -0.0022,
-            "t_months": -1.50532
+            "n": 16243,
+            "mean": -0.00221,
+            "t_months": -1.51112
           },
           "vix_high": {
             "n": 10538,
             "mean": -0.00903,
-            "t_months": -1.47916
+            "t_months": -1.48263
           },
           "trend_up": {
-            "n": 21931,
+            "n": 21935,
             "mean": -0.00376,
-            "t_months": -1.72317
+            "t_months": -1.72982
           },
           "trend_down": {
             "n": 4846,
-            "mean": -0.01,
-            "t_months": 0.44828
+            "mean": -0.01001,
+            "t_months": 0.44727
           }
         }
       }
@@ -228,15 +228,15 @@
     "H1L_long_up": {
       "h1": {
         "base_cost": {
-          "n": 13024,
-          "n_dates": 1748,
+          "n": 13034,
+          "n_dates": 1751,
           "n_months": 93,
-          "mean": -0.00275,
+          "mean": -0.00274,
           "median": -0.00274,
-          "hit_rate": 0.42337,
-          "t_months": -5.27597,
-          "sharpe_ann": -1.89518,
-          "sortino_ann": -1.80561,
+          "hit_rate": 0.42328,
+          "t_months": -5.29014,
+          "sharpe_ann": -1.90027,
+          "sortino_ann": -1.80887,
           "max_dd_monthly_cohorts": -0.21956,
           "years_positive_share": 0.0,
           "by_year": {
@@ -247,19 +247,19 @@
             "2023": -0.00236,
             "2024": -0.00294,
             "2025": -0.00301,
-            "2026": -0.00245
+            "2026": -0.00244
           }
         },
         "stress_cost": {
-          "mean": -0.00575,
-          "t_months": -11.9688,
-          "sharpe_ann": -4.29932
+          "mean": -0.00574,
+          "t_months": -11.98887,
+          "sharpe_ann": -4.30653
         },
         "regimes": {
           "vix_low": {
-            "n": 8193,
-            "mean": -0.00257,
-            "t_months": -3.8314
+            "n": 8203,
+            "mean": -0.00256,
+            "t_months": -3.84207
           },
           "vix_high": {
             "n": 4831,
@@ -267,9 +267,9 @@
             "t_months": -3.35327
           },
           "trend_up": {
-            "n": 10924,
+            "n": 10934,
             "mean": -0.00269,
-            "t_months": -3.78152
+            "t_months": -3.79278
           },
           "trend_down": {
             "n": 2100,
@@ -280,20 +280,20 @@
       },
       "h5": {
         "base_cost": {
-          "n": 13020,
-          "n_dates": 1746,
+          "n": 13021,
+          "n_dates": 1747,
           "n_months": 93,
           "mean": -0.00323,
           "median": -0.00392,
-          "hit_rate": 0.45115,
-          "t_months": -2.73376,
-          "sharpe_ann": -0.98199,
-          "sortino_ann": -1.07854,
-          "max_dd_monthly_cohorts": -0.25631,
+          "hit_rate": 0.45119,
+          "t_months": -2.7259,
+          "sharpe_ann": -0.97917,
+          "sortino_ann": -1.07577,
+          "max_dd_monthly_cohorts": -0.25556,
           "years_positive_share": 0.125,
           "by_year": {
-            "2019": -0.00233,
-            "2020": -0.00819,
+            "2019": -0.00232,
+            "2020": -0.00818,
             "2021": -0.00124,
             "2022": -0.00024,
             "2023": -0.00206,
@@ -304,88 +304,88 @@
         },
         "stress_cost": {
           "mean": -0.00623,
-          "t_months": -5.75976,
-          "sharpe_ann": -2.06897
+          "t_months": -5.75221,
+          "sharpe_ann": -2.06626
         },
         "regimes": {
           "vix_low": {
-            "n": 8189,
-            "mean": -0.00258,
-            "t_months": -2.27945
+            "n": 8190,
+            "mean": -0.00257,
+            "t_months": -2.27168
           },
           "vix_high": {
             "n": 4831,
             "mean": -0.00435,
-            "t_months": -3.13571
+            "t_months": -3.13569
           },
           "trend_up": {
-            "n": 10920,
+            "n": 10921,
             "mean": -0.00351,
-            "t_months": -1.60504
+            "t_months": -1.59795
           },
           "trend_down": {
             "n": 2100,
             "mean": -0.00179,
-            "t_months": -2.00699
+            "t_months": -2.00698
           }
         }
       },
       "h20": {
         "base_cost": {
-          "n": 12893,
-          "n_dates": 1732,
-          "n_months": 92,
+          "n": 12906,
+          "n_dates": 1735,
+          "n_months": 93,
           "mean": -0.0023,
-          "median": -0.00599,
-          "hit_rate": 0.46079,
-          "t_months": -0.55561,
-          "sharpe_ann": -0.20066,
-          "sortino_ann": -0.28844,
-          "max_dd_monthly_cohorts": -0.16456,
+          "median": -0.00605,
+          "hit_rate": 0.46056,
+          "t_months": -0.51519,
+          "sharpe_ann": -0.18506,
+          "sortino_ann": -0.26621,
+          "max_dd_monthly_cohorts": -0.165,
           "years_positive_share": 0.125,
           "by_year": {
             "2019": -0.00293,
-            "2020": -8e-05,
+            "2020": -7e-05,
             "2021": -0.00524,
             "2022": 0.00282,
             "2023": -0.00755,
-            "2024": -0.00176,
-            "2025": -0.00159,
-            "2026": -0.00056
+            "2024": -0.00175,
+            "2025": -0.00158,
+            "2026": -0.00073
           }
         },
         "stress_cost": {
           "mean": -0.0053,
-          "t_months": -1.96615,
-          "sharpe_ann": -0.71009
+          "t_months": -1.93892,
+          "sharpe_ann": -0.69648
         },
         "regimes": {
           "vix_low": {
-            "n": 8062,
-            "mean": -0.00236,
-            "t_months": -1.01092
+            "n": 8075,
+            "mean": -0.00237,
+            "t_months": -0.97753
           },
           "vix_high": {
             "n": 4831,
-            "mean": -0.0022,
-            "t_months": -0.55257
+            "mean": -0.00219,
+            "t_months": -0.55243
           },
           "trend_up": {
-            "n": 10793,
-            "mean": -0.00207,
-            "t_months": -0.53799
+            "n": 10806,
+            "mean": -0.00208,
+            "t_months": -0.49548
           },
           "trend_down": {
             "n": 2100,
-            "mean": -0.00346,
-            "t_months": -0.69424
+            "mean": -0.00345,
+            "t_months": -0.69414
           }
         }
       },
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.0023, t=-0.55561)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.0023, t=-0.51519)",
           "nur 0.125 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -393,53 +393,53 @@
       },
       "h60": {
         "base_cost": {
-          "n": 12731,
-          "n_dates": 1696,
+          "n": 12734,
+          "n_dates": 1699,
           "n_months": 91,
-          "mean": 0.00023,
-          "median": -0.01264,
-          "hit_rate": 0.45825,
-          "t_months": 1.64965,
-          "sharpe_ann": 0.59905,
-          "sortino_ann": 1.11371,
-          "max_dd_monthly_cohorts": -0.1986,
+          "mean": 0.00024,
+          "median": -0.01258,
+          "hit_rate": 0.45822,
+          "t_months": 1.67807,
+          "sharpe_ann": 0.60937,
+          "sortino_ann": 1.13952,
+          "max_dd_monthly_cohorts": -0.19789,
           "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.00986,
-            "2020": 0.01334,
-            "2021": -0.00946,
-            "2022": 0.01247,
+            "2019": -0.00984,
+            "2020": 0.01335,
+            "2021": -0.00945,
+            "2022": 0.01248,
             "2023": -0.01389,
-            "2024": 0.00648,
-            "2025": 0.00491,
-            "2026": -0.00557
+            "2024": 0.0065,
+            "2025": 0.00493,
+            "2026": -0.00563
           }
         },
         "stress_cost": {
-          "mean": -0.00277,
-          "t_months": 0.80247,
-          "sharpe_ann": 0.29141
+          "mean": -0.00276,
+          "t_months": 0.82839,
+          "sharpe_ann": 0.30082
         },
         "regimes": {
           "vix_low": {
-            "n": 7912,
+            "n": 7915,
             "mean": -0.00131,
-            "t_months": -0.71928
+            "t_months": -0.70146
           },
           "vix_high": {
             "n": 4819,
-            "mean": 0.00276,
-            "t_months": 0.65775
+            "mean": 0.00277,
+            "t_months": 0.65794
           },
           "trend_up": {
-            "n": 10631,
+            "n": 10634,
             "mean": -0.00105,
-            "t_months": 0.19167
+            "t_months": 0.21553
           },
           "trend_down": {
             "n": 2100,
-            "mean": 0.00672,
-            "t_months": 2.85781
+            "mean": 0.00673,
+            "t_months": 2.85793
           }
         }
       }
@@ -447,48 +447,48 @@
     "H2_small_move_gate": {
       "h1": {
         "base_cost": {
-          "n": 10235,
-          "n_dates": 1584,
+          "n": 10246,
+          "n_dates": 1587,
           "n_months": 93,
-          "mean": -0.00224,
+          "mean": -0.00223,
           "median": -0.00229,
-          "hit_rate": 0.43214,
-          "t_months": -4.0484,
-          "sharpe_ann": -1.45423,
-          "sortino_ann": -1.52531,
-          "max_dd_monthly_cohorts": -0.19154,
+          "hit_rate": 0.43207,
+          "t_months": -4.00012,
+          "sharpe_ann": -1.43689,
+          "sortino_ann": -1.51013,
+          "max_dd_monthly_cohorts": -0.19155,
           "years_positive_share": 0.0,
           "by_year": {
             "2019": -0.00272,
-            "2020": -0.00301,
+            "2020": -0.00302,
             "2021": -0.00155,
             "2022": -0.00337,
             "2023": -0.00249,
             "2024": -0.00215,
             "2025": -0.00113,
-            "2026": -0.0016
+            "2026": -0.00155
           }
         },
         "stress_cost": {
-          "mean": -0.00524,
-          "t_months": -10.1871,
-          "sharpe_ann": -3.65932
+          "mean": -0.00523,
+          "t_months": -10.12856,
+          "sharpe_ann": -3.63829
         },
         "regimes": {
           "vix_low": {
-            "n": 6365,
-            "mean": -0.00182,
-            "t_months": -2.17722
+            "n": 6375,
+            "mean": -0.00181,
+            "t_months": -2.13772
           },
           "vix_high": {
-            "n": 3870,
-            "mean": -0.00293,
-            "t_months": -2.63123
+            "n": 3871,
+            "mean": -0.00294,
+            "t_months": -2.63167
           },
           "trend_up": {
-            "n": 8592,
+            "n": 8603,
             "mean": -0.00201,
-            "t_months": -3.21044
+            "t_months": -3.17359
           },
           "trend_down": {
             "n": 1643,
@@ -499,112 +499,112 @@
       },
       "h5": {
         "base_cost": {
-          "n": 10231,
-          "n_dates": 1583,
+          "n": 10238,
+          "n_dates": 1584,
           "n_months": 93,
           "mean": -0.00331,
-          "median": -0.00303,
-          "hit_rate": 0.45792,
-          "t_months": -5.22123,
-          "sharpe_ann": -1.87552,
-          "sortino_ann": -1.79135,
-          "max_dd_monthly_cohorts": -0.36527,
+          "median": -0.00302,
+          "hit_rate": 0.458,
+          "t_months": -5.18736,
+          "sharpe_ann": -1.86335,
+          "sortino_ann": -1.7827,
+          "max_dd_monthly_cohorts": -0.36475,
           "years_positive_share": 0.0,
           "by_year": {
-            "2019": -0.00363,
-            "2020": -0.00664,
+            "2019": -0.00362,
+            "2020": -0.00673,
             "2021": -0.00101,
             "2022": -0.00204,
             "2023": -0.00104,
-            "2024": -0.00499,
-            "2025": -0.00566,
-            "2026": -0.00052
+            "2024": -0.00498,
+            "2025": -0.00565,
+            "2026": -0.00049
           }
         },
         "stress_cost": {
           "mean": -0.00631,
-          "t_months": -9.22237,
-          "sharpe_ann": -3.31277
+          "t_months": -9.18274,
+          "sharpe_ann": -3.29854
         },
         "regimes": {
           "vix_low": {
-            "n": 6361,
-            "mean": -0.00352,
-            "t_months": -4.20044
+            "n": 6366,
+            "mean": -0.00351,
+            "t_months": -4.17281
           },
           "vix_high": {
-            "n": 3870,
-            "mean": -0.00297,
-            "t_months": -1.47202
+            "n": 3872,
+            "mean": -0.00299,
+            "t_months": -1.46886
           },
           "trend_up": {
-            "n": 8588,
+            "n": 8594,
             "mean": -0.0034,
-            "t_months": -3.19221
+            "t_months": -3.17443
           },
           "trend_down": {
-            "n": 1643,
-            "mean": -0.00287,
-            "t_months": -2.75531
+            "n": 1644,
+            "mean": -0.00289,
+            "t_months": -2.75502
           }
         }
       },
       "h20": {
         "base_cost": {
-          "n": 10079,
-          "n_dates": 1573,
-          "n_months": 92,
-          "mean": -0.00474,
-          "median": -0.0038,
-          "hit_rate": 0.47435,
-          "t_months": -3.58366,
-          "sharpe_ann": -1.29426,
-          "sortino_ann": -1.38688,
-          "max_dd_monthly_cohorts": -0.46261,
+          "n": 10099,
+          "n_dates": 1576,
+          "n_months": 93,
+          "mean": -0.00465,
+          "median": -0.00378,
+          "hit_rate": 0.4747,
+          "t_months": -3.43489,
+          "sharpe_ann": -1.23385,
+          "sortino_ann": -1.33509,
+          "max_dd_monthly_cohorts": -0.46286,
           "years_positive_share": 0.0,
           "by_year": {
-            "2019": -0.00541,
-            "2020": -9e-05,
+            "2019": -0.0054,
+            "2020": -8e-05,
             "2021": -0.00254,
-            "2022": -0.00554,
-            "2023": -0.00316,
-            "2024": -0.00218,
-            "2025": -0.00788,
-            "2026": -0.01625
+            "2022": -0.00555,
+            "2023": -0.00318,
+            "2024": -0.00217,
+            "2025": -0.0079,
+            "2026": -0.01467
           }
         },
         "stress_cost": {
-          "mean": -0.00774,
-          "t_months": -5.66745,
-          "sharpe_ann": -2.04684
+          "mean": -0.00765,
+          "t_months": -5.52163,
+          "sharpe_ann": -1.98343
         },
         "regimes": {
           "vix_low": {
-            "n": 6166,
-            "mean": -0.00454,
-            "t_months": -1.95275
+            "n": 6187,
+            "mean": -0.00438,
+            "t_months": -1.83967
           },
           "vix_high": {
-            "n": 3913,
+            "n": 3912,
             "mean": -0.00506,
-            "t_months": -0.09741
+            "t_months": -0.09942
           },
           "trend_up": {
-            "n": 8422,
-            "mean": -0.00388,
-            "t_months": -2.25682
+            "n": 8442,
+            "mean": -0.00377,
+            "t_months": -2.17437
           },
           "trend_down": {
             "n": 1657,
             "mean": -0.00911,
-            "t_months": -1.56586
+            "t_months": -1.56548
           }
         }
       },
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00474, t=-3.58366)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00465, t=-3.43489)",
           "nur 0.0 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -613,52 +613,52 @@
       "h60": {
         "base_cost": {
           "n": 9944,
-          "n_dates": 1541,
+          "n_dates": 1542,
           "n_months": 91,
-          "mean": -0.00579,
-          "median": -0.00564,
-          "hit_rate": 0.47788,
-          "t_months": -1.23206,
-          "sharpe_ann": -0.44741,
-          "sortino_ann": -0.56569,
-          "max_dd_monthly_cohorts": -0.43053,
+          "mean": -0.0058,
+          "median": -0.00565,
+          "hit_rate": 0.47778,
+          "t_months": -1.42941,
+          "sharpe_ann": -0.51907,
+          "sortino_ann": -0.63984,
+          "max_dd_monthly_cohorts": -0.44471,
           "years_positive_share": 0.25,
           "by_year": {
             "2019": -0.01012,
             "2020": -0.00185,
-            "2021": -0.00598,
+            "2021": -0.00597,
             "2022": 2e-05,
-            "2023": -0.00414,
-            "2024": 0.00072,
-            "2025": -0.0106,
-            "2026": -0.02501
+            "2023": -0.00416,
+            "2024": 0.00073,
+            "2025": -0.01059,
+            "2026": -0.0252
           }
         },
         "stress_cost": {
-          "mean": -0.00879,
-          "t_months": -2.16961,
-          "sharpe_ann": -0.78786
+          "mean": -0.0088,
+          "t_months": -2.33355,
+          "sharpe_ann": -0.8474
         },
         "regimes": {
           "vix_low": {
-            "n": 6046,
-            "mean": -0.00531,
-            "t_months": -1.35061
+            "n": 6047,
+            "mean": -0.00533,
+            "t_months": -1.54913
           },
           "vix_high": {
-            "n": 3898,
-            "mean": -0.00653,
-            "t_months": -0.19346
+            "n": 3897,
+            "mean": -0.00652,
+            "t_months": -0.19946
           },
           "trend_up": {
             "n": 8288,
-            "mean": -0.00616,
-            "t_months": -1.47336
+            "mean": -0.00617,
+            "t_months": -1.63344
           },
           "trend_down": {
             "n": 1656,
             "mean": -0.00393,
-            "t_months": 0.47317
+            "t_months": 0.47312
           }
         }
       }
@@ -666,16 +666,16 @@
     "H2_large_move": {
       "h1": {
         "base_cost": {
-          "n": 8274,
-          "n_dates": 1620,
+          "n": 8280,
+          "n_dates": 1623,
           "n_months": 93,
-          "mean": -0.00223,
-          "median": -0.00259,
-          "hit_rate": 0.44283,
-          "t_months": -3.63531,
-          "sharpe_ann": -1.30584,
-          "sortino_ann": -1.42728,
-          "max_dd_monthly_cohorts": -0.16065,
+          "mean": -0.00224,
+          "median": -0.00263,
+          "hit_rate": 0.44263,
+          "t_months": -3.69929,
+          "sharpe_ann": -1.32883,
+          "sortino_ann": -1.44859,
+          "max_dd_monthly_cohorts": -0.16225,
           "years_positive_share": 0.125,
           "by_year": {
             "2019": -0.00174,
@@ -685,19 +685,19 @@
             "2023": -0.00217,
             "2024": -0.00282,
             "2025": -0.00371,
-            "2026": -0.00381
+            "2026": -0.00389
           }
         },
         "stress_cost": {
-          "mean": -0.00523,
-          "t_months": -9.7493,
-          "sharpe_ann": -3.50205
+          "mean": -0.00524,
+          "t_months": -9.82487,
+          "sharpe_ann": -3.5292
         },
         "regimes": {
           "vix_low": {
-            "n": 5238,
-            "mean": -0.00196,
-            "t_months": -2.78039
+            "n": 5244,
+            "mean": -0.00197,
+            "t_months": -2.81872
           },
           "vix_high": {
             "n": 3036,
@@ -705,9 +705,9 @@
             "t_months": -3.20339
           },
           "trend_up": {
-            "n": 6789,
-            "mean": -0.00216,
-            "t_months": -2.97684
+            "n": 6795,
+            "mean": -0.00217,
+            "t_months": -3.04395
           },
           "trend_down": {
             "n": 1485,
@@ -718,16 +718,16 @@
       },
       "h5": {
         "base_cost": {
-          "n": 8268,
-          "n_dates": 1617,
+          "n": 8271,
+          "n_dates": 1619,
           "n_months": 93,
-          "mean": -0.00213,
+          "mean": -0.00215,
           "median": -0.00269,
-          "hit_rate": 0.47339,
-          "t_months": -2.49619,
-          "sharpe_ann": -0.89666,
-          "sortino_ann": -0.98253,
-          "max_dd_monthly_cohorts": -0.21847,
+          "hit_rate": 0.47346,
+          "t_months": -2.50725,
+          "sharpe_ann": -0.90063,
+          "sortino_ann": -0.98567,
+          "max_dd_monthly_cohorts": -0.22008,
           "years_positive_share": 0.125,
           "by_year": {
             "2019": -0.00013,
@@ -737,93 +737,93 @@
             "2023": -0.00205,
             "2024": -0.0018,
             "2025": -0.00401,
-            "2026": -0.00757
+            "2026": -0.00768
           }
         },
         "stress_cost": {
-          "mean": -0.00513,
-          "t_months": -5.82895,
-          "sharpe_ann": -2.09382
+          "mean": -0.00515,
+          "t_months": -5.82917,
+          "sharpe_ann": -2.0939
         },
         "regimes": {
           "vix_low": {
-            "n": 5232,
-            "mean": -0.00207,
-            "t_months": -2.00589
+            "n": 5235,
+            "mean": -0.00209,
+            "t_months": -2.01413
           },
           "vix_high": {
             "n": 3036,
             "mean": -0.00224,
-            "t_months": -0.76453
+            "t_months": -0.76452
           },
           "trend_up": {
-            "n": 6783,
-            "mean": -0.00252,
-            "t_months": -1.43713
+            "n": 6786,
+            "mean": -0.00254,
+            "t_months": -1.44942
           },
           "trend_down": {
             "n": 1485,
             "mean": -0.00035,
-            "t_months": -1.00669
+            "t_months": -1.00668
           }
         }
       },
       "h20": {
         "base_cost": {
-          "n": 8168,
-          "n_dates": 1600,
-          "n_months": 92,
+          "n": 8175,
+          "n_dates": 1603,
+          "n_months": 93,
           "mean": -0.00062,
-          "median": -0.00161,
-          "hit_rate": 0.49204,
-          "t_months": -0.8548,
-          "sharpe_ann": -0.30872,
-          "sortino_ann": -0.39951,
+          "median": -0.00154,
+          "hit_rate": 0.49223,
+          "t_months": -0.84696,
+          "sharpe_ann": -0.30424,
+          "sortino_ann": -0.39374,
           "max_dd_monthly_cohorts": -0.233,
           "years_positive_share": 0.375,
           "by_year": {
             "2019": -0.00299,
-            "2020": 0.00714,
+            "2020": 0.00713,
             "2021": -0.00351,
             "2022": -0.00838,
             "2023": -0.0014,
             "2024": 0.0015,
-            "2025": -0.00137,
-            "2026": 0.00231
+            "2025": -0.00136,
+            "2026": 0.00235
           }
         },
         "stress_cost": {
           "mean": -0.00362,
-          "t_months": -2.26991,
-          "sharpe_ann": -0.81979
+          "t_months": -2.27742,
+          "sharpe_ann": -0.81807
         },
         "regimes": {
           "vix_low": {
-            "n": 5145,
-            "mean": -0.00027,
-            "t_months": -1.53573
+            "n": 5152,
+            "mean": -0.00026,
+            "t_months": -1.53131
           },
           "vix_high": {
             "n": 3023,
             "mean": -0.00122,
-            "t_months": 0.04496
+            "t_months": 0.0449
           },
           "trend_up": {
-            "n": 6693,
-            "mean": 0.00022,
-            "t_months": -0.37645
+            "n": 6700,
+            "mean": 0.00023,
+            "t_months": -0.36885
           },
           "trend_down": {
             "n": 1475,
-            "mean": -0.00446,
-            "t_months": -0.9387
+            "mean": -0.00447,
+            "t_months": -0.93907
           }
         }
       },
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00062, t=-0.8548)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00062, t=-0.84696)",
           "nur 0.375 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -831,53 +831,53 @@
       },
       "h60": {
         "base_cost": {
-          "n": 8039,
-          "n_dates": 1570,
+          "n": 8042,
+          "n_dates": 1572,
           "n_months": 91,
           "mean": -0.00067,
-          "median": -0.00236,
-          "hit_rate": 0.49024,
-          "t_months": -0.0728,
-          "sharpe_ann": -0.02644,
-          "sortino_ann": -0.04061,
-          "max_dd_monthly_cohorts": -0.30704,
+          "median": -0.0025,
+          "hit_rate": 0.49005,
+          "t_months": -0.08271,
+          "sharpe_ann": -0.03004,
+          "sortino_ann": -0.04612,
+          "max_dd_monthly_cohorts": -0.30715,
           "years_positive_share": 0.625,
           "by_year": {
             "2019": -0.01517,
             "2020": 0.00136,
             "2021": -0.01169,
-            "2022": -0.00857,
+            "2022": -0.00858,
             "2023": 0.0017,
             "2024": 0.01198,
-            "2025": 0.00475,
-            "2026": 0.00385
+            "2025": 0.00476,
+            "2026": 0.00391
           }
         },
         "stress_cost": {
           "mean": -0.00367,
-          "t_months": -0.8395,
-          "sharpe_ann": -0.30485
+          "t_months": -0.84975,
+          "sharpe_ann": -0.30858
         },
         "regimes": {
           "vix_low": {
-            "n": 5028,
-            "mean": 0.00191,
-            "t_months": -1.08183
+            "n": 5031,
+            "mean": 0.00193,
+            "t_months": -1.08829
           },
           "vix_high": {
             "n": 3011,
             "mean": -0.00499,
-            "t_months": 0.6366
+            "t_months": 0.63621
           },
           "trend_up": {
-            "n": 6563,
-            "mean": 0.00276,
-            "t_months": -0.26169
+            "n": 6566,
+            "mean": 0.00277,
+            "t_months": -0.27141
           },
           "trend_down": {
             "n": 1476,
-            "mean": -0.01591,
-            "t_months": 0.79739
+            "mean": -0.01593,
+            "t_months": 0.79609
           }
         }
       }
@@ -885,15 +885,15 @@
     "H3_up_rs_positive": {
       "h1": {
         "base_cost": {
-          "n": 8031,
-          "n_dates": 1597,
+          "n": 8036,
+          "n_dates": 1599,
           "n_months": 93,
           "mean": -0.00237,
           "median": -0.00237,
-          "hit_rate": 0.43295,
-          "t_months": -4.41494,
-          "sharpe_ann": -1.58589,
-          "sortino_ann": -1.61939,
+          "hit_rate": 0.4328,
+          "t_months": -4.55365,
+          "sharpe_ann": -1.63572,
+          "sortino_ann": -1.64344,
           "max_dd_monthly_cohorts": -0.21617,
           "years_positive_share": 0.0,
           "by_year": {
@@ -904,19 +904,19 @@
             "2023": -0.00145,
             "2024": -0.00272,
             "2025": -0.00368,
-            "2026": -0.00111
+            "2026": -0.00116
           }
         },
         "stress_cost": {
           "mean": -0.00537,
-          "t_months": -10.29858,
-          "sharpe_ann": -3.69936
+          "t_months": -10.53337,
+          "sharpe_ann": -3.7837
         },
         "regimes": {
           "vix_low": {
-            "n": 4972,
-            "mean": -0.00202,
-            "t_months": -3.21566
+            "n": 4977,
+            "mean": -0.00203,
+            "t_months": -3.30697
           },
           "vix_high": {
             "n": 3059,
@@ -924,9 +924,9 @@
             "t_months": -3.58094
           },
           "trend_up": {
-            "n": 6689,
+            "n": 6694,
             "mean": -0.00243,
-            "t_months": -3.72284
+            "t_months": -3.84434
           },
           "trend_down": {
             "n": 1342,
@@ -943,14 +943,14 @@
           "mean": -0.00228,
           "median": -0.0032,
           "hit_rate": 0.46326,
-          "t_months": -2.63304,
-          "sharpe_ann": -0.94582,
-          "sortino_ann": -1.05827,
-          "max_dd_monthly_cohorts": -0.27096,
+          "t_months": -2.63281,
+          "sharpe_ann": -0.94573,
+          "sortino_ann": -1.05818,
+          "max_dd_monthly_cohorts": -0.27093,
           "years_positive_share": 0.25,
           "by_year": {
             "2019": -0.0015,
-            "2020": -0.00819,
+            "2020": -0.00818,
             "2021": -0.00117,
             "2022": 0.00107,
             "2023": -0.00186,
@@ -961,88 +961,88 @@
         },
         "stress_cost": {
           "mean": -0.00528,
-          "t_months": -5.43371,
-          "sharpe_ann": -1.95185
+          "t_months": -5.43348,
+          "sharpe_ann": -1.95176
         },
         "regimes": {
           "vix_low": {
             "n": 4971,
             "mean": -0.0016,
-            "t_months": -1.81303
+            "t_months": -1.81302
           },
           "vix_high": {
             "n": 3059,
             "mean": -0.00338,
-            "t_months": -3.33919
+            "t_months": -3.339
           },
           "trend_up": {
             "n": 6688,
             "mean": -0.00271,
-            "t_months": -1.56203
+            "t_months": -1.56202
           },
           "trend_down": {
             "n": 1342,
             "mean": -0.00012,
-            "t_months": -1.47782
+            "t_months": -1.4775
           }
         }
       },
       "h20": {
         "base_cost": {
-          "n": 7985,
-          "n_dates": 1584,
-          "n_months": 92,
-          "mean": -0.00155,
-          "median": -0.00547,
-          "hit_rate": 0.46387,
-          "t_months": -1.07256,
-          "sharpe_ann": -0.38736,
-          "sortino_ann": -0.52244,
-          "max_dd_monthly_cohorts": -0.28792,
+          "n": 7993,
+          "n_dates": 1587,
+          "n_months": 93,
+          "mean": -0.00152,
+          "median": -0.0055,
+          "hit_rate": 0.46366,
+          "t_months": -0.80351,
+          "sharpe_ann": -0.28863,
+          "sortino_ann": -0.40147,
+          "max_dd_monthly_cohorts": -0.28761,
           "years_positive_share": 0.5,
           "by_year": {
             "2019": -0.00199,
             "2020": -0.00213,
             "2021": -0.00807,
-            "2022": 0.00515,
+            "2022": 0.00516,
             "2023": -0.00968,
-            "2024": 0.00064,
-            "2025": 0.00383,
-            "2026": 0.00144
+            "2024": 0.00066,
+            "2025": 0.00384,
+            "2026": 0.00178
           }
         },
         "stress_cost": {
-          "mean": -0.00455,
-          "t_months": -2.41029,
-          "sharpe_ann": -0.8705
+          "mean": -0.00452,
+          "t_months": -2.11693,
+          "sharpe_ann": -0.76042
         },
         "regimes": {
           "vix_low": {
-            "n": 4926,
-            "mean": -0.00049,
-            "t_months": -1.41729
+            "n": 4934,
+            "mean": -0.00043,
+            "t_months": -1.21293
           },
           "vix_high": {
             "n": 3059,
             "mean": -0.00326,
-            "t_months": -1.2554
+            "t_months": -1.25529
           },
           "trend_up": {
-            "n": 6643,
-            "mean": -0.00086,
-            "t_months": -0.9913
+            "n": 6651,
+            "mean": -0.00082,
+            "t_months": -0.7261
           },
           "trend_down": {
             "n": 1342,
-            "mean": -0.00497,
-            "t_months": -0.61944
+            "mean": -0.00496,
+            "t_months": -0.61919
           }
         }
       },
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00155, t=-1.07256)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00152, t=-0.80351)",
           "nur 0.5 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -1050,53 +1050,53 @@
       },
       "h60": {
         "base_cost": {
-          "n": 7862,
-          "n_dates": 1553,
+          "n": 7864,
+          "n_dates": 1555,
           "n_months": 91,
-          "mean": 0.00141,
-          "median": -0.0124,
-          "hit_rate": 0.45764,
-          "t_months": 0.85234,
-          "sharpe_ann": 0.30951,
-          "sortino_ann": 0.5296,
-          "max_dd_monthly_cohorts": -0.31638,
+          "mean": 0.0014,
+          "median": -0.01241,
+          "hit_rate": 0.45753,
+          "t_months": 0.80935,
+          "sharpe_ann": 0.29391,
+          "sortino_ann": 0.49815,
+          "max_dd_monthly_cohorts": -0.31574,
           "years_positive_share": 0.5,
           "by_year": {
             "2019": -0.0114,
-            "2020": 0.01257,
-            "2021": -0.01477,
-            "2022": 0.01837,
+            "2020": 0.01258,
+            "2021": -0.01476,
+            "2022": 0.01838,
             "2023": -0.01594,
-            "2024": 0.00721,
-            "2025": 0.02193,
-            "2026": -0.01248
+            "2024": 0.00723,
+            "2025": 0.02195,
+            "2026": -0.01273
           }
         },
         "stress_cost": {
-          "mean": -0.00159,
-          "t_months": 0.1859,
-          "sharpe_ann": 0.06751
+          "mean": -0.0016,
+          "t_months": 0.14665,
+          "sharpe_ann": 0.05326
         },
         "regimes": {
           "vix_low": {
-            "n": 4812,
-            "mean": 0.00085,
-            "t_months": -0.7667
+            "n": 4814,
+            "mean": 0.00082,
+            "t_months": -0.79537
           },
           "vix_high": {
             "n": 3050,
-            "mean": 0.00229,
-            "t_months": -0.49248
+            "mean": 0.0023,
+            "t_months": -0.49233
           },
           "trend_up": {
-            "n": 6520,
-            "mean": 0.00128,
-            "t_months": -0.09046
+            "n": 6522,
+            "mean": 0.00126,
+            "t_months": -0.1283
           },
           "trend_down": {
             "n": 1342,
-            "mean": 0.00204,
-            "t_months": 2.29179
+            "mean": 0.00205,
+            "t_months": 2.29203
           }
         }
       }
@@ -1104,16 +1104,16 @@
     "H3_up_rs_negative": {
       "h1": {
         "base_cost": {
-          "n": 4985,
-          "n_dates": 1258,
+          "n": 4990,
+          "n_dates": 1261,
           "n_months": 93,
-          "mean": -0.00339,
+          "mean": -0.00338,
           "median": -0.00331,
           "hit_rate": 0.40762,
-          "t_months": -5.05141,
-          "sharpe_ann": -1.81452,
-          "sortino_ann": -1.73995,
-          "max_dd_monthly_cohorts": -0.24559,
+          "t_months": -5.02649,
+          "sharpe_ann": -1.80557,
+          "sortino_ann": -1.73552,
+          "max_dd_monthly_cohorts": -0.24255,
           "years_positive_share": 0.0,
           "by_year": {
             "2019": -0.00399,
@@ -1123,19 +1123,19 @@
             "2023": -0.00354,
             "2024": -0.00317,
             "2025": -0.0021,
-            "2026": -0.00465
+            "2026": -0.00454
           }
         },
         "stress_cost": {
-          "mean": -0.00639,
-          "t_months": -10.58586,
-          "sharpe_ann": -3.80255
+          "mean": -0.00638,
+          "t_months": -10.60012,
+          "sharpe_ann": -3.80768
         },
         "regimes": {
           "vix_low": {
-            "n": 3216,
-            "mean": -0.0034,
-            "t_months": -3.99671
+            "n": 3221,
+            "mean": -0.00339,
+            "t_months": -3.96382
           },
           "vix_high": {
             "n": 1769,
@@ -1143,9 +1143,9 @@
             "t_months": -1.5319
           },
           "trend_up": {
-            "n": 4227,
-            "mean": -0.00314,
-            "t_months": -1.98001
+            "n": 4232,
+            "mean": -0.00313,
+            "t_months": -1.94887
           },
           "trend_down": {
             "n": 758,
@@ -1156,38 +1156,38 @@
       },
       "h5": {
         "base_cost": {
-          "n": 4982,
-          "n_dates": 1256,
+          "n": 4983,
+          "n_dates": 1257,
           "n_months": 93,
           "mean": -0.00485,
-          "median": -0.00499,
-          "hit_rate": 0.43115,
-          "t_months": -2.00837,
-          "sharpe_ann": -0.72143,
-          "sortino_ann": -0.86878,
-          "max_dd_monthly_cohorts": -0.28732,
+          "median": -0.00498,
+          "hit_rate": 0.43127,
+          "t_months": -1.98914,
+          "sharpe_ann": -0.71452,
+          "sortino_ann": -0.86178,
+          "max_dd_monthly_cohorts": -0.28652,
           "years_positive_share": 0.0,
           "by_year": {
-            "2019": -0.00415,
+            "2019": -0.00414,
             "2020": -0.00849,
             "2021": -0.00141,
             "2022": -0.0029,
             "2023": -0.00232,
-            "2024": -0.00728,
+            "2024": -0.00726,
             "2025": -0.00847,
-            "2026": -0.00094
+            "2026": -0.00092
           }
         },
         "stress_cost": {
           "mean": -0.00785,
-          "t_months": -4.30027,
-          "sharpe_ann": -1.5447
+          "t_months": -4.28238,
+          "sharpe_ann": -1.53828
         },
         "regimes": {
           "vix_low": {
-            "n": 3213,
-            "mean": -0.00414,
-            "t_months": -2.10732
+            "n": 3214,
+            "mean": -0.00413,
+            "t_months": -2.08891
           },
           "vix_high": {
             "n": 1769,
@@ -1195,73 +1195,73 @@
             "t_months": -1.25502
           },
           "trend_up": {
-            "n": 4224,
+            "n": 4225,
             "mean": -0.00487,
-            "t_months": -0.68575
+            "t_months": -0.67077
           },
           "trend_down": {
             "n": 758,
             "mean": -0.00474,
-            "t_months": -2.00903
+            "t_months": -2.00904
           }
         }
       },
       "h20": {
         "base_cost": {
-          "n": 4900,
-          "n_dates": 1245,
-          "n_months": 92,
-          "mean": -0.00381,
-          "median": -0.00724,
-          "hit_rate": 0.4551,
-          "t_months": 0.44771,
-          "sharpe_ann": 0.16169,
-          "sortino_ann": 0.23098,
-          "max_dd_monthly_cohorts": -0.25084,
+          "n": 4905,
+          "n_dates": 1247,
+          "n_months": 93,
+          "mean": -0.00389,
+          "median": -0.00726,
+          "hit_rate": 0.45484,
+          "t_months": 0.10889,
+          "sharpe_ann": 0.03912,
+          "sortino_ann": 0.0534,
+          "max_dd_monthly_cohorts": -0.28358,
           "years_positive_share": 0.125,
           "by_year": {
-            "2019": -0.00552,
-            "2020": 0.0022,
+            "2019": -0.0055,
+            "2020": 0.00221,
             "2021": -0.00055,
             "2022": -0.00192,
             "2023": -0.00477,
-            "2024": -0.00505,
+            "2024": -0.00503,
             "2025": -0.00903,
-            "2026": -0.00436
+            "2026": -0.00552
           }
         },
         "stress_cost": {
-          "mean": -0.00681,
-          "t_months": -0.58104,
-          "sharpe_ann": -0.20985
+          "mean": -0.00689,
+          "t_months": -0.87939,
+          "sharpe_ann": -0.31589
         },
         "regimes": {
           "vix_low": {
-            "n": 3131,
-            "mean": -0.00541,
-            "t_months": -0.69293
+            "n": 3136,
+            "mean": -0.00553,
+            "t_months": -1.00198
           },
           "vix_high": {
             "n": 1769,
-            "mean": -0.00098,
-            "t_months": 1.26697
+            "mean": -0.00097,
+            "t_months": 1.26704
           },
           "trend_up": {
-            "n": 4142,
-            "mean": -0.00436,
-            "t_months": -0.0405
+            "n": 4147,
+            "mean": -0.00445,
+            "t_months": -0.35225
           },
           "trend_down": {
             "n": 758,
             "mean": -0.00079,
-            "t_months": -0.4607
+            "t_months": -0.46071
           }
         }
       },
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00381, t=0.44771)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00389, t=0.10889)",
           "nur 0.125 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -1269,53 +1269,53 @@
       },
       "h60": {
         "base_cost": {
-          "n": 4861,
-          "n_dates": 1223,
+          "n": 4862,
+          "n_dates": 1224,
           "n_months": 91,
-          "mean": -0.00177,
-          "median": -0.01292,
-          "hit_rate": 0.45937,
-          "t_months": 0.87298,
-          "sharpe_ann": 0.31701,
-          "sortino_ann": 0.48879,
-          "max_dd_monthly_cohorts": -0.33342,
+          "mean": -0.00174,
+          "median": -0.01287,
+          "hit_rate": 0.45948,
+          "t_months": 0.97279,
+          "sharpe_ann": 0.35326,
+          "sortino_ann": 0.54576,
+          "max_dd_monthly_cohorts": -0.33256,
           "years_positive_share": 0.625,
           "by_year": {
-            "2019": -0.00565,
-            "2020": 0.01232,
-            "2021": 0.00079,
+            "2019": -0.00561,
+            "2020": 0.01233,
+            "2021": 0.00082,
             "2022": 0.00049,
-            "2023": -0.01123,
-            "2024": 0.0055,
-            "2025": -0.01845,
-            "2026": 0.00654
+            "2023": -0.01122,
+            "2024": 0.00553,
+            "2025": -0.01844,
+            "2026": 0.0068
           }
         },
         "stress_cost": {
-          "mean": -0.00477,
-          "t_months": 0.24585,
-          "sharpe_ann": 0.08928
+          "mean": -0.00474,
+          "t_months": 0.34621,
+          "sharpe_ann": 0.12572
         },
         "regimes": {
           "vix_low": {
-            "n": 3095,
-            "mean": -0.00449,
-            "t_months": -1.02465
+            "n": 3096,
+            "mean": -0.00444,
+            "t_months": -0.90636
           },
           "vix_high": {
             "n": 1766,
-            "mean": 0.00299,
-            "t_months": 2.06899
+            "mean": 0.003,
+            "t_months": 2.06921
           },
           "trend_up": {
-            "n": 4103,
-            "mean": -0.00487,
-            "t_months": -0.14615
+            "n": 4104,
+            "mean": -0.00483,
+            "t_months": -0.05056
           },
           "trend_down": {
             "n": 758,
             "mean": 0.01502,
-            "t_months": 0.90919
+            "t_months": 0.90918
           }
         }
       }
@@ -1323,16 +1323,16 @@
     "H4_high_relvol": {
       "h1": {
         "base_cost": {
-          "n": 9188,
-          "n_dates": 1608,
+          "n": 9193,
+          "n_dates": 1611,
           "n_months": 93,
           "mean": -0.00251,
           "median": -0.00242,
-          "hit_rate": 0.43655,
-          "t_months": -5.43108,
-          "sharpe_ann": -1.9509,
-          "sortino_ann": -1.84321,
-          "max_dd_monthly_cohorts": -0.21765,
+          "hit_rate": 0.43642,
+          "t_months": -5.53661,
+          "sharpe_ann": -1.98881,
+          "sortino_ann": -1.86743,
+          "max_dd_monthly_cohorts": -0.21807,
           "years_positive_share": 0.0,
           "by_year": {
             "2019": -0.00265,
@@ -1342,19 +1342,19 @@
             "2023": -0.00317,
             "2024": -0.00195,
             "2025": -0.00244,
-            "2026": -0.00293
+            "2026": -0.00299
           }
         },
         "stress_cost": {
           "mean": -0.00551,
-          "t_months": -12.23473,
-          "sharpe_ann": -4.39484
+          "t_months": -12.38219,
+          "sharpe_ann": -4.44781
         },
         "regimes": {
           "vix_low": {
-            "n": 6106,
-            "mean": -0.00217,
-            "t_months": -2.95934
+            "n": 6111,
+            "mean": -0.00218,
+            "t_months": -3.02185
           },
           "vix_high": {
             "n": 3082,
@@ -1362,9 +1362,9 @@
             "t_months": -3.0232
           },
           "trend_up": {
-            "n": 7770,
-            "mean": -0.00222,
-            "t_months": -4.72933
+            "n": 7775,
+            "mean": -0.00223,
+            "t_months": -4.82153
           },
           "trend_down": {
             "n": 1418,
@@ -1375,38 +1375,38 @@
       },
       "h5": {
         "base_cost": {
-          "n": 9182,
-          "n_dates": 1605,
+          "n": 9186,
+          "n_dates": 1607,
           "n_months": 93,
-          "mean": -0.00361,
-          "median": -0.0032,
-          "hit_rate": 0.46243,
-          "t_months": -3.50674,
-          "sharpe_ann": -1.25966,
-          "sortino_ann": -1.33467,
-          "max_dd_monthly_cohorts": -0.34257,
+          "mean": -0.00362,
+          "median": -0.00319,
+          "hit_rate": 0.46255,
+          "t_months": -3.50588,
+          "sharpe_ann": -1.25935,
+          "sortino_ann": -1.33444,
+          "max_dd_monthly_cohorts": -0.34244,
           "years_positive_share": 0.0,
           "by_year": {
-            "2019": -0.00136,
+            "2019": -0.00135,
             "2020": -0.00894,
             "2021": -0.00038,
             "2022": -0.00423,
             "2023": -0.00386,
             "2024": -0.00312,
             "2025": -0.00395,
-            "2026": -0.00387
+            "2026": -0.00395
           }
         },
         "stress_cost": {
-          "mean": -0.00661,
-          "t_months": -6.36878,
-          "sharpe_ann": -2.28773
+          "mean": -0.00662,
+          "t_months": -6.36833,
+          "sharpe_ann": -2.28757
         },
         "regimes": {
           "vix_low": {
-            "n": 6100,
-            "mean": -0.00281,
-            "t_months": -2.85097
+            "n": 6104,
+            "mean": -0.00282,
+            "t_months": -2.85003
           },
           "vix_high": {
             "n": 3082,
@@ -1414,9 +1414,9 @@
             "t_months": -0.57138
           },
           "trend_up": {
-            "n": 7764,
-            "mean": -0.00314,
-            "t_months": -2.81225
+            "n": 7768,
+            "mean": -0.00315,
+            "t_months": -2.81133
           },
           "trend_down": {
             "n": 1418,
@@ -1427,16 +1427,16 @@
       },
       "h20": {
         "base_cost": {
-          "n": 9004,
-          "n_dates": 1591,
-          "n_months": 92,
-          "mean": -0.0039,
-          "median": -0.00352,
-          "hit_rate": 0.47901,
-          "t_months": -2.25088,
-          "sharpe_ann": -0.81292,
-          "sortino_ann": -0.95138,
-          "max_dd_monthly_cohorts": -0.43935,
+          "n": 9027,
+          "n_dates": 1594,
+          "n_months": 93,
+          "mean": -0.00374,
+          "median": -0.00346,
+          "hit_rate": 0.47967,
+          "t_months": -1.26026,
+          "sharpe_ann": -0.4527,
+          "sortino_ann": -0.65116,
+          "max_dd_monthly_cohorts": -0.43948,
           "years_positive_share": 0.0,
           "by_year": {
             "2019": -0.00443,
@@ -1446,29 +1446,29 @@
             "2023": -0.00472,
             "2024": -0.00072,
             "2025": -0.00232,
-            "2026": -0.00954
+            "2026": -0.0074
           }
         },
         "stress_cost": {
-          "mean": -0.0069,
-          "t_months": -3.78151,
-          "sharpe_ann": -1.36572
+          "mean": -0.00674,
+          "t_months": -2.51907,
+          "sharpe_ann": -0.90488
         },
         "regimes": {
           "vix_low": {
-            "n": 5922,
-            "mean": -0.00244,
-            "t_months": -2.10414
+            "n": 5945,
+            "mean": -0.0022,
+            "t_months": -1.2116
           },
           "vix_high": {
             "n": 3082,
-            "mean": -0.00669,
-            "t_months": -0.87232
+            "mean": -0.0067,
+            "t_months": -0.87281
           },
           "trend_up": {
-            "n": 7590,
-            "mean": -0.00233,
-            "t_months": -1.43437
+            "n": 7613,
+            "mean": -0.00214,
+            "t_months": -0.63859
           },
           "trend_down": {
             "n": 1414,
@@ -1480,7 +1480,7 @@
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.0039, t=-2.25088)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00374, t=-1.26026)",
           "nur 0.0 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -1488,48 +1488,48 @@
       },
       "h60": {
         "base_cost": {
-          "n": 8890,
-          "n_dates": 1560,
+          "n": 8891,
+          "n_dates": 1561,
           "n_months": 91,
           "mean": -0.0051,
-          "median": -0.00581,
-          "hit_rate": 0.47773,
-          "t_months": -1.35914,
-          "sharpe_ann": -0.49355,
-          "sortino_ann": -0.60732,
-          "max_dd_monthly_cohorts": -0.39775,
+          "median": -0.00585,
+          "hit_rate": 0.47756,
+          "t_months": -1.34737,
+          "sharpe_ann": -0.48928,
+          "sortino_ann": -0.60252,
+          "max_dd_monthly_cohorts": -0.39779,
           "years_positive_share": 0.125,
           "by_year": {
-            "2019": -0.00621,
+            "2019": -0.0062,
             "2020": -0.00881,
-            "2021": -0.01063,
-            "2022": -0.01183,
-            "2023": -0.00022,
-            "2024": 0.00231,
+            "2021": -0.01062,
+            "2022": -0.01184,
+            "2023": -0.00021,
+            "2024": 0.00232,
             "2025": -0.00348,
-            "2026": -0.00966
+            "2026": -0.00967
           }
         },
         "stress_cost": {
           "mean": -0.0081,
-          "t_months": -2.30703,
-          "sharpe_ann": -0.83777
+          "t_months": -2.29617,
+          "sharpe_ann": -0.83382
         },
         "regimes": {
           "vix_low": {
-            "n": 5812,
+            "n": 5813,
             "mean": -0.00166,
-            "t_months": -0.78043
+            "t_months": -0.7688
           },
           "vix_high": {
             "n": 3078,
             "mean": -0.01159,
-            "t_months": 0.16703
+            "t_months": 0.16575
           },
           "trend_up": {
-            "n": 7478,
-            "mean": -0.003,
-            "t_months": -0.99844
+            "n": 7479,
+            "mean": -0.00299,
+            "t_months": -0.9865
           },
           "trend_down": {
             "n": 1412,
@@ -1542,15 +1542,15 @@
     "H4_low_relvol": {
       "h1": {
         "base_cost": {
-          "n": 8984,
-          "n_dates": 1679,
+          "n": 8995,
+          "n_dates": 1682,
           "n_months": 93,
-          "mean": -0.00202,
+          "mean": -0.00203,
           "median": -0.00225,
-          "hit_rate": 0.43967,
-          "t_months": -3.99145,
-          "sharpe_ann": -1.43377,
-          "sortino_ann": -1.46881,
+          "hit_rate": 0.43947,
+          "t_months": -4.00061,
+          "sharpe_ann": -1.43706,
+          "sortino_ann": -1.47146,
           "max_dd_monthly_cohorts": -0.16829,
           "years_positive_share": 0.0,
           "by_year": {
@@ -1561,19 +1561,19 @@
             "2023": -0.0014,
             "2024": -0.00183,
             "2025": -0.00253,
-            "2026": -0.002
+            "2026": -0.00211
           }
         },
         "stress_cost": {
-          "mean": -0.00502,
-          "t_months": -10.91524,
-          "sharpe_ann": -3.92087
+          "mean": -0.00503,
+          "t_months": -10.9278,
+          "sharpe_ann": -3.92538
         },
         "regimes": {
           "vix_low": {
-            "n": 5295,
-            "mean": -0.00188,
-            "t_months": -3.03143
+            "n": 5306,
+            "mean": -0.0019,
+            "t_months": -3.03939
           },
           "vix_high": {
             "n": 3689,
@@ -1581,9 +1581,9 @@
             "t_months": -3.35686
           },
           "trend_up": {
-            "n": 7252,
-            "mean": -0.00193,
-            "t_months": -3.60589
+            "n": 7263,
+            "mean": -0.00194,
+            "t_months": -3.61472
           },
           "trend_down": {
             "n": 1732,
@@ -1594,38 +1594,38 @@
       },
       "h5": {
         "base_cost": {
-          "n": 8979,
-          "n_dates": 1677,
+          "n": 8980,
+          "n_dates": 1678,
           "n_months": 93,
-          "mean": -0.00288,
+          "mean": -0.00287,
           "median": -0.00304,
-          "hit_rate": 0.46108,
-          "t_months": -2.25846,
-          "sharpe_ann": -0.81126,
-          "sortino_ann": -1.02036,
-          "max_dd_monthly_cohorts": -0.2136,
+          "hit_rate": 0.46114,
+          "t_months": -2.13586,
+          "sharpe_ann": -0.76722,
+          "sortino_ann": -0.97066,
+          "max_dd_monthly_cohorts": -0.21404,
           "years_positive_share": 0.0,
           "by_year": {
             "2019": -0.00325,
             "2020": -0.00266,
             "2021": -0.00268,
             "2022": -0.00026,
-            "2023": -0.00079,
+            "2023": -0.0008,
             "2024": -0.00397,
             "2025": -0.00508,
-            "2026": -0.00465
+            "2026": -0.00448
           }
         },
         "stress_cost": {
-          "mean": -0.00588,
-          "t_months": -5.72632,
-          "sharpe_ann": -2.05696
+          "mean": -0.00587,
+          "t_months": -5.60479,
+          "sharpe_ann": -2.0133
         },
         "regimes": {
           "vix_low": {
-            "n": 5291,
-            "mean": -0.00332,
-            "t_months": -1.81578
+            "n": 5292,
+            "mean": -0.00329,
+            "t_months": -1.71649
           },
           "vix_high": {
             "n": 3688,
@@ -1633,9 +1633,9 @@
             "t_months": -1.5748
           },
           "trend_up": {
-            "n": 7248,
-            "mean": -0.00327,
-            "t_months": -1.32006
+            "n": 7249,
+            "mean": -0.00325,
+            "t_months": -1.21143
           },
           "trend_down": {
             "n": 1731,
@@ -1646,38 +1646,38 @@
       },
       "h20": {
         "base_cost": {
-          "n": 8866,
-          "n_dates": 1663,
-          "n_months": 92,
-          "mean": -0.00402,
-          "median": -0.00351,
-          "hit_rate": 0.47755,
-          "t_months": -1.71186,
-          "sharpe_ann": -0.61825,
-          "sortino_ann": -0.77078,
-          "max_dd_monthly_cohorts": -0.3079,
+          "n": 8878,
+          "n_dates": 1666,
+          "n_months": 93,
+          "mean": -0.00404,
+          "median": -0.0035,
+          "hit_rate": 0.4777,
+          "t_months": -1.83135,
+          "sharpe_ann": -0.65784,
+          "sortino_ann": -0.8145,
+          "max_dd_monthly_cohorts": -0.32816,
           "years_positive_share": 0.125,
           "by_year": {
             "2019": -0.00261,
             "2020": 0.00011,
             "2021": -0.00676,
             "2022": -0.00339,
-            "2023": -0.00296,
+            "2023": -0.00298,
             "2024": -0.00316,
             "2025": -0.00674,
-            "2026": -0.00828
+            "2026": -0.00834
           }
         },
         "stress_cost": {
-          "mean": -0.00702,
-          "t_months": -3.47385,
-          "sharpe_ann": -1.25461
+          "mean": -0.00704,
+          "t_months": -3.60293,
+          "sharpe_ann": -1.29421
         },
         "regimes": {
           "vix_low": {
-            "n": 5173,
-            "mean": -0.00471,
-            "t_months": -1.97032
+            "n": 5185,
+            "mean": -0.00473,
+            "t_months": -2.0651
           },
           "vix_high": {
             "n": 3693,
@@ -1685,9 +1685,9 @@
             "t_months": 0.39649
           },
           "trend_up": {
-            "n": 7131,
-            "mean": -0.00381,
-            "t_months": -1.45722
+            "n": 7143,
+            "mean": -0.00383,
+            "t_months": -1.56301
           },
           "trend_down": {
             "n": 1735,
@@ -1699,7 +1699,7 @@
       "decision": {
         "supported": false,
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00402, t=-1.71186)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00404, t=-1.83135)",
           "nur 0.125 der Jahre positiv",
           "nicht in allen Regimen positiv",
           "bei 25 bp/Seite nicht mehr positiv"
@@ -1707,59 +1707,59 @@
       },
       "h60": {
         "base_cost": {
-          "n": 8749,
-          "n_dates": 1627,
+          "n": 8751,
+          "n_dates": 1629,
           "n_months": 91,
-          "mean": -0.00786,
+          "mean": -0.00787,
           "median": -0.00755,
           "hit_rate": 0.47537,
-          "t_months": -2.59013,
-          "sharpe_ann": -0.94057,
-          "sortino_ann": -1.04768,
-          "max_dd_monthly_cohorts": -0.76508,
+          "t_months": -2.54528,
+          "sharpe_ann": -0.92428,
+          "sortino_ann": -1.04684,
+          "max_dd_monthly_cohorts": -0.72512,
           "years_positive_share": 0.0,
           "by_year": {
-            "2019": -0.00969,
+            "2019": -0.0097,
             "2020": -0.00698,
             "2021": -0.01548,
-            "2022": -0.00643,
-            "2023": -0.00898,
+            "2022": -0.00644,
+            "2023": -0.009,
             "2024": -0.00124,
-            "2025": -0.00627,
-            "2026": -0.01057
+            "2025": -0.00628,
+            "2026": -0.01067
           }
         },
         "stress_cost": {
-          "mean": -0.01086,
-          "t_months": -3.45755,
-          "sharpe_ann": -1.25556
+          "mean": -0.01087,
+          "t_months": -3.45266,
+          "sharpe_ann": -1.25379
         },
         "regimes": {
           "vix_low": {
-            "n": 5069,
-            "mean": -0.00629,
-            "t_months": -2.4396
+            "n": 5071,
+            "mean": -0.00631,
+            "t_months": -2.37858
           },
           "vix_high": {
             "n": 3680,
-            "mean": -0.01001,
-            "t_months": -0.96586
+            "mean": -0.01002,
+            "t_months": -0.96743
           },
           "trend_up": {
-            "n": 7015,
-            "mean": -0.0071,
-            "t_months": -2.65656
+            "n": 7017,
+            "mean": -0.00711,
+            "t_months": -2.60166
           },
           "trend_down": {
             "n": 1734,
-            "mean": -0.01094,
-            "t_months": -0.10612
+            "mean": -0.01096,
+            "t_months": -0.10698
           }
         }
       }
     }
   },
-  "generated": "2026-09-29T08:47:27",
+  "generated": "2026-10-02T12:48:01",
   "tickers_requested": 514,
   "tickers_loaded": 514,
   "prereg": "docs/research/PREREG_price_event_study_2026-09-29.md"
