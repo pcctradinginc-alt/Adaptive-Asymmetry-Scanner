@@ -1,0 +1,251 @@
+Adaptive Asymmetry Scanner – Weekly Intelligence Report – 2026-10-02
+Research-/Paper-Signale, keine Orderausführung, keine Anlageberatung.
+
+1. SYSTEM STATUS
+=================
+  Current Champion: keiner
+  Current Meta Model: meta_regime_weights – Version meta-v1, Verdikt REJECT
+  Last Training / Validation: ml_research 2026-09-29T16:09:09+00:00 (Modus full); meta_learning 2026-09-29T16:26:01+00:00
+  Current Regime: n/a (Confidence LOW)
+  Data pipelines: WARNING (PASS 17 / WARNING 2 / FAIL 0; DEFERRED 9)
+  Data freshness: letzter Erfolg: 2026-10-02, ältester: 2026-09-28; Staleness: FRESH 14, UNKNOWN 5
+  Model drift: GEFLAGGT
+  Feature drift: GEFLAGGT
+  Calibration status: ML-Intervall: coverage 0.646 vs Ziel 0.800, kalibriert=True, Brier 0.2300 (Basis 0.2181), p_up_skill -0.054
+  Safe Mode: aus, Ensemble static_equal
+
+2. LIVE / FORWARD PERFORMANCE (Paper-Trades, echt – kein Backtest)
+===================================================================
+Quelle: outputs/history.json (echte Paper-Trades). Strikt getrennt vom Backtest. Outcome = Rendite je Trade als Anteil (0.10 = +10%). MaxDD: kumulierte Outcome-Kurve, additiv je Trade (Einheit = 1 Position), Reihenfolge close_date. Signals = Trades (inkl. offen) mit entry_date im Fenster.
+Geschlossen gesamt: 119, offen: 3, davon rekonstruiert (delta_approx): 40.
+A) Nur zuverlässige Outcomes (ohne delta_approx)
+  Fenster (close_date)  Signals  Closed  Win Rate  Avg Ret  Median  Avg Win  Avg Loss  Payoff  PF    Expectancy  MaxDD (Einh.)  Hinweis
+  --------------------  -------  ------  --------  -------  ------  -------  --------  ------  ----  ----------  -------------  ----------
+  Seit Beginn           122      79      35.4%     +4.2%    -31.3%  +114.8%  -56.5%    2.03    1.12  +4.2%       -10.99
+  Letzte 12 Monate      122      79      35.4%     +4.2%    -31.3%  +114.8%  -56.5%    2.03    1.12  +4.2%       -10.99
+  Letzte 3 Monate       11       12      25.0%     -16.1%   -18.2%  +45.8%   -36.7%    1.25    0.42  -16.1%      -2.84          LOW SAMPLE
+  Letzte 4 Wochen       3        5       0.0%      -53.7%   -50.6%  n/a      -53.7%    n/a     0.00  -53.7%      -2.69          LOW SAMPLE
+B) Alle Outcomes (inkl. delta_approx, Näherung)
+  Fenster (close_date)  Signals  Closed  Win Rate  Avg Ret  Median  Avg Win  Avg Loss  Payoff  PF    Expectancy  MaxDD (Einh.)  Hinweis
+  --------------------  -------  ------  --------  -------  ------  -------  --------  ------  ----  ----------  -------------  ----------
+  Seit Beginn           122      119     34.5%     +10.2%   -36.7%  +152.4%  -64.5%    2.36    1.24  +10.2%      -12.74
+  Letzte 12 Monate      122      119     34.5%     +10.2%   -36.7%  +152.4%  -64.5%    2.36    1.24  +10.2%      -12.74
+  Letzte 3 Monate       11       12      25.0%     -16.1%   -18.2%  +45.8%   -36.7%    1.25    0.42  -16.1%      -2.84          LOW SAMPLE
+  Letzte 4 Wochen       3        5       0.0%      -53.7%   -50.6%  n/a      -53.7%    n/a     0.00  -53.7%      -2.69          LOW SAMPLE
+Candidate-Ledger: 1257 Einträge, davon 28 nicht abgelehnt.
+
+3. CONFIDENCE PERFORMANCE
+==========================
+Quelle: meta_learning.calibration_buckets[meta_regime_weights] (Backtest-Kalibrierung).
+  Bucket   n     Win Rate  Avg Return  Expected  Calibration Error  Flag
+  -------  ----  --------  ----------  --------  -----------------  -------------
+  50–55 %  6329  44.0%     -0.4%       +0.8%     -0.073             overconfident
+  55–60 %  1223  46.9%     +0.8%       +3.0%     -0.091             overconfident
+  60–65 %  0     n/a       n/a         n/a       n/a                empty
+  65–70 %  0     n/a       n/a         n/a       n/a                empty
+  70–75 %  0     n/a       n/a         n/a       n/a                empty
+  75–80 %  0     n/a       n/a         n/a       n/a                empty
+  80–85 %  0     n/a       n/a         n/a       n/a                empty
+  85–90 %  0     n/a       n/a         n/a       n/a                empty
+  >= 90 %  0     n/a       n/a         n/a       n/a                empty
+
+4. CURRENT MODEL INTELLIGENCE
+==============================
+Pfeile nur aus dem Feld trend (metrisch, mit trend_t): ↑ improving, → stable, ↓ deteriorating.
+  Modell                   OOS IC  Recent IC  Trend            trend_t  Calibration  Contribution  Meta-Gewicht
+  -----------------------  ------  ---------  ---------------  -------  -----------  ------------  ------------
+  momentum_12_1            0.0080  -0.1172    ↓ deteriorating  -2.65    n/a          -0.00041      0.939
+  enet_xs20_v1             0.0322  -0.0052    → stable         -1.82    n/a          0.00098       0.061
+  hgb_xs20_v1              0.0189  -0.0256    → stable         -0.97    n/a          -0.00127      0.000
+  hgb_asym20_v1            0.0200  -0.0645    ↓ deteriorating  -2.04    n/a          -0.0005       0.000
+  hgb_xs20_momentum_v1     0.0169  0.0621     → stable         1.15     n/a          0.00014       0.000
+  hgb_xs20_risk_regime_v1  0.0095  -0.0533    → stable         -1.02    n/a          -0.00255      0.000
+
+5. META-LEARNING STATUS (Backtest, kein Forward)
+=================================================
+Alle Zahlen aus Backtest/Walk-Forward – kein Forward-Ergebnis.
+  Metrik         meta_regime_weights (meta)  static_equal (static/ref)  Delta [CI]
+  -------------  --------------------------  -------------------------  ----------
+  cagr           0.0156                      0.0223                     n/a
+  sharpe         0.1930                      0.2290                     n/a
+  sortino        0.1970                      0.2490                     n/a
+  max_dd         -0.1723                     -0.1875                    n/a
+  calmar         0.0910                      0.1190                     n/a
+  profit_factor  1.0560                      1.0680                     n/a
+  hit_rate       0.4723                      0.4742                     n/a
+  expectancy     0.0022                      0.0027                     n/a
+  brier          0.2497                      0.2495                     n/a
+  ece            0.0101                      0.0031                     n/a
+Verdikt: REJECT
+  - delta_sharpe_positive
+  - bootstrap_ci_positive
+  - years_positive
+  - halves_positive
+  - not_outlier_driven
+  - locked_delta_positive
+ML-Modelle – BACKTEST (Walk-Forward netto, ml_research.json)
+  Modell                   Rolle       WF Mean/Kohorte  t     Sharpe  MaxDD   IC      Verdikt
+  -----------------------  ----------  ---------------  ----  ------  ------  ------  ---------------
+  momentum_12_1            benchmark   +0.4%            1.01  0.40    -21.2%  0.0018  n/a
+  enet_xs20_v1             challenger  +0.7%            1.60  0.63    -19.6%  0.0256  rejected_so_far
+  hgb_xs20_v1              challenger  +0.7%            1.53  0.60    -23.2%  0.0208  rejected_so_far
+  hgb_asym20_v1            challenger  +0.4%            1.39  0.55    -13.2%  0.0245  rejected_so_far
+  hgb_xs20_momentum_v1     challenger  +0.9%            2.87  1.13    -12.5%  0.0133  rejected_so_far
+  hgb_xs20_risk_regime_v1  challenger  +0.7%            1.50  0.59    -29.5%  0.0163  rejected_so_far
+ML-Forward-Shadow (ml_forward.json): keine Daten.
+
+6. CURRENT HIGH-CONFIDENCE CANDIDATES
+======================================
+No high-confidence candidates this week.
+Grund: keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; SAFE MODE aktiv: FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])
+
+7. RECENT SIGNAL REVIEW
+========================
+Trades, die in den letzten 28 Tagen geschlossen wurden (history.json); Ursachen aus trade_memory.jsonl.
+  Ticker  Entry       Close       Outcome  Ergebnis  Primäre Ursache (Verlierer)
+  ------  ----------  ----------  -------  --------  -------------------------------------
+  ALL     2026-08-06  2026-09-10  -50.3%   nicht     underlying_unknown
+  ABNB    2026-08-07  2026-09-21  -34.7%   nicht     underlying_unknown
+  APO     2026-08-28  2026-09-23  -50.6%   nicht     signal_wrong
+  BBY     2026-09-02  2026-09-29  -73.8%   nicht     unbekannt (kein trade_memory-Eintrag)
+  ADM     2026-09-21  2026-09-30  -59.2%   nicht     unbekannt (kein trade_memory-Eintrag)
+
+8. WHAT THE SYSTEM LEARNED THIS WEEK
+=====================================
+Erster Bericht – keine Vergleichsbasis.
+
+9. RESEARCH PIPELINE
+=====================
+  accepted: 0
+  rejected: 10
+  inconclusive: 2
+  currently testing: 2
+  sonstige: 0
+  Getestet gesamt (n_tested_total): 7
+  Discovery: 117 getestet, 0 überlebt, Fenster 2015-01-01..2019-01-01
+  Angelegt    ID        Titel                                                     Status
+  ----------  --------  --------------------------------------------------------  -------------------------
+  2026-09-29  HYP-0101  Kurzfrist-Umkehr (1 Monat)                                not_significant_after_fdr
+  2026-09-29  HYP-0102  Niedrig-Volatilitäts-Anomalie                             rejected
+  2026-09-29  HYP-0103  Lotterie-Effekt (MAX)                                     rejected
+  2026-09-29  HYP-0104  Nähe zum 52-Wochen-Hoch                                   rejected
+  2026-09-29  HYP-0105  Intakter Trend, kurzer Rücksetzer (Asymmetrie-Divergenz)  rejected
+Failure-Analyse (zuverlässige Outcomes, Anteil primäre Ursache): underlying_unknown 56.5% (n=52), signal_wrong 25.0% (n=23), timing_too_early 12.0% (n=11), weak_adverse_move 5.4% (n=5), exit_gave_back 1.1% (n=1)
+
+10. RISK / HEALTH WARNINGS
+==========================
+  Warnung                  Detail
+  -----------------------  -----------------------------------------------------------------------------------------------------------------------------------
+  DATA DRIFT               Feature-/Daten-Drift geflaggt (feature_drift_flag, model_drift_flag)
+  MODEL DRIFT              Modell-Drift geflaggt (feature_drift_flag, model_drift_flag)
+  CALIBRATION FAILURE      Überkonfidente Buckets: 50–55 %, 55–60 %
+  LOW SAMPLE SIZE          Kurze Forward-Fenster mit n<20: Letzte 3 Monate (n=12), Letzte 4 Wochen (n=5)
+  REGIME UNCERTAINTY       Regime-Confidence LOW
+  PERFORMANCE DEGRADATION  Forward 4W-Expectancy -0.537 (n=5, reliable) < langfristig +0.042 (n=79)
+  SAFE MODE                Safe Mode aktiv (keine HC-Alerts, stabiler Champion): FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])
+Fehlende Eingaben: ml_forward.json
+
+11. WORLD MODEL
+===============
+  Stichtag: 2026-09-28
+  Gesamt-Unsicherheit: 0.3267
+  Validierung gegen Regime-Engine: MODIFY (besser: ['dd60', 'ic_mom20'], schlechter: ['rv20'])
+  Dimension             Zustand      Score    Unsicherheit  Vorwoche
+  --------------------  -----------  -------  ------------  -----------
+  growth                neutral      0.0486   0.097         neutral
+  inflation             low          -0.7888  0.422         low
+  liquidity             neutral      -0.1124  0.612         neutral
+  interest_rates        high         1.52     0             high
+  credit_conditions     high         1.365    0.5           high
+  risk_appetite         low          -0.5954  0.809         neutral
+  volatility            neutral      -0.1918  0.384         neutral
+  earnings_momentum     unavailable  n/a      n/a           unavailable
+  consumer_demand       low          -0.8902  0.22          low
+  industrial_activity   low          -1.376   0             low
+  freight_supply_chain  low          -0.9017  0.197         low
+  inventories           low          -0.7481  0.504         low
+  commodities           high         0.7905   0.419         high
+  fx_usd                neutral      -0.3476  0.695         neutral
+  labour_market         neutral      0.0207   0.041         neutral
+  breadth               low          -1.226   0             low
+  - risk_appetite: neutral -> low
+
+12. META-COGNITION
+==================
+  overall_calibration: GOOD
+  world_model_uncertainty: MODERATE
+  world_model_validation: MODIFY
+  meta_learning: REJECT
+  next_architecture: KEEP_CHAMPION
+  safe_mode: True
+Stärken (was wir wissen):
+  - Champion (statisches Ensemble) OOS 2021–2025H1: Expectancy 0.00267 je Position, Sharpe 0.229, Trefferquote 0.4742
+  - Regime-Abhängigkeit: vix_lt_20 -0.00303, vix_ge_20 0.01158, spy_uptrend -0.00052, spy_downtrend 0.01287
+  - Abstinenz-Regel auf ungesehenen Jahren [2019, 2020]: aktiv 0.0302 vs. inaktiv 0.00239 (t=3.4) -> bestätigt=True
+Schwächen (wo wir systematisch irren):
+  - UNKNOWN_CLUSTER_001: {'sector': 'Energy', 'momentum': 'loser_12m'} (Fehler -0.2329, Lift 2.02, Abdeckung LOW)
+  - UNKNOWN_CLUSTER_002: {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'} (Fehler -0.2082, Lift 1.74, Abdeckung LOW)
+  - UNKNOWN_CLUSTER_003: {'sector': 'Communication Services', 'volatility': 'high_vol'} (Fehler -0.2191, Lift 1.71, Abdeckung LOW)
+  - UNKNOWN_CLUSTER_004: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} (Fehler -0.2041, Lift 1.68, Abdeckung LOW)
+  - UNKNOWN_CLUSTER_005: {'lottery': 'lottery_profile'} (Fehler -0.2048, Lift 1.68, Abdeckung LOW)
+  - UNKNOWN_CLUSTER_006: {'liquidity': 'liquid', 'momentum': 'mid'} (Fehler -0.2015, Lift 1.65, Abdeckung LOW)
+Größte Unsicherheiten:
+  - 80-%-Intervalle: roh 0.6461, korrigiert 0.7899; P(>+10 %) Skill -0.132
+  - World-Model-Unsicherheit 0.3267; nicht verfügbar: ['earnings_momentum']
+
+13. ALPHA HEALTH
+================
+Stärkste Alpha-Quellen (jüngster 13-Wochen-IC):
+  - hgb_xs20_momentum_v1: IC 0.0621 (Trend stable, t=1.15)
+  - enet_xs20_v1: IC -0.0052 (Trend stable, t=-1.82)
+  - hgb_xs20_v1: IC -0.0256 (Trend stable, t=-0.97)
+Schwächer werdend (Decay/Strukturbruch, gemessen):
+  - Modell momentum_12_1: 0.0711 -> -0.1172 (t=-2.65)
+  - Modell hgb_asym20_v1: 0.0361 -> -0.0645 (t=-2.04)
+  - rev_1m: Strukturbruch um 2021-06-04 (CUSUM 1.5)
+  - log_dollar_vol: Strukturbruch um 2023-01-27 (CUSUM 2.01)
+  - max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.487)
+  - beta_126: Strukturbruch um 2022-12-02 (CUSUM 1.546)
+Neue Alpha-Kandidaten (Director/Discovery):
+  - keine
+
+14. RESEARCH INTELLIGENCE
+=========================
+  ACCEPTED: 0
+  REJECTED: 10
+  INCONCLUSIVE: 2
+  RETEST_LATER: 2
+  Gesamtvalidierung: KEEP_CHAMPION
+  G-Komponenten: ['abstention']
+Größte Erkenntnis: Abstinenz-Regel auf ungesehenen Jahren: aktiv 0.0302 vs. inaktiv 0.00239 (t=3.4) -> bestätigt=True
+
+15. MODEL BLIND SPOTS
+=====================
+  Cluster              n     typischer Fehler  Lift  Eigenschaften                                                           Abdeckung
+  -------------------  ----  ----------------  ----  ----------------------------------------------------------------------  ---------
+  UNKNOWN_CLUSTER_001  94    -0.2329           2.02  {'sector': 'Energy', 'momentum': 'loser_12m'}                           LOW
+  UNKNOWN_CLUSTER_002  98    -0.2082           1.74  {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'}  LOW
+  UNKNOWN_CLUSTER_003  177   -0.2191           1.71  {'sector': 'Communication Services', 'volatility': 'high_vol'}          LOW
+  UNKNOWN_CLUSTER_004  92    -0.2041           1.68  {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'}        LOW
+  UNKNOWN_CLUSTER_005  768   -0.2048           1.68  {'lottery': 'lottery_profile'}                                          LOW
+  UNKNOWN_CLUSTER_006  205   -0.2015           1.65  {'liquidity': 'liquid', 'momentum': 'mid'}                              LOW
+  UNKNOWN_CLUSTER_007  618   -0.1993           1.62  {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'}               LOW
+  UNKNOWN_CLUSTER_008  1135  -0.1991           1.6   {'volatility': 'high_vol', 'liquidity': 'liquid'}                       LOW
+  UNKNOWN_CLUSTER_009  56    -0.2098           1.59  {'sector': 'Communication Services', 'momentum': 'loser_12m'}           LOW
+  UNKNOWN_CLUSTER_010  860   -0.1975           1.58  {'liquidity': 'liquid', 'vix': 'vix_lt_20'}                             LOW
+  UNKNOWN_CLUSTER_011  44    -0.1765           1.58  {'sector': 'Technology', 'beta': 'low_beta'}                            LOW
+  UNKNOWN_CLUSTER_012  190   -0.2017           1.57  {'liquidity': 'liquid', 'momentum': 'loser_12m'}                        LOW
+  UNKNOWN_CLUSTER_013  470   -0.195            1.56  {'sector': 'Technology', 'liquidity': 'liquid'}                         LOW
+  UNKNOWN_CLUSTER_014  1098  -0.1975           1.56  {'liquidity': 'liquid', 'trend': 'uptrend'}                             LOW
+  UNKNOWN_CLUSTER_015  63    -0.1984           1.55  {'sector': 'Healthcare', 'beta': 'high_beta'}                           LOW
+
+16. ACTIVE LEARNING
+===================
+  Quelle                     Dimensionen                                      Info-Gewinn  Kosten  Priorität  Status
+  -------------------------  -----------------------------------------------  -----------  ------  ---------  ---------------------------------
+  earnings_calendar_history  ['event_risk', 'earnings_momentum']              1            3       0.3333     ungeprüft (Aufnahmeprüfung offen)
+  sec_financial_statements   ['earnings_momentum', 'fundamentals']            1            3       0.3333     ungeprüft (Aufnahmeprüfung offen)
+  cboe_put_call              ['positioning', 'risk_appetite']                 0.809        3       0.2697     ungeprüft (Aufnahmeprüfung offen)
+  ibes_estimate_revisions    ['earnings_momentum']                            1            5       0.2        ungeprüft (Aufnahmeprüfung offen)
+  portwatch_history_pit      ['freight_supply_chain']                         0.039        1       0.0591     ungeprüft (Aufnahmeprüfung offen)
+  destatis_truck_toll_pit    ['freight_supply_chain', 'industrial_activity']  0.039        1       0.0591     ungeprüft (Aufnahmeprüfung offen)
