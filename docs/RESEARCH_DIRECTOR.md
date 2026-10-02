@@ -57,9 +57,9 @@ hat alle verworfen. Die Prüfung war:
 |---|---|---|
 | RD-5f792ced | extreme 5T-Bewegung × Nähe 52W-Hoch | REJECTED (netto −0,19 %, t = −1,85) |
 | RD-de4cb989 | Lotterie-Profil (max. Tagesrendite 21T) | REJECTED (netto −0,30 %, t = −3,11) |
-| RD-9af21f36 | Cluster-Segment | REJECTED (netto −0,23 %, t = −2,25) |
-| RD-38d323d8 | – | gesperrt: Jaccard 0,64 zu RD-5f792ced |
-| RD-d0093d4e | – | gesperrt: Jaccard 0,65 zu RD-9af21f36 |
+| RD-9af21f36 | liquide Titel bei VIX < 20 | REJECTED (netto −0,23 %, t = −2,25) |
+| RD-38d323d8 | liquide × extreme 5T-Bewegung | gesperrt: Jaccard 0,64 zu RD-5f792ced |
+| RD-d0093d4e | hohe Vola × liquide | gesperrt: Jaccard 0,65 zu RD-9af21f36 |
 
 **Erkenntnis:** Diese Segmente liefern zwar die größten Einzelfehler, als
 Gruppe aber **überdurchschnittliche** Renditen. Ein Ausschluss kostet Alpha;
