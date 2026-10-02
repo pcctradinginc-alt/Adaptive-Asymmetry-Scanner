@@ -1,72 +1,71 @@
 {
- "generated": "2026-09-29T16:35:24+00:00",
+ "generated": "2026-10-02T15:12:30+00:00",
  "self_assessment": {
   "overall_calibration": "GOOD",
   "world_model_uncertainty": "MODERATE",
   "world_model_validation": "MODIFY",
-  "meta_learning": "REJECT",
+  "meta_learning": "NEED_MORE_DATA",
   "next_architecture": "KEEP_CHAMPION",
   "safe_mode": true
  },
  "what_do_we_know": [
-  "Champion (statisches Ensemble) OOS 2021–2025H1: Expectancy 0.00267 je Position, Sharpe 0.229, Trefferquote 0.4742",
-  "Regime-Abhängigkeit: vix_lt_20 -0.00303, vix_ge_20 0.01158, spy_uptrend -0.00052, spy_downtrend 0.01287",
-  "Abstinenz-Regel auf ungesehenen Jahren [2019, 2020]: aktiv 0.0302 vs. inaktiv 0.00239 (t=3.4) -> bestätigt=True"
+  "Champion (statisches Ensemble) OOS 2021–2025H1: Expectancy 0.00319 je Position, Sharpe 0.264, Trefferquote 0.4759",
+  "Regime-Abhängigkeit: vix_lt_20 -0.00265, vix_ge_20 0.01234, spy_uptrend -0.00066, spy_downtrend 0.01552",
+  "Abstinenz-Regel auf ungesehenen Jahren [2019, 2020]: aktiv 0.03023 vs. inaktiv 0.00336 (t=3.27) -> bestätigt=True",
+  "Akzeptierte Hypothese HYP-ABST-001: Regime-Abstinenz – Ensemble nur bei VIX >= 20 oder SPY unter SMA200 handeln"
  ],
  "what_are_we_uncertain_about": [
-  "80-%-Intervalle: roh 0.6461, korrigiert 0.7899; P(>+10 %) Skill -0.132",
+  "80-%-Intervalle: roh 0.6512, korrigiert 0.7944; P(>+10 %) Skill -0.1502",
   "World-Model-Unsicherheit 0.3267; nicht verfügbar: ['earnings_momentum']"
  ],
  "where_are_we_systematically_wrong": [
-  "UNKNOWN_CLUSTER_001: {'sector': 'Energy', 'momentum': 'loser_12m'} (Fehler -0.2329, Lift 2.02, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_002: {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'} (Fehler -0.2082, Lift 1.74, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_003: {'sector': 'Communication Services', 'volatility': 'high_vol'} (Fehler -0.2191, Lift 1.71, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_004: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} (Fehler -0.2041, Lift 1.68, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_005: {'lottery': 'lottery_profile'} (Fehler -0.2048, Lift 1.68, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_006: {'liquidity': 'liquid', 'momentum': 'mid'} (Fehler -0.2015, Lift 1.65, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_007: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} (Fehler -0.1993, Lift 1.62, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_008: {'volatility': 'high_vol', 'liquidity': 'liquid'} (Fehler -0.1991, Lift 1.6, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_009: {'sector': 'Communication Services', 'momentum': 'loser_12m'} (Fehler -0.2098, Lift 1.59, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_010: {'liquidity': 'liquid', 'vix': 'vix_lt_20'} (Fehler -0.1975, Lift 1.58, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_011: {'sector': 'Technology', 'beta': 'low_beta'} (Fehler -0.1765, Lift 1.58, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_012: {'liquidity': 'liquid', 'momentum': 'loser_12m'} (Fehler -0.2017, Lift 1.57, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_013: {'sector': 'Technology', 'liquidity': 'liquid'} (Fehler -0.195, Lift 1.56, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_014: {'liquidity': 'liquid', 'trend': 'uptrend'} (Fehler -0.1975, Lift 1.56, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_015: {'sector': 'Healthcare', 'beta': 'high_beta'} (Fehler -0.1984, Lift 1.55, Abdeckung LOW)"
+  "UNKNOWN_CLUSTER_001: {'sector': 'Energy', 'momentum': 'loser_12m'} (Fehler -0.2324, Lift 2.13, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_002: {'sector': 'Communication Services', 'volatility': 'high_vol'} (Fehler -0.2208, Lift 1.73, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_003: {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'} (Fehler -0.2114, Lift 1.7, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_004: {'sector': 'Communication Services', 'momentum': 'loser_12m'} (Fehler -0.2076, Lift 1.67, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_005: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} (Fehler -0.208, Lift 1.66, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_006: {'sector': 'Financial Services', 'liquidity': 'liquid'} (Fehler -0.2181, Lift 1.66, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_007: {'lottery': 'lottery_profile'} (Fehler -0.206, Lift 1.66, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_008: {'liquidity': 'liquid', 'momentum': 'mid'} (Fehler -0.2034, Lift 1.62, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_009: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} (Fehler -0.1998, Lift 1.62, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_010: {'volatility': 'high_vol', 'liquidity': 'liquid'} (Fehler -0.1993, Lift 1.59, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_011: {'sector': 'Energy'} (Fehler -0.1941, Lift 1.58, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_012: {'liquidity': 'liquid', 'vix': 'vix_lt_20'} (Fehler -0.1986, Lift 1.57, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_013: {'sector': 'Communication Services', 'liquidity': 'liquid'} (Fehler -0.2301, Lift 1.56, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_014: {'volatility': 'high_vol', 'recent_move': 'extreme_5d_move'} (Fehler -0.2012, Lift 1.55, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_015: {'liquidity': 'liquid', 'trend': 'uptrend'} (Fehler -0.1984, Lift 1.55, Abdeckung LOW)",
+  "Überkonfident im Bucket 55–60 %: prognostiziert 0.5717, realisiert 0.4635 (n=356)"
  ],
  "which_assumptions_are_stale": [
-  "tnx: Wert 5.24 außerhalb Trainingsband [1.0993, 4.7817]"
+  "tnx: Wert 5.237 außerhalb Trainingsband [1.0993, 4.7817]"
  ],
  "which_models_are_redundant": [
   "rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)",
-  "momentum_12_1: Leave-one-out-Beitrag -0.00041 (≤ 0 = entbehrlich)",
-  "hgb_xs20_v1: Leave-one-out-Beitrag -0.00127 (≤ 0 = entbehrlich)",
-  "hgb_asym20_v1: Leave-one-out-Beitrag -0.0005 (≤ 0 = entbehrlich)",
-  "hgb_xs20_risk_regime_v1: Leave-one-out-Beitrag -0.00255 (≤ 0 = entbehrlich)"
+  "hgb_xs20_v1: Leave-one-out-Beitrag -0.0002 (≤ 0 = entbehrlich)",
+  "hgb_xs20_risk_regime_v1: Leave-one-out-Beitrag -0.00151 (≤ 0 = entbehrlich)"
  ],
  "which_features_are_decaying": [
   "Modell momentum_12_1: 0.0711 -> -0.1172 (t=-2.65)",
-  "Modell hgb_asym20_v1: 0.0361 -> -0.0645 (t=-2.04)",
   "rev_1m: Strukturbruch um 2021-06-04 (CUSUM 1.5)",
-  "log_dollar_vol: Strukturbruch um 2023-01-27 (CUSUM 2.01)",
+  "log_dollar_vol: Strukturbruch um 2023-01-27 (CUSUM 2.009)",
   "max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.487)",
   "beta_126: Strukturbruch um 2022-12-02 (CUSUM 1.546)"
  ],
  "where_is_data_quality_low": [
-  "imf_portwatch_ports: WARN",
-  "entsoe_power: WARN"
+  "imf_portwatch_ports: WARN"
  ],
  "where_is_model_disagreement_high": [
-  "aktuell NORMAL (mittlere Rang-Streuung 0.2512)"
+  "aktuell NORMAL (mittlere Rang-Streuung 0.254)"
  ],
  "research_tracks_with_real_oos_value": [],
  "research_tracks_wasting_resources": [
   "literature: 0/5 akzeptiert",
+  "director: 0/5 akzeptiert",
   "discovery_engine: 0/117 akzeptiert",
   "ml_models: 0/6 akzeptiert",
   "meta_learning: 0/12 akzeptiert"
  ],
- "highest_research_priority": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.65)?",
+ "highest_research_priority": "Unterperformt das Segment {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} den Querschnitt systematisch?",
  "feature_decay": {
   "mom_12_1": {
    "n": 604,
@@ -200,10 +199,10 @@
    "ic_prev_52w": 0.0314,
    "ic_last_52w": 0.0103,
    "ic_last_13w": -0.077,
-   "delta_t": -0.95,
+   "delta_t": -0.96,
    "structural_break": {
     "break": true,
-    "stat": 2.01,
+    "stat": 2.009,
     "at": "2023-01-27"
    },
    "status": "break"
@@ -266,27 +265,27 @@
   },
   "hgb_xs20_v1": {
    "trend": "stable",
-   "trend_t": -0.97,
-   "recent_ic": -0.0256,
-   "prior_ic": 0.0451
+   "trend_t": -0.53,
+   "recent_ic": -0.0071,
+   "prior_ic": 0.0278
   },
   "hgb_asym20_v1": {
-   "trend": "deteriorating",
-   "trend_t": -2.04,
-   "recent_ic": -0.0645,
-   "prior_ic": 0.0361
+   "trend": "stable",
+   "trend_t": -1.11,
+   "recent_ic": -0.0309,
+   "prior_ic": 0.0157
   },
   "hgb_xs20_momentum_v1": {
    "trend": "stable",
-   "trend_t": 1.15,
-   "recent_ic": 0.0621,
-   "prior_ic": 0.0302
+   "trend_t": 1.3,
+   "recent_ic": 0.0632,
+   "prior_ic": 0.0282
   },
   "hgb_xs20_risk_regime_v1": {
    "trend": "stable",
-   "trend_t": -1.02,
-   "recent_ic": -0.0533,
-   "prior_ic": 0.0089
+   "trend_t": -1.13,
+   "recent_ic": -0.0263,
+   "prior_ic": 0.0377
   }
  },
  "research_value": {
@@ -318,6 +317,20 @@
    "rejected": 4,
    "research_efficiency": "LOW"
   },
+  "meta_validation": {
+   "experiments": 0,
+   "accepted": 0,
+   "oos_contribution": 0.0,
+   "rejected": 0,
+   "research_efficiency": "LOW"
+  },
+  "director": {
+   "experiments": 5,
+   "accepted": 0,
+   "oos_contribution": 0.0,
+   "rejected": 5,
+   "research_efficiency": "LOW"
+  },
   "discovery_engine": {
    "experiments": 117,
    "accepted": 0,
@@ -346,6 +359,6 @@
    "FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])"
   ],
   "fallback": "stabiler Champion (statisches Ensemble); keine HC-Alerts",
-  "updated": "2026-09-29T16:35:24+00:00"
+  "updated": "2026-10-02T15:12:30+00:00"
  }
 }
