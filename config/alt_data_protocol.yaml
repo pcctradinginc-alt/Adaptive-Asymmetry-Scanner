@@ -1,0 +1,38 @@
+# config/alt_data_protocol.yaml – Bewertungsprotokoll Alternative Data (GESCHÜTZT)
+#
+# Vorab festgelegt (2026-10-02), BEVOR eine einzige SEC-Feature-Zahl auf echten
+# Daten gesehen wurde. Hash gepinnt in tests/test_alt_data.py, CODEOWNERS.
+# Nur strenger oder bei belegtem Fehler ändern.
+
+version: alt-v1
+registered_at: "2026-10-02"
+
+evaluation:
+  dev_years: [2019, 2020, 2021, 2022, 2023, 2024, 2025]   # Walk-Forward-Testjahre (bis vor Locked; Locked KONTAMINIERT)
+  baselines: [enet_xs20_v1, hgb_xs20_v1]                  # bestehende Registry-Specs; Variante = gleiche Spec + extra_features
+  primary_metric: delta_monthly_mean                      # Δ Netto-Monatsrendite Top-Dezil (gepaart, Block-Bootstrap)
+  secondary: [delta_ic, delta_brier, delta_ece, delta_logloss, delta_precision_at_k, delta_sharpe, delta_max_dd]
+  bootstrap_n: 2000
+  bootstrap_seed: 29
+  alpha_one_sided: 0.05                                   # Bonferroni über Baselines x Quellen
+  min_coverage: 0.30                                      # Anteil Panel-Zeilen mit verfügbaren Quellen-Features (Dev-Jahre)
+
+feature_selection:
+  redundancy_max_abs_rank_corr: 0.80     # |mittlere Querschnitts-Rangkorrelation| zu einem bestehenden Feature -> nicht aufnehmen
+  min_feature_coverage: 0.20             # Anteil verfügbarer Werte
+  max_features_per_source: 5             # wenige robuste Faktoren
+  selection_years: [2016, 2017, 2018]    # Auswahl NUR vor den Testjahren (kein Look-ahead in der Selektion)
+
+decision:                                # je Quelle
+  KEEP: "Bootstrap-Untergrenze Δ Monatsrendite > 0 bei mind. einer Baseline (Bonferroni) UND Δ Brier <= 0.0005 UND Abdeckung >= min_coverage"
+  MODIFY: "Δ Monatsrendite > 0 bei beiden Baselines, aber CI schließt 0 ein; ODER nur in einzelnen Sektoren/Regimen positiv"
+  REJECT: "sonst"
+  note: "KEEP bedeutet NUR: Quelle bleibt als SHADOW/Research-Input und darf Prospective-Challenger-Hypothesen speisen. Produktionseinfluss nur über PromotionController nach Forward-Validierung."
+
+promotion_path: [SHADOW, HISTORICALLY_VALIDATED, PROSPECTIVE_CHALLENGER, FORWARD_VALIDATED, ABSTENTION, RERANK, LIMITED_WEIGHT]
+forward:
+  start: "2026-10-05"                    # erste Kohorte des Prospective Challengers
+  min_cohorts: 26
+
+source_value_score:                      # deterministisch aus Metriken (keine LLM-Schätzung)
+  weights: {incremental_value: 0.40, coverage: 0.15, freshness: 0.10, stability: 0.10, mapping_quality: 0.10, api_reliability: 0.10, revision_risk: 0.05}

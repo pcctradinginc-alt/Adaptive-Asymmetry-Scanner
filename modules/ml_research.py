@@ -236,14 +236,24 @@ def _grid(spec: dict) -> list[dict]:
 
 
 def feature_list(spec: dict) -> list[str]:
-    """features: "all" oder Liste aus Feature-Namen und "group:<name>"."""
+    """features: "all" oder Liste aus Feature-Namen und "group:<name>".
+    extra_features: nur registrierte Alternative-Data-Features (SHADOW-
+    Challenger, modules/alt_data/registry.py); Champion-Specs nutzen sie nie."""
     f = spec.get("features", "all")
     if f == "all":
-        return list(ALL_FEATURES)
-    out = []
-    for x in f:
-        names = FEATURE_GROUPS.get(x[6:], ()) if str(x).startswith("group:") else (x,)
-        out += [n for n in names if n in ALL_FEATURES and n not in out]
+        out = list(ALL_FEATURES)
+    else:
+        out = []
+        for x in f:
+            names = FEATURE_GROUPS.get(x[6:], ()) if str(x).startswith("group:") else (x,)
+            out += [n for n in names if n in ALL_FEATURES and n not in out]
+    extra = spec.get("extra_features") or []
+    if extra:
+        from modules.alt_data.registry import ALT_FEATURES
+        unknown = [x for x in extra if x not in ALT_FEATURES]
+        if unknown:
+            raise ValueError(f"extra_features nicht registriert: {unknown}")
+        out += [x for x in extra if x not in out]
     return out
 
 
@@ -1053,10 +1063,12 @@ def build_research_panel(mode: str = "full") -> pd.DataFrame:
         spy = spy[spy.index.date < now.date()]
     log.info(f"ml_research: {len(frames)}/{len(tickers)} Ticker geladen")
     pred_dates = {r["prediction_date"] for r in _read_predictions()}
-    return build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
-                       sectors=sector_map(tickers) if mode == "full" else
-                       (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}),
-                       membership=uni["intervals"])
+    panel = build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
+                        sectors=sector_map(tickers) if mode == "full" else
+                        (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}),
+                        membership=uni["intervals"])
+    from modules.alt_data.feature_store import attach    # SHADOW-Spalten; nicht in ALL_FEATURES
+    return attach(panel) if not panel.empty else panel
 
 
 def run(mode: str = "full") -> dict:

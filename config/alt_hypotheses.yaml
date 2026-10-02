@@ -1,0 +1,76 @@
+# config/alt_hypotheses.yaml – Hypothesen-Verträge Alternative Data (unveränderlich)
+#
+# Registriert 2026-10-02, BEVOR SEC-Features auf echten Daten ausgewertet wurden.
+# Geprüft vom Research-Lab (gleiche Kette, BH über ALLE Hypothesen), dann ab
+# forward_start als Prospective Challenger (outputs/research/alt_forward_ledger.jsonl).
+# Änderung eines Vertrags = neue hypothesis_id (sonst INVALID_MODIFIED).
+# Signale: Signal-Sprache des Labs (rank, sign, abs, step); step(x) = 1 wenn x > 0.
+
+contracts:
+  - hypothesis_id: ALT-SEC-001
+    title: Insider-Kaufcluster
+    source_features: [sec_insider_cluster_30d]
+    population: "PIT-S&P-500, Emittenten mit Form-4-Abdeckung"
+    exposure: "firmenspezifisch (Emittent)"
+    signal: sec_insider_cluster_30d
+    threshold: ">= 2 verschiedene Open-Market-Käufer in 30 Tagen"
+    direction: 1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags (Top-Dezil vs. Universum), Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T (t über Monate)"
+    economic_rationale: "Mehrere Insider kaufen unabhängig auf eigenes Geld -> private positive Information (Lakonishok/Lee 2001, Cohen/Malloy/Pomorski 2012)."
+    registered_at: "2026-10-02"
+    forward_start: "2026-10-05"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"
+
+  - hypothesis_id: ALT-SEC-002
+    title: Insider-Käufe in schwachen Aktien (Expectation Gap)
+    source_features: [sec_insider_buy_value_90d]
+    population: "PIT-S&P-500, Monats-Verlierer (rev_1m unter Median)"
+    exposure: "firmenspezifisch"
+    signal: "sec_insider_buy_value_90d * step(-rev_1m)"
+    threshold: "Kaufvolumen > 0 bei Kurs unter Median-Monatsrendite"
+    direction: 1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags, Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T"
+    economic_rationale: "Insider kaufen nach Kursschwäche -> Markt preist private Information noch nicht ein (Divergenz Insider vs. Preis)."
+    registered_at: "2026-10-02"
+    forward_start: "2026-10-05"
+    promotion_criteria: "wie ALT-SEC-001"
+    failure_condition: "wie ALT-SEC-001"
+
+  - hypothesis_id: ALT-SEC-003
+    title: Negative 8-K-Ereignisse
+    source_features: [sec_8k_negative_90d]
+    population: "PIT-S&P-500, Emittenten mit >= 1 Jahr Filing-Historie"
+    exposure: "firmenspezifisch"
+    signal: sec_8k_negative_90d
+    threshold: "Anzahl 8-K mit Items 1.02/1.03/2.04/2.06/3.01/4.01/4.02 in 90 T"
+    direction: -1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags, Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T (Top = wenigste negative Ereignisse)"
+    economic_rationale: "Wertminderungen, Prüferwechsel, Restatements und Vertragskündigungen werden vom Markt verzögert verarbeitet (Post-Event-Drift)."
+    registered_at: "2026-10-02"
+    forward_start: "2026-10-05"
+    promotion_criteria: "wie ALT-SEC-001"
+    failure_condition: "wie ALT-SEC-001"
+
+  - hypothesis_id: ALT-SEC-004
+    title: Verspätete Periodenberichte
+    source_features: [sec_filing_delay_z]
+    population: "PIT-S&P-500, Emittenten mit >= 5 Periodenberichten"
+    exposure: "firmenspezifisch"
+    signal: sec_filing_delay_z
+    threshold: "z der Verzögerung gegen eigene Historie"
+    direction: -1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags, Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T"
+    economic_rationale: "Ungewöhnlich späte 10-Q/10-K deuten auf schlechte Nachrichten oder Bilanzprobleme hin (Alford/Jones/Zmijewski 1994)."
+    registered_at: "2026-10-02"
+    forward_start: "2026-10-05"
+    promotion_criteria: "wie ALT-SEC-001"
+    failure_condition: "wie ALT-SEC-001"

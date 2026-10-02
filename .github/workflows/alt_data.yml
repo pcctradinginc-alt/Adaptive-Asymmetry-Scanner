@@ -1,0 +1,61 @@
+name: Alternative Data – Entity Resolution + SEC Deep Events (SHADOW)
+
+# Rohdaten -> normalisiert -> Entity-Mapping -> Event-Speicher (PIT, append-only).
+# Feature-Tabelle wird im ML-Lauf aus den Events neu berechnet (nicht eingecheckt).
+# Nur offizielle APIs (SEC EDGAR, GLEIF); keine Orderausführung, kein Produktionseinfluss.
+
+on:
+  schedule:
+    - cron: '37 5 * * 5'   # wöchentlich Freitag, vor dem ML-Wochenlauf (Samstag)
+  workflow_dispatch:
+    inputs:
+      start_year:
+        description: "Erstes Jahr der Form-3/4/5-Bulk-Datensätze"
+        required: false
+        default: "2014"
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: research-write
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Entity Resolution (SEC + GLEIF, append-only, gültig-ab)
+        run: python -m modules.entity_resolution.build
+
+      - name: SEC Deep Events (Form 3/4/5 Bulk, Submissions, Live-Form-4)
+        run: python -m modules.external.sources.sec_ingest --start-year "${{ github.event.inputs.start_year || '2014' }}"
+
+      - name: Commit entity map + SEC event store
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/entity/ outputs/external_data/sec/
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -m "chore: alt data (entity + sec) $(date -u +%Y-%m-%dT%H:%M)"
+          git stash --include-untracked || true
+          git pull --rebase origin main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main

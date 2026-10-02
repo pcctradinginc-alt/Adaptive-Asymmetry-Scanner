@@ -235,3 +235,16 @@ def test_intelligence_sections_present(tmp_path):
     for title in ("WORLD MODEL", "META-COGNITION", "ALPHA HEALTH", "RESEARCH INTELLIGENCE", "MODEL BLIND SPOTS", "ACTIVE LEARNING"):
         assert title in t
     assert "REGIME UNCERTAINTY" in t
+
+
+def test_alt_data_section_shows_scoreboard_and_never_production(tmp_path):
+    rs = tmp_path / "outputs" / "research"
+    rs.mkdir(parents=True)
+    (rs / "source_scoreboard.json").write_text(json.dumps({"sources": {"sec_deep_events": {
+        "coverage": 0.6, "freshness": 0.9, "data_quality": 0.99, "active_features": ["sec_insider_buy_value_90d"],
+        "oos_value": 0.55, "forward_value": None, "source_value_score": 0.61, "status": "SHADOW"}}}))
+    (rs / "alt_forward_ledger.jsonl").write_text(json.dumps({"hypothesis_id": "ALT-SEC-001", "date": "2026-10-09"}) + "\n")
+    data = weekly.collect(tmp_path, "2026-10-10", state_path=tmp_path / "st.json")
+    md = weekly.render_md(data)
+    assert "ALTERNATIVE DATA INTELLIGENCE" in md and "sec_deep_events" in md and "ALT-SEC-001 1" in md
+    assert "noch keine Forward-Daten" in md and "SHADOW" in md
