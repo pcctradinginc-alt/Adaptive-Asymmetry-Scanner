@@ -54,7 +54,23 @@ weil die Defekte behoben sind; sie laufen jetzt als normale Regressionstests.
 
 ## Coverage (lokaler Gesamtlauf)
 
-COVERAGE
+Gesamtlauf am 2026-10-02: **1194 bestanden, 1 übersprungen** (boto3 fehlt),
+0 fehlgeschlagen.
+
+| Bereich | vorher | nachher |
+|---|---|---|
+| Gesamt (`modules/`, `reports/`) | 73 % | 74 % (inkl. `pipeline.py`, `feedback.py`) |
+| options_designer | 30 % | **85 %** |
+| risk_gates | 34 % | **88 %** |
+| prescreener | 40 % | **94 %** |
+| mirofish_simulation | 40 % | **90 %** |
+| email_reporter | 20 % | **92 %** |
+| universe | 18 % | 45 % (PIT-Teil getestet, Wikipedia-Abruf nicht) |
+| pipeline.py | nicht gemessen | 17 % (Orchestrierung; Stufen in Modulen getestet) |
+| feedback.py | nicht gemessen | 47 % |
+
+`pipeline.py` bleibt die größte Testlücke. Eine Stufenkette mit Fakes ist der
+nächste sinnvolle Schritt (P3, nicht Teil dieses Plans).
 
 ## Schritte, die nur der Owner ausführen kann
 1. **Branch-Protection für `main`** (Settings → Branches):
