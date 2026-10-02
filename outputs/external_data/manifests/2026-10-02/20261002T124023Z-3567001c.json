@@ -1,0 +1,314 @@
+{
+  "run_id": "20261002T124023Z-3567001c",
+  "generated_at": "2026-10-02T12:40:23+00:00",
+  "git_sha": "2e73f712ab81e98ce55d771b5838a8eea5da83be",
+  "config_hash": "614c701dde4d",
+  "entries": [
+    {
+      "source_id": "entsoe_power",
+      "dataset": "da_price_DE_LU",
+      "fingerprint": "495aa388ca30d062",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "aebd1a1ef1633427214e60f2a065a7babb78da8794bd5ea7539f0f705973f3b1",
+      "content_type": "text/xml",
+      "bytes": 47856596,
+      "bytes_written": 3171,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 3,
+        "duplicate": 2390,
+        "revision": 2
+      }
+    },
+    {
+      "source_id": "imf_portwatch_ports",
+      "dataset": "daily_ports",
+      "fingerprint": "9669d5c191d1509f",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "",
+      "content_type": "application/json",
+      "bytes": 0,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_portwatch_chokepoints",
+      "dataset": "daily_chokepoints",
+      "fingerprint": "c1783809b2472bab",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "",
+      "content_type": "application/json",
+      "bytes": 0,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 6664,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_portwatch_disruptions",
+      "dataset": "disruptions",
+      "fingerprint": "948df0c59b0b50eb",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "",
+      "content_type": "application/json",
+      "bytes": 0,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 944,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "eurostat_sentiment",
+      "dataset": "toc",
+      "fingerprint": "1d10998517c17e15",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "5b1c705535f2ea8bec543e0a0fcace57c05330c9591e60d775d1af63fd225b20",
+      "content_type": "text/plain;charset=UTF-8",
+      "bytes": 2244190,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 7176,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "eurostat_industrial_production",
+      "dataset": "toc",
+      "fingerprint": "1d10998517c17e15",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "5b1c705535f2ea8bec543e0a0fcace57c05330c9591e60d775d1af63fd225b20",
+      "content_type": "text/plain;charset=UTF-8",
+      "bytes": 2043428,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 2786,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "fred_us_macro",
+      "dataset": "alfred_umcsent",
+      "fingerprint": "349fc7cb02c610d2",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "65d96e8cc85962da844a3437d45a76bfc0424ecb911b804e7e608b96283b9907",
+      "content_type": "application/json; charset=UTF-8",
+      "bytes": 3922251,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 40445,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "fred_regime_macro",
+      "dataset": "alfred_cpiaucsl",
+      "fingerprint": "8082b07895cab336",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "d7551875fa5ad0825b44681ad98875f6cde956e189ad3bd378abaef5ee476ec1",
+      "content_type": "application/json; charset=UTF-8",
+      "bytes": 2549650,
+      "bytes_written": 569,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 1,
+        "duplicate": 25875,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "fred_world_macro",
+      "dataset": "alfred_payems",
+      "fingerprint": "18868b9497c859f1",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "71bb426e7c318b2b3fe366df0b16741a5c52e8970e380979db393b33b60fdbc1",
+      "content_type": "application/json; charset=UTF-8",
+      "bytes": 602543,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 6200,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "destatis_truck_toll",
+      "dataset": "catalogue",
+      "fingerprint": "e99228e1e7a04983",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "062688f4ed510d2d1b67030d9a7545b052ad661f6b8d14297b60ff576f0244df",
+      "content_type": "text/html",
+      "bytes": 15029,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 1120,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "bts_freight_tsi",
+      "dataset": "alfred_vintages",
+      "fingerprint": "90207eeef75e737d",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "9021277ead98129c4f7c1fd4fc84bf8ad8d1456b3b08c22ed7d9220e25710a04",
+      "content_type": "application/json; charset=UTF-8",
+      "bytes": 750210,
+      "bytes_written": 18112,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 1,
+        "duplicate": 7789,
+        "revision": 31
+      }
+    },
+    {
+      "source_id": "bts_open_data_tsi",
+      "dataset": "catalog",
+      "fingerprint": "33315f01ec71439a",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "cf743b38001078e988b4d7ade603f96b3eac85d9a54ea0f58da87878f376efe5",
+      "content_type": "application/json;charset=utf-8",
+      "bytes": 147466,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "eurostat_road_freight_quarterly",
+      "dataset": "toc",
+      "fingerprint": "1d10998517c17e15",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "5b1c705535f2ea8bec543e0a0fcace57c05330c9591e60d775d1af63fd225b20",
+      "content_type": "text/plain;charset=UTF-8",
+      "bytes": 2875295,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 60282,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "eurostat_road_freight",
+      "dataset": "toc",
+      "fingerprint": "1d10998517c17e15",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "5b1c705535f2ea8bec543e0a0fcace57c05330c9591e60d775d1af63fd225b20",
+      "content_type": "text/plain;charset=UTF-8",
+      "bytes": 2193595,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 15128,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "estat_jp_truck",
+      "dataset": "stats_list",
+      "fingerprint": "5c2b781171c9a8f4",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "0f02a34cf4745e544940a172f5e18095b4ee0ff132b24aea48d116129d31e4a4",
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 558534,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 4320,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "nws_forecast",
+      "dataset": "points",
+      "fingerprint": "bb8c5744ed99e6bf",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "a400fac3e1dca3a13c6faf4de37e07e0ec90d9c926d3679016407087cf265fcc",
+      "content_type": "application/geo+json",
+      "bytes": 11792764,
+      "bytes_written": 1506046,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 2373,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "nws_alerts",
+      "dataset": "alerts_active",
+      "fingerprint": "1dbb2b88f029e4e5",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "509b3372a4d3f531a09388f62a8a60f3ab48d4d2bd9ab7c103c0c6e50348265a",
+      "content_type": "application/geo+json",
+      "bytes": 109561,
+      "bytes_written": 27927,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 49,
+        "duplicate": 0,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "nhc_storms",
+      "dataset": "current_storms",
+      "fingerprint": "09f9d997f0185c82",
+      "retrieved_at": "2026-10-02T12:40:23+00:00",
+      "content_hash": "2c7f2e83c01615a60226e81a230ebdd4d8bc7a869ebef5a709e2a3cd020e8373",
+      "content_type": "application/json",
+      "bytes": 62595,
+      "bytes_written": 53666,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 69,
+        "duplicate": 4,
+        "revision": 0
+      }
+    }
+  ]
+}
