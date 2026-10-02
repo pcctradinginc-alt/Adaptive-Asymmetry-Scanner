@@ -440,3 +440,54 @@ def test_A5_changes_table_selected_by_columns_not_html_id():
     assert len(ch) == 3 and ch[-1]["added"] == "CCC"
     with pytest.raises(ValueError):
         u.select_changes_table([constituents])
+
+
+def test_A5_changes_table_with_header_rows_as_data():
+    """Wikipedia-Markup, bei dem pandas die zwei Kopfzeilen als Daten liest."""
+    from modules import universe as u
+    raw = pd.DataFrame([["Effective Date", "Added", "Added", "Removed", "Removed", "Reason"],
+                        ["Effective Date", "Ticker", "Security", "Ticker", "Security", "Reason"],
+                        ["January 10, 2020", "CCC", "C Corp", "XXX", "X Corp", "Marktkap."],
+                        ["May 1, 2018", "BRK.B", "B Corp", "YYY", "Y Inc", "Übernahme"]])
+    ch = u.select_changes_table([raw])
+    assert [c["added"] for c in ch] == ["BRK-B", "CCC"] and ch[1]["removed"] == "XXX"
+
+
+def test_A5_changes_fallback_to_mediawiki_api_subpage(monkeypatch):
+    """Hauptseite ohne Änderungstabelle -> MediaWiki-API, verlinkte Auslagerungsseite."""
+    from modules import universe as u
+    main = ("<table><tr><th>Symbol</th><th>Security</th></tr><tr><td>AAA</td><td>A</td></tr></table>"
+            "<table><tr><th>vte</th></tr><tr><td>x</td></tr></table>")
+    changes = ("<table><tr><th rowspan=2>Effective Date</th><th colspan=2>Added</th><th colspan=2>Removed</th>"
+               "<th rowspan=2>Reason</th></tr><tr><th>Ticker</th><th>Security</th><th>Ticker</th><th>Security</th></tr>"
+               "<tr><td>January 10, 2020</td><td>CCC</td><td>C Corp</td><td>XXX</td><td>X Corp</td><td>m</td></tr>"
+               "<tr><td>May 1, 2018</td><td>BBB</td><td>B</td><td>YYY</td><td>Y</td><td>m</td></tr></table>")
+
+    class R:
+        def __init__(self, text=None, js=None):
+            self.text, self._js = text, js
+
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return self._js
+
+    def get(url, params=None, **kw):
+        if params is None:
+            return R(text=main)
+        if params["prop"] == "sections|links":
+            return R(js={"parse": {"sections": [{"line": "S&P 500 component stocks"}],
+                                   "links": [{"ns": 0, "title": "Historical components of the S&P 500 (changes)"}]}})
+        if params["page"] == "Historical components of the S&P 500 (changes)":
+            return R(js={"parse": {"text": changes}})
+        return R(js={"parse": {"text": main}})
+
+    monkeypatch.setattr(u.requests, "get", get)
+    ch = u._fetch_sp500_changes()
+    assert [c["added"] for c in ch] == ["BBB", "CCC"]
+    monkeypatch.setattr(u, "_WP_CANDIDATES", ())
+    monkeypatch.setattr(u.requests, "get", lambda url, params=None, **kw: R(text=main) if params is None else
+                        R(js={"parse": {"text": main, "sections": [{"line": "Components"}], "links": []}}))
+    with pytest.raises(ValueError, match="Diagnose.*sections"):
+        u._fetch_sp500_changes()

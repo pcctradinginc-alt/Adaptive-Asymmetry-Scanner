@@ -296,28 +296,120 @@ def is_member(intervals: list[list], as_of) -> bool:
     return any((s is None or s <= d) and (e is None or d < e) for s, e in intervals)
 
 
-def _fetch_sp500_changes() -> list[dict]:
+_WP_API = "https://en.wikipedia.org/w/api.php"
+_WP_MAIN = "List_of_S&P_500_companies"
+# Mögliche Auslagerungsseiten der Änderungshistorie (CI 2026-10-02: Hauptseite
+# lieferte nur Mitglieder-Tabelle + Navbox). Zusätzlich werden verlinkte Seiten
+# mit S&P 500 + change/histor/former im Titel geprüft.
+_WP_CANDIDATES = ("Historical components of the S&P 500", "List of former S&P 500 companies",
+                  "Changes to the S&P 500 index", "List of S&P 500 index changes")
+
+
+def _wp_tables(page: str):
+    """Tabellen einer Wikipedia-Seite über die offizielle MediaWiki-API (action=parse)."""
     import pandas as pd
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    resp = requests.get(url, headers=_WP_HEADERS, timeout=20)
-    resp.raise_for_status()
-    return select_changes_table(pd.read_html(StringIO(resp.text), flavor="lxml"))
+    r = requests.get(_WP_API, params={"action": "parse", "page": page, "prop": "text", "format": "json",
+                                      "formatversion": 2, "redirects": 1}, headers=_WP_HEADERS, timeout=20)
+    r.raise_for_status()
+    js = r.json()
+    if "error" in js:
+        raise ValueError(f"{page}: {js['error'].get('info')}")
+    html = js["parse"]["text"]
+    return pd.read_html(StringIO(html), flavor="lxml") if "<table" in html else []
+
+
+def _wp_candidate_pages() -> tuple[list[str], dict]:
+    r = requests.get(_WP_API, params={"action": "parse", "page": _WP_MAIN, "prop": "sections|links",
+                                      "format": "json", "formatversion": 2, "redirects": 1},
+                     headers=_WP_HEADERS, timeout=20)
+    r.raise_for_status()
+    p = r.json().get("parse", {})
+    sections = [x.get("line") for x in p.get("sections", [])]
+    links = [x.get("title", "") for x in p.get("links", []) if x.get("ns") == 0]
+    linked = [t for t in links if "S&P 500" in t and any(k in t.lower() for k in ("change", "histor", "former"))]
+    return list(dict.fromkeys(linked + list(_WP_CANDIDATES))), {"sections": sections, "linked_candidates": linked}
+
+
+def _fetch_sp500_changes() -> list[dict]:
+    """Hauptseite (HTML), dann MediaWiki-API: Hauptseite und Auslagerungsseiten.
+    Bestes Ergebnis = meiste parsebare Änderungen; Fehler enthält Diagnose."""
+    import pandas as pd
+    diag, best = {}, []
+
+    def attempt(name, get_tables):
+        nonlocal best
+        try:
+            ch = select_changes_table(get_tables())
+        except Exception as e:  # noqa: BLE001 – Diagnose sammeln, nächste Quelle versuchen
+            diag[name] = f"{type(e).__name__}: {str(e)[:300]}"
+            return
+        diag[name] = f"{len(ch)} Änderungen"
+        if len(ch) > len(best):
+            best = ch
+
+    def main_html():
+        resp = requests.get("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies", headers=_WP_HEADERS,
+                            timeout=20)
+        resp.raise_for_status()
+        diag["main_html_bytes"] = len(resp.text)
+        return pd.read_html(StringIO(resp.text), flavor="lxml")
+
+    attempt("main_html", main_html)
+    if not best:
+        attempt("api:" + _WP_MAIN, lambda: _wp_tables(_WP_MAIN))
+    if not best:
+        try:
+            pages, info = _wp_candidate_pages()
+            diag.update(info)
+        except Exception as e:  # noqa: BLE001
+            pages = list(_WP_CANDIDATES)
+            diag["candidates_error"] = f"{type(e).__name__}: {e}"
+        for pg in pages[:8]:
+            attempt("api:" + pg, lambda pg=pg: _wp_tables(pg))
+            if best:
+                break
+    if not best:
+        raise ValueError(f"keine S&P-500-Änderungstabelle gefunden; Diagnose: {diag}")
+    log.info(f"S&P-500-Änderungen: {diag}")
+    return best
+
+
+def _header_from_rows(table, n_rows: int):
+    """Kopf aus Spaltennamen + den ersten n_rows Datenzeilen (pandas liest
+    Wikipedia-Köpfe aus <td>/<th> in tbody teils als Daten)."""
+    import pandas as pd
+    df = table.copy()
+    heads = []
+    for j, c in enumerate(df.columns):
+        parts = [str(x) for x in (c if isinstance(c, tuple) else (c,))]
+        parts += [str(df.iloc[i, j]) for i in range(min(n_rows, len(df)))]
+        heads.append(tuple(p for p in parts if p and p.lower() != "nan" and not p.isdigit()))
+    out = df.iloc[n_rows:].reset_index(drop=True)
+    out.columns = pd.MultiIndex.from_tuples([h if h else (f"col{j}",) for j, h in enumerate(heads)]) \
+        if any(len(h) > 1 for h in heads) else [" ".join(h) for h in heads]
+    return out
 
 
 def select_changes_table(tables) -> list[dict]:
     """Die Änderungstabelle über ihre Spalten finden (Datum + Added/Removed-Ticker),
     nicht über eine HTML-id (CI 2026-10-02: id-Suche schlug fehl -> html5lib-Fallback
-    -> ImportError). Nimmt die Tabelle mit den meisten parsebaren Änderungen."""
+    -> ImportError; danach fanden sich keine passenden Spaltenköpfe, weil pandas
+    den Kopf je nach Markup als Datenzeilen liest). Versucht je Tabelle den
+    Original-Kopf und Köpfe aus den ersten 1–2 Zeilen; nimmt die Tabelle mit den
+    meisten parsebaren Änderungen."""
     best: list[dict] = []
+    seen_cols = []
     for t in tables:
-        try:
-            ch = parse_sp500_changes(t)
-        except (ValueError, KeyError):
-            continue
-        if len(ch) > len(best):
-            best = ch
+        seen_cols.append([_flat_col(c) for c in t.columns][:8])
+        for variant in (t, _header_from_rows(t, 1), _header_from_rows(t, 2)):
+            try:
+                ch = parse_sp500_changes(variant)
+            except (ValueError, KeyError, IndexError):
+                continue
+            if len(ch) > len(best):
+                best = ch
     if not best:
-        raise ValueError("keine S&P-500-Änderungstabelle auf der Seite gefunden")
+        raise ValueError(f"keine S&P-500-Änderungstabelle auf der Seite gefunden; Spaltenköpfe: {seen_cols[:6]}")
     return best
 
 

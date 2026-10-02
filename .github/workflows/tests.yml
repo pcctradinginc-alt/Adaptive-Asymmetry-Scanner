@@ -37,5 +37,16 @@ jobs:
       - name: Leakage-, Audit- und Protokoll-Tests (zuerst, schnell)
         run: python -m pytest -q -p no:cacheprovider tests/test_forensic_audit.py tests/test_research_protocol.py tests/test_next_intelligence.py tests/test_world_model.py
 
+      - name: Live-Smoke PIT-Universum (informativ, Netz)
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          from modules.universe import sp500_history
+          h = sp500_history()
+          iv = h["intervals"]
+          print("changes", h["n_changes"], "first", h["first_change"], "tickers_ever", len(iv))
+          print("members 2015-01-02:", sum(1 for x in iv.values() if any((s is None or s <= "2015-01-02") and (e is None or "2015-01-02" < e) for s, e in x)))
+          PY
+
       - name: Gesamte Testsuite
         run: python -m pytest -q -p no:cacheprovider
