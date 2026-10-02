@@ -345,6 +345,16 @@ EXTERNAL_PRIMITIVES_FOR_MISSINGNESS = (
     "weather_disruption_index",
 )
 EXTERNAL_MISSING_RATIO_WARN = 0.80
+# Ab wie vielen Tagen Konstanz ein Primitiv als "eingefroren" gilt — je nach
+# Aktualisierungstakt der Quelle. Vorher: jede Konstanz über >= 2 Zeilen
+# -> Fehlalarm am 2026-10-01 nach nur 4 Ledger-Tagen, obwohl PortWatch
+# wöchentlich und BTS-TSI/Destatis/Eurostat/e-Stat monatlich publizieren.
+EXTERNAL_CONSTANT_MIN_DAYS = {
+    "freight_global_z": 75, "us_freight_tsi_z": 75,          # Monatsdaten
+    "shipping_global_z": 21, "suez_z": 21, "panama_z": 21,   # PortWatch wöchentlich
+    "hormuz_z": 21, "malacca_z": 21, "bab_el_mandeb_z": 21,
+    "weather_disruption_index": 14,
+}
 EXTERNAL_TINY_EFFECTIVE_N   = 10
 
 
@@ -379,18 +389,27 @@ def _check_external_missingness(rows: list[dict], warnings: list[str]) -> dict:
             values.append(v)
         present = [v for v in values if v is not None]
         missing_ratio = 1 - (len(present) / n_total) if n_total else 1.0
+        dates = [d for d in (_parse_date(r.get("date")) for r, v in zip(ext_rows, values)
+                             if v is not None) if d is not None]
+        span_days = (max(dates) - min(dates)).days if dates else 0
         is_constant = len(present) >= 2 and len(set(present)) == 1
+        # Wetter-Index 0.0 = keine schwere Warnung -> Normalzustand, kein Einfrieren.
+        if prim == "weather_disruption_index" and is_constant and present[0] == 0:
+            is_constant = False
+        stale = is_constant and span_days >= EXTERNAL_CONSTANT_MIN_DAYS.get(prim, 21)
         result[prim] = {"missing_ratio": round(missing_ratio, 3), "constant": is_constant,
-                         "n": n_total}
+                         "constant_days": span_days if is_constant else 0,
+                         "stale": stale, "n": n_total}
         if missing_ratio > EXTERNAL_MISSING_RATIO_WARN:
             warnings.append(
                 f"Externes Primitiv '{prim}' ist über die letzten 30 Ledger-Tage zu "
                 f"{missing_ratio:.0%} missing (>{EXTERNAL_MISSING_RATIO_WARN:.0%}-Schwelle)."
             )
-        elif is_constant:
+        elif stale:
             warnings.append(
-                f"Externes Primitiv '{prim}' ist über die letzten 30 Ledger-Tage konstant "
-                f"({present[0]!r}) — evtl. Quelle eingefroren/gestuckt."
+                f"Externes Primitiv '{prim}' ist seit {span_days} Tagen konstant "
+                f"({present[0]!r}, Takt-Schwelle {EXTERNAL_CONSTANT_MIN_DAYS.get(prim, 21)} T) "
+                f"— evtl. Quelle eingefroren/gestuckt."
             )
     return result
 

@@ -36,13 +36,32 @@ def test_external_missingness_warns_when_primitive_constant(monkeypatch):
     rows = [
         {"date": (today - timedelta(days=i)).isoformat(),
          "external": {"primitives": {"suez_z": 0.5}}}
-        for i in range(10)
+        for i in range(25)
     ]
     monkeypatch.setattr(engine_monitor, "_external_ledger_rows_last_30d", lambda t: rows)
     warnings: list[str] = []
     metrics = engine_monitor._check_external_missingness(rows, warnings)
     assert metrics["suez_z"]["constant"] is True
-    assert any("konstant" in w for w in warnings)
+    assert metrics["suez_z"]["stale"] is True
+    assert any("konstant" in w and "suez_z" in w for w in warnings)
+
+
+def test_external_constant_within_source_cadence_no_warning():
+    """Regression 2026-10-01: 4 Ledger-Tage mit unveränderten Wochen-/Monats-
+    daten (PortWatch Stand 27.09., BTS-TSI Stand Juni) lösten 8 Fehlalarme aus."""
+    today = date(2026, 10, 1)
+    prims = {"suez_z": -0.35, "us_freight_tsi_z": -2.6, "freight_global_z": -0.86,
+             "weather_disruption_index": 0.0}
+    rows = [{"date": (today - timedelta(days=i)).isoformat(),
+             "external": {"primitives": dict(prims)}} for i in range(4)]
+    # Monatsquelle 40 Tage konstant ist ebenfalls normal; Wetter 0.0 nie "eingefroren".
+    rows += [{"date": (today - timedelta(days=40)).isoformat(),
+              "external": {"primitives": {"us_freight_tsi_z": -2.6,
+                                          "weather_disruption_index": 0.0}}}]
+    warnings: list[str] = []
+    m = engine_monitor._check_external_missingness(rows, warnings)
+    assert not any("konstant" in w for w in warnings)
+    assert m["us_freight_tsi_z"]["constant"] and not m["us_freight_tsi_z"]["stale"]
 
 
 def test_external_missingness_warns_when_mostly_missing(monkeypatch):
