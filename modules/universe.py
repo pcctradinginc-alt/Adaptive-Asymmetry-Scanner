@@ -296,12 +296,82 @@ def is_member(intervals: list[list], as_of) -> bool:
     return any((s is None or s <= d) and (e is None or d < e) for s, e in intervals)
 
 
-def _fetch_sp500_changes() -> list[dict]:
+_WP_API = "https://en.wikipedia.org/w/api.php"
+_WP_MAIN = "List_of_S&P_500_companies"
+# Mögliche Auslagerungsseiten der Änderungshistorie (CI 2026-10-02: Hauptseite
+# lieferte nur Mitglieder-Tabelle + Navbox). Zusätzlich werden verlinkte Seiten
+# mit S&P 500 + change/histor/former im Titel geprüft.
+_WP_CANDIDATES = ("Historical components of the S&P 500", "List of former S&P 500 companies",
+                  "Changes to the S&P 500 index", "List of S&P 500 index changes")
+
+
+def _wp_tables(page: str):
+    """Tabellen einer Wikipedia-Seite über die offizielle MediaWiki-API (action=parse)."""
     import pandas as pd
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    resp = requests.get(url, headers=_WP_HEADERS, timeout=20)
-    resp.raise_for_status()
-    return select_changes_table(pd.read_html(StringIO(resp.text), flavor="lxml"))
+    r = requests.get(_WP_API, params={"action": "parse", "page": page, "prop": "text", "format": "json",
+                                      "formatversion": 2, "redirects": 1}, headers=_WP_HEADERS, timeout=20)
+    r.raise_for_status()
+    js = r.json()
+    if "error" in js:
+        raise ValueError(f"{page}: {js['error'].get('info')}")
+    html = js["parse"]["text"]
+    return pd.read_html(StringIO(html), flavor="lxml") if "<table" in html else []
+
+
+def _wp_candidate_pages() -> tuple[list[str], dict]:
+    r = requests.get(_WP_API, params={"action": "parse", "page": _WP_MAIN, "prop": "sections|links",
+                                      "format": "json", "formatversion": 2, "redirects": 1},
+                     headers=_WP_HEADERS, timeout=20)
+    r.raise_for_status()
+    p = r.json().get("parse", {})
+    sections = [x.get("line") for x in p.get("sections", [])]
+    links = [x.get("title", "") for x in p.get("links", []) if x.get("ns") == 0]
+    linked = [t for t in links if "S&P 500" in t and any(k in t.lower() for k in ("change", "histor", "former"))]
+    return list(dict.fromkeys(linked + list(_WP_CANDIDATES))), {"sections": sections, "linked_candidates": linked}
+
+
+def _fetch_sp500_changes() -> list[dict]:
+    """Hauptseite (HTML), dann MediaWiki-API: Hauptseite und Auslagerungsseiten.
+    Bestes Ergebnis = meiste parsebare Änderungen; Fehler enthält Diagnose."""
+    import pandas as pd
+    diag, best = {}, []
+
+    def attempt(name, get_tables):
+        nonlocal best
+        try:
+            ch = select_changes_table(get_tables())
+        except Exception as e:  # noqa: BLE001 – Diagnose sammeln, nächste Quelle versuchen
+            diag[name] = f"{type(e).__name__}: {str(e)[:300]}"
+            return
+        diag[name] = f"{len(ch)} Änderungen"
+        if len(ch) > len(best):
+            best = ch
+
+    def main_html():
+        resp = requests.get("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies", headers=_WP_HEADERS,
+                            timeout=20)
+        resp.raise_for_status()
+        diag["main_html_bytes"] = len(resp.text)
+        return pd.read_html(StringIO(resp.text), flavor="lxml")
+
+    attempt("main_html", main_html)
+    if not best:
+        attempt("api:" + _WP_MAIN, lambda: _wp_tables(_WP_MAIN))
+    if not best:
+        try:
+            pages, info = _wp_candidate_pages()
+            diag.update(info)
+        except Exception as e:  # noqa: BLE001
+            pages = list(_WP_CANDIDATES)
+            diag["candidates_error"] = f"{type(e).__name__}: {e}"
+        for pg in pages[:8]:
+            attempt("api:" + pg, lambda pg=pg: _wp_tables(pg))
+            if best:
+                break
+    if not best:
+        raise ValueError(f"keine S&P-500-Änderungstabelle gefunden; Diagnose: {diag}")
+    log.info(f"S&P-500-Änderungen: {diag}")
+    return best
 
 
 def _header_from_rows(table, n_rows: int):
