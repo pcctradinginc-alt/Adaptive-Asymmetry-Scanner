@@ -46,6 +46,14 @@ hypotheses:
     evidence: "läuft prospektiv (factor_monitor.llm_value_add), Urteil frühestens Mitte November 2026"
     canonical_status: INCONCLUSIVE
 
+  - id: HYP-ABST-001
+    title: Regime-Abstinenz – Ensemble nur bei VIX >= 20 oder SPY unter SMA200 handeln
+    status: prior_result
+    source: meta_validation
+    canonical_status: ACCEPTED
+    evidence: "Vorab registriert (config/next_protocol.yaml abstention), bestätigt auf ungesehenen Basis-OOS-Jahren 2019–2020: aktiv +3,02 % vs. inaktiv +0,24 % je 20T (t=3,4, 52/53 Kohorten). Dev 2021–2025H1: Sharpe 0,68 vs. 0,23, Trefferquote 50,9 % vs. 47,4 %, MaxDD −12,8 % vs. −18,8 %. Produktions-Gate NICHT bestanden (Bootstrap-KI schließt 0 ein, < 150 aktive Kohorten) -> Forward-Beobachtung; im HC-Scanner als Regime-Kompatibilität aktiv."
+    reference: docs/NEXT_INTELLIGENCE_VALIDATION.md
+
   # ── Nicht testbar mit aktuellen Daten (Erinnerung) ─────────────────────────
   - id: HYP-0201
     title: LKW-Maut führt europäische Industriegewinne (30–90 Tage)

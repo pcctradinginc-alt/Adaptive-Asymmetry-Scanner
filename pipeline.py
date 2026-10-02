@@ -729,7 +729,21 @@ def main() -> None:
             continue
         enriched_with_alpha.append(c)
     shortlist = enriched_with_alpha
-    shortlist = [validate_candidate_data(c) for c in shortlist]
+    _t_val = time.monotonic()
+    _validated = []
+    for c in shortlist:
+        # EPS-Cross-Check ist nur Datenqualität; bei erreichtem Budget den
+        # Kandidaten NICHT verlieren, sondern ohne Netz-Abruf weiterreichen.
+        if over_budget():
+            c.setdefault("data_validation", {"eps_cross_check": {"source": "SKIPPED_BUDGET"}})
+            c.setdefault("data_confidence", "medium")
+            c.setdefault("data_anomaly", False)
+            _validated.append(c)
+            continue
+        _validated.append(validate_candidate_data(c))
+    shortlist = _validated
+    log.info(f"Stufe 2b Datenvalidierung: {len(shortlist)} Kandidaten in "
+             f"{time.monotonic() - _t_val:.0f}s")
 
     # ── Ingress Validation Gate ───────────────────────────────────────────────
     shortlist_raw = shortlist[:]
@@ -758,7 +772,9 @@ def main() -> None:
     # Feldern, nie aus einer vollständigen json.dumps(candidate)-Serialisierung
     # — daher kann dieses Feld nie in einen LLM-Prompt "durchsickern"). Ein
     # Fehler hier darf die Pipeline nie beeinflussen: try/except → None.
+    _t_ext = time.monotonic()
     shortlist, _ext_summary = attach_external_context_stage(shortlist)
+    log.info(f"Stufe 2b-ext External Context: {time.monotonic() - _t_ext:.0f}s")
     stats["external_context"] = _ext_summary
 
     # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────

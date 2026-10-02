@@ -28,6 +28,12 @@ log = logging.getLogger(__name__)
 _AV_BASE       = "https://www.alphavantage.co/query"
 _AV_DELAY      = 12.5
 _last_av_call  = 0.0
+# Pro Lauf höchstens so viele Alpha-Vantage-Fallbacks: jeder kostet >= 12,5 s
+# Zwangspause; ohne Deckel liefen 2026-10-01 ~110 Kandidaten x ~14 s = 26 min
+# still durch diese Stufe -> Deep Analysis komplett time_budget_exceeded.
+# (Free-Tier erlaubt ohnehin nur 25 Abrufe/Tag.)
+_AV_MAX_CALLS  = int(os.getenv("AV_EPS_MAX_CALLS", "5"))
+_av_calls      = 0
 
 # SEC EDGAR
 _SEC_BASE      = "https://data.sec.gov"
@@ -36,6 +42,13 @@ _SEC_HEADERS   = {
     "Accept-Encoding": "gzip, deflate",
 }
 _cik_cache: dict[str, str] = {}
+# company_tickers.json EINMAL pro Prozess laden (vorher: bei jedem Kandidaten
+# ohne Cache-Treffer erneut ~1 MB). None = noch nicht geladen, {} = fehlgeschlagen.
+_ticker_map: Optional[dict[str, str]] = None
+# Circuit-Breaker: nach so vielen EDGAR-Fehlern in Folge wird EDGAR für den
+# Rest des Laufs übersprungen (z.B. 403/Rate-Limit in CI).
+_SEC_MAX_FAILS = 3
+_sec_fail_streak = 0
 
 
 # ── Fix 5: SEC EDGAR XBRL EPS ────────────────────────────────────────────────
@@ -51,6 +64,9 @@ def fetch_eps_sec_edgar(ticker: str) -> Optional[float]:
     2. EPS-Daten aus companyfacts API (XBRL Tag: us-gaap/EarningsPerShareBasic)
     3. TTM berechnen aus letzten 4 Quartals-Filings
     """
+    global _sec_fail_streak
+    if _sec_fail_streak >= _SEC_MAX_FAILS:
+        return None
     try:
         cik = _get_cik(ticker)
         if not cik:
@@ -60,7 +76,9 @@ def fetch_eps_sec_edgar(ticker: str) -> Optional[float]:
         resp = requests.get(url, headers=_SEC_HEADERS, timeout=15)
 
         if resp.status_code != 200:
+            _note_sec_failure(f"companyfacts HTTP {resp.status_code}")
             return None
+        _sec_fail_streak = 0
 
         facts = resp.json()
         us_gaap = facts.get("facts", {}).get("us-gaap", {})
@@ -98,15 +116,24 @@ def fetch_eps_sec_edgar(ticker: str) -> Optional[float]:
         return None
 
     except Exception as e:
-        log.debug(f"SEC EDGAR EPS Fehler für {ticker}: {e}")
+        _note_sec_failure(f"{type(e).__name__}: {e}")
         return None
 
 
-def _get_cik(ticker: str) -> Optional[str]:
-    """Lookup CIK (Central Index Key) für einen Ticker via EDGAR."""
-    if ticker in _cik_cache:
-        return _cik_cache[ticker]
+def _note_sec_failure(reason: str) -> None:
+    global _sec_fail_streak
+    _sec_fail_streak += 1
+    if _sec_fail_streak == _SEC_MAX_FAILS:
+        log.warning(f"SEC EDGAR {_SEC_MAX_FAILS}x in Folge fehlgeschlagen ({reason}) "
+                    f"-> EDGAR-EPS-Check für den Rest des Laufs deaktiviert.")
+    else:
+        log.debug(f"SEC EDGAR Fehler: {reason}")
 
+
+def _load_ticker_map() -> dict[str, str]:
+    global _ticker_map
+    if _ticker_map is not None:
+        return _ticker_map
     try:
         resp = requests.get(
             f"{_SEC_BASE}/files/company_tickers.json",
@@ -114,20 +141,27 @@ def _get_cik(ticker: str) -> Optional[str]:
             timeout=10,
         )
         if resp.status_code != 200:
-            return None
-
-        data = resp.json()
-        for _, company in data.items():
-            if company.get("ticker", "").upper() == ticker.upper():
-                cik = str(company["cik_str"]).zfill(10)
-                _cik_cache[ticker] = cik
-                return cik
-
-        return None
-
+            _note_sec_failure(f"company_tickers HTTP {resp.status_code}")
+            _ticker_map = {}
+            return _ticker_map
+        _ticker_map = {
+            str(c.get("ticker", "")).upper(): str(c["cik_str"]).zfill(10)
+            for c in resp.json().values() if c.get("ticker") and c.get("cik_str") is not None
+        }
     except Exception as e:
-        log.debug(f"CIK-Lookup Fehler für {ticker}: {e}")
-        return None
+        _note_sec_failure(f"company_tickers {type(e).__name__}: {e}")
+        _ticker_map = {}
+    return _ticker_map
+
+
+def _get_cik(ticker: str) -> Optional[str]:
+    """Lookup CIK (Central Index Key) für einen Ticker via EDGAR."""
+    if ticker in _cik_cache:
+        return _cik_cache[ticker]
+    cik = _load_ticker_map().get(ticker.upper())
+    if cik:
+        _cik_cache[ticker] = cik
+    return cik
 
 
 def cross_check_eps_edgar(
@@ -211,10 +245,13 @@ def cross_check_eps_edgar(
 
 
 def _fetch_eps_alphavantage(ticker: str) -> Optional[float]:
-    global _last_av_call
+    global _last_av_call, _av_calls
     api_key = os.getenv("ALPHA_VANTAGE_API_KEY", "")
     if not api_key:
         return None
+    if _av_calls >= _AV_MAX_CALLS:
+        return None
+    _av_calls += 1
     elapsed = time.time() - _last_av_call
     if elapsed < _AV_DELAY:
         time.sleep(_AV_DELAY - elapsed)

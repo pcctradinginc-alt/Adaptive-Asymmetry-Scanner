@@ -1,9 +1,177 @@
 {
- "generated": "2026-09-29T16:18:47+00:00",
- "n_candidates": 1,
- "n_selected_for_testing": 0,
+ "generated": "2026-10-02T14:30:28+00:00",
+ "n_candidates": 19,
+ "n_selected_for_testing": 5,
  "max_new_per_run": 5,
  "candidates": [
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'}",
+   "question": "Unterperformt das Segment {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_004)",
+   "signal": "-(step(abs(ret_5d) - 0.4) * step(dist_52w_high - 0.3))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2041",
+   "evidence_t": 2.04,
+   "value": 0.2041,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_004",
+   "research_id": "RD-5f792ced",
+   "hypothesis": "Titel im Segment {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_004)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2041",
+   "novelty": 0.929,
+   "expected_information_gain": 0.68,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 6.4467
+  },
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'lottery': 'lottery_profile'}",
+   "question": "Unterperformt das Segment {'lottery': 'lottery_profile'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'lottery': 'lottery_profile'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_005)",
+   "signal": "-(step(max_ret_21 - 0.4))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2048",
+   "evidence_t": 2.04,
+   "value": 0.2048,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_005",
+   "research_id": "RD-de4cb989",
+   "hypothesis": "Titel im Segment {'lottery': 'lottery_profile'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_005)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2048",
+   "novelty": 0.917,
+   "expected_information_gain": 0.68,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 6.38525
+  },
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'}",
+   "question": "Unterperformt das Segment {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_007)",
+   "signal": "-(step(log_dollar_vol) * step(abs(ret_5d) - 0.4))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.62, typischer Fehler -0.1993",
+   "evidence_t": 1.8600000000000003,
+   "value": 0.1993,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_007",
+   "research_id": "RD-38d323d8",
+   "hypothesis": "Titel im Segment {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_007)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.62, typischer Fehler -0.1993",
+   "novelty": 0.929,
+   "expected_information_gain": 0.62,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 5.73964
+  },
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'vix': 'vix_lt_20'}",
+   "question": "Unterperformt das Segment {'liquidity': 'liquid', 'vix': 'vix_lt_20'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'vix': 'vix_lt_20'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_010)",
+   "signal": "-(step(log_dollar_vol) * step(20 - vix))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.58, typischer Fehler -0.1975",
+   "evidence_t": 1.7400000000000002,
+   "value": 0.1975,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_010",
+   "research_id": "RD-9af21f36",
+   "hypothesis": "Titel im Segment {'liquidity': 'liquid', 'vix': 'vix_lt_20'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_010)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.58, typischer Fehler -0.1975",
+   "novelty": 0.923,
+   "expected_information_gain": 0.58,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 5.28648
+  },
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'volatility': 'high_vol', 'liquidity': 'liquid'}",
+   "question": "Unterperformt das Segment {'volatility': 'high_vol', 'liquidity': 'liquid'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'volatility': 'high_vol', 'liquidity': 'liquid'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_008)",
+   "signal": "-(step(vol_60 - 0.17) * step(log_dollar_vol))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.6, typischer Fehler -0.1991",
+   "evidence_t": 1.8000000000000003,
+   "value": 0.1991,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_008",
+   "research_id": "RD-d0093d4e",
+   "hypothesis": "Titel im Segment {'volatility': 'high_vol', 'liquidity': 'liquid'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_008)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.6, typischer Fehler -0.1991",
+   "novelty": 0.885,
+   "expected_information_gain": 0.6,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 5.28611
+  },
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'momentum': 'loser_12m'}",
+   "question": "Unterperformt das Segment {'liquidity': 'liquid', 'momentum': 'loser_12m'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'momentum': 'loser_12m'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_012)",
+   "signal": "-(step(log_dollar_vol) * step(-0.17 - mom_12_1))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.57, typischer Fehler -0.2017",
+   "evidence_t": 1.7100000000000002,
+   "value": 0.2017,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_012",
+   "research_id": "RD-0ffd5ff9",
+   "hypothesis": "Titel im Segment {'liquidity': 'liquid', 'momentum': 'loser_12m'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_012)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.57, typischer Fehler -0.2017",
+   "novelty": 0.9,
+   "expected_information_gain": 0.57,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 5.1736
+  },
+  {
+   "kind": "testable",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'trend': 'uptrend'}",
+   "question": "Unterperformt das Segment {'liquidity': 'liquid', 'trend': 'uptrend'} den Querschnitt systematisch?",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'trend': 'uptrend'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_014)",
+   "signal": "-(step(log_dollar_vol) * step(spy_trend_200))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.56, typischer Fehler -0.1975",
+   "evidence_t": 1.6800000000000002,
+   "value": 0.1975,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "UNKNOWN_CLUSTER_014",
+   "research_id": "RD-0a08304b",
+   "hypothesis": "Titel im Segment {'liquidity': 'liquid', 'trend': 'uptrend'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_014)",
+   "economic_rationale": "Unknown-Unknown-Detektor: Lift 1.56, typischer Fehler -0.1975",
+   "novelty": 0.926,
+   "expected_information_gain": 0.56,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 5.12078
+  },
   {
    "kind": "diagnostic",
    "question": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.65)?",
@@ -22,10 +190,281 @@
    "risk_of_overfitting": 0.412,
    "research_cost": 3.0,
    "priority": 3.25887
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Energy', 'momentum': 'loser_12m'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 3.06,
+   "value": 0.2329,
+   "source_finding": "UNKNOWN_CLUSTER_001",
+   "research_id": "RD-9fe60f3f",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Energy', 'momentum': 'loser_12m'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 1.0,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 1.52161
+  },
+  {
+   "kind": "diagnostic",
+   "question": "Warum verliert hgb_asym20_v1 an Prognosekraft (t=-2.04)?",
+   "required_data": [
+    "Basis-OOS je Segment"
+   ],
+   "available_data": true,
+   "evidence_t": 2.04,
+   "value": 0.1006,
+   "source_finding": "model_drift:hgb_asym20_v1",
+   "research_id": "RD-05c68852",
+   "hypothesis": "Warum verliert hgb_asym20_v1 an Prognosekraft (t=-2.04)?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.68,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 1.3408
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'volatility': 'high_vol'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 2.13,
+   "value": 0.2191,
+   "source_finding": "UNKNOWN_CLUSTER_003",
+   "research_id": "RD-1a20cecf",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'volatility': 'high_vol'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.71,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 1.01633
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 2.2199999999999998,
+   "value": 0.2082,
+   "source_finding": "UNKNOWN_CLUSTER_002",
+   "research_id": "RD-0999c741",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.74,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 1.00658
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'liquidity': 'liquid', 'momentum': 'mid'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 1.9499999999999997,
+   "value": 0.2015,
+   "source_finding": "UNKNOWN_CLUSTER_006",
+   "research_id": "RD-8b15a7aa",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'liquidity': 'liquid', 'momentum': 'mid'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.65,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 0.8557
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'momentum': 'loser_12m'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 1.7700000000000002,
+   "value": 0.2098,
+   "source_finding": "UNKNOWN_CLUSTER_009",
+   "research_id": "RD-d13ddccc",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'momentum': 'loser_12m'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.59,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 0.80871
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Technology', 'liquidity': 'liquid'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 1.6800000000000002,
+   "value": 0.195,
+   "source_finding": "UNKNOWN_CLUSTER_013",
+   "research_id": "RD-00695247",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Technology', 'liquidity': 'liquid'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.56,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 0.71344
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Healthcare', 'beta': 'high_beta'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 1.6500000000000001,
+   "value": 0.1984,
+   "source_finding": "UNKNOWN_CLUSTER_015",
+   "research_id": "RD-497ce22f",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Healthcare', 'beta': 'high_beta'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.55,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 0.71292
+  },
+  {
+   "kind": "untestable",
+   "question": "Warum versagt das Ensemble im Segment {'sector': 'Technology', 'beta': 'low_beta'}?",
+   "required_data": [
+    "Sektor-/Ereignismerkmal in der Signal-Sprache"
+   ],
+   "available_data": false,
+   "evidence_t": 1.7400000000000002,
+   "value": 0.1765,
+   "source_finding": "UNKNOWN_CLUSTER_011",
+   "research_id": "RD-3255e1ef",
+   "hypothesis": "Warum versagt das Ensemble im Segment {'sector': 'Technology', 'beta': 'low_beta'}?",
+   "economic_rationale": "gemessener Befund, siehe source_finding",
+   "novelty": 1.0,
+   "expected_information_gain": 0.58,
+   "risk_of_overfitting": 0.412,
+   "research_cost": 3.0,
+   "priority": 0.66882
+  },
+  {
+   "kind": "testable",
+   "title": "Kurzfrist-Umkehr (1 Monat) – nur bei SPY unter SMA200",
+   "question": "Wirkt 'Kurzfrist-Umkehr (1 Monat)' nur im Stress-Regime (SPY unter SMA200)?",
+   "statement": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf SPY unter SMA200",
+   "signal": "(rev_1m) * step(-spy_trend_200)",
+   "direction": -1,
+   "rationale": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.0146; HYP-0101 knapp gescheitert (t=2.13)",
+   "evidence_t": 2.13,
+   "value": 0.01461,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "HYP-0101",
+   "research_id": "RD-034c5e10",
+   "hypothesis": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf SPY unter SMA200",
+   "economic_rationale": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.0146; HYP-0101 knapp gescheitert (t=2.13)",
+   "novelty": 0.429,
+   "expected_information_gain": 0.71,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 0.2225
+  },
+  {
+   "kind": "testable",
+   "title": "Kurzfrist-Umkehr (1 Monat) – nur bei VIX >= 20",
+   "question": "Wirkt 'Kurzfrist-Umkehr (1 Monat)' nur im Stress-Regime (VIX >= 20)?",
+   "statement": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf VIX >= 20",
+   "signal": "(rev_1m) * step(vix - 20)",
+   "direction": -1,
+   "rationale": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.0146; HYP-0101 knapp gescheitert (t=2.13)",
+   "evidence_t": 2.13,
+   "value": 0.01461,
+   "required_data": [
+    "Feature-Store"
+   ],
+   "available_data": true,
+   "source_finding": "HYP-0101",
+   "research_id": "RD-53a5a5aa",
+   "hypothesis": "Verlierer des letzten Monats schlagen Gewinner des letzten Monats über 20 Tage. – eingeschränkt auf VIX >= 20",
+   "economic_rationale": "Meta-Validierung: Ensemble-Expectancy VIX>=20 minus VIX<20 = 0.0146; HYP-0101 knapp gescheitert (t=2.13)",
+   "novelty": 0.333,
+   "expected_information_gain": 0.71,
+   "risk_of_overfitting": 0.5,
+   "research_cost": 1.0,
+   "priority": 0.17271
   }
  ],
- "selected": [],
- "hypotheses": [],
+ "selected": [
+  "RD-5f792ced",
+  "RD-de4cb989",
+  "RD-38d323d8",
+  "RD-9af21f36",
+  "RD-d0093d4e"
+ ],
+ "hypotheses": [
+  {
+   "id": "RD-5f792ced",
+   "title": "Segment meiden: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'}",
+   "statement": "Titel im Segment {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_004)",
+   "signal": "-(step(abs(ret_5d) - 0.4) * step(dist_52w_high - 0.3))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2041",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-de4cb989",
+   "title": "Segment meiden: {'lottery': 'lottery_profile'}",
+   "statement": "Titel im Segment {'lottery': 'lottery_profile'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_005)",
+   "signal": "-(step(max_ret_21 - 0.4))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2048",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-38d323d8",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'}",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_007)",
+   "signal": "-(step(log_dollar_vol) * step(abs(ret_5d) - 0.4))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.62, typischer Fehler -0.1993",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-9af21f36",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'vix': 'vix_lt_20'}",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'vix': 'vix_lt_20'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_010)",
+   "signal": "-(step(log_dollar_vol) * step(20 - vix))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.58, typischer Fehler -0.1975",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-d0093d4e",
+   "title": "Segment meiden: {'volatility': 'high_vol', 'liquidity': 'liquid'}",
+   "statement": "Titel im Segment {'volatility': 'high_vol', 'liquidity': 'liquid'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_008)",
+   "signal": "-(step(vol_60 - 0.17) * step(log_dollar_vol))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.6, typischer Fehler -0.1991",
+   "created_at": "2026-10-02"
+  }
+ ],
  "active_learning": [
   {
    "source": "earnings_calendar_history",

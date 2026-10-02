@@ -1,4 +1,50 @@
 {
- "generated": "2026-09-29T16:18:47+00:00",
- "hypotheses": []
+ "generated": "2026-10-02T14:30:28+00:00",
+ "hypotheses": [
+  {
+   "id": "RD-5f792ced",
+   "title": "Segment meiden: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'}",
+   "statement": "Titel im Segment {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_004)",
+   "signal": "-(step(abs(ret_5d) - 0.4) * step(dist_52w_high - 0.3))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2041",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-de4cb989",
+   "title": "Segment meiden: {'lottery': 'lottery_profile'}",
+   "statement": "Titel im Segment {'lottery': 'lottery_profile'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_005)",
+   "signal": "-(step(max_ret_21 - 0.4))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.68, typischer Fehler -0.2048",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-38d323d8",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'}",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_007)",
+   "signal": "-(step(log_dollar_vol) * step(abs(ret_5d) - 0.4))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.62, typischer Fehler -0.1993",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-9af21f36",
+   "title": "Segment meiden: {'liquidity': 'liquid', 'vix': 'vix_lt_20'}",
+   "statement": "Titel im Segment {'liquidity': 'liquid', 'vix': 'vix_lt_20'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_010)",
+   "signal": "-(step(log_dollar_vol) * step(20 - vix))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.58, typischer Fehler -0.1975",
+   "created_at": "2026-10-02"
+  },
+  {
+   "id": "RD-d0093d4e",
+   "title": "Segment meiden: {'volatility': 'high_vol', 'liquidity': 'liquid'}",
+   "statement": "Titel im Segment {'volatility': 'high_vol', 'liquidity': 'liquid'} liefern unterdurchschnittliche 20-Tage-Relativrenditen (Blind Spot UNKNOWN_CLUSTER_008)",
+   "signal": "-(step(vol_60 - 0.17) * step(log_dollar_vol))",
+   "direction": 1,
+   "rationale": "Unknown-Unknown-Detektor: Lift 1.6, typischer Fehler -0.1991",
+   "created_at": "2026-10-02"
+  }
+ ]
 }
