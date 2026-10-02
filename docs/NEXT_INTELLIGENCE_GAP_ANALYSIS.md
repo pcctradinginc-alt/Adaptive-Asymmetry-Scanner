@@ -103,3 +103,30 @@ Folgen:
 
 Nach jedem Schritt folgen Tests, eine OOS-Messung und eine dokumentierte
 Entscheidung KEEP, MODIFY oder REJECT (`docs/NEXT_INTELLIGENCE_VALIDATION.md`).
+
+## 6. Stand nach Umsetzung (2026-10-02)
+Alle Fähigkeiten aus Abschnitt 2 sind gebaut, getestet und OOS gemessen. Die
+Urteile stammen aus den vorab festgelegten Regeln, die Belege stehen in den
+verlinkten Dokumenten.
+
+| Fähigkeit | Modul | Urteil | Doku |
+|---|---|---|---|
+| World Model | `world_model.py` | MODIFY: nur Bericht/Überwachung; besser bei Drawdown und Momentum-IC, schlechter bei Vola | `WORLD_MODEL.md` |
+| Causal Reasoning | `causal_research.py` | REJECT: 0 von 32 Beziehungen bestehen BH | `CAUSAL_RESEARCH.md` |
+| Knowledge Graph | `knowledge_graph.py` | REJECT als Signal; KEEP als Evidenzspeicher und Erklärung | `KNOWLEDGE_GRAPH.md` |
+| Active Learning | `research_director.py` | KEEP (Prozess): Priorisierung nach Informationsgewinn; Aufnahmeprüfung für neue Quellen | `ACTIVE_LEARNING.md` |
+| Research Director | `research_director.py` | KEEP (Prozess): erster Kreislauf mit 5 Hypothesen, alle verworfen | `RESEARCH_DIRECTOR.md` |
+| Research Memory | `research_lab.py` | KEEP: Status-Vokabular, Ähnlichkeitssperre (2 Tests verhindert) | `RESEARCH_DIRECTOR.md` |
+| Counterfactual | `counterfactual.py` | REJECT als Filter (94 % fragil); KEEP als HC-Diagnose | `COUNTERFACTUAL_ENGINE.md` |
+| Adversarial Self-Play | `research_lab.adversarial_review` | KEEP (Governance) | `ADVERSARIAL_RESEARCH.md` |
+| Unknown-Unknowns | `blind_spots.py` | REJECT als Filter; KEEP als Diagnose und Director-Eingang | `UNKNOWN_UNKNOWNS.md` |
+| Decision Intelligence | `decision_intel.py` | MODIFY: senkt ES/MaxDD, Sharpe nicht robust | `DECISION_INTELLIGENCE.md` |
+| Meta-Cognition, Safe Mode, Alpha Decay, Research Value | `meta_cognition.py` | KEEP (Governance); Safe Mode derzeit aktiv (tnx-Drift) | `META_COGNITION.md` |
+| Stress-Szenarien | `counterfactual.historical_stress` | KEEP (nur Robustheit) | `COUNTERFACTUAL_ENGINE.md` |
+| HC-Scanner, Weekly Report | `hc_scanner.py`, `reports/weekly.py` | erweitert (Abschnitte 11–16, Intelligenz-Prüfungen) | – |
+| **Gesamt** | `next_intelligence.py` | **KEEP_CHAMPION**; einzige tragende Komponente ist die Abstinenz-Regel (NEED MORE DATA) | `NEXT_INTELLIGENCE_VALIDATION.md` |
+
+**Antwort auf die Leitfrage:** Wann eine Chance besteht, erkennt das System
+nicht besser als zuvor; keine Komponente verbessert das Ranking signifikant.
+Wann es nichts tun sollte, erkennt es dagegen deutlich besser: Die
+Abstinenz-Regel ist zweimal auf ungesehenen Jahren bestätigt (t ≈ 3,3).
