@@ -79,11 +79,15 @@ def record_survivors(survivors: list[dict], *, today: str, vix=None, ctx: dict |
     regime = pia.regime_label(vix)
     off = set(ctx.get("data_disabled_signals") or [])
     missing = set(ctx.get("data_unavailable_features") or [])
+    # Idempotent: je (Tag, Ticker) genau eine Beobachtung – ein wiederholter Lauf (manueller
+    # Neustart) erzeugt keine Pseudo-Stichprobe; die erste, eingefrorene Auswertung gilt.
+    seen = {(str(r["date"])[:10], r["ticker"]) for r in read_rows(ledger_dir) if str(r["date"])[:7] == today[:7]}
     rows = []
     for i, s in enumerate(survivors):
         t = s.get("ticker")
-        if not t:
+        if not t or (today, t) in seen:
             continue
+        seen.add((today, t))
         env = pia.candidate_env(s, ctx, vix)
         sector = s.get("sector") or (s.get("info") or {}).get("sector")
         trig = {}

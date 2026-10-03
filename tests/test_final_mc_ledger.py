@@ -195,3 +195,18 @@ def test_correlated_repeats_cannot_reach_promotion(tmp_path):
     ev = fml.evidence(v2, hc.spec_hash(v2), fml.read_rows(led), fml.read_outcomes(outs), hc.load_policy(), 0.001)
     assert ev["n_observations"] == 240 and ev["n_event_clusters"] == 2
     assert any("Ereignis-Cluster" in n for n in pc.insufficiency(v2, ev, hc.load_policy()))
+
+
+def test_repeated_run_same_day_creates_no_duplicates(tmp_path):
+    v2 = _repo("PROM-ABST-005@v2")
+    reg, led, outs = tmp_path / "reg.jsonl", tmp_path / "fm", tmp_path / "o.jsonl"
+    hc.register([v2], reg, hc.load_policy())
+    sv = [{"ticker": "AAA", "features": {}, "simulation": {}}, {"ticker": "AAA", "features": {}, "simulation": {}}]
+    for hour in (14, 18):
+        fml.record_survivors(sv, today="2026-10-06", vix=18.0, ctx=dict(CTX), contracts=[v2], registry=reg,
+                             ledger_dir=led, now=datetime(2026, 10, 6, hour, tzinfo=timezone.utc))
+    rows = fml.read_rows(led)
+    assert len(rows) == 1 and rows[0]["timestamp"].startswith("2026-10-06T14")
+    bars = _bars_factory({"AAA": 0.03})
+    assert fml.resolve_outcomes(today=date(2027, 1, 1), ledger_dir=led, path=outs, bars_fn=bars) == 3
+    assert fml.resolve_outcomes(today=date(2027, 1, 1), ledger_dir=led, path=outs, bars_fn=bars) == 0
