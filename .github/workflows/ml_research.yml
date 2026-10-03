@@ -60,10 +60,22 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_director
 
+      - name: Scientific Hypothesis Factory – Plan (Ideen, DATA_GAP, Ähnlichkeit, Budget – nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # optional: NUR Mechanismus-Text, nie Evidenz
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory plan --llm
+
       - name: Research-Lab (Hypothesen-Datenbank, Discovery, Director-Hypothesen – nur full)
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.research_lab
+
+      - name: Scientific Hypothesis Factory – Robustheit, Prospective Challenger, Forward-Ledger (nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory evaluate
 
       - name: Alternative Data – inkrementeller Nutzen (Baseline vs. Baseline+Quelle, nur full)
         if: env.MODE == 'full'

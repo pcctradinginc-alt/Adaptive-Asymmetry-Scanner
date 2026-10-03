@@ -925,6 +925,20 @@ def main() -> None:
             )
         except Exception as e:
             log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
+    # ── Stufe 4b: Research-Memory-Reviewer (NACH der unabhängigen Analyse) ───
+    # Sieht nur prospektiv validierte Erkenntnisse; schreibt ausschließlich eine
+    # Beobachtung in den Kandidaten-Ledger. Kein Einfluss auf Analyse, Score oder
+    # Gates (Produktionseinfluss nur über den ProductionIntelligenceAdapter).
+    try:
+        from modules import research_memory as _rm
+        _mem = _rm.load()
+        _regime = (macro or {}).get("macro_regime") if isinstance(macro, dict) else None
+        for a in analyses:
+            _obs = _rm.review_candidate({"sector": (a.get("info") or {}).get("sector"), "regime": _regime}, _mem)
+            if _obs:
+                candidate_ledger.note(a.get("ticker"), memory_review=_obs)
+    except Exception as e:
+        log.warning(f"Research-Memory-Reviewer Fehler (ignoriert): {e}")
     log.info(f"  → {len(analyses)} nach Deep Analysis")
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."

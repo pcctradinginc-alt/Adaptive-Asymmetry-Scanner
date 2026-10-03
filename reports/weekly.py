@@ -63,6 +63,7 @@ SECTION_TITLES = {
     16: "ACTIVE LEARNING",
     17: "ALTERNATIVE DATA INTELLIGENCE",
     18: "PROMOTION STATUS (Research → Production)",
+    19: "RESEARCH FACTORY (Hypothesen, Richtungen, Datenlücken)",
 }
 
 
@@ -395,6 +396,11 @@ def collect(root, date, state_path=None) -> dict:
     alt_board = _load_json(rs / "source_scoreboard.json")
     alt_val = _load_json(rs / "alt_data_validation.json")
     alt_fwd = _load_jsonl(rs / "alt_forward_ledger.jsonl")
+    fac_plan = _load_json(rs / "factory_plan.json")
+    fac_res = _load_json(rs / "factory_results.json")
+    fac_dirs = _load_json(rs / "research_directions.json")
+    fac_ch = _load_jsonl(rs / "factory_challengers.jsonl")
+    fac_fwd = _load_jsonl(rs / "factory_forward_ledger.jsonl")
     ledger_rows = ledger_open = 0
     ledger_dir = out_dir / "candidate_ledger"
     if ledger_dir.is_dir():
@@ -410,6 +416,9 @@ def collect(root, date, state_path=None) -> dict:
         "hyp": hyp, "fail": fail, "history": history, "world": world, "mstate": mstate, "safe": safe,
         "nextv": nextv, "director": director, "alearn": alearn,
         "promo": promo, "promo_transitions": promo_tr, "promo_proposals": promo_prop,
+        "factory": {"plan": fac_plan, "results": fac_res, "directions": fac_dirs, "challengers": fac_ch,
+                    "forward_cohorts": {h: sum(1 for r in fac_fwd if r.get("hypothesis_id") == h)
+                                        for h in sorted({r.get("hypothesis_id") for r in fac_fwd})}},
         "alt": {"board": alt_board, "validation": alt_val,
                 "forward_cohorts": {h: sum(1 for r in alt_fwd if r.get("hypothesis_id") == h)
                                     for h in sorted({r.get("hypothesis_id") for r in alt_fwd})}},
@@ -891,7 +900,46 @@ def intelligence_sections(data: dict) -> list:
                 if al else [("para", NO_DATA)]))
     out.append((17, SECTION_TITLES[17], alt_data_section(data)))
     out.append((18, SECTION_TITLES[18], promotion_section(data)))
+    out.append((19, SECTION_TITLES[19], factory_section(data)))
     return out
+
+
+def factory_section(data: dict) -> list:
+    """Scientific Hypothesis Factory: Plan, Ergebnisse, Prospective Challenger, Datenlücken,
+    Meta-Learning über Forschungsrichtungen. Nur gemessene Werte; kein Produktionseinfluss."""
+    f = _d(data.get("factory"))
+    plan, res = _d(f.get("plan")), _d(_d(f.get("results")).get("results"))
+    if not plan and not res:
+        return [("para", NO_DATA)]
+    ideas = plan.get("ideas") or []
+    counts: dict = {}
+    for h in ideas:
+        counts[_d(h).get("plan_status")] = counts.get(_d(h).get("plan_status"), 0) + 1
+    blocks = [("kv", [("Ideen", str(plan.get("n_ideas", NA))),
+                      ("Status", ", ".join(f"{k}: {v}" for k, v in sorted(counts.items(), key=str)) or NA),
+                      ("Budget", str(plan.get("budget", NA)))])]
+    sel = [h for h in ideas if _d(h).get("plan_status") == "SELECTED"]
+    blocks.append(("table", ["ID", "Familie", "Signal", "Priorität", "Ergebnis", "Gründe"],
+                   [[h.get("id"), str(h.get("family")), str(h.get("signal"))[:48], _fv(h.get("priority")),
+                     str(_d(res.get(h.get("id"))).get("status", "ausstehend")),
+                     "; ".join(map(str, _d(res.get(h.get("id"))).get("reasons") or []))[:80] or "–"] for h in sel], []))
+    gaps = [f"{h.get('family')}: {', '.join(_d(s).get('name', str(s)) if isinstance(s, dict) else str(s) for s in _d(h.get('readiness')).get('free_sources') or []) or '–'}"
+            for h in ideas if _d(h).get("plan_status") == "DATA_GAP"]
+    blocks += [("para", "DATENLÜCKEN (nie simuliert; kostenlose Quellen):"), ("list", gaps or ["keine"])]
+    ch = f.get("challengers") or []
+    fc = _d(f.get("forward_cohorts"))
+    blocks += [("para", "PROSPECTIVE CHALLENGER (nur Forward-Kohorten zählen):"),
+               ("list", [f"{c.get('hypothesis_id')}: {c.get('signal')} ab {c.get('forward_start')} – "
+                         f"{fc.get(c.get('hypothesis_id'), 0)} Forward-Kohorten" for c in ch] or ["keine"])]
+    dirs = _d(_d(f.get("directions")).get("directions"))
+    if dirs:
+        top = sorted(dirs.items(), key=lambda kv: -(_d(kv[1]).get("tested") or 0))[:8]
+        blocks.append(("table", ["Richtung", "getestet", "Erfolg", "prospektiv", "verworfen", "Posterior", "Bewertung"],
+                       [[k, str(d.get("tested")), str(d.get("success")), str(d.get("prospective")), str(d.get("rejected")),
+                         _fv(d.get("posterior_success")), str(d.get("assessment"))] for k, d in top], []))
+    blocks.append(("note", "Fabrik = SHADOW/RESEARCH. Produktionseinfluss nur über Champion-Vertrag (PR) -> "
+                           "PromotionController -> Adapter."))
+    return blocks
 
 
 def promotion_section(data: dict, today: _date | None = None) -> list:

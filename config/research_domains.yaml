@@ -1,0 +1,63 @@
+# config/research_domains.yaml – Domänen-Katalog der Scientific Hypothesis Factory
+#
+# Ideen entstehen aus Kombinationen Datendomäne × Exposure (Sektor). Der Katalog
+# sagt nur, WELCHE Daten wofür prinzipiell relevant sein könnten und wo sie frei
+# zu bekommen wären – NICHT, dass ein Zusammenhang besteht. Status der Daten
+# wird bei jedem Lauf gegen den PIT-Feature-Store geprüft (DATA_GAP sonst).
+
+domains:
+  rates:        {features: [tnx, curve_10y_3m], kind: pit_panel, label: "Zinsen/Zinskurve"}
+  volatility:   {features: [vix, vix_chg_21], kind: pit_panel, label: "Marktvolatilität"}
+  inflation:    {features: [cpi_yoy], kind: pit_panel, label: "Inflation (ALFRED-Vintages)"}
+  liquidity:    {features: [fed_assets_13w_chg], kind: pit_panel, label: "Fed-Bilanz/Liquidität"}
+  dollar:       {features: [usd_63d_chg], kind: pit_panel, label: "US-Dollar"}
+  oil:          {features: [wti_63d_chg], kind: pit_panel, label: "Ölpreis"}
+  trend:        {features: [spy_trend_200, spy_mom_63], kind: pit_panel, label: "Markttrend"}
+  insider:      {features: [sec_insider_net_value_90d], kind: alt_feature, source: sec_deep_events, label: "Insider-Transaktionen"}
+  procurement:  {features: [ted_awards_z], kind: alt_feature, source: ted_procurement, label: "EU-Ausschreibungen"}
+  weather:      {kind: missing, label: "Wetteranomalien",
+                 free_sources: ["NOAA GHCN-Daily / NCEI CDO (Token frei)", "Open-Meteo Archive API", "DWD CDC (Deutschland)"],
+                 note: "Archiv (outputs/external_data) vorhanden, aber nicht als PIT-Querschnittsfeature im Panel"}
+  river_levels: {kind: missing, label: "Flusspegel/Binnenschifffahrt",
+                 free_sources: ["USGS NWIS Water Services (Mississippi/Ohio, frei)", "PEGELONLINE WSV (Rhein Kaub, frei)"]}
+  power_load:   {kind: missing, label: "Stromverbrauch",
+                 free_sources: ["EIA-930 Hourly Electric Grid Monitor (API-Key frei)", "ENTSO-E Transparency (Token frei, Archiv vorhanden)"]}
+  software_downloads: {kind: missing, label: "Software-Downloads",
+                 free_sources: ["pypistats.org API (frei)", "npm downloads API api.npmjs.org (frei, ab 2015)", "GitHub API Stars/Releases (frei, Rate-Limit)"]}
+  port_activity: {kind: missing, label: "Hafenaktivität",
+                 free_sources: ["IMF PortWatch (frei, Archiv vorhanden, Historie kurz)"]}
+
+# Ideenfamilien: Domäne × Sektor, Richtung, Mechanismus-Vorlage. exploratory = unorthodox.
+# Signal = exp_<sektor> × sign(feature − center); center (Default 0) ist vorab festgelegt
+# (Niveau-Merkmale: tnx 3 %, cpi_yoy 3 % – nie aus Ergebnissen gewählt).
+families:
+  - {id: rates_x_financials, domain: rates, feature: curve_10y_3m, sector: "Financial Services", direction: 1, relevance: 0.8,
+     mechanism: "Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an."}
+  - {id: rates_x_realestate, domain: rates, feature: tnx, center: 3.0, sector: "Real Estate", direction: -1, relevance: 0.8,
+     mechanism: "Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs."}
+  - {id: oil_x_energy, domain: oil, feature: wti_63d_chg, sector: Energy, direction: 1, relevance: 0.7,
+     mechanism: "Ölpreisanstiege erhöhen Upstream-Cashflows; Aktien preisen Futures-Kurve nur teilweise ein."}
+  - {id: oil_x_airlines_industrials, domain: oil, feature: wti_63d_chg, sector: Industrials, direction: -1, relevance: 0.6,
+     mechanism: "Höhere Treibstoff- und Energiekosten belasten Margen energieintensiver Industrie/Transport."}
+  - {id: dollar_x_technology, domain: dollar, feature: usd_63d_chg, sector: Technology, direction: -1, relevance: 0.6,
+     mechanism: "Starker Dollar senkt die in USD umgerechneten Auslandsumsätze multinationaler Tech-Firmen."}
+  - {id: inflation_x_consumer_defensive, domain: inflation, feature: cpi_yoy, center: 3.0, sector: "Consumer Defensive", direction: 1, relevance: 0.5,
+     mechanism: "Basiskonsumgüter geben Kosten mit Preissetzungsmacht weiter; bei hoher Inflation relativ robust."}
+  - {id: volatility_x_utilities, domain: volatility, feature: vix_chg_21, sector: Utilities, direction: 1, relevance: 0.5,
+     mechanism: "Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows."}
+  - {id: liquidity_x_technology, domain: liquidity, feature: fed_assets_13w_chg, sector: Technology, direction: 1, relevance: 0.5, exploratory: true,
+     mechanism: "Liquiditätszufluss senkt Risikoprämien; lang-duration Wachstumswerte profitieren überproportional."}
+  - {id: trend_x_basic_materials, domain: trend, feature: spy_mom_63, sector: "Basic Materials", direction: 1, relevance: 0.4, exploratory: true,
+     mechanism: "Zyklische Rohstofffirmen reagieren verzögert auf breite Marktmomentum-Phasen (Nachfrageerwartung)."}
+  - {id: procurement_x_industrials, domain: procurement, feature: ted_awards_z, sector: Industrials, direction: 1, relevance: 0.6, exploratory: true,
+     mechanism: "Gewonnene EU-Großaufträge erhöhen Auftragsbestand und Umsatzsichtbarkeit; verstreute Bekanntmachungen werden kaum aggregiert."}
+  - {id: insider_x_healthcare, domain: insider, feature: sec_insider_net_value_90d, sector: Healthcare, direction: 1, relevance: 0.5, exploratory: true,
+     mechanism: "In Healthcare (Studien, Zulassungen) ist der Informationsvorsprung von Insidern besonders groß."}
+  - {id: weather_x_consumer, domain: weather, sector: "Consumer Cyclical", direction: 1, relevance: 0.5, exploratory: true,
+     mechanism: "Wetteranomalien verschieben saisonale Nachfrage (Bekleidung, Freizeit) – Quartalszahlen überraschen."}
+  - {id: river_x_chemicals, domain: river_levels, sector: "Basic Materials", direction: -1, relevance: 0.5, exploratory: true,
+     mechanism: "Niedrige Pegel verteuern Binnenschiff-Transporte und drosseln Chemieproduktion (Rhein-Niedrigwasser 2018/2022)."}
+  - {id: power_x_industrials, domain: power_load, sector: Industrials, direction: 1, relevance: 0.5, exploratory: true,
+     mechanism: "Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität."}
+  - {id: downloads_x_technology, domain: software_downloads, sector: Technology, direction: 1, relevance: 0.4, exploratory: true,
+     mechanism: "Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen."}

@@ -1,0 +1,27 @@
+# config/factory_protocol.yaml – Scientific Hypothesis Factory (GESCHÜTZT, CODEOWNERS)
+#
+# Vorab festgelegt (2026-10-03), BEVOR die Fabrik eine Hypothese getestet hat.
+# Hash gepinnt in tests/test_hypothesis_factory.py. Nur strenger ändern.
+
+version: factory-v1
+registered_at: "2026-10-03"
+
+budget:
+  tests_per_run: 6                 # max. neue Hypothesen je Lauf ins Research-Lab (Mehrfachtest-Nenner)
+  exploratory_share: 0.2           # mind. ceil(0.2 * tests) Plätze für unorthodoxe Cross-Domain-Ideen
+  max_variants_per_family: 3       # je Ideenfamilie (Domänenpaar) höchstens 3 Varianten je getestet
+  similarity_block: 0.75           # Ähnlichkeit zu bereits Getestetem -> nicht erneut testen
+
+priority:                          # Priorität = EIG × Relevanz × Neuheit × Datenqualität ÷ Kosten
+  prior_success: [1, 4]            # Beta-Prior (Erfolge, Misserfolge) je Forschungsrichtung
+  data_quality: {pit_panel: 1.0, alt_feature: 0.8, non_pit_mapping: 0.6}
+  cost: {pit_panel: 1.0, alt_feature: 1.5}
+
+robustness:                        # erst nach bestandener Research-Lab-Prüfkette
+  placebo_permutations: 50         # Signal innerhalb jedes Stichtags permutiert
+  placebo_max_p: 0.05              # beobachteter Effekt > (1-p)-Quantil der Placebos
+  lag_weeks: [0, 4, 8]             # Lag-Profil; Effekt muss bei Lag 0 > 0 sein
+  sector_min_share_same_sign: 0.6  # Anteil Sektoren (>= 10 Kohorten) mit gleichem Vorzeichen
+  replication_split: log_dollar_vol  # verwandtes Universum: groß vs. klein (Median-Split)
+  residual_ic_min_t: 1.5           # Ablation: IC nach Herausrechnen aller bestehenden Merkmale
+  forward_min_cohorts: 26          # Prospective Challenger: erst danach Bewertung
