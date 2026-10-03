@@ -25,14 +25,25 @@ class _FakeTicker:
         return self._hist if self._hist is not None else pd.DataFrame()
 
 
-def _vix(monkeypatch, value=None, fred=None, raise_hist=False):
+def _vix(monkeypatch, value=None, fred=None, raise_hist=False, fred_age_days=1, api=None, api_age_days=1):
     hist = pd.DataFrame({"Close": [value - 1, value]}) if value is not None else pd.DataFrame()
     monkeypatch.setattr(rg.yf, "Ticker", lambda s: _FakeTicker(hist=hist, raise_hist=raise_hist))
+    if api is None:
+        monkeypatch.delenv("FRED_API_KEY", raising=False)
+    else:
+        monkeypatch.setenv("FRED_API_KEY", "k")
+    d_csv = (date.today() - timedelta(days=fred_age_days)).isoformat()
+    d_api = (date.today() - timedelta(days=api_age_days)).isoformat()
 
     def fake_get(url, **k):
+        if "api.stlouisfed.org" in url:
+            if api == "down":
+                raise ConnectionError("api offline")
+            return types.SimpleNamespace(status_code=200, json=lambda: {"observations": [
+                {"date": d_api, "value": "."}, {"date": d_api, "value": str(api)}]})
         if fred is None:
             raise ConnectionError("offline")
-        return types.SimpleNamespace(status_code=200, text=f"DATE,VIXCLS\n2026-10-01,{fred}\n")
+        return types.SimpleNamespace(status_code=200, text=f"DATE,VIXCLS\n{d_csv},{fred}\n")
     monkeypatch.setattr(rg.requests, "get", fake_get)
 
 
@@ -54,12 +65,30 @@ def test_vix_falls_back_to_fred_then_blocks_if_extreme(monkeypatch):
     assert g.global_ok() is False and g.last_vix == 41.5
 
 
-def test_vix_unavailable_is_fail_open_with_fallback_value(monkeypatch):
-    """Dokumentiertes (bewusstes) Verhalten: ohne VIX läuft die Pipeline mit
-    Fallback 20 weiter. Wird das geändert, muss dieser Test bewusst angepasst werden."""
+def test_vix_unavailable_is_fail_closed(monkeypatch):
+    """BEWUSST GEÄNDERT (Source Health, 2026-10-03): früher fail-open mit Fallback 20.
+    Ohne VIX kein Handel mit unbekanntem Risiko – Gate geschlossen, last_vix None."""
     _vix(monkeypatch, value=None, fred=None, raise_hist=True)
     g = rg.RiskGates()
-    assert g.global_ok() is True and g.last_vix == rg.VIX_FALLBACK
+    assert g.global_ok() is False and g.last_vix is None and g.vix_source is None
+
+
+def test_vix_fred_api_fallback_with_key_and_source_visible(monkeypatch):
+    _vix(monkeypatch, value=None, raise_hist=True, api=17.5)
+    g = rg.RiskGates()
+    assert g.global_ok() is True and g.last_vix == 17.5 and g.vix_source == "vix_fred"
+    _vix(monkeypatch, value=16.0)
+    g2 = rg.RiskGates()
+    assert g2.global_ok() is True and g2.vix_source == "vix_level"
+
+
+def test_stale_fred_values_are_unknown_not_used(monkeypatch):
+    _vix(monkeypatch, value=None, raise_hist=True, api=17.5, api_age_days=30, fred="18.0", fred_age_days=30)
+    g = rg.RiskGates()
+    assert g.global_ok() is False and g.last_vix is None                         # alter Wert = unbekannt
+    _vix(monkeypatch, value=None, raise_hist=True, api="down", fred="18.0", fred_age_days=1)
+    g2 = rg.RiskGates()
+    assert g2.global_ok() is True and g2.last_vix == 18.0 and g2.vix_source == "vix_fred"
 
 
 def test_earnings_gate_window(monkeypatch):

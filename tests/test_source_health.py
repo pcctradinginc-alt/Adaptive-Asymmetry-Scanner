@@ -328,3 +328,27 @@ def test_config_core_sources_and_workflow():
     assert fb["options_chain"] == "options_chain_yfinance" and fb["vix_level"] == "vix_fred"
     wf = open(".github/workflows/source_health.yml").read()
     assert "modules.source_health check" in wf and "cron" in wf
+
+
+def test_fred_api_probe_reads_latest_valid_date_and_redacts_key():
+    spec = sh.load_config()
+    vf = next(x for x in spec["core_sources"] if x["source_id"] == "vix_fred")["probe"]
+    payload = {"observations": [{"date": "2026-10-02", "value": "."}, {"date": "2026-10-01", "value": "16.4"}]}
+    r = sh.run_probe(vf, NOW, fetch=fetch_ok(payload), env={"FRED_API_KEY": "k"})
+    assert r["ok"] and r["latest_observation"].startswith("2026-10-01")             # "." = fehlend, nie 0
+    r2 = sh.run_probe(vf, NOW, fetch=fetch_ok({"observations": [{"date": "2026-10-01", "value": "."}]}),
+                      env={"FRED_API_KEY": "k"})
+    assert r2["empty"] and not r2["ok"]
+    r3 = sh.run_probe(vf, NOW, fetch=fetch_raise(FetchError("500 für https://x?api_key=geheim")),
+                      env={"FRED_API_KEY": "geheim"})
+    assert "geheim" not in r3["error"]
+
+
+def test_xbrl_store_has_no_outlier_check():
+    c = sh.load_config()
+    a = next(x for x in c["alt_sources"] if x["source_id"] == "sec_companyfacts")
+    assert a["outlier_check"] is False
+    df = pd.DataFrame({"series_id": [f"s{i}" for i in range(40)], "metric": "revenue",
+                       "value": [1e6] * 39 + [1e12], "available_at": "2026-10-01T00:00:00+00:00",
+                       "retrieved_at": "2026-10-02T00:00:00+00:00", "observation_time": "2026-09-30T00:00:00+00:00"})
+    assert sh.frame_stats(df, NOW, c, outlier_check=False)["outlier_rate"] == 0.0
