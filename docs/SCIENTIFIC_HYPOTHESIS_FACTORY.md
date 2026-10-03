@@ -89,7 +89,22 @@ Die TED-Divergenz liefert erst Daten, wenn der TED-Backfill Abdeckung belegt. Vo
 
 ## 3. Verworfene Ideen
 
-**Diese Woche verworfen:** Die Fabrik hat noch keinen Lauf im CI. Die erste echte Bewertung kommt mit dem nächsten `ml_research` im Modus full.
+**Erster CI-Lauf (2026-10-03, ml_research full, Run 37112343765):** Alle 6 ausgewählten
+Hypothesen wurden schon im Walk-Forward des Research-Labs verworfen. Die
+Robustheitsprüfung war daher nicht nötig, und es gibt keinen Prospective Challenger.
+
+| Hypothese | Walk-Forward netto | t | Jahre positiv | Status |
+|---|---|---|---|---|
+| rates_x_financials | −0.00233 | −1.62 | 14 % | REJECTED |
+| rates_x_realestate | −0.00348 | −2.09 | 14 % | REJECTED |
+| oil_x_energy | −0.00139 | −0.89 | 29 % | REJECTED |
+| oil_x_airlines_industrials | −0.00035 | −0.46 | 57 % | REJECTED |
+| liquidity_x_technology | −0.00126 | −0.44 | 29 % | REJECTED |
+| div_insider_vs_price | +0.00035 | 0.02 | – | REJECTED (bei Stresskosten nicht positiv) |
+
+- Im CI waren die TED-Ideen (`procurement_x_industrials`, `div_procurement_vs_price`) korrekt `DATA_GAP`, weil die Abdeckung ab 2016 nur 6 % beträgt. An ihre Stelle trat die Insider-Divergenz.
+- Der Mechanismus-Text stammt überall aus der Vorlage. Das optionale LLM lieferte keinen Text, entweder weil das Secret fehlt oder weil Antworten verworfen wurden.
+- Die Familien gelten jetzt als `ALREADY_TESTED`. Das Budget des nächsten Laufs geht an die übrigen Ideen und an aus Daten generierte Quelle × Sektor/Regime-Hypothesen (`docs/DATA_SOURCES_PROGRAM.md`).
 
 **Bereits verworfen (Memory, prägt den Posterior):**
 

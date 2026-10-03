@@ -81,7 +81,9 @@ def ingest(state: dict, entities: list[tuple[str, str, list[str]]], now: datetim
         return res
     ent_state = state.setdefault("entities", {})
     frames = []
-    for cik, name, aliases in entities:
+    for ent in entities:
+        cik, name, aliases = ent[:3]
+        subs = ent[3] if len(ent) > 3 else None
         years = ent_state.setdefault(cik, {}).setdefault("years", {})
         for y in range(fs, now.year + 1):
             info = years.get(str(y))
@@ -112,7 +114,7 @@ def ingest(state: dict, entities: list[tuple[str, str, list[str]]], now: datetim
                 page += 1
             if res["budget_exhausted"]:
                 return _finish(res, frames)
-            obs = te.notices_to_observations(cik, notices, aliases, now)
+            obs = te.notices_to_observations(cik, notices, aliases, now, sub_aliases=subs)
             if obs:
                 frames.append(obs_to_rows(obs))
             years[str(y)] = {"complete": ok, "fetched_at": now.isoformat(), "n_notices": len(notices),
@@ -127,14 +129,20 @@ def _finish(res: dict, frames: list) -> dict:
     return res
 
 
-def entities_from_store(store: EntityStore) -> tuple[list[tuple[str, str, list[str]]], dict[str, str]]:
+def entities_from_store(store: EntityStore) -> tuple[list[tuple], dict[str, str]]:
+    """-> [(cik, Suchname, Aliasnamen, [(Tochtername, valid_from, valid_to)])], {ticker: cik}."""
     ents, ident = {}, {}
+    subs: dict[str, set] = {}
     for r in store.records:
         if r.usage == "research_ticker_identity" and r.valid_to is None and r.cik:
             ident[r.ticker] = r.cik
             names = [r.canonical_name] + list(r.aliases or [])
             ents.setdefault(r.cik, (normalize_name(r.canonical_name) or r.canonical_name, set()))[1].update(names)
-    return [(c, n, sorted(a)) for c, (n, a) in sorted(ents.items())], ident
+        elif r.usage == "exposure_subsidiary" and (r.parent_entity or "").startswith("cik:") \
+                and r.mapping_confidence in ("HIGH", "MEDIUM"):
+            for a in {r.canonical_name, *(r.aliases or [])}:
+                subs.setdefault(r.parent_entity[4:], set()).add((a, r.valid_from, r.valid_to))
+    return [(c, n, sorted(a), sorted(subs.get(c, set()), key=str)) for c, (n, a) in sorted(ents.items())], ident
 
 
 def health(state: dict, res: dict, now: datetime) -> dict:

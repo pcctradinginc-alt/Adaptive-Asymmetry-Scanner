@@ -128,7 +128,7 @@ def test_build_incremental_with_failures(tmp_path):
     rep = build(["AAPL", "IBM", "BRK.B", "ZZZZ"], store, "2026-10-02", fetch_tickers=lambda: src.parse_company_tickers(TICKERS),
                 fetch_submissions=lambda cik: SUB_AAPL if cik.endswith("320193") else
                 {"cik": cik, "name": next(v["title"] for v in TICKERS.values() if str(v["cik_str"]) == str(int(cik)))},
-                fetch_gleif=gleif, fetch_parent=lambda lei, kind: None, gleif_budget=10, sleep=lambda s: None)
+                fetch_gleif=gleif, fetch_parent=lambda lei, kind: None, fetch_children=lambda lei: ([], {}), gleif_budget=10, sleep=lambda s: None)
     assert rep["sec"]["mapped"] == 3 and rep["sec"]["unmapped"] == ["ZZZZ"]
     assert rep["gleif"]["attempted"] == 3 and any("GLEIF down" in e for e in rep["errors"])
     prof = store.profile(ticker="AAPL", as_of="2026-10-02")
@@ -136,7 +136,7 @@ def test_build_incremental_with_failures(tmp_path):
     assert store.profile(ticker="ZZZZ", as_of="2026-10-02") is None
     n = calls["gleif"]
     build(["AAPL"], store, "2026-10-09", fetch_tickers=lambda: src.parse_company_tickers(TICKERS),
-          fetch_submissions=lambda cik: SUB_AAPL, fetch_gleif=gleif, fetch_parent=lambda lei, kind: None,
+          fetch_submissions=lambda cik: SUB_AAPL, fetch_gleif=gleif, fetch_parent=lambda lei, kind: None, fetch_children=lambda lei: ([], {}),
           sleep=lambda s: None)
     assert calls["gleif"] == n                                    # bereits zugeordnet -> kein erneuter GLEIF-Abruf
     down = build(["AAPL"], EntityStore(tmp_path / "f.jsonl"), "2026-10-02",
@@ -152,7 +152,7 @@ def test_share_classes_same_cik_and_delisted_ticker_closed(tmp_path):
             "2": {"cik_str": 1, "ticker": "OLDT", "title": "Old Corp"}}
     store = EntityStore(tmp_path / "e.jsonl")
     kw = dict(fetch_submissions=lambda cik: {"cik": cik, "name": "Alphabet Inc."},
-              fetch_gleif=lambda name: [], fetch_parent=lambda lei, kind: None, sleep=lambda s: None)
+              fetch_gleif=lambda name: [], fetch_parent=lambda lei, kind: None, fetch_children=lambda lei: ([], {}), sleep=lambda s: None)
     rep = build(["GOOG", "GOOGL", "OLDT"], store, "2026-10-03", fetch_tickers=lambda: src.parse_company_tickers(rows), **kw)
     assert rep["sec"]["changes"]["opened"] == 6 and not rep["errors"]
     ident = {r.ticker: r.cik for r in store.records if r.usage == "research_ticker_identity" and r.valid_to is None}
@@ -165,3 +165,99 @@ def test_share_classes_same_cik_and_delisted_ticker_closed(tmp_path):
     assert rep2["sec"]["changes"]["closed"] == 2
     st = EntityStore(tmp_path / "e.jsonl")                                 # Schließen überlebt das Neuladen
     assert st.resolve(ticker="OLDT", as_of="2026-10-11") is None and st.resolve(ticker="OLDT", as_of="2026-10-05")
+
+
+# ── GLEIF-Ausbau (Datenquellen-Programm Schritt 1) ───────────────────────────
+def _child_rel(child, start="2019-05-01T00:00:00Z", end=None, status="ACTIVE"):
+    p = {"startDate": start, "type": "RELATIONSHIP_PERIOD"}
+    if end:
+        p["endDate"] = end
+    return {"attributes": {"relationship": {"startNode": {"id": child}, "endNode": {"id": "LPARENT"},
+                                            "status": status, "periods": [p]}}}
+
+
+def test_gleif_queries_fulltext_then_exact_and_stop_early(monkeypatch):
+    assert src.name_queries("NVIDIA CORP") == ["nvidia", "NVIDIA CORP", "NVIDIA CORPORATION"]
+    calls = []
+
+    def fake_fetch(url, params=None, headers=None, **kw):
+        calls.append(params)
+        name = "NVIDIA CORPORATION" if "filter[fulltext]" in params else "x"
+        import types
+        return types.SimpleNamespace(json=lambda: {"data": [_lei("L-NV", name)]})
+    monkeypatch.setattr(src, "fetch", fake_fetch)
+    recs = src.fetch_gleif_by_name("NVIDIA CORP")
+    assert [r["lei"] for r in recs] == ["L-NV"] and len(calls) == 1                  # Volltext genügte
+    assert src.match_lei(["NVIDIA CORP"], recs, "US")["confidence"] == "HIGH"       # Zuordnung bleibt streng
+
+
+def test_child_relationships_are_pit_exposures(tmp_path):
+    rels = src.parse_child_relationships({"data": [_child_rel("LC1"), _child_rel("LC2", start=None),
+                                                   _child_rel("LC3", status="INACTIVE"),
+                                                   _child_rel("LC4", start="2020-01-01", end="2022-01-01")]})
+    assert rels[0] == {"child_lei": "LC1", "start": "2019-05-01", "end": None, "status": "ACTIVE"}
+    with pytest.raises(SchemaError):
+        src.parse_child_relationships({"data": [{"attributes": {"relationship": {}}}]})
+    infos = {r["lei"]: r for r in src.parse_lei_records({"data": [
+        _lei("LC1", "Apple Operations International", country="IE"), _lei("LC2", "Braeburn Capital"),
+        _lei("LC4", "Old Sub LLC")]})}
+    issuer = src.sec_records(src.parse_company_tickers(TICKERS)[:1], {})[0]
+    recs = src.child_records(issuer, "LAPPLE", "MEDIUM", rels, infos)
+    assert {r.lei for r in recs} == {"LC1", "LC2", "LC4"}                           # inaktiv weg
+    assert all(r.mapping_confidence == "MEDIUM" and r.parent_entity == "cik:0000320193" for r in recs)
+    store = EntityStore(tmp_path / "e.jsonl")
+    for r in recs:
+        store.upsert(r, "2026-10-03")
+    by = {r.lei: r for r in store.records}
+    assert by["LC1"].valid_from == "2019-05-01" and by["LC1"].country == "IE"
+    assert by["LC2"].valid_from == "2026-10-03"                                      # ohne Beleg: ab Abruf
+    assert not by["LC4"].valid_at("2023-01-01") and by["LC4"].valid_at("2021-01-01")
+
+
+def test_build_cooldown_for_low_and_children_budget(tmp_path):
+    store = EntityStore(tmp_path / "e.jsonl")
+    att, calls = {}, {"g": 0, "c": 0}
+
+    def gleif(name):
+        calls["g"] += 1
+        return [] if "BERKSHIRE" in name.upper() else src.parse_lei_records({"data": [_lei("L-" + name[:3].upper(), name)]})
+
+    def children(lei):
+        calls["c"] += 1
+        return src.parse_child_relationships({"data": [_child_rel("LKID")]}), \
+            {"LKID": src.parse_lei_records({"data": [_lei("LKID", "Kid Corp")]})[0]}
+    kw = dict(fetch_tickers=lambda: src.parse_company_tickers(TICKERS),
+              fetch_submissions=lambda cik: {"cik": cik, "name": next(v["title"] for v in TICKERS.values()
+                                                                       if str(v["cik_str"]) == str(int(cik)))},
+              fetch_gleif=gleif, fetch_parent=lambda lei, kind: None, fetch_children=children, attempts=att,
+              sleep=lambda s: None)
+    rep = build(["AAPL", "IBM", "BRK.B"], store, "2026-10-03", children_budget=1, **kw)
+    assert rep["gleif"]["LOW"] == 1 and rep["gleif"]["low_reasons"] == {"kein exakter Treffer": 1}
+    assert rep["gleif_children"]["fetched"] == 1 and calls["c"] == 1                 # Budget greift
+    rep2 = build(["AAPL", "IBM", "BRK.B"], store, "2026-10-10", children_budget=5, **kw)
+    assert rep2["gleif"]["attempted"] == 0 and rep2["gleif"]["cooling_down"] == 1    # LOW erst nach 28 T
+    assert rep2["gleif_children"]["fetched"] == 1                                    # nur der noch offene
+    rep3 = build(["AAPL", "IBM", "BRK.B"], store, "2026-11-08", children_budget=5, **kw)
+    assert rep3["gleif"]["attempted"] == 1 and rep3["gleif_children"]["fetched"] == 0
+    kids = [r for r in store.records if r.usage == "exposure_subsidiary"]
+    assert kids and all(r.valid_from == "2019-05-01" for r in kids)
+
+
+def test_ted_matches_subsidiary_only_while_relationship_valid():
+    from datetime import datetime, timezone
+    from modules.external.sources import ted_events as te
+    n = lambda pub, d, w: {"publication-number": pub, "publication-date": d, "winner-name": [w]}
+    subs = [("Braeburn Capital", "2025-06-01", None)]
+    obs = te.notices_to_observations("0000320193", [n("1-2025", "2025-03-01", "Braeburn Capital Inc"),
+                                                    n("2-2025", "2025-07-01", "Braeburn Capital Inc"),
+                                                    n("3-2025", "2025-07-02", "Apple Inc.")],
+                                     ["Apple Inc."], datetime(2026, 10, 3, tzinfo=timezone.utc), sub_aliases=subs)
+    assert [o.series_id.split(":")[1] for o in obs] == ["2-2025", "3-2025"]           # vor Beziehung: nichts
+    assert obs[0].attrs["via"] == "gleif_subsidiary" and obs[0].attrs["confidence"] == "MEDIUM"
+    assert obs[1].attrs["via"] == "issuer_name"
+
+
+def test_http_retry_after_parsing():
+    from modules.external.http import retry_after_seconds
+    assert retry_after_seconds("7") == 7.0 and retry_after_seconds(None) is None
+    assert retry_after_seconds("Wed, 21 Oct 2026 07:28:00 GMT") is None

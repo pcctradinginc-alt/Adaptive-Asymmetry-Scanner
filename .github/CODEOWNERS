@@ -49,3 +49,8 @@ config/research_domains.yaml       @pcctradinginc-alt
 modules/hypothesis_factory.py      @pcctradinginc-alt
 modules/research_memory.py         @pcctradinginc-alt
 tests/test_hypothesis_factory.py   @pcctradinginc-alt
+# Datenquellen-Programm: Verträge, XBRL, Tests
+config/external_sources/           @pcctradinginc-alt
+modules/external/sources/sec_xbrl.py @pcctradinginc-alt
+tests/test_sec_xbrl.py             @pcctradinginc-alt
+tests/test_data_sources.py         @pcctradinginc-alt

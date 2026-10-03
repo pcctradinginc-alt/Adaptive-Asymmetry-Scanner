@@ -39,6 +39,18 @@ def redact_secrets(text: str) -> str:
     return _SECRET_PARAM_RE.sub(r"\1***", str(text))
 
 
+MAX_RETRY_AFTER = 120        # Sekunden; länger -> Abbruch (Quelle später erneut)
+
+
+def retry_after_seconds(v) -> float | None:
+    """Retry-After (Sekunden) – HTTP-Datumsformat wird nicht ausgewertet (-> Backoff)."""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    return x if x >= 0 else None
+
+
 class FetchError(Exception):
     """Netz-/Serverfehler nach allen Retries."""
 
@@ -91,6 +103,9 @@ def fetch(url: str, params: dict | None = None, headers: dict | None = None,
             if r.status_code in (401, 403):
                 raise AuthError(f"{r.status_code} für {url}")
             if r.status_code == 429 or r.status_code >= 500:
+                ra = retry_after_seconds(r.headers.get("Retry-After"))
+                if ra is not None and attempt < retries - 1:
+                    time.sleep(min(ra, MAX_RETRY_AFTER))      # Rate-Limit der Quelle respektieren
                 raise FetchError(f"{r.status_code} für {url}")
             if r.status_code >= 400:
                 # Fehlertext des Servers (gekürzt) für die Diagnose; enthält

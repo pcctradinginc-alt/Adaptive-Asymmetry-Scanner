@@ -159,6 +159,10 @@ def test_lab_blocks_contracts_without_features(tmp_path, monkeypatch):
     from modules import research_lab as rl
     p = T._panel(n_days=700, n_stocks=55, signal=False)
     monkeypatch.setattr(rl, "DIRECTOR_PATH", tmp_path / "none.json")
+    import json as _json
+    (tmp_path / "fac.json").write_text(_json.dumps({"hypotheses": [
+        {"id": "FAC-X", "title": "t", "signal": "rank(sec_insider_net_value_90d) * step(-mom_3m)", "direction": 1}]}))
+    monkeypatch.setattr(rl, "FACTORY_PATH", tmp_path / "fac.json")
     from modules.alt_data import contracts as ac
     monkeypatch.setattr(ac, "REGISTRY", tmp_path / "reg.jsonl")
     hyp = tmp_path / "h.yaml"
@@ -167,6 +171,7 @@ def test_lab_blocks_contracts_without_features(tmp_path, monkeypatch):
     db = rl.run(p, hyp_path=hyp, db_path=tmp_path / "db.json", with_discovery=False)
     recs = db["hypotheses"]
     assert recs["ALT-SEC-001"]["status"] in ("blocked_data",) and "fehlen" in str(recs["ALT-SEC-001"])
+    assert recs["FAC-X"]["status"] == "blocked_data"                               # Fabrik: nie Absturz, nie 0
 
 
 def test_feature_store_attach_holiday_week_uses_earlier_cutoff_only(tmp_path):

@@ -38,3 +38,11 @@ sources:
     cost: "kostenlos"
     failure_behavior: "Probe/Abfrage scheitert -> Jahr unvollständig -> Features NaN, nie 0"
     point_in_time_capable: true
+    revision_risk: low
+    maintenance_cost: medium
+    semantics:
+      measures: "EU-Zuschläge öffentlicher Aufträge je Gewinner"
+      geography: "EU/EWR (Auftraggeber)"
+      latency: "Tage bis Wochen nach Zuschlag"
+      sectors: "Industrials, Technology, Healthcare, Bau/Infrastruktur"
+      mechanisms: ["neue Umsatzsichtbarkeit vor Berichterstattung", "Marktanteil im öffentlichen Sektor"]

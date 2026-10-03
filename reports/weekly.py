@@ -396,6 +396,16 @@ def collect(root, date, state_path=None) -> dict:
     alt_board = _load_json(rs / "source_scoreboard.json")
     alt_val = _load_json(rs / "alt_data_validation.json")
     alt_fwd = _load_jsonl(rs / "alt_forward_ledger.jsonl")
+    alt_cond = _load_json(rs / "source_conditions.json")
+    alt_health = {}
+    try:
+        from modules.alt_data.registry import SOURCES as _ALT_SOURCES
+        for _sid, _s in _ALT_SOURCES.items():
+            if _s.get("health"):
+                alt_health[_sid] = _load_json(root / _s["health"])
+    except Exception as _e:  # noqa: BLE001 – Bericht darf an der Registry nie scheitern
+        log.warning(f"weekly: Alt-Data-Registry nicht ladbar ({_e})")
+    ent_rep = _load_json(out_dir / "entity" / "entity_report.json")
     fac_plan = _load_json(rs / "factory_plan.json")
     fac_res = _load_json(rs / "factory_results.json")
     fac_dirs = _load_json(rs / "research_directions.json")
@@ -419,7 +429,8 @@ def collect(root, date, state_path=None) -> dict:
         "factory": {"plan": fac_plan, "results": fac_res, "directions": fac_dirs, "challengers": fac_ch,
                     "forward_cohorts": {h: sum(1 for r in fac_fwd if r.get("hypothesis_id") == h)
                                         for h in sorted({r.get("hypothesis_id") for r in fac_fwd})}},
-        "alt": {"board": alt_board, "validation": alt_val,
+        "alt": {"board": alt_board, "validation": alt_val, "conditions": alt_cond, "health": alt_health,
+                "entity": ent_rep,
                 "forward_cohorts": {h: sum(1 for r in alt_fwd if r.get("hypothesis_id") == h)
                                     for h in sorted({r.get("hypothesis_id") for r in alt_fwd})}},
         "missing": [n for n, v in (("ml_research.json", ml), ("meta_learning.json", meta),
@@ -919,8 +930,9 @@ def factory_section(data: dict) -> list:
                       ("Status", ", ".join(f"{k}: {v}" for k, v in sorted(counts.items(), key=str)) or NA),
                       ("Budget", str(plan.get("budget", NA)))])]
     sel = [h for h in ideas if _d(h).get("plan_status") == "SELECTED"]
-    blocks.append(("table", ["ID", "Familie", "Signal", "Priorität", "Ergebnis", "Gründe"],
-                   [[h.get("id"), str(h.get("family")), str(h.get("signal"))[:48], _fv(h.get("priority")),
+    blocks.append(("table", ["ID", "Familie", "Herkunft", "Signal", "Priorität", "Ergebnis", "Gründe"],
+                   [[h.get("id"), str(h.get("family")), str(h.get("idea_source")), str(h.get("signal"))[:48],
+                     _fv(h.get("priority")),
                      str(_d(res.get(h.get("id"))).get("status", "ausstehend")),
                      "; ".join(map(str, _d(res.get(h.get("id"))).get("reasons") or []))[:80] or "–"] for h in sel], []))
     gaps = [f"{h.get('family')}: {', '.join(_d(s).get('name', str(s)) if isinstance(s, dict) else str(s) for s in _d(h.get('readiness')).get('free_sources') or []) or '–'}"
@@ -1029,12 +1041,52 @@ def alt_data_section(data: dict) -> list:
         blocks.append(("para", f"{sid}: {r.get('verdict', NA)} – {r.get('verdict_reason', NA)}"))
         if deltas:
             blocks.append(("list", deltas))
+    blocks += alt_health_blocks(alt, board)
     fc = _d(alt.get("forward_cohorts"))
     blocks.append(("para", "Prospective Challenger (Forward-Kohorten je Vertrag): " +
                    (", ".join(f"{k} {v}" for k, v in fc.items()) if fc else "noch keine")))
     blocks.append(("note", "Alle Quellen SHADOW/RESEARCH. Produktionseinfluss nur über PromotionController nach "
                            "Forward-Validierung und menschlicher Freigabe."))
     return blocks
+
+
+def alt_health_blocks(alt: dict, board: dict) -> list:
+    """Data Source Health, Quellen mit/ohne Mehrwert, Alpha Decay, bedingte Befunde (gemessen)."""
+    out = []
+    hl = _d(alt.get("health"))
+    if hl:
+        rows = [[sid, str(_d(h).get("last_observation") or NA)[:10], _f(_d(h).get("coverage"), pct=True)
+                 if _d(h).get("coverage") is not None else NA, _fv(_d(h).get("error_rate")),
+                 str(_d(h).get("schema_errors") if _d(h).get("schema_errors") is not None else "–"),
+                 str(_d(h).get("checked_at") or NA)[:16]] for sid, h in hl.items()]
+        out += [("para", "DATA SOURCE HEALTH:"),
+                ("table", ["Quelle", "letzte Beobachtung", "Abdeckung", "Fehlerquote", "Schema-Fehler", "geprüft"], rows, [])]
+    ent = _d(_d(alt.get("entity")).get("gleif"))
+    if ent:
+        out.append(("para", f"Entity Resolution (GLEIF): {ent.get('HIGH', 0)} HIGH / {ent.get('MEDIUM', 0)} MEDIUM / "
+                            f"{ent.get('LOW', 0)} LOW in diesem Lauf, {ent.get('remaining', NA)} offen, "
+                            f"Töchter: {_d(_d(alt.get('entity')).get('gleif_children')).get('children', 0)}"))
+    with_fwd = [f"{k}: Forward {_fv(_d(b).get('forward_value'))} ({_d(b).get('forward_cohorts')} Kohorten)"
+                for k, b in board.items() if (_d(b).get("forward_value") or 0) > 0
+                and (_d(b).get("forward_cohorts") or 0) >= 26]
+    without = [f"{k}: {_d(b).get('verdict')}" for k, b in board.items() if _d(b).get("verdict") == "REJECT"]
+    decay = [f"{k}/{f}: {st}" for k, b in board.items() for f, st in (_d(b).get("alpha_decay") or {}).items()
+             if st in ("decaying", "reversed")]
+    out += [("para", "QUELLEN MIT BESTÄTIGTEM FORWARD-MEHRWERT (>= 26 Kohorten):"), ("list", with_fwd or ["keine"]),
+            ("para", "QUELLEN OHNE MEHRWERT:"), ("list", without or ["keine"]),
+            ("para", "QUELLEN MIT ALPHA DECAY:"), ("list", decay or ["keine"])]
+    cells = []
+    for sid, src in _d(_d(alt.get("conditions")).get("sources")).items():
+        for f, c in _d(_d(src).get("dev")).items():
+            for kind in ("sector", "regime"):
+                for key, hz in _d(_d(c).get(kind)).items():
+                    for h, st in _d(hz).items():
+                        t = _d(st).get("t_months")
+                        if t is not None and abs(t) >= 2.5:
+                            cells.append((abs(t), f"{sid}/{f} × {key} × {h} T: IC {_fv(_d(st).get('mean_ic'))}, t {t}"))
+    out += [("para", "BEDINGTE BEFUNDE (Quelle × Sektor/Regime × Horizont, |t| >= 2,5, beschreibend, nicht BH-korrigiert):"),
+            ("list", [c for _, c in sorted(cells, reverse=True)[:8]] or ["keine"])]
+    return out
 
 
 def subject_for(date_s: str) -> str:

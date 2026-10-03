@@ -15,6 +15,7 @@ domains:
   trend:        {features: [spy_trend_200, spy_mom_63], kind: pit_panel, label: "Markttrend"}
   insider:      {features: [sec_insider_net_value_90d], kind: alt_feature, source: sec_deep_events, label: "Insider-Transaktionen"}
   procurement:  {features: [ted_awards_z], kind: alt_feature, source: ted_procurement, label: "EU-Ausschreibungen"}
+  fundamentals: {features: [xbrl_sue, xbrl_rev_yoy, xbrl_accruals, xbrl_asset_growth, xbrl_share_change], kind: alt_feature, source: sec_xbrl_fundamentals, label: "Fundamentaldaten (SEC XBRL, PIT)"}
   weather:      {kind: missing, label: "Wetteranomalien",
                  free_sources: ["NOAA GHCN-Daily / NCEI CDO (Token frei)", "Open-Meteo Archive API", "DWD CDC (Deutschland)"],
                  note: "Archiv (outputs/external_data) vorhanden, aber nicht als PIT-Querschnittsfeature im Panel"}

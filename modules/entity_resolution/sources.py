@@ -144,10 +144,100 @@ def match_lei(name_candidates: list[str], records: list[dict], country: str | No
     return {"lei": None, "confidence": "LOW", "score": 0.0, "record": None, "reason": "kein exakter Treffer"}
 
 
+def name_queries(name: str) -> list[str]:
+    """Suchbegriffe: Volltext auf dem Kernnamen (ohne Rechtsform) + exakter Name.
+    Hintergrund (Live 2026-10-03): filter[entity.legalName] ist ein exakter Abgleich –
+    SEC-Kurzformen wie "NVIDIA CORP" treffen "NVIDIA CORPORATION" nicht (126/150 LOW).
+    Die Zuordnung selbst bleibt streng (match_lei: identischer Normname)."""
+    import re
+    core = normalize_name(name)
+    expanded = re.sub(r"\bCORP\.?$", "CORPORATION", name.strip(), flags=re.I)
+    expanded = re.sub(r"\bINC$", "INC.", expanded, flags=re.I)
+    expanded = re.sub(r"\bCO$", "COMPANY", expanded, flags=re.I)
+    return [q for q in dict.fromkeys([core, name, expanded]) if q]
+
+
 def fetch_gleif_by_name(name: str) -> list[dict]:
-    res = fetch(f"{GLEIF_BASE}/lei-records", params={"filter[entity.legalName]": name, "page[size]": 10},
-                headers={"Accept": "application/vnd.api+json"})
-    return parse_lei_records(res.json())
+    hdr = {"Accept": "application/vnd.api+json"}
+    out: dict[str, dict] = {}
+    for i, q in enumerate(name_queries(name)):
+        params = ({"filter[fulltext]": q, "page[size]": 50} if i == 0 else
+                  {"filter[entity.legalName]": q, "page[size]": 10})
+        for r in parse_lei_records(fetch(f"{GLEIF_BASE}/lei-records", params=params, headers=hdr).json()):
+            out.setdefault(r["lei"], r)
+        if any(normalize_name(r["legal_name"]) == normalize_name(name) for r in out.values()):
+            break                                         # exakter Normname gefunden -> keine weiteren Abrufe
+    return list(out.values())
+
+
+def parse_child_relationships(payload: dict) -> list[dict]:
+    """direct-child-relationships -> [{child_lei, start, end, status}] (startNode = Tochter)."""
+    if not isinstance(payload, dict) or "data" not in payload:
+        raise SchemaError("GLEIF child-relationships: 'data' fehlt")
+    out = []
+    for d in payload["data"] or []:
+        rel = ((d.get("attributes") or {}).get("relationship") or {})
+        child = (rel.get("startNode") or {}).get("id")
+        if not child:
+            raise SchemaError("GLEIF child-relationship ohne startNode")
+        periods = rel.get("periods") or rel.get("relationshipPeriods") or []
+        rp = next((p for p in periods if p.get("type", p.get("periodType")) == "RELATIONSHIP_PERIOD"), None) or {}
+        out.append({"child_lei": child, "start": (rp.get("startDate") or "")[:10] or None,
+                    "end": (rp.get("endDate") or "")[:10] or None, "status": rel.get("status")})
+    return out
+
+
+MAX_CHILD_PAGES = 3
+
+
+def fetch_gleif_children(lei: str) -> tuple[list[dict], dict[str, dict]]:
+    """-> (Beziehungen, {child_lei: lei-record}). Beide Aufrufe offiziell; 404 = keine Töchter."""
+    hdr = {"Accept": "application/vnd.api+json"}
+    rels: list[dict] = []
+    for page in range(1, MAX_CHILD_PAGES + 1):
+        try:
+            res = fetch(f"{GLEIF_BASE}/lei-records/{lei}/direct-child-relationships",
+                        params={"page[size]": 100, "page[number]": page}, headers=hdr, retries=2)
+        except Exception as e:  # noqa: BLE001 – 404 = keine gemeldeten Töchter
+            if "404" in str(e):
+                break
+            raise
+        batch = parse_child_relationships(res.json())
+        rels += batch
+        if len(batch) < 100:
+            break
+    infos: dict[str, dict] = {}
+    ids = [r["child_lei"] for r in rels]
+    for i in range(0, len(ids), 100):
+        res = fetch(f"{GLEIF_BASE}/lei-records", params={"filter[lei]": ",".join(ids[i:i + 100]), "page[size]": 100},
+                    headers=hdr)
+        infos.update({r["lei"]: r for r in parse_lei_records(res.json())})
+    return rels, infos
+
+
+def child_records(issuer: EntityRecord, issuer_lei: str, issuer_conf: str, rels: list[dict],
+                  infos: dict[str, dict]) -> list[EntityRecord]:
+    """Tochtergesellschaften als zeitabhängige Exposures (PIT): gültig ab offiziellem
+    Beziehungsbeginn (GLEIF RELATIONSHIP_PERIOD), sonst ab Abruf – nie rückwirkend.
+    Konfidenz nie höher als die der LEI-Zuordnung des Emittenten."""
+    out = []
+    for r in rels:
+        if r.get("status") not in (None, "ACTIVE"):
+            continue
+        info = infos.get(r["child_lei"]) or {}
+        if not info.get("legal_name"):
+            continue                                   # ohne offiziellen Namen kein Datensatz
+        if r.get("start") and r.get("end") and r["end"] <= r["start"]:
+            continue
+        out.append(EntityRecord(
+            entity_id=f"lei:{r['child_lei']}", lei=r["child_lei"], canonical_name=info["legal_name"],
+            aliases=sorted({info["legal_name"], *info.get("other_names", [])}), parent_entity=issuer.entity_id,
+            ultimate_parent=issuer.entity_id, jurisdiction=info.get("jurisdiction"), country=info.get("country"),
+            mapping_source="gleif_child", mapping_confidence=issuer_conf, mapping_score=None,
+            valid_from=r.get("start"), valid_to=r.get("end"), usage="exposure_subsidiary",
+            evidence={"official_valid_from": "GLEIF relationship period start" if r.get("start") else None,
+                      "parent_lei": issuer_lei, "parent_cik": issuer.cik}))
+    return out
 
 
 def fetch_gleif_parent(lei: str, kind: str = "direct") -> dict | None:

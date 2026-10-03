@@ -109,3 +109,72 @@ contracts:
     forward_start: "2026-10-05"
     promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
     failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"
+
+  # ── SEC XBRL companyfacts – registriert 2026-10-03, BEVOR XBRL-Daten abgerufen wurden ──
+  - hypothesis_id: ALT-XBRL-001
+    title: Gewinnüberraschung (Post-Earnings-Announcement-Drift)
+    source_features: [xbrl_sue]
+    population: "PIT-S&P-500, Emittenten mit >= 6 Quartalen EPS-Historie (XBRL)"
+    exposure: "firmenspezifisch (Emittent)"
+    signal: "rank(xbrl_sue)"
+    threshold: "Top-Dezil der standardisierten EPS-Überraschung zum Stichtag"
+    direction: 1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags (Top-Dezil vs. Universum), Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T (t über Monate)"
+    economic_rationale: "Investoren unterreagieren auf Gewinnüberraschungen; der Kurs passt sich über Wochen an (Bernard/Thomas 1989). Bei großen Werten seit 2000er deutlich schwächer – genau das ist zu prüfen."
+    registered_at: "2026-10-03"
+    forward_start: "2026-10-12"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER kein Zusatznutzen gegenüber Momentum/Reversal ODER Forward-Expectancy <= 0 nach 26 Kohorten"
+
+  - hypothesis_id: ALT-XBRL-002
+    title: Accrual-Anomalie (Gewinnqualität)
+    source_features: [xbrl_accruals]
+    population: "PIT-S&P-500, Emittenten mit Jahresabschluss (XBRL) der letzten 15 Monate"
+    exposure: "firmenspezifisch (Emittent)"
+    signal: "rank(xbrl_accruals)"
+    threshold: "Bottom-Dezil der Accruals (Richtung -1: hohe Accruals = schwach)"
+    direction: -1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags (Top-Dezil vs. Universum), Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T (t über Monate)"
+    economic_rationale: "Gewinne mit hohem nicht zahlungswirksamem Anteil sind weniger beständig; der Markt übergewichtet sie (Sloan 1996)."
+    registered_at: "2026-10-03"
+    forward_start: "2026-10-12"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"
+
+  - hypothesis_id: ALT-XBRL-003
+    title: Nettoemission (Rückkäufe vs. Kapitalerhöhungen)
+    source_features: [xbrl_share_change]
+    population: "PIT-S&P-500, Emittenten mit Aktienanzahl (dei) über >= 1 Jahr"
+    exposure: "firmenspezifisch (Emittent)"
+    signal: "rank(xbrl_share_change)"
+    threshold: "Bottom-Dezil der Aktienanzahl-Änderung (Rückkäufer)"
+    direction: -1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags (Top-Dezil vs. Universum), Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T (t über Monate)"
+    economic_rationale: "Management emittiert bei Überbewertung und kauft bei Unterbewertung zurück (Pontiff/Woodgate 2008)."
+    registered_at: "2026-10-03"
+    forward_start: "2026-10-12"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"
+
+  - hypothesis_id: ALT-XBRL-004
+    title: Umsatzwachstum bei schwachem Kurs (Expectation Gap)
+    source_features: [xbrl_rev_yoy]
+    population: "PIT-S&P-500, Monats-Verlierer (rev_1m unter Median)"
+    exposure: "firmenspezifisch (Emittent)"
+    signal: "rank(xbrl_rev_yoy) * step(-rev_1m)"
+    threshold: "hohes berichtetes Umsatzwachstum UND negativer Monatsertrag"
+    direction: 1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags (Top-Dezil vs. Universum), Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T (t über Monate)"
+    economic_rationale: "Cross-Source-Divergenz: fundamentale Verbesserung bei fallendem Kurs – der Markt übersieht belegte Umsatzdynamik vorübergehend."
+    registered_at: "2026-10-03"
+    forward_start: "2026-10-12"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"
