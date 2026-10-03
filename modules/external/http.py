@@ -70,7 +70,7 @@ class FetchResult:
 def fetch(url: str, params: dict | None = None, headers: dict | None = None,
           timeout: int = DEFAULT_TIMEOUT, retries: int = 3, backoff: float = 2.0,
           session: requests.Session | None = None, method: str = "GET",
-          data: dict | None = None) -> FetchResult:
+          data: dict | None = None, json_body: dict | None = None) -> FetchResult:
     """method='POST' schickt `data` als application/x-www-form-urlencoded
     Body (z.B. für GENESIS-Online, das POST für data/tablefile bevorzugt);
     `params` bleibt in diesem Fall die Query-String-Ergänzung (falls nötig).
@@ -82,7 +82,9 @@ def fetch(url: str, params: dict | None = None, headers: dict | None = None,
     last_err: Exception | None = None
     for attempt in range(retries):
         try:
-            if method.upper() == "POST":
+            if method.upper() == "POST" and json_body is not None:
+                r = sess.post(url, params=params, json=json_body, headers=hdrs, timeout=timeout)
+            elif method.upper() == "POST":
                 r = sess.post(url, params=params, data=data, headers=hdrs, timeout=timeout)
             else:
                 r = sess.get(url, params=params, headers=hdrs, timeout=timeout)

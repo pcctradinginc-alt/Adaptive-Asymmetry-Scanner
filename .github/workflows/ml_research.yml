@@ -42,6 +42,10 @@ jobs:
         continue-on-error: true   # fehlt er, sind Alt-Features NaN / verfügbar 0 – Champion unberührt
         run: python -m modules.external.sources.sec_ingest --features-only
 
+      - name: Alternative-Data-Feature-Store (TED, aus eingecheckten Events, PIT)
+        continue-on-error: true
+        run: python -m modules.external.sources.ted_ingest --features-only
+
       - name: ML-Research (präregistriert, nur SHADOW)
         run: |
           MODE="${{ github.event.inputs.mode }}"
