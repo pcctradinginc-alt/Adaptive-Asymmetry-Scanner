@@ -1,20 +1,5 @@
 {
- "at": "2026-10-03T11:56:10+00:00",
- "changes": [
-  {
-   "source_id": "sec_companyfacts",
-   "type": "new_failure",
-   "from": null,
-   "to": "BROKEN",
-   "error": "PIT-Verletzung: 1 Zeitstempel in der Zukunft / available > retrieved; Ausreißer-Anteil 3.0%"
-  },
-  {
-   "source_id": "bts_open_data_tsi",
-   "type": "new_failure",
-   "from": null,
-   "to": "BROKEN",
-   "error": "Schema geändert (Orchestrator); Data-Quality-Befund schwerwiegend; veraltet (Frequenz-Grenze der Registry)"
-  }
- ],
- "mail": "sent"
+ "at": "2026-10-03T13:16:04+00:00",
+ "changes": [],
+ "mail": "no_change"
 }

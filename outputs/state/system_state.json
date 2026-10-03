@@ -1,0 +1,136 @@
+{
+ "schema": "system-state-v1",
+ "safe_mode": false,
+ "safe_mode_reason": [],
+ "data_health": {
+  "status": "OK",
+  "data_quality": 0.932,
+  "blocked_decisions": [],
+  "disabled_signals": [],
+  "unavailable_features": [],
+  "stale_features": [],
+  "global_reasons": [],
+  "generated": "2026-10-03T13:16:04+00:00",
+  "counts": {
+   "HEALTHY": 26,
+   "DEGRADED": 3,
+   "STALE": 0,
+   "BROKEN": 1,
+   "UNVALIDATED": 9
+  },
+  "fallbacks": []
+ },
+ "model_health": {
+  "status": "OK",
+  "reasons": [],
+  "updated": "2026-10-03T12:28:35+00:00"
+ },
+ "drift_state": {
+  "level": "MODERATE",
+  "components": {
+   "feature": {
+    "level": "MODERATE",
+    "features_out_of_range": [
+     "tnx"
+    ],
+    "share_out": 0.167,
+    "per_feature": {
+     "vix": {
+      "level": "NORMAL",
+      "excess": 0.0,
+      "value": 15.31,
+      "p01": 12.2374,
+      "p99": 33.3101
+     },
+     "vix_chg_21": {
+      "level": "NORMAL",
+      "excess": 0.0,
+      "value": 0.11,
+      "p01": -11.8762,
+      "p99": 13.7307
+     },
+     "spy_trend_200": {
+      "level": "NORMAL",
+      "excess": 0.0,
+      "value": 0.0734,
+      "p01": -0.1303,
+      "p99": 0.1626
+     },
+     "spy_mom_63": {
+      "level": "NORMAL",
+      "excess": 0.0,
+      "value": 0.027,
+      "p01": -0.1323,
+      "p99": 0.1471
+     },
+     "tnx": {
+      "level": "MODERATE",
+      "excess": 0.1345,
+      "value": 5.277,
+      "p01": 1.0993,
+      "p99": 4.7817
+     },
+     "curve_10y_3m": {
+      "level": "NORMAL",
+      "excess": 0.0,
+      "value": 1.284,
+      "p01": -1.5086,
+      "p99": 2.0797
+     }
+    }
+   },
+   "model": {
+    "level": "MODERATE",
+    "share_deteriorating": 0.333,
+    "deteriorating": [
+     "enet_xs20_v1",
+     "momentum_12_1"
+    ],
+    "n_models": 6
+   },
+   "data": {
+    "level": "NORMAL",
+    "data_quality": 0.932
+   }
+  },
+  "reasons": [
+   "FEATURE DRIFT MODERATE: ['tnx']",
+   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich"
+  ],
+  "policy_version": "drift-v1",
+  "consequences": {
+   "confidence_multiplier": 0.75,
+   "positive_boost_cap": 0.5,
+   "allow_weight_increase": false,
+   "safe_mode": false
+  }
+ },
+ "champion_version": {
+  "ml_champion": null,
+  "rule_champion": "scanner_rules",
+  "config_hash": "614c701dde4d",
+  "version": "scanner_rules@614c701dde4d"
+ },
+ "promotion_state": {
+  "generated": "2026-10-03T06:00:46+00:00",
+  "policy_version": "promo-v1",
+  "counts": {
+   "PROSPECTIVE_CHALLENGER": 5
+  },
+  "with_influence": [],
+  "max_automatic_influence": "ABSTENTION_ONLY"
+ },
+ "known": true,
+ "inputs": {
+  "model_health": "4744f4c95ba1",
+  "meta_learning": "607f4146ff77",
+  "data_health": "3c9c1bb14b45",
+  "promotion": "d779478a5b98",
+  "model_registry": "a0c0ce90b949",
+  "champion_config": "614c701dde4d"
+ },
+ "state_version": 1,
+ "fingerprint": "d705f8cda07d1442",
+ "updated_at": "2026-10-03T13:16:04+00:00",
+ "code_version": "c8704a70a180"
+}

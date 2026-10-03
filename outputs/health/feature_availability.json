@@ -1,6 +1,69 @@
 {
- "generated": "2026-10-03T11:56:10+00:00",
+ "generated": "2026-10-03T13:16:04+00:00",
  "features": {
+  "beta_126": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "curve_10y_3m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "dist_52w_high": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "log_dollar_vol": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "max_ret_21": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "mom_12_1": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "mom_3m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
   "price_history": {
    "available": true,
    "stale": false,
@@ -19,6 +82,96 @@
    "source_status": "HEALTHY",
    "criticality": "CRITICAL"
   },
+  "relvol_5_60": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "ret_5d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "rev_1m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "rs_63": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "spy_mom_63": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "spy_trend_200": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "tnx": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "vol_20": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "vol_60": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "vol_ratio": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
   "vix": {
    "available": true,
    "stale": false,
@@ -26,6 +179,15 @@
    "source_primary": "vix_fred",
    "source_actual": "vix_fred",
    "source_status": "DEGRADED",
+   "criticality": "CRITICAL"
+  },
+  "vix_chg_21": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "vix_level",
+   "source_actual": "vix_level",
+   "source_status": "HEALTHY",
    "criticality": "CRITICAL"
   },
   "implied_vol": {
@@ -147,57 +309,47 @@
   },
   "xbrl_accruals": {
    "available": true,
-   "stale": true,
-   "data_quality": 0.5,
-   "cache_age_days": 5.5,
-   "cache_max_age_days": 30,
+   "stale": false,
+   "data_quality": 0.6,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "BROKEN",
+   "source_status": "DEGRADED",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_asset_growth": {
    "available": true,
-   "stale": true,
-   "data_quality": 0.5,
-   "cache_age_days": 5.5,
-   "cache_max_age_days": 30,
+   "stale": false,
+   "data_quality": 0.6,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "BROKEN",
+   "source_status": "DEGRADED",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_rev_yoy": {
    "available": true,
-   "stale": true,
-   "data_quality": 0.5,
-   "cache_age_days": 5.5,
-   "cache_max_age_days": 30,
+   "stale": false,
+   "data_quality": 0.6,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "BROKEN",
+   "source_status": "DEGRADED",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_share_change": {
    "available": true,
-   "stale": true,
-   "data_quality": 0.5,
-   "cache_age_days": 5.5,
-   "cache_max_age_days": 30,
+   "stale": false,
+   "data_quality": 0.6,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "BROKEN",
+   "source_status": "DEGRADED",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_sue": {
    "available": true,
-   "stale": true,
-   "data_quality": 0.5,
-   "cache_age_days": 5.5,
-   "cache_max_age_days": 30,
+   "stale": false,
+   "data_quality": 0.6,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "BROKEN",
+   "source_status": "DEGRADED",
    "criticality": "NON_CRITICAL"
   },
   "ted_any_award_365d": {
@@ -235,6 +387,42 @@
    "source_actual": "ted_awards",
    "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
+  },
+  "cpi_yoy": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "fed_assets_13w_chg": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "usd_63d_chg": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "wti_63d_chg": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
   }
  }
 }
