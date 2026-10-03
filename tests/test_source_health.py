@@ -352,3 +352,15 @@ def test_xbrl_store_has_no_outlier_check():
                        "value": [1e6] * 39 + [1e12], "available_at": "2026-10-01T00:00:00+00:00",
                        "retrieved_at": "2026-10-02T00:00:00+00:00", "observation_time": "2026-09-30T00:00:00+00:00"})
     assert sh.frame_stats(df, NOW, c, outlier_check=False)["outlier_rate"] == 0.0
+
+
+def test_quarantined_parser_versions_do_not_degrade():
+    c = sh.load_config()
+    df = pd.DataFrame({"series_id": ["a", "b"], "metric": "m", "value": [1.0, 2.0], "parser_version": ["old", "new"],
+                       "available_at": "2026-10-04T00:00:00+00:00", "retrieved_at": "2026-10-04T12:00:00+00:00",
+                       "observation_time": "2030-12-31T00:00:00+00:00"})
+    assert sh.frame_stats(df, NOW, c)["future_observations"] == 2
+    st = sh.frame_stats(df, NOW, c, quarantined_parser_versions=("old",))
+    assert st["future_observations"] == 1 and st["future_observations_quarantined"] == 1
+    cfgx = next(x for x in c["alt_sources"] if x["source_id"] == "sec_companyfacts")
+    assert cfgx["quarantined_parser_versions"] == ["sec-xbrl-1"]
