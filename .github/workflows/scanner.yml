@@ -54,6 +54,7 @@ jobs:
           GMAIL_APP_PW:          ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL:          ${{ secrets.NOTIFY_EMAIL }}
           FINNHUB_API_KEY:       ${{ secrets.FINNHUB_API_KEY }}
+          FRED_API_KEY:          ${{ secrets.FRED_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
           FLASH_ALPHA_API_KEY:   ${{ secrets.FLASH_ALPHA_API_KEY }}
           EULERPOOL_API_KEY:     ${{ secrets.EULERPOOL_API_KEY }}

@@ -202,8 +202,17 @@ def _check_json(payload, spec: dict, lat: float, status) -> dict:
     vals = [payload[k] for k in req]
     empty = any(v in (None, "", [], {}) for v in vals)
     n = next((len(v) for v in vals if isinstance(v, (list, dict))), None)
+    latest = None
+    ld = spec.get("latest_date")                      # {list, date, value}: jüngster gültiger Wert
+    if ld and isinstance(payload.get(ld["list"]), list):
+        dates = [_ts(o.get(ld["date"])) for o in payload[ld["list"]]
+                 if isinstance(o, dict) and str(o.get(ld.get("value", "value"), "")).strip() not in ("", ".")]
+        dates = [d for d in dates if d is not None]
+        latest = _iso(max(dates)) if dates else None
+        if not dates:
+            empty = True
     return _probe_result(ok=not empty, reachable=True, auth_ok=True, http_status=status, latency_s=lat, schema_ok=True,
-                         empty=empty, n_items=n, error="leere Antwort" if empty else None)
+                         empty=empty, n_items=n, latest_observation=latest, error="leere Antwort" if empty else None)
 
 
 def _parse_csv_probe(r, spec: dict, lat: float) -> dict:
@@ -234,8 +243,11 @@ def store_stats(directory: Path | str, now: datetime, cfg: dict, window_days: in
     return frame_stats(df, now, cfg, window_days, **kw)
 
 
+NEW_ROWS_DAYS = 3        # Datenfehler gelten als NEU, wenn die Zeile in den letzten Tagen abgerufen wurde
+
+
 def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 120, *,
-                value_optional: bool = False, log_values: bool = False) -> dict:
+                value_optional: bool = False, log_values: bool = False, outlier_check: bool = True) -> dict:
     """value_optional: fehlende Werte sind fachlich vorgesehen (z.B. Zuschlag ohne EUR-Betrag) ->
     keine Missing-Rate. log_values: rechtsschiefe Beträge -> Ausreißer auf log1p(|x|)-Skala."""
     if df is None or not len(df):
@@ -248,9 +260,13 @@ def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 1
     vals = pd.to_numeric(recent.get("value"), errors="coerce") if "value" in recent else pd.Series(dtype=float)
     dup = float(df["series_id"].duplicated().mean()) if "series_id" in df else 0.0
     future = int((avail > retr + pd.Timedelta(days=1)).sum())                     # PIT-Verletzung
-    future_obs = int((obs > pd.Timestamp(now) + pd.Timedelta(days=1)).sum())      # Datenfehler (Periode in der Zukunft)
+    fut_mask = obs > pd.Timestamp(now) + pd.Timedelta(days=1)                      # Datenfehler (Periode in der Zukunft)
+    future_obs_total = int(fut_mask.sum())
+    # Alte, bekannte Fehlzeilen liegen append-only im Store, werden aber vom Verbraucher ignoriert
+    # (Quarantäne) -> nur NEU abgerufene zählen für den Status; Gesamtzahl bleibt als Info sichtbar.
+    future_obs = int((fut_mask & (retr >= pd.Timestamp(now) - pd.Timedelta(days=NEW_ROWS_DAYS))).sum())
     out_rate = 0.0
-    if len(vals.dropna()) >= 20 and "metric" in recent:
+    if outlier_check and len(vals.dropna()) >= 20 and "metric" in recent:
         zs = []
         for _, g in recent.assign(_v=vals).dropna(subset=["_v"]).groupby("metric"):
             v = g["_v"].to_numpy()
@@ -267,7 +283,8 @@ def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 1
             "latest_retrieved": _iso(_ts(retr.max())) if retr is not None and retr.notna().any() else None,
             "missing_rate": None if value_optional else (round(float(vals.isna().mean()), 4) if len(vals) else None),
             "duplicate_rate": round(dup, 4), "future_timestamps": future, "outlier_rate": round(out_rate, 4),
-            "future_observations": future_obs, "future_observation_rate": round(future_obs / len(df), 6)}
+            "future_observations": future_obs, "future_observation_rate": round(future_obs / len(df), 6),
+            "future_observations_quarantined": future_obs_total - future_obs}
 
 
 # ── Quelleninventar + Checks ────────────────────────────────────────────────
@@ -361,7 +378,8 @@ def gather(cfg: dict, now: datetime, *, probes: bool = True, fetch=None, yf_modu
         hf = Path(a["health_file"]) if a.get("health_file") else None
         h = json.loads(hf.read_text()) if hf and hf.exists() else None
         st = store_stats(a["store"], now, cfg, value_optional=bool(a.get("value_optional")),
-                         log_values=a.get("value_scale") == "log") if a.get("store") else None
+                         log_values=a.get("value_scale") == "log",
+                         outlier_check=a.get("outlier_check", True)) if a.get("store") else None
         last_ok = None
         if h:
             if a["source_id"] == "gleif_lei":

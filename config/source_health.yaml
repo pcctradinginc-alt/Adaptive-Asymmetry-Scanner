@@ -49,8 +49,12 @@ core_sources:
     display_name: "VIX via FRED VIXCLS (Fallback-Adapter)"
     criticality: CRITICAL
     fallback_only: true
-    probe: {kind: http_csv, url: "https://fred.stlouisfed.org/graph/fredgraph.csv", params: {id: VIXCLS},
-            date_col: 0, value_col: 1}
+    # Gleicher Pfad wie risk_gates.py (Versuch 2): offizielle FRED API mit Key. Die fredgraph.csv lief
+    # aus GitHub Actions wiederholt in Timeouts (66 s, 2026-10-03) und ist nur noch letzter Versuch.
+    probe: {kind: http_json, url: "https://api.stlouisfed.org/fred/series/observations",
+            params: {series_id: VIXCLS, file_type: json, sort_order: desc, limit: 10},
+            auth_env: FRED_API_KEY, auth_param: api_key, required_keys: [observations],
+            latest_date: {list: observations, date: date, value: value}}
     max_observation_age_days: 6       # FRED VIXCLS erscheint mit 1 Tag Verzug
     decisions: [risk_gates]
     features: [vix]
@@ -100,7 +104,8 @@ alt_sources:
             headers: sec, required_keys: [cik, units]}
     health_file: outputs/external_data/sec/xbrl_health.json
     store: outputs/external_data/sec/xbrl
-    value_scale: log                  # Bilanz-/Umsatzbeträge über Firmen hinweg
+    value_scale: log
+    outlier_check: false              # Beträge firmenübergreifend (Mio. bis Bio.) – kein sinnvoller Ausreißer-Test
     max_success_age_days: 9
     max_observation_age_days: 120     # quartalsweise Berichte
   - source_id: gleif_lei

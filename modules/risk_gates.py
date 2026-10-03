@@ -1,14 +1,17 @@
 """
-modules/risk_gates.py – Fixes
+modules/risk_gates.py
 
-Fix 1: VIX Timeout → Fallback statt Pipeline-Abbruch
-       Begründung: Bei yfinance Timeout (curl 28) ist der Markt normal —
-       VIX nicht abrufbar bedeutet nicht VIX > 35.
-       Safety-First bedeutet: bei Ungewissheit Fallback-Wert nutzen,
-       nicht Pipeline komplett stoppen.
-
-Fix 2: last_vix immer float (nie None) nach globalok()
-       Verhindert TypeError in pipeline.py stop_reason Formatierung.
+VIX-Gate (Source Health, 2026-10-03): FAIL-CLOSED.
+  Früher: VIX nicht abrufbar -> stiller Fallback-Wert 20, Pipeline läuft weiter.
+  Das widerspricht der Kernregel "nie mit unbekannten Daten normal weiterhandeln"
+  (VIX ist Pflichtdatum des Risk Gates, Kritikalität CRITICAL).
+  Jetzt: Quellen in fester, getesteter Reihenfolge –
+    1. yfinance ^VIX            (Primary)
+    2. FRED API VIXCLS          (offizieller Fallback, FRED_API_KEY; Datum geprüft)
+    3. FRED fredgraph.csv       (ohne Key; aus GitHub Actions oft Timeout)
+  Liefert keine Quelle einen aktuellen Wert -> last_vix = None, global_ok() = False
+  ("VIX-Gate (VIX nicht abrufbar)"). vix_source hält die tatsächlich genutzte Quelle
+  (source_actual) – ein Providerwechsel bleibt nie verborgen.
 """
 
 from __future__ import annotations
@@ -23,7 +26,8 @@ import yfinance as yf
 log = logging.getLogger(__name__)
 
 VIX_HARD_GATE    = 35.0   # Über diesem Wert → kein Trading
-VIX_FALLBACK     = 20.0   # Fallback wenn VIX nicht abrufbar
+VIX_FALLBACK     = 20.0   # NUR noch für Altaufrufer (Default-Schwellen); nie als Ersatz für einen fehlenden VIX
+VIX_MAX_AGE_DAYS = 6      # FRED VIXCLS erscheint mit ~1 Tag Verzug; älter = unbekannt
 VIX_MAX_RETRIES  = 2
 VIX_TIMEOUT      = 15     # Sekunden (war 30 → zu lang für GitHub Actions)
 
@@ -31,7 +35,8 @@ VIX_TIMEOUT      = 15     # Sekunden (war 30 → zu lang für GitHub Actions)
 class RiskGates:
 
     def __init__(self):
-        self.last_vix: float = VIX_FALLBACK   # Default: nie None
+        self.last_vix: float | None = None
+        self.vix_source: str | None = None
 
     def global_ok(self) -> bool:
         """
@@ -41,12 +46,11 @@ class RiskGates:
         vix = self._fetch_vix()
 
         if vix is None:
-            log.warning(
-                f"VIX nicht abrufbar → Fallback {VIX_FALLBACK:.1f} "
-                f"(Pipeline läuft weiter)"
-            )
-            self.last_vix = VIX_FALLBACK
-            return True   # Im Zweifel: Pipeline laufen lassen
+            log.error("VIX aus keiner Quelle abrufbar (yfinance, FRED API, FRED CSV) -> "
+                      "Risk Gate geschlossen: kein Handel mit unbekanntem Risiko")
+            self.last_vix = None
+            self.vix_source = None
+            return False
 
         self.last_vix = float(vix)
         log.info(f"VIX aktuell: {self.last_vix:.2f} (Schwelle: {VIX_HARD_GATE})")
@@ -68,17 +72,44 @@ class RiskGates:
                 ticker = yf.Ticker("^VIX")
                 hist   = ticker.history(period="2d", timeout=VIX_TIMEOUT)
                 if not hist.empty:
+                    self.vix_source = "vix_level"
                     return float(hist["Close"].iloc[-1])
 
                 info = ticker.info
                 vix  = info.get("regularMarketPrice") or info.get("previousClose")
                 if vix:
+                    self.vix_source = "vix_level"
                     return float(vix)
 
             except Exception as e:
                 log.debug(f"VIX yfinance Versuch {attempt}: {e}")
 
-        # Versuch 2: FRED API (kostenlos, kein Key)
+        # Versuch 2: offizielle FRED API (Key per Secret; aus Actions zuverlässiger als die CSV)
+        api_key = os.environ.get("FRED_API_KEY", "").strip()
+        if api_key:
+            try:
+                resp = requests.get(
+                    "https://api.stlouisfed.org/fred/series/observations",
+                    params={"series_id": "VIXCLS", "api_key": api_key, "file_type": "json",
+                            "sort_order": "desc", "limit": 10},
+                    timeout=10,
+                )
+                if resp.status_code == 200:
+                    for o in (resp.json().get("observations") or []):
+                        val, d = o.get("value"), o.get("date")
+                        if val in (None, "", ".") or not d:
+                            continue
+                        age = (date.today() - datetime.strptime(d, "%Y-%m-%d").date()).days
+                        if age > VIX_MAX_AGE_DAYS:
+                            log.warning(f"VIX via FRED API zu alt ({d}) -> unbekannt")
+                            break
+                        log.info(f"VIX via FRED API: {val} ({d})")
+                        self.vix_source = "vix_fred"
+                        return float(val)
+            except Exception as e:  # noqa: BLE001 – Key nie loggen (requests-Fehler können die URL enthalten)
+                log.debug(f"VIX FRED API Fallback Fehler: {type(e).__name__}")
+
+        # Versuch 3: FRED CSV (ohne Key)
         try:
             resp = requests.get(
                 "https://fred.stlouisfed.org/graph/fredgraph.csv",
@@ -92,14 +123,21 @@ class RiskGates:
                     if l and not l.startswith("DATE") and "." in l
                 ]
                 if lines:
-                    val = lines[-1].split(",")[1].strip()
-                    if val and val != ".":
-                        log.info(f"VIX via FRED: {val}")
+                    d_s, val = lines[-1].split(",")[0].strip(), lines[-1].split(",")[1].strip()
+                    try:
+                        age = (date.today() - datetime.strptime(d_s, "%Y-%m-%d").date()).days
+                    except ValueError:
+                        age = None
+                    if age is None or age > VIX_MAX_AGE_DAYS:
+                        log.warning(f"VIX via FRED CSV ohne aktuelles Datum ({d_s}) -> unbekannt")
+                    elif val and val != ".":
+                        log.info(f"VIX via FRED CSV: {val} ({d_s})")
+                        self.vix_source = "vix_fred"
                         return float(val)
         except Exception as e:
             log.debug(f"VIX FRED Fallback Fehler: {e}")
 
-        return None   # Beide Quellen fehlgeschlagen → Fallback in global_ok()
+        return None   # keine Quelle -> global_ok() schließt das Gate (fail-closed)
 
     def has_upcoming_earnings(self, ticker: str) -> bool:
         """Prüft ob Earnings innerhalb der nächsten 14 Tage."""
