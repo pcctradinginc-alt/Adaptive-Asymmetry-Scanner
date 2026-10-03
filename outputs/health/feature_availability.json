@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T13:16:04+00:00",
+ "generated": "2026-10-03T13:42:17+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -175,10 +175,10 @@
   "vix": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
-   "source_primary": "vix_fred",
-   "source_actual": "vix_fred",
-   "source_status": "DEGRADED",
+   "data_quality": 1.0,
+   "source_primary": "vix_level",
+   "source_actual": "vix_level",
+   "source_status": "HEALTHY",
    "criticality": "CRITICAL"
   },
   "vix_chg_21": {

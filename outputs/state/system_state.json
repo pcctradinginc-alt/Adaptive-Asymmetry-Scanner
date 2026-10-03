@@ -4,18 +4,18 @@
  "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
-  "data_quality": 0.932,
+  "data_quality": 0.957,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-03T13:16:04+00:00",
+  "generated": "2026-10-03T13:42:17+00:00",
   "counts": {
-   "HEALTHY": 26,
+   "HEALTHY": 27,
    "DEGRADED": 3,
    "STALE": 0,
-   "BROKEN": 1,
+   "BROKEN": 0,
    "UNVALIDATED": 9
   },
   "fallbacks": []
@@ -90,7 +90,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.932
+    "data_quality": 0.957
    }
   },
   "reasons": [
@@ -124,13 +124,13 @@
  "inputs": {
   "model_health": "d33c3a3f5d92",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "3c9c1bb14b45",
+  "data_health": "ad3608848823",
   "promotion": "d779478a5b98",
   "model_registry": "a0c0ce90b949",
   "champion_config": "614c701dde4d"
  },
- "state_version": 2,
- "fingerprint": "fc1a65af88e162b4",
- "updated_at": "2026-10-03T13:39:07+00:00",
- "code_version": "8ae38a1effcd"
+ "state_version": 3,
+ "fingerprint": "428c6afa6c9500d8",
+ "updated_at": "2026-10-03T13:42:17+00:00",
+ "code_version": "3bd1de709cb5"
 }
