@@ -132,3 +132,11 @@ downstream_extra:
   fred_regime_macro: ["ml_research panel: cpi_yoy, fed_assets_13w_chg, usd_63d_chg, wti_63d_chg",
                       "meta_cognition / world_model Regime"]
   fred_us_macro: ["external_context (SHADOW)"]
+
+# Feature -> Quelle (Source Dependencies der Panel-/Champion-Features; Alt-Features kommen aus
+# modules/alt_data/registry.py). Dokumentation: docs/FEATURE_DEPENDENCIES.md (generiert, getestet).
+feature_sources:
+  market_prices: [mom_12_1, mom_3m, rev_1m, ret_5d, rs_63, vol_20, vol_60, vol_ratio, relvol_5_60, log_dollar_vol,
+                  dist_52w_high, max_ret_21, beta_126, spy_trend_200, spy_mom_63, tnx, curve_10y_3m]
+  vix_level: [vix, vix_chg_21]
+  fred_regime_macro: [cpi_yoy, fed_assets_13w_chg, usd_63d_chg, wti_63d_chg]

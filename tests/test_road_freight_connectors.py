@@ -425,6 +425,25 @@ def test_bts_open_data_ambiguous_catalog_flags_and_picks_most_recent():
     assert result.discovered_ids["bts_open_data_tsi_dataset_id"] == "new-tsi"
 
 
+def test_bts_open_data_skips_charts_and_validates_schema_live_case():
+    """Live 2026-10-03: der zuletzt aktualisierte Treffer war ein Chart ohne Spalten -> SCHEMA_CHANGED.
+    Jetzt: Nicht-Datensätze werden übersprungen, der erste Kandidat MIT Datums-/Freight-Spalte gewinnt."""
+    conn = rf.BtsOpenDataTsiConnector({})
+    with patch.object(rf.http, "fetch", side_effect=[
+        _fr("bts_socrata_catalog_charts.json"),
+        _fr("bts_views_metadata_nocolumns.json"),      # story-tsi: als 'dataset' gelistet, aber ohne Spalten
+        _fr("bts_views_metadata.json"),                # bw6n-ddqk: echter Datensatz
+        _fr("bts_soda_rows_page1.json"),
+    ]):
+        result = conn.fetch(NOW)
+    d = result.discovered_ids
+    assert result.status == SourceStatus.PASS
+    assert d["bts_open_data_tsi_non_dataset_skipped"] == ["ni8u-e22d"]
+    assert d["bts_open_data_tsi_dataset_id"] == "bw6n-ddqk"
+    assert "ohne 'columns'" in d["bts_open_data_tsi_rejected"]["story-tsi"]
+    assert [o for o in result.observations if o.metric == "us_freight_tsi"]
+
+
 def test_bts_open_data_pagination_across_soda_pages():
     conn = rf.BtsOpenDataTsiConnector({"page_limit": 2})
     with patch.object(rf.http, "fetch", side_effect=[

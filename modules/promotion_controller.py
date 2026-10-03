@@ -685,9 +685,13 @@ def load_approvals(path: Path | None = None) -> dict:
 
 # ── Lauf ────────────────────────────────────────────────────────────────────
 def _safe_mode_state() -> dict:
-    """Modell- UND Daten-Safe-Mode (source_health); unbekannt = aktiv."""
-    from modules.source_health import effective_safe_mode
-    return effective_safe_mode()
+    """Kanonischer SystemState (modules/system_state.py); unbekannt = aktiv. Ab Drift MODERATE
+    werden Challenger vorsichtiger behandelt: keine Promotion (wie Safe Mode), Demotion erlaubt."""
+    from modules import system_state as ss
+    v = ss.safe_mode_view(ss.current())
+    if not v["active"] and v.get("drift_level") in ("MODERATE", "SEVERE"):
+        v = {**v, "active": True, "reasons": [f"DRIFT {v['drift_level']}: Promotion pausiert"]}
+    return v
 
 
 def _is_upgrade(cur: dict, d: dict) -> bool:

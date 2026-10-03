@@ -97,6 +97,8 @@ def parse_companyfacts(payload: dict, cik: str, retrieved_at: datetime, content_
             start = _date(f.get("start")) if kind == "duration" else None
             if end is None or filed is None or (kind == "duration" and start is None):
                 continue
+            if end > filed + timedelta(days=1) or (start is not None and start > end):
+                continue                                  # unplausibler Fakt (Periode nach Einreichung) – nie verwenden
             accn = f.get("accn") or ""
             out.append(Observation(
                 source_id="sec_companyfacts", dataset=key, entity_id=f"cik:{c10}", metric=key,
@@ -257,6 +259,9 @@ def build_feature_table(rows: pd.DataFrame, dates, cik_by_ticker: dict[str, str]
                             "avail": pd.to_datetime(rows["available_at"], utc=True),
                             "start": pd.to_datetime(at.map(lambda a: a.get("start")), utc=True),
                             "end": pd.to_datetime(at.map(lambda a: a.get("end")), utc=True)}).dropna(subset=["value"])
+        # Bereits gespeicherte unplausible Fakten (Periodenende nach Verfügbarkeit) nie verwenden –
+        # sie würden sonst als "jüngste Periode" gelten (Live 2026-10-03, ein Fakt)
+        obs = obs[~(obs["end"] > obs["avail"]) & ~(obs["start"] > obs["end"])]
     else:
         obs = pd.DataFrame(columns=["cik", "metric", "value", "avail", "start", "end"])
     by = dict(tuple(obs.groupby("cik"))) if len(obs) else {}

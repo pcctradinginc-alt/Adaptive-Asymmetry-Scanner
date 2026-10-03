@@ -1010,18 +1010,27 @@ class BtsOpenDataTsiConnector(Connector):
     SEARCH_QUERY = "Transportation Services Index"
     PAGE_LIMIT = 5000
 
+    MAX_CANDIDATES = 5            # Schema-validierte Auswahl: höchstens so viele Kandidaten prüfen
+
     def _discover_dataset(self, raw: list[RawRecord]) -> tuple[str | None, dict]:
+        ids, disc = self._discover_candidates(raw)
+        return (ids[0] if ids else None), disc
+
+    def _discover_candidates(self, raw: list[RawRecord]) -> tuple[list[str], dict]:
+        """Katalogtreffer, deren Name 'Transportation Services Index' enthält, NUR vom Typ
+        'dataset' (Live 2026-10-03: die zuletzt aktualisierten Treffer waren Charts/Visualisierungen
+        ohne Spalten -> SCHEMA_CHANGED), zuletzt aktualisiert zuerst."""
         params = {"domains": self.DOMAIN, "search_context": self.DOMAIN, "q": self.SEARCH_QUERY}
         try:
             res = http.fetch(self.CATALOG_URL, params=params)
         except http.FetchError as e:
             log.warning("Socrata-Katalogsuche nicht erreichbar: %s", e)
-            return None, {}
+            return [], {}
         raw.append(_raw(self.source_id, "catalog", res))
         try:
             data = res.json()
         except json.JSONDecodeError:
-            return None, {}
+            return [], {}
         results = data.get("results") or []
         candidates = []
         for r in results:
@@ -1031,21 +1040,22 @@ class BtsOpenDataTsiConnector(Connector):
             updated = resource.get("updatedAt") or resource.get("data_updated_at")
             if not rid or not name:
                 continue
-            candidates.append({"id": rid, "name": name, "updatedAt": updated})
-        matches = [c for c in candidates if "transportation services index" in c["name"].lower()]
+            candidates.append({"id": rid, "name": name, "updatedAt": updated, "type": resource.get("type")})
+        matches = [c for c in candidates if "transportation services index" in c["name"].lower()
+                   and c["type"] in (None, "dataset")]
         discovered = {"bts_open_data_tsi_candidates": candidates}
+        skipped = [c["id"] for c in candidates if "transportation services index" in c["name"].lower()
+                   and c["type"] not in (None, "dataset")]
+        if skipped:
+            discovered["bts_open_data_tsi_non_dataset_skipped"] = skipped
         if not matches:
-            return None, discovered
-        if len(matches) > 1:
-            # Uneindeutig -> zuletzt aktualisierten wählen, aber laut flaggen
-            # statt stillschweigend zu raten.
-            matches_sorted = sorted(matches, key=lambda c: c["updatedAt"] or "", reverse=True)
+            return [], discovered
+        matches_sorted = sorted(matches, key=lambda c: c["updatedAt"] or "", reverse=True)
+        if len(matches_sorted) > 1:
+            # Uneindeutig -> laut flaggen; die Auswahl entscheidet das SCHEMA (fetch), nicht ein Ratespiel
             discovered["bts_open_data_tsi_ambiguous"] = [c["id"] for c in matches_sorted]
-            chosen = matches_sorted[0]
-        else:
-            chosen = matches[0]
-        discovered["bts_open_data_tsi_dataset_id"] = chosen["id"]
-        return chosen["id"], discovered
+        discovered["bts_open_data_tsi_dataset_id"] = matches_sorted[0]["id"]
+        return [c["id"] for c in matches_sorted], discovered
 
     def _fetch_metadata(self, dataset_id: str, raw: list[RawRecord]) -> tuple[dict | None, str | None]:
         url = f"https://{self.DOMAIN}/api/views/{dataset_id}.json"
@@ -1128,46 +1138,63 @@ class BtsOpenDataTsiConnector(Connector):
     def fetch(self, now: datetime) -> ConnectorResult:
         raw: list[RawRecord] = []
         discovered: dict = {}
-        dataset_id, disc = self._discover_dataset(raw)
+        cand_ids, disc = self._discover_candidates(raw)
         discovered.update(disc)
         expected_id = self.cfg.get("expected_dataset_id")
-        if dataset_id is None:
-            dataset_id = expected_id
-            if not dataset_id:
+        if not cand_ids:
+            if not expected_id:
                 return ConnectorResult(
                     source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
                     message="Socrata-Katalogsuche fand keinen Datensatz mit 'Transportation "
                             "Services Index' im Namen und keine expected_dataset_id in der Config.",
                     discovered_ids=discovered,
                 )
+            cand_ids = [expected_id]
             discovered["fallback_dataset_id_source"] = "config.expected_dataset_id (verify in preflight)"
 
-        meta, err = self._fetch_metadata(dataset_id, raw)
-        if err is not None:
-            return ConnectorResult(
-                source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
-                message=f"BTS-Open-Data views-Metadaten-Abruf fehlgeschlagen ({dataset_id}): {err}",
-                discovered_ids=discovered,
-            )
-        columns = meta.get("columns") if isinstance(meta, dict) else None
-        if not columns:
+        # Schema-validierte Auswahl: der erste Kandidat, dessen Metadaten eine Datums- UND eine
+        # Freight-TSI-Spalte haben. Abgelehnte Kandidaten werden mit Grund protokolliert.
+        rejected, chosen = {}, None
+        last_err = None
+        for dataset_id in cand_ids[: self.MAX_CANDIDATES]:
+            meta, err = self._fetch_metadata(dataset_id, raw)
+            if err is not None:
+                rejected[dataset_id], last_err = f"Metadaten-Abruf: {err}"[:200], err
+                continue
+            columns = meta.get("columns") if isinstance(meta, dict) else None
+            if not columns:
+                rejected[dataset_id] = "views-Metadaten ohne 'columns' (kein tabellarischer Datensatz)"
+                continue
+            date_field, freight_field, truck_field = self._pick_columns(columns)
+            if not date_field or not freight_field:
+                rejected[dataset_id] = "keine eindeutige Datums-/Freight-TSI-Spalte"
+                discovered["bts_open_data_tsi_columns"] = {
+                    "date_field": date_field, "freight_field": freight_field, "truck_field": truck_field,
+                    "all_field_names": [c.get("fieldName") for c in columns]}
+                continue
+            chosen = (dataset_id, meta, columns, date_field, freight_field, truck_field)
+            break
+        if rejected:
+            discovered["bts_open_data_tsi_rejected"] = rejected
+        if chosen is None:
+            if last_err is not None and len(rejected) == len(cand_ids[: self.MAX_CANDIDATES]) and \
+                    all(v.startswith("Metadaten-Abruf") for v in rejected.values()):
+                return ConnectorResult(
+                    source_id=self.source_id, status=SourceStatus.FAIL, raw=raw,
+                    message=f"BTS-Open-Data views-Metadaten-Abruf fehlgeschlagen: {last_err}",
+                    discovered_ids=discovered,
+                )
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
-                message="views-Metadaten ohne 'columns' -> Schema geändert.",
+                message=f"Kein Kandidat mit Datums- und Freight-TSI-Spalte ({rejected}) -> Schema geändert.",
                 discovered_ids=discovered,
             )
-        date_field, freight_field, truck_field = self._pick_columns(columns)
+        dataset_id, meta, columns, date_field, freight_field, truck_field = chosen
+        discovered["bts_open_data_tsi_dataset_id"] = dataset_id
         discovered["bts_open_data_tsi_columns"] = {
             "date_field": date_field, "freight_field": freight_field, "truck_field": truck_field,
             "all_field_names": [c.get("fieldName") for c in columns],
         }
-        if not date_field or not freight_field:
-            return ConnectorResult(
-                source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
-                message="Konnte weder Datums- noch Freight-TSI-Spalte eindeutig aus den "
-                        "views-Metadaten ableiten (erwartete Spaltenmuster nicht gefunden).",
-                discovered_ids=discovered,
-            )
         rows_updated_raw = meta.get("rowsUpdatedAt")
         source_release_time = None
         if rows_updated_raw is not None:

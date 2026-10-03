@@ -238,6 +238,8 @@ def evaluate_candidates(ens: dict, cards: dict, rule: dict, liquidity: dict, tod
     out = []
     for t, e in sorted(ens.items(), key=lambda kv: -kv[1]["score"]):
         prob = _interp(e["rank_pct"], (rule.get("prob_map") or {}).get("prob"))
+        if prob is not None:                          # abgestufte Drift (SystemState): Confidence Richtung 0.5 schrumpfen
+            prob = 0.5 + (prob - 0.5) * float(rule.get("confidence_multiplier", 1.0))
         if prob is None or prob < r.get("prob", 1.1):
             continue
         if use_agree and (e["agreement_sd"] is None or e["agreement_sd"] > r.get("agreement_sd", 0)):
@@ -422,6 +424,10 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
                              now=datetime(today.year, today.month, today.day, 23, 59, tzinfo=timezone.utc))
     if sm["active"]:
         reasons.append(f"SAFE MODE aktiv: {'; '.join(sm['reasons'])}")
+    rule = {**rule, "confidence_multiplier": (sm.get("consequences") or {}).get("confidence_multiplier", 1.0)}
+    miss = sorted(set(sm.get("unavailable_features") or []) & set(ml.ALL_FEATURES))
+    if miss:                                          # Modelle brauchen diese Merkmale zwingend (Source Health)
+        reasons.append(f"Pflichtdaten der Modelle nicht verfügbar: {miss}")
     mi = (_load(out_dir / "meta_learning.json", {}) or {}).get("model_intelligence") or {}
     if mi and sum(1 for m in mi.values() if m.get("trend") == "deteriorating") / len(mi) >= 0.5:
         reasons.append("Alpha Decay: Mehrheit der Modelle 'deteriorating'")
@@ -431,7 +437,8 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
         reasons.append(f"Prognosen veraltet ({latest})")
     result = {"date": today.isoformat(), "signal_date": latest, "active_ensemble": active,
               "rule": rule.get("rule"), "enabled": not reasons, "disabled_reason": "; ".join(reasons) or None,
-              "candidates": [], "sent": []}
+              "candidates": [], "sent": [], "system_state_version": sm.get("state_version"),
+              "drift_level": sm.get("drift_level"), "confidence_multiplier": rule["confidence_multiplier"]}
     ens = ensemble_scores(ranks, models, weights) if ranks else {}
     if not reasons and panel is not None:
         snap = panel[panel["date"] == panel["date"].max()]

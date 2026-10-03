@@ -1010,12 +1010,20 @@ def run(panel: pd.DataFrame | None = None) -> dict:
     if cache:
         with open(cache, "wb") as fh:
             pickle.dump(LAST_RUN, fh)
-    # safe_mode.json (modules/meta_cognition) ist der echte Safe Mode; hier nur, ob Meta aktiv ist
-    state = {"meta_active": rep["decision"]["verdict"] == "PROMOTE", "safe_mode": False,
+    # Kein eigener Safe-Mode-Flag mehr (war immer false -> widersprüchlich): kanonisch ist
+    # ausschließlich outputs/state/system_state.json (modules/system_state.py).
+    try:
+        from modules import system_state as _ss
+        _sv = _ss.safe_mode_view(_ss.current())
+    except Exception as e:  # noqa: BLE001 – unbekannt = Safe Mode (Meta nicht aktiv)
+        _sv = {"active": True, "state_version": None, "reasons": [f"SystemState-Fehler: {e}"]}
+    state = {"meta_active": rep["decision"]["verdict"] == "PROMOTE" and not _sv["active"],
+             "system_state_version": _sv.get("state_version"),
              "active_ensemble": rep["active_ensemble"],
              "meta_version": rep["meta_version"],
              "reasons": ([f"Meta-Learning nicht promoted ({rep['decision']['verdict']}) – Referenz aktiv"]
-                         if rep["decision"]["verdict"] != "PROMOTE" else []),
+                         if rep["decision"]["verdict"] != "PROMOTE" else [])
+                        + ([f"SystemState Safe Mode: {'; '.join(_sv['reasons'])}"] if _sv["active"] else []),
              "updated": rep["generated"]}
     ml.OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))

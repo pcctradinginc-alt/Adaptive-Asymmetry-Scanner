@@ -55,7 +55,6 @@ DATA_SAFE_MODE = OUT / "data_safe_mode.json"
 REPORT_MD = OUT / "daily_data_health.md"
 NOTIFIED = OUT / "health_notified.json"
 REGISTRY_HEALTH = Path("outputs/external_data/health/source_health.json")
-META_SAFE_MODE = Path("outputs/research/safe_mode.json")
 
 HEALTHY, DEGRADED, STALE, BROKEN, UNVALIDATED = "HEALTHY", "DEGRADED", "STALE", "BROKEN", "UNVALIDATED"
 STATUSES = (HEALTHY, DEGRADED, STALE, BROKEN, UNVALIDATED)
@@ -248,7 +247,8 @@ def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 1
     recent = df[avail >= pd.Timestamp(now) - pd.Timedelta(days=window_days)] if avail is not None else df
     vals = pd.to_numeric(recent.get("value"), errors="coerce") if "value" in recent else pd.Series(dtype=float)
     dup = float(df["series_id"].duplicated().mean()) if "series_id" in df else 0.0
-    future = int(((avail > retr + pd.Timedelta(days=1)) | (obs > pd.Timestamp(now) + pd.Timedelta(days=1))).sum())
+    future = int((avail > retr + pd.Timedelta(days=1)).sum())                     # PIT-Verletzung
+    future_obs = int((obs > pd.Timestamp(now) + pd.Timedelta(days=1)).sum())      # Datenfehler (Periode in der Zukunft)
     out_rate = 0.0
     if len(vals.dropna()) >= 20 and "metric" in recent:
         zs = []
@@ -266,7 +266,8 @@ def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 1
             if obs is not None and obs.notna().any() else None,
             "latest_retrieved": _iso(_ts(retr.max())) if retr is not None and retr.notna().any() else None,
             "missing_rate": None if value_optional else (round(float(vals.isna().mean()), 4) if len(vals) else None),
-            "duplicate_rate": round(dup, 4), "future_timestamps": future, "outlier_rate": round(out_rate, 4)}
+            "duplicate_rate": round(dup, 4), "future_timestamps": future, "outlier_rate": round(out_rate, 4),
+            "future_observations": future_obs, "future_observation_rate": round(future_obs / len(df), 6)}
 
 
 # ── Quelleninventar + Checks ────────────────────────────────────────────────
@@ -307,6 +308,24 @@ def downstream(cfg: dict) -> dict[str, dict]:
                                     if any(ALT_FEATURES.get(f, {}).get("source") == sid for f in c.get("source_features") or [])]
     except Exception as e:  # noqa: BLE001
         log.warning(f"source_health: Alt-Data-Abhängigkeiten nicht ableitbar ({e})")
+    try:
+        from modules import ml_research as _ml
+        _specs = _ml.load_registry().get("models") or []
+    except Exception:  # noqa: BLE001 – Registry optional für die Abhängigkeitsliste
+        _specs = []
+
+    def _uses(m, feats):
+        if m.get("model") == "rule":
+            return m.get("rule_feature") in feats
+        fs = m.get("features")
+        if fs in ("all", None):
+            return True
+        if isinstance(fs, str):
+            fs = (_ml.FEATURE_GROUPS.get(fs) if hasattr(_ml, "FEATURE_GROUPS") else None) or [fs]
+        return bool(set(fs or []) & set(feats))
+    for sid, feats in (cfg.get("feature_sources") or {}).items():
+        slot(sid)["features"] += list(feats)
+        slot(sid)["models"] += [m["id"] for m in _specs if _uses(m, feats)]
     for sid, extra in (cfg.get("downstream_extra") or {}).items():
         slot(sid)["other"] += list(extra)
     for v in out.values():
@@ -469,9 +488,12 @@ def classify(chk: dict, prev: dict | None, cfg: dict, now: datetime) -> dict:
         worse(DEGRADED)
     # Plausibilität / Integrität
     if st.get("future_timestamps"):
-        reasons.append(f"PIT-Verletzung: {st['future_timestamps']} Zeitstempel in der Zukunft / available > retrieved")
+        reasons.append(f"PIT-Verletzung: {st['future_timestamps']} Beobachtungen mit available_at > retrieved_at")
         worse(BROKEN)
         failed = True
+    if st.get("future_observations"):                 # einzelne fehlerhafte Fakten: Qualitätsmangel, kein Totalausfall
+        reasons.append(f"{st['future_observations']} Beobachtungen mit Periode in der Zukunft (Datenfehler)")
+        worse(BROKEN if (st.get("future_observation_rate") or 0) > th["missing_rate_degraded"] else DEGRADED)
     if st.get("severe"):
         reasons.append("Data-Quality-Befund schwerwiegend")
         worse(DEGRADED)
@@ -666,28 +688,19 @@ def load_snapshot(path: Path | None = None, now: datetime | None = None, cfg: di
 
 def effective_safe_mode(out_dir: Path | None = None, now: datetime | None = None,
                         snapshot_path: Path | None = None, meta_path: Path | None = None) -> dict:
-    """Kombiniert Meta-Cognition-Safe-Mode (Modell/Drift) und Data-Health-Safe-Mode.
-    Fehlt eine der beiden Quellen -> fail-closed (aktiv, Grund 'unbekannt')."""
-    meta_path = meta_path or ((out_dir / "safe_mode.json") if out_dir else META_SAFE_MODE)
-    reasons, known = [], True
-    try:
-        sm = json.loads(Path(meta_path).read_text(encoding="utf-8"))
-        if sm.get("active"):
-            reasons += [f"MODEL: {r}" for r in sm.get("reasons") or ["aktiv"]]
-    except (OSError, ValueError):
-        reasons.append("SAFE MODE unbekannt: safe_mode.json fehlt oder ist unlesbar")
-        known = False
-    snap = load_snapshot(snapshot_path, now)
-    if snap.get("unknown"):
-        reasons.append(f"DATA HEALTH unbekannt: {snap.get('reason')}")
-        dsm = {"blocked_decisions": [], "disabled_signals": [], "unavailable_features": []}
-        known = False
-    else:
-        dsm = snap.get("safe_mode") or {}
-        reasons += [f"DATA: {r}" for r in dsm.get("global_reasons") or []]
-    return {"active": bool(reasons), "reasons": reasons, "known": known,
-            "blocked_decisions": dsm.get("blocked_decisions") or [], "disabled_signals": dsm.get("disabled_signals") or [],
-            "unavailable_features": dsm.get("unavailable_features") or [], "data_quality": dsm.get("data_quality")}
+    """Sicht auf den KANONISCHEN SystemState (modules/system_state.py) – keine eigene Logik mehr.
+    Pfade nur für Tests/abweichende Ablagen; Produktion nutzt die Standard-Eingaben (persistiert)."""
+    from modules import system_state as ss
+    inputs = {}
+    if out_dir is not None:
+        inputs["model_health"] = Path(out_dir) / "safe_mode.json"
+        inputs["meta_learning"] = Path(out_dir) / "meta_learning.json"
+    if meta_path is not None:
+        inputs["model_health"] = Path(meta_path)
+    if snapshot_path is not None:
+        inputs["data_health"] = Path(snapshot_path)
+    default = all(Path(v) == ss.DEFAULT_INPUTS[k] for k, v in inputs.items())
+    return ss.safe_mode_view(ss.current(inputs=inputs or None, now=now, persist=default))
 
 
 def scanner_preflight(now: datetime | None = None, *, cfg: dict | None = None, live=None) -> dict:
@@ -838,16 +851,53 @@ def check(*, now: datetime | None = None, cfg: dict | None = None, probes: bool 
         res = notify(chg, snap, report, send=send)
     (od / NOTIFIED.name).write_text(json.dumps({"at": snap["generated"], "changes": chg, "mail": res.get("status")},
                                                indent=1, ensure_ascii=False), encoding="utf-8")
+    if out_dir is None:                              # kanonischen SystemState mit neuer Data Health fortschreiben
+        try:
+            from modules import system_state as ss
+            ss.current(now=now)
+        except Exception as e:  # noqa: BLE001 – Health-Ergebnis bleibt gültig; State wird beim Lesen neu abgeleitet
+            log.error(f"SystemState-Aktualisierung fehlgeschlagen: {e}")
     return {"snapshot": snap, "changes": chg, "mail": res, "report": report}
+
+
+def feature_dependencies(cfg: dict | None = None) -> dict[str, list[str]]:
+    """Feature -> Quellen (Panel-/Champion-Features aus feature_sources, Alt-Features aus der Registry)."""
+    cfg = cfg or load_config()
+    out: dict[str, set] = {}
+    for sid, d in downstream(cfg).items():
+        for f in d.get("features") or []:
+            out.setdefault(f, set()).add(sid)
+    return {f: sorted(v) for f, v in sorted(out.items())}
+
+
+def render_feature_dependencies(cfg: dict | None = None) -> str:
+    cfg = cfg or load_config()
+    deps = downstream(cfg)
+    L = ["# Feature Source Dependencies (generiert: python -m modules.source_health deps)", "",
+         "Fällt eine Quelle aus (SCHEMA_CHANGED/BROKEN, STALE, UNVALIDATED), sind ihre Features **unavailable**",
+         "(NaN, Verfügbarkeit 0 – nie alte Werte, nie 0), Data Quality/Confidence sinken, und produktive",
+         "Signale, die zwingend davon abhängen, werden blockiert oder laufen über einen explizit getesteten Fallback.", "",
+         "| Feature | Quelle(n) | Fallback | Entscheidungspfade der Quelle | Modelle/Hypothesen der Quelle |", "|---|---|---|---|---|"]
+    fb = {c["source_id"]: c.get("fallback") for c in cfg.get("core_sources") or []}
+    for f, srcs in feature_dependencies(cfg).items():
+        dec = sorted({x for s in srcs for x in (deps.get(s) or {}).get("decisions") or []})
+        mh = sorted({x for s in srcs for x in ((deps.get(s) or {}).get("models") or [])
+                     + ((deps.get(s) or {}).get("hypotheses") or [])})
+        L.append(f"| {f} | {', '.join(srcs)} | {', '.join(fb[s] for s in srcs if fb.get(s)) or '–'} | "
+                 f"{', '.join(dec) or '–'} | {', '.join(mh[:6]) or '–'} |")
+    return "\n".join(L) + "\n"
 
 
 def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO)
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["check", "report"])
+    ap.add_argument("cmd", choices=["check", "report", "deps"])
     ap.add_argument("--no-mail", action="store_true")
     ap.add_argument("--no-probes", action="store_true")
     a = ap.parse_args(argv)
+    if a.cmd == "deps":
+        Path("docs/FEATURE_DEPENDENCIES.md").write_text(render_feature_dependencies(), encoding="utf-8")
+        return 0
     if a.cmd == "report":
         snap = load_snapshot()
         print(render_report(snap, []) if not snap.get("unknown") else snap["reason"])
@@ -860,3 +910,4 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

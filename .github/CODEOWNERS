@@ -58,3 +58,8 @@ tests/test_data_sources.py         @pcctradinginc-alt
 config/source_health.yaml          @pcctradinginc-alt
 modules/source_health.py           @pcctradinginc-alt
 tests/test_source_health.py        @pcctradinginc-alt
+# Kanonischer SystemState + abgestufte Drift
+config/drift_policy.yaml           @pcctradinginc-alt
+modules/system_state.py            @pcctradinginc-alt
+modules/drift.py                   @pcctradinginc-alt
+tests/test_system_state.py         @pcctradinginc-alt
