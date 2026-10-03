@@ -51,6 +51,15 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
     sec_recs = src.sec_records(sel, subs)
     for rec in sec_recs:
         changes[store.upsert(rec, today)] += 1
+    # Ticker, die für eine CIK nicht mehr gelistet sind (Umbenennung/Delisting) -> schließen
+    current = {(r["ticker"], r["cik"]) for r in rows}
+    closed = 0
+    for r in list(store.records):
+        if (r.mapping_source == "sec_company_tickers" and r.valid_to is None and r.ticker in wanted
+                and (r.ticker, r.cik) not in current and (r.valid_from is None or r.valid_from < today)):
+            store.close(r, today)
+            closed += 1
+    changes["closed"] = closed
     rep["sec"]["changes"] = changes
     # GLEIF nur für PIT-Datensätze ohne offene LEI-Zuordnung
     done = {r.entity_id for r in store.records if r.mapping_source == "gleif_name_match" and r.valid_to is None}

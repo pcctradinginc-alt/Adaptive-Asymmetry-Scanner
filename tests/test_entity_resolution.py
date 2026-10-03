@@ -94,15 +94,15 @@ def test_store_append_only_versioning_and_no_backdating(tmp_path):
                       mapping_confidence="HIGH")
     assert s.upsert(r1, "2026-01-01") == "opened" and r1.valid_from == "2026-01-01"   # ohne Beleg: ab Abruf
     assert s.upsert(EntityRecord(**{**r1.__dict__, "valid_from": None}), "2026-02-01") == "unchanged"
-    r2 = EntityRecord(entity_id="cik:1", ticker="NEW", cik="1", canonical_name="A", mapping_source="sec_company_tickers",
-                      mapping_confidence="HIGH")
+    r2 = EntityRecord(entity_id="cik:1", ticker="OLD", cik="1", canonical_name="B", mapping_source="sec_company_tickers",
+                      mapping_confidence="HIGH")                                    # Umbenennung derselben Reihe
     assert s.upsert(r2, "2026-06-01") == "replaced"
     s2 = EntityStore(p)                                                               # aus Datei rekonstruiert
-    assert s2.resolve(cik="1", as_of="2026-03-01").ticker == "OLD"
-    assert s2.resolve(cik="1", as_of="2026-07-01").ticker == "NEW"
+    assert s2.resolve(cik="1", as_of="2026-03-01").canonical_name == "A"
+    assert s2.resolve(cik="1", as_of="2026-07-01").canonical_name == "B"
     assert s2.resolve(cik="1", as_of="2025-12-31") is None                            # vor erster Kenntnis: unbekannt
     with pytest.raises(ValueError):
-        s2.upsert(EntityRecord(**{**r2.__dict__, "ticker": "X", "valid_from": None}), "2026-05-01")
+        s2.upsert(EntityRecord(**{**r2.__dict__, "canonical_name": "X", "valid_from": None}), "2026-05-01")
     assert len(p.read_text().splitlines()) == 3                                       # open, close, open
 
 
@@ -142,3 +142,26 @@ def test_build_incremental_with_failures(tmp_path):
     down = build(["AAPL"], EntityStore(tmp_path / "f.jsonl"), "2026-10-02",
                  fetch_tickers=lambda: (_ for _ in ()).throw(RuntimeError("SEC down")), sleep=lambda s: None)
     assert down["errors"] and not down["sec"]
+
+
+def test_share_classes_same_cik_and_delisted_ticker_closed(tmp_path):
+    """CI 2026-10-03: GOOG/GOOGL (eine CIK) im selben Lauf -> fälschlich 'Rückdatierung'.
+    Jetzt: je Ticker eine Reihe; ein nicht mehr gelisteter Ticker wird später geschlossen."""
+    rows = {"0": {"cik_str": 1652044, "ticker": "GOOGL", "title": "Alphabet Inc."},
+            "1": {"cik_str": 1652044, "ticker": "GOOG", "title": "Alphabet Inc."},
+            "2": {"cik_str": 1, "ticker": "OLDT", "title": "Old Corp"}}
+    store = EntityStore(tmp_path / "e.jsonl")
+    kw = dict(fetch_submissions=lambda cik: {"cik": cik, "name": "Alphabet Inc."},
+              fetch_gleif=lambda name: [], fetch_parent=lambda lei, kind: None, sleep=lambda s: None)
+    rep = build(["GOOG", "GOOGL", "OLDT"], store, "2026-10-03", fetch_tickers=lambda: src.parse_company_tickers(rows), **kw)
+    assert rep["sec"]["changes"]["opened"] == 6 and not rep["errors"]
+    ident = {r.ticker: r.cik for r in store.records if r.usage == "research_ticker_identity" and r.valid_to is None}
+    assert ident["GOOG"] == ident["GOOGL"]
+    again = build(["GOOG", "GOOGL", "OLDT"], store, "2026-10-03", fetch_tickers=lambda: src.parse_company_tickers(rows), **kw)
+    assert again["sec"]["changes"]["unchanged"] == 6                      # gleicher Tag, gleicher Inhalt: kein Fehler
+    later = {k: v for k, v in rows.items() if v["ticker"] != "OLDT"}
+    rep2 = build(["GOOG", "GOOGL", "OLDT"], EntityStore(tmp_path / "e.jsonl"), "2026-10-10",
+                 fetch_tickers=lambda: src.parse_company_tickers(later), **kw)
+    assert rep2["sec"]["changes"]["closed"] == 2
+    st = EntityStore(tmp_path / "e.jsonl")                                 # Schließen überlebt das Neuladen
+    assert st.resolve(ticker="OLDT", as_of="2026-10-11") is None and st.resolve(ticker="OLDT", as_of="2026-10-05")
