@@ -4,10 +4,6 @@
 
 Status: HEALTHY 30 · DEGRADED 0 · STALE 0 · BROKEN 0 · UNVALIDATED 9
 
-## Neue Änderungen
-
-- recovery: sec_companyfacts DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
