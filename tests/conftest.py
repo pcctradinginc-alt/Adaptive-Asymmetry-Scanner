@@ -13,3 +13,20 @@ def _isolate_system_state(tmp_path_factory, monkeypatch):
     d = tmp_path_factory.mktemp("state")
     monkeypatch.setattr(ss, "STATE", d / "system_state.json")
     monkeypatch.setattr(ss, "HISTORY", d / "system_state_history.jsonl")
+
+
+@pytest.fixture(autouse=True)
+def _isolate_cost_telemetry(tmp_path_factory, monkeypatch):
+    """Kosten-Ledger und Analyse-Cache schreiben in Tests nie nach outputs/costs/."""
+    from modules import analysis_cache as ac
+    from modules import cost_telemetry as ct
+    d = tmp_path_factory.mktemp("costs")
+    monkeypatch.setattr(ct, "LEDGER_DIR", d)
+    monkeypatch.setattr(ac, "CACHE_PATH", d / "analysis_cache.json")
+    ac._PENDING.clear()
+    ac._AUTO_DECISION.clear()
+    from modules import prescreener as _ps
+    _ps._TEMPLATE_DECISION.clear()
+    # Message Batches nur in Tests, die sie explizit einschalten (sonst würde ein Mock-Client
+    # bis zur maximalen Wartezeit gepollt).
+    monkeypatch.setattr(ct, "batch_settings", lambda *a, **k: None)

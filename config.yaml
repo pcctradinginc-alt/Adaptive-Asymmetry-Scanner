@@ -229,7 +229,7 @@ external_context:
     # wenig verifizierte Eingabedaten vorliegen.
     enabled: true
     model: null              # null -> models.prescreener wiederverwendet
-    max_candidates_per_run: 25
+    max_candidates_per_run: 8   # Kosten: Shadow (Research) vor Produktion begrenzt; vorher 25
 
 # RL-Feature-Schema für externe Signale (siehe modules/external/features.py)
 learning_features:
