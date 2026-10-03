@@ -30,7 +30,7 @@ Downstream → Validierung), Workflows, `outputs/history.json` (119 geschlossene
 | Meta-Cognition + Safe Mode | SHADOW → Eingang der Brücke | Safe Mode aktiv (tnx-Drift); als Abstinenz-Vertrag PROM-ABST-001 prospektiv im Test |
 | HC-Scanner | SHADOW | Research-Alerts, im Safe Mode deaktiviert |
 | Trade-/Prediction-Memory, Failure Analyzer, Factor Monitor | SHADOW | Attribution; speisen jetzt `abstention_proposals` |
-| Alternative Data (SEC/GLEIF) | SHADOW | Ingestion läuft; Bewertung erst nach erstem echten Lauf |
+| Alternative Data (SEC/GLEIF) | SHADOW, UNVALIDATED | Ingestion 03.10.: Filing-Events für 609/616 CIKs, GLEIF 71 LEI-Zuordnungen (HIGH/MEDIUM); Insider leer bis Form-345-Fix; OOS-Bewertung (Baseline vs. +Quelle) nach Merge von #79 |
 | PromotionController + ProductionIntelligenceAdapter | ACTIVE (Protokoll), Einfluss NONE | einzige Wirkungsstelle; 5 Verträge PROSPECTIVE_CHALLENGER, Forward ab 2026-10-05 |
 | `abstention_proposals` (neu) | SHADOW | Vertragsentwürfe nur nach bestandenem Walk-Forward; Registrierung per PR |
 
@@ -40,12 +40,15 @@ Kein Modul ist vollständig ungenutzt (Import-Graph + Workflows geprüft).
 
 | Prio | Befund | Status |
 |---|---|---|
+| P0 | Erste echte SEC-Features ließen den kompletten ML-Research-Lauf abbrechen (pandas `MergeError`, Datums-Einheiten `M8[s]`/`M8[us]` in `alt_data.feature_store.attach`, Lauf 37103770836) | **behoben**: Einheiten normalisiert, optionale Quelle fail-safe (NaN, verfügbar 0) |
 | P0 | Blockierte Champion-Trades wurden als Schatten-Trade zum festen Stichtag ohne TP/SL bewertet, echte Trades mit Exit-Regeln → „blockiert vs. durchgelassen“ systematisch verzerrt (Abstinenz-Evaluation der Brücke ungültig) | **behoben**: `counterfactual_trades` mit identischem Lebenszyklus (`pipeline.build_trade_record`, `feedback.advance_counterfactual_trades`), ohne Lern-Updates |
 | P0 | Promotion-Evidenz/Evaluation akzeptierte Näherungs-Outcomes (Delta-Approx bis +500 %, Aktien-Fallback, unbekannt) | **behoben**: nur Quote-basierte Outcomes (`modules/outcomes.py`); Ausschluss gezählt |
 | P1 | Lern-Loop (Feature-Bins, Pearson-Gewichte, PPO, robuster PPO) lernte aus genäherten/rekonstruierten Outcomes (40 von 119) | **behoben**: `outcome_reliable` je Close; Lernen nur aus verlässlichen Outcomes |
 | P1 | Keine kontrollierte Quelle neuer, falsifizierbarer Produktions-Hypothesen aus echten Fehlern | **behoben**: `abstention_proposals` (Kalibrierung 60 % / Walk-Forward 40 %, Bonferroni, Similarity) |
 | P1 | Unbenutztes PPO wurde täglich nachtrainiert und committet | **behoben** (nur bei aktivem Veto) |
 | P1 | Entity Resolution brach bei mehreren Tickern je CIK ab (GOOG/GOOGL) | **behoben** (#78) |
+| P1 | SEC Form 3/4/5: fester URL-Aufbau → 404 für alle Quartale → Insider-Features leer (Lauf 37102688451) | **behoben**: Links von der offiziellen Übersichtsseite |
+| P2 | Alt-Data-Entity-Map: 147 von 767 PIT-Tickern ohne SEC-Zuordnung (delistete Firmen fehlen in `company_tickers.json`) → für diese NaN statt Werte (Survivorship in Alt-Features) | offen, dokumentiert |
 | P1 | Champion ohne nachgewiesenen Vorteil; Final-MC-Wahrscheinlichkeit fehlkalibriert | **offen – bewusst nicht direkt geändert**: nur über Challenger/Hypothesen (Gate-Challenger `final_mc_dte_shadow` läuft; Abstinenz-Verträge prospektiv) |
 | P2 | Restlicher Survivorship-Bias im ML-Panel: 135 von 255 entfernten Titeln ohne Yahoo-Kurse | offen, im Bericht ausgewiesen |
 | P2 | Sektor-Zuordnung im ML-Panel nicht PIT | offen, dokumentiert (Audit P2-3) |
