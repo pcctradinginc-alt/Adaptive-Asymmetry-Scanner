@@ -1,0 +1,118 @@
+{
+ "generated": "2026-10-03T09:22:53+00:00",
+ "results": {
+  "FAC-1A196936": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_financials * sign(curve_10y_3m - 0)",
+    "direction": 1,
+    "family": "rates_x_financials",
+    "domain": "rates",
+    "exposure_sector": "Financial Services",
+    "spec_hash": "56022a0314dc5741"
+   },
+   "reasons": [
+    "Walk-Forward netto -0.00233 mit t=-1.62",
+    "nur 0.143 der Jahre positiv",
+    "bei Stresskosten nicht positiv",
+    "instabil über Hälften {'first': -0.00071, 'second': -0.00394}",
+    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-D5870E93": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_real_estate * sign(tnx - 3.0)",
+    "direction": -1,
+    "family": "rates_x_realestate",
+    "domain": "rates",
+    "exposure_sector": "Real Estate",
+    "spec_hash": "1fcaf879fb28266f"
+   },
+   "reasons": [
+    "Walk-Forward netto -0.00348 mit t=-2.09",
+    "nur 0.143 der Jahre positiv",
+    "bei Stresskosten nicht positiv",
+    "instabil über Hälften {'first': -0.0033, 'second': -0.00366}",
+    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-706E9DE2": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_energy * sign(wti_63d_chg - 0)",
+    "direction": 1,
+    "family": "oil_x_energy",
+    "domain": "oil",
+    "exposure_sector": "Energy",
+    "spec_hash": "4baf2e42aaf9e239"
+   },
+   "reasons": [
+    "Walk-Forward netto -0.00139 mit t=-0.89",
+    "nur 0.286 der Jahre positiv",
+    "bei Stresskosten nicht positiv",
+    "instabil über Hälften {'first': -0.00073, 'second': -0.00205}",
+    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-610889C8": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_industrials * sign(wti_63d_chg - 0)",
+    "direction": -1,
+    "family": "oil_x_airlines_industrials",
+    "domain": "oil",
+    "exposure_sector": "Industrials",
+    "spec_hash": "27d74c947a85c9de"
+   },
+   "reasons": [
+    "Walk-Forward netto -0.00035 mit t=-0.46",
+    "nur 0.571 der Jahre positiv",
+    "bei Stresskosten nicht positiv",
+    "instabil über Hälften {'first': -0.00148, 'second': 0.00078}",
+    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-989ACD2E": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_technology * sign(fed_assets_13w_chg - 0)",
+    "direction": 1,
+    "family": "liquidity_x_technology",
+    "domain": "liquidity",
+    "exposure_sector": "Technology",
+    "spec_hash": "891bee6561e62369"
+   },
+   "reasons": [
+    "Walk-Forward netto -0.00126 mit t=-0.44",
+    "nur 0.286 der Jahre positiv",
+    "bei Stresskosten nicht positiv",
+    "instabil über Hälften {'first': 0.00148, 'second': -0.00399}",
+    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-E7672D3D": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "rank(sec_insider_net_value_90d) * step(-mom_3m)",
+    "direction": 1,
+    "family": "div_insider_vs_price",
+    "domain": "insider",
+    "exposure_sector": null,
+    "spec_hash": "b35d1c73d3dcc4ba"
+   },
+   "reasons": [
+    "Walk-Forward netto 0.00035 mit t=0.02",
+    "bei Stresskosten nicht positiv",
+    "instabil über Hälften {'first': 0.00108, 'second': -0.00038}",
+    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  }
+ }
+}

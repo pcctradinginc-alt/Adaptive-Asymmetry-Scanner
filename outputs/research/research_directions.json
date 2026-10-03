@@ -1,0 +1,262 @@
+{
+ "generated": "2026-10-03T09:22:53+00:00",
+ "prior": [
+  1.0,
+  4.0
+ ],
+ "directions": {
+  "research:prior_study": {
+   "tested": 4,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 4,
+   "posterior_success": 0.1111,
+   "posterior_sd": 0.0994,
+   "wasted_capacity": 4,
+   "assessment": "verschwendet Kapazität"
+  },
+  "research:prospective": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "research:human": {
+   "tested": 4,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1111,
+   "posterior_sd": 0.0994,
+   "wasted_capacity": 2,
+   "assessment": "verschwendet Kapazität"
+  },
+  "research:literature": {
+   "tested": 5,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 5,
+   "posterior_success": 0.1,
+   "posterior_sd": 0.0905,
+   "wasted_capacity": 5,
+   "assessment": "verschwendet Kapazität"
+  },
+  "research:meta_validation": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "research:director": {
+   "tested": 16,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 16,
+   "posterior_success": 0.0476,
+   "posterior_sd": 0.0454,
+   "wasted_capacity": 16,
+   "assessment": "verschwendet Kapazität"
+  },
+  "research:alt_data:sec_deep_events": {
+   "tested": 4,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 4,
+   "posterior_success": 0.1111,
+   "posterior_sd": 0.0994,
+   "wasted_capacity": 4,
+   "assessment": "verschwendet Kapazität"
+  },
+  "alt_source:sec_deep_events": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "abstention:champion_trades": {
+   "tested": 6,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 6,
+   "posterior_success": 0.0909,
+   "posterior_sd": 0.083,
+   "wasted_capacity": 6,
+   "assessment": "verschwendet Kapazität"
+  },
+  "promotion:champion_trades": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:procurement_x_industrials": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:weather_x_consumer": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:river_x_chemicals": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:power_x_industrials": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:downloads_x_technology": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_procurement_vs_price": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:rates_x_financials": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:rates_x_realestate": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:oil_x_energy": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:oil_x_airlines_industrials": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:liquidity_x_technology": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_insider_vs_price": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "research:alt_data:ted_procurement": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  }
+ }
+}

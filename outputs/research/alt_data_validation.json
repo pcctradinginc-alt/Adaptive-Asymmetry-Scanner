@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T07:22:37+00:00",
+ "generated": "2026-10-03T09:22:53+00:00",
  "protocol": "alt-v1",
  "sources": {
   "sec_deep_events": {
@@ -60,7 +60,7 @@
      "max_abs_corr_existing": 0.03,
      "most_similar_existing": "vol_60",
      "incremental_information_score": 0.97,
-     "selection_ic": 0.005
+     "selection_ic": 0.0049
     },
     "sec_late_filing_365d": {
      "coverage": 0.965,
@@ -81,173 +81,391 @@
     "enet_xs20_v1": {
      "base": {
       "ic": 0.01842,
-      "sharpe": 0.397,
-      "expectancy": 0.00338,
+      "sharpe": 0.396,
+      "expectancy": 0.00337,
       "max_dd": -0.1569,
-      "precision_at_k": 0.2477,
-      "hit_rate": 0.4925,
+      "precision_at_k": 0.2476,
+      "hit_rate": 0.4924,
       "n_trades": 15810,
-      "brier": 0.25026,
+      "brier": 0.25027,
       "ece": 0.00836,
       "log_loss": 0.69521
      },
      "with_source": {
       "ic": 0.01677,
       "sharpe": 0.381,
-      "expectancy": 0.00311,
+      "expectancy": 0.0031,
       "max_dd": -0.1421,
       "precision_at_k": 0.2471,
-      "hit_rate": 0.4923,
+      "hit_rate": 0.4922,
       "n_trades": 15810,
       "brier": 0.25024,
-      "ece": 0.00729,
+      "ece": 0.00715,
       "log_loss": 0.69519
      },
      "bootstrap": {
-      "delta_monthly_mean": -0.000226,
+      "delta_monthly_mean": -0.000224,
       "ci_monthly_mean": [
-       -0.000972,
-       0.000508
+       -0.001106,
+       0.0006
       ],
       "ci_sharpe": [
-       -0.137,
-       0.068
+       -0.155,
+       0.076
       ],
-      "alpha_one_sided": 0.025,
+      "alpha_one_sided": 0.0125,
       "n_months": 77
      },
      "delta": {
       "ic": -0.00165,
-      "sharpe": -0.016,
+      "sharpe": -0.015,
       "expectancy": -0.00027,
       "max_dd": 0.0148,
-      "precision_at_k": -0.0006,
+      "precision_at_k": -0.0005,
       "hit_rate": -0.0002,
       "n_trades": 0,
-      "brier": -2e-05,
-      "ece": -0.00107,
+      "brier": -3e-05,
+      "ece": -0.00121,
       "log_loss": -2e-05
      },
      "delta_by_year": {
-      "2019": -0.00108,
-      "2020": 0.00139,
+      "2019": -0.00104,
+      "2020": 0.00138,
       "2021": 0.0001,
       "2022": 0.0,
       "2023": 0.0,
-      "2024": -0.00187,
+      "2024": -0.00188,
       "2025": 0.0
      },
      "breakdown": {
       "sector": {
+       "Basic Materials": {
+        "base": -0.00222,
+        "n_base": 634,
+        "variant": -0.00486,
+        "n_variant": 596,
+        "delta": -0.00264
+       },
+       "Communication Services": {
+        "base": -0.00276,
+        "n_base": 962,
+        "variant": -0.00371,
+        "n_variant": 908,
+        "delta": -0.00095
+       },
+       "Consumer Cyclical": {
+        "base": 0.00408,
+        "n_base": 2538,
+        "variant": 0.00493,
+        "n_variant": 2562,
+        "delta": 0.00085
+       },
+       "Consumer Defensive": {
+        "base": -0.00849,
+        "n_base": 699,
+        "variant": -0.00919,
+        "n_variant": 758,
+        "delta": -0.0007
+       },
+       "Energy": {
+        "base": -0.00302,
+        "n_base": 937,
+        "variant": -0.00557,
+        "n_variant": 891,
+        "delta": -0.00255
+       },
+       "Financial Services": {
+        "base": 0.00393,
+        "n_base": 2129,
+        "variant": 0.00296,
+        "n_variant": 2053,
+        "delta": -0.00097
+       },
+       "Healthcare": {
+        "base": -0.00636,
+        "n_base": 1669,
+        "variant": -0.00534,
+        "n_variant": 1702,
+        "delta": 0.00102
+       },
+       "Industrials": {
+        "base": 0.00315,
+        "n_base": 1875,
+        "variant": 0.0047,
+        "n_variant": 1829,
+        "delta": 0.00155
+       },
+       "Real Estate": {
+        "base": 0.01671,
+        "n_base": 367,
+        "variant": 0.01454,
+        "n_variant": 386,
+        "delta": -0.00217
+       },
+       "Technology": {
+        "base": 0.01183,
+        "n_base": 3677,
+        "variant": 0.01132,
+        "n_variant": 3783,
+        "delta": -0.00051
+       },
+       "Utilities": {
+        "base": 0.01022,
+        "n_base": 279,
+        "variant": 0.0047,
+        "n_variant": 290,
+        "delta": -0.00552
+       },
        "unknown": {
-        "base": 0.00338,
-        "n_base": 15810,
-        "variant": 0.00311,
-        "n_variant": 15810,
-        "delta": -0.00027
+        "base": -0.007,
+        "n_base": 44,
+        "variant": -0.01463,
+        "n_variant": 52,
+        "delta": -0.00763
        }
       },
       "regime": {
-       "unknown": {
-        "base": 0.00338,
-        "n_base": 15810,
-        "variant": 0.00311,
-        "n_variant": 15810,
-        "delta": -0.00027
+       "vix_ge_20": {
+        "base": 0.01306,
+        "n_base": 6414,
+        "variant": 0.01336,
+        "n_variant": 6414,
+        "delta": 0.0003
+       },
+       "vix_lt_20": {
+        "base": -0.00324,
+        "n_base": 9396,
+        "variant": -0.0039,
+        "n_variant": 9396,
+        "delta": -0.00066
        }
       }
      }
     },
     "hgb_xs20_v1": {
      "base": {
-      "ic": 0.03182,
-      "sharpe": 0.27,
-      "expectancy": 0.00275,
-      "max_dd": -0.1695,
-      "precision_at_k": 0.2353,
-      "hit_rate": 0.5001,
+      "ic": 0.03376,
+      "sharpe": 0.319,
+      "expectancy": 0.0032,
+      "max_dd": -0.1676,
+      "precision_at_k": 0.2397,
+      "hit_rate": 0.5008,
       "n_trades": 15810,
-      "brier": 0.2505,
-      "ece": 0.02016,
-      "log_loss": 0.69417
+      "brier": 0.25042,
+      "ece": 0.01758,
+      "log_loss": 0.69402
      },
      "with_source": {
-      "ic": 0.02861,
-      "sharpe": 0.301,
-      "expectancy": 0.00304,
-      "max_dd": -0.2153,
-      "precision_at_k": 0.244,
-      "hit_rate": 0.4999,
+      "ic": 0.02582,
+      "sharpe": 0.307,
+      "expectancy": 0.00317,
+      "max_dd": -0.1994,
+      "precision_at_k": 0.2457,
+      "hit_rate": 0.5008,
       "n_trades": 15810,
-      "brier": 0.25058,
-      "ece": 0.01695,
-      "log_loss": 0.69465
+      "brier": 0.25074,
+      "ece": 0.01987,
+      "log_loss": 0.695
      },
      "bootstrap": {
-      "delta_monthly_mean": 0.000394,
+      "delta_monthly_mean": 3.4e-05,
       "ci_monthly_mean": [
-       -0.001499,
-       0.002301
+       -0.001957,
+       0.00191
       ],
       "ci_sharpe": [
-       -0.194,
-       0.234
+       -0.247,
+       0.206
       ],
-      "alpha_one_sided": 0.025,
+      "alpha_one_sided": 0.0125,
       "n_months": 77
      },
      "delta": {
-      "ic": -0.00321,
-      "sharpe": 0.031,
-      "expectancy": 0.00029,
-      "max_dd": -0.0458,
-      "precision_at_k": 0.0087,
-      "hit_rate": -0.0002,
+      "ic": -0.00794,
+      "sharpe": -0.012,
+      "expectancy": -3e-05,
+      "max_dd": -0.0318,
+      "precision_at_k": 0.006,
+      "hit_rate": 0.0,
       "n_trades": 0,
-      "brier": 8e-05,
-      "ece": -0.00321,
-      "log_loss": 0.00048
+      "brier": 0.00032,
+      "ece": 0.00229,
+      "log_loss": 0.00098
      },
      "delta_by_year": {
-      "2019": 0.00184,
-      "2020": 0.00395,
-      "2021": 0.00031,
-      "2022": -0.00181,
-      "2023": -0.00032,
+      "2019": 0.00114,
+      "2020": 0.00184,
+      "2021": 0.00065,
+      "2022": -0.00132,
+      "2023": 0.00019,
       "2024": -0.00202,
-      "2025": 0.00136
+      "2025": -0.00062
      },
      "breakdown": {
       "sector": {
+       "Basic Materials": {
+        "base": -0.009,
+        "n_base": 552,
+        "variant": -0.00732,
+        "n_variant": 492,
+        "delta": 0.00168
+       },
+       "Communication Services": {
+        "base": 0.00169,
+        "n_base": 1143,
+        "variant": 0.00185,
+        "n_variant": 1118,
+        "delta": 0.00016
+       },
+       "Consumer Cyclical": {
+        "base": 0.00391,
+        "n_base": 2251,
+        "variant": -0.00026,
+        "n_variant": 2292,
+        "delta": -0.00417
+       },
+       "Consumer Defensive": {
+        "base": 0.0006,
+        "n_base": 1097,
+        "variant": -0.00237,
+        "n_variant": 1264,
+        "delta": -0.00297
+       },
+       "Energy": {
+        "base": 0.01245,
+        "n_base": 969,
+        "variant": 0.02527,
+        "n_variant": 913,
+        "delta": 0.01282
+       },
+       "Financial Services": {
+        "base": 0.00472,
+        "n_base": 1834,
+        "variant": 0.00736,
+        "n_variant": 1725,
+        "delta": 0.00264
+       },
+       "Healthcare": {
+        "base": -0.00374,
+        "n_base": 1658,
+        "variant": -0.0027,
+        "n_variant": 1731,
+        "delta": 0.00104
+       },
+       "Industrials": {
+        "base": 0.0022,
+        "n_base": 1801,
+        "variant": 0.0022,
+        "n_variant": 1708,
+        "delta": 0.0
+       },
+       "Real Estate": {
+        "base": 0.00404,
+        "n_base": 869,
+        "variant": 0.0005,
+        "n_variant": 758,
+        "delta": -0.00354
+       },
+       "Technology": {
+        "base": 0.0069,
+        "n_base": 2813,
+        "variant": 0.00783,
+        "n_variant": 2948,
+        "delta": 0.00093
+       },
+       "Utilities": {
+        "base": 0.00345,
+        "n_base": 796,
+        "variant": -0.0037,
+        "n_variant": 827,
+        "delta": -0.00715
+       },
        "unknown": {
-        "base": 0.00275,
-        "n_base": 15810,
-        "variant": 0.00304,
-        "n_variant": 15810,
-        "delta": 0.00029
+        "base": 0.00137,
+        "n_base": 27,
+        "variant": -0.00173,
+        "n_variant": 34,
+        "delta": -0.0031
        }
       },
       "regime": {
-       "unknown": {
-        "base": 0.00275,
-        "n_base": 15810,
-        "variant": 0.00304,
-        "n_variant": 15810,
-        "delta": 0.00029
+       "vix_ge_20": {
+        "base": 0.00881,
+        "n_base": 6414,
+        "variant": 0.00857,
+        "n_variant": 6414,
+        "delta": -0.00024
+       },
+       "vix_lt_20": {
+        "base": -0.00063,
+        "n_base": 9396,
+        "variant": -0.00052,
+        "n_variant": 9396,
+        "delta": 0.00011
        }
       }
      }
     }
    },
-   "verdict": "REJECT",
-   "verdict_reason": "kein inkrementeller Nutzen gegenüber der Baseline",
+   "verdict": "MODIFY",
+   "verdict_reason": "nur in einzelnen Sektoren positiv",
    "source_value": {
-    "score": 0.727,
+    "score": 0.72,
     "components": {
-     "incremental_value": 0.508,
+     "incremental_value": 0.49,
      "coverage": 1.0,
      "freshness": 1.0,
      "stability": 0.429,
+     "mapping_quality": 0.808,
+     "api_reliability": 1.0,
+     "revision_risk": 1.0
+    }
+   }
+  },
+  "ted_procurement": {
+   "source": "ted_procurement",
+   "coverage_dev": 0.0,
+   "screen": {
+    "ted_awards_90d": {
+     "coverage": 0.0,
+     "max_abs_corr_existing": null,
+     "most_similar_existing": null,
+     "incremental_information_score": null,
+     "selection_ic": null
+    },
+    "ted_any_award_365d": {
+     "coverage": 0.0,
+     "max_abs_corr_existing": null,
+     "most_similar_existing": null,
+     "incremental_information_score": null,
+     "selection_ic": null
+    },
+    "ted_award_value_365d": {
+     "coverage": 0.0,
+     "max_abs_corr_existing": null,
+     "most_similar_existing": null,
+     "incremental_information_score": null,
+     "selection_ic": null
+    },
+    "ted_awards_z": {
+     "coverage": 0.0,
+     "max_abs_corr_existing": null,
+     "most_similar_existing": null,
+     "incremental_information_score": null,
+     "selection_ic": null
+    }
+   },
+   "selected_features": [],
+   "baselines": {},
+   "verdict": "REJECT",
+   "verdict_reason": "keine nicht-redundante Feature mit ausreichender Abdeckung",
+   "source_value": {
+    "score": 0.331,
+    "components": {
+     "incremental_value": 0.0,
+     "coverage": 0.0,
+     "freshness": 1.0,
+     "stability": 0.0,
      "mapping_quality": 0.808,
      "api_reliability": 1.0,
      "revision_risk": 1.0

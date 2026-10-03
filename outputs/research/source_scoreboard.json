@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T07:22:37+00:00",
+ "generated": "2026-10-03T09:22:53+00:00",
  "sources": {
   "sec_deep_events": {
    "coverage": 1.0,
@@ -12,9 +12,20 @@
     "sec_insider_cluster_30d",
     "sec_filing_delay_z"
    ],
-   "oos_value": 0.508,
+   "oos_value": 0.49,
    "forward_value": null,
-   "source_value_score": 0.727,
+   "source_value_score": 0.72,
+   "status": "SHADOW",
+   "verdict": "MODIFY"
+  },
+  "ted_procurement": {
+   "coverage": 0.0,
+   "freshness": 1.0,
+   "data_quality": 1.0,
+   "active_features": [],
+   "oos_value": 0.0,
+   "forward_value": null,
+   "source_value_score": 0.331,
    "status": "REJECTED",
    "verdict": "REJECT"
   }
