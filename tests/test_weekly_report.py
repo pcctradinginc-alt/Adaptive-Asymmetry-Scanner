@@ -392,3 +392,9 @@ def test_roi_subgate_evidence_requires_min_n():
     r = weekly.roi_subgate_evidence(h)
     assert r["edge"] == {"n": 5, "pending": 0, "mean": -0.5, "win_rate": 0.0, "status": "NEED_MORE_DATA"}
     assert r["edge+mc_pnl"]["pending"] == 1 and "unbekannt" not in r
+
+
+def test_universe_section_separates_v1_v2_and_needs_data(tmp_path):
+    make_full(tmp_path)
+    sec = _section(text_for(tmp_path), 9)
+    assert "UNIVERSE_V1" in sec and "nie vermischt" in sec and "NEED_MORE_DATA" in sec

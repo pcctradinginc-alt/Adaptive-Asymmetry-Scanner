@@ -67,3 +67,11 @@ Pflichtfelder für Populations-Verträge (`hypothesis_contract.validate_stage`):
 `spec_hash` (muss zur Spezifikation passen). Der Adapter wertet nur Champion-Verträge auf
 Champion-Trades aus. Test: `tests/test_final_mc_ledger.py` (End-to-End inkl. forward_start-Grenze
 und v1/v2-Trennung).
+
+## UNIVERSE_V2-Segmente (`production_class: universe_segment`)
+
+Population `V2_CANDIDATE`, `universe_version: V2`, Evidenz nur aus `outputs/universe/v2_ledger` auf
+`net_realizable_return`. Leiter: NONE → RERANK_ONLY → WEIGHT_10 → TRADE_RECOMMENDATION_ENABLED; automatisch
+höchstens FORWARD_VALIDATED, jede weitere Stufe nur per `approved_level` in `config/promotion_approvals.yaml`
+(`apply_approval`: eine Stufe je Look, nur bei aktuell erfüllter Evidenz). Demotion eine Stufe je Verstoß
+(`universe_v2_ledger.segment_demotion_reasons`). Details: `docs/UNIVERSE.md`.

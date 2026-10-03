@@ -551,3 +551,398 @@ contracts:
     Entscheidung vor Mindest-N/Cluster/Spanne
   cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand zum vorigen Signal = ein Ereignis
   spec_hash: be8fd677154432e6c4ee2db63b8f1798a3461b48a96a7234df313b5b2727d845
+
+# ── UNIVERSE_V2-Segmente (registriert 2026-10-03, Forward ab 2026-10-12) ──
+# universe_version V2, Population V2_CANDIDATE, Promotion nur auf net_realizable_return.
+# Segmentweise Entscheidung; über SHADOW nur per menschlicher Freigabe. V1 bleibt unverändert.
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T21:00:00Z'
+  forward_start: '2026-10-12T00:00:00Z'
+  created_by: claude-code (UNIVERSE_V2 Segment-Hypothese; Shadow-first)
+  hypothesis_id: UNIV-V2-SEG-ULTRA_MICRO
+  title: 'UNIVERSE_V2-Segment ULTRA_MICRO (nicht in V1): positive Netto-Performance nach Kosten'
+  source_type: manual
+  research_question: Liefert das System bei ULTRA_MICRO-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt
+    wurden?
+  economic_rationale: Geringere Analystenabdeckung kann Informationsineffizienz bedeuten – oder nur höhere Kosten und Risiken; empirisch zu prüfen, keine Annahme.
+  universe_version: V2
+  eligible_stage: V2_CANDIDATE
+  baseline_population: V2_CANDIDATE
+  segment:
+    market_cap_bucket: ULTRA_MICRO
+    in_universe_v1: 0
+  universe: RESEARCH_UNIVERSE_V2 (alle US-Aktien mit gelisteten Optionen, config/universe_v2.yaml)
+  population: V2-Kandidaten (LLM-freie Champion-Quantstufen) – NICHT V1-Champion-Trades
+  population_definition: Jeder Titel aus RESEARCH_UNIVERSE_V2, der im täglichen V2-Shadow-Scan ab forward_start RV (VIX-skaliert), News-Präsenz und Pre-MC sigma-only besteht; eine Beobachtung je Tag und
+    Ticker; Bewertung eingefroren (modules/universe_v2_ledger.py)
+  exposure: Market-Cap-Bucket ULTRA_MICRO, nicht in UNIVERSE_V1
+  signal_definition: market_cap_bucket == 'ULTRA_MICRO' and in_universe_v1 == 0
+  features:
+  - market_cap_bucket
+  - in_universe_v1
+  thresholds:
+    op: '>='
+    value: 1
+  direction: 1
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  horizon_days: 45
+  outcome_horizon: 45 Kalendertage ab Signaltag (sekundär 20/60 T)
+  primary_outcome: net_realizable_return
+  primary_metric: Netto-Expectancy der Referenz-Option (Kauf Ask + Slippage, Verkauf Bid − Slippage, Kommission)
+  secondary_metrics:
+  - raw_underlying_return
+  - option_theoretical_return
+  - win_rate
+  - precision_at_k
+  - brier
+  - ece
+  - max_drawdown
+  - mfe
+  - mae
+  - trade_count
+  - avg_spread
+  - avg_slippage
+  - avg_execution_cost
+  - execution_quality_ok_share
+  - downside_tail_10pct
+  - n_delisted
+  baseline: 'V1-Referenz derselben Population: V2-Kandidaten mit in_universe_v1 = 1 im selben Zeitraum'
+  minimum_sample_size: 100
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  minimum_independent_event_clusters: 60
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    calibration_not_worse_by: 0.02
+    max_drawdown_not_worse_by: 0.1
+    precision_at_k_not_worse_by: 0.05
+    min_execution_quality_share: 0.7
+    tail_not_worse_than_reference_by: 0.1
+    min_fired_observations: 100
+    min_fired_independent_dates: 30
+    min_fired_event_clusters: 60
+  demotion_criteria:
+    rolling_window_observations: 30
+    rolling_expectancy_min: 0.0
+    min_net_expectancy: 0.0
+    max_avg_slippage: 0.15
+    min_execution_quality_share: 0.6
+    min_precision_at_k: 0.3
+    max_drawdown_min: -3.0
+    ece_max: 0.15
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  maximum_initial_influence: NONE
+  production_class: universe_segment
+  sequential_design: Bonferroni über Familie universe_segment@V2_CANDIDATE x 12 geplante Looks (28 T); Block-Bootstrap über Signaltage UND Ereignis-Cluster; jede Stufe über SHADOW nur per menschlicher Freigabe
+    (approved_level), eine Stufe je Look
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand = ein Ereignis
+  failure_condition: Netto-Expectancy <= 0 oder CI (Tage UND Cluster) schließt 0 ein oder schlechter als V1-Referenz (Precision/Kalibrierung/Tail) -> keine Freigabe; signifikant negativ -> REJECTED
+  distinct_from:
+    ids:
+    - UNIV-V2-SEG-MICRO@v1
+    - UNIV-V2-SEG-SMALL@v1
+    - UNIV-V2-SEG-MID@v1
+    justification: disjunktes Market-Cap-Segment (andere Population)
+  spec_hash: 23a4a7f93f1933adbd96b334af96347b010aa5d0462552329bb9fdd3f5c902c6
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T21:00:00Z'
+  forward_start: '2026-10-12T00:00:00Z'
+  created_by: claude-code (UNIVERSE_V2 Segment-Hypothese; Shadow-first)
+  hypothesis_id: UNIV-V2-SEG-MICRO
+  title: 'UNIVERSE_V2-Segment MICRO (nicht in V1): positive Netto-Performance nach Kosten'
+  source_type: manual
+  research_question: Liefert das System bei MICRO-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt
+    wurden?
+  economic_rationale: Geringere Analystenabdeckung kann Informationsineffizienz bedeuten – oder nur höhere Kosten und Risiken; empirisch zu prüfen, keine Annahme.
+  universe_version: V2
+  eligible_stage: V2_CANDIDATE
+  baseline_population: V2_CANDIDATE
+  segment:
+    market_cap_bucket: MICRO
+    in_universe_v1: 0
+  universe: RESEARCH_UNIVERSE_V2 (alle US-Aktien mit gelisteten Optionen, config/universe_v2.yaml)
+  population: V2-Kandidaten (LLM-freie Champion-Quantstufen) – NICHT V1-Champion-Trades
+  population_definition: Jeder Titel aus RESEARCH_UNIVERSE_V2, der im täglichen V2-Shadow-Scan ab forward_start RV (VIX-skaliert), News-Präsenz und Pre-MC sigma-only besteht; eine Beobachtung je Tag und
+    Ticker; Bewertung eingefroren (modules/universe_v2_ledger.py)
+  exposure: Market-Cap-Bucket MICRO, nicht in UNIVERSE_V1
+  signal_definition: market_cap_bucket == 'MICRO' and in_universe_v1 == 0
+  features:
+  - market_cap_bucket
+  - in_universe_v1
+  thresholds:
+    op: '>='
+    value: 1
+  direction: 1
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  horizon_days: 45
+  outcome_horizon: 45 Kalendertage ab Signaltag (sekundär 20/60 T)
+  primary_outcome: net_realizable_return
+  primary_metric: Netto-Expectancy der Referenz-Option (Kauf Ask + Slippage, Verkauf Bid − Slippage, Kommission)
+  secondary_metrics:
+  - raw_underlying_return
+  - option_theoretical_return
+  - win_rate
+  - precision_at_k
+  - brier
+  - ece
+  - max_drawdown
+  - mfe
+  - mae
+  - trade_count
+  - avg_spread
+  - avg_slippage
+  - avg_execution_cost
+  - execution_quality_ok_share
+  - downside_tail_10pct
+  - n_delisted
+  baseline: 'V1-Referenz derselben Population: V2-Kandidaten mit in_universe_v1 = 1 im selben Zeitraum'
+  minimum_sample_size: 100
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  minimum_independent_event_clusters: 60
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    calibration_not_worse_by: 0.02
+    max_drawdown_not_worse_by: 0.1
+    precision_at_k_not_worse_by: 0.05
+    min_execution_quality_share: 0.7
+    tail_not_worse_than_reference_by: 0.1
+    min_fired_observations: 100
+    min_fired_independent_dates: 30
+    min_fired_event_clusters: 60
+  demotion_criteria:
+    rolling_window_observations: 30
+    rolling_expectancy_min: 0.0
+    min_net_expectancy: 0.0
+    max_avg_slippage: 0.15
+    min_execution_quality_share: 0.6
+    min_precision_at_k: 0.3
+    max_drawdown_min: -3.0
+    ece_max: 0.15
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  maximum_initial_influence: NONE
+  production_class: universe_segment
+  sequential_design: Bonferroni über Familie universe_segment@V2_CANDIDATE x 12 geplante Looks (28 T); Block-Bootstrap über Signaltage UND Ereignis-Cluster; jede Stufe über SHADOW nur per menschlicher Freigabe
+    (approved_level), eine Stufe je Look
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand = ein Ereignis
+  failure_condition: Netto-Expectancy <= 0 oder CI (Tage UND Cluster) schließt 0 ein oder schlechter als V1-Referenz (Precision/Kalibrierung/Tail) -> keine Freigabe; signifikant negativ -> REJECTED
+  distinct_from:
+    ids:
+    - UNIV-V2-SEG-ULTRA_MICRO@v1
+    - UNIV-V2-SEG-SMALL@v1
+    - UNIV-V2-SEG-MID@v1
+    justification: disjunktes Market-Cap-Segment (andere Population)
+  spec_hash: 754702271644723bd8c511a75b4432b4d6d0139ada858619513f922345fce451
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T21:00:00Z'
+  forward_start: '2026-10-12T00:00:00Z'
+  created_by: claude-code (UNIVERSE_V2 Segment-Hypothese; Shadow-first)
+  hypothesis_id: UNIV-V2-SEG-SMALL
+  title: 'UNIVERSE_V2-Segment SMALL (nicht in V1): positive Netto-Performance nach Kosten'
+  source_type: manual
+  research_question: Liefert das System bei SMALL-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt
+    wurden?
+  economic_rationale: Geringere Analystenabdeckung kann Informationsineffizienz bedeuten – oder nur höhere Kosten und Risiken; empirisch zu prüfen, keine Annahme.
+  universe_version: V2
+  eligible_stage: V2_CANDIDATE
+  baseline_population: V2_CANDIDATE
+  segment:
+    market_cap_bucket: SMALL
+    in_universe_v1: 0
+  universe: RESEARCH_UNIVERSE_V2 (alle US-Aktien mit gelisteten Optionen, config/universe_v2.yaml)
+  population: V2-Kandidaten (LLM-freie Champion-Quantstufen) – NICHT V1-Champion-Trades
+  population_definition: Jeder Titel aus RESEARCH_UNIVERSE_V2, der im täglichen V2-Shadow-Scan ab forward_start RV (VIX-skaliert), News-Präsenz und Pre-MC sigma-only besteht; eine Beobachtung je Tag und
+    Ticker; Bewertung eingefroren (modules/universe_v2_ledger.py)
+  exposure: Market-Cap-Bucket SMALL, nicht in UNIVERSE_V1
+  signal_definition: market_cap_bucket == 'SMALL' and in_universe_v1 == 0
+  features:
+  - market_cap_bucket
+  - in_universe_v1
+  thresholds:
+    op: '>='
+    value: 1
+  direction: 1
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  horizon_days: 45
+  outcome_horizon: 45 Kalendertage ab Signaltag (sekundär 20/60 T)
+  primary_outcome: net_realizable_return
+  primary_metric: Netto-Expectancy der Referenz-Option (Kauf Ask + Slippage, Verkauf Bid − Slippage, Kommission)
+  secondary_metrics:
+  - raw_underlying_return
+  - option_theoretical_return
+  - win_rate
+  - precision_at_k
+  - brier
+  - ece
+  - max_drawdown
+  - mfe
+  - mae
+  - trade_count
+  - avg_spread
+  - avg_slippage
+  - avg_execution_cost
+  - execution_quality_ok_share
+  - downside_tail_10pct
+  - n_delisted
+  baseline: 'V1-Referenz derselben Population: V2-Kandidaten mit in_universe_v1 = 1 im selben Zeitraum'
+  minimum_sample_size: 100
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  minimum_independent_event_clusters: 60
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    calibration_not_worse_by: 0.02
+    max_drawdown_not_worse_by: 0.1
+    precision_at_k_not_worse_by: 0.05
+    min_execution_quality_share: 0.7
+    tail_not_worse_than_reference_by: 0.1
+    min_fired_observations: 100
+    min_fired_independent_dates: 30
+    min_fired_event_clusters: 60
+  demotion_criteria:
+    rolling_window_observations: 30
+    rolling_expectancy_min: 0.0
+    min_net_expectancy: 0.0
+    max_avg_slippage: 0.15
+    min_execution_quality_share: 0.6
+    min_precision_at_k: 0.3
+    max_drawdown_min: -3.0
+    ece_max: 0.15
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  maximum_initial_influence: NONE
+  production_class: universe_segment
+  sequential_design: Bonferroni über Familie universe_segment@V2_CANDIDATE x 12 geplante Looks (28 T); Block-Bootstrap über Signaltage UND Ereignis-Cluster; jede Stufe über SHADOW nur per menschlicher Freigabe
+    (approved_level), eine Stufe je Look
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand = ein Ereignis
+  failure_condition: Netto-Expectancy <= 0 oder CI (Tage UND Cluster) schließt 0 ein oder schlechter als V1-Referenz (Precision/Kalibrierung/Tail) -> keine Freigabe; signifikant negativ -> REJECTED
+  distinct_from:
+    ids:
+    - UNIV-V2-SEG-ULTRA_MICRO@v1
+    - UNIV-V2-SEG-MICRO@v1
+    - UNIV-V2-SEG-MID@v1
+    justification: disjunktes Market-Cap-Segment (andere Population)
+  spec_hash: 6fe833136b9aa27c2083930e8b9254026bbe32ee2b1673f48b3d4f481c09ac9d
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T21:00:00Z'
+  forward_start: '2026-10-12T00:00:00Z'
+  created_by: claude-code (UNIVERSE_V2 Segment-Hypothese; Shadow-first)
+  hypothesis_id: UNIV-V2-SEG-MID
+  title: 'UNIVERSE_V2-Segment MID (nicht in V1): positive Netto-Performance nach Kosten'
+  source_type: manual
+  research_question: Liefert das System bei MID-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt wurden?
+  economic_rationale: Geringere Analystenabdeckung kann Informationsineffizienz bedeuten – oder nur höhere Kosten und Risiken; empirisch zu prüfen, keine Annahme.
+  universe_version: V2
+  eligible_stage: V2_CANDIDATE
+  baseline_population: V2_CANDIDATE
+  segment:
+    market_cap_bucket: MID
+    in_universe_v1: 0
+  universe: RESEARCH_UNIVERSE_V2 (alle US-Aktien mit gelisteten Optionen, config/universe_v2.yaml)
+  population: V2-Kandidaten (LLM-freie Champion-Quantstufen) – NICHT V1-Champion-Trades
+  population_definition: Jeder Titel aus RESEARCH_UNIVERSE_V2, der im täglichen V2-Shadow-Scan ab forward_start RV (VIX-skaliert), News-Präsenz und Pre-MC sigma-only besteht; eine Beobachtung je Tag und
+    Ticker; Bewertung eingefroren (modules/universe_v2_ledger.py)
+  exposure: Market-Cap-Bucket MID, nicht in UNIVERSE_V1
+  signal_definition: market_cap_bucket == 'MID' and in_universe_v1 == 0
+  features:
+  - market_cap_bucket
+  - in_universe_v1
+  thresholds:
+    op: '>='
+    value: 1
+  direction: 1
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  horizon_days: 45
+  outcome_horizon: 45 Kalendertage ab Signaltag (sekundär 20/60 T)
+  primary_outcome: net_realizable_return
+  primary_metric: Netto-Expectancy der Referenz-Option (Kauf Ask + Slippage, Verkauf Bid − Slippage, Kommission)
+  secondary_metrics:
+  - raw_underlying_return
+  - option_theoretical_return
+  - win_rate
+  - precision_at_k
+  - brier
+  - ece
+  - max_drawdown
+  - mfe
+  - mae
+  - trade_count
+  - avg_spread
+  - avg_slippage
+  - avg_execution_cost
+  - execution_quality_ok_share
+  - downside_tail_10pct
+  - n_delisted
+  baseline: 'V1-Referenz derselben Population: V2-Kandidaten mit in_universe_v1 = 1 im selben Zeitraum'
+  minimum_sample_size: 100
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  minimum_independent_event_clusters: 60
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    calibration_not_worse_by: 0.02
+    max_drawdown_not_worse_by: 0.1
+    precision_at_k_not_worse_by: 0.05
+    min_execution_quality_share: 0.7
+    tail_not_worse_than_reference_by: 0.1
+    min_fired_observations: 100
+    min_fired_independent_dates: 30
+    min_fired_event_clusters: 60
+  demotion_criteria:
+    rolling_window_observations: 30
+    rolling_expectancy_min: 0.0
+    min_net_expectancy: 0.0
+    max_avg_slippage: 0.15
+    min_execution_quality_share: 0.6
+    min_precision_at_k: 0.3
+    max_drawdown_min: -3.0
+    ece_max: 0.15
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  maximum_initial_influence: NONE
+  production_class: universe_segment
+  sequential_design: Bonferroni über Familie universe_segment@V2_CANDIDATE x 12 geplante Looks (28 T); Block-Bootstrap über Signaltage UND Ereignis-Cluster; jede Stufe über SHADOW nur per menschlicher Freigabe
+    (approved_level), eine Stufe je Look
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand = ein Ereignis
+  failure_condition: Netto-Expectancy <= 0 oder CI (Tage UND Cluster) schließt 0 ein oder schlechter als V1-Referenz (Precision/Kalibrierung/Tail) -> keine Freigabe; signifikant negativ -> REJECTED
+  distinct_from:
+    ids:
+    - UNIV-V2-SEG-ULTRA_MICRO@v1
+    - UNIV-V2-SEG-MICRO@v1
+    - UNIV-V2-SEG-SMALL@v1
+    justification: disjunktes Market-Cap-Segment (andere Population)
+  spec_hash: 7de9caf0ecc9b06dc845c8c84e623dca503789b9b79cc4ee11e681f2f37cb5a3

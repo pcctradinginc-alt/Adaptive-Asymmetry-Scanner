@@ -54,6 +54,7 @@ MONDAY_TITLES = {
     6: "TOP TRADE CANDIDATES",
     7: "PERFORMANCE",
     8: "FORWARD EVIDENCE",
+    9: "UNIVERSE V1 / V2",
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
@@ -522,7 +523,23 @@ def collect(root, date, state_path=None) -> dict:
         log.warning(f"Final-MC-Ledger nicht lesbar: {e}")
         data["final_mc"] = None
     data["roi_subgates"] = roi_subgate_evidence(history)
+    data["universe"] = universe_overview(out_dir)
     return data
+
+
+def universe_overview(out_dir: Path) -> dict:
+    """UNIVERSE_V1 (eingefroren) und UNIVERSE_V2 (letzter PIT-Snapshot, V2-Ledger je Bucket). Rein lesend."""
+    try:
+        from modules import universe_v2 as _uv, universe_v2_ledger as _v2l
+        from modules.final_mc_ledger import read_rows
+        u = out_dir / "universe"
+        snap = _uv.latest_snapshot(u / "v2_snapshots")
+        return {"v1": _load_json(u / "universe_v1_frozen.json"),
+                "v2_as_of": (snap or {}).get("as_of"), "v2": (snap or {}).get("summary"),
+                "buckets": _v2l.bucket_summary(read_rows(u / "v2_ledger"), _v2l.read_outcomes(u / "v2_outcomes.jsonl"))}
+    except (OSError, ValueError, KeyError) as e:
+        log.warning(f"Universe-Übersicht nicht lesbar: {e}")
+        return {}
 
 
 def roi_subgate_evidence(history) -> dict:
@@ -1313,7 +1330,50 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     b7.append(("para", f"RL-Agent: {rl.get('status', 'keine Bewertung')}" + (f" – {rl.get('summary')}" if rl.get("summary") else "")))
     secs.append((7, MONDAY_TITLES[7], b7))
     secs.append((8, MONDAY_TITLES[8], forward_evidence_blocks(data)))
+    secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
     return secs
+
+
+def universe_blocks(data: dict) -> list:
+    """Kompakt: Größe V1/V2, Titel je Bucket, optionierbar/tradeable, Signale + Netto-Kennzahlen je Bucket,
+    Segment-Verträge (Status, Abstand). V2 ist SHADOW, solange kein Segment freigegeben ist."""
+    u = _d(data.get("universe"))
+    v1, v2 = _d(u.get("v1")), _d(u.get("v2"))
+    b = [("note", "V1 = Produktion (eingefroren). V2 = Research/Shadow; V1- und V2-Evidenz werden nie vermischt. "
+                  "V2-Kandidaten erscheinen in Trade-Mails erst bei TRADE_RECOMMENDATION_ENABLED ihres Segments.")]
+    b.append(("kv", [("UNIVERSE_V1", f"{v1.get('universe', NA)} · Cap ≥ {_fv(_d(v1.get('hard_filters')).get('min_market_cap_usd'))} "
+                                     f"· Definition {str(v1.get('definition_hash', NA))[:12]}"),
+                     ("UNIVERSE_V2 Stand", u.get("v2_as_of") or "noch kein Snapshot"),
+                     ("optionierbar / research / tradeable",
+                      f"{v2.get('n_optionable', NA)} / {v2.get('n_research', NA)} / {v2.get('n_tradeable', NA)}" if v2 else NO_DATA)]))
+    if v2:
+        rows = [[bk, str(_d(v2.get("optionable_by_bucket")).get(bk, 0)), str(_d(v2.get("research_by_bucket")).get(bk, 0)),
+                 str(_d(v2.get("tradeable_by_bucket")).get(bk, 0))]
+                for bk in ("ULTRA_MICRO", "MICRO", "SMALL", "MID", "LARGE", "MEGA", "UNKNOWN")]
+        b.append(("table", ["Bucket", "optionierbar", "research", "tradeable"], rows, []))
+    bs = _d(u.get("buckets"))
+    b.append(("para", "V2-Shadow-Signale je Bucket (45 T, netto nach Spread/Slippage/Kommission; beschreibend, inkl. vor Forward-Start):"))
+    b.append(("table", ["Bucket", "Signale", "tradeable", "aufgelöst", "Netto-Expectancy", "Ø Options-Spread", "Ø Slippage",
+                        "Ø Ausführungskosten"],
+              [[k, str(v["signals"]), str(v["tradeable"]), str(v["resolved"]), _fv(v["net_expectancy"]),
+                _fv(v["avg_option_spread"]), _fv(v["avg_slippage"]), _fv(v["avg_execution_cost"])] for k, v in bs.items()], [])
+             if bs else ("para", "NEED_MORE_DATA – noch keine V2-Signale"))
+    hyps = _d(_d(data.get("promo")).get("hypotheses"))
+    seg = {k: _d(h) for k, h in hyps.items() if _d(h).get("eligible_stage") == "V2_CANDIDATE"}
+    b.append(("para", "Segment-Verträge (Promotion je Segment, über SHADOW nur per menschlicher Freigabe):"))
+    b.append(("table", ["Vertrag", "N", "Cluster", "Tage", "Spanne", "Netto-Exp.", "Precision@3", "Brier",
+                        "Ø Kosten", "Abstand zur Promotion", "Status", "Stufe"],
+              [[k, str(_d(h.get("evidence")).get("n_observations", 0)), str(_d(h.get("evidence")).get("n_event_clusters", 0)),
+                str(_d(h.get("evidence")).get("n_independent_dates", 0)), f"{_d(h.get('evidence')).get('calendar_span_days', 0)} T",
+                _fv(_d(_d(h.get("evidence")).get("fired")).get("net_expectancy")),
+                _fv(_d(_d(h.get("evidence")).get("fired")).get("precision_at_k")),
+                _fv(_d(_d(h.get("evidence")).get("fired")).get("brier")),
+                _fv(_d(_d(h.get("evidence")).get("fired")).get("avg_execution_cost")),
+                ("NEED_MORE_DATA – " if any("NEED_MORE_DATA" in str(r) for r in h.get("reasons") or [])
+                 or not _d(h.get("evidence")).get("n_observations") else "") + str(h.get("next_requirement") or "; ".join(map(str, h.get("reasons") or [])))[:160],
+                str(h.get("state", NA)), str(h.get("influence_level", "NONE"))] for k, h in sorted(seg.items())], [])
+             if seg else ("para", "Segment-Verträge noch nicht vom PromotionController registriert"))
+    return b
 
 
 def _forward_row(k: str, h: dict, clusters: bool) -> list[str]:

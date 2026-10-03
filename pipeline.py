@@ -735,7 +735,9 @@ def main() -> None:
     stats["candidates"] = len(candidates)
     for c in candidates:
         try:
-            candidate_ledger.note(c.get("ticker"), stage="universe")
+            candidate_ledger.note(c.get("ticker"), stage="universe", universe_version="V1",
+                                  market_cap=c.get("market_cap"), avg_volume=c.get("avg_volume"),
+                                  dollar_volume=c.get("dollar_volume"))
         except Exception as e:
             log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     if not candidates:

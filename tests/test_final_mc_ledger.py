@@ -25,6 +25,7 @@ def _repo(key):
 # ── Bausteine ───────────────────────────────────────────────────────────────
 def test_v2_contracts_store_population_and_do_not_touch_v1():
     cs = hc.load()
+    cs = [c for c in cs if c["hypothesis_id"].startswith("PROM-ABST")]      # UNIVERSE_V2-Segmente separat getestet
     v1 = [c for c in cs if c["version"] == 1]
     v2 = [c for c in cs if c["version"] == 2]
     assert len(v1) == 5 and len(v2) == 5
