@@ -35,3 +35,11 @@ config/alt_data_protocol.yaml @pcctradinginc-alt
 config/alt_hypotheses.yaml    @pcctradinginc-alt
 tests/test_alt_data.py        @pcctradinginc-alt
 modules/alt_data/             @pcctradinginc-alt
+# Research→Production-Brücke: Policy, Verträge, Freigaben, Controller/Adapter
+config/promotion_policy.yaml       @pcctradinginc-alt
+config/promotion_hypotheses.yaml   @pcctradinginc-alt
+config/promotion_approvals.yaml    @pcctradinginc-alt
+modules/promotion_controller.py    @pcctradinginc-alt
+modules/production_intelligence_adapter.py @pcctradinginc-alt
+modules/hypothesis_contract.py     @pcctradinginc-alt
+tests/test_promotion.py            @pcctradinginc-alt

@@ -47,6 +47,16 @@ jobs:
       - name: Challenger-Vorschläge registrieren (nach 10 Wochen Ledger)
         run: python -m modules.challenger_registrar || true
 
+      - name: Promotion Controller (Forward-Evidenz, Promotion/Demotion, promotion_state.json)
+        # Einzige Stelle, die Produktionseinfluss vergibt (Default max. ABSTENTION_ONLY).
+        # Fehler -> State bleibt unverändert; Adapter fällt auf Champion zurück.
+        continue-on-error: true
+        env:
+          GMAIL_SENDER:    ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW:    ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
+        run: python -m modules.promotion_controller --notify
+
       - name: Commit updated history
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

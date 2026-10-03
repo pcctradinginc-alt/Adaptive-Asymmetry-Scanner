@@ -248,3 +248,24 @@ def test_alt_data_section_shows_scoreboard_and_never_production(tmp_path):
     md = weekly.render_md(data)
     assert "ALTERNATIVE DATA INTELLIGENCE" in md and "sec_deep_events" in md and "ALT-SEC-001 1" in md
     assert "noch keine Forward-Daten" in md and "SHADOW" in md
+
+
+def test_promotion_section_renders_state_effect_and_lists(tmp_path):
+    intel = tmp_path / "outputs" / "intelligence"
+    intel.mkdir(parents=True)
+    (intel / "promotion_state.json").write_text(json.dumps({
+        "max_automatic_influence": "ABSTENTION_ONLY", "policy_version": "promo-v1", "integrity": {"registry": []},
+        "multiple_testing": {"number_of_hypotheses_tested": 29},
+        "hypotheses": {"PROM-ABST-001@v1": {"title": "Safe Mode", "state": "PROSPECTIVE_CHALLENGER",
+                                             "influence_level": "NONE", "reasons": ["NEED_MORE_DATA: n 3/60"],
+                                             "next_requirement": "n 3/60",
+                                             "evidence": {"n_observations": 3, "n_independent_dates": 2,
+                                                          "calendar_span_days": 5, "ci": [None, None]}}},
+        "notices": [], "evaluation": {"CHAMPION_ONLY": {"n": 0}}}))
+    (intel / "promotion_transitions.jsonl").write_text(json.dumps(
+        {"key": "X@v1", "previous_state": "GUARDED_PRODUCTION", "new_state": "PROSPECTIVE_CHALLENGER",
+         "decision": "DEMOTE", "reason": "Abstinenz-Nettowert negativ"}) + "\n")
+    md = weekly.render_md(weekly.collect(tmp_path, "2026-10-10", state_path=tmp_path / "st.json"))
+    for s in ("PROMOTION STATUS", "PROM-ABST-001@v1", "ACTIVE INTELLIGENCE EFFECT", "DEMOTIONS", "X@v1",
+              "PROMOTION CANDIDATES", "NEED MORE DATA", "n 3/60"):
+        assert s in md, s

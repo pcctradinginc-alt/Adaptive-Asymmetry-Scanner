@@ -1,0 +1,476 @@
+{
+ "generated": "2026-10-03T06:00:46+00:00",
+ "policy_version": "promo-v1",
+ "policy_hash": "3c13594cc843f89d",
+ "max_automatic_influence": "ABSTENTION_ONLY",
+ "code_version": "0d618fab21e8",
+ "data_version": "e3b0c44298fc1c14",
+ "integrity": {
+  "registry": [],
+  "transitions": []
+ },
+ "hypotheses": {
+  "PROM-ABST-001@v1": {
+   "hypothesis_id": "PROM-ABST-001",
+   "version": 1,
+   "title": "Safe Mode aktiv -> Champion-Trade abstinieren",
+   "description": "Sind Champion-Trades, die bei aktivem Safe Mode (Feature-/Datendrift, Regime außerhalb Trainingsbereich) vorgeschlagen werden, schlechter als die übrigen?",
+   "source_type": "model_drift",
+   "production_class": "abstention",
+   "spec_hash": "52477a34d83695ff5b5bc0b1e909a73de0b64e823409c131e07442f1029a8a59",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention",
+    "family_size": 5,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "data_kind": "prospective_forward",
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "all": {
+     "n": 0
+    },
+    "fired": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "blocked_trade_win_rate": null,
+     "blocked_trade_expectancy": null,
+     "blocked_trade_mean_return": null,
+     "avoided_losses": 0,
+     "missed_winners": 0,
+     "missed_winner_return": 0,
+     "net_value_of_abstention": null,
+     "precision": null,
+     "false_positive_rate": null
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-03T06:00:46+00:00"
+  },
+  "PROM-ABST-002@v1": {
+   "hypothesis_id": "PROM-ABST-002",
+   "version": 1,
+   "title": "Hohe Modelluneinigkeit -> abstinieren",
+   "description": "Haben Champion-Trades in Titeln mit hoher ML-Modelluneinigkeit (oberstes Dezil der Querschnittsverteilung, Schwelle 0.36 aus Verteilung 2026-10-02, ohne Outcome-Sicht) eine niedrigere Expectancy?",
+   "source_type": "meta_learning_failure",
+   "production_class": "abstention",
+   "spec_hash": "33c9f89b8e4794183d3ea784cf75a816ad38af31322ede00bdcf9a5f49a62b0b",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention",
+    "family_size": 5,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "data_kind": "prospective_forward",
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "all": {
+     "n": 0
+    },
+    "fired": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "blocked_trade_win_rate": null,
+     "blocked_trade_expectancy": null,
+     "blocked_trade_mean_return": null,
+     "avoided_losses": 0,
+     "missed_winners": 0,
+     "missed_winner_return": 0,
+     "net_value_of_abstention": null,
+     "precision": null,
+     "false_positive_rate": null
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-03T06:00:46+00:00"
+  },
+  "PROM-ABST-003@v1": {
+   "hypothesis_id": "PROM-ABST-003",
+   "version": 1,
+   "title": "Blind-Spot-Sektor -> abstinieren",
+   "description": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+   "source_type": "blind_spot",
+   "production_class": "abstention",
+   "spec_hash": "c1de9fc6348106323a3c01fc7eeba97b17225eff3ca3731c056291cec363a2e2",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention",
+    "family_size": 5,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "data_kind": "prospective_forward",
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "all": {
+     "n": 0
+    },
+    "fired": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "blocked_trade_win_rate": null,
+     "blocked_trade_expectancy": null,
+     "blocked_trade_mean_return": null,
+     "avoided_losses": 0,
+     "missed_winners": 0,
+     "missed_winner_return": 0,
+     "net_value_of_abstention": null,
+     "precision": null,
+     "false_positive_rate": null
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-03T06:00:46+00:00"
+  },
+  "PROM-ABST-004@v1": {
+   "hypothesis_id": "PROM-ABST-004",
+   "version": 1,
+   "title": "Hohes erwartetes ML-Drawdown -> abstinieren",
+   "description": "Haben Champion-Trades in Titeln mit sehr hohem erwartetem 60-Tage-Drawdown laut ML-Karte (schlechtestes Dezil, Schwelle -0.114 aus Verteilung, ohne Outcome-Sicht) eine niedrigere Expectancy?",
+   "source_type": "unknown_unknown",
+   "production_class": "abstention",
+   "spec_hash": "78b119f5062fe53035744db6f21df23ffdade3717b147c5cee948ea4ee50a481",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention",
+    "family_size": 5,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "data_kind": "prospective_forward",
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "all": {
+     "n": 0
+    },
+    "fired": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "blocked_trade_win_rate": null,
+     "blocked_trade_expectancy": null,
+     "blocked_trade_mean_return": null,
+     "avoided_losses": 0,
+     "missed_winners": 0,
+     "missed_winner_return": 0,
+     "net_value_of_abstention": null,
+     "precision": null,
+     "false_positive_rate": null
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-03T06:00:46+00:00"
+  },
+  "PROM-ABST-005@v1": {
+   "hypothesis_id": "PROM-ABST-005",
+   "version": 1,
+   "title": "VIX > 30 -> abstinieren",
+   "description": "Sind Champion-Trades bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?",
+   "source_type": "regime_failure",
+   "production_class": "abstention",
+   "spec_hash": "fc336e60e4ac680855c2387ac2457aea038720c543208dbbe5b160a99a8781bb",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention",
+    "family_size": 5,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "data_kind": "prospective_forward",
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "all": {
+     "n": 0
+    },
+    "fired": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "blocked_trade_win_rate": null,
+     "blocked_trade_expectancy": null,
+     "blocked_trade_mean_return": null,
+     "avoided_losses": 0,
+     "missed_winners": 0,
+     "missed_winner_return": 0,
+     "net_value_of_abstention": null,
+     "precision": null,
+     "false_positive_rate": null
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-03T06:00:46+00:00"
+  }
+ },
+ "notices": [],
+ "multiple_testing": {
+  "number_of_hypotheses_tested": 29,
+  "promotion_contracts_registered": 5,
+  "research_inventory": 24,
+  "families": [
+   "abstention"
+  ]
+ },
+ "evaluation": {
+  "CHAMPION_ONLY": {
+   "n": 0,
+   "sharpe": null,
+   "sortino": null,
+   "trade_count": 0,
+   "missed_winners": 0,
+   "avoided_losers": 0
+  },
+  "ADAPTIVE_ACTUAL": {
+   "n": 0,
+   "sharpe": null,
+   "sortino": null,
+   "trade_count": 0,
+   "missed_winners": 0,
+   "avoided_losers": 0
+  },
+  "CHAMPION_PLUS_ABSTENTION_SHADOW": {
+   "n": 0,
+   "sharpe": null,
+   "sortino": null,
+   "trade_count": 0,
+   "missed_winners": 0,
+   "avoided_losers": 0
+  },
+  "RANKING": {
+   "champion": {
+    "precision_at_1": null,
+    "precision_at_3": null,
+    "mean_return_top1": null,
+    "mean_return_top3": null
+   },
+   "intelligence": {
+    "precision_at_1": null,
+    "precision_at_3": null,
+    "mean_return_top1": null,
+    "mean_return_top3": null
+   }
+  },
+  "data_kind": "prospective_forward_only",
+  "n_resolved_decisions": 0
+ },
+ "state_hash": "b442b220f346766d309417d628b906597885bb0e38d0011318e3c89085b9d41e"
+}

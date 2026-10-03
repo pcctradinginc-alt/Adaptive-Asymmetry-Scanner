@@ -129,7 +129,10 @@ class EntityStore:
         Abweichende offene Aussage derselben Entität/Nutzung/Quelle -> schließen (valid_to=as_of)
         und neue öffnen. -> "unchanged" | "opened" | "replaced"."""
         as_of = _iso(as_of)
-        same = [r for r in self.open_records(rec.entity_id, rec.usage) if r.mapping_source == rec.mapping_source]
+        # Reihe = Entität + Nutzung + Quelle + Ticker: eine CIK kann zugleich mehrere
+        # Ticker haben (Aktiengattungen, z.B. GOOG/GOOGL) – das ist keine Änderung.
+        same = [r for r in self.open_records(rec.entity_id, rec.usage)
+                if r.mapping_source == rec.mapping_source and (r.ticker or "") == (rec.ticker or "")]
         if any(r.key() == rec.key() for r in same):
             return "unchanged"
         status = "opened"
@@ -144,6 +147,16 @@ class EntityStore:
         self.records.append(rec)
         self._write({"op": "open", "record": asdict(rec), "at": as_of})
         return status
+
+    def close(self, rec: EntityRecord, as_of) -> None:
+        """Offenen Datensatz beenden (z.B. Ticker nicht mehr in der SEC-Liste). Nie rückwirkend."""
+        as_of = _iso(as_of)
+        if rec.valid_to is not None:
+            return
+        if rec.valid_from is not None and as_of <= rec.valid_from:
+            raise ValueError("Rückdatiertes Schließen verboten")
+        rec.valid_to = as_of
+        self._write({"op": "close", "record": asdict(rec), "at": as_of})
 
     def resolve(self, *, ticker: str | None = None, cik: str | None = None, lei: str | None = None,
                 as_of=None, usage: str = "pit", min_confidence: str = "LOW") -> EntityRecord | None:

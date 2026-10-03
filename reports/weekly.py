@@ -62,6 +62,7 @@ SECTION_TITLES = {
     15: "MODEL BLIND SPOTS",
     16: "ACTIVE LEARNING",
     17: "ALTERNATIVE DATA INTELLIGENCE",
+    18: "PROMOTION STATUS (Research → Production)",
 }
 
 
@@ -388,6 +389,8 @@ def collect(root, date, state_path=None) -> dict:
     nextv = _load_json(rs / "next_validation.json")
     director = _load_json(rs / "research_candidates.json")
     alearn = _load_json(rs / "active_learning.json")
+    promo = _load_json(out_dir / "intelligence" / "promotion_state.json")
+    promo_tr = _load_jsonl(out_dir / "intelligence" / "promotion_transitions.jsonl")
     alt_board = _load_json(rs / "source_scoreboard.json")
     alt_val = _load_json(rs / "alt_data_validation.json")
     alt_fwd = _load_jsonl(rs / "alt_forward_ledger.jsonl")
@@ -405,6 +408,7 @@ def collect(root, date, state_path=None) -> dict:
         "ml": ml, "meta": meta, "meta_state": meta_state, "hc": hc, "ml_fwd": ml_fwd,
         "hyp": hyp, "fail": fail, "history": history, "world": world, "mstate": mstate, "safe": safe,
         "nextv": nextv, "director": director, "alearn": alearn,
+        "promo": promo, "promo_transitions": promo_tr,
         "alt": {"board": alt_board, "validation": alt_val,
                 "forward_cohorts": {h: sum(1 for r in alt_fwd if r.get("hypothesis_id") == h)
                                     for h in sorted({r.get("hypothesis_id") for r in alt_fwd})}},
@@ -885,7 +889,62 @@ def intelligence_sections(data: dict) -> list:
                                            "ungeprüft (Aufnahmeprüfung offen)"] for a in al[:6]], [])]
                 if al else [("para", NO_DATA)]))
     out.append((17, SECTION_TITLES[17], alt_data_section(data)))
+    out.append((18, SECTION_TITLES[18], promotion_section(data)))
     return out
+
+
+def promotion_section(data: dict, today: _date | None = None) -> list:
+    """Promotion-Status je Hypothese, aktive Intelligence-Wirkung (nur Forward-Daten),
+    Demotions, Promotion-Kandidaten, Need-more-data. Keine Aussage ohne Messung."""
+    st = _d(data.get("promo"))
+    hyps = _d(st.get("hypotheses"))
+    if not hyps:
+        return [("para", NO_DATA)]
+    rows, need, cands = [], [], []
+    for k, h in hyps.items():
+        h, ev = _d(h), _d(_d(h).get("evidence"))
+        ci = ev.get("ci") or [None, None]
+        rows.append([k, str(h.get("title") or h.get("description") or "")[:48], str(h.get("state")),
+                     str(ev.get("n_observations", 0)), str(ev.get("n_independent_dates", 0)),
+                     f"{ev.get('calendar_span_days', 0)} T", _fv(ev.get("delta_expectancy")),
+                     f"[{_fv(ci[0])}, {_fv(ci[1])}]", str(h.get("influence_level")),
+                     str(h.get("next_requirement") or h.get("recommendation") or "–")[:70]])
+        if any("NEED_MORE_DATA" in str(r) for r in h.get("reasons") or []):
+            need.append(f"{k}: {h.get('next_requirement')}")
+    for n in st.get("notices") or []:
+        cands.append(f"{n.get('hypothesis')}: {n.get('current_level')} -> {n.get('proposed_level')} "
+                     f"({'automatisch begrenzt' if n.get('automatic') else 'Empfehlung – Mensch/PR'}) · "
+                     f"Forward N {n.get('forward_n')}, Spanne {n.get('calendar_span_days')} T, "
+                     f"Δ Expectancy {n.get('delta_expectancy')} CI {n.get('ci')}")
+    blocks = [("kv", [("Automatische Obergrenze", str(st.get("max_automatic_influence"))),
+                      ("Policy", f"{st.get('policy_version')} ({st.get('policy_hash')})"),
+                      ("Hypothesen getestet (gesamt)", str(_d(st.get("multiple_testing")).get("number_of_hypotheses_tested"))),
+                      ("Integrität", "OK" if not any(_d(st.get("integrity")).values()) else str(st.get("integrity")))]),
+              ("table", ["ID", "Beschreibung", "Status", "Forward N", "Unabh. Tage", "Spanne", "Δ Effekt", "CI",
+                         "Prod.-Einfluss", "Nächste Anforderung"], rows, [])]
+    ev_all = _d(st.get("evaluation"))
+    ch, ad = _d(ev_all.get("CHAMPION_ONLY")), _d(ev_all.get("ADAPTIVE_ACTUAL"))
+    blocks.append(("para", "ACTIVE INTELLIGENCE EFFECT (nur prospektive Forward-Daten):"))
+    if ch.get("n"):
+        blocks.append(("kv", [("Champion-Trades (aufgelöst)", str(ch.get("trade_count"))),
+                              ("blockiert", str(ch.get("trade_count", 0) - ad.get("trade_count", 0))),
+                              ("gerettet (verhinderte Verlierer)", str(ad.get("avoided_losers"))),
+                              ("verpasste Gewinner", str(ad.get("missed_winners"))),
+                              ("inkrementelle Expectancy", _fv((ad.get("expectancy") or 0) - (ch.get("expectancy") or 0))
+                               if ad.get("n") else NA),
+                              ("Δ Win Rate", _fv((ad.get("win_rate") or 0) - (ch.get("win_rate") or 0)) if ad.get("n") else NA),
+                              ("Δ Max Drawdown", _fv((ad.get("max_drawdown") or 0) - (ch.get("max_drawdown") or 0))
+                               if ad.get("n") else NA),
+                              ("Δ Brier", _fv((ad.get("brier") or 0) - (ch.get("brier") or 0))
+                               if ad.get("brier") is not None and ch.get("brier") is not None else NA)]))
+    else:
+        blocks.append(("para", "Noch keine aufgelösten Forward-Entscheidungen – kein Effekt messbar."))
+    dem = [f"{e.get('key')}: {e.get('previous_state')} -> {e.get('new_state')} ({e.get('reason')})"
+           for e in data.get("promo_transitions") or [] if e.get("decision") in ("DEMOTE", "ROLLBACK", "REJECT")]
+    blocks += [("para", "DEMOTIONS:"), ("list", dem[-6:] or ["keine"]),
+               ("para", "PROMOTION CANDIDATES:"), ("list", cands or ["keine"]),
+               ("para", "NEED MORE DATA:"), ("list", need or ["keine"])]
+    return blocks
 
 
 def alt_data_section(data: dict) -> list:

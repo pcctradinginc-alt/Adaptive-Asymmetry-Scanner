@@ -530,8 +530,14 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
             log.warning(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
         log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
     # Liste begrenzen: nur die letzten 300 behalten
+    # Ausnahme: offene Intelligence-Abstinenz-Schatten bleiben bis zum Outcome erhalten
+    # (counterfactual Weiterverfolgung jedes blockierten Champion-Trades).
     if len(shadows) > 300:
-        history["shadow_trades"] = shadows[-300:]
+        _recent = (today - timedelta(days=14)).strftime("%Y-%m-%d")
+        keep_open = [s for s in shadows[:-300]
+                     if str(s.get("reject_reason", "")).startswith("intelligence_abstention")
+                     and (s.get("outcome") is None or str(s.get("close_date", "")) >= _recent)]
+        history["shadow_trades"] = keep_open + shadows[-300:]
 
 
 # ── Trailing-Stop-Paralleltest ────────────────────────────────────────────────
