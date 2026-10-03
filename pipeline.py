@@ -591,6 +591,19 @@ def main() -> None:
         "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
+    # Kosten-Telemetrie: Fremd-API-Zähler je Lauf + Budgetwarnung (Produktion läuft immer
+    # weiter – produktionskritische Deep Analysis wird nie still übersprungen).
+    try:
+        import atexit
+        from modules import cost_telemetry as _ct
+        if _ct.install_http_counter():
+            atexit.register(_ct.flush_api_counts, "scanner")
+        _budget = _ct.budget_status()
+        stats["cost_budget"] = {k: _budget[k] for k in ("level", "week_usd", "month_usd", "warnings")}
+        for _w in _budget["warnings"]:
+            log.warning(f"KOSTEN-GUARD: {_w}")
+    except Exception as e:  # noqa: BLE001 – Telemetrie bricht nie den Scan
+        log.debug(f"Kosten-Telemetrie nicht initialisierbar: {e}")
     try:
         from modules import market_snapshot as _ms
         from datetime import timezone as _tz

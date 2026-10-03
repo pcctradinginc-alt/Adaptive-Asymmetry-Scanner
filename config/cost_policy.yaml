@@ -1,0 +1,59 @@
+# config/cost_policy.yaml – Kosten-Telemetrie, Budgets, Preisliste (modules/cost_telemetry.py)
+#
+# Grundsätze
+#   - Telemetrie darf NIE die Funktion brechen: jeder Fehler beim Erfassen wird verschluckt.
+#   - Kosten = gemessene usage-Felder der Anthropic-Antwort x offizielle Preise unten.
+#     Unbekanntes Modell -> cost_usd = null ("nicht verfügbar"), nie 0.
+#   - Budget-Wächter drosseln ZUERST Research/Shadow, dann optionale Analysen.
+#     Produktionskritische Deep Analysis wird NIE still übersprungen (nur Warnung).
+#   - Bezahlte Tarife werden nie automatisch aktiviert: Wechsel in einen Paid-Tarif
+#     erfordert Warnung + menschliche Freigabe (paid_tier_approved).
+
+version: cost-v1
+
+# Offizielle Anthropic-Preise in USD pro 1 Mio. Tokens
+# (Quelle: https://platform.claude.com/docs/en/about-claude/pricing, abgerufen 2026-10-03).
+# input = nicht gecachter Rest, cache_write_5m/1h = cache_creation_input_tokens,
+# cache_read = cache_read_input_tokens. Batch-API: 50 % auf input/output (stapelbar mit Caching).
+pricing_source: "https://platform.claude.com/docs/en/about-claude/pricing (2026-10-03)"
+batch_discount: 0.5
+models:
+  claude-sonnet-4-6:          {family: SONNET, input: 3.00, cache_write_5m: 3.75, cache_write_1h: 6.00, cache_read: 0.30, output: 15.00}
+  claude-haiku-4-5-20251001:  {family: HAIKU,  input: 1.00, cache_write_5m: 1.25, cache_write_1h: 2.00, cache_read: 0.10, output: 5.00}
+  claude-haiku-4-5:           {family: HAIKU,  input: 1.00, cache_write_5m: 1.25, cache_write_1h: 2.00, cache_read: 0.10, output: 5.00}
+  claude-opus-5-5:            {family: OPUS,   input: 4.00, cache_write_5m: 5.00, cache_write_1h: 8.00, cache_read: 0.20, output: 20.00}
+
+# Workflow -> Bereich. production = Scanner-Entscheidungspfad; shadow/research = drosselbar.
+scopes:
+  prescreening: production
+  deep_analysis: production
+  shadow_relation: shadow
+  hypothesis_factory: research
+
+# Budgets (USD). Warnung ab warn_fraction; ab 100 % werden drosselbare Bereiche
+# (throttle_order, in dieser Reihenfolge) pausiert. production wird nie gedrosselt.
+budgets:
+  weekly_llm_usd: 12.0            # Baseline-Schätzung ~5 $/Woche (scripts/cost_baseline.py, Sep–Okt 2026)
+  monthly_llm_usd: 40.0           # Baseline-Schätzung ~20 $/Monat bei ~100 Sonnet-Kandidaten/Tag
+  warn_fraction: 0.80
+  throttle_order: [research, shadow]
+
+# Analyse-Hash-Cache der Deep Analysis.
+#   observe = Hash wird berechnet, mögliche Treffer + Ersparnis protokolliert, Sonnet läuft trotzdem.
+#   active  = identische Eingaben innerhalb TTL liefern das gespeicherte Ergebnis (kein Sonnet-Call).
+# Umschalten auf active erst nach Replay/A-B-Freigabe (docs/COST_OPTIMIZATION.md).
+analysis_cache:
+  mode: observe
+  ttl_hours: 26                    # deckt den nächsten Tageslauf ab (Cron 1x täglich)
+  price_move_bucket_pct: 1.0       # 48h-Bewegung wird auf diese Schrittweite gerundet (Hash-Stabilität)
+
+# Kostenrelevante Fremd-APIs: nur Zählung/Quota, keine Aktivierung von Paid-Fallbacks.
+# plan: free | paid | unknown. free_daily_limit = dokumentierte Free-Tier-Grenze (null = unbekannt).
+paid_apis:
+  tradier:       {hosts: [api.tradier.com, sandbox.tradier.com], plan: unknown, free_daily_limit: null, estimated_cost_usd_month: null, paid_tier_approved: false}
+  finnhub:       {hosts: [finnhub.io], plan: free, free_daily_limit: null, rate_limit_per_min: 60, estimated_cost_usd_month: 0, paid_tier_approved: false}
+  newsapi:       {hosts: [newsapi.org], plan: free, free_daily_limit: 100, estimated_cost_usd_month: 0, paid_tier_approved: false}
+  alpha_vantage: {hosts: [www.alphavantage.co], plan: free, free_daily_limit: 25, estimated_cost_usd_month: 0, paid_tier_approved: false}
+  flashalpha:    {hosts: [api.flashalpha.com], plan: unknown, free_daily_limit: null, estimated_cost_usd_month: null, paid_tier_approved: false}
+  eulerpool:     {hosts: [api.eulerpool.com], plan: unknown, free_daily_limit: null, estimated_cost_usd_month: null, paid_tier_approved: false}
+  fred:          {hosts: [api.stlouisfed.org], plan: free, free_daily_limit: null, rate_limit_per_min: 120, estimated_cost_usd_month: 0, paid_tier_approved: false}

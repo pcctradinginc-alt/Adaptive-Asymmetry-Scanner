@@ -20,6 +20,7 @@ import os
 import time
 import anthropic
 
+from modules import cost_telemetry
 from modules.config import cfg
 
 log = logging.getLogger(__name__)
@@ -183,7 +184,8 @@ class Prescreener:
 
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                response = self.client.messages.create(
+                response = cost_telemetry.tracked_create(
+                    self.client, workflow="prescreening",
                     model      = cfg.models.prescreener,
                     max_tokens = 4096,
                     system     = SYSTEM_PROMPT,

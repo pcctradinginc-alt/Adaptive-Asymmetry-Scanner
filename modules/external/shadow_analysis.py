@@ -27,6 +27,8 @@ import json
 import logging
 import os
 
+from modules import cost_telemetry
+
 log = logging.getLogger(__name__)
 
 VALID_RELATIONS = {"SUPPORT", "NEUTRAL", "CONTRADICT"}
@@ -192,7 +194,8 @@ def evaluate_relation(ticker: str, candidate_ctx: dict, deep_analysis: dict,
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
         prompt = _build_prompt(ticker, candidate_ctx, deep_analysis)
-        response = client.messages.create(
+        response = cost_telemetry.tracked_create(
+            client, workflow="shadow_relation", ticker=ticker,
             model=_model_name(shadow_cfg),
             max_tokens=500,
             system=SYSTEM_PROMPT,
@@ -221,6 +224,8 @@ def run_for_candidates(candidates: list[dict], client=None) -> None:
     shadow_cfg = _shadow_config()
     if _mode() == "off" or not shadow_cfg.get("enabled", False):
         return
+    if client is None and not cost_telemetry.allow("shadow_relation"):
+        return                      # Kosten-Guard: Shadow wird vor Produktion gedrosselt
     max_n = int(shadow_cfg.get("max_candidates_per_run", 25) or 0)
     n_done = 0
     for c in candidates:

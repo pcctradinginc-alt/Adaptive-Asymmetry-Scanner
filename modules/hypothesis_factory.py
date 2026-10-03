@@ -38,6 +38,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from modules import cost_telemetry
 from modules import research_memory as rm
 
 log = logging.getLogger(__name__)
@@ -326,10 +327,13 @@ def lab_hypotheses(plan_res: dict) -> list[dict]:
 # ── Optional: LLM formuliert NUR den Mechanismus ────────────────────────────
 def llm_mechanism(h: dict, client=None) -> str | None:
     """Mechanismus-Text (max. 3 Sätze) – ohne Zahlen/Evidenz. Fehler/Zahlen -> None (Vorlage bleibt)."""
+    if client is None and not cost_telemetry.allow("hypothesis_factory"):
+        return None                 # Kosten-Guard: Research zuerst gedrosselt; Vorlage bleibt
     try:
         import anthropic
         client = client or anthropic.Anthropic()
-        resp = client.messages.create(
+        resp = cost_telemetry.tracked_create(
+            client, workflow="hypothesis_factory", stage="llm_mechanism",
             model=LLM_MODEL, max_tokens=1024, output_config={"effort": "low", "format": {
                 "type": "json_schema", "schema": {"type": "object", "additionalProperties": False,
                                                   "required": ["mechanism"],

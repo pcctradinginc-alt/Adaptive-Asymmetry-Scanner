@@ -35,6 +35,7 @@ from typing import Optional
 import anthropic
 import yfinance as yf
 
+from modules                import analysis_cache, cost_telemetry
 from modules.config        import cfg
 from modules.macro_context import get_macro_context
 
@@ -156,6 +157,10 @@ def _format_market_cap(market_cap: Optional[int]) -> str:
     if market_cap >= 1_000_000_000:
         return f"${market_cap/1_000_000_000:.1f} Mrd."
     return f"${market_cap/1_000_000:.0f} Mio."
+
+
+# Prompt-Version für den Analyse-Cache: jede Änderung an den Vorlagen invalidiert alle Einträge.
+PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE)
 
 
 class DeepAnalysis:
@@ -348,11 +353,28 @@ class DeepAnalysis:
             data_anomaly_warning = anomaly_warning,
         )
 
+        model     = cfg.models.deep_analysis
+        cache_key = analysis_cache.deep_analysis_key(
+            ticker=ticker, news=news, move_48h=move_48h, mc_hit_rate=mc_hit_rate,
+            eps_deviation=eps_deviation,
+            earnings_date=(candidate.get("alpha_signals") or {}).get("earnings_date"),
+            macro_text=macro_text, sector=sector, prescreen_category=prescreen_category,
+            is_mega_cap=is_mega_cap, data_anomaly=bool(data_anomaly),
+            prompt_version=PROMPT_VERSION, model=model,
+        )
         try:
-            response = self.client.messages.create(
-                model      = cfg.models.deep_analysis,
+            cached = analysis_cache.lookup(cache_key, workflow="deep_analysis", ticker=ticker)
+            if cached is not None:
+                log.info(f"  [{ticker}] Analyse-Cache-Treffer (identische Eingaben) → kein Sonnet-Call")
+                return self._finalize(cached, mc_hit_rate, is_mega_cap, market_cap)
+            # System-Prompt als cachebarer Block (Prompt-Caching; unter der Mindestlänge
+            # verarbeitet die API ohne Cache und ohne Aufpreis -> messbar via Telemetrie).
+            response = cost_telemetry.tracked_create(
+                self.client, workflow="deep_analysis", ticker=ticker,
+                model      = model,
                 max_tokens = 1600,
-                system     = SYSTEM_PROMPT.format(current_year=_today.year),
+                system     = [{"type": "text", "text": SYSTEM_PROMPT.format(current_year=_today.year),
+                               "cache_control": {"type": "ephemeral"}}],
                 messages   = [{"role": "user", "content": prompt}],
             )
             raw = response.content[0].text.strip()
@@ -385,25 +407,33 @@ class DeepAnalysis:
                 else:
                     raise
 
-            # Sicherstellen dass catalyst_confidence vorhanden ist (Fallback: 5)
-            if "catalyst_confidence" not in result:
-                result["catalyst_confidence"] = 5
-
-            result["macro_regime"]  = self._macro.get("macro_regime", "unknown")
-            result["macro_context"] = {
-                "yield_curve": self._macro.get("yield_curve_spread"),
-                "regime":      self._macro.get("macro_regime"),
-            }
-            # v9.0 #3: mc_hit_rate im Result speichern für options_designer
-            result["mc_hit_rate"]  = mc_hit_rate
-            result["is_mega_cap"]  = is_mega_cap
-            result["market_cap"]   = market_cap
-
-            return result
+            analysis_cache.compare_observed(cache_key, result, workflow="deep_analysis", ticker=ticker)
+            analysis_cache.store(
+                cache_key, result, model=model,
+                cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response)))
+            return self._finalize(result, mc_hit_rate, is_mega_cap, market_cap)
 
         except Exception as e:
             log.error(f"  [{ticker}] Deep Analysis Fehler: {e}")
             return None
+
+    def _finalize(self, result: dict, mc_hit_rate, is_mega_cap: bool, market_cap) -> dict:
+        """Deterministische Anreicherung des LLM-Rohergebnisses (auch für Cache-Treffer)."""
+        # Sicherstellen dass catalyst_confidence vorhanden ist (Fallback: 5)
+        if "catalyst_confidence" not in result:
+            result["catalyst_confidence"] = 5
+
+        result["macro_regime"]  = self._macro.get("macro_regime", "unknown")
+        result["macro_context"] = {
+            "yield_curve": self._macro.get("yield_curve_spread"),
+            "regime":      self._macro.get("macro_regime"),
+        }
+        # v9.0 #3: mc_hit_rate im Result speichern für options_designer
+        result["mc_hit_rate"]  = mc_hit_rate
+        result["is_mega_cap"]  = is_mega_cap
+        result["market_cap"]   = market_cap
+
+        return result
 
     # ── FIX v8.2: 48h-Move Timing ────────────────────────────────────────────
     def _get_48h_move(self, ticker: str) -> float | None:
