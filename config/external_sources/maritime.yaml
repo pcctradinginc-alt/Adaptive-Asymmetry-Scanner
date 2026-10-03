@@ -25,6 +25,10 @@ sources:
   - source_id: imf_portwatch_ports
     display_name: "IMF PortWatch – Daily Ports Data"
     max_fetch_seconds: 600   # ~260 Seiten Paginierung; Standard 300s (orchestrator)
+    # Volumen-Guard je Lauf, bemessen am natürlichen Volumen: 21-Tage-Fenster × ~800 Beob./Tag
+    # × ~630 B ≈ 10,6 MB. Der globale Standard (2 MB) erzeugte einen Deadlock: nach 3 Tagen
+    # Rückstand blockierte der Guard jeden Lauf, der Rückstand wuchs (Archiv stand 09-18..10-03).
+    max_new_normalized_bytes_per_run: 12000000
     family: maritime
     authority: "IMF PortWatch (IMF & University of Oxford)"
     official_homepage: "https://portwatch.imf.org"

@@ -171,7 +171,7 @@ sources:
     point_in_time_capable: true
     revision_risk: medium
     maintenance_cost: medium
-    schema_version: "sec-xbrl-1"
+    schema_version: "sec-xbrl-2"
     raw_snapshot: "normalisierte Beobachtungen + payload_hash/request/retrieved_at je Abruf (Roh-Payload wegen Größe nicht eingecheckt)"
     semantics:
       measures: "berichtete Fundamentaldaten (Umsatz, Gewinn je Aktie, Accruals, Bilanzwachstum, Aktienanzahl)"

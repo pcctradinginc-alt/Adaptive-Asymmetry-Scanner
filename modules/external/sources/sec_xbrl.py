@@ -39,7 +39,7 @@ from modules.external.pit import AvailabilityPrecision, Observation
 
 log = logging.getLogger(__name__)
 
-PARSER_VERSION = "sec-xbrl-1"
+PARSER_VERSION = "sec-xbrl-2"   # 2: Fakten mit Periode nach Einreichung verworfen
 FEATURE_VERSION = "xbrl-f1"
 URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 DIR = Path("outputs/external_data/sec")

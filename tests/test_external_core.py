@@ -505,6 +505,28 @@ def test_volume_guard_blocks_write_and_sets_warn(tmp_path, monkeypatch):
     assert any(a["source_id"] == "huge_src" and a["type"] == "ARCHIVE_FAILURE" for a in alerts)
 
 
+def test_volume_guard_per_source_limit_and_archived_latest(tmp_path, monkeypatch):
+    """Deadlock-Fix 2026-10-03: (a) Quellen-Override max_new_normalized_bytes_per_run lässt den
+    Rückstand in EINEM Lauf schreiben; (b) blockiert der Guard, bleibt latest_observation der
+    archivierte Stand (Health meldet nicht 'frisch', obwohl nichts archiviert wurde)."""
+    monkeypatch.setattr(al, "_alerts_email_enabled", lambda: False)
+    monkeypatch.setattr("modules.external.archive._config_archive_defaults",
+                        lambda: {"max_new_normalized_bytes_per_source_per_run": 100,
+                                 "max_backfill_bytes_per_source": 100})
+    now = datetime(2026, 3, 1, tzinfo=UTC)
+    big = {"huge_src": dict(VALID_SOURCE, source_id="huge_src", family="weather",
+                            max_new_normalized_bytes_per_run=10_000_000)}
+    s1 = orch.run_ingestion(now, registry=_fake_registry(tmp_path / "a", big, {"huge_src": _HugeConnector}))
+    assert s1["sources"]["huge_src"]["status"] == "PASS"
+    assert len(ExternalArchive(tmp_path / "a").load("huge_src")) == 200
+    small = {"huge_src": dict(VALID_SOURCE, source_id="huge_src", family="weather")}
+    reg = _fake_registry(tmp_path / "b", small, {"huge_src": _HugeConnector})
+    orch.run_ingestion(now, registry=reg)
+    h = reg.load_health()["huge_src"]
+    assert h["status"] == "WARN" and h["latest_observation"] is None              # nichts archiviert
+    assert "nichts archiviert" in h["message"]
+
+
 def test_archive_store_observations_guard_blocks_oversized_source(tmp_path, monkeypatch):
     # Erstimport-Backfill-Grenze klein setzen: diese Tests prüfen die Sperre selbst
     import modules.external.archive as _arch_mod

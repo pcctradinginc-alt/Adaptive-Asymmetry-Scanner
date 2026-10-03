@@ -159,6 +159,7 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         h.status = result.status.value if hasattr(result.status, "value") else str(result.status)
         h.message = result.message
         h.parse_failures = result.parse_failures
+        archived_latest = h.latest_observation          # Stand im ARCHIV vor diesem Lauf
         if result.latest_observation_time is not None:
             h.latest_observation = _now_iso(result.latest_observation_time)
         if result.latest_release_time is not None:
@@ -194,6 +195,7 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
                 bytes_before = archive.normalized_bytes_written_estimate(source_id)
                 counts = archive.store_observations(
                     result.observations,
+                    max_new_normalized_bytes_per_source_per_run=source_cfg.get("max_new_normalized_bytes_per_run"),
                     max_backfill_bytes=source_cfg.get("max_backfill_bytes"))
                 bytes_written = archive.normalized_bytes_written_estimate(source_id) - bytes_before
                 guard_blocked = archive.last_guard_blocked.get(source_id)
@@ -205,8 +207,13 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
             # geschrieben (nie stillschweigend kürzen) -> WARN + Alert über
             # die bestehende ARCHIVE_FAILURE-Alarmierung (archive_error).
             h.status = SourceStatus.WARN.value
-            h.message = (h.message + " | " if h.message else "") + "volume guard"
+            h.message = (h.message + " | " if h.message else "") + (
+                f"volume guard ({guard_blocked.get('estimated_bytes')} B > {guard_blocked.get('max_bytes')} B, "
+                f"nichts archiviert)")
             archive_error = "volume guard"
+            # Nichts archiviert -> der verfügbare Datenstand ist der ARCHIVIERTE, nicht der abgerufene
+            # (sonst meldet Health "frisch", obwohl Features veralten; Deadlock 2026-09-29..10-03)
+            h.latest_observation = archived_latest
 
         h.archive_error = archive_error
         h.revision_count = int(h.revision_count or 0) + counts["revision"]
@@ -221,7 +228,10 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         elif h.status in (SourceStatus.FAIL.value,):
             h.consecutive_failures = int(h.consecutive_failures or 0) + 1
 
-        h.staleness = evaluate_staleness(result.latest_observation_time, h.expected_cadence, now,
+        _latest_for_staleness = (datetime.fromisoformat(h.latest_observation) if (guard_blocked is not None
+                                 and h.latest_observation) else (None if guard_blocked is not None
+                                                                 else result.latest_observation_time))
+        h.staleness = evaluate_staleness(_latest_for_staleness, h.expected_cadence, now,
                                          frequency=source_cfg.get("frequency"),
                                          max_age_days=source_cfg.get("max_staleness_days"))
 
