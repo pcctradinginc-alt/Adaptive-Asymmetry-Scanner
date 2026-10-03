@@ -144,6 +144,16 @@ def collect(sources: dict | None = None) -> list[dict]:
                                                               "years_positive": b.get("years_positive_share"),
                                                               "placebo_p": (r.get("h20") or {}).get("placebo_p")},
                           reasons=d.get("reasons"), data_kind="historical_walk_forward"))
+    for cid, c in ((src.get("surprise_study") or {}).get("counter_hypotheses") or {}).items():
+        d = c.get("decision") or {}
+        b = ((c.get("h20") or {}).get("base_cost") or {})
+        out.append(_entry("research", f"SURPRISE-{cid}",
+                          {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(d.get("verdict"), "REJECTED"),
+                          {"signal": cid, "title": c.get("description"), "family": "surprise_engine",
+                           "domain": "earnings_expectations", "idea_source": "counter_hypothesis"},
+                          source="surprise_engine", evidence={"mean": b.get("mean"), "t": b.get("t_months"),
+                                                              "holdout_years": c.get("holdout_years")},
+                          reasons=d.get("reasons"), data_kind="historical_holdout_replication"))
     for hid, r in ((src.get("factory_results") or {}).get("results") or {}).items():
         out.append(_entry("factory", hid, r.get("status"), r.get("spec") or {}, source="factory",
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))

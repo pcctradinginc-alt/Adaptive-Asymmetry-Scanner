@@ -105,3 +105,34 @@ def test_decide_requires_all_robustness_checks():
     assert no_placebo["verdict"] == "MODIFY" and any("Placebo" in r for r in no_placebo["reasons"])
     bad = se.decide({"mean": -0.01, "t_months": -1}, {"mean": -0.02}, {}, {"mean": -0.01}, rep, False, None, True)
     assert bad["verdict"] == "REJECT"
+
+
+def test_counter_hypothesis_only_on_holdout_years():
+    earn, frames, spy = _synthetic(0.0, seed=5)
+    ev = se.build_events(earn, frames, spy)
+    c = se.holdout_reversal(ev)
+    assert c["holdout_years"] and max(c["holdout_years"]) < se.TEST_START_YEAR
+    assert c["decision"]["verdict"] in ("KEEP", "MODIFY", "REJECT")
+    # Testjahre verändern das Holdout-Ergebnis nicht
+    ev2 = ev.copy()
+    ev2.loc[ev2["year"] >= se.TEST_START_YEAR, "fwd_20"] = 9.9
+    assert se.holdout_reversal(ev2)["h20"]["base_cost"]["mean"] == c["h20"]["base_cost"]["mean"]
+
+
+def test_counter_hypothesis_detects_real_reversal():
+    rng = np.random.default_rng(7)
+    cal = pd.bdate_range("2014-01-01", "2018-12-31")
+    spy = pd.DataFrame({"Open": 100.0, "Close": 100.0}, index=cal)
+    frames, earn = {}, []
+    for k in range(40):
+        ret = rng.normal(0, 0.01, len(cal))
+        for d in range(30 + k % 20, len(cal) - 80, 63):
+            jump = rng.choice([-0.05, 0.05])
+            ret[d + 1] += jump                          # Reaktionstag (Meldung nach Schluss)
+            ret[d + 2: d + 22] += -jump / 20 * 1.5      # Umkehr danach
+            earn.append({"ticker": f"T{k}", "ann_ts": pd.Timestamp(cal[d]).tz_localize(NY) + pd.Timedelta(hours=17),
+                         "eps_estimate": 1.0, "eps_actual": 1.1})
+        c = 50 * np.cumprod(1 + ret)
+        frames[f"T{k}"] = pd.DataFrame({"Open": c, "Close": c}, index=cal)
+    res = se.holdout_reversal(se.build_events(pd.DataFrame(earn), frames, spy))
+    assert res["h20"]["base_cost"]["mean"] > 0 and res["h20"]["base_cost"]["t_months"] > 2
