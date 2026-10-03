@@ -1078,6 +1078,9 @@ class OptionsDesigner:
                 "dte":           int(dte),
                 "delta":         float(best.get("delta", 0)),
                 "data_source":   "tradier",
+                # Providerwechsel nie verborgen (Source Health): Primary vs. tatsächlich genutzt
+                "source_primary": "options_chain",
+                "source_actual":  "options_chain",
             }
 
             log.info(
@@ -1161,6 +1164,8 @@ class OptionsDesigner:
                 "spread_ratio":  round(float(best["spread_ratio"]), 4),
                 "dte":           int(dte),
                 "data_source":   "yfinance",
+                "source_primary": "options_chain" if self._use_tradier else "options_chain (kein TRADIER_API_KEY)",
+                "source_actual":  "options_chain_yfinance",   # offizieller Fallback-Adapter
             }
 
             if "SPREAD" in strategy:

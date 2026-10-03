@@ -661,6 +661,30 @@ def main() -> None:
         except Exception as e:
             log.error(f"Email-Fehler: {e}")
 
+    # ── STUFE 0a: Data Health (täglicher Source Health Check) ───────────────
+    # Nie davon ausgehen, dass eine Quelle verfügbar ist: fehlen Champion-
+    # Pflichtdaten (Kurse, VIX/Risk Gates, Optionsketten – ohne gesunden
+    # offiziellen Fallback), wird NICHT mit unbekannten Daten gehandelt.
+    # Fehlt der Snapshot, prüft scanner_preflight die Pflichtdaten live.
+    try:
+        from modules.source_health import scanner_preflight
+        _dh = scanner_preflight()
+    except Exception as e:  # noqa: BLE001 – Prüfung selbst kaputt = Zustand unbekannt -> blockieren
+        _dh = {"proceed": False, "blocked_decisions": ["scanner_candidates"], "safe_mode": True,
+               "data_quality": None, "reasons": [f"Data-Health-Prüfung fehlgeschlagen: {type(e).__name__}: {e}"],
+               "source": "error", "fallbacks": []}
+    stats["data_health"] = {k: _dh.get(k) for k in ("proceed", "blocked_decisions", "safe_mode", "data_quality",
+                                                     "source", "fallbacks")}
+    stats["data_health"]["reasons"] = (_dh.get("reasons") or [])[:6]
+    if not _dh.get("proceed"):
+        stats["stop_reason"] = ("Data Health: Pflichtdaten nicht verfügbar – "
+                                + "; ".join((_dh.get("reasons") or ["unbekannt"])[:3]))
+        log.error(stats["stop_reason"])
+        send_email(); return
+    if _dh.get("safe_mode"):
+        log.warning(f"Data Health: Safe Mode aktiv (keine positiven Intelligence-Boosts): "
+                    f"{'; '.join((_dh.get('reasons') or [])[:3])}")
+
     # ── STUFE 0: Risk Gates ──────────────────────────────────────────────────
     gates = RiskGates()
     if not gates.global_ok():

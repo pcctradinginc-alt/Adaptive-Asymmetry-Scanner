@@ -87,12 +87,14 @@ def load_verified_state(state_path: Path | None = None, contracts: list[dict] | 
 def research_context(today: str | None = None) -> dict:
     """Read-only Research-Kontext für die Regelauswertung (nie Schreibzugriff)."""
     ctx = {"safe_mode_active": None, "blind_spot_sectors": [], "ml_cards": {}}
-    try:
-        sm = json.loads(SAFE_MODE_PATH.read_text(encoding="utf-8"))
-        ctx["safe_mode_active"] = 1 if sm.get("active") else 0
-        ctx["safe_mode_reasons"] = sm.get("reasons")
-    except (OSError, ValueError):
-        pass
+    # Safe Mode = Modell/Drift (meta_cognition) ODER Daten (täglicher Source Health Check).
+    # Unbekannt -> aktiv (fail-closed: keine positiven Boosts).
+    from modules.source_health import effective_safe_mode
+    sm = effective_safe_mode(meta_path=SAFE_MODE_PATH)
+    ctx["safe_mode_active"] = 1 if sm["active"] else 0
+    ctx["safe_mode_reasons"] = sm["reasons"]
+    ctx["data_disabled_signals"] = sm["disabled_signals"]
+    ctx["data_unavailable_features"] = sm["unavailable_features"]
     try:
         nv = json.loads(NEXT_VALIDATION.read_text(encoding="utf-8"))
         ctx["blind_spot_sectors"] = sorted({(c.get("common_properties") or {}).get("sector")
@@ -217,6 +219,11 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
         ok = {e["key"]: e["spec_hash"] for e in reg} if not reg_problems else {}
         active = {hc.key(c): {"contract": c, "level": "NONE", "state": "UNVERIFIED", "spec_hash": hc.spec_hash(c)}
                   for c in contracts if ok.get(hc.key(c)) == hc.spec_hash(c)}
+    off = set(ctx.get("data_disabled_signals") or [])
+    if off:                                          # Pflichtdaten fehlen -> Signal gar nicht verwenden
+        for k in [k for k, a in active.items() if k in off or a["contract"].get("hypothesis_id") in off]:
+            log.warning(f"Adapter: {k} deaktiviert – Pflichtdaten laut Source Health nicht verfügbar")
+            active.pop(k)
     safe_mode = bool(ctx.get("safe_mode_active"))
     regime = regime_label(vix)
     kept, blocked, records = [], [], []

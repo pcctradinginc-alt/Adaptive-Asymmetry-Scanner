@@ -1,0 +1,134 @@
+# config/source_health.yaml – täglicher Source Health Check (modules/source_health.py)
+#
+# Kernregel: Ein fehlendes Signal ist besser als ein Signal aus falschen oder unbekannt
+# alten Daten. Unbekannt != gesund: ohne aktuellen Snapshot gilt jede Quelle als UNVALIDATED.
+#
+# Kritikalität (Konsequenz bei Status != HEALTHY):
+#   NON_CRITICAL  Features unavailable (NaN, Verfügbarkeit 0), Pipeline läuft weiter, keine Imputation
+#   IMPORTANT     zusätzlich: data_quality sinkt, positive Intelligence-Boosts der abhängigen Signale aus
+#   CRITICAL      betroffener Entscheidungspfad blockiert (Scanner: kein Trade aus unbekannten Daten)
+# Ohne eigenen Eintrag: Vertragsfeld criticality low/medium/high -> NON_CRITICAL/IMPORTANT/CRITICAL.
+
+version: health-v1
+
+thresholds:
+  latency_degraded_s: 15             # Antwortzeit darüber -> DEGRADED
+  missing_rate_degraded: 0.20        # Anteil fehlender Werte (jüngstes Fenster)
+  duplicate_rate_degraded: 0.05      # Anteil doppelter series_id
+  outlier_rate_degraded: 0.02        # Anteil |robuster z| > outlier_z
+  outlier_z: 10
+  error_rate_degraded: 0.10          # Fehlerquote des letzten Ingests
+  broken_after_consecutive_failures: 3
+  recovery_passes_required: 2        # vollständig bestandene Prüfungen in Folge, bevor wieder HEALTHY
+  snapshot_max_age_hours: 30         # Scanner: älterer Snapshot = unbekannt
+  global_safe_mode:
+    max_unhealthy_important: 2       # >= so viele unabhängige IMPORTANT/CRITICAL Quellen nicht HEALTHY -> global
+    min_data_quality: 0.60           # gewichtete Data Quality darunter -> global
+
+criticality_map: {low: NON_CRITICAL, medium: IMPORTANT, high: CRITICAL}
+status_quality: {HEALTHY: 1.0, DEGRADED: 0.6, STALE: 0.2, BROKEN: 0.0, UNVALIDATED: 0.0}
+
+# Champion-Pflichtdaten des Scanners (aktive Probes). decisions = blockierte Pfade bei Ausfall.
+core_sources:
+  - source_id: market_prices
+    display_name: "Kurse (yfinance Tageshistorie)"
+    criticality: CRITICAL
+    probe: {kind: yfinance_history, symbol: SPY}
+    max_observation_age_days: 5      # Wochenende/Feiertag + Puffer
+    decisions: [scanner_candidates, mismatch_score, monte_carlo, intraday_delta]
+    features: [price_history, realized_vol]
+  - source_id: vix_level
+    display_name: "VIX (Risk Gates)"
+    criticality: CRITICAL
+    probe: {kind: yfinance_history, symbol: "^VIX"}
+    max_observation_age_days: 5
+    decisions: [risk_gates]
+    features: [vix]
+    fallback: vix_fred                # offiziell definierter Alternativ-Provider (risk_gates.py FRED-Pfad)
+  - source_id: vix_fred
+    display_name: "VIX via FRED VIXCLS (Fallback-Adapter)"
+    criticality: CRITICAL
+    fallback_only: true
+    probe: {kind: http_csv, url: "https://fred.stlouisfed.org/graph/fredgraph.csv", params: {id: VIXCLS},
+            date_col: 0, value_col: 1}
+    max_observation_age_days: 6       # FRED VIXCLS erscheint mit 1 Tag Verzug
+    decisions: [risk_gates]
+    features: [vix]
+  - source_id: options_chain
+    display_name: "Optionsketten Primary (Tradier)"
+    criticality: CRITICAL
+    probe: {kind: http_json, url: "https://api.tradier.com/v1/markets/options/expirations",
+            params: {symbol: SPY}, auth_env: TRADIER_API_KEY, auth_header: bearer, required_keys: [expirations]}
+    decisions: [options_design, roi_precheck]
+    features: [option_quotes, implied_vol]
+    fallback: options_chain_yfinance  # options_designer.py: Tradier leer/aus -> yfinance (getesteter Pfad)
+  - source_id: options_chain_yfinance
+    display_name: "Optionsketten Fallback (yfinance)"
+    criticality: CRITICAL
+    fallback_only: true
+    probe: {kind: yfinance_options, symbol: SPY}
+    decisions: [options_design, roi_precheck]
+    features: [option_quotes, implied_vol]
+  - source_id: news_finnhub
+    display_name: "Unternehmensnachrichten (Finnhub)"
+    criticality: IMPORTANT
+    probe: {kind: http_json, url: "https://finnhub.io/api/v1/company-news", params: {symbol: AAPL},
+            date_params: {from: -5, to: 0}, auth_env: FINNHUB_API_KEY, auth_param: token, required_type: list}
+    decisions: [candidate_discovery]
+    features: [news_flow, finbert_sentiment]
+
+# Alternative Daten (wöchentliche eigene Jobs): täglich leichte Probe + Store-Prüfung.
+alt_sources:
+  - source_id: sec_submissions
+    criticality: NON_CRITICAL
+    probe: {kind: http_json, url: "https://data.sec.gov/submissions/CIK0000320193.json", headers: sec,
+            required_keys: [cik, filings]}
+    health_file: outputs/external_data/sec/health.json
+    store: outputs/external_data/sec/filings
+    max_success_age_days: 9           # wöchentlicher Ingest + Puffer
+    max_observation_age_days: 10      # Filings erscheinen täglich
+  - source_id: sec_form345
+    criticality: NON_CRITICAL
+    health_file: outputs/external_data/sec/health.json
+    store: outputs/external_data/sec/insider
+    value_scale: log                  # USD-Transaktionswerte, stark rechtsschief
+    max_success_age_days: 9
+    max_observation_age_days: 30      # Live-Form-4 nur budgetiert; Bulk vierteljährlich
+  - source_id: sec_companyfacts
+    criticality: NON_CRITICAL
+    probe: {kind: http_json, url: "https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/Assets.json",
+            headers: sec, required_keys: [cik, units]}
+    health_file: outputs/external_data/sec/xbrl_health.json
+    store: outputs/external_data/sec/xbrl
+    value_scale: log                  # Bilanz-/Umsatzbeträge über Firmen hinweg
+    max_success_age_days: 9
+    max_observation_age_days: 120     # quartalsweise Berichte
+  - source_id: gleif_lei
+    criticality: NON_CRITICAL
+    probe: {kind: http_json, url: "https://api.gleif.org/api/v1/lei-records", params: {"page[size]": 1},
+            headers: jsonapi, required_keys: [data]}
+    health_file: outputs/entity/entity_report.json
+    max_success_age_days: 9
+  - source_id: ted_awards
+    criticality: NON_CRITICAL
+    probe: {kind: http_json, method: POST, url: "https://api.ted.europa.eu/v3/notices/search",
+            json_body: {query: "publication-date >= 20250101", fields: [publication-number], limit: 1, page: 1,
+                        scope: ALL, paginationMode: PAGE_NUMBER}, required_keys: [notices]}
+    health_file: outputs/external_data/ted/health.json
+    store: outputs/external_data/ted/awards
+    value_optional: true              # Betrag nur bei ausgewiesener EUR-Währung (sonst bewusst leer)
+    value_scale: log
+    max_success_age_days: 9
+    max_observation_age_days: 14
+
+# Zulässige Datenalterung je Feature-Quelle für Cache-Nutzung (stale=true, data_quality reduziert).
+# Nicht aufgeführt = KEIN Cache: bei Ausfall unavailable.
+cache_max_age_days:
+  sec_xbrl_fundamentals: 30          # Fundamentaldaten ändern sich quartalsweise
+  fred_regime_macro: 45              # Monatsdaten
+
+# Nachgelagerte Nutzung, die nicht aus Registries ableitbar ist.
+downstream_extra:
+  fred_regime_macro: ["ml_research panel: cpi_yoy, fed_assets_13w_chg, usd_63d_chg, wti_63d_chg",
+                      "meta_cognition / world_model Regime"]
+  fred_us_macro: ["external_context (SHADOW)"]
