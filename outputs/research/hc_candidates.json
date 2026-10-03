@@ -4,7 +4,7 @@
  "active_ensemble": "static_equal",
  "rule": null,
  "enabled": false,
- "disabled_reason": "keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; Wahrscheinlichkeiten nicht validiert: Kalibrierungsfehler > 0.05 in ['55–60 %']; Trefferquote nicht monoton steigend [0.4688, 0.4338]; SAFE MODE aktiv: FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx']); MODEL DRIFT: 50% der Modelle 'deteriorating'; Alpha Decay: Mehrheit der Modelle 'deteriorating'",
+ "disabled_reason": "keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; Wahrscheinlichkeiten nicht validiert: Kalibrierungsfehler > 0.05 in ['50–55 %', '55–60 %', '60–65 %']; Trefferquote nicht monoton steigend [0.4644, 0.4275, 0.4904]; SAFE MODE aktiv: FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])",
  "candidates": [],
  "sent": [],
  "memory_new": 0,

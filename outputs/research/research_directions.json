@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T09:22:53+00:00",
+ "generated": "2026-10-03T12:06:37+00:00",
  "prior": [
   1.0,
   4.0
@@ -87,10 +87,10 @@
    "success": 0,
    "prospective": 0,
    "data_gap": 0,
-   "rejected": 1,
+   "rejected": 0,
    "posterior_success": 0.1667,
    "posterior_sd": 0.1409,
-   "wasted_capacity": 1,
+   "wasted_capacity": 0,
    "assessment": "zu wenig getestet"
   },
   "abstention:champion_trades": {
@@ -257,6 +257,94 @@
    "posterior_sd": 0.1237,
    "wasted_capacity": 0,
    "assessment": "zu wenig getestet"
+  },
+  "alt_source:ted_procurement": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:dollar_x_technology": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:inflation_x_consumer_defensive": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:volatility_x_utilities": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:trend_x_basic_materials": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:insider_x_healthcare": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:drift_vol_20": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "research:alt_data:sec_xbrl_fundamentals": {
+   "tested": 4,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 4,
+   "posterior_success": 0.1111,
+   "posterior_sd": 0.0994,
+   "wasted_capacity": 4,
+   "assessment": "verschwendet Kapazität"
   }
  }
 }
