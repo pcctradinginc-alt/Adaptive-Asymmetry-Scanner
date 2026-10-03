@@ -1397,8 +1397,19 @@ class NoaaStormEventsConnector(Connector):
         except http.FetchError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, raw=raw, message=str(e))
 
-        csv_text = file_res.content.decode("utf-8", "ignore")
+        content = file_res.content
+        if content[:2] == b"\x1f\x8b":            # offizielle Dateien sind .csv.gz
+            import gzip
+            try:
+                content = gzip.decompress(content)
+            except (OSError, EOFError) as e:
+                return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                                       message=f"{filename}: gzip nicht lesbar ({e})")
+        csv_text = content.decode("utf-8", "ignore")
         counts = parse_storm_events_counts(csv_text)
+        if not counts:                              # leere Zählung ist kein PASS (Schema/Format geändert)
+            return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,
+                                   message=f"{filename}: keine STATE/EVENT_TYPE-Zeilen erkannt")
         retrieved_at = file_res.retrieved_at
         obs_time = datetime(year, 1, 1, tzinfo=timezone.utc)
         observations = [
@@ -1413,7 +1424,7 @@ class NoaaStormEventsConnector(Connector):
             for (state, event_type), n in counts.items()
         ]
         return ConnectorResult(source_id=self.source_id, status=SourceStatus.PASS,
-                                observations=observations, raw=raw,
+                                observations=observations, raw=raw, latest_observation_time=obs_time,
                                 message=f"{len(counts)} state/event_type-Zähler aus {filename}")
 
     @staticmethod

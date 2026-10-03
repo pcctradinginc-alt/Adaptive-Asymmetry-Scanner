@@ -20,6 +20,7 @@ import os
 import time
 import anthropic
 
+from modules import cost_telemetry, model_routing
 from modules.config import cfg
 
 log = logging.getLogger(__name__)
@@ -63,13 +64,54 @@ Antworte NUR mit diesem JSON:
       "ticker": "AAPL",
       "decision": "[YES]" oder "[NO]",
       "category": "structural_change|routine_news|analyst_opinion|earnings|catalyst|bearish_reversal",
-      "reason": "Konkreter Grund in max 20 Worten — spezifisch, nicht vage"
+      "reason": "Konkreter Grund in max 20 Worten — spezifisch, nicht vage",
+      "direction": "BULLISH" oder "BEARISH"
     }}
   ]
 }}
 
 Richtwert: ~15% YES bei vorhandenen Signalen. Vergib [YES] NUR bei echtem Signal.
 An nachrichtenarmen Tagen ist 0% YES korrekt — erzwinge keine Quote."""
+
+# Kostenvariante: Begründung nur für [YES] (NO-Begründungen werden nirgends verwendet).
+# Wird erst nach gepaartem Entscheidungsvergleich aktiv (modules/model_routing.compact_decision).
+USER_TEMPLATE_COMPACT = """Bewerte diese {n} Ticker auf Options-Asymmetrie-Potenzial.
+
+{ticker_news}
+
+Antworte NUR mit diesem JSON:
+{{
+  "results": [
+    {{
+      "ticker": "AAPL",
+      "decision": "[YES]" oder "[NO]",
+      "category": "structural_change|routine_news|analyst_opinion|earnings|catalyst|bearish_reversal",
+      "reason": "NUR bei [YES]: konkreter Grund in max 20 Worten; bei [NO] leerer String",
+      "direction": "BULLISH" oder "BEARISH"
+    }}
+  ]
+}}
+
+Richtwert: ~15% YES bei vorhandenen Signalen. Vergib [YES] NUR bei echtem Signal.
+An nachrichtenarmen Tagen ist 0% YES korrekt — erzwinge keine Quote."""
+
+
+def _compact_mode() -> str:
+    return str((cost_telemetry.policy().get("prescreen_compact") or {}).get("mode", "off"))
+
+
+_TEMPLATE_DECISION: dict = {}
+
+
+def _active_template() -> str:
+    """Kompakte Vorlage nur nach bestandenem gepaarten Vergleich (Kostenoptimierung); einmal je Prozess."""
+    try:
+        if "active" not in _TEMPLATE_DECISION:
+            _TEMPLATE_DECISION["active"] = bool(model_routing.compact_decision().get("active"))
+        return USER_TEMPLATE_COMPACT if _TEMPLATE_DECISION["active"] else USER_TEMPLATE
+    except Exception as e:  # noqa: BLE001 – im Zweifel bewährte Vorlage
+        log.debug(f"prescreen compact: Entscheidung nicht verfügbar: {e}")
+        return USER_TEMPLATE
 
 
 class Prescreener:
@@ -94,9 +136,12 @@ class Prescreener:
             f"{len(batches)} Batch(es) à max {BATCH_SIZE}"
         )
 
+        pre = self._prefetch_batch(batches)
         for batch_idx, batch in enumerate(batches, 1):
             log.info(f"  Batch {batch_idx}/{len(batches)}: {len(batch)} Ticker")
-            results = self._call_with_retry(batch)
+            results = pre.get(batch_idx - 1)
+            if results is None:
+                results = self._call_with_retry(batch)
 
             if results is None:
                 # API-Ausfall ist KEIN "kein Signal": getrennt zählen, damit
@@ -129,6 +174,7 @@ class Prescreener:
                     all_yes[ticker] = {
                         "reason":    r.get("reason", ""),
                         "category":  r.get("category", ""),
+                        "direction": r.get("direction") if r.get("direction") in ("BULLISH", "BEARISH") else None,
                     }
                     yes_count += 1
                 else:
@@ -146,6 +192,7 @@ class Prescreener:
                 prescreen_data = all_yes[c["ticker"]]
                 c["prescreen_reason"]   = prescreen_data.get("reason", "")
                 c["prescreen_category"] = prescreen_data.get("category", "")
+                c["prescreen_direction"] = prescreen_data.get("direction")
                 shortlist.append(c)
                 log.info(f"  [YES] {c['ticker']}: {prescreen_data.get('reason','')} [{prescreen_data.get('category','')}]")
 
@@ -169,41 +216,81 @@ class Prescreener:
             log.warning(f"  [{ticker}] Options-Liquidität nicht prüfbar: {e} → durchgelassen")
             return True  # Im Zweifel durchlassen
 
-    def _call_with_retry(self, batch: list[dict]) -> list | None:
+    @staticmethod
+    def _params(batch: list[dict], template: str | None = None) -> dict:
         ticker_news_str = "\n".join([
             f"[{c['ticker']}]: {' | '.join(c['news'][:MAX_HEADLINES])}"
             for c in batch
         ])
         min_yes = len(batch) // 7   # ~15% Richtwert, kann 0 sein — kein Zwang
-        prompt  = USER_TEMPLATE.format(
+        prompt  = (template or _active_template()).format(
             n           = len(batch),
             ticker_news = ticker_news_str,
             min_yes     = min_yes,
         )
+        return {"model": cfg.models.prescreener, "max_tokens": 4096, "system": SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": prompt}]}
+
+    @staticmethod
+    def _parse(response) -> list:
+        raw = response.content[0].text.strip()
+
+        if "```" in raw:
+            parts = raw.split("```")
+            raw   = parts[1] if len(parts) > 1 else raw
+            if raw.startswith("json"):
+                raw = raw[4:].strip()
+
+        if not raw.startswith("{"):
+            idx = raw.find("{")
+            if idx != -1:
+                raw = raw[idx:]
+
+        return json.loads(raw).get("results", [])
+
+    def _prefetch_batch(self, batches: list[list[dict]]) -> dict[int, list]:
+        """Alle Prescreen-Batches als EIN Message Batch (-50 %, gleiches Modell/Prompt).
+        Fehlende oder unlesbare Antworten holt run() synchron mit Retries nach."""
+        conf = cost_telemetry.batch_settings("prescreening")
+        if conf is None or len(batches) < conf["min_requests"]:
+            return {}
+        active = _active_template()
+        other = USER_TEMPLATE if active is USER_TEMPLATE_COMPACT else USER_TEMPLATE_COMPACT
+        requests = {f"ps-{i}": self._params(b, active) for i, b in enumerate(batches)}
+        # gepaarte Prüfung des Formats: Stichprobe derselben Batches mit der anderen Vorlage
+        n_check = int((cost_telemetry.policy().get("prescreen_compact") or {}).get("check_batches_per_run", 1))
+        checks = {"pc-" + cid[3:]: self._params(batches[int(cid[3:])], other)
+                  for cid in model_routing.sample(list(requests), n_check)} if _compact_mode() != "off" else {}
+        msgs = cost_telemetry.run_batch(self.client, workflow="prescreening", requests={**requests, **checks},
+                                        max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"])
+        out = {}
+        for cid, msg in msgs.items():
+            if not cid.startswith("ps-"):
+                continue
+            i = int(cid.split("-", 1)[1])
+            try:
+                out[i] = self._parse(msg)
+            except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
+                log.warning(f"    Batch-Antwort {i + 1} unlesbar ({e}) → synchroner Retry")
+        for cid in checks:
+            i = int(cid[3:])
+            if i in out and cid in msgs:
+                try:
+                    alt = self._parse(msgs[cid])
+                except (json.JSONDecodeError, KeyError, AttributeError, IndexError):
+                    alt = []
+                cost_telemetry.record(model_routing.prescreen_pair(out[i], alt, compact_is_reference=(
+                    active is USER_TEMPLATE_COMPACT)))
+        return out
+
+    def _call_with_retry(self, batch: list[dict]) -> list | None:
+        params = self._params(batch)
 
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                response = self.client.messages.create(
-                    model      = cfg.models.prescreener,
-                    max_tokens = 4096,
-                    system     = SYSTEM_PROMPT,
-                    messages   = [{"role": "user", "content": prompt}],
-                )
-                raw = response.content[0].text.strip()
-
-                if "```" in raw:
-                    parts = raw.split("```")
-                    raw   = parts[1] if len(parts) > 1 else raw
-                    if raw.startswith("json"):
-                        raw = raw[4:].strip()
-
-                if not raw.startswith("{"):
-                    idx = raw.find("{")
-                    if idx != -1:
-                        raw = raw[idx:]
-
-                parsed  = json.loads(raw)
-                results = parsed.get("results", [])
+                response = cost_telemetry.tracked_create(
+                    self.client, workflow="prescreening", **params)
+                results = self._parse(response)
                 log.info(
                     f"    Batch OK (Versuch {attempt}): "
                     f"{len(results)} Ticker bewertet"

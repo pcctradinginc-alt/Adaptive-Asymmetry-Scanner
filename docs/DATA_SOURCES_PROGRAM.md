@@ -139,3 +139,17 @@ Erst danach kommt die nächste Quelle. Quellen mit REJECT bleiben im Memory und 
 | sec_deep_events | 1.0 | REJECT | – | Insider/8-K ohne Zusatznutzen gegenüber der Baseline |
 | ted_procurement | < 0.3 (erst ab 2025) | – (Abdeckung) | ab 2026-10-05 | nur prospektiv bewertbar |
 | sec_xbrl_fundamentals | offen | offen | ab 2026-10-12 | erster Lauf nach Merge |
+
+## 6. Aktivierungsstand der 9 deaktivierten bzw. zurückgestellten Quellen (2026-10-03)
+
+Die Regel ist dieselbe wie bei jeder Quelle: Aktiviert wird nur, was live verifiziert ist, eine geklärte Lizenz hat und keine Daten in falscher Qualität liefert. REVIEW_REQUIRED hebt nur ein Mensch auf.
+
+| Quelle | Ergebnis | Grund / nächster Schritt |
+|---|---|---|
+| `fhwa_faf` | **blockiert (Netz)** | `faf_build.yml` am 2026-10-03 erneut gestartet (Lauf 37133154785). faf.ornl.gov setzt Verbindungen von GitHub-Runnern zurück (`Connection reset by peer`, 4 Versuche mit UA und Backoff). Dasselbe trat schon am 2026-09-27 auf. **Mensch:** FAF5-State-Zip lokal laden und `faf_build.yml` mit `url` (erreichbarer Spiegel) starten, oder `scripts/build_faf_exposure.py --url <zip>` lokal ausführen und `config/faf_exposure.yaml` committen. DEFERRED bleibt, bis `meta.built_at` gesetzt ist. |
+| `noaa_storm_events` | **aktiviert** | Der Connector konnte die offiziellen `.csv.gz` nicht lesen: gzip wurde nicht entpackt, und eine leere Zählung galt als PASS. Beides ist behoben (Tests). Aktiv mit `backfill_mode: true` und `min_refetch_days: 30`: Die Vorjahres-Datei wird höchstens monatlich statt täglich geladen; normalisiert gespeichert werden nur die Zähler je Bundesstaat und Event-Typ. `max_staleness_days: 800`, weil es Jahresdaten sind. NCEI ist aus GitHub Actions erreichbar (`ncei_normals` PASS). Den Live-Nachweis liefert der erste `external_data`-Lauf nach dem Merge. Ein Feature-Verbraucher folgt erst über eine Hypothese. |
+| `destatis_truck_toll_download` | **bleibt aus** | Die EXDAT-Seite lädt den Download dynamisch, einen statischen .xlsx/.csv-Link gibt es nicht (Preflight 2026-09-27). Die Primärquelle `destatis_truck_toll` (GENESIS) ist PASS (1.120 Beobachtungen) und deckt die Metrik ab. Der Fallback ist daher entbehrlich, solange GENESIS gesund ist. |
+| `ecmwf_open_data` | **bleibt DEFERRED** | Nur GRIB2/BUFR verfügbar. Ein Connector braucht `eccodes`/`cfgrib` (schwere Systemabhängigkeit), und es gibt keinen Feature-Verbraucher. |
+| `viapass_be`, `asfinag_at` | **REVIEW_REQUIRED (Mensch)** | Lizenz bzw. Nutzungsbedingungen sind ungeklärt, ein maschinenlesbarer Endpoint ist unbekannt. |
+| `nbs_cn`, `mot_cn` | **DEFERRED (Mensch)** | Kein offizieller maschinenlesbarer Endpoint, der ohne Scraping nutzbar wäre. |
+| `kosis_kr` | **DEFERRED (Mensch)** | Die KOSIS-OpenAPI braucht einen API-Key (Registrierung durch einen Menschen). Danach wird der Key als GitHub-Secret hinterlegt und die Quelle per Preflight verifiziert. |

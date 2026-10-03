@@ -713,6 +713,38 @@ def test_storm_events_disabled_by_default():
     assert result.observations == []
 
 
+def _storm_fetch(listing: bytes, payload: bytes):
+    from modules.external import http as _http
+    now = datetime(2025, 3, 1, tzinfo=timezone.utc)
+
+    def fake(url, **kw):
+        body = listing if url.endswith("csvfiles") else payload
+        return _http.FetchResult(url=url, status=200, content=body, content_type="application/octet-stream",
+                                 retrieved_at=now, content_hash=str(hash(body)), fingerprint=url, bytes=len(body))
+    return fake
+
+
+def test_storm_events_backfill_reads_official_gzip(monkeypatch):
+    import gzip
+    listing = (FIXTURES / "storm_events_listing.html").read_bytes()
+    csv_bytes = (FIXTURES / "storm_events_details_sample.csv").read_bytes()
+    monkeypatch.setattr(w.http, "fetch", _storm_fetch(listing, gzip.compress(csv_bytes)))
+    c = w.NoaaStormEventsConnector(source_cfg={"backfill_mode": True, "year": 2024})
+    r = c.fetch(datetime(2025, 3, 1, tzinfo=timezone.utc))
+    assert r.status.value == "PASS"
+    vals = {(o.entity_id, o.attrs["event_type"]): o.value for o in r.observations}
+    assert vals[("TEXAS", "Tornado")] == 2.0
+
+
+def test_storm_events_unparseable_payload_is_not_pass(monkeypatch):
+    listing = (FIXTURES / "storm_events_listing.html").read_bytes()
+    monkeypatch.setattr(w.http, "fetch", _storm_fetch(listing, b"\x1f\x8bkaputt"))
+    c = w.NoaaStormEventsConnector(source_cfg={"backfill_mode": True, "year": 2024})
+    assert c.fetch(datetime(2025, 3, 1, tzinfo=timezone.utc)).status.value == "SCHEMA_CHANGED"
+    monkeypatch.setattr(w.http, "fetch", _storm_fetch(listing, b"foo,bar\n1,2\n"))
+    assert c.fetch(datetime(2025, 3, 1, tzinfo=timezone.utc)).status.value == "SCHEMA_CHANGED"
+
+
 def test_pick_details_filename_selects_requested_year():
     listing = (FIXTURES / "storm_events_listing.html").read_text()
     name = w.NoaaStormEventsConnector._pick_details_filename(listing, 2024)

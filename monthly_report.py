@@ -834,6 +834,115 @@ def _safe_external_context_html() -> str:
         return "<h3>🌍 Externer Kontext (SHADOW)</h3><p><i>keine externen Daten</i></p>"
 
 
+NV = "nicht verfügbar"
+
+
+def _usd(x, digits: int = 2) -> str:
+    return NV if x is None else f"${x:,.{digits}f}"
+
+
+def build_cost_html(report_month: str, summary: dict | None = None) -> str:
+    """Abschnitt KOSTEN & EFFIZIENZ aus der Kosten-Telemetrie (modules/cost_telemetry.py).
+    Nicht messbare Werte -> 'nicht verfügbar'; fehlende Telemetrie -> 'unvollständig'."""
+    from modules import cost_telemetry as ct
+    s = summary if summary is not None else ct.month_summary(report_month)
+    status = "" if s.get("complete") else " <span style='color:#b45309'>(unvollständig)</span>"
+    fam = s.get("by_family") or {}
+    scope = s.get("by_scope") or {}
+    has = bool(s.get("telemetry_calls"))
+
+    def fam_cost(k):
+        return _usd(fam[k]["cost_usd"]) if has and k in fam else (_usd(0.0) if has else NV)
+
+    other_llm = (sum(v["cost_usd"] for k, v in fam.items() if k not in ("SONNET", "HAIKU")) if has else None)
+    delta = NV
+    if s.get("delta_usd") is not None:
+        pct = f" ({s['delta_pct']:+.0%})" if s.get("delta_pct") is not None else ""
+        delta = f"{s['delta_usd']:+,.2f} ${pct}"
+    api = s.get("api") or {}
+    api_txt = (", ".join(f"{k}: {v['requests']} Req." + (f" ({v['rate_limited']}× 429)" if v.get("rate_limited") else "")
+                         for k, v in api.items()) or NV)
+    ac = s.get("analysis_cache") or {}
+    if ac.get("hits"):
+        cache_txt = f"{ac['hits']}/{ac['lookups']} Treffer, Ersparnis {_usd(ac['saved_usd'])}"
+    elif ac.get("lookups"):
+        cache_txt = (f"Beobachtungsmodus: {ac.get('would_hit', 0)}/{ac['lookups']} identische Wiederholungen, "
+                     f"potenziell {_usd(ac.get('potential_saved_usd'))}")
+    else:
+        cache_txt = NV
+    val = s.get("analysis_cache_validation") or {}
+    if val.get("checks"):
+        cache_txt += (f"; A/B-Prüfung {val['checks']} Vergleiche, Richtung gleich "
+                      f"{val['direction_agreement']:.0%} → {val['decision']}")
+    pc = s.get("prompt_cache_savings_usd")
+    prompt_cache_txt = (_usd(pc) if has and s.get("cache_read_input_tokens") else NV)
+
+    routing_txt, prefilter_txt = NV, NV
+    try:
+        from modules import model_routing as _mr
+        from modules.config import cfg as _cfg
+        d = _mr.decision("deep_analysis", _cfg.models.deep_analysis)
+        ab = d.get("ab") or {}
+        if d.get("status") != "OFF":
+            routing_txt = (f"{d.get('status')}: aktiv {d.get('active')}; A/B {ab.get('pairs', 0)} Paare/"
+                           f"{ab.get('days', 0)} Tage, Gate-Übereinstimmung {ab.get('gate_agreement') or NV}, "
+                           f"Recall {NV if ab.get('pass_recall') is None else ab['pass_recall']}")
+        pf = _mr.prefilter_decision()
+        if pf.get("status") != "OFF":
+            prefilter_txt = (f"{pf.get('status')} ({'aktiv' if pf.get('active') else 'inaktiv'}); "
+                             f"{pf.get('pairs', 0)} Paare, Verlust bestandener Kandidaten {NV if pf.get('pass_loss') is None else pf['pass_loss']}")
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"Routing-Status nicht verfügbar: {e}")
+
+    def scope_cost(k):
+        return _usd(scope[k]["cost_usd"]) if has and k in scope else (_usd(0.0) if has else NV)
+
+    def num(x):
+        return NV if not has or x is None else f"{x:,}"
+
+    rows = [
+        ("Gesamtkosten LLM", _usd(s.get("cost_usd"))),
+        (f"Vormonat ({s.get('prev_month')})", _usd(s.get("prev_cost_usd"))),
+        ("Veränderung", delta),
+        ("Sonnet / Haiku / andere LLMs", f"{fam_cost('SONNET')} / {fam_cost('HAIKU')} / {_usd(other_llm)}"),
+        ("Bezahlte APIs (Kosten lt. Plan)", _usd(s.get("paid_api_cost_usd")) if s.get("api") else NV),
+        ("API-Nutzung", api_txt),
+        ("Sonnet-Calls / Haiku-Calls", f"{num(s.get('sonnet_calls'))} / {num(s.get('haiku_calls'))}"),
+        ("Fehlgeschlagene Calls", num(s.get("failed_calls"))),
+        ("Input- / Output-Tokens", f"{num(s.get('input_tokens'))} / {num(s.get('output_tokens'))}"),
+        ("Prompt-Cache-Ersparnis", prompt_cache_txt),
+        ("Analyse-Cache", cache_txt),
+        ("Batch-API-Anteil (-50 %)", (f"{s.get('batch_calls', 0)}/{s.get('telemetry_calls')} Calls" if has else NV)),
+        ("Modell-Routing Deep Analysis", routing_txt),
+        ("Bearish-Vorfilter", prefilter_txt),
+        ("Kosten je Scan-Lauf", _usd(s.get("cost_per_scan"), 3)),
+        ("Kosten je Sonnet-Analyse", _usd(s.get("cost_per_sonnet_analysis"), 4)),
+        ("Kosten je finalem Trade", _usd(s.get("cost_per_final_trade"))),
+        ("Produktion / Shadow / Research",
+         f"{scope_cost('production')} / {scope_cost('shadow')} / {scope_cost('research')}"),
+    ]
+    trs = "".join(f"<tr><td style='padding:2px 8px'>{k}</td><td style='padding:2px 8px'><b>{v}</b></td></tr>"
+                  for k, v in rows)
+    note = ""
+    if s.get("days_without_telemetry"):
+        note += f"<p><i>{s['days_without_telemetry']} Scan-Tag(e) mit LLM-Stufen ohne Telemetrie.</i></p>"
+    if s.get("unknown_cost_calls"):
+        note += f"<p><i>{s['unknown_cost_calls']} Calls ohne berechenbare Kosten (Preis/usage fehlt).</i></p>"
+    return (f"<h3>💰 KOSTEN &amp; EFFIZIENZ {report_month}{status}</h3>"
+            f"<table style='font-size:0.9em;border-collapse:collapse'>{trs}</table>{note}"
+            f"<p style='font-size:0.9em'>{ct.explain(s)}</p>")
+
+
+def _safe_cost_html(report_month: str) -> str:
+    """Darf den Report NIE zum Absturz bringen."""
+    try:
+        return build_cost_html(report_month)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Kostenabschnitt nicht berechenbar (ignoriert): {e}")
+        return (f"<h3>💰 KOSTEN &amp; EFFIZIENZ {report_month} (unvollständig)</h3>"
+                f"<p><i>Kosten-Telemetrie {NV}.</i></p>")
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
                total: dict | None, funnel: dict, closed: list[dict] | None = None,
                spy: float | None = None, shadow: dict | None = None,
@@ -907,6 +1016,8 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       {build_challenger_html()}
       {_safe_external_context_html()}
       {funnel_html}
+      <hr>
+      {_safe_cost_html(report_month)}
       <hr>
       <p style="color:#888;font-size:0.85em">
         Automatisch generiert durch {REPO_NAME} · monthly_report.py<br>

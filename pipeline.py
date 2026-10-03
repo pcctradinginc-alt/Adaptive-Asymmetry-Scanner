@@ -591,6 +591,19 @@ def main() -> None:
         "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
+    # Kosten-Telemetrie: Fremd-API-Zähler je Lauf + Budgetwarnung (Produktion läuft immer
+    # weiter – produktionskritische Deep Analysis wird nie still übersprungen).
+    try:
+        import atexit
+        from modules import cost_telemetry as _ct
+        if _ct.install_http_counter():
+            atexit.register(_ct.flush_api_counts, "scanner")
+        _budget = _ct.budget_status()
+        stats["cost_budget"] = {k: _budget[k] for k in ("level", "week_usd", "month_usd", "warnings")}
+        for _w in _budget["warnings"]:
+            log.warning(f"KOSTEN-GUARD: {_w}")
+    except Exception as e:  # noqa: BLE001 – Telemetrie bricht nie den Scan
+        log.debug(f"Kosten-Telemetrie nicht initialisierbar: {e}")
     try:
         from modules import market_snapshot as _ms
         from datetime import timezone as _tz
@@ -928,6 +941,23 @@ def main() -> None:
         stats["stop_reason"] = "Alle unter Pre-MC-Schwelle (zu wenig Volatilität)."
         save_history(history); send_email(); return
 
+    # ── STUFE 3c: Bearish-Vorfilter (Kosten; nur aktiv nach gepaarter Validierung) ─
+    # Solange Bearish-Trades aus sind, verwirft Stufe 4a jede BEARISH-Analyse. Kandidaten, die der
+    # Prescreen bereits BEARISH einstuft, kosten dann nur Geld – sobald model_routing belegt, dass
+    # dabei praktisch keine Gate-bestandenen Kandidaten verloren gehen (config/cost_policy.yaml).
+    try:
+        from modules import model_routing as _mr
+        pre_mc_viable, _pf_skipped = _mr.apply_bearish_prefilter(
+            pre_mc_viable, bearish_trading_allowed(getattr(cfg, "options", None)))
+        for _t in _pf_skipped:
+            reject("prescreen_bearish_prefilter", _t)
+        if _pf_skipped:
+            stats["bearish_prefiltered"] = len(_pf_skipped)
+            log.info(f"Stufe 3c: {len(_pf_skipped)} Prescreen-BEARISH-Kandidaten ohne Deep Analysis "
+                     f"(Bearish-Trades deaktiviert, Vorfilter validiert)")
+    except Exception as e:  # noqa: BLE001 – im Zweifel alle analysieren
+        log.warning(f"Bearish-Vorfilter nicht anwendbar (alle Kandidaten werden analysiert): {e}")
+
     # ── STUFE 4: Deep Analysis (Sonnet) ──────────────────────────────────────
     log.info("Stufe 4: Deep Analysis (Claude Sonnet + Red Team)")
     _da = DeepAnalysis()
@@ -984,7 +1014,7 @@ def main() -> None:
         except Exception as e:  # noqa: BLE001
             log.warning(f"catalyst_relevance Fehler ({a.get('ticker')}, ignoriert): {e}")
     try:
-        run_shadow_relation_analysis(analyses)
+        run_shadow_relation_analysis(analyses, deadline=_RUN_DEADLINE[0] if _RUN_DEADLINE else None)
     except Exception as e:  # noqa: BLE001
         log.warning(f"Shadow-Relation-Analyse Fehler (ignoriert): {e}")
 
