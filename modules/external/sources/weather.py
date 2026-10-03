@@ -1424,7 +1424,7 @@ class NoaaStormEventsConnector(Connector):
             for (state, event_type), n in counts.items()
         ]
         return ConnectorResult(source_id=self.source_id, status=SourceStatus.PASS,
-                                observations=observations, raw=raw,
+                                observations=observations, raw=raw, latest_observation_time=obs_time,
                                 message=f"{len(counts)} state/event_type-Zähler aus {filename}")
 
     @staticmethod

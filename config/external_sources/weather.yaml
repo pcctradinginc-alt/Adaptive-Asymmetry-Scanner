@@ -179,13 +179,18 @@ sources:
     supports_vintages: false
     supports_release_time: false
     pit_quality: CONSERVATIVE_DATE
-    enabled: false   # nur explizit im Backfill-Modus aktivieren (große Bulk-Dateien)
+    # Aktiv seit 2026-10-03: Jahresdatei (Vorjahr) höchstens alle 30 Tage (min_refetch_days),
+    # nie täglich; nur Zähler je Bundesstaat/Event-Typ werden normalisiert gespeichert.
+    enabled: true
     criticality: low
     base_url: "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles"
     backfill_only: true
+    backfill_mode: true
+    min_refetch_days: 30
+    max_fetch_seconds: 600
+    max_staleness_days: 800      # observation_time = 1. Jan. des Vorjahres -> bis ~2 Jahre alt, by design
     notes: >
-      Der Connector listet nur das offizielle Verzeichnis und ingested
-      standardmäßig NICHTS (enabled=false); im Backfill-Modus
+      Ohne backfill_mode ingested der Connector NICHTS; im Backfill-Modus
       (cfg['backfill_mode']=True, expliziter Aufruf) liest er ausschließlich
       Metadaten/Zähler (Events je Bundesstaat & Event-Typ) der neuesten
       Jahres-"details"-Datei.
