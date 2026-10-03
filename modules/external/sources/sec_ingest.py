@@ -95,14 +95,25 @@ def merge_store(path: Path, new: pd.DataFrame) -> tuple[pd.DataFrame, int]:
 
 def ingest_form345(state: dict, ciks: set[str], start_year: int, now: datetime, get=fetch, sleep=time.sleep) -> dict:
     done = state.setdefault("form345_quarters", {})
-    res = {"fetched": [], "errors": [], "new_rows": 0}
+    res = {"fetched": [], "errors": [], "new_rows": 0, "index": None}
+    links: dict = {}
+    for page in se.FORM345_INDEX_PAGES:
+        try:
+            links = se.parse_form345_index(get(page, headers=SEC_HEADERS, timeout=60).content.decode("utf-8", "replace"))
+        except Exception as e:  # noqa: BLE001
+            res["errors"].append(f"index {page}: {e!r}")
+            continue
+        if links:
+            res["index"] = {"page": page, "n_links": len(links)}
+            break
+        sleep(SEC_MIN_INTERVAL)
     frames = []
     for y, q in se.form345_quarters(start_year, now):
         key = f"{y}Q{q}"
         if key in done:
             continue
         try:
-            r = get(se.FORM345_URL.format(year=y, q=q), headers=SEC_HEADERS, timeout=120)
+            r = get(links.get((y, q)) or se.FORM345_URL.format(year=y, q=q), headers=SEC_HEADERS, timeout=120)
             obs = se.parse_form345_zip(r.content, ciks, r.retrieved_at)
             frames.append(obs_to_rows(obs))
             done[key] = {"content_hash": r.content_hash, "n_obs": len(obs), "retrieved_at": r.retrieved_at.isoformat()}

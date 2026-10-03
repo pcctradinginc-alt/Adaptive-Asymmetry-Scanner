@@ -33,6 +33,10 @@ log = logging.getLogger(__name__)
 
 PARSER_VERSION = "sec-events-1"
 FORM345_URL = "https://www.sec.gov/files/structureddata/data/form-345-data-sets/{year}q{q}_form345.zip"
+# Offizielle Übersichtsseiten der Insider-Datensätze; die ZIP-Links werden von dort gelesen
+# (CI 2026-10-03: der feste URL-Aufbau lieferte für alle Quartale 404).
+FORM345_INDEX_PAGES = ("https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+                       "https://www.sec.gov/dera/data/form-345")
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/{name}"
 OPEN_MARKET_CODES = {"P": "insider_buy_usd", "S": "insider_sell_usd"}
 PERIODIC_FORMS = {"10-K", "10-Q"}
@@ -119,6 +123,20 @@ def parse_form345_zip(content: bytes, issuer_ciks: set[str] | None, retrieved_at
 
 
 PUBLICATION_LAG_DAYS = 30                # SEC stellt das Quartals-ZIP erst einige Zeit nach Quartalsende bereit
+
+
+def parse_form345_index(html: str, base: str = "https://www.sec.gov") -> dict[tuple[int, int], str]:
+    """ZIP-Links der Übersichtsseite -> {(Jahr, Quartal): absolute URL}."""
+    import re
+    out: dict[tuple[int, int], str] = {}
+    for href in re.findall(r'href=["\']([^"\']+?\.zip)["\']', html, flags=re.I):
+        m = re.search(r"(\d{4})q([1-4])[^/]*form[_-]?345[^/]*\.zip$", href, flags=re.I) \
+            or re.search(r"form[_-]?345[^/]*?(\d{4})q([1-4])[^/]*\.zip$", href, flags=re.I)
+        if not m:
+            continue
+        url = href if href.startswith("http") else base.rstrip("/") + "/" + href.lstrip("/")
+        out[(int(m.group(1)), int(m.group(2)))] = url
+    return out
 
 
 def form345_quarters(start_year: int, today: datetime) -> list[tuple[int, int]]:
