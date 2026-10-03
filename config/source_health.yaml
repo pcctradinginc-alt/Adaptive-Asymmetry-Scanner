@@ -106,6 +106,9 @@ alt_sources:
     store: outputs/external_data/sec/xbrl
     value_scale: log
     outlier_check: false              # Beträge firmenübergreifend (Mio. bis Bio.) – kein sinnvoller Ausreißer-Test
+    # Zeilen dieser Parser-Versionen mit Periode nach Einreichung: Defekt in sec-xbrl-2 behoben,
+    # Verbraucher (sec_xbrl.build_feature_table) ignorieren sie -> Quarantäne (nur Info).
+    quarantined_parser_versions: [sec-xbrl-1]
     max_success_age_days: 9
     max_observation_age_days: 120     # quartalsweise Berichte
   - source_id: gleif_lei

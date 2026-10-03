@@ -247,7 +247,8 @@ NEW_ROWS_DAYS = 3        # Datenfehler gelten als NEU, wenn die Zeile in den let
 
 
 def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 120, *,
-                value_optional: bool = False, log_values: bool = False, outlier_check: bool = True) -> dict:
+                value_optional: bool = False, log_values: bool = False, outlier_check: bool = True,
+                quarantined_parser_versions: tuple = ()) -> dict:
     """value_optional: fehlende Werte sind fachlich vorgesehen (z.B. Zuschlag ohne EUR-Betrag) ->
     keine Missing-Rate. log_values: rechtsschiefe Beträge -> Ausreißer auf log1p(|x|)-Skala."""
     if df is None or not len(df):
@@ -264,7 +265,11 @@ def frame_stats(df: pd.DataFrame, now: datetime, cfg: dict, window_days: int = 1
     future_obs_total = int(fut_mask.sum())
     # Alte, bekannte Fehlzeilen liegen append-only im Store, werden aber vom Verbraucher ignoriert
     # (Quarantäne) -> nur NEU abgerufene zählen für den Status; Gesamtzahl bleibt als Info sichtbar.
-    future_obs = int((fut_mask & (retr >= pd.Timestamp(now) - pd.Timedelta(days=NEW_ROWS_DAYS))).sum())
+    if quarantined_parser_versions and "parser_version" in df:   # Defekt vom aktuellen Parser behoben, Verbraucher ignoriert
+        fut_mask_new = fut_mask & ~df["parser_version"].astype(str).isin(set(quarantined_parser_versions))
+    else:
+        fut_mask_new = fut_mask
+    future_obs = int((fut_mask_new & (retr >= pd.Timestamp(now) - pd.Timedelta(days=NEW_ROWS_DAYS))).sum())
     out_rate = 0.0
     if outlier_check and len(vals.dropna()) >= 20 and "metric" in recent:
         zs = []
@@ -379,7 +384,9 @@ def gather(cfg: dict, now: datetime, *, probes: bool = True, fetch=None, yf_modu
         h = json.loads(hf.read_text()) if hf and hf.exists() else None
         st = store_stats(a["store"], now, cfg, value_optional=bool(a.get("value_optional")),
                          log_values=a.get("value_scale") == "log",
-                         outlier_check=a.get("outlier_check", True)) if a.get("store") else None
+                         outlier_check=a.get("outlier_check", True),
+                         quarantined_parser_versions=tuple(a.get("quarantined_parser_versions") or ())) \
+            if a.get("store") else None
         last_ok = None
         if h:
             if a["source_id"] == "gleif_lei":
