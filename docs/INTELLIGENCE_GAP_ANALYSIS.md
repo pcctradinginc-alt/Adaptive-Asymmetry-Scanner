@@ -24,3 +24,24 @@ Grundregel: Neue Komponenten laufen SHADOW. Wirkung entsteht nur über Promotion
 - **Surprise Engine:** Entscheidung erst nach dem ersten Lauf in GitHub Actions (KEEP/MODIFY/REJECT nach Präregistrierung).
 - **Abstention-Risikovektor:** Es gibt keine historischen Werte, deshalb nur Forward-Messung. Ein Vertrag entsteht erst, wenn `abstention_proposals` den Vektor auf echten Outcomes per Walk-Forward bestätigt.
 - **RL:** NOT_READY. Walk-Forward und In-Sample sind kollabiert (100 % BOOST bzw. 100 % SKIP).
+
+## Kernfrage als durchgängige Kette (`modules/inquiry.py`, seit 2026-10-03)
+
+Für jede gemessene Unklarheit beantwortet das System die fünf Teilfragen der Kernfrage. Quellen der Unklarheiten sind Blind-Spot-Cluster, Modell-Drift, Merkmale außerhalb des Trainingsbereichs und die häufigsten Verlust-Ursachen.
+
+1. **Nicht verstanden:** die Unklarheit selbst.
+2. **Erklärung:** verknüpfte Hypothesen aus Director, Fabrik, Champion-Fehlerregeln und Verträgen.
+3. **Daten:** benötigt, verfügbar, DATA_GAP mit freien Quellen.
+4. **Neue Daten:** historisch oder prospektiv/Forward.
+5. **Verhalten:** Produktionseinfluss über den PromotionController.
+
+Kettenstatus: OPEN_QUESTION → NEEDS_DATA → UNDER_TEST / HISTORICALLY_REJECTED → FORWARD_TEST → BEHAVIOUR_CHANGED. Die Ketten erscheinen im Montagsreport, Abschnitt 2.
+
+**Schleife geschlossen:**
+- Eine OPEN_QUESTION zu einem Merkmal außerhalb des Trainingsbereichs erzeugt in der Fabrik eine falsifizierbare Hypothese (`idea_source: open_question`). Die Schwelle ist das p99 des Trainingsbereichs aus dem Drift-Befund.
+- Erster Fall: `tnx` (10-jährige Rendite 5,28 > p99 4,78). Daraus wird `rank(mom_12_1) * step(tnx - 4.7817)`.
+
+## Lernt die Forschung, besser zu forschen? (`research_memory.learning_curve`)
+- **Hierarchischer Prior:** Eine neue Familie übernimmt die Erfolgsrate ihres Ideentyps (cross_domain, drift, source_condition, open_question, …). Bisher startete sie immer beim neutralen Prior. Ideentypen, die Kapazität verschwenden, verlieren damit automatisch Priorität.
+- **Messung:** Erfolgsquote je Quartal und Kalibrierung der Priorisierung (Spearman: vergebene Priorität vs. Erfolg). Ideentyp und Priorität werden dafür jetzt je Fabrik-Ergebnis gespeichert.
+- **Befund 2026-10-03:** 86 getestete Hypothesen, 0 Erfolge. Die Priorisierung ist noch nicht kalibrierbar (keine Prioritäten gespeichert).

@@ -216,6 +216,18 @@ def directions(entries: list[dict], prior: tuple[float, float] = (1.0, 4.0)) -> 
             d["success"] += st in SUCCESS
             d["prospective"] += st in PROSPECTIVE_STATES
             d["rejected"] += st in ("REJECTED", "NOT_ROBUST", "DEMOTED", "EXPIRED")
+    # Zweite Ebene: Ideentyp (cross_domain, drift, source_condition, …) – Prior für neue Familien
+    for e in latest(entries).values():
+        src = (e.get("spec") or {}).get("idea_source")
+        st = e.get("status")
+        if not src or st == "DATA_GAP" or st not in TESTED:
+            continue
+        d = agg.setdefault(f"idea_source:{src}", {"tested": 0, "success": 0, "prospective": 0, "data_gap": 0,
+                                                  "rejected": 0})
+        d["tested"] += 1
+        d["success"] += st in SUCCESS
+        d["prospective"] += st in PROSPECTIVE_STATES
+        d["rejected"] += st in ("REJECTED", "NOT_ROBUST", "DEMOTED", "EXPIRED")
     out = {}
     for k, d in agg.items():
         a, b = a0 + d["success"] + d["prospective"], b0 + d["tested"] - d["success"]
@@ -253,3 +265,44 @@ def review_candidate(candidate: dict, entries: list[dict] | None = None) -> list
             out.append({"hypothesis": e["hypothesis_id"], "status": e["status"], "evidence": e.get("evidence"),
                         "applies_because": f"Scope Sektor {ss} / Regime {rs}"})
     return out
+
+
+# ── Lernt die Forschung selbst? ─────────────────────────────────────────────
+def _rank(xs: list[float]) -> list[float]:
+    order = sorted(range(len(xs)), key=lambda i: xs[i])
+    r = [0.0] * len(xs)
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and xs[order[j + 1]] == xs[order[i]]:
+            j += 1
+        for k in range(i, j + 1):
+            r[order[k]] = (i + j) / 2 + 1
+        i = j + 1
+    return r
+
+
+def learning_curve(entries: list[dict], min_n: int = 10) -> dict:
+    """Wird die Forschung besser? (1) Erfolgsquote getesteter Hypothesen je Quartal (Zeitpunkt der
+    Erfassung), (2) Kalibrierung der Priorisierung: Rangkorrelation zwischen vergebener Priorität und
+    Erfolg (> 0 = das System wählt die aussichtsreicheren Ideen zuerst). Nur gemessene Werte."""
+    tested = [e for e in latest(entries).values() if e.get("status") in TESTED]
+    by_q: dict[str, list[int]] = {}
+    for e in tested:
+        ts = str(e.get("recorded_at") or "")[:7]
+        if len(ts) == 7:
+            q = f"{ts[:4]}-Q{(int(ts[5:7]) - 1) // 3 + 1}"
+            by_q.setdefault(q, []).append(int(e.get("status") in SUCCESS))
+    curve = {q: {"tested": len(v), "success_rate": round(sum(v) / len(v), 3)} for q, v in sorted(by_q.items())}
+    pr = [(float((e.get("spec") or {})["priority"]), int(e.get("status") in SUCCESS)) for e in tested
+          if isinstance((e.get("spec") or {}).get("priority"), (int, float))]
+    calib = {"n": len(pr), "spearman": None}
+    if len(pr) >= min_n and len({y for _, y in pr}) == 2:
+        rx, ry = _rank([x for x, _ in pr]), _rank([float(y) for _, y in pr])
+        mx, my = sum(rx) / len(rx), sum(ry) / len(ry)
+        cov = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+        vx = sum((a - mx) ** 2 for a in rx) ** 0.5
+        vy = sum((b - my) ** 2 for b in ry) ** 0.5
+        calib["spearman"] = round(cov / (vx * vy), 3) if vx and vy else None
+    return {"by_quarter": curve, "priority_calibration": calib,
+            "by_idea_source": {k[12:]: v for k, v in directions(entries).items() if k.startswith("idea_source:")}}

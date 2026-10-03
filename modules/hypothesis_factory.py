@@ -211,6 +211,34 @@ def ideas_drift(machine_state: dict | None, now: str) -> list[dict]:
     return out[:2]
 
 
+def ideas_open_questions(system_state: dict | None, now: str) -> list[dict]:
+    """Kernfrage-Schleife: Merkmal außerhalb des Trainingsbereichs (gemessen im SystemState) ->
+    falsifizierbare Frage, ob der stärkste Basis-Effekt (12-1-Momentum) in diesem Bereich anders wirkt.
+    Schwelle = p99 des Trainingsbereichs aus dem Drift-Befund (keine Wahl aus Testdaten)."""
+    from modules import ml_research as ml
+    feat = (((system_state or {}).get("drift_state") or {}).get("components") or {}).get("feature") or {}
+    out = []
+    for f in feat.get("features_out_of_range") or []:
+        info = (feat.get("per_feature") or {}).get(f) or {}
+        p99 = info.get("p99")
+        if f not in ml.ALL_FEATURES or not isinstance(p99, (int, float)):
+            continue
+        signal = f"rank(mom_12_1) * step({f} - {round(float(p99), 4)})"
+        out.append(_finish({
+            "id": _hid("openq", signal), "family": f"openq_{f}", "domain": "regime", "idea_source": "open_question",
+            "exploratory": True, "relevance": 0.6, "title": f"Momentum außerhalb des {f}-Trainingsbereichs",
+            "population": "PIT-S&P-500", "exposure": f"Regime {f} > p99 des Trainingsbereichs",
+            "signal": signal, "domain_kind": "pit_panel", "domain_features": ["mom_12_1", f], "free_sources": [],
+            "direction": 1, "lag": "PIT", "horizon": 20, "control_group": "Querschnittsmittel desselben Stichtags",
+            "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+            "mechanism": f"{f} liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: "
+                         f"tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+            "mechanism_source": "measured_drift", "failure_condition": "wie Cross-Domain; zu wenige Beobachtungen "
+                                                                       "im Bereich -> DATA_GAP statt Schätzung",
+            "created_at": now}))
+    return out[:2]
+
+
 # ── Datenbereitschaft ───────────────────────────────────────────────────────
 def readiness(h: dict, panel: pd.DataFrame | None, protocol: dict) -> dict:
     from modules import ml_research as ml
@@ -254,6 +282,8 @@ def priority(h: dict, dirs: dict, memory_max_sim: float, protocol: dict) -> floa
     d = dirs.get(f"family:{h['family']}") or {}
     if not d.get("tested") and h.get("source_id"):       # neue Familie: Erfahrung mit der Quelle (Meta-Learning)
         d = dirs.get(f"research:alt_data:{h['source_id']}") or d
+    if not d.get("tested") and h.get("idea_source"):     # sonst: Erfahrung mit dem Ideentyp (hierarchisch)
+        d = dirs.get(f"idea_source:{h['idea_source']}") or d
     mean = d.get("posterior_success", a0 / (a0 + b0))
     sd = d.get("posterior_sd", math.sqrt(a0 * b0 / ((a0 + b0) ** 2 * (a0 + b0 + 1))))
     eig = mean + sd                                       # optimistisch unter Unsicherheit (UCB)
@@ -279,7 +309,14 @@ def plan(panel: pd.DataFrame | None = None, protocol: dict | None = None, domain
             conditions = json.loads(SOURCE_CONDITIONS.read_text())
         except (OSError, ValueError):
             conditions = None
+    sys_state = None
+    try:
+        from modules import system_state as _ss
+        sys_state = json.loads(Path(_ss.STATE).read_text())
+    except (OSError, ValueError, ImportError):
+        sys_state = None
     ideas = (ideas_cross_domain(domains, now_s) + ideas_divergence(now_s) + ideas_drift(machine_state, now_s)
+             + ideas_open_questions(sys_state, now_s)
              + ideas_source_conditions(conditions, now_s))
     fam_tested: dict[str, set] = {}
     own: dict[str, str] = {}
@@ -449,7 +486,8 @@ def evaluate(panel: pd.DataFrame, protocol: dict | None = None, now: datetime | 
     for h in hyps:
         rec = db.get(h["id"]) or {}
         lab = (rec.get("canonical_status") or rl.canonical_status(rec)) if rec else "NOT_TESTED"
-        spec = {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector", "spec_hash")}
+        spec = {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector", "spec_hash",
+                                      "idea_source", "exploratory", "priority", "novelty")}
         if lab != "ACCEPTED":
             results[h["id"]] = {"status": "REJECTED" if lab == "REJECTED" else lab, "spec": spec,
                                 "reasons": rec.get("reasons") or [f"Research-Lab: {lab}"],
