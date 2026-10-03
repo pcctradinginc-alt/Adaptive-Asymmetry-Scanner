@@ -1,11 +1,11 @@
 {
- "generated": "2026-10-03T09:21:50+00:00",
+ "generated": "2026-10-03T12:04:56+00:00",
  "protocol": "factory-v1",
  "budget": {
   "slots": 6,
   "exploratory_slots": 2
  },
- "n_ideas": 19,
+ "n_ideas": 20,
  "ideas": [
   {
    "id": "FAC-1A196936",
@@ -33,7 +33,7 @@
    "mechanism": "Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_financials * sign(curve_10y_3m - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Zinsen/Zinskurve × Financial Services: Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an.",
@@ -48,9 +48,10 @@
     "data_quality": 0.6,
     "cost": 1.0
    },
-   "novelty": 0.857,
-   "priority": 0.14945,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "priority": 0.0,
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-D5870E93",
@@ -78,7 +79,7 @@
    "mechanism": "Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_real_estate * sign(tnx - 3.0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Zinsen/Zinskurve × Real Estate: Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs.",
@@ -93,9 +94,10 @@
     "data_quality": 0.6,
     "cost": 1.0
    },
-   "novelty": 0.857,
-   "priority": 0.14945,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "priority": 0.0,
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-706E9DE2",
@@ -122,7 +124,7 @@
    "mechanism": "Ölpreisanstiege erhöhen Upstream-Cashflows; Aktien preisen Futures-Kurve nur teilweise ein.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_energy * sign(wti_63d_chg - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Ölpreis × Energy: Ölpreisanstiege erhöhen Upstream-Cashflows; Aktien preisen Futures-Kurve nur teilweise ein.",
@@ -137,9 +139,10 @@
     "data_quality": 0.6,
     "cost": 1.0
    },
-   "novelty": 0.857,
-   "priority": 0.13077,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "priority": 0.0,
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-610889C8",
@@ -166,7 +169,7 @@
    "mechanism": "Höhere Treibstoff- und Energiekosten belasten Margen energieintensiver Industrie/Transport.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_industrials * sign(wti_63d_chg - 0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Ölpreis × Industrials: Höhere Treibstoff- und Energiekosten belasten Margen energieintensiver Industrie/Transport.",
@@ -181,9 +184,10 @@
     "data_quality": 0.6,
     "cost": 1.0
    },
-   "novelty": 0.857,
-   "priority": 0.11209,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "priority": 0.0,
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-5F1C6869",
@@ -210,7 +214,7 @@
    "mechanism": "Starker Dollar senkt die in USD umgerechneten Auslandsumsätze multinationaler Tech-Firmen.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_technology * sign(usd_63d_chg - 0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "US-Dollar × Technology: Starker Dollar senkt die in USD umgerechneten Auslandsumsätze multinationaler Tech-Firmen.",
@@ -225,9 +229,9 @@
     "data_quality": 0.6,
     "cost": 1.0
    },
-   "novelty": 0.857,
-   "priority": 0.11209,
-   "plan_status": "NOT_SELECTED_BUDGET"
+   "novelty": 0.8,
+   "priority": 0.10463,
+   "plan_status": "SELECTED"
   },
   {
    "id": "FAC-44EA5A4F",
@@ -254,7 +258,7 @@
    "mechanism": "Basiskonsumgüter geben Kosten mit Preissetzungsmacht weiter; bei hoher Inflation relativ robust.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_consumer_defensive * sign(cpi_yoy - 3.0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Inflation (ALFRED-Vintages) × Consumer Defensive: Basiskonsumgüter geben Kosten mit Preissetzungsmacht weiter; bei hoher Inflation relativ robust.",
@@ -271,7 +275,7 @@
    },
    "novelty": 0.857,
    "priority": 0.0934,
-   "plan_status": "NOT_SELECTED_BUDGET"
+   "plan_status": "SELECTED"
   },
   {
    "id": "FAC-E17F4909",
@@ -299,7 +303,7 @@
    "mechanism": "Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_utilities * sign(vix_chg_21 - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Marktvolatilität × Utilities: Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
@@ -316,7 +320,7 @@
    },
    "novelty": 0.857,
    "priority": 0.0934,
-   "plan_status": "NOT_SELECTED_BUDGET"
+   "plan_status": "SELECTED"
   },
   {
    "id": "FAC-989ACD2E",
@@ -343,7 +347,7 @@
    "mechanism": "Liquiditätszufluss senkt Risikoprämien; lang-duration Wachstumswerte profitieren überproportional.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_technology * sign(fed_assets_13w_chg - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Fed-Bilanz/Liquidität × Technology: Liquiditätszufluss senkt Risikoprämien; lang-duration Wachstumswerte profitieren überproportional.",
@@ -358,9 +362,10 @@
     "data_quality": 0.6,
     "cost": 1.0
    },
-   "novelty": 0.857,
-   "priority": 0.0934,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "priority": 0.0,
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-9C8B3CD1",
@@ -388,7 +393,7 @@
    "mechanism": "Zyklische Rohstofffirmen reagieren verzögert auf breite Marktmomentum-Phasen (Nachfrageerwartung).",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_basic_materials * sign(spy_mom_63 - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Markttrend × Basic Materials: Zyklische Rohstofffirmen reagieren verzögert auf breite Marktmomentum-Phasen (Nachfrageerwartung).",
@@ -405,7 +410,7 @@
    },
    "novelty": 0.857,
    "priority": 0.07472,
-   "plan_status": "NOT_SELECTED_BUDGET"
+   "plan_status": "SELECTED"
   },
   {
    "id": "FAC-5E08E752",
@@ -432,7 +437,7 @@
    "mechanism": "Gewonnene EU-Großaufträge erhöhen Auftragsbestand und Umsatzsichtbarkeit; verstreute Bekanntmachungen werden kaum aggregiert.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_industrials * sign(ted_awards_z - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "EU-Ausschreibungen × Industrials: Gewonnene EU-Großaufträge erhöhen Auftragsbestand und Umsatzsichtbarkeit; verstreute Bekanntmachungen werden kaum aggregiert.",
@@ -445,7 +450,7 @@
     "data_quality": 0.035,
     "cost": 1.5
    },
-   "novelty": 0.857,
+   "novelty": 0.0,
    "priority": 0.0,
    "plan_status": "DATA_GAP"
   },
@@ -474,7 +479,7 @@
    "mechanism": "In Healthcare (Studien, Zulassungen) ist der Informationsvorsprung von Insidern besonders groß.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [exp_healthcare * sign(sec_insider_net_value_90d - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Insider-Transaktionen × Healthcare: In Healthcare (Studien, Zulassungen) ist der Informationsvorsprung von Insidern besonders groß.",
@@ -489,9 +494,9 @@
     "data_quality": 0.6,
     "cost": 1.5
    },
-   "novelty": 0.857,
-   "priority": 0.06227,
-   "plan_status": "NOT_SELECTED_BUDGET"
+   "novelty": 0.625,
+   "priority": 0.04541,
+   "plan_status": "SELECTED"
   },
   {
    "id": "FAC-D20B8BE8",
@@ -520,7 +525,7 @@
    "mechanism": "Wetteranomalien verschieben saisonale Nachfrage (Bekleidung, Freizeit) – Quartalszahlen überraschen.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Wetteranomalien × Consumer Cyclical: Wetteranomalien verschieben saisonale Nachfrage (Bekleidung, Freizeit) – Quartalszahlen überraschen.",
@@ -537,7 +542,7 @@
     "data_quality": 0.0,
     "cost": null
    },
-   "novelty": 0.8,
+   "novelty": 0.0,
    "priority": 0.0,
    "plan_status": "DATA_GAP"
   },
@@ -567,7 +572,7 @@
    "mechanism": "Niedrige Pegel verteuern Binnenschiff-Transporte und drosseln Chemieproduktion (Rhein-Niedrigwasser 2018/2022).",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [None] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Flusspegel/Binnenschifffahrt × Basic Materials: Niedrige Pegel verteuern Binnenschiff-Transporte und drosseln Chemieproduktion (Rhein-Niedrigwasser 2018/2022).",
@@ -583,7 +588,7 @@
     "data_quality": 0.0,
     "cost": null
    },
-   "novelty": 0.8,
+   "novelty": 0.0,
    "priority": 0.0,
    "plan_status": "DATA_GAP"
   },
@@ -613,7 +618,7 @@
    "mechanism": "Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Stromverbrauch × Industrials: Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität.",
@@ -629,7 +634,7 @@
     "data_quality": 0.0,
     "cost": null
    },
-   "novelty": 0.8,
+   "novelty": 0.0,
    "priority": 0.0,
    "plan_status": "DATA_GAP"
   },
@@ -660,7 +665,7 @@
    "mechanism": "Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Software-Downloads × Technology: Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen.",
@@ -677,7 +682,7 @@
     "data_quality": 0.0,
     "cost": null
    },
-   "novelty": 0.8,
+   "novelty": 0.0,
    "priority": 0.0,
    "plan_status": "DATA_GAP"
   },
@@ -686,6 +691,7 @@
    "family": "div_procurement_vs_price",
    "domain": "procurement",
    "idea_source": "cross_source_divergence",
+   "source_id": "ted_procurement",
    "exploratory": true,
    "relevance": 0.5,
    "title": "Divergenz ted_awards_z vs. mom_3m",
@@ -705,7 +711,7 @@
    "mechanism": "Steigende öffentliche Aufträge bei fallendem Kurs: Markt preist neue Umsatzsichtbarkeit noch nicht ein.",
    "mechanism_source": "template",
    "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [rank(ted_awards_z) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Divergenz ted_awards_z vs. mom_3m: Steigende öffentliche Aufträge bei fallendem Kurs: Markt preist neue Umsatzsichtbarkeit noch nicht ein.",
@@ -718,7 +724,7 @@
     "data_quality": 0.046,
     "cost": 1.5
    },
-   "novelty": 0.833,
+   "novelty": 0.0,
    "priority": 0.0,
    "plan_status": "DATA_GAP"
   },
@@ -727,6 +733,7 @@
    "family": "div_insider_vs_price",
    "domain": "insider",
    "idea_source": "cross_source_divergence",
+   "source_id": "sec_deep_events",
    "exploratory": true,
    "relevance": 0.5,
    "title": "Divergenz sec_insider_net_value_90d vs. mom_3m",
@@ -746,7 +753,7 @@
    "mechanism": "Insider kaufen netto, während der Kurs fällt: private Information widerspricht dem Preis.",
    "mechanism_source": "template",
    "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [rank(sec_insider_net_value_90d) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Divergenz sec_insider_net_value_90d vs. mom_3m: Insider kaufen netto, während der Kurs fällt: private Information widerspricht dem Preis.",
@@ -759,9 +766,52 @@
     "data_quality": 0.8,
     "cost": 1.5
    },
-   "novelty": 0.833,
-   "priority": 0.0807,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "priority": 0.0,
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
+  },
+  {
+   "id": "FAC-D4E1EB14",
+   "family": "div_fundamentals_vs_price",
+   "domain": "fundamentals",
+   "idea_source": "cross_source_divergence",
+   "source_id": "sec_xbrl_fundamentals",
+   "exploratory": false,
+   "relevance": 0.6,
+   "title": "Divergenz xbrl_sue vs. mom_3m",
+   "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+   "exposure": "firmenspezifisch",
+   "signal": "rank(xbrl_sue) * step(-mom_3m)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "xbrl_sue"
+   ],
+   "free_sources": [],
+   "direction": 1,
+   "lag": "PIT (available_at <= Stichtag)",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+   "mechanism_source": "template",
+   "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+   "created_at": "2026-10-03T12:04:56+00:00",
+   "H0": "H0: [rank(xbrl_sue) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Divergenz xbrl_sue vs. mom_3m: Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+   "rationale": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+   "spec_hash": "25b336517fda20f0",
+   "readiness": {
+    "status": "READY",
+    "flags": [],
+    "coverage_2016plus": 0.934,
+    "data_quality": 0.8,
+    "cost": 1.5
+   },
+   "novelty": 0.75,
+   "priority": 0.08719,
+   "plan_status": "NOT_SELECTED_BUDGET"
   },
   {
    "id": "FAC-A11F218F",
@@ -788,7 +838,7 @@
    "mechanism": "Gemessener Decay von vol_20 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
    "mechanism_source": "measured_drift",
    "failure_condition": "wie Cross-Domain",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [rank(vol_20) * step(20 - vix)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "vol_20 nur im Niedrig-Vol-Regime: Gemessener Decay von vol_20 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
@@ -803,7 +853,7 @@
    },
    "novelty": 0.667,
    "priority": 0.09693,
-   "plan_status": "NOT_SELECTED_BUDGET"
+   "plan_status": "SELECTED"
   },
   {
    "id": "FAC-AD1E02FC",
@@ -830,7 +880,7 @@
    "mechanism": "Gemessener Decay von vol_60 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
    "mechanism_source": "measured_drift",
    "failure_condition": "wie Cross-Domain",
-   "created_at": "2026-10-03T09:21:50+00:00",
+   "created_at": "2026-10-03T12:04:56+00:00",
    "H0": "H0: [rank(vol_60) * step(20 - vix)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "vol_60 nur im Niedrig-Vol-Regime: Gemessener Decay von vol_60 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
@@ -849,12 +899,145 @@
   }
  ],
  "selected": [
-  "FAC-989ACD2E",
-  "FAC-E7672D3D",
-  "FAC-1A196936",
-  "FAC-D5870E93",
-  "FAC-706E9DE2",
-  "FAC-610889C8"
+  "FAC-9C8B3CD1",
+  "FAC-671F7C67",
+  "FAC-5F1C6869",
+  "FAC-A11F218F",
+  "FAC-44EA5A4F",
+  "FAC-E17F4909"
  ],
- "directions_used": {}
+ "directions_used": {
+  "family:procurement_x_industrials": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:weather_x_consumer": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:river_x_chemicals": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:power_x_industrials": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:downloads_x_technology": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_procurement_vs_price": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:rates_x_financials": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:rates_x_realestate": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:oil_x_energy": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:oil_x_airlines_industrials": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:liquidity_x_technology": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_insider_vs_price": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  }
+ }
 }

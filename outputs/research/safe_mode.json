@@ -1,9 +1,8 @@
 {
  "active": true,
  "reasons": [
-  "FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])",
-  "MODEL DRIFT: 50% der Modelle 'deteriorating'"
+  "FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])"
  ],
  "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
- "updated": "2026-10-03T09:31:56+00:00"
+ "updated": "2026-10-03T12:28:35+00:00"
 }
