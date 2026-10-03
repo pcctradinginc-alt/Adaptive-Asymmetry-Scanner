@@ -1,0 +1,14 @@
+# config/promotion_approvals.yaml – menschliche Freigaben/Rollbacks (GESCHÜTZT, CODEOWNERS)
+#
+# Nur ein Mensch per PR darf hier eintragen:
+#   - rollback: true      -> sofortiger ROLLBACK der Hypothese (Einfluss NONE, Zustand DEMOTED)
+#   - approved_level: ... -> künftige Freigabe über die automatische Obergrenze hinaus
+#                            (FULL_PRODUCTION ist nie automatisch; derzeit nicht implementiert
+#                            als Wirkung – Einträge werden protokolliert und erfordern eigenen PR)
+# Format:
+#   approvals:
+#     - key: PROM-ABST-001@v1
+#       rollback: true
+#       reason: "..."
+#       pr: "https://github.com/…/pull/…"
+approvals: []

@@ -1367,6 +1367,36 @@ def main() -> None:
                     f"({before_corr - len(trade_proposals)} korrelierte entfernt)"
                 )
 
+        # ── STUFE 10c: Production Intelligence Adapter ──────────────────────
+        # EINZIGE Schnittstelle, über die Research-Intelligence die Produktion
+        # beeinflussen darf (docs/PRODUCTION_INTELLIGENCE_ADAPTER.md). Default:
+        # nur Shadow-Logging; Wirkung ausschließlich mit Freigabe des
+        # PromotionControllers (Default-Obergrenze ABSTENTION_ONLY). Erzeugt nie
+        # Trades; blockierte Trades laufen als Schatten-Trades weiter (Outcome).
+        # Jeder Fehler -> Champion-Entscheidung unverändert.
+        try:
+            from modules.production_intelligence_adapter import apply_to_proposals
+            _ai_kept, _ai_blocked, _ai_records = apply_to_proposals(
+                trade_proposals, vix=stats.get("vix"), today=today, trade_score_min=trade_score_min)
+            trade_proposals = _ai_kept
+            for p, why in _ai_blocked:
+                _shadow.append((p, why))
+                candidate_ledger.mark_rejected(p.get("ticker"), "intelligence_abstention")
+            for r in _ai_records:
+                candidate_ledger.note(r["ticker"], intelligence_decision=r["intelligence_decision"],
+                                      final_production_decision=r["final_production_decision"],
+                                      intelligence_decision_id=r["decision_id"])
+            stats["intelligence"] = {
+                "champion_trades": len(_ai_records), "blocked": len(_ai_blocked),
+                "would_block_shadow": sum(1 for r in _ai_records if r["intelligence_decision"] == "ABSTAIN"),
+                "influence_level": max((r["influence_level"] for r in _ai_records), default="NONE"),
+            }
+            if _ai_blocked:
+                log.info(f"  Intelligence-Abstinenz: {len(_ai_blocked)} Champion-Trade(s) blockiert "
+                         f"(als Schatten-Trades weiterverfolgt)")
+        except Exception as e:  # noqa: BLE001 – fail-safe: Champion bleibt maßgeblich
+            log.error(f"Production Intelligence Adapter Fehler – Champion unverändert: {e}")
+
         # ── Schatten-Trades registrieren (kein Geld, nur Lern-Daten) ─────────
         shadow_list = history.setdefault("shadow_trades", [])
         _shadow_existing = {(t["ticker"], t.get("entry_date", ""), t.get("reject_reason", ""))

@@ -1,0 +1,55 @@
+# config/promotion_policy.yaml – Research→Production-Promotion (GESCHÜTZT, CODEOWNERS)
+#
+# Registriert 2026-10-03, BEVOR ein einziges Forward-Ergebnis einer
+# Promotion-Hypothese gesehen wurde. Hash gepinnt in tests/test_promotion.py.
+# Änderungen nur strenger (höhere Evidenz, kleinerer Einfluss) und per PR.
+# Harte Obergrenzen stehen ZUSÄTZLICH als Konstanten im Code
+# (production_intelligence_adapter.HARD_CAPS) – die Policy kann sie nur
+# senken, nie anheben.
+
+version: promo-v1
+registered_at: "2026-10-03"
+
+# Höchste Stufe, die der PromotionController AUTOMATISCH erteilen darf.
+# Default: nur Abstinenz (Champion-Trade blockieren, nie einen erzeugen).
+# Alles darüber -> RECOMMEND (Mensch + PR).
+max_automatic_influence: ABSTENTION_ONLY
+
+evidence_floors:                 # Untergrenzen für JEDEN Vertrag (Vertrag darf strenger sein)
+  min_observations: 50
+  min_independent_dates: 20
+  min_calendar_span_days: 90
+  min_regimes_observed: 2        # Ausnahme: Vertrag ist explizit auf ein Regime gescopt
+  max_single_sector_share: 0.60  # Ausnahme: Vertrag ist explizit auf diesen Sektor gescopt
+  min_time_windows_positive: 2   # von 3 gleich langen Kalenderfenstern
+
+statistics:
+  alpha_family: 0.05             # familienweise, Bonferroni über Hypothesen der Familie x geplante Looks
+  planned_looks: 12              # monatliche Looks über max. 1 Jahr Forward
+  bootstrap_n: 2000
+  bootstrap_seed: 41
+  block: date                    # Resampling über unabhängige Signaltage, nicht Einzeltrades
+  outlier_trims: [top1, top3, top5pct]   # Effekt muss nach jedem Trim > 0 bleiben
+
+influence:                        # Stufen-Obergrenzen (Code-Konstanten sind die harte Decke)
+  score_adjustment_max_points: 3
+  weight_level_1: 0.10
+  weight_level_2: 0.25
+
+demotion_defaults:               # gelten, wenn ein Vertrag nichts Strengeres festlegt
+  rolling_window_observations: 30
+  rolling_expectancy_min: 0.0
+  ece_max: 0.10
+  max_drawdown_worsening: 0.10
+  abstention_net_value_min: 0.0  # verhinderte Trades müssen im Mittel schlechter sein als durchgelassene
+
+never_automatic:                 # nur RECOMMEND_FULL_PROMOTION + menschlicher PR
+  - champion_replacement
+  - new_asset_class
+  - new_short_strategy
+  - new_option_strategy
+  - higher_total_risk
+  - higher_position_size
+  - new_external_data_as_production_gate
+  - model_influence_above_25pct
+  - risk_gate_change

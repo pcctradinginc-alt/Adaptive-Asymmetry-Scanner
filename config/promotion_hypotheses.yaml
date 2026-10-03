@@ -1,0 +1,205 @@
+# config/promotion_hypotheses.yaml – Verträge für Hypothesen mit möglicher Produktionswirkung (GESCHÜTZT)
+#
+# Unveränderlich ab registered_at (spec_hash in outputs/intelligence/contract_registry.jsonl).
+# Änderung von Schwelle/Richtung/Merkmal = NEUE hypothesis_id oder version.
+# Alle Initialverträge: production_class abstention (dürfen höchstens einen
+# Champion-Trade blockieren, nie einen erzeugen). Schwellen aus
+# Merkmals-VERTEILUNGEN (ml_cards 2026-10-02), nie aus Outcomes.
+# Forward-Evidenz zählt erst ab forward_start (2026-10-05).
+
+contracts:
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T12:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Promotion-Brücke, Initialverträge)
+  universe: Champion-Trade-Vorschläge der Produktionspipeline (pipeline.py, nach Score-/Korrelations-Filter)
+  population: Champion-akzeptierte Trade-Vorschläge (Optionen auf US-Aktien, S&P 500/Nasdaq-100)
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: ABSTENTION_ONLY
+  outcome_horizon: Haltedauer der Produktion (Exit-Regeln feedback.py, max. learning.close_after_days)
+  primary_metric: Netto-Optionsrendite je Trade (history.outcome) – Δ Expectancy blockiert vs. durchgelassen
+  secondary_metrics: &id001
+  - win_rate
+  - profit_factor
+  - max_drawdown
+  - brier
+  - ece
+  - precision
+  - false_positive_rate
+  - mfe
+  - mae
+  baseline: 'Champion-only: alle Champion-akzeptierten Trades desselben Zeitraums ohne Eingriff'
+  minimum_sample_size: 60
+  minimum_independent_dates: 20
+  minimum_calendar_span: 90
+  sector_scope: &id002
+  - all
+  regime_scope: &id003
+  - all
+  promotion_criteria: &id004
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 15
+    min_fired_independent_dates: 8
+  demotion_criteria: &id005
+    rolling_window_observations: 30
+    abstention_net_value_min: 0.0
+    rolling_expectancy_blocked_max: 0.0
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  hypothesis_id: PROM-ABST-001
+  title: Safe Mode aktiv -> Champion-Trade abstinieren
+  source_type: model_drift
+  research_question: Sind Champion-Trades, die bei aktivem Safe Mode (Feature-/Datendrift, Regime außerhalb Trainingsbereich) vorgeschlagen werden, schlechter als die übrigen?
+  economic_rationale: Safe Mode zeigt an, dass die Research-Modelle außerhalb ihres Trainingsbereichs sind; Gleiches gilt für Kalibrierung und Marktumfeld der Champion-Signale.
+  exposure: Gesamtmarkt (Regime-/Datendrift)
+  signal_definition: safe_mode_active
+  features:
+  - safe_mode_active
+  thresholds:
+    op: '>='
+    value: 1
+  failure_condition: Trades mit Safe Mode haben Expectancy >= durchgelassene ODER CI der Differenz schließt 0 nach Forward-Minimum ein
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T12:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Promotion-Brücke, Initialverträge)
+  universe: Champion-Trade-Vorschläge der Produktionspipeline (pipeline.py, nach Score-/Korrelations-Filter)
+  population: Champion-akzeptierte Trade-Vorschläge (Optionen auf US-Aktien, S&P 500/Nasdaq-100)
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: ABSTENTION_ONLY
+  outcome_horizon: Haltedauer der Produktion (Exit-Regeln feedback.py, max. learning.close_after_days)
+  primary_metric: Netto-Optionsrendite je Trade (history.outcome) – Δ Expectancy blockiert vs. durchgelassen
+  secondary_metrics: *id001
+  baseline: 'Champion-only: alle Champion-akzeptierten Trades desselben Zeitraums ohne Eingriff'
+  minimum_sample_size: 60
+  minimum_independent_dates: 20
+  minimum_calendar_span: 90
+  sector_scope: *id002
+  regime_scope: *id003
+  promotion_criteria: *id004
+  demotion_criteria: *id005
+  hypothesis_id: PROM-ABST-002
+  title: Hohe Modelluneinigkeit -> abstinieren
+  source_type: meta_learning_failure
+  research_question: Haben Champion-Trades in Titeln mit hoher ML-Modelluneinigkeit (oberstes Dezil der Querschnittsverteilung, Schwelle 0.36 aus Verteilung 2026-10-02, ohne Outcome-Sicht) eine niedrigere
+    Expectancy?
+  economic_rationale: Uneinigkeit der Basismodelle = epistemische Unsicherheit; Optionstrades auf unsichere Titel tragen höheres Fehlbewertungsrisiko.
+  exposure: Einzeltitel (ML-Karte)
+  signal_definition: ml_disagreement_sd
+  features:
+  - ml_disagreement_sd
+  thresholds:
+    op: '>'
+    value: 0.36
+  failure_condition: Blockierte Trades nicht schlechter als durchgelassene
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T12:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Promotion-Brücke, Initialverträge)
+  universe: Champion-Trade-Vorschläge der Produktionspipeline (pipeline.py, nach Score-/Korrelations-Filter)
+  population: Champion-akzeptierte Trade-Vorschläge (Optionen auf US-Aktien, S&P 500/Nasdaq-100)
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: ABSTENTION_ONLY
+  outcome_horizon: Haltedauer der Produktion (Exit-Regeln feedback.py, max. learning.close_after_days)
+  primary_metric: Netto-Optionsrendite je Trade (history.outcome) – Δ Expectancy blockiert vs. durchgelassen
+  secondary_metrics: *id001
+  baseline: 'Champion-only: alle Champion-akzeptierten Trades desselben Zeitraums ohne Eingriff'
+  minimum_sample_size: 60
+  minimum_independent_dates: 20
+  minimum_calendar_span: 90
+  sector_scope: *id002
+  regime_scope: *id003
+  promotion_criteria: *id004
+  demotion_criteria: *id005
+  hypothesis_id: PROM-ABST-003
+  title: Blind-Spot-Sektor -> abstinieren
+  source_type: blind_spot
+  research_question: Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?
+  economic_rationale: Systematische große Fehlprognosen des Research-Ensembles in einem Sektor deuten auf ein nicht modelliertes Risiko hin, das auch Katalysator-Trades betrifft.
+  exposure: Sektor
+  signal_definition: blind_spot_sector_match
+  features:
+  - blind_spot_sector_match
+  thresholds:
+    op: '>='
+    value: 1
+  failure_condition: Blockierte Trades nicht schlechter als durchgelassene
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T12:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Promotion-Brücke, Initialverträge)
+  universe: Champion-Trade-Vorschläge der Produktionspipeline (pipeline.py, nach Score-/Korrelations-Filter)
+  population: Champion-akzeptierte Trade-Vorschläge (Optionen auf US-Aktien, S&P 500/Nasdaq-100)
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: ABSTENTION_ONLY
+  outcome_horizon: Haltedauer der Produktion (Exit-Regeln feedback.py, max. learning.close_after_days)
+  primary_metric: Netto-Optionsrendite je Trade (history.outcome) – Δ Expectancy blockiert vs. durchgelassen
+  secondary_metrics: *id001
+  baseline: 'Champion-only: alle Champion-akzeptierten Trades desselben Zeitraums ohne Eingriff'
+  minimum_sample_size: 60
+  minimum_independent_dates: 20
+  minimum_calendar_span: 90
+  sector_scope: *id002
+  regime_scope: *id003
+  promotion_criteria: *id004
+  demotion_criteria: *id005
+  hypothesis_id: PROM-ABST-004
+  title: Hohes erwartetes ML-Drawdown -> abstinieren
+  source_type: unknown_unknown
+  research_question: Haben Champion-Trades in Titeln mit sehr hohem erwartetem 60-Tage-Drawdown laut ML-Karte (schlechtestes Dezil, Schwelle -0.114 aus Verteilung, ohne Outcome-Sicht) eine niedrigere Expectancy?
+  economic_rationale: Hohe erwartete Abwärtsbewegung verteuert/entwertet Long-Optionen über die Haltedauer.
+  exposure: Einzeltitel (ML-Karte)
+  signal_definition: ml_exp_dd_60
+  features:
+  - ml_exp_dd_60
+  thresholds:
+    op: <
+    value: -0.114
+  failure_condition: Blockierte Trades nicht schlechter als durchgelassene
+- version: 1
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T12:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Promotion-Brücke, Initialverträge)
+  universe: Champion-Trade-Vorschläge der Produktionspipeline (pipeline.py, nach Score-/Korrelations-Filter)
+  population: Champion-akzeptierte Trade-Vorschläge (Optionen auf US-Aktien, S&P 500/Nasdaq-100)
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: ABSTENTION_ONLY
+  outcome_horizon: Haltedauer der Produktion (Exit-Regeln feedback.py, max. learning.close_after_days)
+  primary_metric: Netto-Optionsrendite je Trade (history.outcome) – Δ Expectancy blockiert vs. durchgelassen
+  secondary_metrics: *id001
+  baseline: 'Champion-only: alle Champion-akzeptierten Trades desselben Zeitraums ohne Eingriff'
+  minimum_sample_size: 60
+  minimum_independent_dates: 20
+  minimum_calendar_span: 90
+  sector_scope: *id002
+  regime_scope: *id003
+  promotion_criteria: *id004
+  demotion_criteria: *id005
+  hypothesis_id: PROM-ABST-005
+  title: VIX > 30 -> abstinieren
+  source_type: regime_failure
+  research_question: Sind Champion-Trades bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?
+  economic_rationale: Im Stressregime sind implizite Volatilitäten hoch (teure Long-Optionen) und Katalysator-Signale werden vom Marktfaktor überlagert.
+  exposure: Marktregime
+  signal_definition: vix
+  features:
+  - vix
+  thresholds:
+    op: '>'
+    value: 30
+  failure_condition: Blockierte Trades nicht schlechter als durchgelassene
