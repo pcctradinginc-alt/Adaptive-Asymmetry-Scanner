@@ -96,7 +96,8 @@ def breakdown(pos_b: pd.DataFrame, pos_v: pd.DataFrame, panel: pd.DataFrame) -> 
     key = panel[["date", "ticker"] + cols].drop_duplicates(["date", "ticker"])
     out = {"sector": {}, "regime": {}}
     for name, pos in (("base", pos_b), ("variant", pos_v)):
-        p = pos.merge(key, on=["date", "ticker"], how="left")
+        # Positionen tragen ggf. selbst sector/vix -> sonst vix_x/vix_y und "unknown" (Lauf 37105528299)
+        p = pos.drop(columns=[c for c in cols if c in pos.columns]).merge(key, on=["date", "ticker"], how="left")
         p["sector"] = p["sector"] if "sector" in p else "unknown"
         p["regime"] = np.where(p["vix"] >= 20, "vix_ge_20", "vix_lt_20") if "vix" in p else "unknown"
         for col in ("sector", "regime"):
