@@ -1,19 +1,18 @@
 # Daily Data Health Report – 2026-10-03
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.991
+**Safe Mode (Daten): aus** – gewichtete Data Quality 1.0
 
-Status: HEALTHY 29 · DEGRADED 1 · STALE 0 · BROKEN 0 · UNVALIDATED 9
+Status: HEALTHY 30 · DEGRADED 0 · STALE 0 · BROKEN 0 · UNVALIDATED 9
 
 ## Neue Änderungen
 
-- recovery: imf_portwatch_ports DEGRADED → HEALTHY
-- recovery: bts_open_data_tsi DEGRADED → HEALTHY
+- recovery: sec_companyfacts DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| sec_companyfacts | DEGRADED | NON_CRITICAL | 0 | 2026-09-28 | xbrl_accruals, xbrl_asset_growth, xbrl_rev_yoy, xbrl_share_change | 1 Beobachtungen mit Periode in der Zukunft (Datenfehler) |
+| – | alle HEALTHY | | | | | |
 
 ## Fallbacks
 
@@ -26,6 +25,6 @@ Status: HEALTHY 29 · DEGRADED 1 · STALE 0 · BROKEN 0 · UNVALIDATED 9
 - nicht verfügbare Features: keine
 - Cache (stale) genutzt: keine
 
-Wiederkehrende Instabilität (30 T): ['bts_open_data_tsi']
+Wiederkehrende Instabilität (30 T): ['bts_open_data_tsi', 'sec_companyfacts']
 
 _Regel: Ein fehlendes Signal ist besser als ein Signal aus falschen oder unbekannt alten Daten._

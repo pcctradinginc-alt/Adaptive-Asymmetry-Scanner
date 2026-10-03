@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T14:06:59+00:00",
+ "generated": "2026-10-03T14:28:58+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -310,46 +310,46 @@
   "xbrl_accruals": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_asset_growth": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_rev_yoy": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_share_change": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_sue": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "ted_any_award_365d": {
