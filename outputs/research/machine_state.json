@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T21:33:12+00:00",
+ "generated": "2026-10-03T07:35:45+00:00",
  "self_assessment": {
   "overall_calibration": "WEAK",
   "world_model_uncertainty": "MODERATE",
@@ -9,42 +9,39 @@
   "safe_mode": true
  },
  "what_do_we_know": [
-  "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00058 je Position, Sharpe 0.08, Trefferquote 0.4851",
-  "Regime-Abhängigkeit: vix_lt_20 -0.00381, vix_ge_20 0.00747, spy_uptrend -0.00214, spy_downtrend 0.00922",
-  "Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01659 vs. inaktiv 0.00357 (t=1.54)",
+  "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00105 je Position, Sharpe 0.145, Trefferquote 0.4829",
+  "Regime-Abhängigkeit: vix_lt_20 -0.00353, vix_ge_20 0.00823, spy_uptrend -0.00192, spy_downtrend 0.01049",
+  "Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01612 vs. inaktiv 0.00224 (t=1.63)",
   "Abstinenz-Regel VORWÄRTS ab 2026-09-29: 0 aktive / 0 inaktive fertige Kohorten, Status ACCUMULATING"
  ],
  "what_are_we_uncertain_about": [
-  "80-%-Intervalle: roh 0.6584, korrigiert 0.7843; P(>+10 %) Skill -0.1491",
+  "80-%-Intervalle: roh 0.6627, korrigiert 0.7854; P(>+10 %) Skill -0.1829",
   "World-Model-Unsicherheit 0.3267; nicht verfügbar: ['earnings_momentum']"
  ],
  "where_are_we_systematically_wrong": [
-  "UNKNOWN_CLUSTER_001: {'sector': 'Energy', 'momentum': 'loser_12m'} (Fehler -0.1555, Lift 2.87, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_002: {'sector': 'Energy', 'beta': 'high_beta'} (Fehler -0.1595, Lift 2.85, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_003: {'sector': 'Energy', 'volatility': 'high_vol'} (Fehler -0.1597, Lift 2.59, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_004: {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} (Fehler -0.1863, Lift 2.5, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_005: {'sector': 'Energy', 'vix': 'vix_ge_20'} (Fehler -0.1488, Lift 2.35, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_006: {'lottery': 'lottery_profile'} (Fehler -0.1772, Lift 2.0, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_007: {'sector': 'Energy'} (Fehler -0.1522, Lift 1.96, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_008: {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'} (Fehler -0.1692, Lift 1.82, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_009: {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1689, Lift 1.81, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_010: {'volatility': 'high_vol'} (Fehler -0.1659, Lift 1.71, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_011: {'sector': 'Consumer Cyclical', 'beta': 'high_beta'} (Fehler -0.1747, Lift 1.69, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_012: {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'} (Fehler -0.1838, Lift 1.67, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_013: {'momentum': 'loser_12m', 'trend': 'downtrend'} (Fehler -0.1824, Lift 1.67, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_014: {'sector': 'Basic Materials', 'beta': 'high_beta'} (Fehler -0.1572, Lift 1.66, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_015: {'sector': 'Technology', 'recent_move': 'extreme_5d_move'} (Fehler -0.1697, Lift 1.65, Abdeckung LOW)",
-  "Überkonfident im Bucket 50–55 %: prognostiziert 0.5197, realisiert 0.4639 (n=26974)",
-  "Überkonfident im Bucket 55–60 %: prognostiziert 0.5689, realisiert 0.4505 (n=364)"
+  "UNKNOWN_CLUSTER_001: {'sector': 'Energy', 'momentum': 'loser_12m'} (Fehler -0.1603, Lift 2.86, Abdeckung MEDIUM)",
+  "UNKNOWN_CLUSTER_002: {'sector': 'Energy', 'beta': 'high_beta'} (Fehler -0.1638, Lift 2.72, Abdeckung MEDIUM)",
+  "UNKNOWN_CLUSTER_003: {'sector': 'Energy', 'volatility': 'high_vol'} (Fehler -0.1632, Lift 2.56, Abdeckung MEDIUM)",
+  "UNKNOWN_CLUSTER_004: {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} (Fehler -0.1884, Lift 2.56, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_005: {'sector': 'Energy', 'liquidity': 'less_liquid'} (Fehler -0.1694, Lift 2.3, Abdeckung MEDIUM)",
+  "UNKNOWN_CLUSTER_006: {'volatility': 'high_vol', 'near_high': 'near_52w_high'} (Fehler -0.1607, Lift 2.1, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_007: {'lottery': 'lottery_profile'} (Fehler -0.1809, Lift 2.01, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_008: {'sector': 'Energy'} (Fehler -0.1563, Lift 1.88, Abdeckung MEDIUM)",
+  "UNKNOWN_CLUSTER_009: {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'} (Fehler -0.171, Lift 1.77, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_010: {'sector': 'Consumer Cyclical', 'beta': 'high_beta'} (Fehler -0.1691, Lift 1.73, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_011: {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1684, Lift 1.7, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_012: {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'} (Fehler -0.1806, Lift 1.69, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_013: {'volatility': 'high_vol'} (Fehler -0.1668, Lift 1.69, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_014: {'sector': 'Technology', 'recent_move': 'extreme_5d_move'} (Fehler -0.1718, Lift 1.68, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_015: {'momentum': 'loser_12m', 'beta': 'high_beta'} (Fehler -0.1715, Lift 1.62, Abdeckung LOW)",
+  "Überkonfident im Bucket 50–55 %: prognostiziert 0.5182, realisiert 0.4611 (n=28887)",
+  "Überkonfident im Bucket 55–60 %: prognostiziert 0.5643, realisiert 0.4311 (n=617)"
  ],
  "which_assumptions_are_stale": [
   "tnx: Wert 5.277 außerhalb Trainingsband [1.0993, 4.7817]"
  ],
  "which_models_are_redundant": [
-  "rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)",
-  "momentum_12_1: Leave-one-out-Beitrag -0.00048 (≤ 0 = entbehrlich)",
-  "enet_xs20_v1: Leave-one-out-Beitrag -0.00055 (≤ 0 = entbehrlich)",
-  "hgb_asym20_v1: Leave-one-out-Beitrag -0.00036 (≤ 0 = entbehrlich)"
+  "rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)"
  ],
  "which_features_are_decaying": [
   "Modell momentum_12_1: 0.0652 -> -0.1045 (t=-2.44)",
@@ -61,12 +58,12 @@
  "research_tracks_with_real_oos_value": [],
  "research_tracks_wasting_resources": [
   "literature: 0/5 akzeptiert",
-  "director: 0/9 akzeptiert",
+  "director: 0/14 akzeptiert",
   "discovery_engine: 0/117 akzeptiert",
   "ml_models: 0/6 akzeptiert",
   "meta_learning: 0/12 akzeptiert"
  ],
- "highest_research_priority": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.65)?",
+ "highest_research_priority": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?",
  "feature_decay": {
   "mom_12_1": {
    "n": 604,
@@ -266,27 +263,27 @@
   },
   "hgb_xs20_v1": {
    "trend": "stable",
-   "trend_t": -0.62,
-   "recent_ic": -0.0682,
-   "prior_ic": -0.0251
+   "trend_t": -1.03,
+   "recent_ic": -0.0854,
+   "prior_ic": -0.0104
   },
   "hgb_asym20_v1": {
    "trend": "stable",
-   "trend_t": 1.01,
-   "recent_ic": 0.0333,
-   "prior_ic": -0.0046
+   "trend_t": 0.54,
+   "recent_ic": -0.0008,
+   "prior_ic": -0.0252
   },
   "hgb_xs20_momentum_v1": {
    "trend": "improving",
-   "trend_t": 3.71,
-   "recent_ic": 0.0766,
-   "prior_ic": -0.0226
+   "trend_t": 3.55,
+   "recent_ic": 0.0719,
+   "prior_ic": -0.0216
   },
   "hgb_xs20_risk_regime_v1": {
    "trend": "stable",
-   "trend_t": -0.57,
-   "recent_ic": -0.0331,
-   "prior_ic": -0.0033
+   "trend_t": -1.0,
+   "recent_ic": -0.0584,
+   "prior_ic": -0.0045
   }
  },
  "research_value": {
@@ -326,10 +323,17 @@
    "research_efficiency": "LOW"
   },
   "director": {
-   "experiments": 9,
+   "experiments": 14,
    "accepted": 0,
    "oos_contribution": 0.0,
-   "rejected": 9,
+   "rejected": 14,
+   "research_efficiency": "LOW"
+  },
+  "alt_data:sec_deep_events": {
+   "experiments": 4,
+   "accepted": 0,
+   "oos_contribution": 0.0,
+   "rejected": 4,
    "research_efficiency": "LOW"
   },
   "discovery_engine": {
@@ -360,6 +364,6 @@
    "FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])"
   ],
   "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
-  "updated": "2026-10-02T21:33:12+00:00"
+  "updated": "2026-10-03T07:35:45+00:00"
  }
 }

@@ -1,0 +1,22 @@
+{
+ "generated": "2026-10-03T07:22:37+00:00",
+ "sources": {
+  "sec_deep_events": {
+   "coverage": 1.0,
+   "freshness": 1.0,
+   "data_quality": 1.0,
+   "active_features": [
+    "sec_late_filing_365d",
+    "sec_insider_net_value_90d",
+    "sec_exec_change_90d",
+    "sec_insider_cluster_30d",
+    "sec_filing_delay_z"
+   ],
+   "oos_value": 0.508,
+   "forward_value": null,
+   "source_value_score": 0.727,
+   "status": "REJECTED",
+   "verdict": "REJECT"
+  }
+ }
+}

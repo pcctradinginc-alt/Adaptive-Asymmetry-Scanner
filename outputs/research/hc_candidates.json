@@ -1,12 +1,12 @@
 {
- "date": "2026-10-02",
+ "date": "2026-10-03",
  "signal_date": "2026-10-02",
  "active_ensemble": "static_equal",
  "rule": null,
  "enabled": false,
- "disabled_reason": "keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; Wahrscheinlichkeiten nicht validiert: Kalibrierungsfehler > 0.05 in ['50–55 %', '55–60 %']; Trefferquote nicht monoton steigend [0.4639, 0.4505]; SAFE MODE aktiv: FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])",
+ "disabled_reason": "keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; Wahrscheinlichkeiten nicht validiert: Kalibrierungsfehler > 0.05 in ['50–55 %', '55–60 %', '60–65 %']; Trefferquote nicht monoton steigend [0.4611, 0.4311, 0.5096]; SAFE MODE aktiv: FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])",
  "candidates": [],
  "sent": [],
- "memory_new": 50,
+ "memory_new": 0,
  "memory_outcomes": 0
 }
