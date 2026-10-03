@@ -57,7 +57,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p outputs/health
           mkdir -p outputs/state
-          mkdir -p outputs/state
           git add outputs/health/ outputs/state/
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: source health $(date -u +%Y-%m-%dT%H:%M)"
