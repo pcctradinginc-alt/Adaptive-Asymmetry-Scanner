@@ -54,3 +54,7 @@ config/external_sources/           @pcctradinginc-alt
 modules/external/sources/sec_xbrl.py @pcctradinginc-alt
 tests/test_sec_xbrl.py             @pcctradinginc-alt
 tests/test_data_sources.py         @pcctradinginc-alt
+# Source Health Check (Safe Mode, blockierte Entscheidungspfade)
+config/source_health.yaml          @pcctradinginc-alt
+modules/source_health.py           @pcctradinginc-alt
+tests/test_source_health.py        @pcctradinginc-alt

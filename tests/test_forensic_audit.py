@@ -35,7 +35,7 @@ def _card(dq="HIGH"):
 
 
 def _write_env(d, *, rule_enabled=True, prob_validated=True, ece=0.02, interval_calibrated=True, safe_mode={"active": False, "reasons": []},
-               signal_date=SIGNAL, dq="HIGH", cards=True):
+               signal_date=SIGNAL, dq="HIGH", cards=True, data_health=()):
     rule = {"enabled": rule_enabled, "disabled_reason": None if rule_enabled else "keine Regel",
             "active_ece": ece, "rule": {"prob": 0.55}, "agreement_used": False, "feature_drift_flag": False,
             "probability_validated": prob_validated,
@@ -50,6 +50,11 @@ def _write_env(d, *, rule_enabled=True, prob_validated=True, ece=0.02, interval_
     (d / "meta_learning.json").write_text(json.dumps({"model_intelligence": {}}))
     if safe_mode is not None:
         (d / "safe_mode.json").write_text(json.dumps(safe_mode))
+    if data_health is not None:                     # täglicher Source Health Snapshot (Data Safe Mode)
+        (d / "source_health_snapshot.json").write_text(json.dumps({
+            "generated": f"{TODAY.isoformat()}T12:40:00+00:00", "sources": {},
+            "safe_mode": {"active": bool(data_health), "global_reasons": list(data_health),
+                          "blocked_decisions": [], "disabled_signals": [], "unavailable_features": []}}))
     pdir = d / "ml_predictions"
     pdir.mkdir(exist_ok=True)
     rows = [{"model_id": m, "prediction_date": signal_date, "spec_hash": m,
@@ -169,6 +174,18 @@ def test_A18_corrupt_safe_mode_file_must_fail_closed(tmp_path, robust_world):
     (tmp_path / "safe_mode.json").write_text("{kaputt")
     res = _run(tmp_path, panel=_panel())
     assert res["candidates"] == [] and "SAFE MODE unbekannt" in res["disabled_reason"]
+
+
+def test_A18_data_health_safe_mode_and_missing_snapshot_block_hc(tmp_path, robust_world):
+    """Täglicher Source Health Check: Daten-Safe-Mode oder fehlender Snapshot -> keine HC-Labels."""
+    _write_env(tmp_path, data_health=["kritische Pflichtdaten fehlen: ['risk_gates']"])
+    r = hc.run(send=False, dry_run=True, today=TODAY, out_dir=tmp_path, earnings_fn=lambda t, x: 40,
+               name_fn=lambda t: t, panel=robust_world)
+    assert r["enabled"] is False and "DATA" in r["disabled_reason"]
+    (tmp_path / "source_health_snapshot.json").unlink()
+    r = hc.run(send=False, dry_run=True, today=TODAY, out_dir=tmp_path, earnings_fn=lambda t, x: 40,
+               name_fn=lambda t: t, panel=robust_world)
+    assert r["enabled"] is False and "DATA HEALTH unbekannt" in r["disabled_reason"]
 
 
 def test_A18_missing_safe_mode_file_must_fail_closed(tmp_path, robust_world):

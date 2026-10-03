@@ -399,8 +399,12 @@ def render_alert(a: dict) -> tuple[str, str, str]:
 
 
 def run(send: bool = False, dry_run: bool = True, today: date | None = None, panel=None,
-        earnings_fn=earnings_days, name_fn=company_name, out_dir: Path = OUT) -> dict:
+        earnings_fn=earnings_days, name_fn=company_name, out_dir: Path = OUT,
+        health_snapshot: Path | None = None) -> dict:
     today = today or datetime.now(timezone.utc).date()
+    if health_snapshot is None:                     # Produktion: outputs/health; Tests: im out_dir
+        from modules.source_health import SNAPSHOT
+        health_snapshot = SNAPSHOT if Path(out_dir) == OUT else Path(out_dir) / SNAPSHOT.name
     rule = _load(out_dir / "hc_thresholds.json", {})
     cards_doc = _load(out_dir / "ml_cards.json", {})
     mlr = _load(out_dir / "ml_research.json", {})
@@ -412,11 +416,12 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
     active = rule.get("active_ensemble", "static_equal")
     weights = rule.get("current_weights") if active != "static_equal" else None
     reasons = global_gate(rule, cards_doc.get("cards", {}), calibration)
-    sm = _load(out_dir / "safe_mode.json", None)
-    if not isinstance(sm, dict) or "active" not in sm:              # fail-closed (Audit F07)
-        reasons.append("SAFE MODE unbekannt: safe_mode.json fehlt oder ist unlesbar")
-    elif sm.get("active"):
-        reasons.append(f"SAFE MODE aktiv: {'; '.join(sm.get('reasons') or [])}")
+    # Safe Mode = Modell/Drift (meta_cognition) ODER Daten (source_health); fehlt eins -> fail-closed
+    from modules.source_health import effective_safe_mode
+    sm = effective_safe_mode(out_dir, snapshot_path=health_snapshot,
+                             now=datetime(today.year, today.month, today.day, 23, 59, tzinfo=timezone.utc))
+    if sm["active"]:
+        reasons.append(f"SAFE MODE aktiv: {'; '.join(sm['reasons'])}")
     mi = (_load(out_dir / "meta_learning.json", {}) or {}).get("model_intelligence") or {}
     if mi and sum(1 for m in mi.values() if m.get("trend") == "deteriorating") / len(mi) >= 0.5:
         reasons.append("Alpha Decay: Mehrheit der Modelle 'deteriorating'")

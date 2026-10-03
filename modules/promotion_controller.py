@@ -684,11 +684,27 @@ def load_approvals(path: Path | None = None) -> dict:
 
 
 # ── Lauf ────────────────────────────────────────────────────────────────────
+def _safe_mode_state() -> dict:
+    """Modell- UND Daten-Safe-Mode (source_health); unbekannt = aktiv."""
+    from modules.source_health import effective_safe_mode
+    return effective_safe_mode()
+
+
+def _is_upgrade(cur: dict, d: dict) -> bool:
+    order = hc.INFLUENCE_LEVELS
+    lv_new, lv_old = d.get("influence_level", "NONE"), cur.get("influence_level", "NONE")
+    up_level = lv_new in order and lv_old in order and order.index(lv_new) > order.index(lv_old)
+    up_state = (d["new_state"] in ACTIVE_STATES and cur["new_state"] not in ACTIVE_STATES) or \
+        (d["new_state"] == "FORWARD_VALIDATED" and cur["new_state"] == "PROSPECTIVE_CHALLENGER")
+    return up_level or up_state
+
+
 def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now: datetime | None = None,
         registry: Path | None = None, transitions: Path | None = None, ledger_dir: Path | None = None,
         outcomes_path: Path | None = None, looks_path: Path | None = None, state_path: Path | None = None,
-        history: dict | None = None, approvals: dict | None = None) -> dict:
+        history: dict | None = None, approvals: dict | None = None, safe_mode: dict | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
+    safe_mode = safe_mode if safe_mode is not None else _safe_mode_state()
     now_s = now.isoformat(timespec="seconds")
     policy = policy if policy is not None else hc.load_policy()
     contracts = contracts if contracts is not None else hc.load()
@@ -711,7 +727,7 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
     state = {"generated": now_s, "policy_version": policy.get("version"), "policy_hash": policy_hash(policy),
              "max_automatic_influence": policy.get("max_automatic_influence", "ABSTENTION_ONLY"),
              "code_version": cv, "data_version": dv, "integrity": integrity, "hypotheses": {},
-             "notices": []}
+             "notices": [], "safe_mode": {"active": bool(safe_mode.get("active")), "reasons": safe_mode.get("reasons")}}
     cur_all = current_states(transitions) if not tr_problems else {}
     for c in contracts:
         k = hc.key(c)
@@ -744,6 +760,10 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         if appr.get("rollback") and (cur or {}).get("influence_level", "NONE") != "NONE":
             d.update(decision="ROLLBACK", new_state="DEMOTED", influence_level="NONE",
                      reasons=[f"menschlicher Rollback: {appr.get('reason', '')}"])
+        if safe_mode.get("active") and cur is not None and _is_upgrade(cur, d):
+            d.update(decision="KEEP_SHADOW", new_state=cur["new_state"],
+                     influence_level=cur.get("influence_level", "NONE"), recommendation=None,
+                     reasons=d["reasons"] + [f"SAFE MODE: Promotion ausgesetzt ({'; '.join(safe_mode.get('reasons') or [])[:200]})"])
         if cur is not None and d["new_state"] in ACTIVE_STATES and cur["new_state"] == "PROSPECTIVE_CHALLENGER":
             cur = transition(k, "FORWARD_VALIDATED", reason="Promotion-Gate auf reinen Forward-Daten bestanden",
                              evidence_snapshot=_snapshot(ev), metrics={"delta_expectancy": ev.get("delta_expectancy"),

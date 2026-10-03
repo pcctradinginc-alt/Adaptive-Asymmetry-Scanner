@@ -18,6 +18,12 @@ from modules import hypothesis_contract as hc
 from modules import production_intelligence_adapter as pia
 from modules import promotion_controller as pc
 
+
+@pytest.fixture(autouse=True)
+def _no_safe_mode(monkeypatch):
+    """Tests steuern Safe Mode explizit; der echte Repo-Zustand darf sie nicht beeinflussen."""
+    monkeypatch.setattr(pc, "_safe_mode_state", lambda: {"active": False, "reasons": []})
+
 ROOT = Path(__file__).resolve().parent.parent
 POLICY = hc.load_policy(ROOT / "config" / "promotion_policy.yaml")
 PINNED_POLICY = "79d68a25766a6a1cda090d1b2d2ce4d08a995db02619fe0d14e0614d6d03c395"
@@ -591,3 +597,16 @@ def test_adapter_never_creates_trades_property(tmp_path, monkeypatch):
         ids = [id(p) for p in props]
         assert all(id(p) in ids for p in kept) and len(kept) + len(blocked) == len(props)
         assert len(recs) == len(props)
+
+
+def test_safe_mode_blocks_promotion_but_not_demotion(tmp_path, monkeypatch):
+    """Source Health / Meta-Cognition Safe Mode: keine Promotion neuer Hypothesen."""
+    e = Env(tmp_path)
+    c = contract()
+    synth(e, c, T0, 40)
+    monkeypatch.setattr(pc, "_safe_mode_state", lambda: {"active": True, "reasons": ["DATA: kritische Pflichtdaten fehlen"]})
+    st = e.run([c], datetime(2027, 2, 1, tzinfo=timezone.utc))
+    h = st["hypotheses"][hc.key(c)]
+    assert h["state"] == "PROSPECTIVE_CHALLENGER" and h["influence_level"] == "NONE" and st["safe_mode"]["active"]
+    assert any("SAFE MODE" in r for r in h["reasons"])
+    assert [x["new_state"] for x in pc.read_transitions(e.tr)[0]] == ["PROSPECTIVE_CHALLENGER"]
