@@ -57,7 +57,26 @@ CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_o
 DB_PATH = ml.OUT_DIR / "hypothesis_db.json"
 from modules.alt_data.registry import ALT_FEATURES as _ALT  # noqa: E402
 
-ALLOWED_NAMES = frozenset(ml.ALL_FEATURES) | frozenset(_ALT)   # Alt-Data nur als registrierte PIT-Features
+# Sektor-Exposures (0/1) für Cross-Domain-Hypothesen. ACHTUNG: Sektorzuordnung ist der
+# HEUTIGE yfinance-Sektor (nicht PIT, Audit P2-3) -> Mapping-Qualität MEDIUM; die Fabrik
+# kennzeichnet Hypothesen, die sie nutzen (non_pit_mapping).
+SECTOR_EXPOSURES = {
+    "exp_technology": "Technology", "exp_financials": "Financial Services", "exp_healthcare": "Healthcare",
+    "exp_energy": "Energy", "exp_utilities": "Utilities", "exp_consumer_cyclical": "Consumer Cyclical",
+    "exp_consumer_defensive": "Consumer Defensive", "exp_industrials": "Industrials",
+    "exp_basic_materials": "Basic Materials", "exp_real_estate": "Real Estate",
+    "exp_communication": "Communication Services"}
+ALLOWED_NAMES = frozenset(ml.ALL_FEATURES) | frozenset(_ALT) | frozenset(SECTOR_EXPOSURES)
+
+
+def add_exposures(panel: pd.DataFrame) -> pd.DataFrame:
+    """exp_<sektor> = 1/0; unbekannter Sektor -> NaN (nie 0)."""
+    if "sector" not in panel or all(c in panel for c in SECTOR_EXPOSURES):
+        return panel
+    sec = panel["sector"]
+    known = sec.notna() & (sec.astype(str) != "") & (sec.astype(str) != "nan")
+    return panel.assign(**{c: np.where(known, (sec == name).astype(float), np.nan)
+                           for c, name in SECTOR_EXPOSURES.items()})
 ALLOWED_FUNCS = frozenset({"rank", "sign", "abs", "step"})
 _BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div)
 
@@ -198,6 +217,7 @@ def evaluate_hypothesis(panel: pd.DataFrame, hyp: dict, tested_signals: dict, pr
            "signal": hyp.get("signal"), "direction": int(hyp.get("direction", 1)), "source": hyp.get("source", "config"),
            "created_at": hyp.get("created_at"), "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "stages": {}, "reasons": []}
+    rec.update({k: hyp[k] for k in ("family", "domain", "exposure_sector", "spec_hash") if hyp.get(k)})  # Fabrik-Spez
     try:
         sig = eval_signal(panel, hyp["signal"]) * rec["direction"]
         rec["signal_key"] = signal_key(hyp["signal"])
@@ -388,6 +408,19 @@ def load_director(path: Path = DIRECTOR_PATH) -> list[dict]:
         return []
 
 
+FACTORY_PATH = Path("outputs/research/factory_hypotheses.json")   # Scientific Hypothesis Factory (maschinell)
+
+
+def load_factory(path: Path | None = None) -> list[dict]:
+    path = path or FACTORY_PATH
+    try:
+        return [{**h, "source": "factory"} for h in json.loads(path.read_text()).get("hypotheses", [])] \
+            if path.exists() else []
+    except (OSError, json.JSONDecodeError) as e:
+        log.warning(f"research_lab: Fabrik-Hypothesen nicht lesbar ({e})")
+        return []
+
+
 def load_hypotheses(path: Path = HYP_CONFIG) -> list[dict]:
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     return data.get("hypotheses") or []
@@ -400,9 +433,10 @@ def load_db(path: Path = DB_PATH) -> dict:
 def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_CONFIG,
         db_path: Path = DB_PATH, with_discovery: bool = True) -> dict:
     protocol = protocol or ml.PROTOCOL
+    panel = add_exposures(panel)
     db = load_db(db_path)
     recs: dict = db.setdefault("hypotheses", {})
-    hyps = load_hypotheses(hyp_path) + (load_director() if hyp_path == HYP_CONFIG else [])
+    hyps = load_hypotheses(hyp_path) + (load_director() + load_factory() if hyp_path == HYP_CONFIG else [])
     if hyp_path == HYP_CONFIG:                      # Alternative-Data-Verträge: gleiche Prüfkette, unveränderlich
         from modules.alt_data import contracts as ac
         _cs = ac.load()
