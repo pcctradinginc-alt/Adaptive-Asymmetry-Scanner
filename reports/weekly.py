@@ -296,8 +296,8 @@ def data_stand(data: dict) -> str:
     parts, stale = [], []
     today = _date.fromisoformat(data["date"])
     for name, key in (("ml_research", "ml"), ("meta_learning", "meta"), ("next_validation", "nextv"),
-                      ("safe_mode", "safe")):
-        g = _d(data.get(key)).get("generated") or _d(data.get(key)).get("updated")
+                      ("system_state", "safe")):
+        g = _d(data.get(key)).get("generated") or _d(data.get(key)).get("updated") or _d(data.get(key)).get("updated_at")
         parts.append(f"{name} {g or NA}")
         try:
             if g and (today - _date.fromisoformat(str(g)[:10])).days > 8:
@@ -386,7 +386,15 @@ def collect(root, date, state_path=None) -> dict:
     health_raw = _load_json(out_dir / "external_data" / "health" / "source_health.json")
     world = _load_json(rs / "world_model.json")
     mstate = _load_json(rs / "machine_state.json")
-    safe = _load_json(rs / "safe_mode.json")
+    # Safe Mode NUR aus dem kanonischen SystemState (gleiche Ableitung wie Scanner/HC/Adapter/Promotion)
+    try:
+        from modules import system_state as _ss
+        sys_state = _ss.current(inputs={k: root / v for k, v in _ss.DEFAULT_INPUTS.items()},
+                                state_path=root / _ss.STATE, history_path=root / _ss.HISTORY)
+    except Exception as _e:  # noqa: BLE001 – unbekannt ist nie "aus"
+        log.error(f"weekly: SystemState nicht ableitbar ({_e})")
+        sys_state = None
+    safe = sys_state
     nextv = _load_json(rs / "next_validation.json")
     director = _load_json(rs / "research_candidates.json")
     alearn = _load_json(rs / "active_learning.json")
@@ -528,9 +536,10 @@ def compute_warnings(data: dict) -> list[dict]:
                         f"Forward 4W-Expectancy {r4['expectancy']:+.3f} (n={r4['closed']}, {key}) "
                         f"< langfristig {lt['expectancy']:+.3f} (n={lt['closed']})")
                 break
-    sm = _d(data.get("safe"))
-    if sm.get("active") is True:
-        add("SAFE MODE", "Safe Mode aktiv (keine HC-Alerts, stabiler Champion): " + "; ".join(map(str, sm.get("reasons") or [])))
+    active, _txt = safe_mode_status(data.get("safe"))        # kanonischer SystemState
+    if active is not False:
+        add("SAFE MODE", "Safe Mode " + ("aktiv" if active else "UNBEKANNT") + " (keine HC-Alerts, stabiler Champion): "
+            + "; ".join(map(str, _d(data.get("safe")).get("safe_mode_reason") or [])))
     wc = _d(_d(data.get("world")).get("current"))
     if _num(wc.get("uncertainty")) is not None and wc["uncertainty"] >= 0.6:
         add("REGIME UNCERTAINTY", f"World-Model-Unsicherheit {wc['uncertainty']}")
@@ -558,14 +567,16 @@ def _buckets(meta) -> list[dict]:
     return [b for b in (cb or []) if isinstance(b, dict)]
 
 
-def safe_mode_status(safe) -> tuple[bool | None, str]:
-    """Safe Mode ausschließlich aus safe_mode.json (Audit F11: vorher meta_state.safe_mode,
-    das seit der Entkopplung immer false war). Fehlt die Datei -> unbekannt, nie 'aus'."""
-    if not isinstance(safe, dict) or "active" not in safe:
-        return None, "UNBEKANNT (safe_mode.json fehlt/unlesbar – HC-Alerts gesperrt)"
-    if safe.get("active"):
-        return True, "AKTIV: " + "; ".join(map(str, safe.get("reasons") or []))
-    return False, "aus"
+def safe_mode_status(state) -> tuple[bool | None, str]:
+    """Safe Mode ausschließlich aus dem kanonischen SystemState (modules/system_state.py) –
+    derselbe Zustand, den Scanner, HC-Scanner, Adapter und PromotionController lesen.
+    Fehlt er -> unbekannt, nie 'aus'."""
+    if not isinstance(state, dict) or "safe_mode" not in state:
+        return None, "UNBEKANNT (SystemState nicht ableitbar – HC-Alerts gesperrt)"
+    ver = f" [State v{state.get('state_version')}]"
+    if state.get("safe_mode"):
+        return True, "AKTIV: " + "; ".join(map(str, state.get("safe_mode_reason") or [])) + ver
+    return False, "aus" + ver
 
 
 # ── Formatierung ───────────────────────────────────────────────────────────

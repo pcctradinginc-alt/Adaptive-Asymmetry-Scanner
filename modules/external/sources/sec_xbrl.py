@@ -97,6 +97,8 @@ def parse_companyfacts(payload: dict, cik: str, retrieved_at: datetime, content_
             start = _date(f.get("start")) if kind == "duration" else None
             if end is None or filed is None or (kind == "duration" and start is None):
                 continue
+            if end > filed + timedelta(days=1) or (start is not None and start > end):
+                continue                                  # unplausibler Fakt (Periode nach Einreichung) – nie verwenden
             accn = f.get("accn") or ""
             out.append(Observation(
                 source_id="sec_companyfacts", dataset=key, entity_id=f"cik:{c10}", metric=key,

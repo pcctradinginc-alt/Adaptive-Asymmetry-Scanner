@@ -130,45 +130,62 @@ def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float]
               corrupt: list[str] | None = None) -> dict:
     tr = NP["safe_mode"]["triggers"]
     reasons = []
+    comp = {"drift": [], "model": [], "data": []}
+    # Abgestufte Drift (modules/drift.py): nur SEVERE löst Safe Mode aus; MILD/MODERATE wirken
+    # über den SystemState als Confidence-/Boost-Begrenzung. Die gepinnte model_drift_share
+    # (0.5) ist die SEVERE-Grenze; ein einzelnes leicht überschrittenes Merkmal blockiert nie.
+    from modules import drift as _drift
+    dpol = _drift.load_policy()
     drift = (meta or {}).get("drift") or {}
-    if tr["feature_drift"] and drift.get("feature_drift_flag"):
-        reasons.append("FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs "
-                       f"({[k for k, v in (drift.get('feature_drift') or {}).items() if v.get('out_of_range')]})")
+    fl = _drift.feature_level(drift.get("feature_drift"), dpol)
+    if tr["feature_drift"] and fl["level"] == "SEVERE":
+        r = f"FEATURE DRIFT SEVERE: Regime-Merkmale außerhalb des Trainingsbereichs ({fl['features_out_of_range']})"
+        reasons.append(r)
+        comp["drift"].append(r)
     mi = (meta or {}).get("model_intelligence") or {}
     if mi:
         share = sum(1 for m in mi.values() if m.get("trend") == "deteriorating") / len(mi)
         if share >= tr["model_drift_share"]:
-            reasons.append(f"MODEL DRIFT: {share:.0%} der Modelle 'deteriorating'")
+            r = f"MODEL DRIFT SEVERE: {share:.0%} der Modelle 'deteriorating'"
+            reasons.append(r)
+            comp["drift"].append(r)
     cal = (ml_rep or {}).get("calibration") or {}
     ece = (((meta or {}).get("approaches") or {}).get((meta or {}).get("active_ensemble", "static_equal"), {})
            .get("metrics", {}) or {}).get("ece")
+    def add(kind, r):
+        reasons.append(r)
+        comp[kind].append(r)
     if tr["calibration_failure"] and (cal and not cal.get("interval_calibrated") or (ece is not None and ece > 0.05)):
-        reasons.append(f"CALIBRATION FAILURE: Intervalle kalibriert={cal.get('interval_calibrated')}, ECE={ece}")
+        add("model", f"CALIBRATION FAILURE: Intervalle kalibriert={cal.get('interval_calibrated')}, ECE={ece}")
     if health:
         st = [str(v.get("status", "")).upper() for v in health.values() if isinstance(v, dict)]
         fail = sum(1 for s in st if s in ("FAIL", "FAILED", "ERROR")) / max(len(st), 1)
         if fail >= tr["pipeline_fail_share"]:
-            reasons.append(f"PIPELINE FAILURE: {fail:.0%} der Quellen FAIL")
+            add("data", f"PIPELINE FAILURE: {fail:.0%} der Quellen FAIL")
     if ((meta or {}).get("disagreement") or {}).get("current_level") == tr["disagreement_level"]:
-        reasons.append("EXCESSIVE MODEL DISAGREEMENT")
+        add("model", "EXCESSIVE MODEL DISAGREEMENT")
     wu = ((world or {}).get("current") or {}).get("uncertainty")
     if wu is not None and wu >= tr["world_model_uncertainty"]:
-        reasons.append(f"WORLD MODEL INSTABILITY: Unsicherheit {wu}")
+        add("model", f"WORLD MODEL INSTABILITY: Unsicherheit {wu}")
     if forward and len(forward) >= 12:
         f = pd.Series(forward[-12:])
         t = f.mean() / f.std(ddof=1) * math.sqrt(len(f)) if f.std(ddof=1) > 0 else 0
         if t <= tr["performance_breakdown_t"]:
-            reasons.append(f"PERFORMANCE BREAKDOWN: Forward-Expectancy t={t:.2f}")
+            add("model", f"PERFORMANCE BREAKDOWN: Forward-Expectancy t={t:.2f}")
     if health:                                       # Audit F08: veraltete Quellen
         items = [v for v in health.values() if isinstance(v, dict)]
         stale = [v for v in items if str(v.get("staleness", "")).upper() == "STALE"]
         stale_high = [v for v in stale if str(v.get("criticality", "")).lower() == "high"]
         if stale_high or (items and len(stale) / len(items) >= tr["pipeline_fail_share"]):
-            reasons.append(f"STALE DATA: {len(stale)} von {len(items)} Quellen veraltet "
-                           f"({len(stale_high)} mit hoher Kritikalität)")
+            add("data", f"STALE DATA: {len(stale)} von {len(items)} Quellen veraltet "
+                        f"({len(stale_high)} mit hoher Kritikalität)")
     if corrupt:                                      # Audit F08: beschädigte Modell-/Ergebnisdateien
-        reasons.append(f"CORRUPT ARTIFACT: {', '.join(corrupt)} vorhanden, aber unlesbar")
-    return {"active": bool(reasons), "reasons": reasons, "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
+        add("model", f"CORRUPT ARTIFACT: {', '.join(corrupt)} vorhanden, aber unlesbar")
+    # NICHT kanonisch: Eingabe für modules/system_state.py (einzige Safe-Mode-Wahrheit).
+    return {"active": bool(reasons), "reasons": reasons, "components": comp,
+            "drift": {"feature": fl, "model": _drift.model_level(mi, dpol)},
+            "canonical": False, "see": "outputs/state/system_state.json",
+            "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
             "updated": datetime.now(timezone.utc).isoformat(timespec="seconds")}
 
 
@@ -284,9 +301,11 @@ def run() -> dict:
     fwd = [e.get("actual_return") for e in _memory_outcomes()]
     sm = safe_mode(inp["meta"], inp["world"], inp["health"], [x for x in fwd if x is not None], inp["ml"],
                    corrupt=list(CORRUPT))
-    st = machine_state(inp, decay, model_decay, rv, sm)
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "safe_mode.json").write_text(json.dumps(sm, indent=1, ensure_ascii=False))
+    (OUT / "safe_mode.json").write_text(json.dumps(sm, indent=1, ensure_ascii=False))   # Komponente, nicht kanonisch
+    from modules import system_state as _ss
+    canon = _ss.safe_mode_view(_ss.current())             # kanonischer Zustand inkl. Data Health + Drift
+    st = machine_state(inp, decay, model_decay, rv, {**canon, "model_health_component": sm})
     (OUT / "machine_state.json").write_text(json.dumps(st, indent=1, ensure_ascii=False, default=str))
     (OUT / "machine_state.md").write_text(render_md(st), encoding="utf-8")
     return st

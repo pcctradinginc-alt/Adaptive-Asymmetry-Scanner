@@ -1,0 +1,33 @@
+# config/drift_policy.yaml – abgestufte Drift (modules/drift.py). Gepinnt (tests/test_system_state.py), CODEOWNERS.
+#
+# Ersetzt den binären Drift-Trigger ("irgendein Regime-Merkmal außerhalb p01/p99 -> Safe Mode").
+# Menschlicher Auftrag 2026-10-03: "Drift darf nicht pauschal wegen eines einzelnen kleinen
+# Grenzwertüberschreiters das gesamte System blockieren." Die gepinnte Modell-Drift-Schwelle aus
+# config/next_protocol.yaml (model_drift_share 0.5) bleibt die SEVERE-Grenze – dort wird nichts
+# gelockert; darunter kommen MILD/MODERATE mit eigenen Einschränkungen hinzu.
+
+version: drift-v1
+levels: [NORMAL, MILD, MODERATE, SEVERE]
+
+feature:                       # Regime-Merkmale gegen Trainingsbereich [p01, p99]
+  # Überschreitung relativ zur Spannweite (p99 - p01): <= mild -> MILD, <= moderate -> MODERATE, sonst SEVERE
+  excess_mild: 0.05
+  excess_moderate: 0.30
+  # Aggregat: SEVERE nur, wenn ein Merkmal SEVERE ist UND mind. severe_min_features außerhalb liegen,
+  # oder mind. severe_share aller Merkmale außerhalb liegen (ein einzelner Ausreißer reicht nie).
+  severe_min_features: 2
+  severe_share: 0.5
+model:                         # Anteil Basismodelle mit Trend 'deteriorating'
+  mild_share: 0.15
+  moderate_share: 0.30
+  severe_share: 0.50           # = next_protocol.yaml safe_mode.triggers.model_drift_share (nicht gelockert)
+data:                          # gewichtete Data Quality aus dem täglichen Source Health Check
+  mild_below: 0.90
+  moderate_below: 0.75
+  severe_below: 0.60           # = source_health global_safe_mode.min_data_quality
+
+consequences:
+  NORMAL:   {confidence_multiplier: 1.00, positive_boost_cap: 1.0, allow_weight_increase: true,  safe_mode: false}
+  MILD:     {confidence_multiplier: 0.90, positive_boost_cap: 1.0, allow_weight_increase: true,  safe_mode: false}
+  MODERATE: {confidence_multiplier: 0.75, positive_boost_cap: 0.5, allow_weight_increase: false, safe_mode: false}
+  SEVERE:   {confidence_multiplier: 0.50, positive_boost_cap: 0.0, allow_weight_increase: false, safe_mode: true}

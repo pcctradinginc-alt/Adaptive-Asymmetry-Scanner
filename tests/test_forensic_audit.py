@@ -53,7 +53,7 @@ def _write_env(d, *, rule_enabled=True, prob_validated=True, ece=0.02, interval_
     if data_health is not None:                     # täglicher Source Health Snapshot (Data Safe Mode)
         (d / "source_health_snapshot.json").write_text(json.dumps({
             "generated": f"{TODAY.isoformat()}T12:40:00+00:00", "sources": {},
-            "safe_mode": {"active": bool(data_health), "global_reasons": list(data_health),
+            "safe_mode": {"active": bool(data_health), "global_reasons": list(data_health), "data_quality": 0.95,
                           "blocked_decisions": [], "disabled_signals": [], "unavailable_features": []}}))
     pdir = d / "ml_predictions"
     pdir.mkdir(exist_ok=True)
@@ -197,7 +197,9 @@ def test_A18_missing_safe_mode_file_must_fail_closed(tmp_path, robust_world):
 
 
 @pytest.mark.parametrize("meta, world, health, fwd, mlr, needle", [
-    ({"drift": {"feature_drift_flag": True, "feature_drift": {"vix": {"out_of_range": True}}}}, {}, {}, None, {}, "DRIFT"),
+    ({"drift": {"feature_drift": {"vix": {"value": 90, "p01": 10, "p99": 35, "out_of_range": True},
+                                  "tnx": {"value": 9, "p01": 1, "p99": 5, "out_of_range": True}}}}, {}, {}, None, {},
+     "FEATURE DRIFT SEVERE"),
     ({"model_intelligence": {"a": {"trend": "deteriorating"}, "b": {"trend": "deteriorating"}}}, {}, {}, None, {}, "MODEL DRIFT"),
     ({}, {}, {}, None, {"calibration": {"interval_calibrated": False}}, "CALIBRATION"),
     ({}, {}, {"a": {"status": "FAIL"}, "b": {"status": "FAIL"}, "c": {"status": "PASS"}}, None, {}, "PIPELINE"),
@@ -207,6 +209,14 @@ def test_A18_missing_safe_mode_file_must_fail_closed(tmp_path, robust_world):
 def test_A18_safe_mode_triggers(meta, world, health, fwd, mlr, needle):
     sm = mc.safe_mode(meta, world, health, fwd, mlr)
     assert sm["active"] and any(needle in r for r in sm["reasons"])
+
+
+def test_A18_single_small_drift_never_blocks_system():
+    """Abgestufte Drift: ein einzelnes leicht überschrittenes Merkmal ist MILD/MODERATE, kein Safe Mode."""
+    meta = {"drift": {"feature_drift": {"tnx": {"value": 5.28, "p01": 1.10, "p99": 4.78, "out_of_range": True},
+                                        "vix": {"value": 15.3, "p01": 12.2, "p99": 33.3, "out_of_range": False}}}}
+    sm = mc.safe_mode(meta, {}, {}, None, {})
+    assert not sm["active"] and sm["drift"]["feature"]["level"] == "MODERATE"
 
 
 def test_A18_stale_sources_trigger_safe_mode():

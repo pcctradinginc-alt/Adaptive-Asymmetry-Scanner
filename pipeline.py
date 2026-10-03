@@ -676,6 +676,12 @@ def main() -> None:
     stats["data_health"] = {k: _dh.get(k) for k in ("proceed", "blocked_decisions", "safe_mode", "data_quality",
                                                      "source", "fallbacks")}
     stats["data_health"]["reasons"] = (_dh.get("reasons") or [])[:6]
+    try:                                             # kanonischer SystemState (gleich für HC/Adapter/Report)
+        from modules import system_state as _ss
+        _sv = _ss.safe_mode_view(_ss.current())
+        stats["system_state"] = {k: _sv.get(k) for k in ("state_version", "active", "reasons", "drift_level", "known")}
+    except Exception as e:  # noqa: BLE001 – unbekannt: Adapter/HC arbeiten fail-closed
+        stats["system_state"] = {"active": True, "known": False, "reasons": [f"SystemState-Fehler: {e}"]}
     if not _dh.get("proceed"):
         stats["stop_reason"] = ("Data Health: Pflichtdaten nicht verfügbar – "
                                 + "; ".join((_dh.get("reasons") or ["unbekannt"])[:3]))

@@ -42,7 +42,8 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/research/
+          mkdir -p outputs/state
+          git add outputs/research/ outputs/state/
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: world model $(date -u +%Y-%m-%dT%H:%M)"
           git stash --include-untracked || true

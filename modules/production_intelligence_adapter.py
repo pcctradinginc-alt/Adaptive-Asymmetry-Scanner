@@ -35,7 +35,6 @@ log = logging.getLogger(__name__)
 # Harte Decke – Policy kann nur senken, nie anheben.
 HARD_CAPS = {"score_points": 3.0, "weight": {"WEIGHT_10": 0.10, "WEIGHT_25": 0.25}, "max_weight": 0.25}
 LEVEL_ORDER = hc.INFLUENCE_LEVELS
-SAFE_MODE_PATH = Path("outputs/research/safe_mode.json")
 NEXT_VALIDATION = Path("outputs/research/next_validation.json")
 ABSTAIN, TRADE = "ABSTAIN", "TRADE"
 
@@ -90,11 +89,14 @@ def research_context(today: str | None = None) -> dict:
     # Safe Mode = Modell/Drift (meta_cognition) ODER Daten (täglicher Source Health Check).
     # Unbekannt -> aktiv (fail-closed: keine positiven Boosts).
     from modules.source_health import effective_safe_mode
-    sm = effective_safe_mode(meta_path=SAFE_MODE_PATH)
+    sm = effective_safe_mode()                      # kanonischer SystemState (Standard-Eingaben)
     ctx["safe_mode_active"] = 1 if sm["active"] else 0
     ctx["safe_mode_reasons"] = sm["reasons"]
     ctx["data_disabled_signals"] = sm["disabled_signals"]
     ctx["data_unavailable_features"] = sm["unavailable_features"]
+    ctx["drift_level"] = sm.get("drift_level")
+    ctx["drift_consequences"] = sm.get("consequences") or {}
+    ctx["system_state_version"] = sm.get("state_version")
     try:
         nv = json.loads(NEXT_VALIDATION.read_text(encoding="utf-8"))
         ctx["blind_spot_sectors"] = sorted({(c.get("common_properties") or {}).get("sector")
@@ -130,11 +132,15 @@ def candidate_env(p: dict, ctx: dict, vix=None) -> dict:
                 "ml_q10_ret_60": (card.get("interval_80") or [None])[0],
                 "blind_spot_sector_match": (1 if sector in (ctx.get("blind_spot_sectors") or []) else 0)
                 if sector else None})
+    for f in ctx.get("data_unavailable_features") or []:   # Source Health: Quelle nicht nutzbar -> unbekannt, nie alt/0
+        if f in env:
+            env[f] = None
     return env
 
 
 # ── Kern ────────────────────────────────────────────────────────────────────
 def decide_for_trade(p: dict, env: dict, active: dict, *, safe_mode: bool, sector: str | None,
+                     drift: dict | None = None,
                      regime: str | None, requested_weights: dict | None = None,
                      policy: dict | None = None) -> dict:
     """Reine Funktion: Champion-Trade -> Intelligence-/Final-Entscheidung (ohne I/O)."""
@@ -179,6 +185,11 @@ def decide_for_trade(p: dict, env: dict, active: dict, *, safe_mode: bool, secto
     if safe_mode:
         score_adj = min(0.0, score_adj)          # kein positiver Boost
         weights = []                             # kein erhöhtes Ensemble-Gewicht
+    elif drift:                                  # abgestufte Drift (SystemState): Boosts begrenzen
+        if score_adj > 0:
+            score_adj = score_adj * float(drift.get("positive_boost_cap", 1.0))
+        if not drift.get("allow_weight_increase", True):
+            weights = []
     prob_adj = 0.0
     if weights and p_champ is not None:
         w_tot = min(HARD_CAPS["max_weight"], sum(w for _, w, _ in weights))
@@ -220,8 +231,10 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
         active = {hc.key(c): {"contract": c, "level": "NONE", "state": "UNVERIFIED", "spec_hash": hc.spec_hash(c)}
                   for c in contracts if ok.get(hc.key(c)) == hc.spec_hash(c)}
     off = set(ctx.get("data_disabled_signals") or [])
-    if off:                                          # Pflichtdaten fehlen -> Signal gar nicht verwenden
-        for k in [k for k, a in active.items() if k in off or a["contract"].get("hypothesis_id") in off]:
+    missing = set(ctx.get("data_unavailable_features") or [])
+    if off or missing:                               # Pflichtdaten fehlen -> Signal gar nicht verwenden
+        for k in [k for k, a in active.items() if k in off or a["contract"].get("hypothesis_id") in off
+                  or set(a["contract"].get("features") or []) & missing]:
             log.warning(f"Adapter: {k} deaktiviert – Pflichtdaten laut Source Health nicht verfügbar")
             active.pop(k)
     safe_mode = bool(ctx.get("safe_mode_active"))
@@ -230,7 +243,8 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
     for rank, p in enumerate(proposals, start=1):
         env = candidate_env(p, ctx, vix)
         sector = p.get("sector") or (p.get("info") or {}).get("sector")
-        d = decide_for_trade(p, env, active, safe_mode=safe_mode, sector=sector, regime=regime,
+        d = decide_for_trade(p, env, active, safe_mode=safe_mode, sector=sector, drift=ctx.get("drift_consequences"),
+                             regime=regime,
                              requested_weights=requested_weights, policy=policy)
         base = (p.get("trade_score") or {}).get("total")
         if (d["final_production_decision"] == TRADE and trade_score_min is not None and base is not None
@@ -253,6 +267,7 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                "hypothesis_versions": {k: v["spec_hash"][:12] for k, v in d["hypotheses"].items()},
                "promotion_levels": {k: v["level"] for k, v in d["hypotheses"].items()},
                "intelligence": d["hypotheses"], "safe_mode_state": safe_mode,
+               "system_state_version": ctx.get("system_state_version"), "drift_level": ctx.get("drift_level"),
                "meta_model_version": (meta_versions or {}).get("meta_model_version"),
                "world_model_version": (meta_versions or {}).get("world_model_version"),
                "data_snapshot": {"vix": vix, "env_hash": hashlib.sha256(json.dumps(env, sort_keys=True,
