@@ -51,3 +51,21 @@ Ergebnis: **MODIFY**, wenn Punkt 1 erfüllt ist, aber etwas anderes fehlt; sonst
 - Ebenfalls nicht verfügbar: Positionierung und Prediction Markets.
 - Es gibt keine PIT-Sektorzuordnung.
 - Yahoo liefert nur etwa die letzten 6–10 Jahre an Earnings-Daten.
+
+## Nachregistrierung 2026-10-03 (nach Lauf 1, vor jeder Holdout-Auswertung)
+**Ergebnis von Lauf 1 (OOS 2019+):** Alle sechs Hypothesen wurden verworfen (REJECT). Die Kontrolle S3 („Kursreaktion setzt sich fort“) war signifikant **negativ** (t = −2,59, signifikant nach Benjamini-Hochberg), H_alt hat also gewonnen.
+
+**Regel:** Auf denselben Daten wird das Vorzeichen nicht gewechselt. Stattdessen wird eine neue Hypothese formuliert:
+- **S5_reaction_reversal:** gegen die Richtung der abnormalen Earnings-Reaktion positionieren (h = 20 entscheidend).
+
+**Prüfung ausschließlich auf dem Holdout:** die Jahre vor 2019, die nie Testperiode waren. Die Hypothese hat keine Parameter, also auch kein Training.
+
+**KEEP**, wenn alle folgenden Kriterien gelten:
+1. Mittel > 0 und t ≥ 2;
+2. bei 25 bp pro Seite positiv;
+3. Lag-Test positiv;
+4. beide Universums- und beide Zeithälften positiv.
+
+**Konsequenz:**
+- Selbst bei KEEP entsteht nur ein Vorschlag als prospektiver Challenger. Es gibt keine Produktionswirkung, die Forward-Daten entscheiden.
+- **Bedeutung:** Bestätigt sich die Umkehr, widerspricht sie der Unterreaktions-These der Produktionspipeline. Die Produktion setzt auf Kursanstiege nach Nachrichten.

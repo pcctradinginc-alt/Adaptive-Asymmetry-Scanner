@@ -510,6 +510,7 @@ def collect(root, date, state_path=None) -> dict:
     data["mc_calibration"] = _d(_load_json(rs / "paper_performance_analysis.json")).get("mc_hit_rate_calibration")
     data["rl_status"] = _load_json(rs / "rl_promotion.json")
     data["surprise"] = _load_json(rs / "surprise_study.json")
+    data["inquiry"] = _load_json(rs / "inquiry_chains.json")
     return data
 
 
@@ -1071,6 +1072,30 @@ def _perf_row(label: str, m: dict) -> list[str]:
             _f(m["max_dd"], 2), "LOW SAMPLE" if m["low_sample"] else ""]
 
 
+def _inquiry_blocks(data: dict) -> list:
+    """KERNFRAGE: Was verstehe ich nicht -> Erklärung -> Daten -> neue Daten -> Verhaltensänderung."""
+    inq = _d(data.get("inquiry"))
+    if not inq:
+        return [("para", "KERNFRAGE: " + NO_DATA + " (modules.inquiry noch nicht gelaufen)")]
+    rows = []
+    for c in inq.get("chains") or []:
+        q1, ex = _d(c.get("question_1_not_understood")), c.get("question_2_explanations") or []
+        rows.append([str(q1.get("finding"))[:70],
+                     "; ".join(f"{e.get('id')} ({e.get('status')})" for e in ex[:3]) or "keine",
+                     "ja" if ex and all(e.get("data_available") for e in ex) else ("teilweise" if ex else "–"),
+                     c.get("status"), c.get("question_5_behaviour"), c.get("next_step")])
+    lc = _d(inq.get("research_learning"))
+    cal = _d(lc.get("priority_calibration"))
+    curve = ", ".join(f"{q}: {v.get('success_rate')} (n={v.get('tested')})" for q, v in _d(lc.get("by_quarter")).items())
+    return [("para", "KERNFRAGE – Was verstehe ich nicht, welche Erklärung, welche Daten, hält sie auf neuen Daten, "
+                     "ändert sie mein Verhalten? Status: " + ", ".join(f"{k} {v}" for k, v in
+                                                                       _d(inq.get("status_counts")).items())),
+            ("table", ["Nicht verstanden", "Erklärung(en) (Status)", "Daten da", "Kettenstatus", "Verhalten",
+                       "Nächster Schritt"], rows[:12], []),
+            ("para", f"Lernt die Forschung? Erfolgsquote je Quartal: {curve or NO_DATA}. Kalibrierung der "
+                     f"Priorisierung (Spearman Priorität vs. Erfolg): {_fv(cal.get('spearman'))} (n={cal.get('n', 0)}).")]
+
+
 def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     today = _parse_date(data["date"]) or _date.today()
     st, meta, ml = _d(data.get("safe")), _d(data.get("meta")), _d(data.get("ml"))
@@ -1116,6 +1141,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
         ("para", "Verworfene Hypothesen:"), ("list", rejected[:10] or ["keine"]),
         ("para", "Blind Spots (signifikante Fehlercluster):"), ("list", blind[:5] or ["keine"]),
         ("para", "Alpha Decay:"), ("list", decay or ["keine gemessene Abschwächung"]),
+        *_inquiry_blocks(data),
         ("para", "Daten-/Research-Erkenntnisse (Änderungen seit letztem Bericht):"),
         ("list", (data.get("learned") or [FIRST_REPORT_TEXT if data.get("learned") is None else "keine"])[:10]),
     ]))

@@ -69,7 +69,11 @@ Die Lockerung gegenüber dem binären Trigger gilt nur für Feature-Drift, die a
 **Live-Stand 2026-10-03:**
 
 - `tnx` ist MODERATE (13 % über p99) und blockiert nicht mehr.
-- 3 von 6 Modellen verschlechtern sich: Modell-Drift **SEVERE**, der Safe Mode bleibt also aktiv. Das ist ehrlich, denn diese Schwelle ist unverändert.
+- Modell-Drift: Anteil „deteriorating" 0,333 → MODERATE (SEVERE erst ab 0,50, unverändert gepinnt).
+- Gesamt **MODERATE**, Safe Mode **aus** (`outputs/state/system_state.json`, state_version 6):
+  Confidence × 0,75, positive Boosts × 0,5, keine Gewichtserhöhung, Promotion pausiert.
+  Frühere Fassung dieses Dokuments nannte SEVERE (3 von 6 Modellen); maßgeblich ist immer die
+  Datei, nie dieses Dokument.
 
 ## 4. Source Health als harte Voraussetzung
 
@@ -84,3 +88,13 @@ Die Lockerung gegenüber dem binären Trigger gilt nur für Feature-Drift, die a
   - Der Parser verwirft solche Fakten jetzt.
   - Eine Periode in der Zukunft gilt als Datenfehler: DEGRADED, ab mehr als 20 % Anteil BROKEN.
   - `available_at > retrieved_at` bleibt eine PIT-Verletzung (BROKEN).
+
+## 5. Ein Safe-Mode-Begriff (Härtung 2026-10-03)
+
+- Tages-Stats der Pipeline: `stats.system_state.active` ist der Safe Mode. Die Daten-Komponente
+  heißt dort `stats.data_health.data_safe_mode` (vorher ebenfalls `safe_mode` → zwei
+  gleichnamige Flags in einer Datei; die Warnung im Log las das falsche).
+- `meta_learning.safe_mode_check` → `meta_fallback_check` (`fallback_to_reference`): Rückfall
+  des (nicht promoteten) Meta-Modells auf die Referenz, kein System-Safe-Mode.
+- Tests: `tests/test_pipeline_orchestration.py` (Fehlerpfade von `pipeline.main()`),
+  `tests/test_hardening.py`.

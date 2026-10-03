@@ -260,9 +260,11 @@ def test_mc_pnl_gate_rejects_and_logs_roi_reject(designer, monkeypatch):
     _yf(monkeypatch, {"default": FakeTicker(options=[_exp(200)])})
     assert designer.run([_signal()]) == []
     assert designer.roi_reject_log and designer.roi_reject_log[0]["ticker"] == "ABC"
+    assert set(designer.roi_reject_log[0]["fail_gates"].values()) == {"mc_pnl"}   # Teil-Gate erfasst
 
 
 def test_no_edge_over_breakeven_rejects(designer, monkeypatch):
     _yf(monkeypatch, {"default": FakeTicker(options=[_exp(200)])})
     s = _signal(simulation={"current_price": 100.0, "target_price": 101.0})
     assert designer.run([s]) == []
+    assert set(designer.roi_reject_log[-1]["fail_gates"].values()) == {"roi_initial"}  # greift vor Edge

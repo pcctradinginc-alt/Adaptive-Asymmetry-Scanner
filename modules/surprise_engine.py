@@ -274,6 +274,53 @@ def decide(base: dict, stress: dict, regimes: dict, lag: dict, rep: dict, bh_ok:
     return {"verdict": verdict, "reasons": reasons}
 
 
+# ── Gegenhypothese aus dem ersten Lauf (Nachregistrierung 2026-10-03, vor jeder Holdout-Auswertung) ──
+# Befund Lauf 2026-10-03 (OOS 2019+): S3_reaction_only signifikant NEGATIV (t=-2,59, BH) ->
+# H_alt gewann. Laut Protokoll kein Vorzeichenwechsel auf denselben Daten, sondern eine NEUE
+# Hypothese, geprüft ausschließlich auf Daten, die bisher nie Testperiode waren:
+REVERSAL_ID = "S5_reaction_reversal"
+REVERSAL_DESC = ("Earnings-Reaktion kehrt sich um: gegen die Richtung der abnormalen Reaktion positionieren "
+                 "(Gegenhypothese zu S3, Holdout = Jahre vor dem OOS-Start, nie Testperiode)")
+
+
+def holdout_reversal(ev: pd.DataFrame, horizons=HORIZONS) -> dict:
+    """Replikation der Gegenhypothese NUR auf Jahren < TEST_START_YEAR. Keine Parameter (reines
+    Vorzeichen), daher kein Training nötig; zusätzlich Lag-Test und Universums-Hälften."""
+    ho = ev[ev["year"] < TEST_START_YEAR]
+    ho = ho[ho["react_z"].notna() & (ho["react_z"] != 0)]
+    out = {"description": REVERSAL_DESC, "holdout_years": sorted(int(y) for y in ho["year"].unique()),
+           "registered": "2026-10-03 nach Lauf 1, vor Holdout-Auswertung"}
+    for h in horizons:
+        sign = -np.sign(ho["react_z"])
+        tr = pd.DataFrame({"date": ho["date"], "signed": sign * ho[f"fwd_{h}"], "vix": ho["vix"],
+                           "trend_up": ho["trend_up"], "ticker": ho["ticker"]})
+        lag = pd.DataFrame({"date": ho["date"], "signed": sign * ho[f"lag_fwd_{h}"]})
+        base = trade_metrics(tr, COST_BASE_PER_SIDE)
+        out[f"h{h}"] = {"base_cost": base,
+                        "stress_cost": {k: trade_metrics(tr, COST_STRESS_PER_SIDE).get(k) for k in ("mean", "t_months")},
+                        "lag": {k: trade_metrics(lag, COST_BASE_PER_SIDE).get(k) for k in ("n", "mean", "t_months")},
+                        "replication": replication(tr), "regimes": regime_split(tr, COST_BASE_PER_SIDE),
+                        "p_value": _p_two_sided(base.get("t_months"))}
+    d = out.get(f"h{DECISION_H}") or {}
+    b = d.get("base_cost") or {}
+    reasons = []
+    core = (b.get("mean") or 0) > 0 and (b.get("t_months") or 0) >= 2.0
+    if not core:
+        reasons.append(f"Holdout-Mittel/t nicht ausreichend (mean={b.get('mean')}, t={b.get('t_months')})")
+    if not ((d.get("stress_cost") or {}).get("mean") or 0) > 0:
+        reasons.append("bei 25 bp/Seite nicht positiv")
+    if not ((d.get("lag") or {}).get("mean") or 0) > 0:
+        reasons.append("Lag-Test nicht positiv")
+    if not d.get("replication") or any(not ((v or {}).get("mean") or 0) > 0 for v in d["replication"].values()):
+        reasons.append("Replikation nicht durchgehend positiv")
+    # Holdout bestanden -> nur PROSPECTIVE-Kandidat (Forward entscheidet), nie Produktion
+    out["decision"] = {"verdict": "KEEP" if not reasons else ("MODIFY" if core else "REJECT"),
+                       "reasons": reasons,
+                       "next": ("als prospektiven Challenger vorschlagen (Forward entscheidet)" if not reasons
+                                else "verworfen bzw. weiter offen; Befund bleibt in der Research Memory")}
+    return out
+
+
 def evaluate(ev: pd.DataFrame, placebo_n: int = PLACEBO_N) -> dict:
     res = {"n_events": int(len(ev)), "n_tickers": int(ev["ticker"].nunique()) if len(ev) else 0,
            "period": [str(pd.to_datetime(ev["date"]).min().date()), str(pd.to_datetime(ev["date"]).max().date())]
@@ -305,6 +352,7 @@ def evaluate(ev: pd.DataFrame, placebo_n: int = PLACEBO_N) -> dict:
         res["hypotheses"][name] = per
     ctrl = res["hypotheses"].get("S3_reaction_only", {}).get(f"h{DECISION_H}", {}).get("base_cost", {})
     res["control_mean"] = ctrl.get("mean")
+    res["counter_hypotheses"] = {REVERSAL_ID: holdout_reversal(ev)}
     return res
 
 
@@ -349,6 +397,13 @@ def render_md(res: dict) -> str:
         d = per["decision"]
         L.append(f"- **{name}** ({per['description']}): {d['verdict']}"
                  + (f" – {'; '.join(d['reasons'])}" if d["reasons"] else ""))
+    for cid, c in (res.get("counter_hypotheses") or {}).items():
+        b = (c.get(f"h{DECISION_H}") or {}).get("base_cost") or {}
+        L += ["", f"## Gegenhypothese {cid} (Holdout {c.get('holdout_years')})", "", c.get("description", ""), "",
+              f"n={b.get('n')}, Mittel={b.get('mean')}, t={b.get('t_months')}, Jahre+={b.get('years_positive_share')} "
+              f"→ **{c['decision']['verdict']}**" + (f" – {'; '.join(c['decision']['reasons'])}"
+                                                    if c["decision"]["reasons"] else ""),
+              f"Nächster Schritt: {c['decision']['next']}"]
     L += ["", "## Datenlücken (nie simuliert)", ""] + [f"- {g}" for g in res.get("data_gaps") or []]
     return "\n".join(L) + "\n"
 

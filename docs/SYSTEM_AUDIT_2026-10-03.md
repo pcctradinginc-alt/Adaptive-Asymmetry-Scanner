@@ -27,7 +27,7 @@ Downstream → Validierung), Workflows, `outputs/history.json` (119 geschlossene
 | Research Lab / Director / Hypothesis DB | SHADOW | 0 ACCEPTED, 20 REJECTED |
 | World Model, Causal Research, Knowledge Graph | SHADOW | Causal: REJECT (keine Beziehung überlebt BH OOS) |
 | Counterfactual, Blind Spots, Decision Intel, Next Intelligence | SHADOW | Verdikte MODIFY; Abstinenz-Bestätigung CONTAMINATED, Forward ACCUMULATING |
-| Meta-Cognition + Safe Mode | SHADOW → Eingang der Brücke | Safe Mode aktiv (tnx-Drift); als Abstinenz-Vertrag PROM-ABST-001 prospektiv im Test |
+| Meta-Cognition + Safe Mode | SHADOW → Eingang der Brücke | kanonisch in `system_state` (Stand: MODERATE, Safe Mode aus); als Abstinenz-Vertrag PROM-ABST-001 prospektiv im Test |
 | HC-Scanner | SHADOW | Research-Alerts, im Safe Mode deaktiviert |
 | Trade-/Prediction-Memory, Failure Analyzer, Factor Monitor | SHADOW | Attribution; speisen jetzt `abstention_proposals` |
 | Alternative Data (SEC/GLEIF) | SHADOW, **REJECTED** | Ingestion vollständig (Form 345 2014Q1–2026Q2, Filings 609/616 CIKs). OOS-Ablation (s. 6.): kein inkrementeller Nutzen; ALT-SEC-001…004 im Research-Lab REJECTED (zwei signifikant negativ) |
@@ -109,3 +109,115 @@ erkennen und begrenzt nutzen **kann** – und ohne ihn keinen Einfluss erhält.
 Die Datenbasis des Champions: wenige, zeitlich geklumpte, teils rekonstruierte Outcomes und eine
 fehlkalibrierte Erfolgswahrscheinlichkeit. Bis genügend Quote-basierte Forward-Outcomes vorliegen
 (≥ 60 Trades, ≥ 90 Tage je Hypothese), kann keine Komponente statistisch belastbar besser werden.
+
+## 8. Härtungsdurchgang (Konsistenz, Lern-Loops, Gate-Audit)
+
+Kernregel: keine neue Komplexität ohne nachgewiesenen Nutzen. Es wurde kein neues Intelligence-Modul
+gebaut; ein eigenes „LearningEvent"-Format wurde bewusst **nicht** eingeführt. Die vorhandenen,
+gehashten Ketten (Vertragsregister mit `spec_hash`, Transition-Log mit `entry_hash`, Decision-Ledger,
+`research_memory`) decken Quelle, Claim, Evidenz, n, Regime, Horizont, Zeitstempel und Daten-/Code-
+Version bereits ab. Ein weiteres Format wäre eine zweite Wahrheit.
+
+### 8.1 Komponentenmatrix
+
+IMPL = implementiert · CALLED = in einem Workflow/Lauf aufgerufen · FLOW = Output hat einen Abnehmer ·
+TEST = Unit-/Integrationstests · OOS = belastbarer OOS-/Forward-Nachweis · PROD = beeinflusst Trades.
+
+| Komponente | IMPL | CALLED | FLOW | TEST | OOS | PROD | Status |
+|---|---|---|---|---|---|---|---|
+| Champion-Regelwerk (Gates, LLM, MC, Options, ROI, Sizing) | ja | täglich | Trades | ja | **nein** (PF 1,12, n=79) | ja | ACTIVE, UNVALIDATED |
+| Final-MC-Hit-Rate | ja | täglich | Gate + Mail | ja | **fehlkalibriert** (0,71→0,22) | ja (Gate) | ACTIVE; Mail zeigt jetzt kalibrierte Quote |
+| ROI-Gate (Sammel: roi_initial/theta/vega/edge/mc_pnl) | ja | täglich | Gate | ja | Schatten n=20: Ø −39 %, WR 20 % | ja | ACTIVE, filtert Verlierer (s. 8.3) |
+| SystemState / Drift / Source Health | ja | täglich | Adapter, HC, Report | ja | – (Steuerung) | indirekt (Deckel/Block) | ACTIVE, kanonisch |
+| PromotionController + Adapter | ja | täglich/wöchentl. | einzige Wirkungsstelle | ja | 5 Verträge, Forward n=0 | Einfluss NONE | ACTIVE (Protokoll) |
+| Abstention-Risikovektor | ja | täglich | Trade-Record → Vorschläge | ja | nein | nein | SHADOW |
+| QuasiML / model_weights / feature_stats (feedback.py) | ja | täglich | nur Premium-Auswahl (Top 2) + Report | ja | nein | **nein** (Premium-Felder liest kein Gate) | SHADOW, lernt aber täglich |
+| PPO-Veto | ja | nein (veto_enabled=false) | – | ja | degeneriert | nein | UNUSED |
+| Robuster PPO + RL-Promotion-Bewertung | ja | wöchentlich | Report | ja | WF 100 % BOOST → degeneriert | nein | SHADOW, NOT_READY |
+| ML-Research / Meta-Learning / World Model / Causal | ja | Workflows | Report/Research | ja | kein Gate bestanden | nein | SHADOW |
+| Hypothesis Factory / Research Memory / Inquiry | ja | wöchentlich | Plan, Ketten | ja | 86 getestet, 0 bestätigt | nein | SHADOW |
+| Surprise Engine (S1–S4, S5 Holdout) | ja | research.yml | Memory/Report | ja | Lauf 1 ohne KEEP | nein | SHADOW |
+| HC-Scanner | ja | täglich | Research-Alerts | ja | nein | nein | SHADOW |
+| Alt-Data SEC/GLEIF/TED/Wetter/… | ja | täglich | External Context | ja | SEC: REJECT | nein | SHADOW |
+| Kosten-Telemetrie / Routing / Cache / Prefilter | ja | täglich | Monatsreport, Routing-Entscheid | ja | A/B läuft | Kosten, nicht Trades | ACTIVE (Betrieb) |
+| `meta_learning.meta_fallback_check` | ja | **nein** | – | ja | – | nein | ungenutzt (Meta nicht promotet); umbenannt |
+
+### 8.2 Behobene Befunde dieses Durchgangs
+
+| Prio | Befund | Fix |
+|---|---|---|
+| P1 | Tages-Stats hatten zwei `safe_mode`-Flags (Daten vs. kanonisch); die Log-Warnung las das Daten-Flag | Daten-Flag → `data_health.data_safe_mode`; Warnung nur aus `system_state.active` |
+| P1 | Tages-Mail färbte die rohe MC-Quote ab 65 % grün und nannte fest codierte, veraltete Kalibrierzahlen (86 %→41 %) | neutral dargestellt + gemessene Band-Kalibrierung (dieselbe Funktion wie Montagsreport); fehlend → „n/a" |
+| P1 | `shadow_trades` auf 300 gekappt → bewertete Gate-Evidenz ging verloren | verdrängte Einträge append-only in `outputs/shadow_trades_archive.jsonl` |
+| P1 | „roi_gate" war ein Sammel-Label für 5 Teil-Gates → Wert einzelner Gates nicht messbar | `fail_gates` je Tier im Reject-Log und Schatten-Trade |
+| P2 | Monatsreport mischte alle Schatten-Gründe zu einer Win-Rate und urteilte „Gates arbeiten korrekt"/„filtern Gewinner" | je Grund getrennt, n<10 → keine Aussage, Hinweis „ohne TP/SL" |
+| P2 | Kostenabschnitt unterschied nicht zwischen gemessen und geschätzt | Labels MEASURED / ESTIMATED je Zeile |
+| P2 | `SYSTEM_STATE.md` meldete Safe Mode aktiv (SEVERE), Code-Zustand MODERATE/aus | Doku auf Datei verwiesen, Stand korrigiert |
+| P3 | `meta_learning.safe_mode_check` – Namenskollision mit kanonischem Safe Mode | → `meta_fallback_check` |
+| P1 | Kein End-to-End-Test von `pipeline.main()` | `tests/test_pipeline_orchestration.py`: Data-Health kaputt, SystemState kaputt, VIX fehlt, leeres Universum, Ingestion-Absturz |
+
+### 8.3 Gate-Audit Final-MC → Options → ROI-Gate (Schatten-Outcomes, `outputs/history.json`)
+
+| Population | n | Ø Outcome | Win Rate | PF |
+|---|---|---|---|---|
+| Final-MC-Survivor ohne Strategie (Aktienrendite) | 37 | −2,7 % | 37,8 % | 0,50 |
+| ROI-Gate-Rejects gesamt (Optionsrendite bestes Tier) | 20 | −39,0 % | 20,0 % | 0,21 |
+| … davon Initial-ROI unter Hurdle (`roi_gap` < 0) | 4 | +37,1 % | 3/4 | – |
+| … davon Initial-ROI bestanden, an Edge/MC-P&L gescheitert | 16 | −58,0 % | 1/16 | – |
+| Echte (Paper-)Trades gesamt | 119 | +10,2 % | 34,5 % | 1,24 |
+| Echte Trades seit 03.07. (gleicher Zeitraum) | 8 | −27,0 % | 12,5 % | 0,28 |
+
+Befund: Kein Gate mit nachgewiesen **negativem** Inkrementalwert. Edge/MC-P&L-Teil-Gates filtern
+deutlich Verlierer. Die reine ROI-Hurdle zeigt bei n=4 positive Rejects – das ist keine Evidenz
+(n winzig, Schatten ohne TP/SL, 88 Rejects noch unbewertet), aber genau die Frage, die `fail_gates`
+ab jetzt beantwortbar macht. Konsequenz: **keine Schwelle gelockert**; ab n ≥ 30 je Teil-Gate
+als Gate-Challenger (`challenger.py`) prüfen.
+
+### 8.4 Offene Risiken und fehlende Verbindungen
+
+* **Signalfrequenz vs. Promotion-Untergrenzen:** seit Juli ≈ 4 Champion-Trades/Monat; Verträge
+  verlangen n ≥ 50 und ≥ 20 unabhängige Tage → realistisch ≈ 12 Monate bis zur ersten
+  Forward-Entscheidung. Die Policy darf nur strenger werden; eine Erweiterung der Beobachtungs-
+  population (z. B. Final-MC-Survivor als zusätzliche Abstinenz-Population) wäre eine neue
+  Vertragsversion und gehört per PR in menschliche Hand.
+* Schatten-Outcomes ohne TP/SL (anders als echte Trades) – nur innerhalb eines Grundes vergleichbar.
+* QuasiML/Pearson-Gewichte lernen täglich, ohne Produktionswirkung – Kosten ohne Nutzen, aber harmlos.
+* Kalibrierungsbänder sind in-sample über alle Paper-Trades geschätzt (deskriptiv, nicht OOS).
+* Entity-Map-Survivorship (147 Ticker), Sektor nicht PIT (s. 2.) – unverändert offen.
+
+### 8.5 Pflichtfragen
+
+1. **Widersprüchliche Systemzustände?** Im Code nein: ein kanonischer `system_state`, alle Leser über
+   `safe_mode_view`, Test gegen Legacy-Leser. Behoben: Doppel-Flag in Tages-Stats und veraltete Doku.
+2. **Lernsysteme am PromotionController vorbei?** Ein Loop lernt ohne Controller: `feedback.py`
+   (feature_stats-Bins, Pearson-Gewichte). Seine Ausgabe (`final_score`) wählt nur die 2 Kandidaten für
+   Premium-Daten; diese Felder liest kein Gate → kein Bypass. Kein Modul schreibt `config.yaml`/Gates;
+   Challenger/Alpha-Discovery schreiben nur Vorschlagsdateien.
+3. **Features unsicherer Herkunft?** Jede Panel-/Alt-Feature hat eine dokumentierte Quelle
+   (`FEATURE_DEPENDENCIES.md`, Test). Unsicher: 40 rekonstruierte Outcomes (vom Lernen ausgeschlossen),
+   Schatten-Outcomes ohne `outcome_method` (Altbestand), Sektor im ML-Panel nicht PIT.
+4. **Leakage-Risiken?** Vorwärts-Shifts nur in Labels mit `label_end`-Purge; PIT-Tests für Surprise
+   Engine, External Context, XBRL. Restrisiko: kontaminierter Locked-Holdout (bindend nur Forward),
+   in-sample Kalibrierungsbänder, Survivorship im ML-Panel.
+5. **Ungenutzte oder scheinbar aktive Intelligenz?** PPO-Veto (aus), QuasiML-Gewichte (lernen, ohne
+   Wirkung), Premium-Signale, `meta_fallback_check` (ohne Aufrufer). Alles andere ist ehrlich SHADOW.
+6. **Gates, die Alpha filtern?** Nicht nachweisbar. Edge/MC-P&L filtern Verlierer (n=16, Ø −58 %);
+   reine ROI-Hurdle n=4 positiv → unentschieden, jetzt messbar über `fail_gates`.
+7. **Wahrscheinlichkeiten kalibriert?** Nein. MC-Hit-Rate 0,71 → 0,22 realisiert. Alle Berichte
+   (Montag, jetzt auch Tages-Mail) zeigen die gemessene Band-Win-Rate statt der Rohzahl.
+8. **Berichte konsistent?** Safe Mode/Drift aus derselben Quelle; Kalibrierung aus derselben Funktion;
+   Schattenstatistik je Grund; Kosten mit MEASURED/ESTIMATED.
+9. **Kann ein fehlerhaftes Modell Produktion beeinflussen?** Nur über den Adapter, mit Einfluss NONE,
+   Safe-Mode-/Drift-Deckel, Hard Caps und Demotion. ML/RL/Meta haben keinen Pfad. Restrisiko ist das
+   Champion-Regelwerk selbst (LLM + unkalibrierte MC) – unvalidiert, aber nicht lernend.
+10. **Ist jede Produktionsentscheidung reproduzierbar?** Teilweise: Candidate Ledger, Decision-Ledger
+    mit eingefrorener Regelauswertung, `state_version`, `spec_hash`, Prompt-Version und Kosten-Ledger
+    sind gespeichert. Nicht reproduzierbar sind LLM-Antworten (stochastisch) und Live-Optionsketten.
+11. **Forward getrennt von Backtests?** Ja: Promotion-Evidenz nur ab `forward_start` und nach
+    `registered_at`; Backtest/WF in Research-Artefakten; Paper-Trades in `closed_trades`;
+    Schatten-/Counterfactual-Trades getrennt. Es gibt keine echten (Broker-)Trades.
+12. **Was verhindert am stärksten nachweisbare Verbesserung?** Die Stichprobe: ≈ 4 Champion-Trades pro
+    Monat und ein Champion ohne Vorteil (PF 1,12; seit Juli negativ). Dadurch braucht jede
+    Forward-Entscheidung etwa ein Jahr. Hebel ohne Lockerung: Schatten-Populationen (Final-MC-Survivor,
+    Gate-Rejects mit `fail_gates`) vollständig und vergleichbar bewerten – als Evidenzquelle für
+    Gate-Challenger, nicht als Promotion-Abkürzung.

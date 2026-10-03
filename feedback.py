@@ -534,9 +534,27 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
         except Exception as e:
             log.warning(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
         log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
-    # Liste begrenzen: nur die letzten 300 behalten
+    # Liste begrenzen: nur die letzten 300 behalten. Ältere Einträge werden NICHT
+    # verworfen, sondern append-only archiviert — bewertete Schatten-Outcomes sind
+    # die einzige Evidenz für Gate-Audits (ROI-Gate, Final-MC) und dürfen nie verloren gehen.
     if len(shadows) > 300:
+        archive_shadow_trades(shadows[:-300])
         history["shadow_trades"] = shadows[-300:]
+
+
+SHADOW_ARCHIVE = Path("outputs/shadow_trades_archive.jsonl")
+
+
+def archive_shadow_trades(dropped: list[dict], path: Path | None = None) -> None:
+    """Hängt aus history.json verdrängte Schatten-Trades an das Archiv an (append-only)."""
+    path = path or SHADOW_ARCHIVE
+    if not dropped:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a") as f:
+        for t in dropped:
+            f.write(json.dumps(t, ensure_ascii=False, default=str) + "\n")
+    log.info(f"  {len(dropped)} Schatten-Trades nach {path} archiviert")
 
 
 # ── Counterfactual: von der Intelligence blockierte Champion-Trades ──────────
