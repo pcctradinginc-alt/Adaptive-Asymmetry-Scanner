@@ -222,6 +222,10 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
     policy = policy if policy is not None else hc.load_policy()
     ctx = context if context is not None else research_context(today)
     contracts = contracts if contracts is not None else hc.load()
+    # Nur Verträge der Champion-Population wirken hier; andere Populationen (z. B. FINAL_MC_SURVIVOR)
+    # werden ausschließlich in ihrem eigenen Ledger ausgewertet (modules/final_mc_ledger.py).
+    from modules.final_mc_ledger import CHAMPION_STAGE, stage_of
+    contracts = [c for c in contracts if stage_of(c) == CHAMPION_STAGE]
     active, problems = load_verified_state(state_path, contracts, registry, transitions)
     for pr in problems:
         log.warning(f"Adapter: {pr}")

@@ -150,7 +150,7 @@ class Reporter:
                     f"## {i}. {p['ticker']} – {p.get('strategy', '')}",
                     "",
                     f"**Richtung:** {p.get('direction', '')}  ",
-                    f"**FinalScore:** `{p.get('final_score', 0):.4f}`  ",
+                    f"**FinalScore (QuasiML, SHADOW – ohne Entscheidungswirkung):** `{p.get('final_score', 0):.4f}`  ",
                     f"**IV-Rank:** {p.get('iv_rank', 'N/A')}  ",
                     f"**Trade-Score:** {ts.get('total', 'N/A')}/100 — {ts.get('grade', '')}  ",
                     "",

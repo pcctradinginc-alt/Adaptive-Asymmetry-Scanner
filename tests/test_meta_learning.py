@@ -125,15 +125,6 @@ def test_lagged_calibration_uses_previous_fold_only(regime_case):
     assert cal["prob"].between(0, 1).all()
 
 
-def test_safe_mode_triggers_on_degradation():
-    idx = range(20)
-    a = pd.Series([-0.01 + 0.001 * (i % 3) for i in idx])
-    b = pd.Series([0.005] * 20)
-    assert meta.meta_fallback_check(a, b, 0.02)["fallback_to_reference"]
-    assert not meta.meta_fallback_check(b + 0.001 * pd.Series(range(20)) / 20, b, 0.02)["fallback_to_reference"]
-    assert meta.meta_fallback_check(b, b, 0.2)["fallback_to_reference"]
-
-
 def test_hc_rule_disabled_without_edge_and_uses_only_calibration_years():
     df, meta_d = meta.build_meta_frame(_synthetic_base(False, seed=5), ["A", "B"])
     res, _ = meta.meta_walk_forward(df, meta_d, ["A", "B"])

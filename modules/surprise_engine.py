@@ -274,54 +274,79 @@ def decide(base: dict, stress: dict, regimes: dict, lag: dict, rep: dict, bh_ok:
     return {"verdict": verdict, "reasons": reasons}
 
 
-# ── Gegenhypothese aus dem ersten Lauf (Nachregistrierung 2026-10-03, vor jeder Holdout-Auswertung) ──
+# ── Gegenhypothese S5 (Nachregistrierung 2026-10-03) – NUR prospektiver Locked Holdout ──
 # Befund Lauf 2026-10-03 (OOS 2019+): S3_reaction_only signifikant NEGATIV (t=-2,59, BH) ->
-# H_alt gewann. Laut Protokoll kein Vorzeichenwechsel auf denselben Daten, sondern eine NEUE
-# Hypothese, geprüft ausschließlich auf Daten, die bisher nie Testperiode waren:
+# H_alt gewann. Kein Vorzeichenwechsel auf denselben Daten, sondern eine NEUE Hypothese.
+# Alte Holdouts sind verbraucht (ML-Locked ab 2025-07: CONTAMINATED; Surprise-Daten vor 2019:
+# Trainingsfenster der S1–S4-Schwellen -> USED). S5 wird deshalb ausschließlich auf Meldungen
+# NACH der Registrierung geprüft – Zeitraum und Kriterien vorab gehasht (config/s5_forward_holdout.yaml),
+# genau eine Auswertung nach Ablauf aller Horizonte, davor nur Fallzahlen.
 REVERSAL_ID = "S5_reaction_reversal"
 REVERSAL_DESC = ("Earnings-Reaktion kehrt sich um: gegen die Richtung der abnormalen Reaktion positionieren "
-                 "(Gegenhypothese zu S3, Holdout = Jahre vor dem OOS-Start, nie Testperiode)")
+                 "(Gegenhypothese zu S3; prospektiver Locked Holdout, Meldungen ab Registrierung)")
+S5_SPEC = Path("config/s5_forward_holdout.yaml")
+USED_HOLDOUTS = {"ml_locked_from_2025-07-01": "CONTAMINATED/USED",
+                 f"surprise_years_before_{TEST_START_YEAR}": "USED (Trainingsfenster Lauf 1) – nie für S5"}
 
 
-def holdout_reversal(ev: pd.DataFrame, horizons=HORIZONS) -> dict:
-    """Replikation der Gegenhypothese NUR auf Jahren < TEST_START_YEAR. Keine Parameter (reines
-    Vorzeichen), daher kein Training nötig; zusätzlich Lag-Test und Universums-Hälften."""
-    ho = ev[ev["year"] < TEST_START_YEAR]
-    ho = ho[ho["react_z"].notna() & (ho["react_z"] != 0)]
-    out = {"description": REVERSAL_DESC, "holdout_years": sorted(int(y) for y in ho["year"].unique()),
-           "registered": "2026-10-03 nach Lauf 1, vor Holdout-Auswertung"}
-    for h in horizons:
-        sign = -np.sign(ho["react_z"])
-        tr = pd.DataFrame({"date": ho["date"], "signed": sign * ho[f"fwd_{h}"], "vix": ho["vix"],
-                           "trend_up": ho["trend_up"], "ticker": ho["ticker"]})
-        lag = pd.DataFrame({"date": ho["date"], "signed": sign * ho[f"lag_fwd_{h}"]})
-        base = trade_metrics(tr, COST_BASE_PER_SIDE)
-        out[f"h{h}"] = {"base_cost": base,
-                        "stress_cost": {k: trade_metrics(tr, COST_STRESS_PER_SIDE).get(k) for k in ("mean", "t_months")},
-                        "lag": {k: trade_metrics(lag, COST_BASE_PER_SIDE).get(k) for k in ("n", "mean", "t_months")},
-                        "replication": replication(tr), "regimes": regime_split(tr, COST_BASE_PER_SIDE),
-                        "p_value": _p_two_sided(base.get("t_months"))}
-    d = out.get(f"h{DECISION_H}") or {}
-    b = d.get("base_cost") or {}
+def s5_spec(path: Path | None = None) -> tuple[dict, str]:
+    import yaml
+    raw = (path or S5_SPEC).read_bytes()
+    return yaml.safe_load(raw), hashlib.sha256(raw).hexdigest()
+
+
+def s5_forward(ev: pd.DataFrame, today, spec: dict | None = None, spec_hash: str | None = None) -> dict:
+    """Prospektiver Locked Holdout. Vor evaluation_not_before: nur Anzahl gesammelter Meldungen
+    (keine Renditen, kein Zwischen-Look). Danach genau eine Auswertung nach den vorab gehashten
+    Kriterien. Ergebnis höchstens Vorschlag eines prospektiven Challengers."""
+    if spec is None:
+        spec, spec_hash = s5_spec()
+    today = pd.Timestamp(today).normalize()
+    d = pd.to_datetime(ev["date"]) if len(ev) else pd.Series(dtype="datetime64[ns]")
+    if getattr(d.dt, "tz", None) is not None:
+        d = d.dt.tz_localize(None)
+    win = ev[(d >= pd.Timestamp(spec["events_from"])) & (d <= pd.Timestamp(spec["events_until"]))] if len(ev) else ev
+    if len(win):
+        win = win[win["react_z"].notna() & (win["react_z"] != 0)]
+    out = {"id": spec["id"], "description": REVERSAL_DESC, "spec_hash": spec_hash,
+           "events_from": spec["events_from"], "events_until": spec["events_until"],
+           "evaluation_not_before": spec["evaluation_not_before"], "used_holdouts": USED_HOLDOUTS,
+           "n_events_collected": int(len(win))}
+    if today < pd.Timestamp(spec["evaluation_not_before"]):
+        out["status"] = "LOCKED"            # keine Rendite-Statistik vor dem einen geplanten Look
+        return out
+    h = int(spec["horizon_trading_days"])
+    sign = -np.sign(win["react_z"])
+    tr = pd.DataFrame({"date": win["date"], "signed": sign * win[f"fwd_{h}"], "vix": win["vix"],
+                       "trend_up": win["trend_up"], "ticker": win["ticker"]})
+    lag = pd.DataFrame({"date": win["date"], "signed": sign * win[f"lag_fwd_{h}"]})
+    base = trade_metrics(tr, COST_BASE_PER_SIDE)
+    stress = trade_metrics(tr, COST_STRESS_PER_SIDE)
+    lagm = trade_metrics(lag, COST_BASE_PER_SIDE)
+    rep = replication(tr)
+    c = spec["criteria"]
     reasons = []
-    core = (b.get("mean") or 0) > 0 and (b.get("t_months") or 0) >= 2.0
+    core = len(win) >= int(c["min_events"]) and (base.get("mean") or 0) > float(c["mean_base_cost_gt"]) \
+        and (base.get("t_months") or 0) >= float(c["t_months_min"])
     if not core:
-        reasons.append(f"Holdout-Mittel/t nicht ausreichend (mean={b.get('mean')}, t={b.get('t_months')})")
-    if not ((d.get("stress_cost") or {}).get("mean") or 0) > 0:
-        reasons.append("bei 25 bp/Seite nicht positiv")
-    if not ((d.get("lag") or {}).get("mean") or 0) > 0:
+        reasons.append(f"Kern nicht erfüllt (n={len(win)}, mean={base.get('mean')}, t={base.get('t_months')})")
+    if not (stress.get("mean") or 0) > float(c["stress_cost_mean_gt"]):
+        reasons.append("bei Stress-Kosten nicht positiv")
+    if not (lagm.get("mean") or 0) > float(c["lag_mean_gt"]):
         reasons.append("Lag-Test nicht positiv")
-    if not d.get("replication") or any(not ((v or {}).get("mean") or 0) > 0 for v in d["replication"].values()):
+    if c.get("replication_all_positive") and (not rep or any(not ((v or {}).get("mean") or 0) > 0
+                                                             for v in rep.values())):
         reasons.append("Replikation nicht durchgehend positiv")
-    # Holdout bestanden -> nur PROSPECTIVE-Kandidat (Forward entscheidet), nie Produktion
-    out["decision"] = {"verdict": "KEEP" if not reasons else ("MODIFY" if core else "REJECT"),
-                       "reasons": reasons,
-                       "next": ("als prospektiven Challenger vorschlagen (Forward entscheidet)" if not reasons
-                                else "verworfen bzw. weiter offen; Befund bleibt in der Research Memory")}
+    out.update(status="EVALUATED", h20={"base_cost": base, "stress_cost": {k: stress.get(k) for k in ("mean", "t_months")},
+                                        "lag": {k: lagm.get(k) for k in ("n", "mean", "t_months")},
+                                        "replication": rep},
+               decision={"verdict": "KEEP" if not reasons else ("MODIFY" if core else "REJECT"), "reasons": reasons,
+                         "next": "als prospektiven Challenger vorschlagen (PR)" if not reasons else
+                         "Befund in Research Memory; keine Wiederholung auf denselben Daten"})
     return out
 
 
-def evaluate(ev: pd.DataFrame, placebo_n: int = PLACEBO_N) -> dict:
+def evaluate(ev: pd.DataFrame, placebo_n: int = PLACEBO_N, today=None) -> dict:
     res = {"n_events": int(len(ev)), "n_tickers": int(ev["ticker"].nunique()) if len(ev) else 0,
            "period": [str(pd.to_datetime(ev["date"]).min().date()), str(pd.to_datetime(ev["date"]).max().date())]
            if len(ev) else None, "hypotheses": {}, "data_gaps": DATA_GAPS}
@@ -352,7 +377,7 @@ def evaluate(ev: pd.DataFrame, placebo_n: int = PLACEBO_N) -> dict:
         res["hypotheses"][name] = per
     ctrl = res["hypotheses"].get("S3_reaction_only", {}).get(f"h{DECISION_H}", {}).get("base_cost", {})
     res["control_mean"] = ctrl.get("mean")
-    res["counter_hypotheses"] = {REVERSAL_ID: holdout_reversal(ev)}
+    res["counter_hypotheses"] = {REVERSAL_ID: s5_forward(ev, today or pd.Timestamp.now("UTC").tz_localize(None))}
     return res
 
 
@@ -398,12 +423,15 @@ def render_md(res: dict) -> str:
         L.append(f"- **{name}** ({per['description']}): {d['verdict']}"
                  + (f" – {'; '.join(d['reasons'])}" if d["reasons"] else ""))
     for cid, c in (res.get("counter_hypotheses") or {}).items():
-        b = (c.get(f"h{DECISION_H}") or {}).get("base_cost") or {}
-        L += ["", f"## Gegenhypothese {cid} (Holdout {c.get('holdout_years')})", "", c.get("description", ""), "",
-              f"n={b.get('n')}, Mittel={b.get('mean')}, t={b.get('t_months')}, Jahre+={b.get('years_positive_share')} "
-              f"→ **{c['decision']['verdict']}**" + (f" – {'; '.join(c['decision']['reasons'])}"
-                                                    if c["decision"]["reasons"] else ""),
-              f"Nächster Schritt: {c['decision']['next']}"]
+        L += ["", f"## Gegenhypothese {cid} – prospektiver Locked Holdout {c.get('events_from')} bis "
+                  f"{c.get('events_until')}", "", c.get("description", ""), ""]
+        if c.get("status") == "LOCKED":
+            L.append(f"LOCKED: {c.get('n_events_collected')} Meldungen gesammelt; einzige Auswertung ab "
+                     f"{c.get('evaluation_not_before')} (spec_hash {str(c.get('spec_hash'))[:12]}). Keine Zwischen-Looks.")
+        else:
+            b = (c.get("h20") or {}).get("base_cost") or {}
+            L.append(f"n={b.get('n')}, Mittel={b.get('mean')}, t={b.get('t_months')} → **{c['decision']['verdict']}**"
+                     + (f" – {'; '.join(c['decision']['reasons'])}" if c["decision"]["reasons"] else ""))
     L += ["", "## Datenlücken (nie simuliert)", ""] + [f"- {g}" for g in res.get("data_gaps") or []]
     return "\n".join(L) + "\n"
 

@@ -103,7 +103,9 @@ def test_repo_contracts_valid_and_complete():
     cs = hc.load(ROOT / "config" / "promotion_hypotheses.yaml")
     assert len(cs) >= 5 and all(hc.validate(c, POLICY) == [] for c in cs)
     for c in cs:
-        assert c["production_class"] == "abstention" and c["maximum_initial_influence"] == "ABSTENTION_ONLY"
+        # Champion-Population: höchstens Abstinenz; andere Populationen (FINAL_MC_SURVIVOR): nie automatisch
+        expected = "ABSTENTION_ONLY" if c.get("eligible_stage") is None else "NONE"
+        assert c["production_class"] == "abstention" and c["maximum_initial_influence"] == expected
         assert set(hc.REQUIRED) <= set(c)
         h0, halt = hc.hypotheses_pair(c)
         assert h0.startswith("H0") and "REJECTED" in halt

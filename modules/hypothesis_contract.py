@@ -251,6 +251,32 @@ def validate(c: dict, policy: dict | None = None) -> list[str]:
     pc = c["promotion_criteria"]
     if not isinstance(pc, dict) or "delta_expectancy_min" not in pc:
         errs.append("promotion_criteria braucht delta_expectancy_min")
+    errs += validate_stage(c)
+    return errs
+
+
+ELIGIBLE_STAGES = ("CHAMPION_TRADE", "FINAL_MC_SURVIVOR")
+
+
+def validate_stage(c: dict) -> list[str]:
+    """Populations-Verträge (eligible_stage gesetzt) müssen ihre Population, den Horizont, die
+    Baseline innerhalb derselben Population und Cluster-Untergrenzen explizit festlegen. Ein
+    mitgespeicherter spec_hash muss zur Spezifikation passen. v1-Verträge ohne Feld: unverändert."""
+    st = c.get("eligible_stage")
+    if st is None:
+        return []
+    errs = []
+    if st not in ELIGIBLE_STAGES:
+        errs.append(f"eligible_stage unbekannt: {st}")
+    for f in ("population_definition", "horizon_days", "baseline", "minimum_independent_event_clusters"):
+        if c.get(f) in (None, "", []):
+            errs.append(f"Pflichtfeld für Populations-Vertrag fehlt: {f}")
+    if c.get("baseline_population") != st:
+        errs.append("baseline_population muss gleich eligible_stage sein (Vergleich nur innerhalb der Population)")
+    if (c.get("promotion_criteria") or {}).get("min_fired_event_clusters") is None:
+        errs.append("promotion_criteria braucht min_fired_event_clusters")
+    if c.get("spec_hash") and c["spec_hash"] != spec_hash(c):
+        errs.append("gespeicherter spec_hash passt nicht zur Spezifikation")
     return errs
 
 

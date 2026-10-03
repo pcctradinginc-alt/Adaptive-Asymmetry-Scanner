@@ -203,3 +203,351 @@ contracts:
     op: '>'
     value: 30
   failure_condition: Blockierte Trades nicht schlechter als durchgelassene
+
+# ── v2: Population FINAL_MC_SURVIVOR (registriert 2026-10-03, vor jeder Forward-Beobachtung) ──
+# Neue wissenschaftliche Fragestellung: gleiche Regeln, andere Population -> neue Version.
+# v1 (Champion-Trades) bleibt unverändert. Evidenz nur triggered vs. non-triggered innerhalb
+# der Final-MC-Survivors; nie mit Champion-Evidenz verrechnet; kein automatischer Einfluss.
+- version: 2
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T20:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Forward-Evidenz Final-MC-Population; v1 unverändert)
+  universe: Final-MC-Survivors der Produktionspipeline (pipeline.py Stufe 8), unabhängig von RL-, Options-, ROI-, Score-, Korrelations- und Adapter-Entscheidung
+  population: Final-MC-Survivors (US-Aktien S&P 500/Nasdaq-100) – NICHT Champion-Trades
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: NONE
+  outcome_horizon: 45 Kalendertage ab Schlusskurs des Signaltags (sekundär 20/60 T, nur beschreibend)
+  primary_metric: Richtungsrendite des Basiswerts (underlying_close_daily) – Δ Expectancy nicht getroffener Survivors vs. alle Survivors
+  secondary_metrics:
+  - win_rate
+  - median_return
+  - profit_factor
+  - mfe
+  - mae
+  - downside_tail_10pct
+  - avoided_loss_potential
+  - triggered_minus_non_triggered
+  baseline: Alle Final-MC-Survivors derselben Periode (triggered vs. non-triggered innerhalb dieser Population)
+  minimum_sample_size: 150
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 30
+    min_fired_independent_dates: 10
+    min_fired_event_clusters: 15
+  demotion_criteria:
+    rolling_window_observations: 30
+    abstention_net_value_min: 0.0
+    rolling_expectancy_blocked_max: 0.0
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  hypothesis_id: PROM-ABST-001
+  title: Safe Mode aktiv -> Champion-Trade abstinieren (Final-MC-Survivors)
+  source_type: model_drift
+  research_question: 'Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors, die bei aktivem Safe Mode (Feature-/Datendrift, Regime außerhalb Trainingsbereich) vorgeschlagen werden, schlechter als die übrigen?'
+  economic_rationale: Safe Mode zeigt an, dass die Research-Modelle außerhalb ihres Trainingsbereichs sind; Gleiches gilt für Kalibrierung und Marktumfeld der Champion-Signale.
+  exposure: Gesamtmarkt (Regime-/Datendrift)
+  signal_definition: safe_mode_active
+  features:
+  - safe_mode_active
+  thresholds:
+    op: '>='
+    value: 1
+  failure_condition: Getroffene Survivors haben Expectancy >= nicht getroffene ODER CI (Signaltage UND Ereignis-Cluster) schließt 0 ein
+  eligible_stage: FINAL_MC_SURVIVOR
+  baseline_population: FINAL_MC_SURVIVOR
+  population_definition: Jeder Kandidat, der in einem Scanner-Lauf ab forward_start den Final-MC-Gate (Stufe 8) besteht; eine Beobachtung je Lauf und Ticker; Vertragsauswertung eingefroren zum Survivor-Zeitpunkt
+    (modules/final_mc_ledger.py)
+  horizon_days: 45
+  minimum_independent_event_clusters: 80
+  sequential_design: Bonferroni über Familie abstention@FINAL_MC_SURVIVOR x 12 geplante Looks (Intervall 28 T), einseitig; Block-Bootstrap über Signaltage UND Ereignis-Cluster, beide Untergrenzen > 0; keine
+    Entscheidung vor Mindest-N/Cluster/Spanne
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand zum vorigen Signal = ein Ereignis
+  spec_hash: 19003950685f938cd5db03af77c83aefec8e275182b76c0e36159b3192316d7f
+- version: 2
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T20:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Forward-Evidenz Final-MC-Population; v1 unverändert)
+  universe: Final-MC-Survivors der Produktionspipeline (pipeline.py Stufe 8), unabhängig von RL-, Options-, ROI-, Score-, Korrelations- und Adapter-Entscheidung
+  population: Final-MC-Survivors (US-Aktien S&P 500/Nasdaq-100) – NICHT Champion-Trades
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: NONE
+  outcome_horizon: 45 Kalendertage ab Schlusskurs des Signaltags (sekundär 20/60 T, nur beschreibend)
+  primary_metric: Richtungsrendite des Basiswerts (underlying_close_daily) – Δ Expectancy nicht getroffener Survivors vs. alle Survivors
+  secondary_metrics:
+  - win_rate
+  - median_return
+  - profit_factor
+  - mfe
+  - mae
+  - downside_tail_10pct
+  - avoided_loss_potential
+  - triggered_minus_non_triggered
+  baseline: Alle Final-MC-Survivors derselben Periode (triggered vs. non-triggered innerhalb dieser Population)
+  minimum_sample_size: 150
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 30
+    min_fired_independent_dates: 10
+    min_fired_event_clusters: 15
+  demotion_criteria:
+    rolling_window_observations: 30
+    abstention_net_value_min: 0.0
+    rolling_expectancy_blocked_max: 0.0
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  hypothesis_id: PROM-ABST-002
+  title: Hohe Modelluneinigkeit -> abstinieren (Final-MC-Survivors)
+  source_type: meta_learning_failure
+  research_question: 'Population FINAL_MC_SURVIVOR: Haben Final-MC-Survivors in Titeln mit hoher ML-Modelluneinigkeit (oberstes Dezil der Querschnittsverteilung, Schwelle 0.36 aus Verteilung 2026-10-02,
+    ohne Outcome-Sicht) eine niedrigere Expectancy?'
+  economic_rationale: Uneinigkeit der Basismodelle = epistemische Unsicherheit; Optionstrades auf unsichere Titel tragen höheres Fehlbewertungsrisiko.
+  exposure: Einzeltitel (ML-Karte)
+  signal_definition: ml_disagreement_sd
+  features:
+  - ml_disagreement_sd
+  thresholds:
+    op: '>'
+    value: 0.36
+  failure_condition: Getroffene Survivors haben Expectancy >= nicht getroffene ODER CI (Signaltage UND Ereignis-Cluster) schließt 0 ein
+  eligible_stage: FINAL_MC_SURVIVOR
+  baseline_population: FINAL_MC_SURVIVOR
+  population_definition: Jeder Kandidat, der in einem Scanner-Lauf ab forward_start den Final-MC-Gate (Stufe 8) besteht; eine Beobachtung je Lauf und Ticker; Vertragsauswertung eingefroren zum Survivor-Zeitpunkt
+    (modules/final_mc_ledger.py)
+  horizon_days: 45
+  minimum_independent_event_clusters: 80
+  sequential_design: Bonferroni über Familie abstention@FINAL_MC_SURVIVOR x 12 geplante Looks (Intervall 28 T), einseitig; Block-Bootstrap über Signaltage UND Ereignis-Cluster, beide Untergrenzen > 0; keine
+    Entscheidung vor Mindest-N/Cluster/Spanne
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand zum vorigen Signal = ein Ereignis
+  spec_hash: 43ef8a94241e20bd3241d199dfedd4aaac446d7012ee432bb15c882a86c7fabd
+- version: 2
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T20:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Forward-Evidenz Final-MC-Population; v1 unverändert)
+  universe: Final-MC-Survivors der Produktionspipeline (pipeline.py Stufe 8), unabhängig von RL-, Options-, ROI-, Score-, Korrelations- und Adapter-Entscheidung
+  population: Final-MC-Survivors (US-Aktien S&P 500/Nasdaq-100) – NICHT Champion-Trades
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: NONE
+  outcome_horizon: 45 Kalendertage ab Schlusskurs des Signaltags (sekundär 20/60 T, nur beschreibend)
+  primary_metric: Richtungsrendite des Basiswerts (underlying_close_daily) – Δ Expectancy nicht getroffener Survivors vs. alle Survivors
+  secondary_metrics:
+  - win_rate
+  - median_return
+  - profit_factor
+  - mfe
+  - mae
+  - downside_tail_10pct
+  - avoided_loss_potential
+  - triggered_minus_non_triggered
+  baseline: Alle Final-MC-Survivors derselben Periode (triggered vs. non-triggered innerhalb dieser Population)
+  minimum_sample_size: 150
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 30
+    min_fired_independent_dates: 10
+    min_fired_event_clusters: 15
+  demotion_criteria:
+    rolling_window_observations: 30
+    abstention_net_value_min: 0.0
+    rolling_expectancy_blocked_max: 0.0
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  hypothesis_id: PROM-ABST-003
+  title: Blind-Spot-Sektor -> abstinieren (Final-MC-Survivors)
+  source_type: blind_spot
+  research_question: 'Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil
+    ausweist, schlechter?'
+  economic_rationale: Systematische große Fehlprognosen des Research-Ensembles in einem Sektor deuten auf ein nicht modelliertes Risiko hin, das auch Katalysator-Trades betrifft.
+  exposure: Sektor
+  signal_definition: blind_spot_sector_match
+  features:
+  - blind_spot_sector_match
+  thresholds:
+    op: '>='
+    value: 1
+  failure_condition: Getroffene Survivors haben Expectancy >= nicht getroffene ODER CI (Signaltage UND Ereignis-Cluster) schließt 0 ein
+  eligible_stage: FINAL_MC_SURVIVOR
+  baseline_population: FINAL_MC_SURVIVOR
+  population_definition: Jeder Kandidat, der in einem Scanner-Lauf ab forward_start den Final-MC-Gate (Stufe 8) besteht; eine Beobachtung je Lauf und Ticker; Vertragsauswertung eingefroren zum Survivor-Zeitpunkt
+    (modules/final_mc_ledger.py)
+  horizon_days: 45
+  minimum_independent_event_clusters: 80
+  sequential_design: Bonferroni über Familie abstention@FINAL_MC_SURVIVOR x 12 geplante Looks (Intervall 28 T), einseitig; Block-Bootstrap über Signaltage UND Ereignis-Cluster, beide Untergrenzen > 0; keine
+    Entscheidung vor Mindest-N/Cluster/Spanne
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand zum vorigen Signal = ein Ereignis
+  spec_hash: 2e218e2cb15b3b578984284da05db2ba65642d89e05d7a5653b2ed87652c1da3
+- version: 2
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T20:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Forward-Evidenz Final-MC-Population; v1 unverändert)
+  universe: Final-MC-Survivors der Produktionspipeline (pipeline.py Stufe 8), unabhängig von RL-, Options-, ROI-, Score-, Korrelations- und Adapter-Entscheidung
+  population: Final-MC-Survivors (US-Aktien S&P 500/Nasdaq-100) – NICHT Champion-Trades
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: NONE
+  outcome_horizon: 45 Kalendertage ab Schlusskurs des Signaltags (sekundär 20/60 T, nur beschreibend)
+  primary_metric: Richtungsrendite des Basiswerts (underlying_close_daily) – Δ Expectancy nicht getroffener Survivors vs. alle Survivors
+  secondary_metrics:
+  - win_rate
+  - median_return
+  - profit_factor
+  - mfe
+  - mae
+  - downside_tail_10pct
+  - avoided_loss_potential
+  - triggered_minus_non_triggered
+  baseline: Alle Final-MC-Survivors derselben Periode (triggered vs. non-triggered innerhalb dieser Population)
+  minimum_sample_size: 150
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 30
+    min_fired_independent_dates: 10
+    min_fired_event_clusters: 15
+  demotion_criteria:
+    rolling_window_observations: 30
+    abstention_net_value_min: 0.0
+    rolling_expectancy_blocked_max: 0.0
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  hypothesis_id: PROM-ABST-004
+  title: Hohes erwartetes ML-Drawdown -> abstinieren (Final-MC-Survivors)
+  source_type: unknown_unknown
+  research_question: 'Population FINAL_MC_SURVIVOR: Haben Final-MC-Survivors in Titeln mit sehr hohem erwartetem 60-Tage-Drawdown laut ML-Karte (schlechtestes Dezil, Schwelle -0.114 aus Verteilung, ohne
+    Outcome-Sicht) eine niedrigere Expectancy?'
+  economic_rationale: Hohe erwartete Abwärtsbewegung verteuert/entwertet Long-Optionen über die Haltedauer.
+  exposure: Einzeltitel (ML-Karte)
+  signal_definition: ml_exp_dd_60
+  features:
+  - ml_exp_dd_60
+  thresholds:
+    op: <
+    value: -0.114
+  failure_condition: Getroffene Survivors haben Expectancy >= nicht getroffene ODER CI (Signaltage UND Ereignis-Cluster) schließt 0 ein
+  eligible_stage: FINAL_MC_SURVIVOR
+  baseline_population: FINAL_MC_SURVIVOR
+  population_definition: Jeder Kandidat, der in einem Scanner-Lauf ab forward_start den Final-MC-Gate (Stufe 8) besteht; eine Beobachtung je Lauf und Ticker; Vertragsauswertung eingefroren zum Survivor-Zeitpunkt
+    (modules/final_mc_ledger.py)
+  horizon_days: 45
+  minimum_independent_event_clusters: 80
+  sequential_design: Bonferroni über Familie abstention@FINAL_MC_SURVIVOR x 12 geplante Looks (Intervall 28 T), einseitig; Block-Bootstrap über Signaltage UND Ereignis-Cluster, beide Untergrenzen > 0; keine
+    Entscheidung vor Mindest-N/Cluster/Spanne
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand zum vorigen Signal = ein Ereignis
+  spec_hash: 18b446974ab14e6090fa07d79571921746ef24dd0a734e76617892161826f52e
+- version: 2
+  created_at: '2026-10-03'
+  registered_at: '2026-10-03T20:00:00Z'
+  forward_start: '2026-10-05T00:00:00Z'
+  created_by: claude-code (Forward-Evidenz Final-MC-Population; v1 unverändert)
+  universe: Final-MC-Survivors der Produktionspipeline (pipeline.py Stufe 8), unabhängig von RL-, Options-, ROI-, Score-, Korrelations- und Adapter-Entscheidung
+  population: Final-MC-Survivors (US-Aktien S&P 500/Nasdaq-100) – NICHT Champion-Trades
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: NONE
+  outcome_horizon: 45 Kalendertage ab Schlusskurs des Signaltags (sekundär 20/60 T, nur beschreibend)
+  primary_metric: Richtungsrendite des Basiswerts (underlying_close_daily) – Δ Expectancy nicht getroffener Survivors vs. alle Survivors
+  secondary_metrics:
+  - win_rate
+  - median_return
+  - profit_factor
+  - mfe
+  - mae
+  - downside_tail_10pct
+  - avoided_loss_potential
+  - triggered_minus_non_triggered
+  baseline: Alle Final-MC-Survivors derselben Periode (triggered vs. non-triggered innerhalb dieser Population)
+  minimum_sample_size: 150
+  minimum_independent_dates: 30
+  minimum_calendar_span: 90
+  sector_scope:
+  - all
+  regime_scope:
+  - all
+  promotion_criteria:
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 30
+    min_fired_independent_dates: 10
+    min_fired_event_clusters: 15
+  demotion_criteria:
+    rolling_window_observations: 30
+    abstention_net_value_min: 0.0
+    rolling_expectancy_blocked_max: 0.0
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+  hypothesis_id: PROM-ABST-005
+  title: VIX > 30 -> abstinieren (Final-MC-Survivors)
+  source_type: regime_failure
+  research_question: 'Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?'
+  economic_rationale: Im Stressregime sind implizite Volatilitäten hoch (teure Long-Optionen) und Katalysator-Signale werden vom Marktfaktor überlagert.
+  exposure: Marktregime
+  signal_definition: vix
+  features:
+  - vix
+  thresholds:
+    op: '>'
+    value: 30
+  failure_condition: Getroffene Survivors haben Expectancy >= nicht getroffene ODER CI (Signaltage UND Ereignis-Cluster) schließt 0 ein
+  eligible_stage: FINAL_MC_SURVIVOR
+  baseline_population: FINAL_MC_SURVIVOR
+  population_definition: Jeder Kandidat, der in einem Scanner-Lauf ab forward_start den Final-MC-Gate (Stufe 8) besteht; eine Beobachtung je Lauf und Ticker; Vertragsauswertung eingefroren zum Survivor-Zeitpunkt
+    (modules/final_mc_ledger.py)
+  horizon_days: 45
+  minimum_independent_event_clusters: 80
+  sequential_design: Bonferroni über Familie abstention@FINAL_MC_SURVIVOR x 12 geplante Looks (Intervall 28 T), einseitig; Block-Bootstrap über Signaltage UND Ereignis-Cluster, beide Untergrenzen > 0; keine
+    Entscheidung vor Mindest-N/Cluster/Spanne
+  cluster_definition: gleicher Ticker mit <= 10 Kalendertagen Abstand zum vorigen Signal = ein Ereignis
+  spec_hash: be8fd677154432e6c4ee2db63b8f1798a3461b48a96a7234df313b5b2727d845

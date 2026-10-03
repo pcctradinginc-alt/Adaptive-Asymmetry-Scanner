@@ -1,0 +1,36 @@
+# config/s5_forward_holdout.yaml – NEUER, unangetasteter Locked Holdout für S5 (GESCHÜTZT)
+#
+# Registriert 2026-10-03 VOR jeder Auswertung. SHA-256 dieser Datei ist in
+# tests/test_surprise_engine.py gepinnt; jede Änderung ist sichtbar.
+#
+# Warum neu: Alte Holdouts sind verbraucht und dürfen nicht mehr zur Auswahl von S5
+# oder anderer Varianten dienen:
+#   * ML-Locked-Holdout ab 2025-07-01: CONTAMINATED/USED (28x ausgewertet, research_protocol.yaml)
+#   * Surprise-Daten vor 2019: USED (Trainingsfenster der S1–S4-Schwellen in Lauf 1;
+#     S5 wurde nach Sicht auf das S3-Ergebnis formuliert) – S5 wird dort NICHT ausgewertet.
+#
+# Daher: ausschließlich Earnings-Meldungen NACH der Registrierung (prospektiv). Genau EINE
+# Auswertung nach Ablauf aller Horizonte; davor werden nur Fallzahlen gezählt, keine
+# Renditen (kein Zwischen-Look, kein Alpha-Spending nötig).
+
+id: S5_reaction_reversal@forward-v1
+registered_at: "2026-10-03T20:30:00Z"
+hypothesis: >-
+  Gegen die Richtung der abnormalen Earnings-Reaktion (react_z) positionieren erzielt über
+  20 Handelstage nach Kosten eine positive Überrendite ggü. SPY (Gegenhypothese zu S3).
+signal: "-sign(react_z), react_z != 0"
+universe: research_universe (PIT-Mitgliedschaft am Meldetag)
+events_from: "2026-10-05"          # Meldetag (Reaktionstag) >= dieses Datum
+events_until: "2027-10-04"         # Meldetag <= dieses Datum
+horizon_trading_days: 20
+evaluation_not_before: "2027-11-15"   # alle h20-Outcomes vollständig (+ Puffer)
+costs: base_per_side_from_research_protocol
+criteria:                          # alle müssen erfüllt sein -> KEEP (nur Vorschlag, Forward-Challenger)
+  min_events: 300
+  mean_base_cost_gt: 0.0
+  t_months_min: 2.0
+  stress_cost_mean_gt: 0.0
+  lag_mean_gt: 0.0                 # Einstieg 5 Handelstage später
+  replication_all_positive: true   # Universums-Hälften
+failure: "Mittel <= 0 oder t < 2 -> REJECT; sonst bei fehlendem Robustheitskriterium MODIFY (keine Wiederholung auf denselben Daten)"
+looks: 1

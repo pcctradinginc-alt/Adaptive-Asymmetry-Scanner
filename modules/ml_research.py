@@ -56,7 +56,8 @@ PROTOCOL = load_protocol()
 OUT_DIR = Path("outputs/research")
 PRED_DIR = OUT_DIR / "ml_predictions"
 REGISTRY_LOG = OUT_DIR / "ml_registry_log.json"
-SECTOR_CACHE = OUT_DIR / "sector_map.json"
+SECTOR_CACHE = OUT_DIR / "sector_map.json"            # aktueller Sektor (Referenz, NICHT point-in-time)
+SECTOR_HISTORY = OUT_DIR / "sector_history.jsonl"     # zeitgestempelte Beobachtungen (point-in-time)
 
 LABEL_HORIZONS = (20, 60)
 TRAIN_START = PROTOCOL["periods"]["train_start"]
@@ -175,6 +176,8 @@ def macro_features(observations, dates: list[pd.Timestamp]) -> pd.DataFrame:
 def build_panel(frames: dict[str, pd.DataFrame], spy: pd.DataFrame, vix=None, tnx=None, irx=None,
                 macro_obs=None, extra_dates=(), sectors: dict | None = None,
                 start: str = "2014-06-01", membership: dict | None = None) -> pd.DataFrame:
+    """sectors: {ticker: [(observed_at, sector), ...]} (point-in-time). Ein Sektor gilt erst ab dem
+    Tag, an dem er beobachtet wurde; davor 'unknown' (nie heutiger Sektor rückwirkend)."""
     """Historische Trainingsmatrix: eine Zeile je (Stichtag, Ticker).
     membership {ticker: [[start,end],...]}: nur Zeilen, an deren Stichtag der
     Titel Indexmitglied war (Point-in-Time-Universum, Audit F01). Die
@@ -205,7 +208,7 @@ def build_panel(frames: dict[str, pd.DataFrame], spy: pd.DataFrame, vix=None, tn
     p = p.join(mk, on="date")
     mac = macro_features(macro_obs, dates)
     p = p.join(mac, on="date")
-    p["sector"] = p["ticker"].map(sectors or {}).fillna("unknown")
+    p["sector"] = pit_sector(p, sectors or {})
     # Querschnitts-Ränge (-0.5..0.5) je Stichtag: robust gegen Niveau-Drift
     for col in STOCK_FEATURES:
         p[col] = p.groupby("date")[col].rank(pct=True) - 0.5
@@ -929,6 +932,106 @@ def fetch_data(tickers: list[str], start: str = "2014-01-01"):
         series["^TNX"]["Close"], series["^IRX"]["Close"]
 
 
+def survivorship_report(panel: pd.DataFrame, membership: dict, label: str = "fwd_xs_20") -> dict:
+    """Quantifiziert den verbleibenden Survivorship-Bias (Kurse delisteter Titel fehlen bei Yahoo):
+    Anteil der Indexmitglieder je Stichtag ohne Panelzeile und eine Worst-Case-Schranke für das
+    Querschnittsmittel, falls die fehlenden Titel am 10-%-Quantil gelegen hätten."""
+    from modules.universe import is_member
+    if panel.empty or not membership:
+        return {"available": False}
+    present = panel.groupby("date")["ticker"].apply(set)
+    rows = []
+    for d, have in present.items():
+        ds = str(pd.Timestamp(d).date())
+        members = {t for t, iv in membership.items() if is_member(iv, ds)}
+        if not members:
+            continue
+        miss = len(members - have) / len(members)
+        x = panel.loc[panel["date"] == d, label].dropna() if label in panel else pd.Series(dtype=float)
+        shift = miss * (float(x.quantile(0.10)) - float(x.mean())) if len(x) >= 20 else None
+        rows.append((pd.Timestamp(d).year, miss, shift))
+    if not rows:
+        return {"available": False}
+    df = pd.DataFrame(rows, columns=["year", "missing", "shift"])
+    return {"available": True, "label": label,
+            "mean_missing_member_share": _r(float(df["missing"].mean()), 4),
+            "max_missing_member_share": _r(float(df["missing"].max()), 4),
+            "missing_share_by_year": {int(y): _r(float(g["missing"].mean()), 4) for y, g in df.groupby("year")},
+            "worst_case_xs_mean_shift": _r(float(df["shift"].dropna().mean()), 5) if df["shift"].notna().any() else None,
+            "note": "Schranke: fehlende Mitglieder am 10-%-Quantil des Stichtags; verschiebt das Querschnittsmittel "
+                    "(Benchmark der Top-Dezil-Rendite) um diesen Betrag – Top-Dezil-Überrenditen darunter sind "
+                    "nicht von Survivorship unterscheidbar"}
+
+
+def pit_sector(p: pd.DataFrame, history: dict) -> pd.Series:
+    """Sektor je (date, ticker) = letzte Beobachtung mit observed_at <= date; sonst 'unknown'."""
+    out = pd.Series("unknown", index=p.index, dtype=object)
+    for t, idx in p.groupby("ticker").groups.items():
+        obs = sorted((pd.Timestamp(d), sec) for d, sec in (history.get(t) or []) if sec)
+        if not obs:
+            continue
+        dates = p.loc[idx, "date"]
+        for i, d in zip(idx, dates):
+            cur = None
+            for od, sec in obs:
+                if od <= d:
+                    cur = sec
+                else:
+                    break
+            if cur:
+                out.at[i] = cur
+    return out
+
+
+def read_sector_history(path: Path | None = None) -> dict:
+    path = path or SECTOR_HISTORY
+    h: dict[str, list] = {}
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                r = json.loads(line)
+                h.setdefault(r["ticker"], []).append((r["observed_at"], r["sector"]))
+    return h
+
+
+def record_sector_observations(obs: list[dict], path: Path | None = None) -> int:
+    """Append-only; je (ticker, sector) nur die ERSTE Beobachtung (frühester bekannter Zeitpunkt)."""
+    path = path or SECTOR_HISTORY
+    have = {(t, s) for t, v in read_sector_history(path).items() for _, s in v}
+    new = [o for o in obs if o.get("sector") and (o["ticker"], o["sector"]) not in have]
+    new.sort(key=lambda o: o["observed_at"])
+    seen = set()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as fh:
+        for o in new:
+            if (o["ticker"], o["sector"]) in seen:
+                continue
+            seen.add((o["ticker"], o["sector"]))
+            fh.write(json.dumps({k: o[k] for k in ("ticker", "sector", "observed_at", "source")}) + "\n")
+    return len(seen)
+
+
+def sector_history(tickers: list[str], budget_s: float = 600.0, today: str | None = None) -> dict:
+    """Point-in-time-Sektoren: Candidate-Ledger (Entscheidungsdatum = exakt PIT), danach aktueller
+    Abruf (sector_map) mit Abrufdatum als observed_at. Nie rückwirkend."""
+    today = today or datetime.now(timezone.utc).date().isoformat()
+    obs = []
+    for p in sorted(Path("outputs/candidate_ledger").glob("*.jsonl")):
+        for line in p.read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            sec = (r.get("features") or {}).get("sector")
+            if sec and r.get("ticker") and r.get("date"):
+                obs.append({"ticker": r["ticker"], "sector": sec, "observed_at": str(r["date"])[:10],
+                            "source": "candidate_ledger"})
+    for t, sec in sector_map(tickers, budget_s).items():
+        obs.append({"ticker": t, "sector": sec, "observed_at": today, "source": "sector_map_retrieval"})
+    record_sector_observations(obs)
+    return read_sector_history()
+
+
 def sector_map(tickers: list[str], budget_s: float = 600.0) -> dict:
     """Sektor je Ticker: Cache -> Candidate-Ledger -> yfinance-Info (Budget)."""
     import time
@@ -1062,8 +1165,9 @@ def build_research_panel(mode: str = "full") -> pd.DataFrame:
                           "n_removed_since_start": len(removed), "n_removed_with_prices": len(with_data),
                           "removed_price_coverage": _r(len(with_data) / len(removed), 3) if removed else None,
                           "residual_bias": "entfernte Titel ohne Yahoo-Kurse fehlen weiterhin",
-                          "sector_assignment": "heutiger Sektor (yfinance), NICHT point-in-time – Bias für "
-                                               "Sektor-Cluster, Sektor-Attribution und Sektorkappe (Audit P2-3)"})
+                          "sector_assignment": "point-in-time: Sektor erst ab erster Beobachtung (Candidate-"
+                                               "Ledger/Abrufdatum, outputs/research/sector_history.jsonl); davor "
+                                               "'unknown' – historische Sektor-Attribution daher meist unknown"})
     log.info(f"ml_research: PIT-Universum {len(tickers)} Titel, davon {len(removed)} entfernt "
              f"({len(with_data)} mit Kursen)")
     now = datetime.now(timezone.utc)
@@ -1072,9 +1176,11 @@ def build_research_panel(mode: str = "full") -> pd.DataFrame:
     log.info(f"ml_research: {len(frames)}/{len(tickers)} Ticker geladen")
     pred_dates = {r["prediction_date"] for r in _read_predictions()}
     panel = build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
-                        sectors=sector_map(tickers) if mode == "full" else
-                        (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}),
+                        sectors=sector_history(tickers) if mode == "full" else read_sector_history(),
                         membership=uni["intervals"])
+    if not panel.empty:
+        UNIVERSE_INFO["sector_pit_coverage"] = _r(float((panel["sector"] != "unknown").mean()), 4)
+        UNIVERSE_INFO["survivorship"] = survivorship_report(panel, uni["intervals"])
     from modules.alt_data.feature_store import attach    # SHADOW-Spalten; nicht in ALL_FEATURES
     return attach(panel) if not panel.empty else panel
 

@@ -41,6 +41,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Paper-Performance + Kalibrierung (in-sample Bänder, prequential OOS-Güte)
+        continue-on-error: true
+        run: python scripts/paper_performance_analysis.py
+
       - name: Kernfrage-Ketten (Unklarheit -> Erklärung -> Daten -> Forward -> Verhalten)
         continue-on-error: true
         run: python -m modules.inquiry
@@ -69,7 +73,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p outputs/state
-          git add outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl outputs/research/inquiry_chains.json 2>/dev/null || git add outputs/reports/ outputs/state/
+          git add outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl outputs/research/inquiry_chains.json outputs/research/paper_performance_analysis.json outputs/research/paper_performance_analysis.md 2>/dev/null || git add outputs/reports/ outputs/state/
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: weekly report $(date -u +%Y-%m-%dT%H:%M)"
           git stash --include-untracked || true

@@ -712,23 +712,6 @@ def promotion_gate(res: pd.DataFrame, meta: str, ref: str, pos_meta: pd.DataFram
             "reasons": [k for k, c in crit.items() if not c["pass"]]}
 
 
-def meta_fallback_check(forward_meta: pd.Series, forward_ref: pd.Series, ece: float | None) -> dict:
-    """S: Degradation nach Promotion -> Rückfall des Meta-Modells auf die Referenz.
-    NICHT der System-Safe-Mode (kanonisch nur modules/system_state.py); bisher ohne
-    Produktionsaufrufer, da Meta-Learning nicht promotet ist."""
-    sm = MP["safe_mode"]
-    d = (forward_meta - forward_ref).dropna().tail(sm["window_cohorts"])
-    reasons = []
-    if len(d) >= sm["window_cohorts"]:
-        sd = d.std(ddof=1)
-        t = d.mean() / sd * math.sqrt(len(d)) if sd > 0 else 0.0
-        if t <= sm["max_delta_t"]:
-            reasons.append(f"Meta schlechter als Referenz (t={t:.2f} über {len(d)} Kohorten)")
-    if ece is not None and ece > sm["max_ece"]:
-        reasons.append(f"Kalibrierungsfehler ECE {ece:.3f} > {sm['max_ece']}")
-    return {"fallback_to_reference": bool(reasons), "reasons": reasons}
-
-
 def calibrate_hc_rule(cal: pd.DataFrame, res: pd.DataFrame, score: str, use_agreement: bool) -> dict:
     """I: Schwellen nur auf Kalibrierjahren (alle Dev-Jahre außer dem letzten)
     wählen; Validierung auf letztem Dev-Jahr + Locked. Regel nur aktiv, wenn die
