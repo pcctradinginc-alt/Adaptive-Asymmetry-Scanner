@@ -180,3 +180,19 @@ def test_feature_store_attach_holiday_week_uses_earlier_cutoff_only(tmp_path):
     assert out["sec_insider_buy_value_90d"].iloc[0] == 1.0          # Gründonnerstag: Vorwoche, nie 29.03.
     assert out["sec_insider_buy_value_90d"].iloc[1] == 2.0
     assert np.isnan(out["sec_insider_buy_value_90d"].iloc[2]) and out["alt_sec_available"].iloc[2] == 0.0
+
+
+def test_attach_handles_datetime_unit_mismatch_and_never_breaks(tmp_path, monkeypatch):
+    """CI 2026-10-03: Panel M8[s] vs. Feature-Datei M8[us] -> MergeError brach den ML-Lauf ab."""
+    pd.DataFrame({"date": ["2024-03-22"], "ticker": ["A"], "sec_insider_buy_value_90d": [1.5],
+                  "alt_sec_available": [1.0]}).to_csv(tmp_path / "f.csv.gz", index=False, compression="gzip")
+    src = {"s": {"features": ["sec_insider_buy_value_90d"], "availability_col": "alt_sec_available",
+                 "path": str(tmp_path / "f.csv.gz")}}
+    panel = pd.DataFrame({"date": pd.to_datetime(["2024-03-22", "2024-03-29"]).astype("datetime64[s]"),
+                          "ticker": ["A", "A"], "x": [1, 2]})
+    out = fs.attach(panel, src)
+    assert out["sec_insider_buy_value_90d"].iloc[0] == 1.5 and out["date"].dtype == panel["date"].dtype
+    assert list(out["x"]) == [1, 2]
+    monkeypatch.setattr(fs, "_attach_one", lambda *a, **k: (_ for _ in ()).throw(ValueError("kaputt")))
+    safe = fs.attach(panel, src)                                       # Fehler -> NaN, nie Abbruch
+    assert safe["sec_insider_buy_value_90d"].isna().all() and (safe["alt_sec_available"] == 0).all()

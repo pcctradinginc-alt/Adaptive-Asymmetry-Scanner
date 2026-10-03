@@ -219,3 +219,23 @@ def test_vectorized_features_equal_reference():
     ref = pd.DataFrame([sf.features_for("1", d, ins, fil, cov, since) for d in dates])[list(sf.FEATURES)]
     pd.testing.assert_frame_equal(fast[list(sf.FEATURES)], ref, check_exact=False, rtol=1e-9, atol=1e-9)
     assert ref.notna().any().all()
+
+
+def test_form345_links_discovered_from_official_index(tmp_path, monkeypatch):
+    """CI 2026-10-03: fester URL-Aufbau -> 404 für alle Quartale. Links kommen jetzt von der Übersichtsseite."""
+    html = ('<a href="/files/structureddata/data/form-345-data-sets/2024q1_form345.zip">2024 Q1</a>'
+            '<a href="https://www.sec.gov/files/dera/data/form-345/2024Q2-form345.zip">2024 Q2</a>'
+            '<a href="/files/other.zip">x</a>')
+    links = se.parse_form345_index(html)
+    assert links[(2024, 1)] == "https://www.sec.gov/files/structureddata/data/form-345-data-sets/2024q1_form345.zip"
+    assert links[(2024, 2)].endswith("2024Q2-form345.zip") and len(links) == 2
+    monkeypatch.setattr(si, "DIR", tmp_path)
+    seen = []
+
+    def get(url, **k):
+        seen.append(url)
+        if url in se.FORM345_INDEX_PAGES:
+            return types.SimpleNamespace(content=html.encode(), retrieved_at=NOW, content_hash="i")
+        return types.SimpleNamespace(content=form345_zip(), retrieved_at=NOW, content_hash="h")
+    r = si.ingest_form345({}, {CIK}, 2024, NOW, get=get, sleep=lambda s: None)
+    assert r["index"]["n_links"] == 2 and "2024Q2-form345.zip" in " ".join(seen)

@@ -391,6 +391,7 @@ def collect(root, date, state_path=None) -> dict:
     alearn = _load_json(rs / "active_learning.json")
     promo = _load_json(out_dir / "intelligence" / "promotion_state.json")
     promo_tr = _load_jsonl(out_dir / "intelligence" / "promotion_transitions.jsonl")
+    promo_prop = _load_json(out_dir / "intelligence" / "contract_proposals.json")
     alt_board = _load_json(rs / "source_scoreboard.json")
     alt_val = _load_json(rs / "alt_data_validation.json")
     alt_fwd = _load_jsonl(rs / "alt_forward_ledger.jsonl")
@@ -408,7 +409,7 @@ def collect(root, date, state_path=None) -> dict:
         "ml": ml, "meta": meta, "meta_state": meta_state, "hc": hc, "ml_fwd": ml_fwd,
         "hyp": hyp, "fail": fail, "history": history, "world": world, "mstate": mstate, "safe": safe,
         "nextv": nextv, "director": director, "alearn": alearn,
-        "promo": promo, "promo_transitions": promo_tr,
+        "promo": promo, "promo_transitions": promo_tr, "promo_proposals": promo_prop,
         "alt": {"board": alt_board, "validation": alt_val,
                 "forward_cohorts": {h: sum(1 for r in alt_fwd if r.get("hypothesis_id") == h)
                                     for h in sorted({r.get("hypothesis_id") for r in alt_fwd})}},
@@ -944,6 +945,14 @@ def promotion_section(data: dict, today: _date | None = None) -> list:
     blocks += [("para", "DEMOTIONS:"), ("list", dem[-6:] or ["keine"]),
                ("para", "PROMOTION CANDIDATES:"), ("list", cands or ["keine"]),
                ("para", "NEED MORE DATA:"), ("list", need or ["keine"])]
+    pp = _d(data.get("promo_proposals"))
+    if pp:
+        props = [f"{_d(p.get('walk_forward')).get('rule')}: Kalibrierung Δ {_d(p.get('walk_forward')).get('calibration_delta')}, "
+                 f"Test Δ {_d(p.get('walk_forward')).get('test_delta')} (n={_d(p.get('walk_forward')).get('test_n_tail')}) "
+                 f"– Entwurf, Registrierung nur per PR" for p in pp.get("proposals") or []]
+        blocks += [("para", f"NEUE HYPOTHESEN-VORSCHLÄGE (historischer Walk-Forward, {pp.get('n_trades')} verlässliche "
+                            f"Trades, {pp.get('candidates_tested')} Regeln getestet, {len(pp.get('rejected') or [])} "
+                            f"verworfen):"), ("list", props or ["keine – kein Muster übersteht den Walk-Forward"])]
     return blocks
 
 

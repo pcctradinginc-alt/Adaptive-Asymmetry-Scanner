@@ -57,6 +57,10 @@ jobs:
           NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
         run: python -m modules.promotion_controller --notify
 
+      - name: Abstinenz-Hypothesen vorschlagen (Walk-Forward, nur Entwürfe – Registrierung per PR)
+        continue-on-error: true
+        run: python -m modules.abstention_proposals
+
       - name: Commit updated history
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

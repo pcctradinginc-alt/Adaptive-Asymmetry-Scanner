@@ -5,7 +5,7 @@
 ## Ablauf
 
 1. `resolve_outcomes`: Decision-Ledger ↔ `history.json` (umgesetzte Trades → `closed_trades`,
-   abstinierte → `shadow_trades` mit `intelligence_abstention*`), append-only `decision_outcomes.jsonl`.
+   abstinierte → `counterfactual_closed` (gleicher Lebenszyklus wie echte Trades: Exit-Regeln TP/SL/Time, Outcome-Methode)), append-only `decision_outcomes.jsonl`.
 2. Verträge registrieren/prüfen (Registry-Kette, Hash).
 3. Je Vertrag: **Forward-Evidenz** nur aus Ledger-Zeilen mit Entscheidungszeit ≥ `forward_start` und
    > `registered_at`, gleichem `spec_hash`, im Scope, auswertbar, mit Outcome. Die Regel-Auswertung
