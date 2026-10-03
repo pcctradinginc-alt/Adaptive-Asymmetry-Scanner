@@ -1,0 +1,51 @@
+{
+ "commit": "ae46e9a26baba653b3b149d16ab773ecfc6fefac",
+ "contracts": [
+  {
+   "eligible_stage": "CHAMPION_TRADE",
+   "forward_start": "2026-10-05T00:00:00Z",
+   "key": "PROM-ABST-001@v1",
+   "spec_hash": "52477a34d83695ff5b5bc0b1e909a73de0b64e823409c131e07442f1029a8a59"
+  },
+  {
+   "eligible_stage": "CHAMPION_TRADE",
+   "forward_start": "2026-10-05T00:00:00Z",
+   "key": "PROM-ABST-002@v1",
+   "spec_hash": "33c9f89b8e4794183d3ea784cf75a816ad38af31322ede00bdcf9a5f49a62b0b"
+  },
+  {
+   "eligible_stage": "CHAMPION_TRADE",
+   "forward_start": "2026-10-05T00:00:00Z",
+   "key": "PROM-ABST-003@v1",
+   "spec_hash": "c1de9fc6348106323a3c01fc7eeba97b17225eff3ca3731c056291cec363a2e2"
+  },
+  {
+   "eligible_stage": "CHAMPION_TRADE",
+   "forward_start": "2026-10-05T00:00:00Z",
+   "key": "PROM-ABST-004@v1",
+   "spec_hash": "78b119f5062fe53035744db6f21df23ffdade3717b147c5cee948ea4ee50a481"
+  },
+  {
+   "eligible_stage": "CHAMPION_TRADE",
+   "forward_start": "2026-10-05T00:00:00Z",
+   "key": "PROM-ABST-005@v1",
+   "spec_hash": "fc336e60e4ac680855c2387ac2457aea038720c543208dbbe5b160a99a8781bb"
+  }
+ ],
+ "files": {
+  "config.yaml": "b60b12cedaea35ce44a9cb3db2eb7ea52d025d81e68401f15c436addc14df7b7",
+  "config/cost_policy.yaml": "2891bf6b7b5c57e0e8b72612cf8cfbbd94084e1ee9884061f07e31e6a6631268",
+  "config/drift_policy.yaml": "05db93ddab0e2dca0c4190b2d61f7d83f39096756eab9657b9f4cbfa47ed58a3",
+  "config/factory_protocol.yaml": "d1d9d16412d7656687755130f612ba4019bd9eaab6ef57f79b53f63091e3ede2",
+  "config/model_registry.yaml": "a0c0ce90b9491d9601503bacb9584672ad53d0c42d227ece8acebf3207db4ba1",
+  "config/promotion_approvals.yaml": "ca724d7f8f9b645c6e0c295fae06518eb2ed8b62c135a0995ae4997a0711b939",
+  "config/promotion_hypotheses.yaml": "a8039dabee744fcf08dffe8072dc3964aaa17b4851bd5f2ac77e7e126b48bb35",
+  "config/promotion_policy.yaml": "79d68a25766a6a1cda090d1b2d2ce4d08a995db02619fe0d14e0614d6d03c395",
+  "config/source_health.yaml": "3bba10d42a96426c41266195282d68d31636d11bb8087f62babdb7b1f4aea8b5",
+  "outputs/intelligence/contract_registry.jsonl": "ed4cade03288edda95830af86bf40db0c00c72ea970c8054d4e9419c5108fbf2",
+  "outputs/intelligence/promotion_transitions.jsonl": "82a5f0b977338cc0b05fbb13aab43cd5051afbcd29c5b846c0b4356b7b797de8"
+ },
+ "frozen_at": "2026-10-03T19:23:27+00:00",
+ "manifest_hash": "4456f778d2e4ce5d4b5560375a4f88f9def574c370cc5960b6f0f22b21c92da5",
+ "working_tree_dirty": false
+}

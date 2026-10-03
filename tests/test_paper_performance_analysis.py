@@ -26,3 +26,16 @@ def test_reliable_only_and_mc_calibration():
     assert hi["n"] == 3 and hi["predicted_hit_rate"] == 0.9 and abs(hi["win_rate"] - 0.333) < 1e-3
     assert r["by_strategy"]["BULL_CALL_SPREAD"]["profit_factor"] == 0.0
     assert ppa.render(r).startswith("# Paper-Performance")
+
+
+def test_calibration_oos_never_uses_trades_closed_after_entry():
+    def t(entry, close, outcome, hr=0.7):
+        return {"outcome": outcome, "simulation": {"hit_rate": hr}, "entry_date": entry, "close_date": close}
+    past = [t(f"2026-04-{d:02d}", f"2026-05-{d:02d}", -0.5) for d in range(1, 11)]       # 10 Verlierer
+    future_info = [t("2026-05-20", "2026-07-01", 0.5)]                                   # schließt NACH dem Ziel-Entry
+    target = t("2026-06-01", "2026-07-15", 0.4)
+    r = ppa.calibration_oos(past + future_info + [target])
+    assert r["n_evaluated"] == 2                          # target + future_info (beide haben 10 geschlossene Vorgänger)
+    assert r["brier_calibrated"] is not None and r["brier_raw"] is not None
+    only_target = ppa.calibration_oos(past + [target])
+    assert only_target["n_evaluated"] == 1 and only_target["brier_calibrated"] == 1.0   # p=0 aus Vergangenheit, y=1

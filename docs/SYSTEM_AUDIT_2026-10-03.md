@@ -14,10 +14,10 @@ Downstream → Validierung), Workflows, `outputs/history.json` (119 geschlossene
 |---|---|---|
 | Risk Gates, Hard-Filter, Prescreen (LLM), Deep Analysis (LLM), Mismatch, Quick/Final MC, Intraday-Delta, Options Design + ROI-Gate, trade_score-Gate, Korrelations-Check, Sizing | ACTIVE, UNVALIDATED | erzeugen `active_trades`; Champion ohne belastbaren Vorteil (s. 3.) |
 | Final-MC-Hit-Rate als „Wahrscheinlichkeit“ | ACTIVE, fehlkalibriert | vorhergesagt 0,71 → realisiert 0,22 (Band 0,65–0,75); nur ≥ 0,75 besser (0,41) |
-| QuasiML (feature_stats-Bins, Pearson-Gewichte) | SHADOW, UNVALIDATED | `final_score` steuert nur, welche 2 Kandidaten Premium-Daten bekommen, und den Report – nicht Gates/Score/Auswahl |
+| QuasiML (feature_stats-Bins, Pearson-Gewichte) | SHADOW, UNVALIDATED | `final_score` nur im Tagesreport (als SHADOW beschriftet) – nicht Gates/Score/Auswahl |
 | PPO RL-Agent (`rl_agent`) | UNUSED | `rl.veto_enabled: false`; Policy war degeneriert (Immer-SKIP). Tägliches Nachtraining jetzt nur bei aktivem Veto |
 | Robuster PPO (`rl_robust_shadow`) | SHADOW | Walk-Forward-Diagnose |
-| Premium Signals (FLASH/Eulerpool) | SHADOW | nur Log-Warnung (IV-Crush) und `final_score`-Anpassung → ohne Entscheidungswirkung |
+| Premium Signals (FLASH/Eulerpool) | entfernt (§9) | waren nur Log-Warnung und `final_score`-Anpassung → ohne Entscheidungswirkung |
 | External Context, Shadow-Relation (LLM) | SHADOW | Ledger/Report |
 | Candidate Ledger, Shadow Trades, Exit-/Trailing-Sim | SHADOW (Messinfrastruktur) | Counterfactual-Basis für Gate-Challenger |
 | Challenger Registry (`challenger.py`, Registrar) | SHADOW | nur `promote_recommended` (menschlicher PR) |
@@ -131,7 +131,8 @@ TEST = Unit-/Integrationstests · OOS = belastbarer OOS-/Forward-Nachweis · PRO
 | SystemState / Drift / Source Health | ja | täglich | Adapter, HC, Report | ja | – (Steuerung) | indirekt (Deckel/Block) | ACTIVE, kanonisch |
 | PromotionController + Adapter | ja | täglich/wöchentl. | einzige Wirkungsstelle | ja | 5 Verträge, Forward n=0 | Einfluss NONE | ACTIVE (Protokoll) |
 | Abstention-Risikovektor | ja | täglich | Trade-Record → Vorschläge | ja | nein | nein | SHADOW |
-| QuasiML / model_weights / feature_stats (feedback.py) | ja | täglich | nur Premium-Auswahl (Top 2) + Report | ja | nein | **nein** (Premium-Felder liest kein Gate) | SHADOW, lernt aber täglich |
+| QuasiML / model_weights / feature_stats (feedback.py) | ja | täglich | nur Tagesreport (als SHADOW beschriftet) | ja | nein | **nein** | SHADOW, lernt täglich ohne Abnehmer |
+| Premium-Signale (FLASH Alpha/Eulerpool) | – | – | – | – | – | – | **entfernt** (§9): veränderten nur `final_score`, kein Abnehmer |
 | PPO-Veto | ja | nein (veto_enabled=false) | – | ja | degeneriert | nein | UNUSED |
 | Robuster PPO + RL-Promotion-Bewertung | ja | wöchentlich | Report | ja | WF 100 % BOOST → degeneriert | nein | SHADOW, NOT_READY |
 | ML-Research / Meta-Learning / World Model / Causal | ja | Workflows | Report/Research | ja | kein Gate bestanden | nein | SHADOW |
@@ -140,7 +141,7 @@ TEST = Unit-/Integrationstests · OOS = belastbarer OOS-/Forward-Nachweis · PRO
 | HC-Scanner | ja | täglich | Research-Alerts | ja | nein | nein | SHADOW |
 | Alt-Data SEC/GLEIF/TED/Wetter/… | ja | täglich | External Context | ja | SEC: REJECT | nein | SHADOW |
 | Kosten-Telemetrie / Routing / Cache / Prefilter | ja | täglich | Monatsreport, Routing-Entscheid | ja | A/B läuft | Kosten, nicht Trades | ACTIVE (Betrieb) |
-| `meta_learning.meta_fallback_check` | ja | **nein** | – | ja | – | nein | ungenutzt (Meta nicht promotet); umbenannt |
+| `meta_learning.meta_fallback_check` | – | – | – | – | – | – | **entfernt** (ohne Aufrufer; §9) |
 
 ### 8.2 Behobene Befunde dieses Durchgangs
 
@@ -221,3 +222,49 @@ als Gate-Challenger (`challenger.py`) prüfen.
     Forward-Entscheidung etwa ein Jahr. Hebel ohne Lockerung: Schatten-Populationen (Final-MC-Survivor,
     Gate-Rejects mit `fail_gates`) vollständig und vergleichbar bewerten – als Evidenzquelle für
     Gate-Challenger, nicht als Promotion-Abkürzung.
+
+## 9. Nächster Schritt: schnellere Forward-Evidenz ohne Vermischung (2026-10-03)
+
+Baseline eingefroren: `outputs/state/baselines/post-pr91_2026-10-03.json` (Commit ae46e9a, Hashes
+von Config, Verträgen, Policies, Registry- und Transition-Kette). Produktionslogik unverändert.
+
+**Neue Population statt Lockerung.** Die fünf Abstention-Regeln laufen zusätzlich als
+`PROM-ABST-00x@v2` auf `FINAL_MC_SURVIVOR` (Details `docs/PROMOTION_CONTROLLER.md`, Populationen).
+v1 bleibt byte-identisch (spec_hash gegen Baseline getestet). Jeder Survivor wird mit eingefrorener
+Vertragsauswertung, SystemState, Regime, VIX, Modelluneinigkeit, erwartetem Drawdown, späterem
+Downstream (`fail_gates`, Champion-Entscheidung) und 20/45/60-T-Outcomes inkl. MFE/MAE geführt.
+Kein Survivor wird dadurch zum Trade.
+
+**Erwartete Zeit bis zur ersten zulässigen Entscheidung** (Rate Jul–Sep: Ø 51 Survivors, 35
+Ereignis-Cluster, 15 Signaltage je Monat; Sep allein 95/60/22):
+
+| | v1 Champion | v2 Final-MC |
+|---|---|---|
+| Beobachtungen/Monat | ≈ 4 | ≈ 50–95 |
+| Mindest-N / Cluster / Tage / Spanne | 60 / – / 20 / 90 T | 150 / 80 / 30 / 90 T |
+| bindend | N (≈ 15 Monate) | Kalenderspanne 90 T |
+| + Outcome-Horizont 45 T → erste Entscheidung | ≈ Anfang 2028 | ≈ Mitte Februar 2027 (nächster monatlicher Look) |
+
+Treffer-Mindestwerte (30 Treffer, 15 Treffer-Cluster, 10 Treffer-Tage) bei geschätzten Trefferquoten
+auf den bisherigen Survivors: PROM-ABST-004 (Drawdown) ≈ 27 % und 002 (Uneinigkeit)/003 (Blind-Spot-
+Sektor) ≈ 15 % → in 2–4 Monaten erreichbar; 001 (Safe Mode aktiv) und 005 (VIX > 30, bisher max. 19,9)
+feuern im aktuellen Regime praktisch nie → NEED_MORE_DATA bis zu einem Regimewechsel.
+
+**ROI-Teil-Gates:** keine Schwelle geändert; Bewertung je Teil-Gate erst ab n ≥ 30 (Montagsbericht §8C).
+
+**Holdouts:** ML-Locked ab 2025-07 CONTAMINATED/USED; Surprise-Jahre vor 2019 USED. S5 nur noch auf
+`config/s5_forward_holdout.yaml` (Meldungen 2026-10-05…2027-10-04, eine Auswertung ab 2027-11-15,
+Kriterien und Datei-Hash vorab gepinnt; bis dahin nur Fallzahlen).
+
+**Datenrisiken:**
+* Sektor im ML-Panel jetzt point-in-time (`sector_history.jsonl`, erst ab Beobachtung; davor
+  `unknown`). Folge: historische Sektor-Attribution überwiegend `unknown` – ehrlich statt verzerrt.
+* Kalibrierung: Bänder für neue Kandidaten nur aus der Vergangenheit; Güte prequential
+  (Fit nur auf vor dem Entry geschlossenen Trades): n = 8 auswertbar, Brier 0,464 (roh) → 0,147
+  (kalibriert), ECE 0,60 → 0,23 – Richtung klar, Stichprobe klein. Läuft jetzt wöchentlich.
+* Survivorship: 135 von 255 entfernten Titeln ohne Yahoo-Kurse – nicht eliminierbar mit offiziellen
+  freien Quellen; ab dem nächsten ML-Lauf quantifiziert (`universe.survivorship`: fehlender
+  Mitgliederanteil je Jahr, Worst-Case-Verschiebung des Querschnittsmittels).
+
+**Bereinigt:** Premium-Signale (Aufruf + Modul) und `meta_fallback_check` entfernt; QuasiML als
+SHADOW beschriftet (der `safe_mode`-Block in der gepinnten `meta_protocol.yaml` ist damit ungenutzt).

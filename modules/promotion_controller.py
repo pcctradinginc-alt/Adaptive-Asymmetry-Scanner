@@ -448,10 +448,19 @@ def evidence(contract: dict, spec_hash: str, rows: list[dict], outcomes: dict[st
 
 
 # ── Multiple Testing ────────────────────────────────────────────────────────
+def family_of(contract: dict) -> str:
+    """Familie = Produktionsklasse je Population. Champion-Verträge (v1, ohne eligible_stage) behalten
+    exakt ihre bisherige Familie; jede neue Population (z. B. FINAL_MC_SURVIVOR) ist eine eigene
+    wissenschaftliche Fragestellung mit eigener Bonferroni-Familie -> v1-Kriterien bleiben unverändert."""
+    from modules.final_mc_ledger import CHAMPION_STAGE, stage_of
+    st = stage_of(contract)
+    return contract["production_class"] if st == CHAMPION_STAGE else f"{contract['production_class']}@{st}"
+
+
 def family_alpha(contract: dict, registry_entries: list[dict], policy: dict) -> dict:
     st = policy.get("statistics") or {}
-    fam = contract["production_class"]
-    members = {e["key"] for e in registry_entries if (e.get("contract") or {}).get("production_class") == fam}
+    fam = family_of(contract)
+    members = {e["key"] for e in registry_entries if e.get("contract") and family_of(e["contract"]) == fam}
     variants = sum(1 for e in registry_entries if e.get("hypothesis_id") == contract["hypothesis_id"])
     m = max(1, len(members))
     looks = int(st.get("planned_looks", 12))
@@ -509,7 +518,8 @@ def insufficiency(contract: dict, ev: dict, policy: dict) -> list[str]:
     if not scoped_sector and share is not None and share > float(fl.get("max_single_sector_share", 0.6)):
         need.append(f"Sektor {ev.get('dominant_sector_fired')} dominiert ({share:.0%}) – nur sektor-gescopte "
                     f"neue Hypothese zulässig")
-    return need
+    from modules.final_mc_ledger import insufficiency_extra
+    return need + insufficiency_extra(contract, ev)
 
 
 def promotion_checks(contract: dict, ev: dict, policy: dict) -> tuple[bool, list[str]]:
@@ -703,10 +713,25 @@ def _is_upgrade(cur: dict, d: dict) -> bool:
     return up_level or up_state
 
 
+def cap_population(contract: dict, d: dict) -> dict:
+    """Evidenz einer anderen Population als der Champion-Trades darf nie automatisch auf Champion-
+    Trades wirken: höchstens FORWARD_VALIDATED (Einfluss NONE) + Empfehlung. Übertragung nur über
+    einen neuen Champion-Vertrag per menschlichem PR."""
+    from modules.final_mc_ledger import CHAMPION_STAGE, stage_of
+    stage = stage_of(contract)
+    if stage == CHAMPION_STAGE or d["new_state"] not in ACTIVE_STATES:
+        return d
+    d.update(decision="KEEP_SHADOW", new_state="FORWARD_VALIDATED", influence_level="NONE",
+             recommendation=f"auf {stage} forward-validiert – Champion-Wirkung nur über neuen Champion-Vertrag (PR)",
+             reasons=d["reasons"] + [f"Population {stage}: kein automatischer Produktionseinfluss"])
+    return d
+
+
 def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now: datetime | None = None,
         registry: Path | None = None, transitions: Path | None = None, ledger_dir: Path | None = None,
         outcomes_path: Path | None = None, looks_path: Path | None = None, state_path: Path | None = None,
-        history: dict | None = None, approvals: dict | None = None, safe_mode: dict | None = None) -> dict:
+        history: dict | None = None, approvals: dict | None = None, safe_mode: dict | None = None,
+        final_mc_dir: Path | None = None, final_mc_outcomes: Path | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     safe_mode = safe_mode if safe_mode is not None else _safe_mode_state()
     now_s = now.isoformat(timespec="seconds")
@@ -726,6 +751,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
     integrity = {"registry": reg_problems, "transitions": tr_problems}
     rows = read_jsonl_dir(ledger_dir)
     outs = read_outcomes(outcomes_path)
+    from modules import final_mc_ledger as fml
+    fm_rows, fm_outs = fml.read_rows(final_mc_dir), fml.read_outcomes(final_mc_outcomes)
     cv, dv = code_version(), data_version(ledger_dir, outcomes_path)
     reg_hash = {e["key"]: e["spec_hash"] for e in reg_entries}
     state = {"generated": now_s, "policy_version": policy.get("version"), "policy_hash": policy_hash(policy),
@@ -745,12 +772,17 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         if cur is not None and cur.get("spec_hash") and cur["spec_hash"] != h:
             integrity_ok = False
         ai = family_alpha(c, reg_entries, policy)
-        ev = evidence(c, h, rows, outs, policy, ai["alpha_effective"]) if integrity_ok else {
+        stage = fml.stage_of(c)
+        # Evidenz strikt je Population: Champion-Verträge nur aus dem Champion-Decision-Ledger,
+        # FINAL_MC-Verträge nur aus dem Final-MC-Ledger (nie zusammengerechnet).
+        ev_fn = (lambda *a, **k: fml.evidence(c, h, fm_rows, fm_outs, *a, **k)) if stage == fml.STAGE else \
+            (lambda *a, **k: evidence(c, h, rows, outs, *a, **k))
+        ev = ev_fn(policy, ai["alpha_effective"]) if integrity_ok else {
             "n_observations": 0, "n_independent_dates": 0, "calendar_span_days": 0, "n_fired": 0,
             "n_fired_independent_dates": 0, "ci": [None, None], "regimes": []}
         post_ev = None
         if cur and cur.get("new_state") in ACTIVE_STATES and integrity_ok:
-            post_ev = evidence(c, h, rows, outs, policy, ai["alpha_effective"], since=_ts(cur["timestamp"]))
+            post_ev = ev_fn(policy, ai["alpha_effective"], since=_ts(cur["timestamp"]))
         lu = looks_used(k, looks_path)
         last = last_look_at(k, looks_path)
         look_due = last is None or (now - last).days >= LOOK_INTERVAL_DAYS
@@ -758,8 +790,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
                 and not insufficiency(c, ev, policy):
             record_look(k, ev, looks_path, now_s)
             lu += 1
-        d = decide(c, cur, ev, policy, integrity_ok=integrity_ok, looks=lu, alpha_info=ai, now=now, post_ev=post_ev,
-                   look_due=look_due)
+        d = cap_population(c, decide(c, cur, ev, policy, integrity_ok=integrity_ok, looks=lu, alpha_info=ai,
+                                     now=now, post_ev=post_ev, look_due=look_due))
         appr = approvals.get(k) or {}
         if appr.get("rollback") and (cur or {}).get("influence_level", "NONE") != "NONE":
             d.update(decision="ROLLBACK", new_state="DEMOTED", influence_level="NONE",
@@ -788,7 +820,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         state["hypotheses"][k] = {
             "hypothesis_id": c["hypothesis_id"], "version": c["version"], "title": c.get("title"),
             "description": c.get("research_question"), "source_type": c["source_type"],
-            "production_class": c["production_class"], "spec_hash": h, "registry_status": st.get("status"),
+            "production_class": c["production_class"], "eligible_stage": stage, "spec_hash": h,
+            "registry_status": st.get("status"),
             "registry_errors": st.get("errors"), "state": (cur or {}).get("new_state", "IDEA"),
             "influence_level": (cur or {}).get("influence_level", "NONE") if integrity_ok else "NONE",
             "sector_scope": c.get("sector_scope"), "regime_scope": c.get("regime_scope"),
@@ -802,7 +835,7 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         "number_of_hypotheses_tested": len(reg_entries) + len(inv),
         "promotion_contracts_registered": len(reg_entries),
         "research_inventory": len(inv),
-        "families": sorted({(e.get("contract") or {}).get("production_class") for e in reg_entries} - {None})}
+        "families": sorted({family_of(e["contract"]) for e in reg_entries if e.get("contract")})}
     state["evaluation"] = evaluate_arms(rows, outs)
     state["state_hash"] = state_digest(state)
     state_path.parent.mkdir(parents=True, exist_ok=True)

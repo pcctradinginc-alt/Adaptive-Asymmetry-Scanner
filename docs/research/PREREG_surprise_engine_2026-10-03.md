@@ -69,3 +69,17 @@ Ergebnis: **MODIFY**, wenn Punkt 1 erfüllt ist, aber etwas anderes fehlt; sonst
 **Konsequenz:**
 - Selbst bei KEEP entsteht nur ein Vorschlag als prospektiver Challenger. Es gibt keine Produktionswirkung, die Forward-Daten entscheiden.
 - **Bedeutung:** Bestätigt sich die Umkehr, widerspricht sie der Unterreaktions-These der Produktionspipeline. Die Produktion setzt auf Kursanstiege nach Nachrichten.
+
+## Nachtrag 2 (2026-10-03, vor jeder S5-Auswertung): S5 nur prospektiv
+
+Der oben vorgesehene S5-Test auf den Jahren vor 2019 wird **nicht** durchgeführt (er lief nie).
+Begründung: Diese Jahre waren in Lauf 1 Trainingsfenster der S1–S4-Schwellen, und S5 wurde nach
+Sicht auf das S3-Ergebnis formuliert – der Zeitraum gilt als USED. Der ML-Locked-Holdout ab
+2025-07-01 ist CONTAMINATED. Keiner von beiden dient der Auswahl von S5 oder einer Variante.
+
+Neu: `config/s5_forward_holdout.yaml` (SHA-256 `e605109c98ed…`, gepinnt in
+`tests/test_surprise_engine.py`). Nur Meldungen vom 2026-10-05 bis 2027-10-04, Horizont
+20 Handelstage, **eine** Auswertung ab 2027-11-15 (vorher nur Fallzahlen, keine Renditen).
+Kriterien: n ≥ 300, Mittel nach Basiskosten > 0, t ≥ 2, Stresskosten > 0, Lag > 0,
+Replikation in beiden Universums-Hälften positiv. Ergebnis KEEP = nur Vorschlag eines
+prospektiven Challengers per PR.

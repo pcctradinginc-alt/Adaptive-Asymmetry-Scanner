@@ -9,8 +9,8 @@ Ergebnisdateien und erfindet nichts: fehlt eine Eingabe, zeigt der Abschnitt
 **Research-/Paper-Signale, keine Orderausführung, keine Anlageberatung.**
 
 ## Struktur (seit 2026-10-03)
-Sieben Hauptabschnitte gemäß Spezifikation, danach alle bisherigen Detailabschnitte als **Anhang A1–A19**
-(Inhalt unverändert, nur neu nummeriert).
+Acht Hauptabschnitte (sieben gemäß Spezifikation + FORWARD EVIDENCE), danach alle bisherigen
+Detailabschnitte als **Anhang A1–A19** (Inhalt unverändert, nur neu nummeriert).
 
 | # | Hauptabschnitt | Inhalt / Quelle |
 |---|---|---|
@@ -21,6 +21,7 @@ Sieben Hauptabschnitte gemäß Spezifikation, danach alle bisherigen Detailabsch
 | 5 | CURRENT MARKET / WORLD MODEL | World-Model-Dimensionen (Zustand, Score, Unsicherheit, Vorwoche) und Veränderungen |
 | 6 | TOP TRADE CANDIDATES | **nur** Vorschläge der Produktionspipeline aus den Tagesreports der letzten 7 Tage; Research-/HC-Kandidaten nie. Je Kandidat alle verfügbaren Felder, fehlende als „n/a“ mit Grund. Ohne High-Confidence-Kandidat: `NO HIGH-CONFIDENCE TRADE THIS WEEK.` |
 | 7 | PERFORMANCE | A) echte Forward-/Paper-Performance (Expectancy, Win Rate, PF, Sharpe/Sortino je Trade, MaxDD, N), Champion vs. Adaptive (prospektiv), Calibration (vorhergesagt vs. realisiert); B) Walk-Forward OOS der Research-Modelle; C) Backtest Meta-Learning – strikt getrennt |
+| 8 | FORWARD EVIDENCE | A) Champion-Verträge (v1): N, unabhängige Tage, Spanne, E getroffen vs. Baseline, Δ Expectancy, Abstand zur Promotion; B) Final-MC-Verträge (v2, eigene Population): zusätzlich unabhängige Ereignis-Cluster, Survivors je Monat; C) ROI-Teil-Gates (`fail_gates`, Mindest-n 30). Unzureichende Evidenz wird ausdrücklich als `NEED_MORE_DATA` ausgewiesen. Champion- und Final-MC-Evidenz werden nie zusammengerechnet |
 
 **High-Confidence (Berichts-Label, kein Trade-Gate):** Das kalibrierte MC-Band des Kandidaten muss auf
 echten Paper-Trades belegt sein (n ≥ 20, Expectancy > 0, Profit Factor ≥ 1,2), und es darf kein Safe Mode

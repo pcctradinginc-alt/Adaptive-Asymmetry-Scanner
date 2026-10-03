@@ -53,7 +53,9 @@ MONDAY_TITLES = {
     5: "CURRENT MARKET / WORLD MODEL",
     6: "TOP TRADE CANDIDATES",
     7: "PERFORMANCE",
+    8: "FORWARD EVIDENCE",
 }
+ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
 # Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das kalibrierte MC-Band des Kandidaten
 # auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Safe Mode gilt.
@@ -511,7 +513,40 @@ def collect(root, date, state_path=None) -> dict:
     data["rl_status"] = _load_json(rs / "rl_promotion.json")
     data["surprise"] = _load_json(rs / "surprise_study.json")
     data["inquiry"] = _load_json(rs / "inquiry_chains.json")
+    try:                                         # Final-MC-Population (eigener Ledger, nie mit Champion verrechnet)
+        from modules import final_mc_ledger as _fml
+        intel = out_dir / "intelligence"
+        data["final_mc"] = _fml.population_summary(_fml.read_rows(intel / "final_mc_ledger"),
+                                                   _fml.read_jsonl(intel / "final_mc_downstream.jsonl"))
+    except (OSError, ValueError, KeyError) as e:
+        log.warning(f"Final-MC-Ledger nicht lesbar: {e}")
+        data["final_mc"] = None
+    data["roi_subgates"] = roi_subgate_evidence(history)
     return data
+
+
+def roi_subgate_evidence(history) -> dict:
+    """Schatten-Outcomes der ROI-Gate-Rejects je Teil-Gate (fail_gates des besten Tiers; prospektiv
+    erst seit Einführung des Loggings). Unter ROI_SUBGATE_MIN_N: NEED_MORE_DATA, keine Aussage."""
+    groups: dict[str, list[float]] = {}
+    pending: dict[str, int] = {}
+    for t in _d(history).get("shadow_trades") or []:
+        if not isinstance(t, dict) or t.get("reject_reason") != "roi_gate" or not t.get("fail_gates"):
+            continue
+        gates = sorted({g for g in _d(t.get("fail_gates")).values() if g})
+        key = "+".join(gates) or "unbekannt"
+        if t.get("outcome") is None:
+            pending[key] = pending.get(key, 0) + 1
+            continue
+        groups.setdefault(key, []).append(float(t["outcome"]))
+    out = {}
+    for k in sorted(set(groups) | set(pending)):
+        v = groups.get(k) or []
+        out[k] = {"n": len(v), "pending": pending.get(k, 0),
+                  "mean": round(statistics.fmean(v), 4) if v else None,
+                  "win_rate": round(sum(1 for x in v if x > 0) / len(v), 3) if v else None,
+                  "status": "OK" if len(v) >= ROI_SUBGATE_MIN_N else "NEED_MORE_DATA"}
+    return out
 
 
 def _week_proposals(out_dir: Path, today: _date) -> list[dict]:
@@ -1277,7 +1312,56 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     rl = _d(data.get("rl_status"))
     b7.append(("para", f"RL-Agent: {rl.get('status', 'keine Bewertung')}" + (f" – {rl.get('summary')}" if rl.get("summary") else "")))
     secs.append((7, MONDAY_TITLES[7], b7))
+    secs.append((8, MONDAY_TITLES[8], forward_evidence_blocks(data)))
     return secs
+
+
+def _forward_row(k: str, h: dict, clusters: bool) -> list[str]:
+    ev = _d(h.get("evidence"))
+    fired, allm = _d(ev.get("fired")), _d(ev.get("all"))
+    need = h.get("next_requirement") or "; ".join(map(str, h.get("reasons") or []))
+    insufficient = any("NEED_MORE_DATA" in str(r) for r in h.get("reasons") or []) or not ev.get("n_observations")
+    row = [k, str(ev.get("n_observations", 0))]
+    if clusters:
+        row.append(str(ev.get("n_event_clusters", 0)))
+    row += [str(ev.get("n_independent_dates", 0)), f"{ev.get('calendar_span_days', 0)} T",
+            _fv(fired.get("expectancy")), _fv(allm.get("expectancy")), _fv(ev.get("delta_expectancy")),
+            "NEED_MORE_DATA – " + (need or "keine Forward-Daten") if insufficient else (need or str(h.get("decision"))),
+            str(h.get("state", NA))]
+    return row
+
+
+def forward_evidence_blocks(data: dict) -> list:
+    """Kompakt: Forward-Evidenz je Population (Champion vs. Final-MC getrennt) + ROI-Teil-Gates."""
+    hyps = _d(_d(data.get("promo")).get("hypotheses"))
+    champ = {k: _d(h) for k, h in hyps.items() if _d(h).get("eligible_stage", "CHAMPION_TRADE") == "CHAMPION_TRADE"}
+    fmc = {k: _d(h) for k, h in hyps.items() if _d(h).get("eligible_stage") == "FINAL_MC_SURVIVOR"}
+    hdr = ["Vertrag", "N", "Unabh. Tage", "Spanne", "E getroffen", "E Baseline", "Δ Expectancy",
+           "Abstand zur Promotion", "Status"]
+    b = [("note", "Nur prospektive Daten ab forward_start. Champion- und Final-MC-Evidenz sind getrennte "
+                  "Populationen und werden nie zusammengerechnet. Final-MC-Verträge erhalten keinen "
+                  "automatischen Produktionseinfluss.")]
+    b.append(("para", f"A) Champion-Trades (v1, Baseline = alle Champion-Trades) – {len(champ)} Verträge"))
+    b.append(("table", hdr, [_forward_row(k, h, False) for k, h in sorted(champ.items())], [])
+             if champ else ("para", NO_DATA))
+    fm = _d(data.get("final_mc"))
+    b.append(("para", f"B) Final-MC-Survivors (v2, Baseline = alle Survivors, triggered vs. non-triggered) – "
+                      f"{len(fmc)} Verträge"))
+    b.append(("kv", [("Survivors gesamt", str(fm.get("n", 0))), ("je Monat", _fv(fm.get("per_month"))),
+                     ("unabhängige Ereignis-Cluster", str(fm.get("event_clusters", 0))),
+                     ("Signaltage", str(fm.get("dates", 0))),
+                     ("davon Champion-Trades", str(fm.get("champion_trades", 0)))]) if fm else ("para", NO_DATA))
+    hdr2 = hdr[:2] + ["Cluster"] + hdr[2:]
+    b.append(("table", hdr2, [_forward_row(k, h, True) for k, h in sorted(fmc.items())], [])
+             if fmc else ("para", NO_DATA))
+    rg = _d(data.get("roi_subgates"))
+    b.append(("para", f"C) ROI-Teil-Gates (Schatten-Outcomes, Mindest-n {ROI_SUBGATE_MIN_N} je Gate; "
+                      f"keine Schwelle wird daraus automatisch geändert)"))
+    b.append(("table", ["Teil-Gate", "n bewertet", "offen", "Ø Outcome", "Win Rate", "Status"],
+              [[k, str(v["n"]), str(v["pending"]), _fv(v["mean"]), _fv(v["win_rate"]), v["status"]]
+               for k, v in rg.items()], []) if rg else
+             ("para", "NEED_MORE_DATA – noch keine Rejects mit fail_gates (Logging seit 2026-10-03)"))
+    return b
 
 
 def intelligence_sections(data: dict) -> list:

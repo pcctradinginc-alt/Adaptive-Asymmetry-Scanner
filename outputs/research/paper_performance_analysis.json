@@ -263,5 +263,16 @@
    "profit_factor": 1.22,
    "predicted_hit_rate": 0.857
   }
+ },
+ "mc_hit_rate_calibration_scope": "in-sample über alle verlässlichen Trades (beschreibend); für neue Kandidaten nur aus der Vergangenheit -> gültig; Güte siehe calibration_oos",
+ "calibration_oos": {
+  "method": "prequential: Band-Win-Rate nur aus vor dem Entry geschlossenen Trades (min n 10 je Band)",
+  "n_evaluated": 8,
+  "n_skipped_insufficient_history": 57,
+  "brier_raw": 0.4642,
+  "brier_calibrated": 0.1471,
+  "ece_raw": 0.6002,
+  "ece_calibrated": 0.2257,
+  "calibrated_better": true
  }
 }

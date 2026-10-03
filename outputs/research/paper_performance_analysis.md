@@ -4,6 +4,8 @@ Quelle: outputs/history.json, nur zuverlässige Outcomes: n=79 von 119.
 
 Gesamt: {'n': 79, 'win_rate': 0.354, 'mean': 0.0423, 'median': -0.3134, 'profit_factor': 1.12}
 
+Kalibrierung out-of-sample (prequential): {'method': 'prequential: Band-Win-Rate nur aus vor dem Entry geschlossenen Trades (min n 10 je Band)', 'n_evaluated': 8, 'n_skipped_insufficient_history': 57, 'brier_raw': 0.4642, 'brier_calibrated': 0.1471, 'ece_raw': 0.6002, 'ece_calibrated': 0.2257, 'calibrated_better': True}
+
 ## mc_hit_rate_calibration
 
 | Gruppe | n | Trefferquote | Ø | Median | PF | vorhergesagt |

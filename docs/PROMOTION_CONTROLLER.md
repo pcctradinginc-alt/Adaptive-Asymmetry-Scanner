@@ -45,3 +45,25 @@ höheres Risiko/Positionsgröße, neue externe Datenquelle als Gate, > 25 % Mode
 
 Neue Promotion-Kandidaten → `INTELLIGENCE PROMOTION CANDIDATE` (Mail über `modules.mailer`, einmal je
 Hypothese×Stufe, `promotion_notified.json`) und Weekly Report Abschnitt 18.
+
+## Populationen (`eligible_stage`, seit 2026-10-03)
+
+Eine neue Population ist eine neue wissenschaftliche Fragestellung und damit ein neuer Vertrag
+(neue `version`), nie eine Erweiterung eines bestehenden.
+
+| | v1 (`PROM-ABST-00x@v1`) | v2 (`PROM-ABST-00x@v2`) |
+|---|---|---|
+| Population | Champion-Trades (kein Feld = `CHAMPION_TRADE`, Spezifikation unverändert) | `FINAL_MC_SURVIVOR` – jeder Survivor von Stufe 8, unabhängig von späteren Gates |
+| Ledger | `outputs/intelligence/decision_ledger/` (Adapter) | `outputs/intelligence/final_mc_ledger/` (`modules/final_mc_ledger.py`) |
+| Outcome | Optionsrendite, nur Quote-basiert | Richtungsrendite des Basiswerts 45 T (20/60 T beschreibend), MFE/MAE |
+| Vergleich | durchgelassen vs. alle Champion-Trades | triggered vs. non-triggered **innerhalb** der Survivors |
+| Bonferroni-Familie | `abstention` | `abstention@FINAL_MC_SURVIVOR` (v1-Alpha unverändert) |
+| Unabhängigkeit | unabhängige Signaltage | zusätzlich Ereignis-Cluster (gleicher Ticker ≤ 10 T = ein Ereignis); Bootstrap über Tage UND Cluster, beide Untergrenzen > 0 |
+| Höchster automatischer Zustand | GUARDED_PRODUCTION (Abstinenz) | FORWARD_VALIDATED, Einfluss NONE (`cap_population`) – Übertragung auf Champion-Trades nur per neuem Champion-Vertrag (PR) |
+
+Pflichtfelder für Populations-Verträge (`hypothesis_contract.validate_stage`): `eligible_stage`,
+`population_definition`, `horizon_days`, `baseline`, `baseline_population` (= `eligible_stage`),
+`minimum_independent_event_clusters`, `promotion_criteria.min_fired_event_clusters`, gespeicherter
+`spec_hash` (muss zur Spezifikation passen). Der Adapter wertet nur Champion-Verträge auf
+Champion-Trades aus. Test: `tests/test_final_mc_ledger.py` (End-to-End inkl. forward_start-Grenze
+und v1/v2-Trennung).

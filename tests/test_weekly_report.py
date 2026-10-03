@@ -275,7 +275,7 @@ def test_promotion_section_renders_state_effect_and_lists(tmp_path):
 # ── Montagsbericht: 7 Hauptabschnitte ──────────────────────────────────────
 def _section(t: str, n: int) -> str:
     start = t.index(f"{n}. {weekly.MONDAY_TITLES[n]}")
-    nxt = f"{n + 1}. {weekly.MONDAY_TITLES[n + 1]}" if n < 7 else "A1. "
+    nxt = f"{n + 1}. {weekly.MONDAY_TITLES[n + 1]}" if n < len(weekly.MONDAY_TITLES) else "A1. "
     return t[start:t.index(nxt, start)]
 
 
@@ -375,3 +375,20 @@ def test_forward_metrics_sharpe_sortino_per_trade():
     assert m["sharpe_per_trade"] == pytest.approx(0.0375 / 0.1376, rel=1e-2)
     assert m["sortino_per_trade"] == pytest.approx(0.0375 / ((0.0025 + 0.01) / 4) ** 0.5, rel=1e-3)
     assert weekly.forward_metrics([0.1])["sharpe_per_trade"] is None
+
+
+def test_forward_evidence_section_separates_populations_and_says_need_more_data(tmp_path):
+    make_full(tmp_path)
+    t = text_for(tmp_path)
+    sec = _section(t, 8)
+    assert "A) Champion-Trades" in sec and "B) Final-MC-Survivors" in sec and "C) ROI-Teil-Gates" in sec
+    assert "nie zusammengerechnet" in sec and "NEED_MORE_DATA" in sec
+
+
+def test_roi_subgate_evidence_requires_min_n():
+    h = {"shadow_trades": [{"reject_reason": "roi_gate", "fail_gates": {"Long-Term": "edge"}, "outcome": -0.5}] * 5
+         + [{"reject_reason": "roi_gate", "fail_gates": {"Long-Term": "mc_pnl", "Mid-Term": "edge"}, "outcome": None}]
+         + [{"reject_reason": "roi_gate", "outcome": 0.3}]}            # Altbestand ohne fail_gates: nicht zugeordnet
+    r = weekly.roi_subgate_evidence(h)
+    assert r["edge"] == {"n": 5, "pending": 0, "mean": -0.5, "win_rate": 0.0, "status": "NEED_MORE_DATA"}
+    assert r["edge+mc_pnl"]["pending"] == 1 and "unbekannt" not in r

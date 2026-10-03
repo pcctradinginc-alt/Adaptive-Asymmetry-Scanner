@@ -1087,6 +1087,14 @@ def main() -> None:
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
     evaluate_shadow_trades(history, today)
+    # Final-MC-Population: fällige 20/45/60-Tage-Outcomes + MFE/MAE (append-only, eigene Datei)
+    try:
+        from modules import final_mc_ledger
+        _n_fm = final_mc_ledger.resolve_outcomes(today=today.date())
+        if _n_fm:
+            log.info(f"  Final-MC-Ledger: {_n_fm} Horizont-Outcome(s) aufgelöst")
+    except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
+        log.warning(f"Final-MC-Outcomes Fehler (ignoriert): {e}")
 
     # Von der Intelligence blockierte Champion-Trades counterfactual fortführen
     try:

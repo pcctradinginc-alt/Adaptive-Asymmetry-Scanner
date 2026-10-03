@@ -63,7 +63,6 @@ from modules.finbert_sentiment   import score_candidate
 from modules.intraday_delta      import filter_by_intraday_delta, get_intraday_move
 from modules.alpha_sources       import enrich_with_alpha_sources
 from modules.data_validator      import validate_candidate_data, compute_option_roi
-from modules.premium_signals     import enrich_top_candidates
 from modules.sentiment_tracker   import enrich_with_sentiment_drift
 from modules.macro_context       import get_macro_context
 from modules.position_sizing     import enrich_with_sizing
@@ -1345,6 +1344,30 @@ def main() -> None:
         log.info(f"  {_n_sv} Final-MC-Survivor als Schatten-Trades geloggt (Feature-Validierung)")
         save_history(history)
 
+    # ── Final-MC-Population: prospektiver Shadow-Ledger (eigene versionierte Verträge) ──
+    # Jeder Survivor wird unabhängig von späteren Gates mit eingefrorener Vertragsauswertung
+    # festgehalten (modules/final_mc_ledger.py). Reine Messung: kein Survivor wird dadurch
+    # zum Trade, keine Champion-Entscheidung ändert sich. Fehler -> nur Log.
+    _fm_obs: list[dict] = []
+    try:
+        from modules import final_mc_ledger as _fml
+        _fm_obs = _fml.record_survivors(final_sims, today=today, vix=stats.get("vix"))
+        stats["final_mc_ledger"] = {"observations": len(_fm_obs)}
+    except Exception as e:  # noqa: BLE001 – Messung darf den Scan nie brechen
+        log.warning(f"Final-MC-Ledger Fehler (ignoriert): {e}")
+
+    def _record_final_mc_downstream(final_tickers=(), roi_rejects=(), blocked=(), other_reasons=None):
+        """Was spätere Gates mit jedem Survivor taten (beschreibend, append-only)."""
+        if not _fm_obs:
+            return
+        try:
+            from modules import final_mc_ledger as _fml
+            _fml.record_downstream(_fm_obs, _fml.downstream_map(
+                final_tickers=set(final_tickers), roi_rejects=list(roi_rejects), reject_stats=reject_stats,
+                blocked_by_intelligence=set(blocked), other_reasons=other_reasons))
+        except Exception as e:  # noqa: BLE001
+            log.warning(f"Final-MC-Downstream Fehler (ignoriert): {e}")
+
     # ── STUFE 9: RL-Scoring ──────────────────────────────────────────────────
     log.info("Stufe 9: RL-Scoring")
     _rl_veto = bool(cfg.rl.get("veto_enabled", True))
@@ -1369,9 +1392,9 @@ def main() -> None:
     log.info(f"  → {len(final_signals)} nach RL-Scoring")
     if not final_signals:
         stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
+        _record_final_mc_downstream()
         save_history(history); send_email(); return
 
-    final_signals = enrich_top_candidates(final_signals, top_n=2)
 
     # ── STUFE 10: Options Design + ROI-Gate ──────────────────────────────────
     log.info("Stufe 10: Options Design + adaptiver Laufzeit-Loop")
@@ -1623,6 +1646,12 @@ def main() -> None:
         history["active_trades"].append(_at_dict)
         existing.add(key)
         cooled_tickers.add(p["ticker"])
+
+    _record_final_mc_downstream(
+        final_tickers=[p.get("ticker") for p in trade_proposals],
+        roi_rejects=getattr(designer, "roi_reject_log", []) or [],
+        blocked=[p.get("ticker") for p, _ in (locals().get("_ai_blocked") or [])],
+        other_reasons={p.get("ticker"): why for p, why in (locals().get("_shadow") or [])})
 
     Reporter(reports_dir=REPORTS_DIR).save(
         today=today, proposals=trade_proposals, history=history

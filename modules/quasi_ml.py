@@ -1,7 +1,11 @@
 """
-Stufe 6: Adaptive Quasi-ML Scoring (Selbstlern-Kern)
-- Unverändert vom Original (keine Bugs gefunden)
-- cfg: MIN_BIN_COUNT aus config.yaml
+Stufe 6: Quasi-ML Scoring – Status SHADOW (Audit 2026-10-03).
+
+feature_stats-Bins und Pearson-Gewichte (feedback.py) lernen täglich, aber `final_score`
+hat keinen Abnehmer mit Entscheidungswirkung: RL-Veto ist aus, alle Kandidaten gehen
+unabhängig von der Reihenfolge in Options Design, das Trade-Ranking nutzt trade_score.
+Angezeigt wird der Wert nur im Tagesreport (als SHADOW gekennzeichnet). Nicht als
+„Intelligence" berichten, solange er keine prospektiv validierte Wirkung hat.
 """
 import logging
 from modules.config import cfg

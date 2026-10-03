@@ -107,32 +107,55 @@ def test_decide_requires_all_robustness_checks():
     assert bad["verdict"] == "REJECT"
 
 
-def test_counter_hypothesis_only_on_holdout_years():
-    earn, frames, spy = _synthetic(0.0, seed=5)
-    ev = se.build_events(earn, frames, spy)
-    c = se.holdout_reversal(ev)
-    assert c["holdout_years"] and max(c["holdout_years"]) < se.TEST_START_YEAR
-    assert c["decision"]["verdict"] in ("KEEP", "MODIFY", "REJECT")
-    # Testjahre verändern das Holdout-Ergebnis nicht
-    ev2 = ev.copy()
-    ev2.loc[ev2["year"] >= se.TEST_START_YEAR, "fwd_20"] = 9.9
-    assert se.holdout_reversal(ev2)["h20"]["base_cost"]["mean"] == c["h20"]["base_cost"]["mean"]
+PINNED_S5 = "e605109c98edd1973a5207828170351c4a985a328a41f70a33b21d95878606f8"
 
 
-def test_counter_hypothesis_detects_real_reversal():
-    rng = np.random.default_rng(7)
-    cal = pd.bdate_range("2014-01-01", "2018-12-31")
+def test_s5_spec_pinned_and_old_holdouts_marked_used():
+    spec, h = se.s5_spec()
+    assert h == PINNED_S5, "S5-Holdout-Spezifikation nach Registrierung geändert"
+    assert spec["looks"] == 1 and spec["events_from"] > spec["registered_at"][:10]
+    assert all("USED" in v for v in se.USED_HOLDOUTS.values())
+
+
+def _reversal_events(effect: float, n_tickers=100, seed=7):
+    rng = np.random.default_rng(seed)
+    cal = pd.bdate_range("2026-06-01", "2028-01-31")
     spy = pd.DataFrame({"Open": 100.0, "Close": 100.0}, index=cal)
     frames, earn = {}, []
-    for k in range(40):
+    for k in range(n_tickers):
         ret = rng.normal(0, 0.01, len(cal))
-        for d in range(30 + k % 20, len(cal) - 80, 63):
+        for d in range(20 + k % 30, len(cal) - 80, 63):
             jump = rng.choice([-0.05, 0.05])
-            ret[d + 1] += jump                          # Reaktionstag (Meldung nach Schluss)
-            ret[d + 2: d + 22] += -jump / 20 * 1.5      # Umkehr danach
+            ret[d + 1] += jump
+            ret[d + 2: d + 22] += -jump / 20 * effect
             earn.append({"ticker": f"T{k}", "ann_ts": pd.Timestamp(cal[d]).tz_localize(NY) + pd.Timedelta(hours=17),
                          "eps_estimate": 1.0, "eps_actual": 1.1})
         c = 50 * np.cumprod(1 + ret)
         frames[f"T{k}"] = pd.DataFrame({"Open": c, "Close": c}, index=cal)
-    res = se.holdout_reversal(se.build_events(pd.DataFrame(earn), frames, spy))
-    assert res["h20"]["base_cost"]["mean"] > 0 and res["h20"]["base_cost"]["t_months"] > 2
+    return se.build_events(pd.DataFrame(earn), frames, spy)
+
+
+def test_s5_locked_before_evaluation_date_reveals_no_returns():
+    ev = _reversal_events(1.5)
+    r = se.s5_forward(ev, "2027-06-01")
+    assert r["status"] == "LOCKED" and r["n_events_collected"] > 0
+    assert "h20" not in r and "decision" not in r                    # kein Zwischen-Look
+    d = pd.to_datetime(ev["date"])
+    early = int(((d < pd.Timestamp("2026-10-05")) & ev["react_z"].ne(0)).sum())
+    assert early > 0 and r["n_events_collected"] <= len(ev) - early  # Meldungen vor Registrierung zählen nie
+
+
+def test_s5_single_evaluation_detects_real_reversal_and_rejects_noise():
+    r = se.s5_forward(_reversal_events(1.5), "2027-11-20")
+    assert r["status"] == "EVALUATED" and r["n_events_collected"] >= 300
+    assert r["h20"]["base_cost"]["mean"] > 0 and r["decision"]["verdict"] in ("KEEP", "MODIFY")
+    noise = se.s5_forward(_reversal_events(0.0, seed=9), "2027-11-20")
+    assert noise["decision"]["verdict"] != "KEEP"
+
+
+def test_research_memory_ignores_locked_s5(tmp_path):
+    import json
+    from modules import research_memory as rm
+    f = tmp_path / "surprise_study.json"
+    f.write_text(json.dumps({"counter_hypotheses": {"S5_reaction_reversal": {"status": "LOCKED"}}}))
+    assert not [e for e in rm.collect({"surprise_study": f}) if "S5" in str(e.get("hypothesis_id"))]
