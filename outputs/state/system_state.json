@@ -23,7 +23,7 @@
  "model_health": {
   "status": "OK",
   "reasons": [],
-  "updated": "2026-10-03T12:28:35+00:00"
+  "updated": "2026-10-03T13:39:07+00:00"
  },
  "drift_state": {
   "level": "MODERATE",
@@ -122,15 +122,15 @@
  },
  "known": true,
  "inputs": {
-  "model_health": "4744f4c95ba1",
-  "meta_learning": "607f4146ff77",
+  "model_health": "d33c3a3f5d92",
+  "meta_learning": "b5c0b4d9cff8",
   "data_health": "3c9c1bb14b45",
   "promotion": "d779478a5b98",
   "model_registry": "a0c0ce90b949",
   "champion_config": "614c701dde4d"
  },
- "state_version": 1,
- "fingerprint": "d705f8cda07d1442",
- "updated_at": "2026-10-03T13:16:04+00:00",
- "code_version": "c8704a70a180"
+ "state_version": 2,
+ "fingerprint": "fc1a65af88e162b4",
+ "updated_at": "2026-10-03T13:39:07+00:00",
+ "code_version": "8ae38a1effcd"
 }

@@ -1,4 +1,4 @@
-# Machine Intelligence State – 2026-10-03T13:23:33+00:00
+# Machine Intelligence State – 2026-10-03T13:39:07+00:00
 
 ## Selbsteinschätzung
 
@@ -7,7 +7,7 @@
 - world_model_validation: **MODIFY**
 - meta_learning: **NEED_MORE_DATA**
 - next_architecture: **KEEP_CHAMPION**
-- safe_mode: **True**
+- safe_mode: **False**
 
 ## Was wissen wir?
 
@@ -79,4 +79,4 @@
 
 Höchste Research-Priorität: Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?
 
-Safe Mode: **AKTIV** – ["FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])"]
+Safe Mode: **aus** – –

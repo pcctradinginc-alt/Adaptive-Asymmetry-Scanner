@@ -1,12 +1,12 @@
 {
- "generated": "2026-10-03T13:23:33+00:00",
+ "generated": "2026-10-03T13:39:07+00:00",
  "self_assessment": {
   "overall_calibration": "WEAK",
   "world_model_uncertainty": "MODERATE",
   "world_model_validation": "MODIFY",
   "meta_learning": "NEED_MORE_DATA",
   "next_architecture": "KEEP_CHAMPION",
-  "safe_mode": true
+  "safe_mode": false
  },
  "what_do_we_know": [
   "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00154 je Position, Sharpe 0.216, Trefferquote 0.4877",
@@ -381,11 +381,95 @@
   }
  },
  "safe_mode": {
-  "active": true,
-  "reasons": [
-   "FEATURE/DATA DRIFT: Regime-Merkmale außerhalb des Trainingsbereichs (['tnx'])"
-  ],
-  "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
-  "updated": "2026-10-03T13:23:33+00:00"
+  "active": false,
+  "reasons": [],
+  "known": true,
+  "state_version": 2,
+  "drift_level": "MODERATE",
+  "consequences": {
+   "confidence_multiplier": 0.75,
+   "positive_boost_cap": 0.5,
+   "allow_weight_increase": false,
+   "safe_mode": false
+  },
+  "blocked_decisions": [],
+  "disabled_signals": [],
+  "unavailable_features": [],
+  "data_quality": 0.932,
+  "model_health_component": {
+   "active": false,
+   "reasons": [],
+   "components": {
+    "drift": [],
+    "model": [],
+    "data": []
+   },
+   "drift": {
+    "feature": {
+     "level": "MODERATE",
+     "features_out_of_range": [
+      "tnx"
+     ],
+     "share_out": 0.167,
+     "per_feature": {
+      "vix": {
+       "level": "NORMAL",
+       "excess": 0.0,
+       "value": 15.31,
+       "p01": 12.2374,
+       "p99": 33.3101
+      },
+      "vix_chg_21": {
+       "level": "NORMAL",
+       "excess": 0.0,
+       "value": 0.11,
+       "p01": -11.8762,
+       "p99": 13.7307
+      },
+      "spy_trend_200": {
+       "level": "NORMAL",
+       "excess": 0.0,
+       "value": 0.0734,
+       "p01": -0.1303,
+       "p99": 0.1626
+      },
+      "spy_mom_63": {
+       "level": "NORMAL",
+       "excess": 0.0,
+       "value": 0.027,
+       "p01": -0.1323,
+       "p99": 0.1471
+      },
+      "tnx": {
+       "level": "MODERATE",
+       "excess": 0.1345,
+       "value": 5.277,
+       "p01": 1.0993,
+       "p99": 4.7817
+      },
+      "curve_10y_3m": {
+       "level": "NORMAL",
+       "excess": 0.0,
+       "value": 1.284,
+       "p01": -1.5086,
+       "p99": 2.0797
+      }
+     }
+    },
+    "model": {
+     "level": "MODERATE",
+     "share_deteriorating": 0.333,
+     "deteriorating": [
+      "enet_xs20_v1",
+      "momentum_12_1"
+     ],
+     "n_models": 6
+    }
+   },
+   "canonical": false,
+   "see": "outputs/state/system_state.json",
+   "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
+   "updated": "2026-10-03T13:39:07+00:00"
+  }
  }
 }
