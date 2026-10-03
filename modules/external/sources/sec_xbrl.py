@@ -259,6 +259,9 @@ def build_feature_table(rows: pd.DataFrame, dates, cik_by_ticker: dict[str, str]
                             "avail": pd.to_datetime(rows["available_at"], utc=True),
                             "start": pd.to_datetime(at.map(lambda a: a.get("start")), utc=True),
                             "end": pd.to_datetime(at.map(lambda a: a.get("end")), utc=True)}).dropna(subset=["value"])
+        # Bereits gespeicherte unplausible Fakten (Periodenende nach Verfügbarkeit) nie verwenden –
+        # sie würden sonst als "jüngste Periode" gelten (Live 2026-10-03, ein Fakt)
+        obs = obs[~(obs["end"] > obs["avail"]) & ~(obs["start"] > obs["end"])]
     else:
         obs = pd.DataFrame(columns=["cik", "metric", "value", "avail", "start", "end"])
     by = dict(tuple(obs.groupby("cik"))) if len(obs) else {}

@@ -138,6 +138,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p outputs/state
+          mkdir -p outputs/state
           git add outputs/research/ outputs/state/
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: ml research $(date -u +%Y-%m-%dT%H:%M)"

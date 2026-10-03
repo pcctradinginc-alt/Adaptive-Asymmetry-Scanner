@@ -3,6 +3,7 @@ nie spätere Korrekturen rückwirkend), Q4-Ableitung, Staleness -> NaN, inkremen
 budgetierter Ingest, Registry-Einbindung."""
 from __future__ import annotations
 
+import json
 import types
 from datetime import datetime, timezone
 
@@ -134,3 +135,17 @@ def test_unchanged_comparatives_dropped_revisions_kept():
     obs = [o for o in sx.parse_companyfacts(f, "1", RT) if o.metric == "revenue"]
     accns = {o.attrs["accn"] for o in obs}
     assert "q20161-comp" not in accns and "q20162-rev" in accns and "q20151" in accns
+
+
+def test_stored_future_period_fact_never_becomes_latest():
+    """Ein bereits im Store liegender unplausibler Fakt (Periode nach Verfügbarkeit) wird ignoriert."""
+    obs = sx.parse_companyfacts(_facts(years=range(2014, 2017)), "1", RT)
+    rows = obs_to_rows(obs)
+    bad = rows.iloc[[0]].copy()
+    bad["series_id"] = "bad"
+    bad["value"] = "1e12"
+    bad["attrs"] = json.dumps({"start": "2016-10-01", "end": "2030-12-31"})
+    bad["available_at"] = "2016-11-10T00:00:00+00:00"
+    t_bad = sx.build_feature_table(pd.concat([rows, bad]), [pd.Timestamp("2016-12-02")], {"X": "1"})
+    t_ok = sx.build_feature_table(rows, [pd.Timestamp("2016-12-02")], {"X": "1"})
+    pd.testing.assert_frame_equal(t_bad, t_ok)
