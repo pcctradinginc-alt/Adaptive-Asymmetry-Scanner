@@ -78,7 +78,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:02+00:00",
+      "evaluated_at": "2026-10-03T13:00:58+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -216,7 +216,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -264,7 +264,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:03+00:00",
+      "evaluated_at": "2026-10-03T13:00:59+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -406,7 +406,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -457,7 +457,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:05+00:00",
+      "evaluated_at": "2026-10-03T13:01:01+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -465,10 +465,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00425 mit t=-1.56",
+        "Walk-Forward netto -0.00426 mit t=-1.56",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00185, 'second': -0.00664}",
+        "instabil über Hälften {'first': -0.00186, 'second': -0.00664}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "e3b02741a37e",
@@ -477,14 +477,14 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00425,
+          "mean": -0.00426,
           "median": -0.00255,
           "hit_rate": 0.457,
           "t_months": -1.56,
-          "sharpe_ann": -0.61,
-          "max_dd": -0.31972,
+          "sharpe_ann": -0.62,
+          "max_dd": -0.32015,
           "years_positive_share": 0.143,
-          "top_mfe": 0.05536,
+          "top_mfe": 0.05535,
           "top_mae": -0.04926,
           "top_asymmetry": 1.124,
           "univ_asymmetry": 1.154
@@ -492,14 +492,14 @@
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00725,
+          "mean": -0.00726,
           "median": -0.00555,
           "hit_rate": 0.397,
-          "t_months": -2.75,
+          "t_months": -2.76,
           "sharpe_ann": -1.09,
-          "max_dd": -0.43919,
+          "max_dd": -0.43955,
           "years_positive_share": 0.0,
-          "top_mfe": 0.05536,
+          "top_mfe": 0.05535,
           "top_mae": -0.04926,
           "top_asymmetry": 1.124,
           "univ_asymmetry": 1.154
@@ -510,21 +510,21 @@
           "t_months": -0.19
         },
         "halves": {
-          "first": -0.00185,
+          "first": -0.00186,
           "second": -0.00664
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00068,
+            "mean": -0.0007,
             "median": -0.00014,
             "hit_rate": 0.497,
-            "t_months": 0.05,
+            "t_months": 0.04,
             "sharpe_ann": 0.02,
             "max_dd": -0.12022,
             "years_positive_share": 0.571,
-            "top_mfe": 0.04709,
+            "top_mfe": 0.04708,
             "top_mae": -0.04472,
             "top_asymmetry": 1.053,
             "univ_asymmetry": 1.014
@@ -532,12 +532,12 @@
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00947,
+            "mean": -0.00946,
             "median": -0.00485,
             "hit_rate": 0.397,
-            "t_months": -2.24,
+            "t_months": -2.23,
             "sharpe_ann": -1.17,
-            "max_dd": -0.33412,
+            "max_dd": -0.33385,
             "years_positive_share": 0.0,
             "top_mfe": 0.06746,
             "top_mae": -0.05591,
@@ -547,16 +547,16 @@
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00162,
+            "mean": -0.00163,
             "median": -0.00146,
             "hit_rate": 0.477,
             "t_months": -0.13,
-            "sharpe_ann": -0.05,
+            "sharpe_ann": -0.06,
             "max_dd": -0.14627,
             "years_positive_share": 0.429,
-            "top_mfe": 0.05093,
+            "top_mfe": 0.05092,
             "top_mae": -0.04457,
-            "top_asymmetry": 1.143,
+            "top_asymmetry": 1.142,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
@@ -599,16 +599,16 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00425 je 20 Tage, t=-1.56, Rank-IC -0.00554, Asymmetrie Top/Univ 1.124/1.154"
+          "finding": "Evidenz: netto -0.00426 je 20 Tage, t=-1.56, Rank-IC -0.00554, Asymmetrie Top/Univ 1.124/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00185, 'second': -0.00664}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00186, 'second': -0.00664}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
@@ -624,11 +624,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00725; Max-DD -0.31972"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00726; Max-DD -0.32015"
         },
         "failure_agent": {
           "objection": true,
-          "finding": "Schlechteste Phase laut Max-DD -0.31972; Jahre positiv 0.143"
+          "finding": "Schlechteste Phase laut Max-DD -0.32015; Jahre positiv 0.143"
         },
         "objections": [
           "execution_agent",
@@ -651,7 +651,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:07+00:00",
+      "evaluated_at": "2026-10-03T13:01:02+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -794,7 +794,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -846,7 +846,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:08+00:00",
+      "evaluated_at": "2026-10-03T13:01:04+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -987,7 +987,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -1036,7 +1036,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:10+00:00",
+      "evaluated_at": "2026-10-03T13:01:06+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -1180,7 +1180,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -1230,7 +1230,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T12:06:12+00:00",
+      "evaluated_at": "2026-10-03T13:01:08+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -1375,7 +1375,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -2603,7 +2603,7 @@
       "direction": 1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T12:06:22+00:00",
+      "evaluated_at": "2026-10-03T13:01:13+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -2746,7 +2746,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -2797,7 +2797,7 @@
       "direction": 1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T12:06:24+00:00",
+      "evaluated_at": "2026-10-03T13:01:15+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -2941,7 +2941,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -2992,7 +2992,7 @@
       "direction": -1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T12:06:25+00:00",
+      "evaluated_at": "2026-10-03T13:01:16+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -3135,7 +3135,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -3186,7 +3186,7 @@
       "direction": -1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T12:06:27+00:00",
+      "evaluated_at": "2026-10-03T13:01:18+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -3328,7 +3328,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -4599,7 +4599,7 @@
       "direction": 1,
       "source": "alt_data:ted_procurement",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T12:06:29+00:00",
+      "evaluated_at": "2026-10-03T13:01:20+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -4625,7 +4625,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "canonical_status": "RETEST_LATER"
     },
@@ -4638,7 +4638,7 @@
       "direction": 1,
       "source": "alt_data:ted_procurement",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T12:06:29+00:00",
+      "evaluated_at": "2026-10-03T13:01:20+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -4666,7 +4666,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "canonical_status": "RETEST_LATER"
     },
@@ -5874,7 +5874,7 @@
       "direction": 1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T12:06:29+00:00",
+      "evaluated_at": "2026-10-03T13:01:20+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6016,7 +6016,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -6067,7 +6067,7 @@
       "direction": -1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T12:06:31+00:00",
+      "evaluated_at": "2026-10-03T13:01:22+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6207,7 +6207,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -6256,7 +6256,7 @@
       "direction": -1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T12:06:33+00:00",
+      "evaluated_at": "2026-10-03T13:01:24+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6398,7 +6398,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -6449,7 +6449,7 @@
       "direction": 1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T12:06:34+00:00",
+      "evaluated_at": "2026-10-03T13:01:25+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6591,7 +6591,7 @@
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
         "decision_date": "2026-10-03",
-        "model_version": "bc80a346570d"
+        "model_version": "3efb2583968b"
       },
       "adversarial_review": {
         "researcher": {
@@ -6631,6 +6631,458 @@
         "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
       },
       "canonical_status": "REJECTED"
+    },
+    "FAC-D4E1EB14": {
+      "id": "FAC-D4E1EB14",
+      "title": "Divergenz xbrl_sue vs. mom_3m",
+      "statement": "Divergenz xbrl_sue vs. mom_3m: Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+      "contract_hash": null,
+      "signal": "rank(xbrl_sue) * step(-mom_3m)",
+      "direction": 1,
+      "source": "factory",
+      "created_at": "2026-10-03T12:59:49+00:00",
+      "evaluated_at": "2026-10-03T13:01:10+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto 0.00125 mit t=0.78",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.00177, 'second': 0.00426}",
+        "Regime: {'vix_lt_20': 'works', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+      ],
+      "family": "div_fundamentals_vs_price",
+      "domain": "fundamentals",
+      "spec_hash": "25b336517fda20f0",
+      "signal_key": "9d4a236a6027",
+      "coverage": 0.939,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": 0.00125,
+          "median": 0.00085,
+          "hit_rate": 0.516,
+          "t_months": 0.78,
+          "sharpe_ann": 0.31,
+          "max_dd": -0.15814,
+          "years_positive_share": 0.857,
+          "top_mfe": 0.07774,
+          "top_mae": -0.06356,
+          "top_asymmetry": 1.223,
+          "univ_asymmetry": 1.152
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00175,
+          "median": -0.00215,
+          "hit_rate": 0.448,
+          "t_months": -0.92,
+          "sharpe_ann": -0.36,
+          "max_dd": -0.20527,
+          "years_positive_share": 0.143,
+          "top_mfe": 0.07774,
+          "top_mae": -0.06356,
+          "top_asymmetry": 1.223,
+          "univ_asymmetry": 1.152
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": 0.00231,
+          "t_months": 0.44
+        },
+        "halves": {
+          "first": -0.00177,
+          "second": 0.00426
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": 0.00248,
+            "median": 0.00182,
+            "hit_rate": 0.568,
+            "t_months": 0.9,
+            "sharpe_ann": 0.41,
+            "max_dd": -0.0616,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.06491,
+            "top_mae": -0.05882,
+            "top_asymmetry": 1.104,
+            "univ_asymmetry": 1.015
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.00054,
+            "median": -0.00347,
+            "hit_rate": 0.441,
+            "t_months": -0.0,
+            "sharpe_ann": -0.0,
+            "max_dd": -0.15215,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.09652,
+            "top_mae": -0.07048,
+            "top_asymmetry": 1.369,
+            "univ_asymmetry": 1.323
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00037,
+            "median": 0.00017,
+            "hit_rate": 0.5,
+            "t_months": -0.8,
+            "sharpe_ann": -0.34,
+            "max_dd": -0.19874,
+            "years_positive_share": 0.714,
+            "top_mfe": 0.06821,
+            "top_mae": -0.05871,
+            "top_asymmetry": 1.162,
+            "univ_asymmetry": 1.112
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": 0.0069,
+            "median": 0.00534,
+            "hit_rate": 0.573,
+            "t_months": 1.57,
+            "sharpe_ann": 1.09,
+            "max_dd": -0.03235,
+            "years_positive_share": 1.0,
+            "top_mfe": 0.1108,
+            "top_mae": -0.08036,
+            "top_asymmetry": 1.379,
+            "univ_asymmetry": 1.256
+          }
+        },
+        "p_value": 0.217695
+      },
+      "p_value": 0.217695,
+      "regimes": {
+        "vix_lt_20": "works",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "works"
+      },
+      "status": "rejected",
+      "memory": {
+        "question": "Divergenz xbrl_sue vs. mom_3m: Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+        "why_tested": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "mom_3m",
+          "xbrl_sue"
+        ],
+        "feature_definitions": {
+          "mom_3m": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "xbrl_sue": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-10-03",
+        "model_version": "3efb2583968b"
+      },
+      "adversarial_review": {
+        "researcher": {
+          "objection": false,
+          "finding": "Evidenz: netto 0.00125 je 20 Tage, t=0.78, Rank-IC 0.00231, Asymmetrie Top/Univ 1.223/1.152"
+        },
+        "skeptic": {
+          "objection": true,
+          "finding": "Hälften {'first': -0.00177, 'second': 0.00426}; Jahre positiv 0.857; Regime mit Versagen: ['vix_ge_20', 'spy_uptrend']"
+        },
+        "statistician": {
+          "objection": true,
+          "finding": "n=335 Kohorten/77 Monate, t=0.78, p=0.217695, BH über alle getesteten Hypothesen"
+        },
+        "leakage_auditor": {
+          "objection": false,
+          "finding": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; PIT-Universum (Audit F01); Locked KONTAMINIERT (nur Ablehnung)"
+        },
+        "regime_agent": {
+          "objection": true,
+          "finding": "Regime-Urteile {'vix_lt_20': 'works', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
+        },
+        "execution_agent": {
+          "objection": true,
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00175; Max-DD -0.15814"
+        },
+        "failure_agent": {
+          "objection": false,
+          "finding": "Schlechteste Phase laut Max-DD -0.15814; Jahre positiv 0.857"
+        },
+        "objections": [
+          "execution_agent",
+          "regime_agent",
+          "skeptic",
+          "statistician"
+        ],
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
+    },
+    "FAC-AD1E02FC": {
+      "id": "FAC-AD1E02FC",
+      "title": "vol_60 nur im Niedrig-Vol-Regime",
+      "signal": "rank(vol_60) * step(20 - vix)",
+      "source": "factory",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "FAC-A11F218F",
+      "similarity": 0.9,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese FAC-A11F218F (Jaccard 0.90)"
+      ],
+      "evaluated_at": "2026-10-03T13:01:12+00:00",
+      "canonical_status": "REJECTED"
+    },
+    "FAC-195425A4": {
+      "id": "FAC-195425A4",
+      "title": "sec_insider_net_value_90d wirkt bedingt (Sektor Healthcare)",
+      "statement": "sec_insider_net_value_90d wirkt bedingt (Sektor Healthcare): Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+      "contract_hash": null,
+      "signal": "exp_healthcare * rank(sec_insider_net_value_90d)",
+      "direction": -1,
+      "source": "factory",
+      "created_at": "2026-10-03T12:59:49+00:00",
+      "evaluated_at": "2026-10-03T13:01:12+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.00476 mit t=-1.73",
+        "nur 0.0 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.0043, 'second': -0.00521}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "family": "cond_sec_insider_net_value_90d_healthcare",
+      "domain": "sec_deep_events",
+      "exposure_sector": "Healthcare",
+      "spec_hash": "787dc6a170d4bb7f",
+      "signal_key": "6a8ae0451e09",
+      "coverage": 1.0,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00476,
+          "median": -0.0037,
+          "hit_rate": 0.448,
+          "t_months": -1.73,
+          "sharpe_ann": -0.68,
+          "max_dd": -0.33831,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.06834,
+          "top_mae": -0.06165,
+          "top_asymmetry": 1.108,
+          "univ_asymmetry": 1.154
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00776,
+          "median": -0.0067,
+          "hit_rate": 0.391,
+          "t_months": -2.92,
+          "sharpe_ann": -1.15,
+          "max_dd": -0.44748,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.06834,
+          "top_mae": -0.06165,
+          "top_asymmetry": 1.108,
+          "univ_asymmetry": 1.154
+        },
+        "ic": {
+          "n_dates": 335,
+          "mean_ic": -0.00277,
+          "t_months": -0.28
+        },
+        "halves": {
+          "first": -0.0043,
+          "second": -0.00521
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.0038,
+            "median": -0.00395,
+            "hit_rate": 0.432,
+            "t_months": -1.54,
+            "sharpe_ann": -0.71,
+            "max_dd": -0.24339,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.05895,
+            "top_mae": -0.05957,
+            "top_asymmetry": 0.99,
+            "univ_asymmetry": 1.014
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.00615,
+            "median": -0.00191,
+            "hit_rate": 0.471,
+            "t_months": -1.02,
+            "sharpe_ann": -0.53,
+            "max_dd": -0.28891,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.08207,
+            "top_mae": -0.0647,
+            "top_asymmetry": 1.268,
+            "univ_asymmetry": 1.329
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00532,
+            "median": -0.00401,
+            "hit_rate": 0.431,
+            "t_months": -1.76,
+            "sharpe_ann": -0.75,
+            "max_dd": -0.31296,
+            "years_positive_share": 0.143,
+            "top_mfe": 0.0624,
+            "top_mae": -0.05933,
+            "top_asymmetry": 1.052,
+            "univ_asymmetry": 1.113
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.00281,
+            "median": 0.00013,
+            "hit_rate": 0.507,
+            "t_months": 0.08,
+            "sharpe_ann": 0.06,
+            "max_dd": -0.12426,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.08893,
+            "top_mae": -0.06972,
+            "top_asymmetry": 1.276,
+            "univ_asymmetry": 1.262
+          }
+        },
+        "p_value": 0.958185
+      },
+      "p_value": 0.958185,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "status": "rejected",
+      "memory": {
+        "question": "sec_insider_net_value_90d wirkt bedingt (Sektor Healthcare): Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+        "why_tested": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "exp_healthcare",
+          "sec_insider_net_value_90d"
+        ],
+        "feature_definitions": {
+          "exp_healthcare": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "sec_insider_net_value_90d": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-10-03",
+        "model_version": "3efb2583968b"
+      },
+      "adversarial_review": {
+        "researcher": {
+          "objection": true,
+          "finding": "Evidenz: netto -0.00476 je 20 Tage, t=-1.73, Rank-IC -0.00277, Asymmetrie Top/Univ 1.108/1.154"
+        },
+        "skeptic": {
+          "objection": true,
+          "finding": "Hälften {'first': -0.0043, 'second': -0.00521}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+        },
+        "statistician": {
+          "objection": true,
+          "finding": "n=335 Kohorten/77 Monate, t=-1.73, p=0.958185, BH über alle getesteten Hypothesen"
+        },
+        "leakage_auditor": {
+          "objection": false,
+          "finding": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; PIT-Universum (Audit F01); Locked KONTAMINIERT (nur Ablehnung)"
+        },
+        "regime_agent": {
+          "objection": true,
+          "finding": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+        },
+        "execution_agent": {
+          "objection": true,
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00776; Max-DD -0.33831"
+        },
+        "failure_agent": {
+          "objection": true,
+          "finding": "Schlechteste Phase laut Max-DD -0.33831; Jahre positiv 0.0"
+        },
+        "objections": [
+          "execution_agent",
+          "failure_agent",
+          "regime_agent",
+          "researcher",
+          "skeptic",
+          "statistician"
+        ],
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
+    },
+    "FAC-A82BAC5D": {
+      "id": "FAC-A82BAC5D",
+      "title": "sec_insider_buy_value_90d wirkt bedingt (Sektor Healthcare)",
+      "signal": "exp_healthcare * rank(sec_insider_buy_value_90d)",
+      "source": "factory",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "FAC-195425A4",
+      "similarity": 0.917,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
+      ],
+      "evaluated_at": "2026-10-03T13:01:13+00:00",
+      "canonical_status": "REJECTED"
+    },
+    "FAC-3A0A8178": {
+      "id": "FAC-3A0A8178",
+      "title": "sec_insider_buyers_90d wirkt bedingt (Sektor Healthcare)",
+      "signal": "exp_healthcare * rank(sec_insider_buyers_90d)",
+      "source": "factory",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "FAC-195425A4",
+      "similarity": 0.917,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
+      ],
+      "evaluated_at": "2026-10-03T13:01:13+00:00",
+      "canonical_status": "REJECTED"
+    },
+    "FAC-01660B09": {
+      "id": "FAC-01660B09",
+      "title": "sec_filing_delay_z wirkt bedingt (Sektor Healthcare)",
+      "signal": "exp_healthcare * rank(sec_filing_delay_z)",
+      "source": "factory",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "FAC-195425A4",
+      "similarity": 0.917,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
+      ],
+      "evaluated_at": "2026-10-03T13:01:13+00:00",
+      "canonical_status": "REJECTED"
     }
   },
   "discovery": {
@@ -6639,11 +7091,11 @@
     "window": "2015-01-01..2019-01-01",
     "survivor_ids": []
   },
-  "n_tested_total": 33,
-  "generated": "2026-10-03T12:06:36+00:00",
+  "n_tested_total": 35,
+  "generated": "2026-10-03T13:01:27+00:00",
   "status_counts": {
     "ACCEPTED": 0,
-    "REJECTED": 47,
+    "REJECTED": 53,
     "INCONCLUSIVE": 2,
     "RETEST_LATER": 4
   },

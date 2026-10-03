@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T12:06:37+00:00",
+ "generated": "2026-10-03T13:01:29+00:00",
  "protocol": "alt-v1",
  "sources": {
   "sec_deep_events": {
@@ -67,7 +67,7 @@
      "max_abs_corr_existing": 0.074,
      "most_similar_existing": "vol_60",
      "incremental_information_score": 0.926,
-     "selection_ic": -0.0139
+     "selection_ic": -0.0138
     }
    },
    "selected_features": [
@@ -81,33 +81,33 @@
     "enet_xs20_v1": {
      "base": {
       "ic": 0.01842,
-      "sharpe": 0.397,
+      "sharpe": 0.398,
       "expectancy": 0.00338,
       "max_dd": -0.1569,
       "precision_at_k": 0.2477,
       "hit_rate": 0.4925,
       "n_trades": 15810,
-      "brier": 0.25026,
-      "ece": 0.00838,
-      "log_loss": 0.69521
+      "brier": 0.25027,
+      "ece": 0.00834,
+      "log_loss": 0.69522
      },
      "with_source": {
       "ic": 0.01677,
       "sharpe": 0.381,
-      "expectancy": 0.00311,
+      "expectancy": 0.0031,
       "max_dd": -0.1421,
       "precision_at_k": 0.2471,
       "hit_rate": 0.4923,
       "n_trades": 15810,
       "brier": 0.25024,
-      "ece": 0.00715,
-      "log_loss": 0.69519
+      "ece": 0.00718,
+      "log_loss": 0.69518
      },
      "bootstrap": {
-      "delta_monthly_mean": -0.000226,
+      "delta_monthly_mean": -0.000232,
       "ci_monthly_mean": [
-       -0.001184,
-       0.000668
+       -0.00119,
+       0.000661
       ],
       "ci_sharpe": [
        -0.162,
@@ -118,23 +118,23 @@
      },
      "delta": {
       "ic": -0.00165,
-      "sharpe": -0.016,
-      "expectancy": -0.00027,
+      "sharpe": -0.017,
+      "expectancy": -0.00028,
       "max_dd": 0.0148,
       "precision_at_k": -0.0006,
       "hit_rate": -0.0002,
       "n_trades": 0,
-      "brier": -2e-05,
-      "ece": -0.00123,
-      "log_loss": -2e-05
+      "brier": -3e-05,
+      "ece": -0.00116,
+      "log_loss": -4e-05
      },
      "delta_by_year": {
       "2019": -0.00108,
-      "2020": 0.00139,
-      "2021": 0.0001,
+      "2020": 0.00138,
+      "2021": 9e-05,
       "2022": 0.0,
       "2023": 0.0,
-      "2024": -0.00187,
+      "2024": -0.00188,
       "2025": 0.0
      },
      "breakdown": {
@@ -175,11 +175,11 @@
         "delta": -0.00251
        },
        "Financial Services": {
-        "base": 0.00388,
-        "n_base": 2128,
-        "variant": 0.00297,
+        "base": 0.00393,
+        "n_base": 2129,
+        "variant": 0.00296,
         "n_variant": 2053,
-        "delta": -0.00091
+        "delta": -0.00097
        },
        "Healthcare": {
         "base": -0.00636,
@@ -196,18 +196,18 @@
         "delta": 0.00155
        },
        "Real Estate": {
-        "base": 0.01691,
-        "n_base": 368,
+        "base": 0.01671,
+        "n_base": 367,
         "variant": 0.01454,
         "n_variant": 386,
-        "delta": -0.00237
+        "delta": -0.00217
        },
        "Technology": {
         "base": 0.01184,
         "n_base": 3677,
-        "variant": 0.01133,
+        "variant": 0.01132,
         "n_variant": 3783,
-        "delta": -0.00051
+        "delta": -0.00052
        },
        "Utilities": {
         "base": 0.01022,
@@ -226,11 +226,11 @@
       },
       "regime": {
        "vix_ge_20": {
-        "base": 0.01306,
+        "base": 0.01307,
         "n_base": 6414,
         "variant": 0.01337,
         "n_variant": 6414,
-        "delta": 0.00031
+        "delta": 0.0003
        },
        "vix_lt_20": {
         "base": -0.00323,
@@ -244,164 +244,164 @@
     },
     "hgb_xs20_v1": {
      "base": {
-      "ic": 0.03605,
-      "sharpe": 0.355,
-      "expectancy": 0.00343,
-      "max_dd": -0.1635,
-      "precision_at_k": 0.2399,
-      "hit_rate": 0.5027,
+      "ic": 0.03799,
+      "sharpe": 0.434,
+      "expectancy": 0.00404,
+      "max_dd": -0.1432,
+      "precision_at_k": 0.2326,
+      "hit_rate": 0.5049,
       "n_trades": 15810,
-      "brier": 0.25044,
-      "ece": 0.01755,
-      "log_loss": 0.69405
+      "brier": 0.25034,
+      "ece": 0.01699,
+      "log_loss": 0.69385
      },
      "with_source": {
-      "ic": 0.02249,
-      "sharpe": 0.309,
-      "expectancy": 0.00323,
-      "max_dd": -0.2262,
-      "precision_at_k": 0.2471,
-      "hit_rate": 0.4979,
+      "ic": 0.02733,
+      "sharpe": 0.301,
+      "expectancy": 0.00318,
+      "max_dd": -0.2289,
+      "precision_at_k": 0.2455,
+      "hit_rate": 0.4987,
       "n_trades": 15810,
-      "brier": 0.25064,
-      "ece": 0.01364,
-      "log_loss": 0.6948
+      "brier": 0.25071,
+      "ece": 0.02086,
+      "log_loss": 0.69497
      },
      "bootstrap": {
-      "delta_monthly_mean": -0.000229,
+      "delta_monthly_mean": -0.000884,
       "ci_monthly_mean": [
-       -0.002771,
-       0.00217
+       -0.003224,
+       0.001228
       ],
       "ci_sharpe": [
-       -0.359,
-       0.219
+       -0.362,
+       0.087
       ],
       "alpha_one_sided": 0.008333333333333333,
       "n_months": 77
      },
      "delta": {
-      "ic": -0.01356,
-      "sharpe": -0.046,
-      "expectancy": -0.0002,
-      "max_dd": -0.0627,
-      "precision_at_k": 0.0072,
-      "hit_rate": -0.0048,
+      "ic": -0.01066,
+      "sharpe": -0.133,
+      "expectancy": -0.00086,
+      "max_dd": -0.0857,
+      "precision_at_k": 0.0129,
+      "hit_rate": -0.0062,
       "n_trades": 0,
-      "brier": 0.0002,
-      "ece": -0.00391,
-      "log_loss": 0.00075
+      "brier": 0.00037,
+      "ece": 0.00387,
+      "log_loss": 0.00112
      },
      "delta_by_year": {
-      "2019": 0.00109,
-      "2020": 0.00333,
-      "2021": 0.00012,
-      "2022": -0.0038,
-      "2023": -0.00182,
-      "2024": -0.00107,
-      "2025": 0.00162
+      "2019": 0.0018,
+      "2020": -0.00044,
+      "2021": -0.00195,
+      "2022": -0.00128,
+      "2023": -0.00514,
+      "2024": -0.0013,
+      "2025": 0.00635
      },
      "breakdown": {
       "sector": {
        "Basic Materials": {
-        "base": -0.00953,
-        "n_base": 536,
-        "variant": -0.00922,
-        "n_variant": 505,
-        "delta": 0.00031
+        "base": -0.01095,
+        "n_base": 576,
+        "variant": -0.00535,
+        "n_variant": 489,
+        "delta": 0.0056
        },
        "Communication Services": {
-        "base": 0.00132,
-        "n_base": 1141,
-        "variant": 0.00039,
-        "n_variant": 1116,
-        "delta": -0.00093
+        "base": 0.00291,
+        "n_base": 1105,
+        "variant": -0.00327,
+        "n_variant": 1128,
+        "delta": -0.00618
        },
        "Consumer Cyclical": {
-        "base": 0.00359,
-        "n_base": 2252,
-        "variant": 0.00015,
-        "n_variant": 2337,
-        "delta": -0.00344
+        "base": 0.00381,
+        "n_base": 2073,
+        "variant": 0.00136,
+        "n_variant": 2297,
+        "delta": -0.00245
        },
        "Consumer Defensive": {
-        "base": 0.0019,
-        "n_base": 1129,
-        "variant": -0.00559,
-        "n_variant": 1196,
-        "delta": -0.00749
+        "base": 0.0016,
+        "n_base": 1257,
+        "variant": -0.00499,
+        "n_variant": 1322,
+        "delta": -0.00659
        },
        "Energy": {
-        "base": 0.01109,
-        "n_base": 979,
-        "variant": 0.02529,
-        "n_variant": 915,
-        "delta": 0.0142
+        "base": 0.01523,
+        "n_base": 923,
+        "variant": 0.02389,
+        "n_variant": 892,
+        "delta": 0.00866
        },
        "Financial Services": {
-        "base": 0.00546,
-        "n_base": 1837,
-        "variant": 0.00619,
-        "n_variant": 1732,
-        "delta": 0.00073
+        "base": 0.00782,
+        "n_base": 1868,
+        "variant": 0.00689,
+        "n_variant": 1783,
+        "delta": -0.00093
        },
        "Healthcare": {
-        "base": -0.003,
-        "n_base": 1673,
-        "variant": -0.00259,
-        "n_variant": 1660,
-        "delta": 0.00041
+        "base": -0.0036,
+        "n_base": 1698,
+        "variant": -0.00447,
+        "n_variant": 1694,
+        "delta": -0.00087
        },
        "Industrials": {
-        "base": 0.00326,
-        "n_base": 1795,
-        "variant": 0.00235,
-        "n_variant": 1710,
-        "delta": -0.00091
+        "base": 0.00409,
+        "n_base": 1904,
+        "variant": 0.0027,
+        "n_variant": 1660,
+        "delta": -0.00139
        },
        "Real Estate": {
-        "base": 0.00395,
-        "n_base": 858,
-        "variant": 0.00435,
-        "n_variant": 708,
-        "delta": 0.0004
+        "base": 0.0037,
+        "n_base": 859,
+        "variant": 0.00539,
+        "n_variant": 745,
+        "delta": 0.00169
        },
        "Technology": {
-        "base": 0.00664,
-        "n_base": 2806,
-        "variant": 0.00955,
-        "n_variant": 3051,
-        "delta": 0.00291
+        "base": 0.01009,
+        "n_base": 2515,
+        "variant": 0.00948,
+        "n_variant": 2941,
+        "delta": -0.00061
        },
        "Utilities": {
-        "base": 0.00483,
-        "n_base": 777,
-        "variant": -0.00504,
-        "n_variant": 846,
-        "delta": -0.00987
+        "base": -0.00184,
+        "n_base": 1000,
+        "variant": -0.00288,
+        "n_variant": 823,
+        "delta": -0.00104
        },
        "unknown": {
-        "base": 0.00214,
-        "n_base": 27,
-        "variant": 0.0041,
-        "n_variant": 34,
-        "delta": 0.00196
+        "base": 0.00169,
+        "n_base": 32,
+        "variant": -0.00017,
+        "n_variant": 36,
+        "delta": -0.00186
        }
       },
       "regime": {
        "vix_ge_20": {
-        "base": 0.00876,
+        "base": 0.00902,
         "n_base": 6414,
-        "variant": 0.00827,
+        "variant": 0.0089,
         "n_variant": 6414,
-        "delta": -0.00049
+        "delta": -0.00012
        },
        "vix_lt_20": {
-        "base": -0.00022,
+        "base": 0.00064,
         "n_base": 9396,
-        "variant": -0.0002,
+        "variant": -0.00072,
         "n_variant": 9396,
-        "delta": 2e-05
+        "delta": -0.00136
        }
       }
      }
@@ -659,7 +659,7 @@
       "Financial Services": {
        "20": {
         "n_dates": 156,
-        "mean_ic": -0.00516,
+        "mean_ic": -0.00515,
         "t_months": -0.34
        },
        "60": {
@@ -688,7 +688,7 @@
        },
        "60": {
         "n_dates": 156,
-        "mean_ic": 0.02224,
+        "mean_ic": 0.02223,
         "t_months": 1.09
        }
       },
@@ -709,7 +709,7 @@
       "vol:vix_lt_20": {
        "20": {
         "n_dates": 137,
-        "mean_ic": -0.02388,
+        "mean_ic": -0.02387,
         "t_months": -1.23
        },
        "60": {
@@ -809,7 +809,7 @@
        "20": {
         "n_dates": 137,
         "mean_ic": -0.00739,
-        "t_months": -1.01
+        "t_months": -1.0
        },
        "60": {
         "n_dates": 137,
@@ -844,7 +844,7 @@
      "all": {
       "20": {
        "n_dates": 156,
-       "mean_ic": -0.00116,
+       "mean_ic": -0.00117,
        "t_months": -0.17
       },
       "60": {
@@ -869,7 +869,7 @@
       "Financial Services": {
        "20": {
         "n_dates": 156,
-        "mean_ic": 0.00648,
+        "mean_ic": 0.00647,
         "t_months": 0.38
        },
        "60": {
@@ -898,7 +898,7 @@
        },
        "60": {
         "n_dates": 156,
-        "mean_ic": -0.03055,
+        "mean_ic": -0.03054,
         "t_months": -1.89
        }
       }
@@ -919,7 +919,7 @@
       "trend:trend_up": {
        "20": {
         "n_dates": 139,
-        "mean_ic": 0.00448,
+        "mean_ic": 0.00447,
         "t_months": 0.59
        },
        "60": {
@@ -1030,7 +1030,7 @@
       "trend:trend_up": {
        "20": {
         "n_dates": 139,
-        "mean_ic": 0.0041,
+        "mean_ic": 0.00411,
         "t_months": 0.63
        },
        "60": {
@@ -1079,7 +1079,7 @@
       "Financial Services": {
        "20": {
         "n_dates": 156,
-        "mean_ic": -0.0097,
+        "mean_ic": -0.00971,
         "t_months": -0.4
        },
        "60": {
@@ -1108,7 +1108,7 @@
        },
        "60": {
         "n_dates": 156,
-        "mean_ic": 0.01557,
+        "mean_ic": 0.01556,
         "t_months": 0.89
        }
       },
@@ -1281,7 +1281,7 @@
       },
       "60": {
        "n_dates": 138,
-       "mean_ic": -0.01661,
+       "mean_ic": -0.01662,
        "t_months": -1.69
       }
      },
@@ -1351,7 +1351,7 @@
       "vol:vix_lt_20": {
        "20": {
         "n_dates": 126,
-        "mean_ic": -0.01437,
+        "mean_ic": -0.01436,
         "t_months": -2.02
        },
        "60": {
@@ -1368,7 +1368,7 @@
        },
        "60": {
         "n_dates": 130,
-        "mean_ic": -0.01962,
+        "mean_ic": -0.01963,
         "t_months": -1.84
        }
       }
@@ -1407,7 +1407,7 @@
        },
        "60": {
         "n_dates": 365,
-        "mean_ic": 0.00963,
+        "mean_ic": 0.00962,
         "t_months": 0.74
        }
       },
@@ -1549,7 +1549,7 @@
        },
        "60": {
         "n_dates": 365,
-        "mean_ic": 0.00818,
+        "mean_ic": 0.00817,
         "t_months": 0.61
        }
       },
@@ -1635,7 +1635,7 @@
        },
        "60": {
         "n_dates": 75,
-        "mean_ic": 0.01422,
+        "mean_ic": 0.01423,
         "t_months": 0.6
        }
       },
@@ -1691,7 +1691,7 @@
        },
        "60": {
         "n_dates": 365,
-        "mean_ic": 0.00409,
+        "mean_ic": 0.0041,
         "t_months": 0.17
        }
       },
@@ -1926,7 +1926,7 @@
       "trend:trend_up": {
        "20": {
         "n_dates": 289,
-        "mean_ic": 0.0009,
+        "mean_ic": 0.00089,
         "t_months": 0.75
        },
        "60": {
@@ -2259,7 +2259,7 @@
        },
        "60": {
         "n_dates": 365,
-        "mean_ic": -0.00124,
+        "mean_ic": -0.00123,
         "t_months": -0.25
        }
       },
@@ -2667,12 +2667,12 @@
    "verdict": "MODIFY",
    "verdict_reason": "nur in einzelnen Sektoren positiv",
    "source_value": {
-    "score": 0.715,
+    "score": 0.687,
     "components": {
-     "incremental_value": 0.477,
+     "incremental_value": 0.444,
      "coverage": 1.0,
      "freshness": 1.0,
-     "stability": 0.429,
+     "stability": 0.286,
      "mapping_quality": 0.808,
      "api_reliability": 1.0,
      "revision_risk": 1.0
@@ -2790,21 +2790,21 @@
     "enet_xs20_v1": {
      "base": {
       "ic": 0.01842,
-      "sharpe": 0.397,
+      "sharpe": 0.398,
       "expectancy": 0.00338,
       "max_dd": -0.1569,
       "precision_at_k": 0.2477,
       "hit_rate": 0.4925,
       "n_trades": 15810,
-      "brier": 0.25026,
-      "ece": 0.00838,
-      "log_loss": 0.69521
+      "brier": 0.25027,
+      "ece": 0.00834,
+      "log_loss": 0.69522
      },
      "with_source": {
       "ic": 0.00922,
-      "sharpe": 0.194,
+      "sharpe": 0.193,
       "expectancy": 0.00185,
-      "max_dd": -0.2105,
+      "max_dd": -0.2109,
       "precision_at_k": 0.2487,
       "hit_rate": 0.4875,
       "n_trades": 15810,
@@ -2813,10 +2813,10 @@
       "log_loss": 0.69413
      },
      "bootstrap": {
-      "delta_monthly_mean": -0.001563,
+      "delta_monthly_mean": -0.001572,
       "ci_monthly_mean": [
-       -0.004353,
-       0.001013
+       -0.004361,
+       0.001012
       ],
       "ci_sharpe": [
        -0.684,
@@ -2827,23 +2827,23 @@
      },
      "delta": {
       "ic": -0.0092,
-      "sharpe": -0.203,
+      "sharpe": -0.205,
       "expectancy": -0.00153,
-      "max_dd": -0.0536,
+      "max_dd": -0.054,
       "precision_at_k": 0.001,
       "hit_rate": -0.005,
       "n_trades": 0,
-      "brier": -0.0001,
-      "ece": -0.00441,
-      "log_loss": -0.00108
+      "brier": -0.00011,
+      "ece": -0.00437,
+      "log_loss": -0.00109
      },
      "delta_by_year": {
       "2019": 0.00011,
-      "2020": 0.00116,
-      "2021": -0.00506,
+      "2020": 0.00114,
+      "2021": -0.00505,
       "2022": -0.00528,
       "2023": 0.0,
-      "2024": -0.00095,
+      "2024": -0.001,
       "2025": 0.0
      },
      "breakdown": {
@@ -2865,9 +2865,9 @@
        "Consumer Cyclical": {
         "base": 0.00408,
         "n_base": 2538,
-        "variant": 0.00046,
-        "n_variant": 2827,
-        "delta": -0.00362
+        "variant": 0.00042,
+        "n_variant": 2828,
+        "delta": -0.00366
        },
        "Consumer Defensive": {
         "base": -0.00849,
@@ -2884,11 +2884,11 @@
         "delta": -0.00104
        },
        "Financial Services": {
-        "base": 0.00388,
-        "n_base": 2128,
-        "variant": 0.00431,
-        "n_variant": 1573,
-        "delta": 0.00043
+        "base": 0.00393,
+        "n_base": 2129,
+        "variant": 0.00432,
+        "n_variant": 1571,
+        "delta": 0.00039
        },
        "Healthcare": {
         "base": -0.00636,
@@ -2900,22 +2900,22 @@
        "Industrials": {
         "base": 0.00315,
         "n_base": 1875,
-        "variant": 0.00302,
-        "n_variant": 1788,
-        "delta": -0.00013
+        "variant": 0.00304,
+        "n_variant": 1789,
+        "delta": -0.00011
        },
        "Real Estate": {
-        "base": 0.01691,
-        "n_base": 368,
-        "variant": 0.01245,
-        "n_variant": 357,
-        "delta": -0.00446
+        "base": 0.01671,
+        "n_base": 367,
+        "variant": 0.01244,
+        "n_variant": 356,
+        "delta": -0.00427
        },
        "Technology": {
         "base": 0.01184,
         "n_base": 3677,
         "variant": 0.01156,
-        "n_variant": 3774,
+        "n_variant": 3775,
         "delta": -0.00028
        },
        "Utilities": {
@@ -2935,182 +2935,182 @@
       },
       "regime": {
        "vix_ge_20": {
-        "base": 0.01306,
+        "base": 0.01307,
         "n_base": 6414,
         "variant": 0.01057,
         "n_variant": 6414,
-        "delta": -0.00249
+        "delta": -0.0025
        },
        "vix_lt_20": {
         "base": -0.00323,
         "n_base": 9396,
-        "variant": -0.0041,
+        "variant": -0.00411,
         "n_variant": 9396,
-        "delta": -0.00087
+        "delta": -0.00088
        }
       }
      }
     },
     "hgb_xs20_v1": {
      "base": {
-      "ic": 0.03605,
-      "sharpe": 0.355,
-      "expectancy": 0.00343,
-      "max_dd": -0.1635,
-      "precision_at_k": 0.2399,
-      "hit_rate": 0.5027,
+      "ic": 0.03799,
+      "sharpe": 0.434,
+      "expectancy": 0.00404,
+      "max_dd": -0.1432,
+      "precision_at_k": 0.2326,
+      "hit_rate": 0.5049,
       "n_trades": 15810,
-      "brier": 0.25044,
-      "ece": 0.01755,
-      "log_loss": 0.69405
+      "brier": 0.25034,
+      "ece": 0.01699,
+      "log_loss": 0.69385
      },
      "with_source": {
-      "ic": 0.03219,
-      "sharpe": 0.378,
-      "expectancy": 0.00363,
-      "max_dd": -0.1993,
-      "precision_at_k": 0.2397,
-      "hit_rate": 0.4991,
+      "ic": 0.03507,
+      "sharpe": 0.407,
+      "expectancy": 0.00397,
+      "max_dd": -0.183,
+      "precision_at_k": 0.2428,
+      "hit_rate": 0.4978,
       "n_trades": 15810,
-      "brier": 0.25018,
-      "ece": 0.01344,
-      "log_loss": 0.69356
+      "brier": 0.25023,
+      "ece": 0.01364,
+      "log_loss": 0.69366
      },
      "bootstrap": {
-      "delta_monthly_mean": 0.000125,
+      "delta_monthly_mean": -0.000244,
       "ci_monthly_mean": [
-       -0.002738,
-       0.002866
+       -0.003071,
+       0.002643
       ],
       "ci_sharpe": [
-       -0.375,
-       0.33
+       -0.417,
+       0.316
       ],
       "alpha_one_sided": 0.008333333333333333,
       "n_months": 77
      },
      "delta": {
-      "ic": -0.00386,
-      "sharpe": 0.023,
-      "expectancy": 0.0002,
-      "max_dd": -0.0358,
-      "precision_at_k": -0.0002,
-      "hit_rate": -0.0036,
+      "ic": -0.00292,
+      "sharpe": -0.027,
+      "expectancy": -7e-05,
+      "max_dd": -0.0398,
+      "precision_at_k": 0.0102,
+      "hit_rate": -0.0071,
       "n_trades": 0,
-      "brier": -0.00026,
-      "ece": -0.00411,
-      "log_loss": -0.00049
+      "brier": -0.00011,
+      "ece": -0.00335,
+      "log_loss": -0.00019
      },
      "delta_by_year": {
-      "2019": -0.00102,
-      "2020": 0.00625,
-      "2021": -0.00248,
-      "2022": -0.00113,
-      "2023": 0.00033,
-      "2024": -0.00125,
-      "2025": 0.00025
+      "2019": 0.00035,
+      "2020": 0.00376,
+      "2021": -0.00433,
+      "2022": -5e-05,
+      "2023": -0.00022,
+      "2024": -0.00222,
+      "2025": 0.00276
      },
      "breakdown": {
       "sector": {
        "Basic Materials": {
-        "base": -0.00953,
-        "n_base": 536,
-        "variant": -0.00513,
-        "n_variant": 496,
-        "delta": 0.0044
+        "base": -0.01095,
+        "n_base": 576,
+        "variant": -0.00902,
+        "n_variant": 512,
+        "delta": 0.00193
        },
        "Communication Services": {
-        "base": 0.00132,
-        "n_base": 1141,
-        "variant": 0.00011,
-        "n_variant": 1026,
-        "delta": -0.00121
+        "base": 0.00291,
+        "n_base": 1105,
+        "variant": 0.0031,
+        "n_variant": 1152,
+        "delta": 0.00019
        },
        "Consumer Cyclical": {
-        "base": 0.00359,
-        "n_base": 2252,
-        "variant": 0.00146,
-        "n_variant": 2268,
-        "delta": -0.00213
+        "base": 0.00381,
+        "n_base": 2073,
+        "variant": 0.0012,
+        "n_variant": 2359,
+        "delta": -0.00261
        },
        "Consumer Defensive": {
-        "base": 0.0019,
-        "n_base": 1129,
-        "variant": -0.00131,
-        "n_variant": 1034,
-        "delta": -0.00321
+        "base": 0.0016,
+        "n_base": 1257,
+        "variant": -0.00124,
+        "n_variant": 1041,
+        "delta": -0.00284
        },
        "Energy": {
-        "base": 0.01109,
-        "n_base": 979,
-        "variant": 0.02031,
-        "n_variant": 1001,
-        "delta": 0.00922
+        "base": 0.01523,
+        "n_base": 923,
+        "variant": 0.01913,
+        "n_variant": 1032,
+        "delta": 0.0039
        },
        "Financial Services": {
-        "base": 0.00546,
-        "n_base": 1837,
-        "variant": 0.00274,
-        "n_variant": 1960,
-        "delta": -0.00272
+        "base": 0.00782,
+        "n_base": 1868,
+        "variant": 0.00302,
+        "n_variant": 1910,
+        "delta": -0.0048
        },
        "Healthcare": {
-        "base": -0.003,
-        "n_base": 1673,
-        "variant": -0.00729,
-        "n_variant": 1534,
-        "delta": -0.00429
+        "base": -0.0036,
+        "n_base": 1698,
+        "variant": -0.00724,
+        "n_variant": 1536,
+        "delta": -0.00364
        },
        "Industrials": {
-        "base": 0.00326,
-        "n_base": 1795,
-        "variant": 0.00309,
-        "n_variant": 1841,
-        "delta": -0.00017
+        "base": 0.00409,
+        "n_base": 1904,
+        "variant": 0.00448,
+        "n_variant": 1847,
+        "delta": 0.00039
        },
        "Real Estate": {
-        "base": 0.00395,
-        "n_base": 858,
-        "variant": 0.00214,
-        "n_variant": 792,
-        "delta": -0.00181
+        "base": 0.0037,
+        "n_base": 859,
+        "variant": -6e-05,
+        "n_variant": 718,
+        "delta": -0.00376
        },
        "Technology": {
-        "base": 0.00664,
-        "n_base": 2806,
-        "variant": 0.01206,
-        "n_variant": 2924,
-        "delta": 0.00542
+        "base": 0.01009,
+        "n_base": 2515,
+        "variant": 0.01355,
+        "n_variant": 2909,
+        "delta": 0.00346
        },
        "Utilities": {
-        "base": 0.00483,
-        "n_base": 777,
-        "variant": 0.00014,
-        "n_variant": 900,
-        "delta": -0.00469
+        "base": -0.00184,
+        "n_base": 1000,
+        "variant": -8e-05,
+        "n_variant": 773,
+        "delta": 0.00176
        },
        "unknown": {
-        "base": 0.00214,
-        "n_base": 27,
-        "variant": 0.01793,
-        "n_variant": 34,
-        "delta": 0.01579
+        "base": 0.00169,
+        "n_base": 32,
+        "variant": 0.01789,
+        "n_variant": 21,
+        "delta": 0.0162
        }
       },
       "regime": {
        "vix_ge_20": {
-        "base": 0.00876,
+        "base": 0.00902,
         "n_base": 6414,
-        "variant": 0.00797,
+        "variant": 0.00809,
         "n_variant": 6414,
-        "delta": -0.00079
+        "delta": -0.00093
        },
        "vix_lt_20": {
-        "base": -0.00022,
+        "base": 0.00064,
         "n_base": 9396,
-        "variant": 0.00067,
+        "variant": 0.00117,
         "n_variant": 9396,
-        "delta": 0.00089
+        "delta": 0.00053
        }
       }
      }
@@ -3135,7 +3135,7 @@
       "vol:vix_lt_20": {
        "20": {
         "n_dates": 137,
-        "mean_ic": 0.04954,
+        "mean_ic": 0.04953,
         "t_months": 1.6
        },
        "60": {
@@ -3196,7 +3196,7 @@
       "Financial Services": {
        "20": {
         "n_dates": 156,
-        "mean_ic": 0.02042,
+        "mean_ic": 0.02041,
         "t_months": 1.01
        },
        "60": {
@@ -3345,7 +3345,7 @@
       "Financial Services": {
        "20": {
         "n_dates": 156,
-        "mean_ic": 0.00811,
+        "mean_ic": 0.00812,
         "t_months": 0.4
        },
        "60": {
@@ -3374,7 +3374,7 @@
        },
        "60": {
         "n_dates": 156,
-        "mean_ic": -0.01909,
+        "mean_ic": -0.01908,
         "t_months": -1.16
        }
       }
@@ -3419,7 +3419,7 @@
      "all": {
       "20": {
        "n_dates": 156,
-       "mean_ic": -0.0075,
+       "mean_ic": -0.00749,
        "t_months": -0.44
       },
       "60": {
@@ -3444,7 +3444,7 @@
       "Financial Services": {
        "20": {
         "n_dates": 156,
-        "mean_ic": 0.03007,
+        "mean_ic": 0.03008,
         "t_months": 1.34
        },
        "60": {
@@ -3668,7 +3668,7 @@
        },
        "60": {
         "n_dates": 365,
-        "mean_ic": 0.03238,
+        "mean_ic": 0.03239,
         "t_months": 1.99
        }
       },
@@ -3842,7 +3842,7 @@
        "20": {
         "n_dates": 319,
         "mean_ic": 0.02799,
-        "t_months": 2.1
+        "t_months": 2.09
        },
        "60": {
         "n_dates": 319,
@@ -4125,7 +4125,7 @@
       "Industrials": {
        "20": {
         "n_dates": 365,
-        "mean_ic": 0.01769,
+        "mean_ic": 0.01768,
         "t_months": 1.3
        },
        "60": {
@@ -4218,9 +4218,9 @@
    "verdict": "MODIFY",
    "verdict_reason": "nur in einzelnen Sektoren positiv",
    "source_value": {
-    "score": 0.686,
+    "score": 0.679,
     "components": {
-     "incremental_value": 0.428,
+     "incremental_value": 0.409,
      "coverage": 0.989,
      "freshness": 1.0,
      "stability": 0.357,

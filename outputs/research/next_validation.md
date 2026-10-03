@@ -1,60 +1,60 @@
-# Gesamtvalidierung Intelligenz-Komponenten – 2026-10-03T12:28:25+00:00
+# Gesamtvalidierung Intelligenz-Komponenten – 2026-10-03T13:23:23+00:00
 
 **Entscheidung: KEEP_CHAMPION** · G-Komponenten: – · Gate nicht erfüllt: ['keine Komponente mit KEEP – G ist identisch mit A']
 
 | Variante | CAGR | Sharpe | Sortino | Calmar | MaxDD | ES5 Monat | Hit | PF | Expectancy | Ø Gew. | Ø Verl. | Prec@K | Brier | ECE | LogLoss | Turnover | Trades | HC-Hit (n) | Stabilität σJahr | min Regime | aktiv | Locked |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| A | 0.0072 | 0.126 | 0.152 | 0.042 | -0.1712 | -0.04366 | 0.4861 | 1.032 | 0.00094 | 0.06238 | -0.05718 | 0.2225 | 0.25028 | 0.01452 | 0.69372 | 0.4631 | 11059 | 0.4269 (520) | 0.00935 | -0.00341 | 1.0 | -0.00245 |
-| B | 0.0269 | 0.362 | 0.445 | 0.207 | -0.1298 | -0.03532 | 0.4918 | 1.088 | 0.00268 | 0.06758 | -0.06013 | 0.2379 | 0.25026 | 0.01281 | 0.69554 | 0.4584 | 11059 | 0.5 (230) | 0.01112 | -0.00172 | 1.0 | 0.01102 |
-| C | 0.0363 | 0.502 | 0.586 | 0.274 | -0.1323 | -0.0349 | 0.4994 | 1.117 | 0.00345 | 0.06624 | -0.05918 | 0.2358 | 0.2504 | 0.01512 | 0.69502 | 0.4523 | 11059 | 0.4561 (2322) | 0.01223 | -0.00192 | 1.0 | 0.00233 |
-| D | 0.046 | 0.66 | 0.749 | 0.576 | -0.0799 | -0.033 | 0.5038 | 1.142 | 0.00401 | 0.0641 | -0.05698 | 0.2323 | 0.25043 | 0.01484 | 0.69458 | 0.4332 | 11059 | 0.4608 (2576) | 0.01149 | -0.00116 | 1.0 | 0.0011 |
-| E | 0.0475 | 0.683 | 0.786 | 0.592 | -0.0802 | -0.03279 | 0.5048 | 1.147 | 0.00414 | 0.06412 | -0.05701 | 0.2334 | 0.25036 | 0.01472 | 0.69392 | 0.4399 | 11059 | 0.4623 (2576) | 0.01163 | -0.00105 | 1.0 | 0.00113 |
-| F | 0.0052 | 0.11 | 0.12 | 0.03 | -0.1709 | -0.03923 | 0.4951 | 1.018 | 0.00049 | 0.05731 | -0.05521 | 0.2187 | 0.25033 | 0.01081 | 0.69532 | 0.7266 | 10035 | 0.4892 (1018) | 0.00687 | -0.00335 | 1.0 | -0.00414 |
-| A_blindspot | 0.0097 | 0.2 | 0.223 | 0.091 | -0.1063 | -0.03128 | 0.4789 | 1.021 | 0.00048 | 0.04922 | -0.0443 | 0.2203 | 0.2517 | 0.03375 | 0.69657 | 0.5475 | 4454 | 0.4417 (1449) | 0.00352 | -0.00244 | 0.817 | -0.00573 |
-| A_abstention | 0.048 | 0.61 | 0.627 | 0.541 | -0.0888 | -0.04264 | 0.5272 | 1.257 | 0.00727 | 0.06742 | -0.05979 | 0.2397 | 0.24917 | 0.00878 | 0.69174 | 0.5112 | 4397 | 0.486 (393) | 0.02126 | -0.01566 | 0.4 | 0.0148 |
-| G | 0.0072 | 0.126 | 0.152 | 0.042 | -0.1712 | -0.04366 | 0.4861 | 1.032 | 0.00094 | 0.06238 | -0.05718 | 0.2225 | 0.25028 | 0.01452 | 0.69372 | 0.4631 | 11059 | 0.4269 (520) | 0.00935 | -0.00341 | 1.0 | -0.00245 |
+| A | 0.0147 | 0.214 | 0.25 | 0.092 | -0.16 | -0.04326 | 0.4877 | 1.053 | 0.00154 | 0.06225 | -0.05627 | 0.2233 | 0.25022 | 0.01439 | 0.69359 | 0.4704 | 11059 | 0.4444 (468) | 0.00874 | -0.00275 | 1.0 | 0.00589 |
+| B | 0.0226 | 0.306 | 0.407 | 0.181 | -0.1252 | -0.03509 | 0.488 | 1.077 | 0.00238 | 0.06777 | -0.05996 | 0.2347 | 0.25029 | 0.01164 | 0.69565 | 0.4495 | 11059 | 0.4831 (178) | 0.00947 | -0.00222 | 1.0 | 0.01393 |
+| C | 0.022 | 0.303 | 0.365 | 0.179 | -0.1226 | -0.04093 | 0.493 | 1.078 | 0.00235 | 0.06582 | -0.05935 | 0.2329 | 0.25036 | 0.0167 | 0.6951 | 0.4446 | 11059 | 0.4402 (1456) | 0.01326 | -0.0034 | 1.0 | 0.01213 |
+| D | 0.0252 | 0.349 | 0.378 | 0.257 | -0.0979 | -0.04123 | 0.4954 | 1.084 | 0.00244 | 0.06375 | -0.05776 | 0.2276 | 0.25032 | 0.01405 | 0.69422 | 0.4283 | 11059 | 0.4572 (2524) | 0.01173 | -0.00296 | 1.0 | 0.01278 |
+| E | 0.0249 | 0.344 | 0.375 | 0.243 | -0.1026 | -0.04052 | 0.4963 | 1.083 | 0.00243 | 0.06376 | -0.058 | 0.2276 | 0.25027 | 0.01576 | 0.69369 | 0.4323 | 11059 | 0.4536 (2524) | 0.01171 | -0.00295 | 1.0 | 0.01266 |
+| F | -0.007 | -0.073 | -0.081 | -0.038 | -0.1824 | -0.03805 | 0.4848 | 0.978 | -0.0006 | 0.05612 | -0.05396 | 0.2071 | 0.25034 | 0.01093 | 0.69554 | 0.726 | 10038 | 0.4965 (864) | 0.00794 | -0.00356 | 1.0 | -0.00035 |
+| A_blindspot | 0.0049 | 0.113 | 0.114 | 0.043 | -0.115 | -0.03742 | 0.4929 | 1.027 | 0.00062 | 0.04833 | -0.04576 | 0.2259 | 0.25062 | 0.02282 | 0.69444 | 0.5616 | 5019 | 0.4764 (275) | 0.00195 | -0.00193 | 0.817 | -0.00039 |
+| A_abstention | 0.047 | 0.593 | 0.577 | 0.463 | -0.1015 | -0.04412 | 0.5258 | 1.275 | 0.0077 | 0.06788 | -0.05903 | 0.2413 | 0.24977 | 0.00927 | 0.69308 | 0.5152 | 4397 | 0.472 (375) | 0.02104 | -0.01782 | 0.4 | 0.02481 |
+| G | 0.0147 | 0.214 | 0.25 | 0.092 | -0.16 | -0.04326 | 0.4877 | 1.053 | 0.00154 | 0.06225 | -0.05627 | 0.2233 | 0.25022 | 0.01439 | 0.69359 | 0.4704 | 11059 | 0.4444 (468) | 0.00874 | -0.00275 | 1.0 | 0.00589 |
 
 ## Komponenten gegen A (Bootstrap, Bonferroni über 6)
 
-- C: Monats-Δ 0.002326 CI [-0.002838, 0.00736] · ohne Top-5 %-Monate -3e-05
-- D: Monats-Δ 0.003075 CI [-0.002431, 0.008682] · ohne Top-5 %-Monate 0.000652
-- E: Monats-Δ 0.003196 CI [-0.002309, 0.008887] · ohne Top-5 %-Monate 0.000677
-- F: Monats-Δ -0.000273 CI [-0.003774, 0.003307] · ohne Top-5 %-Monate -0.001731
-- A_blindspot: Monats-Δ 4.6e-05 CI [-0.004952, 0.004948] · ohne Top-5 %-Monate -0.001788
-- A_abstention: Monats-Δ 0.003297 CI [-0.000785, 0.007845] · ohne Top-5 %-Monate 0.000853
+- C: Monats-Δ 0.000581 CI [-0.003956, 0.005331] · ohne Top-5 %-Monate -0.00141
+- D: Monats-Δ 0.000837 CI [-0.004351, 0.006146] · ohne Top-5 %-Monate -0.001422
+- E: Monats-Δ 0.00081 CI [-0.004358, 0.006235] · ohne Top-5 %-Monate -0.001503
+- F: Monats-Δ -0.001913 CI [-0.005152, 0.001599] · ohne Top-5 %-Monate -0.003312
+- A_blindspot: Monats-Δ -0.000958 CI [-0.006281, 0.004082] · ohne Top-5 %-Monate -0.002726
+- A_abstention: Monats-Δ 0.002611 CI [-0.001792, 0.007391] · ohne Top-5 %-Monate 0.000172
 
 Verdikte: {'counterfactual_filter': 'REJECT', 'blind_spot_filter': 'REJECT', 'abstention': False, 'decision_intelligence': 'REJECT'}
 
-Abstinenz-Regel – historisch (Jahre [2019, 2020], Status CONTAMINATED, zählt nicht als Bestätigung): {'active_cohorts': 52, 'inactive_cohorts': 53, 'active_expectancy': 0.01575, 'inactive_expectancy': 0.00143, 'diff_t': 1.67, 'in_sample_rule_holds': True, 'confirmed': False, 'status': 'CONTAMINATED', 'years': [2019, 2020]}
+Abstinenz-Regel – historisch (Jahre [2019, 2020], Status CONTAMINATED, zählt nicht als Bestätigung): {'active_cohorts': 52, 'inactive_cohorts': 53, 'active_expectancy': 0.01573, 'inactive_expectancy': 0.00178, 'diff_t': 1.66, 'in_sample_rule_holds': True, 'confirmed': False, 'status': 'CONTAMINATED', 'years': [2019, 2020]}
 Abstinenz-Regel – VORWÄRTS (bindend): {'forward_from': '2026-09-29', 'active_cohorts': 0, 'inactive_cohorts': 0, 'pending_cohorts': 2, 'active_expectancy': None, 'inactive_expectancy': None, 'diff_t': None, 'confirmed': False, 'status': 'ACCUMULATING'}
 
 Ablation (Δ Expectancy G − G ohne Komponente): –
 
 Gate: {'pass': False, 'criteria': {}, 'failed': ['keine Komponente mit KEEP – G ist identisch mit A']}
 
-Stress: {'historical_windows': {'covid_crash_2020': {'n_cohorts': 0, 'note': 'außerhalb des OOS-Zeitraums'}, 'rate_inflation_shock_2022': {'A': {'expectancy': 0.00323, 'hit_rate': 0.529, 'n_cohorts': 43}, 'B': {'expectancy': 0.00543, 'hit_rate': 0.5271, 'n_cohorts': 43}, 'C': {'expectancy': 0.00921, 'hit_rate': 0.549, 'n_cohorts': 43}, 'D': {'expectancy': 0.00926, 'hit_rate': 0.5573, 'n_cohorts': 43}, 'E': {'expectancy': 0.00866, 'hit_rate': 0.5563, 'n_cohorts': 43}, 'F': {'expectancy': 0.00101, 'hit_rate': 0.5184, 'n_cohorts': 43}, 'A_blindspot': {'expectancy': 0.0013, 'hit_rate': 0.5066, 'n_cohorts': 9}, 'A_abstention': {'expectancy': 0.00323, 'hit_rate': 0.529, 'n_cohorts': 43}}, 'q4_selloff_2018': {'n_cohorts': 0, 'note': 'außerhalb des OOS-Zeitraums'}, 'regional_banks_2023': {'A': {'expectancy': -0.01112, 'hit_rate': 0.4167, 'n_cohorts': 13}, 'B': {'expectancy': -0.00358, 'hit_rate': 0.4679, 'n_cohorts': 13}, 'C': {'expectancy': -0.00407, 'hit_rate': 0.4712, 'n_cohorts': 13}, 'D': {'expectancy': -0.00382, 'hit_rate': 0.4728, 'n_cohorts': 13}, 'E': {'expectancy': -0.00355, 'hit_rate': 0.4776, 'n_cohorts': 13}, 'F': {'expectancy': -0.01009, 'hit_rate': 0.4256, 'n_cohorts': 13}, 'A_blindspot': {'expectancy': -0.00955, 'hit_rate': 0.4211, 'n_cohorts': 13}, 'A_abstention': {'expectancy': -0.01112, 'hit_rate': 0.4167, 'n_cohorts': 13}}, 'tariff_shock_2025': {'A': {'expectancy': 0.06734, 'hit_rate': 0.7296, 'n_cohorts': 8}, 'B': {'expectancy': 0.06566, 'hit_rate': 0.7347, 'n_cohorts': 8}, 'C': {'expectancy': 0.05334, 'hit_rate': 0.6913, 'n_cohorts': 8}, 'D': {'expectancy': 0.04911, 'hit_rate': 0.6556, 'n_cohorts': 8}, 'E': {'expectancy': 0.04864, 'hit_rate': 0.6607, 'n_cohorts': 8}, 'F': {'expectancy': 0.05017, 'hit_rate': 0.7042, 'n_cohorts': 8}, 'A_blindspot': {'expectancy': 0.02729, 'hit_rate': 0.6936, 'n_cohorts': 8}, 'A_abstention': {'expectancy': 0.06734, 'hit_rate': 0.7296, 'n_cohorts': 8}}}, 'scenario_turnover_top_decile': {'vol_spike': 0.2463, 'rate_shock': 0.2138, 'crash': 0.3595, 'usd_shock': 0.2455, 'oil_shock': 0.16, 'inflation_shock': 0.0526, 'liquidity_shock': 0.1947, 'momentum_reversal': 0.4665, 'volatility_flip': 0.7334}}
+Stress: {'historical_windows': {'covid_crash_2020': {'n_cohorts': 0, 'note': 'außerhalb des OOS-Zeitraums'}, 'rate_inflation_shock_2022': {'A': {'expectancy': 0.00371, 'hit_rate': 0.5275, 'n_cohorts': 43}, 'B': {'expectancy': 0.00291, 'hit_rate': 0.5173, 'n_cohorts': 43}, 'C': {'expectancy': 0.00719, 'hit_rate': 0.5392, 'n_cohorts': 43}, 'D': {'expectancy': 0.00669, 'hit_rate': 0.548, 'n_cohorts': 43}, 'E': {'expectancy': 0.0071, 'hit_rate': 0.5524, 'n_cohorts': 43}, 'F': {'expectancy': -0.00142, 'hit_rate': 0.5019, 'n_cohorts': 43}, 'A_blindspot': {'expectancy': -0.00033, 'hit_rate': 0.5154, 'n_cohorts': 9}, 'A_abstention': {'expectancy': 0.00371, 'hit_rate': 0.5275, 'n_cohorts': 43}}, 'q4_selloff_2018': {'n_cohorts': 0, 'note': 'außerhalb des OOS-Zeitraums'}, 'regional_banks_2023': {'A': {'expectancy': -0.00955, 'hit_rate': 0.4247, 'n_cohorts': 13}, 'B': {'expectancy': -0.00133, 'hit_rate': 0.4696, 'n_cohorts': 13}, 'C': {'expectancy': -0.00489, 'hit_rate': 0.4615, 'n_cohorts': 13}, 'D': {'expectancy': -0.0051, 'hit_rate': 0.4631, 'n_cohorts': 13}, 'E': {'expectancy': -0.00541, 'hit_rate': 0.4631, 'n_cohorts': 13}, 'F': {'expectancy': -0.00933, 'hit_rate': 0.4371, 'n_cohorts': 13}, 'A_blindspot': {'expectancy': -0.00749, 'hit_rate': 0.4425, 'n_cohorts': 13}, 'A_abstention': {'expectancy': -0.00955, 'hit_rate': 0.4247, 'n_cohorts': 13}}, 'tariff_shock_2025': {'A': {'expectancy': 0.06711, 'hit_rate': 0.7296, 'n_cohorts': 8}, 'B': {'expectancy': 0.06731, 'hit_rate': 0.7245, 'n_cohorts': 8}, 'C': {'expectancy': 0.06286, 'hit_rate': 0.7194, 'n_cohorts': 8}, 'D': {'expectancy': 0.05395, 'hit_rate': 0.6633, 'n_cohorts': 8}, 'E': {'expectancy': 0.0535, 'hit_rate': 0.6658, 'n_cohorts': 8}, 'F': {'expectancy': 0.05294, 'hit_rate': 0.7099, 'n_cohorts': 8}, 'A_blindspot': {'expectancy': 0.02635, 'hit_rate': 0.6774, 'n_cohorts': 8}, 'A_abstention': {'expectancy': 0.06711, 'hit_rate': 0.7296, 'n_cohorts': 8}}}, 'scenario_turnover_top_decile': {'vol_spike': 0.2454, 'rate_shock': 0.192, 'crash': 0.3677, 'usd_shock': 0.2317, 'oil_shock': 0.1442, 'inflation_shock': 0.0509, 'liquidity_shock': 0.192, 'momentum_reversal': 0.4501, 'volatility_flip': 0.725}}
 
-Decision Intelligence: {'top_decile': {'cagr': 0.0074, 'sharpe': 0.127, 'sortino': 0.155, 'max_dd': -0.1712, 'calmar': 0.043, 'profit_factor': 1.032, 'hit_rate': 0.4861, 'avg_winner': 0.06238, 'avg_loser': -0.05718, 'payoff': 1.091, 'expectancy': 0.00094, 'precision_at_k': 0.0, 'recall_strong': 0.0, 'turnover': 0.4631, 'exposure': 1.0, 'n_trades': 11059, 'n_cohorts': 230, 'n_months': 53, 'avg_mfe': 0.0731, 'avg_mae': -0.0637, 'es5_monthly': -0.04366, 'sector_hhi': 0.1827}, 'diversified': {'cagr': 0.0003, 'sharpe': 0.042, 'sortino': 0.049, 'max_dd': -0.1759, 'calmar': 0.002, 'profit_factor': 1.012, 'hit_rate': 0.4839, 'avg_winner': 0.06151, 'avg_loser': -0.05703, 'payoff': 1.079, 'expectancy': 0.00034, 'precision_at_k': 0.0, 'recall_strong': 0.0, 'turnover': 0.4674, 'exposure': 1.0, 'n_trades': 11059, 'n_cohorts': 230, 'n_months': 53, 'avg_mfe': 0.0724, 'avg_mae': -0.0635, 'es5_monthly': -0.04002, 'sector_hhi': 0.1591}, 'verdict': 'REJECT'}
+Decision Intelligence: {'top_decile': {'cagr': 0.015, 'sharpe': 0.216, 'sortino': 0.255, 'max_dd': -0.16, 'calmar': 0.094, 'profit_factor': 1.053, 'hit_rate': 0.4877, 'avg_winner': 0.06225, 'avg_loser': -0.05627, 'payoff': 1.106, 'expectancy': 0.00154, 'precision_at_k': 0.0, 'recall_strong': 0.0, 'turnover': 0.4704, 'exposure': 1.0, 'n_trades': 11059, 'n_cohorts': 230, 'n_months': 53, 'avg_mfe': 0.0725, 'avg_mae': -0.0623, 'es5_monthly': -0.04326, 'sector_hhi': 0.1802}, 'diversified': {'cagr': 0.0029, 'sharpe': 0.075, 'sortino': 0.082, 'max_dd': -0.1815, 'calmar': 0.016, 'profit_factor': 1.019, 'hit_rate': 0.4847, 'avg_winner': 0.06128, 'avg_loser': -0.05655, 'payoff': 1.084, 'expectancy': 0.00056, 'precision_at_k': 0.0, 'recall_strong': 0.0, 'turnover': 0.4734, 'exposure': 1.0, 'n_trades': 11059, 'n_cohorts': 230, 'n_months': 53, 'avg_mfe': 0.0718, 'avg_mae': -0.0625, 'es5_monthly': -0.04257, 'sector_hhi': 0.1585}, 'verdict': 'REJECT'}
 
-Anteil fragiler Positionen im Top-Dezil: 0.9072
+Anteil fragiler Positionen im Top-Dezil: 0.9022
 
 Hinweise: {}
 
 ## Unknown-Unknown-Cluster
 
-- UNKNOWN_CLUSTER_001: n=91 (Segment 332), typischer Fehler -0.1588, Lift 2.74, Eigenschaften {'sector': 'Energy', 'momentum': 'loser_12m'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
-- UNKNOWN_CLUSTER_002: n=94 (Segment 355), typischer Fehler -0.1638, Lift 2.65, Eigenschaften {'sector': 'Energy', 'beta': 'high_beta'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
-- UNKNOWN_CLUSTER_003: n=248 (Segment 1004), typischer Fehler -0.1857, Lift 2.47, Eigenschaften {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_004: n=112 (Segment 467), typischer Fehler -0.161, Lift 2.4, Eigenschaften {'sector': 'Energy', 'volatility': 'high_vol'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
-- UNKNOWN_CLUSTER_005: n=36 (Segment 167), typischer Fehler -0.1697, Lift 2.16, Eigenschaften {'sector': 'Energy', 'liquidity': 'less_liquid'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
-- UNKNOWN_CLUSTER_006: n=387 (Segment 1916), typischer Fehler -0.1783, Lift 2.02, Eigenschaften {'lottery': 'lottery_profile'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_007: n=138 (Segment 780), typischer Fehler -0.1535, Lift 1.77, Eigenschaften {'sector': 'Energy'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
-- UNKNOWN_CLUSTER_008: n=515 (Segment 2911), typischer Fehler -0.1692, Lift 1.77, Eigenschaften {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_009: n=206 (Segment 1180), typischer Fehler -0.1671, Lift 1.75, Eigenschaften {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_010: n=244 (Segment 1418), typischer Fehler -0.1729, Lift 1.72, Eigenschaften {'sector': 'Consumer Cyclical', 'beta': 'high_beta'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_011: n=1197 (Segment 7145), typischer Fehler -0.1674, Lift 1.68, Eigenschaften {'volatility': 'high_vol'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_012: n=132 (Segment 795), typischer Fehler -0.1831, Lift 1.66, Eigenschaften {'momentum': 'loser_12m', 'trend': 'downtrend'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_013: n=51 (Segment 312), typischer Fehler -0.1525, Lift 1.63, Eigenschaften {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_014: n=206 (Segment 1263), typischer Fehler -0.1693, Lift 1.63, Eigenschaften {'sector': 'Technology', 'recent_move': 'extreme_5d_move'}, Abdeckung LOW -> dedizierten Research-Track anlegen
-- UNKNOWN_CLUSTER_015: n=370 (Segment 2287), typischer Fehler -0.1712, Lift 1.62, Eigenschaften {'momentum': 'loser_12m', 'beta': 'high_beta'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_001: n=95 (Segment 331), typischer Fehler -0.1609, Lift 2.87, Eigenschaften {'sector': 'Energy', 'momentum': 'loser_12m'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
+- UNKNOWN_CLUSTER_002: n=96 (Segment 340), typischer Fehler -0.1654, Lift 2.82, Eigenschaften {'sector': 'Energy', 'beta': 'high_beta'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
+- UNKNOWN_CLUSTER_003: n=118 (Segment 467), typischer Fehler -0.1618, Lift 2.53, Eigenschaften {'sector': 'Energy', 'volatility': 'high_vol'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
+- UNKNOWN_CLUSTER_004: n=224 (Segment 912), typischer Fehler -0.1845, Lift 2.46, Eigenschaften {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_005: n=38 (Segment 164), typischer Fehler -0.1688, Lift 2.32, Eigenschaften {'sector': 'Energy', 'liquidity': 'less_liquid'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
+- UNKNOWN_CLUSTER_006: n=92 (Segment 411), typischer Fehler -0.1526, Lift 2.24, Eigenschaften {'sector': 'Energy', 'vix': 'vix_ge_20'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
+- UNKNOWN_CLUSTER_007: n=353 (Segment 1800), typischer Fehler -0.1782, Lift 1.96, Eigenschaften {'lottery': 'lottery_profile'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_008: n=145 (Segment 783), typischer Fehler -0.1541, Lift 1.85, Eigenschaften {'sector': 'Energy'}, Abdeckung MEDIUM -> bekannt – Failure-Profil beobachten
+- UNKNOWN_CLUSTER_009: n=504 (Segment 2874), typischer Fehler -0.1696, Lift 1.75, Eigenschaften {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_010: n=245 (Segment 1408), typischer Fehler -0.1708, Lift 1.74, Eigenschaften {'sector': 'Consumer Cyclical', 'beta': 'high_beta'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_011: n=1185 (Segment 6968), typischer Fehler -0.1652, Lift 1.7, Eigenschaften {'volatility': 'high_vol'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_012: n=130 (Segment 784), typischer Fehler -0.1861, Lift 1.66, Eigenschaften {'momentum': 'loser_12m', 'trend': 'downtrend'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_013: n=191 (Segment 1156), typischer Fehler -0.1724, Lift 1.65, Eigenschaften {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_014: n=362 (Segment 2201), typischer Fehler -0.1726, Lift 1.64, Eigenschaften {'momentum': 'loser_12m', 'beta': 'high_beta'}, Abdeckung LOW -> dedizierten Research-Track anlegen
+- UNKNOWN_CLUSTER_015: n=109 (Segment 678), typischer Fehler -0.1821, Lift 1.61, Eigenschaften {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'}, Abdeckung LOW -> dedizierten Research-Track anlegen
 

@@ -1,116 +1,100 @@
 {
- "generated": "2026-10-03T12:06:37+00:00",
+ "generated": "2026-10-03T13:01:28+00:00",
  "results": {
-  "FAC-5F1C6869": {
+  "FAC-D4E1EB14": {
    "status": "REJECTED",
    "spec": {
-    "signal": "exp_technology * sign(usd_63d_chg - 0)",
-    "direction": -1,
-    "family": "dollar_x_technology",
-    "domain": "dollar",
-    "exposure_sector": "Technology",
-    "spec_hash": "e597c3ad6a7919bd"
+    "signal": "rank(xbrl_sue) * step(-mom_3m)",
+    "direction": 1,
+    "family": "div_fundamentals_vs_price",
+    "domain": "fundamentals",
+    "exposure_sector": null,
+    "spec_hash": "25b336517fda20f0"
    },
    "reasons": [
-    "Walk-Forward netto 0.00085 mit t=0.51",
-    "nur 0.571 der Jahre positiv",
+    "Walk-Forward netto 0.00125 mit t=0.78",
     "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00057, 'second': 0.00228}"
+    "instabil über Hälften {'first': -0.00177, 'second': 0.00426}",
+    "Regime: {'vix_lt_20': 'works', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
    ],
    "data_kind": "historical_walk_forward"
   },
-  "FAC-44EA5A4F": {
+  "FAC-AD1E02FC": {
    "status": "REJECTED",
    "spec": {
-    "signal": "exp_consumer_defensive * sign(cpi_yoy - 3.0)",
+    "signal": "rank(vol_60) * step(20 - vix)",
     "direction": 1,
-    "family": "inflation_x_consumer_defensive",
-    "domain": "inflation",
-    "exposure_sector": "Consumer Defensive",
-    "spec_hash": "d7c4ce1aa8d89d6f"
-   },
-   "reasons": [
-    "Walk-Forward netto -0.00212 mit t=-2.64",
-    "nur 0.143 der Jahre positiv",
-    "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00146, 'second': -0.00278}",
-    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-E17F4909": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_utilities * sign(vix_chg_21 - 0)",
-    "direction": 1,
-    "family": "volatility_x_utilities",
-    "domain": "volatility",
-    "exposure_sector": "Utilities",
-    "spec_hash": "7d1bdd50697afa69"
-   },
-   "reasons": [
-    "Walk-Forward netto -0.00287 mit t=-1.77",
-    "nur 0.286 der Jahre positiv",
-    "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00097, 'second': -0.00476}",
-    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-9C8B3CD1": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_basic_materials * sign(spy_mom_63 - 0)",
-    "direction": 1,
-    "family": "trend_x_basic_materials",
-    "domain": "trend",
-    "exposure_sector": "Basic Materials",
-    "spec_hash": "ae15c80731c893c2"
-   },
-   "reasons": [
-    "Walk-Forward netto -0.00398 mit t=-3.56",
-    "nur 0.286 der Jahre positiv",
-    "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00057, 'second': -0.00736}",
-    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-671F7C67": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_healthcare * sign(sec_insider_net_value_90d - 0)",
-    "direction": 1,
-    "family": "insider_x_healthcare",
-    "domain": "insider",
-    "exposure_sector": "Healthcare",
-    "spec_hash": "65172e29e424fd5a"
-   },
-   "reasons": [
-    "Walk-Forward netto -0.00272 mit t=-2.97",
-    "nur 0.143 der Jahre positiv",
-    "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00253, 'second': -0.00291}",
-    "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-A11F218F": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "rank(vol_20) * step(20 - vix)",
-    "direction": 1,
-    "family": "drift_vol_20",
+    "family": "drift_vol_60",
     "domain": "drift",
     "exposure_sector": null,
-    "spec_hash": "efb67f2e2e7df988"
+    "spec_hash": "e59c02e0c06bbf87"
    },
    "reasons": [
-    "Walk-Forward netto -0.00486 mit t=-2.25",
-    "nur 0.143 der Jahre positiv",
+    "zu ähnlich zu verworfener Hypothese FAC-A11F218F (Jaccard 0.90)"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-195425A4": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_healthcare * rank(sec_insider_net_value_90d)",
+    "direction": -1,
+    "family": "cond_sec_insider_net_value_90d_healthcare",
+    "domain": "sec_deep_events",
+    "exposure_sector": "Healthcare",
+    "spec_hash": "787dc6a170d4bb7f"
+   },
+   "reasons": [
+    "Walk-Forward netto -0.00476 mit t=-1.73",
+    "nur 0.0 der Jahre positiv",
     "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00429, 'second': -0.00543}",
+    "instabil über Hälften {'first': -0.0043, 'second': -0.00521}",
     "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-A82BAC5D": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_healthcare * rank(sec_insider_buy_value_90d)",
+    "direction": -1,
+    "family": "cond_sec_insider_buy_value_90d_healthcare",
+    "domain": "sec_deep_events",
+    "exposure_sector": "Healthcare",
+    "spec_hash": "9e1df3ab6fd19048"
+   },
+   "reasons": [
+    "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-3A0A8178": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_healthcare * rank(sec_insider_buyers_90d)",
+    "direction": -1,
+    "family": "cond_sec_insider_buyers_90d_healthcare",
+    "domain": "sec_deep_events",
+    "exposure_sector": "Healthcare",
+    "spec_hash": "aebd464154fc758f"
+   },
+   "reasons": [
+    "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
+   ],
+   "data_kind": "historical_walk_forward"
+  },
+  "FAC-01660B09": {
+   "status": "REJECTED",
+   "spec": {
+    "signal": "exp_healthcare * rank(sec_filing_delay_z)",
+    "direction": -1,
+    "family": "cond_sec_filing_delay_z_healthcare",
+    "domain": "sec_deep_events",
+    "exposure_sector": "Healthcare",
+    "spec_hash": "fef293461c83d6b5"
+   },
+   "reasons": [
+    "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
    ],
    "data_kind": "historical_walk_forward"
   }

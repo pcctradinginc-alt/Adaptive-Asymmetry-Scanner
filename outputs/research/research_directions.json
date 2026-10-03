@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T12:06:37+00:00",
+ "generated": "2026-10-03T13:01:28+00:00",
  "prior": [
   1.0,
   4.0
@@ -345,6 +345,94 @@
    "posterior_sd": 0.0994,
    "wasted_capacity": 4,
    "assessment": "verschwendet Kapazität"
+  },
+  "alt_source:sec_xbrl_fundamentals": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_fundamentals_vs_price": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "research:factory": {
+   "tested": 4,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 4,
+   "posterior_success": 0.1111,
+   "posterior_sd": 0.0994,
+   "wasted_capacity": 4,
+   "assessment": "verschwendet Kapazität"
+  },
+  "family:cond_sec_insider_net_value_90d_healthcare": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:drift_vol_60": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_insider_buy_value_90d_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_insider_buyers_90d_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_filing_delay_z_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
   }
  }
 }
