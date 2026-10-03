@@ -1505,7 +1505,8 @@ def main() -> None:
         try:
             from modules.production_intelligence_adapter import apply_to_proposals
             _ai_kept, _ai_blocked, _ai_records = apply_to_proposals(
-                trade_proposals, vix=stats.get("vix"), today=today, trade_score_min=trade_score_min)
+                trade_proposals, vix=stats.get("vix"), today=today, trade_score_min=trade_score_min,
+                mc_threshold=get_mc_threshold(gates.last_vix or 20.0))
             trade_proposals = _ai_kept
             _cf = history.setdefault("counterfactual_trades", [])
             _cf_seen = {(t["ticker"], t.get("entry_date", "")) for t in _cf}

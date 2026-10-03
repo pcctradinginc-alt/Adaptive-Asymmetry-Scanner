@@ -44,6 +44,23 @@ NO_DATA = "keine Daten"
 NA = "n/a"
 META_METRICS = ("cagr", "sharpe", "sortino", "max_dd", "calmar", "profit_factor",
                 "hit_rate", "expectancy", "brier", "ece")
+# Montagsbericht: 7 Hauptabschnitte (Spezifikation), danach die Detailabschnitte als Anhang A1–A19.
+MONDAY_TITLES = {
+    1: "SYSTEM STATUS",
+    2: "WHAT THE SYSTEM LEARNED",
+    3: "HYPOTHESIS SCOREBOARD",
+    4: "RESEARCH INTELLIGENCE",
+    5: "CURRENT MARKET / WORLD MODEL",
+    6: "TOP TRADE CANDIDATES",
+    7: "PERFORMANCE",
+}
+NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
+# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das kalibrierte MC-Band des Kandidaten
+# auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Safe Mode gilt.
+HC_BAND_MIN_N, HC_BAND_MIN_PF, CAL_MIN_N = 20, 1.2, 10
+SCOREBOARD_GROUPS = ("RESEARCH IDEA", "CHALLENGER", "FORWARD VALIDATED", "PROMOTED", "REJECTED")
+LEARN_DAYS = 7
+
 SECTION_TITLES = {
     1: "SYSTEM STATUS",
     2: "LIVE / FORWARD PERFORMANCE (Paper-Trades, echt – kein Backtest)",
@@ -150,6 +167,11 @@ def forward_metrics(outcomes: list[float]) -> dict:
     gl = abs(sum(losses))
     m["profit_factor"] = (sum(wins) / gl) if gl > 0 else None
     m["expectancy"] = m["avg_return"]  # = win_rate*avg_win + (1-win_rate)*avg_loss
+    sd = statistics.stdev(outcomes) if n > 1 else None
+    m["sharpe_per_trade"] = (m["avg_return"] / sd) if sd else None          # je Trade, nicht annualisiert
+    down = [min(o, 0.0) for o in outcomes]
+    dd_sd = (sum(x * x for x in down) / n) ** 0.5
+    m["sortino_per_trade"] = (m["avg_return"] / dd_sd) if dd_sd > 0 else None
     cum = peak = dd = 0.0
     for o in outcomes:
         cum += o
@@ -484,7 +506,42 @@ def collect(root, date, state_path=None) -> dict:
     data["prev_snapshot_date"] = _d(prev).get("date") if prev else None
     data["learned"] = diff_snapshots(prev if isinstance(prev, dict) else None, data["snapshot"])
     data["warnings"] = compute_warnings(data)
+    data["week_proposals"] = _week_proposals(out_dir, today)
+    data["mc_calibration"] = _d(_load_json(rs / "paper_performance_analysis.json")).get("mc_hit_rate_calibration")
+    data["rl_status"] = _load_json(rs / "rl_promotion.json")
+    data["surprise"] = _load_json(rs / "surprise_study.json")
     return data
+
+
+def _week_proposals(out_dir: Path, today: _date) -> list[dict]:
+    """Produktions-Trade-Vorschläge (vollständige Pipeline bestanden) der letzten 7 Tage aus den
+    Tagesreports, angereichert um die Ledger-Merkmale desselben Tages (ML-Schätzungen = Research)."""
+    rep_dir = out_dir / "daily_reports"
+    if not rep_dir.is_dir():
+        return []
+    cutoff = today - timedelta(days=LEARN_DAYS)
+    props = []
+    for f in sorted(rep_dir.glob("*.json")):
+        d = _parse_date(f.stem)
+        if d is None or not (cutoff < d <= today):
+            continue
+        for p in _d(_load_json(f)).get("proposals") or []:
+            if isinstance(p, dict) and p.get("ticker"):
+                props.append({**p, "_date": d.isoformat()})
+    if not props:
+        return []
+    want = {(p["_date"], p["ticker"]) for p in props}
+    feats = {}
+    led = out_dir / "candidate_ledger"
+    if led.is_dir():
+        for f in sorted(led.glob("*.jsonl")):
+            for r in _load_jsonl(f):
+                k = (str(r.get("date"))[:10], r.get("ticker"))
+                if k in want:
+                    feats[k] = _d(r.get("features"))
+    for p in props:
+        p["_ledger_features"] = feats.get((p["_date"], p["ticker"]), {})
+    return props
 
 
 # ── Warnungen ──────────────────────────────────────────────────────────────
@@ -613,7 +670,14 @@ def _fwd_table(kind: str, windows: list[dict]) -> tuple:
     return ("table", hdr, rows, cls)
 
 
-def build_sections(data: dict) -> list[tuple[int, str, list]]:
+def build_sections(data: dict) -> list[tuple[str, str, list]]:
+    """Montagsbericht: 7 Hauptabschnitte, danach alle Detailabschnitte als Anhang (A1–A19)."""
+    main = monday_sections(data)
+    appendix = [(f"A{num}", title, blocks) for num, title, blocks in detail_sections(data)]
+    return [(str(n), t, b) for n, t, b in main] + appendix
+
+
+def detail_sections(data: dict) -> list[tuple[int, str, list]]:
     ml, meta, st, hc = _d(data["ml"]), _d(data["meta"]), _d(data["meta_state"]), data["hc"]
     secs = []
 
@@ -852,6 +916,341 @@ def build_sections(data: dict) -> list[tuple[int, str, list]]:
         b10.append(("note", "Fehlende Eingaben: " + ", ".join(data["missing"])))
     secs.append((10, SECTION_TITLES[10], b10))
     secs.extend(intelligence_sections(data))
+    return secs
+
+
+# ── Montagsbericht: 7 Hauptabschnitte ──────────────────────────────────────
+_PROMO_GROUP = {"IDEA": "RESEARCH IDEA", "HISTORICAL_RESEARCH": "RESEARCH IDEA",
+                "HISTORICALLY_VALIDATED": "RESEARCH IDEA", "PROSPECTIVE_CHALLENGER": "CHALLENGER",
+                "FORWARD_VALIDATED": "FORWARD VALIDATED", "GUARDED_PRODUCTION": "PROMOTED",
+                "LIMITED_PRODUCTION": "PROMOTED", "FULL_PRODUCTION": "PROMOTED",
+                "DEMOTED": "REJECTED", "REJECTED": "REJECTED", "EXPIRED": "REJECTED"}
+
+
+def _recent(ts, today: _date, days: int = LEARN_DAYS) -> bool:
+    d = _parse_date(str(ts)[:10]) if ts else None
+    return d is not None and today - timedelta(days=days) < d <= today
+
+
+def scoreboard(data: dict) -> dict[str, list[list[str]]]:
+    """Hypothesen gruppiert nach RESEARCH IDEA / CHALLENGER / FORWARD VALIDATED / PROMOTED / REJECTED.
+    Quelle der Wahrheit für Status/Forward-Evidenz: PromotionController; ergänzt um Fabrik und
+    Hypothesen-DB (nur historisch -> nie mehr als RESEARCH IDEA bzw. REJECTED)."""
+    groups: dict[str, list[list[str]]] = {g: [] for g in SCOREBOARD_GROUPS}
+    seen = set()
+    for k, h in _d(_d(data.get("promo")).get("hypotheses")).items():
+        h, ev = _d(h), _d(_d(h).get("evidence"))
+        ci = ev.get("ci") or [None, None]
+        hid = h.get("hypothesis_id") or k
+        seen.add(hid)
+        exp = _d(ev.get("fired")).get("expectancy", _d(ev.get("policy")).get("expectancy"))
+        span = (f"{str(ev.get('first_observation'))[:10]} – {str(ev.get('last_observation'))[:10]}"
+                if ev.get("first_observation") else f"ab {str(h.get('forward_start') or NA)[:10]}")
+        groups[_PROMO_GROUP.get(str(h.get("state")), "RESEARCH IDEA")].append([
+            k, str(h.get("title") or h.get("description") or "")[:60], str(h.get("state")),
+            str(ev.get("n_observations", 0)), str(ev.get("n_independent_dates", 0)), span,
+            _fv(ev.get("delta_expectancy")), f"[{_fv(ci[0])}, {_fv(ci[1])}]", _fv(exp),
+            _fv(ev.get("ece") if ev.get("ece") is not None else ev.get("brier")),
+            str(h.get("influence_level") or "NONE")])
+    fac = _d(data.get("factory"))
+    fc = _d(fac.get("forward_cohorts"))
+    for c in fac.get("challengers") or []:
+        hid = c.get("hypothesis_id")
+        if not hid or hid in seen:
+            continue
+        seen.add(hid)
+        groups["CHALLENGER"].append([hid, str(c.get("title") or c.get("signal") or "")[:60], "PROSPECTIVE_CHALLENGER (Fabrik)",
+                                     str(fc.get(hid, 0)), NA, f"ab {str(c.get('forward_start') or NA)[:10]}",
+                                     NA, NA, NA, NA, "NONE"])
+    res = _d(_d(fac.get("results")).get("results"))
+    for hid, r in res.items():
+        if hid in seen:
+            continue
+        seen.add(hid)
+        st = str(_d(r).get("status"))
+        grp = "REJECTED" if st == "REJECTED" else "RESEARCH IDEA"
+        spec = _d(_d(r).get("spec"))
+        groups[grp].append([hid, str(spec.get("title") or spec.get("signal") or "")[:60], f"{st} (historisch)",
+                            "0", "0", "kein Forward", NA, NA, NA, NA, "NONE"])
+    for hid, h in _d(_d(data.get("hyp")).get("hypotheses")).items():
+        if hid in seen:
+            continue
+        cs = str(_d(h).get("canonical_status") or "")
+        grp = "REJECTED" if cs == "REJECTED" else ("RESEARCH IDEA" if cs in ("ACCEPTED", "INCONCLUSIVE", "RETEST_LATER")
+                                                   else None)
+        if grp is None:
+            continue
+        groups[grp].append([hid, str(_d(h).get("title") or "")[:60], f"{cs or _d(h).get('status')} (historisch)",
+                            "0", "0", "kein Forward", NA, NA, NA, NA, "NONE"])
+    return groups
+
+
+def _band(mc_hit, calib) -> tuple[str | None, dict]:
+    v = _num(mc_hit)
+    if v is None or not _d(calib):
+        return None, {}
+    band = "<0.55" if v < 0.55 else "0.55-0.65" if v < 0.65 else "0.65-0.75" if v < 0.75 else ">=0.75"
+    return band, _d(_d(calib).get(band))
+
+
+def _calibrated_p(mc_hit, calib) -> str:
+    """Kalibrierte Trefferquote = realisierte Win Rate des MC-Hit-Rate-Bands (echte Paper-Trades)."""
+    band, b = _band(mc_hit, calib)
+    if band is None:
+        return NA
+    if (b.get("n") or 0) < CAL_MIN_N:
+        return f"{NA} (Band {band}: n={b.get('n', 0)} < {CAL_MIN_N})"
+    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Modell sagte {_num(mc_hit) * 100:.0f}%)"
+
+
+def is_high_confidence(p: dict, data: dict) -> bool:
+    """Berichts-Label: kalibriertes Band auf echten Paper-Trades belegt und kein Safe Mode."""
+    if safe_mode_status(data.get("safe"))[0] is not False:
+        return False
+    _, b = _band(p.get("mc_hit_rate") or _d(p.get("simulation")).get("hit_rate"), data.get("mc_calibration"))
+    return ((b.get("n") or 0) >= HC_BAND_MIN_N and (_num(b.get("mean")) or 0) > 0
+            and (_num(b.get("profit_factor")) or 0) >= HC_BAND_MIN_PF)
+
+
+def _candidate_blocks(p: dict, data: dict) -> list:
+    da, opt, sim, lf = _d(p.get("deep_analysis")), _d(p.get("option")), _d(p.get("simulation")), _d(p.get("_ledger_features"))
+    ts, ex, rt = _d(p.get("trade_score")), _d(p.get("exit_rules")), _d(da.get("red_team"))
+    feats = _d(p.get("features"))
+    st = _d(data.get("safe"))
+    hyps = [k for k, h in _d(_d(data.get("promo")).get("hypotheses")).items()
+            if str(_d(h).get("influence_level") or "NONE") != "NONE"]
+    risks = [str(rt.get(f"argument_{i}"))[:160] for i in (1, 2, 3) if rt.get(f"argument_{i}")]
+    inval = []
+    if ex:
+        inval.append("Exit-Regeln: " + ", ".join(f"{k}={v}" for k, v in ex.items() if not isinstance(v, (dict, list)))[:200])
+    if da.get("bear_case"):
+        inval.append("Bear Case: " + str(da["bear_case"])[:160])
+    opt_idea = (f"{p.get('strategy', NA)} Strike {opt.get('strike', NA)} Verfall {opt.get('expiry', NA)} "
+                f"(DTE {opt.get('dte', NA)}, Ask {opt.get('ask', NA)}, IV {_fv(opt.get('implied_vol'))})") if opt else NA
+    kv = [
+        ("Richtung", str(p.get("direction") or da.get("direction") or NA)),
+        ("Aktueller Kurs (Scan)", _fv(sim.get("current_price"))),
+        ("Erwartete Rendite 20d", NA + " (kein produktiv validiertes 20d-Modell)"),
+        ("Erwartete Rendite 60d", (f"{_f(lf.get('ml_exp_ret_60'), pct=True, sign=True)} "
+                                   f"[q10 {_f(lf.get('ml_q10_ret_60'), pct=True, sign=True)}, q90 "
+                                   f"{_f(lf.get('ml_q90_ret_60'), pct=True, sign=True)}] – ML-Research-Schätzung, "
+                                   f"nicht produktiv validiert") if lf.get("ml_exp_ret_60") is not None else NA),
+        ("Erwartete Rendite 120d", NA + " (kein Modell)"),
+        ("Kalibrierte Wahrscheinlichkeit", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
+        ("Erwarteter Drawdown / MAE", (f"{_f(lf.get('ml_exp_dd_60'), pct=True, sign=True)} (60d, ML-Research)"
+                                       if lf.get("ml_exp_dd_60") is not None else NA)),
+        ("MFE", NA + " (erst nach Outcome messbar)"),
+        ("Asymmetrie", (f"Modell-Move {_fv(p.get('model_move_pct'))}% vs. Implied {_fv(p.get('implied_move_pct'))}% "
+                        f"(Edge {_fv(p.get('edge_vs_implied'))}), Break-even {_fv(p.get('trade_bep_pct'))}%")),
+        ("Confidence (Trade Score)", f"{_fv(ts.get('total'))} · Catalyst-Confidence {_fv(da.get('catalyst_confidence'))}/10"),
+        ("Regime", str(da.get("macro_regime") or NA)),
+        ("Model Agreement", (f"Disagreement-SD {_fv(lf.get('ml_disagreement_sd'))} (ML-Research)"
+                             if lf.get("ml_disagreement_sd") is not None else NA)),
+        ("Data Quality", f"{_fv(_d(st.get('data_health')).get('data_quality'))} (System) · Analyse: {da.get('data_confidence', NA)}"),
+        ("Relevante promotete Hypothesen", ", ".join(hyps) or "keine (keine Hypothese mit Produktionseinfluss)"),
+        ("Wichtigste positive Evidenz", str(da.get("catalyst") or NA)[:200] + (" – " + str(da.get("asymmetry_reasoning"))[:300]
+                                                                              if da.get("asymmetry_reasoning") else "")),
+        ("Counterfactual Fragility", (_fv(feats.get("risk_counterfactual_fragility")) + " (Anteil knapp bestandener Gates)")
+                                     if feats.get("risk_counterfactual_fragility") is not None else NA),
+        ("Abstention-Risiko (SHADOW)", ("abstain_score " + _fv(feats.get("risk_abstain_score")) + " · " +
+                                        ", ".join(f"{k[5:]} {_fv(v)}" for k, v in feats.items()
+                                                  if k.startswith("risk_") and k != "risk_abstain_score" and v is not None))
+                                       if feats.get("risk_abstain_score") is not None else NA),
+        ("Optionsidee", opt_idea),
+    ]
+    return [("para", f"{p.get('ticker')} – Scan {p.get('_date')} (Produktionspipeline bestanden, Rang {p.get('trade_rank', NA)})"),
+            ("kv", kv), ("para", "Risiken:"), ("list", risks or [NA]),
+            ("para", "Invalidation Conditions:"), ("list", inval or [NA])]
+
+
+def _perf_row(label: str, m: dict) -> list[str]:
+    if not m.get("closed"):
+        return [label, "0"] + [NA] * 7
+    return [label, str(m["closed"]), _f(m["expectancy"], pct=True, sign=True), _f(m["win_rate"], pct=True),
+            _f(m["profit_factor"], 2), _f(m.get("sharpe_per_trade"), 2), _f(m.get("sortino_per_trade"), 2),
+            _f(m["max_dd"], 2), "LOW SAMPLE" if m["low_sample"] else ""]
+
+
+def monday_sections(data: dict) -> list[tuple[int, str, list]]:
+    today = _parse_date(data["date"]) or _date.today()
+    st, meta, ml = _d(data.get("safe")), _d(data.get("meta")), _d(data.get("ml"))
+    groups = scoreboard(data)
+    secs = []
+
+    # 1 SYSTEM STATUS
+    dh, dr, cv, ps = _d(st.get("data_health")), _d(st.get("drift_state")), _d(st.get("champion_version")), _d(st.get("promotion_state"))
+    cnt = _d(dh.get("counts"))
+    secs.append((1, MONDAY_TITLES[1], [("kv", [
+        ("Health", f"{dh.get('status', NA)} · Data Quality {_fv(dh.get('data_quality'))}" if dh else NO_DATA),
+        ("Safe Mode", safe_mode_status(st)[1]),
+        ("Drift", f"{dr.get('level', NA)}" + (" – " + "; ".join(map(str, dr.get("reasons") or [])) if dr.get("reasons") else "")),
+        ("Datenquellen", ", ".join(f"{k} {v}" for k, v in cnt.items()) if cnt else NO_DATA),
+        ("Champion-Version", f"{cv.get('version', NA)} (ML-Champion: {cv.get('ml_champion') or 'keiner'})" if cv else NO_DATA),
+        ("Meta-Modell", f"{meta.get('primary_meta', NA)} v{meta.get('meta_version', NA)}, Verdikt "
+                        f"{_d(meta.get('decision')).get('verdict', NA)} (SHADOW)" if meta else NO_DATA),
+        ("Aktive Hypothesen (Research)", str(len(groups["RESEARCH IDEA"]))),
+        ("Challenger (prospektiv)", str(len(groups["CHALLENGER"]))),
+        ("Promotete Hypothesen", str(len(groups["PROMOTED"])) + (f" – mit Einfluss: {', '.join(ps.get('with_influence') or [])}"
+                                                                 if ps.get("with_influence") else " – kein Produktionseinfluss")),
+        ("Drift/Fehler (Warnungen)", ", ".join(sorted({w["code"] for w in data["warnings"]})) or "keine"),
+    ])]))
+
+    # 2 WHAT THE SYSTEM LEARNED
+    tr = [t for t in data.get("promo_transitions") or [] if _recent(t.get("timestamp"), today)]
+    confirmed = [f"{t.get('key')}: {t.get('previous_state')} -> {t.get('new_state')} ({t.get('reason')})" for t in tr
+                 if t.get("new_state") in ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION")]
+    rejected = [f"{t.get('key')}: {t.get('decision')} – {t.get('reason')}" for t in tr
+                if t.get("decision") in ("REJECT", "DEMOTE", "ROLLBACK")]
+    fres = _d(_d(data.get("factory")).get("results"))
+    if _recent(fres.get("generated"), today):
+        rejected += [f"{hid}: REJECTED (historischer Walk-Forward) – {'; '.join(map(str, _d(r).get('reasons') or []))[:120]}"
+                     for hid, r in _d(fres.get("results")).items() if _d(r).get("status") == "REJECTED"]
+    nv = _d(data.get("nextv"))
+    blind = [f"{c.get('id')}: n={c.get('n')}, typischer Fehler {_fv(c.get('typical_error'))}, {c.get('common_properties')}"
+             for c in nv.get("blind_spot_clusters") or []]
+    ms = _d(data.get("mstate"))
+    decay = [str(x) for x in (ms.get("which_features_are_decaying") or [])][:6]
+    secs.append((2, MONDAY_TITLES[2], [
+        ("note", f"Zeitraum: letzte {LEARN_DAYS} Tage. Nur gemessene Änderungen."),
+        ("para", "Neu bestätigte Erkenntnisse (Forward):"), ("list", confirmed or ["keine"]),
+        ("para", "Verworfene Hypothesen:"), ("list", rejected[:10] or ["keine"]),
+        ("para", "Blind Spots (signifikante Fehlercluster):"), ("list", blind[:5] or ["keine"]),
+        ("para", "Alpha Decay:"), ("list", decay or ["keine gemessene Abschwächung"]),
+        ("para", "Daten-/Research-Erkenntnisse (Änderungen seit letztem Bericht):"),
+        ("list", (data.get("learned") or [FIRST_REPORT_TEXT if data.get("learned") is None else "keine"])[:10]),
+    ]))
+
+    # 3 HYPOTHESIS SCOREBOARD
+    hdr = ["ID", "Kurzbeschreibung", "Status", "Forward N", "Unabh. Tage", "Zeitraum", "Effekt (Δ Exp.)", "CI",
+           "Expectancy", "Calibration", "Produktionswirkung"]
+    b3 = [("note", "Forward N/Tage/Effekt zählen ausschließlich prospektive Forward-Daten; historische Ergebnisse "
+                   "führen höchstens zu RESEARCH IDEA.")]
+    for g in SCOREBOARD_GROUPS:
+        rows = groups[g]
+        b3.append(("para", f"{g} ({len(rows)})"))
+        b3.append(("table", hdr, rows[:12], []) if rows else ("para", "keine"))
+    secs.append((3, MONDAY_TITLES[3], b3))
+
+    # 4 RESEARCH INTELLIGENCE
+    plan = _d(_d(data.get("factory")).get("plan"))
+    ideas = [_d(h) for h in plan.get("ideas") or []]
+    new = [f"{h.get('id')}: {h.get('title')} ({h.get('family')}, Priorität {_fv(h.get('priority'))})"
+           for h in ideas if h.get("plan_status") == "SELECTED"]
+    unorth = [f"{h.get('id')}: {h.get('title')} – {str(h.get('mechanism') or '')[:120]}"
+              for h in ideas if h.get("exploratory") or h.get("idea_source") == "cross_domain"]
+    gaps = [f"{h.get('title')}: Quellen {', '.join(_d(x).get('name', str(x)) if isinstance(x, dict) else str(x) for x in _d(h.get('readiness')).get('free_sources') or []) or '–'}"
+            for h in ideas if h.get("plan_status") == "DATA_GAP"]
+    gaps += [f"{a.get('source')} (Info-Gewinn {_fv(a.get('expected_information_gain'))})"
+             for a in (_d(data.get("alearn")).get("data_gaps") or [])[:3]]
+    sp = _d(data.get("surprise"))
+    gaps += [f"Surprise Engine: {g}" for g in (sp.get("data_gaps") or [])]
+    surprise_lines = [f"{k}: {_d(_d(v).get('decision')).get('verdict', NA)} – Mittel "
+                      f"{_fv(_d(_d(_d(v).get('h20')).get('base_cost')).get('mean'))}, t "
+                      f"{_fv(_d(_d(_d(v).get('h20')).get('base_cost')).get('t_months'))}, Placebo-p "
+                      f"{_fv(_d(_d(v).get('h20')).get('placebo_p'))}"
+                      for k, v in _d(sp.get("hypotheses")).items()]
+    dc = sorted((_d(c) for c in _d(data.get("director")).get("candidates") or []),
+                key=lambda c: -(_num(c.get("priority")) or 0))[:5]
+    questions = [f"{c.get('question') or c.get('hypothesis') or c.get('title') or c.get('research_id')} "
+                 f"(Priorität {_fv(c.get('priority'))}, "
+                 f"EIG {_fv(c.get('expected_information_gain'))})" for c in dc]
+    dirs = _d(_d(_d(data.get("factory")).get("directions")).get("directions"))
+    best = sorted(((k, d) for k, d in dirs.items() if (_num(_d(d).get("tested")) or 0) > 0),
+                  key=lambda kv: -(_num(_d(kv[1]).get("posterior_success")) or 0))[:5]
+    secs.append((4, MONDAY_TITLES[4], [
+        ("para", "Neue Hypothesen (zum Test ausgewählt):"), ("list", new or ["keine"]),
+        ("para", "Unorthodoxe Cross-Domain-Ideen:"), ("list", unorth[:6] or ["keine"]),
+        ("para", "Data Gaps (nie simuliert; kostenlose Quellen):"), ("list", gaps[:8] or ["keine"]),
+        ("para", "Wichtigste Forschungsfragen (Priorität = EIG × Relevanz × Neuheit × Datenqualität ÷ Kosten ÷ Overfit):"),
+        ("list", questions or [NO_DATA]),
+        ("para", "Expectation/Surprise Engine (Fundamental vs. Marktreaktion, historischer Walk-Forward, "
+                 "zählt nicht als Forward-Evidenz):"),
+        ("list", surprise_lines or ["noch kein Studienlauf"]),
+        ("para", "Forschungsbereiche mit höchstem nachgewiesenem Informationswert (Posterior Erfolg):"),
+        ("list", [f"{k}: Posterior {_fv(_d(d).get('posterior_success'))}, getestet {_d(d).get('tested')}, "
+                  f"Erfolg {_d(d).get('success')}" for k, d in best] or ["noch kein Bereich mit getesteten Hypothesen"]),
+    ]))
+
+    # 5 WORLD MODEL
+    w = _d(data.get("world"))
+    cur, prev = _d(w.get("current")), _d(w.get("previous"))
+    b5 = []
+    if cur:
+        rows = [[k[:-6], str(v), _fv(cur.get(k[:-6] + "_score")), _fv(cur.get(k[:-6] + "_uncertainty")),
+                 str(prev.get(k, NA))] for k, v in cur.items() if k.endswith("_state")]
+        b5 += [("kv", [("Stichtag", str(cur.get("date", NA))), ("Gesamt-Unsicherheit", _fv(cur.get("uncertainty"))),
+                       ("Regime (Meta-Learning)", str(_d(meta.get("current_regime")).get("name") or
+                                                      _d(meta.get("current_regime")).get("label") or NA))]),
+               ("table", ["Dimension", "Zustand", "Score", "Unsicherheit", "Vorwoche"], rows, []),
+               ("para", "Relevante Veränderungen:"), ("list", [str(x) for x in w.get("changes") or []] or ["keine"])]
+    else:
+        b5.append(("para", NO_DATA))
+    secs.append((5, MONDAY_TITLES[5], b5))
+
+    # 6 TOP TRADE CANDIDATES – ausschließlich Produktionspipeline
+    props = sorted(data.get("week_proposals") or [], key=lambda p: (str(p.get("_date")), -(_num(_d(p.get("trade_score")).get("total")) or 0)),
+                   reverse=True)
+    b6 = [("note", "Nur Kandidaten, die die vollständige Produktionspipeline bestanden haben (Tagesreports der letzten "
+                   f"{LEARN_DAYS} Tage). Research-/Backtest-Kandidaten erscheinen hier nie (siehe Anhang A6).")]
+    active, _ = safe_mode_status(st)
+    if active is not False:
+        b6.append(("para", "Safe Mode aktiv oder unbekannt: keine positiven Intelligence-Boosts; nur Champion-Entscheidungen."))
+    hc = [p for p in props if is_high_confidence(p, data)]
+    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): kalibriertes MC-Band auf echten Paper-Trades "
+                       f"mit n >= {HC_BAND_MIN_N}, Expectancy > 0, Profit Factor >= {HC_BAND_MIN_PF}; kein Safe Mode."))
+    if not hc:
+        b6.append(("para", NO_TRADE_TEXT))
+    for p in hc[:5]:
+        b6 += _candidate_blocks(p, data)
+    rest = [p for p in props if p not in hc]
+    if rest:
+        b6.append(("para", f"Weitere Produktions-Kandidaten der Woche (Pipeline bestanden, NICHT high-confidence): {len(rest)}"))
+        for p in rest[:5]:
+            b6 += _candidate_blocks(p, data)
+    secs.append((6, MONDAY_TITLES[6], b6))
+
+    # 7 PERFORMANCE – Forward / Walk-Forward OOS / Backtest strikt getrennt
+    fw = data["forward"]
+    hdr7 = ["Fenster", "N", "Expectancy", "Win Rate", "Profit Factor", "Sharpe/Trade", "Sortino/Trade", "MaxDD (Einh.)", "Hinweis"]
+    b7 = [("para", "A) ECHTE FORWARD-/PAPER-PERFORMANCE (Champion, nur zuverlässige Outcomes)")]
+    if fw.get("available"):
+        b7.append(("table", hdr7, [_perf_row(x["label"], x["reliable"]) for x in fw["windows"]], []))
+    else:
+        b7.append(("para", NO_DATA))
+    ev = _d(_d(data.get("promo")).get("evaluation"))
+    ch, ad = _d(ev.get("CHAMPION_ONLY")), _d(ev.get("ADAPTIVE_ACTUAL"))
+    b7.append(("para", "Champion vs. Adaptive Intelligence (prospektiv, gleiche Trades):"))
+    b7.append(("table", ["Variante", "N", "Expectancy", "Win Rate", "Sharpe", "Sortino", "MaxDD", "Brier"],
+               [[n, str(v.get("n", 0)), _fv(v.get("expectancy")), _fv(v.get("win_rate")), _fv(v.get("sharpe")),
+                 _fv(v.get("sortino")), _fv(v.get("max_drawdown")), _fv(v.get("brier"))]
+                for n, v in (("Champion only", ch), ("Adaptive (tatsächlich)", ad))], [])
+               if ch.get("n") else ("para", "Noch keine aufgelösten prospektiven Entscheidungen."))
+    cal = _d(data.get("mc_calibration"))
+    if cal:
+        b7.append(("para", "Calibration (Forward): vorhergesagte MC-Trefferquote vs. realisierte Win Rate"))
+        b7.append(("table", ["Band", "n", "vorhergesagt", "realisiert", "Expectancy", "PF"],
+                   [[k, str(_d(v).get("n")), _f(_d(v).get("predicted_hit_rate"), pct=True), _f(_d(v).get("win_rate"), pct=True),
+                     _f(_d(v).get("mean"), pct=True, sign=True), _fv(_d(v).get("profit_factor"))] for k, v in cal.items()], []))
+    models = _d(ml.get("models"))
+    b7.append(("para", "B) WALK-FORWARD OOS (Research-Modelle, keine Trades)"))
+    b7.append(("table", ["Modell", "WF Mean/Kohorte", "t", "Sharpe", "MaxDD", "IC", "Verdikt"],
+               [[mid, _f(_d(_d(_d(m).get("wf")).get("base")).get("mean"), pct=True, sign=True),
+                 _f(_d(_d(_d(m).get("wf")).get("base")).get("t_months"), 2),
+                 _f(_d(_d(_d(m).get("wf")).get("base")).get("sharpe_ann"), 2),
+                 _f(_d(_d(_d(m).get("wf")).get("base")).get("max_dd"), pct=True),
+                 _f(_d(_d(_d(m).get("wf")).get("ic")).get("mean_ic"), 4), str(_d(_d(m).get("decision")).get("verdict", NA))]
+                for mid, m in models.items()], []) if models else ("para", NO_DATA))
+    appr = _d(meta.get("approaches"))
+    b7.append(("para", "C) BACKTEST (Meta-Learning, historisch rekonstruiert – kein Forward, zählt nicht als Produktionsevidenz)"))
+    if appr:
+        pm = meta.get("primary_meta")
+        mm = _d(_d(appr.get(pm)).get("metrics"))
+        b7.append(("kv", [(k, _fv(mm.get(k))) for k in META_METRICS if k in mm] or [("Metriken", NO_DATA)]))
+    else:
+        b7.append(("para", NO_DATA))
+    rl = _d(data.get("rl_status"))
+    b7.append(("para", f"RL-Agent: {rl.get('status', 'keine Bewertung')}" + (f" – {rl.get('summary')}" if rl.get("summary") else "")))
+    secs.append((7, MONDAY_TITLES[7], b7))
     return secs
 
 
@@ -1101,7 +1500,7 @@ def alt_health_blocks(alt: dict, board: dict) -> list:
 
 
 def subject_for(date_s: str) -> str:
-    return f"Adaptive Asymmetry Scanner – Weekly Intelligence Report – {date_s}"
+    return f"Adaptive Asymmetry Scanner – Monday Intelligence Report – {date_s}"
 
 
 # ── Renderer ───────────────────────────────────────────────────────────────

@@ -41,6 +41,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: RL-Promotion-Bewertung (nur Meldung, nie Veto-Aktivierung)
+        continue-on-error: true
+        run: python -m modules.rl_promotion
+
       - name: Weekly Report (Research-/Paper-Signale, keine Orderausführung)
         env:
           GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
@@ -61,7 +65,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p outputs/state
-          git add outputs/reports/ outputs/state/
+          git add outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl 2>/dev/null || git add outputs/reports/ outputs/state/
           git diff --cached --quiet && echo "Keine Änderungen" && exit 0
           git commit -m "chore: weekly report $(date -u +%Y-%m-%dT%H:%M)"
           git stash --include-untracked || true

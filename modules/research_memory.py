@@ -35,6 +35,7 @@ SOURCES = {
     "promotion_state": Path("outputs/intelligence/promotion_state.json"),
     "factory_results": Path("outputs/research/factory_results.json"),
     "factory_plan": Path("outputs/research/factory_plan.json"),
+    "surprise_study": Path("outputs/research/surprise_study.json"),
 }
 PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION")
 TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
@@ -132,6 +133,17 @@ def collect(sources: dict | None = None) -> list[dict]:
                               {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector")},
                               source="factory", evidence=None, reasons=[rd.get("reason")],
                               free_sources=rd.get("free_sources") or [], data_kind="none"))
+    for name, r in ((src.get("surprise_study") or {}).get("hypotheses") or {}).items():
+        d = r.get("decision") or {}
+        b = ((r.get("h20") or {}).get("base_cost") or {})
+        out.append(_entry("research", f"SURPRISE-{name}",
+                          {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(d.get("verdict"), "REJECTED"),
+                          {"signal": name, "title": r.get("description"), "family": "surprise_engine",
+                           "domain": "earnings_expectations"},
+                          source="surprise_engine", evidence={"mean": b.get("mean"), "t": b.get("t_months"),
+                                                              "years_positive": b.get("years_positive_share"),
+                                                              "placebo_p": (r.get("h20") or {}).get("placebo_p")},
+                          reasons=d.get("reasons"), data_kind="historical_walk_forward"))
     for hid, r in ((src.get("factory_results") or {}).get("results") or {}).items():
         out.append(_entry("factory", hid, r.get("status"), r.get("spec") or {}, source="factory",
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))
