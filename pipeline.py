@@ -686,8 +686,10 @@ def main() -> None:
         _dh = {"proceed": False, "blocked_decisions": ["scanner_candidates"], "safe_mode": True,
                "data_quality": None, "reasons": [f"Data-Health-Prüfung fehlgeschlagen: {type(e).__name__}: {e}"],
                "source": "error", "fallbacks": []}
-    stats["data_health"] = {k: _dh.get(k) for k in ("proceed", "blocked_decisions", "safe_mode", "data_quality",
+    # Nur die DATEN-Komponente (Source Health); der kanonische Safe Mode steht in stats["system_state"]
+    stats["data_health"] = {k: _dh.get(k) for k in ("proceed", "blocked_decisions", "data_quality",
                                                      "source", "fallbacks")}
+    stats["data_health"]["data_safe_mode"] = _dh.get("safe_mode")
     stats["data_health"]["reasons"] = (_dh.get("reasons") or [])[:6]
     try:                                             # kanonischer SystemState (gleich für HC/Adapter/Report)
         from modules import system_state as _ss
@@ -700,9 +702,9 @@ def main() -> None:
                                 + "; ".join((_dh.get("reasons") or ["unbekannt"])[:3]))
         log.error(stats["stop_reason"])
         send_email(); return
-    if _dh.get("safe_mode"):
-        log.warning(f"Data Health: Safe Mode aktiv (keine positiven Intelligence-Boosts): "
-                    f"{'; '.join((_dh.get('reasons') or [])[:3])}")
+    if stats["system_state"].get("active"):          # Safe Mode NUR aus dem kanonischen SystemState
+        log.warning(f"Safe Mode aktiv (SystemState, keine positiven Intelligence-Boosts): "
+                    f"{'; '.join(map(str, (stats['system_state'].get('reasons') or [])[:3]))}")
 
     # ── STUFE 0: Risk Gates ──────────────────────────────────────────────────
     gates = RiskGates()
@@ -1427,6 +1429,7 @@ def main() -> None:
                 "roi_net":       r.get("roi_net"),
                 "roi_hurdle":    r.get("roi_hurdle"),
                 "roi_gap":       r.get("roi_gap"),
+                "fail_gates":    r.get("fail_gates"),
                 "vix":           r.get("vix"),
                 "mc_hit_rate":   r.get("mc_hit_rate"),
                 "outcome":       None,

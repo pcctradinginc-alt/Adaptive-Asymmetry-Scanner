@@ -129,9 +129,9 @@ def test_safe_mode_triggers_on_degradation():
     idx = range(20)
     a = pd.Series([-0.01 + 0.001 * (i % 3) for i in idx])
     b = pd.Series([0.005] * 20)
-    assert meta.safe_mode_check(a, b, 0.02)["safe_mode"]
-    assert not meta.safe_mode_check(b + 0.001 * pd.Series(range(20)) / 20, b, 0.02)["safe_mode"]
-    assert meta.safe_mode_check(b, b, 0.2)["safe_mode"]
+    assert meta.meta_fallback_check(a, b, 0.02)["fallback_to_reference"]
+    assert not meta.meta_fallback_check(b + 0.001 * pd.Series(range(20)) / 20, b, 0.02)["fallback_to_reference"]
+    assert meta.meta_fallback_check(b, b, 0.2)["fallback_to_reference"]
 
 
 def test_hc_rule_disabled_without_edge_and_uses_only_calibration_years():

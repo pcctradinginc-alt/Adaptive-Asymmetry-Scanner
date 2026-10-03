@@ -228,7 +228,13 @@ def spy_return(key: str) -> float | None:
 
 
 def shadow_stats(history: dict, key: str) -> dict | None:
-    """Outcome-Statistik der Schatten-Trades (verworfene Signale) des Monats."""
+    """Outcome-Statistik der Schatten-Trades des Monats, GETRENNT je Reject-Grund.
+
+    Verschiedene Gates erzeugen verschiedene Populationen (ROI-Gate: Optionsrendite
+    des besten Tiers; Final-MC-Survivor: ohne Strategie). Eine gemischte Win-Rate
+    wäre kein Gate-Audit. Schatten-Outcomes werden zum Halte-Ende ohne TP/SL bewertet
+    -> nur innerhalb eines Grundes vergleichbar, Vergleich mit echten Trades nur Hinweis.
+    """
     shadows = [
         t for t in history.get("shadow_trades", [])
         if t.get("outcome") is not None
@@ -236,10 +242,18 @@ def shadow_stats(history: dict, key: str) -> dict | None:
     ]
     if not shadows:
         return None
-    outs = [float(t["outcome"]) for t in shadows]
+    by: dict[str, list[float]] = {}
+    for t in shadows:
+        r = str(t.get("reject_reason") or "unbekannt")
+        by.setdefault("score_gate" if r.startswith("score_") else r, []).append(float(t["outcome"]))
+    groups = {}
+    for r, outs in sorted(by.items()):
+        wins = sum(1 for o in outs if o > 0)
+        groups[r] = {"n": len(outs), "win_rate": wins / len(outs), "wins": wins, "mean": statistics.mean(outs)}
+    outs = [o for v in by.values() for o in v]
     wins = sum(1 for o in outs if o > 0)
     return {"n": len(outs), "win_rate": wins / len(outs), "wins": wins,
-            "mean": statistics.mean(outs)}
+            "mean": statistics.mean(outs), "by_reason": groups}
 
 
 def current_thresholds() -> dict:
@@ -901,17 +915,17 @@ def build_cost_html(report_month: str, summary: dict | None = None) -> str:
         return NV if not has or x is None else f"{x:,}"
 
     rows = [
-        ("Gesamtkosten LLM", _usd(s.get("cost_usd"))),
+        ("Gesamtkosten LLM [MEASURED: API-usage × Listenpreis]", _usd(s.get("cost_usd"))),
         (f"Vormonat ({s.get('prev_month')})", _usd(s.get("prev_cost_usd"))),
         ("Veränderung", delta),
         ("Sonnet / Haiku / andere LLMs", f"{fam_cost('SONNET')} / {fam_cost('HAIKU')} / {_usd(other_llm)}"),
-        ("Bezahlte APIs (Kosten lt. Plan)", _usd(s.get("paid_api_cost_usd")) if s.get("api") else NV),
-        ("API-Nutzung", api_txt),
+        ("Bezahlte APIs [ESTIMATED: Planpreis anteilig]", _usd(s.get("paid_api_cost_usd")) if s.get("api") else NV),
+        ("API-Nutzung [MEASURED: Requests]", api_txt),
         ("Sonnet-Calls / Haiku-Calls", f"{num(s.get('sonnet_calls'))} / {num(s.get('haiku_calls'))}"),
         ("Fehlgeschlagene Calls", num(s.get("failed_calls"))),
-        ("Input- / Output-Tokens", f"{num(s.get('input_tokens'))} / {num(s.get('output_tokens'))}"),
-        ("Prompt-Cache-Ersparnis", prompt_cache_txt),
-        ("Analyse-Cache", cache_txt),
+        ("Input- / Output-Tokens [MEASURED]", f"{num(s.get('input_tokens'))} / {num(s.get('output_tokens'))}"),
+        ("Prompt-Cache-Ersparnis [ESTIMATED vs. ohne Cache]", prompt_cache_txt),
+        ("Analyse-Cache [ESTIMATED Ersparnis]", cache_txt),
         ("Batch-API-Anteil (-50 %)", (f"{s.get('batch_calls', 0)}/{s.get('telemetry_calls')} Calls" if has else NV)),
         ("Modell-Routing Deep Analysis", routing_txt),
         ("Bearish-Vorfilter", prefilter_txt),
@@ -980,12 +994,15 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
     # Schatten-Trades: filtern die Gates Gewinner weg?
     shadow_html = ""
     if shadow:
-        shadow_html = (
-            f"<p><b>Schatten-Trades</b> (von Gates verworfen, nur getrackt): "
-            f"Win-Rate {_fmt_pct(shadow['win_rate'])} ({shadow['wins']}/{shadow['n']}) "
-            f"· Ø {shadow['mean']:+.1%} — "
-            f"{'⚠️ Gates filtern evtl. Gewinner weg!' if cur and shadow['win_rate'] > cur['win_rate'] else 'Gates arbeiten korrekt.'}</p>"
-        )
+        rows = []
+        for r, g in (shadow.get("by_reason") or {"alle": shadow}).items():
+            flag = ("⚠️ verworfene Trades besser als echte (n klein, ohne TP/SL – prüfen)"
+                    if cur and g["n"] >= 10 and g["mean"] > cur["mean"]
+                    and g["win_rate"] > cur["win_rate"] else
+                    ("n<10 – keine Aussage" if g["n"] < 10 else "kein Hinweis auf weggefilterte Gewinner"))
+            rows.append(f"{r}: Win-Rate {_fmt_pct(g['win_rate'])} ({g['wins']}/{g['n']}) · Ø {g['mean']:+.1%} — {flag}")
+        shadow_html = ("<p><b>Schatten-Trades</b> (von Gates verworfen, nur getrackt; je Gate getrennt, "
+                       "Bewertung zum Halte-Ende ohne TP/SL):<br>" + "<br>".join(rows) + "</p>")
 
     funnel_html = ""
     if funnel["days"]:

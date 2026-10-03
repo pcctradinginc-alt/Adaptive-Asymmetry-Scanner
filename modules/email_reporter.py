@@ -19,10 +19,12 @@ modules/email_reporter.py v8.3
     - Fix: pipeline_stats werden auch im Kein-Trade-Fall durchgereicht
 """
 
+import json
 import logging
 import os
 import smtplib
 from datetime import datetime
+from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -290,7 +292,10 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
         model_move      = p.get("model_move_pct", 0)  # z.B. 12.4 (%)
         edge_implied    = p.get("edge_vs_implied")     # z.B. 4.2 (%)
 
-        mc_color = "#16a34a" if mc_hit_rate_pct >= 0.65 else "#ca8a04" if mc_hit_rate_pct >= 0.50 else "#dc2626"
+        # Rohe MC-Quote ist unkalibriert -> neutral (keine Ampel); daneben die
+        # gemessene Band-Kalibrierung (dieselbe Funktion wie der Montagsreport).
+        mc_color = "#78350f"
+        mc_calibrated = _calibrated_line(mc_hit_rate_pct)
         cat_str  = f"{cat_conf}/10" if cat_conf is not None else "–"
 
         # Implied Move Row
@@ -321,7 +326,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
           <b style="color:#92400e;">📊 Wahrscheinlichkeiten &amp; Katalysator</b>
           <table style="width:100%;margin-top:6px;font-size:12px;color:#78350f;border-collapse:collapse;">
             <tr>
-              <td style="padding:2px 8px 2px 0;"><b>MC Hit-Rate:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> (P Kurs &gt; Ziel)</td>
+              <td style="padding:2px 8px 2px 0;"><b>MC Hit-Rate:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> (Modell, P Kurs &gt; Ziel)<br><b>Kalibriert:</b> {mc_calibrated}</td>
               <td style="padding:2px 8px 2px 0;"><b>Catalyst-Konfidenz:</b> {cat_str}</td>
             </tr>
             <tr>
@@ -557,10 +562,23 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
 
 
 # Audit P1-4/P1-9: Die MC-Trefferquote ist eine Modellgröße, keine kalibrierte
-# Gewinnwahrscheinlichkeit (Paper-Trades: vorhergesagt ~0,86 -> realisiert 0,41;
-# scripts/paper_performance_analysis.py). Darf nicht als solche gelesen werden.
-MC_CALIBRATION_NOTE = ("⚠️ MC Hit-Rate ist NICHT kalibriert – keine Gewinnwahrscheinlichkeit "
-                       "(Paper-Trades: vorhergesagt ~86 %, realisiert ~41 %).")
+# Gewinnwahrscheinlichkeit. Kalibrierung = realisierte Win Rate je MC-Band aus
+# outputs/research/paper_performance_analysis.json (scripts/paper_performance_analysis.py).
+MC_CALIBRATION_NOTE = ("⚠️ MC Hit-Rate ist NICHT kalibriert – keine Gewinnwahrscheinlichkeit. "
+                       "Maßgeblich ist die kalibrierte Quote (realisierte Win Rate des Bands).")
+CALIBRATION_PATH = Path("outputs/research/paper_performance_analysis.json")
+
+
+def _calibrated_line(mc_hit) -> str:
+    """Gemessene Kalibrierung für die rohe MC-Quote; ohne Daten 'nicht verfügbar' (nie geraten)."""
+    try:
+        from reports.weekly import _calibrated_p
+        calib = (json.loads(CALIBRATION_PATH.read_text()) if CALIBRATION_PATH.exists() else {}) \
+            .get("mc_hit_rate_calibration")
+        return _calibrated_p(mc_hit, calib)
+    except (OSError, ValueError, ImportError) as e:
+        log.warning(f"MC-Kalibrierung nicht ladbar ({e})")
+        return "nicht verfügbar"
 
 
 def _send_smtp(subject: str, html: str) -> None:

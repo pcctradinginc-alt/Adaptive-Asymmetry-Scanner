@@ -631,6 +631,9 @@ class OptionsDesigner:
                 "roi_net_initial": roi["roi_net"],  # Snapshot vor möglicher MC-Mutation
                 "annualized_roi": round(annualized_roi, 4),
                 "strategy": strategy,
+                # Gate-Audit: welches Teil-Gate diesen Tier verworfen hat (überschrieben,
+                # sobald ein späteres Teil-Gate greift). Reine Datenerfassung.
+                "fail_gate": "roi_initial",
             })
 
             # v9.0 #13: Theta-Decay-Gate — bei Short-Term und hohem Theta → upgrade
@@ -644,6 +647,7 @@ class OptionsDesigner:
                         f"{THETA_DAILY_PCT_GATE:.0%} Gate → Zeitwertverlust zu hoch, "
                         f"versuche längere Laufzeit"
                     )
+                    results_per_tier[-1]["fail_gate"] = "theta"
                     continue
 
                 if vega_loss > 0.35:
@@ -651,6 +655,7 @@ class OptionsDesigner:
                         f"  [{ticker}] {label}: Vega-Loss={vega_loss:.0%} > 35% "
                         f"→ zu hohes IV-Crush-Risiko, versuche längere Laufzeit"
                     )
+                    results_per_tier[-1]["fail_gate"] = "vega"
                     continue
 
             if roi["passes_roi_gate"]:
@@ -711,6 +716,7 @@ class OptionsDesigner:
                     )
                     # Hard-Gate: Trade-BEP > Modell-Ziel → verwerfen
                     if not has_edge:
+                        results_per_tier[-1]["fail_gate"] = "edge"
                         continue
 
                 # v10.3 MC-PNL: Options-P&L Monte Carlo (Phase 2 — stochastische IV)
@@ -748,6 +754,7 @@ class OptionsDesigner:
                         f"({'✅ PASS' if roi['passes_roi_gate'] else '❌ FAIL → verworfen'})"
                     )
                     if not roi["passes_roi_gate"]:
+                        results_per_tier[-1]["fail_gate"] = "mc_pnl"
                         continue
 
                 return {
@@ -814,6 +821,9 @@ class OptionsDesigner:
                 "roi_net":       round(best_roi, 4),
                 "roi_hurdle":    round(hurdle, 4),
                 "roi_gap":       round(best_roi - hurdle, 4),  # <0 = wie weit drunter
+                # Teil-Gate je Tier (roi_initial/theta/vega/edge/mc_pnl): "roi_gate" ist ein
+                # Sammel-Label; ohne Aufschlüsselung ist der Wert einzelner Gates nicht messbar.
+                "fail_gates":    {r.get("tier"): r.get("fail_gate") for r in results_per_tier},
                 "vix":           round(vix_current, 2),
                 "roi_factor":    round(_roi_factor, 3),
                 "mc_hit_rate":   round(mc_hit_rate, 4),
