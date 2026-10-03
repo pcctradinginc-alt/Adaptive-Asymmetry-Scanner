@@ -1,0 +1,240 @@
+{
+ "generated": "2026-10-03T11:56:10+00:00",
+ "features": {
+  "price_history": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "realized_vol": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_prices",
+   "source_actual": "market_prices",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "vix": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "vix_fred",
+   "source_actual": "vix_fred",
+   "source_status": "DEGRADED",
+   "criticality": "CRITICAL"
+  },
+  "implied_vol": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "options_chain",
+   "source_actual": "options_chain",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "option_quotes": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "options_chain",
+   "source_actual": "options_chain",
+   "source_status": "HEALTHY",
+   "criticality": "CRITICAL"
+  },
+  "finbert_sentiment": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "news_finnhub",
+   "source_actual": "news_finnhub",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "news_flow": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "news_finnhub",
+   "source_actual": "news_finnhub",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "sec_8k_count_30d_z": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_8k_negative_90d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_exec_change_90d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_filing_delay_z": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_insider_buy_value_90d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_insider_buyers_90d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_insider_cluster_30d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_insider_net_value_90d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "sec_late_filing_365d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "sec_submissions",
+   "source_actual": "sec_submissions",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "xbrl_accruals": {
+   "available": true,
+   "stale": true,
+   "data_quality": 0.5,
+   "cache_age_days": 5.5,
+   "cache_max_age_days": 30,
+   "source_primary": "sec_companyfacts",
+   "source_actual": "sec_companyfacts",
+   "source_status": "BROKEN",
+   "criticality": "NON_CRITICAL"
+  },
+  "xbrl_asset_growth": {
+   "available": true,
+   "stale": true,
+   "data_quality": 0.5,
+   "cache_age_days": 5.5,
+   "cache_max_age_days": 30,
+   "source_primary": "sec_companyfacts",
+   "source_actual": "sec_companyfacts",
+   "source_status": "BROKEN",
+   "criticality": "NON_CRITICAL"
+  },
+  "xbrl_rev_yoy": {
+   "available": true,
+   "stale": true,
+   "data_quality": 0.5,
+   "cache_age_days": 5.5,
+   "cache_max_age_days": 30,
+   "source_primary": "sec_companyfacts",
+   "source_actual": "sec_companyfacts",
+   "source_status": "BROKEN",
+   "criticality": "NON_CRITICAL"
+  },
+  "xbrl_share_change": {
+   "available": true,
+   "stale": true,
+   "data_quality": 0.5,
+   "cache_age_days": 5.5,
+   "cache_max_age_days": 30,
+   "source_primary": "sec_companyfacts",
+   "source_actual": "sec_companyfacts",
+   "source_status": "BROKEN",
+   "criticality": "NON_CRITICAL"
+  },
+  "xbrl_sue": {
+   "available": true,
+   "stale": true,
+   "data_quality": 0.5,
+   "cache_age_days": 5.5,
+   "cache_max_age_days": 30,
+   "source_primary": "sec_companyfacts",
+   "source_actual": "sec_companyfacts",
+   "source_status": "BROKEN",
+   "criticality": "NON_CRITICAL"
+  },
+  "ted_any_award_365d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "ted_awards",
+   "source_actual": "ted_awards",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "ted_award_value_365d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "ted_awards",
+   "source_actual": "ted_awards",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "ted_awards_90d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "ted_awards",
+   "source_actual": "ted_awards",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "ted_awards_z": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "ted_awards",
+   "source_actual": "ted_awards",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  }
+ }
+}
