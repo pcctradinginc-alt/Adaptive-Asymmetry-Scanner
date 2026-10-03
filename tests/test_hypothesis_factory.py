@@ -27,8 +27,10 @@ def test_protocol_pinned():
     assert h == PINNED, "config/factory_protocol.yaml geändert – nur strenger zulässig (CODEOWNERS)"
 
 
-def _plan(memory=None, panel=None, ms=None):
-    return hf.plan(panel, memory=memory or [], machine_state=ms, now=NOW)
+def _plan(memory=None, panel=None, ms=None, conditions=None):
+    """Isoliert: keine Repo-Ausgaben (z.B. outputs/research/source_conditions.json aus CI-Läufen)."""
+    return hf.plan(panel, memory=memory or [], machine_state=ms, now=NOW,
+                   conditions=conditions if conditions is not None else {"sources": {}})
 
 
 def test_ideas_are_falsifiable_contracts():
