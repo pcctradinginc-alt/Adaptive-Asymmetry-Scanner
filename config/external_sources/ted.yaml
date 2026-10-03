@@ -1,0 +1,40 @@
+# config/external_sources/ted.yaml – Data Source Contract (Alternative Data, Phase 3: TED)
+#
+# Abgerufen vom eigenen, budgetierten Job (.github/workflows/alt_data.yml):
+#   modules/external/sources/ted_ingest.py
+# status_override -> im generischen Orchestrator DEFERRED. Health: outputs/external_data/ted/health.json
+
+sources:
+
+  - source_id: ted_awards
+    display_name: "TED – EU-Zuschlagsbekanntmachungen (Search API v3)"
+    family: alternative_procurement
+    authority: "Amt für Veröffentlichungen der Europäischen Union (TED)"
+    official_homepage: "https://ted.europa.eu"
+    machine_endpoint: "POST https://api.ted.europa.eu/v3/notices/search"
+    access_method: "json_search_api"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "TED-Daten: Wiederverwendung erlaubt (Beschluss 2011/833/EU der Kommission, Quellenangabe 'TED – Amt für Veröffentlichungen der EU')"
+    commercial_use_status_if_known: "erlaubt mit Quellenangabe"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    status_override: "OWN_WORKFLOW:alt_data.yml"
+    criticality: low
+    license_status: OK
+    role: RESEARCH_SHADOW
+    retrieval_frequency: "wöchentlich, budgetiert (Backfill über mehrere Läufe)"
+    expected_latency: "Veröffentlichungstag + 1 Tag (konservativ)"
+    revision_policy: "Bekanntmachungen unveränderlich; Berichtigungen als eigene Bekanntmachung (werden nicht gezählt, wenn ohne Gewinner)"
+    historical_depth: "ab dem Jahr, ab dem Gewinnernamen zuverlässig vorliegen (Feld-Probe)"
+    entity_level: "Gewinner (Name) -> Emittent über Entity-Map (streng, HIGH/MEDIUM)"
+    coverage: "Zuschläge an Firmen, deren Name der Muttergesellschaft im Gewinnernamen steht; Töchter mit anderem Namen fehlen"
+    rate_limits: "anonyme Suche; Client-Takt 0,6 s"
+    cost: "kostenlos"
+    failure_behavior: "Probe/Abfrage scheitert -> Jahr unvollständig -> Features NaN, nie 0"
+    point_in_time_capable: true

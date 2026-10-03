@@ -1,4 +1,4 @@
-# Alternative Data – Architektur (Phase 1: Entity Resolution + SEC Deep Events)
+# Alternative Data – Architektur (Phase 1: Entity Resolution + SEC Deep Events, Phase 3: TED)
 
 Status: **SHADOW / RESEARCH**. Keine Alternative-Data-Quelle hat Produktionseinfluss.
 Kein Orderpfad. Safe Mode hat immer Vorrang.
@@ -30,6 +30,13 @@ offizielle API ──► Rohdaten (Archiv/Event-Speicher, append-only, retrieved
 | Bewertung | `modules/alt_data/evaluate.py`, `config/alt_data_protocol.yaml` (Hash gepinnt) | Baseline vs. Baseline+Quelle, Block-Bootstrap, Bonferroni |
 | Verträge | `modules/alt_data/contracts.py`, `config/alt_hypotheses.yaml` | Pflichtfelder, `spec_hash`, INVALID_MODIFIED bei Nachänderung |
 | Bericht | `reports/weekly.py` Abschnitt 17 | Scoreboard, Verdikt, Forward-Kohorten |
+
+## Quellen
+
+| Quelle | Module | Doku | Bewertung |
+|---|---|---|---|
+| SEC Deep Events | `sec_events/sec_ingest/sec_features` | SEC_EVENT_INTELLIGENCE.md | REJECT (Lauf 37105528299) |
+| TED Procurement | `ted_events/ted_ingest/ted_features` | TED_PROCUREMENT.md | ausstehend (erster Live-Lauf) |
 
 ## Workflows
 

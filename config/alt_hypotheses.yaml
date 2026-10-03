@@ -74,3 +74,38 @@ contracts:
     forward_start: "2026-10-05"
     promotion_criteria: "wie ALT-SEC-001"
     failure_condition: "wie ALT-SEC-001"
+
+  # ── Phase 3: TED (registriert 2026-10-03, BEVOR echte TED-Features ausgewertet wurden) ──
+  - hypothesis_id: ALT-TED-001
+    title: Zuschlags-Momentum (EU-Vergabe)
+    source_features: [ted_awards_z]
+    population: "PIT-S&P-500, Emittenten mit TED-Abdeckung (Name zuordenbar)"
+    exposure: "firmenspezifisch (öffentliche Aufträge EU)"
+    signal: ted_awards_z
+    threshold: "Querschnitts-Top-Dezil des z-Werts (Zuschläge 90 T vs. vier vorangehende 90-T-Fenster)"
+    direction: 1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags, Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T"
+    economic_rationale: "Ein Anstieg gewonnener öffentlicher Aufträge erhöht die Umsatzsichtbarkeit; verstreute EU-Bekanntmachungen werden von Analysten kaum aggregiert (langsame Informationsdiffusion)."
+    registered_at: "2026-10-03"
+    forward_start: "2026-10-05"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"
+
+  - hypothesis_id: ALT-TED-002
+    title: EU-Zuschläge bei Kursschwäche
+    source_features: [ted_any_award_365d]
+    population: "PIT-S&P-500, Emittenten mit TED-Abdeckung, Monats-Verlierer"
+    exposure: "firmenspezifisch"
+    signal: "ted_any_award_365d * step(-rev_1m)"
+    threshold: "mind. ein Zuschlag in 365 T bei Monatsrendite unter Null"
+    direction: 1
+    horizon: 20
+    baseline: "Querschnittsmittel desselben Stichtags, Kosten 10 bp/Seite"
+    primary_metric: "netto Top-Dezil-Überrendite je 20 T"
+    economic_rationale: "Firmen mit belegtem staatlichem Auftragsbestand haben stabilere Cashflows; kurzfristige Kursschwäche wird eher aufgeholt."
+    registered_at: "2026-10-03"
+    forward_start: "2026-10-05"
+    promotion_criteria: "Research-Protokoll bestanden UND >= 26 Forward-Kohorten mit positiver Netto-Expectancy; danach nur über PromotionController"
+    failure_condition: "Walk-Forward netto <= 0 ODER nicht signifikant nach BH ODER Forward-Expectancy <= 0 nach 26 Kohorten"

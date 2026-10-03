@@ -196,7 +196,7 @@ def run(panel: pd.DataFrame) -> dict:
     board = {}
     for sid, src in SOURCES.items():
         r = evaluate_source(panel, sid, src, specs)
-        health_path = Path("outputs/external_data/sec/health.json") if sid == "sec_deep_events" else None
+        health_path = Path(src["health"]) if src.get("health") else None
         health = json.loads(health_path.read_text()) if health_path and health_path.exists() else None
         er = Path("outputs/entity/entity_report.json")
         mq = None
