@@ -43,7 +43,11 @@ BOOT_N = 2000
 SEED = 17
 # Zum Entscheidungszeitpunkt bekannte numerische Merkmale der Champion-Trades
 FEATURES = ("impact", "surprise", "mismatch", "z_score", "sigma_30d", "price_move_48h", "quick_mc_hit_rate",
-            "eps_drift", "final_mc_hit_rate")
+            "eps_drift", "final_mc_hit_rate",
+            # Abstention Intelligence (modules/abstention_intelligence.py): erst ab 2026-10 in Trade-Features;
+            # ältere Trades ohne Wert zählen nicht (None, nie 0)
+            "risk_p_model_wrong", "risk_regime_mismatch", "risk_unknown_risk", "risk_model_disagreement",
+            "risk_counterfactual_fragility", "risk_alpha_decay", "risk_abstain_score")
 
 
 def _value(t: dict, f: str):

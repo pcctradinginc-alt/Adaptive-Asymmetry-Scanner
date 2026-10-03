@@ -213,7 +213,8 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                        ledger_dir: Path | None = None, policy: dict | None = None,
                        requested_weights: dict | None = None, now: datetime | None = None,
                        meta_versions: dict | None = None,
-                       trade_score_min: float | None = None) -> tuple[list[dict], list[tuple[dict, str]], list[dict]]:
+                       trade_score_min: float | None = None,
+                       mc_threshold: float | None = None) -> tuple[list[dict], list[tuple[dict, str]], list[dict]]:
     """-> (umzusetzende Trades in finaler Reihenfolge, [(blockierter Trade, Grund)], Entscheidungs-Records).
     Erzeugt NIE neue Trades: Ausgabe ⊆ Eingabe."""
     now = now or datetime.now(timezone.utc)
@@ -240,8 +241,25 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
     safe_mode = bool(ctx.get("safe_mode_active"))
     regime = regime_label(vix)
     kept, blocked, records = [], [], []
+    try:                                              # Abstention Intelligence (SHADOW, nur Messung)
+        from modules import abstention_intelligence as _ai
+        _ai_extras = _ai.load_context_extras(ctx)
+    except Exception as e:  # noqa: BLE001 – Risikovektor ist optional, nie entscheidungsrelevant
+        log.warning(f"Adapter: Risikovektor nicht verfügbar ({e})")
+        _ai = _ai_extras = None
     for rank, p in enumerate(proposals, start=1):
         env = candidate_env(p, ctx, vix)
+        risk = None
+        if _ai is not None:
+            try:
+                risk = _ai.risk_vector(p, env, ctx, _ai_extras, trade_score_min=trade_score_min,
+                                       mc_threshold=mc_threshold)
+                rf = _ai.as_features(risk)
+                env.update(rf)                        # für künftige, registrierte Verträge
+                if isinstance(p.get("features"), dict):
+                    p["features"].update(rf)          # -> Trade-Record -> abstention_proposals (Walk-Forward)
+            except Exception as e:  # noqa: BLE001
+                log.warning(f"Adapter: Risikovektor für {p.get('ticker')} nicht berechenbar ({e})")
         sector = p.get("sector") or (p.get("info") or {}).get("sector")
         d = decide_for_trade(p, env, active, safe_mode=safe_mode, sector=sector, drift=ctx.get("drift_consequences"),
                              regime=regime,
@@ -272,7 +290,7 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                "world_model_version": (meta_versions or {}).get("world_model_version"),
                "data_snapshot": {"vix": vix, "env_hash": hashlib.sha256(json.dumps(env, sort_keys=True,
                                                                                     default=str).encode()).hexdigest()[:16]},
-               "code_commit": pc.code_version(), "integrity_problems": problems,
+               "code_commit": pc.code_version(), "integrity_problems": problems, "risk_vector": risk,
                "confidence": None, "evidence_snapshot": {k: v["state"] for k, v in active.items()}}
         records.append(rec)
         if d["final_production_decision"] == ABSTAIN:

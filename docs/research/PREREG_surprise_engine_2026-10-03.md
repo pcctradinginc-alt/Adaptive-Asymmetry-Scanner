@@ -1,0 +1,53 @@
+# Präregistrierung: Expectation / Surprise Engine (2026-10-03)
+
+Festgelegt **vor** dem ersten Datenlauf. Code: `modules/surprise_engine.py`, Tests: `tests/test_surprise_engine.py`.
+
+## Frage
+Enthält die Differenz zwischen **fundamentaler Überraschung** (Ist-EPS vs. Konsens) und **Marktreaktion**
+(abnormale Rendite im Reaktionsfenster) Information über die folgende Rendite, die über die reine
+Kursreaktion hinausgeht?
+
+## Daten
+- **Universum:** PIT-S&P-500, inklusive später entfernter Titel. Events zählen nur während der Indexmitgliedschaft.
+- **Kurse:** Yahoo, bereinigt. Marktbereinigt wird mit SPY im selben Fenster.
+- **Konsens- und Ist-EPS:** Yahoo-Earnings-Kalender, bis zu 40 Quartale je Titel.
+- **PIT-Regeln:** Der Konsens ist die Erwartung vor der Meldung. Das Reaktionsfenster ergibt sich aus der Meldezeit:
+  - vor Börsenöffnung: Meldetag;
+  - nach Börsenschluss: Folgetag;
+  - Uhrzeit unbekannt: Meldetag und Folgetag.
+- **Entry:** Open am Tag nach dem Reaktionsfenster.
+- **Kosten:** 10 bp pro Seite, Stresstest mit 25 bp.
+
+## Hypothesen (h = 20 entscheidend, h = 60 berichtet)
+| ID | Regel | Richtung |
+|---|---|---|
+| S1_pead | Vorzeichen der fundamentalen Überraschung | long/short |
+| S1L_pead_long | oberes Trainings-Terzil der Überraschung | long |
+| S2_unpriced | Perzentil(Fundamental) − Perzentil(Reaktion), oberes vs. unteres Terzil | long/short |
+| S2L_unpriced_long | dasselbe, nur oberes Terzil (produktionsnah: Long Calls) | long |
+| S3_reaction_only | **Kontrolle:** nur die Richtung der Kursreaktion | long/short |
+| S4_disagreement_long | positive Überraschung bei negativer Reaktion | long |
+
+Perzentile, Terzile und Schwellen stammen ausschließlich aus Trainingsjahren mit Exit vor dem Testjahr. Der Test erfolgt jahresweise ab 2019.
+
+## Entscheidungsregel (alle Kriterien müssen für KEEP gelten)
+1. OOS-Mittel > 0 und t (Monatskohorten) ≥ 2.
+2. ≥ 60 % der Jahre positiv.
+3. Bei 25 bp pro Seite weiter positiv.
+4. Signifikant nach Benjamini-Hochberg (q = 0,10) über alle 6 × 2 Tests.
+5. **Placebo:** Fundamentalwerte werden innerhalb jedes Jahres permutiert (100 Durchläufe). p < 0,05 (nur Hypothesen mit Fundamentaldaten).
+6. **Lag-Test:** Entry 5 Handelstage später, weiter positiv.
+7. **Replikation:** beide Universumshälften (Ticker-Hash) und beide Zeithälften positiv.
+8. Alle Regime (VIX < 20 / ≥ 20, Trend auf/ab) positiv.
+
+Ergebnis: **MODIFY**, wenn Punkt 1 erfüllt ist, aber etwas anderes fehlt; sonst **REJECT**.
+
+## Konsequenz
+- Ergebnisse gehen in die Research Memory (ACCEPTED, INCONCLUSIVE oder REJECTED) und in den Montagsreport.
+- Historische Evidenz hat **nie** direkte Produktionswirkung. Auch KEEP ermöglicht nur einen Vertragsentwurf. Danach zählt ausschließlich Forward-Evidenz über PromotionController und Adapter.
+
+## Bekannte Grenzen und Datenlücken
+- Für den Implied Move gibt es keine historischen IV-Daten. Er ist deshalb nicht Teil der „Markterwartung“ (DATA_GAP).
+- Ebenfalls nicht verfügbar: Positionierung und Prediction Markets.
+- Es gibt keine PIT-Sektorzuordnung.
+- Yahoo liefert nur etwa die letzten 6–10 Jahre an Earnings-Daten.

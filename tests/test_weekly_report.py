@@ -135,7 +135,7 @@ def test_empty_candidates_exact_text(tmp_path):
     _w(tmp_path / "outputs/research/hc_candidates.json",
        {"enabled": False, "disabled_reason": "weil", "candidates": [{"ticker": "X"}]})
     t = text_for(tmp_path)
-    assert weekly.NO_HC_TEXT in t and "weil" in t and "X " not in t.split("6.")[1].split("7.")[0]
+    assert weekly.NO_HC_TEXT in t and "weil" in t and "X " not in t.split("A6.")[1].split("A7.")[0]
 
 
 def test_forward_metrics_arithmetic():
@@ -194,7 +194,7 @@ def test_dry_run_writes_no_snapshot_send_does(tmp_path, monkeypatch):
     import modules.mailer as mailer
     monkeypatch.setattr(mailer, "send_mail", lambda s, h, t, **k: calls.append(s) or {"status": "sent", "attempts": 1})
     assert weekly.main(["--send", "--root", str(root), "--out-dir", str(out), "--date", "2026-09-29"]) == 0
-    assert calls == ["Adaptive Asymmetry Scanner – Weekly Intelligence Report – 2026-09-29"]
+    assert calls == ["Adaptive Asymmetry Scanner – Monday Intelligence Report – 2026-09-29"]
     assert (out / "weekly_state.json").exists()
 
 
@@ -207,7 +207,7 @@ def test_send_failed_keeps_state_and_rc1(tmp_path, monkeypatch):
 
 
 def test_subject_format():
-    assert weekly.subject_for("2026-09-29") == "Adaptive Asymmetry Scanner – Weekly Intelligence Report – 2026-09-29"
+    assert weekly.subject_for("2026-09-29") == "Adaptive Asymmetry Scanner – Monday Intelligence Report – 2026-09-29"
 
 
 def test_html_escapes(tmp_path):
@@ -269,3 +269,109 @@ def test_promotion_section_renders_state_effect_and_lists(tmp_path):
     for s in ("PROMOTION STATUS", "PROM-ABST-001@v1", "ACTIVE INTELLIGENCE EFFECT", "DEMOTIONS", "X@v1",
               "PROMOTION CANDIDATES", "NEED MORE DATA", "n 3/60"):
         assert s in md, s
+
+
+
+# ── Montagsbericht: 7 Hauptabschnitte ──────────────────────────────────────
+def _section(t: str, n: int) -> str:
+    start = t.index(f"{n}. {weekly.MONDAY_TITLES[n]}")
+    nxt = f"{n + 1}. {weekly.MONDAY_TITLES[n + 1]}" if n < 7 else "A1. "
+    return t[start:t.index(nxt, start)]
+
+
+def test_monday_structure_seven_sections_then_appendix(tmp_path):
+    make_full(tmp_path)
+    t = text_for(tmp_path)
+    pos = [t.index(f"{n}. {title}") for n, title in weekly.MONDAY_TITLES.items()]
+    assert pos == sorted(pos) and pos[-1] < t.index("A1. SYSTEM STATUS")
+    for n, title in weekly.SECTION_TITLES.items():
+        assert f"A{n}. {title}" in t
+
+
+def _proposal(root: Path, day: str, mc: float, ticker="TST"):
+    _w(root / f"outputs/daily_reports/{day}.json", {"date": day, "stats": {"trades": 1}, "proposals": [{
+        "ticker": ticker, "direction": "BULLISH", "strategy": "LONG_CALL", "mc_hit_rate": mc,
+        "option": {"strike": 10, "expiry": "2027-01-15", "dte": 120, "ask": 1.0, "implied_vol": 0.3},
+        "simulation": {"current_price": 10.5, "hit_rate": mc}, "trade_score": {"total": 60},
+        "deep_analysis": {"catalyst": "Katalysator X", "bear_case": "Bär Y",
+                          "red_team": {"argument_1": "Risiko Z", "red_team_verdict": "PASSIERT"}},
+        "exit_rules": {"stop_loss_pct": -45},
+        "features": {"risk_counterfactual_fragility": 0.333, "risk_abstain_score": 0.41, "risk_unknown_risk": 0.0}}]})
+
+
+def _calib(root: Path, n=29, mean=0.09, pf=1.22):
+    _w(root / "outputs/research/paper_performance_analysis.json", {"mc_hit_rate_calibration": {
+        ">=0.75": {"n": n, "win_rate": 0.41, "mean": mean, "profit_factor": pf, "predicted_hit_rate": 0.86},
+        "0.65-0.75": {"n": 27, "win_rate": 0.22, "mean": -0.2, "profit_factor": 0.42, "predicted_hit_rate": 0.71}}})
+
+
+def _no_safe(monkeypatch):
+    monkeypatch.setattr(weekly, "safe_mode_status", lambda st: (False, "aus"))
+
+
+def test_no_trade_text_without_production_candidates(tmp_path):
+    make_full(tmp_path)
+    assert weekly.NO_TRADE_TEXT in _section(text_for(tmp_path), 6)
+
+
+def test_high_confidence_only_with_calibrated_evidence(tmp_path, monkeypatch):
+    _no_safe(monkeypatch)
+    _calib(tmp_path)
+    _proposal(tmp_path, "2026-09-28", 0.80, "GOOD")
+    _proposal(tmp_path, "2026-09-27", 0.70, "WEAK")
+    s6 = _section(text_for(tmp_path), 6)
+    assert weekly.NO_TRADE_TEXT not in s6 and "GOOD" in s6
+    assert s6.index("GOOD") < s6.index("NICHT high-confidence") < s6.index("WEAK")
+    assert "Risiko Z" in s6 and "Katalysator X" in s6 and "LONG_CALL Strike 10" in s6
+    assert "41% (Band >=0.75, n=29" in s6                       # kalibriert aus echten Paper-Trades
+    assert "Counterfactual Fragility: 0.333" in s6 and "abstain_score 0.41" in s6
+
+
+def test_high_confidence_blocked_by_safe_mode_and_thin_band(tmp_path, monkeypatch):
+    _calib(tmp_path)
+    _proposal(tmp_path, "2026-09-28", 0.80, "GOOD")
+    monkeypatch.setattr(weekly, "safe_mode_status", lambda st: (True, "AKTIV"))
+    assert weekly.NO_TRADE_TEXT in _section(text_for(tmp_path), 6)
+    _no_safe(monkeypatch)
+    _calib(tmp_path, n=12)
+    assert weekly.NO_TRADE_TEXT in _section(text_for(tmp_path), 6)
+
+
+def test_old_proposals_and_research_candidates_never_in_top_trades(tmp_path, monkeypatch):
+    _no_safe(monkeypatch)
+    _calib(tmp_path)
+    _proposal(tmp_path, "2026-09-10", 0.80, "OLDX")           # älter als 7 Tage
+    _w(tmp_path / "outputs/research/hc_candidates.json", {"enabled": True, "candidates": [{"ticker": "RSRCH"}]})
+    s6 = _section(text_for(tmp_path), 6)
+    assert "OLDX" not in s6 and "RSRCH" not in s6 and weekly.NO_TRADE_TEXT in s6
+
+
+def test_scoreboard_groups_never_promote_historical_results(tmp_path):
+    _w(tmp_path / "outputs/intelligence/promotion_state.json", {"hypotheses": {
+        "P-1@v1": {"hypothesis_id": "P-1", "title": "Challenger", "state": "PROSPECTIVE_CHALLENGER",
+                   "evidence": {"n_observations": 3, "n_independent_dates": 2}},
+        "P-2@v1": {"hypothesis_id": "P-2", "title": "Promoted", "state": "LIMITED_PRODUCTION",
+                   "influence_level": "WEIGHT_10", "evidence": {}},
+        "P-3@v1": {"hypothesis_id": "P-3", "title": "Demoted", "state": "DEMOTED", "evidence": {}}}})
+    _w(tmp_path / "outputs/research/hypothesis_db.json", {"hypotheses": {
+        "H-ACC": {"title": "historisch akzeptiert", "canonical_status": "ACCEPTED"},
+        "H-REJ": {"title": "verworfen", "canonical_status": "REJECTED"}}})
+    g = weekly.scoreboard(weekly.collect(tmp_path, TODAY))
+    ids = {k: [r[0] for r in v] for k, v in g.items()}
+    assert ids["CHALLENGER"] == ["P-1@v1"] and ids["PROMOTED"] == ["P-2@v1"]
+    assert set(ids["REJECTED"]) == {"P-3@v1", "H-REJ"}
+    assert ids["RESEARCH IDEA"] == ["H-ACC"] and ids["FORWARD VALIDATED"] == []
+
+
+def test_performance_separates_forward_walkforward_backtest(tmp_path):
+    make_full(tmp_path)
+    s7 = _section(text_for(tmp_path), 7)
+    a, b, c = s7.index("A) ECHTE FORWARD"), s7.index("B) WALK-FORWARD OOS"), s7.index("C) BACKTEST")
+    assert a < b < c and "Sharpe/Trade" in s7
+
+
+def test_forward_metrics_sharpe_sortino_per_trade():
+    m = weekly.forward_metrics([0.1, -0.05, 0.2, -0.1])
+    assert m["sharpe_per_trade"] == pytest.approx(0.0375 / 0.1376, rel=1e-2)
+    assert m["sortino_per_trade"] == pytest.approx(0.0375 / ((0.0025 + 0.01) / 4) ** 0.5, rel=1e-3)
+    assert weekly.forward_metrics([0.1])["sharpe_per_trade"] is None

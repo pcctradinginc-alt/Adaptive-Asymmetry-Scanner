@@ -1,4 +1,4 @@
-# Weekly Intelligence Report
+# Monday Intelligence Report
 
 ## Zweck
 Wöchentlicher Bericht (Montag) über Systemzustand, echte Paper-/Forward-Performance,
@@ -8,19 +8,39 @@ Ergebnisdateien und erfindet nichts: fehlt eine Eingabe, zeigt der Abschnitt
 
 **Research-/Paper-Signale, keine Orderausführung, keine Anlageberatung.**
 
-## Abschnitte und Datenquellen
+## Struktur (seit 2026-10-03)
+Sieben Hauptabschnitte gemäß Spezifikation, danach alle bisherigen Detailabschnitte als **Anhang A1–A19**
+(Inhalt unverändert, nur neu nummeriert).
+
+| # | Hauptabschnitt | Inhalt / Quelle |
+|---|---|---|
+| 1 | SYSTEM STATUS | Health, Data Quality, Safe Mode, Drift (kanonischer SystemState), Datenquellen-Zähler, Champion-Version, Meta-Modell, Zahl aktiver Hypothesen/Challenger/promoteter Hypothesen, Warnungen |
+| 2 | WHAT THE SYSTEM LEARNED | letzte 7 Tage: Promotion-Übergänge (bestätigt/verworfen/demotet), verworfene Fabrik-Hypothesen, Blind-Spot-Cluster, Alpha Decay, gemessene Änderungen seit dem Vorbericht |
+| 3 | HYPOTHESIS SCOREBOARD | gruppiert RESEARCH IDEA / CHALLENGER / FORWARD VALIDATED / PROMOTED / REJECTED. Forward N, unabhängige Tage, Zeitraum, Effekt, CI, Expectancy, Calibration, Produktionswirkung nur aus prospektiver Forward-Evidenz (PromotionController). Historische Ergebnisse (Fabrik, Hypothesen-DB) erreichen höchstens RESEARCH IDEA |
+| 4 | RESEARCH INTELLIGENCE | neue Hypothesen, unorthodoxe Cross-Domain-Ideen, Data Gaps mit kostenlosen Quellen, wichtigste Forschungsfragen (Director-Priorität), Bereiche mit nachgewiesenem Informationswert (nur getestete Richtungen) |
+| 5 | CURRENT MARKET / WORLD MODEL | World-Model-Dimensionen (Zustand, Score, Unsicherheit, Vorwoche) und Veränderungen |
+| 6 | TOP TRADE CANDIDATES | **nur** Vorschläge der Produktionspipeline aus den Tagesreports der letzten 7 Tage; Research-/HC-Kandidaten nie. Je Kandidat alle verfügbaren Felder, fehlende als „n/a“ mit Grund. Ohne High-Confidence-Kandidat: `NO HIGH-CONFIDENCE TRADE THIS WEEK.` |
+| 7 | PERFORMANCE | A) echte Forward-/Paper-Performance (Expectancy, Win Rate, PF, Sharpe/Sortino je Trade, MaxDD, N), Champion vs. Adaptive (prospektiv), Calibration (vorhergesagt vs. realisiert); B) Walk-Forward OOS der Research-Modelle; C) Backtest Meta-Learning – strikt getrennt |
+
+**High-Confidence (Berichts-Label, kein Trade-Gate):** Das kalibrierte MC-Band des Kandidaten muss auf
+echten Paper-Trades belegt sein (n ≥ 20, Expectancy > 0, Profit Factor ≥ 1,2), und es darf kein Safe Mode
+gelten. Die „kalibrierte Wahrscheinlichkeit“ ist die realisierte Win Rate dieses Bands (ab n ≥ 10),
+nicht die Modellzahl. Erwartete 60d-Rendite/Drawdown stammen aus ML-Research-Modellen und sind als
+„nicht produktiv validiert“ markiert.
+
+## Anhang: Detailabschnitte und Datenquellen
 | # | Abschnitt | Quelle |
 |---|-----------|--------|
-| 1 | System Status (Champion, Meta-Modell, Regime, Pipelines, Freshness, Drift, Kalibrierung, Safe Mode) | `ml_research.json`, `meta_learning.json`, `meta_state.json`, `external_data/health/source_health.json` |
-| 2 | Live / Forward Performance | `outputs/history.json` (`closed_trades`, `active_trades`), `candidate_ledger/*.jsonl` |
-| 3 | Confidence Performance | `meta_learning.calibration_buckets[primary_meta]` |
-| 4 | Current Model Intelligence | `meta_learning.model_intelligence` (Pfeil nur aus `trend`, `trend_t` angezeigt) |
-| 5 | Meta-Learning Status | `meta_learning.approaches/deltas/decision`, `ml_research.json` (Backtest), `ml_forward.json` (Forward-Shadow) |
-| 6 | High-Confidence Candidates | `hc_candidates.json` |
-| 7 | Recent Signal Review (letzte 4 Wochen) | `history.json`, Verlierer-Ursache aus `trade_memory.jsonl` (Match Ticker + entry_date) |
-| 8 | What the system learned | Diff gegen `outputs/reports/weekly_state.json` |
-| 9 | Research Pipeline | `hypothesis_db.json`, `failure_analysis.json` |
-| 10 | Risk / Health Warnings | regelbasiert aus den obigen Daten |
+| A1 | System Status (Champion, Meta-Modell, Regime, Pipelines, Freshness, Drift, Kalibrierung, Safe Mode) | `ml_research.json`, `meta_learning.json`, `meta_state.json`, `external_data/health/source_health.json` |
+| A2 | Live / Forward Performance | `outputs/history.json` (`closed_trades`, `active_trades`), `candidate_ledger/*.jsonl` |
+| A3 | Confidence Performance | `meta_learning.calibration_buckets[primary_meta]` |
+| A4 | Current Model Intelligence | `meta_learning.model_intelligence` (Pfeil nur aus `trend`, `trend_t` angezeigt) |
+| A5 | Meta-Learning Status | `meta_learning.approaches/deltas/decision`, `ml_research.json` (Backtest), `ml_forward.json` (Forward-Shadow) |
+| A6 | High-Confidence Candidates | `hc_candidates.json` |
+| A7 | Recent Signal Review (letzte 4 Wochen) | `history.json`, Verlierer-Ursache aus `trade_memory.jsonl` (Match Ticker + entry_date) |
+| A8 | What the system learned | Diff gegen `outputs/reports/weekly_state.json` |
+| A9 | Research Pipeline | `hypothesis_db.json`, `failure_analysis.json` |
+| A10 | Risk / Health Warnings | regelbasiert aus den obigen Daten |
 
 Alle Eingaben liegen unter `outputs/` bzw. `outputs/research/` (siehe `--root`).
 
@@ -68,7 +88,7 @@ python -m reports.weekly --send
 python -m reports.weekly --dry-run --save-state    # Snapshot ohne Versand aktualisieren
 ```
 Ausgabe: `outputs/reports/weekly_YYYY-MM-DD.{html,txt,md}` (Default). Betreff:
-`Adaptive Asymmetry Scanner – Weekly Intelligence Report – YYYY-MM-DD`.
+`Adaptive Asymmetry Scanner – Monday Intelligence Report – YYYY-MM-DD`.
 Exit-Code 1 nur, wenn der Versand endgültig scheitert; „not_configured“ ist eine Warnung.
 
 ## Workflow
