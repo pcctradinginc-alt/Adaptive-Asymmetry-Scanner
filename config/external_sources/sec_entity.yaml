@@ -1,0 +1,114 @@
+# config/external_sources/sec_entity.yaml – Data Source Contracts (Alternative Data, Phase 1)
+#
+# Abgerufen NICHT vom generischen Orchestrator, sondern von eigenen,
+# budgetierten Jobs (.github/workflows/alt_data.yml):
+#   modules/entity_resolution/build.py   (GLEIF, SEC-Entitäten)
+#   modules/external/sources/sec_ingest.py (Form 3/4/5, Submissions)
+# status_override sorgt dafür, dass der Orchestrator sie sichtbar überspringt
+# (DEFERRED), statt Fehler zu zählen. Health: outputs/external_data/sec/health.json
+# und outputs/entity/entity_report.json.
+#
+# Zusatzfelder je Vertrag (Auftrag "Data Source Contract"): retrieval_frequency,
+# expected_latency, revision_policy, historical_depth, entity_level, coverage,
+# rate_limits, cost, failure_behavior, point_in_time_capable.
+
+sources:
+
+  - source_id: sec_form345
+    display_name: "SEC Insider Transactions Data Sets (Form 3/4/5, vierteljährlich)"
+    family: alternative_sec
+    authority: "U.S. Securities and Exchange Commission (DERA)"
+    official_homepage: "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets"
+    machine_endpoint: "https://www.sec.gov/files/structureddata/data/form-345-data-sets/{YYYY}q{Q}_form345.zip"
+    access_method: "quarterly_zip_tsv"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "US-Bundesbehörde, gemeinfrei (17 U.S.C. § 105); SEC Fair Access (<= 10 Anfragen/s, User-Agent mit Kontakt)"
+    commercial_use_status_if_known: "erlaubt"
+    frequency: quarterly
+    expected_update_cadence: "P3M"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    status_override: "OWN_WORKFLOW:alt_data.yml"
+    criticality: low
+    license_status: OK
+    role: RESEARCH_SHADOW
+    retrieval_frequency: "wöchentlich (neues Quartal ~30 T nach Quartalsende)"
+    expected_latency: "Filing-Datum + 1 Tag (konservativ); Quartals-ZIP ca. 1 Monat nach Quartalsende"
+    revision_policy: "keine Revisionen; Korrekturen als eigene /A-Filings – nur Original-Form-4 werden gezählt"
+    historical_depth: "2006–heute (genutzt ab 2014)"
+    entity_level: "Emittent (CIK) × meldende Person"
+    coverage: "alle Form-4-pflichtigen Emittenten (Universum über Entity-Map)"
+    rate_limits: "10 Anfragen/s"
+    cost: "kostenlos"
+    failure_behavior: "Quartal fehlt -> Abdeckung endet davor; Insider-Features NaN, nie 0"
+    point_in_time_capable: true
+
+  - source_id: sec_submissions
+    display_name: "SEC EDGAR Submissions API (Filing-Historie je Emittent)"
+    family: alternative_sec
+    authority: "U.S. Securities and Exchange Commission"
+    official_homepage: "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"
+    machine_endpoint: "https://data.sec.gov/submissions/CIK##########.json"
+    access_method: "json_api_columnar"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "US-Bundesbehörde, gemeinfrei; SEC Fair Access"
+    commercial_use_status_if_known: "erlaubt"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_TIMESTAMP
+    enabled: true
+    status_override: "OWN_WORKFLOW:alt_data.yml"
+    criticality: low
+    license_status: OK
+    role: RESEARCH_SHADOW
+    retrieval_frequency: "wöchentlich (Historie inkrementell, ältere Seiten nur einmal)"
+    expected_latency: "acceptanceDateTime (offizieller Zeitstempel)"
+    revision_policy: "Filings unveränderlich; Änderungen sind eigene Filings"
+    historical_depth: "vollständig über recent + ältere Seiten"
+    entity_level: "Emittent (CIK)"
+    coverage: "Research-Universum (PIT-S&P 500)"
+    rate_limits: "10 Anfragen/s"
+    cost: "kostenlos"
+    failure_behavior: "CIK nicht abrufbar -> Filing-Features dieses Emittenten NaN"
+    point_in_time_capable: true
+
+  - source_id: gleif_lei
+    display_name: "GLEIF LEI-Records + Relationship-Records (Entity Resolution)"
+    family: entity_resolution
+    authority: "Global Legal Entity Identifier Foundation"
+    official_homepage: "https://www.gleif.org/en/lei-data/gleif-api"
+    machine_endpoint: "https://api.gleif.org/api/v1/lei-records"
+    access_method: "jsonapi"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "CC0 1.0 (GLEIF Open Data)"
+    commercial_use_status_if_known: "erlaubt (CC0)"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    supports_history: false
+    supports_vintages: false
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    status_override: "OWN_WORKFLOW:alt_data.yml"
+    criticality: low
+    license_status: OK
+    role: INFRASTRUCTURE
+    retrieval_frequency: "wöchentlich, inkrementell (max. 150 Firmen je Lauf)"
+    expected_latency: "Registrierungs-/Beziehungsdaten mit offiziellen Daten"
+    revision_policy: "Datensätze werden aktualisiert; wir speichern append-only mit valid_from/valid_to"
+    historical_depth: "LEI ab initialRegistrationDate; Beziehungen ab relationship period start"
+    entity_level: "Rechtseinheit (LEI) + direkte/ultimative Mutter"
+    coverage: "LEI-registrierte Rechtseinheiten; Zuordnung zu CIK per Namensabgleich mit Konfidenz"
+    rate_limits: "ca. 60 Anfragen/min"
+    cost: "kostenlos"
+    failure_behavior: "keine Zuordnung -> LEI/Eltern unbekannt (None), nie geraten"
+    point_in_time_capable: partial

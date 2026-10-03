@@ -61,6 +61,7 @@ SECTION_TITLES = {
     14: "RESEARCH INTELLIGENCE",
     15: "MODEL BLIND SPOTS",
     16: "ACTIVE LEARNING",
+    17: "ALTERNATIVE DATA INTELLIGENCE",
 }
 
 
@@ -387,6 +388,9 @@ def collect(root, date, state_path=None) -> dict:
     nextv = _load_json(rs / "next_validation.json")
     director = _load_json(rs / "research_candidates.json")
     alearn = _load_json(rs / "active_learning.json")
+    alt_board = _load_json(rs / "source_scoreboard.json")
+    alt_val = _load_json(rs / "alt_data_validation.json")
+    alt_fwd = _load_jsonl(rs / "alt_forward_ledger.jsonl")
     ledger_rows = ledger_open = 0
     ledger_dir = out_dir / "candidate_ledger"
     if ledger_dir.is_dir():
@@ -401,6 +405,9 @@ def collect(root, date, state_path=None) -> dict:
         "ml": ml, "meta": meta, "meta_state": meta_state, "hc": hc, "ml_fwd": ml_fwd,
         "hyp": hyp, "fail": fail, "history": history, "world": world, "mstate": mstate, "safe": safe,
         "nextv": nextv, "director": director, "alearn": alearn,
+        "alt": {"board": alt_board, "validation": alt_val,
+                "forward_cohorts": {h: sum(1 for r in alt_fwd if r.get("hypothesis_id") == h)
+                                    for h in sorted({r.get("hypothesis_id") for r in alt_fwd})}},
         "missing": [n for n, v in (("ml_research.json", ml), ("meta_learning.json", meta),
                                    ("meta_state.json", meta_state), ("hc_candidates.json", hc),
                                    ("ml_forward.json", ml_fwd), ("hypothesis_db.json", hyp),
@@ -877,7 +884,41 @@ def intelligence_sections(data: dict) -> list:
                                            str(a.get("acquisition_cost")), _fv(a.get("priority")),
                                            "ungeprüft (Aufnahmeprüfung offen)"] for a in al[:6]], [])]
                 if al else [("para", NO_DATA)]))
+    out.append((17, SECTION_TITLES[17], alt_data_section(data)))
     return out
+
+
+def alt_data_section(data: dict) -> list:
+    """Alternative Data (SHADOW): Quellen-Scoreboard, inkrementeller Nutzen, Forward-Kohorten.
+    Nur gemessene Werte; kein Produktionseinfluss."""
+    alt = _d(data.get("alt"))
+    board = _d(_d(alt.get("board")).get("sources"))
+    if not board:
+        return [("para", NO_DATA)]
+    rows = [[sid, _f(b.get("coverage"), pct=True), _fv(b.get("freshness")), _fv(b.get("data_quality")),
+             ", ".join(b.get("active_features") or []) or "–", _fv(b.get("oos_value")),
+             _fv(b.get("forward_value")) if b.get("forward_value") is not None else "noch keine Forward-Daten",
+             _fv(b.get("source_value_score")), str(b.get("status", NA))] for sid, b in board.items()]
+    blocks = [("table", ["Quelle", "Coverage", "Freshness", "Data Quality", "Active Features", "OOS Value",
+                         "Forward Value", "Source Value Score", "Status"], rows, [])]
+    val = _d(_d(alt.get("validation")).get("sources"))
+    for sid, r in val.items():
+        r = _d(r)
+        deltas = []
+        for bid, b in _d(r.get("baselines")).items():
+            bs = _d(_d(b).get("bootstrap"))
+            if bs:
+                deltas.append(f"{bid}: Δ Monatsrendite {_fv(bs.get('delta_monthly_mean'))} "
+                              f"(CI {bs.get('ci_monthly_mean')}), Δ Brier {_fv(_d(_d(b).get('delta')).get('brier'))}")
+        blocks.append(("para", f"{sid}: {r.get('verdict', NA)} – {r.get('verdict_reason', NA)}"))
+        if deltas:
+            blocks.append(("list", deltas))
+    fc = _d(alt.get("forward_cohorts"))
+    blocks.append(("para", "Prospective Challenger (Forward-Kohorten je Vertrag): " +
+                   (", ".join(f"{k} {v}" for k, v in fc.items()) if fc else "noch keine")))
+    blocks.append(("note", "Alle Quellen SHADOW/RESEARCH. Produktionseinfluss nur über PromotionController nach "
+                           "Forward-Validierung und menschlicher Freigabe."))
+    return blocks
 
 
 def subject_for(date_s: str) -> str:

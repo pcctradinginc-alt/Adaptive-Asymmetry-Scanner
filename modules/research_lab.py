@@ -55,7 +55,9 @@ CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_o
              "passed_pre_fdr": "INCONCLUSIVE", "passed_pending_locked": "RETEST_LATER",
              "insufficient_coverage": "RETEST_LATER", "blocked_data": "RETEST_LATER"}
 DB_PATH = ml.OUT_DIR / "hypothesis_db.json"
-ALLOWED_NAMES = frozenset(ml.ALL_FEATURES)
+from modules.alt_data.registry import ALT_FEATURES as _ALT  # noqa: E402
+
+ALLOWED_NAMES = frozenset(ml.ALL_FEATURES) | frozenset(_ALT)   # Alt-Data nur als registrierte PIT-Features
 ALLOWED_FUNCS = frozenset({"rank", "sign", "abs", "step"})
 _BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div)
 
@@ -192,6 +194,7 @@ def evaluate_hypothesis(panel: pd.DataFrame, hyp: dict, tested_signals: dict, pr
     acc = protocol["hypothesis_acceptance"]
     per = protocol["periods"]
     rec = {"id": hyp["id"], "title": hyp.get("title"), "statement": hyp.get("statement"),
+           "contract_hash": hyp.get("contract_hash"),
            "signal": hyp.get("signal"), "direction": int(hyp.get("direction", 1)), "source": hyp.get("source", "config"),
            "created_at": hyp.get("created_at"), "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "stages": {}, "reasons": []}
@@ -400,6 +403,17 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
     db = load_db(db_path)
     recs: dict = db.setdefault("hypotheses", {})
     hyps = load_hypotheses(hyp_path) + (load_director() if hyp_path == HYP_CONFIG else [])
+    if hyp_path == HYP_CONFIG:                      # Alternative-Data-Verträge: gleiche Prüfkette, unveränderlich
+        from modules.alt_data import contracts as ac
+        _cs = ac.load()
+        _st = ac.register(_cs)
+        db["alt_contracts"] = _st
+        for h in ac.lab_hypotheses(_cs, _st):
+            feats = next((c["source_features"] for c in _cs if c["hypothesis_id"] == h["id"]), [])
+            missing = [f for f in feats if f not in panel.columns or panel[f].notna().sum() == 0]
+            if missing:                              # Quelle (noch) nicht im Feature-Store -> nicht testbar, nie mit 0 füllen
+                h = {**h, "status": "blocked_data", "evidence": f"Alt-Data-Features fehlen im Panel: {missing}"}
+            hyps.append(h)
     if with_discovery:
         d = discover(panel, protocol)
         db["discovery"] = {k: v for k, v in d.items() if k != "survivors"}
@@ -503,6 +517,13 @@ def main() -> int:
     else:
         panel = ml.build_research_panel()
     db = run(panel)
+    from modules.alt_data import contracts as ac       # Prospective Challenger: Signale ab forward_start festhalten
+    try:
+        _cs = ac.load()
+        n = ac.record_forward(panel, _cs, db.get("alt_contracts") or {})
+        logging.info(f"research_lab: {n} Prospective-Challenger-Einträge (Alt-Data)")
+    except (KeyError, ValueError, SignalError) as e:
+        logging.warning(f"research_lab: Forward-Ledger Alt-Data übersprungen ({e})")
     print(render_md(db))
     return 0
 

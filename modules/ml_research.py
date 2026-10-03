@@ -236,14 +236,24 @@ def _grid(spec: dict) -> list[dict]:
 
 
 def feature_list(spec: dict) -> list[str]:
-    """features: "all" oder Liste aus Feature-Namen und "group:<name>"."""
+    """features: "all" oder Liste aus Feature-Namen und "group:<name>".
+    extra_features: nur registrierte Alternative-Data-Features (SHADOW-
+    Challenger, modules/alt_data/registry.py); Champion-Specs nutzen sie nie."""
     f = spec.get("features", "all")
     if f == "all":
-        return list(ALL_FEATURES)
-    out = []
-    for x in f:
-        names = FEATURE_GROUPS.get(x[6:], ()) if str(x).startswith("group:") else (x,)
-        out += [n for n in names if n in ALL_FEATURES and n not in out]
+        out = list(ALL_FEATURES)
+    else:
+        out = []
+        for x in f:
+            names = FEATURE_GROUPS.get(x[6:], ()) if str(x).startswith("group:") else (x,)
+            out += [n for n in names if n in ALL_FEATURES and n not in out]
+    extra = spec.get("extra_features") or []
+    if extra:
+        from modules.alt_data.registry import ALT_FEATURES
+        unknown = [x for x in extra if x not in ALT_FEATURES]
+        if unknown:
+            raise ValueError(f"extra_features nicht registriert: {unknown}")
+        out += [x for x in extra if x not in out]
     return out
 
 
@@ -964,12 +974,20 @@ def load_macro(archive_root: str = "outputs/external_data") -> list:
 
 # ── Report ───────────────────────────────────────────────────────────────────
 
+def _survivorship_line(u: dict) -> str:
+    if u.get("pit"):
+        return (f"Survivorship: PIT-Universum ({u.get('n_tickers_ever')} Titel je Mitglied, {u.get('n_changes')} Änderungen; "
+                f"entfernte Titel mit Kursen {u.get('n_removed_with_prices')}/{u.get('n_removed_since_start')} – "
+                f"Restbias: {u.get('residual_bias')}).")
+    return "Survivorship: heutige Indexliste (Querschnittsvergleich dämpft den Bias)."
+
+
 def render_md(rep: dict) -> str:
     L = [f"# ML-Research (Shadow) – {rep['generated']}", "",
          f"Panel: {rep.get('n_rows')} Zeilen, {rep.get('n_tickers')} Ticker, {rep.get('period')} · "
          f"Locked-Holdout ab {rep.get('locked_from')} · Champion: {rep.get('champion') or '— (keiner)'}",
-         "Bewertung: Top-Dezil minus Querschnittsmittel, 20 Handelstage, netto 10 bp/Seite. "
-         "Survivorship: heutige Indexliste (Querschnittsvergleich dämpft den Bias). Keine Produktionswirkung.", "",
+         "Bewertung: Top-Dezil minus Querschnittsmittel, 20 Handelstage, netto 10 bp/Seite. " +
+         _survivorship_line(rep.get("universe") or {}) + " Keine Produktionswirkung.", "",
          "| Modell | Status | WF netto | t | Sharpe | Max-DD | Jahre + | IC | IC t | 25bp | Locked netto | Forward n | Forward netto | Asym Top/Univ | Verdikt |",
          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for mid, m in rep.get("models", {}).items():
@@ -1053,10 +1071,12 @@ def build_research_panel(mode: str = "full") -> pd.DataFrame:
         spy = spy[spy.index.date < now.date()]
     log.info(f"ml_research: {len(frames)}/{len(tickers)} Ticker geladen")
     pred_dates = {r["prediction_date"] for r in _read_predictions()}
-    return build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
-                       sectors=sector_map(tickers) if mode == "full" else
-                       (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}),
-                       membership=uni["intervals"])
+    panel = build_panel(frames, spy, vix, tnx, irx, load_macro(), extra_dates=pred_dates | {str(spy.index.max().date())},
+                        sectors=sector_map(tickers) if mode == "full" else
+                        (json.loads(SECTOR_CACHE.read_text()) if SECTOR_CACHE.exists() else {}),
+                        membership=uni["intervals"])
+    from modules.alt_data.feature_store import attach    # SHADOW-Spalten; nicht in ALL_FEATURES
+    return attach(panel) if not panel.empty else panel
 
 
 def run(mode: str = "full") -> dict:
