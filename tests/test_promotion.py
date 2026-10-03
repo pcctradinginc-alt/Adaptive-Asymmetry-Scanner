@@ -69,7 +69,8 @@ def synth(env: Env, c: dict, start: datetime, n_dates: int, *, fired_ret=-0.4, k
                          "final_production_decision": "TRADE",
                          "intelligence": {k: {"spec_hash": h, "evaluable": True, "in_scope": True, "fired": fired,
                                               "applied": False}}})
-            outs.append({"decision_id": did, "outcome": (fired_ret if fired else kept_ret) + rng.uniform(-noise, noise)})
+            outs.append({"decision_id": did, "outcome": (fired_ret if fired else kept_ret) + rng.uniform(-noise, noise),
+                         "outcome_method": "option_quote"})
     env.ledger.mkdir(parents=True, exist_ok=True)
     with open(env.ledger / f"{start:%Y-%m}-{seed}.jsonl", "a") as fh:
         fh.writelines(json.dumps(r) + "\n" for r in rows)
@@ -470,29 +471,62 @@ def test_counterfactual_outcome_of_blocked_trade_resolved(tmp_path):
     row = {"decision_id": "d1", "timestamp": T0.isoformat(), "date": "2026-10-06", "ticker": "AAA",
            "champion_decision": "TRADE", "final_production_decision": "ABSTAIN", "intelligence": {}}
     row2 = {**row, "decision_id": "d2", "ticker": "BBB", "final_production_decision": "TRADE"}
+    row3 = {**row, "decision_id": "d3", "ticker": "CCC", "final_production_decision": "TRADE"}
     e.ledger.mkdir()
-    (e.ledger / "2026-10.jsonl").write_text(json.dumps(row) + "\n" + json.dumps(row2) + "\n")
-    hist = {"shadow_trades": [{"ticker": "AAA", "entry_date": "2026-10-06", "reject_reason":
-                               "intelligence_abstention:X@v1", "outcome": -0.42, "close_date": "2026-11-20"}],
-            "closed_trades": [{"ticker": "BBB", "entry_date": "2026-10-06", "outcome": 0.3}]}
-    assert pc.resolve_outcomes(hist, e.ledger, e.out) == 2
+    (e.ledger / "2026-10.jsonl").write_text("".join(json.dumps(r) + "\n" for r in (row, row2, row3)))
+    hist = {"counterfactual_closed": [{"ticker": "AAA", "entry_date": "2026-10-06", "outcome": -0.42,
+                                       "close_date": "2026-11-20", "close_reason": "stop_loss",
+                                       "outcome_method": "option_quote"}],
+            "closed_trades": [{"ticker": "BBB", "entry_date": "2026-10-06", "outcome": 0.3,
+                               "outcome_method": "spread_quote"},
+                              {"ticker": "CCC", "entry_date": "2026-10-06", "outcome": 4.9,
+                               "outcome_method": "delta_approx_clipped"}]}
+    assert pc.resolve_outcomes(hist, e.ledger, e.out) == 3
     assert pc.resolve_outcomes(hist, e.ledger, e.out) == 0                          # append-only, einmalig
     o = pc.read_outcomes(e.out)
-    assert o["d1"]["outcome"] == -0.42 and o["d1"]["source"] == "intelligence_shadow_trade"
+    assert o["d1"]["outcome"] == -0.42 and o["d1"]["source"] == "counterfactual_trade"
+    assert o["d1"]["close_reason"] == "stop_loss" and o["d3"]["outcome_method"] == "delta_approx_clipped"
     arms = pc.evaluate_arms(pc.read_jsonl_dir(e.ledger), o)
+    assert arms["n_excluded_approximate_outcomes"] == 1                              # Näherung zählt nicht
     assert arms["CHAMPION_ONLY"]["trade_count"] == 2 and arms["ADAPTIVE_ACTUAL"]["trade_count"] == 1
     assert arms["ADAPTIVE_ACTUAL"]["avoided_losers"] == 1 and arms["data_kind"] == "prospective_forward_only"
 
 
-def test_feedback_keeps_open_abstention_shadows(monkeypatch):
+def test_approximate_outcomes_never_count_as_evidence(tmp_path):
+    e = Env(tmp_path)
+    c = contract()
+    synth(e, c, T0, 40)
+    with open(e.out) as fh:
+        outs = [json.loads(x) for x in fh]
+    for o in outs:
+        o["outcome_method"] = "delta_approx"
+    e.out.write_text("".join(json.dumps(o) + "\n" for o in outs))
+    ev = pc.evidence(c, hc.spec_hash(c), pc.read_jsonl_dir(e.ledger), pc.read_outcomes(e.out), POLICY, 0.05)
+    assert ev["n_observations"] == 0
+
+
+def test_counterfactual_trade_same_lifecycle_as_real_trade(monkeypatch):
+    """Blockierter Trade: gleiche Exit-Regeln (TP/SL/Time), Outcome-Methode, keine Lern-Updates."""
     import feedback
-    shadows = [{"ticker": "OLD", "entry_date": "2026-01-01", "reject_reason": "intelligence_abstention:X", "outcome": None}]
-    shadows += [{"ticker": f"S{i}", "entry_date": "2026-01-02", "reject_reason": "roi_gate", "outcome": 0.1}
-                for i in range(305)]
-    hist = {"shadow_trades": shadows}
-    monkeypatch.setattr(feedback, "get_current_price", lambda t: 0)
-    feedback.evaluate_shadow_trades(hist, datetime(2026, 1, 3))
-    assert hist["shadow_trades"][0]["ticker"] == "OLD" and len(hist["shadow_trades"]) == 301
+    trade = {"ticker": "AAA", "entry_date": "2026-10-06", "strategy": "LONG_CALL", "entry_debit": 2.0,
+             "option": {"ask": 2.0, "expiry": "2027-03-19"}, "simulation": {"current_price": 100.0}, "outcome": None}
+    hist = {"counterfactual_trades": [dict(trade)], "closed_trades": [], "feature_stats": {}}
+    monkeypatch.setattr(feedback, "get_current_option_price", lambda *a, **k: 0.8)    # -60 % -> Stop-Loss
+    n = feedback.advance_counterfactual_trades(hist, datetime(2026, 10, 20), price_fn=lambda t: 95.0)
+    assert n == 1 and not hist["counterfactual_trades"] and hist["closed_trades"] == []
+    cf = hist["counterfactual_closed"][0]
+    assert cf["close_reason"] == "stop_loss" and cf["outcome_method"] == "option_quote"
+    assert cf["outcome"] == pytest.approx(-0.6) and hist["feature_stats"] == {}
+    hist2 = {"counterfactual_trades": [dict(trade)]}
+    monkeypatch.setattr(feedback, "get_current_option_price", lambda *a, **k: 2.2)    # +10 % -> offen
+    assert feedback.advance_counterfactual_trades(hist2, datetime(2026, 10, 20), price_fn=lambda t: 101.0) == 0
+    assert hist2["counterfactual_trades"][0]["current_return"] == pytest.approx(0.1)
+
+
+def test_pipeline_blocked_trades_use_same_trade_record():
+    src = (ROOT / "pipeline.py").read_text()
+    assert src.count("build_trade_record(p, today)") == 2                          # echt + counterfactual
+    assert 'history.setdefault("counterfactual_trades"' in src
 
 
 # ── 6. Keine Umgehung der Brücke ────────────────────────────────────────────

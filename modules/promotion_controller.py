@@ -44,6 +44,7 @@ from pathlib import Path
 import yaml
 
 from modules import hypothesis_contract as hc
+from modules.outcomes import RELIABLE_OUTCOME_METHODS
 
 log = logging.getLogger(__name__)
 
@@ -86,6 +87,10 @@ LADDER = {"abstention": ["NONE", "ABSTENTION_ONLY"],
           "score": ["NONE", "RERANK_ONLY", "SCORE_LIMITED"],
           "weight": ["NONE", "RERANK_ONLY", "WEIGHT_10", "WEIGHT_25"],
           "research_only": ["NONE"]}
+
+
+# Nur Outcomes aus echten Optionsquotes zählen als Evidenz (modules/outcomes.py).
+REAL_OUTCOME_METHODS = RELIABLE_OUTCOME_METHODS
 
 
 class TransitionError(ValueError):
@@ -209,14 +214,15 @@ def read_outcomes(path: Path | None = None) -> dict[str, dict]:
 def resolve_outcomes(history: dict, ledger_dir: Path | None = None, outcomes_path: Path | None = None,
                      now: str | None = None) -> int:
     """Verbindet Decision-Ledger-Zeilen mit realisierten Outcomes aus history.json:
-    umgesetzte Trades -> closed_trades; abstinierte Trades -> shadow_trades
-    (reject_reason intelligence_abstention*). Append-only, je decision_id einmal."""
+    umgesetzte Trades -> closed_trades; abstinierte Trades -> counterfactual_closed
+    (gleicher Lebenszyklus wie echte Trades). Append-only, je decision_id einmal;
+    outcome_method wird mitgeführt (nur Quote-basierte Outcomes zählen als Evidenz)."""
     ledger_dir, outcomes_path = ledger_dir or LEDGER_DIR, outcomes_path or OUTCOMES
     have = read_outcomes(outcomes_path)
     closed = {(t.get("ticker"), str(t.get("entry_date", ""))[:10]): t for t in history.get("closed_trades") or []
               if t.get("outcome") is not None}
-    shadow = {(t.get("ticker"), str(t.get("entry_date", ""))[:10]): t for t in history.get("shadow_trades") or []
-              if t.get("outcome") is not None and str(t.get("reject_reason", "")).startswith("intelligence_abstention")}
+    shadow = {(t.get("ticker"), str(t.get("entry_date", ""))[:10]): t for t in history.get("counterfactual_closed") or []
+              if t.get("outcome") is not None}
     n = 0
     for r in read_jsonl_dir(ledger_dir):
         if r["decision_id"] in have:
@@ -225,10 +231,11 @@ def resolve_outcomes(history: dict, ledger_dir: Path | None = None, outcomes_pat
         if r.get("final_production_decision") == "TRADE" and k in closed:
             t, src = closed[k], "closed_trade"
         elif r.get("final_production_decision") == "ABSTAIN" and k in shadow:
-            t, src = shadow[k], "intelligence_shadow_trade"
+            t, src = shadow[k], "counterfactual_trade"
         else:
             continue
         e = {"decision_id": r["decision_id"], "outcome": float(t["outcome"]), "source": src,
+             "outcome_method": t.get("outcome_method") or "unknown", "close_reason": t.get("close_reason"),
              "close_date": t.get("close_date"), "mfe": t.get("mfe"), "mae": t.get("mae"),
              "resolved_at": now or datetime.now(timezone.utc).isoformat(timespec="seconds")}
         outcomes_path.parent.mkdir(parents=True, exist_ok=True)
@@ -317,7 +324,7 @@ def observations(contract: dict, spec_hash: str, rows: list[dict], outcomes: dic
         if r.get("champion_decision") != "TRADE":
             continue
         o = outcomes.get(r["decision_id"])
-        if o is None or o.get("outcome") is None:
+        if o is None or o.get("outcome") is None or o.get("outcome_method") not in REAL_OUTCOME_METHODS:
             continue
         out.append({"decision_id": r["decision_id"], "date": str(r["date"])[:10], "ts": t, "fired": bool(h.get("fired")),
                     "outcome": float(o["outcome"]), "prob": r.get("champion_probability"),
@@ -812,7 +819,10 @@ def evaluate_arms(rows: list[dict], outs: dict[str, dict]) -> dict:
     """CHAMPION ONLY vs. +ABSTENTION vs. +RERANK vs. +LIMITED INTELLIGENCE auf denselben
     prospektiven Champion-Trades. Abstinierte Trades werden über ihr Shadow-Outcome bewertet."""
     res = [(r, outs.get(r["decision_id"])) for r in rows if r.get("champion_decision") == "TRADE"]
-    res = [(r, o) for r, o in res if o and o.get("outcome") is not None]
+    n_approx = sum(1 for _, o in res if o and o.get("outcome") is not None
+                   and o.get("outcome_method") not in REAL_OUTCOME_METHODS)
+    res = [(r, o) for r, o in res if o and o.get("outcome") is not None
+           and o.get("outcome_method") in REAL_OUTCOME_METHODS]
     arms = {}
 
     def arm(name, sel_fn):
@@ -852,6 +862,7 @@ def evaluate_arms(rows: list[dict], outs: dict[str, dict]) -> dict:
     arms["RANKING"] = rank
     arms["data_kind"] = "prospective_forward_only"
     arms["n_resolved_decisions"] = len(res)
+    arms["n_excluded_approximate_outcomes"] = n_approx
     return arms
 
 

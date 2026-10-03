@@ -22,7 +22,7 @@ Blind-Spot-Sektoren (`next_validation.json`), ML-Karten (Modelluneinigkeit, erwa
 | Stufe | Wirkung | harte Grenze (Code) |
 |---|---|---|
 | NONE (Shadow) | keine; nur „was Intelligence täte“ | – |
-| ABSTENTION_ONLY | Champion-Trade blockieren → Schatten-Trade | nie neuer Trade |
+| ABSTENTION_ONLY | Champion-Trade blockieren → Counterfactual-Trade (gleiche Exit-Regeln, kein Lernen) | nie neuer Trade |
 | RERANK_ONLY | Reihenfolge der akzeptierten Trades | fehlt ein Signal → Champion-Reihenfolge |
 | SCORE_LIMITED | ± Score-Punkte | `HARD_CAPS["score_points"] = 3` |
 | WEIGHT_10 / WEIGHT_25 | P_final = (1−w)·P_champ + w·P_int | w ≤ 0,10 / 0,25; Summe ≤ 0,25 |

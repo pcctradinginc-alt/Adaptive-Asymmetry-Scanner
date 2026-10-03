@@ -29,7 +29,7 @@ nach einer Aktivierung parallel weiter aufgezeichnet (champion_decision in jeder
 | Safe-Mode-Vorrang | `test_safe_mode_precedence_abstention_only_validated` (+ Score/Weight/Rerank-Tests) |
 | Regime-/Sektor-Scoping, fehlende Merkmale | `test_regime_and_sector_scoping`, `test_missing_feature_never_fires` |
 | Rerank-only, nie neue Trades | `test_rerank_only_reorders_never_adds`, `test_adapter_never_creates_trades_property` |
-| Production-/Counterfactual-Ledger | `test_default_no_state_champion_unchanged_but_logged`, `test_counterfactual_outcome_of_blocked_trade_resolved`, `test_feedback_keeps_open_abstention_shadows` |
+| Production-/Counterfactual-Ledger | `test_default_no_state_champion_unchanged_but_logged`, `test_counterfactual_outcome_of_blocked_trade_resolved`, `test_counterfactual_trade_same_lifecycle_as_real_trade`, `test_approximate_outcomes_never_count_as_evidence` |
 | Research Director/Agents ändern keine Produktionsconfig; einziger Codepfad | `test_research_components_cannot_write_production_config`, `test_pipeline_uses_only_adapter_for_research_influence` |
 | Policy-Pin + CODEOWNERS | `test_policy_pinned_and_codeowned` |
 

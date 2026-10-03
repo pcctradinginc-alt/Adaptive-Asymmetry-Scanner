@@ -41,7 +41,8 @@ TIMESTEPS_PER_TRADE = 40      # Gesamtschritte = 40 × Anzahl Trades (feste Rege
 
 
 def _chronological(history: dict) -> list[dict]:
-    closed = [t for t in history.get("closed_trades", []) if t.get("outcome") is not None]
+    from modules.outcomes import is_reliable_outcome
+    closed = [t for t in history.get("closed_trades", []) if t.get("outcome") is not None and is_reliable_outcome(t)]
     return sorted(closed, key=lambda t: (str(t.get("entry_date", "")), str(t.get("ticker", ""))))
 
 

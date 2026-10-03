@@ -48,6 +48,8 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
+from modules.outcomes import is_reliable_outcome
+
 log = logging.getLogger(__name__)
 
 OBS_DIM = 11  # v9.0: 9 → 11
@@ -227,7 +229,7 @@ def build_env_from_history(history: dict) -> Optional[OptionsRLEnv]:
     MIN_TRADES = 3
 
     closed = history.get("closed_trades", [])
-    valid  = [t for t in closed if t.get("outcome") is not None]
+    valid  = [t for t in closed if t.get("outcome") is not None and is_reliable_outcome(t)]
 
     if len(valid) < MIN_TRADES:
         log.info(

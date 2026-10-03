@@ -337,6 +337,9 @@ def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float 
 
 # ── Outcome-Berechnung ────────────────────────────────────────────────────────
 
+from modules.outcomes import RELIABLE_OUTCOME_METHODS  # noqa: E402
+
+
 def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None = None) -> float | None:
     """
     Berechnet Trade-Outcome (Return) für das RL-Training.
@@ -519,10 +522,12 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
         current = get_current_price(st["ticker"])
         if current <= 0:
             continue
-        outcome = compute_outcome(st, current)
+        _m = {}
+        outcome = compute_outcome(st, current, _m)
         if outcome is None:
             continue
         st["outcome"]    = round(outcome, 4)
+        st["outcome_method"] = _m.get("method", "unknown")
         st["close_date"] = today.strftime("%Y-%m-%d")
         try:
             update_feature_stats_external(history, st)
@@ -530,14 +535,45 @@ def evaluate_shadow_trades(history: dict, today: datetime) -> None:
             log.warning(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
         log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
     # Liste begrenzen: nur die letzten 300 behalten
-    # Ausnahme: offene Intelligence-Abstinenz-Schatten bleiben bis zum Outcome erhalten
-    # (counterfactual Weiterverfolgung jedes blockierten Champion-Trades).
     if len(shadows) > 300:
-        _recent = (today - timedelta(days=14)).strftime("%Y-%m-%d")
-        keep_open = [s for s in shadows[:-300]
-                     if str(s.get("reject_reason", "")).startswith("intelligence_abstention")
-                     and (s.get("outcome") is None or str(s.get("close_date", "")) >= _recent)]
-        history["shadow_trades"] = keep_open + shadows[-300:]
+        history["shadow_trades"] = shadows[-300:]
+
+
+# ── Counterfactual: von der Intelligence blockierte Champion-Trades ──────────
+# Gleicher Lebenszyklus wie echte Trades (Preisquelle, Exit-Regeln TP/SL/Time,
+# Haltedauer, Outcome-Methode), aber OHNE Lern-Updates (keine Bins, kein RL,
+# kein closed_trades-Eintrag). Nur so ist "blockiert vs. durchgelassen" fair.
+
+def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None) -> int:
+    price_fn = price_fn or get_current_price
+    open_cf = history.get("counterfactual_trades") or []
+    still, closed = [], 0
+    for t in open_cf:
+        try:
+            entry_dt = datetime.strptime(t["entry_date"][:10], "%Y-%m-%d")
+        except (KeyError, ValueError):
+            continue
+        current = price_fn(t["ticker"])
+        if current <= 0:
+            still.append(t)
+            continue
+        meta = {}
+        outcome = compute_outcome(t, current, meta)
+        if outcome is None:
+            still.append(t)
+            continue
+        t["peak_return"] = round(max(float(t.get("peak_return") or outcome), outcome), 4)
+        reason = check_exit_rules(t, outcome, today)
+        if reason or (today - entry_dt).days >= cfg.learning.close_after_days:
+            t.update(outcome=round(outcome, 4), close_date=today.strftime("%Y-%m-%d"), close_price=current,
+                     close_reason=reason or "max_holding_period", outcome_method=meta.get("method", "unknown"))
+            history.setdefault("counterfactual_closed", []).append(t)
+            closed += 1
+        else:
+            t["current_return"] = round(outcome, 4)
+            still.append(t)
+    history["counterfactual_trades"] = still
+    return closed
 
 
 # ── Trailing-Stop-Paralleltest ────────────────────────────────────────────────
@@ -867,7 +903,8 @@ def retrain_rl_agent(history: dict) -> None:
 # ── Pearson-Gewichte (Legacy-Support) ────────────────────────────────────────
 
 def compute_pearson_weights(history: dict) -> dict:
-    closed = history.get("closed_trades", [])
+    from modules.outcomes import is_reliable_outcome
+    closed = [t for t in history.get("closed_trades", []) if is_reliable_outcome(t)]
     if len(closed) < 5:
         return history.get("model_weights", {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20})
 
@@ -991,12 +1028,17 @@ def main() -> None:
         if exit_reason or age_days >= cfg.learning.close_after_days:
             # Bin-Updates NUR beim Close — sonst wird derselbe Trade bei jedem
             # Feedback-Lauf erneut gezählt und verzerrt die Lernstatistik massiv.
+            # Lernen NUR aus verlässlichen Outcomes (echte Options-/Spread-Quotes).
+            # Näherungen (Delta-Approx, gekappt bei +500 %, Aktien-Fallback) verzerren
+            # Bins/Gewichte; sie werden geschlossen und gekennzeichnet, aber nicht gelernt.
+            reliable = meta.get("method") in RELIABLE_OUTCOME_METHODS
+            trade["outcome_reliable"] = reliable
             feat = trade.get("features", {})
             for f_name, bin_key in [("impact",    "bin_impact"),
                                       ("mismatch",  "bin_mismatch"),
                                       ("eps_drift", "bin_eps_drift")]:
                 bin_label = feat.get(bin_key)
-                if bin_label:
+                if bin_label and reliable:
                     update_bin(history["feature_stats"], f_name, bin_label, outcome)
 
             trade["outcome"]        = round(outcome, 4)
@@ -1005,10 +1047,11 @@ def main() -> None:
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
             history.setdefault("closed_trades", []).append(trade)
-            try:
-                update_feature_stats_external(history, trade)
-            except Exception as e:
-                log.warning(f"  [{ticker}] feature_stats_external-Update Fehler (ignoriert): {e}")
+            if reliable:
+                try:
+                    update_feature_stats_external(history, trade)
+                except Exception as e:
+                    log.warning(f"  [{ticker}] feature_stats_external-Update Fehler (ignoriert): {e}")
             log.info(
                 f"  [{ticker}] Trade abgeschlossen "
                 f"({trade['close_reason']}, Return={outcome:+.2%})"
@@ -1026,6 +1069,14 @@ def main() -> None:
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
     evaluate_shadow_trades(history, today)
+
+    # Von der Intelligence blockierte Champion-Trades counterfactual fortführen
+    try:
+        n_cf = advance_counterfactual_trades(history, today)
+        if n_cf:
+            log.info(f"  {n_cf} counterfactual (blockierte) Trade(s) geschlossen")
+    except Exception as e:  # noqa: BLE001 – darf den Lern-Loop nie brechen
+        log.error(f"Counterfactual-Fortführung Fehler: {e}")
 
     # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen)
     evaluate_trailing_sims(history, today)
@@ -1061,8 +1112,14 @@ def main() -> None:
             log.error(f"Exit-Alert-Email-Fehler: {e}")
 
     if newly_closed > 0:
-        log.info(f"{newly_closed} neue closed_trades → starte RL-Nachtraining...")
-        retrain_rl_agent(history)
+        # PPO nur nachtrainieren, wenn er Entscheidungen beeinflussen darf (rl.veto_enabled).
+        # Bei Veto aus ist das Modell ungenutzt (Audit 2026-10-03: zuletzt degenerierte
+        # Immer-SKIP-Policy) – Training wäre reine Rechenzeit + Commit-Rauschen.
+        if bool(cfg.rl.get("veto_enabled", False)):
+            log.info(f"{newly_closed} neue closed_trades → starte RL-Nachtraining...")
+            retrain_rl_agent(history)
+        else:
+            log.info("RL-Veto aus → PPO-Nachtraining übersprungen (Modell ungenutzt)")
         # Robuster PPO-Challenger (SHADOW): chronologisch, fester Seed,
         # Walk-forward-Diagnose in outputs/models/ppo_robust_shadow_meta.json
         try:

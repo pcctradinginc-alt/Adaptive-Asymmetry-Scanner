@@ -376,6 +376,60 @@ def filter_correlated_proposals(
         return proposals
 
 
+def build_trade_record(p: dict, today: str) -> dict:
+    """Trade-Datensatz für history.json – identisch für echte Trades und für
+    counterfactual verfolgte (von der Intelligence blockierte) Champion-Trades,
+    damit beide denselben Lebenszyklus (Entry, Exit-Regeln, Outcome-Methode) haben."""
+    _opt      = p.get("option") or {}
+    _strategy = p.get("strategy", "")
+    _is_sp    = "SPREAD" in _strategy
+    if _is_sp:
+        _sl   = _opt.get("spread_leg") or {}
+        _nd   = _opt.get("net_debit")
+        if _nd:
+            _entry_debit = round(float(_nd), 2)
+        else:
+            _la = float(_opt.get("ask", 0))
+            _sb = float(_sl.get("bid", 0))
+            _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
+        if _entry_debit is not None and _entry_debit <= 0:
+            # Debit-Spread ohne positive Kosten kann nie geschlossen werden
+            # (compute_outcome -> None für immer) -> Long-Leg-Preis nehmen
+            log.warning(f"  [{p['ticker']}] net_debit <= 0 -> entry_debit = Long-Leg-Ask")
+            _entry_debit = round(float(_opt.get("ask", 0) or 0), 2)
+    else:
+        _entry_debit = round(float(_opt.get("ask", 0)), 2)
+    # Fill-Tracking: Quote-Zustand beim Entry für spätere Slippage-Analyse
+    # (Modell rechnet mit Ask-Fill — wie viel kostet das vs. Mid?)
+    _bid = float(_opt.get("bid", 0) or 0)
+    _ask = float(_opt.get("ask", 0) or 0)
+    _entry_quote = {
+        "bid": _bid, "ask": _ask,
+        "mid":        round((_bid + _ask) / 2, 4) if _bid > 0 and _ask > 0 else _ask,
+        "spread_pct": round((_ask - _bid) / _ask, 4) if _ask > 0 else 0.0,
+        "assumed_fill": "ask",
+    }
+    _at_dict = {
+        "ticker":        p["ticker"], "entry_date": today,
+        "features":      p.get("features", {}),
+        "strategy":      _strategy,
+        "entry_debit":   _entry_debit,
+        "entry_quote":   _entry_quote,
+        "catalyst_type": p.get("catalyst_type")
+                         or p.get("roi_analysis", {}).get("catalyst_type", "OTHER"),
+        "option":        _opt,
+        "simulation":    p.get("simulation"),
+        "deep_analysis": p.get("deep_analysis"),
+        "tve":           p.get("time_value_efficiency"),
+        "outcome":       None,
+    }
+    if p.get("final_mc_shadow"):
+        _at_dict["final_mc_shadow"] = p["final_mc_shadow"]
+    if p.get("external_context"):
+        _at_dict["external_context_entry"] = p["external_context"]
+    return _at_dict
+
+
 def load_history() -> dict:
     if HISTORY_PATH.exists():
         try:
@@ -1379,8 +1433,19 @@ def main() -> None:
             _ai_kept, _ai_blocked, _ai_records = apply_to_proposals(
                 trade_proposals, vix=stats.get("vix"), today=today, trade_score_min=trade_score_min)
             trade_proposals = _ai_kept
+            _cf = history.setdefault("counterfactual_trades", [])
+            _cf_seen = {(t["ticker"], t.get("entry_date", "")) for t in _cf}
+            _cf_cut = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+            _cf_cooled = {t["ticker"] for t in history.get("active_trades", []) if t.get("entry_date", "") >= _cf_cut}
             for p, why in _ai_blocked:
-                _shadow.append((p, why))
+                if p["ticker"] in _cf_cooled:      # Champion hätte ihn wegen Cooldown ohnehin nicht eingetragen
+                    candidate_ledger.mark_rejected(p.get("ticker"), "intelligence_abstention")
+                    continue
+                # gleicher Lebenszyklus wie ein echter Trade (Exit-Regeln, Outcome-Methode),
+                # aber ohne Lern-Updates -> fairer Vergleich blockiert vs. durchgelassen
+                if (p["ticker"], today) not in _cf_seen:
+                    _cf.append({**build_trade_record(p, today), "abstention_reason": why})
+                    _cf_seen.add((p["ticker"], today))
                 candidate_ledger.mark_rejected(p.get("ticker"), "intelligence_abstention")
             for r in _ai_records:
                 candidate_ledger.note(r["ticker"], intelligence_decision=r["intelligence_decision"],
@@ -1476,53 +1541,7 @@ def main() -> None:
         if p["ticker"] in cooled_tickers:
             log.info(f"  [{p['ticker']}] COOLDOWN: aktiv in letzten 30 Tagen → nicht erneut eingetragen")
             continue
-        _opt      = p.get("option") or {}
-        _strategy = p.get("strategy", "")
-        _is_sp    = "SPREAD" in _strategy
-        if _is_sp:
-            _sl   = _opt.get("spread_leg") or {}
-            _nd   = _opt.get("net_debit")
-            if _nd:
-                _entry_debit = round(float(_nd), 2)
-            else:
-                _la = float(_opt.get("ask", 0))
-                _sb = float(_sl.get("bid", 0))
-                _entry_debit = round(_la - _sb, 2) if _la > 0 and _sb > 0 else _la
-            if _entry_debit is not None and _entry_debit <= 0:
-                # Debit-Spread ohne positive Kosten kann nie geschlossen werden
-                # (compute_outcome -> None für immer) -> Long-Leg-Preis nehmen
-                log.warning(f"  [{p['ticker']}] net_debit <= 0 -> entry_debit = Long-Leg-Ask")
-                _entry_debit = round(float(_opt.get("ask", 0) or 0), 2)
-        else:
-            _entry_debit = round(float(_opt.get("ask", 0)), 2)
-        # Fill-Tracking: Quote-Zustand beim Entry für spätere Slippage-Analyse
-        # (Modell rechnet mit Ask-Fill — wie viel kostet das vs. Mid?)
-        _bid = float(_opt.get("bid", 0) or 0)
-        _ask = float(_opt.get("ask", 0) or 0)
-        _entry_quote = {
-            "bid": _bid, "ask": _ask,
-            "mid":        round((_bid + _ask) / 2, 4) if _bid > 0 and _ask > 0 else _ask,
-            "spread_pct": round((_ask - _bid) / _ask, 4) if _ask > 0 else 0.0,
-            "assumed_fill": "ask",
-        }
-        _at_dict = {
-            "ticker":        p["ticker"], "entry_date": today,
-            "features":      p.get("features", {}),
-            "strategy":      _strategy,
-            "entry_debit":   _entry_debit,
-            "entry_quote":   _entry_quote,
-            "catalyst_type": p.get("catalyst_type")
-                             or p.get("roi_analysis", {}).get("catalyst_type", "OTHER"),
-            "option":        _opt,
-            "simulation":    p.get("simulation"),
-            "deep_analysis": p.get("deep_analysis"),
-            "tve":           p.get("time_value_efficiency"),
-            "outcome":       None,
-        }
-        if p.get("final_mc_shadow"):
-            _at_dict["final_mc_shadow"] = p["final_mc_shadow"]
-        if p.get("external_context"):
-            _at_dict["external_context_entry"] = p["external_context"]
+        _at_dict = build_trade_record(p, today)
         history["active_trades"].append(_at_dict)
         existing.add(key)
         cooled_tickers.add(p["ticker"])
