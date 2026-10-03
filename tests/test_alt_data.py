@@ -196,3 +196,11 @@ def test_attach_handles_datetime_unit_mismatch_and_never_breaks(tmp_path, monkey
     monkeypatch.setattr(fs, "_attach_one", lambda *a, **k: (_ for _ in ()).throw(ValueError("kaputt")))
     safe = fs.attach(panel, src)                                       # Fehler -> NaN, nie Abbruch
     assert safe["sec_insider_buy_value_90d"].isna().all() and (safe["alt_sec_available"] == 0).all()
+
+
+def test_breakdown_when_positions_already_carry_sector_and_vix():
+    panel = pd.DataFrame({"date": pd.to_datetime(["2024-01-05"] * 2), "ticker": ["A", "B"],
+                          "sector": ["Tech", "Energy"], "vix": [25.0, 25.0]})
+    pos = panel.assign(ret=[0.01, -0.02])                       # Positionen mit eigenen sector/vix-Spalten
+    out = ev.breakdown(pos, pos, panel)
+    assert set(out["regime"]) == {"vix_ge_20"} and set(out["sector"]) == {"Tech", "Energy"}

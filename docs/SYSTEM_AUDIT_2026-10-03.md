@@ -30,7 +30,7 @@ Downstream → Validierung), Workflows, `outputs/history.json` (119 geschlossene
 | Meta-Cognition + Safe Mode | SHADOW → Eingang der Brücke | Safe Mode aktiv (tnx-Drift); als Abstinenz-Vertrag PROM-ABST-001 prospektiv im Test |
 | HC-Scanner | SHADOW | Research-Alerts, im Safe Mode deaktiviert |
 | Trade-/Prediction-Memory, Failure Analyzer, Factor Monitor | SHADOW | Attribution; speisen jetzt `abstention_proposals` |
-| Alternative Data (SEC/GLEIF) | SHADOW, UNVALIDATED | Ingestion 03.10.: Filing-Events für 609/616 CIKs, GLEIF 71 LEI-Zuordnungen (HIGH/MEDIUM); Insider leer bis Form-345-Fix; OOS-Bewertung (Baseline vs. +Quelle) nach Merge von #79 |
+| Alternative Data (SEC/GLEIF) | SHADOW, **REJECTED** | Ingestion vollständig (Form 345 2014Q1–2026Q2, Filings 609/616 CIKs). OOS-Ablation (s. 6.): kein inkrementeller Nutzen; ALT-SEC-001…004 im Research-Lab REJECTED (zwei signifikant negativ) |
 | PromotionController + ProductionIntelligenceAdapter | ACTIVE (Protokoll), Einfluss NONE | einzige Wirkungsstelle; 5 Verträge PROSPECTIVE_CHALLENGER, Forward ab 2026-10-05 |
 | `abstention_proposals` (neu) | SHADOW | Vertragsentwürfe nur nach bestandenem Walk-Forward; Registrierung per PR |
 
@@ -52,6 +52,8 @@ Kein Modul ist vollständig ungenutzt (Import-Graph + Workflows geprüft).
 | P1 | Champion ohne nachgewiesenen Vorteil; Final-MC-Wahrscheinlichkeit fehlkalibriert | **offen – bewusst nicht direkt geändert**: nur über Challenger/Hypothesen (Gate-Challenger `final_mc_dte_shadow` läuft; Abstinenz-Verträge prospektiv) |
 | P2 | Restlicher Survivorship-Bias im ML-Panel: 135 von 255 entfernten Titeln ohne Yahoo-Kurse | offen, im Bericht ausgewiesen |
 | P2 | Sektor-Zuordnung im ML-Panel nicht PIT | offen, dokumentiert (Audit P2-3) |
+| P2 | Alt-Data-Bewertung: Regime-/Sektor-Aufschlüsselung immer „unknown“ (Positionen trugen bereits sector/vix → `vix_x/vix_y`) | **behoben** + Test |
+| P2 | Ergebnisse der HGB-Modelle schwanken zwischen zwei Yahoo-Downloads (10 h Abstand) um bis zu 0,003/20 T (hgb_asym20: 0,00304 → 0,00002); ENet identisch | offen – Befund: Baum-Modell-„Edge“ liegt im Datenrauschen; Reproduzierbarkeit nur über Panel-Snapshot (`repro.yml`) |
 | P2 | Alt-Data-Protokoll alt-v1: Dev-Jahre schließen 2025H2 ein (= kontaminierter Locked-Bereich) | offen; bindend ist ohnehin Forward |
 
 Frühere Audits (PR #74 ff.): PIT-Universum, Replay/Repro, Locked-Kontamination gekennzeichnet,
@@ -85,10 +87,21 @@ In-Sample-Muster (z. B. niedrige MC-Hit-Rate Δ −0,75, hoher z-Score Δ −0,7
 * Final-MC-Wahrscheinlichkeit fehlkalibriert → Brier/ECE im Controller verhindern „bessere“
   Kalibrierung als Promotion-Argument nur, wenn Policy-Brier nicht schlechter ist.
 
-## 6. Nachweisbarer OOS-Mehrwert
+## 6. Nachweisbarer OOS-Mehrwert (identische OOS-Zeilen, Ablation mit/ohne Komponente)
 
-Keiner bisher – weder für Research-Modelle (ML, Meta, Causal) noch für Abstinenz-Regeln auf
-Champion-Trades. Das System ist jetzt so gebaut, dass es einen echten Mehrwert auf neuen Daten
+| Komponente | Vergleich | Ergebnis |
+|---|---|---|
+| SEC Deep Events (Lauf 37105528299) | ENet-Baseline vs. +5 SEC-Features, 2019–2025, 77 Monate | Δ Expectancy −0,00027, Δ Sharpe −0,016, Δ IC −0,0017, Δ Brier −0,00002, Δ ECE −0,0011, Δ Prec@K −0,0006, Trades gleich; CI Monatsrendite [−0,0010; +0,0005] → **REJECT** |
+| SEC Deep Events | HGB-Baseline vs. +SEC | Δ Expectancy +0,00029, Δ Sharpe +0,031, aber Δ Max DD −0,046 (−21,5 % vs. −17,0 %), Δ IC −0,0032, Δ LogLoss +0,0005; CI [−0,0015; +0,0023] → **REJECT** |
+| SEC-Hypothesen ALT-SEC-001…004 | Research-Lab Walk-Forward, BH | alle REJECTED; Insider-Cluster t = −2,96, negative 8-K-Items t = −3,9 (Gegenrichtung) |
+| ML-Modelle vs. Referenz | Walk-Forward 2019–2025 | kein Modell signifikant (max. t 1,95); Champion: keiner |
+| Meta-Learning vs. statisches Ensemble | identische OOS-Zeilen, Ablationen | NEED_MORE_DATA: Δ Sharpe +0,155, aber Bootstrap-CI [−0,0026; +0,0048], Hälften uneinheitlich → kein Gate |
+| Gesamtvalidierung A–G | Ablation je Komponente | KEEP_CHAMPION |
+| Abstinenz-Regeln auf Champion-Trades | Walk-Forward 60/40 | 6 Regeln, keine bestätigt |
+
+Ergebnis: Keine Komponente zeigt einen robusten inkrementellen Nutzen. Die Ablationen haben
+damit den eigentlichen Zweck erfüllt – sie verhindern, dass Rauschen (In-Sample-Muster,
+Download-Schwankungen) als Verbesserung in die Produktion gelangt. Das System ist jetzt so gebaut, dass es einen echten Mehrwert auf neuen Daten
 erkennen und begrenzt nutzen **kann** – und ohne ihn keinen Einfluss erhält.
 
 ## 7. Wichtigste verbleibende Schwäche

@@ -39,5 +39,13 @@ PromotionController und menschliche Freigabe.
 
 ## Ergebnisse auf echten Daten
 
-Stehen erst nach dem ersten CI-Lauf von `alt_data.yml` + `ml_research.yml` (full) fest und werden hier mit Lauf-ID
-eingetragen. Bis dahin: **keine Aussage zum inkrementellen Nutzen**.
+Lauf 37105528299 (2026-10-03, Daten aus `alt_data.yml` 37104561116: Form 345 2014Q1–2026Q2, Filings 609/616 CIKs):
+
+* Selektion (2016–2018): sec_late_filing_365d, sec_insider_net_value_90d, sec_exec_change_90d,
+  sec_insider_cluster_30d, sec_filing_delay_z; alle Features wenig redundant (max |ρ| ≤ 0,35).
+* ENet: Δ Monatsrendite −0,00023 (CI [−0,00097; +0,00051]), Δ IC −0,0017, Δ Sharpe −0,016.
+* HGB: Δ Monatsrendite +0,00039 (CI [−0,0015; +0,0023]), Δ Max DD −0,046, Δ IC −0,0032.
+* **Verdikt: REJECT** (Source Value Score 0,727 wird von Abdeckung/Frische getragen, nicht von Nutzen).
+* Verträge ALT-SEC-001…004 im Research-Lab REJECTED; 001 und 003 signifikant in Gegenrichtung –
+  kein Vorzeichenwechsel; eine Gegenhypothese wäre neu zu registrieren und prospektiv zu testen.
+* Phase 3 (TED) beginnt laut Auftrag erst nach dieser Bewertung; der SEC-Befund rechtfertigt sie nicht automatisch.
