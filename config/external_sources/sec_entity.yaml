@@ -46,6 +46,14 @@ sources:
     cost: "kostenlos"
     failure_behavior: "Quartal fehlt -> Abdeckung endet davor; Insider-Features NaN, nie 0"
     point_in_time_capable: true
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "Open-Market-Käufe/-Verkäufe von Insidern (Form 4)"
+      geography: "USA-Emittenten"
+      latency: "2 Geschäftstage nach Transaktion"
+      sectors: "alle"
+      mechanisms: ["private Information der Insider", "Signalwirkung von Käufen auf eigenes Geld"]
 
   - source_id: sec_submissions
     display_name: "SEC EDGAR Submissions API (Filing-Historie je Emittent)"
@@ -79,6 +87,14 @@ sources:
     cost: "kostenlos"
     failure_behavior: "CIK nicht abrufbar -> Filing-Features dieses Emittenten NaN"
     point_in_time_capable: true
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "Filing-Ereignisse (8-K-Items, Verzögerungen, NT-Meldungen)"
+      geography: "USA-Emittenten"
+      latency: "Minuten (acceptanceDateTime)"
+      sectors: "alle"
+      mechanisms: ["schlechte Nachrichten werden verzögert", "Organwechsel/Restatements als Risikosignal"]
 
   - source_id: gleif_lei
     display_name: "GLEIF LEI-Records + Relationship-Records (Entity Resolution)"
@@ -112,3 +128,55 @@ sources:
     cost: "kostenlos"
     failure_behavior: "keine Zuordnung -> LEI/Eltern unbekannt (None), nie geraten"
     point_in_time_capable: partial
+    revision_risk: medium
+    maintenance_cost: medium
+    semantics:
+      measures: "Rechtseinheiten, Länder, Mutter-/Tochterbeziehungen"
+      geography: "weltweit"
+      latency: "Tage"
+      sectors: "Infrastruktur (Entity/Exposure-Mapping)"
+      mechanisms: ["Zuordnung alternativer Daten über Tochtergesellschaften und Länder"]
+
+  - source_id: sec_companyfacts
+    display_name: "SEC XBRL companyfacts (Fundamentaldaten je Filing, PIT)"
+    family: alternative_sec
+    authority: "U.S. Securities and Exchange Commission"
+    official_homepage: "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"
+    machine_endpoint: "https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json"
+    access_method: "json_api"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "US-Bundesbehörde, gemeinfrei (17 U.S.C. § 105); SEC Fair Access (<= 10 Anfragen/s, User-Agent mit Kontakt)"
+    commercial_use_status_if_known: "erlaubt"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    status_override: "OWN_WORKFLOW:alt_data.yml"
+    criticality: low
+    license_status: OK
+    role: RESEARCH_SHADOW
+    retrieval_frequency: "wöchentlich; je CIK nur nach neuem 10-K/10-Q (Submissions-Store), budgetiert"
+    expected_latency: "filed + 1 Tag (konservativ; filed ist ein Datum)"
+    revision_policy: "Jede Zahl trägt ihr Filing (accn, filed). Korrekturen = eigene Zeilen mit späterem filed; zum Stichtag gilt das jüngste Filing <= t (nie rückwirkend)"
+    historical_depth: "XBRL-Pflicht ab 2009–2011 (große Filer zuerst)"
+    entity_level: "Emittent (CIK)"
+    coverage: "XBRL-Filer im Research-Universum; Konzepte Umsatz, EPS, Nettoergebnis, operativer Cashflow, Bilanzsumme, Aktienanzahl"
+    rate_limits: "10 Anfragen/s"
+    cost: "kostenlos (Payload mehrere MB je Firma)"
+    failure_behavior: "Abruf/Schema scheitert -> keine neuen Beobachtungen; Features veralten -> NaN nach 200 T, nie 0"
+    point_in_time_capable: true
+    revision_risk: medium
+    maintenance_cost: medium
+    schema_version: "sec-xbrl-1"
+    raw_snapshot: "normalisierte Beobachtungen + payload_hash/request/retrieved_at je Abruf (Roh-Payload wegen Größe nicht eingecheckt)"
+    semantics:
+      measures: "berichtete Fundamentaldaten (Umsatz, Gewinn je Aktie, Accruals, Bilanzwachstum, Aktienanzahl)"
+      geography: "USA-Emittenten (weltweite Geschäfte)"
+      latency: "Tage bis Wochen nach Periodenende"
+      sectors: "alle"
+      mechanisms: ["Post-Earnings-Announcement-Drift (Unterreaktion auf Überraschungen)", "Accrual-Anomalie (Gewinnqualität)",
+                   "Investitions-/Asset-Growth-Effekt", "Net-Issuance-Effekt (Rückkäufe vs. Emissionen)"]

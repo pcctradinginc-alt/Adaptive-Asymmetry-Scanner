@@ -47,6 +47,10 @@ jobs:
       - name: SEC Deep Events (Form 3/4/5 Bulk, Submissions, Live-Form-4)
         run: python -m modules.external.sources.sec_ingest --start-year "${{ github.event.inputs.start_year || '2014' }}"
 
+      - name: SEC XBRL companyfacts (PIT-Fundamentaldaten, inkrementell, budgetiert)
+        continue-on-error: true   # Ausfall -> keine neuen Beobachtungen; Features veralten zu NaN, nie 0
+        run: python -m modules.external.sources.sec_xbrl --budget 800
+
       - name: TED-Zuschläge (Feld-Probe + budgetierter Backfill)
         continue-on-error: true      # Fehler -> Jahre unvollständig -> Features NaN; SEC-Commit nicht blockieren
         run: python -m modules.external.sources.ted_ingest --start-year "${{ github.event.inputs.start_year || '2014' }}" --budget 1500

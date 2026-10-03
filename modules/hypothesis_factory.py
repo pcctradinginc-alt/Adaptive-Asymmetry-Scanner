@@ -58,7 +58,15 @@ DIVERGENCES = [  # Cross-Source-Divergenz: alternatives Signal widerspricht dem 
     {"id": "div_insider_vs_price", "domain": "insider", "feature": "sec_insider_net_value_90d", "price": "mom_3m",
      "direction": 1, "relevance": 0.5, "exploratory": True,
      "mechanism": "Insider kaufen netto, während der Kurs fällt: private Information widerspricht dem Preis."},
+    {"id": "div_fundamentals_vs_price", "domain": "fundamentals", "feature": "xbrl_sue", "price": "mom_3m",
+     "direction": 1, "relevance": 0.6, "exploratory": False,
+     "mechanism": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis."},
 ]
+DIVERGENCE_SOURCE = {"procurement": "ted_procurement", "insider": "sec_deep_events",
+                     "fundamentals": "sec_xbrl_fundamentals"}
+SOURCE_CONDITIONS = OUT / "source_conditions.json"
+MAX_CONDITION_IDEAS = 4
+COND_MIN_T = 2.0
 
 
 def load_protocol(path: Path | None = None) -> dict:
@@ -128,6 +136,7 @@ def ideas_divergence(now: str) -> list[dict]:
         signal = f"rank({dv['feature']}) * step(-{dv['price']})"
         out.append(_finish({
             "id": _hid(dv["id"], signal), "family": dv["id"], "domain": dv["domain"], "idea_source": "cross_source_divergence",
+            "source_id": DIVERGENCE_SOURCE.get(dv["domain"]),
             "exploratory": dv["exploratory"], "relevance": dv["relevance"], "title": f"Divergenz {dv['feature']} vs. {dv['price']}",
             "population": "PIT-S&P-500 mit verfügbarem Alt-Feature", "exposure": "firmenspezifisch",
             "signal": signal, "domain_kind": "alt_feature", "domain_features": [dv["feature"]], "free_sources": [],
@@ -135,6 +144,48 @@ def ideas_divergence(now: str) -> list[dict]:
             "control_group": "Querschnittsmittel desselben Stichtags", "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
             "mechanism": dv["mechanism"], "mechanism_source": "template",
             "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)", "created_at": now}))
+    return out
+
+
+def ideas_source_conditions(conditions: dict | None, now: str) -> list[dict]:
+    """Aus Daten generiert: Quelle × Sektor/Regime-Zellen mit |t| >= COND_MIN_T – NUR aus den
+    Auswahljahren (selection), getestet wird danach im Lab-Walk-Forward der späteren Jahre."""
+    from modules.research_lab import SECTOR_EXPOSURES
+    by_sector = {v: k for k, v in SECTOR_EXPOSURES.items()}
+    cells = []
+    for sid, src in ((conditions or {}).get("sources") or {}).items():
+        for f, c in (src.get("selection") or {}).items():
+            for sec, hz in (c.get("sector") or {}).items():
+                st = hz.get("20") or {}
+                if by_sector.get(sec) and abs(st.get("t_months") or 0) >= COND_MIN_T:
+                    cells.append((abs(st["t_months"]), sid, f, "sector", sec, int(np.sign(st.get("mean_ic") or 0))))
+            for reg, hz in (c.get("regime") or {}).items():
+                st = hz.get("20") or {}
+                if reg.startswith("vol:") and abs(st.get("t_months") or 0) >= COND_MIN_T:
+                    cells.append((abs(st["t_months"]), sid, f, "regime", reg, int(np.sign(st.get("mean_ic") or 0))))
+    out = []
+    for t, sid, f, kind, key, sign in sorted(cells, reverse=True)[:MAX_CONDITION_IDEAS]:
+        if sign == 0:
+            continue
+        if kind == "sector":
+            signal, scope = f"{by_sector[key]} * rank({f})", f"Sektor {key}"
+        else:
+            signal = f"rank({f}) * step(vix - 20)" if key.endswith("vix_ge_20") else f"rank({f}) * step(20 - vix)"
+            scope = f"Regime {key}"
+        out.append(_finish({
+            "id": _hid("cond", signal, sign), "family": f"cond_{f}_{key.replace(':', '_').replace(' ', '_').lower()}",
+            "domain": sid, "source_id": sid, "idea_source": "source_condition", "exploratory": False, "relevance": 0.5,
+            "title": f"{f} wirkt bedingt ({scope})", "population": f"PIT-S&P-500, {scope}",
+            "exposure_sector": key if kind == "sector" else None,
+            "exposure": scope + (" (heutige Zuordnung, nicht PIT)" if kind == "sector" else ""),
+            "signal": signal, "domain_kind": "alt_feature", "domain_features": [f], "free_sources": [],
+            "direction": sign, "lag": "PIT (available_at <= Stichtag)", "horizon": 20,
+            "control_group": "Querschnittsmittel desselben Stichtags", "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+            "mechanism": f"Gemessen in den Auswahljahren ({conditions.get('selection_years')}): Quelle {sid} zeigt "
+                         f"nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+            "mechanism_source": "measured_condition", "selection_t": round(t, 2),
+            "failure_condition": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
+            "created_at": now}))
     return out
 
 
@@ -200,6 +251,8 @@ def readiness(h: dict, panel: pd.DataFrame | None, protocol: dict) -> dict:
 def priority(h: dict, dirs: dict, memory_max_sim: float, protocol: dict) -> float:
     a0, b0 = protocol["priority"]["prior_success"]
     d = dirs.get(f"family:{h['family']}") or {}
+    if not d.get("tested") and h.get("source_id"):       # neue Familie: Erfahrung mit der Quelle (Meta-Learning)
+        d = dirs.get(f"research:alt_data:{h['source_id']}") or d
     mean = d.get("posterior_success", a0 / (a0 + b0))
     sd = d.get("posterior_sd", math.sqrt(a0 * b0 / ((a0 + b0) ** 2 * (a0 + b0 + 1))))
     eig = mean + sd                                       # optimistisch unter Unsicherheit (UCB)
@@ -211,7 +264,8 @@ def priority(h: dict, dirs: dict, memory_max_sim: float, protocol: dict) -> floa
 
 
 def plan(panel: pd.DataFrame | None = None, protocol: dict | None = None, domains: dict | None = None,
-         memory: list[dict] | None = None, machine_state: dict | None = None, now: datetime | None = None) -> dict:
+         memory: list[dict] | None = None, machine_state: dict | None = None, now: datetime | None = None,
+         conditions: dict | None = None) -> dict:
     protocol = protocol or load_protocol()
     domains = domains or load_domains()
     now = now or datetime.now(timezone.utc)
@@ -219,7 +273,13 @@ def plan(panel: pd.DataFrame | None = None, protocol: dict | None = None, domain
     memory = memory if memory is not None else rm.load()
     dirs = rm.directions(memory, tuple(protocol["priority"]["prior_success"]))
     b = protocol["budget"]
-    ideas = ideas_cross_domain(domains, now_s) + ideas_divergence(now_s) + ideas_drift(machine_state, now_s)
+    if conditions is None and SOURCE_CONDITIONS.exists():
+        try:
+            conditions = json.loads(SOURCE_CONDITIONS.read_text())
+        except (OSError, ValueError):
+            conditions = None
+    ideas = (ideas_cross_domain(domains, now_s) + ideas_divergence(now_s) + ideas_drift(machine_state, now_s)
+             + ideas_source_conditions(conditions, now_s))
     fam_tested: dict[str, set] = {}
     own: dict[str, str] = {}
     for e in rm.latest(memory).values():

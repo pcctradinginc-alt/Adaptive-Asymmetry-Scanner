@@ -13,7 +13,9 @@ Zuordnung Gewinner -> Emittent (streng, nie geraten):
           unterscheidbar (>= 2 Wörter oder >= 8 Zeichen), z.B. "IBM Belgium" -> nein (3 Zeichen),
           "Accenture Technology Solutions" -> "accenture" (9 Zeichen) ja
   sonst   keine Zuordnung (LOW wird verworfen)
-Tochtergesellschaften mit anderem Namen werden NICHT erfasst (dokumentierte Lücke).
+Tochtergesellschaften mit anderem Namen: nur über GLEIF-Töchter (exakter Name, Beziehung
+zum Veröffentlichungstag gültig, MEDIUM) und nur, wenn die Bekanntmachung über die
+Suche nach dem Emittentennamen gefunden wurde (eigene Suchen je Tochter: offene Lücke).
 """
 from __future__ import annotations
 
@@ -97,7 +99,17 @@ def match_winner(winner: str, aliases: list[str]) -> str | None:
     return None
 
 
-def notices_to_observations(cik: str, notices: list[dict], aliases: list[str], retrieved_at: datetime) -> list[Observation]:
+def _sub_match(winner: str, sub_aliases, pdate: datetime) -> str | None:
+    """Tochtername (GLEIF) – nur wenn die Beziehung am Veröffentlichungstag bestand (PIT)."""
+    day = pdate.date().isoformat()
+    names = [n for n, vf, vt in sub_aliases or [] if (vf is None or vf <= day) and (vt is None or day < vt)]
+    return "MEDIUM" if names and match_winner(winner, names) == "HIGH" else None
+
+
+def notices_to_observations(cik: str, notices: list[dict], aliases: list[str], retrieved_at: datetime,
+                            sub_aliases: list[tuple] | None = None) -> list[Observation]:
+    """sub_aliases: [(Tochtername, valid_from, valid_to)] – Treffer nur exakt, gültig zum
+    Veröffentlichungstag, Konfidenz höchstens MEDIUM (attrs.via = 'gleif_subsidiary')."""
     out = []
     for n in notices:
         n = {k: (v if isinstance(v, list) and all(isinstance(x, str) for x in v) else _flat(v)) for k, v in n.items()}
@@ -105,11 +117,16 @@ def notices_to_observations(cik: str, notices: list[dict], aliases: list[str], r
         pdate = _date((n.get("publication-date") or [None])[0])
         if not pub or pdate is None:
             continue
-        conf, matched = None, None
+        conf, matched, via = None, None, "issuer_name"
         for w in n.get("winner-name") or []:
             c = match_winner(w, aliases)
             if c and (conf is None or c == "HIGH"):
-                conf, matched = c, w
+                conf, matched, via = c, w, "issuer_name"
+        if conf is None:
+            for w in n.get("winner-name") or []:
+                if _sub_match(w, sub_aliases, pdate):
+                    conf, matched, via = "MEDIUM", w, "gleif_subsidiary"
+                    break
         if conf is None:
             continue
         raw = (n.get("total-value") or [None])[0]
@@ -128,7 +145,7 @@ def notices_to_observations(cik: str, notices: list[dict], aliases: list[str], r
             attrs={"notice_type": (n.get("notice-type") or [None])[0],
                    "cpv2": ((n.get("classification-cpv") or [""])[0] or "")[:2] or None,
                    "buyer_country": (n.get("buyer-country") or [None])[0],
-                   "matched_name": matched, "confidence": conf}))
+                   "matched_name": matched, "confidence": conf, "via": via}))
     return out
 
 

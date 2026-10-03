@@ -448,6 +448,16 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
             if missing:                              # Quelle (noch) nicht im Feature-Store -> nicht testbar, nie mit 0 füllen
                 h = {**h, "status": "blocked_data", "evidence": f"Alt-Data-Features fehlen im Panel: {missing}"}
             hyps.append(h)
+    for i, h in enumerate(hyps):                    # jede Hypothese mit Alt-Feature (Fabrik, Director, Config)
+        if h.get("status") or not h.get("signal"):
+            continue
+        try:
+            names = {n.id for n in ast.walk(validate_expr(h["signal"])) if isinstance(n, ast.Name)}
+        except (SignalError, SyntaxError):
+            continue                                 # Stufe 1 meldet den Fehler
+        missing = sorted(n for n in names & set(_ALT) if n not in panel.columns or panel[n].notna().sum() == 0)
+        if missing:
+            hyps[i] = {**h, "status": "blocked_data", "evidence": f"Alt-Data-Features fehlen im Panel: {missing}"}
     if with_discovery:
         d = discover(panel, protocol)
         db["discovery"] = {k: v for k, v in d.items() if k != "survivors"}

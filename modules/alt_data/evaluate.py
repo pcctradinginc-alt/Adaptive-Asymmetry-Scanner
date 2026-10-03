@@ -31,6 +31,7 @@ AP = yaml.safe_load(PROTOCOL_PATH.read_text())
 OUT_JSON = ml.OUT_DIR / "alt_data_validation.json"
 OUT_MD = ml.OUT_DIR / "alt_data_validation.md"
 SCOREBOARD = ml.OUT_DIR / "source_scoreboard.json"
+SOURCE_CONDITIONS = ml.OUT_DIR / "source_conditions.json"   # Meta-Learning: Quelle × Sektor × Regime × Horizont
 
 
 def _xs_rank_corr(panel: pd.DataFrame, a: str, b: str) -> float | None:
@@ -111,6 +112,78 @@ def breakdown(pos_b: pd.DataFrame, pos_v: pd.DataFrame, panel: pd.DataFrame) -> 
     return out
 
 
+MIN_CELL_DATES = 24
+HORIZONS = (20, 60)
+
+
+def _regime_cols(p: pd.DataFrame) -> dict[str, pd.Series]:
+    out = {}
+    if "vix" in p:
+        out["vol"] = pd.Series(np.where(p["vix"].isna(), None, np.where(p["vix"] >= 20, "vix_ge_20", "vix_lt_20")),
+                               index=p.index)
+    if "spy_trend_200" in p:
+        out["trend"] = pd.Series(np.where(p["spy_trend_200"].isna(), None,
+                                          np.where(p["spy_trend_200"] > 0, "trend_up", "trend_down")), index=p.index)
+    return out
+
+
+def conditional_value(panel: pd.DataFrame, feats: list[str], years: list[int]) -> dict:
+    """Meta-Learning über Quellen: IC je Feature × Sektor × Regime × Horizont (nur `years`)
+    und Jahres-IC für Alpha-Decay. Beschreibend – Hypothesen daraus nur aus Auswahljahren."""
+    sel = panel[panel["date"].dt.year.isin(years)]
+    out = {}
+    for f in feats:
+        if f not in sel or sel[f].notna().sum() == 0:
+            continue
+        d = sel[sel[f].notna()]
+        cell: dict = {"all": {}, "sector": {}, "regime": {}, "by_year": {}}
+        for h in HORIZONS:
+            tgt = f"fwd_xs_{h}"
+            if tgt not in d:
+                continue
+            st = ml.ic_stats(ml.daily_ic(d, f, tgt))
+            cell["all"][str(h)] = st
+            if "sector" in d:
+                for k, g in d.groupby("sector"):
+                    s2 = ml.ic_stats(ml.daily_ic(g, f, tgt)) if g["date"].nunique() >= MIN_CELL_DATES else None
+                    if s2 and s2.get("n_dates", 0) >= MIN_CELL_DATES:
+                        cell["sector"].setdefault(str(k), {})[str(h)] = s2
+            for rname, rs in _regime_cols(d).items():
+                for k, g in d.groupby(rs):
+                    s2 = ml.ic_stats(ml.daily_ic(g, f, tgt))
+                    if s2.get("n_dates", 0) >= MIN_CELL_DATES:
+                        cell["regime"].setdefault(f"{rname}:{k}", {})[str(h)] = s2
+        if "fwd_xs_20" in d:
+            for y, g in d.groupby(d["date"].dt.year):
+                ic = ml.daily_ic(g, f)
+                if len(ic) >= 10:
+                    cell["by_year"][str(y)] = round(float(ic.mean()), 4)
+        cell["alpha_decay"] = alpha_decay(cell["by_year"])
+        out[f] = cell
+    return out
+
+
+def alpha_decay(by_year: dict) -> dict:
+    """Abschwächung: |IC| der jüngsten Hälfte < halbe |IC| der älteren Hälfte bei gleichem Vorzeichen,
+    oder Vorzeichenwechsel. Nur mit >= 4 Jahren."""
+    ys = sorted(by_year)
+    if len(ys) < 4:
+        return {"status": "insufficient_years", "n_years": len(ys)}
+    v = np.array([by_year[y] for y in ys])
+    early, late = v[: len(v) // 2].mean(), v[len(v) // 2:].mean()
+    slope = float(np.polyfit(np.arange(len(v)), v, 1)[0])
+    if abs(early) < 0.005:
+        status = "no_early_effect"
+    elif np.sign(late) != np.sign(early):
+        status = "reversed"
+    elif abs(late) < 0.5 * abs(early):
+        status = "decaying"
+    else:
+        status = "stable"
+    return {"status": status, "early_ic": round(float(early), 4), "late_ic": round(float(late), 4),
+            "slope_per_year": round(slope, 5), "n_years": len(ys)}
+
+
 def evaluate_source(panel: pd.DataFrame, sid: str, src: dict, specs: dict[str, dict]) -> dict:
     av = src["availability_col"]
     dev = panel[panel["date"].dt.year.isin(AP["evaluation"]["dev_years"])]
@@ -118,7 +191,9 @@ def evaluate_source(panel: pd.DataFrame, sid: str, src: dict, specs: dict[str, d
     screen = feature_screen(panel, src["features"], AP["feature_selection"]["selection_years"])
     chosen = select_features(screen)
     res = {"source": sid, "coverage_dev": round(coverage, 3), "screen": screen, "selected_features": chosen,
-           "baselines": {}}
+           "baselines": {},
+           "conditional_selection": conditional_value(panel, src["features"], AP["feature_selection"]["selection_years"]),
+           "conditional_dev": conditional_value(panel, src["features"], AP["evaluation"]["dev_years"])}
     if not chosen or coverage < AP["evaluation"]["min_coverage"]:
         res["verdict"] = "REJECT"
         res["verdict_reason"] = ("keine nicht-redundante Feature mit ausreichender Abdeckung"
@@ -186,6 +261,45 @@ def source_value_score(res: dict, health: dict | None, mapping_quality: float | 
     return {"score": round(sum(w[k] * comp[k] for k in w), 3), "components": {k: round(v, 3) for k, v in comp.items()}}
 
 
+def forward_value(panel: pd.DataFrame, sid: str, ledger: Path | None = None) -> dict:
+    """Prospektiver Wert der Verträge dieser Quelle: Top-Dezil-Kohorten ab forward_start
+    (alt_forward_ledger.jsonl) gegen das Querschnittsmittel – nur Kohorten mit fertigem Label."""
+    from modules.alt_data import contracts as ac
+    from modules.alt_data.registry import ALT_FEATURES
+    ledger = ledger or ac.FORWARD_LEDGER
+    ids = {c["hypothesis_id"] for c in ac.load()
+           if any(ALT_FEATURES.get(f, {}).get("source") == sid for f in c.get("source_features") or [])}
+    if not ids or not ledger.exists() or "fwd_xs_20" not in panel:
+        return {"n_cohorts": 0, "value": None}
+    rows = [json.loads(x) for x in ledger.read_text(encoding="utf-8").splitlines() if x.strip()]
+    rows = [r for r in rows if r.get("hypothesis_id") in ids]
+    lab = panel[["date", "ticker", "fwd_xs_20"]].dropna()
+    lab = lab.assign(_d=lab["date"].dt.strftime("%Y-%m-%d"))
+    by = dict(tuple(lab.groupby("_d")))
+    vals = []
+    for r in rows:
+        g = by.get(r["date"])
+        if g is None or not len(g):
+            continue
+        top = g[g["ticker"].isin(r.get("top_decile") or [])]
+        if len(top):
+            vals.append(float(top["fwd_xs_20"].mean() - g["fwd_xs_20"].mean() - 2 * ml.COST_BASE))
+    return {"n_cohorts": len(vals), "value": round(float(np.mean(vals)), 5) if vals else None,
+            "min_cohorts": AP["forward"]["min_cohorts"]}
+
+
+def board_status(verdict: str | None, fwd: dict, has_contracts: bool) -> str:
+    """RESEARCH / SHADOW / CHALLENGER / PROMOTED / REJECTED. PROMOTED setzt nur der
+    PromotionController (menschlicher PR) – hier nie automatisch."""
+    if verdict == "REJECT":
+        return "REJECTED"
+    if verdict is None:
+        return "RESEARCH"
+    if verdict == "KEEP" and has_contracts:
+        return "CHALLENGER"
+    return "SHADOW"
+
+
 def run(panel: pd.DataFrame) -> dict:
     reg = ml.load_registry()
     st, _ = ml.check_registry(reg)
@@ -194,6 +308,9 @@ def run(panel: pd.DataFrame) -> dict:
     rep = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "protocol": AP["version"],
            "sources": {}}
     board = {}
+    from modules.alt_data import contracts as ac
+    from modules.alt_data.registry import ALT_FEATURES, LEVEL, load_contracts
+    contracts, alt_contracts = load_contracts(), ac.load()
     for sid, src in SOURCES.items():
         r = evaluate_source(panel, sid, src, specs)
         health_path = Path(src["health"]) if src.get("health") else None
@@ -205,16 +322,34 @@ def run(panel: pd.DataFrame) -> dict:
             mq = (e.get("mapped") or 0) / max(1, e.get("wanted") or 0)
         r["source_value"] = source_value_score(r, health, mq)
         rep["sources"][sid] = r
+        fwd = forward_value(panel, sid)
+        r["forward"] = fwd
+        cons = [contracts.get(c) or {} for c in src.get("contracts") or []]
+        lv = lambda k: max((LEVEL.get(str(c.get(k)), 0.5) for c in cons), default=0.5)
+        decays = {f: (r["conditional_dev"].get(f) or {}).get("alpha_decay", {}).get("status")
+                  for f in r["selected_features"]}
+        has_c = any(any(ALT_FEATURES.get(f, {}).get("source") == sid for f in c.get("source_features") or [])
+                    for c in alt_contracts)
         board[sid] = {"coverage": r["coverage_dev"], "freshness": r["source_value"]["components"]["freshness"],
                       "data_quality": round(1 - (health or {}).get("error_rate", 1.0), 3) if health else None,
+                      "reliability": r["source_value"]["components"]["api_reliability"] if health else None,
+                      "mapping_quality": r["source_value"]["components"]["mapping_quality"],
+                      "revision_risk": lv("revision_risk"), "maintenance_cost": lv("maintenance_cost"),
                       "active_features": r["selected_features"], "oos_value": r["source_value"]["components"]["incremental_value"],
-                      "forward_value": None, "source_value_score": r["source_value"]["score"],
-                      "status": {"KEEP": "HISTORICALLY_VALIDATED", "MODIFY": "SHADOW", "REJECT": "REJECTED"}[r["verdict"]],
-                      "verdict": r["verdict"]}
+                      "forward_value": fwd.get("value"), "forward_cohorts": fwd.get("n_cohorts"),
+                      "alpha_decay": decays, "source_value_score": r["source_value"]["score"],
+                      "status": board_status(r["verdict"], fwd, has_c), "verdict": r["verdict"]}
     ml.OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(rep, indent=1, default=str, ensure_ascii=False))
     OUT_MD.write_text(render_md(rep), encoding="utf-8")
     SCOREBOARD.write_text(json.dumps({"generated": rep["generated"], "sources": board}, indent=1))
+    SOURCE_CONDITIONS.write_text(json.dumps({
+        "generated": rep["generated"], "selection_years": AP["feature_selection"]["selection_years"],
+        "dev_years": AP["evaluation"]["dev_years"],
+        "note": "selection = nur Auswahljahre (Hypothesen-Generierung ohne Look-ahead); dev = beschreibend",
+        "sources": {sid: {"selection": r.get("conditional_selection"), "dev": r.get("conditional_dev"),
+                          "verdict": r.get("verdict")} for sid, r in rep["sources"].items()}},
+        indent=1, default=str))
     return rep
 
 
