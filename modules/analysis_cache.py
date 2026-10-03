@@ -39,8 +39,21 @@ def _cfg() -> dict:
     return (ct.policy().get("analysis_cache") or {})
 
 
+_AUTO_DECISION: dict = {}
+
+
 def mode() -> str:
+    """off | observe | active. 'auto' = active erst, wenn activation_report KEEP meldet
+    (gepaarte Vergleiche Cache vs. frische Analyse); bis dahin observe. Einmal je Prozess berechnet."""
     m = str(_cfg().get("mode", "observe")).lower()
+    if m == "auto":
+        if "decision" not in _AUTO_DECISION:
+            try:
+                _AUTO_DECISION["decision"] = activation_report(ct.load_ledger())["decision"]
+            except Exception as e:  # noqa: BLE001 – im Zweifel nur beobachten
+                log.debug(f"analysis_cache auto: Entscheidung nicht berechenbar: {e}")
+                _AUTO_DECISION["decision"] = "PENDING"
+        return "active" if _AUTO_DECISION["decision"] == "KEEP" else "observe"
     return m if m in ("off", "observe", "active") else "observe"
 
 

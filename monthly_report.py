@@ -877,6 +877,23 @@ def build_cost_html(report_month: str, summary: dict | None = None) -> str:
     pc = s.get("prompt_cache_savings_usd")
     prompt_cache_txt = (_usd(pc) if has and s.get("cache_read_input_tokens") else NV)
 
+    routing_txt, prefilter_txt = NV, NV
+    try:
+        from modules import model_routing as _mr
+        from modules.config import cfg as _cfg
+        d = _mr.decision("deep_analysis", _cfg.models.deep_analysis)
+        ab = d.get("ab") or {}
+        if d.get("status") != "OFF":
+            routing_txt = (f"{d.get('status')}: aktiv {d.get('active')}; A/B {ab.get('pairs', 0)} Paare/"
+                           f"{ab.get('days', 0)} Tage, Gate-Übereinstimmung {ab.get('gate_agreement') or NV}, "
+                           f"Recall {NV if ab.get('pass_recall') is None else ab['pass_recall']}")
+        pf = _mr.prefilter_decision()
+        if pf.get("status") != "OFF":
+            prefilter_txt = (f"{pf.get('status')} ({'aktiv' if pf.get('active') else 'inaktiv'}); "
+                             f"{pf.get('pairs', 0)} Paare, Verlust bestandener Kandidaten {NV if pf.get('pass_loss') is None else pf['pass_loss']}")
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"Routing-Status nicht verfügbar: {e}")
+
     def scope_cost(k):
         return _usd(scope[k]["cost_usd"]) if has and k in scope else (_usd(0.0) if has else NV)
 
@@ -895,6 +912,9 @@ def build_cost_html(report_month: str, summary: dict | None = None) -> str:
         ("Input- / Output-Tokens", f"{num(s.get('input_tokens'))} / {num(s.get('output_tokens'))}"),
         ("Prompt-Cache-Ersparnis", prompt_cache_txt),
         ("Analyse-Cache", cache_txt),
+        ("Batch-API-Anteil (-50 %)", (f"{s.get('batch_calls', 0)}/{s.get('telemetry_calls')} Calls" if has else NV)),
+        ("Modell-Routing Deep Analysis", routing_txt),
+        ("Bearish-Vorfilter", prefilter_txt),
         ("Kosten je Scan-Lauf", _usd(s.get("cost_per_scan"), 3)),
         ("Kosten je Sonnet-Analyse", _usd(s.get("cost_per_sonnet_analysis"), 4)),
         ("Kosten je finalem Trade", _usd(s.get("cost_per_final_trade"))),

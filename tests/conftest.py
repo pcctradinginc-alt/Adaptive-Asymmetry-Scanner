@@ -24,3 +24,9 @@ def _isolate_cost_telemetry(tmp_path_factory, monkeypatch):
     monkeypatch.setattr(ct, "LEDGER_DIR", d)
     monkeypatch.setattr(ac, "CACHE_PATH", d / "analysis_cache.json")
     ac._PENDING.clear()
+    ac._AUTO_DECISION.clear()
+    from modules import prescreener as _ps
+    _ps._TEMPLATE_DECISION.clear()
+    # Message Batches nur in Tests, die sie explizit einschalten (sonst würde ein Mock-Client
+    # bis zur maximalen Wartezeit gepollt).
+    monkeypatch.setattr(ct, "batch_settings", lambda *a, **k: None)

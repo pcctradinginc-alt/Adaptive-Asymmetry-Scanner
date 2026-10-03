@@ -35,7 +35,7 @@ from typing import Optional
 import anthropic
 import yfinance as yf
 
-from modules                import analysis_cache, cost_telemetry
+from modules                import analysis_cache, cost_telemetry, model_routing
 from modules.config        import cfg
 from modules.macro_context import get_macro_context
 
@@ -180,11 +180,28 @@ class DeepAnalysis:
         import time as _time
         analyses = []
         self.skipped_for_time = []
+        routing = self._routing() if getattr(self, "client", None) is not None else {}
+        pre = self._prefetch_batch(shortlist, deadline, routing)
         for idx, candidate in enumerate(shortlist):
-            if deadline is not None and _time.monotonic() > deadline:
-                self.skipped_for_time = [c.get("ticker") for c in shortlist[idx:]]
-                break
-            analysis = self._analyze(candidate)
+            if idx in pre and pre[idx][0] == "done":
+                analysis = pre[idx][1]
+            else:
+                if deadline is not None and _time.monotonic() > deadline:
+                    # nur echte Lücken: per Batch bereits beantwortete Kandidaten laufen weiter
+                    rest = [j for j in range(idx, len(shortlist))
+                            if not (j in pre and pre[j][0] == "done")]
+                    self.skipped_for_time = [shortlist[j].get("ticker") for j in rest]
+                    for j in rest:
+                        pre[j] = ("done", None)
+                    continue
+                analysis = (self._analyze(candidate, pre[idx][1]) if idx in pre
+                            else self._analyze(candidate))
+            if candidate.get("prescreen_direction"):
+                # gepaarte Messung für den Bearish-Vorfilter (Prescreen-Richtung vs. Deep Analysis)
+                g = getattr(cfg, "gates", None)
+                cost_telemetry.record(model_routing.prefilter_pair(
+                    candidate.get("ticker"), candidate.get("prescreen_direction"), analysis,
+                    impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3))))
             if not analysis:
                 continue
 
@@ -264,7 +281,84 @@ class DeepAnalysis:
 
         return analyses
 
-    def _analyze(self, candidate: dict) -> Optional[dict]:
+    def _prefetch_batch(self, shortlist: list[dict], deadline: float | None, routing: dict | None = None) -> dict:
+        """Batch-Pfad (-50 %, gleiches Modell/Prompt): {idx: ("done", Analyse|None) | ("ctx", ctx)}.
+        "ctx" = nicht per Batch beantwortet -> run() holt den Call synchron nach."""
+        client = getattr(self, "client", None)
+        conf = cost_telemetry.batch_settings("deep_analysis")
+        if client is None or conf is None or len(shortlist) < conf["min_requests"]:
+            return {}
+        pre: dict = {}
+        requests, tickers = {}, {}
+        routing = routing or {}
+        for idx, cand in enumerate(shortlist):
+            try:
+                ctx = self._prepare(cand)
+            except Exception as e:  # noqa: BLE001 – Fallback: _analyze baut den Kontext neu
+                log.warning(f"  [{cand.get('ticker')}] Prompt-Aufbau fehlgeschlagen: {e}")
+                continue
+            cached = self._lookup_cache(ctx)
+            if cached is not None:
+                pre[idx] = ("done", cached)
+                continue
+            pre[idx] = ("ctx", ctx)
+            cid = f"da-{idx}"
+            requests[cid], tickers[cid] = ctx["params"], ctx["ticker"]
+        if len(requests) < conf["min_requests"]:
+            return pre
+        # A/B-Stichprobe: dieselben Prompts zusätzlich mit dem jeweils anderen Modell (nur Messung)
+        ab = {}
+        if routing.get("other"):
+            for cid in model_routing.sample(list(requests), routing["n"]):
+                ab["ab-" + cid.split("-", 1)[1]] = {**requests[cid], "model": routing["other"]}
+        results = cost_telemetry.run_batch(client, workflow="deep_analysis", requests={**requests, **ab},
+                                           tickers={**tickers, **{k: tickers["da-" + k[3:]] for k in ab}},
+                                           max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline)
+        for cid, msg in results.items():
+            if not cid.startswith("da-"):
+                continue
+            idx = int(cid.split("-", 1)[1])
+            ctx = {**pre[idx][1], "batch": True}
+            raw_ref = None
+            if ("ab-%d" % idx) in results:
+                try:
+                    raw_ref = self._parse_json(msg, ctx["ticker"])
+                except Exception:  # noqa: BLE001 – unlesbar: _complete verwirft den Kandidaten ohnehin
+                    raw_ref = None
+            pre[idx] = ("done", self._complete(ctx, msg))
+            other_msg = results.get("ab-%d" % idx)
+            if other_msg is not None:
+                self._record_pair(ctx, raw_ref, other_msg, routing)
+        return pre
+
+    def _routing(self) -> dict:
+        """Aktives Modell (A/B-validiert) + Gegenmodell für die Stichprobe dieses Laufs."""
+        champion = cfg.models.deep_analysis
+        dec = model_routing.decision("deep_analysis", champion)
+        self._active_model = dec.get("active", champion)
+        s = model_routing.settings("deep_analysis") or {}
+        if not s:
+            return {"active": self._active_model}
+        if self._active_model == champion:
+            other, n = s["challenger"], int(s.get("sample_per_run", 6))
+        else:
+            other, n = champion, int(s.get("monitor_sample_per_run", 2))
+        log.info(f"Modell-Routing deep_analysis: aktiv={self._active_model} ({dec.get('status')}), "
+                 f"Stichprobe {n}x {other}")
+        return {"active": self._active_model, "other": other, "n": n, "status": dec.get("status")}
+
+    def _record_pair(self, ctx: dict, ref: Optional[dict], other_msg, routing: dict) -> None:
+        try:
+            other = self._parse_json(other_msg, ctx["ticker"])
+        except Exception:  # noqa: BLE001 – unlesbare Challenger-Antwort zählt als Fehlentscheidung
+            other = None
+        g = getattr(cfg, "gates", None)
+        cost_telemetry.record(model_routing.pair_row(
+            "deep_analysis", ctx["ticker"], ctx["params"]["model"], routing["other"], ref, other,
+            impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3))))
+
+    def _prepare(self, candidate: dict) -> dict:
+        """Baut Prompt, Cache-Schlüssel und Kontext (ohne LLM-Call)."""
         ticker  = candidate.get("ticker", "")
         info    = candidate.get("info", {})
         news    = candidate.get("news", [])
@@ -353,7 +447,7 @@ class DeepAnalysis:
             data_anomaly_warning = anomaly_warning,
         )
 
-        model     = cfg.models.deep_analysis
+        model     = getattr(self, "_active_model", None) or cfg.models.deep_analysis
         cache_key = analysis_cache.deep_analysis_key(
             ticker=ticker, news=news, move_48h=move_48h, mc_hit_rate=mc_hit_rate,
             eps_deviation=eps_deviation,
@@ -362,55 +456,86 @@ class DeepAnalysis:
             is_mega_cap=is_mega_cap, data_anomaly=bool(data_anomaly),
             prompt_version=PROMPT_VERSION, model=model,
         )
+        # System-Prompt als cachebarer Block (Prompt-Caching; unter der Mindestlänge
+        # verarbeitet die API ohne Cache und ohne Aufpreis -> messbar via Telemetrie).
+        params = {
+            "model":      model,
+            "max_tokens": 1600,
+            "system":     [{"type": "text", "text": SYSTEM_PROMPT.format(current_year=_today.year),
+                            "cache_control": {"type": "ephemeral"}}],
+            "messages":   [{"role": "user", "content": prompt}],
+        }
+        return {"ticker": ticker, "cache_key": cache_key, "params": params, "mc_hit_rate": mc_hit_rate,
+                "is_mega_cap": is_mega_cap, "market_cap": market_cap}
+
+    def _lookup_cache(self, ctx: dict) -> Optional[dict]:
+        cached = analysis_cache.lookup(ctx["cache_key"], workflow="deep_analysis", ticker=ctx["ticker"])
+        if cached is None:
+            return None
+        log.info(f"  [{ctx['ticker']}] Analyse-Cache-Treffer (identische Eingaben) → kein Sonnet-Call")
+        return self._finalize(cached, ctx["mc_hit_rate"], ctx["is_mega_cap"], ctx["market_cap"])
+
+    def _analyze(self, candidate: dict, ctx: Optional[dict] = None) -> Optional[dict]:
+        ticker = candidate.get("ticker", "")
         try:
-            cached = analysis_cache.lookup(cache_key, workflow="deep_analysis", ticker=ticker)
+            ctx = ctx or self._prepare(candidate)
+            cached = self._lookup_cache(ctx)
             if cached is not None:
-                log.info(f"  [{ticker}] Analyse-Cache-Treffer (identische Eingaben) → kein Sonnet-Call")
-                return self._finalize(cached, mc_hit_rate, is_mega_cap, market_cap)
-            # System-Prompt als cachebarer Block (Prompt-Caching; unter der Mindestlänge
-            # verarbeitet die API ohne Cache und ohne Aufpreis -> messbar via Telemetrie).
+                return cached
             response = cost_telemetry.tracked_create(
-                self.client, workflow="deep_analysis", ticker=ticker,
-                model      = model,
-                max_tokens = 1600,
-                system     = [{"type": "text", "text": SYSTEM_PROMPT.format(current_year=_today.year),
-                               "cache_control": {"type": "ephemeral"}}],
-                messages   = [{"role": "user", "content": prompt}],
-            )
-            raw = response.content[0].text.strip()
+                self.client, workflow="deep_analysis", ticker=ticker, **ctx["params"])
+            return self._complete(ctx, response)
+        except Exception as e:
+            log.error(f"  [{ticker}] Deep Analysis Fehler: {e}")
+            return None
 
-            if "```" in raw:
-                parts = raw.split("```")
-                raw   = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
-            if not raw.startswith("{"):
-                idx = raw.find("{")
-                if idx != -1:
-                    raw = raw[idx:]
+    @staticmethod
+    def _parse_json(response, ticker: str) -> Optional[dict]:
+        """Rohtext -> JSON (inkl. Reparatur abgeschnittener Antworten); None = verworfen."""
+        raw = response.content[0].text.strip()
 
-            try:
-                result = json.loads(raw)
-            except json.JSONDecodeError as je:
-                log.warning(f"  [{ticker}] JSON teilweise abgeschnitten: {je} → Reparatur-Versuch")
-                last_comma = raw.rfind('",')
-                cutoff = max(last_comma, 0)
-                if cutoff > 100:
-                    raw_fixed = raw[:cutoff] + '"}'
-                    try:
-                        result = json.loads(raw_fixed)
-                        log.info(f"  [{ticker}] JSON repariert (gekürzt auf {cutoff} Zeichen)")
-                    except Exception:
-                        # Kein erfundener BULLISH/PASSIERT-Datensatz mehr: der
-                        # wäre (bei gelockerten Gates) als echte Analyse in
-                        # Trades und Lerndaten gelandet (Review 2026-09-27).
-                        log.warning(f"  [{ticker}] JSON nicht reparierbar → Kandidat verworfen")
-                        return None
-                else:
-                    raise
+        if "```" in raw:
+            parts = raw.split("```")
+            raw   = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
+        if not raw.startswith("{"):
+            idx = raw.find("{")
+            if idx != -1:
+                raw = raw[idx:]
+
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as je:
+            log.warning(f"  [{ticker}] JSON teilweise abgeschnitten: {je} → Reparatur-Versuch")
+            last_comma = raw.rfind('",')
+            cutoff = max(last_comma, 0)
+            if cutoff > 100:
+                raw_fixed = raw[:cutoff] + '"}'
+                try:
+                    result = json.loads(raw_fixed)
+                    log.info(f"  [{ticker}] JSON repariert (gekürzt auf {cutoff} Zeichen)")
+                    return result
+                except Exception:
+                    # Kein erfundener BULLISH/PASSIERT-Datensatz mehr: der
+                    # wäre (bei gelockerten Gates) als echte Analyse in
+                    # Trades und Lerndaten gelandet (Review 2026-09-27).
+                    log.warning(f"  [{ticker}] JSON nicht reparierbar → Kandidat verworfen")
+                    return None
+            raise
+
+    def _complete(self, ctx: dict, response) -> Optional[dict]:
+        """JSON-Parsing, Cache, Anreicherung – identisch für Batch- und Einzel-Antworten."""
+        ticker, cache_key, model = ctx["ticker"], ctx["cache_key"], ctx["params"]["model"]
+        mc_hit_rate, is_mega_cap, market_cap = ctx["mc_hit_rate"], ctx["is_mega_cap"], ctx["market_cap"]
+        try:
+            result = self._parse_json(response, ticker)
+            if result is None:
+                return None
 
             analysis_cache.compare_observed(cache_key, result, workflow="deep_analysis", ticker=ticker)
             analysis_cache.store(
                 cache_key, result, model=model,
-                cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response)))
+                cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response),
+                                                     batch=bool(ctx.get("batch"))))
             return self._finalize(result, mc_hit_rate, is_mega_cap, market_cap)
 
         except Exception as e:

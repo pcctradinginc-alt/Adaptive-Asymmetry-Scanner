@@ -173,8 +173,13 @@ def _build_prompt(ticker: str, candidate_ctx: dict, deep_analysis: dict) -> str:
     )
 
 
+def _params(ticker: str, candidate_ctx: dict, deep_analysis: dict, shadow_cfg: dict) -> dict:
+    return {"model": _model_name(shadow_cfg), "max_tokens": 500, "system": SYSTEM_PROMPT,
+            "messages": [{"role": "user", "content": _build_prompt(ticker, candidate_ctx, deep_analysis)}]}
+
+
 def evaluate_relation(ticker: str, candidate_ctx: dict, deep_analysis: dict,
-                       client=None) -> dict:
+                       client=None, response=None) -> dict:
     """Gibt IMMER ein relation-Dict zurück (nie None, wirft nie).
     `client` ist injizierbar für Tests (muss .messages.create(...) bieten,
     identisch zum anthropic.Anthropic()-Client)."""
@@ -185,22 +190,17 @@ def evaluate_relation(ticker: str, candidate_ctx: dict, deep_analysis: dict,
         return _neutral_result("mode_off_or_disabled")
     if not _has_verifiable_input(candidate_ctx, deep_analysis):
         return _neutral_result("insufficient_verified_data")
-    if client is None and not os.getenv("ANTHROPIC_API_KEY"):
+    if response is None and client is None and not os.getenv("ANTHROPIC_API_KEY"):
         return _neutral_result("no_api_key")
 
     try:
-        if client is None:
-            import anthropic
-            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-
-        prompt = _build_prompt(ticker, candidate_ctx, deep_analysis)
-        response = cost_telemetry.tracked_create(
-            client, workflow="shadow_relation", ticker=ticker,
-            model=_model_name(shadow_cfg),
-            max_tokens=500,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        if response is None:
+            if client is None:
+                import anthropic
+                client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+            response = cost_telemetry.tracked_create(
+                client, workflow="shadow_relation", ticker=ticker,
+                **_params(ticker, candidate_ctx, deep_analysis, shadow_cfg))
         raw_text = response.content[0].text.strip()
         if "```" in raw_text:
             parts = raw_text.split("```")
@@ -216,7 +216,7 @@ def evaluate_relation(ticker: str, candidate_ctx: dict, deep_analysis: dict,
         return _neutral_result(f"exception:{type(e).__name__}")
 
 
-def run_for_candidates(candidates: list[dict], client=None) -> None:
+def run_for_candidates(candidates: list[dict], client=None, deadline: float | None = None) -> None:
     """Setzt candidate['external_context']['relation'] für bis zu
     max_candidates_per_run Kandidaten mit vorhandenem external_context +
     deep_analysis. Mutiert NUR das relation-Feld -- alles andere (inklusive
@@ -227,13 +227,31 @@ def run_for_candidates(candidates: list[dict], client=None) -> None:
     if client is None and not cost_telemetry.allow("shadow_relation"):
         return                      # Kosten-Guard: Shadow wird vor Produktion gedrosselt
     max_n = int(shadow_cfg.get("max_candidates_per_run", 25) or 0)
-    n_done = 0
-    for c in candidates:
-        if n_done >= max_n:
-            break
-        ctx = c.get("external_context")
-        da = c.get("deep_analysis")
-        if not ctx or not da:
-            continue
-        ctx["relation"] = evaluate_relation(c.get("ticker", ""), ctx, da, client=client)
-        n_done += 1
+    chosen = [c for c in candidates if c.get("external_context") and c.get("deep_analysis")][:max_n]
+    batched = _batch_responses(chosen, shadow_cfg, client, deadline)
+    for i, c in enumerate(chosen):
+        ctx = c["external_context"]
+        ctx["relation"] = evaluate_relation(c.get("ticker", ""), ctx, c["deep_analysis"], client=client,
+                                            response=batched.get(f"sh-{i}"))
+
+
+def _batch_responses(chosen: list[dict], shadow_cfg: dict, client=None, deadline: float | None = None) -> dict:
+    """Batch-API (-50 %, identische Prompts) für die Shadow-Calls; Fehlendes läuft synchron."""
+    conf = cost_telemetry.batch_settings("shadow_relation")
+    if conf is None or client is not None or not os.getenv("ANTHROPIC_API_KEY") or _mode() == "off":
+        return {}
+    reqs, tickers = {}, {}
+    for i, c in enumerate(chosen):
+        if _has_verifiable_input(c["external_context"], c["deep_analysis"]):
+            reqs[f"sh-{i}"] = _params(c.get("ticker", ""), c["external_context"], c["deep_analysis"], shadow_cfg)
+            tickers[f"sh-{i}"] = c.get("ticker")
+    if len(reqs) < conf["min_requests"]:
+        return {}
+    try:
+        import anthropic
+        api = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    except Exception as e:  # noqa: BLE001 – ohne SDK synchron weiter
+        log.debug(f"shadow batch: Client nicht erstellbar: {e}")
+        return {}
+    return cost_telemetry.run_batch(api, workflow="shadow_relation", requests=reqs, tickers=tickers,
+                                    max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline)

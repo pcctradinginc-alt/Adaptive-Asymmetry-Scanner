@@ -166,6 +166,77 @@ def tracked_create(client: Any, *, workflow: str, stage: str | None = None, tick
     return resp
 
 
+# ── Message Batches API (-50 %, identisches Modell/Prompt) mit synchronem Fallback ─
+def batch_settings(workflow: str, pol: dict | None = None) -> dict | None:
+    """Batch-Konfiguration für einen Workflow oder None (deaktiviert)."""
+    b = (pol or policy()).get("batch") or {}
+    if not b.get("enabled") or workflow not in (b.get("workflows") or []):
+        return None
+    wait = (b.get("max_wait_minutes_by_workflow") or {}).get(workflow, b.get("max_wait_minutes", 20))
+    return {"max_wait_s": float(wait) * 60, "poll_s": float(b.get("poll_seconds", 20)),
+            "min_requests": int(b.get("min_requests", 2))}
+
+
+def run_batch(client: Any, *, workflow: str, requests: dict[str, dict], tickers: dict[str, str] | None = None,
+              max_wait_s: float = 1200, poll_s: float = 20, deadline: float | None = None,
+              sleep=None, clock=None, ledger_dir: Path | None = None) -> dict[str, Any]:
+    """Sendet requests ({custom_id: create-Parameter}) als Message Batch und wartet höchstens
+    max_wait_s (und nie über deadline, monotone Zeit). Rückgabe: {custom_id: Message} nur für
+    erfolgreiche Ergebnisse. Alles andere (Timeout, Fehler, abgebrochen) fehlt im Ergebnis und
+    wird vom Aufrufer synchron nachgeholt – die Qualität bleibt identisch, nur der Preis sinkt."""
+    if not requests:
+        return {}
+    sleep, clock = sleep or time.sleep, clock or time.monotonic
+    tickers = tickers or {}
+    t0 = clock()
+    limit = t0 + max_wait_s
+    if deadline is not None:
+        limit = min(limit, deadline - 60)          # Reserve für den synchronen Fallback
+    if limit <= t0:
+        return {}
+    try:
+        batch = client.messages.batches.create(
+            requests=[{"custom_id": cid, "params": params} for cid, params in requests.items()])
+        log.info(f"Batch {workflow}: {len(requests)} Requests eingereicht ({batch.id})")
+        while getattr(batch, "processing_status", None) != "ended":
+            if clock() >= limit:
+                log.warning(f"Batch {workflow}: Wartezeit überschritten -> Abbruch, synchroner Fallback")
+                try:
+                    client.messages.batches.cancel(batch.id)
+                except Exception as e:  # noqa: BLE001
+                    log.warning(f"Batch-Abbruch fehlgeschlagen: {e}")
+                record({"kind": "batch", "workflow": workflow, "batch_id": batch.id, "n": len(requests),
+                        "outcome": "timeout", "wait_s": round(clock() - t0, 1)}, ledger_dir)
+                return {}
+            sleep(poll_s)
+            batch = client.messages.batches.retrieve(batch.id)
+        out: dict[str, Any] = {}
+        for res in client.messages.batches.results(batch.id):
+            cid = res.custom_id
+            params = requests.get(cid, {})
+            model = params.get("model")
+            base = {"kind": "llm", "workflow": workflow, "stage": workflow, "ticker": tickers.get(cid),
+                    "scope": scope_of(workflow), "provider": "anthropic", "model": model,
+                    "family": model_family(model), "batch": True, "runtime_s": None}
+            if getattr(res.result, "type", None) == "succeeded":
+                msg = res.result.message
+                usage = usage_from_response(msg)
+                record({**base, **usage, "cost_usd": compute_cost(model, usage, batch=True),
+                        "cache_savings_usd": cache_savings(model, usage),
+                        "stop_reason": getattr(msg, "stop_reason", None), "success": True}, ledger_dir)
+                out[cid] = msg
+            else:
+                record({**base, **{f: None for f in USAGE_FIELDS}, "cost_usd": None, "success": False,
+                        "error": f"batch_{getattr(res.result, 'type', 'unknown')}"}, ledger_dir)
+        record({"kind": "batch", "workflow": workflow, "batch_id": batch.id, "n": len(requests),
+                "succeeded": len(out), "outcome": "ended", "wait_s": round(clock() - t0, 1)}, ledger_dir)
+        log.info(f"Batch {workflow}: {len(out)}/{len(requests)} erfolgreich nach {clock() - t0:.0f}s")
+        return out
+    except Exception as e:  # noqa: BLE001 – Batch ist nur ein Preisvorteil; Fallback synchron
+        log.warning(f"Batch {workflow} fehlgeschlagen ({type(e).__name__}: {e}) -> synchroner Fallback")
+        return {}
+
+
 # ── Fremd-API-Zähler (Transport-Ebene, ohne Eingriff in die Aufrufer) ────────
 _API_COUNTS: dict[str, dict[str, int]] = defaultdict(lambda: {"requests": 0, "errors": 0, "rate_limited": 0})
 _HOST_MAP: dict[str, str] = {}
@@ -273,7 +344,7 @@ def _add(acc: dict, key: str, v) -> None:
 
 def aggregate(rows: Iterable[dict]) -> dict:
     """Summen über LLM-Calls; Kosten nur aus Zeilen mit bekanntem cost_usd (unknown separat gezählt)."""
-    tot: dict[str, Any] = {"calls": 0, "failed": 0, "cost_usd": 0.0, "unknown_cost_calls": 0,
+    tot: dict[str, Any] = {"calls": 0, "failed": 0, "batch_calls": 0, "cost_usd": 0.0, "unknown_cost_calls": 0,
                            "input_tokens": 0, "output_tokens": 0, "cache_read_input_tokens": 0,
                            "cache_creation_input_tokens": 0, "cache_savings_usd": 0.0}
     by: dict[str, dict] = {k: defaultdict(lambda: {"calls": 0, "cost_usd": 0.0})
@@ -299,6 +370,8 @@ def aggregate(rows: Iterable[dict]) -> dict:
         if kind != "llm":
             continue
         tot["calls"] += 1
+        if r.get("batch"):
+            tot["batch_calls"] += 1
         if not r.get("success", True):
             tot["failed"] += 1
         for f in ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens",
@@ -478,7 +551,7 @@ def month_summary(key: str, ledger_dir: Path | None = None,
         "by_family": fam, "by_workflow": cur["by"]["workflow"], "by_scope": cur["by"]["scope"],
         "prev_by_workflow": prev["by"]["workflow"],
         "sonnet_calls": fam.get("SONNET", {}).get("calls", 0), "haiku_calls": fam.get("HAIKU", {}).get("calls", 0),
-        "failed_calls": t["failed"], "input_tokens": t["input_tokens"], "output_tokens": t["output_tokens"],
+        "failed_calls": t["failed"], "batch_calls": t["batch_calls"], "input_tokens": t["input_tokens"], "output_tokens": t["output_tokens"],
         "cache_read_input_tokens": t["cache_read_input_tokens"], "prompt_cache_savings_usd": t["cache_savings_usd"],
         "analysis_cache": cur["analysis_cache"], "api": cur["api"],
         "paid_api_cost_usd": _paid_api_cost(cur["api"]),
