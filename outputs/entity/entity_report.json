@@ -162,11 +162,25 @@
  },
  "gleif": {
   "attempted": 150,
-  "HIGH": 24,
-  "MEDIUM": 0,
-  "LOW": 126,
-  "with_parent": 0,
-  "remaining": 359
+  "HIGH": 80,
+  "MEDIUM": 6,
+  "LOW": 64,
+  "with_parent": 4,
+  "cooling_down": 0,
+  "low_reasons": {
+   "kein exakter Treffer": 37,
+   "mehrdeutig (2 Treffer)": 17,
+   "mehrdeutig (3 Treffer)": 8,
+   "mehrdeutig (4 Treffer)": 1,
+   "mehrdeutig (5 Treffer)": 1
+  },
+  "remaining": 335
  },
- "errors": []
+ "errors": [],
+ "gleif_children": {
+  "fetched": 60,
+  "children": 890,
+  "opened": 890,
+  "linked_entities": 221
+ }
 }
