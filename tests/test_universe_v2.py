@@ -155,6 +155,20 @@ def test_first_run_over_budget_marks_unchecked_and_next_run_prioritises_them(tmp
     assert all(r["status"] != "UNCHECKED" for r in recs2)
 
 
+def test_select_expiries_prefers_production_window():
+    """Live 2026-10-04: nur Weeklies abgerufen -> Produktionsfenster leer -> tradeable systematisch 0."""
+    days = [7, 14, 21, 28, 35, 49, 63, 91, 182, 365]
+    exps = [(TODAY + timedelta(days=d)).isoformat() for d in days]
+    sel = uv.select_expiries(exps, TODAY, CFG)
+    dte = [(date.fromisoformat(e) - TODAY).days for e in sel]
+    lo, hi = CFG["production_gates"]["min_dte"], CFG["production_gates"]["max_dte"]
+    assert len(sel) == 3 and all(lo <= d <= hi for d in dte)
+    # nur kurze Verfälle vorhanden -> Research-Fenster wird aufgefüllt, nie mehr als 3 Abrufe
+    short = [(TODAY + timedelta(days=d)).isoformat() for d in (7, 14, 21, 28)]
+    assert len(uv.select_expiries(short, TODAY, CFG)) == 3
+    assert uv.select_expiries([], TODAY, CFG) == []
+
+
 def test_v1_frozen_and_unchanged():
     frozen = json.loads(uv.V1_FROZEN.read_text())
     assert frozen["universe_version"] == "V1" and frozen["hard_filters"]["min_market_cap_usd"] == 2_000_000_000

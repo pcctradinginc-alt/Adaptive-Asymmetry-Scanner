@@ -608,3 +608,63 @@ Eine spätere komponentenspezifische Drift-Policy ist ein eigener, prospektiver 
 **Konflikt 2:** Einziger Code Owner ist `@pcctradinginc-alt`; PRs dieser Session werden unter demselben Konto erstellt. GitHub erlaubt kein Self-Approval. Es gibt zwei Möglichkeiten:
 - einen zweiten Reviewer bzw. ein zweites Konto ergänzen, oder
 - „Required approvals“ auf 0 setzen. Dann sichern der Pflicht-Check und der PR-Zwang, aber kein unabhängiges Review.
+
+### D. Live-Läufe nach dem Merge (2026-10-04)
+
+**Universe V2.** Lauf 37203492159 (Erstlauf) wurde nach 75 min abgebrochen.
+- Ursache: Ohne Vor-Snapshot griff das Discovery-Budget nie.
+- Fix #97: Titel über Budget werden `UNCHECKED` und im nächsten Lauf zuerst geprüft.
+- Der verspätete Cron-Lauf von 07:13 lief auf altem Code (Start 13:09) und wurde abgebrochen, weil er erneut in den Timeout gelaufen wäre und den gefixten Lauf blockierte.
+- Lauf 37209554664 auf `fcfd637` ist **grün**. Snapshot `outputs/universe/v2_snapshots/2026-10-04.json.gz`, Hash `903167df09de`.
+
+| | n |
+|---|---|
+| SEC-Listings (nach Börse/Muster) | 6.491 (ausgeschlossen: 2.715 Börse, 1.228 Tickermuster) |
+| geprüft / UNCHECKED (Budget) | 5.201 / 1.290 |
+| optionierbar | 3.021 |
+| RESEARCH | 277 |
+| TRADEABLE | 0 (siehe Befund unten) |
+
+| Bucket | geprüft | optionierbar | RESEARCH | TRADEABLE |
+|---|---|---|---|---|
+| ULTRA_MICRO | 782 | 117 | 0 | 0 |
+| MICRO | 996 | 412 | 0 | 0 |
+| SMALL | 1.348 | 903 | 32 | 0 |
+| MID | 915 | 874 | 86 | 0 |
+| LARGE | 657 | 650 | 126 | 0 |
+| MEGA | 60 | 59 | 33 | 0 |
+| UNKNOWN | 443 | 6 | 0 | 0 |
+
+**Befund TRADEABLE = 0:**
+- `fetch_chain` lud die 3 frühesten Verfälle im Research-Fenster (7–400 T), bei liquiden Titeln also Weeklies.
+- Das Produktionsfenster (30–200 T) sah deshalb 0 Verfälle (AAPL: „geeignete Verfälle 0 < 3“).
+- Das ist fail-closed, aber ein Messfehler.
+- Fix (`select_expiries`, PR nach #97): Verfälle im Produktionsfenster zuerst, weiterhin max. 3 Abrufe. Keine Gate-Schwelle geändert.
+- Wirksam ab dem nächsten Snapshot; ein Snapshot je Tag ist append-only und wird nicht überschrieben.
+
+**Weitere Prüfpunkte:**
+- V1 ist unverändert (`c9ac84a41d6a`), V2 bleibt SHADOW, `allowed_influence.max_automatic_influence = ABSTENTION_ONLY`.
+- Micro- und Ultra-Micro-Titel sind vorhanden, aber 0 davon tradeable.
+- Survivor-Ledger: **0 REAL SURVIVORS IN THIS RUN**. Final-MC-Survivors entstehen nur im Scanner-Lauf (werktags, erster Lauf Mo 2026-10-05). Es wurden keine synthetischen Zeilen erzeugt.
+- Kosten-Ledger (`cost_telemetry`) wird ebenfalls erst im Scanner-Lauf befüllt.
+- SystemState (Source-Health-Lauf 37215343487, 16:04 UTC):
+  - `universe_version.v2_latest_snapshot = 2026-10-04`
+  - `learning_health.universe_v2 = SHADOW`
+
+**Commodity.** External-Data-Läufe 37203493748, 37203824656 und 37204812879 sind grün.
+- **CFTC:** 8/8 Märkte. Rohöl „WTI-PHYSICAL“ und Erdgas „NATURAL GAS“ werden per Code und Name gemappt. Der Nachimport war zunächst durch das 2-MB-Tageslimit blockiert, was einen Dauer-Deadlock bedeutet hätte. Nach Fix #96 sind je Markt 6.060 Werte archiviert, Status PASS.
+- **EIA:** PASS bzw. WARN (Erdgas-DQ vom Vorlauf: Henry Hub 30,72 $ ist real), Einheiten korrekt.
+- **FRED/ALFRED:** WARN wegen 10 Henry-Hub-Vintages = 0,0. Die Feature-Engine behandelt sie als FEHLEND.
+- **Entscheidungs-Snapshot 2026-10-02:** 31/31 Features verfügbar, `unavailable = []`. Einziger Nullwert ist das ternäre Signal `cmd_div_oil_positioning_price` (keine Divergenz), keine Null-Füllung.
+- Produktionseinfluss: keiner (RESEARCH_ONLY, kein PROMOTED-Commodity-Vertrag).
+
+**Idempotenz:**
+- 3 External-Data-Läufe am selben Tag ergaben 0 exakte Duplikate (cftc 48.480, eia_petroleum 10.834, eia_ng 3.856, fred 7.374 Zeilen).
+- Ein zweiter V2-Snapshot am selben Tag wird nicht geschrieben (append-only, gleicher Hash).
+- Controller, Final-MC- und V2-Ledger sind per Test idempotent.
+
+**Smoke-Tests:**
+- `ci_push.sh` gegen ein echtes Git-Remote: paralleler Ledger-Append wird per Union-Merge mit allen 4 Zeilen erhalten; ein Konflikt in einer Nicht-Ledger-Datei liefert Exit 1.
+- `ci_stage_check.sh` mit zentraler Stufe `failure`: Exit 1. Mit einer DEGRADED-Stufe: Warnung, Exit 0.
+- Korrupte `history.json` in Pipeline und Feedback führt zu einer Exception; die Datei bleibt unverändert.
+- Fehlender RL-Veto-Key bedeutet: Veto AUS.

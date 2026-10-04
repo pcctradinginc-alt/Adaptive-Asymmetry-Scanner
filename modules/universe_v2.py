@@ -470,8 +470,21 @@ def fetch_quotes(tickers: list[str]) -> dict[str, dict]:
     return out
 
 
+def select_expiries(exps: list[str], today: date, cfg: dict, n: int = 3) -> list[str]:
+    """Max. n Verfälle im Research-Fenster, Produktionsfenster ZUERST. Vorher nur die frühesten
+    Research-Verfälle (Weeklies < 30 T) -> Produktionsfenster sah nie einen Verfall, tradeable
+    war systematisch 0 (Live 2026-10-04, z. B. AAPL)."""
+    def dte(e):
+        return (date.fromisoformat(e) - today).days
+    r, p = cfg["research_gates"], cfg["production_gates"]
+    research = sorted(e for e in exps if int(r["min_dte"]) <= dte(e) <= int(r["max_dte"]))
+    prod = [e for e in research if int(p["min_dte"]) <= dte(e) <= int(p["max_dte"])][:n]
+    return sorted(prod + [e for e in research if e not in prod][:n - len(prod)])
+
+
 def fetch_chain(ticker: str, today: date, cfg: dict) -> tuple[list[dict], str]:
-    """Option Chain für Verfälle im Research-DTE-Fenster (max. 3): Tradier, sonst yfinance."""
+    """Option Chain für max. 3 Verfälle (Produktionsfenster bevorzugt, sonst Research-Fenster):
+    Tradier, sonst yfinance."""
     lo, hi = int(cfg["research_gates"]["min_dte"]), int(cfg["research_gates"]["max_dte"])
     try:
         js = _tradier("markets/options/expirations", {"symbol": ticker})
@@ -479,7 +492,7 @@ def fetch_chain(ticker: str, today: date, cfg: dict) -> tuple[list[dict], str]:
             exps = ((js.get("expirations") or {}) or {}).get("date") or []
             exps = [exps] if isinstance(exps, str) else exps
             rows = []
-            for e in [e for e in exps if lo <= (date.fromisoformat(e) - today).days <= hi][:3]:
+            for e in select_expiries(exps, today, cfg):
                 cj = _tradier("markets/options/chains", {"symbol": ticker, "expiration": e}) or {}
                 opts = (cj.get("options") or {}).get("option") or []
                 for o in [opts] if isinstance(opts, dict) else opts:
@@ -497,7 +510,7 @@ def fetch_chain(ticker: str, today: date, cfg: dict) -> tuple[list[dict], str]:
         t = yf.Ticker(ticker)
         exps = list(t.options or [])
         rows = []
-        for e in [e for e in exps if lo <= (date.fromisoformat(e) - today).days <= hi][:3]:
+        for e in select_expiries(exps, today, cfg):
             ch = t.option_chain(e)
             for _, o in ch.calls.iterrows():
                 rows.append({"symbol": o.get("contractSymbol"), "expiry": e, "strike": float(o["strike"]),
