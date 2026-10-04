@@ -204,6 +204,10 @@ sources:
     research_only: true          # Ausfall -> nur abhängige Features unavailable, nie globaler Safe Mode
     max_fetch_seconds: 300
     max_backfill_bytes: 40000000
+    # Nachimport neu gemappter Märkte (Rohöl/Erdgas nach CFTC-Umbenennung, 2026-10-04: ~9,8 MB)
+    # ist kein Erstimport -> ohne Override blockiert das 2-MB-Tageslimit JEDEN weiteren Lauf
+    # (Guard schreibt nie gekürzt) und COT veraltet still. Wöchentlicher Zuwachs ~0,1 MB.
+    max_new_normalized_bytes_per_run: 12000000
     retrieval_frequency: "täglich geprüft; Abruf nur, wenn ein neuer Report (Fr 15:30 ET) fällig ist"
     expected_latency: "Stichtag Di -> Fr 15:30 ET (Feiertagswoche: Mo); Regel Di+3 T 21:00 UTC bzw. +6 T"
     revision_policy: "Korrekturen gelten ab Abruf; Shutdown-Rückstände (2018-12/2019-01) ausgeschlossen"
