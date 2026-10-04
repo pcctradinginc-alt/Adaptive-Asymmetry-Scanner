@@ -1,16 +1,16 @@
 {
-  "measured_at": "2026-10-04T12:55:24+00:00",
-  "total_bytes_per_day": 139774064.0,
-  "one_off_backfill_bytes": 808863225,
+  "measured_at": "2026-10-04T12:59:36+00:00",
+  "total_bytes_per_day": 139775309.0,
+  "one_off_backfill_bytes": 843171373,
   "projections_bytes": {
-    "30d": 4193221920.0,
-    "1y": 51017533360.0,
-    "5y": 255087666800.0
+    "30d": 4193259270.0,
+    "1y": 51017987785.0,
+    "5y": 255089938925.0
   },
   "warn_mb_1y": 200.0,
   "flagged": true,
   "backend": "git",
-  "bytes_in_git": 250015734,
+  "bytes_in_git": 250138213,
   "bytes_offloaded": 0,
   "per_source": {
     "bts_freight_tsi": {
@@ -30,7 +30,7 @@
     "cftc_cot": {
       "retrieval_days": 1,
       "rows": 36360,
-      "one_off_backfill_bytes": 127463842,
+      "one_off_backfill_bytes": 161055934,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -100,7 +100,7 @@
     "fred_commodities": {
       "retrieval_days": 1,
       "rows": 7374,
-      "one_off_backfill_bytes": 6432523,
+      "one_off_backfill_bytes": 7148579,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -155,9 +155,9 @@
     },
     "nhc_storms": {
       "retrieval_days": 8,
-      "rows": 1455,
+      "rows": 1458,
       "one_off_backfill_bytes": 1514550,
-      "raw_bytes_per_day": 186657,
+      "raw_bytes_per_day": 187902,
       "normalized_bytes_per_day": 86168
     },
     "noaa_storm_events": {
@@ -169,14 +169,14 @@
     },
     "nws_alerts": {
       "retrieval_days": 8,
-      "rows": 634,
+      "rows": 679,
       "one_off_backfill_bytes": 2211981,
       "raw_bytes_per_day": 124305,
       "normalized_bytes_per_day": 27927
     },
     "nws_forecast": {
       "retrieval_days": 8,
-      "rows": 36802,
+      "rows": 36904,
       "one_off_backfill_bytes": 158927790,
       "raw_bytes_per_day": 34154558,
       "normalized_bytes_per_day": 2153605
