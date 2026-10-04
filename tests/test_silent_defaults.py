@@ -71,7 +71,7 @@ def _hist(n_days, rho_sign=1.0, seed=3):
         closed.append({"entry_date": f"2026-{1 + d // 28:02d}-{1 + d % 28:02d}",
                        "outcome": rho_sign * base + rnd.gauss(0, 0.2),
                        "features": {"bin_impact": imp, "bin_mismatch": rnd.choice(["weak", "good", "strong"]),
-                                    "bin_eps_drift": "noise"}})
+                                    "bin_eps_drift": "noise"}, "outcome_method": "option_quote"})
     return {"closed_trades": closed, "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}}
 
 

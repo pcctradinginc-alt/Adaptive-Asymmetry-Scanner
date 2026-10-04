@@ -11,6 +11,7 @@ import hashlib
 import json
 import random
 from datetime import date, datetime, timedelta, timezone
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -527,9 +528,56 @@ def test_outcome_classes_only_reliable_learns():
     assert outcome_class({"outcome": 0.1, "outcome_method_reconstructed": True}) == "RECONSTRUCTED"
     assert outcome_class({"outcome": None}) == "UNKNOWN"
     legacy = {"outcome": 0.1}
-    assert outcome_class(legacy) == "RELIABLE" and outcome_class(legacy, strict=True) == "UNKNOWN"
-    for t in ({"outcome": 0.1, "outcome_method": "delta_approx"}, {"outcome": 0.1, "outcome_method_reconstructed": True}):
+    # Owner-Entscheidung 2026-10-04: Altbestand ohne dokumentierte Preismethode = UNKNOWN, nicht RELIABLE.
+    assert outcome_class(legacy) == "UNKNOWN" and outcome_class(legacy, strict=True) == "UNKNOWN"
+    for t in ({"outcome": 0.1, "outcome_method": "delta_approx"}, {"outcome": 0.1, "outcome_method_reconstructed": True},
+              legacy):
         assert not is_reliable_outcome(t)
+    assert is_reliable_outcome({"outcome": 0.1, "outcome_method": "spread_quote"})
+
+
+def _legacy_history(n_legacy=20, n_rel=0):
+    """Altbestand ohne Methode (UNKNOWN) + optional RELIABLE-Trades."""
+    def t(i, method):
+        d = {"ticker": f"T{i}", "entry_date": f"2026-0{1 + i % 8}-{10 + i % 15}", "close_date": "2026-09-01",
+             "outcome": (0.5 if i % 2 else -0.4), "features": {"impact": 5, "mismatch": 3, "eps_drift": 0.1},
+             "simulation": {"hit_rate": 0.6}}
+        if method:
+            d["outcome_method"] = method
+        return d
+    return {"closed_trades": [t(i, None) for i in range(n_legacy)]
+            + [t(100 + i, "spread_quote") for i in range(n_rel)], "model_weights": {"impact": 0.35}}
+
+
+def test_legacy_unknown_outcomes_kept_but_excluded_from_learning():
+    from modules import abstention_proposals, learning_health, rl_environment
+    from modules.outcomes import class_counts
+    import feedback
+    h = _legacy_history(20)
+    assert class_counts(h["closed_trades"]) == {"UNKNOWN": 20}          # nicht gelöscht, nur klassifiziert
+    assert rl_environment.build_env_from_history(h) is None              # RL/PPO lernt nicht daraus
+    assert feedback.compute_pearson_weights(h) == h["model_weights"]     # QuasiML-Gewichte unverändert
+    assert abstention_proposals.propose(h)["n_trades"] == 0              # Meta-/Abstention-Evidenz
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import paper_performance_analysis as ppa
+    r = ppa.analyse(h)                                                   # Calibration/Performance-Evidenz
+    assert r["n_closed"] == 20 and r["n_reliable"] == 0
+    from reports.weekly import compute_forward
+    from datetime import date
+    fw = compute_forward(h, date(2026, 10, 4))
+    assert fw["n_closed_total"] == 20 and fw["outcome_classes"] == {"UNKNOWN": 20}   # explorativ sichtbar
+    assert all(w["reliable"]["closed"] == 0 for w in fw["windows"])
+
+
+def test_feedback_corrupt_history_fails_closed(tmp_path, monkeypatch):
+    import feedback
+    p = tmp_path / "history.json"
+    p.write_text('{"closed_trades": [ BROKEN')
+    before = p.read_bytes()
+    monkeypatch.setattr(feedback, "HISTORY_PATH", p)
+    with pytest.raises(json.JSONDecodeError):
+        feedback.load_history()
+    assert p.read_bytes() == before
 
 
 # ═══ Workflows: automatisiert, kein stiller Fehlschlag, konfliktsichere Pushes ════════════════════

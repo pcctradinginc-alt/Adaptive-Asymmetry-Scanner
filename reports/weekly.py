@@ -25,6 +25,7 @@ import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
+from modules.outcomes import class_counts, is_reliable_outcome
 
 log = logging.getLogger(__name__)
 
@@ -201,6 +202,7 @@ def compute_forward(history: dict | None, today: _date) -> dict:
     active = [t for t in _d(history).get("active_trades") or [] if isinstance(t, dict)]
     res = {"available": True, "n_closed_total": len(closed), "n_active": len(active),
            "n_reconstructed": sum(1 for t in closed if t.get("outcome_method_reconstructed") == "delta_approx"),
+           "outcome_classes": class_counts(closed),
            "windows": []}
     for label, days in WINDOWS:
         cutoff = today - timedelta(days=days) if days else None
@@ -213,7 +215,7 @@ def compute_forward(history: dict | None, today: _date) -> dict:
 
         sel = [t for t in closed if in_win(t)]
         sel.sort(key=lambda t: _parse_date(t.get("close_date")) or _date.max)
-        rel = [t for t in sel if t.get("outcome_method_reconstructed") != "delta_approx"]
+        rel = [t for t in sel if is_reliable_outcome(t)]   # Altbestand ohne Methode = UNKNOWN
         # Signale: Trades (offen + geschlossen) mit entry_date im Fenster
         def sig(t):
             if cutoff is None:

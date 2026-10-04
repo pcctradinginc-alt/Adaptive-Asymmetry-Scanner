@@ -353,10 +353,10 @@ Abdeckung der 30 geforderten Szenarien:
 
 ## 22. OWNER ACTIONS / OWNER DECISIONS
 
-1. **Branch-Schutz „Require review from Code Owners“ auf main aktivieren.** Merges laufen derzeit ohne Review; CODEOWNERS wirkt nicht.
+1. **Branch-Schutz auf main aktivieren (manuell, siehe Nachtrag 2 §C).** main ist ungeschützt (`protected: false`, keine Rulesets). Merges laufen derzeit ohne Review; CODEOWNERS allein wirkt nicht.
 2. **Secrets prüfen:** `EIA_KEY` (neu), `FRED_API_KEY` oder `FRED_KEY`. Ohne EIA-Key bleiben die EIA-Features UNAVAILABLE.
-3. **OWNER DECISION Outcomes:** Die 77 Alt-Outcomes ohne dokumentierte Methode zählen derzeit als RELIABLE (Entscheidung vom 03.10.); strikt wären sie UNKNOWN. Eine Änderung verkleinert die Lernbasis von 79 auf 2.
-4. **OWNER DECISION Drift:** Drift MODERATE (nur `tnx` außerhalb des Trainingsbereichs) pausiert **jede** Promotion. Bleibt `tnx` hoch, findet monatelang keine Promotion statt.
+3. **OWNER DECISION Outcomes – ENTSCHIEDEN 2026-10-04:** Die 77 Alt-Outcomes ohne dokumentierte Methode sind jetzt UNKNOWN (siehe Nachtrag 2 §A). Die Lernbasis sinkt von 79 auf 2; Schwellen bleiben unverändert.
+4. **OWNER_DECISION_REQUIRED_LATER Drift:** Drift MODERATE pausiert **jede** Promotion (siehe Nachtrag 2 §B). Unverändert gelassen.
 5. **OWNER DECISION Freigaben:** Rerank-, Score- und Commodity-Verträge über NONE nur per `config/promotion_approvals.yaml`. `max_automatic_influence` bleibt ABSTENTION_ONLY. Policy, Schwellen, Forward-Starts und Tradeability-Gates wurden **nicht** verändert.
 6. **ci_push-Konfliktregel bestätigen:** Abgeleitete State-Dateien nehmen die Version des Laufs; alles andere wird rot.
 7. `faf_build.yml` reparieren oder entfernen.
@@ -521,3 +521,90 @@ Status: **Commodity Intelligence: RESEARCH ONLY – NO VALIDATED INCREMENTAL ALP
   - MISSING_RELEASES bei COT = Shutdown-Fenster 2018/19 (bewusst ausgeschlossen).
 - **Universe V2:** Bis 11:38 UTC ist trotz Cron 07:13 kein Lauf gestartet; Verzögerung durch GitHub. Weiter UNVALIDATED. Der Lauf ist im nächsten Montagsbericht (§9, LEARNING_HEALTH) sichtbar.
 - **Volle Testsuite:** 1603 passed, 1 skipped; danach Commodity- und Audit-Tests 86/86 grün.
+
+## Nachtrag 2: Owner-Entscheidungen und technischer Abschluss (2026-10-04)
+
+### A. Outcome-Integrität (Owner-Entscheidung umgesetzt)
+
+`modules/outcomes.py`: Ein Trade ohne `outcome_reliable` und ohne `outcome_method` gilt als **UNKNOWN** und `is_reliable_outcome` liefert False. Die Trades bleiben in `history.json` und sind in explorativen Reports sichtbar:
+- Montagsbericht `forward.all` und `forward.outcome_classes`;
+- `trade_memory` als Fall mit Ursache `unreliable_outcome`.
+
+| Klasse | geschlossene Trades (n = 119) |
+|---|---|
+| RELIABLE | 2 (`spread_quote`) |
+| UNKNOWN | 77 (Altbestand ohne Methode) |
+| RECONSTRUCTED | 40 (`delta_approx`, Migration 2026-09-29) |
+| APPROXIMATED | 0 |
+
+Schatten-Trades: 66 mit Outcome, alle UNKNOWN (keine Methode).
+
+**Komponenten mit weniger Daten (79 → 2 RELIABLE):**
+
+| Komponente | Bereich |
+|---|---|
+| RL/PPO-Training (`rl_environment`, `rl_agent`, Gate jetzt auf RELIABLE-Anzahl) | ML |
+| Robust-PPO-Shadow | ML |
+| QuasiML-Pearson-Gewichte (`feedback.compute_pearson_weights`, < 5 → bisherige Gewichte bleiben) | ML |
+| `abstention_proposals` | Meta-Learning |
+| Calibration/Performance (`scripts/paper_performance_analysis.py`) | Calibration |
+| `trade_memory` (Ursachen-Tabellen „zuverlässig“) | Research Memory |
+| Montagsbericht `forward.reliable` | Report |
+| LEARNING_HEALTH-Zähler | Health |
+
+Promotion- und Alpha-Evidenz (`promotion_controller`) zählte schon vorher nur Quote-Methoden. Alt-Zeilen tragen `outcome_method = "unknown"` und waren damit bereits ausgeschlossen.
+
+Keine Schwelle wurde gesenkt. Neue Trades erhalten `outcome_reliable` beim Schließen (`feedback.py`); die Lernbasis wächst nur prospektiv.
+
+Explorativ, ohne Produktionseinfluss, nutzen weiter alle Outcomes: `engine_monitor` (Lern-Loop-Freeze-Diagnose) und `factor_monitor` (Research-Shadow).
+
+Tests: `test_outcome_classes_only_reliable_learns`, `test_legacy_unknown_outcomes_kept_but_excluded_from_learning`.
+
+### B. Drift – OWNER_DECISION_REQUIRED_LATER (nicht geändert)
+
+**Auslöser:** Drift MODERATE (`drift-v1`).
+
+**Feature:** `tnx`
+- Trainingsbereich: p01 1.0993 / p99 4.7817
+- aktueller Wert: 5.277 (excess 0.1345)
+
+**Zusätzlich Model Drift MODERATE:** 2 von 6 Modellen verschlechtern sich (`enet_xs20_v1`, `momentum_12_1`).
+
+**Wirkung:**
+- PromotionController `_safe_mode_state` blockiert bei MODERATE/SEVERE **alle Promotionen**.
+- Demotion bleibt erlaubt.
+- Produktion: confidence ×0.75, positive_boost_cap 0.5, keine Gewichtserhöhung.
+
+**Folge:** Bleibt `tnx` über 4.78, findet keine Promotion statt.
+
+Eine spätere komponentenspezifische Drift-Policy ist ein eigener, prospektiver Policy-PR. Sie ist ausdrücklich nicht Teil dieses Abschlusses.
+
+### C. Branch Protection – manuelle Einstellung erforderlich
+
+**Befund 2026-10-04:**
+- `GET branches/main` → `protected: false`
+- `rulesets` → `[]`
+- `PUT …/branches/main/protection` aus dieser Session → **403** (kein Schreibrecht über den Proxy)
+
+**Manuell:** GitHub → Settings → Rules → Rulesets → New branch ruleset.
+- Ziel: `main` (Default branch)
+- Enforcement: **Active**
+- ☑ Restrict deletions
+- ☑ Block force pushes
+- ☑ Require a pull request before merging
+  - Required approvals: 1 (bzw. 0, siehe Konflikt 2)
+  - ☑ Require review from Code Owners
+  - ☑ Dismiss stale approvals
+- ☑ Require status checks to pass
+  - Check **`pytest`** (Workflow „Tests (Pflicht-Check)“)
+  - ☑ Require branches to be up to date
+- **Bypass list:** ein dedizierter Deploy Key oder eine GitHub App für die Daten-Workflows (siehe Konflikt 1).
+
+**Konflikt 1:** Die Daten-Workflows (scanner, feedback, external_data, universe_v2, research …) committen Outputs per `scripts/ci_push.sh` direkt auf main.
+- Ohne Bypass würde „kein Direkt-Push“ jeden Datenlauf rot machen.
+- Lösung: Deploy Key mit Schreibrecht als Bypass-Akteur im Ruleset, als Secret hinterlegen, und `actions/checkout` mit `ssh-key:` verwenden.
+- Die Workflow-Anpassung ist ein eigener PR. Sie wurde nicht vorgenommen, weil der Repo-Abschluss keine Workflow-Umbauten vorsieht und der Bypass-Akteur ohnehin erst manuell angelegt werden muss.
+
+**Konflikt 2:** Einziger Code Owner ist `@pcctradinginc-alt`; PRs dieser Session werden unter demselben Konto erstellt. GitHub erlaubt kein Self-Approval. Es gibt zwei Möglichkeiten:
+- einen zweiten Reviewer bzw. ein zweites Konto ergänzen, oder
+- „Required approvals“ auf 0 setzen. Dann sichern der Pflicht-Check und der PR-Zwang, aber kein unabhängiges Review.
