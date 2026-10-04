@@ -918,3 +918,26 @@ def test_published_zero_price_vintage_is_missing_not_a_price(tmp_path):
     assert "INVALID_NONPOSITIVE_VINTAGES" in st["quality"]["price:henry_hub"]["issues"]
     v = df["cmd_henry_hub_ret_1d"].dropna()
     assert (v > -0.9).all()                                     # nie eine künstliche -100-%-Rendite
+
+
+def test_cftc_newly_mapped_market_backfill_not_deadlocked_by_daily_guard(tmp_path):
+    """2026-10-04 live: Nachimport Rohöl/Erdgas (~9,8 MB) nach Mapping-Fix ist kein Erstimport.
+    Ohne Quellen-Override blockiert das 2-MB-Tageslimit jeden Lauf (auch den Wochenzuwachs)."""
+    import yaml
+    reg = yaml.safe_load((Path(__file__).resolve().parent.parent / "config/external_sources/commodities.yaml").read_text())
+    srcs = reg.get("sources", reg)
+    cfg = srcs["cftc_cot"] if isinstance(srcs, dict) else next(s for s in srcs if s.get("source_id") == "cftc_cot")
+    limit = int(cfg["max_new_normalized_bytes_per_run"])
+    assert limit >= 10_000_000
+    t0 = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    arch = ExternalArchive(str(tmp_path))
+    arch.store_observations([obs("cftc_cot", "cot_total_open_interest", "contracts", t0, t0 + timedelta(days=3), 1.0,
+                                 ent="gold")], max_backfill_bytes=10**9)
+    big = [obs("cftc_cot", "cot_total_open_interest", "contracts", t0 - timedelta(days=7 * i),
+               t0 - timedelta(days=7 * i - 3), float(i + 1), ent="crude_oil") for i in range(400)]
+    arch.store_observations(big, max_new_normalized_bytes_per_source_per_run=200)          # altes Limit: blockiert
+    assert "cftc_cot" in arch.last_guard_blocked
+    arch.store_observations(big, max_new_normalized_bytes_per_source_per_run=limit)        # Override: geschrieben
+    assert not arch.last_guard_blocked
+    rows = [json.loads(l) for f in (tmp_path / "normalized" / "cftc_cot").glob("*.jsonl") for l in f.read_text().splitlines()]
+    assert sum(r["entity_id"] == "crude_oil" for r in rows) == 400
