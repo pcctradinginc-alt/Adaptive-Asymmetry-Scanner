@@ -318,7 +318,9 @@ def summarize(records: list[dict]) -> dict:
             if sel(r):
                 c[r[key]] = c.get(r[key], 0) + 1
         return dict(sorted(c.items()))
-    return {"n_listed_checked": len(records), "n_optionable": sum(1 for r in records if r["optionable"]),
+    return {"n_listed_checked": sum(1 for r in records if r.get("status") != "UNCHECKED"),
+            "n_unchecked": sum(1 for r in records if r.get("status") == "UNCHECKED"),
+            "n_optionable": sum(1 for r in records if r["optionable"]),
             "n_research": sum(1 for r in records if r["research_ok"]),
             "n_tradeable": sum(1 for r in records if r["tradeable_ok"]),
             "research_by_bucket": cnt(lambda r: r["research_ok"], "market_cap_bucket"),
@@ -518,6 +520,14 @@ def fetch_market_cap(ticker: str) -> tuple[float | None, str]:
         return None, "missing"
 
 
+def unchecked_record(ticker: str, listing: dict) -> dict:
+    return {"ticker": ticker, "universe_version": UNIVERSE_V2, "as_of": "", "status": "UNCHECKED",
+            "optionable": False, "market_cap": None, "market_cap_source": None, "market_cap_bucket": "UNKNOWN",
+            "risk_flags": [], "research_ok": False, "research_fail": ["UNCHECKED (Discovery-Budget)"],
+            "tradeable_ok": False, "tradeable_fail": ["UNCHECKED (Discovery-Budget)"],
+            "exchange": listing.get("exchange"), "cik": listing.get("cik"), "option_source": None}
+
+
 def discover(today: date | None = None, cfg: dict | None = None, *, listings_js: dict | None = None,
              quotes_fn=fetch_quotes, chain_fn=fetch_chain, cap_fn=fetch_market_cap,
              budget_s: float | None = None, prev: dict | None = None) -> tuple[list[dict], dict]:
@@ -530,11 +540,18 @@ def discover(today: date | None = None, cfg: dict | None = None, *, listings_js:
     prev_by = {r["ticker"]: r for r in (prev or {}).get("records") or []}
     order = sorted(listings, key=lambda x: prev_by.get(x["ticker"], {}).get("as_of", ""))
     quotes = quotes_fn([x["ticker"] for x in order])
-    t0, records, checked = time.monotonic(), [], 0
+    t0, records, checked, unchecked = time.monotonic(), [], 0, 0
     for x in order:
         t = x["ticker"]
-        if time.monotonic() - t0 > budget_s and t in prev_by:
-            records.append(prev_by[t])
+        if time.monotonic() - t0 > budget_s:
+            if t in prev_by:
+                records.append(prev_by[t])
+            else:
+                # Erstlauf/neue Listings über Budget: explizit UNCHECKED (nie geschätzt, nie RESEARCH/
+                # TRADEABLE); as_of leer -> nächster Lauf prüft sie zuerst. Ohne dies lief der Erstlauf
+                # ohne Budget in den Job-Timeout und kein Snapshot entstand (Live 2026-10-04).
+                records.append(unchecked_record(t, x))
+                unchecked += 1
             continue
         q = quotes.get(t) or {}
         chain, src = chain_fn(t, today, cfg) if q else ([], "no_quote")
@@ -544,7 +561,7 @@ def discover(today: date | None = None, cfg: dict | None = None, *, listings_js:
         records.append(rec)
         checked += 1
     meta = {"listings": len(listings), "skipped": skipped, "checked_this_run": checked,
-            "carried_forward": len(records) - checked}
+            "unchecked_new": unchecked, "carried_forward": len(records) - checked - unchecked}
     return records, meta
 
 
