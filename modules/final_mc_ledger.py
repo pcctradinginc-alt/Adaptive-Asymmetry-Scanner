@@ -113,10 +113,8 @@ def record_survivors(survivors: list[dict], *, today: str, vix=None, ctx: dict |
             "contracts": trig,
             "env_hash": hashlib.sha256(json.dumps(env, sort_keys=True, default=str).encode()).hexdigest()[:16]})
     if rows:
-        ledger_dir.mkdir(parents=True, exist_ok=True)
-        with open(ledger_dir / f"{today[:7]}.jsonl", "a", encoding="utf-8") as fh:
-            for r in rows:
-                fh.write(json.dumps(r, sort_keys=True, ensure_ascii=False, default=str) + "\n")
+        from modules.atomic_io import append_jsonl
+        append_jsonl(ledger_dir / f"{today[:7]}.jsonl", rows, sort_keys=True, ensure_ascii=False)
     return rows
 
 
@@ -160,9 +158,8 @@ def downstream_map(*, final_tickers: set[str], roi_rejects: list[dict], reject_s
 
 # ── 3. Outcomes (verzögert) ─────────────────────────────────────────────────
 def read_jsonl(path: Path) -> list[dict]:
-    if not path.exists():
-        return []
-    return [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
+    from modules.atomic_io import read_jsonl as _read
+    return _read(path)                           # abgeschnittene letzte Zeile (Abbruch) -> ignoriert
 
 
 def read_rows(ledger_dir: Path | None = None) -> list[dict]:
@@ -241,9 +238,8 @@ def resolve_outcomes(*, today: date | None = None, ledger_dir: Path | None = Non
                 continue
             e = {"observation_id": r["observation_id"], "horizon": h, **res, "outcome_method": OUTCOME_METHOD,
                  "resolved_at": today.isoformat()}
-            path.parent.mkdir(parents=True, exist_ok=True)
-            with open(path, "a", encoding="utf-8") as fh:
-                fh.write(json.dumps(e, sort_keys=True) + "\n")
+            from modules.atomic_io import append_jsonl
+            append_jsonl(path, [e], sort_keys=True)
             have[(r["observation_id"], h)] = e
             n += 1
     return n

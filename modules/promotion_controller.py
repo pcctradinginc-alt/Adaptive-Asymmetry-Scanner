@@ -44,6 +44,7 @@ from pathlib import Path
 import yaml
 
 from modules import hypothesis_contract as hc
+from modules.atomic_io import append_jsonl, read_jsonl
 from modules.outcomes import RELIABLE_OUTCOME_METHODS
 
 log = logging.getLogger(__name__)
@@ -144,7 +145,11 @@ def read_transitions(path: Path | None = None) -> tuple[list[dict], list[str]]:
     for i, line in enumerate(path.read_text(encoding="utf-8").splitlines()):
         if not line.strip():
             continue
-        e = json.loads(line)
+        try:
+            e = json.loads(line)
+        except ValueError:                       # abgeschnittene/defekte Zeile -> fail-closed (kein Einfluss)
+            problems.append(f"Transition-Log unlesbar bei Zeile {i + 1}")
+            continue
         if e.get("prev_hash") != prev or _chain_hash(prev, e) != e.get("entry_hash"):
             problems.append(f"Transition-Log manipuliert bei Zeile {i + 1}")
         prev = e.get("entry_hash", "")
@@ -189,9 +194,8 @@ def transition(key: str, new_state: str, *, reason: str, evidence_snapshot: dict
          "code_version": code_ver or code_version(), "data_version": data_ver or "",
          "prev_hash": entries[-1]["entry_hash"] if entries else ""}
     e["entry_hash"] = _chain_hash(e["prev_hash"], e)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as fh:
-        fh.write(json.dumps(e, sort_keys=True, default=str) + "\n")
+    from modules.atomic_io import append_jsonl
+    append_jsonl(path, [e], sort_keys=True)
     return e
 
 
@@ -200,18 +204,15 @@ def read_jsonl_dir(d: Path) -> list[dict]:
     rows = []
     if d.exists():
         for f in sorted(d.glob("*.jsonl")):
-            rows += [json.loads(x) for x in f.read_text(encoding="utf-8").splitlines() if x.strip()]
+            rows += read_jsonl(f)
     return rows
 
 
 def read_outcomes(path: Path | None = None) -> dict[str, dict]:
     path = path or OUTCOMES
     out: dict[str, dict] = {}
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                e = json.loads(line)
-                out.setdefault(e["decision_id"], e)          # erstes Outcome gilt (append-only)
+    for e in read_jsonl(path):
+        out.setdefault(e["decision_id"], e)                  # erstes Outcome gilt (append-only)
     return out
 
 
@@ -242,9 +243,8 @@ def resolve_outcomes(history: dict, ledger_dir: Path | None = None, outcomes_pat
              "outcome_method": t.get("outcome_method") or "unknown", "close_reason": t.get("close_reason"),
              "close_date": t.get("close_date"), "mfe": t.get("mfe"), "mae": t.get("mae"),
              "resolved_at": now or datetime.now(timezone.utc).isoformat(timespec="seconds")}
-        outcomes_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(outcomes_path, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(e, sort_keys=True) + "\n")
+        from modules.atomic_io import append_jsonl
+        append_jsonl(outcomes_path, [e], sort_keys=True)
         have[r["decision_id"]] = e
         n += 1
     return n
@@ -476,7 +476,7 @@ def looks_used(key: str, path: Path | None = None) -> int:
     path = path or LOOKS
     if not path.exists():
         return 0
-    return sum(1 for x in path.read_text().splitlines() if x.strip() and json.loads(x)["key"] == key)
+    return sum(1 for e in read_jsonl(path) if e.get("key") == key)
 
 
 LOOK_INTERVAL_DAYS = 28      # Promotion-Entscheidungen nur an geplanten (monatlichen) Looks
@@ -486,17 +486,14 @@ def last_look_at(key: str, path: Path | None = None) -> datetime | None:
     path = path or LOOKS
     if not path.exists():
         return None
-    ts = [json.loads(x)["at"] for x in path.read_text().splitlines() if x.strip() and json.loads(x)["key"] == key]
+    ts = [e["at"] for e in read_jsonl(path) if e.get("key") == key]
     return _ts(max(ts)) if ts else None
 
 
 def record_look(key: str, ev: dict, path: Path | None = None, now: str | None = None) -> None:
     path = path or LOOKS
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as fh:
-        fh.write(json.dumps({"key": key, "at": now or datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                             "n": ev.get("n_observations"), "delta": ev.get("delta_expectancy"),
-                             "ci": ev.get("ci")}) + "\n")
+    append_jsonl(path, [{"key": key, "at": now or datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                         "n": ev.get("n_observations"), "delta": ev.get("delta_expectancy"), "ci": ev.get("ci")}])
 
 
 # ── Entscheidung ────────────────────────────────────────────────────────────
@@ -620,6 +617,11 @@ def decide(contract: dict, cur: dict | None, ev: dict, policy: dict, *, integrit
     target = ladder[1] if len(ladder) > 1 else "NONE"
     target = min(target, contract["maximum_initial_influence"], key=hc.INFLUENCE_LEVELS.index)
     allowed, capped = _cap_level(target, contract, policy)
+    if allowed not in ladder:
+        # Audit 2026-10-04: Policy-Kappung liegt unter der ersten Stufe dieser Klassen-Leiter (z. B. Rerank-/
+        # Score-/Commodity-Vertrag bei max_automatic_influence=ABSTENTION_ONLY). Vorher: Zustand
+        # GUARDED_PRODUCTION mit einer Stufe, die der Adapter für diese Klasse gar nicht anwendet (irreführend).
+        allowed = "NONE"
     if allowed == "NONE":
         rec = target if target != "NONE" else (f"{ladder[1]} (nur per menschlicher Freigabe)"
                                                 if cls == "universe_segment" else None)
@@ -742,13 +744,24 @@ def cap_population(contract: dict, d: dict) -> dict:
 
 def apply_approval(contract: dict, cur: dict | None, d: dict, appr: dict, ev: dict, policy: dict,
                    now: datetime) -> dict:
-    """UNIVERSE_V2-Segment: über NONE nur mit menschlicher Freigabe (config/promotion_approvals.yaml,
+    """Über der automatischen Policy-Obergrenze nur mit menschlicher Freigabe (config/promotion_approvals.yaml,
     approved_level) – je Look höchstens eine Stufe, nur wenn die vorab fixierte Evidenz JETZT erfüllt ist,
-    nie aus einem terminalen/abgelehnten/demotierten Zustand."""
-    if contract.get("production_class") != "universe_segment" or not appr.get("approved_level"):
+    nie aus einem terminalen/abgelehnten/demotierten Zustand.
+    Gilt für UNIVERSE_V2-Segmente und (Audit 2026-10-04) Rerank-/Score-/Weight-Verträge – vorher hatten diese
+    trotz Forward-Validierung KEINEN Freigabeweg. Obergrenzen: Commodity-Verträge SCORE_LIMITED,
+    sonst WEIGHT_10 (wie Vertragsvalidierung), Segmente TRADE_RECOMMENDATION_ENABLED."""
+    cls = contract.get("production_class")
+    if cls not in ("universe_segment", "rerank", "score", "weight") or not appr.get("approved_level"):
         return d
-    ladder = LADDER["universe_segment"]
+    ladder = LADDER[cls]
     target = appr["approved_level"]
+    cap = ("TRADE_RECOMMENDATION_ENABLED" if cls == "universe_segment"
+           else hc.COMMODITY_MAX_INFLUENCE if hc.is_commodity_contract(contract) else "WEIGHT_10")
+    if target in hc.INFLUENCE_LEVELS and hc.INFLUENCE_LEVELS.index(target) > hc.INFLUENCE_LEVELS.index(cap):
+        target = cap
+    if target in hc.INFLUENCE_LEVELS and target not in ladder:      # höchste Leiterstufe <= Freigabe
+        below = [lv for lv in ladder if hc.INFLUENCE_LEVELS.index(lv) <= hc.INFLUENCE_LEVELS.index(target)]
+        target = below[-1] if below else "NONE"
     state = (cur or {}).get("new_state")
     if target not in ladder or d["decision"] in ("REJECT", "DEMOTE", "ROLLBACK") or d["new_state"] in TERMINAL:
         return d
@@ -894,8 +907,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         "families": sorted({family_of(e["contract"]) for e in reg_entries if e.get("contract")})}
     state["evaluation"] = evaluate_arms(rows, outs)
     state["state_hash"] = state_digest(state)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    state_path.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
+    from modules.atomic_io import atomic_write_json
+    atomic_write_json(state_path, state, indent=1, ensure_ascii=False)     # Adapter liest nie einen halben State
     return state
 
 

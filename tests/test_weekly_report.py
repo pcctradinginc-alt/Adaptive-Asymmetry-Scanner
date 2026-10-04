@@ -19,7 +19,7 @@ def _w(p: Path, obj):
 
 
 def _trade(tk, entry, close, out, approx=False):
-    t = {"ticker": tk, "entry_date": entry, "close_date": close, "outcome": out}
+    t = {"ticker": tk, "entry_date": entry, "close_date": close, "outcome": out, "outcome_method": "option_quote"}
     if approx:
         t["outcome_method_reconstructed"] = "delta_approx"
     return t

@@ -38,6 +38,7 @@ import statistics
 from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
+from modules.outcomes import is_reliable_outcome
 
 log = logging.getLogger(__name__)
 
@@ -198,7 +199,7 @@ def _build_case(t: dict, source: str, outcome: float, regimes: dict) -> dict:
     if spread is None:
         spread = _num(opt.get("spread_ratio"))
 
-    reliable = t.get("outcome_method_reconstructed") != "delta_approx"
+    reliable = is_reliable_outcome(t)   # eine Definition; Altbestand ohne Methode = UNKNOWN
     catalyst = deep.get("catalyst")
     if isinstance(catalyst, str) and len(catalyst) > CATALYST_MAX_CHARS:
         catalyst = catalyst[:CATALYST_MAX_CHARS - 1] + "…"
@@ -488,7 +489,7 @@ def render_markdown(agg: dict) -> str:
          "> Hinweis unzuverlässige Outcomes: Trades mit `delta_approx` haben nur geschätzte "
          "Renditen und werden nicht weiter klassifiziert.", ""]
     L += _cause_md("Zuverlässige Verlusttrades", agg["reliable"])
-    L += _cause_md("Unzuverlässige Verlusttrades (delta_approx)", agg["unreliable"])
+    L += _cause_md("Unzuverlässige Verlusttrades (nicht RELIABLE)", agg["unreliable"])
     L += ["### Gewinner vs. Verlierer (nur zuverlässige Outcomes)", ""]
     wl = agg["winner_vs_loser"]
     if wl:

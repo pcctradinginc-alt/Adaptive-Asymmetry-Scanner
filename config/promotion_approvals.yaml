@@ -2,9 +2,10 @@
 #
 # Nur ein Mensch per PR darf hier eintragen:
 #   - rollback: true      -> sofortiger ROLLBACK der Hypothese (Einfluss NONE, Zustand DEMOTED)
-#   - approved_level: ... -> künftige Freigabe über die automatische Obergrenze hinaus
-#                            (FULL_PRODUCTION ist nie automatisch; derzeit nicht implementiert
-#                            als Wirkung – Einträge werden protokolliert und erfordern eigenen PR)
+#   - approved_level: ... -> Freigabe über die automatische Obergrenze hinaus (UNIVERSE_V2-Segmente,
+#                            Rerank-/Score-/Weight-Verträge): je Look genau EINE Stufe der Klassen-Leiter,
+#                            nur bei aktuell erfüllter Forward-Evidenz; Commodity-Verträge höchstens
+#                            SCORE_LIMITED, sonst höchstens WEIGHT_10. FULL_PRODUCTION nie über diese Datei.
 # Format:
 #   approvals:
 #     - key: PROM-ABST-001@v1

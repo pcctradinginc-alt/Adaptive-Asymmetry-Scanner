@@ -94,7 +94,7 @@ sources:
     max_backfill_bytes: 15000000
     plausible_ranges:
       eia_natgas_storage: [500, 4500]              # Bcf, Lower 48
-      eia_henry_hub_spot: [0.5, 30]                # USD/MMBtu
+      eia_henry_hub_spot: [0.5, 50]                # USD/MMBtu (Live 2026-01-23: 30,72 real)
       eia_dry_gas_production: [1500000, 4000000]   # MMcf je Monat
       eia_lng_exports: [0, 600000]                 # MMcf je Monat
     retrieval_frequency: "täglich geprüft; Abruf nur bei fälligem Release (is_due)"
@@ -144,7 +144,7 @@ sources:
     max_backfill_bytes: 20000000
     plausible_ranges:
       brent: [5, 250]
-      henry_hub: [0.5, 30]
+      henry_hub: [0.5, 50]          # Live 2026-01-23: 30,72 real; 0,0-Vintages = ungültig (Feature-Engine)
       copper: [1000, 20000]
       wheat: [50, 1000]
       corn: [50, 800]

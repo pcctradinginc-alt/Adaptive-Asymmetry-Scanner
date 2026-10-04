@@ -67,7 +67,8 @@ def train_agent(
         log.error(f"stable-baselines3 nicht installiert: {e}")
         return False
 
-    closed = history.get("closed_trades", [])
+    from modules.outcomes import is_reliable_outcome   # nur RELIABLE (Altbestand ohne Methode = UNKNOWN)
+    closed = [t for t in history.get("closed_trades", []) if is_reliable_outcome(t)]
     if len(closed) < 5:
         log.info(
             f"Nur {len(closed)} closed_trades → Training übersprungen "

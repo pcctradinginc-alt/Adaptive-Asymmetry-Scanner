@@ -19,7 +19,7 @@ def _trade(**kw):
                      "sigma_30d": 0.02, "eps_drift": 0.0},
         "simulation": {"current_price": 100.0, "hit_rate": 0.7, "sigma": 0.02},
         "deep_analysis": {"direction": "BULLISH", "data_confidence": "high"},
-        "close_price": 100.0, "outcome": -0.5,
+        "close_price": 100.0, "outcome": -0.5, "outcome_method": "option_quote",
     }
     t.update(kw)
     return t

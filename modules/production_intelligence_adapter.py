@@ -108,6 +108,12 @@ def research_context(today: str | None = None) -> dict:
         ctx["ml_cards"] = latest_cards(today=today)
     except (OSError, ValueError, KeyError, ImportError) as e:
         log.warning(f"Adapter: ML-Karten nicht lesbar ({e})")
+    try:                                            # Commodity-PIT-Merkmale (nur lesend, Einfluss nur per Vertrag)
+        from modules import commodity_intelligence as _cmd
+        ctx["commodity"] = _cmd.decision_snapshot()
+    except Exception as e:  # noqa: BLE001 – optionaler Research-Kontext
+        log.warning(f"Adapter: Commodity-Snapshot nicht lesbar ({e})")
+        ctx["commodity"] = {}
     return ctx
 
 
@@ -132,6 +138,13 @@ def candidate_env(p: dict, ctx: dict, vix=None) -> dict:
                 "ml_q10_ret_60": (card.get("interval_80") or [None])[0],
                 "blind_spot_sector_match": (1 if sector in (ctx.get("blind_spot_sectors") or []) else 0)
                 if sector else None})
+    try:                                            # Commodity-Merkmale (RESEARCH; fehlend -> None, nie 0)
+        from modules import commodity_intelligence as _cmd
+        env.update({k: v for k, v in _cmd.decision_features(p.get("ticker"), ctx.get("commodity"),
+                                                             ticker_known=bool(sector)).items()
+                    if k != "commodity_data_version"})
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Adapter: Commodity-Merkmale nicht ableitbar ({e})")
     for f in ctx.get("data_unavailable_features") or []:   # Source Health: Quelle nicht nutzbar -> unbekannt, nie alt/0
         if f in env:
             env[f] = None
@@ -207,6 +220,24 @@ def decide_for_trade(p: dict, env: dict, active: dict, *, safe_mode: bool, secto
             "rerank_score": None if rerank_missing else round(rerank_score, 6)}
 
 
+def _config_version() -> str | None:
+    """Hash des Champion-Regelwerks – dieselbe Ableitung wie SystemState.champion_version (nur lesend)."""
+    from modules.system_state import DEFAULT_INPUTS, _hash_file
+    return _hash_file(DEFAULT_INPUTS["champion_config"])
+
+
+def _prompt_version() -> str | None:
+    try:                                    # Konstante aus deep_analysis (Hash aus System-Prompt + Template)
+        from modules.deep_analysis import PROMPT_VERSION
+        return PROMPT_VERSION
+    except Exception:  # noqa: BLE001 – optional (Tests ohne LLM-Abhängigkeiten)
+        return None
+
+
+_CONFIG_VERSION = _config_version()
+_PROMPT_VERSION = None
+
+
 def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = None, context: dict | None = None,
                        state_path: Path | None = None, contracts: list[dict] | None = None,
                        registry: Path | None = None, transitions: Path | None = None,
@@ -217,6 +248,9 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                        mc_threshold: float | None = None) -> tuple[list[dict], list[tuple[dict, str]], list[dict]]:
     """-> (umzusetzende Trades in finaler Reihenfolge, [(blockierter Trade, Grund)], Entscheidungs-Records).
     Erzeugt NIE neue Trades: Ausgabe ⊆ Eingabe."""
+    global _PROMPT_VERSION
+    if _PROMPT_VERSION is None:
+        _PROMPT_VERSION = _prompt_version()
     now = now or datetime.now(timezone.utc)
     today = today or now.strftime("%Y-%m-%d")
     policy = policy if policy is not None else hc.load_policy()
@@ -295,6 +329,15 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                "data_snapshot": {"vix": vix, "env_hash": hashlib.sha256(json.dumps(env, sort_keys=True,
                                                                                     default=str).encode()).hexdigest()[:16]},
                "code_commit": pc.code_version(), "integrity_problems": problems, "risk_vector": risk,
+               # Reproduzierbarkeit (Audit 2026-10-04): Versionen aller Eingaben; nicht exakt
+               # reproduzierbare Live-Eingaben sind ausdrücklich markiert.
+               "universe_version": p.get("universe_version") or "V1", "config_version": _CONFIG_VERSION,
+               "contract_hashes": {k: v["spec_hash"] for k, v in d["hypotheses"].items()},
+               "prompt_version": (p.get("deep_analysis") or {}).get("prompt_version") or _PROMPT_VERSION,
+               "commodity_features_used": any(k.startswith(("cmd_", "cmdx_", "cmdexp_")) for c in
+                                              (v["contract"] for v in active.values()) for k in c.get("features") or []),
+               "commodity_data_version": (ctx.get("commodity") or {}).get("commodity_data_version"),
+               "non_reproducible_inputs": ["live_option_chain", "llm_response", "live_quotes"],
                "confidence": None, "evidence_snapshot": {k: v["state"] for k, v in active.items()}}
         records.append(rec)
         if d["final_production_decision"] == ABSTAIN:

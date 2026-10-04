@@ -1,0 +1,7 @@
+# Audit 2026-10-04: parallele Workflows hängen an dieselben append-only Ledger an.
+# Union-Merge behält beim Rebase beide Seiten (keine Push-Konflikte, kein Datenverlust).
+outputs/**/*.jsonl merge=union
+# Hash-verkettete Logs: Reihenfolge ist Teil der Integrität -> normaler 3-Wege-Merge
+# (Konflikt = Lauf rot, nie still verschränken). Einziger Schreiber: feedback.yml.
+outputs/intelligence/promotion_transitions.jsonl merge=text
+outputs/intelligence/contract_registry.jsonl merge=text

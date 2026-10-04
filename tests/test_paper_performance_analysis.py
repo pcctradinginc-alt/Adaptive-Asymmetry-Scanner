@@ -11,7 +11,7 @@ spec.loader.exec_module(ppa)
 
 def _t(outcome, hr, strat="LONG_CALL", month="2026-04-10", approx=False):
     t = {"outcome": outcome, "simulation": {"hit_rate": hr}, "strategy": strat, "entry_date": month,
-         "features": {"impact": 5, "surprise": 4}}
+         "features": {"impact": 5, "surprise": 4}, "outcome_method": "option_quote"}
     if approx:
         t["outcome_method_reconstructed"] = "delta_approx"
     return t

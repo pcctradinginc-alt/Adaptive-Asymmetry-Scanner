@@ -753,14 +753,34 @@ def test_alpha_decay_can_be_learned():
 # ── Keine Produktionswirkung / Promotion ─────────────────────────────────────
 
 def test_no_production_impact():
-    prod = ["pipeline.py", "modules/production_intelligence_adapter.py", "modules/options_designer.py",
-            "modules/promotion_controller.py", "modules/universe_v2_scan.py"]
-    for f in prod:
+    # Produktionsmodule importieren Commodity Intelligence nicht; einzig der Adapter LIEST Merkmale
+    # (für die Auswertung registrierter Verträge) – Wirkung nur über einen promoteten Vertrag.
+    for f in ["pipeline.py", "modules/options_designer.py", "modules/promotion_controller.py",
+              "modules/universe_v2_scan.py", "modules/risk_gates.py", "modules/trade_scorer.py"]:
         p = ROOT / f
         if p.exists():
             t = p.read_text(encoding="utf-8")
             assert "commodity_intelligence" not in t and "cmdx_" not in t, f
     assert CFG["promotion"]["initial"] == "NONE"
+
+
+def test_adapter_decisions_identical_with_and_without_commodity_data(tmp_path):
+    """Ohne promoteten Commodity-Vertrag ändert ein (extremer) Commodity-Snapshot keine Entscheidung."""
+    from modules import production_intelligence_adapter as pia
+    props = [{"ticker": t, "sector": "Energy", "features": {"risk_flag": 0}, "trade_score": {"total": 60 + i},
+              "simulation": {"hit_rate": 0.5}} for i, t in enumerate(["XOM", "DAL", "AAPL", "FCX"])]
+    base_ctx = {"safe_mode_active": 0, "ml_cards": {}, "blind_spot_sectors": []}
+    extreme = {"features": {f: 1e6 for f in cmd.SIGNAL_DATE_FEATURES}, "commodity_data_version": "x"}
+    outs = []
+    for ctx in (dict(base_ctx, commodity={}), dict(base_ctx, commodity=extreme)):
+        kept, blocked, recs = pia.apply_to_proposals(
+            [dict(p) for p in props], vix=18, today="2026-10-05", context=ctx, state_path=tmp_path / "s.json",
+            registry=tmp_path / "r.jsonl", transitions=tmp_path / "t.jsonl", ledger_dir=tmp_path / "l")
+        outs.append(([p["ticker"] for p in kept], [b[0]["ticker"] for b in blocked],
+                     [r["final_production_decision"] for r in recs], [r["production_score"] for r in recs]))
+    assert outs[0] == outs[1]
+    env = pia.candidate_env(props[0], dict(base_ctx, commodity=extreme), 18)
+    assert env["cmdx_oil__wti_ret_20d"] == 1e6 and env["cmdexp_oil"] == 1.0      # gelesen, aber wirkungslos
 
 
 def test_promotion_path_capped_for_commodity_contracts():
@@ -769,8 +789,14 @@ def test_promotion_path_capped_for_commodity_contracts():
          "production_class": "weight"}
     errs = hc.validate_commodity(c)
     assert any("SCORE_LIMITED" in e for e in errs) and any("production_class" in e for e in errs)
-    ok = {"features": ["cmdx_oil__wti_ret_20d"], "maximum_initial_influence": "RERANK_ONLY", "production_class": "rerank"}
+    ok = {"features": ["cmdx_oil__wti_ret_20d"], "maximum_initial_influence": "RERANK_ONLY", "production_class": "rerank",
+          "mapping_version": "exposure-v1"}
     assert hc.validate_commodity(ok) == []
+    assert any("mapping_version" in e for e in hc.validate_commodity({**ok, "mapping_version": None}))
+    # Mapping-Version weicht ab -> Regel nicht auswertbar (nie mit neuem Mapping still weiterzählen)
+    rule = {**ok, "signal_definition": "cmdx_oil__wti_ret_20d", "thresholds": {"op": ">", "value": 0}}
+    assert hc.fires(rule, {"cmdx_oil__wti_ret_20d": 0.1, "commodity_mapping_version": "exposure-v1"}) is True
+    assert hc.fires(rule, {"cmdx_oil__wti_ret_20d": 0.1, "commodity_mapping_version": "exposure-v2"}) is None
     assert hc.validate_commodity({"features": ["mom_3m"], "maximum_initial_influence": "WEIGHT_10",
                                   "production_class": "weight"}) == []
     lad = CFG["promotion"]["ladder"]
@@ -866,3 +892,29 @@ def test_end_to_end_source_to_memory(monkeypatch, tmp_path):
     mem = tmp_path / "mem.jsonl"
     assert rm.sync(mem, sources=srcs) >= 2
     assert rm.search(h, rm.load(mem), 0.9)                                # erneuter Test würde blockiert
+
+
+def test_cftc_official_rename_variants_accepted_unknown_rejected(monkeypatch, tmp_path):
+    """Live 2026-10-04: Code 067651 trägt alte ('CRUDE OIL, LIGHT SWEET') und neue ('WTI-PHYSICAL') Namen."""
+    rows = [_cot_row("067651", "CRUDE OIL, LIGHT SWEET - NEW YORK MERCANTILE EXCHANGE", date(2021, 9, 21)),
+            _cot_row("067651", "WTI-PHYSICAL - NEW YORK MERCANTILE EXCHANGE", date(2026, 9, 22)),
+            _cot_row("023651", "NATURAL GAS - NEW YORK MERCANTILE EXCHANGE", date(2026, 9, 22)),
+            _cot_row("088691", "GOLD MINI - SOMEWHERE ELSE", date(2026, 9, 22))]
+    monkeypatch.setattr(http, "fetch", lambda *a, **k: FakeRes(rows))
+    res = cs.CftcCotConnector({"_archive_root": str(tmp_path)}).fetch(NOW)
+    ents = {o.entity_id for o in res.observations}
+    assert {"crude_oil", "natural_gas"} <= ents and "gold" not in ents
+    assert "gold" in res.discovered_ids["unavailable_markets"]
+
+
+def test_published_zero_price_vintage_is_missing_not_a_price(tmp_path):
+    """Live-Befund ALFRED DHHNGSP: 0,0 veröffentlicht (2020-03-11), eine Woche später revidiert."""
+    synth_archive(tmp_path, end=utc(2020, 4, 1), start=utc(2019, 1, 1))
+    bad = obs("fred_commodities", "henry_hub", "usd_per_mmbtu", utc(2020, 3, 4), utc(2020, 3, 11), 0.0,
+              vintage=utc(2020, 3, 11))
+    from modules.external.archive import ExternalArchive as EA
+    EA(str(tmp_path)).store_observations([bad], max_backfill_bytes=10**9)
+    df, st = cmd.build(now=utc(2020, 4, 1), root=tmp_path, start="2020-03-02", write=False)
+    assert "INVALID_NONPOSITIVE_VINTAGES" in st["quality"]["price:henry_hub"]["issues"]
+    v = df["cmd_henry_hub_ret_1d"].dropna()
+    assert (v > -0.9).all()                                     # nie eine künstliche -100-%-Rendite
