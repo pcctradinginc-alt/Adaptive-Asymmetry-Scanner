@@ -120,7 +120,7 @@ Erlaubt sind ausschließlich EIA v2, FRED/ALFRED und CFTC Public Reporting. Im T
 
 | SOURCE | SERIES | FREQUENCY | RELEASE LAG (Regel) | PIT SAFE | HEALTH (vor Live-Lauf) | CONSUMER | PRODUCTION IMPACT |
 |---|---|---|---|---|---|---|---|
-| eia_petroleum_weekly | WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2, WPULEUS3, WRPUPUS2, WGTSTUS1, WDISTUS1 | wöchentlich | Fr + 6 T 16:00 UTC | ja (Regel ≥ Release, ≤ Abruf; Revisionen ab Abruf) | UNVALIDATED | Fundamental-/Divergenz-Features, Fabrik | keiner |
+| eia_petroleum_weekly | WCESTUS1, WCRFPUS2, WCRIMUS2, WCREXUS2, WPULEUS3, WRPUPUS2, WGTSTUS1, WDISTUS1 | wöchentlich | Fr + 6 T 16:00 UTC | ja (Regel ≥ Release, ≤ Abruf; Revisionen ab Abruf) | **HEALTHY (live)** | Fundamental-/Divergenz-Features, Fabrik | keiner |
 | eia_petroleum_weekly | RWTC, RBRTE | täglich | + 9 T | ja | UNVALIDATED | nur Gegenprobe gegen FRED | keiner |
 | eia_natural_gas | NW2_EPG0_SWO_R48_BCF | wöchentlich | Fr + 7 T | ja | UNVALIDATED | Gas-Features | keiner |
 | eia_natural_gas | RNGWHHD | täglich | + 9 T | ja | UNVALIDATED | Gegenprobe | keiner |
@@ -506,4 +506,18 @@ Status: **Commodity Intelligence: RESEARCH ONLY – NO VALIDATED INCREMENTAL ALP
 ---
 
 ## Nachtrag: Live-Verifikation
-(wird nach Abschluss der Läufe ergänzt)
+**External-Data-Lauf 37188700178** (2026-10-04 08:22 UTC, workflow_dispatch, gleicher Job wie der Cron, **grün**, Commit `b94c2e2` auf main):
+
+| Quelle | Status | Werte | Befund |
+|---|---|---|---|
+| eia_petroleum_weekly | PASS / FRESH | 10.834 | EIA-Key funktioniert. Alle 8 WPSR-Serien sowie die WTI/Brent-Spots haben die erwarteten Einheiten (MBBL, MBBL/D, %, $/BBL). Letzte Woche: 2026-09-29. |
+| eia_natural_gas | WARN (DQ OUT_OF_RANGE) / FRESH | 3.856 | Henry Hub 30,72 $ am 23.01.2026 ist **real** (Winter-Extrem); die Plausibilitätsgrenze 30 war zu eng → 50 |
+| fred_commodities | WARN (DQ OUT_OF_RANGE) / FRESH | 7.374 | **Echter PIT-Befund:** ALFRED veröffentlichte Henry Hub an 10 Tagen (2018, 2020) zunächst als **0,0** und korrigierte binnen ~1 Woche. Eine Vintage-Rekonstruktion hätte künstliche −100 %-Renditen erzeugt → nicht-positive Preise gelten jetzt als FEHLEND (`INVALID_NONPOSITIVE_VINTAGES`), Test ergänzt. |
+| cftc_cot | WARN / FRESH | 36.360 | 6/8 Märkte gemappt. **Rohöl und Erdgas korrekt UNAVAILABLE**, weil die CFTC sie umbenannt hat („WTI-PHYSICAL“, „NATURAL GAS“): Die Name-Code-Prüfung hat fail-closed gegriffen. Die offiziellen Namensvarianten sind jetzt explizit konfiguriert (keine Heuristik, Test). |
+
+- **Gegenprobe EIA vs. FRED:** WTI, Brent und Henry Hub je n = 500 Tage, 0 Abweichungen > 2 %.
+- **Feature-Engine auf echten Daten** (2016–2026, 2.806 Stichtage, 35 s):
+  - Preis 36/36, Fundamental 30/30, Positionierung 78/104 (Rohöl/Erdgas-COT bis zum nächsten Lauf UNAVAILABLE), Divergenz 3/4 aktiv.
+  - MISSING_RELEASES bei COT = Shutdown-Fenster 2018/19 (bewusst ausgeschlossen).
+- **Universe V2:** Bis 11:38 UTC ist trotz Cron 07:13 kein Lauf gestartet; Verzögerung durch GitHub. Weiter UNVALIDATED. Der Lauf ist im nächsten Montagsbericht (§9, LEARNING_HEALTH) sichtbar.
+- **Volle Testsuite:** 1603 passed, 1 skipped; danach Commodity- und Audit-Tests 86/86 grün.

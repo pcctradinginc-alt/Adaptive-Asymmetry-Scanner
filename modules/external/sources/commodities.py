@@ -551,7 +551,8 @@ class CftcCotConnector(_ArchiveAware):
                 stats["unavailable_markets"][mkey] = "keine Zeilen (Markt fehlt)"
                 continue
             names = {str(r.get(f["market_name"], "")).upper() for r in mrows}
-            bad = [n for n in names if not all(s.upper() in n for s in m.get("name_contains", []))]
+            variants = m.get("name_variants") or [m.get("name_contains", [])]
+            bad = [n for n in names if not any(all(s.upper() in n for s in v) for v in variants)]
             if bad:
                 stats["unavailable_markets"][mkey] = f"Name passt nicht zum Code: {bad[0][:80]}"
                 continue                                         # Mapping unsicher -> UNAVAILABLE

@@ -102,8 +102,12 @@ cftc:
     - ["2018-12-18", "2019-01-29"]
   markets:
     # Mapping über den offiziellen CFTC Contract Market Code UND Namensprüfung; Abweichung -> UNAVAILABLE
-    crude_oil:   {code: "067651", name_contains: ["CRUDE OIL, LIGHT SWEET", "NEW YORK MERCANTILE"], commodity: oil}
-    natural_gas: {code: "023651", name_contains: ["NAT GAS NYME", "NEW YORK MERCANTILE"], commodity: natural_gas}
+    # Offizielle CFTC-Umbenennungen (Live-Lauf 2026-10-04: alte und neue Namen im selben Code) als EXPLIZITE
+    # Varianten – jede Zeile muss einer Variante vollständig entsprechen, sonst UNAVAILABLE (keine Heuristik).
+    crude_oil:   {code: "067651", commodity: oil,
+                  name_variants: [["CRUDE OIL, LIGHT SWEET", "NEW YORK MERCANTILE"], ["WTI-PHYSICAL", "NEW YORK MERCANTILE"]]}
+    natural_gas: {code: "023651", commodity: natural_gas,
+                  name_variants: [["NAT GAS NYME", "NEW YORK MERCANTILE"], ["NATURAL GAS", "NEW YORK MERCANTILE"]]}
     gold:        {code: "088691", name_contains: ["GOLD", "COMMODITY EXCHANGE"], commodity: gold}
     silver:      {code: "084691", name_contains: ["SILVER", "COMMODITY EXCHANGE"], commodity: silver}
     copper:      {code: "085692", name_contains: ["COPPER", "COMMODITY EXCHANGE"], commodity: copper}

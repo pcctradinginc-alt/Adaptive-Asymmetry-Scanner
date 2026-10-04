@@ -892,3 +892,29 @@ def test_end_to_end_source_to_memory(monkeypatch, tmp_path):
     mem = tmp_path / "mem.jsonl"
     assert rm.sync(mem, sources=srcs) >= 2
     assert rm.search(h, rm.load(mem), 0.9)                                # erneuter Test würde blockiert
+
+
+def test_cftc_official_rename_variants_accepted_unknown_rejected(monkeypatch, tmp_path):
+    """Live 2026-10-04: Code 067651 trägt alte ('CRUDE OIL, LIGHT SWEET') und neue ('WTI-PHYSICAL') Namen."""
+    rows = [_cot_row("067651", "CRUDE OIL, LIGHT SWEET - NEW YORK MERCANTILE EXCHANGE", date(2021, 9, 21)),
+            _cot_row("067651", "WTI-PHYSICAL - NEW YORK MERCANTILE EXCHANGE", date(2026, 9, 22)),
+            _cot_row("023651", "NATURAL GAS - NEW YORK MERCANTILE EXCHANGE", date(2026, 9, 22)),
+            _cot_row("088691", "GOLD MINI - SOMEWHERE ELSE", date(2026, 9, 22))]
+    monkeypatch.setattr(http, "fetch", lambda *a, **k: FakeRes(rows))
+    res = cs.CftcCotConnector({"_archive_root": str(tmp_path)}).fetch(NOW)
+    ents = {o.entity_id for o in res.observations}
+    assert {"crude_oil", "natural_gas"} <= ents and "gold" not in ents
+    assert "gold" in res.discovered_ids["unavailable_markets"]
+
+
+def test_published_zero_price_vintage_is_missing_not_a_price(tmp_path):
+    """Live-Befund ALFRED DHHNGSP: 0,0 veröffentlicht (2020-03-11), eine Woche später revidiert."""
+    synth_archive(tmp_path, end=utc(2020, 4, 1), start=utc(2019, 1, 1))
+    bad = obs("fred_commodities", "henry_hub", "usd_per_mmbtu", utc(2020, 3, 4), utc(2020, 3, 11), 0.0,
+              vintage=utc(2020, 3, 11))
+    from modules.external.archive import ExternalArchive as EA
+    EA(str(tmp_path)).store_observations([bad], max_backfill_bytes=10**9)
+    df, st = cmd.build(now=utc(2020, 4, 1), root=tmp_path, start="2020-03-02", write=False)
+    assert "INVALID_NONPOSITIVE_VINTAGES" in st["quality"]["price:henry_hub"]["issues"]
+    v = df["cmd_henry_hub_ret_1d"].dropna()
+    assert (v > -0.9).all()                                     # nie eine künstliche -100-%-Rendite

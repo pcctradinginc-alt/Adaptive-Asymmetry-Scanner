@@ -280,7 +280,9 @@ class PitBook:
 
 
 def _events(obs: list, metric: str | None = None, entity: str | None = None,
-            field_of=None) -> list[tuple]:
+            field_of=None, positive_only: bool = False, allow_negative: bool = False) -> list[tuple]:
+    """positive_only (Preise): veröffentlichte 0,0 (ALFRED-Platzhalter, z. B. Henry Hub 2020-02/03, binnen
+    Tagen revidiert) bzw. negative Werte gelten als FEHLEND – nie als Preis (sonst künstliche −100 %)."""
     ev = []
     for o in obs:
         if metric is not None and o.metric != metric:
@@ -290,8 +292,11 @@ def _events(obs: list, metric: str | None = None, entity: str | None = None,
         fld = field_of(o) if field_of else "v"
         if fld is None:
             continue
+        val = o.value
+        if positive_only and val is not None and (val == 0 or (val < 0 and not allow_negative)):
+            val = None
         ev.append((ensure_utc(o.available_at), ensure_utc(o.vintage_time or o.available_at),
-                   ensure_utc(o.observation_time), fld, o.value,
+                   ensure_utc(o.observation_time), fld, val,
                    {"unit": o.unit, "revision_status": (o.attrs or {}).get("revision_status")}))
     return ev
 
@@ -557,7 +562,15 @@ def build(now: datetime | None = None, root: Path | None = None, start: str = GR
         if qc["severe"]:
             status["unavailable"][key] = qc["issues"]
             continue
-        books[key] = (PitBook(_events(obs)), s)
+        is_price = key.startswith("price:")
+        if is_price:
+            zeros = sum(1 for o in obs if o.value is not None and o.value <= 0
+                        and not (o.value < 0 and s["metric"] in ((cfg.get("quality") or {}).get("allow_negative") or [])))
+            if zeros:
+                qc["issues"].append("INVALID_NONPOSITIVE_VINTAGES")
+                qc["detail"]["invalid_nonpositive_vintages"] = zeros
+        books[key] = (PitBook(_events(obs, positive_only=is_price, allow_negative=s["metric"] in (
+            (cfg.get("quality") or {}).get("allow_negative") or []))), s)
     for name, eia_s, fred_s in crosscheck_pairs(cfg):
         status["crosscheck"][name] = crosscheck(
             [o for o in obs_of(eia_s["source_id"]) if o.metric == eia_s["metric"]],
