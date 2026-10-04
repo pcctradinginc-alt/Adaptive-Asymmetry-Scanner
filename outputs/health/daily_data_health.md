@@ -4,10 +4,6 @@
 
 Status: HEALTHY 32 · DEGRADED 3 · STALE 0 · BROKEN 0 · UNVALIDATED 8
 
-## Neue Änderungen
-
-- recovery: cftc_cot DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
