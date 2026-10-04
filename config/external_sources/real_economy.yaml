@@ -163,6 +163,25 @@ sources:
       WALCL: "WALCL"
       DTWEXBGS: "DTWEXBGS"
       DCOILWTICO: "DCOILWTICO"
+    # Vertragsfelder (Alt-Data): fred_regime_macro liefert WTI auch für Commodity Intelligence (wiederverwendet)
+    retrieval_frequency: "täglich"
+    expected_latency: "Tagesreihen 1–7 T, CPI/NFCI/WALCL laut Veröffentlichungskalender"
+    revision_policy: "ALFRED-Vintages: available_at = realtime_start, Revisionen als eigene Vintages"
+    historical_depth: "2015–heute (NFCI-Fenster ab 2025)"
+    entity_level: "USA / Weltmarktpreis (WTI)"
+    coverage: "CPI, NFCI, NFCI-Credit, Fed-Bilanz, Broad Dollar, WTI"
+    rate_limits: "FRED: 120 Anfragen/Minute je Key"
+    cost: "kostenlos (API-Key)"
+    failure_behavior: "Reihe veraltet -> Regime-Primitive/Features None bzw. UNAVAILABLE (nie Default)"
+    point_in_time_capable: true
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "Makro-Regime (Inflation, Finanzierungsbedingungen, Liquidität, Dollar, Öl)"
+      geography: "USA / Weltmarkt"
+      latency: "täglich bis monatlich"
+      sectors: "alle (Regime); Öl: Energie, Transport, Chemie"
+      mechanisms: ["Regimewechsel ändern Faktorprämien", "Ölpreis -> Erlöse/Kosten exponierter Unternehmen"]
 
   - source_id: fred_world_macro
     display_name: "FRED/ALFRED World-Model-Reihen: Arbeitsmarkt, Konsum, Lagerbestände"

@@ -6,6 +6,7 @@ from __future__ import annotations
 from modules.external.sources import sec_features as _sec
 from modules.external.sources import sec_xbrl as _xbrl
 from modules.external.sources import ted_features as _ted
+from modules import commodity_intelligence as _cmd
 
 SOURCES = {
     "sec_deep_events": {"features": list(_sec.FEATURES), "feature_version": _sec.FEATURE_VERSION,
@@ -20,7 +21,18 @@ SOURCES = {
                               "availability_col": "alt_xbrl_available", "path": str(_xbrl.FEATURE_PATH),
                               "health": str(_xbrl.HEALTH), "contracts": ["sec_companyfacts"]},
 }
-_DESC = {"sec_deep_events": _sec.FEATURES, "ted_procurement": _ted.FEATURES, "sec_xbrl_fundamentals": _xbrl.FEATURES}
+# Commodity Intelligence (RESEARCH/SHADOW): Kreuzfeatures Exposure-Richtung (NON_PIT-Mapping) × Datums-Feature,
+# je Gruppe eigene Quellen-Verträge -> Source Health setzt nur die abhängige Gruppe UNAVAILABLE.
+# attach "date_level": ein Datums-Feature-Store, Ticker-Ebene erst beim Anbinden (modules/commodity_intelligence).
+_CMD_DESC = _cmd.feature_descriptions()
+for _g in ("price", "fundamental", "positioning", "divergence"):
+    SOURCES[f"commodity_{_g}"] = {"features": _cmd.cross_features(_g), "feature_version": _cmd.FEATURE_VERSION,
+                                  "availability_col": f"alt_cmd_{_g}_available", "path": str(_cmd.STORE_PATH),
+                                  "health": str(_cmd.STATUS_PATH), "contracts": list(_cmd.GROUP_SOURCES[_g]),
+                                  "attach": "date_level", "group": _g, "non_pit_mapping": True,
+                                  "feature_contracts": _cmd.feature_contracts(_g)}
+_DESC = {"sec_deep_events": _sec.FEATURES, "ted_procurement": _ted.FEATURES, "sec_xbrl_fundamentals": _xbrl.FEATURES,
+         **{f"commodity_{g}": _CMD_DESC[g] for g in ("price", "fundamental", "positioning", "divergence")}}
 ALT_FEATURES: dict[str, dict] = {f: {"source": s, "feature_version": v["feature_version"],
                                      "description": _DESC[s].get(f, "")}
                                  for s, v in SOURCES.items() for f in v["features"]}

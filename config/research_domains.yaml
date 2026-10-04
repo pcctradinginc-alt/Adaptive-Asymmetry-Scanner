@@ -16,6 +16,15 @@ domains:
   insider:      {features: [sec_insider_net_value_90d], kind: alt_feature, source: sec_deep_events, label: "Insider-Transaktionen"}
   procurement:  {features: [ted_awards_z], kind: alt_feature, source: ted_procurement, label: "EU-Ausschreibungen"}
   fundamentals: {features: [xbrl_sue, xbrl_rev_yoy, xbrl_accruals, xbrl_asset_growth, xbrl_share_change], kind: alt_feature, source: sec_xbrl_fundamentals, label: "Fundamentaldaten (SEC XBRL, PIT)"}
+  # Commodity Intelligence (EIA/FRED/CFTC, RESEARCH): Datums-Features PIT, Exposure-Mapping NON_PIT
+  commodity_oil_price:   {features: [cmd_wti_ret_20d, cmd_wti_ret_60d, cmd_wti_z_60d], kind: alt_feature, source: commodity_price, label: "Ölpreis (FRED/ALFRED)"}
+  commodity_gas_price:   {features: [cmd_henry_hub_ret_20d, cmd_henry_hub_ret_60d], kind: alt_feature, source: commodity_price, label: "Henry-Hub-Gaspreis (FRED/ALFRED)"}
+  commodity_metal_ag_price: {features: [cmd_copper_ret_3m, cmd_corn_ret_3m, cmd_wheat_ret_3m, cmd_soybeans_ret_3m], kind: alt_feature, source: commodity_price, label: "Kupfer/Agrarpreise (IMF via FRED, monatlich)"}
+  commodity_oil_fundamentals: {features: [cmd_crude_stocks_vs_5y, cmd_crude_stocks_chg_z_52w, cmd_product_supplied_chg_4w, cmd_refinery_utilization_z_52w], kind: alt_feature, source: commodity_fundamental, label: "Öl-Fundamentaldaten (EIA WPSR)"}
+  commodity_gas_fundamentals: {features: [cmd_natgas_storage_vs_5y, cmd_natgas_storage_chg_z_52w, cmd_lng_exports_yoy], kind: alt_feature, source: commodity_fundamental, label: "Gas-Fundamentaldaten (EIA)"}
+  commodity_positioning: {features: [cmd_cot_crude_oil_mm_pctile_1y, cmd_cot_natural_gas_mm_pctile_1y, cmd_cot_gold_mm_pctile_1y, cmd_cot_copper_mm_pctile_1y, cmd_cot_crude_oil_mm_net_chg_4w], kind: alt_feature, source: commodity_positioning, label: "Futures-Positionierung (CFTC COT)"}
+  commodity_storage_surprise: {kind: missing, label: "Gas-/Öl-Lagerüberraschung vs. Konsens",
+                 free_sources: [], note: "Keine offizielle kostenlose Konsens-Erwartung -> EXPECTATION_UNKNOWN (kein Ersatz durch Schätzung)"}
   weather:      {kind: missing, label: "Wetteranomalien",
                  free_sources: ["NOAA GHCN-Daily / NCEI CDO (Token frei)", "Open-Meteo Archive API", "DWD CDC (Deutschland)"],
                  note: "Archiv (outputs/external_data) vorhanden, aber nicht als PIT-Querschnittsfeature im Panel"}
@@ -62,3 +71,24 @@ families:
      mechanism: "Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität."}
   - {id: downloads_x_technology, domain: software_downloads, sector: Technology, direction: 1, relevance: 0.4, exploratory: true,
      mechanism: "Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen."}
+  # ── Commodity Intelligence (RESEARCH): Signal = cmdexp_<rohstoff> × sign(feature − center) ─────────────
+  # cmdexp = erwartete Exposure-Richtung (+1/-1/0, NON_PIT-Mapping exposure-v1). Richtung 1 = die Hypothese
+  # lautet "Titel entwickeln sich in Richtung ihrer Exposure"; die Gegenrichtung ist H_alt (kein Vorzeichenwechsel).
+  - {id: cmd_oil_price_x_exposure, domain: commodity_oil_price, commodity: oil, feature: cmd_wti_ret_20d, direction: 1, relevance: 0.5,
+     mechanism: "Ölpreisbewegungen ändern Cashflows ölexponierter Titel (Produzenten +, Verbraucher wie Airlines -); Analysten passen Schätzungen verzögert an."}
+  - {id: cmd_oil_inventory_x_exposure, domain: commodity_oil_fundamentals, commodity: oil, feature: cmd_crude_stocks_vs_5y, direction: -1, relevance: 0.4,
+     mechanism: "Rohölbestände über dem saisonalen 5J-Mittel signalisieren schwache Bilanz und Preisdruck – belastet Produzenten, entlastet Verbraucher."}
+  - {id: cmd_oil_demand_x_exposure, domain: commodity_oil_fundamentals, commodity: oil, feature: cmd_product_supplied_chg_4w, direction: 1, relevance: 0.3, exploratory: true,
+     mechanism: "Steigende implizite Nachfrage (Product Supplied) stützt den Ölpreis, bevor er sich im Preis zeigt."}
+  - {id: cmd_gas_price_x_exposure, domain: commodity_gas_price, commodity: natural_gas, feature: cmd_henry_hub_ret_20d, direction: 1, relevance: 0.4,
+     mechanism: "Henry-Hub-Anstiege erhöhen Erlöse von Gasproduzenten und Kosten gasintensiver Chemie/Dünger."}
+  - {id: cmd_gas_storage_x_exposure, domain: commodity_gas_fundamentals, commodity: natural_gas, feature: cmd_natgas_storage_vs_5y, direction: -1, relevance: 0.4,
+     mechanism: "Speicher über dem 5J-Mittel drückt den Gaspreis – negativ für Produzenten, positiv für Gasverbraucher."}
+  - {id: cmd_oil_crowding_x_exposure, domain: commodity_positioning, commodity: oil, feature: cmd_cot_crude_oil_mm_pctile_1y, center: 0.5, direction: -1, relevance: 0.3, exploratory: true,
+     mechanism: "Überfüllte Managed-Money-Longs im Rohöl erhöhen das Risiko einer Positionsauflösung; exponierte Aktien folgen verzögert."}
+  - {id: cmd_copper_price_x_exposure, domain: commodity_metal_ag_price, commodity: copper, feature: cmd_copper_ret_3m, direction: 1, relevance: 0.3,
+     mechanism: "Kupferpreis bestimmt Margen von Minen (+) und Inputkosten von Elektroausrüstern (-)."}
+  - {id: cmd_gold_positioning_x_exposure, domain: commodity_positioning, commodity: gold, feature: cmd_cot_gold_mm_pctile_1y, center: 0.5, direction: 1, relevance: 0.2, exploratory: true,
+     mechanism: "Ohne offiziellen kostenlosen Goldpreis: Managed-Money-Positionierung als Proxy der Goldnachfrage für Minen/Royalty-Titel."}
+  - {id: cmd_corn_price_x_exposure, domain: commodity_metal_ag_price, commodity: corn, feature: cmd_corn_ret_3m, direction: 1, relevance: 0.2, exploratory: true,
+     mechanism: "Höhere Maispreise stärken Farmeinkommen -> Nachfrage nach Landmaschinen, Dünger, Pflanzenschutz."}

@@ -51,7 +51,9 @@ PREREG = "docs/research/PREREG_surprise_engine_2026-10-03.md"
 DATA_GAPS = ["historische implizite Volatilität/Implied Move je Meldung (Optionsarchiv)",
              "Positionierung (Short-Interest-Historie, Dealer-Gamma historisch)",
              "Prediction Markets (keine kostenlose PIT-Historie)",
-             "PIT-Sektorzuordnung (Sektor-Analyse nur mit heutiger Zuordnung, beschreibend)"]
+             "PIT-Sektorzuordnung (Sektor-Analyse nur mit heutiger Zuordnung, beschreibend)",
+             "Konsens-Erwartung EIA-Rohöllager/Gasspeicher (keine offizielle kostenlose Quelle) -> storage_surprise "
+             "EXPECTATION_UNKNOWN; Commodity-Abweichungen gehen nur als Hypothesen in die Fabrik (commodity_intelligence)"]
 
 
 # ── Kennzahlen je Meldung (auch für einzelne Kandidaten nutzbar) ─────────────

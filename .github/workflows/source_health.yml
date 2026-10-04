@@ -43,7 +43,8 @@ jobs:
         env:
           TRADIER_API_KEY:  ${{ secrets.TRADIER_API_KEY }}
           FINNHUB_API_KEY:  ${{ secrets.FINNHUB_API_KEY }}
-          FRED_API_KEY:     ${{ secrets.FRED_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY || secrets.FRED_KEY }}
+          EIA_API_KEY: ${{ secrets.EIA_KEY }}
           GMAIL_SENDER:     ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PW:     ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL:     ${{ secrets.NOTIFY_EMAIL }}

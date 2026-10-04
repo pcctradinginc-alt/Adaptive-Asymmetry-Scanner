@@ -350,7 +350,9 @@ class SourceRegistry:
         cls = self.connector_for(source_id)
         if cls is None:
             return None
-        return cls(self.sources.get(source_id))
+        cfg = dict(self.sources.get(source_id) or {})
+        cfg.setdefault("_archive_root", str(self.archive_root))   # archiv-bewusste Konnektoren (Revisionen)
+        return cls(cfg)
 
     def load_health(self) -> dict[str, dict]:
         return load_health(self.archive_root)

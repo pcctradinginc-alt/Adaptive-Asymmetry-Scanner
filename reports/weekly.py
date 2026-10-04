@@ -55,6 +55,7 @@ MONDAY_TITLES = {
     7: "PERFORMANCE",
     8: "FORWARD EVIDENCE",
     9: "UNIVERSE V1 / V2",
+    10: "COMMODITY INTELLIGENCE",
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
@@ -524,7 +525,23 @@ def collect(root, date, state_path=None) -> dict:
         data["final_mc"] = None
     data["roi_subgates"] = roi_subgate_evidence(history)
     data["universe"] = universe_overview(out_dir)
+    data["commodity"] = commodity_overview(out_dir, date)
     return data
+
+
+def commodity_overview(out_dir: Path, date=None) -> dict:
+    """Commodity Intelligence (RESEARCH): Health, Reihen, Hypothesen, Challenger, Forward, inkrementeller Wert."""
+    try:
+        from modules import commodity_intelligence as _cmd
+        now = None
+        if date:
+            from datetime import datetime as _dt, timezone as _tz
+            d = _parse_date(str(date))
+            now = _dt(d.year, d.month, d.day, 12, tzinfo=_tz.utc) if d else None
+        return _cmd.report_summary(out_dir, now)
+    except (OSError, ValueError, KeyError, ImportError) as e:
+        log.warning(f"Commodity-Übersicht nicht lesbar: {e}")
+        return {}
 
 
 def universe_overview(out_dir: Path) -> dict:
@@ -1331,7 +1348,16 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((7, MONDAY_TITLES[7], b7))
     secs.append((8, MONDAY_TITLES[8], forward_evidence_blocks(data)))
     secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
+    secs.append((10, MONDAY_TITLES[10], commodity_blocks(data)))
     return secs
+
+
+def commodity_blocks(data: dict) -> list:
+    from modules.commodity_intelligence import NO_EVIDENCE_LINE, report_rows
+    c = _d(data.get("commodity"))
+    if not c:
+        return [("para", NO_EVIDENCE_LINE + " (Status nicht verfügbar)")]
+    return [("para", c.get("headline") or NO_EVIDENCE_LINE), ("kv", report_rows(c)[1:])]
 
 
 def universe_blocks(data: dict) -> list:

@@ -7,6 +7,42 @@ Signale, die zwingend davon abhängen, werden blockiert oder laufen über einen 
 | Feature | Quelle(n) | Fallback | Entscheidungspfade der Quelle | Modelle/Hypothesen der Quelle |
 |---|---|---|---|---|
 | beta_126 | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
+| cmdx_copper__copper_ret_3m | fred_commodities | – | – | – |
+| cmdx_copper__cot_copper_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_copper__cot_copper_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_copper__div_copper_positioning_price | cftc_cot, fred_commodities | – | – | – |
+| cmdx_corn__corn_ret_3m | fred_commodities | – | – | – |
+| cmdx_corn__cot_corn_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_corn__cot_corn_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_gold__cot_gold_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_gold__cot_gold_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_natural_gas__cot_natural_gas_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_natural_gas__cot_natural_gas_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_natural_gas__div_gas_storage_price | eia_natural_gas, fred_commodities | – | – | – |
+| cmdx_natural_gas__henry_hub_ret_20d | fred_commodities | – | – | – |
+| cmdx_natural_gas__henry_hub_ret_60d | fred_commodities | – | – | – |
+| cmdx_natural_gas__lng_exports_yoy | eia_natural_gas | – | – | – |
+| cmdx_natural_gas__natgas_storage_chg_z_52w | eia_natural_gas | – | – | – |
+| cmdx_natural_gas__natgas_storage_vs_5y | eia_natural_gas | – | – | – |
+| cmdx_oil__cot_crude_oil_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_oil__cot_crude_oil_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_oil__crude_stocks_chg_z_52w | eia_petroleum_weekly | – | – | – |
+| cmdx_oil__crude_stocks_vs_5y | eia_petroleum_weekly | – | – | – |
+| cmdx_oil__div_oil_positioning_price | cftc_cot, fred_regime_macro | – | – | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1 |
+| cmdx_oil__div_oil_price_inventory | eia_petroleum_weekly, fred_regime_macro | – | – | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1 |
+| cmdx_oil__product_supplied_chg_4w | eia_petroleum_weekly | – | – | – |
+| cmdx_oil__refinery_utilization_z_52w | eia_petroleum_weekly | – | – | – |
+| cmdx_oil__wti_ret_20d | fred_regime_macro | – | – | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1 |
+| cmdx_oil__wti_ret_60d | fred_regime_macro | – | – | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1 |
+| cmdx_oil__wti_z_60d | fred_regime_macro | – | – | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1 |
+| cmdx_silver__cot_silver_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_silver__cot_silver_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_soybeans__cot_soybeans_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_soybeans__cot_soybeans_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_soybeans__soybeans_ret_3m | fred_commodities | – | – | – |
+| cmdx_wheat__cot_wheat_mm_net_chg_4w | cftc_cot | – | – | – |
+| cmdx_wheat__cot_wheat_mm_pctile_1y | cftc_cot | – | – | – |
+| cmdx_wheat__wheat_ret_3m | fred_commodities | – | – | – |
 | cpi_yoy | fred_regime_macro | – | – | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1 |
 | curve_10y_3m | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | dist_52w_high | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
