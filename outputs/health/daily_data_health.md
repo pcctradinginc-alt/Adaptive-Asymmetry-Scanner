@@ -2,13 +2,16 @@
 
 **Safe Mode (Daten): aus** – gewichtete Data Quality 0.992
 
-Status: HEALTHY 31 · DEGRADED 4 · STALE 0 · BROKEN 0 · UNVALIDATED 8
+Status: HEALTHY 32 · DEGRADED 3 · STALE 0 · BROKEN 0 · UNVALIDATED 8
+
+## Neue Änderungen
+
+- recovery: cftc_cot DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| cftc_cot | DEGRADED | NON_CRITICAL | 0 | 2026-09-29 | cmdx_copper__cot_copper_mm_net_chg_4w, cmdx_copper__cot_copper_mm_pctile_1y, cmdx_copper__div_copper_positioning_price, cmdx_corn__cot_corn_mm_net_chg_4w | Ingest WARN: 48480 COT-Werte, 8/8 Märkte, 0 Revisionen | volume guard (9787798 B > 2000000 B, nichts archiviert) |
 | eia_natural_gas | DEGRADED | NON_CRITICAL | 0 | 2026-09-29 | cmdx_natural_gas__div_gas_storage_price, cmdx_natural_gas__lng_exports_yoy, cmdx_natural_gas__natgas_storage_chg_z_52w, cmdx_natural_gas__natgas_storage_vs_5y | Ingest WARN: übersprungen: alle Serien auf dem Stand der letzten Veröffentlichung; Data-Quality-Befund schwerwiegend |
 | fred_commodities | DEGRADED | NON_CRITICAL | 0 | 2026-09-29 | cmdx_copper__copper_ret_3m, cmdx_copper__div_copper_positioning_price, cmdx_corn__corn_ret_3m, cmdx_natural_gas__div_gas_storage_price | Ingest WARN: 7374 ALFRED-Vintage-Beobachtungen (Brent/HenryHub/Kupfer/Weizen/Mais/Soja) | DQ: OUT_OF_RANGE; Data-Quality-Befund schwerwiegen |
 | noaa_storm_events | DEGRADED | NON_CRITICAL | 0 | 2025-01-01 | – | Data-Quality-Befund schwerwiegend; Duplikate None / Konflikte 932 |

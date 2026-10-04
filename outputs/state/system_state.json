@@ -10,10 +10,10 @@
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-04T12:57:09+00:00",
+  "generated": "2026-10-04T16:04:43+00:00",
   "counts": {
-   "HEALTHY": 31,
-   "DEGRADED": 4,
+   "HEALTHY": 32,
+   "DEGRADED": 3,
    "STALE": 0,
    "BROKEN": 0,
    "UNVALIDATED": 8
@@ -133,7 +133,7 @@
   "v1_unchanged": true,
   "v2_status": "SHADOW",
   "v2_segments": {},
-  "v2_latest_snapshot": null
+  "v2_latest_snapshot": "2026-10-04"
  },
  "commodity_data_health": {
   "overall": "DEGRADED",
@@ -142,7 +142,7 @@
    "eia_natural_gas": "DEGRADED",
    "fred_commodities": "DEGRADED",
    "fred_regime_macro": "HEALTHY",
-   "cftc_cot": "DEGRADED"
+   "cftc_cot": "HEALTHY"
   },
   "research_status": "RESEARCH_ONLY",
   "unavailable_series": [],
@@ -162,7 +162,7 @@
    "forward_validation": "NEED_MORE_DATA",
    "calibration": "NEED_MORE_DATA",
    "universe_v1": "OK",
-   "universe_v2": "UNVALIDATED",
+   "universe_v2": "SHADOW",
    "commodity_intelligence": "UNVALIDATED",
    "commodity_sources": "DEGRADED",
    "rl": "SHADOW",
@@ -172,14 +172,14 @@
  "inputs": {
   "model_health": "d33c3a3f5d92",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "ab36869d582f",
+  "data_health": "a6dee701272d",
   "promotion": "d779478a5b98",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 7,
- "fingerprint": "651aa7710bc20cf5",
- "updated_at": "2026-10-04T12:57:09+00:00",
- "code_version": "f8339493d274"
+ "state_version": 8,
+ "fingerprint": "1befdb7a278d19e8",
+ "updated_at": "2026-10-04T16:04:43+00:00",
+ "code_version": "7aa31934a37b"
 }
