@@ -1,22 +1,22 @@
 {
- "schema": "system-state-v1",
+ "schema": "system-state-v2",
  "safe_mode": false,
  "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
-  "data_quality": 1.0,
+  "data_quality": 0.992,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-03T16:40:40+00:00",
+  "generated": "2026-10-04T12:57:09+00:00",
   "counts": {
-   "HEALTHY": 30,
-   "DEGRADED": 0,
+   "HEALTHY": 31,
+   "DEGRADED": 4,
    "STALE": 0,
    "BROKEN": 0,
-   "UNVALIDATED": 9
+   "UNVALIDATED": 8
   },
   "fallbacks": []
  },
@@ -90,7 +90,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 1.0
+    "data_quality": 0.992
    }
   },
   "reasons": [
@@ -121,16 +121,65 @@
   "max_automatic_influence": "ABSTENTION_ONLY"
  },
  "known": true,
+ "allowed_influence": {
+  "max_automatic_influence": "ABSTENTION_ONLY",
+  "by_hypothesis": {},
+  "commodity_max": "SCORE_LIMITED",
+  "default": "NONE"
+ },
+ "universe_version": {
+  "production": "V1",
+  "v1_definition_hash": "c9ac84a41d6adcb24e88dd75898d56dac9e4e38299702fafe5731771fba74ed2",
+  "v1_unchanged": true,
+  "v2_status": "SHADOW",
+  "v2_segments": {},
+  "v2_latest_snapshot": null
+ },
+ "commodity_data_health": {
+  "overall": "DEGRADED",
+  "sources": {
+   "eia_petroleum_weekly": "HEALTHY",
+   "eia_natural_gas": "DEGRADED",
+   "fred_commodities": "DEGRADED",
+   "fred_regime_macro": "HEALTHY",
+   "cftc_cot": "DEGRADED"
+  },
+  "research_status": "RESEARCH_ONLY",
+  "unavailable_series": [],
+  "safe_mode_relevant": false
+ },
+ "learning_health": {
+  "overall": "OK",
+  "stalled_or_broken": [],
+  "paths": {
+   "outcome_ingestion": "OK",
+   "shadow_lifecycle": "ACTIVE",
+   "gate_counterfactuals": "UNVALIDATED",
+   "research_generation": "OK",
+   "hypothesis_testing": "OK",
+   "promotion_pipeline": "OK",
+   "demotion_pipeline": "OK",
+   "forward_validation": "NEED_MORE_DATA",
+   "calibration": "NEED_MORE_DATA",
+   "universe_v1": "OK",
+   "universe_v2": "UNVALIDATED",
+   "commodity_intelligence": "UNVALIDATED",
+   "commodity_sources": "DEGRADED",
+   "rl": "SHADOW",
+   "research_memory": "ACTIVE"
+  }
+ },
  "inputs": {
   "model_health": "d33c3a3f5d92",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "2def2c549b73",
+  "data_health": "ab36869d582f",
   "promotion": "d779478a5b98",
   "model_registry": "a0c0ce90b949",
-  "champion_config": "b60b12cedaea"
+  "champion_config": "b60b12cedaea",
+  "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 6,
- "fingerprint": "e1a274aecb529135",
- "updated_at": "2026-10-03T16:40:40+00:00",
- "code_version": "9dbda31756c2"
+ "state_version": 7,
+ "fingerprint": "651aa7710bc20cf5",
+ "updated_at": "2026-10-04T12:57:09+00:00",
+ "code_version": "f8339493d274"
 }

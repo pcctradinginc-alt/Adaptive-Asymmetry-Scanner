@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T16:40:40+00:00",
+ "generated": "2026-10-04T12:57:09+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -387,6 +387,330 @@
    "source_actual": "ted_awards",
    "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__crude_stocks_chg_z_52w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "eia_petroleum_weekly",
+   "source_actual": "eia_petroleum_weekly",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__crude_stocks_vs_5y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "eia_petroleum_weekly",
+   "source_actual": "eia_petroleum_weekly",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__div_oil_price_inventory": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "eia_petroleum_weekly",
+   "source_actual": "eia_petroleum_weekly",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__product_supplied_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "eia_petroleum_weekly",
+   "source_actual": "eia_petroleum_weekly",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__refinery_utilization_z_52w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "eia_petroleum_weekly",
+   "source_actual": "eia_petroleum_weekly",
+   "source_status": "HEALTHY",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__div_gas_storage_price": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "eia_natural_gas",
+   "source_actual": "eia_natural_gas",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__lng_exports_yoy": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "eia_natural_gas",
+   "source_actual": "eia_natural_gas",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__natgas_storage_chg_z_52w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "eia_natural_gas",
+   "source_actual": "eia_natural_gas",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__natgas_storage_vs_5y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "eia_natural_gas",
+   "source_actual": "eia_natural_gas",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_copper__copper_ret_3m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_copper__div_copper_positioning_price": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_corn__corn_ret_3m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__henry_hub_ret_20d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__henry_hub_ret_60d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_soybeans__soybeans_ret_3m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_wheat__wheat_ret_3m": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_copper__cot_copper_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_copper__cot_copper_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_corn__cot_corn_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_corn__cot_corn_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_gold__cot_gold_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_gold__cot_gold_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__cot_natural_gas_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_natural_gas__cot_natural_gas_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__cot_crude_oil_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__cot_crude_oil_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__div_oil_positioning_price": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_silver__cot_silver_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_silver__cot_silver_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_soybeans__cot_soybeans_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_soybeans__cot_soybeans_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_wheat__cot_wheat_mm_net_chg_4w": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_wheat__cot_wheat_mm_pctile_1y": {
+   "available": true,
+   "stale": false,
+   "data_quality": 0.6,
+   "source_primary": "cftc_cot",
+   "source_actual": "cftc_cot",
+   "source_status": "DEGRADED",
+   "criticality": "NON_CRITICAL"
+  },
+  "cmdx_oil__wti_ret_20d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "cmdx_oil__wti_ret_60d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "cmdx_oil__wti_z_60d": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "fred_regime_macro",
+   "source_actual": "fred_regime_macro",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
   },
   "cpi_yoy": {
    "available": true,
