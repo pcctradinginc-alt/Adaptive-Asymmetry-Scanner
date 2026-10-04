@@ -130,6 +130,31 @@ def test_discovery_snapshot_survivorship_and_rolling(tmp_path):
     assert uv.latest_snapshot(tmp_path / "s")["as_of"] == d2.isoformat()
 
 
+def test_first_run_over_budget_marks_unchecked_and_next_run_prioritises_them(tmp_path):
+    """Live 2026-10-04: ohne Vor-Snapshot griff das Budget nie -> Job-Timeout, kein Snapshot."""
+    js = {"fields": ["cik", "name", "ticker", "exchange"],
+          "data": [[i, f"C{i}", f"T{i}", "Nasdaq"] for i in range(5)]}
+    calls = []
+
+    def chain(t, d, c):
+        calls.append(t)
+        return _chain(sym=t), "fake"
+    recs, meta = uv.discover(TODAY, CFG, listings_js=js, quotes_fn=lambda ts: {t: _quote() for t in ts},
+                             chain_fn=chain, cap_fn=lambda t: (5e9, "fake"), budget_s=-1)
+    assert meta["checked_this_run"] == 0 and meta["unchecked_new"] == 5 and calls == []
+    assert all(r["status"] == "UNCHECKED" and not r["research_ok"] and not r["tradeable_ok"]
+               and not r["optionable"] and r["market_cap"] is None for r in recs)
+    snap = uv.save_snapshot(recs, TODAY, meta, snap_dir=tmp_path / "s", delistings=tmp_path / "d.jsonl")
+    assert snap["summary"]["n_unchecked"] == 5 and snap["summary"]["n_listed_checked"] == 0
+    # Folgelauf mit Budget: UNCHECKED zuerst geprüft, echte Bewertung ersetzt den Platzhalter
+    recs2, meta2 = uv.discover(TODAY + timedelta(days=7), CFG, listings_js=js,
+                               quotes_fn=lambda ts: {t: _quote(last=TODAY + timedelta(days=7)) for t in ts},
+                               chain_fn=lambda t, d, c: (_chain(sym=t, today=d), "f"), cap_fn=lambda t: (5e9, "f"),
+                               prev=snap, budget_s=3600)
+    assert meta2["checked_this_run"] == 5 and meta2["unchecked_new"] == 0
+    assert all(r["status"] != "UNCHECKED" for r in recs2)
+
+
 def test_v1_frozen_and_unchanged():
     frozen = json.loads(uv.V1_FROZEN.read_text())
     assert frozen["universe_version"] == "V1" and frozen["hard_filters"]["min_market_cap_usd"] == 2_000_000_000
