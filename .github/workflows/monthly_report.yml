@@ -36,15 +36,23 @@ jobs:
         run: python monthly_report.py
 
       - name: Inkrementalanalyse Base vs. externe Familien (EXPLORATIV)
-        run: python scripts/incremental_analysis.py > /dev/null || true
+        id: incremental
+        continue-on-error: true
+        run: python scripts/incremental_analysis.py > /dev/null
 
-      - name: Alpha-Entdeckung + Registrierung prospektiver Challenger
-        run: |
-          python -m modules.alpha_discovery || true
-          python -c "from modules.challenger_registrar import run_auto; print(run_auto())" || true
+      - name: Alpha-Entdeckung (EXPLORATIV)
+        id: alpha
+        continue-on-error: true
+        run: python -m modules.alpha_discovery
+
+      - name: Registrierung prospektiver Challenger
+        id: registrar
+        continue-on-error: true
+        run: python -c "from modules.challenger_registrar import run_auto; print(run_auto())"
 
       - name: Faktor-Monitor (Walk-Forward, Decay, Regime, Drift; nur SHADOW)
         # continue-on-error statt "|| true": ein Fehler bleibt im Lauf sichtbar
+        id: factor
         continue-on-error: true
         run: python -m modules.factor_monitor
 
@@ -52,11 +60,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/research/ challengers.yaml config/challenger_proposals_auto.yaml 2>/dev/null || git add outputs/research/ challengers.yaml || true
-          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
-          git commit -m "chore: incremental analysis $(date -u +%Y-%m-%dT%H:%M)"
-          git stash --include-untracked || true
-          git pull --rebase origin main
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          bash scripts/ci_push.sh "chore: incremental analysis $(date -u +%Y-%m-%dT%H:%M)" outputs/research/ challengers.yaml config/challenger_proposals_auto.yaml
+
+      - name: Stufen-Bilanz (zentrale Stufe ausgefallen -> Lauf rot, nach dem Commit)
+        if: always()
+        env:
+          CRITICAL: "challenger_registrar=${{ steps.registrar.outcome }} alpha_discovery=${{ steps.alpha.outcome }}"
+          DEGRADED: "incremental_analysis=${{ steps.incremental.outcome }} factor_monitor=${{ steps.factor.outcome }}"
+        run: bash scripts/ci_stage_check.sh

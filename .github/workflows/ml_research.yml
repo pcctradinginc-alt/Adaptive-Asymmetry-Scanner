@@ -39,18 +39,22 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Alternative-Data-Feature-Store (SEC, aus eingecheckten Events, PIT)
+        id: alt_sec
         continue-on-error: true   # fehlt er, sind Alt-Features NaN / verfügbar 0 – Champion unberührt
         run: python -m modules.external.sources.sec_ingest --features-only
 
       - name: Alternative-Data-Feature-Store (SEC XBRL, aus eingecheckten Beobachtungen, PIT)
+        id: alt_xbrl
         continue-on-error: true
         run: python -m modules.external.sources.sec_xbrl --features-only
 
       - name: Alternative-Data-Feature-Store (TED, aus eingecheckten Events, PIT)
+        id: alt_ted
         continue-on-error: true
         run: python -m modules.external.sources.ted_ingest --features-only
 
       - name: Commodity-Feature-Store (EIA/FRED/CFTC aus dem PIT-Archiv, RESEARCH)
+        id: cmd_build
         continue-on-error: true   # fehlt er, sind Commodity-Features NaN / verfügbar 0 – Champion unberührt
         run: python -m modules.commodity_intelligence build
 
@@ -64,11 +68,13 @@ jobs:
           ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.ml_research --mode "$MODE"
 
       - name: Research Director + Active Learning (nur full)
+        id: director
         if: env.MODE == 'full'
         continue-on-error: true
         run: python -m modules.research_director
 
       - name: Scientific Hypothesis Factory – Plan (Ideen, DATA_GAP, Ähnlichkeit, Budget – nur full)
+        id: factory_plan
         if: env.MODE == 'full'
         continue-on-error: true
         env:
@@ -76,31 +82,37 @@ jobs:
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory plan --llm
 
       - name: Research-Lab (Hypothesen-Datenbank, Discovery, Director-Hypothesen – nur full)
+        id: research_lab
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.research_lab
 
       - name: Scientific Hypothesis Factory – Robustheit, Prospective Challenger, Forward-Ledger (nur full)
+        id: factory_eval
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory evaluate
 
       - name: Alternative Data – inkrementeller Nutzen (Baseline vs. Baseline+Quelle, nur full)
+        id: alt_eval
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.alt_data.evaluate
 
       - name: Commodity Intelligence – BASE vs. BASE+COMMODITY (gemappte Titel, nur full)
+        id: cmd_eval
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.commodity_intelligence evaluate
 
       - name: Meta-Learning (Walk-Forward, Counterfactuals, Ablation, Gate – nur full)
+        id: meta_learning
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta.pkl" python -m modules.meta_learning
 
       - name: Kausalschicht + Knowledge Graph (nur full)
+        id: causal
         if: env.MODE == 'full'
         continue-on-error: true
         run: |
@@ -108,15 +120,18 @@ jobs:
           python -m modules.knowledge_graph
 
       - name: Gesamtvalidierung A–G, Blind Spots, Stress, Decision Intelligence (nur full)
+        id: next_intel
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta.pkl" python -m modules.next_intelligence
 
       - name: Meta-Cognition + Safe Mode (vor den Alerts)
+        id: meta_cognition
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.meta_cognition
 
       - name: High-Confidence-Scanner + Alerts (keine Orderausführung)
+        id: hc_scanner
         continue-on-error: true
         env:
           GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
@@ -144,12 +159,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p outputs/state outputs/costs
-          git add outputs/research/ outputs/state/ outputs/costs/
-          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
-          git commit -m "chore: ml research $(date -u +%Y-%m-%dT%H:%M)"
-          git stash --include-untracked || true
-          git pull --rebase origin main
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          bash scripts/ci_push.sh "chore: ml research $(date -u +%Y-%m-%dT%H:%M)" outputs/research/ outputs/state/ outputs/costs/
+
+      - name: Stufen-Bilanz (zentrale Research-Stufe ausgefallen -> Lauf rot, nach dem Commit)
+        if: always()
+        env:
+          CRITICAL: "factory_plan=${{ steps.factory_plan.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }}"
+          DEGRADED: "alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }}"
+        run: bash scripts/ci_stage_check.sh

@@ -74,8 +74,8 @@ def load_history() -> dict:
 
 
 def save_history(history: dict) -> None:
-    with open(HISTORY_PATH, "w") as f:
-        json.dump(history, f, indent=2, default=str)
+    from modules.atomic_io import atomic_write_json
+    atomic_write_json(HISTORY_PATH, history, indent=2)          # atomar (Crash-Recovery, Audit 2026-10-04)
     log.info("history.json aktualisiert.")
 
 

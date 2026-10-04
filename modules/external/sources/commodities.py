@@ -44,6 +44,8 @@ log = logging.getLogger(__name__)
 
 CONFIG_PATH = Path("config/commodity_intelligence.yaml")
 PARSER_VERSION = "1"
+EIA_SCHEMA_VERSION = "eia-api-v2:response.data[period,series,value,units]"
+CFTC_SCHEMA_VERSION = "cftc-pre-72hh-3qpy:disaggregated-futures-only"
 DEFAULT_ARCHIVE_ROOT = "outputs/external_data"
 BACKFILL_FLAG_DAYS = 30          # Erstimport älter als das -> kein Erstveröffentlichungswert belegt
 
@@ -322,7 +324,8 @@ class EiaConnector(_ArchiveAware):
                 parser_version=self.parser_version, source_release_time=None,
                 attrs={"frequency": spec["frequency"], "source_unit": unit, "commodity": spec["commodity"],
                        "role": spec.get("role", "fundamental"), "route": spec["route"],
-                       "release_rule": dict(spec["release"])}))
+                       "release_rule": dict(spec["release"]), "schema_version": EIA_SCHEMA_VERSION,
+                       "release_time_rule": release_time(period, spec["release"]).isoformat()}))
         return out, problems
 
     def fetch(self, now: datetime) -> ConnectorResult:
@@ -583,7 +586,8 @@ class CftcCotConnector(_ArchiveAware):
                         availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
                         parser_version=self.parser_version, source_release_time=None,
                         attrs={"frequency": "weekly", "commodity": m.get("commodity", mkey),
-                               "report_date": rd.isoformat(), "release_rule_time": rel.isoformat()}))
+                               "report_date": rd.isoformat(), "release_rule_time": rel.isoformat(),
+                               "schema_version": CFTC_SCHEMA_VERSION}))
         return out, stats
 
     def fetch(self, now: datetime) -> ConnectorResult:

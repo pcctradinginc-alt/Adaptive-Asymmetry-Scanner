@@ -450,7 +450,9 @@ def load_history() -> dict:
                         weights[k] = dflt
             return data
         except (json.JSONDecodeError, ValueError) as e:
-            log.warning(f"history.json beschädigt ({e}) → Reset auf Default")
+            # Fail-closed (Audit 2026-10-04): vorher "Reset auf Default" -> der nächste save_history
+            # hätte alle Trades/Shadow-Kandidaten überschrieben. Archive werden nie gelöscht.
+            raise RuntimeError(f"history.json beschädigt ({e}) – Lauf abgebrochen, Datei unverändert") from e
     return {
         "feature_stats": {}, "active_trades": [], "closed_trades": [],
         "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20},
@@ -459,9 +461,8 @@ def load_history() -> dict:
 
 
 def save_history(history: dict) -> None:
-    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(HISTORY_PATH, "w") as f:
-        json.dump(history, f, indent=2, default=str)
+    from modules.atomic_io import atomic_write_json
+    atomic_write_json(HISTORY_PATH, history, indent=2)          # atomar: Abbruch hinterlässt nie eine halbe Datei
 
 
 # ── Stufe 2b-ext: External Context Snapshot (SHADOW) ─────────────────────────
@@ -1372,7 +1373,7 @@ def main() -> None:
 
     # ── STUFE 9: RL-Scoring ──────────────────────────────────────────────────
     log.info("Stufe 9: RL-Scoring")
-    _rl_veto = bool(cfg.rl.get("veto_enabled", True))
+    _rl_veto = bool(cfg.rl.get("veto_enabled", False))   # fehlt der Schlüssel: Veto AUS (nie automatisch aktiv)
     final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
     stats["rl_scored"] = len(final_signals)
     # Robuster PPO-Challenger: NUR Shadow-Aktion im Ledger (challengers.yaml

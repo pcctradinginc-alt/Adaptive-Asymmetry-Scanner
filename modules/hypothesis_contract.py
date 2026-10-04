@@ -171,6 +171,8 @@ def evaluate_signal(c: dict, env: dict):
 def fires(c: dict, env: dict) -> bool | None:
     """Trifft die Regel zu? thresholds = {op, value}; Richtung -1 kehrt den Vergleich NICHT um
     (die Richtung beschreibt die erwartete Wirkung, nicht die Regel). None = nicht auswertbar."""
+    if is_commodity_contract(c) and c.get("mapping_version") != env.get("commodity_mapping_version"):
+        return None              # Mapping geändert/unbekannt -> nicht auswertbar (neue Vertragsversion nötig)
     v = evaluate_signal(c, env)
     if v is None:
         return None
@@ -279,6 +281,8 @@ def validate_commodity(c: dict) -> list[str]:
         errs.append(f"Commodity-Vertrag: maximum_initial_influence {mx} > {COMMODITY_MAX_INFLUENCE}")
     if c.get("production_class") not in ("research_only", "rerank", "score"):
         errs.append("Commodity-Vertrag: production_class nur research_only/rerank/score")
+    if not c.get("mapping_version"):
+        errs.append("Commodity-Vertrag: mapping_version (NON_PIT-Exposure-Mapping) muss im Vertrag fixiert sein")
     return errs
 
 

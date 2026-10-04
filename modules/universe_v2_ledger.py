@@ -69,6 +69,12 @@ def record_candidates(cands: list[dict], *, today: str, vix=None, ctx: dict | No
                "liquidity_bucket": a.get("liquidity_bucket"), "options_liquidity_bucket": a.get("options_liquidity_bucket"),
                "execution_quality": a.get("execution_quality"), "tradeable_v2": 1 if a.get("tradeable_ok") else 0,
                "hit_rate": c.get("hit_rate"), "vix": vix, "safe_mode_active": ctx.get("safe_mode_active")}
+        try:                                         # Commodity × Market-Cap-Bucket prospektiv testbar (RESEARCH)
+            from modules import commodity_intelligence as _cmd
+            cmd_env = _cmd.decision_features(t, ctx.get("commodity"), ticker_known=True)
+        except Exception:  # noqa: BLE001 – optional
+            cmd_env = {}
+        env.update({k: v for k, v in cmd_env.items() if k != "commodity_data_version"})
         trig = {}
         for k, ct in valid.items():
             f = hc.fires(ct, env)
@@ -87,15 +93,16 @@ def record_candidates(cands: list[dict], *, today: str, vix=None, ctx: dict | No
             "execution_quality": a.get("execution_quality"), "tradeable_v2": bool(a.get("tradeable_ok")),
             "tradeable_fail": a.get("tradeable_fail"), "risk_flags": a.get("risk_flags"),
             "reference_option": a.get("reference_option"),
+            "commodity": {"data_version": cmd_env.get("commodity_data_version"),
+                          "exposure": {k: v for k, v in cmd_env.items() if k.startswith("cmdexp_") and v},
+                          "features": {k: v for k, v in cmd_env.items() if k.startswith("cmd_") and v is not None}},
             "reference_price": (a.get("underlying_liquidity") or {}).get("price"),
             "system_state": {"version": ctx.get("system_state_version"), "safe_mode": ctx.get("safe_mode_active"),
                              "drift_level": ctx.get("drift_level")},
             "contracts": trig, "production_effect": "NONE"})
     if rows:
-        ledger_dir.mkdir(parents=True, exist_ok=True)
-        with open(ledger_dir / f"{today[:7]}.jsonl", "a", encoding="utf-8") as fh:
-            for r in rows:
-                fh.write(json.dumps(r, sort_keys=True, ensure_ascii=False, default=str) + "\n")
+        from modules.atomic_io import append_jsonl
+        append_jsonl(ledger_dir / f"{today[:7]}.jsonl", rows, sort_keys=True, ensure_ascii=False)
     return rows
 
 
@@ -171,9 +178,8 @@ def resolve_outcomes(*, today: date | None = None, ledger_dir: Path | None = Non
                 net.update(outcome_status="CORPORATE_ACTION", net_realizable_return=None, option_theoretical_return=None)
             e = {"observation_id": r["observation_id"], "horizon": h, "mfe": (po or {}).get("mfe"),
                  "mae": (po or {}).get("mae"), **net, "resolved_at": today.isoformat()}
-            path.parent.mkdir(parents=True, exist_ok=True)
-            with open(path, "a", encoding="utf-8") as fh:
-                fh.write(json.dumps(e, sort_keys=True) + "\n")
+            from modules.atomic_io import append_jsonl
+            append_jsonl(path, [e], sort_keys=True)
             have[(r["observation_id"], h)] = e
             n += 1
     return n

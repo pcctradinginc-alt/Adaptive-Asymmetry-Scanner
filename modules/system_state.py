@@ -46,8 +46,14 @@ DEFAULT_INPUTS = {
     "promotion": Path("outputs/intelligence/promotion_state.json"),
     "model_registry": Path("config/model_registry.yaml"),
     "champion_config": Path("config.yaml"),
+    "universe_v1_frozen": Path("outputs/universe/universe_v1_frozen.json"),
+    "universe_v2_snapshots": Path("outputs/universe/v2_snapshots"),
+    "commodity_status": Path("outputs/research/commodity_intelligence.json"),
+    "root": Path("."),
 }
-SCHEMA = "system-state-v1"
+SCHEMA = "system-state-v2"
+MODEL_HEALTH_MAX_AGE_DAYS = 14          # Meta-Cognition wöchentlich (ml_research.yml) + Puffer
+COMMODITY_SOURCES = ("eia_petroleum_weekly", "eia_natural_gas", "fred_commodities", "fred_regime_macro", "cftc_cot")
 
 
 def _now() -> datetime:
@@ -112,9 +118,20 @@ def derive(inputs: dict[str, Path] | None = None, now: datetime | None = None) -
 
     # Model Health (Meta-Cognition; nur Modell-Gründe, Drift/Daten aus eigenen Komponenten)
     mh = _read(inp["model_health"])
+    mh_age = None
+    if isinstance(mh, dict) and mh.get("updated"):
+        try:
+            _u = datetime.fromisoformat(str(mh["updated"]).replace("Z", "+00:00"))
+            mh_age = (now - (_u if _u.tzinfo else _u.replace(tzinfo=timezone.utc))).total_seconds() / 86400
+        except ValueError:
+            mh_age = None
     if not isinstance(mh, dict) or "active" not in mh:
         unknown.append("SAFE MODE unbekannt: Model Health (safe_mode.json) fehlt oder ist unlesbar")
         model_health = {"status": "UNKNOWN", "reasons": [], "updated": None}
+    elif mh_age is not None and mh_age > MODEL_HEALTH_MAX_AGE_DAYS:
+        # Audit 2026-10-04: Meta-Cognition läuft wöchentlich; ein alter Befund ist kein aktueller Befund
+        unknown.append(f"SAFE MODE unbekannt: Model Health veraltet ({mh_age:.0f} T > {MODEL_HEALTH_MAX_AGE_DAYS} T)")
+        model_health = {"status": "UNKNOWN", "reasons": [], "updated": mh.get("updated")}
     else:
         comp = mh.get("components")
         model_reasons = (comp or {}).get("model") if isinstance(comp, dict) else \
@@ -144,11 +161,53 @@ def derive(inputs: dict[str, Path] | None = None, now: datetime | None = None) -
                                                                   if (h.get("influence_level") or "NONE") != "NONE"),
                        "max_automatic_influence": ps.get("max_automatic_influence")}
 
+    # Erlaubter Produktionseinfluss (einzige Quelle: promotion_state.json des PromotionControllers)
+    allowed_influence = {"max_automatic_influence": ps.get("max_automatic_influence") or "ABSTENTION_ONLY",
+                         "by_hypothesis": {k: h.get("influence_level") for k, h in sorted(hy.items())
+                                           if (h.get("influence_level") or "NONE") != "NONE"},
+                         "commodity_max": "SCORE_LIMITED", "default": "NONE"}
+
+    # Universe: V1 produktiv (eingefroren), V2 Shadow; Segment-Stufen nur aus promotion_state
+    frozen = _read(inp["universe_v1_frozen"]) or {}
+    v1_ok = None
+    try:
+        from modules import universe_v2 as _uv
+        v1_ok = _uv.v1_unchanged(inp["universe_v1_frozen"]) if frozen else None
+        snap_v2 = _uv.latest_snapshot(inp["universe_v2_snapshots"])
+    except Exception as e:  # noqa: BLE001 – unbekannt statt Absturz
+        snap_v2 = None
+        unknown.append(f"UNIVERSE unbekannt: {type(e).__name__}")
+    seg = {k.split("@")[0].replace("UNIV-V2-SEG-", ""): (h.get("influence_level") or "NONE")
+           for k, h in hy.items() if "UNIV-V2-SEG-" in k}
+    universe_version = {"production": "V1", "v1_definition_hash": frozen.get("definition_hash"),
+                        "v1_unchanged": v1_ok, "v2_status": "PARTIALLY_PROMOTED" if any(v != "NONE" for v in seg.values())
+                        else "SHADOW", "v2_segments": seg, "v2_latest_snapshot": (snap_v2 or {}).get("as_of")}
+    if frozen and v1_ok is False:
+        reasons.append("UNIVERSE: V1-Definition weicht vom eingefrorenen Hash ab")
+
+    # Commodity-Datenqualität: nur Research-Quellen -> NIE Safe-Mode-Grund, nur abhängige Features betroffen
+    srcs = (snap.get("sources") or {}) if not snap.get("unknown") else {}
+    cs = {sid: (srcs.get(sid) or {}).get("status", "UNVALIDATED") for sid in COMMODITY_SOURCES}
+    vals = set(cs.values())
+    overall = ("BROKEN" if "BROKEN" in vals else "STALE" if "STALE" in vals else "DEGRADED" if "DEGRADED" in vals
+               else "UNVALIDATED" if "UNVALIDATED" in vals else "HEALTHY")
+    cst = _read(inp["commodity_status"]) or {}
+    commodity_data_health = {"overall": overall, "sources": cs, "research_status": cst.get("research_status") or "RESEARCH_ONLY",
+                             "unavailable_series": sorted((cst.get("unavailable") or {}).keys()),
+                             "safe_mode_relevant": False}
+
+    from modules import learning_health as _lh
+    lh = _lh.assess(inp["root"], now, data_health={"commodity": commodity_data_health})
+    learning = {"overall": lh["overall"], "stalled_or_broken": lh["stalled_or_broken"],
+                "paths": {k: v["status"] for k, v in lh["paths"].items()}}
+
     all_reasons = unknown + reasons
     content = {"schema": SCHEMA, "safe_mode": bool(all_reasons), "safe_mode_reason": all_reasons,
                "data_health": data_health, "model_health": model_health, "drift_state": drift_state,
                "champion_version": champion, "promotion_state": promotion_state, "known": not unknown,
-               "inputs": {k: _hash_file(Path(v)) for k, v in inp.items()}}
+               "allowed_influence": allowed_influence, "universe_version": universe_version,
+               "commodity_data_health": commodity_data_health, "learning_health": learning,
+               "inputs": {k: _hash_file(Path(v)) for k, v in inp.items() if Path(v).is_file()}}
     return content
 
 

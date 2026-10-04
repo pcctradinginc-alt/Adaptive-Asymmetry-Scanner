@@ -631,10 +631,9 @@ def build(now: datetime | None = None, root: Path | None = None, start: str = GR
         rows.append(r)
     df = pd.DataFrame(rows)
     names = date_feature_names(cfg)
-    for g in names.values():
-        for c in g:
-            if c not in df:
-                df[c] = np.nan
+    missing = [c for g in names.values() for c in g if c not in df]
+    if missing:
+        df = pd.concat([df, pd.DataFrame(np.nan, index=df.index, columns=missing)], axis=1)
     status["cot"] = {"oi_inconsistent_reports": oi_bad}
     status["coverage"] = coverage_summary(df, names)
     status["latest"] = latest_snapshot(df, names)
@@ -1089,3 +1088,52 @@ def report_rows(s: dict) -> list[tuple[str, str]]:
         ("Inkrementeller Wert (BASE vs. BASE+COMMODITY)", f"{s.get('incremental_value')} – " + (
             kv({g: v["verdict"] for g, v in (s.get("ablation") or {}).items()}) if s.get("ablation") else "noch nicht bewertet")),
     ]
+
+
+# ── Entscheidungszeitpunkt (nur lesend): Commodity-Merkmale für Verträge im Decision-/Shadow-Ledger ──
+# Damit ein registrierter Commodity-Vertrag PROSPEKTIV ausgewertet werden kann (Forward-Evidenz zum
+# Entscheidungszeitpunkt eingefroren), braucht die Regelauswertung dieselben PIT-Merkmale wie die
+# Research-Seite. Kein Einfluss: wirkt nur über einen vom PromotionController freigegebenen Vertrag.
+
+_SNAP_CACHE: dict = {}
+
+
+def decision_snapshot(now: datetime | None = None, root: Path | None = None) -> dict:
+    """Datums-Features zum Stichtag (PIT aus dem Archiv, Frische-Grenzen wie im Feature-Store).
+    Fehler/fehlende Daten -> {} (Merkmale bleiben None, Verträge nicht auswertbar – nie 0)."""
+    now = ensure_utc(now) or datetime.now(timezone.utc)
+    key = (now.date().isoformat(), str(root or ARCHIVE_ROOT))
+    if key in _SNAP_CACHE:
+        return _SNAP_CACHE[key]
+    snap: dict = {}
+    try:
+        df, st = build(now=now, root=root, start=(now.date() - timedelta(days=7)).isoformat(), write=False)
+        if not df.empty:
+            row = df.iloc[-1]
+            feats = {f: float(row[f]) for f in SIGNAL_DATE_FEATURES if f in row and pd.notna(row[f])}
+            ver = hashlib.sha256(json.dumps({"date": row["date"], "f": feats, "unavailable": sorted(st["unavailable"])},
+                                            sort_keys=True, default=str).encode()).hexdigest()[:12]
+            snap = {"date": row["date"], "features": feats, "commodity_data_version": ver,
+                    "mapping_version": mapping_status().get("version"), "unavailable": sorted(st["unavailable"])}
+    except Exception as e:  # noqa: BLE001 – Research-Kontext darf die Pipeline nie brechen
+        log.warning(f"commodity: Entscheidungs-Snapshot nicht ableitbar ({type(e).__name__}: {e})")
+    _SNAP_CACHE[key] = snap
+    return snap
+
+
+def decision_features(ticker: str | None, snap: dict | None, ticker_known: bool = True) -> dict:
+    """Merkmale je Kandidat: cmdexp_<rohstoff>, Datums-Features cmd_*, Kreuzfeatures cmdx_*.
+    Nicht gemappt: cmdexp 0 nur bei bekanntem Titel (sonst None), cmdx None. Fehlender Snapshot: alles None."""
+    feats = (snap or {}).get("features") or {}
+    out: dict = {f: feats.get(f) for f in SIGNAL_DATE_FEATURES}
+    ex = exposure_table([ticker]) if ticker else exposure_table([])
+    dirs = {r.commodity: int(r.expected_direction) for r in ex.itertuples()}
+    for col, c in EXPOSURE_COLUMNS.items():
+        out[col] = float(dirs[c]) if c in dirs else (0.0 if ticker_known and ticker else None)
+    for spec in CROSS_SPEC.values():
+        for c, fe in spec:
+            v = feats.get(fe)
+            out[cross_name(c, fe)] = (dirs[c] * v) if (c in dirs and v is not None) else None
+    out["commodity_data_version"] = (snap or {}).get("commodity_data_version")
+    out["commodity_mapping_version"] = mapping_status().get("version") if snap else None
+    return out

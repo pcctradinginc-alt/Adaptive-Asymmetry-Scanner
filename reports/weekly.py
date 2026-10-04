@@ -526,6 +526,13 @@ def collect(root, date, state_path=None) -> dict:
     data["roi_subgates"] = roi_subgate_evidence(history)
     data["universe"] = universe_overview(out_dir)
     data["commodity"] = commodity_overview(out_dir, date)
+    try:                                              # LEARNING_HEALTH (rein lesend, gleiche Ableitung wie SystemState)
+        from modules import learning_health as _lh
+        data["learning_health"] = _lh.assess(root, None, data_health={"commodity": (sys_state or {}).get(
+            "commodity_data_health") or {}})
+    except Exception as e:  # noqa: BLE001 – Report darf nie abbrechen
+        log.warning(f"LEARNING_HEALTH nicht ableitbar: {e}")
+        data["learning_health"] = {}
     return data
 
 
@@ -1187,7 +1194,10 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
         ("Promotete Hypothesen", str(len(groups["PROMOTED"])) + (f" – mit Einfluss: {', '.join(ps.get('with_influence') or [])}"
                                                                  if ps.get("with_influence") else " – kein Produktionseinfluss")),
         ("Drift/Fehler (Warnungen)", ", ".join(sorted({w["code"] for w in data["warnings"]})) or "keine"),
-    ])]))
+    ]), ("para", "LEARNING_HEALTH: " + (_d(data.get("learning_health")).get("overall") or NO_DATA)
+         + (" – STALLED/BROKEN: " + ", ".join(_d(data.get("learning_health")).get("stalled_or_broken") or [])
+            if _d(data.get("learning_health")).get("stalled_or_broken") else "")),
+        ("kv", _learning_rows(data))]))
 
     # 2 WHAT THE SYSTEM LEARNED
     tr = [t for t in data.get("promo_transitions") or [] if _recent(t.get("timestamp"), today)]
@@ -1350,6 +1360,14 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
     secs.append((10, MONDAY_TITLES[10], commodity_blocks(data)))
     return secs
+
+
+def _learning_rows(data: dict) -> list:
+    lh = _d(data.get("learning_health"))
+    if not lh:
+        return [("LEARNING_HEALTH", NO_DATA)]
+    from modules.learning_health import render_lines
+    return render_lines(lh)
 
 
 def commodity_blocks(data: dict) -> list:

@@ -42,14 +42,17 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Paper-Performance + Kalibrierung (in-sample Bänder, prequential OOS-Güte)
+        id: calibration
         continue-on-error: true
         run: python scripts/paper_performance_analysis.py
 
       - name: Kernfrage-Ketten (Unklarheit -> Erklärung -> Daten -> Forward -> Verhalten)
+        id: inquiry
         continue-on-error: true
         run: python -m modules.inquiry
 
       - name: RL-Promotion-Bewertung (nur Meldung, nie Veto-Aktivierung)
+        id: rlpromo
         continue-on-error: true
         run: python -m modules.rl_promotion
 
@@ -70,12 +73,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p outputs/state
-          git add outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl outputs/research/inquiry_chains.json outputs/research/paper_performance_analysis.json outputs/research/paper_performance_analysis.md 2>/dev/null || git add outputs/reports/ outputs/state/
-          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
-          git commit -m "chore: weekly report $(date -u +%Y-%m-%dT%H:%M)"
-          git stash --include-untracked || true
-          git pull --rebase origin main
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          bash scripts/ci_push.sh "chore: weekly report $(date -u +%Y-%m-%dT%H:%M)" outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl outputs/research/inquiry_chains.json outputs/research/paper_performance_analysis.json outputs/research/paper_performance_analysis.md
+
+      - name: Stufen-Bilanz (zentrale Stufe ausgefallen -> Lauf rot, nach dem Commit)
+        if: always()
+        env:
+          CRITICAL: "calibration=${{ steps.calibration.outcome }}"
+          DEGRADED: "inquiry=${{ steps.inquiry.outcome }} rl_promotion=${{ steps.rlpromo.outcome }}"
+        run: bash scripts/ci_stage_check.sh
