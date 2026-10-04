@@ -138,8 +138,13 @@ cache_max_age_days:
 # Nachgelagerte Nutzung, die nicht aus Registries ableitbar ist.
 downstream_extra:
   fred_regime_macro: ["ml_research panel: cpi_yoy, fed_assets_13w_chg, usd_63d_chg, wti_63d_chg",
+                      "commodity_intelligence (RESEARCH): WTI-Preis-Features (wiederverwendet)",
                       "meta_cognition / world_model Regime"]
   fred_us_macro: ["external_context (SHADOW)"]
+  fred_commodities: ["commodity_intelligence (RESEARCH): Preis-Features Brent/Henry Hub/Kupfer/Agrar"]
+  eia_petroleum_weekly: ["commodity_intelligence (RESEARCH): Öl-Fundamentaldaten (WPSR)"]
+  eia_natural_gas: ["commodity_intelligence (RESEARCH): Gasspeicher/-produktion/LNG"]
+  cftc_cot: ["commodity_intelligence (RESEARCH): Positionierung (Disaggregated COT)"]
 
 # Feature -> Quelle (Source Dependencies der Panel-/Champion-Features; Alt-Features kommen aus
 # modules/alt_data/registry.py). Dokumentation: docs/FEATURE_DEPENDENCIES.md (generiert, getestet).

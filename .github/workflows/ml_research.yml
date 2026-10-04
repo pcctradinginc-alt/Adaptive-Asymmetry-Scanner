@@ -50,6 +50,10 @@ jobs:
         continue-on-error: true
         run: python -m modules.external.sources.ted_ingest --features-only
 
+      - name: Commodity-Feature-Store (EIA/FRED/CFTC aus dem PIT-Archiv, RESEARCH)
+        continue-on-error: true   # fehlt er, sind Commodity-Features NaN / verfügbar 0 – Champion unberührt
+        run: python -m modules.commodity_intelligence build
+
       - name: ML-Research (präregistriert, nur SHADOW)
         run: |
           MODE="${{ github.event.inputs.mode }}"
@@ -85,6 +89,11 @@ jobs:
         if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.alt_data.evaluate
+
+      - name: Commodity Intelligence – BASE vs. BASE+COMMODITY (gemappte Titel, nur full)
+        if: env.MODE == 'full'
+        continue-on-error: true
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.commodity_intelligence evaluate
 
       - name: Meta-Learning (Walk-Forward, Counterfactuals, Ablation, Gate – nur full)
         if: env.MODE == 'full'

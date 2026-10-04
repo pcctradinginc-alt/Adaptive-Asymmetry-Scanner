@@ -54,18 +54,29 @@ def apply_health(df: pd.DataFrame, s: dict, health: dict | None) -> pd.DataFrame
         rows = pd.to_datetime(df["date"]).dt.tz_localize(None) >= since.normalize()
         if not rows.any():
             continue
-        cached = all((feats.get(f) or {}).get("stale") for f in s["features"])
+        # feature_contracts (optional): nur die Features, die von DIESER Quelle abhängen, werden unavailable
+        fc = s.get("feature_contracts")
+        affected = [f for f in s["features"] if cid in fc.get(f, [])] if fc else list(s["features"])
+        if not affected:
+            continue
+        cached = all((feats.get(f) or {}).get("stale") for f in affected)
         if cached:
             df.loc[rows, f"{av}_stale"] = 1.0
             log.warning(f"alt_data: {cid} {h['status']} – Cache innerhalb zulässiger Datenalterung (stale=1)")
         else:
-            df.loc[rows, s["features"]] = np.nan
-            df.loc[rows, av] = 0.0
-            log.warning(f"alt_data: {cid} {h['status']} seit {since.date()} – {int(rows.sum())} Zeilen unavailable")
+            df.loc[rows, affected] = np.nan
+            remaining = [f for f in s["features"] if f not in affected and f in df]
+            df.loc[rows, av] = (df.loc[rows, remaining].notna().any(axis=1).astype(float) if remaining else 0.0)
+            log.warning(f"alt_data: {cid} {h['status']} seit {since.date()} – {int(rows.sum())} Zeilen, "
+                        f"{len(affected)} Features unavailable")
     return df
 
 
 def _attach_one(out: pd.DataFrame, s: dict) -> pd.DataFrame:
+    if s.get("attach") == "date_level":
+        from modules import commodity_intelligence as cmd
+        return cmd.attach_panel(out, groups=[s["group"]], path=Path(s["path"]),
+                                availability_cols={s["group"]: s["availability_col"]})
     cols = s["features"] + [s["availability_col"]]
     p = Path(s["path"])
     if not p.exists():

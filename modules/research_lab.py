@@ -66,7 +66,10 @@ SECTOR_EXPOSURES = {
     "exp_consumer_defensive": "Consumer Defensive", "exp_industrials": "Industrials",
     "exp_basic_materials": "Basic Materials", "exp_real_estate": "Real Estate",
     "exp_communication": "Communication Services"}
-ALLOWED_NAMES = frozenset(ml.ALL_FEATURES) | frozenset(_ALT) | frozenset(SECTOR_EXPOSURES)
+from modules.commodity_intelligence import EXPOSURE_COLUMNS as COMMODITY_EXPOSURES  # noqa: E402
+from modules.commodity_intelligence import SIGNAL_DATE_FEATURES as COMMODITY_DATE_FEATURES  # noqa: E402
+ALLOWED_NAMES = (frozenset(ml.ALL_FEATURES) | frozenset(_ALT) | frozenset(SECTOR_EXPOSURES)
+                 | frozenset(COMMODITY_EXPOSURES) | frozenset(COMMODITY_DATE_FEATURES))
 
 
 def add_exposures(panel: pd.DataFrame) -> pd.DataFrame:

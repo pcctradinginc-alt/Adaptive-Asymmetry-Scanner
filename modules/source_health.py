@@ -321,11 +321,13 @@ def downstream(cfg: dict) -> dict[str, dict]:
         except Exception:  # noqa: BLE001 – Registry optional für die Abhängigkeitsliste
             specs = []
         for sid, src in SOURCES.items():
+            fc = src.get("feature_contracts")
             for cid in src["contracts"]:
                 s = slot(cid)
-                s["features"] += src["features"]
+                feats = [f for f in src["features"] if cid in fc.get(f, [])] if fc else list(src["features"])
+                s["features"] += feats
                 s["other"].append(f"feature_store:{sid}")
-                s["models"] += [m["id"] for m in specs if set(m.get("extra_features") or []) & set(src["features"])]
+                s["models"] += [m["id"] for m in specs if set(m.get("extra_features") or []) & set(feats)]
                 s["hypotheses"] += [c["hypothesis_id"] for c in alt_c
                                     if any(ALT_FEATURES.get(f, {}).get("source") == sid for f in c.get("source_features") or [])]
     except Exception as e:  # noqa: BLE001
@@ -431,7 +433,10 @@ def gather(cfg: dict, now: datetime, *, probes: bool = True, fetch=None, yf_modu
                        "store": {"duplicate_rate": None, "future_timestamps": int(dq.get("future_observations") or 0),
                                  "outlier_rate": (dq.get("out_of_range") or 0) / max(1, dq.get("n_observations") or 1),
                                  "duplicate_conflicts": int(dq.get("duplicate_conflicts") or 0), "severe": dq.get("severe")},
-                       "schema_version": con.get("schema_version")})
+                       "schema_version": con.get("schema_version"),
+                       # Research-Quellen (z. B. Commodity Intelligence): Ausfall macht nur ihre Features
+                       # unavailable, zählt aber nie für den globalen Safe Mode
+                       "research_only": bool(con.get("research_only"))})
     return checks
 
 
@@ -595,7 +600,7 @@ def build_snapshot(checks: list[dict], prev_snap: dict | None, cfg: dict, now: d
             "consecutive_failures": c["consecutive_failures"], "recovery_passes": c["recovery_passes"],
             "recovering": c.get("recovering", False), "downstream_dependencies": d,
             "fallback": chk.get("fallback"), "fallback_only": chk.get("fallback_only", False),
-            "store": chk.get("store"), "failed_since": None}
+            "store": chk.get("store"), "failed_since": None, "research_only": bool(chk.get("research_only"))}
         s = srcs[sid]
         if c["status"] in UNHEALTHY and (prev or {}).get("status") not in UNHEALTHY:
             s["failed_since"] = _iso(now)
@@ -633,8 +638,11 @@ def feature_availability(snap: dict, cfg: dict, now: datetime) -> dict:
         ALT = {}
     feat_source = {}
     for sid, src in ALT.items():
+        fc = src.get("feature_contracts")
         for cid in src["contracts"]:
             for f in src["features"]:
+                if fc and cid not in fc.get(f, []):
+                    continue
                 feat_source.setdefault(f, []).append((cid, sid))
     out = {}
     for sid, s in snap["sources"].items():
@@ -674,9 +682,10 @@ def data_safe_mode(snap: dict, cfg: dict) -> dict:
             disabled_signals |= set(dep.get("hypotheses") or [])
         disabled_feats |= set(dep.get("features") or [])
     imp = [sid for sid, s in srcs.items() if s["criticality"] in ("CRITICAL", "IMPORTANT") and not s.get("fallback_only")
+           and not s.get("research_only")
            and s["status"] in (STALE, BROKEN) and not s.get("fallback_active")]
     w = [(CRIT_WEIGHT[s["criticality"]], cfg["status_quality"][s["status"]] if not s.get("fallback_active") else 0.8)
-         for s in srcs.values() if not s.get("fallback_only")
+         for s in srcs.values() if not s.get("fallback_only") and not s.get("research_only")
          and not (s["status"] == UNVALIDATED and s["kind"] == "registry")]
     dq = round(sum(a * b for a, b in w) / sum(a for a, _ in w), 3) if w else 0.0
     glob = []

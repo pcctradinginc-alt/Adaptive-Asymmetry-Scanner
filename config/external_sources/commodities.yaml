@@ -1,0 +1,224 @@
+# config/external_sources/commodities.yaml – Commodity Intelligence (RESEARCH/SHADOW)
+#
+# Serien, Release-Regeln, COT-Mapping und Qualitätsgrenzen: config/commodity_intelligence.yaml.
+# Konnektoren: modules/external/sources/commodities.py. Features: modules/commodity_intelligence.py.
+# Nur offizielle, kostenlose Quellen (US Government Works, gemeinfrei). Keine Produktionswirkung.
+sources:
+
+  - source_id: eia_petroleum_weekly
+    display_name: "EIA Open Data v2: Weekly Petroleum Status Report (Bestände, Produktion, Handel, Raffinerien) + Ölspots"
+    family: commodities
+    authority: "U.S. Energy Information Administration (EIA)"
+    official_homepage: "https://www.eia.gov/opendata/"
+    machine_endpoint: "https://api.eia.gov/v2/petroleum/sum/sndw/data/"
+    access_method: "eia_api_v2"
+    requires_auth: true
+    auth_env_variable: "EIA_API_KEY"          # GitHub-Secret EIA_KEY
+    auth_optional: true
+    license_reference: "EIA Copyrights and Reuse: US Government Works, gemeinfrei (Quellenangabe erbeten)"
+    license_status: OK
+    commercial_use_status_if_known: "gemeinfrei"
+    attribution: "Source: U.S. Energy Information Administration"
+    frequency: weekly
+    expected_update_cadence: "P7D"
+    max_staleness_days: 16
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    role: RESEARCH_SHADOW
+    research_only: true          # Ausfall -> nur abhängige Features unavailable, nie globaler Safe Mode
+    max_fetch_seconds: 300
+    max_backfill_bytes: 25000000
+    plausible_ranges:
+      eia_crude_stocks: [200000, 700000]          # Tsd. Barrel (ohne SPR)
+      eia_crude_production: [3000, 16000]         # Tsd. Barrel/Tag
+      eia_crude_imports: [2000, 12000]
+      eia_crude_exports: [0, 7000]
+      eia_refinery_utilization: [40, 100]         # Prozent
+      eia_product_supplied: [10000, 25000]
+      eia_gasoline_stocks: [150000, 300000]
+      eia_distillate_stocks: [80000, 200000]
+      eia_wti_spot: [-50, 250]
+      eia_brent_spot: [5, 250]
+    retrieval_frequency: "täglich geprüft; Abruf nur, wenn ein neuer Wochenbericht fällig ist (is_due)"
+    expected_latency: "Wochenende Fr -> Release Mi 10:30 ET (Feiertage Do); Regel Fr+6 T 16:00 UTC"
+    revision_policy: "Wochenwerte praktisch unrevidiert; spätere Änderungen gelten erst ab Abruf"
+    historical_depth: "2015–heute"
+    failure_behavior: "Serie fehlt/Einheit geändert -> Feature UNAVAILABLE (nie 0)"
+    point_in_time_capable: true
+    notes: >
+      available_at = min(Regel, retrieved_at). Spots (RWTC/RBRTE) nur Crosscheck gegen FRED,
+      EIA aktualisiert Tages-Spots wöchentlich (Regel Tag+9).
+    entity_level: "USA gesamt (Serie je Größe)"
+    coverage: "Rohöl-/Produktbestände, Produktion, Importe, Exporte, Raffinerieauslastung, Product Supplied; WTI/Brent-Spot (Crosscheck)"
+    rate_limits: "EIA: ca. 5000 Anfragen/Stunde je Key; Abruf nur bei fälligem Release"
+    cost: "kostenlos (API-Key)"
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "physische Öl-Bilanz der USA (Bestände, Angebot, implizite Nachfrage)"
+      geography: "USA"
+      latency: "5 T nach Wochenende (Mi)"
+      sectors: "Energie, Raffinerien, Transport/Airlines (Verbraucher)"
+      mechanisms: ["Lagerabweichung vom saisonalen Mittel als Preisdruck", "Nachfrage (Product Supplied) vor Preis"]
+
+  - source_id: eia_natural_gas
+    display_name: "EIA Open Data v2: Erdgas – Speicher (wöchentlich), Henry Hub, Trockengas-Produktion, LNG-Exporte"
+    family: commodities
+    authority: "U.S. Energy Information Administration (EIA)"
+    official_homepage: "https://www.eia.gov/opendata/"
+    machine_endpoint: "https://api.eia.gov/v2/natural-gas/stor/wkly/data/"
+    access_method: "eia_api_v2"
+    requires_auth: true
+    auth_env_variable: "EIA_API_KEY"
+    auth_optional: true
+    license_reference: "EIA Copyrights and Reuse: US Government Works, gemeinfrei (Quellenangabe erbeten)"
+    license_status: OK
+    commercial_use_status_if_known: "gemeinfrei"
+    attribution: "Source: U.S. Energy Information Administration"
+    frequency: weekly
+    expected_update_cadence: "P7D"
+    max_staleness_days: 16
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    role: RESEARCH_SHADOW
+    research_only: true          # Ausfall -> nur abhängige Features unavailable, nie globaler Safe Mode
+    max_fetch_seconds: 300
+    max_backfill_bytes: 15000000
+    plausible_ranges:
+      eia_natgas_storage: [500, 4500]              # Bcf, Lower 48
+      eia_henry_hub_spot: [0.5, 30]                # USD/MMBtu
+      eia_dry_gas_production: [1500000, 4000000]   # MMcf je Monat
+      eia_lng_exports: [0, 600000]                 # MMcf je Monat
+    retrieval_frequency: "täglich geprüft; Abruf nur bei fälligem Release (is_due)"
+    expected_latency: "Speicher: Wochenende Fr -> Do 10:30 ET, Regel Fr+7 T; Monatswerte ~2 Monate, Regel Monatsbeginn+100 T"
+    revision_policy: "Monatswerte werden revidiert: Erstimport = heutiger Stand (backfill_latest_vintage), danach Revisionen ab Abruf"
+    historical_depth: "2015–heute"
+    failure_behavior: "Serie fehlt/Einheit geändert -> Feature UNAVAILABLE (nie 0)"
+    point_in_time_capable: true
+    entity_level: "USA (Lower 48 / gesamt)"
+    coverage: "Arbeitsgas im Speicher (wöchentlich), Henry Hub (Crosscheck), Trockengas-Produktion und LNG-Exporte (monatlich)"
+    rate_limits: "EIA: ca. 5000 Anfragen/Stunde je Key; Abruf nur bei fälligem Release"
+    cost: "kostenlos (API-Key)"
+    revision_risk: medium
+    maintenance_cost: low
+    semantics:
+      measures: "US-Gasbilanz (Speicher, Angebot, Export)"
+      geography: "USA"
+      latency: "Speicher 6 T; Monatswerte ~2 Monate"
+      sectors: "Gasproduzenten, Chemie, Dünger, Versorger"
+      mechanisms: ["Speicherabweichung vom 5J-Mittel als Preisdruck", "LNG-Exporte als Nachfragekanal"]
+
+  - source_id: fred_commodities
+    display_name: "FRED/ALFRED Rohstoffpreise: Brent, Henry Hub, Kupfer, Weizen, Mais, Sojabohnen"
+    family: commodities
+    authority: "FRED/ALFRED (St. Louis Fed); Originale: EIA (Brent, Henry Hub), IMF Primary Commodity Prices (Metalle/Agrar)"
+    official_homepage: "https://fred.stlouisfed.org"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api"
+    requires_auth: true
+    auth_env_variable: "FRED_API_KEY"         # GitHub-Secret FRED_API_KEY oder FRED_KEY
+    auth_optional: true
+    license_reference: "FRED ToU; EIA gemeinfrei; IMF Primary Commodity Prices frei mit Quellenangabe"
+    license_status: OK
+    commercial_use_status_if_known: "frei mit Quellenangabe; LBMA Gold/Silber bewusst NICHT (aus FRED entfernt, Lizenz)"
+    attribution: "Source: FRED/ALFRED, Federal Reserve Bank of St. Louis; EIA; IMF"
+    frequency: daily
+    expected_update_cadence: "P1D"
+    max_staleness_days: 21
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: low
+    role: RESEARCH_SHADOW
+    research_only: true          # Ausfall -> nur abhängige Features unavailable, nie globaler Safe Mode
+    max_backfill_bytes: 20000000
+    plausible_ranges:
+      brent: [5, 250]
+      henry_hub: [0.5, 30]
+      copper: [1000, 20000]
+      wheat: [50, 1000]
+      corn: [50, 800]
+      soybeans: [100, 1200]
+    expected_series_ids:
+      DCOILBRENTEU: "DCOILBRENTEU"
+      DHHNGSP: "DHHNGSP"
+      PCOPPUSDM: "PCOPPUSDM"
+      PWHEAMTUSDM: "PWHEAMTUSDM"
+      PMAIZMTUSDM: "PMAIZMTUSDM"
+      PSOYBUSDM: "PSOYBUSDM"
+    notes: >
+      WTI kommt aus fred_regime_macro (DCOILWTICO) und wird wiederverwendet. Gold/Silber:
+      keine offizielle kostenlose Reihe -> UNAVAILABLE (Preisfeatures), COT-Positionierung bleibt.
+    retrieval_frequency: "täglich (6 ALFRED-Abrufe)"
+    expected_latency: "täglich bis wöchentlich (EIA-Spots), monatlich (IMF-Preise, Anfang Folgemonat)"
+    revision_policy: "ALFRED-Vintages: available_at = realtime_start, Revisionen als eigene Vintages"
+    historical_depth: "2015–heute"
+    entity_level: "Weltmarktpreis je Rohstoff"
+    coverage: "Brent, Henry Hub (täglich); Kupfer, Weizen, Mais, Sojabohnen (monatlich); Gold/Silber UNAVAILABLE"
+    rate_limits: "FRED: 120 Anfragen/Minute je Key"
+    cost: "kostenlos (API-Key)"
+    failure_behavior: "Serie fehlt -> Preis-Features dieses Rohstoffs UNAVAILABLE (nie 0)"
+    point_in_time_capable: true
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "Rohstoffpreise (Spot bzw. Monatsdurchschnitt)"
+      geography: "Weltmarkt / USA (Henry Hub)"
+      latency: "1–7 T (täglich), ~5 T nach Monatsende (monatlich)"
+      sectors: "Energie, Grundstoffe, Agrar, Industrie (Inputkosten)"
+      mechanisms: ["Rohstoffpreis -> Erlöse/Kosten exponierter Unternehmen", "verzögerte Anpassung von Analystenschätzungen"]
+
+  - source_id: cftc_cot
+    display_name: "CFTC Commitments of Traders – Disaggregated Futures Only (Öl, Gas, Gold, Silber, Kupfer, Mais, Weizen, Soja)"
+    family: commodities
+    authority: "U.S. Commodity Futures Trading Commission (CFTC)"
+    official_homepage: "https://publicreporting.cftc.gov"
+    machine_endpoint: "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
+    access_method: "socrata_soda_api"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "US Government Works, gemeinfrei"
+    license_status: OK
+    commercial_use_status_if_known: "gemeinfrei"
+    attribution: "Source: U.S. Commodity Futures Trading Commission"
+    frequency: weekly
+    expected_update_cadence: "P7D"
+    max_staleness_days: 17
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    role: RESEARCH_SHADOW
+    research_only: true          # Ausfall -> nur abhängige Features unavailable, nie globaler Safe Mode
+    max_fetch_seconds: 300
+    max_backfill_bytes: 40000000
+    retrieval_frequency: "täglich geprüft; Abruf nur, wenn ein neuer Report (Fr 15:30 ET) fällig ist"
+    expected_latency: "Stichtag Di -> Fr 15:30 ET (Feiertagswoche: Mo); Regel Di+3 T 21:00 UTC bzw. +6 T"
+    revision_policy: "Korrekturen gelten ab Abruf; Shutdown-Rückstände (2018-12/2019-01) ausgeschlossen"
+    historical_depth: "2015–heute"
+    failure_behavior: "Code/Name passen nicht oder Markt fehlt -> Markt UNAVAILABLE; OI-Inkonsistenz -> Report verworfen"
+    point_in_time_capable: true
+    entity_level: "Futures-Markt (CFTC Contract Market Code)"
+    coverage: "8 Märkte: WTI (NYMEX), Henry Hub (NYMEX), Gold/Silber/Kupfer (COMEX), Mais/Weizen-SRW/Sojabohnen (CBOT)"
+    rate_limits: "Socrata ohne App-Token gedrosselt; 1 Abfrage je fälligem Report"
+    cost: "kostenlos"
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "Positionierung nach Händlergruppen (Producer/Merchant, Swap, Managed Money, Other Reportables)"
+      geography: "US-Futuresbörsen"
+      latency: "Stichtag Di, Veröffentlichung Fr (3 T)"
+      sectors: "Energie, Metalle/Minen, Agrar"
+      mechanisms: ["überfüllte spekulative Positionierung -> Umkehrrisiko", "Hedging-Verhalten der Produzenten"]

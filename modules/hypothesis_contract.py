@@ -256,6 +256,29 @@ def validate(c: dict, policy: dict | None = None) -> list[str]:
     if not isinstance(pc, dict) or "delta_expectancy_min" not in pc:
         errs.append("promotion_criteria braucht delta_expectancy_min")
     errs += validate_stage(c)
+    errs += validate_commodity(c)
+    return errs
+
+
+COMMODITY_MAX_INFLUENCE = "SCORE_LIMITED"     # Commodity-Leiter: NONE -> RERANK_ONLY -> SCORE_LIMITED
+
+
+def is_commodity_contract(c: dict) -> bool:
+    feats = list(c.get("features") or []) + list(c.get("source_features") or [])
+    return (str(c.get("domain") or "").startswith("commodity")
+            or any(str(f).startswith(("cmdx_", "cmdexp_", "cmd_")) for f in feats))
+
+
+def validate_commodity(c: dict) -> list[str]:
+    """Commodity-Verträge: höchstens SCORE_LIMITED (nie Gewicht/Trade-Freigabe), Mapping NON_PIT deklariert."""
+    if not is_commodity_contract(c):
+        return []
+    errs = []
+    mx = c.get("maximum_initial_influence")
+    if mx in INFLUENCE_LEVELS and INFLUENCE_LEVELS.index(mx) > INFLUENCE_LEVELS.index(COMMODITY_MAX_INFLUENCE):
+        errs.append(f"Commodity-Vertrag: maximum_initial_influence {mx} > {COMMODITY_MAX_INFLUENCE}")
+    if c.get("production_class") not in ("research_only", "rerank", "score"):
+        errs.append("Commodity-Vertrag: production_class nur research_only/rerank/score")
     return errs
 
 

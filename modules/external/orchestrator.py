@@ -141,6 +141,21 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
             summary["sources"][source_id] = {"status": h.status}
             continue
 
+        # Release-getriebene Quellen (EIA-Wochenberichte, CFTC COT): kein Abruf, solange die jüngste
+        # bereits veröffentlichte Periode im Archiv liegt (keine unnötigen Calls).
+        _is_due = getattr(connector, "is_due", None)
+        if callable(_is_due):
+            try:
+                _due, _why = _is_due(now)
+            except Exception as e:  # noqa: BLE001 - im Zweifel abrufen
+                _due, _why = True, f"is_due-Fehler {e!r}"
+            if not _due:
+                h.message = f"übersprungen: {_why}"
+                health[source_id] = h.to_dict()
+                summary["sources"][source_id] = {"status": h.status, "skipped": "not_due"}
+                _log(f"[ingest] {source_id}: {h.message}")
+                continue
+
         budget = float(source_cfg.get("max_fetch_seconds") or DEFAULT_FETCH_BUDGET_S)
         _t0 = time.monotonic()
         _log(f"[ingest] {source_id}: start (Budget {budget:.0f}s)")

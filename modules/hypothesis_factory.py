@@ -62,9 +62,19 @@ DIVERGENCES = [  # Cross-Source-Divergenz: alternatives Signal widerspricht dem 
     {"id": "div_fundamentals_vs_price", "domain": "fundamentals", "feature": "xbrl_sue", "price": "mom_3m",
      "direction": 1, "relevance": 0.6, "exploratory": False,
      "mechanism": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis."},
+    # Commodity (RESEARCH): Rohstoff-Signal für die Exposure-Richtung günstig, Aktie fiel trotzdem
+    {"id": "div_oil_vs_equity", "domain": "commodity_oil_price", "feature": "cmdx_oil__wti_ret_20d", "price": "mom_3m",
+     "signal": "rank(cmdx_oil__wti_ret_20d) * step(-mom_3m)", "direction": 1, "relevance": 0.4, "exploratory": True,
+     "mechanism": "Ölpreis bewegte sich zugunsten der Exposure-Richtung, Aktie fiel dennoch: Markt preist die "
+                  "Rohstoffbewegung verzögert ein (oder die Beziehung ist zerfallen – Test entscheidet)."},
+    {"id": "div_gas_vs_equity", "domain": "commodity_gas_price", "feature": "cmdx_natural_gas__henry_hub_ret_20d",
+     "price": "mom_3m", "signal": "rank(cmdx_natural_gas__henry_hub_ret_20d) * step(-mom_3m)", "direction": 1,
+     "relevance": 0.3, "exploratory": True,
+     "mechanism": "Gaspreisbewegung zugunsten der Exposure-Richtung bei fallender Aktie: verzögerte Einpreisung."},
 ]
 DIVERGENCE_SOURCE = {"procurement": "ted_procurement", "insider": "sec_deep_events",
-                     "fundamentals": "sec_xbrl_fundamentals"}
+                     "fundamentals": "sec_xbrl_fundamentals", "commodity_oil_price": "commodity_price",
+                     "commodity_gas_price": "commodity_price"}
 SOURCE_CONDITIONS = OUT / "source_conditions.json"
 MAX_CONDITION_IDEAS = 4
 COND_MIN_T = 2.0
@@ -110,6 +120,9 @@ def ideas_cross_domain(domains: dict, now: str) -> list[dict]:
     out = []
     for f in domains.get("families") or []:
         d = (domains.get("domains") or {}).get(f["domain"], {})
+        if f.get("commodity"):
+            out.append(_commodity_idea(f, d, now))
+            continue
         exp = _exp_name(f["sector"]) if f.get("sector") else None
         feature = f.get("feature")
         signal = (f"{exp} * sign({feature} - {f.get('center', 0)})" if feature and exp else None)
@@ -131,10 +144,41 @@ def ideas_cross_domain(domains: dict, now: str) -> list[dict]:
     return out
 
 
+def _commodity_idea(f: dict, d: dict, now: str) -> dict:
+    """Commodity-Domäne: Signal = cmdexp_<rohstoff> (erwartete Exposure-Richtung, NON_PIT-Mapping)
+    × sign(Datums-Feature − center). Die LLM/Vorlage liefert nur den Mechanismus – Population, Horizont,
+    Baseline, OOS (Walk-Forward + Locked) und Mehrfachtest-Kontrolle (BH) sind fest."""
+    from modules.commodity_intelligence import EXPOSURE_COLUMNS, mapping_status
+    exp = f"cmdexp_{f['commodity']}"
+    feature = f.get("feature")
+    signal = f"{exp} * sign({feature} - {f.get('center', 0)})" if exp in EXPOSURE_COLUMNS and feature else None
+    ms = mapping_status()
+    return _finish({
+        "id": _hid(f["id"], signal), "family": f["id"], "domain": f["domain"], "idea_source": "cross_domain",
+        "commodity": f["commodity"], "exploratory": bool(f.get("exploratory")),
+        "relevance": float(f.get("relevance", 0.5)), "title": f"{d.get('label', f['domain'])} × {f['commodity']}-Exposure",
+        "population": f"PIT-S&P-500; Titel mit {f['commodity']}-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+        "equity_population": f"cmdexp_{f['commodity']} != 0 (Mapping {ms.get('version')}, {ms.get('point_in_time_status')})",
+        "exposure": f"Commodity-Exposure {f['commodity']} (heutige Zuordnung, nicht PIT)", "non_pit_mapping": True,
+        "signal": signal, "domain_kind": d.get("kind", "missing"), "domain_features": d.get("features") or [],
+        "free_sources": d.get("free_sources") or [], "source_id": d.get("source"), "direction": int(f.get("direction", 1)),
+        "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag", "horizon": 20,
+        "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+        "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+        "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+        "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+        "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+        "mechanism": f["mechanism"], "mechanism_source": "template",
+        "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, "
+                             "Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder "
+                             "zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+        "created_at": now})
+
+
 def ideas_divergence(now: str) -> list[dict]:
     out = []
     for dv in DIVERGENCES:
-        signal = f"rank({dv['feature']}) * step(-{dv['price']})"
+        signal = dv.get("signal") or f"rank({dv['feature']}) * step(-{dv['price']})"
         out.append(_finish({
             "id": _hid(dv["id"], signal), "family": dv["id"], "domain": dv["domain"], "idea_source": "cross_source_divergence",
             "source_id": DIVERGENCE_SOURCE.get(dv["domain"]),
@@ -250,7 +294,10 @@ def readiness(h: dict, panel: pd.DataFrame | None, protocol: dict) -> dict:
                 "free_sources": h.get("free_sources") or [], "data_quality": 0.0, "cost": None}
     names = set(rm.tokens_of({"signal": h["signal"]}))
     feats = {n[2:] for n in names if n.startswith("f:")}
-    unknown = [f for f in feats if f not in ml.ALL_FEATURES and f not in ALT_FEATURES and f not in SECTOR_EXPOSURES]
+    from modules.commodity_intelligence import EXPOSURE_COLUMNS, SIGNAL_DATE_FEATURES
+    known_cmd = set(EXPOSURE_COLUMNS) | set(SIGNAL_DATE_FEATURES)
+    unknown = [f for f in feats if f not in ml.ALL_FEATURES and f not in ALT_FEATURES and f not in SECTOR_EXPOSURES
+               and f not in known_cmd]
     if unknown:
         return {"status": "DATA_GAP", "reason": f"Merkmale unbekannt: {unknown}", "free_sources": h.get("free_sources") or [],
                 "data_quality": 0.0, "cost": None}
@@ -260,6 +307,9 @@ def readiness(h: dict, panel: pd.DataFrame | None, protocol: dict) -> dict:
     if any(f in SECTOR_EXPOSURES for f in feats):
         quality = min(quality, dq["non_pit_mapping"])
         flags.append("non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)")
+    if any(f in known_cmd or f.startswith("cmdx_") for f in feats):
+        quality, cost = min(quality, dq["non_pit_mapping"]), protocol["priority"]["cost"]["alt_feature"]
+        flags.append("non_pit_mapping: Commodity-Exposure-Mapping von heute (NON_PIT)")
     cov = None
     if panel is not None:
         dev = panel[panel["date"] >= pd.Timestamp("2016-01-01")]
@@ -487,7 +537,8 @@ def evaluate(panel: pd.DataFrame, protocol: dict | None = None, now: datetime | 
         rec = db.get(h["id"]) or {}
         lab = (rec.get("canonical_status") or rl.canonical_status(rec)) if rec else "NOT_TESTED"
         spec = {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector", "spec_hash",
-                                      "idea_source", "exploratory", "priority", "novelty")}
+                                      "idea_source", "exploratory", "priority", "novelty", "commodity",
+                                      "equity_population", "mechanism", "domain_features", "non_pit_mapping")}
         if lab != "ACCEPTED":
             results[h["id"]] = {"status": "REJECTED" if lab == "REJECTED" else lab, "spec": spec,
                                 "reasons": rec.get("reasons") or [f"Research-Lab: {lab}"],

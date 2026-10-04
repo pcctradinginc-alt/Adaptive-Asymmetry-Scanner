@@ -1,0 +1,201 @@
+# config/commodity_intelligence.yaml – Commodity Intelligence (RESEARCH/SHADOW)
+#
+# Nur offizielle, kostenlose Quellen: EIA Open Data API v2, FRED/ALFRED, CFTC Public Reporting.
+# Kein USDA, kein CME-/ICE-Scraping, keine Yahoo-Futures. Lieber UNAVAILABLE als unklare Daten.
+# Rohstoffdaten sind ERKLÄRENDE Research-Features für US-Aktien – kein Feature hat Produktionswirkung;
+# einziger Weg: Hypothese -> Vertrag -> OOS -> prospektiver Challenger -> PromotionController -> Adapter.
+#
+# Secrets (nur Umgebung): EIA_API_KEY (GitHub-Secret EIA_KEY), FRED_API_KEY (Secret FRED_API_KEY oder FRED_KEY).
+# Release-Regeln: available_at = min(konservative Release-Regel, retrieved_at) – nie vor der echten
+# Veröffentlichung, nie nach dem Abruf (PIT-Integrität). Präzision CONSERVATIVE_DATE.
+
+version: commodity-intel-1
+registered_at: "2026-10-04"
+
+eia:
+  api_base: "https://api.eia.gov/v2"
+  env_keys: [EIA_API_KEY, EIA_KEY]
+  backfill_start: "2015-01-01"
+  incremental_days: 120                 # Live-Abruf: nur jüngstes Fenster (Cache: Archiv)
+  series:
+    # source_id eia_petroleum_weekly – Weekly Petroleum Status Report (Wochenende Freitag, Release Mi 10:30 ET;
+    # Feiertage: Do) -> konservativ Periode + 6 T, 16:00 UTC
+    - {key: crude_stocks, route: petroleum/sum/sndw, series: WCESTUS1, frequency: weekly, commodity: oil,
+       metric: eia_crude_stocks, units: [MBBL, "Thousand Barrels"], unit: thousand_barrels,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: crude_production, route: petroleum/sum/sndw, series: WCRFPUS2, frequency: weekly, commodity: oil,
+       metric: eia_crude_production, units: ["MBBL/D", "Thousand Barrels per Day"], unit: thousand_barrels_per_day,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: crude_imports, route: petroleum/sum/sndw, series: WCRIMUS2, frequency: weekly, commodity: oil,
+       metric: eia_crude_imports, units: ["MBBL/D", "Thousand Barrels per Day"], unit: thousand_barrels_per_day,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: crude_exports, route: petroleum/sum/sndw, series: WCREXUS2, frequency: weekly, commodity: oil,
+       metric: eia_crude_exports, units: ["MBBL/D", "Thousand Barrels per Day"], unit: thousand_barrels_per_day,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: refinery_utilization, route: petroleum/sum/sndw, series: WPULEUS3, frequency: weekly, commodity: oil,
+       metric: eia_refinery_utilization, units: [PCT, "%", Percent], unit: percent,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: product_supplied, route: petroleum/sum/sndw, series: WRPUPUS2, frequency: weekly, commodity: oil,
+       metric: eia_product_supplied, units: ["MBBL/D", "Thousand Barrels per Day"], unit: thousand_barrels_per_day,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: gasoline_stocks, route: petroleum/sum/sndw, series: WGTSTUS1, frequency: weekly, commodity: oil,
+       metric: eia_gasoline_stocks, units: [MBBL, "Thousand Barrels"], unit: thousand_barrels,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    - {key: distillate_stocks, route: petroleum/sum/sndw, series: WDISTUS1, frequency: weekly, commodity: oil,
+       metric: eia_distillate_stocks, units: [MBBL, "Thousand Barrels"], unit: thousand_barrels,
+       release: {kind: weekly_lag, days: 6, hour_utc: 16}, role: fundamental, source_id: eia_petroleum_weekly}
+    # Spotpreise: EIA aktualisiert Tages-Spots wöchentlich -> nur Konsistenzprüfung gegen FRED (keine Features)
+    - {key: wti_spot, route: petroleum/pri/spt, series: RWTC, frequency: daily, commodity: oil,
+       metric: eia_wti_spot, units: ["$/BBL", "Dollars per Barrel"], unit: usd_per_barrel,
+       release: {kind: daily_lag, days: 9, hour_utc: 16}, role: price_crosscheck, source_id: eia_petroleum_weekly}
+    - {key: brent_spot, route: petroleum/pri/spt, series: RBRTE, frequency: daily, commodity: oil,
+       metric: eia_brent_spot, units: ["$/BBL", "Dollars per Barrel"], unit: usd_per_barrel,
+       release: {kind: daily_lag, days: 9, hour_utc: 16}, role: price_crosscheck, source_id: eia_petroleum_weekly}
+    # source_id eia_natural_gas – Weekly Natural Gas Storage Report (Wochenende Freitag, Release Do 10:30 ET;
+    # Feiertage: Mi/Fr) -> konservativ Periode + 7 T, 16:00 UTC
+    - {key: natgas_storage, route: natural-gas/stor/wkly, series: NW2_EPG0_SWO_R48_BCF, frequency: weekly,
+       commodity: natural_gas, metric: eia_natgas_storage, units: [BCF, "Billion Cubic Feet"], unit: bcf,
+       release: {kind: weekly_lag, days: 7, hour_utc: 16}, role: fundamental, source_id: eia_natural_gas}
+    - {key: henry_hub_spot, route: natural-gas/pri/fut, series: RNGWHHD, frequency: daily, commodity: natural_gas,
+       metric: eia_henry_hub_spot, units: ["$/MMBTU", "Dollars per Million Btu"], unit: usd_per_mmbtu,
+       release: {kind: daily_lag, days: 9, hour_utc: 16}, role: price_crosscheck, source_id: eia_natural_gas}
+    # Monatsreihen (Natural Gas Monthly ~2 Monate Verzug, revidiert) -> konservativ Periodenbeginn + 100 T
+    - {key: dry_gas_production, route: natural-gas/prod/sum, series: N9070US2, frequency: monthly,
+       commodity: natural_gas, metric: eia_dry_gas_production, units: [MMCF, "Million Cubic Feet"], unit: mmcf,
+       release: {kind: monthly_lag, days: 100, hour_utc: 16}, role: fundamental, source_id: eia_natural_gas,
+       revision_status: revised_monthly}
+    - {key: lng_exports, route: natural-gas/move/expc, series: N9133US2, frequency: monthly, commodity: natural_gas,
+       metric: eia_lng_exports, units: [MMCF, "Million Cubic Feet"], unit: mmcf,
+       release: {kind: monthly_lag, days: 100, hour_utc: 16}, role: fundamental, source_id: eia_natural_gas,
+       revision_status: revised_monthly}
+
+fred:
+  # Preise mit ALFRED-Vintages (available_at = realtime_start). WTI existiert bereits in fred_regime_macro
+  # (DCOILWTICO, metric wti) und wird WIEDERVERWENDET, nicht doppelt abgerufen.
+  reuse: {wti: {source_id: fred_regime_macro, metric: wti, frequency: daily, unit: usd_per_barrel}}
+  series:
+    - {key: brent, series: DCOILBRENTEU, metric: brent, frequency: daily, unit: usd_per_barrel, commodity: brent,
+       search_text: "Crude Oil Prices: Brent - Europe"}
+    - {key: henry_hub, series: DHHNGSP, metric: henry_hub, frequency: daily, unit: usd_per_mmbtu,
+       commodity: natural_gas, search_text: "Henry Hub Natural Gas Spot Price"}
+    - {key: copper, series: PCOPPUSDM, metric: copper, frequency: monthly, unit: usd_per_metric_ton,
+       commodity: copper, search_text: "Global price of Copper"}
+    - {key: wheat, series: PWHEAMTUSDM, metric: wheat, frequency: monthly, unit: usd_per_metric_ton,
+       commodity: wheat, search_text: "Global price of Wheat"}
+    - {key: corn, series: PMAIZMTUSDM, metric: corn, frequency: monthly, unit: usd_per_metric_ton,
+       commodity: corn, search_text: "Global price of Corn"}
+    - {key: soybeans, series: PSOYBUSDM, metric: soybeans, frequency: monthly, unit: usd_per_metric_ton,
+       commodity: soybeans, search_text: "Global price of Soybeans"}
+  unavailable:
+    gold: "LBMA-Gold-Fixings (GOLDAMGBD228NLBM) wurden 2022 aus FRED entfernt (Lizenz); keine offizielle kostenlose Ersatzreihe -> UNAVAILABLE"
+    silver: "LBMA-Silber (SLVPRUSD) aus FRED entfernt; keine offizielle kostenlose Ersatzreihe -> UNAVAILABLE"
+
+cftc:
+  # Disaggregated Futures Only (offizielle CFTC Public Reporting Environment, Socrata, kein Key)
+  endpoint: "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
+  backfill_start: "2015-01-01"            # deckt die Auswahljahre 2016–2018 des Alt-Data-Protokolls ab
+  # Report-Datum Dienstag; Veröffentlichung Freitag 15:30 ET. Feiertagswochen: Montag darauf.
+  release: {weekday_offset_days: 3, holiday_offset_days: 6, hour_utc: 21}
+  # Government-Shutdown-Rückstände (verspätet veröffentlicht): Reports in diesen Fenstern sind historisch
+  # NICHT PIT-belegbar -> ausgeschlossen (UNAVAILABLE statt zu früh verfügbar).
+  unavailable_report_windows:
+    - ["2018-12-18", "2019-01-29"]
+  markets:
+    # Mapping über den offiziellen CFTC Contract Market Code UND Namensprüfung; Abweichung -> UNAVAILABLE
+    crude_oil:   {code: "067651", name_contains: ["CRUDE OIL, LIGHT SWEET", "NEW YORK MERCANTILE"], commodity: oil}
+    natural_gas: {code: "023651", name_contains: ["NAT GAS NYME", "NEW YORK MERCANTILE"], commodity: natural_gas}
+    gold:        {code: "088691", name_contains: ["GOLD", "COMMODITY EXCHANGE"], commodity: gold}
+    silver:      {code: "084691", name_contains: ["SILVER", "COMMODITY EXCHANGE"], commodity: silver}
+    copper:      {code: "085692", name_contains: ["COPPER", "COMMODITY EXCHANGE"], commodity: copper}
+    corn:        {code: "002602", name_contains: ["CORN", "CHICAGO BOARD OF TRADE"], commodity: corn}
+    wheat:       {code: "001602", name_contains: ["WHEAT-SRW", "CHICAGO BOARD OF TRADE"], commodity: wheat}
+    soybeans:    {code: "005602", name_contains: ["SOYBEANS", "CHICAGO BOARD OF TRADE"], commodity: soybeans}
+  fields:
+    report_date: report_date_as_yyyy_mm_dd
+    market_name: market_and_exchange_names
+    code: cftc_contract_market_code
+    total_open_interest: open_interest_all
+    producer_merchant_long: prod_merc_positions_long
+    producer_merchant_short: prod_merc_positions_short
+    swap_long: swap_positions_long_all
+    swap_short: swap__positions_short_all
+    managed_money_long: m_money_positions_long_all
+    managed_money_short: m_money_positions_short_all
+    managed_money_spreading: m_money_positions_spread
+    other_reportables_long: other_rept_positions_long
+    other_reportables_short: other_rept_positions_short
+
+quality:
+  # Plausibilität je Metrik (Einheit siehe Serie). WTI darf negativ sein (20.04.2020), alle anderen nicht.
+  allow_negative: [wti, eia_wti_spot]
+  max_abs_daily_return: {wti: 1.0, brent: 0.6, henry_hub: 0.8, eia_wti_spot: 1.0, eia_brent_spot: 0.6, eia_henry_hub_spot: 0.8}
+  max_abs_monthly_return: 0.6
+  crosscheck_max_rel_diff: 0.02          # EIA-Spot vs. FRED gleicher Tag
+  max_release_gap_factor: 2.0            # fehlende Releases: Lücke > Faktor × Kadenz -> STALE
+
+features:
+  version: cmd-features-1
+  daily_windows: [1, 5, 20, 60]
+  monthly_windows: [1, 3]
+  zscore_window_daily: 60
+  zscore_window_weekly_changes: 52
+  drawdown_window_daily: 252
+  positioning_extreme_pctile: 0.95
+  min_history_pctile_1y: 40               # Wochen
+  min_history_pctile_3y: 120
+  max_age_days: {daily: 7, weekly: 14, monthly: 75}   # darüber: Feature unavailable (nie unbegrenzt fortgeschrieben)
+  storage_surprise: EXPECTATION_UNKNOWN   # keine offizielle kostenlose Konsens-Erwartung
+
+# Versioniertes Commodity-Exposure-Mapping. Richtung = erwartetes Vorzeichen (HYPOTHESE, nicht Wahrheit):
+# +1 profitiert von steigendem Rohstoff, -1 leidet, 0 mehrdeutig (z. B. Raffinerien: Crack-Spread).
+# Quelle: heutige Geschäftstätigkeit/Branchenzuordnung -> NICHT point-in-time (non_pit_mapping=true).
+exposure_mapping:
+  version: exposure-v1
+  point_in_time_status: NON_PIT
+  mapping_source: "kuratiert nach heutiger Branchenzuordnung (yfinance industry) + Einzeltitel; nicht historisch"
+  industry_rules:
+    - {industry: "Oil & Gas E&P", commodity: oil, exposure_type: producer, expected_direction: 1, confidence: high}
+    - {industry: "Oil & Gas Integrated", commodity: oil, exposure_type: integrated, expected_direction: 1, confidence: high}
+    - {industry: "Oil & Gas Equipment & Services", commodity: oil, exposure_type: oil_services, expected_direction: 1, confidence: medium}
+    - {industry: "Oil & Gas Drilling", commodity: oil, exposure_type: oil_services, expected_direction: 1, confidence: medium}
+    - {industry: "Oil & Gas Refining & Marketing", commodity: oil, exposure_type: refiner, expected_direction: 0, confidence: medium}
+    - {industry: "Oil & Gas Midstream", commodity: oil, exposure_type: midstream, expected_direction: 0, confidence: low}
+    - {industry: "Airlines", commodity: oil, exposure_type: fuel_consumer, expected_direction: -1, confidence: high}
+    - {industry: "Trucking", commodity: oil, exposure_type: fuel_consumer, expected_direction: -1, confidence: medium}
+    - {industry: "Chemicals", commodity: natural_gas, exposure_type: feedstock_consumer, expected_direction: -1, confidence: medium}
+    - {industry: "Specialty Chemicals", commodity: natural_gas, exposure_type: feedstock_consumer, expected_direction: -1, confidence: low}
+    - {industry: "Agricultural Inputs", commodity: natural_gas, exposure_type: fertilizer_feedstock, expected_direction: -1, confidence: medium}
+    - {industry: "Agricultural Inputs", commodity: corn, exposure_type: fertilizer_demand, expected_direction: 1, confidence: medium}
+    - {industry: "Utilities - Regulated Gas", commodity: natural_gas, exposure_type: gas_utility, expected_direction: 0, confidence: low}
+    - {industry: "Utilities - Regulated Electric", commodity: natural_gas, exposure_type: power_fuel_cost, expected_direction: -1, confidence: low}
+    - {industry: "Copper", commodity: copper, exposure_type: miner, expected_direction: 1, confidence: high}
+    - {industry: "Other Industrial Metals & Mining", commodity: copper, exposure_type: miner, expected_direction: 1, confidence: medium}
+    - {industry: "Electrical Equipment & Parts", commodity: copper, exposure_type: input_cost, expected_direction: -1, confidence: low}
+    - {industry: "Gold", commodity: gold, exposure_type: miner, expected_direction: 1, confidence: high}
+    - {industry: "Other Precious Metals & Mining", commodity: silver, exposure_type: miner, expected_direction: 1, confidence: medium}
+    - {industry: "Farm & Heavy Construction Machinery", commodity: corn, exposure_type: ag_equipment, expected_direction: 1, confidence: low}
+    - {industry: "Farm Products", commodity: corn, exposure_type: food_input_cost, expected_direction: 0, confidence: low}
+    - {industry: "Packaged Foods", commodity: wheat, exposure_type: food_input_cost, expected_direction: -1, confidence: low}
+  ticker_rules:
+    # Einzeltitel, deren Branche im Ledger fehlen kann (heutige Geschäftstätigkeit)
+    - {tickers: [XOM, CVX, COP, EOG, OXY, DVN, FANG, APA, HES, MRO, CTRA, OVV], commodity: oil, exposure_type: producer, expected_direction: 1, confidence: high}
+    - {tickers: [SLB, HAL, BKR], commodity: oil, exposure_type: oil_services, expected_direction: 1, confidence: medium}
+    - {tickers: [VLO, MPC, PSX], commodity: oil, exposure_type: refiner, expected_direction: 0, confidence: medium}
+    - {tickers: [DAL, UAL, AAL, LUV, ALK, JBLU], commodity: oil, exposure_type: fuel_consumer, expected_direction: -1, confidence: high}
+    - {tickers: [EQT, CTRA, AR, RRC], commodity: natural_gas, exposure_type: producer, expected_direction: 1, confidence: high}
+    - {tickers: [DOW, LYB, CE, EMN, OLN], commodity: natural_gas, exposure_type: feedstock_consumer, expected_direction: -1, confidence: low}
+    - {tickers: [CF, MOS, NTR], commodity: natural_gas, exposure_type: fertilizer_feedstock, expected_direction: -1, confidence: medium}
+    - {tickers: [FCX, SCCO], commodity: copper, exposure_type: miner, expected_direction: 1, confidence: high}
+    - {tickers: [NEM, AEM, KGC, GOLD], commodity: gold, exposure_type: miner, expected_direction: 1, confidence: high}
+    - {tickers: [WPM, FNV, RGLD], commodity: gold, exposure_type: royalty, expected_direction: 1, confidence: high}
+    - {tickers: [DE, AGCO, CNH], commodity: corn, exposure_type: ag_equipment, expected_direction: 1, confidence: low}
+    - {tickers: [CTVA, FMC], commodity: corn, exposure_type: crop_protection, expected_direction: 1, confidence: low}
+    - {tickers: [ADM, BG], commodity: soybeans, exposure_type: processor, expected_direction: 0, confidence: low}
+
+research_status: RESEARCH_ONLY            # kein Feature mit Produktionseinfluss
+promotion:
+  # Einziger Weg: Hypothese -> Vertrag -> OOS -> Prospective Challenger -> Forward -> PromotionController -> Adapter.
+  # hypothesis_contract.validate_commodity erzwingt die Obergrenze; Champion-Wechsel bleibt menschliche Entscheidung.
+  ladder: [NONE, RERANK_ONLY, SCORE_LIMITED]
+  max_influence: SCORE_LIMITED
+  initial: NONE

@@ -968,6 +968,21 @@ def universe_html(report_month: str) -> str:
             f"</p><ul>{lines or '<li>noch keine V2-Signale</li>'}</ul>")
 
 
+def commodity_html(report_month: str) -> str:
+    """Commodity Intelligence (RESEARCH): eine Statuszeile + Kernzahlen (Details im Montagsbericht §10)."""
+    try:
+        from modules import commodity_intelligence as cmd
+        s = cmd.report_summary()
+        rows = cmd.report_rows(s)
+    except Exception as e:  # noqa: BLE001 – Report darf nie abbrechen
+        log.warning(f"Commodity-Abschnitt nicht berechenbar: {e}")
+        return ""
+    import html as _h
+    lis = "".join(f"<li>{_h.escape(k)}: {_h.escape(str(v))}</li>" for k, v in rows[1:])
+    return (f"<h3>🛢️ COMMODITY INTELLIGENCE {report_month}</h3><p><b>{_h.escape(str(rows[0][1]))}</b></p>"
+            f"<ul style='font-size:0.9em'>{lis}</ul>")
+
+
 def _safe_cost_html(report_month: str) -> str:
     """Darf den Report NIE zum Absturz bringen."""
     try:
@@ -1057,6 +1072,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       <hr>
       {_safe_cost_html(report_month)}
       {universe_html(report_month)}
+      {commodity_html(report_month)}
       <hr>
       <p style="color:#888;font-size:0.85em">
         Automatisch generiert durch {REPO_NAME} · monthly_report.py<br>

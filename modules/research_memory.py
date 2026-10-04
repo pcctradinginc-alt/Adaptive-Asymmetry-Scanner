@@ -36,6 +36,7 @@ SOURCES = {
     "factory_results": Path("outputs/research/factory_results.json"),
     "factory_plan": Path("outputs/research/factory_plan.json"),
     "surprise_study": Path("outputs/research/surprise_study.json"),
+    "commodity_evaluation": Path("outputs/research/commodity_evaluation.json"),
 }
 PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION")
 TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
@@ -56,7 +57,7 @@ def tokens_of(spec: dict) -> set[str]:
     sig = str(spec.get("signal") or spec.get("signal_definition") or "").lower()
     names = {n for n in _NAME.findall(sig) if n not in ("rank", "sign", "abs", "step", "min", "max")}
     out = {f"f:{n}" for n in names}
-    for k in ("family", "domain", "exposure_sector", "population_sector"):
+    for k in ("family", "domain", "exposure_sector", "population_sector", "commodity"):
         if spec.get(k):
             out.add(f"{k}:{str(spec[k]).lower()}")
     if spec.get("direction") is not None:
@@ -130,7 +131,8 @@ def collect(sources: dict | None = None) -> list[dict]:
         if h.get("plan_status") == "DATA_GAP":
             rd = h.get("readiness") or {}
             out.append(_entry("factory", h.get("id"), "DATA_GAP",
-                              {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector")},
+                              {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector",
+                                                     "commodity")},
                               source="factory", evidence=None, reasons=[rd.get("reason")],
                               free_sources=rd.get("free_sources") or [], data_kind="none"))
     for name, r in ((src.get("surprise_study") or {}).get("hypotheses") or {}).items():
@@ -159,6 +161,38 @@ def collect(sources: dict | None = None) -> list[dict]:
     for hid, r in ((src.get("factory_results") or {}).get("results") or {}).items():
         out.append(_entry("factory", hid, r.get("status"), r.get("spec") or {}, source="factory",
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))
+    out += commodity_entries(src.get("commodity_evaluation"), src.get("factory_results"))
+    return out
+
+
+def commodity_entries(evaluation: dict | None, factory_results: dict | None = None) -> list[dict]:
+    """Commodity-Gedächtnis: domain, commodity, equity_population, mechanism, features, result, n, OOS,
+    forward, failure_reason, fingerprint – je getesteter Commodity-Hypothese und je Ablation (BASE vs.
+    BASE+COMMODITY). Fingerprint = Inhalts-Tokens -> Beinahe-Duplikate werden über similarity blockiert."""
+    out = []
+    for hid, r in ((factory_results or {}).get("results") or {}).items():
+        sp = r.get("spec") or {}
+        if not sp.get("commodity"):
+            continue
+        t = r.get("tests") or {}
+        out.append(_entry("commodity", hid, r.get("status"), sp, source="factory",
+                          domain=sp.get("domain"), commodity=sp.get("commodity"),
+                          equity_population=sp.get("equity_population"), mechanism=sp.get("mechanism"),
+                          features=sp.get("domain_features"), result=r.get("status"), n=t.get("n_cohorts"),
+                          oos=t.get("walk_forward") or t.get("oos"), forward=None,
+                          failure_reason="; ".join(map(str, r.get("reasons") or [])) or None,
+                          fingerprint=sorted(tokens_of(sp)), data_kind=r.get("data_kind")))
+    for g, r in ((evaluation or {}).get("groups") or {}).items():
+        st = {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(r.get("verdict"), "REJECTED")
+        sp = {"signal": " ".join(r.get("selected_features") or []), "domain": f"commodity_{g}",
+              "family": f"commodity_ablation_{g}"}
+        out.append(_entry("commodity", f"CMD-ABLATION-{g}", st, sp, source="commodity_evaluation",
+                          domain=f"commodity_{g}", commodity=r.get("commodities"),
+                          equity_population=r.get("population"), mechanism="BASE vs. BASE+COMMODITY (Ablation)",
+                          features=r.get("selected_features"), result=r.get("verdict"), n=r.get("n_rows"),
+                          oos=r.get("oos_summary"), forward=r.get("forward"),
+                          failure_reason=r.get("verdict_reason") if st != "ACCEPTED" else None,
+                          fingerprint=sorted(tokens_of(sp)), data_kind="historical_walk_forward_ablation"))
     return out
 
 
