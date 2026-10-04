@@ -947,6 +947,27 @@ def build_cost_html(report_month: str, summary: dict | None = None) -> str:
             f"<p style='font-size:0.9em'>{ct.explain(s)}</p>")
 
 
+def universe_html(report_month: str) -> str:
+    """Kompakt: UNIVERSE_V1/V2-Größen und V2-Shadow-Kennzahlen je Bucket (Details im Montagsbericht §9)."""
+    try:
+        from modules import universe_v2 as uv, universe_v2_ledger as v2l
+        from modules.final_mc_ledger import read_rows
+        snap = uv.latest_snapshot()
+        sm = (snap or {}).get("summary") or {}
+        rows = [r for r in read_rows(v2l.DIR) if str(r.get("date", ""))[:7] == report_month]
+        bs = v2l.bucket_summary(rows, v2l.read_outcomes())
+    except Exception as e:  # noqa: BLE001 – Report darf nie abbrechen
+        log.warning(f"Universe-Abschnitt nicht berechenbar: {e}")
+        return ""
+    def pct(x, sign=False):
+        return NV if x is None else (f"{x:+.1%}" if sign else f"{x:.1%}")
+    lines = "".join(f"<li>{b}: {v['signals']} Signale, Netto-Exp. {pct(v['net_expectancy'], True)}, "
+                    f"Ø Kosten {pct(v['avg_execution_cost'])}</li>" for b, v in bs.items())
+    return (f"<h3>🌐 UNIVERSE V1 / V2 {report_month}</h3><p>V2 (Shadow): optionierbar {sm.get('n_optionable', NV)}, "
+            f"research {sm.get('n_research', NV)}, tradeable {sm.get('n_tradeable', NV)} (Stand {(snap or {}).get('as_of', NV)})."
+            f"</p><ul>{lines or '<li>noch keine V2-Signale</li>'}</ul>")
+
+
 def _safe_cost_html(report_month: str) -> str:
     """Darf den Report NIE zum Absturz bringen."""
     try:
@@ -1035,6 +1056,7 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
       {funnel_html}
       <hr>
       {_safe_cost_html(report_month)}
+      {universe_html(report_month)}
       <hr>
       <p style="color:#888;font-size:0.85em">
         Automatisch generiert durch {REPO_NAME} · monthly_report.py<br>

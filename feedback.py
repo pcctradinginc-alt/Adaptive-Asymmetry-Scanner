@@ -1087,6 +1087,14 @@ def main() -> None:
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
     evaluate_shadow_trades(history, today)
+    # UNIVERSE_V2-Kandidaten: theoretische + realistische Netto-Outcomes (append-only, eigene Datei)
+    try:
+        from modules import universe_v2_ledger
+        _n_v2 = universe_v2_ledger.resolve_outcomes(today=today.date())
+        if _n_v2:
+            log.info(f"  UNIVERSE_V2-Ledger: {_n_v2} Horizont-Outcome(s) aufgelöst")
+    except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
+        log.warning(f"UNIVERSE_V2-Outcomes Fehler (ignoriert): {e}")
     # Final-MC-Population: fällige 20/45/60-Tage-Outcomes + MFE/MAE (append-only, eigene Datei)
     try:
         from modules import final_mc_ledger

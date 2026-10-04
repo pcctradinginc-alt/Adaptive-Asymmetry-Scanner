@@ -557,7 +557,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Trade Empfehlung — {len(proposals)} Signal(e)</div>
     <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; v8.3</div>
   </div>
-  <div style="padding:24px 32px;">{cards}{_external_context_html()}</div>
+  <div style="padding:24px 32px;">{cards}{_v2_recommendation_html(today)}{_external_context_html()}</div>
 </div></body></html>"""
 
 
@@ -579,6 +579,29 @@ def _calibrated_line(mc_hit) -> str:
     except (OSError, ValueError, ImportError) as e:
         log.warning(f"MC-Kalibrierung nicht ladbar ({e})")
         return "nicht verfügbar"
+
+
+def _v2_recommendation_html(today: str) -> str:
+    """UNIVERSE_V2-Kandidaten NUR für Segmente mit TRADE_RECOMMENDATION_ENABLED (beim Senden erneut gegen
+    den verifizierten PromotionController-Zustand geprüft). Klar getrennt von V1-Vorschlägen. Standard: leer."""
+    try:
+        from modules import universe_v2_ledger as v2l
+        from modules.final_mc_ledger import read_rows
+        from modules.production_intelligence_adapter import v2_segment_levels
+        levels = v2_segment_levels()
+        if "TRADE_RECOMMENDATION_ENABLED" not in levels.values():
+            return ""
+        rows = [r for r in read_rows(v2l.DIR) if str(r.get("date"))[:10] == today]
+        recs = v2l.recommendations(rows, levels, v2l.v2_contracts())
+    except Exception as e:  # noqa: BLE001 – im Zweifel nichts zeigen
+        log.warning(f"V2-Empfehlungen nicht ladbar ({e}) – nicht angezeigt")
+        return ""
+    if not recs:
+        return ""
+    items = "".join(f"<li>{r['ticker']} ({r.get('market_cap_bucket')}, Execution {r.get('execution_quality')}) – "
+                    f"freigegeben durch {', '.join(r['enabled_by'])}</li>" for r in recs)
+    return ("<div style='margin-top:16px;padding:10px;border:1px solid #93c5fd;border-radius:6px;font-size:12px;'>"
+            "<b>UNIVERSE_V2 – freigegebene Segmente (getrennt vom V1-Champion)</b><ul>" + items + "</ul></div>")
 
 
 def _send_smtp(subject: str, html: str) -> None:

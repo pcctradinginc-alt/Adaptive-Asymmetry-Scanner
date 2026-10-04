@@ -331,3 +331,17 @@ def write_ledger(records: list[dict], ledger_dir: Path | None = None) -> None:
     with open(ledger_dir / f"{month}.jsonl", "a", encoding="utf-8") as fh:
         for r in records:
             fh.write(json.dumps(r, sort_keys=True, ensure_ascii=False, default=str) + "\n")
+
+
+def v2_segment_levels(state_path: Path | None = None, contracts: list[dict] | None = None,
+                      registry: Path | None = None, transitions: Path | None = None) -> dict[str, str]:
+    """Verifizierte Stufen der UNIVERSE_V2-Segment-Verträge (fail-safe: leer = alles SHADOW).
+    Wirken ausschließlich auf V2-Kandidaten; V1-Champion-Trades werden davon nie berührt."""
+    from modules.universe_v2_ledger import v2_contracts
+    cs = v2_contracts(contracts)
+    if not cs:
+        return {}
+    active, problems = load_verified_state(state_path, cs, registry, transitions)
+    for pr in problems:
+        log.warning(f"Adapter (V2): {pr}")
+    return {k: a["level"] for k, a in active.items()}

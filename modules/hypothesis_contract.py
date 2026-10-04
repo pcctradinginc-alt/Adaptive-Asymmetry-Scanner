@@ -52,10 +52,14 @@ SOURCE_TYPES = ("blind_spot", "alpha_discovery", "regime_failure", "model_drift"
                 "active_learning", "causal_research", "alternative_data", "historical_analogue",
                 "meta_learning_failure", "unknown_unknown", "manual")
 # Produktionsklasse = höchste Wirkungsart, für die der Vertrag überhaupt gedacht ist
-PRODUCTION_CLASSES = ("research_only", "abstention", "rerank", "score", "weight")
-INFLUENCE_LEVELS = ("NONE", "ABSTENTION_ONLY", "RERANK_ONLY", "SCORE_LIMITED", "WEIGHT_10", "WEIGHT_25")
+# universe_segment: Freigabe eines UNIVERSE_V2-Segments (Market-Cap-/Liquiditäts-Bucket) – wirkt nur auf
+# V2-Kandidaten, nie auf V1-Champion-Trades; jede Stufe über NONE nur per menschlicher Freigabe.
+PRODUCTION_CLASSES = ("research_only", "abstention", "rerank", "score", "weight", "universe_segment")
+INFLUENCE_LEVELS = ("NONE", "ABSTENTION_ONLY", "RERANK_ONLY", "SCORE_LIMITED", "WEIGHT_10", "WEIGHT_25",
+                    "TRADE_RECOMMENDATION_ENABLED")
 _CLASS_MAX_LEVEL = {"research_only": "NONE", "abstention": "ABSTENTION_ONLY", "rerank": "RERANK_ONLY",
-                    "score": "SCORE_LIMITED", "weight": "WEIGHT_25"}
+                    "score": "SCORE_LIMITED", "weight": "WEIGHT_25",
+                    "universe_segment": "TRADE_RECOMMENDATION_ENABLED"}
 _OPS = {">": lambda a, b: a > b, ">=": lambda a, b: a >= b, "<": lambda a, b: a < b,
         "<=": lambda a, b: a <= b, "==": lambda a, b: a == b, "!=": lambda a, b: a != b}
 SIMILARITY_LIMIT = 0.80
@@ -255,7 +259,7 @@ def validate(c: dict, policy: dict | None = None) -> list[str]:
     return errs
 
 
-ELIGIBLE_STAGES = ("CHAMPION_TRADE", "FINAL_MC_SURVIVOR")
+ELIGIBLE_STAGES = ("CHAMPION_TRADE", "FINAL_MC_SURVIVOR", "V2_CANDIDATE")
 
 
 def validate_stage(c: dict) -> list[str]:
@@ -277,6 +281,15 @@ def validate_stage(c: dict) -> list[str]:
         errs.append("promotion_criteria braucht min_fired_event_clusters")
     if c.get("spec_hash") and c["spec_hash"] != spec_hash(c):
         errs.append("gespeicherter spec_hash passt nicht zur Spezifikation")
+    if st == "V2_CANDIDATE":
+        if c.get("universe_version") != "V2":
+            errs.append("V2_CANDIDATE-Verträge brauchen universe_version=V2")
+        if c.get("production_class") != "universe_segment":
+            errs.append("V2_CANDIDATE-Verträge sind production_class universe_segment")
+        if c.get("primary_outcome") != "net_realizable_return":
+            errs.append("V2-Promotion nur auf net_realizable_return (nicht theoretische Kursbewegung)")
+    elif c.get("production_class") == "universe_segment":
+        errs.append("universe_segment nur für eligible_stage V2_CANDIDATE")
     return errs
 
 

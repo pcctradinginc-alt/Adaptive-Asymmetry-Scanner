@@ -78,15 +78,19 @@ ALLOWED = {
     "DEMOTED": set(), "REJECTED": set(), "EXPIRED": set(),
 }
 DECISIONS = ("REJECT", "KEEP_SHADOW", "ALLOW_ABSTENTION", "ALLOW_RERANK", "ALLOW_10_PERCENT_WEIGHT",
+             "ALLOW_TRADE_RECOMMENDATION",
              "ALLOW_25_PERCENT_WEIGHT", "RECOMMEND_FULL_PROMOTION", "DEMOTE", "ROLLBACK")
 LEVEL_OF_DECISION = {"ALLOW_ABSTENTION": "ABSTENTION_ONLY", "ALLOW_RERANK": "RERANK_ONLY",
-                     "ALLOW_10_PERCENT_WEIGHT": "WEIGHT_10", "ALLOW_25_PERCENT_WEIGHT": "WEIGHT_25"}
+                     "ALLOW_10_PERCENT_WEIGHT": "WEIGHT_10", "ALLOW_25_PERCENT_WEIGHT": "WEIGHT_25",
+                     "ALLOW_TRADE_RECOMMENDATION": "TRADE_RECOMMENDATION_ENABLED"}
 # Einfluss-Leiter (ohne SCORE_LIMITED als eigene Weight-Stufe: Score-Klasse nutzt RERANK -> SCORE)
 LADDER = {"abstention": ["NONE", "ABSTENTION_ONLY"],
           "rerank": ["NONE", "RERANK_ONLY"],
           "score": ["NONE", "RERANK_ONLY", "SCORE_LIMITED"],
           "weight": ["NONE", "RERANK_ONLY", "WEIGHT_10", "WEIGHT_25"],
-          "research_only": ["NONE"]}
+          "research_only": ["NONE"],
+          # UNIVERSE_V2-Segment: SHADOW -> RERANK -> LIMITED_WEIGHT -> eigene Trade-Empfehlungen (je Stufe Mensch)
+          "universe_segment": ["NONE", "RERANK_ONLY", "WEIGHT_10", "TRADE_RECOMMENDATION_ENABLED"]}
 
 
 # Nur Outcomes aus echten Optionsquotes zählen als Evidenz (modules/outcomes.py).
@@ -546,6 +550,9 @@ def promotion_checks(contract: dict, ev: dict, policy: dict) -> tuple[bool, list
     ddp, dda = (ev.get("policy") or {}).get("max_drawdown"), (ev.get("all") or {}).get("max_drawdown")
     if ddp is not None and dda is not None and ddp < dda - float(pc.get("max_drawdown_not_worse_by", 0.10)):
         fails.append(f"Drawdown deutlich schlechter ({ddp} vs {dda})")
+    if contract.get("production_class") == "universe_segment":
+        from modules.universe_v2_ledger import segment_checks
+        fails += segment_checks(contract, ev)
     return (not fails), fails
 
 
@@ -614,8 +621,10 @@ def decide(contract: dict, cur: dict | None, ev: dict, policy: dict, *, integrit
     target = min(target, contract["maximum_initial_influence"], key=hc.INFLUENCE_LEVELS.index)
     allowed, capped = _cap_level(target, contract, policy)
     if allowed == "NONE":
+        rec = target if target != "NONE" else (f"{ladder[1]} (nur per menschlicher Freigabe)"
+                                                if cls == "universe_segment" else None)
         res.update(new_state="FORWARD_VALIDATED", reasons=["Forward validiert; automatische Stufe NONE (Policy)"],
-                   recommendation=target if target != "NONE" else None)
+                   recommendation=rec)
         return res
     dec = {v: k for k, v in LEVEL_OF_DECISION.items()}.get(allowed, "KEEP_SHADOW")
     if allowed == "SCORE_LIMITED":
@@ -647,6 +656,9 @@ def _monitor(contract, state, level, ladder, post_ev, ev, policy, res) -> dict:
         e_p = (post_ev.get("policy") or {}).get("ece")
         if e_p is not None and e_p > float(dc.get("ece_max", 0.10)):
             reasons.append(f"Kalibrierung ECE {e_p} > {dc.get('ece_max')}")
+        if contract.get("production_class") == "universe_segment":
+            from modules.universe_v2_ledger import segment_demotion_reasons
+            reasons += segment_demotion_reasons(contract, post_ev)
     if reasons:
         i = ladder.index(level) if level in ladder else 0
         lower = ladder[i - 1] if i > 0 else "NONE"
@@ -660,7 +672,8 @@ def _monitor(contract, state, level, ladder, post_ev, ev, policy, res) -> dict:
         return res
     res.update(decision={"ABSTENTION_ONLY": "ALLOW_ABSTENTION", "RERANK_ONLY": "ALLOW_RERANK",
                          "SCORE_LIMITED": "ALLOW_RERANK", "WEIGHT_10": "ALLOW_10_PERCENT_WEIGHT",
-                         "WEIGHT_25": "ALLOW_25_PERCENT_WEIGHT"}.get(level, "KEEP_SHADOW"),
+                         "WEIGHT_25": "ALLOW_25_PERCENT_WEIGHT",
+                         "TRADE_RECOMMENDATION_ENABLED": "ALLOW_TRADE_RECOMMENDATION"}.get(level, "KEEP_SHADOW"),
                reasons=[f"Monitoring ok ({post_ev['n_observations']} Beobachtungen seit Promotion)"])
     i = ladder.index(level) if level in ladder else 0
     if i + 1 < len(ladder):
@@ -719,7 +732,7 @@ def cap_population(contract: dict, d: dict) -> dict:
     einen neuen Champion-Vertrag per menschlichem PR."""
     from modules.final_mc_ledger import CHAMPION_STAGE, stage_of
     stage = stage_of(contract)
-    if stage == CHAMPION_STAGE or d["new_state"] not in ACTIVE_STATES:
+    if stage == CHAMPION_STAGE or d["new_state"] not in ACTIVE_STATES or contract.get("production_class") == "universe_segment":
         return d
     d.update(decision="KEEP_SHADOW", new_state="FORWARD_VALIDATED", influence_level="NONE",
              recommendation=f"auf {stage} forward-validiert – Champion-Wirkung nur über neuen Champion-Vertrag (PR)",
@@ -727,11 +740,45 @@ def cap_population(contract: dict, d: dict) -> dict:
     return d
 
 
+def apply_approval(contract: dict, cur: dict | None, d: dict, appr: dict, ev: dict, policy: dict,
+                   now: datetime) -> dict:
+    """UNIVERSE_V2-Segment: über NONE nur mit menschlicher Freigabe (config/promotion_approvals.yaml,
+    approved_level) – je Look höchstens eine Stufe, nur wenn die vorab fixierte Evidenz JETZT erfüllt ist,
+    nie aus einem terminalen/abgelehnten/demotierten Zustand."""
+    if contract.get("production_class") != "universe_segment" or not appr.get("approved_level"):
+        return d
+    ladder = LADDER["universe_segment"]
+    target = appr["approved_level"]
+    state = (cur or {}).get("new_state")
+    if target not in ladder or d["decision"] in ("REJECT", "DEMOTE", "ROLLBACK") or d["new_state"] in TERMINAL:
+        return d
+    if state not in ("FORWARD_VALIDATED",) + ACTIVE_STATES:
+        d["reasons"] = d["reasons"] + [f"Freigabe {target} vorhanden, aber noch nicht FORWARD_VALIDATED"]
+        return d
+    if state in ACTIVE_STATES and cur and (now - _ts(cur["timestamp"])).days < LOOK_INTERVAL_DAYS:
+        return d
+    ok, fails = promotion_checks(contract, ev, policy)
+    need = insufficiency(contract, ev, policy)
+    if not ok or need:
+        d["reasons"] = d["reasons"] + ["Freigabe vorhanden, Evidenz aktuell nicht erfüllt: " + "; ".join(need + fails)]
+        return d
+    lvl = d.get("influence_level") if d.get("influence_level") in ladder else "NONE"
+    i = ladder.index(lvl)
+    if i >= ladder.index(target):
+        return d
+    nxt = ladder[i + 1]
+    dec = {v: k for k, v in LEVEL_OF_DECISION.items()}[nxt]
+    d.update(decision=dec, new_state="LIMITED_PRODUCTION", influence_level=nxt, recommendation=None,
+             reasons=[f"menschliche Freigabe bis {target} ({appr.get('pr') or 'PR'}) – eine Stufe: {lvl} -> {nxt}"])
+    return d
+
+
 def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now: datetime | None = None,
         registry: Path | None = None, transitions: Path | None = None, ledger_dir: Path | None = None,
         outcomes_path: Path | None = None, looks_path: Path | None = None, state_path: Path | None = None,
         history: dict | None = None, approvals: dict | None = None, safe_mode: dict | None = None,
-        final_mc_dir: Path | None = None, final_mc_outcomes: Path | None = None) -> dict:
+        final_mc_dir: Path | None = None, final_mc_outcomes: Path | None = None,
+        v2_dir: Path | None = None, v2_outcomes: Path | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     safe_mode = safe_mode if safe_mode is not None else _safe_mode_state()
     now_s = now.isoformat(timespec="seconds")
@@ -753,6 +800,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
     outs = read_outcomes(outcomes_path)
     from modules import final_mc_ledger as fml
     fm_rows, fm_outs = fml.read_rows(final_mc_dir), fml.read_outcomes(final_mc_outcomes)
+    from modules import universe_v2_ledger as v2l
+    v2_rows, v2_outs = fml.read_rows(v2_dir or v2l.DIR), v2l.read_outcomes(v2_outcomes)
     cv, dv = code_version(), data_version(ledger_dir, outcomes_path)
     reg_hash = {e["key"]: e["spec_hash"] for e in reg_entries}
     state = {"generated": now_s, "policy_version": policy.get("version"), "policy_hash": policy_hash(policy),
@@ -775,8 +824,12 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         stage = fml.stage_of(c)
         # Evidenz strikt je Population: Champion-Verträge nur aus dem Champion-Decision-Ledger,
         # FINAL_MC-Verträge nur aus dem Final-MC-Ledger (nie zusammengerechnet).
-        ev_fn = (lambda *a, **k: fml.evidence(c, h, fm_rows, fm_outs, *a, **k)) if stage == fml.STAGE else \
-            (lambda *a, **k: evidence(c, h, rows, outs, *a, **k))
+        if stage == fml.STAGE:
+            ev_fn = (lambda *a, **k: fml.evidence(c, h, fm_rows, fm_outs, *a, **k))
+        elif stage == v2l.STAGE:            # UNIVERSE_V2: nur net_realizable_return, eigener Ledger
+            ev_fn = (lambda *a, **k: v2l.evidence(c, h, v2_rows, v2_outs, *a, **k))
+        else:
+            ev_fn = (lambda *a, **k: evidence(c, h, rows, outs, *a, **k))
         ev = ev_fn(policy, ai["alpha_effective"]) if integrity_ok else {
             "n_observations": 0, "n_independent_dates": 0, "calendar_span_days": 0, "n_fired": 0,
             "n_fired_independent_dates": 0, "ci": [None, None], "regimes": []}
@@ -793,6 +846,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         d = cap_population(c, decide(c, cur, ev, policy, integrity_ok=integrity_ok, looks=lu, alpha_info=ai,
                                      now=now, post_ev=post_ev, look_due=look_due))
         appr = approvals.get(k) or {}
+        if integrity_ok:
+            d = apply_approval(c, cur, d, appr, post_ev or ev, policy, now)
         if appr.get("rollback") and (cur or {}).get("influence_level", "NONE") != "NONE":
             d.update(decision="ROLLBACK", new_state="DEMOTED", influence_level="NONE",
                      reasons=[f"menschlicher Rollback: {appr.get('reason', '')}"])
@@ -815,12 +870,13 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
             except TransitionError as e:
                 d["reasons"].append(f"Übergang verweigert: {e}")
         if d["decision"] in ("ALLOW_ABSTENTION", "ALLOW_RERANK", "ALLOW_10_PERCENT_WEIGHT", "ALLOW_25_PERCENT_WEIGHT",
-                             "RECOMMEND_FULL_PROMOTION") or d.get("recommendation"):
+                             "ALLOW_TRADE_RECOMMENDATION", "RECOMMEND_FULL_PROMOTION") or d.get("recommendation"):
             state["notices"].append(_notice(c, cur, d, ev))
         state["hypotheses"][k] = {
             "hypothesis_id": c["hypothesis_id"], "version": c["version"], "title": c.get("title"),
             "description": c.get("research_question"), "source_type": c["source_type"],
-            "production_class": c["production_class"], "eligible_stage": stage, "spec_hash": h,
+            "production_class": c["production_class"], "eligible_stage": stage,
+            "universe_version": c.get("universe_version") or "V1", "segment": c.get("segment"), "spec_hash": h,
             "registry_status": st.get("status"),
             "registry_errors": st.get("errors"), "state": (cur or {}).get("new_state", "IDEA"),
             "influence_level": (cur or {}).get("influence_level", "NONE") if integrity_ok else "NONE",

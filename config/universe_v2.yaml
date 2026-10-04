@@ -1,0 +1,108 @@
+# config/universe_v2.yaml – vollständiges US-Optionsuniversum (UNIVERSE_V2), SHADOW/RESEARCH
+#
+# UNIVERSE_V1 (Produktion) bleibt unverändert: S&P 500 + Nasdaq-100, Cap ≥ 2 Mrd., Ø-Volumen ≥ 1 Mio.,
+# Dollar-Volumen ≥ 10 Mio. (eingefroren: outputs/universe/universe_v1_frozen.json).
+# UNIVERSE_V2 = alle an regulären US-Börsen gehandelten Aktien mit gelisteten US-Equity-Optionen.
+# Keine Market-Cap-Untergrenze. V2 erzeugt KEINE Produktionsentscheidung, solange kein
+# Segment-Vertrag per PromotionController + menschlicher Freigabe weiter ist als SHADOW.
+#
+# Schwellen sind Defaults (dokumentiert, getestet). Änderungen nur per PR; laufende Forward-Verträge
+# frieren ihre eigenen Kriterien im spec_hash ein (Änderungen hier wirken nie rückwirkend).
+
+version: universe-v2.1
+registered_at: "2026-10-03"
+
+discovery:
+  listings_source: sec_company_tickers_exchange      # https://www.sec.gov/files/company_tickers_exchange.json
+  allowed_exchanges: [NYSE, Nasdaq, "NYSE American", "NYSE Arca", CBOE, "Cboe BZX", IEX]
+  excluded_exchanges: [OTC, ""]                      # OTC/Pink/Grey nie
+  # Kein Equity-Mapping: Warrants, Units, Rights, Preferreds, When-Issued
+  excluded_ticker_patterns: ['-(W|WS|WT|U|UN|R|RT|P[A-Z]?)$', '\.(W|WS|U|R)$', '^[A-Z]{4}[WRU]$', '\^']
+  max_days_since_last_trade: 5                       # sonst STALE (delisted/suspendiert)
+  optionability_sources: [tradier, yfinance]         # tradier = Kernquelle (Key), yfinance = getesteter Fallback
+  min_expiries_listed: 1                             # mind. 1 gelisteter Verfall = "optionierbar" (NICHT tradeable)
+  request_budget_s: 3000                             # Discovery-Laufzeitbudget im wöchentlichen Workflow
+
+market_cap_buckets:                                  # USD, untere Grenze inklusive
+  ULTRA_MICRO: 0
+  MICRO: 50_000_000
+  SMALL: 300_000_000
+  MID: 2_000_000_000
+  LARGE: 10_000_000_000
+  MEGA: 200_000_000_000
+
+liquidity_buckets:                                   # Ø-Dollar-Volumen der Aktie (20 T), untere Grenze
+  ILLIQUID: 0
+  LOW: 1_000_000
+  MEDIUM: 10_000_000
+  HIGH: 100_000_000
+
+options_liquidity_buckets:                           # Summe Open Interest der ATM-nahen Strikes geeigneter Verfälle
+  NONE: 0
+  THIN: 100
+  ADEQUATE: 1_000
+  DEEP: 10_000
+
+# Research/Shadow: großzügig – Titel bleiben beobachtbar, sobald irgendetwas Handelbares existiert.
+research_gates:
+  min_price: 1.0                                     # unter 1 $: Penny-Stock, nur als Risikofall gezählt
+  min_avg_volume: 50_000
+  min_dollar_volume: 250_000
+  max_stock_spread_rel: 0.05
+  min_expiries: 1
+  min_dte: 7
+  max_dte: 400
+  min_open_interest: 10
+  min_option_volume: 0
+  max_option_spread_rel: 0.50
+  max_option_spread_abs: 2.50
+  min_strikes_near_money: 2                          # Strikes innerhalb ±20 % vom Kurs
+  max_estimated_execution_cost: 0.40                 # Roundtrip-Kosten relativ zur Prämie
+
+# Produktion: deutlich strenger – Option Chain vorhanden heißt NIE automatisch tradeable.
+production_gates:
+  min_price: 5.0
+  min_avg_volume: 500_000
+  min_dollar_volume: 10_000_000
+  max_stock_spread_rel: 0.005
+  min_expiries: 3
+  min_dte: 30
+  max_dte: 200
+  min_open_interest: 500
+  min_option_volume: 50
+  max_option_spread_rel: 0.10                        # = risk.max_bid_ask_ratio der V1-Produktion
+  max_option_spread_abs: 0.50
+  min_strikes_near_money: 6
+  max_estimated_execution_cost: 0.08
+
+execution_costs:                                     # Kostenmodell (geschätzt, Label ESTIMATED)
+  commission_per_contract: 0.65                      # USD je Kontrakt und Seite
+  contracts_assumed: 1
+  slippage_spread_fraction: 0.25                     # zusätzlich zum halben Spread je Seite
+  slippage_low_oi_multiplier: 2.0                    # OI < production min_open_interest -> Slippage x2
+  exit_spread_assumption: entry_relative_spread      # ohne Exit-Quote: gleicher relativer Spread wie Einstieg
+
+execution_quality:                                   # aus geschätzten Roundtrip-Kosten (relativ zur Prämie)
+  GOOD: 0.05
+  FAIR: 0.12
+  POOR: 0.25                                         # darüber: UNTRADEABLE
+
+risk_flags:
+  penny_price: 1.0
+  extreme_gap_abs: 0.40                              # |Tagesrendite| > 40 % in den letzten 20 T
+  manipulation_rel_volume: 10.0                      # RV > 10 und Cap < SMALL -> Pump-/Manipulationsverdacht
+
+shadow_scan:                                         # LLM-frei: nur die nicht-LLM Champion-Stufen
+  signal: champion_quant_v1                          # RV (VIX-skaliert) + News-Präsenz + Pre-MC sigma-only
+  pre_mc_days: 45
+  pre_mc_threshold: 0.40
+  max_candidates_per_day: 150
+  max_option_checks_per_day: 150
+  option_target_dte: [45, 140]
+  option_moneyness: atm_call                         # wie Champion-Grundstruktur (Long Call)
+  llm: false                                         # Kostenbudget; LLM-V2 nur als eigener Vertrag
+
+outcomes:
+  horizons_days: [20, 45, 60]
+  primary_horizon_days: 45
+  delisted_option_outcome: -1.0                      # konservativ: Totalverlust, eigens gezählt

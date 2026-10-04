@@ -1,0 +1,15 @@
+{
+ "assignment": "Alle bestehenden Forward-Vertr\u00e4ge, Hypothesen, Challenger, Outcomes und Promotion-Evidenz ohne universe_version-Feld geh\u00f6ren zu V1.",
+ "code_hash": "0f8ccfcc232d4528778a2936324d332fceba255b42e461884a0273612e64213f",
+ "definition_hash": "c9ac84a41d6adcb24e88dd75898d56dac9e4e38299702fafe5731771fba74ed2",
+ "frozen_at": "2026-10-03T20:19:26+00:00",
+ "hard_filters": {
+  "min_avg_volume": 1000000,
+  "min_dollar_volume_usd": 10000000,
+  "min_market_cap_usd": 2000000000,
+  "rv_base_threshold": 0.6
+ },
+ "static_fallback_hash": "64db3af827222f8bca457ab1e5c43fba92c69d0cf7cdfd156daf17faf3d6edc1",
+ "universe": "sp500_nasdaq100",
+ "universe_version": "V1"
+}
