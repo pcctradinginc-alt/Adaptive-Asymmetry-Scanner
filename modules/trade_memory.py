@@ -16,8 +16,8 @@ Grundsätze:
     Klassifikation ist rein deterministisch (kein LLM, kein Zufall).
   * Multi-Label + genau eine primäre Ursache nach fester Priorität
     (PRIMARY_PRIORITY). Nur Verlusttrades (outcome < 0) werden klassifiziert.
-  * Outcomes mit outcome_method_reconstructed == "delta_approx" sind nur
-    geschätzt: Ursache "unreliable_outcome", keine weitere Klassifikation,
+  * Nicht-RELIABLE Outcomes (modules/outcomes.py: UNKNOWN, RECONSTRUCTED,
+    APPROXIMATED): Ursache "unreliable_outcome", keine weitere Klassifikation,
     getrennte Ausweisung in der Aggregation.
   * Kein Blick in die Zukunft: similar_cases() nutzt bei query_date nur Fälle,
     die zu diesem Datum bereits abgeschlossen waren.
@@ -38,7 +38,7 @@ import statistics
 from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
-from modules.outcomes import is_reliable_outcome
+from modules.outcomes import is_reliable_outcome, reliability_stamp
 
 log = logging.getLogger(__name__)
 
@@ -367,9 +367,9 @@ def aggregate_failures(cases: list[dict], last_n: int = 100) -> dict:
     und unzuverlässige getrennt) + Gewinner-vs-Verlierer-Features (nur
     zuverlässige Outcomes, je Gruppe die letzten `last_n`)."""
     losses = [c for c in cases if c["outcome"] < 0]
-    rel_l = _recent([c for c in losses if c.get("outcome_reliable", True)], last_n)
-    unr_l = _recent([c for c in losses if not c.get("outcome_reliable", True)], last_n)
-    wins = _recent([c for c in cases if c["outcome"] > 0 and c.get("outcome_reliable", True)], last_n)
+    rel_l = _recent([c for c in losses if c.get("outcome_reliable", False)], last_n)
+    unr_l = _recent([c for c in losses if not c.get("outcome_reliable", False)], last_n)
+    wins = _recent([c for c in cases if c["outcome"] > 0 and c.get("outcome_reliable", False)], last_n)
 
     comparison = {}
     for k in NUMERIC_FEATURES:
@@ -447,7 +447,7 @@ def similar_cases(query_features: dict, cases: list[dict], k: int = 10,
     summary = {
         "n": len(top),
         "n_pool": len(pool),
-        "n_unreliable": sum(1 for c in top if not c.get("outcome_reliable", True)),
+        "n_unreliable": sum(1 for c in top if not c.get("outcome_reliable", False)),
         "win_share": sum(1 for o in outs if o > 0) / len(outs) if outs else None,
         "median_outcome": statistics.median(outs) if outs else None,
         "top_failure_cause": causes.most_common(1)[0][0] if causes else None,
@@ -486,11 +486,13 @@ def render_markdown(agg: dict) -> str:
          f"Auswertung über die letzten {agg['last_n']} Verlusttrades je Gruppe.", "",
          "> Hinweis Stichprobengröße: Die Anteile sind deskriptiv; bei wenigen Dutzend Trades "
          "sind Unterschiede zwischen Ursachen statistisch nicht belastbar.",
-         "> Hinweis unzuverlässige Outcomes: Trades mit `delta_approx` haben nur geschätzte "
-         "Renditen und werden nicht weiter klassifiziert.", ""]
-    L += _cause_md("Zuverlässige Verlusttrades", agg["reliable"])
-    L += _cause_md("Unzuverlässige Verlusttrades (nicht RELIABLE)", agg["unreliable"])
-    L += ["### Gewinner vs. Verlierer (nur zuverlässige Outcomes)", ""]
+         "> Hinweis Outcome-Klassen: Nur RELIABLE (Quote-basiert) wird klassifiziert. UNKNOWN "
+         "(Altbestand ohne Preismethode), RECONSTRUCTED (`delta_approx`) und APPROXIMATED werden "
+         "nicht weiter klassifiziert und getrennt ausgewiesen.",
+         f"> Outcome-Klassen (geschlossen): {agg.get('outcome_classes', {})}", ""]
+    L += _cause_md("RELIABLE Verlusttrades", agg["reliable"])
+    L += _cause_md("Nicht-RELIABLE Verlusttrades (UNKNOWN/RECONSTRUCTED/APPROXIMATED, explorativ)", agg["unreliable"])
+    L += ["### Gewinner vs. Verlierer (nur RELIABLE-Outcomes)", ""]
     wl = agg["winner_vs_loser"]
     if wl:
         L += ["| Feature | Ø Gewinner | Ø Verlierer | Differenz | Effektstärke | n (G/V) |",
@@ -540,6 +542,7 @@ def run(history_path=HISTORY_PATH, out_dir=OUT_DIR, last_n: int = 100) -> dict:
 
     cases = build_cases(history, regimes)
     agg = aggregate_failures(cases, last_n=last_n)
+    agg.update(reliability_stamp(history.get("closed_trades") or []))
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)

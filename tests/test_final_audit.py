@@ -565,7 +565,7 @@ def test_legacy_unknown_outcomes_kept_but_excluded_from_learning():
     from reports.weekly import compute_forward
     from datetime import date
     fw = compute_forward(h, date(2026, 10, 4))
-    assert fw["n_closed_total"] == 20 and fw["outcome_classes"] == {"UNKNOWN": 20}   # explorativ sichtbar
+    assert fw["n_closed_total"] == 20 and fw["outcome_classes"] == {"RELIABLE": 0, "UNKNOWN": 20, "RECONSTRUCTED": 0, "APPROXIMATED": 0}   # explorativ sichtbar
     assert all(w["reliable"]["closed"] == 0 for w in fw["windows"])
 
 

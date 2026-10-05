@@ -25,7 +25,7 @@ import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
-from modules.outcomes import class_counts, is_reliable_outcome
+from modules.outcomes import artifact_is_current, class_counts, is_reliable_outcome, outcome_class
 
 log = logging.getLogger(__name__)
 
@@ -194,15 +194,34 @@ def _closed_trades(history: dict) -> list[dict]:
     return out
 
 
+from modules.learning_health import (HISTORICAL_WF_LABEL, LIVE_FORWARD_LABEL,  # noqa: E402
+                                     live_forward_calibration)
+
+
+def outcome_classes_text(fw: dict) -> str:
+    c = _d(_d(fw).get("outcome_classes"))
+    return " · ".join(f"{k} {c.get(k, 0)}" for k in ("RELIABLE", "UNKNOWN", "RECONSTRUCTED", "APPROXIMATED")) if c else NA
+
+
+def current_reliable(data: dict):
+    return _d(_d(data.get("forward")).get("outcome_classes")).get("RELIABLE")
+
+
+def live_forward_text(data: dict) -> str:
+    lf = live_forward_calibration(data.get("paper_perf"))
+    return f"{lf['status']} (prospektive RELIABLE Paper-Trades n={lf['n']}, min {lf['min_n']})"
+
+
 def compute_forward(history: dict | None, today: _date) -> dict:
-    """Fenster-Kennzahlen (alle / zuverlässig) + Signalanzahl."""
+    """Fenster-Kennzahlen (nur RELIABLE / explorativ alle Klassen) + Signalanzahl."""
     if not history:
         return {"available": False}
     closed = _closed_trades(history)
     active = [t for t in _d(history).get("active_trades") or [] if isinstance(t, dict)]
     res = {"available": True, "n_closed_total": len(closed), "n_active": len(active),
            "n_reconstructed": sum(1 for t in closed if t.get("outcome_method_reconstructed") == "delta_approx"),
-           "outcome_classes": class_counts(closed),
+           "outcome_classes": {k: class_counts(closed).get(k, 0)
+                               for k in ("RELIABLE", "UNKNOWN", "RECONSTRUCTED", "APPROXIMATED")},
            "windows": []}
     for label, days in WINDOWS:
         cutoff = today - timedelta(days=days) if days else None
@@ -500,7 +519,7 @@ def collect(root, date, state_path=None) -> dict:
                 cause = "unbekannt (kein trade_memory-Eintrag)"
         recent.append({"ticker": t.get("ticker"), "entry_date": t.get("entry_date"),
                        "close_date": t.get("close_date"), "outcome": o, "worked": o > 0,
-                       "approx": t.get("outcome_method_reconstructed") == "delta_approx",
+                       "outcome_class": outcome_class(t),
                        "cause": cause})
     recent.sort(key=lambda r: r["close_date"] or "")
     data["recent"] = recent
@@ -513,7 +532,9 @@ def collect(root, date, state_path=None) -> dict:
     data["learned"] = diff_snapshots(prev if isinstance(prev, dict) else None, data["snapshot"])
     data["warnings"] = compute_warnings(data)
     data["week_proposals"] = _week_proposals(out_dir, today)
-    data["mc_calibration"] = _d(_load_json(rs / "paper_performance_analysis.json")).get("mc_hit_rate_calibration")
+    data["paper_perf"] = _d(_load_json(rs / "paper_performance_analysis.json"))
+    data["mc_calibration"] = (data["paper_perf"].get("mc_hit_rate_calibration")
+                              if artifact_is_current(data["paper_perf"]) else None)
     data["rl_status"] = _load_json(rs / "rl_promotion.json")
     data["surprise"] = _load_json(rs / "surprise_study.json")
     data["inquiry"] = _load_json(rs / "inquiry_chains.json")
@@ -641,15 +662,15 @@ def compute_warnings(data: dict) -> list[dict]:
         add("MODEL DRIFT", "Modell-Drift geflaggt (" + ", ".join(ds["flags"]) + ")")
     cal = _d(ml.get("calibration"))
     if cal.get("interval_calibrated") is False:
-        add("CALIBRATION FAILURE", f"Intervall nicht kalibriert (coverage {_fv(_num(cal.get('coverage')))} vs Ziel {_fv(_num(cal.get('target')))})")
+        add("CALIBRATION FAILURE", f"{HISTORICAL_WF_LABEL}: Intervall nicht kalibriert (coverage {_fv(_num(cal.get('coverage')))} vs Ziel {_fv(_num(cal.get('target')))})")
     over = [str(b.get("bucket")) for b in _buckets(meta) if b.get("flag") == "overconfident"]
     if over:
-        add("CALIBRATION FAILURE", "Überkonfidente Buckets: " + ", ".join(over))
+        add("CALIBRATION FAILURE", f"{HISTORICAL_WF_LABEL}: überkonfidente Buckets: " + ", ".join(over))
     fw = data["forward"]
     if fw.get("available"):
         base = fw["windows"][0]["reliable"]
         if base.get("closed", 0) < LOW_SAMPLE_N:
-            add("LOW SAMPLE SIZE", f"Forward (zuverlässig, ohne delta_approx): n={base.get('closed', 0)} < {LOW_SAMPLE_N}")
+            add("LOW SAMPLE SIZE", f"Forward (nur RELIABLE): n={base.get('closed', 0)} < {LOW_SAMPLE_N}")
         short = [f"{x['label']} (n={x['reliable']['closed']})" for x in fw["windows"][1:]
                  if 0 < x["reliable"]["closed"] < LOW_SAMPLE_N]
         if short:
@@ -780,7 +801,7 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
     cal_parts = []
     if cal:
         cal_parts.append(f"ML-Intervall: coverage {_f(cal.get('coverage'))} vs Ziel {_f(cal.get('target'))}, "
-                         f"kalibriert={cal.get('interval_calibrated', NA)}, Brier {_f(cal.get('brier'), 4)} "
+                         f"historisch kalibriert={cal.get('interval_calibrated', NA)}, Brier {_f(cal.get('brier'), 4)} "
                          f"(Basis {_f(cal.get('brier_base'), 4)}), p_up_skill {_f(cal.get('p_up_skill'), 3, sign=True)}")
     mcal = meta.get("calibration")
     if isinstance(mcal, dict):
@@ -797,7 +818,9 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
             ("Data freshness", fresh_s),
             ("Model drift", fmt_flag(ds["model"]) if meta else NO_DATA),
             ("Feature drift", fmt_flag(ds["feature"]) if meta else NO_DATA),
-            ("Calibration status", " | ".join(cal_parts) if cal_parts else NO_DATA),
+            (HISTORICAL_WF_LABEL, ((" | ".join(cal_parts) + " – Walk-Forward-OOS/historisch, KEINE Forward-Evidenz")
+                                   if cal_parts else NO_DATA)),
+            (LIVE_FORWARD_LABEL, live_forward_text(data)),
             ("Safe Mode", safe_mode_status(data.get("safe"))[1]
              + (f" · aktives Ensemble {st.get('active_ensemble')}" if st.get("active_ensemble") else "")),
             ("Datenstand der Artefakte", data_stand(data)),
@@ -813,11 +836,12 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
     if not fw.get("available"):
         b2.append(("para", f"FORWARD: {NO_DATA} (outputs/history.json fehlt)."))
     else:
-        b2.append(("para", f"Geschlossen gesamt: {fw['n_closed_total']}, offen: {fw['n_active']}, davon "
-                           f"rekonstruiert (delta_approx): {fw['n_reconstructed']}."))
-        b2.append(("para", "A) Nur zuverlässige Outcomes (ohne delta_approx)"))
+        b2.append(("para", f"Geschlossen gesamt: {fw['n_closed_total']}, offen: {fw['n_active']}. "
+                           f"Outcome-Klassen: {outcome_classes_text(fw)}."))
+        b2.append(("para", "A) Nur RELIABLE-Outcomes (ohne UNKNOWN/RECONSTRUCTED/APPROXIMATED)"))
         b2.append(_fwd_table("reliable", fw["windows"]))
-        b2.append(("para", "B) Alle Outcomes (inkl. delta_approx, Näherung)"))
+        b2.append(("para", "B) EXPLORATIV – alle Outcomes inkl. UNKNOWN/RECONSTRUCTED/APPROXIMATED "
+                           "(keine RELIABLE-Kennzahl)"))
         b2.append(_fwd_table("all", fw["windows"]))
     lg = data["ledger"]
     b2.append(("para", f"Candidate-Ledger: {lg['rows']} Einträge, davon {lg['not_rejected']} nicht abgelehnt." if lg["rows"] else f"Candidate-Ledger: {NO_DATA}."))
@@ -825,8 +849,9 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
 
     # 3 Confidence
     bk = _buckets(meta)
-    b3 = [("note", f"Quelle: meta_learning.calibration_buckets[{_bucket_key(meta) or NA}] – aktives Ensemble, "
-                   f"Walk-Forward-OOS mit Vorjahres-Kalibrierung (Backtest, kein Forward).")]
+    b3 = [("note", f"{HISTORICAL_WF_LABEL} – Quelle: meta_learning.calibration_buckets[{_bucket_key(meta) or NA}] – "
+                   f"aktives Ensemble, Walk-Forward-OOS mit Vorjahres-Kalibrierung (Backtest, KEINE Forward-Evidenz). "
+                   f"{LIVE_FORWARD_LABEL}: {live_forward_text(data)}.")]
     if bk:
         rows, cls = [], []
         for b in bk:
@@ -923,7 +948,7 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
         rows, cls = [], []
         for r in data["recent"]:
             rows.append([str(r["ticker"]), str(r["entry_date"]), str(r["close_date"]), _f(r["outcome"], pct=True, sign=True),
-                         "funktioniert" if r["worked"] else "nicht", (r["cause"] or "") + (" [delta_approx]" if r["approx"] else "")])
+                         "funktioniert" if r["worked"] else "nicht", (r["cause"] or "") + ("" if r.get("outcome_class") == "RELIABLE" else f" [{r.get('outcome_class')}, nicht RELIABLE]")])
             cls.append("" if r["worked"] else "bad")
         b7.append(("table", ["Ticker", "Entry", "Close", "Outcome", "Ergebnis", "Primäre Ursache (Verlierer)"], rows, cls))
     elif data["forward"].get("available"):
@@ -980,7 +1005,12 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
         fa = _d(data["fail"])
         prim = _d(_d(fa.get("reliable")).get("primary"))
         if prim:
-            b9.append(("para", "Failure-Analyse (zuverlässige Outcomes, Anteil primäre Ursache): " +
+            n_fa = sum(int(_d(v).get("n") or 0) for v in prim.values())
+            label = ("Failure-Analyse (nur RELIABLE-Outcomes, Anteil primäre Ursache)"
+                     if artifact_is_current(fa, n_fa, current_reliable(data)) else
+                     f"Failure-Analyse EXPLORATIV – Artefakt nach alter Reliability-Definition, Population n={n_fa} "
+                     f"inkl. UNKNOWN/RECONSTRUCTED, NICHT RELIABLE (aktuell {outcome_classes_text(data['forward'])})")
+            b9.append(("para", label + ": " +
                        ", ".join(f"{k} {_f(_d(v).get('share'), pct=True)} (n={_d(v).get('n')})" for k, v in prim.items())))
     else:
         b9.append(("para", NO_DATA))
@@ -1115,7 +1145,7 @@ def _candidate_blocks(p: dict, data: dict) -> list:
                                    f"{_f(lf.get('ml_q90_ret_60'), pct=True, sign=True)}] – ML-Research-Schätzung, "
                                    f"nicht produktiv validiert") if lf.get("ml_exp_ret_60") is not None else NA),
         ("Erwartete Rendite 120d", NA + " (kein Modell)"),
-        ("Kalibrierte Wahrscheinlichkeit", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
+        ("MC-Band-Wahrscheinlichkeit (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
         ("Erwarteter Drawdown / MAE", (f"{_f(lf.get('ml_exp_dd_60'), pct=True, sign=True)} (60d, ML-Research)"
                                        if lf.get("ml_exp_dd_60") is not None else NA)),
         ("MFE", NA + " (erst nach Outcome messbar)"),
@@ -1319,7 +1349,8 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     # 7 PERFORMANCE – Forward / Walk-Forward OOS / Backtest strikt getrennt
     fw = data["forward"]
     hdr7 = ["Fenster", "N", "Expectancy", "Win Rate", "Profit Factor", "Sharpe/Trade", "Sortino/Trade", "MaxDD (Einh.)", "Hinweis"]
-    b7 = [("para", "A) ECHTE FORWARD-/PAPER-PERFORMANCE (Champion, nur zuverlässige Outcomes)")]
+    b7 = [("para", "A) ECHTE FORWARD-/PAPER-PERFORMANCE (Champion, nur RELIABLE-Outcomes; "
+                   + outcome_classes_text(fw) + ")")]
     if fw.get("available"):
         b7.append(("table", hdr7, [_perf_row(x["label"], x["reliable"]) for x in fw["windows"]], []))
     else:
@@ -1334,7 +1365,8 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
                if ch.get("n") else ("para", "Noch keine aufgelösten prospektiven Entscheidungen."))
     cal = _d(data.get("mc_calibration"))
     if cal:
-        b7.append(("para", "Calibration (Forward): vorhergesagte MC-Trefferquote vs. realisierte Win Rate"))
+        b7.append(("para", f"{LIVE_FORWARD_LABEL}: {live_forward_text(data)}. Deskriptive Band-Tabelle "
+                           f"(nur RELIABLE Paper-Trades, vorhergesagte MC-Trefferquote vs. realisierte Win Rate):"))
         b7.append(("table", ["Band", "n", "vorhergesagt", "realisiert", "Expectancy", "PF"],
                    [[k, str(_d(v).get("n")), _f(_d(v).get("predicted_hit_rate"), pct=True), _f(_d(v).get("win_rate"), pct=True),
                      _f(_d(v).get("mean"), pct=True, sign=True), _fv(_d(v).get("profit_factor"))] for k, v in cal.items()], []))
@@ -1490,7 +1522,8 @@ def intelligence_sections(data: dict) -> list:
     ms = _d(data.get("mstate"))
     if ms:
         sa = _d(ms.get("self_assessment"))
-        b = [("kv", [(k, _fv(v)) for k, v in sa.items()]),
+        b = [("kv", [(f"{k} ({HISTORICAL_WF_LABEL})" if k == "overall_calibration" else k, _fv(v))
+                     for k, v in sa.items()]),
              ("para", "Stärken (was wir wissen):"), ("list", [str(x) for x in (ms.get("what_do_we_know") or [])[:6]] or [NO_DATA]),
              ("para", "Schwächen (wo wir systematisch irren):"),
              ("list", [str(x) for x in (ms.get("where_are_we_systematically_wrong") or [])[:6]] or [NO_DATA]),
@@ -1636,8 +1669,12 @@ def promotion_section(data: dict, today: _date | None = None) -> list:
         props = [f"{_d(p.get('walk_forward')).get('rule')}: Kalibrierung Δ {_d(p.get('walk_forward')).get('calibration_delta')}, "
                  f"Test Δ {_d(p.get('walk_forward')).get('test_delta')} (n={_d(p.get('walk_forward')).get('test_n_tail')}) "
                  f"– Entwurf, Registrierung nur per PR" for p in pp.get("proposals") or []]
-        blocks += [("para", f"NEUE HYPOTHESEN-VORSCHLÄGE (historischer Walk-Forward, {pp.get('n_trades')} verlässliche "
-                            f"Trades, {pp.get('candidates_tested')} Regeln getestet, {len(pp.get('rejected') or [])} "
+        pop = (f"{pp.get('n_trades')} RELIABLE-Trades"
+               if artifact_is_current(pp, pp.get("n_trades"), current_reliable(data)) else
+               f"EXPLORATIV – Artefakt nach alter Reliability-Definition, {pp.get('n_trades')} Trades inkl. "
+               f"UNKNOWN/RECONSTRUCTED, NICHT RELIABLE; aktuell {outcome_classes_text(data.get('forward') or {})}")
+        blocks += [("para", f"NEUE HYPOTHESEN-VORSCHLÄGE (historischer Walk-Forward, {pop}, "
+                            f"{pp.get('candidates_tested')} Regeln getestet, {len(pp.get('rejected') or [])} "
                             f"verworfen):"), ("list", props or ["keine – kein Muster übersteht den Walk-Forward"])]
     return blocks
 

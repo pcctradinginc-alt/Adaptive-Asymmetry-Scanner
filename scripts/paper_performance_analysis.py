@@ -1,6 +1,6 @@
 """Ursachenanalyse der echten Paper-Performance des täglichen Scanners
 (Audit P1-9). Nur gespeicherte Paper-Trades aus outputs/history.json, kein
-Backtest. Nur zuverlässige Outcomes (ohne delta_approx-Rekonstruktion).
+Backtest. Nur RELIABLE-Outcomes (modules/outcomes.py; ohne UNKNOWN/RECONSTRUCTED/APPROXIMATED).
 
     python scripts/paper_performance_analysis.py
 -> outputs/research/paper_performance_analysis.{json,md}
@@ -82,7 +82,7 @@ def calibration_oos(rel: list[dict]) -> dict:
 
 def analyse(hist: dict) -> dict:
     closed = [t for t in hist.get("closed_trades") or [] if isinstance(t.get("outcome"), (int, float))]
-    from modules.outcomes import is_reliable_outcome          # eine Definition für alle Auswertungen
+    from modules.outcomes import is_reliable_outcome, reliability_stamp   # eine Definition für alle Auswertungen
     rel = [t for t in closed if is_reliable_outcome(t)]
     mc = defaultdict(list)
     for t in rel:
@@ -91,7 +91,7 @@ def analyse(hist: dict) -> dict:
             mc[b].append(t)
     mc_cal = {b: {**summary(v), "predicted_hit_rate": round(st.mean(t["simulation"]["hit_rate"] for t in v), 3)}
               for b, v in sorted(mc.items())}
-    return {"n_closed": len(closed), "n_reliable": len(rel), "overall": summary(rel),
+    return {"n_closed": len(closed), "n_reliable": len(rel), **reliability_stamp(closed), "overall": summary(rel),
             "by_strategy": group(rel, lambda t: t.get("strategy")),
             "by_entry_month": group(rel, lambda t: t.get("entry_date", "")[:7]),
             "by_close_reason": group(rel, lambda t: t.get("close_reason") or "offen_bis_Bewertung"),
@@ -99,14 +99,14 @@ def analyse(hist: dict) -> dict:
             "by_llm_impact": group(rel, lambda t: (t.get("features") or {}).get("impact")),
             "by_llm_surprise": group(rel, lambda t: (t.get("features") or {}).get("surprise")),
             "mc_hit_rate_calibration": mc_cal,
-            "mc_hit_rate_calibration_scope": "in-sample über alle verlässlichen Trades (beschreibend); für neue "
-                                             "Kandidaten nur aus der Vergangenheit -> gültig; Güte siehe calibration_oos",
+            "mc_hit_rate_calibration_scope": "in-sample über alle RELIABLE-Trades (deskriptiv); für neue "
+                                             "Kandidaten nur aus der Vergangenheit -> gültig; LIVE_FORWARD_CALIBRATION siehe calibration_oos",
             "calibration_oos": calibration_oos(rel)}
 
 
 def render(r: dict) -> str:
     L = ["# Paper-Performance des täglichen Scanners – Ursachenanalyse", "",
-         f"Quelle: outputs/history.json, nur zuverlässige Outcomes: n={r['n_reliable']} von {r['n_closed']}.", "",
+         f"Quelle: outputs/history.json, nur RELIABLE-Outcomes: n={r['n_reliable']} von {r['n_closed']} (Klassen {r.get('outcome_classes')}).", "",
          f"Gesamt: {r['overall']}", "", f"Kalibrierung out-of-sample (prequential): {r.get('calibration_oos')}", ""]
     for k in ("mc_hit_rate_calibration", "by_strategy", "by_entry_month", "by_close_reason", "by_catalyst",
               "by_llm_impact", "by_llm_surprise"):

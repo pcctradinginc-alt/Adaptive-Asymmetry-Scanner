@@ -64,6 +64,29 @@ def _fresh(gen, key: str, now: datetime, ok: str = "OK") -> tuple[str, str]:
     return ok, f"vor {a:.1f} T"
 
 
+# Zwei Evidenzebenen, nie vermischen (Reporting 2026-10-05):
+#  HISTORICAL_WALK_FORWARD_CALIBRATION – historische/Walk-Forward-OOS-Daten (Brier, ECE, Coverage, Buckets);
+#    keine Production-/Forward-Evidenz, auch wenn "calibrated=True".
+#  LIVE_FORWARD_CALIBRATION – ausschließlich prospektive RELIABLE Paper-Trades (prequentiell);
+#    unter LIVE_FORWARD_CAL_MIN_N: NEED_MORE_DATA / UNCALIBRATED, unabhängig vom historischen Wert.
+HISTORICAL_WF_LABEL = "HISTORICAL_WALK_FORWARD_CALIBRATION"
+LIVE_FORWARD_LABEL = "LIVE_FORWARD_CALIBRATION"
+LIVE_FORWARD_CAL_MIN_N = 30
+
+
+def live_forward_calibration(pp: dict | None) -> dict:
+    """Status der LIVE_FORWARD_CALIBRATION aus paper_performance_analysis.calibration_oos."""
+    from modules.outcomes import artifact_is_current
+    cal = (pp or {}).get("calibration_oos") or {} if isinstance(pp, dict) else {}
+    n = int(cal.get("n_evaluated") or 0) if artifact_is_current(pp) else 0
+    if n < LIVE_FORWARD_CAL_MIN_N:
+        status = "NEED_MORE_DATA / UNCALIBRATED"
+    else:
+        status = "CALIBRATED" if cal.get("calibrated_better") else "NOT_CALIBRATED"
+    return {"label": LIVE_FORWARD_LABEL, "status": status, "n": n, "min_n": LIVE_FORWARD_CAL_MIN_N,
+            "ece": cal.get("ece_calibrated") if n else None}
+
+
 def assess(root: Path | None = None, now: datetime | None = None, data_health: dict | None = None) -> dict:
     root = Path(root or ".")
     o = root / "outputs"
@@ -145,16 +168,16 @@ def assess(root: Path | None = None, now: datetime | None = None, data_health: d
         f"{len(chall)} Challenger im Forward, {n_led} Decision-Ledger-Zeilen")
 
     pp = _js(o / "research" / "paper_performance_analysis.json")
-    cal = (pp or {}).get("calibration_oos") or {} if isinstance(pp, dict) else {}
-    n_cal = int(cal.get("n_evaluated") or 0)
+    lfc = live_forward_calibration(pp if isinstance(pp, dict) else None)
     if pp is None:
         st = "UNVALIDATED"
     elif pp == "CORRUPT":
         st = "BROKEN"
     else:
-        st = "OK" if n_cal >= 30 and cal.get("calibrated_better") else "NEED_MORE_DATA"
-    put("calibration", st, f"prequentielle OOS-Kalibrierung n={n_cal} (ECE kalibriert {cal.get('ece_calibrated')}); "
-                           f"unter 30 gelten Wahrscheinlichkeiten als UNCALIBRATED")
+        st = "OK" if lfc["status"] == "CALIBRATED" else "NEED_MORE_DATA"
+    put("calibration", st, f"{LIVE_FORWARD_LABEL} {lfc['status']}: prospektive RELIABLE Paper-Trades "
+                           f"n={lfc['n']} (min {LIVE_FORWARD_CAL_MIN_N}, ECE {lfc['ece']}); "
+                           f"{HISTORICAL_WF_LABEL} ist keine Forward-Evidenz")
 
     try:
         from modules import universe_v2 as uv
