@@ -61,7 +61,9 @@ def anomalies(nextv: dict | None, mstate: dict | None, fail: dict | None, syssta
             .get("features_out_of_range") or []:
         out.append({"id": f"feature_drift:{f}", "kind": "feature_drift",
                     "finding": f"Merkmal {f} außerhalb des Trainingsbereichs", "keys": [f"drift_{f}", f]})
-    prim = (((fail or {}).get("reliable") or {}).get("primary") or {})
+    from modules.outcomes import artifact_is_current
+    # Nur Failure-Analysen nach gültiger Reliability-Definition (sonst wären UNKNOWN/RECONSTRUCTED als RELIABLE gezählt)
+    prim = (((fail or {}).get("reliable") or {}).get("primary") or {}) if artifact_is_current(fail) else {}
     for cause, v in sorted(prim.items(), key=lambda kv: -((kv[1] or {}).get("share") or 0))[:3]:
         out.append({"id": f"failure:{cause}", "kind": "prediction_error",
                     "finding": f"Verlust-Ursache {cause}: {round(100 * (v.get('share') or 0))} % der Verlierer "

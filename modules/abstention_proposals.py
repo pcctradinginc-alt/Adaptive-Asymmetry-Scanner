@@ -31,7 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from modules import hypothesis_contract as hc
-from modules.outcomes import is_reliable_outcome
+from modules.outcomes import is_reliable_outcome, reliability_stamp
 
 HISTORY = Path("outputs/history.json")
 OUT = Path("outputs/intelligence/contract_proposals.json")
@@ -79,9 +79,10 @@ def propose(history: dict, existing: list[dict] | None = None, now: datetime | N
                      and is_reliable_outcome(t)), key=lambda t: str(t.get("entry_date", "")))
     res = {"generated": now.isoformat(timespec="seconds"), "data_kind": "historical_walk_forward",
            "n_trades": len(trades), "candidates_tested": 0, "proposals": [], "rejected": [],
-           "note": "Nur Entwürfe. Registrierung per menschlichem PR; Promotion nur aus Forward-Daten."}
+           "note": "Nur Entwürfe. Registrierung per menschlichem PR; Promotion nur aus Forward-Daten.",
+           **reliability_stamp(history.get("closed_trades") or [])}
     if len(trades) < MIN_TRADES:
-        res["status"] = f"zu wenige verlässliche Trades ({len(trades)}/{MIN_TRADES})"
+        res["status"] = f"zu wenige RELIABLE-Trades ({len(trades)}/{MIN_TRADES})"
         return res
     cut = int(len(trades) * CALIBRATION_SHARE)
     cal, test = trades[:cut], trades[cut:]

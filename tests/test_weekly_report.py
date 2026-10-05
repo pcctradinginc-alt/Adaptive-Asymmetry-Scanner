@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from modules.outcomes import RELIABILITY_DEFINITION
 from reports import weekly
 
 REPO = Path(__file__).resolve().parent.parent
@@ -300,7 +301,7 @@ def _proposal(root: Path, day: str, mc: float, ticker="TST"):
 
 
 def _calib(root: Path, n=29, mean=0.09, pf=1.22):
-    _w(root / "outputs/research/paper_performance_analysis.json", {"mc_hit_rate_calibration": {
+    _w(root / "outputs/research/paper_performance_analysis.json", {"reliability_definition": RELIABILITY_DEFINITION, "mc_hit_rate_calibration": {
         ">=0.75": {"n": n, "win_rate": 0.41, "mean": mean, "profit_factor": pf, "predicted_hit_rate": 0.86},
         "0.65-0.75": {"n": 27, "win_rate": 0.22, "mean": -0.2, "profit_factor": 0.42, "predicted_hit_rate": 0.71}}})
 

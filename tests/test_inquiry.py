@@ -15,7 +15,11 @@ def test_anomalies_from_measured_findings():
                                    "common_properties": {"sector": "Energy"}},
                                   {"id": "C2", "typical_error": -0.1, "n": 40, "lift": 1.5,
                                    "common_properties": {"lottery": "x"}}]}
-    fail = {"reliable": {"primary": {"timing_too_early": {"share": 0.2, "mean_outcome": -0.5}}}}
+    from modules.outcomes import RELIABILITY_DEFINITION
+    fail = {"reliable": {"primary": {"timing_too_early": {"share": 0.2, "mean_outcome": -0.5}}},
+            "reliability_definition": RELIABILITY_DEFINITION}
+    stale = {k: v for k, v in fail.items() if k != "reliability_definition"}     # alte Definition: kein Befund
+    assert not any(x["id"].startswith("failure:") for x in iq.anomalies(nv, None, stale, SYS))
     a = {x["id"]: x for x in iq.anomalies(nv, None, fail, SYS)}
     assert set(a) == {"C1", "C2", "model_drift:enet_xs20_v1", "feature_drift:tnx", "failure:timing_too_early"}
     assert "blind_spot_sector_match" in a["C1"]["keys"] and "blind_spot_sector_match" not in a["C2"]["keys"]

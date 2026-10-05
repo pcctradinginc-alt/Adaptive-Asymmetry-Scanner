@@ -55,3 +55,24 @@ def class_counts(trades: list[dict], strict: bool = False) -> dict:
         k = outcome_class(t, strict)
         out[k] = out.get(k, 0) + 1
     return out
+
+
+# Artefakte, die "reliable"-Kennzahlen enthalten, tragen die Definition, unter der sie gerechnet wurden.
+# Reports zeigen eine Zahl nur dann als RELIABLE, wenn Definition passt und sie den aktuellen
+# RELIABLE-Bestand nicht übersteigt (sonst: EXPLORATIV / veraltet, nie "zuverlässig").
+RELIABILITY_DEFINITION = "outcome-classes-v2-2026-10-04"
+
+
+def reliability_stamp(trades: list[dict]) -> dict:
+    closed = [t for t in trades or [] if isinstance(t, dict) and t.get("outcome") is not None]
+    return {"reliability_definition": RELIABILITY_DEFINITION, "outcome_classes": class_counts(closed)}
+
+
+def artifact_is_current(art, n_claimed=None, current_reliable=None) -> bool:
+    """True nur, wenn das Artefakt mit der gültigen Definition gerechnet wurde und – falls angegeben –
+    seine RELIABLE-Population den aktuellen RELIABLE-Bestand nicht übersteigt."""
+    if not isinstance(art, dict) or art.get("reliability_definition") != RELIABILITY_DEFINITION:
+        return False
+    if n_claimed is not None and current_reliable is not None and n_claimed > current_reliable:
+        return False
+    return True
