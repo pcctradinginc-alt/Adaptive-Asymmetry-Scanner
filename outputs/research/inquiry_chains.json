@@ -1,0 +1,1937 @@
+{
+  "generated": "2026-10-05T12:40:09+00:00",
+  "n": 21,
+  "status_counts": {
+    "FORWARD_TEST": 8,
+    "UNDER_TEST": 7,
+    "HISTORICALLY_REJECTED": 6
+  },
+  "chains": [
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_001",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1609 bei {'sector': 'Energy', 'momentum': 'loser_12m'} (n=95, Lift 2.87)",
+        "keys": [
+          "UNKNOWN_CLUSTER_001",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Energy"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-9fe60f3f",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Energy', 'momentum': 'loser_12m'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-9fe60f3f",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-9fe60f3f",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_002",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1654 bei {'sector': 'Energy', 'beta': 'high_beta'} (n=96, Lift 2.82)",
+        "keys": [
+          "UNKNOWN_CLUSTER_002",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Energy"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-5635e14e",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Energy', 'beta': 'high_beta'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-5635e14e",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-5635e14e",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_003",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1618 bei {'sector': 'Energy', 'volatility': 'high_vol'} (n=118, Lift 2.53)",
+        "keys": [
+          "UNKNOWN_CLUSTER_003",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Energy"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-51cc35f1",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu ähnlich zu verworfener Hypothese RD-de4cb989 (Jaccard 0.76)"
+          ]
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-51cc35f1",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-51cc35f1",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_004",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1845 bei {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} (n=224, Lift 2.46)",
+        "keys": [
+          "UNKNOWN_CLUSTER_004"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-627c12a9",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Energy', 'volatility': 'high_vol'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-627c12a9",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-627c12a9",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_005",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1688 bei {'sector': 'Energy', 'liquidity': 'less_liquid'} (n=38, Lift 2.32)",
+        "keys": [
+          "UNKNOWN_CLUSTER_005",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Energy"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-3dd9b649",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Energy', 'liquidity': 'less_liquid'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-3dd9b649",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-3dd9b649",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_006",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1526 bei {'sector': 'Energy', 'vix': 'vix_ge_20'} (n=92, Lift 2.24)",
+        "keys": [
+          "UNKNOWN_CLUSTER_006",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Energy"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-de4cb989",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'lottery': 'lottery_profile'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward netto -0.00302 mit t=-3.11",
+            "nur 0.143 der Jahre positiv"
+          ]
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-de4cb989",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-de4cb989",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_007",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1782 bei {'lottery': 'lottery_profile'} (n=353, Lift 1.96)",
+        "keys": [
+          "UNKNOWN_CLUSTER_007"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-917b2a64",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Energy'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-917b2a64",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-917b2a64",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_008",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1541 bei {'sector': 'Energy'} (n=145, Lift 1.85)",
+        "keys": [
+          "UNKNOWN_CLUSTER_008",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Energy"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-c450f5af",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu ähnlich zu verworfener Hypothese RD-5f792ced (Jaccard 0.64)"
+          ]
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-c450f5af",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-c450f5af",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_009",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1696 bei {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'} (n=504, Lift 1.75)",
+        "keys": [
+          "UNKNOWN_CLUSTER_009"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-d55de84c",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu ähnlich zu verworfener Hypothese RD-5f792ced (Jaccard 0.64)"
+          ]
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-d55de84c",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-d55de84c",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "HISTORICALLY_REJECTED",
+      "next_step": "neue, nicht ähnliche Erklärung formulieren; verworfene nicht kosmetisch wiederholen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_010",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1708 bei {'sector': 'Consumer Cyclical', 'beta': 'high_beta'} (n=245, Lift 1.74)",
+        "keys": [
+          "UNKNOWN_CLUSTER_010",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Consumer Cyclical"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-2070e07f",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Consumer Cyclical', 'beta': 'high_beta'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-2070e07f",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-2070e07f",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_011",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1652 bei {'volatility': 'high_vol'} (n=1185, Lift 1.7)",
+        "keys": [
+          "UNKNOWN_CLUSTER_011"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-d8f3a7af",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'volatility': 'high_vol'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward netto -0.00349 mit t=-2.53",
+            "nur 0.0 der Jahre positiv"
+          ]
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-d8f3a7af",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-d8f3a7af",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "HISTORICALLY_REJECTED",
+      "next_step": "neue, nicht ähnliche Erklärung formulieren; verworfene nicht kosmetisch wiederholen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_012",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1861 bei {'momentum': 'loser_12m', 'trend': 'downtrend'} (n=130, Lift 1.66)",
+        "keys": [
+          "UNKNOWN_CLUSTER_012"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-ef703431",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'momentum': 'loser_12m', 'trend': 'downtrend'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward netto -0.00324 mit t=-3.49",
+            "nur 0.143 der Jahre positiv"
+          ]
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-ef703431",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-ef703431",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "HISTORICALLY_REJECTED",
+      "next_step": "neue, nicht ähnliche Erklärung formulieren; verworfene nicht kosmetisch wiederholen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_013",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1724 bei {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (n=191, Lift 1.65)",
+        "keys": [
+          "UNKNOWN_CLUSTER_013"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-0999c741",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Communication Services', 'recent_move': 'extreme_5d_move'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-0999c741",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-0999c741",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_014",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1726 bei {'momentum': 'loser_12m', 'beta': 'high_beta'} (n=362, Lift 1.64)",
+        "keys": [
+          "UNKNOWN_CLUSTER_014"
+        ],
+        "sector": null
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-3946b83d",
+          "source": "director",
+          "explanation": "Warum versagt das Ensemble im Segment {'sector': 'Technology', 'recent_move': 'extreme_5d_move'}?",
+          "data_needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "data_available": false,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-3946b83d",
+          "needed": [
+            "Sektor-/Ereignismerkmal in der Signal-Sprache"
+          ],
+          "available": false,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-3946b83d",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "UNKNOWN_CLUSTER_015",
+        "kind": "blind_spot",
+        "finding": "systematischer Fehler -0.1821 bei {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'} (n=109, Lift 1.61)",
+        "keys": [
+          "UNKNOWN_CLUSTER_015",
+          "blind_spot_sector_match"
+        ],
+        "sector": "Consumer Cyclical"
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-1c661593",
+          "source": "director",
+          "explanation": "Unterperformt das Segment {'momentum': 'loser_12m', 'beta': 'high_beta'} den Querschnitt systematisch?",
+          "data_needed": [
+            "Feature-Store"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu ähnlich zu verworfener Hypothese RD-ef703431 (Jaccard 0.62)"
+          ]
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+          "H0": null,
+          "data_needed": [
+            "blind_spot_sector_match"
+          ],
+          "data_available": true,
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0,
+          "delta_expectancy": null,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-1c661593",
+          "needed": [
+            "Feature-Store"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "needed": [
+            "blind_spot_sector_match"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-1c661593",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-003@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        },
+        {
+          "id": "PROM-ABST-003@v2",
+          "status": "REGISTERED",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 0
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "model_drift:enet_xs20_v1",
+        "kind": "model_drift",
+        "finding": "Modell enet_xs20_v1 verliert Prognosekraft",
+        "keys": [
+          "model_drift:enet_xs20_v1"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-fd37738e",
+          "source": "director",
+          "explanation": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?",
+          "data_needed": [
+            "Basis-OOS je Segment"
+          ],
+          "data_available": true,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-fd37738e",
+          "needed": [
+            "Basis-OOS je Segment"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-fd37738e",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "model_drift:momentum_12_1",
+        "kind": "model_drift",
+        "finding": "Modell momentum_12_1 verliert Prognosekraft",
+        "keys": [
+          "model_drift:momentum_12_1"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-1e3cf471",
+          "source": "director",
+          "explanation": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.44)?",
+          "data_needed": [
+            "Basis-OOS je Segment"
+          ],
+          "data_available": true,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-1e3cf471",
+          "needed": [
+            "Basis-OOS je Segment"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-1e3cf471",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "feature_drift:tnx",
+        "kind": "feature_drift",
+        "finding": "Merkmal tnx außerhalb des Trainingsbereichs",
+        "keys": [
+          "drift_tnx",
+          "tnx"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "FAC-1A196936",
+          "source": "factory",
+          "explanation": "Zinsen/Zinskurve × Financial Services: Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an.",
+          "H0": "H0: [exp_financials * sign(curve_10y_3m - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+          "data_needed": [
+            "tnx",
+            "curve_10y_3m"
+          ],
+          "data_available": true,
+          "free_sources": null,
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "FAC-D5870E93",
+          "source": "factory",
+          "explanation": "Zinsen/Zinskurve × Real Estate: Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs.",
+          "H0": "H0: [exp_real_estate * sign(tnx - 3.0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+          "data_needed": [
+            "tnx",
+            "curve_10y_3m"
+          ],
+          "data_available": true,
+          "free_sources": null,
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "FAC-1A196936",
+          "needed": [
+            "tnx",
+            "curve_10y_3m"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "FAC-D5870E93",
+          "needed": [
+            "tnx",
+            "curve_10y_3m"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "FAC-1A196936",
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "FAC-D5870E93",
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "failure:underlying_unknown",
+        "kind": "prediction_error",
+        "finding": "Verlust-Ursache underlying_unknown: 55 % der Verlierer (Ø -0.3955431372549019)",
+        "keys": [
+          "champion_trades",
+          "underlying_unknown"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "impact > 6.0",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit impact > 6.0 laufen schlechter",
+          "data_needed": [
+            "impact > 6.0"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu wenige Test-Treffer (0/5)"
+          ]
+        },
+        {
+          "id": "surprise > 6.0",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit surprise > 6.0 laufen schlechter",
+          "data_needed": [
+            "surprise > 6.0"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu wenige Test-Treffer (0/5)"
+          ]
+        },
+        {
+          "id": "z_score > 0.681",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit z_score > 0.681 laufen schlechter",
+          "data_needed": [
+            "z_score > 0.681"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit sigma_30d > 0.0341 laufen schlechter",
+          "data_needed": [
+            "sigma_30d > 0.0341"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit quick_mc_hit_rate < 0.6218 laufen schlechter",
+          "data_needed": [
+            "quick_mc_hit_rate < 0.6218"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit final_mc_hit_rate < 0.7378 laufen schlechter",
+          "data_needed": [
+            "final_mc_hit_rate < 0.7378"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "impact > 6.0",
+          "needed": [
+            "impact > 6.0"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "surprise > 6.0",
+          "needed": [
+            "surprise > 6.0"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "z_score > 0.681",
+          "needed": [
+            "z_score > 0.681"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "needed": [
+            "sigma_30d > 0.0341"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "needed": [
+            "quick_mc_hit_rate < 0.6218"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "needed": [
+            "final_mc_hit_rate < 0.7378"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "impact > 6.0",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "surprise > 6.0",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "z_score > 0.681",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "HISTORICALLY_REJECTED",
+      "next_step": "neue, nicht ähnliche Erklärung formulieren; verworfene nicht kosmetisch wiederholen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "failure:signal_wrong",
+        "kind": "prediction_error",
+        "finding": "Verlust-Ursache signal_wrong: 26 % der Verlierer (Ø -0.6915833333333331)",
+        "keys": [
+          "champion_trades",
+          "signal_wrong"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "impact > 6.0",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit impact > 6.0 laufen schlechter",
+          "data_needed": [
+            "impact > 6.0"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu wenige Test-Treffer (0/5)"
+          ]
+        },
+        {
+          "id": "surprise > 6.0",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit surprise > 6.0 laufen schlechter",
+          "data_needed": [
+            "surprise > 6.0"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu wenige Test-Treffer (0/5)"
+          ]
+        },
+        {
+          "id": "z_score > 0.681",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit z_score > 0.681 laufen schlechter",
+          "data_needed": [
+            "z_score > 0.681"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit sigma_30d > 0.0341 laufen schlechter",
+          "data_needed": [
+            "sigma_30d > 0.0341"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit quick_mc_hit_rate < 0.6218 laufen schlechter",
+          "data_needed": [
+            "quick_mc_hit_rate < 0.6218"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit final_mc_hit_rate < 0.7378 laufen schlechter",
+          "data_needed": [
+            "final_mc_hit_rate < 0.7378"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "impact > 6.0",
+          "needed": [
+            "impact > 6.0"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "surprise > 6.0",
+          "needed": [
+            "surprise > 6.0"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "z_score > 0.681",
+          "needed": [
+            "z_score > 0.681"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "needed": [
+            "sigma_30d > 0.0341"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "needed": [
+            "quick_mc_hit_rate < 0.6218"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "needed": [
+            "final_mc_hit_rate < 0.7378"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "impact > 6.0",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "surprise > 6.0",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "z_score > 0.681",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "HISTORICALLY_REJECTED",
+      "next_step": "neue, nicht ähnliche Erklärung formulieren; verworfene nicht kosmetisch wiederholen"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "failure:timing_too_early",
+        "kind": "prediction_error",
+        "finding": "Verlust-Ursache timing_too_early: 12 % der Verlierer (Ø -0.5738727272727272)",
+        "keys": [
+          "champion_trades",
+          "timing_too_early"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "impact > 6.0",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit impact > 6.0 laufen schlechter",
+          "data_needed": [
+            "impact > 6.0"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu wenige Test-Treffer (0/5)"
+          ]
+        },
+        {
+          "id": "surprise > 6.0",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit surprise > 6.0 laufen schlechter",
+          "data_needed": [
+            "surprise > 6.0"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "zu wenige Test-Treffer (0/5)"
+          ]
+        },
+        {
+          "id": "z_score > 0.681",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit z_score > 0.681 laufen schlechter",
+          "data_needed": [
+            "z_score > 0.681"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit sigma_30d > 0.0341 laufen schlechter",
+          "data_needed": [
+            "sigma_30d > 0.0341"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit quick_mc_hit_rate < 0.6218 laufen schlechter",
+          "data_needed": [
+            "quick_mc_hit_rate < 0.6218"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "source": "abstention_proposals",
+          "explanation": "Champion-Trades mit final_mc_hit_rate < 0.7378 laufen schlechter",
+          "data_needed": [
+            "final_mc_hit_rate < 0.7378"
+          ],
+          "data_available": true,
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "reasons": [
+            "Walk-Forward-Test bestätigt nicht (Bonferroni)"
+          ]
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "impact > 6.0",
+          "needed": [
+            "impact > 6.0"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "surprise > 6.0",
+          "needed": [
+            "surprise > 6.0"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "z_score > 0.681",
+          "needed": [
+            "z_score > 0.681"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "needed": [
+            "sigma_30d > 0.0341"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "needed": [
+            "quick_mc_hit_rate < 0.6218"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "needed": [
+            "final_mc_hit_rate < 0.7378"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "impact > 6.0",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "surprise > 6.0",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "z_score > 0.681",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "sigma_30d > 0.0341",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "quick_mc_hit_rate < 0.6218",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "final_mc_hit_rate < 0.7378",
+          "status": "REJECTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "HISTORICALLY_REJECTED",
+      "next_step": "neue, nicht ähnliche Erklärung formulieren; verworfene nicht kosmetisch wiederholen"
+    }
+  ],
+  "research_learning": {
+    "by_quarter": {
+      "2026-Q4": {
+        "tested": 92,
+        "success_rate": 0.0
+      }
+    },
+    "priority_calibration": {
+      "n": 0,
+      "spearman": null
+    },
+    "by_idea_source": {}
+  }
+}

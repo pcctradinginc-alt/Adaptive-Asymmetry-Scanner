@@ -1,0 +1,61 @@
+{
+  "generated": "2026-10-05T12:40:09+00:00",
+  "veto_enabled": false,
+  "live_actions": {
+    "n": 47,
+    "counts": {
+      "SKIP": 28,
+      "NORMAL": 19,
+      "BOOST": 0
+    },
+    "shares": {
+      "SKIP": 0.596,
+      "NORMAL": 0.404,
+      "BOOST": 0.0
+    },
+    "collapsed": false
+  },
+  "challenger": {
+    "id": "ppo_robust_shadow",
+    "hypothesis": "Ein PPO mit wachstumsorientierter (konkaver) Belohnung trennt Trades besser als die Produktion ohne RL-Filter: die von ihm nicht übersprungenen Trades haben eine höhere reale Strategierendite bei nicht höherer Totalverlustquote. Stand Registrierung: in-sample und walk-forward 100 % NORMAL (keine Trennung) -- Challenger misst, ob sich das mit neuen Daten ändert.\n",
+    "metric": "outcomes.real_strat_ret_45d",
+    "n_baseline": 0,
+    "n_challenger": 0,
+    "mean_baseline": null,
+    "mean_challenger": null,
+    "median_baseline": null,
+    "median_challenger": null,
+    "total_loss_rate_baseline": null,
+    "total_loss_rate_challenger": null,
+    "ci_lower": null,
+    "ci_upper": null,
+    "alpha": 0.003703703703703704,
+    "n_looks": 9,
+    "expired": false,
+    "verdict": "running",
+    "n_clusters": 0
+  },
+  "requires_human_approval": true,
+  "current_run": {
+    "trained_at": "2026-09-30T19:23:27+00:00",
+    "n_trades": 119,
+    "wf_shares": {
+      "SKIP": 0.0,
+      "NORMAL": 0.0,
+      "BOOST": 1.0
+    },
+    "in_sample_shares": {
+      "SKIP": 1.0,
+      "NORMAL": 0.0,
+      "BOOST": 0.0
+    },
+    "wf_collapsed": true,
+    "in_sample_collapsed": true
+  },
+  "status": "NOT_READY",
+  "reasons": [
+    "Walk-Forward kollabiert ({'SKIP': 0.0, 'NORMAL': 0.0, 'BOOST': 1.0})",
+    "In-Sample kollabiert ({'SKIP': 1.0, 'NORMAL': 0.0, 'BOOST': 0.0})"
+  ],
+  "summary": "Policy kollabiert – kein produktiver Einfluss, keine Promotion-Prüfung"
+}

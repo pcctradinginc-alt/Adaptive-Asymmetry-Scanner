@@ -1,72 +1,23 @@
 {
  "n_closed": 119,
- "n_reliable": 79,
+ "n_reliable": 2,
  "overall": {
-  "n": 79,
-  "win_rate": 0.354,
-  "mean": 0.0423,
-  "median": -0.3134,
-  "profit_factor": 1.12
+  "n": 2,
+  "win_rate": 0.0,
+  "mean": -0.6649,
+  "median": -0.6649,
+  "profit_factor": 0.0
  },
  "by_strategy": {
-  "BEAR_PUT_SPREAD": {
-   "n": 3,
-   "win_rate": 0.0,
-   "mean": 0.0,
-   "median": 0.0,
-   "profit_factor": null
-  },
   "BULL_CALL_SPREAD": {
-   "n": 38,
-   "win_rate": 0.342,
-   "mean": -0.0825,
-   "median": -0.3828,
-   "profit_factor": 0.79
-  },
-  "LONG_CALL": {
-   "n": 36,
-   "win_rate": 0.417,
-   "mean": 0.2236,
-   "median": -0.2218,
-   "profit_factor": 1.67
-  },
-  "LONG_PUT": {
    "n": 2,
    "win_rate": 0.0,
-   "mean": -0.7863,
-   "median": -0.7863,
+   "mean": -0.6649,
+   "median": -0.6649,
    "profit_factor": 0.0
   }
  },
  "by_entry_month": {
-  "2026-04": {
-   "n": 46,
-   "win_rate": 0.435,
-   "mean": 0.2178,
-   "median": -0.0612,
-   "profit_factor": 1.64
-  },
-  "2026-05": {
-   "n": 25,
-   "win_rate": 0.28,
-   "mean": -0.1806,
-   "median": -0.5263,
-   "profit_factor": 0.56
-  },
-  "2026-07": {
-   "n": 3,
-   "win_rate": 0.333,
-   "mean": 0.1748,
-   "median": -0.1579,
-   "profit_factor": 2.63
-  },
-  "2026-08": {
-   "n": 3,
-   "win_rate": 0.0,
-   "mean": -0.4522,
-   "median": -0.503,
-   "profit_factor": 0.0
-  },
   "2026-09": {
    "n": 2,
    "win_rate": 0.0,
@@ -76,55 +27,20 @@
   }
  },
  "by_close_reason": {
-  "max_holding_period": {
-   "n": 7,
-   "win_rate": 0.286,
-   "mean": -0.0689,
-   "median": -0.1579,
-   "profit_factor": 0.52
-  },
-  "offen_bis_Bewertung": {
-   "n": 45,
-   "win_rate": 0.444,
-   "mean": 0.2399,
-   "median": 0.0,
-   "profit_factor": 1.73
-  },
   "stop_loss": {
-   "n": 20,
+   "n": 2,
    "win_rate": 0.0,
-   "mean": -0.6436,
-   "median": -0.6234,
-   "profit_factor": 0.0
-  },
-  "take_profit": {
-   "n": 6,
-   "win_rate": 1.0,
-   "mean": 0.9992,
-   "median": 0.6703,
-   "profit_factor": null
-  },
-  "time_exit": {
-   "n": 1,
-   "win_rate": 0.0,
-   "mean": -0.0941,
-   "median": -0.0941,
+   "mean": -0.6649,
+   "median": -0.6649,
    "profit_factor": 0.0
   }
  },
  "by_catalyst": {
   "EARNINGS": {
-   "n": 6,
-   "win_rate": 0.167,
-   "mean": -0.1773,
-   "median": -0.2551,
-   "profit_factor": 0.44
-  },
-  "INSIDER": {
    "n": 1,
    "win_rate": 0.0,
-   "mean": -0.5063,
-   "median": -0.5063,
+   "mean": -0.7381,
+   "median": -0.7381,
    "profit_factor": 0.0
   },
   "OTHER": {
@@ -133,146 +49,53 @@
    "mean": -0.5918,
    "median": -0.5918,
    "profit_factor": 0.0
-  },
-  "keiner": {
-   "n": 71,
-   "win_rate": 0.38,
-   "mean": 0.0775,
-   "median": -0.2218,
-   "profit_factor": 1.21
   }
  },
  "by_llm_impact": {
-  "3": {
-   "n": 1,
-   "win_rate": 1.0,
-   "mean": 0.3016,
-   "median": 0.3016,
-   "profit_factor": null
-  },
   "4": {
-   "n": 12,
-   "win_rate": 0.5,
-   "mean": 0.4423,
-   "median": 0.3293,
-   "profit_factor": 2.49
-  },
-  "5": {
-   "n": 31,
-   "win_rate": 0.258,
-   "mean": -0.0933,
-   "median": -0.5263,
-   "profit_factor": 0.78
-  },
-  "6": {
-   "n": 30,
-   "win_rate": 0.367,
-   "mean": 0.0145,
-   "median": -0.2179,
-   "profit_factor": 1.04
-  },
-  "7": {
-   "n": 3,
-   "win_rate": 0.0,
-   "mean": -0.4812,
-   "median": -0.2218,
-   "profit_factor": 0.0
-  },
-  "8": {
    "n": 2,
-   "win_rate": 1.0,
-   "mean": 0.8166,
-   "median": 0.8166,
-   "profit_factor": null
+   "win_rate": 0.0,
+   "mean": -0.6649,
+   "median": -0.6649,
+   "profit_factor": 0.0
   }
  },
  "by_llm_surprise": {
-  "2": {
-   "n": 4,
-   "win_rate": 0.75,
-   "mean": 0.7691,
-   "median": 0.5591,
-   "profit_factor": 4.7
-  },
   "3": {
-   "n": 11,
-   "win_rate": 0.455,
-   "mean": 0.4508,
-   "median": -0.1579,
-   "profit_factor": 2.71
-  },
-  "4": {
-   "n": 24,
-   "win_rate": 0.208,
-   "mean": -0.2355,
-   "median": -0.5188,
-   "profit_factor": 0.45
-  },
-  "5": {
-   "n": 25,
-   "win_rate": 0.4,
-   "mean": 0.0028,
-   "median": -0.2218,
-   "profit_factor": 1.01
-  },
-  "6": {
-   "n": 10,
-   "win_rate": 0.4,
-   "mean": 0.0917,
-   "median": -0.4476,
-   "profit_factor": 1.2
-  },
-  "7": {
-   "n": 5,
-   "win_rate": 0.2,
-   "mean": -0.0054,
-   "median": 0.0,
-   "profit_factor": 0.97
+   "n": 2,
+   "win_rate": 0.0,
+   "mean": -0.6649,
+   "median": -0.6649,
+   "profit_factor": 0.0
   }
  },
  "mc_hit_rate_calibration": {
-  "0.55-0.65": {
-   "n": 8,
-   "win_rate": 0.25,
-   "mean": -0.2884,
-   "median": -0.5854,
-   "profit_factor": 0.37,
-   "predicted_hit_rate": 0.595
-  },
   "0.65-0.75": {
-   "n": 27,
-   "win_rate": 0.222,
-   "mean": -0.2061,
-   "median": -0.503,
-   "profit_factor": 0.42,
-   "predicted_hit_rate": 0.709
-  },
-  "<0.55": {
    "n": 1,
    "win_rate": 0.0,
-   "mean": -0.6523,
-   "median": -0.6523,
+   "mean": -0.5918,
+   "median": -0.5918,
    "profit_factor": 0.0,
-   "predicted_hit_rate": 0.522
+   "predicted_hit_rate": 0.684
   },
   ">=0.75": {
-   "n": 29,
-   "win_rate": 0.414,
-   "mean": 0.0903,
-   "median": -0.3134,
-   "profit_factor": 1.22,
-   "predicted_hit_rate": 0.857
+   "n": 1,
+   "win_rate": 0.0,
+   "mean": -0.7381,
+   "median": -0.7381,
+   "profit_factor": 0.0,
+   "predicted_hit_rate": 0.75
   }
  },
  "mc_hit_rate_calibration_scope": "in-sample über alle verlässlichen Trades (beschreibend); für neue Kandidaten nur aus der Vergangenheit -> gültig; Güte siehe calibration_oos",
  "calibration_oos": {
   "method": "prequential: Band-Win-Rate nur aus vor dem Entry geschlossenen Trades (min n 10 je Band)",
-  "n_evaluated": 8,
-  "n_skipped_insufficient_history": 57,
-  "brier_raw": 0.4642,
-  "brier_calibrated": 0.1471,
-  "ece_raw": 0.6002,
-  "ece_calibrated": 0.2257,
-  "calibrated_better": true
+  "n_evaluated": 0,
+  "n_skipped_insufficient_history": 2,
+  "brier_raw": null,
+  "brier_calibrated": null,
+  "ece_raw": null,
+  "ece_calibrated": null,
+  "calibrated_better": null
  }
 }
