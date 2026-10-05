@@ -1,85 +1,16 @@
 {
- "generated": "2026-10-03T06:25:46+00:00",
+ "generated": "2026-10-05T22:08:21+00:00",
  "data_kind": "historical_walk_forward",
- "n_trades": 79,
- "candidates_tested": 6,
+ "n_trades": 2,
+ "candidates_tested": 0,
  "proposals": [],
- "rejected": [
-  {
-   "feature": "impact",
-   "rule": "impact > 6.0",
-   "calibration_delta": -0.2574,
-   "calibration_n_tail": 5,
-   "test_n_tail": 0,
-   "test_n_rest": 32,
-   "test_delta": null,
-   "test_ci_upper": null,
-   "reason": "zu wenige Test-Treffer (0/5)"
-  },
-  {
-   "feature": "surprise",
-   "rule": "surprise > 6.0",
-   "calibration_delta": -0.3059,
-   "calibration_n_tail": 5,
-   "test_n_tail": 0,
-   "test_n_rest": 32,
-   "test_delta": null,
-   "test_ci_upper": null,
-   "reason": "zu wenige Test-Treffer (0/5)"
-  },
-  {
-   "feature": "z_score",
-   "rule": "z_score > 0.681",
-   "calibration_delta": -0.7858,
-   "calibration_n_tail": 5,
-   "test_n_tail": 8,
-   "test_n_rest": 24,
-   "test_delta": 0.0314,
-   "test_ci_upper": 0.4956,
-   "reason": "Walk-Forward-Test bestätigt nicht (Bonferroni)"
-  },
-  {
-   "feature": "sigma_30d",
-   "rule": "sigma_30d > 0.0341",
-   "calibration_delta": -0.196,
-   "calibration_n_tail": 9,
-   "test_n_tail": 6,
-   "test_n_rest": 26,
-   "test_delta": -0.2589,
-   "test_ci_upper": 0.3058,
-   "reason": "Walk-Forward-Test bestätigt nicht (Bonferroni)"
-  },
-  {
-   "feature": "quick_mc_hit_rate",
-   "rule": "quick_mc_hit_rate < 0.6218",
-   "calibration_delta": -0.7469,
-   "calibration_n_tail": 6,
-   "test_n_tail": 16,
-   "test_n_rest": 16,
-   "test_delta": 0.0112,
-   "test_ci_upper": 0.443,
-   "reason": "Walk-Forward-Test bestätigt nicht (Bonferroni)"
-  },
-  {
-   "feature": "final_mc_hit_rate",
-   "rule": "final_mc_hit_rate < 0.7378",
-   "calibration_delta": -0.3502,
-   "calibration_n_tail": 6,
-   "test_n_tail": 24,
-   "test_n_rest": 8,
-   "test_delta": 0.0403,
-   "test_ci_upper": 0.4934,
-   "reason": "Walk-Forward-Test bestätigt nicht (Bonferroni)"
-  }
- ],
+ "rejected": [],
  "note": "Nur Entwürfe. Registrierung per menschlichem PR; Promotion nur aus Forward-Daten.",
- "calibration_period": [
-  "2026-04-11",
-  "2026-05-04"
- ],
- "test_period": [
-  "2026-05-06",
-  "2026-09-21"
- ],
- "status": "0 Vorschlag/Vorschläge"
+ "reliability_definition": "outcome-classes-v2-2026-10-04",
+ "outcome_classes": {
+  "UNKNOWN": 77,
+  "RECONSTRUCTED": 40,
+  "RELIABLE": 2
+ },
+ "status": "zu wenige RELIABLE-Trades (2/40)"
 }

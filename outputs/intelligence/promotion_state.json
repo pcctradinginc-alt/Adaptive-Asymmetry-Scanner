@@ -1,9 +1,9 @@
 {
- "generated": "2026-10-03T06:00:46+00:00",
+ "generated": "2026-10-05T22:08:20+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "0d618fab21e8",
+ "code_version": "a27af81ac35b",
  "data_version": "e3b0c44298fc1c14",
  "integrity": {
   "registry": [],
@@ -17,6 +17,9 @@
    "description": "Sind Champion-Trades, die bei aktivem Safe Mode (Feature-/Datendrift, Regime außerhalb Trainingsbereich) vorgeschlagen werden, schlechter als die übrigen?",
    "source_type": "model_drift",
    "production_class": "abstention",
+   "eligible_stage": "CHAMPION_TRADE",
+   "universe_version": "V1",
+   "segment": null,
    "spec_hash": "52477a34d83695ff5b5bc0b1e909a73de0b64e823409c131e07442f1029a8a59",
    "registry_status": "VALID",
    "registry_errors": [],
@@ -40,7 +43,7 @@
    "multiple_testing": {
     "hypothesis_family": "abstention",
     "family_size": 5,
-    "number_of_variants": 1,
+    "number_of_variants": 2,
     "planned_looks": 12,
     "alpha_effective": 0.0008333333333333334
    },
@@ -99,6 +102,9 @@
    "description": "Haben Champion-Trades in Titeln mit hoher ML-Modelluneinigkeit (oberstes Dezil der Querschnittsverteilung, Schwelle 0.36 aus Verteilung 2026-10-02, ohne Outcome-Sicht) eine niedrigere Expectancy?",
    "source_type": "meta_learning_failure",
    "production_class": "abstention",
+   "eligible_stage": "CHAMPION_TRADE",
+   "universe_version": "V1",
+   "segment": null,
    "spec_hash": "33c9f89b8e4794183d3ea784cf75a816ad38af31322ede00bdcf9a5f49a62b0b",
    "registry_status": "VALID",
    "registry_errors": [],
@@ -122,7 +128,7 @@
    "multiple_testing": {
     "hypothesis_family": "abstention",
     "family_size": 5,
-    "number_of_variants": 1,
+    "number_of_variants": 2,
     "planned_looks": 12,
     "alpha_effective": 0.0008333333333333334
    },
@@ -181,6 +187,9 @@
    "description": "Sind Champion-Trades in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
    "source_type": "blind_spot",
    "production_class": "abstention",
+   "eligible_stage": "CHAMPION_TRADE",
+   "universe_version": "V1",
+   "segment": null,
    "spec_hash": "c1de9fc6348106323a3c01fc7eeba97b17225eff3ca3731c056291cec363a2e2",
    "registry_status": "VALID",
    "registry_errors": [],
@@ -204,7 +213,7 @@
    "multiple_testing": {
     "hypothesis_family": "abstention",
     "family_size": 5,
-    "number_of_variants": 1,
+    "number_of_variants": 2,
     "planned_looks": 12,
     "alpha_effective": 0.0008333333333333334
    },
@@ -263,6 +272,9 @@
    "description": "Haben Champion-Trades in Titeln mit sehr hohem erwartetem 60-Tage-Drawdown laut ML-Karte (schlechtestes Dezil, Schwelle -0.114 aus Verteilung, ohne Outcome-Sicht) eine niedrigere Expectancy?",
    "source_type": "unknown_unknown",
    "production_class": "abstention",
+   "eligible_stage": "CHAMPION_TRADE",
+   "universe_version": "V1",
+   "segment": null,
    "spec_hash": "78b119f5062fe53035744db6f21df23ffdade3717b147c5cee948ea4ee50a481",
    "registry_status": "VALID",
    "registry_errors": [],
@@ -286,7 +298,7 @@
    "multiple_testing": {
     "hypothesis_family": "abstention",
     "family_size": 5,
-    "number_of_variants": 1,
+    "number_of_variants": 2,
     "planned_looks": 12,
     "alpha_effective": 0.0008333333333333334
    },
@@ -345,6 +357,9 @@
    "description": "Sind Champion-Trades bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?",
    "source_type": "regime_failure",
    "production_class": "abstention",
+   "eligible_stage": "CHAMPION_TRADE",
+   "universe_version": "V1",
+   "segment": null,
    "spec_hash": "fc336e60e4ac680855c2387ac2457aea038720c543208dbbe5b160a99a8781bb",
    "registry_status": "VALID",
    "registry_errors": [],
@@ -368,7 +383,7 @@
    "multiple_testing": {
     "hypothesis_family": "abstention",
     "family_size": 5,
-    "number_of_variants": 1,
+    "number_of_variants": 2,
     "planned_looks": 12,
     "alpha_effective": 0.0008333333333333334
    },
@@ -419,15 +434,960 @@
    "post_promotion_evidence": null,
    "integrity_ok": true,
    "last_transition": "2026-10-03T06:00:46+00:00"
+  },
+  "PROM-ABST-001@v2": {
+   "hypothesis_id": "PROM-ABST-001",
+   "version": 2,
+   "title": "Safe Mode aktiv -> Champion-Trade abstinieren (Final-MC-Survivors)",
+   "description": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors, die bei aktivem Safe Mode (Feature-/Datendrift, Regime außerhalb Trainingsbereich) vorgeschlagen werden, schlechter als die übrigen?",
+   "source_type": "model_drift",
+   "production_class": "abstention",
+   "eligible_stage": "FINAL_MC_SURVIVOR",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "19003950685f938cd5db03af77c83aefec8e275182b76c0e36159b3192316d7f",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T20:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15"
+   ],
+   "next_requirement": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention@FINAL_MC_SURVIVOR",
+    "family_size": 5,
+    "number_of_variants": 2,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "stage": "FINAL_MC_SURVIVOR",
+    "data_kind": "prospective_forward",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "avoided_loss_potential": 0,
+     "missed_gain": 0,
+     "net_value_of_abstention": null,
+     "precision": null
+    },
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "60": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "PROM-ABST-002@v2": {
+   "hypothesis_id": "PROM-ABST-002",
+   "version": 2,
+   "title": "Hohe Modelluneinigkeit -> abstinieren (Final-MC-Survivors)",
+   "description": "Population FINAL_MC_SURVIVOR: Haben Final-MC-Survivors in Titeln mit hoher ML-Modelluneinigkeit (oberstes Dezil der Querschnittsverteilung, Schwelle 0.36 aus Verteilung 2026-10-02, ohne Outcome-Sicht) eine niedrigere Expectancy?",
+   "source_type": "meta_learning_failure",
+   "production_class": "abstention",
+   "eligible_stage": "FINAL_MC_SURVIVOR",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "43ef8a94241e20bd3241d199dfedd4aaac446d7012ee432bb15c882a86c7fabd",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T20:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15"
+   ],
+   "next_requirement": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention@FINAL_MC_SURVIVOR",
+    "family_size": 5,
+    "number_of_variants": 2,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "stage": "FINAL_MC_SURVIVOR",
+    "data_kind": "prospective_forward",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "avoided_loss_potential": 0,
+     "missed_gain": 0,
+     "net_value_of_abstention": null,
+     "precision": null
+    },
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "60": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "PROM-ABST-003@v2": {
+   "hypothesis_id": "PROM-ABST-003",
+   "version": 2,
+   "title": "Blind-Spot-Sektor -> abstinieren (Final-MC-Survivors)",
+   "description": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors in Sektoren, die ein signifikanter Unknown-Unknown-Cluster (next_validation.blind_spot_clusters, Eigenschaft sector) als Fehlerprofil ausweist, schlechter?",
+   "source_type": "blind_spot",
+   "production_class": "abstention",
+   "eligible_stage": "FINAL_MC_SURVIVOR",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "2e218e2cb15b3b578984284da05db2ba65642d89e05d7a5653b2ed87652c1da3",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T20:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15"
+   ],
+   "next_requirement": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention@FINAL_MC_SURVIVOR",
+    "family_size": 5,
+    "number_of_variants": 2,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "stage": "FINAL_MC_SURVIVOR",
+    "data_kind": "prospective_forward",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "avoided_loss_potential": 0,
+     "missed_gain": 0,
+     "net_value_of_abstention": null,
+     "precision": null
+    },
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "60": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "PROM-ABST-004@v2": {
+   "hypothesis_id": "PROM-ABST-004",
+   "version": 2,
+   "title": "Hohes erwartetes ML-Drawdown -> abstinieren (Final-MC-Survivors)",
+   "description": "Population FINAL_MC_SURVIVOR: Haben Final-MC-Survivors in Titeln mit sehr hohem erwartetem 60-Tage-Drawdown laut ML-Karte (schlechtestes Dezil, Schwelle -0.114 aus Verteilung, ohne Outcome-Sicht) eine niedrigere Expectancy?",
+   "source_type": "unknown_unknown",
+   "production_class": "abstention",
+   "eligible_stage": "FINAL_MC_SURVIVOR",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "18b446974ab14e6090fa07d79571921746ef24dd0a734e76617892161826f52e",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T20:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15"
+   ],
+   "next_requirement": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention@FINAL_MC_SURVIVOR",
+    "family_size": 5,
+    "number_of_variants": 2,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "stage": "FINAL_MC_SURVIVOR",
+    "data_kind": "prospective_forward",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "avoided_loss_potential": 0,
+     "missed_gain": 0,
+     "net_value_of_abstention": null,
+     "precision": null
+    },
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "60": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "PROM-ABST-005@v2": {
+   "hypothesis_id": "PROM-ABST-005",
+   "version": 2,
+   "title": "VIX > 30 -> abstinieren (Final-MC-Survivors)",
+   "description": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?",
+   "source_type": "regime_failure",
+   "production_class": "abstention",
+   "eligible_stage": "FINAL_MC_SURVIVOR",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "be8fd677154432e6c4ee2db63b8f1798a3461b48a96a7234df313b5b2727d845",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-05T00:00:00Z",
+   "registered_at": "2026-10-03T20:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15"
+   ],
+   "next_requirement": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention@FINAL_MC_SURVIVOR",
+    "family_size": 5,
+    "number_of_variants": 2,
+    "planned_looks": 12,
+    "alpha_effective": 0.0008333333333333334
+   },
+   "evidence": {
+    "stage": "FINAL_MC_SURVIVOR",
+    "data_kind": "prospective_forward",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "avoided_loss_potential": 0,
+     "missed_gain": 0,
+     "net_value_of_abstention": null,
+     "precision": null
+    },
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "60": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "UNIV-V2-SEG-ULTRA_MICRO@v1": {
+   "hypothesis_id": "UNIV-V2-SEG-ULTRA_MICRO",
+   "version": 1,
+   "title": "UNIVERSE_V2-Segment ULTRA_MICRO (nicht in V1): positive Netto-Performance nach Kosten",
+   "description": "Liefert das System bei ULTRA_MICRO-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt wurden?",
+   "source_type": "manual",
+   "production_class": "universe_segment",
+   "eligible_stage": "V2_CANDIDATE",
+   "universe_version": "V2",
+   "segment": {
+    "market_cap_bucket": "ULTRA_MICRO",
+    "in_universe_v1": 0
+   },
+   "spec_hash": "23a4a7f93f1933adbd96b334af96347b010aa5d0462552329bb9fdd3f5c902c6",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-12T00:00:00Z",
+   "registered_at": "2026-10-03T21:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "universe_segment@V2_CANDIDATE",
+    "family_size": 4,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0010416666666666667
+   },
+   "evidence": {
+    "stage": "V2_CANDIDATE",
+    "universe_version": "V2",
+    "data_kind": "prospective_forward",
+    "outcome_basis": "net_realizable_return",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "n_reference": 0,
+    "fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "all": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "reference_v1": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "delta_vs_v1_reference": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "UNIV-V2-SEG-MICRO@v1": {
+   "hypothesis_id": "UNIV-V2-SEG-MICRO",
+   "version": 1,
+   "title": "UNIVERSE_V2-Segment MICRO (nicht in V1): positive Netto-Performance nach Kosten",
+   "description": "Liefert das System bei MICRO-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt wurden?",
+   "source_type": "manual",
+   "production_class": "universe_segment",
+   "eligible_stage": "V2_CANDIDATE",
+   "universe_version": "V2",
+   "segment": {
+    "market_cap_bucket": "MICRO",
+    "in_universe_v1": 0
+   },
+   "spec_hash": "754702271644723bd8c511a75b4432b4d6d0139ada858619513f922345fce451",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-12T00:00:00Z",
+   "registered_at": "2026-10-03T21:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "universe_segment@V2_CANDIDATE",
+    "family_size": 4,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0010416666666666667
+   },
+   "evidence": {
+    "stage": "V2_CANDIDATE",
+    "universe_version": "V2",
+    "data_kind": "prospective_forward",
+    "outcome_basis": "net_realizable_return",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "n_reference": 0,
+    "fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "all": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "reference_v1": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "delta_vs_v1_reference": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "UNIV-V2-SEG-SMALL@v1": {
+   "hypothesis_id": "UNIV-V2-SEG-SMALL",
+   "version": 1,
+   "title": "UNIVERSE_V2-Segment SMALL (nicht in V1): positive Netto-Performance nach Kosten",
+   "description": "Liefert das System bei SMALL-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt wurden?",
+   "source_type": "manual",
+   "production_class": "universe_segment",
+   "eligible_stage": "V2_CANDIDATE",
+   "universe_version": "V2",
+   "segment": {
+    "market_cap_bucket": "SMALL",
+    "in_universe_v1": 0
+   },
+   "spec_hash": "6fe833136b9aa27c2083930e8b9254026bbe32ee2b1673f48b3d4f481c09ac9d",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-12T00:00:00Z",
+   "registered_at": "2026-10-03T21:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "universe_segment@V2_CANDIDATE",
+    "family_size": 4,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0010416666666666667
+   },
+   "evidence": {
+    "stage": "V2_CANDIDATE",
+    "universe_version": "V2",
+    "data_kind": "prospective_forward",
+    "outcome_basis": "net_realizable_return",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "n_reference": 0,
+    "fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "all": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "reference_v1": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "delta_vs_v1_reference": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "UNIV-V2-SEG-MID@v1": {
+   "hypothesis_id": "UNIV-V2-SEG-MID",
+   "version": 1,
+   "title": "UNIVERSE_V2-Segment MID (nicht in V1): positive Netto-Performance nach Kosten",
+   "description": "Liefert das System bei MID-Titeln außerhalb von UNIVERSE_V1 zusätzlichen Informationswert gegenüber V1, nachdem Spreads, Slippage, Kommission und Optionsliquidität berücksichtigt wurden?",
+   "source_type": "manual",
+   "production_class": "universe_segment",
+   "eligible_stage": "V2_CANDIDATE",
+   "universe_version": "V2",
+   "segment": {
+    "market_cap_bucket": "MID",
+    "in_universe_v1": 0
+   },
+   "spec_hash": "7de9caf0ecc9b06dc845c8c84e623dca503789b9b79cc4ee11e681f2f37cb5a3",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-12T00:00:00Z",
+   "registered_at": "2026-10-03T21:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "universe_segment@V2_CANDIDATE",
+    "family_size": 4,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0010416666666666667
+   },
+   "evidence": {
+    "stage": "V2_CANDIDATE",
+    "universe_version": "V2",
+    "data_kind": "prospective_forward",
+    "outcome_basis": "net_realizable_return",
+    "horizon_days": 45,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "n_reference": 0,
+    "fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "all": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "reference_v1": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "delta_vs_v1_reference": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-05T22:08:20+00:00"
   }
  },
  "notices": [],
+ "safe_mode": {
+  "active": true,
+  "reasons": [
+   "DRIFT MODERATE: Promotion pausiert"
+  ]
+ },
  "multiple_testing": {
-  "number_of_hypotheses_tested": 29,
-  "promotion_contracts_registered": 5,
-  "research_inventory": 24,
+  "number_of_hypotheses_tested": 73,
+  "promotion_contracts_registered": 14,
+  "research_inventory": 59,
   "families": [
-   "abstention"
+   "abstention",
+   "abstention@FINAL_MC_SURVIVOR",
+   "universe_segment@V2_CANDIDATE"
   ]
  },
  "evaluation": {
@@ -470,7 +1430,8 @@
    }
   },
   "data_kind": "prospective_forward_only",
-  "n_resolved_decisions": 0
+  "n_resolved_decisions": 0,
+  "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "b442b220f346766d309417d628b906597885bb0e38d0011318e3c89085b9d41e"
+ "state_hash": "3d9b88652b20de8d3cf72d5bfe20d096fc685d316409ea0558b1c5305fc457f1"
 }
