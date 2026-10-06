@@ -159,7 +159,7 @@
   "paths": {
    "outcome_ingestion": "OK",
    "shadow_lifecycle": "ACTIVE",
-   "gate_counterfactuals": "UNVALIDATED",
+   "gate_counterfactuals": "NEED_MORE_DATA",
    "research_generation": "OK",
    "hypothesis_testing": "OK",
    "promotion_pipeline": "OK",
@@ -183,8 +183,8 @@
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 11,
- "fingerprint": "923906129f7fe572",
- "updated_at": "2026-10-06T18:35:52+00:00",
- "code_version": "a87fb659e89e"
+ "state_version": 12,
+ "fingerprint": "0afbd5bae66da6f5",
+ "updated_at": "2026-10-06T19:30:19+00:00",
+ "code_version": "6c28ce08aca0"
 }

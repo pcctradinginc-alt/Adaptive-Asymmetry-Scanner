@@ -1,0 +1,1382 @@
+{
+  "date": "2026-10-06",
+  "proposals": [
+    {
+      "ticker": "HOOD",
+      "strategy": "LONG_CALL",
+      "iv_rank": 7.5,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 105.0,
+        "bid": 21.8,
+        "ask": 22.75,
+        "open_interest": 7321,
+        "implied_vol": 0.6037,
+        "spread_ratio": 0.0418,
+        "dte": 163,
+        "delta": 0.6616,
+        "data_source": "tradier",
+        "source_primary": "options_chain",
+        "source_actual": "options_chain"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.3386,
+        "roi_net": 1.1495928293251048,
+        "spread_pct": 0.0418,
+        "vega_loss": 0.0203,
+        "theta_daily": -0.0518,
+        "theta_daily_pct": 0.0023,
+        "delta": 0.6616,
+        "breakeven": 127.75,
+        "breakeven_pct": 0.1397,
+        "commission_pct": 0.0006,
+        "iv_drop_assumed": 0.0274125,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 22.75,
+        "mc_weight": 0.674,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 163,
+        "mc_pnl_pct": 0.6193504423900708,
+        "mc_pnl_mean": 1.2337928293251048,
+        "mc_median_net": 0.5352
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.6019,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 163,
+          "option": {
+            "expiry": "2027-03-19",
+            "strike": 105.0,
+            "bid": 21.8,
+            "ask": 22.75,
+            "open_interest": 7321,
+            "implied_vol": 0.6037,
+            "spread_ratio": 0.0418,
+            "dte": 163,
+            "delta": 0.6616,
+            "data_source": "tradier",
+            "source_primary": "options_chain",
+            "source_actual": "options_chain"
+          },
+          "roi": {
+            "roi_gross": 0.3386,
+            "roi_net": 1.1495928293251048,
+            "spread_pct": 0.0418,
+            "vega_loss": 0.0203,
+            "theta_daily": -0.0518,
+            "theta_daily_pct": 0.0023,
+            "delta": 0.6616,
+            "breakeven": 127.75,
+            "breakeven_pct": 0.1397,
+            "commission_pct": 0.0006,
+            "iv_drop_assumed": 0.0274125,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 22.75,
+            "mc_weight": 0.674,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 163,
+            "mc_pnl_pct": 0.6193504423900708,
+            "mc_pnl_mean": 1.2337928293251048,
+            "mc_median_net": 0.5352
+          },
+          "roi_net_initial": 0.2342,
+          "annualized_roi": 0.6019,
+          "strategy": "LONG_CALL",
+          "fail_gate": "roi_initial"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 2.287,
+        "z_score": 0.543,
+        "sigma_30d": 0.0491,
+        "price_move_48h": 0.0266,
+        "price_move_48h_signed": 0.0266,
+        "z_score_2d_scaled": 0.384,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6738,
+        "risk_p_model_wrong": null,
+        "risk_data_quality": 0.008,
+        "risk_regime_mismatch": 0.667,
+        "risk_unknown_risk": 0.0,
+        "risk_model_disagreement": 0.968,
+        "risk_counterfactual_fragility": 0.0,
+        "risk_alpha_decay": 0.333,
+        "risk_abstain_score": 0.329
+      },
+      "simulation": {
+        "current_price": 112.09,
+        "target_price": 129.37,
+        "hit_rate": 0.7022,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.046,
+        "sigma_source": "measured",
+        "alpha": 0.00515
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Der BofA-Kursziel von $156 ist bereits seit mindestens 48 Stunden \u00f6ffentlich bekannt und bei $112 impliziert das einen Aufw\u00e4rtspuffer von ~39%. Bei einer Marktkapitalisierung von $100 Mrd. ist die Informationseffizienz hoch \u2013 institutionelle Desks haben dieses Kursziel sofort verarbeitet. Das Signal ist damit gr\u00f6\u00dftenteils eingepreist, und der verbleibende \u00dcberraschungseffekt ist gering.",
+          "argument_2": "HOOD handelt im Finanzdienstleistungssektor mit starker Abh\u00e4ngigkeit von Krypto-Handelsvolumen und Retail-Aktivit\u00e4t. Robinhood hat eine historisch volatile Ertragsdynamik: Wenn die Earnings am 27. Oktober entt\u00e4uschen \u2013 sei es durch r\u00fcckl\u00e4ufige Transaktionseinnahmen oder gestiegene Compliance-Kosten durch regulatorische Anforderungen im Krypto-Bereich \u2013 droht ein scharfer IV-Crush nach unten. Options-K\u00e4ufer zahlen eine erhebliche Pr\u00e4mie f\u00fcr den Earnings-Event, was das Risiko-Ertrags-Verh\u00e4ltnis verschlechtert.",
+          "argument_3": "Der Paxos/Arbitrum-USDG-Stablecoin-Aspekt ist ein indirekter Wachstumskatalysator f\u00fcr Robinhood, aber der kausale Link ist schwach. HOOD profitiert nur dann, wenn es direkt in die Stablecoin-Infrastruktur integriert wird und erh\u00f6hte Handelsvolumina generiert. Dieser Zusammenhang ist spekulativ und nicht durch konkrete HOOD-spezifische Partnerschaftsank\u00fcndigungen belegt \u2013 die News betrifft prim\u00e4r Paxos/Arbitrum.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate nicht interpretierbar \u2013 sie spiegelt einen technischen Fehler im Vorfilter wider, nicht eine echte Null-Wahrscheinlichkeit. Bei einem Preis von $112 mit ~3% t\u00e4glicher Bewegung und einem 30-Tage-Fenster w\u00e4re eine moderate Hit-Rate f\u00fcr bullische Targets realistisch. Der fehlende MC liefert keine nutzbare Statistik.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "4-8 Wochen",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Earnings-Termin am 27. Oktober ist konkret und bietet einen klaren Zeithorizont f\u00fcr Neubewertung, falls Krypto-Handelsvolumina und Payment-for-Order-Flow-Einnahmen positiv \u00fcberraschen. Der Markt k\u00f6nnte die kombinierte Wirkung aus Krypto-Momentum und m\u00f6glicher Stablecoin-Expansion leicht untersch\u00e4tzen. Dennoch ist der BofA-Catalyst bereits bekannt, was den Surprise-Effekt d\u00e4mpft.",
+        "catalyst": "Earnings am 27. Oktober 2026 \u2013 m\u00f6gliche \u00dcberraschung bei Krypto-Handelseinnahmen und Nutzerwachstum",
+        "bear_case": "IV-Crush nach Earnings bei Entt\u00e4uschung, BofA-Kursziel bereits eingepreist, schwacher kausaler Link zu Paxos/Arbitrum",
+        "macro_assessment": "Neutrale Makrolage mit flacher Zinskurve und 10Y bei 4.99% ist moderat negativ f\u00fcr Wachstums-Finanzwerte mit hohem KGV, limitiert aber keinen kurzfristigen Earnings-Katalysator. VIX-Contango mit steigender impliziter Volatilit\u00e4t auf 3-Monats-Sicht unterst\u00fctzt Long-Vol-Positionen vor dem Earnings-Event leicht.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.47,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 100778131456,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLF",
+        "rel_strength": 0.2889
+      },
+      "final_score": 0.1209,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.7022,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7001,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "mc_hit_rate": 0.6738,
+      "time_to_maturation": "4-8 Wochen",
+      "sector": "Financial Services",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 31.89,
+      "model_move_pct": 15.42,
+      "edge_vs_implied": 1.45,
+      "mc_pnl_pct": 0.6193504423900708,
+      "mc_pnl_mean": 1.2337928293251048,
+      "mc_pnl_std": 2.1409590270695764,
+      "mc_hold_days": 81,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 0,
+      "trade_bep_pct": 13.97,
+      "external_context": {
+        "snapshot_id": "cfd2e351628a5f30",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-06T13:24:27+00:00",
+        "primitives": {
+          "freight_global_z": -0.5641833173065192,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 1.396917645959657,
+          "shipping_container_z": 0.4585730986981622,
+          "shipping_drybulk_z": 1.1096541611004014,
+          "shipping_tanker_z": 1.0784953505660457,
+          "shipping_negative_breadth": 0.2916666666666667,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.7719036076102617,
+          "panama_z": 0.6140805908568026,
+          "hormuz_z": 0.16378044552010448,
+          "malacca_z": -0.9186539617317975,
+          "bab_el_mandeb_z": 1.5670690298281404,
+          "asia_export_z": -0.33676217596817204,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.548,
+          "fed_assets_13w_chg": 0.0027462003484537423,
+          "usd_63d_chg": 0.004550006206810897,
+          "wti_63d_chg": 0.36281179138321984,
+          "de_power_price_7d": 182.46221428571428,
+          "de_power_price_z": 2.1033391792332923,
+          "de_load_yoy": 0.021680940918970215,
+          "hdd_anomaly": -1.1783088550540863,
+          "cdd_anomaly": 2.1191190410850504,
+          "forecast_revision_hdd": -0.35237853498529276,
+          "forecast_revision_cdd": 0.35237853498529276,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.9611009632661762,
+          "road_shipping_agreement": "MIXED",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "EXPANSION",
+          "global_maritime_confidence": 0.2451,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.1695
+        },
+        "ticker_exposure": {
+          "industry": "P&C Insurance",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "LOW",
+          "weather_relevance": "HIGH",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.9611009632661762,
+          "road_shipping_agreement": "MIXED",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      },
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.7053,
+        "annualized_roi": 4.5492,
+        "dte": 163
+      },
+      "trade_score": {
+        "total": 66,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 15.5,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 20.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 0.0,
+          "macro_sensitivity": 1.0
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=3), guter ROI (115%), g\u00fcnstige IV (8%)",
+        "best_argument_for": "Der Earnings-Termin am 27. Oktober ist konkret und bietet einen klaren Zeithorizont f\u00fcr Neubewertung, falls Krypto-Handelsvolumina und Payment-for-Order-Flow-Einnahmen positiv \u00fcberraschen. Der Markt k\u00f6nnte die kombinierte Wirkung aus Krypto-Momentum und m\u00f6glicher Stablecoin-Expansion leicht untersch\u00e4tzen. Dennoch ist der BofA-Catalyst bereits bekannt, was den Surprise-Effekt d\u00e4mpft.",
+        "best_argument_against": "Der BofA-Kursziel von $156 ist bereits seit mindestens 48 Stunden \u00f6ffentlich bekannt und bei $112 impliziert das einen Aufw\u00e4rtspuffer von ~39%. Bei einer Marktkapitalisierung von $100 Mrd. ist die Informationseffizienz hoch \u2013 institutionelle Desks haben dieses Kursziel sofort verarbeitet. Das Signal ist damit gr\u00f6\u00dftenteils eingepreist, und der verbleibende \u00dcberraschungseffekt ist gering."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.4468,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.1,
+        "position_usd": 500.0,
+        "cost_per_contract": 2275.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($2275) \u00fcbersteigt das Kelly-Budget ($500) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 22.75,
+        "is_spread": false,
+        "take_profit_pct": 50,
+        "take_profit_price": 34.12,
+        "full_profit_pct": 100,
+        "full_profit_price": 45.5,
+        "stop_loss_pct": -45,
+        "stop_loss_price": 12.51,
+        "time_exit_dte_remaining": 81,
+        "time_exit_date": "2026-12-28",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 30,
+        "delta_exit": 0.8,
+        "underlying_breakeven": 0
+      }
+    },
+    {
+      "ticker": "SNPS",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 66.4,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 500.0,
+        "bid": 64.2,
+        "ask": 70.3,
+        "open_interest": 202,
+        "implied_vol": 0.4406,
+        "spread_ratio": 0.0868,
+        "dte": 163,
+        "delta": 0.6021,
+        "data_source": "tradier",
+        "source_primary": "options_chain",
+        "source_actual": "options_chain",
+        "spread_leg": {
+          "strike": 550.0,
+          "bid": 45.1,
+          "ask": 48.6
+        },
+        "net_debit": 25.2
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6678,
+        "roi_net": 0.7352226139984576,
+        "spread_pct": 0.0868,
+        "vega_loss": 0.0983,
+        "theta_daily": -0.1792,
+        "theta_daily_pct": 0.0071,
+        "delta": 0.4817,
+        "breakeven": 525.2,
+        "breakeven_pct": 0.0375,
+        "commission_pct": 0.001,
+        "iv_drop_assumed": 0.042432,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 25.2,
+        "mc_weight": 0.672,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 163,
+        "mc_pnl_pct": 0.2360705459098737,
+        "mc_pnl_mean": 0.9098226139984575,
+        "mc_median_net": 0.0615
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 1.107,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 163,
+          "option": {
+            "expiry": "2027-03-19",
+            "strike": 500.0,
+            "bid": 64.2,
+            "ask": 70.3,
+            "open_interest": 202,
+            "implied_vol": 0.4406,
+            "spread_ratio": 0.0868,
+            "dte": 163,
+            "delta": 0.6021,
+            "data_source": "tradier",
+            "source_primary": "options_chain",
+            "source_actual": "options_chain",
+            "spread_leg": {
+              "strike": 550.0,
+              "bid": 45.1,
+              "ask": 48.6
+            },
+            "net_debit": 25.2
+          },
+          "roi": {
+            "roi_gross": 0.6678,
+            "roi_net": 0.7352226139984576,
+            "spread_pct": 0.0868,
+            "vega_loss": 0.0983,
+            "theta_daily": -0.1792,
+            "theta_daily_pct": 0.0071,
+            "delta": 0.4817,
+            "breakeven": 525.2,
+            "breakeven_pct": 0.0375,
+            "commission_pct": 0.001,
+            "iv_drop_assumed": 0.042432,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 25.2,
+            "mc_weight": 0.672,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 163,
+            "mc_pnl_pct": 0.2360705459098737,
+            "mc_pnl_mean": 0.9098226139984575,
+            "mc_median_net": 0.0615
+          },
+          "roi_net_initial": 0.3949,
+          "annualized_roi": 1.107,
+          "strategy": "BULL_CALL_SPREAD",
+          "fail_gate": "roi_initial"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.468,
+        "z_score": 0.106,
+        "sigma_30d": 0.0397,
+        "price_move_48h": 0.0042,
+        "price_move_48h_signed": -0.0042,
+        "z_score_2d_scaled": 0.075,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6716,
+        "risk_p_model_wrong": null,
+        "risk_data_quality": 0.008,
+        "risk_regime_mismatch": 0.667,
+        "risk_unknown_risk": 0.0,
+        "risk_model_disagreement": 0.96,
+        "risk_counterfactual_fragility": 0.333,
+        "risk_alpha_decay": 0.333,
+        "risk_abstain_score": 0.384
+      },
+      "simulation": {
+        "current_price": 506.21,
+        "target_price": 558.23,
+        "hit_rate": 0.693,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0306,
+        "sigma_source": "measured",
+        "alpha": 0.00273
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die Dealer-Gamma-Struktur zeigt Put-OI-Dominanz (Call/Put-Ratio=0.64), was bei negativem Newsflow selbstverst\u00e4rkende Abw\u00e4rtsdynamik durch Dealer-Hedging erzeugen kann. Ein bearishes Momentum-Signal \u00fcberlagert den strukturellen Bullish-Case erheblich, da Dealer bei fallenden Kursen Short-Delta-Hedges aufbauen m\u00fcssen.",
+          "argument_2": "Die Haiku-These 'Guidance-Hebel vor Earnings unvollst\u00e4ndig reflektiert' ist bei einem EDA-Software-Monopolisten wie Synopsys strukturell schwach: Der AI-Chip-Design-Tailwind ist seit 2024 bekannt und intensiv von Sell-Side abgedeckt. Bei einer Marktkapitalisierung von $97 Mrd. und breiter institutioneller Coverage ist kaum genuine Underreaction zu erwarten \u2014 der Markt hat diesen Katalysator mit hoher Wahrscheinlichkeit bereits eingepreist.",
+          "argument_3": "Die 48h-Preisbewegung von -0.4% kombiniert mit News-Titeln wie 'Synopsys is Hot Again But a Pattern Has Emerged' deutet auf ein m\u00f6glicherweise ersch\u00f6pftes Momentum-Muster hin. Der Artikel-Titel suggeriert einen zyklischen Top-Pattern, der bei einem Kurs nahe $506 nach m\u00f6glicher \u00dcberbewertung riecht \u2014 SNPS handelt bereits mit einem ambitionierten KGV-Multiple, und jede Guidance-Entt\u00e4uschung w\u00fcrde multiple compression ausl\u00f6sen.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Monte Carlo durchgef\u00fchrt (0 Pfade). Die 0%-Hit-Rate ist technisch bedeutungslos da kein Modell gelaufen ist, nicht ein statistisches Ergebnis. Aussagekraft: null. Kein Warnsignal aus diesem Datenpunkt ableitbar, aber auch keine Best\u00e4tigung des Bullish-Cases.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der AI-EDA-Strukturtrend ist bekannt, aber spezifische Guidance-Revisionen vor dem n\u00e4chsten Earnings-Zyklus Q4 2026 k\u00f6nnten Sell-Side-Modelle nach oben zwingen. Die Put-OI-Dominanz schafft eine Sprungfeder: Bei positivem Newsflow m\u00fcssen Dealer Puts zur\u00fcckkaufen und Call-Delta aufbauen, was Short-Squeezes beg\u00fcnstigt. Das neutrale Makro ohne Rezessionsdruck gibt dem strukturellen EDA-Monopol-Argument Raum, sich zu entfalten.",
+        "catalyst": "Q4 2026 Earnings-Guidance-Anhebung durch beschleunigte NVIDIA/AMD Tape-out-Aktivit\u00e4t im Advanced-Node-Segment (2nm/1.4nm)",
+        "bear_case": "Put-OI-Dominanz und 'Pattern Has Emerged'-Signale deuten auf institutionelle Absicherung hin; bei Guidance-Miss droht -15% durch Dealer-Gamma-Verst\u00e4rkung nach unten.",
+        "macro_assessment": "Neutrales Makro (flache Kurve, Fed Funds 3.75%) ist kein Gegenwind f\u00fcr SNPS als Cash-Flow-starken Technology-Compounder. VIX-Contango signalisiert erwartete Beruhigung \u2014 Long-Optionen auf 2-3 Monate sind strukturell nicht \u00fcberm\u00e4\u00dfig teuer. Kein makro-induziertes Veto.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.47,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 97008377856,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.1569
+      },
+      "final_score": 0.2604,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.693,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7336,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "mc_hit_rate": 0.6716,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Technology",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 24.46,
+      "model_move_pct": 10.28,
+      "edge_vs_implied": 6.52,
+      "mc_pnl_pct": 0.2360705459098737,
+      "mc_pnl_mean": 0.9098226139984575,
+      "mc_pnl_std": 2.048802961260758,
+      "mc_hold_days": 81,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 0,
+      "trade_bep_pct": 3.75,
+      "external_context": {
+        "snapshot_id": "cfd2e351628a5f30",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-06T13:24:27+00:00",
+        "primitives": {
+          "freight_global_z": -0.5641833173065192,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 1.396917645959657,
+          "shipping_container_z": 0.4585730986981622,
+          "shipping_drybulk_z": 1.1096541611004014,
+          "shipping_tanker_z": 1.0784953505660457,
+          "shipping_negative_breadth": 0.2916666666666667,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.7719036076102617,
+          "panama_z": 0.6140805908568026,
+          "hormuz_z": 0.16378044552010448,
+          "malacca_z": -0.9186539617317975,
+          "bab_el_mandeb_z": 1.5670690298281404,
+          "asia_export_z": -0.33676217596817204,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.061,
+          "nfci": -0.548,
+          "fed_assets_13w_chg": 0.0027462003484537423,
+          "usd_63d_chg": 0.004550006206810897,
+          "wti_63d_chg": 0.36281179138321984,
+          "de_power_price_7d": 182.46221428571428,
+          "de_power_price_z": 2.1033391792332923,
+          "de_load_yoy": 0.021680940918970215,
+          "hdd_anomaly": -1.1783088550540863,
+          "cdd_anomaly": 2.1191190410850504,
+          "forecast_revision_hdd": -0.35237853498529276,
+          "forecast_revision_cdd": 0.35237853498529276,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.9611009632661762,
+          "road_shipping_agreement": "MIXED",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "EXPANSION",
+          "global_maritime_confidence": 0.2451,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.1695
+        },
+        "ticker_exposure": {
+          "industry": "Technology / Software",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "NONE",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.9611009632661762,
+          "road_shipping_agreement": "MIXED",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      },
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.4511,
+        "annualized_roi": 2.4354,
+        "dte": 163
+      },
+      "trade_score": {
+        "total": 59,
+        "grade": "WATCH \ud83d\udfe0",
+        "grade_short": "WATCH",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 27.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 18.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 4.0,
+          "macro_sensitivity": 0.6
+        },
+        "reasoning": "St\u00e4rken: guter ROI (74%), Klarer Edge: Model +10.3% vs. Markt \u00b124.5% (+6.5%), positive Sektor-Relative-St\u00e4rke | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Der AI-EDA-Strukturtrend ist bekannt, aber spezifische Guidance-Revisionen vor dem n\u00e4chsten Earnings-Zyklus Q4 2026 k\u00f6nnten Sell-Side-Modelle nach oben zwingen. Die Put-OI-Dominanz schafft eine Sprungfeder: Bei positivem Newsflow m\u00fcssen Dealer Puts zur\u00fcckkaufen und Call-Delta aufbauen, was Short-Squeezes beg\u00fcnstigt. Das neutrale Makro ohne Rezessionsdruck gibt dem strukturellen EDA-Monopol-Argument Raum, sich zu entfalten.",
+        "best_argument_against": "Die Dealer-Gamma-Struktur zeigt Put-OI-Dominanz (Call/Put-Ratio=0.64), was bei negativem Newsflow selbstverst\u00e4rkende Abw\u00e4rtsdynamik durch Dealer-Hedging erzeugen kann. Ein bearishes Momentum-Signal \u00fcberlagert den strukturellen Bullish-Case erheblich, da Dealer bei fallenden Kursen Short-Delta-Hedges aufbauen m\u00fcssen."
+      },
+      "trade_rank": 2,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.3143,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.0786,
+        "position_usd": 392.83,
+        "cost_per_contract": 2520.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($2520) \u00fcbersteigt das Kelly-Budget ($393) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 25.2,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 42.56,
+        "full_profit_pct": 90,
+        "full_profit_price": 47.52,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 12.6,
+        "time_exit_dte_remaining": 73,
+        "time_exit_date": "2027-01-05",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 525.2
+      }
+    }
+  ],
+  "stats": {
+    "vix": 15.039999961853027,
+    "universe": 354,
+    "candidates": 354,
+    "prescreened": 100,
+    "sector_ok": 326,
+    "pre_mc": 80,
+    "roi_precheck": 98,
+    "analyzed": 66,
+    "mismatch_ok": 26,
+    "quick_mc": 20,
+    "intraday_ok": 19,
+    "final_mc": 19,
+    "rl_scored": 19,
+    "roi_ok": 2,
+    "trades": 2,
+    "stop_reason": "",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.0,
+      "month_usd": 0.0,
+      "warnings": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.992,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 11,
+      "active": false,
+      "reasons": [],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "cfd2e351628a5f30",
+      "as_of": "2026-10-06T19:17:49+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "after_isf": 43,
+    "final_mc_shadow": [
+      {
+        "ticker": "DG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5732,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6153,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "PANW",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5626,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5766,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CBOE",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.57,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5765,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "LLY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6942,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "COHR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6596,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6736,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "SMCI",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.532,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5245,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "IFF",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6804,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6964,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "SNPS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.693,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7336,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "KKR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5896,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6161,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "SWKS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7182,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "BE",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5334,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5301,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CRWD",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5534,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5605,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "BDX",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6494,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "FLEX",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5496,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5559,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "GFS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.626,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6637,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "RCL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6358,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6422,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "WDAY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6994,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7399,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "HOOD",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7022,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7001,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "NOW",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6776,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7064,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "final_mc_ledger": {
+      "observations": 19
+    },
+    "roi_rejects": {
+      "n": 12,
+      "gap_min": -0.0652,
+      "gap_median": 0.1222,
+      "gap_max": 0.3536
+    },
+    "intelligence": {
+      "champion_trades": 2,
+      "blocked": 0,
+      "would_block_shadow": 2,
+      "influence_level": "NONE"
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 28,
+      "tickers": [
+        "CLX",
+        "CMCSA",
+        "PCG",
+        "WDC",
+        "CTVA",
+        "WYNN",
+        "BSX",
+        "BKNG",
+        "LULU",
+        "STX"
+      ]
+    },
+    "prescreen_no": {
+      "count": 226,
+      "tickers": [
+        "CTSH",
+        "PDD",
+        "TMUS",
+        "WFC",
+        "IBKR",
+        "VMC",
+        "BF-B",
+        "AES",
+        "PGR",
+        "ORLY"
+      ]
+    },
+    "earnings_gate": {
+      "count": 2,
+      "tickers": [
+        "PEP",
+        "UNH"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 18,
+      "tickers": [
+        "GD",
+        "MCD",
+        "TTD",
+        "TXT",
+        "DUK",
+        "AEP",
+        "HSY",
+        "COST",
+        "ZTS",
+        "NEE"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 14,
+      "tickers": [
+        "MOS",
+        "ECHO",
+        "PSKY",
+        "COIN",
+        "HUM",
+        "SNDK",
+        "D",
+        "LEN",
+        "NWSA",
+        "NDAQ"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 20,
+      "tickers": [
+        "CEG",
+        "HCA",
+        "CME",
+        "USB",
+        "PNC",
+        "P",
+        "MU",
+        "ZS",
+        "CVS",
+        "SYK"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 3,
+      "tickers": [
+        "SCHW",
+        "ASML",
+        "INCY"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 17,
+      "tickers": [
+        "APH",
+        "TRGP",
+        "DASH",
+        "KLAC",
+        "TER",
+        "PWR",
+        "KEYS",
+        "AMD",
+        "ON",
+        "NUE"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 6,
+      "tickers": [
+        "BA",
+        "HBAN",
+        "COF",
+        "PRU",
+        "CVX",
+        "COP"
+      ]
+    },
+    "intraday_too_late": {
+      "count": 1,
+      "tickers": [
+        "CIEN"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 16,
+      "tickers": [
+        "PANW",
+        "LLY",
+        "SMCI",
+        "CRWD",
+        "NOW",
+        "DG",
+        "IFF",
+        "GFS",
+        "COHR",
+        "KKR"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Lern-Loop eingefroren: alle Feature-Korrelationen \u2264 0 (eps_drift=-0.054, impact=-0.091, mismatch=-0.086) \u2192 model_weights bleiben auf Startwerten; Features haben keine positive Vorhersagekraft."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 0,
+        "killer_counts": {},
+        "last_10_days": [
+          {
+            "date": "2026-10-06",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-10-02",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-01",
+            "trades": 0,
+            "killer": "analyzed"
+          },
+          {
+            "date": "2026-09-30",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-28",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-25",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-24",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-09-23",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-22",
+            "trades": 1,
+            "killer": null
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "score_42": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 3,
+            "evaluated": 1,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-12"
+          },
+          "final_mc_survivor": {
+            "total": 194,
+            "evaluated": 37,
+            "ready_in_14d": 31,
+            "next_eval_date": "2026-10-11"
+          },
+          "roi_gate": {
+            "total": 120,
+            "evaluated": 20,
+            "ready_in_14d": 17,
+            "next_eval_date": "2026-10-11"
+          },
+          "score_48": {
+            "total": 5,
+            "evaluated": 3,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_51": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-23"
+          },
+          "score_52": {
+            "total": 2,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-16"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": true,
+        "feature_corr": {
+          "impact": -0.091,
+          "mismatch": -0.086,
+          "eps_drift": -0.054
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 485
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 485
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 485
+          },
+          "suez_z": {
+            "missing_ratio": 0.085,
+            "constant": true,
+            "constant_days": 3,
+            "stale": false,
+            "n": 485
+          },
+          "panama_z": {
+            "missing_ratio": 0.085,
+            "constant": true,
+            "constant_days": 3,
+            "stale": false,
+            "n": 485
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.085,
+            "constant": true,
+            "constant_days": 3,
+            "stale": false,
+            "n": 485
+          },
+          "malacca_z": {
+            "missing_ratio": 0.085,
+            "constant": true,
+            "constant_days": 3,
+            "stale": false,
+            "n": 485
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.085,
+            "constant": true,
+            "constant_days": 3,
+            "stale": false,
+            "n": 485
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.085,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 485
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {}
+    }
+  }
+}
