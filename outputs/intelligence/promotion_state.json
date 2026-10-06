@@ -1,10 +1,10 @@
 {
- "generated": "2026-10-06T00:55:15+00:00",
+ "generated": "2026-10-06T20:26:45+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "206a57499c65",
- "data_version": "e3b0c44298fc1c14",
+ "code_version": "a8527ac2d2c7",
+ "data_version": "d15d5a12684e0074",
  "integrity": {
   "registry": [],
   "transitions": []
@@ -1377,8 +1377,7 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "DATA HEALTH unbekannt: Health-Snapshot veraltet (2026-10-04T16:59:29+00:00)",
-   "DRIFT: DATA DRIFT SEVERE: Data Quality None"
+   "DRIFT MODERATE: Promotion pausiert"
   ]
  },
  "multiple_testing": {
@@ -1434,5 +1433,5 @@
   "n_resolved_decisions": 0,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "aadf5c0ebdc6ed4dcabadbd0a2ae1b5d39640a494b9863a78339ca1be4352730"
+ "state_hash": "fb2164f126be02761454c82622c73ad2cbc2e9571ae4cab087a3b322f37b6e36"
 }
