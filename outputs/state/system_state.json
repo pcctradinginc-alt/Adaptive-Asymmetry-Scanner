@@ -1,24 +1,20 @@
 {
  "schema": "system-state-v2",
- "safe_mode": false,
- "safe_mode_reason": [],
+ "safe_mode": true,
+ "safe_mode_reason": [
+  "DATA HEALTH unbekannt: Health-Snapshot veraltet (2026-10-04T16:59:29+00:00)",
+  "DRIFT: DATA DRIFT SEVERE: Data Quality None"
+ ],
  "data_health": {
-  "status": "OK",
-  "data_quality": 0.992,
+  "status": "UNKNOWN",
+  "data_quality": null,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-04T16:59:29+00:00",
-  "counts": {
-   "HEALTHY": 32,
-   "DEGRADED": 3,
-   "STALE": 0,
-   "BROKEN": 0,
-   "UNVALIDATED": 8
-  },
-  "fallbacks": []
+  "generated": null,
+  "counts": null
  },
  "model_health": {
   "status": "OK",
@@ -26,7 +22,7 @@
   "updated": "2026-10-03T13:39:07+00:00"
  },
  "drift_state": {
-  "level": "MODERATE",
+  "level": "SEVERE",
   "components": {
    "feature": {
     "level": "MODERATE",
@@ -89,20 +85,22 @@
     "n_models": 6
    },
    "data": {
-    "level": "NORMAL",
-    "data_quality": 0.992
+    "level": "SEVERE",
+    "data_quality": null,
+    "note": "Data Health unbekannt"
    }
   },
   "reasons": [
    "FEATURE DRIFT MODERATE: ['tnx']",
-   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich"
+   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich",
+   "DATA DRIFT SEVERE: Data Quality None"
   ],
   "policy_version": "drift-v1",
   "consequences": {
-   "confidence_multiplier": 0.75,
-   "positive_boost_cap": 0.5,
+   "confidence_multiplier": 0.5,
+   "positive_boost_cap": 0.0,
    "allow_weight_increase": false,
-   "safe_mode": false
+   "safe_mode": true
   }
  },
  "champion_version": {
@@ -112,15 +110,15 @@
   "version": "scanner_rules@b60b12cedaea"
  },
  "promotion_state": {
-  "generated": "2026-10-03T06:00:46+00:00",
+  "generated": "2026-10-05T22:08:20+00:00",
   "policy_version": "promo-v1",
   "counts": {
-   "PROSPECTIVE_CHALLENGER": 5
+   "PROSPECTIVE_CHALLENGER": 14
   },
   "with_influence": [],
   "max_automatic_influence": "ABSTENTION_ONLY"
  },
- "known": true,
+ "known": false,
  "allowed_influence": {
   "max_automatic_influence": "ABSTENTION_ONLY",
   "by_hypothesis": {},
@@ -132,17 +130,22 @@
   "v1_definition_hash": "c9ac84a41d6adcb24e88dd75898d56dac9e4e38299702fafe5731771fba74ed2",
   "v1_unchanged": true,
   "v2_status": "SHADOW",
-  "v2_segments": {},
+  "v2_segments": {
+   "ULTRA_MICRO": "NONE",
+   "MICRO": "NONE",
+   "SMALL": "NONE",
+   "MID": "NONE"
+  },
   "v2_latest_snapshot": "2026-10-04"
  },
  "commodity_data_health": {
-  "overall": "DEGRADED",
+  "overall": "UNVALIDATED",
   "sources": {
-   "eia_petroleum_weekly": "HEALTHY",
-   "eia_natural_gas": "DEGRADED",
-   "fred_commodities": "DEGRADED",
-   "fred_regime_macro": "HEALTHY",
-   "cftc_cot": "HEALTHY"
+   "eia_petroleum_weekly": "UNVALIDATED",
+   "eia_natural_gas": "UNVALIDATED",
+   "fred_commodities": "UNVALIDATED",
+   "fred_regime_macro": "UNVALIDATED",
+   "cftc_cot": "UNVALIDATED"
   },
   "research_status": "RESEARCH_ONLY",
   "unavailable_series": [],
@@ -164,7 +167,7 @@
    "universe_v1": "OK",
    "universe_v2": "SHADOW",
    "commodity_intelligence": "UNVALIDATED",
-   "commodity_sources": "DEGRADED",
+   "commodity_sources": "UNVALIDATED",
    "rl": "SHADOW",
    "research_memory": "ACTIVE"
   }
@@ -173,13 +176,13 @@
   "model_health": "d33c3a3f5d92",
   "meta_learning": "b5c0b4d9cff8",
   "data_health": "d4ab49771a23",
-  "promotion": "d779478a5b98",
+  "promotion": "b28228782545",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 9,
- "fingerprint": "214d5ad240d8a1c0",
- "updated_at": "2026-10-04T16:59:29+00:00",
- "code_version": "f11083d0175c"
+ "state_version": 10,
+ "fingerprint": "6350158365e1f944",
+ "updated_at": "2026-10-06T00:55:15+00:00",
+ "code_version": "206a57499c65"
 }
