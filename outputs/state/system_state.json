@@ -1,20 +1,24 @@
 {
  "schema": "system-state-v2",
- "safe_mode": true,
- "safe_mode_reason": [
-  "DATA HEALTH unbekannt: Health-Snapshot veraltet (2026-10-04T16:59:29+00:00)",
-  "DRIFT: DATA DRIFT SEVERE: Data Quality None"
- ],
+ "safe_mode": false,
+ "safe_mode_reason": [],
  "data_health": {
-  "status": "UNKNOWN",
-  "data_quality": null,
+  "status": "OK",
+  "data_quality": 0.992,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": null,
-  "counts": null
+  "generated": "2026-10-06T18:35:52+00:00",
+  "counts": {
+   "HEALTHY": 32,
+   "DEGRADED": 3,
+   "STALE": 0,
+   "BROKEN": 0,
+   "UNVALIDATED": 8
+  },
+  "fallbacks": []
  },
  "model_health": {
   "status": "OK",
@@ -22,7 +26,7 @@
   "updated": "2026-10-03T13:39:07+00:00"
  },
  "drift_state": {
-  "level": "SEVERE",
+  "level": "MODERATE",
   "components": {
    "feature": {
     "level": "MODERATE",
@@ -85,22 +89,20 @@
     "n_models": 6
    },
    "data": {
-    "level": "SEVERE",
-    "data_quality": null,
-    "note": "Data Health unbekannt"
+    "level": "NORMAL",
+    "data_quality": 0.992
    }
   },
   "reasons": [
    "FEATURE DRIFT MODERATE: ['tnx']",
-   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich",
-   "DATA DRIFT SEVERE: Data Quality None"
+   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich"
   ],
   "policy_version": "drift-v1",
   "consequences": {
-   "confidence_multiplier": 0.5,
-   "positive_boost_cap": 0.0,
+   "confidence_multiplier": 0.75,
+   "positive_boost_cap": 0.5,
    "allow_weight_increase": false,
-   "safe_mode": true
+   "safe_mode": false
   }
  },
  "champion_version": {
@@ -110,7 +112,7 @@
   "version": "scanner_rules@b60b12cedaea"
  },
  "promotion_state": {
-  "generated": "2026-10-05T22:08:20+00:00",
+  "generated": "2026-10-06T00:55:15+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 14
@@ -118,7 +120,7 @@
   "with_influence": [],
   "max_automatic_influence": "ABSTENTION_ONLY"
  },
- "known": false,
+ "known": true,
  "allowed_influence": {
   "max_automatic_influence": "ABSTENTION_ONLY",
   "by_hypothesis": {},
@@ -139,13 +141,13 @@
   "v2_latest_snapshot": "2026-10-04"
  },
  "commodity_data_health": {
-  "overall": "UNVALIDATED",
+  "overall": "DEGRADED",
   "sources": {
-   "eia_petroleum_weekly": "UNVALIDATED",
-   "eia_natural_gas": "UNVALIDATED",
-   "fred_commodities": "UNVALIDATED",
-   "fred_regime_macro": "UNVALIDATED",
-   "cftc_cot": "UNVALIDATED"
+   "eia_petroleum_weekly": "HEALTHY",
+   "eia_natural_gas": "DEGRADED",
+   "fred_commodities": "DEGRADED",
+   "fred_regime_macro": "HEALTHY",
+   "cftc_cot": "HEALTHY"
   },
   "research_status": "RESEARCH_ONLY",
   "unavailable_series": [],
@@ -167,7 +169,7 @@
    "universe_v1": "OK",
    "universe_v2": "SHADOW",
    "commodity_intelligence": "UNVALIDATED",
-   "commodity_sources": "UNVALIDATED",
+   "commodity_sources": "DEGRADED",
    "rl": "SHADOW",
    "research_memory": "ACTIVE"
   }
@@ -175,14 +177,14 @@
  "inputs": {
   "model_health": "d33c3a3f5d92",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "d4ab49771a23",
-  "promotion": "b28228782545",
+  "data_health": "e50e38df7ee9",
+  "promotion": "d8fce118f49b",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 10,
- "fingerprint": "6350158365e1f944",
- "updated_at": "2026-10-06T00:55:15+00:00",
- "code_version": "206a57499c65"
+ "state_version": 11,
+ "fingerprint": "923906129f7fe572",
+ "updated_at": "2026-10-06T18:35:52+00:00",
+ "code_version": "a87fb659e89e"
 }
