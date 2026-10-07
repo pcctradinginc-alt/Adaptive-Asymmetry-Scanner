@@ -1,0 +1,988 @@
+{
+  "date": "2026-10-07",
+  "proposals": [
+    {
+      "ticker": "SNPS",
+      "strategy": "BULL_CALL_SPREAD",
+      "iv_rank": 66.7,
+      "iv_gate_applied": true,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 500.0,
+        "bid": 63.5,
+        "ask": 67.9,
+        "open_interest": 203,
+        "implied_vol": 0.49825025680541996,
+        "spread_ratio": 0.0648,
+        "dte": 162,
+        "data_source": "yfinance",
+        "source_primary": "options_chain",
+        "source_actual": "options_chain_yfinance",
+        "spread_leg": {
+          "strike": 550.0,
+          "bid": 42.1,
+          "ask": 47.1
+        },
+        "net_debit": 25.8
+      },
+      "roi_analysis": {
+        "roi_gross": 0.6217,
+        "roi_net": 0.8657802874698324,
+        "spread_pct": 0.0648,
+        "vega_loss": 0.108,
+        "theta_daily": -0.2023,
+        "theta_daily_pct": 0.0078,
+        "delta": 0.4604,
+        "breakeven": 525.8,
+        "breakeven_pct": 0.0431,
+        "commission_pct": 0.001,
+        "iv_drop_assumed": 0.0425085,
+        "iv_drop_base": 0.06,
+        "catalyst_type": "EARNINGS",
+        "cost_basis": 25.8,
+        "mc_weight": 0.673,
+        "is_spread": true,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 162,
+        "mc_pnl_pct": 0.3197803371125662,
+        "mc_pnl_mean": 0.9963802874698323,
+        "mc_median_net": 0.1892
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 1.0766,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 162,
+          "option": {
+            "expiry": "2027-03-19",
+            "strike": 500.0,
+            "bid": 63.5,
+            "ask": 67.9,
+            "open_interest": 203,
+            "implied_vol": 0.49825025680541996,
+            "spread_ratio": 0.0648,
+            "dte": 162,
+            "data_source": "yfinance",
+            "source_primary": "options_chain",
+            "source_actual": "options_chain_yfinance",
+            "spread_leg": {
+              "strike": 550.0,
+              "bid": 42.1,
+              "ask": 47.1
+            },
+            "net_debit": 25.8
+          },
+          "roi": {
+            "roi_gross": 0.6217,
+            "roi_net": 0.8657802874698324,
+            "spread_pct": 0.0648,
+            "vega_loss": 0.108,
+            "theta_daily": -0.2023,
+            "theta_daily_pct": 0.0078,
+            "delta": 0.4604,
+            "breakeven": 525.8,
+            "breakeven_pct": 0.0431,
+            "commission_pct": 0.001,
+            "iv_drop_assumed": 0.0425085,
+            "iv_drop_base": 0.06,
+            "catalyst_type": "EARNINGS",
+            "cost_basis": 25.8,
+            "mc_weight": 0.673,
+            "is_spread": true,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 162,
+            "mc_pnl_pct": 0.3197803371125662,
+            "mc_pnl_mean": 0.9963802874698323,
+            "mc_median_net": 0.1892
+          },
+          "roi_net_initial": 0.3831,
+          "annualized_roi": 1.0766,
+          "strategy": "BULL_CALL_SPREAD",
+          "fail_gate": "roi_initial"
+        }
+      ],
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 1.068,
+        "z_score": 0.786,
+        "sigma_30d": 0.0396,
+        "price_move_48h": 0.0312,
+        "price_move_48h_signed": 0.0312,
+        "z_score_2d_scaled": 0.556,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6732,
+        "risk_p_model_wrong": null,
+        "risk_data_quality": 0.008,
+        "risk_regime_mismatch": 0.667,
+        "risk_unknown_risk": 0.0,
+        "risk_model_disagreement": 0.96,
+        "risk_counterfactual_fragility": 0.0,
+        "risk_alpha_decay": 0.333,
+        "risk_abstain_score": 0.328
+      },
+      "simulation": {
+        "current_price": 504.07,
+        "target_price": 555.82,
+        "hit_rate": 0.6978,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0306,
+        "sigma_source": "measured",
+        "alpha": 0.00272
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Die OpenAI-Partnerschaft und der Investor Day sind bereits \u00f6ffentliche Informationen, die in den letzten 48h zu einem +3,1% Anstieg gef\u00fchrt haben. Bei einer Marktkapitalisierung von $96,6 Mrd. ist die institutionelle Coverage hoch genug, dass positive AI-Narrative sehr schnell eingepreist werden. Artikel wie 'Even At Today's Multiples I Keep Adding' sind klassische Retail-Sentiment-Signale, die oft den H\u00f6hepunkt einer kurzfristigen Rallyebewegung markieren.",
+          "argument_2": "Der Dealer-Gamma-Kontext ist eindeutig bearish strukturiert: Put-OI dominiert ATM mit einem Call/Put-Ratio von 0,63, was bedeutet dass Dealer-Hedging Abw\u00e4rtsbewegungen mechanisch verst\u00e4rkt. Zus\u00e4tzlich warnt ein konkreter News-Artikel 'Top 3 Tech Stocks That May Fall Off A Cliff In Q4' \u2014 falls SNPS in dieser Liste erscheint, signalisiert das negativen Konsensus-Drift f\u00fcr den Zeithorizont Q4 2026.",
+          "argument_3": "Das EDA/EDA-Software-Segment (Synopsys' Kerngesch\u00e4ft) ist zyklisch abh\u00e4ngig von Chip-Design-Budgets der Halbleiterindustrie. Bei einem 10Y Treasury von 4,99% sind Bewertungsmultiples f\u00fcr hochbewertete Technologiewachstumswerte strukturell unter Druck. Die PRGS vs. SNPS Value-Vergleichs-Coverage deutet darauf hin, dass Value-Investoren SNPS als relativ teuer einstufen k\u00f6nnten, was mittelfristigen Kursdruck erzeugt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0% Hit-Rate ein technisches Artefakt und nicht interpretierbar. Ohne MC-Daten fehlt ein quantitativer R\u00fcckhalt f\u00fcr die Upside-Sch\u00e4tzung. Dies erh\u00f6ht die Unsicherheit in der Bewertung und erfordert st\u00e4rkere Gewichtung fundamentaler Argumente.",
+          "concern_level": "medium"
+        },
+        "impact": 5,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der Markt hat den OpenAI-Deal als kurzfristigen Event bewertet, ignoriert aber die strukturelle Verschiebung im EDA-Markt durch AI-gest\u00fctzte Chip-Designs als dauerhaften Wachstumstreiber. Mehrere Analysten erh\u00f6hen sukzessive Fair-Value-Sch\u00e4tzungen, was auf eine graduelle Konsensus-Revision hindeutet. Der Investor Day k\u00f6nnte Guidance-Erh\u00f6hungen f\u00fcr Gesch\u00e4ftsjahr 2027 vorbereiten, die noch nicht vollst\u00e4ndig eingepreist sind.",
+        "catalyst": "Synopsys Earnings Q4 2026 mit potenzieller FY2027-Guidance-Erh\u00f6hung durch AI/EDA-Nachfragewachstum",
+        "bear_case": "Dealer-Gamma-Struktur (Put-dominiert, Ratio 0,63) und hohe Treasury-Renditen von 4,99% begrenzen Upside-Potenzial mechanisch; negative Q4-Tech-Listen-Erw\u00e4hnungen k\u00f6nnten Sentiment kippen.",
+        "macro_assessment": "Neutrales Makro-Regime mit flacher Kurve (0,48%) ist kein direkter Gegenwind, aber 10Y bei 4,99% belastet Multiples von Wachstumswerten strukturell. VIX-Contango erlaubt Long-Vol-Positionierung ohne \u00fcberm\u00e4\u00dfiges Vol-Crush-Risiko nach Events, was moderat bullishe Optionsstrategien mit definierten Risiken (Spreads) beg\u00fcnstigt.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.48,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 96598704128,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLK",
+        "rel_strength": 0.1546
+      },
+      "final_score": 0.1209,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6978,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7339,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "mc_hit_rate": 0.6732,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Technology",
+      "catalyst_type": "EARNINGS",
+      "implied_move_pct": 24.82,
+      "model_move_pct": 10.27,
+      "edge_vs_implied": 5.96,
+      "mc_pnl_pct": 0.3197803371125662,
+      "mc_pnl_mean": 0.9963802874698323,
+      "mc_pnl_std": 2.1069661247637805,
+      "mc_hold_days": 81,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 1,
+      "trade_bep_pct": 4.31,
+      "external_context": {
+        "snapshot_id": "eab9bcb0b3a4f2fa",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-07T13:33:07+00:00",
+        "primitives": {
+          "freight_global_z": -0.5641833173065192,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.6790886478663127,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 1.3656647435562117,
+          "de_truck_acceleration": 0.005224785998337415,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.13346507817155134,
+          "shipping_container_z": 0.7955622402240948,
+          "shipping_drybulk_z": -0.8338884265709008,
+          "shipping_tanker_z": 0.3907463049743236,
+          "shipping_negative_breadth": 0.25,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.7719036076102617,
+          "panama_z": 0.6140805908568026,
+          "hormuz_z": 0.16378044552010448,
+          "malacca_z": -0.9186539617317975,
+          "bab_el_mandeb_z": 1.5670690298281404,
+          "asia_export_z": -0.6027273229615,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.026,
+          "nfci": -0.494,
+          "fed_assets_13w_chg": 0.0027462003484537423,
+          "usd_63d_chg": 0.004550006206810897,
+          "wti_63d_chg": 0.36281179138321984,
+          "de_power_price_7d": 175.35587142857142,
+          "de_power_price_z": 1.8996197631090181,
+          "de_load_yoy": 0.020490239882359207,
+          "hdd_anomaly": -2.338886193979573,
+          "cdd_anomaly": 2.1987320092770513,
+          "forecast_revision_hdd": -0.38837327378055597,
+          "forecast_revision_cdd": 0.38837327378055597,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.6976483954780706,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2093,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.0872,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.1695
+        },
+        "ticker_exposure": {
+          "industry": "Technology / Software",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "NONE",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.6976483954780706,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      },
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.5344,
+        "annualized_roi": 3.0764,
+        "dte": 162
+      },
+      "trade_score": {
+        "total": 61,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 15.5,
+          "options_quality": 27.5,
+          "risk_deductions": 0.0,
+          "context_bonus": 18.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 4.0,
+          "macro_sensitivity": 0.6
+        },
+        "reasoning": "St\u00e4rken: solides Signal (Impact=5/Surprise=3), guter ROI (87%), Klarer Edge: Model +10.3% vs. Markt \u00b124.8% (+6.0%)",
+        "best_argument_for": "Der Markt hat den OpenAI-Deal als kurzfristigen Event bewertet, ignoriert aber die strukturelle Verschiebung im EDA-Markt durch AI-gest\u00fctzte Chip-Designs als dauerhaften Wachstumstreiber. Mehrere Analysten erh\u00f6hen sukzessive Fair-Value-Sch\u00e4tzungen, was auf eine graduelle Konsensus-Revision hindeutet. Der Investor Day k\u00f6nnte Guidance-Erh\u00f6hungen f\u00fcr Gesch\u00e4ftsjahr 2027 vorbereiten, die noch nicht vollst\u00e4ndig eingepreist sind.",
+        "best_argument_against": "Die OpenAI-Partnerschaft und der Investor Day sind bereits \u00f6ffentliche Informationen, die in den letzten 48h zu einem +3,1% Anstieg gef\u00fchrt haben. Bei einer Marktkapitalisierung von $96,6 Mrd. ist die institutionelle Coverage hoch genug, dass positive AI-Narrative sehr schnell eingepreist werden. Artikel wie 'Even At Today's Multiples I Keep Adding' sind klassische Retail-Sentiment-Signale, die oft den H\u00f6hepunkt einer kurzfristigen Rallyebewegung markieren."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.3712,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.0928,
+        "position_usd": 464.04,
+        "cost_per_contract": 2580.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($2580) \u00fcbersteigt das Kelly-Budget ($464) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "exit_rules": {
+        "entry_cost": 25.8,
+        "is_spread": true,
+        "take_profit_pct": 70,
+        "take_profit_price": 42.74,
+        "full_profit_pct": 90,
+        "full_profit_price": 47.58,
+        "stop_loss_pct": -50,
+        "stop_loss_price": 12.9,
+        "time_exit_dte_remaining": 72,
+        "time_exit_date": "2027-01-06",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 40,
+        "delta_exit": null,
+        "underlying_breakeven": 525.8
+      }
+    }
+  ],
+  "stats": {
+    "vix": 15.100000381469727,
+    "universe": 392,
+    "candidates": 392,
+    "prescreened": 116,
+    "sector_ok": 356,
+    "pre_mc": 91,
+    "roi_precheck": 111,
+    "analyzed": 76,
+    "mismatch_ok": 24,
+    "quick_mc": 17,
+    "intraday_ok": 17,
+    "final_mc": 17,
+    "rl_scored": 17,
+    "roi_ok": 1,
+    "trades": 1,
+    "stop_reason": "",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 1.229,
+      "month_usd": 1.229,
+      "warnings": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.992,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 15,
+      "active": false,
+      "reasons": [],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "eab9bcb0b3a4f2fa",
+      "as_of": "2026-10-07T19:42:45+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "after_isf": 54,
+    "final_mc_shadow": [
+      {
+        "ticker": "GNRC",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.626,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6257,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "RVTY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "ORCL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.599,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.6243,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TXN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7394,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "HPQ",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5618,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5657,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "SNPS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6978,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7339,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "SWKS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7198,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DVN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.576,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6045,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CRWD",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5534,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5662,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "NTAP",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5606,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5627,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "RDDT",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6116,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6325,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TEAM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.527,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5382,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TTWO",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5766,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6334,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DHR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6686,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "HPE",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5456,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5591,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "FCX",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.645,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6644,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TEL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5972,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6196,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "final_mc_ledger": {
+      "observations": 17
+    },
+    "roi_rejects": {
+      "n": 11,
+      "gap_min": -0.0949,
+      "gap_median": 0.0787,
+      "gap_max": 0.8214
+    },
+    "intelligence": {
+      "champion_trades": 1,
+      "blocked": 0,
+      "would_block_shadow": 1,
+      "influence_level": "NONE"
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 36,
+      "tickers": [
+        "EFX",
+        "FSLR",
+        "GIS",
+        "LVS",
+        "COO",
+        "IBM",
+        "CMCSA",
+        "ADSK",
+        "BSX",
+        "INTU"
+      ]
+    },
+    "prescreen_no": {
+      "count": 240,
+      "tickers": [
+        "A",
+        "GILD",
+        "CBRE",
+        "TJX",
+        "IT",
+        "GLW",
+        "LEN",
+        "P",
+        "MNST",
+        "TPR"
+      ]
+    },
+    "earnings_gate": {
+      "count": 5,
+      "tickers": [
+        "WFC",
+        "GS",
+        "ASML",
+        "JPM",
+        "DAL"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 20,
+      "tickers": [
+        "GD",
+        "TXT",
+        "EXE",
+        "ZTS",
+        "XEL",
+        "BRK-B",
+        "KR",
+        "CRH",
+        "LIN",
+        "EQT"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 15,
+      "tickers": [
+        "PCAR",
+        "DASH",
+        "COIN",
+        "LLY",
+        "CMG",
+        "MOS",
+        "BE",
+        "DD",
+        "SWK",
+        "HAL"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 19,
+      "tickers": [
+        "CMI",
+        "DLR",
+        "CHRW",
+        "PLTR",
+        "JBHT",
+        "VMC",
+        "D",
+        "EL",
+        "APTV",
+        "ZBH"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 3,
+      "tickers": [
+        "ADI",
+        "DRI",
+        "FDX"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 30,
+      "tickers": [
+        "FTNT",
+        "BKR",
+        "PPG",
+        "MMM",
+        "CNC",
+        "ELV",
+        "DLTR",
+        "MRVL",
+        "FLEX",
+        "IBKR"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 7,
+      "tickers": [
+        "CFG",
+        "UNP",
+        "CVX",
+        "NTRS",
+        "CSGP",
+        "NSC",
+        "PRU"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 16,
+      "tickers": [
+        "GNRC",
+        "ORCL",
+        "TXN",
+        "HPQ",
+        "SWKS",
+        "NTAP",
+        "RDDT",
+        "DHR",
+        "HPE",
+        "TEL"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Lern-Loop eingefroren: alle Feature-Korrelationen \u2264 0 (eps_drift=-0.054, impact=-0.091, mismatch=-0.086) \u2192 model_weights bleiben auf Startwerten; Features haben keine positive Vorhersagekraft."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 0,
+        "killer_counts": {},
+        "last_10_days": [
+          {
+            "date": "2026-10-07",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-10-06",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-10-02",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-01",
+            "trades": 0,
+            "killer": "analyzed"
+          },
+          {
+            "date": "2026-09-30",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-28",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-25",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-24",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-09-23",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "roi_gate": {
+            "total": 124,
+            "evaluated": 13,
+            "ready_in_14d": 17,
+            "next_eval_date": "2026-10-11"
+          },
+          "final_mc_survivor": {
+            "total": 195,
+            "evaluated": 21,
+            "ready_in_14d": 31,
+            "next_eval_date": "2026-10-11"
+          },
+          "score_49": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-12"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-23"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_48": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": true,
+        "feature_corr": {
+          "impact": -0.091,
+          "mismatch": -0.086,
+          "eps_drift": -0.054
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "suez_z": {
+            "missing_ratio": 0.07,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "panama_z": {
+            "missing_ratio": 0.07,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.07,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "malacca_z": {
+            "missing_ratio": 0.07,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.07,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.07,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 583
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {}
+    }
+  }
+}
