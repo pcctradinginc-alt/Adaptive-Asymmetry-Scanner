@@ -1,0 +1,741 @@
+{
+  "date": "2026-10-08",
+  "proposals": [],
+  "stats": {
+    "vix": 15.65999984741211,
+    "universe": 418,
+    "candidates": 418,
+    "prescreened": 139,
+    "sector_ok": 386,
+    "pre_mc": 105,
+    "roi_precheck": 128,
+    "analyzed": 96,
+    "mismatch_ok": 44,
+    "quick_mc": 29,
+    "intraday_ok": 29,
+    "final_mc": 29,
+    "rl_scored": 29,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 2.4768,
+      "month_usd": 2.4768,
+      "warnings": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.992,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 17,
+      "active": false,
+      "reasons": [],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "ab1eee2f08ae8036",
+      "as_of": "2026-10-08T19:41:50+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "after_isf": 70,
+    "final_mc_shadow": [
+      {
+        "ticker": "UAL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6434,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6588,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CNC",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "ETN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6404,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6681,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "JBL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6128,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.6469,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DVN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.603,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6473,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CBOE",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6034,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5951,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DDOG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5456,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5578,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "BIIB",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6604,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7052,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VTRS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7138,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "IBM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5654,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5762,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "FLEX",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.675,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6806,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "PGR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5936,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7025,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VEEV",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "COR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5672,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6097,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "OXY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.595,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6258,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CMG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5662,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5959,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DHR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6498,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.7304,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TECH",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7256,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TRV",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5886,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TRGP",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.644,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "FANG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.584,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6485,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "GFS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6074,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.62,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "GM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.589,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.644,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "NOW",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.706,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7293,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "FTNT",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.567,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5829,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "PTC",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6768,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7154,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TEAM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.551,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5368,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "KEYS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6804,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7099,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "APH",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.699,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7411,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "final_mc_ledger": {
+      "observations": 29
+    },
+    "roi_rejects": {
+      "n": 18,
+      "gap_min": -0.0942,
+      "gap_median": 0.0449,
+      "gap_max": 0.2086
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 32,
+      "tickers": [
+        "CMCSA",
+        "HRL",
+        "IP",
+        "CLX",
+        "UBER",
+        "LULU",
+        "MKC",
+        "AKAM",
+        "WYNN",
+        "EFX"
+      ]
+    },
+    "prescreen_no": {
+      "count": 247,
+      "tickers": [
+        "KR",
+        "TSLA",
+        "LEN",
+        "RSG",
+        "COP",
+        "EOG",
+        "TT",
+        "CHD",
+        "FISV",
+        "JCI"
+      ]
+    },
+    "earnings_gate": {
+      "count": 11,
+      "tickers": [
+        "STT",
+        "JBHT",
+        "IBKR",
+        "USB",
+        "ASML",
+        "UNH",
+        "WFC",
+        "C",
+        "GS",
+        "MRSH"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 23,
+      "tickers": [
+        "HD",
+        "NKE",
+        "HSY",
+        "LHX",
+        "LIN",
+        "MTB",
+        "REG",
+        "AEP",
+        "LOW",
+        "TJX"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 9,
+      "tickers": [
+        "INCY",
+        "ARM",
+        "FDXF",
+        "COIN",
+        "BA",
+        "TWLO",
+        "LITE",
+        "MSFT",
+        "ARE"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 24,
+      "tickers": [
+        "ORCL",
+        "KVUE",
+        "BDX",
+        "CTSH",
+        "KHC",
+        "CVS",
+        "DASH",
+        "WDAY",
+        "KKR",
+        "ALLE"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 2,
+      "tickers": [
+        "EMR",
+        "TGT"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 26,
+      "tickers": [
+        "MRK",
+        "STZ",
+        "AVGO",
+        "ANET",
+        "FITB",
+        "RTX",
+        "MPC",
+        "BMY",
+        "BKR",
+        "RF"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 15,
+      "tickers": [
+        "HCA",
+        "DLR",
+        "CMI",
+        "APD",
+        "UNP",
+        "CAH",
+        "ECL",
+        "DD",
+        "COF",
+        "CVX"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 29,
+      "tickers": [
+        "CNC",
+        "CBOE",
+        "DDOG",
+        "IBM",
+        "COR",
+        "DHR",
+        "TECH",
+        "GM",
+        "NOW",
+        "KEYS"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Lern-Loop eingefroren: alle Feature-Korrelationen \u2264 0 (eps_drift=-0.054, impact=-0.091, mismatch=-0.086) \u2192 model_weights bleiben auf Startwerten; Features haben keine positive Vorhersagekraft."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 1,
+        "killer_counts": {
+          "roi_ok": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-10-08",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-07",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-10-06",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-10-02",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-01",
+            "trades": 0,
+            "killer": "analyzed"
+          },
+          {
+            "date": "2026-09-30",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-28",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-25",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-24",
+            "trades": 1,
+            "killer": null
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 208,
+            "evaluated": 5,
+            "ready_in_14d": 37,
+            "next_eval_date": "2026-10-11"
+          },
+          "roi_gate": {
+            "total": 130,
+            "evaluated": 1,
+            "ready_in_14d": 21,
+            "next_eval_date": "2026-10-11"
+          },
+          "score_49": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 2,
+            "next_eval_date": "2026-10-12"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-23"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_48": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": true,
+        "feature_corr": {
+          "impact": -0.091,
+          "mismatch": -0.086,
+          "eps_drift": -0.054
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "suez_z": {
+            "missing_ratio": 0.059,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "panama_z": {
+            "missing_ratio": 0.059,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.059,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "malacca_z": {
+            "missing_ratio": 0.059,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.059,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.059,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 694
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {}
+    }
+  }
+}
