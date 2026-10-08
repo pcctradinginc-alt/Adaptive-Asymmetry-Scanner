@@ -158,7 +158,7 @@
   "stalled_or_broken": [],
   "paths": {
    "outcome_ingestion": "OK",
-   "shadow_lifecycle": "ACTIVE",
+   "shadow_lifecycle": "NEED_MORE_DATA",
    "gate_counterfactuals": "NEED_MORE_DATA",
    "research_generation": "OK",
    "hypothesis_testing": "OK",
@@ -183,8 +183,8 @@
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 17,
- "fingerprint": "a8285aa9823402b4",
- "updated_at": "2026-10-08T19:00:33+00:00",
- "code_version": "07ff0608f782"
+ "state_version": 18,
+ "fingerprint": "7227b1e3526675d4",
+ "updated_at": "2026-10-08T20:45:21+00:00",
+ "code_version": "113de84e9bdb"
 }

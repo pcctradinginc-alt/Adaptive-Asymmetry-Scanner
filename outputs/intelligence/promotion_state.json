@@ -1,10 +1,10 @@
 {
- "generated": "2026-10-07T23:39:24+00:00",
+ "generated": "2026-10-08T20:45:21+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "ac2759537e6c",
- "data_version": "ef7942ad9e254c7b",
+ "code_version": "113de84e9bdb",
+ "data_version": "738a9c7462ff4f8e",
  "integrity": {
   "registry": [],
   "transitions": []
@@ -35,9 +35,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -48,34 +48,70 @@
     "alpha_effective": 0.0008333333333333334
    },
    "evidence": {
-    "n_observations": 0,
-    "n_independent_dates": 0,
+    "n_observations": 1,
+    "n_independent_dates": 1,
     "calendar_span_days": 0,
-    "first_observation": null,
-    "last_observation": null,
+    "first_observation": "2026-10-06",
+    "last_observation": "2026-10-06",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "policy": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
-    "delta_expectancy": null,
+    "delta_expectancy": 0.0,
     "ci": [
      null,
      null
     ],
-    "outlier_trims": {},
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
     "time_windows": [],
-    "regimes": [],
+    "regimes": [
+     "vix_normal"
+    ],
     "max_sector_share_fired": null,
     "dominant_sector_fired": null,
     "abstention": {
@@ -86,9 +122,9 @@
      "avoided_losses": 0,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": null,
+     "net_value_of_abstention": 0.0,
      "precision": null,
-     "false_positive_rate": null
+     "false_positive_rate": 0.0
     }
    },
    "post_promotion_evidence": null,
@@ -120,9 +156,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig"
    ],
-   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -133,19 +169,39 @@
     "alpha_effective": 0.0008333333333333334
    },
    "evidence": {
-    "n_observations": 0,
-    "n_independent_dates": 0,
+    "n_observations": 1,
+    "n_independent_dates": 1,
     "calendar_span_days": 0,
-    "first_observation": null,
-    "last_observation": null,
+    "first_observation": "2026-10-06",
+    "last_observation": "2026-10-06",
     "data_kind": "prospective_forward",
-    "n_fired": 0,
-    "n_fired_independent_dates": 0,
+    "n_fired": 1,
+    "n_fired_independent_dates": 1,
     "all": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "not_fired": {
      "n": 0
@@ -160,20 +216,22 @@
     ],
     "outlier_trims": {},
     "time_windows": [],
-    "regimes": [],
-    "max_sector_share_fired": null,
-    "dominant_sector_fired": null,
+    "regimes": [
+     "vix_normal"
+    ],
+    "max_sector_share_fired": 1.0,
+    "dominant_sector_fired": "Technology",
     "abstention": {
-     "n_blocked": 0,
-     "blocked_trade_win_rate": null,
-     "blocked_trade_expectancy": null,
-     "blocked_trade_mean_return": null,
-     "avoided_losses": 0,
+     "n_blocked": 1,
+     "blocked_trade_win_rate": 0.0,
+     "blocked_trade_expectancy": -0.5079,
+     "blocked_trade_mean_return": -0.5079,
+     "avoided_losses": 0.5079,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": null,
-     "precision": null,
-     "false_positive_rate": null
+     "net_value_of_abstention": 0.5079,
+     "precision": 1.0,
+     "false_positive_rate": 0.0
     }
    },
    "post_promotion_evidence": null,
@@ -205,9 +263,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -218,34 +276,70 @@
     "alpha_effective": 0.0008333333333333334
    },
    "evidence": {
-    "n_observations": 0,
-    "n_independent_dates": 0,
+    "n_observations": 1,
+    "n_independent_dates": 1,
     "calendar_span_days": 0,
-    "first_observation": null,
-    "last_observation": null,
+    "first_observation": "2026-10-06",
+    "last_observation": "2026-10-06",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "policy": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
-    "delta_expectancy": null,
+    "delta_expectancy": 0.0,
     "ci": [
      null,
      null
     ],
-    "outlier_trims": {},
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
     "time_windows": [],
-    "regimes": [],
+    "regimes": [
+     "vix_normal"
+    ],
     "max_sector_share_fired": null,
     "dominant_sector_fired": null,
     "abstention": {
@@ -256,9 +350,9 @@
      "avoided_losses": 0,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": null,
+     "net_value_of_abstention": 0.0,
      "precision": null,
-     "false_positive_rate": null
+     "false_positive_rate": 0.0
     }
    },
    "post_promotion_evidence": null,
@@ -290,9 +384,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -303,34 +397,70 @@
     "alpha_effective": 0.0008333333333333334
    },
    "evidence": {
-    "n_observations": 0,
-    "n_independent_dates": 0,
+    "n_observations": 1,
+    "n_independent_dates": 1,
     "calendar_span_days": 0,
-    "first_observation": null,
-    "last_observation": null,
+    "first_observation": "2026-10-06",
+    "last_observation": "2026-10-06",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "policy": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
-    "delta_expectancy": null,
+    "delta_expectancy": 0.0,
     "ci": [
      null,
      null
     ],
-    "outlier_trims": {},
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
     "time_windows": [],
-    "regimes": [],
+    "regimes": [
+     "vix_normal"
+    ],
     "max_sector_share_fired": null,
     "dominant_sector_fired": null,
     "abstention": {
@@ -341,9 +471,9 @@
      "avoided_losses": 0,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": null,
+     "net_value_of_abstention": 0.0,
      "precision": null,
-     "false_positive_rate": null
+     "false_positive_rate": 0.0
     }
    },
    "post_promotion_evidence": null,
@@ -375,9 +505,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -388,34 +518,70 @@
     "alpha_effective": 0.0008333333333333334
    },
    "evidence": {
-    "n_observations": 0,
-    "n_independent_dates": 0,
+    "n_observations": 1,
+    "n_independent_dates": 1,
     "calendar_span_days": 0,
-    "first_observation": null,
-    "last_observation": null,
+    "first_observation": "2026-10-06",
+    "last_observation": "2026-10-06",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
     "policy": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.5079,
+     "median_return": -0.5079,
+     "expectancy": -0.5079,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.5079,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4802,
+     "ece": 0.693
     },
-    "delta_expectancy": null,
+    "delta_expectancy": 0.0,
     "ci": [
      null,
      null
     ],
-    "outlier_trims": {},
+    "outlier_trims": {
+     "top1": null,
+     "top3": null,
+     "top5pct": null
+    },
     "time_windows": [],
-    "regimes": [],
+    "regimes": [
+     "vix_normal"
+    ],
     "max_sector_share_fired": null,
     "dominant_sector_fired": null,
     "abstention": {
@@ -426,9 +592,9 @@
      "avoided_losses": 0,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": null,
+     "net_value_of_abstention": 0.0,
      "precision": null,
-     "false_positive_rate": null
+     "false_positive_rate": 0.0
     }
    },
    "post_promotion_evidence": null,
@@ -1392,18 +1558,38 @@
  },
  "evaluation": {
   "CHAMPION_ONLY": {
-   "n": 0,
+   "n": 1,
+   "win_rate": 0.0,
+   "average_return": -0.5079,
+   "median_return": -0.5079,
+   "expectancy": -0.5079,
+   "profit_factor": 0.0,
+   "max_drawdown": -0.5079,
+   "mfe": null,
+   "mae": null,
+   "brier": 0.4802,
+   "ece": 0.693,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 0,
+   "trade_count": 1,
    "missed_winners": 0,
    "avoided_losers": 0
   },
   "ADAPTIVE_ACTUAL": {
-   "n": 0,
+   "n": 1,
+   "win_rate": 0.0,
+   "average_return": -0.5079,
+   "median_return": -0.5079,
+   "expectancy": -0.5079,
+   "profit_factor": 0.0,
+   "max_drawdown": -0.5079,
+   "mfe": null,
+   "mae": null,
+   "brier": 0.4802,
+   "ece": 0.693,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 0,
+   "trade_count": 1,
    "missed_winners": 0,
    "avoided_losers": 0
   },
@@ -1413,25 +1599,25 @@
    "sortino": null,
    "trade_count": 0,
    "missed_winners": 0,
-   "avoided_losers": 0
+   "avoided_losers": 1
   },
   "RANKING": {
    "champion": {
-    "precision_at_1": null,
-    "precision_at_3": null,
-    "mean_return_top1": null,
-    "mean_return_top3": null
+    "precision_at_1": 0.0,
+    "precision_at_3": 0.0,
+    "mean_return_top1": -0.5079,
+    "mean_return_top3": -0.5079
    },
    "intelligence": {
-    "precision_at_1": null,
-    "precision_at_3": null,
-    "mean_return_top1": null,
-    "mean_return_top3": null
+    "precision_at_1": 0.0,
+    "precision_at_3": 0.0,
+    "mean_return_top1": -0.5079,
+    "mean_return_top3": -0.5079
    }
   },
   "data_kind": "prospective_forward_only",
-  "n_resolved_decisions": 0,
+  "n_resolved_decisions": 1,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "d20a4d36a884da684211408adc6b1d59f72c8f53b7672ebb47a0ae3764b45d4d"
+ "state_hash": "62d7f77ae481a1cfc6457ad2c9d7649e6ea301c459e4a4316e81dc20ffd0e309"
 }
