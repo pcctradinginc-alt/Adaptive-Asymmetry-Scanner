@@ -118,7 +118,17 @@ def assess(root: Path | None = None, now: datetime | None = None, data_health: d
         st, d = _fresh(last_s, "shadow_lifecycle", now, "ACTIVE")
         if st == "UNVALIDATED" and sh:
             st, d = "NEED_MORE_DATA", "Shadow-Kandidaten offen, noch kein Horizont erreicht"
-        put("shadow_lifecycle", st, f"{len(sh)} Shadow-Kandidaten, {len(done)} mit Outcome ({d})")
+        detail = f"{len(sh)} Shadow-Kandidaten in der Ansicht, {len(done)} mit Outcome ({d})"
+        try:                                       # Shadow-Ledger (2026-10-09): LOST_BEFORE_EVALUATION muss 0 sein
+            from modules import shadow_ledger as _sl
+            sh_h = _sl.health(now.date(), o / "intelligence" / "shadow_ledger", o / "shadow_trades_archive.jsonl", sh)
+            detail += (f"; Ledger {sh_h['records']} Records, fällig {sh_h['due_outcomes']}, "
+                       f"LOST_BEFORE_EVALUATION {sh_h['lost_before_evaluation']}")
+            if sh_h["lost_before_evaluation"] > 0:
+                st = "DEGRADED"
+        except Exception as e:  # noqa: BLE001 – Ledger unlesbar ist selbst ein Befund
+            st, detail = "BROKEN", detail + f"; Shadow-Ledger unlesbar: {e}"
+        put("shadow_lifecycle", st, detail)
 
     rows = []
     d = o / "intelligence" / "final_mc_ledger"
