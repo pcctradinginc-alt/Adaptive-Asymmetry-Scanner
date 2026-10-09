@@ -310,7 +310,8 @@ class DeepAnalysis:
         ab = {}
         if routing.get("other"):
             for cid in model_routing.sample(list(requests), routing["n"]):
-                ab["ab-" + cid.split("-", 1)[1]] = {**requests[cid], "model": routing["other"]}
+                ab["ab-" + cid.split("-", 1)[1]] = {**requests[cid], "model": routing["other"],
+                                                    "max_tokens": model_routing.max_tokens_for("deep_analysis", routing["other"])}
         results = cost_telemetry.run_batch(client, workflow="deep_analysis", requests={**requests, **ab},
                                            tickers={**tickers, **{k: tickers["da-" + k[3:]] for k in ab}},
                                            max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline)
@@ -328,7 +329,7 @@ class DeepAnalysis:
             pre[idx] = ("done", self._complete(ctx, msg))
             other_msg = results.get("ab-%d" % idx)
             if other_msg is not None:
-                self._record_pair(ctx, raw_ref, other_msg, routing)
+                self._record_pair(ctx, raw_ref, other_msg, routing, ref_msg=msg)
         return pre
 
     def _routing(self) -> dict:
@@ -347,7 +348,7 @@ class DeepAnalysis:
                  f"Stichprobe {n}x {other}")
         return {"active": self._active_model, "other": other, "n": n, "status": dec.get("status")}
 
-    def _record_pair(self, ctx: dict, ref: Optional[dict], other_msg, routing: dict) -> None:
+    def _record_pair(self, ctx: dict, ref: Optional[dict], other_msg, routing: dict, ref_msg=None) -> None:
         try:
             other = self._parse_json(other_msg, ctx["ticker"])
         except Exception:  # noqa: BLE001 – unlesbare Challenger-Antwort zählt als Fehlentscheidung
@@ -355,7 +356,9 @@ class DeepAnalysis:
         g = getattr(cfg, "gates", None)
         cost_telemetry.record(model_routing.pair_row(
             "deep_analysis", ctx["ticker"], ctx["params"]["model"], routing["other"], ref, other,
-            impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3))))
+            impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3)),
+            ref_stop_reason=getattr(ref_msg, "stop_reason", None),         # TRUNCATED -> nicht vergleichbar
+            other_stop_reason=getattr(other_msg, "stop_reason", None)))
 
     def _prepare(self, candidate: dict) -> dict:
         """Baut Prompt, Cache-Schlüssel und Kontext (ohne LLM-Call)."""
@@ -460,7 +463,7 @@ class DeepAnalysis:
         # verarbeitet die API ohne Cache und ohne Aufpreis -> messbar via Telemetrie).
         params = {
             "model":      model,
-            "max_tokens": 1600,
+            "max_tokens": model_routing.max_tokens_for("deep_analysis", model),   # Champion: 1600 (unverändert)
             "system":     [{"type": "text", "text": SYSTEM_PROMPT.format(current_year=_today.year),
                             "cache_control": {"type": "ephemeral"}}],
             "messages":   [{"role": "user", "content": prompt}],

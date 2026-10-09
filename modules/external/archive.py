@@ -125,6 +125,26 @@ class ExternalArchive:
     def _normalized_path(self, source_id: str, month: str) -> Path:
         return self._normalized_dir(source_id) / f"{month}.jsonl"
 
+    @staticmethod
+    def partition_key(observation_time: datetime, partition: str = "monthly") -> str:
+        """Dateischlüssel einer Beobachtung: 'YYYY-MM' (Standard) oder 'YYYY-MM-wN' (weekly, N = Woche im
+        Monat 1..5, Tag 1–7 = w1). Weekly hält schnell wachsende Quellen (nws_forecast ~1,5 MB/Tag) klein;
+        Leser lesen per glob alle *.jsonl einer Quelle – transparent für Consumer (2026-10-09)."""
+        month = observation_time.strftime("%Y-%m")
+        if partition == "weekly":
+            return f"{month}-w{(observation_time.day - 1) // 7 + 1}"
+        return month
+
+    def _existing_rows(self, source_id: str, key: str) -> list:
+        """Bestehende Zeilen für Dedup: Partition + (bei weekly) die Legacy-Monatsdatei desselben Monats."""
+        rows = self._read_jsonl(self._normalized_path(source_id, key))
+        if len(key) > 7:
+            month_file = self._normalized_path(source_id, key[:7])
+            if month_file.exists():
+                rows = rows + [o for o in self._read_jsonl(month_file)
+                               if self.partition_key(o.observation_time, "weekly") == key]
+        return rows
+
     def _health_dir(self) -> Path:
         return self.root / "health"
 
@@ -225,7 +245,7 @@ class ExternalArchive:
 
     def store_observations(self, observations: Iterable[Observation],
                             max_new_normalized_bytes_per_source_per_run: int | None = None,
-                            max_backfill_bytes: int | None = None) -> dict:
+                            max_backfill_bytes: int | None = None, partition: str = "monthly") -> dict:
         """Idempotente Ablage: gleiche Identität + gleicher Wert = duplicate
         (skip); gleiche Identität + anderer Wert = NEUE Vintage-Zeile (nie
         überschreiben).
@@ -251,7 +271,7 @@ class ExternalArchive:
         counts = {"new": 0, "duplicate": 0, "revision": 0}
         by_bucket: dict[tuple[str, str], list[Observation]] = defaultdict(list)
         for obs in observations:
-            month = obs.observation_time.strftime("%Y-%m")
+            month = self.partition_key(obs.observation_time, partition)
             by_bucket[(obs.source_id, month)].append(obs)
 
         buckets_by_source: dict[str, list[tuple[str, list[Observation]]]] = defaultdict(list)
@@ -264,8 +284,7 @@ class ExternalArchive:
             estimated_bytes = 0
 
             for month, obs_list in month_buckets:
-                path = self._normalized_path(source_id, month)
-                existing = self._read_jsonl(path)
+                existing = self._existing_rows(source_id, month)
                 existing_by_key: dict[str, list[Observation]] = defaultdict(list)
                 for o in existing:
                     existing_by_key[o.identity_key()].append(o)
@@ -591,7 +610,7 @@ class ExternalArchive:
             for source_dir in sorted(p for p in norm_root.iterdir() if p.is_dir()):
                 source_id = source_dir.name
                 for path in sorted(source_dir.glob("*.jsonl")):
-                    month = path.stem
+                    month = path.stem[:7]                      # 'YYYY-MM' auch für Wochen-Partitionen
                     if not self._is_closed_month(month, now):
                         continue
                     if not self._months_before_cutoff(month, now, retention_months):

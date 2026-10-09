@@ -1,0 +1,33 @@
+name: Kompatibilität Ubuntu 26.04 (nicht produktiv)
+
+# Vorschau auf den Runner-Wechsel (ubuntu-latest -> Ubuntu 26 ab 2026-10-19). Produktive Workflows sind auf
+# ubuntu-24.04 gepinnt. Dieser Job installiert nur Abhängigkeiten und führt die Tests aus – er schreibt
+# keine Produktionsdaten, committet nichts und verändert keine Trades/Ledger/Reports.
+on:
+  schedule:
+    - cron: '29 4 * * 3'   # wöchentlich Mittwoch
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compat-ubuntu26
+  cancel-in-progress: true
+
+jobs:
+  compat:
+    runs-on: ubuntu-26.04
+    continue-on-error: true      # informativ: rot = Inkompatibilität sichtbar, blockiert nichts
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Abhängigkeiten installieren
+        run: pip install -r requirements.txt pytest
+      - name: Testsuite (ohne Commit/Push)
+        run: python -m pytest -q -p no:cacheprovider

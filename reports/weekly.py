@@ -549,6 +549,13 @@ def collect(root, date, state_path=None) -> dict:
     data["roi_subgates"] = roi_subgate_evidence(history)
     data["universe"] = universe_overview(out_dir)
     data["commodity"] = commodity_overview(out_dir, date)
+    try:                                              # Workflow-Status (Watchdog, rein lesend)
+        from modules import workflow_health as _wh
+        data["workflow_status"] = _wh.weekly_summary(_load_json(out_dir / "state" / "workflow_status.json"),
+                                                     today - timedelta(days=7), today)
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        log.warning(f"Workflow-Status nicht lesbar: {e}")
+        data["workflow_status"] = {}
     try:                                              # LEARNING_HEALTH (rein lesend, gleiche Ableitung wie SystemState)
         from modules import learning_health as _lh
         data["learning_health"] = _lh.assess(root, None, data_health={"commodity": (sys_state or {}).get(
@@ -1216,7 +1223,8 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((1, MONDAY_TITLES[1], [("kv", [
         ("Health", f"{dh.get('status', NA)} · Data Quality {_fv(dh.get('data_quality'))}" if dh else NO_DATA),
         ("Safe Mode", safe_mode_status(st)[1]),
-        ("Drift", f"{dr.get('level', NA)}" + (" – " + "; ".join(map(str, dr.get("reasons") or [])) if dr.get("reasons") else "")),
+        ("Drift", f"{dr.get('level', NA)}" + (" – " + "; ".join(map(str, dr.get("reasons") or [])) if dr.get("reasons") else "")
+                  + drift_input_text(dr)),
         ("Datenquellen", ", ".join(f"{k} {v}" for k, v in cnt.items()) if cnt else NO_DATA),
         ("Champion-Version", f"{cv.get('version', NA)} (ML-Champion: {cv.get('ml_champion') or 'keiner'})" if cv else NO_DATA),
         ("Meta-Modell", f"{meta.get('primary_meta', NA)} v{meta.get('meta_version', NA)}, Verdikt "
@@ -1229,7 +1237,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     ]), ("para", "LEARNING_HEALTH: " + (_d(data.get("learning_health")).get("overall") or NO_DATA)
          + (" – STALLED/BROKEN: " + ", ".join(_d(data.get("learning_health")).get("stalled_or_broken") or [])
             if _d(data.get("learning_health")).get("stalled_or_broken") else "")),
-        ("kv", _learning_rows(data))]))
+        ("kv", _learning_rows(data))] + workflow_status_blocks(data)))
 
     # 2 WHAT THE SYSTEM LEARNED
     tr = [t for t in data.get("promo_transitions") or [] if _recent(t.get("timestamp"), today)]
@@ -1402,6 +1410,35 @@ def _learning_rows(data: dict) -> list:
         return [("LEARNING_HEALTH", NO_DATA)]
     from modules.learning_health import render_lines
     return render_lines(lh)
+
+
+def drift_input_text(dr: dict) -> str:
+    """Nur Kennzeichnung (Drift-Policy unverändert): Stand und Alter des Drift-Inputs."""
+    st = dr.get("drift_input_status")
+    if not st:
+        return ""
+    return (f" · Input-Stand {str(dr.get('drift_input_timestamp') or NA)[:10]} "
+            f"({dr.get('drift_input_age_days', NA)} d, {st})")
+
+
+def workflow_status_blocks(data: dict) -> list:
+    """WORKFLOW STATUS (Watchdog): erwartet vs. tatsächlich, Verzögerung, Recovery, verpasst, stale Upstream.
+    Macht die 6–7 h GitHub-Verzögerung sichtbar, ohne sie mit Systemfehlern zu verwechseln."""
+    ws = _d(data.get("workflow_status"))
+    jobs = _d(ws.get("jobs"))
+    if not jobs:
+        return [("para", "WORKFLOW STATUS: " + NO_DATA + " (Watchdog noch ohne Historie)")]
+    rows = []
+    for job, j in jobs.items():
+        rows.append([job, str(j.get("expected_last") or NA)[11:16] + " UTC", str(j.get("actual_last") or NA)[:16].replace("T", " "),
+                     f"{_fv(j.get('delay_hours_median'))} / {_fv(j.get('delay_hours_max'))} h",
+                     str(j.get("recovered", 0)), str(j.get("missed", 0)), str(j.get("stale_upstream_days", 0))])
+    return [("para", f"WORKFLOW STATUS (letzte 7 Tage, {ws.get('days_covered', 0)} Tage erfasst)"),
+            ("table", ["Workflow", "erwartet", "letzter Lauf", "Verzögerung Median/Max", "recovered",
+                       "verpasst (ohne Recovery)", "Tage mit stale Upstream"], rows, []),
+            ("note", "Verzögerung = GitHub-Scheduler (kein Systemfehler), solange der Tag innerhalb der Frist "
+                     "versorgt ist. Verpasst = Frist überschritten und Tag nicht versorgt; je Workflow und Tag "
+                     "höchstens ein Recovery-Lauf.")]
 
 
 def commodity_blocks(data: dict) -> list:

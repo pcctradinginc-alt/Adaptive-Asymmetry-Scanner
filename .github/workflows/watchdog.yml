@@ -1,0 +1,55 @@
+name: Workflow Watchdog (Missed-Run-Recovery)
+
+# Erkennt verpasste Läufe der kritischen Workflows (External Data, Source Health, Scanner, Feedback) und
+# löst je Workflow und UTC-Tag höchstens EINEN Recovery-Dispatch aus (config/workflow_schedule.yaml,
+# scripts/workflow_watchdog.py). Kein Endlos-Retry; Pflicht-Upstream fehlt -> Downstream wird nicht angestoßen.
+# Grenze: der Watchdog ist selbst ein Cron – fallen ALLE Schedules aus, fällt auch er aus (sichtbar im Report).
+
+on:
+  schedule:
+    - cron: '23 */2 * * *'   # alle 2 h (GitHub-Verzögerung egal: Frist je Workflow in max_delay_hours)
+  workflow_dispatch:
+
+concurrency:
+  group: workflow-watchdog
+  cancel-in-progress: false
+
+permissions:
+  actions: write     # workflow_dispatch für den einen Recovery-Lauf + Run-Liste lesen
+  contents: write    # outputs/state/workflow_status.json
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Watchdog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WATCHDOG_REF: main
+        run: python scripts/workflow_watchdog.py
+
+      - name: Commit workflow status
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: workflow status $(date -u +%Y-%m-%dT%H:%M)" outputs/state/workflow_status.json

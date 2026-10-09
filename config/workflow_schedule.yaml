@@ -1,0 +1,61 @@
+# Erwartete Läufe der kritischen Workflows + Freshness-Gates (Reliability-Maintenance 2026-10-09).
+# GitHub-Crons starten hier regelmäßig 6–7 h verspätet (Beobachtung 2026-10-06..09: External Data ~13:30,
+# Source Health ~19:00, Scanner ~20:00 UTC) und fielen am 2026-10-05 ganz aus. Die Reihenfolge
+# Source Health -> Scanner hängt deshalb nicht mehr an versetzten Cron-Zeiten, sondern an workflow_run +
+# Freshness-Gate (scripts/upstream_guard.py); fehlende Läufe erkennt scripts/workflow_watchdog.py.
+#
+#   cron_utc / days    geplanter Lauf (Mo=0 … So=6, UTC)
+#   max_delay_hours    ab wann ein fehlender Lauf als verpasst gilt (über der beobachteten GitHub-Verzögerung)
+#   artifact           woran "Tag versorgt" erkannt wird (nicht am Run-Status: ein Guard-Skip ist grün,
+#                      versorgt aber nichts)
+#   depends_on         PFLICHT-Upstream: Recovery-Dispatch unterbleibt, solange dieser selbst fehlt
+version: wf-sched-v1
+max_recoveries_per_day: 1            # je Workflow und UTC-Tag höchstens EIN Recovery-Dispatch (kein Endlos-Retry)
+status_keep_days: 21                 # Historie in outputs/state/workflow_status.json
+workflows:
+  external_data:
+    file: external_data.yml
+    cron_utc: "06:17"
+    days: [0, 1, 2, 3, 4, 5, 6]
+    max_delay_hours: 10
+    artifact: {kind: json_any_source_date, path: outputs/external_data/health/source_health.json, field: last_attempt}
+  source_health:
+    file: source_health.yml
+    cron_utc: "12:41"
+    days: [0, 1, 2, 3, 4, 5, 6]
+    max_delay_hours: 9
+    artifact: {kind: json_date, path: outputs/health/source_health_snapshot.json, field: generated}
+    # External Data ist Observability (external_context.mode != production) und KEIN Pflicht-Upstream:
+    # Source Health muss auch bei fehlendem External-Data-Lauf laufen und genau das als STALE melden.
+    depends_on: []
+  scanner:
+    file: scanner.yml
+    cron_utc: "13:30"
+    days: [0, 1, 2, 3, 4]
+    max_delay_hours: 9
+    artifact: {kind: file, path: "outputs/daily_reports/{date}.json"}
+    depends_on: [source_health]
+  feedback:
+    file: feedback.yml
+    cron_utc: "15:30"                  # erster der beiden Crons (15:30 + 19:30)
+    days: [0, 1, 2, 3, 4]
+    max_delay_hours: 8
+    artifact: null                     # kein Tagesartefakt -> erfolgreicher Run zählt
+
+# Freshness-Gates vor kritischen Downstream-Jobs (scripts/upstream_guard.py <job>)
+gates:
+  scanner:
+    # Frühester Start = geplante Scanner-Zeit. workflow_run nach Source Health darf den Scanner nicht vor
+    # seine Handelszeit ziehen (sonst andere Quote-Bedingungen = andere Produktionsentscheidungen).
+    not_before_utc: "13:30"
+    requires:                          # fehlt/zu alt -> UPSTREAM_NOT_READY, Scanner startet nicht
+      - name: source_health_snapshot
+        path: outputs/health/source_health_snapshot.json
+        field: generated
+        max_age_hours: 12              # Snapshot aus dem aktuellen Tageszyklus (Source Health läuft täglich)
+    advisory:                          # nur gemeldet, blockiert nicht (Observability-Quellen)
+      - name: external_data
+        path: outputs/external_data/health/source_health.json
+        field: last_attempt
+        any_source: true
+        max_age_hours: 30
