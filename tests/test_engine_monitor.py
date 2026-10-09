@@ -256,6 +256,7 @@ class TestLearnLoopSanity:
             closed_trades.append({
                 "ticker": f"STOCK{i}",
                 "outcome": outcome,
+                "outcome_method": "option_quote",   # RELIABLE (Freeze-Check nur auf RELIABLE)
                 "features": {
                     "bin_impact": bin_impact,
                     "bin_mismatch": bin_mismatch,
@@ -297,6 +298,7 @@ class TestLearnLoopSanity:
             closed_trades.append({
                 "ticker": f"STOCK{i}",
                 "outcome": outcome,
+                "outcome_method": "option_quote",
                 "features": {
                     "bin_impact": bin_impact,
                     "bin_mismatch": bin_mismatch,
@@ -344,9 +346,11 @@ class TestLearnLoopSanity:
         frozen_warnings = [w for w in result["warnings"] if "eingefroren" in w.lower()]
         assert len(frozen_warnings) == 0
 
-        # frozen sollte False sein (Schwellwert nicht erreicht)
+        # 15 Trades ohne Preismethode = 0 RELIABLE -> Gewichte blockiert, Grund NEED_MORE_DATA
         learn_loop = result["metrics"].get("learn_loop", {})
-        assert learn_loop.get("learn_loop_frozen") is False
+        assert learn_loop.get("weight_update_status") == "NEED_MORE_DATA"
+        assert learn_loop.get("feature_corr_exploratory") == {}          # < 20 Trades: keine Korrelation
+        assert not any("NEED_MORE_DATA" in w for w in result["warnings"])  # Warnung erst ab 20 Trades (wie bisher)
 
 
 # ── d) Data-Health ────────────────────────────────────────────────────────────
