@@ -66,6 +66,7 @@ from modules.data_validator      import validate_candidate_data, compute_option_
 from modules.sentiment_tracker   import enrich_with_sentiment_drift
 from modules.macro_context       import get_macro_context
 from modules.position_sizing     import enrich_with_sizing
+from modules.version import APP_VERSION
 from modules.engine_monitor      import build_health_report, append_markdown_section
 from modules.config              import cfg
 from modules              import candidate_ledger
@@ -375,6 +376,35 @@ def filter_correlated_proposals(
         return proposals
 
 
+def book_proposals(trade_proposals: list[dict], history: dict, today: str, trade_score_min=None) -> int:
+    """Paper-Trades buchen (bestehende Policy: Trade-Gate + 30-Tage-Ticker-Cooldown) und den
+    Buchungsstatus je Vorschlag setzen (Maintenance 2026-10-09: Reports zeigen, ob tatsächlich gebucht
+    wurde – ein bereits offener Ticker erscheint nicht mehr wie ein neuer, unabhängiger Trade)."""
+    _cutoff = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+    cooled_tickers = {
+        t["ticker"] for t in history["active_trades"]
+        if t.get("entry_date", "") >= _cutoff
+    }
+    existing = {(t["ticker"], t.get("entry_date", "")) for t in history["active_trades"]}
+    _open_since = {t["ticker"]: t.get("entry_date") for t in history["active_trades"]}
+    for p in trade_proposals:
+        key = (p["ticker"], today)
+        if key in existing:
+            p["booking"] = {"status": "ALREADY_BOOKED_TODAY", "trade_score_min": trade_score_min}
+            continue
+        if p["ticker"] in cooled_tickers:
+            log.info(f"  [{p['ticker']}] COOLDOWN: aktiv in letzten 30 Tagen → nicht erneut eingetragen")
+            p["booking"] = {"status": "NOT_BOOKED", "reason": "open_position_cooldown_30d",
+                            "open_since": _open_since.get(p["ticker"]), "trade_score_min": trade_score_min}
+            continue
+        _at_dict = build_trade_record(p, today)
+        history["active_trades"].append(_at_dict)
+        existing.add(key)
+        cooled_tickers.add(p["ticker"])
+        p["booking"] = {"status": "BOOKED", "trade_score_min": trade_score_min}
+    return sum(1 for p in trade_proposals if (p.get("booking") or {}).get("status") == "BOOKED")
+
+
 def build_trade_record(p: dict, today: str) -> dict:
     """Trade-Datensatz für history.json – identisch für echte Trades und für
     counterfactual verfolgte (von der Intelligence blockierte) Champion-Trades,
@@ -574,7 +604,7 @@ def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], d
 
 
 def main() -> None:
-    log.info("=== Adaptive Asymmetry-Scanner v8.3 gestartet ===")
+    log.info(f"=== Adaptive Asymmetry-Scanner {APP_VERSION} gestartet ===")
     today   = datetime.utcnow().strftime("%Y-%m-%d")
     _set_run_deadline()
     history = load_history()
@@ -1631,24 +1661,7 @@ def main() -> None:
     if trade_proposals:
         _proposals_ref.append(trade_proposals)
 
-    # Ticker-Cooldown: gleicher Ticker innerhalb von 30 Tagen nicht erneut eintragen
-    _cutoff = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
-    cooled_tickers = {
-        t["ticker"] for t in history["active_trades"]
-        if t.get("entry_date", "") >= _cutoff
-    }
-    existing = {(t["ticker"], t.get("entry_date", "")) for t in history["active_trades"]}
-    for p in trade_proposals:
-        key = (p["ticker"], today)
-        if key in existing:
-            continue
-        if p["ticker"] in cooled_tickers:
-            log.info(f"  [{p['ticker']}] COOLDOWN: aktiv in letzten 30 Tagen → nicht erneut eingetragen")
-            continue
-        _at_dict = build_trade_record(p, today)
-        history["active_trades"].append(_at_dict)
-        existing.add(key)
-        cooled_tickers.add(p["ticker"])
+    stats["booked_trades"] = book_proposals(trade_proposals, history, today, locals().get("trade_score_min"))
 
     _record_final_mc_downstream(
         final_tickers=[p.get("ticker") for p in trade_proposals],
@@ -1684,7 +1697,7 @@ def main() -> None:
             log.info(f"  {reason}: {data['count']}x → [{tickers}]")
     stats["rejects"] = {k: v["count"] for k, v in reject_stats.items()}
 
-    log.info(f"=== Pipeline v8.3 beendet. {len(trade_proposals)} Trade-Vorschläge. ===")
+    log.info(f"=== Pipeline {APP_VERSION} beendet. {len(trade_proposals)} Trade-Vorschläge. ===")
 
 
 if __name__ == "__main__":
