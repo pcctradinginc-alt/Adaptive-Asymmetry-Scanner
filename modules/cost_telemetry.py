@@ -307,6 +307,15 @@ def flush_api_counts(workflow: str, ledger_dir: Path | None = None) -> list[dict
                "quota_usage": round(c["requests"] / lim, 3) if lim else None, "cost_usd": None}
         record(row, ledger_dir)
         rows.append(row)
+    try:                                   # Request-Dedup messbar machen (Hit-Rate je Lauf)
+        from modules import request_cache
+        st = request_cache.stats()
+        if st.get("hit", 0) + st.get("miss", 0) + st.get("bypass", 0):
+            row = {"kind": "request_cache", "workflow": workflow, **st}
+            record(row, ledger_dir)
+            rows.append(row)
+    except Exception as e:  # noqa: BLE001 – Telemetrie bricht nie die Funktion
+        log.debug(f"request_cache-Statistik nicht erfassbar: {e}")
     return rows
 
 
@@ -434,18 +443,172 @@ def budget_status(now: datetime | None = None, ledger_dir: Path | None = None, p
         out["level"] = "WARN"
         order = [s for s in b.get("throttle_order", ["research", "shadow"]) if s != "production"]
         out["throttled_scopes"] = order[:1]          # ab 80 %: zuerst Research reduzieren
+    # API-Kostenziel (2026-10-09): Projektion gegen monthly_api_budget_usd. Weiches Ziel -> zuerst nur
+    # TIER4_OPTIONAL zurückstellen; Produktion (TIER1) und IMPORTANT (TIER2) nie budgetgedrosselt.
+    ab = pol.get("api_budget") or {}
+    proj = projection(load_ledger(today - timedelta(days=45), today + timedelta(days=1), ledger_dir), today)
+    out.update({"projected_month_usd": proj["projected_month_usd"], "cost_today_usd": proj["cost_today_usd"],
+                "monthly_api_budget_usd": ab.get("monthly_api_budget_usd"),
+                "daily_soft_budget_usd": ab.get("daily_soft_budget_usd"), "soft_pressure": False,
+                "deferred_tiers": []})
+    target = ab.get("monthly_api_budget_usd")
+    soft = ab.get("monthly_soft_budget_usd") or target
+    if soft and proj["projected_month_usd"] is not None and proj["projected_month_usd"] > float(soft):
+        out["soft_pressure"] = True
+        out["deferred_tiers"] = ["TIER4_OPTIONAL"]
+        out["warnings"].append(f"Projected monthly API cost ${proj['projected_month_usd']:.2f} > Ziel "
+                               f"${float(soft):.2f} (nur Report + OPTIONAL zurückgestellt; Produktion läuft vollständig)")
+    if out["level"] == "WARN":
+        out["deferred_tiers"] = sorted(set(out["deferred_tiers"]) | {"TIER4_OPTIONAL"})
+    elif out["level"] == "EXCEEDED":
+        out["deferred_tiers"] = ["TIER3_RESEARCH", "TIER4_OPTIONAL"]
     return out
+
+
+# ── Tiers / Projektion / Kostenmatrix (API-Kosten-Optimierung 2026-10-09) ───
+FRESHNESS_PATH = Path("config/data_freshness.yaml")
+TIERS = ("TIER1_PRODUCTION_REQUIRED", "TIER2_IMPORTANT", "TIER3_RESEARCH", "TIER4_OPTIONAL")
+
+
+def _freshness() -> dict:
+    try:
+        import yaml
+        return yaml.safe_load(FRESHNESS_PATH.read_text(encoding="utf-8")) or {}
+    except Exception as e:  # noqa: BLE001 – ohne Datei: Tier aus Scope (konservativ)
+        log.debug(f"data_freshness.yaml nicht ladbar: {e}")
+        return {}
+
+
+def tier_of(workflow: str, pol: dict | None = None) -> str:
+    """Budget-Tier eines Workflows. Unbekannt: aus dem Scope (production -> TIER1, sonst TIER3)."""
+    t = ((_freshness().get("llm_workflows") or {}).get(workflow) or {}).get("tier")
+    if t in TIERS:
+        return t
+    return "TIER1_PRODUCTION_REQUIRED" if scope_of(workflow, pol) == "production" else "TIER3_RESEARCH"
+
+
+def _weekdays(start: date, end: date) -> int:
+    """Anzahl Mo–Fr in [start, end]."""
+    n, d = 0, start
+    while d <= end:
+        n += d.weekday() < 5
+        d += timedelta(days=1)
+    return n
+
+
+def projection(rows: Iterable[dict], today: date, lookback_scan_days: int = 10) -> dict:
+    """cost_today, cost_month_to_date, projected_month_cost (+ nach Provider/Modul/Endpoint).
+    Projektion = MTD + Ø Kosten je Scanner-Tag (letzte <= lookback Scanner-Tage) x verbleibende Handelstage.
+    Scanner-Tag = Tag mit Produktions-LLM-Kosten. Ohne Messung -> None (nie 0)."""
+    rows = [r for r in rows if r.get("kind") == "llm" and r.get("cost_usd") is not None]
+    month_start = today.replace(day=1)
+    next_month = date(today.year + (today.month == 12), today.month % 12 + 1, 1)
+    by_day: dict[date, float] = defaultdict(float)
+    prod_days: set[date] = set()
+    for r in rows:
+        d = r.get("_day") or datetime.fromisoformat(r["ts"]).date()
+        by_day[d] += float(r["cost_usd"])
+        if r.get("scope") == "production":
+            prod_days.add(d)
+    scan_days = sorted(d for d in prod_days if d <= today)[-lookback_scan_days:]
+    per_day = round(sum(by_day[d] for d in scan_days) / len(scan_days), 4) if scan_days else None
+    mtd = round(sum(v for d, v in by_day.items() if month_start <= d <= today), 4)
+    first_open = today if (today not in prod_days) else today + timedelta(days=1)
+    remaining = _weekdays(first_open, next_month - timedelta(days=1)) if first_open < next_month else 0
+    month_rows = [r for r in rows if month_start <= (r.get("_day") or datetime.fromisoformat(r["ts"]).date()) <= today]
+
+    def group(key):
+        g: dict[str, float] = defaultdict(float)
+        for r in month_rows:
+            g[key(r)] += float(r["cost_usd"])
+        return {k: round(v, 4) for k, v in sorted(g.items(), key=lambda kv: -kv[1])}
+    return {"cost_today_usd": round(by_day.get(today, 0.0), 4), "cost_month_to_date_usd": mtd,
+            "cost_per_scanner_day_usd": per_day, "scanner_days_used": len(scan_days),
+            "remaining_scanner_days": remaining,
+            "projected_month_usd": (round(mtd + per_day * remaining, 2) if per_day is not None else None),
+            "by_provider": group(lambda r: r.get("provider") or "anthropic"),
+            "by_module": group(lambda r: r.get("workflow") or "?"),
+            "by_endpoint": group(lambda r: f"{r.get('provider') or 'anthropic'}/{r.get('stage') or '?'}/{r.get('model') or '?'}")}
+
+
+def cost_matrix(rows: list[dict], pol: dict | None = None) -> dict:
+    """Forensische Kostenmatrix je Provider/Endpoint/Consumer, nach Kostenanteil sortiert.
+    LLM: gemessene usage x Listenpreis. Daten-APIs: Request-Zähler; Kosten nur aus Plan (free -> 0,
+    unknown -> None = nicht verfügbar, nie geraten)."""
+    pol = pol or policy()
+    fr = _freshness()
+    runs = {r.get("run_id") for r in rows if r.get("kind") in ("llm", "api") and r.get("run_id")}
+    n_runs = max(1, len(runs))
+    llm: dict[tuple, dict] = {}
+    challengers = {wf: (s or {}).get("challenger") for wf, s in (pol.get("model_routing") or {}).items()}
+    for r in rows:
+        if r.get("kind") != "llm":
+            continue
+        wf = r.get("workflow") or "?"
+        if challengers.get(wf) and r.get("model") == challengers[wf]:
+            wf = "model_routing_ab"                       # A/B-Stichprobe, nicht der Produktionspfad
+        k = ("anthropic", f"messages/{'batch' if r.get('batch') else 'sync'}", wf,
+             r.get("stage") or "?", r.get("model") or "?")
+        a = llm.setdefault(k, {"requests": 0, "tickers": set(), "cost_usd": 0.0, "input_tokens": 0, "output_tokens": 0,
+                               "cache_read": 0, "cache_write": 0, "truncated": 0})
+        a["requests"] += 1
+        a["tickers"].add(r.get("ticker"))
+        a["cost_usd"] += float(r.get("cost_usd") or 0.0)
+        a["input_tokens"] += int(r.get("input_tokens") or 0)
+        a["output_tokens"] += int(r.get("output_tokens") or 0)
+        a["cache_read"] += int(r.get("cache_read_input_tokens") or 0)
+        a["cache_write"] += int(r.get("cache_creation_input_tokens") or 0)
+        a["truncated"] += r.get("stop_reason") == "max_tokens"
+    lookups = sum(1 for r in rows if r.get("kind") == "cache")
+    hits = sum(1 for r in rows if r.get("kind") == "cache" and r.get("hit"))
+    total = sum(a["cost_usd"] for a in llm.values()) or 0.0
+    out = []
+    for (prov, ep, wf, stage, model), a in llm.items():
+        n = a["requests"]
+        out.append({"provider": prov, "endpoint": ep, "consumer": wf, "stage": stage, "model": model,
+                    "requests": n, "requests_per_run": round(n / n_runs, 1), "tickers": len(a["tickers"] - {None}),
+                    "avg_input_tokens": round(a["input_tokens"] / n), "avg_output_tokens": round(a["output_tokens"] / n),
+                    "cost_per_request_usd": round(a["cost_usd"] / n, 5), "cost_per_run_usd": round(a["cost_usd"] / n_runs, 4),
+                    "share": round(a["cost_usd"] / total, 4) if total else None,
+                    "prompt_cache_read_ratio": (round(a["cache_read"] / (a["cache_read"] + a["cache_write"]), 3)
+                                                if a["cache_read"] + a["cache_write"] else None),
+                    "analysis_cache_hit_rate": (round(hits / lookups, 3) if lookups and stage == "deep_analysis" else None),
+                    "truncated": a["truncated"], "tier": tier_of(wf, pol),
+                    "frequency": "je Scanner-Lauf (Mo–Fr)",
+                    "required_freshness": ((fr.get("llm_workflows") or {}).get(wf) or {}).get("class")})
+    api: dict[str, dict] = defaultdict(lambda: {"requests": 0, "errors": 0, "rate_limited": 0, "runs": 0})
+    for r in rows:
+        if r.get("kind") == "api":
+            a = api[r.get("provider") or "?"]
+            a["runs"] += 1
+            for f in ("requests", "errors", "rate_limited"):
+                a[f] += int(r.get(f) or 0)
+    for prov, a in api.items():
+        spec = (pol.get("paid_apis") or {}).get(prov) or {}
+        plan = spec.get("plan", "unknown")
+        out.append({"provider": prov, "endpoint": "REST (alle Endpoints, Prozess-Zähler)", "consumer": "scanner",
+                    "requests": a["requests"], "requests_per_run": round(a["requests"] / max(1, a["runs"]), 1),
+                    "errors": a["errors"], "rate_limited_429": a["rate_limited"], "plan": plan,
+                    "cost_per_request_usd": 0.0 if plan == "free" else None,
+                    "cost_per_run_usd": 0.0 if plan == "free" else None, "share": 0.0 if plan == "free" else None,
+                    "tier": "TIER1_PRODUCTION_REQUIRED", "frequency": "je Scanner-Lauf (Mo–Fr)",
+                    "required_freshness": "REALTIME_OR_DAILY_CRITICAL (Quotes/Chains) / DAILY (Expirations)"})
+    out.sort(key=lambda x: -(x.get("cost_per_run_usd") or 0))
+    return {"runs": n_runs, "total_cost_usd": round(total, 4),
+            "cost_per_run_usd": round(total / n_runs, 4), "rows": out,
+            "top_drivers": [f"{x['consumer']}/{x.get('model', x['provider'])}" for x in out[:5] if x.get("cost_per_run_usd")]}
 
 
 def allow(workflow: str, now: datetime | None = None, ledger_dir: Path | None = None) -> bool:
     """False nur für drosselbare Bereiche (research/shadow) bei Budgetdruck. Produktion: immer True."""
     try:
         scope = scope_of(workflow)
-        if scope == "production":
+        tier = tier_of(workflow)
+        if scope == "production" or tier in ("TIER1_PRODUCTION_REQUIRED", "TIER2_IMPORTANT"):
             return True
         st = budget_status(now, ledger_dir)
-        if scope in st["throttled_scopes"]:
-            log.warning(f"Kosten-Guard: {workflow} ({scope}) pausiert – {'; '.join(st['warnings'])}")
+        if scope in st["throttled_scopes"] or tier in st.get("deferred_tiers", []):
+            log.warning(f"Kosten-Guard: {workflow} ({scope}, {tier}) zurückgestellt – {'; '.join(st['warnings'])}")
             return False
         return True
     except Exception as e:  # noqa: BLE001 – im Zweifel nicht blockieren, Produktion unberührt
@@ -597,6 +760,8 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "budget"
     if cmd == "budget":
         print(json.dumps(budget_status(), indent=2, ensure_ascii=False))
+    elif cmd == "matrix":
+        print(json.dumps(cost_matrix(load_ledger()), indent=2, ensure_ascii=False, default=str))
     elif cmd == "month":
         key = sys.argv[2] if len(sys.argv) > 2 else f"{_now():%Y-%m}"
         print(json.dumps(month_summary(key), indent=2, ensure_ascii=False, default=str))

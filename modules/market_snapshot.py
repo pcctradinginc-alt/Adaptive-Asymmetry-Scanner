@@ -34,6 +34,7 @@ from datetime import datetime, time as dt_time, timezone, date, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
+from modules import request_cache
 
 log = logging.getLogger(__name__)
 
@@ -449,14 +450,15 @@ def fetch_underlying_quotes(tickers: list[str]) -> dict:
 def _fetch_expirations(ticker: str) -> list[str]:
     """Netzwerk isoliert, damit Tests dies monkeypatchen können."""
     try:
-        resp = requests.get(
-            f"{TRADIER_BASE}/markets/options/expirations",
-            params={"symbol": ticker, "includeAllRoots": "true"},
-            headers=_tradier_headers(),
-            timeout=TRADIER_TIMEOUT,
-        )
-        resp.raise_for_status()
-        data  = resp.json()
+        params = {"symbol": ticker, "includeAllRoots": "true"}
+
+        def _get():
+            resp = requests.get(f"{TRADIER_BASE}/markets/options/expirations", params=params,
+                                headers=_tradier_headers(), timeout=TRADIER_TIMEOUT)
+            resp.raise_for_status()
+            return resp.json()
+        # identische Anfrage im selben Lauf (alpha_sources/options_designer) -> einmal abrufen
+        data  = request_cache.cached("tradier", "markets/options/expirations", params, _get)
         dates = data.get("expirations", {}).get("date", []) or []
         if isinstance(dates, str):
             dates = [dates]

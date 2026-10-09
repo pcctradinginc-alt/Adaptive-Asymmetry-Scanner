@@ -201,6 +201,11 @@ def test_tradier_http_helpers(monkeypatch):
     def boom(*a, **k):
         raise OSError("down")
     monkeypatch.setattr(od.requests, "get", boom)
+    # Request-Dedup (2026-10-09): identische Expirations-Anfrage im selben Lauf kommt aus dem Cache,
+    # Chains werden nie wiederverwendet (Fehlerpfad greift sofort).
+    assert od._tradier_expirations("X") == ["2026-12-18"] and od._tradier_chain("X", "d") == []
+    from modules import request_cache
+    request_cache.reset()
     assert od._tradier_expirations("X") == [] and od._tradier_chain("X", "d") == []
     df = od._tradier_chain_to_df([{"option_type": "call", "strike": 10, "greeks": {"mid_iv": 0.0}},
                                   {"option_type": "put", "strike": 10}], "call")

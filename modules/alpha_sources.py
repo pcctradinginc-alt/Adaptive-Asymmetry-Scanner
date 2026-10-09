@@ -36,6 +36,7 @@ from datetime import datetime, timedelta, date
 from typing import Optional
 
 import requests
+from modules import request_cache
 
 log = logging.getLogger(__name__)
 
@@ -554,13 +555,16 @@ def _fetch_skew_tradier(ticker: str, current_price: float, api_key: str) -> Opti
             "Authorization": f"Bearer {api_key}",
             "Accept":        "application/json",
         }
-        resp = requests.get(
-            "https://api.tradier.com/v1/markets/options/expirations",
-            params={"symbol": ticker, "includeAllRoots": "true"},
-            headers=headers, timeout=10,
-        )
-        resp.raise_for_status()
-        all_dates = resp.json().get("expirations", {}).get("date", []) or []
+        params = {"symbol": ticker, "includeAllRoots": "true"}
+
+        def _get():
+            resp = requests.get("https://api.tradier.com/v1/markets/options/expirations",
+                                params=params, headers=headers, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        # identische Anfrage im selben Lauf (options_designer/market_snapshot) -> einmal abrufen
+        all_dates = request_cache.cached("tradier", "markets/options/expirations", params, _get
+                                         ).get("expirations", {}).get("date", []) or []
         if isinstance(all_dates, str):
             all_dates = [all_dates]
 

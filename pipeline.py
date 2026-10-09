@@ -599,7 +599,9 @@ def main() -> None:
         if _ct.install_http_counter():
             atexit.register(_ct.flush_api_counts, "scanner")
         _budget = _ct.budget_status()
-        stats["cost_budget"] = {k: _budget[k] for k in ("level", "week_usd", "month_usd", "warnings")}
+        stats["cost_budget"] = {k: _budget.get(k) for k in ("level", "week_usd", "month_usd", "warnings",
+                                                             "projected_month_usd", "monthly_api_budget_usd",
+                                                             "soft_pressure", "deferred_tiers")}
         for _w in _budget["warnings"]:
             log.warning(f"KOSTEN-GUARD: {_w}")
     except Exception as e:  # noqa: BLE001 – Telemetrie bricht nie den Scan
