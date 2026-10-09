@@ -25,6 +25,7 @@ import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
+from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
 from modules.outcomes import artifact_is_current, class_counts, is_reliable_outcome, outcome_class
 
 log = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ MONDAY_TITLES = {
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
-# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das kalibrierte MC-Band des Kandidaten
+# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das Target-Hit-Score-Band des Kandidaten
 # auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Safe Mode gilt.
 HC_BAND_MIN_N, HC_BAND_MIN_PF, CAL_MIN_N = 20, 1.2, 10
 SCOREBOARD_GROUPS = ("RESEARCH IDEA", "CHALLENGER", "FORWARD VALIDATED", "PROMOTED", "REJECTED")
@@ -1103,13 +1104,14 @@ def _band(mc_hit, calib) -> tuple[str | None, dict]:
 
 
 def _calibrated_p(mc_hit, calib) -> str:
-    """Kalibrierte Trefferquote = realisierte Win Rate des MC-Hit-Rate-Bands (echte Paper-Trades)."""
+    """Realisierte Win Rate des Target-Hit-Score-Bands (echte Paper-Trades, deskriptiv – keine
+    Forward-Kalibrierung; Status siehe LIVE_FORWARD_CALIBRATION)."""
     band, b = _band(mc_hit, calib)
     if band is None:
         return NA
     if (b.get("n") or 0) < CAL_MIN_N:
         return f"{NA} (Band {band}: n={b.get('n', 0)} < {CAL_MIN_N})"
-    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Modell sagte {_num(mc_hit) * 100:.0f}%)"
+    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Target-Hit Score {_num(mc_hit) * 100:.0f}%)"
 
 
 def is_high_confidence(p: dict, data: dict) -> bool:
@@ -1145,7 +1147,9 @@ def _candidate_blocks(p: dict, data: dict) -> list:
                                    f"{_f(lf.get('ml_q90_ret_60'), pct=True, sign=True)}] – ML-Research-Schätzung, "
                                    f"nicht produktiv validiert") if lf.get("ml_exp_ret_60") is not None else NA),
         ("Erwartete Rendite 120d", NA + " (kein Modell)"),
-        ("MC-Band-Wahrscheinlichkeit (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
+        (f"{TARGET_HIT_LABEL} ({calibration_status(data.get('paper_perf'))})",
+         _fv(p.get("mc_hit_rate") or sim.get("hit_rate")) + " – Ranking signal only"),
+        ("Band-Win-Rate des Target-Hit Score (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
         ("Erwarteter Drawdown / MAE", (f"{_f(lf.get('ml_exp_dd_60'), pct=True, sign=True)} (60d, ML-Research)"
                                        if lf.get("ml_exp_dd_60") is not None else NA)),
         ("MFE", NA + " (erst nach Outcome messbar)"),
@@ -1333,7 +1337,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     if active is not False:
         b6.append(("para", "Safe Mode aktiv oder unbekannt: keine positiven Intelligence-Boosts; nur Champion-Entscheidungen."))
     hc = [p for p in props if is_high_confidence(p, data)]
-    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): kalibriertes MC-Band auf echten Paper-Trades "
+    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): Target-Hit-Score-Band mit gemessener Win Rate auf echten Paper-Trades "
                        f"mit n >= {HC_BAND_MIN_N}, Expectancy > 0, Profit Factor >= {HC_BAND_MIN_PF}; kein Safe Mode."))
     if not hc:
         b6.append(("para", NO_TRADE_TEXT))
@@ -1366,8 +1370,9 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     cal = _d(data.get("mc_calibration"))
     if cal:
         b7.append(("para", f"{LIVE_FORWARD_LABEL}: {live_forward_text(data)}. Deskriptive Band-Tabelle "
-                           f"(nur RELIABLE Paper-Trades, vorhergesagte MC-Trefferquote vs. realisierte Win Rate):"))
-        b7.append(("table", ["Band", "n", "vorhergesagt", "realisiert", "Expectancy", "PF"],
+                           f"(nur RELIABLE Paper-Trades, {TARGET_HIT_LABEL} ({UNCALIBRATED}) vs. realisierte Win Rate). "
+                           f"{TARGET_HIT_EXPLANATION}"))
+        b7.append(("table", ["Band", "n", f"Ø {TARGET_HIT_LABEL}", "realisierte Win Rate", "Expectancy", "PF"],
                    [[k, str(_d(v).get("n")), _f(_d(v).get("predicted_hit_rate"), pct=True), _f(_d(v).get("win_rate"), pct=True),
                      _f(_d(v).get("mean"), pct=True, sign=True), _fv(_d(v).get("profit_factor"))] for k, v in cal.items()], []))
     models = _d(ml.get("models"))
