@@ -10,7 +10,7 @@
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-08T19:00:33+00:00",
+  "generated": "2026-10-09T18:30:15+00:00",
   "counts": {
    "HEALTHY": 32,
    "DEGRADED": 3,
@@ -112,7 +112,7 @@
   "version": "scanner_rules@b60b12cedaea"
  },
  "promotion_state": {
-  "generated": "2026-10-08T20:45:21+00:00",
+  "generated": "2026-10-08T23:50:28+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 14
@@ -177,14 +177,14 @@
  "inputs": {
   "model_health": "d33c3a3f5d92",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "1f168bcdfb2e",
-  "promotion": "5bdab4d1e642",
+  "data_health": "bacc8379564a",
+  "promotion": "5290c9fd9e5e",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde"
  },
- "state_version": 19,
- "fingerprint": "4db8906812191acc",
- "updated_at": "2026-10-08T23:50:28+00:00",
- "code_version": "95c1aa423fd2"
+ "state_version": 20,
+ "fingerprint": "85049c23f090cb5e",
+ "updated_at": "2026-10-09T18:30:15+00:00",
+ "code_version": "3be940a85052"
 }
