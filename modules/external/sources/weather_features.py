@@ -18,7 +18,7 @@ from __future__ import annotations
 import statistics
 from collections import defaultdict
 from datetime import date, datetime, timedelta
-from typing import Any, Iterable
+from typing import Iterable
 
 from modules.external.pit import Observation
 
@@ -389,14 +389,12 @@ def pc_insurance_features(exposure_region_codes: list[str],
 
     affected_regions: set[str] = set()
     for feature_name, event in WARNING_METRICS.items():
-        region_hit = False
         count = 0
         for region in exposure_region_codes:
             has = any(o.entity_id == region and o.metric == "alert_count" and o.attrs.get("event") == event
                       and (o.value or 0) > 0 for o in alert_observations)
             if has:
                 count += 1
-                region_hit = True
                 affected_regions.add(region)
         if any(o.entity_id in exposure_region_codes for o in alert_observations):
             out[feature_name] = count

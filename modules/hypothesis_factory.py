@@ -108,8 +108,8 @@ def _finish(h: dict) -> dict:
     rule = f"[{h['signal']}] × Richtung {h['direction']:+d}"
     h["H0"] = (f"H0: {rule} hat keinen Effekt auf {h['primary_metric']} über {h['horizon']} Handelstage "
                f"gegenüber {h['control_group']}.")
-    h["H_alt"] = (f"H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein "
-                  f"Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.")
+    h["H_alt"] = ("H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein "
+                  "Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.")
     h["statement"] = f"{h['title']}: {h['mechanism']}"
     h["rationale"] = h["mechanism"]
     h["spec_hash"] = spec_hash(h)

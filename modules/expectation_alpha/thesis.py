@@ -122,6 +122,21 @@ def entry_not_before(decision_time: str) -> str:
     return (t.date() if t < close else t.date() + timedelta(days=1)).isoformat()
 
 
+def failed_source_domains(ctx: dict, cfg: dict) -> set[str]:
+    """Domänen, deren Gap-Komponenten aus einer im Kontext technisch ausgefallenen optionalen Quelle stammen
+    (derzeit commodity -> oil). Pflichtquellen (Kurse, Archiv) und Rechenfehler setzen bereits alle auf ERROR."""
+    from modules.expectation_alpha.expectation_gap import COMPONENTS
+    where = {e.get("where") for e in ctx.get("errors") or []}
+    if "commodity" not in where:
+        return set()
+    out = set()
+    for dom, spec in (cfg.get("domains") or {}).items():
+        comps = [c for side in ("model", "market") for c in ((spec or {}).get(side) or {}).get("components") or []]
+        if any(COMPONENTS.get(c, ("",))[0] == "commodity" for c in comps):
+            out.add(dom)
+    return out
+
+
 def observation_id(date: str, ticker: str, event_key: str | None) -> str:
     return hashlib.sha256(f"{STAGE}|{date}|{ticker}|{event_key or ''}".encode()).hexdigest()[:16]
 
@@ -141,6 +156,9 @@ def build_thesis(analysis: dict, ctx: dict, cfg: dict, *, impact_min: int, surpr
         errors.append("NEWS_EDGE_FEHLT (impact/surprise)")
     d = direction or 1
     cctx = candidate_context(d, sector, ctx, cfg) if direction is not None else candidate_context(1, None, {}, cfg)
+    failed = sorted(set(cctx["sensitivities"] or {}) & failed_source_domains(ctx, cfg))
+    if failed:                      # Quelle technisch ausgefallen und für diese These relevant -> ERROR, nie ABSTAIN
+        errors.append("DATENFEHLER: Quelle ausgefallen für Domäne " + ", ".join(failed))
     spec, amb = cac.candidate_spec(d, cctx["sector_etf"], cctx["sensitivities"], cfg)
     conf = cac.confirm(spec, ((ctx.get("signals") or {}).get("values") or {}), amb, dampening=cac.dampening_of(cfg))
     reg = ctx.get("regime") or {}
@@ -185,7 +203,9 @@ def build_thesis(analysis: dict, ctx: dict, cfg: dict, *, impact_min: int, surpr
         "expectation_gap": expectation_gap,
         "macro_alignment": cctx["macro_alignment"], "sector_alignment": cctx["sector_alignment"],
         "domain_alignment": cctx["domain_alignment"], "missing_domains": cctx["missing_domains"],
-        "context_status": cctx["context_status"], "group": group_of(news["strength"], cctx["context_status"]),
+        "context_status": cctx["context_status"],
+        # ERROR: Kontext ist ein technisches Teilbild -> nie in A–E (NEWS × CONTEXT), sondern X
+        "group": "X" if dec["status"] == ERROR else group_of(news["strength"], cctx["context_status"]),
         "regime_state": {k: (v or {}).get("state") for k, v in (reg.get("dimensions") or {}).items()},
         "regime_uncertainty": ru, "regime_support": regime_support,
         "regime_dimension": dim, "regime_transition_probability": ((dim_state.get("transition") or {}).get("value")),

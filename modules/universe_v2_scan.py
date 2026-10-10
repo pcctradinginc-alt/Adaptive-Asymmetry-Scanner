@@ -17,7 +17,6 @@ from __future__ import annotations
 import json
 import logging
 from datetime import date, datetime, timezone
-from pathlib import Path
 
 from modules import universe_v2 as uv
 from modules import universe_v2_ledger as v2l

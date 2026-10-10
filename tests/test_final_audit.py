@@ -550,7 +550,7 @@ def _legacy_history(n_legacy=20, n_rel=0):
 
 
 def test_legacy_unknown_outcomes_kept_but_excluded_from_learning():
-    from modules import abstention_proposals, learning_health, rl_environment
+    from modules import abstention_proposals, rl_environment
     from modules.outcomes import class_counts
     import feedback
     h = _legacy_history(20)

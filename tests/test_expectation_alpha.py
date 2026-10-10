@@ -399,9 +399,21 @@ def test_validate_ea_rejects_unsafe_variants():
 
 def test_population_filter_missing_feature_is_out_of_scope():
     c = [c for c in hc.load() if c["hypothesis_id"] == "EA002_CONFIRMATION"][0]
-    assert eal.in_population(c, {"ea_gap_abs_z": 1.5, "ea_confirmation_available": 3})
-    assert not eal.in_population(c, {"ea_gap_abs_z": None, "ea_confirmation_available": 3})
-    assert not eal.in_population(c, {"ea_gap_abs_z": 0.5, "ea_confirmation_available": 3})
+    assert eal.in_population(c, {"ea_gap_abs_z": 1.5, "ea_confirmation_available": 3, "ea_status_valid": 1})
+    assert not eal.in_population(c, {"ea_gap_abs_z": None, "ea_confirmation_available": 3, "ea_status_valid": 1})
+    assert not eal.in_population(c, {"ea_gap_abs_z": 0.5, "ea_confirmation_available": 3, "ea_status_valid": 1})
+    assert not eal.in_population(c, {"ea_gap_abs_z": 1.5, "ea_confirmation_available": 3})     # Status unbekannt
+
+
+def test_error_rows_never_in_any_fired_vs_not_fired_population():
+    """Technische Fehler (ERROR) liefern nie Evidenz: jeder EA-Vertrag schließt ea_status_valid == 0 aus
+    (EA004 über ea_is_wait == 1, WAIT ist nie ERROR)."""
+    env = {"ea_gap_aligned": 1, "ea_gap_abs_z": 2.0, "ea_confirmation_available": 5, "ea_confirmation_ratio": 0.9,
+           "ea_gap_accel_aligned": 1, "ea_news_strong": 1, "ea_context_status": 1, "ea_is_abstain": 0,
+           "ea_is_wait": 0, "ea_selected_is_default": 0, "ea_status_valid": 0}
+    for c in hc.load():
+        if c.get("eligible_stage") == "EA_NEWS_CANDIDATE":
+            assert not eal.in_population(c, env), c["hypothesis_id"]
 
 
 def test_stats_block_ci_and_need_more_data():

@@ -265,7 +265,7 @@ def test_resolve_ports_field_schema_never_sends_hardcoded_outfields(tmp_path):
         ports_daily_metadata_fixture="layer_metadata_ports_daily_alt_casing.json",
     )
     cache_path = str(tmp_path / "portwatch_endpoints.json")
-    connector = mw.PortWatchPortsConnector(http_fetch=fake_fetch, cache_path=cache_path)
+    mw.PortWatchPortsConnector(http_fetch=fake_fetch, cache_path=cache_path)
     # nur die Metadaten-Layer-Fetches werden hier gebraucht; ein Query-Aufruf
     # mit korrekt gecaseten outFields ist Teil des vollen fetch()-Flusses,
     # dieser Test verifiziert nur die Schema-Auflösung selbst (siehe oben) --

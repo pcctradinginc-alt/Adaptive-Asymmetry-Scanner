@@ -93,3 +93,13 @@ def test_evaluation_contains_lead_lag_but_no_production_fields(tmp_path):
     assert rep["lead_lag"]["lead_lag_status"] == "NEED_MORE_DATA"
     assert "Lead-Lag" in (tmp_path / "evaluation.md").read_text()
     assert rep["proposals"]["auto_applied"] is False
+
+
+def test_tercile_split_disjoint_with_ties():
+    p = [{"x": x, "y": float(i)} for i, x in enumerate([0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0])]
+    top, bot, kind = ll._split(p)
+    assert kind == "tercile" and not ({id(q) for q in top} & {id(q) for q in bot})
+    assert [q["x"] for q in top] == [2.0] and [q["x"] for q in bot] == [0.0]
+    q = [{"x": float(i), "y": 0.0} for i in range(9)]                    # ohne Bindungen unverändert
+    t2, b2, _ = ll._split(q)
+    assert [r["x"] for r in t2] == [6.0, 7.0, 8.0] and [r["x"] for r in b2] == [0.0, 1.0, 2.0, 3.0]

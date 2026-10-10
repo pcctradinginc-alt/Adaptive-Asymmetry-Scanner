@@ -151,7 +151,7 @@ class Reporter:
                 ts     = p.get("trade_score", {})
 
                 lines += [
-                    f"---",
+                    "---",
                     f"## {i}. {p['ticker']} – {p.get('strategy', '')}",
                     "",
                     f"**Richtung:** {p.get('direction', '')}  ",
@@ -169,7 +169,7 @@ class Reporter:
                     f"- **48h-Move:** {feat.get('price_move_48h', 'N/A')}",
                     f"- **EPS-Drift:** {feat.get('eps_drift', 'N/A')} ({feat.get('bin_eps_drift', '')})",
                     "",
-                    f"**Asymmetry-Reasoning:**  ",
+                    "**Asymmetry-Reasoning:**  ",
                     f"> {da.get('asymmetry_reasoning', da.get('mispricing_logic', 'N/A'))}",
                     "",
                     f"**Katalysator:** {da.get('catalyst', 'N/A')}  ",

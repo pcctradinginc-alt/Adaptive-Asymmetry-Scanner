@@ -17,8 +17,7 @@ from __future__ import annotations
 import json
 import logging
 import math
-import statistics
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np

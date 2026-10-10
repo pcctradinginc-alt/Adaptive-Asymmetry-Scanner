@@ -326,7 +326,7 @@ def drift_summary(drift) -> dict:
 
 # ── Snapshot / Diff ────────────────────────────────────────────────────────
 def build_snapshot(data: dict) -> dict:
-    ml, meta, hyp, st = data["ml"], data["meta"], data["hyp"], data["meta_state"]
+    ml, meta, hyp = data["ml"], data["meta"], data["hyp"]
     return {
         "date": data["date"],
         "hypotheses": {k: _d(v).get("status") for k, v in _d(_d(hyp).get("hypotheses")).items()},
@@ -1850,7 +1850,7 @@ def expectation_alpha_section(data: dict) -> list:
                             f"kein Gewicht): Status {ll.get('lead_lag_status') or NA}"))
         out.append(("table", ["Feature", "Familie"] + [f"IC {h}T" for h in hs], rows, []))
     fc = _d(ev.get("failure_classes"))
-    out.append(("para", "Fehlerklassen (Primärhorizont, regelbasiert): " + (_ea_counts(fc) if ev else NO_DATA)))
+    out.append(("para", "Fehlerklassen Shadow-TRADE (Primärhorizont, regelbasiert): " + (_ea_counts(fc) if ev else NO_DATA)))
     ds = _d(ev.get("data_status"))
     if ds:
         out.append(("para", f"Datenstatus (letzte {_fv(ds.get('runs'))} Läufe): Fehlerläufe {_fv(ds.get('error_runs'))}; "

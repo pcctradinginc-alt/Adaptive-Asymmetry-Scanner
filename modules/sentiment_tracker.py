@@ -23,7 +23,6 @@ Hinweis: Ab heute sammeln, nach 20+ Einträgen (4 Wochen) auswertbar.
 from __future__ import annotations
 import logging
 from datetime import datetime, timedelta
-from typing import Optional
 
 import numpy as np
 

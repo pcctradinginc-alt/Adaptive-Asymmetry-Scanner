@@ -695,7 +695,6 @@ def test_no_production_module_reads_external_context_key():
     """Statischer Guard: kein Produktions-Entscheidungsmodul darf
     candidate["external_context"] lesen (siehe Aufgabenstellung Punkt 4)."""
     import pathlib
-    import re
     production_modules = [
         "modules/prescreener.py", "modules/deep_analysis.py", "modules/mismatch_scorer.py",
         "modules/mirofish_simulation.py", "modules/quasi_ml.py", "modules/rl_agent.py",

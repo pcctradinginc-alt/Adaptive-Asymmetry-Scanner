@@ -32,7 +32,7 @@ import hashlib
 import json
 import logging
 import math
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
 import numpy as np

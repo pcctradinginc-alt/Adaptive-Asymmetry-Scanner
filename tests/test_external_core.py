@@ -11,7 +11,7 @@ import pytest
 import yaml
 
 from modules.external.pit import (
-    AvailabilityPrecision, Observation, available_as_of, ensure_utc,
+    AvailabilityPrecision, Observation, available_as_of,
 )
 from modules.external.sources.base import ConnectorResult, RawRecord, SourceStatus, Connector
 from modules.external.archive import ExternalArchive

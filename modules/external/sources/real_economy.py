@@ -51,7 +51,7 @@ import re
 from datetime import datetime, timezone
 
 from modules.external import http
-from modules.external.pit import AvailabilityPrecision, Observation, utc_now
+from modules.external.pit import AvailabilityPrecision, Observation
 from modules.external.sources.base import Connector, ConnectorResult, RawRecord, SourceStatus
 from modules.external.sources.road_freight import _DuplicateIdentityError, downgrade_historical_precision
 

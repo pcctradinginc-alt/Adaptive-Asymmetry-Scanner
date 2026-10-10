@@ -92,7 +92,9 @@ def _split(p: list[dict]) -> tuple[list[dict], list[dict], str]:
         return [q for q in p if q["x"] == hi], [q for q in p if q["x"] == lo], "binary"
     v = sorted(q["x"] for q in p)
     t1, t2 = v[len(v) // 3], v[(2 * len(v)) // 3]
-    return [q for q in p if q["x"] >= t2], [q for q in p if q["x"] <= t1], "tercile"
+    # Immer disjunkt: bei Bindungen (t1 == t2) fällt die gebundene Mitte heraus, statt in beiden Gruppen zu zählen
+    return ([q for q in p if q["x"] >= t2 and q["x"] > t1], [q for q in p if q["x"] <= t1 and q["x"] < t2],
+            "tercile")
 
 
 def _spread(p: list[dict]) -> float | None:

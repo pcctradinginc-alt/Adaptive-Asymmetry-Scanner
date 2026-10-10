@@ -25,11 +25,11 @@ import json
 import logging
 import os
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from modules.external import http
-from modules.external.pit import AvailabilityPrecision, Observation, utc_now
+from modules.external.pit import AvailabilityPrecision, Observation
 from modules.external.sources.base import Connector, ConnectorResult, RawRecord, SourceStatus
 
 log = logging.getLogger(__name__)

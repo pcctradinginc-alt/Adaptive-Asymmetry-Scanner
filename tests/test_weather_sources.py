@@ -9,14 +9,14 @@ laufen ohne Netzwerk gegen Fixtures unter tests/fixtures/external/weather/.
 """
 
 import json
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
-from modules.external.pit import AvailabilityPrecision, Observation
+from modules.external.pit import AvailabilityPrecision
 from modules.external.sources import weather as w
 
 FIXTURES = Path(__file__).parent / "fixtures" / "external" / "weather"

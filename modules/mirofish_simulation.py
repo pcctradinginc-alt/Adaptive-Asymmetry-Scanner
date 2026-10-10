@@ -185,7 +185,6 @@ class MirofishSimulation:
         min_hit_rate:   float | None   = None,  # Override interner Threshold (Pre-MC)
     ) -> dict | None:
         ticker   = candidate.get("ticker", "")
-        features = candidate.get("features", {}) or {}
         da       = candidate.get("deep_analysis", {}) or {}
         sim_data = candidate.get("simulation", {}) or {}
 

@@ -3,7 +3,6 @@ Tests for monthly_report.py statistical helpers and output.
 """
 
 import pytest
-from datetime import date
 from monthly_report import (
     dedup_closed_trades,
     rolling_stats,

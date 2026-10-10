@@ -296,7 +296,7 @@ def test_mail_only_on_relevant_change_and_history(tmp_path):
     assert r1["mail"]["status"] == "no_change" and not sent                           # neu + gesund: keine Mail
     r2 = run(good(1), NOW + timedelta(days=1))
     assert r2["mail"]["status"] == "no_change" and not sent                           # unverändert gesund: keine Mail
-    r3 = run([chk(probe=sh._probe_result(reachable=False, error="down"))], NOW + timedelta(days=2))
+    run([chk(probe=sh._probe_result(reachable=False, error="down"))], NOW + timedelta(days=2))
     assert sent and "degradation" in sent[-1] and "safe_mode_on" in sent[-1]
     r4 = run(good(3), NOW + timedelta(days=3))                                         # erst RECOVERING
     assert r4["snapshot"]["sources"]["market_prices"]["status"] == sh.DEGRADED

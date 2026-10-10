@@ -311,7 +311,6 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
         vega_loss      = roi.get("vega_loss", 0) or 0
         breakeven      = roi.get("breakeven", 0) or 0
         breakeven_pct  = roi.get("breakeven_pct", 0) or 0
-        mc_weight      = roi.get("mc_weight", 0) or 0
         ttm            = p.get("time_to_maturation", da.get("time_to_materialization", "–"))
 
         theta_color = "#dc2626" if theta_day_pct > 0.025 else "#ca8a04" if theta_day_pct > 0.015 else "#16a34a"

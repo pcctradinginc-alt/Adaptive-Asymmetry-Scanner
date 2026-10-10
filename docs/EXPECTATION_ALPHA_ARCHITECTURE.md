@@ -190,5 +190,11 @@ Nach jeder Phase: Tests → Review → Fix.
 - **Claims** (nur Logging): `verified_claim_fraction` je Kandidat.
 - **Lead-Lag:** Abschnitt in `evaluation.json`/`.md` und im Montagsbericht.
 - Details, Tests und Risiken: `docs/ROBUSTNESS_LEARNING_V1.md`.
+- Audit 2026-10-10 (`docs/EA_AUDIT_2026-10-10.md`):
+  - Rechen- und Quellenfehler ergeben ERROR, nie ABSTAIN.
+  - Je (Tag, Ticker) gilt die erste eingefrorene Auswertung.
+  - Der WAIT-Trigger wird per Hash verifiziert.
+  - Fehlerklassen zählen nur Shadow-TRADE.
+  - EA002, EA003 und EA005 schließen ERROR aus.
 
 Umsetzungsstand, Testergebnisse, Datenlücken und offene Punkte: `docs/EXPECTATION_ALPHA_V1_REPORT.md`.

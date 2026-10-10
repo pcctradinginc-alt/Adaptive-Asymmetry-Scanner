@@ -18,8 +18,6 @@ Datenquelle: yfinance intraday (1m-Daten des heutigen Tages)
 
 from __future__ import annotations
 import logging
-from datetime import datetime, timezone
-from typing import Optional
 
 import yfinance as yf
 

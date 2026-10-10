@@ -200,7 +200,6 @@ def test_store_roundtrip_preserves_pit_fields(tmp_path):
 
 def test_vectorized_features_equal_reference():
     """features_cik (schnell) == features_for (Referenz) über zufällige Event-Historien."""
-    import numpy as np
     import pandas as pd
     from modules.external.sources import sec_features as sf
     rnd = np.random.default_rng(3)

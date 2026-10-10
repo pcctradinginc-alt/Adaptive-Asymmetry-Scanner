@@ -46,7 +46,6 @@ from typing import Optional
 import requests
 import yfinance as yf
 
-from modules.config   import cfg
 from modules.universe import get_universe
 
 log = logging.getLogger(__name__)

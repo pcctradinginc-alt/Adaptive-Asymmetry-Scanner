@@ -100,15 +100,21 @@ def freeze_contracts(row: dict, valid: dict[str, dict]) -> dict:
 
 def record_candidates(rows: list[dict], *, root: Path | None = None, contracts: list[dict] | None = None,
                       registry: Path | None = None) -> list[dict]:
-    """Append-only, idempotent je observation_id (wiederholter Lauf erzeugt keine Pseudo-Stichprobe)."""
+    """Append-only, idempotent je observation_id. Ein späterer Lauf am selben Tag (z. B. manueller Neustart)
+    erzeugt für einen bereits erfassten Ticker keine weitere Beobachtung, auch wenn das LLM den Katalysator
+    anders formuliert. Die erste, eingefrorene Auswertung gilt (wie final_mc_ledger, keine Pseudo-Stichprobe).
+    Verschiedene Ereignisse desselben Tickers im SELBEN Lauf bleiben getrennte Beobachtungen
+    (Population je Tag/Ticker/Ereignis); die Inferenz clustert sie über Ereignis-Cluster."""
     if not rows:
         return []
     valid = registered_contracts(contracts, registry)
     p = paths(root)["candidates"] / f"{rows[0]['date']}.jsonl"
-    seen = {r.get("observation_id") for r in read_jsonl(p)}
+    old = read_jsonl(p)
+    seen = {r.get("observation_id") for r in old}
+    earlier_tickers = {r.get("ticker") for r in old}
     new = []
     for r in rows:
-        if r["observation_id"] in seen:
+        if r["observation_id"] in seen or r.get("ticker") in earlier_tickers:
             continue
         seen.add(r["observation_id"])
         r["contracts"] = freeze_contracts(r, valid)
@@ -333,6 +339,10 @@ def resolve_outcomes(*, today: date | None = None, root: Path | None = None, bar
                         "resolved_at": today.isoformat(), "decision_date": r["date"], "status": r.get("status")}
                 if v == "immediate":
                     e = {**base, **_path(bars, i0, i1, sign, cost), "entry": "ENTERED"}
+                elif v == "triggered" and not tm.verify_trigger(r.get("wait_trigger") or {}):
+                    stats["trigger_hash_mismatch"] = stats.get("trigger_hash_mismatch", 0) + 1
+                    e = {**base, "entry": "DATA_BAD", "outcome": None, "outcome_net": None,
+                         "integrity": "TRIGGER_HASH_MISMATCH"}       # veränderter Trigger -> nie attribuiert
                 elif v == "triggered":
                     sig = signals_for(r)
                     j = trigger_day(r, sig, bars, i0)

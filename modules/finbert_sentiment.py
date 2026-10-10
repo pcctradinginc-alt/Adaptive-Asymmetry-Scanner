@@ -10,7 +10,6 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -36,7 +35,7 @@ def _load_model():
 
     try:
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
-        import torch
+        import torch  # noqa: F401 – Verfügbarkeitsprüfung vor jedem Download (ohne torch kein Modell)
 
         log.info(f"Lade FinBERT '{_MODEL_NAME}' (Cache: {_CACHE_DIR})...")
         _CACHE_DIR.mkdir(parents=True, exist_ok=True)
