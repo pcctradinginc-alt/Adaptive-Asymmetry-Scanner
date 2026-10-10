@@ -544,7 +544,9 @@ def test_pipeline_blocked_trades_use_same_trade_record():
 RESEARCH_MODULES = ("research_director", "alpha_discovery", "causal_research", "meta_cognition", "research_lab",
                     "meta_learning", "world_model", "counterfactual", "blind_spots", "next_intelligence",
                     "knowledge_graph", "hc_scanner", "decision_intel", "factor_monitor", "trade_memory",
-                    "promotion_controller", "hypothesis_contract", "production_intelligence_adapter")
+                    "promotion_controller", "hypothesis_contract", "production_intelligence_adapter",
+                    # Learning/Evidence Engine (Master-Auftrag 2026-10-10): schreiben nur unter outputs/
+                    "meta_label", "evidence_ledger", "evidence_core", "option_quotes")
 PROTECTED = ("config.yaml", "pipeline.py", "challengers.yaml", "config/", "model_registry", "risk_gates")
 
 

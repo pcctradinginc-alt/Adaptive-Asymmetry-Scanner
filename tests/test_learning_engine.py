@@ -73,6 +73,56 @@ def test_champion_trades_carry_price_type_and_quality():
     assert r["B"]["quality"] != "RELIABLE" and r["B"]["price_type"] == "MODELED"
 
 
+def _jl(path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows))
+
+
+def test_candidate_outcomes_are_not_direction_flipped_twice(tmp_path):
+    """ret_{h}d im Candidate-Ledger ist bereits richtungsbereinigt (_direction_adjusted_return). Ein BEARISH-
+    Kandidat mit +3 % (Kurs fiel) muss +3 % bleiben – Audit 2026-10-10: vorher doppelt negiert."""
+    from modules import candidate_ledger as cl
+    assert cl._direction_adjusted_return(100.0, 97.0, "BEARISH") == pytest.approx(0.03)
+    _jl(tmp_path / "2026-10.jsonl", [
+        {"signal_id": "b1", "ticker": "BB", "direction": "BEARISH", "date": "2026-10-01",
+         "signal_timestamp": "2026-10-01T14:00:00+00:00", "features": {"impact": 7},
+         "outcomes": {"ret_5d": 0.03}},
+        {"signal_id": "u1", "ticker": "UU", "direction": "BULLISH", "date": "2026-10-01",
+         "signal_timestamp": "2026-10-01T14:00:00+00:00", "entry_basis": "next_open",
+         "entry_effective_date": "2026-10-02", "outcomes": {"ret_5d": -0.01}},
+        {"signal_id": "n1", "ticker": "NN", "direction": None, "date": "2026-10-01", "outcomes": {"ret_5d": 0.5}}])
+    r = {x["prediction_id"]: x for x in el.from_candidate_ledger(tmp_path, horizons=(5,))}
+    assert set(r) == {"b1:5d", "u1:5d"}                                   # ohne Richtung kein Meta-Label
+    assert r["b1:5d"]["outcome"] == pytest.approx(0.03) and r["b1:5d"]["outcome_net"] == pytest.approx(0.028)
+    assert r["u1:5d"]["outcome"] == pytest.approx(-0.01) and r["b1:5d"]["direction"] == -1
+    assert r["b1:5d"]["label_available_at"] == "2026-10-07"               # Signaltag + 5 + 1
+    assert r["u1:5d"]["label_available_at"] == "2026-10-08"               # next_open: ab effektivem Entry
+
+
+def test_final_mc_and_ea_adapters_read_real_formats(tmp_path):
+    _jl(tmp_path / "fmc" / "2026-10.jsonl", [{"observation_id": "o1", "ticker": "AA", "timestamp":
+                                              "2026-10-01T15:00:00+00:00", "direction": "BEARISH"}])
+    _jl(tmp_path / "fmc_out.jsonl", [{"observation_id": "o1", "horizon": 5, "outcome": 0.02, "exit_date": "2026-10-06",
+                                      "outcome_method": "x", "resolved_at": "2026-10-09"},
+                                     {"observation_id": "o1", "horizon": 20, "outcome": None}])
+    f = el.from_final_mc(tmp_path / "fmc", tmp_path / "fmc_out.jsonl")
+    assert len(f) == 1 and f[0]["outcome"] == 0.02 and f[0]["direction"] == -1     # richtungsbereinigt übernommen
+    assert f[0]["label_available_at"] == "2026-10-07"                               # Tag nach dem Ausstiegs-Schluss
+    from modules.expectation_alpha import ledger as eal
+    pa = eal.paths(tmp_path / "ea")
+    _jl(pa["candidates"] / "2026-10.jsonl", [{"observation_id": "e1", "ticker": "EE", "decision_time":
+                                              "2026-10-01T20:30:00+00:00", "direction_sign": -1, "env": {"g": 1}}])
+    _jl(pa["outcomes"], [{"observation_id": "e1", "expression": "UNDERLYING", "variant": "immediate", "horizon": 5,
+                          "outcome": 0.01, "outcome_net": 0.008, "exit_date": "2026-10-08", "outcome_method": "m"},
+                         {"observation_id": "e1", "expression": "UNDERLYING", "variant": "wait", "horizon": 5,
+                          "outcome": 0.0, "outcome_net": 0.0, "exit_date": "2026-10-08"},
+                         {"observation_id": "e1", "expression": "UNDERLYING", "variant": "immediate", "horizon": 10,
+                          "outcome": None, "outcome_net": None}])
+    e = el.from_expectation_alpha(tmp_path / "ea")
+    assert len(e) == 1 and e[0]["outcome_net"] == 0.008 and e[0]["label_available_at"] == "2026-10-09"
+    assert e[0]["population"] == "EA_NEWS_CANDIDATE" and e[0]["horizon_unit"] == "trading"
+
+
 # ── meta_label ──────────────────────────────────────────────────────────────
 def test_need_more_data_without_model(tmp_path):
     st = ml.train(recs=_recs(n=50, days=10), root=tmp_path, as_of=D0 + timedelta(days=200))

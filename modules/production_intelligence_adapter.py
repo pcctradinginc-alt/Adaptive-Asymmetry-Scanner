@@ -293,7 +293,8 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
     from modules.final_mc_ledger import CHAMPION_STAGE, stage_of
     contracts = [c for c in contracts if stage_of(c) == CHAMPION_STAGE]
     active, problems = load_verified_state(state_path, contracts, registry, transitions)
-    if kill_switch_active():
+    kill = kill_switch_active()
+    if kill:
         # Not-Aus: alle Verträge weiter auswerten und protokollieren (Shadow), aber nichts anwenden -> Champion
         log.warning("Adapter: KILL SWITCH aktiv (config/production_kill_switch.yaml) – kein Produktionseinfluss")
         active = {k: {**a, "level": "NONE"} for k, a in active.items()}
@@ -358,7 +359,7 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                "active_hypotheses": [k for k, v in d["hypotheses"].items() if v["level"] != "NONE"],
                "hypothesis_versions": {k: v["spec_hash"][:12] for k, v in d["hypotheses"].items()},
                "promotion_levels": {k: v["level"] for k, v in d["hypotheses"].items()},
-               "intelligence": d["hypotheses"], "safe_mode_state": safe_mode,
+               "intelligence": d["hypotheses"], "safe_mode_state": safe_mode, "kill_switch_active": kill,
                "system_state_version": ctx.get("system_state_version"), "drift_level": ctx.get("drift_level"),
                "meta_model_version": (meta_versions or {}).get("meta_model_version"),
                "meta_label": {"p_take": env.get("meta_p_take"), "version": env.get("meta_label_version")},

@@ -47,7 +47,7 @@ werden gekappt.
 intelligence_adjustment {score, score_raw, probability}, final_production_decision, production_score,
 influence_level, abstention_reason, active_hypotheses, hypothesis_versions, promotion_levels,
 intelligence {je Hypothese: spec_hash, level, state, in_scope, evaluable, fired, signal_value, applied},
-safe_mode_state, meta_model_version, meta_label {p_take, version}, size_multiplier (nur bei Sizing-Wirkung),
+safe_mode_state, kill_switch_active, meta_model_version, meta_label {p_take, version}, size_multiplier (nur bei Sizing-Wirkung),
 world_model_version, data_snapshot (vix, env_hash), code_commit, evidence_snapshot, intelligence_rank`; später Outcome in `decision_outcomes.jsonl`.
 
 Damit bleibt jederzeit auswertbar: Was hätte der Champion allein getan, was hätte Intelligence getan,

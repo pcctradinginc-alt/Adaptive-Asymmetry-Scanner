@@ -14,6 +14,10 @@ Regeln:
 * `labeled(..., as_of)` liefert ausschließlich Labels mit label_available_at <= as_of. Das ist der
   Leakage-Schutz für jedes Training.
 * Underlying-Renditen sind PROXY für Options-Trades (price_type UNDERLYING_PROXY), nie realisierte Options-P&L.
+* Alle Quell-Outcomes sind bereits richtungsbereinigt (candidate_ledger `_direction_adjusted_return`,
+  final_mc `path_outcome`, EA `_path`) und werden unverändert übernommen – nie ein zweites Mal mit der Richtung
+  multipliziert.
+* label_available_at = Tag NACH dem Ausstiegs-Schlusskurs (der Schluss ist erst nach Handelsende bekannt).
 """
 from __future__ import annotations
 
@@ -41,6 +45,12 @@ def _day(x) -> date | None:
         return None
 
 
+def _after(x) -> str | None:
+    """Erster Tag, an dem ein Label mit Ausstiegs-Schluss am Tag x bekannt ist (x + 1)."""
+    d = _day(x)
+    return (d + timedelta(days=1)).isoformat() if d else None
+
+
 def _rec(**kw) -> dict:
     base = {"schema": SCHEMA, "features": None, "cost": None, "outcome_net": None, "meta": {}}
     base.update(kw)
@@ -51,8 +61,9 @@ def _rec(**kw) -> dict:
 
 # ── Adapter je Speicher ─────────────────────────────────────────────────────
 def from_candidate_ledger(root: Path | None = None, horizons=(5, 20, 45)) -> list[dict]:
-    """Jeder Kandidat mit Richtung (nach Prescreening). Kalendertag-Horizonte, Underlying-Proxy;
-    Label bekannt am Tag nach dem Horizont-Schluss."""
+    """Jeder Kandidat mit Richtung (nach Prescreening). Kalendertag-Horizonte, Underlying-Proxy.
+    ret_{h}d ist bereits richtungsbereinigt. Label bekannt am Tag nach dem Horizont-Schluss, gerechnet ab dem
+    effektiven Entry-Tag (next_open: nachgetragenes Handelsdatum) – genau wie candidate_ledger.update_outcomes."""
     from modules import candidate_ledger as cl
     root = Path(root or cl.LEDGER_ROOT)
     out = []
@@ -62,10 +73,12 @@ def from_candidate_ledger(root: Path | None = None, horizons=(5, 20, 45)) -> lis
             day = _day(r.get("signal_timestamp") or r.get("date"))
             if d is None or day is None:
                 continue
+            ent = cl._row_entry_dt(r)
+            ent = ent.date() if ent else day
             oc = r.get("outcomes") or {}
             for h in horizons:
                 v = oc.get(f"ret_{h}d")
-                g = None if v is None else d * float(v)
+                g = None if v is None else float(v)             # bereits richtungsbereinigt
                 out.append(_rec(prediction_id=f"{r.get('signal_id')}:{h}d", source_store="candidate_ledger",
                                 population="CANDIDATE", entity=r.get("ticker"),
                                 decision_time=r.get("signal_timestamp"), direction=d,
@@ -73,7 +86,7 @@ def from_candidate_ledger(root: Path | None = None, horizons=(5, 20, 45)) -> lis
                                 outcome=g, outcome_net=None if g is None else round(g - UNDERLYING_COST, 6),
                                 cost=UNDERLYING_COST, outcome_method="underlying_close_daily",
                                 price_type="UNDERLYING_PROXY", quality="PROXY" if g is not None else "UNKNOWN",
-                                label_available_at=(day + timedelta(days=h + 1)).isoformat(),
+                                label_available_at=(max(ent, day) + timedelta(days=h + 1)).isoformat(),
                                 meta={"signal_id": r.get("signal_id"), "status": r.get("status"),
                                       "reject_stage": r.get("reject_stage")}))
     return out
@@ -82,10 +95,14 @@ def from_candidate_ledger(root: Path | None = None, horizons=(5, 20, 45)) -> lis
 def from_final_mc(ledger_dir: Path | None = None, outcomes_path: Path | None = None) -> list[dict]:
     from modules import final_mc_ledger as fml
     rows, outs = fml.read_rows(ledger_dir), fml.read_outcomes(outcomes_path)
+    by_obs: dict = {}
+    for (oid, h), e in outs.items():
+        by_obs.setdefault(oid, []).append((h, e))
     out = []
     for r in rows:
-        for (oid, h), e in outs.items():
-            if oid != r.get("observation_id") or e.get("outcome") is None:
+        oid = r.get("observation_id")
+        for h, e in by_obs.get(oid, []):
+            if e.get("outcome") is None:
                 continue
             out.append(_rec(prediction_id=f"{oid}:{h}d", source_store="final_mc_ledger",
                             population="FINAL_MC_SURVIVOR", entity=r.get("ticker"),
@@ -93,7 +110,7 @@ def from_final_mc(ledger_dir: Path | None = None, outcomes_path: Path | None = N
                             features=None, horizon=int(h), horizon_unit="calendar", outcome=e["outcome"],
                             outcome_net=round(float(e["outcome"]) - UNDERLYING_COST, 6), cost=UNDERLYING_COST,
                             outcome_method=e.get("outcome_method"), price_type="UNDERLYING_PROXY", quality="PROXY",
-                            label_available_at=e.get("exit_date") or e.get("resolved_at")))
+                            label_available_at=_after(e.get("exit_date")) or e.get("resolved_at")))
     return out
 
 
@@ -110,7 +127,7 @@ def from_expectation_alpha(root: Path | None = None) -> list[dict]:
                         direction=r.get("direction_sign"), features=r.get("env"), horizon=int(h),
                         horizon_unit="trading", outcome=e.get("outcome"), outcome_net=e.get("outcome_net"),
                         cost=None, outcome_method=e.get("outcome_method"), price_type="UNDERLYING_PROXY",
-                        quality="PROXY", label_available_at=e.get("exit_date"), meta={"status": r.get("status")}))
+                        quality="PROXY", label_available_at=_after(e.get("exit_date")), meta={"status": r.get("status")}))
     return out
 
 
@@ -141,7 +158,7 @@ def from_champion_trades(history: dict | None = None, history_path: Path | None 
                         cost=(t.get("cost_model") or {}).get("cost_return"),
                         outcome_method=t.get("outcome_method"), price_type=pt,
                         quality="RELIABLE" if is_reliable_outcome(t) else cls,
-                        label_available_at=t.get("close_date")))
+                        label_available_at=_after(t.get("close_date"))))
     return out
 
 

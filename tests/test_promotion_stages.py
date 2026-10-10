@@ -150,6 +150,7 @@ def test_kill_switch_returns_champion_but_keeps_logging(tmp_path, monkeypatch):
     assert all("intelligence_size_multiplier" not in p for p in kept)
     assert all(r["final_production_decision"] == "TRADE" for r in recs)
     assert recs[0]["intelligence_decision"] == "ABSTAIN"                               # weiter ausgewertet + geloggt
+    assert all(r["kill_switch_active"] is True for r in recs)
     assert recs[0]["intelligence"][hc.key(ab)]["fired"] is True
 
 
