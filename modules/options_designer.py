@@ -37,9 +37,11 @@ modules/options_designer.py v10.4
         BULL_CALL_SPREAD wird ab IV-Rank ≥ 52% gewählt (nicht erst bei 85%).
         Bei normaler IV (< 52%) bleibt LONG_CALL, weil Vega-Exposure akzeptabel.
 
-    #3  Probability-weighted ROI: roi_delta × mc_hit_rate.
-        MC Hit-Rate aus quick_mc wird als Wahrscheinlichkeitsgewicht genutzt.
-        Ergebnis: 135%-ROI bei 0.55 Hit-Rate → ~74% realistischer Erwartungswert.
+    #3  Score-gewichteter ROI: roi_delta × Target-Hit Score (quick_mc.hit_rate).
+        Hinweis 2026-10-09: Der Target-Hit Score ist ein UNKALIBRIERTES Ranking-Signal
+        (Underlying erreicht Kursziel), keine Gewinnwahrscheinlichkeit des Options-Trades.
+        Das Produkt ist daher kein kalibrierter Erwartungswert. Logik unverändert
+        (Owner-Entscheidung, siehe docs/TARGET_HIT_SCORE.md).
 
     #6  time_to_materialization wird jetzt explizit aus deep_analysis
         ausgelesen und an _compute_roi + Proposal weitergegeben.
@@ -545,7 +547,7 @@ class OptionsDesigner:
             f"(Catalyst-aligned DTE Gate)"
         )
 
-        # v9.0 #3: MC Hit-Rate für probability-weighted ROI
+        # v9.0 #3: Target-Hit Score (unkalibriert) als ROI-Gewicht – Logik unverändert
         # v10.0 #6: Kein unterer Clamp mehr — 0.30 war künstlich und verbesserte
         # schlechte Signale. Mirofish filtert bereits < threshold (0.45/0.50).
         qmc         = s.get("quick_mc", {}) or {}

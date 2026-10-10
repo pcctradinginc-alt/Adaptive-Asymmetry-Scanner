@@ -921,9 +921,9 @@ def retrain_rl_agent(history: dict) -> None:
 # ── Pearson-Gewichte (Legacy-Support) ────────────────────────────────────────
 
 def compute_pearson_weights(history: dict) -> dict:
-    from modules.outcomes import is_reliable_outcome
+    from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
     closed = [t for t in history.get("closed_trades", []) if is_reliable_outcome(t)]
-    if len(closed) < 5:
+    if len(closed) < MIN_RELIABLE_FOR_WEIGHT_UPDATE:
         return history.get("model_weights", {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20})
 
     outcomes, impacts, mismatches, drifts, entry_days = [], [], [], [], set()
