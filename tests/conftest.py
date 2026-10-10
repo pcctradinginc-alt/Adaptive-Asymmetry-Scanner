@@ -30,3 +30,12 @@ def _isolate_cost_telemetry(tmp_path_factory, monkeypatch):
     # Message Batches nur in Tests, die sie explizit einschalten (sonst würde ein Mock-Client
     # bis zur maximalen Wartezeit gepollt).
     monkeypatch.setattr(ct, "batch_settings", lambda *a, **k: None)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_request_cache():
+    """Prozess-lokaler Request-Cache (modules/request_cache.py) darf keine Antworten zwischen Tests teilen."""
+    from modules import request_cache as rc
+    rc.reset()
+    yield
+    rc.reset()

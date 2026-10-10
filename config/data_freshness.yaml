@@ -1,0 +1,44 @@
+# config/data_freshness.yaml – Freshness-Klassen, max_staleness und Budget-Tier je Datenquelle/Endpoint
+# (API-Kosten-Optimierung 2026-10-09, modules/request_cache.py + modules/cost_telemetry.py).
+#
+# Klassen: REALTIME_OR_DAILY_CRITICAL | DAILY | EVENT_DRIVEN | WEEKLY | MONTHLY | STATIC_OR_SLOW
+# Tiers:   TIER1_PRODUCTION_REQUIRED (läuft immer, nie budgetgedrosselt) | TIER2_IMPORTANT (läuft normal) |
+#          TIER3_RESEARCH (bei Budgetdruck verschiebbar) | TIER4_OPTIONAL (bei Budgetdruck zuerst reduziert)
+# max_staleness_s: wie alt ein wiederverwendeter Wert höchstens sein darf. 0 = nie wiederverwenden,
+#          immer frisch abrufen (Quotes/Chains für Kandidaten und Finalisten).
+# cache_in_run: nur Einträge mit true nutzt der Request-Cache (exakt gleiche Anfrage im selben Prozess).
+# Externe Registry-Quellen (config/external_sources/*.yaml) haben ihre eigene Frequenz-/Staleness-Logik
+# (registry.MAX_AGE_DAYS_BY_FREQUENCY, Connector.is_due) – hier nur die Klasse zur Dokumentation;
+# PIT-/Release-Lag-Logik bleibt dort unverändert.
+version: freshness-v1
+
+endpoints:
+  # ── Marktdaten Scanner (Produktion) ────────────────────────────────────────────────────────────────────
+  tradier/markets/quotes:              {class: REALTIME_OR_DAILY_CRITICAL, max_staleness_s: 0,     tier: TIER1_PRODUCTION_REQUIRED, cache_in_run: false}
+  tradier/markets/options/chains:      {class: REALTIME_OR_DAILY_CRITICAL, max_staleness_s: 0,     tier: TIER1_PRODUCTION_REQUIRED, cache_in_run: false}
+  # Verfallstermine ändern sich nicht innerhalb eines Laufs; neue Expiries erscheinen höchstens täglich.
+  tradier/markets/options/expirations: {class: DAILY,                      max_staleness_s: 21600, tier: TIER1_PRODUCTION_REQUIRED, cache_in_run: true}
+  yfinance/history:                    {class: DAILY,                      max_staleness_s: 0,     tier: TIER1_PRODUCTION_REQUIRED, cache_in_run: false}
+  finnhub/company-news:                {class: REALTIME_OR_DAILY_CRITICAL, max_staleness_s: 0,     tier: TIER1_PRODUCTION_REQUIRED, cache_in_run: false}
+  finnhub/calendar/earnings:           {class: EVENT_DRIVEN,               max_staleness_s: 0,     tier: TIER1_PRODUCTION_REQUIRED, cache_in_run: false}
+  newsapi/everything:                  {class: REALTIME_OR_DAILY_CRITICAL, max_staleness_s: 0,     tier: TIER2_IMPORTANT,           cache_in_run: false}
+  alpha_vantage/query:                 {class: DAILY,                      max_staleness_s: 0,     tier: TIER2_IMPORTANT,           cache_in_run: false}
+  sec/submissions:                     {class: EVENT_DRIVEN,               max_staleness_s: 0,     tier: TIER2_IMPORTANT,           cache_in_run: false}
+  sec/company_tickers:                 {class: STATIC_OR_SLOW,             max_staleness_s: 0,     tier: TIER2_IMPORTANT,           cache_in_run: false}
+  # ── Universe V2 (wöchentliche Discovery, Sonntag) ──────────────────────────────────────────────────────
+  universe_v2/discovery:               {class: WEEKLY,                     max_staleness_s: 0,     tier: TIER3_RESEARCH,            cache_in_run: false}
+  # ── Externe Registry (outputs/external_data, Observability) ────────────────────────────────────────────
+  external/fred_alfred:                {class: MONTHLY,                    max_staleness_s: 0,     tier: TIER3_RESEARCH,            cache_in_run: false}
+  external/eia_weekly:                 {class: WEEKLY,                     max_staleness_s: 0,     tier: TIER3_RESEARCH,            cache_in_run: false}
+  external/cftc_cot:                   {class: WEEKLY,                     max_staleness_s: 0,     tier: TIER3_RESEARCH,            cache_in_run: false}
+  external/imf_portwatch:              {class: WEEKLY,                     max_staleness_s: 0,     tier: TIER3_RESEARCH,            cache_in_run: false}
+  external/nws_forecast:               {class: DAILY,                      max_staleness_s: 0,     tier: TIER3_RESEARCH,            cache_in_run: false}
+
+# LLM-Workflows (einzige gemessene Kosten) -> Tier. Produktion wird nie budgetgedrosselt.
+llm_workflows:
+  prescreening:       {tier: TIER1_PRODUCTION_REQUIRED, class: REALTIME_OR_DAILY_CRITICAL}
+  deep_analysis:      {tier: TIER1_PRODUCTION_REQUIRED, class: REALTIME_OR_DAILY_CRITICAL}
+  # A/B-Stichprobe (Haiku vs. Sonnet) ist der Messpfad für die größte mögliche Einsparung -> IMPORTANT
+  model_routing_ab:   {tier: TIER2_IMPORTANT,           class: DAILY}
+  shadow_relation:    {tier: TIER3_RESEARCH,            class: DAILY}
+  hypothesis_factory: {tier: TIER3_RESEARCH,            class: WEEKLY}

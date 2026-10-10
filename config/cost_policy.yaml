@@ -25,6 +25,7 @@ models:
 
 # Workflow -> Bereich. production = Scanner-Entscheidungspfad; shadow/research = drosselbar.
 scopes:
+  scanner: production              # kind=api-Zähler des Scanner-Prozesses (nur Kennzeichnung)
   prescreening: production
   deep_analysis: production
   shadow_relation: shadow
@@ -37,6 +38,15 @@ budgets:
   monthly_llm_usd: 25.0
   warn_fraction: 0.80
   throttle_order: [research, shadow]
+
+# API-Kostenziel (2026-10-09, docs/API_COST_OPTIMIZATION.md). Projektion = MTD + Ø je Scanner-Tag x
+# verbleibende Handelstage. Über dem Ziel: Report + Warnung + TIER4_OPTIONAL zurückgestellt; RESEARCH erst an
+# den harten Grenzen oben (budgets). TIER1_PRODUCTION_REQUIRED/TIER2_IMPORTANT nie budgetgedrosselt
+# (Tiers: config/data_freshness.yaml).
+api_budget:
+  monthly_api_budget_usd: 10.0
+  monthly_soft_budget_usd: 10.0
+  daily_soft_budget_usd: 0.45      # 10 $ / ~22 Handelstage
 
 # Analyse-Hash-Cache der Deep Analysis.
 #   observe = Hash wird berechnet, mögliche Treffer + Ersparnis protokolliert, Sonnet läuft trotzdem.

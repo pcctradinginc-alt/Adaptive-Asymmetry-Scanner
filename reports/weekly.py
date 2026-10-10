@@ -543,6 +543,14 @@ def collect(root, date, state_path=None) -> dict:
     data["mc_calibration"] = (data["paper_perf"].get("mc_hit_rate_calibration")
                               if artifact_is_current(data["paper_perf"]) else None)
     data["rl_status"] = _load_json(rs / "rl_promotion.json")
+    try:                                              # API-Kosten: Projektion (rein lesend, Ledger)
+        from modules import cost_telemetry as _ct
+        data["api_cost"] = _ct.projection(_ct.load_ledger(today - timedelta(days=45), today + timedelta(days=1),
+                                                          out_dir / "costs"), today)
+        data["api_cost"]["budget_usd"] = (_ct.policy().get("api_budget") or {}).get("monthly_api_budget_usd")
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        log.warning(f"API-Kosten nicht ableitbar: {e}")
+        data["api_cost"] = {}
     data["surprise"] = _load_json(rs / "surprise_study.json")
     data["inquiry"] = _load_json(rs / "inquiry_chains.json")
     try:                                         # Final-MC-Population (eigener Ledger, nie mit Champion verrechnet)
@@ -1280,6 +1288,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
                         f"{_d(meta.get('decision')).get('verdict', NA)} (SHADOW)" if meta else NO_DATA),
         ("Aktive Hypothesen (Research)", str(len(groups["RESEARCH IDEA"]))),
         ("Challenger (prospektiv)", str(len(groups["CHALLENGER"]))),
+        ("Projected monthly API cost", api_cost_text(data)),
         ("Promotete Hypothesen", str(len(groups["PROMOTED"])) + (f" – mit Einfluss: {', '.join(ps.get('with_influence') or [])}"
                                                                  if ps.get("with_influence") else " – kein Produktionseinfluss")),
         ("Drift/Fehler (Warnungen)", ", ".join(sorted({w["code"] for w in data["warnings"]})) or "keine"),
@@ -1460,6 +1469,17 @@ def _learning_rows(data: dict) -> list:
         return [("LEARNING_HEALTH", NO_DATA)]
     from modules.learning_health import render_lines
     return render_lines(lh)
+
+
+def api_cost_text(data: dict) -> str:
+    """Projected monthly API cost (gemessene LLM-Kosten; Daten-APIs Free-Tier) gegen das Kostenziel."""
+    c = _d(data.get("api_cost"))
+    if c.get("projected_month_usd") is None:
+        return NO_DATA
+    bud = c.get("budget_usd")
+    flag = "" if bud is None else (" – über Ziel" if c["projected_month_usd"] > float(bud) else " – im Ziel")
+    return (f"${c['projected_month_usd']:.2f} (Ziel ≤ ${bud}{flag}) · MTD ${c.get('cost_month_to_date_usd', 0):.2f} · "
+            f"je Scanner-Tag ${_fv(c.get('cost_per_scanner_day_usd'))}")
 
 
 def drift_input_text(dr: dict) -> str:

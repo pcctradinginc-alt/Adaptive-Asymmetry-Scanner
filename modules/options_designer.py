@@ -75,6 +75,7 @@ from typing import Optional
 import yfinance as yf
 
 from modules.config              import cfg
+from modules                     import request_cache
 from modules.macro_context       import get_macro_regime_multiplier, get_macro_context
 from modules.mirofish_simulation import MirofishSimulation
 
@@ -364,14 +365,15 @@ def _tradier_headers() -> dict:
 
 def _tradier_expirations(symbol: str) -> list[str]:
     try:
-        resp = requests.get(
-            f"{TRADIER_BASE}/markets/options/expirations",
-            params={"symbol": symbol, "includeAllRoots": "true"},
-            headers=_tradier_headers(),
-            timeout=TRADIER_TIMEOUT,
-        )
-        resp.raise_for_status()
-        data  = resp.json()
+        params = {"symbol": symbol, "includeAllRoots": "true"}
+
+        def _get():
+            resp = requests.get(f"{TRADIER_BASE}/markets/options/expirations", params=params,
+                                headers=_tradier_headers(), timeout=TRADIER_TIMEOUT)
+            resp.raise_for_status()
+            return resp.json()
+        # identische Anfrage im selben Lauf -> einmal abrufen (Chains/Quotes bleiben immer frisch)
+        data  = request_cache.cached("tradier", "markets/options/expirations", params, _get)
         dates = data.get("expirations", {}).get("date", []) or []
         if isinstance(dates, str):
             dates = [dates]
