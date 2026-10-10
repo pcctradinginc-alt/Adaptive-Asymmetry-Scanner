@@ -7,10 +7,10 @@ modules/email_reporter.py v8.3
         Trader sieht jetzt nicht nur ROI, sondern auch wie empfindlich
         der Trade auf Seitwärtsbewegung und IV-Crush reagiert.
 
-    #7  MC-Probabilitäten im Report:
-        Hit-Rate aus Monte Carlo (P(Kurs > Ziel)) und Catalyst-Confidence
-        werden als separater Block angezeigt. Macht Wahrscheinlichkeits-
-        grundlage für den ROI transparent.
+    #7  MC-Kennzahlen im Report:
+        Target-Hit Score aus Monte Carlo (Anteil Pfade mit Kurs > Ziel; unkalibriertes
+        Ranking-Signal, keine Gewinnwahrscheinlichkeit) und Catalyst-Confidence
+        werden als separater Block angezeigt.
 
 Änderungen v8.2:
     - Integration der Exit-Regeln (Take-Profit, Stop-Loss, Time-Exit)
@@ -27,6 +27,8 @@ from datetime import datetime
 from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
 
 from modules.config import cfg
 
@@ -296,6 +298,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
         # gemessene Band-Kalibrierung (dieselbe Funktion wie der Montagsreport).
         mc_color = "#78350f"
         mc_calibrated = _calibrated_line(mc_hit_rate_pct)
+        mc_status = _score_calibration_status()
         cat_str  = f"{cat_conf}/10" if cat_conf is not None else "–"
 
         # Implied Move Row
@@ -323,10 +326,10 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
 
         prob_html = f"""
         <div style="margin-top:8px;padding:10px 14px;background:#fefce8;border:1px solid #fde68a;border-radius:6px;font-size:12px;">
-          <b style="color:#92400e;">📊 Wahrscheinlichkeiten &amp; Katalysator</b>
+          <b style="color:#92400e;">📊 Ranking-Kennzahlen &amp; Katalysator</b>
           <table style="width:100%;margin-top:6px;font-size:12px;color:#78350f;border-collapse:collapse;">
             <tr>
-              <td style="padding:2px 8px 2px 0;"><b>MC Hit-Rate:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> (Modell, P Kurs &gt; Ziel)<br><b>Kalibriert:</b> {mc_calibrated}</td>
+              <td style="padding:2px 8px 2px 0;"><b>{TARGET_HIT_LABEL}:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> ({mc_status}) – Ranking signal only<br><b>Band-Win-Rate (Paper-Trades, deskriptiv):</b> {mc_calibrated}</td>
               <td style="padding:2px 8px 2px 0;"><b>Catalyst-Konfidenz:</b> {cat_str}</td>
             </tr>
             <tr>
@@ -561,12 +564,21 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
 </div></body></html>"""
 
 
-# Audit P1-4/P1-9: Die MC-Trefferquote ist eine Modellgröße, keine kalibrierte
-# Gewinnwahrscheinlichkeit. Kalibrierung = realisierte Win Rate je MC-Band aus
-# outputs/research/paper_performance_analysis.json (scripts/paper_performance_analysis.py).
-MC_CALIBRATION_NOTE = ("⚠️ MC Hit-Rate ist NICHT kalibriert – keine Gewinnwahrscheinlichkeit. "
-                       "Maßgeblich ist die kalibrierte Quote (realisierte Win Rate des Bands).")
+# Audit P1-4/P1-9 + Reporting 2026-10-09: Der Target-Hit Score (simulation.hit_rate) ist ein
+# unkalibriertes Ranking-Signal (Underlying erreicht Kursziel), keine Gewinnwahrscheinlichkeit.
+# Band-Win-Rate = realisierte Win Rate je Score-Band aus
+# outputs/research/paper_performance_analysis.json (deskriptiv, keine Forward-Kalibrierung).
+MC_CALIBRATION_NOTE = "⚠️ " + TARGET_HIT_EXPLANATION
 CALIBRATION_PATH = Path("outputs/research/paper_performance_analysis.json")
+
+
+def _score_calibration_status() -> str:
+    try:
+        pp = json.loads(CALIBRATION_PATH.read_text()) if CALIBRATION_PATH.exists() else None
+        return calibration_status(pp)
+    except (OSError, ValueError) as e:
+        log.warning(f"Kalibrierungsstatus nicht ladbar ({e})")
+        return UNCALIBRATED
 
 
 def _calibrated_line(mc_hit) -> str:

@@ -14,6 +14,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED
 
 log = logging.getLogger(__name__)
 
@@ -138,6 +139,7 @@ class Reporter:
         if not proposals:
             lines.append("_Kein Signal heute. Alle Gates haben blockiert._")
         else:
+            lines += [f"> {TARGET_HIT_EXPLANATION}", ""]
             for i, p in enumerate(proposals, 1):
                 da     = p.get("deep_analysis", {})
                 sim    = p.get("simulation", {})
@@ -173,7 +175,8 @@ class Reporter:
                     f"**Severity:** {da.get('bear_case_severity', 'N/A')}/10",
                     "",
                     "### Monte-Carlo Simulation",
-                    f"- **Hit-Rate:** {sim.get('hit_rate', 0):.1%} ({sim.get('n_paths', 0):,} Pfade)",
+                    f"- **{TARGET_HIT_LABEL} ({UNCALIBRATED}):** {sim.get('hit_rate', 0):.1%} "
+                    f"({sim.get('n_paths', 0):,} Pfade) – Ranking signal only, keine Gewinnwahrscheinlichkeit",
                     f"- **Target-Preis:** ${sim.get('target_price', 0):.2f}",
                     f"- **Aktueller Preis:** ${sim.get('current_price', 0):.2f}",
                     f"- **σ:** {sim.get('sigma', sim.get('sigma_adj', 0)):.4f}",
