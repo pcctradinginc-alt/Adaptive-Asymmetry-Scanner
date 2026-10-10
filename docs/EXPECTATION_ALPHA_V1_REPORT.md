@@ -116,7 +116,9 @@ Lokaler Registrierungstest gegen eine Kopie der echten Registry: alle sieben `VA
   - Evaluation, Ledger und Laufprotokoll werden geschrieben.
 
 ### 6a. Ergebnis volle Suite
-(wird nach dem finalen Lauf eingetragen)
+- `python -m pytest -q` auf dem finalen Code: **1798 passed, 1 skipped** (12:15 min).
+- Nachlauf der EA-, Reporting- und Promotion-Tests mit der finalen Config: 106 passed.
+- Lint (`pyflakes`): Alle neuen Dateien sind sauber. Die verbliebenen Warnungen in `pipeline.py`, `promotion_controller.py`, `weekly.py` und `email_reporter.py` stammen aus dem Bestand und wurden nicht geändert.
 
 ## 7. Im Audit gefundene und behobene Fehler (vor jeder Registrierung)
 1. **Velocity-Einheit:** `Δ3M/3` mischte ein 4,33-Wochen- mit einem 4-Wochen-Fenster; lineare Reihen zeigten dadurch eine Scheinbeschleunigung. Jetzt gilt `Δ3M × 4/13`.
