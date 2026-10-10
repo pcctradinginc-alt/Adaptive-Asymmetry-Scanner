@@ -28,7 +28,9 @@ from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from modules.booking_labels import booking_text
 from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
+from modules.version import APP_VERSION
 
 from modules.config import cfg
 
@@ -184,7 +186,7 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
     status_text = "Trade Empfehlung" if trades > 0 else "Kein Trade heute"
 
     funnel = [
-        (f"{stats.get('universe', 0)} Ticker im Universum", "📋", True),
+        (f"{stats.get('universe', 0)} Ticker im Universum (Rohliste vor Filtern)", "📋", True),
         (f"{stats.get('candidates', 0)} nach Hard-Filter (Cap>2B, Vol>1M)", "🔍", stats.get("candidates", 0) > 0),
         (f"{stats.get('sector_ok', stats.get('candidates', 0))} nach Sector-Momentum", "📈", stats.get("sector_ok", stats.get("candidates", 0)) > 0),
         (f"{stats.get('prescreened', 0)} nach Prescreening (Haiku)", "🤖", stats.get("prescreened", 0) > 0),
@@ -224,14 +226,14 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
     <div style="font-size:28px;margin-bottom:6px;">{status_icon}</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">Adaptive Asymmetry-Scanner</div>
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">{status_text}</div>
-    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; v8.3</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; {APP_VERSION}</div>
   </div>
   <div style="padding:24px 32px;">
     <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">{rows}</table>
     {_external_context_html()}
   </div>{health_html}
   <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
-    Adaptive Asymmetry-Scanner v8.3 &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
+    Adaptive Asymmetry-Scanner {APP_VERSION} &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
   </div>
 </div></body></html>"""
 
@@ -528,6 +530,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
               {ts_grade}&nbsp;·&nbsp;{ts_total}/100
             </span>
           </div>
+          <div style="font-size:12px;color:#475569;margin-bottom:10px;">{booking_text(p)}</div>
 
           <div style="background:#f8fafc;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#334155;border-left:3px solid {score_color};">
             <span style="color:#16a34a;font-weight:600;">✅ Für:</span> {best_for}<br>
@@ -558,7 +561,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
     <div style="font-size:28px;margin-bottom:6px;">🎯</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">Adaptive Asymmetry-Scanner</div>
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Trade Empfehlung — {len(proposals)} Signal(e)</div>
-    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; v8.3</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; {APP_VERSION}</div>
   </div>
   <div style="padding:24px 32px;">{cards}{_v2_recommendation_html(today)}{_external_context_html()}</div>
 </div></body></html>"""

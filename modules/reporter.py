@@ -16,6 +16,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED
 
+from modules.booking_labels import booking_text
+from modules.version import APP_VERSION
+
 log = logging.getLogger(__name__)
 
 
@@ -152,9 +155,11 @@ class Reporter:
                     f"## {i}. {p['ticker']} – {p.get('strategy', '')}",
                     "",
                     f"**Richtung:** {p.get('direction', '')}  ",
-                    f"**FinalScore (QuasiML, SHADOW – ohne Entscheidungswirkung):** `{p.get('final_score', 0):.4f}`  ",
+                    f"**FinalScore (QuasiML, SHADOW – ohne Entscheidungswirkung; 27 Bin-Kombinationen, "
+                    f"Gleichstände möglich):** `{p.get('final_score', 0):.4f}`  ",
                     f"**IV-Rank:** {p.get('iv_rank', 'N/A')}  ",
                     f"**Trade-Score:** {ts.get('total', 'N/A')}/100 — {ts.get('grade', '')}  ",
+                    f"**{booking_text(p)}**  ",
                     "",
                     "### Asymmetry-Analyse",
                     f"- **Impact:** {feat.get('impact', 'N/A')}/10",
@@ -270,7 +275,7 @@ class Reporter:
 
         lines += [
             "",
-            "_Automatisch generiert durch Adaptive Asymmetry-Scanner v8.2_",
+            f"_Automatisch generiert durch Adaptive Asymmetry-Scanner {APP_VERSION}_",
         ]
 
         with open(path, "w", encoding="utf-8") as f:

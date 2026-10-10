@@ -101,10 +101,9 @@ class EntityStore:
         self.path = Path(path)
         self.records: list[EntityRecord] = []
         if self.path.exists():
-            for line in self.path.read_text(encoding="utf-8").splitlines():
-                if line.strip():
-                    ev = json.loads(line)
-                    self._apply(ev)
+            from modules.atomic_io import read_jsonl          # abgeschnittene letzte Zeile (Abbruch) tolerieren
+            for ev in read_jsonl(self.path):
+                self._apply(ev)
 
     def _apply(self, ev: dict) -> None:
         rec = EntityRecord(**ev["record"])
@@ -116,9 +115,8 @@ class EntityStore:
                     r.valid_to = rec.valid_to
 
     def _write(self, ev: dict) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.path, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(ev, ensure_ascii=False, sort_keys=True) + "\n")
+        from modules.atomic_io import append_jsonl            # Zeilenreparatur nach Abbruch (Timeout-Safety)
+        append_jsonl(self.path, [ev], ensure_ascii=False, sort_keys=True)
 
     def open_records(self, entity_id: str, usage: str | None = None) -> list[EntityRecord]:
         return [r for r in self.records if r.entity_id == entity_id and r.valid_to is None
