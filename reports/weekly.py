@@ -88,6 +88,7 @@ SECTION_TITLES = {
     18: "PROMOTION STATUS (Research → Production)",
     19: "RESEARCH FACTORY (Hypothesen, Richtungen, Datenlücken)",
     20: "SPREAD EXECUTION / LIQUIDITY (SHADOW_ONLY)",
+    21: "EXPECTATION ALPHA (SHADOW – Research, keine Handelsempfehlung)",
 }
 
 
@@ -536,6 +537,8 @@ def collect(root, date, state_path=None) -> dict:
     data["week_proposals"] = _week_proposals(out_dir, today)
     data["paper_perf"] = _d(_load_json(rs / "paper_performance_analysis.json"))
     data["spread_exec"] = _d(_load_json(rs / "spread_execution_analysis.json"))
+    data["ea"] = _d(_load_json(out_dir / "expectation_alpha" / "evaluation.json"))
+    data["ea_runs"] = _load_jsonl(out_dir / "expectation_alpha" / "runs.jsonl")[-7:]
     _sel = out_dir / "intelligence" / "spread_execution"
     data["spread_exec_recent"] = [r for f in sorted(_sel.glob("*.jsonl"))[-2:] for r in _load_jsonl(f)
                                   if r.get("kind") == "entry_candidate"
@@ -1679,6 +1682,7 @@ def intelligence_sections(data: dict) -> list:
     out.append((18, SECTION_TITLES[18], promotion_section(data)))
     out.append((19, SECTION_TITLES[19], factory_section(data)))
     out.append((20, SECTION_TITLES[20], spread_execution_section(data)))
+    out.append((21, SECTION_TITLES[21], expectation_alpha_section(data)))
     return out
 
 
@@ -1702,6 +1706,145 @@ def spread_execution_section(data: dict) -> list:
     if sh:
         out.append(("para", "Shadow-Gate diese Woche: " + ", ".join(
             f"{r.get('ticker')} {r.get('ill_bucket')} {r.get('quote_quality')} → {r.get('shadow_verdict')}" for r in sh[-8:])))
+    return out
+
+
+# Expectation Alpha (SHADOW): reine Darstellung von outputs/expectation_alpha/{evaluation.json,runs.jsonl}.
+# Keine Berechnung, kein Schwellenwert, keine Bewertung – nur Formatierung der vorhandenen Felder.
+EA_STATUS_LABEL = {"TRADE": "Shadow-TRADE"}      # nie "Empfehlung": TRADE ist ein Research-Status des EA-Ledgers
+
+
+def _ea_ci(ci) -> str:
+    if isinstance(ci, (list, tuple)) and len(ci) == 2:
+        lo, hi = _num(ci[0]), _num(ci[1])
+        if lo is not None and hi is not None:
+            return f"[{_f(lo, pct=True, sign=True)}, {_f(hi, pct=True, sign=True)}]"
+    return "–"
+
+
+def _ea_eff(s: dict, key: str = "mean") -> str:
+    """Effektwert eines stats_block; NEED_MORE_DATA -> '–' (kein Effekt ausweisen)."""
+    if s.get("status") == "NEED_MORE_DATA":
+        return "–"
+    return _f(s.get(key), pct=True, sign=True)
+
+
+def _ea_stat_line(label: str, s, sym: str = "Δ") -> tuple:
+    s = _d(s)
+    return ("para", f"{label}: n {_fv(s.get('n'))}, Status {s.get('status') or NA}, {sym} {_ea_eff(s)}")
+
+
+def _ea_len(x) -> int:
+    return len(x) if isinstance(x, (list, tuple, set, dict)) else 0
+
+
+def _ea_counts(d, label=None) -> str:
+    d = _d(d)
+    label = label or {}
+    return ", ".join(f"{label.get(k, str(k))} {_fv(v)}" for k, v in d.items()) or "–"
+
+
+def expectation_alpha_section(data: dict) -> list:
+    """Expectation Alpha (SHADOW, Research): Population, letzter Lauf, NEWS × CONTEXT (Primärhorizont),
+    gepaarte Werte, Verträge EA001–EA007, Fehlerklassen, Datenstatus. Rein darstellend; kein Produktionseinfluss."""
+    ev = _d(data.get("ea"))
+    runs = [r for r in (data.get("ea_runs") or []) if isinstance(r, dict)]
+    if not ev and not runs:
+        return [("para", NO_DATA)]
+    out: list = [("note", "SHADOW – Research, keine Handelsempfehlung. Kein Einfluss auf Champion, Scores, Gates oder "
+                          "Sizing. Promotion ausschließlich über die Verträge EA001–EA007 (PromotionController); der "
+                          "Einfluss bleibt NONE. „Shadow-TRADE“ ist ein Research-Status im EA-Ledger.")]
+    pop = _d(ev.get("population"))
+    if pop:
+        out += [("para", f"EA-Ledger (Auswertung vom {ev.get('generated') or NA}, "
+                         f"Primärhorizont {_fv(ev.get('primary_horizon'))} Handelstage):"),
+                ("kv", [("Population n", _fv(pop.get("n"))), ("Signaltage", _fv(pop.get("dates"))),
+                        ("Ereignis-Cluster", _fv(pop.get("event_clusters"))),
+                        ("Status-Verteilung", _ea_counts(pop.get("by_status"), EA_STATUS_LABEL))])]
+    else:
+        out.append(("para", f"EA-Ledger (evaluation.json): {NO_DATA}."))
+    if runs:
+        r = runs[-1]
+        sc = _d(r.get("status_counts"))
+        miss = _d(r.get("missing_counts"))
+        n_ctx, n_run = _ea_len(r.get("errors")), _ea_len(r.get("run_errors"))
+        err_s = "keine" if not (n_ctx or n_run) else (
+            f"{n_ctx} Kontext ({', '.join(sorted({str(_d(x).get('where', NA)) for x in r.get('errors') or []})) or '–'}); "
+            f"{n_run} Lauf ({', '.join(map(str, r.get('run_errors') or [])) or '–'})")
+        out += [("para", f"Letzter EA-Lauf ({r.get('date') or NA}):"),
+                ("kv", [("Kandidaten", _fv(r.get("candidate_count"))), ("Angereichert", _fv(r.get("enriched_count"))),
+                        ("Shadow-TRADE / WAIT / ABSTAIN / ERROR",
+                         " / ".join(_fv(sc.get(k, r.get(f"{a}_count")))
+                                    for k, a in (("TRADE", "shadow_trade"), ("WAIT", "wait"), ("ABSTAIN", "abstain"),
+                                                 ("ERROR", "error")))),
+                        ("Fehlende Domänen", ", ".join(f"{d} ({_fv(v)})" for d, v in sorted(miss.items())) or "keine"),
+                        ("Fehler", err_s),
+                        ("Laufzeit", f"{_fv(r.get('runtime_seconds'))} s")])]
+    else:
+        out.append(("para", f"Letzter EA-Lauf (runs.jsonl): {NO_DATA}."))
+
+    ph = ev.get("primary_horizon")
+    grp = _d(_d(ev.get("groups")).get(str(ph)))
+    out.append(("para", f"NEWS × CONTEXT (Underlying, netto, {_fv(ph)} Handelstage):"))
+    if grp:
+        rows = []
+        for g in sorted(grp, key=str):
+            s = _d(grp[g])
+            need = s.get("status") == "NEED_MORE_DATA"
+            rows.append([str(g), _fv(s.get("n")), str(s.get("status") or NA)] + (
+                ["–"] * 6 if need else
+                [_f(s.get("mean"), pct=True, sign=True), _f(s.get("median"), pct=True, sign=True),
+                 _f(s.get("hit_rate"), pct=True), _f(s.get("mae"), pct=True, sign=True),
+                 _f(s.get("mfe"), pct=True, sign=True), _ea_ci(s.get("ci95"))]))
+        out.append(("table", ["Gruppe", "n", "Status", "Mittel", "Median", "Treffer", "MAE", "MFE", "CI95"], rows, []))
+    else:
+        out.append(("para", NO_DATA))
+
+    vals = _d(ev.get("values"))
+    if vals:
+        ab = _d(vals.get("abstention"))
+        out.append(("para", f"Abstention Δ (nicht ABSTAIN minus alle gültigen, netto): "
+                            f"{_f(ab.get('delta'), pct=True, sign=True) if ab.get('delta') is not None else '–'} "
+                            f"(n alle {_fv(_d(ab.get('all')).get('n'))} [{_d(ab.get('all')).get('status') or NA}], "
+                            f"n behalten {_fv(_d(ab.get('kept')).get('n'))} [{_d(ab.get('kept')).get('status') or NA}])"))
+        wt = _d(vals.get("wait"))
+        pr = _d(wt.get("paired"))
+        nes = _num(wt.get("no_entry_share"))
+        out.append(("para", f"WAIT gepaart (triggered minus immediate, netto): n {_fv(pr.get('n'))}, "
+                            f"Status {pr.get('status') or NA}, Δ {_ea_eff(pr)}, "
+                            f"Anteil ohne Einstieg {_f(nes, pct=True) if nes is not None else '–'} "
+                            f"(aufgelöst {_fv(wt.get('n_resolved'))})"))
+        ex = _d(vals.get("expression"))
+        out += [_ea_stat_line("Expression · Thesis-Qualität (Median aller Expressions)", ex.get("thesis_quality"), "Ø"),
+                _ea_stat_line("Expression · Expression-Qualität (gewählt minus Median)", ex.get("expression_quality")),
+                _ea_stat_line("Expression · Regel vs. Default (gewählt minus UNDERLYING)", ex.get("rule_vs_default")),
+                _ea_stat_line("Kill-Management (kill_managed minus immediate, netto)", vals.get("kill_management"))]
+    else:
+        out.append(("para", f"Gepaarte Werte (Abstention, WAIT, Expression, Kill-Management): {NO_DATA}."))
+
+    cons = [_d(c) for c in ev.get("contracts") or [] if isinstance(c, dict)]
+    if cons:
+        out.append(("table", ["Vertrag", "Zustand", "n", "Tage", "Spanne", "Regime (Anzahl)", "Δ", "CI",
+                              "nächste Anforderung"],
+                    [[str(c.get("key") or NA), str(c.get("state") or NA), _fv(c.get("n")),
+                      _fv(c.get("independent_dates")),
+                      f"{_fv(c.get('span_days'))} T" if c.get("span_days") is not None else NA,
+                      str(_ea_len(c.get("regimes"))) if c.get("regimes") is not None else NA,
+                      _f(c.get("delta"), pct=True, sign=True), _ea_ci(c.get("ci")),
+                      str(c.get("next_requirement") or "–")] for c in cons], []))
+    else:
+        out.append(("para", f"Verträge EA001–EA007: {NO_DATA}."))
+
+    fc = _d(ev.get("failure_classes"))
+    out.append(("para", "Fehlerklassen (Primärhorizont, regelbasiert): " + (_ea_counts(fc) if ev else NO_DATA)))
+    ds = _d(ev.get("data_status"))
+    if ds:
+        out.append(("para", f"Datenstatus (letzte {_fv(ds.get('runs'))} Läufe): Fehlerläufe {_fv(ds.get('error_runs'))}; "
+                            f"fehlende Domänen {_ea_counts(ds.get('missing_domains'))}; "
+                            f"veraltete Komponenten {_ea_counts(ds.get('stale_components'))}; "
+                            f"Median-Laufzeit {_fv(ds.get('median_runtime_seconds'))} s"))
+    else:
+        out.append(("para", f"Datenstatus: {NO_DATA}."))
     return out
 
 

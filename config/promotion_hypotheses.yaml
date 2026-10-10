@@ -946,3 +946,161 @@ contracts:
     - UNIV-V2-SEG-SMALL@v1
     justification: disjunktes Market-Cap-Segment (andere Population)
   spec_hash: 7de9caf0ecc9b06dc845c8c84e623dca503789b9b79cc4ee11e681f2f37cb5a3
+
+# ── Expectation Alpha (EA001–EA007): Population EA_NEWS_CANDIDATE (registriert 2026-10-10, vor jeder Forward-Beobachtung) ──
+# V1 SHADOW: production_class research_only (Leiter ["NONE"]) -> höchstens FORWARD_VALIDATED, nie Einfluss.
+# Population = jeder Deep-Analysis-Kandidat (pipeline.py Stufe 4) je Scanner-Tag, unabhängig von späteren Gates.
+# Outcome = Richtungsrendite des Basiswerts (bzw. der Expression) netto nach Kosten, Einstieg Schluss des
+# Entscheidungstags, 60 Handelstage (sekundär 20/120/250, nur beschreibend). Eine Bonferroni-Familie
+# research_only@EA_NEWS_CANDIDATE × 12 Looks. Schwellen aus Merkmalsdefinitionen, nie aus Outcomes.
+# Architektur: docs/EXPECTATION_ALPHA_ARCHITECTURE.md · Merkmale: modules/expectation_alpha/thesis.contract_env
+- &ea_base
+  hypothesis_id: EA001_EXPECTATION_GAP
+  version: 1
+  title: Expectation Gap in Thesenrichtung
+  created_at: '2026-10-10'
+  registered_at: '2026-10-10T12:00:00Z'
+  forward_start: '2026-10-13T00:00:00Z'
+  created_by: claude-code (Expectation Alpha V1, SHADOW)
+  source_type: causal_research
+  eligible_stage: EA_NEWS_CANDIDATE
+  baseline_population: EA_NEWS_CANDIDATE
+  population_definition: Jeder Deep-Analysis-Kandidat (Stufe 4) je Scanner-Tag (eine Beobachtung je Tag/Ticker/Ereignis), mit verfügbarem primärem Domänen-Gap
+  universe: Deep-Analysis-Kandidaten der Produktionspipeline (US-Aktien S&P 500/Nasdaq-100), vor Bearish-Gate, ISF-Floor, MC, ROI und Adapter
+  population: EA_NEWS_CANDIDATE (nicht Champion-Trades)
+  production_class: research_only
+  maximum_initial_influence: NONE
+  ea_outcome_kind: fired_vs_not_fired
+  direction: 1
+  horizon_days: 60
+  secondary_horizons_days: [20, 60, 120, 250]
+  outcome_horizon: 60 Handelstage ab Schlusskurs des Entscheidungstags (sekundär 20/120/250, nur beschreibend)
+  primary_metric: Netto-Richtungsrendite des Basiswerts (ea_close_to_close_v1, Kosten 2×10 bp) – Δ Expectancy gefeuert vs. alle in der Population
+  secondary_metrics: [win_rate, median_return, profit_factor, mfe, mae, max_drawdown, downside_tail_10pct, triggered_minus_non_triggered]
+  baseline: Alle EA-Kandidaten derselben Periode mit verfügbarem Gap (gefeuert vs. nicht gefeuert innerhalb der Population)
+  minimum_sample_size: 100
+  minimum_independent_dates: 40
+  minimum_calendar_span: 180
+  minimum_independent_event_clusters: 60
+  minimum_regimes: 2
+  sector_scope: [all]
+  regime_scope: [all]
+  promotion_criteria: &ea_promo
+    delta_expectancy_min: 0.0
+    ci_lower_min: 0.0
+    require_outlier_robust: true
+    require_time_windows_positive: 2
+    calibration_not_worse: true
+    max_drawdown_not_worse_by: 0.1
+    min_fired_observations: 30
+    min_fired_independent_dates: 15
+    min_fired_event_clusters: 20
+  demotion_criteria: &ea_demo
+    effect_reversal_ci_upper_max: 0.0
+    integrity_failure: ROLLBACK
+    note: research_only – Einfluss bleibt NONE; Champion-Wirkung nur über neuen Champion-Vertrag per PR
+  research_question: Haben PIT-Expectation-Gaps (Modell-Zukunftszustand minus markt-implizite Erwartung), die zur Thesenrichtung und Sektor-Sensitivität passen, inkrementelle Prognosekraft für News-Kandidaten?
+  economic_rationale: Preise bewegen sich mit Überraschungen gegenüber der eingepreisten Erwartung; ein Kandidat, dessen Makrotreiber vom Markt unterschätzt wird, sollte zusätzlich zur News profitieren.
+  h1: Kandidaten mit Gap in Thesenrichtung haben eine höhere Netto-Rendite als die Gesamtpopulation mit verfügbarem Gap
+  exposure: Makro-Domänen Inflation, Zinsen, Wachstum, Öl (Sektor-Mapping ea-sector-map-v1, NON_PIT)
+  signal_definition: ea_gap_aligned
+  population_filter: ea_gap_aligned >= 0 and ea_status_valid == 1
+  features: [ea_gap_aligned, ea_status_valid]
+  thresholds: {op: '>=', value: 1}
+  failure_condition: Gap-ausgerichtete Kandidaten nicht besser als alle (Δ <= 0 oder CI schließt 0 ein nach Forward-Minimum); Gegenrichtung signifikant -> REJECT
+- <<: *ea_base
+  hypothesis_id: EA002_CONFIRMATION
+  title: Cross-Asset-Bestätigung bei großen Gaps
+  population_definition: EA-Kandidaten mit |Gap-z| >= 1,0 und mindestens 3 verfügbaren Bestätigungssignalen
+  baseline: Alle EA-Kandidaten mit großem Gap und ausreichend Bestätigungssignalen
+  research_question: Verbessert eine hohe Cross-Asset-Bestätigungsquote (>= 0,7) die Outcomes bei ähnlich großen Expectation Gaps?
+  economic_rationale: Ein Gap ohne Marktbewegung kann lange bestehen; bestätigende Bewegungen in Credit, Zinsen, Sektoren und Rohstoffen zeigen, dass der Markt beginnt, die Modellsicht einzupreisen.
+  h1: Bei |Gap-z| >= 1 schneiden Kandidaten mit confirmation_ratio >= 0,7 netto besser ab als alle Kandidaten mit großem Gap
+  exposure: Cross-Asset (Credit, Zinsen, Sektoren, Rohstoffe, Volatilitätsstruktur)
+  signal_definition: ea_confirmation_ratio
+  population_filter: ea_gap_abs_z >= 1.0 and ea_confirmation_available >= 3
+  features: [ea_confirmation_ratio, ea_gap_abs_z, ea_confirmation_available]
+  thresholds: {op: '>=', value: 0.7}
+  failure_condition: Hohe Bestätigung nicht besser als alle großen Gaps nach Forward-Minimum
+- <<: *ea_base
+  hypothesis_id: EA003_ACCELERATION
+  title: Beschleunigung des Gaps in Thesenrichtung
+  population_definition: EA-Kandidaten mit Gap in Thesenrichtung und bekannter Gap-Beschleunigung
+  baseline: Alle gap-ausgerichteten EA-Kandidaten (Level-Baseline)
+  research_question: Liefert die Beschleunigung (letzter Monat schneller als das 3M-Tempo) des Gaps in Thesenrichtung einen Zusatznutzen gegenüber dem Gap-Level allein?
+  economic_rationale: Märkte reagieren auf Änderungsraten; ein sich beschleunigender Gap signalisiert, dass die Abweichung zwischen Fundamentaldaten und Preis zunimmt.
+  h1: Unter gap-ausgerichteten Kandidaten schneiden solche mit Beschleunigung in Thesenrichtung netto besser ab
+  exposure: Dynamik der Makro-Gaps (velocity/acceleration, future_state.roc_frame)
+  signal_definition: ea_gap_accel_aligned
+  population_filter: ea_gap_aligned == 1 and ea_gap_accel_aligned >= 0
+  features: [ea_gap_accel_aligned, ea_gap_aligned]
+  thresholds: {op: '>=', value: 1}
+  failure_condition: Beschleunigung liefert keinen Zusatz zur Level-Baseline nach Forward-Minimum
+- <<: *ea_base
+  hypothesis_id: EA004_WAIT
+  title: Triggerbasierter Einstieg statt Sofort-Einstieg (WAIT)
+  ea_outcome_kind: paired_wait_delta
+  minimum_sample_size: 60
+  minimum_independent_dates: 30
+  minimum_independent_event_clusters: 40
+  population_definition: EA-Kandidaten mit Status WAIT (vorab registrierter Trigger, max. 10 Handelstage)
+  baseline: Gepaart je WAIT-Beobachtung – Sofort-Einstieg am Entscheidungstag, gleicher Ausstiegstag
+  primary_metric: Gepaarte Netto-Differenz (Trigger-Einstieg bzw. Cash ohne Trigger minus Sofort-Einstieg) am gleichen Ausstiegstag
+  research_question: Verbessert der vorab registrierte WAIT-Trigger Rendite und MAE gegenüber dem Sofort-Einstieg?
+  economic_rationale: Fehlende Marktbestätigung erhöht das Risiko früher Verluste; Warten auf Bestätigung kann schlechte Einstiege vermeiden.
+  h1: Für WAIT-Fälle ist die Trigger-Policy netto besser als der Sofort-Einstieg (gepaart)
+  exposure: Timing (Cross-Asset-Bestätigung, Sektor-RS)
+  signal_definition: ea_is_wait
+  population_filter: ea_is_wait == 1
+  features: [ea_is_wait]
+  thresholds: {op: '>=', value: 1}
+  failure_condition: Gepaarte Differenz <= 0 oder CI schließt 0 ein nach Forward-Minimum
+- <<: *ea_base
+  hypothesis_id: EA005_CONTEXT_FILTER
+  title: Starke News mit positivem vs. negativem Kontext
+  population_definition: EA-Kandidaten mit starker News (Champion-ISF-Floor) und Kontext +1 oder −1
+  baseline: Alle starken News mit eindeutigem Kontext (+1 und −1)
+  research_question: Schlagen starke News mit positivem Erwartungs-Kontext starke News mit negativem Kontext?
+  economic_rationale: Eine Nachricht wirkt stärker, wenn das Makro-/Sektorumfeld die These trägt, und wird gedämpft, wenn es ihr entgegensteht.
+  h1: Starke News mit Kontext +1 sind netto besser als alle starken News mit eindeutigem Kontext
+  exposure: News × Kontext (Gruppen A vs. C)
+  signal_definition: ea_context_status
+  population_filter: ea_news_strong == 1 and ea_context_status != 0
+  features: [ea_context_status, ea_news_strong]
+  thresholds: {op: '>=', value: 1}
+  failure_condition: Kontext +1 nicht besser als die Gesamtheit nach Forward-Minimum
+- <<: *ea_base
+  hypothesis_id: EA006_ABSTENTION
+  title: ABSTAIN-Fälle sind schlechter (Abstinenz verbessert Qualität)
+  direction: -1
+  population_definition: Alle EA-Kandidaten mit gültigem Research-Status (TRADE/WAIT/ABSTAIN; ERROR ausgeschlossen)
+  baseline: Alle gültigen EA-Kandidaten (Abstinenz vs. Gesamtheit)
+  primary_metric: Netto-Richtungsrendite – Δ Expectancy nicht abstinierter Kandidaten vs. alle gültigen
+  research_question: Sind Kandidaten, bei denen die deterministische EA-Regel ABSTAIN liefert, schlechter als die übrigen?
+  economic_rationale: Schwache News ohne Kontext, negativer Kontext, hohe Regime-Unsicherheit und widersprüchliche Bestätigung sollten Verlierer anreichern.
+  h1: Ohne ABSTAIN-Fälle ist die Netto-Rendite höher als in der gesamten gültigen Population
+  exposure: Entscheidungsregel (timing.decide)
+  signal_definition: ea_is_abstain
+  population_filter: ea_status_valid == 1
+  features: [ea_is_abstain, ea_status_valid]
+  thresholds: {op: '>=', value: 1}
+  failure_condition: Abstinierte Fälle nicht schlechter als die übrigen nach Forward-Minimum
+- <<: *ea_base
+  hypothesis_id: EA007_EXPRESSION
+  title: Regelbasierte Expression vs. Default (Underlying)
+  ea_outcome_kind: paired_expression_delta
+  minimum_sample_size: 60
+  minimum_independent_dates: 30
+  minimum_independent_event_clusters: 40
+  population_definition: EA-Kandidaten, bei denen die vorab registrierte Regel nicht den Default (UNDERLYING) wählt
+  baseline: Gepaart je Beobachtung – Default-Expression UNDERLYING, gleicher Ein- und Ausstieg
+  primary_metric: Gepaarte Netto-Differenz gewählte Expression minus UNDERLYING (Kosten je Instrumentklasse)
+  research_question: Schlägt die regelbasierte Expression (z. B. Sektor-ETF bei schwacher News und positivem Kontext) die Default-Expression?
+  economic_rationale: Ist die These eher makro- als titelgetrieben, trägt der Sektor-ETF das Signal mit weniger idiosynkratischem Risiko.
+  h1: Die regelbasierte Expression ist netto besser als das Underlying (gepaart)
+  exposure: Expression (Underlying vs. Sektor-ETF; SPY/QQQ/IWM nur Vergleich)
+  signal_definition: ea_selected_is_default
+  population_filter: ea_selected_is_default == 0 and ea_status_valid == 1
+  features: [ea_selected_is_default, ea_status_valid]
+  thresholds: {op: '<=', value: 0}
+  failure_condition: Gepaarte Differenz <= 0 oder CI schließt 0 ein nach Forward-Minimum

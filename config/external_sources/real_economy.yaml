@@ -217,3 +217,60 @@ sources:
       ICSA: "ICSA"
       RSAFS: "RSAFS"
       ISRATIO: "ISRATIO"
+
+  - source_id: fred_market_expectations
+    display_name: "FRED/ALFRED Markt-Erwartungen: Treasury-Renditen, Fed Funds, Breakeven-Inflation"
+    family: real_economy
+    authority: "FRED/ALFRED (St. Louis Fed); Originale: Board of Governors des Federal Reserve System (H.15: DGS2, DGS10, DFF), von der Fed abgeleitete Breakevens (T5YIE, T10YIE, T5YIFR)"
+    official_homepage: "https://fred.stlouisfed.org"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api"
+    requires_auth: true
+    auth_env_variable: "FRED_API_KEY"
+    auth_optional: true
+    license_reference: "FRED ToU; Board of Governors H.15 und daraus abgeleitete Breakevens gemeinfrei (US Government Works); ICE-BofA-Spreads bewusst ausgeschlossen (Lizenz)"
+    commercial_use_status_if_known: "gemeinfrei (US Government Works); ICE-BofA-Spreads bewusst ausgeschlossen (Lizenz)"
+    attribution: "Source: FRED/ALFRED, Federal Reserve Bank of St. Louis; Board of Governors of the Federal Reserve System (H.15)"
+    frequency: daily
+    max_staleness_days: 7
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: medium
+    license_status: OK
+    role: REGIME
+    max_backfill_bytes: 20000000
+    notes: >
+      Marktseite des Expectation Alpha (Expectation Gap = Modell-Zukunftszustand
+      minus markt-implizite Erwartung; docs/EXPECTATION_ALPHA_ARCHITECTURE.md).
+      available_at = ALFRED realtime_start (Marktreihen werden praktisch nie
+      revidiert; Korrekturen als eigene Vintages). Beobachtungen ab 2015-01-01.
+      ICE-BofA-Spreads (z. B. BAMLH0A0HYM2) bewusst NICHT archiviert (Lizenz).
+    expected_series_ids:
+      DGS2: "DGS2"
+      DGS10: "DGS10"
+      DFF: "DFF"
+      T5YIE: "T5YIE"
+      T10YIE: "T10YIE"
+      T5YIFR: "T5YIFR"
+    retrieval_frequency: "täglich"
+    expected_latency: "1–2 Handelstage (H.15 und Breakevens zum Folgetag)"
+    revision_policy: "ALFRED-Vintages: available_at = realtime_start; Marktreihen praktisch nie revidiert, Korrekturen als eigene Vintages"
+    historical_depth: "2015–heute"
+    entity_level: "USA / Zins- und Inflationsmarkt"
+    coverage: "Treasury 2J/10J, Fed Funds Effective, Breakeven 5J/10J, 5J5J-Forward-Inflation"
+    rate_limits: "FRED: 120 Anfragen/Minute je Key"
+    cost: "kostenlos (API-Key)"
+    failure_behavior: "Reihe veraltet -> markt-implizite Erwartung None bzw. UNAVAILABLE (nie Default, nie 0)"
+    point_in_time_capable: true
+    revision_risk: low
+    maintenance_cost: low
+    semantics:
+      measures: "Markt-implizite Erwartungen (Zinspfad, Inflationserwartung)"
+      geography: "USA"
+      latency: "täglich"
+      sectors: "alle (Makro-Erwartung)"
+      mechanisms: ["Expectation Gap: Modellzustand vs. Marktpreis der Erwartung", "Zins- und Inflationserwartungen preisen Diskontsätze und Realzinsen"]

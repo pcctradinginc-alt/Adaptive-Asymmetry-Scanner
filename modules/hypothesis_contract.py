@@ -286,7 +286,8 @@ def validate_commodity(c: dict) -> list[str]:
     return errs
 
 
-ELIGIBLE_STAGES = ("CHAMPION_TRADE", "FINAL_MC_SURVIVOR", "V2_CANDIDATE")
+ELIGIBLE_STAGES = ("CHAMPION_TRADE", "FINAL_MC_SURVIVOR", "V2_CANDIDATE", "EA_NEWS_CANDIDATE")
+EA_OUTCOME_KINDS = ("fired_vs_not_fired", "paired_wait_delta", "paired_expression_delta")
 
 
 def validate_stage(c: dict) -> list[str]:
@@ -317,6 +318,36 @@ def validate_stage(c: dict) -> list[str]:
             errs.append("V2-Promotion nur auf net_realizable_return (nicht theoretische Kursbewegung)")
     elif c.get("production_class") == "universe_segment":
         errs.append("universe_segment nur für eligible_stage V2_CANDIDATE")
+    if st == "EA_NEWS_CANDIDATE":
+        errs += validate_ea(c)
+    return errs
+
+
+def validate_ea(c: dict) -> list[str]:
+    """Expectation-Alpha-Verträge (V1 SHADOW): nur Research, kein Produktionseinfluss, Population per sicherem
+    Filter, Vergleichsart vorab festgelegt (docs/EXPECTATION_ALPHA_ARCHITECTURE.md)."""
+    errs = []
+    if c.get("production_class") != "research_only":
+        errs.append("EA_NEWS_CANDIDATE-Verträge sind production_class research_only (V1 SHADOW)")
+    if c.get("maximum_initial_influence") != "NONE":
+        errs.append("EA_NEWS_CANDIDATE-Verträge: maximum_initial_influence NONE")
+    kind = c.get("ea_outcome_kind")
+    if kind not in EA_OUTCOME_KINDS:
+        errs.append(f"ea_outcome_kind muss {EA_OUTCOME_KINDS} sein")
+    elif kind != "fired_vs_not_fired" and int(c.get("direction", 0)) != 1:
+        errs.append("gepaarte EA-Vergleiche: direction +1 (Treatment − Kontrolle > 0)")
+    if not c.get("h1"):
+        errs.append("EA-Vertrag braucht h1 (inhaltliche Alternativhypothese)")
+    pf = c.get("population_filter")
+    if not pf:
+        errs.append("EA-Vertrag braucht population_filter")
+    else:
+        try:
+            names = signal_names(pf)
+            if not names <= set(c.get("features") or []):
+                errs.append(f"population_filter nutzt nicht deklarierte Merkmale: {sorted(names - set(c['features']))}")
+        except ContractError as e:
+            errs.append(f"population_filter: {e}")
     return errs
 
 

@@ -798,10 +798,51 @@ class FredWorldMacroConnector(FredUsMacroConnector):
     }
 
 
+class FredMarketExpectationsConnector(FredUsMacroConnector):
+    """Markt-implizite Erwartungsreihen mit Veröffentlichungszeitpunkt (ALFRED-
+    Vintages, available_at = realtime_start). Zweck: die Marktseite des
+    Expectation Alpha (Expectation Gap = Modell-Zukunftszustand minus
+    markt-implizite Erwartung; siehe docs/EXPECTATION_ALPHA_ARCHITECTURE.md).
+    Alle Reihen täglich, in Prozent:
+      Zinsen        DGS2      US-Treasury 2 Jahre (Constant Maturity, H.15)
+                    DGS10     US-Treasury 10 Jahre (Constant Maturity, H.15)
+      Geldpolitik   DFF       Fed Funds Effective Rate
+      Inflation     T5YIE     5-Jahres-Breakeven-Inflationsrate
+                    T10YIE    10-Jahres-Breakeven-Inflationsrate
+                    T5YIFR    5J-in-5J-Forward-Inflationserwartung
+    PIT: ALFRED-Vintages mit available_at = realtime_start. Marktreihen
+    werden praktisch nie revidiert -> je Beobachtung i.d.R. genau ein Vintage;
+    eine seltene Korrektur wäre ein eigener Vintage (kein Look-ahead).
+    Lizenz: H.15 (Board of Governors) und die daraus abgeleiteten Breakevens
+    sind US-Government-Werke (gemeinfrei).
+    NICHT: ICE-BofA-Spreads (z. B. BAMLH0A0HYM2) -- ICE-Lizenz schränkt
+    Nutzung/Historie auf FRED ein (REVIEW_REQUIRED, bewusst nicht archiviert).
+    Ohne FRED_API_KEY KEIN HTTP-Call (AUTH_MISSING, geerbt)."""
+
+    source_id = "fred_market_expectations"
+    OBSERVATION_START = "2015-01-01"   # Volumen der Tagesreihen begrenzen
+    LABEL = "DGS2/DGS10/DFF/T5YIE/T10YIE/T5YIFR"
+    SERIES = {
+        "DGS2":   {"metric": "us_treasury_2y", "dataset": "rates", "unit": "percent",
+                   "search_text": "Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity, Quoted on an Investment Basis"},
+        "DGS10":  {"metric": "us_treasury_10y", "dataset": "rates", "unit": "percent",
+                   "search_text": "Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Quoted on an Investment Basis"},
+        "DFF":    {"metric": "us_fed_funds_effective", "dataset": "policy", "unit": "percent",
+                   "search_text": "Federal Funds Effective Rate"},
+        "T5YIE":  {"metric": "us_breakeven_5y", "dataset": "inflation_expectations", "unit": "percent",
+                   "search_text": "5-Year Breakeven Inflation Rate"},
+        "T10YIE": {"metric": "us_breakeven_10y", "dataset": "inflation_expectations", "unit": "percent",
+                   "search_text": "10-Year Breakeven Inflation Rate"},
+        "T5YIFR": {"metric": "us_inflation_5y5y_forward", "dataset": "inflation_expectations", "unit": "percent",
+                   "search_text": "5-Year, 5-Year Forward Inflation Expectation Rate"},
+    }
+
+
 CONNECTORS: dict[str, type[Connector]] = {
     "eurostat_sentiment": EurostatSentimentConnector,
     "eurostat_industrial_production": EurostatIndustrialProductionConnector,
     "fred_us_macro": FredUsMacroConnector,
     "fred_regime_macro": FredRegimeMacroConnector,
     "fred_world_macro": FredWorldMacroConnector,
+    "fred_market_expectations": FredMarketExpectationsConnector,
 }

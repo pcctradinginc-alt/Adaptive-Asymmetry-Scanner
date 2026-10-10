@@ -105,8 +105,9 @@ def test_repo_contracts_valid_and_complete():
     for c in cs:
         # Champion-Population: höchstens Abstinenz; andere Populationen (FINAL_MC_SURVIVOR): nie automatisch
         expected = "ABSTENTION_ONLY" if c.get("eligible_stage") is None else "NONE"
-        # UNIVERSE_V2-Segmente: eigene Klasse, nie automatische Wirkung
-        cls = "universe_segment" if c.get("universe_version") == "V2" else "abstention"
+        # UNIVERSE_V2-Segmente: eigene Klasse, nie automatische Wirkung; Expectation Alpha (SHADOW): nur Research
+        cls = ("universe_segment" if c.get("universe_version") == "V2"
+               else "research_only" if c.get("eligible_stage") == "EA_NEWS_CANDIDATE" else "abstention")
         assert c["production_class"] == cls and c["maximum_initial_influence"] == expected
         assert set(hc.REQUIRED) <= set(c)
         h0, halt = hc.hypotheses_pair(c)

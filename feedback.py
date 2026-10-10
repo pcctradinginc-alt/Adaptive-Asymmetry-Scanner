@@ -1202,6 +1202,18 @@ def main() -> None:
             log.info(f"  Final-MC-Ledger: {_n_fm} Horizont-Outcome(s) aufgelöst")
     except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
         log.warning(f"Final-MC-Outcomes Fehler (ignoriert): {e}")
+    # Expectation Alpha (SHADOW): fällige 20/60/120/250-Handelstage-Outcomes je Expression/Variante
+    # (append-only) + Research-Auswertung. Nur Vorschläge, nie automatische Anwendung.
+    try:
+        from modules import expectation_alpha as _ea
+        from modules.expectation_alpha import config as _ea_cfg
+        if _ea_cfg.enabled():
+            _ea_st = _ea.resolve_outcomes(today=today.date())
+            if _ea_st.get("resolved"):
+                log.info(f"  Expectation-Alpha-Ledger: {_ea_st['resolved']} Outcome(s) aufgelöst ({_ea_st})")
+            _ea.evaluate()
+    except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
+        log.warning(f"Expectation-Alpha-Outcomes Fehler (ignoriert): {e}")
 
     # Von der Intelligence blockierte Champion-Trades counterfactual fortführen
     try:

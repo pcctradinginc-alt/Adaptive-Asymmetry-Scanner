@@ -145,6 +145,8 @@ downstream_extra:
   eia_petroleum_weekly: ["commodity_intelligence (RESEARCH): Öl-Fundamentaldaten (WPSR)"]
   eia_natural_gas: ["commodity_intelligence (RESEARCH): Gasspeicher/-produktion/LNG"]
   cftc_cot: ["commodity_intelligence (RESEARCH): Positionierung (Disaggregated COT)"]
+  fred_market_expectations: ["expectation_alpha (SHADOW): Marktseite Inflations-/Zins-Gap (T5YIE, DGS2-DFF)"]
+  fred_world_macro: ["expectation_alpha (SHADOW): Modellseite Wachstums-/Zins-Gap (PAYEMS, ICSA, RSAFS)"]
 
 # Feature -> Quelle (Source Dependencies der Panel-/Champion-Features; Alt-Features kommen aus
 # modules/alt_data/registry.py). Dokumentation: docs/FEATURE_DEPENDENCIES.md (generiert, getestet).
