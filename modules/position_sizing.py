@@ -112,14 +112,15 @@ def apply_size_multiplier(sizing: dict, multiplier, applied_by=None) -> dict:
     if not (0.0 < m < 1.0) or not sizing:
         return sizing
     cost = float(sizing.get("cost_per_contract") or 0)
-    pos_usd = round(float(sizing.get("position_usd") or 0) * m, 2)
+    usd0, pct0 = float(sizing.get("position_usd") or 0), float(sizing.get("position_pct") or 0)
+    pos_usd = min(usd0, round(usd0 * m, 2))                 # Rundung darf nie über das Original heben
     orig = int(sizing.get("contracts") or 0)
     contracts = min(int(pos_usd // cost) if cost > 0 else 0, orig)
     loss = _portfolio_cfg()["assumed_loss_pct"]
     note = sizing.get("note") or ""
     if orig > 0 and contracts == 0:                  # Abrundung: Budget reicht nach Verkleinerung für keinen Kontrakt
         note = (note + " | " if note else "") + f"Sizing-Stufe ×{m:.2f}: Budget unter 1 Kontrakt – nur beobachten."
-    return {**sizing, "position_pct": round(float(sizing.get("position_pct") or 0) * m, 4), "position_usd": pos_usd,
+    return {**sizing, "position_pct": min(pct0, round(pct0 * m, 4)), "position_usd": pos_usd,
             "contracts": contracts, "max_risk_usd": round(contracts * cost * loss, 2), "note": note,
             "size_adjustment": {"multiplier": round(m, 4), "applied_by": applied_by or [],
                                 "original_contracts": sizing.get("contracts"),

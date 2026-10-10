@@ -202,3 +202,50 @@ def test_tampered_counterfactual_expressions_are_data_bad(tmp_path, data):
         assert mine and all(e["entry"] == "DATA_BAD" and e["outcome_net"] is None for e in mine)
     good = [e for k, e in outs.items() if k[0] == r["observation_id"]]
     assert good and all(e["entry"] != "DATA_BAD" for e in good)               # Original bleibt bewertbar
+
+
+def _learning_fixture(tmp_path, *, means_by_ratio, n=40, sel="SECTOR_ETF"):
+    """Je Quote (Bucket) n Zeilen; TRADE-Zeilen mit Netto `m`, ABSTAIN-Zeilen mit −0,03. Zwei Expressions je Zeile:
+    UNDERLYING = Netto, SECTOR_ETF = Netto + 0,01 (gewählte Expression immer um 1 pp besser)."""
+    ph = int((CFG.get("outcomes") or {}).get("primary_horizon", 60))
+    rows, outs = [], []
+    for b, (ratio, m) in enumerate(means_by_ratio):
+        for i in range(n):
+            st = TRADE if i % 2 == 0 else ABSTAIN
+            net = m if st == TRADE else -0.03
+            oid = f"L{b}{i:03d}"
+            rows.append({"observation_id": oid, "stage": "EA_NEWS_CANDIDATE", "status": st,
+                         "date": str(date(2026, 1, 1) + pd.Timedelta(days=(b * n + i) % 150))[:10],
+                         "ticker": oid, "group": "A", "timestamp": "2026-01-01T15:00:00+00:00",
+                         "confirmation_ratio": ratio, "effective_confirmation_ratio": ratio,
+                         "selected_expression": {"selected_expression": sel},
+                         "expressions": [{"expression": "UNDERLYING"}, {"expression": "SECTOR_ETF"}]})
+            for ex, v in (("UNDERLYING", net), ("SECTOR_ETF", net + 0.01)):
+                outs.append({"observation_id": oid, "expression": ex, "variant": "immediate", "horizon": ph,
+                             "outcome_net": v, "outcome": v, "mfe": 0.0, "mae": 0.0, "exit_date": "2026-09-01",
+                             "outcome_method": eal.OUTCOME_METHOD})
+    eal.append_jsonl(eal.paths(tmp_path)["candidates"] / "2026-01.jsonl", rows, sort_keys=True)
+    eal.append_jsonl(eal.paths(tmp_path)["outcomes"], outs, sort_keys=True)
+    return ev.run(root=tmp_path, cfg=CFG, promotion_state={}, write=True)
+
+
+def test_ea_learning_values_and_proposals_never_applied(tmp_path):
+    """Re-Audit 2026-10-10 (Punkt 9): Abstinenz-, Thesen- und Expression-Lernen rechnen korrekt; Vorschläge
+    entstehen nur als PROPOSAL_ONLY (auto_applied=false), Challenger erst ab Mindestdaten."""
+    rep = _learning_fixture(tmp_path / "a", means_by_ratio=[(0.1, 0.05), (0.4, 0.01), (0.7, 0.03)])
+    ab = rep["values"]["abstention"]
+    # alle: Hälfte TRADE (Mittel der drei Buckets 0,03), Hälfte ABSTAIN (−0,03) -> 0,0; kept = nur TRADE = 0,03
+    assert ab["all"]["mean"] == pytest.approx(0.0, abs=1e-9) and ab["kept"]["mean"] == pytest.approx(0.03)
+    assert ab["delta"] == pytest.approx(0.03)                                  # Abstinenz hat hier Wert
+    exq = rep["values"]["expression"]
+    assert exq["expression_quality"]["mean"] == pytest.approx(0.005)           # gewählt − Median(2) = +0,01/2
+    assert exq["thesis_quality"]["mean"] == pytest.approx(0.005)               # Median aus beiden Expressions
+    props = json.loads((eal.paths(tmp_path / "a")["proposals"]).read_text())
+    assert props["auto_applied"] is False and props["status"] == "PROPOSAL_ONLY"
+    assert [i["type"] for i in props["items"]] == ["CALIBRATION_REVIEW"]       # 0,05 > 0,01: nicht monoton
+    assert props["challenger"]["status"] == "NEED_MORE_DATA"                   # 120 < 300 Outcomes
+    assert {"Produktionseinfluss", "Promotion-Kriterien", "PIT-Regeln"} <= set(props["never_automatic"])
+    mono = _learning_fixture(tmp_path / "b", means_by_ratio=[(0.1, 0.01), (0.4, 0.02), (0.7, 0.03)], n=110)
+    assert mono["proposals"]["items"] == []                                    # monoton -> kein Prüfauftrag
+    assert mono["proposals"]["challenger"]["status"] == "READY_FOR_HUMAN_REVIEW"   # 330 Outcomes, 150 Tage
+    assert mono["proposals"]["auto_applied"] is False                          # auch bereit: nie automatisch
