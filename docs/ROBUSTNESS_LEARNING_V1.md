@@ -86,7 +86,7 @@ Kompaktes Lauf-Log (`runs.jsonl` / Feedback-Log):
 - `tests/test_expectation_alpha.py`, `tests/test_expectation_alpha_integration.py`.
 
 ## D) Tests / E2E
-- Neue Tests: 97, alle grün. Volle Suite: siehe Commit bzw. `docs/EXPECTATION_ALPHA_V1_REPORT.md` 6a.
+- Neue Tests: 97, alle grün. Volle Suite (`python -m pytest -q`): **1895 passed, 1 skipped** (11:48 min).
 - Lint (`pyflakes`): alle neuen und geänderten Dateien sauber. Die eine verbliebene Warnung (`reports/weekly.py:329`) besteht schon auf `main`.
 - Kein Typecheck im Repo konfiguriert.
 - E2E-Shadow-Lauf (echtes Archiv, echter Commodity-Build, echte SEC-Stores, synthetische Preise, LLM gestubbt):
