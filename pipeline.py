@@ -376,6 +376,34 @@ def filter_correlated_proposals(
         return proposals
 
 
+def _spread_execution_shadow(proposals: list[dict], roi_rejects: list[dict], today: str) -> None:
+    """SPREAD_EXECUTION_LIQUIDITY_GATE im SHADOW_ONLY-Modus (2026-10-09): bewertet jeden Debit-Spread
+    (Combo-Bid/Ask/Mid, Immediate Liquidation Loss, Quote Quality, Netto-ROI nach Execution-Kosten) und
+    protokolliert – ändert KEINE Produktionsentscheidung. Fehler hier sind folgenlos."""
+    try:
+        from modules import spread_execution as se
+        cfg_se = se.load_cfg()
+        for p, kind in [(p, "entry_candidate") for p in proposals] + [(r, "roi_rejected_candidate") for r in roi_rejects]:
+            if "SPREAD" not in str(p.get("strategy") or "") or not (p.get("option") or {}).get("spread_leg"):
+                continue
+            a = se.assess_entry(p["option"], p.get("roi_analysis") or {"roi_net": p.get("roi_net")}, cfg_se)
+            if kind == "entry_candidate":
+                p["spread_execution"] = a
+            se.record(kind, p.get("ticker"), today, a)
+            try:
+                candidate_ledger.note(p.get("ticker"), spread_execution={
+                    k: a.get(k) for k in ("combo_bid", "combo_ask", "combo_mid", "relative_combo_spread",
+                                          "immediate_liquidation_loss_pct", "ill_bucket", "quote_quality",
+                                          "net_expected_roi", "shadow_verdict", "gate_mode")})
+            except Exception as e:  # noqa: BLE001
+                log.debug(f"candidate_ledger spread_execution: {e}")
+            if a["shadow_verdict"] != "PASS":
+                log.info(f"  [{p.get('ticker')}] {se.GATE_NAME} (SHADOW): {a['shadow_verdict']} – "
+                         f"{', '.join(a['shadow_reasons'])} (keine Produktionswirkung)")
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Spread-Execution-Shadow Fehler (ignoriert, keine Produktionswirkung): {e}")
+
+
 def book_proposals(trade_proposals: list[dict], history: dict, today: str, trade_score_min=None) -> int:
     """Paper-Trades buchen (bestehende Policy: Trade-Gate + 30-Tage-Ticker-Cooldown) und den
     Buchungsstatus je Vorschlag setzen (Maintenance 2026-10-09: Reports zeigen, ob tatsächlich gebucht
@@ -456,6 +484,8 @@ def build_trade_record(p: dict, today: str) -> dict:
         _at_dict["final_mc_shadow"] = p["final_mc_shadow"]
     if p.get("external_context"):
         _at_dict["external_context_entry"] = p["external_context"]
+    if p.get("spread_execution"):                 # SHADOW-Kennzahlen, keine Entscheidungswirkung
+        _at_dict["spread_execution_entry"] = p["spread_execution"]
     return _at_dict
 
 
@@ -1452,6 +1482,7 @@ def main() -> None:
             if not candidate_ledger.is_rejected(_t):
                 reject(_why, _t)
         label_dropped(final_signals, trade_proposals, "options_design_roi_or_edge")
+        _spread_execution_shadow(trade_proposals, getattr(designer, "roi_reject_log", []) or [], today)
     except Exception as e:
         log.error(f"Options Design Fehler: {e} → Email wird trotzdem gesendet")
         stats["stop_reason"] = f"Options Design Fehler: {type(e).__name__}: {e}"

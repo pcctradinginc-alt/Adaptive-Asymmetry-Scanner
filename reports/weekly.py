@@ -87,6 +87,7 @@ SECTION_TITLES = {
     17: "ALTERNATIVE DATA INTELLIGENCE",
     18: "PROMOTION STATUS (Research → Production)",
     19: "RESEARCH FACTORY (Hypothesen, Richtungen, Datenlücken)",
+    20: "SPREAD EXECUTION / LIQUIDITY (SHADOW_ONLY)",
 }
 
 
@@ -534,6 +535,11 @@ def collect(root, date, state_path=None) -> dict:
     data["warnings"] = compute_warnings(data)
     data["week_proposals"] = _week_proposals(out_dir, today)
     data["paper_perf"] = _d(_load_json(rs / "paper_performance_analysis.json"))
+    data["spread_exec"] = _d(_load_json(rs / "spread_execution_analysis.json"))
+    _sel = out_dir / "intelligence" / "spread_execution"
+    data["spread_exec_recent"] = [r for f in sorted(_sel.glob("*.jsonl"))[-2:] for r in _load_jsonl(f)
+                                  if r.get("kind") == "entry_candidate"
+                                  and (_parse_date(r.get("date")) or _date.min) >= today - timedelta(days=7)] if _sel.is_dir() else []
     data["mc_calibration"] = (data["paper_perf"].get("mc_hit_rate_calibration")
                               if artifact_is_current(data["paper_perf"]) else None)
     data["rl_status"] = _load_json(rs / "rl_promotion.json")
@@ -1615,6 +1621,30 @@ def intelligence_sections(data: dict) -> list:
     out.append((17, SECTION_TITLES[17], alt_data_section(data)))
     out.append((18, SECTION_TITLES[18], promotion_section(data)))
     out.append((19, SECTION_TITLES[19], factory_section(data)))
+    out.append((20, SECTION_TITLES[20], spread_execution_section(data)))
+    return out
+
+
+def spread_execution_section(data: dict) -> list:
+    """SPREAD_EXECUTION_LIQUIDITY_GATE (SHADOW_ONLY): Fair vs. Executable, Immediate Liquidation Loss je
+    Research-Bucket. Keine Produktionswirkung; n < min_n -> NEED_MORE_DATA; keine Schwellenempfehlung."""
+    a = _d(data.get("spread_exec"))
+    if not a:
+        return [("para", NO_DATA)]
+    b = _d(a.get("buckets"))
+    rows = [[k, str(_d(v).get("n_candidates")), str(_d(v).get("n_with_outcome")), str(_d(v).get("n_reliable")),
+             str(_d(v).get("status")), _fv(_d(v).get("mean_outcome_exploratory")), _fv(_d(v).get("stop_frequency")),
+             _fv(_d(v).get("false_stop_frequency"))] for k, v in b.items()]
+    out = [("note", "Immediate Liquidation Loss = (Entry − sofort ausführbarer Exit-Wert) / Entry. Produktion rechnet "
+                    "Entry Leg-by-Leg (combo_ask), Stop auf executable value; der ROI-Friktionsansatz nutzte nur die "
+                    "Long-Leg-Spanne. Dieses Gate ist SHADOW_ONLY (config/spread_execution.yaml)."),
+           ("para", f"Analysierte Spreads: {a.get('n_spreads', 0)} – {a.get('label', '')}"),
+           ("table", ["ILL-Bucket", "n", "mit Outcome", "RELIABLE", "Status", "Ø Outcome (explorativ)",
+                      "Stop-Quote", "False-Stop-Quote"], rows, [])]
+    sh = [r for r in data.get("spread_exec_recent") or []]
+    if sh:
+        out.append(("para", "Shadow-Gate diese Woche: " + ", ".join(
+            f"{r.get('ticker')} {r.get('ill_bucket')} {r.get('quote_quality')} → {r.get('shadow_verdict')}" for r in sh[-8:])))
     return out
 
 

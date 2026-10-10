@@ -1,0 +1,33 @@
+# Spread Execution / Liquidity (Audit 2026-10-09, Auslöser SNPS-Bull-Call-Spread).
+# MODE: SHADOW_ONLY – keine dieser Schwellen beeinflusst Produktion. Es gibt keine bestehende,
+# belastbare Policy für Combo-Level-Liquidität, aus der eine Produktionsschwelle ableitbar wäre
+# (bisher nur risk.max_bid_ask_ratio je LONG-Leg). Freischaltung nur nach separater Evidenz
+# (je Bucket n >= min_n_per_bucket prospektiv) UND separatem Owner-Approval in einem eigenen PR.
+version: spread-exec-v1
+mode: SHADOW_ONLY
+
+# Research-Buckets für immediate_liquidation_loss_pct (Evidenzsammlung, KEINE Produktionsgrenzen)
+buckets: [0.05, 0.10, 0.15, 0.20, 0.30]      # -> "<5%", "5-10%", "10-15%", "15-20%", "20-30%", ">=30%"
+min_n_per_bucket: 30                          # darunter NEED_MORE_DATA
+
+# Shadow-Gate-Kennzeichnung (nur Flag im Ledger/Report)
+shadow_flag_ill: 0.15                         # ab hier FLAG (Execution-Friction auffällig)
+shadow_reject_ill: 0.30                       # ab hier WOULD_REJECT (Extrem-Bucket)
+shadow_reject_quote_quality: [INVALID, UNAVAILABLE, STALE]
+
+# Fill-Annahme (dokumentierte Policy): Produktion rechnet seit jeher Leg-by-Leg-NBBO
+# (Long zum Ask, Short zum Bid) = combo_ask. Keine unterstellte Preisverbesserung.
+fill_assumption: NATURAL_LEG_BY_LEG
+
+# QUOTE_QUALITY
+quote_quality:
+  wide_rel_combo_spread: 0.15                 # (combo_ask - combo_bid) / combo_mid
+  very_wide_rel_combo_spread: 0.40
+  max_quote_age_minutes: 30                   # nur wenn Quote-Zeitstempel vorhanden
+  min_open_interest_leg: 10
+
+# Shadow-Stop-Analyse (Produktions-Stop bleibt unverändert: -50 % auf executable value)
+stop_shadow:
+  confirm_observations: 2                     # Bestätigung über aufeinanderfolgende Beobachtungen
+  fair_value_stop: -0.50                      # gleiche Höhe wie Produktion, aber auf Fair Value (Mid)
+  small_underlying_move: 0.05                 # |Underlying-Bewegung| darunter = kein fundamentaler Einbruch

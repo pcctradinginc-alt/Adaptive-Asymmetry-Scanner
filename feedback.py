@@ -284,9 +284,11 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
         return None
 
 
-def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float | None:
+def get_current_spread_price(ticker: str, option: dict, strategy: str, detail: dict | None = None) -> float | None:
     """
-    Aktueller Net-Wert eines Spreads: long_leg_mid − short_leg_mid.
+    Aktueller AUSFÜHRBARER Net-Wert eines Spreads: long.bid − short.ask (= combo_bid).
+    (Docstring bis 2026-10-09 sprach fälschlich von Mid – der Code rechnet executable.)
+    detail: optional, erhält die Leg-Quotes (für modules/spread_execution, keine Zusatz-Calls).
 
     Returns None  → Preis nicht abrufbar (kein verwertbares Outcome).
     Returns float → Net-Wert inkl. 0.0 (Spread wertlos / vollständig verloren).
@@ -317,6 +319,8 @@ def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float 
     long_mid  = long_q["bid"] if long_q else 0.0
     short_mid = short_q["ask"] if short_q else 0.0
 
+    if detail is not None:
+        detail["spread_quotes"] = {"long": long_q, "short": short_q}
     if long_q is not None and short_q is not None and short_mid > 0:
         net = round(long_mid - short_mid, 4)
         log.info(
@@ -389,7 +393,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
         if entry_debit <= 0:
             log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome nicht verwertbar")
             return None
-        current_spread = get_current_spread_price(ticker, option, strategy)
+        current_spread = get_current_spread_price(ticker, option, strategy, detail=meta)
         if current_spread is None:
             # Preis wirklich nicht ermittelbar — nicht als 0.0 ins Training
             log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome nicht verwertbar")
@@ -502,6 +506,48 @@ def check_exit_rules(trade: dict, outcome: float, today: datetime) -> str | None
         pass
 
     return None
+
+
+def _spread_execution_monitor(trade: dict, meta: dict, underlying: float, today: datetime) -> dict | None:
+    """Nur Beobachtung + Ledger; jede Ausnahme bleibt folgenlos für Produktion."""
+    if "SPREAD" not in str(trade.get("strategy") or "") or not meta.get("spread_quotes"):
+        return None
+    try:
+        from modules import spread_execution as se
+        q = meta["spread_quotes"]
+        obs = se.monitor(trade, q.get("long"), q.get("short"), underlying)
+        hist = (trade.setdefault("spread_monitor", []) + [obs])[-10:]
+        trade["spread_monitor"] = hist
+        trade["spread_stop_shadow"] = se.stop_shadow(hist)
+        se.record("monitor", trade["ticker"], today.strftime("%Y-%m-%d"),
+                  {"entry_date": trade.get("entry_date"), **obs, "stop_shadow": trade["spread_stop_shadow"]})
+        return obs
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"  [{trade.get('ticker')}] Spread-Execution-Monitoring Fehler (ignoriert): {e}")
+        return None
+
+
+def _spread_execution_exit(trade: dict, obs: dict | None, today: datetime) -> None:
+    if "SPREAD" not in str(trade.get("strategy") or ""):
+        return
+    try:
+        from modules import spread_execution as se
+        entry = trade.get("spread_execution_entry") or {}
+        e_price = trade.get("entry_debit")
+        mid_in, mid_out = entry.get("combo_mid"), (obs or {}).get("combo_mid")
+        bid_out = (obs or {}).get("combo_bid")
+        exit_rec = {"combo_bid": bid_out, "combo_ask": (obs or {}).get("combo_ask"), "combo_mid": mid_out,
+                    "actual_exit_fill": None, "assumed_exit_fill": bid_out, "exit_reason": trade.get("close_reason"),
+                    "quote_quality": (obs or {}).get("quote_quality"),
+                    "slippage_vs_mid": round((mid_out - bid_out) / mid_out, 4) if mid_out and bid_out is not None else None,
+                    "realized_roundtrip_cost": (round(((e_price - mid_in) + (mid_out - bid_out)) / e_price, 4)
+                                                if e_price and mid_in is not None and mid_out is not None and bid_out is not None
+                                                else None),
+                    "stop_shadow": trade.get("spread_stop_shadow")}
+        trade["spread_execution_exit"] = exit_rec
+        se.record("exit", trade["ticker"], today.strftime("%Y-%m-%d"), {"entry_date": trade.get("entry_date"), **exit_rec})
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"  [{trade.get('ticker')}] Spread-Execution-Exit Fehler (ignoriert): {e}")
 
 
 SHADOW_VIEW_RECENT = 300   # nur ANSICHT in history.json; Speicher ist outputs/intelligence/shadow_ledger
@@ -1079,6 +1125,10 @@ def main() -> None:
         # Peak-Return mitschreiben (Grundlage für den Trailing-Paralleltest)
         trade["peak_return"] = round(max(float(trade.get("peak_return") or outcome), outcome), 4)
 
+        # Spread-Execution-Monitoring (SHADOW, 2026-10-09): Fair Value vs. Executable vs. Underlying.
+        # Der Produktions-Stop unten bleibt unverändert (executable, -50 %).
+        _spread_obs = _spread_execution_monitor(trade, meta, current, today)
+
         # ── Regelbasierter Exit (TP/SL/Time-Exit) — auch für junge Trades ────
         exit_reason = check_exit_rules(trade, outcome, today)
         if exit_reason:
@@ -1112,6 +1162,7 @@ def main() -> None:
             trade["close_price"]    = current
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
+            _spread_execution_exit(trade, _spread_obs, today)
             history.setdefault("closed_trades", []).append(trade)
             if reliable:
                 try:
