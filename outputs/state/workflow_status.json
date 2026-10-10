@@ -1,0 +1,66 @@
+{
+  "version": "wf-sched-v1",
+  "days": {
+    "2026-10-10": {
+      "external_data": {
+        "file": "external_data.yml",
+        "expected": "2026-10-10T06:17+00:00",
+        "actual_last_run": "2026-10-10T12:35:14Z",
+        "conclusion": "success",
+        "delay_hours": 6.3,
+        "runs_today": 1,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": true,
+        "action": null,
+        "stale_upstream": [],
+        "state": "OK"
+      },
+      "source_health": {
+        "file": "source_health.yml",
+        "expected": "2026-10-10T12:41+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "state": "PENDING"
+      },
+      "scanner": {
+        "file": "scanner.yml",
+        "expected": "2026-10-10T13:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [
+          "source_health"
+        ],
+        "state": "NOT_SCHEDULED"
+      },
+      "feedback": {
+        "file": "feedback.yml",
+        "expected": "2026-10-10T15:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": null,
+        "action": null,
+        "stale_upstream": [],
+        "state": "NOT_SCHEDULED"
+      }
+    }
+  },
+  "recoveries": {}
+}
