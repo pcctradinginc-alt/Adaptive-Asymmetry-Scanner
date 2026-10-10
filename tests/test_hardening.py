@@ -31,11 +31,17 @@ def test_shadow_html_never_mixes_gates_and_respects_small_n():
 
 
 def test_truncated_shadow_trades_are_archived_not_lost(tmp_path, monkeypatch):
+    """Seit 2026-10-09: nur Records mit aufgelöstem Legacy-Horizont verlassen die Ansicht (siehe
+    tests/test_shadow_lifecycle.py); hier: alle bewertet und 45 T alt -> wie bisher die ältesten 5 exportiert."""
     import feedback
+    from modules import shadow_ledger as sl
     monkeypatch.setattr(feedback, "SHADOW_ARCHIVE", tmp_path / "arch.jsonl")
+    monkeypatch.setattr(sl, "LEDGER_DIR", tmp_path / "ledger")
     monkeypatch.setattr(feedback, "get_current_price", lambda t: 0.0)
-    h = {"shadow_trades": [{"ticker": f"T{i}", "entry_date": "2026-10-01", "outcome": i} for i in range(305)]}
-    feedback.evaluate_shadow_trades(h, feedback.datetime(2026, 10, 3))
+    h = {"shadow_trades": [{"ticker": f"T{i}", "entry_date": "2026-08-01", "outcome": i, "close_date": "2026-09-15"}
+                           for i in range(305)]}
+    feedback.evaluate_shadow_trades(h, feedback.datetime(2026, 10, 3),
+                                    price_history_fn=lambda t, s, e: [(s, 100.0), (e, 101.0)])
     assert len(h["shadow_trades"]) == 300 and h["shadow_trades"][0]["ticker"] == "T5"
     rows = [json.loads(x) for x in (tmp_path / "arch.jsonl").read_text().splitlines()]
     assert [r["ticker"] for r in rows] == [f"T{i}" for i in range(5)]

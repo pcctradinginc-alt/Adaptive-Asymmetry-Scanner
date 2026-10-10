@@ -548,6 +548,15 @@ def collect(root, date, state_path=None) -> dict:
         log.warning(f"Final-MC-Ledger nicht lesbar: {e}")
         data["final_mc"] = None
     data["roi_subgates"] = roi_subgate_evidence(history)
+    try:                                              # Shadow-Lifecycle (rein lesend)
+        from modules import shadow_ledger as _sl
+        _ld = out_dir / "intelligence" / "shadow_ledger"
+        data["shadow_lifecycle"] = _sl.health(today, _ld, out_dir / "shadow_trades_archive.jsonl",
+                                              _d(history).get("shadow_trades") or [])
+        data["gate_learning"] = _sl.gate_learning(today, _ld)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Shadow-Ledger nicht lesbar: {e}")
+        data["shadow_lifecycle"], data["gate_learning"] = {"error": str(e)}, {}
     data["universe"] = universe_overview(out_dir)
     data["commodity"] = commodity_overview(out_dir, date)
     try:                                              # LEARNING_HEALTH (rein lesend, gleiche Ableitung wie SystemState)
@@ -588,6 +597,36 @@ def universe_overview(out_dir: Path) -> dict:
     except (OSError, ValueError, KeyError) as e:
         log.warning(f"Universe-Übersicht nicht lesbar: {e}")
         return {}
+
+
+def shadow_lifecycle_blocks(data: dict) -> list:
+    """Kompakter Shadow-Lifecycle-Health-Block + Gate-Learning (n<30 -> NEED_MORE_DATA, keine Empfehlung)."""
+    h = _d(data.get("shadow_lifecycle"))
+    if not h:
+        return [("para", "SHADOW LIFECYCLE: " + NO_DATA)]
+    if h.get("error"):
+        return [("para", f"SHADOW LIFECYCLE: Ledger unlesbar ({h['error']})")]
+    s = _d(h.get("status"))
+    lost = h.get("lost_before_evaluation", 0)
+    blocks = [("para", "SHADOW LIFECYCLE HEALTH" + (" – LEARNING_HEALTH DEGRADED (LOST_BEFORE_EVALUATION > 0)" if lost else "")),
+              ("kv", [("PENDING", _fv(s.get("PENDING"))), ("MATURED", _fv((s.get("MATURED") or 0) + (s.get("MATURED_RETRY_REQUIRED") or 0))),
+                      ("PARTIALLY_EVALUATED", _fv(s.get("PARTIALLY_EVALUATED"))), ("EVALUATED", _fv(s.get("EVALUATED"))),
+                      ("OUTCOME_UNAVAILABLE", _fv(s.get("OUTCOME_UNAVAILABLE"))), ("ARCHIVED", _fv(s.get("ARCHIVED"))),
+                      ("LOST_BEFORE_EVALUATION", _fv(lost)),
+                      ("ältester ungeklärter Record (Tage)", _fv(h.get("oldest_unresolved_age_days"))),
+                      ("fällige / überfällige Outcomes", f"{h.get('due_outcomes', 0)} / {h.get('overdue_outcomes', 0)}"),
+                      ("Bewertungen diese Woche", _fv(h.get("evaluations_this_week"))),
+                      ("aus Archiv/Git zurückgeführt", _fv(h.get("recovered_records")))])]
+    gl = _d(data.get("gate_learning"))
+    g = _d(gl.get("groups"))
+    if g:
+        blocks.append(("para", f"GATE LEARNING ({gl.get('horizon_days')} T, {gl.get('basis')}; n < {gl.get('min_n')} -> "
+                               "NEED_MORE_DATA; keine Schwellenempfehlung):"))
+        blocks.append(("table", ["Gruppe", "n", "Status", "Win Rate", "Expectancy", "MFE", "MAE"],
+                       [[k, str(_d(v).get("n")), str(_d(v).get("status")), _fv(_d(v).get("win_rate")),
+                         _fv(_d(v).get("expectancy")), _fv(_d(v).get("mfe")), _fv(_d(v).get("mae"))]
+                        for k, v in g.items()], []))
+    return blocks
 
 
 def roi_subgate_evidence(history) -> dict:
@@ -1233,7 +1272,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     ]), ("para", "LEARNING_HEALTH: " + (_d(data.get("learning_health")).get("overall") or NO_DATA)
          + (" – STALLED/BROKEN: " + ", ".join(_d(data.get("learning_health")).get("stalled_or_broken") or [])
             if _d(data.get("learning_health")).get("stalled_or_broken") else "")),
-        ("kv", _learning_rows(data))]))
+        ("kv", _learning_rows(data))] + shadow_lifecycle_blocks(data)))
 
     # 2 WHAT THE SYSTEM LEARNED
     tr = [t for t in data.get("promo_transitions") or [] if _recent(t.get("timestamp"), today)]
