@@ -679,12 +679,41 @@ def main() -> None:
                     f"Funnel nicht repräsentativ (Testlauf 2026-09-29: RV-Filter verwarf 0 Ticker)")
 
     _proposals_ref = []
+    _ea_input_ref: list = []       # Expectation Alpha (SHADOW): eingefrorene Stufe-4-Analysen (Auswertung am Laufende)
     _health_ref    = []   # letzter Engine-Health-Report, für die Status-Mail wiederverwendet
+
+    def _expectation_alpha_finalize():
+        """Expectation Alpha (SHADOW) am Laufende: These je eingefrorenem Stufe-4-Kandidaten + beschreibender
+        Downstream-Eintrag (was der Champion tat). Läuft genau einmal, nach allen Champion-Entscheidungen."""
+        if not _ea_input_ref:
+            return
+        _analyses = _ea_input_ref.pop()
+        _ea_input_ref.clear()
+        try:
+            from modules import expectation_alpha as _ea
+            _ea_gates = getattr(cfg, "gates", None)
+            _p = getattr(cfg, "pipeline", None)
+            _reserve = float(getattr(_p, "finalize_reserve_minutes", 10) or 10) * 60
+            _ea_sum = _ea.enrich_candidates(
+                _analyses, impact_min=int(getattr(_ea_gates, "impact_min", 4)),
+                surprise_min=int(getattr(_ea_gates, "surprise_min", 3)),
+                deadline=(_RUN_DEADLINE[0] + _reserve) if _RUN_DEADLINE else None)
+            _obs = _ea_sum.pop("observations", []) or []
+            stats["expectation_alpha"] = _ea_sum
+            if _obs:
+                _final = _proposals_ref[0] if _proposals_ref else []
+                _ea.record_downstream(_obs, final_tickers={p.get("ticker") for p in _final},
+                                      reject_stats=reject_stats)
+        except Exception as e:  # noqa: BLE001 – SHADOW-Messung darf den Scan nie brechen
+            log.warning(f"Expectation Alpha Fehler (ignoriert, SHADOW): {type(e).__name__}: {e}")
+            stats["expectation_alpha"] = {"mode": "shadow", "enabled": True, "status": "ERROR",
+                                          "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
     def save_stats_snapshot():
         """Persistiert Funnel-Stats + Reject-Gründe in die Daily-JSON.
         Läuft auf JEDEM Exit-Pfad — sonst ist bei 0-Trade-Tagen nicht
         nachvollziehbar, welches Gate blockiert hat."""
+        _expectation_alpha_finalize()
         try:
             REPORTS_DIR.mkdir(parents=True, exist_ok=True)
             path = REPORTS_DIR / f"{today}.json"
@@ -1066,6 +1095,17 @@ def main() -> None:
     except Exception as e:
         log.warning(f"Research-Memory-Reviewer Fehler (ignoriert): {e}")
     log.info(f"  → {len(analyses)} nach Deep Analysis")
+    # ── Stufe 4-EA: Expectation Alpha (SHADOW, docs/EXPECTATION_ALPHA_ARCHITECTURE.md) ─────────
+    # Hier wird nur der Stand nach Deep Analysis eingefroren (tiefe Kopie, keine Rechenzeit). Die Auswertung
+    # läuft erst beim Lauf-Abschluss (save_stats_snapshot), NACH allen Champion-Entscheidungen und innerhalb
+    # der Finalisierungsreserve -> verbraucht kein Laufzeitbudget späterer Champion-Stufen, verändert keinen
+    # Kandidaten, Score, Gate, Sizing oder Vorschlag. Einfluss nur über PromotionController (EA: NONE).
+    if analyses:
+        try:
+            import copy as _copy
+            _ea_input_ref[:] = [_copy.deepcopy(analyses)]
+        except Exception as e:  # noqa: BLE001 – SHADOW-Messung darf den Scan nie brechen
+            log.warning(f"Expectation Alpha: Stufe-4-Kopie fehlgeschlagen (ignoriert): {e}")
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
         send_email(); return

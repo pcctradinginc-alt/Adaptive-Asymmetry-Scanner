@@ -267,13 +267,16 @@ def assign_clusters(obs: list[dict], gap_days: int = CLUSTER_GAP_DAYS) -> None:
 
 
 def observations(contract: dict, spec_hash: str, rows: list[dict], outcomes: dict, *,
-                 horizon: int | None = None, since: datetime | None = None) -> list[dict]:
+                 horizon: int | None = None, since: datetime | None = None, stage: str = STAGE,
+                 outcome_method: str = OUTCOME_METHOD) -> list[dict]:
+    """stage/outcome_method: andere Populationen mit gleichem Zeilenformat (z. B. EA_NEWS_CANDIDATE)
+    nutzen dieselbe Auswertung – nie gemischt, da Zeilen und Outcome-Methode exakt passen müssen."""
     k = hc.key(contract)
     h = horizon or primary_horizon(contract)
     fwd, reg = _ts(contract["forward_start"]), _ts(contract["registered_at"])
     out = []
     for r in rows:
-        if r.get("stage") != STAGE:
+        if r.get("stage") != stage:
             continue
         t = _ts(r["timestamp"])
         if t < fwd or t <= reg or (since is not None and t < since):
@@ -282,7 +285,7 @@ def observations(contract: dict, spec_hash: str, rows: list[dict], outcomes: dic
         if not ev or ev.get("spec_hash") != spec_hash or not ev.get("evaluable") or not ev.get("in_scope"):
             continue
         o = outcomes.get((r["observation_id"], h))
-        if o is None or o.get("outcome") is None or o.get("outcome_method") != OUTCOME_METHOD:
+        if o is None or o.get("outcome") is None or o.get("outcome_method") != outcome_method:
             continue
         out.append({"decision_id": r["observation_id"], "date": str(r["date"])[:10], "ts": t, "ticker": r["ticker"],
                     "fired": bool(ev.get("fired")), "outcome": float(o["outcome"]),
@@ -322,16 +325,17 @@ def _block_bootstrap(obs: list[dict], key: str, direction: int, n: int, seed: in
 
 
 def evidence(contract: dict, spec_hash: str, rows: list[dict], outcomes: dict, policy: dict, alpha: float,
-             since: datetime | None = None) -> dict:
+             since: datetime | None = None, *, stage: str = STAGE, outcome_method: str = OUTCOME_METHOD,
+             horizons: tuple = HORIZONS) -> dict:
     """Gleiche Struktur wie promotion_controller.evidence (damit insufficiency/decide greifen),
     plus Cluster, Tail, MFE/MAE je Gruppe und alle Horizonte (nur beschreibend)."""
     from modules import promotion_controller as pc
     direction = int(contract["direction"])
     st = policy.get("statistics") or {}
-    obs = observations(contract, spec_hash, rows, outcomes, since=since)
+    obs = observations(contract, spec_hash, rows, outcomes, since=since, stage=stage, outcome_method=outcome_method)
     fired = [o for o in obs if o["fired"]]
     notf = [o for o in obs if not o["fired"]]
-    ev: dict = {"stage": STAGE, "data_kind": "prospective_forward", "horizon_days": primary_horizon(contract),
+    ev: dict = {"stage": stage, "data_kind": "prospective_forward", "horizon_days": primary_horizon(contract),
                 "n_observations": len(obs), "n_independent_dates": len({o["date"] for o in obs}),
                 "n_event_clusters": len({o["cluster"] for o in obs}),
                 "calendar_span_days": (obs[-1]["ts"] - obs[0]["ts"]).days if len(obs) > 1 else 0,
@@ -382,10 +386,11 @@ def evidence(contract: dict, spec_hash: str, rows: list[dict], outcomes: dict, p
                             "precision": round(sum(1 for o in fired if o["outcome"] <= 0) / len(fired), 4)
                             if fired else None}
     ev["secondary_horizons"] = {}
-    for h in HORIZONS:
+    for h in horizons:
         if h == ev["horizon_days"]:
             continue
-        o2 = observations(contract, spec_hash, rows, outcomes, horizon=h, since=since)
+        o2 = observations(contract, spec_hash, rows, outcomes, horizon=h, since=since, stage=stage,
+                          outcome_method=outcome_method)
         f2 = [o["outcome"] for o in o2 if o["fired"]]
         n2 = [o["outcome"] for o in o2 if not o["fired"]]
         ev["secondary_horizons"][str(h)] = {"n": len(o2), "fired_expectancy": round(statistics.fmean(f2), 5) if f2

@@ -1,0 +1,164 @@
+# config/expectation_alpha.yaml – Expectation Alpha (EA), V1 SHADOW (GESCHÜTZT, Änderung nur per PR)
+#
+# Alle Schwellen sind VOR jedem Forward-Ergebnis festgelegt (2026-10-10) und werden nie nach Resultaten
+# optimiert. config_hash (SHA-256 dieser Datei, kanonisch) steht in jeder Ledger-Zeile; eine Änderung
+# erzeugt einen neuen Hash -> neue Version, alte Zeilen bleiben unverändert interpretierbar.
+# Architektur: docs/EXPECTATION_ALPHA_ARCHITECTURE.md
+
+version: ea-v1
+registered_at: "2026-10-10"
+mode: shadow                 # off | shadow  (V1: kein Produktionsmodus; Einfluss nur über PromotionController)
+max_runtime_seconds: 150     # Budget im Scanner-Lauf; Überschreitung -> ERROR (nie stilles Weiterlaufen)
+
+data:
+  archive_root: outputs/external_data
+  market_history_years: 6
+  min_history_weeks: 52      # z/Perzentil erst ab so viel PIT-Vergangenheit, sonst INSUFFICIENT_DATA
+  # Frische (Tage seit jüngster verfügbarer Periode); darüber -> STALE -> Wert gilt als fehlend
+  max_age_days: {daily: 7, weekly: 21, monthly: 75}
+  # Marktschlüsse: nur abgeschlossene Tagesbalken (decision_date ausgeschlossen, außer Entscheidung >= 21:00 UTC)
+  close_complete_hour_utc: 21
+  market_symbols: [SPY, QQQ, IWM, "^VIX", "^VIX3M", "^TNX", "^IRX", HYG, LQD, IEF, TLT, TIP, GLD,
+                   XLK, XLF, XLE, XLI, XLV, XLY, XLP, XLU, XLB, XLRE, XLC, "HG=F", "GC=F"]
+  # neue FRED-Quelle (Marktseite): modules/external/sources/real_economy.FredMarketExpectationsConnector
+  expectations_source: fred_market_expectations
+
+future_state:
+  # Wochenraster (Freitag); 1M = 4 Wochen, 3M = 13 Wochen
+  delta_1m_weeks: 4
+  delta_3m_weeks: 13
+  transition_lookahead_weeks: 4      # P(Regimewechsel in 4 Wochen | Abstand zur Schwelle), nur Vergangenheit
+  transition_min_history: 104
+
+# Expectation Gaps: gap = model_future_state - market_implied_expectation
+#   level_gap : gleiche Einheit (Prozentpunkte), Rohwert direkt interpretierbar
+#   z_gap     : Modell- und Marktseite in eigenen, nur vergangenheitsbasierten z-Scores (Rohwerte bleiben erhalten)
+domains:
+  inflation:
+    kind: level_gap
+    unit: pct_points
+    model: {indicator: cpi_3m_ann, description: "CPI 3M annualisiert (BLS via ALFRED) – naives Momentum-Modell der künftigen Inflation"}
+    market: {indicator: breakeven_5y, description: "5J-Breakeven-Inflation (T5YIE)"}
+    meaning: "+ = Modell erwartet mehr Inflation als der Markt einpreist"
+  policy_rates:
+    kind: z_gap
+    unit: z
+    model: {components: [cpi_trend, payems_3m, claims_13w_neg], description: "Inflations- und Arbeitsmarktdruck (z)"}
+    market: {components: [policy_path_2y], description: "eingepreister Pfad: 2J-Rendite minus Fed Funds (DGS2-DFF)"}
+    meaning: "+ = Makrodruck spricht für höhere Zinsen als eingepreist"
+  growth:
+    kind: z_gap
+    unit: z
+    model: {components: [indpro_3m, payems_3m, claims_13w_neg, retail_yoy], description: "harte Wachstumsdaten (ALFRED)"}
+    market: {components: [cyc_def_63d, copper_gold_63d, xli_spy_63d, iwm_spy_63d], description: "Marktpreisung Wachstum"}
+    meaning: "+ = harte Daten stärker als vom Markt eingepreist"
+  oil:
+    kind: z_gap
+    unit: z
+    model: {components: [neg_crude_stocks_vs_5y], description: "Lager-Knappheit (EIA, Abweichung vom 5J-Mittel, negiert)"}
+    market: {components: [wti_ret_60d], description: "WTI 60T-Rendite"}
+    meaning: "+ = Fundamentaldaten knapper als der Preis spiegelt"
+  credit:
+    kind: unavailable
+    reason: "keine nicht-marktbasierte PIT-Kreditfundamentalreihe (ICE-Spreads lizenzbedingt ausgeschlossen); Credit nur als Regime/Confirmation"
+  equity_earnings:
+    kind: unavailable
+    reason: "kein PIT-Konsens (Gewinnrevisionen nur kommerziell, I/B/E/S o.ä.) – nie simuliert"
+
+# World-Model-Dimension je Domäne (Regime-Unterstützung, Unsicherheit)
+regime_dimension: {inflation: inflation, policy_rates: interest_rates, growth: growth, oil: commodities}
+
+# Cross-Asset-Bestätigung: kurzfristige (20T) Marktbewegung in Thesenrichtung.
+# sign: erwartetes Vorzeichen bei Thesenrichtung +1; deadband: |x| <= deadband -> neutral (weder bestätigend noch widersprechend)
+confirmation:
+  window_days: 20
+  domain_signals:
+    growth:       [{signal: cyc_def_20d, sign: 1, deadband: 0.005}, {signal: copper_gold_20d, sign: 1, deadband: 0.005},
+                   {signal: iwm_spy_20d, sign: 1, deadband: 0.005}, {signal: hyg_lqd_20d, sign: 1, deadband: 0.002},
+                   {signal: tnx_20d, sign: 1, deadband: 0.05}]
+    inflation:    [{signal: tip_ief_20d, sign: 1, deadband: 0.002}, {signal: gld_20d, sign: 1, deadband: 0.005},
+                   {signal: tnx_20d, sign: 1, deadband: 0.05}]
+    policy_rates: [{signal: irx_20d, sign: 1, deadband: 0.05}, {signal: tnx_20d, sign: 1, deadband: 0.05},
+                   {signal: tlt_20d, sign: -1, deadband: 0.005}]
+    oil:          [{signal: xle_spy_20d, sign: 1, deadband: 0.005}, {signal: wti_ret_20d, sign: 1, deadband: 0.01}]
+  candidate_signals:          # Aktien-These (Kandidatenrichtung), sektorunabhängig
+    - {signal: sector_rs_20d, sign: 1, deadband: 0.005}
+    - {signal: spy_ret_20d, sign: 1, deadband: 0.005}
+    - {signal: hyg_lqd_20d, sign: 1, deadband: 0.002}
+    - {signal: vix_term_contango, sign: 1, deadband: 0.02}
+  weights: {}                 # Default 1.0 je Signal (bewusst nicht trainiert)
+
+# Kandidaten-Kontext
+context:
+  gap_z_ref: 2.0              # Ausrichtung = Richtung × Sensitivität × clip(gap_z / gap_z_ref, -1, 1)
+  sector_rs_ref: 0.05         # Sektor-Ausrichtung = Richtung × clip(rs_63d / 0.05, -1, 1)
+  positive_min: 0.25          # macro_alignment >= 0.25 und Sektor nicht klar dagegen -> Kontext +1
+  negative_max: -0.25         # macro_alignment <= -0.25 oder Sektor-Ausrichtung <= -0.5 -> Kontext -1
+  sector_contradiction: -0.5
+  gap_large_abs_z: 1.0        # "großer Gap" (EA002/EA003)
+
+# News-Edge: bestehende Champion-Bewertung, unverändert gelesen
+news:
+  strong_rule: "impact >= gates.impact_min and surprise >= gates.surprise_min (Champion-ISF-Floor)"
+
+# Deterministische Research-Entscheidung (kein LLM). Reihenfolge: ERROR -> ABSTAIN -> TRADE -> WAIT
+decision:
+  max_regime_uncertainty: 0.60     # aus der Merkmalsverteilung (world_state.jsonl: Median 0,44, q90 0,57), nie aus Outcomes
+  min_confirmation_available: 3
+  conflict_share_abstain: 0.50     # n_conflicting / n_available >= 0.5 -> widersprüchlich -> ABSTAIN
+  trade_min_confirmation_ratio: 0.60
+  # WAIT-Trigger: Bestätigung, die bei der Entscheidung fehlte. Prüfung je Schlusskurs ab dem Entscheidungstag;
+  # Einstieg erst zum Schluss des FOLGETAGS (Signal und Ausführung nie am selben Schlusskurs).
+  wait_trigger:
+    any_of:
+      - {metric: confirmation_ratio, op: ">=", value: 0.70}
+    max_wait_trading_days: 10
+  kill_conditions:
+    market_confirmation_failure: {metric: confirmation_ratio, op: "<", value: 0.30, consecutive_days: 5, min_available: 3}
+    catalyst_failure: {default_days: 20, rule: "bis catalyst_deadline keine Bewegung in Thesenrichtung (Rendite <= 0)"}
+    economic_invalidation: {rule: "Vorzeichenwechsel des primären Domänen-Gaps in einem späteren Kontext-Lauf"}
+    time_invalidation: {trading_days: 60}
+    risk_stop: {return_le: -0.15}
+
+# Expressions (vorab je These registriert; nur liquide, bereits unterstützte Underlyings/ETFs; keine Optionen)
+expressions:
+  default: UNDERLYING
+  registered: [UNDERLYING, SECTOR_ETF, SPY, QQQ, IWM]
+  selection_rule: "news stark -> UNDERLYING; sonst Kontext +1 -> SECTOR_ETF; sonst UNDERLYING"
+  cost_per_side: {stock: 0.0010, etf: 0.0005}
+
+# Sektor-Mapping (NON_PIT, heutige Zuordnung, ökonomische Priors – nicht gefittet)
+sector_map_version: ea-sector-map-v1
+sector_map:
+  Technology:             {etf: XLK, sensitivities: {growth: 1, policy_rates: -1}}
+  Communication Services: {etf: XLC, sensitivities: {growth: 1, policy_rates: -1}}
+  Financial Services:     {etf: XLF, sensitivities: {growth: 1, policy_rates: 1}}
+  Energy:                 {etf: XLE, sensitivities: {oil: 1, inflation: 1}}
+  Industrials:            {etf: XLI, sensitivities: {growth: 1}}
+  Basic Materials:        {etf: XLB, sensitivities: {growth: 1, inflation: 1}}
+  Consumer Cyclical:      {etf: XLY, sensitivities: {growth: 1, policy_rates: -1}}
+  Consumer Defensive:     {etf: XLP, sensitivities: {growth: -1}}
+  Healthcare:             {etf: XLV, sensitivities: {growth: -1}}
+  Utilities:              {etf: XLU, sensitivities: {growth: -1, policy_rates: -1}}
+  Real Estate:            {etf: XLRE, sensitivities: {policy_rates: -1}}
+
+# Outcomes (Handelstage nach dem Entscheidungstag; Einstieg = Schlusskurs am Entscheidungstag)
+outcomes:
+  horizons: [20, 60, 120, 250]
+  primary_horizon: 60
+  method: close_to_close_direction_adjusted
+
+# Forschungsgruppen (NEWS × CONTEXT), Mindestgrößen nur zur Berichtsfreigabe
+groups:
+  A: "starke News + positiver Kontext"
+  B: "starke News + neutraler Kontext"
+  C: "starke News + negativer Kontext"
+  D: "schwache News + positiver Kontext"
+  E: "schwache News + neutraler/negativer Kontext"
+  X: "Kontext INSUFFICIENT_DATA"
+evaluation:
+  min_n_report: 30            # darunter NEED_MORE_DATA (keine Effektaussage)
+  bootstrap_n: 2000
+  bootstrap_seed: 47
+  challenger_min_n: 300       # kombinierter Score / Challenger erst ab so vielen aufgelösten Beobachtungen
+  challenger_min_independent_dates: 120

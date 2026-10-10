@@ -19,6 +19,7 @@ modules/email_reporter.py v8.3
     - Fix: pipeline_stats werden auch im Kein-Trade-Fall durchgereicht
 """
 
+import html as _html
 import json
 import logging
 import os
@@ -48,6 +49,52 @@ def _external_context_html() -> str:
         return ""
 
 
+def _ea_shadow_html(ea: dict | None) -> str:
+    """Expectation Alpha (SHADOW, Research): kompakter Block NUR mit Aggregaten (Zählwerte, gap_z, Regime-
+    Unsicherheit, Fehleranzahl). Nie Ticker, nie Einzelergebnisse: SHADOW-Daten dürfen nicht wie eine Handelsempfehlung
+    wirken. Leer bei fehlender oder deaktivierter Zusammenfassung; darf die Mail nie zum Absturz bringen."""
+    if not ea or not isinstance(ea, dict) or ea.get("enabled") is False:
+        return ""
+    try:
+        e = _html.escape
+
+        def _n(x) -> str:
+            return "n/v" if x is None or isinstance(x, bool) else e(str(x))
+
+        def _num(x, nd=2) -> str:
+            return "n/v" if isinstance(x, bool) or not isinstance(x, (int, float)) or x != x else f"{x:.{nd}f}"
+
+        def _cnt(x) -> int:
+            return len(x) if isinstance(x, (list, tuple, set, dict)) else 0
+
+        title = "EXPECTATION ALPHA – SHADOW (Research, keine Handelsempfehlung)"
+        if ea.get("status") == "ERROR":
+            lines = [f"EA-Fehler: {e(str(ea.get('error') or 'unbekannt'))}"]
+        else:
+            sc = ea.get("status_counts") if isinstance(ea.get("status_counts"), dict) else {}
+            grp = ea.get("groups") if isinstance(ea.get("groups"), dict) else {}
+            gz = ea.get("gap_z") if isinstance(ea.get("gap_z"), dict) else {}
+            n_err = _cnt(ea.get("errors")) + _cnt(ea.get("run_errors")) + _cnt(ea.get("candidate_errors"))
+            lines = [
+                f"Kandidaten: {_n(ea.get('candidate_count'))} (angereichert {_n(ea.get('enriched_count'))})",
+                "Status: " + " · ".join(f"{lab} {_n(sc.get(k, ea.get(f'{key}_count')))}" for lab, k, key in (
+                    ("Shadow-TRADE", "TRADE", "shadow_trade"), ("WAIT", "WAIT", "wait"),
+                    ("ABSTAIN", "ABSTAIN", "abstain"), ("ERROR", "ERROR", "error"))),
+                "Gruppen: " + " · ".join(f"{g} {_n(grp.get(g))}" for g in "ABCDEX"),
+                "gap_z: " + (" · ".join(f"{e(str(d))} {_num(v)}" for d, v in gz.items()) or "n/v"),
+                f"Regime-Unsicherheit: {_num(ea.get('regime_uncertainty'))}",
+                f"Anzahl Fehler: {n_err}"]
+        body = "".join(f"<div style='margin:2px 0;'>{ln}</div>" for ln in lines)
+        return ("<div style='margin-top:16px;padding:10px 12px;border:1px dashed #94a3b8;border-radius:6px;"
+                "background:#f1f5f9;color:#475569;font-size:12px;'>"
+                f"<div style='font-weight:bold;color:#334155;margin-bottom:4px;'>{e(title)}</div>{body}"
+                "<div style='margin-top:4px;font-size:11px;color:#64748b;'>Nur Aggregate, keine Ticker. Kein Einfluss auf "
+                "Champion, Scores, Gates oder Sizing.</div></div>")
+    except Exception as ex:  # noqa: BLE001 – SHADOW-Anzeige darf die Mail nie brechen
+        log.warning(f"_ea_shadow_html Fehler (ignoriert): {type(ex).__name__}: {ex}")
+        return ""
+
+
 def send_status_email(pipeline_stats: dict, today: str, health: dict | None = None) -> None:
     trades  = pipeline_stats.get("trades", 0)
     subject = (
@@ -65,7 +112,7 @@ def send_email(proposals: list[dict], today: str, pipeline_stats: dict | None = 
     proposals = [p for p in proposals
                  if p.get("trade_score", {}).get("total", 0) >= trade_score_min]
     if proposals:
-        html    = _build_trade_email(proposals, today)
+        html    = _build_trade_email(proposals, today, ea=pipeline_stats.get("expectation_alpha"))
         subject = f"Adaptive Asymmetry-Scanner – Trade Empfehlung – {today}"
     else:
         stats   = {**pipeline_stats, "trades": 0}
@@ -231,6 +278,7 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
   <div style="padding:24px 32px;">
     <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">{rows}</table>
     {_external_context_html()}
+    {_ea_shadow_html(stats.get("expectation_alpha"))}
   </div>{health_html}
   <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
     Adaptive Asymmetry-Scanner {APP_VERSION} &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
@@ -238,7 +286,7 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
 </div></body></html>"""
 
 
-def _build_trade_email(proposals: list[dict], today: str) -> str:
+def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None) -> str:
     cards = ""
     for i, p in enumerate(proposals, 1):
         ticker   = p.get("ticker", "?")
@@ -563,7 +611,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Trade Empfehlung — {len(proposals)} Signal(e)</div>
     <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; {APP_VERSION}</div>
   </div>
-  <div style="padding:24px 32px;">{cards}{_v2_recommendation_html(today)}{_external_context_html()}</div>
+  <div style="padding:24px 32px;">{cards}{_v2_recommendation_html(today)}{_ea_shadow_html(ea)}{_external_context_html()}</div>
 </div></body></html>"""
 
 

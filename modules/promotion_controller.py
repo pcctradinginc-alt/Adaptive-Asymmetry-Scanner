@@ -791,7 +791,7 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         outcomes_path: Path | None = None, looks_path: Path | None = None, state_path: Path | None = None,
         history: dict | None = None, approvals: dict | None = None, safe_mode: dict | None = None,
         final_mc_dir: Path | None = None, final_mc_outcomes: Path | None = None,
-        v2_dir: Path | None = None, v2_outcomes: Path | None = None) -> dict:
+        v2_dir: Path | None = None, v2_outcomes: Path | None = None, ea_root: Path | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     safe_mode = safe_mode if safe_mode is not None else _safe_mode_state()
     now_s = now.isoformat(timespec="seconds")
@@ -815,6 +815,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
     fm_rows, fm_outs = fml.read_rows(final_mc_dir), fml.read_outcomes(final_mc_outcomes)
     from modules import universe_v2_ledger as v2l
     v2_rows, v2_outs = fml.read_rows(v2_dir or v2l.DIR), v2l.read_outcomes(v2_outcomes)
+    from modules.expectation_alpha import ledger as eal          # EA_NEWS_CANDIDATE (SHADOW, research_only)
+    ea_rows, ea_outs = eal.read_rows(ea_root), eal.read_outcomes(ea_root)
     cv, dv = code_version(), data_version(ledger_dir, outcomes_path)
     reg_hash = {e["key"]: e["spec_hash"] for e in reg_entries}
     state = {"generated": now_s, "policy_version": policy.get("version"), "policy_hash": policy_hash(policy),
@@ -841,6 +843,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
             ev_fn = (lambda *a, **k: fml.evidence(c, h, fm_rows, fm_outs, *a, **k))
         elif stage == v2l.STAGE:            # UNIVERSE_V2: nur net_realizable_return, eigener Ledger
             ev_fn = (lambda *a, **k: v2l.evidence(c, h, v2_rows, v2_outs, *a, **k))
+        elif stage == eal.STAGE:            # Expectation Alpha: nur EA-Ledger, Einfluss bleibt NONE
+            ev_fn = (lambda *a, **k: eal.evidence(c, h, ea_rows, ea_outs, *a, **k))
         else:
             ev_fn = (lambda *a, **k: evidence(c, h, rows, outs, *a, **k))
         ev = ev_fn(policy, ai["alpha_effective"]) if integrity_ok else {
