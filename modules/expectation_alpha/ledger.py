@@ -165,18 +165,23 @@ def _path(bars: list, i0: int, i1: int, sign: float, cost: float) -> dict:
 
 def _frozen_spec(row: dict) -> list[dict]:
     return [{"signal": s["signal"], "expected": s["expected"], "deadband": s["deadband"],
-             "weight": s.get("weight", 1.0)} for s in (row.get("cross_asset_confirmation") or {}).get("signals") or []]
+             "weight": s.get("weight", 1.0), "family": s.get("family")}
+            for s in (row.get("cross_asset_confirmation") or {}).get("signals") or []]
 
 
-def _metrics_on(sig_row: pd.Series | None, row: dict, spec: list[dict], min_av: int) -> dict:
+def _metrics_on(sig_row: pd.Series | None, row: dict, spec: list[dict], min_families: int,
+                dampening: float) -> dict:
+    """Bestätigung an einem Replay-Tag mit der eingefrorenen Spezifikation (Familien, Dämpfung aus der Zeile)."""
     if sig_row is None:
         return {}
     vals = {k: rnd(v, 6) for k, v in sig_row.items()}
-    c = cac.confirm(spec, vals)
+    c = cac.confirm(spec, vals, dampening=dampening)
     etf, d = row.get("sector_etf"), row.get("direction_sign") or 1
     rs = vals.get(f"sector_rs_20d:{etf}") if etf else None
-    return {"confirmation_ratio": c["confirmation_ratio"] if c["n_available"] >= min_av else None,
-            "n_available": c["n_available"], "sector_rs_20d_aligned": None if rs is None else d * rs}
+    ok = c["family_count"] >= min_families
+    return {"effective_confirmation_ratio": c["effective_confirmation_ratio"] if ok else None,
+            "confirmation_ratio": c["confirmation_ratio"] if ok else None,
+            "family_count": c["family_count"], "sector_rs_20d_aligned": None if rs is None else d * rs}
 
 
 def _cond(m: dict, cond: dict) -> bool:
@@ -187,10 +192,11 @@ def _cond(m: dict, cond: dict) -> bool:
 def trigger_day(row: dict, sig: pd.DataFrame, bars: list, i0: int) -> int | None:
     """Erster Tag j in [i0, i0 + max_wait) mit erfülltem Trigger, nur mit Schlusskursen <= j."""
     trig = row.get("wait_trigger") or {}
-    spec, min_av = _frozen_spec(row), int(trig.get("min_confirmation_available", 3))
+    spec, min_f = _frozen_spec(row), int(trig.get("min_confirmation_families", 3))
+    damp = float(trig.get("family_dampening", 0.5))
     for j in range(i0, min(len(bars), i0 + int(trig.get("max_wait_trading_days", 10)))):
         ts = pd.Timestamp(bars[j][0])
-        m = _metrics_on(sig.loc[ts] if ts in sig.index else None, row, spec, min_av)
+        m = _metrics_on(sig.loc[ts] if ts in sig.index else None, row, spec, min_f, damp)
         if any(_cond(m, c) for c in trig.get("any_of") or []):
             return j
     return None
@@ -222,7 +228,8 @@ def kill_events(row: dict, bars: list, i0: int, i_end: int, sig: pd.DataFrame | 
         spec, run = _frozen_spec(row), 0
         for j in range(i0 + 1, i_end + 1):
             ts = pd.Timestamp(bars[j][0])
-            m = _metrics_on(sig.loc[ts] if ts in sig.index else None, row, spec, int(mcf.get("min_available", 3)))
+            m = _metrics_on(sig.loc[ts] if ts in sig.index else None, row, spec, int(mcf.get("min_families", 3)),
+                            float(mcf.get("family_dampening", 0.5)))
             run = run + 1 if _cond(m, mcf) else 0
             if run >= int(mcf.get("consecutive_days", 5)):
                 ev["market_confirmation_failure"] = j - i0

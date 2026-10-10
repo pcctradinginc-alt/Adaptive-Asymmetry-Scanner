@@ -29,6 +29,7 @@ scopes:
   prescreening: production
   deep_analysis: production
   shadow_relation: shadow
+  ea_claims: shadow                  # Expectation-Alpha-Claims (Logging, drosselbar)
   hypothesis_factory: research
 
 # Budgets (USD). Warnung ab warn_fraction; ab 100 % werden drosselbare Bereiche

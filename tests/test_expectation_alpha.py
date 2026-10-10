@@ -81,8 +81,8 @@ def test_level_gap_inflation_math_and_units(data):
     assert g["gap_raw"] == pytest.approx(expected, abs=1e-3)
     assert g["model"]["value"] == pytest.approx(expected + 2.0, abs=1e-3)
     assert g["market"]["value"] == pytest.approx(2.0)
-    # konstanter Gap -> Std 0 -> z nicht belastbar (INSUFFICIENT_DATA), Rohwert bleibt
-    assert g["status"] == "INSUFFICIENT_DATA" and g["gap_z"] is None
+    # konstanter Gap über lange Historie -> Std 0 -> z undefiniert (UNAVAILABLE, kein Warm-up-Fall), Rohwert bleibt
+    assert g["status"] == "UNAVAILABLE" and g["gap_z"] is None and "Streuung" in g["reason"]
     comp = g["model"]["components"]["cpi_3m_ann"]
     for k in ("value", "unit", "source", "observed_at", "published_at", "available_at", "retrieved_at", "vintage",
               "transformation", "freshness_days", "confidence"):
@@ -187,8 +187,8 @@ def test_unmapped_sector_has_no_sector_signal():
 
 # ── Entscheidung ────────────────────────────────────────────────────────────
 NEWS_S, NEWS_W = {"strength": "STRONG"}, {"strength": "WEAK"}
-CONF_OK = {"n_available": 4, "confirmation_ratio": 0.75, "conflict_share": 0.0}
-CONF_LO = {"n_available": 4, "confirmation_ratio": 0.5, "conflict_share": 0.25}
+CONF_OK = {"family_count": 4, "effective_confirmation_ratio": 0.75, "effective_conflict_share": 0.0}
+CONF_LO = {"family_count": 4, "effective_confirmation_ratio": 0.5, "effective_conflict_share": 0.25}
 
 
 def test_decision_statuses_are_distinct():
@@ -200,13 +200,15 @@ def test_decision_statuses_are_distinct():
     assert d(context={"context_status": -1})["status"] == ABSTAIN
     assert d(news=NEWS_W, context={"context_status": 0})["status"] == ABSTAIN
     assert d(regime_uncertainty=0.9)["reasons"] == ["REGIME_UNCERTAIN"]
-    assert d(confirmation={"n_available": 4, "confirmation_ratio": 0.25, "conflict_share": 0.5})["status"] == ABSTAIN
+    assert d(confirmation={"family_count": 4, "effective_confirmation_ratio": 0.25,
+                           "effective_conflict_share": 0.5})["status"] == ABSTAIN
     e = d(errors=["DATENFEHLER"])
     assert e["status"] == ERROR and e["status"] != ABSTAIN and e["wait_trigger"] is None
     # kein Kontext überhaupt -> ERROR (Datenfehler), nie ABSTAIN
-    assert d(context={"context_status": None}, confirmation={"n_available": 0}, regime_uncertainty=None)["status"] == ERROR
-    # weniger als 3 verfügbare Signale -> nie TRADE
-    assert d(confirmation={"n_available": 2, "confirmation_ratio": 1.0, "conflict_share": 0.0})["status"] == WAIT
+    assert d(context={"context_status": None}, confirmation={"family_count": 0}, regime_uncertainty=None)["status"] == ERROR
+    # weniger als 3 unabhängige Evidenz-Familien -> nie TRADE (auch bei vielen Rohsignalen derselben Familie)
+    assert d(confirmation={"family_count": 2, "n_available": 6, "effective_confirmation_ratio": 1.0,
+                           "effective_conflict_share": 0.0})["status"] == WAIT
 
 
 def test_kill_conditions_immutable_and_ttm():

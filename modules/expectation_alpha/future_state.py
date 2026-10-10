@@ -23,7 +23,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from modules.expectation_alpha.schemas import INSUFFICIENT_DATA, OK, UNAVAILABLE, rnd
+from modules.expectation_alpha.schemas import INSUFFICIENT_HISTORY, OK, UNAVAILABLE, rnd
 
 ROC_FIELDS = ("level", "delta_1m", "delta_3m", "velocity", "acceleration", "change_of_change", "z",
               "percentile", "regime_state", "regime_transition_probability", "uncertainty")
@@ -62,32 +62,59 @@ def roc_frame(s: pd.Series, d1: int = 4, d3: int = 13) -> pd.DataFrame:
     return f
 
 
+def min_points(d1: int, d3: int, min_hist: int) -> dict[str, int]:
+    """Mindestzahl gültiger Beobachtungen je Feld (aus den Config-Lags abgeleitet, nachvollziehbar):
+    Δ über k Wochen braucht k+1 Punkte; change_of_change braucht d3+d1+1; z/Perzentil min_hist Vergangenheitswerte + t."""
+    return {"delta_1m": d1 + 1, "delta_3m": d3 + 1, "velocity": d3 + 1, "acceleration": d3 + 1,
+            "change_of_change": d3 + d1 + 1, "z": min_hist + 1, "percentile": min_hist + 1}
+
+
 def roc_set(s: pd.Series, cfg: dict, *, unit: str, min_hist: int, thr: float | None = None) -> dict:
-    """Vollständiger RoC-Satz am letzten Stichtag (+ Historienfenster). Fehlt x_t -> UNAVAILABLE."""
+    """Vollständiger RoC-Satz am letzten Stichtag (+ Historienfenster).
+    Warm-up: Felder mit zu wenig Historie sind None mit history_status INSUFFICIENT_HISTORY. Sie werden nie mit 0,
+    neutral, einem künstlichen Extrem-z oder einem Forward-Fill gefüllt. Fehlt x_t, ist der Status UNAVAILABLE."""
     from modules import world_model as wm
     from modules.expectation_alpha.regime_change import state_of, transition_probability
     fs = cfg.get("future_state") or {}
+    d1, d3 = int(fs.get("delta_1m_weeks", 4)), int(fs.get("delta_3m_weeks", 13))
     thr = float(wm.WP["state_threshold"]) if thr is None else thr
     s = s.astype(float)
     hist = s.dropna()
-    base = {"unit": unit, "n_history": int(len(hist)),
+    n_valid = int(len(hist))
+    base = {"unit": unit, "n_history": n_valid,
             "window_start": hist.index[0].date().isoformat() if len(hist) else None,
             "window_end": hist.index[-1].date().isoformat() if len(hist) else None}
     if s.empty or np.isnan(s.iloc[-1]):
-        return {**base, **{k: None for k in ROC_FIELDS}, "status": UNAVAILABLE}
-    rf = roc_frame(s, int(fs.get("delta_1m_weeks", 4)), int(fs.get("delta_3m_weeks", 13))).iloc[-1]
+        return {**base, **{k: None for k in ROC_FIELDS}, "status": UNAVAILABLE,
+                "history_status": {k: UNAVAILABLE for k in ROC_FIELDS}, "insufficient_history_fields": []}
+    need = min_points(d1, d3, min_hist)
+    rf = roc_frame(s, d1, d3).iloc[-1]
     z = expanding_z(s, min_hist)
     pct = expanding_percentile(s, min_hist)
-    zl = z.iloc[-1]
-    out = {**base, **{k: rnd(rf[k]) for k in ("level", "delta_1m", "delta_3m", "velocity", "acceleration",
-                                               "change_of_change")}}
+    hs: dict[str, str] = {"level": OK}
+    out = {**base, "level": rnd(rf["level"])}
+    for f in ("delta_1m", "delta_3m", "velocity", "acceleration", "change_of_change"):
+        if n_valid < need[f]:
+            out[f], hs[f] = None, INSUFFICIENT_HISTORY
+        else:
+            out[f] = rnd(rf[f])
+            hs[f] = OK if out[f] is not None else UNAVAILABLE           # Lücke im Lag-Punkt -> fehlend
+    zl = z.iloc[-1] if n_valid >= need["z"] else np.nan
     out["z"] = rnd(zl, 4)
-    out["percentile"] = rnd(pct.iloc[-1], 4)
+    hs["z"] = OK if out["z"] is not None else (INSUFFICIENT_HISTORY if n_valid < need["z"] else UNAVAILABLE)
+    out["percentile"] = rnd(pct.iloc[-1], 4) if n_valid >= need["percentile"] else None
+    hs["percentile"] = OK if out["percentile"] is not None else (
+        INSUFFICIENT_HISTORY if n_valid < need["percentile"] else UNAVAILABLE)
     out["regime_state"] = state_of(zl, thr)
+    hs["regime_state"] = hs["z"]
     tp = transition_probability(z, thr, int(fs.get("transition_lookahead_weeks", 4)),
                                 int(fs.get("transition_min_history", 104)))
     out["regime_transition_probability"] = tp["value"]
     out["transition_detail"] = tp
+    hs["regime_transition_probability"] = INSUFFICIENT_HISTORY if hs["z"] == INSUFFICIENT_HISTORY else tp["status"]
     out["uncertainty"] = rnd(1.0 - min(1.0, abs(abs(zl) - thr) / thr), 3) if not np.isnan(zl) else None
-    out["status"] = OK if out["z"] is not None else INSUFFICIENT_DATA
+    hs["uncertainty"] = hs["z"]
+    out["history_status"] = hs
+    out["insufficient_history_fields"] = sorted(k for k, v in hs.items() if v == INSUFFICIENT_HISTORY)
+    out["status"] = OK if out["z"] is not None else hs["z"]
     return out

@@ -192,13 +192,27 @@ def test_pipeline_uses_ea_only_via_shadow_hooks():
     assert not re.search(r"\banalyses\s*=\s*_ea", src) and "_ea_sum[" not in src   # Rückgabe nie in Kandidatenlisten
 
 
+LLM_ALLOWED = {"claim_extraction.py"}          # einziger (separater, SHADOW) LLM-Call: Claims strukturieren
+NO_LLM_DECISION = ("expectation_gap.py", "regime_change.py", "cross_asset_confirmation.py", "timing.py",
+                   "thesis.py", "ledger.py", "evaluation.py", "claims.py", "future_state.py", "data.py")
+
+
 def test_ea_modules_never_write_production_files():
     from tests.test_promotion import _writes_to_protected
     for f in sorted((ROOT / "modules" / "expectation_alpha").glob("*.py")):
         assert _writes_to_protected(f) == [], f.name
         src = f.read_text(encoding="utf-8")
-        for bad in ("anthropic", "openai", "apply_to_proposals", "history.json", "trade_score"):
-            assert bad not in src, (f.name, bad)                 # kein LLM, kein Produktionspfad
+        for bad in ("openai", "apply_to_proposals", "history.json", "trade_score"):
+            assert bad not in src, (f.name, bad)                 # kein Produktionspfad
+        if f.name not in LLM_ALLOWED:
+            assert "anthropic" not in src, f.name                 # kein LLM außer im Claim-Extraktor
+    # Gap, Regime, Bestätigung, Status, Ledger, Outcomes, Evaluation: weder LLM noch Claim-Extraktor importiert
+    for name in NO_LLM_DECISION:
+        tree = ast.parse((ROOT / "modules" / "expectation_alpha" / name).read_text(encoding="utf-8"))
+        imported = {a.name for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
+                    for a in n.names} | {n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
+        calls = {n.func.attr for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}
+        assert not {"claim_extraction", "anthropic"} & imported and "tracked_create" not in calls, name
 
 
 # ── Promotion ───────────────────────────────────────────────────────────────

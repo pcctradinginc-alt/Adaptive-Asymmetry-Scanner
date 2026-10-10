@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from modules.expectation_alpha.schemas import INSUFFICIENT_DATA, OK, UNAVAILABLE, rnd
+from modules.expectation_alpha.schemas import INSUFFICIENT_HISTORY, OK, UNAVAILABLE, rnd
 
 MARGIN_BUCKETS = (0.25, 0.5, 1.0)      # |(|z| - Schwelle)| in z-Einheiten -> 4 Klassen (fest, nicht gefittet)
 MIN_BUCKET_N = 20
@@ -52,7 +52,7 @@ def transition_probability(z: pd.Series, thr: float, lookahead: int, min_history
         if _bucket(abs(abs(a) - thr)) == cb:
             same.append(state_of(a, thr) != state_of(b, thr))
     if anchors < min_history or len(same) < MIN_BUCKET_N:
-        return {"value": None, "status": INSUFFICIENT_DATA, "n_anchors": anchors, "n_bucket": len(same)}
+        return {"value": None, "status": INSUFFICIENT_HISTORY, "n_anchors": anchors, "n_bucket": len(same)}
     return {"value": rnd(float(np.mean(same)), 4), "status": OK, "n_anchors": anchors, "n_bucket": len(same),
             "margin_bucket": cb}
 
@@ -83,11 +83,20 @@ def regime_snapshot(states: pd.DataFrame, cfg: dict) -> dict:
             continue
         score = states[f"{dim}_score"].astype(float)
         prev = states[f"{dim}_state"].iloc[-2] if len(states) > 1 else None
-        roc = roc_frame(score, int(fs.get("delta_1m_weeks", 4)), int(fs.get("delta_3m_weeks", 13))).iloc[-1]
-        dims[dim] = {"state": st, "previous_state": prev, "changed": bool(prev is not None and prev != st),
+        d1, d3 = int(fs.get("delta_1m_weeks", 4)), int(fs.get("delta_3m_weeks", 13))
+        roc = roc_frame(score, d1, d3).iloc[-1]
+        warm = int(score.notna().sum()) >= d3 + 1           # Dynamik erst mit d3+1 gültigen Score-Wochen
+        dims[dim] = {"state": st, "previous_state": prev,
+                     "changed": bool(prev is not None and prev not in ("no_data", "unavailable") and prev != st),
                      "score": rnd(last.get(f"{dim}_score"), 4), "uncertainty": rnd(last.get(f"{dim}_uncertainty"), 3),
-                     "velocity": rnd(roc["velocity"], 4), "acceleration": rnd(roc["acceleration"], 4),
+                     "velocity": rnd(roc["velocity"], 4) if warm else None,
+                     "acceleration": rnd(roc["acceleration"], 4) if warm else None,
+                     "dynamics_status": OK if warm else INSUFFICIENT_HISTORY,
                      "transition": transition_probability(score, thr, look, mh), "status": OK}
-    return {"status": OK, "date": states.index[-1].date().isoformat(),
-            "regime_uncertainty": rnd(last.get("uncertainty"), 3),
-            "n_dims_available": int(last.get("n_dims_available") or 0), "dimensions": dims}
+    n_av = int(last.get("n_dims_available") or 0)
+    min_dims = int((cfg.get("warmup") or {}).get("regime_min_dims_available", 6))
+    ok = n_av >= min_dims
+    return {"status": OK if ok else INSUFFICIENT_HISTORY, "date": states.index[-1].date().isoformat(),
+            "regime_uncertainty": rnd(last.get("uncertainty"), 3) if ok else None,
+            "regime_uncertainty_status": OK if ok else INSUFFICIENT_HISTORY, "min_dims_available": min_dims,
+            "n_dims_available": n_av, "dimensions": dims}

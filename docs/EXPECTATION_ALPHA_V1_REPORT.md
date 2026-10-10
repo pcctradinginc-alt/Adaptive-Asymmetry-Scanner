@@ -134,6 +134,7 @@ Lokaler Registrierungstest gegen eine Kopie der echten Registry: alle sieben `VA
 9. **Einstieg nach Börsenschluss:** Bei einer Entscheidung nach 16:00 New York wäre der bereits bekannte Schlusskurs der Einstieg gewesen. Jetzt gilt der erste Schlusskurs nach der Entscheidung (`entry_not_before`).
 
 ## 8. Was NICHT bewiesen ist
+- V1.1-Erweiterungen (Familien-Dämpfung, Claims, Warm-up-Guards, Lead-Lag): ebenfalls **keine Alpha-Evidenz**. Details stehen in `docs/ROBUSTNESS_LEARNING_V1.md`.
 - Ob Erwartungs-Gaps, Bestätigung, Beschleunigung, WAIT, Kontextfilter, Abstinenz oder Expression-Wahl Alpha liefern: **null Forward-Beobachtungen**.
 - Ob die vorab gesetzten Schwellen gut sind. Sie wurden nicht optimiert und werden es nicht; eine Änderung erfordert eine neue Vertragsversion.
 - Ob der Kurspfad in CI stabil läuft. Lokal gab es kein Netz; getestet ist er mit synthetischen Daten.

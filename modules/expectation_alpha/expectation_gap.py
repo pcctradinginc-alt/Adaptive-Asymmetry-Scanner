@@ -24,7 +24,7 @@ import pandas as pd
 
 from modules.expectation_alpha import data as eadata
 from modules.expectation_alpha.future_state import expanding_percentile, expanding_z, roc_set
-from modules.expectation_alpha.schemas import (FeatureValue, INSUFFICIENT_DATA, OK, STALE, UNAVAILABLE, rnd)
+from modules.expectation_alpha.schemas import (FeatureValue, INSUFFICIENT_HISTORY, OK, STALE, UNAVAILABLE, rnd)
 
 # Komponente -> (Art, Quelle/Metrik, Transformation, Frische-Klasse, Einheit)
 #   macro: world_model.MACRO-Indikator (PIT-Vintages)   market: aus Tagesschlüssen
@@ -183,9 +183,12 @@ def domain_gaps(inp: eadata.Inputs, dates: list[pd.Timestamp], cfg: dict) -> dic
             res["gap_z"] = rnd(gz.iloc[-1], 4)
             res["gap_percentile"] = rnd(gp.iloc[-1], 4)
             res["gap_roc"] = roc_set(gap, cfg, unit=spec.get("unit") or "", min_hist=min_hist)
-            if res["gap_z"] is None:
-                res.update(status=INSUFFICIENT_DATA, sign=None,
-                           reason=f"Gap-Historie {len(hist)} < {min_hist} Wochen (z/Perzentil nicht belastbar)")
+            if res["gap_z"] is None and len(hist) <= min_hist:
+                res.update(status=INSUFFICIENT_HISTORY, sign=None,
+                           reason=f"Gap-Historie {len(hist)} <= {min_hist} Wochen (Warm-up, z/Perzentil nicht belastbar)")
+            elif res["gap_z"] is None:
+                res.update(status=UNAVAILABLE, sign=None,
+                           reason="Gap-Historie ohne Streuung (z nicht definiert)")
             else:
                 res.update(status=OK, sign=int(np.sign(res["gap_z"])))
         res["series_tail"] = {d.date().isoformat(): rnd(v, 4) for d, v in gap.tail(8).items()}
