@@ -40,6 +40,7 @@ from pathlib import Path
 import numpy as np
 
 from modules import ml_research as ml
+from modules.atomic_io import append_jsonl
 
 log = logging.getLogger(__name__)
 
@@ -475,10 +476,10 @@ def run(send: bool = False, dry_run: bool = True, today: date | None = None, pan
                         state[a["ticker"]] = prev_state[a["ticker"]]
                     else:
                         state.pop(a["ticker"], None)
-                with open(out_dir / "alerts_log.jsonl", "a", encoding="utf-8") as fh:
-                    fh.write(json.dumps({"date": today.isoformat(), "ticker": a["ticker"], "signal_id": a["signal_id"],
-                                         "reason": a["alert_reason"], "status": res.get("status"),
-                                         "confidence": a["confidence"], "p": a["calibrated_probability"]}) + "\n")
+                append_jsonl(out_dir / "alerts_log.jsonl",
+                             [{"date": today.isoformat(), "ticker": a["ticker"], "signal_id": a["signal_id"],
+                               "reason": a["alert_reason"], "status": res.get("status"),
+                               "confidence": a["confidence"], "p": a["calibrated_probability"]}])
         if send:
             (out_dir / "alerts_state.json").write_text(json.dumps(state, indent=1))
     # Gedächtnis: Top-Liste des aktiven Ensembles + Kandidaten (append-only)

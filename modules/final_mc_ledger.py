@@ -126,14 +126,14 @@ def record_downstream(observations: list[dict], outcome_by_ticker: dict[str, dic
     now_s = (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")
     if not observations:
         return 0
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as fh:
-        for o in observations:
-            d = outcome_by_ticker.get(o["ticker"]) or {}
-            fh.write(json.dumps({"observation_id": o["observation_id"], "recorded_at": now_s,
-                                 "champion_decision": d.get("champion_decision") or "UNKNOWN",
-                                 "reason": d.get("reason"), "fail_gates": d.get("fail_gates")},
-                                sort_keys=True, default=str) + "\n")
+    from modules.atomic_io import append_jsonl
+    rows = []
+    for o in observations:
+        d = outcome_by_ticker.get(o["ticker"]) or {}
+        rows.append({"observation_id": o["observation_id"], "recorded_at": now_s,
+                     "champion_decision": d.get("champion_decision") or "UNKNOWN",
+                     "reason": d.get("reason"), "fail_gates": d.get("fail_gates")})
+    append_jsonl(path, rows, sort_keys=True, default=str)
     return len(observations)
 
 

@@ -59,6 +59,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from modules import market_snapshot
+from modules.atomic_io import append_jsonl
 from modules.bs_pricing import bs_price
 
 log = logging.getLogger(__name__)
@@ -1140,9 +1141,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             new_lines.append(row)
 
         if new_lines:
-            with open(month_file, "a", encoding="utf-8") as f:
-                for row in new_lines:
-                    f.write(json.dumps(row, default=str) + "\n")
+            append_jsonl(month_file, new_lines, default=str)
             log.info(f"candidate_ledger: {len(new_lines)} Kandidat(en) geloggt → {month_file}")
 
         _state["flushed"] = True

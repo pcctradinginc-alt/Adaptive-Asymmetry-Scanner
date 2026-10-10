@@ -44,6 +44,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from modules.atomic_io import append_jsonl
+
 log = logging.getLogger(__name__)
 
 CONFIG = Path("config/source_health.yaml")
@@ -765,12 +767,11 @@ def scanner_preflight(now: datetime | None = None, *, cfg: dict | None = None, l
 def append_history(snap: dict, path: Path | None = None) -> int:
     path = path or HISTORY
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as fh:
-        for sid, s in snap["sources"].items():
-            fh.write(json.dumps({"checked_at": snap["generated"], "source_id": sid, "status": s["status"],
-                                 "consecutive_failures": s["consecutive_failures"], "latency": s["latency"],
-                                 "latest_observation": s["latest_observation"], "fallback_active": s["fallback_active"],
-                                 "error": (s["error"] or "")[:200] or None}, ensure_ascii=False) + "\n")
+    rows = [{"checked_at": snap["generated"], "source_id": sid, "status": s["status"],
+             "consecutive_failures": s["consecutive_failures"], "latency": s["latency"],
+             "latest_observation": s["latest_observation"], "fallback_active": s["fallback_active"],
+             "error": (s["error"] or "")[:200] or None} for sid, s in snap["sources"].items()]
+    append_jsonl(path, rows, ensure_ascii=False)
     return len(snap["sources"])
 
 
