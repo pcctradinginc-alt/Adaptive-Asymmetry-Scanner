@@ -284,9 +284,11 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
         return None
 
 
-def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float | None:
+def get_current_spread_price(ticker: str, option: dict, strategy: str, detail: dict | None = None) -> float | None:
     """
-    Aktueller Net-Wert eines Spreads: long_leg_mid − short_leg_mid.
+    Aktueller AUSFÜHRBARER Net-Wert eines Spreads: long.bid − short.ask (= combo_bid).
+    (Docstring bis 2026-10-09 sprach fälschlich von Mid – der Code rechnet executable.)
+    detail: optional, erhält die Leg-Quotes (für modules/spread_execution, keine Zusatz-Calls).
 
     Returns None  → Preis nicht abrufbar (kein verwertbares Outcome).
     Returns float → Net-Wert inkl. 0.0 (Spread wertlos / vollständig verloren).
@@ -317,6 +319,8 @@ def get_current_spread_price(ticker: str, option: dict, strategy: str) -> float 
     long_mid  = long_q["bid"] if long_q else 0.0
     short_mid = short_q["ask"] if short_q else 0.0
 
+    if detail is not None:
+        detail["spread_quotes"] = {"long": long_q, "short": short_q}
     if long_q is not None and short_q is not None and short_mid > 0:
         net = round(long_mid - short_mid, 4)
         log.info(
@@ -389,7 +393,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
         if entry_debit <= 0:
             log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome nicht verwertbar")
             return None
-        current_spread = get_current_spread_price(ticker, option, strategy)
+        current_spread = get_current_spread_price(ticker, option, strategy, detail=meta)
         if current_spread is None:
             # Preis wirklich nicht ermittelbar — nicht als 0.0 ins Training
             log.warning(f"    [{ticker}] Spread-Preis nicht abrufbar → Outcome nicht verwertbar")
@@ -504,57 +508,147 @@ def check_exit_rules(trade: dict, outcome: float, today: datetime) -> str | None
     return None
 
 
-def evaluate_shadow_trades(history: dict, today: datetime) -> None:
+def _spread_execution_monitor(trade: dict, meta: dict, underlying: float, today: datetime) -> dict | None:
+    """Nur Beobachtung + Ledger; jede Ausnahme bleibt folgenlos für Produktion."""
+    if "SPREAD" not in str(trade.get("strategy") or "") or not meta.get("spread_quotes"):
+        return None
+    try:
+        from modules import spread_execution as se
+        q = meta["spread_quotes"]
+        obs = se.monitor(trade, q.get("long"), q.get("short"), underlying)
+        hist = (trade.setdefault("spread_monitor", []) + [obs])[-10:]
+        trade["spread_monitor"] = hist
+        trade["spread_stop_shadow"] = se.stop_shadow(hist)
+        se.record("monitor", trade["ticker"], today.strftime("%Y-%m-%d"),
+                  {"entry_date": trade.get("entry_date"), **obs, "stop_shadow": trade["spread_stop_shadow"]})
+        return obs
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"  [{trade.get('ticker')}] Spread-Execution-Monitoring Fehler (ignoriert): {e}")
+        return None
+
+
+def _spread_execution_exit(trade: dict, obs: dict | None, today: datetime) -> None:
+    if "SPREAD" not in str(trade.get("strategy") or ""):
+        return
+    try:
+        from modules import spread_execution as se
+        entry = trade.get("spread_execution_entry") or {}
+        e_price = trade.get("entry_debit")
+        mid_in, mid_out = entry.get("combo_mid"), (obs or {}).get("combo_mid")
+        bid_out = (obs or {}).get("combo_bid")
+        exit_rec = {"combo_bid": bid_out, "combo_ask": (obs or {}).get("combo_ask"), "combo_mid": mid_out,
+                    "actual_exit_fill": None, "assumed_exit_fill": bid_out, "exit_reason": trade.get("close_reason"),
+                    "quote_quality": (obs or {}).get("quote_quality"),
+                    "slippage_vs_mid": round((mid_out - bid_out) / mid_out, 4) if mid_out and bid_out is not None else None,
+                    "realized_roundtrip_cost": (round(((e_price - mid_in) + (mid_out - bid_out)) / e_price, 4)
+                                                if e_price and mid_in is not None and mid_out is not None and bid_out is not None
+                                                else None),
+                    "stop_shadow": trade.get("spread_stop_shadow")}
+        trade["spread_execution_exit"] = exit_rec
+        se.record("exit", trade["ticker"], today.strftime("%Y-%m-%d"), {"entry_date": trade.get("entry_date"), **exit_rec})
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"  [{trade.get('ticker')}] Spread-Execution-Exit Fehler (ignoriert): {e}")
+
+
+SHADOW_VIEW_RECENT = 300   # nur ANSICHT in history.json; Speicher ist outputs/intelligence/shadow_ledger
+
+
+def _shadow_price_history(ticker: str, start: str, end: str) -> list[tuple[str, float]] | None:
+    """Tages-Schlusskurse start..end (inklusive), split-bereinigt (keine Dividenden-Revision)."""
+    end_excl = (datetime.strptime(end, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    h = yf.Ticker(ticker).history(start=start, end=end_excl, auto_adjust=False)
+    if h is None or h.empty or "Close" not in h:
+        return None
+    return [(ix.strftime("%Y-%m-%d"), float(c)) for ix, c in h["Close"].items() if c == c and c > 0]
+
+
+def _shadow_live_outcome(snapshot: dict) -> tuple[float | None, str]:
+    """Bisherige Legacy-Bewertung (compute_outcome mit Live-Quote) – nur nahe der Fälligkeit aufgerufen."""
+    current = get_current_price(snapshot["ticker"])
+    if current <= 0:
+        raise LookupError("kein aktueller Kurs")
+    meta: dict = {}
+    return compute_outcome(snapshot, current, meta), meta.get("method", "unknown")
+
+
+def evaluate_shadow_trades(history: dict, today: datetime, ledger_dir: Path | None = None,
+                           archive_path: Path | None = None, price_history_fn=None, live_outcome_fn=None) -> dict:
     """
-    Bewertet Schatten-Trades (von Gates verworfene Signale) nach Ablauf
-    der Haltedauer — validiert kostenlos, ob die Gates Gewinner wegfiltern.
+    Bewertet Schatten-Trades (von Gates verworfene Signale) – status-/horizontbasiert (Audit 2026-10-09).
+
+    Vorher: Bewertung nach close_after_days (45 T), aber nur die letzten 300 blieben in history.json;
+    bei 30–47 neuen je Handelstag wurden ungeklärte Trades nach ~8–9 Handelstagen ins nie gelesene
+    Archiv verdrängt. Jetzt: jeder Schatten-Trade wird im append-only Ledger registriert
+    (modules/shadow_ledger.py), Horizonte 20/45/60 T werden bei Fälligkeit bewertet, history.json ist
+    nur noch eine Ansicht (alle ungeklärten + die letzten SHADOW_VIEW_RECENT).
     """
+    from modules import shadow_ledger as sl
+    ledger_dir = ledger_dir or sl.LEDGER_DIR
+    archive_path = archive_path or SHADOW_ARCHIVE
+    legacy_h = int(cfg.learning.close_after_days)
+    d = today.date() if isinstance(today, datetime) else today
     shadows = history.get("shadow_trades", [])
+    sl.recover(shadows, "history_view", d, ledger_dir, legacy_h)          # registriert + vorhandene Legacy-Outcomes
+    if Path(archive_path).exists():
+        from modules.atomic_io import read_jsonl
+        rec = sl.recover(read_jsonl(archive_path), "recovery:shadow_trades_archive", d, ledger_dir, legacy_h)
+        if rec["registered"]:
+            log.info(f"  Shadow-Recovery: {rec['registered']} archivierte Records ins Ledger zurückgeführt "
+                     f"({rec['legacy_outcomes']} mit vorhandenem Legacy-Outcome)")
+    res = sl.run_worker(d, price_history_fn or _shadow_price_history, live_outcome_fn or _shadow_live_outcome,
+                        ledger_dir=ledger_dir, legacy_horizon=legacy_h,
+                        now=today if isinstance(today, datetime) else None)
     for st in shadows:
         if st.get("outcome") is not None:
             continue
-        try:
-            entry_dt = datetime.strptime(st["entry_date"][:10], "%Y-%m-%d")
-        except (ValueError, KeyError):
+        lg = res["legacy"].get(sl.shadow_id(st))
+        if not lg:
             continue
-        if (today - entry_dt).days < cfg.learning.close_after_days:
-            continue
-        current = get_current_price(st["ticker"])
-        if current <= 0:
-            continue
-        _m = {}
-        outcome = compute_outcome(st, current, _m)
-        if outcome is None:
-            continue
-        st["outcome"]    = round(outcome, 4)
-        st["outcome_method"] = _m.get("method", "unknown")
-        st["close_date"] = today.strftime("%Y-%m-%d")
+        st["outcome"], st["outcome_method"], st["close_date"] = lg["outcome"], lg["outcome_method"], lg["close_date"]
         try:
             update_feature_stats_external(history, st)
         except Exception as e:
             log.warning(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
-        log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={outcome:+.2%}")
-    # Liste begrenzen: nur die letzten 300 behalten. Ältere Einträge werden NICHT
-    # verworfen, sondern append-only archiviert — bewertete Schatten-Outcomes sind
-    # die einzige Evidenz für Gate-Audits (ROI-Gate, Final-MC) und dürfen nie verloren gehen.
-    if len(shadows) > 300:
-        archive_shadow_trades(shadows[:-300])
-        history["shadow_trades"] = shadows[-300:]
+        log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={lg['outcome']:+.2%}")
+    log.info(f"  Shadow-Ledger: {res['evaluated']} Horizonte bewertet, {res['retry']} Retry, "
+             f"{res['unavailable']} dauerhaft nicht verfügbar")
+
+    # Ansicht begrenzen – status-basiert: ungeklärte Legacy-Horizonte bleiben IMMER in der Ansicht.
+    if len(shadows) > SHADOW_VIEW_RECENT:
+        resolved = sl.resolved_ids(d, (legacy_h,), ledger_dir)
+        recent = set(range(len(shadows) - SHADOW_VIEW_RECENT, len(shadows)))
+        keep = [st for i, st in enumerate(shadows) if i in recent or sl.shadow_id(st) not in resolved]
+        drop = [st for i, st in enumerate(shadows) if not (i in recent or sl.shadow_id(st) not in resolved)]
+        if drop:
+            archive_shadow_trades(drop, archive_path, ledger_dir=ledger_dir, today=d)
+            history["shadow_trades"] = keep
+    return res
 
 
 SHADOW_ARCHIVE = Path("outputs/shadow_trades_archive.jsonl")
 
 
-def archive_shadow_trades(dropped: list[dict], path: Path | None = None) -> None:
-    """Hängt aus history.json verdrängte Schatten-Trades an das Archiv an (append-only)."""
+def archive_shadow_trades(dropped: list[dict], path: Path | None = None, ledger_dir: Path | None = None,
+                          today=None) -> None:
+    """Legacy-Export aus der history.json-Ansicht verdrängter Schatten-Trades (append-only).
+    Integrität: nur Records, die im Ledger registriert sind und deren Legacy-Horizont aufgelöst ist;
+    sonst ShadowIntegrityError (nichts wird geschrieben oder verworfen)."""
+    from modules import shadow_ledger as sl
     path = path or SHADOW_ARCHIVE
     if not dropped:
         return
+    d = today or datetime.utcnow().date()
+    sl.assert_registered(dropped, ledger_dir)
+    resolved = sl.resolved_ids(d, (int(cfg.learning.close_after_days),), ledger_dir)
+    open_ = [sl.key_of(t) for t in dropped if sl.shadow_id(t) not in resolved]
+    if open_:
+        raise sl.ShadowIntegrityError(f"Verdrängung ungeklärter Schatten-Trades verweigert: {open_[:5]} (n={len(open_)})")
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a") as f:
-        for t in dropped:
-            f.write(json.dumps(t, ensure_ascii=False, default=str) + "\n")
-    log.info(f"  {len(dropped)} Schatten-Trades nach {path} archiviert")
+    from modules.atomic_io import append_jsonl
+    append_jsonl(path, dropped, ensure_ascii=False, default=str)
+    full = sl.resolved_ids(d, sl.HORIZONS, ledger_dir)
+    sl.archive([t for t in dropped if sl.shadow_id(t) in full], d, ledger_dir)
+    log.info(f"  {len(dropped)} bewertete Schatten-Trades aus der Ansicht nach {path} exportiert")
 
 
 # ── Counterfactual: von der Intelligence blockierte Champion-Trades ──────────
@@ -921,9 +1015,9 @@ def retrain_rl_agent(history: dict) -> None:
 # ── Pearson-Gewichte (Legacy-Support) ────────────────────────────────────────
 
 def compute_pearson_weights(history: dict) -> dict:
-    from modules.outcomes import is_reliable_outcome
+    from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
     closed = [t for t in history.get("closed_trades", []) if is_reliable_outcome(t)]
-    if len(closed) < 5:
+    if len(closed) < MIN_RELIABLE_FOR_WEIGHT_UPDATE:
         return history.get("model_weights", {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20})
 
     outcomes, impacts, mismatches, drifts, entry_days = [], [], [], [], set()
@@ -1031,6 +1125,10 @@ def main() -> None:
         # Peak-Return mitschreiben (Grundlage für den Trailing-Paralleltest)
         trade["peak_return"] = round(max(float(trade.get("peak_return") or outcome), outcome), 4)
 
+        # Spread-Execution-Monitoring (SHADOW, 2026-10-09): Fair Value vs. Executable vs. Underlying.
+        # Der Produktions-Stop unten bleibt unverändert (executable, -50 %).
+        _spread_obs = _spread_execution_monitor(trade, meta, current, today)
+
         # ── Regelbasierter Exit (TP/SL/Time-Exit) — auch für junge Trades ────
         exit_reason = check_exit_rules(trade, outcome, today)
         if exit_reason:
@@ -1064,6 +1162,7 @@ def main() -> None:
             trade["close_price"]    = current
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
+            _spread_execution_exit(trade, _spread_obs, today)
             history.setdefault("closed_trades", []).append(trade)
             if reliable:
                 try:

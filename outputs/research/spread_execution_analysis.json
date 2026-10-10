@@ -1,0 +1,73 @@
+{
+ "n_spreads": 85,
+ "buckets": {
+  "<5%": {
+   "n_candidates": 2,
+   "n_with_outcome": 2,
+   "n_reliable": 0,
+   "status": "NEED_MORE_DATA",
+   "mean_outcome_exploratory": 0.3231,
+   "stop_frequency": 0.0,
+   "false_stop_frequency": null,
+   "median_dte": 23.5
+  },
+  "5-10%": {
+   "n_candidates": 11,
+   "n_with_outcome": 10,
+   "n_reliable": 0,
+   "status": "NEED_MORE_DATA",
+   "mean_outcome_exploratory": -0.0086,
+   "stop_frequency": 0.2,
+   "false_stop_frequency": 0.0,
+   "median_dte": 86
+  },
+  "10-15%": {
+   "n_candidates": 10,
+   "n_with_outcome": 10,
+   "n_reliable": 0,
+   "status": "NEED_MORE_DATA",
+   "mean_outcome_exploratory": -0.6072,
+   "stop_frequency": 0.2,
+   "false_stop_frequency": 0.0,
+   "median_dte": 92.5
+  },
+  "15-20%": {
+   "n_candidates": 6,
+   "n_with_outcome": 5,
+   "n_reliable": 0,
+   "status": "NEED_MORE_DATA",
+   "mean_outcome_exploratory": 0.1229,
+   "stop_frequency": 0.2,
+   "false_stop_frequency": 0.0,
+   "median_dte": 58.5
+  },
+  "20-30%": {
+   "n_candidates": 12,
+   "n_with_outcome": 9,
+   "n_reliable": 1,
+   "status": "NEED_MORE_DATA",
+   "mean_outcome_exploratory": -0.2184,
+   "stop_frequency": 0.222,
+   "false_stop_frequency": 0.0,
+   "median_dte": 160.5
+  },
+  ">=30%": {
+   "n_candidates": 44,
+   "n_with_outcome": 18,
+   "n_reliable": 2,
+   "status": "NEED_MORE_DATA",
+   "mean_outcome_exploratory": -0.4486,
+   "stop_frequency": 0.222,
+   "false_stop_frequency": 0.5,
+   "median_dte": 168.0
+  }
+ },
+ "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
+ "note": "Keine automatische Schwellenoptimierung; n < min_n je Bucket -> NEED_MORE_DATA.",
+ "sources": {
+  "closed": 120,
+  "active": 4,
+  "shadow_view": 300,
+  "archive": true
+ }
+}

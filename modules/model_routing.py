@@ -51,9 +51,16 @@ def gate_pass(result: dict | None, impact_min: int = 4, surprise_min: int = 3) -
             and isinstance(sur, (int, float)) and sur >= surprise_min)
 
 
+def max_tokens_for(workflow: str, model: str, pol: dict | None = None, default: int = 1600) -> int:
+    s = ((pol or ct.policy()).get("model_routing") or {}).get(workflow) or {}
+    return int((s.get("max_tokens_by_model") or {}).get(model) or s.get("max_tokens_default") or default)
+
+
 def pair_row(workflow: str, ticker: str | None, reference_model: str, other_model: str,
-             ref: dict | None, other: dict | None, impact_min: int = 4, surprise_min: int = 3) -> dict:
+             ref: dict | None, other: dict | None, impact_min: int = 4, surprise_min: int = 3,
+             ref_stop_reason: str | None = None, other_stop_reason: str | None = None) -> dict:
     gr, go = gate_pass(ref, impact_min, surprise_min), gate_pass(other, impact_min, surprise_min)
+    truncated = "max_tokens" in (ref_stop_reason, other_stop_reason)
 
     def g(r, k):
         return (r or {}).get(k)
@@ -66,7 +73,53 @@ def pair_row(workflow: str, ticker: str | None, reference_model: str, other_mode
             "impact_abs_diff": (abs(float(g(ref, "impact")) - float(g(other, "impact")))
                                 if isinstance(g(ref, "impact"), (int, float))
                                 and isinstance(g(other, "impact"), (int, float)) else None),
-            "other_parse_ok": isinstance(other, dict)}
+            "other_parse_ok": isinstance(other, dict),
+            "ref_stop_reason": ref_stop_reason, "other_stop_reason": other_stop_reason,
+            # TRUNCATED = INVALID_FOR_MODEL_COMPARISON: abgeschnittene Antworten sind keine Modellleistung
+            "comparison_status": "TRUNCATED" if truncated else "VALID"}
+
+
+def annotate_truncation(pairs: list[dict], rows: list[dict]) -> list[dict]:
+    """Ältere Paare ohne comparison_status: Abbruchgrund aus den LLM-Zeilen desselben Laufs (run_id,
+    ticker, model) nachtragen. Ohne Zuordnung bleibt das Paar VALID (wie bisher gewertet)."""
+    idx = {}
+    for r in rows:
+        if r.get("kind") == "llm" and r.get("stop_reason"):
+            idx.setdefault((r.get("run_id"), r.get("ticker"), r.get("model")), []).append(r["stop_reason"])
+    out = []
+    for p in pairs:
+        if p.get("comparison_status"):
+            out.append(p)
+            continue
+        sr = idx.get((p.get("run_id"), p.get("ticker"), p.get("other_model"))) or []
+        rr = idx.get((p.get("run_id"), p.get("ticker"), p.get("reference_model"))) or []
+        trunc = "max_tokens" in sr or "max_tokens" in rr
+        out.append({**p, "comparison_status": "TRUNCATED" if trunc else "VALID",
+                    "other_stop_reason": sr[0] if sr else None, "ref_stop_reason": rr[0] if rr else None})
+    return out
+
+
+def valid_pairs(pairs: list[dict]) -> list[dict]:
+    return [p for p in pairs if p.get("comparison_status", "VALID") == "VALID"]
+
+
+def comparison_report(rows: list[dict], workflow: str = "deep_analysis") -> dict:
+    """Faire Vergleichsbasis: abgeschnittene Antworten getrennt, nie als Modellfehler gezählt."""
+    pairs = annotate_truncation([r for r in rows if r.get("kind") == "route_pair" and r.get("workflow") == workflow], rows)
+    v = valid_pairs(pairs)
+    llm = [r for r in rows if r.get("kind") == "llm" and r.get("stage") == workflow and r.get("cost_usd")]
+    cost = {}
+    for r in llm:
+        cost.setdefault(r.get("model"), []).append(float(r["cost_usd"]))
+    mean = {m: round(sum(c) / len(c), 5) for m, c in cost.items()}
+    return {"pairs_total": len(pairs), "valid_comparisons": len(v),
+            "truncated": sum(1 for p in pairs if p["comparison_status"] == "TRUNCATED"),
+            "equal_gate_decision": sum(1 for p in v if p.get("gate_equal")),
+            "challenger_stricter": sum(1 for p in v if p.get("gate_ref") and not p.get("gate_other")),
+            "challenger_looser": sum(1 for p in v if p.get("gate_other") and not p.get("gate_ref")),
+            "direction_disagreements": sum(1 for p in v if not p.get("direction_equal")),
+            "metrics_valid": metrics(v), "mean_cost_per_call_usd": mean,
+            "note": "Kein Outcome-Ground-Truth: 'stricter/looser' beschreibt Gate-Abweichung, nicht 'besser'."}
 
 
 def metrics(pairs: list[dict]) -> dict:
@@ -100,7 +153,8 @@ def decision(workflow: str, champion: str, rows: list[dict] | None = None, pol: 
             return {"active": champion, "status": "OFF"}
         chal = s["challenger"]
         rows = rows if rows is not None else ct.load_ledger()
-        pairs = [r for r in rows if r.get("kind") == "route_pair" and r.get("workflow") == workflow]
+        pairs = valid_pairs(annotate_truncation(
+            [r for r in rows if r.get("kind") == "route_pair" and r.get("workflow") == workflow], rows))
         # A/B: Champion als Referenz, Challenger als "other"
         ab = [p for p in pairs if p.get("reference_model") == champion and p.get("other_model") == chal]
         m = metrics(ab)

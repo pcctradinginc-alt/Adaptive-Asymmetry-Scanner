@@ -18,6 +18,9 @@
 sources:
   - source_id: nws_forecast
     display_name: "NWS Forecast Grid Data (api.weather.gov)"
+    # ~1,5 MB/Tag -> Monatsdatei ~55 MB (GitHub-Warnung ab 50 MB). Wochen-Partitionen (YYYY-MM-wN, gemessen w1 = 15,7 MB, max. ~16 MB);
+    # Leser lesen alle *.jsonl transparent, Dedup prüft auch die Legacy-Monatsdatei (2026-10-09).
+    normalized_partition: weekly
     family: weather
     authority: "NOAA / National Weather Service"
     official_homepage: "https://www.weather.gov"

@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   report:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: write
@@ -45,6 +45,11 @@ jobs:
         id: calibration
         continue-on-error: true
         run: python scripts/paper_performance_analysis.py
+
+      - name: Spread-Execution Shadow-Analyse (SHADOW_ONLY)
+        id: spread_exec
+        continue-on-error: true
+        run: python -m scripts.spread_execution_analysis
 
       - name: Kernfrage-Ketten (Unklarheit -> Erklärung -> Daten -> Forward -> Verhalten)
         id: inquiry
@@ -73,11 +78,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bash scripts/ci_push.sh "chore: weekly report $(date -u +%Y-%m-%dT%H:%M)" outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl outputs/research/inquiry_chains.json outputs/research/paper_performance_analysis.json outputs/research/paper_performance_analysis.md
+          bash scripts/ci_push.sh "chore: weekly report $(date -u +%Y-%m-%dT%H:%M)" outputs/reports/ outputs/state/ outputs/research/rl_promotion.json outputs/research/rl_promotion_history.jsonl outputs/research/inquiry_chains.json outputs/research/paper_performance_analysis.json outputs/research/paper_performance_analysis.md outputs/research/spread_execution_analysis.json
 
       - name: Stufen-Bilanz (zentrale Stufe ausgefallen -> Lauf rot, nach dem Commit)
         if: always()
         env:
           CRITICAL: "calibration=${{ steps.calibration.outcome }}"
-          DEGRADED: "inquiry=${{ steps.inquiry.outcome }} rl_promotion=${{ steps.rlpromo.outcome }}"
+          DEGRADED: "inquiry=${{ steps.inquiry.outcome }} rl_promotion=${{ steps.rlpromo.outcome }} spread_exec=${{ steps.spread_exec.outcome }}"
         run: bash scripts/ci_stage_check.sh

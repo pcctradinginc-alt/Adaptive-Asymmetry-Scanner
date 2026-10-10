@@ -25,6 +25,7 @@ import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
+from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
 from modules.outcomes import artifact_is_current, class_counts, is_reliable_outcome, outcome_class
 
 log = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ MONDAY_TITLES = {
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
-# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das kalibrierte MC-Band des Kandidaten
+# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das Target-Hit-Score-Band des Kandidaten
 # auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Safe Mode gilt.
 HC_BAND_MIN_N, HC_BAND_MIN_PF, CAL_MIN_N = 20, 1.2, 10
 SCOREBOARD_GROUPS = ("RESEARCH IDEA", "CHALLENGER", "FORWARD VALIDATED", "PROMOTED", "REJECTED")
@@ -86,6 +87,7 @@ SECTION_TITLES = {
     17: "ALTERNATIVE DATA INTELLIGENCE",
     18: "PROMOTION STATUS (Research → Production)",
     19: "RESEARCH FACTORY (Hypothesen, Richtungen, Datenlücken)",
+    20: "SPREAD EXECUTION / LIQUIDITY (SHADOW_ONLY)",
 }
 
 
@@ -533,6 +535,11 @@ def collect(root, date, state_path=None) -> dict:
     data["warnings"] = compute_warnings(data)
     data["week_proposals"] = _week_proposals(out_dir, today)
     data["paper_perf"] = _d(_load_json(rs / "paper_performance_analysis.json"))
+    data["spread_exec"] = _d(_load_json(rs / "spread_execution_analysis.json"))
+    _sel = out_dir / "intelligence" / "spread_execution"
+    data["spread_exec_recent"] = [r for f in sorted(_sel.glob("*.jsonl"))[-2:] for r in _load_jsonl(f)
+                                  if r.get("kind") == "entry_candidate"
+                                  and (_parse_date(r.get("date")) or _date.min) >= today - timedelta(days=7)] if _sel.is_dir() else []
     data["mc_calibration"] = (data["paper_perf"].get("mc_hit_rate_calibration")
                               if artifact_is_current(data["paper_perf"]) else None)
     data["rl_status"] = _load_json(rs / "rl_promotion.json")
@@ -555,8 +562,24 @@ def collect(root, date, state_path=None) -> dict:
         log.warning(f"Final-MC-Ledger nicht lesbar: {e}")
         data["final_mc"] = None
     data["roi_subgates"] = roi_subgate_evidence(history)
+    try:                                              # Shadow-Lifecycle (rein lesend)
+        from modules import shadow_ledger as _sl
+        _ld = out_dir / "intelligence" / "shadow_ledger"
+        data["shadow_lifecycle"] = _sl.health(today, _ld, out_dir / "shadow_trades_archive.jsonl",
+                                              _d(history).get("shadow_trades") or [])
+        data["gate_learning"] = _sl.gate_learning(today, _ld)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Shadow-Ledger nicht lesbar: {e}")
+        data["shadow_lifecycle"], data["gate_learning"] = {"error": str(e)}, {}
     data["universe"] = universe_overview(out_dir)
     data["commodity"] = commodity_overview(out_dir, date)
+    try:                                              # Workflow-Status (Watchdog, rein lesend)
+        from modules import workflow_health as _wh
+        data["workflow_status"] = _wh.weekly_summary(_load_json(out_dir / "state" / "workflow_status.json"),
+                                                     today - timedelta(days=7), today)
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        log.warning(f"Workflow-Status nicht lesbar: {e}")
+        data["workflow_status"] = {}
     try:                                              # LEARNING_HEALTH (rein lesend, gleiche Ableitung wie SystemState)
         from modules import learning_health as _lh
         data["learning_health"] = _lh.assess(root, None, data_health={"commodity": (sys_state or {}).get(
@@ -595,6 +618,36 @@ def universe_overview(out_dir: Path) -> dict:
     except (OSError, ValueError, KeyError) as e:
         log.warning(f"Universe-Übersicht nicht lesbar: {e}")
         return {}
+
+
+def shadow_lifecycle_blocks(data: dict) -> list:
+    """Kompakter Shadow-Lifecycle-Health-Block + Gate-Learning (n<30 -> NEED_MORE_DATA, keine Empfehlung)."""
+    h = _d(data.get("shadow_lifecycle"))
+    if not h:
+        return [("para", "SHADOW LIFECYCLE: " + NO_DATA)]
+    if h.get("error"):
+        return [("para", f"SHADOW LIFECYCLE: Ledger unlesbar ({h['error']})")]
+    s = _d(h.get("status"))
+    lost = h.get("lost_before_evaluation", 0)
+    blocks = [("para", "SHADOW LIFECYCLE HEALTH" + (" – LEARNING_HEALTH DEGRADED (LOST_BEFORE_EVALUATION > 0)" if lost else "")),
+              ("kv", [("PENDING", _fv(s.get("PENDING"))), ("MATURED", _fv((s.get("MATURED") or 0) + (s.get("MATURED_RETRY_REQUIRED") or 0))),
+                      ("PARTIALLY_EVALUATED", _fv(s.get("PARTIALLY_EVALUATED"))), ("EVALUATED", _fv(s.get("EVALUATED"))),
+                      ("OUTCOME_UNAVAILABLE", _fv(s.get("OUTCOME_UNAVAILABLE"))), ("ARCHIVED", _fv(s.get("ARCHIVED"))),
+                      ("LOST_BEFORE_EVALUATION", _fv(lost)),
+                      ("ältester ungeklärter Record (Tage)", _fv(h.get("oldest_unresolved_age_days"))),
+                      ("fällige / überfällige Outcomes", f"{h.get('due_outcomes', 0)} / {h.get('overdue_outcomes', 0)}"),
+                      ("Bewertungen diese Woche", _fv(h.get("evaluations_this_week"))),
+                      ("aus Archiv/Git zurückgeführt", _fv(h.get("recovered_records")))])]
+    gl = _d(data.get("gate_learning"))
+    g = _d(gl.get("groups"))
+    if g:
+        blocks.append(("para", f"GATE LEARNING ({gl.get('horizon_days')} T, {gl.get('basis')}; n < {gl.get('min_n')} -> "
+                               "NEED_MORE_DATA; keine Schwellenempfehlung):"))
+        blocks.append(("table", ["Gruppe", "n", "Status", "Win Rate", "Expectancy", "MFE", "MAE"],
+                       [[k, str(_d(v).get("n")), str(_d(v).get("status")), _fv(_d(v).get("win_rate")),
+                         _fv(_d(v).get("expectancy")), _fv(_d(v).get("mfe")), _fv(_d(v).get("mae"))]
+                        for k, v in g.items()], []))
+    return blocks
 
 
 def roi_subgate_evidence(history) -> dict:
@@ -1111,13 +1164,14 @@ def _band(mc_hit, calib) -> tuple[str | None, dict]:
 
 
 def _calibrated_p(mc_hit, calib) -> str:
-    """Kalibrierte Trefferquote = realisierte Win Rate des MC-Hit-Rate-Bands (echte Paper-Trades)."""
+    """Realisierte Win Rate des Target-Hit-Score-Bands (echte Paper-Trades, deskriptiv – keine
+    Forward-Kalibrierung; Status siehe LIVE_FORWARD_CALIBRATION)."""
     band, b = _band(mc_hit, calib)
     if band is None:
         return NA
     if (b.get("n") or 0) < CAL_MIN_N:
         return f"{NA} (Band {band}: n={b.get('n', 0)} < {CAL_MIN_N})"
-    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Modell sagte {_num(mc_hit) * 100:.0f}%)"
+    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Target-Hit Score {_num(mc_hit) * 100:.0f}%)"
 
 
 def is_high_confidence(p: dict, data: dict) -> bool:
@@ -1153,7 +1207,9 @@ def _candidate_blocks(p: dict, data: dict) -> list:
                                    f"{_f(lf.get('ml_q90_ret_60'), pct=True, sign=True)}] – ML-Research-Schätzung, "
                                    f"nicht produktiv validiert") if lf.get("ml_exp_ret_60") is not None else NA),
         ("Erwartete Rendite 120d", NA + " (kein Modell)"),
-        ("MC-Band-Wahrscheinlichkeit (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
+        (f"{TARGET_HIT_LABEL} ({calibration_status(data.get('paper_perf'))})",
+         _fv(p.get("mc_hit_rate") or sim.get("hit_rate")) + " – Ranking signal only"),
+        ("Band-Win-Rate des Target-Hit Score (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
         ("Erwarteter Drawdown / MAE", (f"{_f(lf.get('ml_exp_dd_60'), pct=True, sign=True)} (60d, ML-Research)"
                                        if lf.get("ml_exp_dd_60") is not None else NA)),
         ("MFE", NA + " (erst nach Outcome messbar)"),
@@ -1224,7 +1280,8 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((1, MONDAY_TITLES[1], [("kv", [
         ("Health", f"{dh.get('status', NA)} · Data Quality {_fv(dh.get('data_quality'))}" if dh else NO_DATA),
         ("Safe Mode", safe_mode_status(st)[1]),
-        ("Drift", f"{dr.get('level', NA)}" + (" – " + "; ".join(map(str, dr.get("reasons") or [])) if dr.get("reasons") else "")),
+        ("Drift", f"{dr.get('level', NA)}" + (" – " + "; ".join(map(str, dr.get("reasons") or [])) if dr.get("reasons") else "")
+                  + drift_input_text(dr)),
         ("Datenquellen", ", ".join(f"{k} {v}" for k, v in cnt.items()) if cnt else NO_DATA),
         ("Champion-Version", f"{cv.get('version', NA)} (ML-Champion: {cv.get('ml_champion') or 'keiner'})" if cv else NO_DATA),
         ("Meta-Modell", f"{meta.get('primary_meta', NA)} v{meta.get('meta_version', NA)}, Verdikt "
@@ -1238,7 +1295,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     ]), ("para", "LEARNING_HEALTH: " + (_d(data.get("learning_health")).get("overall") or NO_DATA)
          + (" – STALLED/BROKEN: " + ", ".join(_d(data.get("learning_health")).get("stalled_or_broken") or [])
             if _d(data.get("learning_health")).get("stalled_or_broken") else "")),
-        ("kv", _learning_rows(data))]))
+        ("kv", _learning_rows(data))] + shadow_lifecycle_blocks(data) + workflow_status_blocks(data)))
 
     # 2 WHAT THE SYSTEM LEARNED
     tr = [t for t in data.get("promo_transitions") or [] if _recent(t.get("timestamp"), today)]
@@ -1342,7 +1399,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     if active is not False:
         b6.append(("para", "Safe Mode aktiv oder unbekannt: keine positiven Intelligence-Boosts; nur Champion-Entscheidungen."))
     hc = [p for p in props if is_high_confidence(p, data)]
-    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): kalibriertes MC-Band auf echten Paper-Trades "
+    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): Target-Hit-Score-Band mit gemessener Win Rate auf echten Paper-Trades "
                        f"mit n >= {HC_BAND_MIN_N}, Expectancy > 0, Profit Factor >= {HC_BAND_MIN_PF}; kein Safe Mode."))
     if not hc:
         b6.append(("para", NO_TRADE_TEXT))
@@ -1375,8 +1432,9 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     cal = _d(data.get("mc_calibration"))
     if cal:
         b7.append(("para", f"{LIVE_FORWARD_LABEL}: {live_forward_text(data)}. Deskriptive Band-Tabelle "
-                           f"(nur RELIABLE Paper-Trades, vorhergesagte MC-Trefferquote vs. realisierte Win Rate):"))
-        b7.append(("table", ["Band", "n", "vorhergesagt", "realisiert", "Expectancy", "PF"],
+                           f"(nur RELIABLE Paper-Trades, {TARGET_HIT_LABEL} ({UNCALIBRATED}) vs. realisierte Win Rate). "
+                           f"{TARGET_HIT_EXPLANATION}"))
+        b7.append(("table", ["Band", "n", f"Ø {TARGET_HIT_LABEL}", "realisierte Win Rate", "Expectancy", "PF"],
                    [[k, str(_d(v).get("n")), _f(_d(v).get("predicted_hit_rate"), pct=True), _f(_d(v).get("win_rate"), pct=True),
                      _f(_d(v).get("mean"), pct=True, sign=True), _fv(_d(v).get("profit_factor"))] for k, v in cal.items()], []))
     models = _d(ml.get("models"))
@@ -1422,6 +1480,35 @@ def api_cost_text(data: dict) -> str:
     flag = "" if bud is None else (" – über Ziel" if c["projected_month_usd"] > float(bud) else " – im Ziel")
     return (f"${c['projected_month_usd']:.2f} (Ziel ≤ ${bud}{flag}) · MTD ${c.get('cost_month_to_date_usd', 0):.2f} · "
             f"je Scanner-Tag ${_fv(c.get('cost_per_scanner_day_usd'))}")
+
+
+def drift_input_text(dr: dict) -> str:
+    """Nur Kennzeichnung (Drift-Policy unverändert): Stand und Alter des Drift-Inputs."""
+    st = dr.get("drift_input_status")
+    if not st:
+        return ""
+    return (f" · Input-Stand {str(dr.get('drift_input_timestamp') or NA)[:10]} "
+            f"({dr.get('drift_input_age_days', NA)} d, {st})")
+
+
+def workflow_status_blocks(data: dict) -> list:
+    """WORKFLOW STATUS (Watchdog): erwartet vs. tatsächlich, Verzögerung, Recovery, verpasst, stale Upstream.
+    Macht die 6–7 h GitHub-Verzögerung sichtbar, ohne sie mit Systemfehlern zu verwechseln."""
+    ws = _d(data.get("workflow_status"))
+    jobs = _d(ws.get("jobs"))
+    if not jobs:
+        return [("para", "WORKFLOW STATUS: " + NO_DATA + " (Watchdog noch ohne Historie)")]
+    rows = []
+    for job, j in jobs.items():
+        rows.append([job, str(j.get("expected_last") or NA)[11:16] + " UTC", str(j.get("actual_last") or NA)[:16].replace("T", " "),
+                     f"{_fv(j.get('delay_hours_median'))} / {_fv(j.get('delay_hours_max'))} h",
+                     str(j.get("recovered", 0)), str(j.get("missed", 0)), str(j.get("stale_upstream_days", 0))])
+    return [("para", f"WORKFLOW STATUS (letzte 7 Tage, {ws.get('days_covered', 0)} Tage erfasst)"),
+            ("table", ["Workflow", "erwartet", "letzter Lauf", "Verzögerung Median/Max", "recovered",
+                       "verpasst (ohne Recovery)", "Tage mit stale Upstream"], rows, []),
+            ("note", "Verzögerung = GitHub-Scheduler (kein Systemfehler), solange der Tag innerhalb der Frist "
+                     "versorgt ist. Verpasst = Frist überschritten und Tag nicht versorgt; je Workflow und Tag "
+                     "höchstens ein Recovery-Lauf.")]
 
 
 def commodity_blocks(data: dict) -> list:
@@ -1591,6 +1678,30 @@ def intelligence_sections(data: dict) -> list:
     out.append((17, SECTION_TITLES[17], alt_data_section(data)))
     out.append((18, SECTION_TITLES[18], promotion_section(data)))
     out.append((19, SECTION_TITLES[19], factory_section(data)))
+    out.append((20, SECTION_TITLES[20], spread_execution_section(data)))
+    return out
+
+
+def spread_execution_section(data: dict) -> list:
+    """SPREAD_EXECUTION_LIQUIDITY_GATE (SHADOW_ONLY): Fair vs. Executable, Immediate Liquidation Loss je
+    Research-Bucket. Keine Produktionswirkung; n < min_n -> NEED_MORE_DATA; keine Schwellenempfehlung."""
+    a = _d(data.get("spread_exec"))
+    if not a:
+        return [("para", NO_DATA)]
+    b = _d(a.get("buckets"))
+    rows = [[k, str(_d(v).get("n_candidates")), str(_d(v).get("n_with_outcome")), str(_d(v).get("n_reliable")),
+             str(_d(v).get("status")), _fv(_d(v).get("mean_outcome_exploratory")), _fv(_d(v).get("stop_frequency")),
+             _fv(_d(v).get("false_stop_frequency"))] for k, v in b.items()]
+    out = [("note", "Immediate Liquidation Loss = (Entry − sofort ausführbarer Exit-Wert) / Entry. Produktion rechnet "
+                    "Entry Leg-by-Leg (combo_ask), Stop auf executable value; der ROI-Friktionsansatz nutzte nur die "
+                    "Long-Leg-Spanne. Dieses Gate ist SHADOW_ONLY (config/spread_execution.yaml)."),
+           ("para", f"Analysierte Spreads: {a.get('n_spreads', 0)} – {a.get('label', '')}"),
+           ("table", ["ILL-Bucket", "n", "mit Outcome", "RELIABLE", "Status", "Ø Outcome (explorativ)",
+                      "Stop-Quote", "False-Stop-Quote"], rows, [])]
+    sh = [r for r in data.get("spread_exec_recent") or []]
+    if sh:
+        out.append(("para", "Shadow-Gate diese Woche: " + ", ".join(
+            f"{r.get('ticker')} {r.get('ill_bucket')} {r.get('quote_quality')} → {r.get('shadow_verdict')}" for r in sh[-8:])))
     return out
 
 

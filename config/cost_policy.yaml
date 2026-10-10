@@ -96,6 +96,13 @@ model_routing:
     min_pass_recall: 0.90
     min_direction_agreement: 0.90
     monitor_window: 40
+    # Ausgabe-Limit je Modell (2026-10-09): Haiku-Antworten enden bei ~1.400–1.560 Token, 8 von 18
+    # A/B-Antworten wurden bei 1.600 abgeschnitten und verfälschten den Vergleich. Gilt für die
+    # A/B-Stichprobe UND – nur falls ein Modell per bestehender Policy aktiv wird – für dessen Calls.
+    # Champion (Sonnet) bleibt bei 1.600 (0 Abschnitte), Produktion damit unverändert.
+    max_tokens_default: 1600
+    max_tokens_by_model:
+      claude-haiku-4-5-20251001: 2400
 
 # Bearish-Vorfilter: solange Bearish-Trades deaktiviert sind, werden Kandidaten, die bereits der
 # Prescreen als BEARISH einstuft, nicht mehr per Deep Analysis bewertet – erst nachdem gepaarte

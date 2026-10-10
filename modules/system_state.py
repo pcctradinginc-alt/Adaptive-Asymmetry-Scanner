@@ -53,6 +53,7 @@ DEFAULT_INPUTS = {
 }
 SCHEMA = "system-state-v2"
 MODEL_HEALTH_MAX_AGE_DAYS = 14          # Meta-Cognition wöchentlich (ml_research.yml) + Puffer
+DRIFT_INPUT_MAX_AGE_DAYS = 8          # wöchentlicher Meta-Lauf + 1 Tag Toleranz (nur Kennzeichnung)
 COMMODITY_SOURCES = ("eia_petroleum_weekly", "eia_natural_gas", "fred_commodities", "fred_regime_macro", "cftc_cot")
 
 
@@ -143,6 +144,20 @@ def derive(inputs: dict[str, Path] | None = None, now: datetime | None = None) -
     # Drift (abgestuft)
     meta = _read(inp["meta_learning"]) or {}
     drift_state = dr.assess(meta, data_health["data_quality"])
+    # Freshness des Drift-Inputs (nur Kennzeichnung, 2026-10-09; Policy/Grenzen unverändert):
+    # meta_learning.json wird wöchentlich berechnet – die Promotion-Pause basiert ggf. auf älteren Werten.
+    _gen = meta.get("generated") if isinstance(meta, dict) else None
+    _age = None
+    if _gen:
+        try:
+            _g = datetime.fromisoformat(str(_gen).replace("Z", "+00:00"))
+            _age = round((now - (_g if _g.tzinfo else _g.replace(tzinfo=timezone.utc))).total_seconds() / 86400, 1)
+        except ValueError:
+            _age = None
+    drift_state["drift_input_timestamp"] = _gen
+    drift_state["drift_input_age_days"] = _age
+    drift_state["drift_input_status"] = ("UNKNOWN" if _age is None else
+                                         "STALE_DRIFT_INPUT" if _age > DRIFT_INPUT_MAX_AGE_DAYS else "FRESH")
     if drift_state["consequences"]["safe_mode"]:
         reasons += [f"DRIFT: {r}" for r in drift_state["reasons"] if "SEVERE" in r]
 
@@ -214,6 +229,8 @@ def derive(inputs: dict[str, Path] | None = None, now: datetime | None = None) -
 def _fingerprint(content: dict) -> str:
     core = {k: v for k, v in content.items() if k not in ("updated_at", "code_version", "state_version",
                                                            "fingerprint")}
+    if isinstance(core.get("drift_state"), dict):    # Alter ändert sich laufend -> keine neue State-Version
+        core["drift_state"] = {k: v for k, v in core["drift_state"].items() if k != "drift_input_age_days"}
     return hashlib.sha256(json.dumps(core, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
