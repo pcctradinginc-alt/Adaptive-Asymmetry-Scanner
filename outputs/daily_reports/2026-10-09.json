@@ -1,0 +1,665 @@
+{
+  "date": "2026-10-09",
+  "proposals": [],
+  "stats": {
+    "vix": 14.869999885559082,
+    "universe": 372,
+    "candidates": 372,
+    "prescreened": 128,
+    "sector_ok": 338,
+    "pre_mc": 106,
+    "roi_precheck": 123,
+    "analyzed": 96,
+    "mismatch_ok": 29,
+    "quick_mc": 21,
+    "intraday_ok": 21,
+    "final_mc": 21,
+    "rl_scored": 21,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 3.9536,
+      "month_usd": 3.9536,
+      "warnings": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.992,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 20,
+      "active": false,
+      "reasons": [],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "deb114e06f805f02",
+      "as_of": "2026-10-09T19:13:52+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "after_isf": 61,
+    "final_mc_shadow": [
+      {
+        "ticker": "TMO",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DXCM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6894,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7075,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "KDP",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6588,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TSLA",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6372,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6571,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DVN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6008,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6287,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DDOG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5442,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5438,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "LLY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6794,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "ZS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5424,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5666,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "MU",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5444,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5424,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DHR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6184,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6663,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TECH",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7174,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VTRS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7366,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VEEV",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5676,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5738,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "NEM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5912,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5925,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "NDAQ",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5862,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7306,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "GNRC",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6164,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6402,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "KLAC",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6154,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6224,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "TWLO",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5514,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5507,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VST",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5942,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6074,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "GFS",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6044,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6127,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6186,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6648,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "final_mc_ledger": {
+      "observations": 21
+    },
+    "roi_rejects": {
+      "n": 15,
+      "gap_min": -0.0808,
+      "gap_median": 0.0866,
+      "gap_max": 0.5093
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 34,
+      "tickers": [
+        "INTU",
+        "UBER",
+        "GIS",
+        "PAYX",
+        "BX",
+        "CLX",
+        "COO",
+        "FSLR",
+        "FISV",
+        "LDOS"
+      ]
+    },
+    "prescreen_no": {
+      "count": 210,
+      "tickers": [
+        "RSG",
+        "MS",
+        "ES",
+        "ON",
+        "ADM",
+        "USB",
+        "GILD",
+        "VICI",
+        "TSCO",
+        "DIS"
+      ]
+    },
+    "earnings_gate": {
+      "count": 5,
+      "tickers": [
+        "STT",
+        "IBKR",
+        "CFG",
+        "ASML",
+        "UNH"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 17,
+      "tickers": [
+        "ED",
+        "PPL",
+        "XYL",
+        "WY",
+        "NFLX",
+        "TJX",
+        "LMT",
+        "STZ",
+        "CRH",
+        "APD"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 10,
+      "tickers": [
+        "PODD",
+        "FDXF",
+        "MCHP",
+        "ARM",
+        "IT",
+        "BA",
+        "SBUX",
+        "LITE",
+        "ELV",
+        "CB"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 32,
+      "tickers": [
+        "GM",
+        "BE",
+        "KO",
+        "T",
+        "HWM",
+        "PRU",
+        "EBAY",
+        "GE",
+        "AVGO",
+        "FANG"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 3,
+      "tickers": [
+        "ISRG",
+        "ECL",
+        "PYPL"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 32,
+      "tickers": [
+        "CBOE",
+        "AME",
+        "ALL",
+        "RDDT",
+        "PHM",
+        "HUM",
+        "ACN",
+        "BBY",
+        "COHR",
+        "APH"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 8,
+      "tickers": [
+        "SLB",
+        "NRG",
+        "RTX",
+        "BSX",
+        "BMY",
+        "GEHC",
+        "MDT",
+        "FDX"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 21,
+      "tickers": [
+        "TMO",
+        "KDP",
+        "TSLA",
+        "DDOG",
+        "ZS",
+        "DHR",
+        "TECH",
+        "NEM",
+        "DG",
+        "VEEV"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Lern-Loop eingefroren: alle Feature-Korrelationen \u2264 0 (eps_drift=-0.053, impact=-0.078, mismatch=-0.088) \u2192 model_weights bleiben auf Startwerten; Features haben keine positive Vorhersagekraft.",
+      "PPO-Policy kollabiert: 100% BOOST \u00fcber 3 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 2,
+        "killer_counts": {
+          "roi_ok": 2
+        },
+        "last_10_days": [
+          {
+            "date": "2026-10-09",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-08",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-07",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-10-06",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-10-02",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-01",
+            "trades": 0,
+            "killer": "analyzed"
+          },
+          {
+            "date": "2026-09-30",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-28",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-25",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 197,
+            "evaluated": 0,
+            "ready_in_14d": 14,
+            "next_eval_date": "2026-10-18"
+          },
+          "roi_gate": {
+            "total": 131,
+            "evaluated": 0,
+            "ready_in_14d": 9,
+            "next_eval_date": "2026-10-18"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-22"
+          },
+          "score_51": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-23"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_48": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": true,
+        "feature_corr": {
+          "impact": -0.078,
+          "mismatch": -0.088,
+          "eps_drift": -0.053
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "suez_z": {
+            "missing_ratio": 0.05,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "panama_z": {
+            "missing_ratio": 0.05,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.05,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "malacca_z": {
+            "missing_ratio": 0.05,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.05,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.05,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 822
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {
+        "n": 3,
+        "counts": {
+          "SKIP": 0,
+          "NORMAL": 0,
+          "BOOST": 3
+        },
+        "max_share": 1.0
+      }
+    }
+  }
+}

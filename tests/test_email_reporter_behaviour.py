@@ -44,7 +44,8 @@ def test_trade_mail_only_above_score_threshold(outbox):
 def test_trade_mail_marks_mc_hit_rate_as_uncalibrated(outbox):
     er.send_email([_proposal(score=90)], "2026-10-02", {})
     html = outbox[-1][1]
-    assert "NICHT kalibriert" in html and "keine Gewinnwahrscheinlichkeit" in html
+    assert "Target-Hit Score" in html and "(uncalibrated)" in html and "Ranking signal only" in html
+    assert "keine kalibrierte Gewinnwahrscheinlichkeit" in html and "MC Hit-Rate" not in html
 
 
 def test_trade_mail_truncates_arguments_and_shows_greeks(outbox):

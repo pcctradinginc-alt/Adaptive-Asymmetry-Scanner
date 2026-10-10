@@ -1,0 +1,1881 @@
+{
+  "snapshot_id": "deb114e06f805f02",
+  "created_at": "2026-10-09T19:14:07+00:00",
+  "as_of": "2026-10-09T19:13:52+00:00",
+  "feature_versions": {
+    "road_freight": "v1",
+    "maritime": "v1",
+    "weather": "v1",
+    "real_economy": "v1",
+    "divergences": "v1",
+    "context": "v1"
+  },
+  "sources": {
+    "destatis_truck_toll": {
+      "status": "OK",
+      "latest_observation": "2026-09-01T00:00:00+00:00",
+      "available_at_max": "2026-10-08T13:39:04+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_unadjusted|2008-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_calendar_adjusted|2008-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa|2008-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa_bv41|2008-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_trend|2008-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_unadjusted|2008-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_calendar_adjusted|2008-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa|2008-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa_bv41|2008-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_trend|2008-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_unadjusted|2008-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_calendar_adjusted|2008-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa|2008-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa_bv41|2008-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_trend|2008-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_unadjusted|2008-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_calendar_adjusted|2008-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa|2008-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_sa_bv41|2008-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        },
+        {
+          "identity_key": "destatis_truck_toll|monthly_index|42191-0001||index_trend|2008-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:07+00:00"
+        }
+      ]
+    },
+    "destatis_truck_toll_download": {
+      "status": "NO_DATA",
+      "latest_observation": null,
+      "available_at_max": null,
+      "vintage_ids": []
+    },
+    "bts_freight_tsi": {
+      "status": "OK",
+      "latest_observation": "2026-07-01T00:00:00+00:00",
+      "available_at_max": "2026-10-01T00:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-01-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-04-01T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-05-01T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-04-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-05-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-06-01T00:00:00+00:00||",
+          "vintage_time": "2025-09-10T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-07-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-08-01T00:00:00+00:00||",
+          "vintage_time": "2024-04-10T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-09-01T00:00:00+00:00||",
+          "vintage_time": "2026-05-01T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-10-01T00:00:00+00:00||",
+          "vintage_time": "2026-05-01T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-11-01T00:00:00+00:00||",
+          "vintage_time": "2025-09-10T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2000-12-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-05-01T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-02-01T00:00:00+00:00||",
+          "vintage_time": "2025-04-10T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-03-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-04-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-05-01T00:00:00+00:00||",
+          "vintage_time": "2025-04-10T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-06-01T00:00:00+00:00||",
+          "vintage_time": "2024-08-08T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-07-01T00:00:00+00:00||",
+          "vintage_time": "2026-05-01T00:00:00+00:00"
+        },
+        {
+          "identity_key": "bts_freight_tsi|freight_tsi|TSIFRGHT|US|us_freight_tsi|2001-08-01T00:00:00+00:00||",
+          "vintage_time": "2025-10-15T00:00:00+00:00"
+        }
+      ]
+    },
+    "bts_open_data_tsi": {
+      "status": "OK",
+      "latest_observation": "2026-08-01T00:00:00+00:00",
+      "available_at_max": "2026-10-08T13:39:06+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|3w2s-iysp|US|us_freight_tsi|2000-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-29T10:25:48+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|3w2s-iysp|US|us_freight_tsi|2000-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-29T10:25:48+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|3w2s-iysp|US|us_freight_tsi|2000-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-29T10:25:48+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|3w2s-iysp|US|us_freight_tsi|2000-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-29T10:25:48+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-05-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-05-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|3w2s-iysp|US|us_freight_tsi|2000-05-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-29T10:25:48+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-06-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-06-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|3w2s-iysp|US|us_freight_tsi|2000-06-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-29T10:25:48+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_freight_tsi|2000-07-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        },
+        {
+          "identity_key": "bts_open_data_tsi|freight_tsi|bw6n-ddqk|US|us_trucking_index|2000-07-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:14:10+00:00"
+        }
+      ]
+    },
+    "eurostat_road_freight": {
+      "status": "OK",
+      "latest_observation": "2025-01-01T00:00:00+00:00",
+      "available_at_max": "2026-07-30T21:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|AT|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|BE|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|DE|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|ES|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|FR|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|IT|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=MIO_TKM|NL|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|AT|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|BE|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|DE|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|ES|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|FR|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|IT|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL|tra_type=HIRE|unit=THS_T|NL|road_freight_ths_t|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL_CAB|tra_type=HIRE|unit=MIO_TKM|AT|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL_CAB|tra_type=HIRE|unit=MIO_TKM|BE|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL_CAB|tra_type=HIRE|unit=MIO_TKM|DE|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL_CAB|tra_type=HIRE|unit=MIO_TKM|ES|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL_CAB|tra_type=HIRE|unit=MIO_TKM|FR|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight|road_freight|road_go_ta_tott:freq=A|tra_oper=LINTL_CAB|tra_type=HIRE|unit=MIO_TKM|IT|road_freight_mio_tkm|1999-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        }
+      ]
+    },
+    "eurostat_road_freight_quarterly": {
+      "status": "OK",
+      "latest_observation": "2025-10-01T00:00:00+00:00",
+      "available_at_max": "2026-07-30T21:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=MIO_TKM|BE|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=MIO_TKM|DE|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=MIO_TKM|ES|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=MIO_TKM|FR|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=MIO_TKM|NL|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=THS_T|BE|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=THS_T|DE|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=THS_T|ES|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=THS_T|FR|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=HIRE|unit=THS_T|NL|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=MIO_TKM|BE|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=MIO_TKM|DE|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=MIO_TKM|ES|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=MIO_TKM|FR|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=MIO_TKM|NL|road_freight_mio_tkm|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=THS_T|BE|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=THS_T|DE|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=THS_T|ES|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=THS_T|FR|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_road_freight_quarterly|road_freight|road_go_tq_tott:freq=Q|tra_oper=LNAT|tra_type=OWN|unit=THS_T|NL|road_freight_ths_t|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-07-30T21:00:00+00:00"
+        }
+      ]
+    },
+    "estat_jp_truck": {
+      "status": "OK",
+      "latest_observation": "2026-03-01T00:00:00+00:00",
+      "available_at_max": "2026-09-27T19:52:24+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u5408\u8a08|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u8a08|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u8a08|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf3\u30c8\u30f3\u672a\u6e80|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf3\u30c8\u30f3\u4ee5\u4e0a 6.5\u30c8\u30f3\u672a\u6e80|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf6.5\u30c8\u30f3\u4ee5\u4e0a 11\u30c8\u30f3\u672a\u6e80|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf11\u30c8\u30f3\u4ee5\u4e0a 16\u30c8\u30f3\u672a\u6e80|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf16\u30c8\u30f3\u4ee5\u4e0a|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u5c0f\u578b\u8eca|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u7279\u7a2e\u7528\u9014\u8eca|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u8efd\u81ea\u52d5\u8eca|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u81ea\u5bb6\u7528_\u8a08|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u81ea\u5bb6\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u81ea\u5bb6\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u5c0f\u578b\u8eca|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u81ea\u5bb6\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u7279\u7a2e\u7528\u9014\u8eca|\u5408\u8a08|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u5408\u8a08|\u8f38\u9001\u30c8\u30f3\u30ad\u30ed|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u8a08|\u8f38\u9001\u30c8\u30f3\u30ad\u30ed|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u8a08|\u8f38\u9001\u30c8\u30f3\u30ad\u30ed|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf3\u30c8\u30f3\u672a\u6e80|\u8f38\u9001\u30c8\u30f3\u30ad\u30ed|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        },
+        {
+          "identity_key": "estat_jp_truck|motor_vehicle_transport|0003422293|JP|jp_truck_\u55b6\u696d\u7528_\u767b\u9332\u81ea\u52d5\u8eca_\u666e\u901a\u8eca_\u6700\u5927\u7a4d\u8f09\u91cf3\u30c8\u30f3\u4ee5\u4e0a 6.5\u30c8\u30f3\u672a\u6e80|\u8f38\u9001\u30c8\u30f3\u30ad\u30ed|2020-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T19:52:24+00:00"
+        }
+      ]
+    },
+    "imf_portwatch_ports": {
+      "status": "OK",
+      "latest_observation": "2026-10-02T00:00:00+00:00",
+      "available_at_max": "2026-10-07T13:29:19+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export|port1417|export_total|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export_cargo|port1417|export_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export_container|port1417|export_container|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export_dry_bulk|port1417|export_dry_bulk|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export_general_cargo|port1417|export_general_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export_roro|port1417|export_roro|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|export_tanker|port1417|export_tanker|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import|port1417|import_total|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import_cargo|port1417|import_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import_container|port1417|import_container|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import_dry_bulk|port1417|import_dry_bulk|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import_general_cargo|port1417|import_general_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import_roro|port1417|import_roro|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|import_tanker|port1417|import_tanker|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|portcalls|port1417|portcalls_total|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|portcalls_cargo|port1417|portcalls_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|portcalls_container|port1417|portcalls_container|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|portcalls_dry_bulk|port1417|portcalls_dry_bulk|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|portcalls_general_cargo|port1417|portcalls_general_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_ports|daily_ports|portcalls_roro|port1417|portcalls_roro|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        }
+      ]
+    },
+    "imf_portwatch_chokepoints": {
+      "status": "OK",
+      "latest_observation": "2026-10-04T00:00:00+00:00",
+      "available_at_max": "2026-10-06T13:22:11+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity|chokepoint1|capacity|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_cargo|chokepoint1|capacity_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_container|chokepoint1|capacity_container|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_dry_bulk|chokepoint1|capacity_dry_bulk|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_general_cargo|chokepoint1|capacity_general_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_roro|chokepoint1|capacity_roro|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_tanker|chokepoint1|capacity_tanker|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_cargo|chokepoint1|n_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_container|chokepoint1|n_container|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_dry_bulk|chokepoint1|n_dry_bulk|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_general_cargo|chokepoint1|n_general_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_roro|chokepoint1|n_roro|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_tanker|chokepoint1|n_tanker|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|n_total|chokepoint1|n_total|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity|chokepoint2|capacity|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_cargo|chokepoint2|capacity_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_container|chokepoint2|capacity_container|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_dry_bulk|chokepoint2|capacity_dry_bulk|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_general_cargo|chokepoint2|capacity_general_cargo|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_chokepoints|daily_chokepoints|capacity_roro|chokepoint2|capacity_roro|2026-09-06T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T16:32:27+00:00"
+        }
+      ]
+    },
+    "imf_portwatch_disruptions": {
+      "status": "OK",
+      "latest_observation": "2026-08-14T21:58:21+00:00",
+      "available_at_max": "2026-09-28T19:02:47+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1012873|port1331|disruption_alert_level|2018-12-21T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1012873|port1331|disruption_end_ts|2018-12-21T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1012873|port1319|disruption_alert_level|2018-12-21T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1012873|port1319|disruption_end_ts|2018-12-21T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1013088|port776|disruption_alert_level|2019-02-21T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1013088|port776|disruption_end_ts|2019-02-21T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000552|port137|disruption_alert_level|2019-03-09T06:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000552|port137|disruption_end_ts|2019-03-09T06:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000227|port137|disruption_alert_level|2019-03-09T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000227|port137|disruption_end_ts|2019-03-09T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000227|port784|disruption_alert_level|2019-03-09T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000227|port784|disruption_end_ts|2019-03-09T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000227|port896|disruption_alert_level|2019-03-09T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000227|port896|disruption_end_ts|2019-03-09T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000559|port896|disruption_alert_level|2019-04-23T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000559|port896|disruption_end_ts|2019-04-23T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000559|port769|disruption_alert_level|2019-04-23T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000559|port769|disruption_end_ts|2019-04-23T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000561|port290|disruption_alert_level|2019-04-27T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        },
+        {
+          "identity_key": "imf_portwatch_disruptions|disruptions|1000561|port290|disruption_end_ts|2019-04-27T00:00:00+00:00||",
+          "vintage_time": "2026-09-28T19:02:47+00:00"
+        }
+      ]
+    },
+    "nws_forecast": {
+      "status": "OK",
+      "latest_observation": "2026-10-13T07:00:00+00:00",
+      "available_at_max": "2026-10-09T13:24:59+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|tmax|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|tmin|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|tmean|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|hdd|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|cdd|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|precip_total|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|snow_total|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|ice_total|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|wind_max|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|gust_max|2026-09-27T04:00:00+00:00|2026-09-27T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|tmax|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|tmin|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|tmean|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|hdd|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|cdd|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|precip_total|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|snow_total|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|ice_total|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|wind_max|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        },
+        {
+          "identity_key": "nws_forecast|grid_forecast_daily|FFC/50,82|ATL|gust_max|2026-09-28T04:00:00+00:00|2026-09-28T04:00:00+00:00|2026-09-27T06:26:56+00:00",
+          "vintage_time": "2026-09-27T11:00:56+00:00"
+        }
+      ]
+    },
+    "nws_alerts": {
+      "status": "OK",
+      "latest_observation": "2026-10-09T13:25:12+00:00",
+      "available_at_max": "2026-10-09T13:25:12+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|ATL|alerts_polled|2026-09-29T04:31:08+00:00||",
+          "vintage_time": "2026-09-29T04:31:08+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|DFW|alerts_polled|2026-09-29T04:31:08+00:00||",
+          "vintage_time": "2026-09-29T04:31:08+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|DEN|alerts_polled|2026-09-29T04:31:08+00:00||",
+          "vintage_time": "2026-09-29T04:31:08+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|ORD|alerts_polled|2026-09-29T04:31:08+00:00||",
+          "vintage_time": "2026-09-29T04:31:08+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|LAX|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|CLT|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|JFK|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|LAS|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|MCO|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|MIA|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|PHX|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|SEA|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|SFO|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|IAH|alerts_polled|2026-09-29T04:31:09+00:00||",
+          "vintage_time": "2026-09-29T04:31:09+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|EWR|alerts_polled|2026-09-29T04:31:10+00:00||",
+          "vintage_time": "2026-09-29T04:31:10+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|MSP|alerts_polled|2026-09-29T04:31:10+00:00||",
+          "vintage_time": "2026-09-29T04:31:10+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|BOS|alerts_polled|2026-09-29T04:31:10+00:00||",
+          "vintage_time": "2026-09-29T04:31:10+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|DTW|alerts_polled|2026-09-29T04:31:10+00:00||",
+          "vintage_time": "2026-09-29T04:31:10+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|PHL|alerts_polled|2026-09-29T04:31:10+00:00||",
+          "vintage_time": "2026-09-29T04:31:10+00:00"
+        },
+        {
+          "identity_key": "nws_alerts|alerts_active|poll|NYC|alerts_polled|2026-09-29T04:31:10+00:00||",
+          "vintage_time": "2026-09-29T04:31:10+00:00"
+        }
+      ]
+    },
+    "ncei_normals": {
+      "status": "OK",
+      "latest_observation": "2010-12-31T00:00:00+00:00",
+      "available_at_max": "2026-09-27T17:20:04+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TAVG-NORMAL|2010-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMAX-NORMAL|2010-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMIN-NORMAL|2010-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-HTDD-NORMAL|2010-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-CLDD-NORMAL|2010-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-PRCP-NORMAL|2010-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TAVG-NORMAL|2010-01-02T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMAX-NORMAL|2010-01-02T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMIN-NORMAL|2010-01-02T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-HTDD-NORMAL|2010-01-02T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-CLDD-NORMAL|2010-01-02T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-PRCP-NORMAL|2010-01-02T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TAVG-NORMAL|2010-01-03T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMAX-NORMAL|2010-01-03T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMIN-NORMAL|2010-01-03T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-HTDD-NORMAL|2010-01-03T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-CLDD-NORMAL|2010-01-03T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-PRCP-NORMAL|2010-01-03T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TAVG-NORMAL|2010-01-04T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        },
+        {
+          "identity_key": "ncei_normals|normals_daily_1991_2020|GHCND:USC00090444|ATL|DLY-TMAX-NORMAL|2010-01-04T00:00:00+00:00||",
+          "vintage_time": "2026-09-27T17:19:32+00:00"
+        }
+      ]
+    },
+    "nhc_storms": {
+      "status": "OK",
+      "latest_observation": "2026-10-14T06:00:00+00:00",
+      "available_at_max": "2026-10-09T13:25:13+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "nhc_storms|active_storms|al062026|al062026|intensity_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|al062026|al062026|pressure_mb|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|al062026|al062026|lat|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|al062026|al062026|lon|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|al062026|al062026|movement_speed_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|al062026|al062026|min_distance_to_exposure_km|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep162026|ep162026|intensity_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep162026|ep162026|pressure_mb|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep162026|ep162026|lat|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep162026|ep162026|lon|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep162026|ep162026|movement_speed_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep162026|ep162026|min_distance_to_exposure_km|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep172026|ep172026|intensity_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep172026|ep172026|pressure_mb|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep172026|ep172026|lat|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep172026|ep172026|lon|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep172026|ep172026|movement_speed_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep172026|ep172026|min_distance_to_exposure_km|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep182026|ep182026|intensity_kt|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        },
+        {
+          "identity_key": "nhc_storms|active_storms|ep182026|ep182026|pressure_mb|2026-09-27T09:00:00+00:00||2026-09-27T09:00:00+00:00",
+          "vintage_time": "2026-09-27T10:37:25+00:00"
+        }
+      ]
+    },
+    "eurostat_sentiment": {
+      "status": "OK",
+      "latest_observation": "2026-09-01T00:00:00+00:00",
+      "available_at_max": "2026-09-29T09:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|DE|esi|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|EU27_2020|esi|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|IT|esi|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|NL|esi|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|DE|industrial_confidence|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|EU27_2020|industrial_confidence|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|IT|industrial_confidence|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|NL|industrial_confidence|1980-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|DE|esi|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|EU27_2020|esi|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|IT|esi|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|NL|esi|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|DE|industrial_confidence|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|EU27_2020|industrial_confidence|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|IT|industrial_confidence|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ICI-BAL|s_adj=SA|NL|industrial_confidence|1980-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|DE|esi|1980-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|EU27_2020|esi|1980-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|IT|esi|1980-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_sentiment|sentiment|ei_bssi_m_r2:freq=M|indic=BS-ESI-I|s_adj=SA|NL|esi|1980-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-08-28T09:00:00+00:00"
+        }
+      ]
+    },
+    "eurostat_industrial_production": {
+      "status": "OK",
+      "latest_observation": "2026-08-01T00:00:00+00:00",
+      "available_at_max": "2026-10-09T09:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-01-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-02-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-03-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-04-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-05-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-05-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-06-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-06-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-07-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-07-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-08-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-08-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-09-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-09-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|FR|production_volume_index|1990-10-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        },
+        {
+          "identity_key": "eurostat_industrial_production|industrial_production|sts_inpr_m:freq=M|indic_bt=PRD|nace_r2=B-D|s_adj=SCA|unit=I21|IT|production_volume_index|1990-10-01T00:00:00+00:00||",
+          "vintage_time": "2026-09-17T09:00:00+00:00"
+        }
+      ]
+    },
+    "fred_us_macro": {
+      "status": "OK",
+      "latest_observation": "2026-08-01T00:00:00+00:00",
+      "available_at_max": "2026-09-18T00:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-01-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-02-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-03-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-04-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-05-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-06-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-07-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-08-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-09-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-10-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-11-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1919-12-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-01-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-02-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-03-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-04-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-05-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-06-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-07-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_us_macro|hard_data|INDPRO|US|us_indpro|1920-08-01T00:00:00+00:00||",
+          "vintage_time": "2025-11-24T00:00:00+00:00"
+        }
+      ]
+    },
+    "fred_regime_macro": {
+      "status": "OK",
+      "latest_observation": "2026-10-07T00:00:00+00:00",
+      "available_at_max": "2026-10-08T00:00:00+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "fred_regime_macro|inflation|CPIAUCSL|US|us_cpi|2015-01-01T00:00:00+00:00||",
+          "vintage_time": "2020-02-11T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|liquidity|WALCL|US|fed_total_assets|2015-01-07T00:00:00+00:00||",
+          "vintage_time": "2015-01-08T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|liquidity|WALCL|US|fed_total_assets|2015-01-14T00:00:00+00:00||",
+          "vintage_time": "2015-01-15T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|liquidity|WALCL|US|fed_total_assets|2015-01-21T00:00:00+00:00||",
+          "vintage_time": "2015-01-22T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|liquidity|WALCL|US|fed_total_assets|2015-01-28T00:00:00+00:00||",
+          "vintage_time": "2015-01-29T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-01T00:00:00+00:00||",
+          "vintage_time": "2019-03-04T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-02T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-05T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-06T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-07T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-08T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-09T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-12T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-13T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-14T00:00:00+00:00||",
+          "vintage_time": "2022-01-03T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-15T00:00:00+00:00||",
+          "vintage_time": "2023-02-06T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-16T00:00:00+00:00||",
+          "vintage_time": "2023-02-06T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-19T00:00:00+00:00||",
+          "vintage_time": "2019-03-04T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-20T00:00:00+00:00||",
+          "vintage_time": "2023-02-06T00:00:00+00:00"
+        },
+        {
+          "identity_key": "fred_regime_macro|fx|DTWEXBGS|US|usd_broad|2015-01-21T00:00:00+00:00||",
+          "vintage_time": "2023-02-06T00:00:00+00:00"
+        }
+      ]
+    },
+    "entsoe_power": {
+      "status": "OK",
+      "latest_observation": "2026-10-10T00:00:00+00:00",
+      "available_at_max": "2026-10-09T13:21:40+00:00",
+      "vintage_ids": [
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A82H|DE_LU|da_price_daily_mean|2025-08-27T00:00:00+00:00||",
+          "vintage_time": "2025-08-26T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A82H|DE_LU|da_price_daily_mean|2025-08-28T00:00:00+00:00||",
+          "vintage_time": "2025-08-27T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A82H|DE_LU|da_price_daily_mean|2025-08-29T00:00:00+00:00||",
+          "vintage_time": "2025-08-28T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A82H|DE_LU|da_price_daily_mean|2025-08-30T00:00:00+00:00||",
+          "vintage_time": "2025-08-29T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A82H|DE_LU|da_price_daily_mean|2025-08-31T00:00:00+00:00||",
+          "vintage_time": "2025-08-30T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YFR-RTE------C|FR|da_price_daily_mean|2025-08-27T00:00:00+00:00||",
+          "vintage_time": "2025-08-26T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YFR-RTE------C|FR|da_price_daily_mean|2025-08-28T00:00:00+00:00||",
+          "vintage_time": "2025-08-27T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YFR-RTE------C|FR|da_price_daily_mean|2025-08-29T00:00:00+00:00||",
+          "vintage_time": "2025-08-28T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YFR-RTE------C|FR|da_price_daily_mean|2025-08-30T00:00:00+00:00||",
+          "vintage_time": "2025-08-29T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YFR-RTE------C|FR|da_price_daily_mean|2025-08-31T00:00:00+00:00||",
+          "vintage_time": "2025-08-30T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YNL----------L|NL|da_price_daily_mean|2025-08-27T00:00:00+00:00||",
+          "vintage_time": "2025-08-26T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YNL----------L|NL|da_price_daily_mean|2025-08-28T00:00:00+00:00||",
+          "vintage_time": "2025-08-27T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YNL----------L|NL|da_price_daily_mean|2025-08-29T00:00:00+00:00||",
+          "vintage_time": "2025-08-28T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YNL----------L|NL|da_price_daily_mean|2025-08-30T00:00:00+00:00||",
+          "vintage_time": "2025-08-29T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10YNL----------L|NL|da_price_daily_mean|2025-08-31T00:00:00+00:00||",
+          "vintage_time": "2025-08-30T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A73I|IT_NORD|da_price_daily_mean|2025-08-27T00:00:00+00:00||",
+          "vintage_time": "2025-08-26T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A73I|IT_NORD|da_price_daily_mean|2025-08-28T00:00:00+00:00||",
+          "vintage_time": "2025-08-27T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A73I|IT_NORD|da_price_daily_mean|2025-08-29T00:00:00+00:00||",
+          "vintage_time": "2025-08-28T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A73I|IT_NORD|da_price_daily_mean|2025-08-30T00:00:00+00:00||",
+          "vintage_time": "2025-08-29T21:59:59+00:00"
+        },
+        {
+          "identity_key": "entsoe_power|day_ahead_price|A44:10Y1001A1001A73I|IT_NORD|da_price_daily_mean|2025-08-31T00:00:00+00:00||",
+          "vintage_time": "2025-08-30T21:59:59+00:00"
+        }
+      ]
+    }
+  },
+  "road_freight": {
+    "us_z": -1.7184632806820528,
+    "eu_z": 0.7597699079004872,
+    "asia_z": -0.6531753191038174,
+    "global_z": -0.5372895639617944,
+    "breadth": {
+      "negative_breadth": 0.6666666666666666,
+      "positive_breadth": 0.3333333333333333,
+      "valid_count": 3,
+      "breadth_valid": true
+    },
+    "de_z_1y": 2.333839863966305,
+    "de_acceleration": 0.020946968412138098,
+    "us_tsi_yoy": -0.02021660649819503,
+    "us_tsi_z": -1.7184632806820528,
+    "eu_sources": [
+      "destatis_truck_toll",
+      "eurostat_road_freight:AT",
+      "eurostat_road_freight:BE",
+      "eurostat_road_freight:CZ",
+      "eurostat_road_freight:DE",
+      "eurostat_road_freight:ES",
+      "eurostat_road_freight:EU27_2020",
+      "eurostat_road_freight:FR",
+      "eurostat_road_freight:IT",
+      "eurostat_road_freight:NL",
+      "eurostat_road_freight:PL",
+      "eurostat_road_freight:SE"
+    ],
+    "eu_source_count": 12,
+    "us_combined": {
+      "state": "STRONG_CONTRACTION",
+      "confidence": 0.3,
+      "source_count": 1,
+      "fresh_source_count": 1,
+      "agreement_ratio": 1.0,
+      "breadth": {
+        "negative_breadth": 1.0,
+        "positive_breadth": 0.0,
+        "valid_count": 1,
+        "breadth_valid": true
+      },
+      "data_age_days": 100
+    },
+    "eu_combined": {
+      "state": "NEUTRAL",
+      "confidence": 0.2295,
+      "source_count": 12,
+      "fresh_source_count": 12,
+      "agreement_ratio": 0.5,
+      "breadth": {
+        "negative_breadth": 0.0,
+        "positive_breadth": 0.5,
+        "valid_count": 12,
+        "breadth_valid": true
+      },
+      "data_age_days": 373
+    },
+    "asia_combined": {
+      "state": "CONTRACTION",
+      "confidence": 0.3,
+      "source_count": 1,
+      "fresh_source_count": 1,
+      "agreement_ratio": 1.0,
+      "breadth": {
+        "negative_breadth": 1.0,
+        "positive_breadth": 0.0,
+        "valid_count": 1,
+        "breadth_valid": true
+      },
+      "data_age_days": 222
+    },
+    "eu_frequency": {
+      "AT": "quarterly",
+      "BE": "quarterly",
+      "CZ": "quarterly",
+      "DE": "quarterly",
+      "ES": "quarterly",
+      "EU27_2020": "quarterly",
+      "FR": "quarterly",
+      "IT": "quarterly",
+      "NL": "quarterly",
+      "PL": "quarterly",
+      "SE": "quarterly"
+    }
+  },
+  "maritime_freight": {
+    "global_z": 0.13346507817155134,
+    "container_z": 0.7955622402240948,
+    "drybulk_z": -0.8338884265709008,
+    "tanker_z": 0.3907463049743236,
+    "negative_breadth": 0.25,
+    "valid_port_count": 24,
+    "suez_z": 0.7719036076102617,
+    "panama_z": 0.6140805908568026,
+    "hormuz_z": 0.16378044552010448,
+    "malacca_z": -0.9186539617317975,
+    "bab_el_mandeb_z": 1.5670690298281404,
+    "country_export_z": {
+      "JPN": -0.9020948723004105,
+      "CHN": -0.5885874253828417,
+      "NLD": 0.8555813391092698,
+      "USA": 0.689380480267998,
+      "MEX": -0.7023724142957468,
+      "SAU": -0.41954022536907226,
+      "VNM": 0.8921950406306385,
+      "TWN": -0.8998204717155982,
+      "IND": -1.4960832325807487,
+      "SGP": -0.048963977082766785,
+      "KOR": -0.020406522447149786,
+      "DEU": -0.38421512125305496
+    },
+    "industry_portcalls_z": {
+      "Mineral Products": -0.10344468838012964,
+      "Wood & Wood Products": 0.3165629109931199,
+      "Vegetable Products": -0.23249952352812409,
+      "Prepared Foodstuffs & Beverages": -0.7869346405886448,
+      "Chemical & Allied Industries": -0.0075299795830545005,
+      "Plastics, Rubber, Leather": -0.2749552936569693,
+      "Metals": -0.10912686800794125,
+      "Stone & Glass": -1.6481417765973023,
+      "Machinery & Electrical Equipment": 1.4755084868145534,
+      "Animal & Animal Products": -0.2124864740924482,
+      "Vehicles & Equipment": 0.32432272499941855,
+      "Textiles & Footwear": -0.16396870318325918,
+      "Miscellaneous": 0.3779644730092272
+    },
+    "asia_export_z": -0.6027273229615,
+    "disruption_active_events": 2,
+    "disruption_active_ports": 4,
+    "disruption_curated_ports": 0,
+    "disruption_curated_max_level": 0,
+    "data_age_days": 7,
+    "industry_mapping_unmatched": []
+  },
+  "weather": {
+    "disruption_index": 0.0,
+    "hdd_anomaly": -3.2915061662075327,
+    "cdd_anomaly": 3.246313543087737,
+    "forecast_revision_hdd": -0.280791052846662,
+    "forecast_revision_cdd": 0.280791052846662,
+    "active_tropical_system": true,
+    "tropical_min_distance_km": 307.71175453007163
+  },
+  "real_economy": {
+    "eu": {
+      "survey_z": 0.011680872824643803,
+      "hard_z": 0.12702628226536747,
+      "divergence_z": 0.11534540944072366,
+      "agreement": "MIXED",
+      "sources": [
+        "eurostat_sentiment",
+        "eurostat_industrial_production",
+        "eurostat_road_freight"
+      ]
+    },
+    "us": {
+      "survey_z": -1.3172275509732492,
+      "hard_z": 0.4745406779146003,
+      "divergence_z": 1.7917682288878494,
+      "agreement": "B_STRONGER",
+      "sources": [
+        "fred_us_macro"
+      ]
+    },
+    "regime": {
+      "cpi_yoy": 0.03353016322755642,
+      "cpi_yoy_3m_ago": 0.04166614684049641,
+      "nfci_credit": -0.026,
+      "nfci": -0.494,
+      "fed_assets_13w_chg": 0.0017743013289517329,
+      "usd_63d_chg": 0.004550006206810897,
+      "wti_63d_chg": 0.290772532188841,
+      "labels": {
+        "inflation": "high_inflation",
+        "inflation_trend": "disinflation",
+        "credit": "credit_loose",
+        "fin_conditions": "loose",
+        "liquidity": "expanding",
+        "dollar": "dollar_up",
+        "oil": "oil_up"
+      }
+    },
+    "energy": {
+      "de_power_price_7d": 140.32161428571428,
+      "de_power_price_z": 0.9402215255291573,
+      "de_load_yoy": 0.009761426430524134,
+      "labels": {
+        "power": "power_expensive",
+        "demand": "load_up"
+      }
+    }
+  },
+  "supply_chain": {
+    "us_freight_state": "STRONG_CONTRACTION",
+    "us_freight_confidence": 0.3,
+    "eu_freight_state": "NEUTRAL",
+    "eu_freight_confidence": 0.2295,
+    "asia_freight_state": "CONTRACTION",
+    "asia_freight_confidence": 0.3,
+    "global_freight_state": "STRONG_CONTRACTION",
+    "global_freight_confidence": 0.174,
+    "global_maritime_state": "NEUTRAL",
+    "container_state": "EXPANSION",
+    "dry_bulk_state": "CONTRACTION",
+    "tanker_state": "NEUTRAL",
+    "shipping_negative_breadth": 0.25,
+    "weather_operational_risk": "HIGH",
+    "road_shipping_agreement": "A_STRONGER",
+    "possible_weather_confounded_freight": false,
+    "hard_data_vs_survey_divergence": 0.11534540944072366
+  },
+  "divergences": {
+    "road_shipping_divergence_z": -0.6707546421333457,
+    "road_shipping_agreement": "A_STRONGER",
+    "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+    "hard_data_vs_survey_agreement": "MIXED"
+  },
+  "quality": {
+    "errors": [],
+    "families_with_data": [
+      "road_freight",
+      "maritime",
+      "weather",
+      "real_economy"
+    ],
+    "hard_data_vs_survey_divergence_reason": null
+  },
+  "point_in_time": {
+    "as_of": "2026-10-09T19:13:52+00:00",
+    "max_available_at_used": "2026-10-09T13:25:13+00:00",
+    "rule": "available_at<=as_of"
+  },
+  "primitives": {
+    "freight_global_z": -0.5372895639617944,
+    "freight_us_z": -1.7184632806820528,
+    "freight_eu_z": 0.7597699079004872,
+    "freight_asia_z": -0.6531753191038174,
+    "freight_breadth": 0.3333333333333333,
+    "de_truck_z_1y": 2.333839863966305,
+    "de_truck_acceleration": 0.020946968412138098,
+    "us_freight_tsi_yoy": -0.02021660649819503,
+    "us_freight_tsi_z": -1.7184632806820528,
+    "shipping_global_z": 0.13346507817155134,
+    "shipping_container_z": 0.7955622402240948,
+    "shipping_drybulk_z": -0.8338884265709008,
+    "shipping_tanker_z": 0.3907463049743236,
+    "shipping_negative_breadth": 0.25,
+    "shipping_valid_port_count": 24,
+    "suez_z": 0.7719036076102617,
+    "panama_z": 0.6140805908568026,
+    "hormuz_z": 0.16378044552010448,
+    "malacca_z": -0.9186539617317975,
+    "bab_el_mandeb_z": 1.5670690298281404,
+    "asia_export_z": -0.6027273229615,
+    "port_disruption_active_events": 2,
+    "port_disruption_curated_ports": 0,
+    "port_disruption_curated_max_level": 0,
+    "weather_disruption_index": 0.0,
+    "us_cpi_yoy": 0.03353016322755642,
+    "us_cpi_yoy_3m_ago": 0.04166614684049641,
+    "nfci_credit": -0.026,
+    "nfci": -0.494,
+    "fed_assets_13w_chg": 0.0017743013289517329,
+    "usd_63d_chg": 0.004550006206810897,
+    "wti_63d_chg": 0.290772532188841,
+    "de_power_price_7d": 140.32161428571428,
+    "de_power_price_z": 0.9402215255291573,
+    "de_load_yoy": 0.009761426430524134,
+    "hdd_anomaly": -3.2915061662075327,
+    "cdd_anomaly": 3.246313543087737,
+    "forecast_revision_hdd": -0.280791052846662,
+    "forecast_revision_cdd": 0.280791052846662,
+    "active_tropical_system": true,
+    "road_shipping_divergence_z": -0.6707546421333457,
+    "road_shipping_agreement": "A_STRONGER",
+    "possible_weather_confounded_freight": false,
+    "hard_data_vs_survey_divergence": 0.11534540944072366
+  },
+  "states": {
+    "us_freight_state": "STRONG_CONTRACTION",
+    "eu_freight_state": "NEUTRAL",
+    "asia_freight_state": "CONTRACTION",
+    "us_freight_confidence": 0.3,
+    "eu_freight_confidence": 0.2295,
+    "asia_freight_confidence": 0.3,
+    "us_freight_source_count": 1,
+    "eu_freight_source_count": 12,
+    "asia_freight_source_count": 1,
+    "global_maritime_state": "NEUTRAL",
+    "global_maritime_confidence": 0.0838,
+    "global_freight_state": "STRONG_CONTRACTION",
+    "global_freight_confidence": 0.174
+  }
+}

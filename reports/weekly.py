@@ -25,6 +25,7 @@ import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
+from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
 from modules.outcomes import artifact_is_current, class_counts, is_reliable_outcome, outcome_class
 
 log = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ MONDAY_TITLES = {
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
-# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das kalibrierte MC-Band des Kandidaten
+# Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das Target-Hit-Score-Band des Kandidaten
 # auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Safe Mode gilt.
 HC_BAND_MIN_N, HC_BAND_MIN_PF, CAL_MIN_N = 20, 1.2, 10
 SCOREBOARD_GROUPS = ("RESEARCH IDEA", "CHALLENGER", "FORWARD VALIDATED", "PROMOTED", "REJECTED")
@@ -547,6 +548,15 @@ def collect(root, date, state_path=None) -> dict:
         log.warning(f"Final-MC-Ledger nicht lesbar: {e}")
         data["final_mc"] = None
     data["roi_subgates"] = roi_subgate_evidence(history)
+    try:                                              # Shadow-Lifecycle (rein lesend)
+        from modules import shadow_ledger as _sl
+        _ld = out_dir / "intelligence" / "shadow_ledger"
+        data["shadow_lifecycle"] = _sl.health(today, _ld, out_dir / "shadow_trades_archive.jsonl",
+                                              _d(history).get("shadow_trades") or [])
+        data["gate_learning"] = _sl.gate_learning(today, _ld)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Shadow-Ledger nicht lesbar: {e}")
+        data["shadow_lifecycle"], data["gate_learning"] = {"error": str(e)}, {}
     data["universe"] = universe_overview(out_dir)
     data["commodity"] = commodity_overview(out_dir, date)
     try:                                              # Workflow-Status (Watchdog, rein lesend)
@@ -594,6 +604,36 @@ def universe_overview(out_dir: Path) -> dict:
     except (OSError, ValueError, KeyError) as e:
         log.warning(f"Universe-Übersicht nicht lesbar: {e}")
         return {}
+
+
+def shadow_lifecycle_blocks(data: dict) -> list:
+    """Kompakter Shadow-Lifecycle-Health-Block + Gate-Learning (n<30 -> NEED_MORE_DATA, keine Empfehlung)."""
+    h = _d(data.get("shadow_lifecycle"))
+    if not h:
+        return [("para", "SHADOW LIFECYCLE: " + NO_DATA)]
+    if h.get("error"):
+        return [("para", f"SHADOW LIFECYCLE: Ledger unlesbar ({h['error']})")]
+    s = _d(h.get("status"))
+    lost = h.get("lost_before_evaluation", 0)
+    blocks = [("para", "SHADOW LIFECYCLE HEALTH" + (" – LEARNING_HEALTH DEGRADED (LOST_BEFORE_EVALUATION > 0)" if lost else "")),
+              ("kv", [("PENDING", _fv(s.get("PENDING"))), ("MATURED", _fv((s.get("MATURED") or 0) + (s.get("MATURED_RETRY_REQUIRED") or 0))),
+                      ("PARTIALLY_EVALUATED", _fv(s.get("PARTIALLY_EVALUATED"))), ("EVALUATED", _fv(s.get("EVALUATED"))),
+                      ("OUTCOME_UNAVAILABLE", _fv(s.get("OUTCOME_UNAVAILABLE"))), ("ARCHIVED", _fv(s.get("ARCHIVED"))),
+                      ("LOST_BEFORE_EVALUATION", _fv(lost)),
+                      ("ältester ungeklärter Record (Tage)", _fv(h.get("oldest_unresolved_age_days"))),
+                      ("fällige / überfällige Outcomes", f"{h.get('due_outcomes', 0)} / {h.get('overdue_outcomes', 0)}"),
+                      ("Bewertungen diese Woche", _fv(h.get("evaluations_this_week"))),
+                      ("aus Archiv/Git zurückgeführt", _fv(h.get("recovered_records")))])]
+    gl = _d(data.get("gate_learning"))
+    g = _d(gl.get("groups"))
+    if g:
+        blocks.append(("para", f"GATE LEARNING ({gl.get('horizon_days')} T, {gl.get('basis')}; n < {gl.get('min_n')} -> "
+                               "NEED_MORE_DATA; keine Schwellenempfehlung):"))
+        blocks.append(("table", ["Gruppe", "n", "Status", "Win Rate", "Expectancy", "MFE", "MAE"],
+                       [[k, str(_d(v).get("n")), str(_d(v).get("status")), _fv(_d(v).get("win_rate")),
+                         _fv(_d(v).get("expectancy")), _fv(_d(v).get("mfe")), _fv(_d(v).get("mae"))]
+                        for k, v in g.items()], []))
+    return blocks
 
 
 def roi_subgate_evidence(history) -> dict:
@@ -1110,13 +1150,14 @@ def _band(mc_hit, calib) -> tuple[str | None, dict]:
 
 
 def _calibrated_p(mc_hit, calib) -> str:
-    """Kalibrierte Trefferquote = realisierte Win Rate des MC-Hit-Rate-Bands (echte Paper-Trades)."""
+    """Realisierte Win Rate des Target-Hit-Score-Bands (echte Paper-Trades, deskriptiv – keine
+    Forward-Kalibrierung; Status siehe LIVE_FORWARD_CALIBRATION)."""
     band, b = _band(mc_hit, calib)
     if band is None:
         return NA
     if (b.get("n") or 0) < CAL_MIN_N:
         return f"{NA} (Band {band}: n={b.get('n', 0)} < {CAL_MIN_N})"
-    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Modell sagte {_num(mc_hit) * 100:.0f}%)"
+    return f"{b['win_rate'] * 100:.0f}% (Band {band}, n={b['n']}; Target-Hit Score {_num(mc_hit) * 100:.0f}%)"
 
 
 def is_high_confidence(p: dict, data: dict) -> bool:
@@ -1152,7 +1193,9 @@ def _candidate_blocks(p: dict, data: dict) -> list:
                                    f"{_f(lf.get('ml_q90_ret_60'), pct=True, sign=True)}] – ML-Research-Schätzung, "
                                    f"nicht produktiv validiert") if lf.get("ml_exp_ret_60") is not None else NA),
         ("Erwartete Rendite 120d", NA + " (kein Modell)"),
-        ("MC-Band-Wahrscheinlichkeit (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
+        (f"{TARGET_HIT_LABEL} ({calibration_status(data.get('paper_perf'))})",
+         _fv(p.get("mc_hit_rate") or sim.get("hit_rate")) + " – Ranking signal only"),
+        ("Band-Win-Rate des Target-Hit Score (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
         ("Erwarteter Drawdown / MAE", (f"{_f(lf.get('ml_exp_dd_60'), pct=True, sign=True)} (60d, ML-Research)"
                                        if lf.get("ml_exp_dd_60") is not None else NA)),
         ("MFE", NA + " (erst nach Outcome messbar)"),
@@ -1237,7 +1280,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     ]), ("para", "LEARNING_HEALTH: " + (_d(data.get("learning_health")).get("overall") or NO_DATA)
          + (" – STALLED/BROKEN: " + ", ".join(_d(data.get("learning_health")).get("stalled_or_broken") or [])
             if _d(data.get("learning_health")).get("stalled_or_broken") else "")),
-        ("kv", _learning_rows(data))] + workflow_status_blocks(data)))
+        ("kv", _learning_rows(data))] + shadow_lifecycle_blocks(data) + workflow_status_blocks(data)))
 
     # 2 WHAT THE SYSTEM LEARNED
     tr = [t for t in data.get("promo_transitions") or [] if _recent(t.get("timestamp"), today)]
@@ -1341,7 +1384,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     if active is not False:
         b6.append(("para", "Safe Mode aktiv oder unbekannt: keine positiven Intelligence-Boosts; nur Champion-Entscheidungen."))
     hc = [p for p in props if is_high_confidence(p, data)]
-    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): kalibriertes MC-Band auf echten Paper-Trades "
+    b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): Target-Hit-Score-Band mit gemessener Win Rate auf echten Paper-Trades "
                        f"mit n >= {HC_BAND_MIN_N}, Expectancy > 0, Profit Factor >= {HC_BAND_MIN_PF}; kein Safe Mode."))
     if not hc:
         b6.append(("para", NO_TRADE_TEXT))
@@ -1374,8 +1417,9 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     cal = _d(data.get("mc_calibration"))
     if cal:
         b7.append(("para", f"{LIVE_FORWARD_LABEL}: {live_forward_text(data)}. Deskriptive Band-Tabelle "
-                           f"(nur RELIABLE Paper-Trades, vorhergesagte MC-Trefferquote vs. realisierte Win Rate):"))
-        b7.append(("table", ["Band", "n", "vorhergesagt", "realisiert", "Expectancy", "PF"],
+                           f"(nur RELIABLE Paper-Trades, {TARGET_HIT_LABEL} ({UNCALIBRATED}) vs. realisierte Win Rate). "
+                           f"{TARGET_HIT_EXPLANATION}"))
+        b7.append(("table", ["Band", "n", f"Ø {TARGET_HIT_LABEL}", "realisierte Win Rate", "Expectancy", "PF"],
                    [[k, str(_d(v).get("n")), _f(_d(v).get("predicted_hit_rate"), pct=True), _f(_d(v).get("win_rate"), pct=True),
                      _f(_d(v).get("mean"), pct=True, sign=True), _fv(_d(v).get("profit_factor"))] for k, v in cal.items()], []))
     models = _d(ml.get("models"))
