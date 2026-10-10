@@ -840,13 +840,17 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
         # Evidenz strikt je Population: Champion-Verträge nur aus dem Champion-Decision-Ledger,
         # FINAL_MC-Verträge nur aus dem Final-MC-Ledger (nie zusammengerechnet).
         if stage == fml.STAGE:
-            ev_fn = (lambda *a, **k: fml.evidence(c, h, fm_rows, fm_outs, *a, **k))
+            def ev_fn(*a, **k):
+                return (fml.evidence(c, h, fm_rows, fm_outs, *a, **k))
         elif stage == v2l.STAGE:            # UNIVERSE_V2: nur net_realizable_return, eigener Ledger
-            ev_fn = (lambda *a, **k: v2l.evidence(c, h, v2_rows, v2_outs, *a, **k))
+            def ev_fn(*a, **k):
+                return (v2l.evidence(c, h, v2_rows, v2_outs, *a, **k))
         elif stage == eal.STAGE:            # Expectation Alpha: nur EA-Ledger, Einfluss bleibt NONE
-            ev_fn = (lambda *a, **k: eal.evidence(c, h, ea_rows, ea_outs, *a, **k))
+            def ev_fn(*a, **k):
+                return (eal.evidence(c, h, ea_rows, ea_outs, *a, **k))
         else:
-            ev_fn = (lambda *a, **k: evidence(c, h, rows, outs, *a, **k))
+            def ev_fn(*a, **k):
+                return (evidence(c, h, rows, outs, *a, **k))
         ev = ev_fn(policy, ai["alpha_effective"]) if integrity_ok else {
             "n_observations": 0, "n_independent_dates": 0, "calendar_span_days": 0, "n_fired": 0,
             "n_fired_independent_dates": 0, "ci": [None, None], "regimes": []}

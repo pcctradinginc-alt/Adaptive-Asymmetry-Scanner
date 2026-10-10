@@ -25,7 +25,8 @@ def _ts(s):
 
 
 def test_reaction_window_timing():
-    i = lambda d: int(CAL.get_loc(pd.Timestamp(d)))
+    def i(d):
+        return int(CAL.get_loc(pd.Timestamp(d)))
     # nach Börsenschluss (Di 16:05) -> Reaktion Mi, Start = Close Di
     assert se.reaction_window(_ts("2024-01-09 16:05"), CAL) == (i("2024-01-09"), i("2024-01-10"))
     # vor Börsenöffnung (Di 07:00) -> Reaktion Di, Start = Close Mo

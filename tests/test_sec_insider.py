@@ -61,8 +61,10 @@ def _install(monkeypatch, filings):
         recent["accessionNumber"].append(acc)
         recent["primaryDocument"].append(f"xslF345X05/doc{i}.xml")
         docs[f"{acc.replace('-', '')}/doc{i}.xml"] = xml
-    recent["form"].append("10-K"); recent["filingDate"].append(today)
-    recent["accessionNumber"].append("x"); recent["primaryDocument"].append("k.htm")
+    recent["form"].append("10-K")
+    recent["filingDate"].append(today)
+    recent["accessionNumber"].append("x")
+    recent["primaryDocument"].append("k.htm")
 
     def fake_get(url, timeout=10):
         if url == al.SEC_TICKERS_URL:

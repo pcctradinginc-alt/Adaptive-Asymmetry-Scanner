@@ -216,9 +216,10 @@ def test_single_future_period_fact_is_degraded_not_broken():
     df = pd.DataFrame({"series_id": [f"s{i}" for i in range(1000)], "metric": "m", "value": 1.0,
                        "available_at": "2026-10-01T00:00:00+00:00", "retrieved_at": "2026-10-02T00:00:00+00:00",
                        "observation_time": ["2027-12-31T00:00:00+00:00"] + ["2026-09-30T00:00:00+00:00"] * 999})
-    chk = lambda st: sh.classify({"source_id": "s", "kind": "alt", "criticality": "NON_CRITICAL", "store": st,
-                                  "last_success": NOW.isoformat(), "latest_observation": "2026-09-30T00:00:00+00:00"},
-                                 None, c, NOW)
+    def chk(st):
+        return sh.classify({"source_id": "s", "kind": "alt", "criticality": "NON_CRITICAL", "store": st,
+                                      "last_success": NOW.isoformat(), "latest_observation": "2026-09-30T00:00:00+00:00"},
+                                     None, c, NOW)
     new = sh.frame_stats(df.assign(retrieved_at="2026-10-04T12:00:00+00:00", available_at="2026-10-04T00:00:00+00:00"),
                          NOW, c)
     assert new["future_observations"] == 1 and chk(new)["status"] == sh.DEGRADED     # neuer Datenfehler

@@ -16,7 +16,7 @@ def migrate(root: Path = ROOT) -> dict:
     changed = {}
     for sid in SOURCES:
         files = sorted((root / sid).glob("*.jsonl"))
-        rows = {f: [json.loads(l) for l in f.read_text().splitlines() if l.strip()] for f in files}
+        rows = {f: [json.loads(ln) for ln in f.read_text().splitlines() if ln.strip()] for f in files}
         latest_by_avail = defaultdict(str)
         for rs in rows.values():
             for r in rs:

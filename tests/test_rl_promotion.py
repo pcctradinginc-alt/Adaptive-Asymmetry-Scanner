@@ -7,8 +7,10 @@ from modules import rl_promotion as rp
 
 
 def _meta(wf=(0, 10, 10), ins=(5, 10, 5), at="2026-10-01T00:00:00+00:00"):
-    c = lambda t: {"SKIP": t[0], "NORMAL": t[1], "BOOST": t[2]}
-    share = lambda t: max(t) / sum(t)
+    def c(t):
+        return {"SKIP": t[0], "NORMAL": t[1], "BOOST": t[2]}
+    def share(t):
+        return max(t) / sum(t)
     return {"trained_at": at, "n_trades": 100,
             "walk_forward": {"test": {"action_counts": c(wf), "collapsed": share(wf) >= 0.95}},
             "in_sample": {"action_counts": c(ins), "collapsed": share(ins) >= 0.95}}

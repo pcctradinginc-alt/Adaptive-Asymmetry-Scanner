@@ -443,8 +443,9 @@ def test_prescreener_batch_with_fallback(monkeypatch):
     monkeypatch.setattr(ct, "batch_settings", _bsettings())
     monkeypatch.setattr(ct.time, "sleep", lambda s: None)
     monkeypatch.setattr(ps, "BATCH_SIZE", 1)
-    yes = lambda t: _resp(text=json.dumps({"results": [{"ticker": t, "decision": "[YES]", "category": "catalyst",
-                                                         "reason": "r"}]}))
+    def yes(t):
+        return _resp(text=json.dumps({"results": [{"ticker": t, "decision": "[YES]", "category": "catalyst",
+                                                             "reason": "r"}]}))
     b = _Batches({"ps-0": yes("AAA"), "ps-1": _resp(text="kaputt")})
     client = _BatchClient(b, resp=yes("BBB"))
     p = ps.Prescreener.__new__(ps.Prescreener)
@@ -559,7 +560,8 @@ def test_prefilter_validation_and_loss_bound():
     assert mr.prefilter_decision(_pf_rows())["active"] is True
     assert mr.prefilter_decision(_pf_rows(bear_pass=5))["active"] is False        # 10 % Verlust > 5 %
     assert mr.prefilter_decision(_pf_rows(n_pass=20))["active"] is False          # zu wenig Evidenz
-    pol = dict(ct.policy()); pol["bearish_prefilter"] = {**pol["bearish_prefilter"], "mode": "observe"}
+    pol = dict(ct.policy())
+    pol["bearish_prefilter"] = {**pol["bearish_prefilter"], "mode": "observe"}
     d = mr.prefilter_decision(_pf_rows(), pol)
     assert d["status"] == "VALIDATED" and d["active"] is False
 
@@ -632,8 +634,9 @@ def test_prescreener_batch_runs_format_check(monkeypatch):
     monkeypatch.setattr(ct, "batch_settings", _bsettings())
     monkeypatch.setattr(ct.time, "sleep", lambda s: None)
     monkeypatch.setattr(ps, "BATCH_SIZE", 1)
-    yes = lambda t: _resp(text=json.dumps({"results": [{"ticker": t, "decision": "[YES]", "category": "catalyst",
-                                                         "reason": "r", "direction": "BULLISH"}]}))
+    def yes(t):
+        return _resp(text=json.dumps({"results": [{"ticker": t, "decision": "[YES]", "category": "catalyst",
+                                                             "reason": "r", "direction": "BULLISH"}]}))
     b = _Batches({"ps-0": yes("AAA"), "ps-1": yes("BBB"), "pc-0": yes("AAA"), "pc-1": yes("BBB")})
     p = ps.Prescreener.__new__(ps.Prescreener)
     p.client, p.failed_tickers = _BatchClient(b), []

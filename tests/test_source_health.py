@@ -289,9 +289,12 @@ def test_feature_store_marks_unavailable_from_failure_date_only():
 def test_mail_only_on_relevant_change_and_history(tmp_path):
     c = cfg(core=[core()])
     sent = []
-    send = lambda subj, html, text, dry_run=False: sent.append(subj) or {"status": "sent"}
-    good = lambda d: [chk(latest=(NOW + timedelta(days=d - 1)).isoformat())]
-    run = lambda checks, now: _run(c, checks, now, send, tmp_path)
+    def send(subj, html, text, dry_run=False):
+        return sent.append(subj) or {"status": "sent"}
+    def good(d):
+        return [chk(latest=(NOW + timedelta(days=d - 1)).isoformat())]
+    def run(checks, now):
+        return _run(c, checks, now, send, tmp_path)
     r1 = run(good(0), NOW)
     assert r1["mail"]["status"] == "no_change" and not sent                           # neu + gesund: keine Mail
     r2 = run(good(1), NOW + timedelta(days=1))

@@ -72,7 +72,7 @@ def test_render_html_block_with_context_never_raises():
 
 def test_render_markdown_lines_none_is_one_line():
     lines = reporting.render_markdown_lines(None)
-    assert any("keine externen Daten" in l for l in lines)
+    assert any("keine externen Daten" in ln for ln in lines)
 
 
 def test_render_markdown_lines_with_context():

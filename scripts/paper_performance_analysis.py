@@ -24,8 +24,8 @@ def summary(trades: list[dict]) -> dict | None:
     o = [t["outcome"] for t in trades]
     if not o:
         return None
-    w, l = [x for x in o if x > 0], [x for x in o if x <= 0]
-    pf = sum(w) / -sum(l) if l and sum(l) < 0 else None
+    w, loss = [x for x in o if x > 0], [x for x in o if x <= 0]
+    pf = sum(w) / -sum(loss) if loss and sum(loss) < 0 else None
     return {"n": len(o), "win_rate": round(len(w) / len(o), 3), "mean": round(st.mean(o), 4),
             "median": round(st.median(o), 4), "profit_factor": round(pf, 2) if pf is not None else None}
 

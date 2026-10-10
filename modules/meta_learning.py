@@ -397,7 +397,7 @@ def portfolio_metrics(pos: pd.DataFrame) -> dict:
     down = mon[mon < 0]
     dsd = math.sqrt(float((down ** 2).mean())) if len(down) else np.nan
     r = pos["ret"]
-    w, l = r[r > 0], r[r <= 0]
+    w, loss = r[r > 0], r[r <= 0]
     sets = pos.groupby("date")["ticker"].apply(set)
     turn = [1 - len(a & b) / max(len(b), 1) for a, b in zip(sets.iloc[:-1], sets.iloc[1:])]
     strong_tot = pos.groupby("date")["n_strong"].first().sum()
@@ -405,9 +405,9 @@ def portfolio_metrics(pos: pd.DataFrame) -> dict:
         "cagr": ml._r(cagr, 4), "sharpe": ml._r(mon.mean() / sd * math.sqrt(12), 3) if n_m > 2 and sd > 0 else None,
         "sortino": ml._r(mon.mean() / dsd * math.sqrt(12), 3) if dsd and dsd > 0 else None,
         "max_dd": ml._r(dd, 4), "calmar": ml._r(cagr / abs(dd), 3) if dd < 0 else None,
-        "profit_factor": ml._r(w.sum() / abs(l.sum()), 3) if l.sum() < 0 else None,
-        "hit_rate": ml._r((r > 0).mean(), 4), "avg_winner": ml._r(w.mean(), 5), "avg_loser": ml._r(l.mean(), 5),
-        "payoff": ml._r(w.mean() / abs(l.mean()), 3) if len(l) and l.mean() < 0 else None,
+        "profit_factor": ml._r(w.sum() / abs(loss.sum()), 3) if loss.sum() < 0 else None,
+        "hit_rate": ml._r((r > 0).mean(), 4), "avg_winner": ml._r(w.mean(), 5), "avg_loser": ml._r(loss.mean(), 5),
+        "payoff": ml._r(w.mean() / abs(loss.mean()), 3) if len(loss) and loss.mean() < 0 else None,
         "expectancy": ml._r(r.mean(), 5), "precision_at_k": ml._r(pos["in_top_quintile"].mean(), 4),
         "recall_strong": ml._r(pos["is_strong"].sum() / strong_tot, 4) if strong_tot else None,
         "turnover": ml._r(np.mean(turn), 4) if turn else None, "exposure": 1.0,

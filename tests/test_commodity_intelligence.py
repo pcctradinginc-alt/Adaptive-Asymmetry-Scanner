@@ -460,9 +460,10 @@ def test_divergence_features():
 
 def test_quality_checks():
     t0 = utc(2026, 1, 2)
-    mk = lambda vals, step=7, metric="eia_crude_stocks", unit="thousand_barrels": [
-        obs("s", metric, unit, t0 + timedelta(days=step * i), t0 + timedelta(days=step * i + 6), v)
-        for i, v in enumerate(vals)]
+    def mk(vals, step=7, metric="eia_crude_stocks", unit="thousand_barrels"):
+        return [
+            obs("s", metric, unit, t0 + timedelta(days=step * i), t0 + timedelta(days=step * i + 6), v)
+            for i, v in enumerate(vals)]
     assert cmd.quality_checks("x", mk([1.0] * 20), "weekly", unit_expected="thousand_barrels")["issues"] == []
     assert "NEGATIVE_VALUE" in cmd.quality_checks("x", mk([1.0] * 19 + [-1.0]), "weekly")["issues"]
     q = cmd.quality_checks("x", mk([60.0] * 19 + [-30.0], step=1, metric="wti", unit="usd_per_barrel"), "daily")
@@ -939,5 +940,5 @@ def test_cftc_newly_mapped_market_backfill_not_deadlocked_by_daily_guard(tmp_pat
     assert "cftc_cot" in arch.last_guard_blocked
     arch.store_observations(big, max_new_normalized_bytes_per_source_per_run=limit)        # Override: geschrieben
     assert not arch.last_guard_blocked
-    rows = [json.loads(l) for f in (tmp_path / "normalized" / "cftc_cot").glob("*.jsonl") for l in f.read_text().splitlines()]
+    rows = [json.loads(ln) for f in (tmp_path / "normalized" / "cftc_cot").glob("*.jsonl") for ln in f.read_text().splitlines()]
     assert sum(r["entity_id"] == "crude_oil" for r in rows) == 400

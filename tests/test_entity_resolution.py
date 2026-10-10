@@ -246,7 +246,8 @@ def test_build_cooldown_for_low_and_children_budget(tmp_path):
 def test_ted_matches_subsidiary_only_while_relationship_valid():
     from datetime import datetime, timezone
     from modules.external.sources import ted_events as te
-    n = lambda pub, d, w: {"publication-number": pub, "publication-date": d, "winner-name": [w]}
+    def n(pub, d, w):
+        return {"publication-number": pub, "publication-date": d, "winner-name": [w]}
     subs = [("Braeburn Capital", "2025-06-01", None)]
     obs = te.notices_to_observations("0000320193", [n("1-2025", "2025-03-01", "Braeburn Capital Inc"),
                                                     n("2-2025", "2025-07-01", "Braeburn Capital Inc"),

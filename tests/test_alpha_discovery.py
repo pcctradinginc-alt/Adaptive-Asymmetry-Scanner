@@ -99,7 +99,7 @@ def test_finding_becomes_prospective_challenger(tmp_path):
     new = [c for c in challenger.load_registry(registry) if c["id"] in out["registered"]]
     assert new and all(c["start_date"] == "2026-04-02" for c in new)
     # Entdeckungsdaten (vor start_date) zählen nie zur Bestätigung
-    rows = [json.loads(l) for l in (led / "2026-01.jsonl").read_text().splitlines()]
+    rows = [json.loads(ln) for ln in (led / "2026-01.jsonl").read_text().splitlines()]
     res = challenger.evaluate(new[0], rows, date(2026, 6, 1), n_active=5)
     assert res["n_baseline"] == 0
     # idempotent

@@ -192,8 +192,9 @@ CONF_LO = {"family_count": 4, "effective_confirmation_ratio": 0.5, "effective_co
 
 
 def test_decision_statuses_are_distinct():
-    d = lambda **k: tm.decide(**{"news": NEWS_S, "context": {"context_status": 1}, "confirmation": CONF_OK,
-                                 "regime_uncertainty": 0.3, "errors": [], "cfg": CFG, **k})
+    def d(**k):
+        return tm.decide(**{"news": NEWS_S, "context": {"context_status": 1}, "confirmation": CONF_OK,
+                                     "regime_uncertainty": 0.3, "errors": [], "cfg": CFG, **k})
     assert d()["status"] == TRADE
     w = d(confirmation=CONF_LO)
     assert w["status"] == WAIT and w["wait_trigger"]["any_of"] and w["wait_trigger"]["trigger_hash"]
@@ -351,7 +352,8 @@ def test_failure_classification_rules():
     r = {"observation_id": "o", "status": TRADE, "date": "2026-10-09", "regime_dimension": "growth",
          "regime_state": {"growth": "high"}, "selected_expression": {"selected_expression": "UNDERLYING"},
          "expressions": [{"expression": "UNDERLYING"}, {"expression": "SPY"}]}
-    o = lambda v, **k: {"outcome_net": v, "outcome": v, "mfe": k.get("mfe", 0.0), "exit_date": "2027-01-05", **k}
+    def o(v, **k):
+        return {"outcome_net": v, "outcome": v, "mfe": k.get("mfe", 0.0), "exit_date": "2027-01-05", **k}
     outs = {("o", "UNDERLYING", "immediate", 60): o(-0.05), ("o", "SPY", "immediate", 60): o(-0.02)}
     assert classify_failure(r, outs, 60, []) == "THESIS_WRONG"
     outs[("o", "UNDERLYING", "immediate", 60)] = o(-0.05, mfe=0.08)

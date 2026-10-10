@@ -791,7 +791,8 @@ def main() -> None:
         stats["stop_reason"] = ("Data Health: Pflichtdaten nicht verfügbar – "
                                 + "; ".join((_dh.get("reasons") or ["unbekannt"])[:3]))
         log.error(stats["stop_reason"])
-        send_email(); return
+        send_email()
+        return
     if stats["system_state"].get("active"):          # Safe Mode NUR aus dem kanonischen SystemState
         log.warning(f"Safe Mode aktiv (SystemState, keine positiven Intelligence-Boosts): "
                     f"{'; '.join(map(str, (stats['system_state'].get('reasons') or [])[:3]))}")
@@ -804,7 +805,8 @@ def main() -> None:
             if gates.last_vix is not None else "VIX-Gate (VIX nicht abrufbar)"
         )
         stats["vix"] = gates.last_vix
-        send_email(); return
+        send_email()
+        return
     stats["vix"] = gates.last_vix
 
     macro = get_macro_context()
@@ -833,7 +835,8 @@ def main() -> None:
             log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
     if not candidates:
         stats["stop_reason"] = "Keine Kandidaten nach Hard-Filter."
-        send_email(); return
+        send_email()
+        return
 
     # ── STUFE 1b: FinBERT + Sentiment-Drift ─────────────────────────────────
     log.info("Stufe 1b: FinBERT + Sentiment-Drift")
@@ -871,7 +874,8 @@ def main() -> None:
     log.info(f"  → {len(candidates)} nach Sector-Momentum-Check")
     if not candidates:
         stats["stop_reason"] = "Alle Kandidaten durch Sector-Momentum-Check verworfen."
-        send_email(); return
+        send_email()
+        return
 
     # ── STUFE 2: Prescreening (Haiku) ────────────────────────────────────────
     log.info("Stufe 2: Prescreening (Claude Haiku)")
@@ -899,7 +903,8 @@ def main() -> None:
             stats["stop_reason"] = (f"Alle {len(candidates) - len(_failed)} bewerteten Kandidaten im "
                                     f"Prescreening als kein Signal eingestuft"
                                     + (f"; {len(_failed)} wegen API-Fehler nicht bewertet." if _failed else "."))
-        send_email(); return
+        send_email()
+        return
 
     # ── STUFE 2b: Alpha Sources + Data Validation ────────────────────────────
     enriched_with_alpha = []
@@ -976,7 +981,8 @@ def main() -> None:
         try:
             _, current, _ = MirofishSimulation()._get_market_params(ticker)
             if current <= 0:
-                roi_viable.append(c); continue
+                roi_viable.append(c)
+                continue
             iv_rank  = designer._get_iv_rank(ticker)
             if iv_rank is None:
                 # Precheck kann ohne IV-Rank nicht urteilen -> nicht verwerfen;
@@ -1004,7 +1010,8 @@ def main() -> None:
     log.info(f"  → {len(roi_viable)} nach ROI Pre-Check")
     if not roi_viable:
         stats["stop_reason"] = "Alle Optionsketten hoffnungslos (ROI Pre-Check)."
-        send_email(); return
+        send_email()
+        return
 
     # ── STUFE 3b: Pre-MC Gate (sigma-only, vor Deep Analysis) ────────────────
     log.info(f"Stufe 3b: Pre-MC Gate ({PRE_MC_PATHS} Pfade, {PRE_MC_DAYS}d, sigma-only)")
@@ -1033,7 +1040,9 @@ def main() -> None:
     log.info(f"  → {len(pre_mc_viable)} nach Pre-MC Gate (eingespart: {len(roi_viable)-len(pre_mc_viable)} Sonnet-Calls)")
     if not pre_mc_viable:
         stats["stop_reason"] = "Alle unter Pre-MC-Schwelle (zu wenig Volatilität)."
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
     # ── STUFE 3c: Bearish-Vorfilter (Kosten; nur aktiv nach gepaarter Validierung) ─
     # Solange Bearish-Trades aus sind, verwirft Stufe 4a jede BEARISH-Analyse. Kandidaten, die der
@@ -1107,7 +1116,8 @@ def main() -> None:
             log.warning(f"Expectation Alpha: Stufe-4-Kopie fehlgeschlagen (ignoriert): {e}")
     if not analyses:
         stats["stop_reason"] = "Alle Signale im Red-Team-Check verworfen."
-        send_email(); return
+        send_email()
+        return
 
     # ── Stufe 4-ext: Shadow-Relation (optionaler, SEPARATER LLM-Call) ────────
     # Read-only: liest nur das bereits vorhandene Deep-Analysis-Ergebnis,
@@ -1137,7 +1147,9 @@ def main() -> None:
         analyses = _bullish
         if not analyses:
             stats["stop_reason"] = "Alle Signale bearish (Bearish-Trades deaktiviert)."
-            save_history(history); send_email(); return
+            save_history(history)
+            send_email()
+            return
 
     # ── STUFE 4b: Impact×Surprise Floor ──────────────────────────────────────
     gate_cfg     = getattr(cfg, "gates", None)
@@ -1161,7 +1173,9 @@ def main() -> None:
     log.info(f"  → {len(analyses)} nach Impact×Surprise-Floor (impact≥{impact_min} & surprise≥{surprise_min}, war {_before_isf})")
     if not analyses:
         stats["stop_reason"] = f"Alle Signale unter Impact×Surprise-Floor (impact<{impact_min} oder surprise<{surprise_min})."
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
     # ── STUFE 5: Mismatch-Score ───────────────────────────────────────────────
     log.info("Stufe 5: Mismatch-Score")
@@ -1209,7 +1223,9 @@ def main() -> None:
     log.info(f"  → {len(scored)} nach Mismatch-Score")
     if not scored:
         stats["stop_reason"] = "Kein Signal hat Mismatch-Filter bestanden."
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
     # ── STUFE 6: Quick MC ────────────────────────────────────────────────────
     before_sim = len(scored)
@@ -1254,7 +1270,9 @@ def main() -> None:
     log.info(f"  → {len(mc_viable)} nach Quick MC")
     if not mc_viable:
         stats["stop_reason"] = f"Alle unter Quick-MC-Schwelle ({get_mc_threshold(gates.last_vix or 20.0):.0%})."
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
     # ── STUFE 7: Intraday-Delta ───────────────────────────────────────────────
     log.info("Stufe 7: Intraday-Delta-Filter")
@@ -1306,7 +1324,9 @@ def main() -> None:
     log.info(f"  → {len(mc_viable)} nach Intraday-Filter")
     if not mc_viable:
         stats["stop_reason"] = "Alle durch Intraday-Delta-Filter verworfen (>7% Bewegung)."
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
     # ── STUFE 8: Final MC (10k, adaptive DTE) ────────────────────────────────
     log.info(f"Stufe 8: Final MC (n={FINAL_MC_PATHS}, adaptive DTE)")
@@ -1408,7 +1428,9 @@ def main() -> None:
 
     if not final_sims:
         stats["stop_reason"] = "Kein Kandidat besteht Final MC (120d)."
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
     # ── Funnel-Survivor-Instrumentierung ─────────────────────────────────────
     # Jeden Final-MC-Überlebenden als Schatten-Trade loggen — unabhängig davon,
@@ -1497,7 +1519,9 @@ def main() -> None:
     if not final_signals:
         stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
         _record_final_mc_downstream()
-        save_history(history); send_email(); return
+        save_history(history)
+        send_email()
+        return
 
 
     # ── STUFE 10: Options Design + ROI-Gate ──────────────────────────────────

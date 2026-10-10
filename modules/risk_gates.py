@@ -119,8 +119,8 @@ class RiskGates:
             )
             if resp.status_code == 200:
                 lines = [
-                    l for l in resp.text.strip().split("\n")
-                    if l and not l.startswith("DATE") and "." in l
+                    ln for ln in resp.text.strip().split("\n")
+                    if ln and not ln.startswith("DATE") and "." in ln
                 ]
                 if lines:
                     d_s, val = lines[-1].split(",")[0].strip(), lines[-1].split(",")[1].strip()

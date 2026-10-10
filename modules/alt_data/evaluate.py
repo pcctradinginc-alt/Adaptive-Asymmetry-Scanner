@@ -325,7 +325,8 @@ def run(panel: pd.DataFrame) -> dict:
         fwd = forward_value(panel, sid)
         r["forward"] = fwd
         cons = [contracts.get(c) or {} for c in src.get("contracts") or []]
-        lv = lambda k: max((LEVEL.get(str(c.get(k)), 0.5) for c in cons), default=0.5)
+        def lv(k):
+            return max((LEVEL.get(str(c.get(k)), 0.5) for c in cons), default=0.5)
         decays = {f: (r["conditional_dev"].get(f) or {}).get("alpha_decay", {}).get("status")
                   for f in r["selected_features"]}
         has_c = any(any(ALT_FEATURES.get(f, {}).get("source") == sid for f in c.get("source_features") or [])

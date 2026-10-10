@@ -87,8 +87,9 @@ def test_restatement_never_used_before_it_was_filed():
                         "value": o.value} for o in obs])
     before = sx._known(df, pd.Timestamp("2016-07-01", tz="UTC"))
     after = sx._known(df, pd.Timestamp("2016-08-03", tz="UTC"))
-    pick = lambda k: k[(k["metric"] == "revenue") & (k["end"] == pd.Timestamp("2015-03-31", tz="UTC"))
-                       & ((k["end"] - k["start"]).dt.days < 100)]["value"].iloc[0]
+    def pick(k):
+        return k[(k["metric"] == "revenue") & (k["end"] == pd.Timestamp("2015-03-31", tz="UTC"))
+                           & ((k["end"] - k["start"]).dt.days < 100)]["value"].iloc[0]
     assert pick(before) == pytest.approx(133.1) and pick(after) == 200.0             # Korrektur erst ab Einreichung
 
 
