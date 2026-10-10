@@ -1,11 +1,11 @@
 {
-  "generated": "2026-10-03T13:38:31+00:00",
+  "generated": "2026-10-10T14:39:42+00:00",
   "mode": "weekly",
-  "n_rows": 292515,
+  "n_rows": 292286,
   "n_tickers": 600,
-  "panel_hash": "de1090e85d08be71",
-  "code_sha": "8ae38a1effcd",
-  "period": "2014-06-06..2026-10-02",
+  "panel_hash": "82bdb429216af039",
+  "code_sha": "273f07ddb543",
+  "period": "2014-06-06..2026-10-09",
   "locked_from": "2025-07-01",
   "locked_status": "CONTAMINATED",
   "forward_holdout_from": "2026-09-29",
@@ -15,16 +15,47 @@
   "universe": {
     "pit": true,
     "source": "wikipedia:List_of_S&P_500_companies#changes",
-    "n_changes": 409,
+    "n_changes": 412,
     "first_change": "1976-07-01",
-    "n_tickers_ever": 758,
-    "n_removed_since_start": 255,
-    "n_removed_with_prices": 120,
-    "removed_price_coverage": 0.471,
+    "n_tickers_ever": 760,
+    "n_removed_since_start": 257,
+    "n_removed_with_prices": 122,
+    "removed_price_coverage": 0.475,
     "residual_bias": "entfernte Titel ohne Yahoo-Kurse fehlen weiterhin",
-    "sector_assignment": "heutiger Sektor (yfinance), NICHT point-in-time – Bias für Sektor-Cluster, Sektor-Attribution und Sektorkappe (Audit P2-3)"
+    "sector_assignment": "point-in-time: Sektor erst ab erster Beobachtung (Candidate-Ledger/Abrufdatum, outputs/research/sector_history.jsonl); davor 'unknown' – historische Sektor-Attribution daher meist unknown",
+    "sector_pit_coverage": 0.0,
+    "survivorship": {
+      "available": true,
+      "label": "fwd_xs_20",
+      "mean_missing_member_share": 0.106,
+      "max_missing_member_share": 0.2425,
+      "missing_share_by_year": {
+        "2014": 0.2395,
+        "2015": 0.225,
+        "2016": 0.1915,
+        "2017": 0.1628,
+        "2018": 0.1421,
+        "2019": 0.1179,
+        "2020": 0.0946,
+        "2021": 0.08,
+        "2022": 0.0601,
+        "2023": 0.0415,
+        "2024": 0.0331,
+        "2025": 0.0208,
+        "2026": 0.0066
+      },
+      "worst_case_xs_mean_shift": -0.00804,
+      "note": "Schranke: fehlende Mitglieder am 10-%-Quantil des Stichtags; verschiebt das Querschnittsmittel (Benchmark der Top-Dezil-Rendite) um diesen Betrag – Top-Dezil-Überrenditen darunter sind nicht von Survivorship unterscheidbar"
+    }
   },
-  "new_predictions": [],
+  "new_predictions": [
+    "momentum_12_1@2026-10-09",
+    "enet_xs20_v1@2026-10-09",
+    "hgb_xs20_v1@2026-10-09",
+    "hgb_asym20_v1@2026-10-09",
+    "hgb_xs20_momentum_v1@2026-10-09",
+    "hgb_xs20_risk_regime_v1@2026-10-09"
+  ],
   "calibration": {
     "status": "ok",
     "by_year": [
@@ -195,7 +226,7 @@
     "p_up_informative": false
   },
   "cards": {
-    "date": "2026-10-02",
+    "date": "2026-10-09",
     "n": 503
   },
   "forward": {}

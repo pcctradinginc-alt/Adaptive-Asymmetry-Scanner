@@ -1,4 +1,4 @@
-# Machine Intelligence State – 2026-10-03T13:39:07+00:00
+# Machine Intelligence State – 2026-10-10T14:40:55+00:00
 
 ## Selbsteinschätzung
 
@@ -19,7 +19,7 @@
 ## Worüber sind wir unsicher?
 
 - 80-%-Intervalle: roh 0.6582, korrigiert 0.7887; P(>+10 %) Skill -0.156
-- World-Model-Unsicherheit 0.3267; nicht verfügbar: ['earnings_momentum']
+- World-Model-Unsicherheit 0.3204; nicht verfügbar: ['earnings_momentum']
 
 ## Wo liegen wir systematisch falsch?
 
@@ -53,12 +53,13 @@
 
 - Modell momentum_12_1: 0.0652 -> -0.1045 (t=-2.44)
 - Modell enet_xs20_v1: 0.0976 -> -0.0958 (t=-2.76)
-- vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.38)
-- vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.493)
+- vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.404)
+- vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.521)
+- max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.393)
 
 ## Wo ist die Datenqualität niedrig?
 
-- imf_portwatch_ports: WARN
+- fred_commodities: WARN
 
 ## Wo ist die Uneinigkeit hoch?
 

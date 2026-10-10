@@ -1,0 +1,460 @@
+{
+ "generated": "2026-10-10T14:38:07+00:00",
+ "version": "commodity-intel-1",
+ "feature_version": "cmd-features-1",
+ "research_status": "RESEARCH_ONLY",
+ "series": {},
+ "quality": {
+  "price:wti": {
+   "issues": [
+    "EXTREME_MOVE"
+   ],
+   "severe": false,
+   "detail": {
+    "extreme_moves": [
+     "2020-04-20"
+    ]
+   },
+   "n_periods": 3069,
+   "first_period": "2015-01-01",
+   "last_period": "2026-10-06"
+  },
+  "price:brent": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 3069,
+   "first_period": "2015-01-01",
+   "last_period": "2026-10-06"
+  },
+  "price:henry_hub": {
+   "issues": [
+    "EXTREME_MOVE",
+    "INVALID_NONPOSITIVE_VINTAGES"
+   ],
+   "severe": false,
+   "detail": {
+    "extreme_moves": [
+     "2021-02-17",
+     "2024-01-12",
+     "2025-01-17",
+     "2026-01-23"
+    ],
+    "invalid_nonpositive_vintages": 10
+   },
+   "n_periods": 3069,
+   "first_period": "2015-01-01",
+   "last_period": "2026-10-06"
+  },
+  "price:copper": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 139,
+   "first_period": "2015-01-01",
+   "last_period": "2026-07-01"
+  },
+  "price:wheat": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 139,
+   "first_period": "2015-01-01",
+   "last_period": "2026-07-01"
+  },
+  "price:corn": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 139,
+   "first_period": "2015-01-01",
+   "last_period": "2026-07-01"
+  },
+  "price:soybeans": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 139,
+   "first_period": "2015-01-01",
+   "last_period": "2026-07-01"
+  },
+  "fund:crude_stocks": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:crude_production": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:crude_imports": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:crude_exports": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:refinery_utilization": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:product_supplied": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:gasoline_stocks": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:distillate_stocks": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:natgas_storage": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 614,
+   "first_period": "2015-01-02",
+   "last_period": "2026-10-02"
+  },
+  "fund:dry_gas_production": {
+   "issues": [],
+   "severe": false,
+   "detail": {},
+   "n_periods": 139,
+   "first_period": "2015-01-01",
+   "last_period": "2026-07-01"
+  },
+  "fund:lng_exports": {
+   "issues": [
+    "EXTREME_MOVE"
+   ],
+   "severe": false,
+   "detail": {
+    "extreme_moves": [
+     "2016-03-01",
+     "2016-06-01",
+     "2016-08-01",
+     "2016-10-01",
+     "2016-11-01"
+    ]
+   },
+   "n_periods": 139,
+   "first_period": "2015-01-01",
+   "last_period": "2026-07-01"
+  },
+  "cot:crude_oil": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:natural_gas": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:gold": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:silver": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:copper": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:corn": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:wheat": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  },
+  "cot:soybeans": {
+   "issues": [
+    "MISSING_RELEASES"
+   ],
+   "severe": false,
+   "detail": {
+    "gaps": [
+     [
+      "2018-12-11",
+      56.0
+     ]
+    ],
+    "n_gaps": 1
+   },
+   "n_periods": 607,
+   "first_period": "2015-01-06",
+   "last_period": "2026-10-06"
+  }
+ },
+ "crosscheck": {
+  "eia_wti_spot": {
+   "status": "OK",
+   "n": 500,
+   "n_mismatch": 0,
+   "examples": []
+  },
+  "eia_brent_spot": {
+   "status": "OK",
+   "n": 500,
+   "n_mismatch": 0,
+   "examples": []
+  },
+  "eia_henry_hub_spot": {
+   "status": "OK",
+   "n": 500,
+   "n_mismatch": 0,
+   "examples": []
+  }
+ },
+ "cot": {
+  "oi_inconsistent_reports": {
+   "crude_oil": 0,
+   "natural_gas": 0,
+   "gold": 0,
+   "silver": 0,
+   "copper": 0,
+   "corn": 0,
+   "wheat": 0,
+   "soybeans": 0
+  }
+ },
+ "unavailable": {},
+ "storage_surprise": "EXPECTATION_UNKNOWN",
+ "coverage": {
+  "price": {
+   "active_features": 36,
+   "n_features": 36,
+   "share_dates_any": 1.0,
+   "first_date": "2016-01-01"
+  },
+  "fundamental": {
+   "active_features": 30,
+   "n_features": 30,
+   "share_dates_any": 1.0,
+   "first_date": "2016-01-01"
+  },
+  "positioning": {
+   "active_features": 104,
+   "n_features": 104,
+   "share_dates_any": 0.99,
+   "first_date": "2016-01-01"
+  },
+  "divergence": {
+   "active_features": 4,
+   "n_features": 4,
+   "share_dates_any": 1.0,
+   "first_date": "2016-01-01"
+  }
+ },
+ "latest": {
+  "date": "2026-10-09",
+  "cmd_wti_ret_20d": 0.0215,
+  "cmd_henry_hub_ret_20d": 0.0448,
+  "cmd_crude_stocks_vs_5y": 0.0064,
+  "cmd_natgas_storage_vs_5y": 0.0234,
+  "cmd_cot_crude_oil_mm_pctile_1y": 0.3077,
+  "cmd_cot_natural_gas_mm_pctile_1y": 0.0385,
+  "cmd_cot_gold_mm_pctile_1y": 0.5962
+ },
+ "mapping": {
+  "version": "exposure-v1",
+  "hash": "b86342895c04",
+  "point_in_time_status": "NON_PIT",
+  "non_pit_mapping": true,
+  "n_ticker_rules": 51,
+  "n_industry_rules": 22,
+  "commodities": [
+   "copper",
+   "corn",
+   "gold",
+   "natural_gas",
+   "oil",
+   "silver",
+   "soybeans",
+   "wheat"
+  ]
+ },
+ "sources": {
+  "fred_regime_macro": {
+   "status": "PASS",
+   "staleness": "FRESH",
+   "latest_observation": "2026-10-07T00:00:00+00:00",
+   "last_success": "2026-10-10T12:36:18+00:00",
+   "consecutive_failures": 0,
+   "message": "26065 ALFRED-Vintage-Beobachtungen (CPI/NFCI/WALCL/Dollar/WTI)",
+   "health": "HEALTHY"
+  },
+  "fred_commodities": {
+   "status": "WARN",
+   "staleness": "FRESH",
+   "latest_observation": "2026-10-06T00:00:00+00:00",
+   "last_success": "2026-10-10T12:36:18+00:00",
+   "consecutive_failures": 0,
+   "message": "7384 ALFRED-Vintage-Beobachtungen (Brent/HenryHub/Kupfer/Weizen/Mais/Soja) | DQ: OUT_OF_RANGE",
+   "health": "DEGRADED"
+  },
+  "eia_petroleum_weekly": {
+   "status": "PASS",
+   "staleness": "FRESH",
+   "latest_observation": "2026-10-06T00:00:00+00:00",
+   "last_success": "2026-10-09T13:21:40+00:00",
+   "consecutive_failures": 0,
+   "message": "übersprungen: alle Serien auf dem Stand der letzten Veröffentlichung",
+   "health": "HEALTHY"
+  },
+  "eia_natural_gas": {
+   "status": "PASS",
+   "staleness": "FRESH",
+   "latest_observation": "2026-10-06T00:00:00+00:00",
+   "last_success": "2026-10-10T12:36:18+00:00",
+   "consecutive_failures": 0,
+   "message": "118 EIA-Werte, 0 Revisionen (ab Abruf gültig)",
+   "health": "HEALTHY"
+  },
+  "cftc_cot": {
+   "status": "PASS",
+   "staleness": "FRESH",
+   "latest_observation": "2026-10-06T00:00:00+00:00",
+   "last_success": "2026-10-10T12:36:18+00:00",
+   "consecutive_failures": 0,
+   "message": "1520 COT-Werte, 8/8 Märkte, 0 Revisionen",
+   "health": "HEALTHY"
+  }
+ },
+ "n_dates": 2811
+}
