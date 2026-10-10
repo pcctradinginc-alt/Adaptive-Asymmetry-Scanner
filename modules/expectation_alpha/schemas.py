@@ -16,9 +16,10 @@ STAGE = "EA_NEWS_CANDIDATE"                 # Population der EA-Verträge (hypot
 # Datenstatus je Merkmal / Gap / Confirmation
 OK = "OK"
 STALE = "STALE"                             # jüngster Wert älter als max_age -> als fehlend behandelt
-INSUFFICIENT_DATA = "INSUFFICIENT_DATA"     # zu wenig PIT-Historie für z/Perzentil
+INSUFFICIENT_HISTORY = "INSUFFICIENT_HISTORY"   # Warm-up: zu wenig PIT-Historie (z, Perzentil, RoC, Wechsel, Regime)
+INSUFFICIENT_DATA = INSUFFICIENT_HISTORY          # Alias (frühere Bezeichnung)
 UNAVAILABLE = "UNAVAILABLE"                 # Quelle/Reihe existiert (PIT) nicht – nie simuliert
-DATA_STATUSES = (OK, STALE, INSUFFICIENT_DATA, UNAVAILABLE)
+DATA_STATUSES = (OK, STALE, INSUFFICIENT_HISTORY, UNAVAILABLE)
 
 # Research-Entscheidung (deterministisch, kein LLM)
 TRADE, WAIT, ABSTAIN, ERROR = "TRADE", "WAIT", "ABSTAIN", "ERROR"

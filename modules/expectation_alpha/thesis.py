@@ -8,7 +8,7 @@ Liest das Deep-Analysis-Ergebnis read-only und verändert es nie. Kontext je Kan
   - +1 bei macro_alignment ≥ positive_min und Sektor nicht klar dagegen;
   - −1 bei macro_alignment ≤ negative_max oder Sektor ≤ sector_contradiction;
   - 0 sonst;
-  - None ohne verfügbares macro_alignment (INSUFFICIENT_DATA, Gruppe X).
+  - None ohne verfügbares macro_alignment (INSUFFICIENT_HISTORY/UNAVAILABLE, Gruppe X).
 Forschungsgruppen: A starke News + Kontext +1, B starke + 0, C starke + −1, D schwache + +1,
 E schwache + 0/−1, X Kontext unbekannt.
 
@@ -142,7 +142,7 @@ def build_thesis(analysis: dict, ctx: dict, cfg: dict, *, impact_min: int, surpr
     d = direction or 1
     cctx = candidate_context(d, sector, ctx, cfg) if direction is not None else candidate_context(1, None, {}, cfg)
     spec, amb = cac.candidate_spec(d, cctx["sector_etf"], cctx["sensitivities"], cfg)
-    conf = cac.confirm(spec, ((ctx.get("signals") or {}).get("values") or {}), amb)
+    conf = cac.confirm(spec, ((ctx.get("signals") or {}).get("values") or {}), amb, dampening=cac.dampening_of(cfg))
     reg = ctx.get("regime") or {}
     ru = reg.get("regime_uncertainty")
     prim = cctx["primary_domain"]
@@ -191,6 +191,8 @@ def build_thesis(analysis: dict, ctx: dict, cfg: dict, *, impact_min: int, surpr
         "regime_dimension": dim, "regime_transition_probability": ((dim_state.get("transition") or {}).get("value")),
         "regime": ctx.get("vix_regime"), "vix": ctx.get("vix"),
         "cross_asset_confirmation": conf, "confirmation_ratio": conf["confirmation_ratio"],
+        "effective_confirmation_ratio": conf["effective_confirmation_ratio"],
+        "confirmation_family_count": conf["family_count"],
         "evidence_for": pro, "evidence_against": con,
         "status": dec["status"], "status_reasons": dec["reasons"], "timing_state": TIMING_STATE[dec["status"]],
         "wait_trigger": dec["wait_trigger"], "kill_conditions": kill,
@@ -214,8 +216,10 @@ def contract_env(news, cctx, conf, status, gap, ru, sel) -> dict:
         "ea_gap_abs_z": None if not gap or gap.get("gap_z") is None else abs(float(gap["gap_z"])),
         "ea_gap_accel_aligned": None if not gap or gap.get("acceleration_aligned") is None
         else int(gap["acceleration_aligned"] > 0),
-        "ea_confirmation_ratio": conf.get("confirmation_ratio"),
-        "ea_confirmation_available": conf.get("n_available"),
+        "ea_confirmation_ratio": conf.get("confirmation_ratio"),            # roh (EA002, registriert)
+        "ea_confirmation_available": conf.get("n_available"),              # roh (EA002, registriert)
+        "ea_effective_confirmation_ratio": conf.get("effective_confirmation_ratio"),
+        "ea_confirmation_family_count": conf.get("family_count"),
         "ea_regime_uncertainty": ru,
         "ea_status": status,
         "ea_status_valid": int(status != ERROR),

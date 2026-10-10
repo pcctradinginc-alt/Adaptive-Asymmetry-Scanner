@@ -606,7 +606,9 @@ def evaluate_shadow_trades(history: dict, today: datetime, ledger_dir: Path | No
             continue
         st["outcome"], st["outcome_method"], st["close_date"] = lg["outcome"], lg["outcome_method"], lg["close_date"]
         try:
-            update_feature_stats_external(history, st)
+            from modules import learning_ledger as _ll
+            _ll.consume(history, f"shadow:{sl.shadow_id(st)}", legacy_h, "feature_stats_external",
+                        lambda st=st: update_feature_stats_external(history, st), sections=("feature_stats_external",))
         except Exception as e:
             log.warning(f"  [SHADOW {st['ticker']}] feature_stats_external-Update Fehler (ignoriert): {e}")
         log.info(f"  [SHADOW {st['ticker']}] ({st.get('reject_reason','?')}) Outcome={lg['outcome']:+.2%}")
@@ -938,6 +940,33 @@ def update_feature_stats_external(history: dict, trade: dict) -> None:
         _update_external_bucket(dim_bucket, key, outcome, strat_ret)
 
 
+def learn_on_close(history: dict, trade: dict, outcome: float, reliable: bool) -> dict:
+    """Inkrementelle Lern-Updates beim Trade-Close – je (Trade, "close", Lernziel) genau einmal
+    (modules/learning_ledger). Nur verlässliche Outcomes (echte Quotes) werden gelernt; Näherungen werden
+    geschlossen und gekennzeichnet, aber nicht gelernt. `outcome` ungerundet (wie bisher für die Bins).
+    -> {"feature_stats": bool, "feature_stats_external": bool} (False = übersprungen/nicht gelernt)."""
+    from modules import learning_ledger as _ll
+    done = {"feature_stats": False, "feature_stats_external": False}
+    if not reliable:
+        return done
+    tid = _ll.trade_id(trade)
+    feat = trade.get("features", {})
+
+    def _bins():
+        for f_name, bin_key in [("impact", "bin_impact"), ("mismatch", "bin_mismatch"), ("eps_drift", "bin_eps_drift")]:
+            bin_label = feat.get(bin_key)
+            if bin_label:
+                update_bin(history.setdefault("feature_stats", {}), f_name, bin_label, outcome)
+    done["feature_stats"] = _ll.consume(history, tid, "close", "feature_stats", _bins, sections=("feature_stats",))
+    try:
+        done["feature_stats_external"] = _ll.consume(
+            history, tid, "close", "feature_stats_external", lambda: update_feature_stats_external(history, trade),
+            sections=("feature_stats_external",))
+    except Exception as e:  # noqa: BLE001 – Observability-Statistik bricht den Lern-Loop nie (zurückgesetzt)
+        log.warning(f"  [{trade.get('ticker')}] feature_stats_external-Update Fehler (ignoriert): {e}")
+    return done
+
+
 # ── RL-Training ───────────────────────────────────────────────────────────────
 
 def maybe_notify_rl_arming(history: dict) -> None:
@@ -1091,6 +1120,15 @@ def main() -> None:
 
     history      = load_history()
     today        = datetime.utcnow()
+    # Consume-once (modules/learning_ledger): exakte Altduplikate in closed_trades zählen nur einmal
+    from modules import learning_ledger as _ll
+    _ll.run_stats(reset=True)
+    try:
+        _nq = _ll.quarantine_duplicate_trades(history)
+        if _nq:
+            log.warning(f"  {_nq} doppelte closed_trades in Quarantäne (Outcome zählt nur einmal)")
+    except Exception as e:  # noqa: BLE001 – Integritätsprüfung bricht den Lauf nie, verändert dann aber nichts
+        log.error(f"Duplikat-Quarantäne Fehler (nichts verändert): {e}")
     active       = history.get("active_trades", [])
     still_active = []
     newly_closed = 0
@@ -1149,26 +1187,22 @@ def main() -> None:
             # Bins/Gewichte; sie werden geschlossen und gekennzeichnet, aber nicht gelernt.
             reliable = meta.get("method") in RELIABLE_OUTCOME_METHODS
             trade["outcome_reliable"] = reliable
-            feat = trade.get("features", {})
-            for f_name, bin_key in [("impact",    "bin_impact"),
-                                      ("mismatch",  "bin_mismatch"),
-                                      ("eps_drift", "bin_eps_drift")]:
-                bin_label = feat.get(bin_key)
-                if bin_label and reliable:
-                    update_bin(history["feature_stats"], f_name, bin_label, outcome)
-
+            if _ll.already_closed(history, trade):
+                # derselbe Trade (doppelter active_trades-Eintrag) wurde schon geschlossen und gelernt
+                log.warning(f"  [{ticker}] bereits geschlossen (Duplikat) -> Quarantäne, kein Lern-Update")
+                history.setdefault("closed_trades_quarantine", []).append(
+                    {**trade, "outcome": round(outcome, 4), "close_date": today.strftime("%Y-%m-%d"),
+                     "_quarantine": {"reason": "duplicate_close", "trade_id": _ll.trade_id(trade),
+                                     "quarantined_at": today.strftime("%Y-%m-%d")}})
+                continue
             trade["outcome"]        = round(outcome, 4)
             trade["close_date"]     = today.strftime("%Y-%m-%d")
             trade["close_price"]    = current
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
             _spread_execution_exit(trade, _spread_obs, today)
+            learn_on_close(history, trade, outcome, reliable)
             history.setdefault("closed_trades", []).append(trade)
-            if reliable:
-                try:
-                    update_feature_stats_external(history, trade)
-                except Exception as e:
-                    log.warning(f"  [{ticker}] feature_stats_external-Update Fehler (ignoriert): {e}")
             log.info(
                 f"  [{ticker}] Trade abgeschlossen "
                 f"({trade['close_reason']}, Return={outcome:+.2%})"
@@ -1211,7 +1245,9 @@ def main() -> None:
             _ea_st = _ea.resolve_outcomes(today=today.date())
             if _ea_st.get("resolved"):
                 log.info(f"  Expectation-Alpha-Ledger: {_ea_st['resolved']} Outcome(s) aufgelöst ({_ea_st})")
-            _ea.evaluate()
+            _ea_rep = _ea.evaluate()
+            log.info(f"  Expectation Alpha (SHADOW): lead_lag_status={(_ea_rep.get('lead_lag') or {}).get('lead_lag_status')}, "
+                     f"Population n={(_ea_rep.get('population') or {}).get('n')}")
     except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
         log.warning(f"Expectation-Alpha-Outcomes Fehler (ignoriert): {e}")
 
@@ -1247,6 +1283,9 @@ def main() -> None:
     maybe_notify_rl_arming(history)
 
     save_history(history)
+    _lr = _ll.run_stats()
+    log.info(f"Learning-Integrität: {_lr['processed']} Lern-Updates, duplicate_learning_skips={_lr['duplicate_skips']}, "
+             f"Quarantäne gesamt={len(history.get('closed_trades_quarantine') or [])}")
 
     # Exit-Alarme als E-Mail (TP/SL/Time-Exit erreicht → Handlungsaufforderung)
     if exit_alerts:

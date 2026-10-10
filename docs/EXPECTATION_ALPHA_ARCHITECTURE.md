@@ -46,7 +46,7 @@ surprise/catalyst/ttm                     -> current state -> rate of change -> 
 1. **Marktimplizite Erwartungen fehlen im Archiv.** Es gibt keine Breakevens, keine 2J-Rendite und keine Fed Funds.
    - Neu ist die FRED-Quelle `fred_market_expectations` (DGS2, DGS10, DFF, T5YIE, T10YIE, T5YIFR).
    - Ingest erfolgt im bestehenden Connector-Muster mit ALFRED-Vintages und `available_at = realtime_start`.
-   - Bis die Historie archiviert ist, sind Inflations- und Zins-Gap `INSUFFICIENT_DATA`.
+   - Bis die Historie archiviert ist, sind Inflations- und Zins-Gap `UNAVAILABLE` bzw. `INSUFFICIENT_HISTORY`.
 2. **Kein Rate-of-Change-Satz je Indikator.** Gemeint sind velocity, acceleration, change_of_change, Perzentil und Regimewechsel-Wahrscheinlichkeit.
 3. **Keine Gap-Definition** (Modell − Markt) mit Rohwert, z und Perzentil.
 4. **Keine thesenspezifische Cross-Asset-Bestätigung** (erwartete Richtungen, Missing ≠ negativ).
@@ -69,6 +69,9 @@ surprise/catalyst/ttm                     -> current state -> rate of change -> 
 | `expression.py` | vorregistrierte Expressions, deterministische Auswahlregel | Opus |
 | `ledger.py` | append-only Kontext-/Kandidaten-/Downstream-/Outcome-Dateien, Outcome-Auflösung inkl. WAIT-Replay, Promotion-Evidenz | Opus |
 | `evaluation.py` | Gruppen A–D je Horizont, Abstention-, Context- und Expression-Wert, Kalibrierung, Vorschläge (nie automatisch angewendet) | Opus (Statistik), Sonnet (Report) |
+| `claims.py` | Claim-Taxonomie `claims-v1`, Normalisierung, deterministische PIT-Prüfung gegen SEC XBRL/8-K (VERIFIED/UNVERIFIED/CONTRADICTED) | Opus |
+| `claim_extraction.py` | separater Shadow-LLM-Call: Deep-Analysis-Text → strukturierte Claims (nie Verifikation) | Sonnet (Opus-Review) |
+| `lead_lag.py` | Lead-Lag-Diagnostik je Feature/Familie auf vorab festen Horizonten (keine Auswahl) | Opus |
 | `__init__.py` | öffentliche Hooks: `enrich_candidates` (pipeline), `record_downstream`, `resolve_outcomes` (feedback), `evaluate` | Opus |
 
 Kleine, gezielte Erweiterungen bestehender Dateien:
@@ -128,6 +131,7 @@ Pflicht-Leakage-Tests stehen in `tests/test_expectation_alpha_pit.py`.
   - ABSTENTION_ONLY / RERANK_ONLY / SCORE_LIMITED / WEIGHT_10 bleiben wie bisher.
   - Neue Stufen werden nicht eingeführt.
 - Kein LLM in Gap, Regime, Confirmation, Status, Outcome oder Promotion.
+- Einzige LLM-Nutzung: `claim_extraction.py` strukturiert Text in Claims (Shadow, drosselbar). Die Prüfung ist deterministisch, und das Ergebnis wird nur protokolliert.
 
 ## 7. Forschungshypothesen (vorab registriert, `config/promotion_hypotheses.yaml`)
 | ID | H1 | Vergleich innerhalb EA_NEWS_CANDIDATE |
@@ -173,5 +177,18 @@ Subagents ändern weder Architektur, Kern-Schemas, PIT-Semantik, Risk Limits, Pr
 13. **P12:** Opus-Gesamtaudit und Fixes.
 
 Nach jeder Phase: Tests → Review → Fix.
+
+## 10. V1.1 – Robustheit (2026-10-10, vor `forward_start`)
+- **Familienbewusste Bestätigung** (`modules/evidence_families.py`):
+  - Die erste Evidenz einer Familie zählt voll, weitere gedämpft (`confirmation.family_dampening`).
+  - Die Entscheidung braucht `min_confirmation_families` und nutzt `effective_confirmation_ratio` sowie `effective_conflict_share`.
+  - Rohzählungen bleiben erhalten. Vertragsfeatures (EA002) bleiben roh.
+- **Warm-up-Guards:**
+  - INSUFFICIENT_HISTORY je Feld (RoC: Lag+1, z/Perzentil: `min_history_weeks`+1).
+  - Regime-Unsicherheit erst ab `warmup.regime_min_dims_available` Dimensionen.
+  - Cross-Asset-Signale nach `warmup.signal_min_rows`.
+- **Claims** (nur Logging): `verified_claim_fraction` je Kandidat.
+- **Lead-Lag:** Abschnitt in `evaluation.json`/`.md` und im Montagsbericht.
+- Details, Tests und Risiken: `docs/ROBUSTNESS_LEARNING_V1.md`.
 
 Umsetzungsstand, Testergebnisse, Datenlücken und offene Punkte: `docs/EXPECTATION_ALPHA_V1_REPORT.md`.

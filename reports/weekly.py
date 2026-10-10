@@ -1835,6 +1835,20 @@ def expectation_alpha_section(data: dict) -> list:
     else:
         out.append(("para", f"Verträge EA001–EA007: {NO_DATA}."))
 
+    ll = _d(ev.get("lead_lag"))
+    if ll:
+        hs = ll.get("horizons_preregistered") or []
+        rows = []
+        for name, f in (_d(ll.get("features"))).items():
+            f = _d(f)
+            cells = []
+            for h in hs:
+                b = _d(_d(f.get("horizons")).get(str(h)))
+                cells.append(f"{b.get('ic')} (n {b.get('n', 0)})" if b.get("status") == "OK" else f"– (n {b.get('n', 0)})")
+            rows.append([str(name), str(f.get("family") or NA)] + cells)
+        out.append(("para", f"Lead-Lag-Diagnostik (Research, vorab feste Horizonte {hs}, keine Horizont-Auswahl, "
+                            f"kein Gewicht): Status {ll.get('lead_lag_status') or NA}"))
+        out.append(("table", ["Feature", "Familie"] + [f"IC {h}T" for h in hs], rows, []))
     fc = _d(ev.get("failure_classes"))
     out.append(("para", "Fehlerklassen (Primärhorizont, regelbasiert): " + (_ea_counts(fc) if ev else NO_DATA)))
     ds = _d(ev.get("data_status"))

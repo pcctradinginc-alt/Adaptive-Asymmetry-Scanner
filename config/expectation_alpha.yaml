@@ -5,7 +5,8 @@
 # erzeugt einen neuen Hash -> neue Version, alte Zeilen bleiben unverändert interpretierbar.
 # Architektur: docs/EXPECTATION_ALPHA_ARCHITECTURE.md
 
-version: ea-v1
+version: ea-v1.1               # v1.1 (2026-10-10, vor forward_start, ohne Outcomes): familienbewusste Bestätigung,
+                               #   Warm-up-Guards, Claim-Logging – keine Vertragsänderung
 registered_at: "2026-10-10"
 mode: shadow                 # off | shadow  (V1: kein Produktionsmodus; Einfluss nur über PromotionController)
 max_runtime_seconds: 150     # Budget im Scanner-Lauf; Überschreitung -> ERROR (nie stilles Weiterlaufen)
@@ -13,7 +14,7 @@ max_runtime_seconds: 150     # Budget im Scanner-Lauf; Überschreitung -> ERROR 
 data:
   archive_root: outputs/external_data
   market_history_years: 6
-  min_history_weeks: 52      # z/Perzentil erst ab so viel PIT-Vergangenheit, sonst INSUFFICIENT_DATA
+  min_history_weeks: 52      # z/Perzentil erst ab so viel PIT-Vergangenheit, sonst INSUFFICIENT_HISTORY
   # Frische (Tage seit jüngster verfügbarer Periode); darüber -> STALE -> Wert gilt als fehlend
   max_age_days: {daily: 7, weekly: 21, monthly: 75}
   # Marktschlüsse: nur abgeschlossene Tagesbalken (decision_date ausgeschlossen, außer Entscheidung >= 21:00 UTC)
@@ -29,6 +30,14 @@ future_state:
   delta_3m_weeks: 13
   transition_lookahead_weeks: 4      # P(Regimewechsel in 4 Wochen | Abstand zur Schwelle), nur Vergangenheit
   transition_min_history: 104
+
+# Warm-up-Guards: zu wenig Historie -> INSUFFICIENT_HISTORY (nie 0, neutral, künstliches Extrem-z oder langer Forward-Fill).
+#   z/Perzentil: data.min_history_weeks Vergangenheitswerte; RoC: Lag+1 gültige Punkte (Δ1M: d1+1, Δ3M/velocity/
+#   acceleration: d3+1, change_of_change: d3+d1+1); Wechselwahrscheinlichkeit: future_state.transition_min_history Anker;
+#   Cross-Asset: 20T-Signale ab 21, 63T-Signale ab 64 Handelstagen.
+warmup:
+  regime_min_dims_available: 6      # Gesamt-Regime-Unsicherheit erst ab 6 von 15 verfügbaren World-Model-Dimensionen
+  signal_min_rows: {window_20d: 21, window_63d: 64}
 
 # Expectation Gaps: gap = model_future_state - market_implied_expectation
 #   level_gap : gleiche Einheit (Prozentpunkte), Rohwert direkt interpretierbar
@@ -87,6 +96,26 @@ confirmation:
     - {signal: hyg_lqd_20d, sign: 1, deadband: 0.002}
     - {signal: vix_term_contango, sign: 1, deadband: 0.02}
   weights: {}                 # Default 1.0 je Signal (bewusst nicht trainiert)
+  # Evidenz-Familien (modules/evidence_families): erste Evidenz einer Familie voll, weitere gedämpft
+  # (Familiengewicht Σ d^i: 1 / 1,5 / 1,75 … bei d = 0,5). Ökonomische Zuordnung, nicht gefittet.
+  family_dampening: 0.5
+  signal_families:
+    cyc_def_20d: equity_cyclicals
+    iwm_spy_20d: equity_size
+    spy_ret_20d: equity_market
+    xle_spy_20d: equity_energy        # identisch mit sector_rs_20d:XLE -> gleiche Familie
+    hyg_lqd_20d: credit
+    tnx_20d: rates
+    irx_20d: rates
+    tlt_20d: rates
+    tip_ief_20d: inflation_expectations
+    copper_gold_20d: commodities
+    gld_20d: commodities
+    wti_ret_20d: commodities
+    vix_term_contango: volatility
+  sector_families: {XLK: equity_tech, XLC: equity_communication, XLF: equity_banks, XLE: equity_energy,
+                    XLI: equity_cyclicals, XLB: equity_cyclicals, XLY: equity_cyclicals, XLP: equity_defensive,
+                    XLV: equity_defensive, XLU: equity_defensive, XLRE: equity_real_estate}
 
 # Kandidaten-Kontext
 context:
@@ -104,21 +133,32 @@ news:
 # Deterministische Research-Entscheidung (kein LLM). Reihenfolge: ERROR -> ABSTAIN -> TRADE -> WAIT
 decision:
   max_regime_uncertainty: 0.60     # aus der Merkmalsverteilung (world_state.jsonl: Median 0,44, q90 0,57), nie aus Outcomes
-  min_confirmation_available: 3
-  conflict_share_abstain: 0.50     # n_conflicting / n_available >= 0.5 -> widersprüchlich -> ABSTAIN
-  trade_min_confirmation_ratio: 0.60
+  # Bestätigung familienbewusst (effektive Werte, siehe confirmation.family_dampening):
+  min_confirmation_families: 3     # mindestens 3 unabhängige Evidenz-Familien verfügbar (statt 3 Rohsignale)
+  conflict_share_abstain: 0.50     # effective_conflict_share >= 0.5 -> widersprüchlich -> ABSTAIN
+  trade_min_confirmation_ratio: 0.60   # effective_confirmation_ratio
   # WAIT-Trigger: Bestätigung, die bei der Entscheidung fehlte. Prüfung je Schlusskurs ab dem Entscheidungstag;
   # Einstieg erst zum Schluss des FOLGETAGS (Signal und Ausführung nie am selben Schlusskurs).
   wait_trigger:
     any_of:
-      - {metric: confirmation_ratio, op: ">=", value: 0.70}
+      - {metric: effective_confirmation_ratio, op: ">=", value: 0.70}
     max_wait_trading_days: 10
   kill_conditions:
-    market_confirmation_failure: {metric: confirmation_ratio, op: "<", value: 0.30, consecutive_days: 5, min_available: 3}
+    market_confirmation_failure: {metric: effective_confirmation_ratio, op: "<", value: 0.30, consecutive_days: 5,
+                                  min_families: 3}
     catalyst_failure: {default_days: 20, rule: "bis catalyst_deadline keine Bewegung in Thesenrichtung (Rendite <= 0)"}
     economic_invalidation: {rule: "Vorzeichenwechsel des primären Domänen-Gaps in einem späteren Kontext-Lauf"}
     time_invalidation: {trading_days: 60}
     risk_stop: {return_le: -0.15}
+
+# Maschinell prüfbare Claims (SHADOW, nur Logging): LLM strukturiert Katalysator-/These-Text (separater Call,
+# nie der Produktions-Prompt); Status VERIFIED/UNVERIFIED/CONTRADICTED deterministisch gegen PIT-Evidenz
+# (SEC XBRL, 8-K-Items). verified_claim_fraction hat KEIN Gewicht; erst Forward-Test, dann ggf. Vertrag.
+claims:
+  enabled: true
+  model: null                 # null -> models.prescreener (config.yaml)
+  max_candidates_per_run: 12
+  max_tokens: 700
 
 # Expressions (vorab je These registriert; nur liquide, bereits unterstützte Underlyings/ETFs; keine Optionen)
 expressions:
@@ -155,7 +195,7 @@ groups:
   C: "starke News + negativer Kontext"
   D: "schwache News + positiver Kontext"
   E: "schwache News + neutraler/negativer Kontext"
-  X: "Kontext INSUFFICIENT_DATA"
+  X: "Kontext INSUFFICIENT_HISTORY / UNAVAILABLE"
 evaluation:
   min_n_report: 30            # darunter NEED_MORE_DATA (keine Effektaussage)
   bootstrap_n: 2000

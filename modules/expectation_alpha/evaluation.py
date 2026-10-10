@@ -209,6 +209,8 @@ def run(*, root: Path | None = None, cfg: dict | None = None, now: datetime | No
                                                                            if x.get("runtime_seconds") is not None]), 2)
                           if any(x.get("runtime_seconds") is not None for x in runs) else None}
     rep["contracts"] = contract_status(promotion_state)
+    from modules.expectation_alpha import lead_lag
+    rep["lead_lag"] = lead_lag.run(rows, outs, cfg)        # nur Research: kein Gewicht, keine Horizont-Auswahl
     props = proposals(rep, rows, outs, cfg)
     if write:
         atomic_write_json(P["evaluation_json"], rep, indent=1, ensure_ascii=False, default=str)
@@ -298,6 +300,17 @@ def render_md(rep: dict) -> str:
     for c in rep["contracts"]:
         L.append(f"| {c['key']} | {c['state']} | {c['n']} | {c['independent_dates']} | {c['span_days']} | "
                  f"{len(c.get('regimes') or [])} | {_fmt(c.get('delta'))} | {c.get('ci')} | {c.get('next_requirement') or '–'} |")
+    ll = rep.get("lead_lag") or {}
+    L += ["", f"## Lead-Lag-Diagnostik (Research, Horizonte vorab: {ll.get('horizons_preregistered')}, "
+              f"keine Auswahl) – Status {ll.get('lead_lag_status')}", "",
+          "| Feature | Familie | " + " | ".join(f"IC {h}T (n)" for h in ll.get("horizons_preregistered") or []) + " |",
+          "|---|---|" + "---|" * len(ll.get("horizons_preregistered") or [])]
+    for name, f in (ll.get("features") or {}).items():
+        cells = []
+        for h in ll.get("horizons_preregistered") or []:
+            b = f["horizons"].get(str(h)) or {}
+            cells.append(f"{b.get('ic') if b.get('status') == 'OK' else '–'} ({b.get('n', 0)})")
+        L.append(f"| {name} | {f['family']} | " + " | ".join(cells) + " |")
     L += ["", f"Fehlerklassen: {rep['failure_classes'] or '–'}", "",
           "Hinweis: SHADOW. Keine Handelsempfehlung, kein Einfluss auf Champion, Scores, Gates oder Sizing."]
     return "\n".join(L) + "\n"

@@ -12,6 +12,14 @@ sonst 0 (neutral).
 
 Fehlende Signale stehen in missing_inputs und zählen weder als Bestätigung noch als Widerspruch:
 Missing ist nicht negativ. confirmation_ratio = n_confirming / n_available; None ohne verfügbare Signale.
+
+Familienbewusst (modules/evidence_families): Korrelierte Signale derselben Evidenz-Familie, z. B. 10J-Rendite,
+3M-Rendite und TLT als `rates`, zählen nicht mehrfach voll. Gemeldet werden:
+- raw_confirmation_count;
+- effective_confirmation / effective_available / effective_confirmation_ratio;
+- family_count und family_breakdown.
+Die Research-Entscheidung (timing) nutzt die effektiven Werte. Die Rohwerte bleiben gespeichert, auch für
+die registrierten Verträge.
 """
 from __future__ import annotations
 
@@ -63,11 +71,13 @@ def signal_frame(px: pd.DataFrame, window: int = 20) -> pd.DataFrame:
     return f.replace([np.inf, -np.inf], np.nan)
 
 
-def market_signals(px: pd.DataFrame, commodity: pd.DataFrame | None, window: int = 20) -> dict:
-    """Kurzfrist-Signale am letzten abgeschlossenen Handelstag (+ WTI aus commodity_intelligence, PIT)."""
+def market_signals(px: pd.DataFrame, commodity: pd.DataFrame | None, window: int = 20,
+                   min_rows: dict | None = None) -> dict:
+    """Kurzfrist-Signale am letzten abgeschlossenen Handelstag (+ WTI aus commodity_intelligence, PIT).
+    missing_reason je fehlendem Signal: INSUFFICIENT_HISTORY (Warm-up, zu wenig Handelstage) oder UNAVAILABLE."""
     f = signal_frame(px, window)
     if f.empty:
-        return {"date": None, "window_days": window, "values": {}}
+        return {"date": None, "window_days": window, "values": {}, "missing_reason": {}, "history_rows": 0}
     last = f.index[-1]
     vals = {k: rnd(v, 6) for k, v in f.iloc[-1].items()}
     wti = None
@@ -77,7 +87,25 @@ def market_signals(px: pd.DataFrame, commodity: pd.DataFrame | None, window: int
         if len(c) and (last - c.index[-1]).days <= 7:
             wti = rnd(float(c.iloc[-1]), 6)
     vals["wti_ret_20d"] = wti
-    return {"date": last.date().isoformat(), "window_days": window, "values": vals}
+    mr = min_rows or {}
+    need20, need63 = int(mr.get("window_20d", window + 1)), int(mr.get("window_63d", 64))
+    n = int(len(f))
+    reason = {k: ("INSUFFICIENT_HISTORY" if n < (need63 if k.endswith("_63d") or "_63d:" in k else need20)
+                  and k != "wti_ret_20d" else "UNAVAILABLE") for k, v in vals.items() if v is None}
+    return {"date": last.date().isoformat(), "window_days": window, "values": vals, "missing_reason": reason,
+            "history_rows": n}
+
+
+def family_of(signal: str, cfg: dict) -> str:
+    """Evidenz-Familie eines Signals (config `confirmation.signal_families` / `sector_families`).
+    Nicht gemappt -> eigene Familie `unmapped:<signal>` (wird nie mit anderen zusammengelegt, aber sichtbar)."""
+    cc = cfg.get("confirmation") or {}
+    if signal.startswith("sector_rs_"):
+        etf = signal.split(":", 1)[1] if ":" in signal else None
+        fam = (cc.get("sector_families") or {}).get(etf)
+    else:
+        fam = (cc.get("signal_families") or {}).get(signal)
+    return fam or f"unmapped:{signal}"
 
 
 def _merge(spec: list[dict]) -> list[dict]:
@@ -91,6 +119,7 @@ def _merge(spec: list[dict]) -> list[dict]:
         a["from"].append(s.get("from"))
     out, ambiguous = [], []
     for a in agg.values():
+        a["family"] = next((x.get("family") for x in spec if x["signal"] == a["signal"] and x.get("family")), None)
         if a["expected"] == 0:
             ambiguous.append(a["signal"])
             continue
@@ -111,12 +140,12 @@ def candidate_spec(direction: int, sector_etf: str | None, sensitivities: dict |
                 continue                      # unbekannter Sektor: Signal nicht erwartet (nicht "fehlend")
             name = f"sector_rs_20d:{sector_etf}"
         spec.append({"signal": name, "expected": int(s["sign"]) * direction, "deadband": float(s["deadband"]),
-                     "weight": float(w.get(s["signal"], 1.0)), "from": "candidate"})
+                     "weight": float(w.get(s["signal"], 1.0)), "from": "candidate", "family": family_of(name, cfg)})
     for dom, sens in (sensitivities or {}).items():
         for s in (cc.get("domain_signals") or {}).get(dom) or []:
             spec.append({"signal": s["signal"], "expected": int(s["sign"]) * int(sens) * direction,
                          "deadband": float(s["deadband"]), "weight": float(w.get(s["signal"], 1.0)),
-                         "from": f"domain:{dom}"})
+                         "from": f"domain:{dom}", "family": family_of(s["signal"], cfg)})
     return _merge(spec)
 
 
@@ -124,21 +153,27 @@ def domain_spec(domain: str, gap_sign: int, cfg: dict) -> tuple:
     cc = cfg.get("confirmation") or {}
     w = cc.get("weights") or {}
     spec = [{"signal": s["signal"], "expected": int(s["sign"]) * int(gap_sign), "deadband": float(s["deadband"]),
-             "weight": float(w.get(s["signal"], 1.0)), "from": f"gap:{domain}"}
+             "weight": float(w.get(s["signal"], 1.0)), "from": f"gap:{domain}", "family": family_of(s["signal"], cfg)}
             for s in (cc.get("domain_signals") or {}).get(domain) or []]
     return _merge(spec)
 
 
-def confirm(spec: list[dict], values: dict, ambiguous: list[str] | None = None) -> dict:
+def confirm(spec: list[dict], values: dict, ambiguous: list[str] | None = None, *,
+            dampening: float | None = None) -> dict:
+    """Roh- UND familienbewusste Bestätigung. `dampening` None -> 0,5 (Default der Config). Fehlende Signale
+    zählen weder als Bestätigung noch als Widerspruch (missing_inputs, Familie ggf. MISSING)."""
+    from modules.evidence_families import aggregate
     n_exp = len(spec)
-    signals, missing = [], []
+    signals, missing, items = [], [], []
     conf = confl = 0
     wsum = wtot = 0.0
     for s in spec:
         v = values.get(s["signal"])
+        fam = s.get("family") or f"unmapped:{s['signal']}"
         if v is None:
             missing.append(s["signal"])
-            signals.append({**s, "value": None, "state": "MISSING"})
+            signals.append({**s, "family": fam, "value": None, "state": "MISSING"})
+            items.append({"id": s["signal"], "family": fam, "state": None})
             continue
         x = s["expected"] * float(v)
         st = 1 if x > s["deadband"] else -1 if x < -s["deadband"] else 0
@@ -146,12 +181,19 @@ def confirm(spec: list[dict], values: dict, ambiguous: list[str] | None = None) 
         confl += st == -1
         wsum += s["weight"] * st
         wtot += s["weight"]
-        signals.append({**s, "value": v, "state": {1: "CONFIRMING", -1: "CONFLICTING", 0: "NEUTRAL"}[st]})
+        signals.append({**s, "family": fam, "value": v,
+                        "state": {1: "CONFIRMING", -1: "CONFLICTING", 0: "NEUTRAL"}[st]})
+        items.append({"id": s["signal"], "family": fam, "state": st})
     n_av = n_exp - len(missing)
+    fam = aggregate(items, 0.5 if dampening is None else float(dampening))
     return {"n_expected": n_exp, "n_available": n_av, "n_confirming": int(conf), "n_conflicting": int(confl),
             "confirmation_ratio": rnd(conf / n_av, 4) if n_av else None,
             "conflict_share": rnd(confl / n_av, 4) if n_av else None,
             "weighted_confirmation": rnd(wsum / wtot, 4) if wtot else None,
             "missing_inputs": missing, "ambiguous_signals": ambiguous or [],
             "confidence": rnd(n_av / n_exp, 4) if n_exp else None,
-            "status": OK if n_av else UNAVAILABLE, "signals": signals}
+            "status": OK if n_av else UNAVAILABLE, "signals": signals, **fam}
+
+
+def dampening_of(cfg: dict) -> float:
+    return float((cfg.get("confirmation") or {}).get("family_dampening", 0.5))

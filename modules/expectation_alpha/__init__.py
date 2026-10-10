@@ -57,11 +57,12 @@ def build_context(decision_time: datetime, cfg: dict, *, loaders: dict | None = 
     except Exception as e:  # noqa: BLE001
         inp.errors.add("regime", e)
     try:
-        signals = cac.market_signals(inp.px, inp.commodity, int((cfg.get("confirmation") or {}).get("window_days", 20)))
+        signals = cac.market_signals(inp.px, inp.commodity, int((cfg.get("confirmation") or {}).get("window_days", 20)),
+                                     (cfg.get("warmup") or {}).get("signal_min_rows"))
         for dom, g in gaps.items():
             if g.get("status") == "OK" and g.get("sign"):
                 spec, amb = cac.domain_spec(dom, g["sign"], cfg)
-                dconf[dom] = cac.confirm(spec, signals.get("values") or {}, amb)
+                dconf[dom] = cac.confirm(spec, signals.get("values") or {}, amb, dampening=cac.dampening_of(cfg))
     except Exception as e:  # noqa: BLE001
         inp.errors.add("confirmation", e)
     vix = None
@@ -97,6 +98,74 @@ def _distribution(vals: list) -> dict:
     if not v:
         return {"n": 0}
     return {"n": len(v), "min": rnd(v[0], 4), "median": rnd(statistics.median(v), 4), "max": rnd(v[-1], 4)}
+
+
+def _attach_claims(rows: list[dict], cands: list[dict], cfg: dict, t: datetime, loaders: dict | None,
+                   deadline: float | None) -> dict:
+    """Maschinell prüfbare Claims je These (SHADOW). LLM strukturiert nur Text (separater Call); Status entscheidet
+    claims.verify deterministisch gegen PIT-Evidenz (< decision_time). Ergebnis nur im Ledger, nie in Entscheidungen."""
+    from modules.expectation_alpha import claim_extraction as cx
+    from modules.expectation_alpha import claims as cl
+    llm_fn = (loaders or {}).get("claims_llm")
+    counts: dict[str, int] = {}
+    for a in cands:
+        counts[a.get("ticker")] = counts.get(a.get("ticker"), 0) + 1
+    dup = {tk for tk, n in counts.items() if n > 1}          # mehrere Events je Ticker: Zuordnung nicht eindeutig
+    by_t = {a.get("ticker"): a for a in cands if a.get("ticker") not in dup}
+    todo = [(r["ticker"], by_t[r["ticker"]]) for r in rows if r["status"] != ERROR and r["ticker"] in by_t]
+    res = cx.extract_many(todo, cfg, llm_fn=llm_fn, deadline=deadline) if todo else {}
+    stores = (loaders or {}).get("claims_stores")
+    statuses: dict[str, int] = {}
+    for r in rows:
+        x = res.get(r["ticker"]) if r["ticker"] not in dup else None
+        if x is None:
+            block = {"summary": cl.summarize(None, extraction_status="NOT_RUN"),
+                     "reason": "Ticker mehrfach im Lauf (Zuordnung nicht eindeutig)" if r["ticker"] in dup
+                     else "Research-Status ERROR"}
+        elif x["status"] != "OK":
+            block = {"summary": cl.summarize(None, extraction_status=x["status"]), "reason": x.get("reason")}
+        else:
+            texts = cl.source_texts(by_t.get(r["ticker"]) or {})
+            norm, dropped = cl.normalize(x["raw_claims"], texts, r["ticker"])
+            if stores is None:
+                stores = cl.load_stores()
+            ev = cl.load_evidence(r["ticker"], t, stores=stores)
+            ver = cl.verify(norm, ev)
+            block = {"summary": cl.summarize(ver, extraction_status="OK"), "claims": ver, "dropped": dropped,
+                     "evidence_sources": ev["sources"], "evidence_error": ev.get("error"), "model": x.get("model"),
+                     "store_errors": (stores or {}).get("errors") or []}
+        st = block["summary"]["extraction_status"]
+        statuses[st] = statuses.get(st, 0) + 1
+        r["claims"] = block
+        r["env"]["ea_verified_claim_fraction"] = block["summary"]["verified_claim_fraction"]
+    sums = [r["claims"]["summary"] for r in rows if r["claims"]["summary"]["extraction_status"] == "OK"]
+    return {"extraction_status_counts": statuses,
+            "n_claims": sum(x["n_claims"] for x in sums), "n_verified": sum(x["n_verified"] for x in sums),
+            "n_unverified": sum(x["n_unverified"] for x in sums), "n_contradicted": sum(x["n_contradicted"] for x in sums),
+            "verified_claim_fraction": _distribution([x["verified_claim_fraction"] for x in sums])}
+
+
+def insufficient_history(ctx: dict) -> dict:
+    """Warm-up-Zähler je Lauf: Gaps, RoC-Felder (Gap/Modell), Regime, Cross-Asset-Signale mit INSUFFICIENT_HISTORY."""
+    out = {"gaps": 0, "roc_fields": 0, "regime": 0, "signals": 0}
+    for g in (ctx.get("gaps") or {}).values():
+        out["gaps"] += g.get("status") == "INSUFFICIENT_HISTORY"
+        for roc in (g.get("gap_roc"), (g.get("model") or {}).get("roc")):
+            out["roc_fields"] += len((roc or {}).get("insufficient_history_fields") or [])
+    reg = ctx.get("regime") or {}
+    out["regime"] = int(reg.get("regime_uncertainty_status") == "INSUFFICIENT_HISTORY") + sum(
+        1 for d in (reg.get("dimensions") or {}).values() if d.get("dynamics_status") == "INSUFFICIENT_HISTORY")
+    out["signals"] = sum(1 for v in ((ctx.get("signals") or {}).get("missing_reason") or {}).values()
+                         if v == "INSUFFICIENT_HISTORY")
+    out["total"] = sum(out.values())
+    return out
+
+
+def _eff_vs_raw(rows: list[dict]) -> dict:
+    """Summe effektiver vs. roher Bestätigungen (familiengedämpft); Quote < 1 = redundante Evidenz entfernt."""
+    raw = sum((r.get("cross_asset_confirmation") or {}).get("raw_confirmation_count") or 0 for r in rows)
+    eff = sum((r.get("cross_asset_confirmation") or {}).get("effective_confirmation") or 0.0 for r in rows)
+    return {"raw": raw, "effective": rnd(eff, 3), "ratio": rnd(eff / raw, 4) if raw else None}
 
 
 def enrich_candidates(analyses: list[dict], *, decision_time: datetime | None = None, impact_min: int = 4,
@@ -140,6 +209,18 @@ def enrich_candidates(analyses: list[dict], *, decision_time: datetime | None = 
         except Exception as e:  # noqa: BLE001 – Kandidat wird als ERROR protokolliert, nie verschluckt
             log.warning(f"expectation_alpha: These {a.get('ticker')} nicht ableitbar ({type(e).__name__}: {e})")
             summary.setdefault("candidate_errors", []).append({"ticker": a.get("ticker"), "error": str(e)[:200]})
+    claims_sum: dict = {}
+    if rows:
+        try:
+            cdl = t0 + budget
+            claims_sum = _attach_claims(rows, cands, cfg, t, loaders, min(cdl, deadline) if deadline else cdl)
+        except Exception as e:  # noqa: BLE001 – Claim-Logging darf die These nie verhindern
+            log.warning(f"expectation_alpha: Claims nicht ableitbar ({type(e).__name__}: {e})")
+            claims_sum = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
+            for r in rows:
+                r.setdefault("claims", {"summary": {"extraction_status": "ERROR", "n_claims": None,
+                                                    "verified_claim_fraction": None}})
+                r["env"].setdefault("ea_verified_claim_fraction", None)
     eal.write_context(ctx, root)
     new = eal.record_candidates(rows, root=root, contracts=contracts, registry=registry)
     by = {s: sum(1 for r in rows if r["status"] == s) for s in (TRADE, WAIT, ABSTAIN, ERROR)}
@@ -154,6 +235,10 @@ def enrich_candidates(analyses: list[dict], *, decision_time: datetime | None = 
                                     if fv.get("status") == "STALE"}),
         "gap_z": {d: g.get("gap_z") for d, g in gaps.items()},
         "confirmation_ratio": _distribution([r["confirmation_ratio"] for r in rows]),
+        "effective_vs_raw_confirmation": _eff_vs_raw(rows),
+        "claims": claims_sum,
+        "insufficient_history_count": insufficient_history(ctx),
+        "family_diversity": _distribution([r.get("confirmation_family_count") for r in rows]),
         "regime_uncertainty": (ctx.get("regime") or {}).get("regime_uncertainty"),
         "groups": {gname: sum(1 for r in rows if r["group"] == gname) for gname in "ABCDEX"},
         "errors": ctx.get("errors") or [], "run_errors": errs,
