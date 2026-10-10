@@ -211,7 +211,8 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
                 counts = archive.store_observations(
                     result.observations,
                     max_new_normalized_bytes_per_source_per_run=source_cfg.get("max_new_normalized_bytes_per_run"),
-                    max_backfill_bytes=source_cfg.get("max_backfill_bytes"))
+                    max_backfill_bytes=source_cfg.get("max_backfill_bytes"),
+                    partition=str(source_cfg.get("normalized_partition") or "monthly"))
                 bytes_written = archive.normalized_bytes_written_estimate(source_id) - bytes_before
                 guard_blocked = archive.last_guard_blocked.get(source_id)
             except Exception as e:  # noqa: BLE001
