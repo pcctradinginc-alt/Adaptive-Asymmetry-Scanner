@@ -44,7 +44,7 @@ def spread_trade():
         "entry_date": "2026-01-01",
         "option": {
             "strike": 100,
-            "expiry": "2026-02-01",
+            "expiry": "2099-02-01",          # noch nicht verfallen -> Live-Quote-Pfad
             "ask": 2.0,
             "spread_leg": {
                 "strike": 110,

@@ -365,15 +365,26 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
     return [p for p, _, _ in ordered], blocked, records
 
 
-def write_ledger(records: list[dict], ledger_dir: Path | None = None) -> None:
+def write_ledger(records: list[dict], ledger_dir: Path | None = None) -> int:
+    """Append-only, je (Tag, Ticker) genau eine Entscheidung: Ein Neustart am selben Tag erzeugt keine
+    zweite Beobachtung, die auf denselben Trade aufgelöst würde (Pseudo-Stichprobe in der Promotion-Evidenz).
+    Die erste, eingefrorene Entscheidung gilt (wie final_mc_ledger). -> Anzahl geschriebener Zeilen."""
+    from modules.atomic_io import append_jsonl, read_jsonl
     ledger_dir = ledger_dir or pc.LEDGER_DIR
     if not records:
-        return
-    ledger_dir.mkdir(parents=True, exist_ok=True)
-    month = records[0]["date"][:7]
-    with open(ledger_dir / f"{month}.jsonl", "a", encoding="utf-8") as fh:
-        for r in records:
-            fh.write(json.dumps(r, sort_keys=True, ensure_ascii=False, default=str) + "\n")
+        return 0
+    path = ledger_dir / f"{records[0]['date'][:7]}.jsonl"
+    seen = {(r.get("date"), r.get("ticker")) for r in read_jsonl(path)}
+    new = []
+    for r in records:
+        k = (r.get("date"), r.get("ticker"))
+        if k in seen:
+            log.warning(f"Adapter: Entscheidung {k} bereits im Ledger (Neustart?) – nicht erneut geschrieben")
+            continue
+        seen.add(k)
+        new.append(r)
+    append_jsonl(path, new, sort_keys=True, ensure_ascii=False, default=str)
+    return len(new)
 
 
 def v2_segment_levels(state_path: Path | None = None, contracts: list[dict] | None = None,

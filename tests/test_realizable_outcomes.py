@@ -46,15 +46,54 @@ def test_spread_closed_at_long_bid_minus_short_ask(monkeypatch):
     assert fb.get_current_spread_price("A", opt, "BULL_CALL_SPREAD") == 3.0   # 5.0 - 2.0 (Mid wäre 3.3)
 
 
-def test_expired_bear_put_spread_intrinsic(monkeypatch):
+def _hist(monkeypatch, closes: dict, seen: list | None = None):
     import pandas as pd
 
     class _T:
         def history(self, **kw):
-            return pd.DataFrame({"Close": [92.0]})
+            if seen is not None:
+                seen.append(kw)
+            return pd.DataFrame({"Close": list(closes.values())}, index=pd.DatetimeIndex(list(closes)))
     monkeypatch.setattr(fb.yf, "Ticker", lambda t: _T())
+
+
+def test_expired_bear_put_spread_intrinsic(monkeypatch):
+    seen: list = []
+    _hist(monkeypatch, {"2026-01-16": 92.0, "2026-01-20": 95.0}, seen)
     opt = {"strike": 100, "expiry": "2026-01-16", "spread_leg": {"strike": 90}}
     assert fb._expired_spread_intrinsic("A", opt) == 8.0                     # Long-Put 100 / Short-Put 90
+    assert seen and seen[0]["auto_adjust"] is False                          # Strikes sind unbereinigt
+
+
+def test_expiry_settlement_needs_exact_expiry_bar(monkeypatch):
+    """Kein Balken exakt am Verfallstag (Feiertag/Lücke) -> kein Settlement (nie der Folgetag)."""
+    _hist(monkeypatch, {"2026-01-20": 95.0})
+    assert fb._expired_spread_intrinsic("A", {"strike": 100, "expiry": "2026-01-16", "spread_leg": {"strike": 90}}) is None
+    assert fb._expired_option_intrinsic("A", {"strike": 100, "expiry": "2026-01-16"}, "LONG_PUT") is None
+
+
+def test_expired_long_option_is_settlement_not_delta_approx(monkeypatch):
+    _hist(monkeypatch, {"2026-01-16": 92.0})
+    base = {"ticker": "A", "entry_debit": 5.0, "option": {"strike": 100, "expiry": "2026-01-16"},
+            "simulation": {"current_price": 100.0}}
+    meta: dict = {}
+    r = fb.compute_outcome({**base, "strategy": "LONG_PUT"}, 92.0, meta)
+    assert r == (8.0 - 5.0) / 5.0 and meta["method"] == "expiry_intrinsic"
+    assert meta["price_type"] == "SETTLEMENT_INTRINSIC"
+    meta2: dict = {}
+    assert fb.compute_outcome({**base, "strategy": "LONG_CALL"}, 92.0, meta2) == -1.0     # wertlos verfallen
+    from modules.outcomes import RELIABLE_OUTCOME_METHODS
+    assert "expiry_intrinsic" in RELIABLE_OUTCOME_METHODS and "spread_quote" in RELIABLE_OUTCOME_METHODS
+
+
+def test_expired_spread_labelled_settlement_not_quote(monkeypatch):
+    _hist(monkeypatch, {"2026-01-16": 106.0})
+    t = {"ticker": "A", "strategy": "BULL_CALL_SPREAD", "option": {"strike": 100, "expiry": "2026-01-16",
+         "net_debit": 4.0, "spread_leg": {"strike": 110}}, "simulation": {}}
+    meta: dict = {}
+    r = fb.compute_outcome(t, 106.0, meta)
+    assert r == (6.0 - 4.0) / 4.0
+    assert meta["method"] == "expiry_intrinsic" and meta["price_type"] == "SETTLEMENT_INTRINSIC"
 
 
 def test_delta_approx_sign_for_puts(monkeypatch):

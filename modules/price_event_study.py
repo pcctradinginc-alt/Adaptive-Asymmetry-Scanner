@@ -174,20 +174,25 @@ HYPOTHESES = ("H1_drift", "H1L_long_up", "H2_small_move_gate", "H2_large_move",
               "H3_up_rs_positive", "H3_up_rs_negative", "H4_high_relvol", "H4_low_relvol")
 
 
-def walk_forward(ev: pd.DataFrame, name: str, h: int) -> pd.DataFrame:
+def walk_forward(ev: pd.DataFrame, name: str, h: int, prefix: str = "", trades_fn=None,
+                 empty_cols=("date", "signed")) -> pd.DataFrame:
     """Testjahre ab TEST_START_YEAR; Training = alle Vorjahre ab TRAIN_START_YEAR,
-    nur Events, deren Exit VOR dem Testjahr liegt (kein Outcome aus der Zukunft)."""
+    nur Events, deren Exit VOR dem Testjahr liegt (kein Outcome aus der Zukunft).
+    Einzige Implementierung (auch surprise_engine): prefix = Präfix der Exit-Spalte (z.B. "lag_"),
+    trades_fn(name, train, test, h) = Hypothesen-Funktion (Default: hypothesis_trades, zur Laufzeit
+    aufgelöst), empty_cols = Spalten des leeren Ergebnisses."""
+    fn = trades_fn or hypothesis_trades
     parts = []
     for y in sorted(ev["year"].unique()):
         if y < TEST_START_YEAR:
             continue
         start = pd.Timestamp(f"{y}-01-01")
-        train = ev[(ev["year"] >= TRAIN_START_YEAR) & (pd.to_datetime(ev[f"exit_{h}"]) < start)]
+        train = ev[(ev["year"] >= TRAIN_START_YEAR) & (pd.to_datetime(ev[f"{prefix}exit_{h}"]) < start)]
         test = ev[ev["year"] == y]
         if len(train) < 200 or len(test) == 0:
             continue
-        parts.append(hypothesis_trades(name, train, test, h))
-    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["date", "signed"])
+        parts.append(fn(name, train, test, h))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=list(empty_cols))
 
 
 def regime_split(trades: pd.DataFrame, cost: float) -> dict:

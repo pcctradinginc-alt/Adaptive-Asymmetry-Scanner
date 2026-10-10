@@ -8,7 +8,12 @@ keine Promotion-Evidenz ein.
 """
 from __future__ import annotations
 
-RELIABLE_OUTCOME_METHODS = frozenset({"option_quote", "option_quote_bid_zero", "spread_quote"})
+# expiry_intrinsic: verfallene Option/Spread = vertraglicher Settlement-Wert aus dem offiziellen, UNbereinigten
+# Schlusskurs exakt am Verfallstag (kein Modellpreis; seit 2026-10-10 eigene Methode statt "spread_quote").
+RELIABLE_OUTCOME_METHODS = frozenset({"option_quote", "option_quote_bid_zero", "spread_quote", "expiry_intrinsic"})
+# Preistyp je Outcome (meta["price_type"]): OBSERVED_QUOTE | SETTLEMENT_INTRINSIC | MODELED | UNDERLYING_PROXY.
+# Nur OBSERVED_QUOTE und SETTLEMENT_INTRINSIC sind realisierbare Preise.
+REALIZABLE_PRICE_TYPES = frozenset({"OBSERVED_QUOTE", "SETTLEMENT_INTRINSIC"})
 
 # Produktives Gewichts-Update (feedback.compute_pearson_weights) erst ab so vielen RELIABLE-Outcomes.
 MIN_RELIABLE_FOR_WEIGHT_UPDATE = 5
@@ -63,7 +68,7 @@ def class_counts(trades: list[dict], strict: bool = False) -> dict:
 # Artefakte, die "reliable"-Kennzahlen enthalten, tragen die Definition, unter der sie gerechnet wurden.
 # Reports zeigen eine Zahl nur dann als RELIABLE, wenn Definition passt und sie den aktuellen
 # RELIABLE-Bestand nicht übersteigt (sonst: EXPLORATIV / veraltet, nie "zuverlässig").
-RELIABILITY_DEFINITION = "outcome-classes-v2-2026-10-04"
+RELIABILITY_DEFINITION = "outcome-classes-v3-2026-10-10"   # v3: + expiry_intrinsic (unbereinigter Settlement-Schluss)
 
 
 def reliability_stamp(trades: list[dict]) -> dict:

@@ -236,6 +236,45 @@ def _yfinance_option_quote(ticker: str, strike: float, expiry: str, option_type:
 
 # ── Spread-Preis (beide Legs) ─────────────────────────────────────────────────
 
+def _is_expired(expiry: str | None, today=None) -> bool:
+    try:
+        return bool(expiry) and datetime.strptime(expiry, "%Y-%m-%d").date() < (today or datetime.utcnow().date())
+    except ValueError:
+        return False
+
+
+def _expiry_close(ticker: str, expiry_str: str) -> float | None:
+    """Offizieller, UNbereinigter Schlusskurs genau am Verfallstag (Settlement-Basis).
+    auto_adjust=False: dividendenbereinigte Kurse passen nicht zu den (unbereinigten) Strikes.
+    Liegt kein Balken exakt am Verfallstag vor (Feiertag, Datenlücke) -> None, nie der Folgetag."""
+    expiry_dt = datetime.strptime(expiry_str, "%Y-%m-%d")
+    end_str = (expiry_dt + timedelta(days=4)).strftime("%Y-%m-%d")
+    hist = yf.Ticker(ticker).history(start=expiry_str, end=end_str, auto_adjust=False)
+    if hist is None or hist.empty:
+        return None
+    idx = [d for d in hist.index if getattr(d, "date", lambda: d)() == expiry_dt.date()]
+    if not idx:
+        return None
+    close = float(hist.loc[idx[0], "Close"])
+    return close if close > 0 else None
+
+
+def _expired_option_intrinsic(ticker: str, option: dict, strategy: str) -> float | None:
+    """Intrinsic-Wert einer einzelnen Long-Option am Verfallstag (Settlement aus offiziellem Schluss)."""
+    try:
+        k = float(option.get("strike", 0))
+        if k <= 0 or not option.get("expiry"):
+            return None
+        close = _expiry_close(ticker, option["expiry"])
+        if close is None:
+            return None
+        put = _option_type_from_strategy(strategy) == "put"
+        return round(max(k - close, 0.0) if put else max(close - k, 0.0), 4)
+    except Exception as e:  # noqa: BLE001 – kein Settlement ermittelbar -> bisherige Logik
+        log.warning(f"    [{ticker}] Expired-Option Fehler: {e}")
+        return None
+
+
 def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
     """
     Intrinsic-Wert eines Bull Call Spreads am Verfallstag via yfinance-History.
@@ -255,13 +294,9 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
         if width <= 0 or long_k <= 0:
             return None
 
-        expiry_dt = datetime.strptime(expiry_str, "%Y-%m-%d")
-        end_str   = (expiry_dt + timedelta(days=4)).strftime("%Y-%m-%d")
-        hist      = yf.Ticker(ticker).history(start=expiry_str, end=end_str, auto_adjust=True)
-        if hist.empty:
+        close = _expiry_close(ticker, expiry_str)   # unbereinigt, exakt am Verfallstag
+        if close is None:
             return None
-
-        close = float(hist["Close"].iloc[0])  # Schlusskurs am Verfallstag
 
         if is_put:     # vorher nur Bull-Call -> verfallene Put-Spreads fielen still aus
             intrinsic = round(min(max(long_k - close, 0.0), width), 4)
@@ -393,6 +428,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
         if entry_debit <= 0:
             log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome nicht verwertbar")
             return None
+        expired = _is_expired(option.get("expiry"))
         current_spread = get_current_spread_price(ticker, option, strategy, detail=meta)
         if current_spread is None:
             # Preis wirklich nicht ermittelbar — nicht als 0.0 ins Training
@@ -401,7 +437,9 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
         # current_spread == 0.0 ist valide: Spread verfallen wertlos → -100%
         result = (current_spread - entry_debit) / entry_debit
         if meta is not None:
-            meta["method"] = "spread_quote"
+            # Verfallen: Settlement aus offiziellem Schluss (eigene Methode, nie als Quote ausgewiesen)
+            meta["method"] = "expiry_intrinsic" if expired else "spread_quote"
+            meta["price_type"] = "SETTLEMENT_INTRINSIC" if expired else "OBSERVED_QUOTE"
         log.info(
             f"    Spread-P&L: entry=${entry_debit:.2f} → "
             f"current=${current_spread:.2f} = {result:+.2%}"
@@ -414,6 +452,14 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
     if entry_stock > 0 and current_stock_price > 0:
         stock_return = (current_stock_price - entry_stock) / entry_stock
 
+    if entry_debit > 0 and _is_expired(option.get("expiry")):
+        intrinsic = _expired_option_intrinsic(ticker, option, strategy)
+        if intrinsic is not None:
+            result = (intrinsic - entry_debit) / entry_debit
+            if meta is not None:
+                meta["method"], meta["price_type"] = "expiry_intrinsic", "SETTLEMENT_INTRINSIC"
+            log.info(f"    Options-P&L (verfallen): entry=${entry_debit:.2f} → intrinsic=${intrinsic:.2f} = {result:+.2%}")
+            return result
     if entry_debit > 0:
         current_option = get_current_option_price(ticker, option, strategy)
         if current_option <= 0:
@@ -422,13 +468,13 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
                 # Quote vorhanden, aber kein Bid: realisierbar 0 -> -100 %,
                 # NICHT die (optimistische) Delta-Näherung.
                 if meta is not None:
-                    meta["method"] = "option_quote_bid_zero"
+                    meta["method"], meta["price_type"] = "option_quote_bid_zero", "OBSERVED_QUOTE"
                 log.info(f"    Options-P&L: entry=${entry_debit:.2f} → Bid 0 (realisierbar) = -100.00%")
                 return -1.0
         if current_option > 0:
             result = (current_option - entry_debit) / entry_debit
             if meta is not None:
-                meta["method"] = "option_quote"
+                meta["method"], meta["price_type"] = "option_quote", "OBSERVED_QUOTE"
             log.info(
                 f"    Options-P&L: entry=${entry_debit:.2f} → "
                 f"current=${current_option:.2f} = {result:+.2%}"
@@ -445,6 +491,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
             result   = max(-1.0, min(result, 5.0))   # Options: Max-Verlust=-100%, Cap=+500%
             # Record whether clipping was applied
             if meta is not None:
+                meta["price_type"] = "MODELED"                 # Näherung, nie Lern-/Evidenzbasis
                 if abs(unclipped_result - result) > 1e-6:
                     meta["method"] = "delta_approx_clipped"
                 else:
@@ -454,7 +501,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
 
     # ── Letzter Fallback: Stock-Return (nur wenn kein Debit bekannt) ─────────
     if meta is not None:
-        meta["method"] = "stock_fallback"
+        meta["method"], meta["price_type"] = "stock_fallback", "UNDERLYING_PROXY"
     log.info(f"    Stock-Return Fallback: {stock_return:+.2%}")
     return stock_return
 
@@ -605,6 +652,11 @@ def evaluate_shadow_trades(history: dict, today: datetime, ledger_dir: Path | No
         if not lg:
             continue
         st["outcome"], st["outcome_method"], st["close_date"] = lg["outcome"], lg["outcome_method"], lg["close_date"]
+        if lg.get("outcome_method") not in RELIABLE_OUTCOME_METHODS:
+            # wie learn_on_close: Näherungen (Aktien-Fallback, Delta-Approx) werden gezeigt, aber nie gelernt –
+            # sonst mischt feature_stats_external Options-P&L mit Aktienrenditen
+            log.info(f"  [SHADOW {st['ticker']}] Outcome {lg['outcome']:+.2%} ({lg.get('outcome_method')}) – nicht gelernt")
+            continue
         try:
             from modules import learning_ledger as _ll
             _ll.consume(history, f"shadow:{sl.shadow_id(st)}", legacy_h, "feature_stats_external",
@@ -1200,6 +1252,7 @@ def main() -> None:
             trade["close_price"]    = current
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
+            trade["outcome_price_type"] = meta.get("price_type")     # OBSERVED_QUOTE | SETTLEMENT_INTRINSIC | MODELED | …
             _spread_execution_exit(trade, _spread_obs, today)
             learn_on_close(history, trade, outcome, reliable)
             history.setdefault("closed_trades", []).append(trade)
@@ -1219,7 +1272,12 @@ def main() -> None:
     history["model_weights"] = compute_pearson_weights(history)
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
-    evaluate_shadow_trades(history, today)
+    try:
+        evaluate_shadow_trades(history, today)
+    except Exception as e:  # noqa: BLE001 – Teilausfall (z. B. ShadowIntegrityError) darf weder save_history
+        # noch die späteren Resolver (Candidate-Ledger, Final-MC, V2, EA) verhindern; sichtbar als ERROR
+        log.error(f"Schatten-Trade-Auswertung Fehler (Lauf fortgesetzt, nichts gespeichert für Schatten): "
+                  f"{type(e).__name__}: {e}")
     # UNIVERSE_V2-Kandidaten: theoretische + realistische Netto-Outcomes (append-only, eigene Datei)
     try:
         from modules import universe_v2_ledger
