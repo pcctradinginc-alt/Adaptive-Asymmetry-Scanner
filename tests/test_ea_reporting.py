@@ -214,7 +214,7 @@ def test_section_21_only_runs_or_only_evaluation(tmp_path):
     _renderable(blocks)
     t = _flat(blocks)
     assert "Kandidaten: 15" in t and f"EA-Ledger (evaluation.json): {weekly.NO_DATA}" in t
-    assert "Fehlerklassen (Primärhorizont, regelbasiert): " + weekly.NO_DATA in t
+    assert "Fehlerklassen Shadow-TRADE (Primärhorizont, regelbasiert): " + weekly.NO_DATA in t
     assert f"Datenstatus: {weekly.NO_DATA}" in t and f"Verträge EA001–EA007: {weekly.NO_DATA}" in t
 
 

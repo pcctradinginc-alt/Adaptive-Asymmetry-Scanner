@@ -87,9 +87,16 @@ def _run_errors(ctx: dict, budget_exceeded: bool) -> list[str]:
     if budget_exceeded:
         errs.append("LAUFZEITBUDGET_UEBERSCHRITTEN")
     # Kurse und Archiv sind Pflichtquellen: ohne sie wäre jede Einstufung ein Teilbild -> ERROR (nie ABSTAIN/WAIT)
-    fatal = {e["where"] for e in ctx.get("errors") or []} & {"prices", "archive"}
+    where = {e["where"] for e in ctx.get("errors") or []}
+    fatal = where & {"prices", "archive"}
     if fatal:
         errs.append("DATENFEHLER: " + ", ".join(sorted(fatal)))
+    # Rechenfehler (Exception) in Gap/Regime/Bestätigung: Kontext ist ein technisches Teilbild -> ERROR.
+    # Ohne diese Regel würde z. B. ein Absturz in expectation_gap als „Kontext fehlt“ zu ABSTAIN führen.
+    # (Fehlende Daten sind KEIN Fehler: sie erscheinen als UNAVAILABLE/INSUFFICIENT_HISTORY, nicht hier.)
+    comp = where & {"expectation_gap", "regime", "confirmation"}
+    if comp:
+        errs.append("BERECHNUNGSFEHLER: " + ", ".join(sorted(comp)))
     return errs
 
 

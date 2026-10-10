@@ -1018,8 +1018,8 @@ contracts:
   h1: Bei |Gap-z| >= 1 schneiden Kandidaten mit confirmation_ratio >= 0,7 netto besser ab als alle Kandidaten mit großem Gap
   exposure: Cross-Asset (Credit, Zinsen, Sektoren, Rohstoffe, Volatilitätsstruktur)
   signal_definition: ea_confirmation_ratio
-  population_filter: ea_gap_abs_z >= 1.0 and ea_confirmation_available >= 3
-  features: [ea_confirmation_ratio, ea_gap_abs_z, ea_confirmation_available]
+  population_filter: ea_gap_abs_z >= 1.0 and ea_confirmation_available >= 3 and ea_status_valid == 1
+  features: [ea_confirmation_ratio, ea_gap_abs_z, ea_confirmation_available, ea_status_valid]
   thresholds: {op: '>=', value: 0.7}
   failure_condition: Hohe Bestätigung nicht besser als alle großen Gaps nach Forward-Minimum
 - <<: *ea_base
@@ -1032,8 +1032,8 @@ contracts:
   h1: Unter gap-ausgerichteten Kandidaten schneiden solche mit Beschleunigung in Thesenrichtung netto besser ab
   exposure: Dynamik der Makro-Gaps (velocity/acceleration, future_state.roc_frame)
   signal_definition: ea_gap_accel_aligned
-  population_filter: ea_gap_aligned == 1 and ea_gap_accel_aligned >= 0
-  features: [ea_gap_accel_aligned, ea_gap_aligned]
+  population_filter: ea_gap_aligned == 1 and ea_gap_accel_aligned >= 0 and ea_status_valid == 1
+  features: [ea_gap_accel_aligned, ea_gap_aligned, ea_status_valid]
   thresholds: {op: '>=', value: 1}
   failure_condition: Beschleunigung liefert keinen Zusatz zur Level-Baseline nach Forward-Minimum
 - <<: *ea_base
@@ -1065,8 +1065,8 @@ contracts:
   h1: Starke News mit Kontext +1 sind netto besser als alle starken News mit eindeutigem Kontext
   exposure: News × Kontext (Gruppen A vs. C)
   signal_definition: ea_context_status
-  population_filter: ea_news_strong == 1 and ea_context_status != 0
-  features: [ea_context_status, ea_news_strong]
+  population_filter: ea_news_strong == 1 and ea_context_status != 0 and ea_status_valid == 1
+  features: [ea_context_status, ea_news_strong, ea_status_valid]
   thresholds: {op: '>=', value: 1}
   failure_condition: Kontext +1 nicht besser als die Gesamtheit nach Forward-Minimum
 - <<: *ea_base

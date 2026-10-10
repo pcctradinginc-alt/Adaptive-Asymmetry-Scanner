@@ -57,6 +57,12 @@ def verify_kill(kill: dict) -> bool:
     return bool(kill) and canonical_hash(kill.get("conditions")) == kill.get("kill_hash")
 
 
+def verify_trigger(trig: dict) -> bool:
+    """True, wenn der eingefrorene WAIT-Trigger unverändert ist (gleiche Garantie wie verify_kill)."""
+    return bool(trig) and bool(trig.get("trigger_hash")) and canonical_hash(
+        {k: v for k, v in trig.items() if k != "trigger_hash"}) == trig["trigger_hash"]
+
+
 def wait_trigger(cfg: dict) -> dict:
     wt = (cfg.get("decision") or {}).get("wait_trigger") or {}
     t = {"any_of": [dict(x) for x in wt.get("any_of") or []],

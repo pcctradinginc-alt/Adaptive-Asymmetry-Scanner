@@ -103,6 +103,15 @@ def _paired_sel(rows, outs, h, cfg) -> dict:
     return {**stats_block(items, cfg), "definition": "gewählte Expression minus UNDERLYING, netto"}
 
 
+def _calibration(u: list[dict], field: str, cfg: dict) -> list[dict]:
+    """Netto-Outcome je Bucket der (eingefrorenen) Bestätigungsquote `field`; fehlend zählt in keinen Bucket."""
+    cal = []
+    for lo, hi in CONF_BUCKETS:
+        b = [i for i in u if i["row"].get(field) is not None and lo <= i["row"][field] < hi]
+        cal.append({"bucket": f"[{lo:.1f},{min(hi, 1.0):.1f}]", **stats_block(b, cfg)})
+    return cal
+
+
 def classify_failure(r: dict, outs: dict, h: int, contexts: list[dict]) -> str | None:
     """Regelbasiert; None = kein Fehlschlag (netto > 0) oder (noch) nicht bewertbar."""
     if r.get("status") == ERROR:
@@ -190,17 +199,21 @@ def run(*, root: Path | None = None, cfg: dict | None = None, now: datetime | No
         "rule_vs_default": _paired_sel(sel_rows, outs, ph, cfg)}
     rep["values"]["kill_management"] = _paired(valid, outs, ph, ("UNDERLYING", "kill_managed"),
                                                ("UNDERLYING", "immediate"), cfg)
-    cal = []
-    for lo, hi in CONF_BUCKETS:
-        b = [i for i in u if i["row"].get("confirmation_ratio") is not None and lo <= i["row"]["confirmation_ratio"] < hi]
-        cal.append({"bucket": f"[{lo:.1f},{min(hi, 1.0):.1f}]", **stats_block(b, cfg)})
-    rep["calibration_confirmation"] = cal
+    rep["calibration_confirmation"] = _calibration(u, "confirmation_ratio", cfg)                # roh (EA002)
+    rep["calibration_effective_confirmation"] = _calibration(u, "effective_confirmation_ratio", cfg)  # Entscheidung
+    # Fehlerklassen beschreiben, warum eine These MIT Einstieg verlor -> Kopfzahl nur für Shadow-TRADE.
+    # Ein Verlust nach ABSTAIN/WAIT ist kein Thesen-Fehler der Entscheidung (getrennt je Status ausgewiesen).
     fails: dict[str, int] = {}
+    by_status: dict[str, dict] = {}
     for r in rows:
         f = classify_failure(r, outs, ph, contexts)
         if f:
-            fails[f] = fails.get(f, 0) + 1
+            st = by_status.setdefault(str(r.get("status")), {})
+            st[f] = st.get(f, 0) + 1
+            if r.get("status") == TRADE:
+                fails[f] = fails.get(f, 0) + 1
     rep["failure_classes"] = fails
+    rep["failure_classes_by_status"] = by_status
     runs = read_jsonl(P["runs"])[-20:]
     rep["data_status"] = {"runs": len(runs), "error_runs": sum(1 for x in runs if x.get("error_count")),
                           "missing_domains": _count([d for x in runs for d in (x.get("missing_counts") or {})]),
@@ -311,6 +324,7 @@ def render_md(rep: dict) -> str:
             b = f["horizons"].get(str(h)) or {}
             cells.append(f"{b.get('ic') if b.get('status') == 'OK' else '–'} ({b.get('n', 0)})")
         L.append(f"| {name} | {f['family']} | " + " | ".join(cells) + " |")
-    L += ["", f"Fehlerklassen: {rep['failure_classes'] or '–'}", "",
+    L += ["", f"Fehlerklassen (Shadow-TRADE): {rep['failure_classes'] or '–'} · je Status: "
+              f"{rep.get('failure_classes_by_status') or '–'}", "",
           "Hinweis: SHADOW. Keine Handelsempfehlung, kein Einfluss auf Champion, Scores, Gates oder Sizing."]
     return "\n".join(L) + "\n"
