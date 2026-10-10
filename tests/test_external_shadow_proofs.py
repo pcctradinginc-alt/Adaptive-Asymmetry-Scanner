@@ -13,7 +13,6 @@ import inspect
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import pytest
 
 DECISION_MODULES = [
     "modules/trade_scorer.py", "modules/quasi_ml.py", "modules/risk_gates.py",

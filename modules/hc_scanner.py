@@ -34,8 +34,7 @@ import argparse
 import hashlib
 import json
 import logging
-import math
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import numpy as np

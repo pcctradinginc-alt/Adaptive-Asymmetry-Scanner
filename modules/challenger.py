@@ -277,7 +277,6 @@ def _bootstrap_diff_ci(chal_flags: list[bool], base_flags: list[bool], values: l
 
     One-sided Perzentile bei alpha und 1-alpha, deterministischer Seed."""
     rng = random.Random(seed)
-    n = len(values)
 
     # Group indices by cluster
     cluster_map: dict[str, list[int]] = {}

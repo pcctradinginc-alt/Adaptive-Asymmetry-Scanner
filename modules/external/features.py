@@ -16,7 +16,7 @@ from __future__ import annotations
 import math
 import statistics
 from datetime import datetime, timedelta
-from typing import Iterable, Literal, Sequence
+from typing import Literal, Sequence
 
 Point = tuple[datetime, float]
 

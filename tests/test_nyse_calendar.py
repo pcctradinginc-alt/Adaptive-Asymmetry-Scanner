@@ -2,8 +2,7 @@
 tests/test_nyse_calendar.py – Tests for NYSE calendar functions
 """
 
-import pytest
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
 from modules.market_snapshot import (

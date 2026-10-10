@@ -326,7 +326,7 @@ def drift_summary(drift) -> dict:
 
 # ── Snapshot / Diff ────────────────────────────────────────────────────────
 def build_snapshot(data: dict) -> dict:
-    ml, meta, hyp, st = data["ml"], data["meta"], data["hyp"], data["meta_state"]
+    ml, meta, hyp = data["ml"], data["meta"], data["hyp"]
     return {
         "date": data["date"],
         "hypotheses": {k: _d(v).get("status") for k, v in _d(_d(hyp).get("hypotheses")).items()},

@@ -104,7 +104,6 @@ def test_challenger_snippet_start_date_after_registered_on():
     snippet = challenger_snippet(suggestion, today)
 
     # Parse the YAML to check dates
-    import yaml
     # Extract the YAML portion (skip the leading spaces for parsing)
     lines = snippet.strip().split('\n')
     yaml_str = '\n'.join(lines)

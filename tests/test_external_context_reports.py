@@ -6,9 +6,7 @@ Trade-Mail und Daily-Markdown sowohl mit LEEREN als auch mit SYNTHETISCHEN
 Daten rendern und den Report NIE zum Absturz bringen.
 """
 
-import json
 import sys
-import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -43,7 +41,6 @@ HEALTH = {
 # ── modules/external/reporting.py ────────────────────────────────────────────
 
 def test_build_compact_context_none_without_snapshot(tmp_path, monkeypatch):
-    ctx = reporting.build_compact_context(snapshot=None, health={}) if False else None
     # Explicit "no snapshot" path via loader against an empty tmp dir:
     empty_root = tmp_path / "snapshots"
     result = reporting.load_latest_snapshot(root=empty_root)

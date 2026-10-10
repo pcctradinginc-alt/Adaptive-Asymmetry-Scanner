@@ -17,7 +17,7 @@ dieses Modul unabhängig lauffähig und testbar ist.
 from __future__ import annotations
 
 import statistics
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Iterable
 
 from modules.external.pit import Observation

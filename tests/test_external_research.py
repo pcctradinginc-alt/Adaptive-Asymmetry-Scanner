@@ -118,7 +118,6 @@ def test_budget_gate_limits_number_of_proposals(tmp_path):
     catalog_path = Path(__file__).parent.parent / "config" / "external_hypotheses.yaml"
     rows = _many_rows(65, 0.10)
 
-    cfg_yaml = tmp_path / "cfg.yaml"
     import modules.external.research as research_mod
 
     class _FakeCfg:

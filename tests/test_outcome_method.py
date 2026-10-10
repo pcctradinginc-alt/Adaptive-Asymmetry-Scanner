@@ -8,7 +8,6 @@ Tests for compute_outcome() method tracking (Task A) and audit_outcomes.py infer
 - Tests audit outcome method inference from delta-approx values
 """
 
-import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -212,7 +211,6 @@ class TestAuditOutcomeInference:
 
     def test_synthetic_clipped_trade_flag(self):
         """Test that synthetic clipped delta-approx trades are flagged correctly."""
-        from scripts.audit_outcomes import compute_clipped_delta_approx
 
         entry_stock = 150.0
         close_price = 300.0  # 100% stock gain

@@ -20,7 +20,6 @@ import time
 from typing import Optional
 
 import requests
-import yfinance as yf
 
 log = logging.getLogger(__name__)
 

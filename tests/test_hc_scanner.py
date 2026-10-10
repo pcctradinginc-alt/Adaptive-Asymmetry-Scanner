@@ -7,7 +7,6 @@ import json
 from datetime import date
 
 import pandas as pd
-import pytest
 
 from modules import hc_scanner as hc
 from modules import prediction_memory as pm

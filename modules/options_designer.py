@@ -76,7 +76,7 @@ import yfinance as yf
 
 from modules.config              import cfg
 from modules                     import request_cache
-from modules.macro_context       import get_macro_regime_multiplier, get_macro_context
+from modules.macro_context       import get_macro_context
 from modules.mirofish_simulation import MirofishSimulation
 
 log = logging.getLogger(__name__)

@@ -83,7 +83,7 @@ def project(reports_dir: str = "outputs/daily_reports", last_n: int = 5, runs_pe
         except Exception as e:  # noqa: BLE001
             print(f"übersprungen: {f} ({e})", file=sys.stderr)
             continue
-        s, rej = d.get("stats") or {}, d.get("rejects") or {}
+        s = d.get("stats") or {}
         if not s.get("pre_mc"):
             continue
         # Nachfrage = alle Kandidaten nach Pre-MC (ohne Zeitbudget-Kappung, die der Batch aufhebt)

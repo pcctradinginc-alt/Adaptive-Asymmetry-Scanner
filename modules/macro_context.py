@@ -19,7 +19,6 @@ FRED Endpoints (kostenlos, kein Key für Basic-Daten):
 from __future__ import annotations
 import logging
 from datetime import datetime, timedelta
-from functools import lru_cache
 from typing import Optional
 
 import requests

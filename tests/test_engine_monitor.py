@@ -7,7 +7,6 @@ keine echten Daily-Reports/history.json. `today` wird als fester date()
 """
 
 import json
-import math
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -18,7 +17,6 @@ from modules.engine_monitor import (
     build_health_report,
     append_markdown_section,
     _killer_gate,
-    _bin_to_num,
 )
 
 CLOSE_AFTER_DAYS = int(cfg.learning.close_after_days)

@@ -32,7 +32,6 @@ import math
 import re
 import statistics
 from collections import defaultdict
-from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -499,7 +498,7 @@ class NwsForecastConnector(Connector):
                 for o in obs:
                     if latest_release is None or (o.source_release_time and o.source_release_time > latest_release):
                         latest_release = o.source_release_time
-            except (http.FetchError, ValueError, KeyError) as e:
+            except (http.FetchError, ValueError, KeyError):
                 failures += 1
                 continue
 
@@ -546,7 +545,6 @@ def parse_alerts_response(alerts_json: dict, location_code: str, event_types: li
             continue
         onset = ensure_utc(props.get("onset")) or ensure_utc(props.get("effective")) or ensure_utc(props.get("sent"))
         sent = ensure_utc(props.get("sent"))
-        expires = ensure_utc(props.get("expires")) or ensure_utc(props.get("ends"))
         if onset is None:
             continue
         alert_id = props.get("id", "")

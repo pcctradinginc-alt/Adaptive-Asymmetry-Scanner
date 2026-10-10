@@ -29,7 +29,6 @@ modules/deep_analysis.py v9.0
 import json
 import logging
 import os
-from datetime import datetime, timedelta
 from typing import Optional
 
 import anthropic
@@ -407,7 +406,7 @@ class DeepAnalysis:
         market_cap_str = _format_market_cap(market_cap)
         is_mega_cap    = market_cap >= MEGA_CAP_THRESHOLD
         mega_cap_flag  = (
-            f"\n⚠️ MEGA-CAP: Informationseffizienz sehr hoch — Impact > 6 erfordert konkreten Edge!"
+            "\n⚠️ MEGA-CAP: Informationseffizienz sehr hoch — Impact > 6 erfordert konkreten Edge!"
             if is_mega_cap else ""
         )
         mega_cap_step = "Mega-Cap-Check → " if is_mega_cap else ""

@@ -5,7 +5,6 @@ Tuning-Slot. Synthetische history-Dicts, kein Netzwerk.
 Ausführen: pytest tests/test_slot_analysis.py -v
 """
 
-import pytest
 
 
 # ── Helper ────────────────────────────────────────────────────────────────────

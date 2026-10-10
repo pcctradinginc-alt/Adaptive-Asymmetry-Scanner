@@ -94,7 +94,6 @@ def test_memory_blocks_similar_already_tested_and_exhausted_families():
     base = {h["family"]: h for h in _plan()["ideas"]}
     fin = base["rates_x_financials"]
     re_ = base["rates_x_realestate"]
-    oil = base["oil_x_energy"]
     mem = [_mem(fin["id"], "REJECTED", {"signal": fin["signal"], "family": fin["family"], "direction": 1}),
            _mem("OTHER-1", "REJECTED", {"signal": re_["signal"], "direction": -1, "family": "manual"})]
     mem += [_mem(f"OIL-{i}", "REJECTED", {"signal": f"rank(wti_63d_chg) * {i}", "family": "oil_x_energy"}) for i in range(3)]

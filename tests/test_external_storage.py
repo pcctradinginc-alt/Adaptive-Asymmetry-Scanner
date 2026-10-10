@@ -7,7 +7,6 @@ Nutzt ausschließlich ein In-Memory-Fake-Backend (kein boto3, kein Netzwerk).
 from __future__ import annotations
 
 import gzip
-import hashlib
 import json
 from datetime import datetime, timezone
 

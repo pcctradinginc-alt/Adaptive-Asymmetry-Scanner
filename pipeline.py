@@ -45,7 +45,6 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import numpy as np
 import yfinance as yf
 
 from modules.data_ingestion      import DataIngestion
@@ -60,9 +59,9 @@ from modules.reporter            import Reporter
 from modules.risk_gates          import RiskGates
 from modules.email_reporter      import send_status_email
 from modules.finbert_sentiment   import score_candidate
-from modules.intraday_delta      import filter_by_intraday_delta, get_intraday_move
+from modules.intraday_delta      import get_intraday_move
 from modules.alpha_sources       import enrich_with_alpha_sources
-from modules.data_validator      import validate_candidate_data, compute_option_roi
+from modules.data_validator      import validate_candidate_data
 from modules.sentiment_tracker   import enrich_with_sentiment_drift
 from modules.macro_context       import get_macro_context
 from modules.position_sizing     import enrich_with_sizing
@@ -1701,7 +1700,7 @@ def main() -> None:
         # ── Positionsgrößen (Fractional Kelly, Depot aus config.yaml) ────────
         trade_proposals = enrich_with_sizing(trade_proposals)
 
-        log.info(f"Trade-Ranking:")
+        log.info("Trade-Ranking:")
         for p in trade_proposals:
             ts = p.get("trade_score", {})
             log.info(

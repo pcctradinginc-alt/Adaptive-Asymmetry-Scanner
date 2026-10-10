@@ -7,7 +7,6 @@ import types
 from datetime import date, timedelta
 
 import pandas as pd
-import pytest
 
 from modules import prescreener as ps
 from modules import risk_gates as rg

@@ -23,7 +23,6 @@ GitHub-Actions-Tauglichkeit:
 from __future__ import annotations
 import logging
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -33,7 +32,6 @@ from modules.rl_environment import (
     features_to_obs,
     ACTION_SKIP,
     ACTION_NORMAL,
-    ACTION_BOOST,
     build_env_from_history,
 )
 
@@ -62,7 +60,6 @@ def train_agent(
     """
     try:
         from stable_baselines3 import PPO
-        from stable_baselines3.common.env_checker import check_env
     except ImportError as e:
         log.error(f"stable-baselines3 nicht installiert: {e}")
         return False

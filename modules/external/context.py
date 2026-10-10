@@ -22,7 +22,7 @@ from __future__ import annotations
 import hashlib
 import json
 import statistics
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -32,7 +32,7 @@ from modules.external.sources import real_economy_features as ref
 from modules.external.sources import road_freight_features as rff
 from modules.external.sources import weather_features as wf
 from modules.external.sources.weather import (
-    load_industry_exposure, load_weather_exposures, resolve_weather_relevance,
+    load_industry_exposure, load_weather_exposures,
 )
 
 FEATURE_VERSIONS = {
