@@ -253,6 +253,9 @@ class DataIngestion:
 
     def run(self) -> list[dict]:
         tickers = list(get_universe())
+        # Rohliste VOR dem Hard-Filter (pipeline: stats["universe"]); vorher fehlte das Attribut und
+        # "Ticker im Universum" zeigte dieselbe Zahl wie "nach Hard-Filter" (Maintenance 2026-10-09).
+        self.universe_size = len(tickers)
         # Reihenfolge je Tag deterministisch mischen: sollte eine Quelle doch
         # ins Limit laufen, trifft es nie systematisch dieselben (alphabetisch
         # späten) Ticker.

@@ -42,7 +42,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Entity Resolution (SEC + GLEIF, append-only, gültig-ab)
-        run: python -m modules.entity_resolution.build
+        id: entity
+        continue-on-error: true      # SHADOW; Budget 75 min im Skript, harte Grenze 90 min; Teilstand bleibt gültig
+        timeout-minutes: 90
+        run: python -m modules.entity_resolution.build --max-minutes 75
 
       - name: SEC Deep Events (Form 3/4/5 Bulk, Submissions, Live-Form-4)
         run: python -m modules.external.sources.sec_ingest --start-year "${{ github.event.inputs.start_year || '2014' }}"
@@ -60,3 +63,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           bash scripts/ci_push.sh "chore: alt data (entity + sec + ted) $(date -u +%Y-%m-%dT%H:%M)" outputs/entity/ outputs/external_data/sec/ outputs/external_data/ted/
+
+      - name: Stufen-Bilanz (Entity-Resolution-Teilstand = Shadow-Warnung, nie still)
+        if: always()
+        env:
+          DEGRADED: "entity_resolution=${{ steps.entity.outcome }}"
+        run: bash scripts/ci_stage_check.sh

@@ -263,76 +263,80 @@ def _check_learn_loop_sanity(
             f"(sollte(n) längst geschlossen sein): {', '.join(stale[:5])}."
         )
 
-    # Feature-Korrelations-Check für Lern-Loop-Freeze-Erkennung
+    # Lern-Loop-Status (Audit 2026-10-09): Die Gewichte (feedback.compute_pearson_weights) lernen
+    # NUR aus RELIABLE-Outcomes und erst ab MIN_RELIABLE_FOR_WEIGHT_UPDATE. Der Hauptgrund für
+    # unveränderte Gewichte ist daher die RELIABLE-Anzahl, nicht eine Korrelation über alle Trades.
+    # Korrelationen über alle Trades (inkl. UNKNOWN/RECONSTRUCTED) sind nur EXPLORATORY.
     try:
+        from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
         closed_trades = history.get("closed_trades") or []
-        # Nur Trades mit outcome != None
         valid_trades = [t for t in closed_trades if isinstance(t, dict) and t.get("outcome") is not None]
+        reliable = [t for t in valid_trades if is_reliable_outcome(t)]
+        n_rel, n_non = len(reliable), len(valid_trades) - len(reliable)
+        metrics.update(n_reliable=n_rel, n_non_reliable=n_non,
+                       min_reliable_for_weight_update=MIN_RELIABLE_FOR_WEIGHT_UPDATE)
 
-        if len(valid_trades) >= 20:
-            outcomes = []
-            impacts = []
-            mismatches = []
-            drifts = []
+        exploratory = _feature_correlations(valid_trades) if len(valid_trades) >= 20 else {}
+        metrics["feature_corr_exploratory"] = exploratory
+        expl_txt = ""
+        if exploratory:
+            corr_str = ", ".join(f"{feat}={val:.3g}" for feat, val in sorted(exploratory.items()))
+            expl_txt = (f" EXPLORATORY-Korrelation (nur Diagnose, keine Gewichtswirkung): n={len(valid_trades)}, "
+                        f"davon {n_rel} RELIABLE und {n_non} NON_RELIABLE – {corr_str}; "
+                        f"not eligible for production learning / weight update.")
 
-            for t in valid_trades:
-                outcome = t.get("outcome")
-                if outcome is None:
-                    continue
-                outcomes.append(float(outcome))
-
-                feat = t.get("features") or {}
-                impact_bin = feat.get("bin_impact", "mid")
-                mismatch_bin = feat.get("bin_mismatch", "good")
-                drift_bin = feat.get("bin_eps_drift", "noise")
-
-                impacts.append(_bin_to_num("impact", impact_bin))
-                mismatches.append(_bin_to_num("mismatch", mismatch_bin))
-                drifts.append(_bin_to_num("eps_drift", drift_bin))
-
-            # Berechne Korrelationen mit Outcome
-            correlations = {}
-            feature_arrays = {
-                "impact": impacts,
-                "mismatch": mismatches,
-                "eps_drift": drifts,
-            }
-
-            for feature_name, feature_vals in feature_arrays.items():
-                try:
-                    # Prüfe auf konstante Spalte
-                    if len(set(feature_vals)) <= 1 or len(set(outcomes)) <= 1:
-                        correlations[feature_name] = 0.0
-                    else:
-                        # Nutze statistics.correlation (Python 3.10+)
-                        corr = statistics.correlation(feature_vals, outcomes)
-                        if math.isfinite(corr):
-                            correlations[feature_name] = round(corr, 3)
-                        else:
-                            correlations[feature_name] = 0.0
-                except (ValueError, statistics.StatisticsError):
-                    # Bei Fehler in Korrelations-Berechnung: auf 0 setzen
-                    correlations[feature_name] = 0.0
-
-            metrics["feature_corr"] = correlations
-
-            # Wenn ALLE Korrelationen <= 0 → Lern-Loop ist eingefroren
-            if correlations and all(corr <= 0 for corr in correlations.values()):
+        if n_rel < MIN_RELIABLE_FOR_WEIGHT_UPDATE:
+            metrics["weight_update_status"] = "NEED_MORE_DATA"
+            metrics["learn_loop_frozen"] = True
+        if n_rel < MIN_RELIABLE_FOR_WEIGHT_UPDATE and len(valid_trades) >= 20:
+            # Warnung in denselben Situationen wie bisher (>= 20 geschlossene Trades), aber mit echtem Grund
+            warnings.append(
+                f"Gewichts-Update: NEED_MORE_DATA – zu wenig belastbare Trades: {n_rel} RELIABLE, "
+                f"mindestens {MIN_RELIABLE_FOR_WEIGHT_UPDATE} erforderlich. Gewichte bleiben unverändert."
+                + expl_txt)
+        if n_rel >= MIN_RELIABLE_FOR_WEIGHT_UPDATE:
+            metrics["weight_update_status"] = "ELIGIBLE"
+            # Freeze-Erkennung nur auf RELIABLE-Outcomes (ab 20, wie bisher)
+            rel_corr = _feature_correlations(reliable) if n_rel >= 20 else {}
+            metrics["feature_corr"] = rel_corr
+            if rel_corr and all(corr <= 0 for corr in rel_corr.values()):
                 metrics["learn_loop_frozen"] = True
-                corr_str = ", ".join(
-                    f"{feat}={val:.3g}" for feat, val in sorted(correlations.items())
-                )
+                corr_str = ", ".join(f"{feat}={val:.3g}" for feat, val in sorted(rel_corr.items()))
                 warnings.append(
-                    f"Lern-Loop eingefroren: alle Feature-Korrelationen ≤ 0 "
-                    f"({corr_str}) → model_weights bleiben auf Startwerten; "
-                    f"Features haben keine positive Vorhersagekraft."
-                )
+                    f"Lern-Loop eingefroren: alle RELIABLE-Feature-Korrelationen ≤ 0 (n={n_rel} RELIABLE; "
+                    f"{corr_str}) → kein positives Lernsignal, Gewichte ändern sich nicht."
+                    + expl_txt)
 
     except Exception as e:
         # Fehler in Korrelations-Berechnung → nur loggen, keine Warnung
         log.debug(f"Feature-Korrelations-Check fehlgeschlagen: {e}")
 
     return metrics
+
+
+def _feature_correlations(trades: list[dict]) -> dict:
+    """Pearson-Korrelation Feature-Bin vs. Outcome (Diagnose, gleiche Bin-Abbildung wie feedback)."""
+    outcomes, impacts, mismatches, drifts = [], [], [], []
+    for t in trades:
+        outcome = t.get("outcome")
+        if outcome is None:
+            continue
+        outcomes.append(float(outcome))
+        feat = t.get("features") or {}
+        impacts.append(_bin_to_num("impact", feat.get("bin_impact", "mid")))
+        mismatches.append(_bin_to_num("mismatch", feat.get("bin_mismatch", "good")))
+        drifts.append(_bin_to_num("eps_drift", feat.get("bin_eps_drift", "noise")))
+    correlations = {}
+    for feature_name, feature_vals in (("impact", impacts), ("mismatch", mismatches), ("eps_drift", drifts)):
+        try:
+            if len(set(feature_vals)) <= 1 or len(set(outcomes)) <= 1:
+                correlations[feature_name] = 0.0
+            else:
+                corr = statistics.correlation(feature_vals, outcomes)
+                correlations[feature_name] = round(corr, 3) if math.isfinite(corr) else 0.0
+        except (ValueError, statistics.StatisticsError):
+            correlations[feature_name] = 0.0
+    return correlations
 
 
 # ── e) Externer Kontext: Lern-Health (nur Warnungen, keine Gates) ────────────

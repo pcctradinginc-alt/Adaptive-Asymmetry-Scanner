@@ -33,6 +33,12 @@ GLEIF_MIN_INTERVAL = 1.05        # <= ~57 Anfragen/min
 
 LOW_RETRY_DAYS = 28              # erfolglose GLEIF-Suche erst nach 4 Wochen erneut (Budget für Neue)
 CHILD_REFRESH_DAYS = 90
+# Timeout-Safety (2026-10-09: Lauf hing 3 h in den SEC-Submissions – je Abruf bis 3 Versuche à 30 s plus
+# Retry-After bis 120 s bei 429, ~1.000 Ticker, kein Gesamtbudget, keine Ausgabe). Jetzt: Laufzeit-Budget,
+# Abbruch einer Quelle nach Fehlerserie, Fortschrittslog. Inkrementell: der nächste Lauf setzt fort.
+DEFAULT_MAX_MINUTES = 75
+MAX_CONSECUTIVE_ERRORS = 25
+PROGRESS_EVERY = 100
 
 
 def _days_since(iso: str | None, today: str) -> float:
@@ -46,8 +52,26 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
           fetch_submissions=src.fetch_sec_submissions, fetch_gleif=src.fetch_gleif_by_name,
           fetch_parent=src.fetch_gleif_parent, fetch_children=src.fetch_gleif_children,
           gleif_budget: int = 150, children_budget: int = 60, attempts: dict | None = None,
-          sleep=time.sleep) -> dict:
-    rep = {"date": today, "sec": {}, "gleif": {}, "errors": []}
+          sleep=time.sleep, deadline: float | None = None, clock=time.monotonic) -> dict:
+    rep = {"date": today, "status": "COMPLETE", "sec": {}, "gleif": {}, "errors": []}
+
+    def out_of_time(phase: str) -> bool:
+        if deadline is not None and clock() >= deadline:
+            if rep["status"] == "COMPLETE":
+                rep["status"] = "PARTIAL_BUDGET_EXHAUSTED"
+                rep["stopped_in"] = phase
+                log.warning(f"entity build: Laufzeit-Budget erschöpft in Phase {phase} – Rest im nächsten Lauf")
+            return True
+        return False
+
+    def too_many_errors(n: int, phase: str) -> bool:
+        if n >= MAX_CONSECUTIVE_ERRORS:
+            if rep["status"] == "COMPLETE":
+                rep["status"] = "PARTIAL_SOURCE_ERRORS"
+                rep["stopped_in"] = phase
+            log.warning(f"entity build: {n} Fehler in Folge in Phase {phase} – Quelle für diesen Lauf gestoppt")
+            return True
+        return False
     try:
         rows = fetch_tickers()
     except Exception as e:  # noqa: BLE001 – Quelle aus, Lauf geht weiter
@@ -58,12 +82,20 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
     rep["sec"] = {"tickers_total": len(rows), "wanted": len(wanted), "mapped": len(sel),
                   "unmapped": sorted(wanted - {r["ticker"] for r in sel})[:200]}
     subs = {}
-    for r in sel:
+    consecutive = 0
+    for i, r in enumerate(sel):
+        if out_of_time("sec_submissions") or too_many_errors(consecutive, "sec_submissions"):
+            rep["sec"]["submissions_skipped"] = len(sel) - i
+            break
         try:
             subs[r["cik"]] = src.parse_submissions_entity(fetch_submissions(r["cik"]))
+            consecutive = 0
         except Exception as e:  # noqa: BLE001
             rep["errors"].append(f"sec_submissions {r['ticker']}: {e!r}")
+            consecutive += 1
         sleep(SEC_MIN_INTERVAL)
+        if (i + 1) % PROGRESS_EVERY == 0:
+            log.info(f"entity build: SEC-Submissions {i + 1}/{len(sel)} (Fehler {len(rep['errors'])})")
     changes = {"opened": 0, "replaced": 0, "unchanged": 0}
     sec_recs = src.sec_records(sel, subs)
     for rec in sec_recs:
@@ -87,7 +119,10 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
                   key=lambda r: (attempts.get(r.entity_id) or {}).get("last_low") or "")[:gleif_budget]
     g = {"attempted": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0, "with_parent": 0, "cooling_down": len(cooling),
          "low_reasons": {}}
+    consecutive = 0
     for rec in todo:
+        if out_of_time("gleif") or too_many_errors(consecutive, "gleif"):
+            break
         g["attempted"] += 1
         try:
             cands = fetch_gleif(rec.canonical_name)
@@ -107,8 +142,10 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
                 store.upsert(gr, today)
                 if gr.mapping_source == "gleif_parent":
                     g["with_parent"] += 1
+            consecutive = 0
         except Exception as e:  # noqa: BLE001
             rep["errors"].append(f"gleif {rec.ticker}: {e!r}")
+            consecutive += 1
     g["remaining"] = max(0, len(pit) - g["attempted"] - len(cooling))
     rep["gleif"] = g
     # Tochtergesellschaften (zeitabhängige Exposures) für zugeordnete LEIs, budgetiert
@@ -117,8 +154,9 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
         if r.mapping_source == "gleif_name_match" and r.valid_to is None and r.lei:
             linked[r.entity_id] = r
     c = {"fetched": 0, "children": 0, "opened": 0}
+    consecutive = 0
     for eid, r in sorted(linked.items(), key=lambda kv: (attempts.get(kv[0]) or {}).get("children_at") or ""):
-        if c["fetched"] >= children_budget:
+        if c["fetched"] >= children_budget or out_of_time("gleif_children") or too_many_errors(consecutive, "gleif_children"):
             break
         if _days_since((attempts.get(eid) or {}).get("children_at"), today) < CHILD_REFRESH_DAYS:
             continue
@@ -127,7 +165,9 @@ def build(tickers_wanted: list[str], store: EntityStore, today: str, *, fetch_ti
             sleep(GLEIF_MIN_INTERVAL)
         except Exception as e:  # noqa: BLE001
             rep["errors"].append(f"gleif children {r.ticker}: {e!r}")
+            consecutive += 1
             continue
+        consecutive = 0
         c["fetched"] += 1
         attempts.setdefault(eid, {})["children_at"] = today
         for cr in src.child_records(r, r.lei, r.mapping_confidence, rels, infos):
@@ -142,7 +182,9 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gleif-budget", type=int, default=150)
     ap.add_argument("--children-budget", type=int, default=60)
+    ap.add_argument("--max-minutes", type=float, default=DEFAULT_MAX_MINUTES)
     args = ap.parse_args(argv)
+    deadline = time.monotonic() + args.max_minutes * 60
     from modules.universe import get_universe, research_universe
     tickers = set(get_universe())
     try:
@@ -152,11 +194,10 @@ def main(argv=None) -> int:
     store = EntityStore(DEFAULT_PATH)
     attempts = json.loads(ATTEMPTS.read_text()) if ATTEMPTS.exists() else {}
     rep = build(sorted(tickers), store, src.utc_today(), gleif_budget=args.gleif_budget,
-                children_budget=args.children_budget, attempts=attempts)
-    ATTEMPTS.parent.mkdir(parents=True, exist_ok=True)
-    ATTEMPTS.write_text(json.dumps(attempts, indent=1, sort_keys=True))
-    REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(json.dumps(rep, indent=1, ensure_ascii=False))
+                children_budget=args.children_budget, attempts=attempts, deadline=deadline)
+    from modules.atomic_io import atomic_write_json                # nie halbe Report-/Attempt-Dateien
+    atomic_write_json(ATTEMPTS, attempts, indent=1, sort_keys=True)
+    atomic_write_json(REPORT, rep, indent=1, ensure_ascii=False)
     print(json.dumps({k: v for k, v in rep.items() if k != "errors"}, indent=1), f"\nFehler: {len(rep['errors'])}")
     return 0
 

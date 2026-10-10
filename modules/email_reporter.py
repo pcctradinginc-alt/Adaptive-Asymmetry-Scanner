@@ -7,10 +7,10 @@ modules/email_reporter.py v8.3
         Trader sieht jetzt nicht nur ROI, sondern auch wie empfindlich
         der Trade auf Seitwärtsbewegung und IV-Crush reagiert.
 
-    #7  MC-Probabilitäten im Report:
-        Hit-Rate aus Monte Carlo (P(Kurs > Ziel)) und Catalyst-Confidence
-        werden als separater Block angezeigt. Macht Wahrscheinlichkeits-
-        grundlage für den ROI transparent.
+    #7  MC-Kennzahlen im Report:
+        Target-Hit Score aus Monte Carlo (Anteil Pfade mit Kurs > Ziel; unkalibriertes
+        Ranking-Signal, keine Gewinnwahrscheinlichkeit) und Catalyst-Confidence
+        werden als separater Block angezeigt.
 
 Änderungen v8.2:
     - Integration der Exit-Regeln (Take-Profit, Stop-Loss, Time-Exit)
@@ -27,6 +27,10 @@ from datetime import datetime
 from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from modules.booking_labels import booking_text
+from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
+from modules.version import APP_VERSION
 
 from modules.config import cfg
 
@@ -182,7 +186,7 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
     status_text = "Trade Empfehlung" if trades > 0 else "Kein Trade heute"
 
     funnel = [
-        (f"{stats.get('universe', 0)} Ticker im Universum", "📋", True),
+        (f"{stats.get('universe', 0)} Ticker im Universum (Rohliste vor Filtern)", "📋", True),
         (f"{stats.get('candidates', 0)} nach Hard-Filter (Cap>2B, Vol>1M)", "🔍", stats.get("candidates", 0) > 0),
         (f"{stats.get('sector_ok', stats.get('candidates', 0))} nach Sector-Momentum", "📈", stats.get("sector_ok", stats.get("candidates", 0)) > 0),
         (f"{stats.get('prescreened', 0)} nach Prescreening (Haiku)", "🤖", stats.get("prescreened", 0) > 0),
@@ -222,14 +226,14 @@ def _build_status_email(stats: dict, today: str, health: dict | None = None) -> 
     <div style="font-size:28px;margin-bottom:6px;">{status_icon}</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">Adaptive Asymmetry-Scanner</div>
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">{status_text}</div>
-    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; v8.3</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; VIX {vix_str} &nbsp;·&nbsp; {APP_VERSION}</div>
   </div>
   <div style="padding:24px 32px;">
     <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">{rows}</table>
     {_external_context_html()}
   </div>{health_html}
   <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
-    Adaptive Asymmetry-Scanner v8.3 &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
+    Adaptive Asymmetry-Scanner {APP_VERSION} &nbsp;·&nbsp; {datetime.utcnow().strftime('%H:%M UTC')}
   </div>
 </div></body></html>"""
 
@@ -296,6 +300,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
         # gemessene Band-Kalibrierung (dieselbe Funktion wie der Montagsreport).
         mc_color = "#78350f"
         mc_calibrated = _calibrated_line(mc_hit_rate_pct)
+        mc_status = _score_calibration_status()
         cat_str  = f"{cat_conf}/10" if cat_conf is not None else "–"
 
         # Implied Move Row
@@ -323,10 +328,10 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
 
         prob_html = f"""
         <div style="margin-top:8px;padding:10px 14px;background:#fefce8;border:1px solid #fde68a;border-radius:6px;font-size:12px;">
-          <b style="color:#92400e;">📊 Wahrscheinlichkeiten &amp; Katalysator</b>
+          <b style="color:#92400e;">📊 Ranking-Kennzahlen &amp; Katalysator</b>
           <table style="width:100%;margin-top:6px;font-size:12px;color:#78350f;border-collapse:collapse;">
             <tr>
-              <td style="padding:2px 8px 2px 0;"><b>MC Hit-Rate:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> (Modell, P Kurs &gt; Ziel)<br><b>Kalibriert:</b> {mc_calibrated}</td>
+              <td style="padding:2px 8px 2px 0;"><b>{TARGET_HIT_LABEL}:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> ({mc_status}) – Ranking signal only<br><b>Band-Win-Rate (Paper-Trades, deskriptiv):</b> {mc_calibrated}</td>
               <td style="padding:2px 8px 2px 0;"><b>Catalyst-Konfidenz:</b> {cat_str}</td>
             </tr>
             <tr>
@@ -525,6 +530,7 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
               {ts_grade}&nbsp;·&nbsp;{ts_total}/100
             </span>
           </div>
+          <div style="font-size:12px;color:#475569;margin-bottom:10px;">{booking_text(p)}</div>
 
           <div style="background:#f8fafc;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#334155;border-left:3px solid {score_color};">
             <span style="color:#16a34a;font-weight:600;">✅ Für:</span> {best_for}<br>
@@ -555,18 +561,27 @@ def _build_trade_email(proposals: list[dict], today: str) -> str:
     <div style="font-size:28px;margin-bottom:6px;">🎯</div>
     <div style="color:#fff;font-size:22px;font-weight:bold;">Adaptive Asymmetry-Scanner</div>
     <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Trade Empfehlung — {len(proposals)} Signal(e)</div>
-    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; v8.3</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:6px;">{today} &nbsp;·&nbsp; {APP_VERSION}</div>
   </div>
   <div style="padding:24px 32px;">{cards}{_v2_recommendation_html(today)}{_external_context_html()}</div>
 </div></body></html>"""
 
 
-# Audit P1-4/P1-9: Die MC-Trefferquote ist eine Modellgröße, keine kalibrierte
-# Gewinnwahrscheinlichkeit. Kalibrierung = realisierte Win Rate je MC-Band aus
-# outputs/research/paper_performance_analysis.json (scripts/paper_performance_analysis.py).
-MC_CALIBRATION_NOTE = ("⚠️ MC Hit-Rate ist NICHT kalibriert – keine Gewinnwahrscheinlichkeit. "
-                       "Maßgeblich ist die kalibrierte Quote (realisierte Win Rate des Bands).")
+# Audit P1-4/P1-9 + Reporting 2026-10-09: Der Target-Hit Score (simulation.hit_rate) ist ein
+# unkalibriertes Ranking-Signal (Underlying erreicht Kursziel), keine Gewinnwahrscheinlichkeit.
+# Band-Win-Rate = realisierte Win Rate je Score-Band aus
+# outputs/research/paper_performance_analysis.json (deskriptiv, keine Forward-Kalibrierung).
+MC_CALIBRATION_NOTE = "⚠️ " + TARGET_HIT_EXPLANATION
 CALIBRATION_PATH = Path("outputs/research/paper_performance_analysis.json")
+
+
+def _score_calibration_status() -> str:
+    try:
+        pp = json.loads(CALIBRATION_PATH.read_text()) if CALIBRATION_PATH.exists() else None
+        return calibration_status(pp)
+    except (OSError, ValueError) as e:
+        log.warning(f"Kalibrierungsstatus nicht ladbar ({e})")
+        return UNCALIBRATED
 
 
 def _calibrated_line(mc_hit) -> str:

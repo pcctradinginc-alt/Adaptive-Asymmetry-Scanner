@@ -10,6 +10,9 @@ from __future__ import annotations
 
 RELIABLE_OUTCOME_METHODS = frozenset({"option_quote", "option_quote_bid_zero", "spread_quote"})
 
+# Produktives Gewichts-Update (feedback.compute_pearson_weights) erst ab so vielen RELIABLE-Outcomes.
+MIN_RELIABLE_FOR_WEIGHT_UPDATE = 5
+
 
 def is_reliable_outcome(t: dict) -> bool:
     """Neue Trades tragen outcome_reliable/outcome_method. Altbestand OHNE dokumentierte
