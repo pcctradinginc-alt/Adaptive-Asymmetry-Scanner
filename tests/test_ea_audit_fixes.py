@@ -53,7 +53,7 @@ def test_commodity_outage_errors_only_oil_sensitive_theses(tmp_path, data):
         raise ConnectionError("EIA/Commodity-Build aus")
     s = _run(tmp_path, data, [fx.make_analysis("AAPL"), fx.make_analysis("XOM", sector="Energy")], commodity=boom)
     rows = {r["ticker"]: r for r in eal.read_rows(tmp_path)}
-    assert rows["XOM"]["status"] == ERROR                                   # Öl-Domäne hängt an der Quelle
+    assert rows["XOM"]["status"] == ERROR and rows["XOM"]["group"] == "X"  # Öl-Domäne hängt an der Quelle
     assert any("oil" in x for x in rows["XOM"]["status_reasons"])
     assert rows["AAPL"]["status"] != ERROR                                  # Technologie: keine Öl-Sensitivität
     assert any(e["where"] == "commodity" for e in s["errors"])

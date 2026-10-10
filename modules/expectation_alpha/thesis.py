@@ -203,7 +203,9 @@ def build_thesis(analysis: dict, ctx: dict, cfg: dict, *, impact_min: int, surpr
         "expectation_gap": expectation_gap,
         "macro_alignment": cctx["macro_alignment"], "sector_alignment": cctx["sector_alignment"],
         "domain_alignment": cctx["domain_alignment"], "missing_domains": cctx["missing_domains"],
-        "context_status": cctx["context_status"], "group": group_of(news["strength"], cctx["context_status"]),
+        "context_status": cctx["context_status"],
+        # ERROR: Kontext ist ein technisches Teilbild -> nie in A–E (NEWS × CONTEXT), sondern X
+        "group": "X" if dec["status"] == ERROR else group_of(news["strength"], cctx["context_status"]),
         "regime_state": {k: (v or {}).get("state") for k, v in (reg.get("dimensions") or {}).items()},
         "regime_uncertainty": ru, "regime_support": regime_support,
         "regime_dimension": dim, "regime_transition_probability": ((dim_state.get("transition") or {}).get("value")),

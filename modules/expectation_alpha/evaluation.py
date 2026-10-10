@@ -161,7 +161,8 @@ def run(*, root: Path | None = None, cfg: dict | None = None, now: datetime | No
                  "primary_horizon": ph, "groups": {}, "status_value": {}, "values": {}}
     for h in horizons:
         u = _joined(rows, outs, "UNDERLYING", "immediate", h)
-        rep["groups"][str(h)] = {g: stats_block([i for i in u if i["row"].get("group") == g], cfg) for g in GROUPS}
+        rep["groups"][str(h)] = {g: stats_block([i for i in u if i["row"].get("group") == g
+                                                  and i["row"].get("status") != ERROR], cfg) for g in GROUPS}
         rep["status_value"][str(h)] = {s: stats_block([i for i in u if i["row"].get("status") == s], cfg)
                                        for s in (TRADE, WAIT, ABSTAIN, ERROR)}
     u = _joined(valid, outs, "UNDERLYING", "immediate", ph)
