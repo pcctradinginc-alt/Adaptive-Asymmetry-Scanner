@@ -854,7 +854,8 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
     else:
         reg_s = str(reg) if reg else NA
     ds = drift_summary(meta.get("drift"))
-    fmt_flag = lambda v: NA if v is None else ("GEFLAGGT" if v else "ok")
+    def fmt_flag(v):
+        return NA if v is None else ("GEFLAGGT" if v else "ok")
     if h.get("available"):
         c = h["counts"]
         health_s = f"{h['overall']} (PASS {c['PASS']} / WARNING {c['WARNING']} / FAIL {c['FAIL']}; DEFERRED {c['DEFERRED']})"
@@ -2047,7 +2048,8 @@ def subject_for(date_s: str) -> str:
 # ── Renderer ───────────────────────────────────────────────────────────────
 def _text_table(headers, rows) -> list[str]:
     widths = [max(len(str(x)) for x in col) for col in zip(headers, *rows)] if rows else [len(h) for h in headers]
-    line = lambda r: "  ".join(str(c).ljust(w) for c, w in zip(r, widths)).rstrip()
+    def line(r):
+        return "  ".join(str(c).ljust(w) for c, w in zip(r, widths)).rstrip()
     return [line(headers), line(["-" * w for w in widths])] + [line(r) for r in rows]
 
 
@@ -2069,7 +2071,8 @@ def render_text(data: dict) -> str:
 
 
 def render_md(data: dict) -> str:
-    esc = lambda s: str(s).replace("|", "\\|")
+    def esc(s):
+        return str(s).replace("|", "\\|")
     L = [f"# {subject_for(data['date'])}", "", f"_{DISCLAIMER}_", ""]
     for num, title, blocks in build_sections(data):
         L += [f"## {num}. {title}", ""]

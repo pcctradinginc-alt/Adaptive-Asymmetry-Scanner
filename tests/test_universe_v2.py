@@ -121,7 +121,8 @@ def test_discovery_snapshot_survivorship_and_rolling(tmp_path):
     # eine Woche später: T1 delisted (fehlt), T2 suspendiert (STALE) -> Delisting-Ereignisse, nie still entfernt
     js2 = {"fields": js["fields"], "data": [r for r in js["data"] if r[2] != "T1"]}
     d2 = TODAY + timedelta(days=7)
-    q2 = lambda ts: {t: (_quote(last=d2) if t != "T2" else _quote(last=TODAY - timedelta(days=20))) for t in ts}
+    def q2(ts):
+        return {t: (_quote(last=d2) if t != "T2" else _quote(last=TODAY - timedelta(days=20))) for t in ts}
     recs2, _ = uv.discover(d2, CFG, listings_js=js2, quotes_fn=q2, chain_fn=lambda t, d, c: (_chain(sym=t, today=d2), "f"),
                            cap_fn=lambda t: (caps[t], "f"), prev=snap)
     uv.save_snapshot(recs2, d2, {}, snap_dir=tmp_path / "s", delistings=tmp_path / "d.jsonl")
@@ -191,7 +192,9 @@ def test_segment_contracts_valid_and_v1_untouched():
     base = json.loads(open("outputs/state/baselines/post-pr91_2026-10-03.json").read())
     assert {x["key"]: x["spec_hash"] for x in base["contracts"]} == \
         {hc.key(c): hc.spec_hash(c) for c in cs if hc.key(c).startswith("PROM-ABST") and c["version"] == 1}
-    bad = copy.deepcopy(seg[0]); bad["primary_outcome"] = "raw_underlying_return"; bad.pop("spec_hash")
+    bad = copy.deepcopy(seg[0])
+    bad["primary_outcome"] = "raw_underlying_return"
+    bad.pop("spec_hash")
     assert any("net_realizable_return" in e for e in hc.validate(bad))
 
 

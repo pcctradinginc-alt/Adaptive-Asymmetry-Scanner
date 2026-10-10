@@ -85,11 +85,11 @@ def test_no_section_counts_unknown_or_reconstructed_as_reliable(report):
 
 def test_failure_analysis_reliable_only_or_explicitly_exploratory(report):
     _, text = report
-    lines = [l for l in text.splitlines() if l.startswith("Failure-Analyse")]
+    lines = [ln for ln in text.splitlines() if ln.startswith("Failure-Analyse")]
     assert lines
-    for l in lines:
-        assert ("nur RELIABLE" in l) or ("EXPLORATIV" in l and "UNKNOWN/RECONSTRUCTED" in l and "NICHT RELIABLE" in l), l
-    assert any("EXPLORATIV" in l and "n=93" in l for l in lines)            # veraltetes Artefakt sichtbar als explorativ
+    for ln in lines:
+        assert ("nur RELIABLE" in ln) or ("EXPLORATIV" in ln and "UNKNOWN/RECONSTRUCTED" in ln and "NICHT RELIABLE" in ln), ln
+    assert any("EXPLORATIV" in ln and "n=93" in ln for ln in lines)            # veraltetes Artefakt sichtbar als explorativ
 
 
 def test_failure_analysis_current_artifact_is_reliable_only(tmp_path, monkeypatch):
@@ -108,7 +108,7 @@ def test_failure_analysis_current_artifact_is_reliable_only(tmp_path, monkeypatc
 
 def test_hypothesis_reporting_never_calls_79_reliable(report):
     _, text = report
-    line = next(l for l in text.splitlines() if l.startswith("NEUE HYPOTHESEN-VORSCHLÄGE"))
+    line = next(ln for ln in text.splitlines() if ln.startswith("NEUE HYPOTHESEN-VORSCHLÄGE"))
     assert "79" in line and "NICHT RELIABLE" in line and "verlässlich" not in line
     # aktuelle Generatoren: nur RELIABLE-Population, mit Definitions-Stempel
     from modules import abstention_proposals as ap
@@ -132,12 +132,12 @@ def test_historical_and_forward_calibration_have_distinct_labels(report):
     _, text = report
     assert lh.HISTORICAL_WF_LABEL == "HISTORICAL_WALK_FORWARD_CALIBRATION"
     assert lh.LIVE_FORWARD_LABEL == "LIVE_FORWARD_CALIBRATION"
-    hist = [l for l in text.splitlines() if "HISTORICAL_WALK_FORWARD_CALIBRATION:" in l and "kalibriert=True" in l]
-    assert hist and all("KEINE Forward-Evidenz" in l and "LIVE_FORWARD" not in l for l in hist)
+    hist = [ln for ln in text.splitlines() if "HISTORICAL_WALK_FORWARD_CALIBRATION:" in ln and "kalibriert=True" in ln]
+    assert hist and all("KEINE Forward-Evidenz" in ln and "LIVE_FORWARD" not in ln for ln in hist)
     # "calibrated=True" darf nirgends ohne historisches Label stehen
-    for l in text.splitlines():
-        if re.search(r"kalibriert=True|calibrated=True", l):
-            assert "HISTORICAL_WALK_FORWARD_CALIBRATION" in l and "historisch" in l, l
+    for ln in text.splitlines():
+        if re.search(r"kalibriert=True|calibrated=True", ln):
+            assert "HISTORICAL_WALK_FORWARD_CALIBRATION" in ln and "historisch" in ln, ln
     assert "Calibration (Forward)" not in text and "Calibration status" not in text
 
 
@@ -149,8 +149,8 @@ def test_zero_forward_outcomes_means_need_more_data_despite_historical(report):
     assert lh.live_forward_calibration(None)["status"] == "NEED_MORE_DATA / UNCALIBRATED"
     # veraltetes Artefakt ohne Stempel zählt nie als Forward-Evidenz
     assert lh.live_forward_calibration({"calibration_oos": {"n_evaluated": 500, "calibrated_better": True}})["n"] == 0
-    live = [l for l in text.splitlines() if "LIVE_FORWARD_CALIBRATION:" in l]
-    assert live and all("NEED_MORE_DATA / UNCALIBRATED" in l for l in live)
+    live = [ln for ln in text.splitlines() if "LIVE_FORWARD_CALIBRATION:" in ln]
+    assert live and all("NEED_MORE_DATA / UNCALIBRATED" in ln for ln in live)
 
 
 def test_artifact_check():

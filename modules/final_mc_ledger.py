@@ -195,8 +195,8 @@ def path_outcome(bars: list[tuple[date, float, float, float]], signal_day: date,
     sign = -1.0 if str(direction).upper() == "BEARISH" else 1.0
     p0 = entry[1]
     ret = sign * (window[-1][3] / p0 - 1.0)
-    fav = [sign * ((h if sign > 0 else l) / p0 - 1.0) for _, h, l, _ in window]
-    adv = [sign * ((l if sign > 0 else h) / p0 - 1.0) for _, h, l, _ in window]
+    fav = [sign * ((h if sign > 0 else lo) / p0 - 1.0) for _, h, lo, _ in window]
+    adv = [sign * ((lo if sign > 0 else h) / p0 - 1.0) for _, h, lo, _ in window]
     return {"outcome": round(ret, 6), "mfe": round(max(fav), 6), "mae": round(min(adv), 6),
             "entry_date": entry[0].isoformat(), "exit_date": window[-1][0].isoformat()}
 

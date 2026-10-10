@@ -61,7 +61,7 @@ def test_long_horizon_beyond_old_fifo_capacity_is_evaluated(tmp_path):
     run_feedback(hist, D0 + timedelta(days=46), tmp_path)                    # 45 T für die ersten fällig
     assert first["outcome"] == 0.25 and first["outcome_method"] == "option_quote"   # Legacy-Feld wie bisher
     # erst NACH Auflösung des Legacy-Horizonts aus der Ansicht exportiert; ungeklärte bleiben
-    exported = [json.loads(l) for l in (tmp_path / "archive.jsonl").read_text().splitlines()]
+    exported = [json.loads(ln) for ln in (tmp_path / "archive.jsonl").read_text().splitlines()]
     assert exported and all(e["outcome"] is not None for e in exported) and first["ticker"] in {e["ticker"] for e in exported}
     assert all(t["outcome"] is not None or t not in exported for t in hist["shadow_trades"])
     recs = sl._records(tmp_path / "ledger")

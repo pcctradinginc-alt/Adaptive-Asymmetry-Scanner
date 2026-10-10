@@ -1491,7 +1491,7 @@ def test_build_real_strategy_bull_call_spread_when_iv_rank_high(monkeypatch):
     assert rs["strategy"] == "BULL_CALL_SPREAD"
     assert rs["strategy_source"] == "iv_history_fallback"
     assert len(rs["legs"]) == 2
-    assert {l["side"] for l in rs["legs"]} == {"long", "short"}
+    assert {leg["side"] for leg in rs["legs"]} == {"long", "short"}
     assert rs["net_debit_entry"] == pytest.approx(5.4 - 2.0)
     assert rs["net_mid_entry"] == pytest.approx(5.2 - 2.1)
 

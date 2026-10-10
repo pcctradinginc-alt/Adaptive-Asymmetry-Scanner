@@ -217,7 +217,7 @@ def _check_json(payload, spec: dict, lat: float, status) -> dict:
 
 def _parse_csv_probe(r, spec: dict, lat: float) -> dict:
     text = r.content.decode("utf-8", errors="replace") if hasattr(r, "content") else str(r)
-    rows = [l.split(",") for l in text.strip().splitlines()[1:] if "," in l]
+    rows = [ln.split(",") for ln in text.strip().splitlines()[1:] if "," in ln]
     if not rows:
         return _probe_result(reachable=True, auth_ok=True, latency_s=lat, schema_ok=True, empty=True, error="leere CSV")
     valid = [x for x in rows if len(x) > int(spec.get("value_col", 1))

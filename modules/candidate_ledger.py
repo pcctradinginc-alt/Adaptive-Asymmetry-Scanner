@@ -847,17 +847,17 @@ def _finalize_real_strategy(rs: dict, session: str, today: str) -> dict:
     (informativ) und die "echten" bid/ask/mid je Leg bleiben None bis zum
     Fill in update_outcomes() (_fill_real_strategy_entries)."""
     rs = dict(rs)
-    legs = [dict(l) for l in rs.get("legs", [])]
+    legs = [dict(leg_) for leg_ in rs.get("legs", [])]
     if session == "regular":
         rs["entry_pending"] = False
         rs["entry_date"]    = today
     else:
         rs["snapshot_legs"] = [
-            {"symbol": l.get("symbol"), "bid": l.get("bid"), "ask": l.get("ask"), "mid": l.get("mid")}
-            for l in legs
+            {"symbol": leg_.get("symbol"), "bid": leg_.get("bid"), "ask": leg_.get("ask"), "mid": leg_.get("mid")}
+            for leg_ in legs
         ]
-        for l in legs:
-            l["bid"] = l["ask"] = l["mid"] = None
+        for leg_ in legs:
+            leg_["bid"] = leg_["ask"] = leg_["mid"] = None
         rs["net_debit_entry"] = None
         rs["net_mid_entry"]   = None
         rs["entry_pending"]   = True
@@ -1367,8 +1367,8 @@ def _fill_real_strategy_entries(rows: list[dict]) -> bool:
             if not all_filled:
                 continue  # nächster Regular-Session-Lauf holt die fehlenden Legs nach
 
-            long_leg  = next((l for l in legs if l.get("side") == "long"), None)
-            short_leg = next((l for l in legs if l.get("side") == "short"), None)
+            long_leg  = next((leg_ for leg_ in legs if leg_.get("side") == "long"), None)
+            short_leg = next((leg_ for leg_ in legs if leg_.get("side") == "short"), None)
             if long_leg is None:
                 continue
 
@@ -1729,8 +1729,8 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
         try:
             rs   = row.get("real_strategy") or {}
             legs = rs.get("legs") or []
-            long_leg  = next((l for l in legs if l.get("side") == "long"), None)
-            short_leg = next((l for l in legs if l.get("side") == "short"), None)
+            long_leg  = next((leg_ for leg_ in legs if leg_.get("side") == "long"), None)
+            short_leg = next((leg_ for leg_ in legs if leg_.get("side") == "short"), None)
             if long_leg is None:
                 continue
 

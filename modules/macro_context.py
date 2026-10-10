@@ -150,7 +150,7 @@ def _fetch_fred_series(series_id: str, last_n: int = 1) -> Optional[float]:
         if resp.status_code != 200:
             return None
 
-        lines = [l for l in resp.text.strip().split("\n") if l and not l.startswith("DATE")]
+        lines = [ln for ln in resp.text.strip().split("\n") if ln and not ln.startswith("DATE")]
         if not lines:
             return None
 
@@ -194,7 +194,7 @@ def fetch_latest_fred_csv_value(series_id: str, since_days: int = 30,
         )
         if resp.status_code != 200:
             return None
-        lines = [l for l in resp.text.strip().split("\n") if l and not l.startswith("DATE")]
+        lines = [ln for ln in resp.text.strip().split("\n") if ln and not ln.startswith("DATE")]
         for line in reversed(lines):
             parts = line.split(",")
             if len(parts) >= 2 and parts[1].strip() not in (".", ""):

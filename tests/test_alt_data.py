@@ -111,8 +111,9 @@ def test_incremental_value_detected_and_noise_rejected(alt_panel, small_protocol
 
 
 def test_decision_rule_and_value_score():
-    mk = lambda lo, d, brier=0.0: {"bootstrap": {"ci_monthly_mean": [lo, lo + 0.01], "delta_monthly_mean": d},
-                                   "delta": {"brier": brier}, "breakdown": {"sector": {}}, "delta_by_year": {"2020": d}}
+    def mk(lo, d, brier=0.0):
+        return {"bootstrap": {"ci_monthly_mean": [lo, lo + 0.01], "delta_monthly_mean": d},
+                                       "delta": {"brier": brier}, "breakdown": {"sector": {}}, "delta_by_year": {"2020": d}}
     assert ev.decide({"baselines": {"a": mk(0.001, 0.003)}}, 0.9)[0] == "KEEP"
     assert ev.decide({"baselines": {"a": mk(0.001, 0.003, brier=0.01)}}, 0.9)[0] != "KEEP"     # Kalibrierung schlechter
     assert ev.decide({"baselines": {"a": mk(-0.002, 0.001)}}, 0.9)[0] == "MODIFY"

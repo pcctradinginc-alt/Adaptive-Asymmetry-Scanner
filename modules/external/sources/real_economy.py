@@ -189,7 +189,7 @@ def _parse_eurostat_jsonstat_generic(data: dict, code: str, source_id: str, data
                 codes = idx
             else:
                 codes = list(range(len(lbl)))
-            return {str(c): str(l) for c, l in zip(codes, lbl)}
+            return {str(c): str(lab) for c, lab in zip(codes, lbl)}
         return {}
 
     pos = {name: i for i, name in enumerate(ids)}

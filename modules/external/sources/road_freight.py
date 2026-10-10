@@ -370,16 +370,16 @@ class DestatisTruckTollConnector(Connector):
     def _classic_metric(label: str) -> str | None:
         """Spaltenlabel -> Metrik. X13 kalender- und saisonbereinigt ist die
         Standard-SA-Reihe (index_sa); Alternativverfahren eigene Metriken."""
-        l = label.lower()
-        if not l:
+        ln = label.lower()
+        if not ln:
             return None
-        if "originalwert" in l:
+        if "originalwert" in ln:
             return "index_unadjusted"
-        if "trend" in l:
+        if "trend" in ln:
             return "index_trend"
-        if "saison" in l:
-            return "index_sa" if ("x13" in l or "bv4" not in l) else "index_sa_bv41"
-        if "kalender" in l:
+        if "saison" in ln:
+            return "index_sa" if ("x13" in ln or "bv4" not in ln) else "index_sa_bv41"
+        if "kalender" in ln:
             return "index_calendar_adjusted"
         return None
 
@@ -920,7 +920,7 @@ class BtsFreightTsiConnector(Connector):
             )
         raw.append(_raw(self.source_id, "fredgraph_csv_fallback", res))
         text = res.content.decode("utf-8", errors="replace")
-        lines = [l for l in text.strip().split("\n") if l and not l.upper().startswith("DATE")]
+        lines = [ln for ln in text.strip().split("\n") if ln and not ln.upper().startswith("DATE")]
         if not lines:
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED, raw=raw,

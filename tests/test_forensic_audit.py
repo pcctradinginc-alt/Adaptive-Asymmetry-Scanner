@@ -336,7 +336,8 @@ def test_A5_sp500_changes_parser_and_pit_membership():
     assert ch[0] == {"date": "2016-06-03", "added": None, "removed": "ZZZ"}
     assert ch[1]["added"] == "BRK-B" and ch[2]["removed"] == "XXX"
     iv = u.membership_intervals(["AAA", "BRK-B", "CCC"], ch)
-    at = lambda d: sorted(t for t, x in iv.items() if u.is_member(x, d))
+    def at(d):
+        return sorted(t for t, x in iv.items() if u.is_member(x, d))
     assert at("2021-03-01") == ["AAA", "BRK-B", "CCC"]
     assert at("2019-03-01") == ["AAA", "BRK-B", "XXX"]          # CCC noch nicht, XXX noch Mitglied
     assert at("2017-03-01") == ["AAA", "XXX", "YYY"]

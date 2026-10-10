@@ -117,3 +117,31 @@ def test_unregistered_ea_contracts_valid_after_filter_change():
         assert hc.signal_names(c["population_filter"]) <= set(c["features"]), c["hypothesis_id"]
         assert not hc.validate(c), (c["hypothesis_id"], hc.validate(c))
     assert pd.Timestamp(cs[0]["forward_start"]) > pd.Timestamp(cs[0]["registered_at"])
+
+
+def test_e2e_report_and_mail_values_equal_ledger(tmp_path, data):
+    """E2E: Kandidaten -> These/Status -> Ledger -> Outcomes -> Evaluation -> Montagsbericht/Mail.
+    Bericht und Mail zeigen exakt die Ledger-/Entscheidungswerte, nur als SHADOW, nie Ticker in der Mail."""
+    from modules import email_reporter as er
+    from reports import weekly
+    root = tmp_path / "outputs" / "expectation_alpha"
+    an = [fx.make_analysis("AAPL"), fx.make_analysis("XOM", sector="Energy", impact=2, surprise=1),
+          fx.make_analysis("ZZZ", sector=None, impact=None)]
+    s = ea.enrich_candidates(an, decision_time=DT, cfg=CFG, loaders=fx.loaders(data["px"], data["ar"], data["cm"]),
+                             root=root, contracts=[], registry=tmp_path / "r.jsonl")
+    rows = eal.read_rows(root)
+    by = {k: sum(1 for r in rows if r["status"] == k) for k in (TRADE, WAIT, ABSTAIN, ERROR)}
+    assert s["status_counts"] == by and s["recorded"] == len(rows) == 3
+    eal.resolve_outcomes(today=date(2027, 1, 15), root=root, bars_fn=fx.bars_fn_from(data["px"]), cfg=CFG)
+    rep = ev.run(root=root, cfg=CFG, promotion_state={}, write=True)
+    assert rep["population"]["n"] == 3 and rep["population"]["by_status"] == {k: v for k, v in by.items() if v}
+    wk = weekly.collect(tmp_path, "2027-01-15", state_path=tmp_path / "st.json")
+    txt = repr(weekly.expectation_alpha_section(wk))
+    assert "SHADOW" in txt and "keine Handelsempfehlung" in txt
+    assert "('Population n', '3')" in txt
+    sc = wk["ea_runs"][-1]["status_counts"]
+    assert sc == by                                                       # Bericht liest den Lauf aus runs.jsonl
+    html = er._ea_shadow_html(s)
+    assert "SHADOW" in html and "keine Handelsempfehlung" in html
+    assert f"Shadow-TRADE {by[TRADE]}" in html and f"ABSTAIN {by[ABSTAIN]}" in html and f"ERROR {by[ERROR]}" in html
+    assert not any(t in html for t in ("AAPL", "XOM", "ZZZ"))            # nie Ticker, nie Einzelempfehlung

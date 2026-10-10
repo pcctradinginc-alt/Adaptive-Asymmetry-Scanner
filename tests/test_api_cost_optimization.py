@@ -186,7 +186,8 @@ def test_contract_selection_identical_with_and_without_cache(monkeypatch):
     monkeypatch.setattr(rc, "cache_ttl_s", lambda *a: 0.0)                      # Baseline: ohne Cache
     rc.reset()
     baseline = market_snapshot.select_contract("AAA", "BULLISH", 90, 103.0)
-    strip = (lambda d: {k: v for k, v in d.items() if k != "quote_ts"})
+    def strip(d):
+        return ({k: v for k, v in d.items() if k != "quote_ts"})
     assert strip(with_cache[0]) == strip(with_cache[1]) == strip(baseline)
     assert baseline["strike"] == 100.0 and baseline["bid"] == 4.0 and baseline["ask"] == 4.4
 

@@ -396,10 +396,12 @@ def test_divergence_agreement_labels():
 
 def test_drop_incomplete_last():
     s = _series([1.0, 2.0, 3.0])
-    far_future_end = lambda t: datetime(2999, 1, 1, tzinfo=UTC)
+    def far_future_end(t):
+        return datetime(2999, 1, 1, tzinfo=UTC)
     out = feat.drop_incomplete_last(s, far_future_end)
     assert len(out) == 2
-    past_end = lambda t: datetime(2000, 1, 1, tzinfo=UTC)
+    def past_end(t):
+        return datetime(2000, 1, 1, tzinfo=UTC)
     out2 = feat.drop_incomplete_last(s, past_end)
     assert len(out2) == 3
 

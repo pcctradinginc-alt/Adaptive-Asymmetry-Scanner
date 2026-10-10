@@ -408,7 +408,7 @@ def write_nws_locations_manifest(discovered: dict, locations: list[dict],
             existing = json.loads(path.read_text())
         except Exception:
             existing = {}
-    by_code = {l["code"]: l for l in locations}
+    by_code = {loc_["code"]: loc_ for loc_ in locations}
     now_iso = utc_now().isoformat(timespec="seconds")
     for code, grid in discovered.items():
         loc = by_code.get(code, {})
@@ -435,8 +435,8 @@ class NwsForecastConnector(Connector):
         cfg = load_weather_locations(self.cfg.get("locations_config", "config/weather_locations.yaml"))
         locs = all_locations(cfg)
         if codes:
-            locs = [l for l in locs if l.get("code") in codes]
-        return [l for l in locs if l.get("lat") is not None and l.get("lon") is not None]
+            locs = [loc_ for loc_ in locs if loc_.get("code") in codes]
+        return [loc_ for loc_ in locs if loc_.get("lat") is not None and loc_.get("lon") is not None]
 
     def _forecast_days(self) -> int:
         try:
@@ -594,7 +594,7 @@ class NwsAlertsConnector(Connector):
 
     def _locations(self) -> list[dict]:
         cfg = load_weather_locations(self.cfg.get("locations_config", "config/weather_locations.yaml"))
-        return [l for l in all_locations(cfg) if l.get("lat") is not None and l.get("lon") is not None]
+        return [loc_ for loc_ in all_locations(cfg) if loc_.get("lat") is not None and loc_.get("lon") is not None]
 
     def fetch(self, now: datetime) -> ConnectorResult:
         base_url = self.cfg.get("base_url", "https://api.weather.gov")
@@ -724,7 +724,7 @@ class NceiNormalsConnector(Connector):
 
     def _locations(self) -> list[dict]:
         cfg = load_weather_locations(self.cfg.get("locations_config", "config/weather_locations.yaml"))
-        return [l for l in all_locations(cfg) if l.get("lat") is not None and l.get("lon") is not None]
+        return [loc_ for loc_ in all_locations(cfg) if loc_.get("lat") is not None and loc_.get("lon") is not None]
 
     def _resolve_station(self, loc: dict, headers: dict, raw: list) -> dict | None:
         override = (self.cfg.get("station_overrides") or {}).get(loc["code"])

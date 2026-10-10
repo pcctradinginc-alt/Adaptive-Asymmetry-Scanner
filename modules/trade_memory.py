@@ -374,14 +374,14 @@ def aggregate_failures(cases: list[dict], last_n: int = 100) -> dict:
     comparison = {}
     for k in NUMERIC_FEATURES:
         w = [c["features"][k] for c in wins if k in c.get("features", {})]
-        l = [c["features"][k] for c in rel_l if k in c.get("features", {})]
-        if not w or not l:
+        vals_ = [c["features"][k] for c in rel_l if k in c.get("features", {})]
+        if not w or not vals_:
             continue
-        sd_all = statistics.pstdev(w + l) if len(w + l) > 1 else 0.0
-        diff = _mean(w) - _mean(l)
+        sd_all = statistics.pstdev(w + vals_) if len(w + vals_) > 1 else 0.0
+        diff = _mean(w) - _mean(vals_)
         comparison[k] = {
-            "mean_winners": _mean(w), "mean_losers": _mean(l),
-            "n_winners": len(w), "n_losers": len(l),
+            "mean_winners": _mean(w), "mean_losers": _mean(vals_),
+            "n_winners": len(w), "n_losers": len(vals_),
             "diff": diff,
             "effect_size": diff / sd_all if sd_all > 0 else None,  # standardisiert (Cohen-d-artig)
         }
