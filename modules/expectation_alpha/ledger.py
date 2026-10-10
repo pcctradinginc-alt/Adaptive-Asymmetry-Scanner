@@ -307,6 +307,7 @@ def resolve_outcomes(*, today: date | None = None, root: Path | None = None, bar
         # Einstieg = erster Schlusskurs NACH der Entscheidung (thesis.entry_not_before)
         d0 = date.fromisoformat(r.get("entry_not_before") or r["date"])
         sign = float(r["direction_sign"])
+        exprs_ok = tm.verify_expressions(r)        # nachträglich veränderte Counterfactuals -> nie attribuiert
         for ex in r.get("expressions") or []:
             if not ex.get("available") or not ex.get("symbol"):
                 continue
@@ -337,7 +338,11 @@ def resolve_outcomes(*, today: date | None = None, root: Path | None = None, bar
                 base = {"observation_id": r["observation_id"], "expression": ex["expression"], "symbol": ex["symbol"],
                         "variant": v, "horizon": h, "outcome_method": OUTCOME_METHOD,
                         "resolved_at": today.isoformat(), "decision_date": r["date"], "status": r.get("status")}
-                if v == "immediate":
+                if not exprs_ok:
+                    stats["expression_hash_mismatch"] = stats.get("expression_hash_mismatch", 0) + 1
+                    e = {**base, "entry": "DATA_BAD", "outcome": None, "outcome_net": None,
+                         "integrity": "EXPRESSION_HASH_MISMATCH"}
+                elif v == "immediate":
                     e = {**base, **_path(bars, i0, i1, sign, cost), "entry": "ENTERED"}
                 elif v == "triggered" and not tm.verify_trigger(r.get("wait_trigger") or {}):
                     stats["trigger_hash_mismatch"] = stats.get("trigger_hash_mismatch", 0) + 1

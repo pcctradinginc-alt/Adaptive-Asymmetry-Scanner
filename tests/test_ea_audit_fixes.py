@@ -145,3 +145,60 @@ def test_e2e_report_and_mail_values_equal_ledger(tmp_path, data):
     assert "SHADOW" in html and "keine Handelsempfehlung" in html
     assert f"Shadow-TRADE {by[TRADE]}" in html and f"ABSTAIN {by[ABSTAIN]}" in html and f"ERROR {by[ERROR]}" in html
     assert not any(t in html for t in ("AAPL", "XOM", "ZZZ"))            # nie Ticker, nie Einzelempfehlung
+
+
+def test_calibration_buckets_values_exclude_error_and_missing(tmp_path):
+    """Re-Audit 2026-10-10: Kalibrierung rechnet je Bucket den Netto-Mittelwert der eingefrorenen Quote;
+    fehlende Quote zählt in keinen Bucket, ERROR-Zeilen nie, Obergrenze 1,0 gehört in den letzten Bucket."""
+    ph = int((CFG.get("outcomes") or {}).get("primary_horizon", 60))
+    rows, outs = [], []
+    spec = [("lo", 0.1, -0.02, TRADE, 30), ("hi", 0.7, 0.03, ABSTAIN, 30), ("top", 1.0, 0.05, WAIT, 30),
+            ("none", None, 0.5, TRADE, 5), ("err", 0.7, 1.0, ERROR, 30)]
+    for tag, ratio, net, status, n in spec:
+        for i in range(n):
+            oid = f"{tag}{i:03d}"
+            rows.append({"observation_id": oid, "stage": "EA_NEWS_CANDIDATE", "status": status,
+                         "date": f"2026-10-{1 + i % 28:02d}", "ticker": oid.upper(), "group": "A",
+                         "timestamp": "2026-10-01T15:00:00+00:00", "confirmation_ratio": ratio,
+                         "effective_confirmation_ratio": ratio,
+                         "selected_expression": {"selected_expression": "UNDERLYING"},
+                         "expressions": [{"expression": "UNDERLYING"}]})
+            outs.append({"observation_id": oid, "expression": "UNDERLYING", "variant": "immediate", "horizon": ph,
+                         "outcome_net": net, "outcome": net + 0.002, "mfe": 0.0, "mae": 0.0,
+                         "exit_date": "2027-01-06", "outcome_method": eal.OUTCOME_METHOD})
+    eal.append_jsonl(eal.paths(tmp_path)["candidates"] / "2026-10.jsonl", rows, sort_keys=True)
+    eal.append_jsonl(eal.paths(tmp_path)["outcomes"], outs, sort_keys=True)
+    rep = ev.run(root=tmp_path, cfg=CFG, promotion_state={}, write=False)
+    for field in ("calibration_confirmation", "calibration_effective_confirmation"):
+        cal = {c["bucket"]: c for c in rep[field]}
+        assert cal["[0.0,0.3]"]["n"] == 30 and cal["[0.0,0.3]"]["mean"] == pytest.approx(-0.02)
+        assert cal["[0.3,0.6]"]["n"] == 0 and cal["[0.3,0.6]"]["status"] == "NEED_MORE_DATA"
+        assert cal["[0.6,0.8]"]["n"] == 30 and cal["[0.6,0.8]"]["mean"] == pytest.approx(0.03)    # ERROR nie dabei
+        assert cal["[0.8,1.0]"]["n"] == 30 and cal["[0.8,1.0]"]["mean"] == pytest.approx(0.05)    # 1,0 inklusive
+        assert sum(c["n"] for c in cal.values()) == 90                                          # fehlend: kein Bucket
+
+
+def test_tampered_counterfactual_expressions_are_data_bad(tmp_path, data):
+    """Re-Audit 2026-10-10: Counterfactuals nur mit den vorab eingefrorenen Expressions. Wird die Liste nachträglich
+    verändert (Expression ergänzt, Kosten gesenkt), passt registry_hash nicht mehr -> DATA_BAD, nie attribuiert."""
+    _run(tmp_path, data, [fx.make_analysis("AAPL")])
+    r = eal.read_rows(tmp_path)[0]
+    assert tm.verify_expressions(r)                                         # unverändert: gültig
+    added = json.loads(json.dumps(r))
+    added["observation_id"] = "exprtampered0001"
+    added["expressions"].append({"expression": "XLE", "symbol": "XLE", "instrument": "etf",
+                                 "cost_per_side": 0.0, "available": True})   # Hindsight-Alternative
+    cheaper = json.loads(json.dumps(r))
+    cheaper["observation_id"] = "exprtampered0002"
+    cheaper["expressions"][0]["cost_per_side"] = 0.0                         # Kosten nachträglich gesenkt
+    assert not tm.verify_expressions(added) and not tm.verify_expressions(cheaper)
+    eal.append_jsonl(eal.paths(tmp_path)["candidates"] / f"{r['date']}.jsonl", [added, cheaper], sort_keys=True,
+                     default=str)
+    st = eal.resolve_outcomes(today=date(2027, 6, 30), root=tmp_path, bars_fn=fx.bars_fn_from(data["px"]), cfg=CFG)
+    assert st.get("expression_hash_mismatch", 0) >= 2
+    outs = eal.read_outcomes(tmp_path)
+    for oid in ("exprtampered0001", "exprtampered0002"):
+        mine = [e for k, e in outs.items() if k[0] == oid]
+        assert mine and all(e["entry"] == "DATA_BAD" and e["outcome_net"] is None for e in mine)
+    good = [e for k, e in outs.items() if k[0] == r["observation_id"]]
+    assert good and all(e["entry"] != "DATA_BAD" for e in good)               # Original bleibt bewertbar

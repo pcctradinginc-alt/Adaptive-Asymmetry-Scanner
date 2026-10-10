@@ -179,3 +179,36 @@ def test_meta_p_take_flows_into_decision_ledger_with_version(tmp_path, monkeypat
     assert kept and not blocked                                                      # SHADOW: nie Wirkung
     assert recs[0]["meta_label"]["version"] == c["meta_label_version"]
     assert recs[0]["intelligence"][hc.key(meta)]["evaluable"] is True
+
+
+def test_champion_output_identical_with_and_without_trained_meta_model(tmp_path):
+    """Learning Engine im Shadow: Ein trainiertes Meta-Modell und alle Repo-Verträge (inkl. PROM-META-001) ohne
+    freigegebene Stufe ändern weder Auswahl, Reihenfolge, Blockaden noch Positionsgröße des Champions."""
+    import copy
+
+    from tests.test_learning_engine import _recs
+    props = [{"ticker": f"T{i}", "features": {"impact": 1 + i, "surprise": 9 - i, "risk_flag": i % 2},
+              "deep_analysis": {"direction": "BULLISH" if i % 2 else "BEARISH"}, "trade_score": {"total": 60 + i},
+              "sector": "Tech", "strategy": "LONG_CALL", "option": {"ask": 1.5}, "roi_analysis": {"roi_net": 1.2},
+              "simulation": {"hit_rate": 0.6}} for i in range(5)]
+    contracts = hc.load(ROOT / "config" / "promotion_hypotheses.yaml")
+
+    def run(sub):
+        kept, blocked, recs = pia.apply_to_proposals(copy.deepcopy(props), vix=14, context={"safe_mode_active": 0},
+                                                     state_path=tmp_path / "kein_state.json", contracts=contracts,
+                                                     registry=tmp_path / f"{sub}_reg.jsonl",
+                                                     transitions=tmp_path / f"{sub}_tr.jsonl",
+                                                     ledger_dir=tmp_path / sub, policy=POLICY)
+        return kept, blocked, recs, ps.enrich_with_sizing(copy.deepcopy(kept))
+
+    k0, b0, r0, s0 = run("ohne")
+    t = datetime(2025, 4, 1, tzinfo=UTC)
+    ml.train(recs=_recs(), root=ml.ROOT, as_of=t.date(), now=t)
+    k1, b1, r1, s1 = run("mit")
+    assert all(r["meta_label"]["p_take"] is None for r in r0)
+    assert all(r["meta_label"]["p_take"] is not None for r in r1)                    # Modell lief wirklich
+    assert [p["ticker"] for p in k1] == [p["ticker"] for p in k0] == [p["ticker"] for p in props] and b0 == b1 == []
+    assert [r["final_production_decision"] for r in r1] == [r["final_production_decision"] for r in r0]
+    assert [p["position_sizing"] for p in s1] == [p["position_sizing"] for p in s0]
+    assert all("intelligence_size_multiplier" not in p for p in k0 + k1)
+    assert all(r["influence_level"] == "NONE" for r in r0 + r1)

@@ -63,6 +63,13 @@ def verify_trigger(trig: dict) -> bool:
         {k: v for k, v in trig.items() if k != "trigger_hash"}) == trig["trigger_hash"]
 
 
+def verify_expressions(row: dict) -> bool:
+    """True, wenn die zum Entscheidungszeitpunkt eingefrorenen Expressions (Counterfactuals) unverändert sind:
+    Hash der Liste == selected_expression.registry_hash (Re-Audit 2026-10-10, symmetrisch zu Kill/Trigger)."""
+    h = (row.get("selected_expression") or {}).get("registry_hash")
+    return bool(h) and canonical_hash(row.get("expressions") or []) == h
+
+
 def wait_trigger(cfg: dict) -> dict:
     wt = (cfg.get("decision") or {}).get("wait_trigger") or {}
     t = {"any_of": [dict(x) for x in wt.get("any_of") or []],
