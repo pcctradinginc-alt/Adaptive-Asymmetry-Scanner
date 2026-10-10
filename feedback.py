@@ -22,7 +22,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -190,6 +190,15 @@ def _option_type_from_strategy(strategy: str) -> str:
     return "call"  # Default: Call (häufiger Fall)
 
 
+def _archive_exit_quote(raw: dict, ticker: str, source: str) -> None:
+    """Beobachtete Exit-/Mark-Quote dauerhaft archivieren (modules/option_quotes); bricht nie den Lern-Loop."""
+    try:
+        from modules import option_quotes as oq
+        oq.capture(raw, underlying=ticker, source=source, context="exit_mark")
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"Quote-Archiv Fehler (ignoriert): {e}")
+
+
 def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: str) -> dict | None:
     """Bid/Ask via Tradier /v1/markets/options/chains (Strike ± 0.01)."""
     try:
@@ -208,6 +217,7 @@ def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: 
             if abs(float(o.get("strike", 0)) - float(strike)) > 0.01:
                 continue
             bid, ask = float(o.get("bid") or 0), float(o.get("ask") or 0)
+            _archive_exit_quote(o, ticker, "tradier")
             if bid > 0 or ask > 0:
                 return {"bid": bid, "ask": ask, "source": "tradier"}
         return None
@@ -228,6 +238,11 @@ def _yfinance_option_quote(ticker: str, strike: float, expiry: str, option_type:
         if matches.empty:
             return None
         row = matches.iloc[0]
+        _archive_exit_quote({"symbol": row.get("contractSymbol"), "strike": strike, "expiry": expiry,
+                             "right": option_type, "bid": row.get("bid"), "ask": row.get("ask"),
+                             "last": row.get("lastPrice"), "volume": row.get("volume"),
+                             "open_interest": row.get("openInterest"), "iv": row.get("impliedVolatility"),
+                             "trade_date": row.get("lastTradeDate")}, ticker, "yfinance")
         return {"bid": float(row["bid"] or 0), "ask": float(row["ask"] or 0), "source": "yfinance"}
     except Exception as e:
         log.warning(f"yfinance Options-Preis Fehler für {ticker}: {e}")
@@ -992,6 +1007,68 @@ def update_feature_stats_external(history: dict, trade: dict) -> None:
         _update_external_bucket(dim_bucket, key, outcome, strat_ret)
 
 
+TRADE_OUTCOMES_PATH = Path("outputs/options_archive/trade_outcomes.jsonl")
+COST_MODEL_VERSION = "cost-v1-commission-per-contract-side"
+
+
+def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime | None = None,
+                         path: Path | None = None) -> dict | None:
+    """Reproduzierbarer Options-Outcome je geschlossenem Trade (Evidence Engine, append-only, je trade_id einmal):
+    Kontrakt-Identität, Entry-Quote-IDs (beim Booking archiviert), Exit-Quote-IDs (jüngste archivierte Quote zum
+    Schlusszeitpunkt, PIT), Methode/Preistyp, explizites Kostenmodell (Kommission je Kontrakt und Seite, wie im
+    ROI-Gate) -> outcome (brutto, nach Bid/Ask-Kreuzung) und outcome_net (nach Kommission). Setzt
+    trade["outcome_net"] und trade["cost_model"]. Bricht den Lern-Loop nie."""
+    try:
+        from modules import learning_ledger as _ll
+        from modules import option_quotes as oq
+        from modules.atomic_io import append_jsonl, read_jsonl
+        now = now or datetime.now(timezone.utc)
+        path = path or (Path(oq.ROOT).parent / TRADE_OUTCOMES_PATH.name)   # neben dem Quote-Archiv
+        opt = trade.get("option") or {}
+        strategy = str(trade.get("strategy") or "")
+        right = _option_type_from_strategy(strategy)
+        legs = [opt] + ([opt["spread_leg"]] if opt.get("spread_leg") else [])
+        syms = []
+        for leg in legs:
+            sym = leg.get("option_symbol") or leg.get("symbol")
+            if not sym:
+                try:
+                    sym = oq.occ_symbol(trade.get("ticker"), leg.get("expiry") or opt.get("expiry"), right,
+                                        float(leg.get("strike")))
+                except (TypeError, ValueError):
+                    sym = None
+            syms.append(sym)
+        exit_ids = []
+        for sym in syms:
+            q = oq.latest_quote(sym, now, lookback_days=1) if sym else None
+            exit_ids.append(q["record_id"] if q else None)
+        debit = float(trade.get("entry_debit") or 0)
+        per_contract = float(getattr(getattr(cfg, "costs", None), "commission_per_contract", 0.65))
+        cost_ret = (per_contract * len(legs) * 2) / (debit * 100) if debit > 0 else None
+        net = round(outcome - cost_ret, 6) if cost_ret is not None else None
+        cost_model = {"version": COST_MODEL_VERSION, "commission_per_contract_side": per_contract,
+                      "legs": len(legs), "sides": 2, "multiplier": 100, "cost_return": round(cost_ret, 6)
+                      if cost_ret is not None else None,
+                      "note": "Bid/Ask-Kreuzung bereits im Brutto-Outcome (Entry Ask, Exit Bid); keine OCC-/Börsengebühren"}
+        trade["outcome_net"], trade["cost_model"] = net, cost_model
+        tid = _ll.trade_id(trade)
+        if any(r.get("trade_id") == tid for r in read_jsonl(path)):
+            return None
+        rec = {"schema": "trade-outcome-v1", "trade_id": tid, "ticker": trade.get("ticker"), "strategy": strategy,
+               "entry_date": trade.get("entry_date"), "close_date": trade.get("close_date"),
+               "close_reason": trade.get("close_reason"), "occ_symbols": syms,
+               "entry_debit": debit or None, "entry_quote_record_ids": trade.get("entry_quote_record_ids") or [],
+               "exit_quote_record_ids": exit_ids, "outcome": round(outcome, 6), "outcome_net": net,
+               "outcome_method": meta.get("method"), "price_type": meta.get("price_type"),
+               "reliable": meta.get("method") in RELIABLE_OUTCOME_METHODS, "cost_model": cost_model,
+               "recorded_at": now.isoformat(timespec="seconds")}
+        append_jsonl(path, [rec], sort_keys=True, ensure_ascii=False)
+        return rec
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"  [{trade.get('ticker')}] Trade-Outcome-Record Fehler (ignoriert): {type(e).__name__}: {e}")
+        return None
+
+
 def learn_on_close(history: dict, trade: dict, outcome: float, reliable: bool) -> dict:
     """Inkrementelle Lern-Updates beim Trade-Close – je (Trade, "close", Lernziel) genau einmal
     (modules/learning_ledger). Nur verlässliche Outcomes (echte Quotes) werden gelernt; Näherungen werden
@@ -1254,6 +1331,7 @@ def main() -> None:
             trade["outcome_method"] = meta.get("method", "unknown")
             trade["outcome_price_type"] = meta.get("price_type")     # OBSERVED_QUOTE | SETTLEMENT_INTRINSIC | MODELED | …
             _spread_execution_exit(trade, _spread_obs, today)
+            record_trade_outcome(trade, outcome, meta)
             learn_on_close(history, trade, outcome, reliable)
             history.setdefault("closed_trades", []).append(trade)
             log.info(

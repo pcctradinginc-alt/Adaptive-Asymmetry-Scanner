@@ -425,11 +425,38 @@ def book_proposals(trade_proposals: list[dict], history: dict, today: str, trade
                             "open_since": _open_since.get(p["ticker"]), "trade_score_min": trade_score_min}
             continue
         _at_dict = build_trade_record(p, today)
+        _at_dict["entry_quote_record_ids"] = _archive_entry_quotes(p)
         history["active_trades"].append(_at_dict)
         existing.add(key)
         cooled_tickers.add(p["ticker"])
         p["booking"] = {"status": "BOOKED", "trade_score_min": trade_score_min}
     return sum(1 for p in trade_proposals if (p.get("booking") or {}).get("status") == "BOOKED")
+
+
+def _archive_entry_quotes(p: dict) -> list[str]:
+    """Entry-Quote(s) eines gebuchten Trades dauerhaft archivieren (Long-Leg + ggf. Short-Leg). Nur beobachtete
+    Werte: IV/Delta-Defaults des Options-Designers werden nicht als Quote ausgegeben. Bricht die Buchung nie."""
+    ids: list[str] = []
+    try:
+        from modules import option_quotes as oq
+        opt = p.get("option") or {}
+        right = "put" if "PUT" in str(p.get("strategy", "")).upper() else "call"
+        src = opt.get("data_source") or "options_designer"
+        legs = [(opt, opt.get("option_symbol"))]
+        if opt.get("spread_leg"):
+            legs.append((opt["spread_leg"], (opt["spread_leg"] or {}).get("symbol")))
+        for leg, sym in legs:
+            raw = {"symbol": sym, "strike": leg.get("strike"), "expiry": leg.get("expiry") or opt.get("expiry"),
+                   "right": right, "bid": leg.get("bid"), "ask": leg.get("ask"),
+                   "open_interest": leg.get("open_interest"), "volume": leg.get("volume"),
+                   "iv": leg.get("implied_vol") if leg.get("iv_source", "chain") == "chain" else None,
+                   "delta": leg.get("delta") if leg.get("delta_source", "chain") == "chain" else None}
+            rid = oq.capture(raw, underlying=p.get("ticker") or "", source=src, context="trade_entry")
+            if rid:
+                ids.append(rid)
+    except Exception as e:  # noqa: BLE001 – Archiv ist Beobachtung, nie Buchungsbedingung
+        log.debug(f"Entry-Quote-Archiv Fehler (ignoriert): {e}")
+    return ids
 
 
 def build_trade_record(p: dict, today: str) -> dict:

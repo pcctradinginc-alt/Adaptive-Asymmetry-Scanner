@@ -418,10 +418,15 @@ def _tradier_chain_to_df(options: list[dict], option_type: str) -> pd.DataFrame:
             or greeks.get("smv_vol")
             or 0.30
         )
+        # Champion-Verhalten unverändert (IV-Default 0,30 / Delta 0,0), aber sichtbar gekennzeichnet:
+        # ein Default ist KEIN beobachteter Wert (nie als Quote archivieren, nie als Evidenz verwenden)
+        iv_defaulted = not (isinstance(greeks.get("mid_iv") or greeks.get("smv_vol"), (int, float))
+                            and (greeks.get("mid_iv") or greeks.get("smv_vol")) > 0.01)
         if not isinstance(iv, (int, float)) or iv <= 0.01:
             iv = 0.30
 
         delta = greeks.get("delta")
+        delta_missing = not isinstance(delta, (int, float))
         delta = float(delta) if isinstance(delta, (int, float)) else 0.0
 
         rows.append({
@@ -433,6 +438,8 @@ def _tradier_chain_to_df(options: list[dict], option_type: str) -> pd.DataFrame:
             "delta":             delta,
             "volume":            int(o.get("volume") or 0),
             "_option_symbol":    o.get("symbol", ""),
+            "iv_defaulted":      iv_defaulted,
+            "delta_missing":     delta_missing,
         })
 
     if not rows:
@@ -1092,6 +1099,11 @@ class OptionsDesigner:
                 "dte":           int(dte),
                 "delta":         float(best.get("delta", 0)),
                 "data_source":   "tradier",
+                # Kontrakt-Identität + Herkunft der Greeks (Defaults nie als beobachtet ausgeben)
+                "option_symbol": best.get("_option_symbol") or None,
+                "volume":        int(best.get("volume", 0) or 0),
+                "iv_source":     "default_0.30" if bool(best.get("iv_defaulted", False)) else "chain",
+                "delta_source":  "missing" if bool(best.get("delta_missing", False)) else "chain",
                 # Providerwechsel nie verborgen (Source Health): Primary vs. tatsächlich genutzt
                 "source_primary": "options_chain",
                 "source_actual":  "options_chain",

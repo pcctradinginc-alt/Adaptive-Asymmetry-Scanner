@@ -544,6 +544,7 @@ def select_contract(ticker: str, direction: str, dte_floor: int, spot: float) ->
                 return float("inf")
 
         best   = min(candidates, key=_dist)
+        _archive_quote(best, ticker, "candidate_entry")
         greeks = best.get("greeks") or {}
         iv     = greeks.get("mid_iv") or greeks.get("smv_vol")
         iv     = float(iv) if isinstance(iv, (int, float)) and iv > 0 else None
@@ -601,6 +602,7 @@ def select_spread_short_leg(
             return None
 
         best = min(candidates, key=lambda o: abs(float(o.get("strike", 0)) - target_strike))
+        _archive_quote(best, ticker, "candidate_entry")
         bid = _f(best.get("bid"))
         ask = _f(best.get("ask"))
         mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
@@ -678,6 +680,16 @@ def fetch_term_iv_point(ticker: str, spot: float, min_dte: int = 7) -> tuple | N
         return None
 
 
+def _archive_quote(raw: dict, underlying: str, context: str) -> str | None:
+    """Beobachtete Tradier-Quote dauerhaft archivieren (modules/option_quotes); bricht nie den Aufrufer."""
+    try:
+        from modules import option_quotes as oq
+        return oq.capture(raw, underlying=underlying or "", source="tradier", context=context)
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"market_snapshot: Quote-Archiv Fehler (ignoriert): {e}")
+        return None
+
+
 def fetch_option_quotes(symbols: list[str]) -> dict:
     """
     Gebündelter Tradier-Quote-Abruf für OCC-Options-Symbole (für
@@ -696,6 +708,7 @@ def fetch_option_quotes(symbols: list[str]) -> dict:
                 sym = q.get("symbol")
                 if not sym:
                     continue
+                _archive_quote(q, q.get("underlying") or q.get("root_symbol") or "", "candidate_mark")
                 bid = _f(q.get("bid"))
                 ask = _f(q.get("ask"))
                 mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
