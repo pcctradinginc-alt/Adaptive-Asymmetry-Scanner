@@ -83,7 +83,11 @@ def test_family_alpha_separate_per_population():
     pol = hc.load_policy()
     a1 = pc.family_alpha(_repo("PROM-ABST-001@v1"), reg, pol)
     a2 = pc.family_alpha(_repo("PROM-ABST-001@v2"), reg, pol)
-    assert a1["hypothesis_family"] == "abstention" and a1["family_size"] == 5      # v1 unverändert
+    # Champion-Familie: alle Champion-Abstinenz-Verträge (PROM-ABST-001..005 v1 + PROM-META-001); FINAL_MC-Verträge
+    # zählen nie mit. Jede weitere registrierte Champion-Hypothese macht alpha_effective nur strenger.
+    champ = [c for c in hc.load() if c["production_class"] == "abstention" and c.get("eligible_stage") is None]
+    assert a1["hypothesis_family"] == "abstention" and a1["family_size"] == len(champ) == 6
+    assert a1["alpha_effective"] <= 0.05 / (5 * a1["planned_looks"])
     assert a2["hypothesis_family"] == "abstention@FINAL_MC_SURVIVOR" and a2["family_size"] == 5
 
 

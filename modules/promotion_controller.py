@@ -78,10 +78,11 @@ ALLOWED = {
     "FULL_PRODUCTION": {"LIMITED_PRODUCTION", "DEMOTED"},
     "DEMOTED": set(), "REJECTED": set(), "EXPIRED": set(),
 }
-DECISIONS = ("REJECT", "KEEP_SHADOW", "ALLOW_ABSTENTION", "ALLOW_RERANK", "ALLOW_10_PERCENT_WEIGHT",
+DECISIONS = ("REJECT", "KEEP_SHADOW", "ALLOW_ABSTENTION", "ALLOW_SIZE_DOWN", "ALLOW_RERANK", "ALLOW_10_PERCENT_WEIGHT",
              "ALLOW_TRADE_RECOMMENDATION",
              "ALLOW_25_PERCENT_WEIGHT", "RECOMMEND_FULL_PROMOTION", "DEMOTE", "ROLLBACK")
-LEVEL_OF_DECISION = {"ALLOW_ABSTENTION": "ABSTENTION_ONLY", "ALLOW_RERANK": "RERANK_ONLY",
+LEVEL_OF_DECISION = {"ALLOW_ABSTENTION": "ABSTENTION_ONLY", "ALLOW_SIZE_DOWN": "SIZE_DOWN_ONLY",
+                     "ALLOW_RERANK": "RERANK_ONLY",
                      "ALLOW_10_PERCENT_WEIGHT": "WEIGHT_10", "ALLOW_25_PERCENT_WEIGHT": "WEIGHT_25",
                      "ALLOW_TRADE_RECOMMENDATION": "TRADE_RECOMMENDATION_ENABLED"}
 # Einfluss-Leiter (ohne SCORE_LIMITED als eigene Weight-Stufe: Score-Klasse nutzt RERANK -> SCORE)
@@ -90,6 +91,8 @@ LADDER = {"abstention": ["NONE", "ABSTENTION_ONLY"],
           "score": ["NONE", "RERANK_ONLY", "SCORE_LIMITED"],
           "weight": ["NONE", "RERANK_ONLY", "WEIGHT_10", "WEIGHT_25"],
           "research_only": ["NONE"],
+          # Sizing: Positionsgröße nur verkleinern; über der automatischen Obergrenze -> nur per Freigabe
+          "sizing": ["NONE", "SIZE_DOWN_ONLY"],
           # UNIVERSE_V2-Segment: SHADOW -> RERANK -> LIMITED_WEIGHT -> eigene Trade-Empfehlungen (je Stufe Mensch)
           "universe_segment": ["NONE", "RERANK_ONLY", "WEIGHT_10", "TRADE_RECOMMENDATION_ENABLED"]}
 
@@ -672,8 +675,8 @@ def _monitor(contract, state, level, ladder, post_ev, ev, policy, res) -> dict:
             new_state = "LIMITED_PRODUCTION"
         res.update(decision="DEMOTE", new_state=new_state, influence_level=lower, reasons=reasons)
         return res
-    res.update(decision={"ABSTENTION_ONLY": "ALLOW_ABSTENTION", "RERANK_ONLY": "ALLOW_RERANK",
-                         "SCORE_LIMITED": "ALLOW_RERANK", "WEIGHT_10": "ALLOW_10_PERCENT_WEIGHT",
+    res.update(decision={"ABSTENTION_ONLY": "ALLOW_ABSTENTION", "SIZE_DOWN_ONLY": "ALLOW_SIZE_DOWN",
+                         "RERANK_ONLY": "ALLOW_RERANK", "SCORE_LIMITED": "ALLOW_RERANK", "WEIGHT_10": "ALLOW_10_PERCENT_WEIGHT",
                          "WEIGHT_25": "ALLOW_25_PERCENT_WEIGHT",
                          "TRADE_RECOMMENDATION_ENABLED": "ALLOW_TRADE_RECOMMENDATION"}.get(level, "KEEP_SHADOW"),
                reasons=[f"Monitoring ok ({post_ev['n_observations']} Beobachtungen seit Promotion)"])
@@ -751,11 +754,11 @@ def apply_approval(contract: dict, cur: dict | None, d: dict, appr: dict, ev: di
     trotz Forward-Validierung KEINEN Freigabeweg. Obergrenzen: Commodity-Verträge SCORE_LIMITED,
     sonst WEIGHT_10 (wie Vertragsvalidierung), Segmente TRADE_RECOMMENDATION_ENABLED."""
     cls = contract.get("production_class")
-    if cls not in ("universe_segment", "rerank", "score", "weight") or not appr.get("approved_level"):
+    if cls not in ("universe_segment", "rerank", "score", "weight", "sizing") or not appr.get("approved_level"):
         return d
     ladder = LADDER[cls]
     target = appr["approved_level"]
-    cap = ("TRADE_RECOMMENDATION_ENABLED" if cls == "universe_segment"
+    cap = ("TRADE_RECOMMENDATION_ENABLED" if cls == "universe_segment" else "SIZE_DOWN_ONLY" if cls == "sizing"
            else hc.COMMODITY_MAX_INFLUENCE if hc.is_commodity_contract(contract) else "WEIGHT_10")
     if target in hc.INFLUENCE_LEVELS and hc.INFLUENCE_LEVELS.index(target) > hc.INFLUENCE_LEVELS.index(cap):
         target = cap
@@ -890,7 +893,8 @@ def run(*, contracts: list[dict] | None = None, policy: dict | None = None, now:
                                  path=transitions, now=now_s, code_ver=cv, data_ver=dv)
             except TransitionError as e:
                 d["reasons"].append(f"Übergang verweigert: {e}")
-        if d["decision"] in ("ALLOW_ABSTENTION", "ALLOW_RERANK", "ALLOW_10_PERCENT_WEIGHT", "ALLOW_25_PERCENT_WEIGHT",
+        if d["decision"] in ("ALLOW_ABSTENTION", "ALLOW_SIZE_DOWN", "ALLOW_RERANK", "ALLOW_10_PERCENT_WEIGHT",
+                             "ALLOW_25_PERCENT_WEIGHT",
                              "ALLOW_TRADE_RECOMMENDATION", "RECOMMEND_FULL_PROMOTION") or d.get("recommendation"):
             state["notices"].append(_notice(c, cur, d, ev))
         state["hypotheses"][k] = {

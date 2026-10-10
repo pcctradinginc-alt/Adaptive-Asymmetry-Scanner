@@ -23,6 +23,7 @@ Blind-Spot-Sektoren (`next_validation.json`), ML-Karten (Modelluneinigkeit, erwa
 |---|---|---|
 | NONE (Shadow) | keine; nur „was Intelligence täte“ | – |
 | ABSTENTION_ONLY | Champion-Trade blockieren → Counterfactual-Trade (gleiche Exit-Regeln, kein Lernen) | nie neuer Trade |
+| SIZE_DOWN_ONLY | Positionsgröße × `size_multiplier` (nur Verkleinerung; wirkt auch im Safe Mode) | Faktor in [0,25; 1], `HARD_CAPS["min_size_multiplier"]` |
 | RERANK_ONLY | Reihenfolge der akzeptierten Trades | fehlt ein Signal → Champion-Reihenfolge |
 | SCORE_LIMITED | ± Score-Punkte | `HARD_CAPS["score_points"] = 3` |
 | WEIGHT_10 / WEIGHT_25 | P_final = (1−w)·P_champ + w·P_int | w ≤ 0,10 / 0,25; Summe ≤ 0,25 |
@@ -34,6 +35,11 @@ werden gekappt.
    kein Rerank; nur bereits freigegebene defensive Abstinenz greift. Intelligence kann Safe Mode nicht
    überschreiben.
 5. Score-Einfluss, der unter `trade_score_min` drückt, wirkt als Abstinenz (nie umgekehrt).
+6. **Kill-Switch** `config/production_kill_switch.yaml` (CODEOWNERS):
+   - `active: true` setzt alle Stufen auf NONE, die Produktion läuft also nur mit dem Champion.
+   - Die Verträge werden weiter ausgewertet und im Decision-Ledger protokolliert.
+   - Fehlt die Datei, ist der Kill-Switch aus.
+   - Ist die Datei unlesbar, gilt er als aktiv (fail-safe).
 
 ## Ausgabe je Trade (Decision-Ledger `outputs/intelligence/decision_ledger/YYYY-MM.jsonl`)
 
@@ -41,8 +47,8 @@ werden gekappt.
 intelligence_adjustment {score, score_raw, probability}, final_production_decision, production_score,
 influence_level, abstention_reason, active_hypotheses, hypothesis_versions, promotion_levels,
 intelligence {je Hypothese: spec_hash, level, state, in_scope, evaluable, fired, signal_value, applied},
-safe_mode_state, meta_model_version, world_model_version, data_snapshot (vix, env_hash), code_commit,
-evidence_snapshot, intelligence_rank`; später Outcome in `decision_outcomes.jsonl`.
+safe_mode_state, meta_model_version, meta_label {p_take, version}, size_multiplier (nur bei Sizing-Wirkung),
+world_model_version, data_snapshot (vix, env_hash), code_commit, evidence_snapshot, intelligence_rank`; später Outcome in `decision_outcomes.jsonl`.
 
 Damit bleibt jederzeit auswertbar: Was hätte der Champion allein getan, was hätte Intelligence getan,
 was wurde umgesetzt.

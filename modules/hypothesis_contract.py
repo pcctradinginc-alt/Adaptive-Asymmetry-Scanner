@@ -54,10 +54,14 @@ SOURCE_TYPES = ("blind_spot", "alpha_discovery", "regime_failure", "model_drift"
 # Produktionsklasse = höchste Wirkungsart, für die der Vertrag überhaupt gedacht ist
 # universe_segment: Freigabe eines UNIVERSE_V2-Segments (Market-Cap-/Liquiditäts-Bucket) – wirkt nur auf
 # V2-Kandidaten, nie auf V1-Champion-Trades; jede Stufe über NONE nur per menschlicher Freigabe.
-PRODUCTION_CLASSES = ("research_only", "abstention", "rerank", "score", "weight", "universe_segment")
-INFLUENCE_LEVELS = ("NONE", "ABSTENTION_ONLY", "RERANK_ONLY", "SCORE_LIMITED", "WEIGHT_10", "WEIGHT_25",
-                    "TRADE_RECOMMENDATION_ENABLED")
-_CLASS_MAX_LEVEL = {"research_only": "NONE", "abstention": "ABSTENTION_ONLY", "rerank": "RERANK_ONLY",
+# sizing: Positionsgröße NUR verkleinern (SIZE_DOWN_ONLY, Faktor in [0,25; 1)); liegt über ABSTENTION_ONLY und ist
+# damit nie automatisch – nur per menschlicher Freigabe (approved_level), eine Stufe je Look.
+PRODUCTION_CLASSES = ("research_only", "abstention", "rerank", "score", "weight", "universe_segment", "sizing")
+INFLUENCE_LEVELS = ("NONE", "ABSTENTION_ONLY", "SIZE_DOWN_ONLY", "RERANK_ONLY", "SCORE_LIMITED", "WEIGHT_10",
+                    "WEIGHT_25", "TRADE_RECOMMENDATION_ENABLED")
+MIN_SIZE_MULTIPLIER = 0.25
+_CLASS_MAX_LEVEL = {"research_only": "NONE", "abstention": "ABSTENTION_ONLY", "sizing": "SIZE_DOWN_ONLY",
+                    "rerank": "RERANK_ONLY",
                     "score": "SCORE_LIMITED", "weight": "WEIGHT_25",
                     "universe_segment": "TRADE_RECOMMENDATION_ENABLED"}
 _OPS = {">": lambda a, b: a > b, ">=": lambda a, b: a >= b, "<": lambda a, b: a < b,
@@ -240,6 +244,10 @@ def validate(c: dict, policy: dict | None = None) -> list[str]:
         errs.append(f"maximum_initial_influence {mx} überschreitet Klasse {c['production_class']}")
     elif INFLUENCE_LEVELS.index(mx) > INFLUENCE_LEVELS.index("WEIGHT_10"):
         errs.append("maximum_initial_influence darf höchstens WEIGHT_10 sein (25 % erst nach weiterer Evidenz)")
+    if c["production_class"] == "sizing":
+        m = c.get("size_multiplier")
+        if not isinstance(m, (int, float)) or not (MIN_SIZE_MULTIPLIER <= float(m) < 1.0):
+            errs.append(f"sizing-Vertrag braucht size_multiplier in [{MIN_SIZE_MULTIPLIER}; 1) – nur Verkleinerung")
     try:
         reg = datetime.fromisoformat(str(c["registered_at"]).replace("Z", "+00:00"))
         fwd = datetime.fromisoformat(str(c["forward_start"]).replace("Z", "+00:00"))

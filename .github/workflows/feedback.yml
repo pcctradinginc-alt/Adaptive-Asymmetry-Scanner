@@ -44,6 +44,13 @@ jobs:
           NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
         run: python feedback.py
 
+      - name: Meta-Label-Lernzyklus (SHADOW; Produktionswirkung nur über Vertrag PROM-META-001)
+        # Neue Outcomes -> neues Modell (Purged/Embargo-Walk-Forward, Manifest, höchstens wöchentlich);
+        # zu wenige Labels -> NEED_MORE_DATA. Fehler -> letzte aktive Version bleibt (Adapter: meta_p_take None).
+        id: meta_label
+        continue-on-error: true
+        run: python -m modules.meta_label train
+
       - name: Challenger-Vorschläge registrieren (nach 10 Wochen Ledger)
         id: registrar
         continue-on-error: true
@@ -75,5 +82,5 @@ jobs:
         if: always()
         env:
           CRITICAL: "promotion_controller=${{ steps.promotion.outcome }} challenger_registrar=${{ steps.registrar.outcome }}"
-          DEGRADED: "abstention_proposals=${{ steps.abstention.outcome }}"
+          DEGRADED: "abstention_proposals=${{ steps.abstention.outcome }} meta_label=${{ steps.meta_label.outcome }}"
         run: bash scripts/ci_stage_check.sh

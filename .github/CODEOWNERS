@@ -63,3 +63,8 @@ config/drift_policy.yaml           @pcctradinginc-alt
 modules/system_state.py            @pcctradinginc-alt
 modules/drift.py                   @pcctradinginc-alt
 tests/test_system_state.py         @pcctradinginc-alt
+# Master-Auftrag Learning Engine: Not-Aus, Meta-Label-Spezifikation, Evidence-Sicht
+config/production_kill_switch.yaml @pcctradinginc-alt
+modules/meta_label.py              @pcctradinginc-alt
+modules/evidence_ledger.py         @pcctradinginc-alt
+modules/evidence_core.py           @pcctradinginc-alt

@@ -42,10 +42,10 @@ Erreichbarkeit der 144 Module unter `modules/`:
 | 8 | Kosten (Kommission) fehlen im realisierten Champion-Outcome | MEDIUM | `outcome_net` im Trade-Outcome-Record (Brutto bleibt für Vergleichbarkeit) |
 | 9 | Rund 15 Bootstrap-Varianten; 4 parallele Trios aus `read_outcomes`, `resolve_outcomes` und `evidence`; doppelte Walk-Forward-Funktion | LOW–MEDIUM | `evidence_core` (eine Gruppen-Bootstrap-Funktion) für Research-Pfade; Walk-Forward zusammengeführt. Die Promotion-Statistik bleibt bewusst unverändert, weil sie ein eingefrorenes Produktions-Gate ist. |
 | 10 | 12 Roh-JSONL-Writer ohne atomaren Einmal-Write | LOW–MEDIUM | auf `atomic_io.append_jsonl` umgestellt |
-| 11 | Kein globaler Kill-Switch für Produktionseinfluss | MEDIUM | `promotion_policy.kill_switch` → Adapter = Champion |
-| 12 | Sizing- und Strategie-Stufe fehlt im Promotion-Prozess | MEDIUM | Klasse `sizing`: NONE → SIZE_DOWN_ONLY (nur verkleinern); automatisch nur bis zur Policy-Obergrenze |
+| 11 | Kein globaler Kill-Switch für Produktionseinfluss | MEDIUM | **behoben**: `config/production_kill_switch.yaml` (CODEOWNERS); aktiv oder unlesbar → Adapter = Champion, Auswertung und Logging laufen weiter |
+| 12 | Sizing- und Strategie-Stufe fehlt im Promotion-Prozess | MEDIUM | **behoben (Sizing)**: Klasse `sizing`, Stufe NONE → SIZE_DOWN_ONLY (nur verkleinern, Faktor ≥ 0,25), nur per menschlicher Freigabe. Neue Strategien bleiben bewusst nur per PR möglich. |
 | 13 | Survivorship: keine freie PIT-Indexhistorie für Nasdaq-100, keine Delisting-Preise | Datenlücke | dokumentiert; V2 sammelt prospektiv Snapshots |
-| 14 | `payload_hash` in den Archivzeilen leer, `quality_status` fehlt | LOW | Archiv setzt einen Zeilen-Hash und ein Qualitätskennzeichen |
+| 14 | `payload_hash` in den `external/*`-Archivzeilen leer, `quality_status` fehlt | LOW | **offen**: Das Options-Quote-Archiv hat beides von Anfang an (`option-quote-v1`). Das Nachrüsten der `external/*`-Archive ist ein eigener Schritt, weil es das Format bestehender Archive ändert. |
 
 ## 4. Migrationsplan (Reihenfolge = Risiko aufsteigend, je Schritt Tests)
 1. Korrektheit der Evidenz: Befunde 1–4, erledigt.
@@ -57,6 +57,9 @@ Erreichbarkeit der 144 Module unter `modules/`:
    - Shadow-Prognose-Ledger (unveränderlich).
 5. Promotion: Kill-Switch; Sizing-Stufe (nur Verkleinerung); Meta-Label-Wirkung nur über einen registrierten Vertrag (Abstinenz). Forward-Evidenz über den bestehenden Controller.
 6. Konsolidierung: Befunde 9, 10 und 14.
+
+Status 2026-10-10: Schritte 1–5 sind umgesetzt und technisch getestet. In Schritt 6 sind die Befunde 9 und 10
+umgesetzt; Befund 14 ist offen. Details zum Lernkreislauf und zur Datenlage stehen in `docs/LEARNING_ENGINE.md`.
 
 Leitplanken unverändert:
 - keine echten Orders;

@@ -33,7 +33,9 @@ from modules import promotion_controller as pc
 log = logging.getLogger(__name__)
 
 # Harte Decke – Policy kann nur senken, nie anheben.
-HARD_CAPS = {"score_points": 3.0, "weight": {"WEIGHT_10": 0.10, "WEIGHT_25": 0.25}, "max_weight": 0.25}
+HARD_CAPS = {"score_points": 3.0, "weight": {"WEIGHT_10": 0.10, "WEIGHT_25": 0.25}, "max_weight": 0.25,
+             "min_size_multiplier": hc.MIN_SIZE_MULTIPLIER}       # Sizing: nur verkleinern, nie unter 25 %
+KILL_SWITCH = Path("config/production_kill_switch.yaml")
 LEVEL_ORDER = hc.INFLUENCE_LEVELS
 NEXT_VALIDATION = Path("outputs/research/next_validation.json")
 ABSTAIN, TRADE = "ABSTAIN", "TRADE"
@@ -145,6 +147,14 @@ def candidate_env(p: dict, ctx: dict, vix=None) -> dict:
                     if k != "commodity_data_version"})
     except Exception as e:  # noqa: BLE001
         log.warning(f"Adapter: Commodity-Merkmale nicht ableitbar ({e})")
+    try:                                            # Meta-Label (Learning Engine); wirkt nur über PROM-META-001
+        from modules import meta_label as _ml
+        _mp = _ml.predict_one(p.get("features") or {}, (p.get("deep_analysis") or {}).get("direction"))
+        env["meta_p_take"] = _mp["p"] if _mp else None
+        env["meta_label_version"] = _mp["version"] if _mp else None     # Herkunft des Signals (Ledger-Audit)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Adapter: Meta-Label nicht verfügbar ({e})")
+        env["meta_p_take"] = env["meta_label_version"] = None
     for f in ctx.get("data_unavailable_features") or []:   # Source Health: Quelle nicht nutzbar -> unbekannt, nie alt/0
         if f in env:
             env[f] = None
@@ -163,6 +173,7 @@ def decide_for_trade(p: dict, env: dict, active: dict, *, safe_mode: bool, secto
     per_h, abstain_by, abstain_applied, score_raw, weights = {}, [], [], 0.0, []
     p_champ = env.get("champion_probability")
     rerank_score, rerank_missing = 0.0, False
+    size_mult, size_by = 1.0, []
     for k, a in active.items():
         c, level = a["contract"], a["level"]
         cls, direction = c["production_class"], int(c["direction"])
@@ -176,6 +187,13 @@ def decide_for_trade(p: dict, env: dict, active: dict, *, safe_mode: bool, secto
                 if level == "ABSTENTION_ONLY":              # angewendet nur bei Freigabe
                     abstain_applied.append(k)
                     applied = True
+        elif cls == "sizing":
+            # nur Verkleinerung; wirkt auch im Safe Mode (reduziert Risiko), nie über die harte Untergrenze
+            if f and level == "SIZE_DOWN_ONLY":
+                m = max(HARD_CAPS["min_size_multiplier"], min(1.0, float(c.get("size_multiplier", 1.0))))
+                size_mult = min(size_mult, m)
+                size_by.append(k)
+                applied = True
         elif cls in ("rerank", "score", "weight") and level in ("RERANK_ONLY", "SCORE_LIMITED", "WEIGHT_10",
                                                                  "WEIGHT_25"):
             if val is None:
@@ -217,7 +235,8 @@ def decide_for_trade(p: dict, env: dict, active: dict, *, safe_mode: bool, secto
             "abstain_applied_by": abstain_applied, "score_adjustment_raw": round(score_raw, 3),
             "score_adjustment": round(score_adj, 3), "probability_adjustment": prob_adj,
             "influence_level": max([a["level"] for a in active.values()] or ["NONE"], key=LEVEL_ORDER.index),
-            "rerank_score": None if rerank_missing else round(rerank_score, 6)}
+            "rerank_score": None if rerank_missing else round(rerank_score, 6),
+            "size_multiplier": round(size_mult, 4), "size_applied_by": size_by}
 
 
 def _config_version() -> str | None:
@@ -236,6 +255,19 @@ def _prompt_version() -> str | None:
 
 _CONFIG_VERSION = _config_version()
 _PROMPT_VERSION = None
+
+
+def kill_switch_active(path: Path | None = None) -> bool:
+    """Globaler Not-Aus für jeden Produktionseinfluss (Abstinenz, Rerank, Score, Gewicht, Sizing).
+    Datei fehlt -> nicht aktiv (verifizierte Stufen wie bisher); `active: true` -> nur Champion;
+    Datei unlesbar/defekt -> AKTIV (fail-safe: im Zweifel kein Einfluss)."""
+    p = path or KILL_SWITCH
+    try:
+        import yaml
+        return bool((yaml.safe_load(p.read_text(encoding="utf-8")) or {}).get("active", False)) if p.exists() else False
+    except Exception as e:  # noqa: BLE001 – unlesbar: lieber sicher (aktiv) als still Einfluss zulassen
+        log.error(f"Adapter: Kill-Switch-Datei unlesbar ({e}) – als AKTIV behandelt")
+        return True
 
 
 def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = None, context: dict | None = None,
@@ -261,6 +293,10 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
     from modules.final_mc_ledger import CHAMPION_STAGE, stage_of
     contracts = [c for c in contracts if stage_of(c) == CHAMPION_STAGE]
     active, problems = load_verified_state(state_path, contracts, registry, transitions)
+    if kill_switch_active():
+        # Not-Aus: alle Verträge weiter auswerten und protokollieren (Shadow), aber nichts anwenden -> Champion
+        log.warning("Adapter: KILL SWITCH aktiv (config/production_kill_switch.yaml) – kein Produktionseinfluss")
+        active = {k: {**a, "level": "NONE"} for k, a in active.items()}
     for pr in problems:
         log.warning(f"Adapter: {pr}")
     # Shadow-Auswertung auch ohne verifizierten State: alle gültig registrierten Verträge mit Einfluss NONE
@@ -325,6 +361,7 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
                "intelligence": d["hypotheses"], "safe_mode_state": safe_mode,
                "system_state_version": ctx.get("system_state_version"), "drift_level": ctx.get("drift_level"),
                "meta_model_version": (meta_versions or {}).get("meta_model_version"),
+               "meta_label": {"p_take": env.get("meta_p_take"), "version": env.get("meta_label_version")},
                "world_model_version": (meta_versions or {}).get("world_model_version"),
                "data_snapshot": {"vix": vix, "env_hash": hashlib.sha256(json.dumps(env, sort_keys=True,
                                                                                     default=str).encode()).hexdigest()[:16]},
@@ -343,6 +380,10 @@ def apply_to_proposals(proposals: list[dict], *, vix=None, today: str | None = N
         if d["final_production_decision"] == ABSTAIN:
             blocked.append((p, "intelligence_abstention:" + ",".join(d["abstain_applied_by"])))
         else:
+            if d.get("size_multiplier", 1.0) < 1.0:            # Sizing-Stufe: nur Verkleinerung (Position Sizing)
+                p["intelligence_size_multiplier"] = d["size_multiplier"]
+                p["intelligence_size_applied_by"] = d["size_applied_by"]
+                rec["size_multiplier"] = d["size_multiplier"]
             kept.append((p, rec, d))
     # Rerank nur innerhalb der vom Champion akzeptierten Trades; fehlt einem Trade das
     # Rerank-Signal, bleibt die Champion-Reihenfolge (fehlend != 0).
