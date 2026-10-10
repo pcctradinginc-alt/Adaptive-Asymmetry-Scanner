@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-09T18:30:15+00:00",
+ "generated": "2026-10-10T17:27:40+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -437,36 +437,36 @@
    "available": true,
    "stale": false,
    "data_quality": 0.6,
-   "source_primary": "eia_natural_gas",
-   "source_actual": "eia_natural_gas",
+   "source_primary": "fred_commodities",
+   "source_actual": "fred_commodities",
    "source_status": "DEGRADED",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__lng_exports_yoy": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_natural_gas",
    "source_actual": "eia_natural_gas",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__natgas_storage_chg_z_52w": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_natural_gas",
    "source_actual": "eia_natural_gas",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__natgas_storage_vs_5y": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_natural_gas",
    "source_actual": "eia_natural_gas",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_copper__copper_ret_3m": {
