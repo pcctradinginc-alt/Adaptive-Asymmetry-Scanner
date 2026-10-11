@@ -1,12 +1,8 @@
-# Daily Data Health Report – 2026-10-10
+# Daily Data Health Report – 2026-10-11
 
 **Safe Mode (Daten): aus** – gewichtete Data Quality 0.992
 
 Status: HEALTHY 33 · DEGRADED 2 · STALE 0 · BROKEN 0 · UNVALIDATED 9
-
-## Neue Änderungen
-
-- recovery: eia_natural_gas DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
