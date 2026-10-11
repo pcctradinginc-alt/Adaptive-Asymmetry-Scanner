@@ -258,3 +258,69 @@ def test_persistent_data_is_not_gitignored(path):
 
 def test_append_only_ledgers_use_union_merge():
     assert "outputs/**/*.jsonl merge=union" in (REPO / ".gitattributes").read_text(encoding="utf-8")
+
+
+# ── Nachbesserungen nach dem unabhängigen Test (2026-10-11) ──────────────────
+def test_calendar_override_entries_are_parsed_individually(tmp_path):
+    p = tmp_path / "cal.yaml"
+    p.write_text('closures: ["2025-01-09", "kein-datum"]\nearly_closes: {"2026-12-23": 13:00, "x": "13:00"}\n')
+    ms._calendar_overrides.cache_clear()
+    try:
+        closures, early = ms._calendar_overrides(str(p))
+    finally:
+        ms._calendar_overrides.cache_clear()
+    assert closures == frozenset({datetime(2025, 1, 9).date()})            # gültiger Eintrag bleibt erhalten
+    assert early == {datetime(2026, 12, 23).date(): datetime(2026, 1, 1, 13, 0).time()}   # 13:00 unquotiert (=780)
+
+
+def test_calendar_override_path_does_not_depend_on_cwd(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    ms._calendar_overrides.cache_clear()
+    try:
+        assert not ms.is_trading_day(datetime(2025, 1, 9).date())          # Staatstrauer auch außerhalb der Repo-Wurzel
+    finally:
+        ms._calendar_overrides.cache_clear()
+
+
+def test_mark_day_is_the_quotes_exchange_day_not_the_retrieval_day(archive, monkeypatch):
+    monkeypatch.setattr(cl, "_now_utc", lambda: utc("2026-10-13T22:00"))
+    ms_epoch = int(utc("2026-10-12T19:00").timestamp() * 1000)              # Börsenzeit gestern (RTH, < 26 h alt)
+    oq.record([{"symbol": L, "bid": 2.4, "ask": 2.5, "bid_date": ms_epoch, "ask_date": ms_epoch}],
+              underlying="AAPL", source="tradier", context="test", retrieved_at=utc("2026-10-13T15:00"), root=archive)
+    row = opt_row()
+    assert cl._fill_real_option_marks([row], datetime(2026, 10, 13)) is True
+    assert row["outcomes"]["real_opt_mark_date_5d"] == "2026-10-12"
+
+
+def test_zero_date_field_is_not_an_exchange_time():
+    ra = utc("2026-10-14T15:00")
+    rec = oq.normalize({"symbol": L, "bid": 1.0, "ask": 1.1, "bid_date": 0,
+                        "ask_date": int(ra.timestamp() * 1000)}, underlying="AAPL", source="tradier",
+                       context="test", retrieved_at=ra)
+    assert rec["quote_time"].startswith("2026-10-14") and "STALE" not in rec["quality_flags"]
+
+
+def test_capture_survives_broken_history_and_still_captures_candidates(archive, monkeypatch, tmp_path, capsys):
+    hp = tmp_path / "history.json"
+    hp.write_text("{kaputt")
+    monkeypatch.setattr(cl, "due_mark_symbols", lambda today: [S])
+    got = []
+    monkeypatch.setattr(ms, "fetch_option_quotes", lambda symbols, context="": got.append((list(symbols), context)) or {})
+    res = rth_marks.run(utc("2026-10-12T15:00"), hp, capture_only=True)
+    assert got == [([S], "candidate_mark_rth")] and res["skipped"] is False
+    assert "::warning::" in capsys.readouterr().out
+
+
+def test_ci_push_pushes_pending_local_commit_when_nothing_new_is_staged(tmp_path):
+    from tests.test_ops_readiness_independent import _ci_sandbox
+    c1, _c2, ci_push, remote = _ci_sandbox(tmp_path)
+    f = c1 / "outputs" / "options_archive" / "quotes" / "2026-10-14.jsonl"
+    f.write_text(f.read_text() + '{"id": 1}\n')
+    env_git = ["git", "-c", "user.name=t", "-c", "user.email=t@t"]
+    subprocess.run(env_git + ["add", "-A"], cwd=c1, check=True)
+    subprocess.run(env_git + ["commit", "-q", "-m", "lokal, Push gescheitert"], cwd=c1, check=True)
+    r = ci_push(c1, "Fehlerpfad", "outputs/options_archive/")             # nichts Neues gestagt
+    assert r.returncode == 0 and "ausstehende lokale Commits" in r.stdout
+    assert '{"id": 1}' in remote("outputs/options_archive/quotes/2026-10-14.jsonl")
+    again = ci_push(c1, "nochmal", "outputs/options_archive/")
+    assert again.returncode == 0 and "Keine Änderungen" in again.stdout

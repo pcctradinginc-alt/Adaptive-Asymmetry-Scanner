@@ -23,30 +23,34 @@ import argparse
 import json
 import logging
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from modules import option_quotes as _oq  # noqa: E402
+
 log = logging.getLogger("rth_marks")
 HISTORY = Path("outputs/history.json")
-MIN_AFTER_OPEN = timedelta(minutes=30)
-MIN_BEFORE_CLOSE = timedelta(minutes=10)
+MIN_AFTER_OPEN = _oq.MARK_MIN_AFTER_OPEN          # eine Definition: option_quotes.mark_window
+MIN_BEFORE_CLOSE = _oq.MARK_MIN_BEFORE_CLOSE
 
 
 def capture_window(now: datetime) -> tuple[bool, str]:
-    """(im Fenster?, Status): MARKET_CLOSED | BEFORE_WINDOW | AFTER_WINDOW | IN_WINDOW (NYSE-Kalender, DST-fest)."""
-    from modules import market_snapshot as ms
+    """(im Fenster?, Status): MARKET_CLOSED | BEFORE_WINDOW | AFTER_WINDOW | IN_WINDOW (NYSE-Kalender, DST-fest;
+    dasselbe Fenster wie Live-Marks und verwertbare Archiv-Quotes)."""
     now = now if now.tzinfo else now.replace(tzinfo=timezone.utc)
-    bounds = ms.regular_session_utc(now.astimezone(ms.NY_TZ).date())
-    if bounds is None:
-        return False, "MARKET_CLOSED"
-    open_utc, close_utc = bounds
-    if now < open_utc + MIN_AFTER_OPEN:
-        return False, "BEFORE_WINDOW"
-    if now > close_utc - MIN_BEFORE_CLOSE:
-        return False, "AFTER_WINDOW"
-    return True, "IN_WINDOW"
+    status = _oq.mark_window(now)
+    return status == "IN_WINDOW", status
+
+
+def _read_history(path: Path) -> dict:
+    """history.json lesen; defekt/fehlend -> {} mit Warnung (Capture der Kandidaten-Marks läuft trotzdem)."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError) as e:
+        print(f"::warning::rth_marks: {path} nicht lesbar ({type(e).__name__}) – aktive Trades ohne Capture")
+        return {}
 
 
 def active_trade_symbols(history: dict) -> list[str]:
@@ -87,7 +91,7 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
            "session": ms.us_market_session(now), "skipped": not ok}
     if not ok:
         return res
-    history = json.loads(history_path.read_text(encoding="utf-8")) if history_path.exists() else {}
+    history = _read_history(history_path)
     trade_syms = active_trade_symbols(history)
     if capture_only:
         cand_syms = sorted(set(cl.due_mark_symbols(now.strftime("%Y-%m-%d"))) - set(trade_syms))
@@ -117,9 +121,9 @@ def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     try:
         res = run(capture_only=a.capture_only)
-    except Exception as e:  # noqa: BLE001 – Marks sind Beobachtung, nie Scanner-Bedingung
-        print(f"::warning::rth_marks fehlgeschlagen: {type(e).__name__}: {e}")
-        return 0
+    except Exception as e:  # noqa: BLE001 – sichtbar rot; im Scanner-Job continue-on-error (nie Scanner-Bedingung)
+        print(f"::error::rth_marks fehlgeschlagen: {type(e).__name__}: {e}")
+        return 1
     print(json.dumps(res, ensure_ascii=False))
     if not res.get("skipped") and res.get("missing"):
         print(f"::warning::{len(res['missing'])} Kontrakt(e) ohne Quote: {res['missing'][:10]}")

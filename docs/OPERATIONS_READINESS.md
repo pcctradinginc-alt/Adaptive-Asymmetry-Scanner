@@ -46,6 +46,13 @@ Folgerungen:
 | 8 | Ein Feedback-Fehler verwarf die Exit-Quotes | Der Fehlerpfad committet `outputs/options_archive/` (append-only Beobachtungen, nie halbfertige Zustände) | `test_feedback_persists_*` |
 | 9 | Ein gescheiterter Push (Konflikt, Netz) verlor die Daten mit dem kurzlebigen Runner | `actions/upload-artifact` bei Fehler (14 Tage), Wiederherstellung siehe §5 | ebd. |
 | 10 | Monitor-Flag „Handelstag“ basierte nur auf dem Wochentag | NYSE-Kalender, NY-Datum | – |
+| 11 | Settlement-Marks verfallener Kontrakte trugen außerhalb der Sitzung `mark_source = archive_rth` (falsche Herkunft) | Herkunft wird nur gesetzt, wenn tatsächlich eine Archiv-Quote zählt | `test_settlement_mark_traegt_keine_archiv_herkunft_*` |
+| 12 | Tradier-Datumsfeld `0` wurde als 1970 gelesen (Quote fälschlich STALE und für Marks unbrauchbar) | `0`/leer gilt als „kein Datum“, das nächste Feld zählt | `test_zero_date_field_is_not_an_exchange_time` |
+| 13 | Eröffnungsphase nur im Capture gemieden; Live-Marks und Archiv-Quotes um 09:35 ET zählten | Ein gemeinsames Mark-Fenster `option_quotes.mark_window` (Eröffnung + 30 min bis Schluss − 10 min) für Capture, Live-Marks und verwertbare Archiv-Quotes | `test_mark_quotes_*` |
+| 14 | Mark-Tag war der Abruftag, auch wenn die Börsenzeit vom Vortag stammte | Mark-Tag = NY-Tag der Börsenzeit (`quote_day`) | `test_mark_day_is_the_quotes_exchange_day_not_the_retrieval_day` |
+| 15 | Kalender-Config: Pfad hing am Arbeitsverzeichnis, und ein unquotiertes `13:00` verwarf die ganze Datei (auch Sonderschließungen) | Absoluter Pfad; Einträge werden einzeln geprüft, `13:00` (YAML-Minuten) wird gelesen | `test_calendar_override_*` |
+| 16 | `ci_push.sh` beendete sich ohne gestagte Änderung, ohne einen lokal committeten, ungepushten Commit zu pushen | Ausstehende lokale Commits werden trotzdem gepusht; `origin/main` wird nach dem Push nachgeführt | `test_ci_push_pushes_pending_local_commit_*` (Bare-Repo, ohne Netz) |
+| 17 | Defekte `history.json` stoppte den Capture still (Job grün) | Capture läuft für Kandidaten-Marks weiter (Warnung); ein echter Fehler macht den Job jetzt rot (Exit 1) | `test_capture_survives_broken_history_*` |
 
 Details zu #1, `options_capture.yml`:
 - 6 gestaffelte Crons; einer davon trifft das Fenster bei jeder GitHub-Verzögerung von 0–7 h, in Sommer und Winter und an verkürzten Tagen.
@@ -128,7 +135,24 @@ Weitere Punkte:
 4. **Sonderschließungen pflegen:** Neue NYSE-Ankündigungen (Staatstrauer, Notfälle) in `config/market_calendar.yaml` per PR eintragen.
 5. **Secrets prüfen:** `FRED_API_KEY`, `TRADIER_API_KEY` sowie `GMAIL_*` müssen im Repo gesetzt sein; das ist aus der Session heraus nicht verifizierbar.
 
-## 7. Merge-Checkliste
+## 7. Unabhängige Prüfung
+
+Ein separater Test-Agent mit eigenem Testentwurf hat `tests/test_ops_readiness_independent.py` erstellt, mit über 380 Tests:
+- **Kalender:** Feiertage und verkürzte Sitzungen 2022–2027 gegen die offiziellen NYSE-Listen; alle vier Zeitumstellungen 2026/27.
+- **Capture-Abdeckung:** jeder Handelstag 2025–2027 bei jeder Verzögerung von 0–7 h.
+- **`ci_push.sh`:** End-to-end gegen ein lokales Bare-Repo mit parallelen Schreibern.
+- **Testgüte:** 36 gezielte Mutationen, alle gefangen.
+
+Seine drei Fehlerbefunde und die berechtigten Risiken sind behoben (#11–#17).
+
+Bewusst verbleibende Restrisiken:
+- **Verfallene Kontrakte:** Alle fälligen Horizonte werden aus dem Settlement bewertet (Mark-Tag = Lauftag, als late geflaggt). Das ist bestehende Spezifikation.
+- **Illiquide Optionen:** Eine Börsenzeit älter als 26 h (STALE) macht die Quote nie verwertbar. Sie wird je Handelstag höchstens sechsmal erneut angefordert.
+- **Cron-Abdeckung an verkürzten Sommer-Sitzungen:** Sie endet bei 7 h 10 min Verzögerung; nächster Fall ist 2028-07-03, 2026/27 gibt es keinen. Gemessenes Maximum der Verzögerung: 7 h 38 min, einmalig, beim Scanner.
+- **Call/Put beim Settlement:** Die Kandidaten-Settlement-Logik bestimmt Call/Put über `direction`. Die aktuellen Daten sind konsistent: 188 BULLISH/C, 85 BEARISH/P.
+- **Erste echte Funktionsprobe erst nach dem Merge:** `options_capture.yml` ist erst nach dem Merge per `workflow_dispatch` auslösbar.
+
+## 8. Merge-Checkliste
 
 - [ ] CI `pytest` auf dem aktuellen Head von PR #111 grün (push und pull_request).
 - [ ] Entscheidungsregeln unverändert (Review des Diffs):

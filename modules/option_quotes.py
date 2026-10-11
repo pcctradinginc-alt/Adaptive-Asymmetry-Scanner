@@ -279,7 +279,10 @@ def _normalize(raw, underlying, source, context, retrieved_at) -> dict | None:
 
     qt = None
     for k in ("quote_time", "ts", "bid_date", "ask_date", "trade_date"):
-        qt = _parse_ts(raw.get(k))
+        v = raw.get(k)
+        if v in (0, 0.0, "0", "") or (isinstance(v, str) and _NUMERIC_STR_RE.match(v.strip()) and float(v) == 0):
+            continue                                   # Tradier: 0 = "kein Datum", nie 1970-01-01
+        qt = _parse_ts(v)
         if qt is not None:
             break
     if qt is None:
@@ -479,6 +482,28 @@ def session_of(ts) -> str:
     return "CLOSED"
 
 
+MARK_MIN_AFTER_OPEN = timedelta(minutes=30)      # Eröffnungsphase (breiteste Spreads) nie als Mark
+MARK_MIN_BEFORE_CLOSE = timedelta(minutes=10)    # Schlussauktion/letzte Minuten nie als Mark
+
+
+def mark_window(ts) -> str:
+    """Mark-Fenster nach NYSE-Kalender (DST-fest): IN_WINDOW = [Eröffnung + 30 min, Schluss − 10 min] eines
+    Handelstags (verkürzte Sitzung: Schluss 13:00 ET); sonst BEFORE_WINDOW | AFTER_WINDOW | MARKET_CLOSED |
+    UNKNOWN. Einzige Definition für Capture, Live-Marks und verwertbare Archiv-Quotes."""
+    t = _parse_ts(ts)
+    if t is None:
+        return "UNKNOWN"
+    from modules import market_snapshot as ms
+    bounds = ms.regular_session_utc(t.astimezone(ms.NY_TZ).date())
+    if bounds is None:
+        return "MARKET_CLOSED"
+    if t < bounds[0] + MARK_MIN_AFTER_OPEN:
+        return "BEFORE_WINDOW"
+    if t > bounds[1] - MARK_MIN_BEFORE_CLOSE:
+        return "AFTER_WINDOW"
+    return "IN_WINDOW"
+
+
 def ny_date(ts) -> str | None:
     """Kalendertag in New York (YYYY-MM-DD) eines Zeitpunkts; None ohne lesbare Zeit."""
     t = _parse_ts(ts)
@@ -488,12 +513,19 @@ def ny_date(ts) -> str | None:
     return t.astimezone(ms.NY_TZ).date().isoformat()
 
 
+def quote_day(rec: dict | None) -> str | None:
+    """NY-Handelstag, an dem die Quote galt: Börsenzeit (quote_time), sonst Abrufzeit."""
+    if not rec:
+        return None
+    return ny_date(rec.get("quote_time") or rec.get("retrieved_at"))
+
+
 def usable_rth_quote(rec: dict | None) -> bool:
-    """Für einen Mark verwertbar: in der regulären Sitzung abgerufen und notiert, nicht UNUSABLE/STALE,
-    Bid und Ask > 0 (Exit zum Bid realisierbar)."""
+    """Für einen Mark verwertbar: im Mark-Fenster abgerufen (mark_window), in der regulären Sitzung notiert,
+    nicht UNUSABLE/STALE, Bid und Ask > 0 (Exit zum Bid realisierbar)."""
     if not rec or rec.get("quality_status") == "UNUSABLE" or "STALE" in (rec.get("quality_flags") or []):
         return False
-    if session_of(rec.get("retrieved_at")) != "RTH" or quote_session(rec) != "RTH":
+    if mark_window(rec.get("retrieved_at")) != "IN_WINDOW" or quote_session(rec) != "RTH":
         return False
     bid, ask = _num(rec.get("bid")), _num(rec.get("ask"))
     return bid is not None and ask is not None and bid > 0 and ask > 0
@@ -502,7 +534,8 @@ def usable_rth_quote(rec: dict | None) -> bool:
 def rth_quote_history(symbols, as_of, *, root: Path | None = None,
                       lookback_days: int = 10) -> dict[str, list[tuple[str, dict]]]:
     """Point-in-time: je OCC-Symbol alle verwertbaren RTH-Quotes (usable_rth_quote) mit retrieved_at <= as_of
-    aus den letzten lookback_days Tagesdateien als [(NY-Handelstag, Record)], aufsteigend nach retrieved_at.
+    aus den letzten lookback_days Tagesdateien als [(quote_day, Record)], aufsteigend nach retrieved_at
+    (quote_day = Tag der Börsenzeit: eine am Morgen abgerufene, seit gestern unveränderte Quote zählt für gestern).
     Grundlage für Marks, deren Lauf selbst außerhalb der Sitzung liegt (Erfassung und Mark entkoppelt). Wirft nie."""
     out: dict[str, list[tuple[str, dict]]] = {}
     try:
@@ -519,7 +552,7 @@ def rth_quote_history(symbols, as_of, *, root: Path | None = None,
                 sym = r.get("occ_symbol")
                 t = _parse_ts(r.get("retrieved_at"))
                 if sym in want and t is not None and t <= ts and usable_rth_quote(r):
-                    out.setdefault(sym, []).append((ny_date(t), r))
+                    out.setdefault(sym, []).append((quote_day(r), r))
         for sym in out:
             out[sym].sort(key=lambda x: str(x[1].get("retrieved_at")))
         return out

@@ -55,27 +55,48 @@ EARLY_CLOSE  = dt_time(13, 0)
 # Einzige Kalenderquelle des Repos (Scanner-Guard, Options-Capture, Marks, option_quotes.session_of, Monitoring).
 # Außerplanmäßige Schließungen/verkürzte Sitzungen kommen aus config/market_calendar.yaml.
 
-CALENDAR_OVERRIDES = Path("config/market_calendar.yaml")
+CALENDAR_OVERRIDES = Path(__file__).resolve().parent.parent / "config" / "market_calendar.yaml"   # nie cwd-abhängig
+
+
+def _clock(v) -> dt_time:
+    """'HH:MM' oder (PyYAML 1.1 liest unquotiertes 13:00 sexagesimal) Minuten seit Mitternacht -> time."""
+    if isinstance(v, int) and not isinstance(v, bool):
+        return dt_time(v // 60, v % 60)
+    h, m = (int(x) for x in str(v).split(":"))
+    return dt_time(h, m)
 
 
 @lru_cache(maxsize=4)
 def _calendar_overrides(path: str | None = None) -> tuple[frozenset, dict]:
-    """(Schließtage, {verkürzter Tag: Schlusszeit}) aus der Config; fehlt/defekt -> leer (nur Regelkalender)."""
+    """(Schließtage, {verkürzter Tag: Schlusszeit}) aus der Config. Fehlt/defekt -> leer (nur Regelkalender,
+    Warnung); ein einzelner unlesbarer Eintrag verwirft nur sich selbst, nie die übrigen."""
     p = Path(path) if path else CALENDAR_OVERRIDES
     try:
         if not p.exists():
+            log.warning(f"market_snapshot: {p} fehlt – nur Regelkalender (Sonderschließungen unberücksichtigt)")
             return frozenset(), {}
         import yaml
         doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-        closures = frozenset(date.fromisoformat(str(d)[:10]) for d in (doc.get("closures") or []))
-        early = {}
-        for d, hhmm in (doc.get("early_closes") or {}).items():
-            h, m = (int(x) for x in str(hhmm).split(":"))
-            early[date.fromisoformat(str(d)[:10])] = dt_time(h, m)
-        return closures, early
+        if not isinstance(doc, dict):
+            raise ValueError("kein Mapping")
     except Exception as e:  # noqa: BLE001 – defekte Config darf den Regelkalender nie abschalten
         log.warning(f"market_snapshot: {p} nicht lesbar ({type(e).__name__}: {e}) – nur Regelkalender")
         return frozenset(), {}
+    closures, early = set(), {}
+    raw_closures = doc.get("closures") or []
+    for d in (raw_closures if isinstance(raw_closures, list) else []):
+        try:
+            closures.add(date.fromisoformat(str(d)[:10]))
+        except (TypeError, ValueError) as e:
+            log.warning(f"market_snapshot: Schließtag {d!r} in {p} ignoriert ({e})")
+    raw_early = doc.get("early_closes") or {}
+    for d, hhmm in (raw_early.items() if isinstance(raw_early, dict) else []):
+        try:
+            early[date.fromisoformat(str(d)[:10])] = _clock(hhmm)
+        except (TypeError, ValueError) as e:
+            log.warning(f"market_snapshot: verkürzte Sitzung {d!r}: {hhmm!r} in {p} ignoriert ({e})")
+    return frozenset(closures), early
+
 
 def _easter_date(year: int) -> date:
     """
