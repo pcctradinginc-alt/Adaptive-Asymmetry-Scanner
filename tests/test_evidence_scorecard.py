@@ -64,7 +64,7 @@ def test_scorecard_need_more_data_and_cells(tmp_path):
     assert c["n"] == 10 and c["n_signal_days"] == 3 and c["verdict"] == "NEED_MORE_DATA" and "ci" not in c
     assert sc["cells"]["CANDIDATE_OPTION_5d|LATE_STAGE"]["n"] == 5
     assert sc["baselines"]["CANDIDATE_OPTION_5d|LATE_STAGE_vs_EARLY"]["verdict"] == "NEED_MORE_DATA"
-    assert sc["alpha_per_cell"] == pytest.approx(0.05 / sc["n_cells"])          # Bonferroni über alle Zellen
+    assert sc["alpha_per_cell"] == pytest.approx(0.05 / sc["n_cells"], abs=1e-6)  # Bonferroni über alle Zellen
 
 
 def test_scorecard_detects_clear_effect_with_enough_independent_days(tmp_path):

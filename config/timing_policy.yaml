@@ -1,0 +1,39 @@
+# config/timing_policy.yaml – versionierte Entry-/Exit-Timing-Policy für die WIRTSCHAFTLICHE Bewertung
+# (2026-10-11). Gilt für echte Options-Outcomes: Champion-Trades, Counterfactual-Trades und Kandidaten-Optionen.
+#
+# Unverändert bleiben: die Champion-Entscheidungen selbst (Booking, TP/SL/Haltedauer), Risk Gates, Kill-Switch,
+# EA-Shadow, Promotion-Verträge. Die Policy legt nur fest, WANN und zu WELCHEM PREIS ein Entry/Exit als ausgeführt
+# gilt (realistische Ausführbarkeit, Point-in-Time).
+#
+# Jede neue Entscheidung trägt ihre Policy explizit (Feld timing_policy). Datensätze ohne Feld sind Altbestand
+# (timing-v1) und werden nie umgedeutet, umgerechnet oder überschrieben. Auswertung immer getrennt je Policy.
+current: timing-v2
+policies:
+  timing-v1:
+    status: LEGACY
+    description: >-
+      Altbestand bis zur Umstellung. Entry = Chain-Quote zum Scanner-Lauf (jede Session, auch nachbörslich/Feiertag),
+      Exit = Quote zum Feedback-Lauf (jede Session), Outcome sofort beim Exit-Entscheid. Bewertung trade-eval-v1
+      kennzeichnet Nicht-RTH nur als Flag.
+  timing-v2:
+    status: ACTIVE
+    description: >-
+      Entry und Exit nur zu einer zulässigen Optionsquote: im Mark-Fenster einer regulären Sitzung des Kontrakts
+      (NYSE-Kalender, verkürzte Sitzungen, instrumentenspezifischer Schluss, DST über America/New_York; Eröffnung
+      + 30 min bis Schluss − 10 min), Bid und Ask > 0, nicht STALE, Abruf NICHT vor dem Entscheidungszeitpunkt.
+      Entscheidung außerhalb des Fensters (nachbörslich, Feiertag, verspäteter Lauf) -> Ausführung frühestens in
+      der nächsten zulässigen Sitzung; der ursprüngliche Entscheidungszeitpunkt bleibt gespeichert. Kein Basiswert-
+      oder Modellpreis als Ersatz; verfallene Kontrakte nur über das offizielle Settlement (unbereinigter Schluss am
+      Verfallstag). Ohne zulässige Quote: PENDING bis zur Sitzung, danach UNUSABLE mit Grund.
+    entry:
+      decision_quote_max_age_minutes: 15     # Chain-Quote zählt als Entry nur, wenn höchstens so alt (sonst nächste Quote)
+      long_price: ask                         # Kauf zum Ask; Spread: Long-Ask − Short-Bid
+    exit:
+      decision_quote_slack_minutes: 5        # Exit-Quote desselben Laufs (kurz vor dem Exit-Zeitstempel) zählt
+      long_price: bid                         # Verkauf zum Bid; Spread: Long-Bid − Short-Ask (>= 0)
+    fill_session_grace_hours: 12             # so lange nach Fensterende auf (verspätet committete) Quotes warten
+    spread_leg_pairing_minutes: 15           # Spread-Legs müssen aus derselben Erfassungsrunde stammen
+    settlement_retry_days: 5                 # unbereinigter Verfallsschluss fehlt so lange -> PENDING, dann UNUSABLE
+    closed_day_rule: >-
+      An NYSE-geschlossenen Tagen keine kursbasierte Exit-Prüfung und kein neuer Markt-Outcome aus übernommenen
+      Vortagesquotes (gilt für alle Trades); Verarbeitung vorhandener Daten und Berichte laufen weiter.

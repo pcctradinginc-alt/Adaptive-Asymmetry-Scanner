@@ -709,8 +709,10 @@ def archive_shadow_trades(dropped: list[dict], path: Path | None = None, ledger_
 # Haltedauer, Outcome-Methode), aber OHNE Lern-Updates (keine Bins, kein RL,
 # kein closed_trades-Eintrag). Nur so ist "blockiert vs. durchgelassen" fair.
 
-def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None) -> int:
+def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None, now: datetime | None = None) -> int:
+    from modules import timing_policy as tp
     price_fn = price_fn or get_current_price
+    now = now or datetime.now(timezone.utc)
     open_cf = history.get("counterfactual_trades") or []
     still, closed = [], 0
     for t in open_cf:
@@ -730,6 +732,12 @@ def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None)
         t["peak_return"] = round(max(float(t.get("peak_return") or outcome), outcome), 4)
         reason = check_exit_rules(t, outcome, today)
         if reason or (today - entry_dt).days >= cfg.learning.close_after_days:
+            if tp.policy_of(t) == tp.V2:                 # gleiche Timing-Policy wie echte Trades (fairer Vergleich)
+                t.update(close_time=now.isoformat(timespec="seconds"), close_date=today.strftime("%Y-%m-%d"),
+                         close_price=current, close_reason=reason or "max_holding_period", outcome=None,
+                         outcome_at_decision=round(outcome, 4), outcome_method_at_decision=meta.get("method", "unknown"))
+                closed += close_v2(history, t, now, kind="counterfactual") == "CLOSED"
+                continue
             t.update(outcome=round(outcome, 4), close_date=today.strftime("%Y-%m-%d"), close_price=current,
                      close_reason=reason or "max_holding_period", outcome_method=meta.get("method", "unknown"))
             history.setdefault("counterfactual_closed", []).append(t)
@@ -996,7 +1004,8 @@ COST_MODEL_VERSION = "cost-v1-commission-per-contract-side"
 
 
 def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime | None = None,
-                         path: Path | None = None) -> dict | None:
+                         path: Path | None = None, *, entry_quotes: list | None = None,
+                         exit_quotes: list | None = None) -> dict | None:
     """Reproduzierbarer Options-Outcome je geschlossenem Trade (Evidence Engine, append-only, je trade_id einmal):
     Kontrakt-Identität, Entry-Quote-IDs (beim Booking archiviert), Exit-Quote-IDs (jüngste archivierte Quote zum
     Schlusszeitpunkt, PIT), Methode/Preistyp, explizites Kostenmodell (Kommission je Kontrakt und Seite, wie im
@@ -1022,25 +1031,32 @@ def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime 
                 except (TypeError, ValueError):
                     sym = None
             syms.append(sym)
-        exit_ids, exit_q = [], []
-        for sym in syms:
-            q = oq.latest_quote(sym, now, lookback_days=1) if sym else None
-            exit_ids.append(q["record_id"] if q else None)
-            exit_q.append(q)
-        # Entry-Quotes je Leg aus dem Archiv (IDs beim Booking gesetzt; fehlend -> None = nicht archiviert)
-        e_ids = list(trade.get("entry_quote_record_ids") or [])
-        e_day = str(trade.get("entry_date") or "")[:10]
-        found = {}
-        if e_ids and e_day:
-            d0 = datetime.strptime(e_day, "%Y-%m-%d").date()
-            found = oq.by_ids(e_ids, (d0 - timedelta(days=1)).isoformat(), (d0 + timedelta(days=1)).isoformat())
-        entry_q = [found.get(i) for i in e_ids] + [None] * max(0, len(legs) - len(e_ids))
+        if exit_quotes is not None:                      # timing-v2: die tatsächlich zulässigen Fill-Quotes
+            exit_q = list(exit_quotes) + [None] * max(0, len(legs) - len(exit_quotes))
+            exit_ids = [q.get("record_id") if q else None for q in exit_q]
+        else:
+            exit_ids, exit_q = [], []
+            for sym in syms:
+                q = oq.latest_quote(sym, now, lookback_days=1) if sym else None
+                exit_ids.append(q["record_id"] if q else None)
+                exit_q.append(q)
+        if entry_quotes is not None:
+            entry_q = list(entry_quotes) + [None] * max(0, len(legs) - len(entry_quotes))
+        else:
+            # Entry-Quotes je Leg aus dem Archiv (IDs beim Booking gesetzt; fehlend -> None = nicht archiviert)
+            e_ids = list(trade.get("entry_quote_record_ids") or [])
+            e_day = str(trade.get("entry_date") or "")[:10]
+            found = {}
+            if e_ids and e_day:
+                d0 = datetime.strptime(e_day, "%Y-%m-%d").date()
+                found = oq.by_ids(e_ids, (d0 - timedelta(days=1)).isoformat(), (d0 + timedelta(days=1)).isoformat())
+            entry_q = [found.get(i) for i in e_ids] + [None] * max(0, len(legs) - len(e_ids))
         from modules.outcomes import trade_evaluation
         evaluation = trade_evaluation({**trade, "outcome": outcome}, price_type=meta.get("price_type"),
                                       entry_quotes=entry_q[:len(legs)], exit_quotes=exit_q)
         trade["outcome_evaluation"] = evaluation
         from modules.outcomes import effective_entry_debit
-        debit = effective_entry_debit(trade)
+        debit = _economic_entry_price(trade) or effective_entry_debit(trade)
         per_contract = float(getattr(getattr(cfg, "costs", None), "commission_per_contract", 0.65))
         cost_ret = (per_contract * len(legs) * 2) / (debit * 100) if debit > 0 else None
         net = round(outcome - cost_ret, 6) if cost_ret is not None else None
@@ -1100,6 +1116,95 @@ def learn_on_close(history: dict, trade: dict, outcome: float, reliable: bool) -
     except Exception as e:  # noqa: BLE001 – Observability-Statistik bricht den Lern-Loop nie (zurückgesetzt)
         log.warning(f"  [{trade.get('ticker')}] feature_stats_external-Update Fehler (ignoriert): {e}")
     return done
+
+
+# ── Timing-Policy (config/timing_policy.yaml, modules/timing_policy) ─────────
+# Die Champion-Entscheidung (Exit-Regeln, Zeitpunkt) bleibt unverändert. Für timing-v2-Trades entsteht das
+# wirtschaftliche Outcome erst zu einer zulässigen Optionsquote (nie nachbörslich, nie veraltet, nie Basiswert-
+# oder Modellpreis): bis dahin liegt der Trade in exit_pending_trades, ohne zulässige Quote endet er in
+# closed_trades_unusable (Grund im Feld timing). Altbestand (timing-v1) läuft unverändert.
+TIMING_LISTS = {"champion": ("exit_pending_trades", "closed_trades", "closed_trades_unusable"),
+                "counterfactual": ("counterfactual_exit_pending", "counterfactual_closed", "counterfactual_unusable")}
+
+
+def _market_open_day(now: datetime) -> bool:
+    """NYSE-Handelstag am New-York-Datum von `now` (Feiertage, Sonderschließungen; Kalender market_snapshot)."""
+    from modules import market_snapshot as ms
+    t = now if now.tzinfo else now.replace(tzinfo=timezone.utc)
+    return ms.is_trading_day(t.astimezone(ms.NY_TZ).date())
+
+
+def _economic_entry_price(trade: dict) -> float | None:
+    """timing-v2: Entry-Preis des zulässigen Fills (sonst None -> bisheriger entry_debit)."""
+    from modules import timing_policy as tp
+    if tp.policy_of(trade) != tp.V2:
+        return None
+    v = ((trade.get("timing") or {}).get("entry") or {}).get("price")
+    return float(v) if isinstance(v, (int, float)) and v > 0 else None
+
+
+def _finalize_v2(history: dict, trade: dict, block: dict, e_recs: list, x_recs: list, *, kind: str) -> str:
+    """Abschluss nach der Timing-Bewertung: OK -> geschlossen mit dem zulässigen Outcome (Champion: Outcome-Record +
+    Lernen je Trade genau einmal), UNUSABLE -> eigene Liste ohne Outcome, PENDING -> wartet. -> Status."""
+    _pending, closed_key, unusable_key = TIMING_LISTS[kind]
+    trade["timing"] = block
+    if block["status"] == "PENDING":
+        return "PENDING"
+    if block["status"] != "OK":
+        trade["outcome"] = None
+        history.setdefault(unusable_key, []).append(trade)
+        log.warning(f"  [{trade.get('ticker')}] timing-v2: kein zulässiger Preis -> UNUSABLE {block.get('reasons')}")
+        return "UNUSABLE"
+    outcome = float(block["outcome"])
+    trade["outcome"] = round(outcome, 4)
+    trade["outcome_method"], trade["outcome_price_type"] = block["method"], block["price_type"]
+    trade["exit_fill_time"] = (block.get("exit") or {}).get("time")
+    if kind == "champion":
+        meta = {"method": block["method"], "price_type": block["price_type"]}
+        record_trade_outcome(trade, outcome, meta, entry_quotes=e_recs or None, exit_quotes=x_recs or None)
+        reliable = learnable_on_close(trade, meta)
+        trade["outcome_reliable"] = reliable
+        learn_on_close(history, trade, outcome, reliable)        # je Trade genau einmal (learning_ledger)
+    history.setdefault(closed_key, []).append(trade)
+    log.info(f"  [{trade.get('ticker')}] timing-v2 ausgeführt: Outcome={outcome:+.2%} ({block['method']}, "
+             f"Exit {trade['exit_fill_time']})")
+    return "CLOSED"
+
+
+def close_v2(history: dict, trade: dict, now: datetime, *, kind: str) -> str:
+    """Exit-Entscheid eines timing-v2-Trades verbuchen (close_time ist gesetzt): sofort ausführbar -> geschlossen,
+    sonst exit_pending (bzw. UNUSABLE). Wirft nie."""
+    from modules import timing_policy as tp
+    block, e_recs, x_recs = tp.evaluate(trade, now)
+    status = _finalize_v2(history, trade, block, e_recs, x_recs, kind=kind)
+    if status == "PENDING":
+        history.setdefault(TIMING_LISTS[kind][0], []).append(trade)
+        log.info(f"  [{trade.get('ticker')}] timing-v2: Exit-Entscheid {trade.get('close_time')} -> Ausführung "
+                 f"ausstehend {block.get('reasons')}")
+    return status
+
+
+def resolve_pending_exits(history: dict, now: datetime) -> dict:
+    """Ausstehende timing-v2-Exits erneut bewerten (auch an geschlossenen Tagen: nur vorhandene, zulässige Quotes aus
+    dem Archiv, nie übernommene Vortagesquotes). Idempotent. -> {kind: {CLOSED, UNUSABLE, PENDING}}."""
+    from modules import timing_policy as tp
+    out = {}
+    for kind, (pending_key, _c, _u) in TIMING_LISTS.items():
+        cnt = {"CLOSED": 0, "UNUSABLE": 0, "PENDING": 0}
+        still = []
+        for t in history.get(pending_key) or []:
+            try:
+                block, e_recs, x_recs = tp.evaluate(t, now)
+                st = _finalize_v2(history, t, block, e_recs, x_recs, kind=kind)
+            except Exception as e:  # noqa: BLE001 – ein defekter Eintrag blockiert die anderen nie
+                log.warning(f"  [{t.get('ticker')}] timing-v2-Auflösung Fehler (bleibt ausstehend): {e}")
+                st = "PENDING"
+            cnt[st] += 1
+            if st == "PENDING":
+                still.append(t)
+        history[pending_key] = still
+        out[kind] = cnt
+    return out
 
 
 # ── RL-Training ───────────────────────────────────────────────────────────────
@@ -1270,10 +1375,31 @@ def main() -> None:
 
     exit_alerts: list[dict] = []
 
+    # Timing-Policy (config/timing_policy.yaml): an NYSE-geschlossenen Tagen keine kursbasierte Exit-Prüfung und kein
+    # neuer Markt-Outcome aus übernommenen Vortagesquotes; vorhandene Daten und Berichte laufen weiter.
+    from modules import timing_policy as _tp
+    now_utc = datetime.now(timezone.utc)
+    market_open = _market_open_day(now_utc)
+    if not market_open:
+        log.info("NYSE geschlossen (Kalender) -> keine kursbasierte Exit-Prüfung, keine neuen Markt-Outcomes; "
+                 "ausstehende Exits nur aus vorhandenen zulässigen Quotes")
+    try:
+        _res = resolve_pending_exits(history, now_utc)
+        newly_closed += _res["champion"]["CLOSED"]
+        if any(sum(v.values()) for v in _res.values()):
+            log.info(f"  timing-v2 ausstehende Exits: {_res}")
+    except Exception as e:  # noqa: BLE001 – Auflösung bricht den Lauf nie (Einträge bleiben ausstehend)
+        log.error(f"timing-v2-Auflösung Fehler: {e}")
+
     for trade in active:
         ticker     = trade["ticker"]
+        if not market_open:
+            still_active.append(trade)
+            continue
         entry_date = datetime.strptime(trade["entry_date"][:10], "%Y-%m-%d")
         age_days   = (today - entry_date).days
+        if _tp.policy_of(trade) == _tp.V2:          # Entry-Status (informativ; Entscheidungen unverändert)
+            trade["timing"] = _tp.evaluate(trade, now_utc)[0]
 
         # exit_sim: Multi-Variant-Counterfactual anlegen (idempotent, rein simulativ,
         # läuft unabhängig vom echten Trade-Close weiter — siehe evaluate_exit_sims).
@@ -1322,13 +1448,29 @@ def main() -> None:
             # Bins/Gewichte; sie werden geschlossen und gekennzeichnet, aber nicht gelernt.
             reliable = meta.get("method") in RELIABLE_OUTCOME_METHODS
             trade["outcome_reliable"] = reliable
-            if _ll.already_closed(history, trade):
+            _tid = _ll.trade_id(trade)
+            if _ll.already_closed(history, trade) or any(
+                    _ll.trade_id(x) == _tid for x in history.get("exit_pending_trades") or []):
                 # derselbe Trade (doppelter active_trades-Eintrag) wurde schon geschlossen und gelernt
                 log.warning(f"  [{ticker}] bereits geschlossen (Duplikat) -> Quarantäne, kein Lern-Update")
                 history.setdefault("closed_trades_quarantine", []).append(
                     {**trade, "outcome": round(outcome, 4), "close_date": today.strftime("%Y-%m-%d"),
                      "_quarantine": {"reason": "duplicate_close", "trade_id": _ll.trade_id(trade),
                                      "quarantined_at": today.strftime("%Y-%m-%d")}})
+                continue
+            if _tp.policy_of(trade) == _tp.V2:
+                # Exit-ENTSCHEID wie bisher; wirtschaftliches Outcome erst zu einer zulässigen Quote (timing-v2)
+                trade.update(close_time=now_utc.isoformat(timespec="seconds"), close_date=today.strftime("%Y-%m-%d"),
+                             close_price=current, close_reason=exit_reason or "max_holding_period",
+                             outcome=None, outcome_at_decision=round(outcome, 4),
+                             outcome_method_at_decision=meta.get("method", "unknown"))
+                _spread_execution_exit(trade, _spread_obs, today)
+                _st = close_v2(history, trade, now_utc, kind="champion")
+                newly_closed += _st == "CLOSED"
+                log.info(f"  [{ticker}] Exit-Entscheid ({trade['close_reason']}, Return zum Entscheid "
+                         f"{outcome:+.2%}) -> timing-v2 {_st}")
+                if trade["close_reason"] == "take_profit":
+                    register_trailing_sim(history, {**trade, "outcome": outcome}, today)
                 continue
             trade["outcome"]        = round(outcome, 4)
             trade["close_date"]     = today.strftime("%Y-%m-%d")
@@ -1401,20 +1543,22 @@ def main() -> None:
     except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
         log.warning(f"Expectation-Alpha-Outcomes Fehler (ignoriert): {e}")
 
-    # Von der Intelligence blockierte Champion-Trades counterfactual fortführen
+    # Von der Intelligence blockierte Champion-Trades counterfactual fortführen (kursbasiert -> nur an Handelstagen)
     try:
-        n_cf = advance_counterfactual_trades(history, today)
+        n_cf = advance_counterfactual_trades(history, today, now=now_utc) if market_open else 0
         if n_cf:
             log.info(f"  {n_cf} counterfactual (blockierte) Trade(s) geschlossen")
     except Exception as e:  # noqa: BLE001 – darf den Lern-Loop nie brechen
         log.error(f"Counterfactual-Fortführung Fehler: {e}")
 
-    # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen)
-    evaluate_trailing_sims(history, today)
+    # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen; kursbasiert -> nur an Handelstagen)
+    if market_open:
+        evaluate_trailing_sims(history, today)
 
-    # Multi-Variant Exit-Counterfactual fortführen (pure Simulation, kein Trade-Impact)
+    # Multi-Variant Exit-Counterfactual fortführen (pure Simulation, kein Trade-Impact; nur an Handelstagen)
     try:
-        evaluate_exit_sims(history, today)
+        if market_open:
+            evaluate_exit_sims(history, today)
         summary = summarize_exit_sim(history)
         for key, stats_row in summary.items():
             if "note" in stats_row:

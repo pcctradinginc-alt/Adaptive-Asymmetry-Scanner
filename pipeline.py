@@ -464,6 +464,11 @@ def _archive_entry_quotes(p: dict) -> list[str]:
     return ids
 
 
+def _timing_policy_current() -> str:
+    from modules import timing_policy
+    return timing_policy.current()
+
+
 def build_trade_record(p: dict, today: str) -> dict:
     """Trade-Datensatz für history.json – identisch für echte Trades und für
     counterfactual verfolgte (von der Intelligence blockierte) Champion-Trades,
@@ -510,6 +515,11 @@ def build_trade_record(p: dict, today: str) -> dict:
         "deep_analysis": p.get("deep_analysis"),
         "tve":           p.get("time_value_efficiency"),
         "outcome":       None,
+        # Versionierte Timing-Policy (config/timing_policy.yaml): Entscheidung mit ihrem echten Zeitstempel; die
+        # wirtschaftliche Ausführung bestimmt modules/timing_policy (nie vor diesem Zeitpunkt, nie zu nachbörslichen
+        # oder veralteten Preisen). Champion-Entscheidung und entry_debit bleiben unverändert.
+        "decision_time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "timing_policy": _timing_policy_current(),
     }
     if p.get("final_mc_shadow"):
         _at_dict["final_mc_shadow"] = p["final_mc_shadow"]

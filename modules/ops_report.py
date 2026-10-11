@@ -41,7 +41,7 @@ BANNER = "READ-ONLY Monitoring – keine Handelsempfehlung"
 
 SECTIONS = {"run": "Lauf", "quote_coverage": "Quote-Abdeckung", "lifecycle": "Lebenszyklus",
             "forward": "Forward-Performance", "training": "Training", "promotion": "Promotion",
-            "integrity": "Integrität", "data_health": "Daten"}
+            "integrity": "Integrität", "data_health": "Daten", "timing": "Timing-Policy"}
 WORKFLOW_KIND = {"scanner": "SCANNER_FAILED", "feedback": "SCANNER_FAILED",
                  "external_data": "ARCHIVE_FAILED", "source_health": "ARCHIVE_FAILED"}
 BAD_SOURCE = ("FAIL", "FAILED", "BROKEN", "STALE", "DEGRADED")
@@ -49,6 +49,7 @@ LEGACY_ENTRY = "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE"
 # Schwellen
 ENTRY_COV_MIN, ENTRY_DEN_MIN = 0.8, 3
 EXIT_ACTIVE_COV_MIN = 0.8
+TIMING_PENDING_MAX_DAYS = 3                 # timing-v2-Exit länger ausstehend -> Capture/Archiv prüfen
 COMPLETE_COV_MIN, COMPLETE_DEN_MIN = 0.5, 5
 MARK_OVERDUE_DAYS = 3
 SOURCE_BAD_INCREASE = 2
@@ -330,6 +331,18 @@ def _rules(status: dict, row: dict, prev: dict | None) -> list[tuple]:
                 and a is not None and a.weekday() < 5 and sc_state not in ("PENDING", "RUNNING", "NOT_SCHEDULED")):
             add("DATA_DEGRADATION:quote_archive", "WARNING", "Daten",
                 f"Quote-Archiv heute {today} Quotes, unter {ARCHIVE_DROP_RATIO:.0%} des 14-Tage-Medians ({med:g}).")
+    # Timing-Policy (timing-v2): ausstehende Exits ohne zulässige Quote, endgültig unbrauchbare Outcomes
+    tm = _ok(status, "timing")
+    old_days = _g(tm, "v2_exit_pending_oldest_days")
+    if _isnum(old_days) and old_days > TIMING_PENDING_MAX_DAYS:
+        add("TIMING_EXIT_PENDING_OVERDUE", "WARNING", "Timing",
+            f"{_g(tm, 'v2_exit_pending')} timing-v2-Exit(s) ohne zulässige Optionsquote, ältester seit {old_days:g} Tagen "
+            f"(Gründe {_f(_g(tm, 'v2_exit_pending_reasons'))}); Capture/Archiv prüfen.", (_g(tm, "v2_exit_pending"),))
+    nu = _g(tm, "v2_unusable")
+    if _isnum(nu) and nu > 0:
+        add("TIMING_UNUSABLE", "WARNING", "Timing",
+            f"{nu} timing-v2-Trade(s) ohne zulässigen Preis endgültig UNUSABLE (Gründe "
+            f"{_f(_g(tm, 'v2_unusable_reasons'))}); kein Outcome, nicht gelernt.", (nu,))
     return out
 
 
@@ -339,7 +352,8 @@ def _fingerprint(id_: str, key) -> str:
 
 _OWNER = {"SCANNER_FAILED": "run", "ARCHIVE_FAILED": "run", "QUOTE_COVERAGE_LOW": "quote_coverage",
           "OUTCOMES_OVERDUE": "lifecycle", "LEARNING_EXACTLY_ONCE": "lifecycle", "LEDGER_INTEGRITY": "integrity",
-          "TRAINING_INADMISSIBLE": "training", "PROMOTION_UNJUSTIFIED": "promotion", "DATA_DEGRADATION": "data_health"}
+          "TRAINING_INADMISSIBLE": "training", "PROMOTION_UNJUSTIFIED": "promotion", "DATA_DEGRADATION": "data_health",
+          "TIMING_EXIT_PENDING_OVERDUE": "timing", "TIMING_UNUSABLE": "timing"}
 
 
 def _owner(id_: str) -> str | None:
@@ -520,9 +534,20 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
                         ("Quote-Archiv heute / Median 14 T", f"{_f(row.get('data.quote_archive_today'))} / {_f(h.get('quote_archive_median_14d'))}"),
                         ("Quote-Archiv-Verzeichnis vorhanden", _f(h.get("quote_archive_root_exists")))])]
 
+    def timing_blocks(t):
+        return [("kv", [("Policy neuer Entscheidungen", _f(t.get("current_policy"))),
+                        ("Bestand je Policy", _f(t.get("by_policy"))),
+                        ("timing-v2 Entry offener Trades", _f(t.get("v2_active_entry"))),
+                        ("timing-v2 Exit ausstehend (ältester, Tage)",
+                         f"{_f(t.get('v2_exit_pending'))} ({_f(t.get('v2_exit_pending_oldest_days'))})"),
+                        ("Gründe ausstehend", _f(t.get("v2_exit_pending_reasons"))),
+                        ("timing-v2 ausgeführt / UNUSABLE", f"{_f(t.get('v2_closed'))} / {_f(t.get('v2_unusable'))}"),
+                        ("Gründe UNUSABLE", _f(t.get("v2_unusable_reasons"))),
+                        ("Abweichung Ausführung vs. Entscheid", _f(t.get("v2_deviation_vs_decision")))])]
+
     builders = {"run": run_blocks, "quote_coverage": quote_blocks, "lifecycle": lifecycle_blocks,
                 "forward": forward_blocks, "training": training_blocks, "promotion": promotion_blocks,
-                "integrity": integrity_blocks, "data_health": data_blocks}
+                "integrity": integrity_blocks, "data_health": data_blocks, "timing": timing_blocks}
     for name, label in SECTIONS.items():
         secs.append((label, sec(name, builders[name])))
     ar = [[a["status"], a["severity"], a["component"], a["id"], a["cause"], a["since"]] for a in al]

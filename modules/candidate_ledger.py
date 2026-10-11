@@ -853,6 +853,117 @@ def _single_leg_entry(rs: dict) -> dict:
     return rs
 
 
+def _timing_policy_current() -> str:
+    from modules import timing_policy
+    return timing_policy.current()
+
+
+def _is_v2(row: dict) -> bool:
+    return row.get("timing_policy") == "timing-v2"
+
+
+def _v2_symbols(row: dict, key: str) -> list:
+    spec = row.get(key) or {}
+    if key == "real_option":
+        return [spec.get("symbol")]
+    legs = spec.get("legs") or []
+    return [g.get("symbol") for g in sorted(legs, key=lambda g: 0 if g.get("side") == "long" else 1)]
+
+
+def _v2_entry(row: dict, key: str, now: datetime) -> bool:
+    """timing-v2-Entry eines Kandidaten (real_option | real_strategy): frühester zulässiger Fill ab dem Signalzeitpunkt
+    in der frühesten möglichen Sitzung (modules/timing_policy.find_fill) – nie vor dem Signal, nie nachbörslich oder
+    veraltet. FILLED -> Entry-Preise aus dem Archiv-Record; UNUSABLE -> kein Entry (Grund im Feld); PENDING -> wartet.
+    -> True, wenn sich die Zeile geändert hat."""
+    from modules import timing_policy as tp
+    spec = row.get(key)
+    if not isinstance(spec, dict) or not spec.get("entry_pending"):
+        return False
+    sig, syms = tp._ts(row.get("signal_timestamp")), _v2_symbols(row, key)
+    if sig is None or not syms or any(x is None for x in syms):
+        spec.update(entry_pending=False, entry_status="UNUSABLE",
+                    entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
+        return True
+    after = sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"]) if tp.in_window(sig, syms[0]) else sig
+    f = tp.find_fill(syms, after, now)
+    if f["status"] == "PENDING":
+        changed = spec.get("entry_status") != "PENDING"
+        spec.update(entry_status="PENDING", entry_earliest_day=f.get("day"))
+        return changed
+    if f["status"] == "UNUSABLE":
+        spec.update(entry_pending=False, entry_status="UNUSABLE", entry_unusable_reason=f.get("reason"),
+                    entry_earliest_day=f.get("day"))
+        return True
+    recs = f["records"]
+    fill_t = max(sig, tp._ts(f["time"]))
+    if key == "real_option":
+        r = recs[0]
+        spec.update(bid=r.get("bid"), ask=r.get("ask"), mid=r.get("mid"))
+    else:
+        by_sym = dict(zip(syms, recs))
+        for g in spec.get("legs") or []:
+            r = by_sym.get(g.get("symbol")) or {}
+            g.update(bid=r.get("bid"), ask=r.get("ask"), mid=r.get("mid"))
+        price = tp.entry_price(recs)
+        mids = [r.get("mid") for r in recs]
+        spec["net_debit_entry"] = price
+        spec["net_mid_entry"] = (round(mids[0] - mids[1], 4) if len(mids) > 1 and None not in mids
+                                 else mids[0] if len(mids) == 1 else None)
+    spec.update(entry_pending=False, entry_status="FILLED", entry_date=f["day"],
+                entry_filled_at=fill_t.isoformat(timespec="seconds"), entry_earliest_day=f["day"],
+                entry_quote_record_ids=[r.get("record_id") for r in recs])
+    return True
+
+
+def _fill_v2_entries(rows: list[dict]) -> bool:
+    """Offene timing-v2-Entries: im Mark-Fenster vorher frische Quotes abrufen (landen über den Hook im Archiv),
+    dann je Zeile der früheste zulässige Fill aus dem Archiv. Außerhalb des Fensters nur das Archiv."""
+    from modules import option_quotes as oq
+    pend = [(row, k) for row in rows if _is_v2(row) for k in ("real_option", "real_strategy")
+            if isinstance(row.get(k), dict) and row[k].get("entry_pending")]
+    if not pend:
+        return False
+    now = _now_utc()
+    if oq.mark_window(now) == "IN_WINDOW":
+        syms = sorted({x for row, k in pend for x in _v2_symbols(row, k) if x})
+        if syms:
+            market_snapshot.fetch_option_quotes(syms, context="candidate_entry_rth")
+    changed = False
+    for row, k in pend:
+        try:
+            changed |= _v2_entry(row, k, now)
+        except Exception as e:  # noqa: BLE001
+            log.warning(f"candidate_ledger._fill_v2_entries Fehler (ignoriert): {e}")
+    return changed
+
+
+def pending_entry_targets(today: str, root: Path = LEDGER_ROOT) -> dict:
+    """NUR LESEND: {OCC-Symbol: Signalzeitpunkt} offener timing-v2-Entries (Capture erfasst sie nur mit Abruf ab dem
+    Signal). Wirft nie."""
+    from modules import timing_policy as tp
+    out: dict = {}
+    try:
+        today_dt = datetime.strptime(today, "%Y-%m-%d")
+        for path in _iter_relevant_files(Path(root), today_dt):
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    try:
+                        row = json.loads(line) if line.strip() else None
+                    except ValueError:
+                        continue
+                    if not isinstance(row, dict) or not _is_v2(row):
+                        continue
+                    sig = tp._ts(row.get("signal_timestamp"))
+                    for k in ("real_option", "real_strategy"):
+                        if sig is not None and isinstance(row.get(k), dict) and row[k].get("entry_pending"):
+                            for x in _v2_symbols(row, k):
+                                if x:
+                                    out[x] = max(out.get(x, sig), sig)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"candidate_ledger.pending_entry_targets: {type(e).__name__}: {e}")
+    return out
+
+
 def _finalize_real_strategy(rs: dict, session: str, today: str) -> dict:
     """Analog zu _finalize_real_option, aber für alle Legs von real_strategy
     (Multi-Leg-Session-Gating): Optionen handeln nur in der regulären
@@ -1112,6 +1223,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "underlying":       resolved["underlying"],
                 "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
+                "timing_policy":    _timing_policy_current(),
                 # Externer Kontext: beim ersten note(external=...) eingefroren,
                 # hier unverändert persistiert (nie neu berechnet).
                 "external":         e.get("external"),
@@ -1140,10 +1252,16 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                     row["snapshot_selected"] = True
                     if signal_id in real_option_raw_by_id:
                         _t, real_option_raw = real_option_raw_by_id[signal_id]
-                        row["real_option"] = _finalize_real_option(real_option_raw, resolved["session"], today)
+                        _v2 = row["timing_policy"] == "timing-v2"
+                        _sess = "pending" if _v2 else resolved["session"]      # v2: Entry nur über _v2_entry
+                        row["real_option"] = _finalize_real_option(real_option_raw, _sess, today)
                         real_strategy_raw = real_strategy_raw_by_id.get(signal_id)
                         if real_strategy_raw is not None:
-                            row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, resolved["session"], today)
+                            row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, _sess, today)
+                        if _v2:
+                            for _k in ("real_option", "real_strategy"):
+                                if row.get(_k):
+                                    _v2_entry(row, _k, _now_utc())
                     else:
                         row["real_option_skip_reason"] = (
                             "no_api_key" if not os.environ.get("TRADIER_API_KEY", "").strip()
@@ -1302,6 +1420,10 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     except Exception as e:
         log.warning(f"candidate_ledger: real_strategy Entry-Fill Fehler (ignoriert): {e}")
     try:
+        changed |= _fill_v2_entries(rows)
+    except Exception as e:
+        log.warning(f"candidate_ledger: timing-v2 Entry-Fill Fehler (ignoriert): {e}")
+    try:
         changed |= _fill_return_horizons(rows, today_dt)
     except Exception as e:
         log.warning(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
@@ -1334,7 +1456,7 @@ def _fill_real_option_entries(rows: list[dict]) -> bool:
 
     pending = [
         row for row in rows
-        if isinstance(row.get("real_option"), dict) and row["real_option"].get("entry_pending")
+        if isinstance(row.get("real_option"), dict) and row["real_option"].get("entry_pending") and not _is_v2(row)
     ]
     if not pending:
         return False
@@ -1381,6 +1503,7 @@ def _fill_real_strategy_entries(rows: list[dict]) -> bool:
     pending = [
         row for row in rows
         if isinstance(row.get("real_strategy"), dict) and row["real_strategy"].get("entry_pending")
+        and not _is_v2(row)
     ]
     if not pending:
         return False

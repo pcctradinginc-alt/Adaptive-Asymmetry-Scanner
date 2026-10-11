@@ -102,7 +102,8 @@ def _candidate_meta(r: dict) -> dict:
     stage = "CHAMPION" if st == "proposed" else "LATE" if rs == "options_design" else "EARLY"
     return {"signal_id": r.get("signal_id"), "status": st, "reject_stage": rs, "stage": stage,
             "is_champion": st == "proposed", "signal_type": ft.get("prescreen_category"),
-            "vix_structure": ft.get("vix_structure"), "late_mark": bool(r.get("late_mark"))}
+            "vix_structure": ft.get("vix_structure"), "late_mark": bool(r.get("late_mark")),
+            "timing_policy": r.get("timing_policy") or "timing-v1"}          # Altbestand ohne Feld = timing-v1
 
 
 def _late(oc: dict, key: str, h: int, row_flag: bool) -> bool:
@@ -219,8 +220,12 @@ def from_champion_trades(history: dict | None = None, history_path: Path | None 
         ev = t.get("outcome_evaluation") or trade_evaluation(t, price_type=pt)
         # Netto = Brutto (Bid/Ask bereits gekreuzt) minus Kommission je Leg und Seite; nur für bewertbare Trades
         # (status OK) – modellierte/Proxy-Preise bekommen kein Netto und erreichen so weder Scorecard noch Training
+        from modules import timing_policy as tp
         from modules.outcomes import effective_entry_debit
-        debit, n_legs = effective_entry_debit(t), 2 if "SPREAD" in str(t.get("strategy", "")) else 1
+        policy = tp.policy_of(t)
+        v2_entry = ((t.get("timing") or {}).get("entry") or {}).get("price") if policy == tp.V2 else None
+        debit = float(v2_entry) if isinstance(v2_entry, (int, float)) and v2_entry > 0 else effective_entry_debit(t)
+        n_legs = 2 if "SPREAD" in str(t.get("strategy", "")) else 1
         cost = (2 * n_legs * COMMISSION_PER_CONTRACT_SIDE) / (debit * 100) if debit > 0 else None
         net = t.get("outcome_net")
         if net is None and ev["status"] == "OK" and cost is not None:
@@ -236,7 +241,7 @@ def from_champion_trades(history: dict | None = None, history_path: Path | None 
                         else (ev["status"] if cls == "RELIABLE" else cls),     # Methode ok, Bewertung nicht -> nie RELIABLE
                         label_available_at=_after(t.get("close_date")),
                         meta={"evaluation": ev, "strategy": t.get("strategy"), "is_champion": True,
-                              "stage": "CHAMPION", "close_reason": t.get("close_reason"),
+                              "stage": "CHAMPION", "close_reason": t.get("close_reason"), "timing_policy": policy,
                               "signal_type": (t.get("features") or {}).get("prescreen_category")}))
     return out
 
@@ -391,6 +396,10 @@ def scorecard(recs: list[dict] | None = None, *, as_of=None, alpha: float = 0.05
     for (pop, h), rs in sorted(by_pop.items(), key=lambda x: (x[0][0], x[0][1] or 0)):
         tag = f"{pop}_{h}d" if h is not None else pop
         cells[f"{tag}|ALL"] = rs
+        for pol in sorted({str((r.get("meta") or {}).get("timing_policy") or "timing-v1") for r in rs}):
+            # Timing-Policies immer getrennt (config/timing_policy.yaml): Altbestand v1 nie mit v2 vermischt
+            cells[f"{tag}|timing={pol}"] = [r for r in rs
+                                            if str((r.get("meta") or {}).get("timing_policy") or "timing-v1") == pol]
         if pop.startswith("CANDIDATE"):
             cells[f"{tag}|LATE_STAGE"] = [r for r in rs if (r.get("meta") or {}).get("stage") in ("LATE", "CHAMPION")]
             cells[f"{tag}|CHAMPION"] = [r for r in rs if (r.get("meta") or {}).get("stage") == "CHAMPION"]

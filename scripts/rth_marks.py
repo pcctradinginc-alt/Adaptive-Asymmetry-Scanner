@@ -55,31 +55,52 @@ def _read_history(path: Path) -> dict:
 
 def active_trade_symbols(history: dict) -> list[str]:
     """OCC-Symbole aller Legs aktiver Champion-Trades (fehlendes Symbol -> aus Strike/Verfall rekonstruiert)."""
+    from modules import timing_policy as tp
+    return sorted({g["symbol"] for t in history.get("active_trades") or [] for g in tp.trade_legs(t) if g["symbol"]})
+
+
+def _day_start(now: datetime) -> datetime:
+    from modules import market_snapshot as ms
+    d = now.astimezone(ms.NY_TZ).date()
+    return datetime.combine(d, datetime.min.time(), tzinfo=ms.NY_TZ).astimezone(timezone.utc)
+
+
+def trade_targets(history: dict, now: datetime) -> dict[str, datetime]:
+    """Symbol -> frühester verwertbarer Abrufzeitpunkt für Champion-/Counterfactual-Legs: Tagesbeginn (NY); bei
+    timing-v2 nie vor dem Entscheid eines noch offenen Entries bzw. dem Exit-Entscheid eines ausstehenden Exits
+    (eine frühere Quote wäre keine zulässige Ausführung)."""
+    from modules import timing_policy as tp
+    day0, out = _day_start(now), {}
+
+    def add(t: dict, after: datetime) -> None:
+        for g in tp.trade_legs(t):
+            if g["symbol"]:
+                out[g["symbol"]] = max(out.get(g["symbol"], day0), after)
+    for key in ("active_trades", "counterfactual_trades"):
+        for t in history.get(key) or []:
+            pending_entry = tp.policy_of(t) == tp.V2 and ((t.get("timing") or {}).get("entry") or {}).get("status") \
+                != "FILLED"
+            add(t, max(day0, tp._ts(t.get("decision_time")) or day0) if pending_entry else day0)
+    for key in ("exit_pending_trades", "counterfactual_exit_pending"):
+        for t in history.get(key) or []:
+            add(t, max(day0, tp._ts(t.get("close_time")) or day0))
+    return out
+
+
+def _satisfied(targets: dict[str, datetime], now: datetime) -> set[str]:
+    """Symbole, die am heutigen NY-Handelstag schon eine verwertbare RTH-Quote mit Abruf >= ihrem Mindestzeitpunkt
+    im Archiv haben."""
     from modules import option_quotes as oq
-    out = []
-    for t in history.get("active_trades") or []:
-        opt = t.get("option") or {}
-        right = "put" if "PUT" in str(t.get("strategy", "")).upper() or "BEAR" in str(t.get("strategy", "")).upper() \
-            else "call"
-        for leg in [opt] + ([opt["spread_leg"]] if opt.get("spread_leg") else []):
-            sym = leg.get("option_symbol") or leg.get("symbol")
-            if not sym:
-                try:
-                    sym = oq.occ_symbol(t.get("ticker"), leg.get("expiry") or opt.get("expiry"), right,
-                                        float(leg.get("strike")))
-                except (TypeError, ValueError):
-                    sym = None
-            if sym:
-                out.append(sym)
-    return sorted(set(out))
+    today = oq.ny_date(now)
+    hist = oq.rth_quote_history(list(targets), now, lookback_days=1)
+    return {s for s, rows in hist.items()
+            if any(day == today and oq._parse_ts(r.get("retrieved_at")) >= targets[s] for day, r in rows)}
 
 
 def _captured_today(symbols: list[str], now: datetime) -> set[str]:
-    """Symbole, die am heutigen NY-Handelstag schon eine verwertbare RTH-Quote im Archiv haben."""
-    from modules import option_quotes as oq
-    today = oq.ny_date(now)
-    hist = oq.rth_quote_history(symbols, now, lookback_days=1)
-    return {s for s, rows in hist.items() if any(day == today for day, _ in rows)}
+    """Symbole mit verwertbarer RTH-Quote am heutigen NY-Handelstag (ohne Mindestzeitpunkt)."""
+    day0 = _day_start(now)
+    return _satisfied({s: day0 for s in symbols}, now)
 
 
 def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_only: bool = False) -> dict:
@@ -92,10 +113,15 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
     if not ok:
         return res
     history = _read_history(history_path)
-    trade_syms = active_trade_symbols(history)
+    targets = trade_targets(history, now)
+    trade_syms = sorted(targets)
     if capture_only:
-        cand_syms = sorted(set(cl.due_mark_symbols(now.strftime("%Y-%m-%d"))) - set(trade_syms))
-        done = _captured_today(trade_syms + cand_syms, now)
+        day0 = _day_start(now)
+        cand_t = {c: day0 for c in cl.due_mark_symbols(now.strftime("%Y-%m-%d"))}
+        for c, sig in cl.pending_entry_targets(now.strftime("%Y-%m-%d")).items():   # timing-v2: nie vor dem Signal
+            cand_t[c] = max(cand_t.get(c, day0), sig)
+        cand_syms = sorted(set(cand_t) - set(trade_syms))
+        done = _satisfied({**{c: cand_t[c] for c in cand_syms}, **targets}, now)
         todo_t = [s for s in trade_syms if s not in done]
         todo_c = [s for s in cand_syms if s not in done]
         got = {}

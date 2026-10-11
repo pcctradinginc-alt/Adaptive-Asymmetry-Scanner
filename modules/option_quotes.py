@@ -458,11 +458,18 @@ def latest_quote(occ_symbol: str, as_of: datetime | str, *, root: Path | None = 
 # ---------------------------------------------------------------------------------------------
 # Handelssession und Suche nach Record-IDs (Options-Outcome-Kreislauf, 2026-10-11)
 # ---------------------------------------------------------------------------------------------
-def session_of(ts) -> str:
+def option_root(symbol) -> str | None:
+    """OCC-Wurzel (z. B. 'SPXW' aus 'SPXW261120C05000000'); None bei unlesbarem Symbol."""
+    m = _OCC_RE.match(str(symbol or "").strip().upper().replace(" ", ""))
+    return m.group(1) if m else None
+
+
+def session_of(ts, symbol=None) -> str:
     """US-Optionssession eines Zeitpunkts (America/New_York, DST über zoneinfo) nach dem NYSE-Kalender
-    (modules.market_snapshot): RTH 09:30–Schluss (16:00, an verkürzten Tagen 13:00), PRE 04:00–09:30,
-    POST Schluss–20:00, sonst CLOSED – Wochenenden, Börsenfeiertage und außerplanmäßige Schließtage sind
-    ganztägig CLOSED. UNKNOWN ohne Zeit."""
+    (modules.market_snapshot) und – mit `symbol` – instrumentenspezifischem Schluss: RTH 09:30–Schluss (Aktienoptionen
+    16:00, an verkürzten Tagen 13:00; konfigurierte Index-/ETF-Wurzeln 15 min später), PRE 04:00–09:30,
+    POST Schluss–20:00, sonst CLOSED – Wochenenden, Börsenfeiertage und Sonderschließungen ganztägig CLOSED.
+    UNKNOWN ohne Zeit."""
     t = _parse_ts(ts)
     if t is None:
         return "UNKNOWN"
@@ -471,7 +478,7 @@ def session_of(ts) -> str:
     if not ms.is_trading_day(et.date()):
         return "CLOSED"
     m = et.hour * 60 + et.minute
-    c = ms.market_close_time(et.date())
+    c = ms.option_close_time(et.date(), option_root(symbol))
     close_m = c.hour * 60 + c.minute
     if 570 <= m < close_m:
         return "RTH"
@@ -486,7 +493,7 @@ MARK_MIN_AFTER_OPEN = timedelta(minutes=30)      # Eröffnungsphase (breiteste S
 MARK_MIN_BEFORE_CLOSE = timedelta(minutes=10)    # Schlussauktion/letzte Minuten nie als Mark
 
 
-def mark_window(ts) -> str:
+def mark_window(ts, symbol=None) -> str:
     """Mark-Fenster nach NYSE-Kalender (DST-fest): IN_WINDOW = [Eröffnung + 30 min, Schluss − 10 min] eines
     Handelstags (verkürzte Sitzung: Schluss 13:00 ET); sonst BEFORE_WINDOW | AFTER_WINDOW | MARKET_CLOSED |
     UNKNOWN. Einzige Definition für Capture, Live-Marks und verwertbare Archiv-Quotes."""
@@ -494,7 +501,7 @@ def mark_window(ts) -> str:
     if t is None:
         return "UNKNOWN"
     from modules import market_snapshot as ms
-    bounds = ms.regular_session_utc(t.astimezone(ms.NY_TZ).date())
+    bounds = ms.regular_session_utc(t.astimezone(ms.NY_TZ).date(), option_root(symbol))
     if bounds is None:
         return "MARKET_CLOSED"
     if t < bounds[0] + MARK_MIN_AFTER_OPEN:
@@ -525,7 +532,8 @@ def usable_rth_quote(rec: dict | None) -> bool:
     nicht UNUSABLE/STALE, Bid und Ask > 0 (Exit zum Bid realisierbar)."""
     if not rec or rec.get("quality_status") == "UNUSABLE" or "STALE" in (rec.get("quality_flags") or []):
         return False
-    if mark_window(rec.get("retrieved_at")) != "IN_WINDOW" or quote_session(rec) != "RTH":
+    sym = rec.get("occ_symbol")
+    if mark_window(rec.get("retrieved_at"), sym) != "IN_WINDOW" or quote_session(rec) != "RTH":
         return False
     bid, ask = _num(rec.get("bid")), _num(rec.get("ask"))
     return bid is not None and ask is not None and bid > 0 and ask > 0
@@ -562,10 +570,10 @@ def rth_quote_history(symbols, as_of, *, root: Path | None = None,
 
 
 def quote_session(rec: dict | None) -> str:
-    """Session der Quote: Börsenzeit (quote_time), sonst Abrufzeit (retrieved_at)."""
+    """Session der Quote (instrumentenspezifisch): Börsenzeit (quote_time), sonst Abrufzeit (retrieved_at)."""
     if not rec:
         return "UNKNOWN"
-    return session_of(rec.get("quote_time") or rec.get("retrieved_at"))
+    return session_of(rec.get("quote_time") or rec.get("retrieved_at"), rec.get("occ_symbol"))
 
 
 def by_ids(record_ids, start, end=None, *, root: Path | None = None) -> dict[str, dict]:

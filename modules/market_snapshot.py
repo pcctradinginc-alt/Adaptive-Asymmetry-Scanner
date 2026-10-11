@@ -334,13 +334,39 @@ def market_close_time(d: date) -> dt_time:
     return MARKET_CLOSE
 
 
-def regular_session_utc(d: date) -> tuple[datetime, datetime] | None:
-    """(Eröffnung, Schluss) der regulären Sitzung am NY-Kalendertag d in UTC (DST über zoneinfo);
-    None an Wochenenden, Feiertagen und außerplanmäßigen Schließtagen."""
+@lru_cache(maxsize=4)
+def _instrument_sessions(path: str | None = None) -> tuple[frozenset, int]:
+    """(Optionswurzeln mit späterem Schluss, Minuten) aus config/market_calendar.yaml; fehlt/defekt -> keine
+    (konservativ: alle Optionen schließen wie Aktienoptionen)."""
+    p = Path(path) if path else CALENDAR_OVERRIDES
+    try:
+        import yaml
+        doc = (yaml.safe_load(p.read_text(encoding="utf-8")) or {}) if p.exists() else {}
+        sec = doc.get("instrument_sessions") or {} if isinstance(doc, dict) else {}
+        roots = frozenset(str(r).strip().upper() for r in (sec.get("late_close_roots") or []) if str(r).strip())
+        return roots, int(sec.get("late_close_minutes") or 0)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"market_snapshot: Instrument-Sessions aus {p} nicht lesbar ({type(e).__name__}: {e}) – Standard")
+        return frozenset(), 0
+
+
+def option_close_time(d: date, root: str | None = None) -> dt_time:
+    """Schlusszeit (New York) der Optionsklasse am Tag d: Aktienoptionen = market_close_time(d); konfigurierte
+    Wurzeln (z. B. SPY, SPX: 16:15 bzw. 13:15 ET an verkürzten Tagen) entsprechend später."""
+    base = market_close_time(d)
+    roots, minutes = _instrument_sessions()
+    if root and minutes and str(root).upper() in roots:
+        return (datetime.combine(d, base) + timedelta(minutes=minutes)).time()
+    return base
+
+
+def regular_session_utc(d: date, root: str | None = None) -> tuple[datetime, datetime] | None:
+    """(Eröffnung, Schluss) der regulären Sitzung am NY-Kalendertag d in UTC (DST über zoneinfo), optional für eine
+    Optionswurzel (instrumentenspezifischer Schluss); None an Wochenenden, Feiertagen und Sonderschließungen."""
     if not is_trading_day(d):
         return None
     o = datetime.combine(d, MARKET_OPEN, tzinfo=NY_TZ).astimezone(timezone.utc)
-    c = datetime.combine(d, market_close_time(d), tzinfo=NY_TZ).astimezone(timezone.utc)
+    c = datetime.combine(d, option_close_time(d, root), tzinfo=NY_TZ).astimezone(timezone.utc)
     return o, c
 
 

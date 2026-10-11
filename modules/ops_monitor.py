@@ -669,6 +669,35 @@ def data_health(P: dict, now: datetime) -> dict:
 
 
 # ── Gesamt ──────────────────────────────────────────────────────────────────
+def timing_status(hist: dict, now: datetime) -> dict:
+    """Timing-Policies getrennt (config/timing_policy.yaml): Bestand je Policy und Liste, timing-v2-Lebenszyklus
+    (Entry offen, Exit ausstehend, ausgeführt, UNUSABLE mit Gründen) und Abweichung Entscheid vs. Ausführung."""
+    from modules import timing_policy as tp
+    lists = {"active": hist.get("active_trades") or [], "exit_pending": hist.get("exit_pending_trades") or [],
+             "closed": hist.get("closed_trades") or [], "unusable": hist.get("closed_trades_unusable") or [],
+             "counterfactual_exit_pending": hist.get("counterfactual_exit_pending") or [],
+             "counterfactual_unusable": hist.get("counterfactual_unusable") or []}
+    v2 = {k: [t for t in v if tp.policy_of(t) == tp.V2] for k, v in lists.items()}
+    ages = []
+    for t in v2["exit_pending"]:
+        ct = tp._ts(t.get("close_time"))
+        if ct is not None:
+            ages.append(round((now - ct).total_seconds() / 86400, 2))
+    dev = [float(t["outcome"]) - float(t["outcome_at_decision"]) for t in v2["closed"]
+           if isinstance(t.get("outcome"), (int, float)) and isinstance(t.get("outcome_at_decision"), (int, float))]
+    return {"current_policy": tp.current(),
+            "by_policy": {k: dict(Counter(tp.policy_of(t) for t in v)) for k, v in lists.items()},
+            "v2_active_entry": dict(Counter(((t.get("timing") or {}).get("entry") or {}).get("status") or "UNBEWERTET"
+                                            for t in v2["active"])),
+            "v2_exit_pending": len(v2["exit_pending"]), "v2_exit_pending_oldest_days": max(ages) if ages else None,
+            "v2_exit_pending_reasons": dict(Counter(r for t in v2["exit_pending"]
+                                                    for r in (t.get("timing") or {}).get("reasons") or [])),
+            "v2_closed": len(v2["closed"]), "v2_unusable": len(v2["unusable"]),
+            "v2_unusable_reasons": dict(Counter(r for t in v2["unusable"] for r in (t.get("timing") or {}).get("reasons") or [])),
+            "v2_deviation_vs_decision": {"n": len(dev), "mean": round(statistics.fmean(dev), 6) if dev else None,
+                                         "definition": "Outcome zur zulässigen Ausführung minus Return zum Entscheid"}}
+
+
 def collect(now: datetime | None = None, paths: dict | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:                                       # naive Zeit = UTC (wie option_quotes)
@@ -684,7 +713,8 @@ def collect(now: datetime | None = None, paths: dict | None = None) -> dict:
             "training": _safe("training", training_status, P),
             "promotion": _safe("promotion", promotion_status, P),
             "integrity": _safe("integrity", integrity, hist, P, now),
-            "data_health": _safe("data_health", data_health, P, now)}
+            "data_health": _safe("data_health", data_health, P, now),
+            "timing": _safe("timing", timing_status, hist, now)}
 
 
 def _close_after_days() -> int:

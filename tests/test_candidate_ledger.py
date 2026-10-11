@@ -849,6 +849,8 @@ def test_update_outcomes_horizons_measured_from_entry_effective_date(monkeypatch
 # ── P0-B: echter Options-Kontrakt bei flush() ────────────────────────────────
 
 def test_flush_builds_real_option_when_direction_and_spot_known(monkeypatch, ledger_root):
+    # Altbestand-Konvention timing-v1 (sofortiger Entry zur Chain-Quote); timing-v2 siehe Regressionstest unten
+    monkeypatch.setattr(cl, "_timing_policy_current", lambda: "timing-v1")
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
     monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes",
                          lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2,
@@ -880,6 +882,31 @@ def test_flush_builds_real_option_when_direction_and_spot_known(monkeypatch, led
     assert len(calls) == 1
     assert calls[0][0] == "AAPL" and calls[0][1] == "BULLISH"
     assert calls[0][3] == pytest.approx(100.2)  # spot = entry_price (quote_mid)
+
+
+def test_flush_timing_v2_never_uses_unarchived_or_inadmissible_chain_quote(monkeypatch, ledger_root, tmp_path):
+    """Regression (Timing-Abweichung sichtbar): gleiche Situation wie oben, aber timing-v2 – ohne zulässige,
+    archivierte Quote ab dem Signal bleibt der Entry offen (kein Entry zur bloßen Chain-Quote)."""
+    from modules import option_quotes as oq
+    monkeypatch.setattr(oq, "ROOT", tmp_path / "quotes")
+    monkeypatch.setattr(cl, "_timing_policy_current", lambda: "timing-v2")
+    monkeypatch.setattr(cl, "_now_utc", lambda: datetime(2026, 9, 26, 15, 0, tzinfo=timezone.utc))
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes",
+                         lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2, "last": 100.1,
+                                               "prev_close": 99.0, "open": 100.0, "quote_ts": "t",
+                                               "source": "tradier"} for t in tickers})
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", lambda *a: {
+        "symbol": "AAPL261120C00100000", "strike": 100.0, "expiry": "2026-11-20", "dte": 55, "bid": 5.0, "ask": 5.4,
+        "mid": 5.2, "iv": 0.3, "delta": 0.5, "open_interest": 500, "quote_ts": "t"})
+    cl.start_run("2026-09-26")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.flush(reports_dir_root=ledger_root)
+    row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
+    ro = row["real_option"]
+    assert row["timing_policy"] == "timing-v2"
+    assert ro["entry_pending"] is True and ro["ask"] is None and ro["entry_status"] == "PENDING"
+    assert ro["snapshot_quote"]["ask"] == pytest.approx(5.4)                    # Chain-Quote nur informativ
 
 
 def test_flush_real_strategy_uses_batched_closes_and_term_point(monkeypatch, ledger_root):
