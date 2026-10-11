@@ -146,6 +146,6 @@ Fehlende Daten:
 - 41 Option- bzw. 127 Strategie-Marks (5 Tage) sind offen, weil RTH-Marks fehlten. Behoben durch den RTH-Schritt und den Single-Leg-Fix; die Marks werden nachgeholt und gegebenenfalls als verspätet geflaggt.
 - Das Decision-Ledger hat erst 3 Entscheidungen und 1 Outcome, die Challenger-Evidenz ist praktisch leer.
 - Meta-Label: noch keine 20-Tage-Labels (ab 2026-10-19).
-- Zeitumstellung: Ab 2026-11-01 ist 13:30 UTC = 08:30 ET (Pre-Market). Startet der Scanner zur Cron-Zeit, überspringt
-  der Schritt `Options-Marks (RTH)` mangels regulärer Session; dann fehlen Exit-Marks des Tages (Warnung im Bericht).
-  Über Startzeit/Cron entscheidet ein Mensch. `session_of` kennt zudem keine US-Feiertage.
+- Zeitumstellung und Börsenkalender: behoben (docs/OPERATIONS_READINESS.md). RTH-Quotes erfasst zusätzlich der
+  Workflow `options_capture.yml` (DST- und kalenderfest, 6 gestaffelte Crons); Marks nutzen außerhalb der Sitzung
+  archivierte RTH-Quotes; der Scanner-Guard rechnet in New-York-Zeit und überspringt NYSE-Feiertage.
