@@ -87,6 +87,7 @@ jobs:
       # verspätet (~19 UTC), der Feedback-Schritt am Ende liegt meist nach Handelsschluss. Idempotent, nie
       # entscheidungswirksam, außerhalb RTH ein No-op (scripts/rth_marks.py).
       - name: Options-Marks (RTH)
+        id: rthmarks
         continue-on-error: true
         env:
           TRADIER_API_KEY: ${{ secrets.TRADIER_API_KEY }}
@@ -94,6 +95,7 @@ jobs:
 
       # ── Scanner ──────────────────────────────────────────────────────────
       - name: Run Scanner
+        id: scanner
         env:
           ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
           TRADIER_API_KEY:       ${{ secrets.TRADIER_API_KEY }}
@@ -111,17 +113,40 @@ jobs:
 
       # ── Feedback Loop ────────────────────────────────────────────────────
       - name: Run Feedback Loop
+        id: feedback
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
         run: python feedback.py
 
+      # ── Ops-Monitoring (READ-ONLY, nach jedem regulären Scanner-Lauf) ───
+      # Liest nur Ledger/Archive/Zustände, schreibt ausschließlich outputs/monitoring/ (JSON/MD/HTML, Verlauf,
+      # Alarm-Zustand). Läuft auch nach einem Scanner-Fehler (always), meldet ihn als Warnung; Mail nur bei
+      # neuen/geänderten/kritischen Warnungen (bestehende Mail-Infrastruktur). Nie lauf-blockierend.
+      - name: Ops-Monitoring (read-only)
+        if: always()
+        continue-on-error: true
+        env:
+          OPS_STEP_OUTCOMES: "rth_marks=${{ steps.rthmarks.outcome }} scanner=${{ steps.scanner.outcome }} feedback=${{ steps.feedback.outcome }}"
+          GMAIL_SENDER:    ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW:    ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
+        run: python -m modules.ops_report --mail
+
       # ── Git Commit ───────────────────────────────────────────────────────
+      # (enthält outputs/monitoring/; ci_push.sh stasht nicht committete Dateien -> kein schmaler Commit davor)
       - name: Commit daily report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           bash scripts/ci_push.sh "chore: daily report $(date -u +%Y-%m-%d)" outputs/
+
+      - name: Commit Ops-Monitoring nach Scanner-Fehler
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: ops monitoring (Scanner-Fehler) $(date -u +%Y-%m-%dT%H:%M)" outputs/monitoring/
 
       # ── UNIVERSE_V2 Shadow-Scan (LLM-frei, keine Produktionswirkung) ─────
       - name: UNIVERSE_V2 Shadow-Scan
