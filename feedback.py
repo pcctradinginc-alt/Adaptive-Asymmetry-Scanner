@@ -262,16 +262,8 @@ def _expiry_close(ticker: str, expiry_str: str) -> float | None:
     """Offizieller, UNbereinigter Schlusskurs genau am Verfallstag (Settlement-Basis).
     auto_adjust=False: dividendenbereinigte Kurse passen nicht zu den (unbereinigten) Strikes.
     Liegt kein Balken exakt am Verfallstag vor (Feiertag, Datenlücke) -> None, nie der Folgetag."""
-    expiry_dt = datetime.strptime(expiry_str, "%Y-%m-%d")
-    end_str = (expiry_dt + timedelta(days=4)).strftime("%Y-%m-%d")
-    hist = yf.Ticker(ticker).history(start=expiry_str, end=end_str, auto_adjust=False)
-    if hist is None or hist.empty:
-        return None
-    idx = [d for d in hist.index if getattr(d, "date", lambda: d)() == expiry_dt.date()]
-    if not idx:
-        return None
-    close = float(hist.loc[idx[0], "Close"])
-    return close if close > 0 else None
+    from modules.market_snapshot import unadjusted_close_on
+    return unadjusted_close_on(ticker, expiry_str)
 
 
 def _expired_option_intrinsic(ticker: str, option: dict, strategy: str) -> float | None:
@@ -424,19 +416,8 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
     is_spread = "SPREAD" in strategy
 
     # ── Entry-Debit ermitteln ────────────────────────────────────────────────
-    entry_debit = float(trade.get("entry_debit") or 0)
-    if entry_debit <= 0:
-        if is_spread:
-            sl  = option.get("spread_leg") or {}
-            nd  = option.get("net_debit")
-            if nd:
-                entry_debit = float(nd)
-            else:
-                la = float(option.get("ask", 0))
-                sb = float(sl.get("bid", 0))
-                entry_debit = round(la - sb, 2) if la > 0 and sb > 0 else la
-        else:
-            entry_debit = float(option.get("ask", 0)) or float(option.get("last", 0))
+    from modules.outcomes import effective_entry_debit
+    entry_debit = effective_entry_debit(trade)          # eine Definition für Outcome und Bewertung
 
     # ── Spread: beide Legs repricing, kein Stock-Fallback ───────────────────
     if is_spread:
@@ -515,10 +496,13 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
             return result
 
     # ── Letzter Fallback: Stock-Return (nur wenn kein Debit bekannt) ─────────
+    # Richtungsbereinigt wie die Delta-Näherung oben: Put gewinnt, wenn die Aktie fällt (Re-Audit 2026-10-11 –
+    # vorher roh, ein steigender Kurs hätte bei einem Put Take-Profit statt Stop ausgelöst)
     if meta is not None:
         meta["method"], meta["price_type"] = "stock_fallback", "UNDERLYING_PROXY"
-    log.info(f"    Stock-Return Fallback: {stock_return:+.2%}")
-    return stock_return
+    result = -stock_return if _option_type_from_strategy(strategy) == "put" else stock_return
+    log.info(f"    Stock-Return Fallback: {result:+.2%}")
+    return result
 
 
 # ── Regelbasierte Exits ───────────────────────────────────────────────────────
@@ -1038,11 +1022,25 @@ def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime 
                 except (TypeError, ValueError):
                     sym = None
             syms.append(sym)
-        exit_ids = []
+        exit_ids, exit_q = [], []
         for sym in syms:
             q = oq.latest_quote(sym, now, lookback_days=1) if sym else None
             exit_ids.append(q["record_id"] if q else None)
-        debit = float(trade.get("entry_debit") or 0)
+            exit_q.append(q)
+        # Entry-Quotes je Leg aus dem Archiv (IDs beim Booking gesetzt; fehlend -> None = nicht archiviert)
+        e_ids = list(trade.get("entry_quote_record_ids") or [])
+        e_day = str(trade.get("entry_date") or "")[:10]
+        found = {}
+        if e_ids and e_day:
+            d0 = datetime.strptime(e_day, "%Y-%m-%d").date()
+            found = oq.by_ids(e_ids, (d0 - timedelta(days=1)).isoformat(), (d0 + timedelta(days=1)).isoformat())
+        entry_q = [found.get(i) for i in e_ids] + [None] * max(0, len(legs) - len(e_ids))
+        from modules.outcomes import trade_evaluation
+        evaluation = trade_evaluation({**trade, "outcome": outcome}, price_type=meta.get("price_type"),
+                                      entry_quotes=entry_q[:len(legs)], exit_quotes=exit_q)
+        trade["outcome_evaluation"] = evaluation
+        from modules.outcomes import effective_entry_debit
+        debit = effective_entry_debit(trade)
         per_contract = float(getattr(getattr(cfg, "costs", None), "commission_per_contract", 0.65))
         cost_ret = (per_contract * len(legs) * 2) / (debit * 100) if debit > 0 else None
         net = round(outcome - cost_ret, 6) if cost_ret is not None else None
@@ -1060,13 +1058,21 @@ def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime 
                "entry_debit": debit or None, "entry_quote_record_ids": trade.get("entry_quote_record_ids") or [],
                "exit_quote_record_ids": exit_ids, "outcome": round(outcome, 6), "outcome_net": net,
                "outcome_method": meta.get("method"), "price_type": meta.get("price_type"),
-               "reliable": meta.get("method") in RELIABLE_OUTCOME_METHODS, "cost_model": cost_model,
+               "reliable": meta.get("method") in RELIABLE_OUTCOME_METHODS and evaluation["status"] == "OK",
+               "evaluation": evaluation, "cost_model": cost_model,
                "recorded_at": now.isoformat(timespec="seconds")}
         append_jsonl(path, [rec], sort_keys=True, ensure_ascii=False)
         return rec
     except Exception as e:  # noqa: BLE001
         log.warning(f"  [{trade.get('ticker')}] Trade-Outcome-Record Fehler (ignoriert): {type(e).__name__}: {e}")
         return None
+
+
+def learnable_on_close(trade: dict, meta: dict) -> bool:
+    """Lernbar nur, wenn die Preismethode verlässlich ist UND die Bewertung (trade-eval-v1: Debit, Entry-/Exit-Quote,
+    Preistyp) OK ergibt. Fehlt die Bewertung (z. B. Fehler im Outcome-Record) -> nicht lernbar (konservativ)."""
+    return meta.get("method") in RELIABLE_OUTCOME_METHODS and \
+        (trade.get("outcome_evaluation") or {}).get("status") == "OK"
 
 
 def learn_on_close(history: dict, trade: dict, outcome: float, reliable: bool) -> dict:
@@ -1332,6 +1338,14 @@ def main() -> None:
             trade["outcome_price_type"] = meta.get("price_type")     # OBSERVED_QUOTE | SETTLEMENT_INTRINSIC | MODELED | …
             _spread_execution_exit(trade, _spread_obs, today)
             record_trade_outcome(trade, outcome, meta)
+            # Lernen nur, wenn die Methode verlässlich ist UND die Bewertung (Entry-/Exit-Quotes, Debit, Preistyp)
+            # OK ergibt – ein Datenfehler fließt nie unbemerkt in Bins/Gewichte/RL (2026-10-11)
+            _ev = trade.get("outcome_evaluation") or {}
+            if reliable and not learnable_on_close(trade, meta):
+                reliable = False
+                trade["outcome_reliable"] = False
+                log.warning(f"  [{ticker}] Outcome nicht lernbar: Bewertung {_ev.get('status') or 'FEHLT'} "
+                            f"{_ev.get('reasons') or ''}")
             learn_on_close(history, trade, outcome, reliable)
             history.setdefault("closed_trades", []).append(trade)
             log.info(

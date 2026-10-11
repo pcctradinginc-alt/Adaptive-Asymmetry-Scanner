@@ -1123,6 +1123,10 @@ def test_update_outcomes_real_opt_ret_uses_intrinsic_when_expired(monkeypatch, l
     # Underlying schließt am Verfallstag (08-06, d=5) bei 110 -> Intrinsic Call = 10
     hist = {"AAPL": [(entry_dt + timedelta(days=d), 100.0 + d * 2) for d in range(0, 10)]}
     monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: hist)
+    # Settlement = UNbereinigter Schluss exakt am Verfallstag (gemeinsame Quelle seit 2026-10-11)
+    asked = []
+    monkeypatch.setattr(cl.market_snapshot, "unadjusted_close_on",
+                        lambda tk, d: asked.append((tk, d.date())) or 110.0)
     called = {"n": 0}
     def fake_quotes(symbols):
         called["n"] += 1
@@ -1138,6 +1142,7 @@ def test_update_outcomes_real_opt_ret_uses_intrinsic_when_expired(monkeypatch, l
     # Intrinsic = max(110-100, 0) = 10 -> real_opt_ret_5d = 10/3.4 - 1
     assert outcomes["real_opt_ret_5d"] == pytest.approx(10.0 / 3.4 - 1.0, abs=1e-4)
     assert outcomes["real_opt_ret_mid_5d"] == pytest.approx(10.0 / 3.2 - 1.0, abs=1e-4)
+    assert asked and set(asked) == {("AAPL", datetime(2026, 8, 6).date())}     # exakt der Verfallstag
 
 
 def test_update_outcomes_real_opt_ret_flags_late_mark(monkeypatch, ledger_root):
@@ -1810,10 +1815,7 @@ def test_fill_real_strategy_marks_bull_call_spread_positive_exit(monkeypatch):
 def test_fill_real_strategy_marks_uses_intrinsic_after_expiry(monkeypatch):
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", lambda symbols: {})
-    monkeypatch.setattr(
-        cl, "_fetch_history_batch",
-        lambda tickers, period_days: {"AAPL": [(datetime(2026, 8, 1), 115.0)]},
-    )
+    monkeypatch.setattr(cl.market_snapshot, "unadjusted_close_on", lambda tk, d: 115.0)
     row = {
         "ticker": "AAPL", "direction": "BULLISH",
         "real_strategy": {
@@ -1835,10 +1837,7 @@ def test_fill_real_strategy_marks_uses_intrinsic_after_expiry(monkeypatch):
 def test_fill_real_strategy_marks_bearish_put_spread_intrinsic_at_expiry(monkeypatch):
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", lambda symbols: {})
-    monkeypatch.setattr(
-        cl, "_fetch_history_batch",
-        lambda tickers, period_days: {"AAPL": [(datetime(2026, 8, 1), 85.0)]},
-    )
+    monkeypatch.setattr(cl.market_snapshot, "unadjusted_close_on", lambda tk, d: 85.0)
     row = {
         "ticker": "AAPL", "direction": "BEARISH",
         "real_strategy": {
@@ -2017,3 +2016,54 @@ def test_flush_persists_frozen_external_context(monkeypatch, ledger_root):
     row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
     assert row["external"]["snapshot_id"] == "snapA"
     assert row["external"]["primitives"]["freight_eu_z"] == -0.16
+
+
+def test_expiry_settlement_without_exact_day_close_is_not_marked(monkeypatch):
+    """Re-Audit 2026-10-11: Fehlt der unbereinigte Schluss exakt am Verfallstag (Feiertag/Lücke), wird NICHT
+    markiert (kein bereinigter "am oder vor"-Kurs, kein Folgetag) – der Outcome bleibt offen statt falsch."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes", lambda symbols: {})
+    monkeypatch.setattr(cl.market_snapshot, "unadjusted_close_on", lambda tk, d: None)
+    row = {"ticker": "AAPL", "direction": "BULLISH",
+           "real_option": {"symbol": "X", "strike": 100.0, "expiry": "2026-08-06", "entry_pending": False,
+                           "entry_date": "2026-08-01", "ask": 3.4, "mid": 3.2},
+           "outcomes": {}}
+    assert cl._fill_real_option_marks([row], datetime(2026, 8, 20)) is False
+    assert not any(k.startswith("real_opt_ret") for k in row["outcomes"])
+
+
+def test_single_leg_strategy_is_marked_from_recorded_long_leg_quote(monkeypatch):
+    """Re-Audit 2026-10-11: Single-Leg-Strategien (LONG_CALL/PUT) hatten nie net_debit_entry und blieben dauerhaft
+    unmarkiert. Entry = aufgezeichnete Ask/Mid des Long-Legs; Exit = Bid/Mid (kein Modellpreis)."""
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
+                        lambda symbols, context="candidate_mark": {"L": {"bid": 9.0, "ask": 9.4, "mid": 9.2}})
+    row = {"ticker": "AAPL", "direction": "BULLISH", "outcomes": {},
+           "real_strategy": {"strategy": "LONG_CALL", "entry_pending": False, "entry_date": "2026-09-28",
+                             "expiry": "2027-02-19",
+                             "legs": [{"symbol": "L", "strike": 270.0, "side": "long", "bid": 9.5, "ask": 10.0,
+                                       "mid": 9.75}]}}
+    assert cl._fill_real_strategy_marks([row], datetime(2026, 10, 3)) is True
+    assert row["outcomes"]["real_strat_ret_5d"] == pytest.approx(9.0 / 10.0 - 1.0, abs=1e-4)
+    assert row["outcomes"]["real_strat_ret_mid_5d"] == pytest.approx(9.2 / 9.75 - 1.0, abs=1e-4)
+    assert not row.get("late_mark")
+
+
+def test_late_strategy_mark_does_not_downgrade_on_time_option_mark(monkeypatch):
+    from modules import evidence_ledger as el
+    monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
+                        lambda symbols, context="candidate_mark": {"L": {"bid": 9.0, "ask": 9.4, "mid": 9.2}})
+    row = {"signal_id": "s1", "ticker": "AAPL", "direction": "BULLISH", "date": "2026-09-28",
+           "signal_timestamp": "2026-09-28T15:00:00+00:00", "features": {},
+           "outcomes": {"real_opt_ret_5d": 0.1, "real_opt_mark_date_5d": "2026-10-03"},
+           "real_option": {"symbol": "L", "ask": 10.0, "mid": 9.75, "entry_date": "2026-09-28",
+                           "expiry": "2027-02-19", "entry_pending": False},
+           "real_strategy": {"strategy": "LONG_CALL", "entry_pending": False, "entry_date": "2026-09-28",
+                             "expiry": "2027-02-19",
+                             "legs": [{"symbol": "L", "strike": 270.0, "side": "long", "ask": 10.0, "mid": 9.75}]}}
+    cl._fill_real_strategy_marks([row], datetime(2026, 10, 20))          # 17 Tage nach Horizont -> verspätet
+    assert row["outcomes"]["real_strat_late_5d"] is True and row["late_mark"] is True
+    q = {(x["population"], x["horizon"]): x["quality"] for x in el._candidate_option_records(row)}
+    assert q[("CANDIDATE_OPTION", 5)] == "RELIABLE" and q[("CANDIDATE_STRATEGY", 5)] == "LATE_MARK"
+    assert q[("CANDIDATE_STRATEGY", 20)] == "RELIABLE"                  # 20-Tage-Horizont pünktlich markiert

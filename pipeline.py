@@ -446,12 +446,17 @@ def _archive_entry_quotes(p: dict) -> list[str]:
         if opt.get("spread_leg"):
             legs.append((opt["spread_leg"], (opt["spread_leg"] or {}).get("symbol")))
         for leg, sym in legs:
+            # fehlende Bid/Ask (vom Designer für die Bestandslogik zu 0 gemacht) bleiben im Archiv fehlend
             raw = {"symbol": sym, "strike": leg.get("strike"), "expiry": leg.get("expiry") or opt.get("expiry"),
-                   "right": right, "bid": leg.get("bid"), "ask": leg.get("ask"),
+                   "right": right, "bid": None if leg.get("bid_missing") else leg.get("bid"),
+                   "ask": None if leg.get("ask_missing") else leg.get("ask"),
                    "open_interest": leg.get("open_interest"), "volume": leg.get("volume"),
+                   "quote_time": leg.get("quote_time"),
                    "iv": leg.get("implied_vol") if leg.get("iv_source", "chain") == "chain" else None,
                    "delta": leg.get("delta") if leg.get("delta_source", "chain") == "chain" else None}
-            rid = oq.capture(raw, underlying=p.get("ticker") or "", source=src, context="trade_entry")
+            # retrieved_at = tatsächlicher Chain-Abruf (nicht der spätere Buchungszeitpunkt)
+            rid = oq.capture(raw, underlying=p.get("ticker") or "", source=src, context="trade_entry",
+                             retrieved_at=opt.get("chain_retrieved_at"))
             if rid:
                 ids.append(rid)
     except Exception as e:  # noqa: BLE001 – Archiv ist Beobachtung, nie Buchungsbedingung

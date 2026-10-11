@@ -82,6 +82,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # ── Options-Marks im RTH-Fenster (vor der langen Pipeline) ──────────
+      # Real-Options-Marks und Quotes aktiver Champion-Kontrakte nur in der regulären Session; der Job startet
+      # verspätet (~19 UTC), der Feedback-Schritt am Ende liegt meist nach Handelsschluss. Idempotent, nie
+      # entscheidungswirksam, außerhalb RTH ein No-op (scripts/rth_marks.py).
+      - name: Options-Marks (RTH)
+        continue-on-error: true
+        env:
+          TRADIER_API_KEY: ${{ secrets.TRADIER_API_KEY }}
+        run: python scripts/rth_marks.py
+
       # ── Scanner ──────────────────────────────────────────────────────────
       - name: Run Scanner
         env:

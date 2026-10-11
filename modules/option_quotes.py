@@ -450,3 +450,42 @@ def latest_quote(occ_symbol: str, as_of: datetime | str, *, root: Path | None = 
     except Exception as e:  # noqa: BLE001
         log.warning(f"option_quotes.latest_quote: {type(e).__name__}: {e}")
         return None
+
+
+# ---------------------------------------------------------------------------------------------
+# Handelssession und Suche nach Record-IDs (Options-Outcome-Kreislauf, 2026-10-11)
+# ---------------------------------------------------------------------------------------------
+def session_of(ts) -> str:
+    """US-Optionssession eines Zeitpunkts (America/New_York): RTH 09:30–16:00, PRE 04:00–09:30, POST 16:00–20:00,
+    sonst CLOSED (inkl. Wochenende); UNKNOWN ohne Zeit. Börsenfeiertage sind NICHT berücksichtigt (konservativ:
+    ein Feiertag erscheint als RTH; die Quote selbst ist dann typischerweise STALE geflaggt)."""
+    t = _parse_ts(ts)
+    if t is None:
+        return "UNKNOWN"
+    from zoneinfo import ZoneInfo
+    et = t.astimezone(ZoneInfo("America/New_York"))
+    if et.weekday() >= 5:
+        return "CLOSED"
+    m = et.hour * 60 + et.minute
+    if 570 <= m < 960:
+        return "RTH"
+    if 240 <= m < 570:
+        return "PRE"
+    if 960 <= m < 1200:
+        return "POST"
+    return "CLOSED"
+
+
+def quote_session(rec: dict | None) -> str:
+    """Session der Quote: Börsenzeit (quote_time), sonst Abrufzeit (retrieved_at)."""
+    if not rec:
+        return "UNKNOWN"
+    return session_of(rec.get("quote_time") or rec.get("retrieved_at"))
+
+
+def by_ids(record_ids, start, end=None, *, root: Path | None = None) -> dict[str, dict]:
+    """{record_id: Record} für die gesuchten IDs aus den Tagesdateien start..end (wirft nie)."""
+    want = {i for i in (record_ids or []) if isinstance(i, str) and i}
+    if not want:
+        return {}
+    return {r["record_id"]: r for r in read(start, end, root=root) if r.get("record_id") in want}

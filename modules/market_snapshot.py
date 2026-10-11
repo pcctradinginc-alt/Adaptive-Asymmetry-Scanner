@@ -690,7 +690,7 @@ def _archive_quote(raw: dict, underlying: str, context: str) -> str | None:
         return None
 
 
-def fetch_option_quotes(symbols: list[str]) -> dict:
+def fetch_option_quotes(symbols: list[str], context: str = "candidate_mark") -> dict:
     """
     Gebündelter Tradier-Quote-Abruf für OCC-Options-Symbole (für
     real_opt_ret-Marks in candidate_ledger.update_outcomes). Ohne
@@ -708,7 +708,7 @@ def fetch_option_quotes(symbols: list[str]) -> dict:
                 sym = q.get("symbol")
                 if not sym:
                     continue
-                _archive_quote(q, q.get("underlying") or q.get("root_symbol") or "", "candidate_mark")
+                _archive_quote(q, q.get("underlying") or q.get("root_symbol") or "", context)
                 bid = _f(q.get("bid"))
                 ask = _f(q.get("ask"))
                 mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
@@ -719,3 +719,25 @@ def fetch_option_quotes(symbols: list[str]) -> dict:
         except Exception as e:
             log.debug(f"market_snapshot.fetch_option_quotes Fehler (ignoriert): {e}")
     return out
+
+
+def unadjusted_close_on(ticker: str, day) -> float | None:
+    """Offizieller, UNbereinigter Schlusskurs GENAU an `day` (Settlement-Basis verfallener Optionen).
+    auto_adjust=False: dividendenbereinigte Kurse passen nicht zu den (unbereinigten) Strikes. Kein Balken exakt an
+    diesem Tag (Feiertag, Datenlücke) -> None, nie der Vor- oder Folgetag. Gemeinsame Quelle für feedback.py und
+    candidate_ledger (vorher zwei Varianten, eine davon bereinigt und "am oder vor")."""
+    try:
+        import yfinance as yf
+        d = day.date() if isinstance(day, datetime) else day if isinstance(day, date) else date.fromisoformat(str(day)[:10])
+        hist = yf.Ticker(ticker).history(start=d.isoformat(), end=(d + timedelta(days=4)).isoformat(),
+                                         auto_adjust=False)
+        if hist is None or hist.empty:
+            return None
+        idx = [x for x in hist.index if getattr(x, "date", lambda: x)() == d]
+        if not idx:
+            return None
+        close = float(hist.loc[idx[0], "Close"])
+        return close if close > 0 else None
+    except Exception as e:  # noqa: BLE001 – kein Settlement ermittelbar -> None (Aufrufer markiert nicht)
+        log.warning(f"market_snapshot.unadjusted_close_on [{ticker} {day}]: {type(e).__name__}: {e}")
+        return None

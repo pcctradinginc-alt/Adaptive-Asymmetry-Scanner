@@ -406,6 +406,15 @@ def _tradier_chain(symbol: str, expiration: str) -> list[dict]:
         return []
 
 
+def _epoch_ms_iso(v) -> str | None:
+    """Tradier bid_date/ask_date/trade_date (ms seit Epoch) -> ISO-UTC; sonst None (nie geraten)."""
+    try:
+        f = float(v)
+        return datetime.fromtimestamp(f / 1000.0, tz=timezone.utc).isoformat(timespec="seconds") if f > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
 def _tradier_chain_to_df(options: list[dict], option_type: str) -> pd.DataFrame:
     rows = []
     for o in options:
@@ -440,6 +449,12 @@ def _tradier_chain_to_df(options: list[dict], option_type: str) -> pd.DataFrame:
             "_option_symbol":    o.get("symbol", ""),
             "iv_defaulted":      iv_defaulted,
             "delta_missing":     delta_missing,
+            # Beobachtungs-Metadaten fürs Quote-Archiv (Champion-Logik nutzt sie nicht): fehlende Bid/Ask wurden
+            # oben für die Bestandslogik zu 0 – im Archiv bleiben sie fehlend (None), nie 0
+            "bid_missing":       o.get("bid") is None,
+            "ask_missing":       o.get("ask") is None,
+            "quote_time":        (_epoch_ms_iso(o.get("bid_date")) or _epoch_ms_iso(o.get("ask_date"))
+                                  or _epoch_ms_iso(o.get("trade_date"))),
         })
 
     if not rows:
@@ -1041,6 +1056,7 @@ class OptionsDesigner:
             option_type = "call" if is_call else "put"
 
             raw = _tradier_chain(ticker, best_expiry)
+            chain_at = datetime.now(timezone.utc).isoformat(timespec="seconds")   # tatsächlicher Abrufzeitpunkt
             if not raw:
                 return None
 
@@ -1104,6 +1120,11 @@ class OptionsDesigner:
                 "volume":        int(best.get("volume", 0) or 0),
                 "iv_source":     "default_0.30" if bool(best.get("iv_defaulted", False)) else "chain",
                 "delta_source":  "missing" if bool(best.get("delta_missing", False)) else "chain",
+                # Beobachtungszeit fürs Quote-Archiv (PIT, Session): Abruf der Chain + Börsenzeit der Quote
+                "chain_retrieved_at": chain_at,
+                "quote_time":    best.get("quote_time") or None,
+                "bid_missing":   bool(best.get("bid_missing", False)),
+                "ask_missing":   bool(best.get("ask_missing", False)),
                 # Providerwechsel nie verborgen (Source Health): Primary vs. tatsächlich genutzt
                 "source_primary": "options_chain",
                 "source_actual":  "options_chain",
@@ -1222,8 +1243,14 @@ class OptionsDesigner:
             return None
         idx = (opts["strike"] - target_strike).abs().idxmin()
         best = opts.loc[idx]
-        return {"strike": float(best["strike"]),
-                "bid": float(best["bid"]), "ask": float(best["ask"])}
+        leg = {"strike": float(best["strike"]),
+               "bid": float(best["bid"]), "ask": float(best["ask"])}
+        if "_option_symbol" in best.index:          # nur Tradier-Chain: Identität + Beobachtungszeit fürs Archiv
+            leg.update(symbol=best.get("_option_symbol") or None, quote_time=best.get("quote_time") or None,
+                       bid_missing=bool(best.get("bid_missing", False)),
+                       ask_missing=bool(best.get("ask_missing", False)),
+                       open_interest=int(best.get("openInterest", 0) or 0), volume=int(best.get("volume", 0) or 0))
+        return leg
 
     # ── ATM Straddle (Market-Implied Expected Move) ───────────────────────────
 

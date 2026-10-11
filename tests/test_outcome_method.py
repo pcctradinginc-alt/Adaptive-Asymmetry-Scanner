@@ -149,6 +149,16 @@ class TestComputeOutcomeMethodTracking:
         assert meta["method"] == "stock_fallback"
         assert abs(outcome - 0.0667) < 0.001
 
+    def test_stock_fallback_put_is_direction_adjusted(self, base_trade):
+        """Re-Audit 2026-10-11: Put ohne Debit – Aktie +6,67 % ist ein Verlust für den Put, nie ein Gewinn
+        (vorher roh; hätte bei Puts Take-Profit statt Stop auslösen können)."""
+        put = {**base_trade, "strategy": "LONG_PUT", "entry_debit": 0,
+               "option": {"strike": 100, "expiry": "2026-02-01"}}
+        meta = {}
+        outcome = compute_outcome(put, 160.0, meta)
+        assert meta["method"] == "stock_fallback" and meta["price_type"] == "UNDERLYING_PROXY"
+        assert abs(outcome + 0.0667) < 0.001
+
     def test_return_value_unchanged_with_meta(self, base_trade, monkeypatch):
         """Verify return values are identical with and without meta parameter."""
         mock_option_price = MagicMock(return_value=3.0)

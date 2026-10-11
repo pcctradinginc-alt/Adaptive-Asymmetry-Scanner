@@ -84,3 +84,89 @@ def artifact_is_current(art, n_claimed=None, current_reliable=None) -> bool:
     if n_claimed is not None and current_reliable is not None and n_claimed > current_reliable:
         return False
     return True
+
+
+# ── Bewertungsstatus geschlossener Options-Trades (Outcome-Kreislauf, 2026-10-11) ─────────────
+# OK        realisierbarer Preis auf beiden Seiten (beobachtete Quote oder vertragliches Settlement)
+# UNUSABLE  Outcome existiert, ist aber kein realisierbarer Preis (Modell/Proxy/unbrauchbare Quote) -> nie Evidenz
+# DATA_BAD  Eingangsdaten widersprüchlich/ungültig (Entry-Debit, nicht-endlicher Outcome, unbrauchbare Entry-Quote)
+# Offene Trades sind PENDING (kein Record). Ein Verlust mit Status OK ist ein echter Verlust; UNUSABLE/DATA_BAD
+# sind "nicht bewertbar" – nie als Verlust oder Gewinn zu zählen.
+TRADE_EVAL_VERSION = "trade-eval-v1"
+_EXIT_REASON_BY_PRICE_TYPE = {"MODELED": "EXIT_PRICE_MODELED", "UNDERLYING_PROXY": "EXIT_PRICE_UNDERLYING_PROXY"}
+
+
+def effective_entry_debit(trade: dict) -> float:
+    """Entry-Debit je Kontrakt wie im Outcome-Pfad (einzige Definition, von feedback.compute_outcome genutzt):
+    gespeichertes entry_debit > 0, sonst Spread: net_debit bzw. Long-Ask − Short-Bid, Long: Ask bzw. Last. 0 = unbekannt."""
+    option = trade.get("option") or {}
+    try:
+        debit = float(trade.get("entry_debit") or 0)
+        if debit > 0:
+            return debit
+        if "SPREAD" in str(trade.get("strategy", "")):
+            sl, nd = option.get("spread_leg") or {}, option.get("net_debit")
+            if nd:
+                return float(nd)
+            la, sb = float(option.get("ask", 0) or 0), float(sl.get("bid", 0) or 0)
+            return round(la - sb, 2) if la > 0 and sb > 0 else la
+        return float(option.get("ask", 0) or 0) or float(option.get("last", 0) or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def trade_evaluation(trade: dict, *, price_type: str | None, entry_quotes: list[dict | None] | None = None,
+                     exit_quotes: list[dict | None] | None = None) -> dict:
+    """Reine Funktion. entry_quotes/exit_quotes: archivierte Records je Leg (None = nicht archiviert).
+    -> {version, status, reasons[], flags[], entry_session, exit_session, reproducible, rth_executable, tier}.
+    tier: REALIZED_RTH_REPRODUCIBLE (OK, beide Seiten archiviert, Entry in RTH, Exit in RTH oder Settlement)
+          | OBSERVED (OK, aber nicht voll reproduzierbar/RTH) | NOT_EVALUABLE."""
+    import math
+
+    from modules import option_quotes as oq
+    reasons, flags = [], []
+    out = trade.get("outcome")
+    if effective_entry_debit(trade) <= 0:
+        reasons.append("ENTRY_DEBIT_INVALID")
+    try:
+        out_ok = out is not None and math.isfinite(float(out))
+    except (TypeError, ValueError):
+        out_ok = False
+    if not out_ok:
+        reasons.append("OUTCOME_NOT_FINITE")
+    eq = [q for q in (entry_quotes or []) if q]
+    xq = [q for q in (exit_quotes or []) if q]
+    if any(q.get("quality_status") == "UNUSABLE" for q in eq):
+        reasons.append("ENTRY_QUOTE_UNUSABLE")
+    status = "DATA_BAD" if reasons else None
+    settlement = price_type == "SETTLEMENT_INTRINSIC"
+    if status is None:
+        if price_type not in REALIZABLE_PRICE_TYPES:
+            reasons.append(_EXIT_REASON_BY_PRICE_TYPE.get(price_type, "EXIT_PRICE_UNKNOWN"))
+        elif not settlement and any(q.get("quality_status") == "UNUSABLE" for q in xq):
+            reasons.append("EXIT_QUOTE_UNUSABLE")
+        status = "UNUSABLE" if reasons else "OK"
+    n_legs = max(len(entry_quotes or []), len(exit_quotes or []), 1)
+    entry_arch = bool(entry_quotes) and len(eq) == len(entry_quotes)
+    exit_arch = settlement or (bool(exit_quotes) and len(xq) == len(exit_quotes))
+    if not entry_arch:
+        flags.append("ENTRY_QUOTE_NOT_ARCHIVED")
+    if not exit_arch:
+        flags.append("EXIT_QUOTE_NOT_ARCHIVED")
+    if any(q.get("quality_status") == "SUSPECT" for q in eq + xq):
+        flags.append("QUOTE_SUSPECT")
+    es = sorted({oq.quote_session(q) for q in eq}) or ["UNKNOWN"]
+    xs = ["SETTLEMENT"] if settlement else (sorted({oq.quote_session(q) for q in xq}) or ["UNKNOWN"])
+    entry_session = es[0] if len(es) == 1 else "MIXED"
+    exit_session = xs[0] if len(xs) == 1 else "MIXED"
+    rth = entry_session == "RTH" and exit_session in ("RTH", "SETTLEMENT")
+    if entry_session not in ("RTH", "UNKNOWN"):
+        flags.append("ENTRY_OUTSIDE_RTH")
+    if exit_session not in ("RTH", "SETTLEMENT", "UNKNOWN"):
+        flags.append("EXIT_OUTSIDE_RTH")             # z. B. Schluss-Quote nach Handelsende beobachtet
+    reproducible = entry_arch and exit_arch
+    tier = ("NOT_EVALUABLE" if status != "OK" else
+            "REALIZED_RTH_REPRODUCIBLE" if reproducible and rth else "OBSERVED")
+    return {"version": TRADE_EVAL_VERSION, "status": status, "reasons": reasons, "flags": sorted(set(flags)),
+            "entry_session": entry_session, "exit_session": exit_session, "legs": n_legs,
+            "reproducible": reproducible, "rth_executable": rth, "tier": tier}

@@ -798,6 +798,7 @@ def _build_real_strategy(
 
         if "SPREAD" not in strategy:
             row = _strategy_row(strategy, source, [long_leg], iv_rank, effective_gate, expiry)
+            _single_leg_entry(row)
         else:
             option_type = "call" if is_bullish else "put"
             short_raw = market_snapshot.select_spread_short_leg(
@@ -807,6 +808,7 @@ def _build_real_strategy(
                 # Keine Liquidität im Short-Leg-Fenster → wie Produktion
                 # (_find_spread_leg liefert None → Fallback auf Long-Leg).
                 row = _strategy_row(default_strategy, "spread_no_liquidity", [long_leg], iv_rank, effective_gate, expiry)
+                _single_leg_entry(row)
             else:
                 short_leg = _leg_from_contract(short_raw, "short")
                 row = _strategy_row(strategy, source, [long_leg, short_leg], iv_rank, effective_gate, expiry)
@@ -839,6 +841,15 @@ def _build_real_strategy(
     except Exception as ex:
         log.warning(f"candidate_ledger._build_real_strategy Fehler (ignoriert): {ex}")
         return None
+
+
+def _single_leg_entry(rs: dict) -> dict:
+    """Single-Leg-Strategie: Entry = Ask/Mid des Long-Legs (wie _fill_real_strategy_entries). Vorher nur für Spreads
+    gesetzt -> Single-Leg-Strategien wurden nie markiert (Re-Audit 2026-10-11: 220 Zeilen dauerhaft offen)."""
+    legs = rs.get("legs") or []
+    if len(legs) == 1 and rs.get("net_debit_entry") is None:
+        rs["net_debit_entry"], rs["net_mid_entry"] = legs[0].get("ask"), legs[0].get("mid")
+    return rs
 
 
 def _finalize_real_strategy(rs: dict, session: str, today: str) -> dict:
@@ -1624,9 +1635,6 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     })
     quotes = market_snapshot.fetch_option_quotes(symbols)
 
-    underlying_tickers = sorted({t[0].get("ticker") for t in tasks if t[0].get("ticker")})
-    max_days = max((today_dt - t[2]).days for t in tasks)
-    underlying_hist = _fetch_history_batch(underlying_tickers, max(max_days + 10, 15))
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -1642,8 +1650,8 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             expiry_dt  = _parse_date(expiry_str) if expiry_str else None
 
             if expiry_dt is not None and today_dt.date() > expiry_dt.date():
-                hist = underlying_hist.get(row.get("ticker"))
-                spot_at_expiry = _price_on_or_before(hist, expiry_dt) if hist else None
+                # Settlement: UNbereinigter Schluss exakt am Verfallstag (nicht der bereinigte "am oder vor")
+                spot_at_expiry = market_snapshot.unadjusted_close_on(row.get("ticker"), expiry_dt)
                 if spot_at_expiry is None:
                     continue
                 strike = real_option.get("strike") or 0
@@ -1665,7 +1673,8 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             outcomes[f"real_opt_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
 
             if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
-                row["late_mark"] = True
+                row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
+                outcomes[f"real_opt_late_{h}d"] = True                    # je Instrument/Horizont (Evidenz)
 
             changed = True
         except Exception as e:
@@ -1719,9 +1728,6 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
     })
     quotes = market_snapshot.fetch_option_quotes(symbols)
 
-    underlying_tickers = sorted({t[0].get("ticker") for t in tasks if t[0].get("ticker")})
-    max_days = max((today_dt - t[2]).days for t in tasks)
-    underlying_hist = _fetch_history_batch(underlying_tickers, max(max_days + 10, 15))
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -1733,6 +1739,8 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             if long_leg is None:
                 continue
 
+            if short_leg is None:                    # Single-Leg: Entry aus der aufgezeichneten Long-Leg-Quote
+                _single_leg_entry(rs)
             net_debit_entry = rs.get("net_debit_entry")
             net_mid_entry   = rs.get("net_mid_entry")
             # Debit-Spread: Einstieg muss positiv sein; <= 0 (falsches Short-Leg,
@@ -1745,8 +1753,8 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             kind = "call" if row.get("direction") == "BULLISH" else "put"
 
             if expiry_dt is not None and today_dt.date() > expiry_dt.date():
-                hist = underlying_hist.get(row.get("ticker"))
-                spot_at_expiry = _price_on_or_before(hist, expiry_dt) if hist else None
+                # Settlement: UNbereinigter Schluss exakt am Verfallstag (nicht der bereinigte "am oder vor")
+                spot_at_expiry = market_snapshot.unadjusted_close_on(row.get("ticker"), expiry_dt)
                 if spot_at_expiry is None:
                     continue
 
@@ -1786,7 +1794,8 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             outcomes[f"real_strat_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
 
             if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
-                row["late_mark"] = True
+                row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
+                outcomes[f"real_strat_late_{h}d"] = True                  # je Instrument/Horizont (Evidenz)
 
             changed = True
         except Exception as e:
