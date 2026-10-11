@@ -54,6 +54,10 @@ SIGNED = frozenset({"scan_day_ret", "sentiment_score", "sentiment_drift", "short
 SPEC = {
     "name": "meta_label_take_v1",
     "population": "CANDIDATE", "horizon": 20, "horizon_unit": "calendar",
+    # Trainiert wird nur auf der Zielpopulation (Late-Stage/Champion): Die Shift-Diagnose 2026-10-11 zeigt bei 11/26
+    # Merkmalen deutliche Verschiebung, mehrere Merkmale existieren nur ab späten Stufen (stufenbedingtes Fehlen =
+    # Selektions-Leakage). Breite Kandidatendaten erst nach nachgewiesener Generalisierung (eigene Spec-Version).
+    "train_stages": ["LATE", "CHAMPION"],
     "label": "Richtungsrendite des Basiswerts nach 20 Kalendertagen minus 20 bp > 0",
     "features": list(FEATURES), "signed_features": sorted(SIGNED),
     "models": {"logit_l2": {"C": 1.0}, "hgb": {"max_iter": 150, "max_depth": 3, "learning_rate": 0.05,
@@ -96,8 +100,56 @@ def dataset(recs: list[dict]) -> dict:
     return {"X": X, "y": np.array([1 if r["outcome_net"] > 0 else 0 for r in rows], dtype=int),
             "net": np.array([float(r["outcome_net"]) for r in rows]), "dates": [r["decision_date"] for r in rows],
             "label_ends": [r["label_available_at"] for r in rows], "ids": [r["prediction_id"] for r in rows],
-            "score_baseline": np.array([((r.get("features") or {}).get("impact") or 0) *
-                                        ((r.get("features") or {}).get("surprise") or 0) for r in rows], dtype=float)}
+            "stages": [(r.get("meta") or {}).get("stage") for r in rows],
+            # Vergleichs-Baseline Impact×Surprise; fehlend bleibt NaN (nie 0) und fällt aus der AUC heraus
+            "score_baseline": np.array([_num((r.get("features") or {}).get("impact")) *
+                                        _num((r.get("features") or {}).get("surprise")) for r in rows], dtype=float)}
+
+
+def _num(v) -> float:
+    try:
+        x = float(v)
+        return x if np.isfinite(x) else float("nan")
+    except (TypeError, ValueError):
+        return float("nan")
+
+
+TARGET_STAGES = ("LATE", "CHAMPION")      # Zielpopulation: Kandidaten, die bis zum Options-Design kamen (Champion-nah)
+MIN_TARGET_N, MIN_TARGET_DATES = 30, 10
+
+
+def population_shift(recs: list[dict] | None = None, top: int = 8) -> dict:
+    """Verteilungsverschiebung Trainings- (alle Kandidaten) vs. Zielpopulation (Late-Stage/Champion), ohne Labels:
+    je Merkmal standardisierte Mittelwertdifferenz (SMD, gepoolte SD) und Differenz der Fehlquote. |SMD| > 0,25 oder
+    Fehlquoten-Differenz > 0,2 gilt als deutliche Verschiebung -> breite Kandidatendaten nur mit Generalisierungs-
+    nachweis auf der Zielpopulation nutzen (Promotion-Evidenz kommt ohnehin nur aus PROM-META-001)."""
+    recs = recs if recs is not None else el.records([SPEC["population"]])
+    by_sig: dict = {}
+    for r in recs:
+        if r.get("population") == SPEC["population"] and r.get("direction") in (1, -1):
+            by_sig.setdefault((r.get("meta") or {}).get("signal_id") or r["prediction_id"], r)
+    rows = list(by_sig.values())
+    tgt = [r for r in rows if (r.get("meta") or {}).get("stage") in TARGET_STAGES]
+    rest = [r for r in rows if (r.get("meta") or {}).get("stage") not in TARGET_STAGES]
+    if len(tgt) < 10 or len(rest) < 10:
+        return {"status": "NEED_MORE_DATA", "n_target": len(tgt), "n_other": len(rest)}
+    Xt = np.array([_vec(r.get("features") or {}, r["direction"]) for r in tgt], dtype=float)
+    Xo = np.array([_vec(r.get("features") or {}, r["direction"]) for r in rest], dtype=float)
+    feats = []
+    for j, f in enumerate(FEATURES):
+        a, b = Xt[:, j][np.isfinite(Xt[:, j])], Xo[:, j][np.isfinite(Xo[:, j])]
+        miss_t, miss_o = 1 - len(a) / len(Xt), 1 - len(b) / len(Xo)
+        smd = None
+        if len(a) >= 5 and len(b) >= 5:
+            sd = float(np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2))
+            smd = round(float((a.mean() - b.mean()) / sd), 3) if sd > 0 else None
+        feats.append({"feature": f, "smd": smd, "missing_target": round(miss_t, 3), "missing_other": round(miss_o, 3)})
+    shifted = [x for x in feats if (x["smd"] is not None and abs(x["smd"]) > 0.25)
+               or abs(x["missing_target"] - x["missing_other"]) > 0.2]
+    feats.sort(key=lambda x: -(abs(x["smd"]) if x["smd"] is not None else 0))
+    return {"status": "OK", "n_target": len(tgt), "n_other": len(rest), "n_shifted": len(shifted),
+            "shifted": sorted(x["feature"] for x in shifted), "top": feats[:top],
+            "verdict": "SHIFT" if len(shifted) >= 3 else "MINOR"}
 
 
 def _model(name: str, spec: dict):
@@ -185,8 +237,26 @@ def evaluate(ds: dict, spec: dict | None = None) -> dict:
                       for n in names}}
     from sklearn.metrics import roc_auc_score
     sb = ds["score_baseline"][idx]
-    res["baseline_impact_x_surprise_auc"] = (round(float(roc_auc_score(y, sb)), 4)
-                                             if len(set(y.tolist())) == 2 and len(set(sb.tolist())) > 1 else None)
+    fin = np.isfinite(sb)
+    res["baseline_impact_x_surprise_auc"] = (round(float(roc_auc_score(y[fin], sb[fin])), 4)
+                                             if len(set(y[fin].tolist())) == 2 and len(set(sb[fin].tolist())) > 1
+                                             else None)
+    # Zielpopulation (Champion-nah): dieselben OOS-Prognosen, nur Late-Stage/Champion-Kandidaten
+    stages = ds.get("stages") or [None] * len(ds["ids"])
+    sel = np.array([stages[i] in TARGET_STAGES for i in idx_all], dtype=bool)
+    tdates = {dates[k] for k in range(len(dates)) if sel[k]}
+    if sel.sum() < MIN_TARGET_N or len(tdates) < MIN_TARGET_DATES:
+        res["target_population"] = {"status": "NEED_MORE_DATA", "n": int(sel.sum()), "n_dates": len(tdates)}
+    else:
+        tp = {}
+        for n in names:
+            p = np.array(oos[n])[sel]
+            yt, bt = y[sel], base[sel]
+            brier, bb = float(np.mean((p - yt) ** 2)), float(np.mean((bt - yt) ** 2))
+            tp[n] = {"brier": round(brier, 5), "brier_base_rate": round(bb, 5),
+                     "auc": round(float(roc_auc_score(yt, p)), 4) if len(set(yt.tolist())) == 2 else None,
+                     "verdict": "NOT_WORSE_THAN_BASE" if brier <= bb else "WORSE_THAN_BASE"}
+        res["target_population"] = {"status": "OK", "n": int(sel.sum()), "n_dates": len(tdates), "models": tp}
     res["take_all_mean_net"] = round(float(net.mean()), 6)
     return res
 
@@ -209,10 +279,14 @@ def train(*, as_of=None, recs: list[dict] | None = None, root: Path | None = Non
     as_of = as_of or now.date()
     recs = recs if recs is not None else el.records([spec["population"]])
     lab = el.labeled(recs, as_of=as_of, population=spec["population"], horizon=spec["horizon"])
+    if spec.get("train_stages"):
+        lab = [r for r in lab if (r.get("meta") or {}).get("stage") in spec["train_stages"]]
     ds = dataset(lab)
     n, n_dates = len(ds["ids"]), len(set(ds["dates"]))
     status = {"generated": now.isoformat(timespec="seconds"), "as_of": str(as_of), "spec_hash": spec_hash(spec),
-              "n_labels": n, "n_label_dates": n_dates, "required": spec["readiness"]}
+              "n_labels": n, "n_label_dates": n_dates, "required": spec["readiness"],
+              "n_labels_target_population": sum(1 for s_ in ds["stages"] if s_ in TARGET_STAGES),
+              "population_shift": population_shift(recs)}
     reg = _registry(root)
     if n < spec["readiness"]["min_labels"] or n_dates < spec["readiness"]["min_dates"]:
         status.update(status="NEED_MORE_DATA", active=reg.get("active"))
@@ -250,8 +324,10 @@ def train(*, as_of=None, recs: list[dict] | None = None, root: Path | None = Non
         artifacts[name] = {"path": str(p.relative_to(root)), "sha256": _sha(p)}
     ms = (ev.get("models") or {})
     lg, hg = ms.get("logit_l2") or {}, ms.get("hgb") or {}
+    tgt_hgb = (((ev.get("target_population") or {}).get("models") or {}).get("hgb") or {}).get("verdict")
     active_model = ("hgb" if hg.get("verdict") == "BETTER_THAN_BASELINE" and hg.get("brier") is not None
                     and lg.get("brier") is not None and hg["brier"] < lg["brier"] and "hgb" in artifacts
+                    and tgt_hgb != "WORSE_THAN_BASE"          # Challenger nie, wenn er auf der Zielpopulation schlechter ist
                     else "logit_l2")
     import sklearn
     from modules.promotion_controller import code_version

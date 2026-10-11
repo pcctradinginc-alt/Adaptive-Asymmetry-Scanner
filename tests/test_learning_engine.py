@@ -28,7 +28,7 @@ def _recs(n=600, seed=1, signal=1.5, days=120, h=20):
                     "direction": 1 if i % 3 else -1, "features": {"impact": imp, "surprise": float(rng.integers(1, 9)),
                                                                    "scan_day_ret": float(rng.normal(0, .02))},
                     "horizon": h, "horizon_unit": "calendar", "outcome": net + 0.002, "outcome_net": net,
-                    "quality": "PROXY", "price_type": "UNDERLYING_PROXY",
+                    "quality": "PROXY", "price_type": "UNDERLYING_PROXY", "meta": {"stage": "LATE"},
                     "label_available_at": (d + timedelta(days=h + 1)).isoformat()})
     return out
 
@@ -227,3 +227,41 @@ def test_shadow_predictions_dedupe_across_months(tmp_path):
     ml.train(recs=recs, root=tmp_path, as_of=t1.date(), now=t1)
     n1 = ml.record_predictions(recs=recs, root=tmp_path, now=t1 + timedelta(days=1))
     assert n1 > 0 and ml.record_predictions(recs=recs, root=tmp_path, now=t1 + timedelta(days=40)) == 0
+
+
+def test_training_uses_only_target_population(tmp_path):
+    """2026-10-11: Training nur auf Late-Stage/Champion-Kandidaten (Zielpopulation); früh verworfene Kandidaten
+    zählen weder als Label noch für die Readiness (Verteilungsverschiebung/Selektions-Leakage)."""
+    recs = _recs()
+    early = [{**r, "prediction_id": "e" + r["prediction_id"], "meta": {"stage": "EARLY"}} for r in recs]
+    t = datetime(2025, 5, 15, tzinfo=timezone.utc)
+    a = ml.train(recs=recs, root=tmp_path / "a", as_of=t.date(), now=t)
+    b = ml.train(recs=recs + early, root=tmp_path / "b", as_of=t.date(), now=t)
+    assert a["n_labels"] == b["n_labels"] and a["evaluation"] == b["evaluation"]
+    only_early = ml.train(recs=early, root=tmp_path / "c", as_of=t.date(), now=t)
+    assert only_early["status"] == "NEED_MORE_DATA" and only_early["n_labels"] == 0
+    assert ml.SPEC["train_stages"] == ["LATE", "CHAMPION"]
+
+
+def test_population_shift_detects_stage_dependent_features():
+    """Synthetisch: Zielpopulation hat höheres 'impact' und ein Merkmal, das früh verworfenen fehlt (Stufen-Leakage)."""
+    rng = np.random.default_rng(3)
+    recs = []
+    for i in range(80):
+        late = i % 2 == 0
+        f = {"impact": float(rng.normal(8 if late else 3, 1)), "surprise": float(rng.normal(5, 1))}
+        if late:
+            f["sigma_30d"] = 0.3
+        recs.append({"population": "CANDIDATE", "direction": 1, "prediction_id": f"p{i}", "features": f,
+                     "meta": {"stage": "LATE" if late else "EARLY", "signal_id": f"s{i}"}})
+    sh = ml.population_shift(recs)
+    assert sh["status"] == "OK" and {"impact", "sigma_30d"} <= set(sh["shifted"])
+    assert ml.population_shift(recs[:6])["status"] == "NEED_MORE_DATA"
+
+
+def test_target_population_block_in_evaluation(tmp_path):
+    t = datetime(2025, 5, 15, tzinfo=timezone.utc)
+    st = ml.train(recs=_recs(), root=tmp_path, as_of=t.date(), now=t)
+    tp = st["evaluation"]["target_population"]
+    assert tp["status"] == "OK" and set(tp["models"]) == {"logit_l2", "hgb"}
+    assert st["n_labels_target_population"] == st["n_labels"]
