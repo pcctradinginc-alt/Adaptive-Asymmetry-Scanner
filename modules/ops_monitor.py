@@ -89,11 +89,12 @@ def _paths(paths: dict | None) -> dict:
     from modules import production_intelligence_adapter as pia
     P = {**DEFAULT_PATHS, **(paths or {})}
     P["quotes"] = Path(P["quotes"] or oq.ROOT)
-    P["trade_outcomes"] = Path(P["trade_outcomes"] or (Path(oq.ROOT).parent / "trade_outcomes.jsonl"))
+    # Trade-Outcomes liegen neben dem (ggf. überschriebenen) Quote-Archiv, wie in feedback.record_trade_outcome
+    P["trade_outcomes"] = Path(P["trade_outcomes"] or (P["quotes"].parent / "trade_outcomes.jsonl"))
     P["candidate_ledger"] = Path(P["candidate_ledger"] or cl.LEDGER_ROOT)
     P["meta_label"] = Path(P["meta_label"] or ml.ROOT)
     P["kill_switch"] = Path(P["kill_switch"] or pia.KILL_SWITCH)
-    return P
+    return {k: Path(v) for k, v in P.items()}                 # str-Pfade überall akzeptiert
 
 
 def _in_window(d: date | None, today: date, days: int) -> bool:
@@ -186,14 +187,31 @@ def _exit_status_active(trade: dict, P: dict, now: datetime) -> tuple[str, float
     legs = _legs(trade)
     if not any(legs):
         return "NO_CONTRACT", None
-    ages = []
+    ages, days = [], []
     for sym in legs:
         q = oq.latest_quote(sym, now, root=P["quotes"], lookback_days=10) if sym else None
         if q is None:
             return "NO_EXIT_MARK", None
-        ages.append((now - datetime.fromisoformat(q["retrieved_at"])).total_seconds() / 86400)
-    age = round(max(ages), 2)
-    return ("EXIT_MARK_TODAY" if age < 1.0 else "EXIT_MARK_STALE"), age
+        t = datetime.fromisoformat(q["retrieved_at"])
+        t = t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+        ages.append((now - t).total_seconds() / 86400)
+        days.append(t.astimezone(timezone.utc).date())
+    # "heute" = jedes Leg am selben UTC-Kalendertag wie der Lauf beobachtet (nicht "jünger als 24 h")
+    today_ok = all(d == now.astimezone(timezone.utc).date() for d in days)
+    return ("EXIT_MARK_TODAY" if today_ok else "EXIT_MARK_STALE"), round(max(ages), 2)
+
+
+def _exit_class(e: dict) -> str:
+    """Exit-Beobachtung eines geschlossenen Trades: nicht realisierbar (Modell/Proxy/unbrauchbare Exit-Quote),
+    unbekannt (DATA_BAD bricht vor der Exit-Prüfung ab), Settlement, beobachtet archiviert bzw. nicht archiviert."""
+    if any(str(r).startswith("EXIT_") for r in e.get("reasons") or []):
+        return "EXIT_NOT_REALIZABLE"
+    if e.get("status") != "OK":
+        return "EXIT_UNKNOWN_DATA_BAD" if e.get("status") == "DATA_BAD" else "EXIT_NOT_REALIZABLE"
+    if e.get("exit_session") == "SETTLEMENT":
+        return "EXIT_SETTLEMENT"
+    return "EXIT_OBSERVED_NOT_ARCHIVED" if "EXIT_QUOTE_NOT_ARCHIVED" in (e.get("flags") or []) \
+        else "EXIT_OBSERVED_ARCHIVED"
 
 
 def quote_coverage(hist: dict, P: dict, now: datetime) -> dict:
@@ -206,7 +224,8 @@ def quote_coverage(hist: dict, P: dict, now: datetime) -> dict:
     out: dict = {"windows": {}, "definitions": {
         "entry.denominator": "Champion-Trades mit Entry im Zeitraum und bekanntem Kontrakt",
         "exit_active.denominator": "aktive Champion-Trades mit Kontrakt (Mark heute erwartet an Handelstagen)",
-        "exit_closed.denominator": "im Zeitraum geschlossene Champion-Trades",
+        "exit_closed.denominator": "im Zeitraum geschlossene Champion-Trades mit Kontrakt",
+        "entry.categories": "observed (OK+SUSPECT) + unusable + missing = denominator",
         "complete.denominator": "im Zeitraum geschlossene Champion-Trades (Bewertung OK = vollständig bewertbar)",
         "excluded": "NO_CONTRACT (Kontrakt unbekannt) zählt in keinen Entry-/Exit-Nenner, wird separat ausgewiesen"}}
     entry_rows = []
@@ -219,22 +238,21 @@ def quote_coverage(hist: dict, P: dict, now: datetime) -> dict:
         den = [r for r in ew if r["status"] != "NO_CONTRACT"]
         c = Counter(r["status"] for r in den)
         observed = c["ENTRY_OK"] + c["ENTRY_SUSPECT"]
-        cw = [t for t in closed if _in_window(_day(t.get("close_date")), today, days)]
+        cw_all = [t for t in closed if _in_window(_day(t.get("close_date")), today, days)]
+        cw = [t for t in cw_all if any(_legs(t))]                  # NO_CONTRACT zählt in keinen Nenner
         evs = [_evaluation(t) for t in cw]
-        exit_c = Counter(("EXIT_SETTLEMENT" if e.get("exit_session") == "SETTLEMENT" else
-                          "EXIT_OBSERVED_ARCHIVED" if e.get("status") == "OK" and "EXIT_QUOTE_NOT_ARCHIVED" not in
-                          (e.get("flags") or []) else
-                          "EXIT_OBSERVED_NOT_ARCHIVED" if e.get("status") == "OK" else
-                          "EXIT_NOT_REALIZABLE") for e in evs)
+        exit_c = Counter(_exit_class(e) for e in evs)
         out["windows"][name] = {
             "entry": {"denominator": len(den), "observed": observed, "ok": c["ENTRY_OK"],
                       "suspect": c["ENTRY_SUSPECT"], "unusable": c["ENTRY_UNUSABLE"],
                       "missing": len(den) - observed - c["ENTRY_UNUSABLE"], "coverage": _ratio(observed, len(den)),
                       "by_status": dict(c), "excluded_no_contract": len(ew) - len(den)},
             "exit_closed": {"denominator": len(cw), "by_status": dict(exit_c),
+                            "excluded_no_contract": len(cw_all) - len(cw),
                             "observed": exit_c["EXIT_OBSERVED_ARCHIVED"] + exit_c["EXIT_OBSERVED_NOT_ARCHIVED"]
                             + exit_c["EXIT_SETTLEMENT"],
-                            "coverage": _ratio(len(cw) - exit_c["EXIT_NOT_REALIZABLE"], len(cw))},
+                            "coverage": _ratio(exit_c["EXIT_OBSERVED_ARCHIVED"] + exit_c["EXIT_OBSERVED_NOT_ARCHIVED"]
+                                               + exit_c["EXIT_SETTLEMENT"], len(cw))},
             "complete": {"denominator": len(cw), "evaluable": sum(1 for e in evs if e.get("status") == "OK"),
                          "coverage": _ratio(sum(1 for e in evs if e.get("status") == "OK"), len(cw)),
                          "by_status": dict(Counter(e.get("status") or "UNKNOWN" for e in evs)),
@@ -295,15 +313,18 @@ def trade_state(trade: dict, *, active: bool, processed: dict, P: dict, today: d
     if eligible and not learned:
         closed = _day(trade.get("close_date"))
         # vor dem Consume-once-Ledger geschlossen: mit dem Altmechanismus gelernt, aber ohne Schlüssel
-        issues.append("LEGACY_LEARNED_UNTRACKED" if closed is not None and closed < CONSUME_ONCE_START
-                      else "ELIGIBLE_NOT_LEARNED")
+        issues.append("LEGACY_LEARNED_UNTRACKED" if closed is None or closed < CONSUME_ONCE_START
+                      else "ELIGIBLE_NOT_LEARNED")                # ohne close_date: Altschema, nicht datierbar
     state = "LEARNED" if learned else "LEARNING_ELIGIBLE" if eligible else "OUTCOME_FINAL"
     return {"state": state, "issues": issues, "learned_targets": learned, "trade_id": tid}
 
 
 def lifecycle(hist: dict, P: dict, now: datetime) -> dict:
-    """Champion-Trades je Zustand und Problem; Kandidaten (Real-Option) je Zustand. Exactly-once: jeder gelernte
-    Schlüssel gehört zu einem lernbaren Trade, jeder lernbare geschlossene Trade wurde gelernt."""
+    """Champion-Trades je Zustand und Problem; Kandidaten (Real-Option) je Zustand.
+    exactly_once.ok = kein nicht lernbarer Trade gelernt, kein lernbarer Trade doppelt, kein Ergebnis je Ziel mehrfach
+    gelernt. eligible_not_learned (blockiert) und keys_without_trade (z. B. quarantänierte Altduplikate) werden separat
+    gemeldet, verletzen Exactly-once aber nicht. Champion-Trades sind ab Buchung mindestens EXIT_PENDING; die Vorstufen
+    SIGNAL/CONTRACT_SELECTED/ENTRY_OBSERVED bildet der Kandidaten-Lebenszyklus ab."""
     from modules import learning_ledger as ll
     today = now.date()
     processed = hist.get(ll.FIELD) or {}
@@ -371,9 +392,10 @@ def lifecycle(hist: dict, P: dict, now: datetime) -> dict:
 
 
 def keys_by_tid_dupes(processed: dict) -> int:
-    """Consume-once-Schlüssel sind eindeutig je (trade_id, Ziel); ein Schlüssel kann nicht doppelt existieren – gezählt
-    werden Ziele, die für denselben Trade unter abweichender Horizont-Schreibweise mehrfach gelernt wurden."""
-    seen = Counter((k.split(":")[0], k.split(":")[-1]) for k in processed if k.count(":") >= 2)
+    """Schlüssel = <observation_id>:<horizont>:<ziel> (learning_ledger.key; die observation_id kann selbst ':'
+    enthalten, z. B. 'shadow:<id>'). Gezählt werden (observation_id, ziel), die unter mehreren Horizont-Schreibweisen
+    gelernt wurden – ein Ergebnis darf je Ziel nur einmal ins Lernen."""
+    seen = Counter((k.rsplit(":", 2)[0], k.rsplit(":", 2)[2]) for k in processed if k.count(":") >= 2)
     return sum(1 for v in seen.values() if v > 1)
 
 
@@ -441,7 +463,9 @@ def forward_performance(hist: dict, P: dict, now: datetime) -> dict:
     hyps = ps.get("hypotheses") or {}
     keys = sorted({k for r in rows for k in (r.get("intelligence") or {})} | set(hyps))
     base = [(r, outs.get(r.get("decision_id"))) for r in rows]
-    resolved = [(r, o) for r, o in base if o and o.get("outcome") is not None]
+    resolved_all = [(r, o) for r, o in base if o and o.get("outcome") is not None]
+    # wie beim Champion: nur beobachtete (verlässliche) Outcomes zählen; modellierte separat ausgewiesen
+    resolved = [(r, o) for r, o in resolved_all if o.get("outcome_method") in RELIABLE_OUTCOME_METHODS]
     challengers = {}
     for k in keys:
         fired, kept, ev_n = [], [], 0
@@ -452,8 +476,7 @@ def forward_performance(hist: dict, P: dict, now: datetime) -> dict:
             ev_n += 1
             (fired if h.get("fired") else kept).append(float(o["outcome"]))
         hs = hyps.get(k) or {}
-        observed_share = _ratio(sum(1 for _, o in resolved if o.get("outcome_method") in RELIABLE_OUTCOME_METHODS),
-                                len(resolved))
+        observed_share = _ratio(len(resolved), len(resolved_all))
         challengers[k] = {
             "state": hs.get("state"), "influence_level": hs.get("influence_level"),
             "production_class": hs.get("production_class"), "eligible_stage": hs.get("eligible_stage"),
@@ -470,15 +493,17 @@ def forward_performance(hist: dict, P: dict, now: datetime) -> dict:
             "verdict": "NEED_MORE_DATA" if ev_n < MIN_N or len(fired) < 10 else "SEE_CONTROLLER",
             "observed_outcome_share": observed_share}
     from modules import meta_label as ml
+    sc_recs = el.from_candidate_ledger(P["candidate_ledger"]) + champ          # dieselben (überschreibbaren) Quellen
     return {"champion": champion,
-            "population": {"decisions": len(rows), "resolved": len(resolved),
-                           "outcome_methods": dict(Counter(o.get("outcome_method") for _, o in resolved)),
+            "population": {"decisions": len(rows), "resolved": len(resolved_all), "resolved_observed": len(resolved),
+                           "excluded_not_observed": len(resolved_all) - len(resolved),
+                           "outcome_methods": dict(Counter(o.get("outcome_method") for _, o in resolved_all)),
                            "definition": "Decision-Ledger (Champion-Trades zum Entscheidungszeitpunkt, eingefroren); "
                                          "Abstinenz-Wert in Rendite-Einheiten je Trade (Summe/Mittel), netto wie "
                                          "decision_outcomes (Bid/Ask-Kreuzung, ohne Kommission)"},
             "challengers": challengers,
-            "meta_label": ml.status(P["meta_label"]),
-            "scorecard": _safe("scorecard", lambda: {k: v for k, v in el.scorecard(as_of=now.date())["cells"].items()
+            "meta_label": _safe("meta_label_status", ml.status, P["meta_label"]),
+            "scorecard": _safe("scorecard", lambda: {k: v for k, v in el.scorecard(sc_recs, as_of=now.date())["cells"].items()
                                                      if k.endswith("|ALL") or k.endswith("|LATE_STAGE")
                                                      or k.endswith("|CHAMPION")})}
 
@@ -519,9 +544,9 @@ def promotion_status(P: dict) -> dict:
                 "blocking": h.get("next_requirement") or ("; ".join(h.get("reasons") or [])[:300] or None),
                 "recommendation": h.get("recommendation"), "integrity_ok": h.get("integrity_ok")}
             for k, h in sorted(hyps.items())}
+    from modules.promotion_controller import ACTIVE_STATES
     unjustified = [k for k, h in hyps.items() if (h.get("influence_level") or "NONE") != "NONE"
-                   and (not h.get("integrity_ok") or h.get("state") not in ("GUARDED_PRODUCTION", "LIMITED_PRODUCTION",
-                                                                              "PRODUCTION"))]
+                   and (not h.get("integrity_ok") or h.get("state") not in ACTIVE_STATES)]
     sysst = _json(P["system_state"]) or {}
     return {"generated": ps.get("generated"), "max_automatic_influence": ps.get("max_automatic_influence"),
             "kill_switch_active": pia.kill_switch_active(P["kill_switch"]),
@@ -539,8 +564,15 @@ def integrity(hist: dict, P: dict, now: datetime) -> dict:
     out: dict = {}
     ps = _json(P["promotion_state"])
     out["promotion_state_hash_ok"] = None if ps is None else pc.state_digest(ps) == ps.get("state_hash")
-    _, tr_problems = pc.read_transitions(P["promotion_transitions"])
-    _, reg_problems = hc.read_registry(P["contract_registry"])
+    out["promotion_state_unreadable"] = ps is None and Path(P["promotion_state"]).exists()
+    try:
+        _, tr_problems = pc.read_transitions(P["promotion_transitions"])
+    except Exception as e:  # noqa: BLE001 – unlesbare Kette ist selbst der Befund
+        tr_problems = [f"Transition-Kette unlesbar: {type(e).__name__}: {e}"]
+    try:
+        _, reg_problems = hc.read_registry(P["contract_registry"])
+    except Exception as e:  # noqa: BLE001
+        reg_problems = [f"Registry unlesbar: {type(e).__name__}: {e}"]
     out["transition_chain_problems"] = tr_problems
     out["registry_problems"] = reg_problems
     rows = []
@@ -564,6 +596,8 @@ def integrity(hist: dict, P: dict, now: datetime) -> dict:
     issues = []
     if out["promotion_state_hash_ok"] is False:
         issues.append("PROMOTION_STATE_HASH")
+    if out["promotion_state_unreadable"]:
+        issues.append("PROMOTION_STATE_UNREADABLE")
     if tr_problems:
         issues.append("TRANSITION_CHAIN")
     if reg_problems:
@@ -611,7 +645,6 @@ def data_health(P: dict, now: datetime) -> dict:
     esrc = eh.get("sources") or {}
     estat = Counter((v or {}).get("status") or (v or {}).get("last_status") for v in esrc.values()) \
         if isinstance(esrc, dict) else Counter()
-    from modules import option_quotes as oq
     days = {}
     for i in range(14):
         dd = (now.date() - timedelta(days=i)).isoformat()
@@ -625,12 +658,14 @@ def data_health(P: dict, now: datetime) -> dict:
             "external_data": {"by_status": dict(estat)},
             "quote_archive_days": days,
             "quote_archive_median_14d": statistics.median(vals) if vals else None,
-            "quote_archive_root_exists": Path(P["quotes"]).exists() or Path(oq.ROOT).exists()}
+            "quote_archive_root_exists": Path(P["quotes"]).exists()}
 
 
 # ── Gesamt ──────────────────────────────────────────────────────────────────
 def collect(now: datetime | None = None, paths: dict | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:                                       # naive Zeit = UTC (wie option_quotes)
+        now = now.replace(tzinfo=timezone.utc)
     P = _paths(paths)
     hist = _json(P["history"]) or {}
     return {"schema": SCHEMA, "generated": now.isoformat(timespec="seconds"), "as_of": now.date().isoformat(),
