@@ -122,18 +122,17 @@ Weitere Punkte:
   - Ein verdrängter Feedback-Lauf wird vom zweiten täglichen Feedback-Lauf aufgefangen.
   - Capture hat eine eigene Gruppe und verdrängt dort nichts.
 
-## 6. Offene manuelle Entscheidungen (betreffen Champion-Zeitpunkte, daher nicht eigenmächtig geändert)
+## 6. Entscheidungen zu Champion-Zeitpunkten (2026-10-11 vom Nutzer getroffen, umgesetzt als timing-v2)
 
-1. **Feedback-Zeitpunkt im Sommer:**
-   - Der erste Feedback-Lauf startet real gegen 20:00–20:45 UTC, im Sommer also nach Handelsschluss.
-   - Exits werden dann zu Nachbörsen-Quotes geprüft und bewertet: Flag `EXIT_OUTSIDE_RTH`, Tier `OBSERVED` statt `REALIZED_RTH_REPRODUCIBLE`.
-   - Option: einen früheren Feedback-Cron ergänzen (z. B. 13:43 UTC), damit ein verspäteter Lauf in die Sitzung fällt. Das ändert den Exit-Zeitpunkt des Champions.
-2. **Scanner-Start nach Handelsschluss:**
-   - An Tagen mit großer Verzögerung und an verkürzten Sitzungen (Schluss 18:00 UTC im Winter) läuft der Scanner nach Schluss; Entries stammen dann aus Nachbörsen-Quotes.
-   - Option: Guard-Regel „nicht nach Schluss − X“. Das hätte zur Folge, dass an solchen Tagen kein Scan stattfindet.
-3. **Feedback an Börsenfeiertagen:** Feedback läuft weiterhin, mit Quotes des Vortags. Option: ebenfalls überspringen.
-4. **Sonderschließungen pflegen:** Neue NYSE-Ankündigungen (Staatstrauer, Notfälle) in `config/market_calendar.yaml` per PR eintragen.
-5. **Secrets prüfen:** `FRED_API_KEY`, `TRADIER_API_KEY` sowie `GMAIL_*` müssen im Repo gesetzt sein; das ist aus der Session heraus nicht verifizierbar.
+Die drei früher offenen Punkte sind entschieden und versioniert umgesetzt (`config/timing_policy.yaml`, `docs/TIMING_POLICY.md`). Der Altbestand bleibt timing-v1 und wird getrennt ausgewertet.
+
+1. **Feedback nach Börsenschluss:** Feedback darf nach Schluss laufen und Exit-Entscheidungen treffen. Das wirtschaftliche Outcome entsteht aber erst zu einer zulässigen Optionsquote ab dem Exit-Entscheid, bei Nachbörse also in der nächsten Sitzung. Bis dahin liegt der Trade in `exit_pending_trades`; ohne zulässige Quote endet er als `closed_trades_unusable` mit Grund. Basiswert- oder Modellpreise sind nie Ersatz.
+2. **Scanner-Start nach Schluss:** Scan, Research und Signale laufen weiter. Der Entry wird frühestens in der nächsten zulässigen Optionssitzung ausgeführt. Der Entscheidungszeitpunkt bleibt gespeichert (`decision_time`), und kein Fill liegt vor der Entscheidung.
+3. **Feiertage:** Feedback verarbeitet vorhandene Daten und erstellt Berichte. Es macht keine kursbasierte Exit-Prüfung und erzeugt keine neuen Markt-Outcomes aus Vortagesquotes.
+
+Weiterhin offen:
+- **Sonderschließungen pflegen:** Neue NYSE-Ankündigungen in `config/market_calendar.yaml` per PR eintragen.
+- **Secrets:** sind laut Nutzer gesetzt.
 
 ## 7. Unabhängige Prüfung
 
