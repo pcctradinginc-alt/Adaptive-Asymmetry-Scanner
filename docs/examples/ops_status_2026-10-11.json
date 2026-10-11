@@ -2,11 +2,11 @@
  "_example_note": "Beispielbericht aus echten Repo-Daten (2026-10-11), read-only erzeugt; keine Testdaten",
  "schema": "ops-report-v1",
  "as_of": "2026-10-11",
- "generated": "2026-10-11T07:35:53+00:00",
+ "generated": "2026-10-11T08:02:11+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-10-11T07:35:53+00:00",
+  "generated": "2026-10-11T08:02:11+00:00",
   "as_of": "2026-10-11",
   "read_only": true,
   "run": {
@@ -44,6 +44,7 @@
      "exit_closed": {
       "denominator": 0,
       "by_status": {},
+      "excluded_no_contract": 0,
       "observed": 0,
       "coverage": null
      },
@@ -75,6 +76,7 @@
       "by_status": {
        "EXIT_OBSERVED_NOT_ARCHIVED": 1
       },
+      "excluded_no_contract": 0,
       "observed": 1,
       "coverage": 1.0
      },
@@ -111,6 +113,7 @@
        "EXIT_NOT_REALIZABLE": 2,
        "EXIT_OBSERVED_NOT_ARCHIVED": 3
       },
+      "excluded_no_contract": 0,
       "observed": 3,
       "coverage": 0.6
      },
@@ -135,7 +138,8 @@
    "definitions": {
     "entry.denominator": "Champion-Trades mit Entry im Zeitraum und bekanntem Kontrakt",
     "exit_active.denominator": "aktive Champion-Trades mit Kontrakt (Mark heute erwartet an Handelstagen)",
-    "exit_closed.denominator": "im Zeitraum geschlossene Champion-Trades",
+    "exit_closed.denominator": "im Zeitraum geschlossene Champion-Trades mit Kontrakt",
+    "entry.categories": "observed (OK+SUSPECT) + unusable + missing = denominator",
     "complete.denominator": "im Zeitraum geschlossene Champion-Trades (Bewertung OK = vollständig bewertbar)",
     "excluded": "NO_CONTRACT (Kontrakt unbekannt) zählt in keinen Entry-/Exit-Nenner, wird separat ausgewiesen"
    },
@@ -241,22 +245,22 @@
     "observed": {
      "n": 3,
      "n_independent_days": 3,
-     "sum_net": -1.8378,
-     "mean_net": -0.6126,
-     "median_net": -0.5918,
+     "sum_net": -1.850328,
+     "mean_net": -0.616776,
+     "median_net": -0.597106,
      "hit_rate": 0.0,
-     "worst": -0.7381,
-     "max_drawdown_cum": -1.8378,
+     "worst": -0.74429,
+     "max_drawdown_cum": -1.850328,
      "loss_distribution": {
       "n_losses": 3,
-      "p50_loss": -0.5918,
+      "p50_loss": -0.597106,
       "share_total_loss": 0.0
      },
-     "stdev": 0.116501,
+     "stdev": 0.118906,
      "verdict": "NEED_MORE_DATA",
      "ci": null
     },
-    "net_definition": "outcome_net (nach Kommission) wo vorhanden, sonst Brutto nach Bid/Ask-Kreuzung",
+    "net_definition": "Brutto (Bid/Ask gekreuzt) minus Kommission 0.65 $/Kontrakt/Seite; gespeichertes outcome_net hat Vorrang",
     "not_evaluable": {
      "UNUSABLE": 114,
      "DATA_BAD": 3
@@ -265,18 +269,18 @@
      "BULL_CALL_SPREAD": {
       "n": 3,
       "n_independent_days": 3,
-      "sum_net": -1.8378,
-      "mean_net": -0.6126,
-      "median_net": -0.5918,
+      "sum_net": -1.850328,
+      "mean_net": -0.616776,
+      "median_net": -0.597106,
       "hit_rate": 0.0,
-      "worst": -0.7381,
-      "max_drawdown_cum": -1.8378,
+      "worst": -0.74429,
+      "max_drawdown_cum": -1.850328,
       "loss_distribution": {
        "n_losses": 3,
-       "p50_loss": -0.5918,
+       "p50_loss": -0.597106,
        "share_total_loss": 0.0
       },
-      "stdev": 0.116501,
+      "stdev": 0.118906,
       "verdict": "NEED_MORE_DATA",
       "ci": null
      }
@@ -285,18 +289,18 @@
      "unknown": {
       "n": 3,
       "n_independent_days": 3,
-      "sum_net": -1.8378,
-      "mean_net": -0.6126,
-      "median_net": -0.5918,
+      "sum_net": -1.850328,
+      "mean_net": -0.616776,
+      "median_net": -0.597106,
       "hit_rate": 0.0,
-      "worst": -0.7381,
-      "max_drawdown_cum": -1.8378,
+      "worst": -0.74429,
+      "max_drawdown_cum": -1.850328,
       "loss_distribution": {
        "n_losses": 3,
-       "p50_loss": -0.5918,
+       "p50_loss": -0.597106,
        "share_total_loss": 0.0
       },
-      "stdev": 0.116501,
+      "stdev": 0.118906,
       "verdict": "NEED_MORE_DATA",
       "ci": null
      }
@@ -305,6 +309,8 @@
    "population": {
     "decisions": 3,
     "resolved": 1,
+    "resolved_observed": 1,
+    "excluded_not_observed": 0,
     "outcome_methods": {
      "spread_quote": 1
     },
@@ -779,10 +785,15 @@
      "verdict": "NO_DATA"
     },
     "CHAMPION_TRADE|ALL": {
-     "n": 0,
-     "n_signal_days": 0,
+     "n": 3,
+     "n_signal_days": 3,
      "n_entities": 3,
-     "verdict": "NO_DATA"
+     "mean_net": -0.616776,
+     "median_net": -0.597106,
+     "hit_rate": 0.0,
+     "mean_gross": -0.6126,
+     "worst": -0.74429,
+     "verdict": "NEED_MORE_DATA"
     }
    }
   },
@@ -929,6 +940,7 @@
   },
   "integrity": {
    "promotion_state_hash_ok": true,
+   "promotion_state_unreadable": false,
    "transition_chain_problems": [],
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
@@ -962,7 +974,7 @@
  "row": {
   "schema": "ops-history-v1",
   "as_of": "2026-10-11",
-  "generated": "2026-10-11T07:35:53+00:00",
+  "generated": "2026-10-11T08:02:11+00:00",
   "run.scanner.universe": 372,
   "run.scanner.analyzed": 96,
   "run.scanner.champion_candidates": 21,
@@ -1012,8 +1024,8 @@
   "lifecycle.candidates.OUTCOME_FINAL": 112,
   "forward.champion.n": 3,
   "forward.champion.n_independent_days": 3,
-  "forward.champion.mean_net": -0.6126,
-  "forward.champion.sum_net": -1.8378,
+  "forward.champion.mean_net": -0.616776,
+  "forward.champion.sum_net": -1.850328,
   "forward.champion.verdict": "NEED_MORE_DATA",
   "training.status": "NEVER_RUN",
   "training.n_labels": null,
@@ -1453,7 +1465,7 @@
    "diff_d30": null
   },
   "forward.champion.mean_net": {
-   "value": -0.6126,
+   "value": -0.616776,
    "prev": null,
    "d7": null,
    "d30": null,
@@ -1462,7 +1474,7 @@
    "diff_d30": null
   },
   "forward.champion.sum_net": {
-   "value": -1.8378,
+   "value": -1.850328,
    "prev": null,
    "d7": null,
    "d30": null,

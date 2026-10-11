@@ -91,3 +91,28 @@ def test_mark_coverage_counts_due_marked_pending(tmp_path):
     _write(tmp_path, rows)
     cov = el.option_mark_coverage(tmp_path, as_of=D0 + timedelta(days=9))
     assert cov["real_opt_ret_5d"] == {"due": 2, "marked": 1, "pending": 1, "late_marks": 0, "oldest_pending_days": 4}
+
+
+def _closed(tid, *, method="option_quote", outcome=0.3, strategy="LONG_CALL", ask=2.0, evaluation=None):
+    t = {"ticker": tid, "entry_date": "2026-09-01", "close_date": "2026-09-10", "strategy": strategy,
+         "outcome": outcome, "outcome_method": method, "outcome_reliable": True,
+         "option": {"ask": ask, "bid": ask - 0.1, "strike": 100.0, "expiration": "2026-12-18"},
+         "deep_analysis": {"direction": "BULLISH"}}
+    if evaluation:
+        t["outcome_evaluation"] = evaluation
+    return t
+
+
+def test_champion_trade_net_only_for_evaluable_trades():
+    ok = {"status": "OK", "reasons": [], "flags": [], "tier": "OBSERVED"}
+    bad = {"status": "DATA_BAD", "reasons": ["ENTRY_QUOTE_UNUSABLE"], "flags": [], "tier": "NOT_EVALUABLE"}
+    recs = {r["entity"]: r for r in el.from_champion_trades({"closed_trades": [
+        _closed("OK1", evaluation=ok),                                             # 1 Leg: 2*0.65/(2.0*100)
+        _closed("SPR", evaluation=ok, strategy="BULL_CALL_SPREAD"),                # 2 Legs
+        _closed("MOD", method="delta_approx"),                                     # modelliert -> UNUSABLE
+        _closed("BAD", evaluation=bad)]})}                                         # Methode ok, Bewertung DATA_BAD
+    assert recs["OK1"]["outcome_net"] == pytest.approx(0.3 - 1.3 / 200)
+    assert recs["SPR"]["outcome_net"] == pytest.approx(0.3 - 2.6 / 200)
+    assert recs["OK1"]["quality"] == "RELIABLE"
+    assert recs["MOD"]["outcome_net"] is None and recs["BAD"]["outcome_net"] is None   # nie Netto ohne Bewertung OK
+    assert recs["BAD"]["quality"] == "DATA_BAD"                                        # nie RELIABLE

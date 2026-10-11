@@ -52,6 +52,8 @@ PATH_KEYS = ("history", "daily_reports", "decision_ledger", "decision_outcomes",
              "external_health", "trade_outcomes", "quotes", "candidate_ledger", "meta_label", "kill_switch")
 
 OK_EVAL = {"status": "OK", "exit_session": "RTH", "flags": [], "tier": "REALIZED_RTH_REPRODUCIBLE", "reasons": []}
+C1 = 2 * 1 * 0.65 / (1.0 * 100)       # Kommission je Trade als Rendite: 1 Leg, 2 Seiten, Debit 1.0
+C2 = 2 * 2 * 0.65 / (1.0 * 100)       # Spread-Strategie: 2 Legs
 QUALITY_RAW = {"OK": {"bid": 1.0, "ask": 1.1},            # CROSSED/NO_ASK -> UNUSABLE, ZERO_BID -> SUSPECT
                "SUSPECT": {"bid": 0.0, "ask": 0.5},
                "UNUSABLE": {"bid": 1.2, "ask": 1.0}}
@@ -726,12 +728,15 @@ def test_champion_observed_metrics_use_only_ok_evaluations(env):
     champ = env.collect()["forward"]["champion"]
     m = champ["observed"]
     assert m["n"] == 4 and m["n_independent_days"] == 4
-    assert m["sum_net"] == pytest.approx(0.15) and m["mean_net"] == pytest.approx(0.0375)
-    assert m["median_net"] == pytest.approx(0.025) and m["hit_rate"] == 0.5 and m["worst"] == -0.4
-    assert m["stdev"] == pytest.approx(statistics.stdev([0.5, -0.25, -0.4, 0.3]), abs=1e-6)
-    # Drawdown der kumulierten Summe in TAGESREIHENFOLGE (0.5, -0.25, -0.4, 0.3): Peak 0.5, Tief -0.15 -> -0.65
-    # (in Eingabereihenfolge wäre es -0.4)
-    assert m["max_drawdown_cum"] == pytest.approx(-0.65)
+    # Netto = Brutto - Kommission (C1 je 1-Leg-Trade bei Debit 1.0); gespeichertes outcome_net (F04) hat Vorrang
+    net = [0.5 - C1, -0.25, -0.4 - C1, 0.3 - C1]                       # Tagesreihenfolge F02, F04, F03, F01
+    assert m["sum_net"] == pytest.approx(sum(net)) and m["mean_net"] == pytest.approx(sum(net) / 4)
+    assert m["median_net"] == pytest.approx((-0.25 + 0.3 - C1) / 2) and m["hit_rate"] == 0.5
+    assert m["worst"] == pytest.approx(-0.4 - C1)
+    assert m["stdev"] == pytest.approx(statistics.stdev(net), abs=1e-6)
+    # Drawdown der kumulierten Summe in TAGESREIHENFOLGE: Peak 0.487, Tief -0.176 -> -0.663
+    # (in Eingabereihenfolge wäre es -0.413)
+    assert m["max_drawdown_cum"] == pytest.approx(-0.663)
     assert m["loss_distribution"] == {"n_losses": 2, "p50_loss": -0.25, "share_total_loss": 0.0}
     assert m["verdict"] == "NEED_MORE_DATA" and m["ci"] is None
     assert champ["not_evaluable"] == {"UNUSABLE": 1, "DATA_BAD": 1}
@@ -741,20 +746,20 @@ def test_champion_drawdown_starts_from_zero_peak(env):
     env.history(closed=[closed_trade("N01", "2026-09-01", "2026-10-01", -0.3),
                         closed_trade("N02", "2026-09-01", "2026-10-02", -0.2)])
     m = env.collect()["forward"]["champion"]["observed"]
-    assert m["max_drawdown_cum"] == pytest.approx(-0.5) and m["hit_rate"] == 0.0
+    assert m["max_drawdown_cum"] == pytest.approx(-0.5 - 2 * C1) and m["hit_rate"] == 0.0
     assert m["loss_distribution"]["share_total_loss"] == 0.0
 
 
 def test_champion_total_loss_share_counts_minus_99_percent_and_worse(env):
     env.history(closed=[closed_trade("TL1", "2026-09-01", "2026-10-01", -1.0, method="option_quote_bid_zero"),
-                        closed_trade("TL2", "2026-09-01", "2026-10-02", -0.99),                 # Grenze zählt
-                        closed_trade("TL3", "2026-09-01", "2026-10-03", -0.98),
+                        closed_trade("TL2", "2026-09-01", "2026-10-02", -0.99 + C1),            # netto -0.99 zählt
+                        closed_trade("TL3", "2026-09-01", "2026-10-03", -0.989 + C1),
                         closed_trade("TL4", "2026-09-01", "2026-10-04", 0.5)])
     assert env.collect()["forward"]["champion"]["observed"]["loss_distribution"]["share_total_loss"] == 0.5
 
 
 def test_champion_zero_return_is_no_hit_and_no_loss_and_single_trade_has_no_stdev(env):
-    env.history(closed=[closed_trade("Z01", "2026-09-01", "2026-10-01", 0.0)])
+    env.history(closed=[closed_trade("Z01", "2026-09-01", "2026-10-01", C1)])       # netto genau 0
     m = env.collect()["forward"]["champion"]["observed"]
     assert m["n"] == 1 and m["hit_rate"] == 0.0 and m["stdev"] is None
     assert m["loss_distribution"] == {"n_losses": 0, "p50_loss": None, "share_total_loss": 0.0}
@@ -804,9 +809,10 @@ def test_champion_split_by_strategy_and_regime(env):
                         tr("G06", 6, 9.9, "BULL_CALL_SPREAD", "BACKWARDATION", method="delta_approx")])
     champ = env.collect()["forward"]["champion"]
     assert {k: (v["n"], round(v["sum_net"], 6)) for k, v in champ["by_strategy"].items()} == {
-        "LONG_CALL": (3, 0.4), "BULL_CALL_SPREAD": (2, 0.5)}                               # modellierter Trade fehlt
+        "LONG_CALL": (3, round(0.4 - 3 * C1, 6)), "BULL_CALL_SPREAD": (2, round(0.5 - 2 * C2, 6))}  # ohne Modell
     assert {k: (v["n"], round(v["sum_net"], 6)) for k, v in champ["by_regime"].items()} == {
-        "CONTANGO": (2, 0.1), "BACKWARDATION": (2, 0.5), "unknown": (1, 0.3)}
+        "CONTANGO": (2, round(0.1 - 2 * C1, 6)), "BACKWARDATION": (2, round(0.5 - 2 * C2, 6)),
+        "unknown": (1, round(0.3 - C1, 6))}
 
 
 def write_decisions(env: Env, rows: list[tuple], hyps: dict | None = None) -> None:

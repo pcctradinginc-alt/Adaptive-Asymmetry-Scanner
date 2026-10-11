@@ -65,12 +65,16 @@ def test_labeled_never_returns_labels_unknown_at_training_time():
 def test_champion_trades_carry_price_type_and_quality():
     hist = {"closed_trades": [
         {"ticker": "A", "entry_date": "2026-10-01", "close_date": "2026-10-20", "outcome": 0.2,
-         "outcome_method": "spread_quote", "outcome_reliable": True, "strategy": "BULL_CALL_SPREAD", "option": {}},
+         "outcome_method": "spread_quote", "outcome_reliable": True, "strategy": "BULL_CALL_SPREAD",
+         "option": {"net_debit": 1.5}},
         {"ticker": "B", "entry_date": "2026-10-01", "close_date": "2026-10-20", "outcome": 0.5,
-         "outcome_method": "delta_approx", "outcome_reliable": False, "strategy": "LONG_CALL", "option": {}}]}
+         "outcome_method": "delta_approx", "outcome_reliable": False, "strategy": "LONG_CALL", "option": {}},
+        {"ticker": "C", "entry_date": "2026-10-01", "close_date": "2026-10-20", "outcome": 0.2,      # ohne Entry-Debit
+         "outcome_method": "spread_quote", "outcome_reliable": True, "strategy": "BULL_CALL_SPREAD", "option": {}}]}
     r = {x["entity"]: x for x in el.from_champion_trades(hist)}
     assert r["A"]["quality"] == "RELIABLE" and r["A"]["price_type"] == "OBSERVED_QUOTE"
     assert r["B"]["quality"] != "RELIABLE" and r["B"]["price_type"] == "MODELED"
+    assert r["C"]["quality"] == "DATA_BAD" and r["C"]["outcome_net"] is None   # Methode ok, Bewertung nicht
 
 
 def _jl(path, rows):

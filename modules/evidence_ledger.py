@@ -217,14 +217,23 @@ def from_champion_trades(history: dict | None = None, history_path: Path | None 
         # nie zurückgeschrieben) -> modellierte/unbekannte Preise sind UNUSABLE, nie ein Verlust
         from modules.outcomes import trade_evaluation
         ev = t.get("outcome_evaluation") or trade_evaluation(t, price_type=pt)
+        # Netto = Brutto (Bid/Ask bereits gekreuzt) minus Kommission je Leg und Seite; nur für bewertbare Trades
+        # (status OK) – modellierte/Proxy-Preise bekommen kein Netto und erreichen so weder Scorecard noch Training
+        from modules.outcomes import effective_entry_debit
+        debit, n_legs = effective_entry_debit(t), 2 if "SPREAD" in str(t.get("strategy", "")) else 1
+        cost = (2 * n_legs * COMMISSION_PER_CONTRACT_SIDE) / (debit * 100) if debit > 0 else None
+        net = t.get("outcome_net")
+        if net is None and ev["status"] == "OK" and cost is not None:
+            net = round(float(t["outcome"]) - cost, 6)
         out.append(_rec(prediction_id=ll.trade_id(t), source_store="history.closed_trades",
                         population="CHAMPION_TRADE", entity=t.get("ticker"), decision_time=t.get("entry_date"),
                         direction=_dir((t.get("deep_analysis") or {}).get("direction")),
                         features=t.get("features") or {}, horizon=None, horizon_unit="holding",
-                        outcome=t.get("outcome"), outcome_net=t.get("outcome_net"),
-                        cost=(t.get("cost_model") or {}).get("cost_return"),
+                        outcome=t.get("outcome"), outcome_net=net,
+                        cost=(t.get("cost_model") or {}).get("cost_return", cost),
                         outcome_method=t.get("outcome_method"), price_type=pt,
-                        quality="RELIABLE" if is_reliable_outcome(t) and ev["status"] == "OK" else cls,
+                        quality="RELIABLE" if is_reliable_outcome(t) and ev["status"] == "OK"
+                        else (ev["status"] if cls == "RELIABLE" else cls),     # Methode ok, Bewertung nicht -> nie RELIABLE
                         label_available_at=_after(t.get("close_date")),
                         meta={"evaluation": ev, "strategy": t.get("strategy"), "is_champion": True,
                               "stage": "CHAMPION", "close_reason": t.get("close_reason"),

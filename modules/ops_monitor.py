@@ -440,7 +440,8 @@ def forward_performance(hist: dict, P: dict, now: datetime) -> dict:
     vals = [float(r["outcome_net"] if r.get("outcome_net") is not None else r["outcome"]) for r in ok]
     days = [r.get("label_available_at") for r in ok]
     champion = {"observed": _metrics(vals, days),
-                "net_definition": "outcome_net (nach Kommission) wo vorhanden, sonst Brutto nach Bid/Ask-Kreuzung",
+                "net_definition": "Brutto (Bid/Ask gekreuzt) minus Kommission 0.65 $/Kontrakt/Seite; "
+                                  "gespeichertes outcome_net hat Vorrang",
                 "not_evaluable": dict(Counter(((r.get("meta") or {}).get("evaluation") or {}).get("status")
                                               for r in champ if r not in ok)),
                 "by_strategy": {}, "by_regime": {}}

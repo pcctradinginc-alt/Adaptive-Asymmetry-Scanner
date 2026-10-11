@@ -4,7 +4,7 @@
 
 **READ-ONLY Monitoring – keine Handelsempfehlung**
 
-Stand 2026-10-11 · erzeugt 2026-10-11T07:35:53+00:00 · Schema ops-status-v1  
+Stand 2026-10-11 · erzeugt 2026-10-11T08:02:11+00:00 · Schema ops-status-v1  
 Warnungen: 2 neu, 0 geändert, 0 laufend, 0 behoben; davon aktiv CRITICAL: 0  
 
 ## Lauf
@@ -57,11 +57,11 @@ Workflow-Status für heute: N/A
 ## Forward-Performance
 
 - **Champion realisiert (nur beobachtet): n**: 3
-- **mean_net**: -0.6126
-- **sum_net**: -1.8378
+- **mean_net**: -0.6168
+- **sum_net**: -1.8503
 - **Trefferquote**: 0
-- **schlechtester**: -0.7381
-- **max. Drawdown (kum.)**: -1.8378
+- **schlechtester**: -0.7443
+- **max. Drawdown (kum.)**: -1.8503
 - **nicht bewertbar**: UNUSABLE: 114, DATA_BAD: 3
 
 Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=3, unabhängige Tage=3; Mindestwerte n≥30, Tage≥20).
@@ -96,7 +96,7 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=3, unabhängige Tage=3; Mindes
 | CANDIDATE_STRATEGY_5d\|ALL | 26 | -0.1933 | 0.2308 | NEED_MORE_DATA |
 | CANDIDATE_STRATEGY_5d\|CHAMPION | 0 | N/A | N/A | NO_DATA |
 | CANDIDATE_STRATEGY_5d\|LATE_STAGE | 11 | -0.2057 | 0.2727 | NEED_MORE_DATA |
-| CHAMPION_TRADE\|ALL | 0 | N/A | N/A | NO_DATA |
+| CHAMPION_TRADE\|ALL | 3 | -0.6168 | 0 | NEED_MORE_DATA |
 
 ## Training
 
@@ -165,10 +165,10 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=3, unabhängige Tage=3; Mindes
 | data.source_health.HEALTHY | 33 | N/A | N/A | N/A |
 | data.source_health.UNVALIDATED | 9 | N/A | N/A | N/A |
 | data.source_health.n_bad | 2 | N/A | N/A | N/A |
-| forward.champion.mean_net | -0.6126 | N/A | N/A | N/A |
+| forward.champion.mean_net | -0.6168 | N/A | N/A | N/A |
 | forward.champion.n | 3 | N/A | N/A | N/A |
 | forward.champion.n_independent_days | 3 | N/A | N/A | N/A |
-| forward.champion.sum_net | -1.8378 | N/A | N/A | N/A |
+| forward.champion.sum_net | -1.8503 | N/A | N/A | N/A |
 | integrity.issues | 0 | N/A | N/A | N/A |
 | lifecycle.candidates.EXIT_OVERDUE | 1 | N/A | N/A | N/A |
 | lifecycle.candidates.EXIT_PENDING | 160 | N/A | N/A | N/A |

@@ -53,7 +53,7 @@ Ein Beispielbericht aus **echten** Repo-Daten liegt unter `docs/examples/ops_sta
 | Vollständig bewertbar | Bewertung `OK` (trade-eval-v1) | im Zeitraum geschlossene Champion-Trades |
 | Kandidaten-Marks | fällig / markiert / offen / verspätet | Real-Option- und Strategie-Kontrakte mit Entry |
 | Lebenszyklus | Zustände und Probleme je Trade | siehe Abschnitt 5 |
-| Forward Champion | n, unabhängige Tage, Σ/Ø netto, Trefferquote, Verluste, Drawdown, CI | nur Bewertung `OK`; Modell- und Proxy-Preise separat (`not_evaluable`) |
+| Forward Champion | n, unabhängige Tage, Σ/Ø netto, Trefferquote, Verluste, Drawdown, CI | nur Bewertung `OK`, netto = Brutto (Bid/Ask gekreuzt) − Kommission 0,65 $/Kontrakt/Seite; Modell- und Proxy-Preise separat (`not_evaluable`) |
 | Forward Challenger | vermiedene Verluste, entgangene Gewinne, Δ gegenüber Champion | dieselbe eingefrorene Population: Decision-Ledger mit `decision_outcomes` |
 
 Ausschlüsse werden immer ausgewiesen, nie still verworfen:
