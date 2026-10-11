@@ -26,7 +26,13 @@ Status-Begriffe in diesem Dokument:
 ## 2. Regeln des Lernzyklus
 
 - **Kein Lookahead.** Training nutzt nur Labels mit `label_available_at <= as_of`. `predict_one` liefert nur dann eine Prognose, wenn das Modell vor der Entscheidung trainiert wurde; sonst None, nie geraten. Fehlende Merkmale bleiben NaN; Spalten ohne Werte werden pro Fit verworfen.
-- **Readiness.** Trainiert wird erst ab 200 Labels über mindestens 20 Signaltage; sonst `NEED_MORE_DATA`.
+- **Zielpopulation (seit 2026-10-11).**
+  - Trainiert wird nur auf Kandidaten, die bis zum Options-Design kamen (`LATE`) oder Champion wurden (`CHAMPION`); `SPEC.train_stages`.
+  - Grund: Die Shift-Diagnose (`meta_label.population_shift`) zeigt auf echten Daten bei 11 von 26 Merkmalen eine deutliche Verschiebung gegenüber allen Kandidaten.
+  - Mehrere Merkmale (z. B. `sigma_30d`, MC-Trefferquoten) existieren nur ab späten Stufen. Ein Modell auf allen Kandidaten würde dieses stufenbedingte Fehlen lernen (Selektions-Leakage).
+  - Breite Daten kommen erst mit nachgewiesener Generalisierung als neue Spec-Version.
+  - `evaluate()` weist die Out-of-sample-Kennzahlen auf der Zielpopulation separat aus. HGB wird nie aktiv, wenn er dort schlechter ist als die Base Rate.
+- **Readiness.** Trainiert wird erst ab 200 Labels der Zielpopulation über mindestens 20 Signaltage; sonst `NEED_MORE_DATA`.
 - **Neutraining.** Nur bei mindestens 25 neuen Labels seit der letzten Version und höchstens wöchentlich; sonst `UNCHANGED` mit Grund.
 - **Champion gegen Challenger.**
   - Die Logit-Baseline ist standardmäßig aktiv. Ihr Signal ist zunächst nur Shadow.
@@ -72,7 +78,20 @@ Der globale **Kill-Switch** (`config/production_kill_switch.yaml`) schaltet sofo
 
 Ohne neue Entwicklung laufen weiter im Shadow: `universe_segment@V2_CANDIDATE` (4 Verträge) und alle Research-Module.
 
-## 5. Datenlage am 2026-10-10 (gemessen, nichts aufgefüllt)
+## 5. Datenlage (gemessen, nichts aufgefüllt)
+
+**Stand 2026-10-11** (`python -m modules.evidence_ledger scorecard`, `modules.ops_monitor`):
+
+| Messgröße | Wert | Einordnung |
+|---|---|---|
+| Echte Long-Option-Outcomes (`CANDIDATE_OPTION`, 5 Tage, Kauf Ask/Verkauf Bid, netto nach Kommission) | n = 112, 4 Signaltage, Netto-Mittel −10,6 %, Trefferquote 27 % | `NEED_MORE_DATA` |
+| Echte Strategie-Outcomes (`CANDIDATE_STRATEGY`, 5 Tage) | n = 26, Netto-Mittel −19,3 % | `NEED_MORE_DATA` |
+| Late-Stage gegen früh verworfen (Option, 5 Tage) | +6,2 Prozentpunkte | `NEED_MORE_DATA`, keine Aussage |
+| Champion-Trades mit Bewertung OK (beobachtete Quotes) | 3 von 120 (alle Verluste, Mittel −61 %) | 114 UNUSABLE (Altbestand ohne Preismethode), 3 DATA_BAD |
+| Fällige Real-Option-Marks (5 Tage) | 153 fällig, 112 markiert, 41 offen | Ursache: Marks nur in der regulären Session; behoben durch den RTH-Schritt im Scanner |
+| Zielpopulation (Late-Stage + Champion) | 133 von 478 gerichteten Kandidaten | Shift-Diagnose: SHIFT (11 von 26 Merkmalen) |
+
+**Stand 2026-10-10**:
 
 | Population | Datensätze | mit Outcome | Qualität |
 |---|---|---|---|
