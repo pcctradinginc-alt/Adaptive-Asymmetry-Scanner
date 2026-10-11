@@ -691,7 +691,7 @@ def run(now: datetime | None = None, *, paths: dict | None = None, out_dir: Path
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m modules.ops_report", description=f"Ops-Bericht – {BANNER}")
-    ap.add_argument("--mail", action="store_true", help="Mail senden (nur bei neuen/geänderten/behobenen/kritischen Warnungen)")
+    ap.add_argument("--mail", action="store_true", help="Mail senden (nur bei neuen/geänderten/behobenen Warnungen; laufende nie erneut)")
     ap.add_argument("--dry-run-mail", action="store_true", help="Mail nur vorbereiten (kein Versand, Warnungszustand unverändert)")
     ap.add_argument("--out", default=str(DEFAULT_OUT), help="Ausgabeverzeichnis (Default outputs/monitoring)")
     try:
