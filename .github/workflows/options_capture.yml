@@ -1,0 +1,69 @@
+name: Options-Capture (RTH, nur Quote-Archiv)
+
+# Unabhängig vom Scanner-Zeitpunkt: archiviert Quotes aktiver Champion-Kontrakte und fälliger, offener
+# Kandidaten-Marks, sobald ein Lauf ins RTH-Fenster fällt (NYSE-Kalender inkl. Feiertage, Sonderschließungen,
+# verkürzte Sitzungen; DST-fest über America/New_York; >= 30 min nach Eröffnung, <= 10 min vor Schluss).
+# Sechs gestaffelte Crons, weil GitHub-Crons hier 4–7 h verspätet starten: mindestens einer trifft das Fenster
+# bei JEDER Verzögerung von 0–7 h in Sommer- und Winterzeit, auch an verkürzten Sitzungen (3. Juli, Tag nach
+# Thanksgiving, Heiligabend; geprüft in tests/test_ops_readiness.py). Die übrigen enden nach Sekunden
+# (außerhalb des Fensters bzw. schon erfasst – idempotent je Symbol und NY-Handelstag).
+#
+# Schreibt NUR outputs/options_archive/ (append-only, Union-Merge) und nie Ledger, history.json, Modelle oder
+# Konfiguration; Marks berechnet candidate_ledger daraus im nächsten Scanner-/Feedback-Lauf. Eigene
+# Concurrency-Gruppe: wartet nie auf history-write und kann dort keinen wartenden Lauf verdrängen.
+on:
+  schedule:
+    - cron: '43 9 * * 1-5'
+    - cron: '13 11 * * 1-5'
+    - cron: '43 12 * * 1-5'
+    - cron: '13 14 * * 1-5'
+    - cron: '43 15 * * 1-5'
+    - cron: '13 17 * * 1-5'
+  workflow_dispatch:
+
+concurrency:
+  group: options-capture
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install (nur requests + pyyaml)
+        run: pip install requests pyyaml
+
+      - name: Quotes im RTH-Fenster archivieren
+        env:
+          TRADIER_API_KEY: ${{ secrets.TRADIER_API_KEY }}
+        run: python scripts/rth_marks.py --capture-only
+
+      - name: Commit Quote-Archiv
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: options capture $(date -u +%Y-%m-%dT%H:%M)" outputs/options_archive/
+
+      - name: Daten-Sicherung als Artefakt (nur nach Fehler)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: options-capture-${{ github.run_id }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: outputs/options_archive/

@@ -77,6 +77,7 @@ RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
+MARK_ARCHIVE_LOOKBACK_DAYS   = 10   # außerhalb der Sitzung: archivierte RTH-Quotes der letzten N Tage (Options-Capture)
 
 # ── Hypothetischer Options-Kontrakt (Counterfactual, Observability) ──────────
 # Gates verwerfen/akzeptieren Kandidaten auf Basis von Underlying-Returns,
@@ -1206,6 +1207,41 @@ def _row_entry_dt(row: dict):
     return _parse_date(row.get("date", ""))
 
 
+def due_mark_symbols(today: str, root: Path = LEDGER_ROOT) -> list[str]:
+    """NUR LESEND: OCC-Symbole aller fälligen, noch offenen und nicht verfallenen Real-Options-/Strategie-Marks
+    (Fälligkeitsregel wie _fill_real_option_marks/_fill_real_strategy_marks; Verfallene brauchen keine Quote,
+    sie werden aus dem Settlement bewertet). Für den Options-Capture-Workflow, der Quotes nur archiviert und das
+    Ledger nie schreibt. Wirft nie."""
+    out: set[str] = set()
+    try:
+        today_dt = datetime.strptime(today, "%Y-%m-%d")
+        for path in _iter_relevant_files(Path(root), today_dt):
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    try:
+                        row = json.loads(line) if line.strip() else None
+                    except ValueError:
+                        continue
+                    if not isinstance(row, dict):
+                        continue
+                    oc = row.get("outcomes") or {}
+                    for key, ret, syms in (
+                            ("real_option", "real_opt_ret", lambda sp: [sp.get("symbol")]),
+                            ("real_strategy", "real_strat_ret", lambda sp: [g.get("symbol") for g in sp.get("legs") or []])):
+                        spec = row.get(key)
+                        if not spec or spec.get("entry_pending"):
+                            continue
+                        entry_dt = _parse_date(spec.get("entry_date") or "")
+                        expiry_dt = _parse_date(spec.get("expiry") or "")
+                        if entry_dt is None or (expiry_dt is not None and today_dt.date() > expiry_dt.date()):
+                            continue
+                        if any(f"{ret}_{h}d" not in oc and (today_dt - entry_dt).days >= h for h in HORIZONS):
+                            out.update(x for x in syms(spec) if x)
+    except Exception as e:  # noqa: BLE001 – Capture ist Beobachtung, nie Bedingung
+        log.warning(f"candidate_ledger.due_mark_symbols: {type(e).__name__}: {e}")
+    return sorted(out)
+
+
 def update_outcomes(today: str, root: Path = LEDGER_ROOT) -> None:
     """
     Füllt fehlende Return-Horizonte (5/20/45/120 Kalendertage) sowie
@@ -1589,6 +1625,31 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
     return changed
 
 
+def _mark_quotes(symbols: list[str]) -> tuple[str, dict]:
+    """Quote-Quelle für Real-Options-Marks (2026-10-11, entkoppelt vom Lauf-Zeitpunkt):
+    in der regulären Sitzung ("live") gebündelter Tradier-Abruf wie bisher (wird über den Hook archiviert);
+    sonst ("archive") die archivierten, verwertbaren RTH-Quotes der letzten Tage (option_quotes.rth_quote_history,
+    erfasst u. a. vom Options-Capture-Workflow). Nie ein Modellpreis, nie eine Quote außerhalb der Sitzung."""
+    now = _now_utc()
+    if market_snapshot.us_market_session(now) == "regular":
+        return "live", market_snapshot.fetch_option_quotes(symbols)
+    from modules import option_quotes as oq
+    return "archive", oq.rth_quote_history(symbols, now, lookback_days=MARK_ARCHIVE_LOOKBACK_DAYS)
+
+
+def _archived_mark(history: dict, symbols: list[str], due_day: str) -> tuple[str, list[dict]] | None:
+    """Frühester NY-Handelstag >= due_day, an dem ALLE symbols (Spread: beide Legs) eine verwertbare RTH-Quote
+    haben -> (Tag, [erste Quote je Symbol an diesem Tag]); sonst None (Mark bleibt offen)."""
+    days = None
+    for sym in symbols:
+        d = {day for day, _ in history.get(sym) or [] if day and day >= due_day}
+        days = d if days is None else days & d
+    if not days:
+        return None
+    day = min(days)
+    return day, [next(r for d, r in history[sym] if d == day) for sym in symbols]
+
+
 def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     """
     P0-B: für Zeilen mit real_option (bereits gefülltem Entry — kein
@@ -1598,19 +1659,16 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     Intrinsic-Wert aus dem Underlying-Schlusskurs am Expiry-Tag verwendet
     statt einer (nicht mehr existierenden) Live-Quote.
 
-    Optionen handeln nur in der regulären Session — Marks passieren daher
-    NUR, wenn der aktuelle Lauf (2×/Tag via feedback.py) während einer
-    regulären Session läuft; sonst wird nichts markiert (nächster
-    Regular-Session-Lauf holt es nach). Horizonte laufen ab dem TATSÄCHLICH
+    Optionen handeln nur in der regulären Session — Marks nutzen daher NUR
+    RTH-Quotes: im Lauf während der Session live, sonst die archivierten
+    RTH-Quotes (Options-Capture, frühester Handelstag ab Fälligkeit; Feld
+    real_opt_mark_source_{h}d = archive_rth). Fehlt beides, bleibt der Mark
+    offen (nächster Lauf holt es nach). Horizonte laufen ab dem TATSÄCHLICH
     gefüllten Entry-Datum (real_option["entry_date"]), nicht ab dem
     ursprünglichen Signal-Datum. Zeilen, deren Horizont schon >7 Tage
     verstrichen ist, werden trotzdem jetzt mit der aktuellen Quote markiert,
     aber zusätzlich mit late_mark=true geflaggt.
     """
-    session = market_snapshot.us_market_session(_now_utc())
-    if session != "regular":
-        return False
-
     tasks = []  # (row, h, entry_dt)
     for row in rows:
         real_option = row.get("real_option")
@@ -1633,8 +1691,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
         t[0]["real_option"].get("symbol") for t in tasks
         if t[0]["real_option"].get("symbol")
     })
-    quotes = market_snapshot.fetch_option_quotes(symbols)
-
+    mode, quotes = _mark_quotes(symbols)
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -1659,8 +1716,15 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
                 intrinsic = (max(spot_at_expiry - strike, 0.0) if kind == "call"
                              else max(strike - spot_at_expiry, 0.0))
                 exit_bid = exit_mid = intrinsic
+                mark_day = today_dt.strftime("%Y-%m-%d")
             else:
-                q = quotes.get(symbol)
+                if mode == "live":
+                    q, mark_day = quotes.get(symbol), today_dt.strftime("%Y-%m-%d")
+                else:
+                    m = _archived_mark(quotes, [symbol], (entry_dt + timedelta(days=h)).strftime("%Y-%m-%d"))
+                    if not m:
+                        continue
+                    mark_day, (q,) = m
                 if not q:
                     continue
                 exit_bid, exit_mid = q.get("bid"), q.get("mid")
@@ -1670,9 +1734,11 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             outcomes = row.setdefault("outcomes", {})
             outcomes[f"real_opt_ret_{h}d"]       = round(exit_bid / entry_ask - 1.0, 4)
             outcomes[f"real_opt_ret_mid_{h}d"]   = round(exit_mid / entry_mid - 1.0, 4)
-            outcomes[f"real_opt_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+            outcomes[f"real_opt_mark_date_{h}d"] = mark_day
+            if mode == "archive":
+                outcomes[f"real_opt_mark_source_{h}d"] = "archive_rth"
 
-            if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
+            if (_parse_date(mark_day) - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
                 row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
                 outcomes[f"real_opt_late_{h}d"] = True                    # je Instrument/Horizont (Evidenz)
 
@@ -1698,10 +1764,6 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
     bei 0 gefloort für den konservativen Wert). Session-Gating und
     late_mark wie bei real_option.
     """
-    session = market_snapshot.us_market_session(_now_utc())
-    if session != "regular":
-        return False
-
     tasks = []  # (row, h, entry_dt)
     for row in rows:
         rs = row.get("real_strategy")
@@ -1726,8 +1788,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
         for leg in (t[0]["real_strategy"].get("legs") or [])
         if leg.get("symbol")
     })
-    quotes = market_snapshot.fetch_option_quotes(symbols)
-
+    mode, quotes = _mark_quotes(symbols)
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -1767,8 +1828,19 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                 short_intrinsic = _intrinsic(short_leg) if short_leg is not None else 0.0
                 exit_conservative = max(long_intrinsic - short_intrinsic, 0.0)
                 exit_mid          = long_intrinsic - short_intrinsic
+                mark_day = today_dt.strftime("%Y-%m-%d")
             else:
-                q_long = quotes.get(long_leg.get("symbol"))
+                leg_syms = [long_leg.get("symbol")] + ([short_leg.get("symbol")] if short_leg is not None else [])
+                if mode == "live":
+                    q_by = {sym: quotes.get(sym) for sym in leg_syms}
+                    mark_day = today_dt.strftime("%Y-%m-%d")
+                else:                                 # beide Legs vom selben Handelstag
+                    m = _archived_mark(quotes, leg_syms, (entry_dt + timedelta(days=h)).strftime("%Y-%m-%d"))
+                    if not m:
+                        continue
+                    mark_day, recs = m
+                    q_by = dict(zip(leg_syms, recs))
+                q_long = q_by.get(long_leg.get("symbol"))
                 if not q_long:
                     continue
                 long_bid, long_mid_q = q_long.get("bid"), q_long.get("mid")
@@ -1776,7 +1848,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                     continue
 
                 if short_leg is not None:
-                    q_short = quotes.get(short_leg.get("symbol"))
+                    q_short = q_by.get(short_leg.get("symbol"))
                     if not q_short:
                         continue
                     short_ask, short_mid_q = q_short.get("ask"), q_short.get("mid")
@@ -1791,9 +1863,11 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             outcomes = row.setdefault("outcomes", {})
             outcomes[f"real_strat_ret_{h}d"]       = round(exit_conservative / net_debit_entry - 1.0, 4)
             outcomes[f"real_strat_ret_mid_{h}d"]   = round(exit_mid / net_mid_entry - 1.0, 4)
-            outcomes[f"real_strat_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+            outcomes[f"real_strat_mark_date_{h}d"] = mark_day
+            if mode == "archive":
+                outcomes[f"real_strat_mark_source_{h}d"] = "archive_rth"
 
-            if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
+            if (_parse_date(mark_day) - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
                 row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
                 outcomes[f"real_strat_late_{h}d"] = True                  # je Instrument/Horizont (Evidenz)
 

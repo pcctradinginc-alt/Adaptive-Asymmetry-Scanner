@@ -181,6 +181,12 @@ def _entry_status(trade: dict, P: dict) -> tuple[str, str | None, list]:
     return f"ENTRY_{worst}", recs[0].get("source"), recs
 
 
+def _is_trading_day(now: datetime) -> bool:
+    """NYSE-Handelstag am New-York-Datum von now (Feiertage, Sonderschließungen; Kalender modules.market_snapshot)."""
+    from modules import market_snapshot as ms
+    return ms.is_trading_day(now.astimezone(ms.NY_TZ).date())
+
+
 def _exit_status_active(trade: dict, P: dict, now: datetime) -> tuple[str, float | None]:
     """Aktiver Trade: jüngste archivierte Quote je Leg (PIT <= now). EXIT_MARK_TODAY | EXIT_MARK_STALE | NO_EXIT_MARK."""
     from modules import option_quotes as oq
@@ -264,7 +270,7 @@ def quote_coverage(hist: dict, P: dict, now: datetime) -> dict:
     out["exit_active"] = {"denominator": den_a, "by_status": dict(ec), "mark_today": ec["EXIT_MARK_TODAY"],
                           "coverage": _ratio(ec["EXIT_MARK_TODAY"], den_a),
                           "oldest_mark_age_days": max((a for _, a in ex if a is not None), default=None),
-                          "trading_day": today.weekday() < 5}
+                          "trading_day": _is_trading_day(now)}
     w30 = [r for r in entry_rows if _in_window(r["d"], today, 30) and r["status"] != "NO_CONTRACT"]
     for dim in ("provider", "strategy"):
         g: dict = {}

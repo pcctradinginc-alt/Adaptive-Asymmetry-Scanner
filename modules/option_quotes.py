@@ -456,24 +456,76 @@ def latest_quote(occ_symbol: str, as_of: datetime | str, *, root: Path | None = 
 # Handelssession und Suche nach Record-IDs (Options-Outcome-Kreislauf, 2026-10-11)
 # ---------------------------------------------------------------------------------------------
 def session_of(ts) -> str:
-    """US-Optionssession eines Zeitpunkts (America/New_York): RTH 09:30–16:00, PRE 04:00–09:30, POST 16:00–20:00,
-    sonst CLOSED (inkl. Wochenende); UNKNOWN ohne Zeit. Börsenfeiertage sind NICHT berücksichtigt (konservativ:
-    ein Feiertag erscheint als RTH; die Quote selbst ist dann typischerweise STALE geflaggt)."""
+    """US-Optionssession eines Zeitpunkts (America/New_York, DST über zoneinfo) nach dem NYSE-Kalender
+    (modules.market_snapshot): RTH 09:30–Schluss (16:00, an verkürzten Tagen 13:00), PRE 04:00–09:30,
+    POST Schluss–20:00, sonst CLOSED – Wochenenden, Börsenfeiertage und außerplanmäßige Schließtage sind
+    ganztägig CLOSED. UNKNOWN ohne Zeit."""
     t = _parse_ts(ts)
     if t is None:
         return "UNKNOWN"
-    from zoneinfo import ZoneInfo
-    et = t.astimezone(ZoneInfo("America/New_York"))
-    if et.weekday() >= 5:
+    from modules import market_snapshot as ms
+    et = t.astimezone(ms.NY_TZ)
+    if not ms.is_trading_day(et.date()):
         return "CLOSED"
     m = et.hour * 60 + et.minute
-    if 570 <= m < 960:
+    c = ms.market_close_time(et.date())
+    close_m = c.hour * 60 + c.minute
+    if 570 <= m < close_m:
         return "RTH"
     if 240 <= m < 570:
         return "PRE"
-    if 960 <= m < 1200:
+    if close_m <= m < 1200:
         return "POST"
     return "CLOSED"
+
+
+def ny_date(ts) -> str | None:
+    """Kalendertag in New York (YYYY-MM-DD) eines Zeitpunkts; None ohne lesbare Zeit."""
+    t = _parse_ts(ts)
+    if t is None:
+        return None
+    from modules import market_snapshot as ms
+    return t.astimezone(ms.NY_TZ).date().isoformat()
+
+
+def usable_rth_quote(rec: dict | None) -> bool:
+    """Für einen Mark verwertbar: in der regulären Sitzung abgerufen und notiert, nicht UNUSABLE/STALE,
+    Bid und Ask > 0 (Exit zum Bid realisierbar)."""
+    if not rec or rec.get("quality_status") == "UNUSABLE" or "STALE" in (rec.get("quality_flags") or []):
+        return False
+    if session_of(rec.get("retrieved_at")) != "RTH" or quote_session(rec) != "RTH":
+        return False
+    bid, ask = _num(rec.get("bid")), _num(rec.get("ask"))
+    return bid is not None and ask is not None and bid > 0 and ask > 0
+
+
+def rth_quote_history(symbols, as_of, *, root: Path | None = None,
+                      lookback_days: int = 10) -> dict[str, list[tuple[str, dict]]]:
+    """Point-in-time: je OCC-Symbol alle verwertbaren RTH-Quotes (usable_rth_quote) mit retrieved_at <= as_of
+    aus den letzten lookback_days Tagesdateien als [(NY-Handelstag, Record)], aufsteigend nach retrieved_at.
+    Grundlage für Marks, deren Lauf selbst außerhalb der Sitzung liegt (Erfassung und Mark entkoppelt). Wirft nie."""
+    out: dict[str, list[tuple[str, dict]]] = {}
+    try:
+        ts = _parse_ts(as_of)
+        want = {str(x).strip().upper().replace(" ", "") for x in (symbols or []) if x}
+        if ts is None or not want:
+            return out
+        base = Path(root) if root is not None else ROOT
+        for i in range(int(lookback_days), -1, -1):
+            path = _day_path(base, (ts.date() - timedelta(days=i)).isoformat())
+            if not path.exists():
+                continue
+            for r in _read_day(path):
+                sym = r.get("occ_symbol")
+                t = _parse_ts(r.get("retrieved_at"))
+                if sym in want and t is not None and t <= ts and usable_rth_quote(r):
+                    out.setdefault(sym, []).append((ny_date(t), r))
+        for sym in out:
+            out[sym].sort(key=lambda x: str(x[1].get("retrieved_at")))
+        return out
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"option_quotes.rth_quote_history: {type(e).__name__}: {e}")
+        return out
 
 
 def quote_session(rec: dict | None) -> str:

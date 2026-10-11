@@ -2,9 +2,13 @@ name: Adaptive Asymmetry Scanner
 
 on:
   schedule:
-    - cron: '30 13 * * 1-5'  # 13:30 UTC = 15:30 MEZ (entspricht US-Marktöffnung); frühester Start (Guard)
+    # Zwei Crons, weil die US-Eröffnung 09:30 New York mit der Zeitumstellung wandert: 13:30 UTC (Sommer) und
+    # 14:30 UTC (Winter). Der Guard lässt nie vor 09:30 ET (not_before_ny), nie an NYSE-Feiertagen und nie zweimal
+    # je Tag laufen -> der jeweils andere Trigger endet nach ~1 min mit SKIP. (Real starten die Crons 4–7 h später.)
+    - cron: '30 13 * * 1-5'
+    - cron: '30 14 * * 1-5'
   # Reihenfolge über Abhängigkeit statt Cron-Versatz (2026-10-09): sobald Source Health fertig ist, startet
-  # der Scanner – der Guard lässt ihn nur mit frischem Snapshot, nie vor 13:30 UTC und nie zweimal je Tag laufen.
+  # der Scanner – der Guard lässt ihn nur mit frischem Snapshot, nie vor 09:30 New York und nie zweimal je Tag laufen.
   workflow_run:
     workflows: ["Source Health Check (täglich, vor dem Scanner)"]
     types: [completed]
@@ -83,15 +87,25 @@ jobs:
         run: pip install -r requirements.txt
 
       # ── Options-Marks im RTH-Fenster (vor der langen Pipeline) ──────────
-      # Real-Options-Marks und Quotes aktiver Champion-Kontrakte nur in der regulären Session; der Job startet
-      # verspätet (~19 UTC), der Feedback-Schritt am Ende liegt meist nach Handelsschluss. Idempotent, nie
-      # entscheidungswirksam, außerhalb RTH ein No-op (scripts/rth_marks.py).
+      # Real-Options-Marks und Quotes aktiver Champion-Kontrakte nur im Fenster der regulären Sitzung (NYSE-Kalender,
+      # DST-fest, >= 30 min nach Eröffnung). Zusätzliche, vom Scanner unabhängige Erfassung: options_capture.yml.
+      # Idempotent, nie entscheidungswirksam, außerhalb des Fensters ein No-op (scripts/rth_marks.py).
       - name: Options-Marks (RTH)
         id: rthmarks
         continue-on-error: true
         env:
           TRADIER_API_KEY: ${{ secrets.TRADIER_API_KEY }}
         run: python scripts/rth_marks.py
+
+      # Sofort persistieren (vor der ~50-min-Pipeline): ein späterer Scanner-Fehler kostet die Marks/Quotes nicht.
+      # Zu diesem Zeitpunkt hat nur der Marks-Schritt outputs/ verändert -> breiter Commit, nichts wird gestasht.
+      - name: Commit Options-Marks
+        if: steps.rthmarks.outcome == 'success'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: options marks (RTH) $(date -u +%Y-%m-%dT%H:%M)" outputs/
 
       # ── Scanner ──────────────────────────────────────────────────────────
       - name: Run Scanner
@@ -141,12 +155,30 @@ jobs:
         run: |
           bash scripts/ci_push.sh "chore: daily report $(date -u +%Y-%m-%d)" outputs/
 
-      - name: Commit Ops-Monitoring nach Scanner-Fehler
+      # Nach einem Fehler nur append-only Beobachtungen sichern (Quote-Archiv, Monitoring) – nie halbfertige
+      # Zustände (history.json, Ledger) eines abgebrochenen Laufs.
+      - name: Commit Beobachtungen nach Scanner-Fehler
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bash scripts/ci_push.sh "chore: ops monitoring (Scanner-Fehler) $(date -u +%Y-%m-%dT%H:%M)" outputs/monitoring/
+          bash scripts/ci_push.sh "chore: ops monitoring + quote archive (Scanner-Fehler) $(date -u +%Y-%m-%dT%H:%M)" outputs/monitoring/ outputs/options_archive/
+
+      # Letzte Sicherung, falls ein Push scheitert (Konflikt/Netz): Daten als Run-Artefakt (14 Tage) statt Verlust
+      # mit dem kurzlebigen Runner. Wiederherstellung: docs/OPERATIONS_READINESS.md.
+      - name: Daten-Sicherung als Artefakt (nur nach Fehler)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scanner-data-${{ github.run_id }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            outputs/options_archive/
+            outputs/candidate_ledger/
+            outputs/monitoring/
+            outputs/history.json
+            outputs/daily_reports/
 
       # ── UNIVERSE_V2 Shadow-Scan (LLM-frei, keine Produktionswirkung) ─────
       - name: UNIVERSE_V2 Shadow-Scan

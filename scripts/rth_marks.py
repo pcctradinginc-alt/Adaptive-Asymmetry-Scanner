@@ -1,28 +1,52 @@
-"""scripts/rth_marks.py – Options-Marks im Fenster der regulären US-Session sichern (Outcome-Kreislauf, 2026-10-11).
+"""scripts/rth_marks.py – Options-Marks/Quotes zu einem gültigen Handelszeitpunkt sichern (Outcome-Kreislauf).
 
-Problem: Real-Options-Marks (candidate_ledger real_opt_ret_*/real_strat_ret_*) werden nur in der regulären Session
-gesetzt. Die GitHub-Crons starten 4–7 h verspätet; der Feedback-Schritt läuft dadurch meist NACH Handelsschluss ->
-fällige Marks blieben liegen (beobachtet: Marks nur am 2026-10-06/07). Dieser Schritt läuft am ANFANG des
-Scanner-Jobs (Start ~19 UTC, noch RTH) vor der langen Pipeline.
+Hintergrund: GitHub-Crons starten hier 4–7 h verspätet (Scanner real ~17–21 UTC, Feedback ~20–24 UTC) und die
+US-Sitzung verschiebt sich mit der Zeitumstellung (Sommer 13:30–20:00 UTC, Winter 14:30–21:00 UTC). Ein fester
+UTC-Zeitpunkt trifft die Sitzung daher nicht verlässlich. Lösung (2026-10-11):
+  - Zeitfenster aus dem NYSE-Kalender (modules.market_snapshot: Feiertage, Sonderschließungen, verkürzte Sitzungen,
+    DST über zoneinfo): frühestens MIN_AFTER_OPEN nach Eröffnung (Eröffnungsphase mit breitesten Spreads meiden),
+    spätestens MIN_BEFORE_CLOSE vor dem Schluss.
+  - Erfassung und Mark-Berechnung sind entkoppelt: Quotes landen im append-only Archiv; candidate_ledger nutzt
+    außerhalb der Sitzung die archivierten RTH-Quotes (frühester Handelstag ab Fälligkeit).
 
-Er ist idempotent und ändert keine Entscheidung:
-  1. candidate_ledger.update_outcomes(heute): fällige Horizonte und Real-Options-Marks (je Horizont genau einmal).
-  2. Quotes aller AKTIVEN Champion-Kontrakte beobachten und archivieren (Kontext trade_mark_rth); history.json bleibt
-     unverändert (Exits entscheidet weiterhin feedback.py).
-Außerhalb der regulären Session: nichts tun (Exit 0) – nie ein Modellpreis als Ersatz.
+Modi (beide idempotent, nie entscheidungswirksam, history.json bleibt unverändert – Exits entscheidet feedback.py):
+  voll (Scanner-Job, history-write):   candidate_ledger.update_outcomes(heute) + Quotes aktiver Champion-Kontrakte.
+  --capture-only (options_capture.yml): NUR Quotes archivieren – aktive Champion-Legs und fällige, offene
+                                       Kandidaten-Marks, die heute noch keine verwertbare RTH-Quote haben.
+                                       Schreibt ausschließlich outputs/options_archive/ (Union-Merge, eigene
+                                       Concurrency-Gruppe, kein Konflikt mit Scanner/Feedback).
+Außerhalb des Fensters: nichts tun (Exit 0) – nie ein Modellpreis als Ersatz.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 log = logging.getLogger("rth_marks")
 HISTORY = Path("outputs/history.json")
+MIN_AFTER_OPEN = timedelta(minutes=30)
+MIN_BEFORE_CLOSE = timedelta(minutes=10)
+
+
+def capture_window(now: datetime) -> tuple[bool, str]:
+    """(im Fenster?, Status): MARKET_CLOSED | BEFORE_WINDOW | AFTER_WINDOW | IN_WINDOW (NYSE-Kalender, DST-fest)."""
+    from modules import market_snapshot as ms
+    now = now if now.tzinfo else now.replace(tzinfo=timezone.utc)
+    bounds = ms.regular_session_utc(now.astimezone(ms.NY_TZ).date())
+    if bounds is None:
+        return False, "MARKET_CLOSED"
+    open_utc, close_utc = bounds
+    if now < open_utc + MIN_AFTER_OPEN:
+        return False, "BEFORE_WINDOW"
+    if now > close_utc - MIN_BEFORE_CLOSE:
+        return False, "AFTER_WINDOW"
+    return True, "IN_WINDOW"
 
 
 def active_trade_symbols(history: dict) -> list[str]:
@@ -46,31 +70,59 @@ def active_trade_symbols(history: dict) -> list[str]:
     return sorted(set(out))
 
 
-def run(now: datetime | None = None, history_path: Path = HISTORY) -> dict:
+def _captured_today(symbols: list[str], now: datetime) -> set[str]:
+    """Symbole, die am heutigen NY-Handelstag schon eine verwertbare RTH-Quote im Archiv haben."""
+    from modules import option_quotes as oq
+    today = oq.ny_date(now)
+    hist = oq.rth_quote_history(symbols, now, lookback_days=1)
+    return {s for s, rows in hist.items() if any(day == today for day, _ in rows)}
+
+
+def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_only: bool = False) -> dict:
     from modules import candidate_ledger as cl
     from modules import market_snapshot as ms
     now = now or datetime.now(timezone.utc)
-    session = ms.us_market_session(now)
-    if session != "regular":
-        return {"session": session, "skipped": True}
-    cl.update_outcomes(now.strftime("%Y-%m-%d"))
+    ok, window = capture_window(now)
+    res = {"mode": "capture" if capture_only else "full", "window": window,
+           "session": ms.us_market_session(now), "skipped": not ok}
+    if not ok:
+        return res
     history = json.loads(history_path.read_text(encoding="utf-8")) if history_path.exists() else {}
-    syms = active_trade_symbols(history)
-    quotes = ms.fetch_option_quotes(syms, context="trade_mark_rth") if syms else {}
-    return {"session": session, "skipped": False, "active_contracts": len(syms), "quotes": len(quotes),
-            "missing": sorted(set(syms) - set(quotes))}
+    trade_syms = active_trade_symbols(history)
+    if capture_only:
+        cand_syms = sorted(set(cl.due_mark_symbols(now.strftime("%Y-%m-%d"))) - set(trade_syms))
+        done = _captured_today(trade_syms + cand_syms, now)
+        todo_t = [s for s in trade_syms if s not in done]
+        todo_c = [s for s in cand_syms if s not in done]
+        got = {}
+        if todo_t:
+            got.update(ms.fetch_option_quotes(todo_t, context="trade_mark_rth"))
+        if todo_c:
+            got.update(ms.fetch_option_quotes(todo_c, context="candidate_mark_rth"))
+        res.update(targets=len(trade_syms) + len(cand_syms), already_captured=len(done),
+                   requested=len(todo_t) + len(todo_c), quotes=len(got),
+                   missing=sorted(set(todo_t + todo_c) - set(got)))
+        return res
+    cl.update_outcomes(now.strftime("%Y-%m-%d"))
+    quotes = ms.fetch_option_quotes(trade_syms, context="trade_mark_rth") if trade_syms else {}
+    res.update(active_contracts=len(trade_syms), quotes=len(quotes), missing=sorted(set(trade_syms) - set(quotes)))
+    return res
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--capture-only", action="store_true",
+                    help="nur Quotes archivieren (kein Ledger-Schreiben; options_capture.yml)")
+    a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     try:
-        res = run()
+        res = run(capture_only=a.capture_only)
     except Exception as e:  # noqa: BLE001 – Marks sind Beobachtung, nie Scanner-Bedingung
         print(f"::warning::rth_marks fehlgeschlagen: {type(e).__name__}: {e}")
         return 0
     print(json.dumps(res, ensure_ascii=False))
     if not res.get("skipped") and res.get("missing"):
-        print(f"::warning::{len(res['missing'])} aktive Kontrakt(e) ohne Quote: {res['missing'][:10]}")
+        print(f"::warning::{len(res['missing'])} Kontrakt(e) ohne Quote: {res['missing'][:10]}")
     return 0
 
 

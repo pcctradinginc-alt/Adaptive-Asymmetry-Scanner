@@ -49,6 +49,22 @@ def _ts(value) -> datetime | None:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
+def _ny(now: datetime) -> datetime:
+    from modules.market_snapshot import NY_TZ
+    return (now if now.tzinfo else now.replace(tzinfo=timezone.utc)).astimezone(NY_TZ)
+
+
+def _hhmm(v: str) -> time:
+    h, m = (int(x) for x in str(v).split(":"))
+    return time(h, m)
+
+
+def _market_open_day(now: datetime) -> bool:
+    """NYSE-Handelstag (New-York-Datum; Feiertage, Sonderschließungen) – einzige Kalenderquelle market_snapshot."""
+    from modules.market_snapshot import is_trading_day
+    return is_trading_day(_ny(now).date())
+
+
 def _at(day: date, hhmm: str) -> datetime:
     h, m = (int(x) for x in str(hhmm).split(":"))
     return datetime.combine(day, time(h, m), tzinfo=timezone.utc)
@@ -92,6 +108,13 @@ def upstream_ready(job: str, now: datetime, root: Path = Path("."), cfg: dict | 
 
     if wf.get("days") is not None and today.weekday() not in wf["days"]:
         return out(False, "SKIP_NOT_TRADING_DAY", f"{today} ist kein geplanter Tag")
+    if wf.get("trading_days_only") and not _market_open_day(now):
+        return out(False, "SKIP_MARKET_CLOSED", f"{_ny(now).date()} ist kein NYSE-Handelstag "
+                   "(Feiertag/Sonderschließung, config/market_calendar.yaml)")
+    if gate.get("not_before_ny") and _ny(now).time() < _hhmm(gate["not_before_ny"]):
+        return out(False, "SKIP_BEFORE_WINDOW",
+                   f"vor {gate['not_before_ny']} New York ({_ny(now):%H:%M} ET) – ein späterer Trigger übernimmt "
+                   "(Handelszeit in NY-Zeit, DST-fest)")
     if gate.get("not_before_utc") and now < _at(today, gate["not_before_utc"]):
         return out(False, "SKIP_BEFORE_WINDOW",
                    f"vor {gate['not_before_utc']} UTC – der geplante Lauf übernimmt (Handelszeit unverändert)")
@@ -155,6 +178,8 @@ def plan_recovery(now: datetime, runs: dict[str, list[dict] | None], cfg: dict |
         done = art if art is not None else any(r.get("conclusion") == "success" for r in rs)
         if today.weekday() not in wf.get("days", list(range(7))):
             row["state"] = "NOT_SCHEDULED"
+        elif wf.get("trading_days_only") and not _market_open_day(exp):
+            row["state"], row["market_closed"] = "NOT_SCHEDULED", True   # Börsenfeiertag: kein Lauf erwartet
         elif done:
             row["state"] = "OK"
         elif any(r.get("status") in ACTIVE_RUN_STATES for r in rs):

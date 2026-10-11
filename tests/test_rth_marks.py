@@ -22,10 +22,12 @@ HIST = {"active_trades": [
 
 def test_outside_regular_session_does_nothing(monkeypatch, tmp_path):
     calls = []
-    monkeypatch.setattr(ms, "us_market_session", lambda ts: "post")
     monkeypatch.setattr(cl, "update_outcomes", lambda today: calls.append(today))
     monkeypatch.setattr(ms, "fetch_option_quotes", lambda *a, **k: calls.append("q") or {})
-    assert rth_marks.run(NOW, tmp_path / "h.json") == {"session": "post", "skipped": True}
+    post = datetime(2026, 10, 9, 20, 30, tzinfo=timezone.utc)          # Freitag 16:30 ET (Kalender, nicht gemockt)
+    for capture_only in (False, True):
+        res = rth_marks.run(post, tmp_path / "h.json", capture_only=capture_only)
+        assert res["skipped"] is True and res["window"] == "AFTER_WINDOW" and res["session"] == "post"
     assert calls == []                                                   # nie Modellpreis, nie Ersatz-Mark
 
 

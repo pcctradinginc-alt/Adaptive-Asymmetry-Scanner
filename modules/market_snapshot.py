@@ -31,6 +31,8 @@ NYSE-Feiertage und Early-Closes werden über eine regel-basierte Kalender
 import logging
 import os
 from datetime import datetime, time as dt_time, timezone, date, timedelta
+from functools import lru_cache
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import requests
@@ -50,6 +52,30 @@ EARLY_CLOSE  = dt_time(13, 0)
 
 
 # ── NYSE-Kalender (rule-based, pure functions, stdlib only) ──────────────────
+# Einzige Kalenderquelle des Repos (Scanner-Guard, Options-Capture, Marks, option_quotes.session_of, Monitoring).
+# Außerplanmäßige Schließungen/verkürzte Sitzungen kommen aus config/market_calendar.yaml.
+
+CALENDAR_OVERRIDES = Path("config/market_calendar.yaml")
+
+
+@lru_cache(maxsize=4)
+def _calendar_overrides(path: str | None = None) -> tuple[frozenset, dict]:
+    """(Schließtage, {verkürzter Tag: Schlusszeit}) aus der Config; fehlt/defekt -> leer (nur Regelkalender)."""
+    p = Path(path) if path else CALENDAR_OVERRIDES
+    try:
+        if not p.exists():
+            return frozenset(), {}
+        import yaml
+        doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        closures = frozenset(date.fromisoformat(str(d)[:10]) for d in (doc.get("closures") or []))
+        early = {}
+        for d, hhmm in (doc.get("early_closes") or {}).items():
+            h, m = (int(x) for x in str(hhmm).split(":"))
+            early[date.fromisoformat(str(d)[:10])] = dt_time(h, m)
+        return closures, early
+    except Exception as e:  # noqa: BLE001 – defekte Config darf den Regelkalender nie abschalten
+        log.warning(f"market_snapshot: {p} nicht lesbar ({type(e).__name__}: {e}) – nur Regelkalender")
+        return frozenset(), {}
 
 def _easter_date(year: int) -> date:
     """
@@ -227,6 +253,8 @@ def nyse_holidays(year: int) -> set[date]:
     else:
         holidays.add(christmas)
 
+    # Außerplanmäßige Schließungen (Staatstrauer, Notfälle) aus config/market_calendar.yaml
+    holidays |= {d for d in _calendar_overrides()[0] if d.year == year}
     return holidays
 
 
@@ -257,6 +285,8 @@ def nyse_early_closes(year: int) -> set[date]:
     if christmas_eve.weekday() < 5 and christmas_eve not in holidays:  # weekday and not a holiday
         early_closes.add(christmas_eve)
 
+    # Zusätzliche verkürzte Sitzungen aus der Config (nie an Schließtagen)
+    early_closes |= {d for d in _calendar_overrides()[1] if d.year == year and d not in holidays}
     return early_closes
 
 
@@ -279,8 +309,18 @@ def market_close_time(d: date) -> dt_time:
     """
     year = d.year
     if d in nyse_early_closes(year):
-        return EARLY_CLOSE
+        return _calendar_overrides()[1].get(d, EARLY_CLOSE)
     return MARKET_CLOSE
+
+
+def regular_session_utc(d: date) -> tuple[datetime, datetime] | None:
+    """(Eröffnung, Schluss) der regulären Sitzung am NY-Kalendertag d in UTC (DST über zoneinfo);
+    None an Wochenenden, Feiertagen und außerplanmäßigen Schließtagen."""
+    if not is_trading_day(d):
+        return None
+    o = datetime.combine(d, MARKET_OPEN, tzinfo=NY_TZ).astimezone(timezone.utc)
+    c = datetime.combine(d, market_close_time(d), tzinfo=NY_TZ).astimezone(timezone.utc)
+    return o, c
 
 
 def next_trading_day(d: date) -> date:

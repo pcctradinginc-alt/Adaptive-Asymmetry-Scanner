@@ -1,0 +1,13 @@
+# config/market_calendar.yaml – außerplanmäßige NYSE-/Nasdaq-Abweichungen vom regelbasierten Kalender
+# (modules/market_snapshot.nyse_holidays / nyse_early_closes). Regelfeiertage, Good Friday, Juneteenth und die
+# regulären verkürzten Sitzungen (3. Juli, Tag nach Thanksgiving, Heiligabend) berechnet der Code selbst.
+#
+# Hier NUR offiziell von der NYSE angekündigte Sonderfälle eintragen (Staatstrauer, Notfallschließungen,
+# zusätzliche verkürzte Sitzungen), jeweils mit Quelle. Nie spekulativ. Datei fehlt/defekt -> nur Regelkalender
+# (Warnung im Log). Gilt für Scanner-Guard, Options-Capture, Marks, Session-Klassifikation und Monitoring.
+closures:                       # ganztägig geschlossen (YYYY-MM-DD)
+  - "2012-10-29"                # Hurrikan Sandy
+  - "2012-10-30"                # Hurrikan Sandy
+  - "2018-12-05"                # Staatstrauer George H. W. Bush
+  - "2025-01-09"                # Staatstrauer Jimmy Carter
+early_closes: {}                # zusätzliche verkürzte Sitzungen: {"YYYY-MM-DD": "HH:MM"} (Schlusszeit New York)
