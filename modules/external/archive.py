@@ -14,13 +14,20 @@ Grundregeln:
   - Dedupe von Rohdaten NACH content_hash, pro Quelle.
   - Observations werden NIE überschrieben: gleiche Identität + neuer Wert wird
     als neue Vintage-Zeile angehängt (siehe pit.Observation.identity_key()).
+  - Integrität NEUER Zeilen (Audit-Befund 14): jede neu geschriebene Zeile trägt
+    `payload_hash` (sha256 über den kanonischen Inhalt, siehe HASHED_FIELDS) und
+    `quality_status` (OK|STALE|MISSING|INVALID). Bestehende Zeilen werden NIE
+    umgeschrieben; Zeilen ohne diese Felder gelten als LEGACY_UNVERIFIED
+    (row_quality / verify_row).
 """
 
 from __future__ import annotations
 
+import dataclasses
 import gzip
 import hashlib
 import json
+import math
 import os
 import statistics
 import subprocess
@@ -93,6 +100,117 @@ def _git_sha() -> str:
 
 def _iso(dt: datetime | None) -> str | None:
     return dt.isoformat(timespec="seconds") if dt is not None else None
+
+
+# ── Zeilen-Integrität (payload_hash / quality_status) ───────────────────────
+
+QUALITY_OK = "OK"
+QUALITY_STALE = "STALE"
+QUALITY_MISSING = "MISSING"
+QUALITY_INVALID = "INVALID"
+QUALITY_LEGACY = "LEGACY_UNVERIFIED"
+QUALITY_STATUSES = (QUALITY_OK, QUALITY_STALE, QUALITY_MISSING, QUALITY_INVALID, QUALITY_LEGACY)
+# Status, die der Writer vergibt (LEGACY_UNVERIFIED nie: gilt nur für Altzeilen).
+_WRITER_STATUSES = frozenset({QUALITY_OK, QUALITY_STALE, QUALITY_MISSING, QUALITY_INVALID})
+
+# Felder, über die `payload_hash` gebildet wird = der Beobachtungsinhalt:
+# Identität (source/dataset/series/entity/metric), Wert + Einheit, alle
+# PIT-Zeitachsen (observation/available/source_release/vintage/forecast_*),
+# availability_precision, parser_version und attrs. NICHT enthalten: der Hash
+# selbst, quality_status (abgeleitet) und retrieved_at (Abrufmetadaten) — ein
+# erneuter Abruf desselben Inhalts liefert damit denselben Hash. Feste Liste
+# (nicht dataclass-dynamisch), damit später ergänzte Observation-Felder die
+# Verifikation bereits geschriebener Zeilen nicht brechen.
+HASHED_FIELDS = (
+    "source_id", "dataset", "series_id", "entity_id", "metric", "value", "unit",
+    "observation_time", "available_at", "source_release_time", "vintage_time",
+    "forecast_issue_time", "forecast_valid_time", "availability_precision",
+    "parser_version", "attrs",
+)
+
+
+def _row_dict(row: Any) -> dict:
+    """Observation oder Roh-Dict (JSONL-Zeile) -> Dict im On-Disk-Format."""
+    if isinstance(row, Observation):
+        return row.to_dict()
+    return dict(row)
+
+
+def canonical_payload(row: Any) -> str:
+    """Kanonisches JSON (sortierte Keys, kompakt) der HASHED_FIELDS einer Zeile."""
+    d = _row_dict(row)
+    content = {k: d[k] for k in HASHED_FIELDS if k in d}
+    return json.dumps(content, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
+
+
+def compute_payload_hash(row: Any) -> str:
+    """Deterministischer sha256 (hex) über canonical_payload(row)."""
+    return hashlib.sha256(canonical_payload(row).encode("utf-8")).hexdigest()
+
+
+def _value_quality(value: Any) -> str | None:
+    """Qualität, die allein aus dem Wert folgt: None -> MISSING (offiziell
+    fehlend), nicht-numerisch/NaN/Inf -> INVALID, sonst None (keine Aussage)."""
+    if value is None:
+        return QUALITY_MISSING
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        return QUALITY_INVALID
+    return None
+
+
+def derive_quality_status(row: Any) -> str:
+    """Status einer NEUEN Zeile: Wert-Befund (MISSING/INVALID) hat Vorrang; sonst
+    ein vom Konnektor gesetzter Hinweis (obs.quality_status in STALE|MISSING|
+    INVALID); sonst OK. Nie LEGACY_UNVERIFIED (nur für Altzeilen)."""
+    d = _row_dict(row)
+    from_value = _value_quality(d.get("value"))
+    if from_value is not None:
+        return from_value
+    hint = d.get("quality_status")
+    if hint in (QUALITY_STALE, QUALITY_MISSING, QUALITY_INVALID):
+        return hint
+    return QUALITY_OK
+
+
+def stamp_observation(obs: Observation) -> Observation:
+    """Kopie von `obs` mit payload_hash + quality_status (Original bleibt
+    unverändert). Ein vom Konnektor mitgelieferter Quell-Hash (payload_hash
+    != "" bei noch ungestempelter Zeile) wird als attrs["source_payload_hash"]
+    bewahrt, damit payload_hash durchgängig der Archiv-Integritätshash ist."""
+    attrs = dict(obs.attrs or {})
+    if obs.payload_hash and not obs.quality_status:
+        attrs.setdefault("source_payload_hash", obs.payload_hash)
+    status = derive_quality_status(obs)
+    base = dataclasses.replace(obs, attrs=attrs)
+    return dataclasses.replace(base, payload_hash=compute_payload_hash(base), quality_status=status)
+
+
+def row_quality(row: Any) -> str:
+    """quality_status einer Zeile (Observation oder Dict). Zeilen ohne
+    payload_hash oder ohne gültigen Writer-Status (Altbestand) ->
+    LEGACY_UNVERIFIED."""
+    d = _row_dict(row)
+    status = d.get("quality_status")
+    if not d.get("payload_hash") or status not in _WRITER_STATUSES:
+        return QUALITY_LEGACY
+    return status
+
+
+def verify_row(row: Any) -> bool | None:
+    """Prüft die Integrität einer Zeile: True = Hash stimmt (und Status passt zum
+    Wert), False = manipuliert/inkonsistent, None = nicht prüfbar (Legacy: kein
+    payload_hash oder kein quality_status)."""
+    d = _row_dict(row)
+    stored = d.get("payload_hash")
+    status = d.get("quality_status")
+    if not stored or not status or status == QUALITY_LEGACY:
+        return None
+    if status not in _WRITER_STATUSES:
+        return False
+    from_value = _value_quality(d.get("value"))
+    if from_value is not None and status != from_value:
+        return False
+    return compute_payload_hash(d) == stored
 
 
 class ExternalArchive:
@@ -312,8 +430,11 @@ class ExternalArchive:
                         source_counts["revision"] += 1
                     else:
                         source_counts["new"] += 1
-                    new_rows.append(obs)
-                    existing_by_key[key].append(obs)
+                    # Nur NEUE Zeilen werden gestempelt (payload_hash + quality_status);
+                    # Bestandszeilen bleiben byte-identisch.
+                    stamped = stamp_observation(obs)
+                    new_rows.append(stamped)
+                    existing_by_key[key].append(stamped)
 
                 per_month_new_rows[month] = new_rows
                 estimated_bytes += sum(

@@ -21,6 +21,9 @@ sources:
     # ~1,5 MB/Tag -> Monatsdatei ~55 MB (GitHub-Warnung ab 50 MB). Wochen-Partitionen (YYYY-MM-wN, gemessen w1 = 15,7 MB, max. ~16 MB);
     # Leser lesen alle *.jsonl transparent, Dedup prüft auch die Legacy-Monatsdatei (2026-10-09).
     normalized_partition: weekly
+    # Zeilen-Integrität (payload_hash + quality_status, 2026-10-11) macht jede Zeile ~18 % größer: ~1,79 MB/Lauf lag
+    # knapp unter dem globalen 2-MB-Guard (bei Überschreitung schreibt die Quelle NICHTS). Wochenpartition bleibt ~19 MB.
+    max_new_normalized_bytes_per_run: 3000000
     family: weather
     authority: "NOAA / National Weather Service"
     official_homepage: "https://www.weather.gov"

@@ -788,7 +788,7 @@ class BtsFreightTsiConnector(Connector):
         raw: list[RawRecord] = []
         discovered: dict = {}
         expected_series_id = self.cfg.get("expected_series_id", "TSIFRGHT")
-        api_key = os.environ.get("FRED_API_KEY")
+        api_key = (os.environ.get("FRED_API_KEY") or "").strip()
 
         if api_key:
             return self._fetch_alfred(now, api_key, expected_series_id, raw, discovered)
