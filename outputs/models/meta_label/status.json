@@ -1,0 +1,84 @@
+{
+ "generated": "2026-10-12T22:34:10+00:00",
+ "as_of": "2026-10-12",
+ "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
+ "n_labels": 0,
+ "n_label_dates": 0,
+ "required": {
+  "min_labels": 200,
+  "min_dates": 20
+ },
+ "n_labels_target_population": 0,
+ "population_shift": {
+  "status": "OK",
+  "n_target": 133,
+  "n_other": 345,
+  "n_shifted": 11,
+  "shifted": [
+   "final_mc_hit_rate",
+   "mismatch",
+   "ml_exp_dd_60",
+   "ml_exp_ret_60",
+   "ml_q10_ret_60",
+   "price_move_48h_signed",
+   "quick_mc_hit_rate",
+   "scan_day_ret",
+   "sentiment_score",
+   "sigma_30d",
+   "z_score_2d_scaled"
+  ],
+  "top": [
+   {
+    "feature": "ml_q10_ret_60",
+    "smd": -1.307,
+    "missing_target": 0.165,
+    "missing_other": 0.07
+   },
+   {
+    "feature": "sigma_30d",
+    "smd": 1.176,
+    "missing_target": 0.0,
+    "missing_other": 0.864
+   },
+   {
+    "feature": "ml_exp_ret_60",
+    "smd": 1.111,
+    "missing_target": 0.165,
+    "missing_other": 0.07
+   },
+   {
+    "feature": "ml_exp_dd_60",
+    "smd": -0.589,
+    "missing_target": 0.165,
+    "missing_other": 0.07
+   },
+   {
+    "feature": "sentiment_score",
+    "smd": 0.414,
+    "missing_target": 0.113,
+    "missing_other": 0.058
+   },
+   {
+    "feature": "scan_day_ret",
+    "smd": 0.269,
+    "missing_target": 0.113,
+    "missing_other": 0.058
+   },
+   {
+    "feature": "ml_disagreement_sd",
+    "smd": 0.241,
+    "missing_target": 0.165,
+    "missing_other": 0.07
+   },
+   {
+    "feature": "price_move_48h_signed",
+    "smd": 0.24,
+    "missing_target": 0.113,
+    "missing_other": 0.875
+   }
+  ],
+  "verdict": "SHIFT"
+ },
+ "status": "NEED_MORE_DATA",
+ "active": null
+}

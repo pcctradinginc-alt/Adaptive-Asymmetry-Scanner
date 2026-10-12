@@ -1,9 +1,9 @@
 {
- "generated": "2026-10-09T23:23:48+00:00",
+ "generated": "2026-10-12T22:34:10+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "7a7817fd6055",
+ "code_version": "80e6b38ddd13",
  "data_version": "738a9c7462ff4f8e",
  "integrity": {
   "registry": [],
@@ -42,10 +42,10 @@
    "looks_used": 0,
    "multiple_testing": {
     "hypothesis_family": "abstention",
-    "family_size": 5,
+    "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
     "n_observations": 1,
@@ -163,10 +163,10 @@
    "looks_used": 0,
    "multiple_testing": {
     "hypothesis_family": "abstention",
-    "family_size": 5,
+    "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
     "n_observations": 1,
@@ -270,10 +270,10 @@
    "looks_used": 0,
    "multiple_testing": {
     "hypothesis_family": "abstention",
-    "family_size": 5,
+    "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
     "n_observations": 1,
@@ -391,10 +391,10 @@
    "looks_used": 0,
    "multiple_testing": {
     "hypothesis_family": "abstention",
-    "family_size": 5,
+    "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
     "n_observations": 1,
@@ -512,10 +512,10 @@
    "looks_used": 0,
    "multiple_testing": {
     "hypothesis_family": "abstention",
-    "family_size": 5,
+    "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
     "n_observations": 1,
@@ -1537,6 +1537,807 @@
    "post_promotion_evidence": null,
    "integrity_ok": true,
    "last_transition": "2026-10-05T22:08:20+00:00"
+  },
+  "EA001_EXPECTATION_GAP@v1": {
+   "hypothesis_id": "EA001_EXPECTATION_GAP",
+   "version": 1,
+   "title": "Expectation Gap in Thesenrichtung",
+   "description": "Haben PIT-Expectation-Gaps (Modell-Zukunftszustand minus markt-implizite Erwartung), die zur Thesenrichtung und Sektor-Sensitivität passen, inkrementelle Prognosekraft für News-Kandidaten?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "1ad01ddb169ac7efc508e0a5727abbeb18cda1047d500ee7c762d3e9919bde28",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "120": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "250": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "EA002_CONFIRMATION@v1": {
+   "hypothesis_id": "EA002_CONFIRMATION",
+   "version": 1,
+   "title": "Cross-Asset-Bestätigung bei großen Gaps",
+   "description": "Verbessert eine hohe Cross-Asset-Bestätigungsquote (>= 0,7) die Outcomes bei ähnlich großen Expectation Gaps?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "e68d7d99b96ac486e9ff9c365e34e690362f1d0c183f1f705af9881f1d4fbfa9",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "120": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "250": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "EA003_ACCELERATION@v1": {
+   "hypothesis_id": "EA003_ACCELERATION",
+   "version": 1,
+   "title": "Beschleunigung des Gaps in Thesenrichtung",
+   "description": "Liefert die Beschleunigung (letzter Monat schneller als das 3M-Tempo) des Gaps in Thesenrichtung einen Zusatznutzen gegenüber dem Gap-Level allein?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "91f8eb229b8866854e14645cd54c4841c9a126301edbe1d1910c924632b2f2e5",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "120": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "250": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "EA004_WAIT@v1": {
+   "hypothesis_id": "EA004_WAIT",
+   "version": 1,
+   "title": "Triggerbasierter Einstieg statt Sofort-Einstieg (WAIT)",
+   "description": "Verbessert der vorab registrierte WAIT-Trigger Rendite und MAE gegenüber dem Sofort-Einstieg?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "935b2388619a4a48991b8790c6fd8414a49a4620ff993dd69325b73a11319fa4",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "comparison": "paired_wait_delta",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "all": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "mae_delta": null
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "EA005_CONTEXT_FILTER@v1": {
+   "hypothesis_id": "EA005_CONTEXT_FILTER",
+   "version": 1,
+   "title": "Starke News mit positivem vs. negativem Kontext",
+   "description": "Schlagen starke News mit positivem Erwartungs-Kontext starke News mit negativem Kontext?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "14727ff078133817020685661a9085293bb42982f3f5bc4f41493253734ebd4e",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "120": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "250": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "EA006_ABSTENTION@v1": {
+   "hypothesis_id": "EA006_ABSTENTION",
+   "version": 1,
+   "title": "ABSTAIN-Fälle sind schlechter (Abstinenz verbessert Qualität)",
+   "description": "Sind Kandidaten, bei denen die deterministische EA-Regel ABSTAIN liefert, schlechter als die übrigen?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "286250d9fdb3c0e82448c132d7e4f210da738a4a5203e28bb3ff512329beca6f",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "all": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "not_fired": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "policy": {
+     "n": 0,
+     "downside_tail_10pct": null
+    },
+    "delta_expectancy": null,
+    "triggered_minus_non_triggered": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "avoided_loss_potential": 0,
+     "missed_gain": 0,
+     "net_value_of_abstention": null,
+     "precision": null
+    },
+    "secondary_horizons": {
+     "20": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "120": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     },
+     "250": {
+      "n": 0,
+      "fired_expectancy": null,
+      "non_fired_expectancy": null
+     }
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "EA007_EXPRESSION@v1": {
+   "hypothesis_id": "EA007_EXPRESSION",
+   "version": 1,
+   "title": "Regelbasierte Expression vs. Default (Underlying)",
+   "description": "Schlägt die regelbasierte Expression (z. B. Sektor-ETF bei schwacher News und positivem Kontext) die Default-Expression?",
+   "source_type": "causal_research",
+   "production_class": "research_only",
+   "eligible_stage": "EA_NEWS_CANDIDATE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "8898add0710ae259dfb6fc3599a13cc4330d563554214ae7af30208c39232cb3",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T12:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "research_only@EA_NEWS_CANDIDATE",
+    "family_size": 7,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0005952380952380953
+   },
+   "evidence": {
+    "stage": "EA_NEWS_CANDIDATE",
+    "data_kind": "prospective_forward",
+    "comparison": "paired_expression_delta",
+    "horizon_days": 60,
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "n_event_clusters": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "n_fired_event_clusters": 0,
+    "fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "all": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci_by_date": [
+     null,
+     null
+    ],
+    "ci_by_cluster": [
+     null,
+     null
+    ],
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "mae_delta": null
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
+  },
+  "PROM-META-001@v1": {
+   "hypothesis_id": "PROM-META-001",
+   "version": 1,
+   "title": "Meta-Label sagt \"nicht lohnend\" -> Champion-Trade abstinieren",
+   "description": "Haben Champion-Trades, deren Meta-Label-Wahrscheinlichkeit (Richtungssignal lohnt nach Kosten, Modell meta_label_take_v1, Purged/Embargo-Walk-Forward, nur vor der Entscheidung trainiert) unter 0,40 liegt, eine niedrigere Netto-Expectancy als die übrigen?",
+   "source_type": "meta_learning_failure",
+   "production_class": "abstention",
+   "eligible_stage": "CHAMPION_TRADE",
+   "universe_version": "V1",
+   "segment": null,
+   "spec_hash": "90c45671587129600ec0780c564f8a5b25c6ee12784b704c9180aced4f9e6790",
+   "registry_status": "VALID",
+   "registry_errors": [],
+   "state": "PROSPECTIVE_CHALLENGER",
+   "influence_level": "NONE",
+   "sector_scope": [
+    "all"
+   ],
+   "regime_scope": [
+    "all"
+   ],
+   "forward_start": "2026-10-13T00:00:00Z",
+   "registered_at": "2026-10-10T21:00:00Z",
+   "decision": "KEEP_SHADOW",
+   "reasons": [
+    "NEED_MORE_DATA: n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet"
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet",
+   "recommendation": null,
+   "looks_used": 0,
+   "multiple_testing": {
+    "hypothesis_family": "abstention",
+    "family_size": 6,
+    "number_of_variants": 1,
+    "planned_looks": 12,
+    "alpha_effective": 0.0006944444444444445
+   },
+   "evidence": {
+    "n_observations": 0,
+    "n_independent_dates": 0,
+    "calendar_span_days": 0,
+    "first_observation": null,
+    "last_observation": null,
+    "data_kind": "prospective_forward",
+    "n_fired": 0,
+    "n_fired_independent_dates": 0,
+    "all": {
+     "n": 0
+    },
+    "fired": {
+     "n": 0
+    },
+    "not_fired": {
+     "n": 0
+    },
+    "policy": {
+     "n": 0
+    },
+    "delta_expectancy": null,
+    "ci": [
+     null,
+     null
+    ],
+    "outlier_trims": {},
+    "time_windows": [],
+    "regimes": [],
+    "max_sector_share_fired": null,
+    "dominant_sector_fired": null,
+    "abstention": {
+     "n_blocked": 0,
+     "blocked_trade_win_rate": null,
+     "blocked_trade_expectancy": null,
+     "blocked_trade_mean_return": null,
+     "avoided_losses": 0,
+     "missed_winners": 0,
+     "missed_winner_return": 0,
+     "net_value_of_abstention": null,
+     "precision": null,
+     "false_positive_rate": null
+    }
+   },
+   "post_promotion_evidence": null,
+   "integrity_ok": true,
+   "last_transition": "2026-10-12T22:34:10+00:00"
   }
  },
  "notices": [],
@@ -1547,12 +2348,13 @@
   ]
  },
  "multiple_testing": {
-  "number_of_hypotheses_tested": 73,
-  "promotion_contracts_registered": 14,
+  "number_of_hypotheses_tested": 81,
+  "promotion_contracts_registered": 22,
   "research_inventory": 59,
   "families": [
    "abstention",
    "abstention@FINAL_MC_SURVIVOR",
+   "research_only@EA_NEWS_CANDIDATE",
    "universe_segment@V2_CANDIDATE"
   ]
  },
@@ -1619,5 +2421,5 @@
   "n_resolved_decisions": 1,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "f6728775a544a6b866ea4d2b7a3cbe0f74104914a5a9f12428e09150fd262914"
+ "state_hash": "7271660050e8bb70814a8db36dd1c26b499aae65f8769f782e3d5c83cd84616e"
 }
