@@ -400,3 +400,32 @@ def test_scorecard_separates_timing_policies():
     cells = el.scorecard(recs, as_of=date(2026, 10, 11))["cells"]
     assert cells["CHAMPION_TRADE|timing=timing-v1"]["n"] == 3 and cells["CHAMPION_TRADE|timing=timing-v2"]["n"] == 2
     assert cells["CHAMPION_TRADE|ALL"]["n"] == 5
+
+
+# ── Nachbesserungen nach der unabhängigen Prüfung ────────────────────────────
+def test_filled_entry_is_frozen_against_later_committed_earlier_quotes():
+    quote(L, "2026-10-15T15:00", 9.9, 10.3)
+    t = trade(decision="2026-10-14T21:30:00+00:00")
+    t["timing"] = {"entry": tp.evaluate_entry(t, utc("2026-10-15T16:00"))[0]}
+    assert t["timing"]["entry"]["price"] == 10.3
+    quote(L, "2026-10-15T14:10", 8.0, 8.4)                   # später committet, aber früher abgerufen
+    e, recs = tp.evaluate_entry(t, utc("2026-10-15T20:00"))
+    assert e["price"] == 10.3 and recs[0]["ask"] == 10.3     # festgestellter Fill bleibt reproduzierbar
+
+
+def test_contract_symbol_is_normalized_like_the_archive():
+    quote(L, "2026-10-15T15:00", 9.9, 10.3)
+    t = trade(sym=" aapl270319c00200000 ", decision="2026-10-14T21:30:00+00:00")
+    assert tp.evaluate_entry(t, utc("2026-10-15T16:00"))[0]["status"] == "FILLED"
+
+
+def test_settlement_waits_for_the_official_close():
+    quote(L, "2026-10-13T16:00", 9.6, 10.0)
+    t = closed(trade(expiry="2026-10-16"), "2026-10-16T19:55:00+00:00")   # 15:55 ET am Verfallstag
+    calls = []
+
+    def cf(tk, d):
+        calls.append(d)
+        return 230.0
+    assert tp.evaluate(t, utc("2026-10-16T20:30"), close_fn=cf)[0]["status"] == "PENDING" and calls == []
+    assert tp.evaluate(t, utc("2026-10-16T21:05"), close_fn=cf)[0]["status"] == "OK"         # Schluss + 1 h

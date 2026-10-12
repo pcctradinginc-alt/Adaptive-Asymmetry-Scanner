@@ -1071,7 +1071,9 @@ def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime 
         rec = {"schema": "trade-outcome-v1", "trade_id": tid, "ticker": trade.get("ticker"), "strategy": strategy,
                "entry_date": trade.get("entry_date"), "close_date": trade.get("close_date"),
                "close_reason": trade.get("close_reason"), "occ_symbols": syms,
-               "entry_debit": debit or None, "entry_quote_record_ids": trade.get("entry_quote_record_ids") or [],
+               "entry_debit": debit or None,
+               "entry_quote_record_ids": [q.get("record_id") for q in entry_q if q] if entry_quotes is not None
+               else trade.get("entry_quote_record_ids") or [],
                "exit_quote_record_ids": exit_ids, "outcome": round(outcome, 6), "outcome_net": net,
                "outcome_method": meta.get("method"), "price_type": meta.get("price_type"),
                "reliable": meta.get("method") in RELIABLE_OUTCOME_METHODS and evaluation["status"] == "OK",
@@ -1161,7 +1163,8 @@ def _finalize_v2(history: dict, trade: dict, block: dict, e_recs: list, x_recs: 
     trade["exit_fill_time"] = (block.get("exit") or {}).get("time")
     if kind == "champion":
         meta = {"method": block["method"], "price_type": block["price_type"]}
-        record_trade_outcome(trade, outcome, meta, entry_quotes=e_recs or None, exit_quotes=x_recs or None)
+        # Listen immer übergeben (auch leer): Settlement hat KEINE Exit-Quote -> nie die jüngste Archiv-Quote eintragen
+        record_trade_outcome(trade, outcome, meta, entry_quotes=list(e_recs), exit_quotes=list(x_recs))
         reliable = learnable_on_close(trade, meta)
         trade["outcome_reliable"] = reliable
         learn_on_close(history, trade, outcome, reliable)        # je Trade genau einmal (learning_ledger)

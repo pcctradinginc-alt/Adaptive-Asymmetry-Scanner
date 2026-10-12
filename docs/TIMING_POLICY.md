@@ -59,11 +59,12 @@ Eine Quote ist zulässig, wenn alle Bedingungen gelten:
   - Sonst zählt die erste zulässige Quote der nächsten Sitzung.
 - **Preis:** Verkauf zum Bid; beim Spread max(Long-Bid − Short-Ask, 0).
 - **Verfall:** Liegt die früheste Ausführung nach dem Verfall oder ist am Verfallstag nach Fensterende keine Quote mehr möglich, gilt das **offizielle Settlement**: innerer Wert aus dem unbereinigten Schluss am Verfallstag. Fehlt der Schluss, bleibt der Exit PENDING und wird nach 5 Tagen UNUSABLE.
+- **Settlement-Zeitpunkt:** Der Schlusskurs wird frühestens 1 h nach dem offiziellen Schluss abgefragt, nie ein noch laufender Intraday-Kurs (`SETTLEMENT_CLOSE_DELAY`).
 - **Kein Ersatzpreis:** Basiswert- (auch nachbörslich) und Modellpreise sind nie Ersatz.
 
 ## 5. Lebenszyklus eines timing-v2-Champion-Trades
 
-1. **Booking:** wie bisher, zusätzlich `decision_time` und `timing_policy`. Der Entry-Status (`trade.timing.entry`) wird je Lauf informativ aktualisiert.
+1. **Booking:** wie bisher, zusätzlich `decision_time` und `timing_policy`. Der Entry-Status (`trade.timing.entry`) wird je Lauf informativ aktualisiert. Ein einmal festgestellter Entry-Fill wird eingefroren: Eine später committete, früher abgerufene Quote ändert ihn nie nachträglich.
 2. **Exit-Entscheid:** wie bisher. `outcome_at_decision` (Return zum Entscheid) bleibt zum Vergleich sichtbar.
 3. **Weiterer Weg je nach Fill:**
    - Zulässiger Fill sofort möglich: `closed_trades` mit dem zulässigen Outcome.
@@ -71,7 +72,8 @@ Eine Quote ist zulässig, wenn alle Bedingungen gelten:
    - Ohne zulässigen Preis: `closed_trades_unusable` (Outcome `None`, Grund in `trade.timing.reasons`).
 4. **Auflösung:** Sie geschieht in jedem Feedback-Lauf. Sie ist idempotent; Wiederholungsläufe erzeugen nichts doppelt.
 5. **Bei Ausführung:**
-   - Outcome-Record mit den tatsächlichen Fill-Quotes (`trade-eval-v1` ergibt dann `REALIZED_RTH_REPRODUCIBLE`).
+   - Outcome-Record mit den tatsächlichen Fill-Quotes (`trade-eval-v1` ergibt dann `REALIZED_RTH_REPRODUCIBLE`). Bei Settlement nennt er keine Exit-Quote.
+   - Das Label gilt in der Evidenz erst ab dem Tag nach der Ausführung als bekannt (`exit_fill_time`), nicht ab dem Exit-Entscheid (Point-in-Time).
    - Lernen genau einmal (consume-once).
    - Decision-Outcomes für Challenger erst dann.
 6. **Counterfactual-Trades:** Sie folgen derselben Policy (fairer Vergleich), werden aber nicht gelernt.
@@ -97,6 +99,12 @@ Das gilt für alle Trades. Damit erzeugt auch der Altbestand an Feiertagen kein 
 - **Monitor:** Er zeigt die Abweichung „Ausführung vs. Entscheid“ je timing-v2-Trade gemittelt.
 
 ## 8. Validierung (`tests/test_timing_policy.py`, `tests/test_timing_independent.py`)
+
+Der unabhängige Test (Sonnet) umfasst 285 Tests mit zufälligen Szenarien 2025–2027 und Mutationsprüfung. Er fand 4 Fehler, alle behoben:
+- Settlement vor dem offiziellen Schluss;
+- falsche Entry-Quote im Outcome-Record;
+- Exit-Quote bei Settlement im Outcome-Record;
+- Label-Verfügbarkeit ab Entscheid statt ab Ausführung.
 
 | Anforderung | Tests |
 |---|---|

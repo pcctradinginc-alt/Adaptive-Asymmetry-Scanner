@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 CONFIG = Path(__file__).resolve().parent.parent / "config" / "timing_policy.yaml"
 V1, V2 = "timing-v1", "timing-v2"
 EVAL_VERSION = "timing-eval-v1"
+SETTLEMENT_CLOSE_DELAY = timedelta(hours=1)       # Schlusskurs frühestens 1 h nach dem offiziellen Schluss abrufen
 _DEFAULTS = {"decision_quote_max_age_minutes": 15, "decision_quote_slack_minutes": 5, "fill_session_grace_hours": 12,
              "spread_leg_pairing_minutes": 15, "settlement_retry_days": 5}
 
@@ -88,6 +89,7 @@ def trade_legs(trade: dict) -> list[dict]:
             continue
         expiry = leg.get("expiry") or leg.get("expiration") or opt.get("expiry") or opt.get("expiration")
         sym = leg.get("option_symbol") or leg.get("symbol")
+        sym = str(sym).strip().upper().replace(" ", "") if sym else None        # wie im Quote-Archiv normalisiert
         if not sym:
             try:
                 sym = oq.occ_symbol(trade.get("ticker"), expiry, right, float(leg.get("strike")))
@@ -229,6 +231,9 @@ def evaluate_entry(trade: dict, now: datetime, *, archive=None) -> tuple[dict, l
     dt = _ts(trade.get("decision_time"))
     if dt is None:
         return {"status": "UNUSABLE", "reason": "DECISION_TIME_MISSING"}, []
+    frozen = _frozen_entry(trade, archive)
+    if frozen is not None:                       # einmal festgestellter Fill bleibt (reproduzierbar, nie nachträglich)
+        return frozen
     legs = trade_legs(trade)
     syms = [g["symbol"] for g in legs]
     if not syms or any(s is None for s in syms):
@@ -250,6 +255,20 @@ def evaluate_entry(trade: dict, now: datetime, *, archive=None) -> tuple[dict, l
     return {**blk, "time": _iso(t_fill), "price": price,
             "record_ids": [r.get("record_id") for r in f["records"]],
             "quote_retrieved_at": [r.get("retrieved_at") for r in f["records"]]}, f["records"]
+
+
+def _frozen_entry(trade: dict, archive=None) -> tuple[dict, list[dict]] | None:
+    """Bereits festgestellter Entry-Fill (trade['timing']['entry'] FILLED mit Record-IDs) samt seinen Records aus dem
+    Archiv; ein später committeter, früher abgerufener Record ändert einen festgestellten Fill nie nachträglich."""
+    from modules import option_quotes as oq
+    e = (trade.get("timing") or {}).get("entry") or {}
+    ids = [i for i in e.get("record_ids") or [] if i]
+    if e.get("status") != "FILLED" or not ids or not e.get("day"):
+        return None
+    d = date.fromisoformat(e["day"])
+    found = oq.by_ids(ids, (d - timedelta(days=1)).isoformat(), (d + timedelta(days=1)).isoformat(), root=archive)
+    recs = [found.get(i) for i in ids]
+    return (dict(e), recs) if all(recs) else None
 
 
 def evaluate_exit(trade: dict, now: datetime, *, archive=None, close_fn=None) -> tuple[dict, list[dict]]:
@@ -287,8 +306,9 @@ def evaluate_exit(trade: dict, now: datetime, *, archive=None, close_fn=None) ->
 def _settle(trade: dict, legs: list[dict], exp: date, now: datetime, blk: dict, close_fn) -> dict:
     from modules import market_snapshot as ms
     blk = {**blk, "day": exp.isoformat(), "settlement": True}
-    w = _window(exp, legs[0]["symbol"]) if legs else None
-    if w is not None and now < w[1]:
+    # Erst nach dem OFFIZIELLEN Schluss (+ Karenz für den konsolidierten Tagesbalken), nie ein Intraday-Kurs
+    b = ms.regular_session_utc(exp, None)
+    if b is not None and now < b[1] + SETTLEMENT_CLOSE_DELAY:
         return {**blk, "status": "PENDING", "reason": "AWAITING_EXPIRY_CLOSE"}
     close = (close_fn or ms.unadjusted_close_on)(trade.get("ticker"), exp)
     if close is None:

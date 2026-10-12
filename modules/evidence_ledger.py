@@ -239,7 +239,8 @@ def from_champion_trades(history: dict | None = None, history_path: Path | None 
                         outcome_method=t.get("outcome_method"), price_type=pt,
                         quality="RELIABLE" if is_reliable_outcome(t) and ev["status"] == "OK"
                         else (ev["status"] if cls == "RELIABLE" else cls),     # Methode ok, Bewertung nicht -> nie RELIABLE
-                        label_available_at=_after(t.get("close_date")),
+                        # timing-v2: Outcome erst ab der Ausführung bekannt (nicht ab dem Exit-Entscheid)
+                        label_available_at=_after(str(t.get("exit_fill_time") or "")[:10] or t.get("close_date")),
                         meta={"evaluation": ev, "strategy": t.get("strategy"), "is_champion": True,
                               "stage": "CHAMPION", "close_reason": t.get("close_reason"), "timing_policy": policy,
                               "signal_type": (t.get("features") or {}).get("prescreen_category")}))
