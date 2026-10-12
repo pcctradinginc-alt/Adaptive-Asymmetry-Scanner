@@ -1,12 +1,32 @@
 {
- "generated": "2026-10-11T17:46:59+00:00",
+ "generated": "2026-10-12T21:24:15+00:00",
  "active": false,
  "global_reasons": [],
  "reasons": [],
- "data_quality": 0.992,
+ "data_quality": 0.908,
  "blocked_decisions": [],
  "disabled_signals": [],
- "unavailable_features": [],
- "stale_features": [],
+ "unavailable_features": [
+  "sec_8k_count_30d_z",
+  "sec_8k_negative_90d",
+  "sec_exec_change_90d",
+  "sec_filing_delay_z",
+  "sec_insider_buy_value_90d",
+  "sec_insider_buyers_90d",
+  "sec_insider_cluster_30d",
+  "sec_insider_net_value_90d",
+  "sec_late_filing_365d",
+  "ted_any_award_365d",
+  "ted_award_value_365d",
+  "ted_awards_90d",
+  "ted_awards_z"
+ ],
+ "stale_features": [
+  "xbrl_accruals",
+  "xbrl_asset_growth",
+  "xbrl_rev_yoy",
+  "xbrl_share_change",
+  "xbrl_sue"
+ ],
  "effects": []
 }

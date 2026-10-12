@@ -1,5 +1,41 @@
 {
- "at": "2026-10-11T17:46:59+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-10-12T21:24:15+00:00",
+ "changes": [
+  {
+   "source_id": "sec_submissions",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "letzte erfolgreiche Aktualisierung 9.43 T > 9 T"
+  },
+  {
+   "source_id": "sec_form345",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "letzte erfolgreiche Aktualisierung 9.43 T > 9 T"
+  },
+  {
+   "source_id": "sec_companyfacts",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "letzte erfolgreiche Aktualisierung 9.43 T > 9 T"
+  },
+  {
+   "source_id": "gleif_lei",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "letzte erfolgreiche Aktualisierung 9.89 T > 9 T"
+  },
+  {
+   "source_id": "ted_awards",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "letzte erfolgreiche Aktualisierung 9.42 T > 9 T"
+  }
+ ],
+ "mail": "sent"
 }

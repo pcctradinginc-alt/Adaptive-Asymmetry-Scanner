@@ -4,17 +4,37 @@
  "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
-  "data_quality": 0.992,
+  "data_quality": 0.908,
   "blocked_decisions": [],
   "disabled_signals": [],
-  "unavailable_features": [],
-  "stale_features": [],
+  "unavailable_features": [
+   "sec_8k_count_30d_z",
+   "sec_8k_negative_90d",
+   "sec_exec_change_90d",
+   "sec_filing_delay_z",
+   "sec_insider_buy_value_90d",
+   "sec_insider_buyers_90d",
+   "sec_insider_cluster_30d",
+   "sec_insider_net_value_90d",
+   "sec_late_filing_365d",
+   "ted_any_award_365d",
+   "ted_award_value_365d",
+   "ted_awards_90d",
+   "ted_awards_z"
+  ],
+  "stale_features": [
+   "xbrl_accruals",
+   "xbrl_asset_growth",
+   "xbrl_rev_yoy",
+   "xbrl_share_change",
+   "xbrl_sue"
+  ],
   "global_reasons": [],
-  "generated": "2026-10-11T17:46:59+00:00",
+  "generated": "2026-10-12T21:24:15+00:00",
   "counts": {
-   "HEALTHY": 33,
+   "HEALTHY": 28,
    "DEGRADED": 2,
-   "STALE": 0,
+   "STALE": 5,
    "BROKEN": 0,
    "UNVALIDATED": 9
   },
@@ -90,7 +110,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.992
+    "data_quality": 0.908
    }
   },
   "reasons": [
@@ -105,7 +125,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-03T13:15:09+00:00",
-  "drift_input_age_days": 8.2,
+  "drift_input_age_days": 9.3,
   "drift_input_status": "STALE_DRIFT_INPUT"
  },
  "champion_version": {
@@ -180,15 +200,15 @@
  "inputs": {
   "model_health": "9bca35276f64",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "b0a936ec7bb6",
+  "data_health": "18319b1bd3a9",
   "promotion": "422fb5c559a6",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "bb40b8cf73dd"
  },
- "state_version": 24,
- "fingerprint": "027565109279992e",
- "updated_at": "2026-10-11T17:46:59+00:00",
- "code_version": "25a0aaa507e4"
+ "state_version": 25,
+ "fingerprint": "f92fa0c712d532a3",
+ "updated_at": "2026-10-12T21:24:15+00:00",
+ "code_version": "bdd614d70d2b"
 }
