@@ -1,5 +1,5 @@
 {
- "n_spreads": 85,
+ "n_spreads": 87,
  "buckets": {
   "<5%": {
    "n_candidates": 2,
@@ -52,14 +52,14 @@
    "median_dte": 160.5
   },
   ">=30%": {
-   "n_candidates": 44,
+   "n_candidates": 46,
    "n_with_outcome": 18,
    "n_reliable": 2,
    "status": "NEED_MORE_DATA",
    "mean_outcome_exploratory": -0.4486,
    "stop_frequency": 0.222,
    "false_stop_frequency": 0.5,
-   "median_dte": 168.0
+   "median_dte": 167.0
   }
  },
  "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",

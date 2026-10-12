@@ -1,19 +1,25 @@
 {
- "n_closed": 119,
- "n_reliable": 2,
+ "n_closed": 120,
+ "n_reliable": 3,
+ "reliability_definition": "outcome-classes-v2-2026-10-04",
+ "outcome_classes": {
+  "UNKNOWN": 77,
+  "RECONSTRUCTED": 40,
+  "RELIABLE": 3
+ },
  "overall": {
-  "n": 2,
+  "n": 3,
   "win_rate": 0.0,
-  "mean": -0.6649,
-  "median": -0.6649,
+  "mean": -0.6126,
+  "median": -0.5918,
   "profit_factor": 0.0
  },
  "by_strategy": {
   "BULL_CALL_SPREAD": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "mean": -0.6649,
-   "median": -0.6649,
+   "mean": -0.6126,
+   "median": -0.5918,
    "profit_factor": 0.0
   }
  },
@@ -24,23 +30,30 @@
    "mean": -0.6649,
    "median": -0.6649,
    "profit_factor": 0.0
+  },
+  "2026-10": {
+   "n": 1,
+   "win_rate": 0.0,
+   "mean": -0.5079,
+   "median": -0.5079,
+   "profit_factor": 0.0
   }
  },
  "by_close_reason": {
   "stop_loss": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "mean": -0.6649,
-   "median": -0.6649,
+   "mean": -0.6126,
+   "median": -0.5918,
    "profit_factor": 0.0
   }
  },
  "by_catalyst": {
   "EARNINGS": {
-   "n": 1,
+   "n": 2,
    "win_rate": 0.0,
-   "mean": -0.7381,
-   "median": -0.7381,
+   "mean": -0.623,
+   "median": -0.623,
    "profit_factor": 0.0
   },
   "OTHER": {
@@ -53,30 +66,30 @@
  },
  "by_llm_impact": {
   "4": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "mean": -0.6649,
-   "median": -0.6649,
+   "mean": -0.6126,
+   "median": -0.5918,
    "profit_factor": 0.0
   }
  },
  "by_llm_surprise": {
   "3": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "mean": -0.6649,
-   "median": -0.6649,
+   "mean": -0.6126,
+   "median": -0.5918,
    "profit_factor": 0.0
   }
  },
  "mc_hit_rate_calibration": {
   "0.65-0.75": {
-   "n": 1,
+   "n": 2,
    "win_rate": 0.0,
-   "mean": -0.5918,
-   "median": -0.5918,
+   "mean": -0.5498,
+   "median": -0.5498,
    "profit_factor": 0.0,
-   "predicted_hit_rate": 0.684
+   "predicted_hit_rate": 0.688
   },
   ">=0.75": {
    "n": 1,
@@ -87,11 +100,11 @@
    "predicted_hit_rate": 0.75
   }
  },
- "mc_hit_rate_calibration_scope": "in-sample über alle verlässlichen Trades (beschreibend); für neue Kandidaten nur aus der Vergangenheit -> gültig; Güte siehe calibration_oos",
+ "mc_hit_rate_calibration_scope": "in-sample über alle RELIABLE-Trades (deskriptiv); für neue Kandidaten nur aus der Vergangenheit -> gültig; LIVE_FORWARD_CALIBRATION siehe calibration_oos",
  "calibration_oos": {
   "method": "prequential: Band-Win-Rate nur aus vor dem Entry geschlossenen Trades (min n 10 je Band)",
   "n_evaluated": 0,
-  "n_skipped_insufficient_history": 2,
+  "n_skipped_insufficient_history": 3,
   "brier_raw": null,
   "brier_calibrated": null,
   "ece_raw": null,
