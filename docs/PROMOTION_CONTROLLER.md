@@ -30,6 +30,7 @@
 | REJECT | H_alt signifikant (CI-Obergrenze < 0); Looks erschöpft (→ EXPIRED) |
 | KEEP_SHADOW | NEED_MORE_DATA (n, Tage, Spanne, Treffer, < 2 Regime, Sektor > 60 % ohne Sektor-Scope), Kriterien nicht erfüllt, kein Look fällig |
 | ALLOW_ABSTENTION | Gate bestanden, Klasse abstention, Policy erlaubt (Default-Obergrenze) |
+| ALLOW_SIZE_DOWN | Klasse `sizing`: nur per menschlicher Freigabe (`approved_level`), Obergrenze SIZE_DOWN_ONLY |
 | ALLOW_RERANK / ALLOW_10_/25_PERCENT_WEIGHT | nur wenn `max_automatic_influence` es zulässt (Default: nein → Empfehlung) |
 | RECOMMEND_FULL_PROMOTION | nach WEIGHT_25 mit weiterer Evidenz – Mensch + PR |
 | DEMOTE | vorab festgelegte Demotion-Kriterien im rollierenden Fenster seit Promotion |
@@ -40,6 +41,26 @@ Policy nicht schlechter (+0,005); Drawdown nicht deutlich schlechter.
 
 Nie automatisch (Policy `never_automatic`): Champion-Wechsel, neue Assetklasse/Short-/Optionsstrategie,
 höheres Risiko/Positionsgröße, neue externe Datenquelle als Gate, > 25 % Modelleinfluss, Risk-Gate-Änderungen.
+
+## Sizing-Klasse (`production_class: sizing`, seit 2026-10-10)
+
+Stufe `SIZE_DOWN_ONLY` liegt in `INFLUENCE_LEVELS` zwischen ABSTENTION_ONLY und RERANK_ONLY und damit über der
+automatischen Obergrenze. Ein forward-validierter Sizing-Vertrag wird deshalb nur FORWARD_VALIDATED (Einfluss NONE,
+Empfehlung SIZE_DOWN_ONLY). Wirksam wird er erst durch eine menschliche Freigabe in `promotion_approvals.yaml`.
+Eine höhere Freigabe wird auf SIZE_DOWN_ONLY gekappt.
+
+Der Vertrag braucht `size_multiplier` in [0,25; 1). Der Adapter kappt zusätzlich hart (nie unter 0,25, nie über 1).
+Die Positionsgröße wird nur verkleinert, nie vergrößert.
+
+Demotion folgt denselben vorab fixierten Kriterien wie bei der Abstinenz.
+
+## Meta-Label-Vertrag PROM-META-001
+
+Abstinenz-Vertrag auf das Adapter-Merkmal `meta_p_take` (Learning Engine, `docs/LEARNING_ENGINE.md`).
+Er wirkt nur über diesen Controller, höchstens mit ABSTENTION_ONLY.
+
+Der Vertrag gehört zur Familie `abstention` der Champion-Population. Diese Familie hat damit 6 Mitglieder, und
+α_eff wird für alle Mitglieder strenger.
 
 ## Benachrichtigung
 

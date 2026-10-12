@@ -1104,3 +1104,43 @@ contracts:
   features: [ea_selected_is_default, ea_status_valid]
   thresholds: {op: '<=', value: 0}
   failure_condition: Gepaarte Differenz <= 0 oder CI schließt 0 ein nach Forward-Minimum
+
+# ── Learning Engine: Meta-Label-Abstinenz (registriert 2026-10-10, vor jeder Forward-Beobachtung) ──
+# Einziger Produktionsweg eines TRAINIERTEN Modells: Merkmal meta_p_take (modules/meta_label.predict_one, nur ein
+# VOR der Entscheidung trainiertes, hash-geprüftes Artefakt; fehlt es -> None -> Vertrag nicht auswertbar).
+# Eingefroren ist die Modell-SPEZIFIKATION (meta_label.SPEC, spec_hash), nicht ein einzelnes Artefakt: Nachtrainieren
+# nach festem Protokoll ist Teil der Hypothese. Schwelle 0,40 aus dem Basisraten-Design (unter 0,5), nie aus Outcomes.
+- version: 1
+  created_at: '2026-10-10'
+  registered_at: '2026-10-10T21:00:00Z'
+  forward_start: '2026-10-13T00:00:00Z'
+  created_by: claude-code (Master-Auftrag Learning Engine)
+  universe: Champion-Trade-Vorschläge der Produktionspipeline (pipeline.py, nach Score-/Korrelations-Filter)
+  population: Champion-akzeptierte Trade-Vorschläge (Optionen auf US-Aktien, S&P 500/Nasdaq-100)
+  direction: -1
+  production_class: abstention
+  maximum_initial_influence: ABSTENTION_ONLY
+  outcome_horizon: Haltedauer der Produktion (Exit-Regeln feedback.py, max. learning.close_after_days)
+  primary_metric: Netto-Optionsrendite je Trade (history.outcome) – Δ Expectancy blockiert vs. durchgelassen
+  secondary_metrics: *id001
+  baseline: 'Champion-only: alle Champion-akzeptierten Trades desselben Zeitraums ohne Eingriff'
+  minimum_sample_size: 60
+  minimum_independent_dates: 20
+  minimum_calendar_span: 90
+  sector_scope: *id002
+  regime_scope: *id003
+  promotion_criteria: *id004
+  demotion_criteria: *id005
+  hypothesis_id: PROM-META-001
+  title: Meta-Label sagt "nicht lohnend" -> Champion-Trade abstinieren
+  source_type: meta_learning_failure
+  research_question: Haben Champion-Trades, deren Meta-Label-Wahrscheinlichkeit (Richtungssignal lohnt nach Kosten, Modell meta_label_take_v1, Purged/Embargo-Walk-Forward, nur vor der Entscheidung trainiert) unter 0,40 liegt, eine niedrigere Netto-Expectancy als die übrigen?
+  economic_rationale: Meta-Labeling trennt die Frage "Richtung" (Champion) von "lohnt sich dieses Signal" (Lernmodell aus abgeschlossenen Outcomes); unattraktive Signale zu vermeiden ist die risikoärmste Form gelernten Einflusses.
+  exposure: Einzeltitel (Champion-Signal)
+  signal_definition: meta_p_take
+  features:
+  - meta_p_take
+  thresholds:
+    op: '<'
+    value: 0.40
+  failure_condition: Blockierte Trades nicht schlechter als durchgelassene

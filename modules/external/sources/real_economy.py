@@ -692,8 +692,12 @@ class FredUsMacroConnector(Connector):
         return observations, latest, parse_failures, None
 
     def fetch(self, now: datetime) -> ConnectorResult:
-        api_key = os.environ.get("FRED_API_KEY")
+        # Zur Laufzeit lesen (nie beim Import) und strip(): ein per Secret
+        # eingefügter Key mit Zeilenumbruch würde sonst als "abgelehnt/FAIL" enden.
+        api_key = (os.environ.get("FRED_API_KEY") or "").strip()
         if not api_key:
+            log.warning("FRED_API_KEY nicht gesetzt -> %s UNAVAILABLE (kein API-Call, keine Ersatzdaten).",
+                        self.source_id)
             return ConnectorResult(
                 source_id=self.source_id, status=SourceStatus.AUTH_MISSING,
                 message="FRED_API_KEY nicht gesetzt -> kein API-Call ausgeführt "

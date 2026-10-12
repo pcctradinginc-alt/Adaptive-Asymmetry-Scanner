@@ -36,6 +36,8 @@ from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
+from modules.atomic_io import append_jsonl
+
 log = logging.getLogger(__name__)
 
 HISTORY_PATH = Path("outputs/history.json")
@@ -655,9 +657,7 @@ def run(history_path: Path = HISTORY_PATH, ledger_dir: Path = LEDGER_DIR,
         {"generated": today.isoformat(), "weights": weights_out,
          "method": f"EWMA-Rank-IC (HWZ {DECAY_HALFLIFE_M} M) · n/(n+{PRIOR_N}); 0 bei n_eff<{MIN_EFF_N} "
                    "oder 90%-KI inkl. 0", "production_use": False}, indent=2))
-    with open(out_dir / "factor_performance.jsonl", "a", encoding="utf-8") as fh:
-        for row in db_rows:
-            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    append_jsonl(out_dir / "factor_performance.jsonl", db_rows, ensure_ascii=False)
     (out_dir / "factor_report.md").write_text(render_markdown(report), encoding="utf-8")
     return report
 

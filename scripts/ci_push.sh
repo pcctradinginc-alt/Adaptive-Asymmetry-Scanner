@@ -15,8 +15,14 @@ git config user.email "github-actions[bot]@users.noreply.github.com"
 for p in "$@"; do
   if [ -e "$p" ]; then git add -- "$p"; fi
 done
-if git diff --cached --quiet; then echo "Keine Änderungen"; exit 0; fi
-git commit -q -m "$msg"
+if git diff --cached --quiet; then
+  # Nichts Neues – aber ein früherer Schritt kann lokal committet und nicht gepusht haben (Push gescheitert).
+  # Dann trotzdem pushen, statt die Daten mit dem kurzlebigen Runner zu verlieren.
+  if [ -z "$(git log --oneline origin/main..HEAD 2>/dev/null)" ]; then echo "Keine Änderungen"; exit 0; fi
+  echo "Keine neuen Änderungen – pushe ausstehende lokale Commits"
+else
+  git commit -q -m "$msg"
+fi
 git stash --include-untracked -q >/dev/null 2>&1 || true      # nicht committete Nebenprodukte
 remote="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
@@ -47,6 +53,7 @@ for attempt in 1 2 3 4 5; do
     resolve_rebase || exit 1
   fi
   if git push -q "$remote" HEAD:main; then
+    git update-ref refs/remotes/origin/main HEAD 2>/dev/null || true   # Push per URL aktualisiert origin/main nicht
     echo "Push ok (Versuch $attempt)"; exit 0
   fi
   echo "Push abgelehnt (Versuch $attempt) – erneuter Rebase"

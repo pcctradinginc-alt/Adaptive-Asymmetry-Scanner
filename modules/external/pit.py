@@ -87,6 +87,10 @@ class Observation:
     forecast_valid_time: datetime | None = None
     payload_hash:        str = ""
     attrs: dict = field(default_factory=dict)   # z.B. vessel_type, lat/lon, unit notes
+    # Datenqualität der Zeile (OK|STALE|MISSING|INVALID), vom Archiv beim
+    # Schreiben gesetzt (archive.stamp_observation). "" = Legacy-/ungestempelt
+    # -> archive.row_quality() liefert dann LEGACY_UNVERIFIED.
+    quality_status:      str = ""
 
     def __post_init__(self) -> None:
         for name in ("observation_time", "available_at", "retrieved_at",

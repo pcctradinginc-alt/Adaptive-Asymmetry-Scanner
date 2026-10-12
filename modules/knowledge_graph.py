@@ -42,6 +42,7 @@ import pandas as pd
 import yaml
 
 from modules import causal_research as cr
+from modules.atomic_io import append_jsonl
 
 log = logging.getLogger(__name__)
 
@@ -229,8 +230,7 @@ def save(graph: dict, out_dir: Path | str = OUT_DIR) -> dict:
     if new:
         rec = {"version": graph["version"], "generated": graph["generated"], "n_nodes": len(graph["nodes"]),
                "n_edges": len(graph["edges"]), "graph": graph}
-        with open(vf, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(rec, ensure_ascii=False, default=str) + "\n")
+        append_jsonl(vf, [rec], ensure_ascii=False, default=str)
     return {"version": graph["version"], "new_version": new, "path": str(out / "knowledge_graph.json")}
 
 

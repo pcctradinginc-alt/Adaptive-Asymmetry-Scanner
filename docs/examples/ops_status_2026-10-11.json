@@ -1,0 +1,1581 @@
+{
+ "_example_note": "Beispielbericht aus echten Repo-Daten (2026-10-11), read-only erzeugt; keine Testdaten",
+ "schema": "ops-report-v1",
+ "as_of": "2026-10-11",
+ "generated": "2026-10-11T08:02:11+00:00",
+ "read_only": true,
+ "status": {
+  "schema": "ops-status-v1",
+  "generated": "2026-10-11T08:02:11+00:00",
+  "as_of": "2026-10-11",
+  "read_only": true,
+  "run": {
+   "workflows": {},
+   "report_date": "2026-10-09",
+   "report_is_today": false,
+   "scanner": {
+    "universe": 372,
+    "analyzed": 96,
+    "champion_candidates": 21,
+    "contracts_designed": 15,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "session": "regular"
+   },
+   "definitions": {
+    "champion_candidates": "stats.final_mc (Final-MC bestanden)",
+    "contracts_designed": "stats.roi_ok + stats.roi_rejects.n (Kontrakt gefunden, vor ROI-Gate)"
+   }
+  },
+  "quote_coverage": {
+   "windows": {
+    "today": {
+     "entry": {
+      "denominator": 0,
+      "observed": 0,
+      "ok": 0,
+      "suspect": 0,
+      "unusable": 0,
+      "missing": 0,
+      "coverage": null,
+      "by_status": {},
+      "excluded_no_contract": 0
+     },
+     "exit_closed": {
+      "denominator": 0,
+      "by_status": {},
+      "excluded_no_contract": 0,
+      "observed": 0,
+      "coverage": null
+     },
+     "complete": {
+      "denominator": 0,
+      "evaluable": 0,
+      "coverage": null,
+      "by_status": {},
+      "by_tier": {},
+      "reasons": {}
+     }
+    },
+    "7d": {
+     "entry": {
+      "denominator": 2,
+      "observed": 0,
+      "ok": 0,
+      "suspect": 0,
+      "unusable": 0,
+      "missing": 2,
+      "coverage": 0.0,
+      "by_status": {
+       "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE": 2
+      },
+      "excluded_no_contract": 0
+     },
+     "exit_closed": {
+      "denominator": 1,
+      "by_status": {
+       "EXIT_OBSERVED_NOT_ARCHIVED": 1
+      },
+      "excluded_no_contract": 0,
+      "observed": 1,
+      "coverage": 1.0
+     },
+     "complete": {
+      "denominator": 1,
+      "evaluable": 1,
+      "coverage": 1.0,
+      "by_status": {
+       "OK": 1
+      },
+      "by_tier": {
+       "OBSERVED": 1
+      },
+      "reasons": {}
+     }
+    },
+    "30d": {
+     "entry": {
+      "denominator": 5,
+      "observed": 0,
+      "ok": 0,
+      "suspect": 0,
+      "unusable": 0,
+      "missing": 5,
+      "coverage": 0.0,
+      "by_status": {
+       "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE": 5
+      },
+      "excluded_no_contract": 0
+     },
+     "exit_closed": {
+      "denominator": 5,
+      "by_status": {
+       "EXIT_NOT_REALIZABLE": 2,
+       "EXIT_OBSERVED_NOT_ARCHIVED": 3
+      },
+      "excluded_no_contract": 0,
+      "observed": 3,
+      "coverage": 0.6
+     },
+     "complete": {
+      "denominator": 5,
+      "evaluable": 3,
+      "coverage": 0.6,
+      "by_status": {
+       "UNUSABLE": 2,
+       "OK": 3
+      },
+      "by_tier": {
+       "NOT_EVALUABLE": 2,
+       "OBSERVED": 3
+      },
+      "reasons": {
+       "EXIT_PRICE_UNKNOWN": 2
+      }
+     }
+    }
+   },
+   "definitions": {
+    "entry.denominator": "Champion-Trades mit Entry im Zeitraum und bekanntem Kontrakt",
+    "exit_active.denominator": "aktive Champion-Trades mit Kontrakt (Mark heute erwartet an Handelstagen)",
+    "exit_closed.denominator": "im Zeitraum geschlossene Champion-Trades mit Kontrakt",
+    "entry.categories": "observed (OK+SUSPECT) + unusable + missing = denominator",
+    "complete.denominator": "im Zeitraum geschlossene Champion-Trades (Bewertung OK = vollständig bewertbar)",
+    "excluded": "NO_CONTRACT (Kontrakt unbekannt) zählt in keinen Entry-/Exit-Nenner, wird separat ausgewiesen"
+   },
+   "exit_active": {
+    "denominator": 4,
+    "by_status": {
+     "NO_EXIT_MARK": 4
+    },
+    "mark_today": 0,
+    "coverage": 0.0,
+    "oldest_mark_age_days": null,
+    "trading_day": false
+   },
+   "entry_by_provider_30d": {
+    "unknown": {
+     "denominator": 5,
+     "observed": 0,
+     "coverage": 0.0
+    }
+   },
+   "entry_by_strategy_30d": {
+    "BULL_CALL_SPREAD": {
+     "denominator": 2,
+     "observed": 0,
+     "coverage": 0.0
+    },
+    "LONG_CALL": {
+     "denominator": 3,
+     "observed": 0,
+     "coverage": 0.0
+    }
+   },
+   "candidate_marks": {
+    "real_opt_ret_5d": {
+     "due": 153,
+     "marked": 112,
+     "pending": 41,
+     "late_marks": 0,
+     "oldest_pending_days": 6
+    },
+    "real_strat_ret_5d": {
+     "due": 153,
+     "marked": 26,
+     "pending": 127,
+     "late_marks": 0,
+     "oldest_pending_days": 8
+    }
+   }
+  },
+  "lifecycle": {
+   "champion": {
+    "by_state": {
+     "SIGNAL": 0,
+     "CONTRACT_SELECTED": 0,
+     "ENTRY_OBSERVED": 0,
+     "EXIT_PENDING": 4,
+     "OUTCOME_FINAL": 117,
+     "LEARNING_ELIGIBLE": 3,
+     "LEARNED": 0
+    },
+    "issues": {
+     "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE": 124,
+     "LEGACY_NO_STORED_EVALUATION": 120,
+     "OUTCOME_UNUSABLE": 114,
+     "OUTCOME_DATA_BAD": 3,
+     "LEGACY_LEARNED_UNTRACKED": 3
+    },
+    "blocked": [],
+    "legacy": {
+     "duplicate_unlearnable_trades": 4,
+     "learned_untracked": 3,
+     "note": "Altbestand vor Quote-Archiv/Consume-once (2026-10-10); nie lernbar bzw. ohne Schlüssel gelernt – keine Exactly-once-Verletzung"
+    },
+    "exactly_once": {
+     "learned_keys": 0,
+     "duplicate_closed_trades": 4,
+     "duplicate_learnable_trades": 0,
+     "learned_not_eligible": 0,
+     "eligible_not_learned": 0,
+     "keys_without_trade": 0,
+     "duplicate_skips_total": null,
+     "ok": true
+    }
+   },
+   "candidates": {
+    "SIGNAL": 478,
+    "CONTRACT_SELECTED": 273,
+    "ENTRY_OBSERVED": 273,
+    "OUTCOME_FINAL": 112,
+    "LATE_MARK": 0,
+    "EXIT_OVERDUE": 1,
+    "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 205,
+    "EXIT_PENDING": 160
+   },
+   "definitions": {
+    "LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
+    "LEARNING_ELIGIBLE": "geschlossen, Bewertung OK und verlässliche Preismethode",
+    "candidate EXIT_OVERDUE": "5-Tage-Mark > 2 Tage überfällig"
+   }
+  },
+  "forward": {
+   "champion": {
+    "observed": {
+     "n": 3,
+     "n_independent_days": 3,
+     "sum_net": -1.850328,
+     "mean_net": -0.616776,
+     "median_net": -0.597106,
+     "hit_rate": 0.0,
+     "worst": -0.74429,
+     "max_drawdown_cum": -1.850328,
+     "loss_distribution": {
+      "n_losses": 3,
+      "p50_loss": -0.597106,
+      "share_total_loss": 0.0
+     },
+     "stdev": 0.118906,
+     "verdict": "NEED_MORE_DATA",
+     "ci": null
+    },
+    "net_definition": "Brutto (Bid/Ask gekreuzt) minus Kommission 0.65 $/Kontrakt/Seite; gespeichertes outcome_net hat Vorrang",
+    "not_evaluable": {
+     "UNUSABLE": 114,
+     "DATA_BAD": 3
+    },
+    "by_strategy": {
+     "BULL_CALL_SPREAD": {
+      "n": 3,
+      "n_independent_days": 3,
+      "sum_net": -1.850328,
+      "mean_net": -0.616776,
+      "median_net": -0.597106,
+      "hit_rate": 0.0,
+      "worst": -0.74429,
+      "max_drawdown_cum": -1.850328,
+      "loss_distribution": {
+       "n_losses": 3,
+       "p50_loss": -0.597106,
+       "share_total_loss": 0.0
+      },
+      "stdev": 0.118906,
+      "verdict": "NEED_MORE_DATA",
+      "ci": null
+     }
+    },
+    "by_regime": {
+     "unknown": {
+      "n": 3,
+      "n_independent_days": 3,
+      "sum_net": -1.850328,
+      "mean_net": -0.616776,
+      "median_net": -0.597106,
+      "hit_rate": 0.0,
+      "worst": -0.74429,
+      "max_drawdown_cum": -1.850328,
+      "loss_distribution": {
+       "n_losses": 3,
+       "p50_loss": -0.597106,
+       "share_total_loss": 0.0
+      },
+      "stdev": 0.118906,
+      "verdict": "NEED_MORE_DATA",
+      "ci": null
+     }
+    }
+   },
+   "population": {
+    "decisions": 3,
+    "resolved": 1,
+    "resolved_observed": 1,
+    "excluded_not_observed": 0,
+    "outcome_methods": {
+     "spread_quote": 1
+    },
+    "definition": "Decision-Ledger (Champion-Trades zum Entscheidungszeitpunkt, eingefroren); Abstinenz-Wert in Rendite-Einheiten je Trade (Summe/Mittel), netto wie decision_outcomes (Bid/Ask-Kreuzung, ohne Kommission)"
+   },
+   "challengers": {
+    "PROM-ABST-001@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "CHAMPION_TRADE",
+     "population": "CHAMPION_TRADE",
+     "evaluable_resolved": 1,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": -0.5079,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 1,
+      "n_independent_dates": 1,
+      "n_fired": 0,
+      "delta_expectancy": 0.0,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-001@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "FINAL_MC_SURVIVOR",
+     "population": "FINAL_MC_SURVIVOR",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-002@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "CHAMPION_TRADE",
+     "population": "CHAMPION_TRADE",
+     "evaluable_resolved": 1,
+     "would_act_on": 1,
+     "avoided_losses": 0.5079,
+     "foregone_gains": 0,
+     "incremental_vs_champion_sum": 0.5079,
+     "incremental_vs_champion_mean": 0.5079,
+     "kept_mean": null,
+     "fired_mean": -0.5079,
+     "controller_evidence": {
+      "n_observations": 1,
+      "n_independent_dates": 1,
+      "n_fired": 1,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-002@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "FINAL_MC_SURVIVOR",
+     "population": "FINAL_MC_SURVIVOR",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-003@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "CHAMPION_TRADE",
+     "population": "CHAMPION_TRADE",
+     "evaluable_resolved": 1,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": -0.5079,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 1,
+      "n_independent_dates": 1,
+      "n_fired": 0,
+      "delta_expectancy": 0.0,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-003@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "FINAL_MC_SURVIVOR",
+     "population": "FINAL_MC_SURVIVOR",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-004@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "CHAMPION_TRADE",
+     "population": "CHAMPION_TRADE",
+     "evaluable_resolved": 1,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": -0.5079,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 1,
+      "n_independent_dates": 1,
+      "n_fired": 0,
+      "delta_expectancy": 0.0,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-004@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "FINAL_MC_SURVIVOR",
+     "population": "FINAL_MC_SURVIVOR",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-005@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "CHAMPION_TRADE",
+     "population": "CHAMPION_TRADE",
+     "evaluable_resolved": 1,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": -0.5079,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 1,
+      "n_independent_dates": 1,
+      "n_fired": 0,
+      "delta_expectancy": 0.0,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "PROM-ABST-005@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "abstention",
+     "eligible_stage": "FINAL_MC_SURVIVOR",
+     "population": "FINAL_MC_SURVIVOR",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "UNIV-V2-SEG-MICRO@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "universe_segment",
+     "eligible_stage": "V2_CANDIDATE",
+     "population": "V2_CANDIDATE",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "UNIV-V2-SEG-MID@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "universe_segment",
+     "eligible_stage": "V2_CANDIDATE",
+     "population": "V2_CANDIDATE",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "UNIV-V2-SEG-SMALL@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "universe_segment",
+     "eligible_stage": "V2_CANDIDATE",
+     "population": "V2_CANDIDATE",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    },
+    "UNIV-V2-SEG-ULTRA_MICRO@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "production_class": "universe_segment",
+     "eligible_stage": "V2_CANDIDATE",
+     "population": "V2_CANDIDATE",
+     "evaluable_resolved": 0,
+     "would_act_on": 0,
+     "avoided_losses": null,
+     "foregone_gains": null,
+     "incremental_vs_champion_sum": null,
+     "incremental_vs_champion_mean": null,
+     "kept_mean": null,
+     "fired_mean": null,
+     "controller_evidence": {
+      "n_observations": 0,
+      "n_independent_dates": 0,
+      "n_fired": 0,
+      "delta_expectancy": null,
+      "ci": [
+       null,
+       null
+      ]
+     },
+     "verdict": "NEED_MORE_DATA",
+     "observed_outcome_share": 1.0
+    }
+   },
+   "meta_label": {
+    "status": "NEVER_RUN"
+   },
+   "scorecard": {
+    "CANDIDATE_5d|ALL": {
+     "n": 144,
+     "n_signal_days": 4,
+     "n_entities": 117,
+     "mean_net": 0.007165,
+     "median_net": -0.00405,
+     "hit_rate": 0.4375,
+     "mean_gross": 0.009165,
+     "worst": -0.134,
+     "verdict": "NEED_MORE_DATA"
+    },
+    "CANDIDATE_5d|LATE_STAGE": {
+     "n": 47,
+     "n_signal_days": 4,
+     "n_entities": 36,
+     "mean_net": 0.007683,
+     "median_net": 0.003,
+     "hit_rate": 0.5319,
+     "mean_gross": 0.009683,
+     "worst": -0.134,
+     "verdict": "NEED_MORE_DATA"
+    },
+    "CANDIDATE_5d|CHAMPION": {
+     "n": 0,
+     "n_signal_days": 0,
+     "n_entities": 0,
+     "verdict": "NO_DATA"
+    },
+    "CANDIDATE_OPTION_5d|ALL": {
+     "n": 112,
+     "n_signal_days": 4,
+     "n_entities": 88,
+     "mean_net": -0.105713,
+     "median_net": -0.122858,
+     "hit_rate": 0.2679,
+     "mean_gross": -0.104444,
+     "worst": -0.464125,
+     "verdict": "NEED_MORE_DATA"
+    },
+    "CANDIDATE_OPTION_5d|LATE_STAGE": {
+     "n": 38,
+     "n_signal_days": 4,
+     "n_entities": 28,
+     "mean_net": -0.06443,
+     "median_net": -0.095828,
+     "hit_rate": 0.3947,
+     "mean_gross": -0.063616,
+     "worst": -0.464125,
+     "verdict": "NEED_MORE_DATA"
+    },
+    "CANDIDATE_OPTION_5d|CHAMPION": {
+     "n": 0,
+     "n_signal_days": 0,
+     "n_entities": 0,
+     "verdict": "NO_DATA"
+    },
+    "CANDIDATE_STRATEGY_5d|ALL": {
+     "n": 26,
+     "n_signal_days": 4,
+     "n_entities": 25,
+     "mean_net": -0.193312,
+     "median_net": -0.198648,
+     "hit_rate": 0.2308,
+     "mean_gross": -0.189619,
+     "worst": -0.648671,
+     "verdict": "NEED_MORE_DATA"
+    },
+    "CANDIDATE_STRATEGY_5d|LATE_STAGE": {
+     "n": 11,
+     "n_signal_days": 4,
+     "n_entities": 11,
+     "mean_net": -0.20569,
+     "median_net": -0.202608,
+     "hit_rate": 0.2727,
+     "mean_gross": -0.203255,
+     "worst": -0.648671,
+     "verdict": "NEED_MORE_DATA"
+    },
+    "CANDIDATE_STRATEGY_5d|CHAMPION": {
+     "n": 0,
+     "n_signal_days": 0,
+     "n_entities": 0,
+     "verdict": "NO_DATA"
+    },
+    "CHAMPION_TRADE|ALL": {
+     "n": 3,
+     "n_signal_days": 3,
+     "n_entities": 3,
+     "mean_net": -0.616776,
+     "median_net": -0.597106,
+     "hit_rate": 0.0,
+     "mean_gross": -0.6126,
+     "worst": -0.74429,
+     "verdict": "NEED_MORE_DATA"
+    }
+   }
+  },
+  "training": {
+   "status": "NEVER_RUN",
+   "n_labels": null,
+   "n_label_dates": null,
+   "required": null,
+   "as_of": null,
+   "versions": 0,
+   "active": null,
+   "hold": null,
+   "active_artifact_ok": null,
+   "manifest_violations": []
+  },
+  "promotion": {
+   "generated": "2026-10-09T23:23:48+00:00",
+   "max_automatic_influence": "ABSTENTION_ONLY",
+   "kill_switch_active": false,
+   "safe_mode": true,
+   "champion_version": "scanner_rules@b60b12cedaea",
+   "by_state": {
+    "PROSPECTIVE_CHALLENGER": 14
+   },
+   "by_influence": {
+    "NONE": 14
+   },
+   "active_influence": [],
+   "unjustified_influence": [],
+   "hypotheses": {
+    "PROM-ABST-001@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-001@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-002@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-002@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-003@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-003@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-004@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-004@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-005@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "PROM-ABST-005@v2": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Cluster 0/15",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "UNIV-V2-SEG-MICRO@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "UNIV-V2-SEG-MID@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "UNIV-V2-SEG-SMALL@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+     "recommendation": null,
+     "integrity_ok": true
+    },
+    "UNIV-V2-SEG-ULTRA_MICRO@v1": {
+     "state": "PROSPECTIVE_CHALLENGER",
+     "influence_level": "NONE",
+     "decision": "KEEP_SHADOW",
+     "blocking": "n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/60",
+     "recommendation": null,
+     "integrity_ok": true
+    }
+   }
+  },
+  "integrity": {
+   "promotion_state_hash_ok": true,
+   "promotion_state_unreadable": false,
+   "transition_chain_problems": [],
+   "registry_problems": [],
+   "decision_ledger_duplicates": 0,
+   "trade_outcome_duplicates": 0,
+   "quote_records_30d": 0,
+   "quote_duplicate_ids": 0,
+   "quote_non_observed_prices": 0,
+   "closed_trade_quarantine": 0,
+   "external_archive": {
+    "legacy": 8899
+   },
+   "issues": []
+  },
+  "data_health": {
+   "source_health": {
+    "generated": "2026-10-10T17:27:40+00:00",
+    "by_status": {
+     "HEALTHY": 33,
+     "DEGRADED": 2,
+     "UNVALIDATED": 9
+    }
+   },
+   "external_data": {
+    "by_status": {}
+   },
+   "quote_archive_days": {},
+   "quote_archive_median_14d": null,
+   "quote_archive_root_exists": false
+  }
+ },
+ "row": {
+  "schema": "ops-history-v1",
+  "as_of": "2026-10-11",
+  "generated": "2026-10-11T08:02:11+00:00",
+  "run.scanner.universe": 372,
+  "run.scanner.analyzed": 96,
+  "run.scanner.champion_candidates": 21,
+  "run.scanner.contracts_designed": 15,
+  "run.scanner.trades": 0,
+  "run.report_is_today": false,
+  "quote.entry.7d.coverage": 0.0,
+  "quote.entry.7d.denominator": 2,
+  "quote.entry.7d.observed": 0,
+  "quote.exit_closed.7d.coverage": 1.0,
+  "quote.exit_closed.7d.denominator": 1,
+  "quote.exit_closed.7d.observed": 1,
+  "quote.complete.7d.coverage": 1.0,
+  "quote.complete.7d.denominator": 1,
+  "quote.complete.7d.evaluable": 1,
+  "quote.entry.7d.legacy": 2,
+  "quote.entry.30d.coverage": 0.0,
+  "quote.entry.30d.denominator": 5,
+  "quote.entry.30d.observed": 0,
+  "quote.exit_closed.30d.coverage": 0.6,
+  "quote.exit_closed.30d.denominator": 5,
+  "quote.exit_closed.30d.observed": 3,
+  "quote.complete.30d.coverage": 0.6,
+  "quote.complete.30d.denominator": 5,
+  "quote.complete.30d.evaluable": 3,
+  "quote.entry.30d.legacy": 5,
+  "quote.exit_active.coverage": 0.0,
+  "quote.exit_active.denominator": 4,
+  "quote.exit_active.mark_today": 0,
+  "marks.real_opt_ret_5d.pending": 41,
+  "marks.real_opt_ret_5d.oldest_pending_days": 6,
+  "marks.real_strat_ret_5d.pending": 127,
+  "marks.real_strat_ret_5d.oldest_pending_days": 8,
+  "lifecycle.champion.state.SIGNAL": 0,
+  "lifecycle.champion.state.CONTRACT_SELECTED": 0,
+  "lifecycle.champion.state.ENTRY_OBSERVED": 0,
+  "lifecycle.champion.state.EXIT_PENDING": 4,
+  "lifecycle.champion.state.OUTCOME_FINAL": 117,
+  "lifecycle.champion.state.LEARNING_ELIGIBLE": 3,
+  "lifecycle.champion.state.LEARNED": 0,
+  "lifecycle.champion.issue.EXIT_OVERDUE": 0,
+  "lifecycle.champion.issue.ELIGIBLE_NOT_LEARNED": 0,
+  "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": 0,
+  "lifecycle.champion.exactly_once_ok": true,
+  "lifecycle.candidates.EXIT_OVERDUE": 1,
+  "lifecycle.candidates.EXIT_PENDING": 160,
+  "lifecycle.candidates.OUTCOME_FINAL": 112,
+  "forward.champion.n": 3,
+  "forward.champion.n_independent_days": 3,
+  "forward.champion.mean_net": -0.616776,
+  "forward.champion.sum_net": -1.850328,
+  "forward.champion.verdict": "NEED_MORE_DATA",
+  "training.status": "NEVER_RUN",
+  "training.n_labels": null,
+  "promotion.active_influence": 0,
+  "promotion.unjustified_influence": 0,
+  "promotion.kill_switch_active": false,
+  "integrity.issues": 0,
+  "data.source_health.DEGRADED": 2,
+  "data.source_health.HEALTHY": 33,
+  "data.source_health.UNVALIDATED": 9,
+  "data.source_health.n_bad": 2,
+  "data.quote_archive_median_14d": null,
+  "data.quote_archive_today": null
+ },
+ "deltas": {
+  "run.scanner.universe": {
+   "value": 372,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "run.scanner.analyzed": {
+   "value": 96,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "run.scanner.champion_candidates": {
+   "value": 21,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "run.scanner.contracts_designed": {
+   "value": 15,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "run.scanner.trades": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.7d.coverage": {
+   "value": 0.0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.7d.denominator": {
+   "value": 2,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.7d.observed": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_closed.7d.coverage": {
+   "value": 1.0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_closed.7d.denominator": {
+   "value": 1,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_closed.7d.observed": {
+   "value": 1,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.complete.7d.coverage": {
+   "value": 1.0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.complete.7d.denominator": {
+   "value": 1,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.complete.7d.evaluable": {
+   "value": 1,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.7d.legacy": {
+   "value": 2,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.30d.coverage": {
+   "value": 0.0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.30d.denominator": {
+   "value": 5,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.30d.observed": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_closed.30d.coverage": {
+   "value": 0.6,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_closed.30d.denominator": {
+   "value": 5,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_closed.30d.observed": {
+   "value": 3,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.complete.30d.coverage": {
+   "value": 0.6,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.complete.30d.denominator": {
+   "value": 5,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.complete.30d.evaluable": {
+   "value": 3,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.entry.30d.legacy": {
+   "value": 5,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_active.coverage": {
+   "value": 0.0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_active.denominator": {
+   "value": 4,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "quote.exit_active.mark_today": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "marks.real_opt_ret_5d.pending": {
+   "value": 41,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "marks.real_opt_ret_5d.oldest_pending_days": {
+   "value": 6,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "marks.real_strat_ret_5d.pending": {
+   "value": 127,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "marks.real_strat_ret_5d.oldest_pending_days": {
+   "value": 8,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.SIGNAL": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.CONTRACT_SELECTED": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.ENTRY_OBSERVED": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.EXIT_PENDING": {
+   "value": 4,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.OUTCOME_FINAL": {
+   "value": 117,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.LEARNING_ELIGIBLE": {
+   "value": 3,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.state.LEARNED": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.issue.EXIT_OVERDUE": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.issue.ELIGIBLE_NOT_LEARNED": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.candidates.EXIT_OVERDUE": {
+   "value": 1,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.candidates.EXIT_PENDING": {
+   "value": 160,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "lifecycle.candidates.OUTCOME_FINAL": {
+   "value": 112,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "forward.champion.n": {
+   "value": 3,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "forward.champion.n_independent_days": {
+   "value": 3,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "forward.champion.mean_net": {
+   "value": -0.616776,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "forward.champion.sum_net": {
+   "value": -1.850328,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "promotion.active_influence": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "promotion.unjustified_influence": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "integrity.issues": {
+   "value": 0,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.DEGRADED": {
+   "value": 2,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.HEALTHY": {
+   "value": 33,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.UNVALIDATED": {
+   "value": 9,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.n_bad": {
+   "value": 2,
+   "prev": null,
+   "d7": null,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  }
+ },
+ "delta_refs": {
+  "prev": null,
+  "d7": null,
+  "d30": null
+ },
+ "alerts": [
+  {
+   "id": "OUTCOMES_OVERDUE:candidates",
+   "severity": "WARNING",
+   "component": "Lebenszyklus",
+   "cause": "1 Kandidat(en) mit überfälligem 5-Tage-Real-Option-Mark (> 2 Tage nach Fälligkeit).",
+   "since": "2026-10-11",
+   "status": "NEW"
+  },
+  {
+   "id": "OUTCOMES_OVERDUE:marks",
+   "severity": "WARNING",
+   "component": "Quote-Abdeckung",
+   "cause": "Fällige Marks offen: real_opt_ret_5d 41 von 153 offen, ältester 6 Tage; real_strat_ret_5d 127 von 153 offen, ältester 8 Tage (Schwelle > 3 Tage).",
+   "since": "2026-10-11",
+   "status": "NEW"
+  }
+ ],
+ "mail": {
+  "status": "skipped",
+  "subject": "[Scanner-Monitor] 2026-10-11: 2 neue Warnung(en)"
+ },
+ "history": {
+  "appended": true,
+  "reason": null
+ },
+ "errors": []
+}

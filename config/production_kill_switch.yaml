@@ -1,0 +1,8 @@
+# config/production_kill_switch.yaml – globaler Not-Aus für JEDEN Produktionseinfluss der Intelligence
+# (Abstinenz, Rerank, Score, Gewicht, Sizing). GESCHÜTZT (CODEOWNERS), Änderung nur per PR.
+#
+# active: true  -> Adapter wertet alle Verträge weiter aus und protokolliert sie (Shadow), wendet aber nichts an:
+#                  der Champion entscheidet allein (production_intelligence_adapter.kill_switch_active).
+# Datei unlesbar -> als AKTIV behandelt (fail-safe). Datei fehlt -> nicht aktiv.
+active: false
+reason: null

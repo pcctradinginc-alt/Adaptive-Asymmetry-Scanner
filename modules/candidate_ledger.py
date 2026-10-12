@@ -59,6 +59,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from modules import market_snapshot
+from modules.atomic_io import append_jsonl
 from modules.bs_pricing import bs_price
 
 log = logging.getLogger(__name__)
@@ -76,6 +77,7 @@ RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
+MARK_ARCHIVE_LOOKBACK_DAYS   = 10   # außerhalb der Sitzung: archivierte RTH-Quotes der letzten N Tage (Options-Capture)
 
 # ── Hypothetischer Options-Kontrakt (Counterfactual, Observability) ──────────
 # Gates verwerfen/akzeptieren Kandidaten auf Basis von Underlying-Returns,
@@ -797,6 +799,7 @@ def _build_real_strategy(
 
         if "SPREAD" not in strategy:
             row = _strategy_row(strategy, source, [long_leg], iv_rank, effective_gate, expiry)
+            _single_leg_entry(row)
         else:
             option_type = "call" if is_bullish else "put"
             short_raw = market_snapshot.select_spread_short_leg(
@@ -806,6 +809,7 @@ def _build_real_strategy(
                 # Keine Liquidität im Short-Leg-Fenster → wie Produktion
                 # (_find_spread_leg liefert None → Fallback auf Long-Leg).
                 row = _strategy_row(default_strategy, "spread_no_liquidity", [long_leg], iv_rank, effective_gate, expiry)
+                _single_leg_entry(row)
             else:
                 short_leg = _leg_from_contract(short_raw, "short")
                 row = _strategy_row(strategy, source, [long_leg, short_leg], iv_rank, effective_gate, expiry)
@@ -838,6 +842,126 @@ def _build_real_strategy(
     except Exception as ex:
         log.warning(f"candidate_ledger._build_real_strategy Fehler (ignoriert): {ex}")
         return None
+
+
+def _single_leg_entry(rs: dict) -> dict:
+    """Single-Leg-Strategie: Entry = Ask/Mid des Long-Legs (wie _fill_real_strategy_entries). Vorher nur für Spreads
+    gesetzt -> Single-Leg-Strategien wurden nie markiert (Re-Audit 2026-10-11: 220 Zeilen dauerhaft offen)."""
+    legs = rs.get("legs") or []
+    if len(legs) == 1 and rs.get("net_debit_entry") is None:
+        rs["net_debit_entry"], rs["net_mid_entry"] = legs[0].get("ask"), legs[0].get("mid")
+    return rs
+
+
+def _timing_policy_current() -> str:
+    from modules import timing_policy
+    return timing_policy.current()
+
+
+def _is_v2(row: dict) -> bool:
+    return row.get("timing_policy") == "timing-v2"
+
+
+def _v2_symbols(row: dict, key: str) -> list:
+    spec = row.get(key) or {}
+    if key == "real_option":
+        return [spec.get("symbol")]
+    legs = spec.get("legs") or []
+    return [g.get("symbol") for g in sorted(legs, key=lambda g: 0 if g.get("side") == "long" else 1)]
+
+
+def _v2_entry(row: dict, key: str, now: datetime) -> bool:
+    """timing-v2-Entry eines Kandidaten (real_option | real_strategy): frühester zulässiger Fill ab dem Signalzeitpunkt
+    in der frühesten möglichen Sitzung (modules/timing_policy.find_fill) – nie vor dem Signal, nie nachbörslich oder
+    veraltet. FILLED -> Entry-Preise aus dem Archiv-Record; UNUSABLE -> kein Entry (Grund im Feld); PENDING -> wartet.
+    -> True, wenn sich die Zeile geändert hat."""
+    from modules import timing_policy as tp
+    spec = row.get(key)
+    if not isinstance(spec, dict) or not spec.get("entry_pending"):
+        return False
+    sig, syms = tp._ts(row.get("signal_timestamp")), _v2_symbols(row, key)
+    if sig is None or not syms or any(x is None for x in syms):
+        spec.update(entry_pending=False, entry_status="UNUSABLE",
+                    entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
+        return True
+    after = sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"]) if tp.in_window(sig, syms[0]) else sig
+    f = tp.find_fill(syms, after, now)
+    if f["status"] == "PENDING":
+        changed = spec.get("entry_status") != "PENDING"
+        spec.update(entry_status="PENDING", entry_earliest_day=f.get("day"))
+        return changed
+    if f["status"] == "UNUSABLE":
+        spec.update(entry_pending=False, entry_status="UNUSABLE", entry_unusable_reason=f.get("reason"),
+                    entry_earliest_day=f.get("day"))
+        return True
+    recs = f["records"]
+    fill_t = max(sig, tp._ts(f["time"]))
+    if key == "real_option":
+        r = recs[0]
+        spec.update(bid=r.get("bid"), ask=r.get("ask"), mid=r.get("mid"))
+    else:
+        by_sym = dict(zip(syms, recs))
+        for g in spec.get("legs") or []:
+            r = by_sym.get(g.get("symbol")) or {}
+            g.update(bid=r.get("bid"), ask=r.get("ask"), mid=r.get("mid"))
+        price = tp.entry_price(recs)
+        mids = [r.get("mid") for r in recs]
+        spec["net_debit_entry"] = price
+        spec["net_mid_entry"] = (round(mids[0] - mids[1], 4) if len(mids) > 1 and None not in mids
+                                 else mids[0] if len(mids) == 1 else None)
+    spec.update(entry_pending=False, entry_status="FILLED", entry_date=f["day"],
+                entry_filled_at=fill_t.isoformat(timespec="seconds"), entry_earliest_day=f["day"],
+                entry_quote_record_ids=[r.get("record_id") for r in recs])
+    return True
+
+
+def _fill_v2_entries(rows: list[dict]) -> bool:
+    """Offene timing-v2-Entries: im Mark-Fenster vorher frische Quotes abrufen (landen über den Hook im Archiv),
+    dann je Zeile der früheste zulässige Fill aus dem Archiv. Außerhalb des Fensters nur das Archiv."""
+    from modules import option_quotes as oq
+    pend = [(row, k) for row in rows if _is_v2(row) for k in ("real_option", "real_strategy")
+            if isinstance(row.get(k), dict) and row[k].get("entry_pending")]
+    if not pend:
+        return False
+    now = _now_utc()
+    if oq.mark_window(now) == "IN_WINDOW":
+        syms = sorted({x for row, k in pend for x in _v2_symbols(row, k) if x})
+        if syms:
+            market_snapshot.fetch_option_quotes(syms, context="candidate_entry_rth")
+    changed = False
+    for row, k in pend:
+        try:
+            changed |= _v2_entry(row, k, now)
+        except Exception as e:  # noqa: BLE001
+            log.warning(f"candidate_ledger._fill_v2_entries Fehler (ignoriert): {e}")
+    return changed
+
+
+def pending_entry_targets(today: str, root: Path = LEDGER_ROOT) -> dict:
+    """NUR LESEND: {OCC-Symbol: Signalzeitpunkt} offener timing-v2-Entries (Capture erfasst sie nur mit Abruf ab dem
+    Signal). Wirft nie."""
+    from modules import timing_policy as tp
+    out: dict = {}
+    try:
+        today_dt = datetime.strptime(today, "%Y-%m-%d")
+        for path in _iter_relevant_files(Path(root), today_dt):
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    try:
+                        row = json.loads(line) if line.strip() else None
+                    except ValueError:
+                        continue
+                    if not isinstance(row, dict) or not _is_v2(row):
+                        continue
+                    sig = tp._ts(row.get("signal_timestamp"))
+                    for k in ("real_option", "real_strategy"):
+                        if sig is not None and isinstance(row.get(k), dict) and row[k].get("entry_pending"):
+                            for x in _v2_symbols(row, k):
+                                if x:
+                                    out[x] = max(out.get(x, sig), sig)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"candidate_ledger.pending_entry_targets: {type(e).__name__}: {e}")
+    return out
 
 
 def _finalize_real_strategy(rs: dict, session: str, today: str) -> dict:
@@ -1099,6 +1223,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "underlying":       resolved["underlying"],
                 "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
+                "timing_policy":    _timing_policy_current(),
                 # Externer Kontext: beim ersten note(external=...) eingefroren,
                 # hier unverändert persistiert (nie neu berechnet).
                 "external":         e.get("external"),
@@ -1127,10 +1252,16 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                     row["snapshot_selected"] = True
                     if signal_id in real_option_raw_by_id:
                         _t, real_option_raw = real_option_raw_by_id[signal_id]
-                        row["real_option"] = _finalize_real_option(real_option_raw, resolved["session"], today)
+                        _v2 = row["timing_policy"] == "timing-v2"
+                        _sess = "pending" if _v2 else resolved["session"]      # v2: Entry nur über _v2_entry
+                        row["real_option"] = _finalize_real_option(real_option_raw, _sess, today)
                         real_strategy_raw = real_strategy_raw_by_id.get(signal_id)
                         if real_strategy_raw is not None:
-                            row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, resolved["session"], today)
+                            row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, _sess, today)
+                        if _v2:
+                            for _k in ("real_option", "real_strategy"):
+                                if row.get(_k):
+                                    _v2_entry(row, _k, _now_utc())
                     else:
                         row["real_option_skip_reason"] = (
                             "no_api_key" if not os.environ.get("TRADIER_API_KEY", "").strip()
@@ -1140,9 +1271,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             new_lines.append(row)
 
         if new_lines:
-            with open(month_file, "a", encoding="utf-8") as f:
-                for row in new_lines:
-                    f.write(json.dumps(row, default=str) + "\n")
+            append_jsonl(month_file, new_lines, default=str)
             log.info(f"candidate_ledger: {len(new_lines)} Kandidat(en) geloggt → {month_file}")
 
         _state["flushed"] = True
@@ -1194,6 +1323,41 @@ def _row_entry_dt(row: dict):
         if dt is not None:
             return dt
     return _parse_date(row.get("date", ""))
+
+
+def due_mark_symbols(today: str, root: Path = LEDGER_ROOT) -> list[str]:
+    """NUR LESEND: OCC-Symbole aller fälligen, noch offenen und nicht verfallenen Real-Options-/Strategie-Marks
+    (Fälligkeitsregel wie _fill_real_option_marks/_fill_real_strategy_marks; Verfallene brauchen keine Quote,
+    sie werden aus dem Settlement bewertet). Für den Options-Capture-Workflow, der Quotes nur archiviert und das
+    Ledger nie schreibt. Wirft nie."""
+    out: set[str] = set()
+    try:
+        today_dt = datetime.strptime(today, "%Y-%m-%d")
+        for path in _iter_relevant_files(Path(root), today_dt):
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    try:
+                        row = json.loads(line) if line.strip() else None
+                    except ValueError:
+                        continue
+                    if not isinstance(row, dict):
+                        continue
+                    oc = row.get("outcomes") or {}
+                    for key, ret, syms in (
+                            ("real_option", "real_opt_ret", lambda sp: [sp.get("symbol")]),
+                            ("real_strategy", "real_strat_ret", lambda sp: [g.get("symbol") for g in sp.get("legs") or []])):
+                        spec = row.get(key)
+                        if not spec or spec.get("entry_pending"):
+                            continue
+                        entry_dt = _parse_date(spec.get("entry_date") or "")
+                        expiry_dt = _parse_date(spec.get("expiry") or "")
+                        if entry_dt is None or (expiry_dt is not None and today_dt.date() > expiry_dt.date()):
+                            continue
+                        if any(f"{ret}_{h}d" not in oc and (today_dt - entry_dt).days >= h for h in HORIZONS):
+                            out.update(x for x in syms(spec) if x)
+    except Exception as e:  # noqa: BLE001 – Capture ist Beobachtung, nie Bedingung
+        log.warning(f"candidate_ledger.due_mark_symbols: {type(e).__name__}: {e}")
+    return sorted(out)
 
 
 def update_outcomes(today: str, root: Path = LEDGER_ROOT) -> None:
@@ -1256,6 +1420,10 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
     except Exception as e:
         log.warning(f"candidate_ledger: real_strategy Entry-Fill Fehler (ignoriert): {e}")
     try:
+        changed |= _fill_v2_entries(rows)
+    except Exception as e:
+        log.warning(f"candidate_ledger: timing-v2 Entry-Fill Fehler (ignoriert): {e}")
+    try:
         changed |= _fill_return_horizons(rows, today_dt)
     except Exception as e:
         log.warning(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
@@ -1288,7 +1456,7 @@ def _fill_real_option_entries(rows: list[dict]) -> bool:
 
     pending = [
         row for row in rows
-        if isinstance(row.get("real_option"), dict) and row["real_option"].get("entry_pending")
+        if isinstance(row.get("real_option"), dict) and row["real_option"].get("entry_pending") and not _is_v2(row)
     ]
     if not pending:
         return False
@@ -1335,6 +1503,7 @@ def _fill_real_strategy_entries(rows: list[dict]) -> bool:
     pending = [
         row for row in rows
         if isinstance(row.get("real_strategy"), dict) and row["real_strategy"].get("entry_pending")
+        and not _is_v2(row)
     ]
     if not pending:
         return False
@@ -1579,6 +1748,34 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
     return changed
 
 
+def _mark_quotes(symbols: list[str]) -> tuple[str, dict]:
+    """Quote-Quelle für Real-Options-Marks (2026-10-11, entkoppelt vom Lauf-Zeitpunkt):
+    gebündelter Tradier-Abruf ("live", wird über den Hook archiviert)
+    im Mark-Fenster (option_quotes.mark_window: Eröffnung + 30 min bis Schluss − 10 min) live wie bisher;
+    sonst ("archive") die archivierten, verwertbaren RTH-Quotes der letzten Tage (option_quotes.rth_quote_history,
+    erfasst u. a. vom Options-Capture-Workflow). Nie ein Modellpreis, nie eine Quote außerhalb der Sitzung."""
+    from modules import option_quotes as oq
+    now = _now_utc()
+    # reguläre Sitzung ohne Eröffnungs-/Schlusspuffer = dasselbe Fenster wie Capture (option_quotes.mark_window)
+    if market_snapshot.us_market_session(now) == "regular" \
+            and oq.mark_window(now) not in ("BEFORE_WINDOW", "AFTER_WINDOW"):
+        return "live", market_snapshot.fetch_option_quotes(symbols)
+    return "archive", oq.rth_quote_history(symbols, now, lookback_days=MARK_ARCHIVE_LOOKBACK_DAYS)
+
+
+def _archived_mark(history: dict, symbols: list[str], due_day: str) -> tuple[str, list[dict]] | None:
+    """Frühester NY-Handelstag >= due_day, an dem ALLE symbols (Spread: beide Legs) eine verwertbare RTH-Quote
+    haben -> (Tag, [erste Quote je Symbol an diesem Tag]); sonst None (Mark bleibt offen)."""
+    days = None
+    for sym in symbols:
+        d = {day for day, _ in history.get(sym) or [] if day and day >= due_day}
+        days = d if days is None else days & d
+    if not days:
+        return None
+    day = min(days)
+    return day, [next(r for d, r in history[sym] if d == day) for sym in symbols]
+
+
 def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     """
     P0-B: für Zeilen mit real_option (bereits gefülltem Entry — kein
@@ -1588,19 +1785,17 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     Intrinsic-Wert aus dem Underlying-Schlusskurs am Expiry-Tag verwendet
     statt einer (nicht mehr existierenden) Live-Quote.
 
-    Optionen handeln nur in der regulären Session — Marks passieren daher
-    NUR, wenn der aktuelle Lauf (2×/Tag via feedback.py) während einer
-    regulären Session läuft; sonst wird nichts markiert (nächster
-    Regular-Session-Lauf holt es nach). Horizonte laufen ab dem TATSÄCHLICH
+    Optionen handeln nur in der regulären Session — Marks nutzen daher NUR
+    RTH-Quotes: im Mark-Fenster (Eröffnung + 30 min bis Schluss − 10 min)
+    live, sonst die archivierten
+    RTH-Quotes (Options-Capture, frühester Handelstag ab Fälligkeit; Feld
+    real_opt_mark_source_{h}d = archive_rth). Fehlt beides, bleibt der Mark
+    offen (nächster Lauf holt es nach). Horizonte laufen ab dem TATSÄCHLICH
     gefüllten Entry-Datum (real_option["entry_date"]), nicht ab dem
     ursprünglichen Signal-Datum. Zeilen, deren Horizont schon >7 Tage
     verstrichen ist, werden trotzdem jetzt mit der aktuellen Quote markiert,
     aber zusätzlich mit late_mark=true geflaggt.
     """
-    session = market_snapshot.us_market_session(_now_utc())
-    if session != "regular":
-        return False
-
     tasks = []  # (row, h, entry_dt)
     for row in rows:
         real_option = row.get("real_option")
@@ -1623,11 +1818,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
         t[0]["real_option"].get("symbol") for t in tasks
         if t[0]["real_option"].get("symbol")
     })
-    quotes = market_snapshot.fetch_option_quotes(symbols)
-
-    underlying_tickers = sorted({t[0].get("ticker") for t in tasks if t[0].get("ticker")})
-    max_days = max((today_dt - t[2]).days for t in tasks)
-    underlying_hist = _fetch_history_batch(underlying_tickers, max(max_days + 10, 15))
+    mode, quotes = _mark_quotes(symbols)
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -1643,8 +1834,8 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             expiry_dt  = _parse_date(expiry_str) if expiry_str else None
 
             if expiry_dt is not None and today_dt.date() > expiry_dt.date():
-                hist = underlying_hist.get(row.get("ticker"))
-                spot_at_expiry = _price_on_or_before(hist, expiry_dt) if hist else None
+                # Settlement: UNbereinigter Schluss exakt am Verfallstag (nicht der bereinigte "am oder vor")
+                spot_at_expiry = market_snapshot.unadjusted_close_on(row.get("ticker"), expiry_dt)
                 if spot_at_expiry is None:
                     continue
                 strike = real_option.get("strike") or 0
@@ -1652,8 +1843,16 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
                 intrinsic = (max(spot_at_expiry - strike, 0.0) if kind == "call"
                              else max(strike - spot_at_expiry, 0.0))
                 exit_bid = exit_mid = intrinsic
+                mark_day, from_archive = today_dt.strftime("%Y-%m-%d"), False
             else:
-                q = quotes.get(symbol)
+                from_archive = mode == "archive"
+                if mode == "live":
+                    q, mark_day = quotes.get(symbol), today_dt.strftime("%Y-%m-%d")
+                else:
+                    m = _archived_mark(quotes, [symbol], (entry_dt + timedelta(days=h)).strftime("%Y-%m-%d"))
+                    if not m:
+                        continue
+                    mark_day, (q,) = m
                 if not q:
                     continue
                 exit_bid, exit_mid = q.get("bid"), q.get("mid")
@@ -1663,10 +1862,13 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             outcomes = row.setdefault("outcomes", {})
             outcomes[f"real_opt_ret_{h}d"]       = round(exit_bid / entry_ask - 1.0, 4)
             outcomes[f"real_opt_ret_mid_{h}d"]   = round(exit_mid / entry_mid - 1.0, 4)
-            outcomes[f"real_opt_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+            outcomes[f"real_opt_mark_date_{h}d"] = mark_day
+            if from_archive:                                  # Herkunft nur, wenn wirklich eine Archiv-Quote zählt
+                outcomes[f"real_opt_mark_source_{h}d"] = "archive_rth"
 
-            if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
-                row["late_mark"] = True
+            if (_parse_date(mark_day) - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
+                row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
+                outcomes[f"real_opt_late_{h}d"] = True                    # je Instrument/Horizont (Evidenz)
 
             changed = True
         except Exception as e:
@@ -1690,10 +1892,6 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
     bei 0 gefloort für den konservativen Wert). Session-Gating und
     late_mark wie bei real_option.
     """
-    session = market_snapshot.us_market_session(_now_utc())
-    if session != "regular":
-        return False
-
     tasks = []  # (row, h, entry_dt)
     for row in rows:
         rs = row.get("real_strategy")
@@ -1718,11 +1916,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
         for leg in (t[0]["real_strategy"].get("legs") or [])
         if leg.get("symbol")
     })
-    quotes = market_snapshot.fetch_option_quotes(symbols)
-
-    underlying_tickers = sorted({t[0].get("ticker") for t in tasks if t[0].get("ticker")})
-    max_days = max((today_dt - t[2]).days for t in tasks)
-    underlying_hist = _fetch_history_batch(underlying_tickers, max(max_days + 10, 15))
+    mode, quotes = _mark_quotes(symbols)
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -1734,6 +1928,8 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             if long_leg is None:
                 continue
 
+            if short_leg is None:                    # Single-Leg: Entry aus der aufgezeichneten Long-Leg-Quote
+                _single_leg_entry(rs)
             net_debit_entry = rs.get("net_debit_entry")
             net_mid_entry   = rs.get("net_mid_entry")
             # Debit-Spread: Einstieg muss positiv sein; <= 0 (falsches Short-Leg,
@@ -1746,8 +1942,8 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             kind = "call" if row.get("direction") == "BULLISH" else "put"
 
             if expiry_dt is not None and today_dt.date() > expiry_dt.date():
-                hist = underlying_hist.get(row.get("ticker"))
-                spot_at_expiry = _price_on_or_before(hist, expiry_dt) if hist else None
+                # Settlement: UNbereinigter Schluss exakt am Verfallstag (nicht der bereinigte "am oder vor")
+                spot_at_expiry = market_snapshot.unadjusted_close_on(row.get("ticker"), expiry_dt)
                 if spot_at_expiry is None:
                     continue
 
@@ -1760,8 +1956,20 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                 short_intrinsic = _intrinsic(short_leg) if short_leg is not None else 0.0
                 exit_conservative = max(long_intrinsic - short_intrinsic, 0.0)
                 exit_mid          = long_intrinsic - short_intrinsic
+                mark_day, from_archive = today_dt.strftime("%Y-%m-%d"), False
             else:
-                q_long = quotes.get(long_leg.get("symbol"))
+                from_archive = mode == "archive"
+                leg_syms = [long_leg.get("symbol")] + ([short_leg.get("symbol")] if short_leg is not None else [])
+                if mode == "live":
+                    q_by = {sym: quotes.get(sym) for sym in leg_syms}
+                    mark_day = today_dt.strftime("%Y-%m-%d")
+                else:                                 # beide Legs vom selben Handelstag
+                    m = _archived_mark(quotes, leg_syms, (entry_dt + timedelta(days=h)).strftime("%Y-%m-%d"))
+                    if not m:
+                        continue
+                    mark_day, recs = m
+                    q_by = dict(zip(leg_syms, recs))
+                q_long = q_by.get(long_leg.get("symbol"))
                 if not q_long:
                     continue
                 long_bid, long_mid_q = q_long.get("bid"), q_long.get("mid")
@@ -1769,7 +1977,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                     continue
 
                 if short_leg is not None:
-                    q_short = quotes.get(short_leg.get("symbol"))
+                    q_short = q_by.get(short_leg.get("symbol"))
                     if not q_short:
                         continue
                     short_ask, short_mid_q = q_short.get("ask"), q_short.get("mid")
@@ -1784,10 +1992,13 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             outcomes = row.setdefault("outcomes", {})
             outcomes[f"real_strat_ret_{h}d"]       = round(exit_conservative / net_debit_entry - 1.0, 4)
             outcomes[f"real_strat_ret_mid_{h}d"]   = round(exit_mid / net_mid_entry - 1.0, 4)
-            outcomes[f"real_strat_mark_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+            outcomes[f"real_strat_mark_date_{h}d"] = mark_day
+            if from_archive:
+                outcomes[f"real_strat_mark_source_{h}d"] = "archive_rth"
 
-            if (today_dt - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
-                row["late_mark"] = True
+            if (_parse_date(mark_day) - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
+                row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
+                outcomes[f"real_strat_late_{h}d"] = True                  # je Instrument/Horizont (Evidenz)
 
             changed = True
         except Exception as e:

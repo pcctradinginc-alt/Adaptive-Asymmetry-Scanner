@@ -44,6 +44,13 @@ jobs:
           NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
         run: python feedback.py
 
+      - name: Meta-Label-Lernzyklus (SHADOW; Produktionswirkung nur über Vertrag PROM-META-001)
+        # Neue Outcomes -> neues Modell (Purged/Embargo-Walk-Forward, Manifest, höchstens wöchentlich);
+        # zu wenige Labels -> NEED_MORE_DATA. Fehler -> letzte aktive Version bleibt (Adapter: meta_p_take None).
+        id: meta_label
+        continue-on-error: true
+        run: python -m modules.meta_label train
+
       - name: Challenger-Vorschläge registrieren (nach 10 Wochen Ledger)
         id: registrar
         continue-on-error: true
@@ -71,9 +78,32 @@ jobs:
         run: |
           bash scripts/ci_push.sh "chore: feedback loop $(date -u +%Y-%m-%dT%H:%M)" outputs/ challengers.yaml
 
+      # Nach einem Fehler nur das append-only Quote-Archiv sichern (Exit-Quotes sind Beobachtungen); halbfertige
+      # Zustände bleiben verworfen, der nächste Lauf rechnet sie neu.
+      - name: Commit Quote-Archiv nach Fehler
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: quote archive (Feedback-Fehler) $(date -u +%Y-%m-%dT%H:%M)" outputs/options_archive/
+
+      - name: Daten-Sicherung als Artefakt (nur nach Fehler)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: feedback-data-${{ github.run_id }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            outputs/options_archive/
+            outputs/candidate_ledger/
+            outputs/history.json
+            outputs/models/meta_label/
+            outputs/intelligence/
+
       - name: Stufen-Bilanz (zentrale Stufe ausgefallen -> Lauf rot, nach dem Commit)
         if: always()
         env:
           CRITICAL: "promotion_controller=${{ steps.promotion.outcome }} challenger_registrar=${{ steps.registrar.outcome }}"
-          DEGRADED: "abstention_proposals=${{ steps.abstention.outcome }}"
+          DEGRADED: "abstention_proposals=${{ steps.abstention.outcome }} meta_label=${{ steps.meta_label.outcome }}"
         run: bash scripts/ci_stage_check.sh

@@ -29,6 +29,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from modules.atomic_io import append_jsonl
+
 log = logging.getLogger(__name__)
 
 MEMORY_DIR = Path("outputs/research/prediction_memory")
@@ -60,9 +62,7 @@ def _append(events: list[dict], mem_dir: Path) -> None:
         month = (e.get("signal_date") or e.get("recorded_at") or "")[:7] or "unknown"
         by_month.setdefault(month, []).append(e)
     for month, es in by_month.items():
-        with open(mem_dir / f"{month}.jsonl", "a", encoding="utf-8") as fh:
-            for e in es:
-                fh.write(json.dumps(e, sort_keys=True, default=str) + "\n")
+        append_jsonl(mem_dir / f"{month}.jsonl", es, sort_keys=True, default=str)
 
 
 def record_predictions(rows: list[dict], mem_dir: Path = MEMORY_DIR) -> int:

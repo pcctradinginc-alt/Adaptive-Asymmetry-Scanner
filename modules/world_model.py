@@ -36,6 +36,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from modules.atomic_io import append_jsonl
+
 log = logging.getLogger(__name__)
 
 PROTOCOL_PATH = Path(__file__).resolve().parent.parent / "config" / "intelligence_protocol.yaml"
@@ -525,16 +527,17 @@ def run(panel: pd.DataFrame | None = None, validate_now: bool = True) -> dict:
                 have.add(json.loads(line)["date"])
             except (json.JSONDecodeError, KeyError):
                 log.warning("world_model: defekte Zeile im State-Log übersprungen")
-    with open(STATE_LOG, "a", encoding="utf-8") as fh:            # append-only, versioniert
-        for d, row in st.iterrows():
-            ds = str(d.date())
-            if ds in have:
-                continue
-            rec = {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in row.items()
-                   if not k.startswith("z_")}
-            rec.update(date=ds, version=WP["version"])
-            rec["state_hash"] = state_hash(rec)
-            fh.write(json.dumps(rec, default=str) + "\n")
+    new_rows = []
+    for d, row in st.iterrows():
+        ds = str(d.date())
+        if ds in have:
+            continue
+        rec = {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in row.items()
+               if not k.startswith("z_")}
+        rec.update(date=ds, version=WP["version"])
+        rec["state_hash"] = state_hash(rec)
+        new_rows.append(rec)
+    append_jsonl(STATE_LOG, new_rows, default=str)                # append-only, versioniert
     OUT_JSON.write_text(json.dumps(rep, indent=1, default=str, ensure_ascii=False))
     OUT_MD.write_text(render_md(rep), encoding="utf-8")
     return rep

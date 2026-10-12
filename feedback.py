@@ -22,7 +22,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -190,6 +190,15 @@ def _option_type_from_strategy(strategy: str) -> str:
     return "call"  # Default: Call (häufiger Fall)
 
 
+def _archive_exit_quote(raw: dict, ticker: str, source: str) -> None:
+    """Beobachtete Exit-/Mark-Quote dauerhaft archivieren (modules/option_quotes); bricht nie den Lern-Loop."""
+    try:
+        from modules import option_quotes as oq
+        oq.capture(raw, underlying=ticker, source=source, context="exit_mark")
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"Quote-Archiv Fehler (ignoriert): {e}")
+
+
 def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: str) -> dict | None:
     """Bid/Ask via Tradier /v1/markets/options/chains (Strike ± 0.01)."""
     try:
@@ -208,6 +217,7 @@ def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: 
             if abs(float(o.get("strike", 0)) - float(strike)) > 0.01:
                 continue
             bid, ask = float(o.get("bid") or 0), float(o.get("ask") or 0)
+            _archive_exit_quote(o, ticker, "tradier")
             if bid > 0 or ask > 0:
                 return {"bid": bid, "ask": ask, "source": "tradier"}
         return None
@@ -228,6 +238,11 @@ def _yfinance_option_quote(ticker: str, strike: float, expiry: str, option_type:
         if matches.empty:
             return None
         row = matches.iloc[0]
+        _archive_exit_quote({"symbol": row.get("contractSymbol"), "strike": strike, "expiry": expiry,
+                             "right": option_type, "bid": row.get("bid"), "ask": row.get("ask"),
+                             "last": row.get("lastPrice"), "volume": row.get("volume"),
+                             "open_interest": row.get("openInterest"), "iv": row.get("impliedVolatility"),
+                             "trade_date": row.get("lastTradeDate")}, ticker, "yfinance")
         return {"bid": float(row["bid"] or 0), "ask": float(row["ask"] or 0), "source": "yfinance"}
     except Exception as e:
         log.warning(f"yfinance Options-Preis Fehler für {ticker}: {e}")
@@ -235,6 +250,37 @@ def _yfinance_option_quote(ticker: str, strike: float, expiry: str, option_type:
 
 
 # ── Spread-Preis (beide Legs) ─────────────────────────────────────────────────
+
+def _is_expired(expiry: str | None, today=None) -> bool:
+    try:
+        return bool(expiry) and datetime.strptime(expiry, "%Y-%m-%d").date() < (today or datetime.utcnow().date())
+    except ValueError:
+        return False
+
+
+def _expiry_close(ticker: str, expiry_str: str) -> float | None:
+    """Offizieller, UNbereinigter Schlusskurs genau am Verfallstag (Settlement-Basis).
+    auto_adjust=False: dividendenbereinigte Kurse passen nicht zu den (unbereinigten) Strikes.
+    Liegt kein Balken exakt am Verfallstag vor (Feiertag, Datenlücke) -> None, nie der Folgetag."""
+    from modules.market_snapshot import unadjusted_close_on
+    return unadjusted_close_on(ticker, expiry_str)
+
+
+def _expired_option_intrinsic(ticker: str, option: dict, strategy: str) -> float | None:
+    """Intrinsic-Wert einer einzelnen Long-Option am Verfallstag (Settlement aus offiziellem Schluss)."""
+    try:
+        k = float(option.get("strike", 0))
+        if k <= 0 or not option.get("expiry"):
+            return None
+        close = _expiry_close(ticker, option["expiry"])
+        if close is None:
+            return None
+        put = _option_type_from_strategy(strategy) == "put"
+        return round(max(k - close, 0.0) if put else max(close - k, 0.0), 4)
+    except Exception as e:  # noqa: BLE001 – kein Settlement ermittelbar -> bisherige Logik
+        log.warning(f"    [{ticker}] Expired-Option Fehler: {e}")
+        return None
+
 
 def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
     """
@@ -255,13 +301,9 @@ def _expired_spread_intrinsic(ticker: str, option: dict) -> float | None:
         if width <= 0 or long_k <= 0:
             return None
 
-        expiry_dt = datetime.strptime(expiry_str, "%Y-%m-%d")
-        end_str   = (expiry_dt + timedelta(days=4)).strftime("%Y-%m-%d")
-        hist      = yf.Ticker(ticker).history(start=expiry_str, end=end_str, auto_adjust=True)
-        if hist.empty:
+        close = _expiry_close(ticker, expiry_str)   # unbereinigt, exakt am Verfallstag
+        if close is None:
             return None
-
-        close = float(hist["Close"].iloc[0])  # Schlusskurs am Verfallstag
 
         if is_put:     # vorher nur Bull-Call -> verfallene Put-Spreads fielen still aus
             intrinsic = round(min(max(long_k - close, 0.0), width), 4)
@@ -374,25 +416,15 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
     is_spread = "SPREAD" in strategy
 
     # ── Entry-Debit ermitteln ────────────────────────────────────────────────
-    entry_debit = float(trade.get("entry_debit") or 0)
-    if entry_debit <= 0:
-        if is_spread:
-            sl  = option.get("spread_leg") or {}
-            nd  = option.get("net_debit")
-            if nd:
-                entry_debit = float(nd)
-            else:
-                la = float(option.get("ask", 0))
-                sb = float(sl.get("bid", 0))
-                entry_debit = round(la - sb, 2) if la > 0 and sb > 0 else la
-        else:
-            entry_debit = float(option.get("ask", 0)) or float(option.get("last", 0))
+    from modules.outcomes import effective_entry_debit
+    entry_debit = effective_entry_debit(trade)          # eine Definition für Outcome und Bewertung
 
     # ── Spread: beide Legs repricing, kein Stock-Fallback ───────────────────
     if is_spread:
         if entry_debit <= 0:
             log.warning(f"    [{ticker}] Spread ohne Entry-Debit → Outcome nicht verwertbar")
             return None
+        expired = _is_expired(option.get("expiry"))
         current_spread = get_current_spread_price(ticker, option, strategy, detail=meta)
         if current_spread is None:
             # Preis wirklich nicht ermittelbar — nicht als 0.0 ins Training
@@ -401,7 +433,9 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
         # current_spread == 0.0 ist valide: Spread verfallen wertlos → -100%
         result = (current_spread - entry_debit) / entry_debit
         if meta is not None:
-            meta["method"] = "spread_quote"
+            # Verfallen: Settlement aus offiziellem Schluss (eigene Methode, nie als Quote ausgewiesen)
+            meta["method"] = "expiry_intrinsic" if expired else "spread_quote"
+            meta["price_type"] = "SETTLEMENT_INTRINSIC" if expired else "OBSERVED_QUOTE"
         log.info(
             f"    Spread-P&L: entry=${entry_debit:.2f} → "
             f"current=${current_spread:.2f} = {result:+.2%}"
@@ -414,6 +448,14 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
     if entry_stock > 0 and current_stock_price > 0:
         stock_return = (current_stock_price - entry_stock) / entry_stock
 
+    if entry_debit > 0 and _is_expired(option.get("expiry")):
+        intrinsic = _expired_option_intrinsic(ticker, option, strategy)
+        if intrinsic is not None:
+            result = (intrinsic - entry_debit) / entry_debit
+            if meta is not None:
+                meta["method"], meta["price_type"] = "expiry_intrinsic", "SETTLEMENT_INTRINSIC"
+            log.info(f"    Options-P&L (verfallen): entry=${entry_debit:.2f} → intrinsic=${intrinsic:.2f} = {result:+.2%}")
+            return result
     if entry_debit > 0:
         current_option = get_current_option_price(ticker, option, strategy)
         if current_option <= 0:
@@ -422,13 +464,13 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
                 # Quote vorhanden, aber kein Bid: realisierbar 0 -> -100 %,
                 # NICHT die (optimistische) Delta-Näherung.
                 if meta is not None:
-                    meta["method"] = "option_quote_bid_zero"
+                    meta["method"], meta["price_type"] = "option_quote_bid_zero", "OBSERVED_QUOTE"
                 log.info(f"    Options-P&L: entry=${entry_debit:.2f} → Bid 0 (realisierbar) = -100.00%")
                 return -1.0
         if current_option > 0:
             result = (current_option - entry_debit) / entry_debit
             if meta is not None:
-                meta["method"] = "option_quote"
+                meta["method"], meta["price_type"] = "option_quote", "OBSERVED_QUOTE"
             log.info(
                 f"    Options-P&L: entry=${entry_debit:.2f} → "
                 f"current=${current_option:.2f} = {result:+.2%}"
@@ -445,6 +487,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
             result   = max(-1.0, min(result, 5.0))   # Options: Max-Verlust=-100%, Cap=+500%
             # Record whether clipping was applied
             if meta is not None:
+                meta["price_type"] = "MODELED"                 # Näherung, nie Lern-/Evidenzbasis
                 if abs(unclipped_result - result) > 1e-6:
                     meta["method"] = "delta_approx_clipped"
                 else:
@@ -453,10 +496,13 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
             return result
 
     # ── Letzter Fallback: Stock-Return (nur wenn kein Debit bekannt) ─────────
+    # Richtungsbereinigt wie die Delta-Näherung oben: Put gewinnt, wenn die Aktie fällt (Re-Audit 2026-10-11 –
+    # vorher roh, ein steigender Kurs hätte bei einem Put Take-Profit statt Stop ausgelöst)
     if meta is not None:
-        meta["method"] = "stock_fallback"
-    log.info(f"    Stock-Return Fallback: {stock_return:+.2%}")
-    return stock_return
+        meta["method"], meta["price_type"] = "stock_fallback", "UNDERLYING_PROXY"
+    result = -stock_return if _option_type_from_strategy(strategy) == "put" else stock_return
+    log.info(f"    Stock-Return Fallback: {result:+.2%}")
+    return result
 
 
 # ── Regelbasierte Exits ───────────────────────────────────────────────────────
@@ -605,6 +651,11 @@ def evaluate_shadow_trades(history: dict, today: datetime, ledger_dir: Path | No
         if not lg:
             continue
         st["outcome"], st["outcome_method"], st["close_date"] = lg["outcome"], lg["outcome_method"], lg["close_date"]
+        if lg.get("outcome_method") not in RELIABLE_OUTCOME_METHODS:
+            # wie learn_on_close: Näherungen (Aktien-Fallback, Delta-Approx) werden gezeigt, aber nie gelernt –
+            # sonst mischt feature_stats_external Options-P&L mit Aktienrenditen
+            log.info(f"  [SHADOW {st['ticker']}] Outcome {lg['outcome']:+.2%} ({lg.get('outcome_method')}) – nicht gelernt")
+            continue
         try:
             from modules import learning_ledger as _ll
             _ll.consume(history, f"shadow:{sl.shadow_id(st)}", legacy_h, "feature_stats_external",
@@ -658,8 +709,10 @@ def archive_shadow_trades(dropped: list[dict], path: Path | None = None, ledger_
 # Haltedauer, Outcome-Methode), aber OHNE Lern-Updates (keine Bins, kein RL,
 # kein closed_trades-Eintrag). Nur so ist "blockiert vs. durchgelassen" fair.
 
-def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None) -> int:
+def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None, now: datetime | None = None) -> int:
+    from modules import timing_policy as tp
     price_fn = price_fn or get_current_price
+    now = now or datetime.now(timezone.utc)
     open_cf = history.get("counterfactual_trades") or []
     still, closed = [], 0
     for t in open_cf:
@@ -679,6 +732,12 @@ def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None)
         t["peak_return"] = round(max(float(t.get("peak_return") or outcome), outcome), 4)
         reason = check_exit_rules(t, outcome, today)
         if reason or (today - entry_dt).days >= cfg.learning.close_after_days:
+            if tp.policy_of(t) == tp.V2:                 # gleiche Timing-Policy wie echte Trades (fairer Vergleich)
+                t.update(close_time=now.isoformat(timespec="seconds"), close_date=today.strftime("%Y-%m-%d"),
+                         close_price=current, close_reason=reason or "max_holding_period", outcome=None,
+                         outcome_at_decision=round(outcome, 4), outcome_method_at_decision=meta.get("method", "unknown"))
+                closed += close_v2(history, t, now, kind="counterfactual") == "CLOSED"
+                continue
             t.update(outcome=round(outcome, 4), close_date=today.strftime("%Y-%m-%d"), close_price=current,
                      close_reason=reason or "max_holding_period", outcome_method=meta.get("method", "unknown"))
             history.setdefault("counterfactual_closed", []).append(t)
@@ -940,6 +999,100 @@ def update_feature_stats_external(history: dict, trade: dict) -> None:
         _update_external_bucket(dim_bucket, key, outcome, strat_ret)
 
 
+TRADE_OUTCOMES_PATH = Path("outputs/options_archive/trade_outcomes.jsonl")
+COST_MODEL_VERSION = "cost-v1-commission-per-contract-side"
+
+
+def record_trade_outcome(trade: dict, outcome: float, meta: dict, now: datetime | None = None,
+                         path: Path | None = None, *, entry_quotes: list | None = None,
+                         exit_quotes: list | None = None) -> dict | None:
+    """Reproduzierbarer Options-Outcome je geschlossenem Trade (Evidence Engine, append-only, je trade_id einmal):
+    Kontrakt-Identität, Entry-Quote-IDs (beim Booking archiviert), Exit-Quote-IDs (jüngste archivierte Quote zum
+    Schlusszeitpunkt, PIT), Methode/Preistyp, explizites Kostenmodell (Kommission je Kontrakt und Seite, wie im
+    ROI-Gate) -> outcome (brutto, nach Bid/Ask-Kreuzung) und outcome_net (nach Kommission). Setzt
+    trade["outcome_net"] und trade["cost_model"]. Bricht den Lern-Loop nie."""
+    try:
+        from modules import learning_ledger as _ll
+        from modules import option_quotes as oq
+        from modules.atomic_io import append_jsonl, read_jsonl
+        now = now or datetime.now(timezone.utc)
+        path = path or (Path(oq.ROOT).parent / TRADE_OUTCOMES_PATH.name)   # neben dem Quote-Archiv
+        opt = trade.get("option") or {}
+        strategy = str(trade.get("strategy") or "")
+        right = _option_type_from_strategy(strategy)
+        legs = [opt] + ([opt["spread_leg"]] if opt.get("spread_leg") else [])
+        syms = []
+        for leg in legs:
+            sym = leg.get("option_symbol") or leg.get("symbol")
+            if not sym:
+                try:
+                    sym = oq.occ_symbol(trade.get("ticker"), leg.get("expiry") or opt.get("expiry"), right,
+                                        float(leg.get("strike")))
+                except (TypeError, ValueError):
+                    sym = None
+            syms.append(sym)
+        if exit_quotes is not None:                      # timing-v2: die tatsächlich zulässigen Fill-Quotes
+            exit_q = list(exit_quotes) + [None] * max(0, len(legs) - len(exit_quotes))
+            exit_ids = [q.get("record_id") if q else None for q in exit_q]
+        else:
+            exit_ids, exit_q = [], []
+            for sym in syms:
+                q = oq.latest_quote(sym, now, lookback_days=1) if sym else None
+                exit_ids.append(q["record_id"] if q else None)
+                exit_q.append(q)
+        if entry_quotes is not None:
+            entry_q = list(entry_quotes) + [None] * max(0, len(legs) - len(entry_quotes))
+        else:
+            # Entry-Quotes je Leg aus dem Archiv (IDs beim Booking gesetzt; fehlend -> None = nicht archiviert)
+            e_ids = list(trade.get("entry_quote_record_ids") or [])
+            e_day = str(trade.get("entry_date") or "")[:10]
+            found = {}
+            if e_ids and e_day:
+                d0 = datetime.strptime(e_day, "%Y-%m-%d").date()
+                found = oq.by_ids(e_ids, (d0 - timedelta(days=1)).isoformat(), (d0 + timedelta(days=1)).isoformat())
+            entry_q = [found.get(i) for i in e_ids] + [None] * max(0, len(legs) - len(e_ids))
+        from modules.outcomes import trade_evaluation
+        evaluation = trade_evaluation({**trade, "outcome": outcome}, price_type=meta.get("price_type"),
+                                      entry_quotes=entry_q[:len(legs)], exit_quotes=exit_q)
+        trade["outcome_evaluation"] = evaluation
+        from modules.outcomes import effective_entry_debit
+        debit = _economic_entry_price(trade) or effective_entry_debit(trade)
+        per_contract = float(getattr(getattr(cfg, "costs", None), "commission_per_contract", 0.65))
+        cost_ret = (per_contract * len(legs) * 2) / (debit * 100) if debit > 0 else None
+        net = round(outcome - cost_ret, 6) if cost_ret is not None else None
+        cost_model = {"version": COST_MODEL_VERSION, "commission_per_contract_side": per_contract,
+                      "legs": len(legs), "sides": 2, "multiplier": 100, "cost_return": round(cost_ret, 6)
+                      if cost_ret is not None else None,
+                      "note": "Bid/Ask-Kreuzung bereits im Brutto-Outcome (Entry Ask, Exit Bid); keine OCC-/Börsengebühren"}
+        trade["outcome_net"], trade["cost_model"] = net, cost_model
+        tid = _ll.trade_id(trade)
+        if any(r.get("trade_id") == tid for r in read_jsonl(path)):
+            return None
+        rec = {"schema": "trade-outcome-v1", "trade_id": tid, "ticker": trade.get("ticker"), "strategy": strategy,
+               "entry_date": trade.get("entry_date"), "close_date": trade.get("close_date"),
+               "close_reason": trade.get("close_reason"), "occ_symbols": syms,
+               "entry_debit": debit or None,
+               "entry_quote_record_ids": [q.get("record_id") for q in entry_q if q] if entry_quotes is not None
+               else trade.get("entry_quote_record_ids") or [],
+               "exit_quote_record_ids": exit_ids, "outcome": round(outcome, 6), "outcome_net": net,
+               "outcome_method": meta.get("method"), "price_type": meta.get("price_type"),
+               "reliable": meta.get("method") in RELIABLE_OUTCOME_METHODS and evaluation["status"] == "OK",
+               "evaluation": evaluation, "cost_model": cost_model,
+               "recorded_at": now.isoformat(timespec="seconds")}
+        append_jsonl(path, [rec], sort_keys=True, ensure_ascii=False)
+        return rec
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"  [{trade.get('ticker')}] Trade-Outcome-Record Fehler (ignoriert): {type(e).__name__}: {e}")
+        return None
+
+
+def learnable_on_close(trade: dict, meta: dict) -> bool:
+    """Lernbar nur, wenn die Preismethode verlässlich ist UND die Bewertung (trade-eval-v1: Debit, Entry-/Exit-Quote,
+    Preistyp) OK ergibt. Fehlt die Bewertung (z. B. Fehler im Outcome-Record) -> nicht lernbar (konservativ)."""
+    return meta.get("method") in RELIABLE_OUTCOME_METHODS and \
+        (trade.get("outcome_evaluation") or {}).get("status") == "OK"
+
+
 def learn_on_close(history: dict, trade: dict, outcome: float, reliable: bool) -> dict:
     """Inkrementelle Lern-Updates beim Trade-Close – je (Trade, "close", Lernziel) genau einmal
     (modules/learning_ledger). Nur verlässliche Outcomes (echte Quotes) werden gelernt; Näherungen werden
@@ -965,6 +1118,96 @@ def learn_on_close(history: dict, trade: dict, outcome: float, reliable: bool) -
     except Exception as e:  # noqa: BLE001 – Observability-Statistik bricht den Lern-Loop nie (zurückgesetzt)
         log.warning(f"  [{trade.get('ticker')}] feature_stats_external-Update Fehler (ignoriert): {e}")
     return done
+
+
+# ── Timing-Policy (config/timing_policy.yaml, modules/timing_policy) ─────────
+# Die Champion-Entscheidung (Exit-Regeln, Zeitpunkt) bleibt unverändert. Für timing-v2-Trades entsteht das
+# wirtschaftliche Outcome erst zu einer zulässigen Optionsquote (nie nachbörslich, nie veraltet, nie Basiswert-
+# oder Modellpreis): bis dahin liegt der Trade in exit_pending_trades, ohne zulässige Quote endet er in
+# closed_trades_unusable (Grund im Feld timing). Altbestand (timing-v1) läuft unverändert.
+TIMING_LISTS = {"champion": ("exit_pending_trades", "closed_trades", "closed_trades_unusable"),
+                "counterfactual": ("counterfactual_exit_pending", "counterfactual_closed", "counterfactual_unusable")}
+
+
+def _market_open_day(now: datetime) -> bool:
+    """NYSE-Handelstag am New-York-Datum von `now` (Feiertage, Sonderschließungen; Kalender market_snapshot)."""
+    from modules import market_snapshot as ms
+    t = now if now.tzinfo else now.replace(tzinfo=timezone.utc)
+    return ms.is_trading_day(t.astimezone(ms.NY_TZ).date())
+
+
+def _economic_entry_price(trade: dict) -> float | None:
+    """timing-v2: Entry-Preis des zulässigen Fills (sonst None -> bisheriger entry_debit)."""
+    from modules import timing_policy as tp
+    if tp.policy_of(trade) != tp.V2:
+        return None
+    v = ((trade.get("timing") or {}).get("entry") or {}).get("price")
+    return float(v) if isinstance(v, (int, float)) and v > 0 else None
+
+
+def _finalize_v2(history: dict, trade: dict, block: dict, e_recs: list, x_recs: list, *, kind: str) -> str:
+    """Abschluss nach der Timing-Bewertung: OK -> geschlossen mit dem zulässigen Outcome (Champion: Outcome-Record +
+    Lernen je Trade genau einmal), UNUSABLE -> eigene Liste ohne Outcome, PENDING -> wartet. -> Status."""
+    _pending, closed_key, unusable_key = TIMING_LISTS[kind]
+    trade["timing"] = block
+    if block["status"] == "PENDING":
+        return "PENDING"
+    if block["status"] != "OK":
+        trade["outcome"] = None
+        history.setdefault(unusable_key, []).append(trade)
+        log.warning(f"  [{trade.get('ticker')}] timing-v2: kein zulässiger Preis -> UNUSABLE {block.get('reasons')}")
+        return "UNUSABLE"
+    outcome = float(block["outcome"])
+    trade["outcome"] = round(outcome, 4)
+    trade["outcome_method"], trade["outcome_price_type"] = block["method"], block["price_type"]
+    trade["exit_fill_time"] = (block.get("exit") or {}).get("time")
+    if kind == "champion":
+        meta = {"method": block["method"], "price_type": block["price_type"]}
+        # Listen immer übergeben (auch leer): Settlement hat KEINE Exit-Quote -> nie die jüngste Archiv-Quote eintragen
+        record_trade_outcome(trade, outcome, meta, entry_quotes=list(e_recs), exit_quotes=list(x_recs))
+        reliable = learnable_on_close(trade, meta)
+        trade["outcome_reliable"] = reliable
+        learn_on_close(history, trade, outcome, reliable)        # je Trade genau einmal (learning_ledger)
+    history.setdefault(closed_key, []).append(trade)
+    log.info(f"  [{trade.get('ticker')}] timing-v2 ausgeführt: Outcome={outcome:+.2%} ({block['method']}, "
+             f"Exit {trade['exit_fill_time']})")
+    return "CLOSED"
+
+
+def close_v2(history: dict, trade: dict, now: datetime, *, kind: str) -> str:
+    """Exit-Entscheid eines timing-v2-Trades verbuchen (close_time ist gesetzt): sofort ausführbar -> geschlossen,
+    sonst exit_pending (bzw. UNUSABLE). Wirft nie."""
+    from modules import timing_policy as tp
+    block, e_recs, x_recs = tp.evaluate(trade, now)
+    status = _finalize_v2(history, trade, block, e_recs, x_recs, kind=kind)
+    if status == "PENDING":
+        history.setdefault(TIMING_LISTS[kind][0], []).append(trade)
+        log.info(f"  [{trade.get('ticker')}] timing-v2: Exit-Entscheid {trade.get('close_time')} -> Ausführung "
+                 f"ausstehend {block.get('reasons')}")
+    return status
+
+
+def resolve_pending_exits(history: dict, now: datetime) -> dict:
+    """Ausstehende timing-v2-Exits erneut bewerten (auch an geschlossenen Tagen: nur vorhandene, zulässige Quotes aus
+    dem Archiv, nie übernommene Vortagesquotes). Idempotent. -> {kind: {CLOSED, UNUSABLE, PENDING}}."""
+    from modules import timing_policy as tp
+    out = {}
+    for kind, (pending_key, _c, _u) in TIMING_LISTS.items():
+        cnt = {"CLOSED": 0, "UNUSABLE": 0, "PENDING": 0}
+        still = []
+        for t in history.get(pending_key) or []:
+            try:
+                block, e_recs, x_recs = tp.evaluate(t, now)
+                st = _finalize_v2(history, t, block, e_recs, x_recs, kind=kind)
+            except Exception as e:  # noqa: BLE001 – ein defekter Eintrag blockiert die anderen nie
+                log.warning(f"  [{t.get('ticker')}] timing-v2-Auflösung Fehler (bleibt ausstehend): {e}")
+                st = "PENDING"
+            cnt[st] += 1
+            if st == "PENDING":
+                still.append(t)
+        history[pending_key] = still
+        out[kind] = cnt
+    return out
 
 
 # ── RL-Training ───────────────────────────────────────────────────────────────
@@ -1135,10 +1378,31 @@ def main() -> None:
 
     exit_alerts: list[dict] = []
 
+    # Timing-Policy (config/timing_policy.yaml): an NYSE-geschlossenen Tagen keine kursbasierte Exit-Prüfung und kein
+    # neuer Markt-Outcome aus übernommenen Vortagesquotes; vorhandene Daten und Berichte laufen weiter.
+    from modules import timing_policy as _tp
+    now_utc = datetime.now(timezone.utc)
+    market_open = _market_open_day(now_utc)
+    if not market_open:
+        log.info("NYSE geschlossen (Kalender) -> keine kursbasierte Exit-Prüfung, keine neuen Markt-Outcomes; "
+                 "ausstehende Exits nur aus vorhandenen zulässigen Quotes")
+    try:
+        _res = resolve_pending_exits(history, now_utc)
+        newly_closed += _res["champion"]["CLOSED"]
+        if any(sum(v.values()) for v in _res.values()):
+            log.info(f"  timing-v2 ausstehende Exits: {_res}")
+    except Exception as e:  # noqa: BLE001 – Auflösung bricht den Lauf nie (Einträge bleiben ausstehend)
+        log.error(f"timing-v2-Auflösung Fehler: {e}")
+
     for trade in active:
         ticker     = trade["ticker"]
+        if not market_open:
+            still_active.append(trade)
+            continue
         entry_date = datetime.strptime(trade["entry_date"][:10], "%Y-%m-%d")
         age_days   = (today - entry_date).days
+        if _tp.policy_of(trade) == _tp.V2:          # Entry-Status (informativ; Entscheidungen unverändert)
+            trade["timing"] = _tp.evaluate(trade, now_utc)[0]
 
         # exit_sim: Multi-Variant-Counterfactual anlegen (idempotent, rein simulativ,
         # läuft unabhängig vom echten Trade-Close weiter — siehe evaluate_exit_sims).
@@ -1187,7 +1451,9 @@ def main() -> None:
             # Bins/Gewichte; sie werden geschlossen und gekennzeichnet, aber nicht gelernt.
             reliable = meta.get("method") in RELIABLE_OUTCOME_METHODS
             trade["outcome_reliable"] = reliable
-            if _ll.already_closed(history, trade):
+            _tid = _ll.trade_id(trade)
+            if _ll.already_closed(history, trade) or any(
+                    _ll.trade_id(x) == _tid for x in history.get("exit_pending_trades") or []):
                 # derselbe Trade (doppelter active_trades-Eintrag) wurde schon geschlossen und gelernt
                 log.warning(f"  [{ticker}] bereits geschlossen (Duplikat) -> Quarantäne, kein Lern-Update")
                 history.setdefault("closed_trades_quarantine", []).append(
@@ -1195,12 +1461,36 @@ def main() -> None:
                      "_quarantine": {"reason": "duplicate_close", "trade_id": _ll.trade_id(trade),
                                      "quarantined_at": today.strftime("%Y-%m-%d")}})
                 continue
+            if _tp.policy_of(trade) == _tp.V2:
+                # Exit-ENTSCHEID wie bisher; wirtschaftliches Outcome erst zu einer zulässigen Quote (timing-v2)
+                trade.update(close_time=now_utc.isoformat(timespec="seconds"), close_date=today.strftime("%Y-%m-%d"),
+                             close_price=current, close_reason=exit_reason or "max_holding_period",
+                             outcome=None, outcome_at_decision=round(outcome, 4),
+                             outcome_method_at_decision=meta.get("method", "unknown"))
+                _spread_execution_exit(trade, _spread_obs, today)
+                _st = close_v2(history, trade, now_utc, kind="champion")
+                newly_closed += _st == "CLOSED"
+                log.info(f"  [{ticker}] Exit-Entscheid ({trade['close_reason']}, Return zum Entscheid "
+                         f"{outcome:+.2%}) -> timing-v2 {_st}")
+                if trade["close_reason"] == "take_profit":
+                    register_trailing_sim(history, {**trade, "outcome": outcome}, today)
+                continue
             trade["outcome"]        = round(outcome, 4)
             trade["close_date"]     = today.strftime("%Y-%m-%d")
             trade["close_price"]    = current
             trade["close_reason"]   = exit_reason or "max_holding_period"
             trade["outcome_method"] = meta.get("method", "unknown")
+            trade["outcome_price_type"] = meta.get("price_type")     # OBSERVED_QUOTE | SETTLEMENT_INTRINSIC | MODELED | …
             _spread_execution_exit(trade, _spread_obs, today)
+            record_trade_outcome(trade, outcome, meta)
+            # Lernen nur, wenn die Methode verlässlich ist UND die Bewertung (Entry-/Exit-Quotes, Debit, Preistyp)
+            # OK ergibt – ein Datenfehler fließt nie unbemerkt in Bins/Gewichte/RL (2026-10-11)
+            _ev = trade.get("outcome_evaluation") or {}
+            if reliable and not learnable_on_close(trade, meta):
+                reliable = False
+                trade["outcome_reliable"] = False
+                log.warning(f"  [{ticker}] Outcome nicht lernbar: Bewertung {_ev.get('status') or 'FEHLT'} "
+                            f"{_ev.get('reasons') or ''}")
             learn_on_close(history, trade, outcome, reliable)
             history.setdefault("closed_trades", []).append(trade)
             log.info(
@@ -1219,7 +1509,12 @@ def main() -> None:
     history["model_weights"] = compute_pearson_weights(history)
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
-    evaluate_shadow_trades(history, today)
+    try:
+        evaluate_shadow_trades(history, today)
+    except Exception as e:  # noqa: BLE001 – Teilausfall (z. B. ShadowIntegrityError) darf weder save_history
+        # noch die späteren Resolver (Candidate-Ledger, Final-MC, V2, EA) verhindern; sichtbar als ERROR
+        log.error(f"Schatten-Trade-Auswertung Fehler (Lauf fortgesetzt, nichts gespeichert für Schatten): "
+                  f"{type(e).__name__}: {e}")
     # UNIVERSE_V2-Kandidaten: theoretische + realistische Netto-Outcomes (append-only, eigene Datei)
     try:
         from modules import universe_v2_ledger
@@ -1251,20 +1546,22 @@ def main() -> None:
     except Exception as e:  # noqa: BLE001 – Messung darf den Feedback-Lauf nie brechen
         log.warning(f"Expectation-Alpha-Outcomes Fehler (ignoriert): {e}")
 
-    # Von der Intelligence blockierte Champion-Trades counterfactual fortführen
+    # Von der Intelligence blockierte Champion-Trades counterfactual fortführen (kursbasiert -> nur an Handelstagen)
     try:
-        n_cf = advance_counterfactual_trades(history, today)
+        n_cf = advance_counterfactual_trades(history, today, now=now_utc) if market_open else 0
         if n_cf:
             log.info(f"  {n_cf} counterfactual (blockierte) Trade(s) geschlossen")
     except Exception as e:  # noqa: BLE001 – darf den Lern-Loop nie brechen
         log.error(f"Counterfactual-Fortführung Fehler: {e}")
 
-    # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen)
-    evaluate_trailing_sims(history, today)
+    # Trailing-Paralleltest fortführen (virtuelle TP-Weiterführungen; kursbasiert -> nur an Handelstagen)
+    if market_open:
+        evaluate_trailing_sims(history, today)
 
-    # Multi-Variant Exit-Counterfactual fortführen (pure Simulation, kein Trade-Impact)
+    # Multi-Variant Exit-Counterfactual fortführen (pure Simulation, kein Trade-Impact; nur an Handelstagen)
     try:
-        evaluate_exit_sims(history, today)
+        if market_open:
+            evaluate_exit_sims(history, today)
         summary = summarize_exit_sim(history)
         for key, stats_row in summary.items():
             if "note" in stats_row:

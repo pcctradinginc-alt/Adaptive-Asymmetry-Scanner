@@ -26,6 +26,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from modules.atomic_io import append_jsonl
+
 MEMORY = Path("outputs/research/research_memory.jsonl")
 DIRECTIONS = Path("outputs/research/research_directions.json")
 SOURCES = {
@@ -203,10 +205,7 @@ def sync(path: Path | None = None, sources: dict | None = None, now: str | None 
     seen = {e["entry_key"] for e in load(path)}
     new = [e for e in collect(sources) if e["entry_key"] not in seen]
     if new:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "a", encoding="utf-8") as fh:
-            for e in new:
-                fh.write(json.dumps({**e, "recorded_at": now}, ensure_ascii=False, sort_keys=True, default=str) + "\n")
+        append_jsonl(path, [{**e, "recorded_at": now} for e in new], ensure_ascii=False, sort_keys=True, default=str)
     return len(new)
 
 

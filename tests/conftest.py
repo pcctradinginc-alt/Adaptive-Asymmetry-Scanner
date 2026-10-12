@@ -33,6 +33,13 @@ def _isolate_cost_telemetry(tmp_path_factory, monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def _isolate_option_quote_archive(tmp_path_factory, monkeypatch):
+    """Quote-Hooks in Pipeline/Feedback/Marks schreiben in Tests nie nach outputs/options_archive/."""
+    from modules import option_quotes as oq
+    monkeypatch.setattr(oq, "ROOT", tmp_path_factory.mktemp("option_quotes"))
+
+
+@pytest.fixture(autouse=True)
 def _isolate_request_cache():
     """Prozess-lokaler Request-Cache (modules/request_cache.py) darf keine Antworten zwischen Tests teilen."""
     from modules import request_cache as rc

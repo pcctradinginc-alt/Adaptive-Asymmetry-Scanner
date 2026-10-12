@@ -31,6 +31,8 @@ NYSE-Feiertage und Early-Closes werden über eine regel-basierte Kalender
 import logging
 import os
 from datetime import datetime, time as dt_time, timezone, date, timedelta
+from functools import lru_cache
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import requests
@@ -50,6 +52,51 @@ EARLY_CLOSE  = dt_time(13, 0)
 
 
 # ── NYSE-Kalender (rule-based, pure functions, stdlib only) ──────────────────
+# Einzige Kalenderquelle des Repos (Scanner-Guard, Options-Capture, Marks, option_quotes.session_of, Monitoring).
+# Außerplanmäßige Schließungen/verkürzte Sitzungen kommen aus config/market_calendar.yaml.
+
+CALENDAR_OVERRIDES = Path(__file__).resolve().parent.parent / "config" / "market_calendar.yaml"   # nie cwd-abhängig
+
+
+def _clock(v) -> dt_time:
+    """'HH:MM' oder (PyYAML 1.1 liest unquotiertes 13:00 sexagesimal) Minuten seit Mitternacht -> time."""
+    if isinstance(v, int) and not isinstance(v, bool):
+        return dt_time(v // 60, v % 60)
+    h, m = (int(x) for x in str(v).split(":"))
+    return dt_time(h, m)
+
+
+@lru_cache(maxsize=4)
+def _calendar_overrides(path: str | None = None) -> tuple[frozenset, dict]:
+    """(Schließtage, {verkürzter Tag: Schlusszeit}) aus der Config. Fehlt/defekt -> leer (nur Regelkalender,
+    Warnung); ein einzelner unlesbarer Eintrag verwirft nur sich selbst, nie die übrigen."""
+    p = Path(path) if path else CALENDAR_OVERRIDES
+    try:
+        if not p.exists():
+            log.warning(f"market_snapshot: {p} fehlt – nur Regelkalender (Sonderschließungen unberücksichtigt)")
+            return frozenset(), {}
+        import yaml
+        doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        if not isinstance(doc, dict):
+            raise ValueError("kein Mapping")
+    except Exception as e:  # noqa: BLE001 – defekte Config darf den Regelkalender nie abschalten
+        log.warning(f"market_snapshot: {p} nicht lesbar ({type(e).__name__}: {e}) – nur Regelkalender")
+        return frozenset(), {}
+    closures, early = set(), {}
+    raw_closures = doc.get("closures") or []
+    for d in (raw_closures if isinstance(raw_closures, list) else []):
+        try:
+            closures.add(date.fromisoformat(str(d)[:10]))
+        except (TypeError, ValueError) as e:
+            log.warning(f"market_snapshot: Schließtag {d!r} in {p} ignoriert ({e})")
+    raw_early = doc.get("early_closes") or {}
+    for d, hhmm in (raw_early.items() if isinstance(raw_early, dict) else []):
+        try:
+            early[date.fromisoformat(str(d)[:10])] = _clock(hhmm)
+        except (TypeError, ValueError) as e:
+            log.warning(f"market_snapshot: verkürzte Sitzung {d!r}: {hhmm!r} in {p} ignoriert ({e})")
+    return frozenset(closures), early
+
 
 def _easter_date(year: int) -> date:
     """
@@ -227,6 +274,8 @@ def nyse_holidays(year: int) -> set[date]:
     else:
         holidays.add(christmas)
 
+    # Außerplanmäßige Schließungen (Staatstrauer, Notfälle) aus config/market_calendar.yaml
+    holidays |= {d for d in _calendar_overrides()[0] if d.year == year}
     return holidays
 
 
@@ -257,6 +306,8 @@ def nyse_early_closes(year: int) -> set[date]:
     if christmas_eve.weekday() < 5 and christmas_eve not in holidays:  # weekday and not a holiday
         early_closes.add(christmas_eve)
 
+    # Zusätzliche verkürzte Sitzungen aus der Config (nie an Schließtagen)
+    early_closes |= {d for d in _calendar_overrides()[1] if d.year == year and d not in holidays}
     return early_closes
 
 
@@ -279,8 +330,44 @@ def market_close_time(d: date) -> dt_time:
     """
     year = d.year
     if d in nyse_early_closes(year):
-        return EARLY_CLOSE
+        return _calendar_overrides()[1].get(d, EARLY_CLOSE)
     return MARKET_CLOSE
+
+
+@lru_cache(maxsize=4)
+def _instrument_sessions(path: str | None = None) -> tuple[frozenset, int]:
+    """(Optionswurzeln mit späterem Schluss, Minuten) aus config/market_calendar.yaml; fehlt/defekt -> keine
+    (konservativ: alle Optionen schließen wie Aktienoptionen)."""
+    p = Path(path) if path else CALENDAR_OVERRIDES
+    try:
+        import yaml
+        doc = (yaml.safe_load(p.read_text(encoding="utf-8")) or {}) if p.exists() else {}
+        sec = doc.get("instrument_sessions") or {} if isinstance(doc, dict) else {}
+        roots = frozenset(str(r).strip().upper() for r in (sec.get("late_close_roots") or []) if str(r).strip())
+        return roots, int(sec.get("late_close_minutes") or 0)
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"market_snapshot: Instrument-Sessions aus {p} nicht lesbar ({type(e).__name__}: {e}) – Standard")
+        return frozenset(), 0
+
+
+def option_close_time(d: date, root: str | None = None) -> dt_time:
+    """Schlusszeit (New York) der Optionsklasse am Tag d: Aktienoptionen = market_close_time(d); konfigurierte
+    Wurzeln (z. B. SPY, SPX: 16:15 bzw. 13:15 ET an verkürzten Tagen) entsprechend später."""
+    base = market_close_time(d)
+    roots, minutes = _instrument_sessions()
+    if root and minutes and str(root).upper() in roots:
+        return (datetime.combine(d, base) + timedelta(minutes=minutes)).time()
+    return base
+
+
+def regular_session_utc(d: date, root: str | None = None) -> tuple[datetime, datetime] | None:
+    """(Eröffnung, Schluss) der regulären Sitzung am NY-Kalendertag d in UTC (DST über zoneinfo), optional für eine
+    Optionswurzel (instrumentenspezifischer Schluss); None an Wochenenden, Feiertagen und Sonderschließungen."""
+    if not is_trading_day(d):
+        return None
+    o = datetime.combine(d, MARKET_OPEN, tzinfo=NY_TZ).astimezone(timezone.utc)
+    c = datetime.combine(d, option_close_time(d, root), tzinfo=NY_TZ).astimezone(timezone.utc)
+    return o, c
 
 
 def next_trading_day(d: date) -> date:
@@ -544,6 +631,7 @@ def select_contract(ticker: str, direction: str, dte_floor: int, spot: float) ->
                 return float("inf")
 
         best   = min(candidates, key=_dist)
+        _archive_quote(best, ticker, "candidate_entry")
         greeks = best.get("greeks") or {}
         iv     = greeks.get("mid_iv") or greeks.get("smv_vol")
         iv     = float(iv) if isinstance(iv, (int, float)) and iv > 0 else None
@@ -601,6 +689,7 @@ def select_spread_short_leg(
             return None
 
         best = min(candidates, key=lambda o: abs(float(o.get("strike", 0)) - target_strike))
+        _archive_quote(best, ticker, "candidate_entry")
         bid = _f(best.get("bid"))
         ask = _f(best.get("ask"))
         mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
@@ -678,7 +767,17 @@ def fetch_term_iv_point(ticker: str, spot: float, min_dte: int = 7) -> tuple | N
         return None
 
 
-def fetch_option_quotes(symbols: list[str]) -> dict:
+def _archive_quote(raw: dict, underlying: str, context: str) -> str | None:
+    """Beobachtete Tradier-Quote dauerhaft archivieren (modules/option_quotes); bricht nie den Aufrufer."""
+    try:
+        from modules import option_quotes as oq
+        return oq.capture(raw, underlying=underlying or "", source="tradier", context=context)
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"market_snapshot: Quote-Archiv Fehler (ignoriert): {e}")
+        return None
+
+
+def fetch_option_quotes(symbols: list[str], context: str = "candidate_mark") -> dict:
     """
     Gebündelter Tradier-Quote-Abruf für OCC-Options-Symbole (für
     real_opt_ret-Marks in candidate_ledger.update_outcomes). Ohne
@@ -696,6 +795,7 @@ def fetch_option_quotes(symbols: list[str]) -> dict:
                 sym = q.get("symbol")
                 if not sym:
                     continue
+                _archive_quote(q, q.get("underlying") or q.get("root_symbol") or "", context)
                 bid = _f(q.get("bid"))
                 ask = _f(q.get("ask"))
                 mid = round((bid + ask) / 2, 4) if (bid is not None and ask is not None) else None
@@ -706,3 +806,25 @@ def fetch_option_quotes(symbols: list[str]) -> dict:
         except Exception as e:
             log.debug(f"market_snapshot.fetch_option_quotes Fehler (ignoriert): {e}")
     return out
+
+
+def unadjusted_close_on(ticker: str, day) -> float | None:
+    """Offizieller, UNbereinigter Schlusskurs GENAU an `day` (Settlement-Basis verfallener Optionen).
+    auto_adjust=False: dividendenbereinigte Kurse passen nicht zu den (unbereinigten) Strikes. Kein Balken exakt an
+    diesem Tag (Feiertag, Datenlücke) -> None, nie der Vor- oder Folgetag. Gemeinsame Quelle für feedback.py und
+    candidate_ledger (vorher zwei Varianten, eine davon bereinigt und "am oder vor")."""
+    try:
+        import yfinance as yf
+        d = day.date() if isinstance(day, datetime) else day if isinstance(day, date) else date.fromisoformat(str(day)[:10])
+        hist = yf.Ticker(ticker).history(start=d.isoformat(), end=(d + timedelta(days=4)).isoformat(),
+                                         auto_adjust=False)
+        if hist is None or hist.empty:
+            return None
+        idx = [x for x in hist.index if getattr(x, "date", lambda: x)() == d]
+        if not idx:
+            return None
+        close = float(hist.loc[idx[0], "Close"])
+        return close if close > 0 else None
+    except Exception as e:  # noqa: BLE001 – kein Settlement ermittelbar -> None (Aufrufer markiert nicht)
+        log.warning(f"market_snapshot.unadjusted_close_on [{ticker} {day}]: {type(e).__name__}: {e}")
+        return None

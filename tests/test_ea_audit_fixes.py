@@ -145,3 +145,107 @@ def test_e2e_report_and_mail_values_equal_ledger(tmp_path, data):
     assert "SHADOW" in html and "keine Handelsempfehlung" in html
     assert f"Shadow-TRADE {by[TRADE]}" in html and f"ABSTAIN {by[ABSTAIN]}" in html and f"ERROR {by[ERROR]}" in html
     assert not any(t in html for t in ("AAPL", "XOM", "ZZZ"))            # nie Ticker, nie Einzelempfehlung
+
+
+def test_calibration_buckets_values_exclude_error_and_missing(tmp_path):
+    """Re-Audit 2026-10-10: Kalibrierung rechnet je Bucket den Netto-Mittelwert der eingefrorenen Quote;
+    fehlende Quote zählt in keinen Bucket, ERROR-Zeilen nie, Obergrenze 1,0 gehört in den letzten Bucket."""
+    ph = int((CFG.get("outcomes") or {}).get("primary_horizon", 60))
+    rows, outs = [], []
+    spec = [("lo", 0.1, -0.02, TRADE, 30), ("hi", 0.7, 0.03, ABSTAIN, 30), ("top", 1.0, 0.05, WAIT, 30),
+            ("none", None, 0.5, TRADE, 5), ("err", 0.7, 1.0, ERROR, 30)]
+    for tag, ratio, net, status, n in spec:
+        for i in range(n):
+            oid = f"{tag}{i:03d}"
+            rows.append({"observation_id": oid, "stage": "EA_NEWS_CANDIDATE", "status": status,
+                         "date": f"2026-10-{1 + i % 28:02d}", "ticker": oid.upper(), "group": "A",
+                         "timestamp": "2026-10-01T15:00:00+00:00", "confirmation_ratio": ratio,
+                         "effective_confirmation_ratio": ratio,
+                         "selected_expression": {"selected_expression": "UNDERLYING"},
+                         "expressions": [{"expression": "UNDERLYING"}]})
+            outs.append({"observation_id": oid, "expression": "UNDERLYING", "variant": "immediate", "horizon": ph,
+                         "outcome_net": net, "outcome": net + 0.002, "mfe": 0.0, "mae": 0.0,
+                         "exit_date": "2027-01-06", "outcome_method": eal.OUTCOME_METHOD})
+    eal.append_jsonl(eal.paths(tmp_path)["candidates"] / "2026-10.jsonl", rows, sort_keys=True)
+    eal.append_jsonl(eal.paths(tmp_path)["outcomes"], outs, sort_keys=True)
+    rep = ev.run(root=tmp_path, cfg=CFG, promotion_state={}, write=False)
+    for field in ("calibration_confirmation", "calibration_effective_confirmation"):
+        cal = {c["bucket"]: c for c in rep[field]}
+        assert cal["[0.0,0.3]"]["n"] == 30 and cal["[0.0,0.3]"]["mean"] == pytest.approx(-0.02)
+        assert cal["[0.3,0.6]"]["n"] == 0 and cal["[0.3,0.6]"]["status"] == "NEED_MORE_DATA"
+        assert cal["[0.6,0.8]"]["n"] == 30 and cal["[0.6,0.8]"]["mean"] == pytest.approx(0.03)    # ERROR nie dabei
+        assert cal["[0.8,1.0]"]["n"] == 30 and cal["[0.8,1.0]"]["mean"] == pytest.approx(0.05)    # 1,0 inklusive
+        assert sum(c["n"] for c in cal.values()) == 90                                          # fehlend: kein Bucket
+
+
+def test_tampered_counterfactual_expressions_are_data_bad(tmp_path, data):
+    """Re-Audit 2026-10-10: Counterfactuals nur mit den vorab eingefrorenen Expressions. Wird die Liste nachträglich
+    verändert (Expression ergänzt, Kosten gesenkt), passt registry_hash nicht mehr -> DATA_BAD, nie attribuiert."""
+    _run(tmp_path, data, [fx.make_analysis("AAPL")])
+    r = eal.read_rows(tmp_path)[0]
+    assert tm.verify_expressions(r)                                         # unverändert: gültig
+    added = json.loads(json.dumps(r))
+    added["observation_id"] = "exprtampered0001"
+    added["expressions"].append({"expression": "XLE", "symbol": "XLE", "instrument": "etf",
+                                 "cost_per_side": 0.0, "available": True})   # Hindsight-Alternative
+    cheaper = json.loads(json.dumps(r))
+    cheaper["observation_id"] = "exprtampered0002"
+    cheaper["expressions"][0]["cost_per_side"] = 0.0                         # Kosten nachträglich gesenkt
+    assert not tm.verify_expressions(added) and not tm.verify_expressions(cheaper)
+    eal.append_jsonl(eal.paths(tmp_path)["candidates"] / f"{r['date']}.jsonl", [added, cheaper], sort_keys=True,
+                     default=str)
+    st = eal.resolve_outcomes(today=date(2027, 6, 30), root=tmp_path, bars_fn=fx.bars_fn_from(data["px"]), cfg=CFG)
+    assert st.get("expression_hash_mismatch", 0) >= 2
+    outs = eal.read_outcomes(tmp_path)
+    for oid in ("exprtampered0001", "exprtampered0002"):
+        mine = [e for k, e in outs.items() if k[0] == oid]
+        assert mine and all(e["entry"] == "DATA_BAD" and e["outcome_net"] is None for e in mine)
+    good = [e for k, e in outs.items() if k[0] == r["observation_id"]]
+    assert good and all(e["entry"] != "DATA_BAD" for e in good)               # Original bleibt bewertbar
+
+
+def _learning_fixture(tmp_path, *, means_by_ratio, n=40, sel="SECTOR_ETF"):
+    """Je Quote (Bucket) n Zeilen; TRADE-Zeilen mit Netto `m`, ABSTAIN-Zeilen mit −0,03. Zwei Expressions je Zeile:
+    UNDERLYING = Netto, SECTOR_ETF = Netto + 0,01 (gewählte Expression immer um 1 pp besser)."""
+    ph = int((CFG.get("outcomes") or {}).get("primary_horizon", 60))
+    rows, outs = [], []
+    for b, (ratio, m) in enumerate(means_by_ratio):
+        for i in range(n):
+            st = TRADE if i % 2 == 0 else ABSTAIN
+            net = m if st == TRADE else -0.03
+            oid = f"L{b}{i:03d}"
+            rows.append({"observation_id": oid, "stage": "EA_NEWS_CANDIDATE", "status": st,
+                         "date": str(date(2026, 1, 1) + pd.Timedelta(days=(b * n + i) % 150))[:10],
+                         "ticker": oid, "group": "A", "timestamp": "2026-01-01T15:00:00+00:00",
+                         "confirmation_ratio": ratio, "effective_confirmation_ratio": ratio,
+                         "selected_expression": {"selected_expression": sel},
+                         "expressions": [{"expression": "UNDERLYING"}, {"expression": "SECTOR_ETF"}]})
+            for ex, v in (("UNDERLYING", net), ("SECTOR_ETF", net + 0.01)):
+                outs.append({"observation_id": oid, "expression": ex, "variant": "immediate", "horizon": ph,
+                             "outcome_net": v, "outcome": v, "mfe": 0.0, "mae": 0.0, "exit_date": "2026-09-01",
+                             "outcome_method": eal.OUTCOME_METHOD})
+    eal.append_jsonl(eal.paths(tmp_path)["candidates"] / "2026-01.jsonl", rows, sort_keys=True)
+    eal.append_jsonl(eal.paths(tmp_path)["outcomes"], outs, sort_keys=True)
+    return ev.run(root=tmp_path, cfg=CFG, promotion_state={}, write=True)
+
+
+def test_ea_learning_values_and_proposals_never_applied(tmp_path):
+    """Re-Audit 2026-10-10 (Punkt 9): Abstinenz-, Thesen- und Expression-Lernen rechnen korrekt; Vorschläge
+    entstehen nur als PROPOSAL_ONLY (auto_applied=false), Challenger erst ab Mindestdaten."""
+    rep = _learning_fixture(tmp_path / "a", means_by_ratio=[(0.1, 0.05), (0.4, 0.01), (0.7, 0.03)])
+    ab = rep["values"]["abstention"]
+    # alle: Hälfte TRADE (Mittel der drei Buckets 0,03), Hälfte ABSTAIN (−0,03) -> 0,0; kept = nur TRADE = 0,03
+    assert ab["all"]["mean"] == pytest.approx(0.0, abs=1e-9) and ab["kept"]["mean"] == pytest.approx(0.03)
+    assert ab["delta"] == pytest.approx(0.03)                                  # Abstinenz hat hier Wert
+    exq = rep["values"]["expression"]
+    assert exq["expression_quality"]["mean"] == pytest.approx(0.005)           # gewählt − Median(2) = +0,01/2
+    assert exq["thesis_quality"]["mean"] == pytest.approx(0.005)               # Median aus beiden Expressions
+    props = json.loads((eal.paths(tmp_path / "a")["proposals"]).read_text())
+    assert props["auto_applied"] is False and props["status"] == "PROPOSAL_ONLY"
+    assert [i["type"] for i in props["items"]] == ["CALIBRATION_REVIEW"]       # 0,05 > 0,01: nicht monoton
+    assert props["challenger"]["status"] == "NEED_MORE_DATA"                   # 120 < 300 Outcomes
+    assert {"Produktionseinfluss", "Promotion-Kriterien", "PIT-Regeln"} <= set(props["never_automatic"])
+    mono = _learning_fixture(tmp_path / "b", means_by_ratio=[(0.1, 0.01), (0.4, 0.02), (0.7, 0.03)], n=110)
+    assert mono["proposals"]["items"] == []                                    # monoton -> kein Prüfauftrag
+    assert mono["proposals"]["challenger"]["status"] == "READY_FOR_HUMAN_REVIEW"   # 330 Outcomes, 150 Tage
+    assert mono["proposals"]["auto_applied"] is False                          # auch bereit: nie automatisch

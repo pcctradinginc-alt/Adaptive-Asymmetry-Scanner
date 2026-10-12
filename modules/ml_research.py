@@ -41,6 +41,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from modules.atomic_io import append_jsonl
+
 log = logging.getLogger(__name__)
 
 REGISTRY_PATH = Path("config/model_registry.yaml")
@@ -1000,14 +1002,14 @@ def record_sector_observations(obs: list[dict], path: Path | None = None) -> int
     have = {(t, s) for t, v in read_sector_history(path).items() for _, s in v}
     new = [o for o in obs if o.get("sector") and (o["ticker"], o["sector"]) not in have]
     new.sort(key=lambda o: o["observed_at"])
-    seen = set()
+    seen, rows = set(), []
+    for o in new:
+        if (o["ticker"], o["sector"]) in seen:
+            continue
+        seen.add((o["ticker"], o["sector"]))
+        rows.append({k: o[k] for k in ("ticker", "sector", "observed_at", "source")})
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as fh:
-        for o in new:
-            if (o["ticker"], o["sector"]) in seen:
-                continue
-            seen.add((o["ticker"], o["sector"]))
-            fh.write(json.dumps({k: o[k] for k in ("ticker", "sector", "observed_at", "source")}) + "\n")
+    append_jsonl(path, rows)
     return len(seen)
 
 

@@ -36,6 +36,7 @@ import pandas as pd
 
 from modules.price_event_study import (COST_BASE_PER_SIDE, COST_STRESS_PER_SIDE, TEST_START_YEAR,
                                        TRAIN_START_YEAR, regime_split, trade_metrics)
+from modules.price_event_study import walk_forward as _walk_forward
 
 log = logging.getLogger(__name__)
 
@@ -185,18 +186,10 @@ def hypothesis_trades(name: str, train: pd.DataFrame, test: pd.DataFrame, h: int
 
 
 def walk_forward(ev: pd.DataFrame, name: str, h: int, prefix: str = "") -> pd.DataFrame:
-    parts = []
-    for y in sorted(ev["year"].unique()):
-        if y < TEST_START_YEAR:
-            continue
-        start = pd.Timestamp(f"{y}-01-01")
-        train = ev[(ev["year"] >= TRAIN_START_YEAR) & (pd.to_datetime(ev[f"{prefix}exit_{h}"]) < start)]
-        test = ev[ev["year"] == y]
-        if len(train) < 200 or len(test) == 0:
-            continue
-        parts.append(hypothesis_trades(name, train, test, h, prefix))
-    cols = ["date", "signed", "vix", "trend_up", "ticker"]
-    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=cols)
+    """Dünner Wrapper: die Walk-Forward-Schleife lebt NUR in price_event_study.walk_forward."""
+    return _walk_forward(ev, name, h, prefix=prefix,
+                         trades_fn=lambda n, tr, te, hh: hypothesis_trades(n, tr, te, hh, prefix),
+                         empty_cols=("date", "signed", "vix", "trend_up", "ticker"))
 
 
 # ── Robustheit ───────────────────────────────────────────────────────────────

@@ -34,6 +34,8 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
+from modules.atomic_io import append_jsonl
+
 log = logging.getLogger(__name__)
 
 OUT = Path("outputs/state")
@@ -253,12 +255,11 @@ def current(*, inputs: dict[str, Path] | None = None, now: datetime | None = Non
         tmp = state_path.with_suffix(".tmp")
         tmp.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
         tmp.replace(state_path)                       # atomar: Leser sehen nie einen halben Zustand
-        with open(history_path, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps({"state_version": ver, "updated_at": state["updated_at"], "safe_mode": state["safe_mode"],
-                                 "safe_mode_reason": state["safe_mode_reason"], "drift_level": state["drift_state"]["level"],
-                                 "data_health": state["data_health"]["status"], "model_health": state["model_health"]["status"],
-                                 "champion": state["champion_version"]["version"], "fingerprint": fp},
-                                ensure_ascii=False) + "\n")
+        append_jsonl(history_path, [{"state_version": ver, "updated_at": state["updated_at"], "safe_mode": state["safe_mode"],
+                                     "safe_mode_reason": state["safe_mode_reason"], "drift_level": state["drift_state"]["level"],
+                                     "data_health": state["data_health"]["status"], "model_health": state["model_health"]["status"],
+                                     "champion": state["champion_version"]["version"], "fingerprint": fp}],
+                     ensure_ascii=False)
     return state
 
 
