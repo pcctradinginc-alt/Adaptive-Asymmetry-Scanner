@@ -162,11 +162,13 @@ Bewusst verbleibende Restrisiken:
   - Adapter/Controller: nur Kill-Switch, Meta-Label-Feld, `ALLOW_SIZE_DOWN`-Abbildung; alle Verträge bleiben bei Einfluss `NONE`.
   - EA: nur die Hash-Prüfung der Expressions.
 - [ ] Secrets vorhanden: `TRADIER_API_KEY`, `FRED_API_KEY`, `GMAIL_SENDER` / `GMAIL_APP_PW` / `NOTIFY_EMAIL`.
-- [ ] Entscheidungen aus §6 bewusst getroffen oder vertagt.
+- [x] Entscheidungen aus §6 getroffen (2026-10-11) und als timing-v2 umgesetzt; Altbestand bleibt timing-v1.
+- [ ] Timing-Diff geprüft: `feedback.py` ändert nur, wann und zu welchem Preis ein Exit als ausgeführt gilt, nicht den Exit-Entscheid selbst (`docs/TIMING_POLICY.md`).
 - [ ] Nach dem Merge, erster Handelstag:
   - `options_capture.yml`: mindestens ein Lauf mit `IN_WINDOW`, die übrigen mit `SKIP`;
   - Commit `chore: options capture` auf `main`;
   - Scanner-Lauf: Guard `RUN`, Schritt „Options-Marks (RTH)“, Commit `chore: options marks (RTH)`;
   - `outputs/monitoring/ops_status.md` erzeugt und Mail angekommen (nur bei neuen, geänderten oder behobenen Warnungen);
   - im Monitor-Bericht `exit_active.mark_today` > 0 und die Zahl offener 5-Tage-Marks sinkend.
+  - im Monitor-Abschnitt „Timing-Policy“: neue Trades `timing-v2`, Altbestand `timing-v1`; keine Warnung `TIMING_UNUSABLE` ohne erklärbaren Capture-Ausfall.
 - [ ] Danach: Daten sammeln, keine grundlegenden Modelländerungen.
