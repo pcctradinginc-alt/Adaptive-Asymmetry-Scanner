@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 259.53,
-      "current_return": -0.2692,
+      "last_price": 258.58,
+      "current_return": -0.2654,
       "spread_monitor": [
         {
           "ts": "2026-10-12T22:32:45+00:00",
@@ -162,15 +162,27 @@
           "fair_value_pnl_pct": -0.2308,
           "executable_pnl_pct": -0.2692,
           "underlying_return_pct": 0.0016
+        },
+        {
+          "ts": "2026-10-13T20:45:30+00:00",
+          "quote_quality": "HEALTHY",
+          "combo_bid": 9.55,
+          "combo_ask": 10.25,
+          "combo_mid": 9.9,
+          "fair_value": 9.9,
+          "executable_exit_value": 9.55,
+          "fair_value_pnl_pct": -0.2385,
+          "executable_pnl_pct": -0.2654,
+          "underlying_return_pct": -0.0021
         }
       ],
       "spread_stop_shadow": {
         "production_stop_hit": false,
         "shadow_stop": "NO_STOP",
         "confirmed_observations": 2,
-        "fair_value_pnl_pct": -0.2308,
-        "executable_pnl_pct": -0.2692,
-        "underlying_return_pct": 0.0016
+        "fair_value_pnl_pct": -0.2385,
+        "executable_pnl_pct": -0.2654,
+        "underlying_return_pct": -0.0021
       }
     },
     {
@@ -259,8 +271,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 340.97,
-      "current_return": -0.1065
+      "last_price": 341.27,
+      "current_return": -0.0938
     },
     {
       "ticker": "MO",
@@ -347,9 +359,9 @@
         "dte": 175
       },
       "outcome": null,
-      "peak_return": 0.1156,
-      "last_price": 71.66,
-      "current_return": 0.1156
+      "peak_return": 0.1361,
+      "last_price": 71.56,
+      "current_return": 0.1361
     },
     {
       "ticker": "HOOD",
@@ -579,8 +591,8 @@
         }
       },
       "peak_return": -0.0396,
-      "last_price": 109.22,
-      "current_return": -0.1516
+      "last_price": 110.52,
+      "current_return": -0.1121
     }
   ],
   "closed_trades": [
@@ -102965,44 +102977,44 @@
       "entry_debit": 7.35,
       "entry_date": "2026-09-24",
       "created": "2026-09-28",
-      "mfe": 0.1156,
+      "mfe": 0.1361,
       "mae": -0.2653,
       "closed": false,
       "variants": {
         "tp50_sl45": {
           "outcome": null,
           "closed": false,
-          "peak": 0.1156,
+          "peak": 0.1361,
           "close_date": null
         },
         "no_tp": {
           "outcome": null,
           "closed": false,
-          "peak": 0.1156,
+          "peak": 0.1361,
           "close_date": null
         },
         "trail35": {
           "outcome": null,
           "closed": false,
-          "peak": 0.1156,
+          "peak": 0.1361,
           "close_date": null
         },
         "trail50": {
           "outcome": null,
           "closed": false,
-          "peak": 0.1156,
+          "peak": 0.1361,
           "close_date": null
         },
         "partial50": {
           "outcome": null,
           "closed": false,
-          "peak": 0.1156,
+          "peak": 0.1361,
           "close_date": null
         },
         "time_only": {
           "outcome": null,
           "closed": false,
-          "peak": 0.1156,
+          "peak": 0.1361,
           "close_date": null
         }
       }
