@@ -4,7 +4,7 @@
  "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
-  "data_quality": 0.908,
+  "data_quality": 0.872,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [
@@ -30,13 +30,13 @@
    "xbrl_sue"
   ],
   "global_reasons": [],
-  "generated": "2026-10-12T21:24:15+00:00",
+  "generated": "2026-10-13T19:30:47+00:00",
   "counts": {
    "HEALTHY": 28,
    "DEGRADED": 2,
    "STALE": 5,
-   "BROKEN": 0,
-   "UNVALIDATED": 9
+   "BROKEN": 1,
+   "UNVALIDATED": 8
   },
   "fallbacks": []
  },
@@ -109,13 +109,14 @@
     "n_models": 6
    },
    "data": {
-    "level": "NORMAL",
-    "data_quality": 0.908
+    "level": "MILD",
+    "data_quality": 0.872
    }
   },
   "reasons": [
    "FEATURE DRIFT MODERATE: ['tnx']",
-   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich"
+   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich",
+   "DATA DRIFT MILD: Data Quality 0.872"
   ],
   "policy_version": "drift-v1",
   "consequences": {
@@ -125,7 +126,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-03T13:15:09+00:00",
-  "drift_input_age_days": 9.5,
+  "drift_input_age_days": 10.3,
   "drift_input_status": "STALE_DRIFT_INPUT"
  },
  "champion_version": {
@@ -135,7 +136,7 @@
   "version": "scanner_rules@b60b12cedaea"
  },
  "promotion_state": {
-  "generated": "2026-10-12T22:34:10+00:00",
+  "generated": "2026-10-13T01:31:13+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -202,15 +203,15 @@
  "inputs": {
   "model_health": "9bca35276f64",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "18319b1bd3a9",
-  "promotion": "817d318e0670",
+  "data_health": "17ad11639631",
+  "promotion": "4710aab7dd98",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "bb40b8cf73dd"
  },
- "state_version": 26,
- "fingerprint": "110d456084accbd3",
- "updated_at": "2026-10-13T01:31:13+00:00",
- "code_version": "67fc01370dc9"
+ "state_version": 27,
+ "fingerprint": "c3c97d668c2aa943",
+ "updated_at": "2026-10-13T19:30:47+00:00",
+ "code_version": "f885bf424f43"
 }

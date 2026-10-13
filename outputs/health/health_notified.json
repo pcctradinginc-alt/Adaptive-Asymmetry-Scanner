@@ -1,40 +1,12 @@
 {
- "at": "2026-10-12T21:24:15+00:00",
+ "at": "2026-10-13T19:30:47+00:00",
  "changes": [
   {
-   "source_id": "sec_submissions",
+   "source_id": "fred_market_expectations",
    "type": "degradation",
-   "from": "HEALTHY",
-   "to": "STALE",
-   "error": "letzte erfolgreiche Aktualisierung 9.43 T > 9 T"
-  },
-  {
-   "source_id": "sec_form345",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "STALE",
-   "error": "letzte erfolgreiche Aktualisierung 9.43 T > 9 T"
-  },
-  {
-   "source_id": "sec_companyfacts",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "STALE",
-   "error": "letzte erfolgreiche Aktualisierung 9.43 T > 9 T"
-  },
-  {
-   "source_id": "gleif_lei",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "STALE",
-   "error": "letzte erfolgreiche Aktualisierung 9.89 T > 9 T"
-  },
-  {
-   "source_id": "ted_awards",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "STALE",
-   "error": "letzte erfolgreiche Aktualisierung 9.42 T > 9 T"
+   "from": "UNVALIDATED",
+   "to": "BROKEN",
+   "error": "Ingest FAIL: FRED ALFRED-Abruf fehlgeschlagen (DGS2): 400 für https://api.stlouisfed.org/fred/series/observations (nicht retrybar): {\"error_code\":400,\"error_message\":\"Bad Request.  There are 5128 vintage dates in ; Data-Quality-Befund schwerwiegend; letzte erfolgreiche Aktualisierung nie T > 3 T; kein Beleg für erfolgreiche Lieferung; 3 Fehlschläge in Folge"
   }
  ],
  "mail": "sent"

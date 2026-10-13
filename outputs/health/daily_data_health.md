@@ -1,26 +1,23 @@
-# Daily Data Health Report – 2026-10-12
+# Daily Data Health Report – 2026-10-13
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.908
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.872
 
-Status: HEALTHY 28 · DEGRADED 2 · STALE 5 · BROKEN 0 · UNVALIDATED 9
+Status: HEALTHY 28 · DEGRADED 2 · STALE 5 · BROKEN 1 · UNVALIDATED 8
 
 ## Neue Änderungen
 
-- degradation: sec_submissions HEALTHY → STALE (letzte erfolgreiche Aktualisierung 9.43 T > 9 T)
-- degradation: sec_form345 HEALTHY → STALE (letzte erfolgreiche Aktualisierung 9.43 T > 9 T)
-- degradation: sec_companyfacts HEALTHY → STALE (letzte erfolgreiche Aktualisierung 9.43 T > 9 T)
-- degradation: gleif_lei HEALTHY → STALE (letzte erfolgreiche Aktualisierung 9.89 T > 9 T)
-- degradation: ted_awards HEALTHY → STALE (letzte erfolgreiche Aktualisierung 9.42 T > 9 T)
+- degradation: fred_market_expectations UNVALIDATED → BROKEN (Ingest FAIL: FRED ALFRED-Abruf fehlgeschlagen (DGS2): 400 für https://api.stlouisfed.org/fred/series/observations (nicht retrybar): {"error_code":400,"error_mes)
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| gleif_lei | STALE | NON_CRITICAL | 0 | – | – | letzte erfolgreiche Aktualisierung 9.89 T > 9 T |
-| sec_companyfacts | STALE | NON_CRITICAL | 0 | 2026-09-28 | xbrl_accruals, xbrl_asset_growth, xbrl_rev_yoy, xbrl_share_change | letzte erfolgreiche Aktualisierung 9.43 T > 9 T |
-| sec_form345 | STALE | NON_CRITICAL | 0 | 2026-09-30 | sec_8k_count_30d_z, sec_8k_negative_90d, sec_exec_change_90d, sec_filing_delay_z | letzte erfolgreiche Aktualisierung 9.43 T > 9 T |
-| sec_submissions | STALE | NON_CRITICAL | 0 | 2026-10-03 | sec_8k_count_30d_z, sec_8k_negative_90d, sec_exec_change_90d, sec_filing_delay_z | letzte erfolgreiche Aktualisierung 9.43 T > 9 T |
-| ted_awards | STALE | NON_CRITICAL | 0 | 2026-10-02 | ted_any_award_365d, ted_award_value_365d, ted_awards_90d, ted_awards_z | letzte erfolgreiche Aktualisierung 9.42 T > 9 T |
+| fred_market_expectations | BROKEN | IMPORTANT | 3 | – | – | Ingest FAIL: FRED ALFRED-Abruf fehlgeschlagen (DGS2): 400 für https://api.stlouisfed.org/fred/series/observations (nicht retrybar): {"error_ |
+| gleif_lei | STALE | NON_CRITICAL | 0 | – | – | letzte erfolgreiche Aktualisierung 10.81 T > 9 T |
+| sec_companyfacts | STALE | NON_CRITICAL | 0 | 2026-09-28 | xbrl_accruals, xbrl_asset_growth, xbrl_rev_yoy, xbrl_share_change | letzte erfolgreiche Aktualisierung 10.35 T > 9 T |
+| sec_form345 | STALE | NON_CRITICAL | 0 | 2026-09-30 | sec_8k_count_30d_z, sec_8k_negative_90d, sec_exec_change_90d, sec_filing_delay_z | letzte erfolgreiche Aktualisierung 10.35 T > 9 T |
+| sec_submissions | STALE | NON_CRITICAL | 0 | 2026-10-03 | sec_8k_count_30d_z, sec_8k_negative_90d, sec_exec_change_90d, sec_filing_delay_z | jüngste Beobachtung 10.77 T alt > 10 T; letzte erfolgreiche Aktualisierung 10.35 T > 9 T |
+| ted_awards | STALE | NON_CRITICAL | 0 | 2026-10-02 | ted_any_award_365d, ted_award_value_365d, ted_awards_90d, ted_awards_z | letzte erfolgreiche Aktualisierung 10.34 T > 9 T |
 | fred_commodities | DEGRADED | NON_CRITICAL | 0 | 2026-10-06 | cmdx_copper__copper_ret_3m, cmdx_copper__div_copper_positioning_price, cmdx_corn__corn_ret_3m, cmdx_natural_gas__div_gas_storage_price | Ingest WARN: 7384 ALFRED-Vintage-Beobachtungen (Brent/HenryHub/Kupfer/Weizen/Mais/Soja) | DQ: OUT_OF_RANGE; Data-Quality-Befund schwerwiegen |
 | noaa_storm_events | DEGRADED | NON_CRITICAL | 0 | 2025-01-01 | – | Data-Quality-Befund schwerwiegend; Duplikate None / Konflikte 932 |
 
