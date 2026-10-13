@@ -1,6 +1,6 @@
 # Expectation Alpha – SHADOW – Research, keine Handelsempfehlung
 
-Stand 2026-10-12T22:33:33+00:00 · config 9772eff4a0fef81d
+Stand 2026-10-13T01:30:36+00:00 · config 9772eff4a0fef81d
 
 Population EA_NEWS_CANDIDATE: n=0, Signaltage 0, Ereignis-Cluster 0, Status {}
 
@@ -28,6 +28,13 @@ Population EA_NEWS_CANDIDATE: n=0, Signaltage 0, Ereignis-Cluster 0, Status {}
 
 | Vertrag | Zustand | n | Tage | Spanne | Regime | Δ | CI | nächste Anforderung |
 |---|---|---|---|---|---|---|---|---|
+| EA001_EXPECTATION_GAP@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20 |
+| EA002_CONFIRMATION@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20 |
+| EA003_ACCELERATION@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20 |
+| EA004_WAIT@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20 |
+| EA005_CONTEXT_FILTER@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20 |
+| EA006_ABSTENTION@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20 |
+| EA007_EXPRESSION@v1 | PROSPECTIVE_CHALLENGER | 0 | 0 | 0 | 0 | – | [None, None] | n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20 |
 
 ## Lead-Lag-Diagnostik (Research, Horizonte vorab: [20, 60, 120, 250], keine Auswahl) – Status NEED_MORE_DATA
 

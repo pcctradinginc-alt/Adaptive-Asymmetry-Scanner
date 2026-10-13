@@ -150,12 +150,24 @@
           "fair_value_pnl_pct": -0.2308,
           "executable_pnl_pct": -0.2692,
           "underlying_return_pct": 0.0016
+        },
+        {
+          "ts": "2026-10-13T01:30:30+00:00",
+          "quote_quality": "HEALTHY",
+          "combo_bid": 9.5,
+          "combo_ask": 10.5,
+          "combo_mid": 10.0,
+          "fair_value": 10.0,
+          "executable_exit_value": 9.5,
+          "fair_value_pnl_pct": -0.2308,
+          "executable_pnl_pct": -0.2692,
+          "underlying_return_pct": 0.0016
         }
       ],
       "spread_stop_shadow": {
         "production_stop_hit": false,
         "shadow_stop": "NO_STOP",
-        "confirmed_observations": 1,
+        "confirmed_observations": 2,
         "fair_value_pnl_pct": -0.2308,
         "executable_pnl_pct": -0.2692,
         "underlying_return_pct": 0.0016

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-12T22:33:33+00:00",
+ "generated": "2026-10-13T01:30:36+00:00",
  "mode": "SHADOW – Research, keine Handelsempfehlung",
  "config_hash": "9772eff4a0fef81d",
  "population": {
@@ -344,7 +344,134 @@
   "stale_components": {},
   "median_runtime_seconds": null
  },
- "contracts": [],
+ "contracts": [
+  {
+   "key": "EA001_EXPECTATION_GAP@v1",
+   "title": "Expectation Gap in Thesenrichtung",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  },
+  {
+   "key": "EA002_CONFIRMATION@v1",
+   "title": "Cross-Asset-Bestätigung bei großen Gaps",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  },
+  {
+   "key": "EA003_ACCELERATION@v1",
+   "title": "Beschleunigung des Gaps in Thesenrichtung",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  },
+  {
+   "key": "EA004_WAIT@v1",
+   "title": "Triggerbasierter Einstieg statt Sofort-Einstieg (WAIT)",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  },
+  {
+   "key": "EA005_CONTEXT_FILTER@v1",
+   "title": "Starke News mit positivem vs. negativem Kontext",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  },
+  {
+   "key": "EA006_ABSTENTION@v1",
+   "title": "ABSTAIN-Fälle sind schlechter (Abstinenz verbessert Qualität)",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  },
+  {
+   "key": "EA007_EXPRESSION@v1",
+   "title": "Regelbasierte Expression vs. Default (Underlying)",
+   "state": "PROSPECTIVE_CHALLENGER",
+   "decision": "KEEP_SHADOW",
+   "influence_level": "NONE",
+   "n": 0,
+   "independent_dates": 0,
+   "span_days": 0,
+   "regimes": [],
+   "delta": null,
+   "ci": [
+    null,
+    null
+   ],
+   "next_requirement": "n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Cluster 0/20",
+   "forward_start": "2026-10-13T00:00:00Z"
+  }
+ ],
  "lead_lag": {
   "version": "lead-lag-v1",
   "mode": "SHADOW – Research, keine Strategieänderung",
