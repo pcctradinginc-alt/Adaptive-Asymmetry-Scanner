@@ -4,37 +4,17 @@
  "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
-  "data_quality": 0.872,
+  "data_quality": 0.912,
   "blocked_decisions": [],
   "disabled_signals": [],
-  "unavailable_features": [
-   "sec_8k_count_30d_z",
-   "sec_8k_negative_90d",
-   "sec_exec_change_90d",
-   "sec_filing_delay_z",
-   "sec_insider_buy_value_90d",
-   "sec_insider_buyers_90d",
-   "sec_insider_cluster_30d",
-   "sec_insider_net_value_90d",
-   "sec_late_filing_365d",
-   "ted_any_award_365d",
-   "ted_award_value_365d",
-   "ted_awards_90d",
-   "ted_awards_z"
-  ],
-  "stale_features": [
-   "xbrl_accruals",
-   "xbrl_asset_growth",
-   "xbrl_rev_yoy",
-   "xbrl_share_change",
-   "xbrl_sue"
-  ],
+  "unavailable_features": [],
+  "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-13T19:30:47+00:00",
+  "generated": "2026-10-14T17:34:54+00:00",
   "counts": {
    "HEALTHY": 28,
-   "DEGRADED": 2,
-   "STALE": 5,
+   "DEGRADED": 7,
+   "STALE": 0,
    "BROKEN": 1,
    "UNVALIDATED": 8
   },
@@ -109,14 +89,13 @@
     "n_models": 6
    },
    "data": {
-    "level": "MILD",
-    "data_quality": 0.872
+    "level": "NORMAL",
+    "data_quality": 0.912
    }
   },
   "reasons": [
    "FEATURE DRIFT MODERATE: ['tnx']",
-   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich",
-   "DATA DRIFT MILD: Data Quality 0.872"
+   "MODEL DRIFT MODERATE: 0.333 der Modelle verschlechtern sich"
   ],
   "policy_version": "drift-v1",
   "consequences": {
@@ -126,7 +105,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-03T13:15:09+00:00",
-  "drift_input_age_days": 10.4,
+  "drift_input_age_days": 11.2,
   "drift_input_status": "STALE_DRIFT_INPUT"
  },
  "champion_version": {
@@ -136,7 +115,7 @@
   "version": "scanner_rules@b60b12cedaea"
  },
  "promotion_state": {
-  "generated": "2026-10-13T20:45:37+00:00",
+  "generated": "2026-10-13T23:21:48+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -203,15 +182,15 @@
  "inputs": {
   "model_health": "9bca35276f64",
   "meta_learning": "b5c0b4d9cff8",
-  "data_health": "17ad11639631",
-  "promotion": "cb12bc45a45f",
+  "data_health": "a222036fe7ca",
+  "promotion": "add3eb9d5def",
   "model_registry": "a0c0ce90b949",
   "champion_config": "b60b12cedaea",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "bb40b8cf73dd"
  },
- "state_version": 28,
- "fingerprint": "ab521e8565fdba3b",
- "updated_at": "2026-10-13T23:21:48+00:00",
- "code_version": "c1214885f25e"
+ "state_version": 29,
+ "fingerprint": "fb5de81052ca9afa",
+ "updated_at": "2026-10-14T17:34:54+00:00",
+ "code_version": "31f6274eee15"
 }

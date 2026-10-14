@@ -1,13 +1,5 @@
 {
- "at": "2026-10-13T19:30:47+00:00",
- "changes": [
-  {
-   "source_id": "fred_market_expectations",
-   "type": "degradation",
-   "from": "UNVALIDATED",
-   "to": "BROKEN",
-   "error": "Ingest FAIL: FRED ALFRED-Abruf fehlgeschlagen (DGS2): 400 für https://api.stlouisfed.org/fred/series/observations (nicht retrybar): {\"error_code\":400,\"error_message\":\"Bad Request.  There are 5128 vintage dates in ; Data-Quality-Befund schwerwiegend; letzte erfolgreiche Aktualisierung nie T > 3 T; kein Beleg für erfolgreiche Lieferung; 3 Fehlschläge in Folge"
-  }
- ],
- "mail": "sent"
+ "at": "2026-10-14T17:34:54+00:00",
+ "changes": [],
+ "mail": "no_change"
 }
