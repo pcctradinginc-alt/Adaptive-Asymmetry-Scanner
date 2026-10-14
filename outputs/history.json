@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 253.48,
-      "current_return": -0.3269,
+      "last_price": 254.08,
+      "current_return": -0.3231,
       "spread_monitor": [
         {
           "ts": "2026-10-12T22:32:45+00:00",
@@ -210,15 +210,27 @@
           "fair_value_pnl_pct": -0.3,
           "executable_pnl_pct": -0.3269,
           "underlying_return_pct": -0.0218
+        },
+        {
+          "ts": "2026-10-14T22:27:07+00:00",
+          "quote_quality": "HEALTHY",
+          "combo_bid": 8.8,
+          "combo_ask": 9.55,
+          "combo_mid": 9.175,
+          "fair_value": 9.175,
+          "executable_exit_value": 8.8,
+          "fair_value_pnl_pct": -0.2942,
+          "executable_pnl_pct": -0.3231,
+          "underlying_return_pct": -0.0195
         }
       ],
       "spread_stop_shadow": {
         "production_stop_hit": false,
         "shadow_stop": "NO_STOP",
         "confirmed_observations": 2,
-        "fair_value_pnl_pct": -0.3,
-        "executable_pnl_pct": -0.3269,
-        "underlying_return_pct": -0.0218
+        "fair_value_pnl_pct": -0.2942,
+        "executable_pnl_pct": -0.3231,
+        "underlying_return_pct": -0.0195
       }
     },
     {
@@ -307,8 +319,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 343.22,
-      "current_return": -0.0554
+      "last_price": 342.96,
+      "current_return": -0.0852
     },
     {
       "ticker": "MO",
@@ -396,7 +408,7 @@
       },
       "outcome": null,
       "peak_return": 0.2925,
-      "last_price": 72.79,
+      "last_price": 73.13,
       "current_return": 0.2925
     },
     {
@@ -627,8 +639,8 @@
         }
       },
       "peak_return": -0.0396,
-      "last_price": 100.905,
-      "current_return": -0.3407
+      "last_price": 101.08,
+      "current_return": -0.3429
     },
     {
       "ticker": "ABBV",
@@ -873,7 +885,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-14T19:32:20+00:00",
+        "evaluated_at": "2026-10-14T22:27:06+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -898,8 +910,8 @@
         ]
       },
       "peak_return": -0.0417,
-      "last_price": 283.15,
-      "current_return": -0.0813
+      "last_price": 283.48,
+      "current_return": -0.1171
     }
   ],
   "closed_trades": [
@@ -107920,7 +107932,7 @@
       "entry_date": "2026-10-14",
       "created": "2026-10-14",
       "mfe": 0.0,
-      "mae": -0.0813,
+      "mae": -0.1171,
       "closed": false,
       "variants": {
         "tp50_sl45": {
