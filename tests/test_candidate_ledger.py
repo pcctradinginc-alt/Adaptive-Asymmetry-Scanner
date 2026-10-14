@@ -289,6 +289,35 @@ def test_update_outcomes_no_history_keeps_row_unchanged(monkeypatch, ledger_root
     assert rows[0]["outcomes"] == {} and rows[0]["entry_price"] is None
 
 
+def test_ticker_without_any_prices_ends_as_no_price_data_and_is_not_refetched(monkeypatch, ledger_root):
+    """Live 2026-10-14: EA ('possibly delisted') wurde in jedem Lauf erneut abgefragt (ERROR-Zeilen), ohne je einen
+    Preis zu liefern. Nach NO_PRICE_GIVE_UP_DAYS ohne Entry-Preis: NO_PRICE_DATA, nie ein geschätzter Wert."""
+    base = {"pipeline_version": "v8.3", "config_hash": "abc", "status": "rejected", "reject_stage": "universe",
+            "reject_reason": "prescreen_no", "direction": None, "features": {}, "outcomes": {}}
+    d0 = datetime(2026, 8, 1)
+    _write_ledger_line(ledger_root, "2026-08", {**base, "date": "2026-08-01", "ticker": "EA", "entry_price": None})
+    _write_ledger_line(ledger_root, "2026-08", {**base, "date": "2026-08-01", "ticker": "OK1", "entry_price": 50.0})
+    calls = []
+
+    def fetch(tickers, period_days):
+        calls.append(sorted(tickers))
+        return {}
+    monkeypatch.setattr(cl, "_fetch_history_batch", fetch)
+    # innerhalb der Karenz: weiter versuchen, kein Endzustand
+    cl.update_outcomes((d0 + timedelta(days=cl.NO_PRICE_GIVE_UP_DAYS)).strftime("%Y-%m-%d"), root=ledger_root)
+    ea, ok1 = _read_jsonl(ledger_root / "2026-08.jsonl")
+    assert "outcomes_status" not in ea
+    # danach: Endzustand nur für die Zeile ohne Entry-Preis; nichts erfunden
+    cl.update_outcomes((d0 + timedelta(days=cl.NO_PRICE_GIVE_UP_DAYS + 1)).strftime("%Y-%m-%d"), root=ledger_root)
+    ea, ok1 = _read_jsonl(ledger_root / "2026-08.jsonl")
+    assert ea["outcomes_status"] == "NO_PRICE_DATA" and ea["entry_price"] is None and ea["outcomes"] == {}
+    assert "outcomes_status" not in ok1                     # Preis vorhanden -> Datenlücke kann vorübergehend sein
+    # Folgelauf: EA wird nicht mehr abgefragt
+    calls.clear()
+    cl.update_outcomes((d0 + timedelta(days=cl.NO_PRICE_GIVE_UP_DAYS + 2)).strftime("%Y-%m-%d"), root=ledger_root)
+    assert all("EA" not in c for c in calls)
+
+
 def test_update_outcomes_never_raises_when_fetch_throws(monkeypatch, ledger_root):
     entry_date = "2026-08-01"
     _write_ledger_line(ledger_root, "2026-08", {

@@ -64,6 +64,12 @@ FINNHUB_CALLS_PER_MIN = 55
 FINNHUB_MAX_429_RETRIES = 3
 
 
+def news_fetch_gap(ns: dict) -> bool:
+    """Datenlücke nur bei endgültig fehlgeschlagenen Abrufen; ein 429, der beim Retry gelang, ist keine
+    (Live 2026-10-14: 8x 429, alle wiederholt, Fehler 0 -> trotzdem Datenlücken-Warnung)."""
+    return bool(ns.get("finnhub_error") or ns.get("newsapi_error"))
+
+
 class _RateLimiter:
     """Thread-sicherer Sliding-Window-Limiter (max_calls je period Sekunden)."""
 
@@ -303,10 +309,12 @@ class DataIngestion:
         self._log_filter_stats(stats)
         ns = self.news_source_stats
         log.info(f"  News-Quellen: {ns}")
-        if ns["finnhub_error"] or ns["finnhub_429"] or ns["newsapi_error"]:
+        if news_fetch_gap(ns):
             log.warning(f"  News-Abruf mit Fehlern (Finnhub 429={ns['finnhub_429']}, "
                         f"Finnhub Fehler={ns['finnhub_error']}, NewsAPI Fehler={ns['newsapi_error']}) "
                         f"-> 'Keine News'-Rejects können Datenlücken statt fehlender News sein")
+        elif ns["finnhub_429"]:
+            log.info(f"  Finnhub 429={ns['finnhub_429']}, alle per Retry abgerufen (keine Datenlücke)")
         passed_initials = sorted({c["ticker"][0] for c in candidates if c.get("ticker")})
         log.info(f"  Anfangsbuchstaben der Kandidaten: {''.join(passed_initials)}")
         return candidates

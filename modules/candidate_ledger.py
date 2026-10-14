@@ -78,6 +78,8 @@ RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
 MARK_ARCHIVE_LOOKBACK_DAYS   = 10   # außerhalb der Sitzung: archivierte RTH-Quotes der letzten N Tage (Options-Capture)
+NO_PRICE_GIVE_UP_DAYS        = 10   # ohne Entry-Preis nach so vielen Tagen täglicher Versuche + heute keine Kurshistorie
+                                    # -> outcomes_status NO_PRICE_DATA (z. B. delistet), nie geschätzt; kein Endlos-Abruf
 
 # ── Hypothetischer Options-Kontrakt (Counterfactual, Observability) ──────────
 # Gates verwerfen/akzeptieren Kandidaten auf Basis von Underlying-Returns,
@@ -1642,7 +1644,7 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
     pending_tickers = set()
     for row in rows:
         entry_dt = _row_entry_dt(row)
-        if entry_dt is None:
+        if entry_dt is None or row.get("outcomes_status") == "NO_PRICE_DATA":
             continue
         if row.get("entry_price") in (None, 0) and row.get("entry_basis") == "next_open":
             continue  # Open noch nicht verfügbar — nächster Lauf versucht es erneut
@@ -1671,7 +1673,7 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
     changed = False
     for row in rows:
         ticker = row.get("ticker")
-        if ticker not in pending_tickers:
+        if ticker not in pending_tickers or row.get("outcomes_status") == "NO_PRICE_DATA":
             continue
         entry_dt = _row_entry_dt(row)
         if entry_dt is None:
@@ -1679,6 +1681,14 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
 
         hist = histories.get(ticker)
         if hist is None or len(hist) == 0:
+            # Live 2026-10-14: EA ("possibly delisted") wurde in jedem Lauf erneut abgefragt, ohne je einen Preis zu
+            # liefern. Nach NO_PRICE_GIVE_UP_DAYS ohne Entry-Preis endgültig als nicht bewertbar markieren.
+            if row.get("entry_price") in (None, 0) and (today_dt - entry_dt).days > NO_PRICE_GIVE_UP_DAYS:
+                row["outcomes_status"] = "NO_PRICE_DATA"
+                row["outcomes_status_reason"] = (f"keine Kurshistorie bei yfinance seit {entry_dt.date().isoformat()}"
+                                                 f" (> {NO_PRICE_GIVE_UP_DAYS} T; z. B. delistet)")
+                row["outcomes_status_at"] = today_dt.strftime("%Y-%m-%d")
+                changed = True
             continue
 
         # Entry-Preis fehlte beim flush (API-Fehler) → aus Historie nachtragen.

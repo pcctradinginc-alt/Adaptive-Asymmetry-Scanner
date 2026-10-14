@@ -76,6 +76,13 @@ def test_finnhub_429_is_retried_and_counted(monkeypatch):
     assert ing.news_source_stats == {"finnhub_429": 1, "finnhub_ok": 1}
 
 
+def test_retried_429_is_not_reported_as_news_gap():
+    assert di.news_fetch_gap({"finnhub_429": 8, "finnhub_error": 0, "newsapi_error": 0}) is False
+    assert di.news_fetch_gap({"finnhub_429": 8, "finnhub_error": 1, "newsapi_error": 0}) is True
+    assert di.news_fetch_gap({"finnhub_429": 0, "finnhub_error": 0, "newsapi_error": 2}) is True
+    assert di.news_fetch_gap({}) is False
+
+
 def test_low_rv_rejected_without_news_call(monkeypatch):
     """RV unter Schwelle UND unter dem Override-Minimum -> kein News-Abruf."""
     info = {"marketCap": 5e10, "averageVolume": 5e6, "currentPrice": 100.0, "volume": 5e5}  # RV 0.1
