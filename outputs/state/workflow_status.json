@@ -181,16 +181,16 @@
       "external_data": {
         "file": "external_data.yml",
         "expected": "2026-10-14T06:17+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-10-14T11:56:20Z",
+        "conclusion": "success",
+        "delay_hours": 5.7,
+        "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
         "stale_upstream": [],
-        "state": "PENDING"
+        "state": "OK"
       },
       "source_health": {
         "file": "source_health.yml",
