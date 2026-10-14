@@ -48,7 +48,7 @@ import json
 import logging
 import os
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from modules.external import http
 from modules.external.pit import AvailabilityPrecision, Observation
@@ -558,6 +558,7 @@ class FredUsMacroConnector(Connector):
 
     FRED_API_BASE = "https://api.stlouisfed.org/fred"
     OBSERVATION_START: str | None = None
+    _realtime_window: tuple[str, str] | None = None
     LABEL = "UMCSENT+INDPRO"
 
     SERIES = {
@@ -602,6 +603,8 @@ class FredUsMacroConnector(Connector):
             # ALFRED kappt frühere realtime_start auf diesen Wert -> available_at
             # konservativ SPÄTER als die Wahrheit, nie früher (kein Look-ahead).
             params["realtime_start"] = spec["realtime_start"]
+        if self._realtime_window is not None:      # Teilabruf (siehe FredMarketExpectationsConnector)
+            params["realtime_start"], params["realtime_end"] = self._realtime_window
         try:
             res = http.fetch(url, params=params)
         except http.AuthError:
@@ -840,6 +843,57 @@ class FredMarketExpectationsConnector(FredUsMacroConnector):
         "T5YIFR": {"metric": "us_inflation_5y5y_forward", "dataset": "inflation_expectations", "unit": "percent",
                    "search_text": "5-Year, 5-Year Forward Inflation Expectation Rate"},
     }
+    # ALFRED erlaubt höchstens 2000 Vintage-Daten je Abruf; Tagesreihen haben ~260 je Jahr (DGS2: 5128 seit Beginn,
+    # Abruf ab 1776 -> HTTP 400, Quelle seit 2026-10-12 BROKEN). Daher Echtzeit-Fenster zu je 5 Jahren ab
+    # OBSERVATION_START: verlustfrei, weil keine Beobachtung ab 2015 vor 2015 veröffentlicht sein kann.
+    REALTIME_WINDOW_YEARS = 5
+    _today: date | None = None
+
+    def fetch(self, now: datetime) -> ConnectorResult:
+        self._today = now.date()
+        return super().fetch(now)
+
+    def _realtime_windows(self, today: date) -> list[tuple[str, str]]:
+        start = date.fromisoformat(self.OBSERVATION_START)
+        windows = []
+        while True:
+            nxt = start.replace(year=start.year + self.REALTIME_WINDOW_YEARS)
+            if nxt > today:
+                windows.append((start.isoformat(), "9999-12-31"))
+                return windows
+            windows.append((start.isoformat(), (nxt - timedelta(days=1)).isoformat()))
+            start = nxt
+
+    def _fetch_series(self, series_key: str, api_key: str, raw: list[RawRecord],
+                      discovered: dict) -> tuple[list[Observation], datetime | None, int, ConnectorResult | None]:
+        observations: list[Observation] = []
+        latest: datetime | None = None
+        parse_failures = 0
+        open_rows: dict = {}     # (observation_time, value) -> Zeile, deren Vintage am Fensterende abgeschnitten ist
+        for win_start, win_end in self._realtime_windows(self._today or datetime.now(timezone.utc).date()):
+            self._realtime_window = (win_start, win_end)
+            try:
+                obs, win_latest, pf, err = super()._fetch_series(series_key, api_key, raw, discovered)
+            finally:
+                self._realtime_window = None
+            if err is not None:
+                return [], None, 0, err
+            parse_failures += pf
+            if win_latest is not None and (latest is None or win_latest > latest):
+                latest = win_latest
+            start_dt = datetime.strptime(win_start, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            carried = open_rows
+            open_rows = {}
+            for o in obs:
+                prev = carried.get((o.observation_time, o.value)) if o.available_at == start_dt else None
+                row = prev if prev is not None else o
+                if prev is not None:          # derselbe Vintage über die Fenstergrenze: Ende fortschreiben
+                    prev.attrs["realtime_end"] = o.attrs.get("realtime_end")
+                else:
+                    observations.append(o)
+                if row.attrs.get("realtime_end") == win_end:
+                    open_rows[(row.observation_time, row.value)] = row
+        return observations, latest, parse_failures, None
 
 
 CONNECTORS: dict[str, type[Connector]] = {

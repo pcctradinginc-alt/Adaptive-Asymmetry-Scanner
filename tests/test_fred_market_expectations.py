@@ -40,6 +40,13 @@ def _alfred(rows):
                             content_hash="h", fingerprint="fp", bytes=len(content))
 
 
+def _alfred_windowed(rows, params):
+    """Simuliert ALFRED für das abgefragte Echtzeit-Fenster: nur überlappende Vintages, realtime_start/-end
+    auf das Fenster gekappt (so liefert die echte API Teilabrufe)."""
+    a, b = params["realtime_start"], params["realtime_end"]
+    return _alfred([(d, max(rs, a), min(re, b), v) for d, rs, re, v in rows if rs <= b and re >= a])
+
+
 def _connector():
     return re_.FredMarketExpectationsConnector(SourceRegistry().sources[SOURCE_ID])
 
@@ -57,11 +64,11 @@ def test_vintages_of_revised_observation_and_missing_value(monkeypatch):
     monkeypatch.setenv("FRED_API_KEY", "k")
 
     def fake(url, params=None, **kw):
-        return _alfred([
+        return _alfred_windowed([
             ("2026-09-01", "2026-09-02", "2026-09-09", "4.10"),     # Erstveröffentlichung
             ("2026-09-01", "2026-09-10", "9999-12-31", "4.12"),     # Revision (eigener Vintage)
             ("2026-09-07", "2026-09-08", "9999-12-31", "."),        # Feiertag/fehlend
-        ])
+        ], params)
     with patch.object(re_.http, "fetch", side_effect=fake):
         res = _connector().fetch(datetime(2026, 10, 1, tzinfo=UTC))
 
@@ -86,25 +93,57 @@ def test_vintages_of_revised_observation_and_missing_value(monkeypatch):
         assert missing.available_at == datetime(2026, 9, 8, tzinfo=UTC)
 
 
-def test_requests_all_six_series_with_observation_start_and_full_realtime_range(monkeypatch):
+def test_requests_all_six_series_in_realtime_windows_below_alfred_limit(monkeypatch):
+    """ALFRED erlaubt höchstens 2000 Vintage-Daten je Abruf (DGS2 hatte 5128 -> HTTP 400 beim Abruf ab 1776).
+    Tagesreihen werden daher in lückenlosen 5-Jahres-Echtzeitfenstern ab observation_start abgerufen."""
     monkeypatch.setenv("FRED_API_KEY", "k")
     calls = []
 
     def fake(url, params=None, **kw):
         calls.append((url, dict(params)))
-        return _alfred([("2026-09-01", "2026-09-02", "9999-12-31", "3.5")])
+        return _alfred_windowed([("2026-09-01", "2026-09-02", "9999-12-31", "3.5")], params)
     with patch.object(re_.http, "fetch", side_effect=fake):
         res = _connector().fetch(datetime(2026, 10, 1, tzinfo=UTC))
 
     assert res.status == SourceStatus.PASS
-    assert [p["series_id"] for _, p in calls] == list(EXPECTED)
+    windows = [("2015-01-01", "2019-12-31"), ("2020-01-01", "2024-12-31"), ("2025-01-01", "9999-12-31")]
+    assert [(p["series_id"], p["realtime_start"], p["realtime_end"]) for _, p in calls] == [
+        (key, a, b) for key in EXPECTED for a, b in windows]
     for url, p in calls:
         assert url.endswith("/series/observations")
         assert p["observation_start"] == "2015-01-01"
-        assert p["realtime_start"] == "1776-07-04" and p["realtime_end"] == "9999-12-31"
         assert p["api_key"] == "k" and p["file_type"] == "json"
     assert res.latest_observation_time == datetime(2026, 9, 1, tzinfo=UTC)
     assert len(res.observations) == 6
+
+
+def test_vintage_spanning_window_boundary_stays_one_observation(monkeypatch):
+    """Ein Vintage, der über eine Fenstergrenze reicht, kommt in beiden Teilabrufen (im zweiten mit gekapptem
+    realtime_start). Er bleibt EINE Beobachtung mit dem echten Veröffentlichungstag (kein Duplikat, kein
+    verspätetes available_at); eine echte Revision am Grenztag bleibt ein eigener Vintage."""
+    monkeypatch.setenv("FRED_API_KEY", "k")
+    rows = [
+        ("2019-06-03", "2019-06-04", "9999-12-31", "1.90"),    # nie revidiert, reicht über beide Grenzen
+        ("2019-12-30", "2019-12-31", "2019-12-31", "1.57"),    # endet genau am Fensterende
+        ("2019-12-30", "2020-01-01", "9999-12-31", "1.58"),    # Revision am ersten Tag des nächsten Fensters
+    ]
+    with patch.object(re_.http, "fetch", side_effect=lambda url, params=None, **kw: _alfred_windowed(rows, params)):
+        res = _connector().fetch(datetime(2026, 10, 1, tzinfo=UTC))
+
+    obs = [o for o in res.observations if o.metric == "us_treasury_2y"]
+    assert [(o.observation_time.date().isoformat(), o.available_at.date().isoformat(), o.value,
+             o.attrs["realtime_end"]) for o in obs] == [
+        ("2019-06-03", "2019-06-04", 1.90, "9999-12-31"),
+        ("2019-12-30", "2019-12-31", 1.57, "2019-12-31"),
+        ("2019-12-30", "2020-01-01", 1.58, "9999-12-31"),
+    ]
+
+
+def test_realtime_windows_grow_with_time():
+    c = re_.FredMarketExpectationsConnector({})
+    assert c._realtime_windows(datetime(2026, 10, 1).date())[-1] == ("2025-01-01", "9999-12-31")
+    assert c._realtime_windows(datetime(2030, 1, 1).date())[-1] == ("2030-01-01", "9999-12-31")
+    assert c._realtime_windows(datetime(2029, 12, 31).date())[-1] == ("2025-01-01", "9999-12-31")
 
 
 def test_connector_class_constants():
