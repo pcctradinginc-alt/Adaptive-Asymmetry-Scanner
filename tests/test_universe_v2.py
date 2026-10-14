@@ -156,6 +156,33 @@ def test_first_run_over_budget_marks_unchecked_and_next_run_prioritises_them(tmp
     assert all(r["status"] != "UNCHECKED" for r in recs2)
 
 
+def test_carried_forward_compact_records_do_not_break_next_snapshot(tmp_path):
+    """Live 2026-10-11 (Run 38145298623): der Folgelauf übernahm kompakt gespeicherte, nicht optionierbare Titel
+    aus dem Vor-Snapshot (ohne risk_flags) -> KeyError in summarize nach 50 min Discovery, kein Snapshot,
+    UNIVERSE_V2 seitdem STALLED."""
+    js = {"fields": ["cik", "name", "ticker", "exchange"],
+          "data": [[i, f"C{i}", f"T{i}", "Nasdaq"] for i in range(4)]}
+    # T0/T1 optionierbar, T2/T3 ohne Optionen (-> kompakt gespeichert)
+    chain = lambda t, d, c: ((_chain(sym=t, today=d), "f") if t in ("T0", "T1") else ([], "f"))  # noqa: E731
+    recs, meta = uv.discover(TODAY, CFG, listings_js=js, quotes_fn=lambda ts: {t: _quote() for t in ts},
+                             chain_fn=chain, cap_fn=lambda t: (5e9, "f"))
+    uv.save_snapshot(recs, TODAY, meta, snap_dir=tmp_path / "s", delistings=tmp_path / "d.jsonl")
+    prev = uv.latest_snapshot(tmp_path / "s")                    # wie in main(): von der Platte, kompakt
+    compact = [r for r in prev["records"] if not r.get("optionable")]
+    assert len(compact) == 2 and all("risk_flags" in r for r in compact)   # künftig mitgespeichert
+    for r in compact:                                             # Altbestand 2026-10-04: ohne risk_flags
+        r.pop("risk_flags")
+    d2 = TODAY + timedelta(days=7)
+    recs2, meta2 = uv.discover(d2, CFG, listings_js=js, quotes_fn=lambda ts: {t: _quote(last=d2) for t in ts},
+                               chain_fn=chain, cap_fn=lambda t: (5e9, "f"), prev=prev, budget_s=-1)
+    assert meta2["carried_forward"] == 4 and meta2["checked_this_run"] == 0
+    snap2 = uv.save_snapshot(recs2, d2, meta2, snap_dir=tmp_path / "s", delistings=tmp_path / "d.jsonl")
+    sm = snap2["summary"]
+    assert sm["n_optionable"] == 2 and sm["n_listed_checked"] == 4
+    assert set(sm["risk_flags"]) == {"PENNY_STOCK", "EXTREME_GAP", "MANIPULATION_RISK", "CORPORATE_ACTION"}
+    assert uv.latest_snapshot(tmp_path / "s")["as_of"] == d2.isoformat()
+
+
 def test_select_expiries_prefers_production_window():
     """Live 2026-10-04: nur Weeklies abgerufen -> Produktionsfenster leer -> tradeable systematisch 0."""
     days = [7, 14, 21, 28, 35, 49, 63, 91, 182, 365]
