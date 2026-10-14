@@ -256,12 +256,64 @@ def test_archive_idempotent(tmp_path):
 
 
 def test_archive_groups_by_retrieved_at_date(tmp_path):
-    r1 = _norm(retrieved_at=datetime(2026, 11, 19, 23, 59, 59, tzinfo=UTC))
-    r2 = _norm(retrieved_at=datetime(2026, 11, 20, 0, 0, 1, tzinfo=UTC))
-    r3 = _norm(retrieved_at="2026-11-20T20:00:00-05:00")        # = 21.11. 01:00 UTC
+    def at(ra: datetime) -> dict:                 # je Abruf eine eigene Börsenquote (kurz vor dem Abruf)
+        return _norm(_raw(bid_date=_ms(ra - timedelta(seconds=10))), retrieved_at=ra)
+    r1 = at(datetime(2026, 11, 19, 23, 59, 59, tzinfo=UTC))
+    r2 = at(datetime(2026, 11, 20, 0, 0, 1, tzinfo=UTC))
+    r3 = at(datetime(2026, 11, 21, 1, 0, tzinfo=UTC))
+    r3["retrieved_at"] = "2026-11-20T20:00:00-05:00"                    # = 21.11. 01:00 UTC
     assert oq.archive([r1, r2, r3], root=tmp_path) == 3
     assert sorted(p.name for p in tmp_path.glob("*.jsonl")) == [
         "2026-11-19.jsonl", "2026-11-20.jsonl", "2026-11-21.jsonl"]
+
+
+def test_archive_same_exchange_quote_after_utc_midnight_is_not_written_again(tmp_path):
+    """Regression 2026-10-14: die Schlussquote (Börsenzeit 19:59:59 UTC) wurde um 22:32 UTC und erneut um 01:30 UTC
+    (nächster UTC-Tag) abgerufen und landete mit derselben record_id in zwei Tagesdateien."""
+    qt = datetime(2026, 11, 20, 19, 59, 59, tzinfo=UTC)
+    first = _norm(_raw(bid_date=_ms(qt)), retrieved_at=datetime(2026, 11, 20, 22, 32, tzinfo=UTC))
+    again = _norm(_raw(bid_date=_ms(qt)), retrieved_at=datetime(2026, 11, 21, 1, 30, tzinfo=UTC))
+    assert first["record_id"] == again["record_id"]
+    assert oq.archive([first], root=tmp_path) == 1
+    assert oq.archive([again], root=tmp_path) == 0
+    assert not (tmp_path / "2026-11-21.jsonl").exists() or (tmp_path / "2026-11-21.jsonl").read_text() == ""
+    # Wochenende: Freitagsquote am Montag erneut abgerufen -> ebenfalls kein zweiter Eintrag
+    fri = datetime(2026, 11, 20, 20, 30, tzinfo=UTC)
+    mon = _norm(_raw(bid_date=_ms(fri - timedelta(seconds=1))), retrieved_at=datetime(2026, 11, 23, 15, 0, tzinfo=UTC))
+    fri_rec = _norm(_raw(bid_date=_ms(fri - timedelta(seconds=1))), retrieved_at=fri)
+    assert oq.archive([fri_rec], root=tmp_path) == 1
+    assert oq.archive([mon], root=tmp_path) == 0
+    # eine NEUE Börsenquote am Folgetag wird natürlich geschrieben
+    new = _norm(_raw(bid_date=_ms(datetime(2026, 11, 23, 15, 0, tzinfo=UTC) - timedelta(seconds=5))),
+                retrieved_at=datetime(2026, 11, 23, 15, 0, tzinfo=UTC))
+    assert oq.archive([new], root=tmp_path) == 1
+
+
+def test_archive_cross_day_dedupe_is_bounded(tmp_path):
+    """Nur Tagesdateien zwischen Börsenzeit und Abruf (höchstens DEDUP_LOOKBACK_DAYS zurück) werden geprüft."""
+    qt = datetime(2026, 11, 2, 15, 0, tzinfo=UTC)
+    old = _norm(_raw(bid_date=_ms(qt)), retrieved_at=qt + timedelta(minutes=5))
+    late = _norm(_raw(bid_date=_ms(qt)), retrieved_at=qt + timedelta(days=oq.DEDUP_LOOKBACK_DAYS + 2))
+    assert oq.archive([old], root=tmp_path) == 1
+    assert oq.archive([late], root=tmp_path) == 1          # außerhalb des Fensters: geschrieben (STALE-Kopie)
+    assert "STALE" in late["quality_flags"]
+
+
+def test_by_ids_prefers_first_observation_of_duplicate_record(tmp_path):
+    """Liegt dieselbe record_id in zwei Tagesdateien (Altbestand vor dem Dedupe), gilt die früheste Beobachtung –
+    eine spätere, nachbörsliche Kopie ersetzt nie die Quote aus dem Mark-Fenster."""
+    qt = datetime(2026, 11, 20, 15, 0, tzinfo=UTC)
+    in_window = _norm(_raw(bid_date=_ms(qt)), retrieved_at=qt + timedelta(minutes=2))
+    later = _norm(_raw(bid_date=_ms(qt)), retrieved_at=datetime(2026, 11, 21, 1, 30, tzinfo=UTC))
+    (tmp_path / "2026-11-20.jsonl").write_text(json.dumps(in_window) + "\n")
+    (tmp_path / "2026-11-21.jsonl").write_text(json.dumps(later) + "\n")
+    got = oq.by_ids([in_window["record_id"]], "2026-11-19", "2026-11-22", root=tmp_path)
+    assert got[in_window["record_id"]]["retrieved_at"] == in_window["retrieved_at"]
+    # Reihenfolge der Dateien spielt keine Rolle: auch umgekehrt geschrieben gewinnt die früheste Abrufzeit
+    (tmp_path / "2026-11-20.jsonl").write_text(json.dumps(later | {"retrieved_at": "2026-11-20T23:00:00.000+00:00"})
+                                              + "\n" + json.dumps(in_window) + "\n")
+    got = oq.by_ids([in_window["record_id"]], "2026-11-19", "2026-11-22", root=tmp_path)
+    assert got[in_window["record_id"]]["retrieved_at"] == in_window["retrieved_at"]
 
 
 def test_archive_rejects_non_observed_or_malformed_records(tmp_path):
@@ -311,8 +363,9 @@ def test_record_never_raises_on_garbage(tmp_path):
 
 def test_read_date_range(tmp_path):
     for d in ("2026-11-18", "2026-11-19", "2026-11-20", "2026-11-23"):
-        oq.record([_raw()], underlying="AAPL", source="t", context="c",
-                  retrieved_at=f"{d}T15:00:00+00:00", root=tmp_path)
+        ra = datetime.fromisoformat(f"{d}T15:00:00+00:00")
+        oq.record([_raw(bid_date=_ms(ra - timedelta(seconds=10)))], underlying="AAPL", source="t", context="c",
+                  retrieved_at=ra, root=tmp_path)
     days = lambda rows: [r["retrieved_at"][:10] for r in rows]   # noqa: E731
     assert days(oq.read("2026-11-19", "2026-11-20", root=tmp_path)) == ["2026-11-19", "2026-11-20"]
     assert days(oq.read("2026-11-19", "2026-11-19", root=tmp_path)) == ["2026-11-19"]

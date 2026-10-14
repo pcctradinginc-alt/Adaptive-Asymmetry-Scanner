@@ -595,9 +595,25 @@ def integrity(hist: dict, P: dict, now: datetime) -> dict:
     from modules import option_quotes as oq
     recs = oq.read(lo, None, root=P["quotes"])
     n_quotes = len(recs)
-    qdup = sum(1 for v in Counter(r.get("record_id") for r in recs).values() if v > 1)
+    groups: dict = {}
+    for r in recs:
+        groups.setdefault(r.get("record_id"), []).append(r)
+    qdup = reobs = 0
+    for g in groups.values():
+        if len(g) < 2:
+            continue
+        # Dieselbe Börsenquote (gleicher Inhalt) zu verschiedenen Zeitpunkten erneut abgerufen = Mehrfachbeobachtung
+        # (vor dem tagesübergreifenden Archiv-Dedupe 2026-10-14 möglich; option_quotes.by_ids nimmt die erste).
+        # Integritätsproblem nur bei abweichendem Inhalt oder identischem Abrufzeitpunkt (doppelt geschrieben).
+        same_quote = len({tuple(x.get(k) for k in ("occ_symbol", "quote_time", "bid", "ask")) for x in g}) == 1
+        ras = [x.get("retrieved_at") for x in g]
+        if same_quote and len(set(ras)) == len(ras):
+            reobs += 1
+        else:
+            qdup += 1
     foreign = sum(1 for r in recs if r.get("price_type") != oq.PRICE_TYPE)
-    out.update(quote_records_30d=n_quotes, quote_duplicate_ids=qdup, quote_non_observed_prices=foreign)
+    out.update(quote_records_30d=n_quotes, quote_duplicate_ids=qdup, quote_reobserved_ids=reobs,
+               quote_non_observed_prices=foreign)
     out["closed_trade_quarantine"] = len(hist.get("closed_trades_quarantine") or [])
     out["external_archive"] = _safe("external_archive", _external_rows_check, now)
     issues = []

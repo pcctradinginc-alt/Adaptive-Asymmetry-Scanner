@@ -524,6 +524,7 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
                          f"{_f(i.get('decision_ledger_duplicates'))} / {_f(i.get('trade_outcome_duplicates'))}"),
                         ("Quote-Archiv 30 T: Records / doppelte IDs / Fremdpreise",
                          f"{_f(i.get('quote_records_30d'))} / {_f(i.get('quote_duplicate_ids'))} / {_f(i.get('quote_non_observed_prices'))}"),
+                        ("Quote-Archiv 30 T: Mehrfachbeobachtungen (unkritisch)", _f(i.get("quote_reobserved_ids"))),
                         ("Quarantäne geschlossener Trades", _f(i.get("closed_trade_quarantine"))),
                         ("Externes Archiv", _f(i.get("external_archive")))])]
 
