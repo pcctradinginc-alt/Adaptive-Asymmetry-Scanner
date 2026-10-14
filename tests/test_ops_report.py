@@ -144,6 +144,32 @@ def test_render_none_is_na_never_zero():
     assert "N/A" in page
 
 
+def test_promotion_pause_is_labelled_with_reason_not_as_system_safe_mode():
+    """Mail 2026-10-14 zeigte 'Kill-Switch / Safe-Mode: nein / ja' bei system_state.safe_mode=false: gemeint ist
+    die Promotion-Pause des PromotionControllers -> eindeutig beschriftet, mit Grund."""
+    s = put(put(make_status(), "promotion.safe_mode", True), "promotion.safe_mode_reasons",
+            ["DRIFT MODERATE: Promotion pausiert"])
+    row = ops_report.history_row(s)
+    md = ops_report.render_markdown(s, row, ops_report.deltas(row, []), [])
+    ln = next(x for x in md.splitlines() if "Kill-Switch" in x)
+    assert "Promotion pausiert" in ln and "DRIFT MODERATE" in ln and "Safe-Mode" not in ln
+    s2 = put(make_status(), "promotion.safe_mode", False)
+    md2 = ops_report.render_markdown(s2, ops_report.history_row(s2), {}, [])
+    assert "DRIFT" not in next(x for x in md2.splitlines() if "Kill-Switch" in x)
+
+
+def test_current_job_steps_are_shown_next_to_watchdog_table():
+    """Mail 2026-10-14: die Lauf-Tabelle (Watchdog-Stand 13:46) zeigte scanner PENDING, obwohl der Bericht aus dem
+    erfolgreichen Scanner-Lauf stammte -> der laufende Job wird separat ausgewiesen."""
+    s = put(make_status(), "run.current_job", {"rth_marks": "success", "scanner": "success", "feedback": "success"})
+    md = ops_report.render_markdown(s, ops_report.history_row(s), {}, [])
+    assert "Workflow (Stand Watchdog)" in md
+    ln = next(x for x in md.splitlines() if "Dieser Lauf" in x)
+    assert "feedback=success" in ln and "rth_marks=success" in ln and "scanner=success" in ln
+    md2 = ops_report.render_markdown(make_status(), ops_report.history_row(make_status()), {}, [])
+    assert "Dieser Lauf" not in md2                                   # ohne Schritt-Ergebnisse keine Zeile
+
+
 def test_render_header_forward_disclaimer_and_sections():
     s = make_status()
     row = ops_report.history_row(s)

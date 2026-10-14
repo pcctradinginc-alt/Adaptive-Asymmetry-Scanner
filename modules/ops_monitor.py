@@ -557,7 +557,8 @@ def promotion_status(P: dict) -> dict:
     sysst = _json(P["system_state"]) or {}
     return {"generated": ps.get("generated"), "max_automatic_influence": ps.get("max_automatic_influence"),
             "kill_switch_active": pia.kill_switch_active(P["kill_switch"]),
-            "safe_mode": (ps.get("safe_mode") or {}).get("active"),
+            "safe_mode": (ps.get("safe_mode") or {}).get("active"),          # Promotion pausiert (PromotionController)
+            "safe_mode_reasons": (ps.get("safe_mode") or {}).get("reasons") or [],
             "champion_version": (sysst.get("champion_version") or {}).get("version"),
             "by_state": dict(Counter(h.get("state") for h in hyps.values())),
             "by_influence": dict(Counter(h.get("influence_level") for h in hyps.values())),
