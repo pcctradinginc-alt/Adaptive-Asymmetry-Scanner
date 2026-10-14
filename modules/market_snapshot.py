@@ -35,7 +35,10 @@ from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-import requests
+try:  # Kalender-Funktionen sind stdlib-only: Guard/Watchdog laufen ohne requests (nur pyyaml installiert)
+    import requests
+except ImportError:  # pragma: no cover - nur in schlanken CI-Jobs
+    requests = None
 from modules import request_cache
 
 log = logging.getLogger(__name__)

@@ -1784,6 +1784,7 @@ def test_fill_real_strategy_entries_single_leg_uses_ask_and_mid(monkeypatch):
 
 def test_fill_real_strategy_marks_spread_floors_conservative_at_zero(monkeypatch):
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)   # Live-Mark-Fenster unabhängig von der CI-Uhrzeit
     monkeypatch.setattr(
         cl.market_snapshot, "fetch_option_quotes",
         lambda symbols: {
@@ -1813,6 +1814,7 @@ def test_fill_real_strategy_marks_spread_floors_conservative_at_zero(monkeypatch
 
 def test_fill_real_strategy_marks_bull_call_spread_positive_exit(monkeypatch):
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)   # Live-Mark-Fenster unabhängig von der CI-Uhrzeit
     monkeypatch.setattr(
         cl.market_snapshot, "fetch_option_quotes",
         lambda symbols: {
@@ -1886,6 +1888,7 @@ def test_fill_real_strategy_marks_bearish_put_spread_intrinsic_at_expiry(monkeyp
 def test_fill_real_strategy_marks_single_leg_no_floor_needed(monkeypatch):
     """Single-Leg (kein Spread): exit_conservative ist einfach long_bid."""
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)   # Live-Mark-Fenster unabhängig von der CI-Uhrzeit
     monkeypatch.setattr(
         cl.market_snapshot, "fetch_option_quotes",
         lambda symbols: {"LONG": {"bid": 7.0, "ask": 7.2, "mid": 7.1}},
@@ -2063,6 +2066,7 @@ def test_single_leg_strategy_is_marked_from_recorded_long_leg_quote(monkeypatch)
     """Re-Audit 2026-10-11: Single-Leg-Strategien (LONG_CALL/PUT) hatten nie net_debit_entry und blieben dauerhaft
     unmarkiert. Entry = aufgezeichnete Ask/Mid des Long-Legs; Exit = Bid/Mid (kein Modellpreis)."""
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)   # Live-Mark-Fenster unabhängig von der CI-Uhrzeit
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
                         lambda symbols, context="candidate_mark": {"L": {"bid": 9.0, "ask": 9.4, "mid": 9.2}})
     row = {"ticker": "AAPL", "direction": "BULLISH", "outcomes": {},
@@ -2079,6 +2083,7 @@ def test_single_leg_strategy_is_marked_from_recorded_long_leg_quote(monkeypatch)
 def test_late_strategy_mark_does_not_downgrade_on_time_option_mark(monkeypatch):
     from modules import evidence_ledger as el
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "regular")
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)   # Live-Mark-Fenster unabhängig von der CI-Uhrzeit
     monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
                         lambda symbols, context="candidate_mark": {"L": {"bid": 9.0, "ask": 9.4, "mid": 9.2}})
     row = {"signal_id": "s1", "ticker": "AAPL", "direction": "BULLISH", "date": "2026-09-28",
