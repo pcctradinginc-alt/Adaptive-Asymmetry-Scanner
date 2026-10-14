@@ -99,6 +99,21 @@ def test_earnings_gate_window(monkeypatch):
         assert rg.RiskGates().has_upcoming_earnings("X") is expect
 
 
+def test_earnings_gate_reads_yfinance_dict_calendar(monkeypatch):
+    """yfinance >= 0.2.3x liefert Ticker.calendar als dict (Live 2026-10-14: 11x 'dict' object has no attribute
+    'empty' -> Earnings-Gate ohne Datengrundlage, u. a. beim gebuchten Champion-Trade ABBV)."""
+    d = date.today()
+    cases = (({"Earnings Date": [d + timedelta(days=5), d + timedelta(days=6)]}, True),
+             ({"Earnings Date": [d + timedelta(days=40)]}, False),
+             ({"Earnings Date": [d - timedelta(days=2)]}, False),
+             ({"Earnings Date": d + timedelta(days=3)}, True),                  # Einzelwert statt Liste
+             ({"Dividend Date": d + timedelta(days=3)}, False),                 # kein Earnings-Termin
+             ({}, False))
+    for cal, expect in cases:
+        monkeypatch.setattr(rg.yf, "Ticker", lambda s, c=cal: _FakeTicker(calendar=c))
+        assert rg.RiskGates().has_upcoming_earnings("X") is expect
+
+
 def test_earnings_gate_error_does_not_block(monkeypatch):
     def boom(s):
         raise RuntimeError("yahoo down")

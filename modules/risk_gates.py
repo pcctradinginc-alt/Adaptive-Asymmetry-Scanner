@@ -143,12 +143,18 @@ class RiskGates:
         """Prüft ob Earnings innerhalb der nächsten 14 Tage."""
         try:
             cal = yf.Ticker(ticker).calendar
-            if cal is None or cal.empty:
+            if cal is None:
                 return False
-            if "Earnings Date" not in cal.index:
-                return False
-
-            earnings_dates = cal.loc["Earnings Date"]
+            if isinstance(cal, dict):
+                # yfinance >= 0.2.3x: dict {"Earnings Date": [date, ...], ...} (Live 2026-10-14: das alte
+                # DataFrame-Handling warf AttributeError -> Gate lief ohne Datengrundlage)
+                earnings_dates = cal.get("Earnings Date") or []
+                if not isinstance(earnings_dates, (list, tuple)):
+                    earnings_dates = [earnings_dates]
+            else:
+                if cal.empty or "Earnings Date" not in cal.index:
+                    return False
+                earnings_dates = cal.loc["Earnings Date"]
             if hasattr(earnings_dates, "__iter__"):
                 for ed in earnings_dates:
                     try:
