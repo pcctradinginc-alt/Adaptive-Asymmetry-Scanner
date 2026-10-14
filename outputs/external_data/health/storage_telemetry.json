@@ -1,31 +1,31 @@
 {
-  "measured_at": "2026-10-13T14:20:40+00:00",
-  "total_bytes_per_day": 90055126.5,
+  "measured_at": "2026-10-14T12:03:01+00:00",
+  "total_bytes_per_day": 90020276.0,
   "one_off_backfill_bytes": 887267319,
   "projections_bytes": {
-    "30d": 2701653795.0,
-    "1y": 32870121172.5,
-    "5y": 164350605862.5
+    "30d": 2700608280.0,
+    "1y": 32857400740.0,
+    "5y": 164287003700.0
   },
   "warn_mb_1y": 200.0,
   "flagged": true,
   "backend": "git",
-  "bytes_in_git": 284338860,
+  "bytes_in_git": 286216233,
   "bytes_offloaded": 0,
   "per_source": {
     "bts_freight_tsi": {
-      "retrieval_days": 17,
+      "retrieval_days": 18,
       "rows": 7821,
       "one_off_backfill_bytes": 10385195,
-      "raw_bytes_per_day": 750210.0,
-      "normalized_bytes_per_day": 0.0
+      "raw_bytes_per_day": 750210,
+      "normalized_bytes_per_day": 0
     },
     "bts_open_data_tsi": {
-      "retrieval_days": 17,
+      "retrieval_days": 18,
       "rows": 932,
       "one_off_backfill_bytes": 6475131,
-      "raw_bytes_per_day": 773662.5,
-      "normalized_bytes_per_day": 0.0
+      "raw_bytes_per_day": 773863,
+      "normalized_bytes_per_day": 0
     },
     "cftc_cot": {
       "retrieval_days": 2,
@@ -35,11 +35,11 @@
       "normalized_bytes_per_day": 62947
     },
     "destatis_truck_toll": {
-      "retrieval_days": 17,
+      "retrieval_days": 18,
       "rows": 1138,
       "one_off_backfill_bytes": 837809,
-      "raw_bytes_per_day": 15029.0,
-      "normalized_bytes_per_day": 0.0
+      "raw_bytes_per_day": 15029,
+      "normalized_bytes_per_day": 0
     },
     "eia_natural_gas": {
       "retrieval_days": 2,
@@ -56,95 +56,95 @@
       "normalized_bytes_per_day": 16178
     },
     "entsoe_power": {
-      "retrieval_days": 14,
-      "rows": 2547,
+      "retrieval_days": 15,
+      "rows": 2556,
       "one_off_backfill_bytes": 139210600,
-      "raw_bytes_per_day": 48495458,
-      "normalized_bytes_per_day": 5099
+      "raw_bytes_per_day": 48505147.5,
+      "normalized_bytes_per_day": 5733.5
     },
     "estat_jp_truck": {
-      "retrieval_days": 16,
+      "retrieval_days": 17,
       "rows": 4320,
       "one_off_backfill_bytes": 13564181,
-      "raw_bytes_per_day": 558534,
-      "normalized_bytes_per_day": 0
+      "raw_bytes_per_day": 558534.0,
+      "normalized_bytes_per_day": 0.0
     },
     "eurostat_industrial_production": {
-      "retrieval_days": 17,
+      "retrieval_days": 18,
       "rows": 2890,
       "one_off_backfill_bytes": 18339613,
-      "raw_bytes_per_day": 2044110.5,
-      "normalized_bytes_per_day": 0.0
-    },
-    "eurostat_road_freight": {
-      "retrieval_days": 17,
-      "rows": 15128,
-      "one_off_backfill_bytes": 40940420,
-      "raw_bytes_per_day": 2194277.5,
-      "normalized_bytes_per_day": 0.0
-    },
-    "eurostat_road_freight_quarterly": {
-      "retrieval_days": 17,
-      "rows": 60282,
-      "one_off_backfill_bytes": 64667759,
-      "raw_bytes_per_day": 2875977.5,
-      "normalized_bytes_per_day": 0.0
-    },
-    "eurostat_sentiment": {
-      "retrieval_days": 17,
-      "rows": 7704,
-      "one_off_backfill_bytes": 22440721,
-      "raw_bytes_per_day": 2244872.5,
-      "normalized_bytes_per_day": 0.0
-    },
-    "fred_commodities": {
-      "retrieval_days": 10,
-      "rows": 7384,
-      "one_off_backfill_bytes": 7864635,
-      "raw_bytes_per_day": 717014,
+      "raw_bytes_per_day": 2044051,
       "normalized_bytes_per_day": 0
     },
+    "eurostat_road_freight": {
+      "retrieval_days": 18,
+      "rows": 15128,
+      "one_off_backfill_bytes": 40940420,
+      "raw_bytes_per_day": 2194218,
+      "normalized_bytes_per_day": 0
+    },
+    "eurostat_road_freight_quarterly": {
+      "retrieval_days": 18,
+      "rows": 60282,
+      "one_off_backfill_bytes": 64667759,
+      "raw_bytes_per_day": 2875918,
+      "normalized_bytes_per_day": 0
+    },
+    "eurostat_sentiment": {
+      "retrieval_days": 18,
+      "rows": 7704,
+      "one_off_backfill_bytes": 22440721,
+      "raw_bytes_per_day": 2244813,
+      "normalized_bytes_per_day": 0
+    },
+    "fred_commodities": {
+      "retrieval_days": 11,
+      "rows": 7384,
+      "one_off_backfill_bytes": 7864635,
+      "raw_bytes_per_day": 717014.0,
+      "normalized_bytes_per_day": 0.0
+    },
     "fred_regime_macro": {
-      "retrieval_days": 15,
-      "rows": 26065,
+      "retrieval_days": 16,
+      "rows": 26070,
       "one_off_backfill_bytes": 24465978,
-      "raw_bytes_per_day": 2568290.0,
-      "normalized_bytes_per_day": 284.5
+      "raw_bytes_per_day": 2568339,
+      "normalized_bytes_per_day": 569
     },
     "fred_us_macro": {
-      "retrieval_days": 17,
+      "retrieval_days": 18,
       "rows": 40445,
       "one_off_backfill_bytes": 53866311,
-      "raw_bytes_per_day": 3922251.0,
-      "normalized_bytes_per_day": 0.0
+      "raw_bytes_per_day": 3922251,
+      "normalized_bytes_per_day": 0
     },
     "fred_world_macro": {
-      "retrieval_days": 15,
+      "retrieval_days": 16,
       "rows": 6205,
       "one_off_backfill_bytes": 3992679,
-      "raw_bytes_per_day": 603028.0,
-      "normalized_bytes_per_day": 0.0
+      "raw_bytes_per_day": 603028,
+      "normalized_bytes_per_day": 0
     },
     "imf_portwatch_chokepoints": {
-      "retrieval_days": 17,
+      "retrieval_days": 18,
       "rows": 11376,
       "one_off_backfill_bytes": 3728415,
-      "raw_bytes_per_day": 0.0,
-      "normalized_bytes_per_day": 0.0
-    },
-    "imf_portwatch_disruptions": {
-      "retrieval_days": 16,
-      "rows": 944,
-      "one_off_backfill_bytes": 747526,
       "raw_bytes_per_day": 0,
       "normalized_bytes_per_day": 0
     },
-    "imf_portwatch_ports": {
+    "imf_portwatch_disruptions": {
       "retrieval_days": 17,
-      "rows": 29702,
-      "one_off_backfill_bytes": 6126087,
+      "rows": 944,
+      "one_off_backfill_bytes": 747526,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
+    },
+    "imf_portwatch_ports": {
+      "retrieval_days": 18,
+      "rows": 29702,
+      "one_off_backfill_bytes": 6126087,
+      "raw_bytes_per_day": 0,
+      "normalized_bytes_per_day": 0
     },
     "ncei_normals": {
       "retrieval_days": 2,
@@ -154,11 +154,11 @@
       "normalized_bytes_per_day": 0
     },
     "nhc_storms": {
-      "retrieval_days": 17,
-      "rows": 1959,
+      "retrieval_days": 18,
+      "rows": 2028,
       "one_off_backfill_bytes": 1514550,
-      "raw_bytes_per_day": 92656.0,
-      "normalized_bytes_per_day": 55786.0
+      "raw_bytes_per_day": 92503,
+      "normalized_bytes_per_day": 57906
     },
     "noaa_storm_events": {
       "retrieval_days": 1,
@@ -168,18 +168,18 @@
       "normalized_bytes_per_day": 0.0
     },
     "nws_alerts": {
-      "retrieval_days": 17,
-      "rows": 1129,
+      "retrieval_days": 18,
+      "rows": 1174,
       "one_off_backfill_bytes": 2211981,
-      "raw_bytes_per_day": 101553.0,
-      "normalized_bytes_per_day": 24979.0
+      "raw_bytes_per_day": 93545,
+      "normalized_bytes_per_day": 24979
     },
     "nws_forecast": {
-      "retrieval_days": 17,
-      "rows": 58536,
+      "retrieval_days": 18,
+      "rows": 60911,
       "one_off_backfill_bytes": 158927790,
-      "raw_bytes_per_day": 11753328.0,
-      "normalized_bytes_per_day": 1522663.5
+      "raw_bytes_per_day": 11713892,
+      "normalized_bytes_per_day": 1522670
     }
   },
   "migration_note": "1y-Projektion \u00fcberschreitet die konfigurierte Schwelle. GitHub-Actions- Artefakte/Checkout sind KEIN dauerhafter Speicher \u2014 bei anhaltendem Wachstum auf Object Storage (z.B. S3/GCS/Backblaze B2) migrieren, outputs/external_data als Git-Verlauf entlasten (z.B. Kompaktierung alter raw/-Monate oder externe Ablage der normalisierten JSONL-Dateien)."
