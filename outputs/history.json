@@ -136,8 +136,8 @@
       },
       "outcome": null,
       "peak_return": -0.1962,
-      "last_price": 253.316362,
-      "current_return": -0.3462,
+      "last_price": 253.48,
+      "current_return": -0.3269,
       "spread_monitor": [
         {
           "ts": "2026-10-12T22:32:45+00:00",
@@ -198,15 +198,27 @@
           "fair_value_pnl_pct": -0.3173,
           "executable_pnl_pct": -0.3462,
           "underlying_return_pct": -0.0224
+        },
+        {
+          "ts": "2026-10-14T19:32:21+00:00",
+          "quote_quality": "HEALTHY",
+          "combo_bid": 8.75,
+          "combo_ask": 9.45,
+          "combo_mid": 9.1,
+          "fair_value": 9.1,
+          "executable_exit_value": 8.75,
+          "fair_value_pnl_pct": -0.3,
+          "executable_pnl_pct": -0.3269,
+          "underlying_return_pct": -0.0218
         }
       ],
       "spread_stop_shadow": {
         "production_stop_hit": false,
         "shadow_stop": "NO_STOP",
         "confirmed_observations": 2,
-        "fair_value_pnl_pct": -0.3173,
-        "executable_pnl_pct": -0.3462,
-        "underlying_return_pct": -0.0224
+        "fair_value_pnl_pct": -0.3,
+        "executable_pnl_pct": -0.3269,
+        "underlying_return_pct": -0.0218
       }
     },
     {
@@ -295,8 +307,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 342.055,
-      "current_return": -0.0724
+      "last_price": 343.22,
+      "current_return": -0.0554
     },
     {
       "ticker": "MO",
@@ -383,9 +395,9 @@
         "dte": 175
       },
       "outcome": null,
-      "peak_return": 0.2245,
-      "last_price": 72.925,
-      "current_return": 0.2245
+      "peak_return": 0.2925,
+      "last_price": 72.79,
+      "current_return": 0.2925
     },
     {
       "ticker": "HOOD",
@@ -615,8 +627,8 @@
         }
       },
       "peak_return": -0.0396,
-      "last_price": 100.76,
-      "current_return": -0.3473
+      "last_price": 100.905,
+      "current_return": -0.3407
     },
     {
       "ticker": "ABBV",
@@ -861,7 +873,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-14T18:04:17+00:00",
+        "evaluated_at": "2026-10-14T19:32:20+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -886,8 +898,8 @@
         ]
       },
       "peak_return": -0.0417,
-      "last_price": 285.035,
-      "current_return": -0.0417
+      "last_price": 283.15,
+      "current_return": -0.0813
     }
   ],
   "closed_trades": [
@@ -107672,44 +107684,44 @@
       "entry_debit": 7.35,
       "entry_date": "2026-09-24",
       "created": "2026-09-28",
-      "mfe": 0.2245,
+      "mfe": 0.2925,
       "mae": -0.2653,
       "closed": false,
       "variants": {
         "tp50_sl45": {
           "outcome": null,
           "closed": false,
-          "peak": 0.2245,
+          "peak": 0.2925,
           "close_date": null
         },
         "no_tp": {
           "outcome": null,
           "closed": false,
-          "peak": 0.2245,
+          "peak": 0.2925,
           "close_date": null
         },
         "trail35": {
           "outcome": null,
           "closed": false,
-          "peak": 0.2245,
+          "peak": 0.2925,
           "close_date": null
         },
         "trail50": {
           "outcome": null,
           "closed": false,
-          "peak": 0.2245,
+          "peak": 0.2925,
           "close_date": null
         },
         "partial50": {
           "outcome": null,
           "closed": false,
-          "peak": 0.2245,
+          "peak": 0.2925,
           "close_date": null
         },
         "time_only": {
           "outcome": null,
           "closed": false,
-          "peak": 0.2245,
+          "peak": 0.2925,
           "close_date": null
         }
       }
@@ -107823,7 +107835,7 @@
       "entry_date": "2026-10-06",
       "created": "2026-10-06",
       "mfe": 0.0,
-      "mae": -0.5079,
+      "mae": -0.5317,
       "closed": false,
       "variants": {
         "tp50_sl45": {
@@ -107908,7 +107920,7 @@
       "entry_date": "2026-10-14",
       "created": "2026-10-14",
       "mfe": 0.0,
-      "mae": -0.0417,
+      "mae": -0.0813,
       "closed": false,
       "variants": {
         "tp50_sl45": {
