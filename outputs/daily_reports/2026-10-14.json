@@ -1,0 +1,1046 @@
+{
+  "date": "2026-10-14",
+  "proposals": [
+    {
+      "ticker": "ABBV",
+      "strategy": "LONG_CALL",
+      "iv_rank": 11.2,
+      "iv_gate_applied": false,
+      "direction": "BULLISH",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 280.0,
+        "bid": 24.15,
+        "ask": 25.2,
+        "open_interest": 1786,
+        "implied_vol": 0.2925,
+        "spread_ratio": 0.0417,
+        "dte": 155,
+        "delta": 0.5747,
+        "data_source": "tradier",
+        "option_symbol": "ABBV270319C00280000",
+        "volume": 23,
+        "iv_source": "chain",
+        "delta_source": "chain",
+        "chain_retrieved_at": "2026-10-14T18:02:52+00:00",
+        "quote_time": "2026-10-14T18:02:46+00:00",
+        "bid_missing": false,
+        "ask_missing": false,
+        "source_primary": "options_chain",
+        "source_actual": "options_chain"
+      },
+      "roi_analysis": {
+        "roi_gross": 0.3256,
+        "roi_net": 1.2138853380279766,
+        "spread_pct": 0.0417,
+        "vega_loss": 0.012,
+        "theta_daily": -0.0687,
+        "theta_daily_pct": 0.0027,
+        "delta": 0.5747,
+        "breakeven": 305.2,
+        "breakeven_pct": 0.0694,
+        "commission_pct": 0.0005,
+        "iv_drop_assumed": 0.014178,
+        "iv_drop_base": 0.03,
+        "catalyst_type": "OTHER",
+        "cost_basis": 25.2,
+        "mc_weight": 0.625,
+        "is_spread": false,
+        "passes_roi_gate": true,
+        "min_roi_threshold": 0.07,
+        "dte": 155,
+        "mc_pnl_pct": 1.1882889836695916,
+        "mc_pnl_mean": 1.2977853380279767,
+        "mc_median_net": 1.1044
+      },
+      "dte_tier": "Long-Term",
+      "annualized_roi": 0.6276,
+      "all_tiers_tried": [
+        {
+          "tier": "Long-Term",
+          "dte": 155,
+          "option": {
+            "expiry": "2027-03-19",
+            "strike": 280.0,
+            "bid": 24.15,
+            "ask": 25.2,
+            "open_interest": 1786,
+            "implied_vol": 0.2925,
+            "spread_ratio": 0.0417,
+            "dte": 155,
+            "delta": 0.5747,
+            "data_source": "tradier",
+            "option_symbol": "ABBV270319C00280000",
+            "volume": 23,
+            "iv_source": "chain",
+            "delta_source": "chain",
+            "chain_retrieved_at": "2026-10-14T18:02:52+00:00",
+            "quote_time": "2026-10-14T18:02:46+00:00",
+            "bid_missing": false,
+            "ask_missing": false,
+            "source_primary": "options_chain",
+            "source_actual": "options_chain"
+          },
+          "roi": {
+            "roi_gross": 0.3256,
+            "roi_net": 1.2138853380279766,
+            "spread_pct": 0.0417,
+            "vega_loss": 0.012,
+            "theta_daily": -0.0687,
+            "theta_daily_pct": 0.0027,
+            "delta": 0.5747,
+            "breakeven": 305.2,
+            "breakeven_pct": 0.0694,
+            "commission_pct": 0.0005,
+            "iv_drop_assumed": 0.014178,
+            "iv_drop_base": 0.03,
+            "catalyst_type": "OTHER",
+            "cost_basis": 25.2,
+            "mc_weight": 0.625,
+            "is_spread": false,
+            "passes_roi_gate": true,
+            "min_roi_threshold": 0.07,
+            "dte": 155,
+            "mc_pnl_pct": 1.1882889836695916,
+            "mc_pnl_mean": 1.2977853380279767,
+            "mc_median_net": 1.1044
+          },
+          "roi_net_initial": 0.2298,
+          "annualized_roi": 0.6276,
+          "strategy": "LONG_CALL",
+          "fail_gate": "roi_initial"
+        }
+      ],
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.091,
+        "z_score": 0.582,
+        "sigma_30d": 0.0131,
+        "price_move_48h": 0.0076,
+        "price_move_48h_signed": -0.0076,
+        "z_score_2d_scaled": 0.411,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6254,
+        "risk_p_model_wrong": null,
+        "risk_data_quality": 0.088,
+        "risk_regime_mismatch": 0.667,
+        "risk_unknown_risk": 0.0,
+        "risk_model_disagreement": 0.503,
+        "risk_counterfactual_fragility": 0.333,
+        "risk_alpha_decay": 0.333,
+        "risk_abstain_score": 0.321
+      },
+      "simulation": {
+        "current_price": 285.4,
+        "target_price": 308.23,
+        "hit_rate": 0.7404,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0162,
+        "sigma_source": "measured",
+        "alpha": 0.00299
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "ABBV ist ein Mega-Cap mit $504 Mrd. Marktkapitalisierung und extrem hoher Analyst-Coverage. Die SKYRIZI-SC-Crohn's-Daten sind eine \u00f6ffentliche Information, die innerhalb von Minuten von institutionellen Desks verarbeitet wird. Der Markt hat bereits seit Monaten auf SC-Formulierungen als n\u00e4chsten Wachstumstreiber spekuliert \u2014 ein genuiner Informationsvorsprung existiert kaum, und die -0.8% Kursbewegung nach der News deutet darauf hin, dass der Markt die News als weitgehend eingepreist betrachtet.",
+          "argument_2": "ABBV handelt bei einem impliziten KGV von ca. 17.6x (285.40/16.22 EPS), was f\u00fcr ein Pharmaunternehmen mit erheblichem Biosimilar-Wettbewerb f\u00fcr HUMIRA und einem Wachstumsportfolio, das SKYRIZI und RINVOQ noch beweisen m\u00fcssen, ambitioniert erscheint. Das 10Y-Treasury-Niveau von 4.99% erh\u00f6ht den Diskontierungsfaktor f\u00fcr weit in der Zukunft liegende Pipeline-Ertr\u00e4ge erheblich, was langfristige Umsatzerwartungen strukturell belastet.",
+          "argument_3": "Das Dealer-Gamma-Signal zeigt eine massive Call-OI-Dominanz (1.488 vs. 155 Put-OI), was bedeutet, dass Dealer bereits Short-Gamma in Calls positioniert sind und Aufw\u00e4rtsbewegungen systematisch d\u00e4mpfen werden. Retail und institutionelle K\u00e4ufer haben die bullishe Thesis bereits via Options ausgedr\u00fcckt \u2014 der asymmetrische \u00dcberraschungseffekt fehlt, da der Trade bereits sehr popul\u00e4r erscheint.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt, daher keine Hit-Rate verf\u00fcgbar. Eine 0%-Angabe ist technisch bedingt durch fehlende Simulation, nicht durch ein negatives Modellurteil. Ohne MC-Daten ist die statistische Fundierung schwach \u2014 die Bewertung muss vollst\u00e4ndig auf fundamentaler Analyse beruhen. Concern-Level daher erh\u00f6ht.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt unterreagiert m\u00f6glicherweise, weil SC-Crohn's eine neue Indikationserweiterung ist, die SKYRIZIs adressierbaren Markt strukturell vergr\u00f6\u00dfert und bisher prim\u00e4r als GI-Story \u2014 nicht als breitere Immunologie-Plattform \u2014 bewertet wurde. Allerdings ist dies eine begrenzte Unterreaktion, da Mega-Cap-Coverage die meisten Narrativ-Shifts schnell einpreist. Die Catalyst-Confidence bleibt daher moderat.",
+        "catalyst": "SKYRIZI Subcutaneous Crohn's Disease Phase-3-Daten als Indikationserweiterung \u2014 potenzielle Label-Expansion und Marktanteilsgewinne vs. Entyvio/Stelara im GI-Immunologie-Segment bis Q1 2027",
+        "bear_case": "Mega-Cap-Informationseffizienz kombiniert mit bereits stark bullish positionierter Options-Struktur (Call/Put-OI = 9.6:1) und 4.99% Diskontierungsfaktor macht eine signifikante Underreaction strukturell unwahrscheinlich \u2014 das Aufw\u00e4rtspotenzial ist begrenzt gedeckelt.",
+        "macro_assessment": "Neutrales Makro-Umfeld mit flacher Kurve (+0.42%) ist f\u00fcr Healthcare grunds\u00e4tzlich akzeptabel. VIX-Contango (+32%) spricht f\u00fcr sinkende Volatilit\u00e4t und beg\u00fcnstigt moderate Long-Positionen. Das 10Y-Niveau von 4.99% ist jedoch ein strukturelles Gegenargument f\u00fcr hochbewertete Pharma-Namen mit langfristiger Pipeline-Abh\u00e4ngigkeit. Insgesamt neutrale Makro-Unterst\u00fctzung.",
+        "data_confidence": "low",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.42,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 504335106048,
+        "direction_conflict": false
+      },
+      "sector_momentum": {
+        "etf": "XLV",
+        "rel_strength": 0.0797
+      },
+      "final_score": 0.2781,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.7404,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "mc_hit_rate": 0.6254,
+      "time_to_maturation": "2-3 Monate",
+      "sector": "Healthcare",
+      "catalyst_type": "OTHER",
+      "implied_move_pct": 15.35,
+      "model_move_pct": 8.0,
+      "edge_vs_implied": 1.06,
+      "mc_pnl_pct": 1.1882889836695916,
+      "mc_pnl_mean": 1.2977853380279767,
+      "mc_pnl_std": 1.1083309098874616,
+      "mc_hold_days": 77,
+      "mc_ou_method": "heuristic",
+      "mc_ou_n_days": 2,
+      "trade_bep_pct": 6.94,
+      "external_context": {
+        "snapshot_id": "e1479025e6c3ee9e",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-14T12:02:54+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.13346507817155134,
+          "shipping_container_z": 0.7955622402240948,
+          "shipping_drybulk_z": -0.8338884265709008,
+          "shipping_tanker_z": 0.3907463049743236,
+          "shipping_negative_breadth": 0.25,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.7719036076102617,
+          "panama_z": 0.6140805908568026,
+          "hormuz_z": 0.16378044552010448,
+          "malacca_z": -0.9186539617317975,
+          "bab_el_mandeb_z": 1.5670690298281404,
+          "asia_export_z": -0.6027273229615,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03353016322755642,
+          "us_cpi_yoy_3m_ago": 0.04166614684049641,
+          "nfci_credit": -0.026,
+          "nfci": -0.494,
+          "fed_assets_13w_chg": 0.0017743013289517329,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.290772532188841,
+          "de_power_price_7d": 139.38907142857144,
+          "de_power_price_z": 0.8789552042484,
+          "de_load_yoy": -0.012983303333225837,
+          "hdd_anomaly": -4.317560547356812,
+          "cdd_anomaly": 2.9400763162622745,
+          "forecast_revision_hdd": -0.17262718824260523,
+          "forecast_revision_cdd": 0.17262718824260523,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.6707546421333457,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.11534540944072366,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.0838,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Healthcare",
+          "level": "sector",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "LOW",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.6707546421333457,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      },
+      "time_value_efficiency": {
+        "roi_per_day_pct": 0.7832,
+        "annualized_roi": null,
+        "dte": 155
+      },
+      "trade_score": {
+        "total": 60,
+        "grade": "BUY \ud83d\udfe1",
+        "grade_short": "BUY",
+        "components": {
+          "signal_quality": 13.9,
+          "options_quality": 30.0,
+          "risk_deductions": 0.0,
+          "context_bonus": 16.0,
+          "roi_penalty": 0.0,
+          "edge_pts": 0.0,
+          "macro_sensitivity": 0.2
+        },
+        "reasoning": "St\u00e4rken: guter ROI (121%), g\u00fcnstige IV (11%), positive Sektor-Relative-St\u00e4rke | Risiken: schwaches Signal (Impact=4/Surprise=3)",
+        "best_argument_for": "Der Markt unterreagiert m\u00f6glicherweise, weil SC-Crohn's eine neue Indikationserweiterung ist, die SKYRIZIs adressierbaren Markt strukturell vergr\u00f6\u00dfert und bisher prim\u00e4r als GI-Story \u2014 nicht als breitere Immunologie-Plattform \u2014 bewertet wurde. Allerdings ist dies eine begrenzte Unterreaktion, da Mega-Cap-Coverage die meisten Narrativ-Shifts schnell einpreist. Die Catalyst-Confidence bleibt daher moderat.",
+        "best_argument_against": "ABBV ist ein Mega-Cap mit $504 Mrd. Marktkapitalisierung und extrem hoher Analyst-Coverage. Die SKYRIZI-SC-Crohn's-Daten sind eine \u00f6ffentliche Information, die innerhalb von Minuten von institutionellen Desks verarbeitet wird. Der Markt hat bereits seit Monaten auf SC-Formulierungen als n\u00e4chsten Wachstumstreiber spekuliert \u2014 ein genuiner Informationsvorsprung existiert kaum, und die -0.8% Kursbewegung nach der News deutet darauf hin, dass der Markt die News als weitgehend eingepreist betrachtet."
+      },
+      "trade_rank": 1,
+      "position_sizing": {
+        "portfolio_usd": 5000.0,
+        "kelly_raw": 0.3785,
+        "kelly_fraction": 0.25,
+        "position_pct": 0.0946,
+        "position_usd": 473.15,
+        "cost_per_contract": 2520.0,
+        "contracts": 0,
+        "max_risk_usd": 0.0,
+        "note": "1 Kontrakt ($2520) \u00fcbersteigt das Kelly-Budget ($473) \u2014 Trade auslassen oder bewusst Risiko erh\u00f6hen."
+      },
+      "booking": {
+        "status": "BOOKED",
+        "trade_score_min": 55.0
+      },
+      "exit_rules": {
+        "entry_cost": 25.2,
+        "is_spread": false,
+        "take_profit_pct": 50,
+        "take_profit_price": 37.8,
+        "full_profit_pct": 100,
+        "full_profit_price": 50.4,
+        "stop_loss_pct": -45,
+        "stop_loss_price": 13.86,
+        "time_exit_dte_remaining": 77,
+        "time_exit_date": "2027-01-01",
+        "time_exit_min_profit_pct": 20,
+        "vol_crush_pts": 30,
+        "delta_exit": 0.8,
+        "underlying_breakeven": 0
+      }
+    }
+  ],
+  "stats": {
+    "vix": 16.75,
+    "universe": 514,
+    "candidates": 351,
+    "prescreened": 109,
+    "sector_ok": 318,
+    "pre_mc": 79,
+    "roi_precheck": 85,
+    "analyzed": 66,
+    "mismatch_ok": 18,
+    "quick_mc": 11,
+    "intraday_ok": 11,
+    "final_mc": 11,
+    "rl_scored": 11,
+    "roi_ok": 1,
+    "trades": 1,
+    "stop_reason": "",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.0,
+      "month_usd": 5.5521,
+      "warnings": [
+        "Projected monthly API cost $23.60 > Ziel $10.00 (nur Report + OPTIONAL zur\u00fcckgestellt; Produktion l\u00e4uft vollst\u00e4ndig)"
+      ],
+      "projected_month_usd": 23.6,
+      "monthly_api_budget_usd": 10.0,
+      "soft_pressure": true,
+      "deferred_tiers": [
+        "TIER4_OPTIONAL"
+      ]
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.912,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 29,
+      "active": false,
+      "reasons": [],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "e1479025e6c3ee9e",
+      "as_of": "2026-10-14T17:52:38+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "after_isf": 39,
+    "final_mc_shadow": [
+      {
+        "ticker": "HUM",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5698,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5895,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "ON",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5834,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.607,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "A",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "ABBV",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7404,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "WDAY",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7366,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CCL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5424,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5697,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "APH",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6476,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6471,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VEEV",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.559,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5854,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "JCI",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5782,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6755,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "PYPL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6672,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6919,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "COIN",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5564,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.573,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "final_mc_ledger": {
+      "observations": 11
+    },
+    "roi_rejects": {
+      "n": 4,
+      "gap_min": 0.0237,
+      "gap_median": 0.1625,
+      "gap_max": 0.1641
+    },
+    "intelligence": {
+      "champion_trades": 1,
+      "blocked": 0,
+      "would_block_shadow": 0,
+      "influence_level": "NONE"
+    },
+    "booked_trades": 1,
+    "expectation_alpha": {
+      "mode": "shadow",
+      "enabled": true,
+      "production_influence": "NONE",
+      "candidate_count": 66,
+      "date": "2026-10-14",
+      "context_id": "f176424bc5a1b87c",
+      "enriched_count": 66,
+      "recorded": 66,
+      "status_counts": {
+        "TRADE": 0,
+        "WAIT": 9,
+        "ABSTAIN": 57,
+        "ERROR": 0
+      },
+      "shadow_trade_count": 0,
+      "wait_count": 9,
+      "abstain_count": 57,
+      "error_count": 0,
+      "missing_counts": {
+        "inflation": "UNAVAILABLE",
+        "policy_rates": "UNAVAILABLE",
+        "credit": "UNAVAILABLE",
+        "equity_earnings": "UNAVAILABLE"
+      },
+      "stale_components": [],
+      "gap_z": {
+        "inflation": null,
+        "policy_rates": null,
+        "growth": 1.7245,
+        "oil": -1.269,
+        "credit": null,
+        "equity_earnings": null
+      },
+      "confirmation_ratio": {
+        "n": 66,
+        "min": 0.0,
+        "median": 0.4444,
+        "max": 0.6
+      },
+      "effective_vs_raw_confirmation": {
+        "raw": 254,
+        "effective": 236.75,
+        "ratio": 0.9321
+      },
+      "claims": {
+        "extraction_status_counts": {
+          "OK": 12,
+          "SKIPPED": 54
+        },
+        "n_claims": 23,
+        "n_verified": 1,
+        "n_unverified": 22,
+        "n_contradicted": 0,
+        "verified_claim_fraction": {
+          "n": 9,
+          "min": 0.0,
+          "median": 0.0,
+          "max": 0.5
+        }
+      },
+      "insufficient_history_count": {
+        "gaps": 0,
+        "roc_fields": 3,
+        "regime": 0,
+        "signals": 0,
+        "total": 3
+      },
+      "family_diversity": {
+        "n": 66,
+        "min": 3.0,
+        "median": 7.0,
+        "max": 8.0
+      },
+      "regime_uncertainty": 0.38,
+      "groups": {
+        "A": 10,
+        "B": 0,
+        "C": 49,
+        "D": 0,
+        "E": 4,
+        "X": 3
+      },
+      "errors": [],
+      "run_errors": [],
+      "runtime_seconds": 44.27
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 33,
+      "tickers": [
+        "MDB",
+        "MGM",
+        "GIS",
+        "SKYD",
+        "BX",
+        "MKC",
+        "CLX",
+        "CVNA",
+        "SLB",
+        "INTU"
+      ]
+    },
+    "prescreen_no": {
+      "count": 209,
+      "tickers": [
+        "CHD",
+        "LHX",
+        "EXPD",
+        "DDOG",
+        "V",
+        "ALL",
+        "KLAC",
+        "TEAM",
+        "NFLX",
+        "MRSH"
+      ]
+    },
+    "earnings_gate": {
+      "count": 24,
+      "tickers": [
+        "JBHT",
+        "CB",
+        "KMI",
+        "ISRG",
+        "LRCX",
+        "LUV",
+        "NEE",
+        "STT",
+        "ELV",
+        "META"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 6,
+      "tickers": [
+        "AEP",
+        "WY",
+        "AZN",
+        "HIG",
+        "BSX",
+        "LULU"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 13,
+      "tickers": [
+        "C",
+        "SMCI",
+        "DOW",
+        "APD",
+        "ILMN",
+        "AMAT",
+        "ARM",
+        "DHI",
+        "PTC",
+        "TGT"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 25,
+      "tickers": [
+        "FTNT",
+        "FISV",
+        "GLW",
+        "PLTR",
+        "BXP",
+        "SNPS",
+        "JNJ",
+        "MCHP",
+        "KVUE",
+        "KMB"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 2,
+      "tickers": [
+        "IQV",
+        "AMZN"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 21,
+      "tickers": [
+        "XOM",
+        "GFS",
+        "CPRT",
+        "SYY",
+        "VTR",
+        "CNC",
+        "CIEN",
+        "GILD",
+        "WMB",
+        "VTRS"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 7,
+      "tickers": [
+        "KR",
+        "APTV",
+        "VRT",
+        "HON",
+        "ICE",
+        "GD",
+        "DIS"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 8,
+      "tickers": [
+        "ON",
+        "A",
+        "VEEV",
+        "JCI",
+        "COIN",
+        "HUM",
+        "CCL",
+        "APH"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "Gewichts-Update: NEED_MORE_DATA \u2013 zu wenig belastbare Trades: 3 RELIABLE, mindestens 5 erforderlich. Gewichte bleiben unver\u00e4ndert. EXPLORATORY-Korrelation (nur Diagnose, keine Gewichtswirkung): n=113, davon 3 RELIABLE und 110 NON_RELIABLE \u2013 eps_drift=-0.047, impact=-0.013, mismatch=-0.054; not eligible for production learning / weight update.",
+      "PPO-Policy kollabiert: 100% BOOST \u00fcber 3 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 0,
+        "killer_counts": {},
+        "last_10_days": [
+          {
+            "date": "2026-10-14",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-10-09",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-08",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-07",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-10-06",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-10-02",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-01",
+            "trades": 0,
+            "killer": "analyzed"
+          },
+          {
+            "date": "2026-09-30",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-29",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-09-28",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 187,
+            "evaluated": 0,
+            "ready_in_14d": 8,
+            "next_eval_date": "2026-10-25"
+          },
+          "roi_gate": {
+            "total": 122,
+            "evaluated": 0,
+            "ready_in_14d": 9,
+            "next_eval_date": "2026-10-25"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_48": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_47": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 1,
+          "avg_delta": -0.8874
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": true,
+        "feature_corr": {},
+        "n_reliable": 3,
+        "n_non_reliable": 110,
+        "min_reliable_for_weight_update": 5,
+        "feature_corr_exploratory": {
+          "impact": -0.013,
+          "mismatch": -0.054,
+          "eps_drift": -0.047
+        },
+        "weight_update_status": "NEED_MORE_DATA"
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "suez_z": {
+            "missing_ratio": 0.043,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "panama_z": {
+            "missing_ratio": 0.043,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.043,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "malacca_z": {
+            "missing_ratio": 0.043,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.043,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.043,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 945
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {
+        "n": 3,
+        "counts": {
+          "SKIP": 0,
+          "NORMAL": 0,
+          "BOOST": 3
+        },
+        "max_share": 1.0
+      }
+    }
+  }
+}
