@@ -84,3 +84,26 @@ def test_revisions_across_vintages_are_not_duplicate_conflicts():
     c = _o(3.0, entity="X")
     c.vintage_time = b.vintage_time                    # gleiche Vintage, anderer Wert -> Konflikt
     assert "DUPLICATE_CONFLICT" in dq.assess([a, b, c], {}, NOW)["issues"]
+
+
+def test_zero_placeholder_counts_as_missing_not_out_of_range():
+    """Live 2026-10-14: ALFRED-Platzhalter henry_hub = 0,0 (10 von 7384 Vintages, 2018/2020) machten fred_commodities
+    täglich DEGRADED (OUT_OF_RANGE, schwer). Mit zero_as_missing zählen sie als fehlend; echte Ausreißer bleiben."""
+    cfg = {"plausible_ranges": {"henry_hub": [0.5, 50]}, "zero_as_missing": ["henry_hub"]}
+    obs = [_o(3.1, metric="henry_hub", entity=f"E{i}") for i in range(98)] + \
+          [_o(0.0, metric="henry_hub", entity="Z1"), _o(0, metric="henry_hub", entity="Z2")]
+    r = dq.assess(obs, cfg, NOW)
+    assert r["issues"] == [] and not r["severe"]
+    assert r["details"]["zero_placeholders"] == 2 and r["null_rate"] == 0.02
+    assert "OUT_OF_RANGE" in dq.assess(obs, {"plausible_ranges": cfg["plausible_ranges"]}, NOW)["issues"]  # ohne Liste
+    assert "OUT_OF_RANGE" in dq.assess(obs + [_o(0.2, metric="henry_hub", entity="Y")], cfg, NOW)["issues"]
+    assert "OUT_OF_RANGE" in dq.assess([_o(-1.0, metric="henry_hub")], cfg, NOW)["issues"]
+
+
+def test_fred_commodities_config_declares_zero_placeholders():
+    """Der Schlüssel muss über load_source_configs beim Orchestrator (data_quality.assess) ankommen."""
+    cfgs = reg.load_source_configs()
+    src = cfgs["fred_commodities"] if isinstance(cfgs, dict) else \
+        next(c for c in cfgs if c.get("source_id") == "fred_commodities")
+    assert set(src["zero_as_missing"]) == {"brent", "henry_hub", "copper", "wheat", "corn", "soybeans"}
+    assert set(src["zero_as_missing"]) <= set(src["plausible_ranges"])
