@@ -176,6 +176,66 @@
         "stale_upstream": [],
         "state": "PENDING"
       }
+    },
+    "2026-10-14": {
+      "external_data": {
+        "file": "external_data.yml",
+        "expected": "2026-10-14T06:17+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "state": "PENDING"
+      },
+      "source_health": {
+        "file": "source_health.yml",
+        "expected": "2026-10-14T12:41+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "state": "PENDING"
+      },
+      "scanner": {
+        "file": "scanner.yml",
+        "expected": "2026-10-14T13:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [
+          "source_health"
+        ],
+        "state": "PENDING"
+      },
+      "feedback": {
+        "file": "feedback.yml",
+        "expected": "2026-10-14T15:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": null,
+        "action": null,
+        "stale_upstream": [],
+        "state": "PENDING"
+      }
     }
   },
   "recoveries": {}
