@@ -142,6 +142,10 @@ sources:
     role: RESEARCH_SHADOW
     research_only: true          # Ausfall -> nur abhängige Features unavailable, nie globaler Safe Mode
     max_backfill_bytes: 20000000
+    # ALFRED veröffentlicht vereinzelt 0,0 als Platzhalter-Vintage (Henry Hub 2018/2020, später revidiert):
+    # Data-Quality zählt sie als fehlend statt OUT_OF_RANGE (sonst täglich DEGRADED, da die Historie jeden Tag
+    # neu geladen wird); die Feature-Engine ignoriert sie ohnehin (positive_only). Gespeicherte Werte unverändert.
+    zero_as_missing: [brent, henry_hub, copper, wheat, corn, soybeans]
     plausible_ranges:
       brent: [5, 250]
       henry_hub: [0.5, 50]          # Live 2026-01-23: 30,72 real; 0,0-Vintages = ungültig (Feature-Engine)

@@ -312,22 +312,25 @@ def net_outcome(*, raw_underlying_return: float | None, entry_bid, entry_ask, ex
 
 # ── Snapshot (point-in-time) + Survivorship ─────────────────────────────────
 def summarize(records: list[dict]) -> dict:
+    # Übernommene Datensätze aus dem Vor-Snapshot sind für nicht optionierbare Titel kompakt (save_snapshot) und
+    # haben nicht alle Felder -> nur .get() (Live 2026-10-11: KeyError 'risk_flags' nach 50 min Discovery, kein Snapshot).
     def cnt(sel, key):
         c: dict[str, int] = {}
         for r in records:
             if sel(r):
-                c[r[key]] = c.get(r[key], 0) + 1
+                k = r.get(key) or "UNKNOWN"
+                c[k] = c.get(k, 0) + 1
         return dict(sorted(c.items()))
     return {"n_listed_checked": sum(1 for r in records if r.get("status") != "UNCHECKED"),
             "n_unchecked": sum(1 for r in records if r.get("status") == "UNCHECKED"),
-            "n_optionable": sum(1 for r in records if r["optionable"]),
-            "n_research": sum(1 for r in records if r["research_ok"]),
-            "n_tradeable": sum(1 for r in records if r["tradeable_ok"]),
-            "research_by_bucket": cnt(lambda r: r["research_ok"], "market_cap_bucket"),
-            "tradeable_by_bucket": cnt(lambda r: r["tradeable_ok"], "market_cap_bucket"),
-            "optionable_by_bucket": cnt(lambda r: r["optionable"], "market_cap_bucket"),
-            "execution_quality": cnt(lambda r: r["research_ok"], "execution_quality"),
-            "risk_flags": {f: sum(1 for r in records if f in r["risk_flags"])
+            "n_optionable": sum(1 for r in records if r.get("optionable")),
+            "n_research": sum(1 for r in records if r.get("research_ok")),
+            "n_tradeable": sum(1 for r in records if r.get("tradeable_ok")),
+            "research_by_bucket": cnt(lambda r: r.get("research_ok"), "market_cap_bucket"),
+            "tradeable_by_bucket": cnt(lambda r: r.get("tradeable_ok"), "market_cap_bucket"),
+            "optionable_by_bucket": cnt(lambda r: r.get("optionable"), "market_cap_bucket"),
+            "execution_quality": cnt(lambda r: r.get("research_ok"), "execution_quality"),
+            "risk_flags": {f: sum(1 for r in records if f in (r.get("risk_flags") or []))
                            for f in ("PENNY_STOCK", "EXTREME_GAP", "MANIPULATION_RISK", "CORPORATE_ACTION")}}
 
 
@@ -348,7 +351,7 @@ def save_snapshot(records: list[dict], as_of: date, meta: dict | None = None, sn
     # Kompakt: nicht optionierbare Titel nur mit Status/Grund (Größe im Repo), optionierbare vollständig
     snap["records"] = [r if r.get("optionable") else
                        {k: r.get(k) for k in ("ticker", "as_of", "status", "optionable", "research_ok", "tradeable_ok",
-                                              "market_cap_bucket", "exchange")} | {"research_fail": (r.get("research_fail") or [])[:2]}
+                                              "market_cap_bucket", "exchange", "risk_flags")} | {"research_fail": (r.get("research_fail") or [])[:2]}
                        for r in records]
     with gzip.open(path, "wt", encoding="utf-8") as fh:
         fh.write(json.dumps(snap, default=str))

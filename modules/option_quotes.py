@@ -15,7 +15,9 @@ WICHTIG:
     einzige Helfer, der ValueError wirft (und `normalize` fängt ihn).
 
 Datenformat: outputs/options_archive/quotes/YYYY-MM-DD.jsonl (UTC-Datum von `retrieved_at`),
-eine Zeile je Quote, Felder siehe `normalize`. Idempotent über `record_id`.
+eine Zeile je Quote, Felder siehe `normalize`. Idempotent über `record_id`, auch über Tagesgrenzen:
+dieselbe Börsenquote (gleiche record_id), nach UTC-Mitternacht erneut abgerufen, wird nicht noch einmal
+geschrieben; die erste Beobachtung bleibt maßgeblich (2026-10-14).
 
 quality_flags (sortierte Liste) und quality_status:
   CROSSED       bid > ask                              WIDE_SPREAD  spread/mid > WIDE_SPREAD_PCT
@@ -53,6 +55,7 @@ PRICE_TYPE = "OBSERVED_QUOTE"        # einziger Preistyp dieses Archivs (nie Mod
 WIDE_SPREAD_PCT = 0.5
 STALE_HOURS = 26
 DEFAULT_MULTIPLIER = 100
+DEDUP_LOOKBACK_DAYS = 3              # so viele Vortage prüft archive() auf dieselbe record_id (deckt Wochenenden ab)
 
 _OCC_RE = re.compile(r"^([A-Z0-9.\-]{1,10})(\d{6})([CP])(\d{8})$")
 _NUMERIC_STR_RE = re.compile(r"^-?\d+(\.\d+)?$")
@@ -336,9 +339,20 @@ def _valid_day(r) -> str | None:
     return ra.date().isoformat() if ra else None
 
 
+def _dedup_days(r: dict, day: str) -> list[str]:
+    """Tagesdateien, in denen dieselbe record_id schon liegen kann: vom UTC-Tag der Börsenzeit (eine Quote wird nie
+    vor ihrer quote_time abgerufen) bis zum Abruftag, höchstens DEDUP_LOOKBACK_DAYS zurück."""
+    ra_day = date.fromisoformat(day)
+    qt = _parse_ts(r.get("quote_time"))
+    lo = max(qt.date() if qt is not None and qt.date() <= ra_day else ra_day,
+             ra_day - timedelta(days=DEDUP_LOOKBACK_DAYS))
+    return [(lo + timedelta(days=i)).isoformat() for i in range((ra_day - lo).days + 1)]
+
+
 def archive(records: list[dict], *, root: Path | None = None) -> int:
     """Hängt normalisierte Records an root/YYYY-MM-DD.jsonl (UTC-Datum von retrieved_at) an.
-    Idempotent über record_id; Rückgabe = neu geschriebene Zeilen; wirft nie."""
+    Idempotent über record_id, auch tagesübergreifend (_dedup_days): dieselbe Börsenquote wird nur bei ihrer ersten
+    Beobachtung geschrieben. Rückgabe = neu geschriebene Zeilen; wirft nie."""
     written = 0
     try:
         base = Path(root) if root is not None else ROOT
@@ -347,17 +361,25 @@ def archive(records: list[dict], *, root: Path | None = None) -> int:
             day = _valid_day(r)
             if day:
                 by_day.setdefault(day, []).append(r)
+        known: dict[str, set] = {}
+
+        def ids_of(d: str) -> set:
+            if d not in known:
+                p = _day_path(base, d)
+                try:
+                    known[d] = {x.get("record_id") for x in read_jsonl(p) if isinstance(x, dict)}
+                except Exception as e:  # noqa: BLE001 – defekte Datei: lieber Duplikate als Datenverlust
+                    log.warning(f"option_quotes.archive: {p} nicht lesbar ({e}) – Idempotenz-Prüfung entfällt")
+                    known[d] = set()
+            return known[d]
+
         for day, rows in sorted(by_day.items()):
             try:
                 path = _day_path(base, day)
-                try:
-                    seen = {x.get("record_id") for x in read_jsonl(path) if isinstance(x, dict)}
-                except Exception as e:  # noqa: BLE001 – defekte Datei: lieber Duplikate als Datenverlust
-                    log.warning(f"option_quotes.archive: {path} nicht lesbar ({e}) – Idempotenz-Prüfung entfällt")
-                    seen = set()
+                seen = ids_of(day)
                 new = []
                 for r in rows:
-                    if r["record_id"] not in seen:
+                    if not any(r["record_id"] in ids_of(d) for d in _dedup_days(r, day)):
                         seen.add(r["record_id"])
                         new.append(r)
                 written += append_jsonl(path, new)
@@ -577,8 +599,20 @@ def quote_session(rec: dict | None) -> str:
 
 
 def by_ids(record_ids, start, end=None, *, root: Path | None = None) -> dict[str, dict]:
-    """{record_id: Record} für die gesuchten IDs aus den Tagesdateien start..end (wirft nie)."""
+    """{record_id: Record} für die gesuchten IDs aus den Tagesdateien start..end (wirft nie).
+    Liegt dieselbe record_id mehrfach vor (erneuter Abruf derselben Börsenquote nach UTC-Mitternacht, vor dem
+    tagesübergreifenden Archiv-Dedupe möglich), gilt die ERSTE Beobachtung (früheste retrieved_at): Point-in-time war
+    die Quote ab dann bekannt, und eine spätere Kopie (z. B. nachbörslich) darf eine Fenster-Quote nie ersetzen."""
     want = {i for i in (record_ids or []) if isinstance(i, str) and i}
     if not want:
         return {}
-    return {r["record_id"]: r for r in read(start, end, root=root) if r.get("record_id") in want}
+    out: dict[str, dict] = {}
+    for r in read(start, end, root=root):
+        rid = r.get("record_id")
+        if rid not in want:
+            continue
+        prev = out.get(rid)
+        t, t_prev = _parse_ts(r.get("retrieved_at")), (_parse_ts(prev.get("retrieved_at")) if prev else None)
+        if prev is None or (t is not None and (t_prev is None or t < t_prev)):
+            out[rid] = r
+    return out

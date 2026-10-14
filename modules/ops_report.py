@@ -434,9 +434,13 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
         sc = r.get("scanner") or {}
         wf = [[j, w.get("state"), w.get("conclusion"), w.get("last_run"), w.get("delay_hours")]
               for j, w in sorted((r.get("workflows") or {}).items())]
-        b = [("table", ["Workflow", "Status", "Ergebnis", "Letzter Lauf", "Verzug (h)"], wf)] if wf else \
+        # Tabelle = Stand des letzten Watchdog-Laufs (workflow_status.json); der laufende Job steht darunter
+        # (Mail 2026-10-14: scanner "PENDING", obwohl der Bericht aus dem erfolgreichen Scanner-Lauf kam).
+        b = [("table", ["Workflow (Stand Watchdog)", "Status", "Ergebnis", "Letzter Lauf", "Verzug (h)"], wf)] if wf else \
             [("p", f"Workflow-Status für heute: {NA}")]
-        return b + [("kv", [("Tagesreport", f"{r.get('report_date') or NA} (von heute: {_f(r.get('report_is_today'))})"),
+        cj = r.get("current_job") or {}
+        cur = [("Dieser Lauf (Schritte)", ", ".join(f"{k}={v}" for k, v in sorted(cj.items())))] if cj else []
+        return b + [("kv", cur + [("Tagesreport", f"{r.get('report_date') or NA} (von heute: {_f(r.get('report_is_today'))})"),
                             ("Universum / analysiert", f"{_f(sc.get('universe'))} / {_f(sc.get('analyzed'))}"),
                             ("Champion-Kandidaten (Final-MC)", _f(sc.get("champion_candidates"))),
                             ("Kontrakte entworfen", _f(sc.get("contracts_designed"))), ("Trades", _f(sc.get("trades"))),
@@ -511,7 +515,9 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
         hy = [[k, h.get("state"), h.get("influence_level"), h.get("decision"), (h.get("blocking") or NA)[:160]]
               for k, h in sorted((p.get("hypotheses") or {}).items())]
         return [("kv", [("Max. automatischer Einfluss", _f(p.get("max_automatic_influence"))),
-                        ("Kill-Switch / Safe-Mode", f"{_f(p.get('kill_switch_active'))} / {_f(p.get('safe_mode'))}"),
+                        # safe_mode = Promotion-Pause des PromotionControllers (nicht der System-Safe-Mode)
+                        ("Kill-Switch / Promotion pausiert", f"{_f(p.get('kill_switch_active'))} / {_f(p.get('safe_mode'))}"
+                         + (f" ({'; '.join(p.get('safe_mode_reasons'))})" if p.get("safe_mode") and p.get("safe_mode_reasons") else "")),
                         ("Champion-Version", _f(p.get("champion_version"))), ("Zustände", _f(p.get("by_state"))),
                         ("Aktiver Einfluss", _f(p.get("active_influence"))),
                         ("Ungerechtfertigter Einfluss", _f(p.get("unjustified_influence")))]),
@@ -524,6 +530,7 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
                          f"{_f(i.get('decision_ledger_duplicates'))} / {_f(i.get('trade_outcome_duplicates'))}"),
                         ("Quote-Archiv 30 T: Records / doppelte IDs / Fremdpreise",
                          f"{_f(i.get('quote_records_30d'))} / {_f(i.get('quote_duplicate_ids'))} / {_f(i.get('quote_non_observed_prices'))}"),
+                        ("Quote-Archiv 30 T: Mehrfachbeobachtungen (unkritisch)", _f(i.get("quote_reobserved_ids"))),
                         ("Quarantäne geschlossener Trades", _f(i.get("closed_trade_quarantine"))),
                         ("Externes Archiv", _f(i.get("external_archive")))])]
 

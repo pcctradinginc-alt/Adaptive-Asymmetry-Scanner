@@ -1003,6 +1003,26 @@ def test_quote_archive_duplicate_ids_and_non_observed_prices(env):
     assert i["issues"] == ["QUOTE_ARCHIVE"]
 
 
+def test_quote_archive_reobservation_across_days_is_not_an_integrity_issue(env):
+    """Regression 2026-10-14: dieselbe Schlussquote, nach UTC-Mitternacht erneut abgerufen, lag mit derselben record_id
+    in zwei Tagesdateien -> fälschlich CRITICAL LEDGER_INTEGRITY. Mehrfachbeobachtung zählt separat; ein Konflikt
+    (gleiche record_id, anderer Preis) bleibt ein Integritätsproblem."""
+    sym = oq.occ_symbol("AAA", "2027-01-15", "call", 100.0)
+    first = oq.normalize({"symbol": sym, "bid": 1.0, "ask": 1.1, "quote_time": "2026-10-12T19:59:59+00:00"},
+                         underlying="AAA", source="tradier", context="exit_mark", retrieved_at="2026-10-12T22:32:45+00:00")
+    again = oq.normalize({"symbol": sym, "bid": 1.0, "ask": 1.1, "quote_time": "2026-10-12T19:59:59+00:00"},
+                         underlying="AAA", source="tradier", context="exit_mark", retrieved_at="2026-10-13T01:30:30+00:00")
+    assert first["record_id"] == again["record_id"]
+    env.write_jsonl("quotes", [first], name="2026-10-12.jsonl")
+    env.write_jsonl("quotes", [again], name="2026-10-13.jsonl")
+    i = env.collect()["integrity"]
+    assert (i["quote_duplicate_ids"], i["quote_reobserved_ids"], i["issues"]) == (0, 1, [])
+    conflict = dict(again, bid=0.5)                                          # gleiche ID, anderer Preis
+    env.write_jsonl("quotes", [conflict], name="2026-10-13.jsonl")
+    i = env.collect()["integrity"]
+    assert (i["quote_duplicate_ids"], i["quote_reobserved_ids"], i["issues"]) == (1, 0, ["QUOTE_ARCHIVE"])
+
+
 @pytest.mark.parametrize("day_offset, counted", [(30, True), (31, False)])
 def test_quote_archive_integrity_window_is_30_days(env, day_offset, counted):
     day = iso_day(day_offset)

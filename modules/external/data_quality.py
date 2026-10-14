@@ -16,7 +16,9 @@ Prüfungen (Registry-Overrides in Klammern):
   FUTURE_OBSERVATION  observation_time > jetzt + 2 Tage (außer Prognosen)
   AVAILABLE_BEFORE_PERIOD  available_at < observation_time bei Periodendaten
                       (eine Monatsstatistik kann nicht vor Monatsbeginn vorliegen)
-  OUT_OF_RANGE        Wert außerhalb plausible_ranges[metric]
+  OUT_OF_RANGE        Wert außerhalb plausible_ranges[metric]; Kennzahlen in zero_as_missing: ein exakter
+                      Wert 0 ist ein Platzhalter der Quelle (ALFRED-Preisvintages, z. B. Henry Hub 2020) und
+                      zählt als fehlend (Null-Quote), nicht als Ausreißer (2026-10-14)
   SCALE_SHIFT         Median je Kennzahl weicht > 20x vom archivierten Median ab
                       (Einheitenwechsel, z.B. Tonnen -> Tausend Tonnen)
 """
@@ -60,7 +62,15 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
         issues.append("BELOW_MIN")
         details["min_observations"] = int(min_obs)
 
-    nulls = sum(1 for o in obs if o.value is None)
+    zero_missing = set(cfg.get("zero_as_missing") or [])
+
+    def _placeholder(o) -> bool:
+        return o.metric in zero_missing and isinstance(o.value, (int, float)) and o.value == 0
+
+    placeholders = sum(1 for o in obs if _placeholder(o))
+    if placeholders:
+        details["zero_placeholders"] = placeholders
+    nulls = sum(1 for o in obs if o.value is None) + placeholders
     null_rate = nulls / n
     if null_rate > float(cfg.get("max_null_rate", 0.5)):
         issues.append("HIGH_NULL_RATE")
@@ -98,7 +108,7 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
     out_of_range = 0
     for o in obs:
         r = ranges.get(o.metric)
-        if r and isinstance(o.value, (int, float)) and not (r[0] <= o.value <= r[1]):
+        if r and isinstance(o.value, (int, float)) and not _placeholder(o) and not (r[0] <= o.value <= r[1]):
             out_of_range += 1
     if out_of_range:
         issues.append("OUT_OF_RANGE")
