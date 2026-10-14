@@ -398,6 +398,18 @@ def test_drift_input_freshness_is_labelled_only(tmp_path):
     assert ss.DRIFT_INPUT_MAX_AGE_DAYS == 8
 
 
+def test_meta_learning_runs_in_weekly_research_mode():
+    """Live 2026-10-14: Meta-Learning lief nur im monatlichen full-Modus, der Drift-Input war ~3 Wochen je Monat
+    STALE_DRIFT_INPUT. Die Frische-Grenze (8 T) setzt den wöchentlichen Lauf voraus."""
+    from modules import system_state as ss
+    wf = yaml.safe_load(Path(".github/workflows/ml_research.yml").read_text(encoding="utf-8"))
+    crons = [c["cron"] for c in (wf.get("on") or wf.get(True))["schedule"]]     # PyYAML liest "on:" als True
+    assert "23 8 * * 6" in crons                                          # wöchentlicher Lauf existiert
+    step = next(st for st in wf["jobs"]["ml"]["steps"] if st.get("id") == "meta_learning")
+    assert "full" not in str(step.get("if", ""))                          # nicht auf den Monatslauf beschränkt
+    assert ss.DRIFT_INPUT_MAX_AGE_DAYS >= 7 + 1
+
+
 def test_drift_age_alone_does_not_change_fingerprint(tmp_path):
     from modules import system_state as ss
     a = _state(tmp_path, "2026-10-05T10:00:00+00:00", datetime(2026, 10, 6, 12, tzinfo=UTC))

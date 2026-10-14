@@ -105,9 +105,11 @@ jobs:
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.commodity_intelligence evaluate
 
-      - name: Meta-Learning (Walk-Forward, Counterfactuals, Ablation, Gate – nur full)
+      # Wöchentlich UND monatlich (2026-10-14, Nutzerentscheidung): system_state erwartet den Drift-Input
+      # (meta_learning.json) wöchentlich (DRIFT_INPUT_MAX_AGE_DAYS = 8); nur monatlich war er ~3 Wochen je Monat STALE.
+      # Ergebnisse wirken nur auf Research, HC-Alerts (keine Orders) und die Drift-Kennzeichnung.
+      - name: Meta-Learning (Walk-Forward, Counterfactuals, Ablation, Gate – wöchentlich + full)
         id: meta_learning
-        if: env.MODE == 'full'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta.pkl" python -m modules.meta_learning
 

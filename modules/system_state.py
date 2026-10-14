@@ -55,7 +55,7 @@ DEFAULT_INPUTS = {
 }
 SCHEMA = "system-state-v2"
 MODEL_HEALTH_MAX_AGE_DAYS = 14          # Meta-Cognition wöchentlich (ml_research.yml) + Puffer
-DRIFT_INPUT_MAX_AGE_DAYS = 8          # wöchentlicher Meta-Lauf + 1 Tag Toleranz (nur Kennzeichnung)
+DRIFT_INPUT_MAX_AGE_DAYS = 8          # wöchentlicher Meta-Lauf (ml_research.yml, Samstag) + 1 Tag Toleranz (nur Kennzeichnung)
 COMMODITY_SOURCES = ("eia_petroleum_weekly", "eia_natural_gas", "fred_commodities", "fred_regime_macro", "cftc_cot")
 
 
