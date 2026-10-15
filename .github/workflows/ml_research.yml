@@ -24,13 +24,13 @@ jobs:
     timeout-minutes: 240
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
           ref: main      # aktuellen Stand, nicht die SHA zum Auslösezeitpunkt (Audit F11: wartende Läufe nutzten alte Artefakte)
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -150,7 +150,7 @@ jobs:
       - name: Panel-Snapshot sichern
         if: always()
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: panel-${{ github.run_id }}
           path: ${{ runner.temp }}/panel.pkl

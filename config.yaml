@@ -194,6 +194,9 @@ external_context:
     # Meldung "volume guard", Alarmierung über den bestehenden Mechanismus.
     max_new_normalized_bytes_per_source_per_run: 2000000
     max_backfill_bytes_per_source: 30000000   # einmaliger historischer Erstimport je Quelle
+    # Verlustfreie gzip-Kompaktierung kalter normalisierter Partitionen (abgeschlossen + seit N Tagen ohne neue
+    # Zeile) im Git-Arbeitsbaum; 0 = aus. Leser lesen .jsonl und .jsonl.gz transparent.
+    compress_cold_after_days: 21
     # Optionales Object-Storage-Backend (siehe modules/external/storage.py).
     # "git" (Default) = heutiges Verhalten, NIE Löschung. "s3" aktiviert
     # Upload+Retention -- Zugangsdaten/Bucket AUSSCHLIESSLICH über Env-Vars

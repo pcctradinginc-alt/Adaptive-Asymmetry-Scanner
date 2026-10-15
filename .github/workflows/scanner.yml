@@ -37,12 +37,12 @@ jobs:
       status: ${{ steps.g.outputs.status }}
     steps:
       - name: Checkout (aktueller main-Stand, nicht der Event-Commit)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
           fetch-depth: 1
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Install guard dependency
@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: main   # derselbe frische Stand, den der Guard geprüft hat
@@ -69,7 +69,7 @@ jobs:
       # ── FinBERT Model Cache ──────────────────────────────────────────────
       # Wichtig: Cache persistiert zwischen Runs → kein 440MB Download täglich
       - name: Cache FinBERT Model
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: finbert-cache
         with:
           path: /tmp/finbert_cache
@@ -78,7 +78,7 @@ jobs:
 
       # ── Python + pip Cache ───────────────────────────────────────────────
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -123,6 +123,9 @@ jobs:
           HF_HUB_CACHE:          /tmp/finbert_cache
           TRANSFORMERS_CACHE:    /tmp/finbert_cache
           HF_HOME:               /tmp/finbert_cache
+          # optional (kostenloses Hugging-Face-Read-Token): höhere Download-Limits, keine Warnung "unauthenticated".
+          # Fehlt das Secret, ist der Wert leer und huggingface_hub läuft wie bisher anonym.
+          HF_TOKEN:              ${{ secrets.HF_TOKEN }}
         run: python pipeline.py
 
       # ── Feedback Loop ────────────────────────────────────────────────────
@@ -142,6 +145,8 @@ jobs:
         continue-on-error: true
         env:
           OPS_STEP_OUTCOMES: "rth_marks=${{ steps.rthmarks.outcome }} scanner=${{ steps.scanner.outcome }} feedback=${{ steps.feedback.outcome }}"
+          # nur lesend: Lauf-/Job-Liste + Job-Logs für den Fehler-Digest (modules/ops_workflows.py)
+          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
           GMAIL_SENDER:    ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PW:    ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL:    ${{ secrets.NOTIFY_EMAIL }}
@@ -168,7 +173,7 @@ jobs:
       # mit dem kurzlebigen Runner. Wiederherstellung: docs/OPERATIONS_READINESS.md.
       - name: Daten-Sicherung als Artefakt (nur nach Fehler)
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: scanner-data-${{ github.run_id }}
           retention-days: 14
