@@ -334,6 +334,14 @@ def parse_pageviews(payload: dict) -> list[tuple[date, float]]:
 class WikimediaPageviewsConnector(Connector):
     source_id = "wikimedia_pageviews"
     parser_version = PARSER_VERSION
+    PREFLIGHT_SAMPLE = 25                                   # Live-Check: Stichprobe statt ~600 Abrufe
+
+    def preflight(self, now: datetime) -> dict:
+        self._sample = self.PREFLIGHT_SAMPLE
+        try:
+            return super().preflight(now)
+        finally:
+            self._sample = None
 
     def fetch(self, now: datetime) -> ConnectorResult:
         raw, articles, diag = [], {}, {}
@@ -359,7 +367,7 @@ class WikimediaPageviewsConnector(Connector):
         obs, failures, pause = [], 0, float(self.cfg.get("request_pause_seconds", 0.05))
         first_raw = None                                   # nur EIN Rohdaten-Eintrag statt ~600 je Lauf
         deadline = time.monotonic() + float(self.cfg.get("max_fetch_seconds", 900)) * 0.9
-        for tk, art in sorted(articles.items()):
+        for tk, art in sorted(articles.items())[:getattr(self, "_sample", None) or None]:
             if time.monotonic() > deadline:
                 failures += 1
                 continue
@@ -383,7 +391,8 @@ class WikimediaPageviewsConnector(Connector):
                 time.sleep(pause)
         if first_raw is not None:
             raw.append(first_raw)
-        status = SourceStatus.PASS if obs and failures <= 0.1 * len(articles) else \
+        n_req = min(len(articles), getattr(self, "_sample", None) or len(articles))
+        status = SourceStatus.PASS if obs and failures <= 0.1 * n_req else \
             SourceStatus.WARN if obs else SourceStatus.FAIL
         return ConnectorResult(self.source_id, status, observations=obs, raw=raw,
                                message=f"{len(articles)} Artikel, {len(obs)} Tageswerte, {failures} Fehler",

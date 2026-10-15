@@ -26,7 +26,7 @@ FAILED = frozenset({"failure", "timed_out", "startup_failure"})
 SCANNER_FILE = ".github/workflows/scanner.yml"
 SCAN_JOB = "scan"
 LATE_START_ET = time(15, 0)          # danach bleibt bis zum Ende des Mark-Fensters (Schluss − 10 min) kaum Zeit
-MAX_RUNS, MAX_LOG_JOBS, MAX_LINES = 15, 6, 4
+MAX_RUNS, MAX_LOG_JOBS, MAX_LINES, MAX_PAGES = 15, 6, 4, 3
 _TS_RE = re.compile(r"^\d{4}-\d\d-\d\dT[\d:.]+Z\s?")
 _ERR_RE = re.compile(r"Traceback|Error|Exception|##\[error\]|\bFAILED\b|Fehler")
 _NOISE_RE = re.compile(r"Node\.js 20 is deprecated|DeprecationWarning|punycode|##\[warning\]|trace-deprecation")
@@ -79,8 +79,13 @@ def collect(now: datetime | None = None, env: dict | None = None, session=None) 
                                 "X-GitHub-Api-Version": "2022-11-28"})
         hours = window_hours(now)
         since = (now - timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
-        runs = _get(session, f"{API}/repos/{repo}/actions/runs",
-                    {"created": f">={since}", "per_page": 100}).json().get("workflow_runs") or []
+        runs: list[dict] = []
+        for page in range(1, MAX_PAGES + 1):                  # Montags (74 h) können es > 100 Läufe sein
+            chunk = _get(session, f"{API}/repos/{repo}/actions/runs",
+                         {"created": f">={since}", "per_page": 100, "page": page}).json().get("workflow_runs") or []
+            runs += chunk
+            if len(chunk) < 100:
+                break
         failed_runs = [r for r in runs if r.get("conclusion") in FAILED][:MAX_RUNS]
         failed, logs_left = [], MAX_LOG_JOBS
         for r in failed_runs:

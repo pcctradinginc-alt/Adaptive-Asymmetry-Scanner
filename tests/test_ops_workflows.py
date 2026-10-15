@@ -120,7 +120,7 @@ def test_collect_failed_runs_jobs_steps_and_log_lines():
     res = ow.collect(NOW, env=ENV, session=s)
     assert res["status"] == "OK" and res["runs_total"] == 3 and res["window_hours"] == 26
     assert res["since"] == "2026-10-13T19:00:00Z"
-    assert s.calls[0] == (f"{API}/actions/runs", {"created": ">=2026-10-13T19:00:00Z", "per_page": 100})
+    assert s.calls[0] == (f"{API}/actions/runs", {"created": ">=2026-10-13T19:00:00Z", "per_page": 100, "page": 1})
     assert s.headers["Authorization"] == "Bearer t0k"
     [f] = res["failed"]                                       # cancelled zählt nicht als Fehler
     assert f["workflow"] == "Adaptive Asymmetry Scanner" and f["run_id"] == 1 and f["conclusion"] == "failure"
@@ -179,3 +179,18 @@ def test_scanner_start_ignores_skipped_and_previous_day_jobs():
                                                               started="2026-10-14T17:35:00Z")]})
     st = ow.collect(NOW, env=ENV, session=FakeSession(routes))["scanner_start"]
     assert st["started_et"] is None
+
+
+def test_collect_paginates_run_list():
+    class Paged(FakeSession):
+        def get(self, url, params=None, timeout=None):
+            self.calls.append((url, params))
+            if url.endswith("/actions/runs"):
+                n = 100 if params["page"] < 3 else 7
+                return Resp({"workflow_runs": [run(params["page"] * 1000 + i, "W", "x.yml", "success")
+                                               for i in range(n)]})
+            return Resp({"jobs": []})
+
+    s = Paged({})
+    res = ow.collect(NOW, env=ENV, session=s)
+    assert res["runs_total"] == 207 and [p["page"] for u, p in s.calls if u.endswith("/actions/runs")] == [1, 2, 3]

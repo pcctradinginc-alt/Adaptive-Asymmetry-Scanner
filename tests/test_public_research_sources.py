@@ -364,3 +364,22 @@ def test_bea_json_and_html_schedule():
         r = cal.BeaReleaseCalendarConnector({}).fetch(NOW)
     assert r.status == SourceStatus.PASS and len(r.observations) == 2
     assert all(o.available_at == NOW for o in r.observations)
+
+
+def test_pageviews_preflight_uses_sample(monkeypatch):
+    many = "".join(f"<tr><td>T{chr(65 + i // 26)}{chr(65 + i % 26)}</td><td><a href='./Art{i}'>x</a></td></tr>"
+                   for i in range(40))
+    html = f"<table id='constituents'><tr><th>S</th><th>N</th></tr>{many}</table>"
+    calls = []
+
+    def fake(url, **kw):
+        if "wikipedia.org/wiki/" in url:
+            return resp(html, url=url)
+        calls.append(url)
+        return resp({"items": [{"timestamp": "2026101400", "views": 1}]}, url=url)
+
+    conn = mp.WikimediaPageviewsConnector({"min_articles": 10})
+    with patch.object(mp.http, "fetch", side_effect=fake), patch.object(mp.time, "sleep"):
+        rep = conn.preflight(NOW)
+    assert rep["status"] == "PASS" and len(calls) == mp.WikimediaPageviewsConnector.PREFLIGHT_SAMPLE
+    assert conn._sample is None                                        # nur für den Preflight
