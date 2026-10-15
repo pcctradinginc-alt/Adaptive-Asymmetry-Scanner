@@ -4,7 +4,7 @@ Fälle gesamt: 113 (Gewinner 36, Verlierer 74). Auswertung über die letzten 100
 
 > Hinweis Stichprobengröße: Die Anteile sind deskriptiv; bei wenigen Dutzend Trades sind Unterschiede zwischen Ursachen statistisch nicht belastbar.
 > Hinweis Outcome-Klassen: Nur RELIABLE (Quote-basiert) wird klassifiziert. UNKNOWN (Altbestand ohne Preismethode), RECONSTRUCTED (`delta_approx`) und APPROXIMATED werden nicht weiter klassifiziert und getrennt ausgewiesen.
-> Outcome-Klassen (geschlossen): {'UNKNOWN': 77, 'RECONSTRUCTED': 40, 'RELIABLE': 3}
+> Outcome-Klassen (geschlossen): {'UNKNOWN': 70, 'RECONSTRUCTED': 40, 'RELIABLE': 3}
 
 ### RELIABLE Verlusttrades (n = 3, mittleres Outcome -0.613)
 

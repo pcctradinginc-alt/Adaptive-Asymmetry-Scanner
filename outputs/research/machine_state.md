@@ -1,4 +1,4 @@
-# Machine Intelligence State – 2026-10-10T14:40:55+00:00
+# Machine Intelligence State – 2026-10-15T06:40:44+00:00
 
 ## Selbsteinschätzung
 
@@ -11,15 +11,15 @@
 
 ## Was wissen wir?
 
-- Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00154 je Position, Sharpe 0.216, Trefferquote 0.4877
-- Regime-Abhängigkeit: vix_lt_20 -0.00275, vix_ge_20 0.00828, spy_uptrend -0.00109, spy_downtrend 0.0099
+- Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy -5e-05 je Position, Sharpe -0.012, Trefferquote 0.4821
+- Regime-Abhängigkeit: vix_lt_20 -0.00425, vix_ge_20 0.00655, spy_uptrend -0.00247, spy_downtrend 0.00769
 - Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01573 vs. inaktiv 0.00178 (t=1.66)
 - Abstinenz-Regel VORWÄRTS ab 2026-09-29: 0 aktive / 0 inaktive fertige Kohorten, Status ACCUMULATING
 
 ## Worüber sind wir unsicher?
 
 - 80-%-Intervalle: roh 0.6582, korrigiert 0.7887; P(>+10 %) Skill -0.156
-- World-Model-Unsicherheit 0.3204; nicht verfügbar: ['earnings_momentum']
+- World-Model-Unsicherheit 0.3403; nicht verfügbar: ['earnings_momentum']
 
 ## Wo liegen wir systematisch falsch?
 
@@ -38,21 +38,23 @@
 - UNKNOWN_CLUSTER_013: {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1724, Lift 1.65, Abdeckung LOW)
 - UNKNOWN_CLUSTER_014: {'momentum': 'loser_12m', 'beta': 'high_beta'} (Fehler -0.1726, Lift 1.64, Abdeckung LOW)
 - UNKNOWN_CLUSTER_015: {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'} (Fehler -0.1821, Lift 1.61, Abdeckung LOW)
-- Überkonfident im Bucket 50–55 %: prognostiziert 0.5186, realisiert 0.462 (n=29764)
-- Überkonfident im Bucket 55–60 %: prognostiziert 0.5762, realisiert 0.4447 (n=425)
+- Überkonfident im Bucket 55–60 %: prognostiziert 0.5591, realisiert 0.4744 (n=293)
 
 ## Welche Annahmen sind veraltet?
 
-- tnx: Wert 5.277 außerhalb Trainingsband [1.0993, 4.7817]
+- tnx: Wert 5.19 außerhalb Trainingsband [1.0993, 4.7817]
 
 ## Welche Modelle sind redundant?
 
 - rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)
+- momentum_12_1: Leave-one-out-Beitrag -0.00072 (≤ 0 = entbehrlich)
+- enet_xs20_v1: Leave-one-out-Beitrag 0.0 (≤ 0 = entbehrlich)
+- hgb_asym20_v1: Leave-one-out-Beitrag -0.00133 (≤ 0 = entbehrlich)
+- hgb_xs20_risk_regime_v1: Leave-one-out-Beitrag -0.00039 (≤ 0 = entbehrlich)
 
 ## Welche Merkmale verlieren Kraft?
 
-- Modell momentum_12_1: 0.0652 -> -0.1045 (t=-2.44)
-- Modell enet_xs20_v1: 0.0976 -> -0.0958 (t=-2.76)
+- Modell hgb_asym20_v1: 0.0067 -> -0.0961 (t=-2.26)
 - vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.404)
 - vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.521)
 - max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.393)
@@ -60,10 +62,11 @@
 ## Wo ist die Datenqualität niedrig?
 
 - fred_commodities: WARN
+- fred_market_expectations: FAIL
 
 ## Wo ist die Uneinigkeit hoch?
 
-- aktuell NORMAL (mittlere Rang-Streuung 0.2592)
+- aktuell LOW (mittlere Rang-Streuung 0.2269)
 
 ## Research-Tracks mit echtem OOS-Wert
 

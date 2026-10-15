@@ -1,11 +1,11 @@
 {
-  "generated": "2026-10-10T14:39:42+00:00",
+  "generated": "2026-10-15T06:36:08+00:00",
   "mode": "weekly",
-  "n_rows": 292286,
+  "n_rows": 292789,
   "n_tickers": 600,
-  "panel_hash": "82bdb429216af039",
-  "code_sha": "273f07ddb543",
-  "period": "2014-06-06..2026-10-09",
+  "panel_hash": "cf4c7603b0be4043",
+  "code_sha": "81ffef72aa10",
+  "period": "2014-06-06..2026-10-14",
   "locked_from": "2025-07-01",
   "locked_status": "CONTAMINATED",
   "forward_holdout_from": "2026-09-29",
@@ -27,7 +27,7 @@
     "survivorship": {
       "available": true,
       "label": "fwd_xs_20",
-      "mean_missing_member_share": 0.106,
+      "mean_missing_member_share": 0.1059,
       "max_missing_member_share": 0.2425,
       "missing_share_by_year": {
         "2014": 0.2395,
@@ -42,19 +42,19 @@
         "2023": 0.0415,
         "2024": 0.0331,
         "2025": 0.0208,
-        "2026": 0.0066
+        "2026": 0.0065
       },
       "worst_case_xs_mean_shift": -0.00804,
       "note": "Schranke: fehlende Mitglieder am 10-%-Quantil des Stichtags; verschiebt das Querschnittsmittel (Benchmark der Top-Dezil-Rendite) um diesen Betrag – Top-Dezil-Überrenditen darunter sind nicht von Survivorship unterscheidbar"
     }
   },
   "new_predictions": [
-    "momentum_12_1@2026-10-09",
-    "enet_xs20_v1@2026-10-09",
-    "hgb_xs20_v1@2026-10-09",
-    "hgb_asym20_v1@2026-10-09",
-    "hgb_xs20_momentum_v1@2026-10-09",
-    "hgb_xs20_risk_regime_v1@2026-10-09"
+    "momentum_12_1@2026-10-14",
+    "enet_xs20_v1@2026-10-14",
+    "hgb_xs20_v1@2026-10-14",
+    "hgb_asym20_v1@2026-10-14",
+    "hgb_xs20_momentum_v1@2026-10-14",
+    "hgb_xs20_risk_regime_v1@2026-10-14"
   ],
   "calibration": {
     "status": "ok",
@@ -226,7 +226,7 @@
     "p_up_informative": false
   },
   "cards": {
-    "date": "2026-10-09",
+    "date": "2026-10-14",
     "n": 503
   },
   "forward": {}

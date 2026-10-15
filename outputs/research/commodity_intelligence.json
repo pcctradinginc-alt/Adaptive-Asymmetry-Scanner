@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T14:38:07+00:00",
+ "generated": "2026-10-15T06:34:43+00:00",
  "version": "commodity-intel-1",
  "feature_version": "cmd-features-1",
  "research_status": "RESEARCH_ONLY",
@@ -382,7 +382,7 @@
   }
  },
  "latest": {
-  "date": "2026-10-09",
+  "date": "2026-10-15",
   "cmd_wti_ret_20d": 0.0215,
   "cmd_henry_hub_ret_20d": 0.0448,
   "cmd_crude_stocks_vs_5y": 0.0064,
@@ -413,17 +413,17 @@
   "fred_regime_macro": {
    "status": "PASS",
    "staleness": "FRESH",
-   "latest_observation": "2026-10-07T00:00:00+00:00",
-   "last_success": "2026-10-10T12:36:18+00:00",
+   "latest_observation": "2026-10-09T00:00:00+00:00",
+   "last_success": "2026-10-14T11:57:38+00:00",
    "consecutive_failures": 0,
-   "message": "26065 ALFRED-Vintage-Beobachtungen (CPI/NFCI/WALCL/Dollar/WTI)",
+   "message": "26070 ALFRED-Vintage-Beobachtungen (CPI/NFCI/WALCL/Dollar/WTI)",
    "health": "HEALTHY"
   },
   "fred_commodities": {
    "status": "WARN",
    "staleness": "FRESH",
    "latest_observation": "2026-10-06T00:00:00+00:00",
-   "last_success": "2026-10-10T12:36:18+00:00",
+   "last_success": "2026-10-14T11:57:38+00:00",
    "consecutive_failures": 0,
    "message": "7384 ALFRED-Vintage-Beobachtungen (Brent/HenryHub/Kupfer/Weizen/Mais/Soja) | DQ: OUT_OF_RANGE",
    "health": "DEGRADED"
@@ -443,7 +443,7 @@
    "latest_observation": "2026-10-06T00:00:00+00:00",
    "last_success": "2026-10-10T12:36:18+00:00",
    "consecutive_failures": 0,
-   "message": "118 EIA-Werte, 0 Revisionen (ab Abruf gültig)",
+   "message": "übersprungen: alle Serien auf dem Stand der letzten Veröffentlichung",
    "health": "HEALTHY"
   },
   "cftc_cot": {
@@ -452,9 +452,9 @@
    "latest_observation": "2026-10-06T00:00:00+00:00",
    "last_success": "2026-10-10T12:36:18+00:00",
    "consecutive_failures": 0,
-   "message": "1520 COT-Werte, 8/8 Märkte, 0 Revisionen",
+   "message": "übersprungen: Report 2026-10-06 bereits archiviert",
    "health": "HEALTHY"
   }
  },
- "n_dates": 2811
+ "n_dates": 2815
 }

@@ -17,53 +17,52 @@
     "vix": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 15.31,
+     "value": 16.87,
      "p01": 12.2374,
      "p99": 33.3101
     },
     "vix_chg_21": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 0.11,
+     "value": -0.33,
      "p01": -11.8762,
      "p99": 13.7307
     },
     "spy_trend_200": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 0.0734,
+     "value": 0.0674,
      "p01": -0.1303,
      "p99": 0.1626
     },
     "spy_mom_63": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 0.027,
+     "value": 0.0277,
      "p01": -0.1323,
      "p99": 0.1471
     },
     "tnx": {
      "level": "MODERATE",
-     "excess": 0.1345,
-     "value": 5.277,
+     "excess": 0.1109,
+     "value": 5.19,
      "p01": 1.0993,
      "p99": 4.7817
     },
     "curve_10y_3m": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 1.284,
+     "value": 1.105,
      "p01": -1.5086,
      "p99": 2.0797
     }
    }
   },
   "model": {
-   "level": "MODERATE",
-   "share_deteriorating": 0.333,
+   "level": "MILD",
+   "share_deteriorating": 0.167,
    "deteriorating": [
-    "enet_xs20_v1",
-    "momentum_12_1"
+    "hgb_asym20_v1"
    ],
    "n_models": 6
   }
@@ -71,5 +70,5 @@
  "canonical": false,
  "see": "outputs/state/system_state.json",
  "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
- "updated": "2026-10-10T14:40:54+00:00"
+ "updated": "2026-10-15T06:40:43+00:00"
 }
