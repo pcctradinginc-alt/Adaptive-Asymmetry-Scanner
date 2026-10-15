@@ -304,6 +304,16 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
             summary["sources"][source_id]["status"] = h.status
             summary["sources"][source_id]["archive_error"] = h.archive_error
 
+        # Verlustfreie gzip-Kompaktierung kalter Partitionen im Git-Arbeitsbaum (A5, 2026-10-15): begrenzt das
+        # Repo-Wachstum ohne Object Storage; Leser lesen .jsonl und .jsonl.gz transparent. Nie fatal.
+        try:
+            comp = archive.compact_cold_partitions(now=now)
+            summary["compaction"] = {"enabled": comp.get("enabled"), "files": len(comp.get("compacted") or []),
+                                     "bytes_before": comp.get("bytes_before"), "bytes_after": comp.get("bytes_after"),
+                                     "failures": len(comp.get("failures") or {})}
+        except Exception as e:  # noqa: BLE001
+            summary["compaction"] = {"error": f"{type(e).__name__}: {e}"}
+
         registry.save_health(health)
         archive.storage_telemetry()
 

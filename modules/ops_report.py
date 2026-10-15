@@ -25,6 +25,7 @@ import hashlib
 import html
 import json
 import logging
+import statistics
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -41,7 +42,8 @@ BANNER = "READ-ONLY Monitoring – keine Handelsempfehlung"
 
 SECTIONS = {"run": "Lauf", "quote_coverage": "Quote-Abdeckung", "lifecycle": "Lebenszyklus",
             "forward": "Forward-Performance", "training": "Training", "promotion": "Promotion",
-            "integrity": "Integrität", "data_health": "Daten", "timing": "Timing-Policy"}
+            "integrity": "Integrität", "data_health": "Daten", "timing": "Timing-Policy",
+            "learning_eta": "Lern-Prognose", "workflows": "Workflow-Fehler (GitHub Actions)"}
 WORKFLOW_KIND = {"scanner": "SCANNER_FAILED", "feedback": "SCANNER_FAILED",
                  "external_data": "ARCHIVE_FAILED", "source_health": "ARCHIVE_FAILED"}
 BAD_SOURCE = ("FAIL", "FAILED", "BROKEN", "STALE", "DEGRADED")
@@ -54,6 +56,16 @@ COMPLETE_COV_MIN, COMPLETE_DEN_MIN = 0.5, 5
 MARK_OVERDUE_DAYS = 3
 SOURCE_BAD_INCREASE = 2
 ARCHIVE_DROP_RATIO, ARCHIVE_MEDIAN_MIN = 0.5, 20
+CRITICAL_WORKFLOWS = ("Adaptive Asymmetry Scanner", "Feedback Loop (Exit-Alarme + Lernen)",
+                      "Options-Capture (RTH, nur Quote-Archiv)")
+CONFLICT_SHARE_MAX, CONFLICT_MIN_ANALYZED = 0.35, 10      # Haiku/Sonnet-Widerspruch: Prescreen-Kalibrierung prüfen
+# Anomalien (robuster z-Wert über Median/MAD der Vortage); "up" = Anstieg ist schlecht, "down" = Einbruch ist schlecht
+ANOMALY_METRICS = {"run.scanner.universe": "down", "run.scanner.analyzed": "down",
+                   "run.scanner.champion_candidates": "down", "quote.exit_active.mark_today": "down",
+                   "data.source_health.HEALTHY": "down", "data.source_health.n_bad": "up",
+                   "marks.real_opt_ret_5d.pending": "up", "lifecycle.candidates.EXIT_OVERDUE": "up",
+                   "run.scanner.direction_conflicts": "up"}
+ANOMALY_MIN_HISTORY, ANOMALY_LOOKBACK, ANOMALY_Z, ANOMALY_MIN_ABS = 8, 20, 4.0, 3
 SEV_ORDER = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
 STATUS_ORDER = {"NEW": 0, "CHANGED": 1, "RESOLVED": 2, "ONGOING": 3}
 META_KEYS = ("schema", "as_of", "generated")
@@ -94,8 +106,13 @@ def history_row(status: dict) -> dict:
     """Flache Kennzahlen für Trends. Fehlendes bleibt None (nie 0)."""
     s = status or {}
     row: dict = {"schema": HISTORY_SCHEMA, "as_of": s.get("as_of"), "generated": s.get("generated")}
-    for k in ("universe", "analyzed", "champion_candidates", "contracts_designed", "trades"):
+    for k in ("universe", "analyzed", "champion_candidates", "contracts_designed", "trades", "direction_conflicts",
+              "direction_conflict_share"):
         row[f"run.scanner.{k}"] = _g(s, "run", "scanner", k)
+    wf = s.get("workflows") if isinstance(s.get("workflows"), dict) else {}
+    row["workflows.failed_runs"] = len(wf["failed"]) if wf.get("status") == "OK" else None
+    for k in ("meta_label", "rl_arming", "champion_evidence"):
+        row[f"learning.{k}.have"] = _g(s, "learning_eta", k, "have")
     row["run.report_is_today"] = _g(s, "run", "report_is_today")
     qc = s.get("quote_coverage")
     for w in ("7d", "30d"):
@@ -236,6 +253,30 @@ def _rules(status: dict, row: dict, prev: dict | None) -> list[tuple]:
         add("SCANNER_FAILED:current_job", "CRITICAL", "Lauf",
             f"Im aktuellen Scanner-Job fehlgeschlagen: {', '.join(failed)} (Schritt-Outcomes: "
             f"{(run or {}).get('current_job')}).", tuple(failed))
+    sc = (run or {}).get("scanner") or {}
+    share, n_an = sc.get("direction_conflict_share"), sc.get("analyzed")
+    if _isnum(share) and _isnum(n_an) and n_an >= CONFLICT_MIN_ANALYZED and share >= CONFLICT_SHARE_MAX:
+        add("DIRECTION_CONFLICT_HIGH", "WARNING", "Lauf",
+            f"Haiku/Sonnet-Richtungswiderspruch bei {sc.get('direction_conflicts')} von {n_an} Analysen "
+            f"({share:.0%} ≥ {CONFLICT_SHARE_MAX:.0%}): Prescreen-Kalibrierung prüfen.", ("high",))
+    # GitHub-Actions-Fehler seit dem vorherigen Handelstag (A1) und Scanner-Spätstart (A6)
+    wf = _ok(status, "workflows")
+    if isinstance(wf, dict) and wf.get("status") == "OK":
+        by: dict = {}
+        for f in wf.get("failed") or []:
+            by.setdefault(f.get("workflow") or NA, []).append(f)
+        for name, fs in sorted(by.items()):
+            steps = sorted({st for f in fs for st in f.get("failed_steps") or []})
+            last = next((ln for f in reversed(fs) for ln in reversed(f.get("error_lines") or [])), None)
+            add(f"WORKFLOW_FAILED:{name}", "CRITICAL" if name in CRITICAL_WORKFLOWS else "WARNING", "Lauf",
+                f"„{name}“: {len(fs)} fehlgeschlagene(r) Lauf/Läufe seit {wf.get('since') or NA}; Schritte: "
+                f"{', '.join(steps) or NA}; letzte Fehlerzeile: {last or NA}; {fs[-1].get('url') or ''}",
+                (name, tuple(steps)))
+        st_ = wf.get("scanner_start") or {}
+        if st_.get("late") and st_.get("trading_day"):
+            add("SCANNER_LATE_START", "WARNING", "Lauf",
+                f"Scanner startete erst {st_.get('started_et')} (New York, nach {st_.get('late_after_et')} ET): "
+                f"RTH-Marks und Entries können aus dem Fenster fallen (Cron-Verzug).", ("late",))
     # Quote-Abdeckung
     qc = _ok(status, "quote_coverage")
     e7 = _g(qc, "windows", "7d", "entry")
@@ -353,7 +394,8 @@ def _fingerprint(id_: str, key) -> str:
 _OWNER = {"SCANNER_FAILED": "run", "ARCHIVE_FAILED": "run", "QUOTE_COVERAGE_LOW": "quote_coverage",
           "OUTCOMES_OVERDUE": "lifecycle", "LEARNING_EXACTLY_ONCE": "lifecycle", "LEDGER_INTEGRITY": "integrity",
           "TRAINING_INADMISSIBLE": "training", "PROMOTION_UNJUSTIFIED": "promotion", "DATA_DEGRADATION": "data_health",
-          "TIMING_EXIT_PENDING_OVERDUE": "timing", "TIMING_UNUSABLE": "timing"}
+          "TIMING_EXIT_PENDING_OVERDUE": "timing", "TIMING_UNUSABLE": "timing",
+          "WORKFLOW_FAILED": "workflows", "SCANNER_LATE_START": "workflows", "DIRECTION_CONFLICT_HIGH": "run"}
 
 
 def _owner(id_: str) -> str | None:
@@ -361,12 +403,38 @@ def _owner(id_: str) -> str | None:
     return "quote_coverage" if id_ == "OUTCOMES_OVERDUE:marks" else _OWNER.get(id_.split(":")[0])
 
 
+def anomaly_rules(row: dict, history: list[dict]) -> list[tuple]:
+    """C4: Ausreißer einer Tageskennzahl gegenüber den Vortagen (robuster z-Wert = (x − Median)/(1,4826·MAD)).
+    Nur mit genug Historie, nur in der schlechten Richtung, mit Mindestabstand – sonst kein Alarm (kein Rauschen).
+    Fingerabdruck = (Kennzahl, Richtung): ein anhaltender Einbruch mailt einmal, nicht täglich."""
+    out: list[tuple] = []
+    prior = [h for h in history or [] if h.get("as_of") != row.get("as_of")][-ANOMALY_LOOKBACK:]
+    for m, bad in sorted(ANOMALY_METRICS.items()):
+        x = row.get(m)
+        vals = [h.get(m) for h in prior if _isnum(h.get(m))]
+        if not _isnum(x) or len(vals) < ANOMALY_MIN_HISTORY:
+            continue
+        med = statistics.median(vals)
+        mad = statistics.median(abs(v - med) for v in vals)
+        scale = 1.4826 * mad if mad > 0 else max(abs(med) * 0.1, 1.0)
+        z = (x - med) / scale
+        if bad == "down" and z <= -ANOMALY_Z and med - x >= ANOMALY_MIN_ABS and x <= 0.5 * med:
+            out.append((f"METRIC_ANOMALY:{m}", "WARNING", "Anomalie",
+                        f"{m} = {_f(x)} bricht ein (Median der letzten {len(vals)} Läufe {_f(med)}, robuster z {z:.1f}).",
+                        (m, "down")))
+        elif bad == "up" and z >= ANOMALY_Z and x - med >= ANOMALY_MIN_ABS:
+            out.append((f"METRIC_ANOMALY:{m}", "WARNING", "Anomalie",
+                        f"{m} = {_f(x)} steigt sprunghaft (Median der letzten {len(vals)} Läufe {_f(med)}, robuster z {z:.1f}).",
+                        (m, "up")))
+    return out
+
+
 def alerts(status: dict, row: dict, history: list[dict], state: dict | None) -> tuple[list[dict], dict]:
     """-> (Warnungen mit Status NEW|CHANGED|ONGOING|RESOLVED, neuer Zustand). `state` wird nicht verändert."""
     state, as_of = dict(state or {}), str(status.get("as_of") or row.get("as_of") or "")
     prev = reference_rows(row, history)["prev"]
     out, new_state, seen = [], {}, set()
-    for id_, sev, comp, cause, key in _rules(status, row, prev):
+    for id_, sev, comp, cause, key in _rules(status, row, prev) + anomaly_rules(row, history):
         fp, old = _fingerprint(id_, key), state.get(id_)
         st = "NEW" if not old else "ONGOING" if old.get("fingerprint") == fp else "CHANGED"
         first = (old or {}).get("first_seen") or as_of
@@ -374,9 +442,13 @@ def alerts(status: dict, row: dict, history: list[dict], state: dict | None) -> 
         out.append({"id": id_, "severity": sev, "component": comp, "cause": cause, "since": first, "status": st})
         seen.add(id_)
     blind = set(SECTIONS) if status.get("collect_error") else {n for n in SECTIONS if not _ok(status, n)}
+    if _g(status, "workflows", "status") != "OK":
+        blind.add("workflows")
     for id_, old in sorted(state.items()):
         if id_ not in seen:
-            if _owner(id_) in blind:                       # Abschnitt nicht berechenbar -> weder behoben noch neu
+            # Abschnitt (bzw. bei Anomalien die Kennzahl) nicht berechenbar -> weder behoben noch neu
+            if _owner(id_) in blind or (id_.startswith("METRIC_ANOMALY:")
+                                        and not _isnum(row.get(id_.split(":", 1)[1]))):
                 new_state[id_] = old
                 continue
             out.append({"id": id_, "severity": old.get("severity") or "WARNING", "component": old.get("component") or NA,
@@ -444,6 +516,8 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
                             ("Universum / analysiert", f"{_f(sc.get('universe'))} / {_f(sc.get('analyzed'))}"),
                             ("Champion-Kandidaten (Final-MC)", _f(sc.get("champion_candidates"))),
                             ("Kontrakte entworfen", _f(sc.get("contracts_designed"))), ("Trades", _f(sc.get("trades"))),
+                            ("Haiku/Sonnet-Widerspruch", f"{_f(sc.get('direction_conflicts'))} "
+                                                         f"(Anteil {_f(sc.get('direction_conflict_share'))})"),
                             ("Session", _f(sc.get("session"))), ("Stop-Grund", _f(sc.get("stop_reason")))])]
 
     def quote_blocks(q):
@@ -554,9 +628,37 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
                         ("Gründe UNUSABLE", _f(t.get("v2_unusable_reasons"))),
                         ("Abweichung Ausführung vs. Entscheid", _f(t.get("v2_deviation_vs_decision")))])]
 
+    def learning_blocks(le):
+        rows = []
+        for key, label, rate, days in (
+                ("meta_label", "Meta-Label-Training", "new_rows_per_day", ("have_dates", "need_dates")),
+                ("rl_arming", "RL-Freischaltung (closed trades)", "closes_per_day_30d", None),
+                ("champion_evidence", "Champion-Evidenz", "evaluable_per_day_30d", ("have_days", "need_days"))):
+            v = le.get(key) or {}
+            stand = _f(v.get("have")) + (f" · Tage {_f(v.get(days[0]))}" if days else "")
+            req = _f(v.get("need")) + (f" · Tage {_f(v.get(days[1]))}" if days else "")
+            rows.append([label, stand, req, _f(v.get(rate)), v.get("eta") or "nicht absehbar"])
+        return [("table", ["Ziel", "Stand", "benötigt", "Zulauf/Tag", "voraussichtlich ab"], rows),
+                ("p", f"{_f(le.get('note'))}. Meta-Label: {_f(_g(le, 'meta_label', 'pending_maturing'))} offene Labels "
+                      f"reifen noch; {_f(_g(le, 'meta_label', 'basis'))}.")]
+
+    def workflow_blocks(w):
+        if w.get("status") != "OK":
+            return [("p", f"Nicht verfügbar: {_f(w.get('reason'))}")]
+        st_ = w.get("scanner_start") or {}
+        fr = [[f.get("workflow"), f.get("created_at"), f.get("conclusion"), ", ".join(f.get("failed_steps") or []) or NA,
+               " / ".join(f.get("error_lines") or []) or NA] for f in w.get("failed") or []]
+        return [("kv", [("Zeitraum", f"seit {_f(w.get('since'))} ({_f(w.get('window_hours'))} h)"),
+                        ("Läufe / fehlgeschlagen", f"{_f(w.get('runs_total'))} / {len(w.get('failed') or [])}"),
+                        ("Scanner-Start heute (New York)", f"{_f(st_.get('started_et'))}"
+                         + (" – SPÄT" if st_.get("late") else ""))])] + \
+            ([("table", ["Workflow", "erstellt", "Ergebnis", "fehlgeschlagene Schritte", "letzte Fehlerzeilen"], fr)]
+             if fr else [("p", "Keine fehlgeschlagenen Läufe.")])
+
     builders = {"run": run_blocks, "quote_coverage": quote_blocks, "lifecycle": lifecycle_blocks,
                 "forward": forward_blocks, "training": training_blocks, "promotion": promotion_blocks,
-                "integrity": integrity_blocks, "data_health": data_blocks, "timing": timing_blocks}
+                "integrity": integrity_blocks, "data_health": data_blocks, "timing": timing_blocks,
+                "learning_eta": learning_blocks, "workflows": workflow_blocks}
     for name, label in SECTIONS.items():
         secs.append((label, sec(name, builders[name])))
     ar = [[a["status"], a["severity"], a["component"], a["id"], a["cause"], a["since"]] for a in al]

@@ -9,6 +9,10 @@ Gewichte, history.json). Ergebnisse:
   outputs/research/trade_memory.jsonl     ein Fall je geschlossenem Trade
   outputs/research/failure_analysis.json  Aggregation (maschinenlesbar)
   outputs/research/failure_analysis.md    kompakte Zusammenfassung (deutsch)
+  outputs/research/post_mortems.jsonl     Post-mortem je geschlossenem Trade (C3, 2026-10-15): Ergebnis, Ursache,
+                                          Lehre (feste Textbausteine), Vorhersage vs. Realität, ähnliche FRÜHERE
+                                          Fälle (PIT: nur vor dem Entry abgeschlossen)
+  outputs/research/post_mortems.md        die jüngsten Post-mortems lesbar
 
 Grundsätze:
   * Regeln und Schwellen sind VORAB festgelegt (Modulkonstanten, Begründung in
@@ -455,6 +459,87 @@ def similar_cases(query_features: dict, cases: list[dict], k: int = 10,
     return {"cases": top, "summary": summary}
 
 
+# ── D2) Post-mortem je geschlossenem Trade (C3) ──────────────────────────────
+
+POST_MORTEM_LAST_N = 50
+POST_MORTEM_MD_N = 10
+# Feste Lehrsätze je primärer Ursache (vorab festgelegt, keine Optimierung auf Ergebnisse)
+LESSONS = {
+    "unreliable_outcome": "Outcome nicht verlässlich bewertet – keine Lernaussage möglich.",
+    "exit_gave_back": "Zwischengewinn >= 30 % wieder abgegeben – Exit-Verhalten ist ein Research-Kandidat.",
+    "timing_too_early": "Schwache Gegenbewegung, erwarteter Zeithorizont länger als die Haltedauer – zu früh.",
+    "signal_wrong": "Underlying lief deutlich gegen die Signalrichtung – das Signal war falsch.",
+    "structure_decay": "Underlying in Signalrichtung, Option trotzdem im Verlust – Zeitwert-/IV-Verfall der Struktur.",
+    "weak_adverse_move": "Leichte Gegenbewegung – Signal nicht bestätigt, aber auch nicht klar widerlegt.",
+    "underlying_unknown": "Underlying-Verlauf unbekannt – Ursache nicht bestimmbar.",
+    "entry_cost_high": "Einstiegs-Spread > 10 % – Kosten dominierten das Ergebnis.",
+    "low_data_confidence": "Dünne Datenlage (Kernmerkmale fehlten oder niedrige Datenkonfidenz).",
+    "regime_changed": "Marktregime drehte während der Haltedauer.",
+    "other": "Keine Regel trifft zu.",
+}
+
+
+def post_mortem(case: dict, cases: list[dict]) -> dict:
+    """Deterministisches Post-mortem eines geschlossenen Falls (keine Signifikanzaussage)."""
+    out = _num(case.get("outcome"))
+    und = _num(case.get("underlying_return_signed"))
+    fail = case.get("failure") or {}
+    if out is None:
+        result, lesson = "UNKNOWN", "Kein Outcome."
+    elif not case.get("outcome_reliable", False):
+        result, lesson = ("WIN" if out > 0 else "LOSS" if out < 0 else "FLAT"), LESSONS["unreliable_outcome"]
+    elif out < 0:
+        result, lesson = "LOSS", LESSONS.get(fail.get("primary") or "other", LESSONS["other"])
+    elif out > 0:
+        result = "WIN"
+        lesson = ("Gewinn mit Underlying in Signalrichtung – Signal und Struktur trugen." if und is not None and und > 0
+                  else "Gewinn trotz Gegen-/Seitwärtsbewegung des Underlyings – Struktur/Volatilität, nicht das Signal."
+                  if und is not None else "Gewinn; Underlying-Verlauf unbekannt.")
+    else:
+        result, lesson = "FLAT", "Ergebnis neutral."
+    sim = similar_cases(case.get("features") or {}, cases, k=10, query_date=case.get("entry_date"),
+                        query_direction=case.get("direction"))["summary"]
+    pred = case.get("model_predictions") or {}
+    return {"case_id": case.get("case_id"), "ticker": case.get("ticker"), "entry_date": case.get("entry_date"),
+            "close_date": case.get("close_date"), "holding_days": case.get("holding_days"),
+            "strategy": case.get("strategy"), "direction": case.get("direction"), "result": result,
+            "outcome": out, "outcome_reliable": bool(case.get("outcome_reliable")),
+            "underlying_return_signed": und, "option_vs_underlying": (round(out / und, 2) if out is not None
+                                                                      and und not in (None, 0) else None),
+            "max_upside": case.get("max_upside"), "exit_reason": case.get("exit_reason"),
+            "predicted": {"sim_hit_rate": pred.get("sim_hit_rate"), "impact": pred.get("impact"),
+                          "catalyst_confidence": pred.get("catalyst_confidence")},
+            "primary_cause": fail.get("primary"), "labels": fail.get("labels") or [], "lesson": lesson,
+            "similar_before_entry": sim,
+            "note": "deterministisch (feste Regeln/Textbausteine), kleine Stichproben – keine Signifikanzaussage"}
+
+
+def post_mortems(cases: list[dict], last_n: int = POST_MORTEM_LAST_N) -> list[dict]:
+    closed = sorted((c for c in cases if c.get("source") == "closed_trades" and c.get("close_date")),
+                    key=lambda c: (str(c.get("close_date")), str(c.get("case_id"))))
+    return [post_mortem(c, cases) for c in closed[-last_n:]]
+
+
+def render_post_mortems(pms: list[dict], n: int = POST_MORTEM_MD_N) -> str:
+    lines = ["# Post-mortems (jüngste geschlossene Trades)", "",
+             "Deterministisch aus trade_memory (feste Regeln, keine Signifikanzaussage). Ähnliche Fälle: nur solche,",
+             "die vor dem Entry bereits abgeschlossen waren.", ""]
+    for pm in reversed(pms[-n:]):
+        sim = pm.get("similar_before_entry") or {}
+        lines += [f"## {pm['ticker']} · {pm['entry_date']} → {pm['close_date']} · {pm['result']} {_pct(pm['outcome'])}",
+                  f"- Strategie {pm.get('strategy') or 'N/A'}, Haltedauer {pm.get('holding_days')} T, "
+                  f"Exit: {pm.get('exit_reason') or 'N/A'}, Outcome verlässlich: {'ja' if pm['outcome_reliable'] else 'nein'}",
+                  f"- Underlying (signiert) {_pct(pm.get('underlying_return_signed'))}, Option/Underlying "
+                  f"{_fmt(pm.get('option_vs_underlying'), 2)}, Zwischenhoch {_pct(pm.get('max_upside'))}",
+                  f"- Vorhersage: MC-Trefferquote {_fmt((pm.get('predicted') or {}).get('sim_hit_rate'))}, "
+                  f"Impact {_fmt((pm.get('predicted') or {}).get('impact'), 1)}",
+                  f"- Ursache: {pm.get('primary_cause') or '—'} {pm.get('labels') or ''}",
+                  f"- Lehre: {pm['lesson']}",
+                  f"- Ähnliche frühere Fälle: n={sim.get('n')}, Gewinnanteil {_pct(sim.get('win_share'))}, "
+                  f"Median {_pct(sim.get('median_outcome'))}", ""]
+    return "\n".join(lines) + "\n"
+
+
 # ── E) Ausgabe ───────────────────────────────────────────────────────────────
 
 def _fmt(x, nd=3):
@@ -552,6 +637,11 @@ def run(history_path=HISTORY_PATH, out_dir=OUT_DIR, last_n: int = 100) -> dict:
     (out / "failure_analysis.json").write_text(
         json.dumps(agg, ensure_ascii=False, indent=2, default=_json_default), encoding="utf-8")
     (out / "failure_analysis.md").write_text(render_markdown(agg), encoding="utf-8")
+    pms = post_mortems(cases)
+    with open(out / "post_mortems.jsonl", "w", encoding="utf-8") as fh:
+        for pm in pms:
+            fh.write(json.dumps(pm, ensure_ascii=False, default=_json_default) + "\n")
+    (out / "post_mortems.md").write_text(render_post_mortems(pms), encoding="utf-8")
     log.info(f"trade_memory: {len(cases)} Fälle -> {out}")
     return {"n_cases": len(cases), "out_dir": str(out), "aggregate": agg}
 

@@ -1,0 +1,308 @@
+# config/external_sources/public_research.yaml – öffentliche, kostenlose Research-Quellen (2026-10-15)
+#
+# A4 nasdaq100_members, B3 finra_short_volume/finra_short_interest, B5 wikimedia_pageviews,
+# B7 fomc/bls/bea-Kalender, B8 clinicaltrials_sponsors, B9 usaspending_contracts, B10 sec_13f_holdings.
+# Alle RESEARCH_SHADOW: nur Archiv/Research, keine Champion-, Gate- oder Promotion-Wirkung.
+# Konnektoren: modules/external/sources/{market_public,calendars,company_events}.py
+sources:
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: false
+  supports_vintages: false
+  supports_release_time: false
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: nasdaq100_members
+  display_name: 'Nasdaq-100: offizielle Mitgliederliste (tägliche PIT-Momentaufnahme)'
+  authority: Nasdaq, Inc. (nasdaq.com)
+  official_homepage: https://www.nasdaq.com/market-activity/quotes/nasdaq-ndx-index
+  machine_endpoint: https://api.nasdaq.com/api/quote/list-type/nasdaq100
+  access_method: https_json
+  license_reference: nasdaq.com Website-Daten; nur Mitgliederliste (Symbole) für Research, keine Kursdaten
+  frequency: daily
+  expected_update_cadence: P1D
+  max_staleness_days: 5
+  pit_quality: EXACT_TIMESTAMP
+  max_fetch_seconds: 60
+  notes: 'A4: Wikipedia bleibt Primärquelle des UNIVERSE_V1 (unverändert); diese Liste ist Fallback vor der statischen Liste
+    und baut ab jetzt die fehlende PIT-Mitgliederhistorie auf (ein Snapshot je Tag, Symbole in attrs).'
+  cost: kostenlos, ohne Key
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: Nasdaq, Inc. (nasdaq.com)'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: false
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: finra_short_volume
+  display_name: FINRA Reg SHO Daily Short Sale Volume (konsolidiert, CNMS)
+  authority: FINRA
+  official_homepage: https://www.finra.org/finra-data/browse-catalog/short-sale-volume-data
+  machine_endpoint: https://cdn.finra.org/equity/regsho/daily/CNMSshvol{YYYYMMDD}.txt
+  access_method: https_file
+  license_reference: FINRA Data – öffentlich bereitgestellte Short-Sale-Volume-Dateien (Nutzungsbedingungen finra.org)
+  frequency: daily
+  expected_update_cadence: P1D
+  max_staleness_days: 6
+  pit_quality: EXACT_TIMESTAMP
+  lookback_business_days: 5
+  max_fetch_seconds: 180
+  max_backfill_bytes: 8000000
+  notes: 'B3: Leerverkaufsanteil am gemeldeten Volumen je Ticker und Handelstag (nur Research-Universum). available_at = Abrufzeit
+    (Datei erscheint am Abend des Handelstags).'
+  cost: kostenlos, ohne Key
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: FINRA'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: FINRA_API_CLIENT_ID
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: false
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: finra_short_interest
+  display_name: FINRA Consolidated Short Interest (zweimal monatlich)
+  authority: FINRA
+  official_homepage: https://www.finra.org/finra-data/browse-catalog/equity-short-interest
+  machine_endpoint: https://api.finra.org/data/group/otcMarket/name/consolidatedShortInterest
+  access_method: finra_query_api
+  auth_optional: true
+  license_reference: FINRA Query API – öffentliche Datensätze; kostenloses API-Konto (FINRA API Console)
+  frequency: semimonthly
+  expected_update_cadence: P15D
+  max_staleness_days: 25
+  pit_quality: EXACT_TIMESTAMP
+  lookback_days: 40
+  max_fetch_seconds: 240
+  notes: 'B3: Ohne Secrets FINRA_API_CLIENT_ID/FINRA_API_CLIENT_SECRET ein unauthentifizierter Versuch; 401/403 -> AUTH_MISSING
+    (kein Ersatz). available_at = Abrufzeit.'
+  cost: kostenlos (API-Konto)
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: FINRA'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: false
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: wikimedia_pageviews
+  display_name: Wikipedia-Seitenaufrufe je Unternehmen (Wikimedia REST, nur Nutzer)
+  authority: Wikimedia Foundation
+  official_homepage: https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews
+  machine_endpoint: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/
+  access_method: https_json
+  license_reference: 'Wikimedia Analytics Pageviews: CC0; Artikelzuordnung aus Wikipedia-Listen (CC BY-SA, nur Titel)'
+  frequency: daily
+  expected_update_cadence: P1D
+  max_staleness_days: 5
+  pit_quality: EXACT_TIMESTAMP
+  lookback_days: 3
+  min_articles: 300
+  request_pause_seconds: 0.05
+  max_fetch_seconds: 900
+  max_backfill_bytes: 8000000
+  notes: 'B5: Aufmerksamkeit je Ticker (S&P 500 + Nasdaq-100). available_at = Abrufzeit.'
+  cost: kostenlos, ohne Key
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: Wikimedia Foundation'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: true
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: fomc_calendar
+  display_name: FOMC-Sitzungskalender (Federal Reserve)
+  authority: Board of Governors of the Federal Reserve System
+  official_homepage: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  machine_endpoint: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  access_method: https_html
+  license_reference: US Government Work (gemeinfrei)
+  frequency: weekly
+  expected_update_cadence: P7D
+  max_staleness_days: 14
+  pit_quality: EXACT_TIMESTAMP
+  max_fetch_seconds: 60
+  notes: 'B7: Entscheid = letzter Sitzungstag 14:00 New York; value 2 = mit Projektionen (SEP).'
+  cost: kostenlos
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: Board of Governors of the Federal Reserve System'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: true
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: bls_release_calendar
+  display_name: BLS-Veröffentlichungskalender (iCalendar)
+  authority: U.S. Bureau of Labor Statistics
+  official_homepage: https://www.bls.gov/schedule/
+  machine_endpoint: https://www.bls.gov/schedule/news_release/bls.ics
+  access_method: https_ics
+  license_reference: US Government Work (gemeinfrei)
+  frequency: weekly
+  expected_update_cadence: P7D
+  max_staleness_days: 14
+  pit_quality: EXACT_TIMESTAMP
+  max_fetch_seconds: 60
+  notes: 'B7: CPI, Arbeitsmarkt, PPI, JOLTS … als geplante Termine (UTC).'
+  cost: kostenlos
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: U.S. Bureau of Labor Statistics'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: true
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: bea_release_calendar
+  display_name: BEA-Veröffentlichungskalender (release_dates.json / Plan-Seite)
+  authority: U.S. Bureau of Economic Analysis
+  official_homepage: https://www.bea.gov/news/schedule
+  machine_endpoint: https://apps.bea.gov/API/signup/release_dates.json
+  access_method: https_json
+  license_reference: US Government Work (gemeinfrei)
+  frequency: weekly
+  expected_update_cadence: P7D
+  max_staleness_days: 14
+  pit_quality: EXACT_TIMESTAMP
+  max_fetch_seconds: 60
+  notes: 'B7: BIP, PCE/Persönliches Einkommen, Handelsbilanz … als geplante Termine (UTC).'
+  cost: kostenlos
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: U.S. Bureau of Economic Analysis'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: false
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: clinicaltrials_sponsors
+  display_name: 'ClinicalTrials.gov: Studien-Pipeline je Healthcare-Emittent'
+  authority: U.S. National Library of Medicine (NIH)
+  official_homepage: https://clinicaltrials.gov/data-api/api
+  machine_endpoint: https://clinicaltrials.gov/api/v2/studies
+  access_method: https_json
+  license_reference: 'ClinicalTrials.gov Terms: öffentliche Registerdaten, frei mit Quellenangabe'
+  frequency: daily
+  expected_update_cadence: P1D
+  max_staleness_days: 5
+  pit_quality: EXACT_TIMESTAMP
+  request_pause_seconds: 0.2
+  max_fetch_seconds: 600
+  notes: 'B8: Sponsor = Emittent (Healthcare-SIC) über normalisierte Namen; aktive Studien, aktive Phase 3, Primärabschluss
+    in 90 T, Aktualisierungen in 7 T. available_at = Abrufzeit.'
+  cost: kostenlos, ohne Key
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: U.S. National Library of Medicine (NIH)'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: false
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: usaspending_contracts
+  display_name: 'USAspending.gov: Bundesaufträge je Emittent (Contracts A–D)'
+  authority: U.S. Department of the Treasury (USAspending.gov)
+  official_homepage: https://api.usaspending.gov/
+  machine_endpoint: https://api.usaspending.gov/api/v2/search/spending_by_award/
+  access_method: https_json_post
+  license_reference: US Government Work (gemeinfrei)
+  frequency: daily
+  expected_update_cadence: P1D
+  max_staleness_days: 5
+  pit_quality: EXACT_TIMESTAMP
+  window_days: 7
+  max_pages: 10
+  max_fetch_seconds: 300
+  notes: 'B9: Aufträge mit Aktivität in 7 T (größte 1000), Empfänger -> Emittent über Entity-Map inkl. GLEIF-Töchter. DoD
+    meldet mit bis zu 90 T Verzug; available_at = Abrufzeit.'
+  cost: kostenlos, ohne Key
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: U.S. Department of the Treasury (USAspending.gov)'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)
+- family: public_research
+  requires_auth: false
+  auth_env_variable: null
+  supports_history: true
+  supports_vintages: false
+  supports_release_time: true
+  enabled: true
+  criticality: low
+  license_status: OK
+  role: RESEARCH_SHADOW
+  research_only: true
+  source_id: sec_13f_holdings
+  display_name: 'SEC Form 13F: institutionelle Halter je Emittent und Quartal'
+  authority: U.S. Securities and Exchange Commission (DERA)
+  official_homepage: https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets
+  machine_endpoint: https://www.sec.gov/files/structureddata/data/form-13f-data-sets/
+  access_method: https_zip
+  license_reference: US Government Work (gemeinfrei); SEC Fair-Access-Regeln (User-Agent mit Kontakt, <= 10 Anfragen/s)
+  frequency: quarterly
+  expected_update_cadence: P90D
+  max_staleness_days: 120
+  pit_quality: CONSERVATIVE_DATE
+  history_sets: 8
+  max_sets_per_run: 1
+  max_fetch_seconds: 900
+  max_preflight_seconds: 900
+  max_backfill_bytes: 8000000
+  notes: 'B10: nur fristgerechte 13F-HR (<= 45 T nach Quartalsende), keine Optionen; available_at = Tag nach dem letzten einbezogenen
+    Filing. Ein Datensatz je Lauf (Marker im Archiv).'
+  cost: kostenlos
+  commercial_use_status_if_known: siehe license_reference
+  attribution: 'Source: U.S. Securities and Exchange Commission (DERA)'
+  failure_behavior: Quelle fehlt/veraltet -> abhängige Research-Kennzahlen unavailable (nie 0, nie Produktionswirkung)

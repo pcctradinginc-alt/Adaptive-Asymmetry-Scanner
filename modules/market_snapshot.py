@@ -572,6 +572,12 @@ def _fetch_chain(ticker: str, expiration: str) -> list[dict]:
         options = data.get("options", {}).get("option", []) or []
         if isinstance(options, dict):
             options = [options]
+        # B2 (2026-10-15): Kennzahlen der ohnehin geladenen Kette für Research (nie entscheidungswirksam)
+        try:
+            from modules import chain_summary
+            chain_summary.record(ticker, expiration, options, source="market_snapshot")
+        except Exception as _e:  # noqa: BLE001 – Research-Nebenprodukt, nie entscheidungswirksam
+            log.debug(f"chain_summary [{ticker} {expiration}] ignoriert: {_e}")
         return options
     except Exception as e:
         log.debug(f"market_snapshot._fetch_chain [{ticker} {expiration}] Fehler (ignoriert): {e}")

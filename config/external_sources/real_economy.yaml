@@ -218,6 +218,50 @@ sources:
       RSAFS: "RSAFS"
       ISRATIO: "ISRATIO"
 
+  - source_id: fred_liquidity
+    display_name: "FRED/ALFRED Liquidität & Kurve: Overnight Reverse Repo, Treasury General Account, 10J-2J"
+    family: real_economy
+    authority: "FRED/ALFRED (St. Louis Fed); Originale: Board of Governors des Federal Reserve System (H.4.1: WTREGEN; NY Fed/Board: RRPONTSYD; H.15-Ableitung: T10Y2Y)"
+    official_homepage: "https://fred.stlouisfed.org"
+    machine_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    access_method: "fred_alfred_api"
+    requires_auth: true
+    auth_env_variable: "FRED_API_KEY"
+    auth_optional: true
+    license_reference: "FRED ToU; Board of Governors H.4.1/H.15 und Ableitungen gemeinfrei (US Government Works)"
+    commercial_use_status_if_known: "gemeinfrei (US Government Works)"
+    attribution: "Source: FRED/ALFRED, Federal Reserve Bank of St. Louis; Board of Governors of the Federal Reserve System"
+    frequency: daily
+    max_staleness_days: 10
+    expected_update_cadence: "P1D"
+    supports_history: true
+    supports_vintages: true
+    supports_release_time: true
+    pit_quality: EXACT_DATE
+    enabled: true
+    criticality: low
+    license_status: OK
+    role: RESEARCH_SHADOW
+    research_only: true          # B4 (2026-10-15): nur Archiv/Research, keine Champion-Wirkung
+    max_backfill_bytes: 20000000
+    notes: >
+      Netto-Liquidität = WALCL (fred_regime_macro) − TGA (WTREGEN) − RRP (RRPONTSYD); Kurve 10J−2J.
+      available_at = ALFRED realtime_start; Abruf in 5-Jahres-Echtzeit-Fenstern (ALFRED-Limit 2000 Vintage-Daten).
+      Beobachtungen ab 2021-01-01.
+    expected_series_ids:
+      RRPONTSYD: "RRPONTSYD"
+      WTREGEN: "WTREGEN"
+      T10Y2Y: "T10Y2Y"
+    retrieval_frequency: "täglich"
+    expected_latency: "RRP/T10Y2Y 1 Handelstag, TGA donnerstags (H.4.1)"
+    revision_policy: "ALFRED-Vintages: available_at = realtime_start; Korrekturen als eigene Vintages"
+    historical_depth: "2021–heute"
+    entity_level: "USA / Geldmarkt"
+    coverage: "Overnight Reverse Repo, Treasury General Account, Zinskurve 10J−2J"
+    rate_limits: "FRED: 120 Anfragen/Minute je Key"
+    cost: "kostenlos (API-Key)"
+    failure_behavior: "Reihe veraltet/fehlend -> abgeleitete Kennzahlen None (nie Default)"
+
   - source_id: fred_market_expectations
     display_name: "FRED/ALFRED Markt-Erwartungen: Treasury-Renditen, Fed Funds, Breakeven-Inflation"
     family: real_economy

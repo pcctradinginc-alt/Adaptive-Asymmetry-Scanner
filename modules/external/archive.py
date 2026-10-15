@@ -5,6 +5,8 @@ normalisierte Beobachtungen.
 Layout (root, Default "outputs/external_data"):
   raw/<source_id>/<YYYY-MM>/...            – Rohdaten-Metadaten (+ optional gzip Payload)
   normalized/<source_id>/<YYYY-MM>.jsonl   – normalisierte Observations (append-only)
+  normalized/<source_id>/<YYYY-MM>.jsonl.gz – dieselben Zeilen einer KALTEN Partition, verlustfrei gzip-komprimiert
+                                             (compact_cold_partitions, 2026-10-15); Leser lesen beide transparent
   manifests/<YYYY-MM-DD>/<run_id>.json     – ein Manifest pro Ingestion-Run
   health/source_health.json                – SourceHealth je source_id (siehe registry.py)
   health/storage_telemetry.json            – Speicher-Messung + Projektion
@@ -33,7 +35,7 @@ import statistics
 import subprocess
 import tempfile
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -52,6 +54,10 @@ MAX_BACKFILL_BYTES_HARD_CAP = 80_000_000
 DEFAULT_MAX_NEW_NORMALIZED_BYTES_PER_SOURCE_PER_RUN = 2_000_000
 DEFAULT_ARCHIVE_BACKEND = "git"
 DEFAULT_GIT_RETENTION_MONTHS = 3
+# Verlustfreie Kompaktierung kalter Partitionen im Git-Arbeitsbaum (kein kostenpflichtiger Object Storage):
+# Partition abgeschlossen UND seit N Tagen keine neue Zeile -> <key>.jsonl wird an <key>.jsonl.gz angehängt.
+DEFAULT_COMPRESS_COLD_AFTER_DAYS = 21
+GZ_SUFFIX = ".jsonl.gz"
 OFFLOAD_MANIFEST_NAME = "offloaded.json"
 
 
@@ -213,6 +219,31 @@ def verify_row(row: Any) -> bool | None:
     return compute_payload_hash(d) == stored
 
 
+def _partition_key_of(path: Path) -> str:
+    """'2026-10-w2.jsonl.gz' -> '2026-10-w2'; '2026-10.jsonl' -> '2026-10'."""
+    name = path.name
+    return name[:-len(GZ_SUFFIX)] if name.endswith(GZ_SUFFIX) else name[:-len(".jsonl")] if name.endswith(".jsonl") \
+        else name
+
+
+def _partition_end(key: str) -> datetime | None:
+    """Exklusives Ende einer Partition (UTC): 'YYYY-MM' -> Monatsanfang danach, 'YYYY-MM-wN' -> Tag 7·N+1
+    (höchstens Monatsende). Unbekanntes Format -> None (wird nie kompaktiert)."""
+    try:
+        y, m = int(key[:4]), int(key[5:7])
+        if key[4] != "-":
+            return None
+        nxt = datetime(y + (m == 12), m % 12 + 1, 1, tzinfo=timezone.utc)
+        if len(key) == 7:
+            return nxt
+        if key[7:9] != "-w":
+            return None
+        n = int(key[9:])
+        return min(datetime(y, m, 1, tzinfo=timezone.utc) + timedelta(days=7 * n), nxt)
+    except (ValueError, IndexError):
+        return None
+
+
 class ExternalArchive:
     def __init__(self, root: str | os.PathLike = DEFAULT_ROOT,
                  storage_backend: StorageBackend | None = None):
@@ -243,6 +274,17 @@ class ExternalArchive:
     def _normalized_path(self, source_id: str, month: str) -> Path:
         return self._normalized_dir(source_id) / f"{month}.jsonl"
 
+    def _normalized_gz_path(self, source_id: str, month: str) -> Path:
+        return self._normalized_dir(source_id) / f"{month}{GZ_SUFFIX}"
+
+    @staticmethod
+    def _partition_files(d: Path) -> list[Path]:
+        """Alle Datendateien einer Quelle: <key>.jsonl.gz (kalt, komprimiert) vor <key>.jsonl (offen/Nachträge)."""
+        if not d.exists():
+            return []
+        return sorted((p for p in d.iterdir() if p.is_file() and (p.name.endswith(GZ_SUFFIX) or p.suffix == ".jsonl")),
+                      key=lambda p: (_partition_key_of(p), not p.name.endswith(GZ_SUFFIX)))
+
     @staticmethod
     def partition_key(observation_time: datetime, partition: str = "monthly") -> str:
         """Dateischlüssel einer Beobachtung: 'YYYY-MM' (Standard) oder 'YYYY-MM-wN' (weekly, N = Woche im
@@ -255,12 +297,13 @@ class ExternalArchive:
 
     def _existing_rows(self, source_id: str, key: str) -> list:
         """Bestehende Zeilen für Dedup: Partition + (bei weekly) die Legacy-Monatsdatei desselben Monats."""
-        rows = self._read_jsonl(self._normalized_path(source_id, key))
+        rows = self._read_jsonl(self._normalized_gz_path(source_id, key)) + \
+            self._read_jsonl(self._normalized_path(source_id, key))
         if len(key) > 7:
-            month_file = self._normalized_path(source_id, key[:7])
-            if month_file.exists():
-                rows = rows + [o for o in self._read_jsonl(month_file)
-                               if self.partition_key(o.observation_time, "weekly") == key]
+            for month_file in (self._normalized_gz_path(source_id, key[:7]), self._normalized_path(source_id, key[:7])):
+                if month_file.exists():
+                    rows = rows + [o for o in self._read_jsonl(month_file)
+                                   if self.partition_key(o.observation_time, "weekly") == key]
         return rows
 
     def _health_dir(self) -> Path:
@@ -445,8 +488,7 @@ class ExternalArchive:
             # einmaliger historischer Backfill -> eigene, höhere Grenze
             # (max_backfill_bytes_per_source). Die tägliche Sperre gilt für den
             # inkrementellen Zuwachs; beides schreibt nie gekürzt.
-            is_first_import = not self._normalized_dir(source_id).exists() or not any(
-                self._normalized_dir(source_id).glob("*.jsonl"))
+            is_first_import = not self._partition_files(self._normalized_dir(source_id))
             # max_backfill_bytes: Quellen-Override (Registry) für einmalige
             # große Referenz-/Historienimporte, hart gedeckelt.
             backfill_limit = int(defaults.get("max_backfill_bytes_per_source",
@@ -478,10 +520,7 @@ class ExternalArchive:
         """Aktuelle Gesamtgröße der normalisierten JSONL-Dateien einer Quelle
         (Bytes) — der Orchestrator misst dies vor/nach store_observations(),
         um bytes_written fürs Manifest zu bestimmen (siehe orchestrator.py)."""
-        d = self._normalized_dir(source_id)
-        if not d.exists():
-            return 0
-        return sum(p.stat().st_size for p in d.glob("*.jsonl") if p.is_file())
+        return sum(p.stat().st_size for p in self._partition_files(self._normalized_dir(source_id)))
 
     def load(self, source_id: str, since: datetime | None = None) -> list[Observation]:
         """Alle Observations einer Quelle (über alle Monate), optional gefiltert
@@ -494,8 +533,8 @@ class ExternalArchive:
         d = self._normalized_dir(source_id)
         local_months: set[str] = set()
         if d.exists():
-            for path in sorted(d.glob("*.jsonl")):
-                local_months.add(path.name)
+            for path in self._partition_files(d):
+                local_months.add(path.name[:-3] if path.name.endswith(".gz") else path.name)
                 for obs in self._read_jsonl(path):
                     if since is not None and obs.observation_time < since:
                         continue
@@ -610,7 +649,7 @@ class ExternalArchive:
             return []
         try:
             raw = backend.get_bytes(info["s3_key"])
-            data = gzip.decompress(raw)
+            data = raw if rel_path.endswith(".gz") else gzip.decompress(raw)   # .gz: sha über die gz-Bytes
             if expected_sha and hashlib.sha256(data).hexdigest() != expected_sha:
                 return []
         except Exception:
@@ -730,8 +769,8 @@ class ExternalArchive:
         if norm_root.exists():
             for source_dir in sorted(p for p in norm_root.iterdir() if p.is_dir()):
                 source_id = source_dir.name
-                for path in sorted(source_dir.glob("*.jsonl")):
-                    month = path.stem[:7]                      # 'YYYY-MM' auch für Wochen-Partitionen
+                for path in self._partition_files(source_dir):
+                    month = path.name[:7]                      # 'YYYY-MM' auch für Wochen-/gz-Partitionen
                     if not self._is_closed_month(month, now):
                         continue
                     if not self._months_before_cutoff(month, now, retention_months):
@@ -754,6 +793,70 @@ class ExternalArchive:
 
         self._save_offload_manifest(offload_manifest)
         return result
+
+    # ── Verlustfreie Kompaktierung kalter Partitionen (2026-10-15) ───────
+
+    def compact_cold_partitions(self, now: datetime | None = None, cold_after_days: int | None = None) -> dict:
+        """Komprimiert KALTE normalisierte Partitionen verlustfrei im Git-Arbeitsbaum (kein Object Storage):
+        kalt = Partition abgeschlossen (Ende + N Tage vorbei) UND jüngstes retrieved_at der offenen Datei
+        ≥ N Tage alt. Dann wird <key>.jsonl byte-identisch an <key>.jsonl.gz angehängt (bestehender gz-Inhalt
+        zuerst, Zeilenreihenfolge unverändert), per Dekompression gegengeprüft und erst danach gelöscht.
+        Spätere Nachträge/Revisionen landen wieder in <key>.jsonl und werden kompaktiert, sobald auch sie kalt
+        sind. Deterministisches gzip (mtime=0): gleicher Inhalt -> gleiche Bytes. Nie werfend je Datei.
+
+        Rückgabe: {"enabled", "cold_after_days", "compacted": [rel], "bytes_before", "bytes_after",
+        "failures": {rel: msg}}."""
+        now = ensure_utc(now) or utc_now()
+        if cold_after_days is None:
+            cold_after_days = int(_config_archive_defaults().get("compress_cold_after_days",
+                                                                 DEFAULT_COMPRESS_COLD_AFTER_DAYS) or 0)
+        res: dict = {"enabled": cold_after_days > 0, "cold_after_days": cold_after_days, "compacted": [],
+                     "bytes_before": 0, "bytes_after": 0, "failures": {}}
+        norm_root = self.root / "normalized"
+        if cold_after_days <= 0 or not norm_root.exists():
+            return res
+        cut = now - timedelta(days=cold_after_days)
+        for source_dir in sorted(p for p in norm_root.iterdir() if p.is_dir()):
+            for plain in sorted(source_dir.glob("*.jsonl")):
+                key = _partition_key_of(plain)
+                end = _partition_end(key)
+                rel = str(plain.relative_to(self.root)).replace(os.sep, "/")
+                if end is None or end > cut:
+                    continue
+                try:
+                    data = plain.read_bytes()
+                    if data and not data.endswith(b"\n"):
+                        data += b"\n"
+                    last = max((ensure_utc(o.retrieved_at) for o in self._read_jsonl(plain) if o.retrieved_at),
+                               default=None)
+                    if last is not None and last > cut:
+                        continue                                     # Partition bekommt noch Zeilen
+                    gz = plain.with_name(key + GZ_SUFFIX)
+                    old_bytes = gz.read_bytes() if gz.exists() else None
+                    merged = (gzip.decompress(old_bytes) if old_bytes else b"") + data
+                    packed = gzip.compress(merged, compresslevel=9, mtime=0)
+                    if gzip.decompress(packed) != merged:
+                        raise ValueError("Verifikation nach Kompression fehlgeschlagen")
+                    tmp = gz.with_name(gz.name + ".tmp")
+                    tmp.write_bytes(packed)
+                    os.replace(tmp, gz)
+                    try:
+                        if gzip.decompress(gz.read_bytes()) != merged:
+                            raise ValueError("Verifikation der geschriebenen Datei fehlgeschlagen")
+                        plain.unlink()
+                    except Exception:
+                        # Zustand vorher wiederherstellen: nie dieselben Zeilen in .jsonl UND .jsonl.gz
+                        if old_bytes is None:
+                            gz.unlink(missing_ok=True)
+                        else:
+                            gz.write_bytes(old_bytes)
+                        raise
+                    res["compacted"].append(rel)
+                    res["bytes_before"] += len(data) + len(old_bytes or b"")
+                    res["bytes_after"] += len(packed)
+                except Exception as e:  # noqa: BLE001 - nie fatal für den Ingestion-Run; Datei bleibt unverändert
+                    res["failures"][rel] = f"{type(e).__name__}: {e}"
+        return res
 
     # ── Storage-Telemetrie ───────────────────────────────────────────────
 
@@ -901,7 +1004,8 @@ class ExternalArchive:
         if not path.exists():
             return []
         out = []
-        with open(path, "r", encoding="utf-8") as fh:
+        opener = gzip.open if path.name.endswith(".gz") else open
+        with opener(path, "rt", encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:

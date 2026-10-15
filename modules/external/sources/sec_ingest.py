@@ -9,6 +9,8 @@ Speicher (kompakt, weil ~10^5 Ereignisse; jede Zeile behält ALLE PIT-Felder):
   outputs/external_data/sec/health.json      Source Health
   outputs/research/feature_store/alt_sec.csv.gz  Features je (Stichtag, Ticker) – im CI-Lauf
                                                  neu berechnet, nicht eingecheckt (.gitignore)
+  outputs/research/feature_store/alt_sec_earnings.csv.gz  Earnings-Release-Zeitstempel (8-K Item 2.02,
+                                                 sec_earnings.py), ebenso nur im CI-Lauf
 Ausfall einer Quelle -> Features dieser Quelle NaN (alt_sec_available=0),
 niemals Ersatzwerte.
 """
@@ -27,12 +29,14 @@ from modules.entity_resolution.sources import SEC_HEADERS
 from modules.entity_resolution.store import DEFAULT_PATH as ENTITY_PATH, EntityStore
 from modules.external.http import fetch
 from modules.external.pit import AvailabilityPrecision, Observation
+from modules.external.sources import sec_earnings as sea
 from modules.external.sources import sec_events as se
 from modules.external.sources import sec_features as sf
 
 log = logging.getLogger(__name__)
 DIR = Path("outputs/external_data/sec")
 FEATURE_PATH = Path("outputs/research/feature_store/alt_sec.csv.gz")
+EARNINGS_FEATURE_PATH = Path("outputs/research/feature_store/alt_sec_earnings.csv.gz")
 SCHEMA_VERSION = "sec-store-1"
 SEC_MIN_INTERVAL = 0.12
 COLS = ["source_id", "series_id", "entity_id", "metric", "value", "unit", "observation_time", "available_at",
@@ -240,6 +244,14 @@ def build_features(state: dict, cik_by_ticker: dict[str, str], dates) -> pd.Data
     return sf.build_feature_table(obs, dates, {t: f"cik:{c}" for t, c in cik_by_ticker.items()}, cov, since)
 
 
+def build_earnings_features(state: dict, cik_by_ticker: dict[str, str], dates) -> pd.DataFrame:
+    """B1: Earnings-Release-Zeitstempel (8-K Item 2.02) je (Stichtag, Ticker), streng PIT."""
+    df = read_store(DIR / "filings.csv.gz")
+    obs = rows_to_obs(df) if len(df) else []
+    since = {f"cik:{k}": pd.Timestamp(v) for k, v in state.get("filing_since", {}).items()}
+    return sea.build_feature_table(obs, dates, {t: f"cik:{c}" for t, c in cik_by_ticker.items()}, since)
+
+
 def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO)
     ap = argparse.ArgumentParser()
@@ -268,6 +280,13 @@ def main(argv=None) -> int:
     feat = build_features(state, ident, dates)
     FEATURE_PATH.parent.mkdir(parents=True, exist_ok=True)
     feat.to_csv(FEATURE_PATH, index=False, compression="gzip")
+    try:                                                    # B1 (SHADOW): Ausfall berührt alt_sec nicht
+        earn = build_earnings_features(state, ident, dates)
+        earn.to_csv(EARNINGS_FEATURE_PATH, index=False, compression="gzip")
+        log.info(f"Earnings-Releases (8-K 2.02): {len(earn)} Zeilen, verfügbar "
+                 f"{earn['alt_sec_earnings_available'].mean():.1%}" if len(earn) else "Earnings-Releases: leer")
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Earnings-Release-Features nicht berechnet: {type(e).__name__}: {e}")
     print(json.dumps({k: {kk: (vv if kk != "errors" else len(vv)) for kk, vv in v.items()} for k, v in results.items()},
                      indent=1), f"\nFeatures: {len(feat)} Zeilen, verfügbar {feat['alt_sec_available'].mean():.1%}")
     return 0

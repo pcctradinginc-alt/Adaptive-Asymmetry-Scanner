@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import statistics
 from collections import Counter
 from datetime import date, datetime, timedelta, timezone
@@ -154,7 +155,12 @@ def run_status(P: dict, today: date) -> dict:
                         "champion_candidates": st.get("final_mc"),       # Final-MC bestanden = Champion-Kandidaten
                         "contracts_designed": contracts,              # Options-Design ergab Kontrakt (ROI ok + ROI-Reject)
                         "trades": st.get("trades"), "stop_reason": st.get("stop_reason"),
-                        "session": st.get("session")},
+                        "session": st.get("session"),
+                        # Haiku/Sonnet-Richtungswiderspruch (pipeline stats.direction_conflicts, ab 2026-10-15)
+                        "direction_conflicts": st.get("direction_conflicts"),
+                        "direction_conflict_share": (round(st["direction_conflicts"] / st["analyzed"], 4)
+                                                     if isinstance(st.get("direction_conflicts"), int)
+                                                     and st.get("analyzed") else None)},
             "definitions": {"champion_candidates": "stats.final_mc (Final-MC bestanden)",
                             "contracts_designed": "stats.roi_ok + stats.roi_rejects.n (Kontrakt gefunden, vor ROI-Gate)"}}
 
@@ -717,6 +723,95 @@ def timing_status(hist: dict, now: datetime) -> dict:
                                          "definition": "Outcome zur zulässigen Ausführung minus Return zum Entscheid"}}
 
 
+# ── 9. Lern-Prognose (2026-10-15) ───────────────────────────────────────────
+ETA_HORIZON_DAYS = 365                      # weiter wird nicht projiziert ("nicht absehbar")
+ETA_RATE_DAYS = 14                          # Zulauf-Rate aus den letzten N Tagen
+
+
+def _rl_cfg() -> tuple[int, str]:
+    try:
+        import yaml
+        rl = (yaml.safe_load(Path("config.yaml").read_text(encoding="utf-8")) or {}).get("rl", {}) or {}
+        return int(rl.get("arm_threshold", 30)), str(rl.get("arm_since", "2026-06-11"))
+    except Exception:  # noqa: BLE001
+        return 30, "2026-06-11"
+
+
+def _eta(have: int, need: int, per_day: float, today: date) -> str | None:
+    """Lineare Projektion: Datum, an dem `need` bei `per_day` Zuwachs erreicht ist (None = nicht absehbar)."""
+    if have >= need:
+        return today.isoformat()
+    if per_day <= 0:
+        return None
+    days = math.ceil((need - have) / per_day)
+    return (today + timedelta(days=days)).isoformat() if days <= ETA_HORIZON_DAYS else None
+
+
+def learning_eta(hist: dict, P: dict, now: datetime) -> dict:
+    """Wann die Lernschwellen bei aktuellem Zulauf voraussichtlich erreicht sind (nur Projektion, keine Aussage über
+    Qualität): Meta-Label (Labels + unabhängige Tage, Reifung der offenen Labels exakt nach label_available_at),
+    RL-Arming (abgeschlossene Trades seit arm_since) und Champion-Evidenz (bewertbare Trades/Tage, MIN_N/MIN_DAYS)."""
+    from modules import evidence_ledger as el
+    from modules import meta_label as ml
+    today = now.date()
+    out: dict = {}
+
+    # Meta-Label: Zielpopulation, Horizont der Spec; offene Labels reifen an label_available_at
+    spec = ml.SPEC
+    h, stages = spec["horizon"], set(spec.get("train_stages") or [])
+    need_n, need_d = spec["readiness"]["min_labels"], spec["readiness"]["min_dates"]
+    pop = spec["population"]
+    rows = [r for r in el.from_candidate_ledger(P["candidate_ledger"]) if r.get("population") == pop
+            and r.get("horizon") == h and r.get("direction") in (1, -1)
+            and (not stages or (r.get("meta") or {}).get("stage") in stages)]
+    have = el.labeled(rows, as_of=today, population=pop, horizon=h)        # exakt wie meta_label.run
+    # Reifung: vorhandene Labels + noch offene (label_available_at in der Zukunft); bereits fällige Zeilen ohne
+    # Outcome (z. B. NO_PRICE_DATA) zählen nicht als künftiges Label
+    pending = [r for r in rows if (_day(r.get("label_available_at")) or today) > today]
+    events = sorted((_day(r.get("label_available_at")), _day(r.get("decision_date"))) for r in have + pending
+                    if _day(r.get("label_available_at")) and _day(r.get("decision_date")))
+    recent = [d for _, d in events if 0 <= (today - d).days < ETA_RATE_DAYS]
+    per_day = len(recent) / ETA_RATE_DAYS                      # neue Zielzeilen je Kalendertag
+    dates_per_day = len(set(recent)) / ETA_RATE_DAYS            # neue Entscheidungstage je Kalendertag
+    eta_ml, i, n, dates, acc_n, acc_d = None, 0, 0, set(), 0.0, 0.0
+    for k in range(ETA_HORIZON_DAYS + 1):
+        d = today + timedelta(days=k)
+        while i < len(events) and events[i][0] <= d:         # vorhandene Zeilen reifen exakt an label_available_at
+            n, i = n + 1, i + 1
+            dates.add(events[i - 1][1])
+        if k >= h + 2:                                        # ab morgen entschiedene Zeilen reifen nach h+1 Tagen
+            acc_n, acc_d = acc_n + per_day, acc_d + dates_per_day
+        if n + int(acc_n) >= need_n and len(dates) + int(acc_d) >= need_d:
+            eta_ml = d.isoformat()
+            break
+    out["meta_label"] = {"have": len(have), "need": need_n, "have_dates": len({_day(r.get("decision_date")) for r in have}),
+                         "need_dates": need_d, "pending_maturing": len(pending),
+                         "new_rows_per_day": round(per_day, 2), "eta": eta_ml,
+                         "basis": f"Zielpopulation {sorted(stages)}, Horizont {h} T; offene Labels reifen an "
+                                  f"label_available_at, Zulauf aus den letzten {ETA_RATE_DAYS} T"}
+
+    # RL-Arming
+    thr, since = _rl_cfg()
+    closed = hist.get("closed_trades") or []
+    rl = [t for t in closed if t.get("outcome") is not None and str(t.get("entry_date", ""))[:10] >= since]
+    last30 = [t for t in rl if (_day(t.get("close_date")) or date.min) >= today - timedelta(days=30)]
+    out["rl_arming"] = {"have": len(rl), "need": thr, "closes_per_day_30d": round(len(last30) / 30, 3),
+                        "eta": _eta(len(rl), thr, len(last30) / 30, today), "since": since}
+
+    # Champion-Evidenz (wie forward_performance: nur Bewertung OK)
+    champ = [r for r in el.from_champion_trades(hist)
+             if ((r.get("meta") or {}).get("evaluation") or {}).get("status") == "OK" and r.get("outcome") is not None]
+    ok30 = [r for r in champ if (_day(r.get("label_available_at")) or date.min) >= today - timedelta(days=30)]
+    n_days = len({r.get("label_available_at") for r in champ})
+    eta_n = _eta(len(champ), MIN_N, len(ok30) / 30, today)
+    eta_d = _eta(n_days, MIN_DAYS, len({r.get("label_available_at") for r in ok30}) / 30, today)
+    out["champion_evidence"] = {"have": len(champ), "need": MIN_N, "have_days": n_days, "need_days": MIN_DAYS,
+                                "evaluable_per_day_30d": round(len(ok30) / 30, 3),
+                                "eta": max(eta_n, eta_d) if eta_n and eta_d else None}
+    out["note"] = "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
+    return out
+
+
 def collect(now: datetime | None = None, paths: dict | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:                                       # naive Zeit = UTC (wie option_quotes)
@@ -733,7 +828,14 @@ def collect(now: datetime | None = None, paths: dict | None = None) -> dict:
             "promotion": _safe("promotion", promotion_status, P),
             "integrity": _safe("integrity", integrity, hist, P, now),
             "data_health": _safe("data_health", data_health, P, now),
-            "timing": _safe("timing", timing_status, hist, now)}
+            "timing": _safe("timing", timing_status, hist, now),
+            "learning_eta": _safe("learning_eta", learning_eta, hist, P, now),
+            "workflows": _safe("workflows", _workflows, now)}
+
+
+def _workflows(now: datetime) -> dict:
+    from modules import ops_workflows
+    return ops_workflows.collect(now)
 
 
 def _close_after_days() -> int:

@@ -400,6 +400,12 @@ def _tradier_chain(symbol: str, expiration: str) -> list[dict]:
         options = data.get("options", {}).get("option", []) or []
         if isinstance(options, dict):
             options = [options]
+        # B2 (2026-10-15): Kennzahlen der ohnehin geladenen Kette für Research (nie entscheidungswirksam)
+        try:
+            from modules import chain_summary
+            chain_summary.record(symbol, expiration, options, source="options_designer")
+        except Exception as _e:  # noqa: BLE001 – Research-Nebenprodukt, nie entscheidungswirksam
+            log.debug(f"chain_summary [{symbol} {expiration}] ignoriert: {_e}")
         return options
     except Exception as e:
         log.debug(f"Tradier Chain [{symbol} {expiration}]: {e}")
