@@ -1,29 +1,29 @@
 {
-  "measured_at": "2026-10-15T10:18:09+00:00",
-  "total_bytes_per_day": 90064181.0,
-  "one_off_backfill_bytes": 1037189218,
+  "measured_at": "2026-10-15T11:42:40+00:00",
+  "total_bytes_per_day": 90078408.0,
+  "one_off_backfill_bytes": 1165343507,
   "projections_bytes": {
-    "30d": 2701925430.0,
-    "1y": 32873426065.0,
-    "5y": 164367130325.0
+    "30d": 2702352240.0,
+    "1y": 32878618920.0,
+    "5y": 164393094600.0
   },
   "warn_mb_1y": 200.0,
   "flagged": true,
   "backend": "git",
-  "bytes_in_git": 317528238,
+  "bytes_in_git": 319304981,
   "bytes_offloaded": 0,
   "per_source": {
     "bea_release_calendar": {
       "retrieval_days": 1,
       "rows": 62,
-      "one_off_backfill_bytes": 59098,
+      "one_off_backfill_bytes": 70996,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "bls_release_calendar": {
       "retrieval_days": 1,
       "rows": 33,
-      "one_off_backfill_bytes": 105535,
+      "one_off_backfill_bytes": 186207,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -38,7 +38,7 @@
       "retrieval_days": 19,
       "rows": 1052,
       "one_off_backfill_bytes": 6475131,
-      "raw_bytes_per_day": 773662.5,
+      "raw_bytes_per_day": 773911.5,
       "normalized_bytes_per_day": 0.0
     },
     "cftc_cot": {
@@ -51,7 +51,7 @@
     "clinicaltrials_sponsors": {
       "retrieval_days": 1,
       "rows": 96,
-      "one_off_backfill_bytes": 71633,
+      "one_off_backfill_bytes": 72628,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -78,10 +78,10 @@
     },
     "entsoe_power": {
       "retrieval_days": 16,
-      "rows": 2561,
+      "rows": 2564,
       "one_off_backfill_bytes": 139210600,
       "raw_bytes_per_day": 48514837,
-      "normalized_bytes_per_day": 5099
+      "normalized_bytes_per_day": 5790
     },
     "estat_jp_truck": {
       "retrieval_days": 18,
@@ -121,21 +121,21 @@
     "finra_short_interest": {
       "retrieval_days": 1,
       "rows": 2476,
-      "one_off_backfill_bytes": 20789082,
+      "one_off_backfill_bytes": 39896845,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "finra_short_volume": {
       "retrieval_days": 1,
       "rows": 3100,
-      "one_off_backfill_bytes": 4996913,
+      "one_off_backfill_bytes": 7694724,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "fomc_calendar": {
       "retrieval_days": 1,
       "rows": 9,
-      "one_off_backfill_bytes": 174288,
+      "one_off_backfill_bytes": 342144,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -149,14 +149,14 @@
     "fred_liquidity": {
       "retrieval_days": 1,
       "rows": 3575,
-      "one_off_backfill_bytes": 2956104,
+      "one_off_backfill_bytes": 3580810,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "fred_market_expectations": {
       "retrieval_days": 1,
       "rows": 19693,
-      "one_off_backfill_bytes": 17247395,
+      "one_off_backfill_bytes": 21495968,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -197,7 +197,7 @@
     },
     "imf_portwatch_ports": {
       "retrieval_days": 19,
-      "rows": 38293,
+      "rows": 38765,
       "one_off_backfill_bytes": 6126087,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
@@ -205,7 +205,7 @@
     "nasdaq100_members": {
       "retrieval_days": 1,
       "rows": 1,
-      "one_off_backfill_bytes": 23051,
+      "one_off_backfill_bytes": 44514,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -218,10 +218,10 @@
     },
     "nhc_storms": {
       "retrieval_days": 19,
-      "rows": 2094,
+      "rows": 2097,
       "one_off_backfill_bytes": 1514550,
-      "raw_bytes_per_day": 90412.5,
-      "normalized_bytes_per_day": 56185.5
+      "raw_bytes_per_day": 92656.0,
+      "normalized_bytes_per_day": 57336.0
     },
     "noaa_storm_events": {
       "retrieval_days": 1,
@@ -232,36 +232,36 @@
     },
     "nws_alerts": {
       "retrieval_days": 19,
-      "rows": 1219,
+      "rows": 1264,
       "one_off_backfill_bytes": 2211981,
-      "raw_bytes_per_day": 91660.0,
+      "raw_bytes_per_day": 101553.0,
       "normalized_bytes_per_day": 24979.0
     },
     "nws_forecast": {
       "retrieval_days": 19,
-      "rows": 63281,
+      "rows": 64178,
       "one_off_backfill_bytes": 158927790,
       "raw_bytes_per_day": 11753328.0,
       "normalized_bytes_per_day": 1523742.5
     },
     "sec_13f_holdings": {
       "retrieval_days": 1,
-      "rows": 931,
-      "one_off_backfill_bytes": 101618173,
+      "rows": 1932,
+      "one_off_backfill_bytes": 201979722,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "usaspending_contracts": {
       "retrieval_days": 1,
       "rows": 18,
-      "one_off_backfill_bytes": 48348,
+      "one_off_backfill_bytes": 81599,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "wikimedia_pageviews": {
       "retrieval_days": 1,
       "rows": 1506,
-      "one_off_backfill_bytes": 1832279,
+      "one_off_backfill_bytes": 2630031,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     }
