@@ -1620,6 +1620,7 @@ def _ci_sandbox(tmp_path: Path):
     env.update(HOME=str(tmp_path), GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_ALLOW_PROTOCOL="file",
                GIT_TERMINAL_PROMPT="0", GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t",
                GIT_COMMITTER_EMAIL="t@t", GITHUB_TOKEN="tok", GITHUB_REPOSITORY="o/r", GIT_CONFIG_COUNT="1",
+               GITHUB_REF="refs/heads/main",                    # wie ein Lauf auf main (CI-Lauf selbst: PR-Ref)
                GIT_CONFIG_KEY_0=f"url.{bare}.insteadOf", GIT_CONFIG_VALUE_0="https://x-access-token:tok@github.com/o/r.git")
 
     def git(*args, cwd):
@@ -1681,6 +1682,22 @@ def test_ci_push_nur_archiv_pfad_laesst_fremde_aenderungen_unberuehrt(tmp_path):
     assert r.returncode == 0, r.stdout + r.stderr
     assert remote_datei("outputs/history.json") == '{"v": 0}\n'
     assert '{"id": "capture"}' in remote_datei("outputs/options_archive/quotes/2026-10-14.jsonl")
+
+
+def test_ci_push_lauf_auf_anderem_branch_pusht_nie_nach_main(tmp_path, monkeypatch):
+    """Schutz 2026-10-15: ein workflow_dispatch auf einem Feature-Branch darf Branch-Code nie per Rebase nach main
+    pushen – ci_push.sh beendet sich ohne Commit/Push (Exit 0, Daten bleiben nur im Runner)."""
+    c1, _c2, _ci_push, remote_datei = _ci_sandbox(tmp_path)
+    (c1 / "outputs" / "history.json").write_text('{"v": "branch"}\n', encoding="utf-8")
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(HOME=str(tmp_path), GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_ALLOW_PROTOCOL="file",
+               GITHUB_TOKEN="tok", GITHUB_REPOSITORY="o/r", GITHUB_REF="refs/heads/claude/feature")
+    r = subprocess.run(["bash", str(REPO / "scripts" / "ci_push.sh"), "x", "outputs/"], cwd=c1, env=env,
+                       capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0 and "kein Commit/Push nach main" in r.stdout
+    assert remote_datei("outputs/history.json") == '{"v": 0}\n'
+    log = subprocess.run(["git", "log", "--oneline"], cwd=c1, env=env, capture_output=True, text=True).stdout
+    assert len(log.splitlines()) == 1                                  # nichts committet
 
 
 def test_ci_push_konflikt_in_history_json_bricht_ab_ohne_remote_zu_veraendern(tmp_path):
