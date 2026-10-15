@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 342.81,
-      "current_return": -0.071
+      "last_price": 342.0,
+      "current_return": -0.0724
     },
     {
       "ticker": "MO",
@@ -219,8 +219,8 @@
       },
       "outcome": null,
       "peak_return": 0.381,
-      "last_price": 73.69,
-      "current_return": 0.381
+      "last_price": 73.84,
+      "current_return": 0.3537
     },
     {
       "ticker": "HOOD",
@@ -450,8 +450,8 @@
         }
       },
       "peak_return": -0.0396,
-      "last_price": 103.2848,
-      "current_return": -0.2813
+      "last_price": 103.99,
+      "current_return": -0.3033
     },
     {
       "ticker": "ABBV",
@@ -696,7 +696,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-15T19:17:30+00:00",
+        "evaluated_at": "2026-10-15T22:33:07+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -721,376 +721,8 @@
         ]
       },
       "peak_return": 0.0198,
-      "last_price": 285.58,
-      "current_return": -0.0179
-    },
-    {
-      "ticker": "KDP",
-      "entry_date": "2026-10-15",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 0.508,
-        "z_score": 0.698,
-        "sigma_30d": 0.0162,
-        "price_move_48h": 0.0113,
-        "price_move_48h_signed": 0.0113,
-        "z_score_2d_scaled": 0.494,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6108,
-        "risk_p_model_wrong": null,
-        "risk_data_quality": 0.024,
-        "risk_regime_mismatch": 0.667,
-        "risk_unknown_risk": 0.0,
-        "risk_model_disagreement": 0.386,
-        "risk_counterfactual_fragility": 0.333,
-        "risk_alpha_decay": 0.167,
-        "risk_abstain_score": 0.263
-      },
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 1.65,
-      "entry_quote": {
-        "bid": 2.9,
-        "ask": 3.1,
-        "mid": 3.0,
-        "spread_pct": 0.0645,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "EARNINGS",
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 33.0,
-        "bid": 2.9,
-        "ask": 3.1,
-        "open_interest": 260,
-        "implied_vol": 0.2682,
-        "spread_ratio": 0.0645,
-        "dte": 154,
-        "delta": 0.6165,
-        "data_source": "tradier",
-        "option_symbol": "KDP270319C00033000",
-        "volume": 0,
-        "iv_source": "chain",
-        "delta_source": "chain",
-        "chain_retrieved_at": "2026-10-15T17:53:00+00:00",
-        "quote_time": "2026-10-15T17:51:41+00:00",
-        "bid_missing": false,
-        "ask_missing": false,
-        "source_primary": "options_chain",
-        "source_actual": "options_chain",
-        "spread_leg": {
-          "strike": 36.0,
-          "bid": 1.45,
-          "ask": 1.65,
-          "symbol": "KDP270319C00036000",
-          "quote_time": "2026-10-15T17:51:58+00:00",
-          "bid_missing": false,
-          "ask_missing": false,
-          "open_interest": 2,
-          "volume": 47
-        },
-        "net_debit": 1.65
-      },
-      "simulation": {
-        "current_price": 33.81,
-        "target_price": 36.51,
-        "hit_rate": 0.7412,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0182,
-        "sigma_source": "measured",
-        "alpha": 0.00269
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "Ein CEO-Wechsel ist per se kein bullishes Signal \u2014 er kann ebenso auf strategische Probleme, sinkende Wachstumsdynamik oder internen Druck hinweisen. Der 2027-Beverage-Pivot ist ein mittelfristiges Versprechen ohne kurzfristige Earnings-Wirkung, und der Markt hat dies m\u00f6glicherweise bereits korrekt eingepreist, da KDP in den letzten 12 Monaten gegen\u00fcber dem Sektor underperformed hat.",
-          "argument_2": "Der Consumer-Defensive-Sektor leidet unter Margendruck durch anhaltend hohe Input-Kosten und einem ges\u00e4ttigten US-Getr\u00e4nkemarkt. KDP ist mit einem KGV von ~13x auf Basis des vorliegenden EPS zwar moderat bewertet, aber ohne konkreten Wachstumskatalysator fehlt der strukturelle Hebel f\u00fcr eine Neubewertung in einem 2-6-Monats-Fenster. Die Branche zeigt keine Anzeichen f\u00fcr eine Beschleunigung des organischen Wachstums.",
-          "argument_3": "Die Dealer-Gamma-Struktur (Call-OI 2.439 vs. Put-OI 41 ATM) ist technisch besorgniserregend: Bei einem so starken Call-Overhang agieren Market-Maker als nat\u00fcrliche Short-Gamma-Seller, was bedeutet, dass sie bei steigenden Kursen Aktien verkaufen m\u00fcssen \u2014 ein mechanischer Gegenwind gegen nachhaltige Aufw\u00e4rtsbewegungen. Dies begrenzt das kurzfristige Upside-Potenzial erheblich und erh\u00f6ht das Risiko eines schnellen R\u00fccksetzes.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein MC durchgef\u00fchrt, daher keine statistische Validierung m\u00f6glich. Bei einem $46 Mrd. Mid-Cap mit Consumer-Defensive-Profil und begrenzter kurzzeitiger Kursreaktion (+1,1%) ist die Abwesenheit eines MC-Ergebnisses neutral zu werten \u2014 kein zus\u00e4tzliches Signal in beide Richtungen.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 5,
-        "time_to_materialization": "6 Monate",
-        "catalyst_confidence": 4,
-        "asymmetry_reasoning": "Der Markt hat den CEO-Wechsel prim\u00e4r als F\u00fchrungsrisiko interpretiert, aber die strategische Neuausrichtung auf 2027-Beverage-Kategorien k\u00f6nnte eine Bewertungsanpassung nach oben ausl\u00f6sen, wenn konkrete Produktank\u00fcndigungen folgen. KDP handelt mit einem deutlichen Abschlag zu Peer-Gruppen wie Coca-Cola, obwohl die Cashflow-Stabilit\u00e4t vergleichbar ist. Die Kombination aus moderater Bewertung und potenzieller Strategieklarheit bis Q1 2027 schafft ein asymmetrisches Risikoprofil.",
-        "catalyst": "Strategiepr\u00e4sentation des neuen CEOs mit konkretem 2027-Beverage-Roadmap und m\u00f6gliche Guidance-Erh\u00f6hung bei Q4 2026 Earnings",
-        "bear_case": "Der 2027-Pivot bleibt ein Versprechen ohne kurzfristige P&L-Wirkung; ein entt\u00e4uschendes Q3/Q4-Earnings k\u00f6nnte den Kurs auf $30 dr\u00fccken, da Investoren auf Beweise warten.",
-        "macro_assessment": "Das neutrale Makro-Regime (flache Kurve, Fed Funds 3.75%) ist moderat supportiv f\u00fcr Consumer Defensives als Safe-Haven-Allokation. Der 10Y bei 4.99% erh\u00f6ht den Diskontierungsdruck auf zuk\u00fcnftige Cashflows leicht, was f\u00fcr einen langfristigen Pivot-Trade negativ ist. VIX-Contango beg\u00fcnstigt Long-Optionen strukturell, reduziert aber den Dringlichkeitsdruck f\u00fcr schnelle Positionierung.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.37,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": false,
-        "market_cap": 46009528320,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.6229,
-        "annualized_roi": 3.9236,
-        "dte": 154
-      },
-      "outcome": null,
-      "decision_time": "2026-10-15T17:53:05+00:00",
-      "timing_policy": "timing-v2",
-      "final_mc_shadow": {
-        "dte_used": 45,
-        "hit_rate_used": 0.7412,
-        "dte_shadow": 140,
-        "hit_rate_shadow": 0.75,
-        "would_pass_shadow": true,
-        "mode": "legacy_45"
-      },
-      "external_context_entry": {
-        "snapshot_id": "553587651c8081a9",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-10-15T11:42:26+00:00",
-        "primitives": {
-          "freight_global_z": -0.5372895639617944,
-          "freight_us_z": -1.7184632806820528,
-          "freight_eu_z": 0.7597699079004872,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 2.333839863966305,
-          "de_truck_acceleration": 0.020946968412138098,
-          "us_freight_tsi_yoy": -0.02021660649819503,
-          "us_freight_tsi_z": -1.7184632806820528,
-          "shipping_global_z": 0.3028024211435336,
-          "shipping_container_z": 0.3711994222043862,
-          "shipping_drybulk_z": -0.6955118217238812,
-          "shipping_tanker_z": 0.38911565664322717,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": 0.32587916723100435,
-          "panama_z": 1.8289796542448813,
-          "hormuz_z": -0.8333595796391723,
-          "malacca_z": -0.15686220727117256,
-          "bab_el_mandeb_z": 0.8293120892904163,
-          "asia_export_z": -0.29145209854958,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03717250844268993,
-          "us_cpi_yoy_3m_ago": 0.03463530729385411,
-          "nfci_credit": -0.026,
-          "nfci": -0.494,
-          "fed_assets_13w_chg": 0.0017743013289517329,
-          "usd_63d_chg": 0.007130948565238215,
-          "wti_63d_chg": 0.290772532188841,
-          "de_power_price_7d": 157.12808571428573,
-          "de_power_price_z": 1.3480570486034895,
-          "de_load_yoy": -0.012918172669529548,
-          "hdd_anomaly": -2.8404286926994904,
-          "cdd_anomaly": 2.3110846731484465,
-          "forecast_revision_hdd": -0.16102294289157384,
-          "forecast_revision_cdd": 0.16102294289157384,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -0.840091985105328,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.0537451256171477,
-          "industry_shipping_z": null
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2295,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.105,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.174
-        },
-        "ticker_exposure": {
-          "industry": null,
-          "level": "unknown",
-          "road_freight_relevance": null,
-          "maritime_relevance": null,
-          "weather_relevance": null,
-          "exposure_source": "unknown",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -0.840091985105328,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "NEUTRAL",
-          "materiality": "NONE",
-          "confidence": 0.0,
-          "mechanism": "",
-          "relevant_sources": [],
-          "source": "skipped",
-          "reason": "shadow_analysis_not_run"
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      },
-      "spread_execution_entry": {
-        "gate": "SPREAD_EXECUTION_LIQUIDITY_GATE",
-        "gate_mode": "SHADOW_ONLY",
-        "config_version": "spread-exec-v1",
-        "legs": {
-          "long": {
-            "strike": 33.0,
-            "bid": 2.9,
-            "ask": 3.1,
-            "open_interest": 260
-          },
-          "short": {
-            "strike": 36.0,
-            "bid": 1.45,
-            "ask": 1.65,
-            "open_interest": 2
-          }
-        },
-        "expiry": "2027-03-19",
-        "dte": 154,
-        "combo_bid": 1.25,
-        "combo_ask": 1.65,
-        "combo_mid": 1.45,
-        "fair_value": 1.45,
-        "relative_combo_spread": 0.2759,
-        "assumed_entry": 1.65,
-        "fill_assumption_method": "NATURAL_LEG_BY_LEG",
-        "actual_entry_fill": null,
-        "immediately_executable_exit_value": 1.25,
-        "immediate_liquidation_loss_pct": 0.2424,
-        "ill_bucket": "20-30%",
-        "quote_quality": "VERY_WIDE",
-        "gross_expected_roi": 0.4929,
-        "expected_entry_friction": 0.1212,
-        "expected_exit_friction": 0.1212,
-        "commission_pct": 0.0158,
-        "estimated_slippage": 0.1212,
-        "expected_roundtrip_cost": 0.2582,
-        "net_expected_roi": 0.178,
-        "production_roi_net": 0.9592271841797182,
-        "production_friction_model": 0.129,
-        "shadow_verdict": "FLAG",
-        "shadow_reasons": [
-          "immediate_liquidation_loss 24.2%",
-          "QUOTE_QUALITY=VERY_WIDE"
-        ],
-        "production_effect": "NONE (SHADOW_ONLY)"
-      },
-      "entry_quote_record_ids": [
-        "dfafe4e528a25730c34d",
-        "46e6ff86abb9b5d96c1d"
-      ],
-      "timing": {
-        "policy": "timing-v2",
-        "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-15T19:17:30+00:00",
-        "outcome": null,
-        "method": null,
-        "price_type": null,
-        "exit": null,
-        "entry": {
-          "status": "FILLED",
-          "decision_time": "2026-10-15T17:53:05+00:00",
-          "day": "2026-10-15",
-          "reason": null,
-          "time": "2026-10-15T17:53:05+00:00",
-          "price": 1.65,
-          "record_ids": [
-            "dfafe4e528a25730c34d",
-            "46e6ff86abb9b5d96c1d"
-          ],
-          "quote_retrieved_at": [
-            "2026-10-15T17:53:00.000+00:00",
-            "2026-10-15T17:53:00.000+00:00"
-          ]
-        },
-        "status": "PENDING",
-        "reasons": [
-          "OPEN"
-        ]
-      },
-      "peak_return": -0.2424,
-      "spread_monitor": [
-        {
-          "ts": "2026-10-15T17:54:37+00:00",
-          "quote_quality": "WIDE",
-          "combo_bid": 1.25,
-          "combo_ask": 1.65,
-          "combo_mid": 1.45,
-          "fair_value": 1.45,
-          "executable_exit_value": 1.25,
-          "fair_value_pnl_pct": -0.1212,
-          "executable_pnl_pct": -0.2424,
-          "underlying_return_pct": 0.0019
-        },
-        {
-          "ts": "2026-10-15T19:17:32+00:00",
-          "quote_quality": "WIDE",
-          "combo_bid": 1.15,
-          "combo_ask": 1.65,
-          "combo_mid": 1.4,
-          "fair_value": 1.4,
-          "executable_exit_value": 1.15,
-          "fair_value_pnl_pct": -0.1515,
-          "executable_pnl_pct": -0.303,
-          "underlying_return_pct": 0.0034
-        }
-      ],
-      "spread_stop_shadow": {
-        "production_stop_hit": false,
-        "shadow_stop": "NO_STOP",
-        "confirmed_observations": 2,
-        "fair_value_pnl_pct": -0.1515,
-        "executable_pnl_pct": -0.303,
-        "underlying_return_pct": 0.0034
-      },
-      "last_price": 33.925,
-      "current_return": -0.303
+      "last_price": 283.4,
+      "current_return": -0.0556
     }
   ],
   "closed_trades": [
@@ -113280,38 +112912,43 @@
       "entry_date": "2026-10-15",
       "created": "2026-10-15",
       "mfe": 0.0,
-      "mae": -0.303,
+      "mae": -0.8788,
       "closed": false,
       "variants": {
         "tp50_sl45": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.8788,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-10-15",
+          "close_reason": "stop_loss"
         },
         "no_tp": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.8788,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-10-15",
+          "close_reason": "stop_loss"
         },
         "trail35": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.8788,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-10-15",
+          "close_reason": "stop_loss"
         },
         "trail50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.8788,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-10-15",
+          "close_reason": "stop_loss"
         },
         "partial50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.8788,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-10-15",
+          "close_reason": "stop_loss"
         },
         "time_only": {
           "outcome": null,
@@ -113677,7 +113314,419 @@
       }
     }
   ],
-  "exit_pending_trades": [],
+  "exit_pending_trades": [
+    {
+      "ticker": "KDP",
+      "entry_date": "2026-10-15",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 0.508,
+        "z_score": 0.698,
+        "sigma_30d": 0.0162,
+        "price_move_48h": 0.0113,
+        "price_move_48h_signed": 0.0113,
+        "z_score_2d_scaled": 0.494,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6108,
+        "risk_p_model_wrong": null,
+        "risk_data_quality": 0.024,
+        "risk_regime_mismatch": 0.667,
+        "risk_unknown_risk": 0.0,
+        "risk_model_disagreement": 0.386,
+        "risk_counterfactual_fragility": 0.333,
+        "risk_alpha_decay": 0.167,
+        "risk_abstain_score": 0.263
+      },
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 1.65,
+      "entry_quote": {
+        "bid": 2.9,
+        "ask": 3.1,
+        "mid": 3.0,
+        "spread_pct": 0.0645,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 33.0,
+        "bid": 2.9,
+        "ask": 3.1,
+        "open_interest": 260,
+        "implied_vol": 0.2682,
+        "spread_ratio": 0.0645,
+        "dte": 154,
+        "delta": 0.6165,
+        "data_source": "tradier",
+        "option_symbol": "KDP270319C00033000",
+        "volume": 0,
+        "iv_source": "chain",
+        "delta_source": "chain",
+        "chain_retrieved_at": "2026-10-15T17:53:00+00:00",
+        "quote_time": "2026-10-15T17:51:41+00:00",
+        "bid_missing": false,
+        "ask_missing": false,
+        "source_primary": "options_chain",
+        "source_actual": "options_chain",
+        "spread_leg": {
+          "strike": 36.0,
+          "bid": 1.45,
+          "ask": 1.65,
+          "symbol": "KDP270319C00036000",
+          "quote_time": "2026-10-15T17:51:58+00:00",
+          "bid_missing": false,
+          "ask_missing": false,
+          "open_interest": 2,
+          "volume": 47
+        },
+        "net_debit": 1.65
+      },
+      "simulation": {
+        "current_price": 33.81,
+        "target_price": 36.51,
+        "hit_rate": 0.7412,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0182,
+        "sigma_source": "measured",
+        "alpha": 0.00269
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "Ein CEO-Wechsel ist per se kein bullishes Signal \u2014 er kann ebenso auf strategische Probleme, sinkende Wachstumsdynamik oder internen Druck hinweisen. Der 2027-Beverage-Pivot ist ein mittelfristiges Versprechen ohne kurzfristige Earnings-Wirkung, und der Markt hat dies m\u00f6glicherweise bereits korrekt eingepreist, da KDP in den letzten 12 Monaten gegen\u00fcber dem Sektor underperformed hat.",
+          "argument_2": "Der Consumer-Defensive-Sektor leidet unter Margendruck durch anhaltend hohe Input-Kosten und einem ges\u00e4ttigten US-Getr\u00e4nkemarkt. KDP ist mit einem KGV von ~13x auf Basis des vorliegenden EPS zwar moderat bewertet, aber ohne konkreten Wachstumskatalysator fehlt der strukturelle Hebel f\u00fcr eine Neubewertung in einem 2-6-Monats-Fenster. Die Branche zeigt keine Anzeichen f\u00fcr eine Beschleunigung des organischen Wachstums.",
+          "argument_3": "Die Dealer-Gamma-Struktur (Call-OI 2.439 vs. Put-OI 41 ATM) ist technisch besorgniserregend: Bei einem so starken Call-Overhang agieren Market-Maker als nat\u00fcrliche Short-Gamma-Seller, was bedeutet, dass sie bei steigenden Kursen Aktien verkaufen m\u00fcssen \u2014 ein mechanischer Gegenwind gegen nachhaltige Aufw\u00e4rtsbewegungen. Dies begrenzt das kurzfristige Upside-Potenzial erheblich und erh\u00f6ht das Risiko eines schnellen R\u00fccksetzes.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein MC durchgef\u00fchrt, daher keine statistische Validierung m\u00f6glich. Bei einem $46 Mrd. Mid-Cap mit Consumer-Defensive-Profil und begrenzter kurzzeitiger Kursreaktion (+1,1%) ist die Abwesenheit eines MC-Ergebnisses neutral zu werten \u2014 kein zus\u00e4tzliches Signal in beide Richtungen.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 5,
+        "time_to_materialization": "6 Monate",
+        "catalyst_confidence": 4,
+        "asymmetry_reasoning": "Der Markt hat den CEO-Wechsel prim\u00e4r als F\u00fchrungsrisiko interpretiert, aber die strategische Neuausrichtung auf 2027-Beverage-Kategorien k\u00f6nnte eine Bewertungsanpassung nach oben ausl\u00f6sen, wenn konkrete Produktank\u00fcndigungen folgen. KDP handelt mit einem deutlichen Abschlag zu Peer-Gruppen wie Coca-Cola, obwohl die Cashflow-Stabilit\u00e4t vergleichbar ist. Die Kombination aus moderater Bewertung und potenzieller Strategieklarheit bis Q1 2027 schafft ein asymmetrisches Risikoprofil.",
+        "catalyst": "Strategiepr\u00e4sentation des neuen CEOs mit konkretem 2027-Beverage-Roadmap und m\u00f6gliche Guidance-Erh\u00f6hung bei Q4 2026 Earnings",
+        "bear_case": "Der 2027-Pivot bleibt ein Versprechen ohne kurzfristige P&L-Wirkung; ein entt\u00e4uschendes Q3/Q4-Earnings k\u00f6nnte den Kurs auf $30 dr\u00fccken, da Investoren auf Beweise warten.",
+        "macro_assessment": "Das neutrale Makro-Regime (flache Kurve, Fed Funds 3.75%) ist moderat supportiv f\u00fcr Consumer Defensives als Safe-Haven-Allokation. Der 10Y bei 4.99% erh\u00f6ht den Diskontierungsdruck auf zuk\u00fcnftige Cashflows leicht, was f\u00fcr einen langfristigen Pivot-Trade negativ ist. VIX-Contango beg\u00fcnstigt Long-Optionen strukturell, reduziert aber den Dringlichkeitsdruck f\u00fcr schnelle Positionierung.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.37,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": false,
+        "market_cap": 46009528320,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6229,
+        "annualized_roi": 3.9236,
+        "dte": 154
+      },
+      "outcome": null,
+      "decision_time": "2026-10-15T17:53:05+00:00",
+      "timing_policy": "timing-v2",
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.7412,
+        "dte_shadow": 140,
+        "hit_rate_shadow": 0.75,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "553587651c8081a9",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-15T11:42:26+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.026,
+          "nfci": -0.494,
+          "fed_assets_13w_chg": 0.0017743013289517329,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.290772532188841,
+          "de_power_price_7d": 157.12808571428573,
+          "de_power_price_z": 1.3480570486034895,
+          "de_load_yoy": -0.012918172669529548,
+          "hdd_anomaly": -2.8404286926994904,
+          "cdd_anomaly": 2.3110846731484465,
+          "forecast_revision_hdd": -0.16102294289157384,
+          "forecast_revision_cdd": 0.16102294289157384,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": null,
+          "level": "unknown",
+          "road_freight_relevance": null,
+          "maritime_relevance": null,
+          "weather_relevance": null,
+          "exposure_source": "unknown",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      },
+      "spread_execution_entry": {
+        "gate": "SPREAD_EXECUTION_LIQUIDITY_GATE",
+        "gate_mode": "SHADOW_ONLY",
+        "config_version": "spread-exec-v1",
+        "legs": {
+          "long": {
+            "strike": 33.0,
+            "bid": 2.9,
+            "ask": 3.1,
+            "open_interest": 260
+          },
+          "short": {
+            "strike": 36.0,
+            "bid": 1.45,
+            "ask": 1.65,
+            "open_interest": 2
+          }
+        },
+        "expiry": "2027-03-19",
+        "dte": 154,
+        "combo_bid": 1.25,
+        "combo_ask": 1.65,
+        "combo_mid": 1.45,
+        "fair_value": 1.45,
+        "relative_combo_spread": 0.2759,
+        "assumed_entry": 1.65,
+        "fill_assumption_method": "NATURAL_LEG_BY_LEG",
+        "actual_entry_fill": null,
+        "immediately_executable_exit_value": 1.25,
+        "immediate_liquidation_loss_pct": 0.2424,
+        "ill_bucket": "20-30%",
+        "quote_quality": "VERY_WIDE",
+        "gross_expected_roi": 0.4929,
+        "expected_entry_friction": 0.1212,
+        "expected_exit_friction": 0.1212,
+        "commission_pct": 0.0158,
+        "estimated_slippage": 0.1212,
+        "expected_roundtrip_cost": 0.2582,
+        "net_expected_roi": 0.178,
+        "production_roi_net": 0.9592271841797182,
+        "production_friction_model": 0.129,
+        "shadow_verdict": "FLAG",
+        "shadow_reasons": [
+          "immediate_liquidation_loss 24.2%",
+          "QUOTE_QUALITY=VERY_WIDE"
+        ],
+        "production_effect": "NONE (SHADOW_ONLY)"
+      },
+      "entry_quote_record_ids": [
+        "dfafe4e528a25730c34d",
+        "46e6ff86abb9b5d96c1d"
+      ],
+      "timing": {
+        "policy": "timing-v2",
+        "version": "timing-eval-v1",
+        "evaluated_at": "2026-10-15T22:33:07+00:00",
+        "outcome": null,
+        "method": null,
+        "price_type": null,
+        "exit": {
+          "decision_time": "2026-10-15T22:33:07+00:00",
+          "status": "PENDING",
+          "day": "2026-10-16",
+          "reason": "AWAITING_SESSION"
+        },
+        "entry": {
+          "status": "FILLED",
+          "decision_time": "2026-10-15T17:53:05+00:00",
+          "day": "2026-10-15",
+          "reason": null,
+          "time": "2026-10-15T17:53:05+00:00",
+          "price": 1.65,
+          "record_ids": [
+            "dfafe4e528a25730c34d",
+            "46e6ff86abb9b5d96c1d"
+          ],
+          "quote_retrieved_at": [
+            "2026-10-15T17:53:00.000+00:00",
+            "2026-10-15T17:53:00.000+00:00"
+          ]
+        },
+        "status": "PENDING",
+        "reasons": [
+          "EXIT_AWAITING_SESSION"
+        ]
+      },
+      "peak_return": -0.2424,
+      "spread_monitor": [
+        {
+          "ts": "2026-10-15T17:54:37+00:00",
+          "quote_quality": "WIDE",
+          "combo_bid": 1.25,
+          "combo_ask": 1.65,
+          "combo_mid": 1.45,
+          "fair_value": 1.45,
+          "executable_exit_value": 1.25,
+          "fair_value_pnl_pct": -0.1212,
+          "executable_pnl_pct": -0.2424,
+          "underlying_return_pct": 0.0019
+        },
+        {
+          "ts": "2026-10-15T19:17:32+00:00",
+          "quote_quality": "WIDE",
+          "combo_bid": 1.15,
+          "combo_ask": 1.65,
+          "combo_mid": 1.4,
+          "fair_value": 1.4,
+          "executable_exit_value": 1.15,
+          "fair_value_pnl_pct": -0.1515,
+          "executable_pnl_pct": -0.303,
+          "underlying_return_pct": 0.0034
+        },
+        {
+          "ts": "2026-10-15T22:33:08+00:00",
+          "quote_quality": "VERY_WIDE",
+          "combo_bid": 0.2,
+          "combo_ask": 2.7,
+          "combo_mid": 1.45,
+          "fair_value": 1.45,
+          "executable_exit_value": 0.2,
+          "fair_value_pnl_pct": -0.1212,
+          "executable_pnl_pct": -0.8788,
+          "underlying_return_pct": 0.0109
+        }
+      ],
+      "spread_stop_shadow": {
+        "production_stop_hit": true,
+        "shadow_stop": "EXECUTION_DRIVEN",
+        "confirmed_observations": 2,
+        "fair_value_pnl_pct": -0.1212,
+        "executable_pnl_pct": -0.8788,
+        "underlying_return_pct": 0.0109
+      },
+      "last_price": 33.925,
+      "current_return": -0.303,
+      "outcome_reliable": true,
+      "close_time": "2026-10-15T22:33:07+00:00",
+      "close_date": "2026-10-15",
+      "close_price": 34.18,
+      "close_reason": "stop_loss",
+      "outcome_at_decision": -0.8788,
+      "outcome_method_at_decision": "spread_quote",
+      "spread_execution_exit": {
+        "combo_bid": 0.2,
+        "combo_ask": 2.7,
+        "combo_mid": 1.45,
+        "actual_exit_fill": null,
+        "assumed_exit_fill": 0.2,
+        "exit_reason": "stop_loss",
+        "quote_quality": "VERY_WIDE",
+        "slippage_vs_mid": 0.8621,
+        "realized_roundtrip_cost": 0.8788,
+        "stop_shadow": {
+          "production_stop_hit": true,
+          "shadow_stop": "EXECUTION_DRIVEN",
+          "confirmed_observations": 2,
+          "fair_value_pnl_pct": -0.1212,
+          "executable_pnl_pct": -0.8788,
+          "underlying_return_pct": 0.0109
+        }
+      }
+    }
+  ],
   "counterfactual_exit_pending": [],
   "processed_outcomes": {
     "T11b61cd026f03a0b:close:feature_stats": "2026-10-15",
