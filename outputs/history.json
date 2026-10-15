@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 344.05,
-      "current_return": -0.0455
+      "last_price": 342.81,
+      "current_return": -0.071
     },
     {
       "ticker": "MO",
@@ -219,7 +219,7 @@
       },
       "outcome": null,
       "peak_return": 0.381,
-      "last_price": 73.58,
+      "last_price": 73.69,
       "current_return": 0.381
     },
     {
@@ -450,8 +450,8 @@
         }
       },
       "peak_return": -0.0396,
-      "last_price": 102.72,
-      "current_return": -0.3033
+      "last_price": 103.2848,
+      "current_return": -0.2813
     },
     {
       "ticker": "ABBV",
@@ -696,7 +696,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-15T17:54:36+00:00",
+        "evaluated_at": "2026-10-15T19:17:30+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -721,8 +721,8 @@
         ]
       },
       "peak_return": 0.0198,
-      "last_price": 286.9246,
-      "current_return": 0.0198
+      "last_price": 285.58,
+      "current_return": -0.0179
     },
     {
       "ticker": "KDP",
@@ -1028,7 +1028,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-15T17:54:36+00:00",
+        "evaluated_at": "2026-10-15T19:17:30+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -1067,18 +1067,30 @@
           "fair_value_pnl_pct": -0.1212,
           "executable_pnl_pct": -0.2424,
           "underlying_return_pct": 0.0019
+        },
+        {
+          "ts": "2026-10-15T19:17:32+00:00",
+          "quote_quality": "WIDE",
+          "combo_bid": 1.15,
+          "combo_ask": 1.65,
+          "combo_mid": 1.4,
+          "fair_value": 1.4,
+          "executable_exit_value": 1.15,
+          "fair_value_pnl_pct": -0.1515,
+          "executable_pnl_pct": -0.303,
+          "underlying_return_pct": 0.0034
         }
       ],
       "spread_stop_shadow": {
         "production_stop_hit": false,
         "shadow_stop": "NO_STOP",
-        "confirmed_observations": 1,
-        "fair_value_pnl_pct": -0.1212,
-        "executable_pnl_pct": -0.2424,
-        "underlying_return_pct": 0.0019
+        "confirmed_observations": 2,
+        "fair_value_pnl_pct": -0.1515,
+        "executable_pnl_pct": -0.303,
+        "underlying_return_pct": 0.0034
       },
-      "last_price": 33.8758,
-      "current_return": -0.2424
+      "last_price": 33.925,
+      "current_return": -0.303
     }
   ],
   "closed_trades": [
@@ -113268,7 +113280,7 @@
       "entry_date": "2026-10-15",
       "created": "2026-10-15",
       "mfe": 0.0,
-      "mae": -0.2424,
+      "mae": -0.303,
       "closed": false,
       "variants": {
         "tp50_sl45": {
