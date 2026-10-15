@@ -5,6 +5,11 @@ name: External Data Preflight
 
 on:
   workflow_dispatch:
+    inputs:
+      family:
+        description: "Nur diese Quellfamilie(n) prüfen, kommagetrennt (leer = alle), z. B. public_research,real_economy"
+        required: false
+        default: ""
 
 env:
   PYTHONUNBUFFERED: "1"   # Log-Zeilen sofort sichtbar (Hänger lokalisierbar)
@@ -40,9 +45,14 @@ jobs:
           DESTATIS_PASSWORD: ${{ secrets.DESTATIS_PASSWORD }}
           NCEI_CDO_TOKEN: ${{ secrets.NCEI_CDO_TOKEN }}
           NWS_USER_AGENT_CONTACT: ${{ secrets.NWS_USER_AGENT_CONTACT }}
+          FINRA_API_CLIENT_ID: ${{ secrets.FINRA_API_CLIENT_ID }}
+          FINRA_API_CLIENT_SECRET: ${{ secrets.FINRA_API_CLIENT_SECRET }}
+          FAMILIES: ${{ inputs.family }}
         run: |
           mkdir -p outputs/external_data/health
-          python -m modules.external.orchestrator preflight --json outputs/external_data/health/preflight_report.json
+          ARGS=""
+          for f in ${FAMILIES//,/ }; do ARGS="$ARGS --family $f"; done
+          python -m modules.external.orchestrator preflight $ARGS --json outputs/external_data/health/preflight_report.json
 
       - name: Collect license evidence (Primärbelege, keine Entscheidung)
         continue-on-error: true

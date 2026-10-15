@@ -206,6 +206,14 @@ def get_universe(universe: str = "", as_of: str | None = None) -> list[str]:
     if universe in ("nasdaq100", "sp500_nasdaq100"):
         ndq100 = _fetch_nasdaq100()
         if not ndq100:
+            # A4 (2026-10-15): offizielle Liste von nasdaq.com vor der (veraltenden) statischen Liste.
+            # Primärquelle bleibt Wikipedia (UNIVERSE_V1 unverändert); die offizielle Liste wird zusätzlich
+            # täglich als PIT-Historie archiviert (external source nasdaq100_members).
+            from modules.external.sources.market_public import fetch_nasdaq100
+            ndq100 = fetch_nasdaq100()
+            if ndq100:
+                log.info(f"Nasdaq 100: {len(ndq100)} Ticker von nasdaq.com (Fallback) geladen.")
+        if not ndq100:
             ndq100 = list(_NASDAQ100_STATIC)
 
     combined = _clean(sp500 + ndq100)

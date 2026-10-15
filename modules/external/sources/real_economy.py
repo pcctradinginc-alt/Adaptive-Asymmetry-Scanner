@@ -896,6 +896,30 @@ class FredMarketExpectationsConnector(FredUsMacroConnector):
         return observations, latest, parse_failures, None
 
 
+class FredLiquidityConnector(FredMarketExpectationsConnector):
+    """Liquiditäts- und Kurvenreihen (B4, 2026-10-15, RESEARCH/SHADOW) mit Veröffentlichungszeitpunkt (ALFRED,
+    available_at = realtime_start), Abruf in Echtzeit-Fenstern wie fred_market_expectations:
+      Liquidität    RRPONTSYD  Overnight Reverse Repo der Fed (täglich, Mrd. USD)
+                    WTREGEN    Treasury General Account, Mittwochsstand (wöchentlich, Mio. USD)
+      Kurve         T10Y2Y     10J minus 2J Treasury (täglich, Prozentpunkte)
+    Zusammen mit WALCL (fred_regime_macro): Netto-Liquidität = Fed-Bilanz − TGA − RRP. Lizenz: Board of Governors
+    bzw. daraus abgeleitet (US Government Works, gemeinfrei). Ab 2021 (RRP davor praktisch null)."""
+
+    source_id = "fred_liquidity"
+    OBSERVATION_START = "2021-01-01"
+    LABEL = "RRPONTSYD/WTREGEN/T10Y2Y"
+    SERIES = {
+        "RRPONTSYD": {"metric": "us_on_rrp", "dataset": "liquidity", "unit": "usd_billions",
+                      "search_text": "Overnight Reverse Repurchase Agreements: Treasury Securities Sold by the "
+                                     "Federal Reserve in the Temporary Open Market Operations"},
+        "WTREGEN":   {"metric": "us_treasury_general_account", "dataset": "liquidity", "unit": "usd_millions",
+                      "search_text": "Liabilities and Capital: Liabilities: Deposits with F.R. Banks, Other Than "
+                                     "Reserve Balances: U.S. Treasury, General Account: Wednesday Level"},
+        "T10Y2Y":    {"metric": "us_curve_10y_2y", "dataset": "rates", "unit": "percentage_points",
+                      "search_text": "10-Year Treasury Constant Maturity Minus 2-Year Treasury Constant Maturity"},
+    }
+
+
 CONNECTORS: dict[str, type[Connector]] = {
     "eurostat_sentiment": EurostatSentimentConnector,
     "eurostat_industrial_production": EurostatIndustrialProductionConnector,
@@ -903,4 +927,5 @@ CONNECTORS: dict[str, type[Connector]] = {
     "fred_regime_macro": FredRegimeMacroConnector,
     "fred_world_macro": FredWorldMacroConnector,
     "fred_market_expectations": FredMarketExpectationsConnector,
+    "fred_liquidity": FredLiquidityConnector,
 }
