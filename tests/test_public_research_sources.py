@@ -63,16 +63,11 @@ def test_nasdaq100_parser_and_snapshot():
         assert mp.Nasdaq100MembersConnector({}).fetch(NOW).status == SourceStatus.SCHEMA_CHANGED
 
 
-def test_universe_falls_back_to_official_list_before_static(monkeypatch):
-    from modules import universe
-    universe.get_universe.cache_clear()
-    monkeypatch.setattr(universe, "_fetch_nasdaq100", lambda: [])
-    monkeypatch.setattr(mp, "fetch_nasdaq100", lambda: ["AAPL", "MSFT"])
-    assert universe.get_universe("nasdaq100") == ["AAPL", "MSFT"]
-    universe.get_universe.cache_clear()
-    monkeypatch.setattr(mp, "fetch_nasdaq100", lambda: [])
-    assert len(universe.get_universe("nasdaq100")) == len(set(universe._NASDAQ100_STATIC) - universe._DELISTED)
-    universe.get_universe.cache_clear()
+def test_universe_v1_definition_untouched():
+    """A4 archiviert nur: get_universe gehört zur eingefrorenen UNIVERSE_V1-Definition (Code-Hash) und bleibt
+    unverändert – eine Umstellung der Produktionsquelle wäre eine eigene, freizugebende V1-Änderung."""
+    from modules import universe_v2 as uv2
+    assert uv2.v1_unchanged()
 
 
 # ── B3 FINRA ─────────────────────────────────────────────────────────────────

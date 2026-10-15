@@ -1,8 +1,8 @@
 """Öffentliche Markt- und Aufmerksamkeitsdaten (RESEARCH/SHADOW, 2026-10-15) – nur Archiv, keine Champion-Wirkung.
 
   nasdaq100_members      A4  Offizielle Nasdaq-100-Mitgliederliste (nasdaq.com) als tägliche PIT-Momentaufnahme
-                             (Wikipedia hat keine Änderungshistorie; ab jetzt entsteht sie). Parser auch als
-                             Fallback in modules/universe.py (vor der statischen Liste).
+                             (Wikipedia hat keine Änderungshistorie; ab jetzt entsteht sie). NUR Archiv: get_universe
+                             gehört zur eingefrorenen UNIVERSE_V1-Definition (Code-Hash) und bleibt unverändert.
   finra_short_volume     B3  FINRA Reg SHO Daily Short Sale Volume (konsolidiert, CNMS), Pipe-Datei, ohne Key.
   finra_short_interest   B3  FINRA Consolidated Short Interest (zweimal monatlich) über die FINRA Query API.
                              Ohne Zugangsdaten wird EIN unauthentifizierter Versuch gemacht; bei 401/403 ->
@@ -86,7 +86,7 @@ def parse_nasdaq100(payload: dict) -> list[str]:
 
 
 def fetch_nasdaq100() -> list[str]:
-    """Für modules/universe.py: offizielle Liste oder [] (nie werfend)."""
+    """Offizielle Liste oder [] (nie werfend) – für Abgleiche/Research, nicht im Produktionsuniversum."""
     try:
         return parse_nasdaq100(http.fetch(NASDAQ100_URL, headers=BROWSER_HEADERS, retries=2).json())
     except Exception as e:  # noqa: BLE001

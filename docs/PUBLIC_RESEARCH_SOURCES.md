@@ -27,8 +27,9 @@ Zugangsdaten stehen nie im Code.
 - 13F: Es zählen nur fristgerechte 13F-HR (höchstens 45 Tage nach Quartalsende). Amendments, Optionen und
   Nicht-Aktien sind ausgeschlossen. Pro Lauf wird ein Datensatz verarbeitet; ein Marker im Archiv verhindert eine
   doppelte Verarbeitung. Der Preflight archiviert nichts und zählt daher nie als verarbeitet.
-- Die Nasdaq-100-Liste von nasdaq.com ist nur Fallback vor der statischen Liste. Primärquelle des UNIVERSE_V1 bleibt
-  Wikipedia (unverändert).
+- Die Nasdaq-100-Liste von nasdaq.com wird nur archiviert (PIT-Mitgliederhistorie). `get_universe` gehört zur
+  eingefrorenen UNIVERSE_V1-Definition (Code-Hash). Eine Umstellung der Produktionsquelle wäre deshalb eine
+  eigene V1-Änderung und braucht eine ausdrückliche Freigabe.
 - Die Live-Formate werden mit dem Workflow „External Data Preflight“ geprüft. Der Eingang `family` steht dafür auf
   `public_research,real_economy`.
 
