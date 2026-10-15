@@ -1,21 +1,32 @@
-# Daily Data Health Report – 2026-10-14
+# Daily Data Health Report – 2026-10-15
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.912
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.976
 
-Status: HEALTHY 28 · DEGRADED 7 · STALE 0 · BROKEN 1 · UNVALIDATED 8
+Status: HEALTHY 41 · DEGRADED 2 · STALE 1 · BROKEN 3 · UNVALIDATED 8
+
+## Neue Änderungen
+
+- recovery: sec_submissions DEGRADED → HEALTHY
+- recovery: sec_form345 DEGRADED → HEALTHY
+- recovery: sec_companyfacts DEGRADED → HEALTHY
+- recovery: gleif_lei DEGRADED → HEALTHY
+- recovery: ted_awards DEGRADED → HEALTHY
+- recovery: fred_commodities DEGRADED → HEALTHY
+- new_failure: fomc_calendar None → BROKEN (Ingest WARN: 9 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 9 Beobachtungen mit available_at > retrieved_at; Data-Quality-Befund schwerwiegend)
+- new_failure: bls_release_calendar None → BROKEN (Ingest WARN: 33 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 29 Beobachtungen mit available_at > retrieved_at; Data-Quality-Befund schwerwiegend)
+- new_failure: bea_release_calendar None → BROKEN (Ingest WARN: 66 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 66 Beobachtungen mit available_at > retrieved_at; Data-Quality-Befund schwerwiegend)
+- new_failure: sec_13f_holdings None → STALE (veraltet (Frequenz-Grenze der Registry))
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| fred_market_expectations | BROKEN | IMPORTANT | 4 | – | – | Ingest FAIL: FRED ALFRED-Abruf fehlgeschlagen (DGS2): 400 für https://api.stlouisfed.org/fred/series/observations (nicht retrybar): {"error_ |
-| fred_commodities | DEGRADED | NON_CRITICAL | 0 | 2026-10-06 | cmdx_copper__copper_ret_3m, cmdx_copper__div_copper_positioning_price, cmdx_corn__corn_ret_3m, cmdx_natural_gas__div_gas_storage_price | Ingest WARN: 7384 ALFRED-Vintage-Beobachtungen (Brent/HenryHub/Kupfer/Weizen/Mais/Soja) | DQ: OUT_OF_RANGE; Data-Quality-Befund schwerwiegen |
-| gleif_lei | DEGRADED | NON_CRITICAL | 0 | – | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| bea_release_calendar | BROKEN | NON_CRITICAL | 1 | 2027-11-04 | – | Ingest WARN: 66 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 66 Beobachtungen mit available_at > retrieved_at; Data-Quality- |
+| bls_release_calendar | BROKEN | NON_CRITICAL | 1 | 2026-12-30 | – | Ingest WARN: 33 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 29 Beobachtungen mit available_at > retrieved_at; Data-Quality- |
+| fomc_calendar | BROKEN | NON_CRITICAL | 1 | 2027-10-27 | – | Ingest WARN: 9 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 9 Beobachtungen mit available_at > retrieved_at; Data-Quality-Be |
+| sec_13f_holdings | STALE | NON_CRITICAL | 0 | 2026-05-31 | – | veraltet (Frequenz-Grenze der Registry) |
+| fred_market_expectations | DEGRADED | IMPORTANT | 0 | 2026-10-14 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
 | noaa_storm_events | DEGRADED | NON_CRITICAL | 0 | 2025-01-01 | – | Data-Quality-Befund schwerwiegend; Duplikate None / Konflikte 932 |
-| sec_companyfacts | DEGRADED | NON_CRITICAL | 0 | 2026-10-06 | xbrl_accruals, xbrl_asset_growth, xbrl_rev_yoy, xbrl_share_change | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
-| sec_form345 | DEGRADED | NON_CRITICAL | 0 | 2026-10-08 | sec_8k_count_30d_z, sec_8k_negative_90d, sec_exec_change_90d, sec_filing_delay_z | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
-| sec_submissions | DEGRADED | NON_CRITICAL | 0 | 2026-10-14 | sec_8k_count_30d_z, sec_8k_negative_90d, sec_exec_change_90d, sec_filing_delay_z | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
-| ted_awards | DEGRADED | NON_CRITICAL | 0 | 2026-10-14 | ted_any_award_365d, ted_award_value_365d, ted_awards_90d, ted_awards_z | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
 
 ## Fallbacks
 

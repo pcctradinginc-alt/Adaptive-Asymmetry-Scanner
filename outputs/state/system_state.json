@@ -1,20 +1,24 @@
 {
  "schema": "system-state-v2",
- "safe_mode": true,
- "safe_mode_reason": [
-  "DATA HEALTH unbekannt: Health-Snapshot veraltet (2026-10-14T17:34:54+00:00)",
-  "DRIFT: DATA DRIFT SEVERE: Data Quality None"
- ],
+ "safe_mode": false,
+ "safe_mode_reason": [],
  "data_health": {
-  "status": "UNKNOWN",
-  "data_quality": null,
+  "status": "OK",
+  "data_quality": 0.976,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": null,
-  "counts": null
+  "generated": "2026-10-15T17:20:08+00:00",
+  "counts": {
+   "HEALTHY": 41,
+   "DEGRADED": 2,
+   "STALE": 1,
+   "BROKEN": 3,
+   "UNVALIDATED": 8
+  },
+  "fallbacks": []
  },
  "model_health": {
   "status": "OK",
@@ -22,7 +26,7 @@
   "updated": "2026-10-15T06:40:43+00:00"
  },
  "drift_state": {
-  "level": "SEVERE",
+  "level": "MODERATE",
   "components": {
    "feature": {
     "level": "MODERATE",
@@ -84,32 +88,30 @@
     "n_models": 6
    },
    "data": {
-    "level": "SEVERE",
-    "data_quality": null,
-    "note": "Data Health unbekannt"
+    "level": "NORMAL",
+    "data_quality": 0.976
    }
   },
   "reasons": [
    "FEATURE DRIFT MODERATE: ['tnx']",
-   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich",
-   "DATA DRIFT SEVERE: Data Quality None"
+   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich"
   ],
   "policy_version": "drift-v1",
   "consequences": {
-   "confidence_multiplier": 0.5,
-   "positive_boost_cap": 0.0,
+   "confidence_multiplier": 0.75,
+   "positive_boost_cap": 0.5,
    "allow_weight_increase": false,
-   "safe_mode": true
+   "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-15T06:40:32+00:00",
-  "drift_input_age_days": 0.7,
+  "drift_input_age_days": 0.4,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
   "ml_champion": null,
   "rule_champion": "scanner_rules",
-  "config_hash": "b60b12cedaea",
-  "version": "scanner_rules@b60b12cedaea"
+  "config_hash": "d20d5a4ff52a",
+  "version": "scanner_rules@d20d5a4ff52a"
  },
  "promotion_state": {
   "generated": "2026-10-14T22:27:16+00:00",
@@ -120,7 +122,7 @@
   "with_influence": [],
   "max_automatic_influence": "ABSTENTION_ONLY"
  },
- "known": false,
+ "known": true,
  "allowed_influence": {
   "max_automatic_influence": "ABSTENTION_ONLY",
   "by_hypothesis": {},
@@ -138,26 +140,24 @@
    "SMALL": "NONE",
    "MID": "NONE"
   },
-  "v2_latest_snapshot": "2026-10-04"
+  "v2_latest_snapshot": "2026-10-15"
  },
  "commodity_data_health": {
-  "overall": "UNVALIDATED",
+  "overall": "HEALTHY",
   "sources": {
-   "eia_petroleum_weekly": "UNVALIDATED",
-   "eia_natural_gas": "UNVALIDATED",
-   "fred_commodities": "UNVALIDATED",
-   "fred_regime_macro": "UNVALIDATED",
-   "cftc_cot": "UNVALIDATED"
+   "eia_petroleum_weekly": "HEALTHY",
+   "eia_natural_gas": "HEALTHY",
+   "fred_commodities": "HEALTHY",
+   "fred_regime_macro": "HEALTHY",
+   "cftc_cot": "HEALTHY"
   },
   "research_status": "RESEARCH_ONLY",
   "unavailable_series": [],
   "safe_mode_relevant": false
  },
  "learning_health": {
-  "overall": "DEGRADED",
-  "stalled_or_broken": [
-   "universe_v2"
-  ],
+  "overall": "OK",
+  "stalled_or_broken": [],
   "paths": {
    "outcome_ingestion": "OK",
    "shadow_lifecycle": "NEED_MORE_DATA",
@@ -169,9 +169,9 @@
    "forward_validation": "ACTIVE",
    "calibration": "NEED_MORE_DATA",
    "universe_v1": "OK",
-   "universe_v2": "STALLED",
+   "universe_v2": "SHADOW",
    "commodity_intelligence": "RESEARCH",
-   "commodity_sources": "UNVALIDATED",
+   "commodity_sources": "HEALTHY",
    "rl": "SHADOW",
    "research_memory": "ACTIVE"
   }
@@ -179,15 +179,15 @@
  "inputs": {
   "model_health": "ed1391f9c126",
   "meta_learning": "5850ac19c012",
-  "data_health": "a222036fe7ca",
+  "data_health": "20edfd33d386",
   "promotion": "e0d0c04487d7",
   "model_registry": "a0c0ce90b949",
-  "champion_config": "b60b12cedaea",
+  "champion_config": "d20d5a4ff52a",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "2777f4b4909c"
  },
- "state_version": 33,
- "fingerprint": "46bb79f272ad0420",
- "updated_at": "2026-10-15T23:59:00+00:00",
- "code_version": "81ffef72aa10"
+ "state_version": 34,
+ "fingerprint": "2e294c0bd6d16b9b",
+ "updated_at": "2026-10-15T17:20:08+00:00",
+ "code_version": "c64c21a6b026"
 }

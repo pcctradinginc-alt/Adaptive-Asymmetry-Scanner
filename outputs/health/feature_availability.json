@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14T17:34:54+00:00",
+ "generated": "2026-10-15T17:20:08+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -229,163 +229,163 @@
   "sec_8k_count_30d_z": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_8k_negative_90d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_exec_change_90d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_filing_delay_z": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_insider_buy_value_90d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_insider_buyers_90d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_insider_cluster_30d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_insider_net_value_90d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "sec_late_filing_365d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_submissions",
    "source_actual": "sec_submissions",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_accruals": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_asset_growth": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_rev_yoy": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_share_change": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "xbrl_sue": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "sec_companyfacts",
    "source_actual": "sec_companyfacts",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "ted_any_award_365d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "ted_awards",
    "source_actual": "ted_awards",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "ted_award_value_365d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "ted_awards",
    "source_actual": "ted_awards",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "ted_awards_90d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "ted_awards",
    "source_actual": "ted_awards",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "ted_awards_z": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "ted_awards",
    "source_actual": "ted_awards",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_oil__crude_stocks_chg_z_52w": {
@@ -436,10 +436,10 @@
   "cmdx_natural_gas__div_gas_storage_price": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
-   "source_primary": "fred_commodities",
-   "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "data_quality": 1.0,
+   "source_primary": "eia_natural_gas",
+   "source_actual": "eia_natural_gas",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__lng_exports_yoy": {
@@ -472,64 +472,64 @@
   "cmdx_copper__copper_ret_3m": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_copper__div_copper_positioning_price": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_corn__corn_ret_3m": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__henry_hub_ret_20d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__henry_hub_ret_60d": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_soybeans__soybeans_ret_3m": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_wheat__wheat_ret_3m": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "fred_commodities",
    "source_actual": "fred_commodities",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_copper__cot_copper_mm_net_chg_4w": {
