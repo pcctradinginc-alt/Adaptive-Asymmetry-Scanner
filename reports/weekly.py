@@ -590,6 +590,10 @@ def collect(root, date, state_path=None) -> dict:
     except Exception as e:  # noqa: BLE001 – Report darf nie abbrechen
         log.warning(f"LEARNING_HEALTH nicht ableitbar: {e}")
         data["learning_health"] = {}
+    # C2/C3 (2026-10-15): Post-mortems der Woche (trade_memory) + Lern-Prognose (Ops-Monitoring, A2)
+    data["post_mortems_week"] = [pm for pm in _load_jsonl(rs / "post_mortems.jsonl")
+                                 if _recent(pm.get("close_date"), today)]
+    data["learning_eta"] = _d(_d(_load_json(out_dir / "monitoring" / "ops_status.json")).get("learning_eta"))
     return data
 
 
@@ -1323,6 +1327,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
         ("para", "Blind Spots (signifikante Fehlercluster):"), ("list", blind[:5] or ["keine"]),
         ("para", "Alpha Decay:"), ("list", decay or ["keine gemessene Abschwächung"]),
         *_inquiry_blocks(data),
+        *learning_progress_blocks(data),
         ("para", "Daten-/Research-Erkenntnisse (Änderungen seit letztem Bericht):"),
         ("list", (data.get("learned") or [FIRST_REPORT_TEXT if data.get("learned") is None else "keine"])[:10]),
     ]))
@@ -1465,6 +1470,35 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
     secs.append((10, MONDAY_TITLES[10], commodity_blocks(data)))
     return secs
+
+
+def learning_progress_blocks(data: dict) -> list:
+    """C2/C3: Post-mortems der in den letzten LEARN_DAYS geschlossenen Trades und die Lern-Prognose (A2)."""
+    out = []
+    pms = data.get("post_mortems_week") or []
+    out.append(("para", f"Post-mortems der Woche ({len(pms)} geschlossene Trades, deterministisch, "
+                        "ähnliche Fälle nur vor dem Entry):"))
+    if pms:
+        rows = [[str(pm.get("ticker")), str(pm.get("close_date")), str(pm.get("result")),
+                 _f(pm.get("outcome"), pct=True, sign=True)
+                 + ("" if pm.get("outcome_reliable") else " [nicht RELIABLE]"),
+                 str(pm.get("primary_cause") or "—"), str(pm.get("lesson") or NA),
+                 (f"n={_d(pm.get('similar_before_entry')).get('n')}, Gewinnanteil "
+                  f"{_f(_d(pm.get('similar_before_entry')).get('win_share'), pct=True)}")]
+                for pm in sorted(pms, key=lambda x: str(x.get("close_date")))]
+        out.append(("table", ["Ticker", "Close", "Ergebnis", "Outcome", "Ursache", "Lehre", "Ähnliche frühere Fälle"],
+                    rows, ["bad" if r[2] == "LOSS" else "" for r in rows]))
+    else:
+        out.append(("list", ["keine geschlossenen Trades in dieser Woche"]))
+    le = _d(data.get("learning_eta"))
+    if le:
+        lab = {"meta_label": "Meta-Label-Training", "rl_arming": "RL-Freischaltung",
+               "champion_evidence": "Champion-Evidenz"}
+        out.append(("para", "Lern-Prognose (bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage):"))
+        out.append(("list", [f"{lab[k]}: {_fv(_d(le.get(k)).get('have'))}/{_fv(_d(le.get(k)).get('need'))} – "
+                             f"voraussichtlich ab {_d(le.get(k)).get('eta') or 'nicht absehbar'}"
+                             for k in lab if _d(le.get(k))]))
+    return out
 
 
 def _learning_rows(data: dict) -> list:
