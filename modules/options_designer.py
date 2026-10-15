@@ -404,8 +404,8 @@ def _tradier_chain(symbol: str, expiration: str) -> list[dict]:
         try:
             from modules import chain_summary
             chain_summary.record(symbol, expiration, options, source="options_designer")
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as _e:  # noqa: BLE001 – Research-Nebenprodukt, nie entscheidungswirksam
+            log.debug(f"chain_summary [{symbol} {expiration}] ignoriert: {_e}")
         return options
     except Exception as e:
         log.debug(f"Tradier Chain [{symbol} {expiration}]: {e}")
