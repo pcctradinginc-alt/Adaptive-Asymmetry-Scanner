@@ -90,7 +90,18 @@ def test_mark_coverage_counts_due_marked_pending(tmp_path):
     rows = [_row(1, opt=0.1), _row(2)]                                          # zweiter: fällig, nicht markiert
     _write(tmp_path, rows)
     cov = el.option_mark_coverage(tmp_path, as_of=D0 + timedelta(days=9))
-    assert cov["real_opt_ret_5d"] == {"due": 2, "marked": 1, "pending": 1, "late_marks": 0, "oldest_pending_days": 4}
+    assert cov["real_opt_ret_5d"] == {"due": 2, "marked": 1, "pending": 1, "late_marks": 0, "unavailable": 0,
+                                      "oldest_pending_days": 4}
+
+
+def test_mark_coverage_counts_terminal_status_as_unavailable_not_pending(tmp_path):
+    """Mark im Endzustand (candidate_ledger._give_up_marks, z. B. Kontrakt ohne Quote) ist nicht mehr offen."""
+    gone = _row(2)
+    gone["outcomes"]["real_opt_mark_status_5d"] = "NO_QUOTE"
+    _write(tmp_path, [_row(1, opt=0.1), gone])
+    cov = el.option_mark_coverage(tmp_path, as_of=D0 + timedelta(days=9))
+    assert cov["real_opt_ret_5d"] == {"due": 2, "marked": 1, "pending": 0, "late_marks": 0, "unavailable": 1,
+                                      "oldest_pending_days": None}
 
 
 def _closed(tid, *, method="option_quote", outcome=0.3, strategy="LONG_CALL", ask=2.0, evaluation=None):

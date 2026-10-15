@@ -368,11 +368,13 @@ def option_mark_coverage(root: Path | None = None, as_of=None) -> dict:
                     if ent is None or (cut - ent).days < h:
                         continue
                     c = cov.setdefault(f"{key}_{h}d", {"due": 0, "marked": 0, "pending": 0, "late_marks": 0,
-                                                       "oldest_pending_days": None})
+                                                       "unavailable": 0, "oldest_pending_days": None})
                     c["due"] += 1
                     if f"{key}_{h}d" in oc:
                         c["marked"] += 1
                         c["late_marks"] += bool(r.get("late_mark"))
+                    elif oc.get(f"{key.removesuffix('_ret')}_mark_status_{h}d"):   # Endzustand ohne Preis
+                        c["unavailable"] += 1
                     else:
                         c["pending"] += 1
                         age = (cut - ent).days - h

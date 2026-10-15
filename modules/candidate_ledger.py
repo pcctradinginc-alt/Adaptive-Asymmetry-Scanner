@@ -77,6 +77,8 @@ RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
+MARK_GIVE_UP_DAYS            = 14   # fälliger Mark so lange nach Fälligkeit ohne zulässige Quote -> Endzustand
+                                    # (<prefix>_mark_status_{h}d: NO_QUOTE | NO_SETTLEMENT | NO_ENTRY_QUOTE), nie geschätzt
 MARK_ARCHIVE_LOOKBACK_DAYS   = 10   # außerhalb der Sitzung: archivierte RTH-Quotes der letzten N Tage (Options-Capture)
 NO_PRICE_GIVE_UP_DAYS        = 10   # ohne Entry-Preis nach so vielen Tagen täglicher Versuche + heute keine Kurshistorie
                                     # -> outcomes_status NO_PRICE_DATA (z. B. delistet), nie geschätzt; kein Endlos-Abruf
@@ -1355,7 +1357,8 @@ def due_mark_symbols(today: str, root: Path = LEDGER_ROOT) -> list[str]:
                         expiry_dt = _parse_date(spec.get("expiry") or "")
                         if entry_dt is None or (expiry_dt is not None and today_dt.date() > expiry_dt.date()):
                             continue
-                        if any(f"{ret}_{h}d" not in oc and (today_dt - entry_dt).days >= h for h in HORIZONS):
+                        if any(f"{ret}_{h}d" not in oc and _mark_status_key(ret.removesuffix("_ret"), h) not in oc
+                               and (today_dt - entry_dt).days >= h for h in HORIZONS):
                             out.update(x for x in syms(spec) if x)
     except Exception as e:  # noqa: BLE001 – Capture ist Beobachtung, nie Bedingung
         log.warning(f"candidate_ledger.due_mark_symbols: {type(e).__name__}: {e}")
@@ -1786,6 +1789,35 @@ def _archived_mark(history: dict, symbols: list[str], due_day: str) -> tuple[str
     return day, [next(r for d, r in history[sym] if d == day) for sym in symbols]
 
 
+def _mark_status_key(prefix: str, h: int) -> str:
+    return f"{prefix}_mark_status_{h}d"
+
+
+def _give_up_marks(tasks: list, prefix: str, spec_key: str, today_dt: datetime) -> bool:
+    """Fällige Marks, die MARK_GIVE_UP_DAYS nach Fälligkeit noch offen sind, bekommen einen Endzustand, statt ewig offen
+    zu bleiben und jeden Lauf erneut erfasst zu werden (Live 2026-10-14: CTVA270319P00080000 lieferte seit dem Entry
+    keine Quote, vermutlich Kontraktanpassung). Nie ein geschätzter Wert: der Return bleibt leer, nur Status + Datum."""
+    changed = False
+    for row, h, entry_dt in tasks:
+        oc = row.setdefault("outcomes", {})
+        if f"{prefix}_ret_{h}d" in oc or _mark_status_key(prefix, h) in oc:
+            continue
+        spec = row.get(spec_key) or {}
+        expiry = _parse_date(spec.get("expiry") or "")
+        expired = expiry is not None and today_dt.date() > expiry.date()
+        due = entry_dt + timedelta(days=h)
+        # Verfallen: der Settlement-Schluss kann erst ab dem Verfallstag vorliegen -> Karenz ab dann, nicht ab Fälligkeit
+        if (today_dt - (max(due, expiry) if expired else due)).days <= MARK_GIVE_UP_DAYS:
+            continue
+        entry_ok = (spec.get("ask") not in (None, 0)) if spec_key == "real_option" else \
+            ((spec.get("net_debit_entry") or 0) > 0 and (spec.get("net_mid_entry") or 0) > 0)
+        oc[_mark_status_key(prefix, h)] = ("NO_ENTRY_QUOTE" if not entry_ok else
+                                           "NO_SETTLEMENT" if expired else "NO_QUOTE")
+        oc[f"{prefix}_mark_status_date_{h}d"] = today_dt.strftime("%Y-%m-%d")
+        changed = True
+    return changed
+
+
 def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     """
     P0-B: für Zeilen mit real_option (bereits gefülltem Entry — kein
@@ -1816,7 +1848,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             continue
         outcomes = row.setdefault("outcomes", {})
         for h in HORIZONS:
-            if f"real_opt_ret_{h}d" in outcomes:
+            if f"real_opt_ret_{h}d" in outcomes or _mark_status_key("real_opt", h) in outcomes:
                 continue
             if (today_dt - entry_dt).days >= h:
                 tasks.append((row, h, entry_dt))
@@ -1883,6 +1915,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             changed = True
         except Exception as e:
             log.warning(f"candidate_ledger._fill_real_option_marks Fehler (ignoriert): {e}")
+    changed |= _give_up_marks(tasks, "real_opt", "real_option", today_dt)
     return changed
 
 
@@ -1912,7 +1945,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             continue
         outcomes = row.setdefault("outcomes", {})
         for h in HORIZONS:
-            if f"real_strat_ret_{h}d" in outcomes:
+            if f"real_strat_ret_{h}d" in outcomes or _mark_status_key("real_strat", h) in outcomes:
                 continue
             if (today_dt - entry_dt).days >= h:
                 tasks.append((row, h, entry_dt))
@@ -2013,6 +2046,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             changed = True
         except Exception as e:
             log.warning(f"candidate_ledger._fill_real_strategy_marks Fehler (ignoriert): {e}")
+    changed |= _give_up_marks(tasks, "real_strat", "real_strategy", today_dt)
     return changed
 
 
