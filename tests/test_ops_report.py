@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import copy
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -674,3 +674,184 @@ def test_current_job_step_failure_is_critical(tmp_path, monkeypatch, box):
     patch_collect(monkeypatch, make_status())
     ok = ops_report.run(NOW, out_dir=tmp_path / "b", env={"OPS_STEP_OUTCOMES": "scanner=success feedback=success"})
     assert not [x for x in ok["alerts"] if x["id"].startswith("SCANNER_FAILED")]
+
+
+# ── Workflow-Fehler-Digest (A1), Spätstart (A6), Widerspruchsquote (A7) ─────
+SCAN = "Adaptive Asymmetry Scanner"
+
+
+def _failed(name: str = SCAN, steps=("Scanner ausführen",), run_id: int = 1, lines=("ImportError: x",)) -> dict:
+    return {"workflow": name, "file": ".github/workflows/x.yml", "run_id": run_id,
+            "url": f"https://github.com/o/r/actions/runs/{run_id}", "created_at": f"{AS_OF}T17:30:00Z",
+            "event": "schedule", "conclusion": "failure", "failed_jobs": ["scan"], "failed_steps": list(steps),
+            "error_lines": list(lines)}
+
+
+def _wfs(failed=(), late: bool = False, trading_day: bool = True, status: str = "OK") -> dict:
+    s = make_status()
+    if status != "OK":
+        s["workflows"] = {"status": status, "reason": "GITHUB_TOKEN/GITHUB_REPOSITORY fehlen"}
+        return s
+    s["workflows"] = {"status": "OK", "window_hours": 26, "since": "2026-10-12T14:00:00Z", "runs_total": 12,
+                      "failed": list(failed), "failed_by_workflow": {},
+                      "scanner_start": {"started_et": f"{AS_OF}T{'15:40' if late else '13:35'}-04:00", "run_id": 1,
+                                        "late": late, "late_after_et": "15:00", "trading_day": trading_day}}
+    return s
+
+
+def test_workflow_ok_without_failures_is_silent():
+    assert evaluate(_wfs())[0] == []
+
+
+@pytest.mark.parametrize("name, sev", [(SCAN, "CRITICAL"), ("Feedback Loop (Exit-Alarme + Lernen)", "CRITICAL"),
+                                       ("Options-Capture (RTH, nur Quote-Archiv)", "CRITICAL"),
+                                       ("Source Health", "WARNING"), ("Weekly Report", "WARNING")])
+def test_workflow_failed_severity_by_workflow(name, sev):
+    al, _, _ = evaluate(_wfs([_failed(name)]))
+    a = ids(al)[f"WORKFLOW_FAILED:{name}"]
+    assert a["severity"] == sev and a["status"] == "NEW"
+    assert "Scanner ausführen" in a["cause"] and "ImportError: x" in a["cause"] and "/actions/runs/1" in a["cause"]
+
+
+def test_workflow_failed_groups_runs_and_fingerprint_ignores_run_ids():
+    aid = f"WORKFLOW_FAILED:{SCAN}"
+    al, st, _ = evaluate(_wfs([_failed(run_id=1), _failed(run_id=2, lines=("KeyError: y",))]))
+    assert [a["id"] for a in al] == [aid]
+    assert "2 fehlgeschlagene" in ids(al)[aid]["cause"] and "KeyError: y" in ids(al)[aid]["cause"]   # letzte Zeile
+    al2, st2, _ = evaluate(_wfs([_failed(run_id=7, lines=("anders",))]), state=st)
+    assert ids(al2)[aid]["status"] == "ONGOING"                     # gleicher Schritt -> keine neue Mail
+    al3, _, _ = evaluate(_wfs([_failed(run_id=8, steps=("Commit",))]), state=st2)
+    assert ids(al3)[aid]["status"] == "CHANGED"                     # anderer Schritt fällt aus
+
+
+def test_workflow_alert_kept_while_digest_unavailable_resolved_when_ok_again():
+    aid = f"WORKFLOW_FAILED:{SCAN}"
+    _, st, _ = evaluate(_wfs([_failed()]))
+    al, st2, _ = evaluate(_wfs(status="UNAVAILABLE"), state=st)
+    assert aid not in ids(al) and st2[aid] == st[aid]               # nicht berechenbar -> weder behoben noch neu
+    al3, st3, _ = evaluate(_wfs(), state=st2)
+    assert ids(al3)[aid]["status"] == "RESOLVED" and aid not in st3
+
+
+def test_scanner_late_start_only_on_trading_days():
+    al, _, _ = evaluate(_wfs(late=True))
+    assert ids(al)["SCANNER_LATE_START"]["severity"] == "WARNING"
+    assert "15:40" in ids(al)["SCANNER_LATE_START"]["cause"]
+    assert evaluate(_wfs(late=True, trading_day=False))[0] == []
+    assert evaluate(_wfs(late=False))[0] == []
+
+
+@pytest.mark.parametrize("conflicts, analyzed, fires", [(40, 90, True), (32, 90, True), (31, 90, False),
+                                                        (5, 9, False), (None, 90, False)])
+def test_direction_conflict_share_threshold(conflicts, analyzed, fires):
+    s = put(make_status(), "run.scanner.analyzed", analyzed)
+    s["run"]["scanner"]["direction_conflicts"] = conflicts
+    s["run"]["scanner"]["direction_conflict_share"] = None if conflicts is None else round(conflicts / analyzed, 4)
+    al, _, _ = evaluate(s)
+    assert ("DIRECTION_CONFLICT_HIGH" in ids(al)) is fires
+    if fires:
+        assert ids(al)["DIRECTION_CONFLICT_HIGH"]["severity"] == "WARNING"
+
+
+def test_history_row_workflow_learning_and_conflict_metrics():
+    assert ops_report.history_row(make_status())["workflows.failed_runs"] is None       # Abschnitt fehlt: unbekannt
+    assert ops_report.history_row(_wfs(status="UNAVAILABLE"))["workflows.failed_runs"] is None
+    assert ops_report.history_row(_wfs())["workflows.failed_runs"] == 0                 # echte 0
+    assert ops_report.history_row(_wfs([_failed(), _failed(run_id=2)]))["workflows.failed_runs"] == 2
+    s = make_status()
+    s["learning_eta"] = {"meta_label": {"have": 4}, "rl_arming": {"have": 9}, "champion_evidence": {"have": 0}}
+    s["run"]["scanner"].update(direction_conflicts=7, direction_conflict_share=0.0778)
+    row = ops_report.history_row(s)
+    assert (row["learning.meta_label.have"], row["learning.rl_arming.have"], row["learning.champion_evidence.have"]) \
+        == (4, 9, 0)
+    assert row["run.scanner.direction_conflicts"] == 7 and row["run.scanner.direction_conflict_share"] == 0.0778
+
+
+# ── Anomalien (C4) ──────────────────────────────────────────────────────────
+ANALYZED = "run.scanner.analyzed"
+
+
+def _series(metric: str, values: list, end: str = "2026-10-12") -> list[dict]:
+    """Synthetische Historie: values[-1] liegt auf `end`, davor je ein Tag zurück."""
+    e = datetime.fromisoformat(end).date()
+    return [_hist((e - timedelta(days=len(values) - 1 - i)).isoformat(), **{metric: v}) for i, v in enumerate(values)]
+
+
+NORMAL = [88, 92, 90, 91, 89, 90, 93, 87, 90, 92]
+
+
+def test_anomaly_drop_detected_with_enough_history():
+    al, st, _ = evaluate(put(make_status(), ANALYZED, 20), _series(ANALYZED, NORMAL))
+    a = ids(al)[f"METRIC_ANOMALY:{ANALYZED}"]
+    assert a["severity"] == "WARNING" and a["component"] == "Anomalie" and "bricht ein" in a["cause"]
+    assert "Median der letzten 10 Läufe 90" in a["cause"]
+
+
+@pytest.mark.parametrize("value, hist", [(85, NORMAL), (20, NORMAL[:7]), (None, NORMAL)])
+def test_anomaly_silent_for_normal_values_short_history_or_unknown(value, hist):
+    al, _, _ = evaluate(put(make_status(), ANALYZED, value), _series(ANALYZED, hist))
+    assert not [a for a in al if a["id"].startswith("METRIC_ANOMALY")]
+
+
+def test_anomaly_same_day_rows_do_not_count_as_history():
+    hist = _series(ANALYZED, NORMAL[:7]) + [_hist(AS_OF, **{ANALYZED: 90})]
+    al, _, _ = evaluate(put(make_status(), ANALYZED, 20), hist)
+    assert not [a for a in al if a["id"].startswith("METRIC_ANOMALY")]
+
+
+def test_anomaly_drop_needs_half_of_median_even_with_flat_history():
+    flat = [10] * 10
+    assert not [a for a in evaluate(put(make_status(), ANALYZED, 6), _series(ANALYZED, flat))[0]
+                if a["id"].startswith("METRIC_ANOMALY")]
+    assert f"METRIC_ANOMALY:{ANALYZED}" in ids(evaluate(put(make_status(), ANALYZED, 5), _series(ANALYZED, flat))[0])
+
+
+def test_anomaly_increase_only_in_bad_direction():
+    m = "data.source_health.n_bad"
+    base = [1, 1, 2, 1, 1, 2, 1, 1]
+    s = put(make_status(), "data_health.source_health.by_status", {"HEALTHY": 40, "BROKEN": 8})
+    al, _, _ = evaluate(s, _series(m, base))
+    assert "steigt sprunghaft" in ids(al)[f"METRIC_ANOMALY:{m}"]["cause"]
+    s2 = put(make_status(), "data_health.source_health.by_status", {"HEALTHY": 40, "BROKEN": 3})
+    assert f"METRIC_ANOMALY:{m}" not in ids(evaluate(s2, _series(m, base))[0])            # Δ 2 < 3
+    s3 = put(make_status(), "data_health.source_health.by_status", {"HEALTHY": 40})
+    assert f"METRIC_ANOMALY:{m}" not in ids(evaluate(s3, _series(m, [8] * 8))[0])         # Rückgang ist gut
+
+
+def test_anomaly_lifecycle_ongoing_kept_when_unknown_resolved_when_normal():
+    aid = f"METRIC_ANOMALY:{ANALYZED}"
+    hist = _series(ANALYZED, NORMAL)
+    _, st, _ = evaluate(put(make_status(), ANALYZED, 20), hist)
+    al2, st2, _ = evaluate(put(make_status("2026-10-14"), ANALYZED, 15), hist)    # anderer Wert, gleiche Richtung
+    assert ids(al2)[aid]["status"] == "NEW"                                        # (ohne state: neu)
+    al2, st2, _ = evaluate(put(make_status("2026-10-14"), ANALYZED, 15), hist, st)
+    assert ids(al2)[aid]["status"] == "ONGOING"
+    al3, st3, _ = evaluate(put(make_status("2026-10-15"), ANALYZED, None), hist, st2)
+    assert aid not in ids(al3) and st3[aid] == st2[aid]                           # Kennzahl unbekannt: offen lassen
+    al4, st4, _ = evaluate(put(make_status("2026-10-16"), ANALYZED, 90), hist, st3)
+    assert ids(al4)[aid]["status"] == "RESOLVED" and aid not in st4
+
+
+# ── Rendering der neuen Abschnitte ──────────────────────────────────────────
+def test_render_learning_eta_workflows_and_conflicts():
+    s = _wfs([_failed()], late=True)
+    s["learning_eta"] = {
+        "meta_label": {"have": 0, "need": 200, "have_dates": 0, "need_dates": 20, "pending_maturing": 144,
+                       "new_rows_per_day": 8.5, "eta": "2026-12-01", "basis": "Zielpopulation"},
+        "rl_arming": {"have": 9, "need": 30, "closes_per_day_30d": 0.167, "eta": None, "since": "2026-06-11"},
+        "champion_evidence": {"have": 3, "need": 30, "have_days": 3, "need_days": 20, "evaluable_per_day_30d": 0.1,
+                              "eta": "2027-07-12"},
+        "note": "Projektion bei unverändertem Zulauf"}
+    s["run"]["scanner"].update(direction_conflicts=7, direction_conflict_share=0.0778)
+    row = ops_report.history_row(s)
+    md = ops_report.render_markdown(s, row, ops_report.deltas(row, []), [])
+    assert "## Lern-Prognose" in md and "## Workflow-Fehler (GitHub Actions)" in md
+    assert "| Meta-Label-Training | 0 · Tage 0 | 200 · Tage 20 | 8.5 | 2026-12-01 |" in md
+    assert "| RL-Freischaltung (closed trades) | 9 | 30 | 0.167 | nicht absehbar |" in md
+    assert "144 offene Labels" in md
+    assert "– SPÄT" in md and "Scanner ausführen" in md and "ImportError: x" in md
+    assert "Haiku/Sonnet-Widerspruch" in md and "7 (Anteil 0.0778)" in md
+    s2 = _wfs(status="UNAVAILABLE")
+    md2 = ops_report.render_markdown(s2, ops_report.history_row(s2), {}, [])
+    assert "Nicht verfügbar: GITHUB_TOKEN/GITHUB_REPOSITORY fehlen" in md2
+    assert "Keine fehlgeschlagenen Läufe." in ops_report.render_markdown(_wfs(), ops_report.history_row(_wfs()), {}, [])

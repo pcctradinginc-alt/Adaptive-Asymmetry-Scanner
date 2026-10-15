@@ -1113,6 +1113,9 @@ def main() -> None:
         stats["time_budget_exceeded"] = stats.get("time_budget_exceeded", 0) + len(_da.skipped_for_time)
         log.warning(f"Laufzeitbudget erreicht in Stufe 4: {len(_da.skipped_for_time)} Kandidaten ohne Deep Analysis")
     stats["analyzed"] = len(analyses)
+    # Haiku/Sonnet-Richtungswiderspruch (deep_analysis.direction_conflict) nur als Kennzahl für den Ops-Monitor
+    # (Kalibrierung des Prescreens beobachten, 2026-10-15); Verhalten unverändert.
+    stats["direction_conflicts"] = sum(1 for a in analyses if (a.get("deep_analysis") or {}).get("direction_conflict"))
     label_dropped(pre_mc_viable, analyses, "deep_analysis_veto_or_invalid")
     for a in analyses:
         try:

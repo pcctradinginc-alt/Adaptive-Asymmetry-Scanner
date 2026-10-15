@@ -183,6 +183,7 @@ def cwd(tmp_path, monkeypatch) -> Path:
     work.mkdir()
     (work / "config.yaml").write_text("learning:\n  close_after_days: 10\n", encoding="utf-8")
     monkeypatch.chdir(work)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)           # Workflow-Digest nie gegen die echte API
     return work
 
 
@@ -1553,7 +1554,7 @@ def test_run_status_picks_latest_report_not_after_today(env):
     reports = env.paths["daily_reports"]
     reports.mkdir()
     stats = {"universe": 372, "analyzed": 96, "final_mc": 21, "roi_ok": 3, "roi_rejects": {"n": 18}, "trades": 1,
-             "stop_reason": "x", "session": "regular"}
+             "stop_reason": "x", "session": "regular", "direction_conflicts": 12}
     for day, s in ((iso_day(1), {"universe": 1}), (TODAY.isoformat(), stats), (iso_day(-1), {"universe": 999})):
         (reports / f"{day}.json").write_text(json.dumps({"stats": s}), encoding="utf-8")
     env.write_json("workflow_status", {"days": {TODAY.isoformat(): {
@@ -1562,7 +1563,8 @@ def test_run_status_picks_latest_report_not_after_today(env):
     run = env.collect()["run"]
     assert run["report_date"] == TODAY.isoformat() and run["report_is_today"] is True
     assert run["scanner"] == {"universe": 372, "analyzed": 96, "champion_candidates": 21, "contracts_designed": 21,
-                              "trades": 1, "stop_reason": "x", "session": "regular"}
+                              "trades": 1, "stop_reason": "x", "session": "regular", "direction_conflicts": 12,
+                              "direction_conflict_share": 0.125}
     assert run["workflows"] == {"scanner": {"state": "OK", "conclusion": "success",
                                             "last_run": "2026-10-14T13:40:00Z", "delay_hours": 0.2},
                                 "external_data": {"state": "PENDING", "conclusion": None, "last_run": None,
@@ -1611,3 +1613,94 @@ def test_quote_archive_root_exists_refers_to_the_configured_archive(env):
     assert oq.ROOT.exists()                                   # conftest: Standard-Archiv ist vorhanden
     assert not env.paths["quotes"].exists()
     assert env.collect()["data_health"]["quote_archive_root_exists"] is False
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 9. Lern-Prognose (learning_eta) und Workflow-Abschnitt
+# ═══════════════════════════════════════════════════════════════════════════
+def _cand(ticker: str, day: str, *, stage: str = "LATE", ret20: float | None = None) -> dict:
+    """Synthetische Kandidatenzeile: stage LATE (bis Options-Design), CHAMPION (proposed) oder EARLY."""
+    row = {"signal_id": f"{ticker}-{day}", "ticker": ticker, "date": day, "signal_timestamp": f"{day}T14:00:00+00:00",
+           "direction": "BULLISH", "status": "proposed" if stage == "CHAMPION" else "rejected",
+           "reject_stage": "options_design" if stage == "LATE" else None if stage == "CHAMPION" else "prescreen"}
+    if ret20 is not None:
+        row["outcomes"] = {"ret_20d": ret20}
+    return row
+
+
+@pytest.fixture
+def small_spec(monkeypatch):
+    from modules import meta_label as ml
+    spec = {**ml.SPEC, "readiness": {"min_labels": 5, "min_dates": 3}}
+    monkeypatch.setattr(ml, "SPEC", spec)
+    return spec
+
+
+def _eta_ledger(env):
+    env.write_jsonl("candidate_ledger", [
+        _cand("A01", "2026-09-01", ret20=0.05),                      # Label seit 09-22 bekannt
+        _cand("A02", "2026-09-02", stage="CHAMPION", ret20=-0.02),  # Label seit 09-23 bekannt
+        _cand("E01", "2026-09-03", stage="EARLY", ret20=0.10),      # nicht Zielpopulation
+        _cand("N01", "2026-09-10"),                                 # fällig (10-01), aber ohne Outcome: kein Label mehr
+        _cand("P01", "2026-10-05"), _cand("P02", "2026-10-06"), _cand("P03", "2026-10-06"),   # reifen 10-26/10-27
+    ], name="2026-10.jsonl")
+
+
+def test_learning_eta_meta_label_matures_open_labels_exactly(env, small_spec):
+    _eta_ledger(env)
+    env.history()
+    ml = env.collect()["learning_eta"]["meta_label"]
+    assert (ml["have"], ml["have_dates"], ml["pending_maturing"]) == (2, 2, 3)
+    assert ml["new_rows_per_day"] == round(3 / 14, 2)
+    assert ml["eta"] == "2026-10-27"                    # 2 vorhandene + 3 reifende = 5 Labels, 4 Tage >= 3
+
+
+def test_learning_eta_meta_label_projects_future_rows_after_horizon(env, small_spec, monkeypatch):
+    from modules import meta_label as ml_mod
+    monkeypatch.setattr(ml_mod, "SPEC", {**small_spec, "readiness": {"min_labels": 6, "min_dates": 3}})
+    _eta_ledger(env)
+    env.history()
+    # Zulauf 3/14 je Tag; neue Zeilen reifen frühestens ab Tag h+2 = 22 -> erst nach 5 Tagen ein volles Label
+    assert env.collect()["learning_eta"]["meta_label"]["eta"] == "2026-11-09"
+
+
+def test_learning_eta_without_inflow_is_not_projected(env, small_spec, monkeypatch):
+    from modules import meta_label as ml_mod
+    monkeypatch.setattr(ml_mod, "SPEC", {**small_spec, "readiness": {"min_labels": 500, "min_dates": 3}})
+    env.write_jsonl("candidate_ledger", [_cand("A01", "2026-09-01", ret20=0.05)], name="2026-09.jsonl")
+    env.history()
+    ml = env.collect()["learning_eta"]["meta_label"]
+    assert ml["eta"] is None and ml["new_rows_per_day"] == 0 and ml["have"] == 1
+
+
+def test_learning_eta_rl_arming_and_champion_evidence(env, cwd, monkeypatch):
+    (cwd / "config.yaml").write_text("learning:\n  close_after_days: 10\nrl:\n  arm_threshold: 4\n"
+                                     "  arm_since: '2026-06-11'\n", encoding="utf-8")
+    monkeypatch.setattr(om, "MIN_N", 4)
+    monkeypatch.setattr(om, "MIN_DAYS", 3)
+    env.history(closed=[
+        closed_trade("OLD", "2026-06-01", "2026-06-20", 0.1, outcome_evaluation=dict(OK_EVAL)),   # vor arm_since
+        closed_trade("R01", "2026-07-01", "2026-08-01", 0.2, outcome_evaluation=dict(OK_EVAL)),
+        closed_trade("R02", "2026-09-01", "2026-09-25", -0.1, outcome_evaluation=dict(OK_EVAL)),
+        closed_trade("R03", "2026-09-05", "2026-10-02", 0.3, method="delta_approx"),               # nicht bewertbar
+    ])
+    le = env.collect()["learning_eta"]
+    rl = le["rl_arming"]
+    assert (rl["have"], rl["need"], rl["since"]) == (3, 4, "2026-06-11")
+    assert rl["closes_per_day_30d"] == round(2 / 30, 3) and rl["eta"] == "2026-10-29"     # 1 fehlt, 15 Tage
+    ce = le["champion_evidence"]
+    assert (ce["have"], ce["have_days"], ce["need"], ce["need_days"]) == (3, 3, 4, 3)
+    assert ce["evaluable_per_day_30d"] == round(1 / 30, 3) and ce["eta"] == "2026-11-13"   # 1 fehlt, 30 Tage
+
+
+def test_learning_eta_far_future_is_not_absehbar():
+    assert om._eta(0, 30, 0.01, TODAY) is None and om._eta(0, 30, 0, TODAY) is None
+    assert om._eta(30, 30, 0, TODAY) == TODAY.isoformat()
+    assert om._eta(29, 30, 1.0, TODAY) == (TODAY + timedelta(days=1)).isoformat()
+
+
+def test_workflows_section_unavailable_without_token(env):
+    env.history()
+    wf = env.collect()["workflows"]
+    assert wf["status"] == "UNAVAILABLE" and "GITHUB_TOKEN" in wf["reason"]
+
