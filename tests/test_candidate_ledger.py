@@ -2128,3 +2128,61 @@ def test_late_strategy_mark_does_not_downgrade_on_time_option_mark(monkeypatch):
     q = {(x["population"], x["horizon"]): x["quality"] for x in el._candidate_option_records(row)}
     assert q[("CANDIDATE_OPTION", 5)] == "RELIABLE" and q[("CANDIDATE_STRATEGY", 5)] == "LATE_MARK"
     assert q[("CANDIDATE_STRATEGY", 20)] == "RELIABLE"                  # 20-Tage-Horizont pünktlich markiert
+
+
+# ── Endzustand für dauerhaft nicht quotierbare Kontrakte (Live 2026-10-14: CTVA270319P00080000) ──────────────────
+
+def _ro_row(entry="2026-08-01", expiry="2027-03-19", ask=2.0, mid=1.9):
+    return {"ticker": "CTVA", "direction": "BEARISH",
+            "real_option": {"entry_pending": False, "entry_date": entry, "expiry": expiry, "symbol": "CTVA270319P00080000",
+                            "ask": ask, "mid": mid, "strike": 80.0},
+            "real_strategy": {"entry_pending": False, "entry_date": entry, "expiry": expiry,
+                              "net_debit_entry": 2.0, "net_mid_entry": 1.9,
+                              "legs": [{"symbol": "CTVA270319P00080000", "side": "long", "strike": 80.0}]},
+            "outcomes": {}}
+
+
+def test_mark_without_any_quote_gets_terminal_status_after_give_up_days(monkeypatch):
+    monkeypatch.setattr(cl, "_mark_quotes", lambda symbols: ("live", {}))          # Kontrakt liefert keine Quote
+    d0 = datetime(2026, 8, 1)
+    row = _ro_row()
+    due5 = d0 + timedelta(days=5)
+    # bis MARK_GIVE_UP_DAYS nach Fälligkeit: offen (nächster Lauf versucht es erneut)
+    assert cl._fill_real_option_marks([row], due5 + timedelta(days=cl.MARK_GIVE_UP_DAYS)) is False
+    assert "real_opt_mark_status_5d" not in row["outcomes"]
+    # danach: Endzustand ohne Wert; spätere Horizonte (20d) erst nach ihrer eigenen Karenz
+    today = due5 + timedelta(days=cl.MARK_GIVE_UP_DAYS + 1)
+    assert cl._fill_real_option_marks([row], today) is True
+    oc = row["outcomes"]
+    assert oc["real_opt_mark_status_5d"] == "NO_QUOTE" and "real_opt_ret_5d" not in oc
+    assert oc["real_opt_mark_status_date_5d"] == today.strftime("%Y-%m-%d")
+    assert "real_opt_mark_status_20d" not in oc
+    assert cl._fill_real_strategy_marks([row], today) is True
+    assert oc["real_strat_mark_status_5d"] == "NO_QUOTE" and "real_strat_ret_5d" not in oc
+    # einmal gesetzt: kein erneuter Task, keine Änderung
+    assert cl._fill_real_option_marks([row], today + timedelta(days=1)) is False
+
+
+def test_mark_terminal_status_reasons_settlement_and_missing_entry(monkeypatch):
+    monkeypatch.setattr(cl, "_mark_quotes", lambda symbols: ("live", {}))
+    monkeypatch.setattr(cl.market_snapshot, "unadjusted_close_on", lambda t, d: None)   # Verfallsschluss fehlt
+    expired = _ro_row(entry="2026-08-01", expiry="2026-08-10")
+    no_entry = _ro_row(ask=None)
+    # Verfallen: Karenz läuft ab dem Verfallstag (Settlement-Schluss erst dann möglich), nicht ab der Fälligkeit
+    cl._fill_real_option_marks([expired], datetime(2026, 8, 10) + timedelta(days=cl.MARK_GIVE_UP_DAYS))
+    assert "real_opt_mark_status_5d" not in expired["outcomes"]
+    today = datetime(2026, 8, 10) + timedelta(days=cl.MARK_GIVE_UP_DAYS + 1)
+    cl._fill_real_option_marks([expired, no_entry], today)
+    assert expired["outcomes"]["real_opt_mark_status_5d"] == "NO_SETTLEMENT"
+    assert no_entry["outcomes"]["real_opt_mark_status_5d"] == "NO_ENTRY_QUOTE"
+
+
+def test_finalized_marks_are_no_longer_capture_targets(ledger_root):
+    row = _ro_row(entry="2026-10-01")
+    row["date"] = "2026-10-01"
+    _write_ledger_line(ledger_root, "2026-10", row)
+    assert cl.due_mark_symbols("2026-10-07", root=ledger_root) == ["CTVA270319P00080000"]
+    for h in cl.HORIZONS:                     # alle fälligen Horizonte abgeschlossen (5d) -> kein Ziel mehr
+        row["outcomes"][f"real_opt_mark_status_{h}d"] = row["outcomes"][f"real_strat_mark_status_{h}d"] = "NO_QUOTE"
+    (ledger_root / "2026-10.jsonl").write_text(json.dumps(row) + "\n")
+    assert cl.due_mark_symbols("2026-10-07", root=ledger_root) == []

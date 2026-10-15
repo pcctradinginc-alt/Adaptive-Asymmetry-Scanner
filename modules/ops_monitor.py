@@ -387,6 +387,8 @@ def lifecycle(hist: dict, P: dict, now: datetime) -> dict:
             if "real_opt_ret_5d" in oc:
                 cand["OUTCOME_FINAL"] += 1
                 cand["LATE_MARK"] += bool(oc.get("real_opt_late_5d"))
+            elif oc.get("real_opt_mark_status_5d"):          # Endzustand ohne Preis (candidate_ledger._give_up_marks)
+                cand["MARK_UNAVAILABLE"] += 1
             elif ent and (today - ent).days >= 5 + MARK_OVERDUE_DAYS:
                 cand["EXIT_OVERDUE"] += 1
             else:

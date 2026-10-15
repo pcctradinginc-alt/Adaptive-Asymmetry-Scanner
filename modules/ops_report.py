@@ -466,10 +466,12 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
         ea = q.get("exit_active") or {}
         rows.append(["Exit aktiv (Mark heute)", _pct(ea.get("coverage")), _frac(ea.get("mark_today"), ea.get("denominator")),
                      f"Handelstag: {_f(ea.get('trading_day'))}; ältester Mark: {_f(ea.get('oldest_mark_age_days'))} Tage"])
-        cm = [[m, v.get("due"), v.get("marked"), v.get("pending"), v.get("late_marks"), v.get("oldest_pending_days")]
+        cm = [[m, v.get("due"), v.get("marked"), v.get("pending"), v.get("late_marks"), v.get("unavailable", 0),
+               v.get("oldest_pending_days")]
               for m, v in sorted((q.get("candidate_marks") or {}).items()) if isinstance(v, dict)]
         return [("table", ["Kennzahl", "Abdeckung", "Beobachtet/Nenner", "Hinweis"], rows),
-                ("table", ["Kandidaten-Mark", "fällig", "gemarkt", "offen", "spät", "ältester offener (Tage)"], cm)]
+                ("table", ["Kandidaten-Mark", "fällig", "gemarkt", "offen", "spät", "ohne Preis (Endzustand)",
+                           "ältester offener (Tage)"], cm)]
 
     def lifecycle_blocks(lc):
         ch = lc.get("champion") or {}
