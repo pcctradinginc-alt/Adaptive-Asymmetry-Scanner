@@ -73,7 +73,7 @@ jobs:
         id: finbert-cache
         with:
           path: /tmp/finbert_cache
-          key: finbert-prosusai-v1
+          key: finbert-prosusai-v2-minilm   # v2: + sentence-transformers/all-MiniLM-L6-v2 (C1 News-Neuheit)
           restore-keys: finbert-prosusai-
 
       # ── Python + pip Cache ───────────────────────────────────────────────

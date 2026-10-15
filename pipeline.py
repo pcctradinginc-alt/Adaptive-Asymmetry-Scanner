@@ -217,6 +217,23 @@ def note_base_features(c: dict) -> None:
         log.warning(f"note_base_features Fehler (ignoriert): {e}")
 
 
+NEWS_NOVELTY_BUDGET_S = 180      # C1: Zeitbudget je Lauf; danach Status time_budget (nie blockierend)
+
+
+def _note_news_novelty(c: dict, t0: float) -> None:
+    """C1 (SHADOW, 2026-10-15): Neuheit der Schlagzeilen per lokalem Embedding NUR in den Kandidaten-Ledger
+    (Feld news_novelty) – nicht in c["features"], also ohne Wirkung auf Scoring, Gates oder Champion."""
+    try:
+        if time.monotonic() - t0 > NEWS_NOVELTY_BUDGET_S:
+            res = {"novelty_status": "time_budget"}
+        else:
+            from modules import news_novelty
+            res = news_novelty.score_and_remember(c.get("ticker"), c.get("news") or [])
+        candidate_ledger.note(c.get("ticker"), news_novelty=res)
+    except Exception as e:  # noqa: BLE001
+        log.debug(f"news_novelty ignoriert: {e}")
+
+
 # ── Validation Layer ──────────────────────────────────────────────────────────
 
 def validate_strict(c: dict):
@@ -883,6 +900,7 @@ def main() -> None:
     # ── STUFE 1b: FinBERT + Sentiment-Drift ─────────────────────────────────
     log.info("Stufe 1b: FinBERT + Sentiment-Drift")
     enriched = []
+    _novelty_t0 = time.monotonic()
     for c in candidates:
         try:
             sentiment = score_candidate(c)
@@ -892,6 +910,7 @@ def main() -> None:
                                                  "sentiment_status": "scoring_error"})
         c = enrich_with_sentiment_drift(c, history)
         note_base_features(c)
+        _note_news_novelty(c, _novelty_t0)
         enriched.append(c)
     candidates = enriched
 
