@@ -330,3 +330,37 @@ def test_13f_connector_processes_one_new_set_and_marks_it(monkeypatch, tmp_path)
     with patch.object(ce.http, "fetch", side_effect=fake):
         r2 = ce.Sec13FConnector({"_archive_root": str(tmp_path)}).fetch(NOW)
     assert r2.observations == [] and "kein neuer" in r2.message
+
+
+def test_wiki_parser_accepts_parsoid_links_and_rejects_namespaces():
+    html = ('<table id="constituents"><tr><th>Symbol</th><th>Security</th></tr>'
+            '<tr><td><a href="https://www.nyse.com/quote/XNYS:MMM">MMM</a></td><td><a href="./3M" title="3M">3M</a></td></tr>'
+            '<tr><td>AOS</td><td><a href="./A._O._Smith">A. O. Smith</a></td></tr>'
+            '<tr><td>XYZ</td><td><a href="./File:Logo.svg">x</a></td></tr></table>')
+    assert mp.parse_wiki_list(html) == {"MMM": "3M", "AOS": "A._O._Smith"}
+
+
+def test_bea_json_and_html_schedule():
+    js = {"National Income and Product Accounts": {"release_dates": ["2026-10-29T08:30:00-04:00",
+                                                                     "2027-01-28T08:30:00-05:00"]},
+          "International Transactions": {"release_dates": ["2026-12-17T08:30:00-05:00"]}}
+    ev = cal.parse_bea_json(js)
+    assert {e["summary"] for e in ev} == {"National Income and Product Accounts", "International Transactions"}
+    with pytest.raises(ValueError):
+        cal.parse_bea_json({"x": 1})
+    html = ("<table><tr><th>Date</th><th>Time</th><th>Release</th></tr>"
+            "<tr><td>October 29</td><td>8:30 AM</td><td>GDP (Advance Estimate), 3rd Quarter 2026</td></tr>"
+            "<tr><td>January 7</td><td>10:00 AM</td><td>Trade in Goods and Services</td></tr></table>")
+    ev = cal.parse_bea_schedule_html(html, date(2026, 10, 15))
+    assert [(e["start"].date(), e["start"].hour, e["summary"][:3]) for e in ev] == [
+        (date(2026, 10, 29), 8, "GDP"), (date(2027, 1, 7), 10, "Tra")]
+
+    def fake(url, **kw):
+        if url == cal.BEA_JSON_URL:
+            return resp("<html>nicht json</html>", url=url)
+        return resp(html, url=url)
+
+    with patch.object(cal.http, "fetch", side_effect=fake):
+        r = cal.BeaReleaseCalendarConnector({}).fetch(NOW)
+    assert r.status == SourceStatus.PASS and len(r.observations) == 2
+    assert all(o.available_at == NOW for o in r.observations)

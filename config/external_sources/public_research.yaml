@@ -196,11 +196,11 @@ sources:
   role: RESEARCH_SHADOW
   research_only: true
   source_id: bea_release_calendar
-  display_name: BEA-Veröffentlichungskalender (iCalendar)
+  display_name: BEA-Veröffentlichungskalender (release_dates.json / Plan-Seite)
   authority: U.S. Bureau of Economic Analysis
   official_homepage: https://www.bea.gov/news/schedule
-  machine_endpoint: https://www.bea.gov/news/schedule/ical
-  access_method: https_ics
+  machine_endpoint: https://apps.bea.gov/API/signup/release_dates.json
+  access_method: https_json
   license_reference: US Government Work (gemeinfrei)
   frequency: weekly
   expected_update_cadence: P7D

@@ -3,7 +3,7 @@
   fomc_calendar          Federal Reserve: FOMC-Sitzungen (HTML fomccalendars.htm); Entscheid = letzter Sitzungstag
                          14:00 New York; Sitzungen mit Projektionen (SEP, "*") markiert
   bls_release_calendar   BLS: Veröffentlichungsplan als iCalendar (bls.ics) – CPI, Arbeitsmarkt, PPI, …
-  bea_release_calendar   BEA: Veröffentlichungsplan als iCalendar – BIP, PCE/Persönliches Einkommen, …
+  bea_release_calendar   BEA: release_dates.json bzw. Tabelle der Plan-Seite – BIP, PCE/Persönliches Einkommen, …
 
 PIT: Ein Termin ist ab dem Abruf bekannt (available_at = retrieved_at). observation_time = geplanter Zeitpunkt
 (UTC). Verschiebungen werden als neuer Wert/neue Zeile sichtbar, nie rückwirkend. Keine Produktionswirkung –
@@ -11,6 +11,7 @@ Zweck: Event-Fenster für Research/Labels (z. B. "Signal innerhalb von 24 h vor 
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 from datetime import date, datetime, time, timedelta, timezone
@@ -25,7 +26,8 @@ PARSER_VERSION = "calendars-1"
 NY = ZoneInfo("America/New_York")
 FOMC_URL = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 BLS_ICS_URL = "https://www.bls.gov/schedule/news_release/bls.ics"
-BEA_ICS_URL = "https://www.bea.gov/news/schedule/ical"
+BEA_JSON_URL = "https://apps.bea.gov/API/signup/release_dates.json"
+BEA_SCHEDULE_URL = "https://www.bea.gov/news/schedule"
 CAL_HEADERS = {"User-Agent": "AdaptiveAsymmetryScanner/1.0 (research; contact: research@pcctrading.com)",
                "Accept": "text/html,text/calendar,*/*"}
 MONTHS = {m: i for i, m in enumerate(("january", "february", "march", "april", "may", "june", "july", "august",
@@ -200,9 +202,96 @@ class BlsReleaseCalendarConnector(_IcsConnector):
     URL, DATASET = BLS_ICS_URL, "bls_schedule"
 
 
-class BeaReleaseCalendarConnector(_IcsConnector):
+def parse_bea_json(payload) -> list[dict]:
+    """release_dates.json: {Datensatz: {"release_dates": [ISO-Zeitpunkte]}} (auch verschachtelt) -> Termine."""
+    out = []
+
+    def walk(name, node):
+        if isinstance(node, dict):
+            dates = node.get("release_dates") or node.get("releaseDates")
+            if isinstance(dates, list):
+                for d in dates:
+                    try:
+                        t = datetime.fromisoformat(str(d).replace("Z", "+00:00"))
+                    except ValueError:
+                        continue
+                    out.append({"start": t if t.tzinfo else t.replace(tzinfo=NY), "summary": name})
+            for k, v in node.items():
+                if k not in ("release_dates", "releaseDates"):
+                    walk(k if isinstance(v, (dict, list)) else name, v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(name, v)
+
+    walk("BEA", payload)
+    if not out:
+        raise ValueError("BEA release_dates.json: keine release_dates gefunden")
+    return out
+
+
+_TIME_RE = re.compile(r"(\d{1,2}):(\d{2})\s*([AP])\.?M", re.I)
+_DATE_RE = re.compile(r"(January|February|March|April|May|June|July|August|September|October|November|December)"
+                      r"\s+(\d{1,2})(?:,\s*(\d{4}))?", re.I)
+
+
+def parse_bea_schedule_html(html: str, today: date) -> list[dict]:
+    """Tabellenzeilen des BEA-Veröffentlichungsplans: Datum (+ Jahr aus Zeile/Seite), Uhrzeit ET, Titel."""
+    from lxml import html as lh
+    doc = lh.fromstring(html.encode("utf-8"))
+    out = []
+    for tr in doc.xpath("//tr"):
+        cells = [" ".join(c.text_content().split()) for c in tr.xpath("./td|./th")]
+        row = " | ".join(cells)
+        dm, tm = _DATE_RE.search(row), _TIME_RE.search(row)
+        if not dm or not tm:
+            continue
+        title = max((c for c in cells if not _DATE_RE.fullmatch(c.strip()) and not _TIME_RE.search(c)),
+                    key=len, default="")
+        if not title:
+            continue
+        month, day = MONTHS[dm.group(1).lower()[:3]], int(dm.group(2))
+        hour = int(tm.group(1)) % 12 + (12 if tm.group(3).upper() == "P" else 0)
+        years = [int(dm.group(3))] if dm.group(3) else [today.year, today.year + 1]
+        for y in years:
+            try:
+                d = date(y, month, day)
+            except ValueError:
+                continue
+            if dm.group(3) or today - timedelta(days=31) <= d <= today + timedelta(days=334):
+                out.append({"start": datetime.combine(d, time(hour, int(tm.group(2))), NY), "summary": title})
+                break
+    if not out:
+        raise ValueError("BEA-Plan: keine Zeilen mit Datum + Uhrzeit erkannt")
+    return out
+
+
+class BeaReleaseCalendarConnector(_CalendarConnector):
+    """BEA: zuerst release_dates.json (maschinenlesbar), sonst die Tabelle der Plan-Seite."""
     source_id = "bea_release_calendar"
-    URL, DATASET = BEA_ICS_URL, "bea_schedule"
+    URL, DATASET = BEA_JSON_URL, "bea_schedule"
+
+    def fetch(self, now: datetime) -> ConnectorResult:
+        self.URL = BEA_JSON_URL
+        res_json = super().fetch(now)
+        if res_json.status == SourceStatus.PASS:
+            return res_json
+        self.URL = BEA_SCHEDULE_URL
+        res_html = super().fetch(now)
+        if res_html.status != SourceStatus.PASS:
+            res_html.message = f"JSON: {res_json.message} | HTML: {res_html.message}"
+            res_html.raw = res_json.raw + res_html.raw
+        return res_html
+
+    def events(self, res):
+        if self.URL == BEA_JSON_URL:
+            try:
+                evs = parse_bea_json(json.loads(res.content.decode("utf-8", "replace")))
+            except json.JSONDecodeError as e:
+                raise ValueError(f"BEA release_dates.json kein JSON ({e}): "
+                                 f"{res.content[:120]!r}") from e
+        else:
+            evs = parse_bea_schedule_html(res.content.decode("utf-8", "replace"), res.retrieved_at.date())
+        return [{"start": e["start"], "series": _slug(e["summary"]), "title": e["summary"]} for e in evs]
 
 
 CONNECTORS: dict[str, type[Connector]] = {

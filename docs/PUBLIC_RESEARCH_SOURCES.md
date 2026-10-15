@@ -9,10 +9,10 @@ Zugangsdaten stehen nie im Code.
 | A4 `nasdaq100_members` | nasdaq.com, offizielle Nasdaq-100-Liste | Mitgliederzahl, Symbole (attrs) je Tag | Abrufzeit | ohne Key |
 | B1 `alt_sec_earnings` (Feature) | SEC 8-K Item 2.02 aus dem bestehenden Submissions-Archiv | Tage seit Release, Sitzung (BMO/RTH/AMC), Releases in 365 T | `acceptanceDateTime` (exakt) | ohne Key |
 | B3 `finra_short_volume` | FINRA Reg SHO Daily (CNMS) | Leerverkaufsanteil am Volumen je Ticker/Tag | Abrufzeit | ohne Key |
-| B3 `finra_short_interest` | FINRA Query API, Consolidated Short Interest | Short-Interest-Stücke, Days-to-Cover | Abrufzeit | **Secrets `FINRA_API_CLIENT_ID`, `FINRA_API_CLIENT_SECRET`** (kostenloses API-Konto), sonst `AUTH_MISSING` |
+| B3 `finra_short_interest` | FINRA Query API, Consolidated Short Interest | Short-Interest-Stücke, Days-to-Cover | Abrufzeit | ohne Key (live geprüft 2026-10-15); optional `FINRA_API_CLIENT_ID`/`FINRA_API_CLIENT_SECRET`, falls FINRA künftig Zugangsdaten verlangt (dann `AUTH_MISSING`) |
 | B4 `fred_liquidity` | FRED/ALFRED: RRPONTSYD, WTREGEN, T10Y2Y | ON-RRP, TGA, Kurve 10J−2J | ALFRED `realtime_start` | vorhandenes `FRED_API_KEY` |
 | B5 `wikimedia_pageviews` | Wikimedia REST (nur menschliche Nutzer) | Seitenaufrufe je Ticker/Tag | Abrufzeit | ohne Key |
-| B7 `fomc_calendar`, `bls_release_calendar`, `bea_release_calendar` | Federal Reserve (HTML), BLS/BEA (iCalendar) | geplante Termine (UTC), FOMC mit SEP markiert | Abrufzeit | ohne Key |
+| B7 `fomc_calendar`, `bls_release_calendar`, `bea_release_calendar` | Federal Reserve (HTML), BLS (iCalendar), BEA (release_dates.json, sonst Plan-Seite) | geplante Termine (UTC), FOMC mit SEP markiert | Abrufzeit | ohne Key |
 | B8 `clinicaltrials_sponsors` | ClinicalTrials.gov API v2 | aktive Studien, aktive Phase 3, Primärabschluss in 90 T, Updates in 7 T | Abrufzeit | ohne Key |
 | B9 `usaspending_contracts` | USAspending.gov API v2 | Bundesaufträge mit Aktivität in 7 T (USD, Anzahl) | Abrufzeit | ohne Key |
 | B10 `sec_13f_holdings` | SEC Form-13F-Datensätze (DERA) | institutionelle Halter, gehaltene Stücke je Quartal | Tag nach dem letzten einbezogenen Filing | ohne Key |

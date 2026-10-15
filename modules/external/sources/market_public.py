@@ -286,26 +286,38 @@ PAGEVIEWS_URL = ("https://wikimedia.org/api/rest_v1/metrics/pageviews/per-articl
                  "{article}/daily/{start}/{end}")
 
 
+def _wiki_article(href: str | None) -> str | None:
+    """Interner Artikel-Link -> Titel. Akzeptiert /wiki/X, ./X (Parsoid-Leseansicht) und absolute en.wikipedia-URLs;
+    Namensräume (Datei:, Hilfe:, …), Anker und externe Links werden verworfen."""
+    if not href:
+        return None
+    h = href.split("#", 1)[0].split("?", 1)[0]
+    for prefix in ("https://en.wikipedia.org/wiki/", "//en.wikipedia.org/wiki/", "/wiki/", "./"):
+        if h.startswith(prefix):
+            art = unquote(h[len(prefix):])
+            return art if art and ":" not in art and "/" not in art else None
+    return None
+
+
 def parse_wiki_list(html: str, table_id: str = "constituents") -> dict[str, str]:
     """Ticker -> Artikeltitel aus der Konstituenten-Tabelle (erste zwei Spalten: Ticker und verlinkter Name,
-    Reihenfolge egal). Nur /wiki/-Links ohne Namensraum."""
+    Reihenfolge egal)."""
     from lxml import html as lh
-    doc = lh.fromstring(html)
+    doc = lh.fromstring(html.encode("utf-8") if isinstance(html, str) else html)
     tables = doc.xpath(f'//table[@id="{table_id}"]') or doc.xpath('//table[contains(@class,"wikitable")]')
     out: dict[str, str] = {}
     for table in tables:
-        for tr in table.xpath(".//tr")[1:]:
-            cells = tr.xpath("./td")
+        for tr in table.xpath(".//tr"):
+            cells = tr.xpath("./td|./th")
             if len(cells) < 2:
                 continue
             texts = [c.text_content().strip() for c in cells[:2]]
-            links = [c.xpath('.//a[starts-with(@href,"/wiki/")]/@href') for c in cells[:2]]
             tk_i = 0 if re.fullmatch(r"[A-Z][A-Z.\-]{0,6}", texts[0]) else 1
-            ticker, article_links = texts[tk_i], links[1 - tk_i]
-            art = next((unquote(h.split("/wiki/", 1)[1]) for h in article_links if ":" not in h.split("/wiki/", 1)[1]),
-                       None)
+            ticker = texts[tk_i]
+            arts = [_wiki_article(a.get("href")) for a in cells[1 - tk_i].xpath(".//a")]
+            art = next((a for a in arts if a), None)
             if re.fullmatch(r"[A-Z][A-Z.\-]{0,6}", ticker) and art:
-                out[_norm_ticker(ticker)] = art.split("#")[0]
+                out[_norm_ticker(ticker)] = art
         if out:
             break
     return out
@@ -324,7 +336,7 @@ class WikimediaPageviewsConnector(Connector):
     parser_version = PARSER_VERSION
 
     def fetch(self, now: datetime) -> ConnectorResult:
-        raw, articles = [], {}
+        raw, articles, diag = [], {}, {}
         for name, (url, tid) in WIKI_LISTS.items():
             try:
                 res = http.fetch(url, headers=WIKI_HEADERS, retries=2)
@@ -332,11 +344,16 @@ class WikimediaPageviewsConnector(Connector):
                 log.warning("Wikipedia-Liste %s: %s", name, e)
                 continue
             raw.append(_raw(self.source_id, f"list_{name}", res))
-            for tk, art in parse_wiki_list(res.content.decode("utf-8", "replace"), tid).items():
+            page = res.content.decode("utf-8", "replace")
+            parsed = parse_wiki_list(page, tid)
+            diag[name] = {"articles": len(parsed), "table_id_found": f'id="{tid}"' in page,
+                          "sample_hrefs": re.findall(r'href="([^"]{1,60})"', page[page.find(f'id="{tid}"'):][:4000])[:4]}
+            for tk, art in parsed.items():
                 articles.setdefault(tk, art)
         if len(articles) < int(self.cfg.get("min_articles", 300)):
             return ConnectorResult(self.source_id, SourceStatus.SCHEMA_CHANGED, raw=raw,
-                                   message=f"nur {len(articles)} Ticker-Artikel aus den Wikipedia-Listen")
+                                   message=f"nur {len(articles)} Ticker-Artikel aus den Wikipedia-Listen; "
+                                           f"Diagnose: {diag}")
         end = now.date() - timedelta(days=1)
         start = end - timedelta(days=int(self.cfg.get("lookback_days", 3)) - 1)
         obs, failures, pause = [], 0, float(self.cfg.get("request_pause_seconds", 0.05))
