@@ -504,7 +504,8 @@ def test_closed_trade_without_contract_is_excluded_from_exit_denominator(env):
 def test_candidate_option_marks_due_pending_and_late(env):
     env.write_jsonl("candidate_ledger", CANDIDATES, name="2026-10.jsonl")
     assert env.cov()["candidate_marks"] == {
-        "real_opt_ret_5d": {"due": 4, "marked": 2, "pending": 2, "late_marks": 1, "oldest_pending_days": 2}}
+        "real_opt_ret_5d": {"due": 4, "marked": 2, "pending": 2, "late_marks": 1, "unavailable": 0,
+                            "oldest_pending_days": 2}}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
