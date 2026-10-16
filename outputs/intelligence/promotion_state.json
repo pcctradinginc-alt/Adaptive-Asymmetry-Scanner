@@ -1,10 +1,10 @@
 {
- "generated": "2026-10-15T22:33:12+00:00",
+ "generated": "2026-10-16T18:52:44+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "d132d542316a",
- "data_version": "310a6ad0ac19fc69",
+ "code_version": "768197156cf0",
+ "data_version": "47f6d44905d0da13",
  "integrity": {
   "registry": [],
   "transitions": []
@@ -35,9 +35,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -48,67 +48,71 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 1,
-    "n_independent_dates": 1,
-    "calendar_span_days": 0,
+    "n_observations": 2,
+    "n_independent_dates": 2,
+    "calendar_span_days": 8,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "policy": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "delta_expectancy": 0.0,
     "ci": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "outlier_trims": {
-     "top1": null,
+     "top1": 0.0,
      "top3": null,
-     "top5pct": null
+     "top5pct": 0.0
     },
-    "time_windows": [],
+    "time_windows": [
+     0.0,
+     null,
+     0.0
+    ],
     "regimes": [
      "vix_normal"
     ],
@@ -156,9 +160,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig"
+    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig"
    ],
-   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig",
+   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -169,26 +173,26 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 1,
-    "n_independent_dates": 1,
-    "calendar_span_days": 0,
+    "n_observations": 2,
+    "n_independent_dates": 2,
+    "calendar_span_days": 8,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
     "n_fired": 1,
     "n_fired_independent_dates": 1,
     "all": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "fired": {
      "n": 1,
@@ -204,18 +208,46 @@
      "ece": 0.693
     },
     "not_fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.1818,
+     "median_return": -0.1818,
+     "expectancy": -0.1818,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.1818,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.5494,
+     "ece": 0.7412
     },
     "policy": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.1818,
+     "median_return": -0.1818,
+     "expectancy": -0.1818,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.1818,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.5494,
+     "ece": 0.7412
     },
-    "delta_expectancy": null,
+    "delta_expectancy": 0.16305,
     "ci": [
      null,
      null
     ],
-    "outlier_trims": {},
-    "time_windows": [],
+    "outlier_trims": {
+     "top1": 0.0,
+     "top3": null,
+     "top5pct": 0.0
+    },
+    "time_windows": [
+     null,
+     null,
+     0.0
+    ],
     "regimes": [
      "vix_normal"
     ],
@@ -229,7 +261,7 @@
      "avoided_losses": 0.5079,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": 0.5079,
+     "net_value_of_abstention": 0.25395,
      "precision": 1.0,
      "false_positive_rate": 0.0
     }
@@ -263,9 +295,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -276,67 +308,71 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 1,
-    "n_independent_dates": 1,
-    "calendar_span_days": 0,
+    "n_observations": 2,
+    "n_independent_dates": 2,
+    "calendar_span_days": 8,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "policy": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "delta_expectancy": 0.0,
     "ci": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "outlier_trims": {
-     "top1": null,
+     "top1": 0.0,
      "top3": null,
-     "top5pct": null
+     "top5pct": 0.0
     },
-    "time_windows": [],
+    "time_windows": [
+     0.0,
+     null,
+     0.0
+    ],
     "regimes": [
      "vix_normal"
     ],
@@ -384,9 +420,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -397,67 +433,71 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 1,
-    "n_independent_dates": 1,
-    "calendar_span_days": 0,
+    "n_observations": 2,
+    "n_independent_dates": 2,
+    "calendar_span_days": 8,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "policy": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "delta_expectancy": 0.0,
     "ci": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "outlier_trims": {
-     "top1": null,
+     "top1": 0.0,
      "top3": null,
-     "top5pct": null
+     "top5pct": 0.0
     },
-    "time_windows": [],
+    "time_windows": [
+     0.0,
+     null,
+     0.0
+    ],
     "regimes": [
      "vix_normal"
     ],
@@ -505,9 +545,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -518,67 +558,71 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 1,
-    "n_independent_dates": 1,
-    "calendar_span_days": 0,
+    "n_observations": 2,
+    "n_independent_dates": 2,
+    "calendar_span_days": 8,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "policy": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.34485,
+     "median_return": -0.34485,
+     "expectancy": -0.34485,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.6897,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.5148,
+     "ece": 0.7171
     },
     "delta_expectancy": 0.0,
     "ci": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "outlier_trims": {
-     "top1": null,
+     "top1": 0.0,
      "top3": null,
-     "top5pct": null
+     "top5pct": 0.0
     },
-    "time_windows": [],
+    "time_windows": [
+     0.0,
+     null,
+     0.0
+    ],
     "regimes": [
      "vix_normal"
     ],
@@ -2360,46 +2404,56 @@
  },
  "evaluation": {
   "CHAMPION_ONLY": {
-   "n": 1,
+   "n": 2,
    "win_rate": 0.0,
-   "average_return": -0.5079,
-   "median_return": -0.5079,
-   "expectancy": -0.5079,
+   "average_return": -0.34485,
+   "median_return": -0.34485,
+   "expectancy": -0.34485,
    "profit_factor": 0.0,
-   "max_drawdown": -0.5079,
+   "max_drawdown": -0.6897,
    "mfe": null,
    "mae": null,
-   "brier": 0.4802,
-   "ece": 0.693,
+   "brier": 0.5148,
+   "ece": 0.7171,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 1,
+   "trade_count": 2,
    "missed_winners": 0,
    "avoided_losers": 0
   },
   "ADAPTIVE_ACTUAL": {
-   "n": 1,
+   "n": 2,
    "win_rate": 0.0,
-   "average_return": -0.5079,
-   "median_return": -0.5079,
-   "expectancy": -0.5079,
+   "average_return": -0.34485,
+   "median_return": -0.34485,
+   "expectancy": -0.34485,
    "profit_factor": 0.0,
-   "max_drawdown": -0.5079,
+   "max_drawdown": -0.6897,
    "mfe": null,
    "mae": null,
-   "brier": 0.4802,
-   "ece": 0.693,
+   "brier": 0.5148,
+   "ece": 0.7171,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 1,
+   "trade_count": 2,
    "missed_winners": 0,
    "avoided_losers": 0
   },
   "CHAMPION_PLUS_ABSTENTION_SHADOW": {
-   "n": 0,
+   "n": 1,
+   "win_rate": 0.0,
+   "average_return": -0.1818,
+   "median_return": -0.1818,
+   "expectancy": -0.1818,
+   "profit_factor": 0.0,
+   "max_drawdown": -0.1818,
+   "mfe": null,
+   "mae": null,
+   "brier": 0.5494,
+   "ece": 0.7412,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 0,
+   "trade_count": 1,
    "missed_winners": 0,
    "avoided_losers": 1
   },
@@ -2407,19 +2461,19 @@
    "champion": {
     "precision_at_1": 0.0,
     "precision_at_3": 0.0,
-    "mean_return_top1": -0.5079,
-    "mean_return_top3": -0.5079
+    "mean_return_top1": -0.34485,
+    "mean_return_top3": -0.34485
    },
    "intelligence": {
     "precision_at_1": 0.0,
     "precision_at_3": 0.0,
-    "mean_return_top1": -0.5079,
-    "mean_return_top3": -0.5079
+    "mean_return_top1": -0.34485,
+    "mean_return_top3": -0.34485
    }
   },
   "data_kind": "prospective_forward_only",
-  "n_resolved_decisions": 1,
+  "n_resolved_decisions": 2,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "c2ecec43deeebf3bdaeb333ffb7f0babbd957360901d4fa6ca7fdc09a345131c"
+ "state_hash": "d00860aae059d1e43e8fc7090a52db0fc8824f29833d7d7a79124374f0ef6a82"
 }

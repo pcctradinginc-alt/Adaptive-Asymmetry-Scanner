@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-15T22:33:11+00:00",
- "as_of": "2026-10-15",
+ "generated": "2026-10-16T18:52:43+00:00",
+ "as_of": "2026-10-16",
  "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
  "n_labels": 0,
  "n_label_dates": 0,
@@ -11,8 +11,8 @@
  "n_labels_target_population": 0,
  "population_shift": {
   "status": "OK",
-  "n_target": 158,
-  "n_other": 468,
+  "n_target": 165,
+  "n_other": 538,
   "n_shifted": 11,
   "shifted": [
    "final_mc_hit_rate",
@@ -30,51 +30,51 @@
   "top": [
    {
     "feature": "ml_q10_ret_60",
-    "smd": -1.359,
+    "smd": -1.328,
     "missing_target": 0.152,
-    "missing_other": 0.062
+    "missing_other": 0.058
    },
    {
     "feature": "sigma_30d",
-    "smd": 1.194,
+    "smd": 1.19,
     "missing_target": 0.0,
-    "missing_other": 0.868
+    "missing_other": 0.879
    },
    {
     "feature": "ml_exp_ret_60",
-    "smd": 1.13,
+    "smd": 1.082,
     "missing_target": 0.152,
-    "missing_other": 0.062
+    "missing_other": 0.058
    },
    {
     "feature": "sentiment_score",
-    "smd": 0.504,
-    "missing_target": 0.095,
-    "missing_other": 0.043
+    "smd": 0.506,
+    "missing_target": 0.091,
+    "missing_other": 0.037
    },
    {
     "feature": "ml_exp_dd_60",
-    "smd": -0.497,
+    "smd": -0.504,
     "missing_target": 0.152,
-    "missing_other": 0.062
+    "missing_other": 0.058
    },
    {
     "feature": "ml_disagreement_sd",
-    "smd": 0.371,
+    "smd": 0.387,
     "missing_target": 0.152,
-    "missing_other": 0.062
-   },
-   {
-    "feature": "price_move_48h_signed",
-    "smd": 0.272,
-    "missing_target": 0.095,
-    "missing_other": 0.876
+    "missing_other": 0.058
    },
    {
     "feature": "sentiment_drift",
-    "smd": 0.226,
-    "missing_target": 0.095,
-    "missing_other": 0.043
+    "smd": 0.228,
+    "missing_target": 0.091,
+    "missing_other": 0.037
+   },
+   {
+    "feature": "price_move_48h_signed",
+    "smd": 0.215,
+    "missing_target": 0.091,
+    "missing_other": 0.887
    }
   ],
   "verdict": "SHIFT"
