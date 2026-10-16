@@ -593,8 +593,15 @@ def collect(root, date, state_path=None) -> dict:
     # C2/C3 (2026-10-15): Post-mortems der Woche (trade_memory) + Lern-Prognose (Ops-Monitoring, A2)
     data["post_mortems_week"] = [pm for pm in _load_jsonl(rs / "post_mortems.jsonl")
                                  if _recent(pm.get("close_date"), today)]
-    data["learning_eta"] = _d(_d(_load_json(out_dir / "monitoring" / "ops_status.json")).get("learning_eta"))
+    data["learning_eta"] = _learning_eta(out_dir / "monitoring" / "ops_status.json")
     return data
+
+
+def _learning_eta(path: Path) -> dict:
+    """Lern-Prognose (A2) aus ops_status.json. ops_report schreibt {"schema", ..., "status": {..., "learning_eta"}}
+    – vorher wurde die oberste Ebene gelesen, der Montagsbericht zeigte die Prognose nie (Live-Prüfung 2026-10-16)."""
+    js = _d(_load_json(path))
+    return _d(_d(js.get("status")).get("learning_eta") or js.get("learning_eta"))
 
 
 def commodity_overview(out_dir: Path, date=None) -> dict:
