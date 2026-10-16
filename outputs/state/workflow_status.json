@@ -311,32 +311,30 @@
       "source_health": {
         "file": "source_health.yml",
         "expected": "2026-10-16T12:41+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-10-16T16:54:05Z",
+        "conclusion": "success",
+        "delay_hours": 4.2,
+        "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
         "stale_upstream": [],
-        "state": "PENDING"
+        "state": "OK"
       },
       "scanner": {
         "file": "scanner.yml",
         "expected": "2026-10-16T13:30+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-10-16T17:32:02Z",
+        "conclusion": "success",
+        "delay_hours": 3.4,
+        "runs_today": 2,
         "recovered": false,
         "recoveries_today": 0,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
-        "stale_upstream": [
-          "source_health"
-        ],
-        "state": "PENDING"
+        "stale_upstream": [],
+        "state": "OK"
       },
       "feedback": {
         "file": "feedback.yml",
