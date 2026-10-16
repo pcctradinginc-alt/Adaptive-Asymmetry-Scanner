@@ -4,16 +4,16 @@
  "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
-  "data_quality": 0.976,
+  "data_quality": 0.992,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-15T17:20:08+00:00",
+  "generated": "2026-10-16T16:55:09+00:00",
   "counts": {
-   "HEALTHY": 41,
-   "DEGRADED": 2,
+   "HEALTHY": 42,
+   "DEGRADED": 1,
    "STALE": 1,
    "BROKEN": 3,
    "UNVALIDATED": 8
@@ -89,7 +89,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.976
+    "data_quality": 0.992
    }
   },
   "reasons": [
@@ -104,7 +104,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-15T06:40:32+00:00",
-  "drift_input_age_days": 0.7,
+  "drift_input_age_days": 1.4,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -114,7 +114,7 @@
   "version": "scanner_rules@d20d5a4ff52a"
  },
  "promotion_state": {
-  "generated": "2026-10-15T19:17:38+00:00",
+  "generated": "2026-10-15T22:33:12+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -179,15 +179,15 @@
  "inputs": {
   "model_health": "ed1391f9c126",
   "meta_learning": "5850ac19c012",
-  "data_health": "20edfd33d386",
-  "promotion": "bc07928a55fb",
+  "data_health": "eb2015f15ab4",
+  "promotion": "2c6eb773819d",
   "model_registry": "a0c0ce90b949",
   "champion_config": "d20d5a4ff52a",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "2777f4b4909c"
  },
- "state_version": 35,
- "fingerprint": "135c46b055020474",
- "updated_at": "2026-10-15T22:33:12+00:00",
- "code_version": "d132d542316a"
+ "state_version": 36,
+ "fingerprint": "f569f66857ce33ba",
+ "updated_at": "2026-10-16T16:55:09+00:00",
+ "code_version": "404df42931d5"
 }

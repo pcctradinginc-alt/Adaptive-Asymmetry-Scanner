@@ -1,75 +1,12 @@
 {
- "at": "2026-10-15T17:20:08+00:00",
+ "at": "2026-10-16T16:55:09+00:00",
  "changes": [
   {
-   "source_id": "sec_submissions",
+   "source_id": "fred_market_expectations",
    "type": "recovery",
    "from": "DEGRADED",
    "to": "HEALTHY",
    "error": null
-  },
-  {
-   "source_id": "sec_form345",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "sec_companyfacts",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "gleif_lei",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "ted_awards",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "fred_commodities",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "fomc_calendar",
-   "type": "new_failure",
-   "from": null,
-   "to": "BROKEN",
-   "error": "Ingest WARN: 9 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 9 Beobachtungen mit available_at > retrieved_at; Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "bls_release_calendar",
-   "type": "new_failure",
-   "from": null,
-   "to": "BROKEN",
-   "error": "Ingest WARN: 33 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 29 Beobachtungen mit available_at > retrieved_at; Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "bea_release_calendar",
-   "type": "new_failure",
-   "from": null,
-   "to": "BROKEN",
-   "error": "Ingest WARN: 66 Termine im Fenster | DQ: FUTURE_OBSERVATION; PIT-Verletzung: 66 Beobachtungen mit available_at > retrieved_at; Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "sec_13f_holdings",
-   "type": "new_failure",
-   "from": null,
-   "to": "STALE",
-   "error": "veraltet (Frequenz-Grenze der Registry)"
   }
  ],
  "mail": "sent"
