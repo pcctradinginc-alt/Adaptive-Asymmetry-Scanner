@@ -160,6 +160,7 @@ class SourceHealth:
     pit_integrity_failures: int = 0
     archive_error: str = ""
     dq: dict | None = None        # Data-Quality-Befund des letzten Abrufs (data_quality.assess)
+    parser_version: str | None = None   # Parser des letzten erfolgreichen Abrufs (statische Quellen: Neuabruf bei Wechsel)
 
     def to_dict(self) -> dict:
         return asdict(self)

@@ -625,6 +625,7 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
 
     def data_blocks(h):
         return [("kv", [("Quellenstatus", _f(_g(h, "source_health", "by_status"))),
+                        ("davon UNVALIDATED, weil bewusst nicht aktiv", _f(_g(h, "source_health", "inactive_by_design"))),
                         ("Stand Quellenstatus", _f(_g(h, "source_health", "generated"))),
                         ("Externe Daten", _f(_g(h, "external_data", "by_status"))),
                         ("Quote-Archiv heute / Median 14 T", f"{_f(row.get('data.quote_archive_today'))} / {_f(h.get('quote_archive_median_14d'))}"),
