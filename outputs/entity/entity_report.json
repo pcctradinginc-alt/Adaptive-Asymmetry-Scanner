@@ -1,8 +1,8 @@
 {
- "date": "2026-10-14",
+ "date": "2026-10-16",
  "status": "COMPLETE",
  "sec": {
-  "tickers_total": 10447,
+  "tickers_total": 10444,
   "wanted": 769,
   "mapped": 622,
   "unmapped": [
@@ -155,33 +155,31 @@
    "YHOO"
   ],
   "changes": {
-   "opened": 6,
-   "replaced": 2,
-   "unchanged": 1236,
+   "opened": 0,
+   "replaced": 0,
+   "unchanged": 1244,
    "closed": 0
   }
  },
  "gleif": {
   "attempted": 150,
-  "HIGH": 115,
-  "MEDIUM": 7,
-  "LOW": 28,
-  "with_parent": 3,
-  "cooling_down": 64,
+  "HIGH": 116,
+  "MEDIUM": 4,
+  "LOW": 30,
+  "with_parent": 0,
+  "cooling_down": 92,
   "low_reasons": {
-   "mehrdeutig (3 Treffer)": 3,
-   "mehrdeutig (2 Treffer)": 7,
-   "kein exakter Treffer": 16,
-   "mehrdeutig (5 Treffer)": 1,
-   "mehrdeutig (4 Treffer)": 1
+   "mehrdeutig (2 Treffer)": 9,
+   "kein exakter Treffer": 18,
+   "mehrdeutig (3 Treffer)": 3
   },
-  "remaining": 186
+  "remaining": 35
  },
  "errors": [],
  "gleif_children": {
   "fetched": 60,
-  "children": 381,
-  "opened": 381,
-  "linked_entities": 343
+  "children": 546,
+  "opened": 546,
+  "linked_entities": 463
  }
 }
