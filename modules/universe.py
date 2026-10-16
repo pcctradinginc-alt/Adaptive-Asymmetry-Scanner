@@ -156,6 +156,33 @@ def _ndx_tickers(tables: list) -> list[str]:
 
 
 def _fetch_nasdaq100() -> list[str]:
+    """Nasdaq-100 für get_universe: Wikipedia, sonst offizielle nasdaq.com-Liste; [] -> statischer Fallback."""
+    return _nasdaq100_live()[0]
+
+
+def _nasdaq100_live() -> tuple[list[str], str]:
+    """(Liste, Herkunft "wikipedia" | "nasdaq_official" | "none").
+
+    Live 2026-10-16: Die Wikipedia-Seite "Nasdaq-100" enthält keine Komponententabelle mehr (nur Kennzahlen und eine
+    Navigationsbox mit Firmennamen) -> die Produktion lief auf der veralteten statischen Liste. Zweite Quelle ist die
+    offizielle Liste von nasdaq.com (api.nasdaq.com, täglich auch im External-Data-Archiv, Freigabe 2026-10-16)."""
+    wiki = _fetch_nasdaq100_wikipedia()
+    if wiki:
+        return wiki, "wikipedia"
+    try:
+        from modules.external.sources.market_public import fetch_nasdaq100 as _official
+        official = _official()
+    except Exception as e:  # noqa: BLE001 – ohne externes Paket bleibt es beim statischen Fallback
+        log.warning(f"Nasdaq-100 (nasdaq.com) nicht abrufbar: {e}")
+        official = []
+    if official:
+        log.info(f"Nasdaq 100: {len(official)} Ticker von nasdaq.com (offizielle Liste) geladen.")
+        return list(official), "nasdaq_official"
+    log.warning("Nasdaq-100: weder Wikipedia noch nasdaq.com lieferbar → statischer Fallback.")
+    return [], "none"
+
+
+def _fetch_nasdaq100_wikipedia() -> list[str]:
     try:
         import pandas as pd
         url  = "https://en.wikipedia.org/wiki/Nasdaq-100"
@@ -175,10 +202,11 @@ def _fetch_nasdaq100() -> list[str]:
             return tickers
         seen = [f"{len(t)}x{sorted({lbl for c in t.columns for lbl in _col_labels(c)})[:6]}"
                 for t in (all_tables or [])[:8]]
-        log.warning(f"Nasdaq-100: Keine Tabelle gefunden → statischer Fallback. Tabellen (Zeilen x Spalten): {seen}")
+        log.warning(f"Nasdaq-100: Keine Tabelle auf Wikipedia gefunden → offizielle Liste/statischer Fallback. "
+                    f"Tabellen (Zeilen x Spalten): {seen}")
         return []
     except Exception as e:
-        log.warning(f"Nasdaq-100 Wikipedia-Fehler: {e} → statischer Fallback.")
+        log.warning(f"Nasdaq-100 Wikipedia-Fehler: {e} → offizielle Liste/statischer Fallback.")
         return []
 
 

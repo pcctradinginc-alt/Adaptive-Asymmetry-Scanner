@@ -27,14 +27,15 @@ Zugangsdaten stehen nie im Code.
 - 13F: Es zählen nur fristgerechte 13F-HR (höchstens 45 Tage nach Quartalsende). Amendments, Optionen und
   Nicht-Aktien sind ausgeschlossen. Pro Lauf wird ein Datensatz verarbeitet; ein Marker im Archiv verhindert eine
   doppelte Verarbeitung. Der Preflight archiviert nichts und zählt daher nie als verarbeitet.
-- Die Nasdaq-100-Liste von nasdaq.com wird nur archiviert (PIT-Mitgliederhistorie). `get_universe` gehört zur
-  eingefrorenen UNIVERSE_V1-Definition (Code-Hash). Eine Umstellung der Produktionsquelle wäre deshalb eine
-  eigene V1-Änderung und braucht eine ausdrückliche Freigabe.
+- Die Nasdaq-100-Liste von nasdaq.com wird täglich archiviert (PIT-Mitgliederhistorie).
+- Produktionsquelle Nasdaq-100 (`universe._nasdaq100_live`, Freigabe 2026-10-16): Wikipedia, sonst die offizielle
+  nasdaq.com-Liste, sonst `_NASDAQ100_STATIC`. Anlass: Die Wikipedia-Seite enthält seit spätestens 15.10. keine
+  Komponententabelle mehr, die Produktion lief auf der veralteten statischen Liste (92 Titel, u. a. EA ohne Kurse;
+  26 aktuelle Mitglieder fehlten). `get_universe`, `_clean` und die statischen Listen sind unverändert
+  (UNIVERSE_V1-Code-Hash gleich); das gescannte Universum folgt wieder dem aktuellen Index.
 - Täglicher Abgleich (`production_mismatch_count`): offizielle Liste gegen die Liste, die die Produktion tatsächlich
-  nutzt – wie `get_universe` Wikipedia, bei Parser-/Abruffehler `_NASDAQ100_STATIC`, danach `_clean`. Die Herkunft
-  steht in `attrs.production_source`; Abweichungen meldet das Ops-Monitoring (`UNIVERSE_SOURCE_MISMATCH:nasdaq100`).
-  Live 2026-10-15: Der Wikipedia-Parser fand keine Tabelle, die Produktion nutzte den statischen Fallback (92 Titel,
-  u. a. EA ohne Kurse).
+  nutzt (Herkunft in `attrs.production_source`: `wikipedia`, `nasdaq_official` oder `static_fallback`, danach
+  `_clean`). Abweichungen meldet das Ops-Monitoring (`UNIVERSE_SOURCE_MISMATCH:nasdaq100`).
 - Kalenderquellen (`fomc_calendar`, `bls_release_calendar`, `bea_release_calendar`) tragen
   `allow_future_observations: true`: Termine in der Zukunft sind weder DQ-Befund noch PIT-Verletzung.
 - 13F: Der gemeldete Datenstand ist der jüngste verarbeitete Datensatz. Der Backfill älterer Sätze setzt ihn nicht

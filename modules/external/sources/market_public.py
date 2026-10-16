@@ -115,9 +115,9 @@ class Nasdaq100MembersConnector(Connector):
                            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
                            parser_version=self.parser_version, attrs={"symbols": syms})]
         msg = f"Nasdaq-100: {len(syms)} Mitglieder"
-        # Abgleich gegen die Liste, die das Produktionsuniversum (UNIVERSE_V1) tatsächlich nutzt: Wikipedia, bei
-        # Parser-/Abruffehler der statische Fallback (wie get_universe). Nur Aufruf der unveränderten Funktionen;
-        # Abweichungen meldet das Ops-Monitoring (UNIVERSE_SOURCE_MISMATCH).
+        # Abgleich gegen die Liste, die das Produktionsuniversum (UNIVERSE_V1) tatsächlich nutzt: Wikipedia, sonst
+        # nasdaq.com, sonst der statische Fallback (wie get_universe). Abweichungen meldet das Ops-Monitoring
+        # (UNIVERSE_SOURCE_MISMATCH).
         prod, prod_source = self._production_list()
         if prod:
             only_off, only_prod = sorted(set(syms) - set(prod)), sorted(set(prod) - set(syms))
@@ -137,11 +137,12 @@ class Nasdaq100MembersConnector(Connector):
 
     @staticmethod
     def _production_list() -> tuple[list[str], str]:
-        """(Liste, Herkunft) exakt wie get_universe: Wikipedia, sonst _NASDAQ100_STATIC; danach _clean."""
+        """(Liste, Herkunft) exakt wie get_universe: Wikipedia, sonst nasdaq.com, sonst _NASDAQ100_STATIC; danach
+        _clean. Herkunft: wikipedia | nasdaq_official | static_fallback."""
         try:
-            from modules.universe import _NASDAQ100_STATIC, _clean, _fetch_nasdaq100
-            live = _fetch_nasdaq100()
-            src = "wikipedia" if live else "static_fallback"
+            from modules.universe import _NASDAQ100_STATIC, _clean, _nasdaq100_live
+            live, src = _nasdaq100_live()
+            src = src if live else "static_fallback"
             return sorted({_norm_ticker(x) for x in _clean(live or list(_NASDAQ100_STATIC))}), src
         except Exception as e:  # noqa: BLE001
             log.warning("Abgleich Nasdaq-100 (Produktionsliste) nicht möglich: %s", e)

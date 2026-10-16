@@ -434,11 +434,13 @@ def test_production_list_mirrors_get_universe_fallback(monkeypatch):
     """Live 2026-10-15: Wikipedia-Parser ohne Tabelle -> Produktion nutzt _NASDAQ100_STATIC (u. a. EA). Der Abgleich
     muss genau diese Liste prüfen (vorher: leere Wikipedia-Liste -> kein Abgleich)."""
     from modules import universe as uv
-    monkeypatch.setattr(uv, "_fetch_nasdaq100", lambda: [])
+    monkeypatch.setattr(uv, "_nasdaq100_live", lambda: ([], "none"))
     lst, src = _REAL_PRODUCTION_LIST()
     assert src == "static_fallback" and "EA" in lst and lst == sorted(set(uv._clean(list(uv._NASDAQ100_STATIC))))
-    monkeypatch.setattr(uv, "_fetch_nasdaq100", lambda: ["AAPL", "BRK-B", "msft"])     # Parser liefert "-"
+    monkeypatch.setattr(uv, "_nasdaq100_live", lambda: (["AAPL", "BRK-B", "msft"], "wikipedia"))  # Parser liefert "-"
     assert _REAL_PRODUCTION_LIST() == (["AAPL", "BRK-B", "MSFT"], "wikipedia")
+    monkeypatch.setattr(uv, "_nasdaq100_live", lambda: (["AAPL", "SHOP"], "nasdaq_official"))
+    assert _REAL_PRODUCTION_LIST() == (["AAPL", "SHOP"], "nasdaq_official")
 
 
 def test_nasdaq100_check_in_ops_monitor_and_report(tmp_path, monkeypatch):

@@ -375,7 +375,8 @@ def _rules(status: dict, row: dict, prev: dict | None) -> list[tuple]:
                 f"Quote-Archiv heute {today} Quotes, unter {ARCHIVE_DROP_RATIO:.0%} des 14-Tage-Medians ({med:g}).")
         nq = dh.get("nasdaq100_source_check") or {}
         if _isnum(nq.get("mismatch")) and nq["mismatch"] > 0:
-            src = {"wikipedia": "Wikipedia", "static_fallback": "statischer Fallback (Wikipedia-Parser ohne Tabelle)"}
+            src = {"wikipedia": "Wikipedia", "nasdaq_official": "nasdaq.com",
+                   "static_fallback": "statischer Fallback (Wikipedia und nasdaq.com nicht lieferbar)"}
             add("UNIVERSE_SOURCE_MISMATCH:nasdaq100", "WARNING", "Daten",
                 f"Nasdaq-100 am {nq.get('date')}: Produktionsliste ({src.get(nq.get('production_source'), '?')}) "
                 f"weicht von der offiziellen nasdaq.com-Liste ab – nur offiziell: "

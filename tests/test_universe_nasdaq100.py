@@ -39,6 +39,15 @@ def _page(*tables: str) -> str:
     return "<html><body>" + "".join(tables) + "</body></html>"
 
 
+@pytest.fixture(autouse=True)
+def official(monkeypatch):
+    """Offizielle nasdaq.com-Liste (zweite Quelle) – standardmäßig nicht lieferbar, kein Netzwerk in Tests."""
+    from modules.external.sources import market_public as mp
+    box = {"list": []}
+    monkeypatch.setattr(mp, "fetch_nasdaq100", lambda: list(box["list"]))
+    return box
+
+
 @pytest.fixture
 def serve(monkeypatch):
     def _serve(html: str):
@@ -88,6 +97,40 @@ def test_get_universe_uses_parsed_list_instead_of_static(serve, monkeypatch):
     finally:
         uv.get_universe.cache_clear()
     assert _sym(50) in u and "EA" not in u and "BRK-B" in u and len(u) == N
+
+
+def test_official_list_when_wikipedia_has_no_table(serve, official, monkeypatch):
+    """Live 2026-10-16: Wikipedia-Seite ohne Komponententabelle -> offizielle nasdaq.com-Liste statt statischem
+    Fallback (u. a. EA ohne Kurse)."""
+    serve(_page(_changes_table(), "<table><tr><th>Year</th><th>Closing level</th></tr><tr><td>2025</td><td>1</td></tr></table>"))
+    official["list"] = ["AAPL", "BRK-B", "SHOP"] + [_sym(i) for i in range(98)]
+    assert uv._nasdaq100_live() == (official["list"], "nasdaq_official")
+    monkeypatch.setattr(uv, "_fetch_sp500", lambda: [])
+    uv.get_universe.cache_clear()
+    try:
+        u = uv.get_universe("nasdaq100")
+    finally:
+        uv.get_universe.cache_clear()
+    assert "SHOP" in u and "EA" not in u and len(u) == 101
+
+
+def test_static_fallback_only_when_both_sources_fail(serve, monkeypatch):
+    serve(_page(_changes_table()))
+    assert uv._nasdaq100_live() == ([], "none")
+    monkeypatch.setattr(uv, "_fetch_sp500", lambda: [])
+    uv.get_universe.cache_clear()
+    try:
+        u = uv.get_universe("nasdaq100")
+    finally:
+        uv.get_universe.cache_clear()
+    assert u == uv._clean(list(uv._NASDAQ100_STATIC))
+
+
+def test_wikipedia_preferred_over_official(serve, official):
+    serve(_page(f"<table id='constituents' class='wikitable'>{_rows(N, 'Symbol')}</table>"))
+    official["list"] = [f"Z{_sym(i)}" for i in range(101)]
+    lst, src = uv._nasdaq100_live()
+    assert src == "wikipedia" and len(lst) == N and not any(t.startswith("Z") for t in lst)
 
 
 def test_universe_v1_code_hash_unchanged():
