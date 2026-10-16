@@ -734,6 +734,12 @@ def test_storm_events_backfill_reads_official_gzip(monkeypatch):
     assert r.status.value == "PASS"
     vals = {(o.entity_id, o.attrs["event_type"]): o.value for o in r.observations}
     assert vals[("TEXAS", "Tornado")] == 2.0
+    # Live 2026-10-08..16: Ereignistyp fehlte in der Identität -> alle Typen eines Staats kollidierten (932 Konflikte)
+    keys = [o.identity_key() for o in r.observations]
+    assert len(keys) == len(set(keys)) == len(vals)
+    assert {o.series_id for o in r.observations if o.entity_id == "TEXAS"} >= {"2024:Tornado"}
+    from modules.external import data_quality
+    assert "DUPLICATE_CONFLICT" not in data_quality.assess(r.observations, {}, r.observations[0].retrieved_at)["issues"]
 
 
 def test_storm_events_unparseable_payload_is_not_pass(monkeypatch):

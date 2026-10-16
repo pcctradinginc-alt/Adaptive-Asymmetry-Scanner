@@ -111,6 +111,7 @@ def history_row(status: dict) -> dict:
         row[f"run.scanner.{k}"] = _g(s, "run", "scanner", k)
     wf = s.get("workflows") if isinstance(s.get("workflows"), dict) else {}
     row["workflows.failed_runs"] = len(wf["failed"]) if wf.get("status") == "OK" else None
+    row["data.nasdaq100_mismatch"] = _g(s, "data_health", "nasdaq100_source_check", "mismatch")
     for k in ("meta_label", "rl_arming", "champion_evidence"):
         row[f"learning.{k}.have"] = _g(s, "learning_eta", k, "have")
     row["run.report_is_today"] = _g(s, "run", "report_is_today")
@@ -372,6 +373,16 @@ def _rules(status: dict, row: dict, prev: dict | None) -> list[tuple]:
                 and a is not None and a.weekday() < 5 and sc_state not in ("PENDING", "RUNNING", "NOT_SCHEDULED")):
             add("DATA_DEGRADATION:quote_archive", "WARNING", "Daten",
                 f"Quote-Archiv heute {today} Quotes, unter {ARCHIVE_DROP_RATIO:.0%} des 14-Tage-Medians ({med:g}).")
+        nq = dh.get("nasdaq100_source_check") or {}
+        if _isnum(nq.get("mismatch")) and nq["mismatch"] > 0:
+            src = {"wikipedia": "Wikipedia", "static_fallback": "statischer Fallback (Wikipedia-Parser ohne Tabelle)"}
+            add("UNIVERSE_SOURCE_MISMATCH:nasdaq100", "WARNING", "Daten",
+                f"Nasdaq-100 am {nq.get('date')}: Produktionsliste ({src.get(nq.get('production_source'), '?')}) "
+                f"weicht von der offiziellen nasdaq.com-Liste ab – nur offiziell: "
+                f"{', '.join(nq.get('only_official') or []) or '—'}; nur Produktion: "
+                f"{', '.join(nq.get('only_production') or []) or '—'} (UNIVERSE_V1 unverändert).",
+                (nq.get("production_source"), tuple(nq.get("only_official") or []),
+                 tuple(nq.get("only_production") or [])))
     # Timing-Policy (timing-v2): ausstehende Exits ohne zulässige Quote, endgültig unbrauchbare Outcomes
     tm = _ok(status, "timing")
     old_days = _g(tm, "v2_exit_pending_oldest_days")
@@ -395,7 +406,8 @@ _OWNER = {"SCANNER_FAILED": "run", "ARCHIVE_FAILED": "run", "QUOTE_COVERAGE_LOW"
           "OUTCOMES_OVERDUE": "lifecycle", "LEARNING_EXACTLY_ONCE": "lifecycle", "LEDGER_INTEGRITY": "integrity",
           "TRAINING_INADMISSIBLE": "training", "PROMOTION_UNJUSTIFIED": "promotion", "DATA_DEGRADATION": "data_health",
           "TIMING_EXIT_PENDING_OVERDUE": "timing", "TIMING_UNUSABLE": "timing",
-          "WORKFLOW_FAILED": "workflows", "SCANNER_LATE_START": "workflows", "DIRECTION_CONFLICT_HIGH": "run"}
+          "WORKFLOW_FAILED": "workflows", "SCANNER_LATE_START": "workflows", "DIRECTION_CONFLICT_HIGH": "run",
+          "UNIVERSE_SOURCE_MISMATCH": "data_health"}
 
 
 def _owner(id_: str) -> str | None:
@@ -615,7 +627,12 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
                         ("Stand Quellenstatus", _f(_g(h, "source_health", "generated"))),
                         ("Externe Daten", _f(_g(h, "external_data", "by_status"))),
                         ("Quote-Archiv heute / Median 14 T", f"{_f(row.get('data.quote_archive_today'))} / {_f(h.get('quote_archive_median_14d'))}"),
-                        ("Quote-Archiv-Verzeichnis vorhanden", _f(h.get("quote_archive_root_exists")))])]
+                        ("Quote-Archiv-Verzeichnis vorhanden", _f(h.get("quote_archive_root_exists"))),
+                        ("Nasdaq-100 offiziell vs. Produktionsliste",
+                         (f"{_f(_g(h, 'nasdaq100_source_check', 'mismatch'))} Abweichung(en) am "
+                          f"{_f(_g(h, 'nasdaq100_source_check', 'date'))} (Quelle Produktion: "
+                          f"{_f(_g(h, 'nasdaq100_source_check', 'production_source'))})")
+                         if h.get("nasdaq100_source_check") else NA)])]
 
     def timing_blocks(t):
         return [("kv", [("Policy neuer Entscheidungen", _f(t.get("current_policy"))),

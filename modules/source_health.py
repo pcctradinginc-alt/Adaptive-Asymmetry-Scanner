@@ -432,7 +432,11 @@ def gather(cfg: dict, now: datetime, *, probes: bool = True, fetch=None, yf_modu
                        "expected_freshness": f"{freq or 'n/a'}: Beobachtung <= {max_age or '2×Kadenz'} T, Ingest täglich",
                        "registry_failures": int(rh.get("consecutive_failures") or 0),
                        "missing_rate": dq.get("null_rate", rh.get("missingness")),
-                       "store": {"duplicate_rate": None, "future_timestamps": int(dq.get("future_observations") or 0),
+                       # Kalenderquellen (allow_future_observations): geplante Termine liegen legitim in der
+                       # Zukunft – das ist weder DQ-Befund noch PIT-Verletzung (available_at = Abruf)
+                       "store": {"duplicate_rate": None,
+                                 "future_timestamps": 0 if con.get("allow_future_observations")
+                                 else int(dq.get("future_observations") or 0),
                                  "outlier_rate": (dq.get("out_of_range") or 0) / max(1, dq.get("n_observations") or 1),
                                  "duplicate_conflicts": int(dq.get("duplicate_conflicts") or 0), "severe": dq.get("severe")},
                        "schema_version": con.get("schema_version"),
