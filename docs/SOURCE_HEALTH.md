@@ -36,6 +36,18 @@ Es gibt keine neue Registry. Geprüft wird aus dem, was schon existiert:
 | BROKEN | nicht erreichbar, Auth/Schema falsch, PIT-Verletzung oder ≥ 3 Fehlschläge in Folge |
 | UNVALIDATED | kein Beleg für eine erfolgreiche Lieferung, Zugangsdaten fehlen oder Quelle deaktiviert |
 
+**PIT-Verletzung vs. Zeitpunkt in der Zukunft (2026-10-16):**
+
+- „PIT-Verletzung“ heißt ausschließlich `available_at > retrieved_at` oder ein naiver Zeitstempel.
+  - Für Registry-Quellen kommt der Befund aus der Orchestrator-Prüfung (`check_pit_integrity`, `pit_integrity_failures`).
+  - Für Alt-Stores kommt er aus dem Store selbst.
+  - Führt zu BROKEN.
+- „Zeitpunkt in der Zukunft“ ist der DQ-Befund `FUTURE_OBSERVATION`, also `observation_time` > jetzt + 2 T.
+  - Er hat eine eigene Begründung und wird unverändert streng bewertet (BROKEN).
+  - Vorher lief er fälschlich unter „PIT-Verletzung“. Kalender mit angekündigten Terminen galten deshalb als PIT-Verletzung, und echte PIT-Verletzungen von Registry-Quellen waren unsichtbar.
+- Kalenderquellen (`allow_future_observations`) dürfen angekündigte Termine bis `max_future_days` voraus liefern. Darüber bleibt es ein Befund.
+- Bewusst nicht aktive Quellen bleiben UNVALIDATED (die Zählung bleibt unverändert). Der Ops-Bericht schlüsselt sie zusätzlich nach Grund auf (`DEFERRED`, `REVIEW_REQUIRED`, `disabled`).
+
 **Recovery:** Nach STALE oder BROKEN wird eine Quelle erst nach 2 vollständig bestandenen Prüfungen in Folge wieder HEALTHY. Bestanden heißt: erfolgreicher Abruf, Schema ok, frisch und plausibel. Bis dahin bleibt sie DEGRADED (RECOVERING).
 
 ## Kritikalität und Konsequenzen

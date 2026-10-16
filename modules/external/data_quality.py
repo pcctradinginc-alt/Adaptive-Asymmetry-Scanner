@@ -13,7 +13,9 @@ Prüfungen (Registry-Overrides in Klammern):
   HIGH_NULL_RATE      Anteil value=None > max_null_rate (Standard 0.5)
   NON_FINITE          NaN/Inf-Werte
   DUPLICATE_CONFLICT  gleiche Identität im selben Abruf mit verschiedenen Werten
-  FUTURE_OBSERVATION  observation_time > jetzt + 2 Tage (außer Prognosen)
+  FUTURE_OBSERVATION  observation_time > jetzt + 2 Tage (außer Prognosen). Kalenderquellen
+                      (allow_future_observations): geplante Termine sind erlaubt, aber nur bis
+                      max_future_days (Standard 550) – darüber bleibt es ein Befund
   AVAILABLE_BEFORE_PERIOD  available_at < observation_time bei Periodendaten
                       (eine Monatsstatistik kann nicht vor Monatsbeginn vorliegen)
   OUT_OF_RANGE        Wert außerhalb plausible_ranges[metric]; Kennzahlen in zero_as_missing: ein exakter
@@ -35,6 +37,7 @@ SEVERE = {"EMPTY_RESULT", "BELOW_MIN", "HIGH_NULL_RATE", "NON_FINITE", "DUPLICAT
           "FUTURE_OBSERVATION", "AVAILABLE_BEFORE_PERIOD", "OUT_OF_RANGE", "SCALE_SHIFT"}
 SCALE_SHIFT_FACTOR = 20.0
 FUTURE_TOLERANCE = timedelta(days=2)
+DEFAULT_MAX_FUTURE_DAYS = 550        # Kalender: geplante Termine höchstens ~18 Monate voraus (FOMC/BEA ~13 Monate)
 
 
 def _median_abs(values: list[float]) -> float | None:
@@ -91,9 +94,17 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
     if conflicts:
         issues.append("DUPLICATE_CONFLICT")
 
-    future = [o for o in obs if o.forecast_valid_time is None and o.forecast_issue_time is None
-              and ensure_utc(o.observation_time) > now + FUTURE_TOLERANCE]
-    if future and not cfg.get("allow_future_observations"):
+    # Kalender (allow_future_observations): observation_time = geplanter Termin, available_at = Abruf -> ein Termin in
+    # der Zukunft ist korrekt angekündigt, kein Lookahead. Erlaubt nur bis zum Horizont; was darüber liegt (z. B.
+    # falsch geparstes Jahr), bleibt FUTURE_OBSERVATION. Echte PIT-Verletzungen prüft der Orchestrator getrennt.
+    allow = bool(cfg.get("allow_future_observations"))
+    horizon = timedelta(days=float(cfg.get("max_future_days", DEFAULT_MAX_FUTURE_DAYS))) if allow else FUTURE_TOLERANCE
+    ahead = [o for o in obs if o.forecast_valid_time is None and o.forecast_issue_time is None
+             and ensure_utc(o.observation_time) > now + FUTURE_TOLERANCE]
+    future = [o for o in ahead if ensure_utc(o.observation_time) > now + horizon]
+    if allow:
+        details["scheduled_future"] = len(ahead) - len(future)
+    if future:
         issues.append("FUTURE_OBSERVATION")
         details["future_example"] = future[0].observation_time.isoformat()
 

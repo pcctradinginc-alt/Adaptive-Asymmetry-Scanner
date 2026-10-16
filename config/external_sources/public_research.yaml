@@ -151,8 +151,10 @@ sources:
   max_staleness_days: 14
   pit_quality: EXACT_TIMESTAMP
   # Termine liegen per Definition in der Zukunft (observation_time = geplanter Zeitpunkt, available_at = Abruf):
-  # kein FUTURE_OBSERVATION-Befund und keine PIT-Verletzung in Source Health.
+  # angekündigte Termine sind kein FUTURE_OBSERVATION-Befund – aber nur bis max_future_days (Konnektor-Fenster 400 T
+  # + 10 T Toleranz); weiter entfernte Zeitpunkte bleiben ein Befund. Echte PIT-Prüfung: Orchestrator.
   allow_future_observations: true
+  max_future_days: 410
   max_fetch_seconds: 60
   notes: 'B7: Entscheid = letzter Sitzungstag 14:00 New York; value 2 = mit Projektionen (SEP).'
   cost: kostenlos
@@ -182,8 +184,10 @@ sources:
   max_staleness_days: 14
   pit_quality: EXACT_TIMESTAMP
   # Termine liegen per Definition in der Zukunft (observation_time = geplanter Zeitpunkt, available_at = Abruf):
-  # kein FUTURE_OBSERVATION-Befund und keine PIT-Verletzung in Source Health.
+  # angekündigte Termine sind kein FUTURE_OBSERVATION-Befund – aber nur bis max_future_days (Konnektor-Fenster 400 T
+  # + 10 T Toleranz); weiter entfernte Zeitpunkte bleiben ein Befund. Echte PIT-Prüfung: Orchestrator.
   allow_future_observations: true
+  max_future_days: 410
   max_fetch_seconds: 60
   notes: 'B7: CPI, Arbeitsmarkt, PPI, JOLTS … als geplante Termine (UTC).'
   cost: kostenlos
@@ -213,8 +217,10 @@ sources:
   max_staleness_days: 14
   pit_quality: EXACT_TIMESTAMP
   # Termine liegen per Definition in der Zukunft (observation_time = geplanter Zeitpunkt, available_at = Abruf):
-  # kein FUTURE_OBSERVATION-Befund und keine PIT-Verletzung in Source Health.
+  # angekündigte Termine sind kein FUTURE_OBSERVATION-Befund – aber nur bis max_future_days (Konnektor-Fenster 400 T
+  # + 10 T Toleranz); weiter entfernte Zeitpunkte bleiben ein Befund. Echte PIT-Prüfung: Orchestrator.
   allow_future_observations: true
+  max_future_days: 410
   max_fetch_seconds: 60
   notes: 'B7: BIP, PCE/Persönliches Einkommen, Handelsbilanz … als geplante Termine (UTC).'
   cost: kostenlos

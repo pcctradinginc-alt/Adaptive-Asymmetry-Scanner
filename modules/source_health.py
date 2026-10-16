@@ -432,11 +432,14 @@ def gather(cfg: dict, now: datetime, *, probes: bool = True, fetch=None, yf_modu
                        "expected_freshness": f"{freq or 'n/a'}: Beobachtung <= {max_age or '2×Kadenz'} T, Ingest täglich",
                        "registry_failures": int(rh.get("consecutive_failures") or 0),
                        "missing_rate": dq.get("null_rate", rh.get("missingness")),
-                       # Kalenderquellen (allow_future_observations): geplante Termine liegen legitim in der
-                       # Zukunft – das ist weder DQ-Befund noch PIT-Verletzung (available_at = Abruf)
+                       # PIT-Verletzung = Orchestrator-Prüfung check_pit_integrity (available_at > retrieved_at,
+                       # naive Zeitstempel). Vorher stand hier der DQ-Zähler "Zeitpunkt in der Zukunft" – Kalender
+                       # mit angekündigten Terminen galten als PIT-Verletzung, echte Verletzungen blieben unsichtbar
+                       # (Live 2026-10-16). Zukunftszeitpunkte zählen getrennt (future_periods, gleich streng).
                        "store": {"duplicate_rate": None,
-                                 "future_timestamps": 0 if con.get("allow_future_observations")
-                                 else int(dq.get("future_observations") or 0),
+                                 "future_timestamps": int(rh.get("pit_integrity_failures") or 0),
+                                 "future_periods": int(dq.get("future_observations") or 0)
+                                 if "FUTURE_OBSERVATION" in (dq.get("issues") or []) else 0,
                                  "outlier_rate": (dq.get("out_of_range") or 0) / max(1, dq.get("n_observations") or 1),
                                  "duplicate_conflicts": int(dq.get("duplicate_conflicts") or 0), "severe": dq.get("severe")},
                        "schema_version": con.get("schema_version"),
@@ -525,6 +528,11 @@ def classify(chk: dict, prev: dict | None, cfg: dict, now: datetime) -> dict:
     # Plausibilität / Integrität
     if st.get("future_timestamps"):
         reasons.append(f"PIT-Verletzung: {st['future_timestamps']} Beobachtungen mit available_at > retrieved_at")
+        worse(BROKEN)
+        failed = True
+    if st.get("future_periods"):                      # Registry: DQ FUTURE_OBSERVATION (Zeitpunkt jenseits des Horizonts)
+        reasons.append(f"{st['future_periods']} Beobachtungen mit Zeitpunkt in der Zukunft "
+                       f"(DQ FUTURE_OBSERVATION; keine PIT-Verletzung)")
         worse(BROKEN)
         failed = True
     if st.get("future_observations"):                 # einzelne fehlerhafte Fakten: Qualitätsmangel, kein Totalausfall

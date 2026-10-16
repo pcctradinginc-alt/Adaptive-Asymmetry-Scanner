@@ -6,8 +6,14 @@
   bea_release_calendar   BEA: release_dates.json bzw. Tabelle der Plan-Seite – BIP, PCE/Persönliches Einkommen, …
 
 PIT: Ein Termin ist ab dem Abruf bekannt (available_at = retrieved_at). observation_time = geplanter Zeitpunkt
-(UTC). Verschiebungen werden als neuer Wert/neue Zeile sichtbar, nie rückwirkend. Keine Produktionswirkung –
-Zweck: Event-Fenster für Research/Labels (z. B. "Signal innerhalb von 24 h vor CPI/FOMC").
+(UTC). Der tatsächliche Ankündigungszeitpunkt ist nicht belegt und wird nie früher angesetzt: vor dem ersten Abruf
+gilt ein Termin als unbekannt (für Backtests gesperrt). Keine Produktionswirkung – Zweck: Event-Fenster für
+Research/Labels (z. B. "Signal innerhalb von 24 h vor CPI/FOMC").
+
+Terminänderungen (2026-10-16): Eine Terminzeile allein kann eine Verschiebung oder Absage nicht abbilden (der alte
+Termin bleibt im Archiv, unveränderte Wiederholungen werden dedupliziert). Daher legt jeder Abruf, der den Plan
+ändert, eine Momentaufnahme (series_id "schedule_snapshot") mit allen Terminen im Fenster an – inkl. hinzugekommener
+und zurückgezogener Termine. schedule_as_of(source_id, t) liefert den Plan, wie er zum Zeitpunkt t bekannt war.
 """
 from __future__ import annotations
 
@@ -92,6 +98,33 @@ def _unfold(text: str) -> list[str]:
     return out
 
 
+SNAPSHOT_SERIES = "schedule_snapshot"
+
+
+def _event_key(series: str, t: datetime, value: float) -> str:
+    return f"{series}|{t.astimezone(timezone.utc).isoformat()}|{value:g}"
+
+
+def _parse_event_key(key: str) -> dict:
+    series, iso, value = key.rsplit("|", 2)
+    return {"series": series, "time": datetime.fromisoformat(iso), "value": float(value)}
+
+
+def schedule_as_of(source_id: str, t: datetime, archive=None) -> list[dict] | None:
+    """PIT: Plan einer Kalenderquelle, wie er zum Zeitpunkt t bekannt war (jüngste Momentaufnahme mit
+    available_at <= t) -> [{series, time (UTC), value}]. None = kein Nachweis vor t (für Backtests gesperrt; wird
+    nie aus späteren Terminzeilen rekonstruiert)."""
+    from modules.external.archive import ExternalArchive
+    from modules.external.pit import ensure_utc
+    t = ensure_utc(t)
+    archive = archive or ExternalArchive()
+    snaps = [o for o in archive.load(source_id) if o.series_id == SNAPSHOT_SERIES and o.available_at <= t]
+    if not snaps:
+        return None
+    snap = max(snaps, key=lambda o: o.available_at)
+    return [_parse_event_key(k) for k in (snap.attrs or {}).get("events") or []]
+
+
 def _ics_dt(prop: str, value: str) -> datetime | None:
     tzid = re.search(r"TZID=([^;:]+)", prop)
     v = value.strip()
@@ -127,6 +160,7 @@ def parse_ics(text: str) -> list[dict]:
             name = prop.split(";")[0].upper()
             if name == "DTSTART":
                 cur["start"] = _ics_dt(prop, value)
+                cur["all_day"] = len(value.strip()) == 8               # Uhrzeit 08:30 New York angenommen
             elif name == "SUMMARY":
                 cur["summary"] = value.replace("\\,", ",").replace("\\;", ";").strip()
             elif name == "UID":
@@ -162,18 +196,55 @@ class _CalendarConnector(Connector):
             t = e["start"].astimezone(timezone.utc)
             if not lo <= t <= hi:
                 continue
+            attrs = {"title": e["title"], "local_time_et": e["start"].astimezone(NY).isoformat()}
+            if e.get("time_assumed"):
+                attrs["time_assumed"] = True                    # ganztägiger Eintrag: Uhrzeit nicht von der Quelle
             obs.append(Observation(
                 source_id=self.source_id, dataset=self.DATASET, series_id=e["series"], entity_id="US",
                 metric="scheduled_release", value=float(e.get("value", 1.0)), unit="event",
                 observation_time=t, available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
                 availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP, parser_version=self.parser_version,
-                attrs={"title": e["title"], "local_time_et": e["start"].astimezone(NY).isoformat()}))
+                attrs=attrs))
         if not obs:
             return ConnectorResult(self.source_id, SourceStatus.SCHEMA_CHANGED, raw=raw,
                                    message=f"keine Termine im Fenster ({len(evs)} insgesamt)")
-        return ConnectorResult(self.source_id, SourceStatus.PASS, observations=obs, raw=raw,
-                               message=f"{len(obs)} Termine im Fenster",
+        snap, change = self._snapshot(obs, res, lo, hi)
+        return ConnectorResult(self.source_id, SourceStatus.PASS, observations=obs + snap, raw=raw,
+                               message=f"{len(obs)} Termine im Fenster{change}",
                                latest_observation_time=max(o.observation_time for o in obs))
+
+    def _last_snapshot(self) -> Observation | None:
+        root = self.cfg.get("_archive_root")
+        if not root:
+            return None
+        try:
+            from modules.external.archive import ExternalArchive
+            rows = [o for o in ExternalArchive(root).load(self.source_id) if o.series_id == SNAPSHOT_SERIES]
+        except Exception as e:  # noqa: BLE001 – ohne lesbares Archiv: neue Momentaufnahme statt stiller Annahme
+            log.warning("%s: Archiv nicht lesbar (%r) – neue Momentaufnahme", self.source_id, e)
+            return None
+        return max(rows, key=lambda o: o.available_at, default=None)
+
+    def _snapshot(self, obs: list, res, lo: datetime, hi: datetime) -> tuple[list, str]:
+        """Momentaufnahme nur bei geändertem Plan (oder ohne Vorgänger). Zurückgezogen = im alten Plan, im aktuellen
+        Fenster, aber nicht mehr geliefert (verschoben/abgesagt); aus dem Fenster gealterte Termine zählen nicht."""
+        keys = sorted({_event_key(o.series_id, o.observation_time, o.value) for o in obs})
+        prev = self._last_snapshot()
+        prev_keys = set((prev.attrs or {}).get("events") or []) if prev else set()
+        added = sorted(set(keys) - prev_keys) if prev else []
+        withdrawn = sorted(k for k in prev_keys - set(keys) if lo <= _parse_event_key(k)["time"] <= hi)
+        if prev and not added and not withdrawn:
+            return [], ""
+        snap = Observation(
+            source_id=self.source_id, dataset=self.DATASET, series_id=SNAPSHOT_SERIES, entity_id="US",
+            metric="scheduled_events", value=float(len(keys)), unit="count", observation_time=res.retrieved_at,
+            available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
+            availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP, parser_version=self.parser_version,
+            attrs={"events": keys, "window": [lo.isoformat(), hi.isoformat()], "added": added,
+                   "withdrawn": withdrawn, "previous_snapshot_at": prev.available_at.isoformat() if prev else None})
+        change = (f"; Plan geändert: +{len(added)} / −{len(withdrawn)} (zurückgezogen)" if prev
+                  else "; erste Momentaufnahme")
+        return [snap], change
 
 
 class FomcCalendarConnector(_CalendarConnector):
@@ -193,7 +264,7 @@ class _IcsConnector(_CalendarConnector):
             if e.get("start") is None:
                 continue
             out.append({"start": e["start"], "series": _slug(re.sub(r"\s+for\s+.*$", "", e["summary"], flags=re.I)),
-                        "title": e["summary"]})
+                        "title": e["summary"], "time_assumed": bool(e.get("all_day"))})
         return out
 
 

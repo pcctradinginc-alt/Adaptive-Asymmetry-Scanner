@@ -181,8 +181,9 @@ def test_fomc_parser_dst_and_month_span():
         cal.parse_fomc("<html>nichts</html>")
     with patch.object(cal.http, "fetch", return_value=resp(FOMC_HTML)):
         r = cal.FomcCalendarConnector({}).fetch(NOW)
-    assert r.status == SourceStatus.PASS and [o.value for o in r.observations] == [1.0, 2.0, 1.0]
-    assert all(o.available_at == NOW for o in r.observations)
+    ev_obs = [o for o in r.observations if o.metric == "scheduled_release"]
+    assert r.status == SourceStatus.PASS and [o.value for o in ev_obs] == [1.0, 2.0, 1.0]
+    assert all(o.available_at == o.retrieved_at == NOW for o in r.observations)      # PIT: bekannt ab Abruf
 
 
 ICS = ("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:1\r\nDTSTART;TZID=US-Eastern:20261113T083000\r\n"
@@ -201,7 +202,8 @@ def test_ics_parser_and_connector():
     with patch.object(cal.http, "fetch", return_value=resp(ICS)):
         r = cal.BlsReleaseCalendarConnector({}).fetch(NOW)
     assert r.status == SourceStatus.PASS
-    assert {o.series_id for o in r.observations} == {"consumer_price_index", "employment_situation"}   # 2020 außerhalb
+    assert {o.series_id for o in r.observations if o.metric == "scheduled_release"} == \
+        {"consumer_price_index", "employment_situation"}                                 # 2020 außerhalb
 
 
 # ── Entity-Index (B8/B9/B10) ─────────────────────────────────────────────────
@@ -393,7 +395,7 @@ def test_bea_json_and_html_schedule():
 
     with patch.object(cal.http, "fetch", side_effect=fake):
         r = cal.BeaReleaseCalendarConnector({}).fetch(NOW)
-    assert r.status == SourceStatus.PASS and len(r.observations) == 2
+    assert r.status == SourceStatus.PASS and len([o for o in r.observations if o.metric == "scheduled_release"]) == 2
     assert all(o.available_at == NOW for o in r.observations)
 
 
@@ -477,19 +479,34 @@ def test_calendar_future_dates_are_neither_dq_finding_nor_pit_violation():
     obs = cal.FomcCalendarConnector(reg.sources["fomc_calendar"])
     with patch.object(cal.http, "fetch", return_value=resp(FOMC_HTML)):
         res = obs.fetch(NOW)
-    assert res.observations and all(o.observation_time > NOW for o in res.observations)
+    assert all(o.observation_time > NOW for o in res.observations if o.metric == "scheduled_release")
     for sid in ("fomc_calendar", "bls_release_calendar", "bea_release_calendar"):
         cfg = reg.sources[sid]
         assert cfg["allow_future_observations"] is True
         d = dq.assess(res.observations, cfg, NOW)
         assert "FUTURE_OBSERVATION" not in d["issues"] and not d["severe"]
+    d_cal = dq.assess(res.observations, reg.sources["fomc_calendar"], NOW)
     d_other = dq.assess(res.observations, reg.sources["fred_liquidity"], NOW)
     assert "FUTURE_OBSERVATION" in d_other["issues"]                    # Gate bleibt für alle anderen Quellen
-    rh = {"fomc_calendar": {"status": "PASS", "dq": d_other, "latest_observation": "2027-01-27T19:00:00+00:00"},
-          "fred_liquidity": {"status": "PASS", "dq": d_other, "latest_observation": "2026-10-14T00:00:00+00:00"}}
+    # Source Health: PIT-Verletzung NUR aus der echten Orchestrator-Prüfung (pit_integrity_failures); ein
+    # Zeitpunkt in der Zukunft ist ein eigener, gleich strenger DQ-Befund mit korrekter Bezeichnung
+    rh = {"fomc_calendar": {"status": "PASS", "dq": d_cal, "pit_integrity_failures": 0,
+                            "latest_observation": "2027-01-27T19:00:00+00:00"},
+          "fred_liquidity": {"status": "WARN", "dq": d_other, "pit_integrity_failures": 0,
+                             "latest_observation": "2026-10-14T00:00:00+00:00"},
+          "fred_market_expectations": {"status": "PASS", "dq": {"issues": []}, "pit_integrity_failures": 3,
+                                       "latest_observation": "2026-10-14T00:00:00+00:00"}}
     contracts = {k: reg.sources[k] for k in rh}
-    checks = {c["source_id"]: c for c in sh.gather(sh.load_config(), NOW, probes=False, registry_health=rh,
-                                                     contracts=contracts)
+    cfg = sh.load_config()
+    checks = {c["source_id"]: c for c in sh.gather(cfg, NOW, probes=False, registry_health=rh, contracts=contracts)
               if c["source_id"] in rh}
-    assert checks["fomc_calendar"]["store"]["future_timestamps"] == 0
-    assert checks["fred_liquidity"]["store"]["future_timestamps"] > 0
+    st = {k: checks[k]["store"] for k in rh}
+    assert (st["fomc_calendar"]["future_timestamps"], st["fomc_calendar"]["future_periods"]) == (0, 0)
+    assert (st["fred_liquidity"]["future_timestamps"], st["fred_liquidity"]["future_periods"]) == (0, 3)
+    assert (st["fred_market_expectations"]["future_timestamps"], st["fred_market_expectations"]["future_periods"]) == (3, 0)
+    cls = {k: sh.classify(checks[k], None, cfg, NOW) for k in rh}
+    assert not any("PIT" in r or "Zukunft" in r for r in cls["fomc_calendar"]["reasons"])
+    assert cls["fred_liquidity"]["raw_status"] == "BROKEN"                                  # gleich streng wie vorher
+    assert any("Zeitpunkt in der Zukunft" in r and "keine PIT-Verletzung" in r for r in cls["fred_liquidity"]["reasons"])
+    assert cls["fred_market_expectations"]["raw_status"] == "BROKEN"
+    assert any(r.startswith("PIT-Verletzung: 3") for r in cls["fred_market_expectations"]["reasons"])
