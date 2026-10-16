@@ -27,18 +27,50 @@ Zugangsdaten stehen nie im Code.
 - 13F: Es zählen nur fristgerechte 13F-HR (höchstens 45 Tage nach Quartalsende). Amendments, Optionen und
   Nicht-Aktien sind ausgeschlossen. Pro Lauf wird ein Datensatz verarbeitet; ein Marker im Archiv verhindert eine
   doppelte Verarbeitung. Der Preflight archiviert nichts und zählt daher nie als verarbeitet.
-- Die Nasdaq-100-Liste von nasdaq.com wird nur archiviert (PIT-Mitgliederhistorie). `get_universe` gehört zur
-  eingefrorenen UNIVERSE_V1-Definition (Code-Hash). Eine Umstellung der Produktionsquelle wäre deshalb eine
-  eigene V1-Änderung und braucht eine ausdrückliche Freigabe.
+- Die Nasdaq-100-Liste von nasdaq.com wird täglich archiviert (PIT-Mitgliederhistorie).
+- Produktionsquelle Nasdaq-100 (`universe._nasdaq100_live`, Freigabe 2026-10-16): Wikipedia, sonst die offizielle
+  nasdaq.com-Liste, sonst `_NASDAQ100_STATIC`. Anlass: Die Wikipedia-Seite enthält seit spätestens 15.10. keine
+  Komponententabelle mehr, die Produktion lief auf der veralteten statischen Liste (92 Titel, u. a. EA ohne Kurse;
+  26 aktuelle Mitglieder fehlten). `get_universe`, `_clean` und die statischen Listen sind unverändert
+  (UNIVERSE_V1-Code-Hash gleich); das gescannte Universum folgt wieder dem aktuellen Index.
 - Täglicher Abgleich (`production_mismatch_count`): offizielle Liste gegen die Liste, die die Produktion tatsächlich
-  nutzt – wie `get_universe` Wikipedia, bei Parser-/Abruffehler `_NASDAQ100_STATIC`, danach `_clean`. Die Herkunft
-  steht in `attrs.production_source`; Abweichungen meldet das Ops-Monitoring (`UNIVERSE_SOURCE_MISMATCH:nasdaq100`).
-  Live 2026-10-15: Der Wikipedia-Parser fand keine Tabelle, die Produktion nutzte den statischen Fallback (92 Titel,
-  u. a. EA ohne Kurse).
-- Kalenderquellen (`fomc_calendar`, `bls_release_calendar`, `bea_release_calendar`) tragen
-  `allow_future_observations: true`: Termine in der Zukunft sind weder DQ-Befund noch PIT-Verletzung.
-- 13F: Der gemeldete Datenstand ist der jüngste verarbeitete Datensatz. Der Backfill älterer Sätze setzt ihn nicht
-  zurück.
+  nutzt (Herkunft in `attrs.production_source`: `wikipedia`, `nasdaq_official` oder `static_fallback`, danach
+  `_clean`). Abweichungen meldet das Ops-Monitoring (`UNIVERSE_SOURCE_MISMATCH:nasdaq100`).
+- **Kalenderquellen** (`fomc_calendar`, `bls_release_calendar`, `bea_release_calendar`) haben eine einheitliche
+  PIT-Semantik:
+  - `observation_time` ist der geplante Termin (UTC; FOMC 14:00 New York, BLS laut TZID, BEA ohne Offset = New York).
+  - `available_at` = `retrieved_at` ist der erste Abruf. Der tatsächliche Ankündigungszeitpunkt ist nicht belegt und
+    wird nie früher angesetzt. Vor dem ersten Abruf ist ein Termin unbekannt und für Backtests gesperrt.
+  - Ganztägige BLS-Einträge erhalten 08:30 New York und `attrs.time_assumed`.
+  - `allow_future_observations: true` mit `max_future_days: 410`: Angekündigte Termine sind kein
+    FUTURE_OBSERVATION-Befund. Weiter entfernte Zeitpunkte bleiben einer.
+  - Echte PIT-Verletzungen (`available_at > retrieved_at`) prüft der Orchestrator. Source Health meldet sie als
+    „PIT-Verletzung“.
+- **Terminänderungen:**
+  - Bei geändertem Plan (oder beim ersten Mal) speichert jeder Abruf eine Momentaufnahme (`schedule_snapshot`). Sie
+    enthält alle Termine im Fenster sowie `added` und `withdrawn`, also verschobene oder abgesagte Termine.
+  - `calendars.schedule_as_of(source_id, t)` liefert den Plan, wie er zum Zeitpunkt t bekannt war, und `None` vor der
+    ersten Momentaufnahme.
+  - Terminzeilen allein reichen dafür nicht: Ein verschobener Termin bleibt dort neben dem neuen stehen.
+  - Unveränderte Wiederholungen schreiben nichts (idempotent).
+  - Die Zeilen vom 15./16.10. haben noch keine Momentaufnahme. Für `t` vor der ersten Momentaufnahme gibt es keinen
+    Plan.
+- **13F:**
+  - Der gemeldete Datenstand ist der jüngste verarbeitete Datensatz. Der Backfill älterer Sätze setzt ihn nicht
+    zurück (Live 16.10.: STALE durch Rücksprung auf 28.02.).
+  - `max_staleness_days: 120` bleibt. Die SEC veröffentlicht die 3-Monats-Sätze nach Ende der Monate Feb/Mai/Aug/Nov.
+    Laut DERA-Bibliothek war der Satz bis 30.11.2025 am 03.12.2025 online. Die 120 T decken ≈ 92 T Fensterabstand
+    plus ≈ 28 T Veröffentlichungsverzug ab.
+  - `available_at` ist der Tag nach dem letzten einbezogenen Filing (öffentlich auf EDGAR). Das DERA-Zip erscheint
+    später. Strategien, die nur das Zip nutzen, müssen `retrieved_at` verwenden.
+- **noaa_storm_events:**
+  - Der Ereignistyp fehlte in der Identität: 68 Identitäten für 1005 Werte. Folgen: 932 Konflikte, 776 falsche
+    Revisionen und 161 verworfene Werte. Es gab nur einen echten Abruf am 04.10. und keine inkonsistenten
+    Quelldaten.
+  - Ab `storm-events-2` gilt `series_id = <Jahr>:<Ereignistyp>`.
+  - Statische Quellen werden bei geändertem Parser sofort neu abgerufen, ohne auf `min_refetch_days` zu warten.
+  - Die Altzeilen (`parser_version` "1") bleiben im Archiv. Ihre Identität unterscheidet sich, deshalb sind sie
+    getrennt erkennbar. Sie haben keine Verbraucher.
 - Die Live-Formate werden mit dem Workflow „External Data Preflight“ geprüft. Der Eingang `family` steht dafür auf
   `public_research,real_economy`.
 

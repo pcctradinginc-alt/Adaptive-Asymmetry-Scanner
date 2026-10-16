@@ -848,3 +848,43 @@ def test_static_source_skipped_within_min_refetch_days(tmp_path):
     assert len(calls) == 1 and s2["sources"]["ok_src"]["skipped"] == "min_refetch_days"
     orch.run_ingestion(t0 + timedelta(days=31), registry=registry)
     assert len(calls) == 2
+
+
+def test_static_source_refetched_when_parser_changed(tmp_path):
+    """noaa_storm_events 2026-10-16: Identitätsfehler im Parser behoben -> statische Quelle sofort neu abrufen statt
+    bis zu min_refetch_days den alten Befund zu melden. Gleicher Parser -> weiter übersprungen."""
+    calls = []
+
+    class _V1(_OkConnector):
+        parser_version = "p-1"
+
+        def fetch(self, now):
+            calls.append(now)
+            return super().fetch(now)
+
+    class _V2(_V1):
+        parser_version = "p-2"
+
+    sources = {"ok_src": dict(VALID_SOURCE, source_id="ok_src", family="maritime", min_refetch_days=30)}
+    t0 = datetime(2026, 2, 1, tzinfo=UTC)
+    orch.run_ingestion(t0, registry=_fake_registry(tmp_path, sources, {"ok_src": _V1}))
+    h = reg.load_health(tmp_path)["ok_src"]
+    assert h["parser_version"] == "p-1"
+    orch.run_ingestion(t0 + timedelta(days=2), registry=_fake_registry(tmp_path, sources, {"ok_src": _V1}))
+    assert len(calls) == 1                                                # gleicher Parser: übersprungen
+    orch.run_ingestion(t0 + timedelta(days=3), registry=_fake_registry(tmp_path, sources, {"ok_src": _V2}))
+    assert len(calls) == 2 and reg.load_health(tmp_path)["ok_src"]["parser_version"] == "p-2"
+    orch.run_ingestion(t0 + timedelta(days=4), registry=_fake_registry(tmp_path, sources, {"ok_src": _V2}))
+    assert len(calls) == 2                                                # danach wieder statisch
+
+
+def test_static_source_parser_from_manifest_for_legacy_health(tmp_path):
+    """Altbestand ohne parser_version in der Health: Parser des letzten Manifest-Eintrags zählt."""
+    import json as _json
+    day = tmp_path / "manifests" / "2026-10-04"
+    day.mkdir(parents=True)
+    (day / "20261004T082325Z-x.json").write_text(_json.dumps({"entries": [
+        {"source_id": "noaa_storm_events", "parser_version": "1"}, {"source_id": "other", "parser_version": "9"}]}))
+    assert orch._last_manifest_parser_version(tmp_path, "noaa_storm_events") == "1"
+    assert orch._last_manifest_parser_version(tmp_path, "missing") is None
+    assert orch._last_manifest_parser_version(tmp_path / "nope", "noaa_storm_events") is None

@@ -375,7 +375,8 @@ def _rules(status: dict, row: dict, prev: dict | None) -> list[tuple]:
                 f"Quote-Archiv heute {today} Quotes, unter {ARCHIVE_DROP_RATIO:.0%} des 14-Tage-Medians ({med:g}).")
         nq = dh.get("nasdaq100_source_check") or {}
         if _isnum(nq.get("mismatch")) and nq["mismatch"] > 0:
-            src = {"wikipedia": "Wikipedia", "static_fallback": "statischer Fallback (Wikipedia-Parser ohne Tabelle)"}
+            src = {"wikipedia": "Wikipedia", "nasdaq_official": "nasdaq.com",
+                   "static_fallback": "statischer Fallback (Wikipedia und nasdaq.com nicht lieferbar)"}
             add("UNIVERSE_SOURCE_MISMATCH:nasdaq100", "WARNING", "Daten",
                 f"Nasdaq-100 am {nq.get('date')}: Produktionsliste ({src.get(nq.get('production_source'), '?')}) "
                 f"weicht von der offiziellen nasdaq.com-Liste ab – nur offiziell: "
@@ -624,6 +625,7 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
 
     def data_blocks(h):
         return [("kv", [("Quellenstatus", _f(_g(h, "source_health", "by_status"))),
+                        ("davon UNVALIDATED, weil bewusst nicht aktiv", _f(_g(h, "source_health", "inactive_by_design"))),
                         ("Stand Quellenstatus", _f(_g(h, "source_health", "generated"))),
                         ("Externe Daten", _f(_g(h, "external_data", "by_status"))),
                         ("Quote-Archiv heute / Median 14 T", f"{_f(row.get('data.quote_archive_today'))} / {_f(h.get('quote_archive_median_14d'))}"),

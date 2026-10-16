@@ -1590,12 +1590,16 @@ def test_data_health_counts_archive_days_and_source_status(env):
     env.capture(sym, NOW - timedelta(days=13), context="mark")                     # 13 Tage: noch im Fenster
     env.capture(sym, NOW - timedelta(days=14), context="mark")                     # 14 Tage: außerhalb
     env.write_json("source_health", {"generated": "2026-10-14T10:00:00+00:00", "sources": {
-        "a": {"status": "HEALTHY"}, "b": {"status": "DEGRADED"}, "c": {"status": "HEALTHY"}}})
+        "a": {"status": "HEALTHY"}, "b": {"status": "DEGRADED"}, "c": {"status": "HEALTHY"},
+        "d": {"status": "UNVALIDATED", "reasons": ["nicht aktiv: status_override=DEFERRED"]},
+        "e": {"status": "UNVALIDATED", "reasons": ["nicht aktiv: disabled"]},
+        "f": {"status": "UNVALIDATED", "reasons": ["kein Beleg für erfolgreiche Lieferung"]}}})
     env.write_json("external_health", {"sources": {"x": {"status": "OK"}, "y": {"last_status": "FAILED"},
                                                    "z": {"status": "OK"}}})
     dh = env.collect()["data_health"]
     assert dh["source_health"] == {"generated": "2026-10-14T10:00:00+00:00",
-                                   "by_status": {"HEALTHY": 2, "DEGRADED": 1}}
+                                   "by_status": {"HEALTHY": 2, "DEGRADED": 1, "UNVALIDATED": 3},   # Zählung unverändert
+                                   "inactive_by_design": {"DEFERRED": 1, "disabled": 1}}         # f bleibt ungeklärt
     assert dh["external_data"] == {"by_status": {"OK": 2, "FAILED": 1}}
     assert dh["quote_archive_days"] == {
         iso_day(0): {"n": 2, "by_context": {"mark": 1, "entry": 1}, "by_quality": {"OK": 1, "UNUSABLE": 1}},

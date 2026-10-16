@@ -693,6 +693,14 @@ def data_health(P: dict, now: datetime) -> dict:
     sh = _json(P["source_health"]) or {}
     srcs = sh.get("sources") or sh.get("results") or {}
     statuses = Counter((v or {}).get("status") for v in (srcs.values() if isinstance(srcs, dict) else srcs))
+    # UNVALIDATED aufschlüsseln: bewusst nicht aktive Quellen (disabled / status_override DEFERRED|REVIEW_REQUIRED,
+    # ohne Abrufversuch) vs. tatsächlich ungeprüfte. Zählung unverändert – nur erklärt, keine Umbenennung.
+    inactive = Counter()
+    for v in (srcs.values() if isinstance(srcs, dict) else srcs):
+        if isinstance(v, dict) and v.get("status") == "UNVALIDATED":
+            r = next((x for x in v.get("reasons") or [] if str(x).startswith("nicht aktiv:")), None)
+            if r:
+                inactive[str(r).split(":", 1)[1].strip().removeprefix("status_override=")] += 1
     eh = _json(P["external_health"]) or {}
     # orchestrator-Datei ist direkt nach source_id geschlüsselt ({id: {...}}); ältere Form {"sources": {...}}
     esrc = eh.get("sources") if isinstance(eh.get("sources"), dict) else eh
@@ -708,7 +716,8 @@ def data_health(P: dict, now: datetime) -> dict:
                         "by_quality": dict(Counter(r.get("quality_status") for r in rs))}
     vals = [v["n"] for v in days.values()]
     return {"nasdaq100_source_check": _nasdaq100_check(P),
-            "source_health": {"generated": sh.get("generated"), "by_status": dict(statuses)},
+            "source_health": {"generated": sh.get("generated"), "by_status": dict(statuses),
+                              "inactive_by_design": dict(inactive)},
             "external_data": {"by_status": dict(estat)},
             "quote_archive_days": days,
             "quote_archive_median_14d": statistics.median(vals) if vals else None,

@@ -130,27 +130,83 @@ def _fetch_sp500() -> list[str]:
         return []
 
 
+_NDX_TICKER_COLS = ("Ticker", "Symbol", "Ticker symbol")
+_NDX_PLAUSIBLE = (80, 120)         # Komponenten-Tabelle (~101 Titel); schützt vor Änderungs-/Historientabellen
+
+
+def _col_labels(col) -> set[str]:
+    """Spaltenbeschriftungen inkl. mehrzeiliger Kopfzeilen (pandas-MultiIndex -> Tupel)."""
+    parts = col if isinstance(col, tuple) else (col,)
+    return {str(x).strip() for x in parts if not str(x).startswith("Unnamed")}
+
+
+def _ndx_tickers(tables: list) -> list[str]:
+    """Ticker-Spalte der Komponenten-Tabelle. Wikipedia hat Spaltenname/Kopfzeilen geändert (Live 2026-10-15:
+    "Keine Tabelle gefunden" -> statischer Fallback): akzeptiert Ticker/Symbol, mehrzeilige Kopfzeilen und prüft
+    die Zeilenzahl, damit keine Änderungstabelle ("Added"/"Removed" Ticker) als Liste gilt."""
+    for table in tables:
+        for i, col in enumerate(table.columns):
+            if not _col_labels(col) & set(_NDX_TICKER_COLS):
+                continue
+            tickers = list(dict.fromkeys(str(t).replace(".", "-").strip() for t in table.iloc[:, i]
+                                         if isinstance(t, str) and t.strip()))      # eindeutig, Reihenfolge bleibt
+            if _NDX_PLAUSIBLE[0] <= len(tickers) <= _NDX_PLAUSIBLE[1]:
+                return tickers
+    return []
+
+
 def _fetch_nasdaq100() -> list[str]:
+    """Nasdaq-100 für get_universe: Wikipedia, sonst offizielle nasdaq.com-Liste; [] -> statischer Fallback."""
+    return _nasdaq100_live()[0]
+
+
+def _nasdaq100_live() -> tuple[list[str], str]:
+    """(Liste, Herkunft "wikipedia" | "nasdaq_official" | "none").
+
+    Live 2026-10-16: Die Wikipedia-Seite "Nasdaq-100" enthält keine Komponententabelle mehr (nur Kennzahlen und eine
+    Navigationsbox mit Firmennamen) -> die Produktion lief auf der veralteten statischen Liste. Zweite Quelle ist die
+    offizielle Liste von nasdaq.com (api.nasdaq.com, täglich auch im External-Data-Archiv, Freigabe 2026-10-16)."""
+    wiki = _fetch_nasdaq100_wikipedia()
+    if wiki:
+        return wiki, "wikipedia"
+    try:
+        from modules.external.sources.market_public import fetch_nasdaq100 as _official
+        official = _official()
+    except Exception as e:  # noqa: BLE001 – ohne externes Paket bleibt es beim statischen Fallback
+        log.warning(f"Nasdaq-100 (nasdaq.com) nicht abrufbar: {e}")
+        official = []
+    if official:
+        log.info(f"Nasdaq 100: {len(official)} Ticker von nasdaq.com (offizielle Liste) geladen.")
+        return list(official), "nasdaq_official"
+    log.warning("Nasdaq-100: weder Wikipedia noch nasdaq.com lieferbar → statischer Fallback.")
+    return [], "none"
+
+
+def _fetch_nasdaq100_wikipedia() -> list[str]:
     try:
         import pandas as pd
         url  = "https://en.wikipedia.org/wiki/Nasdaq-100"
         resp = requests.get(url, headers=_WP_HEADERS, timeout=12)
         resp.raise_for_status()
-        all_tables = pd.read_html(StringIO(resp.text))
-        for table in all_tables:
-            if "Ticker" in table.columns:
-                tickers = (
-                    table["Ticker"]
-                    .str.replace(".", "-", regex=False)
-                    .str.strip()
-                    .tolist()
-                )
-                log.info(f"Nasdaq 100: {len(tickers)} Ticker von Wikipedia geladen.")
-                return tickers
-        log.warning("Nasdaq-100: Keine Tabelle gefunden → statischer Fallback.")
+        # flavor="lxml": ohne Treffer fiele pandas sonst auf bs4/html5lib zurück (nicht installiert -> ImportError)
+        try:                                             # Komponenten-Tabelle trägt (wie beim S&P 500) meist diese ID
+            tickers = _ndx_tickers(pd.read_html(StringIO(resp.text), attrs={"id": "constituents"}, flavor="lxml"))
+        except ValueError:                               # keine Tabelle mit dieser ID
+            tickers = []
+        all_tables = None
+        if not tickers:
+            all_tables = pd.read_html(StringIO(resp.text), flavor="lxml")
+            tickers = _ndx_tickers(all_tables)
+        if tickers:
+            log.info(f"Nasdaq 100: {len(tickers)} Ticker von Wikipedia geladen.")
+            return tickers
+        seen = [f"{len(t)}x{sorted({lbl for c in t.columns for lbl in _col_labels(c)})[:6]}"
+                for t in (all_tables or [])[:8]]
+        log.warning(f"Nasdaq-100: Keine Tabelle auf Wikipedia gefunden → offizielle Liste/statischer Fallback. "
+                    f"Tabellen (Zeilen x Spalten): {seen}")
         return []
     except Exception as e:
-        log.warning(f"Nasdaq-100 Wikipedia-Fehler: {e} → statischer Fallback.")
+        log.warning(f"Nasdaq-100 Wikipedia-Fehler: {e} → offizielle Liste/statischer Fallback.")
         return []
 
 

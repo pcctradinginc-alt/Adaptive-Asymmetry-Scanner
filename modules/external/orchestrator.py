@@ -16,6 +16,7 @@ import sys
 import time
 import uuid
 from datetime import datetime
+from pathlib import Path
 
 from modules.external.alerts import check_pit_integrity, decide_alerts, send_alerts
 from modules.external.archive import ExternalArchive
@@ -73,6 +74,23 @@ def _log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
+def _last_manifest_parser_version(archive_root, source_id: str) -> str | None:
+    """Parser-Version des jüngsten Manifest-Eintrags einer Quelle (Altbestand ohne parser_version in der Health)."""
+    root = Path(archive_root) / "manifests"
+    if not root.exists():
+        return None
+    for day in sorted((d for d in root.iterdir() if d.is_dir()), reverse=True):
+        for f in sorted(day.glob("*.json"), reverse=True):
+            try:
+                entries = json.loads(f.read_text()).get("entries") or []
+            except (OSError, ValueError, AttributeError):
+                continue
+            for e in entries:
+                if isinstance(e, dict) and e.get("source_id") == source_id and e.get("parser_version"):
+                    return str(e["parser_version"])
+    return None
+
+
 def run_ingestion(now: datetime | None = None, families: list[str] | None = None,
                    dry_run: bool = False,
                    registry: SourceRegistry | None = None) -> dict:
@@ -103,13 +121,20 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         # Lauf neu abrufen: min_refetch_days seit dem letzten Erfolg -> sichtbar
         # übersprungen (NCEI brach 2026-09-29 zweimal am Zeitbudget ab, obwohl
         # sich die Daten nie ändern).
+        # Ausnahme: der Parser hat sich seit dem letzten Abruf geändert (z. B. Identitätsfehler behoben,
+        # noaa_storm_events 2026-10-16) -> sofort neu abrufen statt bis zu min_refetch_days alte Daten zu melden.
         _min_refetch = source_cfg.get("min_refetch_days")
         if _min_refetch and h.last_success:
             try:
                 _age = (now - ensure_utc(datetime.fromisoformat(h.last_success))).total_seconds() / 86400
             except (TypeError, ValueError):
                 _age = None
-            if _age is not None and _age < float(_min_refetch):
+            _cls = registry.connector_for(source_id)
+            _pv_now = getattr(_cls, "parser_version", None)
+            _pv_last = h.parser_version or _last_manifest_parser_version(registry.archive_root, source_id)
+            if _age is not None and _pv_now and _pv_last and _pv_last != _pv_now:
+                _log(f"[ingest] {source_id}: Parser {_pv_last} -> {_pv_now}: Neuabruf trotz min_refetch_days")
+            elif _age is not None and _age < float(_min_refetch):
                 h.status = SourceStatus.PASS.value
                 h.message = (f"übersprungen: statisch, letzter Erfolg vor {_age:.1f} T "
                              f"(< min_refetch_days={_min_refetch})")
@@ -240,6 +265,7 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         if result.status == SourceStatus.PASS or (hasattr(result.status, "value")
                                                     and result.status.value == "PASS"):
             h.last_success = _now_iso(now)
+            h.parser_version = connector.parser_version
             h.consecutive_failures = 0
         elif h.status in (SourceStatus.FAIL.value,):
             h.consecutive_failures = int(h.consecutive_failures or 0) + 1
