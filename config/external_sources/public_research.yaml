@@ -312,6 +312,7 @@ sources:
   pit_quality: CONSERVATIVE_DATE
   history_sets: 8
   max_sets_per_run: 1
+  may_be_empty: true   # zwischen den Quartals-Sätzen: "kein neuer 13F-Datensatz" = legitim leer (kein EMPTY_RESULT)
   max_fetch_seconds: 900
   max_preflight_seconds: 900
   max_backfill_bytes: 8000000

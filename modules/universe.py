@@ -148,8 +148,8 @@ def _ndx_tickers(tables: list) -> list[str]:
         for i, col in enumerate(table.columns):
             if not _col_labels(col) & set(_NDX_TICKER_COLS):
                 continue
-            tickers = [str(t).replace(".", "-").strip() for t in table.iloc[:, i]
-                       if isinstance(t, str) and t.strip()]
+            tickers = list(dict.fromkeys(str(t).replace(".", "-").strip() for t in table.iloc[:, i]
+                                         if isinstance(t, str) and t.strip()))      # eindeutig, Reihenfolge bleibt
             if _NDX_PLAUSIBLE[0] <= len(tickers) <= _NDX_PLAUSIBLE[1]:
                 return tickers
     return []

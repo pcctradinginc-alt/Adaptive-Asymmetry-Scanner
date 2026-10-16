@@ -235,8 +235,11 @@ class _CalendarConnector(Connector):
         withdrawn = sorted(k for k in prev_keys - set(keys) if lo <= _parse_event_key(k)["time"] <= hi)
         if prev and not added and not withdrawn:
             return [], ""
-        snap = Observation(
-            source_id=self.source_id, dataset=self.DATASET, series_id=SNAPSHOT_SERIES, entity_id="US",
+        import hashlib
+        digest = hashlib.sha256("\n".join(keys).encode()).hexdigest()[:12]
+        snap = Observation(                                  # entity_id je Plan: zwei Pläne in derselben Sekunde mit
+            source_id=self.source_id, dataset=self.DATASET,  # gleicher Anzahl wären sonst ein "Duplikat"
+            series_id=SNAPSHOT_SERIES, entity_id=f"plan:{digest}",
             metric="scheduled_events", value=float(len(keys)), unit="count", observation_time=res.retrieved_at,
             available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
             availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP, parser_version=self.parser_version,

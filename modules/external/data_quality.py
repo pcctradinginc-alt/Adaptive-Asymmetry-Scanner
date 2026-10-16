@@ -98,7 +98,9 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
     # der Zukunft ist korrekt angekündigt, kein Lookahead. Erlaubt nur bis zum Horizont; was darüber liegt (z. B.
     # falsch geparstes Jahr), bleibt FUTURE_OBSERVATION. Echte PIT-Verletzungen prüft der Orchestrator getrennt.
     allow = bool(cfg.get("allow_future_observations"))
-    horizon = timedelta(days=float(cfg.get("max_future_days", DEFAULT_MAX_FUTURE_DAYS))) if allow else FUTURE_TOLERANCE
+    _mfd = cfg.get("max_future_days")
+    horizon = (timedelta(days=float(DEFAULT_MAX_FUTURE_DAYS if _mfd is None else _mfd)) if allow
+               else FUTURE_TOLERANCE)
     ahead = [o for o in obs if o.forecast_valid_time is None and o.forecast_issue_time is None
              and ensure_utc(o.observation_time) > now + FUTURE_TOLERANCE]
     future = [o for o in ahead if ensure_utc(o.observation_time) > now + horizon]
