@@ -980,7 +980,8 @@ def main() -> None:
         note_research_features(c)
         if c.get("has_near_earnings"):
             earnings_date = c.get("alpha_signals", {}).get("earnings_date", "?")
-            log.info(f"  [{c['ticker']}] EARNINGS-GATE: Earnings in 7d ({earnings_date}) → Hard-Block.")
+            # Tagesabstand loggt bereits alpha_sources; hier nur das Fenster (vorher fest "in 7d", auch für heute)
+            log.info(f"  [{c['ticker']}] EARNINGS-GATE: Earnings am {earnings_date} (innerhalb 7 T) → Hard-Block.")
             # im Ledger festhalten (vorher fehlte der Kandidat dort komplett)
             reject("earnings_gate", c.get("ticker"))
             continue

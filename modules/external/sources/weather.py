@@ -1369,7 +1369,9 @@ def parse_storm_events_counts(csv_text: str) -> dict[tuple[str, str], int]:
 
 class NoaaStormEventsConnector(Connector):
     source_id = "noaa_storm_events"
-    parser_version = PARSER_VERSION
+    # 2: Ereignistyp in der Identität (series_id). Vorher kollidierten alle Typen eines Bundesstaats in einer Identität
+    # (series_id=Dateiname) -> 932 DUPLICATE_CONFLICT je Abruf, Quelle dauerhaft DEGRADED (Live 2026-10-08..16)
+    parser_version = "storm-events-2"
 
     def fetch(self, now: datetime) -> ConnectorResult:
         if not self.cfg.get("backfill_mode"):
@@ -1412,12 +1414,12 @@ class NoaaStormEventsConnector(Connector):
         obs_time = datetime(year, 1, 1, tzinfo=timezone.utc)
         observations = [
             Observation(
-                source_id=self.source_id, dataset="storm_events_details", series_id=filename,
+                source_id=self.source_id, dataset="storm_events_details", series_id=f"{year}:{event_type}",
                 entity_id=state, metric="event_count", value=float(n), unit="count",
                 observation_time=obs_time, available_at=retrieved_at, retrieved_at=retrieved_at,
                 availability_precision=AvailabilityPrecision.CONSERVATIVE_DATE,
                 parser_version=self.parser_version, source_release_time=None,
-                attrs={"event_type": event_type, "year": year},
+                attrs={"event_type": event_type, "year": year, "file": filename},
             )
             for (state, event_type), n in counts.items()
         ]

@@ -398,9 +398,13 @@ class Sec13FConnector(Connector):
         done = self._processed()
         newest = sorted(sets, key=lambda n: set_range(n)[1], reverse=True)[:int(self.cfg.get("history_sets", 8))]
         todo = [n for n in newest if n not in done][:int(self.cfg.get("max_sets_per_run", 1))]
+        # Datenstand = jüngster verarbeiteter Datensatz (inkl. dieses Laufs): der Backfill läuft vom neuesten zum ältesten
+        # Satz, ein älterer Satz darf den gemeldeten Stand nicht zurücksetzen (sonst Source Health STALE, Live 2026-10-16)
+        latest = max((_day(set_range(n)[1]) for n in done | set(todo) if set_range(n)), default=None)
         if not todo:
             return ConnectorResult(self.source_id, SourceStatus.PASS, raw=raw,
-                                   message=f"kein neuer 13F-Datensatz ({len(done)} verarbeitet)")
+                                   message=f"kein neuer 13F-Datensatz ({len(done)} verarbeitet)",
+                                   latest_observation_time=latest)
         obs, stats = [], {}
         for name in todo:
             try:
@@ -428,8 +432,7 @@ class Sec13FConnector(Connector):
                         parser_version=self.parser_version,
                         attrs={"tickers": idx["tickers"].get(r["cik"], []), "dataset": name}))
         return ConnectorResult(self.source_id, SourceStatus.PASS if obs else SourceStatus.WARN, observations=obs,
-                               raw=raw, message=f"{todo}: {stats}",
-                               latest_observation_time=max((o.observation_time for o in obs), default=None))
+                               raw=raw, message=f"{todo}: {stats}", latest_observation_time=latest)
 
 
 CONNECTORS: dict[str, type[Connector]] = {

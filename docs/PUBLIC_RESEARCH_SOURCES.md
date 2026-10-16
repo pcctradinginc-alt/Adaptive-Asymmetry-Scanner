@@ -30,6 +30,15 @@ Zugangsdaten stehen nie im Code.
 - Die Nasdaq-100-Liste von nasdaq.com wird nur archiviert (PIT-Mitgliederhistorie). `get_universe` gehört zur
   eingefrorenen UNIVERSE_V1-Definition (Code-Hash). Eine Umstellung der Produktionsquelle wäre deshalb eine
   eigene V1-Änderung und braucht eine ausdrückliche Freigabe.
+- Täglicher Abgleich (`production_mismatch_count`): offizielle Liste gegen die Liste, die die Produktion tatsächlich
+  nutzt – wie `get_universe` Wikipedia, bei Parser-/Abruffehler `_NASDAQ100_STATIC`, danach `_clean`. Die Herkunft
+  steht in `attrs.production_source`; Abweichungen meldet das Ops-Monitoring (`UNIVERSE_SOURCE_MISMATCH:nasdaq100`).
+  Live 2026-10-15: Der Wikipedia-Parser fand keine Tabelle, die Produktion nutzte den statischen Fallback (92 Titel,
+  u. a. EA ohne Kurse).
+- Kalenderquellen (`fomc_calendar`, `bls_release_calendar`, `bea_release_calendar`) tragen
+  `allow_future_observations: true`: Termine in der Zukunft sind weder DQ-Befund noch PIT-Verletzung.
+- 13F: Der gemeldete Datenstand ist der jüngste verarbeitete Datensatz. Der Backfill älterer Sätze setzt ihn nicht
+  zurück.
 - Die Live-Formate werden mit dem Workflow „External Data Preflight“ geprüft. Der Eingang `family` steht dafür auf
   `public_research,real_economy`.
 

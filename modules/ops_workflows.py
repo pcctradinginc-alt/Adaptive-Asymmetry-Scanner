@@ -2,7 +2,7 @@
 
 Anlass: Der Upstream-Guard des Scanners stürzte am 12./13.10. zwei Tage lang ab (fehlender Import), der Watchdog
 ebenfalls – aufgefallen ist es erst bei einer manuellen Log-Durchsicht. Dieses Modul liest über die GitHub-REST-API
-(GITHUB_TOKEN / GITHUB_REPOSITORY, in Actions automatisch gesetzt) die Läufe seit dem vorherigen Handelstag:
+(GITHUB_TOKEN / GITHUB_REPOSITORY, in Actions automatisch gesetzt) die Läufe auf main seit dem vorherigen Handelstag:
 
   failed          fehlgeschlagene Läufe (failure / timed_out / startup_failure) mit fehlgeschlagenen Jobs/Schritten
                   und den letzten Fehlerzeilen aus dem Job-Log (begrenzt, Rauschen wie Node-Deprecation gefiltert)
@@ -23,6 +23,8 @@ log = logging.getLogger(__name__)
 
 API = "https://api.github.com"
 FAILED = frozenset({"failure", "timed_out", "startup_failure"})
+BRANCH = "main"                      # Betrieb läuft nur auf main; Feature-Branch-/PR-Läufe (Tests vor dem Merge) sind kein
+                                     # Betriebsfehler (Fehlalarm 2026-10-15: rote Tests eines Feature-Branch-Pushs)
 SCANNER_FILE = ".github/workflows/scanner.yml"
 SCAN_JOB = "scan"
 LATE_START_ET = time(15, 0)          # danach bleibt bis zum Ende des Mark-Fensters (Schluss − 10 min) kaum Zeit
@@ -82,7 +84,7 @@ def collect(now: datetime | None = None, env: dict | None = None, session=None) 
         runs: list[dict] = []
         for page in range(1, MAX_PAGES + 1):                  # Montags (74 h) können es > 100 Läufe sein
             chunk = _get(session, f"{API}/repos/{repo}/actions/runs",
-                         {"created": f">={since}", "per_page": 100, "page": page}).json().get("workflow_runs") or []
+                         {"created": f">={since}", "branch": BRANCH, "per_page": 100, "page": page}).json().get("workflow_runs") or []
             runs += chunk
             if len(chunk) < 100:
                 break

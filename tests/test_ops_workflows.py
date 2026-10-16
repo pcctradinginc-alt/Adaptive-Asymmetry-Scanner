@@ -120,7 +120,8 @@ def test_collect_failed_runs_jobs_steps_and_log_lines():
     res = ow.collect(NOW, env=ENV, session=s)
     assert res["status"] == "OK" and res["runs_total"] == 3 and res["window_hours"] == 26
     assert res["since"] == "2026-10-13T19:00:00Z"
-    assert s.calls[0] == (f"{API}/actions/runs", {"created": ">=2026-10-13T19:00:00Z", "per_page": 100, "page": 1})
+    assert s.calls[0] == (f"{API}/actions/runs", {"created": ">=2026-10-13T19:00:00Z", "branch": "main",
+                                                     "per_page": 100, "page": 1})
     assert s.headers["Authorization"] == "Bearer t0k"
     [f] = res["failed"]                                       # cancelled zählt nicht als Fehler
     assert f["workflow"] == "Adaptive Asymmetry Scanner" and f["run_id"] == 1 and f["conclusion"] == "failure"

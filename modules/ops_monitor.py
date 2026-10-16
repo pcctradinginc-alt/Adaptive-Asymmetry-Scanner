@@ -669,13 +669,34 @@ def _external_rows_check(now: datetime, root: Path = Path("outputs/external_data
     return dict(res)
 
 
+def _nasdaq100_check(P: dict) -> dict | None:
+    """A4: jüngster Abgleich offizielle Nasdaq-100-Liste vs. tatsächlich genutzte Produktionsliste (Wikipedia oder
+    statischer Fallback; external archive nasdaq100_members); None = noch kein Abgleich archiviert."""
+    try:
+        from modules.external.archive import ExternalArchive
+        root = Path(P["external_health"]).parent.parent
+        rows = [o for o in ExternalArchive(root).load("nasdaq100_members") if o.metric == "production_mismatch_count"]
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Nasdaq-100-Abgleich nicht lesbar: {e}")
+        return None
+    if not rows:
+        return None
+    o = max(rows, key=lambda r: (r.observation_time, r.available_at))
+    a = o.attrs or {}
+    return {"date": o.observation_time.date().isoformat(), "mismatch": int(o.value or 0),
+            "only_official": a.get("only_official") or [], "only_production": a.get("only_production") or [],
+            "official_n": a.get("official_n"), "production_n": a.get("production_n"),
+            "production_source": a.get("production_source")}
+
+
 def data_health(P: dict, now: datetime) -> dict:
     sh = _json(P["source_health"]) or {}
     srcs = sh.get("sources") or sh.get("results") or {}
     statuses = Counter((v or {}).get("status") for v in (srcs.values() if isinstance(srcs, dict) else srcs))
     eh = _json(P["external_health"]) or {}
-    esrc = eh.get("sources") or {}
-    estat = Counter((v or {}).get("status") or (v or {}).get("last_status") for v in esrc.values()) \
+    # orchestrator-Datei ist direkt nach source_id geschlüsselt ({id: {...}}); ältere Form {"sources": {...}}
+    esrc = eh.get("sources") if isinstance(eh.get("sources"), dict) else eh
+    estat = Counter(v.get("status") or v.get("last_status") for v in esrc.values() if isinstance(v, dict)) \
         if isinstance(esrc, dict) else Counter()
     days = {}
     for i in range(14):
@@ -686,7 +707,8 @@ def data_health(P: dict, now: datetime) -> dict:
             days[dd] = {"n": len(rs), "by_context": dict(Counter(r.get("context") for r in rs)),
                         "by_quality": dict(Counter(r.get("quality_status") for r in rs))}
     vals = [v["n"] for v in days.values()]
-    return {"source_health": {"generated": sh.get("generated"), "by_status": dict(statuses)},
+    return {"nasdaq100_source_check": _nasdaq100_check(P),
+            "source_health": {"generated": sh.get("generated"), "by_status": dict(statuses)},
             "external_data": {"by_status": dict(estat)},
             "quote_archive_days": days,
             "quote_archive_median_14d": statistics.median(vals) if vals else None,

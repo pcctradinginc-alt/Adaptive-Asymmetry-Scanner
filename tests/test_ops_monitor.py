@@ -1604,6 +1604,13 @@ def test_data_health_counts_archive_days_and_source_status(env):
     assert dh["quote_archive_median_14d"] == 2.0 and dh["quote_archive_root_exists"] is True
 
 
+def test_data_health_reads_orchestrator_health_keyed_by_source(env):
+    """Die Orchestrator-Datei ist direkt nach source_id geschlüsselt (kein "sources") – vorher stand im Bericht
+    immer "Externe Daten: keine" (Live 2026-10-15)."""
+    env.write_json("external_health", {"x": {"status": "PASS"}, "y": {"status": "WARN"}, "z": {"status": "PASS"}})
+    assert env.collect()["data_health"]["external_data"] == {"by_status": {"PASS": 2, "WARN": 1}}
+
+
 def test_data_health_empty_archive_has_no_median(env):
     dh = env.collect()["data_health"]
     assert dh["quote_archive_days"] == {} and dh["quote_archive_median_14d"] is None

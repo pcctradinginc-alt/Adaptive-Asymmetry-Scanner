@@ -96,7 +96,8 @@ Exactly-once wird über die Consume-once-Schlüssel `<trade_id>:close:<Ziel>` ge
 | `PROMOTION_UNJUSTIFIED` | CRITICAL | Einfluss ungleich NONE ohne Integrität oder ohne aktiven Produktionszustand |
 | `DATA_DEGRADATION:*` | WARNING | +2 Quellen FAIL/STALE/DEGRADED gegenüber dem Vorlauf; Quote-Archiv unter 50 % des 14-Tage-Medians |
 | `MONITOR_SECTION_ERROR:*` / `MONITOR_COLLECT_FAILED` | WARNING | ein Abschnitt oder die Sammlung selbst ist fehlerhaft |
-| `WORKFLOW_FAILED:<Workflow>` | CRITICAL (Scanner, Feedback, Options-Capture) / WARNING | fehlgeschlagener GitHub-Actions-Lauf seit dem vorherigen Handelstag; Schritte und letzte Fehlerzeilen aus dem Job-Log (`modules/ops_workflows.py`, nur lesend) |
+| `WORKFLOW_FAILED:<Workflow>` | CRITICAL (Scanner, Feedback, Options-Capture) / WARNING | fehlgeschlagener GitHub-Actions-Lauf auf `main` seit dem vorherigen Handelstag (Feature-Branch-/PR-Läufe zählen nicht); Schritte und letzte Fehlerzeilen aus dem Job-Log (`modules/ops_workflows.py`, nur lesend) |
+| `UNIVERSE_SOURCE_MISMATCH:nasdaq100` | WARNING | offizielle Nasdaq-100-Liste (nasdaq.com) weicht von der Liste ab, die das Produktionsuniversum tatsächlich nutzt (Wikipedia oder statischer Fallback); nur Hinweis, UNIVERSE_V1 bleibt unverändert |
 | `SCANNER_LATE_START` | WARNING | Scan-Job startete an einem Handelstag nach 15:00 New York |
 | `DIRECTION_CONFLICT_HIGH` | WARNING | Haiku/Sonnet-Richtungswiderspruch ≥ 35 % bei mindestens 10 Analysen |
 | `METRIC_ANOMALY:<Kennzahl>` | WARNING | robuster z-Wert (Median/MAD der bis zu 20 Vortage, mind. 8) ≥ 4 in der schlechten Richtung, mit Mindestabstand |

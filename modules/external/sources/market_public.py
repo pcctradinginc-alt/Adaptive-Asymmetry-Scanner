@@ -109,13 +109,43 @@ class Nasdaq100MembersConnector(Connector):
         except ValueError as e:
             return ConnectorResult(self.source_id, SourceStatus.SCHEMA_CHANGED, raw=raw, message=str(e))
         t = _day(res.retrieved_at.date())
-        obs = Observation(source_id=self.source_id, dataset="index_constituents", series_id="NDX", entity_id="NDX",
-                          metric="constituent_count", value=float(len(syms)), unit="count", observation_time=t,
-                          available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
-                          availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
-                          parser_version=self.parser_version, attrs={"symbols": syms})
-        return ConnectorResult(self.source_id, SourceStatus.PASS, observations=[obs], raw=raw,
-                               message=f"Nasdaq-100: {len(syms)} Mitglieder", latest_observation_time=t)
+        obs = [Observation(source_id=self.source_id, dataset="index_constituents", series_id="NDX", entity_id="NDX",
+                           metric="constituent_count", value=float(len(syms)), unit="count", observation_time=t,
+                           available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
+                           availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP,
+                           parser_version=self.parser_version, attrs={"symbols": syms})]
+        msg = f"Nasdaq-100: {len(syms)} Mitglieder"
+        # Abgleich gegen die Liste, die das Produktionsuniversum (UNIVERSE_V1) tatsächlich nutzt: Wikipedia, bei
+        # Parser-/Abruffehler der statische Fallback (wie get_universe). Nur Aufruf der unveränderten Funktionen;
+        # Abweichungen meldet das Ops-Monitoring (UNIVERSE_SOURCE_MISMATCH).
+        prod, prod_source = self._production_list()
+        if prod:
+            only_off, only_prod = sorted(set(syms) - set(prod)), sorted(set(prod) - set(syms))
+            obs.append(Observation(
+                source_id=self.source_id, dataset="index_constituents", series_id="NDX:production_diff",
+                entity_id="NDX", metric="production_mismatch_count", value=float(len(only_off) + len(only_prod)),
+                unit="count", observation_time=t, available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
+                availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP, parser_version=self.parser_version,
+                attrs={"only_official": only_off, "only_production": only_prod, "production_n": len(prod),
+                       "official_n": len(syms), "production_source": prod_source}))
+            msg += (f"; Abgleich Produktionsliste ({prod_source}): {len(only_off)} nur offiziell, "
+                    f"{len(only_prod)} nur Produktion")
+        else:
+            msg += "; Produktionsliste nicht ermittelbar (kein Abgleich)"
+        return ConnectorResult(self.source_id, SourceStatus.PASS, observations=obs, raw=raw, message=msg,
+                               latest_observation_time=t)
+
+    @staticmethod
+    def _production_list() -> tuple[list[str], str]:
+        """(Liste, Herkunft) exakt wie get_universe: Wikipedia, sonst _NASDAQ100_STATIC; danach _clean."""
+        try:
+            from modules.universe import _NASDAQ100_STATIC, _clean, _fetch_nasdaq100
+            live = _fetch_nasdaq100()
+            src = "wikipedia" if live else "static_fallback"
+            return sorted({_norm_ticker(x) for x in _clean(live or list(_NASDAQ100_STATIC))}), src
+        except Exception as e:  # noqa: BLE001
+            log.warning("Abgleich Nasdaq-100 (Produktionsliste) nicht möglich: %s", e)
+            return [], "unavailable"
 
 
 # ── B3: FINRA Daily Short Sale Volume ────────────────────────────────────────

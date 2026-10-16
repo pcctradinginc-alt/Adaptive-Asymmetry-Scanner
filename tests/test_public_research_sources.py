@@ -27,6 +27,15 @@ NEW = ("nasdaq100_members", "finra_short_volume", "finra_short_interest", "wikim
        "sec_13f_holdings", "fred_liquidity")
 
 
+_REAL_PRODUCTION_LIST = mp.Nasdaq100MembersConnector._production_list
+
+
+@pytest.fixture(autouse=True)
+def _no_production_list(monkeypatch):
+    """Kein Wikipedia-Abruf in Tests: A4-Abgleich standardmäßig ohne Produktionsliste."""
+    monkeypatch.setattr(mp.Nasdaq100MembersConnector, "_production_list", staticmethod(lambda: ([], "unavailable")))
+
+
 def resp(content, url="https://fixture", status=200, when=NOW):
     body = content if isinstance(content, bytes) else (json.dumps(content) if not isinstance(content, str)
                                                        else content).encode()
@@ -330,6 +339,28 @@ def test_13f_connector_processes_one_new_set_and_marks_it(monkeypatch, tmp_path)
     with patch.object(ce.http, "fetch", side_effect=fake):
         r2 = ce.Sec13FConnector({"_archive_root": str(tmp_path)}).fetch(NOW)
     assert r2.observations == [] and "kein neuer" in r2.message
+    assert r2.latest_observation_time == datetime(2026, 8, 31, tzinfo=UTC)          # Stand bleibt sichtbar
+
+
+def test_13f_backfill_of_older_set_keeps_newest_data_stand(monkeypatch, tmp_path):
+    """Live 2026-10-16: der dritte Backfill-Satz (Dez–Feb) meldete Stand 28.02. -> Source Health STALE, obwohl Jun–Aug
+    bereits archiviert war. Der Stand ist der jüngste verarbeitete Satz."""
+    monkeypatch.setattr(ce, "entity_index", lambda: IDX)
+    html = ('<a href="/files/x/01jun2026-31aug2026_form13f.zip">x</a>'
+            '<a href="/files/x/01dec2025-28feb2026_form13f.zip">y</a>')
+
+    def fake(url, **kw):
+        return resp(_zip13f() if url.endswith(".zip") else html, url=url)
+
+    from modules.external.archive import ExternalArchive
+    with patch.object(ce.http, "fetch", side_effect=fake):
+        r1 = ce.Sec13FConnector({"_archive_root": str(tmp_path)}).fetch(NOW)          # neuester Satz zuerst
+    ExternalArchive(tmp_path).store_observations(r1.observations)
+    with patch.object(ce.http, "fetch", side_effect=fake):
+        r2 = ce.Sec13FConnector({"_archive_root": str(tmp_path)}).fetch(NOW)          # älterer Satz
+    assert [o.series_id for o in r2.observations if o.metric == "dataset_processed"] == \
+        ["set:01dec2025-28feb2026_form13f.zip"]
+    assert r1.latest_observation_time == r2.latest_observation_time == datetime(2026, 8, 31, tzinfo=UTC)
 
 
 def test_wiki_parser_accepts_parsoid_links_and_rejects_namespaces():
@@ -383,3 +414,80 @@ def test_pageviews_preflight_uses_sample(monkeypatch):
         rep = conn.preflight(NOW)
     assert rep["status"] == "PASS" and len(calls) == mp.WikimediaPageviewsConnector.PREFLIGHT_SAMPLE
     assert conn._sample is None                                        # nur für den Preflight
+
+
+def test_nasdaq100_cross_check_against_production_list(monkeypatch):
+    monkeypatch.setattr(mp.Nasdaq100MembersConnector, "_production_list",
+                        staticmethod(lambda: (sorted({f"T{i:03d}" for i in range(99)} | {"OLDX"}), "wikipedia")))
+    with patch.object(mp.http, "fetch", return_value=resp(_ndx())):
+        r = mp.Nasdaq100MembersConnector({}).fetch(NOW)
+    diff = next(o for o in r.observations if o.metric == "production_mismatch_count")
+    assert diff.value == 3 and diff.attrs["only_official"] == ["BRK-B", "T099"]
+    assert diff.attrs["only_production"] == ["OLDX"] and diff.attrs["production_source"] == "wikipedia"
+    monkeypatch.setattr(mp.Nasdaq100MembersConnector, "_production_list", staticmethod(lambda: ([], "unavailable")))
+    with patch.object(mp.http, "fetch", return_value=resp(_ndx())):
+        r2 = mp.Nasdaq100MembersConnector({}).fetch(NOW)
+    assert [o.metric for o in r2.observations] == ["constituent_count"] and "kein Abgleich" in r2.message
+
+
+def test_production_list_mirrors_get_universe_fallback(monkeypatch):
+    """Live 2026-10-15: Wikipedia-Parser ohne Tabelle -> Produktion nutzt _NASDAQ100_STATIC (u. a. EA). Der Abgleich
+    muss genau diese Liste prüfen (vorher: leere Wikipedia-Liste -> kein Abgleich)."""
+    from modules import universe as uv
+    monkeypatch.setattr(uv, "_fetch_nasdaq100", lambda: [])
+    lst, src = _REAL_PRODUCTION_LIST()
+    assert src == "static_fallback" and "EA" in lst and lst == sorted(set(uv._clean(list(uv._NASDAQ100_STATIC))))
+    monkeypatch.setattr(uv, "_fetch_nasdaq100", lambda: ["AAPL", "BRK-B", "msft"])     # Parser liefert "-"
+    assert _REAL_PRODUCTION_LIST() == (["AAPL", "BRK-B", "MSFT"], "wikipedia")
+
+
+def test_nasdaq100_check_in_ops_monitor_and_report(tmp_path, monkeypatch):
+    from modules import ops_monitor, ops_report
+    from modules.external.archive import ExternalArchive
+    monkeypatch.setattr(mp.Nasdaq100MembersConnector, "_production_list",
+                        staticmethod(lambda: (["OLDX"], "static_fallback")))
+    with patch.object(mp.http, "fetch", return_value=resp(_ndx())):
+        obs = mp.Nasdaq100MembersConnector({}).fetch(NOW).observations
+    root = tmp_path / "external_data"
+    ExternalArchive(root).store_observations(obs)
+    chk = ops_monitor._nasdaq100_check({"external_health": root / "health" / "source_health.json"})
+    assert chk["mismatch"] == 102 and chk["only_production"] == ["OLDX"] and chk["date"] == "2026-10-15"
+    assert chk["production_source"] == "static_fallback"
+    assert ops_monitor._nasdaq100_check({"external_health": tmp_path / "x" / "health" / "h.json"}) is None
+    status = {"as_of": "2026-10-15", "data_health": {"nasdaq100_source_check": chk, "source_health": {},
+                                                     "external_data": {}, "quote_archive_days": {}}}
+    row = ops_report.history_row(status)
+    al, st = ops_report.alerts(status, row, [], {})
+    a = next(x for x in al if x["id"] == "UNIVERSE_SOURCE_MISMATCH:nasdaq100")
+    assert a["severity"] == "WARNING" and "OLDX" in a["cause"] and "statischer Fallback" in a["cause"]
+    assert row["data.nasdaq100_mismatch"] == 102
+    # nicht berechenbarer Abschnitt -> Warnung bleibt offen statt RESOLVED
+    al2, st2 = ops_report.alerts({"as_of": "2026-10-16", "data_health": {"error": "x"}}, {}, [], st)
+    assert "UNIVERSE_SOURCE_MISMATCH:nasdaq100" in st2
+
+
+def test_calendar_future_dates_are_neither_dq_finding_nor_pit_violation():
+    """Live 2026-10-16: fomc/bls/bea_release_calendar standen auf BROKEN ("PIT-Verletzung"), weil geplante Termine
+    in der Zukunft liegen. Freigabe per Registry allow_future_observations; andere Quellen unverändert."""
+    from modules import source_health as sh
+    from modules.external import data_quality as dq
+    reg = SourceRegistry()
+    obs = cal.FomcCalendarConnector(reg.sources["fomc_calendar"])
+    with patch.object(cal.http, "fetch", return_value=resp(FOMC_HTML)):
+        res = obs.fetch(NOW)
+    assert res.observations and all(o.observation_time > NOW for o in res.observations)
+    for sid in ("fomc_calendar", "bls_release_calendar", "bea_release_calendar"):
+        cfg = reg.sources[sid]
+        assert cfg["allow_future_observations"] is True
+        d = dq.assess(res.observations, cfg, NOW)
+        assert "FUTURE_OBSERVATION" not in d["issues"] and not d["severe"]
+    d_other = dq.assess(res.observations, reg.sources["fred_liquidity"], NOW)
+    assert "FUTURE_OBSERVATION" in d_other["issues"]                    # Gate bleibt für alle anderen Quellen
+    rh = {"fomc_calendar": {"status": "PASS", "dq": d_other, "latest_observation": "2027-01-27T19:00:00+00:00"},
+          "fred_liquidity": {"status": "PASS", "dq": d_other, "latest_observation": "2026-10-14T00:00:00+00:00"}}
+    contracts = {k: reg.sources[k] for k in rh}
+    checks = {c["source_id"]: c for c in sh.gather(sh.load_config(), NOW, probes=False, registry_health=rh,
+                                                     contracts=contracts)
+              if c["source_id"] in rh}
+    assert checks["fomc_calendar"]["store"]["future_timestamps"] == 0
+    assert checks["fred_liquidity"]["store"]["future_timestamps"] > 0

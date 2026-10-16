@@ -150,6 +150,9 @@ sources:
   expected_update_cadence: P7D
   max_staleness_days: 14
   pit_quality: EXACT_TIMESTAMP
+  # Termine liegen per Definition in der Zukunft (observation_time = geplanter Zeitpunkt, available_at = Abruf):
+  # kein FUTURE_OBSERVATION-Befund und keine PIT-Verletzung in Source Health.
+  allow_future_observations: true
   max_fetch_seconds: 60
   notes: 'B7: Entscheid = letzter Sitzungstag 14:00 New York; value 2 = mit Projektionen (SEP).'
   cost: kostenlos
@@ -178,6 +181,9 @@ sources:
   expected_update_cadence: P7D
   max_staleness_days: 14
   pit_quality: EXACT_TIMESTAMP
+  # Termine liegen per Definition in der Zukunft (observation_time = geplanter Zeitpunkt, available_at = Abruf):
+  # kein FUTURE_OBSERVATION-Befund und keine PIT-Verletzung in Source Health.
+  allow_future_observations: true
   max_fetch_seconds: 60
   notes: 'B7: CPI, Arbeitsmarkt, PPI, JOLTS … als geplante Termine (UTC).'
   cost: kostenlos
@@ -206,6 +212,9 @@ sources:
   expected_update_cadence: P7D
   max_staleness_days: 14
   pit_quality: EXACT_TIMESTAMP
+  # Termine liegen per Definition in der Zukunft (observation_time = geplanter Zeitpunkt, available_at = Abruf):
+  # kein FUTURE_OBSERVATION-Befund und keine PIT-Verletzung in Source Health.
+  allow_future_observations: true
   max_fetch_seconds: 60
   notes: 'B7: BIP, PCE/Persönliches Einkommen, Handelsbilanz … als geplante Termine (UTC).'
   cost: kostenlos
