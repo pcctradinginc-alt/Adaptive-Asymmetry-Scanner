@@ -1,8 +1,15 @@
 {
- "at": "2026-10-16T16:55:09+00:00",
+ "at": "2026-10-17T15:55:19+00:00",
  "changes": [
   {
-   "source_id": "fred_market_expectations",
+   "source_id": "eia_natural_gas",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten')"
+  },
+  {
+   "source_id": "noaa_storm_events",
    "type": "recovery",
    "from": "DEGRADED",
    "to": "HEALTHY",
