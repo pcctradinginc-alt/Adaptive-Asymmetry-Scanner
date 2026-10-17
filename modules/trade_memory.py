@@ -202,6 +202,12 @@ def _build_case(t: dict, source: str, outcome: float, regimes: dict) -> dict:
     spread = _num(quote.get("spread_pct"))
     if spread is None:
         spread = _num(opt.get("spread_ratio"))
+    # Spread-Position: Spanne der ganzen Kombination (Long-Ask − Short-Bid gegen Long-Bid − Short-Ask),
+    # gleiche Skala (Anteil am Kaufpreis). Das Long-Bein allein unterschätzt die Kosten (KDP 15.10.: 6,5 % statt 24 %).
+    leg = opt.get("spread_leg") or {}
+    lb, la, sb, sa = (_num(v) for v in (opt.get("bid"), opt.get("ask"), leg.get("bid"), leg.get("ask")))
+    if "SPREAD" in str(t.get("strategy") or "") and None not in (lb, la, sb, sa) and la - sb > 0:
+        spread = round(((la - sb) - (lb - sa)) / (la - sb), 4)
 
     reliable = is_reliable_outcome(t)   # eine Definition; Altbestand ohne Methode = UNKNOWN
     catalyst = deep.get("catalyst")

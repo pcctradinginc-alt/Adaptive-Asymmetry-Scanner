@@ -199,6 +199,17 @@ def _archive_exit_quote(raw: dict, ticker: str, source: str) -> None:
         log.debug(f"Quote-Archiv Fehler (ignoriert): {e}")
 
 
+def _quote_time_iso(raw: dict) -> str | None:
+    """Jüngste Börsenzeit von Bid/Ask (eine aktualisierte Seite = lebende Quote), sonst wie im Archiv."""
+    try:
+        from modules import option_quotes as oq
+        sides = [oq.quote_time_of({k: raw.get(k)}) for k in ("bid_date", "ask_date")]
+        qt = max((s for s in sides if s), default=None) or oq.quote_time_of(raw)
+        return qt.isoformat() if qt else None
+    except Exception:  # noqa: BLE001 – Zeitstempel ist nur Zusatzinfo
+        return None
+
+
 def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: str) -> dict | None:
     """Bid/Ask via Tradier /v1/markets/options/chains (Strike ± 0.01)."""
     try:
@@ -219,7 +230,11 @@ def _tradier_option_quote(ticker: str, strike: float, expiry: str, option_type: 
             bid, ask = float(o.get("bid") or 0), float(o.get("ask") or 0)
             _archive_exit_quote(o, ticker, "tradier")
             if bid > 0 or ask > 0:
-                return {"bid": bid, "ask": ask, "source": "tradier"}
+                q = {"bid": bid, "ask": ask, "source": "tradier"}
+                qt = _quote_time_iso(o)
+                if qt:
+                    q["quote_time"] = qt               # nur SHADOW-Qualität (STALE), nie Preis
+                return q
         return None
     except Exception as e:
         log.warning(f"Tradier Options-Chain [{ticker} {expiry}]: {e}")
@@ -561,7 +576,11 @@ def _spread_execution_monitor(trade: dict, meta: dict, underlying: float, today:
     try:
         from modules import spread_execution as se
         q = meta["spread_quotes"]
-        obs = se.monitor(trade, q.get("long"), q.get("short"), underlying)
+        # Ältester Leg-Zeitstempel entscheidet über STALE (vorher nie übergeben → STALE feuerte nie).
+        times = [(leg or {}).get("quote_time") for leg in (q.get("long"), q.get("short"))]
+        quote_ts = None if None in times else min(times, key=lambda s: datetime.fromisoformat(s))
+        obs = se.monitor(trade, q.get("long"), q.get("short"), underlying,
+                         now=datetime.now(timezone.utc), quote_ts=quote_ts)
         hist = (trade.setdefault("spread_monitor", []) + [obs])[-10:]
         trade["spread_monitor"] = hist
         trade["spread_stop_shadow"] = se.stop_shadow(hist)
