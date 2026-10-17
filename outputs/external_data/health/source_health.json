@@ -1,8 +1,8 @@
 {
   "imf_portwatch_ports": {
     "source_id": "imf_portwatch_ports",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-09T00:00:00+00:00",
     "latest_release": null,
@@ -12,35 +12,36 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 12872,
-    "duplicate_count": 280975,
+    "duplicate_count": 291657,
     "rows_ingested": 38765,
     "bytes_downloaded": 0,
     "consecutive_failures": 0,
-    "message": "11445 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 650475 Rohbeobachtungen); 0 unresolved ports: []",
+    "message": "10682 observations (kuratierte H\u00e4fen + GLOBAL/Gruppen-Aggregate aus 607110 Rohbeobachtungen); 0 unresolved ports: []",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 11445,
+      "n_observations": 10682,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-09-25T00:00:00+00:00",
+        "2026-09-26T00:00:00+00:00",
         "2026-10-09T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "imf_portwatch_chokepoints": {
     "source_id": "imf_portwatch_chokepoints",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-11T00:00:00+00:00",
     "latest_release": null,
@@ -50,35 +51,36 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 8,
-    "duplicate_count": 238328,
+    "duplicate_count": 244600,
     "rows_ingested": 14120,
     "bytes_downloaded": 0,
     "consecutive_failures": 0,
-    "message": "6664 observations; 0 unresolved chokepoints: []",
+    "message": "6272 observations; 0 unresolved chokepoints: []",
     "criticality": "medium",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 6664,
+      "n_observations": 6272,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-09-25T00:00:00+00:00",
+        "2026-09-26T00:00:00+00:00",
         "2026-10-11T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "destatis_truck_toll": {
     "source_id": "destatis_truck_toll",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-09-01T00:00:00+00:00",
     "latest_release": null,
@@ -88,9 +90,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 13,
-    "duplicate_count": 43712,
+    "duplicate_count": 44837,
     "rows_ingested": 1138,
-    "bytes_downloaded": 615962,
+    "bytes_downloaded": 630968,
     "consecutive_failures": 0,
     "message": "1125 Beobachtungen aus Tabelle 42191-0001",
     "criticality": "medium",
@@ -111,12 +113,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "bts_freight_tsi": {
     "source_id": "bts_freight_tsi",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-07-01T00:00:00+00:00",
     "latest_release": null,
@@ -126,9 +129,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 7502,
-    "duplicate_count": 296654,
+    "duplicate_count": 304475,
     "rows_ingested": 7821,
-    "bytes_downloaded": 29953356,
+    "bytes_downloaded": 30703566,
     "consecutive_failures": 0,
     "message": "7821 ALFRED-Vintage-Beobachtungen f\u00fcr TSIFRGHT",
     "criticality": "medium",
@@ -149,12 +152,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "eurostat_road_freight": {
     "source_id": "eurostat_road_freight",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2025-01-01T00:00:00+00:00",
     "latest_release": "2026-07-30T23:00:00+02:00",
@@ -164,9 +168,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 21411,
-    "duplicate_count": 637220,
+    "duplicate_count": 652348,
     "rows_ingested": 37101,
-    "bytes_downloaded": 100919693,
+    "bytes_downloaded": 103114467,
     "consecutive_failures": 0,
     "message": "15128 Beobachtungen aus Datensatz road_go_ta_tott",
     "criticality": "low",
@@ -187,12 +191,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "estat_jp_truck": {
     "source_id": "estat_jp_truck",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-03-01T00:00:00+00:00",
     "latest_release": null,
@@ -202,9 +207,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 133920,
+    "duplicate_count": 138240,
     "rows_ingested": 14776,
-    "bytes_downloaded": 20272895,
+    "bytes_downloaded": 20831429,
     "consecutive_failures": 0,
     "message": "4320 Beobachtungen aus statsDataId 0003422293",
     "criticality": "low",
@@ -225,11 +230,12 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "fhwa_faf": {
     "source_id": "fhwa_faf",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -249,11 +255,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "viapass_be": {
     "source_id": "viapass_be",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -273,11 +280,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "asfinag_at": {
     "source_id": "asfinag_at",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -297,11 +305,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "nbs_cn": {
     "source_id": "nbs_cn",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -321,11 +330,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "mot_cn": {
     "source_id": "mot_cn",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -345,11 +355,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "kosis_kr": {
     "source_id": "kosis_kr",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -369,15 +380,16 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "nws_forecast": {
     "source_id": "nws_forecast",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": null,
-    "latest_release": "2026-10-16T11:29:48+00:00",
+    "latest_release": "2026-10-17T10:23:44+00:00",
     "retrieval_lag": null,
     "expected_cadence": "6h",
     "staleness": "UNKNOWN",
@@ -385,8 +397,8 @@
     "parse_failures": 0,
     "revision_count": 0,
     "duplicate_count": 39720,
-    "rows_ingested": 86558,
-    "bytes_downloaded": 526059806,
+    "rows_ingested": 88897,
+    "bytes_downloaded": 537531649,
     "consecutive_failures": 0,
     "message": "",
     "criticality": "medium",
@@ -394,25 +406,26 @@
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 2369,
+      "n_observations": 2339,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-15T07:00:00+00:00",
-        "2026-10-20T07:00:00+00:00"
+        "2026-10-16T04:00:00+00:00",
+        "2026-10-21T07:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "nws_alerts": {
     "source_id": "nws_alerts",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": null,
     "latest_release": "2026-10-02T01:24:00+00:00",
@@ -423,8 +436,8 @@
     "parse_failures": 0,
     "revision_count": 0,
     "duplicate_count": 0,
-    "rows_ingested": 1309,
-    "bytes_downloaded": 4984768,
+    "rows_ingested": 1354,
+    "bytes_downloaded": 5082530,
     "consecutive_failures": 0,
     "message": "",
     "criticality": "medium",
@@ -439,13 +452,14 @@
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-16T11:35:43.223966+00:00",
-        "2026-10-16T11:35:50.115311+00:00"
+        "2026-10-17T10:59:48.973516+00:00",
+        "2026-10-17T10:59:59.002593+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "ncei_normals": {
     "source_id": "ncei_normals",
@@ -464,29 +478,30 @@
     "rows_ingested": 87600,
     "bytes_downloaded": 27413551,
     "consecutive_failures": 2,
-    "message": "\u00fcbersprungen: statisch, letzter Erfolg vor 17.7 T (< min_refetch_days=30)",
+    "message": "\u00fcbersprungen: statisch, letzter Erfolg vor 18.7 T (< min_refetch_days=30)",
     "criticality": "low",
     "auth_optional": true,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "nhc_storms": {
     "source_id": "nhc_storms",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": null,
-    "latest_release": "2026-10-16T09:00:00+00:00",
+    "latest_release": "2026-10-17T09:00:00+00:00",
     "retrieval_lag": null,
     "expected_cadence": "6h",
     "staleness": "UNKNOWN",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 60,
-    "duplicate_count": 2149,
-    "rows_ingested": 2151,
-    "bytes_downloaded": 4175076,
+    "duplicate_count": 2151,
+    "rows_ingested": 2183,
+    "bytes_downloaded": 4206321,
     "consecutive_failures": 0,
     "message": "",
     "criticality": "high",
@@ -494,25 +509,26 @@
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 58,
+      "n_observations": 34,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-16T09:00:00+00:00",
+        "2026-10-17T09:00:00+00:00",
         "2026-10-21T06:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "noaa_storm_events": {
     "source_id": "noaa_storm_events",
-    "last_attempt": "2026-10-04T08:23:25+00:00",
-    "last_success": "2026-10-04T08:23:25+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2025-01-01T00:00:00+00:00",
     "latest_release": null,
@@ -523,10 +539,10 @@
     "parse_failures": 0,
     "revision_count": 776,
     "duplicate_count": 161,
-    "rows_ingested": 844,
-    "bytes_downloaded": 12638347,
+    "rows_ingested": 1849,
+    "bytes_downloaded": 25276694,
     "consecutive_failures": 0,
-    "message": "\u00fcbersprungen: statisch, letzter Erfolg vor 12.1 T (< min_refetch_days=30)",
+    "message": "1005 state/event_type-Z\u00e4hler aus StormEvents_details-ftp_v1.0_d2025_c20260819.csv.gz",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
@@ -535,23 +551,22 @@
       "n_observations": 1005,
       "null_rate": 0.0,
       "non_finite": 0,
-      "duplicate_conflicts": 932,
+      "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
         "2025-01-01T00:00:00+00:00",
         "2025-01-01T00:00:00+00:00"
       ],
-      "issues": [
-        "DUPLICATE_CONFLICT"
-      ],
+      "issues": [],
       "details": {},
-      "severe": true
-    }
+      "severe": false
+    },
+    "parser_version": "storm-events-2"
   },
   "ecmwf_open_data": {
     "source_id": "ecmwf_open_data",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -571,12 +586,13 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "eurostat_sentiment": {
     "source_id": "eurostat_sentiment",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-09-01T00:00:00+00:00",
     "latest_release": "2026-09-29T11:00:00+02:00",
@@ -586,9 +602,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 528,
-    "duplicate_count": 279154,
+    "duplicate_count": 286330,
     "rows_ingested": 7704,
-    "bytes_downloaded": 89860622,
+    "bytes_downloaded": 92105991,
     "consecutive_failures": 0,
     "message": "7176 Beobachtungen aus Datensatz ei_bssi_m_r2",
     "criticality": "medium",
@@ -609,12 +625,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "eurostat_industrial_production": {
     "source_id": "eurostat_industrial_production",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-08-01T00:00:00+00:00",
     "latest_release": "2026-10-15T11:00:00+02:00",
@@ -624,9 +641,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 119,
-    "duplicate_count": 108565,
+    "duplicate_count": 111357,
     "rows_ingested": 2911,
-    "bytes_downloaded": 81837519,
+    "bytes_downloaded": 83882223,
     "consecutive_failures": 0,
     "message": "2792 Beobachtungen aus Datensatz sts_inpr_m",
     "criticality": "medium",
@@ -647,32 +664,33 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "fred_us_macro": {
     "source_id": "fred_us_macro",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-08-01T00:00:00+00:00",
+    "latest_observation": "2026-09-01T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1M",
     "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
-    "revision_count": 38267,
-    "duplicate_count": 1536910,
-    "rows_ingested": 40445,
-    "bytes_downloaded": 156890040,
+    "revision_count": 38272,
+    "duplicate_count": 1577355,
+    "rows_ingested": 40451,
+    "bytes_downloaded": 160812884,
     "consecutive_failures": 0,
-    "message": "40445 ALFRED-Vintage-Beobachtungen (UMCSENT+INDPRO)",
+    "message": "40451 ALFRED-Vintage-Beobachtungen (UMCSENT+INDPRO)",
     "criticality": "medium",
     "auth_optional": true,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 40445,
+      "n_observations": 40451,
       "null_rate": 0.0223,
       "non_finite": 0,
       "duplicate_conflicts": 0,
@@ -680,16 +698,17 @@
       "out_of_range": 0,
       "observation_range": [
         "1919-01-01T00:00:00+00:00",
-        "2026-08-01T00:00:00+00:00"
+        "2026-09-01T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "destatis_truck_toll_download": {
     "source_id": "destatis_truck_toll_download",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -709,12 +728,13 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "bts_open_data_tsi": {
     "source_id": "bts_open_data_tsi",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-08-01T00:00:00+00:00",
     "latest_release": null,
@@ -724,9 +744,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 120,
-    "duplicate_count": 17762,
+    "duplicate_count": 18402,
     "rows_ingested": 1052,
-    "bytes_downloaded": 23879927,
+    "bytes_downloaded": 24638807,
     "consecutive_failures": 0,
     "message": "640 Beobachtungen aus Datensatz bw6n-ddqk (freight_field=tsi_freight, truck_field=idx_truck_d11)",
     "criticality": "medium",
@@ -747,12 +767,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "eurostat_road_freight_quarterly": {
     "source_id": "eurostat_road_freight_quarterly",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2025-10-01T00:00:00+00:00",
     "latest_release": "2026-07-30T23:00:00+02:00",
@@ -762,9 +783,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 2290716,
+    "duplicate_count": 2350998,
     "rows_ingested": 60282,
-    "bytes_downloaded": 115111959,
+    "bytes_downloaded": 117988433,
     "consecutive_failures": 0,
     "message": "60282 Beobachtungen aus Datensatz road_go_tq_tott (quarterly)",
     "criticality": "low",
@@ -785,12 +806,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "imf_portwatch_disruptions": {
     "source_id": "imf_portwatch_disruptions",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-08-14T21:58:21+00:00",
     "latest_release": null,
@@ -800,7 +822,7 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 28320,
+    "duplicate_count": 29264,
     "rows_ingested": 944,
     "bytes_downloaded": 0,
     "consecutive_failures": 0,
@@ -823,12 +845,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "fred_regime_macro": {
     "source_id": "fred_regime_macro",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-14T00:00:00+00:00",
     "latest_release": null,
@@ -838,9 +861,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 19039,
-    "duplicate_count": 699732,
+    "duplicate_count": 725860,
     "rows_ingested": 26128,
-    "bytes_downloaded": 71521939,
+    "bytes_downloaded": 74096496,
     "consecutive_failures": 0,
     "message": "26128 ALFRED-Vintage-Beobachtungen (CPI/NFCI/WALCL/Dollar/WTI)",
     "criticality": "medium",
@@ -861,50 +884,52 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "entsoe_power": {
     "source_id": "entsoe_power",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-10-17T00:00:00+00:00",
+    "latest_observation": "2026-10-18T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1D",
     "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
-    "revision_count": 75,
-    "duplicate_count": 59337,
-    "rows_ingested": 2572,
-    "bytes_downloaded": 1249052745,
+    "revision_count": 78,
+    "duplicate_count": 61723,
+    "rows_ingested": 2580,
+    "bytes_downloaded": 1297992801,
     "consecutive_failures": 0,
-    "message": "2395 Tageswerte (5 Preiszonen, Last ['DE'])",
+    "message": "2394 Tageswerte (5 Preiszonen, Last ['DE'])",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 2395,
+      "n_observations": 2394,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2025-09-13T00:00:00+00:00",
-        "2026-10-17T00:00:00+00:00"
+        "2025-09-14T00:00:00+00:00",
+        "2026-10-18T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "fred_world_macro": {
     "source_id": "fred_world_macro",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-10T00:00:00+00:00",
     "latest_release": null,
@@ -914,9 +939,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 5220,
-    "duplicate_count": 148734,
+    "duplicate_count": 154991,
     "rows_ingested": 6257,
-    "bytes_downloaded": 15062338,
+    "bytes_downloaded": 15670326,
     "consecutive_failures": 0,
     "message": "6257 ALFRED-Vintage-Beobachtungen (PAYEMS/ICSA/RSAFS/ISRATIO)",
     "criticality": "low",
@@ -937,11 +962,12 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "sec_form345": {
     "source_id": "sec_form345",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -961,11 +987,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "sec_submissions": {
     "source_id": "sec_submissions",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -985,11 +1012,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "gleif_lei": {
     "source_id": "gleif_lei",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -1009,11 +1037,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "sec_companyfacts": {
     "source_id": "sec_companyfacts",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -1033,11 +1062,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "ted_awards": {
     "source_id": "ted_awards",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
@@ -1057,11 +1087,12 @@
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
-    "dq": null
+    "dq": null,
+    "parser_version": null
   },
   "eia_petroleum_weekly": {
     "source_id": "eia_petroleum_weekly",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": "2026-10-16T11:28:34+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-14T00:00:00+00:00",
@@ -1076,7 +1107,7 @@
     "rows_ingested": 10874,
     "bytes_downloaded": 3321547,
     "consecutive_failures": 0,
-    "message": "336 EIA-Werte, 0 Revisionen (ab Abruf g\u00fcltig)",
+    "message": "\u00fcbersprungen: alle Serien auf dem Stand der letzten Ver\u00f6ffentlichung",
     "criticality": "low",
     "auth_optional": true,
     "pit_integrity_failures": 0,
@@ -1095,13 +1126,14 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": null
   },
   "eia_natural_gas": {
     "source_id": "eia_natural_gas",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": "2026-10-10T12:36:18+00:00",
-    "status": "PASS",
+    "status": "FAIL",
     "latest_observation": "2026-10-06T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
@@ -1113,8 +1145,8 @@
     "duplicate_count": 112,
     "rows_ingested": 3862,
     "bytes_downloaded": 1156663,
-    "consecutive_failures": 0,
-    "message": "\u00fcbersprungen: alle Serien auf dem Stand der letzten Ver\u00f6ffentlichung",
+    "consecutive_failures": 1,
+    "message": "SourceTimeout('Zeitbudget 300s \u00fcberschritten')",
     "criticality": "low",
     "auth_optional": true,
     "pit_integrity_failures": 0,
@@ -1133,12 +1165,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": null
   },
   "fred_commodities": {
     "source_id": "fred_commodities",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-14T00:00:00+00:00",
     "latest_release": null,
@@ -1148,9 +1181,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 690,
-    "duplicate_count": 125448,
+    "duplicate_count": 132844,
     "rows_ingested": 7396,
-    "bytes_downloaded": 12899737,
+    "bytes_downloaded": 13617900,
     "consecutive_failures": 0,
     "message": "7396 ALFRED-Vintage-Beobachtungen (Brent/HenryHub/Kupfer/Weizen/Mais/Soja)",
     "criticality": "low",
@@ -1173,11 +1206,12 @@
         "zero_placeholders": 10
       },
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "cftc_cot": {
     "source_id": "cftc_cot",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
     "last_success": "2026-10-10T12:36:18+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-06T00:00:00+00:00",
@@ -1211,14 +1245,15 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": null
   },
   "fred_market_expectations": {
     "source_id": "fred_market_expectations",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-10-15T00:00:00+00:00",
+    "latest_observation": "2026-10-16T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1D",
@@ -1226,17 +1261,17 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 16,
-    "duplicate_count": 39386,
-    "rows_ingested": 19699,
-    "bytes_downloaded": 12746289,
+    "duplicate_count": 59085,
+    "rows_ingested": 19705,
+    "bytes_downloaded": 16996001,
     "consecutive_failures": 0,
-    "message": "19699 ALFRED-Vintage-Beobachtungen (DGS2/DGS10/DFF/T5YIE/T10YIE/T5YIFR)",
+    "message": "19705 ALFRED-Vintage-Beobachtungen (DGS2/DGS10/DFF/T5YIE/T10YIE/T5YIFR)",
     "criticality": "medium",
     "auth_optional": true,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 19699,
+      "n_observations": 19705,
       "null_rate": 0.0326,
       "non_finite": 0,
       "duplicate_conflicts": 0,
@@ -1244,17 +1279,57 @@
       "out_of_range": 0,
       "observation_range": [
         "2015-01-01T00:00:00+00:00",
-        "2026-10-15T00:00:00+00:00"
+        "2026-10-16T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   },
   "nasdaq100_members": {
     "source_id": "nasdaq100_members",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
+    "status": "PASS",
+    "latest_observation": "2026-10-17T00:00:00+00:00",
+    "latest_release": null,
+    "retrieval_lag": null,
+    "expected_cadence": "P1D",
+    "staleness": "FRESH",
+    "missingness": 0.0,
+    "parse_failures": 0,
+    "revision_count": 0,
+    "duplicate_count": 1,
+    "rows_ingested": 4,
+    "bytes_downloaded": 86186,
+    "consecutive_failures": 0,
+    "message": "Nasdaq-100: 101 Mitglieder; Abgleich Produktionsliste (nasdaq_official): 0 nur offiziell, 0 nur Produktion",
+    "criticality": "low",
+    "auth_optional": false,
+    "pit_integrity_failures": 0,
+    "archive_error": "",
+    "dq": {
+      "n_observations": 2,
+      "null_rate": 0.0,
+      "non_finite": 0,
+      "duplicate_conflicts": 0,
+      "future_observations": 0,
+      "out_of_range": 0,
+      "observation_range": [
+        "2026-10-17T00:00:00+00:00",
+        "2026-10-17T00:00:00+00:00"
+      ],
+      "issues": [],
+      "details": {},
+      "severe": false
+    },
+    "parser_version": "market-public-1"
+  },
+  "finra_short_volume": {
+    "source_id": "finra_short_volume",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-16T00:00:00+00:00",
     "latest_release": null,
@@ -1264,47 +1339,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 1,
-    "rows_ingested": 2,
-    "bytes_downloaded": 64623,
-    "consecutive_failures": 0,
-    "message": "Nasdaq-100: 101 Mitglieder",
-    "criticality": "low",
-    "auth_optional": false,
-    "pit_integrity_failures": 0,
-    "archive_error": "",
-    "dq": {
-      "n_observations": 1,
-      "null_rate": 0.0,
-      "non_finite": 0,
-      "duplicate_conflicts": 0,
-      "future_observations": 0,
-      "out_of_range": 0,
-      "observation_range": [
-        "2026-10-16T00:00:00+00:00",
-        "2026-10-16T00:00:00+00:00"
-      ],
-      "issues": [],
-      "details": {},
-      "severe": false
-    }
-  },
-  "finra_short_volume": {
-    "source_id": "finra_short_volume",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
-    "status": "PASS",
-    "latest_observation": "2026-10-15T00:00:00+00:00",
-    "latest_release": null,
-    "retrieval_lag": null,
-    "expected_cadence": "P1D",
-    "staleness": "FRESH",
-    "missingness": 0.0,
-    "parse_failures": 0,
-    "revision_count": 0,
-    "duplicate_count": 5580,
-    "rows_ingested": 3720,
-    "bytes_downloaded": 8088621,
+    "duplicate_count": 8060,
+    "rows_ingested": 4340,
+    "bytes_downloaded": 10787570,
     "consecutive_failures": 0,
     "message": "3100 Ticker-Tage; fehlend: -",
     "criticality": "low",
@@ -1319,18 +1356,19 @@
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-09T00:00:00+00:00",
-        "2026-10-15T00:00:00+00:00"
+        "2026-10-12T00:00:00+00:00",
+        "2026-10-16T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "market-public-1"
   },
   "finra_short_interest": {
     "source_id": "finra_short_interest",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-09-30T00:00:00+00:00",
     "latest_release": null,
@@ -1340,9 +1378,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 4952,
+    "duplicate_count": 7428,
     "rows_ingested": 2476,
-    "bytes_downloaded": 57323289,
+    "bytes_downloaded": 76431052,
     "consecutive_failures": 0,
     "message": "1238 Ticker-Stichtage (ohne Token)",
     "criticality": "low",
@@ -1363,12 +1401,13 @@
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "market-public-1"
   },
   "wikimedia_pageviews": {
     "source_id": "wikimedia_pageviews",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
     "latest_observation": "2026-10-15T00:00:00+00:00",
     "latest_release": null,
@@ -1378,36 +1417,37 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 2510,
+    "duplicate_count": 3514,
     "rows_ingested": 2008,
-    "bytes_downloaded": 2393763,
+    "bytes_downloaded": 3191473,
     "consecutive_failures": 0,
-    "message": "502 Artikel, 1506 Tageswerte, 0 Fehler",
+    "message": "502 Artikel, 1004 Tageswerte, 0 Fehler",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 1506,
+      "n_observations": 1004,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-13T00:00:00+00:00",
+        "2026-10-14T00:00:00+00:00",
         "2026-10-15T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "market-public-1"
   },
   "fomc_calendar": {
     "source_id": "fomc_calendar",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
-    "status": "WARN",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
+    "status": "PASS",
     "latest_observation": "2027-10-27T18:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
@@ -1416,40 +1456,39 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 18,
-    "rows_ingested": 9,
-    "bytes_downloaded": 503568,
+    "duplicate_count": 27,
+    "rows_ingested": 10,
+    "bytes_downloaded": 671424,
     "consecutive_failures": 0,
-    "message": "9 Termine im Fenster | DQ: FUTURE_OBSERVATION",
+    "message": "9 Termine im Fenster; erste Momentaufnahme",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 9,
+      "n_observations": 10,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
-      "future_observations": 9,
+      "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-28T18:00:00+00:00",
+        "2026-10-17T10:57:11.495677+00:00",
         "2027-10-27T18:00:00+00:00"
       ],
-      "issues": [
-        "FUTURE_OBSERVATION"
-      ],
+      "issues": [],
       "details": {
-        "future_example": "2026-10-28T18:00:00+00:00"
+        "scheduled_future": 9
       },
-      "severe": true
-    }
+      "severe": false
+    },
+    "parser_version": "calendars-1"
   },
   "bls_release_calendar": {
     "source_id": "bls_release_calendar",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
-    "status": "WARN",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
+    "status": "PASS",
     "latest_observation": "2026-12-30T15:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
@@ -1458,40 +1497,39 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 66,
-    "rows_ingested": 33,
-    "bytes_downloaded": 242016,
+    "duplicate_count": 99,
+    "rows_ingested": 34,
+    "bytes_downloaded": 322688,
     "consecutive_failures": 0,
-    "message": "33 Termine im Fenster | DQ: FUTURE_OBSERVATION",
+    "message": "33 Termine im Fenster; erste Momentaufnahme",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 33,
+      "n_observations": 34,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
-      "future_observations": 29,
+      "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
         "2026-10-14T12:30:00+00:00",
         "2026-12-30T15:00:00+00:00"
       ],
-      "issues": [
-        "FUTURE_OBSERVATION"
-      ],
+      "issues": [],
       "details": {
-        "future_example": "2026-10-20T14:00:00+00:00"
+        "scheduled_future": 29
       },
-      "severe": true
-    }
+      "severe": false
+    },
+    "parser_version": "calendars-1"
   },
   "bea_release_calendar": {
     "source_id": "bea_release_calendar",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
-    "status": "WARN",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
+    "status": "PASS",
     "latest_observation": "2027-11-04T12:30:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
@@ -1500,41 +1538,40 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 136,
-    "rows_ingested": 62,
-    "bytes_downloaded": 35694,
+    "duplicate_count": 202,
+    "rows_ingested": 63,
+    "bytes_downloaded": 47592,
     "consecutive_failures": 0,
-    "message": "66 Termine im Fenster | DQ: FUTURE_OBSERVATION",
+    "message": "66 Termine im Fenster; erste Momentaufnahme",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 66,
+      "n_observations": 67,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
-      "future_observations": 66,
+      "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-29T12:30:00+00:00",
+        "2026-10-17T10:57:11.840009+00:00",
         "2027-11-04T12:30:00+00:00"
       ],
-      "issues": [
-        "FUTURE_OBSERVATION"
-      ],
+      "issues": [],
       "details": {
-        "future_example": "2026-11-04T13:30:00+00:00"
+        "scheduled_future": 66
       },
-      "severe": true
-    }
+      "severe": false
+    },
+    "parser_version": "calendars-1"
   },
   "clinicaltrials_sponsors": {
     "source_id": "clinicaltrials_sponsors",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-10-16T00:00:00+00:00",
+    "latest_observation": "2026-10-17T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1D",
@@ -1543,8 +1580,8 @@
     "parse_failures": 0,
     "revision_count": 0,
     "duplicate_count": 96,
-    "rows_ingested": 192,
-    "bytes_downloaded": 2985,
+    "rows_ingested": 288,
+    "bytes_downloaded": 3980,
     "consecutive_failures": 0,
     "message": "24/47 Healthcare-Emittenten mit Studien, 96 Kennzahlen",
     "criticality": "low",
@@ -1559,20 +1596,21 @@
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-16T00:00:00+00:00",
-        "2026-10-16T00:00:00+00:00"
+        "2026-10-17T00:00:00+00:00",
+        "2026-10-17T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "company-events-1"
   },
   "usaspending_contracts": {
     "source_id": "usaspending_contracts",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-10-16T00:00:00+00:00",
+    "latest_observation": "2026-10-17T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1D",
@@ -1581,74 +1619,76 @@
     "parse_failures": 0,
     "revision_count": 0,
     "duplicate_count": 18,
-    "rows_ingested": 46,
-    "bytes_downloaded": 99648,
+    "rows_ingested": 70,
+    "bytes_downloaded": 132750,
     "consecutive_failures": 0,
-    "message": "1000 Auftr\u00e4ge, 14 Emittenten zugeordnet",
+    "message": "1000 Auftr\u00e4ge, 12 Emittenten zugeordnet",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 28,
+      "n_observations": 24,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2026-10-16T00:00:00+00:00",
-        "2026-10-16T00:00:00+00:00"
+        "2026-10-17T00:00:00+00:00",
+        "2026-10-17T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "company-events-1"
   },
   "sec_13f_holdings": {
     "source_id": "sec_13f_holdings",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-02-28T00:00:00+00:00",
+    "latest_observation": "2026-08-31T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P90D",
-    "staleness": "STALE",
+    "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
     "duplicate_count": 0,
-    "rows_ingested": 2915,
-    "bytes_downloaded": 291043047,
+    "rows_ingested": 3846,
+    "bytes_downloaded": 376877176,
     "consecutive_failures": 0,
-    "message": "['01dec2025-28feb2026_form13f.zip']: {'01dec2025-28feb2026_form13f.zip': {'filings': 6829, 'cusips': 21069, 'cusips_mapped': 1253, 'issuers': 491}}",
+    "message": "['01sep2025-30nov2025_form13f.zip']: {'01sep2025-30nov2025_form13f.zip': {'filings': 7815, 'cusips': 21240, 'cusips_mapped': 1067, 'issuers': 465}}",
     "criticality": "low",
     "auth_optional": false,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 983,
+      "n_observations": 931,
       "null_rate": 0.0,
       "non_finite": 0,
       "duplicate_conflicts": 0,
       "future_observations": 0,
       "out_of_range": 0,
       "observation_range": [
-        "2025-12-31T00:00:00+00:00",
-        "2026-02-28T00:00:00+00:00"
+        "2025-09-30T00:00:00+00:00",
+        "2025-11-30T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "company-events-1"
   },
   "fred_liquidity": {
     "source_id": "fred_liquidity",
-    "last_attempt": "2026-10-16T11:28:34+00:00",
-    "last_success": "2026-10-16T11:28:34+00:00",
+    "last_attempt": "2026-10-17T10:48:42+00:00",
+    "last_success": "2026-10-17T10:48:42+00:00",
     "status": "PASS",
-    "latest_observation": "2026-10-15T00:00:00+00:00",
+    "latest_observation": "2026-10-16T00:00:00+00:00",
     "latest_release": null,
     "retrieval_lag": null,
     "expected_cadence": "P1D",
@@ -1656,17 +1696,17 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 256,
-    "duplicate_count": 7150,
-    "rows_ingested": 3578,
-    "bytes_downloaded": 1874406,
+    "duplicate_count": 10728,
+    "rows_ingested": 3580,
+    "bytes_downloaded": 2499589,
     "consecutive_failures": 0,
-    "message": "3578 ALFRED-Vintage-Beobachtungen (RRPONTSYD/WTREGEN/T10Y2Y)",
+    "message": "3580 ALFRED-Vintage-Beobachtungen (RRPONTSYD/WTREGEN/T10Y2Y)",
     "criticality": "low",
     "auth_optional": true,
     "pit_integrity_failures": 0,
     "archive_error": "",
     "dq": {
-      "n_observations": 3578,
+      "n_observations": 3580,
       "null_rate": 0.0363,
       "non_finite": 0,
       "duplicate_conflicts": 0,
@@ -1674,11 +1714,12 @@
       "out_of_range": 0,
       "observation_range": [
         "2021-01-01T00:00:00+00:00",
-        "2026-10-15T00:00:00+00:00"
+        "2026-10-16T00:00:00+00:00"
       ],
       "issues": [],
       "details": {},
       "severe": false
-    }
+    },
+    "parser_version": "1"
   }
 }
