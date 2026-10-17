@@ -37,6 +37,8 @@ LIVE_QUOTE_MAX_LAG_DAYS = 4             # Options-Outcome nur aus Quotes nahe de
 MAX_RETRIES = 7                         # danach (frühestens 14 T nach Fälligkeit) OUTCOME_UNAVAILABLE
 MIN_DAYS_BEFORE_UNAVAILABLE = 14
 GATE_MIN_N = 30                         # darunter NEED_MORE_DATA im Gate-Learning-Report
+PRICE_BASIS_TOL = 0.25                  # erster Schluss / Snapshot-Kurs außerhalb (1−TOL, 1/(1−TOL)) -> andere Preisbasis
+CORRECTION_LOOKBACK_DAYS = 60           # nur jüngere Bewertungen werden auf eine geänderte Preisbasis nachgeprüft
 
 ROI_GATES = {"roi_initial", "edge", "mc_pnl", "theta", "vega", "roi", "roi_net"}
 LIQUIDITY_GATES = {"liquidity", "open_interest", "oi", "spread", "spread_ratio", "volume", "no_chain"}
@@ -158,8 +160,8 @@ def _index(events: list[dict]) -> dict[str, dict]:
         h = x["h"].setdefault(str(e.get("horizon")), {"final": None, "retries": [], "legacy": None})
         if e.get("kind") == "LEGACY_OUTCOME":
             h["legacy"] = h.get("legacy") or e
-        elif e.get("kind") in RESOLVED and h["final"] is None:
-            h["final"] = e
+        elif e.get("kind") in RESOLVED and (h["final"] is None or e.get("corrects")):
+            h["final"] = e                                # Korrektur (correct_price_basis) ersetzt, append-only
         elif e.get("kind") == "RETRY":
             h["retries"].append(e)
     return idx
@@ -241,15 +243,24 @@ def _underlying_outcome(rec: dict, closes: list[tuple[str, float]], maturity: st
     if not path:
         return None
     ref = (rec["snapshot"].get("simulation") or {}).get("current_price")
-    src = "snapshot.simulation.current_price"
+    src, basis = "snapshot.simulation.current_price", None
     if not (isinstance(ref, (int, float)) and ref > 0):
+        ref, src = path[0][1], "entry_day_close"
+    elif ((date.fromisoformat(path[0][0]) - date.fromisoformat(rec["entry_date"])).days <= 5
+          and not (1.0 - PRICE_BASIS_TOL < path[0][1] / ref < 1.0 / (1.0 - PRICE_BASIS_TOL))):
+        # Historie rückwirkend bereinigt (Split/Abspaltung; Live 2026-10: CTVA, Snapshot 79,80 vs. Historie ~12,5 USD):
+        # der Snapshot-Kurs liegt auf einer anderen Preisbasis -> Einstiegsschluss derselben Historie (wie ohne Snapshot)
+        basis = round(path[0][1] / ref, 4)
         ref, src = path[0][1], "entry_day_close"
     after = [c for d, c in path if d > rec["entry_date"]] or [path[-1][1]]
     sign = -1.0 if (str(rec.get("direction")).upper() == "BEARISH" or "PUT" in str(rec.get("strategy")).upper()) else 1.0
     rets = [sign * (c / ref - 1) for c in after]
-    return {"underlying_ref_price": round(float(ref), 4), "ref_price_source": src,
-            "underlying_close_at_maturity": round(path[-1][1], 4), "last_close_date": path[-1][0],
-            "underlying_return": round(rets[-1], 6), "mfe": round(max(rets), 6), "mae": round(min(rets), 6)}
+    out = {"underlying_ref_price": round(float(ref), 4), "ref_price_source": src,
+           "underlying_close_at_maturity": round(path[-1][1], 4), "last_close_date": path[-1][0],
+           "underlying_return": round(rets[-1], 6), "mfe": round(max(rets), 6), "mae": round(min(rets), 6)}
+    if basis is not None:
+        out["price_basis_factor"] = basis
+    return out
 
 
 def run_worker(today: date, price_history_fn: PriceHistoryFn, option_outcome_fn: OptionOutcomeFn | None = None,
@@ -320,6 +331,49 @@ def run_worker(today: date, price_history_fn: PriceHistoryFn, option_outcome_fn:
                                           "close_date": today.isoformat()}
     _append_events(ledger_dir, new, today)
     return summary
+
+
+def correct_price_basis(today: date, price_history_fn: PriceHistoryFn, ledger_dir: Path | None = None,
+                        now: datetime | None = None) -> int:
+    """Bereits bewertete Horizonte nachprüfen, die gegen den Snapshot-Kurs gerechnet wurden und deren Pfad nie in die
+    Nähe der Referenz kam (mfe <= −TOL oder mae >= +TOL; Live 2026-10-12: CTVA −84 % auf 20/45/60 T, weil die Historie
+    nach der Abspaltung rückwirkend bereinigt war). Liegt der Snapshot-Kurs auf einer anderen Preisbasis als die heutige
+    Historie, wird eine Korrektur angehängt (kind EVALUATED, corrects = alte Bewertung); echte Kursbewegungen bleiben
+    unverändert. Optionsrendite (Live-Quote) wird übernommen. Rückgabe: Anzahl Korrekturen."""
+    ledger_dir = Path(ledger_dir or LEDGER_DIR)
+    now = now or datetime.combine(today, datetime.min.time())
+    recs, idx = _records(ledger_dir), _index(_events(ledger_dir))
+    since = (today - timedelta(days=CORRECTION_LOOKBACK_DAYS)).isoformat()
+    cache: dict[tuple[str, str, str], object] = {}
+    new: list[dict] = []
+    for sid, rec in recs.items():
+        for hx in ((idx.get(sid) or {}).get("h") or {}).values():
+            ev = hx.get("final")
+            if (not ev or ev.get("kind") != "EVALUATED" or ev.get("corrects")
+                    or ev.get("ref_price_source") != "snapshot.simulation.current_price"
+                    or str(ev.get("evaluated_at", ""))[:10] < since):
+                continue
+            if not ((ev.get("mfe") or 0) <= -PRICE_BASIS_TOL or (ev.get("mae") or 0) >= PRICE_BASIS_TOL):
+                continue
+            ck = (rec["ticker"], rec["entry_date"], ev["maturity_date"])
+            try:
+                if ck not in cache:
+                    cache[ck] = price_history_fn(*ck)
+                und = _underlying_outcome(rec, cache[ck] or [], ev["maturity_date"]) if cache[ck] else None
+            except Exception as e:  # noqa: BLE001 – Kursquelle aus: nächster Lauf prüft erneut
+                log.warning(f"shadow_ledger: Preisbasis-Prüfung {sid}/{ev.get('horizon')} nicht möglich ({e})")
+                continue
+            if not und or "price_basis_factor" not in und:
+                continue                                  # gleiche Basis: echte Bewegung, bleibt
+            new.append({**ev, **und, "evaluated_at": now.isoformat(timespec="seconds"),
+                        "corrects": ev.get("evaluated_at"), "correction_reason": "PRICE_BASIS_CHANGED",
+                        "corrected_values": {k: ev.get(k) for k in ("underlying_ref_price", "underlying_return",
+                                                                    "mfe", "mae")}})
+            log.warning(f"shadow_ledger: {rec['ticker']} {rec['entry_date']} H{ev.get('horizon')}: Preisbasis geändert "
+                        f"(Faktor {und['price_basis_factor']}) -> korrigiert {ev.get('underlying_return')} -> "
+                        f"{und['underlying_return']}")
+    _append_events(ledger_dir, new, today)
+    return len(new)
 
 
 # ── Recovery ─────────────────────────────────────────────────────────────────

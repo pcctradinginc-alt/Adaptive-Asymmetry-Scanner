@@ -376,6 +376,8 @@ def lifecycle(hist: dict, P: dict, now: datetime) -> dict:
     root = P["candidate_ledger"]
     for f in sorted(root.glob("*.jsonl")) if root.exists() else []:
         for r in read_jsonl(f):
+            if ((r.get("outcomes") or {}).get("price_basis") or {}).get("status") == "CHANGED":
+                cand["PRICE_BASIS_CHANGED"] += 1     # Split/Abspaltung: Renditen gegen gespeicherten Preis gesperrt
             if r.get("direction") not in ("BULLISH", "BEARISH"):
                 continue
             cand["SIGNAL"] += 1
@@ -402,7 +404,9 @@ def lifecycle(hist: dict, P: dict, now: datetime) -> dict:
     return {"champion": champion, "candidates": dict(cand),
             "definitions": {"LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
                             "LEARNING_ELIGIBLE": "geschlossen, Bewertung OK und verlässliche Preismethode",
-                            "candidate EXIT_OVERDUE": f"5-Tage-Mark > {MARK_OVERDUE_DAYS} Tage überfällig"}}
+                            "candidate EXIT_OVERDUE": f"5-Tage-Mark > {MARK_OVERDUE_DAYS} Tage überfällig",
+                            "candidate PRICE_BASIS_CHANGED": "Kurshistorie rückwirkend bereinigt (Split/Abspaltung): "
+                                                             "keine Renditen gegen den gespeicherten Entry-Preis"}}
 
 
 def keys_by_tid_dupes(processed: dict) -> int:
