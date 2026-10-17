@@ -1092,6 +1092,11 @@ def main() -> None:
             )
         else:
             hr = result["simulation"]["hit_rate"] if result and "simulation" in result else 0
+            from modules.mirofish_simulation import PARAM_SOURCE as _sigma_src
+            if result is None and _sigma_src.get(ticker, "measured") != "measured":
+                # keine Trefferquote ohne gemessenes, plausibles σ (nicht "zu wenig Vola")
+                reject("pre_mc_sigma_unavailable", ticker)
+                continue
             reject("pre_mc_sigma_too_low", ticker)
             log.info(
                 f"  [{ticker}] Pre-MC: {hr:.1%} < {PRE_MC_THRESHOLD:.0%} "
