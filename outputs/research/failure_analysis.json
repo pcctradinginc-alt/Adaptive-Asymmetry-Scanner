@@ -1,48 +1,48 @@
 {
   "last_n": 100,
-  "n_cases": 113,
-  "n_losses_total": 74,
-  "n_wins_total": 36,
+  "n_cases": 116,
+  "n_losses_total": 76,
+  "n_wins_total": 37,
   "reliable": {
-    "n": 3,
-    "mean_outcome": -0.6125999999999999,
+    "n": 5,
+    "mean_outcome": -0.46699999999999997,
     "primary": {
-      "signal_wrong": {
-        "n": 1,
-        "share": 0.3333333333333333,
-        "mean_outcome": -0.5918
-      },
       "structure_decay": {
-        "n": 1,
-        "share": 0.3333333333333333,
-        "mean_outcome": -0.7381
+        "n": 2,
+        "share": 0.4,
+        "mean_outcome": -0.45994999999999997
       },
       "timing_too_early": {
+        "n": 2,
+        "share": 0.4,
+        "mean_outcome": -0.41165
+      },
+      "signal_wrong": {
         "n": 1,
-        "share": 0.3333333333333333,
-        "mean_outcome": -0.5079
+        "share": 0.2,
+        "mean_outcome": -0.5918
       }
     },
     "labels": {
       "low_data_confidence": {
         "n": 2,
-        "share": 0.6666666666666666
+        "share": 0.4
+      },
+      "structure_decay": {
+        "n": 2,
+        "share": 0.4
+      },
+      "timing_too_early": {
+        "n": 2,
+        "share": 0.4
+      },
+      "weak_adverse_move": {
+        "n": 2,
+        "share": 0.4
       },
       "signal_wrong": {
         "n": 1,
-        "share": 0.3333333333333333
-      },
-      "structure_decay": {
-        "n": 1,
-        "share": 0.3333333333333333
-      },
-      "timing_too_early": {
-        "n": 1,
-        "share": 0.3333333333333333
-      },
-      "weak_adverse_move": {
-        "n": 1,
-        "share": 0.3333333333333333
+        "share": 0.2
       }
     }
   },
@@ -63,12 +63,77 @@
       }
     }
   },
-  "winner_vs_loser": {},
+  "winner_vs_loser": {
+    "impact": {
+      "mean_winners": 4.0,
+      "mean_losers": 4.0,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": 0.0,
+      "effect_size": null
+    },
+    "surprise": {
+      "mean_winners": 4.0,
+      "mean_losers": 3.0,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": 1.0,
+      "effect_size": 2.6832815729997477
+    },
+    "mismatch": {
+      "mean_winners": 1.266,
+      "mean_losers": 2.082,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": -0.8159999999999998,
+      "effect_size": -0.719863668488982
+    },
+    "z_score": {
+      "mean_winners": 0.547,
+      "mean_losers": 0.3836,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": 0.16340000000000005,
+      "effect_size": 0.7208026621991288
+    },
+    "sigma_30d": {
+      "mean_winners": 0.015,
+      "mean_losers": 0.026599999999999995,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": -0.011599999999999996,
+      "effect_size": -1.2894284746074045
+    },
+    "price_move_48h": {
+      "mean_winners": 0.0082,
+      "mean_losers": 0.00942,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": -0.0012199999999999989,
+      "effect_size": -0.22982873155317143
+    },
+    "eps_drift": {
+      "mean_winners": 0.0,
+      "mean_losers": 0.00772,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": -0.00772,
+      "effect_size": -0.5366563145999494
+    },
+    "quick_mc_hit_rate": {
+      "mean_winners": 0.507,
+      "mean_losers": 0.64112,
+      "n_winners": 1,
+      "n_losers": 5,
+      "diff": -0.13412000000000002,
+      "effect_size": -2.0259836709296386
+    }
+  },
   "note": "Kleine Stichprobe: Anteile sind deskriptiv, keine Signifikanzaussage.",
   "reliability_definition": "outcome-classes-v3-2026-10-10",
   "outcome_classes": {
     "UNKNOWN": 70,
     "RECONSTRUCTED": 40,
-    "RELIABLE": 3
+    "RELIABLE": 6
   }
 }
