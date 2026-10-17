@@ -13,7 +13,8 @@ from modules import mirofish_simulation as mf
 @pytest.fixture
 def sim(monkeypatch):
     def params(ticker):
-        mf.PARAM_SOURCE[ticker] = {"NODATA": "default_no_data", "ERR": "default_error"}.get(ticker, "measured")
+        mf.PARAM_SOURCE[ticker] = {"NODATA": "default_no_data", "ERR": "default_error",
+                                   "WILD": "clamped"}.get(ticker, "measured")
         return (0.02, 0.0) if ticker not in ("HIGHVOL",) else (0.06, 0.0)
     monkeypatch.setattr(mf, "_get_hist_params", params)
     s = mf.MirofishSimulation()
@@ -51,6 +52,8 @@ def test_no_price_or_no_history_returns_none(sim, monkeypatch):
     assert sim.run_for_dte(_cand(price=0.0)) is None
     assert sim.run_for_dte(_cand(t="NODATA")) is None          # keine Trefferquote aus Default-σ
     assert sim.run_for_dte(_cand(t="ERR")) is None
+    # Live 2026-10-15/16: MRNA σ=16,6 %/Tag gemessen, simuliert mit Default 2 % -> Pre-MC bestanden
+    assert sim.run_for_dte(_cand(t="WILD")) is None            # σ außerhalb 0,5–15 %: ebenfalls keine Quote
 
 
 def test_hit_rate_is_capped(sim):
