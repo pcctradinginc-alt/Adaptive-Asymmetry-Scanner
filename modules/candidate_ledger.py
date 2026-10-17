@@ -82,6 +82,8 @@ MARK_GIVE_UP_DAYS            = 14   # fälliger Mark so lange nach Fälligkeit o
 MARK_ARCHIVE_LOOKBACK_DAYS   = 10   # außerhalb der Sitzung: archivierte RTH-Quotes der letzten N Tage (Options-Capture)
 NO_PRICE_GIVE_UP_DAYS        = 10   # ohne Entry-Preis nach so vielen Tagen täglicher Versuche + heute keine Kurshistorie
                                     # -> outcomes_status NO_PRICE_DATA (z. B. delistet), nie geschätzt; kein Endlos-Abruf
+PRICE_BASIS_TOL              = 0.25 # Schluss am Einstiegstag (heutige Historie) / gespeicherter Entry-Preis außerhalb
+                                    # (1−TOL, 1/(1−TOL)) -> Historie rückwirkend bereinigt (Split, Abspaltung)
 
 # ── Hypothetischer Options-Kontrakt (Counterfactual, Observability) ──────────
 # Gates verwerfen/akzeptieren Kandidaten auf Basis von Underlying-Returns,
@@ -1647,11 +1649,13 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
     pending_tickers = set()
     for row in rows:
         entry_dt = _row_entry_dt(row)
-        if entry_dt is None or row.get("outcomes_status") == "NO_PRICE_DATA":
+        if entry_dt is None or row.get("outcomes_status") == "NO_PRICE_DATA" or _basis_changed(row):
             continue
         if row.get("entry_price") in (None, 0) and row.get("entry_basis") == "next_open":
             continue  # Open noch nicht verfügbar — nächster Lauf versucht es erneut
         outcomes = row.setdefault("outcomes", {})
+        if _suspicious(outcomes):
+            pending_tickers.add(row["ticker"])      # extreme gefüllte Rendite: Preisbasis sofort prüfen
         for h in RETURN_HORIZONS:
             key = f"ret_{h}d"
             if key in outcomes:
@@ -1676,7 +1680,7 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
     changed = False
     for row in rows:
         ticker = row.get("ticker")
-        if ticker not in pending_tickers or row.get("outcomes_status") == "NO_PRICE_DATA":
+        if ticker not in pending_tickers or row.get("outcomes_status") == "NO_PRICE_DATA" or _basis_changed(row):
             continue
         entry_dt = _row_entry_dt(row)
         if entry_dt is None:
@@ -1715,6 +1719,11 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
                         row["hypo_option"] = hypo
                 except Exception as e:
                     log.warning(f"candidate_ledger: hypo_option-Backfill Fehler (ignoriert): {e}")
+
+        modified, basis_changed = _check_price_basis(row, hist, entry_dt, float(entry_price), today_dt)
+        changed |= modified
+        if basis_changed:
+            continue
 
         direction = row.get("direction")
         outcomes  = row.setdefault("outcomes", {})
@@ -1759,6 +1768,56 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
             changed = True
 
     return changed
+
+
+def _basis_changed(row: dict) -> bool:
+    return ((row.get("outcomes") or {}).get("price_basis") or {}).get("status") == "CHANGED"
+
+
+def _suspicious(outcomes: dict) -> bool:
+    """Gefüllte Rendite >= PRICE_BASIS_TOL und noch nicht geprüft (danach price_basis OK/CHANGED, kein Neuabruf)."""
+    return "price_basis" not in outcomes and any(
+        isinstance(v, (int, float)) and abs(v) >= PRICE_BASIS_TOL for k, v in outcomes.items() if k.startswith("ret_"))
+
+
+def _check_price_basis(row: dict, hist, entry_dt: datetime, entry_price: float,
+                       today_dt: datetime) -> tuple[bool, bool]:
+    """Gespeicherter Entry-Preis vs. heutige Kurshistorie am Einstiegstag (Live 2026-10: CTVA-Abspaltung am 01.10.;
+    Yahoo bereinigt die Historie seitdem rückwirkend, auch Close ohne auto_adjust: 30.09. ~12 statt 77,6 USD).
+    Weichen beide um mehr als PRICE_BASIS_TOL ab, ist jede Rendite gegen den gespeicherten Preis falsch (CTVA:
+    ret_1d +0,84, opt_ret_1d +9,45). Dann: weitere Horizonte bleiben leer (nie ein Ersatz-Einstieg), bereits gefüllte
+    Renditen, die der Rechnung mit beiden Kursen aus der heutigen Historie um mehr als PRICE_BASIS_TOL widersprechen,
+    wandern nach outcomes_invalidated (nachvollziehbar, nie mehr als Outcome gelesen).
+    -> (Datensatz geändert, Preisbasis geändert)."""
+    ref = _price_on_or_before(hist, entry_dt)
+    if ref in (None, 0) or not entry_price:
+        return False, False
+    k = ref / entry_price
+    outcomes = row.setdefault("outcomes", {})
+    if 1.0 - PRICE_BASIS_TOL < k < 1.0 / (1.0 - PRICE_BASIS_TOL):
+        if _suspicious(outcomes):                 # extreme Rendite bei gleicher Basis: echte Bewegung, bleibt
+            outcomes["price_basis"] = {"status": "OK", "factor": round(k, 4), "checked_at": today_dt.strftime("%Y-%m-%d")}
+            return True, False
+        return False, False
+    invalid = {}
+    for h in RETURN_HORIZONS:
+        key = f"ret_{h}d"
+        if key not in outcomes:
+            continue
+        p_h = _price_on_or_before(hist, entry_dt + timedelta(days=h))
+        same_basis = None if p_h is None else _direction_adjusted_return(ref, p_h, row.get("direction"))
+        if same_basis is None or abs(outcomes[key] - same_basis) > PRICE_BASIS_TOL:
+            invalid.update({k_: outcomes.pop(k_) for k_ in (key, f"opt_ret_{h}d") if k_ in outcomes})
+    if invalid:
+        invalid.update({k_: outcomes.pop(k_) for k_ in ("mfe", "mae") if k_ in outcomes})   # derselbe Pfad
+        row.setdefault("outcomes_invalidated", {"reason": "PRICE_BASIS_CHANGED"}).update(invalid)
+    outcomes["price_basis"] = {"status": "CHANGED", "factor": round(k, 4), "entry_price": round(entry_price, 4),
+                               "history_close_entry_day": round(float(ref), 4),
+                               "checked_at": today_dt.strftime("%Y-%m-%d"),
+                               "invalidated": sorted(k_ for k_ in invalid if k_.startswith("ret_"))}
+    log.warning(f"candidate_ledger: {row.get('ticker')} {row.get('date')}: Preisbasis geändert (Historie/Entry "
+                f"{k:.3f}) -> keine weiteren Horizonte, ungültig: {outcomes['price_basis']['invalidated'] or '—'}")
+    return True, True
 
 
 def _mark_quotes(symbols: list[str]) -> tuple[str, dict]:

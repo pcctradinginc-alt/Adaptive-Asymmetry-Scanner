@@ -78,7 +78,18 @@ Probleme je Trade:
 
 Exactly-once wird über die Consume-once-Schlüssel `<trade_id>:close:<Ziel>` geprüft. Ein Verstoß liegt nur vor, wenn ein nicht lernbarer Trade gelernt wurde oder ein lernbarer Trade doppelt vorkommt. Altduplikate aus dem April (nicht lernbar) werden gesondert gezählt.
 
-**Kandidaten:** `SIGNAL`, `CONTRACT_SELECTED`, `ENTRY_PENDING`/`ENTRY_OBSERVED`, `EXIT_PENDING`, `EXIT_OVERDUE` (5-Tage-Mark mehr als 2 Tage überfällig), `OUTCOME_FINAL`, `LATE_MARK`.
+**Kandidaten:** `SIGNAL`, `CONTRACT_SELECTED`, `ENTRY_PENDING`/`ENTRY_OBSERVED`, `EXIT_PENDING`, `EXIT_OVERDUE` (5-Tage-Mark mehr als 2 Tage überfällig), `OUTCOME_FINAL`, `LATE_MARK`, `PRICE_BASIS_CHANGED`.
+
+**Preisbasis (Split, Abspaltung):** Yahoo bereinigt die Kurshistorie nach einer Kapitalmaßnahme rückwirkend, auch `Close` ohne `auto_adjust`. Live 2026-10 betraf das CTVA (Abspaltung am 01.10.): Die Historie zeigt seitdem auch für August und September rund 12 statt rund 78 USD.
+
+Betroffen sind Ledger, die den Einstiegspreis zum Signalzeitpunkt speichern und später gegen die heutige Historie rechnen. Sie erhielten Schein-Renditen:
+- Kandidaten-Ledger: `ret_1d` +0,84 und `opt_ret_1d` +9,45.
+- Shadow-Ledger: −84 % auf 20/45/60 T.
+
+Prüfung: Liegt der Schluss am Einstiegstag in der heutigen Historie außerhalb von (0,75 … 1,33) × gespeichertem Preis, gilt die Basis als geändert.
+- **Kandidaten-Ledger:** `outcomes.price_basis.status = CHANGED`. Weitere Horizonte bleiben leer, es gibt nie einen Ersatz-Einstieg. Gefüllte Renditen, die der Rechnung mit beiden Kursen aus derselben Historie um mehr als 0,25 widersprechen, wandern nach `outcomes_invalidated` und werden nie mehr als Outcome gelesen. Extreme gefüllte Renditen (|r| ≥ 0,25) werden sofort geprüft; bei gleicher Basis werden sie einmal als `OK` markiert, echte Kursstürze bleiben.
+- **Shadow-Ledger:** Neue Bewertungen nehmen bei geänderter Basis den Einstiegsschluss derselben Historie, wie schon bisher ohne Snapshot-Kurs. Bereits vorhandene Bewertungen der letzten 60 T, deren Pfad nie in die Nähe der Referenz kam, werden nachgeprüft. Die Korrektur wird angehängt (`corrects`, `correction_reason`, `corrected_values`) und ersetzt die alte Bewertung, append-only.
+- Ledger, die Ein- und Ausstieg aus derselben Kursreihe nehmen (Final-MC, V2, EA, ML-Panel), sind nicht betroffen.
 
 ## 6. Warnungen (Dedupe: NEW → ONGOING → CHANGED → RESOLVED)
 

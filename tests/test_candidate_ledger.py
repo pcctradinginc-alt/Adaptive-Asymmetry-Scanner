@@ -565,8 +565,9 @@ def test_update_outcomes_opt_ret_capped_at_minus_one(monkeypatch, ledger_root):
         },
     })
     entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
-    # Underlying crashes hard -> deep OTM call at expiry -> near-total loss
-    hist = {"AAPL": [(entry_dt + timedelta(days=d), 60.0) for d in range(0, 25)]}
+    # Underlying crashes hard after entry -> deep OTM call at expiry -> near-total loss
+    # (Einstiegstag = gespeicherter Entry-Preis; sonst greift die Preisbasis-Prüfung)
+    hist = {"AAPL": [(entry_dt + timedelta(days=d), 100.0 if d == 0 else 60.0) for d in range(0, 25)]}
     monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: hist)
 
     today = (entry_dt + timedelta(days=25)).strftime("%Y-%m-%d")

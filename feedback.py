@@ -644,6 +644,13 @@ def evaluate_shadow_trades(history: dict, today: datetime, ledger_dir: Path | No
     res = sl.run_worker(d, price_history_fn or _shadow_price_history, live_outcome_fn or _shadow_live_outcome,
                         ledger_dir=ledger_dir, legacy_horizon=legacy_h,
                         now=today if isinstance(today, datetime) else None)
+    try:
+        n_corr = sl.correct_price_basis(d, price_history_fn or _shadow_price_history, ledger_dir=ledger_dir,
+                                        now=today if isinstance(today, datetime) else None)
+        if n_corr:
+            log.info(f"  Shadow-Ledger: {n_corr} Bewertung(en) wegen geänderter Preisbasis (Split/Abspaltung) korrigiert")
+    except Exception as e:
+        log.warning(f"  Shadow-Ledger: Preisbasis-Prüfung Fehler (ignoriert): {e}")
     for st in shadows:
         if st.get("outcome") is not None:
             continue
