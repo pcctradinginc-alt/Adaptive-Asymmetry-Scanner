@@ -194,7 +194,7 @@ Keine Baseline wurde an die sechs Outcomes angepasst.
 - Auf dem Bestand ändern sich bei 116 Fällen 5 Label-Sätze: BBY, ADM, SNPS, KDP und AMZN erhalten `entry_cost_high`. Keine Primärursache ändert sich.
 - Doku: `docs/research/FAILURE_TAXONOMY.md`.
 
-## 7. Vorschläge (nicht umgesetzt, Freigabe erforderlich)
+## 7. Vorschläge (am 18.10. freigegeben und umgesetzt, siehe §10)
 
 Jeder Punkt ändert Handelsentscheidungen oder Champion-Logik.
 
@@ -283,3 +283,25 @@ Vorher werden keine Parameter angepasst.
 **Lint:** `ruff` sauber.
 
 **Reproduktionen:** synthetische Skripte der drei Prüfungen, im Bericht zusammengefasst. Die Zahlen in §2 bis §4 sind aus Repo-Daten vom 17.10. nachgerechnet.
+
+## 10. Umsetzung (18.10.2026, freigegeben)
+
+Reihenfolge wie empfohlen; pipeline/APP-Version **v8.4**, damit neue Ledger-Einträge vor und nach der Umstellung
+getrennt auswertbar sind. Wirksam = ändert Entscheidungen; Shadow = wird nur mitgeschrieben.
+
+| # | Status | Umsetzung | Nachweis |
+|---|---|---|---|
+| **V5** | wirksam | `feedback.decide_exit`: Stop/Take-Profit nur auf einer Quote, die timing-v2 auch als Fill zuließe (Entscheidung im Mark-Fenster, Börsenzeit der Quote in RTH, ≤ 30 min alt, je Leg Ask > 0 und 0 ≤ Bid ≤ Ask). Spreads stoppen auf dem Fair Value (Combo-Mid), Take-Profit bleibt ausführbar. Ohne zulässige Quote wird verschoben (`exit_deferral`), nach 3 Handelstagen mit Signal entscheidet die verfügbare Quote. Zeit-Exit und Settlement unverändert. Jeder Entscheid trägt `exit_decision` (Version `exit-decision-v2`). Gilt auch für Counterfactual-Trades. | `tests/test_exit_decision_v5.py` (15, echte KDP-Quotes) |
+| **V1** | wirksam | `simulate_option_pnl` bewertet Bull Call Spreads mit beiden Beinen ab dem Debit, Wert auf die Breite begrenzt, IV beider Beine aus ihren Mids. Kosten im MC-Gate: halbe Combo-Spanne beim Ausstieg + Kommission. | `tests/test_option_ev_v1_v2.py`, P0-1-Invariante |
+| **V2** | wirksam | `_compute_roi` = p · Gewinn (Netto-Delta Long − Short, Cap) − (1 − p) · Zeitwertverlust − Round Trip der Kombination − IV-Crush − Kommission; „SPREAD“ ohne Short-Bein = Long Call. Auf dem Bestand: alle fünf Champion-Spreads −4 % bis −23 % (damals +56 % bis +171 %), MO +8,5 %. | `tests/test_option_ev_v1_v2.py`, P0-2-Invariante |
+| **V3** | Shadow | `roi.shadow_v3`: dieselben Pfade mit Drift ohne 6-Monats-Trend, abklingend; gleiche Kosten und Gate-Regel. Ledger `roi_audit`, Trade-Datensatz `roi_audit`. | `tests/test_option_ev_shadow_v3_v4.py` |
+| **V4** | Shadow | `simulation.shadow_v4`: Berührwahrscheinlichkeit desselben Ziels mit Handelstagen (eigener Zufallsstrom, Produktion unverändert). Ledger `quick_mc_hit_rate_v4`, `final_mc_hit_rate_v4`. | `tests/test_option_ev_shadow_v3_v4.py` |
+| **V6** | wirksam | Kelly aus der Netto-P&L-Verteilung der MC (`kelly_inputs`: p_win, avg_win, avg_loss): f* = p/L − (1 − p)/W; ohne Verteilung keine Position; Max-Risiko 100 % des Debits; Größen-Abschläge skalieren das Risiko anteilig. | `tests/test_option_ev_v6_v8.py`, `tests/test_pipeline.py` |
+| **V7** | wirksam | Liquiditätsfilter (Tradier und yfinance): nur Kontrakte mit Bid > 0 und Ask ≥ Bid. | `tests/test_option_ev_v6_v8.py` |
+| **V8** | wirksam | Ein Horizont: MC-P&L bewertet zur maximalen Haltedauer (`close_after_days`, 45 T) statt DTE/2; Vorfilter-Verlustzweig über denselben Horizont; Trefferquote p aus dem Final-MC (gleiches Ziel) statt Quick-MC; Bericht/Mail nennen Time-Exit (50 % DTE, auch beim Spread wie im Lern-Loop) und maximale Haltedauer – das frühere Datum zählt. | `tests/test_option_ev_v6_v8.py` |
+
+**Erwartete Wirkung:** deutlich weniger Champion-Trades, weil der Vorfilter und das MC-Gate die Round-Trip-Kosten
+der Spreads jetzt voll sehen. Das ist beabsichtigt: Ohne belegten Edge ist kein Trade die richtige Entscheidung.
+Die Forward-Evidenz zu V3/V4 (Shadow) entscheidet später, ob Drift und Zeitachse auch produktiv umgestellt werden
+(frühestens ab ≥ 30 verlässlichen Outcomes und 20 unabhängigen Handelstagen, §8 Frage 5).
+

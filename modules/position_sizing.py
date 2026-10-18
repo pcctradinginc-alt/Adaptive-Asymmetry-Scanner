@@ -1,9 +1,12 @@
 """
 Positionsgrößen-Empfehlung via Fractional Kelly.
 
-Kelly für binäres Outcome: f* = p − (1−p)/b
-  p = Gewinnwahrscheinlichkeit (MC Hit-Rate, gecappt)
-  b = Gewinn/Verlust-Verhältnis (roi_net / assumed_loss bei Stop-Loss)
+V6 (2026-10-18): Kelly aus der simulierten Netto-P&L-Verteilung (roi_analysis.kelly_inputs):
+  f* = p / L − (1 − p) / W
+  p = Anteil der Pfade mit Netto-Gewinn, W = mittlerer Netto-Gewinn, L = mittlerer Netto-Verlust (<= 100 %).
+Vorher f* = p − (1 − p) / b mit p = Berührwahrscheinlichkeit und b = roi_net / 0,80: roi_net ist selbst schon ein
+mit p gewichteter Wert (p doppelt gezählt), p war keine Gewinnwahrscheinlichkeit. Ohne Verteilung (MC-P&L fehlte)
+gibt es keine Grundlage -> Kelly 0. Maximales Risiko einer Debit-Position = 100 % des Einsatzes.
 
 Voll-Kelly ist für Options viel zu aggressiv (Schätzfehler in p und b
 multiplizieren sich) → ¼-Kelly als Default, zusätzlich Hard-Cap pro Trade.
@@ -51,20 +54,16 @@ def compute_position_size(proposal: dict) -> dict:
         entry = float(option.get("ask") or 0)
     cost_per_contract = round(entry * 100, 2)
 
-    # p: MC Hit-Rate (konservativ gecappt — Modell-Cap liegt bei 75%)
-    p_win = float(
-        proposal.get("mc_hit_rate")
-        or (proposal.get("simulation") or {}).get("hit_rate")
-        or 0.5
-    )
-    p_win = max(0.05, min(p_win, 0.75))
-
-    # b: Gewinn/Verlust-Verhältnis
-    roi_net = float(roi.get("roi_net") or 0)
-    loss    = pc["assumed_loss_pct"]
-    b       = max(roi_net, 0.01) / loss
-
-    kelly_raw = p_win - (1 - p_win) / b
+    ki = roi.get("kelly_inputs") or {}
+    p_win, avg_win, avg_loss = (float(ki.get(k) or 0) for k in ("p_win", "avg_win", "avg_loss"))
+    if not ki:
+        kelly_raw, basis = 0.0, "NO_PNL_DISTRIBUTION"
+    elif avg_win <= 0 or p_win <= 0:
+        kelly_raw, basis = 0.0, "MC_PNL_DISTRIBUTION"
+    elif avg_loss <= 0:                                        # kein Verlustpfad: Hard-Cap begrenzt
+        kelly_raw, basis = 1.0, "MC_PNL_DISTRIBUTION"
+    else:
+        kelly_raw, basis = p_win / avg_loss - (1 - p_win) / avg_win, "MC_PNL_DISTRIBUTION"
     if not math.isfinite(kelly_raw):
         kelly_raw = 0.0
 
@@ -75,7 +74,9 @@ def compute_position_size(proposal: dict) -> dict:
     contracts = int(position_usd // cost_per_contract) if cost_per_contract > 0 else 0
 
     note = ""
-    if kelly_raw <= 0:
+    if basis == "NO_PNL_DISTRIBUTION":
+        note = "Keine P&L-Verteilung (MC-P&L fehlt) — keine Kelly-Grundlage, nur beobachten."
+    elif kelly_raw <= 0:
         note = "Kelly ≤ 0: Edge zu klein für eine Position — nur beobachten."
     elif contracts == 0 and cost_per_contract > 0:
         note = (
@@ -91,7 +92,9 @@ def compute_position_size(proposal: dict) -> dict:
         "position_usd":      position_usd,
         "cost_per_contract": cost_per_contract,
         "contracts":         contracts,
-        "max_risk_usd":      round(contracts * cost_per_contract * loss, 2),
+        "max_risk_usd":      round(contracts * cost_per_contract, 2),   # Debit-Position: bis 100 % Verlust
+        "kelly_basis":       basis,
+        "p_win":             round(p_win, 4) if ki else None,
         "note":              note,
     }
     log.info(
@@ -116,12 +119,12 @@ def apply_size_multiplier(sizing: dict, multiplier, applied_by=None) -> dict:
     pos_usd = min(usd0, round(usd0 * m, 2))                 # Rundung darf nie über das Original heben
     orig = int(sizing.get("contracts") or 0)
     contracts = min(int(pos_usd // cost) if cost > 0 else 0, orig)
-    loss = _portfolio_cfg()["assumed_loss_pct"]
+    risk0 = float(sizing.get("max_risk_usd") or 0)
     note = sizing.get("note") or ""
     if orig > 0 and contracts == 0:                  # Abrundung: Budget reicht nach Verkleinerung für keinen Kontrakt
         note = (note + " | " if note else "") + f"Sizing-Stufe ×{m:.2f}: Budget unter 1 Kontrakt – nur beobachten."
     return {**sizing, "position_pct": min(pct0, round(pct0 * m, 4)), "position_usd": pos_usd,
-            "contracts": contracts, "max_risk_usd": round(contracts * cost * loss, 2), "note": note,
+            "contracts": contracts, "max_risk_usd": round(risk0 * contracts / orig, 2) if orig else 0.0, "note": note,
             "size_adjustment": {"multiplier": round(m, 4), "applied_by": applied_by or [],
                                 "original_contracts": sizing.get("contracts"),
                                 "original_position_usd": sizing.get("position_usd")}}

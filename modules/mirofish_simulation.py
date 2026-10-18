@@ -88,6 +88,16 @@ MAX_SIGNAL_ALPHA = 0.001
 PARAM_SOURCE: dict[str, str] = {}
 
 
+def _kelly_inputs(net: np.ndarray, cost_pct: float) -> dict:
+    """V6: Gewinnwahrscheinlichkeit und mittlerer Netto-Gewinn/-Verlust (Anteil am Einstieg, Verlust <= 100 %) aus der
+    simulierten P&L-Verteilung – Grundlage für Kelly statt Trefferquote × roi_net."""
+    wins, losses = net[net > 0], net[net <= 0]
+    return {"p_win": round(float(np.mean(net > 0)), 4),
+            "avg_win": round(float(np.mean(wins)), 4) if wins.size else 0.0,
+            "avg_loss": round(min(1.0, float(-np.mean(losses))), 4) if losses.size else 0.0,
+            "cost_pct": round(float(cost_pct), 4)}
+
+
 def bs_call_r0(S: float, K: float, T: float, sigma: float) -> float:
     """Black-Scholes-Call (r=0, ohne Dividende) – dieselbe Konvention wie die MC-Bewertung."""
     if T <= 0.001 or sigma <= 0:
@@ -574,6 +584,8 @@ class MirofishSimulation:
         n_paths:         int   = 5000,
         iv_crush_factor: float = 0.22,   # Phase-1-Kompatibilität, in Phase 2 ignoriert
         iv_rank:         float = 50.0,
+        hold_days:       int | None = None,   # V8: Bewertungshorizont (None -> wie bisher DTE/2)
+        cost_pct:        float = 0.0,         # V6: Kosten (Anteil am Einstieg) für die Netto-Verteilung
     ) -> dict:
         """
         Phase 2: Stochastische IV via OU-Prozess + 2-Layer Hybrid-Kalibrierung.
@@ -607,7 +619,8 @@ class MirofishSimulation:
         ticker = candidate.get("ticker", "")
         ou     = self._get_ou_parameters(ticker, history or {}, entry_iv, iv_rank)
 
-        hold_days   = max(5, days_to_expiry // 2)
+        hold_days   = (max(5, days_to_expiry // 2) if hold_days is None
+                       else max(1, min(int(hold_days), days_to_expiry)))
         T_total     = days_to_expiry / 365.0
 
         price_paths = self._generate_gbm_paths(current_price, mu, sigma, T_total, n_paths, days_to_expiry)
@@ -668,6 +681,7 @@ class MirofishSimulation:
             "entry_price":      round(entry_price, 4),
             "instrument":       "BULL_CALL_SPREAD" if spread else "LONG_CALL",
             "shadow_v3":        shadow_v3,
+            "kelly_inputs":     _kelly_inputs(pnl_per_path - cost_pct, cost_pct),
         }
 
 

@@ -105,7 +105,7 @@ def test_designer_records_v3_shadow_without_changing_decision(monkeypatch):
     out = d.run([_signal()])
     assert len(out) == 1                                                       # Produktion entscheidet wie gehabt
     roi = out[0]["roi_analysis"]
-    costs = roi["spread_pct"] * 2 + roi["commission_pct"]
+    costs = (roi["combo_spread_pct"] / 2 if roi["is_spread"] else roi["spread_pct"] * 2) + roi["commission_pct"]
     assert roi["shadow_v3"]["passes"] is False and roi["passes_roi_gate"] is True
     assert roi["shadow_v3"]["mean_net"] == pytest.approx(-0.2 - costs, abs=1e-4)
     audit = pipeline._roi_audit(roi)

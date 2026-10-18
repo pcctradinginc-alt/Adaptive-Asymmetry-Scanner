@@ -363,24 +363,29 @@ class TestExitRules:
 class TestPositionSizing:
     def test_positive_edge_gives_contracts(self):
         from modules.position_sizing import compute_position_size
-        # assumed_loss_pct=0.80 (realisierte Stop-Loss-Verluste): ¼-Kelly
-        # vergibt erst bei deutlichem Edge ≥1 Kontrakt — roi_net=0.40 bei
-        # hit=0.70 ergibt jetzt korrekt 0 (Edge zu dünn für $200-Kontrakt).
-        p = {"ticker": "T", "strategy": "LONG_CALL",
-             "option": {"ask": 2.0}, "roi_analysis": {"roi_net": 0.80},
-             "mc_hit_rate": 0.70}
+        # V6: Kelly aus der Netto-P&L-Verteilung: f* = p/L − (1−p)/W = 0,6/0,5 − 0,4/0,8 = 0,7
+        p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
+             "roi_analysis": {"roi_net": 0.30, "kelly_inputs": {"p_win": 0.6, "avg_win": 0.8, "avg_loss": 0.5}}}
         s = compute_position_size(p)
-        assert s["contracts"] >= 1
+        assert s["kelly_raw"] == pytest.approx(0.7) and s["kelly_basis"] == "MC_PNL_DISTRIBUTION"
+        assert s["contracts"] >= 1 and s["max_risk_usd"] == s["contracts"] * 200.0     # bis 100 % Verlust
         assert s["position_usd"] <= s["portfolio_usd"] * 0.10 + 1e-6
 
     def test_negative_edge_gives_zero(self):
         from modules.position_sizing import compute_position_size
-        p = {"ticker": "T", "strategy": "LONG_CALL",
-             "option": {"ask": 2.0}, "roi_analysis": {"roi_net": 0.05},
-             "mc_hit_rate": 0.45}
+        p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
+             "roi_analysis": {"roi_net": 0.05, "kelly_inputs": {"p_win": 0.3, "avg_win": 0.5, "avg_loss": 0.8}},
+             "mc_hit_rate": 0.70}                                                        # Trefferquote zählt nicht
         s = compute_position_size(p)
         assert s["contracts"] == 0
         assert "Kelly" in s["note"]
+
+    def test_without_pnl_distribution_no_position(self):
+        from modules.position_sizing import compute_position_size
+        p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
+             "roi_analysis": {"roi_net": 0.80}, "mc_hit_rate": 0.70}
+        s = compute_position_size(p)
+        assert s["contracts"] == 0 and s["kelly_basis"] == "NO_PNL_DISTRIBUTION" and "P&L-Verteilung" in s["note"]
 
 
 class TestCommissionInRoi:

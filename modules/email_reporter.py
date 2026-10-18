@@ -465,7 +465,8 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
                   <td style="padding:4px 0;color:#15803d;font-weight:bold;">{tp2_pnl:+.0f}$</td>
                 </tr>
                 <tr>
-                  <td colspan="3" style="padding:4px 0;"><b>Time-Exit:</b> {exit_r['time_exit_date']} ({exit_r['time_exit_dte_remaining']} DTE Rest) — wenn Gewinn &lt; +{exit_r['time_exit_min_profit_pct']}%</td>
+                  <td colspan="3" style="padding:4px 0;"><b>Time-Exit:</b> {exit_r['time_exit_date']} ({exit_r['time_exit_dte_remaining']} DTE Rest) — wenn Gewinn &lt; +{exit_r['time_exit_min_profit_pct']}%<br>
+                    <b>Max. Haltedauer:</b> {exit_r.get('max_hold_days', 45)} T (bis {exit_r.get('max_hold_date', 'N/A')}) — das frühere Datum zählt</td>
                 </tr>
                 {warn_row}
               </table>
