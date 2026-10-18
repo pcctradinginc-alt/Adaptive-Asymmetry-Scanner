@@ -10,10 +10,10 @@
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-17T15:55:19+00:00",
+  "generated": "2026-10-18T16:07:37+00:00",
   "counts": {
-   "HEALTHY": 42,
-   "DEGRADED": 5,
+   "HEALTHY": 47,
+   "DEGRADED": 0,
    "STALE": 0,
    "BROKEN": 0,
    "UNVALIDATED": 8
@@ -101,7 +101,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-17T12:32:52+00:00",
-  "drift_input_age_days": 0.1,
+  "drift_input_age_days": 1.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -137,13 +137,13 @@
    "SMALL": "NONE",
    "MID": "NONE"
   },
-  "v2_latest_snapshot": "2026-10-15"
+  "v2_latest_snapshot": "2026-10-18"
  },
  "commodity_data_health": {
-  "overall": "DEGRADED",
+  "overall": "HEALTHY",
   "sources": {
    "eia_petroleum_weekly": "HEALTHY",
-   "eia_natural_gas": "DEGRADED",
+   "eia_natural_gas": "HEALTHY",
    "fred_commodities": "HEALTHY",
    "fred_regime_macro": "HEALTHY",
    "cftc_cot": "HEALTHY"
@@ -168,7 +168,7 @@
    "universe_v1": "OK",
    "universe_v2": "SHADOW",
    "commodity_intelligence": "RESEARCH",
-   "commodity_sources": "DEGRADED",
+   "commodity_sources": "HEALTHY",
    "rl": "SHADOW",
    "research_memory": "ACTIVE"
   }
@@ -176,15 +176,15 @@
  "inputs": {
   "model_health": "ca8b9dadf9a4",
   "meta_learning": "3fa3d8254d87",
-  "data_health": "65a6efeac792",
+  "data_health": "0a4e65618aaf",
   "promotion": "79eed064747f",
   "model_registry": "a0c0ce90b949",
   "champion_config": "d20d5a4ff52a",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "452120bf5bdf"
  },
- "state_version": 41,
- "fingerprint": "77f5eff005171bb8",
- "updated_at": "2026-10-17T15:55:19+00:00",
- "code_version": "b40c507fdc1d"
+ "state_version": 42,
+ "fingerprint": "fc817e76a0f41561",
+ "updated_at": "2026-10-18T16:07:37+00:00",
+ "code_version": "bd9517bff5cd"
 }
