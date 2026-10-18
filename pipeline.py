@@ -492,6 +492,23 @@ def _timing_policy_current() -> str:
     return timing_policy.current()
 
 
+def _roi_audit(roi: dict | None) -> dict | None:
+    """Kompakte ROI-Kennzahlen eines Vorschlags (V1/V2) samt V3-Shadow – für Ledger und Trade-Datensatz."""
+    if not roi:
+        return None
+    keys = ("roi_model", "roi_net", "roi_gross", "gain_if_hit", "loss_if_miss", "max_gain",
+            "roundtrip_cost_pct", "mc_pnl_mean", "mc_median_net", "shadow_v3")
+    return {k: roi.get(k) for k in keys if roi.get(k) is not None}
+
+
+def _note_roi_audit(proposals: list[dict]) -> None:
+    for p in proposals or []:
+        try:
+            candidate_ledger.note(p.get("ticker"), roi_audit=_roi_audit(p.get("roi_analysis")))
+        except Exception as e:  # noqa: BLE001 – Ledger-Notiz bricht den Lauf nie
+            log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
+
+
 def build_trade_record(p: dict, today: str) -> dict:
     """Trade-Datensatz für history.json – identisch für echte Trades und für
     counterfactual verfolgte (von der Intelligence blockierte) Champion-Trades,
@@ -537,6 +554,7 @@ def build_trade_record(p: dict, today: str) -> dict:
         "simulation":    p.get("simulation"),
         "deep_analysis": p.get("deep_analysis"),
         "tve":           p.get("time_value_efficiency"),
+        "roi_audit":     _roi_audit(p.get("roi_analysis")),
         "outcome":       None,
         # Versionierte Timing-Policy (config/timing_policy.yaml): Entscheidung mit ihrem echten Zeitstempel; die
         # wirtschaftliche Ausführung bestimmt modules/timing_policy (nie vor diesem Zeitpunkt, nie zu nachbörslichen
@@ -1337,7 +1355,8 @@ def main() -> None:
         s["features"]["quick_mc_hit_rate"] = hit_rate
         mc_viable.append(s)
         try:
-            candidate_ledger.note(ticker, stage="quick_mc", quick_mc_hit_rate=hit_rate)
+            candidate_ledger.note(ticker, stage="quick_mc", quick_mc_hit_rate=hit_rate,
+                                  quick_mc_hit_rate_v4=(result["simulation"].get("shadow_v4") or {}).get("hit_rate"))
         except Exception as e:
             log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
         log.info(f"  [{ticker}] Quick MC: {hit_rate:.1%} ✅ PASS")
@@ -1447,6 +1466,7 @@ def main() -> None:
                     ticker, stage="final_mc", final_mc_hit_rate=hit_rate,
                     final_mc_shadow_hit_rate=shadow["hit_rate_shadow"],
                     final_mc_shadow_dte=shadow["dte_shadow"],
+                    final_mc_hit_rate_v4=(result["simulation"].get("shadow_v4") or {}).get("hit_rate"),
                 )
             except Exception as e:
                 log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
@@ -1624,6 +1644,7 @@ def main() -> None:
                 reject(_why, _t)
         label_dropped(final_signals, trade_proposals, "options_design_roi_or_edge")
         _spread_execution_shadow(trade_proposals, getattr(designer, "roi_reject_log", []) or [], today)
+        _note_roi_audit(trade_proposals)
     except Exception as e:
         log.error(f"Options Design Fehler: {e} → Email wird trotzdem gesendet")
         stats["stop_reason"] = f"Options Design Fehler: {type(e).__name__}: {e}"

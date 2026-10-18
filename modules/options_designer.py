@@ -774,6 +774,19 @@ class OptionsDesigner:
                         _mc_costs = (roi.get("spread_pct", 0.0) * 2) + roi.get("commission_pct", 0.0)
                     median_net = mc_result["expected_pnl_pct"] - _mc_costs
                     mean_net   = mc_result["mean_pnl_pct"] - _mc_costs
+                    _v3 = mc_result.get("shadow_v3")
+                    if _v3:
+                        # V3 (SHADOW): gleiche Kosten und Gate-Regel, Drift ohne 6-Monats-Trend, abklingend
+                        _v3_mean = _v3["mean_pnl_pct"] - _mc_costs
+                        _v3_median = _v3["median_pnl_pct"] - _mc_costs
+                        roi["shadow_v3"] = {
+                            "mean_net": round(_safe_float(_v3_mean), 4),
+                            "median_net": round(_safe_float(_v3_median), 4),
+                            "passes": bool(_v3_mean >= dynamic_tier["min_roi"] and _v3_median >= 0.0),
+                            "cum_drift_prod": _v3.get("cum_drift_prod"),
+                            "cum_drift_shadow": _v3.get("cum_drift_shadow"),
+                            "version": _v3.get("version"),
+                        }
                     roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
                     roi["mc_pnl_mean"]     = mc_result["mean_pnl_pct"]
                     roi["mc_median_net"]   = round(_safe_float(median_net), 4)
