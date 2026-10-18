@@ -412,7 +412,7 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
             if is_spread:
                 tp_label  = f"+{exit_r['take_profit_pct']}% Max-Gewinn"
                 tp2_label = f"+{exit_r['full_profit_pct']}% Max-Gewinn"
-                sl_label  = f"−{abs(exit_r['stop_loss_pct'])}% Net-Debit"
+                sl_label  = f"−{abs(exit_r['stop_loss_pct'])}% Net-Debit (Spread-Mid, RTH)"
                 sl_action = "Sell to Close Spread · Limit GTC"
                 warn_row  = f"""
                 <tr><td colspan="3" style="padding:5px 0 0;font-size:11px;color:#92400e;">

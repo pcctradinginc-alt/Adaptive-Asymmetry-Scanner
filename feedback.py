@@ -164,12 +164,16 @@ def get_option_quote(ticker: str, option: dict, strategy: str) -> dict | None:
     return None
 
 
-def get_current_option_price(ticker: str, option: dict, strategy: str, side: str = "sell") -> float:
+def get_current_option_price(ticker: str, option: dict, strategy: str, side: str = "sell",
+                             detail: dict | None = None) -> float:
     """REALISIERBARER Preis (Audit 2026-09-29): Verkauf zum Bid, Kauf zum Ask.
     Vorher Mid (bzw. Ask, wenn kein Bid) -> Exit ohne halben Spread, jedes
     Outcome im Median ~2,5 Prozentpunkte zu gut (Spread ~5 % des Ask).
-    0.0 = kein Quote ODER Bid 0 (siehe compute_outcome zur Unterscheidung)."""
+    0.0 = kein Quote ODER Bid 0 (siehe compute_outcome zur Unterscheidung).
+    detail: optional, erhält die Quote (Exit-Entscheid prüft ihre Zulässigkeit, keine Zusatz-Calls)."""
     q = get_option_quote(ticker, option, strategy)
+    if detail is not None:
+        detail["option_quote"] = q
     if q is None:
         return 0.0
     return float(q["bid"] if side == "sell" else q["ask"])
@@ -472,7 +476,7 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
             log.info(f"    Options-P&L (verfallen): entry=${entry_debit:.2f} → intrinsic=${intrinsic:.2f} = {result:+.2%}")
             return result
     if entry_debit > 0:
-        current_option = get_current_option_price(ticker, option, strategy)
+        current_option = get_current_option_price(ticker, option, strategy, detail=meta)
         if current_option <= 0:
             q = get_option_quote(ticker, option, strategy)
             if q is not None and q.get("ask", 0) > 0 and q.get("bid", 0) <= 0:
@@ -525,10 +529,12 @@ def compute_outcome(trade: dict, current_stock_price: float, meta: dict | None =
 # Der Lern-Loop muss dieselben Regeln anwenden — sonst lernt das System
 # aus "Preis nach 45 Tagen" statt aus der tatsächlich empfohlenen Strategie.
 
-def check_exit_rules(trade: dict, outcome: float, today: datetime) -> str | None:
+def check_exit_rules(trade: dict, outcome: float, today: datetime,
+                     stop_outcome: float | None = None) -> str | None:
     """
     Prüft TP/SL/Time-Exit für einen aktiven Trade.
     Returns Exit-Grund ("take_profit"/"stop_loss"/"time_exit") oder None.
+    stop_outcome: Rendite, gegen die der Stop geprüft wird (V5: Spread-Fair-Value); None -> outcome.
     """
     strategy  = trade.get("strategy", "")
     option    = trade.get("option") or {}
@@ -549,7 +555,7 @@ def check_exit_rules(trade: dict, outcome: float, today: datetime) -> str | None
         sl_threshold = -0.45
         tp_threshold = 0.50
 
-    if outcome <= sl_threshold:
+    if (outcome if stop_outcome is None else stop_outcome) <= sl_threshold:
         return "stop_loss"
     if outcome >= tp_threshold:
         return "take_profit"
@@ -567,6 +573,118 @@ def check_exit_rules(trade: dict, outcome: float, today: datetime) -> str | None
         pass
 
     return None
+
+
+# ── V5 (2026-10-18): Preis-Exit nur auf zulässiger Quote ─────────────────────
+# KDP 15.10.: Stop um 22:33 UTC auf einer Combo-Quote von 15:59:50 ET (0,20/2,70: ausführbar −88 %, Fair Value −12 %,
+# Basiswert +1,1 %); der nächste RTH-Fill lag bei −18 %. Stop und Take-Profit werden jetzt nur auf einer Quote
+# entschieden, die timing-v2 auch als Fill zuließe: Entscheidung im Mark-Fenster, Börsenzeit der Quote in der regulären
+# Sitzung und höchstens EXIT_QUOTE_MAX_AGE_MIN alt, je Leg Ask > 0 und 0 <= Bid <= Ask. Spreads stoppen auf dem Fair
+# Value (Combo-Mid) statt auf dem Combo-Bid – die Bid/Ask-Kreuzung kostet schon beim Einstieg 12–38 % des Debits.
+# Ohne zulässige Quote wird der Preis-Exit verschoben; nach EXIT_MAX_DEFERRAL_DAYS Handelstagen mit Signal entscheidet
+# die verfügbare Quote wie bisher (der Verlustschutz bleibt). Zeit-Exits und Settlement sind nicht betroffen.
+EXIT_DECISION_VERSION = "exit-decision-v2"
+EXIT_QUOTE_MAX_AGE_MIN = 30
+EXIT_MAX_DEFERRAL_DAYS = 3
+PRICE_EXIT_REASONS = ("stop_loss", "take_profit")
+QUOTE_EXIT_METHODS = ("option_quote", "option_quote_bid_zero", "spread_quote")
+
+
+def _quote_ts(v) -> datetime | None:
+    try:
+        t = datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def exit_quote_check(trade: dict, meta: dict, now: datetime) -> dict:
+    """Ist die Quote, auf der ein Preis-Exit entschieden würde, zulässig (V5)? Dazu der Fair Value (Mid) als Rendite."""
+    from modules import option_quotes as oq
+    from modules import timing_policy as tp
+    from modules.outcomes import effective_entry_debit
+    out = {"admissible": False, "reason": None, "fair_value_outcome": None, "quote_age_min": None}
+    meta = meta or {}
+    method = meta.get("method")
+    if method not in QUOTE_EXIT_METHODS:
+        out["reason"] = f"METHOD_{str(method).upper()}"
+        return out
+    sq = meta.get("spread_quotes")
+    legs = [sq.get("long"), sq.get("short")] if sq else [meta.get("option_quote")]
+    if not all(isinstance(q, dict) for q in legs):
+        out["reason"] = "QUOTE_MISSING"
+        return out
+    mids = []
+    for q in legs:
+        try:
+            bid, ask = float(q.get("bid")), float(q.get("ask"))
+        except (TypeError, ValueError):
+            out["reason"] = "QUOTE_INVALID"
+            return out
+        if not (ask > 0 and 0 <= bid <= ask):
+            out["reason"] = "QUOTE_INVALID"
+            return out
+        mids.append((bid + ask) / 2)
+    entry = effective_entry_debit(trade)
+    if entry > 0:
+        fv = mids[0] - mids[1] if len(mids) == 2 else mids[0]
+        out["fair_value_outcome"] = round(fv / entry - 1, 4)
+    sym = next((leg.get("symbol") for leg in tp.trade_legs(trade)), None)
+    if oq.mark_window(now, sym) != "IN_WINDOW":
+        out["reason"] = "DECISION_OUTSIDE_WINDOW"
+        return out
+    times = [_quote_ts(q.get("quote_time")) for q in legs]
+    if None in times:
+        out["reason"] = "QUOTE_TIME_MISSING"
+        return out
+    if any(oq.session_of(t, sym) != "RTH" for t in times):
+        out["reason"] = "QUOTE_OUTSIDE_RTH"
+        return out
+    age = (now - min(times)).total_seconds() / 60
+    out["quote_age_min"] = round(age, 1)
+    if age > EXIT_QUOTE_MAX_AGE_MIN or age < -5:
+        out["reason"] = "QUOTE_STALE"
+        return out
+    out["admissible"] = True
+    return out
+
+
+def decide_exit(trade: dict, outcome: float, meta: dict, today: datetime, now: datetime) -> str | None:
+    """Exit-Entscheid mit V5-Zulässigkeit. Schreibt trade["exit_decision"] beim Entscheid und trade["exit_deferral"],
+    solange ein Preis-Exit mangels zulässiger Quote aufgeschoben wird."""
+    meta = meta or {}
+    chk = exit_quote_check(trade, meta, now)
+    is_spread = "SPREAD" in str(trade.get("strategy") or "")
+    stop_outcome = outcome
+    if chk["admissible"]:
+        if is_spread and chk["fair_value_outcome"] is not None:
+            stop_outcome = chk["fair_value_outcome"]
+        reason = check_exit_rules(trade, outcome, today, stop_outcome=stop_outcome)
+        trade.pop("exit_deferral", None)
+        basis = "ADMISSIBLE_QUOTE"
+    else:
+        reason = check_exit_rules(trade, outcome, today)
+        basis = "SETTLEMENT" if meta.get("method") == "expiry_intrinsic" else "NO_PRICE_SIGNAL"
+        if reason in PRICE_EXIT_REASONS and basis != "SETTLEMENT":
+            d = trade.setdefault("exit_deferral", {"days": []})
+            day = today.strftime("%Y-%m-%d")
+            if day not in d["days"]:
+                d["days"].append(day)
+            d.update(signal=reason, reason=chk["reason"], last_outcome=round(outcome, 4))
+            if len(d["days"]) < EXIT_MAX_DEFERRAL_DAYS:
+                log.info(f"  [{trade.get('ticker')}] {reason} verschoben ({chk['reason']}, Tag {len(d['days'])}/"
+                         f"{EXIT_MAX_DEFERRAL_DAYS}): keine zulässige Exit-Quote")
+                return None
+            basis = "FORCED_AFTER_DEFERRAL"
+    if reason:
+        trade["exit_decision"] = {
+            "version": EXIT_DECISION_VERSION, "basis": basis, "reason": reason,
+            "decided_at": now.isoformat(timespec="seconds"), "quote_check": chk.get("reason") or "OK",
+            "quote_age_min": chk["quote_age_min"], "executable_outcome": round(outcome, 4),
+            "fair_value_outcome": chk["fair_value_outcome"], "stop_outcome": round(stop_outcome, 4),
+            "deferral_days": len((trade.get("exit_deferral") or {}).get("days") or []),
+        }
+    return reason
 
 
 def _spread_execution_monitor(trade: dict, meta: dict, underlying: float, today: datetime) -> dict | None:
@@ -756,7 +874,7 @@ def advance_counterfactual_trades(history: dict, today: datetime, price_fn=None,
             still.append(t)
             continue
         t["peak_return"] = round(max(float(t.get("peak_return") or outcome), outcome), 4)
-        reason = check_exit_rules(t, outcome, today)
+        reason = decide_exit(t, outcome, meta, today, now)        # dieselbe V5-Regel wie echte Trades
         if reason or (today - entry_dt).days >= cfg.learning.close_after_days:
             if tp.policy_of(t) == tp.V2:                 # gleiche Timing-Policy wie echte Trades (fairer Vergleich)
                 t.update(close_time=now.isoformat(timespec="seconds"), close_date=today.strftime("%Y-%m-%d"),
@@ -1454,11 +1572,12 @@ def main() -> None:
         trade["peak_return"] = round(max(float(trade.get("peak_return") or outcome), outcome), 4)
 
         # Spread-Execution-Monitoring (SHADOW, 2026-10-09): Fair Value vs. Executable vs. Underlying.
-        # Der Produktions-Stop unten bleibt unverändert (executable, -50 %).
+        # Der Produktions-Stop unten entscheidet seit V5 (2026-10-18) auf dem Fair Value einer zulässigen Quote.
         _spread_obs = _spread_execution_monitor(trade, meta, current, today)
 
         # ── Regelbasierter Exit (TP/SL/Time-Exit) — auch für junge Trades ────
-        exit_reason = check_exit_rules(trade, outcome, today)
+        # V5: Preis-Exits nur auf zulässiger Quote, Spread-Stop auf dem Fair Value (decide_exit)
+        exit_reason = decide_exit(trade, outcome, meta, today, now_utc)
         if exit_reason:
             exit_alerts.append({
                 "ticker":   ticker,

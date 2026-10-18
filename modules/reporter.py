@@ -233,7 +233,8 @@ class Reporter:
                     _strat_lbl  = "Bull Call Spread" if _is_sp else "Long Call"
                     _tp_lbl     = f"+{exit_r['take_profit_pct']}% Max-Gewinn" if _is_sp else f"+{exit_r['take_profit_pct']}% ROI"
                     _tp2_lbl    = f"+{exit_r['full_profit_pct']}% Max-Gewinn" if _is_sp else f"+{exit_r['full_profit_pct']}% ROI"
-                    _sl_action  = "→ Sell to Close Spread (Limit)" if _is_sp else "→ Buy to Close (Limit)"
+                    _sl_action  = ("(Spread-Mid, nur RTH-Quote) → Sell to Close Spread (Limit)" if _is_sp
+                                   else "→ Buy to Close (Limit)")
                     _warn = (
                         f"- **Warnschwellen:** IV-Crush >{exit_r.get('vol_crush_pts', 40)} Pkte | "
                         f"Kurs < Break-even + 1% (${exit_r.get('underlying_breakeven', 0):.2f})"

@@ -127,7 +127,7 @@ def test_missing_quote_time_keeps_previous_behaviour(monkeypatch):
 
 
 def test_production_stop_rule_unchanged():
-    # Der Produktions-Stopp entscheidet weiter nur über das Outcome (Änderung nur als Vorschlag im Bericht).
+    # Die Schwellen in check_exit_rules sind unverändert; die Zulässigkeit der Quote prüft seit V5 decide_exit.
     t = {"strategy": "BULL_CALL_SPREAD", "entry_date": "2026-10-15",
          "option": {"strike": 33.0, "expiry": "2027-03-19", "spread_leg": {"strike": 36.0}}, "entry_debit": 1.65}
     assert feedback.check_exit_rules(t, -0.8788, datetime(2026, 10, 15)) == "stop_loss"

@@ -522,8 +522,19 @@ def test_counterfactual_trade_same_lifecycle_as_real_trade(monkeypatch):
     trade = {"ticker": "AAA", "entry_date": "2026-10-06", "strategy": "LONG_CALL", "entry_debit": 2.0,
              "option": {"ask": 2.0, "expiry": "2027-03-19"}, "simulation": {"current_price": 100.0}, "outcome": None}
     hist = {"counterfactual_trades": [dict(trade)], "closed_trades": [], "feature_stats": {}}
-    monkeypatch.setattr(feedback, "get_current_option_price", lambda *a, **k: 0.8)    # -60 % -> Stop-Loss
-    n = feedback.advance_counterfactual_trades(hist, datetime(2026, 10, 20), price_fn=lambda t: 95.0)
+    now = datetime(2026, 10, 20, 15, 0, tzinfo=timezone.utc)                         # im Mark-Fenster (EDT)
+
+    def price(*a, detail=None, **k):                                                 # zulässige RTH-Quote (V5)
+        if detail is not None:
+            detail["option_quote"] = {"bid": 0.8, "ask": 0.85,
+                                      "quote_time": (now - timedelta(minutes=2)).isoformat()}
+        return 0.8
+    monkeypatch.setattr(feedback, "get_current_option_price", lambda *a, **k: 0.8)    # ohne Zeitstempel
+    assert feedback.advance_counterfactual_trades(hist, datetime(2026, 10, 20), price_fn=lambda t: 95.0,
+                                                  now=now) == 0                       # V5: Stop verschoben
+    assert hist["counterfactual_trades"][0]["exit_deferral"]["reason"] == "QUOTE_MISSING"
+    monkeypatch.setattr(feedback, "get_current_option_price", price)                 # -60 % -> Stop-Loss
+    n = feedback.advance_counterfactual_trades(hist, datetime(2026, 10, 20), price_fn=lambda t: 95.0, now=now)
     assert n == 1 and not hist["counterfactual_trades"] and hist["closed_trades"] == []
     cf = hist["counterfactual_closed"][0]
     assert cf["close_reason"] == "stop_loss" and cf["outcome_method"] == "option_quote"
