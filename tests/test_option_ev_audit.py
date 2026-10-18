@@ -4,8 +4,8 @@ Teil 1 – behobene technische Fehler ohne Einfluss auf Handelsentscheidungen:
   a) Shadow-Exit-Monitoring bekam nie einen Quote-Zeitstempel -> STALE feuerte nie (KDP 15.10.:
      Stop-Entscheid 22:33 UTC auf einer Quote von 19:59:50 UTC, Combo 0,20/2,70).
   b) Post-mortem maß die Einstiegskosten eines Spreads nur am Long-Bein (KDP: 6,5 % statt 24 %).
-Teil 2 – nachgewiesene P0 im Entscheidungsweg, Korrektur nur als Vorschlag (ändert Handelsentscheidungen):
-  strict-xfail; wird ein Fix freigegeben, schlagen diese Tests als XPASS an und der Marker muss weg."""
+Teil 2 – P0-1/P0-2 im Entscheidungsweg: seit V1/V2 (2026-10-18) behoben, die Invarianten
+  "Gate-ROI <= Maximalertrag" gelten jetzt als normale Regressionstests."""
 from __future__ import annotations
 
 import json
@@ -127,7 +127,7 @@ def test_missing_quote_time_keeps_previous_behaviour(monkeypatch):
 
 
 def test_production_stop_rule_unchanged():
-    # Der Produktions-Stopp entscheidet weiter nur über das Outcome (Änderung nur als Vorschlag im Bericht).
+    # Die Schwellen in check_exit_rules sind unverändert; die Zulässigkeit der Quote prüft seit V5 decide_exit.
     t = {"strategy": "BULL_CALL_SPREAD", "entry_date": "2026-10-15",
          "option": {"strike": 33.0, "expiry": "2027-03-19", "spread_leg": {"strike": 36.0}}, "entry_debit": 1.65}
     assert feedback.check_exit_rules(t, -0.8788, datetime(2026, 10, 15)) == "stop_loss"
@@ -169,7 +169,7 @@ def test_real_kdp_and_mo_post_mortem_costs():
     assert mo["position"]["spread_pct"] == pytest.approx(0.0612, abs=1e-4)  # Long Call: unverändert
 
 
-# ── Teil 2: P0 im Entscheidungsweg (nur dokumentiert, Fix braucht Freigabe) ──
+# ── Teil 2: P0 im Entscheidungsweg (V1/V2 behoben: Invarianten als Regressionstests) ──
 
 ADM = {"S": 84.39, "K1": 77.5, "K2": 85.0, "long_ask": 12.4, "long_bid": 11.5, "short_bid": 7.5,
        "short_ask": 8.0, "iv": 0.3377, "dte": 178}
@@ -182,8 +182,6 @@ def _adm_option():
             "spread_leg": {"strike": ADM["K2"], "bid": ADM["short_bid"], "ask": ADM["short_ask"]}}, debit
 
 
-@pytest.mark.xfail(strict=True, reason="P0-1: MC-P&L-Gate bewertet beim Bull Call Spread nur das Long-Bein "
-                                        "(Einstieg Long-Ask, kein Short-Bein, kein Cap) – Vorschlag im Bericht")
 def test_mc_pnl_gate_spread_mean_bounded_by_max_payoff(monkeypatch):
     monkeypatch.setattr(mf, "_get_hist_params", lambda t: (0.0177, 0.003))   # Drift wie im Live-Lauf rückgerechnet
     s = mf.MirofishSimulation()
@@ -196,8 +194,6 @@ def test_mc_pnl_gate_spread_mean_bounded_by_max_payoff(monkeypatch):
     assert r["mean_pnl_pct"] <= max_roi
 
 
-@pytest.mark.xfail(strict=True, reason="P0-2: _compute_roi ignoriert beim Spread den Payoff-Cap "
-                                        "(roi_net über dem Maximalertrag möglich) – Vorschlag im Bericht")
 def test_compute_roi_spread_bounded_by_max_payoff():
     d = od.OptionsDesigner.__new__(od.OptionsDesigner)
     d._vix_ts = {}

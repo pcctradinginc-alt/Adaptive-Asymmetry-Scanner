@@ -50,7 +50,7 @@ def compute_exit_rules(proposal: dict) -> dict:
         full_profit_price = round(entry + max_profit_s * 0.90, 2) if max_profit_s > 0 else round(entry * 2.00, 2)
         stop_loss_pct     = -50
         stop_loss_price   = round(entry * 0.50, 2)
-        time_exit_dte     = max(int(dte * 0.45), 1)   # ~55% DTE abgelaufen
+        time_exit_dte     = max(dte // 2, 1)           # 50% DTE abgelaufen (wie feedback.check_exit_rules)
         vol_crush_pts     = 40
         delta_exit        = None
         underlying_be     = round(long_k + entry, 2) if long_k > 0 else 0
@@ -76,6 +76,11 @@ def compute_exit_rules(proposal: dict) -> dict:
     except Exception:
         time_exit_date = "N/A"
 
+    # V8 (2026-10-18): Ein Horizont – der Lern-Loop schließt spätestens nach close_after_days. Bei 150–200 DTE greift
+    # diese Grenze vor dem 50-%-Time-Exit; die Mail nennt deshalb beide Daten und das frühere zählt.
+    max_hold_days = _max_hold_days()
+    max_hold_date = (datetime.utcnow() + timedelta(days=max_hold_days)).strftime("%Y-%m-%d")
+
     return {
         "entry_cost":               entry,
         "is_spread":                is_spread,
@@ -88,10 +93,20 @@ def compute_exit_rules(proposal: dict) -> dict:
         "time_exit_dte_remaining":  time_exit_dte,
         "time_exit_date":           time_exit_date,
         "time_exit_min_profit_pct": 20,
+        "max_hold_days":            max_hold_days,
+        "max_hold_date":            max_hold_date,
         "vol_crush_pts":            vol_crush_pts,
         "delta_exit":               delta_exit,
         "underlying_breakeven":     underlying_be,
     }
+
+
+def _max_hold_days() -> int:
+    try:
+        from modules.config import cfg
+        return int(getattr(getattr(cfg, "learning", None), "close_after_days", 45) or 45)
+    except Exception:  # noqa: BLE001 – Bericht nie an der Config scheitern lassen
+        return 45
 
 
 def _empty_exit_rules() -> dict:
@@ -233,7 +248,8 @@ class Reporter:
                     _strat_lbl  = "Bull Call Spread" if _is_sp else "Long Call"
                     _tp_lbl     = f"+{exit_r['take_profit_pct']}% Max-Gewinn" if _is_sp else f"+{exit_r['take_profit_pct']}% ROI"
                     _tp2_lbl    = f"+{exit_r['full_profit_pct']}% Max-Gewinn" if _is_sp else f"+{exit_r['full_profit_pct']}% ROI"
-                    _sl_action  = "→ Sell to Close Spread (Limit)" if _is_sp else "→ Buy to Close (Limit)"
+                    _sl_action  = ("(Spread-Mid, nur RTH-Quote) → Sell to Close Spread (Limit)" if _is_sp
+                                   else "→ Buy to Close (Limit)")
                     _warn = (
                         f"- **Warnschwellen:** IV-Crush >{exit_r.get('vol_crush_pts', 40)} Pkte | "
                         f"Kurs < Break-even + 1% (${exit_r.get('underlying_breakeven', 0):.2f})"
@@ -250,6 +266,8 @@ class Reporter:
                         f"- **Time-Exit:** ab {exit_r['time_exit_date']} "
                         f"({exit_r['time_exit_dte_remaining']} DTE Rest) "
                         f"— schliessen wenn Gewinn < +{exit_r['time_exit_min_profit_pct']}%",
+                        f"- **Max. Haltedauer:** {exit_r.get('max_hold_days', 45)} T (bis "
+                        f"{exit_r.get('max_hold_date', 'N/A')}) — dann wird geschlossen; das frühere Datum zählt",
                         _warn,
                         "",
                     ]

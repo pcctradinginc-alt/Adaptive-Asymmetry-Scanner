@@ -269,6 +269,7 @@ def run_main(monkeypatch, tmp_path, history, now, *, market_open=None, outcome=0
         return real_record(t, o, meta, *a, path=tmp_path / "trade_outcomes.jsonl", **k)
     for name, fn in (("get_current_price", price), ("compute_outcome", comp), ("learn_on_close", learn),
                      ("record_trade_outcome", record), ("check_exit_rules", lambda t, o, d: exit_reason),
+                     ("decide_exit", lambda t, o, m, d, n: exit_reason),   # Exit-Regel (V5) getrennt getestet
                      ("register_exit_sim", lambda *a, **k: None), ("_spread_execution_monitor", lambda *a, **k: None),
                      ("_spread_execution_exit", lambda *a, **k: None), ("compute_pearson_weights", lambda h: {}),
                      ("evaluate_shadow_trades", lambda *a, **k: None), ("maybe_notify_rl_arming", lambda h: None)):

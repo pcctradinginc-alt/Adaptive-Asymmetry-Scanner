@@ -298,6 +298,9 @@ def _safe_float(v) -> float:
 # Wenn Zeitwertverlust > X%/Tag des Prämienpreises → Short-Term überspringen
 THETA_DAILY_PCT_GATE = 0.030   # 3 % pro Tag
 
+# V8 (2026-10-18): ein Horizont für Bewertung und Ausstieg – Trades schließen spätestens nach close_after_days
+MAX_HOLD_DAYS = int(getattr(getattr(cfg, "learning", None), "close_after_days", 45) or 45)
+
 # v10.0 #2: Event-typ-spezifische IV-Crush-Schätzungen (Basis-Rate, vor IV-Rank-Scaling)
 # Earnings:  IV crush hoch (42%/18%/6%), Event fix terminiert
 # FDA:       Sehr hoch (60%/22%/8%), binäres Outcome kollabiert Post-Event
@@ -580,8 +583,12 @@ class OptionsDesigner:
         # v9.0 #3: Target-Hit Score (unkalibriert) als ROI-Gewicht – Logik unverändert
         # v10.0 #6: Kein unterer Clamp mehr — 0.30 war künstlich und verbesserte
         # schlechte Signale. Mirofish filtert bereits < threshold (0.45/0.50).
+        # V8 (2026-10-18): Trefferquote und Kursziel aus demselben Lauf (Final-MC, gleicher Horizont). Vorher kam p aus
+        # dem Quick-MC (30 T, eigenes Ziel), das Ziel aus dem Final-MC (45 T) -> zwei verschiedene Ereignisse.
         qmc         = s.get("quick_mc", {}) or {}
-        mc_hit_rate = float(qmc.get("hit_rate", 0.65) or 0.65)
+        _final_p    = (s.get("simulation") or {}).get("hit_rate")
+        mc_hit_rate = float(_final_p if isinstance(_final_p, (int, float)) and 0 < _final_p <= 1
+                            else (qmc.get("hit_rate", 0.65) or 0.65))
         mc_hit_rate = min(0.95, mc_hit_rate)   # nur obere Grenze, kein Floor
 
         # VIX-abhängige ROI-Schwellen-Anpassung (einmal pro Ticker)
@@ -752,13 +759,23 @@ class OptionsDesigner:
                         continue
 
                 # v10.3 MC-PNL: Options-P&L Monte Carlo (Phase 2 — stochastische IV)
+                # V1: Spread startet zum Debit (Einstiegskreuzung enthalten) -> nur die halbe Combo-Spanne beim
+                # Ausstieg; Long Call wie bisher 2 × spread_pct (konservativ). V8: Bewertung höchstens zur maximalen
+                # Haltedauer (Trades schließen spätestens nach MAX_HOLD_DAYS), vorher DTE/2 = 77–100 T.
+                if roi.get("is_spread") and roi.get("combo_spread_pct") is not None:
+                    _mc_costs = roi["combo_spread_pct"] / 2 + roi.get("commission_pct", 0.0)
+                else:
+                    _mc_costs = (roi.get("spread_pct", 0.0) * 2) + roi.get("commission_pct", 0.0)
+                _dte_mc = int(option.get("dte", 45) or 45)
                 mc_result = mirofish_sim.simulate_option_pnl(
                     candidate        = s,
                     option           = option,
-                    days_to_expiry   = option.get("dte", 45),
+                    days_to_expiry   = _dte_mc,
                     history          = self.history,
                     n_paths          = 5000,
                     iv_rank          = iv_rank,
+                    hold_days        = min(max(5, _dte_mc // 2), MAX_HOLD_DAYS),
+                    cost_pct         = _mc_costs,
                 )
                 if "error" not in mc_result:
                     # v11.1: Gate auf Mean statt Median. Options-P&L ist rechtsschief
@@ -766,9 +783,23 @@ class OptionsDesigner:
                     # >50% Wahrscheinlichkeit für +min_roi netto und ließ ab 2026-06-11
                     # 0/20 Scan-Tagen einen Trade durch. Neu: Erwartungswert muss die
                     # Schwelle schlagen UND der Median darf netto nicht negativ sein.
-                    _mc_costs = (roi.get("spread_pct", 0.0) * 2) + roi.get("commission_pct", 0.0)
                     median_net = mc_result["expected_pnl_pct"] - _mc_costs
                     mean_net   = mc_result["mean_pnl_pct"] - _mc_costs
+                    _v3 = mc_result.get("shadow_v3")
+                    if _v3:
+                        # V3 (SHADOW): gleiche Kosten und Gate-Regel, Drift ohne 6-Monats-Trend, abklingend
+                        _v3_mean = _v3["mean_pnl_pct"] - _mc_costs
+                        _v3_median = _v3["median_pnl_pct"] - _mc_costs
+                        roi["shadow_v3"] = {
+                            "mean_net": round(_safe_float(_v3_mean), 4),
+                            "median_net": round(_safe_float(_v3_median), 4),
+                            "passes": bool(_v3_mean >= dynamic_tier["min_roi"] and _v3_median >= 0.0),
+                            "cum_drift_prod": _v3.get("cum_drift_prod"),
+                            "cum_drift_shadow": _v3.get("cum_drift_shadow"),
+                            "version": _v3.get("version"),
+                        }
+                    roi["kelly_inputs"]    = mc_result.get("kelly_inputs")      # V6: Sizing aus der Verteilung
+                    roi["mc_hold_days"]    = mc_result.get("hold_days")
                     roi["mc_pnl_pct"]      = mc_result["expected_pnl_pct"]
                     roi["mc_pnl_mean"]     = mc_result["mean_pnl_pct"]
                     roi["mc_median_net"]   = round(_safe_float(median_net), 4)
@@ -909,6 +940,15 @@ class OptionsDesigner:
         mc_hit_rate:   float = 0.65,   # v9.0 #3: probability weight
         catalyst_type: str   = "OTHER", # v10.0 #2: event-spezifischer IV-Crush
     ) -> dict:
+        """Vorfilter-ROI je Laufzeit-Tier (V2, 2026-10-18): Erwartungswert aus zwei Zuständen statt p · Gewinn.
+          Ziel erreicht (p):      Delta-Näherung bis zum Kursziel, beim Spread mit Netto-Delta (Long − Short) und
+                                  auf den Maximalertrag (Breite − Debit) begrenzt;
+          Ziel verfehlt (1 − p):  Zeitwertverlust (Theta) über den Bewertungshorizont bei unverändertem Kurs –
+                                  eine Untergrenze des Verlusts, der Vorfilter bleibt also eher optimistisch.
+        Kosten: Round Trip der ganzen Kombination beim Spread ((L_ask − S_bid) − (L_bid − S_ask)) / Debit, beim Long
+        Call wie bisher 2 × (Ask − Bid)/Ask; dazu IV-Crush und Kommission. Die endgültige Prüfung macht die
+        MC-P&L (V1). Vorher: 0,8 × Long-Delta, kein Cap, kein Verlustzweig -> roi_net über dem Maximalertrag."""
+        from modules.mirofish_simulation import implied_vol_r0
         bid     = option.get("bid", 0) or 0
         ask     = option.get("ask", 0) or 0
         strike  = option.get("strike", 0) or 0
@@ -918,8 +958,12 @@ class OptionsDesigner:
         target  = sim.get("target_price", 0) or 0
         min_roi = tier["min_roi"]
 
-        is_spread = "SPREAD" in strategy
-        cost = option.get("net_debit", ask) if is_spread else ask
+        # Spread nur mit echtem Short-Bein darüber; ohne Bein ist die Position ein Long Call (auch bei "SPREAD")
+        leg     = option.get("spread_leg") or {}
+        short_k = float(leg.get("strike") or 0)
+        is_spread = ("SPREAD" in strategy and short_k > float(strike or 0) > 0
+                     and float(option.get("net_debit") or 0) > 0 and float(leg.get("ask") or 0) > 0)
+        cost = float(option["net_debit"]) if is_spread else ask
 
         if cost <= 0 or current <= 0:
             return {"roi_net": 0.0, "passes_roi_gate": False,
@@ -953,30 +997,41 @@ class OptionsDesigner:
             except Exception:
                 delta, vega, nd1 = 0.5, 0.0, 0.0
 
-        if is_spread:
-            delta *= 0.80
-
         # v9.0 #13: Theta-Decay (vereinfachte BS-Formel, r≈0)
         # theta_per_year = -current * N'(d1) * sigma / (2 * sqrt(T))
-        # = -vega * sigma / (2 * T)
         try:
-            theta_per_year = -(current * nd1 * iv) / (2.0 * math.sqrt(T))
-            theta_daily    = theta_per_year / 365.0
-            theta_daily_pct = abs(theta_daily) / cost if cost > 0 else 0.0
+            theta_daily = -(current * nd1 * iv) / (2.0 * math.sqrt(T)) / 365.0
         except Exception:
-            theta_daily     = 0.0
-            theta_daily_pct = 0.0
+            theta_daily = 0.0
+
+        max_gain = combo_spread_pct = None
+        if is_spread:
+            # Short-Bein: IV aus seinem Mid (r=0), Greeks wie oben; Netto-Werte = Long − Short
+            sb, sa  = float(leg.get("bid") or 0), float(leg.get("ask") or 0)
+            iv_s    = implied_vol_r0((sb + sa) / 2, current, short_k, T) or iv
+            d1_s    = (math.log(current / short_k) + 0.5 * iv_s**2 * T) / (iv_s * math.sqrt(T))
+            nd1_s   = math.exp(-0.5 * d1_s**2) / math.sqrt(2 * math.pi)
+            delta  -= (1.0 + math.erf(d1_s / math.sqrt(2.0))) / 2.0
+            vega   -= current * nd1_s * math.sqrt(T)
+            theta_daily -= -(current * nd1_s * iv_s) / (2.0 * math.sqrt(T)) / 365.0
+            max_gain = (short_k - strike - cost) / cost
+            combo_spread_pct = max((ask - sb) - (bid - sa), 0.0) / cost
+        theta_daily_pct = abs(theta_daily) / cost if cost > 0 else 0.0
 
         # Breakeven bei Expiry
         breakeven     = strike + ask if not is_spread else strike + cost
         breakeven_pct = (breakeven - current) / current if current > 0 else 0.0
 
-        leverage      = current / cost if cost > 0 else 1.0
         expected_move = (target - current) / current if target > current else 0.0
 
-        # v9.0 #3 / v10.0 #6: Probability-weighted ROI, kein unterer Clamp mehr
+        # V2: Erwartungswert aus Ziel erreicht / verfehlt (p = Target-Hit-Score, obere Grenze 0,95)
         mc_weight = min(0.95, mc_hit_rate)
-        roi_delta = expected_move * delta * leverage * mc_weight
+        gain_hit  = expected_move * current * delta / cost
+        if max_gain is not None:
+            gain_hit = min(gain_hit, max_gain)
+        hold_days = max(1, min(dte, MAX_HOLD_DAYS))             # V8: derselbe Horizont wie MC-P&L und Exit-Regel
+        loss_miss = min(1.0, max(-theta_daily, 0.0) * hold_days / cost)   # nur Zeitwertverlust zählt
+        roi_delta = mc_weight * gain_hit - (1.0 - mc_weight) * loss_miss
 
         # v10.0 #2: Event-typ-spezifischer IV-Crush + IV-Rank-Scaling
         # Basis-Rate aus EVENT_IV_CRUSH, dann skaliert mit IV-Rank:
@@ -996,7 +1051,7 @@ class OptionsDesigner:
 
         iv_drop = iv_drop_base * iv_rank_scale * vix_crush_scale
 
-        vega_loss = min((vega * iv * iv_drop) / cost, 0.50) if cost > 0 else 0.0
+        vega_loss = min(max(vega, 0.0) * iv * iv_drop / cost, 0.50) if cost > 0 else 0.0
 
         # Kommissionen: $/Kontrakt/Seite, Round-Trip; Spreads haben 2 Legs (=4 Fills).
         # Bei billigen Optionen ist das relevant: $0.65 × 4 auf $1.50-Spread = 1.7%.
@@ -1004,13 +1059,21 @@ class OptionsDesigner:
         n_legs     = 2 if is_spread else 1
         commission_pct = (commission * n_legs * 2) / (cost * 100) if cost > 0 else 0.0
 
-        roi_net   = roi_delta - (spread_pct * 2) - vega_loss - commission_pct
+        roundtrip = combo_spread_pct if is_spread else spread_pct * 2
+        roi_net   = roi_delta - roundtrip - vega_loss - commission_pct
         passes    = roi_net >= min_roi
 
         return {
             "roi_gross":         round(_safe_float(roi_delta), 4),
             "roi_net":           round(_safe_float(roi_net), 4),
             "spread_pct":        round(_safe_float(spread_pct), 4),
+            "combo_spread_pct":  None if combo_spread_pct is None else round(_safe_float(combo_spread_pct), 4),
+            "roundtrip_cost_pct": round(_safe_float(roundtrip), 4),
+            "gain_if_hit":       round(_safe_float(gain_hit), 4),
+            "loss_if_miss":      round(_safe_float(loss_miss), 4),
+            "max_gain":          None if max_gain is None else round(_safe_float(max_gain), 4),
+            "hold_days_assumed": hold_days,
+            "roi_model":         "ev-v2",
             "vega_loss":         round(_safe_float(vega_loss), 4),
             "theta_daily":       round(_safe_float(theta_daily), 4),
             "theta_daily_pct":   round(_safe_float(theta_daily_pct), 4),
@@ -1084,6 +1147,9 @@ class OptionsDesigner:
             if filtered.empty:
                 return None
 
+            # V7 (2026-10-18): Bid und Ask müssen echt sein. Vorher ergab ask = bid = 0 spread_ratio 0 (und eine
+            # gekreuzte Quote einen negativen Wert) -> "liquide", per OI gewählt, roi 0 -> ganzes Tier verworfen.
+            filtered = filtered[(filtered["bid"] > 0) & (filtered["ask"] >= filtered["bid"])].copy()
             filtered["spread_ratio"] = (
                 (filtered["ask"] - filtered["bid"]) /
                 filtered["ask"].clip(lower=0.01)
@@ -1196,6 +1262,9 @@ class OptionsDesigner:
             if filtered.empty:
                 return None
 
+            # V7 (2026-10-18): Bid und Ask müssen echt sein. Vorher ergab ask = bid = 0 spread_ratio 0 (und eine
+            # gekreuzte Quote einen negativen Wert) -> "liquide", per OI gewählt, roi 0 -> ganzes Tier verworfen.
+            filtered = filtered[(filtered["bid"] > 0) & (filtered["ask"] >= filtered["bid"])].copy()
             filtered["spread_ratio"] = (
                 (filtered["ask"] - filtered["bid"]) /
                 filtered["ask"].clip(lower=0.01)

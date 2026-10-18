@@ -164,7 +164,9 @@ def assess_entry(option: dict, roi: dict | None = None, cfg: dict | None = None,
         "commission_pct": round(commission_pct, 4) if commission_pct is not None else None,
         "estimated_slippage": entry_fric, "expected_roundtrip_cost": roundtrip,
         "net_expected_roi": net_exec, "production_roi_net": _f((roi or {}).get("roi_net")),
-        "production_friction_model": (round(2 * _f(roi.get("spread_pct")), 4)
+        # seit V2 (2026-10-18) rechnet die Produktion den Round Trip der Kombination (roundtrip_cost_pct)
+        "production_friction_model": (_f(roi.get("roundtrip_cost_pct")) if roi and _f(roi.get("roundtrip_cost_pct"))
+                                      is not None else round(2 * _f(roi.get("spread_pct")), 4)
                                       if roi and _f(roi.get("spread_pct")) is not None else None),
         "shadow_verdict": verdict, "shadow_reasons": reasons,
         "production_effect": "NONE (SHADOW_ONLY)",
