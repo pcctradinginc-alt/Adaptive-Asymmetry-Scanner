@@ -1,68 +1,68 @@
 {
  "version": "wm-v1",
- "generated": "2026-10-11T15:38:57+00:00",
+ "generated": "2026-10-18T13:16:17+00:00",
  "no_llm_ground_truth": true,
  "current": {
-  "growth_score": -0.0965,
+  "growth_score": -0.4369,
   "growth_state": "neutral",
-  "inflation_score": -0.786,
-  "inflation_state": "low",
-  "liquidity_score": -0.1125,
+  "inflation_score": 0.2502,
+  "inflation_state": "neutral",
+  "liquidity_score": -0.1113,
   "liquidity_state": "neutral",
-  "interest_rates_score": 1.3272,
+  "interest_rates_score": 1.1184,
   "interest_rates_state": "high",
-  "credit_conditions_score": 0.4523,
+  "credit_conditions_score": -0.1049,
   "credit_conditions_state": "neutral",
-  "risk_appetite_score": -0.2961,
-  "risk_appetite_state": "neutral",
-  "volatility_score": -0.5046,
-  "volatility_state": "low",
+  "risk_appetite_score": -0.6637,
+  "risk_appetite_state": "low",
+  "volatility_score": 0.4066,
+  "volatility_state": "neutral",
   "earnings_momentum_score": null,
   "earnings_momentum_state": "unavailable",
-  "consumer_demand_score": -0.9356,
-  "consumer_demand_state": "low",
-  "industrial_activity_score": -1.2574,
+  "consumer_demand_score": 0.1067,
+  "consumer_demand_state": "neutral",
+  "industrial_activity_score": -2.1379,
   "industrial_activity_state": "low",
-  "freight_supply_chain_score": -0.982,
+  "freight_supply_chain_score": -0.9804,
   "freight_supply_chain_state": "low",
-  "inventories_score": -0.7467,
+  "inventories_score": -0.7254,
   "inventories_state": "low",
-  "commodities_score": 0.874,
+  "commodities_score": 0.5674,
   "commodities_state": "high",
-  "fx_usd_score": 0.1529,
+  "fx_usd_score": 0.2811,
   "fx_usd_state": "neutral",
-  "labour_market_score": 0.0118,
+  "labour_market_score": 0.003,
   "labour_market_state": "neutral",
-  "breadth_score": -0.9586,
+  "breadth_score": -0.9356,
   "breadth_state": "low",
-  "uncertainty": 0.3403,
+  "uncertainty": 0.4917,
   "n_dims_available": "15",
   "interest_rates_uncertainty": 0.0,
-  "volatility_uncertainty": 0.991,
-  "consumer_demand_uncertainty": 0.129,
-  "growth_uncertainty": 0.193,
-  "industrial_activity_uncertainty": 0.0,
-  "credit_conditions_uncertainty": 0.952,
-  "risk_appetite_uncertainty": 0.592,
-  "commodities_uncertainty": 0.252,
-  "breadth_uncertainty": 0.083,
-  "freight_supply_chain_uncertainty": 0.036,
-  "liquidity_uncertainty": 0.612,
-  "labour_market_uncertainty": 0.024,
-  "inflation_uncertainty": 0.428,
-  "inventories_uncertainty": 0.507,
-  "fx_usd_uncertainty": 0.306,
-  "date": "2026-10-09",
-  "state_hash": "a65a3f2427e1487f"
+  "volatility_uncertainty": 0.813,
+  "consumer_demand_uncertainty": 0.607,
+  "growth_uncertainty": 0.916,
+  "industrial_activity_uncertainty": 0.5,
+  "credit_conditions_uncertainty": 0.605,
+  "risk_appetite_uncertainty": 0.673,
+  "commodities_uncertainty": 0.865,
+  "breadth_uncertainty": 0.129,
+  "freight_supply_chain_uncertainty": 0.039,
+  "liquidity_uncertainty": 0.611,
+  "labour_market_uncertainty": 0.006,
+  "inflation_uncertainty": 0.5,
+  "inventories_uncertainty": 0.549,
+  "fx_usd_uncertainty": 0.562,
+  "date": "2026-10-16",
+  "state_hash": "ab56724a73988e5b"
  },
  "previous": {
   "growth_state": "neutral",
   "inflation_state": "low",
   "liquidity_state": "neutral",
   "interest_rates_state": "high",
-  "credit_conditions_state": "high",
+  "credit_conditions_state": "neutral",
   "risk_appetite_state": "neutral",
-  "volatility_state": "neutral",
+  "volatility_state": "low",
   "earnings_momentum_state": "unavailable",
   "consumer_demand_state": "low",
   "industrial_activity_state": "low",
@@ -74,8 +74,10 @@
   "breadth_state": "low"
  },
  "changes": [
-  "credit_conditions: high -> neutral",
-  "volatility: neutral -> low"
+  "inflation: low -> neutral",
+  "risk_appetite: neutral -> low",
+  "volatility: low -> neutral",
+  "consumer_demand: low -> neutral"
  ],
  "indicator_coverage": {
   "spy_trend_200": 0.952,
@@ -91,21 +93,21 @@
   "cyc_def_63d": 0.983,
   "copper_63d": 0.982,
   "copper_gold_63d": 0.982,
-  "indpro_yoy": 0.962,
-  "indpro_3m": 0.962,
-  "umcsent": 0.997,
+  "indpro_yoy": 0.961,
+  "indpro_3m": 0.961,
+  "umcsent": 0.996,
   "cpi_yoy": 0.711,
   "cpi_trend": 0.711,
   "fed_assets_13w": 0.78,
-  "usd_63d": 0.52,
+  "usd_63d": 0.521,
   "wti_63d": 0.767,
-  "nfci_neg": 0.119,
-  "nfci_credit_neg": 0.119,
+  "nfci_neg": 0.12,
+  "nfci_credit_neg": 0.12,
   "freight_yoy": 0.786,
   "payems_3m": 0.756,
   "claims_13w_neg": 0.773,
-  "retail_yoy": 0.674,
-  "inv_sales_yoy": 0.559,
+  "retail_yoy": 0.675,
+  "inv_sales_yoy": 0.56,
   "breadth_13w": 0.82,
   "breadth_near_high": 0.837
  },
@@ -114,42 +116,42 @@
    "dd60": {
     "kind": "regression",
     "baseline": {
-     "mse": 0.022542406664082727,
+     "mse": 0.022542451784748223,
      "n": 326,
-     "skill_vs_climatology": -3.8126263392640203
+     "skill_vs_climatology": -3.8126349570626044
     },
     "world_model": {
-     "mse": 0.010008035523488923,
+     "mse": 0.010008102922339234,
      "n": 326,
-     "skill_vs_climatology": -1.136636787826871
+     "skill_vs_climatology": -1.136650726276275
     },
     "combined": {
-     "mse": 0.018655072855297272,
+     "mse": 0.01865511938966137,
      "n": 326,
-     "skill_vs_climatology": -2.9827111773003825
+     "skill_vs_climatology": -2.982720271962798
     },
     "climatology": {
-     "mse": 0.004684013483483961,
+     "mse": 0.004684014471462641,
      "n": 326
     },
     "wm_vs_baseline": {
-     "mean_gain": 0.01226290812099259,
+     "mean_gain": 0.01226288284189784,
      "ci": [
-      0.003973913076220553,
-      0.024959073667316062
+      0.003973793226480764,
+      0.02495915892946991
      ],
-     "relative_mse_reduction": 0.5560351797115378,
+     "relative_mse_reduction": 0.55603307848215,
      "n_months": 75,
      "significantly_better": true,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": 0.0035584943201686023,
+     "mean_gain": 0.0035584939022604016,
      "ci": [
-      -0.006464259779694098,
-      0.017588330657935268
+      -0.006464268910266217,
+      0.01758833875654711
      ],
-     "relative_mse_reduction": 0.17244537669437157,
+     "relative_mse_reduction": 0.17244496881732027,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": false
@@ -159,22 +161,22 @@
    "dd60_bin": {
     "kind": "binary",
     "baseline": {
-     "mse": 0.2766351373202666,
+     "mse": 0.276635111837362,
      "n": 326,
      "auc": 0.515293810735016,
-     "skill_vs_climatology": -0.864079639417412
+     "skill_vs_climatology": -0.8640794677032757
     },
     "world_model": {
-     "mse": 0.25619422847517015,
+     "mse": 0.2561943008469149,
      "n": 326,
      "auc": 0.4072914628578882,
-     "skill_vs_climatology": -0.7263405135838834
+     "skill_vs_climatology": -0.7263410012540226
     },
     "combined": {
-     "mse": 0.38033899522549236,
+     "mse": 0.38033719198158683,
      "n": 326,
      "auc": 0.4273136372529837,
-     "skill_vs_climatology": -1.5628782516355186
+     "skill_vs_climatology": -1.5628661006474633
     },
     "climatology": {
      "mse": 0.14840306791115668,
@@ -182,23 +184,23 @@
      "auc": 0.33476814713363334
     },
     "wm_vs_baseline": {
-     "mean_gain": 0.02060437589622305,
+     "mean_gain": 0.020604232972433422,
      "ci": [
-      -0.06339425170875508,
-      0.11135244469636758
+      -0.06339363333172934,
+      0.11135215829959555
      ],
-     "relative_mse_reduction": 0.07389122380875127,
+     "relative_mse_reduction": 0.07389087688357003,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": -0.10436424539392643,
+     "mean_gain": -0.10436254553531178,
      "ci": [
-      -0.1813222099517641,
-      -0.0433277099312653
+      -0.181320063554291,
+      -0.04332737745277207
      ],
-     "relative_mse_reduction": -0.3748759427663215,
+     "relative_mse_reduction": -0.37486955092379187,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": true
@@ -208,42 +210,42 @@
    "rv20": {
     "kind": "regression",
     "baseline": {
-     "mse": 0.32369132682495955,
+     "mse": 0.3236946386918634,
      "n": 335,
-     "skill_vs_climatology": -0.059480775701174826
+     "skill_vs_climatology": -0.059493695821310144
     },
     "world_model": {
-     "mse": 0.9747592928629026,
+     "mse": 0.974806234055352,
      "n": 335,
-     "skill_vs_climatology": -2.1905047992922717
+     "skill_vs_climatology": -2.1906647073389394
     },
     "combined": {
-     "mse": 0.9495523033117701,
+     "mse": 0.9495896170538567,
      "n": 335,
-     "skill_vs_climatology": -2.107999280517074
+     "skill_vs_climatology": -2.1081275147212466
     },
     "climatology": {
-     "mse": 0.30551882983505524,
+     "mse": 0.30551823004566175,
      "n": 335
     },
     "wm_vs_baseline": {
-     "mean_gain": -0.654339703605807,
+     "mean_gain": -0.6543826269948222,
      "ci": [
-      -1.3268741815562053,
-      -0.08513717331454024
+      -1.3269556417315111,
+      -0.08515316158772923
      ],
-     "relative_mse_reduction": -2.0113852676380692,
+     "relative_mse_reduction": -2.011499473685461,
      "n_months": 77,
      "significantly_better": false,
      "significantly_worse": true
     },
     "combined_vs_baseline": {
-     "mean_gain": -0.6293076439166169,
+     "mean_gain": -0.6293412710455757,
      "ci": [
-      -1.1698062624442587,
-      -0.1347513516549387
+      -1.169873132216351,
+      -0.13475638706106216
      ],
-     "relative_mse_reduction": -1.9335117274404243,
+     "relative_mse_reduction": -1.933596987863013,
      "n_months": 77,
      "significantly_better": false,
      "significantly_worse": true
@@ -253,42 +255,42 @@
    "rot60": {
     "kind": "regression",
     "baseline": {
-     "mse": 0.04739753669285503,
+     "mse": 0.04739762052141987,
      "n": 326,
-     "skill_vs_climatology": -10.66940421861203
+     "skill_vs_climatology": -10.669427705888653
     },
     "world_model": {
-     "mse": 0.018571453638702315,
+     "mse": 0.018572378337096823,
      "n": 326,
-     "skill_vs_climatology": -3.5723430911948597
+     "skill_vs_climatology": -3.57257187063262
     },
     "combined": {
-     "mse": 0.043030793704602686,
+     "mse": 0.043031333243233445,
      "n": 326,
-     "skill_vs_climatology": -9.59430005488894
+     "skill_vs_climatology": -9.594435476839696
     },
     "climatology": {
-     "mse": 0.0040616929369246355,
+     "mse": 0.004061691945484351,
      "n": 326
     },
     "wm_vs_baseline": {
-     "mean_gain": 0.02789605021810187,
+     "mean_gain": 0.027895208272812746,
      "ci": [
-      -0.008934189717344687,
-      0.08710650893688711
+      -0.008935561406140043,
+      0.08710587683475723
      ],
-     "relative_mse_reduction": 0.608176818153044,
+     "relative_mse_reduction": 0.608158001756573,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": 0.003684076415786693,
+     "mean_gain": 0.0036836233623368394,
      "ci": [
-      -0.034431499905460544,
-      0.05651326013156741
+      -0.034432020986322726,
+      0.05651277613486096
      ],
-     "relative_mse_reduction": 0.09213016736607356,
+     "relative_mse_reduction": 0.09212038980339143,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": false
@@ -298,42 +300,42 @@
    "sb60": {
     "kind": "regression",
     "baseline": {
-     "mse": 0.06425402298636033,
+     "mse": 0.06425412713845778,
      "n": 326,
-     "skill_vs_climatology": -7.771067299940265
+     "skill_vs_climatology": -7.771085720475032
     },
     "world_model": {
-     "mse": 0.0204550484436981,
+     "mse": 0.020455983837318004,
      "n": 326,
-     "skill_vs_climatology": -1.792239274438888
+     "skill_vs_climatology": -1.7923682995046044
     },
     "combined": {
-     "mse": 0.059826796747271795,
+     "mse": 0.05982779060225694,
      "n": 326,
-     "skill_vs_climatology": -7.166723828662988
+     "skill_vs_climatology": -7.166863409540376
     },
     "climatology": {
-     "mse": 0.007325678938388482,
+     "mse": 0.007325675427896496,
      "n": 326
     },
     "wm_vs_baseline": {
-     "mean_gain": 0.04244984097140902,
+     "mean_gain": 0.04244900718547176,
      "ci": [
-      -0.0062525209321466855,
-      0.12200823131898121
+      -0.006253673355700058,
+      0.12200795397806602
      ],
-     "relative_mse_reduction": 0.6816534203929886,
+     "relative_mse_reduction": 0.6816393786933175,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": 0.003771741530830669,
+     "mean_gain": 0.0037708680220833084,
      "ci": [
-      -0.023265626682151135,
-      0.043278369989845786
+      -0.0232663683852714,
+      0.043276962140566685
      ],
-     "relative_mse_reduction": 0.06890193070134022,
+     "relative_mse_reduction": 0.06888797238911624,
      "n_months": 75,
      "significantly_better": false,
      "significantly_worse": false
@@ -343,22 +345,22 @@
    "regime_flip20": {
     "kind": "binary",
     "baseline": {
-     "mse": 0.36531239162835577,
+     "mse": 0.3653123658798487,
      "n": 335,
      "auc": 0.5027486256871564,
-     "skill_vs_climatology": -0.36304073334530407
+     "skill_vs_climatology": -0.363040637273381
     },
     "world_model": {
-     "mse": 0.420700833598164,
+     "mse": 0.4206980983152946,
      "n": 335,
      "auc": 0.41215106732348117,
-     "skill_vs_climatology": -0.5697041378492127
+     "skill_vs_climatology": -0.5696939320580772
     },
     "combined": {
-     "mse": 0.4400484147969326,
+     "mse": 0.44004360054371594,
      "n": 335,
-     "auc": 0.4357821089455272,
-     "skill_vs_climatology": -0.641893151608308
+     "auc": 0.4358178053830227,
+     "skill_vs_climatology": -0.6418751888362113
     },
     "climatology": {
      "mse": 0.2680128206673409,
@@ -366,23 +368,23 @@
      "auc": 0.4518455058185193
     },
     "wm_vs_baseline": {
-     "mean_gain": -0.05671251052906365,
+     "mean_gain": -0.05670968955781544,
      "ci": [
-      -0.15710178838960362,
-      0.04578087425857039
+      -0.1570992669928487,
+      0.045784142341617824
      ],
-     "relative_mse_reduction": -0.15161938997721353,
+     "relative_mse_reduction": -0.15161198362954487,
      "n_months": 77,
      "significantly_better": false,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": -0.07471224338993787,
+     "mean_gain": -0.07470715573857732,
      "ci": [
-      -0.16030319890992675,
-      0.012038252244428685
+      -0.16029463538865277,
+      0.0120418853389095
      ],
-     "relative_mse_reduction": -0.20458113352094606,
+     "relative_mse_reduction": -0.2045680399673258,
      "n_months": 77,
      "significantly_better": false,
      "significantly_worse": false
@@ -392,42 +394,42 @@
    "ic_mom20": {
     "kind": "regression",
     "baseline": {
-     "mse": 0.14619455935194386,
+     "mse": 0.146195085333293,
      "n": 335,
-     "skill_vs_climatology": -1.7411075279136634
+     "skill_vs_climatology": -1.74111535590183
     },
     "world_model": {
-     "mse": 0.06395060711641522,
+     "mse": 0.06395105944276272,
      "n": 335,
-     "skill_vs_climatology": -0.1990561848437491
+     "skill_vs_climatology": -0.19906377608459302
     },
     "combined": {
-     "mse": 0.29131498615954865,
+     "mse": 0.29133266649050327,
      "n": 335,
-     "skill_vs_climatology": -4.462075367891493
+     "skill_vs_climatology": -4.462402815883751
     },
     "climatology": {
-     "mse": 0.053334120556451425,
+     "mse": 0.05333416013248909,
      "n": 335
     },
     "wm_vs_baseline": {
-     "mean_gain": 0.08419220795237788,
+     "mean_gain": 0.08419234447912359,
      "ci": [
-      0.014680258658536446,
-      0.19954974199882256
+      0.014679946712331604,
+      0.19955112332970054
      ],
-     "relative_mse_reduction": 0.5625650680853131,
+     "relative_mse_reduction": 0.5625635478992457,
      "n_months": 77,
      "significantly_better": true,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": -0.1459766069268915,
+     "mean_gain": -0.14599370322239807,
      "ci": [
-      -0.38430697079811516,
-      -0.0018822741134183396
+      -0.38435571276062386,
+      -0.0018824139168870054
      ],
-     "relative_mse_reduction": -0.9926527187530059,
+     "relative_mse_reduction": -0.9927664861395866,
      "n_months": 77,
      "significantly_better": false,
      "significantly_worse": true
@@ -437,42 +439,42 @@
    "ic_rev20": {
     "kind": "regression",
     "baseline": {
-     "mse": 0.07766521683101499,
+     "mse": 0.07766570476514983,
      "n": 335,
-     "skill_vs_climatology": -1.1549696563037024
+     "skill_vs_climatology": -1.1549867703827683
     },
     "world_model": {
-     "mse": 0.04593094107469229,
+     "mse": 0.04593062314355186,
      "n": 335,
-     "skill_vs_climatology": -0.27444161415008694
+     "skill_vs_climatology": -0.2744349070042189
     },
     "combined": {
-     "mse": 0.049629334980872346,
+     "mse": 0.04962972660632372,
      "n": 335,
-     "skill_vs_climatology": -0.377060611045668
+     "skill_vs_climatology": -0.37707376219332955
     },
     "climatology": {
-     "mse": 0.03604005123869342,
+     "mse": 0.036039991443360404,
      "n": 335
     },
     "wm_vs_baseline": {
-     "mean_gain": 0.031078648795938767,
+     "mean_gain": 0.031079455714692433,
      "ci": [
-      0.0003783031802576224,
-      0.08819916788022188
+      0.0003784066897991731,
+      0.08820229975903349
      ],
-     "relative_mse_reduction": 0.40860345275762977,
+     "relative_mse_reduction": 0.40861126178614343,
      "n_months": 77,
      "significantly_better": true,
      "significantly_worse": false
     },
     "combined_vs_baseline": {
-     "mean_gain": 0.027274284862702322,
+     "mean_gain": 0.027274418034910423,
      "ci": [
-      -0.0037355910238384814,
-      0.08498313980598116
+      -0.0037366142729558785,
+      0.08498568733419813
      ],
-     "relative_mse_reduction": 0.360983758162209,
+     "relative_mse_reduction": 0.36098273032611966,
      "n_months": 77,
      "significantly_better": false,
      "significantly_worse": false
