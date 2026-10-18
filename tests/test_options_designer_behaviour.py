@@ -118,14 +118,20 @@ def test_compute_roi_invalid_cost_fails_closed(designer):
 
 
 def test_compute_roi_long_call_vs_spread(designer):
-    opt = {"bid": 7.6, "ask": 8.0, "strike": 100, "implied_vol": 0.35, "dte": 200, "net_debit": 5.0}
+    opt = {"bid": 7.6, "ask": 8.0, "strike": 100, "implied_vol": 0.35, "dte": 200, "net_debit": 5.0,
+           "spread_leg": {"strike": 110, "bid": 3.0, "ask": 3.2}}
     sim = {"current_price": 100, "target_price": 140}
     lc = designer._compute_roi(opt, sim, 40, {"min_roi": 0.1}, "LONG_CALL", 0.65, "OTHER")
     sp = designer._compute_roi(opt, sim, 40, {"min_roi": 0.1}, "BULL_CALL_SPREAD", 0.65, "OTHER")
     assert lc["passes_roi_gate"] and 0.4 < lc["delta"] < 0.8 and lc["breakeven"] == 108.0
     assert sp["is_spread"] and sp["cost_basis"] == 5.0 and sp["commission_pct"] > lc["commission_pct"]
+    assert sp["gain_if_hit"] <= sp["max_gain"] == pytest.approx(1.0)       # Cap: (110 − 100 − 5) / 5
+    assert 0 < sp["delta"] < lc["delta"]                                    # Netto-Delta Long − Short
+    no_leg = designer._compute_roi({k: v for k, v in opt.items() if k != "spread_leg"}, sim, 40,
+                                   {"min_roi": 0.1}, "BULL_CALL_SPREAD", 0.65, "OTHER")
+    assert not no_leg["is_spread"] and no_leg["cost_basis"] == 8.0          # ohne Short-Bein: Long Call
     flat = designer._compute_roi(opt, {"current_price": 100, "target_price": 95}, 40, {"min_roi": 0.1}, "LONG_CALL")
-    assert flat["roi_gross"] == 0.0 and not flat["passes_roi_gate"]          # kein Kursziel über Kurs -> kein Gate
+    assert flat["gain_if_hit"] == 0.0 and flat["roi_gross"] <= 0 and not flat["passes_roi_gate"]   # nur Zeitwertverlust
 
 
 def test_compute_roi_event_crush_and_bad_iv(designer):

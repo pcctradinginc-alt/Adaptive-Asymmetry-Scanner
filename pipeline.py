@@ -1,5 +1,11 @@
 """
-pipeline.py v8.3 – Early Sector-Momentum-Check
+pipeline.py v8.4 – Options-Erwartungswert ehrlich (Quant-Audit 2026-10-17)
+
+v8.4 Änderungen (2026-10-18, docs/OPTION_EV_AUDIT_2026-10-17.md §7):
+  - V5: Preis-Exits nur auf zulässiger Quote, Spread-Stop auf dem Fair Value (feedback.decide_exit)
+  - V1: MC-P&L bewertet Bull Call Spreads mit beiden Beinen ab dem Debit (mirofish_simulation)
+  - V2: Vorfilter-ROI als Erwartungswert: Netto-Delta, Cap, Zeitwertverlust, Combo-Kosten (options_designer)
+  Neue Ledger-Einträge tragen pipeline_version v8.4 -> Evidenz vor/nach der Umstellung getrennt auswertbar.
 
 v8.3 Änderungen:
   - NEU Stufe 2c: Sector-Momentum-Check VOR ROI Pre-Check und Deep Analysis

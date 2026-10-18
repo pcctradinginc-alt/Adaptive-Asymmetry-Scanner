@@ -400,8 +400,8 @@ class TestCommissionInRoi:
         from modules.options_designer import OptionsDesigner
         d = object.__new__(OptionsDesigner)
         d._vix_ts = {}
-        option = {"bid": 1.40, "ask": 1.50, "strike": 100, "net_debit": 1.50,
-                  "implied_vol": 0.35, "dte": 60}
+        option = {"bid": 2.40, "ask": 2.50, "strike": 100, "net_debit": 1.50,
+                  "implied_vol": 0.35, "dte": 60, "spread_leg": {"strike": 105, "bid": 1.00, "ask": 1.10}}
         sim  = {"current_price": 100, "target_price": 110}
         tier = {"min_roi": 0.12}
         roi  = d._compute_roi(option, sim, 40, tier, "BULL_CALL_SPREAD", 0.65, "OTHER")

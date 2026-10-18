@@ -88,6 +88,52 @@ MAX_SIGNAL_ALPHA = 0.001
 PARAM_SOURCE: dict[str, str] = {}
 
 
+def bs_call_r0(S: float, K: float, T: float, sigma: float) -> float:
+    """Black-Scholes-Call (r=0, ohne Dividende) – dieselbe Konvention wie die MC-Bewertung."""
+    if T <= 0.001 or sigma <= 0:
+        return max(S - K, 0.0)
+    d1 = (math.log(S / K) + 0.5 * sigma**2 * T) / (sigma * math.sqrt(T))
+    return float(S * _scipy_norm.cdf(d1) - K * _scipy_norm.cdf(d1 - sigma * math.sqrt(T)))
+
+
+def implied_vol_r0(price: float, S: float, K: float, T: float) -> float | None:
+    """Implizite Vola eines Calls in der r=0-Konvention (Bisektion); None, wenn der Preis außerhalb der
+    arbitragefreien Grenzen liegt (unter innerem Wert oder über dem Kurs)."""
+    if not (price > 0 and S > 0 and K > 0 and T > 0) or price <= max(S - K, 0.0) or price >= S:
+        return None
+    lo, hi = 0.01, 4.0
+    if not (bs_call_r0(S, K, T, lo) <= price <= bs_call_r0(S, K, T, hi)):
+        return None
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if bs_call_r0(S, K, T, mid) > price:
+            hi = mid
+        else:
+            lo = mid
+    return (lo + hi) / 2
+
+
+def bull_call_spread_terms(option: dict, S: float, T: float) -> dict | None:
+    """Kennzahlen eines Bull Call Spreads aus dem option-Dict (Long-Bein + spread_leg): Debit (Long-Ask − Short-Bid),
+    Breite, IV beider Beine aus ihren Mids (r=0, wie die Bewertung; sonst Chain-IV) und die Spanne der Kombination.
+    None, wenn kein gültiges Short-Bein darüber liegt (dann ist die Position ein Long Call)."""
+    leg = option.get("spread_leg") or {}
+    try:
+        k1, k2 = float(option.get("strike") or 0), float(leg.get("strike") or 0)
+        debit = float(option.get("net_debit") or 0)
+        lb, la = float(option.get("bid") or 0), float(option.get("ask") or 0)
+        sb, sa = float(leg.get("bid") or 0), float(leg.get("ask") or 0)
+    except (TypeError, ValueError):
+        return None
+    if not (k2 > k1 > 0 and debit > 0 and la > 0 and sa > 0):
+        return None
+    chain_iv = float(option.get("implied_vol") or 0.30)
+    iv_long = implied_vol_r0((lb + la) / 2, S, k1, T) or chain_iv
+    iv_short = implied_vol_r0((sb + sa) / 2, S, k2, T) or iv_long
+    return {"k1": k1, "k2": k2, "width": k2 - k1, "debit": debit, "iv_long": iv_long, "iv_short": iv_short,
+            "combo_spread": max((la - sb) - (lb - sa), 0.0)}
+
+
 @lru_cache(maxsize=128)
 def _get_hist_params(ticker: str) -> tuple[float, float]:
     """
@@ -513,6 +559,13 @@ class MirofishSimulation:
         if entry_price <= 0 or days_to_expiry < 5 or current_price <= 0:
             return {"expected_pnl_pct": 0.0, "hit_rate": 0.0, "error": "invalid_input"}
 
+        # V1 (2026-10-18): Bull Call Spread als Spread bewerten – Einstieg zum Debit, Long- minus Short-Call auf
+        # denselben Pfaden, Wert auf die Breite begrenzt. Vorher Long-Call ab Long-Ask: Gate-ROI über dem Maximalertrag
+        # (BBY 171 % > 138 %, ADM 56 % > 53 %, KDP 96 % > 82 %).
+        spread = bull_call_spread_terms(option, current_price, days_to_expiry / 365.0)
+        if spread:
+            entry_price = spread["debit"]
+
         # sigma_30d / hist_mu sind TÄGLICH — annualisieren für GBM (dt = 1/365 year)
         mu_daily    = self._compute_mismatch_drift(candidate)
         sigma_daily = float(candidate.get("features", {}).get("sigma_30d") or DEFAULT_SIGMA)
@@ -533,7 +586,15 @@ class MirofishSimulation:
         mid_iv      = iv_paths[:, hold_days]     # per-Pfad IV am Haltepunkt
         remaining_T = (days_to_expiry - hold_days) / 365.0
 
-        repriced     = self._black_scholes_call(mid_S, strike, remaining_T, mid_iv)
+        if spread:
+            # IV beider Beine folgt dem OU-Pfad mit ihrem Abstand zur Chain-IV beim Einstieg (Skew bleibt erhalten)
+            iv_l = np.maximum(mid_iv + (spread["iv_long"] - entry_iv), 0.05)
+            iv_s = np.maximum(mid_iv + (spread["iv_short"] - entry_iv), 0.05)
+            repriced = np.clip(self._black_scholes_call(mid_S, strike, remaining_T, iv_l)
+                               - self._black_scholes_call(mid_S, spread["k2"], remaining_T, iv_s),
+                               0.0, spread["width"])
+        else:
+            repriced = self._black_scholes_call(mid_S, strike, remaining_T, mid_iv)
         pnl_per_path = (repriced - entry_price) / entry_price
 
         iv_change_pct = float(np.mean(mid_iv) / entry_iv - 1) if entry_iv > 0 else 0.0
@@ -555,6 +616,7 @@ class MirofishSimulation:
             "hold_days":        hold_days,
             "paths":            n_paths,
             "entry_price":      round(entry_price, 4),
+            "instrument":       "BULL_CALL_SPREAD" if spread else "LONG_CALL",
         }
 
 
