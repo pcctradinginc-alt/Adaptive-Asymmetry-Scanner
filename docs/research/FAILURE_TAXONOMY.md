@@ -27,7 +27,7 @@ Ursache ist das erste zutreffende Label in fester Priorität. Alles deterministi
 | 5 | `structure_decay` | signierte Underlying-Rendite >= 0, Option trotzdem im Verlust | Richtung stimmte -> Theta/IV-Crush/Spread/Strike-Wahl (Struktur) |
 | 6 | `weak_adverse_move` | signierte Rendite in [Schwelle, 0) | Lücke zwischen 4 und 5: leicht falsche Richtung innerhalb des Rauschens; weder klares Signalversagen noch Struktur |
 | 7 | `underlying_unknown` | `close_price` oder Entry-Preis fehlt (v. a. Shadow-Trades) | ehrlich „unbekannt“ statt geratener Ursache |
-| 8 | `entry_cost_high` | `entry_quote.spread_pct > 0,10` (Fallback `option.spread_ratio`) | 10 % Bid/Ask-Spread ist ein hoher Round-Trip-Kostenblock; entspricht dem Rand der Pipeline-Filter |
+| 8 | `entry_cost_high` | `entry_quote.spread_pct > 0,10` (Fallback `option.spread_ratio`); bei Spreads die Spanne der Kombination `((L_ask − S_bid) − (L_bid − S_ask)) / (L_ask − S_bid)` | 10 % Bid/Ask-Spread ist ein hoher Round-Trip-Kostenblock; entspricht dem Rand der Pipeline-Filter |
 | 9 | `low_data_confidence` | `data_confidence == "low"` oder eines der Kernfeatures (impact, surprise, mismatch, z_score, sigma_30d) fehlt | Entscheidung auf dünner Datenbasis |
 | 10 | `regime_changed` | Kern-Regime (`fin_conditions`, `credit`, `trend`, `vix`) bei Entry und Exit unterscheiden sich in mindestens einem gemeinsamen Schlüssel (Neben-Labels wie Öl/Dollar ändern sich fast immer und wären unspezifisch) | reines Kontext-Label |
 | 11 | `other` | nichts trifft zu | Restklasse |

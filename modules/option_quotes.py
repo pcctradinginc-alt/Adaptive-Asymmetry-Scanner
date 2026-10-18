@@ -131,6 +131,18 @@ def _parse_ts(v) -> datetime | None:
     return dt.astimezone(timezone.utc)
 
 
+def quote_time_of(raw: dict) -> datetime | None:
+    """Börsenzeit einer Roh-Quote (Tradier bid_date/ask_date/trade_date, epoch ms) als UTC; sonst None."""
+    for k in ("quote_time", "ts", "bid_date", "ask_date", "trade_date"):
+        v = raw.get(k)
+        if v in (0, 0.0, "0", "") or (isinstance(v, str) and _NUMERIC_STR_RE.match(v.strip()) and float(v) == 0):
+            continue                                   # Tradier: 0 = "kein Datum", nie 1970-01-01
+        qt = _parse_ts(v)
+        if qt is not None:
+            return qt
+    return None
+
+
 def _iso(dt: datetime) -> str:
     return dt.isoformat(timespec="milliseconds")
 
@@ -280,14 +292,7 @@ def _normalize(raw, underlying, source, context, retrieved_at) -> dict | None:
     if open_interest == 0:
         flags.add("OI_ZERO")
 
-    qt = None
-    for k in ("quote_time", "ts", "bid_date", "ask_date", "trade_date"):
-        v = raw.get(k)
-        if v in (0, 0.0, "0", "") or (isinstance(v, str) and _NUMERIC_STR_RE.match(v.strip()) and float(v) == 0):
-            continue                                   # Tradier: 0 = "kein Datum", nie 1970-01-01
-        qt = _parse_ts(v)
-        if qt is not None:
-            break
+    qt = quote_time_of(raw)
     if qt is None:
         flags.add("NO_QUOTE_TIME")
     elif ra - qt > timedelta(hours=STALE_HOURS):
