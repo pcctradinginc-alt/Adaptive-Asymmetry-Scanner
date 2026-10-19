@@ -1,16 +1,8 @@
-# Daily Data Health Report – 2026-10-18
+# Daily Data Health Report – 2026-10-19
 
 **Safe Mode (Daten): aus** – gewichtete Data Quality 1.0
 
 Status: HEALTHY 47 · DEGRADED 0 · STALE 0 · BROKEN 0 · UNVALIDATED 8
-
-## Neue Änderungen
-
-- recovery: eia_natural_gas DEGRADED → HEALTHY
-- recovery: fomc_calendar DEGRADED → HEALTHY
-- recovery: bls_release_calendar DEGRADED → HEALTHY
-- recovery: bea_release_calendar DEGRADED → HEALTHY
-- recovery: sec_13f_holdings DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
