@@ -1,9 +1,9 @@
 {
-  "generated": "2026-10-12T13:32:21+00:00",
-  "n": 21,
+  "generated": "2026-10-19T11:16:41+00:00",
+  "n": 19,
   "status_counts": {
     "FORWARD_TEST": 8,
-    "UNDER_TEST": 7,
+    "UNDER_TEST": 5,
     "HISTORICALLY_REJECTED": 3,
     "OPEN_QUESTION": 3
   },
@@ -43,7 +43,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -100,7 +100,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -148,7 +148,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -205,7 +205,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -255,7 +255,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -312,7 +312,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -406,7 +406,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -463,7 +463,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -514,7 +514,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -571,7 +571,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -667,7 +667,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -724,7 +724,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -820,7 +820,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -877,7 +877,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -1117,7 +1117,7 @@
           "data_available": true,
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1,
+          "forward_n": 2,
           "delta_expectancy": 0.0,
           "influence_level": "NONE"
         },
@@ -1174,7 +1174,7 @@
           "id": "PROM-ABST-003@v1",
           "status": "PROSPECTIVE_CHALLENGER",
           "evidence": "prospektiv (Forward)",
-          "forward_n": 1
+          "forward_n": 2
         },
         {
           "id": "PROM-ABST-003@v2",
@@ -1186,96 +1186,6 @@
       "question_5_behaviour": "keine Änderung",
       "status": "FORWARD_TEST",
       "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
-    },
-    {
-      "question_1_not_understood": {
-        "id": "model_drift:enet_xs20_v1",
-        "kind": "model_drift",
-        "finding": "Modell enet_xs20_v1 verliert Prognosekraft",
-        "keys": [
-          "model_drift:enet_xs20_v1"
-        ]
-      },
-      "question_2_explanations": [
-        {
-          "id": "RD-fd37738e",
-          "source": "director",
-          "explanation": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?",
-          "data_needed": [
-            "Basis-OOS je Segment"
-          ],
-          "data_available": true,
-          "status": "NOT_YET_TESTED",
-          "evidence": "historisch",
-          "reasons": []
-        }
-      ],
-      "question_3_data": [
-        {
-          "id": "RD-fd37738e",
-          "needed": [
-            "Basis-OOS je Segment"
-          ],
-          "available": true,
-          "free_sources": null
-        }
-      ],
-      "question_4_new_data": [
-        {
-          "id": "RD-fd37738e",
-          "status": "NOT_YET_TESTED",
-          "evidence": "historisch",
-          "forward_n": null
-        }
-      ],
-      "question_5_behaviour": "keine Änderung",
-      "status": "UNDER_TEST",
-      "next_step": "historischen Walk-Forward abschließen"
-    },
-    {
-      "question_1_not_understood": {
-        "id": "model_drift:momentum_12_1",
-        "kind": "model_drift",
-        "finding": "Modell momentum_12_1 verliert Prognosekraft",
-        "keys": [
-          "model_drift:momentum_12_1"
-        ]
-      },
-      "question_2_explanations": [
-        {
-          "id": "RD-1e3cf471",
-          "source": "director",
-          "explanation": "Warum verliert momentum_12_1 an Prognosekraft (t=-2.44)?",
-          "data_needed": [
-            "Basis-OOS je Segment"
-          ],
-          "data_available": true,
-          "status": "NOT_YET_TESTED",
-          "evidence": "historisch",
-          "reasons": []
-        }
-      ],
-      "question_3_data": [
-        {
-          "id": "RD-1e3cf471",
-          "needed": [
-            "Basis-OOS je Segment"
-          ],
-          "available": true,
-          "free_sources": null
-        }
-      ],
-      "question_4_new_data": [
-        {
-          "id": "RD-1e3cf471",
-          "status": "NOT_YET_TESTED",
-          "evidence": "historisch",
-          "forward_n": null
-        }
-      ],
-      "question_5_behaviour": "keine Änderung",
-      "status": "UNDER_TEST",
-      "next_step": "historischen Walk-Forward abschließen"
     },
     {
       "question_1_not_understood": {
@@ -1359,26 +1269,9 @@
     },
     {
       "question_1_not_understood": {
-        "id": "failure:signal_wrong",
-        "kind": "prediction_error",
-        "finding": "Verlust-Ursache signal_wrong: 33 % der Verlierer (Ø -0.5918)",
-        "keys": [
-          "champion_trades",
-          "signal_wrong"
-        ]
-      },
-      "question_2_explanations": [],
-      "question_3_data": [],
-      "question_4_new_data": [],
-      "question_5_behaviour": "keine Änderung",
-      "status": "OPEN_QUESTION",
-      "next_step": "falsifizierbare Erklärung formulieren (Director/Fabrik)"
-    },
-    {
-      "question_1_not_understood": {
         "id": "failure:structure_decay",
         "kind": "prediction_error",
-        "finding": "Verlust-Ursache structure_decay: 33 % der Verlierer (Ø -0.7381)",
+        "finding": "Verlust-Ursache structure_decay: 40 % der Verlierer (Ø -0.45994999999999997)",
         "keys": [
           "champion_trades",
           "structure_decay"
@@ -1395,10 +1288,27 @@
       "question_1_not_understood": {
         "id": "failure:timing_too_early",
         "kind": "prediction_error",
-        "finding": "Verlust-Ursache timing_too_early: 33 % der Verlierer (Ø -0.5079)",
+        "finding": "Verlust-Ursache timing_too_early: 40 % der Verlierer (Ø -0.41165)",
         "keys": [
           "champion_trades",
           "timing_too_early"
+        ]
+      },
+      "question_2_explanations": [],
+      "question_3_data": [],
+      "question_4_new_data": [],
+      "question_5_behaviour": "keine Änderung",
+      "status": "OPEN_QUESTION",
+      "next_step": "falsifizierbare Erklärung formulieren (Director/Fabrik)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "failure:signal_wrong",
+        "kind": "prediction_error",
+        "finding": "Verlust-Ursache signal_wrong: 20 % der Verlierer (Ø -0.5918)",
+        "keys": [
+          "champion_trades",
+          "signal_wrong"
         ]
       },
       "question_2_explanations": [],
