@@ -61,35 +61,35 @@ def _root(tmp_path: Path, snap_ts: str | None = None, ext_ts: str | None = None,
     return tmp_path
 
 
-FRI_2000 = datetime(2026, 10, 9, 20, 0, tzinfo=UTC)          # Freitag, typische (verspätete) Scanner-Zeit
+FRI_LATE = datetime(2026, 10, 9, 18, 30, tzinfo=UTC)         # Freitag 14:30 ET: verspätet, vor dem spätesten Start
 
 
 def test_scanner_blocked_when_source_health_stale(tmp_path):
-    r = wh.upstream_ready("scanner", FRI_2000, _root(tmp_path, snap_ts="2026-10-08T19:00:33+00:00",
+    r = wh.upstream_ready("scanner", FRI_LATE, _root(tmp_path, snap_ts="2026-10-08T19:00:33+00:00",
                                                      ext_ts="2026-10-09T13:21:00+00:00"))
     assert r["run"] is False and r["status"] == "UPSTREAM_NOT_READY"
     assert "source_health_snapshot STALE" in r["reason"] and "2026-10-08" in r["reason"]
 
 
 def test_scanner_blocked_when_source_health_missing(tmp_path):
-    r = wh.upstream_ready("scanner", FRI_2000, _root(tmp_path))
+    r = wh.upstream_ready("scanner", FRI_LATE, _root(tmp_path))
     assert r["run"] is False and r["status"] == "UPSTREAM_NOT_READY" and "MISSING" in r["reason"]
 
 
 def test_future_timestamp_is_never_treated_as_fresh(tmp_path):
-    r = wh.upstream_ready("scanner", FRI_2000, _root(tmp_path, snap_ts="2026-10-10T08:00:00+00:00"))
+    r = wh.upstream_ready("scanner", FRI_LATE, _root(tmp_path, snap_ts="2026-10-10T08:00:00+00:00"))
     assert r["run"] is False and r["checks"][0]["status"] == "FUTURE_TIMESTAMP"
 
 
 def test_scanner_runs_with_fresh_snapshot(tmp_path):
-    r = wh.upstream_ready("scanner", FRI_2000, _root(tmp_path, snap_ts="2026-10-09T19:00:00+00:00",
+    r = wh.upstream_ready("scanner", FRI_LATE, _root(tmp_path, snap_ts="2026-10-09T18:00:00+00:00",
                                                      ext_ts="2026-10-09T13:21:00+00:00"))
     assert r["run"] is True and r["status"] == "RUN"
 
 
 def test_external_data_is_advisory_only_for_scanner(tmp_path):
     """External Data ist Observability (nicht production) -> meldet, blockiert den Scanner nicht."""
-    r = wh.upstream_ready("scanner", FRI_2000, _root(tmp_path, snap_ts="2026-10-09T19:00:00+00:00",
+    r = wh.upstream_ready("scanner", FRI_LATE, _root(tmp_path, snap_ts="2026-10-09T18:00:00+00:00",
                                                      ext_ts="2026-10-05T13:00:00+00:00"))
     assert r["run"] is True and r["advisory"][0]["status"] == "STALE"
 
@@ -107,9 +107,9 @@ def test_scanner_not_on_weekend(tmp_path):
 
 
 def test_scanner_guard_is_idempotent_daily_report_exists(tmp_path):
-    root = _root(tmp_path, snap_ts="2026-10-09T19:00:00+00:00", report_day="2026-10-09")
+    root = _root(tmp_path, snap_ts="2026-10-09T18:00:00+00:00", report_day="2026-10-09")
     for _ in range(2):                                         # Recovery zweimal -> nie ein zweiter Scan
-        r = wh.upstream_ready("scanner", FRI_2000, root)
+        r = wh.upstream_ready("scanner", FRI_LATE, root)
         assert r["run"] is False and r["status"] == "SKIP_ALREADY_RAN"
 
 
@@ -143,7 +143,8 @@ def test_upstream_guard_script_writes_outputs_and_warning(tmp_path, monkeypatch,
 
 # ── 4. Missed-Run / Recovery ─────────────────────────────────────────────────────────────────────────────
 CFG = wh.load_cfg()
-LATE = datetime(2026, 10, 9, 23, 0, tzinfo=UTC)               # nach allen Fristen (Scanner 13:30 + 9 h)
+LATE = datetime(2026, 10, 9, 18, 0, tzinfo=UTC)               # nach den Fristen (Scanner 13:30 + 4 h), vor dem
+                                                              # spätesten Start 15:00 ET = 19:00 UTC (2026-10-19)
 
 
 def _ok(created):
@@ -151,8 +152,8 @@ def _ok(created):
 
 
 def _runs(**over):
-    base = {"external_data": [_ok("2026-10-09T13:20:00Z")], "source_health": [_ok("2026-10-09T19:00:00Z")],
-            "scanner": [], "feedback": [_ok("2026-10-09T21:30:00Z")]}
+    base = {"external_data": [_ok("2026-10-09T13:20:00Z")], "source_health": [_ok("2026-10-09T15:00:00Z")],
+            "scanner": [], "feedback": [_ok("2026-10-09T17:30:00Z")]}
     base.update(over)
     return base
 
@@ -164,17 +165,17 @@ def test_missing_run_detected_and_exactly_one_dispatch():
     p = wh.plan_recovery(LATE, _runs(), CFG, artifacts=ART)
     assert p["scanner"]["state"] == "MISSED" and p["scanner"]["action"] == "DISPATCH"
     assert [j for j, r in p.items() if r["action"] == "DISPATCH"] == ["scanner"]
-    assert p["source_health"]["delay_hours"] == pytest.approx(6.3)  # 12:41 -> 19:00 sichtbar als Verzögerung
+    assert p["source_health"]["delay_hours"] == pytest.approx(2.3)  # 12:41 -> 15:00 sichtbar als Verzögerung
 
 
 def test_green_run_without_artifact_is_not_ok():
     """Guard-Skip (UPSTREAM_NOT_READY) ist grün, versorgt den Tag aber nicht -> trotzdem verpasst."""
-    p = wh.plan_recovery(LATE, _runs(scanner=[_ok("2026-10-09T20:00:00Z")]), CFG, artifacts=ART)
+    p = wh.plan_recovery(LATE, _runs(scanner=[_ok("2026-10-09T17:45:00Z")]), CFG, artifacts=ART)
     assert p["scanner"]["state"] == "MISSED" and p["scanner"]["action"] == "DISPATCH"
 
 
 def test_no_endless_retry_after_one_recovery():
-    failed_recovery = {"created_at": "2026-10-09T22:30:00Z", "status": "completed", "conclusion": "failure",
+    failed_recovery = {"created_at": "2026-10-09T17:40:00Z", "status": "completed", "conclusion": "failure",
                        "event": "workflow_dispatch"}
     p = wh.plan_recovery(LATE, _runs(scanner=[failed_recovery]), CFG, artifacts=ART)
     assert p["scanner"]["state"] == "RECOVERY_EXHAUSTED" and p["scanner"]["action"] is None
@@ -183,9 +184,9 @@ def test_no_endless_retry_after_one_recovery():
 
 
 def test_no_dispatch_while_running_pending_or_unknown():
-    running = {"created_at": "2026-10-09T22:50:00Z", "status": "in_progress", "conclusion": None, "event": "schedule"}
+    running = {"created_at": "2026-10-09T17:50:00Z", "status": "in_progress", "conclusion": None, "event": "schedule"}
     assert wh.plan_recovery(LATE, _runs(scanner=[running]), CFG, artifacts=ART)["scanner"]["state"] == "RUNNING"
-    early = datetime(2026, 10, 9, 20, 0, tzinfo=UTC)          # 6,5 h Verzögerung = normal, keine Panik
+    early = datetime(2026, 10, 9, 17, 0, tzinfo=UTC)          # 3,5 h Verzögerung = normal, keine Panik
     assert wh.plan_recovery(early, _runs(), CFG, artifacts=ART)["scanner"]["state"] == "PENDING"
     unk = wh.plan_recovery(LATE, _runs(scanner=None), CFG, artifacts=ART)["scanner"]
     assert unk["state"] == "UNKNOWN" and unk["action"] is None                  # API-Fehler: nie blind dispatchen
@@ -263,7 +264,7 @@ def test_weekly_workflow_status_block():
     assert table[1][:4] == ["Workflow", "erwartet", "letzter Lauf", "Verzögerung Median/Max"]
     rows = {r[0]: r for r in table[2]}
     assert rows["scanner"][4] == "1" and rows["scanner"][5] == "0"          # recovered, nicht verpasst
-    assert rows["source_health"][3].startswith("6.3")
+    assert rows["source_health"][3].startswith("2.3")
     assert "kein Systemfehler" in blocks[-1][1]
     assert "Watchdog noch ohne Historie" in w.workflow_status_blocks({})[0][1]
 

@@ -7,6 +7,8 @@ Mehrfach-Dispatch: Zähler in outputs/state/workflow_status.json UND workflow_di
 Die Jobs selbst sind idempotent (Scanner-Guard: Tagesreport existiert -> SKIP_ALREADY_RAN).
     python scripts/workflow_watchdog.py [--dry-run]
 Ohne GITHUB_TOKEN/GITHUB_REPOSITORY: Run-Liste unbekannt -> Status UNKNOWN, nie blind dispatchen.
+Jeder nicht versorgte Tag nach Ablauf der Frist (MISSED ohne Dispatch, RECOVERY_EXHAUSTED, UNKNOWN) erzeugt ein
+::warning:: mit Grund; die Step-Summary zeigt je Workflow Zustand, Frist und Grund (kein stilles "recovered=False").
 """
 from __future__ import annotations
 
@@ -57,6 +59,33 @@ def dispatch(repo: str, file: str, ref: str) -> bool:
         return False
 
 
+def _alerts(plan: dict) -> list[str]:
+    """Verständliche Warnungen für Tage, die (vorerst) nicht versorgt werden – nie still."""
+    out = []
+    for job, row in plan.items():
+        st = row.get("state")
+        if st == "MISSED" and row.get("action") != "DISPATCH":
+            out.append(f"MISSED {job}: {row.get('reason')}")
+        elif st == "RECOVERY_EXHAUSTED":
+            out.append(f"RECOVERY_EXHAUSTED {job}: {row.get('reason')} – manuell prüfen")
+        elif st == "UNKNOWN":
+            out.append(f"UNKNOWN {job}: {row.get('reason')} (Frist {row.get('deadline')} überschritten)")
+    return out
+
+
+def _summary(plan: dict, alerts: list[str], day: str) -> None:
+    p = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not p:
+        return
+    lines = [f"### Workflow-Watchdog {day}: {'⚠️ ' + str(len(alerts)) + ' Problem(e)' if alerts else 'OK'}", "",
+             "| Workflow | Zustand | Frist (UTC) | letzter Lauf | Recovery | Grund |", "|---|---|---|---|---|---|"]
+    for job, row in plan.items():
+        lines.append(f"| {job} | {row.get('state')} | {row.get('deadline')} | {row.get('actual_last_run') or '–'} | "
+                     f"{row.get('recoveries_today', 0)} | {row.get('reason') or '–'} |")
+    with open(p, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines + [""] + [f"- {m}" for m in alerts]) + "\n")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -83,8 +112,14 @@ def main(argv=None) -> int:
         dispatched[job] = 1
         ok = dispatch(repo, row["file"], ref)
         row["state"] = "RECOVERY_TRIGGERED" if ok else "RECOVERY_EXHAUSTED"
+        if not ok:
+            row["reason"] = "Recovery-Dispatch fehlgeschlagen (GitHub API) – kein weiterer Versuch heute"
         row["recovered"], row["recoveries_today"] = ok, row["recoveries_today"] + 1
         print(f"::warning::MISSED {job} (erwartet {row['expected']}) -> Recovery-Dispatch {'OK' if ok else 'FEHLER'}")
+    alerts = _alerts(plan)
+    for msg in alerts:
+        print(f"::warning::{msg}")
+    _summary(plan, alerts, day)
     for job, row in plan.items():
         print(f"{job:14s} {row['state']:20s} erwartet {row['expected']}  letzter Lauf {row['actual_last_run']}  "
               f"Verzögerung {row['delay_hours']} h  recovered={row['recovered']}  stale_upstream={row['stale_upstream']}")

@@ -3,7 +3,8 @@
 Schreibt `run=true|false` und `status=<STATUS>` nach $GITHUB_OUTPUT und eine Zeile in die Step-Summary.
 UPSTREAM_NOT_READY ist nie still: ::warning:: mit Grund (Upstream-Stand, Alter, Grenze). Der Lauf bleibt
 grün, weil ein verfrühter/verspäteter Cron kein Systemfehler ist – fehlt der Tag am Ende trotzdem,
-meldet ihn der Watchdog (scripts/workflow_watchdog.py) als MISSED.
+meldet ihn der Watchdog (scripts/workflow_watchdog.py) als MISSED. MISSED_WINDOW_CLOSED (spätester Start vor
+Sitzungsschluss überschritten) ist ebenfalls nie still: ::warning:: MISSED mit Grund, kein Produktionsscan.
     python scripts/upstream_guard.py scanner [--force]
 --force (manueller Dispatch mit Input force=true): Gate wird übersprungen, aber protokolliert.
 """
@@ -38,8 +39,8 @@ def main(argv=None) -> int:
         print(f"::warning::{a.job}: Guard manuell übersteuert (force) – Status wäre {res['status']}: {res['reason']}")
         res = {**res, "run": True, "status": "FORCED", "forced_from": res["status"]}
     print(json.dumps(res, indent=2, ensure_ascii=False))
-    if res["status"] == "UPSTREAM_NOT_READY":
-        print(f"::warning::UPSTREAM_NOT_READY {a.job}: {res['reason']}")
+    if res["status"] in ("UPSTREAM_NOT_READY", "MISSED_WINDOW_CLOSED"):
+        print(f"::warning::{res['status']} {a.job}: {res['reason']}")
     for c in res.get("advisory") or []:
         if c["status"] != "FRESH":
             print(f"::notice::{a.job} Hinweis (nicht blockierend): {c['name']} {c['status']} (Alter {c['age_hours']} h)")

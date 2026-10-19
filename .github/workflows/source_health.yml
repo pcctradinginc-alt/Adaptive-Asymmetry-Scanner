@@ -9,6 +9,8 @@ name: Source Health Check (täglich, vor dem Scanner)
 on:
   schedule:
     - cron: '41 12 * * *'   # täglich 12:41 UTC – nach External Data (06:17), vor dem Scanner (13:30)
+  # Kommt der Cron bis 15:41 UTC nicht (max_delay_hours 3), dispatcht der Watchdog genau einen Recovery-Lauf;
+  # dessen Abschluss startet den Scanner über workflow_run (scanner.yml).
   workflow_dispatch:
 
 concurrency:

@@ -29,6 +29,9 @@ env:
 jobs:
   # Freshness-Gate (scripts/upstream_guard.py, config/workflow_schedule.yaml): Scanner startet nur mit
   # Source-Health-Snapshot aus dem aktuellen Tageszyklus; sonst UPSTREAM_NOT_READY (Warnung, kein stiller Lauf).
+  # Nach dem spätesten Start (Sitzungsschluss − 60 min) -> MISSED_WINDOW_CLOSED (Warnung, kein Produktionsscan).
+  # Doppelte Trigger (Cron, workflow_run, Watchdog-Recovery) laufen über die Concurrency-Gruppe nacheinander;
+  # der Guard des zweiten Laufs sieht den committeten Tagesreport -> SKIP_ALREADY_RAN.
   guard:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
