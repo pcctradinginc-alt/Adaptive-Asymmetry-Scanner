@@ -5,7 +5,8 @@
 # Freshness-Gate (scripts/upstream_guard.py); fehlende Läufe erkennt scripts/workflow_watchdog.py.
 #
 #   cron_utc / days    geplanter Lauf (Mo=0 … So=6, UTC)
-#   max_delay_hours    ab wann ein fehlender Lauf als verpasst gilt (über der beobachteten GitHub-Verzögerung)
+#   max_delay_hours    ab wann ein fehlender Lauf als verpasst gilt. Bei Workflows mit Gate (Scanner) nie später als
+#                      spätester Start − 1 h (modules/workflow_health.deadline), sonst käme die Recovery zu spät.
 #   artifact           woran "Tag versorgt" erkannt wird (nicht am Run-Status: ein Guard-Skip ist grün,
 #                      versorgt aber nichts)
 #   depends_on         PFLICHT-Upstream: Recovery-Dispatch unterbleibt, solange dieser selbst fehlt
@@ -23,7 +24,11 @@ workflows:
     file: source_health.yml
     cron_utc: "12:41"
     days: [0, 1, 2, 3, 4, 5, 6]
-    max_delay_hours: 9
+    # 9 -> 3 (2026-10-19): Mo 19.10. kam der Cron gar nicht; mit 9 h (21:41 UTC) lag die Recovery hinter dem
+    # Börsenschluss, der Scanner-Tag war verloren. 15:41 UTC = 11:41 ET (Sommer) / 10:41 ET (Winter) lässt dem
+    # Scanner nach Recovery den ganzen Nachmittag. Beobachteter Verzug 3–9 h -> an späten Tagen läuft Source Health
+    # zweimal (Recovery + verspäteter Cron); unschädlich: überschreibt nur den Snapshot, Scanner-Guard ist idempotent.
+    max_delay_hours: 3
     artifact: {kind: json_date, path: outputs/health/source_health_snapshot.json, field: generated}
     # External Data ist Observability (external_context.mode != production) und KEIN Pflicht-Upstream:
     # Source Health muss auch bei fehlendem External-Data-Lauf laufen und genau das als STALE melden.
@@ -33,7 +38,9 @@ workflows:
     cron_utc: "13:30"                  # erster der beiden Crons (13:30 + 14:30 UTC = 09:30 ET Sommer/Winter)
     days: [0, 1, 2, 3, 4]
     trading_days_only: true            # NYSE-Feiertage/Sonderschließungen: kein Lauf, kein MISSED/Recovery
-    max_delay_hours: 9
+    # 9 -> 4 (2026-10-19): Frist 17:30 UTC (13:30 ET Sommer / 12:30 ET Winter); zusätzlich nie später als
+    # spätester Start − 1 h (verkürzte Sitzung: 11:00 ET). Danach MISSED ohne Dispatch (gates.scanner).
+    max_delay_hours: 4
     artifact: {kind: file, path: "outputs/daily_reports/{date}.json"}
     depends_on: [source_health]
   feedback:
@@ -50,6 +57,10 @@ gates:
     # im Sommer, im Winter 08:30 ET Pre-Market). workflow_run nach Source Health darf den Scanner nicht vor
     # seine Handelszeit ziehen (sonst andere Quote-Bedingungen = andere Produktionsentscheidungen).
     not_before_ny: "09:30"
+    # Spätester Start (2026-10-19): Sitzungsschluss (NYSE-Kalender, verkürzte Sitzungen) minus 60 min = 15:00 ET.
+    # Der Lauf dauert ~35–50 min; timing-v2 wertet Quotes nur bis Schluss − 10 min. Später -> MISSED_WINDOW_CLOSED
+    # (Warnung, kein Produktionsscan mit nachbörslichen Kursen; 05.10./12.10. starteten Scanner nach 17:00 ET).
+    latest_start_before_close_minutes: 60
     requires:                          # fehlt/zu alt -> UPSTREAM_NOT_READY, Scanner startet nicht
       - name: source_health_snapshot
         path: outputs/health/source_health_snapshot.json

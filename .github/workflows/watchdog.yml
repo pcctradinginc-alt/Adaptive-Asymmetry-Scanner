@@ -3,11 +3,20 @@ name: Workflow Watchdog (Missed-Run-Recovery)
 # Erkennt verpasste Läufe der kritischen Workflows (External Data, Source Health, Scanner, Feedback) und
 # löst je Workflow und UTC-Tag höchstens EINEN Recovery-Dispatch aus (config/workflow_schedule.yaml,
 # scripts/workflow_watchdog.py). Kein Endlos-Retry; Pflicht-Upstream fehlt -> Downstream wird nicht angestoßen.
-# Grenze: der Watchdog ist selbst ein Cron – fallen ALLE Schedules aus, fällt auch er aus (sichtbar im Report).
+# Auslösung redundant (2026-10-19): am Mo 19.10. kamen von 12 Watchdog-Crons bis 18:30 UTC nur 2 (04:48, 13:26).
+# Deshalb zusätzlich stündlich im Handelstag-Fenster und als workflow_run nach Läufen, die ohnehin stattfinden
+# (6 Options-Capture-Crons je Werktag, External Data täglich). Kein Retry-Kreis: der Watchdog dispatcht nur
+# Source Health/Scanner/External Data/Feedback je max. 1x pro Tag; Source Health/Scanner/Feedback lösen ihn nicht aus,
+# External Data nur einmal mehr (Recovery-Budget dann verbraucht). Seine Status-Commits (GITHUB_TOKEN) triggern nichts.
+# Grenze: fallen ALLE Schedules des Repos aus, fällt auch er aus (sichtbar im Report an fehlenden Tagen).
 
 on:
   schedule:
-    - cron: '23 */2 * * *'   # alle 2 h (GitHub-Verzögerung egal: Frist je Workflow in max_delay_hours)
+    - cron: '23 */2 * * *'          # alle 2 h (GitHub-Verzögerung egal: Frist je Workflow in max_delay_hours)
+    - cron: '53 13-20 * * 1-5'      # zusätzlich stündlich, solange ein Scanner-Lauf noch möglich ist
+  workflow_run:
+    workflows: ["Options-Capture (RTH, nur Quote-Archiv)", "External Data Ingestion"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:

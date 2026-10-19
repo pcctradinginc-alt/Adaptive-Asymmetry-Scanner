@@ -11,6 +11,10 @@ ganz ausfielen. Jetzt:
                     Workflow und Tag höchstens EINEN Recovery-Dispatch; solange ein Pflicht-Upstream
                     fehlt, wird der Downstream nicht angestoßen. Recovery ist idempotent, weil die Jobs
                     es sind (Guard: Tagesreport existiert -> Scanner läuft nicht erneut; Archiv dedupliziert).
+Recovery-Härtung 2026-10-19 (Scanner-Ausfall Mo 19.10.: Source-Health-Cron kam nicht, Watchdog-Frist 9 h
+lag hinter Börsenschluss): spätester Scanner-Start je NY-Handelstag (`latest_start_before_close_minutes`,
+danach MISSED_WINDOW_CLOSED statt Produktionsscan mit Kursen außerhalb der Sitzung) und Recovery-Frist,
+die nie hinter diesem Start liegt (`deadline()`).
 Reine Funktionen (testbar); IO in scripts/upstream_guard.py und scripts/workflow_watchdog.py.
 """
 from __future__ import annotations
@@ -24,6 +28,8 @@ import yaml
 CONFIG = Path("config/workflow_schedule.yaml")
 STATUS = Path("outputs/state/workflow_status.json")
 ACTIVE_RUN_STATES = ("queued", "in_progress", "waiting", "requested", "pending")
+RECOVERY_LEAD = timedelta(hours=1)   # Recovery-Dispatch spätestens so lange vor dem spätesten Start (Puffer für
+                                     # Upstream-Lauf + Runner-Wartezeit; Dispatch-Läufe starten ohne Cron-Verzug)
 
 
 def load_cfg(path: Path | None = None) -> dict:
@@ -70,6 +76,27 @@ def _at(day: date, hhmm: str) -> datetime:
     return datetime.combine(day, time(h, m), tzinfo=timezone.utc)
 
 
+def latest_start(gate: dict, ref: datetime) -> datetime | None:
+    """Spätester sinnvoller Start (UTC) am NY-Handelstag von `ref`: Schluss der regulären Sitzung (verkürzte
+    Sitzungen inklusive) minus `latest_start_before_close_minutes`. None = nicht konfiguriert (kein Limit)."""
+    mins = gate.get("latest_start_before_close_minutes")
+    if mins is None:
+        return None
+    from modules.market_snapshot import NY_TZ, market_close_time
+    d = _ny(ref).date()
+    close = datetime.combine(d, market_close_time(d), tzinfo=NY_TZ).astimezone(timezone.utc)
+    return close - timedelta(minutes=int(mins))
+
+
+def deadline(wf: dict, gate: dict, day: date) -> tuple[datetime, datetime | None]:
+    """(Recovery-Frist, spätester Start). Frist = Cron + max_delay_hours, aber nie später als spätester Start
+    minus RECOVERY_LEAD – sonst käme die Recovery erst, wenn kein gültiger Lauf mehr möglich ist."""
+    exp = _at(day, wf["cron_utc"])
+    due = exp + timedelta(hours=float(wf.get("max_delay_hours", 8)))
+    cut = latest_start(gate, exp)
+    return (min(due, cut - RECOVERY_LEAD) if cut is not None else due), cut
+
+
 def latest_timestamp(spec: dict, root: Path = Path(".")) -> datetime | None:
     """Zeitstempel eines Upstream-Artefakts (Feld `field`; any_source: jüngster Wert über alle Quellen)."""
     doc = _read(root / spec["path"])
@@ -95,8 +122,8 @@ def artifact_ok(spec: dict | None, day: date, root: Path = Path(".")) -> bool | 
 
 
 def upstream_ready(job: str, now: datetime, root: Path = Path("."), cfg: dict | None = None) -> dict:
-    """-> {'run': bool, 'status': RUN|SKIP_NOT_TRADING_DAY|SKIP_BEFORE_WINDOW|SKIP_ALREADY_RAN|
-    UPSTREAM_NOT_READY, 'reason': str, 'checks': [...], 'advisory': [...]}"""
+    """-> {'run': bool, 'status': RUN|SKIP_NOT_TRADING_DAY|SKIP_MARKET_CLOSED|SKIP_BEFORE_WINDOW|SKIP_ALREADY_RAN|
+    MISSED_WINDOW_CLOSED|UPSTREAM_NOT_READY, 'reason': str, 'checks': [...], 'advisory': [...]}"""
     cfg = cfg or load_cfg()
     wf = (cfg.get("workflows") or {}).get(job) or {}
     gate = (cfg.get("gates") or {}).get(job) or {}
@@ -120,6 +147,12 @@ def upstream_ready(job: str, now: datetime, root: Path = Path("."), cfg: dict | 
                    f"vor {gate['not_before_utc']} UTC – der geplante Lauf übernimmt (Handelszeit unverändert)")
     if artifact_ok(wf.get("artifact"), today, root):
         return out(False, "SKIP_ALREADY_RAN", f"Tag {today} bereits versorgt (idempotent)")
+    cut = latest_start(gate, now)
+    if cut is not None and now >= cut:
+        return out(False, "MISSED_WINDOW_CLOSED",
+                   f"MISSED: {_ny(now):%H:%M} ET liegt nach dem spätesten Start {_ny(cut):%H:%M} ET (Sitzungsschluss − "
+                   f"{gate['latest_start_before_close_minutes']} min) – kein verspäteter Produktionsscan mit Kursen "
+                   "außerhalb der regulären Sitzung; der Tag bleibt als verpasst dokumentiert")
 
     def check(spec):
         ts = latest_timestamp(spec, root)
@@ -153,9 +186,10 @@ def plan_recovery(now: datetime, runs: dict[str, list[dict] | None], cfg: dict |
     runs:       {job: [{created_at, status, conclusion, event}]} heutiger Tag (GitHub-API); None = API-Fehler
     artifacts:  {job: True/False/None} Tag durch Artefakt versorgt (None = kein Artefakt konfiguriert)
     recoveries: {job: n} bereits ausgelöste Recovery-Dispatches heute (Status-Datei, gegen Doppel-Dispatch)
-    -> {job: {expected, actual_last_run, delay_hours, recovered, state, action, stale_upstream}} mit state
-       OK | PENDING | RUNNING | MISSED | RECOVERY_EXHAUSTED | NOT_SCHEDULED | UNKNOWN.
-    action == "DISPATCH" genau dann, wenn verpasst, Recovery-Budget frei und Pflicht-Upstream versorgt."""
+    -> {job: {expected, deadline, actual_last_run, delay_hours, recovered, state, action, stale_upstream, reason}}
+       mit state OK | PENDING | RUNNING | MISSED | RECOVERY_EXHAUSTED | NOT_SCHEDULED | UNKNOWN.
+    action == "DISPATCH" genau dann, wenn verpasst, Recovery-Budget frei, Pflicht-Upstream versorgt und der
+    späteste Start (Gate) noch nicht erreicht ist; danach MISSED mit window_closed (dokumentiert, kein Dispatch)."""
     cfg = cfg or load_cfg()
     artifacts = artifacts or {}
     recoveries = recoveries or {}
@@ -164,16 +198,18 @@ def plan_recovery(now: datetime, runs: dict[str, list[dict] | None], cfg: dict |
     out = {}
     for job, wf in (cfg.get("workflows") or {}).items():
         exp = _at(today, wf["cron_utc"])
+        due, cut = deadline(wf, (cfg.get("gates") or {}).get(job) or {}, today)
         api_ok = runs.get(job) is not None
         rs = sorted(runs.get(job) or [], key=lambda r: r.get("created_at") or "")
         n_rec = max(sum(1 for r in rs if r.get("event") == "workflow_dispatch"), int(recoveries.get(job, 0)))
         first = _ts(rs[0].get("created_at")) if rs else None
         row = {"file": wf["file"], "expected": exp.isoformat(timespec="minutes"),
+               "deadline": due.isoformat(timespec="minutes"),
                "actual_last_run": rs[-1].get("created_at") if rs else None,
                "conclusion": rs[-1].get("conclusion") if rs else None,
                "delay_hours": round((first - exp).total_seconds() / 3600, 1) if first else None,
                "runs_today": len(rs), "recovered": n_rec > 0, "recoveries_today": n_rec,
-               "artifact_ok": artifacts.get(job), "action": None, "stale_upstream": []}
+               "artifact_ok": artifacts.get(job), "action": None, "stale_upstream": [], "reason": None}
         art = artifacts.get(job)
         done = art if art is not None else any(r.get("conclusion") == "success" for r in rs)
         if today.weekday() not in wf.get("days", list(range(7))):
@@ -184,14 +220,20 @@ def plan_recovery(now: datetime, runs: dict[str, list[dict] | None], cfg: dict |
             row["state"] = "OK"
         elif any(r.get("status") in ACTIVE_RUN_STATES for r in rs):
             row["state"] = "RUNNING"
-        elif now < exp + timedelta(hours=float(wf.get("max_delay_hours", 8))):
+        elif now < due:
             row["state"] = "PENDING"
         elif not api_ok:
-            row["state"] = "UNKNOWN"                      # ohne Run-Liste nie blind dispatchen
+            row["state"], row["reason"] = "UNKNOWN", "Run-Liste nicht lesbar – kein Dispatch"   # nie blind dispatchen
         elif n_rec >= max_rec:
             row["state"] = "RECOVERY_EXHAUSTED"           # kein Endlos-Retry
+            row["reason"] = f"{n_rec} Recovery-Versuch(e) heute ohne versorgten Tag – kein weiterer Retry"
+        elif cut is not None and now >= cut:
+            row["state"], row["window_closed"] = "MISSED", True
+            row["reason"] = (f"spätester Start {cut.isoformat(timespec='minutes')} überschritten – kein verspäteter "
+                             "Lauf außerhalb der regulären Sitzung")
         else:
             row["state"], row["action"] = "MISSED", "DISPATCH"
+            row["reason"] = f"Frist {row['deadline']} überschritten, Tag nicht versorgt"
         out[job] = row
     # Pflicht-Upstream: Downstream nicht anstoßen, solange der Upstream selbst nicht versorgt ist
     for job, wf in (cfg.get("workflows") or {}).items():
@@ -200,6 +242,7 @@ def plan_recovery(now: datetime, runs: dict[str, list[dict] | None], cfg: dict |
         if stale and out[job]["action"] == "DISPATCH":
             out[job]["action"] = None
             out[job]["state"] = "MISSED"
+            out[job]["reason"] = f"Pflicht-Upstream {', '.join(stale)} nicht versorgt – kein Dispatch"
     return out
 
 

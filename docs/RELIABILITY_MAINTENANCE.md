@@ -19,6 +19,7 @@ Secrets, kein Commit. Der Test darf fehlschlagen (`continue-on-error`) und zeigt
 Der Guard (`config/workflow_schedule.yaml`, Abschnitt `gates`) liefert:
 - `RUN`: Source-Health-Snapshot ist höchstens 12 h alt und hat keinen Zeitstempel in der Zukunft.
 - `UPSTREAM_NOT_READY`: Snapshot fehlt, ist zu alt oder hat einen Zeitstempel in der Zukunft. Der Scanner startet nicht. Der Grund erscheint als `::warning::` und in der Step-Summary, nie still.
+- `MISSED_WINDOW_CLOSED`: nach dem spätesten Start (Sitzungsschluss − 60 min, 15:00 ET; verkürzte Sitzung 12:00 ET). Kein verspäteter Produktionsscan, `::warning::` mit Grund (seit 2026-10-19).
 - `SKIP_BEFORE_WINDOW`: vor 13:30 UTC. `workflow_run` darf den Scanner nicht vor seine geplante Handelszeit ziehen, sonst gelten andere Quote-Bedingungen.
 - `SKIP_ALREADY_RAN`: `outputs/daily_reports/<heute>.json` existiert. Darauf beruht die Idempotenz: kein zweiter Scan am selben Tag.
 - `SKIP_NOT_TRADING_DAY`: Wochenende.
@@ -42,6 +43,20 @@ Scanner und Feedback gilt:
   - Source Health: überschreibt den Snapshot.
   - Feedback: läuft ohnehin zweimal täglich.
 - Grenze: Der Watchdog ist selbst ein Cron. Fallen alle Schedules aus, fällt auch er aus; im Report ist das an fehlenden Tagen erkennbar.
+
+### 4a. Recovery-Härtung nach dem Ausfall am Mo 19.10.2026
+Nachgewiesen (Actions-Historie, `outputs/state/workflow_status.json`):
+- Der Source-Health-Cron (12:41 UTC) kam bis 18:29 UTC nicht. Die Scanner-Crons (13:30/14:30) kamen ebenfalls nicht; selbst wenn, hätte der Guard `UPSTREAM_NOT_READY` geliefert (Snapshot vom 18.10. 16:06, > 12 h).
+- Der Watchdog kam nur zweimal (04:48, 13:26 statt alle 2 h). Um 13:26 war alles `PENDING`, also `recovered=False`.
+- Die Frist `12:41 + 9 h = 21:41 UTC` lag hinter dem Börsenschluss (20:00 UTC). Selbst ein pünktlicher Watchdog hätte Source Health erst nachbörslich angestoßen. Der Scanner wäre dann per `workflow_run` mit nachbörslichen Kursen gestartet, denn der Guard kannte kein Fensterende. Das ist am 05.10. (17:08 ET) und 12.10. (17:24 ET) bereits passiert.
+
+Änderungen:
+- Fristen: Source Health 9 h → 3 h (15:41 UTC), Scanner 9 h → 4 h (17:30 UTC). Die Scanner-Frist liegt nie später als der späteste Start − 1 h (`workflow_health.deadline`), z. B. 16:00 UTC an verkürzten Sitzungen.
+- Spätester Start `gates.scanner.latest_start_before_close_minutes: 60`. Danach liefert der Guard `MISSED_WINDOW_CLOSED`; der Watchdog meldet `MISSED` mit `window_closed` und dispatcht nicht mehr.
+- Watchdog-Auslösung: Zusätzlich zum 2-h-Cron läuft er stündlich 13–20 UTC an Werktagen und per `workflow_run` nach Options-Capture (6 Crons je Werktag) und External Data. Kein Retry-Kreis: Source Health, Scanner und Feedback lösen den Watchdog nicht aus, und jeder Workflow erhält höchstens einen Recovery-Dispatch pro Tag.
+- Kette bei ausgefallenem Cron: Der Watchdog dispatcht Source Health. Dessen Abschluss startet den Scanner über `workflow_run`. Feuert das nicht, dispatcht der nächste Watchdog-Lauf den Scanner nach 17:30 UTC.
+- Nicht versorgte Tage erzeugen `::warning::` mit Grund (`MISSED`, `RECOVERY_EXHAUSTED`, `UNKNOWN`) und eine Tabelle in der Step-Summary.
+- Tests: `tests/test_workflow_recovery.py`.
 
 ## 5. Report
 Der Montagsreport zeigt unter SYSTEM STATUS den Block **WORKFLOW STATUS** mit diesen Spalten:
