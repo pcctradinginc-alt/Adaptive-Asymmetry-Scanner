@@ -2,27 +2,27 @@
 
 **READ-ONLY Monitoring – keine Handelsempfehlung**
 
-Stand 2026-10-16 · erzeugt 2026-10-16T17:26:29+00:00 · Schema ops-status-v1  
-Warnungen: 0 neu, 0 geändert, 2 laufend, 1 behoben; davon aktiv CRITICAL: 0  
+Stand 2026-10-19 · erzeugt 2026-10-19T19:22:52+00:00 · Schema ops-status-v1  
+Warnungen: 0 neu, 0 geändert, 2 laufend, 0 behoben; davon aktiv CRITICAL: 0  
 
 ## Lauf
 
 | Workflow (Stand Watchdog) | Status | Ergebnis | Letzter Lauf | Verzug (h) |
 |---|---|---|---|---|
-| external_data | OK | success | 2026-10-16T11:27:34Z | 5.2 |
+| external_data | RUNNING | N/A | 2026-10-19T13:21:18Z | 7.1 |
 | feedback | PENDING | N/A | N/A | N/A |
 | scanner | PENDING | N/A | N/A | N/A |
 | source_health | PENDING | N/A | N/A | N/A |
 
 - **Dieser Lauf (Schritte)**: feedback=success, rth_marks=success, scanner=success
-- **Tagesreport**: 2026-10-16 (von heute: ja)
-- **Universum / analysiert**: 514 / 77
-- **Champion-Kandidaten (Final-MC)**: 7
-- **Kontrakte entworfen**: 3
-- **Trades**: 1
-- **Haiku/Sonnet-Widerspruch**: 5 (Anteil 0.0649)
+- **Tagesreport**: 2026-10-19 (von heute: ja)
+- **Universum / analysiert**: 518 / 56
+- **Champion-Kandidaten (Final-MC)**: 9
+- **Kontrakte entworfen**: 2
+- **Trades**: 0
+- **Haiku/Sonnet-Widerspruch**: 1 (Anteil 0.0179)
 - **Session**: regular
-- **Stop-Grund**: 
+- **Stop-Grund**: Alle Options-Kontrakte scheitern am ROI-Gate.
 
 ## Quote-Abdeckung
 
@@ -38,8 +38,10 @@ Warnungen: 0 neu, 0 geändert, 2 laufend, 1 behoben; davon aktiv CRITICAL: 0
 
 | Kandidaten-Mark | fällig | gemarkt | offen | spät | ohne Preis (Endzustand) | ältester offener (Tage) |
 |---|---|---|---|---|---|---|
-| real_opt_ret_5d | 273 | 272 | 1 | 50 | 0 | 11 |
-| real_strat_ret_5d | 273 | 272 | 1 | 50 | 0 | 11 |
+| real_opt_ret_20d | 50 | 50 | 0 | 31 | 0 | N/A |
+| real_opt_ret_5d | 313 | 312 | 1 | 50 | 0 | 14 |
+| real_strat_ret_20d | 50 | 50 | 0 | 31 | 0 | N/A |
+| real_strat_ret_5d | 313 | 312 | 1 | 50 | 0 | 14 |
 
 ## Lebenszyklus
 
@@ -57,7 +59,7 @@ Warnungen: 0 neu, 0 geändert, 2 laufend, 1 behoben; davon aktiv CRITICAL: 0
 - **Exactly-once ok**: ja
 - **gelernt/doppelt/nicht lernbar gelernt/lernbar ungelernt**: 6/0/0/0
 - **Altbestand**: Altbestand vor Quote-Archiv/Consume-once (2026-10-10); nie lernbar bzw. ohne Schlüssel gelernt – keine Exactly-once-Verletzung
-- **Kandidaten (Real-Option)**: SIGNAL: 703, CONTRACT_SELECTED: 393, ENTRY_OBSERVED: 393, OUTCOME_FINAL: 272, LATE_MARK: 0, EXIT_OVERDUE: 1, EXCLUDED_BUDGET_RANDOM_EXCLUSION: 310, EXIT_PENDING: 120
+- **Kandidaten (Real-Option)**: SIGNAL: 759, CONTRACT_SELECTED: 433, ENTRY_OBSERVED: 433, OUTCOME_FINAL: 312, LATE_MARK: 0, PRICE_BASIS_CHANGED: 2, EXIT_OVERDUE: 1, EXCLUDED_BUDGET_RANDOM_EXCLUSION: 326, EXIT_PENDING: 120
 
 ## Forward-Performance
 
@@ -80,15 +82,15 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 | EA005_CONTEXT_FILTER@v1 | N/A | N/A | N/A | 0/0 | EA_NEWS_CANDIDATE | NEED_MORE_DATA |
 | EA006_ABSTENTION@v1 | N/A | N/A | N/A | 0/0 | EA_NEWS_CANDIDATE | NEED_MORE_DATA |
 | EA007_EXPRESSION@v1 | N/A | N/A | N/A | 0/0 | EA_NEWS_CANDIDATE | NEED_MORE_DATA |
-| PROM-ABST-001@v1 | N/A | N/A | N/A | 0/1 | CHAMPION_TRADE | NEED_MORE_DATA |
+| PROM-ABST-001@v1 | N/A | N/A | N/A | 0/2 | CHAMPION_TRADE | NEED_MORE_DATA |
 | PROM-ABST-001@v2 | N/A | N/A | N/A | 0/0 | FINAL_MC_SURVIVOR | NEED_MORE_DATA |
-| PROM-ABST-002@v1 | 0.5079 | 0 | 0.5079 | 1/1 | CHAMPION_TRADE | NEED_MORE_DATA |
+| PROM-ABST-002@v1 | 0.5079 | 0 | 0.5079 | 1/2 | CHAMPION_TRADE | NEED_MORE_DATA |
 | PROM-ABST-002@v2 | N/A | N/A | N/A | 0/0 | FINAL_MC_SURVIVOR | NEED_MORE_DATA |
-| PROM-ABST-003@v1 | N/A | N/A | N/A | 0/1 | CHAMPION_TRADE | NEED_MORE_DATA |
+| PROM-ABST-003@v1 | N/A | N/A | N/A | 0/2 | CHAMPION_TRADE | NEED_MORE_DATA |
 | PROM-ABST-003@v2 | N/A | N/A | N/A | 0/0 | FINAL_MC_SURVIVOR | NEED_MORE_DATA |
-| PROM-ABST-004@v1 | N/A | N/A | N/A | 0/1 | CHAMPION_TRADE | NEED_MORE_DATA |
+| PROM-ABST-004@v1 | N/A | N/A | N/A | 0/2 | CHAMPION_TRADE | NEED_MORE_DATA |
 | PROM-ABST-004@v2 | N/A | N/A | N/A | 0/0 | FINAL_MC_SURVIVOR | NEED_MORE_DATA |
-| PROM-ABST-005@v1 | N/A | N/A | N/A | 0/1 | CHAMPION_TRADE | NEED_MORE_DATA |
+| PROM-ABST-005@v1 | N/A | N/A | N/A | 0/2 | CHAMPION_TRADE | NEED_MORE_DATA |
 | PROM-ABST-005@v2 | N/A | N/A | N/A | 0/0 | FINAL_MC_SURVIVOR | NEED_MORE_DATA |
 | PROM-META-001@v1 | N/A | N/A | N/A | 0/0 | CHAMPION_TRADE | NEED_MORE_DATA |
 | UNIV-V2-SEG-MICRO@v1 | N/A | N/A | N/A | 0/0 | V2_CANDIDATE | NEED_MORE_DATA |
@@ -100,7 +102,10 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 
 | Scorecard | n | mean_net | Trefferquote | Verdikt |
 |---|---|---|---|---|
-| CANDIDATE_5d\|ALL | 478 | -0.0007 | 0.4791 | NEED_MORE_DATA |
+| CANDIDATE_20d\|ALL | 18 | -0.0321 | 0.3889 | NEED_MORE_DATA |
+| CANDIDATE_20d\|CHAMPION | 0 | N/A | N/A | NO_DATA |
+| CANDIDATE_20d\|LATE_STAGE | 8 | -0.0478 | 0.375 | NEED_MORE_DATA |
+| CANDIDATE_5d\|ALL | 477 | -0.0024 | 0.478 | NEED_MORE_DATA |
 | CANDIDATE_5d\|CHAMPION | 3 | -0.0076 | 0.3333 | NEED_MORE_DATA |
 | CANDIDATE_5d\|LATE_STAGE | 133 | -0.0005 | 0.5338 | NEED_MORE_DATA |
 | CANDIDATE_OPTION_5d\|ALL | 272 | -0.126 | 0.2537 | NEED_MORE_DATA |
@@ -109,7 +114,7 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 | CANDIDATE_STRATEGY_5d\|ALL | 222 | -0.1758 | 0.2252 | NEED_MORE_DATA |
 | CANDIDATE_STRATEGY_5d\|CHAMPION | 3 | -0.2853 | 0 | NEED_MORE_DATA |
 | CANDIDATE_STRATEGY_5d\|LATE_STAGE | 64 | -0.2404 | 0.1875 | NEED_MORE_DATA |
-| CHAMPION_TRADE\|ALL | 4 | -0.5419 | 0 | NEED_MORE_DATA |
+| CHAMPION_TRADE\|ALL | 6 | -0.3095 | 0.1667 | NEED_MORE_DATA |
 
 ## Training
 
@@ -123,7 +128,7 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 
 - **Max. automatischer Einfluss**: ABSTENTION_ONLY
 - **Kill-Switch / Promotion pausiert**: nein / ja (DRIFT MODERATE: Promotion pausiert)
-- **Champion-Version**: scanner_rules@d20d5a4ff52a
+- **Champion-Version**: scanner_rules@fa6cc74e0def
 - **Zustände**: PROSPECTIVE_CHALLENGER: 22
 - **Aktiver Einfluss**: keine
 - **Ungerechtfertigter Einfluss**: keine
@@ -137,15 +142,15 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 | EA005_CONTEXT_FILTER@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Clus |
 | EA006_ABSTENTION@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/100; unabhängige Tage 0/40; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Clus |
 | EA007_EXPRESSION@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/60; unabhängige Tage 0/30; Kalenderspanne 0/180 T; Regel-Treffer 0/30; Treffer-Tage 0/15; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/40; Treffer-Clust |
-| PROM-ABST-001@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
+| PROM-ABST-001@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
 | PROM-ABST-001@v2 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Clust |
-| PROM-ABST-002@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – n |
+| PROM-ABST-002@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – n |
 | PROM-ABST-002@v2 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Clust |
-| PROM-ABST-003@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
+| PROM-ABST-003@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
 | PROM-ABST-003@v2 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Clust |
-| PROM-ABST-004@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
+| PROM-ABST-004@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
 | PROM-ABST-004@v2 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Clust |
-| PROM-ABST-005@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 1/60; unabhängige Tage 1/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
+| PROM-ABST-005@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet |
 | PROM-ABST-005@v2 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/150; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/80; Treffer-Clust |
 | PROM-META-001@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/60; unabhängige Tage 0/20; Kalenderspanne 0/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 0 Marktregime beobachtet |
 | UNIV-V2-SEG-MICRO@v1 | PROSPECTIVE_CHALLENGER | NONE | KEEP_SHADOW | n 0/100; unabhängige Tage 0/30; Kalenderspanne 0/90 T; Regel-Treffer 0/100; Treffer-Tage 0/30; nur 0 Marktregime beobachtet; Ereignis-Cluster 0/60; Treffer-Clus |
@@ -159,18 +164,20 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 - **Promotion-Hash ok**: ja
 - **Kette/Registry**: keine / keine
 - **Duplikate Decision-Ledger / Trade-Outcomes**: 0 / 0
-- **Quote-Archiv 30 T: Records / doppelte IDs / Fremdpreise**: 654 / 0 / 0
+- **Quote-Archiv 30 T: Records / doppelte IDs / Fremdpreise**: 941 / 0 / 0
 - **Quote-Archiv 30 T: Mehrfachbeobachtungen (unkritisch)**: 11
 - **Quarantäne geschlossener Trades**: 7
-- **Externes Archiv**: ok: 27698, legacy: 209489
+- **Externes Archiv**: ok: 29590, legacy: 103843
 
 ## Daten
 
-- **Quellenstatus**: HEALTHY: 42, BROKEN: 3, STALE: 1, UNVALIDATED: 8, DEGRADED: 1
-- **Stand Quellenstatus**: 2026-10-16T16:55:09+00:00
-- **Externe Daten**: keine
-- **Quote-Archiv heute / Median 14 T**: 77 / 116
+- **Quellenstatus**: HEALTHY: 47, UNVALIDATED: 8
+- **davon UNVALIDATED, weil bewusst nicht aktiv**: disabled: 1, DEFERRED: 5, REVIEW_REQUIRED: 2
+- **Stand Quellenstatus**: 2026-10-19T18:50:25+00:00
+- **Externe Daten**: PASS: 36, DEFERRED: 13
+- **Quote-Archiv heute / Median 14 T**: 261 / 153.5
 - **Quote-Archiv-Verzeichnis vorhanden**: ja
+- **Nasdaq-100 offiziell vs. Produktionsliste**: 0 Abweichung(en) am 2026-10-19 (Quelle Produktion: nasdaq_official)
 
 ## Timing-Policy
 
@@ -187,17 +194,17 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 
 | Ziel | Stand | benötigt | Zulauf/Tag | voraussichtlich ab |
 |---|---|---|---|---|
-| Meta-Label-Training | 0 · Tage 0 | 200 · Tage 20 | 8.43 | 2026-11-24 |
-| RL-Freischaltung (closed trades) | 12 | 30 | 0.267 | 2026-12-23 |
-| Champion-Evidenz | 6 · Tage 5 | 30 · Tage 20 | 0.2 | 2027-02-13 |
+| Meta-Label-Training | 8 · Tage 1 | 200 · Tage 20 | 9.07 | 2026-11-24 |
+| RL-Freischaltung (closed trades) | 12 | 30 | 0.267 | 2026-12-26 |
+| Champion-Evidenz | 6 · Tage 5 | 30 · Tage 20 | 0.2 | 2027-02-16 |
 
-Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage. Meta-Label: 165 offene Labels reifen noch; Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T.
+Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage. Meta-Label: 166 offene Labels reifen noch; Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T.
 
 ## Workflow-Fehler (GitHub Actions)
 
-- **Zeitraum**: seit 2026-10-15T15:26:29Z (26 h)
-- **Läufe / fehlgeschlagen**: 26 / 0
-- **Scanner-Start heute (New York)**: 2026-10-16T12:55-04:00
+- **Zeitraum**: seit 2026-10-16T17:22:52Z (74 h)
+- **Läufe / fehlgeschlagen**: 47 / 0
+- **Scanner-Start heute (New York)**: 2026-10-19T14:51-04:00
 
 Keine fehlgeschlagenen Läufe.
 
@@ -205,78 +212,78 @@ Keine fehlgeschlagenen Läufe.
 
 | Status | Schwere | Komponente | ID | Ursache | seit |
 |---|---|---|---|---|---|
-| RESOLVED | WARNING | Lauf | WORKFLOW_FAILED:Tests (Pflicht-Check) | Nicht mehr aktiv – Bedingung behoben. | 2026-10-15 |
 | ONGOING | WARNING | Lebenszyklus | OUTCOMES_OVERDUE:candidates | 1 Kandidat(en) mit überfälligem 5-Tage-Real-Option-Mark (> 2 Tage nach Fälligkeit). | 2026-10-14 |
-| ONGOING | WARNING | Quote-Abdeckung | OUTCOMES_OVERDUE:marks | Fällige Marks offen: real_opt_ret_5d 1 von 273 offen, ältester 11 Tage; real_strat_ret_5d 1 von 273 offen, ältester 11 Tage (Schwelle > 3 Tage). | 2026-10-14 |
+| ONGOING | WARNING | Quote-Abdeckung | OUTCOMES_OVERDUE:marks | Fällige Marks offen: real_opt_ret_5d 1 von 313 offen, ältester 14 Tage; real_strat_ret_5d 1 von 313 offen, ältester 14 Tage (Schwelle > 3 Tage). | 2026-10-14 |
 
 ## Trends
 
 | Kennzahl | Wert | Vorlauf (Δ) | ≥7 T zurück (Δ) | ≥30 T zurück (Δ) |
 |---|---|---|---|---|
-| data.quote_archive_median_14d | 116 | 139.5 (-23.5) | N/A | N/A |
-| data.quote_archive_today | 77 | 88 (-11) | N/A | N/A |
-| data.source_health.BROKEN | 3 | 3 (0) | N/A | N/A |
-| data.source_health.DEGRADED | 1 | 2 (-1) | N/A | N/A |
-| data.source_health.HEALTHY | 42 | 41 (+1) | N/A | N/A |
-| data.source_health.STALE | 1 | 1 (0) | N/A | N/A |
+| data.nasdaq100_mismatch | 0 | N/A | N/A | N/A |
+| data.quote_archive_median_14d | 153.5 | 116 (+37.5) | N/A | N/A |
+| data.quote_archive_today | 261 | 77 (+184) | N/A | N/A |
+| data.source_health.BROKEN | N/A | 3 (N/A) | N/A | N/A |
+| data.source_health.DEGRADED | N/A | 1 (N/A) | N/A | N/A |
+| data.source_health.HEALTHY | 47 | 42 (+5) | N/A | N/A |
+| data.source_health.STALE | N/A | 1 (N/A) | N/A | N/A |
 | data.source_health.UNVALIDATED | 8 | 8 (0) | N/A | N/A |
-| data.source_health.n_bad | 5 | 6 (-1) | N/A | N/A |
-| forward.champion.mean_net | -0.3095 | -0.5419 (+0.2325) | N/A | N/A |
-| forward.champion.n | 6 | 4 (+2) | N/A | N/A |
-| forward.champion.n_independent_days | 5 | 4 (+1) | N/A | N/A |
-| forward.champion.sum_net | -1.8569 | -2.1677 (+0.3109) | N/A | N/A |
+| data.source_health.n_bad | 0 | 5 (-5) | N/A | N/A |
+| forward.champion.mean_net | -0.3095 | -0.3095 (0) | N/A | N/A |
+| forward.champion.n | 6 | 6 (0) | N/A | N/A |
+| forward.champion.n_independent_days | 5 | 5 (0) | N/A | N/A |
+| forward.champion.sum_net | -1.8569 | -1.8569 (0) | N/A | N/A |
 | integrity.issues | 0 | 0 (0) | N/A | N/A |
-| learning.champion_evidence.have | 6 | 4 (+2) | N/A | N/A |
-| learning.meta_label.have | 0 | 0 (0) | N/A | N/A |
-| learning.rl_arming.have | 12 | 10 (+2) | N/A | N/A |
+| learning.champion_evidence.have | 6 | 6 (0) | N/A | N/A |
+| learning.meta_label.have | 8 | 0 (+8) | N/A | N/A |
+| learning.rl_arming.have | 12 | 12 (0) | N/A | N/A |
 | lifecycle.candidates.EXIT_OVERDUE | 1 | 1 (0) | N/A | N/A |
-| lifecycle.candidates.EXIT_PENDING | 120 | 80 (+40) | N/A | N/A |
-| lifecycle.candidates.OUTCOME_FINAL | 272 | 272 (0) | N/A | N/A |
+| lifecycle.candidates.EXIT_PENDING | 120 | 120 (0) | N/A | N/A |
+| lifecycle.candidates.OUTCOME_FINAL | 312 | 272 (+40) | N/A | N/A |
 | lifecycle.champion.issue.ELIGIBLE_NOT_LEARNED | 0 | 0 (0) | N/A | N/A |
 | lifecycle.champion.issue.EXIT_OVERDUE | 0 | 0 (0) | N/A | N/A |
 | lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE | 0 | 0 (0) | N/A | N/A |
 | lifecycle.champion.state.CONTRACT_SELECTED | 0 | 0 (0) | N/A | N/A |
 | lifecycle.champion.state.ENTRY_OBSERVED | 0 | 0 (0) | N/A | N/A |
-| lifecycle.champion.state.EXIT_PENDING | 4 | 5 (-1) | N/A | N/A |
-| lifecycle.champion.state.LEARNED | 3 | 1 (+2) | N/A | N/A |
+| lifecycle.champion.state.EXIT_PENDING | 4 | 4 (0) | N/A | N/A |
+| lifecycle.champion.state.LEARNED | 3 | 3 (0) | N/A | N/A |
 | lifecycle.champion.state.LEARNING_ELIGIBLE | 3 | 3 (0) | N/A | N/A |
 | lifecycle.champion.state.OUTCOME_FINAL | 110 | 110 (0) | N/A | N/A |
 | lifecycle.champion.state.SIGNAL | 0 | 0 (0) | N/A | N/A |
-| marks.real_opt_ret_5d.oldest_pending_days | 11 | 10 (+1) | N/A | N/A |
+| marks.real_opt_ret_5d.oldest_pending_days | 14 | 11 (+3) | N/A | N/A |
 | marks.real_opt_ret_5d.pending | 1 | 1 (0) | N/A | N/A |
-| marks.real_strat_ret_5d.oldest_pending_days | 11 | 10 (+1) | N/A | N/A |
+| marks.real_strat_ret_5d.oldest_pending_days | 14 | 11 (+3) | N/A | N/A |
 | marks.real_strat_ret_5d.pending | 1 | 1 (0) | N/A | N/A |
 | promotion.active_influence | 0 | 0 (0) | N/A | N/A |
 | promotion.unjustified_influence | 0 | 0 (0) | N/A | N/A |
-| quote.complete.30d.coverage | 0.75 | 0.6667 (+0.0833) | N/A | N/A |
-| quote.complete.30d.denominator | 8 | 6 (+2) | N/A | N/A |
-| quote.complete.30d.evaluable | 6 | 4 (+2) | N/A | N/A |
+| quote.complete.30d.coverage | 0.75 | 0.75 (0) | N/A | N/A |
+| quote.complete.30d.denominator | 8 | 8 (0) | N/A | N/A |
+| quote.complete.30d.evaluable | 6 | 6 (0) | N/A | N/A |
 | quote.complete.7d.coverage | 1 | 1 (0) | N/A | N/A |
-| quote.complete.7d.denominator | 3 | 2 (+1) | N/A | N/A |
-| quote.complete.7d.evaluable | 3 | 2 (+1) | N/A | N/A |
-| quote.entry.30d.coverage | 0.375 | 0.2857 (+0.0893) | N/A | N/A |
-| quote.entry.30d.denominator | 8 | 7 (+1) | N/A | N/A |
+| quote.complete.7d.denominator | 3 | 3 (0) | N/A | N/A |
+| quote.complete.7d.evaluable | 3 | 3 (0) | N/A | N/A |
+| quote.entry.30d.coverage | 0.375 | 0.375 (0) | N/A | N/A |
+| quote.entry.30d.denominator | 8 | 8 (0) | N/A | N/A |
 | quote.entry.30d.legacy | 5 | 5 (0) | N/A | N/A |
-| quote.entry.30d.observed | 3 | 2 (+1) | N/A | N/A |
+| quote.entry.30d.observed | 3 | 3 (0) | N/A | N/A |
 | quote.entry.7d.coverage | 1 | 1 (0) | N/A | N/A |
-| quote.entry.7d.denominator | 3 | 2 (+1) | N/A | N/A |
+| quote.entry.7d.denominator | 3 | 3 (0) | N/A | N/A |
 | quote.entry.7d.legacy | 0 | 0 (0) | N/A | N/A |
-| quote.entry.7d.observed | 3 | 2 (+1) | N/A | N/A |
+| quote.entry.7d.observed | 3 | 3 (0) | N/A | N/A |
 | quote.exit_active.coverage | 1 | 1 (0) | N/A | N/A |
-| quote.exit_active.denominator | 4 | 5 (-1) | N/A | N/A |
-| quote.exit_active.mark_today | 4 | 5 (-1) | N/A | N/A |
-| quote.exit_closed.30d.coverage | 0.75 | 0.6667 (+0.0833) | N/A | N/A |
-| quote.exit_closed.30d.denominator | 8 | 6 (+2) | N/A | N/A |
-| quote.exit_closed.30d.observed | 6 | 4 (+2) | N/A | N/A |
+| quote.exit_active.denominator | 4 | 4 (0) | N/A | N/A |
+| quote.exit_active.mark_today | 4 | 4 (0) | N/A | N/A |
+| quote.exit_closed.30d.coverage | 0.75 | 0.75 (0) | N/A | N/A |
+| quote.exit_closed.30d.denominator | 8 | 8 (0) | N/A | N/A |
+| quote.exit_closed.30d.observed | 6 | 6 (0) | N/A | N/A |
 | quote.exit_closed.7d.coverage | 1 | 1 (0) | N/A | N/A |
-| quote.exit_closed.7d.denominator | 3 | 2 (+1) | N/A | N/A |
-| quote.exit_closed.7d.observed | 3 | 2 (+1) | N/A | N/A |
-| run.scanner.analyzed | 77 | 82 (-5) | N/A | N/A |
-| run.scanner.champion_candidates | 7 | 14 (-7) | N/A | N/A |
-| run.scanner.contracts_designed | 3 | 7 (-4) | N/A | N/A |
-| run.scanner.direction_conflict_share | 0.0649 | 0.0488 (+0.0161) | N/A | N/A |
-| run.scanner.direction_conflicts | 5 | 4 (+1) | N/A | N/A |
-| run.scanner.trades | 1 | 2 (-1) | N/A | N/A |
-| run.scanner.universe | 514 | 514 (0) | N/A | N/A |
+| quote.exit_closed.7d.denominator | 3 | 3 (0) | N/A | N/A |
+| quote.exit_closed.7d.observed | 3 | 3 (0) | N/A | N/A |
+| run.scanner.analyzed | 56 | 77 (-21) | N/A | N/A |
+| run.scanner.champion_candidates | 9 | 7 (+2) | N/A | N/A |
+| run.scanner.contracts_designed | 2 | 3 (-1) | N/A | N/A |
+| run.scanner.direction_conflict_share | 0.0179 | 0.0649 (-0.047) | N/A | N/A |
+| run.scanner.direction_conflicts | 1 | 5 (-4) | N/A | N/A |
+| run.scanner.trades | 0 | 1 (-1) | N/A | N/A |
+| run.scanner.universe | 518 | 514 (+4) | N/A | N/A |
 | training.n_labels | 0 | 0 (0) | N/A | N/A |
-| workflows.failed_runs | 0 | 2 (-2) | N/A | N/A |
+| workflows.failed_runs | 0 | 0 (0) | N/A | N/A |

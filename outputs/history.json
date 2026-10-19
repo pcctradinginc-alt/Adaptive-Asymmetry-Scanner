@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": -0.017,
-      "last_price": 343.46,
-      "current_return": -0.0554
+      "last_price": 343.04,
+      "current_return": -0.0526
     },
     {
       "ticker": "HOOD",
@@ -361,8 +361,8 @@
         }
       },
       "peak_return": -0.0396,
-      "last_price": 98.87,
-      "current_return": -0.4044
+      "last_price": 96.995,
+      "current_return": -0.4374
     },
     {
       "ticker": "ABBV",
@@ -607,7 +607,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-16T22:09:43+00:00",
+        "evaluated_at": "2026-10-19T19:22:33+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -632,8 +632,8 @@
         ]
       },
       "peak_return": 0.0198,
-      "last_price": 285.42,
-      "current_return": -0.0099
+      "last_price": 283.385,
+      "current_return": -0.0774
     },
     {
       "ticker": "MET",
@@ -883,7 +883,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-16T22:09:43+00:00",
+        "evaluated_at": "2026-10-19T19:22:33+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -908,8 +908,8 @@
         ]
       },
       "peak_return": -0.0506,
-      "last_price": 100.76,
-      "current_return": -0.0886
+      "last_price": 100.18,
+      "current_return": -0.1392
     }
   ],
   "closed_trades": [
@@ -11289,6 +11289,11 @@
         "date": "2026-10-16",
         "score": -0.1629,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0848,
+        "headline_count": 2
       }
     ],
     "WELL": [
@@ -11326,14 +11331,14 @@
         "date": "2026-10-16",
         "score": 0.0293,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.383,
+        "headline_count": 4
       }
     ],
     "AKAM": [
-      {
-        "date": "2026-04-14",
-        "score": -0.1032,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-15",
         "score": -0.2381,
@@ -11628,14 +11633,14 @@
         "date": "2026-10-16",
         "score": 0.4707,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0527,
+        "headline_count": 1
       }
     ],
     "AMZN": [
-      {
-        "date": "2026-06-17",
-        "score": -0.3824,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-18",
         "score": -0.0087,
@@ -11929,6 +11934,11 @@
       {
         "date": "2026-10-16",
         "score": -0.1671,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2152,
         "headline_count": 5
       }
     ],
@@ -12248,11 +12258,6 @@
     ],
     "DAL": [
       {
-        "date": "2026-05-14",
-        "score": 0.0584,
-        "headline_count": 4
-      },
-      {
         "date": "2026-05-17",
         "score": -0.1548,
         "headline_count": 5
@@ -12546,6 +12551,11 @@
         "date": "2026-10-16",
         "score": 0.0848,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2684,
+        "headline_count": 5
       }
     ],
     "HOLX": [
@@ -12645,6 +12655,11 @@
         "date": "2026-10-16",
         "score": -0.3527,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3818,
+        "headline_count": 5
       }
     ],
     "MU": [
@@ -12716,6 +12731,11 @@
       {
         "date": "2026-10-16",
         "score": -0.2616,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1671,
         "headline_count": 5
       }
     ],
@@ -12789,6 +12809,11 @@
         "date": "2026-10-16",
         "score": -0.1749,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2612,
+        "headline_count": 5
       }
     ],
     "USB": [
@@ -12856,6 +12881,11 @@
         "date": "2026-10-16",
         "score": 0.6167,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0309,
+        "headline_count": 5
       }
     ],
     "UAL": [
@@ -12922,6 +12952,11 @@
       {
         "date": "2026-10-16",
         "score": 0.545,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.349,
         "headline_count": 5
       }
     ],
@@ -12994,6 +13029,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0991,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.156,
         "headline_count": 5
       }
     ],
@@ -13071,6 +13111,11 @@
       {
         "date": "2026-10-16",
         "score": 0.2617,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1675,
         "headline_count": 5
       }
     ],
@@ -13311,14 +13356,14 @@
         "date": "2026-10-16",
         "score": 0.0935,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.5278,
+        "headline_count": 2
       }
     ],
     "ADBE": [
-      {
-        "date": "2026-05-27",
-        "score": -0.1247,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-29",
         "score": -0.1201,
@@ -13613,6 +13658,11 @@
         "date": "2026-10-16",
         "score": 0.0732,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.176,
+        "headline_count": 5
       }
     ],
     "META": [
@@ -13779,6 +13829,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0279,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2304,
         "headline_count": 5
       }
     ],
@@ -14077,6 +14132,11 @@
         "date": "2026-10-16",
         "score": 0.3982,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1525,
+        "headline_count": 5
       }
     ],
     "BIIB": [
@@ -14332,11 +14392,6 @@
       }
     ],
     "BX": [
-      {
-        "date": "2026-05-25",
-        "score": -0.0111,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-28",
         "score": 0.3934,
@@ -14630,6 +14685,11 @@
       {
         "date": "2026-10-16",
         "score": 0.339,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.191,
         "headline_count": 5
       }
     ],
@@ -14937,11 +14997,6 @@
     ],
     "C": [
       {
-        "date": "2026-06-01",
-        "score": -0.0697,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-02",
         "score": 0.0488,
         "headline_count": 5
@@ -15234,6 +15289,11 @@
       {
         "date": "2026-10-16",
         "score": 0.6686,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.5894,
         "headline_count": 5
       }
     ],
@@ -15981,14 +16041,14 @@
         "date": "2026-10-16",
         "score": 0.4431,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.019,
+        "headline_count": 3
       }
     ],
     "DOW": [
-      {
-        "date": "2026-04-29",
-        "score": -0.3233,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-06",
         "score": 0.0967,
@@ -16283,6 +16343,11 @@
         "date": "2026-10-15",
         "score": 0.2153,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2552,
+        "headline_count": 5
       }
     ],
     "EW": [
@@ -16731,6 +16796,11 @@
         "date": "2026-10-16",
         "score": -0.1496,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0472,
+        "headline_count": 5
       }
     ],
     "HSY": [
@@ -16793,6 +16863,11 @@
         "date": "2026-10-16",
         "score": 0.2027,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.054,
+        "headline_count": 4
       }
     ],
     "HST": [
@@ -16872,6 +16947,11 @@
         "date": "2026-10-16",
         "score": -0.5312,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0216,
+        "headline_count": 5
       }
     ],
     "LULU": [
@@ -16929,6 +17009,11 @@
         "date": "2026-10-16",
         "score": -0.3993,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1176,
+        "headline_count": 3
       }
     ],
     "MAS": [
@@ -17038,6 +17123,11 @@
         "date": "2026-10-16",
         "score": 0.1053,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.9391,
+        "headline_count": 2
       }
     ],
     "MSFT": [
@@ -17110,6 +17200,11 @@
         "date": "2026-10-16",
         "score": -0.1674,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4115,
+        "headline_count": 5
       }
     ],
     "MS": [
@@ -17176,6 +17271,11 @@
       {
         "date": "2026-10-16",
         "score": 0.232,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.47,
         "headline_count": 5
       }
     ],
@@ -17249,6 +17349,11 @@
         "date": "2026-10-16",
         "score": -0.2372,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.4536,
+        "headline_count": 2
       }
     ],
     "NKE": [
@@ -17326,6 +17431,11 @@
         "date": "2026-10-16",
         "score": 0.0515,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1259,
+        "headline_count": 5
       }
     ],
     "NVDA": [
@@ -17387,6 +17497,11 @@
       {
         "date": "2026-10-16",
         "score": -0.155,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4999,
         "headline_count": 5
       }
     ],
@@ -17450,6 +17565,11 @@
         "date": "2026-10-16",
         "score": 0.4468,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3807,
+        "headline_count": 4
       }
     ],
     "PCG": [
@@ -17596,6 +17716,11 @@
         "date": "2026-10-16",
         "score": 0.0147,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4185,
+        "headline_count": 4
       }
     ],
     "SYK": [
@@ -17658,6 +17783,11 @@
         "date": "2026-10-16",
         "score": 0.1019,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3036,
+        "headline_count": 2
       }
     ],
     "SYY": [
@@ -17782,6 +17912,11 @@
         "date": "2026-10-16",
         "score": 0.4288,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3427,
+        "headline_count": 5
       }
     ],
     "TMO": [
@@ -17839,6 +17974,11 @@
         "date": "2026-10-16",
         "score": 0.3618,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5007,
+        "headline_count": 3
       }
     ],
     "XEL": [
@@ -17891,6 +18031,11 @@
         "date": "2026-10-16",
         "score": 0.4532,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.311,
+        "headline_count": 3
       }
     ],
     "ZBH": [
@@ -18200,6 +18345,11 @@
         "date": "2026-10-16",
         "score": 0.0083,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0411,
+        "headline_count": 5
       }
     ],
     "CVNA": [
@@ -18429,6 +18579,11 @@
         "date": "2026-10-16",
         "score": 0.1529,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.53,
+        "headline_count": 5
       }
     ],
     "ARM": [
@@ -18500,6 +18655,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0882,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2994,
         "headline_count": 5
       }
     ],
@@ -18577,6 +18737,11 @@
       {
         "date": "2026-10-16",
         "score": -0.3357,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.273,
         "headline_count": 5
       }
     ],
@@ -18710,11 +18875,6 @@
       }
     ],
     "T": [
-      {
-        "date": "2026-06-16",
-        "score": -0.002,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-17",
         "score": 0.0584,
@@ -19008,6 +19168,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0637,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0228,
         "headline_count": 5
       }
     ],
@@ -19317,11 +19482,6 @@
     ],
     "COP": [
       {
-        "date": "2026-04-29",
-        "score": -0.0287,
-        "headline_count": 4
-      },
-      {
         "date": "2026-05-06",
         "score": 0.0018,
         "headline_count": 5
@@ -19615,14 +19775,14 @@
         "date": "2026-10-16",
         "score": 0.1756,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1553,
+        "headline_count": 5
       }
     ],
     "CSGP": [
-      {
-        "date": "2026-04-14",
-        "score": -0.2808,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-15",
         "score": 0.1392,
@@ -19917,6 +20077,11 @@
         "date": "2026-10-16",
         "score": 0.1593,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.4687,
+        "headline_count": 5
       }
     ],
     "HRL": [
@@ -19979,6 +20144,11 @@
         "date": "2026-10-16",
         "score": 0.0304,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3314,
+        "headline_count": 3
       }
     ],
     "CRH": [
@@ -20144,11 +20314,6 @@
       }
     ],
     "ABT": [
-      {
-        "date": "2026-05-19",
-        "score": -0.0283,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-20",
         "score": 0.0628,
@@ -20443,6 +20608,11 @@
         "date": "2026-10-16",
         "score": 0.1738,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1878,
+        "headline_count": 5
       }
     ],
     "AOS": [
@@ -20685,6 +20855,11 @@
         "date": "2026-10-09",
         "score": 0.0928,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.143,
+        "headline_count": 5
       }
     ],
     "AIG": [
@@ -20917,6 +21092,11 @@
         "date": "2026-10-16",
         "score": 0.0242,
         "headline_count": 2
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0303,
+        "headline_count": 1
       }
     ],
     "AWK": [
@@ -21223,11 +21403,6 @@
     ],
     "AAPL": [
       {
-        "date": "2026-06-22",
-        "score": -0.4954,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-23",
         "score": 0.1134,
         "headline_count": 5
@@ -21521,14 +21696,14 @@
         "date": "2026-10-16",
         "score": 0.4047,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1,
+        "headline_count": 5
       }
     ],
     "BAC": [
-      {
-        "date": "2026-06-18",
-        "score": 0.0771,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-19",
         "score": 0.0366,
@@ -21823,6 +21998,11 @@
         "date": "2026-10-16",
         "score": -0.3069,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1054,
+        "headline_count": 5
       }
     ],
     "BK": [
@@ -21938,11 +22118,6 @@
       }
     ],
     "AVGO": [
-      {
-        "date": "2026-06-10",
-        "score": 0.5627,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-11",
         "score": -0.407,
@@ -22237,14 +22412,14 @@
         "date": "2026-10-16",
         "score": -0.1216,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0227,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
-      {
-        "date": "2026-05-28",
-        "score": 0.6754,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-29",
         "score": 0.0888,
@@ -22538,6 +22713,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1918,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0012,
         "headline_count": 5
       }
     ],
@@ -22845,11 +23025,6 @@
     ],
     "CAT": [
       {
-        "date": "2026-06-03",
-        "score": 0.0694,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-04",
         "score": 0.0193,
         "headline_count": 5
@@ -23143,6 +23318,11 @@
         "date": "2026-10-16",
         "score": -0.0424,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2316,
+        "headline_count": 5
       }
     ],
     "BF-B": [
@@ -23326,6 +23506,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0383,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5376,
         "headline_count": 5
       }
     ],
@@ -23515,6 +23700,11 @@
         "date": "2026-10-16",
         "score": 0.077,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.143,
+        "headline_count": 5
       }
     ],
     "KEY": [
@@ -23577,6 +23767,11 @@
         "date": "2026-10-16",
         "score": 0.7387,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5802,
+        "headline_count": 5
       }
     ],
     "LRCX": [
@@ -23633,6 +23828,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0478,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1483,
         "headline_count": 5
       }
     ],
@@ -23698,6 +23898,11 @@
         "date": "2026-10-16",
         "score": 0.0486,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0183,
+        "headline_count": 5
       }
     ],
     "MDT": [
@@ -23754,6 +23959,11 @@
       {
         "date": "2026-10-16",
         "score": 0.225,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0796,
         "headline_count": 5
       }
     ],
@@ -23819,6 +24029,11 @@
         "date": "2026-10-16",
         "score": 0.1024,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1949,
+        "headline_count": 4
       }
     ],
     "NI": [
@@ -23851,6 +24066,11 @@
         "date": "2026-10-16",
         "score": 0.536,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2554,
+        "headline_count": 2
       }
     ],
     "NSC": [
@@ -23935,6 +24155,11 @@
         "date": "2026-10-15",
         "score": -0.2744,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0623,
+        "headline_count": 3
       }
     ],
     "PNC": [
@@ -23992,6 +24217,11 @@
         "date": "2026-10-16",
         "score": 0.4165,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1308,
+        "headline_count": 5
       }
     ],
     "PTC": [
@@ -24034,6 +24264,11 @@
         "date": "2026-10-16",
         "score": 0.6905,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.003,
+        "headline_count": 1
       }
     ],
     "SBAC": [
@@ -24155,6 +24390,11 @@
         "date": "2026-10-16",
         "score": -0.5764,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1432,
+        "headline_count": 5
       }
     ],
     "SWK": [
@@ -24212,6 +24452,11 @@
         "date": "2026-10-16",
         "score": 0.1868,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1708,
+        "headline_count": 5
       }
     ],
     "UBER": [
@@ -24268,6 +24513,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0135,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2447,
         "headline_count": 5
       }
     ],
@@ -24329,11 +24579,6 @@
       }
     ],
     "APP": [
-      {
-        "date": "2026-06-18",
-        "score": -0.1428,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-19",
         "score": -0.069,
@@ -24628,6 +24873,11 @@
         "date": "2026-10-15",
         "score": 0.155,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1355,
+        "headline_count": 5
       }
     ],
     "IBKR": [
@@ -24684,6 +24934,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1184,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.059,
         "headline_count": 5
       }
     ],
@@ -25261,6 +25516,11 @@
         "date": "2026-10-16",
         "score": 0.346,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2875,
+        "headline_count": 5
       }
     ],
     "MDB": [
@@ -25624,11 +25884,6 @@
     ],
     "CVS": [
       {
-        "date": "2026-05-08",
-        "score": 0.0344,
-        "headline_count": 3
-      },
-      {
         "date": "2026-05-11",
         "score": -0.2379,
         "headline_count": 4
@@ -25922,6 +26177,11 @@
         "date": "2026-10-16",
         "score": 0.1855,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0351,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -26142,11 +26402,6 @@
       }
     ],
     "D": [
-      {
-        "date": "2026-04-23",
-        "score": -0.2681,
-        "headline_count": 4
-      },
       {
         "date": "2026-04-29",
         "score": -0.3177,
@@ -26441,6 +26696,11 @@
         "date": "2026-10-16",
         "score": 0.1271,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0748,
+        "headline_count": 5
       }
     ],
     "ETR": [
@@ -26662,6 +26922,11 @@
         "date": "2026-10-16",
         "score": 0.092,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1398,
+        "headline_count": 5
       }
     ],
     "MAR": [
@@ -26872,6 +27137,11 @@
         "date": "2026-10-16",
         "score": 0.0359,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0236,
+        "headline_count": 5
       }
     ],
     "TSCO": [
@@ -26934,6 +27204,11 @@
         "date": "2026-10-16",
         "score": -0.3611,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0471,
+        "headline_count": 1
       }
     ],
     "A": [
@@ -27204,11 +27479,6 @@
       }
     ],
     "CDNS": [
-      {
-        "date": "2026-05-14",
-        "score": 0.1857,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-17",
         "score": -0.0228,
@@ -27503,6 +27773,11 @@
         "date": "2026-10-16",
         "score": 0.648,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.468,
+        "headline_count": 4
       }
     ],
     "STZ": [
@@ -27809,11 +28084,6 @@
     ],
     "DE": [
       {
-        "date": "2026-05-19",
-        "score": 0.1444,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-20",
         "score": -0.1065,
         "headline_count": 5
@@ -28107,6 +28377,11 @@
         "date": "2026-10-16",
         "score": -0.2016,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1803,
+        "headline_count": 3
       }
     ],
     "EMN": [
@@ -28370,6 +28645,11 @@
         "date": "2026-10-14",
         "score": 0.0118,
         "headline_count": 1
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0602,
+        "headline_count": 2
       }
     ],
     "APTV": [
@@ -28879,6 +29159,11 @@
         "date": "2026-10-16",
         "score": 0.0977,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.013,
+        "headline_count": 1
       }
     ],
     "BLDR": [
@@ -29412,11 +29697,6 @@
     ],
     "SCHW": [
       {
-        "date": "2026-04-23",
-        "score": -0.1216,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-30",
         "score": 0.1759,
         "headline_count": 5
@@ -29710,6 +29990,11 @@
         "date": "2026-10-16",
         "score": -0.1095,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0669,
+        "headline_count": 5
       }
     ],
     "CTAS": [
@@ -29945,11 +30230,6 @@
       }
     ],
     "CB": [
-      {
-        "date": "2026-04-29",
-        "score": -0.0598,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-30",
         "score": 0.0282,
@@ -30244,14 +30524,14 @@
         "date": "2026-10-16",
         "score": 0.3817,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3176,
+        "headline_count": 3
       }
     ],
     "CFG": [
-      {
-        "date": "2026-05-11",
-        "score": -0.1314,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-12",
         "score": -0.1157,
@@ -30546,14 +30826,14 @@
         "date": "2026-10-16",
         "score": -0.1495,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0264,
+        "headline_count": 5
       }
     ],
     "CMS": [
-      {
-        "date": "2026-04-21",
-        "score": -0.0927,
-        "headline_count": 4
-      },
       {
         "date": "2026-04-23",
         "score": 0.1595,
@@ -30848,14 +31128,14 @@
         "date": "2026-10-16",
         "score": 0.1478,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.7255,
+        "headline_count": 1
       }
     ],
     "KO": [
-      {
-        "date": "2026-06-04",
-        "score": -0.0099,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-05",
         "score": 0.322,
@@ -31150,14 +31430,14 @@
         "date": "2026-10-16",
         "score": 0.2345,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1142,
+        "headline_count": 5
       }
     ],
     "GLW": [
-      {
-        "date": "2026-05-29",
-        "score": 0.4526,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-01",
         "score": 0.2478,
@@ -31452,14 +31732,14 @@
         "date": "2026-10-16",
         "score": -0.1125,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.119,
+        "headline_count": 5
       }
     ],
     "COST": [
-      {
-        "date": "2026-06-04",
-        "score": -0.0879,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-05",
         "score": 0.0012,
@@ -31754,6 +32034,11 @@
         "date": "2026-10-16",
         "score": 0.0523,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1957,
+        "headline_count": 5
       }
     ],
     "DVA": [
@@ -32036,11 +32321,6 @@
       }
     ],
     "ETN": [
-      {
-        "date": "2026-05-21",
-        "score": 0.2273,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-26",
         "score": 0.1332,
@@ -32335,6 +32615,11 @@
         "date": "2026-10-16",
         "score": -0.2011,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3968,
+        "headline_count": 4
       }
     ],
     "EXR": [
@@ -32507,11 +32792,6 @@
       }
     ],
     "AMD": [
-      {
-        "date": "2026-06-11",
-        "score": -0.0384,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-12",
         "score": 0.46,
@@ -32806,14 +33086,14 @@
         "date": "2026-10-16",
         "score": -0.5296,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1436,
+        "headline_count": 5
       }
     ],
     "GOOG": [
-      {
-        "date": "2026-06-15",
-        "score": 0.4265,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-16",
         "score": 0.1932,
@@ -33108,6 +33388,11 @@
         "date": "2026-10-16",
         "score": -0.0634,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5438,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -33335,6 +33620,11 @@
         "date": "2026-10-15",
         "score": 0.0643,
         "headline_count": 1
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1311,
+        "headline_count": 5
       }
     ],
     "AEP": [
@@ -33612,6 +33902,11 @@
         "date": "2026-10-16",
         "score": 0.3829,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0518,
+        "headline_count": 5
       }
     ],
     "ABBV": [
@@ -33884,14 +34179,14 @@
         "date": "2026-10-16",
         "score": -0.1592,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0203,
+        "headline_count": 5
       }
     ],
     "GOOGL": [
-      {
-        "date": "2026-05-27",
-        "score": 0.1589,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-28",
         "score": -0.2034,
@@ -34186,14 +34481,14 @@
         "date": "2026-10-16",
         "score": -0.0634,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3837,
+        "headline_count": 5
       }
     ],
     "AMGN": [
-      {
-        "date": "2026-05-17",
-        "score": -0.0818,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-19",
         "score": -0.4572,
@@ -34487,6 +34782,11 @@
       {
         "date": "2026-10-16",
         "score": 0.111,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0847,
         "headline_count": 5
       }
     ],
@@ -34794,11 +35094,6 @@
     ],
     "AMAT": [
       {
-        "date": "2026-06-09",
-        "score": 0.4472,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-10",
         "score": 0.3123,
         "headline_count": 5
@@ -35091,6 +35386,11 @@
       {
         "date": "2026-10-16",
         "score": -0.2212,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2203,
         "headline_count": 5
       }
     ],
@@ -35685,11 +35985,6 @@
     ],
     "ANET": [
       {
-        "date": "2026-05-29",
-        "score": 0.4512,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-01",
         "score": -0.0188,
         "headline_count": 2
@@ -35982,6 +36277,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0367,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0101,
         "headline_count": 5
       }
     ],
@@ -36289,11 +36589,6 @@
     ],
     "BKR": [
       {
-        "date": "2026-05-07",
-        "score": 0.2883,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-13",
         "score": 0.0524,
         "headline_count": 4
@@ -36587,6 +36882,11 @@
         "date": "2026-10-16",
         "score": 0.1654,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1987,
+        "headline_count": 5
       }
     ],
     "BBWI": [
@@ -36632,11 +36932,6 @@
       }
     ],
     "BA": [
-      {
-        "date": "2026-06-09",
-        "score": 0.1502,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-10",
         "score": 0.2609,
@@ -36930,6 +37225,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0281,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1111,
         "headline_count": 5
       }
     ],
@@ -37404,11 +37704,6 @@
     ],
     "CL": [
       {
-        "date": "2026-05-20",
-        "score": 0.1539,
-        "headline_count": 4
-      },
-      {
         "date": "2026-05-21",
         "score": -0.1093,
         "headline_count": 4
@@ -37702,14 +37997,14 @@
         "date": "2026-10-16",
         "score": 0.1064,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1169,
+        "headline_count": 5
       }
     ],
     "CME": [
-      {
-        "date": "2026-05-12",
-        "score": -0.0163,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-13",
         "score": -0.5736,
@@ -38004,6 +38299,11 @@
         "date": "2026-10-16",
         "score": -0.1435,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0516,
+        "headline_count": 5
       }
     ],
     "APD": [
@@ -38256,14 +38556,14 @@
         "date": "2026-10-16",
         "score": 0.1471,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4437,
+        "headline_count": 3
       }
     ],
     "ABNB": [
-      {
-        "date": "2026-05-26",
-        "score": 0.2596,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-27",
         "score": 0.2117,
@@ -38558,14 +38858,14 @@
         "date": "2026-10-16",
         "score": 0.2617,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1079,
+        "headline_count": 5
       }
     ],
     "CTSH": [
-      {
-        "date": "2026-05-14",
-        "score": 0.1205,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-15",
         "score": 0.155,
@@ -38860,6 +39160,11 @@
         "date": "2026-10-15",
         "score": 0.164,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3922,
+        "headline_count": 4
       }
     ],
     "CTVA": [
@@ -39336,6 +39641,11 @@
         "date": "2026-10-16",
         "score": 0.5159,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3724,
+        "headline_count": 5
       }
     ],
     "IVZ": [
@@ -39403,6 +39713,11 @@
         "date": "2026-10-16",
         "score": 0.4343,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2282,
+        "headline_count": 3
       }
     ],
     "ON": [
@@ -39517,6 +39832,11 @@
         "date": "2026-10-16",
         "score": 0.3058,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1433,
+        "headline_count": 5
       }
     ],
     "PPG": [
@@ -39625,6 +39945,11 @@
       {
         "date": "2026-10-16",
         "score": -0.1029,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.3853,
         "headline_count": 5
       }
     ],
@@ -39740,6 +40065,11 @@
         "date": "2026-10-16",
         "score": 0.102,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2625,
+        "headline_count": 3
       }
     ],
     "GFS": [
@@ -40577,6 +40907,11 @@
         "date": "2026-10-16",
         "score": 0.431,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4833,
+        "headline_count": 5
       }
     ],
     "CRM": [
@@ -40623,6 +40958,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1024,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.179,
         "headline_count": 5
       }
     ],
@@ -40899,11 +41239,6 @@
       }
     ],
     "CVX": [
-      {
-        "date": "2026-05-27",
-        "score": 0.2407,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-28",
         "score": 0.0652,
@@ -41198,14 +41533,14 @@
         "date": "2026-10-16",
         "score": 0.4779,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2405,
+        "headline_count": 5
       }
     ],
     "DVN": [
-      {
-        "date": "2026-05-08",
-        "score": 0.0417,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-11",
         "score": 0.0981,
@@ -41500,6 +41835,11 @@
         "date": "2026-10-16",
         "score": 0.1394,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1656,
+        "headline_count": 4
       }
     ],
     "EXC": [
@@ -41661,6 +42001,11 @@
         "date": "2026-10-16",
         "score": -0.1823,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0893,
+        "headline_count": 5
       }
     ],
     "VLO": [
@@ -41717,6 +42062,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0538,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1154,
         "headline_count": 5
       }
     ],
@@ -42024,11 +42374,6 @@
     ],
     "CLX": [
       {
-        "date": "2026-05-14",
-        "score": 0.0632,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-17",
         "score": -0.0358,
         "headline_count": 5
@@ -42322,6 +42667,11 @@
         "date": "2026-10-16",
         "score": 0.076,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1237,
+        "headline_count": 4
       }
     ],
     "EOG": [
@@ -42408,6 +42758,11 @@
       {
         "date": "2026-10-16",
         "score": 0.5074,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2985,
         "headline_count": 5
       }
     ],
@@ -42511,6 +42866,11 @@
         "date": "2026-10-16",
         "score": 0.5885,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1168,
+        "headline_count": 5
       }
     ],
     "FCX": [
@@ -42563,6 +42923,11 @@
         "date": "2026-10-16",
         "score": 0.0639,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0109,
+        "headline_count": 4
       }
     ],
     "GPN": [
@@ -42652,6 +43017,11 @@
         "date": "2026-10-16",
         "score": 0.0621,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.4649,
+        "headline_count": 4
       }
     ],
     "LEN": [
@@ -42708,6 +43078,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0111,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1106,
         "headline_count": 5
       }
     ],
@@ -42766,6 +43141,11 @@
         "date": "2026-10-16",
         "score": 0.0751,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2204,
+        "headline_count": 4
       }
     ],
     "MPC": [
@@ -42822,6 +43202,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1267,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4572,
         "headline_count": 5
       }
     ],
@@ -43026,6 +43411,11 @@
         "date": "2026-10-16",
         "score": -0.087,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0929,
+        "headline_count": 4
       }
     ],
     "SHW": [
@@ -43172,6 +43562,11 @@
         "date": "2026-10-16",
         "score": 0.1775,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2253,
+        "headline_count": 1
       }
     ],
     "TFC": [
@@ -43228,6 +43623,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1576,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0343,
         "headline_count": 5
       }
     ],
@@ -43286,6 +43686,11 @@
         "date": "2026-10-16",
         "score": -0.0518,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3122,
+        "headline_count": 5
       }
     ],
     "HPE": [
@@ -43343,6 +43748,11 @@
         "date": "2026-10-16",
         "score": -0.7255,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1916,
+        "headline_count": 5
       }
     ],
     "STLD": [
@@ -43384,6 +43794,11 @@
       {
         "date": "2026-10-16",
         "score": 0.095,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0133,
         "headline_count": 5
       }
     ],
@@ -43427,6 +43842,11 @@
         "date": "2026-10-14",
         "score": 0.2695,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.7354,
+        "headline_count": 1
       }
     ],
     "EFX": [
@@ -43574,6 +43994,11 @@
         "date": "2026-10-16",
         "score": 0.3461,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0773,
+        "headline_count": 5
       }
     ],
     "LMT": [
@@ -43631,14 +44056,14 @@
         "date": "2026-10-16",
         "score": 0.1087,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4868,
+        "headline_count": 5
       }
     ],
     "MMM": [
-      {
-        "date": "2026-04-23",
-        "score": 0.6568,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-24",
         "score": 0.6274,
@@ -43933,6 +44358,11 @@
         "date": "2026-10-16",
         "score": 0.0168,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.184,
+        "headline_count": 5
       }
     ],
     "EQT": [
@@ -44090,6 +44520,11 @@
         "date": "2026-10-16",
         "score": 0.0316,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0543,
+        "headline_count": 5
       }
     ],
     "MKC": [
@@ -44147,6 +44582,11 @@
         "date": "2026-10-16",
         "score": -0.043,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0091,
+        "headline_count": 4
       }
     ],
     "DHI": [
@@ -44421,6 +44861,11 @@
         "date": "2026-10-16",
         "score": 0.3615,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3784,
+        "headline_count": 5
       }
     ],
     "NTRS": [
@@ -44578,11 +45023,6 @@
       }
     ],
     "ALL": [
-      {
-        "date": "2026-04-23",
-        "score": 0.0186,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-24",
         "score": 0.1325,
@@ -44877,14 +45317,14 @@
         "date": "2026-10-16",
         "score": -0.014,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1488,
+        "headline_count": 3
       }
     ],
     "ACN": [
-      {
-        "date": "2026-05-20",
-        "score": 0.3321,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-21",
         "score": 0.2416,
@@ -45179,14 +45619,14 @@
         "date": "2026-10-16",
         "score": -0.0419,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4914,
+        "headline_count": 5
       }
     ],
     "AXP": [
-      {
-        "date": "2026-05-21",
-        "score": 0.1244,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-25",
         "score": 0.0996,
@@ -45481,14 +45921,14 @@
         "date": "2026-10-16",
         "score": -0.0562,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1295,
+        "headline_count": 5
       }
     ],
     "BMY": [
-      {
-        "date": "2026-05-12",
-        "score": 0.8183,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-14",
         "score": 0.2013,
@@ -45782,6 +46222,11 @@
       {
         "date": "2026-10-15",
         "score": -0.2093,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0479,
         "headline_count": 5
       }
     ],
@@ -46544,14 +46989,14 @@
         "date": "2026-10-16",
         "score": -0.2586,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2083,
+        "headline_count": 3
       }
     ],
     "COF": [
-      {
-        "date": "2026-05-19",
-        "score": -0.3173,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-20",
         "score": -0.0893,
@@ -46846,6 +47291,11 @@
         "date": "2026-10-16",
         "score": -0.1492,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0138,
+        "headline_count": 5
       }
     ],
     "COR": [
@@ -47121,11 +47571,6 @@
       }
     ],
     "CMG": [
-      {
-        "date": "2026-05-20",
-        "score": -0.0094,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-21",
         "score": -0.0759,
@@ -47420,6 +47865,11 @@
         "date": "2026-10-16",
         "score": 0.5185,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0074,
+        "headline_count": 4
       }
     ],
     "CHD": [
@@ -47705,11 +48155,6 @@
       }
     ],
     "CI": [
-      {
-        "date": "2026-04-30",
-        "score": 0.1759,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-06",
         "score": -0.4164,
@@ -48004,14 +48449,14 @@
         "date": "2026-10-16",
         "score": -0.1205,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0614,
+        "headline_count": 3
       }
     ],
     "CSCO": [
-      {
-        "date": "2026-05-14",
-        "score": 0.2173,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-15",
         "score": 0.4734,
@@ -48306,14 +48751,14 @@
         "date": "2026-10-16",
         "score": 0.0824,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2069,
+        "headline_count": 5
       }
     ],
     "CEG": [
-      {
-        "date": "2026-06-01",
-        "score": 0.1691,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-02",
         "score": 0.0589,
@@ -48608,14 +49053,14 @@
         "date": "2026-10-16",
         "score": -0.0584,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3807,
+        "headline_count": 5
       }
     ],
     "CMCSA": [
-      {
-        "date": "2026-05-26",
-        "score": -0.311,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-27",
         "score": -0.1786,
@@ -48909,6 +49354,11 @@
       {
         "date": "2026-10-16",
         "score": -0.1939,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.084,
         "headline_count": 5
       }
     ],
@@ -49207,6 +49657,11 @@
         "date": "2026-10-16",
         "score": 0.0392,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4049,
+        "headline_count": 4
       }
     ],
     "DOV": [
@@ -49379,14 +49834,14 @@
         "date": "2026-10-16",
         "score": -0.2418,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1425,
+        "headline_count": 5
       }
     ],
     "DUK": [
-      {
-        "date": "2026-05-18",
-        "score": -0.1828,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-19",
         "score": -0.3093,
@@ -49681,6 +50136,11 @@
         "date": "2026-10-16",
         "score": 0.1534,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1406,
+        "headline_count": 4
       }
     ],
     "EBAY": [
@@ -49928,6 +50388,11 @@
         "date": "2026-10-16",
         "score": -0.2392,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1235,
+        "headline_count": 4
       }
     ],
     "DD": [
@@ -51583,11 +52048,6 @@
     ],
     "CCI": [
       {
-        "date": "2026-05-21",
-        "score": 0.1298,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-25",
         "score": 0.2307,
         "headline_count": 5
@@ -51881,6 +52341,11 @@
         "date": "2026-10-16",
         "score": -0.0015,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3015,
+        "headline_count": 3
       }
     ],
     "CSX": [
@@ -52300,6 +52765,11 @@
         "date": "2026-10-16",
         "score": 0.1751,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1602,
+        "headline_count": 5
       }
     ],
     "ATO": [
@@ -53154,11 +53624,6 @@
     ],
     "DECK": [
       {
-        "date": "2026-05-20",
-        "score": -0.1033,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-21",
         "score": -0.254,
         "headline_count": 5
@@ -53452,6 +53917,11 @@
         "date": "2026-10-16",
         "score": -0.0054,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1989,
+        "headline_count": 5
       }
     ],
     "ECL": [
@@ -53694,6 +54164,11 @@
         "date": "2026-10-16",
         "score": 0.3002,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.223,
+        "headline_count": 2
       }
     ],
     "EA": [
@@ -54018,6 +54493,11 @@
         "date": "2026-10-16",
         "score": -0.0683,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0921,
+        "headline_count": 5
       }
     ],
     "EMR": [
@@ -54230,6 +54710,11 @@
         "date": "2026-10-16",
         "score": 0.195,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0114,
+        "headline_count": 1
       }
     ],
     "EL": [
@@ -54332,6 +54817,11 @@
         "date": "2026-10-16",
         "score": 0.322,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3416,
+        "headline_count": 4
       }
     ],
     "ETSY": [
@@ -54471,6 +54961,11 @@
         "date": "2026-10-16",
         "score": -0.1374,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.275,
+        "headline_count": 3
       }
     ],
     "AFL": [
@@ -54682,6 +55177,11 @@
       {
         "date": "2026-10-15",
         "score": -0.0728,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.039,
         "headline_count": 3
       }
     ],
@@ -55731,6 +56231,11 @@
         "date": "2026-10-16",
         "score": 0.2115,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2154,
+        "headline_count": 1
       }
     ],
     "CPRT": [
@@ -55841,11 +56346,6 @@
       }
     ],
     "MO": [
-      {
-        "date": "2026-06-03",
-        "score": 0.2566,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-05",
         "score": 0.1483,
@@ -56140,6 +56640,11 @@
         "date": "2026-10-16",
         "score": -0.1405,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1106,
+        "headline_count": 5
       }
     ],
     "APO": [
@@ -56402,6 +56907,11 @@
         "date": "2026-10-16",
         "score": -0.0561,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0311,
+        "headline_count": 4
       }
     ],
     "XYZ": [
@@ -57010,11 +57520,6 @@
     ],
     "BKNG": [
       {
-        "date": "2026-06-01",
-        "score": 0.2595,
-        "headline_count": 4
-      },
-      {
         "date": "2026-06-02",
         "score": 0.0378,
         "headline_count": 5
@@ -57308,6 +57813,11 @@
         "date": "2026-10-16",
         "score": -0.0099,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.5252,
+        "headline_count": 3
       }
     ],
     "CHRW": [
@@ -57731,11 +58241,6 @@
     ],
     "COIN": [
       {
-        "date": "2026-06-17",
-        "score": 0.3089,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-18",
         "score": -0.2057,
         "headline_count": 5
@@ -58029,14 +58534,14 @@
         "date": "2026-10-16",
         "score": 0.0177,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2333,
+        "headline_count": 5
       }
     ],
     "COHR": [
-      {
-        "date": "2026-06-24",
-        "score": 0.1213,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-25",
         "score": -0.0953,
@@ -58331,14 +58836,14 @@
         "date": "2026-10-16",
         "score": -0.1415,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1115,
+        "headline_count": 5
       }
     ],
     "CRWD": [
-      {
-        "date": "2026-05-26",
-        "score": -0.1841,
-        "headline_count": 4
-      },
       {
         "date": "2026-05-27",
         "score": 0.3466,
@@ -58633,14 +59138,14 @@
         "date": "2026-10-16",
         "score": 0.2275,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1087,
+        "headline_count": 5
       }
     ],
     "DELL": [
-      {
-        "date": "2026-06-08",
-        "score": 0.0837,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-10",
         "score": 0.1766,
@@ -58934,6 +59439,11 @@
       {
         "date": "2026-10-16",
         "score": -0.2439,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0417,
         "headline_count": 5
       }
     ],
@@ -59531,6 +60041,11 @@
         "date": "2026-10-16",
         "score": 0.0455,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2784,
+        "headline_count": 3
       }
     ],
     "CIEN": [
@@ -59748,6 +60263,11 @@
         "date": "2026-10-16",
         "score": 0.3753,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.3105,
+        "headline_count": 4
       }
     ],
     "EXE": [
@@ -59810,6 +60330,11 @@
         "date": "2026-10-16",
         "score": 0.1579,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0606,
+        "headline_count": 3
       }
     ],
     "CBOE": [
@@ -60052,6 +60577,11 @@
         "date": "2026-10-16",
         "score": 0.1012,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.196,
+        "headline_count": 4
       }
     ],
     "DTE": [
@@ -60109,6 +60639,11 @@
         "date": "2026-10-16",
         "score": 0.1898,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.9442,
+        "headline_count": 1
       }
     ],
     "ECHO": [
@@ -60201,6 +60736,11 @@
         "date": "2026-10-16",
         "score": 0.21,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2335,
+        "headline_count": 4
       }
     ],
     "EVRG": [
@@ -60516,6 +61056,11 @@
         "date": "2026-10-16",
         "score": -0.0346,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0583,
+        "headline_count": 2
       }
     ],
     "GEHC": [
@@ -60625,6 +61170,11 @@
         "date": "2026-10-16",
         "score": -0.0604,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2142,
+        "headline_count": 5
       }
     ],
     "IBM": [
@@ -60666,6 +61216,11 @@
       {
         "date": "2026-10-16",
         "score": 0.3628,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5667,
         "headline_count": 5
       }
     ],
@@ -60760,6 +61315,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0152,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0882,
         "headline_count": 5
       }
     ],
@@ -60860,6 +61420,11 @@
         "date": "2026-10-16",
         "score": -0.106,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0734,
+        "headline_count": 5
       }
     ],
     "BE": [
@@ -60942,6 +61507,11 @@
         "date": "2026-10-16",
         "score": 0.0257,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0784,
+        "headline_count": 5
       }
     ],
     "IT": [
@@ -60973,6 +61543,11 @@
       {
         "date": "2026-10-15",
         "score": -0.4237,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5481,
         "headline_count": 5
       }
     ],
@@ -61037,6 +61612,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1934,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.116,
         "headline_count": 5
       }
     ],
@@ -61169,6 +61749,11 @@
         "date": "2026-10-16",
         "score": 0.0745,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0437,
+        "headline_count": 3
       }
     ],
     "FITB": [
@@ -61220,6 +61805,11 @@
       {
         "date": "2026-10-16",
         "score": 0.4652,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1621,
         "headline_count": 5
       }
     ],
@@ -61273,6 +61863,11 @@
         "date": "2026-10-16",
         "score": -0.2368,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.3274,
+        "headline_count": 3
       }
     ],
     "PG": [
@@ -61325,6 +61920,11 @@
         "date": "2026-10-16",
         "score": 0.1743,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0641,
+        "headline_count": 5
       }
     ],
     "NDAQ": [
@@ -61376,6 +61976,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0165,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0626,
         "headline_count": 5
       }
     ],
@@ -61456,6 +62061,11 @@
         "date": "2026-10-16",
         "score": 0.0717,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3126,
+        "headline_count": 5
       }
     ],
     "SBUX": [
@@ -61508,6 +62118,11 @@
         "date": "2026-10-16",
         "score": 0.3435,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2046,
+        "headline_count": 5
       }
     ],
     "TER": [
@@ -61549,6 +62164,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0071,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0496,
         "headline_count": 5
       }
     ],
@@ -61602,6 +62222,11 @@
         "date": "2026-10-16",
         "score": 0.1085,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.099,
+        "headline_count": 3
       }
     ],
     "ILMN": [
@@ -61733,6 +62358,11 @@
         "date": "2026-10-16",
         "score": 0.3808,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2793,
+        "headline_count": 5
       }
     ],
     "KMI": [
@@ -61784,6 +62414,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0755,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2114,
         "headline_count": 5
       }
     ],
@@ -61837,6 +62472,11 @@
         "date": "2026-10-16",
         "score": -0.147,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0912,
+        "headline_count": 5
       }
     ],
     "JNJ": [
@@ -61888,6 +62528,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0226,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2174,
         "headline_count": 5
       }
     ],
@@ -61941,6 +62586,11 @@
         "date": "2026-10-16",
         "score": 0.0686,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2544,
+        "headline_count": 4
       }
     ],
     "ROL": [
@@ -61983,6 +62633,11 @@
         "date": "2026-10-16",
         "score": -0.1252,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0058,
+        "headline_count": 3
       }
     ],
     "KEYS": [
@@ -62124,6 +62779,11 @@
         "date": "2026-10-16",
         "score": -0.1716,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4042,
+        "headline_count": 5
       }
     ],
     "ROST": [
@@ -62218,6 +62878,11 @@
         "date": "2026-10-16",
         "score": -0.1112,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1605,
+        "headline_count": 3
       }
     ],
     "ORLY": [
@@ -62354,6 +63019,11 @@
         "date": "2026-10-16",
         "score": -0.3161,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1903,
+        "headline_count": 5
       }
     ],
     "SMCI": [
@@ -62406,6 +63076,11 @@
         "date": "2026-10-16",
         "score": -0.2789,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0012,
+        "headline_count": 5
       }
     ],
     "VZ": [
@@ -62457,6 +63132,11 @@
       {
         "date": "2026-10-16",
         "score": -0.2764,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2598,
         "headline_count": 5
       }
     ],
@@ -62589,6 +63269,11 @@
         "date": "2026-10-16",
         "score": -0.0391,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.343,
+        "headline_count": 5
       }
     ],
     "VMC": [
@@ -62683,6 +63368,11 @@
         "date": "2026-10-16",
         "score": -0.299,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3968,
+        "headline_count": 5
       }
     ],
     "PSX": [
@@ -62735,6 +63425,11 @@
         "date": "2026-10-16",
         "score": 0.3404,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2098,
+        "headline_count": 4
       }
     ],
     "JBL": [
@@ -62839,6 +63534,11 @@
         "date": "2026-10-16",
         "score": 0.2899,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2823,
+        "headline_count": 3
       }
     ],
     "RDDT": [
@@ -62890,6 +63590,11 @@
       {
         "date": "2026-10-16",
         "score": -0.136,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0343,
         "headline_count": 5
       }
     ],
@@ -62943,6 +63648,11 @@
         "date": "2026-10-16",
         "score": 0.2717,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2126,
+        "headline_count": 4
       }
     ],
     "TGT": [
@@ -62994,6 +63704,11 @@
       {
         "date": "2026-10-16",
         "score": 0.2316,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0226,
         "headline_count": 5
       }
     ],
@@ -63047,6 +63762,11 @@
         "date": "2026-10-16",
         "score": -0.1734,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0246,
+        "headline_count": 5
       }
     ],
     "KHC": [
@@ -63099,6 +63819,11 @@
         "date": "2026-10-16",
         "score": 0.0747,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0737,
+        "headline_count": 4
       }
     ],
     "NTAP": [
@@ -63151,6 +63876,11 @@
         "date": "2026-10-16",
         "score": 0.0444,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0869,
+        "headline_count": 3
       }
     ],
     "INVH": [
@@ -63245,6 +63975,11 @@
         "date": "2026-10-16",
         "score": 0.1936,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2208,
+        "headline_count": 5
       }
     ],
     "GD": [
@@ -63297,6 +64032,11 @@
         "date": "2026-10-16",
         "score": 0.2597,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.4016,
+        "headline_count": 3
       }
     ],
     "UNH": [
@@ -63348,6 +64088,11 @@
       {
         "date": "2026-10-16",
         "score": -0.1568,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1711,
         "headline_count": 5
       }
     ],
@@ -63422,6 +64167,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0362,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5188,
         "headline_count": 5
       }
     ],
@@ -63517,6 +64267,11 @@
         "date": "2026-10-16",
         "score": -0.3303,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0027,
+        "headline_count": 5
       }
     ],
     "PFE": [
@@ -63569,6 +64324,11 @@
         "date": "2026-10-16",
         "score": -0.0041,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.026,
+        "headline_count": 5
       }
     ],
     "NEE": [
@@ -63620,6 +64380,11 @@
       {
         "date": "2026-10-16",
         "score": -0.3599,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.081,
         "headline_count": 5
       }
     ],
@@ -63742,6 +64507,11 @@
         "date": "2026-10-16",
         "score": -0.197,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0332,
+        "headline_count": 4
       }
     ],
     "TTWO": [
@@ -63831,6 +64601,11 @@
         "date": "2026-10-09",
         "score": -0.504,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2741,
+        "headline_count": 5
       }
     ],
     "HLT": [
@@ -63915,6 +64690,11 @@
         "date": "2026-10-16",
         "score": -0.3278,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.7753,
+        "headline_count": 5
       }
     ],
     "GIS": [
@@ -63967,6 +64747,11 @@
         "date": "2026-10-16",
         "score": 0.1763,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3593,
+        "headline_count": 5
       }
     ],
     "VRSK": [
@@ -64004,6 +64789,11 @@
         "date": "2026-10-16",
         "score": 0.2743,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0451,
+        "headline_count": 3
       }
     ],
     "TKO": [
@@ -64072,6 +64862,11 @@
       {
         "date": "2026-10-16",
         "score": -0.1392,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2643,
         "headline_count": 5
       }
     ],
@@ -64162,6 +64957,11 @@
         "date": "2026-10-14",
         "score": 0.0089,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2755,
+        "headline_count": 3
       }
     ],
     "O": [
@@ -64213,6 +65013,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0566,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.016,
         "headline_count": 5
       }
     ],
@@ -64372,6 +65177,11 @@
         "date": "2026-10-16",
         "score": 0.1486,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2771,
+        "headline_count": 5
       }
     ],
     "LITE": [
@@ -64423,6 +65233,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0934,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0675,
         "headline_count": 5
       }
     ],
@@ -64508,6 +65323,11 @@
         "date": "2026-10-09",
         "score": -0.1447,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.9351,
+        "headline_count": 1
       }
     ],
     "HUM": [
@@ -64555,6 +65375,11 @@
         "date": "2026-10-16",
         "score": 0.305,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0324,
+        "headline_count": 4
       }
     ],
     "SPG": [
@@ -64576,6 +65401,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1307,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0783,
         "headline_count": 4
       }
     ],
@@ -64629,6 +65459,11 @@
         "date": "2026-10-16",
         "score": -0.2562,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3543,
+        "headline_count": 5
       }
     ],
     "SJM": [
@@ -64656,6 +65491,11 @@
         "date": "2026-10-16",
         "score": 0.5326,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4392,
+        "headline_count": 5
       }
     ],
     "FTNT": [
@@ -64703,6 +65543,11 @@
         "date": "2026-10-16",
         "score": 0.1737,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.51,
+        "headline_count": 3
       }
     ],
     "NWSA": [
@@ -64735,6 +65580,11 @@
         "date": "2026-10-09",
         "score": -0.0451,
         "headline_count": 4
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.5431,
+        "headline_count": 3
       }
     ],
     "RTX": [
@@ -64787,6 +65637,11 @@
         "date": "2026-10-16",
         "score": -0.0571,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.6849,
+        "headline_count": 5
       }
     ],
     "TRV": [
@@ -64818,6 +65673,11 @@
       {
         "date": "2026-10-16",
         "score": 0.2122,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4336,
         "headline_count": 5
       }
     ],
@@ -64870,6 +65730,11 @@
       {
         "date": "2026-10-16",
         "score": 0.5054,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1429,
         "headline_count": 5
       }
     ],
@@ -64945,6 +65810,11 @@
         "date": "2026-10-14",
         "score": 0.2283,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2961,
+        "headline_count": 3
       }
     ],
     "GILD": [
@@ -64996,6 +65866,11 @@
       {
         "date": "2026-10-16",
         "score": 0.3501,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2209,
         "headline_count": 5
       }
     ],
@@ -65138,6 +66013,11 @@
         "date": "2026-10-16",
         "score": -0.1259,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2915,
+        "headline_count": 3
       }
     ],
     "P": [
@@ -65284,6 +66164,11 @@
         "date": "2026-10-16",
         "score": -0.4715,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2453,
+        "headline_count": 5
       }
     ],
     "TJX": [
@@ -65336,6 +66221,11 @@
         "date": "2026-10-16",
         "score": -0.1941,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0568,
+        "headline_count": 5
       }
     ],
     "NWS": [
@@ -65420,6 +66310,11 @@
         "date": "2026-10-16",
         "score": 0.0573,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3753,
+        "headline_count": 5
       }
     ],
     "SPGI": [
@@ -65471,6 +66366,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0381,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1075,
         "headline_count": 5
       }
     ],
@@ -65640,6 +66540,11 @@
         "date": "2026-10-16",
         "score": 0.2222,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2648,
+        "headline_count": 5
       }
     ],
     "KKR": [
@@ -65692,6 +66597,11 @@
         "date": "2026-10-16",
         "score": 0.2222,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1943,
+        "headline_count": 4
       }
     ],
     "TXN": [
@@ -65738,6 +66648,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0246,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1027,
         "headline_count": 5
       }
     ],
@@ -65791,6 +66706,11 @@
         "date": "2026-10-16",
         "score": -0.0648,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0864,
+        "headline_count": 5
       }
     ],
     "NUE": [
@@ -65842,6 +66762,11 @@
       {
         "date": "2026-10-16",
         "score": 0.1094,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0492,
         "headline_count": 5
       }
     ],
@@ -65947,6 +66872,11 @@
         "date": "2026-10-16",
         "score": 0.0674,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3244,
+        "headline_count": 5
       }
     ],
     "EXPD": [
@@ -66050,6 +66980,11 @@
       {
         "date": "2026-10-16",
         "score": 0.2325,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.181,
         "headline_count": 5
       }
     ],
@@ -66308,6 +67243,11 @@
         "date": "2026-10-16",
         "score": 0.1789,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0275,
+        "headline_count": 5
       }
     ],
     "PAYX": [
@@ -66354,6 +67294,11 @@
       {
         "date": "2026-10-16",
         "score": -0.0953,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3493,
         "headline_count": 5
       }
     ],
@@ -66402,6 +67347,11 @@
         "date": "2026-10-16",
         "score": 0.1812,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3292,
+        "headline_count": 4
       }
     ],
     "LVS": [
@@ -66523,6 +67473,11 @@
         "date": "2026-10-16",
         "score": 0.1647,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.3854,
+        "headline_count": 5
       }
     ],
     "JCI": [
@@ -66607,6 +67562,11 @@
         "date": "2026-10-15",
         "score": -0.951,
         "headline_count": 1
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.2297,
+        "headline_count": 5
       }
     ],
     "WMB": [
@@ -66644,6 +67604,11 @@
         "date": "2026-10-16",
         "score": 0.0437,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.1583,
+        "headline_count": 4
       }
     ],
     "HIG": [
@@ -66782,6 +67747,11 @@
         "date": "2026-10-16",
         "score": 0.2412,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1232,
+        "headline_count": 2
       }
     ],
     "TEL": [
@@ -66935,6 +67905,11 @@
         "date": "2026-10-15",
         "score": 0.0969,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.0383,
+        "headline_count": 5
       }
     ],
     "IQV": [
@@ -67009,6 +67984,11 @@
         "date": "2026-10-16",
         "score": -0.1676,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1676,
+        "headline_count": 4
       }
     ],
     "HSIC": [
@@ -67078,6 +68058,11 @@
         "date": "2026-10-16",
         "score": -0.0057,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1043,
+        "headline_count": 4
       }
     ],
     "PNR": [
@@ -67141,6 +68126,11 @@
       {
         "date": "2026-10-16",
         "score": 0.0743,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2019,
         "headline_count": 5
       }
     ],
@@ -67228,6 +68218,11 @@
         "date": "2026-10-15",
         "score": 0.0688,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0836,
+        "headline_count": 3
       }
     ],
     "PODD": [
@@ -67245,6 +68240,11 @@
         "date": "2026-10-09",
         "score": 0.3145,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0745,
+        "headline_count": 1
       }
     ],
     "WRB": [
@@ -67277,6 +68277,11 @@
         "date": "2026-10-16",
         "score": 0.3952,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0312,
+        "headline_count": 2
       }
     ],
     "MAA": [
@@ -67309,6 +68314,11 @@
         "date": "2026-10-16",
         "score": 0.0712,
         "headline_count": 3
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.2989,
+        "headline_count": 3
       }
     ],
     "TRGP": [
@@ -67330,6 +68340,11 @@
       {
         "date": "2026-10-14",
         "score": 0.3407,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": -0.1784,
         "headline_count": 5
       }
     ],
@@ -67490,6 +68505,11 @@
         "date": "2026-10-16",
         "score": 0.2684,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.0887,
+        "headline_count": 4
       }
     ],
     "Q": [
@@ -67553,6 +68573,11 @@
         "date": "2026-10-16",
         "score": 0.1891,
         "headline_count": 5
+      },
+      {
+        "date": "2026-10-19",
+        "score": 0.4068,
+        "headline_count": 3
       }
     ],
     "VMRK": [
@@ -67565,6 +68590,62 @@
         "date": "2026-10-16",
         "score": 0.4967,
         "headline_count": 3
+      }
+    ],
+    "MSTR": [
+      {
+        "date": "2026-10-19",
+        "score": 0.3483,
+        "headline_count": 5
+      }
+    ],
+    "CRWV": [
+      {
+        "date": "2026-10-19",
+        "score": 0.0987,
+        "headline_count": 5
+      }
+    ],
+    "ALNY": [
+      {
+        "date": "2026-10-19",
+        "score": 0.4826,
+        "headline_count": 3
+      }
+    ],
+    "SPCX": [
+      {
+        "date": "2026-10-19",
+        "score": 0.0814,
+        "headline_count": 5
+      }
+    ],
+    "NBIS": [
+      {
+        "date": "2026-10-19",
+        "score": 0.1173,
+        "headline_count": 5
+      }
+    ],
+    "RKLB": [
+      {
+        "date": "2026-10-19",
+        "score": 0.1822,
+        "headline_count": 5
+      }
+    ],
+    "ALAB": [
+      {
+        "date": "2026-10-19",
+        "score": -0.2124,
+        "headline_count": 4
+      }
+    ],
+    "SHOP": [
+      {
+        "date": "2026-10-19",
+        "score": 0.3972,
+        "headline_count": 4
       }
     ]
   },
@@ -67827,6 +68908,12 @@
       {
         "date": "2026-10-16",
         "atm_iv": 0.2593
+      }
+    ],
+    "OXY": [
+      {
+        "date": "2026-10-19",
+        "atm_iv": 0.3338
       }
     ]
   },
@@ -115965,6 +117052,2197 @@
           "veto": false
         }
       }
+    },
+    {
+      "ticker": "SWKS",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 80.64,
+        "target_price": 91.29,
+        "hit_rate": 0.7062,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0394,
+        "sigma_source": "measured",
+        "alpha": 0.00381,
+        "shadow_v4": {
+          "hit_rate": 0.6264,
+          "hit_rate_uncapped": 0.6264,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 6,
+        "surprise": 5,
+        "mismatch": 1.813,
+        "z_score": 0.837,
+        "sigma_30d": 0.0436,
+        "price_move_48h": 0.0365,
+        "price_move_48h_signed": 0.0365,
+        "z_score_2d_scaled": 0.592,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6788
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 6,
+        "surprise": 5,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.7062,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7333,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.4920424172637176
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Semiconductors",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "exception:JSONDecodeError"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "COIN",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 169.27,
+        "target_price": 194.7,
+        "hit_rate": 0.518,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0448,
+        "sigma_source": "measured",
+        "alpha": -0.00037,
+        "shadow_v4": {
+          "hit_rate": 0.4366,
+          "hit_rate_uncapped": 0.4366,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.834,
+        "z_score": 0.033,
+        "sigma_30d": 0.047,
+        "price_move_48h": 0.0016,
+        "price_move_48h_signed": 0.0016,
+        "z_score_2d_scaled": 0.023,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5196
+      },
+      "sector": "Financial Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 4,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.518,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.531,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "P&C Insurance",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "LOW",
+          "weather_relevance": "HIGH",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.92,
+          "mechanism": "1. MECHANISMUS: Wetter-Primitive (active_tropical_system, CDD/HDD-Anomalien, weather_disruption_index) k\u00f6nnten theoretisch \u00fcber Energiepreis-Volatilit\u00e4t oder Infrastruktur-St\u00f6rungen die institutionelle Risk-Wahrnehmung beeinflussen und damit regulatorische Prozesse verz\u00f6gern. 2. EXPOSURE: COIN hat HIGH weather_relevance laut ticker_exposure, aber weather_disruption_index=0.0 (keine aktive St\u00f6rung), CDD_anomaly=-0.21 (schwach), HDD_anomaly=-1.18 (schwach). Keine signifikante Wetter-Disruption aktiv. 3. KATALYSATOR-BEZUG: Der Katalysator ist CFTC-Regelwerk-Finalisierung (regulatorisch/politisch, 2-3 Monate). Wetter-Daten haben keine direkte mechanische Verbindung zu Regulierungs-Timeline oder CFTC-Entscheidungsprozessen. Energiepreise (DE_power_price_z=2.16) sind hoch, aber nicht kausal mit US-Krypto-Regulierung verbunden.",
+          "relevant_sources": [
+            "weather_disruption_index",
+            "active_tropical_system",
+            "cdd_anomaly",
+            "hdd_anomaly",
+            "de_power_price_z"
+          ],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "OXY",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 62.92,
+        "target_price": 67.95,
+        "hit_rate": 0.6308,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.022,
+        "sigma_source": "measured",
+        "alpha": 0.00183,
+        "shadow_v4": {
+          "hit_rate": 0.5704,
+          "hit_rate_uncapped": 0.5704,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 0.947,
+        "z_score": 0.811,
+        "sigma_30d": 0.0195,
+        "price_move_48h": 0.0158,
+        "price_move_48h_signed": 0.0158,
+        "z_score_2d_scaled": 0.573,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5574
+      },
+      "sector": "Energy",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "4-8 Wochen"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6308,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6835,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.20703501310377642
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Energy",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "MEDIUM",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "exception:JSONDecodeError"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "VST",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 148.84,
+        "target_price": 163.63,
+        "hit_rate": 0.56,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0296,
+        "sigma_source": "measured",
+        "alpha": 0.00035,
+        "shadow_v4": {
+          "hit_rate": 0.479,
+          "hit_rate_uncapped": 0.479,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.761,
+        "z_score": 0.048,
+        "sigma_30d": 0.0317,
+        "price_move_48h": 0.0015,
+        "price_move_48h_signed": 0.0015,
+        "z_score_2d_scaled": 0.034,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5606
+      },
+      "sector": "Utilities",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 4,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.56,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5818,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.20703501310377642
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Utilities",
+          "level": "sector",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "HIGH",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "ASML",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 1660.39,
+        "target_price": 1832.53,
+        "hit_rate": 0.64,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0309,
+        "sigma_source": "measured",
+        "alpha": 0.00181,
+        "shadow_v4": {
+          "hit_rate": 0.563,
+          "hit_rate_uncapped": 0.563,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 3.894,
+        "z_score": 0.221,
+        "sigma_30d": 0.0232,
+        "price_move_48h": 0.0051,
+        "price_move_48h_signed": -0.0051,
+        "z_score_2d_scaled": 0.156,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6104
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.64,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6719,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.4920424172637176
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Semiconductors",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "NOW",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 144.99,
+        "target_price": 165.34,
+        "hit_rate": 0.7114,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0419,
+        "sigma_source": "measured",
+        "alpha": 0.00421,
+        "shadow_v4": {
+          "hit_rate": 0.6394,
+          "hit_rate_uncapped": 0.6394,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.599,
+        "z_score": 0.48,
+        "sigma_30d": 0.0296,
+        "price_move_48h": 0.0142,
+        "price_move_48h_signed": 0.0142,
+        "z_score_2d_scaled": 0.34,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6862
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.7114,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7438,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Technology / Software",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "NONE",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "VRTX",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 504.43,
+        "target_price": 544.78,
+        "hit_rate": 0.5974,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.017,
+        "sigma_source": "measured",
+        "alpha": 0.00158,
+        "shadow_v4": {
+          "hit_rate": 0.5122,
+          "hit_rate_uncapped": 0.5122,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.156,
+        "z_score": 0.169,
+        "sigma_30d": 0.0147,
+        "price_move_48h": 0.0025,
+        "price_move_48h_signed": 0.0025,
+        "z_score_2d_scaled": 0.119,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.4964
+      },
+      "sector": "Healthcare",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.5974,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.7441,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Healthcare",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 262.29,
+        "target_price": 283.27,
+        "hit_rate": 0.614,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0228,
+        "sigma_source": "measured",
+        "alpha": 0.00108,
+        "shadow_v4": {
+          "hit_rate": 0.5392,
+          "hit_rate_uncapped": 0.5392,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 0.282,
+        "z_score": 0.944,
+        "sigma_30d": 0.017,
+        "price_move_48h": 0.0161,
+        "price_move_48h_signed": -0.0161,
+        "z_score_2d_scaled": 0.667,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5292
+      },
+      "sector": "Consumer Cyclical",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 5,
+        "surprise": 3,
+        "time_to_materialization": "2-3 Monate"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.614,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6518,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": -0.17960530202677488
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Retail",
+          "level": "sector",
+          "road_freight_relevance": "MEDIUM",
+          "maritime_relevance": "LOW",
+          "weather_relevance": "MEDIUM",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-10-19",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 343.33,
+        "target_price": 370.8,
+        "hit_rate": 0.6226,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0168,
+        "sigma_source": "measured",
+        "alpha": 0.00232,
+        "shadow_v4": {
+          "hit_rate": 0.529,
+          "hit_rate_uncapped": 0.529,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 3.409,
+        "z_score": 0.118,
+        "sigma_30d": 0.0123,
+        "price_move_48h": 0.0015,
+        "price_move_48h_signed": 0.0015,
+        "z_score_2d_scaled": 0.084,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5336
+      },
+      "sector": "Technology",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 4,
+        "surprise": 3,
+        "time_to_materialization": "4-8 Wochen"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6226,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Technology / Software",
+          "level": "sector",
+          "road_freight_relevance": "NONE",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "NONE",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "VST",
+      "entry_date": "2026-10-19",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "OTHER",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 19.55,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 150.0,
+        "bid": 18.65,
+        "ask": 19.55,
+        "open_interest": 978,
+        "implied_vol": 0.4787,
+        "spread_ratio": 0.046,
+        "dte": 150,
+        "delta": 0.5777,
+        "data_source": "tradier",
+        "option_symbol": "VST270319C00150000",
+        "volume": 13,
+        "iv_source": "chain",
+        "delta_source": "chain",
+        "chain_retrieved_at": "2026-10-19T19:20:57+00:00",
+        "quote_time": "2026-10-19T19:20:48+00:00",
+        "bid_missing": false,
+        "ask_missing": false,
+        "source_primary": "options_chain",
+        "source_actual": "options_chain",
+        "spread_leg": {
+          "strike": 165.0,
+          "bid": 12.85,
+          "ask": 14.3,
+          "symbol": "VST270319C00165000",
+          "quote_time": "2026-10-19T19:20:17+00:00",
+          "bid_missing": false,
+          "ask_missing": false,
+          "open_interest": 350,
+          "volume": 0
+        },
+        "net_debit": 6.7
+      },
+      "simulation": {
+        "current_price": 148.84,
+        "target_price": 163.63,
+        "hit_rate": 0.56,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0296,
+        "sigma_source": "measured",
+        "alpha": 0.00035,
+        "shadow_v4": {
+          "hit_rate": 0.479,
+          "hit_rate_uncapped": 0.479,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 4,
+        "mismatch": 4.761,
+        "z_score": 0.048,
+        "sigma_30d": 0.0317,
+        "price_move_48h": 0.0015,
+        "price_move_48h_signed": 0.0015,
+        "z_score_2d_scaled": 0.034,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5606
+      },
+      "roi_net": -0.1875,
+      "roi_hurdle": 0.085,
+      "roi_gap": -0.2725,
+      "fail_gates": {
+        "Long-Term": "roi_initial"
+      },
+      "vix": 18.4,
+      "mc_hit_rate": 0.56,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.20703501310377642
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Utilities",
+          "level": "sector",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "NONE",
+          "weather_relevance": "HIGH",
+          "exposure_source": "sector",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "ASML",
+      "entry_date": "2026-10-19",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 214.8,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 1600.0,
+        "bid": 209.3,
+        "ask": 214.8,
+        "open_interest": 144,
+        "implied_vol": 0.3961,
+        "spread_ratio": 0.0256,
+        "dte": 150,
+        "delta": 0.6347,
+        "data_source": "tradier",
+        "option_symbol": "ASML270319C01600000",
+        "volume": 1,
+        "iv_source": "chain",
+        "delta_source": "chain",
+        "chain_retrieved_at": "2026-10-19T19:20:59+00:00",
+        "quote_time": "2026-10-19T19:20:58+00:00",
+        "bid_missing": false,
+        "ask_missing": false,
+        "source_primary": "options_chain",
+        "source_actual": "options_chain"
+      },
+      "simulation": {
+        "current_price": 1660.39,
+        "target_price": 1832.53,
+        "hit_rate": 0.64,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0309,
+        "sigma_source": "measured",
+        "alpha": 0.00181,
+        "shadow_v4": {
+          "hit_rate": 0.563,
+          "hit_rate_uncapped": 0.563,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 3.894,
+        "z_score": 0.221,
+        "sigma_30d": 0.0232,
+        "price_move_48h": 0.0051,
+        "price_move_48h_signed": -0.0051,
+        "z_score_2d_scaled": 0.156,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "good",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6104
+      },
+      "roi_net": 0.214,
+      "roi_hurdle": 0.085,
+      "roi_gap": 0.129,
+      "fail_gates": {
+        "Long-Term": "mc_pnl"
+      },
+      "vix": 18.4,
+      "mc_hit_rate": 0.64,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.4920424172637176
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Semiconductors",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "LOW",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "shadow_analysis_not_run"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "OXY",
+      "entry_date": "2026-10-19",
+      "reject_reason": "score_40",
+      "catalyst_type": "EARNINGS",
+      "strategy": "LONG_CALL",
+      "entry_debit": 7.3,
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 60.0,
+        "bid": 6.9,
+        "ask": 7.3,
+        "open_interest": 2661,
+        "implied_vol": 0.3338,
+        "spread_ratio": 0.0548,
+        "dte": 150,
+        "delta": 0.6431,
+        "data_source": "tradier",
+        "option_symbol": "OXY270319C00060000",
+        "volume": 3,
+        "iv_source": "chain",
+        "delta_source": "chain",
+        "chain_retrieved_at": "2026-10-19T19:20:55+00:00",
+        "quote_time": "2026-10-19T19:20:54+00:00",
+        "bid_missing": false,
+        "ask_missing": false,
+        "source_primary": "options_chain",
+        "source_actual": "options_chain"
+      },
+      "simulation": {
+        "current_price": 62.92,
+        "target_price": 67.95,
+        "hit_rate": 0.6308,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.022,
+        "sigma_source": "measured",
+        "alpha": 0.00183,
+        "shadow_v4": {
+          "hit_rate": 0.5704,
+          "hit_rate_uncapped": 0.5704,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "trade_score": 40,
+      "features": {
+        "impact": 5,
+        "surprise": 3,
+        "mismatch": 0.947,
+        "z_score": 0.811,
+        "sigma_30d": 0.0195,
+        "price_move_48h": 0.0158,
+        "price_move_48h_signed": 0.0158,
+        "z_score_2d_scaled": 0.573,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5574
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.6308,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6835,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "fa38e15d734aa1fe",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-10-19T13:30:39+00:00",
+        "primitives": {
+          "freight_global_z": -0.5372895639617944,
+          "freight_us_z": -1.7184632806820528,
+          "freight_eu_z": 0.7597699079004872,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.3333333333333333,
+          "de_truck_z_1y": 2.333839863966305,
+          "de_truck_acceleration": 0.020946968412138098,
+          "us_freight_tsi_yoy": -0.02021660649819503,
+          "us_freight_tsi_z": -1.7184632806820528,
+          "shipping_global_z": 0.3028024211435336,
+          "shipping_container_z": 0.3711994222043862,
+          "shipping_drybulk_z": -0.6955118217238812,
+          "shipping_tanker_z": 0.38911565664322717,
+          "shipping_negative_breadth": 0.375,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.32587916723100435,
+          "panama_z": 1.8289796542448813,
+          "hormuz_z": -0.8333595796391723,
+          "malacca_z": -0.15686220727117256,
+          "bab_el_mandeb_z": 0.8293120892904163,
+          "asia_export_z": -0.29145209854958,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": 0.03717250844268993,
+          "us_cpi_yoy_3m_ago": 0.03463530729385411,
+          "nfci_credit": -0.036,
+          "nfci": -0.499,
+          "fed_assets_13w_chg": 0.0018702280340523458,
+          "usd_63d_chg": 0.007130948565238215,
+          "wti_63d_chg": 0.2733974759465201,
+          "de_power_price_7d": 189.2194,
+          "de_power_price_z": 2.1596577456079427,
+          "de_load_yoy": 0.0015556863864001347,
+          "hdd_anomaly": -1.1788704586502234,
+          "cdd_anomaly": -0.20665261686059616,
+          "forecast_revision_hdd": -0.2612541225510628,
+          "forecast_revision_cdd": 0.2612541225510628,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.0537451256171477,
+          "industry_shipping_z": 0.20703501310377642
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "NEUTRAL",
+          "eu_freight_confidence": 0.2295,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.105,
+          "global_freight_state": "STRONG_CONTRACTION",
+          "global_freight_confidence": 0.174
+        },
+        "ticker_exposure": {
+          "industry": "Energy",
+          "level": "industry",
+          "road_freight_relevance": "LOW",
+          "maritime_relevance": "MEDIUM",
+          "weather_relevance": "MEDIUM",
+          "exposure_source": "industry",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -0.840091985105328,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.0537451256171477,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.0,
+          "mechanism": "",
+          "relevant_sources": [],
+          "source": "skipped",
+          "reason": "exception:JSONDecodeError"
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
     }
   ],
   "trailing_sim": [
@@ -116038,7 +119316,7 @@
       "tp_outcome": 0.5102,
       "peak": 0.5374,
       "trailing_outcome": null,
-      "current_return": 0.5374
+      "current_return": 0.449
     }
   ],
   "exit_sim": [
@@ -116158,7 +119436,7 @@
       "created": "2026-09-28",
       "mfe": 0.0,
       "mae": -0.7381,
-      "closed": false,
+      "closed": true,
       "variants": {
         "tp50_sl45": {
           "outcome": -0.7381,
@@ -116196,10 +119474,11 @@
           "close_reason": "stop_loss"
         },
         "time_only": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.6667,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-10-19",
+          "close_reason": "time_exit"
         }
       }
     },
@@ -116455,7 +119734,7 @@
       "entry_date": "2026-10-06",
       "created": "2026-10-06",
       "mfe": 0.0,
-      "mae": -0.4044,
+      "mae": -0.4374,
       "closed": false,
       "variants": {
         "tp50_sl45": {
@@ -116795,7 +120074,7 @@
       "entry_date": "2026-10-16",
       "created": "2026-10-16",
       "mfe": 0.0,
-      "mae": -0.0886,
+      "mae": -0.1392,
       "closed": false,
       "variants": {
         "tp50_sl45": {
