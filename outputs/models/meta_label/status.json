@@ -1,18 +1,18 @@
 {
- "generated": "2026-10-19T22:59:39+00:00",
- "as_of": "2026-10-19",
+ "generated": "2026-10-20T19:26:07+00:00",
+ "as_of": "2026-10-20",
  "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
- "n_labels": 8,
- "n_label_dates": 1,
+ "n_labels": 19,
+ "n_label_dates": 2,
  "required": {
   "min_labels": 200,
   "min_dates": 20
  },
- "n_labels_target_population": 8,
+ "n_labels_target_population": 19,
  "population_shift": {
   "status": "OK",
-  "n_target": 174,
-  "n_other": 585,
+  "n_target": 181,
+  "n_other": 625,
   "n_shifted": 11,
   "shifted": [
    "final_mc_hit_rate",
@@ -30,51 +30,51 @@
   "top": [
    {
     "feature": "ml_q10_ret_60",
-    "smd": -1.307,
-    "missing_target": 0.149,
-    "missing_other": 0.056
+    "smd": -1.323,
+    "missing_target": 0.144,
+    "missing_other": 0.053
    },
    {
     "feature": "sigma_30d",
-    "smd": 1.179,
+    "smd": 1.194,
     "missing_target": 0.0,
-    "missing_other": 0.882
+    "missing_other": 0.878
    },
    {
     "feature": "ml_exp_ret_60",
-    "smd": 1.065,
-    "missing_target": 0.149,
-    "missing_other": 0.056
-   },
-   {
-    "feature": "sentiment_score",
-    "smd": 0.493,
-    "missing_target": 0.086,
-    "missing_other": 0.034
+    "smd": 1.067,
+    "missing_target": 0.144,
+    "missing_other": 0.053
    },
    {
     "feature": "ml_exp_dd_60",
-    "smd": -0.466,
-    "missing_target": 0.149,
-    "missing_other": 0.056
+    "smd": -0.491,
+    "missing_target": 0.144,
+    "missing_other": 0.053
+   },
+   {
+    "feature": "sentiment_score",
+    "smd": 0.467,
+    "missing_target": 0.083,
+    "missing_other": 0.032
    },
    {
     "feature": "ml_disagreement_sd",
-    "smd": 0.382,
-    "missing_target": 0.149,
-    "missing_other": 0.056
-   },
-   {
-    "feature": "price_move_48h_signed",
-    "smd": 0.263,
-    "missing_target": 0.086,
-    "missing_other": 0.889
+    "smd": 0.381,
+    "missing_target": 0.144,
+    "missing_other": 0.053
    },
    {
     "feature": "sentiment_drift",
     "smd": 0.218,
-    "missing_target": 0.086,
-    "missing_other": 0.034
+    "missing_target": 0.083,
+    "missing_other": 0.032
+   },
+   {
+    "feature": "price_move_48h_signed",
+    "smd": 0.191,
+    "missing_target": 0.083,
+    "missing_other": 0.885
    }
   ],
   "verdict": "SHIFT"
