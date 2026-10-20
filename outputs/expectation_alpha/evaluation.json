@@ -1,22 +1,22 @@
 {
- "generated": "2026-10-19T22:59:36+00:00",
+ "generated": "2026-10-20T17:59:44+00:00",
  "mode": "SHADOW – Research, keine Handelsempfehlung",
  "config_hash": "9772eff4a0fef81d",
  "population": {
-  "n": 281,
-  "dates": 4,
-  "event_clusters": 180,
+  "n": 328,
+  "dates": 5,
+  "event_clusters": 197,
   "by_status": {
-   "ABSTAIN": 270,
-   "WAIT": 9,
+   "ABSTAIN": 314,
+   "WAIT": 12,
    "TRADE": 2
   },
   "by_group": {
-   "C": 201,
-   "A": 52,
+   "C": 233,
+   "A": 61,
    "X": 3,
-   "E": 13,
-   "B": 11,
+   "E": 16,
+   "B": 14,
    "D": 1
   },
   "errors": 0
@@ -349,18 +349,18 @@
  "failure_classes": {},
  "failure_classes_by_status": {},
  "data_status": {
-  "runs": 4,
+  "runs": 5,
   "error_runs": 0,
   "missing_domains": {
-   "credit": 4,
-   "equity_earnings": 4,
+   "credit": 5,
+   "equity_earnings": 5,
    "inflation": 1,
    "policy_rates": 1
   },
   "stale_components": {
    "indpro_3m": 1
   },
-  "median_runtime_seconds": 52.12
+  "median_runtime_seconds": 51.96
  },
  "contracts": [
   {

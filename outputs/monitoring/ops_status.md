@@ -2,25 +2,25 @@
 
 **READ-ONLY Monitoring – keine Handelsempfehlung**
 
-Stand 2026-10-19 · erzeugt 2026-10-19T19:22:52+00:00 · Schema ops-status-v1  
-Warnungen: 0 neu, 0 geändert, 2 laufend, 0 behoben; davon aktiv CRITICAL: 0  
+Stand 2026-10-20 · erzeugt 2026-10-20T17:59:49+00:00 · Schema ops-status-v1  
+Warnungen: 0 neu, 0 geändert, 0 laufend, 2 behoben; davon aktiv CRITICAL: 0  
 
 ## Lauf
 
 | Workflow (Stand Watchdog) | Status | Ergebnis | Letzter Lauf | Verzug (h) |
 |---|---|---|---|---|
-| external_data | RUNNING | N/A | 2026-10-19T13:21:18Z | 7.1 |
+| external_data | OK | success | 2026-10-20T11:41:23Z | 5.4 |
 | feedback | PENDING | N/A | N/A | N/A |
 | scanner | PENDING | N/A | N/A | N/A |
-| source_health | PENDING | N/A | N/A | N/A |
+| source_health | RECOVERY_TRIGGERED | N/A | N/A | N/A |
 
 - **Dieser Lauf (Schritte)**: feedback=success, rth_marks=success, scanner=success
-- **Tagesreport**: 2026-10-19 (von heute: ja)
-- **Universum / analysiert**: 518 / 56
-- **Champion-Kandidaten (Final-MC)**: 9
-- **Kontrakte entworfen**: 2
+- **Tagesreport**: 2026-10-20 (von heute: ja)
+- **Universum / analysiert**: 518 / 47
+- **Champion-Kandidaten (Final-MC)**: 7
+- **Kontrakte entworfen**: N/A
 - **Trades**: 0
-- **Haiku/Sonnet-Widerspruch**: 1 (Anteil 0.0179)
+- **Haiku/Sonnet-Widerspruch**: 3 (Anteil 0.0638)
 - **Session**: regular
 - **Stop-Grund**: Alle Options-Kontrakte scheitern am ROI-Gate.
 
@@ -38,10 +38,10 @@ Warnungen: 0 neu, 0 geändert, 2 laufend, 0 behoben; davon aktiv CRITICAL: 0
 
 | Kandidaten-Mark | fällig | gemarkt | offen | spät | ohne Preis (Endzustand) | ältester offener (Tage) |
 |---|---|---|---|---|---|---|
-| real_opt_ret_20d | 50 | 50 | 0 | 31 | 0 | N/A |
-| real_opt_ret_5d | 313 | 312 | 1 | 50 | 0 | 14 |
-| real_strat_ret_20d | 50 | 50 | 0 | 31 | 0 | N/A |
-| real_strat_ret_5d | 313 | 312 | 1 | 50 | 0 | 14 |
+| real_opt_ret_20d | 73 | 72 | 1 | 50 | 0 | 0 |
+| real_opt_ret_5d | 353 | 352 | 0 | 50 | 1 | N/A |
+| real_strat_ret_20d | 73 | 72 | 1 | 50 | 0 | 0 |
+| real_strat_ret_5d | 353 | 352 | 0 | 50 | 1 | N/A |
 
 ## Lebenszyklus
 
@@ -59,7 +59,7 @@ Warnungen: 0 neu, 0 geändert, 2 laufend, 0 behoben; davon aktiv CRITICAL: 0
 - **Exactly-once ok**: ja
 - **gelernt/doppelt/nicht lernbar gelernt/lernbar ungelernt**: 6/0/0/0
 - **Altbestand**: Altbestand vor Quote-Archiv/Consume-once (2026-10-10); nie lernbar bzw. ohne Schlüssel gelernt – keine Exactly-once-Verletzung
-- **Kandidaten (Real-Option)**: SIGNAL: 759, CONTRACT_SELECTED: 433, ENTRY_OBSERVED: 433, OUTCOME_FINAL: 312, LATE_MARK: 0, PRICE_BASIS_CHANGED: 2, EXIT_OVERDUE: 1, EXCLUDED_BUDGET_RANDOM_EXCLUSION: 326, EXIT_PENDING: 120
+- **Kandidaten (Real-Option)**: SIGNAL: 806, CONTRACT_SELECTED: 473, ENTRY_OBSERVED: 473, OUTCOME_FINAL: 352, LATE_MARK: 0, PRICE_BASIS_CHANGED: 2, MARK_UNAVAILABLE: 1, EXCLUDED_BUDGET_RANDOM_EXCLUSION: 333, EXIT_PENDING: 120
 
 ## Forward-Performance
 
@@ -102,24 +102,30 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 
 | Scorecard | n | mean_net | Trefferquote | Verdikt |
 |---|---|---|---|---|
-| CANDIDATE_20d\|ALL | 18 | -0.0321 | 0.3889 | NEED_MORE_DATA |
+| CANDIDATE_20d\|ALL | 50 | -0.0336 | 0.4 | NEED_MORE_DATA |
 | CANDIDATE_20d\|CHAMPION | 0 | N/A | N/A | NO_DATA |
-| CANDIDATE_20d\|LATE_STAGE | 8 | -0.0478 | 0.375 | NEED_MORE_DATA |
-| CANDIDATE_5d\|ALL | 477 | -0.0024 | 0.478 | NEED_MORE_DATA |
-| CANDIDATE_5d\|CHAMPION | 3 | -0.0076 | 0.3333 | NEED_MORE_DATA |
-| CANDIDATE_5d\|LATE_STAGE | 133 | -0.0005 | 0.5338 | NEED_MORE_DATA |
-| CANDIDATE_OPTION_5d\|ALL | 272 | -0.126 | 0.2537 | NEED_MORE_DATA |
+| CANDIDATE_20d\|LATE_STAGE | 19 | -0.0702 | 0.3158 | NEED_MORE_DATA |
+| CANDIDATE_5d\|ALL | 543 | -0.0011 | 0.4936 | NEED_MORE_DATA |
+| CANDIDATE_5d\|CHAMPION | 4 | -0.0083 | 0.25 | NEED_MORE_DATA |
+| CANDIDATE_5d\|LATE_STAGE | 144 | -0.0003 | 0.5278 | NEED_MORE_DATA |
+| CANDIDATE_OPTION_20d\|ALL | 50 | -0.2328 | 0.26 | NEED_MORE_DATA |
+| CANDIDATE_OPTION_20d\|CHAMPION | 0 | N/A | N/A | NO_DATA |
+| CANDIDATE_OPTION_20d\|LATE_STAGE | 19 | -0.3419 | 0.1579 | NEED_MORE_DATA |
+| CANDIDATE_OPTION_5d\|ALL | 312 | -0.1132 | 0.2788 | NEED_MORE_DATA |
 | CANDIDATE_OPTION_5d\|CHAMPION | 3 | -0.1617 | 0 | NEED_MORE_DATA |
-| CANDIDATE_OPTION_5d\|LATE_STAGE | 80 | -0.1065 | 0.3625 | NEED_MORE_DATA |
-| CANDIDATE_STRATEGY_5d\|ALL | 222 | -0.1758 | 0.2252 | NEED_MORE_DATA |
+| CANDIDATE_OPTION_5d\|LATE_STAGE | 86 | -0.1027 | 0.3488 | NEED_MORE_DATA |
+| CANDIDATE_STRATEGY_20d\|ALL | 50 | -0.2373 | 0.24 | NEED_MORE_DATA |
+| CANDIDATE_STRATEGY_20d\|CHAMPION | 0 | N/A | N/A | NO_DATA |
+| CANDIDATE_STRATEGY_20d\|LATE_STAGE | 19 | -0.3441 | 0.1579 | NEED_MORE_DATA |
+| CANDIDATE_STRATEGY_5d\|ALL | 262 | -0.1548 | 0.2557 | NEED_MORE_DATA |
 | CANDIDATE_STRATEGY_5d\|CHAMPION | 3 | -0.2853 | 0 | NEED_MORE_DATA |
-| CANDIDATE_STRATEGY_5d\|LATE_STAGE | 64 | -0.2404 | 0.1875 | NEED_MORE_DATA |
+| CANDIDATE_STRATEGY_5d\|LATE_STAGE | 70 | -0.2281 | 0.1857 | NEED_MORE_DATA |
 | CHAMPION_TRADE\|ALL | 6 | -0.3095 | 0.1667 | NEED_MORE_DATA |
 
 ## Training
 
 - **Status**: NEED_MORE_DATA
-- **Labels / Tage (benötigt)**: 0 / 0 (min_labels: 200, min_dates: 20)
+- **Labels / Tage (benötigt)**: 8 / 1 (min_labels: 200, min_dates: 20)
 - **Versionen / aktiv / Hold**: 0 / N/A / N/A
 - **Aktives Artefakt ok**: N/A
 - **Manifest-Verstöße**: keine
@@ -164,20 +170,20 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 - **Promotion-Hash ok**: ja
 - **Kette/Registry**: keine / keine
 - **Duplikate Decision-Ledger / Trade-Outcomes**: 0 / 0
-- **Quote-Archiv 30 T: Records / doppelte IDs / Fremdpreise**: 941 / 0 / 0
+- **Quote-Archiv 30 T: Records / doppelte IDs / Fremdpreise**: 1158 / 0 / 0
 - **Quote-Archiv 30 T: Mehrfachbeobachtungen (unkritisch)**: 11
 - **Quarantäne geschlossener Trades**: 7
-- **Externes Archiv**: ok: 29590, legacy: 103843
+- **Externes Archiv**: ok: 30018, legacy: 79102
 
 ## Daten
 
 - **Quellenstatus**: HEALTHY: 47, UNVALIDATED: 8
 - **davon UNVALIDATED, weil bewusst nicht aktiv**: disabled: 1, DEFERRED: 5, REVIEW_REQUIRED: 2
-- **Stand Quellenstatus**: 2026-10-19T18:50:25+00:00
+- **Stand Quellenstatus**: 2026-10-20T17:29:49+00:00
 - **Externe Daten**: PASS: 36, DEFERRED: 13
-- **Quote-Archiv heute / Median 14 T**: 261 / 153.5
+- **Quote-Archiv heute / Median 14 T**: 206 / 191
 - **Quote-Archiv-Verzeichnis vorhanden**: ja
-- **Nasdaq-100 offiziell vs. Produktionsliste**: 0 Abweichung(en) am 2026-10-19 (Quelle Produktion: nasdaq_official)
+- **Nasdaq-100 offiziell vs. Produktionsliste**: 0 Abweichung(en) am 2026-10-20 (Quelle Produktion: nasdaq_official)
 
 ## Timing-Policy
 
@@ -194,17 +200,17 @@ Verdikt NEED_MORE_DATA: keine Alpha-Behauptung (n=6, unabhängige Tage=5; Mindes
 
 | Ziel | Stand | benötigt | Zulauf/Tag | voraussichtlich ab |
 |---|---|---|---|---|
-| Meta-Label-Training | 8 · Tage 1 | 200 · Tage 20 | 9.07 | 2026-11-24 |
-| RL-Freischaltung (closed trades) | 12 | 30 | 0.267 | 2026-12-26 |
-| Champion-Evidenz | 6 · Tage 5 | 30 · Tage 20 | 0.2 | 2027-02-16 |
+| Meta-Label-Training | 19 · Tage 2 | 200 · Tage 20 | 8.21 | 2026-11-23 |
+| RL-Freischaltung (closed trades) | 12 | 30 | 0.267 | 2026-12-27 |
+| Champion-Evidenz | 6 · Tage 5 | 30 · Tage 20 | 0.2 | 2027-02-17 |
 
-Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage. Meta-Label: 166 offene Labels reifen noch; Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T.
+Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage. Meta-Label: 162 offene Labels reifen noch; Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T.
 
 ## Workflow-Fehler (GitHub Actions)
 
-- **Zeitraum**: seit 2026-10-16T17:22:52Z (74 h)
-- **Läufe / fehlgeschlagen**: 47 / 0
-- **Scanner-Start heute (New York)**: 2026-10-19T14:51-04:00
+- **Zeitraum**: seit 2026-10-19T15:59:49Z (26 h)
+- **Läufe / fehlgeschlagen**: 33 / 0
+- **Scanner-Start heute (New York)**: 2026-10-20T13:30-04:00
 
 Keine fehlgeschlagenen Läufe.
 
@@ -212,33 +218,30 @@ Keine fehlgeschlagenen Läufe.
 
 | Status | Schwere | Komponente | ID | Ursache | seit |
 |---|---|---|---|---|---|
-| ONGOING | WARNING | Lebenszyklus | OUTCOMES_OVERDUE:candidates | 1 Kandidat(en) mit überfälligem 5-Tage-Real-Option-Mark (> 2 Tage nach Fälligkeit). | 2026-10-14 |
-| ONGOING | WARNING | Quote-Abdeckung | OUTCOMES_OVERDUE:marks | Fällige Marks offen: real_opt_ret_5d 1 von 313 offen, ältester 14 Tage; real_strat_ret_5d 1 von 313 offen, ältester 14 Tage (Schwelle > 3 Tage). | 2026-10-14 |
+| RESOLVED | WARNING | Lebenszyklus | OUTCOMES_OVERDUE:candidates | Nicht mehr aktiv – Bedingung behoben. | 2026-10-14 |
+| RESOLVED | WARNING | Quote-Abdeckung | OUTCOMES_OVERDUE:marks | Nicht mehr aktiv – Bedingung behoben. | 2026-10-14 |
 
 ## Trends
 
 | Kennzahl | Wert | Vorlauf (Δ) | ≥7 T zurück (Δ) | ≥30 T zurück (Δ) |
 |---|---|---|---|---|
-| data.nasdaq100_mismatch | 0 | N/A | N/A | N/A |
-| data.quote_archive_median_14d | 153.5 | 116 (+37.5) | N/A | N/A |
-| data.quote_archive_today | 261 | 77 (+184) | N/A | N/A |
-| data.source_health.BROKEN | N/A | 3 (N/A) | N/A | N/A |
-| data.source_health.DEGRADED | N/A | 1 (N/A) | N/A | N/A |
-| data.source_health.HEALTHY | 47 | 42 (+5) | N/A | N/A |
-| data.source_health.STALE | N/A | 1 (N/A) | N/A | N/A |
+| data.nasdaq100_mismatch | 0 | 0 (0) | N/A | N/A |
+| data.quote_archive_median_14d | 191 | 153.5 (+37.5) | N/A | N/A |
+| data.quote_archive_today | 206 | 261 (-55) | N/A | N/A |
+| data.source_health.HEALTHY | 47 | 47 (0) | N/A | N/A |
 | data.source_health.UNVALIDATED | 8 | 8 (0) | N/A | N/A |
-| data.source_health.n_bad | 0 | 5 (-5) | N/A | N/A |
+| data.source_health.n_bad | 0 | 0 (0) | N/A | N/A |
 | forward.champion.mean_net | -0.3095 | -0.3095 (0) | N/A | N/A |
 | forward.champion.n | 6 | 6 (0) | N/A | N/A |
 | forward.champion.n_independent_days | 5 | 5 (0) | N/A | N/A |
 | forward.champion.sum_net | -1.8569 | -1.8569 (0) | N/A | N/A |
 | integrity.issues | 0 | 0 (0) | N/A | N/A |
 | learning.champion_evidence.have | 6 | 6 (0) | N/A | N/A |
-| learning.meta_label.have | 8 | 0 (+8) | N/A | N/A |
+| learning.meta_label.have | 19 | 8 (+11) | N/A | N/A |
 | learning.rl_arming.have | 12 | 12 (0) | N/A | N/A |
-| lifecycle.candidates.EXIT_OVERDUE | 1 | 1 (0) | N/A | N/A |
+| lifecycle.candidates.EXIT_OVERDUE | 0 | 1 (-1) | N/A | N/A |
 | lifecycle.candidates.EXIT_PENDING | 120 | 120 (0) | N/A | N/A |
-| lifecycle.candidates.OUTCOME_FINAL | 312 | 272 (+40) | N/A | N/A |
+| lifecycle.candidates.OUTCOME_FINAL | 352 | 312 (+40) | N/A | N/A |
 | lifecycle.champion.issue.ELIGIBLE_NOT_LEARNED | 0 | 0 (0) | N/A | N/A |
 | lifecycle.champion.issue.EXIT_OVERDUE | 0 | 0 (0) | N/A | N/A |
 | lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE | 0 | 0 (0) | N/A | N/A |
@@ -249,10 +252,10 @@ Keine fehlgeschlagenen Läufe.
 | lifecycle.champion.state.LEARNING_ELIGIBLE | 3 | 3 (0) | N/A | N/A |
 | lifecycle.champion.state.OUTCOME_FINAL | 110 | 110 (0) | N/A | N/A |
 | lifecycle.champion.state.SIGNAL | 0 | 0 (0) | N/A | N/A |
-| marks.real_opt_ret_5d.oldest_pending_days | 14 | 11 (+3) | N/A | N/A |
-| marks.real_opt_ret_5d.pending | 1 | 1 (0) | N/A | N/A |
-| marks.real_strat_ret_5d.oldest_pending_days | 14 | 11 (+3) | N/A | N/A |
-| marks.real_strat_ret_5d.pending | 1 | 1 (0) | N/A | N/A |
+| marks.real_opt_ret_5d.oldest_pending_days | N/A | 14 (N/A) | N/A | N/A |
+| marks.real_opt_ret_5d.pending | 0 | 1 (-1) | N/A | N/A |
+| marks.real_strat_ret_5d.oldest_pending_days | N/A | 14 (N/A) | N/A | N/A |
+| marks.real_strat_ret_5d.pending | 0 | 1 (-1) | N/A | N/A |
 | promotion.active_influence | 0 | 0 (0) | N/A | N/A |
 | promotion.unjustified_influence | 0 | 0 (0) | N/A | N/A |
 | quote.complete.30d.coverage | 0.75 | 0.75 (0) | N/A | N/A |
@@ -278,12 +281,12 @@ Keine fehlgeschlagenen Läufe.
 | quote.exit_closed.7d.coverage | 1 | 1 (0) | N/A | N/A |
 | quote.exit_closed.7d.denominator | 3 | 3 (0) | N/A | N/A |
 | quote.exit_closed.7d.observed | 3 | 3 (0) | N/A | N/A |
-| run.scanner.analyzed | 56 | 77 (-21) | N/A | N/A |
-| run.scanner.champion_candidates | 9 | 7 (+2) | N/A | N/A |
-| run.scanner.contracts_designed | 2 | 3 (-1) | N/A | N/A |
-| run.scanner.direction_conflict_share | 0.0179 | 0.0649 (-0.047) | N/A | N/A |
-| run.scanner.direction_conflicts | 1 | 5 (-4) | N/A | N/A |
-| run.scanner.trades | 0 | 1 (-1) | N/A | N/A |
-| run.scanner.universe | 518 | 514 (+4) | N/A | N/A |
-| training.n_labels | 0 | 0 (0) | N/A | N/A |
+| run.scanner.analyzed | 47 | 56 (-9) | N/A | N/A |
+| run.scanner.champion_candidates | 7 | 9 (-2) | N/A | N/A |
+| run.scanner.contracts_designed | N/A | 2 (N/A) | N/A | N/A |
+| run.scanner.direction_conflict_share | 0.0638 | 0.0179 (+0.0459) | N/A | N/A |
+| run.scanner.direction_conflicts | 3 | 1 (+2) | N/A | N/A |
+| run.scanner.trades | 0 | 0 (0) | N/A | N/A |
+| run.scanner.universe | 518 | 518 (0) | N/A | N/A |
+| training.n_labels | 8 | 0 (+8) | N/A | N/A |
 | workflows.failed_runs | 0 | 0 (0) | N/A | N/A |
