@@ -124,6 +124,23 @@ def _classify_exception(e: Exception) -> dict:
     return {"reachable": status is not None, "http_status": status, "error": msg}
 
 
+def _body_head(r, n: int = 2000) -> str:
+    raw = getattr(r, "content", None) or b""
+    return (raw[:n].decode("utf-8", "replace") if isinstance(raw, bytes) else str(raw)[:n]).lstrip()
+
+
+def _is_html(r) -> bool:
+    ct = (getattr(r, "content_type", None) or "").lower()
+    head = _body_head(r, 200).lower()
+    return "text/html" in ct or head.startswith(("<!doctype html", "<html"))
+
+
+def _html_title(r) -> str:
+    import re
+    m = re.search(r"<title[^>]*>(.*?)</title>", _body_head(r), re.I | re.S)
+    return " ".join(m.group(1).split()) if m else "ohne Titel"
+
+
 def run_probe(spec: dict, now: datetime, *, fetch=None, yf_module=None, env: dict | None = None) -> dict:
     """Leichte Probe mit begrenztem exponentiellem Backoff (http.fetch: retries=3, 2/4 s)."""
     import os
@@ -157,6 +174,12 @@ def run_probe(spec: dict, now: datetime, *, fetch=None, yf_module=None, env: dic
             try:
                 payload = r.json()
             except ValueError as e:
+                if _is_html(r):
+                    # Wartungs-/Störungsseite des Anbieters (Live 2026-10-21: FRED "Site Maintenance",
+                    # HTTP 200 text/html) -> Ausfall wie Timeout, kein Schema-Bruch
+                    return _probe_result(reachable=True, auth_ok=True, http_status=getattr(r, "status", 200),
+                                         latency_s=lat, outage=True,
+                                         error=f"HTML statt JSON (Wartungs-/Störungsseite?): {_html_title(r)}"[:200])
                 return _probe_result(reachable=True, auth_ok=True, http_status=getattr(r, "status", 200), latency_s=lat,
                                      schema_ok=False, error=f"kein JSON: {e}"[:200])
             return _check_json(payload, spec, lat, getattr(r, "status", 200))
@@ -484,6 +507,11 @@ def classify(chk: dict, prev: dict | None, cfg: dict, now: datetime) -> dict:
             reasons.append(f"Timeout: {pr.get('error')}")
             worse(DEGRADED)
             failed = True
+        elif pr.get("outage"):
+            # wie Timeout: DEGRADED, ab broken_after_consecutive_failures in Folge BROKEN
+            reasons.append(f"Anbieter-Ausfall: {pr.get('error')}")
+            worse(DEGRADED)
+            failed = True
         elif pr.get("reachable") is False or (pr.get("reachable") is None and not pr.get("ok")):
             reasons.append(f"nicht erreichbar: {pr.get('error')}")
             worse(BROKEN)
@@ -659,8 +687,15 @@ def feature_availability(snap: dict, cfg: dict, now: datetime) -> dict:
                     continue
                 feat_source.setdefault(f, []).append((cid, sid))
     out = {}
-    for sid, s in snap["sources"].items():
+    # Fallback-only-Adapter zuletzt: ein Feature mit eigener Primärquelle hängt an deren Status
+    # (fallback_active), ein kaputter Fallback macht es nicht unavailable (2026-10-21: vix_fred
+    # BROKEN meldete 'vix' unavailable, obwohl yfinance ^VIX HEALTHY war).
+    primary_feats = {f for s in snap["sources"].values() if not s.get("fallback_only")
+                     for f in s["downstream_dependencies"].get("features") or []}
+    for sid, s in sorted(snap["sources"].items(), key=lambda kv: bool(kv[1].get("fallback_only"))):
         for f in s["downstream_dependencies"].get("features") or []:
+            if s.get("fallback_only") and f in primary_feats:
+                continue
             groups = [g for _, g in feat_source.get(f, [])] or [sid]
             max_age = max((cache.get(g) for g in groups if cache.get(g)), default=None) or cache.get(sid)
             age = s.get("data_age_days")

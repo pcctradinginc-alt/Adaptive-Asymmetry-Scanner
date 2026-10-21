@@ -367,3 +367,34 @@ def test_quarantined_parser_versions_do_not_degrade():
     assert st["future_observations"] == 1 and st["future_observations_quarantined"] == 1
     cfgx = next(x for x in c["alt_sources"] if x["source_id"] == "sec_companyfacts")
     assert cfgx["quarantined_parser_versions"] == ["sec-xbrl-1"]
+
+
+def test_html_maintenance_page_is_outage_not_schema_break():
+    html = b"<!DOCTYPE html><html><head><title>Site Maintenance | St. Louis Fed</title></head></html>"
+
+    def bad_json():
+        raise ValueError("Expecting value: line 1 column 1 (char 0)")
+    page = types.SimpleNamespace(json=bad_json, status=200, content=html, content_type="text/html; charset=utf-8")
+    r = sh.run_probe(JSON_SPEC, NOW, fetch=lambda u, **k: page)
+    assert r["outage"] and r["schema_ok"] is None and "Site Maintenance" in r["error"]
+    c = cfg(core=[core()])
+    first = sh.classify(chk(probe=r), None, c, NOW)
+    assert first["status"] == sh.DEGRADED and first["failed"] and "Anbieter-Ausfall" in first["reasons"][0]
+    th = c["thresholds"]["broken_after_consecutive_failures"]
+    later = sh.classify(chk(probe=r), {"consecutive_failures": th - 1, "status": sh.DEGRADED}, c, NOW)
+    assert later["status"] == sh.BROKEN                                   # dauerhafter Ausfall eskaliert
+    # Nicht-HTML-Müll bleibt Schema-Bruch
+    junk = types.SimpleNamespace(json=bad_json, status=200, content=b"garbage", content_type="text/plain")
+    assert sh.run_probe(JSON_SPEC, NOW, fetch=lambda u, **k: junk)["schema_ok"] is False
+
+
+def test_broken_fallback_only_adapter_does_not_disable_feature_of_healthy_primary():
+    def src(status, fallback_only):
+        return {"status": status, "fallback_only": fallback_only, "fallback_active": False, "data_age_days": 1,
+                "downstream_dependencies": {"features": ["vix"]}, "source_primary": "x", "source_actual": "x",
+                "criticality": "CRITICAL"}
+    c = sh.load_config()
+    snap = {"sources": {"vix_level": src(sh.HEALTHY, False), "vix_fred": src(sh.BROKEN, True)}}
+    assert sh.feature_availability(snap, c, NOW)["vix"]["available"] is True
+    snap["sources"]["vix_level"]["status"] = sh.BROKEN                   # Primary weg, kein Fallback aktiv
+    assert sh.feature_availability(snap, c, NOW)["vix"]["available"] is False
