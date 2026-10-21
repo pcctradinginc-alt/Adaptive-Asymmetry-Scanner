@@ -620,35 +620,33 @@
         "file": "source_health.yml",
         "expected": "2026-10-21T12:41+00:00",
         "deadline": "2026-10-21T15:41+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-10-21T17:36:23Z",
+        "conclusion": "success",
+        "delay_hours": 3.3,
+        "runs_today": 2,
         "recovered": true,
         "recoveries_today": 1,
-        "artifact_ok": false,
-        "action": "DISPATCH",
+        "artifact_ok": true,
+        "action": null,
         "stale_upstream": [],
-        "reason": "Frist 2026-10-21T15:41+00:00 \u00fcberschritten, Tag nicht versorgt",
-        "state": "RECOVERY_TRIGGERED"
+        "reason": null,
+        "state": "OK"
       },
       "scanner": {
         "file": "scanner.yml",
         "expected": "2026-10-21T13:30+00:00",
         "deadline": "2026-10-21T17:30+00:00",
-        "actual_last_run": null,
+        "actual_last_run": "2026-10-21T17:37:54Z",
         "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "delay_hours": 4.1,
+        "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
         "artifact_ok": false,
         "action": null,
-        "stale_upstream": [
-          "source_health"
-        ],
+        "stale_upstream": [],
         "reason": null,
-        "state": "PENDING"
+        "state": "RUNNING"
       },
       "feedback": {
         "file": "feedback.yml",
