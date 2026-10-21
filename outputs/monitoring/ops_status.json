@@ -1,20 +1,20 @@
 {
  "schema": "ops-report-v1",
- "as_of": "2026-10-20",
- "generated": "2026-10-20T17:59:49+00:00",
+ "as_of": "2026-10-21",
+ "generated": "2026-10-21T18:05:59+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-10-20T17:59:49+00:00",
-  "as_of": "2026-10-20",
+  "generated": "2026-10-21T18:05:59+00:00",
+  "as_of": "2026-10-21",
   "read_only": true,
   "run": {
    "workflows": {
     "external_data": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-10-20T11:41:23Z",
-     "delay_hours": 5.4
+     "last_run": "2026-10-21T11:52:47Z",
+     "delay_hours": 5.6
     },
     "source_health": {
      "state": "RECOVERY_TRIGGERED",
@@ -35,18 +35,18 @@
      "delay_hours": null
     }
    },
-   "report_date": "2026-10-20",
+   "report_date": "2026-10-21",
    "report_is_today": true,
    "scanner": {
     "universe": 518,
-    "analyzed": 47,
-    "champion_candidates": 7,
-    "contracts_designed": null,
+    "analyzed": 50,
+    "champion_candidates": 17,
+    "contracts_designed": 3,
     "trades": 0,
     "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
     "session": "regular",
-    "direction_conflicts": 3,
-    "direction_conflict_share": 0.0638
+    "direction_conflicts": 2,
+    "direction_conflict_share": 0.04
    },
    "definitions": {
     "champion_candidates": "stats.final_mc (Final-MC bestanden)",
@@ -214,8 +214,8 @@
    },
    "candidate_marks": {
     "real_opt_ret_5d": {
-     "due": 353,
-     "marked": 352,
+     "due": 393,
+     "marked": 392,
      "pending": 0,
      "late_marks": 50,
      "unavailable": 1,
@@ -227,11 +227,11 @@
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 0
+     "oldest_pending_days": 1
     },
     "real_strat_ret_5d": {
-     "due": 353,
-     "marked": 352,
+     "due": 393,
+     "marked": 392,
      "pending": 0,
      "late_marks": 50,
      "unavailable": 1,
@@ -243,7 +243,7 @@
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 0
+     "oldest_pending_days": 1
     }
    }
   },
@@ -283,14 +283,14 @@
     }
    },
    "candidates": {
-    "SIGNAL": 806,
-    "CONTRACT_SELECTED": 473,
-    "ENTRY_OBSERVED": 473,
-    "OUTCOME_FINAL": 352,
+    "SIGNAL": 856,
+    "CONTRACT_SELECTED": 513,
+    "ENTRY_OBSERVED": 513,
+    "OUTCOME_FINAL": 392,
     "LATE_MARK": 0,
     "PRICE_BASIS_CHANGED": 2,
     "MARK_UNAVAILABLE": 1,
-    "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 333,
+    "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 343,
     "EXIT_PENDING": 120
    },
    "definitions": {
@@ -991,20 +991,20 @@
     }
    },
    "meta_label": {
-    "generated": "2026-10-19T22:59:39+00:00",
-    "as_of": "2026-10-19",
+    "generated": "2026-10-20T22:28:47+00:00",
+    "as_of": "2026-10-20",
     "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
-    "n_labels": 8,
-    "n_label_dates": 1,
+    "n_labels": 19,
+    "n_label_dates": 2,
     "required": {
      "min_labels": 200,
      "min_dates": 20
     },
-    "n_labels_target_population": 8,
+    "n_labels_target_population": 19,
     "population_shift": {
      "status": "OK",
-     "n_target": 174,
-     "n_other": 585,
+     "n_target": 181,
+     "n_other": 625,
      "n_shifted": 11,
      "shifted": [
       "final_mc_hit_rate",
@@ -1022,51 +1022,51 @@
      "top": [
       {
        "feature": "ml_q10_ret_60",
-       "smd": -1.307,
-       "missing_target": 0.149,
-       "missing_other": 0.056
+       "smd": -1.323,
+       "missing_target": 0.144,
+       "missing_other": 0.053
       },
       {
        "feature": "sigma_30d",
-       "smd": 1.179,
+       "smd": 1.194,
        "missing_target": 0.0,
-       "missing_other": 0.882
+       "missing_other": 0.878
       },
       {
        "feature": "ml_exp_ret_60",
-       "smd": 1.065,
-       "missing_target": 0.149,
-       "missing_other": 0.056
-      },
-      {
-       "feature": "sentiment_score",
-       "smd": 0.493,
-       "missing_target": 0.086,
-       "missing_other": 0.034
+       "smd": 1.067,
+       "missing_target": 0.144,
+       "missing_other": 0.053
       },
       {
        "feature": "ml_exp_dd_60",
-       "smd": -0.466,
-       "missing_target": 0.149,
-       "missing_other": 0.056
+       "smd": -0.491,
+       "missing_target": 0.144,
+       "missing_other": 0.053
+      },
+      {
+       "feature": "sentiment_score",
+       "smd": 0.467,
+       "missing_target": 0.083,
+       "missing_other": 0.032
       },
       {
        "feature": "ml_disagreement_sd",
-       "smd": 0.382,
-       "missing_target": 0.149,
-       "missing_other": 0.056
-      },
-      {
-       "feature": "price_move_48h_signed",
-       "smd": 0.263,
-       "missing_target": 0.086,
-       "missing_other": 0.889
+       "smd": 0.381,
+       "missing_target": 0.144,
+       "missing_other": 0.053
       },
       {
        "feature": "sentiment_drift",
        "smd": 0.218,
-       "missing_target": 0.086,
-       "missing_other": 0.034
+       "missing_target": 0.083,
+       "missing_other": 0.032
+      },
+      {
+       "feature": "price_move_48h_signed",
+       "smd": 0.191,
+       "missing_target": 0.083,
+       "missing_other": 0.885
       }
      ],
      "verdict": "SHIFT"
@@ -1076,57 +1076,57 @@
    },
    "scorecard": {
     "CANDIDATE_5d|ALL": {
-     "n": 543,
-     "n_signal_days": 9,
-     "n_entities": 266,
-     "mean_net": -0.001101,
-     "median_net": -0.0006,
-     "hit_rate": 0.4936,
-     "mean_gross": 0.000899,
+     "n": 625,
+     "n_signal_days": 10,
+     "n_entities": 284,
+     "mean_net": -0.00033,
+     "median_net": 0.0009,
+     "hit_rate": 0.5104,
+     "mean_gross": 0.00167,
      "worst": -0.2024,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_5d|LATE_STAGE": {
-     "n": 144,
-     "n_signal_days": 9,
-     "n_entities": 98,
-     "mean_net": -0.000315,
+     "n": 158,
+     "n_signal_days": 10,
+     "n_entities": 106,
+     "mean_net": 0.000143,
      "median_net": 0.0039,
-     "hit_rate": 0.5278,
-     "mean_gross": 0.001685,
+     "hit_rate": 0.5253,
+     "mean_gross": 0.002143,
      "worst": -0.134,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_5d|CHAMPION": {
-     "n": 4,
-     "n_signal_days": 3,
-     "n_entities": 3,
-     "mean_net": -0.00825,
+     "n": 6,
+     "n_signal_days": 4,
+     "n_entities": 5,
+     "mean_net": -0.0046,
      "median_net": -0.00635,
-     "hit_rate": 0.25,
-     "mean_gross": -0.00625,
+     "hit_rate": 0.3333,
+     "mean_gross": -0.0026,
      "worst": -0.0292,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|ALL": {
-     "n": 50,
-     "n_signal_days": 2,
-     "n_entities": 39,
-     "mean_net": -0.033566,
+     "n": 72,
+     "n_signal_days": 3,
+     "n_entities": 61,
+     "mean_net": -0.030431,
      "median_net": -0.0275,
-     "hit_rate": 0.4,
-     "mean_gross": -0.031566,
+     "hit_rate": 0.4028,
+     "mean_gross": -0.028431,
      "worst": -0.232,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|LATE_STAGE": {
-     "n": 19,
-     "n_signal_days": 2,
-     "n_entities": 14,
-     "mean_net": -0.070163,
+     "n": 25,
+     "n_signal_days": 3,
+     "n_entities": 20,
+     "mean_net": -0.05916,
      "median_net": -0.0719,
-     "hit_rate": 0.3158,
-     "mean_gross": -0.068163,
+     "hit_rate": 0.36,
+     "mean_gross": -0.05716,
      "worst": -0.232,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1137,57 +1137,57 @@
      "verdict": "NO_DATA"
     },
     "CANDIDATE_OPTION_5d|ALL": {
-     "n": 312,
-     "n_signal_days": 9,
-     "n_entities": 191,
-     "mean_net": -0.11323,
-     "median_net": -0.122858,
-     "hit_rate": 0.2788,
-     "mean_gross": -0.111892,
+     "n": 352,
+     "n_signal_days": 10,
+     "n_entities": 207,
+     "mean_net": -0.104996,
+     "median_net": -0.11678,
+     "hit_rate": 0.2756,
+     "mean_gross": -0.103637,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|LATE_STAGE": {
-     "n": 86,
-     "n_signal_days": 9,
-     "n_entities": 63,
-     "mean_net": -0.102721,
-     "median_net": -0.1021,
-     "hit_rate": 0.3488,
-     "mean_gross": -0.101669,
+     "n": 93,
+     "n_signal_days": 10,
+     "n_entities": 67,
+     "mean_net": -0.098713,
+     "median_net": -0.089604,
+     "hit_rate": 0.3333,
+     "mean_gross": -0.097594,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|CHAMPION": {
-     "n": 3,
-     "n_signal_days": 2,
-     "n_entities": 2,
-     "mean_net": -0.161697,
-     "median_net": -0.212487,
+     "n": 4,
+     "n_signal_days": 3,
+     "n_entities": 3,
+     "mean_net": -0.132348,
+     "median_net": -0.132904,
      "hit_rate": 0.0,
-     "mean_gross": -0.161333,
+     "mean_gross": -0.1308,
      "worst": -0.219285,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|ALL": {
-     "n": 50,
-     "n_signal_days": 2,
-     "n_entities": 39,
-     "mean_net": -0.232833,
-     "median_net": -0.330206,
-     "hit_rate": 0.26,
-     "mean_gross": -0.231682,
+     "n": 72,
+     "n_signal_days": 3,
+     "n_entities": 61,
+     "mean_net": -0.214772,
+     "median_net": -0.299158,
+     "hit_rate": 0.2917,
+     "mean_gross": -0.21359,
      "worst": -0.744371,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|LATE_STAGE": {
-     "n": 19,
-     "n_signal_days": 2,
-     "n_entities": 14,
-     "mean_net": -0.341869,
-     "median_net": -0.443791,
-     "hit_rate": 0.1579,
-     "mean_gross": -0.340974,
+     "n": 25,
+     "n_signal_days": 3,
+     "n_entities": 20,
+     "mean_net": -0.294604,
+     "median_net": -0.407785,
+     "hit_rate": 0.2,
+     "mean_gross": -0.293824,
      "worst": -0.733681,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1198,57 +1198,57 @@
      "verdict": "NO_DATA"
     },
     "CANDIDATE_STRATEGY_5d|ALL": {
-     "n": 262,
-     "n_signal_days": 9,
-     "n_entities": 172,
-     "mean_net": -0.154801,
-     "median_net": -0.156588,
-     "hit_rate": 0.2557,
-     "mean_gross": -0.152669,
+     "n": 302,
+     "n_signal_days": 10,
+     "n_entities": 190,
+     "mean_net": -0.143618,
+     "median_net": -0.146058,
+     "hit_rate": 0.2517,
+     "mean_gross": -0.141448,
      "worst": -0.8587,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|LATE_STAGE": {
-     "n": 70,
-     "n_signal_days": 9,
-     "n_entities": 58,
-     "mean_net": -0.22811,
-     "median_net": -0.224564,
-     "hit_rate": 0.1857,
-     "mean_gross": -0.22558,
+     "n": 77,
+     "n_signal_days": 10,
+     "n_entities": 62,
+     "mean_net": -0.224162,
+     "median_net": -0.220239,
+     "hit_rate": 0.1818,
+     "mean_gross": -0.221238,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|CHAMPION": {
-     "n": 3,
-     "n_signal_days": 2,
-     "n_entities": 2,
-     "mean_net": -0.285265,
-     "median_net": -0.374032,
+     "n": 4,
+     "n_signal_days": 3,
+     "n_entities": 3,
+     "mean_net": -0.305499,
+     "median_net": -0.370116,
      "hit_rate": 0.0,
-     "mean_gross": -0.284367,
+     "mean_gross": -0.299825,
      "worst": -0.428442,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|ALL": {
-     "n": 50,
-     "n_signal_days": 2,
-     "n_entities": 39,
-     "mean_net": -0.237271,
-     "median_net": -0.330206,
-     "hit_rate": 0.24,
-     "mean_gross": -0.23589,
+     "n": 72,
+     "n_signal_days": 3,
+     "n_entities": 61,
+     "mean_net": -0.225968,
+     "median_net": -0.317345,
+     "hit_rate": 0.2778,
+     "mean_gross": -0.224199,
      "worst": -0.744371,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|LATE_STAGE": {
-     "n": 19,
-     "n_signal_days": 2,
-     "n_entities": 14,
-     "mean_net": -0.344071,
-     "median_net": -0.443791,
-     "hit_rate": 0.1579,
-     "mean_gross": -0.342632,
+     "n": 25,
+     "n_signal_days": 3,
+     "n_entities": 20,
+     "mean_net": -0.305001,
+     "median_net": -0.433756,
+     "hit_rate": 0.2,
+     "mean_gross": -0.303704,
      "worst": -0.733681,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1273,13 +1273,13 @@
   },
   "training": {
    "status": "NEED_MORE_DATA",
-   "n_labels": 8,
-   "n_label_dates": 1,
+   "n_labels": 19,
+   "n_label_dates": 2,
    "required": {
     "min_labels": 200,
     "min_dates": 20
    },
-   "as_of": "2026-10-19",
+   "as_of": "2026-10-20",
    "versions": 0,
    "active": null,
    "hold": null,
@@ -1287,7 +1287,7 @@
    "manifest_violations": []
   },
   "promotion": {
-   "generated": "2026-10-19T22:59:40+00:00",
+   "generated": "2026-10-20T22:28:47+00:00",
    "max_automatic_influence": "ABSTENTION_ONLY",
    "kill_switch_active": false,
    "safe_mode": true,
@@ -1489,20 +1489,20 @@
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
    "trade_outcome_duplicates": 0,
-   "quote_records_30d": 1158,
+   "quote_records_30d": 1336,
    "quote_duplicate_ids": 0,
    "quote_reobserved_ids": 11,
    "quote_non_observed_prices": 0,
    "closed_trade_quarantine": 7,
    "external_archive": {
-    "ok": 30018,
+    "ok": 30379,
     "legacy": 79102
    },
    "issues": []
   },
   "data_health": {
    "nasdaq100_source_check": {
-    "date": "2026-10-20",
+    "date": "2026-10-21",
     "mismatch": 0,
     "only_official": [],
     "only_production": [],
@@ -1511,10 +1511,12 @@
     "production_source": "nasdaq_official"
    },
    "source_health": {
-    "generated": "2026-10-20T17:29:49+00:00",
+    "generated": "2026-10-21T17:37:41+00:00",
     "by_status": {
-     "HEALTHY": 47,
-     "UNVALIDATED": 8
+     "HEALTHY": 45,
+     "BROKEN": 1,
+     "UNVALIDATED": 8,
+     "DEGRADED": 1
     },
     "inactive_by_design": {
      "disabled": 1,
@@ -1524,23 +1526,38 @@
    },
    "external_data": {
     "by_status": {
-     "PASS": 36,
+     "PASS": 35,
+     "FAIL": 1,
      "DEFERRED": 13
     }
    },
    "quote_archive_days": {
+    "2026-10-21": {
+     "n": 153,
+     "by_context": {
+      "trade_mark_rth": 8,
+      "candidate_mark_rth": 44,
+      "candidate_mark": 46,
+      "candidate_entry": 44,
+      "exit_mark": 11
+     },
+     "by_quality": {
+      "OK": 151,
+      "SUSPECT": 2
+     }
+    },
     "2026-10-20": {
-     "n": 206,
+     "n": 231,
      "by_context": {
       "trade_mark_rth": 8,
       "candidate_mark_rth": 69,
       "candidate_mark": 69,
       "candidate_entry": 42,
-      "exit_mark": 18
+      "exit_mark": 43
      },
      "by_quality": {
-      "OK": 205,
-      "SUSPECT": 1
+      "OK": 229,
+      "SUSPECT": 2
      }
     },
     "2026-10-19": {
@@ -1620,7 +1637,7 @@
      }
     }
    },
-   "quote_archive_median_14d": 191,
+   "quote_archive_median_14d": 172.0,
    "quote_archive_root_exists": true
   },
   "timing": {
@@ -1656,20 +1673,20 @@
   },
   "learning_eta": {
    "meta_label": {
-    "have": 19,
+    "have": 25,
     "need": 200,
-    "have_dates": 2,
+    "have_dates": 3,
     "need_dates": 20,
-    "pending_maturing": 162,
+    "pending_maturing": 173,
     "new_rows_per_day": 8.21,
-    "eta": "2026-11-23",
+    "eta": "2026-11-22",
     "basis": "Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T"
    },
    "rl_arming": {
     "have": 12,
     "need": 30,
     "closes_per_day_30d": 0.267,
-    "eta": "2026-12-27",
+    "eta": "2026-12-28",
     "since": "2026-06-11"
    },
    "champion_evidence": {
@@ -1678,20 +1695,20 @@
     "have_days": 5,
     "need_days": 20,
     "evaluable_per_day_30d": 0.2,
-    "eta": "2027-02-17"
+    "eta": "2027-02-18"
    },
    "note": "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
   },
   "workflows": {
    "status": "OK",
    "window_hours": 26,
-   "since": "2026-10-19T15:59:49Z",
-   "runs_total": 33,
+   "since": "2026-10-20T16:05:59Z",
+   "runs_total": 34,
    "failed": [],
    "failed_by_workflow": {},
    "scanner_start": {
-    "started_et": "2026-10-20T13:30-04:00",
-    "run_id": 39466611699,
+    "started_et": "2026-10-21T13:38-04:00",
+    "run_id": 39645504692,
     "late": false,
     "late_after_et": "15:00",
     "trading_day": true
@@ -1700,18 +1717,18 @@
  },
  "row": {
   "schema": "ops-history-v1",
-  "as_of": "2026-10-20",
-  "generated": "2026-10-20T17:59:49+00:00",
+  "as_of": "2026-10-21",
+  "generated": "2026-10-21T18:05:59+00:00",
   "run.scanner.universe": 518,
-  "run.scanner.analyzed": 47,
-  "run.scanner.champion_candidates": 7,
-  "run.scanner.contracts_designed": null,
+  "run.scanner.analyzed": 50,
+  "run.scanner.champion_candidates": 17,
+  "run.scanner.contracts_designed": 3,
   "run.scanner.trades": 0,
-  "run.scanner.direction_conflicts": 3,
-  "run.scanner.direction_conflict_share": 0.0638,
+  "run.scanner.direction_conflicts": 2,
+  "run.scanner.direction_conflict_share": 0.04,
   "workflows.failed_runs": 0,
   "data.nasdaq100_mismatch": 0,
-  "learning.meta_label.have": 19,
+  "learning.meta_label.have": 25,
   "learning.rl_arming.have": 12,
   "learning.champion_evidence.have": 6,
   "run.report_is_today": true,
@@ -1755,85 +1772,87 @@
   "lifecycle.champion.exactly_once_ok": true,
   "lifecycle.candidates.EXIT_OVERDUE": 0,
   "lifecycle.candidates.EXIT_PENDING": 120,
-  "lifecycle.candidates.OUTCOME_FINAL": 352,
+  "lifecycle.candidates.OUTCOME_FINAL": 392,
   "forward.champion.n": 6,
   "forward.champion.n_independent_days": 5,
   "forward.champion.mean_net": -0.309476,
   "forward.champion.sum_net": -1.856854,
   "forward.champion.verdict": "NEED_MORE_DATA",
   "training.status": "NEED_MORE_DATA",
-  "training.n_labels": 8,
+  "training.n_labels": 19,
   "promotion.active_influence": 0,
   "promotion.unjustified_influence": 0,
   "promotion.kill_switch_active": false,
   "integrity.issues": 0,
-  "data.source_health.HEALTHY": 47,
+  "data.source_health.BROKEN": 1,
+  "data.source_health.DEGRADED": 1,
+  "data.source_health.HEALTHY": 45,
   "data.source_health.UNVALIDATED": 8,
-  "data.source_health.n_bad": 0,
-  "data.quote_archive_median_14d": 191,
-  "data.quote_archive_today": 206
+  "data.source_health.n_bad": 2,
+  "data.quote_archive_median_14d": 172.0,
+  "data.quote_archive_today": 153
  },
  "deltas": {
   "run.scanner.universe": {
    "value": 518,
    "prev": 518,
-   "d7": null,
+   "d7": 514,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 4,
    "diff_d30": null
   },
   "run.scanner.analyzed": {
-   "value": 47,
-   "prev": 56,
-   "d7": null,
+   "value": 50,
+   "prev": 47,
+   "d7": 66,
    "d30": null,
-   "diff_prev": -9,
-   "diff_d7": null,
+   "diff_prev": 3,
+   "diff_d7": -16,
    "diff_d30": null
   },
   "run.scanner.champion_candidates": {
-   "value": 7,
-   "prev": 9,
-   "d7": null,
+   "value": 17,
+   "prev": 7,
+   "d7": 11,
    "d30": null,
-   "diff_prev": -2,
-   "diff_d7": null,
+   "diff_prev": 10,
+   "diff_d7": 6,
    "diff_d30": null
   },
   "run.scanner.contracts_designed": {
-   "value": null,
-   "prev": 2,
-   "d7": null,
+   "value": 3,
+   "prev": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": null,
-   "diff_d7": null,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "run.scanner.trades": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "run.scanner.direction_conflicts": {
-   "value": 3,
-   "prev": 1,
+   "value": 2,
+   "prev": 3,
    "d7": null,
    "d30": null,
-   "diff_prev": 2,
+   "diff_prev": -1,
    "diff_d7": null,
    "diff_d30": null
   },
   "run.scanner.direction_conflict_share": {
-   "value": 0.0638,
-   "prev": 0.0179,
+   "value": 0.04,
+   "prev": 0.0638,
    "d7": null,
    "d30": null,
-   "diff_prev": 0.0459,
+   "diff_prev": -0.0238,
    "diff_d7": null,
    "diff_d30": null
   },
@@ -1856,11 +1875,11 @@
    "diff_d30": null
   },
   "learning.meta_label.have": {
-   "value": 19,
-   "prev": 8,
+   "value": 25,
+   "prev": 19,
    "d7": null,
    "d30": null,
-   "diff_prev": 11,
+   "diff_prev": 6,
    "diff_d7": null,
    "diff_d30": null
   },
@@ -1885,223 +1904,223 @@
   "quote.entry.7d.coverage": {
    "value": 1.0,
    "prev": 1.0,
-   "d7": null,
+   "d7": 1.0,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.0,
    "diff_d30": null
   },
   "quote.entry.7d.denominator": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.entry.7d.observed": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.exit_closed.7d.coverage": {
    "value": 1.0,
    "prev": 1.0,
-   "d7": null,
+   "d7": 1.0,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.0,
    "diff_d30": null
   },
   "quote.exit_closed.7d.denominator": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.exit_closed.7d.observed": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.complete.7d.coverage": {
    "value": 1.0,
    "prev": 1.0,
-   "d7": null,
+   "d7": 1.0,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.0,
    "diff_d30": null
   },
   "quote.complete.7d.denominator": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.complete.7d.evaluable": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.entry.7d.legacy": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "quote.entry.30d.coverage": {
    "value": 0.375,
    "prev": 0.375,
-   "d7": null,
+   "d7": 0.1667,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.2083,
    "diff_d30": null
   },
   "quote.entry.30d.denominator": {
    "value": 8,
    "prev": 8,
-   "d7": null,
+   "d7": 6,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.entry.30d.observed": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.exit_closed.30d.coverage": {
    "value": 0.75,
    "prev": 0.75,
-   "d7": null,
+   "d7": 0.6,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.15,
    "diff_d30": null
   },
   "quote.exit_closed.30d.denominator": {
    "value": 8,
    "prev": 8,
-   "d7": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "quote.exit_closed.30d.observed": {
    "value": 6,
    "prev": 6,
-   "d7": null,
+   "d7": 3,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "quote.complete.30d.coverage": {
    "value": 0.75,
    "prev": 0.75,
-   "d7": null,
+   "d7": 0.6,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.15,
    "diff_d30": null
   },
   "quote.complete.30d.denominator": {
    "value": 8,
    "prev": 8,
-   "d7": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "quote.complete.30d.evaluable": {
    "value": 6,
    "prev": 6,
-   "d7": null,
+   "d7": 3,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "quote.entry.30d.legacy": {
    "value": 5,
    "prev": 5,
-   "d7": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "quote.exit_active.coverage": {
    "value": 1.0,
    "prev": 1.0,
-   "d7": null,
+   "d7": 1.0,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.0,
    "diff_d30": null
   },
   "quote.exit_active.denominator": {
    "value": 4,
    "prev": 4,
-   "d7": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "quote.exit_active.mark_today": {
    "value": 4,
    "prev": 4,
-   "d7": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "marks.real_opt_ret_5d.pending": {
    "value": 0,
-   "prev": 1,
-   "d7": null,
+   "prev": 0,
+   "d7": 1,
    "d30": null,
-   "diff_prev": -1,
-   "diff_d7": null,
+   "diff_prev": 0,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "marks.real_opt_ret_5d.oldest_pending_days": {
    "value": null,
-   "prev": 14,
-   "d7": null,
+   "prev": null,
+   "d7": 9,
    "d30": null,
    "diff_prev": null,
    "diff_d7": null,
@@ -2109,17 +2128,17 @@
   },
   "marks.real_strat_ret_5d.pending": {
    "value": 0,
-   "prev": 1,
-   "d7": null,
+   "prev": 0,
+   "d7": 1,
    "d30": null,
-   "diff_prev": -1,
-   "diff_d7": null,
+   "diff_prev": 0,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "marks.real_strat_ret_5d.oldest_pending_days": {
    "value": null,
-   "prev": 14,
-   "d7": null,
+   "prev": null,
+   "d7": 9,
    "d30": null,
    "diff_prev": null,
    "diff_d7": null,
@@ -2128,259 +2147,269 @@
   "lifecycle.champion.state.SIGNAL": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.state.CONTRACT_SELECTED": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.state.ENTRY_OBSERVED": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.state.EXIT_PENDING": {
    "value": 4,
    "prev": 4,
-   "d7": null,
+   "d7": 5,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "lifecycle.champion.state.OUTCOME_FINAL": {
    "value": 110,
    "prev": 110,
-   "d7": null,
+   "d7": 110,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.state.LEARNING_ELIGIBLE": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 3,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.state.LEARNED": {
    "value": 3,
    "prev": 3,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "lifecycle.champion.issue.EXIT_OVERDUE": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.issue.ELIGIBLE_NOT_LEARNED": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.candidates.EXIT_OVERDUE": {
    "value": 0,
-   "prev": 1,
-   "d7": null,
+   "prev": 0,
+   "d7": 1,
    "d30": null,
-   "diff_prev": -1,
-   "diff_d7": null,
+   "diff_prev": 0,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "lifecycle.candidates.EXIT_PENDING": {
    "value": 120,
    "prev": 120,
-   "d7": null,
+   "d7": 40,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 80,
    "diff_d30": null
   },
   "lifecycle.candidates.OUTCOME_FINAL": {
-   "value": 352,
-   "prev": 312,
-   "d7": null,
+   "value": 392,
+   "prev": 352,
+   "d7": 272,
    "d30": null,
    "diff_prev": 40,
-   "diff_d7": null,
+   "diff_d7": 120,
    "diff_d30": null
   },
   "forward.champion.n": {
    "value": 6,
    "prev": 6,
-   "d7": null,
+   "d7": 3,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "forward.champion.n_independent_days": {
    "value": 5,
    "prev": 5,
-   "d7": null,
+   "d7": 3,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "forward.champion.mean_net": {
    "value": -0.309476,
    "prev": -0.309476,
-   "d7": null,
+   "d7": -0.616776,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": 0.3073,
    "diff_d30": null
   },
   "forward.champion.sum_net": {
    "value": -1.856854,
    "prev": -1.856854,
-   "d7": null,
+   "d7": -1.850328,
    "d30": null,
    "diff_prev": 0.0,
-   "diff_d7": null,
+   "diff_d7": -0.006526,
    "diff_d30": null
   },
   "training.n_labels": {
-   "value": 8,
-   "prev": 0,
-   "d7": null,
+   "value": 19,
+   "prev": 8,
+   "d7": 0,
    "d30": null,
-   "diff_prev": 8,
-   "diff_d7": null,
+   "diff_prev": 11,
+   "diff_d7": 19,
    "diff_d30": null
   },
   "promotion.active_influence": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "promotion.unjustified_influence": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "integrity.issues": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": -1,
+   "diff_d30": null
+  },
+  "data.source_health.BROKEN": {
+   "value": 1,
+   "prev": null,
+   "d7": 1,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": 0,
+   "diff_d30": null
+  },
+  "data.source_health.DEGRADED": {
+   "value": 1,
+   "prev": null,
+   "d7": 7,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": -6,
    "diff_d30": null
   },
   "data.source_health.HEALTHY": {
-   "value": 47,
+   "value": 45,
    "prev": 47,
-   "d7": null,
+   "d7": 28,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": null,
+   "diff_prev": -2,
+   "diff_d7": 17,
    "diff_d30": null
   },
   "data.source_health.UNVALIDATED": {
    "value": 8,
    "prev": 8,
-   "d7": null,
+   "d7": 8,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "data.source_health.n_bad": {
-   "value": 0,
+   "value": 2,
    "prev": 0,
-   "d7": null,
+   "d7": 8,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": null,
+   "diff_prev": 2,
+   "diff_d7": -6,
    "diff_d30": null
   },
   "data.quote_archive_median_14d": {
-   "value": 191,
-   "prev": 153.5,
-   "d7": null,
+   "value": 172.0,
+   "prev": 191,
+   "d7": 164,
    "d30": null,
-   "diff_prev": 37.5,
-   "diff_d7": null,
+   "diff_prev": -19.0,
+   "diff_d7": 8.0,
    "diff_d30": null
   },
   "data.quote_archive_today": {
-   "value": 206,
-   "prev": 261,
-   "d7": null,
+   "value": 153,
+   "prev": 206,
+   "d7": 164,
    "d30": null,
-   "diff_prev": -55,
-   "diff_d7": null,
+   "diff_prev": -53,
+   "diff_d7": -11,
    "diff_d30": null
   }
  },
  "delta_refs": {
-  "prev": "2026-10-19",
-  "d7": null,
+  "prev": "2026-10-20",
+  "d7": "2026-10-14",
   "d30": null
  },
  "alerts": [
   {
-   "id": "OUTCOMES_OVERDUE:candidates",
+   "id": "DATA_DEGRADATION:source_health",
    "severity": "WARNING",
-   "component": "Lebenszyklus",
-   "cause": "Nicht mehr aktiv – Bedingung behoben.",
-   "since": "2026-10-14",
-   "status": "RESOLVED"
-  },
-  {
-   "id": "OUTCOMES_OVERDUE:marks",
-   "severity": "WARNING",
-   "component": "Quote-Abdeckung",
-   "cause": "Nicht mehr aktiv – Bedingung behoben.",
-   "since": "2026-10-14",
-   "status": "RESOLVED"
+   "component": "Daten",
+   "cause": "Quellen mit Status FAILED/BROKEN/STALE/DEGRADED: 2 (Vorlauf 0, +2).",
+   "since": "2026-10-21",
+   "status": "NEW"
   }
  ],
  "mail": {
@@ -2391,7 +2420,7 @@
   "recipients": [
    "p***@gmail.com"
   ],
-  "subject": "[Scanner-Monitor] 2026-10-20: 0 neue Warnung(en), 2 behoben"
+  "subject": "[Scanner-Monitor] 2026-10-21: 1 neue Warnung(en)"
  },
  "history": {
   "appended": true,
