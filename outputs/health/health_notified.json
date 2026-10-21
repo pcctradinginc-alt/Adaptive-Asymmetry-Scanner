@@ -1,20 +1,5 @@
 {
- "at": "2026-10-21T15:58:08+00:00",
- "changes": [
-  {
-   "source_id": "vix_fred",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "BROKEN",
-   "error": "Schema: kein JSON: Expecting value: line 1 column 1 (char 0)"
-  },
-  {
-   "source_id": "estat_jp_truck",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest FAIL: e-Stat getStatsList fehlgeschlagen: HTTPSConnectionPool(host='api.e-stat.go.jp', port=443): Read timed out. (read timeout=30); Data-Quality-Befund schwerwiegend"
-  }
- ],
- "mail": "sent"
+ "at": "2026-10-21T17:37:41+00:00",
+ "changes": [],
+ "mail": "no_change"
 }

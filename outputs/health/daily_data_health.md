@@ -4,17 +4,12 @@
 
 Status: HEALTHY 45 · DEGRADED 1 · STALE 0 · BROKEN 1 · UNVALIDATED 8
 
-## Neue Änderungen
-
-- degradation: vix_fred HEALTHY → BROKEN (Schema: kein JSON: Expecting value: line 1 column 1 (char 0))
-- degradation: estat_jp_truck HEALTHY → DEGRADED (Ingest FAIL: e-Stat getStatsList fehlgeschlagen: HTTPSConnectionPool(host='api.e-stat.go.jp', port=443): Read timed out. (read timeout=30); Data-Quality-Befund )
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| vix_fred | BROKEN | CRITICAL | 1 | – | vix, risk_gates | Schema: kein JSON: Expecting value: line 1 column 1 (char 0) |
-| estat_jp_truck | DEGRADED | NON_CRITICAL | 1 | 2026-03-01 | – | Ingest FAIL: e-Stat getStatsList fehlgeschlagen: HTTPSConnectionPool(host='api.e-stat.go.jp', port=443): Read timed out. (read timeout=30);  |
+| vix_fred | BROKEN | CRITICAL | 2 | – | vix, risk_gates | Schema: kein JSON: Expecting value: line 1 column 1 (char 0) |
+| estat_jp_truck | DEGRADED | NON_CRITICAL | 2 | 2026-03-01 | – | Ingest FAIL: e-Stat getStatsList fehlgeschlagen: HTTPSConnectionPool(host='api.e-stat.go.jp', port=443): Read timed out. (read timeout=30);  |
 
 ## Fallbacks
 
