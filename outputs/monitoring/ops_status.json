@@ -1,26 +1,26 @@
 {
  "schema": "ops-report-v1",
- "as_of": "2026-10-21",
- "generated": "2026-10-21T18:05:59+00:00",
+ "as_of": "2026-10-22",
+ "generated": "2026-10-22T18:09:34+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-10-21T18:05:59+00:00",
-  "as_of": "2026-10-21",
+  "generated": "2026-10-22T18:09:34+00:00",
+  "as_of": "2026-10-22",
   "read_only": true,
   "run": {
    "workflows": {
     "external_data": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-10-21T11:52:47Z",
-     "delay_hours": 5.6
+     "last_run": "2026-10-22T11:56:29Z",
+     "delay_hours": 5.7
     },
     "source_health": {
-     "state": "RECOVERY_TRIGGERED",
-     "conclusion": null,
-     "last_run": null,
-     "delay_hours": null
+     "state": "OK",
+     "conclusion": "success",
+     "last_run": "2026-10-22T15:53:03Z",
+     "delay_hours": 3.2
     },
     "scanner": {
      "state": "PENDING",
@@ -35,18 +35,18 @@
      "delay_hours": null
     }
    },
-   "report_date": "2026-10-21",
+   "report_date": "2026-10-22",
    "report_is_today": true,
    "scanner": {
     "universe": 518,
-    "analyzed": 50,
-    "champion_candidates": 17,
-    "contracts_designed": 3,
+    "analyzed": 62,
+    "champion_candidates": 9,
+    "contracts_designed": null,
     "trades": 0,
     "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
     "session": "regular",
-    "direction_conflicts": 2,
-    "direction_conflict_share": 0.04
+    "direction_conflicts": 3,
+    "direction_conflict_share": 0.0484
    },
    "definitions": {
     "champion_candidates": "stats.final_mc (Final-MC bestanden)",
@@ -73,53 +73,59 @@
       "excluded_no_contract": 0
      },
      "exit_closed": {
-      "denominator": 0,
-      "by_status": {},
+      "denominator": 1,
+      "by_status": {
+       "EXIT_OBSERVED_ARCHIVED": 1
+      },
       "excluded_no_contract": 0,
-      "observed": 0,
-      "coverage": null
+      "observed": 1,
+      "coverage": 1.0
      },
      "complete": {
-      "denominator": 0,
-      "evaluable": 0,
-      "coverage": null,
-      "by_status": {},
-      "by_tier": {},
+      "denominator": 1,
+      "evaluable": 1,
+      "coverage": 1.0,
+      "by_status": {
+       "OK": 1
+      },
+      "by_tier": {
+       "OBSERVED": 1
+      },
       "reasons": {}
      }
     },
     "7d": {
      "entry": {
-      "denominator": 3,
-      "observed": 3,
-      "ok": 3,
+      "denominator": 2,
+      "observed": 2,
+      "ok": 2,
       "suspect": 0,
       "unusable": 0,
       "missing": 0,
       "coverage": 1.0,
       "by_status": {
-       "ENTRY_OK": 3
+       "ENTRY_OK": 2
       },
       "excluded_no_contract": 0
      },
      "exit_closed": {
-      "denominator": 3,
+      "denominator": 4,
       "by_status": {
-       "EXIT_OBSERVED_ARCHIVED": 3
+       "EXIT_OBSERVED_ARCHIVED": 4
       },
       "excluded_no_contract": 0,
-      "observed": 3,
+      "observed": 4,
       "coverage": 1.0
      },
      "complete": {
-      "denominator": 3,
-      "evaluable": 3,
+      "denominator": 4,
+      "evaluable": 4,
       "coverage": 1.0,
       "by_status": {
-       "OK": 3
+       "OK": 4
       },
       "by_tier": {
-       "OBSERVED": 2,
+       "OBSERVED": 3,
        "REALIZED_RTH_REPRODUCIBLE": 1
       },
       "reasons": {}
@@ -127,15 +133,15 @@
     },
     "30d": {
      "entry": {
-      "denominator": 8,
+      "denominator": 7,
       "observed": 3,
       "ok": 3,
       "suspect": 0,
       "unusable": 0,
-      "missing": 5,
-      "coverage": 0.375,
+      "missing": 4,
+      "coverage": 0.4286,
       "by_status": {
-       "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE": 5,
+       "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE": 4,
        "ENTRY_OK": 3
       },
       "excluded_no_contract": 0
@@ -143,29 +149,29 @@
      "exit_closed": {
       "denominator": 8,
       "by_status": {
-       "EXIT_NOT_REALIZABLE": 2,
+       "EXIT_NOT_REALIZABLE": 1,
        "EXIT_OBSERVED_NOT_ARCHIVED": 3,
-       "EXIT_OBSERVED_ARCHIVED": 3
+       "EXIT_OBSERVED_ARCHIVED": 4
       },
       "excluded_no_contract": 0,
-      "observed": 6,
-      "coverage": 0.75
+      "observed": 7,
+      "coverage": 0.875
      },
      "complete": {
       "denominator": 8,
-      "evaluable": 6,
-      "coverage": 0.75,
+      "evaluable": 7,
+      "coverage": 0.875,
       "by_status": {
-       "UNUSABLE": 2,
-       "OK": 6
+       "UNUSABLE": 1,
+       "OK": 7
       },
       "by_tier": {
-       "NOT_EVALUABLE": 2,
-       "OBSERVED": 5,
+       "NOT_EVALUABLE": 1,
+       "OBSERVED": 6,
        "REALIZED_RTH_REPRODUCIBLE": 1
       },
       "reasons": {
-       "EXIT_PRICE_UNKNOWN": 2
+       "EXIT_PRICE_UNKNOWN": 1
       }
      }
     }
@@ -179,11 +185,11 @@
     "excluded": "NO_CONTRACT (Kontrakt unbekannt) zählt in keinen Entry-/Exit-Nenner, wird separat ausgewiesen"
    },
    "exit_active": {
-    "denominator": 4,
+    "denominator": 3,
     "by_status": {
-     "EXIT_MARK_TODAY": 4
+     "EXIT_MARK_TODAY": 3
     },
-    "mark_today": 4,
+    "mark_today": 3,
     "coverage": 1.0,
     "oldest_mark_age_days": 0.0,
     "trading_day": true
@@ -195,16 +201,16 @@
      "coverage": 1.0
     },
     "unknown": {
-     "denominator": 5,
+     "denominator": 4,
      "observed": 0,
      "coverage": 0.0
     }
    },
    "entry_by_strategy_30d": {
     "BULL_CALL_SPREAD": {
-     "denominator": 3,
+     "denominator": 2,
      "observed": 1,
-     "coverage": 0.3333
+     "coverage": 0.5
     },
     "LONG_CALL": {
      "denominator": 5,
@@ -222,12 +228,12 @@
      "oldest_pending_days": null
     },
     "real_opt_ret_20d": {
-     "due": 73,
-     "marked": 72,
+     "due": 113,
+     "marked": 112,
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 1
+     "oldest_pending_days": 2
     },
     "real_strat_ret_5d": {
      "due": 393,
@@ -238,12 +244,12 @@
      "oldest_pending_days": null
     },
     "real_strat_ret_20d": {
-     "due": 73,
-     "marked": 72,
+     "due": 113,
+     "marked": 112,
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 1
+     "oldest_pending_days": 2
     }
    }
   },
@@ -253,10 +259,10 @@
      "SIGNAL": 0,
      "CONTRACT_SELECTED": 0,
      "ENTRY_OBSERVED": 0,
-     "EXIT_PENDING": 4,
+     "EXIT_PENDING": 3,
      "OUTCOME_FINAL": 110,
      "LEARNING_ELIGIBLE": 3,
-     "LEARNED": 3
+     "LEARNED": 4
     },
     "issues": {
      "ENTRY_NOT_CAPTURED_BEFORE_ARCHIVE": 117,
@@ -272,7 +278,7 @@
      "note": "Altbestand vor Quote-Archiv/Consume-once (2026-10-10); nie lernbar bzw. ohne Schlüssel gelernt – keine Exactly-once-Verletzung"
     },
     "exactly_once": {
-     "learned_keys": 6,
+     "learned_keys": 8,
      "duplicate_closed_trades": 0,
      "duplicate_learnable_trades": 0,
      "learned_not_eligible": 0,
@@ -283,15 +289,15 @@
     }
    },
    "candidates": {
-    "SIGNAL": 856,
-    "CONTRACT_SELECTED": 513,
-    "ENTRY_OBSERVED": 513,
+    "SIGNAL": 918,
+    "CONTRACT_SELECTED": 553,
+    "ENTRY_OBSERVED": 553,
     "OUTCOME_FINAL": 392,
     "LATE_MARK": 0,
     "PRICE_BASIS_CHANGED": 2,
     "MARK_UNAVAILABLE": 1,
-    "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 343,
-    "EXIT_PENDING": 120
+    "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 365,
+    "EXIT_PENDING": 160
    },
    "definitions": {
     "LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
@@ -303,20 +309,20 @@
   "forward": {
    "champion": {
     "observed": {
-     "n": 6,
-     "n_independent_days": 5,
-     "sum_net": -1.856854,
-     "mean_net": -0.309476,
-     "median_net": -0.413158,
-     "hit_rate": 0.1667,
+     "n": 7,
+     "n_independent_days": 6,
+     "sum_net": -2.325557,
+     "mean_net": -0.332222,
+     "median_net": -0.468703,
+     "hit_rate": 0.1429,
      "worst": -0.74429,
      "max_drawdown_cum": -2.365289,
      "loss_distribution": {
-      "n_losses": 5,
-      "p50_loss": -0.508932,
+      "n_losses": 6,
+      "p50_loss": -0.468703,
       "share_total_loss": 0.0
      },
-     "stdev": 0.445677,
+     "stdev": 0.411273,
      "verdict": "NEED_MORE_DATA",
      "ci": null
     },
@@ -345,40 +351,40 @@
       "ci": null
      },
      "LONG_CALL": {
-      "n": 1,
-      "n_independent_days": 1,
-      "sum_net": 0.508435,
-      "mean_net": 0.508435,
-      "median_net": 0.508435,
-      "hit_rate": 1.0,
-      "worst": 0.508435,
-      "max_drawdown_cum": 0.0,
+      "n": 2,
+      "n_independent_days": 2,
+      "sum_net": 0.039732,
+      "mean_net": 0.019866,
+      "median_net": 0.019866,
+      "hit_rate": 0.5,
+      "worst": -0.468703,
+      "max_drawdown_cum": -0.468703,
       "loss_distribution": {
-       "n_losses": 0,
-       "p50_loss": null,
+       "n_losses": 1,
+       "p50_loss": -0.468703,
        "share_total_loss": 0.0
       },
-      "stdev": null,
+      "stdev": 0.690941,
       "verdict": "NEED_MORE_DATA",
       "ci": null
      }
     },
     "by_regime": {
      "unknown": {
-      "n": 6,
-      "n_independent_days": 5,
-      "sum_net": -1.856854,
-      "mean_net": -0.309476,
-      "median_net": -0.413158,
-      "hit_rate": 0.1667,
+      "n": 7,
+      "n_independent_days": 6,
+      "sum_net": -2.325557,
+      "mean_net": -0.332222,
+      "median_net": -0.468703,
+      "hit_rate": 0.1429,
       "worst": -0.74429,
       "max_drawdown_cum": -2.365289,
       "loss_distribution": {
-       "n_losses": 5,
-       "p50_loss": -0.508932,
+       "n_losses": 6,
+       "p50_loss": -0.468703,
        "share_total_loss": 0.0
       },
-      "stdev": 0.445677,
+      "stdev": 0.411273,
       "verdict": "NEED_MORE_DATA",
       "ci": null
      }
@@ -991,20 +997,20 @@
     }
    },
    "meta_label": {
-    "generated": "2026-10-20T22:28:47+00:00",
-    "as_of": "2026-10-20",
+    "generated": "2026-10-21T22:33:40+00:00",
+    "as_of": "2026-10-21",
     "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
-    "n_labels": 19,
-    "n_label_dates": 2,
+    "n_labels": 25,
+    "n_label_dates": 3,
     "required": {
      "min_labels": 200,
      "min_dates": 20
     },
-    "n_labels_target_population": 19,
+    "n_labels_target_population": 25,
     "population_shift": {
      "status": "OK",
-     "n_target": 181,
-     "n_other": 625,
+     "n_target": 198,
+     "n_other": 658,
      "n_shifted": 11,
      "shifted": [
       "final_mc_hit_rate",
@@ -1022,51 +1028,51 @@
      "top": [
       {
        "feature": "ml_q10_ret_60",
-       "smd": -1.323,
-       "missing_target": 0.144,
+       "smd": -1.307,
+       "missing_target": 0.131,
        "missing_other": 0.053
       },
       {
        "feature": "sigma_30d",
-       "smd": 1.194,
+       "smd": 1.173,
        "missing_target": 0.0,
-       "missing_other": 0.878
+       "missing_other": 0.871
       },
       {
        "feature": "ml_exp_ret_60",
-       "smd": 1.067,
-       "missing_target": 0.144,
+       "smd": 1.057,
+       "missing_target": 0.131,
        "missing_other": 0.053
       },
       {
        "feature": "ml_exp_dd_60",
-       "smd": -0.491,
-       "missing_target": 0.144,
+       "smd": -0.525,
+       "missing_target": 0.131,
        "missing_other": 0.053
       },
       {
        "feature": "sentiment_score",
-       "smd": 0.467,
-       "missing_target": 0.083,
-       "missing_other": 0.032
+       "smd": 0.458,
+       "missing_target": 0.076,
+       "missing_other": 0.03
       },
       {
        "feature": "ml_disagreement_sd",
-       "smd": 0.381,
-       "missing_target": 0.144,
+       "smd": 0.29,
+       "missing_target": 0.131,
        "missing_other": 0.053
       },
       {
-       "feature": "sentiment_drift",
-       "smd": 0.218,
-       "missing_target": 0.083,
-       "missing_other": 0.032
+       "feature": "scan_day_ret",
+       "smd": 0.243,
+       "missing_target": 0.076,
+       "missing_other": 0.03
       },
       {
-       "feature": "price_move_48h_signed",
-       "smd": 0.191,
-       "missing_target": 0.083,
-       "missing_other": 0.885
+       "feature": "sentiment_drift",
+       "smd": 0.211,
+       "missing_target": 0.076,
+       "missing_other": 0.03
       }
      ],
      "verdict": "SHIFT"
@@ -1076,35 +1082,35 @@
    },
    "scorecard": {
     "CANDIDATE_5d|ALL": {
-     "n": 625,
-     "n_signal_days": 10,
-     "n_entities": 284,
-     "mean_net": -0.00033,
-     "median_net": 0.0009,
-     "hit_rate": 0.5104,
-     "mean_gross": 0.00167,
+     "n": 702,
+     "n_signal_days": 11,
+     "n_entities": 296,
+     "mean_net": 0.000501,
+     "median_net": 0.0015,
+     "hit_rate": 0.5228,
+     "mean_gross": 0.002501,
      "worst": -0.2024,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_5d|LATE_STAGE": {
-     "n": 158,
-     "n_signal_days": 10,
-     "n_entities": 106,
-     "mean_net": 0.000143,
-     "median_net": 0.0039,
-     "hit_rate": 0.5253,
-     "mean_gross": 0.002143,
+     "n": 165,
+     "n_signal_days": 11,
+     "n_entities": 110,
+     "mean_net": 0.002025,
+     "median_net": 0.0058,
+     "hit_rate": 0.5455,
+     "mean_gross": 0.004025,
      "worst": -0.134,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_5d|CHAMPION": {
-     "n": 6,
-     "n_signal_days": 4,
-     "n_entities": 5,
-     "mean_net": -0.0046,
-     "median_net": -0.00635,
-     "hit_rate": 0.3333,
-     "mean_gross": -0.0026,
+     "n": 7,
+     "n_signal_days": 5,
+     "n_entities": 6,
+     "mean_net": -0.003114,
+     "median_net": -0.0024,
+     "hit_rate": 0.4286,
+     "mean_gross": -0.001114,
      "worst": -0.0292,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1137,35 +1143,35 @@
      "verdict": "NO_DATA"
     },
     "CANDIDATE_OPTION_5d|ALL": {
-     "n": 352,
-     "n_signal_days": 10,
-     "n_entities": 207,
-     "mean_net": -0.104996,
-     "median_net": -0.11678,
-     "hit_rate": 0.2756,
-     "mean_gross": -0.103637,
+     "n": 392,
+     "n_signal_days": 11,
+     "n_entities": 223,
+     "mean_net": -0.101645,
+     "median_net": -0.114912,
+     "hit_rate": 0.2857,
+     "mean_gross": -0.100289,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|LATE_STAGE": {
-     "n": 93,
-     "n_signal_days": 10,
-     "n_entities": 67,
-     "mean_net": -0.098713,
-     "median_net": -0.089604,
-     "hit_rate": 0.3333,
-     "mean_gross": -0.097594,
+     "n": 97,
+     "n_signal_days": 11,
+     "n_entities": 70,
+     "mean_net": -0.089143,
+     "median_net": -0.074035,
+     "hit_rate": 0.3608,
+     "mean_gross": -0.088029,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|CHAMPION": {
-     "n": 4,
-     "n_signal_days": 3,
-     "n_entities": 3,
-     "mean_net": -0.132348,
-     "median_net": -0.132904,
-     "hit_rate": 0.0,
-     "mean_gross": -0.1308,
+     "n": 5,
+     "n_signal_days": 4,
+     "n_entities": 4,
+     "mean_net": -0.103667,
+     "median_net": -0.05332,
+     "hit_rate": 0.2,
+     "mean_gross": -0.1021,
      "worst": -0.219285,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1198,35 +1204,35 @@
      "verdict": "NO_DATA"
     },
     "CANDIDATE_STRATEGY_5d|ALL": {
-     "n": 302,
-     "n_signal_days": 10,
-     "n_entities": 190,
-     "mean_net": -0.143618,
-     "median_net": -0.146058,
-     "hit_rate": 0.2517,
-     "mean_gross": -0.141448,
+     "n": 342,
+     "n_signal_days": 11,
+     "n_entities": 207,
+     "mean_net": -0.137894,
+     "median_net": -0.142383,
+     "hit_rate": 0.2602,
+     "mean_gross": -0.135795,
      "worst": -0.8587,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|LATE_STAGE": {
-     "n": 77,
-     "n_signal_days": 10,
-     "n_entities": 62,
-     "mean_net": -0.224162,
-     "median_net": -0.220239,
-     "hit_rate": 0.1818,
-     "mean_gross": -0.221238,
+     "n": 81,
+     "n_signal_days": 11,
+     "n_entities": 65,
+     "mean_net": -0.209842,
+     "median_net": -0.211177,
+     "hit_rate": 0.2099,
+     "mean_gross": -0.206996,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|CHAMPION": {
-     "n": 4,
-     "n_signal_days": 3,
-     "n_entities": 3,
-     "mean_net": -0.305499,
-     "median_net": -0.370116,
-     "hit_rate": 0.0,
-     "mean_gross": -0.299825,
+     "n": 5,
+     "n_signal_days": 4,
+     "n_entities": 4,
+     "mean_net": -0.242188,
+     "median_net": -0.3662,
+     "hit_rate": 0.2,
+     "mean_gross": -0.23732,
      "worst": -0.428442,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1273,13 +1279,13 @@
   },
   "training": {
    "status": "NEED_MORE_DATA",
-   "n_labels": 19,
-   "n_label_dates": 2,
+   "n_labels": 25,
+   "n_label_dates": 3,
    "required": {
     "min_labels": 200,
     "min_dates": 20
    },
-   "as_of": "2026-10-20",
+   "as_of": "2026-10-21",
    "versions": 0,
    "active": null,
    "hold": null,
@@ -1287,7 +1293,7 @@
    "manifest_violations": []
   },
   "promotion": {
-   "generated": "2026-10-20T22:28:47+00:00",
+   "generated": "2026-10-21T22:33:41+00:00",
    "max_automatic_influence": "ABSTENTION_ONLY",
    "kill_switch_active": false,
    "safe_mode": true,
@@ -1489,20 +1495,20 @@
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
    "trade_outcome_duplicates": 0,
-   "quote_records_30d": 1336,
+   "quote_records_30d": 1544,
    "quote_duplicate_ids": 0,
    "quote_reobserved_ids": 11,
    "quote_non_observed_prices": 0,
    "closed_trade_quarantine": 7,
    "external_archive": {
-    "ok": 30379,
-    "legacy": 79102
+    "ok": 30629,
+    "legacy": 73447
    },
    "issues": []
   },
   "data_health": {
    "nasdaq100_source_check": {
-    "date": "2026-10-21",
+    "date": "2026-10-22",
     "mismatch": 0,
     "only_official": [],
     "only_production": [],
@@ -1511,12 +1517,10 @@
     "production_source": "nasdaq_official"
    },
    "source_health": {
-    "generated": "2026-10-21T17:37:41+00:00",
+    "generated": "2026-10-22T17:35:40+00:00",
     "by_status": {
-     "HEALTHY": 45,
-     "BROKEN": 1,
-     "UNVALIDATED": 8,
-     "DEGRADED": 1
+     "HEALTHY": 47,
+     "UNVALIDATED": 8
     },
     "inactive_by_design": {
      "disabled": 1,
@@ -1526,23 +1530,36 @@
    },
    "external_data": {
     "by_status": {
-     "PASS": 35,
-     "FAIL": 1,
+     "PASS": 36,
      "DEFERRED": 13
     }
    },
    "quote_archive_days": {
+    "2026-10-22": {
+     "n": 184,
+     "by_context": {
+      "trade_mark_rth": 8,
+      "candidate_mark_rth": 44,
+      "candidate_mark": 50,
+      "candidate_entry": 46,
+      "exit_mark": 36
+     },
+     "by_quality": {
+      "OK": 178,
+      "SUSPECT": 6
+     }
+    },
     "2026-10-21": {
-     "n": 153,
+     "n": 177,
      "by_context": {
       "trade_mark_rth": 8,
       "candidate_mark_rth": 44,
       "candidate_mark": 46,
       "candidate_entry": 44,
-      "exit_mark": 11
+      "exit_mark": 35
      },
      "by_quality": {
-      "OK": 151,
+      "OK": 175,
       "SUSPECT": 2
      }
     },
@@ -1637,19 +1654,19 @@
      }
     }
    },
-   "quote_archive_median_14d": 172.0,
+   "quote_archive_median_14d": 184,
    "quote_archive_root_exists": true
   },
   "timing": {
    "current_policy": "timing-v2",
    "by_policy": {
     "active": {
-     "timing-v1": 2,
+     "timing-v1": 1,
      "timing-v2": 2
     },
     "exit_pending": {},
     "closed": {
-     "timing-v1": 115,
+     "timing-v1": 116,
      "timing-v2": 1
     },
     "unusable": {},
@@ -1677,38 +1694,38 @@
     "need": 200,
     "have_dates": 3,
     "need_dates": 20,
-    "pending_maturing": 173,
-    "new_rows_per_day": 8.21,
-    "eta": "2026-11-22",
+    "pending_maturing": 182,
+    "new_rows_per_day": 6.79,
+    "eta": "2026-11-21",
     "basis": "Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T"
    },
    "rl_arming": {
-    "have": 12,
+    "have": 13,
     "need": 30,
     "closes_per_day_30d": 0.267,
-    "eta": "2026-12-28",
+    "eta": "2026-12-25",
     "since": "2026-06-11"
    },
    "champion_evidence": {
-    "have": 6,
+    "have": 7,
     "need": 30,
-    "have_days": 5,
+    "have_days": 6,
     "need_days": 20,
-    "evaluable_per_day_30d": 0.2,
-    "eta": "2027-02-18"
+    "evaluable_per_day_30d": 0.233,
+    "eta": "2027-01-29"
    },
    "note": "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
   },
   "workflows": {
    "status": "OK",
    "window_hours": 26,
-   "since": "2026-10-20T16:05:59Z",
+   "since": "2026-10-21T16:09:34Z",
    "runs_total": 34,
    "failed": [],
    "failed_by_workflow": {},
    "scanner_start": {
-    "started_et": "2026-10-21T13:38-04:00",
-    "run_id": 39645504692,
+    "started_et": "2026-10-22T13:36-04:00",
+    "run_id": 39824116615,
     "late": false,
     "late_after_et": "15:00",
     "trading_day": true
@@ -1717,44 +1734,44 @@
  },
  "row": {
   "schema": "ops-history-v1",
-  "as_of": "2026-10-21",
-  "generated": "2026-10-21T18:05:59+00:00",
+  "as_of": "2026-10-22",
+  "generated": "2026-10-22T18:09:34+00:00",
   "run.scanner.universe": 518,
-  "run.scanner.analyzed": 50,
-  "run.scanner.champion_candidates": 17,
-  "run.scanner.contracts_designed": 3,
+  "run.scanner.analyzed": 62,
+  "run.scanner.champion_candidates": 9,
+  "run.scanner.contracts_designed": null,
   "run.scanner.trades": 0,
-  "run.scanner.direction_conflicts": 2,
-  "run.scanner.direction_conflict_share": 0.04,
+  "run.scanner.direction_conflicts": 3,
+  "run.scanner.direction_conflict_share": 0.0484,
   "workflows.failed_runs": 0,
   "data.nasdaq100_mismatch": 0,
   "learning.meta_label.have": 25,
-  "learning.rl_arming.have": 12,
-  "learning.champion_evidence.have": 6,
+  "learning.rl_arming.have": 13,
+  "learning.champion_evidence.have": 7,
   "run.report_is_today": true,
   "quote.entry.7d.coverage": 1.0,
-  "quote.entry.7d.denominator": 3,
-  "quote.entry.7d.observed": 3,
+  "quote.entry.7d.denominator": 2,
+  "quote.entry.7d.observed": 2,
   "quote.exit_closed.7d.coverage": 1.0,
-  "quote.exit_closed.7d.denominator": 3,
-  "quote.exit_closed.7d.observed": 3,
+  "quote.exit_closed.7d.denominator": 4,
+  "quote.exit_closed.7d.observed": 4,
   "quote.complete.7d.coverage": 1.0,
-  "quote.complete.7d.denominator": 3,
-  "quote.complete.7d.evaluable": 3,
+  "quote.complete.7d.denominator": 4,
+  "quote.complete.7d.evaluable": 4,
   "quote.entry.7d.legacy": 0,
-  "quote.entry.30d.coverage": 0.375,
-  "quote.entry.30d.denominator": 8,
+  "quote.entry.30d.coverage": 0.4286,
+  "quote.entry.30d.denominator": 7,
   "quote.entry.30d.observed": 3,
-  "quote.exit_closed.30d.coverage": 0.75,
+  "quote.exit_closed.30d.coverage": 0.875,
   "quote.exit_closed.30d.denominator": 8,
-  "quote.exit_closed.30d.observed": 6,
-  "quote.complete.30d.coverage": 0.75,
+  "quote.exit_closed.30d.observed": 7,
+  "quote.complete.30d.coverage": 0.875,
   "quote.complete.30d.denominator": 8,
-  "quote.complete.30d.evaluable": 6,
-  "quote.entry.30d.legacy": 5,
+  "quote.complete.30d.evaluable": 7,
+  "quote.entry.30d.legacy": 4,
   "quote.exit_active.coverage": 1.0,
-  "quote.exit_active.denominator": 4,
-  "quote.exit_active.mark_today": 4,
+  "quote.exit_active.denominator": 3,
+  "quote.exit_active.mark_today": 3,
   "marks.real_opt_ret_5d.pending": 0,
   "marks.real_opt_ret_5d.oldest_pending_days": null,
   "marks.real_strat_ret_5d.pending": 0,
@@ -1762,35 +1779,33 @@
   "lifecycle.champion.state.SIGNAL": 0,
   "lifecycle.champion.state.CONTRACT_SELECTED": 0,
   "lifecycle.champion.state.ENTRY_OBSERVED": 0,
-  "lifecycle.champion.state.EXIT_PENDING": 4,
+  "lifecycle.champion.state.EXIT_PENDING": 3,
   "lifecycle.champion.state.OUTCOME_FINAL": 110,
   "lifecycle.champion.state.LEARNING_ELIGIBLE": 3,
-  "lifecycle.champion.state.LEARNED": 3,
+  "lifecycle.champion.state.LEARNED": 4,
   "lifecycle.champion.issue.EXIT_OVERDUE": 0,
   "lifecycle.champion.issue.ELIGIBLE_NOT_LEARNED": 0,
   "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": 0,
   "lifecycle.champion.exactly_once_ok": true,
   "lifecycle.candidates.EXIT_OVERDUE": 0,
-  "lifecycle.candidates.EXIT_PENDING": 120,
+  "lifecycle.candidates.EXIT_PENDING": 160,
   "lifecycle.candidates.OUTCOME_FINAL": 392,
-  "forward.champion.n": 6,
-  "forward.champion.n_independent_days": 5,
-  "forward.champion.mean_net": -0.309476,
-  "forward.champion.sum_net": -1.856854,
+  "forward.champion.n": 7,
+  "forward.champion.n_independent_days": 6,
+  "forward.champion.mean_net": -0.332222,
+  "forward.champion.sum_net": -2.325557,
   "forward.champion.verdict": "NEED_MORE_DATA",
   "training.status": "NEED_MORE_DATA",
-  "training.n_labels": 19,
+  "training.n_labels": 25,
   "promotion.active_influence": 0,
   "promotion.unjustified_influence": 0,
   "promotion.kill_switch_active": false,
   "integrity.issues": 0,
-  "data.source_health.BROKEN": 1,
-  "data.source_health.DEGRADED": 1,
-  "data.source_health.HEALTHY": 45,
+  "data.source_health.HEALTHY": 47,
   "data.source_health.UNVALIDATED": 8,
-  "data.source_health.n_bad": 2,
-  "data.quote_archive_median_14d": 172.0,
-  "data.quote_archive_today": 153
+  "data.source_health.n_bad": 0,
+  "data.quote_archive_median_14d": 184,
+  "data.quote_archive_today": 184
  },
  "deltas": {
   "run.scanner.universe": {
@@ -1803,66 +1818,66 @@
    "diff_d30": null
   },
   "run.scanner.analyzed": {
-   "value": 50,
-   "prev": 47,
-   "d7": 66,
+   "value": 62,
+   "prev": 50,
+   "d7": 82,
    "d30": null,
-   "diff_prev": 3,
-   "diff_d7": -16,
+   "diff_prev": 12,
+   "diff_d7": -20,
    "diff_d30": null
   },
   "run.scanner.champion_candidates": {
-   "value": 17,
-   "prev": 7,
-   "d7": 11,
+   "value": 9,
+   "prev": 17,
+   "d7": 14,
    "d30": null,
-   "diff_prev": 10,
-   "diff_d7": 6,
+   "diff_prev": -8,
+   "diff_d7": -5,
    "diff_d30": null
   },
   "run.scanner.contracts_designed": {
-   "value": 3,
-   "prev": null,
-   "d7": 5,
+   "value": null,
+   "prev": 3,
+   "d7": 7,
    "d30": null,
    "diff_prev": null,
-   "diff_d7": -2,
+   "diff_d7": null,
    "diff_d30": null
   },
   "run.scanner.trades": {
    "value": 0,
    "prev": 0,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -1,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "run.scanner.direction_conflicts": {
-   "value": 2,
-   "prev": 3,
-   "d7": null,
+   "value": 3,
+   "prev": 2,
+   "d7": 4,
    "d30": null,
-   "diff_prev": -1,
-   "diff_d7": null,
+   "diff_prev": 1,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "run.scanner.direction_conflict_share": {
-   "value": 0.04,
-   "prev": 0.0638,
-   "d7": null,
+   "value": 0.0484,
+   "prev": 0.04,
+   "d7": 0.0488,
    "d30": null,
-   "diff_prev": -0.0238,
-   "diff_d7": null,
+   "diff_prev": 0.0084,
+   "diff_d7": -0.0004,
    "diff_d30": null
   },
   "workflows.failed_runs": {
    "value": 0,
    "prev": 0,
-   "d7": null,
+   "d7": 2,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": null,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "data.nasdaq100_mismatch": {
@@ -1876,29 +1891,29 @@
   },
   "learning.meta_label.have": {
    "value": 25,
-   "prev": 19,
-   "d7": null,
+   "prev": 25,
+   "d7": 0,
    "d30": null,
-   "diff_prev": 6,
-   "diff_d7": null,
+   "diff_prev": 0,
+   "diff_d7": 25,
    "diff_d30": null
   },
   "learning.rl_arming.have": {
-   "value": 12,
+   "value": 13,
    "prev": 12,
-   "d7": null,
+   "d7": 10,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": null,
+   "diff_prev": 1,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "learning.champion_evidence.have": {
-   "value": 6,
+   "value": 7,
    "prev": 6,
-   "d7": null,
+   "d7": 4,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": null,
+   "diff_prev": 1,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "quote.entry.7d.coverage": {
@@ -1911,21 +1926,21 @@
    "diff_d30": null
   },
   "quote.entry.7d.denominator": {
-   "value": 3,
+   "value": 2,
    "prev": 3,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 2,
+   "diff_prev": -1,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "quote.entry.7d.observed": {
-   "value": 3,
+   "value": 2,
    "prev": 3,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 2,
+   "diff_prev": -1,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "quote.exit_closed.7d.coverage": {
@@ -1938,20 +1953,20 @@
    "diff_d30": null
   },
   "quote.exit_closed.7d.denominator": {
-   "value": 3,
+   "value": 4,
    "prev": 3,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 2,
    "diff_d30": null
   },
   "quote.exit_closed.7d.observed": {
-   "value": 3,
+   "value": 4,
    "prev": 3,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 2,
    "diff_d30": null
   },
@@ -1965,20 +1980,20 @@
    "diff_d30": null
   },
   "quote.complete.7d.denominator": {
-   "value": 3,
+   "value": 4,
    "prev": 3,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 2,
    "diff_d30": null
   },
   "quote.complete.7d.evaluable": {
-   "value": 3,
+   "value": 4,
    "prev": 3,
-   "d7": 1,
+   "d7": 2,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 2,
    "diff_d30": null
   },
@@ -1992,15 +2007,42 @@
    "diff_d30": null
   },
   "quote.entry.30d.coverage": {
-   "value": 0.375,
+   "value": 0.4286,
    "prev": 0.375,
-   "d7": 0.1667,
+   "d7": 0.2857,
    "d30": null,
-   "diff_prev": 0.0,
-   "diff_d7": 0.2083,
+   "diff_prev": 0.0536,
+   "diff_d7": 0.1429,
    "diff_d30": null
   },
   "quote.entry.30d.denominator": {
+   "value": 7,
+   "prev": 8,
+   "d7": 7,
+   "d30": null,
+   "diff_prev": -1,
+   "diff_d7": 0,
+   "diff_d30": null
+  },
+  "quote.entry.30d.observed": {
+   "value": 3,
+   "prev": 3,
+   "d7": 2,
+   "d30": null,
+   "diff_prev": 0,
+   "diff_d7": 1,
+   "diff_d30": null
+  },
+  "quote.exit_closed.30d.coverage": {
+   "value": 0.875,
+   "prev": 0.75,
+   "d7": 0.6667,
+   "d30": null,
+   "diff_prev": 0.125,
+   "diff_d7": 0.2083,
+   "diff_d30": null
+  },
+  "quote.exit_closed.30d.denominator": {
    "value": 8,
    "prev": 8,
    "d7": 6,
@@ -2009,76 +2051,49 @@
    "diff_d7": 2,
    "diff_d30": null
   },
-  "quote.entry.30d.observed": {
-   "value": 3,
-   "prev": 3,
-   "d7": 1,
-   "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 2,
-   "diff_d30": null
-  },
-  "quote.exit_closed.30d.coverage": {
-   "value": 0.75,
-   "prev": 0.75,
-   "d7": 0.6,
-   "d30": null,
-   "diff_prev": 0.0,
-   "diff_d7": 0.15,
-   "diff_d30": null
-  },
-  "quote.exit_closed.30d.denominator": {
-   "value": 8,
-   "prev": 8,
-   "d7": 5,
-   "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 3,
-   "diff_d30": null
-  },
   "quote.exit_closed.30d.observed": {
-   "value": 6,
+   "value": 7,
    "prev": 6,
-   "d7": 3,
+   "d7": 4,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 3,
    "diff_d30": null
   },
   "quote.complete.30d.coverage": {
-   "value": 0.75,
+   "value": 0.875,
    "prev": 0.75,
-   "d7": 0.6,
+   "d7": 0.6667,
    "d30": null,
-   "diff_prev": 0.0,
-   "diff_d7": 0.15,
+   "diff_prev": 0.125,
+   "diff_d7": 0.2083,
    "diff_d30": null
   },
   "quote.complete.30d.denominator": {
    "value": 8,
    "prev": 8,
-   "d7": 5,
+   "d7": 6,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": 3,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "quote.complete.30d.evaluable": {
-   "value": 6,
+   "value": 7,
    "prev": 6,
-   "d7": 3,
+   "d7": 4,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 3,
    "diff_d30": null
   },
   "quote.entry.30d.legacy": {
-   "value": 5,
+   "value": 4,
    "prev": 5,
    "d7": 5,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 0,
+   "diff_prev": -1,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "quote.exit_active.coverage": {
@@ -2091,21 +2106,21 @@
    "diff_d30": null
   },
   "quote.exit_active.denominator": {
-   "value": 4,
+   "value": 3,
    "prev": 4,
    "d7": 5,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": -1,
+   "diff_prev": -1,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "quote.exit_active.mark_today": {
-   "value": 4,
+   "value": 3,
    "prev": 4,
    "d7": 5,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": -1,
+   "diff_prev": -1,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "marks.real_opt_ret_5d.pending": {
@@ -2120,7 +2135,7 @@
   "marks.real_opt_ret_5d.oldest_pending_days": {
    "value": null,
    "prev": null,
-   "d7": 9,
+   "d7": 10,
    "d30": null,
    "diff_prev": null,
    "diff_d7": null,
@@ -2138,7 +2153,7 @@
   "marks.real_strat_ret_5d.oldest_pending_days": {
    "value": null,
    "prev": null,
-   "d7": 9,
+   "d7": 10,
    "d30": null,
    "diff_prev": null,
    "diff_d7": null,
@@ -2172,12 +2187,12 @@
    "diff_d30": null
   },
   "lifecycle.champion.state.EXIT_PENDING": {
-   "value": 4,
+   "value": 3,
    "prev": 4,
    "d7": 5,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": -1,
+   "diff_prev": -1,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "lifecycle.champion.state.OUTCOME_FINAL": {
@@ -2199,11 +2214,11 @@
    "diff_d30": null
   },
   "lifecycle.champion.state.LEARNED": {
-   "value": 3,
+   "value": 4,
    "prev": 3,
-   "d7": 0,
+   "d7": 1,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 3,
    "diff_d30": null
   },
@@ -2244,66 +2259,66 @@
    "diff_d30": null
   },
   "lifecycle.candidates.EXIT_PENDING": {
-   "value": 120,
+   "value": 160,
    "prev": 120,
-   "d7": 40,
+   "d7": 80,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 40,
    "diff_d7": 80,
    "diff_d30": null
   },
   "lifecycle.candidates.OUTCOME_FINAL": {
    "value": 392,
-   "prev": 352,
+   "prev": 392,
    "d7": 272,
    "d30": null,
-   "diff_prev": 40,
+   "diff_prev": 0,
    "diff_d7": 120,
    "diff_d30": null
   },
   "forward.champion.n": {
-   "value": 6,
+   "value": 7,
    "prev": 6,
-   "d7": 3,
+   "d7": 4,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 3,
    "diff_d30": null
   },
   "forward.champion.n_independent_days": {
-   "value": 5,
+   "value": 6,
    "prev": 5,
-   "d7": 3,
+   "d7": 4,
    "d30": null,
-   "diff_prev": 0,
+   "diff_prev": 1,
    "diff_d7": 2,
    "diff_d30": null
   },
   "forward.champion.mean_net": {
-   "value": -0.309476,
+   "value": -0.332222,
    "prev": -0.309476,
-   "d7": -0.616776,
+   "d7": -0.541928,
    "d30": null,
-   "diff_prev": 0.0,
-   "diff_d7": 0.3073,
+   "diff_prev": -0.022746,
+   "diff_d7": 0.209706,
    "diff_d30": null
   },
   "forward.champion.sum_net": {
-   "value": -1.856854,
+   "value": -2.325557,
    "prev": -1.856854,
-   "d7": -1.850328,
+   "d7": -2.167713,
    "d30": null,
-   "diff_prev": 0.0,
-   "diff_d7": -0.006526,
+   "diff_prev": -0.468703,
+   "diff_d7": -0.157844,
    "diff_d30": null
   },
   "training.n_labels": {
-   "value": 19,
-   "prev": 8,
+   "value": 25,
+   "prev": 19,
    "d7": 0,
    "d30": null,
-   "diff_prev": 11,
-   "diff_d7": 19,
+   "diff_prev": 6,
+   "diff_d7": 25,
    "diff_d30": null
   },
   "promotion.active_influence": {
@@ -2327,37 +2342,19 @@
   "integrity.issues": {
    "value": 0,
    "prev": 0,
-   "d7": 1,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -1,
-   "diff_d30": null
-  },
-  "data.source_health.BROKEN": {
-   "value": 1,
-   "prev": null,
-   "d7": 1,
-   "d30": null,
-   "diff_prev": null,
    "diff_d7": 0,
    "diff_d30": null
   },
-  "data.source_health.DEGRADED": {
-   "value": 1,
-   "prev": null,
-   "d7": 7,
-   "d30": null,
-   "diff_prev": null,
-   "diff_d7": -6,
-   "diff_d30": null
-  },
   "data.source_health.HEALTHY": {
-   "value": 45,
-   "prev": 47,
-   "d7": 28,
+   "value": 47,
+   "prev": 45,
+   "d7": 41,
    "d30": null,
-   "diff_prev": -2,
-   "diff_d7": 17,
+   "diff_prev": 2,
+   "diff_d7": 6,
    "diff_d30": null
   },
   "data.source_health.UNVALIDATED": {
@@ -2370,36 +2367,63 @@
    "diff_d30": null
   },
   "data.source_health.n_bad": {
-   "value": 2,
-   "prev": 0,
-   "d7": 8,
+   "value": 0,
+   "prev": 2,
+   "d7": 6,
    "d30": null,
-   "diff_prev": 2,
+   "diff_prev": -2,
    "diff_d7": -6,
    "diff_d30": null
   },
   "data.quote_archive_median_14d": {
-   "value": 172.0,
-   "prev": 191,
-   "d7": 164,
+   "value": 184,
+   "prev": 172.0,
+   "d7": 139.5,
    "d30": null,
-   "diff_prev": -19.0,
-   "diff_d7": 8.0,
+   "diff_prev": 12.0,
+   "diff_d7": 44.5,
    "diff_d30": null
   },
   "data.quote_archive_today": {
-   "value": 153,
-   "prev": 206,
-   "d7": 164,
+   "value": 184,
+   "prev": 153,
+   "d7": 88,
    "d30": null,
-   "diff_prev": -53,
-   "diff_d7": -11,
+   "diff_prev": 31,
+   "diff_d7": 96,
+   "diff_d30": null
+  },
+  "data.source_health.BROKEN": {
+   "value": null,
+   "prev": 1,
+   "d7": 3,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.DEGRADED": {
+   "value": null,
+   "prev": 1,
+   "d7": 2,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.STALE": {
+   "value": null,
+   "prev": null,
+   "d7": 1,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
    "diff_d30": null
   }
  },
  "delta_refs": {
-  "prev": "2026-10-20",
-  "d7": "2026-10-14",
+  "prev": "2026-10-21",
+  "d7": "2026-10-15",
   "d30": null
  },
  "alerts": [
@@ -2407,9 +2431,9 @@
    "id": "DATA_DEGRADATION:source_health",
    "severity": "WARNING",
    "component": "Daten",
-   "cause": "Quellen mit Status FAILED/BROKEN/STALE/DEGRADED: 2 (Vorlauf 0, +2).",
+   "cause": "Nicht mehr aktiv – Bedingung behoben.",
    "since": "2026-10-21",
-   "status": "NEW"
+   "status": "RESOLVED"
   }
  ],
  "mail": {
@@ -2420,7 +2444,7 @@
   "recipients": [
    "p***@gmail.com"
   ],
-  "subject": "[Scanner-Monitor] 2026-10-21: 1 neue Warnung(en)"
+  "subject": "[Scanner-Monitor] 2026-10-22: 0 neue Warnung(en), 1 behoben"
  },
  "history": {
   "appended": true,
