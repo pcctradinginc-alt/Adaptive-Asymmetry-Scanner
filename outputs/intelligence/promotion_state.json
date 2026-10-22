@@ -1,10 +1,10 @@
 {
- "generated": "2026-10-21T22:33:41+00:00",
+ "generated": "2026-10-22T19:19:49+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "b2d28808f286",
- "data_version": "47f6d44905d0da13",
+ "code_version": "90d11597a5d8",
+ "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
   "transitions": []
@@ -35,9 +35,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -48,7 +48,7 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 2,
+    "n_observations": 3,
     "n_independent_dates": 2,
     "calendar_span_days": 8,
     "first_observation": "2026-10-06",
@@ -57,46 +57,46 @@
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "policy": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "delta_expectancy": 0.0,
     "ci": [
@@ -160,9 +160,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig"
+    "NEED_MORE_DATA: n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 2/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Technology dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig",
+   "next_requirement": "n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 2/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -173,39 +173,39 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 2,
+    "n_observations": 3,
     "n_independent_dates": 2,
     "calendar_span_days": 8,
     "first_observation": "2026-10-06",
     "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
-    "n_fired": 1,
+    "n_fired": 2,
     "n_fired_independent_dates": 1,
     "all": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "fired": {
-     "n": 1,
+     "n": 2,
      "win_rate": 0.0,
-     "average_return": -0.5079,
-     "median_return": -0.5079,
-     "expectancy": -0.5079,
+     "average_return": -0.488,
+     "median_return": -0.488,
+     "expectancy": -0.488,
      "profit_factor": 0.0,
-     "max_drawdown": -0.5079,
+     "max_drawdown": -0.976,
      "mfe": null,
      "mae": null,
-     "brier": 0.4802,
-     "ece": 0.693
+     "brier": 0.4867,
+     "ece": 0.6976
     },
     "not_fired": {
      "n": 1,
@@ -233,15 +233,15 @@
      "brier": 0.5494,
      "ece": 0.7412
     },
-    "delta_expectancy": 0.16305,
+    "delta_expectancy": 0.20413,
     "ci": [
      null,
      null
     ],
     "outlier_trims": {
-     "top1": 0.0,
+     "top1": null,
      "top3": null,
-     "top5pct": 0.0
+     "top5pct": null
     },
     "time_windows": [
      null,
@@ -251,17 +251,17 @@
     "regimes": [
      "vix_normal"
     ],
-    "max_sector_share_fired": 1.0,
-    "dominant_sector_fired": "Technology",
+    "max_sector_share_fired": 0.5,
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
-     "n_blocked": 1,
+     "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
-     "blocked_trade_expectancy": -0.5079,
-     "blocked_trade_mean_return": -0.5079,
-     "avoided_losses": 0.5079,
+     "blocked_trade_expectancy": -0.488,
+     "blocked_trade_mean_return": -0.488,
+     "avoided_losses": 0.976,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": 0.25395,
+     "net_value_of_abstention": 0.32533,
      "precision": 1.0,
      "false_positive_rate": 0.0
     }
@@ -295,9 +295,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -308,7 +308,7 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 2,
+    "n_observations": 3,
     "n_independent_dates": 2,
     "calendar_span_days": 8,
     "first_observation": "2026-10-06",
@@ -317,46 +317,46 @@
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "policy": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "delta_expectancy": 0.0,
     "ci": [
@@ -420,9 +420,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Financial Services dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig"
    ],
-   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 1/15; Treffer-Tage 1/8; nur 1 Marktregime beobachtet; Sektor Financial Services dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -433,29 +433,39 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 2,
+    "n_observations": 3,
     "n_independent_dates": 2,
     "calendar_span_days": 8,
     "first_observation": "2026-10-06",
     "last_observation": "2026-10-15",
     "data_kind": "prospective_forward",
-    "n_fired": 0,
-    "n_fired_independent_dates": 0,
+    "n_fired": 1,
+    "n_fired_independent_dates": 1,
     "all": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "fired": {
-     "n": 0
+     "n": 1,
+     "win_rate": 0.0,
+     "average_return": -0.4681,
+     "median_return": -0.4681,
+     "expectancy": -0.4681,
+     "profit_factor": 0.0,
+     "max_drawdown": -0.4681,
+     "mfe": null,
+     "mae": null,
+     "brier": 0.4931,
+     "ece": 0.7022
     },
     "not_fired": {
      "n": 2,
@@ -483,36 +493,36 @@
      "brier": 0.5148,
      "ece": 0.7171
     },
-    "delta_expectancy": 0.0,
+    "delta_expectancy": 0.04108,
     "ci": [
-     0.0,
-     0.0
+     -0.0199,
+     0.04108
     ],
     "outlier_trims": {
-     "top1": 0.0,
+     "top1": -0.0199,
      "top3": null,
-     "top5pct": 0.0
+     "top5pct": -0.0199
     },
     "time_windows": [
-     0.0,
+     -0.0199,
      null,
      0.0
     ],
     "regimes": [
      "vix_normal"
     ],
-    "max_sector_share_fired": null,
-    "dominant_sector_fired": null,
+    "max_sector_share_fired": 1.0,
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
-     "n_blocked": 0,
-     "blocked_trade_win_rate": null,
-     "blocked_trade_expectancy": null,
-     "blocked_trade_mean_return": null,
-     "avoided_losses": 0,
+     "n_blocked": 1,
+     "blocked_trade_win_rate": 0.0,
+     "blocked_trade_expectancy": -0.4681,
+     "blocked_trade_mean_return": -0.4681,
+     "avoided_losses": 0.4681,
      "missed_winners": 0,
      "missed_winner_return": 0,
-     "net_value_of_abstention": 0.0,
-     "precision": null,
+     "net_value_of_abstention": 0.15603,
+     "precision": 1.0,
      "false_positive_rate": 0.0
     }
    },
@@ -545,9 +555,9 @@
    "registered_at": "2026-10-03T12:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
+    "NEED_MORE_DATA: n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet"
    ],
-   "next_requirement": "n 2/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
+   "next_requirement": "n 3/60; unabhängige Tage 2/20; Kalenderspanne 8/90 T; Regel-Treffer 0/15; Treffer-Tage 0/8; nur 1 Marktregime beobachtet",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -558,7 +568,7 @@
     "alpha_effective": 0.0006944444444444445
    },
    "evidence": {
-    "n_observations": 2,
+    "n_observations": 3,
     "n_independent_dates": 2,
     "calendar_span_days": 8,
     "first_observation": "2026-10-06",
@@ -567,46 +577,46 @@
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "all": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "fired": {
      "n": 0
     },
     "not_fired": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "policy": {
-     "n": 2,
+     "n": 3,
      "win_rate": 0.0,
-     "average_return": -0.34485,
-     "median_return": -0.34485,
-     "expectancy": -0.34485,
+     "average_return": -0.38593,
+     "median_return": -0.4681,
+     "expectancy": -0.38593,
      "profit_factor": 0.0,
-     "max_drawdown": -0.6897,
+     "max_drawdown": -1.1578,
      "mfe": null,
      "mae": null,
-     "brier": 0.5148,
-     "ece": 0.7171
+     "brier": 0.5076,
+     "ece": 0.7121
     },
     "delta_expectancy": 0.0,
     "ci": [
@@ -2404,38 +2414,38 @@
  },
  "evaluation": {
   "CHAMPION_ONLY": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "average_return": -0.34485,
-   "median_return": -0.34485,
-   "expectancy": -0.34485,
+   "average_return": -0.38593,
+   "median_return": -0.4681,
+   "expectancy": -0.38593,
    "profit_factor": 0.0,
-   "max_drawdown": -0.6897,
+   "max_drawdown": -1.1578,
    "mfe": null,
    "mae": null,
-   "brier": 0.5148,
-   "ece": 0.7171,
+   "brier": 0.5076,
+   "ece": 0.7121,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 2,
+   "trade_count": 3,
    "missed_winners": 0,
    "avoided_losers": 0
   },
   "ADAPTIVE_ACTUAL": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "average_return": -0.34485,
-   "median_return": -0.34485,
-   "expectancy": -0.34485,
+   "average_return": -0.38593,
+   "median_return": -0.4681,
+   "expectancy": -0.38593,
    "profit_factor": 0.0,
-   "max_drawdown": -0.6897,
+   "max_drawdown": -1.1578,
    "mfe": null,
    "mae": null,
-   "brier": 0.5148,
-   "ece": 0.7171,
+   "brier": 0.5076,
+   "ece": 0.7121,
    "sharpe": null,
    "sortino": null,
-   "trade_count": 2,
+   "trade_count": 3,
    "missed_winners": 0,
    "avoided_losers": 0
   },
@@ -2455,25 +2465,25 @@
    "sortino": null,
    "trade_count": 1,
    "missed_winners": 0,
-   "avoided_losers": 1
+   "avoided_losers": 2
   },
   "RANKING": {
    "champion": {
     "precision_at_1": 0.0,
     "precision_at_3": 0.0,
-    "mean_return_top1": -0.34485,
-    "mean_return_top3": -0.34485
+    "mean_return_top1": -0.32495,
+    "mean_return_top3": -0.38593
    },
    "intelligence": {
     "precision_at_1": 0.0,
     "precision_at_3": 0.0,
-    "mean_return_top1": -0.34485,
-    "mean_return_top3": -0.34485
+    "mean_return_top1": -0.32495,
+    "mean_return_top3": -0.38593
    }
   },
   "data_kind": "prospective_forward_only",
-  "n_resolved_decisions": 2,
+  "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "7696c5d82e04803c5dd8818b56e57fbe7351ce59769189780ae42afe5ad8962e"
+ "state_hash": "2b6b84cbce9d6fad7f14aec7091248fc2d7ff9d6a0fc432606408634c2652579"
 }

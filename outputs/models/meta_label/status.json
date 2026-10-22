@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-21T22:33:40+00:00",
- "as_of": "2026-10-21",
+ "generated": "2026-10-22T19:19:48+00:00",
+ "as_of": "2026-10-22",
  "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
  "n_labels": 25,
  "n_label_dates": 3,
@@ -11,8 +11,8 @@
  "n_labels_target_population": 25,
  "population_shift": {
   "status": "OK",
-  "n_target": 198,
-  "n_other": 658,
+  "n_target": 207,
+  "n_other": 711,
   "n_shifted": 11,
   "shifted": [
    "final_mc_hit_rate",
@@ -30,51 +30,51 @@
   "top": [
    {
     "feature": "ml_q10_ret_60",
-    "smd": -1.307,
-    "missing_target": 0.131,
+    "smd": -1.296,
+    "missing_target": 0.13,
     "missing_other": 0.053
    },
    {
     "feature": "sigma_30d",
-    "smd": 1.173,
+    "smd": 1.165,
     "missing_target": 0.0,
     "missing_other": 0.871
    },
    {
     "feature": "ml_exp_ret_60",
-    "smd": 1.057,
-    "missing_target": 0.131,
+    "smd": 1.041,
+    "missing_target": 0.13,
     "missing_other": 0.053
    },
    {
     "feature": "ml_exp_dd_60",
-    "smd": -0.525,
-    "missing_target": 0.131,
+    "smd": -0.507,
+    "missing_target": 0.13,
     "missing_other": 0.053
    },
    {
     "feature": "sentiment_score",
-    "smd": 0.458,
-    "missing_target": 0.076,
-    "missing_other": 0.03
+    "smd": 0.421,
+    "missing_target": 0.072,
+    "missing_other": 0.028
    },
    {
     "feature": "ml_disagreement_sd",
-    "smd": 0.29,
-    "missing_target": 0.131,
+    "smd": 0.292,
+    "missing_target": 0.13,
     "missing_other": 0.053
    },
    {
-    "feature": "scan_day_ret",
-    "smd": 0.243,
-    "missing_target": 0.076,
-    "missing_other": 0.03
+    "feature": "sentiment_drift",
+    "smd": 0.196,
+    "missing_target": 0.072,
+    "missing_other": 0.028
    },
    {
-    "feature": "sentiment_drift",
-    "smd": 0.211,
-    "missing_target": 0.076,
-    "missing_other": 0.03
+    "feature": "price_move_48h_signed",
+    "smd": 0.183,
+    "missing_target": 0.072,
+    "missing_other": 0.876
    }
   ],
   "verdict": "SHIFT"
