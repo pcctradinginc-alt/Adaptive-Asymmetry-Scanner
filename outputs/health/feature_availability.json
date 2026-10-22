@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-21T17:37:41+00:00",
+ "generated": "2026-10-22T15:54:16+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -173,12 +173,12 @@
    "criticality": "CRITICAL"
   },
   "vix": {
-   "available": false,
-   "stale": null,
-   "data_quality": 0.0,
-   "source_primary": "vix_fred",
-   "source_actual": "vix_fred",
-   "source_status": "BROKEN",
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "vix_level",
+   "source_actual": "vix_level",
+   "source_status": "HEALTHY",
    "criticality": "CRITICAL"
   },
   "vix_chg_21": {
