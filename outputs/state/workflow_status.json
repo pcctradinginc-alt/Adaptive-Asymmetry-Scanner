@@ -686,17 +686,17 @@
         "file": "source_health.yml",
         "expected": "2026-10-22T12:41+00:00",
         "deadline": "2026-10-22T15:41+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-10-22T15:53:03Z",
+        "conclusion": "success",
+        "delay_hours": 3.2,
+        "runs_today": 1,
         "recovered": true,
         "recoveries_today": 1,
-        "artifact_ok": false,
-        "action": "DISPATCH",
+        "artifact_ok": true,
+        "action": null,
         "stale_upstream": [],
-        "reason": "Frist 2026-10-22T15:41+00:00 \u00fcberschritten, Tag nicht versorgt",
-        "state": "RECOVERY_TRIGGERED"
+        "reason": null,
+        "state": "OK"
       },
       "scanner": {
         "file": "scanner.yml",
@@ -710,9 +710,7 @@
         "recoveries_today": 0,
         "artifact_ok": false,
         "action": null,
-        "stale_upstream": [
-          "source_health"
-        ],
+        "stale_upstream": [],
         "reason": null,
         "state": "PENDING"
       },
