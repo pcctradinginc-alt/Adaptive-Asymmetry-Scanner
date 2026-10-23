@@ -1,12 +1,8 @@
-# Daily Data Health Report – 2026-10-22
+# Daily Data Health Report – 2026-10-23
 
 **Safe Mode (Daten): aus** – gewichtete Data Quality 1.0
 
 Status: HEALTHY 47 · DEGRADED 0 · STALE 0 · BROKEN 0 · UNVALIDATED 8
-
-## Neue Änderungen
-
-- recovery: vix_fred DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
