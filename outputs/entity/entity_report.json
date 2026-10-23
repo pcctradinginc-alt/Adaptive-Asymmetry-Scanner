@@ -1,10 +1,10 @@
 {
- "date": "2026-10-16",
+ "date": "2026-10-23",
  "status": "COMPLETE",
  "sec": {
-  "tickers_total": 10444,
-  "wanted": 769,
-  "mapped": 622,
+  "tickers_total": 10428,
+  "wanted": 775,
+  "mapped": 626,
   "unmapped": [
    "ABMD",
    "ACE",
@@ -116,6 +116,7 @@
    "PLL",
    "PXD",
    "QEP",
+   "QRVO",
    "RAI",
    "RDC",
    "RHT",
@@ -142,6 +143,7 @@
    "VAR",
    "VIAB",
    "WBA",
+   "WBD",
    "WCG",
    "WFM",
    "WIN",
@@ -155,31 +157,31 @@
    "YHOO"
   ],
   "changes": {
-   "opened": 0,
-   "replaced": 0,
-   "unchanged": 1244,
-   "closed": 0
+   "opened": 22,
+   "replaced": 2,
+   "unchanged": 1228,
+   "closed": 4
   }
  },
  "gleif": {
-  "attempted": 150,
-  "HIGH": 116,
+  "attempted": 44,
+  "HIGH": 25,
   "MEDIUM": 4,
-  "LOW": 30,
-  "with_parent": 0,
-  "cooling_down": 92,
+  "LOW": 15,
+  "with_parent": 1,
+  "cooling_down": 121,
   "low_reasons": {
-   "mehrdeutig (2 Treffer)": 9,
-   "kein exakter Treffer": 18,
-   "mehrdeutig (3 Treffer)": 3
+   "kein exakter Treffer": 13,
+   "mehrdeutig (2 Treffer)": 1,
+   "mehrdeutig (3 Treffer)": 1
   },
-  "remaining": 35
+  "remaining": 0
  },
  "errors": [],
  "gleif_children": {
   "fetched": 60,
-  "children": 546,
-  "opened": 546,
-  "linked_entities": 463
+  "children": 414,
+  "opened": 414,
+  "linked_entities": 491
  }
 }
