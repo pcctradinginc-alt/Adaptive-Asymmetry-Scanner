@@ -3,6 +3,14 @@
 Deterministisch aus trade_memory (feste Regeln, keine Signifikanzaussage). Ähnliche Fälle: nur solche,
 die vor dem Entry bereits abgeschlossen waren.
 
+## HOOD · 2026-10-06 → 2026-10-22 · LOSS -47 %
+- Strategie LONG_CALL, Haltedauer 16 T, Exit: stop_loss, Outcome verlässlich: ja
+- Underlying (signiert) -14 %, Option/Underlying 3.23, Zwischenhoch -4 %
+- Vorhersage: MC-Trefferquote 0.702, Impact 5.0
+- Ursache: signal_wrong ['signal_wrong']
+- Lehre: Underlying lief deutlich gegen die Signalrichtung – das Signal war falsch.
+- Ähnliche frühere Fälle: n=10, Gewinnanteil 40 %, Median -13 %
+
 ## MO · 2026-09-24 → 2026-10-16 · WIN 51 %
 - Strategie LONG_CALL, Haltedauer 22 T, Exit: take_profit, Outcome verlässlich: ja
 - Underlying (signiert) 8 %, Option/Underlying 6.22, Zwischenhoch 51 %
@@ -15,7 +23,7 @@ die vor dem Entry bereits abgeschlossen waren.
 - Strategie BULL_CALL_SPREAD, Haltedauer 45 T, Exit: max_holding_period, Outcome verlässlich: ja
 - Underlying (signiert) -2 %, Option/Underlying 17.69, Zwischenhoch -20 %
 - Vorhersage: MC-Trefferquote 0.724, Impact 4.0
-- Ursache: timing_too_early ['timing_too_early', 'weak_adverse_move']
+- Ursache: timing_too_early ['timing_too_early', 'weak_adverse_move', 'entry_cost_high']
 - Lehre: Schwache Gegenbewegung, erwarteter Zeithorizont länger als die Haltedauer – zu früh.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 40 %, Median -30 %
 
@@ -23,7 +31,7 @@ die vor dem Entry bereits abgeschlossen waren.
 - Strategie BULL_CALL_SPREAD, Haltedauer 0 T, Exit: stop_loss, Outcome verlässlich: ja
 - Underlying (signiert) 1 %, Option/Underlying -16.61, Zwischenhoch -24 %
 - Vorhersage: MC-Trefferquote 0.741, Impact 4.0
-- Ursache: structure_decay ['structure_decay']
+- Ursache: structure_decay ['structure_decay', 'entry_cost_high']
 - Lehre: Underlying in Signalrichtung, Option trotzdem im Verlust – Zeitwert-/IV-Verfall der Struktur.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 30 %, Median -36 %
 
@@ -31,7 +39,7 @@ die vor dem Entry bereits abgeschlossen waren.
 - Strategie BULL_CALL_SPREAD, Haltedauer 2 T, Exit: stop_loss, Outcome verlässlich: ja
 - Underlying (signiert) -2 %, Option/Underlying 30.39, Zwischenhoch -38 %
 - Vorhersage: MC-Trefferquote 0.693, Impact 4.0
-- Ursache: timing_too_early ['timing_too_early', 'weak_adverse_move', 'low_data_confidence']
+- Ursache: timing_too_early ['timing_too_early', 'weak_adverse_move', 'entry_cost_high', 'low_data_confidence']
 - Lehre: Schwache Gegenbewegung, erwarteter Zeithorizont länger als die Haltedauer – zu früh.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 10 %, Median -61 %
 
@@ -39,7 +47,7 @@ die vor dem Entry bereits abgeschlossen waren.
 - Strategie BULL_CALL_SPREAD, Haltedauer 9 T, Exit: stop_loss, Outcome verlässlich: ja
 - Underlying (signiert) -5 %, Option/Underlying 10.86, Zwischenhoch -13 %
 - Vorhersage: MC-Trefferquote 0.684, Impact 4.0
-- Ursache: signal_wrong ['signal_wrong', 'low_data_confidence']
+- Ursache: signal_wrong ['signal_wrong', 'entry_cost_high', 'low_data_confidence']
 - Lehre: Underlying lief deutlich gegen die Signalrichtung – das Signal war falsch.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 20 %, Median -57 %
 
@@ -47,7 +55,7 @@ die vor dem Entry bereits abgeschlossen waren.
 - Strategie BULL_CALL_SPREAD, Haltedauer 27 T, Exit: stop_loss, Outcome verlässlich: ja
 - Underlying (signiert) 1 %, Option/Underlying -50.04, Zwischenhoch 19 %
 - Vorhersage: MC-Trefferquote 0.750, Impact 4.0
-- Ursache: structure_decay ['structure_decay']
+- Ursache: structure_decay ['structure_decay', 'entry_cost_high']
 - Lehre: Underlying in Signalrichtung, Option trotzdem im Verlust – Zeitwert-/IV-Verfall der Struktur.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 50 %, Median 23 %
 
@@ -74,12 +82,4 @@ die vor dem Entry bereits abgeschlossen waren.
 - Ursache: unreliable_outcome ['unreliable_outcome']
 - Lehre: Outcome nicht verlässlich bewertet – keine Lernaussage möglich.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 10 %, Median -100 %
-
-## AAPL · 2026-07-15 → 2026-08-29 · LOSS -16 %
-- Strategie BULL_CALL_SPREAD, Haltedauer 45 T, Exit: max_holding_period, Outcome verlässlich: nein
-- Underlying (signiert) -1 %, Option/Underlying 12.38, Zwischenhoch 21 %
-- Vorhersage: MC-Trefferquote 0.675, Impact 4.0
-- Ursache: unreliable_outcome ['unreliable_outcome']
-- Lehre: Outcome nicht verlässlich bewertet – keine Lernaussage möglich.
-- Ähnliche frühere Fälle: n=10, Gewinnanteil 20 %, Median -31 %
 

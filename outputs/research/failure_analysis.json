@@ -1,48 +1,52 @@
 {
   "last_n": 100,
-  "n_cases": 116,
-  "n_losses_total": 76,
+  "n_cases": 117,
+  "n_losses_total": 77,
   "n_wins_total": 37,
   "reliable": {
-    "n": 5,
-    "mean_outcome": -0.46699999999999997,
+    "n": 6,
+    "mean_outcome": -0.46718333333333334,
     "primary": {
+      "signal_wrong": {
+        "n": 2,
+        "share": 0.3333333333333333,
+        "mean_outcome": -0.52995
+      },
       "structure_decay": {
         "n": 2,
-        "share": 0.4,
+        "share": 0.3333333333333333,
         "mean_outcome": -0.45994999999999997
       },
       "timing_too_early": {
         "n": 2,
-        "share": 0.4,
+        "share": 0.3333333333333333,
         "mean_outcome": -0.41165
-      },
-      "signal_wrong": {
-        "n": 1,
-        "share": 0.2,
-        "mean_outcome": -0.5918
       }
     },
     "labels": {
+      "entry_cost_high": {
+        "n": 5,
+        "share": 0.8333333333333334
+      },
       "low_data_confidence": {
         "n": 2,
-        "share": 0.4
+        "share": 0.3333333333333333
+      },
+      "signal_wrong": {
+        "n": 2,
+        "share": 0.3333333333333333
       },
       "structure_decay": {
         "n": 2,
-        "share": 0.4
+        "share": 0.3333333333333333
       },
       "timing_too_early": {
         "n": 2,
-        "share": 0.4
+        "share": 0.3333333333333333
       },
       "weak_adverse_move": {
         "n": 2,
-        "share": 0.4
-      },
-      "signal_wrong": {
-        "n": 1,
-        "share": 0.2
+        "share": 0.3333333333333333
       }
     }
   },
@@ -66,67 +70,67 @@
   "winner_vs_loser": {
     "impact": {
       "mean_winners": 4.0,
-      "mean_losers": 4.0,
+      "mean_losers": 4.166666666666667,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": 0.0,
-      "effect_size": null
+      "n_losers": 6,
+      "diff": -0.16666666666666696,
+      "effect_size": -0.476289672207841
     },
     "surprise": {
       "mean_winners": 4.0,
       "mean_losers": 3.0,
       "n_winners": 1,
-      "n_losers": 5,
+      "n_losers": 6,
       "diff": 1.0,
-      "effect_size": 2.6832815729997477
+      "effect_size": 2.857738033247041
     },
     "mismatch": {
       "mean_winners": 1.266,
-      "mean_losers": 2.082,
+      "mean_losers": 2.1161666666666665,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": -0.8159999999999998,
-      "effect_size": -0.719863668488982
+      "n_losers": 6,
+      "diff": -0.8501666666666665,
+      "effect_size": -0.8049117719856604
     },
     "z_score": {
       "mean_winners": 0.547,
-      "mean_losers": 0.3836,
+      "mean_losers": 0.4101666666666666,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": 0.16340000000000005,
-      "effect_size": 0.7208026621991288
+      "n_losers": 6,
+      "diff": 0.13683333333333342,
+      "effect_size": 0.6366974126604711
     },
     "sigma_30d": {
       "mean_winners": 0.015,
-      "mean_losers": 0.026599999999999995,
+      "mean_losers": 0.03035,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": -0.011599999999999996,
-      "effect_size": -1.2894284746074045
+      "n_losers": 6,
+      "diff": -0.015349999999999999,
+      "effect_size": -1.2860122704051493
     },
     "price_move_48h": {
       "mean_winners": 0.0082,
-      "mean_losers": 0.00942,
+      "mean_losers": 0.012283333333333332,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": -0.0012199999999999989,
-      "effect_size": -0.22982873155317143
+      "n_losers": 6,
+      "diff": -0.004083333333333331,
+      "effect_size": -0.522157337253923
     },
     "eps_drift": {
       "mean_winners": 0.0,
-      "mean_losers": 0.00772,
+      "mean_losers": 0.0064333333333333334,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": -0.00772,
-      "effect_size": -0.5366563145999494
+      "n_losers": 6,
+      "diff": -0.0064333333333333334,
+      "effect_size": -0.47628967220784013
     },
     "quick_mc_hit_rate": {
       "mean_winners": 0.507,
-      "mean_losers": 0.64112,
+      "mean_losers": 0.6465666666666666,
       "n_winners": 1,
-      "n_losers": 5,
-      "diff": -0.13412000000000002,
-      "effect_size": -2.0259836709296386
+      "n_losers": 6,
+      "diff": -0.13956666666666662,
+      "effect_size": -2.172463499665265
     }
   },
   "note": "Kleine Stichprobe: Anteile sind deskriptiv, keine Signifikanzaussage.",
@@ -134,6 +138,6 @@
   "outcome_classes": {
     "UNKNOWN": 70,
     "RECONSTRUCTED": 40,
-    "RELIABLE": 6
+    "RELIABLE": 7
   }
 }

@@ -1,25 +1,25 @@
-# Machine Intelligence State – 2026-10-17T12:33:15+00:00
+# Machine Intelligence State – 2026-10-24T13:04:06+00:00
 
 ## Selbsteinschätzung
 
-- overall_calibration: **GOOD**
+- overall_calibration: **WEAK**
 - world_model_uncertainty: **MODERATE**
 - world_model_validation: **MODIFY**
 - meta_learning: **NEED_MORE_DATA**
 - next_architecture: **KEEP_CHAMPION**
-- safe_mode: **False**
+- safe_mode: **True**
 
 ## Was wissen wir?
 
-- Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00035 je Position, Sharpe 0.052, Trefferquote 0.4865
-- Regime-Abhängigkeit: vix_lt_20 -0.00378, vix_ge_20 0.00685, spy_uptrend -0.00198, spy_downtrend 0.0078
+- Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy -0.00037 je Position, Sharpe -0.07, Trefferquote 0.4804
+- Regime-Abhängigkeit: vix_lt_20 -0.00462, vix_ge_20 0.00631, spy_uptrend -0.00298, spy_downtrend 0.00796
 - Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01573 vs. inaktiv 0.00178 (t=1.66)
 - Abstinenz-Regel VORWÄRTS ab 2026-09-29: 0 aktive / 0 inaktive fertige Kohorten, Status ACCUMULATING
 
 ## Worüber sind wir unsicher?
 
 - 80-%-Intervalle: roh 0.6582, korrigiert 0.7887; P(>+10 %) Skill -0.156
-- World-Model-Unsicherheit 0.3403; nicht verfügbar: ['earnings_momentum']
+- World-Model-Unsicherheit 0.4917; nicht verfügbar: ['earnings_momentum']
 
 ## Wo liegen wir systematisch falsch?
 
@@ -38,32 +38,36 @@
 - UNKNOWN_CLUSTER_013: {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1724, Lift 1.65, Abdeckung LOW)
 - UNKNOWN_CLUSTER_014: {'momentum': 'loser_12m', 'beta': 'high_beta'} (Fehler -0.1726, Lift 1.64, Abdeckung LOW)
 - UNKNOWN_CLUSTER_015: {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'} (Fehler -0.1821, Lift 1.61, Abdeckung LOW)
+- Überkonfident im Bucket 50–55 %: prognostiziert 0.5204, realisiert 0.468 (n=12882)
+- Überkonfident im Bucket 55–60 %: prognostiziert 0.5763, realisiert 0.5017 (n=299)
 
 ## Welche Annahmen sind veraltet?
 
-- tnx: Wert 5.098 außerhalb Trainingsband [1.0993, 4.7817]
+- tnx: Wert 4.988 außerhalb Trainingsband [1.0993, 4.7817]
 
 ## Welche Modelle sind redundant?
 
 - rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)
-- momentum_12_1: Leave-one-out-Beitrag -0.00052 (≤ 0 = entbehrlich)
-- hgb_xs20_v1: Leave-one-out-Beitrag -0.0005 (≤ 0 = entbehrlich)
-- hgb_asym20_v1: Leave-one-out-Beitrag -0.00092 (≤ 0 = entbehrlich)
-- hgb_xs20_risk_regime_v1: Leave-one-out-Beitrag -0.0008 (≤ 0 = entbehrlich)
+- momentum_12_1: Leave-one-out-Beitrag -0.00095 (≤ 0 = entbehrlich)
+- enet_xs20_v1: Leave-one-out-Beitrag -0.00041 (≤ 0 = entbehrlich)
+- hgb_xs20_v1: Leave-one-out-Beitrag -0.00015 (≤ 0 = entbehrlich)
+- hgb_asym20_v1: Leave-one-out-Beitrag -0.00149 (≤ 0 = entbehrlich)
+- hgb_xs20_momentum_v1: Leave-one-out-Beitrag -0.00017 (≤ 0 = entbehrlich)
+- hgb_xs20_risk_regime_v1: Leave-one-out-Beitrag -0.00068 (≤ 0 = entbehrlich)
 
 ## Welche Merkmale verlieren Kraft?
 
-- vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.399)
-- vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.512)
-- max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.378)
+- vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.409)
+- vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.522)
+- max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.397)
 
 ## Wo ist die Datenqualität niedrig?
 
-- eia_natural_gas: FAIL
+- (keine gemessene Aussage)
 
 ## Wo ist die Uneinigkeit hoch?
 
-- aktuell LOW (mittlere Rang-Streuung 0.2105)
+- aktuell HIGH (mittlere Rang-Streuung 0.2819)
 
 ## Research-Tracks mit echtem OOS-Wert
 
@@ -80,4 +84,4 @@
 
 Höchste Research-Priorität: Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?
 
-Safe Mode: **aus** – –
+Safe Mode: **AKTIV** – ['MODEL: EXCESSIVE MODEL DISAGREEMENT']

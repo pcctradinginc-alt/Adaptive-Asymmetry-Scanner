@@ -1,32 +1,31 @@
 {
  "schema": "system-state-v2",
- "safe_mode": false,
- "safe_mode_reason": [],
+ "safe_mode": true,
+ "safe_mode_reason": [
+  "DATA HEALTH unbekannt: Health-Snapshot veraltet (2026-10-23T17:25:06+00:00)",
+  "MODEL: EXCESSIVE MODEL DISAGREEMENT",
+  "DRIFT: DATA DRIFT SEVERE: Data Quality None"
+ ],
  "data_health": {
-  "status": "OK",
-  "data_quality": 1.0,
+  "status": "UNKNOWN",
+  "data_quality": null,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-23T17:25:06+00:00",
-  "counts": {
-   "HEALTHY": 47,
-   "DEGRADED": 0,
-   "STALE": 0,
-   "BROKEN": 0,
-   "UNVALIDATED": 8
-  },
-  "fallbacks": []
+  "generated": null,
+  "counts": null
  },
  "model_health": {
-  "status": "OK",
-  "reasons": [],
-  "updated": "2026-10-17T12:33:14+00:00"
+  "status": "SAFE_MODE",
+  "reasons": [
+   "EXCESSIVE MODEL DISAGREEMENT"
+  ],
+  "updated": "2026-10-24T13:04:05+00:00"
  },
  "drift_state": {
-  "level": "MODERATE",
+  "level": "SEVERE",
   "components": {
    "feature": {
     "level": "MODERATE",
@@ -38,42 +37,42 @@
      "vix": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 19.99,
+      "value": 19.45,
       "p01": 12.2374,
       "p99": 33.3101
      },
      "vix_chg_21": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 4.55,
+      "value": 3.78,
       "p01": -11.8762,
       "p99": 13.7307
      },
      "spy_trend_200": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 0.0573,
+      "value": 0.0497,
       "p01": -0.1303,
       "p99": 0.1626
      },
      "spy_mom_63": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 0.0311,
+      "value": 0.0308,
       "p01": -0.1323,
       "p99": 0.1471
      },
      "tnx": {
       "level": "MODERATE",
-      "excess": 0.0859,
-      "value": 5.098,
+      "excess": 0.056,
+      "value": 4.988,
       "p01": 1.0993,
       "p99": 4.7817
      },
      "curve_10y_3m": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 1.028,
+      "value": 0.956,
       "p01": -1.5086,
       "p99": 2.0797
      }
@@ -86,22 +85,24 @@
     "n_models": 6
    },
    "data": {
-    "level": "NORMAL",
-    "data_quality": 1.0
+    "level": "SEVERE",
+    "data_quality": null,
+    "note": "Data Health unbekannt"
    }
   },
   "reasons": [
-   "FEATURE DRIFT MODERATE: ['tnx']"
+   "FEATURE DRIFT MODERATE: ['tnx']",
+   "DATA DRIFT SEVERE: Data Quality None"
   ],
   "policy_version": "drift-v1",
   "consequences": {
-   "confidence_multiplier": 0.75,
-   "positive_boost_cap": 0.5,
+   "confidence_multiplier": 0.5,
+   "positive_boost_cap": 0.0,
    "allow_weight_increase": false,
-   "safe_mode": false
+   "safe_mode": true
   },
-  "drift_input_timestamp": "2026-10-17T12:32:52+00:00",
-  "drift_input_age_days": 6.4,
+  "drift_input_timestamp": "2026-10-24T13:03:43+00:00",
+  "drift_input_age_days": 0.5,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -111,7 +112,7 @@
   "version": "scanner_rules@fa6cc74e0def"
  },
  "promotion_state": {
-  "generated": "2026-10-23T19:23:06+00:00",
+  "generated": "2026-10-23T22:27:05+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -119,7 +120,7 @@
   "with_influence": [],
   "max_automatic_influence": "ABSTENTION_ONLY"
  },
- "known": true,
+ "known": false,
  "allowed_influence": {
   "max_automatic_influence": "ABSTENTION_ONLY",
   "by_hypothesis": {},
@@ -140,13 +141,13 @@
   "v2_latest_snapshot": "2026-10-18"
  },
  "commodity_data_health": {
-  "overall": "HEALTHY",
+  "overall": "UNVALIDATED",
   "sources": {
-   "eia_petroleum_weekly": "HEALTHY",
-   "eia_natural_gas": "HEALTHY",
-   "fred_commodities": "HEALTHY",
-   "fred_regime_macro": "HEALTHY",
-   "cftc_cot": "HEALTHY"
+   "eia_petroleum_weekly": "UNVALIDATED",
+   "eia_natural_gas": "UNVALIDATED",
+   "fred_commodities": "UNVALIDATED",
+   "fred_regime_macro": "UNVALIDATED",
+   "cftc_cot": "UNVALIDATED"
   },
   "research_status": "RESEARCH_ONLY",
   "unavailable_series": [],
@@ -168,23 +169,23 @@
    "universe_v1": "OK",
    "universe_v2": "SHADOW",
    "commodity_intelligence": "RESEARCH",
-   "commodity_sources": "HEALTHY",
+   "commodity_sources": "UNVALIDATED",
    "rl": "SHADOW",
    "research_memory": "ACTIVE"
   }
  },
  "inputs": {
-  "model_health": "ca8b9dadf9a4",
-  "meta_learning": "3fa3d8254d87",
+  "model_health": "c9f28b20fe07",
+  "meta_learning": "a46310463c23",
   "data_health": "910ea569c757",
-  "promotion": "3436ddc98ee0",
+  "promotion": "763945d6acbb",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
-  "commodity_status": "452120bf5bdf"
+  "commodity_status": "3eadbdc6bc59"
  },
- "state_version": 57,
- "fingerprint": "b328a6c29b1020ef",
- "updated_at": "2026-10-23T22:27:05+00:00",
- "code_version": "4598e2be205b"
+ "state_version": 60,
+ "fingerprint": "3f0d936348f24153",
+ "updated_at": "2026-10-24T23:59:00+00:00",
+ "code_version": "1cc3cfbcdab6"
 }
