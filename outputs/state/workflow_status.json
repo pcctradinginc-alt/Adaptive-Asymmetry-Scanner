@@ -869,16 +869,16 @@
         "expected": "2026-10-25T06:17+00:00",
         "deadline": "2026-10-25T16:17+00:00",
         "actual_last_run": "2026-10-25T11:34:29Z",
-        "conclusion": null,
+        "conclusion": "success",
         "delay_hours": 5.3,
         "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
         "stale_upstream": [],
         "reason": null,
-        "state": "RUNNING"
+        "state": "OK"
       },
       "source_health": {
         "file": "source_health.yml",
