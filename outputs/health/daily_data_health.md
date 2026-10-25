@@ -4,10 +4,6 @@
 
 Status: HEALTHY 46 · DEGRADED 0 · STALE 1 · BROKEN 0 · UNVALIDATED 8
 
-## Neue Änderungen
-
-- degradation: finra_short_interest HEALTHY → STALE (veraltet (Frequenz-Grenze der Registry))
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
