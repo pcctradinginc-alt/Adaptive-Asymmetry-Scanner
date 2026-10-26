@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-23T22:27:04+00:00",
- "as_of": "2026-10-23",
+ "generated": "2026-10-26T20:39:50+00:00",
+ "as_of": "2026-10-26",
  "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
  "n_labels": 47,
  "n_label_dates": 4,
@@ -11,13 +11,12 @@
  "n_labels_target_population": 47,
  "population_shift": {
   "status": "OK",
-  "n_target": 219,
-  "n_other": 740,
-  "n_shifted": 11,
+  "n_target": 223,
+  "n_other": 771,
+  "n_shifted": 10,
   "shifted": [
    "final_mc_hit_rate",
    "mismatch",
-   "ml_disagreement_sd",
    "ml_exp_dd_60",
    "ml_exp_ret_60",
    "ml_q10_ret_60",
@@ -30,51 +29,51 @@
   "top": [
    {
     "feature": "ml_q10_ret_60",
-    "smd": -1.273,
-    "missing_target": 0.123,
-    "missing_other": 0.054
+    "smd": -1.266,
+    "missing_target": 0.121,
+    "missing_other": 0.052
    },
    {
     "feature": "sigma_30d",
-    "smd": 1.136,
+    "smd": 1.147,
     "missing_target": 0.0,
-    "missing_other": 0.873
+    "missing_other": 0.875
    },
    {
     "feature": "ml_exp_ret_60",
-    "smd": 1.025,
-    "missing_target": 0.123,
-    "missing_other": 0.054
+    "smd": 1.01,
+    "missing_target": 0.121,
+    "missing_other": 0.052
    },
    {
     "feature": "ml_exp_dd_60",
-    "smd": -0.493,
-    "missing_target": 0.123,
-    "missing_other": 0.054
+    "smd": -0.491,
+    "missing_target": 0.121,
+    "missing_other": 0.052
    },
    {
     "feature": "sentiment_score",
-    "smd": 0.429,
-    "missing_target": 0.068,
-    "missing_other": 0.027
+    "smd": 0.417,
+    "missing_target": 0.067,
+    "missing_other": 0.026
    },
    {
     "feature": "ml_disagreement_sd",
-    "smd": 0.264,
-    "missing_target": 0.123,
-    "missing_other": 0.054
+    "smd": 0.236,
+    "missing_target": 0.121,
+    "missing_other": 0.052
    },
    {
     "feature": "sentiment_drift",
-    "smd": 0.225,
-    "missing_target": 0.068,
-    "missing_other": 0.027
+    "smd": 0.228,
+    "missing_target": 0.067,
+    "missing_other": 0.026
    },
    {
     "feature": "scan_day_ret",
-    "smd": 0.201,
-    "missing_target": 0.068,
-    "missing_other": 0.027
+    "smd": 0.205,
+    "missing_target": 0.067,
+    "missing_other": 0.026
    }
   ],
   "verdict": "SHIFT"

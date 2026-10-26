@@ -1,9 +1,9 @@
 {
- "generated": "2026-10-23T22:27:05+00:00",
+ "generated": "2026-10-26T20:39:51+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "4598e2be205b",
+ "code_version": "35ab324ccb00",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -252,7 +252,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Financial Services",
+    "dominant_sector_fired": "Technology",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -2398,7 +2398,7 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "DRIFT MODERATE: Promotion pausiert"
+   "MODEL: EXCESSIVE MODEL DISAGREEMENT"
   ]
  },
  "multiple_testing": {
@@ -2485,5 +2485,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "be1816298a04522ad91b5a2d27e56c98d53dccf3d98691d5504801746884de6d"
+ "state_hash": "4aa9ca763fe81205a734167af9be5ce0bb32d640cad6e5b7b0a4738ff2829e74"
 }
