@@ -1,5 +1,5 @@
 {
- "n_spreads": 91,
+ "n_spreads": 93,
  "buckets": {
   "<5%": {
    "n_candidates": 2,
@@ -42,32 +42,32 @@
    "median_dte": 58.5
   },
   "20-30%": {
-   "n_candidates": 14,
+   "n_candidates": 15,
    "n_with_outcome": 10,
    "n_reliable": 2,
    "status": "NEED_MORE_DATA",
    "mean_outcome_exploratory": -0.2147,
    "stop_frequency": 0.3,
    "false_stop_frequency": 0.333,
-   "median_dte": 157.5
+   "median_dte": 160
   },
   ">=30%": {
-   "n_candidates": 48,
+   "n_candidates": 49,
    "n_with_outcome": 19,
    "n_reliable": 3,
    "status": "NEED_MORE_DATA",
    "mean_outcome_exploratory": -0.4416,
    "stop_frequency": 0.211,
    "false_stop_frequency": 0.5,
-   "median_dte": 167.0
+   "median_dte": 167
   }
  },
  "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
  "note": "Keine automatische Schwellenoptimierung; n < min_n je Bucket -> NEED_MORE_DATA.",
  "sources": {
-  "closed": 116,
-  "active": 4,
-  "shadow_view": 345,
+  "closed": 117,
+  "active": 3,
+  "shadow_view": 409,
   "archive": true
  }
 }

@@ -1,18 +1,18 @@
 {
- "n_closed": 116,
- "n_reliable": 6,
+ "n_closed": 117,
+ "n_reliable": 7,
  "reliability_definition": "outcome-classes-v3-2026-10-10",
  "outcome_classes": {
   "UNKNOWN": 70,
   "RECONSTRUCTED": 40,
-  "RELIABLE": 6
+  "RELIABLE": 7
  },
  "overall": {
-  "n": 6,
-  "win_rate": 0.167,
-  "mean": -0.3041,
-  "median": -0.4117,
-  "profit_factor": 0.22
+  "n": 7,
+  "win_rate": 0.143,
+  "mean": -0.3276,
+  "median": -0.4681,
+  "profit_factor": 0.18
  },
  "by_strategy": {
   "BULL_CALL_SPREAD": {
@@ -23,11 +23,11 @@
    "profit_factor": 0.0
   },
   "LONG_CALL": {
-   "n": 1,
-   "win_rate": 1.0,
-   "mean": 0.5102,
-   "median": 0.5102,
-   "profit_factor": null
+   "n": 2,
+   "win_rate": 0.5,
+   "mean": 0.021,
+   "median": 0.021,
+   "profit_factor": 1.09
   }
  },
  "by_entry_month": {
@@ -46,10 +46,10 @@
    "profit_factor": 0.38
   },
   "2026-10": {
-   "n": 2,
+   "n": 3,
    "win_rate": 0.0,
-   "mean": -0.3448,
-   "median": -0.3448,
+   "mean": -0.3859,
+   "median": -0.4681,
    "profit_factor": 0.0
   }
  },
@@ -62,10 +62,10 @@
    "profit_factor": 0.0
   },
   "stop_loss": {
-   "n": 4,
+   "n": 5,
    "win_rate": 0.0,
-   "mean": -0.5049,
-   "median": -0.5498,
+   "mean": -0.4975,
+   "median": -0.5079,
    "profit_factor": 0.0
   },
   "take_profit": {
@@ -78,10 +78,10 @@
  },
  "by_catalyst": {
   "EARNINGS": {
-   "n": 3,
+   "n": 4,
    "win_rate": 0.0,
-   "mean": -0.4759,
-   "median": -0.5079,
+   "mean": -0.474,
+   "median": -0.488,
    "profit_factor": 0.0
   },
   "INSIDER": {
@@ -106,14 +106,21 @@
    "mean": -0.3041,
    "median": -0.4117,
    "profit_factor": 0.22
+  },
+  "5": {
+   "n": 1,
+   "win_rate": 0.0,
+   "mean": -0.4681,
+   "median": -0.4681,
+   "profit_factor": 0.0
   }
  },
  "by_llm_surprise": {
   "3": {
-   "n": 5,
+   "n": 6,
    "win_rate": 0.0,
-   "mean": -0.467,
-   "median": -0.5079,
+   "mean": -0.4672,
+   "median": -0.488,
    "profit_factor": 0.0
   },
   "4": {
@@ -134,12 +141,12 @@
    "predicted_hit_rate": 0.613
   },
   "0.65-0.75": {
-   "n": 4,
+   "n": 5,
    "win_rate": 0.0,
-   "mean": -0.3992,
-   "median": -0.4117,
+   "mean": -0.413,
+   "median": -0.4681,
    "profit_factor": 0.0,
-   "predicted_hit_rate": 0.711
+   "predicted_hit_rate": 0.709
   },
   ">=0.75": {
    "n": 1,
@@ -154,7 +161,7 @@
  "calibration_oos": {
   "method": "prequential: Band-Win-Rate nur aus vor dem Entry geschlossenen Trades (min n 10 je Band)",
   "n_evaluated": 0,
-  "n_skipped_insufficient_history": 6,
+  "n_skipped_insufficient_history": 7,
   "brier_raw": null,
   "brier_calibrated": null,
   "ece_raw": null,
