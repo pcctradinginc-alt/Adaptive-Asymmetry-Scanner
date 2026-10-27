@@ -1,32 +1,32 @@
 {
  "schema": "ops-report-v1",
- "as_of": "2026-10-26",
- "generated": "2026-10-26T19:32:38+00:00",
+ "as_of": "2026-10-27",
+ "generated": "2026-10-27T18:44:21+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-10-26T19:32:38+00:00",
-  "as_of": "2026-10-26",
+  "generated": "2026-10-27T18:44:21+00:00",
+  "as_of": "2026-10-27",
   "read_only": true,
   "run": {
    "workflows": {
     "external_data": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-10-26T13:07:26Z",
-     "delay_hours": 6.8
+     "last_run": "2026-10-27T12:15:44Z",
+     "delay_hours": 6.0
     },
     "source_health": {
-     "state": "OK",
-     "conclusion": "success",
-     "last_run": "2026-10-26T18:50:30Z",
-     "delay_hours": 3.6
+     "state": "RECOVERY_TRIGGERED",
+     "conclusion": null,
+     "last_run": null,
+     "delay_hours": null
     },
     "scanner": {
-     "state": "RUNNING",
+     "state": "PENDING",
      "conclusion": null,
-     "last_run": "2026-10-26T18:52:00Z",
-     "delay_hours": 5.4
+     "last_run": null,
+     "delay_hours": null
     },
     "feedback": {
      "state": "PENDING",
@@ -35,18 +35,18 @@
      "delay_hours": null
     }
    },
-   "report_date": "2026-10-26",
+   "report_date": "2026-10-27",
    "report_is_today": true,
    "scanner": {
     "universe": 518,
-    "analyzed": 35,
-    "champion_candidates": 4,
-    "contracts_designed": null,
+    "analyzed": 28,
+    "champion_candidates": 12,
+    "contracts_designed": 4,
     "trades": 0,
     "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
     "session": "regular",
-    "direction_conflicts": 1,
-    "direction_conflict_share": 0.0286
+    "direction_conflicts": 0,
+    "direction_conflict_share": 0.0
    },
    "definitions": {
     "champion_candidates": "stats.final_mc (Final-MC bestanden)",
@@ -206,36 +206,36 @@
    },
    "candidate_marks": {
     "real_opt_ret_5d": {
-     "due": 513,
-     "marked": 512,
+     "due": 553,
+     "marked": 552,
      "pending": 0,
      "late_marks": 50,
      "unavailable": 1,
      "oldest_pending_days": null
     },
     "real_opt_ret_20d": {
-     "due": 153,
-     "marked": 152,
+     "due": 193,
+     "marked": 192,
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 6
+     "oldest_pending_days": 7
     },
     "real_strat_ret_5d": {
-     "due": 513,
-     "marked": 512,
+     "due": 553,
+     "marked": 552,
      "pending": 0,
      "late_marks": 50,
      "unavailable": 1,
      "oldest_pending_days": null
     },
     "real_strat_ret_20d": {
-     "due": 153,
-     "marked": 152,
+     "due": 193,
+     "marked": 192,
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 6
+     "oldest_pending_days": 7
     }
    }
   },
@@ -275,15 +275,15 @@
     }
    },
    "candidates": {
-    "SIGNAL": 994,
-    "CONTRACT_SELECTED": 628,
-    "ENTRY_OBSERVED": 628,
-    "OUTCOME_FINAL": 512,
+    "SIGNAL": 1022,
+    "CONTRACT_SELECTED": 656,
+    "ENTRY_OBSERVED": 656,
+    "OUTCOME_FINAL": 552,
     "LATE_MARK": 0,
     "PRICE_BASIS_CHANGED": 2,
     "MARK_UNAVAILABLE": 1,
     "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 366,
-    "EXIT_PENDING": 115
+    "EXIT_PENDING": 103
    },
    "definitions": {
     "LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
@@ -984,8 +984,8 @@
     }
    },
    "meta_label": {
-    "generated": "2026-10-23T22:27:04+00:00",
-    "as_of": "2026-10-23",
+    "generated": "2026-10-26T23:13:59+00:00",
+    "as_of": "2026-10-26",
     "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
     "n_labels": 47,
     "n_label_dates": 4,
@@ -996,13 +996,12 @@
     "n_labels_target_population": 47,
     "population_shift": {
      "status": "OK",
-     "n_target": 219,
-     "n_other": 740,
-     "n_shifted": 11,
+     "n_target": 223,
+     "n_other": 771,
+     "n_shifted": 10,
      "shifted": [
       "final_mc_hit_rate",
       "mismatch",
-      "ml_disagreement_sd",
       "ml_exp_dd_60",
       "ml_exp_ret_60",
       "ml_q10_ret_60",
@@ -1015,51 +1014,51 @@
      "top": [
       {
        "feature": "ml_q10_ret_60",
-       "smd": -1.273,
-       "missing_target": 0.123,
-       "missing_other": 0.054
+       "smd": -1.266,
+       "missing_target": 0.121,
+       "missing_other": 0.052
       },
       {
        "feature": "sigma_30d",
-       "smd": 1.136,
+       "smd": 1.147,
        "missing_target": 0.0,
-       "missing_other": 0.873
+       "missing_other": 0.875
       },
       {
        "feature": "ml_exp_ret_60",
-       "smd": 1.025,
-       "missing_target": 0.123,
-       "missing_other": 0.054
+       "smd": 1.01,
+       "missing_target": 0.121,
+       "missing_other": 0.052
       },
       {
        "feature": "ml_exp_dd_60",
-       "smd": -0.493,
-       "missing_target": 0.123,
-       "missing_other": 0.054
+       "smd": -0.491,
+       "missing_target": 0.121,
+       "missing_other": 0.052
       },
       {
        "feature": "sentiment_score",
-       "smd": 0.429,
-       "missing_target": 0.068,
-       "missing_other": 0.027
+       "smd": 0.417,
+       "missing_target": 0.067,
+       "missing_other": 0.026
       },
       {
        "feature": "ml_disagreement_sd",
-       "smd": 0.264,
-       "missing_target": 0.123,
-       "missing_other": 0.054
+       "smd": 0.236,
+       "missing_target": 0.121,
+       "missing_other": 0.052
       },
       {
        "feature": "sentiment_drift",
-       "smd": 0.225,
-       "missing_target": 0.068,
-       "missing_other": 0.027
+       "smd": 0.228,
+       "missing_target": 0.067,
+       "missing_other": 0.026
       },
       {
        "feature": "scan_day_ret",
-       "smd": 0.201,
-       "missing_target": 0.068,
-       "missing_other": 0.027
+       "smd": 0.205,
+       "missing_target": 0.067,
+       "missing_other": 0.026
       }
      ],
      "verdict": "SHIFT"
@@ -1069,24 +1068,24 @@
    },
    "scorecard": {
     "CANDIDATE_5d|ALL": {
-     "n": 805,
-     "n_signal_days": 13,
-     "n_entities": 307,
-     "mean_net": 0.001504,
+     "n": 855,
+     "n_signal_days": 14,
+     "n_entities": 312,
+     "mean_net": 0.001093,
      "median_net": 0.0025,
-     "hit_rate": 0.5354,
-     "mean_gross": 0.003504,
+     "hit_rate": 0.5333,
+     "mean_gross": 0.003093,
      "worst": -0.2024,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_5d|LATE_STAGE": {
-     "n": 181,
-     "n_signal_days": 13,
-     "n_entities": 116,
-     "mean_net": 0.002172,
-     "median_net": 0.0063,
-     "hit_rate": 0.5525,
-     "mean_gross": 0.004172,
+     "n": 198,
+     "n_signal_days": 14,
+     "n_entities": 122,
+     "mean_net": 0.000333,
+     "median_net": 0.0052,
+     "hit_rate": 0.5303,
+     "mean_gross": 0.002333,
      "worst": -0.134,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1102,52 +1101,57 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|ALL": {
-     "n": 143,
-     "n_signal_days": 4,
-     "n_entities": 116,
-     "mean_net": -0.022569,
-     "median_net": -0.0226,
-     "hit_rate": 0.4406,
-     "mean_gross": -0.020569,
-     "worst": -0.232,
+     "n": 209,
+     "n_signal_days": 5,
+     "n_entities": 159,
+     "mean_net": -0.029923,
+     "median_net": -0.0267,
+     "hit_rate": 0.4402,
+     "mean_gross": -0.027923,
+     "worst": -0.3684,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|LATE_STAGE": {
-     "n": 47,
-     "n_signal_days": 4,
-     "n_entities": 36,
-     "mean_net": -0.058372,
-     "median_net": -0.0719,
-     "hit_rate": 0.383,
-     "mean_gross": -0.056372,
-     "worst": -0.232,
+     "n": 66,
+     "n_signal_days": 5,
+     "n_entities": 52,
+     "mean_net": -0.056282,
+     "median_net": -0.0566,
+     "hit_rate": 0.4091,
+     "mean_gross": -0.054282,
+     "worst": -0.3684,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|CHAMPION": {
-     "n": 0,
-     "n_signal_days": 0,
-     "n_entities": 0,
-     "verdict": "NO_DATA"
+     "n": 2,
+     "n_signal_days": 1,
+     "n_entities": 2,
+     "mean_net": -0.13755,
+     "median_net": -0.13755,
+     "hit_rate": 0.0,
+     "mean_gross": -0.13555,
+     "worst": -0.1736,
+     "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|ALL": {
-     "n": 392,
-     "n_signal_days": 11,
-     "n_entities": 223,
-     "mean_net": -0.101645,
-     "median_net": -0.114912,
-     "hit_rate": 0.2857,
-     "mean_gross": -0.100289,
+     "n": 512,
+     "n_signal_days": 14,
+     "n_entities": 252,
+     "mean_net": -0.092189,
+     "median_net": -0.105271,
+     "hit_rate": 0.3145,
+     "mean_gross": -0.090863,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|LATE_STAGE": {
-     "n": 97,
-     "n_signal_days": 11,
-     "n_entities": 70,
-     "mean_net": -0.089143,
-     "median_net": -0.074035,
-     "hit_rate": 0.3608,
-     "mean_gross": -0.088029,
+     "n": 121,
+     "n_signal_days": 14,
+     "n_entities": 86,
+     "mean_net": -0.092825,
+     "median_net": -0.10504,
+     "hit_rate": 0.3471,
+     "mean_gross": -0.09177,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1163,52 +1167,57 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|ALL": {
-     "n": 112,
-     "n_signal_days": 4,
-     "n_entities": 88,
-     "mean_net": -0.165163,
-     "median_net": -0.299158,
-     "hit_rate": 0.3125,
-     "mean_gross": -0.163894,
-     "worst": -0.776042,
+     "n": 152,
+     "n_signal_days": 5,
+     "n_entities": 126,
+     "mean_net": -0.154722,
+     "median_net": -0.293693,
+     "hit_rate": 0.3092,
+     "mean_gross": -0.153516,
+     "worst": -0.828995,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|LATE_STAGE": {
-     "n": 38,
-     "n_signal_days": 4,
-     "n_entities": 28,
-     "mean_net": -0.278846,
-     "median_net": -0.416293,
-     "hit_rate": 0.2105,
-     "mean_gross": -0.278032,
-     "worst": -0.776042,
+     "n": 50,
+     "n_signal_days": 5,
+     "n_entities": 40,
+     "mean_net": -0.235291,
+     "median_net": -0.399847,
+     "hit_rate": 0.24,
+     "mean_gross": -0.234478,
+     "worst": -0.828995,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|CHAMPION": {
-     "n": 0,
-     "n_signal_days": 0,
-     "n_entities": 0,
-     "verdict": "NO_DATA"
+     "n": 2,
+     "n_signal_days": 1,
+     "n_entities": 2,
+     "mean_net": -0.528903,
+     "median_net": -0.528903,
+     "hit_rate": 0.0,
+     "mean_gross": -0.52845,
+     "worst": -0.57962,
+     "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|ALL": {
-     "n": 342,
-     "n_signal_days": 11,
-     "n_entities": 207,
-     "mean_net": -0.137894,
-     "median_net": -0.142383,
-     "hit_rate": 0.2602,
-     "mean_gross": -0.135795,
+     "n": 462,
+     "n_signal_days": 14,
+     "n_entities": 239,
+     "mean_net": -0.124878,
+     "median_net": -0.127924,
+     "hit_rate": 0.2944,
+     "mean_gross": -0.122913,
      "worst": -0.8587,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|LATE_STAGE": {
-     "n": 81,
-     "n_signal_days": 11,
-     "n_entities": 65,
-     "mean_net": -0.209842,
+     "n": 105,
+     "n_signal_days": 14,
+     "n_entities": 81,
+     "mean_net": -0.193407,
      "median_net": -0.211177,
-     "hit_rate": 0.2099,
-     "mean_gross": -0.206996,
+     "hit_rate": 0.2286,
+     "mean_gross": -0.19097,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1224,32 +1233,37 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|ALL": {
-     "n": 112,
-     "n_signal_days": 4,
-     "n_entities": 88,
-     "mean_net": -0.189589,
+     "n": 152,
+     "n_signal_days": 5,
+     "n_entities": 126,
+     "mean_net": -0.189168,
      "median_net": -0.317202,
-     "hit_rate": 0.2946,
-     "mean_gross": -0.187815,
-     "worst": -0.776042,
+     "hit_rate": 0.2961,
+     "mean_gross": -0.187514,
+     "worst": -0.897788,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|LATE_STAGE": {
-     "n": 38,
-     "n_signal_days": 4,
-     "n_entities": 28,
-     "mean_net": -0.316682,
+     "n": 50,
+     "n_signal_days": 5,
+     "n_entities": 40,
+     "mean_net": -0.299857,
      "median_net": -0.438163,
-     "hit_rate": 0.1842,
-     "mean_gross": -0.315384,
-     "worst": -0.776042,
+     "hit_rate": 0.22,
+     "mean_gross": -0.298514,
+     "worst": -0.897788,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|CHAMPION": {
-     "n": 0,
-     "n_signal_days": 0,
-     "n_entities": 0,
-     "verdict": "NO_DATA"
+     "n": 2,
+     "n_signal_days": 1,
+     "n_entities": 2,
+     "mean_net": -0.587926,
+     "median_net": -0.587926,
+     "hit_rate": 0.0,
+     "mean_gross": -0.58705,
+     "worst": -0.596232,
+     "verdict": "NEED_MORE_DATA"
     },
     "CHAMPION_TRADE|ALL": {
      "n": 7,
@@ -1272,7 +1286,7 @@
     "min_labels": 200,
     "min_dates": 20
    },
-   "as_of": "2026-10-23",
+   "as_of": "2026-10-26",
    "versions": 0,
    "active": null,
    "hold": null,
@@ -1280,12 +1294,12 @@
    "manifest_violations": []
   },
   "promotion": {
-   "generated": "2026-10-23T22:27:05+00:00",
+   "generated": "2026-10-26T23:14:00+00:00",
    "max_automatic_influence": "ABSTENTION_ONLY",
    "kill_switch_active": false,
    "safe_mode": true,
    "safe_mode_reasons": [
-    "DRIFT MODERATE: Promotion pausiert"
+    "MODEL: EXCESSIVE MODEL DISAGREEMENT"
    ],
    "champion_version": "scanner_rules@fa6cc74e0def",
    "by_state": {
@@ -1482,20 +1496,20 @@
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
    "trade_outcome_duplicates": 0,
-   "quote_records_30d": 2106,
+   "quote_records_30d": 2374,
    "quote_duplicate_ids": 0,
    "quote_reobserved_ids": 11,
    "quote_non_observed_prices": 0,
    "closed_trade_quarantine": 7,
    "external_archive": {
-    "ok": 31204,
+    "ok": 31528,
     "legacy": 8671
    },
    "issues": []
   },
   "data_health": {
    "nasdaq100_source_check": {
-    "date": "2026-10-26",
+    "date": "2026-10-27",
     "mismatch": 0,
     "only_official": [],
     "only_production": [],
@@ -1504,11 +1518,12 @@
     "production_source": "nasdaq_official"
    },
    "source_health": {
-    "generated": "2026-10-26T18:51:46+00:00",
+    "generated": "2026-10-27T18:14:28+00:00",
     "by_status": {
-     "HEALTHY": 46,
-     "STALE": 1,
-     "UNVALIDATED": 8
+     "HEALTHY": 44,
+     "DEGRADED": 2,
+     "UNVALIDATED": 8,
+     "STALE": 1
     },
     "inactive_by_design": {
      "disabled": 1,
@@ -1518,23 +1533,38 @@
    },
    "external_data": {
     "by_status": {
-     "PASS": 36,
+     "FAIL": 2,
+     "PASS": 34,
      "DEFERRED": 13
     }
    },
    "quote_archive_days": {
+    "2026-10-27": {
+     "n": 257,
+     "by_context": {
+      "trade_mark_rth": 6,
+      "candidate_mark_rth": 90,
+      "candidate_mark": 91,
+      "candidate_entry": 37,
+      "exit_mark": 33
+     },
+     "by_quality": {
+      "OK": 248,
+      "SUSPECT": 9
+     }
+    },
     "2026-10-26": {
-     "n": 445,
+     "n": 456,
      "by_context": {
       "trade_mark_rth": 6,
       "candidate_mark_rth": 169,
       "candidate_mark": 176,
       "candidate_entry": 44,
-      "exit_mark": 50
+      "exit_mark": 61
      },
      "by_quality": {
-      "OK": 441,
-      "SUSPECT": 4
+      "OK": 451,
+      "SUSPECT": 5
      }
     },
     "2026-10-23": {
@@ -1645,18 +1675,6 @@
       "OK": 187,
       "SUSPECT": 4
      }
-    },
-    "2026-10-13": {
-     "n": 240,
-     "by_context": {
-      "exit_mark": 27,
-      "trade_mark_rth": 5,
-      "candidate_mark_rth": 208
-     },
-     "by_quality": {
-      "OK": 237,
-      "SUSPECT": 3
-     }
     }
    },
    "quote_archive_median_14d": 200.0,
@@ -1695,20 +1713,20 @@
   },
   "learning_eta": {
    "meta_label": {
-    "have": 47,
+    "have": 66,
     "need": 200,
-    "have_dates": 4,
+    "have_dates": 5,
     "need_dates": 20,
-    "pending_maturing": 176,
-    "new_rows_per_day": 6.43,
-    "eta": "2026-11-21",
+    "pending_maturing": 169,
+    "new_rows_per_day": 7.29,
+    "eta": "2026-11-20",
     "basis": "Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T"
    },
    "rl_arming": {
     "have": 13,
     "need": 30,
     "closes_per_day_30d": 0.233,
-    "eta": "2027-01-07",
+    "eta": "2027-01-08",
     "since": "2026-06-11"
    },
    "champion_evidence": {
@@ -1717,20 +1735,20 @@
     "have_days": 6,
     "need_days": 20,
     "evaluable_per_day_30d": 0.233,
-    "eta": "2027-02-02"
+    "eta": "2027-02-03"
    },
    "note": "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
   },
   "workflows": {
    "status": "OK",
-   "window_hours": 74,
-   "since": "2026-10-23T17:32:38Z",
-   "runs_total": 52,
+   "window_hours": 26,
+   "since": "2026-10-26T16:44:21Z",
+   "runs_total": 33,
    "failed": [],
    "failed_by_workflow": {},
    "scanner_start": {
-    "started_et": "2026-10-26T14:52-04:00",
-    "run_id": 40381545096,
+    "started_et": "2026-10-27T14:15-04:00",
+    "run_id": 40558136807,
     "late": false,
     "late_after_et": "15:00",
     "trading_day": true
@@ -1739,18 +1757,18 @@
  },
  "row": {
   "schema": "ops-history-v1",
-  "as_of": "2026-10-26",
-  "generated": "2026-10-26T19:32:38+00:00",
+  "as_of": "2026-10-27",
+  "generated": "2026-10-27T18:44:21+00:00",
   "run.scanner.universe": 518,
-  "run.scanner.analyzed": 35,
-  "run.scanner.champion_candidates": 4,
-  "run.scanner.contracts_designed": null,
+  "run.scanner.analyzed": 28,
+  "run.scanner.champion_candidates": 12,
+  "run.scanner.contracts_designed": 4,
   "run.scanner.trades": 0,
-  "run.scanner.direction_conflicts": 1,
-  "run.scanner.direction_conflict_share": 0.0286,
+  "run.scanner.direction_conflicts": 0,
+  "run.scanner.direction_conflict_share": 0.0,
   "workflows.failed_runs": 0,
   "data.nasdaq100_mismatch": 0,
-  "learning.meta_label.have": 47,
+  "learning.meta_label.have": 66,
   "learning.rl_arming.have": 13,
   "learning.champion_evidence.have": 7,
   "run.report_is_today": true,
@@ -1793,8 +1811,8 @@
   "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": 0,
   "lifecycle.champion.exactly_once_ok": true,
   "lifecycle.candidates.EXIT_OVERDUE": 0,
-  "lifecycle.candidates.EXIT_PENDING": 115,
-  "lifecycle.candidates.OUTCOME_FINAL": 512,
+  "lifecycle.candidates.EXIT_PENDING": 103,
+  "lifecycle.candidates.OUTCOME_FINAL": 552,
   "forward.champion.n": 7,
   "forward.champion.n_independent_days": 6,
   "forward.champion.mean_net": -0.332222,
@@ -1806,12 +1824,13 @@
   "promotion.unjustified_influence": 0,
   "promotion.kill_switch_active": false,
   "integrity.issues": 0,
-  "data.source_health.HEALTHY": 46,
+  "data.source_health.DEGRADED": 2,
+  "data.source_health.HEALTHY": 44,
   "data.source_health.STALE": 1,
   "data.source_health.UNVALIDATED": 8,
-  "data.source_health.n_bad": 1,
+  "data.source_health.n_bad": 3,
   "data.quote_archive_median_14d": 200.0,
-  "data.quote_archive_today": 445
+  "data.quote_archive_today": 257
  },
  "deltas": {
   "run.scanner.universe": {
@@ -1824,27 +1843,27 @@
    "diff_d30": null
   },
   "run.scanner.analyzed": {
-   "value": 35,
-   "prev": 41,
-   "d7": 56,
+   "value": 28,
+   "prev": 35,
+   "d7": 47,
    "d30": null,
-   "diff_prev": -6,
-   "diff_d7": -21,
+   "diff_prev": -7,
+   "diff_d7": -19,
    "diff_d30": null
   },
   "run.scanner.champion_candidates": {
-   "value": 4,
-   "prev": 12,
-   "d7": 9,
+   "value": 12,
+   "prev": 4,
+   "d7": 7,
    "d30": null,
-   "diff_prev": -8,
-   "diff_d7": -5,
+   "diff_prev": 8,
+   "diff_d7": 5,
    "diff_d30": null
   },
   "run.scanner.contracts_designed": {
-   "value": null,
-   "prev": 4,
-   "d7": 2,
+   "value": 4,
+   "prev": null,
+   "d7": null,
    "d30": null,
    "diff_prev": null,
    "diff_d7": null,
@@ -1860,21 +1879,21 @@
    "diff_d30": null
   },
   "run.scanner.direction_conflicts": {
-   "value": 1,
-   "prev": 3,
-   "d7": 1,
+   "value": 0,
+   "prev": 1,
+   "d7": 3,
    "d30": null,
-   "diff_prev": -2,
-   "diff_d7": 0,
+   "diff_prev": -1,
+   "diff_d7": -3,
    "diff_d30": null
   },
   "run.scanner.direction_conflict_share": {
-   "value": 0.0286,
-   "prev": 0.0732,
-   "d7": 0.0179,
+   "value": 0.0,
+   "prev": 0.0286,
+   "d7": 0.0638,
    "d30": null,
-   "diff_prev": -0.0446,
-   "diff_d7": 0.0107,
+   "diff_prev": -0.0286,
+   "diff_d7": -0.0638,
    "diff_d30": null
   },
   "workflows.failed_runs": {
@@ -1896,12 +1915,12 @@
    "diff_d30": null
   },
   "learning.meta_label.have": {
-   "value": 47,
+   "value": 66,
    "prev": 47,
-   "d7": 8,
+   "d7": 19,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 39,
+   "diff_prev": 19,
+   "diff_d7": 47,
    "diff_d30": null
   },
   "learning.rl_arming.have": {
@@ -1924,7 +1943,7 @@
   },
   "quote.entry.7d.coverage": {
    "value": null,
-   "prev": 1.0,
+   "prev": null,
    "d7": 1.0,
    "d30": null,
    "diff_prev": null,
@@ -1933,19 +1952,19 @@
   },
   "quote.entry.7d.denominator": {
    "value": 0,
-   "prev": 1,
+   "prev": 0,
    "d7": 3,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -3,
    "diff_d30": null
   },
   "quote.entry.7d.observed": {
    "value": 0,
-   "prev": 1,
+   "prev": 0,
    "d7": 3,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -3,
    "diff_d30": null
   },
@@ -1960,19 +1979,19 @@
   },
   "quote.exit_closed.7d.denominator": {
    "value": 1,
-   "prev": 2,
+   "prev": 1,
    "d7": 3,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -2,
    "diff_d30": null
   },
   "quote.exit_closed.7d.observed": {
    "value": 1,
-   "prev": 2,
+   "prev": 1,
    "d7": 3,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -2,
    "diff_d30": null
   },
@@ -1987,19 +2006,19 @@
   },
   "quote.complete.7d.denominator": {
    "value": 1,
-   "prev": 2,
+   "prev": 1,
    "d7": 3,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -2,
    "diff_d30": null
   },
   "quote.complete.7d.evaluable": {
    "value": 1,
-   "prev": 2,
+   "prev": 1,
    "d7": 3,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -2,
    "diff_d30": null
   },
@@ -2014,19 +2033,19 @@
   },
   "quote.entry.30d.coverage": {
    "value": 0.6,
-   "prev": 0.5,
+   "prev": 0.6,
    "d7": 0.375,
    "d30": null,
-   "diff_prev": 0.1,
+   "diff_prev": 0.0,
    "diff_d7": 0.225,
    "diff_d30": null
   },
   "quote.entry.30d.denominator": {
    "value": 5,
-   "prev": 6,
+   "prev": 5,
    "d7": 8,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -3,
    "diff_d30": null
   },
@@ -2041,19 +2060,19 @@
   },
   "quote.exit_closed.30d.coverage": {
    "value": 1.0,
-   "prev": 0.875,
+   "prev": 1.0,
    "d7": 0.75,
    "d30": null,
-   "diff_prev": 0.125,
+   "diff_prev": 0.0,
    "diff_d7": 0.25,
    "diff_d30": null
   },
   "quote.exit_closed.30d.denominator": {
    "value": 7,
-   "prev": 8,
+   "prev": 7,
    "d7": 8,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -1,
    "diff_d30": null
   },
@@ -2068,19 +2087,19 @@
   },
   "quote.complete.30d.coverage": {
    "value": 1.0,
-   "prev": 0.875,
+   "prev": 1.0,
    "d7": 0.75,
    "d30": null,
-   "diff_prev": 0.125,
+   "diff_prev": 0.0,
    "diff_d7": 0.25,
    "diff_d30": null
   },
   "quote.complete.30d.denominator": {
    "value": 7,
-   "prev": 8,
+   "prev": 7,
    "d7": 8,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -1,
    "diff_d30": null
   },
@@ -2095,10 +2114,10 @@
   },
   "quote.entry.30d.legacy": {
    "value": 2,
-   "prev": 3,
+   "prev": 2,
    "d7": 5,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": -3,
    "diff_d30": null
   },
@@ -2132,37 +2151,19 @@
   "marks.real_opt_ret_5d.pending": {
    "value": 0,
    "prev": 0,
-   "d7": 1,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -1,
-   "diff_d30": null
-  },
-  "marks.real_opt_ret_5d.oldest_pending_days": {
-   "value": null,
-   "prev": null,
-   "d7": 14,
-   "d30": null,
-   "diff_prev": null,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "marks.real_strat_ret_5d.pending": {
    "value": 0,
    "prev": 0,
-   "d7": 1,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -1,
-   "diff_d30": null
-  },
-  "marks.real_strat_ret_5d.oldest_pending_days": {
-   "value": null,
-   "prev": null,
-   "d7": 14,
-   "d30": null,
-   "diff_prev": null,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.champion.state.SIGNAL": {
@@ -2258,27 +2259,27 @@
   "lifecycle.candidates.EXIT_OVERDUE": {
    "value": 0,
    "prev": 0,
-   "d7": 1,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -1,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "lifecycle.candidates.EXIT_PENDING": {
-   "value": 115,
-   "prev": 200,
+   "value": 103,
+   "prev": 115,
    "d7": 120,
    "d30": null,
-   "diff_prev": -85,
-   "diff_d7": -5,
+   "diff_prev": -12,
+   "diff_d7": -17,
    "diff_d30": null
   },
   "lifecycle.candidates.OUTCOME_FINAL": {
-   "value": 512,
-   "prev": 392,
-   "d7": 312,
+   "value": 552,
+   "prev": 512,
+   "d7": 352,
    "d30": null,
-   "diff_prev": 120,
+   "diff_prev": 40,
    "diff_d7": 200,
    "diff_d30": null
   },
@@ -2320,11 +2321,11 @@
   },
   "training.n_labels": {
    "value": 47,
-   "prev": 25,
-   "d7": 0,
+   "prev": 47,
+   "d7": 8,
    "d30": null,
-   "diff_prev": 22,
-   "diff_d7": 47,
+   "diff_prev": 0,
+   "diff_d7": 39,
    "diff_d30": null
   },
   "promotion.active_influence": {
@@ -2354,21 +2355,30 @@
    "diff_d7": 0,
    "diff_d30": null
   },
-  "data.source_health.HEALTHY": {
-   "value": 46,
-   "prev": 47,
-   "d7": 47,
-   "d30": null,
-   "diff_prev": -1,
-   "diff_d7": -1,
-   "diff_d30": null
-  },
-  "data.source_health.STALE": {
-   "value": 1,
+  "data.source_health.DEGRADED": {
+   "value": 2,
    "prev": null,
    "d7": null,
    "d30": null,
    "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
+  },
+  "data.source_health.HEALTHY": {
+   "value": 44,
+   "prev": 46,
+   "d7": 47,
+   "d30": null,
+   "diff_prev": -2,
+   "diff_d7": -3,
+   "diff_d30": null
+  },
+  "data.source_health.STALE": {
+   "value": 1,
+   "prev": 1,
+   "d7": null,
+   "d30": null,
+   "diff_prev": 0,
    "diff_d7": null,
    "diff_d30": null
   },
@@ -2382,46 +2392,54 @@
    "diff_d30": null
   },
   "data.source_health.n_bad": {
-   "value": 1,
-   "prev": 0,
+   "value": 3,
+   "prev": 1,
    "d7": 0,
    "d30": null,
-   "diff_prev": 1,
-   "diff_d7": 1,
+   "diff_prev": 2,
+   "diff_d7": 3,
    "diff_d30": null
   },
   "data.quote_archive_median_14d": {
    "value": 200.0,
-   "prev": 184.0,
-   "d7": 153.5,
+   "prev": 200.0,
+   "d7": 191,
    "d30": null,
-   "diff_prev": 16.0,
-   "diff_d7": 46.5,
+   "diff_prev": 0.0,
+   "diff_d7": 9.0,
    "diff_d30": null
   },
   "data.quote_archive_today": {
-   "value": 445,
-   "prev": 70,
-   "d7": 261,
+   "value": 257,
+   "prev": 445,
+   "d7": 206,
    "d30": null,
-   "diff_prev": 375,
-   "diff_d7": 184,
+   "diff_prev": -188,
+   "diff_d7": 51,
    "diff_d30": null
   }
  },
  "delta_refs": {
-  "prev": "2026-10-23",
-  "d7": "2026-10-19",
+  "prev": "2026-10-26",
+  "d7": "2026-10-20",
   "d30": null
  },
  "alerts": [
   {
+   "id": "DATA_DEGRADATION:source_health",
+   "severity": "WARNING",
+   "component": "Daten",
+   "cause": "Quellen mit Status FAILED/BROKEN/STALE/DEGRADED: 3 (Vorlauf 1, +2).",
+   "since": "2026-10-27",
+   "status": "NEW"
+  },
+  {
    "id": "OUTCOMES_OVERDUE:marks",
    "severity": "WARNING",
    "component": "Quote-Abdeckung",
-   "cause": "Fällige Marks offen: real_opt_ret_20d 1 von 153 offen, ältester 6 Tage; real_strat_ret_20d 1 von 153 offen, ältester 6 Tage (Schwelle > 3 Tage).",
+   "cause": "Fällige Marks offen: real_opt_ret_20d 1 von 193 offen, ältester 7 Tage; real_strat_ret_20d 1 von 193 offen, ältester 7 Tage (Schwelle > 3 Tage).",
    "since": "2026-10-26",
-   "status": "NEW"
+   "status": "ONGOING"
   }
  ],
  "mail": {
@@ -2432,7 +2450,7 @@
   "recipients": [
    "p***@gmail.com"
   ],
-  "subject": "[Scanner-Monitor] 2026-10-26: 1 neue Warnung(en)"
+  "subject": "[Scanner-Monitor] 2026-10-27: 1 neue Warnung(en)"
  },
  "history": {
   "appended": true,

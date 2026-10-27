@@ -1,0 +1,681 @@
+{
+  "date": "2026-10-27",
+  "proposals": [],
+  "stats": {
+    "vix": 17.739999771118164,
+    "universe": 518,
+    "candidates": 340,
+    "prescreened": 106,
+    "sector_ok": 307,
+    "pre_mc": 46,
+    "roi_precheck": 50,
+    "analyzed": 28,
+    "mismatch_ok": 17,
+    "quick_mc": 12,
+    "intraday_ok": 12,
+    "final_mc": 12,
+    "rl_scored": 12,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.6235,
+      "month_usd": 14.5024,
+      "warnings": [
+        "Projected monthly API cost $18.72 > Ziel $10.00 (nur Report + OPTIONAL zur\u00fcckgestellt; Produktion l\u00e4uft vollst\u00e4ndig)"
+      ],
+      "projected_month_usd": 18.72,
+      "monthly_api_budget_usd": 10.0,
+      "soft_pressure": true,
+      "deferred_tiers": [
+        "TIER4_OPTIONAL"
+      ]
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.952,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 69,
+      "active": true,
+      "reasons": [
+        "MODEL: EXCESSIVE MODEL DISAGREEMENT"
+      ],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "b4ca3e456ba9eb71",
+      "as_of": "2026-10-27T18:31:24+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "bearish_prefiltered": 14,
+    "direction_conflicts": 0,
+    "after_isf": 25,
+    "final_mc_shadow": [
+      {
+        "ticker": "VST",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5406,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5405,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "JBL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.518,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5223,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "CEG",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.4986,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5102,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "ASML",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.6578,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6779,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DHR",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.7136,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "DAL",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.665,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6886,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "META",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5662,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5707,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "MCHP",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5546,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5621,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "VLO",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "STLD",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.63,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.6756,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "A",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.75,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.75,
+        "passed_real": true,
+        "would_pass_shadow": true
+      },
+      {
+        "ticker": "AVGO",
+        "mode": "legacy_45",
+        "dte_used": 45,
+        "hit_rate_used": 0.5048,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.5117,
+        "passed_real": true,
+        "would_pass_shadow": true
+      }
+    ],
+    "final_mc_ledger": {
+      "observations": 12
+    },
+    "roi_rejects": {
+      "n": 4,
+      "gap_min": -0.2622,
+      "gap_median": 0.0487,
+      "gap_max": 0.0759
+    },
+    "booked_trades": 0,
+    "expectation_alpha": {
+      "mode": "shadow",
+      "enabled": true,
+      "production_influence": "NONE",
+      "candidate_count": 28,
+      "date": "2026-10-27",
+      "context_id": "6d29211ed1dd37b1",
+      "enriched_count": 28,
+      "recorded": 28,
+      "status_counts": {
+        "TRADE": 0,
+        "WAIT": 12,
+        "ABSTAIN": 16,
+        "ERROR": 0
+      },
+      "shadow_trade_count": 0,
+      "wait_count": 12,
+      "abstain_count": 16,
+      "error_count": 0,
+      "missing_counts": {
+        "credit": "UNAVAILABLE",
+        "equity_earnings": "UNAVAILABLE"
+      },
+      "stale_components": [],
+      "gap_z": {
+        "inflation": 0.0532,
+        "policy_rates": -0.6054,
+        "growth": 1.7579,
+        "oil": -0.7863,
+        "credit": null,
+        "equity_earnings": null
+      },
+      "confirmation_ratio": {
+        "n": 28,
+        "min": 0.25,
+        "median": 0.3333,
+        "max": 0.7143
+      },
+      "effective_vs_raw_confirmation": {
+        "raw": 98,
+        "effective": 89.167,
+        "ratio": 0.9099
+      },
+      "claims": {
+        "extraction_status_counts": {
+          "OK": 12,
+          "SKIPPED": 16
+        },
+        "n_claims": 42,
+        "n_verified": 3,
+        "n_unverified": 38,
+        "n_contradicted": 1,
+        "verified_claim_fraction": {
+          "n": 12,
+          "min": 0.0,
+          "median": 0.0,
+          "max": 0.6
+        }
+      },
+      "insufficient_history_count": {
+        "gaps": 0,
+        "roc_fields": 3,
+        "regime": 0,
+        "signals": 0,
+        "total": 3
+      },
+      "family_diversity": {
+        "n": 28,
+        "min": 5.0,
+        "median": 8.0,
+        "max": 8.0
+      },
+      "regime_uncertainty": 0.426,
+      "groups": {
+        "A": 9,
+        "B": 2,
+        "C": 15,
+        "D": 1,
+        "E": 1,
+        "X": 0
+      },
+      "errors": [],
+      "run_errors": [],
+      "runtime_seconds": 56.6
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 33,
+      "tickers": [
+        "ORCL",
+        "DASH",
+        "ALNY",
+        "CHTR",
+        "INCY",
+        "STX",
+        "BKNG",
+        "F",
+        "GLW",
+        "VRT"
+      ]
+    },
+    "prescreen_no": {
+      "count": 201,
+      "tickers": [
+        "UAL",
+        "PPG",
+        "OMC",
+        "BKR",
+        "LIN",
+        "CCL",
+        "LITE",
+        "CHD",
+        "NXPI",
+        "RTX"
+      ]
+    },
+    "earnings_gate": {
+      "count": 59,
+      "tickers": [
+        "XYL",
+        "BIIB",
+        "IVZ",
+        "ALAB",
+        "FDX",
+        "GOOG",
+        "GEHC",
+        "UDR",
+        "HLT",
+        "TT"
+      ]
+    },
+    "pre_mc_sigma_too_low": {
+      "count": 3,
+      "tickers": [
+        "PEP",
+        "DOV",
+        "LOW"
+      ]
+    },
+    "pre_mc_sigma_unavailable": {
+      "count": 1,
+      "tickers": [
+        "MRNA"
+      ]
+    },
+    "prescreen_bearish_prefilter": {
+      "count": 14,
+      "tickers": [
+        "CIEN",
+        "COP",
+        "TGT",
+        "UBER",
+        "CTAS",
+        "DDOG",
+        "BRO",
+        "QCOM",
+        "DG",
+        "ELV"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 4,
+      "tickers": [
+        "PFG",
+        "ADSK",
+        "KHC",
+        "CBRE"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "MTB"
+      ]
+    },
+    "impact_x_surprise_below_floor": {
+      "count": 2,
+      "tickers": [
+        "GM",
+        "NDAQ"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 8,
+      "tickers": [
+        "CDNS",
+        "DVN",
+        "RKLB",
+        "LMT",
+        "DIS",
+        "AKAM",
+        "CRWD",
+        "KEYS"
+      ]
+    },
+    "mc_below_threshold": {
+      "count": 5,
+      "tickers": [
+        "GS",
+        "CME",
+        "ROST",
+        "TFC",
+        "WELL"
+      ]
+    },
+    "options_design_roi_or_edge": {
+      "count": 9,
+      "tickers": [
+        "DHR",
+        "A",
+        "DAL",
+        "VLO",
+        "JBL",
+        "ASML",
+        "META",
+        "STLD",
+        "AVGO"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 7 Tage ohne Trade in Folge (dominanter Killer: roi_ok, 7x).",
+      "PPO-Policy kollabiert: 100% BOOST \u00fcber 7 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 7,
+        "killer_counts": {
+          "roi_ok": 7
+        },
+        "last_10_days": [
+          {
+            "date": "2026-10-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-26",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-23",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-22",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-21",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-20",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-19",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-16",
+            "trades": 1,
+            "killer": null
+          },
+          {
+            "date": "2026-10-15",
+            "trades": 2,
+            "killer": null
+          },
+          {
+            "date": "2026-10-14",
+            "trades": 1,
+            "killer": null
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 270,
+            "evaluated": 0,
+            "ready_in_14d": 40,
+            "next_eval_date": "2026-10-29"
+          },
+          "roi_gate": {
+            "total": 133,
+            "evaluated": 0,
+            "ready_in_14d": 28,
+            "next_eval_date": "2026-10-29"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_48": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_47": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-12-03"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 2,
+          "avg_delta": -0.5492
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": false,
+        "feature_corr": {},
+        "n_reliable": 7,
+        "n_non_reliable": 110,
+        "min_reliable_for_weight_update": 5,
+        "feature_corr_exploratory": {
+          "impact": -0.01,
+          "mismatch": -0.045,
+          "eps_drift": -0.046
+        },
+        "weight_update_status": "ELIGIBLE"
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "suez_z": {
+            "missing_ratio": 0.025,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "panama_z": {
+            "missing_ratio": 0.025,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.025,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "malacca_z": {
+            "missing_ratio": 0.025,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.025,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.025,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1640
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {
+        "n": 7,
+        "counts": {
+          "SKIP": 0,
+          "NORMAL": 0,
+          "BOOST": 7
+        },
+        "max_share": 1.0
+      }
+    }
+  }
+}
