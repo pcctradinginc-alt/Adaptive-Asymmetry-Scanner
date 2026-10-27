@@ -1,5 +1,27 @@
 {
- "at": "2026-10-26T18:51:46+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-10-27T16:36:58+00:00",
+ "changes": [
+  {
+   "source_id": "imf_portwatch_ports",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Invalid URL', 'details': ['Invalid URL']} (outFields=ISO3,country,date,export,export_cargo,export_container,export_dry_bulk,export_general_cargo,export_r; Data-Quality-Befund schwerwiegend"
+  },
+  {
+   "source_id": "imf_portwatch_chokepoints",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Invalid URL', 'details': ['Invalid URL']} (outFields=capacity,capacity_cargo,capacity_container,capacity_dry_bulk,capacity_general_cargo,capacity_roro,ca; Data-Quality-Befund schwerwiegend"
+  },
+  {
+   "source_id": "estat_jp_truck",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "veraltet (Frequenz-Grenze der Registry)"
+  }
+ ],
+ "mail": "sent"
 }
