@@ -1,9 +1,9 @@
 {
- "generated": "2026-10-26T23:14:00+00:00",
+ "generated": "2026-10-27T20:09:47+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "28fb6b81534a",
+ "code_version": "a0ed50190709",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -252,7 +252,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Technology",
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -749,9 +749,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 0,
+      "n": 19,
       "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "non_fired_expectancy": -0.04929
      },
      "60": {
       "n": 0,
@@ -858,9 +858,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 0,
-      "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "n": 18,
+      "fired_expectancy": -0.10583,
+      "non_fired_expectancy": 0.02456
      },
      "60": {
       "n": 0,
@@ -967,9 +967,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 0,
-      "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "n": 19,
+      "fired_expectancy": -0.02833,
+      "non_fired_expectancy": -0.05045
      },
      "60": {
       "n": 0,
@@ -1076,9 +1076,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 0,
-      "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "n": 18,
+      "fired_expectancy": -0.1301,
+      "non_fired_expectancy": 0.05489
      },
      "60": {
       "n": 0,
@@ -1185,9 +1185,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 0,
+      "n": 19,
       "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "non_fired_expectancy": -0.04929
      },
      "60": {
       "n": 0,
@@ -2485,5 +2485,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "24549c10a20f5e3fef98727c52268f21e9c3c741b73533615afb503b7656d94c"
+ "state_hash": "498e1785927bb0d34f034e38ca44226c48a92c3e72d4983eb4236ebe19d88494"
 }
