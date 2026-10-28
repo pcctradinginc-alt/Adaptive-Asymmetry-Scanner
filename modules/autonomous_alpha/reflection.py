@@ -90,7 +90,7 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
             v["failures"] += 1
     # From option-trade-v1 one cannot infer the genetic factors' trade
     # outcome. Keep separate diagnostics, not a false factor P&L conclusion.
-    no_confirmed_alpha = True  # Cannot change until an independent validator exists
+    all_matured_negative = bool(forward_families) and all(v["successes"] == 0 for v in forward_families.values())
     tasks = [
         {"id": "PROSPECTIVE_FACTOR_LABELS", "priority": 1,
          "reason": "Need out-of-sample, time-stamped predictions and matured labels for every frozen AUTO-* factor."},
@@ -123,7 +123,7 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
         "next_research_tasks": tasks,
         # With no independent validated option alpha, always reserve all
         # exploration slots: don't exploit unreliable historical winners.
-        "exploration_slots_recommended": 1,
+        "exploration_slots_recommended": 2 if all_matured_negative else 1,
         "alpha_validated": False,
         "promotion_authorized": False,
         "code_changes_authorized": False,
