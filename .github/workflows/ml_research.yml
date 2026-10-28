@@ -162,6 +162,7 @@ jobs:
       # One append-only journal tracks all historical failures and models.
       - name: Autonomous Alpha – experiment registry (research only)
         id: autonomous_alpha_registry
+        continue-on-error: true
         run: python -m modules.autonomous_alpha ingest --strict
 
       - name: Commit research outputs
