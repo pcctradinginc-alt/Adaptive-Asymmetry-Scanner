@@ -44,6 +44,9 @@ def _fixtures(root):
                                        "direction": 1, "family": "momentum"},
                               "status": "REJECTED", "reasons": ["not robust"]}},
     })
+    _save(root, "outputs/research/ml_forward.json", {
+        "generated": "2026-10-24T12:00:00+00:00", "forward": {},
+    })
     _save(root, "outputs/research/ml_research.json", {
         "generated": "2026-10-03T12:00:00+00:00",
         "models": {"model_a": {"role": "challenger", "registry_status": "valid",
@@ -167,3 +170,25 @@ def test_orchestrator_stops_on_failed_stage_and_reports_failure(tmp_path):
     assert not result["success"]
     assert len(calls) == 1
     assert result["stages"][0]["exit_code"] == 17
+
+
+def test_weekly_forward_observation_is_not_promotion(tmp_path):
+    _fixtures(tmp_path)
+    rep1 = reg.ingest(tmp_path, strict=True)
+    assert rep1["n_prospectively_confirmed"] == 0
+    _save(tmp_path, "outputs/research/ml_forward.json", {
+        "generated": "2026-11-07T12:00:00+00:00",
+        "forward": {"model_a": {
+            "base": {"mean": 0.03, "sharpe_ann": 1.5, "max_dd": -0.04,
+                     "n_cohorts": 3, "n_months": 1},
+            "ic": {"mean_ic": 0.1},
+        }},
+    })
+    report = reg.ingest(tmp_path, strict=True)
+    assert report["appended"] == 1
+    assert report["n_experiments"] == 5
+    assert report["n_prospectively_confirmed"] == 0
+    rec = reg.latest_records(reg.read_journal(tmp_path / reg.JOURNAL))["ml_forward:model_a"]
+    assert rec["evidence_class"] == "PROSPECTIVE_OBSERVATIONS_UNVALIDATED"
+    assert rec["metrics"]["oos_n_cohorts"] == 3
+    assert rec["promotion_eligible"] is False
