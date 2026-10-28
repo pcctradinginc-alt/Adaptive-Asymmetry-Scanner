@@ -12,6 +12,7 @@ from pathlib import Path
 
 from . import explorer
 from . import forward_options
+from . import factor_forward
 from .registry import EvidenceIntegrityError, _atomic_json
 
 HYPOTHESES = Path("outputs/research/hypothesis_db.json")
@@ -57,6 +58,36 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
         missing.append(str(forward_options.SOURCE))
     if not own:
         missing.append("NO_REGISTERED_AUTONOMOUS_FACTORS")
+    # The separate forward factor ledger contains actual *matured* underlying
+    # stock gross cohort spreads. These are exploratory priors, never options
+    # profit, and never independent proof after repeated research.
+    factor_events = factor_forward._read(root / factor_forward.OUTCOMES)
+    factor_labels = defaultdict(list)
+    for event in factor_events:
+        row = event["payload"]
+        if row.get("status") != "MATURED_GROSS_STOCK_ONLY":
+            continue
+        hid = row.get("hypothesis_id")
+        if hid not in own:
+            continue
+        value = row.get("top_minus_bottom_gross")
+        if not isinstance(value, (int, float)):
+            continue
+        factor_labels[hid].append((row["prediction_date"], float(value)))
+    forward_families = defaultdict(lambda: {"successes": 0, "failures": 0,
+                                            "n_hypotheses": 0, "n_cohorts": 0})
+    for hid, outcomes in factor_labels.items():
+        independent_dates = len({day for day, _ in outcomes})
+        if independent_dates < 6:
+            continue
+        family = own[hid]["family"]
+        v = forward_families[family]
+        v["n_hypotheses"] += 1
+        v["n_cohorts"] += len(outcomes)
+        if sum(value for _, value in outcomes)/len(outcomes) > 0:
+            v["successes"] += 1
+        else:
+            v["failures"] += 1
     # From option-trade-v1 one cannot infer the genetic factors' trade
     # outcome. Keep separate diagnostics, not a false factor P&L conclusion.
     no_confirmed_alpha = True  # Cannot change until an independent validator exists
@@ -87,6 +118,8 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
             "alpha_attribution": trades["strategy_alpha_status"],
         },
         "source_gaps": missing,
+        "forward_stock_family_exploratory_counts": {k: v for k, v in sorted(forward_families.items())},
+        "n_matured_stock_factor_cohorts": sum(len(xs) for xs in factor_labels.values()),
         "next_research_tasks": tasks,
         # With no independent validated option alpha, always reserve all
         # exploration slots: don't exploit unreliable historical winners.
