@@ -389,6 +389,7 @@ def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
     buckets = {f"{t:.2f}": {"eligible_counterfactual_cohorts": 0, "realized_mark_45": 0}
                for t in RESEARCH_THRESHOLDS}
     ids45 = {m["cohort_id"] for m in all_marks if m["horizon_days"] == 45}
+    mark45 = {m["cohort_id"]: m for m in all_marks if m["horizon_days"] == 45}
     for c in cohorts:
         roi = c.get("original_roi_net")
         for t in RESEARCH_THRESHOLDS:
@@ -396,6 +397,25 @@ def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
                 bucket = buckets[f"{t:.2f}"]
                 bucket["eligible_counterfactual_cohorts"] += 1
                 bucket["realized_mark_45"] += int(c["cohort_id"] in ids45)
+    # A descriptive prospective calibration comparison – NOT a causal
+    # backtest and never a permission to alter the production ROI hurdle.
+    from statistics import median
+    for threshold in RESEARCH_THRESHOLDS:
+        bucket = buckets[f"{threshold:.2f}"]
+        observed = [(mark45[c["cohort_id"]]["net_return"], c["signal_date"])
+                    for c in cohorts if c["cohort_id"] in mark45
+                    and c.get("original_roi_net") is not None
+                    and c["original_roi_net"] >= threshold]
+        dates = len({d for _, d in observed})
+        bucket["n_independent_signal_dates"] = dates
+        bucket["net_mean_45d"] = (round(sum(x for x,_ in observed)/len(observed), 6)
+                                    if len(observed) >= 20 and dates >= 10 else None)
+        bucket["net_median_45d"] = (round(median(x for x,_ in observed), 6)
+                                      if len(observed) >= 20 and dates >= 10 else None)
+        bucket["win_rate_45d"] = (round(sum(x > 0 for x,_ in observed)/len(observed), 6)
+                                    if len(observed) >= 20 and dates >= 10 else None)
+        bucket["calibration_status"] = ("DESCRIPTIVE_ONLY" if bucket["net_mean_45d"] is not None
+                                       else "NEED_MORE_MATURED_QUOTES")
     report = {
         "schema": "roi-learning-summary-v1", "as_of": today.isoformat(),
         "n_rejected_candidates_registered": len(cohorts),
