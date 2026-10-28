@@ -109,7 +109,8 @@ def _spec(kind: str, identifier: str, rec: dict) -> dict:
 
 
 def _snapshot(kind: str, identifier: str, rec: dict, generated: str | None,
-              source_path: str, locked_status: str) -> dict:
+              source_path: str, locked_status: str, code_sha: str | None = None,
+              panel_hash: str | None = None) -> dict:
     spec = _spec(kind, identifier, rec)
     status = (
         rec.get("plan_status") if kind == "factory_plan" else
@@ -125,7 +126,8 @@ def _snapshot(kind: str, identifier: str, rec: dict, generated: str | None,
         "status": str(status).upper(),
         "source_path": source_path, "source_generated_at": generated,
         "source_record_sha256": digest(_norm(rec)),
-        "model_or_code_sha": _d(rec.get("memory")).get("model_version") or rec.get("code_sha"),
+        "model_or_code_sha": _d(rec.get("memory")).get("model_version") or rec.get("code_sha") or code_sha,
+        "source_panel_hash": panel_hash,
         "parameters": (_d(rec.get("memory")).get("parameters")
                        if kind == "research_lab" else rec.get("params_by_year")
                        if kind == "ml_models" else _d(rec.get("spec")).get("parameters")),
@@ -188,7 +190,8 @@ def load_inputs(root: Path = Path("."), *, strict: bool = False) -> tuple[list[d
                 if not isinstance(row, dict):
                     raise ValueError("non-object experiment " + str(identifier))
                 records.append(_snapshot(kind, str(identifier), row, data.get("generated"),
-                                         relative, locked_status))
+                                         relative, locked_status, data.get("code_sha"),
+                                         data.get("panel_hash")))
             sources[kind] = {"path": relative, "records": len(entries),
                              "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
         except (ValueError, TypeError, KeyError) as exc:
