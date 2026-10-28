@@ -1,0 +1,17 @@
+# Research-only bounded genetic feature exploration. No trading authority.
+# Historical validation is exploratory because it is used to choose descendants.
+version: explore-v1
+enabled: true
+monthly_new_hypotheses: 2
+lifetime_hypotheses: 36
+max_variants_per_family: 2
+exploratory_fraction: 0.5
+seed: 41
+parents:
+  - {name: momentum, feature: mom_12_1, direction: 1}
+  - {name: reversal, feature: rev_1m, direction: -1}
+  - {name: low_vol, feature: vol_60, direction: -1}
+  - {name: relative_volume, feature: relvol_5_60, direction: 1}
+  - {name: high_52w, feature: dist_52w_high, direction: 1}
+  - {name: lottery_penalty, feature: max_ret_21, direction: -1}
+  - {name: beta_risk, feature: beta_126, direction: -1}
