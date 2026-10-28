@@ -113,6 +113,16 @@ def _read(path: Path) -> list[dict]:
                 raise ValueError("content hash mismatch")
             if s.get("spec_hash") != e["spec_hash"] or not s.get("id"):
                 raise ValueError("hypothesis identity mismatch")
+            if s["id"] != "AUTO-" + e["spec_hash"][:12].upper():
+                raise ValueError("hypothesis id does not match frozen contract")
+            frozen = s["contract"]
+            if (s.get("signal") != frozen.get("signal")
+                    or s.get("direction") != frozen.get("direction")
+                    or s.get("family") != frozen.get("family")
+                    or s.get("parents") != frozen.get("parents")
+                    or s.get("operator") != frozen.get("operator")
+                    or s.get("source") != "autonomous_explorer"):
+                raise ValueError("mutable fields differ from frozen contract")
             lab.validate_expr(s["signal"])
             if e.get("id") != s["id"]:
                 raise ValueError("id mismatch")
