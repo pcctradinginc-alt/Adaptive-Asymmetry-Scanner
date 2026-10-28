@@ -46,6 +46,11 @@ call is added.
   keep budget-not-probed separate from earnings/economic rejects. Quote-probe
   and model-call ceilings are unchanged. This is funnel observation, not a
   measure of missed option profit.
+- Existing Candidate Ledger forward *stock* returns are grouped by original
+  rejection reason over a 100-day lookback and their independent signal dates,
+  deduplicated by signal identity. Outcomes invalidated by a changed price basis
+  are not counted. These are NOT missed option profits: early deferred signals
+  may lack a trade direction and must not be compared as if they were calls.
 - ROI research cohorts are reused from the original immutable reject journal;
   5/20/45-calendar-day observed RTH marks are reused from the option archive.
   Registered, marked, fully matured, and fully matured with a real mark are
