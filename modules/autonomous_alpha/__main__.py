@@ -9,7 +9,7 @@ from . import registry as reg
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Experiment registry and research cycle")
-    ap.add_argument("command", choices=["run", "ingest", "explore", "status", "leaderboard", "verify"])
+    ap.add_argument("command", choices=["run", "ingest", "explore", "option-forward", "factor-forward", "reflect", "status", "leaderboard", "verify"])
     ap.add_argument("--root", type=Path, default=Path("."))
     ap.add_argument("--panel-cache", type=Path)
     ap.add_argument("--timeout", type=int, default=3600)
@@ -18,7 +18,21 @@ def main(argv=None):
     args = ap.parse_args(argv)
     root = args.root.resolve()
     try:
-        if args.command == "explore":
+        if args.command == "option-forward":
+            from .forward_options import evaluate
+            result = evaluate(root)
+            code = 0
+        elif args.command == "factor-forward":
+            from .factor_forward import process
+            if args.panel_cache is None:
+                raise ValueError("--panel-cache from the current trusted CI job is required")
+            result = process(root, cache=args.panel_cache)
+            code = 0
+        elif args.command == "reflect":
+            from .reflection import reflect
+            result = reflect(root)
+            code = 0
+        elif args.command == "explore":
             from .explorer import register
             result = register(root)
             code = 0
