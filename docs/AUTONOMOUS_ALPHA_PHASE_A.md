@@ -52,6 +52,7 @@ Source research remains authoritative in:
 - outputs/research/factory_plan.json
 - outputs/research/factory_results.json
 - outputs/research/ml_research.json
+- outputs/research/ml_forward.json (weekly matured forward model observations)
 
 New journal:
 outputs/research/autonomous_alpha/experiments.jsonl
@@ -62,7 +63,9 @@ outputs/research/autonomous_alpha/summary.json
 Each journal event records a stable experiment key, immutable specification
 fingerprint, source record SHA256, known historical net OOS results, Sharpe,
 drawdown, stress results and source timestamps. Missing metrics are null.
-Positive historical results do not imply prospective options profitability.
+Weekly forward observations use a separate metric namespace and remain UNVALIDATED
+until independent prospective evidence gates are satisfied. Positive historical
+results do not imply prospective options profitability.
 
 Concurrent git union merge may duplicate identical journal rows; reading
 deduplicates by content hash. Altered or corrupted journal records cause
