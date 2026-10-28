@@ -29,6 +29,7 @@ INPUTS = {
     "factory_plan": "outputs/research/factory_plan.json",
     "factory_battery": "outputs/research/factory_results.json",
     "ml_models": "outputs/research/ml_research.json",
+    "ml_forward": "outputs/research/ml_forward.json",
 }
 
 
@@ -67,6 +68,8 @@ def _norm(x):
 def _metrics(record: dict, *, kind: str) -> dict:
     if kind == "ml_models":
         wf = _d(record.get("wf"))
+    elif kind == "ml_forward":
+        wf = record
     else:
         wf = _d(record.get("walk_forward"))
     base = _d(wf.get("base"))
@@ -91,7 +94,7 @@ def _metrics(record: dict, *, kind: str) -> dict:
 
 def _spec(kind: str, identifier: str, rec: dict) -> dict:
     raw = _d(rec.get("spec"))
-    if kind == "ml_models":
+    if kind in ("ml_models", "ml_forward"):
         return {"id": identifier, "model": identifier}
     if kind == "factory_plan":
         raw = rec
@@ -116,6 +119,7 @@ def _snapshot(kind: str, identifier: str, rec: dict, generated: str | None,
         rec.get("plan_status") if kind == "factory_plan" else
         _d(rec.get("decision")).get("verdict", rec.get("registry_status"))
         if kind == "ml_models" else
+        "FORWARD_OBSERVED_UNVALIDATED" if kind == "ml_forward" else
         rec.get("canonical_status") or rec.get("status") or "UNKNOWN"
     )
     record = {
@@ -143,6 +147,8 @@ def _snapshot(kind: str, identifier: str, rec: dict, generated: str | None,
         record["evidence_class"] = "UNTESTED_IDEA"
     if kind == "factory_battery":
         record["evidence_class"] = "HISTORICAL_ROBUSTNESS_BATTERY"
+    if kind == "ml_forward":
+        record["evidence_class"] = "PROSPECTIVE_OBSERVATIONS_UNVALIDATED"
     return _norm(record)
 
 
@@ -179,6 +185,8 @@ def load_inputs(root: Path = Path("."), *, strict: bool = False) -> tuple[list[d
                            if isinstance(v, dict) and v.get("id")}
             elif kind == "factory_battery":
                 entries = _d(data.get("results"))
+            elif kind == "ml_forward":
+                entries = _d(data.get("forward"))
             else:
                 entries = _d(data.get("models"))
             if not entries:
