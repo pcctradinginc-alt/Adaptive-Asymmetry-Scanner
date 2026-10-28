@@ -20,6 +20,7 @@ STAGES = (
     ("ml_panel_and_models", ("modules.ml_research", "--mode", "full")),
     ("research_director", ("modules.research_director",)),
     ("hypothesis_factory_plan", ("modules.hypothesis_factory", "plan")),
+    ("genetic_exploration", ("modules.autonomous_alpha", "explore")),
     ("research_lab", ("modules.research_lab",)),
     ("hypothesis_factory_evaluate", ("modules.hypothesis_factory", "evaluate")),
 )

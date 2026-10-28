@@ -424,6 +424,16 @@ def load_factory(path: Path | None = None) -> list[dict]:
         return []
 
 
+def load_autonomous() -> list[dict]:
+    """Frozen, pre-registered exploratory PIT factors (no promotion rights).
+
+    Journal corruption is fatal: never quietly treat lost experiments as
+    nonexistent and thereby shrink multiple-testing correction.
+    """
+    from modules.autonomous_alpha.explorer import proposals
+    return [{**h, "source": "autonomous_explorer"} for h in proposals()]
+
+
 def load_hypotheses(path: Path = HYP_CONFIG) -> list[dict]:
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     return data.get("hypotheses") or []
@@ -439,7 +449,7 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
     panel = add_exposures(panel)
     db = load_db(db_path)
     recs: dict = db.setdefault("hypotheses", {})
-    hyps = load_hypotheses(hyp_path) + (load_director() + load_factory() if hyp_path == HYP_CONFIG else [])
+    hyps = load_hypotheses(hyp_path) + (load_director() + load_factory() + load_autonomous() if hyp_path == HYP_CONFIG else [])
     if hyp_path == HYP_CONFIG:                      # Alternative-Data-Verträge: gleiche Prüfkette, unveränderlich
         from modules.alt_data import contracts as ac
         _cs = ac.load()
@@ -514,6 +524,15 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         if k not in sig:
             r["status"] = "not_significant_after_fdr"
             r["reasons"] = [f"p={r['p_value']} nicht signifikant nach BH (q={q}, n={len(pv)})"]
+            continue
+        # Adaptive historical search cannot reuse the contaminated locked
+        # interval as an independent confirmation. Keep the historical p-value
+        # in the BH family, but REQUIRE future prospective evidence for alpha.
+        if (r.get("source") == "autonomous_explorer"
+                and str(protocol["periods"].get("locked_status", "")).upper() == "CONTAMINATED"):
+            r["status"] = "historical_exploratory_pending_forward"
+            r["reasons"] = ["Adaptive historical selection; locked holdout contaminated. "
+                            "Needs independent prospective validation."]
             continue
         if not r.get("locked") and k in hyp_by_id:
             lk = locked_check(panel, hyp_by_id[k])

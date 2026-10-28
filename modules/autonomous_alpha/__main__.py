@@ -9,7 +9,7 @@ from . import registry as reg
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Experiment registry and research cycle")
-    ap.add_argument("command", choices=["run", "ingest", "status", "leaderboard", "verify"])
+    ap.add_argument("command", choices=["run", "ingest", "explore", "status", "leaderboard", "verify"])
     ap.add_argument("--root", type=Path, default=Path("."))
     ap.add_argument("--panel-cache", type=Path)
     ap.add_argument("--timeout", type=int, default=3600)
@@ -18,7 +18,11 @@ def main(argv=None):
     args = ap.parse_args(argv)
     root = args.root.resolve()
     try:
-        if args.command == "run":
+        if args.command == "explore":
+            from .explorer import register
+            result = register(root)
+            code = 0
+        elif args.command == "run":
             from .orchestrator import run_cycle
             result = run_cycle(root, panel_cache=args.panel_cache, timeout_seconds=args.timeout)
             code = 0 if result["success"] else 1
