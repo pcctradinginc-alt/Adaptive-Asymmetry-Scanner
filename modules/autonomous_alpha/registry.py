@@ -92,7 +92,7 @@ def _metrics(record: dict, *, kind: str) -> dict:
 def _spec(kind: str, identifier: str, rec: dict) -> dict:
     raw = _d(rec.get("spec"))
     if kind == "ml_models":
-        return {"id": identifier, "role": rec.get("role"), "model": identifier}
+        return {"id": identifier, "model": identifier}
     if kind == "factory_plan":
         raw = rec
     if kind == "research_lab":
