@@ -998,7 +998,12 @@ def main() -> None:
     log.info("Economics-first: %s -> %s Haiku inputs; quote probes=%s",
              _ef_start, len(candidates), _ef_summary.get("probed"))
     if not candidates:
-        stats["stop_reason"] = "Economics-first: keine Kandidaten im LLM-Budget; Forward-Ledger wird weitergeführt."
+        if _ef_summary.get("mode") == "error_closed":
+            stats["stop_reason"] = ("Economics-first VORFILTER-FEHLER: alle LLM-Aufrufe "
+                                    "aus Kostenschutz blockiert; Forward-Ledger bleibt erhalten.")
+        else:
+            stats["stop_reason"] = ("Economics-first: keine Kandidaten im LLM-Budget; "
+                                    "Forward-Ledger wird weitergeführt.")
         save_history(history)
         send_email()
         return
