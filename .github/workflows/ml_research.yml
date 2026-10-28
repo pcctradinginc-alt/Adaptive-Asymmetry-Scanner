@@ -77,9 +77,8 @@ jobs:
         id: factory_plan
         if: env.MODE == 'full'
         continue-on-error: true
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # optional: NUR Mechanismus-Text, nie Evidenz
-        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory plan --llm
+        # Research ideas use the free deterministic factory; no Anthropic API.
+        run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory plan
 
       - name: Autonomous Alpha – genetic PIT factor exploration (nur full, max 2/Monat)
         id: alpha_explore
@@ -151,6 +150,23 @@ jobs:
         continue-on-error: true
         run: python -m modules.trade_memory
 
+      # Phase C: autonomous, $0-LLM evidence evaluation (existing PIT panel
+      # and already-archived option quotes only; no broker/API traffic).
+      - name: Alpha C – prospective PIT factor predictions + mature labels
+        id: alpha_factor_forward
+        continue-on-error: true
+        run: python -m modules.autonomous_alpha factor-forward --panel-cache "$RUNNER_TEMP/panel.pkl"
+
+      - name: Alpha C – executable RTH option outcome audit
+        id: alpha_option_forward
+        continue-on-error: true
+        run: python -m modules.autonomous_alpha option-forward
+
+      - name: Alpha C – autonomous reflection and next research priorities
+        id: alpha_reflection
+        continue-on-error: true
+        run: python -m modules.autonomous_alpha reflect
+
       # Audit F14 / P2-5: eingefrorener Daten-Snapshot für Reproduktionsläufe
       # (workflow repro.yml: ML_PANEL_SNAPSHOT=<dieses Artefakt>).
       - name: Panel-Snapshot sichern
@@ -180,6 +196,6 @@ jobs:
       - name: Stufen-Bilanz (zentrale Research-Stufe ausgefallen -> Lauf rot, nach dem Commit)
         if: always()
         env:
-          CRITICAL: "factory_plan=${{ steps.factory_plan.outcome }} alpha_explore=${{ steps.alpha_explore.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }}"
+          CRITICAL: "factory_plan=${{ steps.factory_plan.outcome }} alpha_explore=${{ steps.alpha_explore.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }} alpha_factor_forward=${{ steps.alpha_factor_forward.outcome }} alpha_option_forward=${{ steps.alpha_option_forward.outcome }} alpha_reflection=${{ steps.alpha_reflection.outcome }}"
           DEGRADED: "alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }}"
         run: bash scripts/ci_stage_check.sh
