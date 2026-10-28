@@ -1721,6 +1721,19 @@ def main() -> None:
     # nach der Haltedauer → damit wird das ROI-Gate erstmals mit echten Ergebnissen
     # backtestbar (statt geraten). KEINE Schwelle wird verändert — reine Datenerfassung.
     _roi_rejects = list(getattr(designer, "roi_reject_log", []) or [])
+    # Separate lenient RESEARCH gate (0/5/7%): at most five contract cohorts
+    # per trading day. Existing strict ROI/Median/Edge production gates remain
+    # completely unchanged. No extra LLM calls, option selection or orders.
+    try:
+        from modules import roi_learning_shadow as _roi_learning
+        _roi_learning_report = _roi_learning.register(_roi_rejects, today)
+        stats["roi_learning_shadow"] = _roi_learning_report
+        log.info("ROI Learning Shadow: %d research cohorts, zero production impact",
+                 _roi_learning_report["registered"])
+    except Exception as _roi_learn_exc:
+        log.warning("ROI Learning Shadow registry unavailable (production unaffected): %s",
+                    _roi_learn_exc)
+        stats["roi_learning_shadow"] = {"status": "ERROR", "reason": str(_roi_learn_exc)[:160]}
     if _roi_rejects:
         _sl = history.setdefault("shadow_trades", [])
         _seen = {(t["ticker"], t.get("entry_date", ""), t.get("reject_reason", ""))
