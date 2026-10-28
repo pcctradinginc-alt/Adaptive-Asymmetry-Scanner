@@ -69,14 +69,8 @@ def _genome(p: dict, q: dict, operator: str) -> dict:
     a_expr = f"rank({a['feature']})"
     b_expr = f"rank({b['feature']})"
     if operator == "blend":
-        signal = f"({a_expr} {'+' if a['direction'] > 0 else '-'} {b_expr})" if b["direction"] > 0 else (
-            f"({a_expr} {'+' if a['direction'] > 0 else '-'} (0 - {b_expr}))"
-        )
-        # Correct additive orientation: both parents contribute their prior sign.
-        signal = (f"({a_expr} {'+' if a['direction'] > 0 else '-'} 0)"
-                  f" + ({b_expr} {'+' if b['direction'] > 0 else '-'} 0)")
-        # simplify unambiguously while retaining +/- orientation:
-        signal = (f"({a_expr} * {a['direction']}) + ({b_expr} * {b['direction']})")
+        # Add both features with their ex-ante sign, without fitting weights.
+        signal = f"({a_expr} * {a['direction']}) + ({b_expr} * {b['direction']})"
     elif operator == "interaction":
         # Cross-sectional combination with prespecified economic sign.
         signal = f"({a_expr} * {a['direction']}) * ({b_expr} * {b['direction']})"
@@ -216,7 +210,8 @@ def select(root: Path = Path("."), now: datetime | None = None) -> dict:
     exploration_slots = math.ceil(max_new * float(cfg["exploratory_fraction"]))
     # Unbiased reproducible candidate lottery reserves exploration capacity.
     lottery = sorted(candidates, key=lambda x:x[1])
-    chosen = lottery[:exploration_slots] + [c for c in candidates if c not in lottery[:exploration_slots]]
+    reserved = lottery[:exploration_slots]
+    chosen = reserved + [c for c in candidates if c not in reserved]
     for _, _, h in chosen:
         if len(selected) >= max_new:
             break
