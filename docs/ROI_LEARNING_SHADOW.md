@@ -32,3 +32,38 @@ The production, options capture and feedback cron schedules remain unchanged. **
 - Existing earlier 21–45-DTE ROI precheck and the final 150–365-DTE options path still disagree. This change intentionally does not relax the production precheck. Its economic impact requires an independent directional-neutral shadow comparison.
 - Do not mix these paper marks with real close outcomes, the previous generic stock-level shadow returns, or PPO's currently unreliable small-sample rewards.
 - A larger shadow dataset can improve diagnostic calibration; **more rejected candidates do not automatically establish positive options alpha**.
+
+
+## Gate and option-economics evidence report
+
+The existing Feedback 'python -m modules.roi_learning_shadow evaluate' call now also
+writes 'outputs/research/roi_learning/gate_economics.md' and adds two sections to
+the existing summary.json: economics_first_acquisition and
+observed_option_economics. No second scanner, scheduled job, API request or LLM
+call is added.
+
+- Economics-first diagnostics read the last 10 available daily reports and
+  keep budget-not-probed separate from earnings/economic rejects. Quote-probe
+  and model-call ceilings are unchanged. This is funnel observation, not a
+  measure of missed option profit.
+- ROI research cohorts are reused from the original immutable reject journal;
+  5/20/45-calendar-day observed RTH marks are reused from the option archive.
+  Registered, marked, fully matured, and fully matured with a real mark are
+  reported separately. Fully matured means elapsed at least horizon + maximum
+  allowed entry lag + maximum allowed exit lag, intentionally conservative.
+  Non-observed outcomes stay UNKNOWN and count against coverage.
+- Per-rejection-gate breakdowns can overlap (one contract can fail multiple
+  gates), so counts must not be added. No synthetic options returns are
+  calculated for budget-deferrals without corresponding timed quotes.
+- Means/medians/win rates are withheld until at least 20 valid observed marks
+  from 10 independent signal dates. Published numbers are descriptive only,
+  not a statistically validated causal gate improvement, and never authorize a
+  production threshold change. Do not compare fixed-horizon quote marks to
+  realized TP/SL results as if the exits were identical.
+- Production gates, ROI/median/edge thresholds, RL/PPO, sizing, candidate
+  routing and promotion contract remain untouched.
+
+When judging a threshold change, run a separately preregistered, prospective
+and matched Champion/Challenger evaluation with explicit costs, independent
+signal dates, uncertainty intervals and regime checks. NEED_MORE_DATA means
+retain the existing production policy.
