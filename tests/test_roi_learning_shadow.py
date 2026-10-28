@@ -159,7 +159,7 @@ def test_capture_targets_are_bounded_and_due_only(tmp_path):
     _seed(tmp_path)
     _register(tmp_path)
     assert rl.due_capture_symbols(today=date(2026,11,2),root=tmp_path) == ["XYZ270319C00100000"]
-    assert rl.due_capture_symbols(today=date(2026,11,15),root=tmp_path) == []
+    assert rl.due_capture_symbols(today=date(2026,11,16),root=tmp_path) == []
     assert rl.due_capture_symbols(today=date(2026,11,23),root=tmp_path) == ["XYZ270319C00100000"]
 
 
