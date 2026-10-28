@@ -670,7 +670,9 @@ def autonomous_alpha_weekly_blocks(data: dict) -> list:
         age = (today-d).days if d else None
         # Older artifacts are still listed by date, but their results must
         # never look like new progress in this week's report.
-        if age is None or age < 0 or age > STALE_DAYS_WARN:
+        # Exploration is monthly, all other A/B/C evidence refreshes weekly.
+        expected_max_age = 38 if key == "exploration" else STALE_DAYS_WARN
+        if age is None or age < 0 or age > expected_max_age:
             health.append(f"{label}: VERALTET/UNBEKANNT (Stand {str(obj.get(timestamp) or NA)[:10]})")
             fresh[key] = {}
         else:
