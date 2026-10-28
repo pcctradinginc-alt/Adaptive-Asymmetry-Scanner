@@ -72,6 +72,11 @@ jobs:
         continue-on-error: true
         run: python -m modules.abstention_proposals
 
+      - name: ROI Research Shadow – resolve observed RTH option marks (no LLM)
+        id: roi_research_marks
+        continue-on-error: true
+        run: python -m modules.roi_learning_shadow evaluate
+
       - name: Commit updated history
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,5 +110,5 @@ jobs:
         if: always()
         env:
           CRITICAL: "promotion_controller=${{ steps.promotion.outcome }} challenger_registrar=${{ steps.registrar.outcome }}"
-          DEGRADED: "abstention_proposals=${{ steps.abstention.outcome }} meta_label=${{ steps.meta_label.outcome }}"
+          DEGRADED: "abstention_proposals=${{ steps.abstention.outcome }} meta_label=${{ steps.meta_label.outcome }} roi_research_marks=${{ steps.roi_research_marks.outcome }}"
         run: bash scripts/ci_stage_check.sh
