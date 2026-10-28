@@ -120,6 +120,14 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         cand_t = {c: day0 for c in cl.due_mark_symbols(now.strftime("%Y-%m-%d"))}
         for c, sig in cl.pending_entry_targets(now.strftime("%Y-%m-%d")).items():   # timing-v2: nie vor dem Signal
             cand_t[c] = max(cand_t.get(c, day0), sig)
+        # Research-only shadow contracts: no new LLM or scanner decisions.
+        # Capped in roi_learning_shadow at 30 extra OCC symbols per capture.
+        try:
+            from modules import roi_learning_shadow as rls
+            for sym in rls.due_capture_symbols(today=now.astimezone(ms.NY_TZ).date()):
+                cand_t.setdefault(sym, day0)
+        except Exception as exc:
+            log.warning("roi_learning_shadow capture targets unavailable: %s", exc)
         cand_syms = sorted(set(cand_t) - set(trade_syms))
         done = _satisfied({**{c: cand_t[c] for c in cand_syms}, **targets}, now)
         todo_t = [s for s in trade_syms if s not in done]
