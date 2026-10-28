@@ -157,3 +157,16 @@ def test_existing_registered_proposals_all_remain_in_lab_testing_cohort(tmp_path
     found=lab.load_autonomous()
     assert len(found)==4
     assert len(set(h["id"] for h in found))==4
+
+
+def test_tampering_execution_signal_without_changing_contract_is_rejected(tmp_path):
+    _setup(tmp_path)
+    explorer.register(tmp_path, _now("2026-10-28"))
+    path = tmp_path / explorer.PROPOSALS
+    lines = path.read_text().splitlines()
+    entry = json.loads(lines[0])
+    entry["hypothesis"]["signal"] = "mom_12_1"
+    lines[0] = json.dumps(entry)
+    path.write_text("\n".join(lines) + "\n")
+    with pytest.raises(reg.EvidenceIntegrityError, match="mutable fields"):
+        explorer.proposals(tmp_path)
