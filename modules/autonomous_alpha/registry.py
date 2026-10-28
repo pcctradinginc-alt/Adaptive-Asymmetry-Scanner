@@ -125,6 +125,10 @@ def _snapshot(kind: str, identifier: str, rec: dict, generated: str | None,
         "status": str(status).upper(),
         "source_path": source_path, "source_generated_at": generated,
         "source_record_sha256": digest(_norm(rec)),
+        "model_or_code_sha": _d(rec.get("memory")).get("model_version") or rec.get("code_sha"),
+        "parameters": (_d(rec.get("memory")).get("parameters")
+                       if kind == "research_lab" else rec.get("params_by_year")
+                       if kind == "ml_models" else _d(rec.get("spec")).get("parameters")),
         "metrics": _metrics(rec, kind=kind),
         "reasons": rec.get("reasons") or _d(rec.get("decision")).get("reasons") or [],
         "evidence_class": "HISTORICAL_RESEARCH",
