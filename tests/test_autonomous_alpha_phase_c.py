@@ -95,7 +95,7 @@ def test_wrong_date_or_wrong_contract_quote_rejected(tmp_path):
 def test_options_unmatured_and_corrupt_records_never_succeed(tmp_path):
     _cfg(tmp_path)
     _write(tmp_path, forward_options.SOURCE, _trade())
-    pending=forward_options.evaluate(tmp_path,today=date(2026,11,08))
+    pending=forward_options.evaluate(tmp_path,today=date(2026,11,8))
     assert pending["n_verified_post_registration"]==0
     assert "invalid_or_unmatured_dates" in pending["excluded_by_reason"]
     (tmp_path / forward_options.SOURCE).write_text("{bad\n")
