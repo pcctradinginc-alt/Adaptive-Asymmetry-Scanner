@@ -98,3 +98,48 @@ def test_deterministic_sampling_and_no_probes_at_zero_budget():
     b = ef.select_before_haiku(list(reversed(c)), day="2026-10-28",
            probe=lambda _: {"status": "unknown", "reason": "no_data"}, policy=p)
     assert [x["ticker"] for x in a[0]] == [x["ticker"] for x in b[0]]
+
+
+def test_bearish_quote_can_rescue_bad_bullish_quote():
+    class DirectionalDesigner(_Designer):
+        def _select_strategy(self, ticker, direction, iv_rank):
+            return "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
+
+        def _find_option_for_dte(self, ticker, strategy, spot, low, high):
+            self.queries.append((strategy, low, high))
+            return ({"bid": 1.0, "ask": 4.0, "dte": 180}
+                    if strategy == "LONG_CALL" else
+                    {"bid": 8.5, "ask": 9.0, "dte": 180})
+
+    d = DirectionalDesigner()
+    result = ef.probe_candidate(_c("ABC"), designer=d, gates=_Gates(), policy=ef.DEFAULTS)
+    assert result["status"] == "pass"
+    assert result["direction_checked"] == "BEARISH"
+    assert len(d.queries) == 2
+    assert {x[0] for x in d.queries} == {"LONG_CALL", "LONG_PUT"}
+
+
+def test_unavailable_bearish_quote_is_unknown_not_bullish_rejection():
+    class DirectionalDesigner(_Designer):
+        def _select_strategy(self, ticker, direction, iv_rank):
+            return "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
+
+        def _find_option_for_dte(self, ticker, strategy, spot, low, high):
+            self.queries.append(strategy)
+            return {"bid": 1.0, "ask": 4.0} if strategy == "LONG_CALL" else None
+
+    d = DirectionalDesigner()
+    result = ef.probe_candidate(_c("ABC"), designer=d, gates=_Gates(), policy=ef.DEFAULTS)
+    assert result["status"] == "unknown"
+    assert result["reason"] == "option_quote_unavailable"
+    assert d.queries == ["LONG_CALL", "LONG_PUT"]
+
+
+def test_unexpected_economics_gate_exception_must_not_trigger_unbounded_llm():
+    from pathlib import Path
+    source = (Path(__file__).resolve().parents[1] / "pipeline.py").read_text(encoding="utf-8")
+    gate = source.split("    # ── ECONOMICS-FIRST:", 1)[1].split("    # ── STUFE 2:", 1)[0]
+    assert 'candidates = []' in gate
+    assert '"mode": "error_closed"' in gate
+    assert '"haiku": 0' in gate
+    assert 'fallback to original candidates' not in gate
