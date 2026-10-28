@@ -190,5 +190,5 @@ def test_weekly_forward_observation_is_not_promotion(tmp_path):
     assert report["n_prospectively_confirmed"] == 0
     rec = reg.latest_records(reg.read_journal(tmp_path / reg.JOURNAL))["ml_forward:model_a"]
     assert rec["evidence_class"] == "PROSPECTIVE_OBSERVATIONS_UNVALIDATED"
-    assert rec["metrics"]["oos_n_cohorts"] == 3
+    assert rec["metrics"]["forward_n_cohorts"] == 3
     assert rec["promotion_eligible"] is False
