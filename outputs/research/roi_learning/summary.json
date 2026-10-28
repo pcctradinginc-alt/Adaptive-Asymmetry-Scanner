@@ -1,0 +1,43 @@
+{
+  "actual_production_roi_gate_changed": false,
+  "as_of": "2026-10-28",
+  "llm_calls": 0,
+  "marks_by_horizon": {},
+  "missing_quotes_by_reason": {},
+  "n_all_marks": 0,
+  "n_new_marks": 0,
+  "n_rejected_candidates_registered": 0,
+  "orders_created": 0,
+  "research_only": true,
+  "research_roi_thresholds": {
+    "0.00": {
+      "calibration_status": "NEED_MORE_MATURED_QUOTES",
+      "eligible_counterfactual_cohorts": 0,
+      "n_independent_signal_dates": 0,
+      "net_mean_45d": null,
+      "net_median_45d": null,
+      "realized_mark_45": 0,
+      "win_rate_45d": null
+    },
+    "0.05": {
+      "calibration_status": "NEED_MORE_MATURED_QUOTES",
+      "eligible_counterfactual_cohorts": 0,
+      "n_independent_signal_dates": 0,
+      "net_mean_45d": null,
+      "net_median_45d": null,
+      "realized_mark_45": 0,
+      "win_rate_45d": null
+    },
+    "0.07": {
+      "calibration_status": "NEED_MORE_MATURED_QUOTES",
+      "eligible_counterfactual_cohorts": 0,
+      "n_independent_signal_dates": 0,
+      "net_mean_45d": null,
+      "net_median_45d": null,
+      "realized_mark_45": 0,
+      "win_rate_45d": null
+    }
+  },
+  "schema": "roi-learning-summary-v1",
+  "verified_trades_do_not_imply_factor_alpha": true
+}
