@@ -200,6 +200,18 @@ def select(root: Path = Path("."), now: datetime | None = None) -> dict:
     old_signals = _baseline_signals(root)
     previous = Counter(e["hypothesis"]["family"] for e in existing)
     outcomes = _outcomes(root)
+    # Previous weekly reflection: real matured, independent stock-factor cohorts
+    # are allowed to prioritize *exploration* only. They cannot approve trades.
+    reflection_path = root / "outputs/research/autonomous_alpha/reflection.json"
+    reflection = {}
+    if reflection_path.exists():
+        try:
+            reflection = json.loads(reflection_path.read_text(encoding="utf-8"))
+        except (ValueError, OSError) as exc:
+            raise reg.EvidenceIntegrityError("invalid previous reflection") from exc
+        if reflection.get("schema") != "alpha-reflection-v1" or reflection.get("production_influence") != "NONE":
+            raise reg.EvidenceIntegrityError("invalid reflection evidence policy")
+    family_forward = reflection.get("forward_stock_family_exploratory_counts") or {}
     candidates = []
     for a,b in itertools.combinations(sorted(parents,key=lambda x:x["name"]), 2):
         for op in ("blend", "interaction", "regime"):
@@ -209,6 +221,11 @@ def select(root: Path = Path("."), now: datetime | None = None) -> dict:
             if (lab.signal_key(h["signal"]), 1) in old_signals:
                 continue
             successes, failures = _evidence_counts(outcomes, (a,b))
+            fwd = family_forward.get(h["family"]) or {}
+            # Require six distinct matured cohorts (reflection handles that).
+            # Limit data-dependent weighting to two exploratory pseudocounts.
+            successes += min(2, max(0, int(fwd.get("successes", 0))))
+            failures += min(2, max(0, int(fwd.get("failures", 0))))
             # Thompson-sampling using one historical, NON-CONFIRMATORY prior.
             seed = int(hashlib.sha256((str(cfg["seed"])+month+h["id"]).encode()).hexdigest()[:16],16)
             rng = random.Random(seed)
@@ -218,6 +235,9 @@ def select(root: Path = Path("."), now: datetime | None = None) -> dict:
     candidates.sort(key=lambda x: (-x[0], x[1]))
     selected = []
     exploration_slots = math.ceil(max_new * float(cfg["exploratory_fraction"]))
+    if reflection and reflection.get("alpha_validated") is False:
+        exploration_slots = max(exploration_slots,
+                                min(max_new, int(reflection.get("exploration_slots_recommended", 0))))
     # Unbiased reproducible candidate lottery reserves exploration capacity.
     lottery = sorted(candidates, key=lambda x:x[1])
     reserved = lottery[:exploration_slots]
