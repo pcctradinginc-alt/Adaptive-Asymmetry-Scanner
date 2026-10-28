@@ -1,20 +1,19 @@
-# Daily Data Health Report – 2026-10-27
+# Daily Data Health Report – 2026-10-28
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.952
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.984
 
-Status: HEALTHY 44 · DEGRADED 2 · STALE 1 · BROKEN 0 · UNVALIDATED 8
+Status: HEALTHY 46 · DEGRADED 0 · STALE 1 · BROKEN 0 · UNVALIDATED 8
 
 ## Neue Änderungen
 
-- recovery: finra_short_interest DEGRADED → HEALTHY
+- recovery: imf_portwatch_ports DEGRADED → HEALTHY
+- recovery: imf_portwatch_chokepoints DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
-| imf_portwatch_chokepoints | DEGRADED | IMPORTANT | 2 | 2026-10-18 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Invalid URL', 'details': ['Invalid URL']} (outFields=capacity,capacity_cargo,cap |
-| imf_portwatch_ports | DEGRADED | IMPORTANT | 2 | 2026-10-16 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Invalid URL', 'details': ['Invalid URL']} (outFields=ISO3,country,date,export,ex |
 
 ## Fallbacks
 
