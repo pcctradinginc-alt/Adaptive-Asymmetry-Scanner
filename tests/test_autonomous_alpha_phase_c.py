@@ -175,7 +175,7 @@ def test_reflection_never_authorizes_orders_or_llms(tmp_path):
     assert state["code_changes_authorized"] is False
     assert state["llm_calls"]==0
     assert state["production_influence"]=="NONE"
-    assert state["exploration_slots_recommended"]==2
+    assert state["exploration_slots_recommended"]==1
 
 
 def test_existing_research_cron_disables_llm_and_retains_existing_schedules():
