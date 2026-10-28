@@ -66,6 +66,16 @@ def _norm(x):
 
 
 def _metrics(record: dict, *, kind: str) -> dict:
+    if kind == "ml_forward":
+        base = _d(record.get("base"))
+        return _norm({
+            "forward_net_mean": base.get("mean"),
+            "forward_sharpe_ann": base.get("sharpe_ann"),
+            "forward_max_dd": base.get("max_dd"),
+            "forward_n_cohorts": base.get("n_cohorts"),
+            "forward_ic": _d(record.get("ic")).get("mean_ic"),
+            "forward_validation_status": "UNVALIDATED",
+        })
     if kind == "ml_models":
         wf = _d(record.get("wf"))
     elif kind == "ml_forward":
@@ -307,6 +317,7 @@ def summary(events: list[dict], source_meta: dict | None = None) -> dict:
         "n_unique_events": len(events), "n_experiments": len(latest),
         "n_historically_tested": len(historically_tested),
         "n_prospectively_confirmed": prospectively_confirmed,
+        "n_forward_observation_sets_unvalidated": sum(r.get("evidence_class") == "PROSPECTIVE_OBSERVATIONS_UNVALIDATED" for r in latest.values()),
         "by_status": dict(sorted(cnt.items())), "by_kind": dict(sorted(by_kind.items())),
         "locked_holdout_policy": (source_meta or {}).get("locked_holdout_status"),
         "source_health": source_meta or {},
@@ -365,6 +376,8 @@ def leaderboard(events: list[dict], limit: int = 15) -> list[dict]:
     """Historical **research** ranking; never label it a live options strategy."""
     rows = []
     for rec in latest_records(events).values():
+        if rec.get("evidence_class") == "PROSPECTIVE_OBSERVATIONS_UNVALIDATED":
+            continue  # Never rank young forward observations as historical backtest Sharpe
         m = _d(rec.get("metrics"))
         net = m.get("oos_net_mean")
         if not isinstance(net, (int, float)):
