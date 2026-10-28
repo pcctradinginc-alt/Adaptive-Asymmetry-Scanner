@@ -1,7 +1,7 @@
 # Economics-first LLM acquisition policy. All upstream candidates remain in
 # candidate_ledger and receive unbiased forward underlying outcomes.
 # Budget-deferred != economically rejected; no synthetic option P&L for unquoted names.
-mode: shadow       # safe MAIN rollout: observe only; off | shadow | active
+mode: active       # economics-first LLM budget enabled; rollback: shadow or off
 max_quote_probes: 8
 audit_quote_probes: 2
 max_haiku_candidates: 12
