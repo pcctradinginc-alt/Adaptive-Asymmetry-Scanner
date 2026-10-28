@@ -157,6 +157,14 @@ jobs:
           retention-days: 90
           if-no-files-found: ignore
 
+      # Phase A: index the already completed research steps. Do NOT rerun
+      # ML or the hypothesis factory, download data or retest locked holdouts.
+      # One append-only journal tracks all historical failures and models.
+      - name: Autonomous Alpha – experiment registry (research only)
+        id: autonomous_alpha_registry
+        continue-on-error: true
+        run: python -m modules.autonomous_alpha ingest --strict
+
       - name: Commit research outputs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -166,6 +174,6 @@ jobs:
       - name: Stufen-Bilanz (zentrale Research-Stufe ausgefallen -> Lauf rot, nach dem Commit)
         if: always()
         env:
-          CRITICAL: "factory_plan=${{ steps.factory_plan.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }}"
+          CRITICAL: "factory_plan=${{ steps.factory_plan.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }}"
           DEGRADED: "alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }}"
         run: bash scripts/ci_stage_check.sh
