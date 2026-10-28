@@ -173,13 +173,17 @@ def _rank(rejects: list[dict], existing: set[str], signal_day: str, max_new: int
     for g in groups.values():
         g.sort(key=lambda x: x[0])
     keys = sorted(groups)
-    out = []
+    out, chosen_tickers = [], set()
     while len(out) < max_new and keys:
         for k in list(keys):
             if not groups[k]:
                 keys.remove(k)
                 continue
             _, row, legs = groups[k].pop(0)
+            ticker = str(row.get("ticker") or "").strip().upper()
+            if ticker in chosen_tickers:
+                continue  # same ticker + multiple strategy candidates is 1 daily cohort
+            chosen_tickers.add(ticker)
             out.append((row, legs))
             if len(out) >= max_new:
                 break
