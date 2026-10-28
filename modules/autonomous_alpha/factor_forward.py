@@ -117,6 +117,11 @@ def process(root: Path = Path("."), *, panel=None, cache: Path | None = None,
         raise EvidenceIntegrityError("PIT panel contains no observations as of today")
     latest = valid["date"].max()
     day = latest.date()
+    # Prevent a delayed/broken panel from silently generating hindsight
+    # 'prospective' predictions against week-old closing prices. A Saturday
+    # research run normally uses Friday's close; long weekends have tolerance.
+    age_days = (today - day).days
+    fresh_snapshot = 0 <= age_days <= 4
     point = valid.loc[valid["date"] == latest].copy()
     if len(point) < MIN_NAMES:
         raise EvidenceIntegrityError("PIT cross-section too small")
@@ -128,6 +133,8 @@ def process(root: Path = Path("."), *, panel=None, cache: Path | None = None,
     predictions = []
     from modules.research_lab import eval_signal, validate_expr
     for e in frozen:
+        if not fresh_snapshot:
+            continue  # old PIT snapshots are useful for MATURED labels only
         h = e["hypothesis"]
         registered = datetime.fromisoformat(e["registered_at"])
         if registered.tzinfo is None:
@@ -155,6 +162,7 @@ def process(root: Path = Path("."), *, panel=None, cache: Path | None = None,
             "schema": "alpha-factor-pred-v1", "hypothesis_id": h["id"],
             "spec_hash": h["spec_hash"], "registered_at": e["registered_at"],
             "prediction_date": day.isoformat(),
+            "prediction_recorded_at": now.isoformat(),
             "top": top, "bottom": bottom, "n_universe": len(scored),
             "horizon_trading_days": 20, "metric": "GROSS_TOP_MINUS_BOTTOM_STOCK_RETURN",
             "options_profit": None, "promotion_eligible": False,
@@ -226,6 +234,9 @@ def process(root: Path = Path("."), *, panel=None, cache: Path | None = None,
     report = {
         "schema": "alpha-factor-forward-v1",
         "as_of": today.isoformat(), "latest_pit_date": day.isoformat(),
+        "pit_snapshot_age_calendar_days": age_days,
+        "prospective_snapshot_fresh": fresh_snapshot,
+        "prospective_snapshot_status": "CURRENT" if fresh_snapshot else "STALE_NO_NEW_PREDICTIONS",
         "n_frozen_hypotheses": len(frozen),
         "n_new_predictions": new_pred, "n_new_matured_labels": new_lab,
         "n_pending_labels": pending, "n_stale_missing_labels": stale,
