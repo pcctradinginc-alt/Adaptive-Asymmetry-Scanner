@@ -142,7 +142,7 @@ def test_adaptive_hypothesis_cannot_be_accepted_using_contaminated_holdout(tmp_p
     policy={"periods":{"locked_status":"CONTAMINATED"},
             "multiple_testing":{"fdr_q":0.1},
             "hypothesis_acceptance":{"locked_must_be_positive":True}}
-    result=lab.run(pd.DataFrame(),policy=policy,
+    result=lab.run(pd.DataFrame(),protocol=policy,
                    db_path=tmp_path/"db.json",with_discovery=False)
     row=result["hypotheses"][hyps[0]["id"]]
     assert row["status"]=="historical_exploratory_pending_forward"
