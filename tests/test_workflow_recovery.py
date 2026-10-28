@@ -317,7 +317,7 @@ def test_recovered_source_health_dispatches_scanner_directly_but_guarded():
     assert "force" not in downstream["run"].lower()
     assert "date -u +%u" in downstream["run"]
     # Every dispatch, even repeated recovery dispatches, still runs the same guard.
-    assert "workflow_dispatch" in scanner["on"]
+    assert "workflow_dispatch" in (scanner.get("on") or scanner.get(True))
     assert scanner["jobs"]["scan"]["needs"] == "guard"
     assert "needs.guard.outputs.run == 'true'" in scanner["jobs"]["scan"]["if"]
 
