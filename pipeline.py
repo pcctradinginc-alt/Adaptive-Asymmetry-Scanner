@@ -976,10 +976,18 @@ def main() -> None:
                 c, designer=designer, gates=gates, policy=_ef_cfg),
             policy=_ef_cfg, deadline=_RUN_DEADLINE[0] if _RUN_DEADLINE else None)
     except Exception as _ef_exc:
-        log.error("economics-first failed; fallback to original candidates: %s", _ef_exc)
-        _ef_summary = {"mode": "fallback", "input": _ef_start, "haiku": _ef_start,
+        # NEVER fall back to unlimited Haiku/Sonnet after a gate failure:
+        # that would turn a broken budget gate into an unbounded paid API burst.
+        # This is an acquisition failure, NOT evidence of bad alpha.
+        log.error("economics-first failed CLOSED (no LLM calls): %s", _ef_exc)
+        _ef_decisions = {
+            c["ticker"]: {"status": "deferred", "reason": "acquisition_gate_error",
+                          "error": str(_ef_exc)[:160]}
+            for c in candidates if c.get("ticker")
+        }
+        candidates = []
+        _ef_summary = {"mode": "error_closed", "input": _ef_start, "haiku": 0,
                        "error": str(_ef_exc)[:160]}
-        _ef_decisions = {}
     stats["economics_first"] = _ef_summary
     stats["economics_first_candidates"] = len(candidates)
     for _tk, _d in _ef_decisions.items():
@@ -990,7 +998,12 @@ def main() -> None:
     log.info("Economics-first: %s -> %s Haiku inputs; quote probes=%s",
              _ef_start, len(candidates), _ef_summary.get("probed"))
     if not candidates:
-        stats["stop_reason"] = "Economics-first: keine Kandidaten im LLM-Budget; Forward-Ledger wird weitergeführt."
+        if _ef_summary.get("mode") == "error_closed":
+            stats["stop_reason"] = ("Economics-first VORFILTER-FEHLER: alle LLM-Aufrufe "
+                                    "aus Kostenschutz blockiert; Forward-Ledger bleibt erhalten.")
+        else:
+            stats["stop_reason"] = ("Economics-first: keine Kandidaten im LLM-Budget; "
+                                    "Forward-Ledger wird weitergeführt.")
         save_history(history)
         send_email()
         return

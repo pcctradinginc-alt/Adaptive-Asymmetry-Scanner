@@ -187,3 +187,26 @@ def test_existing_research_cron_disables_llm_and_retains_existing_schedules():
     assert "python -m modules.autonomous_alpha reflect" in workflow
     assert "python -m modules.hypothesis_factory plan --llm" not in workflow
     assert "ANTHROPIC_API_KEY:" not in workflow
+
+
+def test_stale_pit_panel_cannot_backdate_a_new_prospective_signal(tmp_path):
+    _explore(tmp_path)
+    panel = _panel()  # last available observation 2026-11-06
+    result = factor_forward.process(
+        tmp_path, panel=panel, now=datetime(2026, 12, 10, tzinfo=timezone.utc))
+    assert result["n_new_predictions"] == 0
+    assert result["prospective_snapshot_status"] == "STALE_NO_NEW_PREDICTIONS"
+    assert result["pit_snapshot_age_calendar_days"] > 4
+    # Also make sure no synthetic forward records were written.
+    assert factor_forward._read(tmp_path / factor_forward.PREDICTIONS) == []
+
+
+def test_fresh_pit_signal_records_actual_registration_timestamp(tmp_path):
+    _explore(tmp_path)
+    timestamp = datetime(2026, 11, 7, 8, 23, tzinfo=timezone.utc)
+    result = factor_forward.process(tmp_path, panel=_panel(), now=timestamp)
+    assert result["prospective_snapshot_fresh"] is True
+    snapshots = factor_forward._read(tmp_path / factor_forward.PREDICTIONS)
+    assert snapshots
+    assert all(x["payload"]["prediction_recorded_at"] == timestamp.isoformat()
+               for x in snapshots)

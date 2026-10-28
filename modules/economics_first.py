@@ -72,9 +72,13 @@ def _sample(candidates: list[dict], day: str, count: int, purpose: str) -> list[
 
 
 def probe_candidate(candidate: dict, *, designer, gates, policy: dict) -> dict:
-    """Conclusive reject only for earnings or a QUOTED but prohibitively costly
-    contract. Data/API failures are UNKNOWN, not 'bad alpha'. Assesses actual
-    production DTE tier (150-365), never the obsolete 21-45d ROI precheck.
+    """Bounded directional-neutral quote viability before the expensive LLMs.
+
+    A bad bullish CALL is NOT proof a bearish PUT is untradeable. Check the
+    other direction ONLY if the first direction is conclusively unviable.
+    An unavailable bearish quote is UNKNOWN; never exclude an unpriced
+    bearish signal as economically rejected. Max two directional checks
+    (spread fallback can perform a further bounded chain lookup).
     """
     ticker = candidate.get("ticker")
     spot = _num(candidate.get("current_price"))
@@ -86,55 +90,70 @@ def probe_candidate(candidate: dict, *, designer, gates, policy: dict) -> dict:
     except Exception as exc:
         log.warning("economics_first %s earnings check unknown: %s", ticker, exc)
 
-    try:
-        iv_rank = designer._get_iv_rank(ticker)
-        if iv_rank is None:
-            return {"status": "unknown", "reason": "iv_rank_unavailable"}
-        strategy = designer._select_strategy(ticker, "BULLISH", iv_rank)
+    def _direction_quote(direction: str, iv_rank: float) -> dict:
+        strategy = designer._select_strategy(ticker, direction, iv_rank)
         option = designer._find_option_for_dte(
             ticker, strategy, spot, int(policy["probe_dte_min"]),
             int(policy["probe_dte_max"]),
         )
-        # Same spread-to-long fallback as production. A transient empty chain is
-        # NOT evidence of unprofitability.
-        if not option and strategy == "BULL_CALL_SPREAD":
-            strategy = "LONG_CALL"
+        if not option and strategy in ("BULL_CALL_SPREAD", "BEAR_PUT_SPREAD"):
+            strategy = "LONG_CALL" if direction == "BULLISH" else "LONG_PUT"
             option = designer._find_option_for_dte(
                 ticker, strategy, spot, int(policy["probe_dte_min"]),
                 int(policy["probe_dte_max"]),
             )
         if not option:
-            return {"status": "unknown", "reason": "option_quote_unavailable"}
+            return {"status": "unknown", "reason": "option_quote_unavailable",
+                    "direction_checked": direction}
         long_bid = _num(option.get("bid"), -1)
         long_ask = _num(option.get("ask"), -1)
         if long_ask <= 0 or long_bid < 0 or long_bid > long_ask:
-            return {"status": "unknown", "reason": "invalid_quote"}
+            return {"status": "unknown", "reason": "invalid_quote",
+                    "direction_checked": direction}
         short = option.get("spread_leg") or {}
         is_spread = "SPREAD" in strategy and bool(short)
         if is_spread:
             short_bid, short_ask = _num(short.get("bid"), -1), _num(short.get("ask"), -1)
             debit = _num(option.get("net_debit"))
             if short_bid <= 0 or short_ask <= 0 or short_bid > short_ask or debit <= 0:
-                return {"status": "unknown", "reason": "invalid_combo_quote"}
-            # Executable entry = long ask - short bid; exit = long bid - short ask.
+                return {"status": "unknown", "reason": "invalid_combo_quote",
+                        "direction_checked": direction}
             actual_debit = long_ask - short_bid
-            if actual_debit <= 0 or abs(actual_debit - debit) > max(0.02, 0.05 * debit):
-                return {"status": "unknown", "reason": "inconsistent_combo_debit"}
-            friction = max(0.0, (actual_debit - (long_bid - short_ask)) / actual_debit)
+            if actual_debit <= 0 or abs(actual_debit-debit) > max(0.02, 0.05*debit):
+                return {"status": "unknown", "reason": "inconsistent_combo_debit",
+                        "direction_checked": direction}
+            friction = max(0.0, (actual_debit-(long_bid-short_ask))/actual_debit)
         else:
             debit = long_ask
-            friction = (long_ask - long_bid) / long_ask
+            friction = (long_ask-long_bid)/long_ask
         out = {"status": "pass", "reason": "quoted_economics",
+               "direction_checked": direction,
                "strategy": strategy, "dte": option.get("dte"),
-               "entry_debit": round(debit, 4), "immediate_friction": round(friction, 5),
+               "entry_debit": round(debit, 4),
+               "immediate_friction": round(friction, 5),
                "iv_rank": round(_num(iv_rank), 2)}
         if friction > float(policy["max_immediate_friction"]):
             out.update(status="reject", reason="excessive_quote_friction")
         return out
+
+    try:
+        iv_rank = designer._get_iv_rank(ticker)
+        if iv_rank is None:
+            return {"status": "unknown", "reason": "iv_rank_unavailable"}
+        bullish = _direction_quote("BULLISH", iv_rank)
+        if bullish["status"] != "reject":
+            return bullish
+        # A bearish candidate must never be excluded solely on call costs.
+        bearish = _direction_quote("BEARISH", iv_rank)
+        if bearish["status"] == "reject":
+            bullish["directions_checked"] = ["BULLISH", "BEARISH"]
+            return bullish
+        bearish["bullish_probe_status"] = bullish["status"]
+        bearish["directions_checked"] = ["BULLISH", "BEARISH"]
+        return bearish
     except Exception as exc:
         log.warning("economics_first %s probe unavailable: %s", ticker, exc)
         return {"status": "unknown", "reason": "probe_error"}
-
 
 def select_before_haiku(candidates: list[dict], *, day: str, probe,
                         policy: dict | None = None, deadline: float | None = None) -> tuple[list, dict, dict]:
