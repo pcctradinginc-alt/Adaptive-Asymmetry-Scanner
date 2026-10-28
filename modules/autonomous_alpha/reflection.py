@@ -91,6 +91,13 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
     # From option-trade-v1 one cannot infer the genetic factors' trade
     # outcome. Keep separate diagnostics, not a false factor P&L conclusion.
     all_matured_negative = bool(forward_families) and all(v["successes"] == 0 for v in forward_families.values())
+    # Independent rejected-contract cohort diagnostics, never a valid alpha
+    # label, a PPO reward, or authorization to change production ROI.
+    roi_shadow_path = root / "outputs/research/roi_learning/summary.json"
+    roi_shadow = _load(roi_shadow_path)
+    if roi_shadow and (roi_shadow.get("schema") != "roi-learning-summary-v1"
+                       or roi_shadow.get("actual_production_roi_gate_changed") is not False):
+        raise EvidenceIntegrityError("invalid ROI research evidence")
     tasks = [
         {"id": "PROSPECTIVE_FACTOR_LABELS", "priority": 1,
          "reason": "Need out-of-sample, time-stamped predictions and matured labels for every frozen AUTO-* factor."},
@@ -103,6 +110,9 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
     if states.get("REJECTED", 0):
         tasks.append({"id": "DIVERSIFY_REJECTED_FAMILIES", "priority": 4,
                       "reason": "Historical rejects are exploratory feedback, not proof of inverse alpha."})
+    if roi_shadow and int(roi_shadow.get("marks_by_horizon", {}).get("45", 0)) < 25:
+        tasks.append({"id": "COLLECT_ROI_COUNTERFACTUALS", "priority": 5,
+                      "reason": "Hold production ROI unchanged; need >=25 quote-backed 45d rejected option marks before interpreting ROI thresholds."})
     report = {
         "schema": "alpha-reflection-v1",
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -118,6 +128,13 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
             "alpha_attribution": trades["strategy_alpha_status"],
         },
         "source_gaps": missing,
+        "roi_learning_diagnostics": (
+            {"registered_rejects": roi_shadow.get("n_rejected_candidates_registered"),
+             "observed_marks_by_horizon": roi_shadow.get("marks_by_horizon"),
+             "threshold_groups": roi_shadow.get("research_roi_thresholds"),
+             "production_gate_changed": False}
+            if roi_shadow else {"status": "NO_DATA"}),
+
         "forward_stock_family_exploratory_counts": {k: v for k, v in sorted(forward_families.items())},
         "n_matured_stock_factor_cohorts": sum(len(xs) for xs in factor_labels.values()),
         "next_research_tasks": tasks,
