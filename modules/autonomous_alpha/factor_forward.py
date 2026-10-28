@@ -32,6 +32,7 @@ MAX_ROWS_PER_FILE = 3000
 
 def _read(directory: Path) -> list[dict]:
     events = {}
+    seen_semantic_ids = {}
     if not directory.exists():
         return []
     for p in sorted(directory.glob("????-??.jsonl")):
@@ -44,6 +45,17 @@ def _read(directory: Path) -> list[dict]:
                     if not isinstance(e, dict) or e.get("sha256") != digest(e.get("payload")):
                         raise ValueError("incorrect content hash")
                     key = e["sha256"]
+                    payload = e["payload"]
+                    kind = payload.get("schema")
+                    if kind == "alpha-factor-pred-v1":
+                        logical_id = (kind, payload["hypothesis_id"], payload["prediction_date"])
+                    elif kind == "alpha-factor-label-v1":
+                        logical_id = (kind, payload["prediction_id"])
+                    else:
+                        raise ValueError("unexpected factor journal record type")
+                    if logical_id in seen_semantic_ids and seen_semantic_ids[logical_id] != key:
+                        raise ValueError("conflicting immutable prediction/outcome identity")
+                    seen_semantic_ids[logical_id] = key
                     if key not in events:
                         events[key] = e
                     elif events[key]["payload"] != e["payload"]:
