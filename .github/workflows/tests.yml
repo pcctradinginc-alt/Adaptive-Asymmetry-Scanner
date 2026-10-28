@@ -35,7 +35,7 @@ jobs:
         run: pip install -r requirements.txt pytest
 
       - name: Leakage-, Audit- und Protokoll-Tests (zuerst, schnell)
-        run: python -m pytest -q -p no:cacheprovider tests/test_forensic_audit.py tests/test_research_protocol.py tests/test_next_intelligence.py tests/test_world_model.py
+        run: python -m pytest -q -p no:cacheprovider tests/test_forensic_audit.py tests/test_research_protocol.py tests/test_next_intelligence.py tests/test_world_model.py tests/test_autonomous_alpha.py
 
       - name: Live-Smoke PIT-Universum (informativ, Netz)
         continue-on-error: true
