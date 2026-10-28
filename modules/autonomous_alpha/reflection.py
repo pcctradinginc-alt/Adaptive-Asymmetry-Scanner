@@ -123,7 +123,7 @@ def reflect(root: Path = Path("."), *, today=None, persist=True) -> dict:
         "next_research_tasks": tasks,
         # With no independent validated option alpha, always reserve all
         # exploration slots: don't exploit unreliable historical winners.
-        "exploration_slots_recommended": 2 if no_confirmed_alpha else 1,
+        "exploration_slots_recommended": 1,
         "alpha_validated": False,
         "promotion_authorized": False,
         "code_changes_authorized": False,
