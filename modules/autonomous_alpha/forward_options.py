@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import json
 import math
-from collections import Counter, defaultdict
+from collections import Counter
+from statistics import median
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -80,12 +81,12 @@ def _date(x) -> date | None:
         return None
 
 
-def _quote_ids_for_days(root: Path, days: set[str], cfg: dict) -> tuple[set[str], list[str]]:
+def _quote_ids_for_days(root: Path, days: set[str], cfg: dict) -> tuple[dict[str, dict], list[str]]:
     """Read ONLY archived quotes for actual trade entry/exit days.
 
     Do not fetch future market data or manufacture contemporaneous quotes.
     """
-    ids, missing = set(), []
+    ids, missing = {}, []
     for d in sorted(days):
         try:
             date.fromisoformat(d)
@@ -100,11 +101,13 @@ def _quote_ids_for_days(root: Path, days: set[str], cfg: dict) -> tuple[set[str]
                 continue
             rid = row.get("record_id")
             if rid:
-                ids.add(str(rid))
+                if str(rid) in ids and ids[str(rid)] != row:
+                    raise EvidenceIntegrityError("contradictory quote record ID")
+                ids[str(rid)] = {**row, "archive_day": d}
     return ids, missing
 
 
-def _inspect(row: dict, *, start: date, today: date, ids: set[str]) -> dict:
+def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict]) -> dict:
     tid = row.get("trade_id")
     ed, xd = _date(row.get("entry_date")), _date(row.get("close_date"))
     reasons = []
@@ -139,6 +142,16 @@ def _inspect(row: dict, *, start: date, today: date, ids: set[str]) -> dict:
         missing_ids = [x for x in entry_ids+exit_ids if x not in ids]
         if missing_ids:
             reasons.append("quote_ids_not_in_archive")
+        else:
+            symbols = set(row.get("occ_symbols") or [])
+            for record_id, day in [(x, ed) for x in entry_ids] + [(x, xd) for x in exit_ids]:
+                quote = ids[record_id]
+                if quote.get("archive_day") != (day.isoformat() if day else None):
+                    reasons.append("quote_not_from_execution_day")
+                if quote.get("occ_symbol") not in symbols:
+                    reasons.append("quote_contract_mismatch")
+                if quote.get("quality_status") not in ("OK",):
+                    reasons.append("quote_quality_not_ok")
     # No evidence of ex-ante alpha assignment in trade-outcome-v1.
     return {
         "trade_id": tid, "ticker": row.get("ticker"),
@@ -196,7 +209,7 @@ def evaluate(root: Path = Path("."), *, today: date | None = None,
         "excluded_by_reason": dict(sorted(unverified_counts.items())),
         "missing_quote_days": sorted(missing_quote_days),
         "net_mean_verified": round(sum(x["net_return"] for x in verified)/len(verified),6) if verified else None,
-        "net_median_verified": sorted(x["net_return"] for x in verified)[len(verified)//2] if verified else None,
+        "net_median_verified": round(median(x["net_return"] for x in verified), 6) if verified else None,
         "by_strategy": by_strategy,
         "sample_floor_reached": enough,
         "strategy_alpha_status": "NOT_ATTRIBUTABLE",
