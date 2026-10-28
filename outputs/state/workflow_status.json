@@ -1086,13 +1086,13 @@
         "conclusion": null,
         "delay_hours": null,
         "runs_today": 0,
-        "recovered": false,
-        "recoveries_today": 0,
+        "recovered": true,
+        "recoveries_today": 1,
         "artifact_ok": false,
-        "action": null,
+        "action": "DISPATCH",
         "stale_upstream": [],
-        "reason": null,
-        "state": "PENDING"
+        "reason": "Frist 2026-10-28T15:41+00:00 \u00fcberschritten, Tag nicht versorgt",
+        "state": "RECOVERY_TRIGGERED"
       },
       "scanner": {
         "file": "scanner.yml",
@@ -1153,6 +1153,9 @@
       "source_health": 1
     },
     "2026-10-27": {
+      "source_health": 1
+    },
+    "2026-10-28": {
       "source_health": 1
     }
   }
