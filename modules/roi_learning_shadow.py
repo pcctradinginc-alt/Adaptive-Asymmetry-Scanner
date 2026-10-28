@@ -322,6 +322,84 @@ def due_capture_symbols(*, today: date | None = None, root: Path = Path(".")) ->
 
 
 
+
+
+def _candidate_underlying_by_gate(root: Path, today: date, lookback_days: int = 100) -> dict:
+    """Use existing PIT stock outcomes. Never present them as option P&L."""
+    cutoff = today - timedelta(days=lookback_days)
+    seen, buckets = set(), {}
+    unreadable = rows_seen = 0
+    for path in sorted((root / "outputs/candidate_ledger").glob("????-??.jsonl")):
+        try:
+            with path.open(encoding="utf-8") as source:
+                for line in source:
+                    if not line.strip():
+                        continue
+                    try:
+                        row = json.loads(line)
+                        day = date.fromisoformat(row["date"])
+                        if not cutoff <= day <= today:
+                            continue
+                        identity = row.get("signal_id") or (
+                            row["date"], row.get("ticker"), row.get("event_id")
+                        )
+                        if identity in seen:
+                            continue
+                        seen.add(identity)
+                        rows_seen += 1
+                        reason = ("proposed" if row.get("status") == "proposed"
+                                  else str(row.get("reject_reason") or "unlabeled"))
+                        bucket = buckets.setdefault(reason, {
+                            "registered": 0, "direction_known": 0,
+                            "returns": {5: [], 20: [], 45: []},
+                        })
+                        bucket["registered"] += 1
+                        bucket["direction_known"] += int(
+                            row.get("direction") in ("BULLISH", "BEARISH")
+                        )
+                        outcomes = row.get("outcomes") or {}
+                        if (outcomes.get("price_basis") or {}).get("status") == "CHANGED":
+                            continue
+                        for h in (5, 20, 45):
+                            ret = outcomes.get(f"ret_{h}d")
+                            if (isinstance(ret, (int, float)) and
+                                    not isinstance(ret, bool) and math.isfinite(ret)):
+                                bucket["returns"][h].append((row["date"], float(ret)))
+                    except (ValueError, TypeError, KeyError, AttributeError):
+                        unreadable += 1
+        except OSError:
+            unreadable += 1
+    result = {}
+    for reason, bucket in sorted(buckets.items()):
+        horizons = {}
+        for h, values in bucket["returns"].items():
+            days = len({day for day, _ in values})
+            enough = len(values) >= 20 and days >= 10
+            horizons[str(h)] = {
+                "observed": len(values), "independent_days": days,
+                "mean_stock_return": (
+                    round(sum(v for _, v in values) / len(values), 6)
+                    if enough else None
+                ),
+                "status": "DESCRIPTIVE_ONLY" if enough else "NEED_MORE_DATA",
+            }
+        result[reason] = {
+            "registered": bucket["registered"],
+            "direction_known": bucket["direction_known"],
+            "underlying": horizons,
+        }
+    return {
+        "lookback_days": lookback_days, "signals_read": rows_seen,
+        "unreadable_rows": unreadable, "by_reject_reason": result,
+        "stocks_are_not_option_returns": True,
+        "direction_mixed_or_unknown": True,
+        "interpretation": (
+            "Direction unknown for early deferrals, so their stock returns are "
+            "not comparable to long-call option outcomes. No causal inference."
+        ),
+    }
+
+
 def _economics_acquisition_report(root: Path, today: date, limit: int = 10) -> dict:
     """Read-only funnel: acquisition deferrals are NOT economic rejections."""
     rows = []
@@ -520,6 +598,30 @@ def _gate_economics_markdown(report: dict) -> str:
         "Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.",
         "",
     ]
+    stock = report["candidate_underlying_by_gate"]
+    lines += [
+        "",
+        "## Kandidaten-Forward-Renditen (Aktien, nicht Optionen)",
+        "",
+        "| Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    ranked = sorted(stock["by_reject_reason"].items(),
+                    key=lambda item: (-item[1]["registered"], item[0]))
+    for reason, bucket in ranked[:15]:
+        m5, m20 = bucket["underlying"]["5"], bucket["underlying"]["20"]
+        avg5 = "n/v" if m5["mean_stock_return"] is None else f'{m5["mean_stock_return"]:.1%}'
+        avg20 = "n/v" if m20["mean_stock_return"] is None else f'{m20["mean_stock_return"]:.1%}'
+        lines.append(
+            f'| {reason} | {bucket["registered"]} | {bucket["direction_known"]} | '
+            f'{m5["observed"]} | {avg5} | {m20["observed"]} | {avg20} |'
+        )
+    lines += [
+        "",
+        "*Mittelwerte erst ab 20 Marks an 10 unabhängigen Signaltagen; nicht kausal.",
+        "Richtungsunbekannte Budget-Signale sind keine Long-Call-Prognosen.",
+        "Aktienrenditen dürfen nicht als verpasste Optionsgewinne gelten.",
+    ]
     return "\n".join(lines)
 
 def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
@@ -630,6 +732,7 @@ def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
     }
     # Read-only research diagnostics: existing journals and daily reports only.
     report["economics_first_acquisition"] = _economics_acquisition_report(root, today)
+    report["candidate_underlying_by_gate"] = _candidate_underlying_by_gate(root, today)
     report["observed_option_economics"] = _observed_option_economics(cohorts, all_marks, today, cfg)
     markdown = _gate_economics_markdown(report)
     md_output = root / ROOT / "gate_economics.md"
