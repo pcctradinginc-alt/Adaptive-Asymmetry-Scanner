@@ -1,0 +1,10 @@
+# Phase C is deterministic, read-only research. No LLM or code agents.
+version: phase-c-v1
+enabled: true
+forward_start: "2026-10-29"
+minimum_verified_trades: 26
+minimum_distinct_entry_dates: 20
+max_trade_records: 100000
+max_quote_records_per_file: 50000
+# No changes to position sizing, orders, promotion, thresholds or existing labels.
+production_influence: NONE
