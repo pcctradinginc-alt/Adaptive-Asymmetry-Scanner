@@ -321,6 +321,207 @@ def due_capture_symbols(*, today: date | None = None, root: Path = Path(".")) ->
     return list(dict.fromkeys(wanted))[:int(cfg["max_quote_symbols_per_capture"])]
 
 
+
+def _economics_acquisition_report(root: Path, today: date, limit: int = 10) -> dict:
+    """Read-only funnel: acquisition deferrals are NOT economic rejections."""
+    rows = []
+    daily_dir = root / "outputs/daily_reports"
+    for path in sorted(daily_dir.glob("????-??-??.json"), reverse=True):
+        try:
+            day = date.fromisoformat(path.stem)
+            if day > today:
+                continue
+            data = json.loads(path.read_text(encoding="utf-8"))
+            stats = data.get("stats") or {}
+            ef = stats.get("economics_first") or {}
+            if ef.get("mode") not in ("active", "shadow"):
+                continue
+            rejects = data.get("rejects") or {}
+
+            def count(reason: str) -> int:
+                return int((rejects.get(reason) or {}).get("count", 0))
+
+            rows.append({
+                "date": day.isoformat(), "mode": ef["mode"],
+                "sector_survivors": int(stats.get("sector_ok") or 0),
+                "quote_probes": int(ef.get("probed") or 0),
+                "budget_not_probed": count("economics_first_quote_probe_budget"),
+                "earnings_rejected": count("economics_first_earnings_gate"),
+                "haiku_inputs": int(ef.get("haiku") or 0),
+                "haiku_audit_inputs": int(ef.get("audit_haiku") or 0),
+                "sonnet_analyzed": int(stats.get("analyzed") or 0),
+                "mismatch_rejected": count("mismatch_below_min"),
+                "quick_mc_survivors": int(stats.get("quick_mc") or 0),
+                "roi_approved": int(stats.get("roi_ok") or 0),
+                "trades": int(stats.get("trades") or 0),
+            })
+            if len(rows) == limit:
+                break
+        except (OSError, ValueError, TypeError, KeyError, AttributeError):
+            continue
+    keys = ("sector_survivors", "quote_probes", "budget_not_probed",
+            "earnings_rejected", "haiku_inputs", "haiku_audit_inputs",
+            "sonnet_analyzed", "mismatch_rejected", "quick_mc_survivors",
+            "roi_approved", "trades")
+    totals = {key: sum(row[key] for row in rows) for key in keys}
+    return {
+        "status": "OBSERVED_DESCRIPTIVE_ONLY" if rows else "NO_ECONOMICS_FIRST_DATA",
+        "days": rows, "totals": totals,
+        "budget_not_probed_is_unprofitable": False,
+        "options_outcomes_for_unprobed_candidates": "UNKNOWN",
+        "interpretation": "Quote-probe budget deferrals are unpriced, not economic rejects.",
+    }
+
+
+def _observed_option_economics(cohorts: list[dict], marks: list[dict],
+                               today: date, cfg: dict) -> dict:
+    """Observed RTH marks only; overlapping reject gates and ROI buckets remain distinct."""
+    by_mark = {(m["cohort_id"], int(m["horizon_days"])): m for m in marks}
+    entry_lag = int(cfg["max_entry_lag_days"])
+    exit_lag = int(cfg["max_exit_lag_days"])
+
+    def metric(rows: list[dict], horizon: int) -> dict:
+        """Fully matured denominator includes missing quotes; avoids survivor-only coverage."""
+        matured = [
+            c for c in rows
+            if (today - date.fromisoformat(c["signal_date"])).days >= horizon + entry_lag + exit_lag
+        ]
+        observed = [
+            (c, by_mark[(c["cohort_id"], horizon)])
+            for c in rows if (c["cohort_id"], horizon) in by_mark
+        ]
+        mature_observed = sum(
+            (c["cohort_id"], horizon) in by_mark for c in matured
+        )
+        usable = [
+            (c, float(m["net_return"])) for c, m in observed
+            if isinstance(m.get("net_return"), (int, float))
+            and math.isfinite(float(m["net_return"]))
+            and m.get("price_evidence") == "OBSERVED_RTH_EXECUTABLE_BID_ASK"
+        ]
+        independent_days = len({c["signal_date"] for c, _ in usable})
+        sufficient = len(usable) >= 20 and independent_days >= 10
+        return {
+            "registered": len(rows), "marked": len(observed),
+            "fully_matured": len(matured), "fully_matured_marked": mature_observed,
+            "matured_quote_coverage": (
+                round(mature_observed / len(matured), 4) if matured else None
+            ),
+            "observed_valid_quote_outcomes": len(usable),
+            "independent_signal_days": independent_days,
+            "mean_net": (
+                round(sum(v for _, v in usable) / len(usable), 6)
+                if sufficient else None
+            ),
+            "median_net": (
+                round(__import__("statistics").median(v for _, v in usable), 6)
+                if sufficient else None
+            ),
+            "win_rate": (
+                round(sum(v > 0 for _, v in usable) / len(usable), 6)
+                if sufficient else None
+            ),
+            "status": "DESCRIPTIVE_ONLY" if sufficient else "NEED_MORE_MATURED_QUOTES",
+        }
+
+    horizons = {str(h): metric(cohorts, h) for h in HORIZONS}
+    gates = sorted({
+        str(reason)
+        for c in cohorts for reason in (c.get("other_production_gates") or {}).values()
+        if reason
+    })
+    by_rejection_gate = {
+        reason: {
+            str(h): metric([
+                c for c in cohorts
+                if reason in {
+                    str(g) for g in (c.get("other_production_gates") or {}).values()
+                    if g
+                }
+            ], h)
+            for h in HORIZONS
+        }
+        for reason in gates
+    }
+    return {
+        "horizons": horizons, "rejection_gates": by_rejection_gate,
+        "gate_groups_overlap": True,
+        "horizon_unit": "calendar_days",
+        "maturity_rule": "signal_date + horizon + max_entry_lag + max_exit_lag",
+        "outcomes_only_observed_quotes": True,
+        "fixed_horizon_marks_not_real_stop_take_profit": True,
+        "minimum_descriptive_evidence": {"outcomes": 20, "independent_signal_days": 10},
+        "statistical_promotion_allowed": False,
+    }
+
+
+def _gate_economics_markdown(report: dict) -> str:
+    """Compact diagnostics, not a trading decision or a promotion recommendation."""
+    acquisition = report["economics_first_acquisition"]
+    economics = report["observed_option_economics"]
+    lines = [
+        f"# Gate- und Optionsökonomie – {report['as_of']}",
+        "",
+        "**READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**",
+        "",
+        "## Economics-first: letzte verfügbare Läufe",
+        "",
+        "| Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in acquisition["days"]:
+        values = [row[k] for k in (
+            "date", "sector_survivors", "quote_probes", "budget_not_probed",
+            "earnings_rejected", "haiku_inputs", "sonnet_analyzed",
+            "quick_mc_survivors", "roi_approved", "trades"
+        )]
+        lines.append("| " + " | ".join(map(str, values)) + " |")
+    lines += [
+        "",
+        "Budget-bedingt nicht untersuchte Kandidaten sind **keine** nachgewiesenen",
+        "ökonomischen Rejects. Für unbepreiste Aktien existieren keine realen Options-Outcomes.",
+        "",
+        "## ROI-Reject-Shadow: echte RTH-Bid-/Ask-Marks",
+        "",
+        "| Horizont (Kalendertage) | Registriert | Markiert | Voll ausgereift | Davon markiert | Quote-Abdeckung | Ø Netto* | Status |",
+        "|---|---:|---:|---:|---:|---:|---:|---|",
+    ]
+    for horizon, values in economics["horizons"].items():
+        pct = ("n/v" if values["matured_quote_coverage"] is None
+               else f'{values["matured_quote_coverage"]:.1%}')
+        mean = ("n/v" if values["mean_net"] is None else f'{values["mean_net"]:.1%}')
+        lines.append(
+            f'| {horizon} | {values["registered"]} | {values["marked"]} | '
+            f'{values["fully_matured"]} | {values["fully_matured_marked"]} | '
+            f'{pct} | {mean} | {values["status"]} |'
+        )
+    lines += [
+        "",
+        "*Netto-Mittelwerte nur ab 20 verwertbaren Marks an mindestens 10 unabhängigen",
+        "Signaltagen. Rein deskriptiv, kein Alpha-Nachweis.",
+        "Voll ausgereift: Signalzeitpunkt plus Horizont, maximal zulässiger",
+        "Entry-Lag und maximal zulässiger Exit-Lag.",
+        "",
+        "## Reject-Gründe (Gruppen können sich überlappen)",
+        "",
+        "| Gate | Registrierte Kontrakte | 5d markiert | 20d markiert | 45d markiert |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for gate, metrics in economics["rejection_gates"].items():
+        lines.append(
+            f'| {gate} | {metrics["5"]["registered"]} | '
+            f'{metrics["5"]["marked"]} | {metrics["20"]["marked"]} | '
+            f'{metrics["45"]["marked"]} |'
+        )
+    lines += [
+        "",
+        "Fest definierte Marks sind nicht mit Take-Profit-/Stop-Loss-Exits",
+        "gleichzusetzen. Unbeobachtete Quotes bleiben UNKNOWN.",
+        "Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.",
+        "",
+    ]
+    return "\n".join(lines)
+
 def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
     """Mature observed marks, no forward return or training input is fabricated."""
     root = Path(root)
@@ -427,6 +628,15 @@ def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
         "research_only": True, "orders_created": 0, "llm_calls": 0,
         "verified_trades_do_not_imply_factor_alpha": True,
     }
+    # Read-only research diagnostics: existing journals and daily reports only.
+    report["economics_first_acquisition"] = _economics_acquisition_report(root, today)
+    report["observed_option_economics"] = _observed_option_economics(cohorts, all_marks, today, cfg)
+    markdown = _gate_economics_markdown(report)
+    md_output = root / ROOT / "gate_economics.md"
+    md_output.parent.mkdir(parents=True, exist_ok=True)
+    md_temp = md_output.with_suffix(".md.tmp")
+    md_temp.write_text(markdown, encoding="utf-8")
+    os.replace(md_temp, md_output)
     SUMMARY.parent.mkdir(parents=True, exist_ok=True)
     temp = root / (str(SUMMARY) + ".tmp")
     output = root / SUMMARY
