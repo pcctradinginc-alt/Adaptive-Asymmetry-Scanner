@@ -1,6 +1,6 @@
 # Expectation Alpha – SHADOW – Research, keine Handelsempfehlung
 
-Stand 2026-10-28T20:25:15+00:00 · config 9772eff4a0fef81d
+Stand 2026-10-28T23:22:54+00:00 · config 9772eff4a0fef81d
 
 Population EA_NEWS_CANDIDATE: n=545, Signaltage 11, Ereignis-Cluster 273, Status {'ABSTAIN': 482, 'WAIT': 59, 'TRADE': 4}
 
