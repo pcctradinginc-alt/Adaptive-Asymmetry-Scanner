@@ -157,6 +157,13 @@ jobs:
           retention-days: 90
           if-no-files-found: ignore
 
+      # Phase A: index the already completed research steps. Do NOT rerun
+      # ML or the hypothesis factory, download data or retest locked holdouts.
+      # One append-only journal tracks all historical failures and models.
+      - name: Autonomous Alpha – experiment registry (research only)
+        id: autonomous_alpha_registry
+        run: python -m modules.autonomous_alpha ingest --strict
+
       - name: Commit research outputs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
