@@ -31,10 +31,15 @@ UTC = timezone.utc
 def _run_pipeline(tmp_path, monkeypatch, mode: str) -> dict:
     import pipeline
     from modules import cost_telemetry, email_reporter, model_routing, research_memory, source_health, system_state
+    from modules import economics_first as ef
     from modules.expectation_alpha import config as ec, data as ed
     work = tmp_path / mode
     work.mkdir()
     monkeypatch.chdir(work)
+    # Isolation: test Expectation Alpha OFF vs SHADOW without the distinct
+    # economics-first acquisition cap (3 Sonnet max). This test's purpose is
+    # to verify EA alone never changes the champion's six input candidates.
+    monkeypatch.setattr(ef, "settings", lambda path=None: {**ef.DEFAULTS, "mode": "off"})
     seen: dict = {"mismatch_in": None, "status": []}
     cfg = copy.deepcopy(ec.load())
     cfg["mode"] = mode
