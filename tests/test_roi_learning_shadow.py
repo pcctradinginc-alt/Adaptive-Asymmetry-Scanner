@@ -237,3 +237,37 @@ def test_matured_missing_quotes_count_in_coverage_denominator(tmp_path):
     assert cover["matured_quote_coverage"] == 0.0
     assert cover["status"] == "NEED_MORE_MATURED_QUOTES"
     assert result["observed_option_economics"]["horizons"]["45"]["fully_matured"] == 0
+
+
+def test_underlying_returns_remain_stock_only_not_option_pnl(tmp_path):
+    _seed(tmp_path)
+    ledger = tmp_path / "outputs/candidate_ledger/2026-10.jsonl"
+    ledger.parent.mkdir(parents=True, exist_ok=True)
+    observations = [
+        {"date": "2026-10-20", "ticker": "ABC", "signal_id": "id1",
+         "status": "rejected", "reject_reason": "economics_first_quote_probe_budget",
+         "direction": None, "outcomes": {"ret_5d": 0.08}},
+        {"date": "2026-10-20", "ticker": "XYZ", "signal_id": "id2",
+         "status": "rejected", "reject_reason": "mismatch_below_min",
+         "direction": "BULLISH", "outcomes": {"ret_5d": -0.03}},
+        {"date": "2026-10-20", "ticker": "XYZ", "signal_id": "id2",
+         "status": "rejected", "reject_reason": "mismatch_below_min",
+         "direction": "BULLISH", "outcomes": {"ret_5d": -0.03}},
+        {"date": "2026-10-20", "ticker": "ERR", "signal_id": "id3",
+         "status": "rejected", "reject_reason": "mismatch_below_min",
+         "direction": "BULLISH",
+         "outcomes": {"ret_5d": 99, "price_basis": {"status": "CHANGED"}}},
+    ]
+    ledger.write_text("".join(json.dumps(row) + "\n" for row in observations))
+    report = rl.evaluate(today=date(2026, 10, 29), root=tmp_path)
+    stock = report["candidate_underlying_by_gate"]
+    assert stock["signals_read"] == 3
+    assert stock["stocks_are_not_option_returns"] is True
+    budget = stock["by_reject_reason"]["economics_first_quote_probe_budget"]
+    assert budget["registered"] == 1 and budget["direction_known"] == 0
+    assert budget["underlying"]["5"]["observed"] == 1
+    assert budget["underlying"]["5"]["mean_stock_return"] is None
+    rejected = stock["by_reject_reason"]["mismatch_below_min"]
+    assert rejected["registered"] == 2
+    assert rejected["underlying"]["5"]["observed"] == 1
+    assert report["observed_option_economics"]["horizons"]["5"]["marked"] == 0
