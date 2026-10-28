@@ -12,7 +12,7 @@
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-10-28T16:18:00+00:00",
+  "generated": "2026-10-28T18:29:40+00:00",
   "counts": {
    "HEALTHY": 46,
    "DEGRADED": 0,
@@ -105,7 +105,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-24T13:03:43+00:00",
-  "drift_input_age_days": 4.1,
+  "drift_input_age_days": 4.2,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -180,15 +180,15 @@
  "inputs": {
   "model_health": "c9f28b20fe07",
   "meta_learning": "a46310463c23",
-  "data_health": "431a8714877d",
+  "data_health": "c4119db9b15c",
   "promotion": "614f6e32d4b3",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "3eadbdc6bc59"
  },
- "state_version": 72,
- "fingerprint": "0abc7f2a831864c3",
- "updated_at": "2026-10-28T16:18:00+00:00",
- "code_version": "c7460f0254a1"
+ "state_version": 73,
+ "fingerprint": "f79523a7f4df3537",
+ "updated_at": "2026-10-28T18:29:40+00:00",
+ "code_version": "9581badc584d"
 }

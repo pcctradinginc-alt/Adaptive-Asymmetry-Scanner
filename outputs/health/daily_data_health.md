@@ -4,11 +4,6 @@
 
 Status: HEALTHY 46 · DEGRADED 0 · STALE 1 · BROKEN 0 · UNVALIDATED 8
 
-## Neue Änderungen
-
-- recovery: imf_portwatch_ports DEGRADED → HEALTHY
-- recovery: imf_portwatch_chokepoints DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
