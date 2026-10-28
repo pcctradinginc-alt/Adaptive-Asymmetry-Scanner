@@ -962,6 +962,39 @@ def main() -> None:
         send_email()
         return
 
+    # ── ECONOMICS-FIRST: actual long-DTE option quotes before ANY LLM ─────
+    # All sector survivors already have a candidate_ledger entry with forward
+    # pricing. A budget deferral is a measured acquisition decision, never an
+    # inference of negative alpha. Keep the full raw cohort in that ledger.
+    from modules import economics_first as _ef
+    _ef_cfg = _ef.settings()
+    _ef_start = len(candidates)
+    try:
+        candidates, _ef_decisions, _ef_summary = _ef.select_before_haiku(
+            candidates, day=today,
+            probe=lambda c: _ef.probe_candidate(
+                c, designer=designer, gates=gates, policy=_ef_cfg),
+            policy=_ef_cfg, deadline=_RUN_DEADLINE[0] if _RUN_DEADLINE else None)
+    except Exception as _ef_exc:
+        log.error("economics-first failed; fallback to original candidates: %s", _ef_exc)
+        _ef_summary = {"mode": "fallback", "input": _ef_start, "haiku": _ef_start,
+                       "error": str(_ef_exc)[:160]}
+        _ef_decisions = {}
+    stats["economics_first"] = _ef_summary
+    stats["economics_first_candidates"] = len(candidates)
+    for _tk, _d in _ef_decisions.items():
+        candidate_ledger.note(_tk, stage="economics_first", economics_first=_d)
+        # In shadow mode: note only, never reject.
+        if _ef_cfg.get("mode") == "active" and _d.get("status") in ("deferred", "reject"):
+            reject("economics_first_" + str(_d.get("reason", "unknown")), _tk)
+    log.info("Economics-first: %s -> %s Haiku inputs; quote probes=%s",
+             _ef_start, len(candidates), _ef_summary.get("probed"))
+    if not candidates:
+        stats["stop_reason"] = "Economics-first: keine Kandidaten im LLM-Budget; Forward-Ledger wird weitergeführt."
+        save_history(history)
+        send_email()
+        return
+
     # ── STUFE 2: Prescreening (Haiku) ────────────────────────────────────────
     log.info("Stufe 2: Prescreening (Claude Haiku)")
     _prescreener = Prescreener()
@@ -1151,6 +1184,23 @@ def main() -> None:
                      f"(Bearish-Trades deaktiviert, Vorfilter validiert)")
     except Exception as e:  # noqa: BLE001 – im Zweifel alle analysieren
         log.warning(f"Bearish-Vorfilter nicht anwendbar (alle Kandidaten werden analysiert): {e}")
+
+    # ── ECONOMICS-FIRST: cap expensive Sonnet calls, retain decision cohorts ─
+    _sonnet_before = len(pre_mc_viable)
+    pre_mc_viable, _sonnet_deferred = _ef.select_before_sonnet(
+        pre_mc_viable, day=today, policy=_ef_cfg)
+    stats["economics_first_sonnet_input"] = len(pre_mc_viable)
+    stats["economics_first_sonnet_deferred"] = len(_sonnet_deferred)
+    for _tk, _why in _sonnet_deferred.items():
+        candidate_ledger.note(_tk, stage="economics_first_sonnet",
+                              economics_first_sonnet={"status": "deferred", "reason": _why})
+        reject("economics_first_" + _why, _tk)
+    log.info("Economics-first Sonnet budget: %d -> %d", _sonnet_before, len(pre_mc_viable))
+    if not pre_mc_viable:
+        stats["stop_reason"] = "Economics-first: kein Sonnet-Kandidat innerhalb Budget."
+        save_history(history)
+        send_email()
+        return
 
     # ── STUFE 4: Deep Analysis (Sonnet) ──────────────────────────────────────
     log.info("Stufe 4: Deep Analysis (Claude Sonnet + Red Team)")
