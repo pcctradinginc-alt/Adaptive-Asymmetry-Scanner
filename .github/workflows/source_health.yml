@@ -13,6 +13,10 @@ on:
   # dessen Abschluss startet den Scanner über workflow_run (scanner.yml).
   workflow_dispatch:
 
+permissions:
+  actions: write       # direct workflow_dispatch to scanner after a healthy snapshot
+  contents: write      # continue persisting source-health snapshots as before
+
 concurrency:
   group: source-health-write
   cancel-in-progress: false
@@ -42,6 +46,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Source Health Check
+        id: health_check
         env:
           TRADIER_API_KEY:  ${{ secrets.TRADIER_API_KEY }}
           FINNHUB_API_KEY:  ${{ secrets.FINNHUB_API_KEY }}
@@ -53,8 +58,26 @@ jobs:
         run: python -m modules.source_health check
 
       - name: Commit health snapshot
+        id: snapshot_commit
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           bash scripts/ci_push.sh "chore: source health $(date -u +%Y-%m-%dT%H:%M)" outputs/health/ outputs/state/
+
+      # Fix for GitHub GITHUB_TOKEN event suppression: workflow_run does not
+      # reliably chain from a Source Health run dispatched by the watchdog.
+      # workflow_dispatch is explicitly allowed to create a downstream run.
+      # Upstream Guard inside scanner.yml still checks fresh snapshot, NYSE
+      # schedule, trade window and daily deduplication. Never use force=true.
+      - name: Direct scanner dispatch after committed Source Health
+        if: ${{ steps.health_check.outcome == 'success' && steps.snapshot_commit.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if [ "$(date -u +%u)" -le 5 ]; then
+            gh workflow run scanner.yml --repo "$GH_REPO" --ref main
+          else
+            echo "Weekend: no scanner dispatch (existing NYSE guard also protects holidays)."
+          fi
