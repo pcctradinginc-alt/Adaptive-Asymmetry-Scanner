@@ -4,17 +4,12 @@
 
 Status: HEALTHY 44 · DEGRADED 2 · STALE 1 · BROKEN 0 · UNVALIDATED 8
 
-## Neue Änderungen
-
-- degradation: imf_portwatch_ports HEALTHY → DEGRADED (Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform query. Please check)
-- degradation: ncei_normals HEALTHY → DEGRADED (Missing-Rate 35%)
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
-| imf_portwatch_ports | DEGRADED | IMPORTANT | 1 | 2026-10-23 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform |
+| imf_portwatch_ports | DEGRADED | IMPORTANT | 2 | 2026-10-23 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks

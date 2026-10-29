@@ -1,20 +1,5 @@
 {
- "at": "2026-10-29T16:25:49+00:00",
- "changes": [
-  {
-   "source_id": "imf_portwatch_ports",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform query. Please check your parameters.']} (outFields=ISO3,country,date,exp; Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "ncei_normals",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Missing-Rate 35%"
-  }
- ],
- "mail": "sent"
+ "at": "2026-10-29T18:38:58+00:00",
+ "changes": [],
+ "mail": "no_change"
 }
