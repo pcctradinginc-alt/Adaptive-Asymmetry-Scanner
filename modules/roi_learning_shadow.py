@@ -321,6 +321,309 @@ def due_capture_symbols(*, today: date | None = None, root: Path = Path(".")) ->
     return list(dict.fromkeys(wanted))[:int(cfg["max_quote_symbols_per_capture"])]
 
 
+
+
+
+def _candidate_underlying_by_gate(root: Path, today: date, lookback_days: int = 100) -> dict:
+    """Use existing PIT stock outcomes. Never present them as option P&L."""
+    cutoff = today - timedelta(days=lookback_days)
+    seen, buckets = set(), {}
+    unreadable = rows_seen = 0
+    for path in sorted((root / "outputs/candidate_ledger").glob("????-??.jsonl")):
+        try:
+            with path.open(encoding="utf-8") as source:
+                for line in source:
+                    if not line.strip():
+                        continue
+                    try:
+                        row = json.loads(line)
+                        day = date.fromisoformat(row["date"])
+                        if not cutoff <= day <= today:
+                            continue
+                        identity = row.get("signal_id") or (
+                            row["date"], row.get("ticker"), row.get("event_id")
+                        )
+                        if identity in seen:
+                            continue
+                        seen.add(identity)
+                        rows_seen += 1
+                        reason = ("proposed" if row.get("status") == "proposed"
+                                  else str(row.get("reject_reason") or "unlabeled"))
+                        bucket = buckets.setdefault(reason, {
+                            "registered": 0, "direction_known": 0,
+                            "returns": {5: [], 20: [], 45: []},
+                        })
+                        bucket["registered"] += 1
+                        bucket["direction_known"] += int(
+                            row.get("direction") in ("BULLISH", "BEARISH")
+                        )
+                        outcomes = row.get("outcomes") or {}
+                        if (outcomes.get("price_basis") or {}).get("status") == "CHANGED":
+                            continue
+                        for h in (5, 20, 45):
+                            ret = outcomes.get(f"ret_{h}d")
+                            if (isinstance(ret, (int, float)) and
+                                    not isinstance(ret, bool) and math.isfinite(ret)):
+                                bucket["returns"][h].append((row["date"], float(ret)))
+                    except (ValueError, TypeError, KeyError, AttributeError):
+                        unreadable += 1
+        except OSError:
+            unreadable += 1
+    result = {}
+    for reason, bucket in sorted(buckets.items()):
+        horizons = {}
+        for h, values in bucket["returns"].items():
+            days = len({day for day, _ in values})
+            enough = len(values) >= 20 and days >= 10
+            horizons[str(h)] = {
+                "observed": len(values), "independent_days": days,
+                "mean_stock_return": (
+                    round(sum(v for _, v in values) / len(values), 6)
+                    if enough else None
+                ),
+                "status": "DESCRIPTIVE_ONLY" if enough else "NEED_MORE_DATA",
+            }
+        result[reason] = {
+            "registered": bucket["registered"],
+            "direction_known": bucket["direction_known"],
+            "underlying": horizons,
+        }
+    return {
+        "lookback_days": lookback_days, "signals_read": rows_seen,
+        "unreadable_rows": unreadable, "by_reject_reason": result,
+        "stocks_are_not_option_returns": True,
+        "direction_mixed_or_unknown": True,
+        "interpretation": (
+            "Direction unknown for early deferrals, so their stock returns are "
+            "not comparable to long-call option outcomes. No causal inference."
+        ),
+    }
+
+
+def _economics_acquisition_report(root: Path, today: date, limit: int = 10) -> dict:
+    """Read-only funnel: acquisition deferrals are NOT economic rejections."""
+    rows = []
+    daily_dir = root / "outputs/daily_reports"
+    for path in sorted(daily_dir.glob("????-??-??.json"), reverse=True):
+        try:
+            day = date.fromisoformat(path.stem)
+            if day > today:
+                continue
+            data = json.loads(path.read_text(encoding="utf-8"))
+            stats = data.get("stats") or {}
+            ef = stats.get("economics_first") or {}
+            if ef.get("mode") not in ("active", "shadow"):
+                continue
+            rejects = data.get("rejects") or {}
+
+            def count(reason: str) -> int:
+                return int((rejects.get(reason) or {}).get("count", 0))
+
+            rows.append({
+                "date": day.isoformat(), "mode": ef["mode"],
+                "sector_survivors": int(stats.get("sector_ok") or 0),
+                "quote_probes": int(ef.get("probed") or 0),
+                "budget_not_probed": count("economics_first_quote_probe_budget"),
+                "earnings_rejected": count("economics_first_earnings_gate"),
+                "haiku_inputs": int(ef.get("haiku") or 0),
+                "haiku_audit_inputs": int(ef.get("audit_haiku") or 0),
+                "sonnet_analyzed": int(stats.get("analyzed") or 0),
+                "mismatch_rejected": count("mismatch_below_min"),
+                "quick_mc_survivors": int(stats.get("quick_mc") or 0),
+                "roi_approved": int(stats.get("roi_ok") or 0),
+                "trades": int(stats.get("trades") or 0),
+            })
+            if len(rows) == limit:
+                break
+        except (OSError, ValueError, TypeError, KeyError, AttributeError):
+            continue
+    keys = ("sector_survivors", "quote_probes", "budget_not_probed",
+            "earnings_rejected", "haiku_inputs", "haiku_audit_inputs",
+            "sonnet_analyzed", "mismatch_rejected", "quick_mc_survivors",
+            "roi_approved", "trades")
+    totals = {key: sum(row[key] for row in rows) for key in keys}
+    return {
+        "status": "OBSERVED_DESCRIPTIVE_ONLY" if rows else "NO_ECONOMICS_FIRST_DATA",
+        "days": rows, "totals": totals,
+        "budget_not_probed_is_unprofitable": False,
+        "options_outcomes_for_unprobed_candidates": "UNKNOWN",
+        "interpretation": "Quote-probe budget deferrals are unpriced, not economic rejects.",
+    }
+
+
+def _observed_option_economics(cohorts: list[dict], marks: list[dict],
+                               today: date, cfg: dict) -> dict:
+    """Observed RTH marks only; overlapping reject gates and ROI buckets remain distinct."""
+    by_mark = {(m["cohort_id"], int(m["horizon_days"])): m for m in marks}
+    entry_lag = int(cfg["max_entry_lag_days"])
+    exit_lag = int(cfg["max_exit_lag_days"])
+
+    def metric(rows: list[dict], horizon: int) -> dict:
+        """Fully matured denominator includes missing quotes; avoids survivor-only coverage."""
+        matured = [
+            c for c in rows
+            if (today - date.fromisoformat(c["signal_date"])).days >= horizon + entry_lag + exit_lag
+        ]
+        observed = [
+            (c, by_mark[(c["cohort_id"], horizon)])
+            for c in rows if (c["cohort_id"], horizon) in by_mark
+        ]
+        mature_observed = sum(
+            (c["cohort_id"], horizon) in by_mark for c in matured
+        )
+        usable = [
+            (c, float(m["net_return"])) for c, m in observed
+            if isinstance(m.get("net_return"), (int, float))
+            and math.isfinite(float(m["net_return"]))
+            and m.get("price_evidence") == "OBSERVED_RTH_EXECUTABLE_BID_ASK"
+        ]
+        independent_days = len({c["signal_date"] for c, _ in usable})
+        sufficient = len(usable) >= 20 and independent_days >= 10
+        return {
+            "registered": len(rows), "marked": len(observed),
+            "fully_matured": len(matured), "fully_matured_marked": mature_observed,
+            "matured_quote_coverage": (
+                round(mature_observed / len(matured), 4) if matured else None
+            ),
+            "observed_valid_quote_outcomes": len(usable),
+            "independent_signal_days": independent_days,
+            "mean_net": (
+                round(sum(v for _, v in usable) / len(usable), 6)
+                if sufficient else None
+            ),
+            "median_net": (
+                round(__import__("statistics").median(v for _, v in usable), 6)
+                if sufficient else None
+            ),
+            "win_rate": (
+                round(sum(v > 0 for _, v in usable) / len(usable), 6)
+                if sufficient else None
+            ),
+            "status": "DESCRIPTIVE_ONLY" if sufficient else "NEED_MORE_MATURED_QUOTES",
+        }
+
+    horizons = {str(h): metric(cohorts, h) for h in HORIZONS}
+    gates = sorted({
+        str(reason)
+        for c in cohorts for reason in (c.get("other_production_gates") or {}).values()
+        if reason
+    })
+    by_rejection_gate = {
+        reason: {
+            str(h): metric([
+                c for c in cohorts
+                if reason in {
+                    str(g) for g in (c.get("other_production_gates") or {}).values()
+                    if g
+                }
+            ], h)
+            for h in HORIZONS
+        }
+        for reason in gates
+    }
+    return {
+        "horizons": horizons, "rejection_gates": by_rejection_gate,
+        "gate_groups_overlap": True,
+        "horizon_unit": "calendar_days",
+        "maturity_rule": "signal_date + horizon + max_entry_lag + max_exit_lag",
+        "outcomes_only_observed_quotes": True,
+        "fixed_horizon_marks_not_real_stop_take_profit": True,
+        "minimum_descriptive_evidence": {"outcomes": 20, "independent_signal_days": 10},
+        "statistical_promotion_allowed": False,
+    }
+
+
+def _gate_economics_markdown(report: dict) -> str:
+    """Compact diagnostics, not a trading decision or a promotion recommendation."""
+    acquisition = report["economics_first_acquisition"]
+    economics = report["observed_option_economics"]
+    lines = [
+        f"# Gate- und Optionsökonomie – {report['as_of']}",
+        "",
+        "**READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**",
+        "",
+        "## Economics-first: letzte verfügbare Läufe",
+        "",
+        "| Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in acquisition["days"]:
+        values = [row[k] for k in (
+            "date", "sector_survivors", "quote_probes", "budget_not_probed",
+            "earnings_rejected", "haiku_inputs", "sonnet_analyzed",
+            "quick_mc_survivors", "roi_approved", "trades"
+        )]
+        lines.append("| " + " | ".join(map(str, values)) + " |")
+    lines += [
+        "",
+        "Budget-bedingt nicht untersuchte Kandidaten sind **keine** nachgewiesenen",
+        "ökonomischen Rejects. Für unbepreiste Aktien existieren keine realen Options-Outcomes.",
+        "",
+        "## ROI-Reject-Shadow: echte RTH-Bid-/Ask-Marks",
+        "",
+        "| Horizont (Kalendertage) | Registriert | Markiert | Voll ausgereift | Davon markiert | Quote-Abdeckung | Ø Netto* | Status |",
+        "|---|---:|---:|---:|---:|---:|---:|---|",
+    ]
+    for horizon, values in economics["horizons"].items():
+        pct = ("n/v" if values["matured_quote_coverage"] is None
+               else f'{values["matured_quote_coverage"]:.1%}')
+        mean = ("n/v" if values["mean_net"] is None else f'{values["mean_net"]:.1%}')
+        lines.append(
+            f'| {horizon} | {values["registered"]} | {values["marked"]} | '
+            f'{values["fully_matured"]} | {values["fully_matured_marked"]} | '
+            f'{pct} | {mean} | {values["status"]} |'
+        )
+    lines += [
+        "",
+        "*Netto-Mittelwerte nur ab 20 verwertbaren Marks an mindestens 10 unabhängigen",
+        "Signaltagen. Rein deskriptiv, kein Alpha-Nachweis.",
+        "Voll ausgereift: Signalzeitpunkt plus Horizont, maximal zulässiger",
+        "Entry-Lag und maximal zulässiger Exit-Lag.",
+        "",
+        "## Reject-Gründe (Gruppen können sich überlappen)",
+        "",
+        "| Gate | Registrierte Kontrakte | 5d markiert | 20d markiert | 45d markiert |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for gate, metrics in economics["rejection_gates"].items():
+        lines.append(
+            f'| {gate} | {metrics["5"]["registered"]} | '
+            f'{metrics["5"]["marked"]} | {metrics["20"]["marked"]} | '
+            f'{metrics["45"]["marked"]} |'
+        )
+    lines += [
+        "",
+        "Fest definierte Marks sind nicht mit Take-Profit-/Stop-Loss-Exits",
+        "gleichzusetzen. Unbeobachtete Quotes bleiben UNKNOWN.",
+        "Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.",
+        "",
+    ]
+    stock = report["candidate_underlying_by_gate"]
+    lines += [
+        "",
+        "## Kandidaten-Forward-Renditen (Aktien, nicht Optionen)",
+        "",
+        "| Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    ranked = sorted(stock["by_reject_reason"].items(),
+                    key=lambda item: (-item[1]["registered"], item[0]))
+    for reason, bucket in ranked[:15]:
+        m5, m20 = bucket["underlying"]["5"], bucket["underlying"]["20"]
+        avg5 = "n/v" if m5["mean_stock_return"] is None else f'{m5["mean_stock_return"]:.1%}'
+        avg20 = "n/v" if m20["mean_stock_return"] is None else f'{m20["mean_stock_return"]:.1%}'
+        lines.append(
+            f'| {reason} | {bucket["registered"]} | {bucket["direction_known"]} | '
+            f'{m5["observed"]} | {avg5} | {m20["observed"]} | {avg20} |'
+        )
+    lines += [
+        "",
+        "*Mittelwerte erst ab 20 Marks an 10 unabhängigen Signaltagen; nicht kausal.",
+        "Richtungsunbekannte Budget-Signale sind keine Long-Call-Prognosen.",
+        "Aktienrenditen dürfen nicht als verpasste Optionsgewinne gelten.",
+    ]
+    return "\n".join(lines)
+
 def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
     """Mature observed marks, no forward return or training input is fabricated."""
     root = Path(root)
@@ -427,6 +730,16 @@ def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
         "research_only": True, "orders_created": 0, "llm_calls": 0,
         "verified_trades_do_not_imply_factor_alpha": True,
     }
+    # Read-only research diagnostics: existing journals and daily reports only.
+    report["economics_first_acquisition"] = _economics_acquisition_report(root, today)
+    report["candidate_underlying_by_gate"] = _candidate_underlying_by_gate(root, today)
+    report["observed_option_economics"] = _observed_option_economics(cohorts, all_marks, today, cfg)
+    markdown = _gate_economics_markdown(report)
+    md_output = root / ROOT / "gate_economics.md"
+    md_output.parent.mkdir(parents=True, exist_ok=True)
+    md_temp = md_output.with_suffix(".md.tmp")
+    md_temp.write_text(markdown, encoding="utf-8")
+    os.replace(md_temp, md_output)
     SUMMARY.parent.mkdir(parents=True, exist_ok=True)
     temp = root / (str(SUMMARY) + ".tmp")
     output = root / SUMMARY

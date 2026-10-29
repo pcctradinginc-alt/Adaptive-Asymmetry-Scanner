@@ -173,3 +173,101 @@ def test_existing_workflows_keep_regular_cadence_without_new_llm():
     assert "rls.due_capture_symbols" in marks
     assert "ANTHROPIC_API_KEY" not in rl.__dict__
     assert "roi_learning_shadow" in pipeline
+
+
+def test_gate_acquisition_report_keeps_budget_deferred_unpriced(tmp_path):
+    _seed(tmp_path)
+    daily = tmp_path / "outputs/daily_reports/2026-11-02.json"
+    daily.parent.mkdir(parents=True, exist_ok=True)
+    daily.write_text(json.dumps({
+        "date": "2026-11-02",
+        "stats": {
+            "sector_ok": 358, "economics_first": {
+                "mode": "active", "input": 358, "probed": 8,
+                "haiku": 3, "audit_haiku": 1
+            },
+            "analyzed": 1, "quick_mc": 0, "roi_ok": 0, "trades": 0
+        },
+        "rejects": {
+            "economics_first_quote_probe_budget": {"count": 350},
+            "economics_first_earnings_gate": {"count": 5},
+            "mismatch_below_min": {"count": 1}
+        }
+    }), encoding="utf-8")
+    report = rl.evaluate(today=date(2026, 11, 3), root=tmp_path)
+    summary = report["economics_first_acquisition"]
+    assert summary["days"][0]["budget_not_probed"] == 350
+    assert summary["days"][0]["earnings_rejected"] == 5
+    assert summary["days"][0]["quote_probes"] == 8
+    assert summary["budget_not_probed_is_unprofitable"] is False
+    assert summary["options_outcomes_for_unprobed_candidates"] == "UNKNOWN"
+    assert report["observed_option_economics"]["horizons"]["5"]["marked"] == 0
+    markdown = (tmp_path / rl.ROOT / "gate_economics.md").read_text()
+    assert "350" in markdown and "keine" in markdown
+    assert report["actual_production_roi_gate_changed"] is False
+
+
+def test_gate_economics_only_counts_observed_rth_marks(tmp_path, monkeypatch):
+    _seed(tmp_path)
+    _register(tmp_path, [_reject("XYZ", roi=.04)])
+    monkeypatch.setattr(oq, "usable_rth_quote", lambda rec: True)
+    _quote(tmp_path, "2026-11-02", "16:05:00", 3.5, 4.0)
+    _quote(tmp_path, "2026-11-09", "16:05:00", 5.0, 5.4)
+    report = rl.evaluate(today=date(2026, 11, 10), root=tmp_path)
+    economics = report["observed_option_economics"]
+    assert economics["horizons"]["5"]["marked"] == 1
+    assert economics["horizons"]["5"]["fully_matured"] == 0
+    assert economics["horizons"]["5"]["mean_net"] is None
+    assert economics["horizons"]["20"]["marked"] == 0
+    assert economics["rejection_gates"]["mc_pnl"]["5"]["marked"] == 1
+    assert economics["rejection_gates"]["mc_pnl"]["45"]["marked"] == 0
+    assert economics["gate_groups_overlap"] is True
+    assert economics["statistical_promotion_allowed"] is False
+    assert economics["fixed_horizon_marks_not_real_stop_take_profit"] is True
+
+
+def test_matured_missing_quotes_count_in_coverage_denominator(tmp_path):
+    _seed(tmp_path)
+    _register(tmp_path)
+    result = rl.evaluate(today=date(2026, 12, 15), root=tmp_path)
+    cover = result["observed_option_economics"]["horizons"]["5"]
+    assert cover["registered"] == 1
+    assert cover["fully_matured"] == 1
+    assert cover["fully_matured_marked"] == 0
+    assert cover["matured_quote_coverage"] == 0.0
+    assert cover["status"] == "NEED_MORE_MATURED_QUOTES"
+    assert result["observed_option_economics"]["horizons"]["45"]["fully_matured"] == 0
+
+
+def test_underlying_returns_remain_stock_only_not_option_pnl(tmp_path):
+    _seed(tmp_path)
+    ledger = tmp_path / "outputs/candidate_ledger/2026-10.jsonl"
+    ledger.parent.mkdir(parents=True, exist_ok=True)
+    observations = [
+        {"date": "2026-10-20", "ticker": "ABC", "signal_id": "id1",
+         "status": "rejected", "reject_reason": "economics_first_quote_probe_budget",
+         "direction": None, "outcomes": {"ret_5d": 0.08}},
+        {"date": "2026-10-20", "ticker": "XYZ", "signal_id": "id2",
+         "status": "rejected", "reject_reason": "mismatch_below_min",
+         "direction": "BULLISH", "outcomes": {"ret_5d": -0.03}},
+        {"date": "2026-10-20", "ticker": "XYZ", "signal_id": "id2",
+         "status": "rejected", "reject_reason": "mismatch_below_min",
+         "direction": "BULLISH", "outcomes": {"ret_5d": -0.03}},
+        {"date": "2026-10-20", "ticker": "ERR", "signal_id": "id3",
+         "status": "rejected", "reject_reason": "mismatch_below_min",
+         "direction": "BULLISH",
+         "outcomes": {"ret_5d": 99, "price_basis": {"status": "CHANGED"}}},
+    ]
+    ledger.write_text("".join(json.dumps(row) + "\n" for row in observations))
+    report = rl.evaluate(today=date(2026, 10, 29), root=tmp_path)
+    stock = report["candidate_underlying_by_gate"]
+    assert stock["signals_read"] == 3
+    assert stock["stocks_are_not_option_returns"] is True
+    budget = stock["by_reject_reason"]["economics_first_quote_probe_budget"]
+    assert budget["registered"] == 1 and budget["direction_known"] == 0
+    assert budget["underlying"]["5"]["observed"] == 1
+    assert budget["underlying"]["5"]["mean_stock_return"] is None
+    rejected = stock["by_reject_reason"]["mismatch_below_min"]
+    assert rejected["registered"] == 2
+    assert rejected["underlying"]["5"]["observed"] == 1
+    assert report["observed_option_economics"]["horizons"]["5"]["marked"] == 0
