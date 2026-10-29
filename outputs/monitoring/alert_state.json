@@ -1,16 +1,16 @@
 {
- "WORKFLOW_FAILED:Tests (Pflicht-Check)": {
-  "fingerprint": "af771afa39d773e6",
-  "first_seen": "2026-10-28",
-  "last_seen": "2026-10-28",
-  "severity": "WARNING",
-  "component": "Lauf"
- },
  "OUTCOMES_OVERDUE:marks": {
   "fingerprint": "5c2394f5607e71ab",
   "first_seen": "2026-10-26",
-  "last_seen": "2026-10-28",
+  "last_seen": "2026-10-29",
   "severity": "WARNING",
   "component": "Quote-Abdeckung"
+ },
+ "DATA_DEGRADATION:source_health": {
+  "fingerprint": "87f5b154b4a4d038",
+  "first_seen": "2026-10-29",
+  "last_seen": "2026-10-29",
+  "severity": "WARNING",
+  "component": "Daten"
  }
 }
