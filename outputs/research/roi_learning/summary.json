@@ -1,12 +1,607 @@
 {
   "actual_production_roi_gate_changed": false,
   "as_of": "2026-10-29",
+  "candidate_underlying_by_gate": {
+    "by_reject_reason": {
+      "bearish_disabled": {
+        "direction_known": 305,
+        "registered": 305,
+        "underlying": {
+          "20": {
+            "independent_days": 7,
+            "mean_stock_return": null,
+            "observed": 111,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 16,
+            "mean_stock_return": 0.000192,
+            "observed": 293,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "deep_analysis_veto_or_invalid": {
+        "direction_known": 0,
+        "registered": 160,
+        "underlying": {
+          "20": {
+            "independent_days": 6,
+            "mean_stock_return": null,
+            "observed": 58,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 15,
+            "mean_stock_return": -0.002907,
+            "observed": 150,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "earnings_gate": {
+        "direction_known": 43,
+        "registered": 439,
+        "underlying": {
+          "20": {
+            "independent_days": 8,
+            "mean_stock_return": null,
+            "observed": 31,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 17,
+            "mean_stock_return": 0.001852,
+            "observed": 329,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "economics_first_earnings_gate": {
+        "direction_known": 0,
+        "registered": 6,
+        "underlying": {
+          "20": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "economics_first_quote_probe_budget": {
+        "direction_known": 0,
+        "registered": 717,
+        "underlying": {
+          "20": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "impact_x_surprise_below_floor": {
+        "direction_known": 36,
+        "registered": 36,
+        "underlying": {
+          "20": {
+            "independent_days": 5,
+            "mean_stock_return": null,
+            "observed": 14,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 14,
+            "mean_stock_return": -0.00235,
+            "observed": 32,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "intraday_too_late": {
+        "direction_known": 2,
+        "registered": 2,
+        "underlying": {
+          "20": {
+            "independent_days": 1,
+            "mean_stock_return": null,
+            "observed": 1,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 2,
+            "mean_stock_return": null,
+            "observed": 2,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "mc_below_threshold": {
+        "direction_known": 100,
+        "registered": 100,
+        "underlying": {
+          "20": {
+            "independent_days": 6,
+            "mean_stock_return": null,
+            "observed": 38,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 15,
+            "mean_stock_return": 0.009786,
+            "observed": 92,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "mismatch_below_min": {
+        "direction_known": 340,
+        "registered": 340,
+        "underlying": {
+          "20": {
+            "independent_days": 6,
+            "mean_stock_return": null,
+            "observed": 97,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 15,
+            "mean_stock_return": 0.00377,
+            "observed": 312,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "options_design_roi_or_edge": {
+        "direction_known": 164,
+        "registered": 164,
+        "underlying": {
+          "20": {
+            "independent_days": 6,
+            "mean_stock_return": null,
+            "observed": 91,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 15,
+            "mean_stock_return": 0.002367,
+            "observed": 153,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "pre_mc_sigma_too_low": {
+        "direction_known": 0,
+        "registered": 204,
+        "underlying": {
+          "20": {
+            "independent_days": 8,
+            "mean_stock_return": null,
+            "observed": 124,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 17,
+            "mean_stock_return": 0.01105,
+            "observed": 195,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "pre_mc_sigma_unavailable": {
+        "direction_known": 0,
+        "registered": 9,
+        "underlying": {
+          "20": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 5,
+            "mean_stock_return": null,
+            "observed": 7,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "prescreen_bearish_prefilter": {
+        "direction_known": 0,
+        "registered": 37,
+        "underlying": {
+          "20": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 1,
+            "mean_stock_return": null,
+            "observed": 16,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "prescreen_no": {
+        "direction_known": 0,
+        "registered": 3908,
+        "underlying": {
+          "20": {
+            "independent_days": 8,
+            "mean_stock_return": null,
+            "observed": 1706,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 17,
+            "mean_stock_return": 0.005133,
+            "observed": 3518,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "proposed": {
+        "direction_known": 7,
+        "registered": 7,
+        "underlying": {
+          "20": {
+            "independent_days": 2,
+            "mean_stock_return": null,
+            "observed": 3,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 5,
+            "mean_stock_return": null,
+            "observed": 7,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "sector_momentum_weak": {
+        "direction_known": 1,
+        "registered": 643,
+        "underlying": {
+          "20": {
+            "independent_days": 8,
+            "mean_stock_return": null,
+            "observed": 229,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 17,
+            "mean_stock_return": 0.011242,
+            "observed": 499,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "time_budget_exceeded": {
+        "direction_known": 0,
+        "registered": 253,
+        "underlying": {
+          "20": {
+            "independent_days": 4,
+            "mean_stock_return": null,
+            "observed": 252,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 4,
+            "mean_stock_return": null,
+            "observed": 252,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "unlabeled_after_deep_analysis": {
+        "direction_known": 8,
+        "registered": 8,
+        "underlying": {
+          "20": {
+            "independent_days": 1,
+            "mean_stock_return": null,
+            "observed": 8,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 1,
+            "mean_stock_return": null,
+            "observed": 8,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "unlabeled_after_options_design": {
+        "direction_known": 20,
+        "registered": 20,
+        "underlying": {
+          "20": {
+            "independent_days": 3,
+            "mean_stock_return": null,
+            "observed": 17,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 5,
+            "mean_stock_return": null,
+            "observed": 20,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
+      "unlabeled_after_universe": {
+        "direction_known": 0,
+        "registered": 5,
+        "underlying": {
+          "20": {
+            "independent_days": 1,
+            "mean_stock_return": null,
+            "observed": 5,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 1,
+            "mean_stock_return": null,
+            "observed": 5,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      }
+    },
+    "direction_mixed_or_unknown": true,
+    "interpretation": "Direction unknown for early deferrals, so their stock returns are not comparable to long-call option outcomes. No causal inference.",
+    "lookback_days": 100,
+    "signals_read": 7363,
+    "stocks_are_not_option_returns": true,
+    "unreadable_rows": 0
+  },
+  "economics_first_acquisition": {
+    "budget_not_probed_is_unprofitable": false,
+    "days": [
+      {
+        "budget_not_probed": 367,
+        "date": "2026-10-29",
+        "earnings_rejected": 1,
+        "haiku_audit_inputs": 2,
+        "haiku_inputs": 7,
+        "mismatch_rejected": 1,
+        "mode": "active",
+        "quick_mc_survivors": 0,
+        "quote_probes": 8,
+        "roi_approved": 0,
+        "sector_survivors": 375,
+        "sonnet_analyzed": 3,
+        "trades": 0
+      },
+      {
+        "budget_not_probed": 350,
+        "date": "2026-10-28",
+        "earnings_rejected": 5,
+        "haiku_audit_inputs": 1,
+        "haiku_inputs": 3,
+        "mismatch_rejected": 1,
+        "mode": "active",
+        "quick_mc_survivors": 0,
+        "quote_probes": 8,
+        "roi_approved": 0,
+        "sector_survivors": 358,
+        "sonnet_analyzed": 1,
+        "trades": 0
+      }
+    ],
+    "interpretation": "Quote-probe budget deferrals are unpriced, not economic rejects.",
+    "options_outcomes_for_unprobed_candidates": "UNKNOWN",
+    "status": "OBSERVED_DESCRIPTIVE_ONLY",
+    "totals": {
+      "budget_not_probed": 717,
+      "earnings_rejected": 6,
+      "haiku_audit_inputs": 3,
+      "haiku_inputs": 10,
+      "mismatch_rejected": 2,
+      "quick_mc_survivors": 0,
+      "quote_probes": 16,
+      "roi_approved": 0,
+      "sector_survivors": 733,
+      "sonnet_analyzed": 4,
+      "trades": 0
+    }
+  },
   "llm_calls": 0,
   "marks_by_horizon": {},
   "missing_quotes_by_reason": {},
   "n_all_marks": 0,
   "n_new_marks": 0,
   "n_rejected_candidates_registered": 0,
+  "observed_option_economics": {
+    "fixed_horizon_marks_not_real_stop_take_profit": true,
+    "gate_groups_overlap": true,
+    "horizon_unit": "calendar_days",
+    "horizons": {
+      "20": {
+        "fully_matured": 0,
+        "fully_matured_marked": 0,
+        "independent_signal_days": 0,
+        "marked": 0,
+        "matured_quote_coverage": null,
+        "mean_net": null,
+        "median_net": null,
+        "observed_valid_quote_outcomes": 0,
+        "registered": 0,
+        "status": "NEED_MORE_MATURED_QUOTES",
+        "win_rate": null
+      },
+      "45": {
+        "fully_matured": 0,
+        "fully_matured_marked": 0,
+        "independent_signal_days": 0,
+        "marked": 0,
+        "matured_quote_coverage": null,
+        "mean_net": null,
+        "median_net": null,
+        "observed_valid_quote_outcomes": 0,
+        "registered": 0,
+        "status": "NEED_MORE_MATURED_QUOTES",
+        "win_rate": null
+      },
+      "5": {
+        "fully_matured": 0,
+        "fully_matured_marked": 0,
+        "independent_signal_days": 0,
+        "marked": 0,
+        "matured_quote_coverage": null,
+        "mean_net": null,
+        "median_net": null,
+        "observed_valid_quote_outcomes": 0,
+        "registered": 0,
+        "status": "NEED_MORE_MATURED_QUOTES",
+        "win_rate": null
+      }
+    },
+    "maturity_rule": "signal_date + horizon + max_entry_lag + max_exit_lag",
+    "minimum_descriptive_evidence": {
+      "independent_signal_days": 10,
+      "outcomes": 20
+    },
+    "outcomes_only_observed_quotes": true,
+    "rejection_gates": {},
+    "statistical_promotion_allowed": false
+  },
   "orders_created": 0,
   "research_only": true,
   "research_roi_thresholds": {
