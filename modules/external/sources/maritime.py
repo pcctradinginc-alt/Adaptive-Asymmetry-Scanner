@@ -488,10 +488,15 @@ MAX_PAGES_SAFETY = 500
 
 def build_where_clause(start: date, end: date, date_field: str = "date",
                         date_field_type: str = "esriFieldTypeDate") -> str:
-    """Baut die WHERE-Klausel passend zum tatsächlichen ArcGIS-Feldtyp:
-    esriFieldTypeDate -> TIMESTAMP-Literal (epoch-ms intern), sonst
-    (z.B. esriFieldTypeString mit ISO-Datum) -> einfacher String-Vergleich.
-    Nie den falschen Vergleichsoperator für den Feldtyp erraten."""
+    """Baut WHERE-Literale anhand des tatsächlich gemeldeten ArcGIS-Feldtyps:
+    DateOnly -> DATE-Literal (ohne Uhrzeit/Zeitzone);
+    Date -> TIMESTAMP-Literal; String -> bisheriger String-Vergleich.
+    Kein Fallback auf den falschen Datumsfeldtyp."""
+    if date_field_type == "esriFieldTypeDateOnly":
+        return (
+            f"{date_field} >= DATE '{start.isoformat()}' "
+            f"AND {date_field} <= DATE '{end.isoformat()}'"
+        )
     if date_field_type and date_field_type != "esriFieldTypeDate":
         return f"{date_field} >= '{start.isoformat()}' AND {date_field} <= '{end.isoformat()}'"
     return (
