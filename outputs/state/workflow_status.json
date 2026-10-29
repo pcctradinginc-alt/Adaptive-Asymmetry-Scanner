@@ -1164,17 +1164,17 @@
         "file": "scanner.yml",
         "expected": "2026-10-29T13:30+00:00",
         "deadline": "2026-10-29T17:30+00:00",
-        "actual_last_run": "2026-10-29T18:39:12Z",
-        "conclusion": null,
+        "actual_last_run": "2026-10-29T19:00:56Z",
+        "conclusion": "success",
         "delay_hours": 5.2,
-        "runs_today": 1,
+        "runs_today": 2,
         "recovered": false,
         "recoveries_today": 0,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
         "stale_upstream": [],
         "reason": null,
-        "state": "RUNNING"
+        "state": "OK"
       },
       "feedback": {
         "file": "feedback.yml",
