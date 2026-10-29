@@ -287,6 +287,50 @@ def test_build_where_clause_uses_timestamp_for_date_field_type():
     assert "TIMESTAMP" in where
 
 
+
+
+def test_build_where_clause_uses_date_literal_for_arcgis_dateonly():
+    """IMF Daily Ports date is esriFieldTypeDateOnly; raw strings yield HTTP 400."""
+    from datetime import date as _date
+    where = mw.build_where_clause(
+        _date(2026, 10, 8), _date(2026, 10, 29),
+        date_field="date", date_field_type="esriFieldTypeDateOnly",
+    )
+    assert where == "date >= DATE '2026-10-08' AND date <= DATE '2026-10-29'"
+    assert "TIMESTAMP" not in where
+
+
+def test_portwatch_dateonly_metadata_generates_date_literal_query(tmp_path):
+    """End-to-end metadata -> WHERE -> actual query params, without network."""
+    original_fetch, _ = make_fake_fetch()
+    observed_where = []
+    daily_meta_url = SERVICE_URLS["ports_daily"] + "/0"
+    daily_query_url = daily_meta_url + "/query"
+
+    def check_dateonly(url, params=None, **kwargs):
+        if url == daily_meta_url:
+            metadata = _load("layer_metadata_ports_daily.json")
+            fields = [dict(field) for field in metadata["fields"]]
+            target = [field for field in fields if field["name"].lower() == "date"]
+            assert len(target) == 1
+            target[0]["type"] = "esriFieldTypeDateOnly"
+            return FakeResponse({**metadata, "fields": fields})
+        if url == daily_query_url:
+            observed_where.append((params or {}).get("where", ""))
+            assert "date >= DATE '" in observed_where[-1]
+            assert "AND date <= DATE '" in observed_where[-1]
+            assert "TIMESTAMP" not in observed_where[-1]
+        return original_fetch(url, params=params, **kwargs)
+
+    connector = mw.PortWatchPortsConnector(
+        http_fetch=check_dateonly,
+        cache_path=str(tmp_path / "portwatch_endpoints.json"),
+    )
+    result = connector.fetch(NOW)
+    assert result.status in (SourceStatus.PASS, SourceStatus.WARN)
+    assert observed_where
+
+
 def test_build_where_clause_uses_string_compare_for_non_date_field_type():
     from datetime import date as _date
     where = mw.build_where_clause(_date(2024, 1, 1), _date(2024, 1, 7), date_field="Date",
