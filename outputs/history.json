@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.0568,
-      "last_price": 350.145,
-      "current_return": 0.0568
+      "last_price": 348.91,
+      "current_return": 0.0298
     },
     {
       "ticker": "ABBV",
@@ -376,7 +376,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-29T19:01:15+00:00",
+        "evaluated_at": "2026-10-29T20:23:57+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -401,8 +401,8 @@
         ]
       },
       "peak_return": 0.0575,
-      "last_price": 288.61,
-      "current_return": 0.0298
+      "last_price": 290.79,
+      "current_return": 0.0258
     },
     {
       "ticker": "MET",
@@ -652,7 +652,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-29T19:01:15+00:00",
+        "evaluated_at": "2026-10-29T20:23:57+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -677,8 +677,8 @@
         ]
       },
       "peak_return": 0.0506,
-      "last_price": 100.68,
-      "current_return": -0.1013
+      "last_price": 100.83,
+      "current_return": -0.1519
     }
   ],
   "closed_trades": [
@@ -142826,7 +142826,7 @@
       "entry_debit": 7.35,
       "entry_date": "2026-09-24",
       "created": "2026-09-28",
-      "mfe": 0.5374,
+      "mfe": 0.5578,
       "mae": -0.2653,
       "closed": false,
       "variants": {
@@ -142840,7 +142840,7 @@
         "no_tp": {
           "outcome": null,
           "closed": false,
-          "peak": 0.5374,
+          "peak": 0.5578,
           "close_date": null
         },
         "trail35": {
@@ -142860,7 +142860,7 @@
         "partial50": {
           "outcome": null,
           "closed": false,
-          "peak": 0.5374,
+          "peak": 0.5578,
           "close_date": null,
           "half1_outcome": 0.5102,
           "half1_locked": true
@@ -142868,7 +142868,7 @@
         "time_only": {
           "outcome": null,
           "closed": false,
-          "peak": 0.5374,
+          "peak": 0.5578,
           "close_date": null
         }
       }
