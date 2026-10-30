@@ -331,7 +331,9 @@ def due_capture_targets(*, today: date | None = None, root: Path = Path(".")) ->
             decision = _time(c.get("decision_at"))
             if decision is None:
                 continue  # Never request pre-decision research entries.
-            jobs.append((deadline, horizon != 0, c["cohort_id"], legs, decision))
+            # Same deadline: marks of existing cohorts before new entries, otherwise an
+            # already captured entry loses its label for lack of budget.
+            jobs.append((deadline, horizon == 0, c["cohort_id"], legs, decision))
             break
     jobs.sort(key=lambda x: (x[0], x[1], x[2]))
     budget = int(cfg["max_quote_symbols_per_capture"])

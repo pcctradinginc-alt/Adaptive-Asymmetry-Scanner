@@ -8,13 +8,23 @@ real-option-outcome discovery and holdout check.
 Run `python -m modules.research_evidence_discovery --as-of YYYY-MM-DD`.
 The command reads existing candidate-ledger files and writes only an
 independent research JSON report. It does not trigger on the live scanner.
+The weekly and monthly `ml_research.yml` runs execute coverage
+(`research_evidence_coverage`), ROI-mark reconciliation
+(`research_quote_reconciliation`) and this discovery and commit the reports
+under `outputs/research/`.
 
 Integrity:
 - Missing option outcomes, Black–Scholes proxies and underlying returns
   are never treated as realized option profit.
-- A 20-day label must be at least 21 calendar days old. This is a
-  conservative maturity gate, **not** proof of mark provenance. The
-  upstream outcome provenance must be audited separately.
+- A 20-day label must be at least 21 calendar days old.
+- Provenance (fail closed): a label counts only if the recorded entry
+  (timing-v2: the exact `entry_quote_record_ids`; otherwise the recorded
+  leg Ask/Bid on the entry day) and the exit (Long Bid − Short Ask on
+  `real_strat_mark_date_20d`) are found among usable RTH quotes in
+  `outputs/options_archive/quotes` and reproduce the claimed
+  `real_strat_ret_20d`. Late, premature or settlement marks are excluded.
+  The report lists `provenance_counts` per reason. Labels before the
+  archive start (2026-10-12) are therefore never evidence.
 - Candidate feature thresholds and the best rule are selected on the
   earlier training dates. The later holdout is evaluated once.
 - Reports remain descriptive. They are not significance tests or
