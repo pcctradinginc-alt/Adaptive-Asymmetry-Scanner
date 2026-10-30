@@ -1,16 +1,16 @@
 {
   "actual_production_roi_gate_changed": false,
-  "as_of": "2026-10-29",
+  "as_of": "2026-10-30",
   "candidate_underlying_by_gate": {
     "by_reject_reason": {
       "bearish_disabled": {
-        "direction_known": 305,
-        "registered": 305,
+        "direction_known": 307,
+        "registered": 307,
         "underlying": {
           "20": {
-            "independent_days": 7,
+            "independent_days": 8,
             "mean_stock_return": null,
-            "observed": 111,
+            "observed": 143,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -32,9 +32,9 @@
         "registered": 160,
         "underlying": {
           "20": {
-            "independent_days": 6,
+            "independent_days": 7,
             "mean_stock_return": null,
-            "observed": 58,
+            "observed": 68,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -56,9 +56,9 @@
         "registered": 439,
         "underlying": {
           "20": {
-            "independent_days": 8,
+            "independent_days": 9,
             "mean_stock_return": null,
-            "observed": 31,
+            "observed": 36,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -101,7 +101,7 @@
       },
       "economics_first_quote_probe_budget": {
         "direction_known": 0,
-        "registered": 717,
+        "registered": 1000,
         "underlying": {
           "20": {
             "independent_days": 0,
@@ -128,9 +128,9 @@
         "registered": 36,
         "underlying": {
           "20": {
-            "independent_days": 5,
+            "independent_days": 6,
             "mean_stock_return": null,
-            "observed": 14,
+            "observed": 17,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -176,9 +176,9 @@
         "registered": 100,
         "underlying": {
           "20": {
-            "independent_days": 6,
+            "independent_days": 7,
             "mean_stock_return": null,
-            "observed": 38,
+            "observed": 46,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -200,9 +200,9 @@
         "registered": 340,
         "underlying": {
           "20": {
-            "independent_days": 6,
+            "independent_days": 7,
             "mean_stock_return": null,
-            "observed": 97,
+            "observed": 129,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -224,9 +224,9 @@
         "registered": 164,
         "underlying": {
           "20": {
-            "independent_days": 6,
+            "independent_days": 7,
             "mean_stock_return": null,
-            "observed": 91,
+            "observed": 112,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -248,9 +248,9 @@
         "registered": 204,
         "underlying": {
           "20": {
-            "independent_days": 8,
+            "independent_days": 9,
             "mean_stock_return": null,
-            "observed": 124,
+            "observed": 141,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -293,7 +293,7 @@
       },
       "prescreen_bearish_prefilter": {
         "direction_known": 0,
-        "registered": 37,
+        "registered": 39,
         "underlying": {
           "20": {
             "independent_days": 0,
@@ -317,12 +317,12 @@
       },
       "prescreen_no": {
         "direction_known": 0,
-        "registered": 3908,
+        "registered": 3912,
         "underlying": {
           "20": {
-            "independent_days": 8,
+            "independent_days": 9,
             "mean_stock_return": null,
-            "observed": 1706,
+            "observed": 1915,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -365,12 +365,12 @@
       },
       "sector_momentum_weak": {
         "direction_known": 1,
-        "registered": 643,
+        "registered": 677,
         "underlying": {
           "20": {
-            "independent_days": 8,
+            "independent_days": 9,
             "mean_stock_return": null,
-            "observed": 229,
+            "observed": 263,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -487,13 +487,28 @@
     "direction_mixed_or_unknown": true,
     "interpretation": "Direction unknown for early deferrals, so their stock returns are not comparable to long-call option outcomes. No causal inference.",
     "lookback_days": 100,
-    "signals_read": 7363,
+    "signals_read": 7688,
     "stocks_are_not_option_returns": true,
     "unreadable_rows": 0
   },
   "economics_first_acquisition": {
     "budget_not_probed_is_unprofitable": false,
     "days": [
+      {
+        "budget_not_probed": 283,
+        "date": "2026-10-30",
+        "earnings_rejected": 0,
+        "haiku_audit_inputs": 2,
+        "haiku_inputs": 8,
+        "mismatch_rejected": 0,
+        "mode": "active",
+        "quick_mc_survivors": 0,
+        "quote_probes": 8,
+        "roi_approved": 0,
+        "sector_survivors": 291,
+        "sonnet_analyzed": 2,
+        "trades": 0
+      },
       {
         "budget_not_probed": 367,
         "date": "2026-10-29",
@@ -529,16 +544,16 @@
     "options_outcomes_for_unprobed_candidates": "UNKNOWN",
     "status": "OBSERVED_DESCRIPTIVE_ONLY",
     "totals": {
-      "budget_not_probed": 717,
+      "budget_not_probed": 1000,
       "earnings_rejected": 6,
-      "haiku_audit_inputs": 3,
-      "haiku_inputs": 10,
+      "haiku_audit_inputs": 5,
+      "haiku_inputs": 18,
       "mismatch_rejected": 2,
       "quick_mc_survivors": 0,
-      "quote_probes": 16,
+      "quote_probes": 24,
       "roi_approved": 0,
-      "sector_survivors": 733,
-      "sonnet_analyzed": 4,
+      "sector_survivors": 1024,
+      "sonnet_analyzed": 6,
       "trades": 0
     }
   },
@@ -603,6 +618,7 @@
     "statistical_promotion_allowed": false
   },
   "orders_created": 0,
+  "registration_enabled": false,
   "research_only": true,
   "research_roi_thresholds": {
     "0.00": {
@@ -634,5 +650,6 @@
     }
   },
   "schema": "roi-learning-summary-v1",
+  "superseded_by": "candidate_ledger snapshots + option_learner.by_gate",
   "verified_trades_do_not_imply_factor_alpha": true
 }

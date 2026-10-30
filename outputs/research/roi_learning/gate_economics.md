@@ -1,4 +1,4 @@
-# Gate- und Optionsökonomie – 2026-10-29
+# Gate- und Optionsökonomie – 2026-10-30
 
 **READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**
 
@@ -6,6 +6,7 @@
 
 | Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2026-10-30 | 291 | 8 | 283 | 0 | 8 | 2 | 0 | 0 | 0 |
 | 2026-10-29 | 375 | 8 | 367 | 1 | 7 | 3 | 0 | 0 | 0 |
 | 2026-10-28 | 358 | 8 | 350 | 5 | 3 | 1 | 0 | 0 | 0 |
 
@@ -39,19 +40,19 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3908 | 0 | 3518 | 0.5% | 1706 | n/v |
-| economics_first_quote_probe_budget | 717 | 0 | 0 | n/v | 0 | n/v |
-| sector_momentum_weak | 643 | 1 | 499 | 1.1% | 229 | n/v |
-| earnings_gate | 439 | 43 | 329 | 0.2% | 31 | n/v |
-| mismatch_below_min | 340 | 340 | 312 | 0.4% | 97 | n/v |
-| bearish_disabled | 305 | 305 | 293 | 0.0% | 111 | n/v |
+| prescreen_no | 3912 | 0 | 3518 | 0.5% | 1915 | n/v |
+| economics_first_quote_probe_budget | 1000 | 0 | 0 | n/v | 0 | n/v |
+| sector_momentum_weak | 677 | 1 | 499 | 1.1% | 263 | n/v |
+| earnings_gate | 439 | 43 | 329 | 0.2% | 36 | n/v |
+| mismatch_below_min | 340 | 340 | 312 | 0.4% | 129 | n/v |
+| bearish_disabled | 307 | 307 | 293 | 0.0% | 143 | n/v |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
-| pre_mc_sigma_too_low | 204 | 0 | 195 | 1.1% | 124 | n/v |
-| options_design_roi_or_edge | 164 | 164 | 153 | 0.2% | 91 | n/v |
-| deep_analysis_veto_or_invalid | 160 | 0 | 150 | -0.3% | 58 | n/v |
-| mc_below_threshold | 100 | 100 | 92 | 1.0% | 38 | n/v |
-| prescreen_bearish_prefilter | 37 | 0 | 16 | n/v | 0 | n/v |
-| impact_x_surprise_below_floor | 36 | 36 | 32 | -0.2% | 14 | n/v |
+| pre_mc_sigma_too_low | 204 | 0 | 195 | 1.1% | 141 | n/v |
+| options_design_roi_or_edge | 164 | 164 | 153 | 0.2% | 112 | n/v |
+| deep_analysis_veto_or_invalid | 160 | 0 | 150 | -0.3% | 68 | n/v |
+| mc_below_threshold | 100 | 100 | 92 | 1.0% | 46 | n/v |
+| prescreen_bearish_prefilter | 39 | 0 | 16 | n/v | 0 | n/v |
+| impact_x_surprise_below_floor | 36 | 36 | 32 | -0.2% | 17 | n/v |
 | unlabeled_after_options_design | 20 | 20 | 20 | n/v | 17 | n/v |
 | pre_mc_sigma_unavailable | 9 | 0 | 7 | n/v | 0 | n/v |
 
