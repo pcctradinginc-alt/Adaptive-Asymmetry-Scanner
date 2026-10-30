@@ -1,0 +1,126 @@
+{
+ "date": "2026-10-30",
+ "horizon": 5,
+ "model_available": true,
+ "verified_labels": 320,
+ "walk_forward": {
+  "n": 0,
+  "dates": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "verdict": "NEED_MORE_DATA"
+ },
+ "forward": {
+  "n": 0,
+  "dates": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "verdict": "NEED_MORE_DATA"
+ },
+ "recommendations": [],
+ "watchlist": [
+  {
+   "date": "2026-10-30",
+   "signal_id": "2d4e1fa1d26f4581bd088d94db054e59",
+   "ticker": "AON",
+   "contract": [
+    "AON270416C00330000"
+   ],
+   "strategy": "LONG_CALL",
+   "entry_ask_net": 25.4,
+   "entry_mid_net": 24.75,
+   "option_sample": "research_census",
+   "horizon": 5,
+   "pred_net": 0.091449,
+   "model_spec": "298be00d41bc",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "created_at": "2026-10-30T16:36:49+00:00"
+  },
+  {
+   "date": "2026-10-30",
+   "signal_id": "2639386351f0465e97f6f3c808bc8007",
+   "ticker": "MS",
+   "contract": [
+    "MS270319C00185000"
+   ],
+   "strategy": "LONG_CALL",
+   "entry_ask_net": 15.2,
+   "entry_mid_net": 14.9,
+   "option_sample": "research_census",
+   "horizon": 5,
+   "pred_net": 0.054219,
+   "model_spec": "298be00d41bc",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "created_at": "2026-10-30T16:36:49+00:00"
+  },
+  {
+   "date": "2026-10-30",
+   "signal_id": "471501bb36544d33a9edb035d4ca8f00",
+   "ticker": "GM",
+   "contract": [
+    "GM270319C00087500"
+   ],
+   "strategy": "LONG_CALL",
+   "entry_ask_net": 8.2,
+   "entry_mid_net": 8.0,
+   "option_sample": "research_census",
+   "horizon": 5,
+   "pred_net": 0.030503,
+   "model_spec": "298be00d41bc",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "created_at": "2026-10-30T16:36:49+00:00"
+  },
+  {
+   "date": "2026-10-30",
+   "signal_id": "3b1138f0a5824df595b2f964986474bd",
+   "ticker": "SCHW",
+   "contract": [
+    "SCHW270319C00087500"
+   ],
+   "strategy": "LONG_CALL",
+   "entry_ask_net": 6.9,
+   "entry_mid_net": 6.675,
+   "option_sample": "research_census",
+   "horizon": 5,
+   "pred_net": 0.022478,
+   "model_spec": "298be00d41bc",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "created_at": "2026-10-30T16:36:49+00:00"
+  },
+  {
+   "date": "2026-10-30",
+   "signal_id": "b49c19d70908443bac7cc43f803192fa",
+   "ticker": "AVGO",
+   "contract": [
+    "AVGO270319C00330000"
+   ],
+   "strategy": "LONG_CALL",
+   "entry_ask_net": 37.65,
+   "entry_mid_net": 37.375,
+   "option_sample": "research_census",
+   "horizon": 5,
+   "pred_net": 0.018026,
+   "model_spec": "298be00d41bc",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "created_at": "2026-10-30T16:36:49+00:00"
+  }
+ ],
+ "journaled": 40,
+ "production_influence": "NONE",
+ "orders_created": 0
+}
