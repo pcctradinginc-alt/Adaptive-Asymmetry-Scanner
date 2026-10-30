@@ -1,4 +1,5 @@
 import hashlib
+import json
 import random
 from datetime import date, datetime, timedelta, timezone
 
@@ -842,3 +843,60 @@ def test_preregistered_falsification_closes_variants(tmp_path):
 def test_variant_evidence_counts_only_prospective_entries(tmp_path):
     _res, v = _eval_variant(tmp_path, date(2026, 5, 1), late=True)
     assert v["excluded"] == {"LATE_PREDICTION": 120} and v["verdict"] == "NEED_MORE_DATA"
+
+
+def test_proven_variant_yields_one_change_proposal_for_human_review(tmp_path):
+    _res, v = _eval_variant(tmp_path, date(2026, 5, 1))
+    md = tmp_path / ol.CHANGE_DIR / "OLV-1.md"
+    assert v["change_proposal"] == str(md) and md.exists()
+    text = md.read_text()
+    assert "RIDGE_ALPHA = 30.0" in text and "menschlichen Prüfung" in text and "Bonferroni" in text
+    meta = json.loads(md.with_suffix(".json").read_text())
+    assert meta["requires_human_pr"] is True and meta["status"] == "PROPOSE_CHANGE"
+    later = ol.change_proposal(tmp_path, {**v, "verdict": "anders"}, datetime(2027, 1, 1, tzinfo=timezone.utc))
+    assert later == str(md) and md.read_text() == text                        # nie überschrieben
+
+
+def test_variant_experiments_and_open_proposals_land_in_research_memory(tmp_path):
+    from modules import research_memory as rm
+    _res, v = _eval_variant(tmp_path, date(2026, 5, 1))
+    status = {"variants": {"variants": {"OLV-1": v, "OLV-2": {**v, "variant_id": "OLV-2", "status": "FALSIFIED_WORSE",
+                                                              "overrides": {"min_pred": 0.02}}}}}
+    imp = {"proposals": [{"proposal_id": "OLP-d", "kind": "data_source", "change": {"source": "x"},
+                          "approval_required": True, "priority": 0.1, "gap_ids": ["model:no_skill:20d"],
+                          "cost": {"paid_data": True}},
+                         {"proposal_id": "OLP-v", "kind": "variant", "approval_required": False}]}
+    paths = {"option_status_5d": tmp_path / "s.json", "option_improvement": tmp_path / "i.json"}
+    paths["option_status_5d"].write_text(json.dumps(status))
+    paths["option_improvement"].write_text(json.dumps(imp))
+    entries = {e["hypothesis_id"]: e for e in rm.collect(paths)}
+    assert entries["OLV-1"]["status"] == "FORWARD_VALIDATED" and entries["OLV-1"]["prospective"] is True
+    assert entries["OLV-1"]["spec"]["signal"] == "ridge_alpha=30.0" and entries["OLV-1"]["evidence"]["family_size"] == 1
+    assert entries["OLV-2"]["status"] == "REJECTED" and entries["OLV-2"]["kind"] == "option_experiment"
+    assert entries["OLP-d"]["status"] == "APPROVAL_REQUIRED" and "OLP-v" not in entries
+    memory = tmp_path / "memory.jsonl"
+    assert rm.sync(memory, paths) == 3 and rm.sync(memory, paths) == 0      # append-only, keine Dubletten
+
+
+def test_report_card_shows_detected_gaps_and_running_improvements(monkeypatch, tmp_path):
+    _ledger_env(monkeypatch, 40)
+    ol.evaluate(date(2026, 12, 31), horizon=H, out=tmp_path)
+    (tmp_path / "improvement.json").write_text(json.dumps({
+        "gaps": [{"gap_id": "model:overfit_risk:5d", "horizon": H, "finding": "34 Merkmale auf 359 Labels"}],
+        "proposals": [{"horizon": H, "auto_experiment": True, "approval_required": False}]}))
+    card = {r["key"]: r[f"{H}d"] for r in ol.report_card(tmp_path, horizons=(H,))["rows"]}
+    assert card["gaps"][0] == "Ja" and "34 Merkmale" in card["gaps"][1] and "1 automatisch" in card["gaps"][1]
+    assert list(card["improvements"]) == ["offen", "noch keine Variante registriert"]
+
+
+def test_weekly_workflow_runs_research_improvement_after_the_evaluation_without_secrets():
+    import yaml as _yaml
+    with open(".github/workflows/ml_research.yml", encoding="utf-8") as fh:
+        wf = _yaml.safe_load(fh)
+    steps = next(iter(wf["jobs"].values()))["steps"]
+    ids = [s.get("id") for s in steps]
+    step = steps[ids.index("research_improvement")]
+    assert ids.index("research_improvement") == ids.index("option_learner") + 1
+    assert step["run"].strip() == "python -m modules.research_director --options"
+    assert "env" not in step and step.get("continue-on-error") is True and "secrets" not in json.dumps(step)
+    assert "steps.research_improvement.outcome" in json.dumps(steps[-1])

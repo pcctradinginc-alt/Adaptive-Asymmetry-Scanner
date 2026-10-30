@@ -999,8 +999,62 @@ def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, j
                                           "selected_ci95", "coverage")} | {"verdict": _verdict(s, "forward")}}
     if closed:
         append_jsonl(out / VARIANTS, closed)
+    for r in results.values():
+        if r["status"] == "PROPOSE_CHANGE":
+            r["change_proposal"] = change_proposal(out, r, now)
     return {"horizon": horizon, "base_experiment_id": base, "family_size": family, "alpha": round(alpha, 6),
             "variants": results}
+
+
+CHANGE_DIR = "change_proposals"
+
+
+def _code_change(overrides: dict) -> str:
+    ((method, value),) = overrides.items()
+    if method == "ridge_alpha":
+        return f"modules/option_learner.py: RIDGE_ALPHA = {value} (bisher {RIDGE_ALPHA})"
+    if method == "min_pred":
+        return f"modules/option_learner.py: Auswahlregel der Basis TRADE erst bei Prognose > {value} (bisher > 0)"
+    return (f"modules/option_learner.py: Merkmalsgruppe {value} aus LEDGER_FEATURES/CONTRACT_FEATURES entfernen "
+            "(Liste siehe config/option_learner_variants.yaml)")
+
+
+def change_proposal(out: Path, r: dict, now: datetime) -> str:
+    """Begründeter Änderungsvorschlag zur menschlichen Prüfung, sobald eine Variante die Basis prospektiv schlägt.
+    Wird einmal geschrieben (nie überschrieben) und ändert nichts selbst: Umsetzung nur per menschlichem PR."""
+    path = out / CHANGE_DIR / f"{r['variant_id']}.md"
+    if path.exists():
+        return str(path)
+    vb, vr = r["vs_base"], r["vs_frozen_reference"]
+    lb, lr = vb["learning_minus_reference"], vr["learning_minus_reference"]
+    lines = [f"# Änderungsvorschlag {r['variant_id']} – Options-Lernmodell", "",
+             (f"_Erstellt {now.isoformat(timespec='seconds')} – zur menschlichen Prüfung, keine automatische "
+              "Änderung, kein Produktionseinfluss._"), "",
+             "## Änderung", "",
+             (f"- Variante: `{r['overrides']}` (Experimentversion {r['experiment_id']}, "
+              f"Basis {r['base_experiment_id']})"),
+             f"- Umsetzung per PR: {_code_change(r['overrides'])}",
+             ("- Folge: neue Experimentversion der Basis, neue Forward-Kohorte und neue eingefrorene Referenz; "
+              "offene Varianten der alten Basis werden BASE_CHANGED."), "",
+             "## Anlass (gemessene Lücke)", "",
+             f"- {', '.join(r.get('gap_ids') or [])} (Vorschlag {r.get('proposal_id')})", "",
+             "## Evidenz (prospektiv, identische Kandidaten, geprüfte Netto-Ergebnisse)", "",
+             (f"- Gegen die Basis-Lernversion: **{r['verdict']}** – Δ {lb['mean']} je Kandidat und Tag, "
+              f"KI {lb['ci95']} (Niveau {vb['ci_level']}, Bonferroni über {r['family_size']} Varianten), "
+              f"{vb['days']} Tage, {vb['independent_periods']} unabhängige Perioden, {vb['candidates']} Kandidaten"),
+             f"- Gegen die eingefrorene Referenz: {vr['verdict']} – Δ {lr['mean']}, KI {lr['ci95']}",
+             f"- Variante allein (Forward): {r['forward']}",
+             f"- Basisstrategien bei gleichem Budget (Tagesmittel): {vb['daily_mean']}", "",
+             "## Vorab festgelegte Falsifikation", "", f"- {r.get('falsification')}", "",
+             "## Prüfpunkte für die menschliche Freigabe", "",
+             "- Ist der Vorteil wirtschaftlich relevant (nach Kosten) und nicht nur statistisch?",
+             "- Ist die Evidenz repräsentativ (Leistungszeugnis: Forschungsstichprobe, Richtung, Zeitraum)?",
+             "- Entsteht der Vorteil auf wenigen Tagen oder Aktien (Ausreißer)?"]
+    atomic_write_text(path, "\n".join(lines) + "\n")
+    atomic_write_json(path.with_suffix(".json"), {**r, "code_change": _code_change(r["overrides"]),
+                                                  "created_at": now.isoformat(timespec="seconds"),
+                                                  "requires_human_pr": True}, indent=1)
+    return str(path)
 
 
 def reference(out: Path, horizon: int, model: Model | None = None, inst: dict | None = None,
@@ -1268,6 +1322,27 @@ def _read_json(path: Path) -> dict:
         return {}
 
 
+def _improvement_answers(st: dict, imp: dict, horizon: int) -> dict:
+    """Autonome Research-Verbesserung: erkannte Lücken, Vorschläge und laufende Varianten-Experimente."""
+    gaps = [g for g in (imp or {}).get("gaps") or [] if g.get("horizon") == horizon]
+    props = [p for p in (imp or {}).get("proposals") or [] if p.get("horizon") == horizon]
+    variants = list(((st or {}).get("variants") or {}).get("variants", {}).values())
+    states = [v["status"] for v in variants]
+    tested = "; ".join(f"{next(iter(v['overrides']))}={next(iter(v['overrides'].values()))}: {v['status']} "
+                       f"({v['verdict']}, {v['days_running']} T)" for v in variants)
+    return {
+        "gaps": ("Ja" if gaps else "offen",
+                 (f"{len(gaps)} Lücke(n), zuerst: {gaps[0]['finding']}; Vorschläge: "
+                  f"{sum(p['auto_experiment'] for p in props)} automatisch testbar, "
+                  f"{sum(p['approval_required'] for p in props)} zur Freigabe") if gaps else
+                 "keine gemessene Lücke (oder research_director --options noch nicht gelaufen)"),
+        "improvements": ("Ja" if "PROPOSE_CHANGE" in states else "offen" if variants and any(
+            s in ("RUNNING", "PROPOSE_CHANGE") for s in states) else "Nein" if variants else "offen",
+                         (tested + ("; Änderungsvorschlag liegt zur Prüfung vor" if "PROPOSE_CHANGE" in states
+                                    else "")) if variants else "noch keine Variante registriert"),
+    }
+
+
 def _answers(st: dict) -> dict:
     """Antworten auf die Audit-Fragen aus einem Status (Ja | Teilweise | Nein | offen + Beleg)."""
     if not st:
@@ -1352,12 +1427,22 @@ CARD_QUESTIONS = (
     ("gates", "Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)?"),
     ("proven", "Ist eine profitable Optionsstrategie nachgewiesen?"),
     ("self_limit", "Begrenzt es sich selbst?"),
+    ("gaps", "Welche Lücken erkennt es selbst (Daten, Modell, Evidenz)?"),
+    ("improvements", "Welche Verbesserungen testet es selbst – mit welchem Ergebnis?"),
 )
 
 
 def report_card(out: Path = OUT, horizons: tuple = (HORIZON, 5)) -> dict:
     """Leistungszeugnis aus den Status-Dateien: beantwortet die Audit-Fragen automatisch je Horizont."""
-    answers = {h: _answers(_read_json(out / f"status_{h}d.json")) for h in horizons}
+    imp = _read_json(out / "improvement.json")
+    answers = {}
+    for h in horizons:
+        st = _read_json(out / f"status_{h}d.json")
+        try:
+            answers[h] = {**_answers(st), **(_improvement_answers(st, imp, h) if st else {})}
+        except (KeyError, TypeError, IndexError, ValueError) as exc:     # alter/unvollständiger Status: Spalte leer
+            log.warning("option_learner: status_%sd.json unvollständig (%s) – Spalte bleibt leer", h, exc)
+            answers[h] = {}
     as_of = max((_read_json(out / f"status_{h}d.json").get("as_of") or "" for h in horizons), default="")
     rows = [{"key": k, "question": q, **{f"{h}d": answers[h].get(k) for h in horizons}} for k, q in CARD_QUESTIONS]
     card = {"as_of": as_of, "horizons": list(horizons), "rows": rows, "production_influence": "NONE"}

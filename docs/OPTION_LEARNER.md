@@ -46,6 +46,14 @@ Stand 2026-10-30 (Freigabe, Versionierung, Auswahl-Validierung, Lernfortschritt)
 - Dieselbe Rechnung läuft zusätzlich retrospektiv im Walk-Forward (erste Walk-Forward-Instanz eingefroren). Sie ist nur ein Hinweis; maßgeblich ist der Forward-Vergleich.
 - Verlauf (`learning_trend`) und Verdikt stehen im Leistungszeugnis und damit im Montagsbericht.
 
+## Varianten-Experimente (Autonomous Research Improvement)
+
+Siehe `docs/AUTONOMOUS_RESEARCH_IMPROVEMENT.md`. Kurz:
+- `research_director --options` erkennt messbare Lücken und erzeugt Vorschläge.
+- Freigegebene, kostenlose Varianten (`config/option_learner_variants.yaml`) laufen isoliert auf denselben Kandidaten. Sie werden gepaart gegen Basis und eingefrorene Referenz verglichen (Bonferroni) und nach vorab festgelegter Frist falsifiziert.
+- Bei nachgewiesenem Vorteil entsteht ein Änderungsvorschlag zur menschlichen Prüfung.
+- Die Basisversion `4a0f886d1979`, ihre Freigabe und ihre Mail bleiben davon unberührt.
+
 ## Leistungszeugnis und Lernkurve
 
 - **Manifest** je Auswertung: Anzahl und Hash der verwendeten geprüften Labels, Stichtag, Verteilung je Ausdrucksform. Damit ist nachvollziehbar, welche Labels in welches Modell geflossen sind.

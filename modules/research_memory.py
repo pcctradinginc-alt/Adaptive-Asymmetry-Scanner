@@ -9,6 +9,8 @@ aus den vorhandenen Speichern
   * outputs/intelligence/promotion_state.json      (Produktions-Hypothesen inkl. Forward-Zustand)
   * outputs/research/factory_results.json          (Robustheits-Batterie der Fabrik)
   * outputs/research/factory_plan.json             (nur DATA_GAP-Ideen: fehlende Daten + freie Quellen)
+  * outputs/research/option_learner/status_<h>d.json (Varianten-Experimente des Options-Lernmodells, prospektiv)
+  * outputs/research/option_learner/improvement.json (Vorschläge, die eine menschliche Freigabe brauchen)
 nach outputs/research/research_memory.jsonl. Jeder Eintrag: Spezifikation, Daten, Tests,
 Resultat, Regime, Gründe – und ob die Evidenz PROSPEKTIV (Forward) ist.
 
@@ -39,7 +41,13 @@ SOURCES = {
     "factory_plan": Path("outputs/research/factory_plan.json"),
     "surprise_study": Path("outputs/research/surprise_study.json"),
     "commodity_evaluation": Path("outputs/research/commodity_evaluation.json"),
+    "option_status_20d": Path("outputs/research/option_learner/status_20d.json"),
+    "option_status_5d": Path("outputs/research/option_learner/status_5d.json"),
+    "option_improvement": Path("outputs/research/option_learner/improvement.json"),
 }
+# Varianten-Status des Options-Lernmodells -> Memory-Status (laufend = weder Erfolg noch Test)
+OPTION_VARIANT_STATUS = {"PROPOSE_CHANGE": "FORWARD_VALIDATED", "FALSIFIED_WORSE": "REJECTED",
+                         "FALSIFIED_NO_EFFECT": "REJECTED", "BASE_CHANGED": "EXPIRED", "RUNNING": "PENDING_FORWARD"}
 PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION")
 TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
           *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
@@ -164,6 +172,34 @@ def collect(sources: dict | None = None) -> list[dict]:
         out.append(_entry("factory", hid, r.get("status"), r.get("spec") or {}, source="factory",
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))
     out += commodity_entries(src.get("commodity_evaluation"), src.get("factory_results"))
+    out += option_entries(*(src.get(k) for k in ("option_status_20d", "option_status_5d", "option_improvement")))
+    return out
+
+
+def option_entries(*sources) -> list[dict]:
+    """Options-Lernmodell: Varianten-Experimente (prospektiv auf identischen Kandidaten, Bonferroni) mit Status,
+    Evidenz und Grund; dazu Vorschläge, die eine menschliche Freigabe brauchen (Daten, Erfassung, Stichprobe)."""
+    out = []
+    for src in sources:
+        for vid, v in (((src or {}).get("variants") or {}).get("variants") or {}).items():
+            ((method, value),) = (v.get("overrides") or {"?": None}).items()
+            lr = (v.get("vs_base") or {}).get("learning_minus_reference") or {}
+            out.append(_entry("option_experiment", vid, OPTION_VARIANT_STATUS.get(v.get("status"), "INCONCLUSIVE"),
+                              {"signal": f"{method}={value}", "family": "option_learner_variant",
+                               "domain": "options_net", "experiment_id": v.get("experiment_id")},
+                              source="option_learner", evidence={"verdict": v.get("verdict"), "mean": lr.get("mean"),
+                                                                 "ci": lr.get("ci95"),
+                                                                 "days": (v.get("vs_base") or {}).get("days"),
+                                                                 "family_size": v.get("family_size")},
+                              reasons=[v.get("verdict")], gap_ids=v.get("gap_ids"), proposal_id=v.get("proposal_id"),
+                              data_kind="prospective_forward_options"))
+        for p in (src or {}).get("proposals") or []:
+            if p.get("approval_required"):
+                out.append(_entry("option_proposal", p["proposal_id"], "APPROVAL_REQUIRED",
+                                  {"signal": json.dumps(p.get("change"), sort_keys=True, default=str),
+                                   "family": f"option_{p.get('kind')}", "domain": "options_net"},
+                                  source="research_director", evidence={"priority": p.get("priority")},
+                                  reasons=p.get("gap_ids"), cost=p.get("cost"), data_kind="none"))
     return out
 
 

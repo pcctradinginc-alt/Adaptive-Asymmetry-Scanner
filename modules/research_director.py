@@ -437,6 +437,7 @@ def run_options(root: Path = OPTION_OUT, now: datetime | None = None) -> dict:
            "registered_variants": [v["variant_id"] for v in registered]}
     root.mkdir(parents=True, exist_ok=True)
     (root / "improvement.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
+    ol.report_card(root)
     return rep
 
 
@@ -461,7 +462,9 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--options", action="store_true", help="nur Options-Lernmodell: Lücken und Vorschläge")
     if ap.parse_args(argv).options:
+        from modules import research_memory as rm
         rep = run_options()
+        print(f"Research Memory: {rm.sync()} neue Einträge")
         for g in rep["gaps"][:10]:
             print(f"- [{g['severity']}] {g['gap_id']}: {g['finding']}")
         for p in rep["proposals"][:10]:
