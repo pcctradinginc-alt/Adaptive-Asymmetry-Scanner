@@ -1,6 +1,6 @@
 # Options-Lernmodell (Research): aus geprüften Options-Ergebnissen lernen und empfehlen
 
-Stand 2026-10-30. Modul `modules/option_learner.py`, Tests `tests/test_option_learner.py`.
+Stand 2026-10-30 (Freigabe, Versionierung, Auswahl-Validierung, Lernfortschritt). Modul `modules/option_learner.py`, Tests `tests/test_option_learner.py`.
 
 ## Kreislauf (autonom, kein LLM, keine Markt-API, keine Order)
 
@@ -32,11 +32,25 @@ Stand 2026-10-30. Modul `modules/option_learner.py`, Tests `tests/test_option_le
    - Sonst nur eine als UNVALIDIERT gekennzeichnete Research-Watchlist (Top 5) mit den offenen Bedingungen.
    - Mail nur für das 20-Tage-Hauptmodell mit Empfehlungen; `mail()` prüft die Freigabe selbst erneut. Das 5-Tage-Modell ist Frühindikator ohne Handels-Mail.
 
+## Lernfortschritt: lernende Version gegen eingefrorene Referenz
+
+- **Referenz:** Je Experimentversion und Horizont wird die erste trainierte Modellinstanz eingefroren. Ihre Gewichte stehen einmalig in `reference/<h>d_<experiment_id>.json` und werden nie überschrieben. Eine neue Experimentversion beginnt eine neue, eigene Vergleichskohorte.
+- **Täglich:** Die lernende Version (täglich nachtrainiert) und die Referenz entscheiden mit derselben Auswahlregel über dieselben Kandidaten. Beide Entscheidungen (inkl. ABSTAIN) stehen im Journal (`role=learning` bzw. `role=reference`).
+- **Gleiche Bedingungen:** Gleiche Signale, Kontrakte, Quote-Prüfung, Kosten und Halteperiode. Jeder Kandidat erhält das gleiche Budget (eine Einheit Prämie, ABSTAIN = 0). Je Tag zählt das Mittel über alle Kandidaten des Tages. Fehlt das geprüfte Ergebnis einer gehandelten Wahl, fällt der Kandidat für alle Varianten heraus. Je Aktie und Tag zählt ein Kandidat.
+- **Unsicherheit:** 95-%-Block-Bootstrap der mittleren Tagesdifferenz (lernend − Referenz) über unabhängige Haltefenster, nicht getrennte Durchschnittsrenditen.
+- **Vorab festgelegte Verdikte:**
+  - NEED_MORE_DATA: unter 20 Tagen, 5 unabhängigen Perioden oder 30 Kandidaten. Das ist nie „verbessert“.
+  - LEARNING_BETTER bzw. LEARNING_WORSE: das KI liegt ganz über bzw. unter 0.
+  - Sonst NO_SIGNIFICANT_DIFFERENCE (statistisch unentschieden).
+- **Basisstrategien** unter denselben Bedingungen: „nie handeln“ (0) und „alles handeln“ (Standardform je Kandidat, sofern zulässig).
+- Dieselbe Rechnung läuft zusätzlich retrospektiv im Walk-Forward (erste Walk-Forward-Instanz eingefroren). Sie ist nur ein Hinweis; maßgeblich ist der Forward-Vergleich.
+- Verlauf (`learning_trend`) und Verdikt stehen im Leistungszeugnis und damit im Montagsbericht.
+
 ## Leistungszeugnis und Lernkurve
 
 - **Manifest** je Auswertung: Anzahl und Hash der verwendeten geprüften Labels, Stichtag, Verteilung je Ausdrucksform. Damit ist nachvollziehbar, welche Labels in welches Modell geflossen sind.
-- **Historie** `status_history_<h>d.jsonl` (append-only, ein Eintrag je neuem Stand) mit dem Vergleich zur Vorversion (`vs_previous`).
-- **Vergleich mit einfachen Basisstrategien:** „nie handeln“ (0) und „alles handeln“ (Mittel aller Fälle auf ungesehenen Tagen).
+- **Historie** `status_history_<h>d.jsonl` (append-only, ein Eintrag je neuem Stand). `vs_previous` vergleicht nur aggregierte Kennzahlen innerhalb derselben Experimentversion und ist rein beschreibend. Der Lernfortschritt wird gepaart gemessen (siehe oben).
+- **Vergleich mit einfachen Basisstrategien:** „nie handeln“ und „alles handeln“ auf denselben Kandidaten und Tagen mit gleichem Budget. „Schlägt“ gilt nur, wenn das gepaarte KI über 0 liegt.
 - **Strategievergleich:** Mittel je Ausdrucksform auf ungesehenen Tagen (`by_expression`).
 - **Filter-Prüfung (`by_gate`, Audit §9):** realisiertes Netto der geprüften Labels je Ablehnungsgrund. Das ist beschreibend und zeigt, ob ein Filter eher schlechte oder auch gute Gelegenheiten verwirft. Eine Gruppe wird erst ab 20 Labels an 10 Tagen ausgewiesen. Die Registrierung des ROI-Shadows ist seit 2026-10-30 stillgelegt (`enabled: false`); seine Population (vom ROI-Gate verworfene Kontrakte) wird hier über die Snapshots im Ledger mitgemessen.
 - **`report_card.{json,md}`** beantwortet die Audit-Fragen je Horizont mit Ja, Teilweise, Nein oder offen, jeweils mit Beleg. Es erscheint im Montagsbericht (Abschnitt 12).
@@ -52,5 +66,8 @@ Stand 2026-10-30. Modul `modules/option_learner.py`, Tests `tests/test_option_le
 
 - Es entsteht keine Order, und es gibt keinen Einfluss auf Champion, Gates, Sizing, Risk oder Promotion.
 - Eine Empfehlung ist eine Research-Aussage auf Basis der eigenen Evidenz, keine Anlageberatung.
-- Mit dem Datenstand vom 30.10.2026 gibt es 320 geprüfte 5-Tage-Labels an 8 Tagen und noch keine geprüften 20-Tage-Labels. Der Status lautet deshalb NEED_MORE_DATA.
-- Die ersten 20-Tage-Labels sind ab dem 3.11. geprüft. Mit der Research-Stichprobe (etwa 40 Labels je Tag) ist ein Walk-Forward-Verdikt frühestens Ende Dezember möglich.
+- **Datenstand 30.10.2026:** 359 geprüfte 5-Tage-Labels an 8 Signaltagen (14.–23.10.) und noch keine geprüften 20-Tage-Labels. Alle Verdikte lauten deshalb NEED_MORE_DATA.
+- Die 40 Journal-Einträge vom 30.10. stammen aus der Vorversion und zählen nicht. Die aktuelle Experimentversion sammelt ab dem nächsten Scanner-Lauf.
+- **Frühestens möglich** (bei etwa 40 Kandidaten je Tag, wenn alle Mindestzahlen erreicht werden):
+  - 5-Tage-Modell: Walk-Forward- und Forward-Verdikt ab Mitte Dezember 2026, ebenso der gepaarte Vergleich mit der Referenz.
+  - 20-Tage-Modell (Hauptmaßstab, einzige Handels-Mail): 5 unabhängige Perioden zu je 20 Tagen plus Fälligkeit (Horizont + 10 Tage) ergeben ein Forward-Verdikt frühestens etwa Mitte März 2027.

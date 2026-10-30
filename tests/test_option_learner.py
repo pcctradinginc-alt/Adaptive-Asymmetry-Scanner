@@ -212,9 +212,10 @@ def test_journal_is_append_only(monkeypatch, tmp_path):
     monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     now = datetime(2026, 3, 1, 19, tzinfo=timezone.utc)
-    assert ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path, now=now)["journaled"] == 2
+    assert ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path, now=now)["journaled"] == 3
     assert ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path, now=now)["journaled"] == 0
-    assert [j["kind"] for j in read_jsonl(tmp_path / ol.JOURNAL)] == ["prediction", "decision"]
+    assert [(j["kind"], j.get("role")) for j in read_jsonl(tmp_path / ol.JOURNAL)] == [
+        ("prediction", None), ("decision", "reference"), ("decision", "learning")]
 
 
 def test_contract_features_use_decision_time_quotes_not_the_fill():
@@ -282,7 +283,7 @@ def test_recommend_journals_every_expression_and_recommends_one_per_candidate(mo
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))
     res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
-    assert res["journaled"] == 3 and res["decisions"] == 1          # Spread und Einzel-Option + eine Entscheidung
+    assert res["journaled"] == 4 and res["decisions"] == 1          # 2 Formen + Entscheidung + Referenz-Entscheidung
     assert len(res["recommendations"]) == 1
     assert res["recommendations"][0]["expression"] in ("spread", "single")
 
@@ -414,7 +415,7 @@ def test_recommend_journals_experiment_and_registered_model_instance(monkeypatch
     res = ol.recommend(today, horizon=H, out=tmp_path, now=now)
     ol.recommend(today, horizon=H, out=tmp_path, now=now)
     journal, registry = read_jsonl(tmp_path / ol.JOURNAL), read_jsonl(tmp_path / ol.INSTANCES)
-    assert len(registry) == 1 and len(journal) == 2                               # append-only, keine Dubletten
+    assert len(registry) == 1 and len(journal) == 3                               # append-only, keine Dubletten
     inst, entry = registry[0], journal[0]
     assert entry["experiment_id"] == inst["experiment_id"] == ol.experiment_id() == res["experiment_id"]
     assert entry["model_id"] == inst["model_id"] == res["model_id"]
@@ -546,3 +547,121 @@ def test_candidates_carry_label_status_of_every_form():
     assert [(e["expression"], e["status"]) for e in c["exprs"]] == [("spread", "ENTRY_NOT_ARCHIVED"),
                                                                     ("single", "NO_LABEL")]
     assert c["sample"] == "directional" and c["exprs"][0]["ask"] == 6.0      # 10.0 Ask - 4.0 Bid
+
+
+def _pairs(days, learn_good=True, n=6, seed=3, same=False):
+    """Gepaarte Entscheidungen: die lernende Version wählt die Einzel-Option (+20 %), die Referenz den Spread
+    (−10 %) – oder umgekehrt; same=True: beide wählen gleich."""
+    cands = _two_form_cands(days, lambda s, rng: (-0.1 + _noise(rng), 0.2 + _noise(rng)), n=n, seed=seed)
+    single = {"action": "TRADE", "contract": None}
+    out = []
+    for c in cands:
+        good = dict(single, contract=c["exprs"][1]["contract"])
+        bad = dict(single, contract=c["exprs"][0]["contract"])
+        learn, ref = (good, bad) if learn_good else (bad, good)
+        out.append({"cand": c, "learning": learn, "reference": learn if same else ref})
+    return out
+
+
+def test_paired_comparison_has_predefined_verdicts():
+    days = _trading_days(date(2026, 3, 2), 30)
+    better = ol.compare_policies(_pairs(days), H)
+    assert better["verdict"] == "LEARNING_BETTER" and better["decisions_differ"] == better["candidates"] == 180
+    assert better["learning_minus_reference"]["mean"] > 0.25 and better["learning_minus_reference"]["ci95"][0] > 0
+    assert ol.compare_policies(_pairs(days, learn_good=False), H)["verdict"] == "LEARNING_WORSE"
+    same = ol.compare_policies(_pairs(days, same=True), H)
+    assert same["verdict"] == "NO_SIGNIFICANT_DIFFERENCE" and same["learning_minus_reference"]["mean"] == 0
+    few = ol.compare_policies(_pairs(days[:6]), H)                     # deutlich besser, aber zu wenig Tage
+    assert few["verdict"] == "NEED_MORE_DATA"
+
+
+def test_paired_comparison_uses_same_budget_baselines_and_no_artificial_certainty():
+    days = _trading_days(date(2026, 3, 2), 30)
+    pairs = _pairs(days)
+    base = ol.compare_policies(pairs, H)
+    # "alles handeln" = Standardform (Spread) je Kandidat; "nie handeln" = 0; gleiche Kandidaten und Tage
+    assert base["daily_mean"]["no_trade"] == 0.0 and base["daily_mean"]["trade_all"] < 0
+    assert base["daily_mean"]["trade_all"] == base["daily_mean"]["reference"]
+    assert ol._baselines(base)["beats_no_trade"] and ol._baselines(base)["beats_trade_all"]
+    # mehrere Kontrakte/Signale derselben Aktie am selben Tag erhöhen die Sicherheit nicht
+    twins = [dict(p, cand=dict(p["cand"], signal_id=p["cand"]["signal_id"] + "-b")) for p in pairs]
+    assert ol.compare_policies(pairs + twins, H) == base
+    # ABSTAIN zählt als 0 bei gleichem Budget; ein ungeprüftes Ergebnis schließt den Kandidaten für alle aus
+    c = pairs[0]["cand"]
+    hole = dict(c, exprs=[c["exprs"][0], dict(c["exprs"][1], status="EXIT_NOT_ARCHIVED", y=None)])
+    res = ol.compare_policies([dict(pairs[0], cand=hole)], H)
+    assert res["candidates"] == 0 and res["excluded"] == {"EXIT_NOT_ARCHIVED": 1}
+    abstain = ol.compare_policies([dict(pairs[0], learning={"action": "ABSTAIN"})], H)
+    assert abstain["daily_mean"]["learning"] == 0.0
+
+
+def _ledger_env(monkeypatch, n_days):
+    days = _trading_days(date(2026, 1, 5), n_days)
+    rows, quotes = _history(days)
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    return days, rows
+
+
+def test_reference_is_frozen_while_the_learning_version_retrains(monkeypatch, tmp_path):
+    days, rows = _ledger_env(monkeypatch, 40)
+    day1, day2 = days[20], days[39]
+    rows += [_row(day1.isoformat(), 1, 0.8), _row(day2.isoformat(), 1, 0.8)]
+    def at(d):
+        return datetime.combine(d, datetime.min.time(), tzinfo=timezone.utc).replace(hour=17)
+    first = ol.recommend(day1, horizon=H, out=tmp_path, now=at(day1))
+    path = tmp_path / ol.REFERENCE_DIR / f"{H}d_{ol.experiment_id()}.json"
+    frozen = path.read_text()
+    second = ol.recommend(day2, horizon=H, out=tmp_path, now=at(day2))
+    assert path.read_text() == frozen                                   # nie überschrieben
+    assert first["reference_model_id"] == second["reference_model_id"] == first["model_id"]
+    assert second["model_id"] != first["model_id"]                     # lernende Version hat nachtrainiert
+    ref = [j for j in read_jsonl(tmp_path / ol.JOURNAL) if j.get("role") == "reference"]
+    assert {j["date"] for j in ref} == {day1.isoformat(), day2.isoformat()}
+    assert {j["model_id"] for j in ref} == {first["model_id"]}
+    model, meta = ol.reference(tmp_path, H)                             # gespeicherte Gewichte = damaliges Modell
+    train = [d for d in ol.dataset(rows, ol.red.load_quotes(None, rows, day1), day1, H) if d["label_day"] < day1]
+    assert ol.instance(model, train, day1)["model_id"] == meta["model_id"]
+
+
+def test_new_experiment_version_starts_a_new_reference_cohort(monkeypatch, tmp_path):
+    days, rows = _ledger_env(monkeypatch, 30)
+    day = days[25]
+    rows += [_row(day.isoformat(), 1, 0.8)]
+    ol.recommend(day, horizon=H, out=tmp_path)
+    old = sorted(p.name for p in (tmp_path / ol.REFERENCE_DIR).iterdir())
+    monkeypatch.setattr(ol, "COMMISSION_PER_LEG_SIDE", 1.0)            # Kostenmodell geändert
+    ol.recommend(day, horizon=H, out=tmp_path)
+    new = sorted(p.name for p in (tmp_path / ol.REFERENCE_DIR).iterdir())
+    assert len(old) == 1 and len(new) == 2 and old[0] in new
+
+
+def test_forward_learning_progress_needs_journaled_pairs_and_reports_need_more_data():
+    days = _trading_days(date(2026, 3, 2), 25)
+    cands = _two_form_cands(days, lambda s, rng: (-0.1 + _noise(rng), 0.2 + _noise(rng)), n=4)
+    inst = [{"model_id": m, "experiment_id": "E", "train_cutoff": "2026-03-02", "max_label_day": "2026-03-01"}
+            for m in ("learn", "ref")]
+    journal = []
+    for c in cands:
+        e = {"date": c["date"], "signal_id": c["signal_id"], "horizon": H, "action": "TRADE", "pred_net": 0.1,
+             "experiment_id": "E", "kind": "decision", "created_at": f"{c['date']}T16:00:00+00:00"}
+        journal += [dict(e, role="learning", model_id="learn", contract=c["exprs"][1]["contract"]),
+                    dict(e, role="reference", model_id="ref", contract=c["exprs"][0]["contract"])]
+    fw = ol.forward(journal, cands, H, inst, AS_OF, exp="E")
+    assert fw["vs_reference"]["verdict"] == "LEARNING_BETTER" and fw["vs_reference"]["reference_models"] == ["ref"]
+    assert fw["valid_decisions"] == len(cands)                          # Referenz zählt nicht als Lern-Evidenz
+    only_learning = [j for j in journal if j["role"] == "learning"]
+    assert ol.forward(only_learning, cands, H, inst, AS_OF, exp="E")["vs_reference"]["verdict"] == "NEED_MORE_DATA"
+    early = ol.forward(journal, cands, H, inst, date(2026, 3, 25), exp="E")
+    assert early["vs_reference"]["verdict"] == "NEED_MORE_DATA"         # zu wenig fällige Tage: nicht "verbessert"
+
+
+def test_report_card_and_monday_report_show_learning_progress(monkeypatch, tmp_path):
+    _ledger_env(monkeypatch, 40)
+    ol.evaluate(date(2026, 12, 31), horizon=H, out=tmp_path)
+    card = ol.report_card(tmp_path, horizons=(H,))
+    row = next(r for r in card["rows"] if r["key"] == "improves")
+    assert row[f"{H}d"][0] == "offen" and "NEED_MORE_DATA" in row[f"{H}d"][1] and "retrospektiv" in row[f"{H}d"][1]
+    from reports import weekly
+    table = weekly.option_learner_blocks({"option_learner_card": card})[1][2]
+    assert any("eingefrorene Referenz" in r[0] for r in table)

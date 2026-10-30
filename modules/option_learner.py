@@ -19,8 +19,12 @@ Kreislauf (autonom, kein LLM, keine Markt-API, keine Order):
      Konfidenzintervall über 0 – fail closed bei fehlenden oder widersprüchlichen Angaben; je Kandidat die
      Ausdrucksform mit der höchsten Prognose > 0. Sonst nur eine als UNVALIDIERT markierte Research-Watchlist.
      Mail nur für das 20-Tage-Hauptmodell; das 5-Tage-Modell ist Frühindikator ohne Handels-Mail.
+  -> Lernfortschritt: je Experimentversion wird die erste Modellinstanz als Referenz eingefroren (Gewichte einmalig
+     gespeichert); lernende Version und Referenz entscheiden täglich über dieselben Kandidaten (inkl. ABSTAIN).
+     Gepaarter Vergleich der realisierten Netto-Ergebnisse bei gleichem Budget je Kandidat, Unsicherheit über
+     unabhängige Haltefenster; dazu "nie handeln" und "alles handeln" unter denselben Bedingungen.
   -> Leistungszeugnis: Trainings-Manifest (welche geprüften Labels in welches Modell flossen), append-only
-     Status-Historie (Lernkurve gegenüber der Vorversion), Vergleich mit "nie handeln" und "alles handeln".
+     Status-Historie, Experimentversion und Modellinstanzen, Lernfortschritt gegen die Referenz.
 Kein Einfluss auf Champion, Gates, Sizing, Risk oder Promotion.
 
 CLI:
@@ -54,6 +58,7 @@ log = logging.getLogger(__name__)
 OUT = Path("outputs/research/option_learner")
 JOURNAL = "predictions.jsonl"
 INSTANCES = "model_instances.jsonl"
+REFERENCE_DIR = "reference"
 REPORT_CARD = "report_card"
 HORIZON = 20
 COMMISSION_PER_LEG_SIDE = 0.65          # USD je Kontrakt und Seite (wie cost_model der Feedback-Outcomes)
@@ -519,6 +524,63 @@ def assess(records: list[dict], horizon: int) -> dict:
             "vs_default": _paired(vs_default, horizon), "representativeness": _representativeness(picks)}
 
 
+def compare_policies(pairs: list[dict], horizon: int) -> dict:
+    """Gepaarter Vergleich [{cand, learning, reference}] auf denselben fälligen Kandidaten: je Kandidat ein gleiches
+    Budget (eine Einheit Prämie; ABSTAIN = Einheit bleibt in Cash = 0), je Tag das Mittel über alle Kandidaten des
+    Tages – für lernende Version, Referenz, "alles handeln" (Standardform, sofern zulässig) und "nie handeln" (0).
+    Ein Kandidat zählt nur, wenn das Ergebnis jeder gehandelten Wahl geprüft vorliegt (sonst für alle
+    ausgeschlossen); je Aktie und Tag einer. Unsicherheit der Tagesdifferenz per Block-Bootstrap.
+    Vorab festgelegt: NEED_MORE_DATA unter den Mindestzahlen; LEARNING_BETTER / LEARNING_WORSE, wenn das 95-%-KI
+    der mittleren Tagesdifferenz (lernend − Referenz) ganz über / unter 0 liegt; sonst NO_SIGNIFICANT_DIFFERENCE."""
+    seen, excluded, differ, daily = set(), defaultdict(int), 0, defaultdict(lambda: defaultdict(list))
+    for pr in sorted(pairs, key=lambda p: (p["cand"]["date"], p["cand"]["ticker"], str(p["cand"]["signal_id"]))):
+        c = pr["cand"]
+        if (c["date"], c["ticker"]) in seen:
+            continue
+        seen.add((c["date"], c["ticker"]))
+        default = c["exprs"][0]
+        trade_all = ({"action": "TRADE", "contract": default["contract"]}
+                     if default["strategy"] in ALLOWED_STRATEGIES else {"action": "ABSTAIN"})
+        r, missing = {}, None
+        for name, dec in (("learning", pr["learning"]), ("reference", pr["reference"]), ("trade_all", trade_all)):
+            if dec.get("action") != "TRADE":
+                r[name] = 0.0
+                continue
+            e = realized(c, dec.get("contract"))
+            if e is None or e["status"] != "VERIFIED":
+                missing = e["status"] if e else "CONTRACT_NOT_IN_CANDIDATE"
+                break
+            r[name] = e["y"]
+        if missing:
+            excluded[missing] += 1
+            continue
+        differ += ((pr["learning"].get("action"), pr["learning"].get("contract"))
+                   != (pr["reference"].get("action"), pr["reference"].get("contract")))
+        for name, v in r.items():
+            daily[c["date"]][name].append(v)
+    days = sorted(daily)
+    day_mean = {d: {k: sum(v) / len(v) for k, v in daily[d].items()} for d in days}
+
+    def diff(a, b):
+        res = _paired({d: [day_mean[d][a] - (day_mean[d][b] if b else 0.0)] for d in days}, horizon)
+        return {"mean": res["mean_diff"], "ci95": res["ci95"], "independent_periods": res["independent_periods"]}
+    lr, n = diff("learning", "reference"), sum(len(daily[d]["learning"]) for d in days)
+    if n < MIN_SELECTED or len(days) < MIN_OOS_DATES or lr["independent_periods"] < MIN_INDEPENDENT_PERIODS:
+        verdict = "NEED_MORE_DATA"
+    elif lr["ci95"] and lr["ci95"][0] > 0:
+        verdict = "LEARNING_BETTER"
+    elif lr["ci95"] and lr["ci95"][1] < 0:
+        verdict = "LEARNING_WORSE"
+    else:
+        verdict = "NO_SIGNIFICANT_DIFFERENCE"
+    return {"candidates": n, "days": len(days), "independent_periods": lr["independent_periods"],
+            "decisions_differ": differ, "excluded": dict(sorted(excluded.items())),
+            "daily_mean": {k: (round(float(np.mean([day_mean[d][k] for d in days])), 6) if days else None)
+                           for k in ("learning", "reference", "trade_all")} | {"no_trade": 0.0},
+            "learning_minus_reference": lr, "learning_minus_trade_all": diff("learning", "trade_all"),
+            "learning_minus_no_trade": diff("learning", None), "verdict": verdict}
+
+
 def _verdict(s: dict, kind: str) -> str:
     if _insufficient(s):
         return "NEED_MORE_DATA"
@@ -540,7 +602,7 @@ def walk_forward(cands: list[dict], as_of: date, horizon: int = HORIZON) -> dict
     for c in cands:
         if _due(c["date"], as_of, horizon):
             by_day[c["date"]].append(c)
-    records = []
+    records, pairs, ref, ref_day = [], [], None, None
     for day in sorted(by_day):
         test_day = date.fromisoformat(day)
         train = [d for d in labels if d["label_day"] < test_day]
@@ -549,12 +611,17 @@ def walk_forward(cands: list[dict], as_of: date, horizon: int = HORIZON) -> dict
         model = fit(train)
         if model is None:
             continue
+        ref, ref_day = (ref, ref_day) if ref is not None else (model, day)     # erste Instanz bleibt eingefroren
         for c in by_day[day]:
-            preds = model.predict([e["x"] for e in c["exprs"]])
-            records.append({"cand": c, "dec": decide(c, preds),
+            xs = [e["x"] for e in c["exprs"]]
+            preds = model.predict(xs)
+            dec = decide(c, preds)
+            records.append({"cand": c, "dec": dec,
                             "preds": {tuple(e["contract"]): round(float(p), 6) for e, p in zip(c["exprs"], preds)}})
+            pairs.append({"cand": c, "learning": dec, "reference": decide(c, ref.predict(xs))})
     s = assess(records, horizon)
-    return {**s, "verdict": _verdict(s, "walk_forward")}
+    return {**s, "verdict": _verdict(s, "walk_forward"),
+            "vs_reference": {**compare_policies(pairs, horizon), "mode": "retrospective", "reference_cutoff": ref_day}}
 
 
 def _invalid(j: dict, exp: str, instances: dict) -> str | None:
@@ -598,10 +665,10 @@ def forward(journal: list[dict], cands: list[dict], horizon: int, instances: lis
     as_of = as_of or datetime.now(timezone.utc).date()
     reg = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
     by_cand = {(c["date"], c["signal_id"]): c for c in cands}
-    preds, decisions, seen = defaultdict(dict), {}, set()
+    preds, decisions, ref_decisions, seen = defaultdict(dict), {}, {}, set()
     excluded, by_exp = defaultdict(int), defaultdict(int)
     for j in journal:
-        if not isinstance(j, dict) or j.get("horizon") != horizon or j.get("role", "learning") != "learning":
+        if not isinstance(j, dict) or j.get("horizon") != horizon:
             continue
         by_exp[str(j.get("experiment_id") or j.get("model_spec") or "unbekannt")] += 1
         key = _jkey(j)
@@ -610,11 +677,12 @@ def forward(journal: list[dict], cands: list[dict], horizon: int, instances: lis
             excluded[reason] += 1
             continue
         seen.add(key)
+        ck = (j["date"], j.get("signal_id"))
         if j.get("kind") == "decision":
-            decisions[(j["date"], j.get("signal_id"))] = j
+            (decisions if j.get("role", "learning") == "learning" else ref_decisions)[ck] = j
         else:
-            preds[(j["date"], j.get("signal_id"))][tuple(j.get("contract") or ())] = float(j["pred_net"])
-    records, pending, models = [], 0, set()
+            preds[ck][tuple(j.get("contract") or ())] = float(j["pred_net"])
+    records, pairs, pending, models = [], [], 0, set()
     for ck, j in decisions.items():
         if not _due(j["date"], as_of, horizon):
             pending += 1
@@ -625,11 +693,17 @@ def forward(journal: list[dict], cands: list[dict], horizon: int, instances: lis
         models.add(j["model_id"])
         dec = {"action": j.get("action"), "contract": j.get("contract"), "pred": j.get("pred_net")}
         records.append({"cand": by_cand[ck], "dec": dec, "preds": preds.get(ck, {})})
+        if ck in ref_decisions:
+            r = ref_decisions[ck]
+            pairs.append({"cand": by_cand[ck], "learning": dec,
+                          "reference": {"action": r.get("action"), "contract": r.get("contract")}})
     s = assess(records, horizon)
     return {**s, "verdict": _verdict(s, "forward"), "experiment_id": exp, "valid_decisions": len(decisions),
             "valid_predictions": sum(len(v) for v in preds.values()), "pending_decisions": pending,
             "model_instances": len(models), "excluded": dict(sorted(excluded.items())),
-            "journal_by_experiment": dict(sorted(by_exp.items()))}
+            "journal_by_experiment": dict(sorted(by_exp.items())),
+            "vs_reference": {**compare_policies(pairs, horizon), "mode": "forward",
+                             "reference_models": sorted({r.get("model_id") for r in ref_decisions.values()})}}
 
 
 def release_gate(wf: dict | None, fw: dict | None) -> dict:
@@ -699,6 +773,30 @@ def _register(out: Path, inst: dict, horizon: int, now: datetime) -> None:
         append_jsonl(path, [{**inst, "horizon": horizon, "registered_at": now.isoformat(timespec="seconds")}])
 
 
+def reference(out: Path, horizon: int, model: Model | None = None, inst: dict | None = None,
+              now: datetime | None = None) -> tuple[Model | None, dict | None]:
+    """Eingefrorene Referenzversion je Experimentversion und Horizont: die erste trainierte Modellinstanz. Ihre
+    Gewichte werden einmalig gespeichert und nie überschrieben; eine neue Experimentversion beginnt eine neue
+    Vergleichskohorte (eigene Datei). Ohne `model` wird nur gelesen."""
+    path = out / REFERENCE_DIR / f"{horizon}d_{experiment_id()}.json"
+    if not path.exists():
+        if model is None or inst is None:
+            return None, None
+        w = {"names": list(model.names), "med": list(model.med), "mu": model.mu.tolist(), "sd": model.sd.tolist(),
+             "coef": model.coef.tolist(), "intercept": float(model.intercept), "clip": list(model.clip)}
+        atomic_write_json(path, {**{k: v for k, v in inst.items() if k != "features"}, "horizon": horizon,
+                                 "frozen_at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds"),
+                                 "weights": w}, indent=1)
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8"))
+        w = meta["weights"]
+        return Model(w["names"], w["med"], np.array(w["mu"]), np.array(w["sd"]), np.array(w["coef"]),
+                     float(w["intercept"]), tuple(w["clip"])), {k: v for k, v in meta.items() if k != "weights"}
+    except (OSError, ValueError, KeyError, TypeError) as exc:      # nie stillschweigend neu einfrieren
+        log.warning("option_learner: Referenz %s unlesbar (%s) – kein Referenzvergleich", path, exc)
+        return None, None
+
+
 def manifest(data: list[dict], as_of: date) -> dict:
     """Welche geprüften Labels in das Modell zum Stichtag flossen (Hash über Signal, Kontrakt, Mark-Tag)."""
     ids = _label_ids(data)
@@ -730,12 +828,14 @@ def by_gate(data: list[dict]) -> dict:
     return out
 
 
-def _baselines(wf: dict) -> dict:
-    """Modell-Auswahl gegen "nie handeln" (0) und "alles handeln" (Mittel aller OOS-Fälle)."""
-    sel, all_, ci = wf.get("mean_selected"), wf.get("mean_all"), wf.get("selected_ci95")
-    return {"no_trade": 0.0, "trade_all": all_, "model_selected": sel,
-            "beats_no_trade": bool(ci and ci[0] > 0),
-            "beats_trade_all": bool(sel is not None and all_ is not None and sel > all_)}
+def _baselines(cmp: dict) -> dict:
+    """Modell gegen "nie handeln" (0) und "alles handeln" (Standardform) auf denselben Kandidaten und Tagen, mit
+    gleichem Budget je Kandidat (Mittel der Tagesrendite); "schlägt" nur, wenn das gepaarte KI über 0 liegt."""
+    dm = cmp.get("daily_mean") or {}
+    lt, ln = cmp.get("learning_minus_trade_all") or {}, cmp.get("learning_minus_no_trade") or {}
+    return {"no_trade": 0.0, "trade_all": dm.get("trade_all"), "model": dm.get("learning"), "days": cmp.get("days", 0),
+            "beats_no_trade": bool(ln.get("ci95") and ln["ci95"][0] > 0),
+            "beats_trade_all": bool(lt.get("ci95") and lt["ci95"][0] > 0)}
 
 
 def _vs_previous(history: list[dict], status: dict) -> dict | None:
@@ -770,7 +870,8 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "provenance_counts": dict(sorted(counts.items())),
               "ledger_rows_7d": len(recent),
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
-              "manifest": manifest(data, as_of), "walk_forward": wf, "baselines": _baselines(wf),
+              "manifest": manifest(data, as_of), "walk_forward": wf,
+              "baselines": _baselines(wf.get("vs_reference") or {}),
               "by_gate": by_gate(data),
               "forward": forward(journal, cands, horizon, instances, as_of),
               "model": model.describe() if model else None,
@@ -778,8 +879,16 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
     mine = [i for i in instances if i.get("horizon") == horizon and i.get("experiment_id") == status["experiment_id"]]
     status["model_instances"] = {"count": len(mine), "latest": {k: v for k, v in mine[-1].items() if k != "features"}
                                  if mine else None}
+    status["reference"] = reference(out, horizon)[1]
     hist_path = out / f"status_history_{horizon}d.jsonl"
     history = read_jsonl(hist_path) if hist_path.exists() else []
+    def progress(as_of, fw):                     # Verlauf des gepaarten Forward-Vergleichs (gleiche Version)
+        cmp = (fw or {}).get("vs_reference") or {}
+        return {"as_of": as_of, "verdict": cmp.get("verdict"),
+                "mean_diff": (cmp.get("learning_minus_reference") or {}).get("mean")}
+    status["learning_trend"] = [progress(h["as_of"], h.get("forward")) for h in history
+                                if h.get("experiment_id") == status["experiment_id"]
+                                and h["as_of"] < status["as_of"]][-4:] + [progress(status["as_of"], status["forward"])]
     status["vs_previous"] = _vs_previous(history, status)
     atomic_write_json(out / f"status_{horizon}d.json", status, indent=1)
     last = history[-1] if history else {}
@@ -806,6 +915,7 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     inst = instance(model, train, day) if model is not None else None
     if inst is not None:
         _register(out, inst, horizon, now)
+    ref, ref_meta = reference(out, horizon, model, inst, now)
     stamp = {"horizon": horizon, "experiment_id": exp, "created_at": now.isoformat(timespec="seconds"),
              "walk_forward_verdict": (wf or {}).get("verdict"), "forward_verdict": (fw or {}).get("verdict")}
     new, decisions = [], []
@@ -823,6 +933,11 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
                           "strategy": chosen.get("strategy"), "direction": _direction(chosen.get("strategy")),
                           "entry_ask_net": chosen.get("ask"), "entry_mid_net": chosen.get("mid"),
                           "pred_net": dec["pred"]})
+        if ref is not None:                       # eingefrorene Referenz: gleiche Kandidaten, gleiche Regel
+            rd = decide(c, ref.predict([e["x"] for e in c["exprs"]]))
+            new.append({**base, "model_id": ref_meta["model_id"], "train_cutoff": ref_meta["train_cutoff"],
+                        "kind": "decision", "role": "reference", "action": rd["action"], "reason": rd["reason"],
+                        "expression": rd["expression"], "contract": rd["contract"], "pred_net": rd["pred"]})
     done = {_jkey(j) for j in journal}
     new = [j for j in new + decisions if _jkey(j) not in done]
     if new:
@@ -835,7 +950,8 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     watch = sorted((d for d in decisions if d["contract"]), key=lambda d: -d["pred_net"])[:WATCHLIST_N]
     result = {"date": day.isoformat(), "horizon": horizon, "model_available": model is not None,
               "experiment_id": exp, "model_id": inst and inst["model_id"],
-              "verified_labels": len(data), "walk_forward": wf, "forward": fw, "release": gate,
+              "reference_model_id": ref_meta and ref_meta["model_id"], "verified_labels": len(data),
+              "walk_forward": wf, "forward": fw, "release": gate,
               "mail_eligible": horizon == MAIL_HORIZON and bool(recs),
               "recommendations": recs, "watchlist": [] if recs else watch,
               "journaled": len(new), "decisions": len(decisions),
@@ -869,7 +985,12 @@ def render(res: dict) -> str:
                f"({fw['independent_periods']} unabhängige Perioden), gewählt n={fw['n_selected']}, "
                f"Ø netto {_fmt(fw['mean_selected'])}, Abdeckung {fw['coverage']}"),
               f"- Freigabe: **{'erteilt' if gate['allowed'] else 'gesperrt'}**",
-              f"- Experimentversion {res.get('experiment_id')}, Modellinstanz {res.get('model_id')}", ""]
+              (f"- Experimentversion {res.get('experiment_id')}, Modellinstanz {res.get('model_id')}, "
+               f"eingefrorene Referenz {res.get('reference_model_id')}"),
+              (f"- Lernfortschritt (Forward, gepaart gegen die Referenz): "
+               f"**{(fw['vs_reference'] or {}).get('verdict', 'NEED_MORE_DATA')}** – "
+               f"{(fw['vs_reference'] or {}).get('days', 0)} Tage, "
+               f"{(fw['vs_reference'] or {}).get('candidates', 0)} Kandidaten"), ""]
     warnings = list(dict.fromkeys(w for s in (wf, fw) for w in ((s["representativeness"] or {}).get("warnings") or [])))
     if warnings:
         lines += ["Evidenzbasis – Einschränkungen:", *[f"- {w}" for w in warnings], ""]
@@ -910,8 +1031,9 @@ def _answers(st: dict) -> dict:
     counts = st.get("provenance_counts") or {}
     due = sum(counts.values())
     verified = counts.get("VERIFIED", 0)
-    prev = st.get("vs_previous") or {}
-    d_sel = prev.get("delta_mean_selected")
+    fr, wr = fw.get("vs_reference") or {}, wf.get("vs_reference") or {}
+    trend = " → ".join(f"{h['as_of'][5:]} {h['verdict'] or '–'} {_fmt(h['mean_diff'])}"
+                       for h in st.get("learning_trend") or [])
     expr = "; ".join(f"{k} {_fmt(v['mean_all'])} (n={v['n']})" for k, v in (wf.get("by_expression") or {}).items())
     vd = wf.get("vs_default") or {}
     choice = (f"gewählt {_fmt(wf.get('mean_selected'))} (n={wf.get('n_selected', 0)}, {wf.get('chosen_forms')}, "
@@ -937,8 +1059,9 @@ def _answers(st: dict) -> dict:
                       (f"{wf['verdict']}, {wf['dates']} Testtage, {wf.get('independent_periods', 0)} unabhängige "
                        f"Perioden, Abdeckung {wf.get('coverage')}")),
         "baselines": ("Ja" if base["beats_no_trade"] and base["beats_trade_all"] else
-                      "offen" if wf["n_selected"] == 0 else "Nein",
-                      f"Auswahl {_fmt(base['model_selected'])} vs. alles {_fmt(base['trade_all'])} vs. nie 0 %"),
+                      "offen" if not base.get("days") else "Nein",
+                      (f"je Kandidat und Tag (gleiches Budget, {base.get('days', 0)} Tage, retrospektiv): Modell "
+                       f"{_fmt(base.get('model'))} vs. alles {_fmt(base['trade_all'])} vs. nie 0 %")),
         "forward": ({"FORWARD_POSITIVE": "Ja", "FORWARD_NEGATIVE": "Nein"}.get(fw["verdict"], "offen"),
                     (f"{fw['verdict']}, {fw['n']} fällige vorab festgehaltene Entscheidungen, "
                      f"{fw.get('pending_decisions', 0)} noch nicht fällig")),
@@ -949,9 +1072,14 @@ def _answers(st: dict) -> dict:
                        + f"; gültige Forward-Entscheidungen {fw.get('valid_decisions', 0)} (Prognosen "
                        f"{fw.get('valid_predictions', 0)}); ausgeschlossen: "
                        + (", ".join(f"{k} {v}" for k, v in (fw.get("excluded") or {}).items()) or "keine")),
-        "improves": ("offen" if d_sel is None else "Ja" if d_sel > 0 else "Nein",
-                     "keine Vorversion" if not prev else
-                     f"Auswahl {_fmt(d_sel)} ggü. {prev['previous_as_of']}, Labels {prev['delta_labels']:+d}"),
+        "improves": ({"LEARNING_BETTER": "Ja", "LEARNING_WORSE": "Nein",
+                      "NO_SIGNIFICANT_DIFFERENCE": "Unentschieden"}.get(fr.get("verdict"), "offen"),
+                     (f"Forward gegen eingefrorene Referenz {(st.get('reference') or {}).get('model_id')}: "
+                      f"{fr.get('verdict', 'NEED_MORE_DATA')} ({fr.get('days', 0)} Tage, {fr.get('candidates', 0)} "
+                      f"Kandidaten, Δ {_fmt((fr.get('learning_minus_reference') or {}).get('mean'))}/Tag, KI "
+                      f"{(fr.get('learning_minus_reference') or {}).get('ci95')}); retrospektiv "
+                      f"{wr.get('verdict')} (Δ {_fmt((wr.get('learning_minus_reference') or {}).get('mean'))}); "
+                      f"Verlauf: {trend or '–'}")),
         "expressions": ("offen" if not expr else "Ja",
                         f"je Form: {expr}; {choice}" if expr else "noch keine Testtage"),
         "representative": ("offen" if not rep.get("by_sample") else "Teilweise" if rep.get("warnings") else "Ja",
@@ -973,7 +1101,7 @@ CARD_QUESTIONS = (
     ("baselines", "Schlägt es 'nie handeln' und 'alles handeln'?"),
     ("forward", "Bestätigt es sich auf vorab festgehaltenen Prognosen?"),
     ("experiment", "Welche Experimentversion und Modellinstanzen stehen dahinter (ausgeschlossene Prognosen)?"),
-    ("improves", "Wird es besser als die Vorversion?"),
+    ("improves", "Entscheidet die lernende Version besser als die eingefrorene Referenz (gleiche Signale)?"),
     ("expressions", "Welche Optionsform schneidet ab, was bringt die Wahl des Modells (Ø netto, ungesehen)?"),
     ("representative", "Ist die Evidenz repräsentativ (Forschung vs. Richtungssignale, Zeitraum)?"),
     ("gates", "Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)?"),
