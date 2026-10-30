@@ -55,7 +55,7 @@ def reconcile(root: Path, as_of: date) -> dict:
         if decision is None or any(t is None or t < decision for t in times_entry):
             counts["predecision_entry"] += 1
             continue
-        if any(t is None or t < min(times_entry) + timedelta(days=horizon)
+        if any(t is None or t.date() < max(times_entry).date() + timedelta(days=horizon)
                for t in times_exit):
             counts["premature_exit"] += 1
             continue
