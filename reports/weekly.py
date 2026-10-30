@@ -655,8 +655,9 @@ def option_learner_blocks(data: dict) -> list:
     horizons = card.get("horizons") or []
     table = [[r.get("question")] + [("–" if not r.get(f"{h}d") else f"{r[f'{h}d'][0]} – {r[f'{h}d'][1]}")
                                     for h in horizons] for r in rows]
-    return [("note", (f"Stand {card.get('as_of') or NA}. Research, keine Order; Empfehlungen nur bei validiertem "
-                      "Modell (Walk-Forward und nicht widerlegter Forward-Test).")),
+    return [("note", (f"Stand {card.get('as_of') or NA}. Research, keine Order; Empfehlungen nur bei Walk-Forward "
+                      "VALIDATED und positiv bestätigtem Forward-Test (sonst gesperrt). Lernfortschritt = gepaarter "
+                      "Vergleich mit der eingefrorenen Referenz auf denselben neuen Signalen.")),
             ("table", ["Frage"] + [f"{h} Tage" for h in horizons], table, [])]
 
 

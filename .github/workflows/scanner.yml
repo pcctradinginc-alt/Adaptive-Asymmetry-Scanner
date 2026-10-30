@@ -141,8 +141,9 @@ jobs:
 
       # ── Options-Lernmodell (Research, kein Handel) ──────────────────────
       # Prognose je Kandidat mit Kontrakt ins append-only Journal (prospektiv, vor dem Label); Empfehlung und Mail
-      # nur bei validiertem, nicht widerlegtem Modell (modules/option_learner.py). 20 T = Hauptmodell, 5 T = früher
-      # Forward-Indikator ohne Mail. Schreibt nur outputs/research/option_learner/.
+      # nur bei Freigabe: Walk-Forward VALIDATED und Forward FORWARD_POSITIVE samt Mindestzahlen (modules/option_learner.py,
+      # release_gate, fail closed). 20 T = Hauptmodell, 5 T = Frühindikator ohne Mail. Schreibt nur
+      # outputs/research/option_learner/.
       - name: Options-Lernmodell – Prognosen und Empfehlungen
         id: option_learner
         if: steps.scanner.outcome == 'success'
