@@ -297,3 +297,35 @@ def test_watchdog_zweimal_ausgeloest_dispatcht_einmal(tmp_path, monkeypatch, cap
     assert "Workflow-Watchdog 2026-10-19" in text and "RECOVERY_TRIGGERED" in text
     out = capsys.readouterr().out
     assert "::warning::MISSED source_health" in out and "::warning::MISSED scanner: Pflicht-Upstream" in out
+
+
+def test_recovered_source_health_dispatches_scanner_directly_but_guarded():
+    """GitHub-token-initiated Source Health completion may not emit workflow_run.
+
+    Use explicit workflow_dispatch, NEVER the 'force' override, while preserving
+    all source-health snapshot and market-day guards.
+    """
+    source = yaml.safe_load((WF_DIR / "source_health.yml").read_text(encoding="utf-8"))
+    scanner = yaml.safe_load((WF_DIR / "scanner.yml").read_text(encoding="utf-8"))
+    assert source["permissions"]["actions"] == "write"
+    assert source["permissions"]["contents"] == "write"
+    steps = source["jobs"]["check"]["steps"]
+    downstream = next(x for x in steps if "Direct scanner dispatch" in x["name"])
+    assert "health_check.outcome == 'success'" in downstream["if"]
+    assert "snapshot_commit.outcome == 'success'" in downstream["if"]
+    assert "gh workflow run scanner.yml" in downstream["run"]
+    assert "force" not in downstream["run"].lower()
+    assert "date -u +%u" in downstream["run"]
+    # Every dispatch, even repeated recovery dispatches, still runs the same guard.
+    assert "workflow_dispatch" in (scanner.get("on") or scanner.get(True))
+    assert scanner["jobs"]["scan"]["needs"] == "guard"
+    assert "needs.guard.outputs.run == 'true'" in scanner["jobs"]["scan"]["if"]
+
+
+def test_source_health_failure_never_dispatches_scanner():
+    wf = yaml.safe_load((WF_DIR / "source_health.yml").read_text(encoding="utf-8"))
+    steps = wf["jobs"]["check"]["steps"]
+    assert any(s.get("id") == "health_check" and "source_health check" in s.get("run", "") for s in steps)
+    assert any(s.get("id") == "snapshot_commit" and s.get("if") == "always()" for s in steps)
+    direct = next(s for s in steps if "Direct scanner dispatch" in s["name"])
+    assert "success" in direct["if"] and "snapshot_commit" in direct["if"]
