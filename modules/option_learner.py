@@ -44,6 +44,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import yaml
 
 from modules import research_evidence_discovery as red
 from modules.atomic_io import (
@@ -59,6 +60,7 @@ OUT = Path("outputs/research/option_learner")
 JOURNAL = "predictions.jsonl"
 INSTANCES = "model_instances.jsonl"
 REFERENCE_DIR = "reference"
+VARIANTS_CONFIG = Path("config/option_learner_variants.yaml")
 REPORT_CARD = "report_card"
 HORIZON = 20
 COMMISSION_PER_LEG_SIDE = 0.65          # USD je Kontrakt und Seite (wie cost_model der Feedback-Outcomes)
@@ -112,6 +114,35 @@ def experiment() -> dict:
             "selection": {"rule": "per candidate the allowed expression with the highest prediction; TRADE if > 0, "
                                   "else ABSTAIN", "allowed_strategies": list(ALLOWED_STRATEGIES),
                           "unit": "one decision per candidate; one candidate per ticker and day"}}
+
+
+def variant_config(path: Path | None = None) -> dict:
+    """Freigegebene Methoden für Varianten-Experimente (Allowlist, nur per menschlichem PR änderbar)."""
+    try:
+        cfg = yaml.safe_load((path or VARIANTS_CONFIG).read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError) as exc:
+        log.warning("option_learner: Varianten-Konfiguration unlesbar (%s) – keine Varianten", exc)
+        return {}
+    return cfg if cfg.get("version") == "olv-1" else {}
+
+
+def validate_overrides(overrides: dict, cfg: dict) -> dict:
+    """Genau eine Änderung mit einem freigegebenen Wert aus cfg['approved_methods'] – sonst ValueError. Damit
+    laufen automatisch nur vorab freigegebene Methoden, nie beliebige Parameter oder Code."""
+    approved = (cfg or {}).get("approved_methods") or {}
+    if not isinstance(overrides, dict) or len(overrides) != 1:
+        raise ValueError(f"genau eine Änderung je Variante erwartet: {overrides!r}")
+    (method, value), = overrides.items()
+    allowed = approved.get(method)
+    if allowed is None:
+        raise ValueError(f"Methode {method!r} nicht freigegeben")
+    if method == "drop_feature_group":
+        known = set(LEDGER_FEATURES) | set(CONTRACT_FEATURES)
+        if value not in allowed or not set(allowed[value]) <= known:
+            raise ValueError(f"Merkmalsgruppe {value!r} nicht freigegeben oder unbekannt")
+    elif float(value) not in [float(v) for v in allowed]:
+        raise ValueError(f"Wert {value!r} für {method} nicht freigegeben")
+    return {method: value}
 
 
 def experiment_id() -> str:

@@ -1,0 +1,25 @@
+# config/option_learner_variants.yaml – freigegebene Methoden für automatische Varianten-Experimente
+# des Options-Lernmodells (modules/option_learner.py; Vorschläge: python -m modules.research_director --options).
+#
+# Allowlist: Eine Variante ändert GENAU EINEN Parameter der bestehenden Ridge-Pipeline auf einen hier
+# freigegebenen Wert (Merkmalsgruppe weglassen, Regularisierung, Mindestprognose). Kein generierter Code, keine
+# neuen Daten, keine Marktdaten-, API- oder LLM-Kosten: Varianten nutzen dieselben geprüften Labels und
+# dieselben Kandidaten wie die Basis. Neue Methoden oder Werte nur per menschlichem PR in dieser Datei.
+# Datenquellen, Quote-Erfassung und Stichprobe werden nur vorgeschlagen (Freigabe nötig), nie automatisch gestartet.
+version: olv-1
+max_active_per_horizon: 3          # gleichzeitig laufende Varianten je Horizont (begrenzt die Mehrfachtests)
+
+approved_methods:
+  ridge_alpha: [3.0, 30.0, 100.0]  # Basis: 10.0
+  min_pred: [0.02, 0.05]           # TRADE erst ab dieser Netto-Prognose (Basis: > 0)
+  drop_feature_group:              # Gruppe aus den Merkmalen der Basis entfernen
+    ml_scores: [ml_exp_ret_60, ml_q10_ret_60, ml_q90_ret_60, ml_exp_dd_60, ml_p_gt10_60, ml_disagreement_sd,
+                ml_hgb_xs20_v1, ml_enet_xs20_v1]
+    news_sentiment: [impact, surprise, sentiment_score, sentiment_confidence, sentiment_drift, news_count,
+                     news_novelty]
+    positioning: [short_pct_float, options_skew_25d, options_skew_ratio, dealer_oi_ratio]
+    volatility_pricing: [c_iv, c_iv_rank, c_rv_score, c_term_score]
+
+falsification:                     # vorab festgelegt, gilt für jede Variante
+  family_alpha: 0.05               # Bonferroni über alle je Basisversion und Horizont registrierten Varianten
+  max_days: {5: 90, 20: 200}       # Kalendertage ab Start; danach ohne signifikanten Vorteil FALSIFIED_NO_EFFECT

@@ -115,3 +115,44 @@ def test_run_options_writes_improvement_and_meta_cognition_shows_it(tmp_path, mo
     st = mc.machine_state({"option_improvement": saved}, {}, {}, {}, {"active": False, "reasons": []})
     assert any("news_novelty" in g for g in st["option_learner_gaps"])
     assert "Options-Lernmodell: erkannte Lücken" in mc.render_md(st)
+
+
+PROPOSAL_FIELDS = {"proposal_id", "kind", "horizon", "gap_ids", "title", "change", "hypothesis", "expected_benefit",
+                   "cost", "data_availability", "falsification", "auto_experiment", "approval_required", "priority"}
+
+
+def test_option_proposals_are_structured_and_only_allowlisted_variants_run_automatically():
+    from modules import option_learner as ol
+    cfg = ol.variant_config()
+    gaps = rd.option_gaps({5: _opt_status(coverage={"news_novelty": 0.0},
+                                          wf={"representativeness": {"warnings": ["einseitig"]}})})
+    props = rd.option_proposals(gaps, cfg, CATALOG)
+    assert props and all(PROPOSAL_FIELDS <= set(p) for p in props)
+    assert len({p["proposal_id"] for p in props}) == len(props)
+    auto = [p for p in props if p["auto_experiment"]]
+    assert auto and all(p["kind"] == "variant" and not p["approval_required"] for p in auto)
+    assert all(p["cost"]["api_calls"] == 0 and p["cost"]["llm_calls"] == 0 and not p["cost"]["paid_data"] for p in auto)
+    for p in auto:
+        assert ol.validate_overrides(p["change"], cfg) == p["change"]      # nur freigegebene Methode und Wert
+        assert p["falsification"]["max_days"] == 90 and "reject_if" in p["falsification"]
+    alphas = [p["change"]["ridge_alpha"] for p in auto if "ridge_alpha" in p["change"]]
+    assert alphas and all(a > ol.RIDGE_ALPHA for a in alphas)           # Überanpassung: nur stärker regularisieren
+    assert {p["kind"] for p in props if not p["auto_experiment"]} == {"data_pipeline", "sampling"}
+    merged = [p for p in auto if len(p["gap_ids"]) > 1]                    # gleiche Variante aus zwei Lücken
+    assert merged and all(len(set(p["gap_ids"])) == len(p["gap_ids"]) for p in merged)
+
+
+def test_data_sources_are_only_proposed_for_missing_skill_and_never_bought_automatically():
+    from modules import option_learner as ol
+    cat = CATALOG + [{"id": "ibes_estimate_revisions", "dimension": ["earnings_momentum"], "provider": "Refinitiv",
+                      "license": "kommerziell, REVIEW_REQUIRED", "pit": "vintages", "history_from": 1980,
+                      "acquisition_cost": 5, "status": "candidate"}]
+    calm = rd.option_proposals(rd.option_gaps({5: _opt_status()}), ol.variant_config(), cat)
+    assert not any(p["kind"] == "data_source" for p in calm)                # keine Daten ohne gemessenen Bedarf
+    weak = rd.option_gaps({20: _opt_status(n=2000, wf={"verdict": "NOT_VALIDATED"})})
+    ds = {p["change"]["source"]: p for p in rd.option_proposals(weak, ol.variant_config(), cat)
+          if p["kind"] == "data_source"}
+    assert set(ds) == {"earnings_calendar_history", "portwatch_history_pit", "ibes_estimate_revisions"}
+    assert ds["ibes_estimate_revisions"]["cost"]["paid_data"] is True
+    assert all(p["approval_required"] and not p["auto_experiment"] for p in ds.values())
+    assert ds["earnings_calendar_history"]["priority"] > ds["ibes_estimate_revisions"]["priority"]

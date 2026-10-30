@@ -666,3 +666,16 @@ def test_report_card_and_monday_report_show_learning_progress(monkeypatch, tmp_p
     from reports import weekly
     table = weekly.option_learner_blocks({"option_learner_card": card})[1][2]
     assert any("eingefrorene Referenz" in r[0] for r in table)
+
+
+def test_only_approved_single_changes_are_valid_variants():
+    cfg = ol.variant_config()
+    assert cfg["version"] == "olv-1"
+    assert ol.validate_overrides({"ridge_alpha": 30}, cfg) == {"ridge_alpha": 30}
+    assert ol.validate_overrides({"drop_feature_group": "ml_scores"}, cfg)
+    for bad in ({}, {"ridge_alpha": 30.0, "min_pred": 0.02}, {"ridge_alpha": 31.0}, {"learning_rate": 0.1},
+                {"drop_feature_group": "everything"}, {"min_pred": -1.0}, "ridge_alpha=30"):
+        with pytest.raises(ValueError):
+            ol.validate_overrides(bad, cfg)
+    with pytest.raises(ValueError):
+        ol.validate_overrides({"ridge_alpha": 30.0}, {})                  # ohne Konfiguration nichts freigegeben
