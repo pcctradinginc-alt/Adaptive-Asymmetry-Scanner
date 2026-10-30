@@ -6,7 +6,7 @@ import pytest
 
 from modules import market_snapshot as ms
 from modules import option_learner as ol
-from modules.atomic_io import read_jsonl
+from modules.atomic_io import append_jsonl, read_jsonl
 
 H = 5
 
@@ -679,3 +679,99 @@ def test_only_approved_single_changes_are_valid_variants():
             ol.validate_overrides(bad, cfg)
     with pytest.raises(ValueError):
         ol.validate_overrides({"ridge_alpha": 30.0}, {})                  # ohne Konfiguration nichts freigegeben
+
+
+def _auto(change, h=H, pid=None):
+    return {"proposal_id": pid or f"P-{change}", "horizon": h, "change": change, "auto_experiment": True,
+            "gap_ids": ["model:untested_alternatives"], "falsification": {"max_days": 90}}
+
+
+def test_base_version_is_unchanged_and_each_variant_is_its_own_version():
+    assert ol.experiment_id() == ol.experiment_id(None) == ol.experiment_id({}) == "4a0f886d1979"   # Basis gepinnt
+    cfg = ol.variant_config()
+    params = [ol.variant_params(c, cfg) for c in ({"ridge_alpha": 30.0}, {"min_pred": 0.02},
+                                                   {"drop_feature_group": "ml_scores"})]
+    assert params[2]["drop"] == sorted(cfg["approved_methods"]["drop_feature_group"]["ml_scores"])
+    ids = {ol.experiment_id(p) for p in params}
+    assert len(ids) == 3 and ol.experiment_id() not in ids
+
+
+def test_variant_parameters_change_only_the_approved_part():
+    days = _trading_days(date(2026, 1, 5), 20)
+    rows, quotes = _history(days)
+    data = ol.dataset(rows, quotes, AS_OF, H)
+    base, strong = ol.fit(data), ol.fit(data, {"alpha": 100.0})
+    assert base.names == strong.names and abs(strong.coef).sum() < abs(base.coef).sum()
+    assert "sentiment_score" not in ol.fit(data, {"drop": ["sentiment_score"]}).names
+    cand = _two_form_cands([date(2026, 3, 2)], lambda s, rng: (0.1, 0.1), n=1)[0]
+    assert ol.decide(cand, [0.01, 0.03])["action"] == "TRADE"
+    low = ol.decide(cand, [0.01, 0.03], min_pred=0.05)
+    assert low["action"] == "ABSTAIN" and low["reason"] == "PRED_BELOW_MIN"
+
+
+def test_variant_registration_is_bounded_diverse_and_never_repeats(tmp_path):
+    cfg = ol.variant_config()
+    now = datetime(2026, 11, 7, 9, tzinfo=timezone.utc)
+    props = [_auto({"ridge_alpha": 30.0}), _auto({"ridge_alpha": 100.0}), _auto({"drop_feature_group": "ml_scores"}),
+             _auto({"drop_feature_group": "positioning"}), _auto({"min_pred": 0.02}),
+             dict(_auto({"ridge_alpha": 3.0}), auto_experiment=False), _auto({"ridge_alpha": 31.0}),
+             _auto({"ridge_alpha": 30.0}, h=20)]
+    new = ol.register_variants(tmp_path, props, now, cfg)
+    by_h = {h: [v["overrides"] for v in new if v["horizon"] == h] for h in (5, 20)}
+    assert by_h[5] == [{"ridge_alpha": 30.0}, {"drop_feature_group": "ml_scores"}, {"min_pred": 0.02}]
+    assert by_h[20] == [{"ridge_alpha": 30.0}]
+    assert all(v["start_date"] == "2026-11-08" and v["base_experiment_id"] == ol.experiment_id() for v in new)
+    assert ol.register_variants(tmp_path, props, now, cfg) == []                 # idempotent
+    ridge = next(v for v in new if v["horizon"] == 5 and "ridge_alpha" in v["overrides"])
+    append_jsonl(tmp_path / ol.VARIANTS, [{"event": "closed", "variant_id": ridge["variant_id"],
+                                           "status": "FALSIFIED_NO_EFFECT", "closed_at": "2026-12-01"}])
+    again = ol.register_variants(tmp_path, props, now, cfg)
+    assert [v["overrides"] for v in again] == [{"ridge_alpha": 100.0}]          # freier Platz, nie ridge 30 erneut
+    assert ol.active_variants(tmp_path, 5, date(2026, 11, 7)) == []            # erst ab dem Folgetag aktiv
+    assert len(ol.active_variants(tmp_path, 5, date(2026, 11, 8))) == 3
+
+
+def _variant_env(monkeypatch, tmp_path, register=True):
+    days, rows = _ledger_env(monkeypatch, 40)
+    day = days[30]
+    rows += [_row(day.isoformat(), 1, 0.8)]
+    if register:
+        ol.register_variants(tmp_path, [_auto({"ridge_alpha": 100.0}), _auto({"min_pred": 0.05})],
+                             datetime.combine(day - timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc),
+                             ol.variant_config())
+    now = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc).replace(hour=17)
+    return day, now
+
+
+def test_variants_run_isolated_on_identical_candidates(monkeypatch, tmp_path):
+    base_dir, var_dir = tmp_path / "base", tmp_path / "var"
+    day, now = _variant_env(monkeypatch, base_dir, register=False)
+    plain = ol.recommend(day, horizon=H, out=base_dir, now=now)
+    _variant_env(monkeypatch, var_dir)
+    with_variants = ol.recommend(day, horizon=H, out=var_dir, now=now)
+    assert {k: v for k, v in with_variants.items() if k != "variant_runs"} == \
+        {k: v for k, v in plain.items() if k != "variant_runs"}
+    assert (var_dir / ol.JOURNAL).read_text() == (base_dir / ol.JOURNAL).read_text()   # Basis-Journal unberührt
+    assert sorted(with_variants["variant_runs"].values()) == [10, 10]           # alle Kandidaten des Tages
+    for v in ol.variant_registry(var_dir).values():
+        entries = read_jsonl(var_dir / ol.VARIANT_DIR / f"{v['variant_id']}.jsonl")
+        base_dec = [j for j in read_jsonl(base_dir / ol.JOURNAL) if j["kind"] == "decision" and j["role"] == "learning"]
+        assert {(e["date"], e["signal_id"]) for e in entries} == {(j["date"], j["signal_id"]) for j in base_dec}
+        assert {e["experiment_id"] for e in entries} == {v["experiment_id"]}
+        assert {e["role"] for e in entries} == {"variant"}
+        inst = {i["model_id"]: i for i in read_jsonl(var_dir / ol.INSTANCES)}
+        assert all(ol._invalid(e, v["experiment_id"], inst) is None for e in entries)
+
+
+def test_a_failing_variant_never_touches_the_base(monkeypatch, tmp_path):
+    day, now = _variant_env(monkeypatch, tmp_path)
+    real_fit = ol.fit
+
+    def broken(train, params=None):
+        if params:
+            raise RuntimeError("Variante defekt")
+        return real_fit(train)
+    monkeypatch.setattr(ol, "fit", broken)
+    res = ol.recommend(day, horizon=H, out=tmp_path, now=now)
+    assert res["decisions"] == 10 and all(str(r).startswith("Fehler") for r in res["variant_runs"].values())
+    assert not (tmp_path / ol.VARIANT_DIR).exists()

@@ -40,7 +40,7 @@ import logging
 import math
 import random
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -98,12 +98,16 @@ SOURCES = (("real_strategy", "real_strat", None), ("real_option", "real_opt", "s
            ("real_option_alt", "real_alt", "single_alt"))
 
 
-def experiment() -> dict:
+def experiment(params: dict | None = None) -> dict:
     """Experiment-/Strategieversion: alles, was eine Prognose oder Entscheidung inhaltlich bestimmt. Jede Änderung
     an Merkmalen, Labeldefinition, Kostenmodell, Trainingsverfahren oder Auswahlregel ergibt eine neue Version;
-    deren Forward-Evidenz wird nie mit der einer anderen Version vermischt."""
-    return {"name": "option_learner_ridge",
-            "features": {"ledger": list(LEDGER_FEATURES), "contract": list(CONTRACT_FEATURES),
+    deren Forward-Evidenz wird nie mit der einer anderen Version vermischt. `params` (Variante, siehe
+    variant_params) ändert genau einen freigegebenen Parameter; ohne params die Basisversion."""
+    p = params or {}
+    drop = set(p.get("drop") or ())
+    spec = {"name": "option_learner_ridge",
+            "features": {"ledger": [f for f in LEDGER_FEATURES if f not in drop],
+                         "contract": [f for f in CONTRACT_FEATURES if f not in drop],
                          "min_coverage": MIN_FEATURE_COVERAGE},
             "label": {"target": "executable return (buy ask, sell bid) - commission", "provenance": "VERIFIED",
                       "sources": [s[0] for s in SOURCES]},
@@ -114,6 +118,11 @@ def experiment() -> dict:
             "selection": {"rule": "per candidate the allowed expression with the highest prediction; TRADE if > 0, "
                                   "else ABSTAIN", "allowed_strategies": list(ALLOWED_STRATEGIES),
                           "unit": "one decision per candidate; one candidate per ticker and day"}}
+    if p.get("alpha") is not None:
+        spec["training"]["alpha"] = float(p["alpha"])
+    if p.get("min_pred"):
+        spec["selection"]["min_pred"] = float(p["min_pred"])
+    return spec
 
 
 def variant_config(path: Path | None = None) -> dict:
@@ -132,7 +141,7 @@ def validate_overrides(overrides: dict, cfg: dict) -> dict:
     approved = (cfg or {}).get("approved_methods") or {}
     if not isinstance(overrides, dict) or len(overrides) != 1:
         raise ValueError(f"genau eine Änderung je Variante erwartet: {overrides!r}")
-    (method, value), = overrides.items()
+    ((method, value),) = overrides.items()
     allowed = approved.get(method)
     if allowed is None:
         raise ValueError(f"Methode {method!r} nicht freigegeben")
@@ -145,8 +154,16 @@ def validate_overrides(overrides: dict, cfg: dict) -> dict:
     return {method: value}
 
 
-def experiment_id() -> str:
-    return hashlib.sha256(json.dumps(experiment(), sort_keys=True).encode()).hexdigest()[:12]
+def variant_params(overrides: dict, cfg: dict) -> dict:
+    """Freigegebene Änderung -> eingefrorene Parameter (Merkmalsgruppe aufgelöst), wie sie registriert werden."""
+    ((method, value),) = validate_overrides(overrides, cfg).items()
+    if method == "drop_feature_group":
+        return {"drop": sorted(cfg["approved_methods"][method][value])}
+    return {"alpha": float(value)} if method == "ridge_alpha" else {"min_pred": float(value)}
+
+
+def experiment_id(params: dict | None = None) -> str:
+    return hashlib.sha256(json.dumps(experiment(params), sort_keys=True).encode()).hexdigest()[:12]
 
 
 def _num(v):
@@ -362,11 +379,14 @@ class Model:
                 "top_coefficients": {self.names[i]: round(float(self.coef[i]), 6) for i in order[:8]}}
 
 
-def fit(train: list[dict]) -> Model | None:
+def fit(train: list[dict], params: dict | None = None) -> Model | None:
+    """Ridge auf den geprüften Labels; `params` einer Variante: Merkmale weglassen (drop) bzw. alpha."""
     if len(train) < MIN_TRAIN_ROWS:
         return None
+    p = params or {}
+    drop, alpha = set(p.get("drop") or ()), float(p.get("alpha") or RIDGE_ALPHA)
     names = [n for n in (*LEDGER_FEATURES, *CONTRACT_FEATURES)
-             if sum(n in d["x"] for d in train) >= MIN_FEATURE_COVERAGE * len(train)]
+             if n not in drop and sum(n in d["x"] for d in train) >= MIN_FEATURE_COVERAGE * len(train)]
     if not names:
         return None
     med = [float(np.median([d["x"][n] for d in train if n in d["x"]])) for n in names]
@@ -378,7 +398,7 @@ def fit(train: list[dict]) -> Model | None:
     lo, hi = np.quantile(y, WINSOR)
     y = np.clip(y, lo, hi)
     intercept = float(y.mean())
-    coef = np.linalg.solve(x.T @ x + RIDGE_ALPHA * np.eye(len(names)), x.T @ (y - intercept))
+    coef = np.linalg.solve(x.T @ x + alpha * np.eye(len(names)), x.T @ (y - intercept))
     return Model(names, med, mu, sd, coef, intercept, (float(lo), float(hi)))
 
 
@@ -467,15 +487,17 @@ def _due(day: str, as_of: date, horizon: int) -> bool:
     return (as_of - date.fromisoformat(day)).days > horizon + DUE_GRACE_DAYS
 
 
-def decide(cand: dict, preds) -> dict:
+def decide(cand: dict, preds, min_pred: float = 0.0) -> dict:
     """Auswahlregel – nur aus Prognosen, nie aus Ergebnissen: je Kandidat genau eine zulässige Ausdrucksform
-    (höchste Prognose unter ALLOWED_STRATEGIES, bei Gleichstand die erste); TRADE wenn > 0, sonst ABSTAIN."""
+    (höchste Prognose unter ALLOWED_STRATEGIES, bei Gleichstand die erste); TRADE wenn > min_pred (Basis 0),
+    sonst ABSTAIN."""
     elig = [(float(p), e) for p, e in zip(preds, cand["exprs"]) if e["strategy"] in ALLOWED_STRATEGIES]
     if not elig:
         return {"action": "ABSTAIN", "reason": "NO_ALLOWED_EXPRESSION", "expression": None, "contract": None,
                 "pred": None}
     p, e = max(elig, key=lambda t: t[0])
-    return {"action": "TRADE" if p > 0 else "ABSTAIN", "reason": None if p > 0 else "PRED_NOT_POSITIVE",
+    reason = None if p > min_pred else "PRED_NOT_POSITIVE" if p <= 0 else "PRED_BELOW_MIN"
+    return {"action": "ABSTAIN" if reason else "TRADE", "reason": reason,
             "expression": e["expression"], "contract": e["contract"], "pred": round(p, 6)}
 
 
@@ -782,14 +804,14 @@ def _label_ids(data: list[dict]) -> list[str]:
     return sorted(f"{d['date']}|{d['signal_id']}|{'/'.join(d['contract'])}|{d['label_day']}" for d in data)
 
 
-def instance(model: Model, train: list[dict], cutoff: date) -> dict:
+def instance(model: Model, train: list[dict], cutoff: date, exp: str | None = None) -> dict:
     """Trainierte Modellinstanz: Experimentversion, Trainingsstichtag, Manifest der verwendeten Label-IDs und
     Fingerprint der Gewichte. Die Label-IDs sind aus dem Ledger über (Signal, Kontrakt, Mark-Tag < Stichtag)
     reproduzierbar; gespeichert wird ihr Hash."""
     labels_sha = hashlib.sha256("\n".join(_label_ids(train)).encode()).hexdigest()[:16]
     weights = np.round(np.concatenate([model.coef, [model.intercept], model.mu, model.sd]), 10)
     weights_sha = hashlib.sha256(weights.tobytes() + "|".join(model.names).encode()).hexdigest()[:16]
-    exp = experiment_id()
+    exp = exp or experiment_id()
     return {"model_id": hashlib.sha256(f"{exp}|{labels_sha}|{weights_sha}".encode()).hexdigest()[:16],
             "experiment_id": exp, "train_cutoff": cutoff.isoformat(), "n_train_labels": len(train),
             "labels_sha256": labels_sha, "weights_sha256": weights_sha,
@@ -802,6 +824,94 @@ def _register(out: Path, inst: dict, horizon: int, now: datetime) -> None:
     known = {(i.get("model_id"), i.get("horizon")) for i in (read_jsonl(path) if path.exists() else [])}
     if (inst["model_id"], horizon) not in known:
         append_jsonl(path, [{**inst, "horizon": horizon, "registered_at": now.isoformat(timespec="seconds")}])
+
+
+VARIANTS = "variants.jsonl"
+VARIANT_DIR = "variants"
+
+
+def variant_registry(out: Path = OUT) -> dict[str, dict]:
+    """Zustand je Variante aus dem append-only Register: Ereignis 'registered', später ggf. 'closed'."""
+    path, state = out / VARIANTS, {}
+    for e in read_jsonl(path) if path.exists() else []:
+        if e.get("event") == "registered":
+            state.setdefault(e["variant_id"], dict(e))
+        elif e.get("event") == "closed" and e.get("variant_id") in state:
+            state[e["variant_id"]].update({k: e.get(k) for k in ("status", "closed_at", "close_reason")})
+    return state
+
+
+def _open_for_base(v: dict, horizon: int, base: str) -> bool:
+    return v.get("horizon") == horizon and not v.get("closed_at") and v.get("base_experiment_id") == base
+
+
+def active_variants(out: Path, horizon: int, day: date) -> list[dict]:
+    """Offene Varianten der aktuellen Basisversion, deren Start (Folgetag der Registrierung) erreicht ist."""
+    base = experiment_id()
+    return [v for v in variant_registry(out).values()
+            if _open_for_base(v, horizon, base) and v["start_date"] <= day.isoformat()]
+
+
+def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict | None = None) -> list[dict]:
+    """Registriert automatisch testbare Vorschläge als isolierte Varianten (append-only, Start am Folgetag, also
+    erst auf künftigen Signalen). Höchstens max_active_per_horizon offene Varianten je Horizont, je Methode eine;
+    eine Änderung, die schon einmal registriert oder falsifiziert wurde, wird nie erneut getestet."""
+    cfg = cfg if cfg is not None else variant_config()
+    reg, base, new = variant_registry(out), experiment_id(), []
+    max_active = int(cfg.get("max_active_per_horizon") or 0)
+    for p in proposals:
+        if not p.get("auto_experiment"):
+            continue
+        try:
+            change, params = validate_overrides(p["change"], cfg), variant_params(p["change"], cfg)
+        except (ValueError, KeyError, TypeError):
+            continue
+        h, vexp = int(p["horizon"]), experiment_id(params)
+        vid = "OLV-" + hashlib.sha256(f"{base}|{h}|{vexp}".encode()).hexdigest()[:10]
+        if vid in reg or any(v["horizon"] == h and v["overrides"] == change and str(v.get("status", "")).startswith(
+                "FALSIFIED") for v in reg.values()):
+            continue
+        open_ = [v for v in reg.values() if _open_for_base(v, h, base)]
+        if len(open_) >= max_active or any(next(iter(v["overrides"])) == next(iter(change)) for v in open_):
+            continue
+        ev = {"event": "registered", "variant_id": vid, "horizon": h, "base_experiment_id": base,
+              "experiment_id": vexp, "overrides": change, "params": params, "proposal_id": p.get("proposal_id"),
+              "gap_ids": p.get("gap_ids"), "falsification": p.get("falsification"),
+              "registered_at": now.isoformat(timespec="seconds"),
+              "start_date": (now.date() + timedelta(days=1)).isoformat()}
+        append_jsonl(out / VARIANTS, [ev])
+        reg[vid] = ev
+        new.append(ev)
+    return new
+
+
+def _run_variant(out: Path, v: dict, cands: list[dict], train: list[dict], day: date, horizon: int,
+                 now: datetime) -> int:
+    """Eine Variante auf genau denselben Kandidaten und Labels wie die Basis; schreibt nur in ihr eigenes Journal
+    variants/<variant_id>.jsonl und ihre Modellinstanz ins Register – nie in Basis-Journal, Freigabe oder Mail."""
+    params = v["params"]
+    if experiment_id(params) != v["experiment_id"]:
+        raise ValueError("Spezifikation weicht von der registrierten Variante ab")
+    model = fit(train, params)
+    if model is None:
+        return 0
+    inst = instance(model, train, day, exp=v["experiment_id"])
+    _register(out, inst, horizon, now)
+    path = out / VARIANT_DIR / f"{v['variant_id']}.jsonl"
+    done = {_jkey(j) for j in read_jsonl(path)} if path.exists() else set()
+    new = []
+    for c in (c for c in cands if c["date"] == day.isoformat()):
+        dec = decide(c, model.predict([e["x"] for e in c["exprs"]]), float(params.get("min_pred") or 0.0))
+        e = {"date": c["date"], "signal_id": c["signal_id"], "ticker": c["ticker"], "horizon": horizon,
+             "kind": "decision", "role": "variant", "variant_id": v["variant_id"], "experiment_id": v["experiment_id"],
+             "model_id": inst["model_id"], "train_cutoff": inst["train_cutoff"], "action": dec["action"],
+             "reason": dec["reason"], "expression": dec["expression"], "contract": dec["contract"],
+             "pred_net": dec["pred"], "created_at": now.isoformat(timespec="seconds")}
+        if _jkey(e) not in done:
+            new.append(e)
+    if new:
+        append_jsonl(path, new)
+    return len(new)
 
 
 def reference(out: Path, horizon: int, model: Model | None = None, inst: dict | None = None,
@@ -831,7 +941,8 @@ def reference(out: Path, horizon: int, model: Model | None = None, inst: dict | 
 def feature_coverage(data: list[dict]) -> dict:
     """Anteil der geprüften Labels, in denen jedes Merkmal der Spezifikation befüllt ist (Lückenerkennung)."""
     n = len(data)
-    return {f: round(sum(f in d["x"] for d in data) / n, 4) if n else 0.0 for f in (*LEDGER_FEATURES, *CONTRACT_FEATURES)}
+    return {f: round(sum(f in d["x"] for d in data) / n, 4) if n else 0.0
+            for f in (*LEDGER_FEATURES, *CONTRACT_FEATURES)}
 
 
 def manifest(data: list[dict], as_of: date) -> dict:
@@ -979,6 +1090,13 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     new = [j for j in new + decisions if _jkey(j) not in done]
     if new:
         append_jsonl(out / JOURNAL, new)
+    runs = {}
+    for v in active_variants(out, horizon, day):              # isoliert: nach der Basis, eigenes Journal
+        try:
+            runs[v["variant_id"]] = _run_variant(out, v, cands, train, day, horizon, now)
+        except Exception as exc:  # noqa: BLE001 – eine Variante darf die Basis nie stören
+            log.warning("option_learner: Variante %s fehlgeschlagen (%s) – Basis unberührt", v["variant_id"], exc)
+            runs[v["variant_id"]] = f"Fehler: {exc}"
     gate = release_gate(wf, fw)                 # fail closed, auch wenn ein Bericht fehlt oder unvollständig ist
     best = {}
     for d in sorted((d for d in decisions if d["action"] == "TRADE"), key=lambda d: -d["pred_net"]):
@@ -991,7 +1109,7 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
               "walk_forward": wf, "forward": fw, "release": gate,
               "mail_eligible": horizon == MAIL_HORIZON and bool(recs),
               "recommendations": recs, "watchlist": [] if recs else watch,
-              "journaled": len(new), "decisions": len(decisions),
+              "journaled": len(new), "decisions": len(decisions), "variant_runs": runs,
               "production_influence": "NONE", "orders_created": 0}
     target = out / "recommendations" / f"{day.isoformat()}_{horizon}d.json"
     atomic_write_json(target, result, indent=1)

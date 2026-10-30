@@ -23,6 +23,8 @@ Options-Lernmodell (python -m modules.research_director --options, wöchentlich 
     Datenverfügbarkeit, vorab festgelegter Falsifikation und Freigabebedarf. Automatisch testbar sind nur
     Varianten aus config/option_learner_variants.yaml (eine Änderung, freigegebener Wert, ohne Kosten);
     Datenquellen, Erfassung und Stichprobe bleiben Vorschläge zur menschlichen Freigabe.
+  * Automatisch testbare Vorschläge registriert option_learner.register_variants() als isolierte Varianten
+    (begrenzt, je Methode eine, nie eine falsifizierte Änderung erneut); sie laufen ab dem Folgetag im Scanner.
 
 Nur die besten K testbaren Kandidaten (Protokoll: max_new_per_run) werden als
 Hypothesen an das Research-Lab übergeben (outputs/research/director_hypotheses.json)
@@ -421,12 +423,18 @@ def _option_status(root: Path = OPTION_OUT) -> dict:
     return {h: _load(root / f"status_{h}d.json", {}) for h in OPTION_HORIZONS}
 
 
-def run_options(root: Path = OPTION_OUT) -> dict:
-    """Wöchentlich nach option_learner evaluate: Lücken und Vorschläge des Options-Lernmodells -> improvement.json."""
-    gaps = option_gaps(_option_status(root))
+def run_options(root: Path = OPTION_OUT, now: datetime | None = None) -> dict:
+    """Wöchentlich nach option_learner evaluate: Lücken und Vorschläge des Options-Lernmodells; freigegebene,
+    kostenlose Varianten werden als isolierte Experimente registriert (Start am Folgetag) -> improvement.json."""
+    from modules import option_learner as ol
+    now = now or datetime.now(timezone.utc)
+    cfg = ol.variant_config()
+    gaps = option_gaps(_option_status(root), list(ol.variant_registry(root).values()))
     catalog = (yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", []) if CATALOG.exists() else []
-    rep = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "gaps": gaps,
-           "proposals": option_proposals(gaps, catalog=catalog)}
+    proposals = option_proposals(gaps, cfg, catalog)
+    registered = ol.register_variants(root, proposals, now, cfg)
+    rep = {"generated": now.isoformat(timespec="seconds"), "gaps": gaps, "proposals": proposals,
+           "registered_variants": [v["variant_id"] for v in registered]}
     root.mkdir(parents=True, exist_ok=True)
     (root / "improvement.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
     return rep

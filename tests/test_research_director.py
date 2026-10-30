@@ -156,3 +156,21 @@ def test_data_sources_are_only_proposed_for_missing_skill_and_never_bought_autom
     assert ds["ibes_estimate_revisions"]["cost"]["paid_data"] is True
     assert all(p["approval_required"] and not p["auto_experiment"] for p in ds.values())
     assert ds["earnings_calendar_history"]["priority"] > ds["ibes_estimate_revisions"]["priority"]
+
+
+def test_run_options_registers_only_free_allowlisted_variants_once(tmp_path):
+    import json
+    from datetime import datetime, timezone
+
+    from modules import option_learner as ol
+    (tmp_path / "status_5d.json").write_text(json.dumps(_opt_status(coverage={"news_novelty": 0.0})))
+    now = datetime(2026, 11, 7, 9, tzinfo=timezone.utc)
+    rep = rd.run_options(tmp_path, now)
+    reg = ol.variant_registry(tmp_path)
+    assert len(rep["registered_variants"]) == 3 and set(rep["registered_variants"]) == set(reg)
+    assert {next(iter(v["overrides"])) for v in reg.values()} == {"ridge_alpha", "drop_feature_group", "min_pred"}
+    auto_ids = {p["proposal_id"] for p in rep["proposals"] if p["auto_experiment"]}
+    assert all(v["proposal_id"] in auto_ids for v in reg.values())
+    again = rd.run_options(tmp_path, now)
+    assert again["registered_variants"] == []
+    assert "model:untested_alternatives:5d" not in {g["gap_id"] for g in again["gaps"]}
