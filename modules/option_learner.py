@@ -797,6 +797,12 @@ def reference(out: Path, horizon: int, model: Model | None = None, inst: dict | 
         return None, None
 
 
+def feature_coverage(data: list[dict]) -> dict:
+    """Anteil der geprüften Labels, in denen jedes Merkmal der Spezifikation befüllt ist (Lückenerkennung)."""
+    n = len(data)
+    return {f: round(sum(f in d["x"] for d in data) / n, 4) if n else 0.0 for f in (*LEDGER_FEATURES, *CONTRACT_FEATURES)}
+
+
 def manifest(data: list[dict], as_of: date) -> dict:
     """Welche geprüften Labels in das Modell zum Stichtag flossen (Hash über Signal, Kontrakt, Mark-Tag)."""
     ids = _label_ids(data)
@@ -870,7 +876,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "provenance_counts": dict(sorted(counts.items())),
               "ledger_rows_7d": len(recent),
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
-              "manifest": manifest(data, as_of), "walk_forward": wf,
+              "manifest": manifest(data, as_of), "feature_coverage": feature_coverage(data), "walk_forward": wf,
               "baselines": _baselines(wf.get("vs_reference") or {}),
               "by_gate": by_gate(data),
               "forward": forward(journal, cands, horizon, instances, as_of),

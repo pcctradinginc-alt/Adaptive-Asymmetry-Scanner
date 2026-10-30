@@ -257,6 +257,7 @@ def test_evaluate_writes_manifest_history_learning_curve_and_report_card(monkeyp
     early = days[25] + timedelta(days=1)
     first = ol.evaluate(early, horizon=H, out=tmp_path)
     assert first["manifest"]["all_labels_verified"] and first["manifest"]["trains_model"]
+    assert first["feature_coverage"]["sentiment_score"] == 1.0 and first["feature_coverage"]["news_novelty"] == 0.0
     assert first["vs_previous"] is None
     ol.evaluate(early, horizon=H, out=tmp_path)                                    # gleicher Stand: kein neuer Eintrag
     later = ol.evaluate(date(2026, 12, 31), horizon=H, out=tmp_path)

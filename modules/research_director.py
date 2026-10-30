@@ -15,6 +15,11 @@ required/available data, expected information gain, novelty, overfit risk,
 research cost, priority. Priorität = EIG × Wert × Neuheit × Zuverlässigkeit
 ÷ (Beschaffungskosten × Forschungskosten).
 
+Options-Lernmodell (python -m modules.research_director --options, wöchentlich nach option_learner evaluate):
+  * option_gaps(): messbare Lücken aus status_<h>d.json – dünn befüllte Merkmale, nicht bewertbare gewählte
+    Formen, einseitige Evidenz, Überanpassungsrisiko, fehlende Modellalternativen, fehlende Evidenz.
+    Ergebnis: outputs/research/option_learner/improvement.json (auch in meta_cognition sichtbar).
+
 Nur die besten K testbaren Kandidaten (Protokoll: max_new_per_run) werden als
 Hypothesen an das Research-Lab übergeben (outputs/research/director_hypotheses.json)
 – dort gelten dieselbe Prüfkette, BH über ALLE Tests und die Ähnlichkeits-
@@ -24,6 +29,7 @@ vertrauenswürdig behandelt (Aufnahmeprüfung, config/data_catalog.yaml).
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import logging
@@ -37,6 +43,11 @@ log = logging.getLogger(__name__)
 OUT = Path("outputs/research")
 CATALOG = Path("config/data_catalog.yaml")
 MAX_NEW_PER_RUN = 5                  # begrenzt den Mehrfachtest-Nenner je Lauf
+OPTION_OUT = OUT / "option_learner"
+OPTION_HORIZONS = (20, 5)
+MIN_LABELS_FOR_COVERAGE = 50         # Merkmalsabdeckung erst ab so vielen geprüften Labels beurteilen
+LABELS_PER_FEATURE = 20              # Faustregel gegen Überanpassung: geprüfte Labels je Merkmal
+MIN_TRADES_FOR_COVERAGE = 10
 
 # Eigenschaft (blind_spots.properties) -> PIT-Ausdruck der Signal-Sprache (1 = im Segment)
 PROPERTY_EXPR = {
@@ -204,6 +215,86 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
             "active_learning": active_learning(world, blind, catalog)}
 
 
+# ── Options-Lernmodell: messbare Lücken ──────────────────────────────────────
+
+def _gap(gid: str, kind: str, horizon: int, finding: str, metric: str, value, threshold, severity: float,
+         **kw) -> dict:
+    return {"gap_id": f"{kind}:{gid}:{horizon}d", "kind": kind, "horizon": horizon, "finding": finding,
+            "metric": metric, "value": value, "threshold": threshold,
+            "severity": round(min(1.0, max(0.0, severity)), 3), **kw}
+
+
+def option_gaps(status: dict, variants: list[dict] | None = None) -> list[dict]:
+    """Lücken des Options-Lernmodells je Horizont aus status_<h>d.json – jede mit Befund, Metrik, Wert, Schwelle
+    und Schweregrad 0–1. Ohne Messung keine Lücke; ein fehlender Status ist selbst eine Lücke."""
+    from modules import option_learner as ol
+    out = []
+    for h in sorted(status):
+        st = status[h] or {}
+        if not st:
+            out.append(_gap("status_missing", "evidence", h, f"kein Status für {h} T (evaluate nicht gelaufen)",
+                            "status", None, "vorhanden", 1.0))
+            continue
+        n = st.get("verified_labels") or 0
+        wf, fw, model = st.get("walk_forward") or {}, st.get("forward") or {}, st.get("model") or {}
+        if n >= MIN_LABELS_FOR_COVERAGE:
+            for f, c in sorted((st.get("feature_coverage") or {}).items()):
+                if c < ol.MIN_FEATURE_COVERAGE:
+                    out.append(_gap(f"sparse_feature:{f}", "data", h,
+                                    f"Merkmal {f} nur in {c:.0%} der {n} geprüften Labels befüllt – vom Modell verworfen",
+                                    "feature_coverage", c, ol.MIN_FEATURE_COVERAGE, 1 - c, feature=f))
+        for name, s in (("walk_forward", wf), ("forward", fw)):
+            cov = s.get("coverage")
+            if (s.get("trades") or 0) >= MIN_TRADES_FOR_COVERAGE and cov is not None and cov < ol.MIN_COVERAGE:
+                out.append(_gap(f"outcome_coverage:{name}", "data", h,
+                                f"{name}: nur {cov:.0%} der gewählten Formen mit geprüftem Ergebnis "
+                                f"({s.get('unevaluable')})", "coverage", cov, ol.MIN_COVERAGE, 1 - cov,
+                                reasons=s.get("unevaluable")))
+        for w in (wf.get("representativeness") or {}).get("warnings") or []:
+            out.append(_gap("representativeness:" + hashlib.sha256(w.encode()).hexdigest()[:6], "representativeness",
+                            h, f"Walk-Forward-Evidenz: {w}", "evidence_mix", None, "nicht einseitig, >= 90 Tage", 0.5))
+        k = model.get("features") or 0
+        if n and k and n / k < LABELS_PER_FEATURE:
+            out.append(_gap("overfit_risk", "model", h,
+                            f"{k} Merkmale auf {n} geprüfte Labels ({n / k:.0f} je Merkmal, Faustregel >= "
+                            f"{LABELS_PER_FEATURE})", "labels_per_feature", round(n / k, 1), LABELS_PER_FEATURE,
+                            1 - n / k / LABELS_PER_FEATURE))
+        if wf.get("verdict") == "NOT_VALIDATED":
+            out.append(_gap("no_skill", "model", h, f"Walk-Forward NOT_VALIDATED (Rang-IC t {wf.get('ic_t')}, "
+                            f"KI {wf.get('selected_ci95')})", "walk_forward_verdict", "NOT_VALIDATED", "VALIDATED", 0.8))
+        ms, ma = wf.get("mean_selected"), wf.get("mean_all")
+        if ms is not None and ma is not None and ms <= ma:
+            out.append(_gap("selection_no_value", "model", h, f"gewählte Fälle Ø {ms} nicht besser als alle Formen "
+                            f"Ø {ma}", "mean_selected_minus_all", round(ms - ma, 6), "> 0", 0.6))
+        vd = wf.get("vs_default") or {}
+        if vd.get("ci95") and vd["ci95"][1] < 0:
+            out.append(_gap("choice_worse_than_default", "model", h, f"Wahl der Form schlechter als die Standardform "
+                            f"(Δ {vd.get('mean_diff')}, KI {vd['ci95']})", "vs_default", vd.get("mean_diff"), "> 0", 0.7))
+        if k and not any(v.get("horizon") == h for v in variants or []):
+            out.append(_gap("untested_alternatives", "model", h, f"für {h} T wurde noch keine Modell-, Merkmals- oder "
+                            "Auswahlvariante prospektiv gegen die Basis getestet", "variants_tested", 0, ">= 1", 0.4))
+        missing = [f"{name}: {s.get('dates', 0)}/{ol.MIN_OOS_DATES} Testtage, {s.get('independent_periods', 0)}/"
+                   f"{ol.MIN_INDEPENDENT_PERIODS} Perioden, {s.get('n_selected', 0)}/{ol.MIN_SELECTED} Fälle"
+                   for name, s in (("walk_forward", wf), ("forward", fw)) if s.get("verdict") == "NEED_MORE_DATA"]
+        if missing:
+            out.append(_gap("insufficient", "evidence", h, "NEED_MORE_DATA – " + "; ".join(missing), "verdict",
+                            "NEED_MORE_DATA", "VALIDATED / FORWARD_POSITIVE", 0.3, missing=missing))
+    return sorted(out, key=lambda g: (-g["severity"], g["gap_id"]))
+
+
+def _option_status(root: Path = OPTION_OUT) -> dict:
+    return {h: _load(root / f"status_{h}d.json", {}) for h in OPTION_HORIZONS}
+
+
+def run_options(root: Path = OPTION_OUT) -> dict:
+    """Wöchentlich nach option_learner evaluate: Lücken des Options-Lernmodells -> improvement.json."""
+    rep = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+           "gaps": option_gaps(_option_status(root))}
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "improvement.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
+    return rep
+
+
 def run() -> dict:
     meta = _load(OUT / "meta_learning.json", {})
     nextv = _load(OUT / "next_validation.json", {})
@@ -220,8 +311,15 @@ def run() -> dict:
     return rep
 
 
-def main() -> int:
+def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--options", action="store_true", help="nur Options-Lernmodell: Lücken und Vorschläge")
+    if ap.parse_args(argv).options:
+        rep = run_options()
+        for g in rep["gaps"][:10]:
+            print(f"- [{g['severity']}] {g['gap_id']}: {g['finding']}")
+        return 0
     rep = run()
     print(json.dumps({k: rep[k] for k in ("n_candidates", "n_selected_for_testing", "selected")}, indent=1))
     for c in rep["candidates"][:10]:
