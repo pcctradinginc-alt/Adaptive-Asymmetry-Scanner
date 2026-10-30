@@ -1394,6 +1394,9 @@ def maybe_notify_rl_arming(history: dict) -> None:
         log.error(f"RL-Arming-Email-Fehler: {e}")
 
 
+RL_ROBUST_SHADOW_TRAINING = False   # Systemaudit 2026-10-30: RL-Training eingefroren (siehe Feedback-Hauptlauf)
+
+
 def retrain_rl_agent(history: dict) -> None:
     """
     Trainiert den PPO-Agenten inkrementell auf allen closed_trades.
@@ -1746,17 +1749,21 @@ def main() -> None:
             retrain_rl_agent(history)
         else:
             log.info("RL-Veto aus → PPO-Nachtraining übersprungen (Modell ungenutzt)")
-        # Robuster PPO-Challenger (SHADOW): chronologisch, fester Seed,
-        # Walk-forward-Diagnose in outputs/models/ppo_robust_shadow_meta.json
-        try:
-            from modules.rl_robust_shadow import train_robust_shadow
-            meta = train_robust_shadow(history)
-            if meta:
-                wf = meta["walk_forward"]["test"]
-                log.info(f"Robustes PPO (Shadow): walk-forward n={wf['n']} "
-                         f"Aktionen={wf['action_counts']} kollabiert={wf['collapsed']}")
-        except Exception as e:  # noqa: BLE001
-            log.warning(f"Robustes PPO-Shadow-Training fehlgeschlagen (ignoriert): {e}")
+        # Robuster PPO-Challenger (SHADOW): eingefroren seit 2026-10-30 (Systemaudit: kollabierte Policies, zu wenige
+        # geprüfte Options-Outcomes). Das bestehende Modell bleibt für die Shadow-Aktion im Ledger; neu trainiert wird
+        # erst wieder, wenn RL_ROBUST_SHADOW_TRAINING bewusst eingeschaltet wird.
+        if RL_ROBUST_SHADOW_TRAINING:
+            try:
+                from modules.rl_robust_shadow import train_robust_shadow
+                meta = train_robust_shadow(history)
+                if meta:
+                    wf = meta["walk_forward"]["test"]
+                    log.info(f"Robustes PPO (Shadow): walk-forward n={wf['n']} "
+                             f"Aktionen={wf['action_counts']} kollabiert={wf['collapsed']}")
+            except Exception as e:  # noqa: BLE001
+                log.warning(f"Robustes PPO-Shadow-Training fehlgeschlagen (ignoriert): {e}")
+        else:
+            log.info("Robustes PPO-Shadow-Training eingefroren (Systemaudit 2026-10-30)")
     else:
         log.info("Keine neuen closed_trades → RL-Training übersprungen.")
 

@@ -753,6 +753,8 @@ def evaluate(*, today: date | None = None, root: Path = Path(".")) -> dict:
     report = {
         "schema": "roi-learning-summary-v1", "as_of": today.isoformat(),
         "n_rejected_candidates_registered": len(cohorts),
+        "registration_enabled": bool(cfg.get("enabled")),
+        "superseded_by": None if cfg.get("enabled") else "candidate_ledger snapshots + option_learner.by_gate",
         "n_new_marks": added, "n_all_marks": len(all_marks),
         "marks_by_horizon": dict(sorted(total_by_horizon.items())),
         "missing_quotes_by_reason": dict(sorted(unknown.items())),

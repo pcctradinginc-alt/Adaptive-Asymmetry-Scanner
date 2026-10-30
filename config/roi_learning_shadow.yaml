@@ -1,6 +1,10 @@
 # Research-only ROI counterfactual; independent of all production gates.
+# Stillgelegt 2026-10-30 (Systemaudit, keine Parallelstruktur): Seit economics_first erreicht kaum ein Kandidat das
+# ROI-Gate (0 Kohorten). Die Population (vom ROI-Gate verworfene Kontrakte) misst der Kandidaten-Ledger über seine
+# Options-Snapshots mit; ausgewertet in modules/option_learner (by_gate, Leistungszeugnis). evaluate läuft weiter
+# und berichtet den Altbestand; keine neuen Kohorten, keine zusätzlichen Quote-Abrufe.
 version: roi-learning-v1
-enabled: true
+enabled: false
 max_new_per_day: 5
 roi_research_thresholds: [0.00, 0.05, 0.07]
 horizons_calendar_days: [5, 20, 45]
