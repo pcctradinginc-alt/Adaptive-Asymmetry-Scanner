@@ -1,5 +1,27 @@
 {
- "at": "2026-10-29T18:38:58+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-10-30T16:14:02+00:00",
+ "changes": [
+  {
+   "source_id": "imf_portwatch_ports",
+   "type": "degradation",
+   "from": "DEGRADED",
+   "to": "BROKEN",
+   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform query. Please check your parameters.']} (outFields=ISO3,country,date,exp; Data-Quality-Befund schwerwiegend; 3 Fehlschläge in Folge"
+  },
+  {
+   "source_id": "imf_portwatch_chokepoints",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform query. Please check your parameters.']} (outFields=capacity,capacity_car; Data-Quality-Befund schwerwiegend"
+  },
+  {
+   "source_id": "imf_portwatch_disruptions",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform query. Please check your parameters.']} (outFields=eventid,eventtype,eve"
+  }
+ ],
+ "mail": "sent"
 }
