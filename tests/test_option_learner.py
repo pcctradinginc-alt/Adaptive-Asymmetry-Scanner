@@ -144,3 +144,72 @@ def test_contract_features_use_decision_time_quotes_not_the_fill():
     f = ol.contract_features(r)
     assert abs(f["c_entry_spread"] - 0.1) < 1e-9                         # 11 / 10 - 1 aus dem Snapshot
     assert f["c_is_call"] == 1.0 and f["c_is_spread"] == 0.0
+
+
+def _spread_row(day, i, sentiment):
+    r = _row(day, i, sentiment)
+    long_sym, short_sym = f"T{i}270319C00100000", f"T{i}270319C00110000"
+    r["real_option"].update({"bid": 9.8, "ask": 10.0, "mid": 9.9, "entry_date": day, "entry_pending": False})
+    r["real_strategy"].update({"strategy": "BULL_CALL_SPREAD", "net_debit_entry": 6.0, "net_mid_entry": 5.8,
+                               "legs": [{"symbol": long_sym, "side": "long", "bid": 9.8, "ask": 10.0, "mid": 9.9},
+                                        {"symbol": short_sym, "side": "short", "bid": 4.0, "ask": 4.2, "mid": 4.1}]})
+    return r
+
+
+def test_expressions_compare_strategy_and_single_without_duplicates():
+    spread = _spread_row("2026-03-02", 1, 0.1)
+    spread["outcomes"] = {"real_opt_ret_5d": 0.1, "real_strat_ret_5d": -0.2}
+    exprs = {e["expression"]: e for e in ol.expressions(spread)}
+    assert set(exprs) == {"spread", "single"}
+    assert exprs["single"]["row"]["outcomes"] == {"real_strat_ret_5d": 0.1}       # Einzel-Option-Label übernommen
+    assert exprs["spread"]["row"]["outcomes"] == {"real_strat_ret_5d": -0.2}
+    same = _row("2026-03-02", 2, 0.1)                                              # Strategie = Einzel-Option
+    same["real_option"]["symbol"] = same["real_strategy"]["legs"][0]["symbol"]
+    assert [e["expression"] for e in ol.expressions(same)] == ["single"]
+
+
+def test_evaluate_writes_manifest_history_learning_curve_and_report_card(monkeypatch, tmp_path):
+    days = _trading_days(date(2026, 1, 5), 40)
+    rows, quotes = _history(days)
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    early = days[25] + timedelta(days=1)
+    first = ol.evaluate(early, horizon=H, out=tmp_path)
+    assert first["manifest"]["all_labels_verified"] and first["manifest"]["trains_model"]
+    assert first["vs_previous"] is None
+    ol.evaluate(early, horizon=H, out=tmp_path)                                    # gleicher Stand: kein neuer Eintrag
+    later = ol.evaluate(date(2026, 12, 31), horizon=H, out=tmp_path)
+    history = read_jsonl(tmp_path / f"status_history_{H}d.jsonl")
+    assert [h["as_of"] for h in history] == [early.isoformat(), "2026-12-31"]
+    assert later["vs_previous"]["previous_as_of"] == early.isoformat()
+    assert later["vs_previous"]["delta_labels"] > 0
+    assert later["manifest"]["labels_sha256"] != first["manifest"]["labels_sha256"]
+    assert later["baselines"]["beats_trade_all"] is True
+    card = ol.report_card(tmp_path, horizons=(H,))
+    assert len(card["rows"]) == len(ol.CARD_QUESTIONS)
+    answers = {r["key"]: r[f"{H}d"][0] for r in card["rows"]}
+    assert answers["learns"] == "Ja" and answers["validated"] == "Ja" and answers["self_limit"] == "Ja"
+    assert answers["proven"] == "Nein"                                             # ohne Forward-Bestätigung nie
+    assert (tmp_path / "report_card.md").exists()
+
+
+def test_recommend_journals_every_expression_and_recommends_one_per_candidate(monkeypatch, tmp_path):
+    days = _trading_days(date(2026, 1, 5), 40)
+    rows, quotes = _history(days)
+    today = _trading_days(days[-1] + timedelta(days=10), 1)[0].isoformat()
+    rows += [_spread_row(today, 1, 0.9)]
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
+    assert res["journaled"] == 2                                                   # Spread und Einzel-Option
+    assert len(res["recommendations"]) == 1
+    assert res["recommendations"][0]["expression"] in ("spread", "single")
+
+
+def test_monday_report_shows_report_card():
+    from reports import weekly
+    assert "KEINE DATEN" in weekly.option_learner_blocks({})[0][1]
+    card = {"as_of": "2026-11-07", "horizons": [20], "rows": [
+        {"key": "learns", "question": "Lernt das System?", "20d": ["Ja", "359 Labels"]}]}
+    blocks = weekly.option_learner_blocks({"option_learner_card": card})
+    assert blocks[1][0] == "table" and blocks[1][2] == [["Lernt das System?", "Ja – 359 Labels"]]

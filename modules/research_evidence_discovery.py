@@ -194,6 +194,9 @@ def discover(rows, as_of, min_train=MIN_TRAIN, min_test=MIN_TEST, quotes=None):
             "missing_or_immature_option_labels": len(all_rows) - len(numeric),
             "provenance_counts": dict(sorted(provenance_counts.items())),
             "verified_label_dates": len(dates),
+            # Der Datums-Holdout wird jede Woche erneut ausgewertet -> nur explorativ. Bindend ist der
+            # Forward-Test vorab festgehaltener Prognosen (modules/option_learner, predictions.jsonl).
+            "evidence_class": "EXPLORATORY_REPEATED_HOLDOUT",
             "no_option_proxy": True, "production_influence": "NONE",
             "status": "INSUFFICIENT_EVIDENCE", "discoveries": []}
     if len(valid) < min_train + min_test or len(dates) < MIN_TRAIN_DATES + MIN_TEST_DATES:
@@ -253,6 +256,8 @@ def discover(rows, as_of, min_train=MIN_TRAIN, min_test=MIN_TEST, quotes=None):
               "promotion_eligible": False}
     base["discoveries"] = [result]
     base["caveats"] = ["Single holdout is not a repeated purged walk-forward.",
+                       "The holdout is re-read every week: exploratory only; binding evidence is the option_learner "
+                       "forward test on pre-registered predictions.",
                        "Exploratory training search requires multiple-testing correction before promotion."]
     base["status"] = "HOLDOUT_OBSERVED" if len(a) >= MIN_GROUP and len(b) >= MIN_GROUP and independent >= MIN_TEST_DATES else "HOLDOUT_INSUFFICIENT"
     return base
