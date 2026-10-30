@@ -10,15 +10,17 @@ Stand 2026-10-30. Modul `modules/option_learner.py`, Tests `tests/test_option_le
 2. **Label:** `real_strat_ret_{h}d` minus Kommission (0,65 USD je Leg und Seite). Es zählt nur, wenn `research_evidence_discovery.provenance` das Label als VERIFIED bestätigt, Entry und Exit also aus dem Quote-Archiv nachgerechnet sind.
 3. **Modell:** Median-Imputation, Standardisierung, Ridge (alpha 10). Das Ziel wird auf das 1.–99. Perzentil gekappt. Merkmale mit weniger als 50 % Abdeckung fallen weg. Die Spezifikation ist fest (`SPEC`, `spec_hash`).
 4. **Walk-Forward:** Je Signaltag wird nur mit Labels trainiert, deren Mark-Tag vor dem Testtag liegt.
-   - VALIDATED: mindestens 20 Testtage, mindestens 30 Fälle mit Prognose > 0, deren Netto-Mittel im 95-%-Datums-Bootstrap über 0 liegt, und Rang-IC mit t > 2.
+   - VALIDATED: mindestens 20 Testtage, mindestens 5 unabhängige Perioden, mindestens 30 Fälle mit Prognose > 0, deren Netto-Mittel im 95-%-Block-Bootstrap über 0 liegt, und Rang-IC mit t > 2.
+   - **Unabhängige Perioden:** Signaltage werden in nicht überlappende Haltefenster von der Länge des Horizonts (Kalendertage) gebündelt. Positionen im selben Fenster überlappen und gelten nicht als unabhängig. Der Bootstrap zieht ganze Fenster, nicht einzelne Tage. Beim 20-Tage-Modell braucht der Nachweis deshalb mindestens rund 100 Kalendertage.
    - Sonst NOT_VALIDATED oder NEED_MORE_DATA.
 5. **Prognose-Journal:** `outputs/research/option_learner/predictions.jsonl`, append-only. Jede Tagesprognose wird geschrieben, bevor ihr Label existiert.
 6. **Forward-Test:** Journal gegen die später geprüften Labels. Ergebnis ist FORWARD_POSITIVE, FORWARD_NEGATIVE, INCONCLUSIVE oder NEED_MORE_DATA.
-7. **Empfehlung:**
-   - Nur bei Walk-Forward VALIDATED, Forward nicht FORWARD_NEGATIVE und Prognose > 0.
-   - Nur für Call-Strukturen (LONG_CALL, BULL_CALL_SPREAD), die die Produktion handeln kann.
-   - Sonst eine Beobachtungsliste (Top 5, unvalidiert).
-   - Mail nur bei echten Empfehlungen.
+7. **Empfehlung (Freigabe `release_gate`, fail closed):**
+   - Nur bei Walk-Forward VALIDATED **und** Forward FORWARD_POSITIVE. NEED_MORE_DATA, INCONCLUSIVE, FORWARD_NEGATIVE oder ein fehlender Bericht sperren.
+   - Die Freigabe prüft die Mindestzahlen (Testtage, unabhängige Perioden, Fallzahl, KI über 0, Ø netto > 0, beim Walk-Forward Rang-IC t > 2) aus den Kennzahlen erneut. Ein Verdikt, das nicht zu seinen Zahlen passt, sperrt ebenfalls.
+   - Je Kandidat nur bei Prognose > 0 und nur für Call-Strukturen (LONG_CALL, BULL_CALL_SPREAD), die die Produktion handeln kann.
+   - Sonst nur eine als UNVALIDIERT gekennzeichnete Research-Watchlist (Top 5) mit den offenen Bedingungen.
+   - Mail nur für das 20-Tage-Hauptmodell mit Empfehlungen; `mail()` prüft die Freigabe selbst erneut. Das 5-Tage-Modell ist Frühindikator ohne Handels-Mail.
 
 ## Leistungszeugnis und Lernkurve
 

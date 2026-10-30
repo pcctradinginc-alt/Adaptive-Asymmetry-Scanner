@@ -10,8 +10,11 @@ Kreislauf (autonom, kein LLM, keine Markt-API, keine Order):
   -> Walk-Forward je Signaltag: trainiert nur auf Labels, deren Mark-Tag VOR dem Testtag liegt (Embargo)
   -> Prognose-Journal: jede Tagesprognose append-only, bevor ihr Label existiert (prospektiv)
   -> Forward-Auswertung des Journals, sobald die Labels geprüft vorliegen
-  -> EMPFEHLUNG nur bei Walk-Forward-Status VALIDATED, nicht widerlegtem Forward-Test und Prognose > 0;
-     je Kandidat die Ausdrucksform mit der höchsten Prognose; sonst Beobachtungsliste mit ehrlichem Status.
+  -> EMPFEHLUNG nur, wenn die Freigabe (release_gate) alle Evidenzanforderungen erneut bestätigt: Walk-Forward
+     VALIDATED UND Forward FORWARD_POSITIVE, jeweils mit Mindest-Testtagen, unabhängigen Perioden, Fallzahl und
+     Konfidenzintervall über 0 – fail closed bei fehlenden oder widersprüchlichen Angaben; je Kandidat die
+     Ausdrucksform mit der höchsten Prognose > 0. Sonst nur eine als UNVALIDIERT markierte Research-Watchlist.
+     Mail nur für das 20-Tage-Hauptmodell; das 5-Tage-Modell ist Frühindikator ohne Handels-Mail.
   -> Leistungszeugnis: Trainings-Manifest (welche geprüften Labels in welches Modell flossen), append-only
      Status-Historie (Lernkurve gegenüber der Vorversion), Vergleich mit "nie handeln" und "alles handeln".
 Kein Einfluss auf Champion, Gates, Sizing, Risk oder Promotion.
@@ -54,6 +57,9 @@ MIN_TRAIN_ROWS = 100
 MIN_TRAIN_DATES = 8
 MIN_OOS_DATES = 20                      # Walk-Forward-Verdikt erst ab so vielen Testtagen
 MIN_SELECTED = 30                       # mindestens so viele OOS-Fälle mit Prognose > 0
+MIN_INDEPENDENT_PERIODS = 5             # nicht überlappende Haltefenster (Horizont in Kalendertagen) mit Auswahl
+IC_T_MIN = 2.0
+MAIL_HORIZON = HORIZON                  # Handels-Mail nur für das Hauptmodell (5 T = Frühindikator)
 MIN_FEATURE_COVERAGE = 0.5
 BOOTSTRAP = 2000
 WATCHLIST_N = 5
@@ -292,21 +298,36 @@ def _spearman(a, b) -> float | None:
     return float(np.corrcoef(ra, rb)[0, 1])
 
 
-def _date_bootstrap_ci(by_date: dict[str, list[float]], seed: int = 7) -> tuple[float, float] | None:
+def _periods(by_date: dict[str, list], horizon: int) -> dict[int, list]:
+    """Signaltage in nicht überlappende Haltefenster der Länge `horizon` (Kalendertage) bündeln: Positionen
+    innerhalb eines Fensters überlappen und sind nicht unabhängig."""
     days = sorted(by_date)
-    if len(days) < 2:
+    if not days:
+        return {}
+    first = date.fromisoformat(days[0]).toordinal()
+    out = defaultdict(list)
+    for d in days:
+        out[(date.fromisoformat(d).toordinal() - first) // max(1, horizon)].extend(by_date[d])
+    return dict(out)
+
+
+def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int = 7) -> tuple[float, float] | None:
+    """95-%-KI des gepoolten Mittels; gezogen werden ganze Haltefenster (Block-Bootstrap), nicht einzelne Tage."""
+    blocks = [b for b in _periods(by_date, horizon).values() if b]
+    if len(blocks) < 2:
         return None
     rng = random.Random(seed)
     means = []
     for _ in range(BOOTSTRAP):
-        vals = [v for d in (rng.choice(days) for _ in days) for v in by_date[d]]
+        vals = [v for b in (rng.choice(blocks) for _ in blocks) for v in b]
         means.append(sum(vals) / len(vals))
     means.sort()
     return means[int(0.025 * BOOTSTRAP)], means[int(0.975 * BOOTSTRAP) - 1]
 
 
-def score(preds: list[dict]) -> dict:
-    """Kennzahlen für Prognosen [{date, pred, y}]: Rang-IC je Tag, Mittel der Auswahl (pred > 0) mit Datums-Bootstrap."""
+def score(preds: list[dict], horizon: int = HORIZON) -> dict:
+    """Kennzahlen für Prognosen [{date, pred, y}]: Rang-IC je Tag, Mittel der Auswahl (pred > 0) mit Block-Bootstrap
+    über nicht überlappende Haltefenster (`independent_periods`)."""
     by_date = defaultdict(list)
     for p in preds:
         by_date[p["date"]].append(p)
@@ -320,8 +341,8 @@ def score(preds: list[dict]) -> dict:
     ic_t = None
     if len(ics) >= 3 and np.std(ics, ddof=1) > 0:
         ic_t = float(np.mean(ics) / (np.std(ics, ddof=1) / math.sqrt(len(ics))))
-    ci = _date_bootstrap_ci(sel) if n_sel else None
-    return {"n": len(preds), "dates": len(by_date),
+    ci = _block_bootstrap_ci(sel, horizon) if n_sel else None
+    return {"n": len(preds), "dates": len(by_date), "independent_periods": len(_periods(sel, horizon)),
             "mean_all": round(float(np.mean([p["y"] for p in preds])), 6) if preds else None,
             "ic_mean": round(float(np.mean(ics)), 6) if ics else None,
             "ic_t": round(ic_t, 3) if ic_t is not None else None,
@@ -343,7 +364,12 @@ def _by_expression(preds: list[dict]) -> dict:
     return out
 
 
-def walk_forward(data: list[dict]) -> dict:
+def _insufficient(s: dict) -> bool:
+    return (s["dates"] < MIN_OOS_DATES or s["n_selected"] < MIN_SELECTED
+            or s["independent_periods"] < MIN_INDEPENDENT_PERIODS)
+
+
+def walk_forward(data: list[dict], horizon: int = HORIZON) -> dict:
     """Je Signaltag trainieren mit Labels, deren Mark-Tag vor dem Testtag liegt; Testtag vorhersagen."""
     preds = []
     for day in sorted({d["date"] for d in data}):
@@ -357,10 +383,10 @@ def walk_forward(data: list[dict]) -> dict:
         test = [d for d in data if d["date"] == day]
         for d, p in zip(test, model.predict([t["x"] for t in test])):
             preds.append({"date": day, "pred": float(p), "y": d["y"], "expression": d.get("expression")})
-    s = score(preds)
-    if s["dates"] < MIN_OOS_DATES or s["n_selected"] < MIN_SELECTED:
+    s = score(preds, horizon)
+    if _insufficient(s):
         verdict = "NEED_MORE_DATA"
-    elif s["selected_ci95"] and s["selected_ci95"][0] > 0 and (s["ic_t"] or 0) > 2:
+    elif s["selected_ci95"] and s["selected_ci95"][0] > 0 and (s["ic_t"] or 0) > IC_T_MIN:
         verdict = "VALIDATED"
     else:
         verdict = "NOT_VALIDATED"
@@ -379,9 +405,9 @@ def forward(journal: list[dict], data: list[dict], horizon: int) -> dict:
         if d is None or str(j.get("created_at", ""))[:10] > d["label_day"].isoformat():
             continue
         preds.append({"date": j["date"], "pred": float(j["pred_net"]), "y": d["y"], "expression": d["expression"]})
-    s = score(preds)
+    s = score(preds, horizon)
     ci = s["selected_ci95"]
-    if s["dates"] < MIN_OOS_DATES or s["n_selected"] < MIN_SELECTED:
+    if _insufficient(s):
         verdict = "NEED_MORE_DATA"
     elif ci and ci[1] < 0:
         verdict = "FORWARD_NEGATIVE"
@@ -390,6 +416,34 @@ def forward(journal: list[dict], data: list[dict], horizon: int) -> dict:
     else:
         verdict = "INCONCLUSIVE"
     return {**s, "by_expression": _by_expression(preds), "verdict": verdict}
+
+
+def release_gate(wf: dict | None, fw: dict | None) -> dict:
+    """Freigabe von Empfehlungen – fail closed. Erlaubt nur bei Walk-Forward VALIDATED UND Forward FORWARD_POSITIVE;
+    die Mindestzahlen und Evidenzanforderungen werden aus den Kennzahlen erneut geprüft, damit ein fehlender,
+    unvollständiger oder widersprüchlicher Bericht (z. B. Verdikt ohne passende Zahlen) nie freigibt."""
+    reasons = []
+    for name, s, want in (("walk_forward", wf, "VALIDATED"), ("forward", fw, "FORWARD_POSITIVE")):
+        if not isinstance(s, dict) or not s.get("verdict"):
+            reasons.append(f"{name}: Bericht fehlt")
+            continue
+        if s["verdict"] != want:
+            reasons.append(f"{name}: {s['verdict']} (verlangt {want})")
+        try:
+            ci = s.get("selected_ci95")
+            checks = ((s["dates"] >= MIN_OOS_DATES, f"Testtage {s['dates']} < {MIN_OOS_DATES}"),
+                      (s["n_selected"] >= MIN_SELECTED, f"Auswahl n={s['n_selected']} < {MIN_SELECTED}"),
+                      (s["independent_periods"] >= MIN_INDEPENDENT_PERIODS,
+                       f"unabhängige Perioden {s['independent_periods']} < {MIN_INDEPENDENT_PERIODS}"),
+                      (bool(ci) and ci[0] > 0, f"95-%-KI {ci} nicht über 0"),
+                      (s.get("mean_selected") is not None and s["mean_selected"] > 0, "Ø netto der Auswahl nicht > 0"))
+            if name == "walk_forward":
+                checks += (((s.get("ic_t") or 0) > IC_T_MIN, f"Rang-IC t {s.get('ic_t')} <= {IC_T_MIN}"),)
+        except (KeyError, TypeError, IndexError):
+            reasons.append(f"{name}: Kennzahlen unvollständig")
+            continue
+        reasons += [f"{name}: {text}" for ok, text in checks if not ok]
+    return {"allowed": not reasons, "reasons": reasons}
 
 
 def _load(as_of: date, horizon: int, ledger: Path, quotes: Path, counts: dict | None = None):
@@ -457,7 +511,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
     rows, data = _load(as_of, horizon, ledger, quotes, counts)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
     model = fit(data)
-    wf = walk_forward(data)
+    wf = walk_forward(data, horizon)
     week = (as_of.toordinal() - 7)
     recent = [r for r in rows if isinstance(r, dict) and r.get("date")
               and date.fromisoformat(str(r["date"])[:10]).toordinal() > week]
@@ -486,11 +540,11 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
 def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, quotes: Path = red.QUOTES,
               out: Path = OUT, now: datetime | None = None) -> dict:
     """Prognosen für alle Ausdrucksformen der heutigen Kandidaten; append-only ins Journal; je Kandidat die beste
-    Ausdrucksform; Empfehlung nur bei validiertem und nicht widerlegtem Modell, sonst Beobachtungsliste."""
+    Ausdrucksform; Empfehlung nur bei bestandener Freigabe (release_gate), sonst unvalidierte Research-Watchlist."""
     now = now or datetime.now(timezone.utc)
     rows, data = _load(day, horizon, ledger, quotes)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
-    wf, fw = walk_forward(data), forward(journal, data, horizon)
+    wf, fw = walk_forward(data, horizon), forward(journal, data, horizon)
     model = fit([d for d in data if d["label_day"] < day])
     done = {(j.get("date"), j.get("signal_id"), j.get("horizon"), tuple(j.get("contract") or ())) for j in journal}
     new, best = [], {}
@@ -506,7 +560,7 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
                     "expression": e["expression"], "contract": e["contract"], "strategy": rs.get("strategy"),
                     "entry_ask_net": ask, "entry_mid_net": mid, "option_sample": r.get("option_sample"),
                     "horizon": horizon, "pred_net": round(float(p), 6), "model_spec": spec_hash(),
-                    "walk_forward_verdict": wf["verdict"], "forward_verdict": fw["verdict"],
+                    "walk_forward_verdict": (wf or {}).get("verdict"), "forward_verdict": (fw or {}).get("verdict"),
                     "created_at": now.isoformat(timespec="seconds")}
             if (item["date"], item["signal_id"], horizon, tuple(item["contract"])) not in done:
                 new.append(item)
@@ -516,11 +570,12 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
                     best[key] = item
     if new:
         append_jsonl(out / JOURNAL, new)
-    validated = wf["verdict"] == "VALIDATED" and fw["verdict"] != "FORWARD_NEGATIVE"
-    recs = sorted((i for i in best.values() if validated and i["pred_net"] > 0), key=lambda i: -i["pred_net"])
+    gate = release_gate(wf, fw)                 # fail closed, auch wenn ein Bericht fehlt oder unvollständig ist
+    recs = sorted((i for i in best.values() if gate["allowed"] and i["pred_net"] > 0), key=lambda i: -i["pred_net"])
     watch = sorted(best.values(), key=lambda i: -i["pred_net"])[:WATCHLIST_N]
     result = {"date": day.isoformat(), "horizon": horizon, "model_available": model is not None,
-              "verified_labels": len(data), "walk_forward": wf, "forward": fw,
+              "verified_labels": len(data), "walk_forward": wf, "forward": fw, "release": gate,
+              "mail_eligible": horizon == MAIL_HORIZON and bool(recs),
               "recommendations": recs, "watchlist": [] if recs else watch,
               "journaled": len(new), "production_influence": "NONE", "orders_created": 0}
     target = out / "recommendations" / f"{day.isoformat()}_{horizon}d.json"
@@ -534,17 +589,25 @@ def _fmt(v, pct=True):
 
 
 def render(res: dict) -> str:
-    wf, fw = res["walk_forward"], res["forward"]
+    gate = res.get("release") or release_gate(res.get("walk_forward"), res.get("forward"))
+    wf, fw = (defaultdict(lambda: None, res.get(k) or {"verdict": "FEHLT"}) for k in ("walk_forward", "forward"))
+    early = res["horizon"] != MAIL_HORIZON
     lines = [f"# Options-Lernmodell – {res['date']} ({res['horizon']} T)", "",
-             "_Research, keine Order, keine Anlageberatung._", "",
-             f"- Geprüfte Options-Labels: {res['verified_labels']}",
-             (f"- Walk-Forward: **{wf['verdict']}** – Testtage {wf['dates']}, Auswahl n={wf['n_selected']}, "
-              f"Ø netto {_fmt(wf['mean_selected'])} (alle {_fmt(wf['mean_all'])}), 95-%-KI {wf['selected_ci95']}, "
-              f"Rang-IC {wf['ic_mean']} (t {wf['ic_t']})"),
-             (f"- Forward (prospektives Journal): **{fw['verdict']}** – Tage {fw['dates']}, "
-              f"Auswahl n={fw['n_selected']}, Ø netto {_fmt(fw['mean_selected'])}"), ""]
+             "_Research, keine Order, keine Anlageberatung._", ""]
+    if early:
+        lines += [(f"_Frühindikator ({res['horizon']} T): keine Handels-Mail; Hauptmaßstab ist das "
+                   f"{MAIL_HORIZON}-Tage-Modell._"), ""]
+    lines += [f"- Geprüfte Options-Labels: {res['verified_labels']}",
+              (f"- Walk-Forward: **{wf['verdict']}** – Testtage {wf['dates']} "
+               f"({wf['independent_periods']} unabhängige Perioden), Auswahl n={wf['n_selected']}, "
+               f"Ø netto {_fmt(wf['mean_selected'])} (alle {_fmt(wf['mean_all'])}), 95-%-KI {wf['selected_ci95']}, "
+               f"Rang-IC {wf['ic_mean']} (t {wf['ic_t']})"),
+              (f"- Forward (prospektives Journal): **{fw['verdict']}** – Tage {fw['dates']} "
+               f"({fw['independent_periods']} unabhängige Perioden), Auswahl n={fw['n_selected']}, "
+               f"Ø netto {_fmt(fw['mean_selected'])}"),
+              f"- Freigabe: **{'erteilt' if gate['allowed'] else 'gesperrt'}**", ""]
     if res["recommendations"]:
-        lines += ["## Empfehlungen (Modell validiert)", "",
+        lines += ["## Empfehlungen (Walk-Forward validiert, Forward positiv bestätigt)", "",
                   "| Ticker | Strategie | Form | Kontrakt | Ask / Mid (Entscheidung) | erwartet netto |",
                   "|---|---|---|---|---|---|"]
         lines += [f"| {i['ticker']} | {i['strategy']} | {i['expression']} | {' / '.join(i['contract'])} | "
@@ -553,10 +616,11 @@ def render(res: dict) -> str:
         lines += ["", ("Erwartung gilt für Kauf zum Ask und Verkauf zum Bid; ein Limit zum Mid ist günstiger, "
                        "aber nicht garantiert ausgeführt.")]
     else:
-        lines += ["## Keine Empfehlung", "",
-                  "Das Modell ist nicht validiert oder sieht heute keinen positiven Netto-Erwartungswert.", ""]
+        lines += ["## Keine Empfehlung", ""]
+        lines += ([f"- Gesperrt: {r}" for r in gate["reasons"]] if gate["reasons"] else
+                  ["- Freigabe erteilt, aber heute kein positiver Netto-Erwartungswert."]) + [""]
         if res["watchlist"]:
-            lines += ["Beobachtungsliste (unvalidiert, nicht handeln):", "",
+            lines += ["Research-Watchlist – UNVALIDIERT, keine Empfehlung, nicht handeln:", "",
                       "| Ticker | Strategie | Form | Kontrakt | Prognose netto |", "|---|---|---|---|---|"]
             lines += [f"| {i['ticker']} | {i['strategy']} | {i['expression']} | {' / '.join(i['contract'])} | "
                       f"{_fmt(i['pred_net'])} |"
@@ -585,8 +649,7 @@ def _answers(st: dict) -> dict:
     gates = {k: v for k, v in (st.get("by_gate") or {}).items() if v.get("sufficient")}
     gate_text = "; ".join(f"{k} {_fmt(v['mean'])} (n={v['n']})"
                           for k, v in sorted(gates.items(), key=lambda kv: -kv[1]["mean"]))
-    proven = wf["verdict"] == "VALIDATED" and fw["verdict"] == "FORWARD_POSITIVE"
-    active = wf["verdict"] == "VALIDATED" and fw["verdict"] != "FORWARD_NEGATIVE"
+    gate = release_gate(wf, fw)
     return {
         "data": ("Ja" if st.get("option_snapshots_7d") else "Nein",
                  f"{st.get('ledger_rows_7d', 0)} Kandidaten, {st.get('option_snapshots_7d', 0)} mit Optionskontrakt (7 T)"),
@@ -607,8 +670,10 @@ def _answers(st: dict) -> dict:
         "expressions": ("offen" if not expr else "Ja", expr or "noch keine Testtage"),
         "gates": ("offen" if not gates else "Ja",
                   gate_text or f"noch keine Gruppe mit >= {MIN_GATE_N} Labels an >= {MIN_GATE_DATES} Tagen"),
-        "proven": ("Ja" if proven else "Nein", "nur bei VALIDATED und FORWARD_POSITIVE"),
-        "self_limit": ("Ja", f"Empfehlungen {'aktiv' if active else 'gesperrt'} (nur bei validiertem Modell)"),
+        "proven": ("Ja" if gate["allowed"] else "Nein", "nur bei VALIDATED und FORWARD_POSITIVE samt Mindestzahlen"),
+        "self_limit": ("Ja", "Empfehlungen freigegeben" if gate["allowed"] else
+                       f"Empfehlungen gesperrt ({len(gate['reasons'])} offene Bedingungen, z. B. "
+                       f"{gate['reasons'][0]})"),
     }
 
 
@@ -645,8 +710,10 @@ def report_card(out: Path = OUT, horizons: tuple = (HORIZON, 5)) -> dict:
 
 
 def mail(res: dict) -> dict | None:
-    """Mail nur bei echten Empfehlungen (validiertes Modell) – keine tägliche Nullmeldung."""
-    if not res["recommendations"]:
+    """Mail nur bei echten Empfehlungen des Hauptmodells; die Freigabe wird hier erneut geprüft (fail closed) –
+    keine tägliche Nullmeldung, keine Mail für den 5-Tage-Frühindikator."""
+    if (res.get("horizon") != MAIL_HORIZON or not res.get("recommendations")
+            or not release_gate(res.get("walk_forward"), res.get("forward"))["allowed"]):
         return None
     from modules import mailer
     text = render(res)

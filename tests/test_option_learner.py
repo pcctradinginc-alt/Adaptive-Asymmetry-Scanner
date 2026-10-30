@@ -2,6 +2,8 @@ import hashlib
 import random
 from datetime import date, datetime, timedelta, timezone
 
+import pytest
+
 from modules import market_snapshot as ms
 from modules import option_learner as ol
 from modules.atomic_io import read_jsonl
@@ -31,7 +33,7 @@ def _quote(symbol, day, bid, ask):
             "quote_time": ts, "retrieved_at": ts, "quality_status": "OK", "quality_flags": []}
 
 
-def _row(day, i, sentiment, ret=None, quotes=None, ask=10.0):
+def _row(day, i, sentiment, ret=None, quotes=None, ask=10.0, h=H):
     ticker = f"T{i}"
     symbol = f"{ticker}270319C00100000"
     legs = [{"symbol": symbol, "side": "long", "bid": ask - 0.2, "ask": ask, "mid": ask - 0.1}]
@@ -43,25 +45,25 @@ def _row(day, i, sentiment, ret=None, quotes=None, ask=10.0):
                            "net_debit_entry": ask, "net_mid_entry": ask - 0.1, "expiry": "2027-03-19"},
          "outcomes": {}}
     if ret is not None:
-        mark = _next_trading_day(date.fromisoformat(day) + timedelta(days=H)).isoformat()
+        mark = _next_trading_day(date.fromisoformat(day) + timedelta(days=h)).isoformat()
         bid = round(ask * (1 + ret), 2)
-        r["outcomes"] = {f"real_strat_ret_{H}d": round(bid / ask - 1, 4), f"real_strat_mark_date_{H}d": mark}
+        r["outcomes"] = {f"real_strat_ret_{h}d": round(bid / ask - 1, 4), f"real_strat_mark_date_{h}d": mark}
         quotes += [_quote(symbol, day, ask - 0.2, ask), _quote(symbol, mark, bid, bid + 0.1)]
     return r
 
 
-def _history(days, signal=True, seed=3):
+def _history(days, signal=True, seed=3, h=H):
     """10 Kandidaten je Tag; mit signal: positives Sentiment -> +30 %, negatives -> -30 % (plus Rauschen)."""
     rng, rows, quotes = random.Random(seed), [], []
     for d in days:
         for i in range(10):
             s = rng.uniform(-1, 1)
             base = (0.3 if s > 0 else -0.3) if signal else rng.choice((0.3, -0.3))
-            rows.append(_row(d.isoformat(), i, s, base + rng.uniform(-0.05, 0.05), quotes))
+            rows.append(_row(d.isoformat(), i, s, base + rng.uniform(-0.05, 0.05), quotes, h=h))
     return rows, quotes
 
 
-def test_walk_forward_validates_a_real_relation_and_recommends(monkeypatch, tmp_path):
+def test_walk_forward_validates_but_without_forward_evidence_nothing_is_recommended(monkeypatch, tmp_path):
     days = _trading_days(date(2026, 1, 5), 40)
     rows, quotes = _history(days)
     today = _trading_days(days[-1] + timedelta(days=10), 1)[0].isoformat()
@@ -73,11 +75,91 @@ def test_walk_forward_validates_a_real_relation_and_recommends(monkeypatch, tmp_
 
     res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
     assert res["walk_forward"]["verdict"] == "VALIDATED"
-    assert [r["ticker"] for r in res["recommendations"]] == ["T1"]       # nur positiver Netto-Erwartungswert
-    assert res["watchlist"] == []
+    assert res["forward"]["verdict"] == "NEED_MORE_DATA"                 # leeres Journal: nichts prospektiv belegt
+    assert res["recommendations"] == [] and res["release"]["allowed"] is False
+    assert res["watchlist"][0]["ticker"] == "T1"
+    assert ol.mail(res) is None and sent == []
+    md = (tmp_path / "recommendations" / f"{today}_{H}d.md").read_text()
+    assert "UNVALIDIERT" in md and "Frühindikator" in md
+
+
+def _stats(verdict, **kw):
+    s = {"n": 400, "dates": 25, "independent_periods": 6, "mean_all": 0.01, "ic_mean": 0.2, "ic_t": 3.0,
+         "n_selected": 120, "selected_dates": 25, "mean_selected": 0.08, "selected_ci95": [0.02, 0.14],
+         "by_expression": {}, "verdict": verdict}
+    s.update(kw)
+    return s
+
+
+def _gated(monkeypatch, tmp_path, fw, horizon=20):
+    """recommend mit vorgegebenem Walk-Forward (VALIDATED) und Forward-Bericht; zählt versandte Mails."""
+    days = _trading_days(date(2026, 1, 5), 40)
+    rows, quotes = _history(days, h=horizon)
+    today = _trading_days(days[-1] + timedelta(days=40), 1)[0].isoformat()
+    rows += [_row(today, 1, 0.8, h=horizon), _row(today, 2, -0.8, h=horizon)]
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    monkeypatch.setattr(ol, "walk_forward", lambda *a, **k: _stats("VALIDATED"))
+    monkeypatch.setattr(ol, "forward", lambda *a, **k: fw)
+    sent = []
+    monkeypatch.setattr("modules.mailer.send_mail", lambda subject, html, text: sent.append(subject) or {"status": "sent"})
+    res = ol.recommend(date.fromisoformat(today), horizon=horizon, out=tmp_path)
     ol.mail(res)
+    return res, sent
+
+
+@pytest.mark.parametrize("fw", [
+    _stats("NEED_MORE_DATA", dates=4, n_selected=12, independent_periods=1),
+    _stats("INCONCLUSIVE", mean_selected=0.03, selected_ci95=[-0.02, 0.09]),
+    _stats("FORWARD_NEGATIVE", mean_selected=-0.06, selected_ci95=[-0.11, -0.01]),
+    None,                                                                # Forward-Bericht fehlt
+    {},
+], ids=["need_more_data", "inconclusive", "negative", "missing", "empty"])
+def test_validated_walk_forward_without_positive_forward_gives_no_recommendation_and_no_mail(monkeypatch, tmp_path,
+                                                                                               fw):
+    res, sent = _gated(monkeypatch, tmp_path, fw)
+    assert res["recommendations"] == [] and res["release"]["allowed"] is False
+    assert res["watchlist"] and sent == []
+    assert "UNVALIDIERT" in (tmp_path / "recommendations" / f"{res['date']}_20d.md").read_text()
+
+
+def test_only_validated_and_forward_positive_releases_positive_predictions(monkeypatch, tmp_path):
+    res, sent = _gated(monkeypatch, tmp_path, _stats("FORWARD_POSITIVE"))
+    assert res["release"] == {"allowed": True, "reasons": []}
+    assert [r["ticker"] for r in res["recommendations"]] == ["T1"]       # nur positiver Netto-Erwartungswert
+    assert all(r["pred_net"] > 0 for r in res["recommendations"]) and res["watchlist"] == []
     assert len(sent) == 1
-    assert (tmp_path / "recommendations" / f"{today}_{H}d.md").exists()
+
+
+def test_five_day_model_is_an_early_indicator_without_trade_mail(monkeypatch, tmp_path):
+    res, sent = _gated(monkeypatch, tmp_path, _stats("FORWARD_POSITIVE"), horizon=5)
+    assert res["recommendations"] and res["mail_eligible"] is False
+    assert sent == []
+
+
+def test_release_gate_fails_closed_on_contradictory_or_incomplete_reports():
+    ok = _stats("FORWARD_POSITIVE")
+    assert ol.release_gate(_stats("VALIDATED"), ok)["allowed"] is True
+    contradictory = [
+        (_stats("VALIDATED", dates=5), ok),                              # Verdikt passt nicht zu den Zahlen
+        (_stats("VALIDATED", ic_t=1.2), ok),
+        (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", independent_periods=2)),
+        (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", selected_ci95=None)),
+        (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", mean_selected=-0.01)),
+        (_stats("VALIDATED"), {"verdict": "FORWARD_POSITIVE"}),          # Kennzahlen fehlen
+        (None, ok),
+    ]
+    for wf, fw in contradictory:
+        gate = ol.release_gate(wf, fw)
+        assert gate["allowed"] is False and gate["reasons"]
+
+
+def test_mail_rechecks_the_gate_even_for_a_forged_result():
+    forged = {"date": "2026-11-02", "horizon": 20, "walk_forward": _stats("VALIDATED"),
+              "forward": _stats("INCONCLUSIVE", selected_ci95=[-0.01, 0.1]),
+              "recommendations": [{"ticker": "X", "pred_net": 0.2}], "watchlist": []}
+    assert ol.mail(forged) is None
+    assert ol.mail({**forged, "forward": None}) is None
 
 
 def test_no_relation_means_no_recommendation_only_watchlist(monkeypatch, tmp_path):
@@ -200,6 +282,7 @@ def test_recommend_journals_every_expression_and_recommends_one_per_candidate(mo
     rows += [_spread_row(today, 1, 0.9)]
     monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))
     res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
     assert res["journaled"] == 2                                                   # Spread und Einzel-Option
     assert len(res["recommendations"]) == 1
