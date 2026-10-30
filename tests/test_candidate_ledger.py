@@ -1070,6 +1070,104 @@ def test_flush_real_option_respects_max_snapshot_cap(monkeypatch, ledger_root):
     assert sum(1 for r in rows.values() if r["snapshot_selected"]) == 2
 
 
+def _underlying_quotes(tickers):
+    return {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2, "last": 100.1, "prev_close": 99.0, "open": 100.0,
+                "quote_ts": "t", "source": "tradier"} for t in tickers}
+
+
+def _fake_select(calls):
+    def select(ticker, direction, dte_floor, spot):
+        calls.append((ticker, direction))
+        right = "C" if direction == "BULLISH" else "P"
+        return {"symbol": f"{ticker}270319{right}00100000", "strike": 100.0, "expiry": "2027-03-19", "dte": 170,
+                "bid": 5.0, "ask": 5.4, "mid": 5.2, "iv": 0.3, "delta": 0.5, "open_interest": 500, "quote_ts": "t"}
+    return select
+
+
+def test_flush_research_sample_fills_unused_snapshot_budget(monkeypatch, ledger_root):
+    """Kandidaten ohne LLM-Richtung bekommen das vom Richtungs-Snapshot ungenutzte Budget (Hash-Stichprobe), immer
+    mit Call-Kontrakt; direction bleibt None (Scorecards und Meta-Label lesen nur Zeilen mit Richtung)."""
+    monkeypatch.setenv("TRADIER_API_KEY", "test")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes", _underlying_quotes)
+    monkeypatch.setattr(cl, "_max_option_snapshots", lambda: 3)
+    calls = []
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", _fake_select(calls))
+
+    cl.start_run("2026-09-26")
+    cl.note("AAA", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    for t in ["BBB", "CCC", "DDD", "EEE"]:
+        cl.note(t, stage="universe")
+    cl.flush(reports_dir_root=ledger_root)
+
+    rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl")}
+    assert rows["AAA"]["option_sample"] == "directional"
+    research = [r for r in rows.values() if r.get("option_sample") == "research_census"]
+    assert len(research) == 2                                   # Budget 3 minus 1 Richtungs-Snapshot
+    assert len(calls) == 3                                      # nie mehr API-Calls als das Budget
+    for r in research:
+        assert r["direction"] is None
+        assert r["research_direction"] == "BULLISH"
+        assert r["snapshot_selected"] is True
+        assert r["snapshot_budget"] == 2 and r["snapshot_eligible_n"] == 4
+        assert "270319C" in r["real_option"]["symbol"]
+    for t, r in rows.items():
+        if t != "AAA" and r.get("option_sample") is None:       # nicht gezogen: keine Snapshot-Felder
+            assert "real_option" not in r and "real_option_skip_reason" not in r
+
+
+def test_flush_research_sample_needs_key_and_leftover_budget(monkeypatch, ledger_root):
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes", _underlying_quotes)
+    monkeypatch.setattr(cl, "_max_option_snapshots", lambda: 2)
+    calls = []
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", _fake_select(calls))
+
+    monkeypatch.delenv("TRADIER_API_KEY", raising=False)
+    cl.start_run("2026-09-26")
+    cl.note("AAA", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.note("BBB", stage="universe")
+    cl.flush(reports_dir_root=ledger_root)
+    rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl")}
+    assert "option_sample" not in rows["BBB"] and calls == [("AAA", "BULLISH")]
+
+    monkeypatch.setenv("TRADIER_API_KEY", "test")
+    calls.clear()
+    cl.start_run("2026-09-27")
+    for t in ["CCC", "DDD"]:
+        cl.note(t, stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.note("EEE", stage="universe")
+    cl.flush(reports_dir_root=ledger_root)
+    rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl") if r["date"] == "2026-09-27"}
+    assert "option_sample" not in rows["EEE"]                   # Budget vollständig von Richtungs-Snapshots belegt
+    assert sorted(calls) == [("CCC", "BULLISH"), ("DDD", "BULLISH")]
+
+
+def test_research_sample_can_be_switched_off(monkeypatch):
+    from types import SimpleNamespace
+
+    from modules import config
+    monkeypatch.setenv("TRADIER_API_KEY", "test")
+    monkeypatch.setattr(config, "cfg", SimpleNamespace(ledger=SimpleNamespace(research_option_sample=False)))
+    assert cl._research_option_sample_enabled() is False
+    monkeypatch.setattr(config, "cfg", SimpleNamespace(ledger=SimpleNamespace()))
+    assert cl._research_option_sample_enabled() is True
+
+
+def test_position_kind_from_occ_symbol_for_research_rows():
+    assert cl._position_kind({"direction": None}, "AAA270319C00100000") == "call"
+    assert cl._position_kind({"direction": None}, "AAA270319P00100000") == "put"
+    assert cl._position_kind({"direction": "BEARISH"}, "AAA270319C00100000") == "put"
+    assert cl._position_kind({}, "kein-occ") is None
+
+
+def test_research_sample_rows_stay_out_of_directional_evidence():
+    from modules import evidence_ledger as el
+    row = {"date": "2026-10-01", "signal_timestamp": "2026-10-01T18:00:00+00:00", "direction": None,
+           "option_sample": "research_census", "research_direction": "BULLISH",
+           "real_option": {"symbol": "AAA270319C00100000", "ask": 5.0, "entry_date": "2026-10-01"},
+           "outcomes": {"real_opt_ret_5d": 0.1, "real_opt_mark_date_5d": "2026-10-06"}}
+    assert el._candidate_option_records(row) == []
+
+
 def test_flush_real_option_no_api_key_degrades(monkeypatch, ledger_root):
     """Ohne TRADIER_API_KEY liefert market_snapshot.select_contract None
     (ungemockt) — die Ledger-Zeile bekommt trotzdem einen Reason, nie einen

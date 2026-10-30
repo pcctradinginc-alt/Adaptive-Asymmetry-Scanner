@@ -53,6 +53,7 @@ import json
 import logging
 import math
 import os
+import re
 import tempfile
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -76,6 +77,8 @@ RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
+RESEARCH_DIRECTION           = "BULLISH"  # Research-Stichprobe ohne LLM-Richtung: einzige Richtung der Produktion
+                                          # (Bearish deaktiviert) -> Long Call bzw. replizierte Call-Strategie
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
 MARK_GIVE_UP_DAYS            = 14   # fälliger Mark so lange nach Fälligkeit ohne zulässige Quote -> Endzustand
                                     # (<prefix>_mark_status_{h}d: NO_QUOTE | NO_SETTLEMENT | NO_ENTRY_QUOTE), nie geschätzt
@@ -203,6 +206,31 @@ def _max_option_snapshots() -> int:
         return int(getattr(ledger_cfg, "max_option_snapshots", DEFAULT_MAX_OPTION_SNAPSHOTS))
     except Exception:
         return DEFAULT_MAX_OPTION_SNAPSHOTS
+
+
+def _research_option_sample_enabled() -> bool:
+    """Research-Stichprobe aktiv, wenn ein Tradier-Key gesetzt ist (ohne Key lieferte jeder Snapshot nur
+    no_api_key). Abschaltbar über config.yaml ledger.research_option_sample: false (Default an; der Schlüssel steht
+    bewusst nicht in config.yaml, damit der Regelwerk-Hash der Champion-Version unverändert bleibt)."""
+    if not os.environ.get("TRADIER_API_KEY", "").strip():
+        return False
+    try:
+        from modules.config import cfg
+        return bool(getattr(getattr(cfg, "ledger", None), "research_option_sample", True))
+    except Exception:  # noqa: BLE001 – fehlende/kaputte Config -> Default
+        return True
+
+
+_OCC_RIGHT_RE = re.compile(r"^[A-Z0-9.\-]{1,10}\d{6}([CP])\d{8}$")
+
+
+def _position_kind(row: dict, symbol) -> str | None:
+    """call/put der Position: aus der Signalrichtung; Research-Stichprobe (ohne Richtung) aus dem Recht im
+    OCC-Symbol. None, wenn beides fehlt (dann kein Settlement-Mark)."""
+    if row.get("direction") in ("BULLISH", "BEARISH"):
+        return "call" if row["direction"] == "BULLISH" else "put"
+    m = _OCC_RIGHT_RE.match(str(symbol or "").strip().upper())
+    return None if m is None else ("call" if m.group(1) == "C" else "put")
 
 
 def _compute_event_id(ticker: str, date: str, signal: dict) -> str:
@@ -1128,33 +1156,52 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         # bestimmt. Übersteigt sie das Budget, wird eine deterministische
         # Pseudo-Zufallsauswahl getroffen (seeded by date via
         # sha1(date+signal_id)) — NIEMALS "die ersten N".
-        eligible = []  # (ticker, signal, spot)
-        for ticker, e in to_process:
-            if e.get("direction") not in ("BULLISH", "BEARISH"):
-                continue
+        def _spot(ticker, e):
             resolved = resolved_by_id[e["signal_id"]]
             spot = resolved["entry_price"]
             if spot in (None, 0):
                 spot = resolved["underlying"].get("last") or resolved["underlying"].get("mid")
             if spot in (None, 0):
                 spot = prices.get(ticker)
-            if spot in (None, 0):
+            return None if spot in (None, 0) else spot
+
+        def _hash_rank(items, salt=""):
+            return sorted(items, key=lambda item: hashlib.sha1(
+                f"{today}:{salt}{item[1]['signal_id']}".encode("utf-8")).hexdigest())
+
+        eligible = []  # (ticker, signal, spot)
+        research_pool = []  # Kandidaten OHNE Richtung (kein LLM-Lauf) mit auflösbarem Spot
+        for ticker, e in to_process:
+            spot = _spot(ticker, e)
+            if spot is None:
                 continue
-            eligible.append((ticker, e, spot))
+            if e.get("direction") in ("BULLISH", "BEARISH"):
+                eligible.append((ticker, e, spot))
+            else:
+                research_pool.append((ticker, e, spot))
 
         max_snapshots = _max_option_snapshots()
         eligible_n    = len(eligible)
         if eligible_n > max_snapshots:
-            ranked = sorted(
-                eligible,
-                key=lambda item: hashlib.sha1(
-                    f"{today}:{item[1]['signal_id']}".encode("utf-8")
-                ).hexdigest(),
-            )
-            selected_ids = {sig["signal_id"] for (_, sig, _) in ranked[:max_snapshots]}
+            selected_ids = {sig["signal_id"] for (_, sig, _) in _hash_rank(eligible)[:max_snapshots]}
         else:
             selected_ids = {sig["signal_id"] for (_, sig, _) in eligible}
         spot_by_id = {sig["signal_id"]: spot for (_, sig, spot) in eligible}
+
+        # ── Research-Stichprobe ohne LLM-Richtung (2026-10-30) ───────────────
+        # Seit economics_first (2026-10-28) erreichen nur noch 1–3 Kandidaten je
+        # Tag das LLM und damit eine Richtung -> echte Options-Labels fielen von
+        # ~40 auf 1–3 je Tag. Das vom Richtungs-Snapshot nicht genutzte Budget
+        # geht an eine deterministische, outcome-unabhängige Hash-Stichprobe der
+        # Kandidaten OHNE Richtung. Kontrakt = RESEARCH_DIRECTION (die einzige
+        # Richtung, die die Produktion handelt). row["direction"] bleibt None:
+        # Scorecards und Meta-Label (nur Zeilen mit Richtung) bleiben unverändert.
+        # Kein LLM-Aufruf, nie mehr Snapshots als ledger.max_option_snapshots.
+        research_budget = max(0, max_snapshots - len(selected_ids)) if _research_option_sample_enabled() else 0
+        research_ids = {sig["signal_id"] for (_, sig, _) in
+                        _hash_rank(research_pool, "research:")[:research_budget]}
+        spot_by_id.update({sig["signal_id"]: spot for (_, sig, spot) in research_pool
+                           if sig["signal_id"] in research_ids})
 
         # ── Review-Fix: real_option (Pass 1) für alle budget-ausgewählten
         # Signale bauen, BEVOR die 1y-Closes für den replizierten iv_rank
@@ -1163,16 +1210,17 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         real_option_raw_by_id = {}
         for ticker, e in to_process:
             signal_id = e["signal_id"]
-            if signal_id not in selected_ids or signal_id not in spot_by_id:
+            if signal_id not in spot_by_id or signal_id not in selected_ids | research_ids:
                 continue
-            real_option_raw = _build_real_option(e, spot_by_id[signal_id])
+            spec = e if signal_id in selected_ids else {**e, "direction": RESEARCH_DIRECTION}
+            real_option_raw = _build_real_option(spec, spot_by_id[signal_id])
             if real_option_raw is not None:
-                real_option_raw_by_id[signal_id] = (ticker, real_option_raw)
+                real_option_raw_by_id[signal_id] = (ticker, real_option_raw, spec)
 
         # ── Pass 2: EIN gebündelter yf.download für 1y-Closes über alle
         # Ticker mit erfolgreichem real_option (für den replizierten
         # iv_rank in real_strategy — siehe compute_iv_rank_components).
-        strategy_tickers = sorted({t for (t, _raw) in real_option_raw_by_id.values()})
+        strategy_tickers = sorted({t for (t, _raw, _spec) in real_option_raw_by_id.values()})
         closes_hist = _fetch_history_batch(strategy_tickers, 365) if strategy_tickers else {}
         closes_by_ticker = {t: [p for _ts, p in hist] for t, hist in closes_hist.items()}
 
@@ -1182,8 +1230,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         # kein eigenes Budget/Gate.
         term_calls = 0
         real_strategy_raw_by_id = {}
-        for signal_id, (ticker, real_option_raw) in real_option_raw_by_id.items():
-            e = next(sig for _t, sig in to_process if sig["signal_id"] == signal_id)
+        for signal_id, (ticker, real_option_raw, e) in real_option_raw_by_id.items():
             spot = spot_by_id[signal_id]
             term_calls += 1
             term_point2 = market_snapshot.fetch_term_iv_point(ticker, spot)
@@ -1241,23 +1288,28 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 row["hypo_option"] = hypo
 
             # P0-B/P0-2: echter Options-Kontrakt (+ Produktions-Strategie-
-            # Counterfactual) — nur für Kandidaten mit bekannter Richtung,
-            # begrenzt auf `ledger.max_option_snapshots` API-Calls/Lauf (P1:
-            # neutrale Zufallsauswahl statt "erste N", siehe oben).
-            if e.get("direction") in ("BULLISH", "BEARISH"):
-                signal_id = e["signal_id"]
-                row["snapshot_eligible_n"] = eligible_n
-                row["snapshot_budget"]     = max_snapshots
+            # Counterfactual) — für Kandidaten mit bekannter Richtung und die
+            # Research-Stichprobe ohne Richtung, zusammen begrenzt auf
+            # `ledger.max_option_snapshots` API-Calls/Lauf (P1: neutrale
+            # Zufallsauswahl statt "erste N", siehe oben).
+            signal_id = e["signal_id"]
+            directional = e.get("direction") in ("BULLISH", "BEARISH")
+            if directional or signal_id in research_ids:
+                row["snapshot_eligible_n"] = eligible_n if directional else len(research_pool)
+                row["snapshot_budget"]     = max_snapshots if directional else research_budget
+                row["option_sample"]       = "directional" if directional else "research_census"
+                if not directional:
+                    row["research_direction"] = RESEARCH_DIRECTION
                 if signal_id not in spot_by_id:
                     row["snapshot_selected"]       = False
                     row["real_option_skip_reason"] = "no_spot"
-                elif signal_id not in selected_ids:
+                elif directional and signal_id not in selected_ids:
                     row["snapshot_selected"]       = False
                     row["real_option_skip_reason"] = "budget_random_exclusion"
                 else:
                     row["snapshot_selected"] = True
                     if signal_id in real_option_raw_by_id:
-                        _t, real_option_raw = real_option_raw_by_id[signal_id]
+                        _t, real_option_raw, _spec = real_option_raw_by_id[signal_id]
                         _v2 = row["timing_policy"] == "timing-v2"
                         _sess = "pending" if _v2 else resolved["session"]      # v2: Entry nur über _v2_entry
                         row["real_option"] = _finalize_real_option(real_option_raw, _sess, today)
@@ -1940,7 +1992,9 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
                 if spot_at_expiry is None:
                     continue
                 strike = real_option.get("strike") or 0
-                kind = "call" if row.get("direction") == "BULLISH" else "put"
+                kind = _position_kind(row, symbol)
+                if kind is None:
+                    continue
                 intrinsic = (max(spot_at_expiry - strike, 0.0) if kind == "call"
                              else max(strike - spot_at_expiry, 0.0))
                 exit_bid = exit_mid = intrinsic
@@ -2041,12 +2095,12 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                 continue
 
             expiry_dt = _parse_date(rs.get("expiry") or "")
-            kind = "call" if row.get("direction") == "BULLISH" else "put"
+            kind = _position_kind(row, long_leg.get("symbol"))
 
             if expiry_dt is not None and today_dt.date() > expiry_dt.date():
                 # Settlement: UNbereinigter Schluss exakt am Verfallstag (nicht der bereinigte "am oder vor")
                 spot_at_expiry = market_snapshot.unadjusted_close_on(row.get("ticker"), expiry_dt)
-                if spot_at_expiry is None:
+                if spot_at_expiry is None or kind is None:
                     continue
 
                 def _intrinsic(leg):
