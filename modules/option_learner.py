@@ -8,8 +8,12 @@ Kreislauf (autonom, kein LLM, keine Markt-API, keine Order):
      (Entry und Exit aus dem Quote-Archiv nachgerechnet)
   -> Ridge-Regression mit festen Hyperparametern auf standardisierten Merkmalen
   -> Walk-Forward je Signaltag: trainiert nur auf Labels, deren Mark-Tag VOR dem Testtag liegt (Embargo)
-  -> Prognose-Journal: jede Tagesprognose append-only, bevor ihr Label existiert (prospektiv)
-  -> Forward-Auswertung des Journals, sobald die Labels geprüft vorliegen
+  -> Prognose-Journal: jede Tagesprognose append-only, bevor ihr Label existiert (prospektiv), mit
+     Experimentversion (experiment_id: Merkmale, Label, Kosten, Training, Auswahlregel) und Modellinstanz
+     (model_id: Trainingsstichtag, Label-Manifest, Koeffizienten-Fingerprint; Register model_instances.jsonl)
+  -> Forward-Auswertung des Journals, sobald die Labels geprüft vorliegen: nur Prognosen der aktuellen
+     Experimentversion, am Signaltag geschrieben, von einer registrierten, vorher trainierten Modellinstanz;
+     fortlaufend neu trainierte Instanzen derselben Version bilden eine gemeinsame Lernkurve
   -> EMPFEHLUNG nur, wenn die Freigabe (release_gate) alle Evidenzanforderungen erneut bestätigt: Walk-Forward
      VALIDATED UND Forward FORWARD_POSITIVE, jeweils mit Mindest-Testtagen, unabhängigen Perioden, Fallzahl und
      Konfidenzintervall über 0 – fail closed bei fehlenden oder widersprüchlichen Angaben; je Kandidat die
@@ -49,6 +53,7 @@ log = logging.getLogger(__name__)
 
 OUT = Path("outputs/research/option_learner")
 JOURNAL = "predictions.jsonl"
+INSTANCES = "model_instances.jsonl"
 REPORT_CARD = "report_card"
 HORIZON = 20
 COMMISSION_PER_LEG_SIDE = 0.65          # USD je Kontrakt und Seite (wie cost_model der Feedback-Outcomes)
@@ -63,10 +68,11 @@ MAIL_HORIZON = HORIZON                  # Handels-Mail nur für das Hauptmodell 
 MIN_FEATURE_COVERAGE = 0.5
 BOOTSTRAP = 2000
 WATCHLIST_N = 5
-SPEC = {"name": "option_learner_ridge_v2", "alpha": RIDGE_ALPHA, "target": "executable return - commission",
-        "expressions": ["strategy", "single", "single_alt"], "features_version": 2,
-        "winsor": [0.01, 0.99], "selection": "pred > 0", "min_oos_dates": MIN_OOS_DATES,
-        "min_selected": MIN_SELECTED}
+WINSOR = (0.01, 0.99)
+ALLOWED_STRATEGIES = ("LONG_CALL", "BULL_CALL_SPREAD")   # Call-Strukturen, die die Produktion handeln kann
+# Evidenzanforderungen (ändern keine Prognose, daher nicht Teil der Experimentversion)
+EVIDENCE = {"min_oos_dates": MIN_OOS_DATES, "min_selected": MIN_SELECTED,
+            "min_independent_periods": MIN_INDEPENDENT_PERIODS, "ic_t_min": IC_T_MIN, "bootstrap": "block/horizon"}
 
 LEDGER_FEATURES = (
     "impact", "surprise", "sentiment_score", "sentiment_confidence", "sentiment_drift", "news_count",
@@ -81,8 +87,24 @@ SOURCES = (("real_strategy", "real_strat", None), ("real_option", "real_opt", "s
            ("real_option_alt", "real_alt", "single_alt"))
 
 
-def spec_hash() -> str:
-    return hashlib.sha256(json.dumps(SPEC, sort_keys=True).encode()).hexdigest()[:12]
+def experiment() -> dict:
+    """Experiment-/Strategieversion: alles, was eine Prognose oder Entscheidung inhaltlich bestimmt. Jede Änderung
+    an Merkmalen, Labeldefinition, Kostenmodell, Trainingsverfahren oder Auswahlregel ergibt eine neue Version;
+    deren Forward-Evidenz wird nie mit der einer anderen Version vermischt."""
+    return {"name": "option_learner_ridge",
+            "features": {"ledger": list(LEDGER_FEATURES), "contract": list(CONTRACT_FEATURES),
+                         "min_coverage": MIN_FEATURE_COVERAGE},
+            "label": {"target": "executable return (buy ask, sell bid) - commission", "provenance": "VERIFIED",
+                      "sources": [s[0] for s in SOURCES]},
+            "costs": {"commission_per_leg_side_usd": COMMISSION_PER_LEG_SIDE},
+            "training": {"model": "ridge", "alpha": RIDGE_ALPHA, "winsor": list(WINSOR),
+                         "min_train_rows": MIN_TRAIN_ROWS, "min_train_dates": MIN_TRAIN_DATES,
+                         "embargo": "label_day < decision day"},
+            "selection": {"rule": "pred > 0", "allowed_strategies": list(ALLOWED_STRATEGIES)}}
+
+
+def experiment_id() -> str:
+    return hashlib.sha256(json.dumps(experiment(), sort_keys=True).encode()).hexdigest()[:12]
 
 
 def _num(v):
@@ -282,7 +304,7 @@ def fit(train: list[dict]) -> Model | None:
     sd[sd == 0] = 1.0
     x = (raw - mu) / sd
     y = np.array([d["y"] for d in train], dtype=float)
-    lo, hi = np.quantile(y, SPEC["winsor"])
+    lo, hi = np.quantile(y, WINSOR)
     y = np.clip(y, lo, hi)
     intercept = float(y.mean())
     coef = np.linalg.solve(x.T @ x + RIDGE_ALPHA * np.eye(len(names)), x.T @ (y - intercept))
@@ -393,17 +415,54 @@ def walk_forward(data: list[dict], horizon: int = HORIZON) -> dict:
     return {**s, "by_expression": _by_expression(preds), "verdict": verdict}
 
 
-def forward(journal: list[dict], data: list[dict], horizon: int) -> dict:
-    """Prospektive Prognosen (vor dem Label geschrieben) gegen die inzwischen geprüften Labels; Zuordnung über
-    Signal und Kontrakt."""
+def _invalid(j: dict, exp: str, instances: dict) -> str | None:
+    """Grund, warum ein Journal-Eintrag keine prospektive Evidenz der Experimentversion `exp` ist (sonst None):
+    andere Version, unbekannte Modellinstanz, nicht am Signaltag geschrieben oder mit Labels ab dem Signaltag
+    trainiert."""
+    if (j.get("experiment_id") or j.get("model_spec")) != exp:
+        return "OTHER_EXPERIMENT"
+    inst = instances.get(j.get("model_id"))
+    if inst is None:
+        return "UNKNOWN_MODEL_INSTANCE"
+    if inst.get("experiment_id") != exp:
+        return "INSTANCE_EXPERIMENT_MISMATCH"
+    try:
+        created = datetime.fromisoformat(str(j["created_at"])).astimezone(timezone.utc).date()
+        signal = date.fromisoformat(str(j["date"]))
+    except (KeyError, ValueError, TypeError):
+        return "NO_TIMESTAMP"
+    if created > signal:
+        return "LATE_PREDICTION"
+    day = signal.isoformat()
+    if str(inst.get("max_label_day") or "9999") >= day or str(inst.get("train_cutoff")) > day:
+        return "TRAINED_ON_FUTURE"
+    return None
+
+
+def forward(journal: list[dict], data: list[dict], horizon: int, instances: list[dict] | None = None,
+            exp: str | None = None) -> dict:
+    """Prospektive Prognosen gegen die inzwischen geprüften Labels; Zuordnung über Signal und Kontrakt. Es zählen
+    nur unveränderte Journal-Einträge der Experimentversion `exp` (Standard: aktuelle Version) – fortlaufend neu
+    trainierte Modellinstanzen derselben Version gemeinsam, jede Prognose mit ihrem damals gespeicherten Wert."""
+    exp = exp or experiment_id()
+    reg = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
     labels = {(d["date"], d["signal_id"], tuple(d["contract"])): d for d in data}
-    preds = []
+    preds, seen, excluded, by_exp, models, pending = [], set(), defaultdict(int), defaultdict(int), set(), 0
     for j in journal:
-        if j.get("horizon") != horizon:
+        if not isinstance(j, dict) or j.get("horizon") != horizon:
             continue
-        d = labels.get((j.get("date"), j.get("signal_id"), tuple(j.get("contract") or ())))
-        if d is None or str(j.get("created_at", ""))[:10] > d["label_day"].isoformat():
+        by_exp[str(j.get("experiment_id") or j.get("model_spec") or "unbekannt")] += 1
+        key = (j.get("date"), j.get("signal_id"), tuple(j.get("contract") or ()))
+        reason = _invalid(j, exp, reg) or ("DUPLICATE" if key in seen else None)
+        if reason:
+            excluded[reason] += 1
             continue
+        seen.add(key)
+        d = labels.get(key)
+        if d is None:
+            pending += 1
+            continue
+        models.add(j["model_id"])
         preds.append({"date": j["date"], "pred": float(j["pred_net"]), "y": d["y"], "expression": d["expression"]})
     s = score(preds, horizon)
     ci = s["selected_ci95"]
@@ -415,7 +474,9 @@ def forward(journal: list[dict], data: list[dict], horizon: int) -> dict:
         verdict = "FORWARD_POSITIVE"
     else:
         verdict = "INCONCLUSIVE"
-    return {**s, "by_expression": _by_expression(preds), "verdict": verdict}
+    return {**s, "by_expression": _by_expression(preds), "verdict": verdict, "experiment_id": exp,
+            "valid_predictions": len(preds), "pending_predictions": pending, "model_instances": len(models),
+            "excluded": dict(sorted(excluded.items())), "journal_by_experiment": dict(sorted(by_exp.items()))}
 
 
 def release_gate(wf: dict | None, fw: dict | None) -> dict:
@@ -453,9 +514,35 @@ def _load(as_of: date, horizon: int, ledger: Path, quotes: Path, counts: dict | 
     return rows, dataset(rows, red.load_quotes(quotes, labelled, as_of), as_of, horizon, counts)
 
 
+def _label_ids(data: list[dict]) -> list[str]:
+    return sorted(f"{d['date']}|{d['signal_id']}|{'/'.join(d['contract'])}|{d['label_day']}" for d in data)
+
+
+def instance(model: Model, train: list[dict], cutoff: date) -> dict:
+    """Trainierte Modellinstanz: Experimentversion, Trainingsstichtag, Manifest der verwendeten Label-IDs und
+    Fingerprint der Gewichte. Die Label-IDs sind aus dem Ledger über (Signal, Kontrakt, Mark-Tag < Stichtag)
+    reproduzierbar; gespeichert wird ihr Hash."""
+    labels_sha = hashlib.sha256("\n".join(_label_ids(train)).encode()).hexdigest()[:16]
+    weights = np.round(np.concatenate([model.coef, [model.intercept], model.mu, model.sd]), 10)
+    weights_sha = hashlib.sha256(weights.tobytes() + "|".join(model.names).encode()).hexdigest()[:16]
+    exp = experiment_id()
+    return {"model_id": hashlib.sha256(f"{exp}|{labels_sha}|{weights_sha}".encode()).hexdigest()[:16],
+            "experiment_id": exp, "train_cutoff": cutoff.isoformat(), "n_train_labels": len(train),
+            "labels_sha256": labels_sha, "weights_sha256": weights_sha,
+            "max_label_day": max(d["label_day"] for d in train).isoformat(), "features": list(model.names)}
+
+
+def _register(out: Path, inst: dict, horizon: int, now: datetime) -> None:
+    """Modellinstanz append-only registrieren (einmal je model_id und Horizont)."""
+    path = out / INSTANCES
+    known = {(i.get("model_id"), i.get("horizon")) for i in (read_jsonl(path) if path.exists() else [])}
+    if (inst["model_id"], horizon) not in known:
+        append_jsonl(path, [{**inst, "horizon": horizon, "registered_at": now.isoformat(timespec="seconds")}])
+
+
 def manifest(data: list[dict], as_of: date) -> dict:
     """Welche geprüften Labels in das Modell zum Stichtag flossen (Hash über Signal, Kontrakt, Mark-Tag)."""
-    ids = sorted(f"{d['date']}|{d['signal_id']}|{'/'.join(d['contract'])}|{d['label_day']}" for d in data)
+    ids = _label_ids(data)
     by_expr = defaultdict(int)
     for d in data:
         by_expr[d["expression"]] += 1
@@ -493,7 +580,9 @@ def _baselines(wf: dict) -> dict:
 
 
 def _vs_previous(history: list[dict], status: dict) -> dict | None:
-    prev = next((h for h in reversed(history) if h.get("as_of") < status["as_of"]), None)
+    """Beschreibende Lernkurve (aggregiert, nur innerhalb derselben Experimentversion)."""
+    prev = next((h for h in reversed(history) if h.get("as_of") < status["as_of"]
+                 and h.get("experiment_id") == status["experiment_id"]), None)
     if prev is None:
         return None
     cur, old = status["walk_forward"], prev.get("walk_forward") or {}
@@ -510,28 +599,33 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
     counts: dict = {}
     rows, data = _load(as_of, horizon, ledger, quotes, counts)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
+    instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
     model = fit(data)
     wf = walk_forward(data, horizon)
     week = (as_of.toordinal() - 7)
     recent = [r for r in rows if isinstance(r, dict) and r.get("date")
               and date.fromisoformat(str(r["date"])[:10]).toordinal() > week]
-    status = {"as_of": as_of.isoformat(), "horizon": horizon, "spec": SPEC, "spec_hash": spec_hash(),
+    status = {"as_of": as_of.isoformat(), "horizon": horizon, "experiment": experiment(),
+              "experiment_id": experiment_id(), "evidence_requirements": EVIDENCE,
               "verified_labels": len(data), "label_dates": len({d["date"] for d in data}),
               "provenance_counts": dict(sorted(counts.items())),
               "ledger_rows_7d": len(recent),
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
               "manifest": manifest(data, as_of), "walk_forward": wf, "baselines": _baselines(wf),
               "by_gate": by_gate(data),
-              "forward": forward(journal, data, horizon), "model": model.describe() if model else None,
+              "forward": forward(journal, data, horizon, instances), "model": model.describe() if model else None,
               "production_influence": "NONE", "orders_created": 0}
+    mine = [i for i in instances if i.get("horizon") == horizon and i.get("experiment_id") == status["experiment_id"]]
+    status["model_instances"] = {"count": len(mine), "latest": {k: v for k, v in mine[-1].items() if k != "features"}
+                                 if mine else None}
     hist_path = out / f"status_history_{horizon}d.jsonl"
     history = read_jsonl(hist_path) if hist_path.exists() else []
     status["vs_previous"] = _vs_previous(history, status)
     atomic_write_json(out / f"status_{horizon}d.json", status, indent=1)
     last = history[-1] if history else {}
-    if (last.get("as_of"), (last.get("manifest") or {}).get("labels_sha256"), last.get("spec_hash")) != \
-            (status["as_of"], status["manifest"]["labels_sha256"], status["spec_hash"]):
-        append_jsonl(hist_path, [{k: status[k] for k in ("as_of", "horizon", "spec_hash", "verified_labels",
+    if (last.get("as_of"), (last.get("manifest") or {}).get("labels_sha256"), last.get("experiment_id")) != \
+            (status["as_of"], status["manifest"]["labels_sha256"], status["experiment_id"]):
+        append_jsonl(hist_path, [{k: status[k] for k in ("as_of", "horizon", "experiment_id", "verified_labels",
                                                           "manifest", "walk_forward", "baselines", "forward")}])
     report_card(out)
     return status
@@ -544,9 +638,15 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     now = now or datetime.now(timezone.utc)
     rows, data = _load(day, horizon, ledger, quotes)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
-    wf, fw = walk_forward(data, horizon), forward(journal, data, horizon)
-    model = fit([d for d in data if d["label_day"] < day])
-    done = {(j.get("date"), j.get("signal_id"), j.get("horizon"), tuple(j.get("contract") or ())) for j in journal}
+    instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
+    wf, fw = walk_forward(data, horizon), forward(journal, data, horizon, instances)
+    train = [d for d in data if d["label_day"] < day]
+    model, exp = fit(train), experiment_id()
+    inst = instance(model, train, day) if model is not None else None
+    if inst is not None:
+        _register(out, inst, horizon, now)
+    done = {(j.get("date"), j.get("signal_id"), j.get("horizon"), tuple(j.get("contract") or ()),
+             j.get("experiment_id") or j.get("model_spec")) for j in journal}
     new, best = [], {}
     for r in rows:
         if not isinstance(r, dict) or r.get("date") != day.isoformat() or model is None:
@@ -559,12 +659,13 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
             item = {"date": r["date"], "signal_id": r.get("signal_id"), "ticker": r["ticker"],
                     "expression": e["expression"], "contract": e["contract"], "strategy": rs.get("strategy"),
                     "entry_ask_net": ask, "entry_mid_net": mid, "option_sample": r.get("option_sample"),
-                    "horizon": horizon, "pred_net": round(float(p), 6), "model_spec": spec_hash(),
+                    "horizon": horizon, "pred_net": round(float(p), 6), "experiment_id": exp,
+                    "model_id": inst["model_id"], "train_cutoff": inst["train_cutoff"],
                     "walk_forward_verdict": (wf or {}).get("verdict"), "forward_verdict": (fw or {}).get("verdict"),
                     "created_at": now.isoformat(timespec="seconds")}
-            if (item["date"], item["signal_id"], horizon, tuple(item["contract"])) not in done:
+            if (item["date"], item["signal_id"], horizon, tuple(item["contract"]), exp) not in done:
                 new.append(item)
-            if item["strategy"] in ("LONG_CALL", "BULL_CALL_SPREAD"):
+            if item["strategy"] in ALLOWED_STRATEGIES:
                 key = (item["signal_id"], item["ticker"])
                 if key not in best or item["pred_net"] > best[key]["pred_net"]:
                     best[key] = item
@@ -574,6 +675,7 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     recs = sorted((i for i in best.values() if gate["allowed"] and i["pred_net"] > 0), key=lambda i: -i["pred_net"])
     watch = sorted(best.values(), key=lambda i: -i["pred_net"])[:WATCHLIST_N]
     result = {"date": day.isoformat(), "horizon": horizon, "model_available": model is not None,
+              "experiment_id": exp, "model_id": inst and inst["model_id"],
               "verified_labels": len(data), "walk_forward": wf, "forward": fw, "release": gate,
               "mail_eligible": horizon == MAIL_HORIZON and bool(recs),
               "recommendations": recs, "watchlist": [] if recs else watch,
@@ -605,7 +707,8 @@ def render(res: dict) -> str:
               (f"- Forward (prospektives Journal): **{fw['verdict']}** – Tage {fw['dates']} "
                f"({fw['independent_periods']} unabhängige Perioden), Auswahl n={fw['n_selected']}, "
                f"Ø netto {_fmt(fw['mean_selected'])}"),
-              f"- Freigabe: **{'erteilt' if gate['allowed'] else 'gesperrt'}**", ""]
+              f"- Freigabe: **{'erteilt' if gate['allowed'] else 'gesperrt'}**",
+              f"- Experimentversion {res.get('experiment_id')}, Modellinstanz {res.get('model_id')}", ""]
     if res["recommendations"]:
         lines += ["## Empfehlungen (Walk-Forward validiert, Forward positiv bestätigt)", "",
                   "| Ticker | Strategie | Form | Kontrakt | Ask / Mid (Entscheidung) | erwartet netto |",
@@ -650,6 +753,8 @@ def _answers(st: dict) -> dict:
     gate_text = "; ".join(f"{k} {_fmt(v['mean'])} (n={v['n']})"
                           for k, v in sorted(gates.items(), key=lambda kv: -kv[1]["mean"]))
     gate = release_gate(wf, fw)
+    latest = (st.get("model_instances") or {}).get("latest") or {}
+    inst_count = (st.get("model_instances") or {}).get("count", 0)
     return {
         "data": ("Ja" if st.get("option_snapshots_7d") else "Nein",
                  f"{st.get('ledger_rows_7d', 0)} Kandidaten, {st.get('option_snapshots_7d', 0)} mit Optionskontrakt (7 T)"),
@@ -664,6 +769,13 @@ def _answers(st: dict) -> dict:
                       f"Auswahl {_fmt(base['model_selected'])} vs. alles {_fmt(base['trade_all'])} vs. nie 0 %"),
         "forward": ({"FORWARD_POSITIVE": "Ja", "FORWARD_NEGATIVE": "Nein"}.get(fw["verdict"], "offen"),
                     f"{fw['verdict']}, {fw['n']} vorab festgehaltene Prognosen"),
+        "experiment": ("Ja" if fw.get("valid_predictions") else "offen",
+                       f"Version {st.get('experiment_id')}; {inst_count} Modellinstanzen"
+                       + (f" (zuletzt {latest.get('model_id')}, Stichtag {latest.get('train_cutoff')}, "
+                          f"Labels {latest.get('labels_sha256')})" if latest else "")
+                       + f"; gültige Forward-Prognosen {fw.get('valid_predictions', 0)}, offen "
+                       f"{fw.get('pending_predictions', 0)}; ausgeschlossen: "
+                       + (", ".join(f"{k} {v}" for k, v in (fw.get("excluded") or {}).items()) or "keine")),
         "improves": ("offen" if d_sel is None else "Ja" if d_sel > 0 else "Nein",
                      "keine Vorversion" if not prev else
                      f"Auswahl {_fmt(d_sel)} ggü. {prev['previous_as_of']}, Labels {prev['delta_labels']:+d}"),
@@ -684,6 +796,7 @@ CARD_QUESTIONS = (
     ("validated", "Ist das Modell auf ungesehenen Tagen validiert?"),
     ("baselines", "Schlägt es 'nie handeln' und 'alles handeln'?"),
     ("forward", "Bestätigt es sich auf vorab festgehaltenen Prognosen?"),
+    ("experiment", "Welche Experimentversion und Modellinstanzen stehen dahinter (ausgeschlossene Prognosen)?"),
     ("improves", "Wird es besser als die Vorversion?"),
     ("expressions", "Welche Ausdrucksform schneidet ab (Ø netto, ungesehen)?"),
     ("gates", "Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)?"),

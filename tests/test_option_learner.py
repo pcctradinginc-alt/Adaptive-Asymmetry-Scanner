@@ -323,3 +323,96 @@ def test_volatility_pricing_features_from_decision_time():
     r["real_strategy"]["iv_rank_components"] = {"rv_score": 25.0, "term_score": 40.0}
     f = ol.contract_features(ol.expressions(r)[0]["row"])
     assert (f["c_iv_rank"], f["c_rv_score"], f["c_term_score"]) == (30.0, 25.0, 40.0)
+
+
+def _fw_case(n_dates, exp, start=date(2026, 3, 2), per_day_models=False, y=0.2, seed=5):
+    """Forward-Fall: je Tag 4 geprüfte Labels (Netto ~ y) und dazu am Signaltag geschriebene Prognosen der
+    Experimentversion `exp` aus registrierten, vorher trainierten Modellinstanzen."""
+    rng, data, journal, instances = random.Random(seed), [], [], []
+    for k, d in enumerate(_trading_days(start, n_dates)):
+        mid = f"{exp}-m{k if per_day_models else 0}"
+        if not any(i["model_id"] == mid for i in instances):
+            instances.append({"model_id": mid, "experiment_id": exp, "train_cutoff": d.isoformat(),
+                              "max_label_day": (d - timedelta(days=1)).isoformat()})
+        for i in range(4):
+            sid, contract = f"{d}-{exp}-{i}", [f"T{i}270319C00100000"]
+            data.append({"date": d.isoformat(), "label_day": d + timedelta(days=H + 1), "signal_id": sid,
+                         "ticker": f"T{i}", "expression": "single", "contract": contract, "x": {},
+                         "y": y + rng.uniform(-0.05, 0.05)})
+            journal.append({"date": d.isoformat(), "signal_id": sid, "contract": contract, "horizon": H,
+                            "pred_net": 0.1, "experiment_id": exp, "model_id": mid,
+                            "created_at": f"{d}T16:30:00+00:00"})
+    return data, journal, instances
+
+
+def test_experiment_version_changes_with_features_label_costs_training_or_selection(monkeypatch):
+    base = ol.experiment_id()
+    assert base == ol.experiment_id()                                             # deterministisch
+    for name, value in (("LEDGER_FEATURES", ol.LEDGER_FEATURES[:-1]), ("COMMISSION_PER_LEG_SIDE", 1.0),
+                        ("RIDGE_ALPHA", 1.0), ("WINSOR", (0.05, 0.95)), ("ALLOWED_STRATEGIES", ("LONG_CALL",)),
+                        ("SOURCES", ol.SOURCES[:2])):
+        with monkeypatch.context() as m:
+            m.setattr(ol, name, value)
+            assert ol.experiment_id() != base, name
+    with monkeypatch.context() as m:                                              # Evidenzschwellen: gleiche Version
+        m.setattr(ol, "MIN_OOS_DATES", 40)
+        assert ol.experiment_id() == base
+
+
+def test_mixed_experiment_versions_never_form_a_joint_forward_positive():
+    old_data, old_journal, old_inst = _fw_case(25, "OLD")
+    new_data, new_journal, new_inst = _fw_case(5, "NEW", start=date(2026, 4, 20))
+    data, journal, inst = old_data + new_data, old_journal + new_journal, old_inst + new_inst
+    assert ol.forward(old_journal, old_data, H, old_inst, exp="OLD")["verdict"] == "FORWARD_POSITIVE"
+    fw = ol.forward(journal, data, H, inst, exp="NEW")
+    assert fw["verdict"] == "NEED_MORE_DATA" and fw["valid_predictions"] == 20
+    assert fw["excluded"] == {"OTHER_EXPERIMENT": 100}                            # gekennzeichnet, nicht gemischt
+    assert fw["journal_by_experiment"] == {"NEW": 20, "OLD": 100}
+    legacy = [{k: v for k, v in j.items() if k not in ("experiment_id", "model_id")} for j in old_journal]
+    assert ol.forward(legacy + new_journal, data, H, inst, exp="NEW")["excluded"] == {"OTHER_EXPERIMENT": 100}
+
+
+def test_retraining_within_one_experiment_forms_one_prospective_learning_curve():
+    data, journal, inst = _fw_case(25, "EXP", per_day_models=True)
+    fw = ol.forward(journal, data, H, inst, exp="EXP")
+    assert fw["verdict"] == "FORWARD_POSITIVE" and fw["model_instances"] == 25 and fw["excluded"] == {}
+    # gespeicherte Prognosen zählen mit ihrem damaligen Wert, nie neu berechnet
+    assert fw["n_selected"] == 100
+    flipped = [dict(j, pred_net=-0.1) for j in journal]
+    assert ol.forward(flipped, data, H, inst, exp="EXP")["n_selected"] == 0
+
+
+def test_late_unregistered_or_future_trained_predictions_never_count():
+    data, journal, inst = _fw_case(25, "EXP")
+    j0 = journal[0]
+    bad = [dict(j0, signal_id="late", created_at="2026-03-03T09:00:00+00:00", date="2026-03-02"),
+           dict(j0, created_at="2026-03-02T23:30:00-05:00"),                     # UTC bereits der Folgetag
+           dict(j0, model_id="nie-registriert"),
+           dict(j0, created_at=None),
+           dict(j0, pred_net=-5.0)]                                             # zweite Fassung: erste gilt
+    inst = inst + [{"model_id": "future", "experiment_id": "EXP", "train_cutoff": "2026-03-02",
+                    "max_label_day": "2026-03-02"}]
+    bad.append(dict(journal[1], model_id="future"))
+    fw = ol.forward(journal + bad, data, H, inst, exp="EXP")
+    assert fw["excluded"] == {"DUPLICATE": 1, "LATE_PREDICTION": 2, "NO_TIMESTAMP": 1,
+                              "TRAINED_ON_FUTURE": 1, "UNKNOWN_MODEL_INSTANCE": 1}
+    assert fw["valid_predictions"] == 100 and fw["verdict"] == "FORWARD_POSITIVE"
+
+
+def test_recommend_journals_experiment_and_registered_model_instance(monkeypatch, tmp_path):
+    days = _trading_days(date(2026, 1, 5), 15)
+    rows, quotes = _history(days)
+    today = _trading_days(days[-1] + timedelta(days=10), 1)[0]
+    rows += [_row(today.isoformat(), 1, 0.8)]
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    now = datetime.combine(today, datetime.min.time(), tzinfo=timezone.utc).replace(hour=17)
+    res = ol.recommend(today, horizon=H, out=tmp_path, now=now)
+    ol.recommend(today, horizon=H, out=tmp_path, now=now)
+    journal, registry = read_jsonl(tmp_path / ol.JOURNAL), read_jsonl(tmp_path / ol.INSTANCES)
+    assert len(registry) == 1 and len(journal) == 1                               # append-only, keine Dubletten
+    inst, entry = registry[0], journal[0]
+    assert entry["experiment_id"] == inst["experiment_id"] == ol.experiment_id() == res["experiment_id"]
+    assert entry["model_id"] == inst["model_id"] == res["model_id"]
+    assert inst["max_label_day"] < today.isoformat() and inst["n_train_labels"] > 0 and inst["labels_sha256"]
+    assert ol._invalid(entry, ol.experiment_id(), {inst["model_id"]: inst}) is None
