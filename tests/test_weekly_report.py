@@ -399,3 +399,76 @@ def test_universe_section_separates_v1_v2_and_needs_data(tmp_path):
     make_full(tmp_path)
     sec = _section(text_for(tmp_path), 9)
     assert "UNIVERSE_V1" in sec and "nie vermischt" in sec and "NEED_MORE_DATA" in sec
+
+
+def test_monday_autonomous_alpha_learning_is_in_existing_email(tmp_path):
+    make_full(tmp_path)
+    alpha = tmp_path / "outputs/research/autonomous_alpha"
+    _w(alpha / "summary.json", {
+        "generated": "2026-11-01T11:00:00+00:00",
+        "n_experiments": 47, "n_historically_tested": 35,
+        "by_status": {"REJECTED": 28, "INCONCLUSIVE": 7},
+    })
+    _w(alpha / "exploration_plan.json", {
+        "generated": "2026-11-01T08:00:00+00:00", "n_registered_new": 2, "status": "registered"
+    })
+    _w(alpha / "factor_forward.json", {
+        "as_of": "2026-11-01", "n_new_predictions": 2, "n_new_matured_labels": 0,
+        "n_pending_labels": 18, "n_stale_missing_labels": 0,
+        "prospective_snapshot_status": "CURRENT",
+    })
+    _w(alpha / "options_forward.json", {
+        "as_of": "2026-11-01", "n_verified_post_registration": 3,
+        "n_unverified_or_pre_registration": 107, "sample_floor_reached": False,
+        "net_mean_verified": 0.42, "strategy_alpha_status": "NOT_ATTRIBUTABLE",
+    })
+    _w(alpha / "reflection.json", {
+        "generated": "2026-11-01T19:00:00+00:00",
+        "n_matured_stock_factor_cohorts": 0, "alpha_validated": False,
+        "promotion_authorized": False,
+        "next_research_tasks": [{"id": "MORE_DATA", "reason": "Missing matured forward labels"}],
+    })
+    alpha.mkdir(parents=True, exist_ok=True)
+    (alpha / "proposals.jsonl").write_text(json.dumps({
+        "id": "AUTO-123", "registered_at": "2026-10-31T12:00:00+00:00",
+        "hypothesis": {"id": "AUTO-123", "title": "Momentum × Low Vol"}
+    }) + "\n", encoding="utf-8")
+    data = weekly.collect(tmp_path, "2026-11-02", state_path=tmp_path / "state.json")
+    out = weekly.render_text(data)
+    html = weekly.render_html(data)
+    assert out.count("AUTONOMOUS ALPHA ENGINE – WEEKLY LEARNING") == 1
+    for phrase in ("AUTO-123", "47 Experimente", "35 historisch", "18 ausstehend",
+                   "107 nicht verifizierbar", "NICHT BELASTBAR", "NOT_ATTRIBUTABLE",
+                   "MORE_DATA", "NEIN / NICHT NACHGEWIESEN"):
+        assert phrase in out, phrase
+    assert "AUTONOMOUS ALPHA ENGINE" in html
+    assert weekly.subject_for("2026-11-02") == (
+        "Adaptive Asymmetry Scanner – Monday Intelligence Report – 2026-11-02")
+
+
+def test_weekly_missing_and_stale_alpha_data_does_not_invent_progress(tmp_path):
+    make_full(tmp_path)
+    data = weekly.collect(tmp_path, "2026-11-02", state_path=tmp_path / "state.json")
+    text = weekly.render_text(data)
+    alpha_section = text.split("11. AUTONOMOUS ALPHA ENGINE – WEEKLY LEARNING", 1)[1].split("A1. SYSTEM STATUS", 1)[0]
+    assert "KEINE DATEN" in alpha_section
+    assert "UNBEKANNT" in alpha_section
+    assert "Alpha-Nachweis ableitbar" in alpha_section
+    _w(tmp_path / "outputs/research/autonomous_alpha/reflection.json",
+       {"generated": "2026-09-01T11:00:00+00:00", "alpha_validated": True})
+    data2 = weekly.collect(tmp_path, "2026-11-02", state_path=tmp_path / "state.json")
+    after = weekly.render_text(data2)
+    alpha_after = after.split("11. AUTONOMOUS ALPHA ENGINE – WEEKLY LEARNING", 1)[1].split("A1. SYSTEM STATUS", 1)[0]
+    assert "VERALTET/UNBEKANNT" in alpha_after
+    assert "JA – separat prüfen" not in alpha_after
+
+
+def test_weekly_alpha_html_escapes_untrusted_signal_titles(tmp_path):
+    make_full(tmp_path)
+    p = tmp_path / "outputs/research/autonomous_alpha/proposals.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"registered_at": "2026-10-31T12:00:00+00:00",
+                             "hypothesis": {"id": "ABC", "title": "<script>alert(1)</script>"}}) + "\n")
+    html = weekly.render_html(weekly.collect(tmp_path, "2026-11-02", state_path=tmp_path / "state.json"))
+    assert "<script>alert(1)</script>" not in html
+    assert "&lt;script&gt;" in html

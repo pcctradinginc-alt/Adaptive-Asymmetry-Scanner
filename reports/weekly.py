@@ -46,7 +46,7 @@ NO_DATA = "keine Daten"
 NA = "n/a"
 META_METRICS = ("cagr", "sharpe", "sortino", "max_dd", "calmar", "profit_factor",
                 "hit_rate", "expectancy", "brier", "ece")
-# Montagsbericht: 7 Hauptabschnitte (Spezifikation), danach die Detailabschnitte als Anhang A1–A19.
+# Montagsbericht: Hauptabschnitte und Detailanhang; Alpha-Lernen ohne Extra-Mail.
 MONDAY_TITLES = {
     1: "SYSTEM STATUS",
     2: "WHAT THE SYSTEM LEARNED",
@@ -58,6 +58,7 @@ MONDAY_TITLES = {
     8: "FORWARD EVIDENCE",
     9: "UNIVERSE V1 / V2",
     10: "COMMODITY INTELLIGENCE",
+    11: "AUTONOMOUS ALPHA ENGINE – WEEKLY LEARNING",
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
@@ -594,7 +595,156 @@ def collect(root, date, state_path=None) -> dict:
     data["post_mortems_week"] = [pm for pm in _load_jsonl(rs / "post_mortems.jsonl")
                                  if _recent(pm.get("close_date"), today)]
     data["learning_eta"] = _learning_eta(out_dir / "monitoring" / "ops_status.json")
+    # Autonomous Alpha A/B/C: read-only, bounded and clearly separated from
+    # historical research, stock-forward and actual (unattributed) option P&L.
+    # No separate notification, no API requests, no research-triggering work.
+    alpha = rs / "autonomous_alpha"
+    data["autonomous_alpha"] = {
+        "exploration": _load_json(alpha / "exploration_plan.json"),
+        "registry": _load_json(alpha / "summary.json"),
+        "stock_forward": _load_json(alpha / "factor_forward.json"),
+        "option_forward": _load_json(alpha / "options_forward.json"),
+        "reflection": _load_json(alpha / "reflection.json"),
+        "proposals": _load_recent_alpha_proposals(alpha / "proposals.jsonl", today),
+    }
     return data
+
+
+
+def _load_recent_alpha_proposals(path: Path, today: _date) -> dict:
+    """Stream proposals without retaining the entire archive in a mail job.
+
+    Failures are explicitly UNKNOWN rather than silently showing zero ideas.
+    Dates are the actual immutable preregistration timestamps.
+    """
+    if not path.exists():
+        return {"state": "missing", "new": [], "total": None}
+    total = 0
+    new = []
+    try:
+        with path.open(encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                total += 1
+                if total > 5000:
+                    return {"state": "oversize", "new": [], "total": None}
+                event = json.loads(line)
+                if not isinstance(event, dict) or not isinstance(event.get("hypothesis"), dict):
+                    raise ValueError("Malformed proposal")
+                if _recent(event.get("registered_at"), today):
+                    idea = event["hypothesis"]
+                    new.append({"id": str(idea.get("id") or "?"),
+                                "title": str(idea.get("title") or idea.get("family") or "?"),
+                                "registered_at": event["registered_at"]})
+    except (OSError, ValueError, TypeError) as exc:
+        log.warning("Autonomous Alpha proposals nicht lesbar: %s", exc)
+        return {"state": "invalid", "new": [], "total": None}
+    return {"state": "ok", "new": new[:10], "total": total}
+
+
+def autonomous_alpha_weekly_blocks(data: dict) -> list:
+    """Compact research evidence in existing Monday email, never a new mail.
+
+    Missing/old output MUST NOT be presented as zero discoveries or as alpha.
+    Historic wins, gross stock forward and real-options P&L are separate.
+    """
+    alpha = _d(data.get("autonomous_alpha"))
+    today = _parse_date(data.get("date")) or _date.today()
+    specs = (
+        ("Research-Registry", "registry", "generated"),
+        ("Exploration", "exploration", "generated"),
+        ("Aktien-Forward", "stock_forward", "as_of"),
+        ("Options-Forward", "option_forward", "as_of"),
+        ("Reflection", "reflection", "generated"),
+    )
+    health = []
+    fresh = {}
+    for label, key, timestamp in specs:
+        obj = alpha.get(key)
+        if not isinstance(obj, dict):
+            health.append(f"{label}: KEINE DATEN")
+            fresh[key] = {}
+            continue
+        d = _parse_date(str(obj.get(timestamp) or "")[:10])
+        age = (today-d).days if d else None
+        # Older artifacts are still listed by date, but their results must
+        # never look like new progress in this week's report.
+        # Exploration is monthly, all other A/B/C evidence refreshes weekly.
+        expected_max_age = 38 if key == "exploration" else STALE_DAYS_WARN
+        if age is None or age < 0 or age > expected_max_age:
+            health.append(f"{label}: VERALTET/UNBEKANNT (Stand {str(obj.get(timestamp) or NA)[:10]})")
+            fresh[key] = {}
+        else:
+            health.append(f"{label}: Stand {d.isoformat()} ({age} Tage)")
+            fresh[key] = obj
+    blocks = [("note", "Automatischer Research-Überblick der letzten 7 Tage; kein weiterer Mailversand, "
+                       "keine LLM-Aufrufe und keine Freigabe für Echtgeldhandel."),
+              ("para", "Datenstand: " + " | ".join(health))]
+    reg = _d(fresh.get("registry"))
+    expl = _d(fresh.get("exploration"))
+    proposals = _d(alpha.get("proposals"))
+    if proposals.get("state") == "ok":
+        ideas = [f"{p['id']}: {p['title'][:85]} ({str(p['registered_at'])[:10]})"
+                 for p in proposals.get("new") or []]
+        blocks += [("para", f"Neu registrierte Hypothesen: {len(proposals.get('new') or [])} "
+                            f"(Archiv: {proposals.get('total')}, monatlicher Forschungszyklus)."),
+                   ("list", ideas or ["keine neuen Registrierungen in den letzten 7 Tagen"])]
+    else:
+        blocks.append(("para", "Neue Hypothesen: UNBEKANNT (Registrierungsjournal fehlt oder ist beschädigt)."))
+    if reg:
+        states = _d(reg.get("by_status"))
+        blocks.append(("para", f"Forschungs-Registry: {reg.get('n_experiments', NA)} Experimente, "
+                               f"{reg.get('n_historically_tested', NA)} historisch ausgewertet; "
+                               f"Status: {', '.join(f'{k} {v}' for k,v in sorted(states.items())) or NO_DATA}. "
+                               "Historische Ergebnisse beweisen keine zukünftige Optionsrendite."))
+    else:
+        blocks.append(("para", "Forschungs-Registry: keine aktuellen belastbaren Zahlen."))
+    if expl:
+        blocks.append(("para", f"Letzter Explorationslauf: {expl.get('status', NA)}; "
+                               f"{expl.get('n_registered_new', NA)} neu registriert (Laufdatum {str(expl.get('generated') or NA)[:10]})."))
+    stock = _d(fresh.get("stock_forward"))
+    if stock:
+        blocks.append(("para", f"Prospektive Aktienfaktoren (BRUTTO, KEINE Optionsrendite): "
+                               f"{stock.get('n_new_predictions', NA)} neue Prognosen, "
+                               f"{stock.get('n_new_matured_labels', NA)} neu gereifte Labels, "
+                               f"{stock.get('n_pending_labels', NA)} ausstehend, "
+                               f"{stock.get('n_stale_missing_labels', NA)} überfällig. "
+                               f"PIT-Daten: {stock.get('prospective_snapshot_status', NA)}. "
+                               "Keine automatische Validierung aus diesen Kennzahlen."))
+    else:
+        blocks.append(("para", "Aktien-Forward: keine frischen, zuverlässig auswertbaren Daten."))
+    opt = _d(fresh.get("option_forward"))
+    if opt:
+        n = opt.get("n_verified_post_registration")
+        blocks.append(("para", f"Reale Optionsökonomie: {n if n is not None else NA} "
+                               f"quote-verifizierte abgeschlossene Trades, "
+                               f"{opt.get('n_unverified_or_pre_registration', NA)} nicht verifizierbar/zu alt; "
+                               f"Stichprobe {'ausreichend für Diagnostik' if opt.get('sample_floor_reached') else 'zu klein für Diagnostik'}. "
+                               f"Netto-Durchschnitt (nur verifizierte, NICHT zugeordnete Trades): "
+                               f"{_f(opt.get('net_mean_verified'), pct=True, sign=True) if n and opt.get('sample_floor_reached') else 'NICHT BELASTBAR'}. "
+                               f"Faktorzuordnung: {opt.get('strategy_alpha_status', 'UNBEKANNT')}."))
+    else:
+        blocks.append(("para", "Options-Forward: keine aktuellen, quote-verifizierbaren Kennzahlen."))
+    reflection = _d(fresh.get("reflection"))
+    if reflection:
+        tasks = [f"{t.get('id')}: {str(t.get('reason') or '')[:130]}"
+                 for t in (reflection.get("next_research_tasks") or [])[:4]
+                 if isinstance(t, dict)]
+        blocks += [("para", f"Automatische Selbstverbesserung: "
+                            f"{reflection.get('n_matured_stock_factor_cohorts', NA)} "
+                            "gereifte Aktienfaktor-Kohorten; Forschungsaufträge:"),
+                   ("list", tasks or ["keine nachgewiesene neue Lernaufgabe"])]
+        blocks.append(("note", "Alpha nachgewiesen: " +
+                       ("JA – separat prüfen" if reflection.get("alpha_validated") is True else
+                        "NEIN / NICHT NACHGEWIESEN") +
+                       "; Promotion: " + ("nicht autorisiert" if reflection.get("promotion_authorized") is not True
+                                          else "WARNUNG: manuell prüfen")))
+    else:
+        blocks.append(("para", "Selbstverbesserung: aktuelle Reflection-Daten fehlen. Kein Alpha-Nachweis ableitbar."))
+    blocks.append(("note", "Produktiver Scanner und Risikolimits unverändert. Fehlende oder veraltete Daten "
+                           "werden niemals als Null-Performance oder als Erfolg interpretiert."))
+    return blocks
 
 
 def _learning_eta(path: Path) -> dict:
@@ -846,7 +996,7 @@ def _fwd_table(kind: str, windows: list[dict]) -> tuple:
 
 
 def build_sections(data: dict) -> list[tuple[str, str, list]]:
-    """Montagsbericht: 7 Hauptabschnitte, danach alle Detailabschnitte als Anhang (A1–A19)."""
+    """Montagsbericht mit autonomen Learning-Ergebnissen und bisherigem Detailanhang."""
     main = monday_sections(data)
     appendix = [(f"A{num}", title, blocks) for num, title, blocks in detail_sections(data)]
     return [(str(n), t, b) for n, t, b in main] + appendix
@@ -1476,6 +1626,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((8, MONDAY_TITLES[8], forward_evidence_blocks(data)))
     secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
     secs.append((10, MONDAY_TITLES[10], commodity_blocks(data)))
+    secs.append((11, MONDAY_TITLES[11], autonomous_alpha_weekly_blocks(data)))
     return secs
 
 
