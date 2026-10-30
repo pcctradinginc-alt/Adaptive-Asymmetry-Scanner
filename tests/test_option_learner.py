@@ -775,3 +775,70 @@ def test_a_failing_variant_never_touches_the_base(monkeypatch, tmp_path):
     res = ol.recommend(day, horizon=H, out=tmp_path, now=now)
     assert res["decisions"] == 10 and all(str(r).startswith("Fehler") for r in res["variant_runs"].values())
     assert not (tmp_path / ol.VARIANT_DIR).exists()
+
+
+def _variant_case(tmp_path, variant_pick=1, base_pick=0, family=1, eff=0.05, late=False, base_exp=None):
+    """30 Tage à 4 Kandidaten (Spread ~ 0, Einzel-Option ~ eff). Basis und Referenz wählen base_pick, die
+    Variante variant_pick; family = Zahl der für Basis und Horizont registrierten Varianten."""
+    days = _trading_days(date(2026, 3, 2), 30)
+    cands = _two_form_cands(days, lambda s, rng: (rng.gauss(0, 0.15), rng.gauss(eff, 0.15)), n=4, seed=3)
+    base = ol.experiment_id()
+    inst = [{"model_id": m, "experiment_id": e, "train_cutoff": "2026-03-01", "max_label_day": "2026-02-27"}
+            for m, e in (("base", base), ("var", "VEXP"))]
+    journal, vj = [], []
+    for c in cands:
+        e = {"date": c["date"], "signal_id": c["signal_id"], "horizon": H, "kind": "decision", "action": "TRADE",
+             "created_at": f"{c['date']}T16:00:00+00:00", "pred_net": 0.1}
+        for role in ("learning", "reference"):
+            journal.append(dict(e, role=role, experiment_id=base, model_id="base",
+                                contract=c["exprs"][base_pick]["contract"]))
+        vj.append(dict(e, role="variant", variant_id="OLV-1", experiment_id="VEXP", model_id="var",
+                       contract=c["exprs"][variant_pick]["contract"],
+                       created_at=f"{c['date']}T16:00:00+00:00" if not late else "2026-12-01T00:00:00+00:00"))
+    reg = [{"event": "registered", "variant_id": "OLV-1", "horizon": H, "base_experiment_id": base_exp or base,
+            "experiment_id": "VEXP", "overrides": {"ridge_alpha": 30.0}, "start_date": "2026-03-02",
+            "falsification": {"max_days": 90}, "proposal_id": "OLP-x", "gap_ids": ["model:overfit_risk:5d"]}]
+    reg += [dict(reg[0], variant_id=f"OLV-dummy{i}", experiment_id=f"D{i}", base_experiment_id=base)
+            for i in range(family - 1)]
+    append_jsonl(tmp_path / ol.VARIANTS, reg)
+    append_jsonl(tmp_path / ol.VARIANT_DIR / "OLV-1.jsonl", vj)
+    return cands, journal, inst
+
+
+def _eval_variant(tmp_path, as_of, **kw):
+    cands, journal, inst = _variant_case(tmp_path, **kw)
+    res = ol.evaluate_variants(tmp_path, cands, H, as_of, journal, inst, ol.variant_config(),
+                               datetime(2026, 7, 1, tzinfo=timezone.utc))
+    return res, res["variants"]["OLV-1"]
+
+
+def test_a_better_variant_on_identical_candidates_proposes_a_change(tmp_path):
+    res, v = _eval_variant(tmp_path, date(2026, 5, 1))
+    assert v["verdict"] == "VARIANT_BETTER" and v["status"] == "PROPOSE_CHANGE" and res["alpha"] == 0.05
+    assert v["vs_base"]["candidates"] == 120 and v["vs_base"]["learning_minus_reference"]["ci95"][0] > 0
+    assert v["vs_frozen_reference"]["verdict"] == "LEARNING_BETTER"           # auch gegen die eingefrorene Referenz
+    assert v["forward"]["n_selected"] == 120 and not (tmp_path / ol.VARIANTS).read_text().count('"closed"')
+
+
+def test_bonferroni_over_all_registered_variants_guards_against_lucky_variants(tmp_path):
+    res, v = _eval_variant(tmp_path, date(2026, 5, 1), family=20)
+    assert res["family_size"] == 20 and res["alpha"] == 0.0025 and v["vs_base"]["ci_level"] == 0.9975
+    assert v["verdict"] == "NO_SIGNIFICANT_DIFFERENCE" and v["status"] == "RUNNING"   # derselbe Effekt, mehr Tests
+
+
+def test_preregistered_falsification_closes_variants(tmp_path):
+    _res, worse = _eval_variant(tmp_path / "w", date(2026, 5, 1), variant_pick=0, base_pick=1, eff=0.3)
+    assert worse["status"] == "FALSIFIED_WORSE"
+    assert ol.variant_registry(tmp_path / "w")["OLV-1"]["status"] == "FALSIFIED_WORSE"
+    _res, early = _eval_variant(tmp_path / "e", date(2026, 5, 1), variant_pick=0)
+    assert early["verdict"] == "NO_SIGNIFICANT_DIFFERENCE" and early["status"] == "RUNNING"
+    _res, late = _eval_variant(tmp_path / "l", date(2026, 7, 1), variant_pick=0)  # Frist 90 Tage überschritten
+    assert late["status"] == "FALSIFIED_NO_EFFECT"
+    assert "nach 121 Tagen" in ol.variant_registry(tmp_path / "l")["OLV-1"]["close_reason"]
+    _res, moved = _eval_variant(tmp_path / "b", date(2026, 5, 1), base_exp="ALTE_BASIS")
+    assert moved["status"] == "BASE_CHANGED"
+
+
+def test_variant_evidence_counts_only_prospective_entries(tmp_path):
+    _res, v = _eval_variant(tmp_path, date(2026, 5, 1), late=True)
+    assert v["excluded"] == {"LATE_PREDICTION": 120} and v["verdict"] == "NEED_MORE_DATA"

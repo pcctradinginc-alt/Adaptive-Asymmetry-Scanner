@@ -424,8 +424,10 @@ def _periods(by_date: dict[str, list], horizon: int) -> dict[int, list]:
     return dict(out)
 
 
-def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int = 7) -> tuple[float, float] | None:
-    """95-%-KI des gepoolten Mittels; gezogen werden ganze Haltefenster (Block-Bootstrap), nicht einzelne Tage."""
+def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int = 7,
+                        alpha: float = 0.05) -> tuple[float, float] | None:
+    """(1 − alpha)-KI des gepoolten Mittels (Standard 95 %; Bonferroni: alpha / Zahl der Tests); gezogen werden
+    ganze Haltefenster (Block-Bootstrap), nicht einzelne Tage."""
     blocks = [b for b in _periods(by_date, horizon).values() if b]
     if len(blocks) < 2:
         return None
@@ -435,7 +437,7 @@ def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int
         vals = [v for b in (rng.choice(blocks) for _ in blocks) for v in b]
         means.append(sum(vals) / len(vals))
     means.sort()
-    return means[int(0.025 * BOOTSTRAP)], means[int(0.975 * BOOTSTRAP) - 1]
+    return means[int(alpha / 2 * BOOTSTRAP)], means[int((1 - alpha / 2) * BOOTSTRAP) - 1]
 
 
 def score(preds: list[dict], horizon: int = HORIZON) -> dict:
@@ -528,9 +530,9 @@ def _representativeness(picks: list[dict]) -> dict:
     return {"by_sample": by_sample, "by_direction": by_direction, "span_days": span, "warnings": warnings}
 
 
-def _paired(by_date: dict[str, list[float]], horizon: int) -> dict:
+def _paired(by_date: dict[str, list[float]], horizon: int, alpha: float = 0.05) -> dict:
     vals = [v for vs in by_date.values() for v in vs]
-    ci = _block_bootstrap_ci(by_date, horizon) if vals else None
+    ci = _block_bootstrap_ci(by_date, horizon, alpha=alpha) if vals else None
     return {"n": len(vals), "dates": len(by_date), "independent_periods": len(_periods(by_date, horizon)),
             "mean_diff": round(float(np.mean(vals)), 6) if vals else None,
             "ci95": [round(c, 6) for c in ci] if ci else None}
@@ -577,7 +579,7 @@ def assess(records: list[dict], horizon: int) -> dict:
             "vs_default": _paired(vs_default, horizon), "representativeness": _representativeness(picks)}
 
 
-def compare_policies(pairs: list[dict], horizon: int) -> dict:
+def compare_policies(pairs: list[dict], horizon: int, alpha: float = 0.05) -> dict:
     """Gepaarter Vergleich [{cand, learning, reference}] auf denselben fälligen Kandidaten: je Kandidat ein gleiches
     Budget (eine Einheit Prämie; ABSTAIN = Einheit bleibt in Cash = 0), je Tag das Mittel über alle Kandidaten des
     Tages – für lernende Version, Referenz, "alles handeln" (Standardform, sofern zulässig) und "nie handeln" (0).
@@ -615,7 +617,7 @@ def compare_policies(pairs: list[dict], horizon: int) -> dict:
     day_mean = {d: {k: sum(v) / len(v) for k, v in daily[d].items()} for d in days}
 
     def diff(a, b):
-        res = _paired({d: [day_mean[d][a] - (day_mean[d][b] if b else 0.0)] for d in days}, horizon)
+        res = _paired({d: [day_mean[d][a] - (day_mean[d][b] if b else 0.0)] for d in days}, horizon, alpha)
         return {"mean": res["mean_diff"], "ci95": res["ci95"], "independent_periods": res["independent_periods"]}
     lr, n = diff("learning", "reference"), sum(len(daily[d]["learning"]) for d in days)
     if n < MIN_SELECTED or len(days) < MIN_OOS_DATES or lr["independent_periods"] < MIN_INDEPENDENT_PERIODS:
@@ -627,6 +629,7 @@ def compare_policies(pairs: list[dict], horizon: int) -> dict:
     else:
         verdict = "NO_SIGNIFICANT_DIFFERENCE"
     return {"candidates": n, "days": len(days), "independent_periods": lr["independent_periods"],
+            "ci_level": round(1 - alpha, 6),
             "decisions_differ": differ, "excluded": dict(sorted(excluded.items())),
             "daily_mean": {k: (round(float(np.mean([day_mean[d][k] for d in days])), 6) if days else None)
                            for k in ("learning", "reference", "trade_all")} | {"no_trade": 0.0},
@@ -914,6 +917,92 @@ def _run_variant(out: Path, v: dict, cands: list[dict], train: list[dict], day: 
     return len(new)
 
 
+def _decisions(journal: list[dict], exp: str, instances: dict, horizon: int) -> tuple[dict, dict]:
+    """Gültige, unveränderte Entscheidungen der Version `exp` je Rolle {role: {(Tag, Signal): Eintrag}} und die
+    Ausschlüsse je Grund (dieselbe Prüfung wie im Forward-Test, die erste Fassung gilt)."""
+    out, seen, excluded = defaultdict(dict), set(), defaultdict(int)
+    for j in journal:
+        if not isinstance(j, dict) or j.get("horizon") != horizon or j.get("kind") != "decision":
+            continue
+        key = _jkey(j)
+        reason = _invalid(j, exp, instances) or ("DUPLICATE" if key in seen else None)
+        if reason:
+            excluded[reason] += 1
+            continue
+        seen.add(key)
+        out[j.get("role", "learning")][(j["date"], j.get("signal_id"))] = j
+    return out, excluded
+
+
+VARIANT_VERDICT = {"LEARNING_BETTER": "VARIANT_BETTER", "LEARNING_WORSE": "VARIANT_WORSE"}
+
+
+def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, journal: list[dict],
+                      instances: list[dict], cfg: dict | None = None, now: datetime | None = None) -> dict:
+    """Fairer Vergleich jeder Variante auf identischen, fälligen Kandidaten mit geprüften Netto-Ergebnissen:
+    primär gegen die Basis-Lernversion (gleiche Labels, gleicher Tag), zusätzlich gegen deren eingefrorene
+    Referenz; gepaart je Tag, gleiches Budget, Block-Bootstrap. Bonferroni über alle für Basisversion und
+    Horizont registrierten Varianten. Vorab festgelegt: VARIANT_WORSE -> FALSIFIED_WORSE; nach max_days ohne
+    signifikanten Vorteil -> FALSIFIED_NO_EFFECT; geänderte Basisversion -> BASE_CHANGED (Ereignis 'closed')."""
+    cfg = cfg if cfg is not None else variant_config()
+    now = now or datetime.now(timezone.utc)
+    reg_inst = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
+    by_cand = {(c["date"], c["signal_id"]): c for c in cands}
+    base = experiment_id()
+    variants = [v for v in variant_registry(out).values() if v.get("horizon") == horizon]
+    family = max(1, sum(1 for v in variants if v.get("base_experiment_id") == base))
+    alpha = float(((cfg.get("falsification") or {}).get("family_alpha")) or 0.05) / family
+    base_dec = _decisions(journal, base, reg_inst, horizon)[0]
+    results, closed = {}, []
+    for v in variants:
+        path = out / VARIANT_DIR / f"{v['variant_id']}.jsonl"
+        own, excluded = _decisions(read_jsonl(path) if path.exists() else [], v["experiment_id"], reg_inst, horizon)
+        pairs = {"learning": [], "reference": []}
+        records, pending = [], 0
+        for ck, j in own.get("variant", {}).items():
+            if not _due(j["date"], as_of, horizon):
+                pending += 1
+                continue
+            if ck not in by_cand:
+                excluded["CANDIDATE_NOT_IN_LEDGER"] += 1
+                continue
+            dec = {"action": j.get("action"), "contract": j.get("contract")}
+            records.append({"cand": by_cand[ck], "dec": dec, "preds": {}})
+            for role, ps in pairs.items():
+                if (b := base_dec.get(role, {}).get(ck)) is not None:
+                    ps.append({"cand": by_cand[ck], "learning": dec,
+                               "reference": {"action": b.get("action"), "contract": b.get("contract")}})
+        vs_base = compare_policies(pairs["learning"], horizon, alpha)
+        vs_ref = compare_policies(pairs["reference"], horizon, alpha)
+        verdict = VARIANT_VERDICT.get(vs_base["verdict"], vs_base["verdict"])
+        running = (as_of - date.fromisoformat(v["start_date"])).days
+        max_days = int((v.get("falsification") or {}).get("max_days") or 0)
+        status = v.get("status") if v.get("closed_at") else (
+            "BASE_CHANGED" if v.get("base_experiment_id") != base else
+            "FALSIFIED_WORSE" if verdict == "VARIANT_WORSE" else
+            "FALSIFIED_NO_EFFECT" if max_days and running > max_days and verdict in (
+                "NEED_MORE_DATA", "NO_SIGNIFICANT_DIFFERENCE") else
+            "PROPOSE_CHANGE" if verdict == "VARIANT_BETTER" else "RUNNING")
+        if not v.get("closed_at") and status in ("BASE_CHANGED", "FALSIFIED_WORSE", "FALSIFIED_NO_EFFECT"):
+            closed.append({"event": "closed", "variant_id": v["variant_id"], "status": status,
+                           "closed_at": now.isoformat(timespec="seconds"),
+                           "close_reason": f"{verdict} nach {running} Tagen (Frist {max_days})"})
+        s = assess(records, horizon)
+        results[v["variant_id"]] = {
+            "variant_id": v["variant_id"], "overrides": v["overrides"], "experiment_id": v["experiment_id"],
+            "base_experiment_id": v.get("base_experiment_id"), "proposal_id": v.get("proposal_id"),
+            "gap_ids": v.get("gap_ids"), "start_date": v["start_date"], "days_running": running,
+            "falsification": v.get("falsification"), "status": status, "verdict": verdict, "family_size": family,
+            "alpha": round(alpha, 6), "valid_decisions": len(own.get("variant", {})), "pending_decisions": pending,
+            "excluded": dict(sorted(excluded.items())), "vs_base": vs_base, "vs_frozen_reference": vs_ref,
+            "forward": {k: s[k] for k in ("n", "dates", "independent_periods", "n_selected", "mean_selected",
+                                          "selected_ci95", "coverage")} | {"verdict": _verdict(s, "forward")}}
+    if closed:
+        append_jsonl(out / VARIANTS, closed)
+    return {"horizon": horizon, "base_experiment_id": base, "family_size": family, "alpha": round(alpha, 6),
+            "variants": results}
+
+
 def reference(out: Path, horizon: int, model: Model | None = None, inst: dict | None = None,
               now: datetime | None = None) -> tuple[Model | None, dict | None]:
     """Eingefrorene Referenzversion je Experimentversion und Horizont: die erste trainierte Modellinstanz. Ihre
@@ -1028,6 +1117,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
     status["model_instances"] = {"count": len(mine), "latest": {k: v for k, v in mine[-1].items() if k != "features"}
                                  if mine else None}
     status["reference"] = reference(out, horizon)[1]
+    status["variants"] = evaluate_variants(out, cands, horizon, as_of, journal, instances)
     hist_path = out / f"status_history_{horizon}d.jsonl"
     history = read_jsonl(hist_path) if hist_path.exists() else []
     def progress(as_of, fw):                     # Verlauf des gepaarten Forward-Vergleichs (gleiche Version)
