@@ -59,6 +59,7 @@ MONDAY_TITLES = {
     9: "UNIVERSE V1 / V2",
     10: "COMMODITY INTELLIGENCE",
     11: "AUTONOMOUS ALPHA ENGINE – WEEKLY LEARNING",
+    12: "OPTIONS-LERNMODELL – LEISTUNGSZEUGNIS",
 }
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
@@ -598,6 +599,7 @@ def collect(root, date, state_path=None) -> dict:
     # Autonomous Alpha A/B/C: read-only, bounded and clearly separated from
     # historical research, stock-forward and actual (unattributed) option P&L.
     # No separate notification, no API requests, no research-triggering work.
+    data["option_learner_card"] = _load_json(rs / "option_learner" / "report_card.json")
     alpha = rs / "autonomous_alpha"
     data["autonomous_alpha"] = {
         "exploration": _load_json(alpha / "exploration_plan.json"),
@@ -641,6 +643,21 @@ def _load_recent_alpha_proposals(path: Path, today: _date) -> dict:
         log.warning("Autonomous Alpha proposals nicht lesbar: %s", exc)
         return {"state": "invalid", "new": [], "total": None}
     return {"state": "ok", "new": new[:10], "total": total}
+
+
+def option_learner_blocks(data: dict) -> list:
+    """Leistungszeugnis des Options-Lernmodells (modules/option_learner.report_card): beantwortet automatisch, ob
+    das System aus geprüften Options-Ergebnissen lernt, besser wird und sich bestätigt. Keine Empfehlung."""
+    card = _d(data.get("option_learner_card"))
+    rows = card.get("rows") or []
+    if not rows:
+        return [("para", "Leistungszeugnis: KEINE DATEN (wöchentliche Auswertung noch nicht gelaufen).")]
+    horizons = card.get("horizons") or []
+    table = [[r.get("question")] + [("–" if not r.get(f"{h}d") else f"{r[f'{h}d'][0]} – {r[f'{h}d'][1]}")
+                                    for h in horizons] for r in rows]
+    return [("note", (f"Stand {card.get('as_of') or NA}. Research, keine Order; Empfehlungen nur bei validiertem "
+                      "Modell (Walk-Forward und nicht widerlegter Forward-Test).")),
+            ("table", ["Frage"] + [f"{h} Tage" for h in horizons], table, [])]
 
 
 def autonomous_alpha_weekly_blocks(data: dict) -> list:
@@ -1627,6 +1644,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
     secs.append((10, MONDAY_TITLES[10], commodity_blocks(data)))
     secs.append((11, MONDAY_TITLES[11], autonomous_alpha_weekly_blocks(data)))
+    secs.append((12, MONDAY_TITLES[12], option_learner_blocks(data)))
     return secs
 
 

@@ -40,3 +40,18 @@ an LLM direction (`modules/candidate_ledger.flush`):
 
 Why: since economics_first only 1–3 candidates per day reach the LLM; real
 option labels fell from about 40 to 1–3 per day.
+
+## Contract variant per snapshot (since 2026-10-30)
+
+For each option snapshot (directional or research sample, timing-v2 only) the ledger also records
+`real_option_alt`, chosen by `market_snapshot.select_liquid_contract`:
+
+- the first expiry with 45–90 days to expiration;
+- strikes within ±5 % of spot;
+- among them the contract with the tightest relative bid/ask spread (bid > 0, ask ≥ bid; ties: nearest to spot).
+
+This is a fixed rule set in advance, not optimized on outcomes. It costs one extra chain call per snapshot. Entry
+follows timing-v2 from the quote archive; marks are written as `real_alt_ret_{h}d` and related keys and are
+included in the capture targets. `option_learner` treats the variant as its own expression (`single_alt`), so the
+model learns which contract performs best after costs. Switch off with
+`ledger.research_contract_variant: false`.

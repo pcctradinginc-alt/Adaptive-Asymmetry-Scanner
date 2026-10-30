@@ -79,6 +79,9 @@ RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
 RESEARCH_DIRECTION           = "BULLISH"  # Research-Stichprobe ohne LLM-Richtung: einzige Richtung der Produktion
                                           # (Bearish deaktiviert) -> Long Call bzw. replizierte Call-Strategie
+# Einzel-Options-Kontrakte im Ledger: (Zeilen-Schlüssel, Outcome-Präfix). real_option_alt = Research-Kontraktvariante
+# (kürzere Laufzeit, engste Geld-Brief-Spanne, market_snapshot.select_liquid_contract), seit 2026-10-30.
+SINGLE_OPTION_SPECS = (("real_option", "real_opt"), ("real_option_alt", "real_alt"))
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
 MARK_GIVE_UP_DAYS            = 14   # fälliger Mark so lange nach Fälligkeit ohne zulässige Quote -> Endzustand
                                     # (<prefix>_mark_status_{h}d: NO_QUOTE | NO_SETTLEMENT | NO_ENTRY_QUOTE), nie geschätzt
@@ -217,6 +220,16 @@ def _research_option_sample_enabled() -> bool:
     try:
         from modules.config import cfg
         return bool(getattr(getattr(cfg, "ledger", None), "research_option_sample", True))
+    except Exception:  # noqa: BLE001 – fehlende/kaputte Config -> Default
+        return True
+
+
+def _research_contract_variant_enabled() -> bool:
+    """Research-Kontraktvariante je Snapshot (ein zusätzlicher Chain-Abruf). Abschaltbar über config.yaml
+    ledger.research_contract_variant: false (Default an, Schlüssel bewusst nicht in config.yaml)."""
+    try:
+        from modules.config import cfg
+        return bool(getattr(getattr(cfg, "ledger", None), "research_contract_variant", True))
     except Exception:  # noqa: BLE001 – fehlende/kaputte Config -> Default
         return True
 
@@ -898,7 +911,7 @@ def _is_v2(row: dict) -> bool:
 
 def _v2_symbols(row: dict, key: str) -> list:
     spec = row.get(key) or {}
-    if key == "real_option":
+    if key != "real_strategy":
         return [spec.get("symbol")]
     legs = spec.get("legs") or []
     return [g.get("symbol") for g in sorted(legs, key=lambda g: 0 if g.get("side") == "long" else 1)]
@@ -930,7 +943,7 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
         return True
     recs = f["records"]
     fill_t = max(sig, tp._ts(f["time"]))
-    if key == "real_option":
+    if key != "real_strategy":
         r = recs[0]
         spec.update(bid=r.get("bid"), ask=r.get("ask"), mid=r.get("mid"))
     else:
@@ -953,7 +966,7 @@ def _fill_v2_entries(rows: list[dict]) -> bool:
     """Offene timing-v2-Entries: im Mark-Fenster vorher frische Quotes abrufen (landen über den Hook im Archiv),
     dann je Zeile der früheste zulässige Fill aus dem Archiv. Außerhalb des Fensters nur das Archiv."""
     from modules import option_quotes as oq
-    pend = [(row, k) for row in rows if _is_v2(row) for k in ("real_option", "real_strategy")
+    pend = [(row, k) for row in rows if _is_v2(row) for k in ("real_option", "real_option_alt", "real_strategy")
             if isinstance(row.get(k), dict) and row[k].get("entry_pending")]
     if not pend:
         return False
@@ -988,7 +1001,7 @@ def pending_entry_targets(today: str, root: Path = LEDGER_ROOT) -> dict:
                     if not isinstance(row, dict) or not _is_v2(row):
                         continue
                     sig = tp._ts(row.get("signal_timestamp"))
-                    for k in ("real_option", "real_strategy"):
+                    for k in ("real_option", "real_option_alt", "real_strategy"):
                         if sig is not None and isinstance(row.get(k), dict) and row[k].get("entry_pending"):
                             for x in _v2_symbols(row, k):
                                 if x:
@@ -1208,6 +1221,9 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         # (real_strategy) geholt werden — die brauchen die tatsächlich
         # betroffenen Ticker (nur die mit erfolgreich gebautem real_option).
         real_option_raw_by_id = {}
+        # Research-Kontraktvariante (kürzere Laufzeit, engste Spanne): ein Chain-Abruf je Snapshot, nur timing-v2
+        variant_on = _research_contract_variant_enabled() and _timing_policy_current() == "timing-v2"
+        alt_raw_by_id = {}
         for ticker, e in to_process:
             signal_id = e["signal_id"]
             if signal_id not in spot_by_id or signal_id not in selected_ids | research_ids:
@@ -1216,6 +1232,10 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             real_option_raw = _build_real_option(spec, spot_by_id[signal_id])
             if real_option_raw is not None:
                 real_option_raw_by_id[signal_id] = (ticker, real_option_raw, spec)
+                if variant_on:
+                    alt = market_snapshot.select_liquid_contract(ticker, spec["direction"], spot_by_id[signal_id])
+                    if alt and alt.get("symbol") and alt.get("symbol") != real_option_raw.get("symbol"):
+                        alt_raw_by_id[signal_id] = alt
 
         # ── Pass 2: EIN gebündelter yf.download für 1y-Closes über alle
         # Ticker mit erfolgreichem real_option (für den replizierten
@@ -1316,8 +1336,10 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                         real_strategy_raw = real_strategy_raw_by_id.get(signal_id)
                         if real_strategy_raw is not None:
                             row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, _sess, today)
+                        if _v2 and signal_id in alt_raw_by_id:
+                            row["real_option_alt"] = _finalize_real_option(alt_raw_by_id[signal_id], _sess, today)
                         if _v2:
-                            for _k in ("real_option", "real_strategy"):
+                            for _k in ("real_option", "real_option_alt", "real_strategy"):
                                 if row.get(_k):
                                     _v2_entry(row, _k, _now_utc())
                     else:
@@ -1403,6 +1425,7 @@ def due_mark_symbols(today: str, root: Path = LEDGER_ROOT) -> list[str]:
                     oc = row.get("outcomes") or {}
                     for key, ret, syms in (
                             ("real_option", "real_opt_ret", lambda sp: [sp.get("symbol")]),
+                            ("real_option_alt", "real_alt_ret", lambda sp: [sp.get("symbol")]),
                             ("real_strategy", "real_strat_ret", lambda sp: [g.get("symbol") for g in sp.get("legs") or []])):
                         spec = row.get(key)
                         if not spec or spec.get("entry_pending"):
@@ -1486,10 +1509,11 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
         changed |= _fill_return_horizons(rows, today_dt)
     except Exception as e:
         log.warning(f"candidate_ledger: Horizont-Fill Fehler (ignoriert): {e}")
-    try:
-        changed |= _fill_real_option_marks(rows, today_dt)
-    except Exception as e:
-        log.warning(f"candidate_ledger: real_opt_ret-Marks Fehler (ignoriert): {e}")
+    for key, prefix in SINGLE_OPTION_SPECS:
+        try:
+            changed |= _fill_real_option_marks(rows, today_dt, key=key, prefix=prefix)
+        except Exception as e:
+            log.warning(f"candidate_ledger: {prefix}_ret-Marks Fehler (ignoriert): {e}")
     try:
         changed |= _fill_real_strategy_marks(rows, today_dt)
     except Exception as e:
@@ -1929,9 +1953,11 @@ def _give_up_marks(tasks: list, prefix: str, spec_key: str, today_dt: datetime) 
     return changed
 
 
-def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
+def _fill_real_option_marks(rows: list[dict], today_dt: datetime, key: str = "real_option",
+                            prefix: str = "real_opt") -> bool:
     """
-    P0-B: für Zeilen mit real_option (bereits gefülltem Entry — kein
+    P0-B: für Zeilen mit real_option (bzw. `key`, z. B. die Research-Kontraktvariante real_option_alt mit
+    Outcome-Präfix `prefix`; bereits gefülltem Entry — kein
     entry_pending mehr) und verstrichenem Horizont h wird real_opt_ret_{h}d
     (konservativ: Kauf zum Ask, Verkauf zum Bid) sowie real_opt_ret_mid_{h}d
     (Mid/Mid) nachgetragen. Für bereits verfallene Kontrakte wird der
@@ -1951,7 +1977,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
     """
     tasks = []  # (row, h, entry_dt)
     for row in rows:
-        real_option = row.get("real_option")
+        real_option = row.get(key)
         if not real_option or real_option.get("entry_pending"):
             continue
         entry_dt = _parse_date(real_option.get("entry_date") or "")
@@ -1959,7 +1985,7 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
             continue
         outcomes = row.setdefault("outcomes", {})
         for h in HORIZONS:
-            if f"real_opt_ret_{h}d" in outcomes or _mark_status_key("real_opt", h) in outcomes:
+            if f"{prefix}_ret_{h}d" in outcomes or _mark_status_key(prefix, h) in outcomes:
                 continue
             if (today_dt - entry_dt).days >= h:
                 tasks.append((row, h, entry_dt))
@@ -1968,15 +1994,15 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
         return False
 
     symbols = sorted({
-        t[0]["real_option"].get("symbol") for t in tasks
-        if t[0]["real_option"].get("symbol")
+        t[0][key].get("symbol") for t in tasks
+        if t[0][key].get("symbol")
     })
     mode, quotes = _mark_quotes(symbols)
 
     changed = False
     for row, h, entry_dt in tasks:
         try:
-            real_option = row.get("real_option") or {}
+            real_option = row.get(key) or {}
             entry_ask = real_option.get("ask")
             entry_mid = real_option.get("mid")
             if entry_ask in (None, 0) or entry_mid in (None, 0):
@@ -2015,20 +2041,20 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime) -> bool:
                     continue
 
             outcomes = row.setdefault("outcomes", {})
-            outcomes[f"real_opt_ret_{h}d"]       = round(exit_bid / entry_ask - 1.0, 4)
-            outcomes[f"real_opt_ret_mid_{h}d"]   = round(exit_mid / entry_mid - 1.0, 4)
-            outcomes[f"real_opt_mark_date_{h}d"] = mark_day
+            outcomes[f"{prefix}_ret_{h}d"]       = round(exit_bid / entry_ask - 1.0, 4)
+            outcomes[f"{prefix}_ret_mid_{h}d"]   = round(exit_mid / entry_mid - 1.0, 4)
+            outcomes[f"{prefix}_mark_date_{h}d"] = mark_day
             if from_archive:                                  # Herkunft nur, wenn wirklich eine Archiv-Quote zählt
-                outcomes[f"real_opt_mark_source_{h}d"] = "archive_rth"
+                outcomes[f"{prefix}_mark_source_{h}d"] = "archive_rth"
 
             if (_parse_date(mark_day) - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
                 row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
-                outcomes[f"real_opt_late_{h}d"] = True                    # je Instrument/Horizont (Evidenz)
+                outcomes[f"{prefix}_late_{h}d"] = True                    # je Instrument/Horizont (Evidenz)
 
             changed = True
         except Exception as e:
-            log.warning(f"candidate_ledger._fill_real_option_marks Fehler (ignoriert): {e}")
-    changed |= _give_up_marks(tasks, "real_opt", "real_option", today_dt)
+            log.warning(f"candidate_ledger._fill_real_option_marks[{key}] Fehler (ignoriert): {e}")
+    changed |= _give_up_marks(tasks, prefix, key, today_dt)
     return changed
 
 
