@@ -1,9 +1,9 @@
 {
- "date": "2026-10-23",
+ "date": "2026-10-30",
  "status": "COMPLETE",
  "sec": {
-  "tickers_total": 10428,
-  "wanted": 775,
+  "tickers_total": 10430,
+  "wanted": 777,
   "mapped": 626,
   "unmapped": [
    "ABMD",
@@ -133,6 +133,8 @@
    "SWN",
    "SWY",
    "TEG",
+   "TFCF",
+   "TFCFA",
    "TGNA",
    "TIF",
    "TSS",
@@ -157,31 +159,27 @@
    "YHOO"
   ],
   "changes": {
-   "opened": 22,
-   "replaced": 2,
-   "unchanged": 1228,
-   "closed": 4
+   "opened": 0,
+   "replaced": 4,
+   "unchanged": 1248,
+   "closed": 0
   }
  },
  "gleif": {
-  "attempted": 44,
-  "HIGH": 25,
-  "MEDIUM": 4,
-  "LOW": 15,
-  "with_parent": 1,
-  "cooling_down": 121,
-  "low_reasons": {
-   "kein exakter Treffer": 13,
-   "mehrdeutig (2 Treffer)": 1,
-   "mehrdeutig (3 Treffer)": 1
-  },
+  "attempted": 0,
+  "HIGH": 0,
+  "MEDIUM": 0,
+  "LOW": 0,
+  "with_parent": 0,
+  "cooling_down": 136,
+  "low_reasons": {},
   "remaining": 0
  },
  "errors": [],
  "gleif_children": {
   "fetched": 60,
-  "children": 414,
-  "opened": 414,
+  "children": 195,
+  "opened": 195,
   "linked_entities": 491
  }
 }
