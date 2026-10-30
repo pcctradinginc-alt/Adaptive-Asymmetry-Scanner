@@ -26,7 +26,7 @@ Stand 2026-10-30. Modul `modules/option_learner.py`, Tests `tests/test_option_le
 - **Historie** `status_history_<h>d.jsonl` (append-only, ein Eintrag je neuem Stand) mit dem Vergleich zur Vorversion (`vs_previous`).
 - **Vergleich mit einfachen Basisstrategien:** „nie handeln“ (0) und „alles handeln“ (Mittel aller Fälle auf ungesehenen Tagen).
 - **Strategievergleich:** Mittel je Ausdrucksform auf ungesehenen Tagen (`by_expression`).
-- **Filter-Prüfung (`by_gate`, Audit §9):** realisiertes Netto der geprüften Labels je Ablehnungsgrund. Das ist beschreibend und zeigt, ob ein Filter eher schlechte oder auch gute Gelegenheiten verwirft. Eine Gruppe wird erst ab 20 Labels an 10 Tagen ausgewiesen. Der ROI-Shadow bleibt bestehen; seine Population (vom ROI-Gate verworfene Kontrakte) wird hier über die Snapshots im Ledger mitgemessen.
+- **Filter-Prüfung (`by_gate`, Audit §9):** realisiertes Netto der geprüften Labels je Ablehnungsgrund. Das ist beschreibend und zeigt, ob ein Filter eher schlechte oder auch gute Gelegenheiten verwirft. Eine Gruppe wird erst ab 20 Labels an 10 Tagen ausgewiesen. Die Registrierung des ROI-Shadows ist seit 2026-10-30 stillgelegt (`enabled: false`); seine Population (vom ROI-Gate verworfene Kontrakte) wird hier über die Snapshots im Ledger mitgemessen.
 - **`report_card.{json,md}`** beantwortet die Audit-Fragen je Horizont mit Ja, Teilweise, Nein oder offen, jeweils mit Beleg. Es erscheint im Montagsbericht (Abschnitt 12).
 
 ## Automatik

@@ -7,7 +7,7 @@ from modules import roi_learning_shadow as rl
 def test_p2_due_capture_targets_preserve_spread_and_priority(tmp_path, monkeypatch):
     (tmp_path / "config").mkdir()
     (tmp_path / "config" / "roi_learning_shadow.yaml").write_text(
-        (Path("config") / "roi_learning_shadow.yaml").read_text())
+        (Path("config") / "roi_learning_shadow.yaml").read_text().replace("enabled: false", "enabled: true"))
     decision = "2026-10-01T15:00:00+00:00"
     def cohort(name, day, legs):
         return {"cohort_id": name, "signal_date": day, "decision_at": decision,
@@ -24,7 +24,7 @@ def test_p2_due_capture_targets_preserve_spread_and_priority(tmp_path, monkeypat
 def test_p2_missing_decision_timestamp_skips_research_capture(tmp_path, monkeypatch):
     (tmp_path / "config").mkdir()
     (tmp_path / "config" / "roi_learning_shadow.yaml").write_text(
-        (Path("config") / "roi_learning_shadow.yaml").read_text())
+        (Path("config") / "roi_learning_shadow.yaml").read_text().replace("enabled: false", "enabled: true"))
     monkeypatch.setattr(rl, "_journal_read", lambda p: [
         {"cohort_id": "x", "signal_date": "2026-10-25",
          "legs": [{"occ_symbol": "A"}]}] if p.name == "cohorts" else [])

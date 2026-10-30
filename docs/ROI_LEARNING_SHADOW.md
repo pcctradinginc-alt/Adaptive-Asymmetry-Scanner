@@ -1,5 +1,7 @@
 # ROI Learning Gate – isolated research-only counterfactuals
 
+> **Status 2026-10-30: Registrierung stillgelegt** (`config/roi_learning_shadow.yaml: enabled: false`, Systemaudit – keine Parallelstruktur). Seit `economics_first` wurde keine Kohorte registriert. Die Population der vom ROI-Gate verworfenen Kontrakte misst der Kandidaten-Ledger über seine Options-Snapshots; ausgewertet in `modules/option_learner` (`by_gate`, Leistungszeugnis). `evaluate` läuft weiter im Feedback-Workflow und meldet `registration_enabled: false` sowie `superseded_by` in `summary.json`.
+
 The production OptionsDesigner remains unchanged: **no lowered production ROI, median, edge, earnings or risk threshold**.
 
 This research path runs using the already constructed and rejected real option contracts from `OptionsDesigner.roi_reject_log`. It does NOT call Sonnet, Haiku, an agent or any new price discovery service to propose a trade.
