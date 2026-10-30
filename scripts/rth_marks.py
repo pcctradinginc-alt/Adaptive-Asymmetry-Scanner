@@ -124,8 +124,8 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         # Capped in roi_learning_shadow at 30 extra OCC symbols per capture.
         try:
             from modules import roi_learning_shadow as rls
-            for sym in rls.due_capture_symbols(today=now.astimezone(ms.NY_TZ).date()):
-                cand_t.setdefault(sym, day0)
+            for sym, earliest in rls.due_capture_targets(today=now.astimezone(ms.NY_TZ).date()).items():
+                cand_t[sym] = max(cand_t.get(sym, day0), earliest)
         except Exception as exc:
             log.warning("roi_learning_shadow capture targets unavailable: %s", exc)
         cand_syms = sorted(set(cand_t) - set(trade_syms))

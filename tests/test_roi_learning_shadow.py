@@ -170,7 +170,7 @@ def test_existing_workflows_keep_regular_cadence_without_new_llm():
     marks=(root/"scripts/rth_marks.py").read_text()
     assert "_roi_learning.register(_roi_rejects, today)" in pipeline
     assert "python -m modules.roi_learning_shadow evaluate" in feedback
-    assert "rls.due_capture_symbols" in marks
+    assert "rls.due_capture_targets" in marks
     assert "ANTHROPIC_API_KEY" not in rl.__dict__
     assert "roi_learning_shadow" in pipeline
 

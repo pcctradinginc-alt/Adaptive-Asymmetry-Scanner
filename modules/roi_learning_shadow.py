@@ -298,29 +298,60 @@ def _quotes_since(root: Path, cohorts: list[dict], *, today: date) -> dict[str, 
     return result
 
 
-def due_capture_symbols(*, today: date | None = None, root: Path = Path(".")) -> list[str]:
-    """For options-capture only: bounded extra symbols, no expensive LLM/market scan."""
+def due_capture_targets(*, today: date | None = None, root: Path = Path(".")) -> dict[str, datetime]:
+    """Research quote targets, prioritizing marks closest to their deadline.
+
+    A whole multi-leg cohort is admitted or skipped together. This avoids
+    capturing one spread leg while starving its counterpart. Existing quote
+    limits and research-only registration caps remain unchanged.
+    """
     root = Path(root)
     cfg = _config(root)
     if not cfg.get("enabled"):
-        return []
+        return {}
     today = today or datetime.now(timezone.utc).date()
     cohorts = _journal_read(root / COHORTS)
     marks = _journal_read(root / MARKS)
     done = {(x["cohort_id"], x["horizon_days"]) for x in marks}
-    wanted = []
-    for c in sorted(cohorts, key=lambda x: (x["signal_date"], x["cohort_id"])):
-        d = date.fromisoformat(c["signal_date"])
-        elapsed = (today-d).days
-        horizons = (0, *HORIZONS)
-        for h in horizons:
-            max_lag = int(cfg["max_entry_lag_days"] if h == 0 else cfg["max_exit_lag_days"])
-            if (h == 0 or (c["cohort_id"], h) not in done) and h <= elapsed <= h + max_lag:
-                wanted.extend(x["occ_symbol"] for x in c["legs"])
-                break
-    return list(dict.fromkeys(wanted))[:int(cfg["max_quote_symbols_per_capture"])]
+    jobs = []
+    for c in cohorts:
+        signal = date.fromisoformat(c["signal_date"])
+        elapsed = (today - signal).days
+        for horizon in (0, *HORIZONS):
+            if horizon and (c["cohort_id"], horizon) in done:
+                continue
+            lag = int(cfg["max_entry_lag_days"] if horizon == 0 else cfg["max_exit_lag_days"])
+            if not horizon <= elapsed <= horizon + lag:
+                continue
+            legs = list(dict.fromkeys(x["occ_symbol"] for x in c["legs"]))
+            if not legs:
+                continue
+            # Earliest expiry wins; deterministic tie-breaking across runs.
+            deadline = signal + timedelta(days=horizon + lag)
+            decision = _time(c.get("decision_at"))
+            if decision is None:
+                continue  # Never request pre-decision research entries.
+            # Same deadline: marks of existing cohorts before new entries, otherwise an
+            # already captured entry loses its label for lack of budget.
+            jobs.append((deadline, horizon == 0, c["cohort_id"], legs, decision))
+            break
+    jobs.sort(key=lambda x: (x[0], x[1], x[2]))
+    budget = int(cfg["max_quote_symbols_per_capture"])
+    selected: dict[str, datetime] = {}
+    for _, _, _, legs, decision in jobs:
+        new = set(legs) - set(selected)
+        if len(selected) + len(new) > budget:
+            continue
+        for sym in legs:
+            # Entry quote must not predate the research registration.
+            # Mark quotes also cannot predate registration.
+            selected[sym] = max(selected.get(sym, decision), decision)
+    return selected
 
 
+def due_capture_symbols(*, today: date | None = None, root: Path = Path(".")) -> list[str]:
+    """Backwards-compatible bounded list for existing capture consumers."""
+    return list(due_capture_targets(today=today, root=root))
 
 
 
