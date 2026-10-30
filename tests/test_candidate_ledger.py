@@ -44,6 +44,8 @@ def _reset_state(monkeypatch):
     # überschreiben dies gezielt.
     monkeypatch.setattr(cl, "_fetch_history_batch", lambda tickers, period_days: {})
     monkeypatch.setattr(cl.market_snapshot, "fetch_term_iv_point", lambda ticker, spot, min_dte=7: None)
+    # Research-Kontraktvariante: ohne gezielten Test kein zusätzlicher Chain-Abruf (kein Netz im Testlauf)
+    monkeypatch.setattr(cl.market_snapshot, "select_liquid_contract", lambda ticker, direction, spot: None)
     yield
     cl._state["date"] = None
     cl._state["entries"] = {}
@@ -2285,3 +2287,45 @@ def test_finalized_marks_are_no_longer_capture_targets(ledger_root):
         row["outcomes"][f"real_opt_mark_status_{h}d"] = row["outcomes"][f"real_strat_mark_status_{h}d"] = "NO_QUOTE"
     (ledger_root / "2026-10.jsonl").write_text(json.dumps(row) + "\n")
     assert cl.due_mark_symbols("2026-10-07", root=ledger_root) == []
+
+
+# ── Research-Kontraktvariante real_option_alt (Systemaudit P1/P2, 2026-10-30) ──
+
+def test_flush_adds_liquid_contract_variant_for_timing_v2(monkeypatch, ledger_root):
+    monkeypatch.setenv("TRADIER_API_KEY", "test")
+    monkeypatch.setattr(cl, "_timing_policy_current", lambda: "timing-v2")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes", _underlying_quotes)
+    calls = []
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", _fake_select(calls))
+    monkeypatch.setattr(cl.market_snapshot, "select_liquid_contract", lambda ticker, direction, spot: {
+        "symbol": f"{ticker}261218C00100000", "strike": 100.0, "expiry": "2026-12-18", "dte": 60,
+        "bid": 4.9, "ask": 5.0, "mid": 4.95, "iv": 0.3, "delta": 0.5, "open_interest": 4000, "quote_ts": "t"})
+
+    cl.start_run("2026-10-30")
+    cl.note("AAA", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.flush(reports_dir_root=ledger_root)
+
+    row = _read_jsonl(ledger_root / "2026-10.jsonl")[0]
+    alt = row["real_option_alt"]
+    assert alt["symbol"] == "AAA261218C00100000" != row["real_option"]["symbol"]
+    assert alt["entry_pending"] is True                          # timing-v2: Entry nur über das Quote-Archiv
+    assert alt["snapshot_quote"]["ask"] == 5.0                   # Entscheidungs-Quote bleibt informativ erhalten
+
+
+def test_variant_marks_and_capture_targets_use_their_own_prefix(monkeypatch, ledger_root):
+    entry_date = "2026-08-01"
+    _write_ledger_line(ledger_root, "2026-08", {
+        "date": entry_date, "ticker": "AAPL", "direction": None, "features": {}, "entry_price": 100.0,
+        "outcomes": {},
+        "real_option_alt": {"symbol": "AAPL260918C00100000", "strike": 100.0, "expiry": "2026-09-18", "dte": 48,
+                            "entry_pending": False, "entry_date": entry_date, "bid": 4.0, "ask": 4.1, "mid": 4.05}})
+    assert cl.due_mark_symbols("2026-08-06", root=ledger_root) == ["AAPL260918C00100000"]
+    monkeypatch.setattr(cl, "_fetch_history_batch", lambda t, p: {})
+    monkeypatch.setattr(cl.market_snapshot, "fetch_option_quotes",
+                        lambda symbols: {"AAPL260918C00100000": {"bid": 5.0, "ask": 5.1, "mid": 5.05, "ts": "t"}})
+    monkeypatch.setattr(cl, "_now_utc", lambda: REGULAR_NOW)
+    cl.update_outcomes("2026-08-06", root=ledger_root)
+    oc = _read_jsonl(ledger_root / "2026-08.jsonl")[0]["outcomes"]
+    assert oc["real_alt_ret_5d"] == pytest.approx(5.0 / 4.1 - 1.0, abs=1e-4)
+    assert "real_opt_ret_5d" not in oc and "real_alt_mark_date_5d" in oc
+

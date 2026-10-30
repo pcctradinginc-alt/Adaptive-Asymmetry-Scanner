@@ -213,3 +213,14 @@ def test_monday_report_shows_report_card():
         {"key": "learns", "question": "Lernt das System?", "20d": ["Ja", "359 Labels"]}]}
     blocks = weekly.option_learner_blocks({"option_learner_card": card})
     assert blocks[1][0] == "table" and blocks[1][2] == [["Lernt das System?", "Ja – 359 Labels"]]
+
+
+def test_contract_variant_is_its_own_expression():
+    r = _row("2026-03-02", 1, 0.1)
+    r["real_option_alt"] = {"symbol": "T1261218C00100000", "bid": 4.9, "ask": 5.0, "mid": 4.95,
+                            "entry_date": "2026-03-02", "entry_pending": False, "dte": 60}
+    r["outcomes"] = {"real_alt_ret_5d": 0.05, "real_strat_ret_5d": -0.1}
+    exprs = {e["expression"]: e for e in ol.expressions(r)}
+    assert set(exprs) == {"single", "single_alt"}
+    assert exprs["single_alt"]["row"]["outcomes"] == {"real_strat_ret_5d": 0.05}
+    assert ol.contract_features(exprs["single_alt"]["row"])["c_dte"] == 60

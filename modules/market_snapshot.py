@@ -669,6 +669,68 @@ def select_contract(ticker: str, direction: str, dte_floor: int, spot: float) ->
         return None
 
 
+LIQUID_DTE_MIN, LIQUID_DTE_MAX = 45, 90      # Research-Kontraktvariante: kürzere Laufzeit als die Produktion (>= 120)
+LIQUID_STRIKE_BAND = 0.05                    # Strikes innerhalb ±5 % um den Spot
+
+
+def select_liquid_contract(ticker: str, direction: str, spot: float) -> dict | None:
+    """Research-Kontraktvariante (Systemaudit P1/P2): erste Expiry mit DTE in [45, 90], unter den Strikes im
+    ±5-%-Band um den Spot der Kontrakt mit der engsten relativen Geld-Brief-Spanne (Bid > 0, Ask >= Bid;
+    Gleichstand -> näher am Spot). Vorab festgelegte Regel, keine Optimierung auf Ergebnisse. Gleiches Format wie
+    select_contract; None (nie ein Fehler) ohne Richtung, Key, Spot oder passenden Kontrakt."""
+    try:
+        if direction not in ("BULLISH", "BEARISH") or not _use_tradier() or spot in (None, 0):
+            return None
+        option_type = "call" if direction == "BULLISH" else "put"
+        today = datetime.now(timezone.utc).date()
+        chosen_exp, chosen_dte = None, None
+        for exp in _fetch_expirations(ticker):
+            try:
+                dte = (datetime.strptime(exp, "%Y-%m-%d").date() - today).days
+            except ValueError:
+                continue
+            if LIQUID_DTE_MIN <= dte <= LIQUID_DTE_MAX:
+                chosen_exp, chosen_dte = exp, dte
+                break
+        if chosen_exp is None:
+            return None
+        spot = float(spot)
+
+        def _spread(o):
+            bid, ask = _f(o.get("bid")), _f(o.get("ask"))
+            if bid is None or ask is None or bid <= 0 or ask < bid:
+                return None
+            return (ask - bid) / ((ask + bid) / 2)
+        candidates = []
+        for o in _fetch_chain(ticker, chosen_exp):
+            try:
+                strike = float(o.get("strike"))
+            except (TypeError, ValueError):
+                continue
+            sp = _spread(o)
+            if o.get("option_type") == option_type and sp is not None \
+                    and abs(strike / spot - 1) <= LIQUID_STRIKE_BAND:
+                candidates.append((sp, abs(strike - spot), o))
+        if not candidates:
+            return None
+        best = min(candidates, key=lambda c: (c[0], c[1]))[2]
+        _archive_quote(best, ticker, "candidate_entry")
+        greeks = best.get("greeks") or {}
+        iv = greeks.get("mid_iv") or greeks.get("smv_vol")
+        delta = greeks.get("delta")
+        bid, ask = _f(best.get("bid")), _f(best.get("ask"))
+        return {"symbol": best.get("symbol"), "strike": float(best.get("strike", 0)), "expiry": chosen_exp,
+                "dte": chosen_dte, "bid": bid, "ask": ask, "mid": round((bid + ask) / 2, 4),
+                "iv": float(iv) if isinstance(iv, (int, float)) and iv > 0 else None,
+                "delta": float(delta) if isinstance(delta, (int, float)) else None,
+                "open_interest": int(best.get("open_interest") or 0),
+                "quote_ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "selection_rule": "liquid_dte45_90_band5_min_spread"}
+    except Exception as e:  # noqa: BLE001 – Research-Snapshot, nie entscheidungswirksam
+        log.debug(f"market_snapshot.select_liquid_contract [{ticker}] Fehler (ignoriert): {e}")
+        return None
+
+
 def select_spread_short_leg(
     ticker: str, expiry: str | None, option_type: str, long_strike: float,
 ) -> dict | None:
