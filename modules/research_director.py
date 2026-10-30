@@ -311,15 +311,21 @@ def _pid(kind: str, change: dict, horizon: int) -> str:
 def _falsification(cfg: dict, horizon: int) -> dict:
     from modules import option_learner as ol
     f = (cfg or {}).get("falsification") or {}
+    max_days = int(((f.get("max_days") or {}).get(horizon)) or 4 * horizon + 60)
     return {"primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-            "comparators": ["Basis-Lernversion (gleiche Labels, gleicher Tag)", "eingefrorene Referenz der Basis"],
-            "accept_if": f"Bonferroni-KI (family_alpha {f.get('family_alpha', 0.05)}) ganz über 0 bei >= "
-                         f"{ol.MIN_OOS_DATES} Tagen, >= {ol.MIN_INDEPENDENT_PERIODS} unabhängigen Perioden, >= "
-                         f"{ol.MIN_SELECTED} Kandidaten",
-            "reject_if": "KI ganz unter 0 (FALSIFIED_WORSE) oder nach max_days kein signifikanter Vorteil "
-                         "(FALSIFIED_NO_EFFECT)",
-            "max_days": int(((f.get("max_days") or {}).get(horizon)) or 4 * horizon + 60),
-            "family_alpha": float(f.get("family_alpha", 0.05))}
+            "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+            "comparators": ["Basis-Lernversion (gleiche Labels, gleicher Tag)", "eingefrorene Referenz der Basis",
+                            "Nicht-Handeln"],
+            "looks_days": ol.look_days(max_days),
+            "accept_if": (f"an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND "
+                          f"netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus family_alpha "
+                          f"{f.get('family_alpha', 0.05)}, Bonferroni über die Varianten), gemeinsame "
+                          f"Ergebnisabdeckung >= {ol.MIN_COVERAGE:.0%}, >= {ol.MIN_OOS_DATES} Tage, >= "
+                          f"{ol.MIN_INDEPENDENT_PERIODS} unabhängige Perioden, >= {ol.MIN_SELECTED} Kandidaten"),
+            "reject_if": ("relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung "
+                          "kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto "
+                          "(BETTER_THAN_BASE_NOT_PROFITABLE)"),
+            "max_days": max_days, "family_alpha": float(f.get("family_alpha", 0.05))}
 
 
 def _variant_overrides(method: str, direction: str | None, cfg: dict) -> list[dict]:
