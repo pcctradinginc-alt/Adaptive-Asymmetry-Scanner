@@ -10,7 +10,6 @@ import json
 import math
 from collections import Counter
 from datetime import date, timedelta
-from itertools import combinations
 from pathlib import Path
 
 LEDGER = Path("outputs/candidate_ledger")
@@ -21,7 +20,6 @@ MIN_TEST = 30
 MIN_TEST_DATES = 10
 MIN_TRAIN_DATES = 20
 MAX_FEATURES = 24
-MAX_PAIRS = 100
 MIN_GROUP = 20
 
 
@@ -43,7 +41,10 @@ def eligible(row, as_of):
         return False
     if signal > as_of - timedelta(days=HORIZON + 1):
         return False
-    return number((row.get("outcomes") or {}).get("real_strat_ret_20d")) is not None
+    outcomes = row.get("outcomes") or {}
+    if not isinstance(outcomes, dict):
+        return False
+    return number(outcomes.get("real_strat_ret_20d")) is not None
 
 
 def load(root, as_of):
@@ -138,6 +139,9 @@ def discover(rows, as_of, min_train=MIN_TRAIN, min_test=MIN_TEST):
               "holdout_delta": (mean(a)-mean(b)) if a and b else None,
               "promotion_eligible": False}
     base["discoveries"] = [result]
+    base["caveats"] = ["Outcome provenance must be independently verified against archived quotes.",
+                       "Single holdout is not a repeated purged walk-forward.",
+                       "Exploratory training search requires multiple-testing correction before promotion."]
     base["status"] = "HOLDOUT_OBSERVED" if len(a) >= MIN_GROUP and len(b) >= MIN_GROUP and independent >= MIN_TEST_DATES else "HOLDOUT_INSUFFICIENT"
     return base
 
