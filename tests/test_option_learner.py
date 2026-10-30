@@ -86,6 +86,7 @@ def test_walk_forward_validates_but_without_forward_evidence_nothing_is_recommen
 def _stats(verdict, **kw):
     s = {"n": 400, "dates": 25, "independent_periods": 6, "mean_all": 0.01, "ic_mean": 0.2, "ic_t": 3.0,
          "n_selected": 120, "selected_dates": 25, "mean_selected": 0.08, "selected_ci95": [0.02, 0.14],
+         "coverage": 1.0, "experiment_id": ol.experiment_id(), "representativeness": {"warnings": []},
          "by_expression": {}, "verdict": verdict}
     s.update(kw)
     return s
@@ -146,6 +147,9 @@ def test_release_gate_fails_closed_on_contradictory_or_incomplete_reports():
         (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", independent_periods=2)),
         (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", selected_ci95=None)),
         (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", mean_selected=-0.01)),
+        (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", coverage=0.6)),              # fehlende Ergebnisse
+        (_stats("VALIDATED", coverage=None), ok),
+        (_stats("VALIDATED"), _stats("FORWARD_POSITIVE", experiment_id="alt")),      # andere Experimentversion
         (_stats("VALIDATED"), {"verdict": "FORWARD_POSITIVE"}),          # Kennzahlen fehlen
         (None, ok),
     ]
@@ -186,21 +190,21 @@ def test_labels_without_archived_quotes_are_not_learned():
 def test_walk_forward_trains_only_on_labels_known_before_the_test_day(monkeypatch):
     days = _trading_days(date(2026, 1, 5), 30)
     rows, quotes = _history(days)
-    data = ol.dataset(rows, quotes, date(2026, 12, 31), H)
+    cands = ol.candidates(rows, quotes, AS_OF, H)
     real_fit, seen = ol.fit, []
 
     def spy(train):
         seen.append(max(d["label_day"] for d in train))
         return real_fit(train)
     monkeypatch.setattr(ol, "fit", spy)
-    tested = sorted({d["date"] for d in data})
-    ol.walk_forward(data)
+    tested = sorted({c["date"] for c in cands})
+    ol.walk_forward(cands, AS_OF, H)
     first_test = len(tested) - len(seen)
     for test_day, newest_label in zip(tested[first_test:], seen):
         assert newest_label < date.fromisoformat(test_day)
 
 
-def test_journal_is_append_only_and_forward_ignores_late_predictions(monkeypatch, tmp_path):
+def test_journal_is_append_only(monkeypatch, tmp_path):
     days = _trading_days(date(2026, 1, 5), 15)
     rows, quotes = _history(days)
     today = _trading_days(days[-1] + timedelta(days=10), 1)[0].isoformat()
@@ -208,15 +212,9 @@ def test_journal_is_append_only_and_forward_ignores_late_predictions(monkeypatch
     monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     now = datetime(2026, 3, 1, 19, tzinfo=timezone.utc)
-    assert ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path, now=now)["journaled"] == 1
+    assert ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path, now=now)["journaled"] == 2
     assert ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path, now=now)["journaled"] == 0
-    assert len(read_jsonl(tmp_path / ol.JOURNAL)) == 1
-
-    data = ol.dataset(rows, quotes, date(2026, 12, 31), H)
-    d = data[0]
-    late = [{"date": d["date"], "signal_id": d["signal_id"], "horizon": H, "pred_net": 0.1,
-             "created_at": (d["label_day"] + timedelta(days=1)).isoformat()}]
-    assert ol.forward(late, data, H)["n"] == 0                          # nach dem Label geschrieben: zählt nie
+    assert [j["kind"] for j in read_jsonl(tmp_path / ol.JOURNAL)] == ["prediction", "decision"]
 
 
 def test_contract_features_use_decision_time_quotes_not_the_fill():
@@ -284,7 +282,7 @@ def test_recommend_journals_every_expression_and_recommends_one_per_candidate(mo
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))
     res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
-    assert res["journaled"] == 2                                                   # Spread und Einzel-Option
+    assert res["journaled"] == 3 and res["decisions"] == 1          # Spread und Einzel-Option + eine Entscheidung
     assert len(res["recommendations"]) == 1
     assert res["recommendations"][0]["expression"] in ("spread", "single")
 
@@ -325,10 +323,13 @@ def test_volatility_pricing_features_from_decision_time():
     assert (f["c_iv_rank"], f["c_rv_score"], f["c_term_score"]) == (30.0, 25.0, 40.0)
 
 
+AS_OF = date(2026, 12, 31)
+
+
 def _fw_case(n_dates, exp, start=date(2026, 3, 2), per_day_models=False, y=0.2, seed=5):
-    """Forward-Fall: je Tag 4 geprüfte Labels (Netto ~ y) und dazu am Signaltag geschriebene Prognosen der
-    Experimentversion `exp` aus registrierten, vorher trainierten Modellinstanzen."""
-    rng, data, journal, instances = random.Random(seed), [], [], []
+    """Forward-Fall: je Tag 4 Kandidaten mit geprüftem Label (Netto ~ y) und am Signaltag festgehaltener Prognose
+    und TRADE-Entscheidung der Experimentversion `exp` aus registrierten, vorher trainierten Modellinstanzen."""
+    rng, cands, journal, instances = random.Random(seed), [], [], []
     for k, d in enumerate(_trading_days(start, n_dates)):
         mid = f"{exp}-m{k if per_day_models else 0}"
         if not any(i["model_id"] == mid for i in instances):
@@ -336,13 +337,16 @@ def _fw_case(n_dates, exp, start=date(2026, 3, 2), per_day_models=False, y=0.2, 
                               "max_label_day": (d - timedelta(days=1)).isoformat()})
         for i in range(4):
             sid, contract = f"{d}-{exp}-{i}", [f"T{i}270319C00100000"]
-            data.append({"date": d.isoformat(), "label_day": d + timedelta(days=H + 1), "signal_id": sid,
-                         "ticker": f"T{i}", "expression": "single", "contract": contract, "x": {},
-                         "y": y + rng.uniform(-0.05, 0.05)})
-            journal.append({"date": d.isoformat(), "signal_id": sid, "contract": contract, "horizon": H,
-                            "pred_net": 0.1, "experiment_id": exp, "model_id": mid,
-                            "created_at": f"{d}T16:30:00+00:00"})
-    return data, journal, instances
+            cands.append({"date": d.isoformat(), "signal_id": sid, "ticker": f"T{i}", "sample": "directional",
+                          "gate": "x", "exprs": [
+                              {"expression": "single", "contract": contract, "strategy": "LONG_CALL", "x": {},
+                               "ask": 1.0, "mid": 0.95, "status": "VERIFIED", "y": y + rng.uniform(-0.05, 0.05),
+                               "label_day": d + timedelta(days=H + 1)}]})
+            entry = {"date": d.isoformat(), "signal_id": sid, "contract": contract, "horizon": H, "pred_net": 0.1,
+                     "experiment_id": exp, "model_id": mid, "created_at": f"{d}T16:30:00+00:00"}
+            journal += [{**entry, "kind": "prediction"},
+                        {**entry, "kind": "decision", "role": "learning", "action": "TRADE"}]
+    return cands, journal, instances
 
 
 def test_experiment_version_changes_with_features_label_costs_training_or_selection(monkeypatch):
@@ -360,31 +364,31 @@ def test_experiment_version_changes_with_features_label_costs_training_or_select
 
 
 def test_mixed_experiment_versions_never_form_a_joint_forward_positive():
-    old_data, old_journal, old_inst = _fw_case(25, "OLD")
-    new_data, new_journal, new_inst = _fw_case(5, "NEW", start=date(2026, 4, 20))
-    data, journal, inst = old_data + new_data, old_journal + new_journal, old_inst + new_inst
-    assert ol.forward(old_journal, old_data, H, old_inst, exp="OLD")["verdict"] == "FORWARD_POSITIVE"
-    fw = ol.forward(journal, data, H, inst, exp="NEW")
-    assert fw["verdict"] == "NEED_MORE_DATA" and fw["valid_predictions"] == 20
-    assert fw["excluded"] == {"OTHER_EXPERIMENT": 100}                            # gekennzeichnet, nicht gemischt
-    assert fw["journal_by_experiment"] == {"NEW": 20, "OLD": 100}
+    old_cands, old_journal, old_inst = _fw_case(25, "OLD")
+    new_cands, new_journal, new_inst = _fw_case(5, "NEW", start=date(2026, 4, 20))
+    cands, journal, inst = old_cands + new_cands, old_journal + new_journal, old_inst + new_inst
+    assert ol.forward(old_journal, old_cands, H, old_inst, AS_OF, exp="OLD")["verdict"] == "FORWARD_POSITIVE"
+    fw = ol.forward(journal, cands, H, inst, AS_OF, exp="NEW")
+    assert fw["verdict"] == "NEED_MORE_DATA" and fw["valid_decisions"] == 20 and fw["valid_predictions"] == 20
+    assert fw["excluded"] == {"OTHER_EXPERIMENT": 200}                            # gekennzeichnet, nicht gemischt
+    assert fw["journal_by_experiment"] == {"NEW": 40, "OLD": 200}
     legacy = [{k: v for k, v in j.items() if k not in ("experiment_id", "model_id")} for j in old_journal]
-    assert ol.forward(legacy + new_journal, data, H, inst, exp="NEW")["excluded"] == {"OTHER_EXPERIMENT": 100}
+    assert ol.forward(legacy + new_journal, cands, H, inst, AS_OF, exp="NEW")["excluded"] == {"OTHER_EXPERIMENT": 200}
 
 
 def test_retraining_within_one_experiment_forms_one_prospective_learning_curve():
-    data, journal, inst = _fw_case(25, "EXP", per_day_models=True)
-    fw = ol.forward(journal, data, H, inst, exp="EXP")
+    cands, journal, inst = _fw_case(25, "EXP", per_day_models=True)
+    fw = ol.forward(journal, cands, H, inst, AS_OF, exp="EXP")
     assert fw["verdict"] == "FORWARD_POSITIVE" and fw["model_instances"] == 25 and fw["excluded"] == {}
-    # gespeicherte Prognosen zählen mit ihrem damaligen Wert, nie neu berechnet
+    # gespeicherte Entscheidungen zählen so, wie sie damals festgehalten wurden – nie neu berechnet
     assert fw["n_selected"] == 100
-    flipped = [dict(j, pred_net=-0.1) for j in journal]
-    assert ol.forward(flipped, data, H, inst, exp="EXP")["n_selected"] == 0
+    flipped = [dict(j, action="ABSTAIN") if j["kind"] == "decision" else j for j in journal]
+    assert ol.forward(flipped, cands, H, inst, AS_OF, exp="EXP")["n_selected"] == 0
 
 
 def test_late_unregistered_or_future_trained_predictions_never_count():
-    data, journal, inst = _fw_case(25, "EXP")
-    j0 = journal[0]
+    cands, journal, inst = _fw_case(25, "EXP")
+    j0 = journal[1]                                                               # Entscheidung des 1. Kandidaten
     bad = [dict(j0, signal_id="late", created_at="2026-03-03T09:00:00+00:00", date="2026-03-02"),
            dict(j0, created_at="2026-03-02T23:30:00-05:00"),                     # UTC bereits der Folgetag
            dict(j0, model_id="nie-registriert"),
@@ -392,11 +396,11 @@ def test_late_unregistered_or_future_trained_predictions_never_count():
            dict(j0, pred_net=-5.0)]                                             # zweite Fassung: erste gilt
     inst = inst + [{"model_id": "future", "experiment_id": "EXP", "train_cutoff": "2026-03-02",
                     "max_label_day": "2026-03-02"}]
-    bad.append(dict(journal[1], model_id="future"))
-    fw = ol.forward(journal + bad, data, H, inst, exp="EXP")
+    bad.append(dict(journal[3], model_id="future"))
+    fw = ol.forward(journal + bad, cands, H, inst, AS_OF, exp="EXP")
     assert fw["excluded"] == {"DUPLICATE": 1, "LATE_PREDICTION": 2, "NO_TIMESTAMP": 1,
                               "TRAINED_ON_FUTURE": 1, "UNKNOWN_MODEL_INSTANCE": 1}
-    assert fw["valid_predictions"] == 100 and fw["verdict"] == "FORWARD_POSITIVE"
+    assert fw["valid_decisions"] == 100 and fw["verdict"] == "FORWARD_POSITIVE"
 
 
 def test_recommend_journals_experiment_and_registered_model_instance(monkeypatch, tmp_path):
@@ -410,9 +414,135 @@ def test_recommend_journals_experiment_and_registered_model_instance(monkeypatch
     res = ol.recommend(today, horizon=H, out=tmp_path, now=now)
     ol.recommend(today, horizon=H, out=tmp_path, now=now)
     journal, registry = read_jsonl(tmp_path / ol.JOURNAL), read_jsonl(tmp_path / ol.INSTANCES)
-    assert len(registry) == 1 and len(journal) == 1                               # append-only, keine Dubletten
+    assert len(registry) == 1 and len(journal) == 2                               # append-only, keine Dubletten
     inst, entry = registry[0], journal[0]
     assert entry["experiment_id"] == inst["experiment_id"] == ol.experiment_id() == res["experiment_id"]
     assert entry["model_id"] == inst["model_id"] == res["model_id"]
     assert inst["max_label_day"] < today.isoformat() and inst["n_train_labels"] > 0 and inst["labels_sha256"]
     assert ol._invalid(entry, ol.experiment_id(), {inst["model_id"]: inst}) is None
+
+
+class _PrefersSpread:
+    """Modell-Attrappe: sagt für den Spread stets mehr voraus als für die Einzel-Option."""
+
+    def predict(self, xs):
+        return [0.1 if x.get("c_is_spread") else 0.05 for x in xs]
+
+
+class _PrefersSingle:
+    def predict(self, xs):
+        return [0.05 if x.get("c_is_spread") else 0.1 for x in xs]
+
+
+def _two_form_cands(days, rule, h=H, seed=11, n=8, sample="research_census", status=None):
+    """Je Tag n Kandidaten mit zwei Formen: Spread (Standardform, zuerst) und Einzel-Option.
+    rule(sentiment, rng) -> (y_spread, y_single); status(i) -> Prüfstatus der Einzel-Option."""
+    rng, out = random.Random(seed), []
+    for d in days:
+        for i in range(n):
+            s = rng.uniform(-1, 1)
+            y_spread, y_single = rule(s, rng)
+            single_status = (status or (lambda i: "VERIFIED"))(i)
+            ld = d + timedelta(days=h + 1)
+            out.append({"date": d.isoformat(), "signal_id": f"{d}-{i}", "ticker": f"T{i}", "sample": sample,
+                        "gate": "x", "exprs": [
+                            {"expression": "spread", "contract": [f"T{i}C1", f"T{i}C2"],
+                             "strategy": "BULL_CALL_SPREAD", "x": {"sentiment_score": s, "c_is_spread": 1.0},
+                             "ask": 1.0, "mid": 0.9, "status": "VERIFIED", "y": y_spread, "label_day": ld},
+                            {"expression": "single", "contract": [f"T{i}C1"], "strategy": "LONG_CALL",
+                             "x": {"sentiment_score": s, "c_is_spread": 0.0}, "ask": 2.0, "mid": 1.9,
+                             "status": single_status, "y": y_single if single_status == "VERIFIED" else None,
+                             "label_day": ld if single_status == "VERIFIED" else None}]})
+    return out
+
+
+def _noise(rng):
+    return rng.uniform(-0.05, 0.05)
+
+
+def test_the_hindsight_best_variant_is_never_selected_and_cannot_validate_the_choice(monkeypatch):
+    days = _trading_days(date(2026, 1, 5), 40)
+    cands = _two_form_cands(days, lambda s, rng: (-0.3 + _noise(rng), 0.2 + _noise(rng)))
+    monkeypatch.setattr(ol, "fit", lambda train: _PrefersSpread())
+    wf = ol.walk_forward(cands, AS_OF, H)
+    assert set(wf["chosen_forms"]) == {"spread"}                     # Einzel-Option war im Nachhinein besser
+    assert wf["mean_selected"] < -0.2
+    assert wf["by_expression"]["single"]["mean_all"] > 0.15          # profitable Einzelform ...
+    assert wf["verdict"] == "NOT_VALIDATED"                          # ... validiert nicht die Auswahlregel
+    assert ol.release_gate(wf, _stats("FORWARD_POSITIVE"))["allowed"] is False
+    assert wf["vs_default"]["mean_diff"] == 0                        # gewählt = Standardform (Spread)
+
+
+def test_the_decision_uses_predictions_only_never_outcomes():
+    cand = _two_form_cands([date(2026, 3, 2)], lambda s, rng: (0.5, -0.5), n=1)[0]
+    swapped = {**cand, "exprs": [dict(e, y=-(e["y"] or 0)) for e in cand["exprs"]]}
+    assert ol.decide(cand, [0.1, 0.2]) == ol.decide(swapped, [0.1, 0.2])
+    assert ol.decide(cand, [0.1, 0.2])["expression"] == "single"
+    assert ol.decide(cand, [-0.1, -0.2])["action"] == "ABSTAIN"
+    puts = {**cand, "exprs": [dict(e, strategy="LONG_PUT") for e in cand["exprs"]]}
+    assert ol.decide(puts, [0.3, 0.3]) == {"action": "ABSTAIN", "reason": "NO_ALLOWED_EXPRESSION",
+                                           "expression": None, "contract": None, "pred": None}
+
+
+def test_a_learned_choice_is_validated_and_compared_with_the_default_form():
+    days = _trading_days(date(2026, 1, 5), 40)
+    cands = _two_form_cands(days, lambda s, rng: ((0.1 if s > 0 else -0.1) - 0.05 + _noise(rng),
+                                                  (0.3 if s > 0 else -0.3) + 0.05 + _noise(rng)))
+    wf = ol.walk_forward(cands, AS_OF, H)
+    assert wf["verdict"] == "VALIDATED" and wf["coverage"] == 1.0
+    assert set(wf["chosen_forms"]) == {"single"}
+    assert wf["abstained"] > 0                                       # negative Prognosen: kein Handel
+    assert wf["vs_default"]["mean_diff"] > 0.2 and wf["vs_default"]["ci95"][0] > 0
+    rep = wf["representativeness"]
+    assert set(rep["by_sample"]) == {"research_census"}
+    assert any("Forschungsstichprobe" in w for w in rep["warnings"])
+    assert any("bullische" in w for w in rep["warnings"]) and any("Marktphase" in w for w in rep["warnings"])
+
+
+def test_missing_quotes_of_the_chosen_variant_never_count_as_profit(monkeypatch):
+    days = _trading_days(date(2026, 1, 5), 40)
+    cands = _two_form_cands(days, lambda s, rng: (0.4 + _noise(rng), 0.2 + _noise(rng)),
+                            status=lambda i: "EXIT_NOT_ARCHIVED" if i < 2 else "VERIFIED")
+    monkeypatch.setattr(ol, "fit", lambda train: _PrefersSingle())
+    wf = ol.walk_forward(cands, AS_OF, H)
+    assert set(wf["chosen_forms"]) == {"single"}                     # der Spread ersetzt die Lücke nicht
+    assert wf["unevaluable"] == {"EXIT_NOT_ARCHIVED": wf["trades"] // 4}
+    assert wf["coverage"] == 0.75 and wf["verdict"] == "INSUFFICIENT_COVERAGE"
+    assert wf["mean_selected_unevaluable_as_loss"] < 0 < wf["mean_selected"]
+
+
+def test_one_candidate_per_ticker_and_day_and_only_due_outcomes():
+    days = _trading_days(date(2026, 1, 5), 40)
+    cands = _two_form_cands(days, lambda s, rng: (0.1, 0.2))
+    twin = [dict(c, signal_id=c["signal_id"] + "-b") for c in cands]   # zweites Signal derselben Aktie
+    model = _PrefersSingle()
+    recs = [{"cand": c, "dec": ol.decide(c, model.predict([e["x"] for e in c["exprs"]])), "preds": {}}
+            for c in cands + twin]
+    assert ol.assess(recs, H)["n_selected"] == len(cands)
+    last = date.fromisoformat(cands[-1]["date"])
+    assert not ol._due(cands[-1]["date"], last + timedelta(days=H + ol.DUE_GRACE_DAYS), H)
+    assert ol._due(cands[-1]["date"], last + timedelta(days=H + ol.DUE_GRACE_DAYS + 1), H)
+    from modules import candidate_ledger
+    assert ol.DUE_GRACE_DAYS >= candidate_ledger.LATE_MARK_DAYS
+
+
+def test_forward_evaluates_the_journaled_choice_not_a_later_better_one():
+    days = _trading_days(date(2026, 3, 2), 25)
+    cands = _two_form_cands(days, lambda s, rng: (-0.2 + _noise(rng), 0.3 + _noise(rng)))
+    inst = [{"model_id": "m", "experiment_id": "E", "train_cutoff": "2026-03-02", "max_label_day": "2026-03-01"}]
+    journal = [{"kind": "decision", "role": "learning", "date": c["date"], "signal_id": c["signal_id"],
+                "horizon": H, "action": "TRADE", "contract": c["exprs"][0]["contract"], "pred_net": 0.1,
+                "experiment_id": "E", "model_id": "m", "created_at": f"{c['date']}T16:00:00+00:00"} for c in cands]
+    fw = ol.forward(journal, cands, H, inst, AS_OF, exp="E")
+    assert set(fw["chosen_forms"]) == {"spread"} and fw["verdict"] == "FORWARD_NEGATIVE"
+    early = ol.forward(journal, cands, H, inst, date(2026, 3, 20), exp="E")
+    assert early["pending_decisions"] > 0 and early["n"] < fw["n"]   # noch nicht fällig: nicht bewertet
+
+
+def test_candidates_carry_label_status_of_every_form():
+    r = _spread_row("2026-03-02", 1, 0.1)
+    r["outcomes"] = {"real_strat_ret_5d": 0.1, "real_strat_mark_date_5d": "2026-03-09"}
+    c = ol.candidates([r], [], AS_OF, H)[0]
+    assert [(e["expression"], e["status"]) for e in c["exprs"]] == [("spread", "ENTRY_NOT_ARCHIVED"),
+                                                                    ("single", "NO_LABEL")]
+    assert c["sample"] == "directional" and c["exprs"][0]["ask"] == 6.0      # 10.0 Ask - 4.0 Bid

@@ -64,6 +64,9 @@ MIN_OOS_DATES = 20                      # Walk-Forward-Verdikt erst ab so vielen
 MIN_SELECTED = 30                       # mindestens so viele OOS-Fälle mit Prognose > 0
 MIN_INDEPENDENT_PERIODS = 5             # nicht überlappende Haltefenster (Horizont in Kalendertagen) mit Auswahl
 IC_T_MIN = 2.0
+MIN_COVERAGE = 0.8                      # Anteil der TRADE-Entscheidungen mit geprüftem Ergebnis der gewählten Form
+DUE_GRACE_DAYS = 10                     # candidate_ledger.LATE_MARK_DAYS (7) + bis zu 3 Tage späterer Entry
+MIN_SPAN_DAYS = 90                      # kürzerer Auswertungszeitraum = höchstens eine Marktphase
 MAIL_HORIZON = HORIZON                  # Handels-Mail nur für das Hauptmodell (5 T = Frühindikator)
 MIN_FEATURE_COVERAGE = 0.5
 BOOTSTRAP = 2000
@@ -72,7 +75,8 @@ WINSOR = (0.01, 0.99)
 ALLOWED_STRATEGIES = ("LONG_CALL", "BULL_CALL_SPREAD")   # Call-Strukturen, die die Produktion handeln kann
 # Evidenzanforderungen (ändern keine Prognose, daher nicht Teil der Experimentversion)
 EVIDENCE = {"min_oos_dates": MIN_OOS_DATES, "min_selected": MIN_SELECTED,
-            "min_independent_periods": MIN_INDEPENDENT_PERIODS, "ic_t_min": IC_T_MIN, "bootstrap": "block/horizon"}
+            "min_independent_periods": MIN_INDEPENDENT_PERIODS, "ic_t_min": IC_T_MIN, "bootstrap": "block/horizon",
+            "min_coverage": MIN_COVERAGE, "due_grace_days": DUE_GRACE_DAYS}
 
 LEDGER_FEATURES = (
     "impact", "surprise", "sentiment_score", "sentiment_confidence", "sentiment_drift", "news_count",
@@ -100,7 +104,9 @@ def experiment() -> dict:
             "training": {"model": "ridge", "alpha": RIDGE_ALPHA, "winsor": list(WINSOR),
                          "min_train_rows": MIN_TRAIN_ROWS, "min_train_dates": MIN_TRAIN_DATES,
                          "embargo": "label_day < decision day"},
-            "selection": {"rule": "pred > 0", "allowed_strategies": list(ALLOWED_STRATEGIES)}}
+            "selection": {"rule": "per candidate the allowed expression with the highest prediction; TRADE if > 0, "
+                                  "else ABSTAIN", "allowed_strategies": list(ALLOWED_STRATEGIES),
+                          "unit": "one decision per candidate; one candidate per ticker and day"}}
 
 
 def experiment_id() -> str:
@@ -239,10 +245,22 @@ def expressions(row: dict) -> list[dict]:
     return out
 
 
-def dataset(rows: list[dict], quotes: list[dict], as_of: date, horizon: int = HORIZON,
-            counts: dict | None = None) -> list[dict]:
-    """Geprüfte Labels mit Mark-Tag <= as_of je Ausdrucksform: {date, label_day, signal_id, ticker, expression,
-    contract, x, y}. `counts` erhält die Prüfergebnisse aller fälligen Labels (auch der verworfenen)."""
+def _sample(row: dict) -> str:
+    """Forschungsstichprobe (Call ohne LLM-Richtung) oder produktives Richtungssignal (inkl. Altbestand)."""
+    return "research_census" if row.get("option_sample") == "research_census" else "directional"
+
+
+def _direction(strategy) -> str:
+    s = str(strategy or "")
+    return {"LONG_CALL": "bullish", "BULL_CALL_SPREAD": "bullish", "LONG_PUT": "bearish",
+            "BEAR_PUT_SPREAD": "bearish"}.get(s, "unknown")
+
+
+def candidates(rows: list[dict], quotes: list[dict], as_of: date, horizon: int = HORIZON,
+               counts: dict | None = None) -> list[dict]:
+    """Je Ledger-Kandidat alle zum Entscheidungszeitpunkt erfassten Ausdrucksformen mit Merkmalen, Entscheidungs-
+    Quotes und Label-Status: VERIFIED (mit y und Mark-Tag), ein Prüf-Grund aus research_evidence_discovery.provenance
+    oder NO_LABEL (bis as_of kein Label). `counts` erhält die Prüfergebnisse aller vorhandenen Labels."""
     index = red.quote_index(quotes)
     seen, out = set(), []
     for r in rows:
@@ -252,20 +270,37 @@ def dataset(rows: list[dict], quotes: list[dict], as_of: date, horizon: int = HO
         if key in seen:
             continue
         seen.add(key)
+        exprs = []
         for e in expressions(r):
             pr = e["row"]
             ld, y = _label_day(pr, horizon), net_label(pr, horizon)
-            if ld is None or ld > as_of or y is None:
-                continue
-            status = red.provenance(pr, index, horizon)
-            if counts is not None:
+            status = "NO_LABEL" if ld is None or ld > as_of or y is None else red.provenance(pr, index, horizon)
+            if counts is not None and status != "NO_LABEL":
                 counts[status] = counts.get(status, 0) + 1
-            if status != "VERIFIED":
-                continue
-            out.append({"date": r["date"], "label_day": ld, "signal_id": r.get("signal_id"), "ticker": r["ticker"],
-                        "expression": e["expression"], "contract": e["contract"], "x": features(pr), "y": y,
-                        "gate": r.get("reject_reason") or r.get("status") or "unknown"})
+            ok = status == "VERIFIED"
+            ask, mid = net_quote(_legs_at_decision(pr["real_strategy"]))
+            exprs.append({"expression": e["expression"], "contract": e["contract"],
+                          "strategy": pr["real_strategy"].get("strategy"), "x": features(pr), "ask": ask, "mid": mid,
+                          "status": status, "y": y if ok else None, "label_day": ld if ok else None})
+        if exprs:
+            out.append({"date": r["date"], "signal_id": r.get("signal_id"), "ticker": r["ticker"],
+                        "sample": _sample(r), "gate": r.get("reject_reason") or r.get("status") or "unknown",
+                        "exprs": exprs})
+    return sorted(out, key=lambda c: (c["date"], c["ticker"], str(c["signal_id"])))
+
+
+def _verified(cands: list[dict]) -> list[dict]:
+    out = [{"date": c["date"], "label_day": e["label_day"], "signal_id": c["signal_id"], "ticker": c["ticker"],
+            "expression": e["expression"], "contract": e["contract"], "x": e["x"], "y": e["y"], "gate": c["gate"]}
+           for c in cands for e in c["exprs"] if e["status"] == "VERIFIED"]
     return sorted(out, key=lambda d: (d["date"], d["ticker"], d["expression"]))
+
+
+def dataset(rows: list[dict], quotes: list[dict], as_of: date, horizon: int = HORIZON,
+            counts: dict | None = None) -> list[dict]:
+    """Geprüfte Labels mit Mark-Tag <= as_of je Ausdrucksform (Trainingsdaten): {date, label_day, signal_id, ticker,
+    expression, contract, x, y, gate}."""
+    return _verified(candidates(rows, quotes, as_of, horizon, counts))
 
 
 class Model:
@@ -374,7 +409,7 @@ def score(preds: list[dict], horizon: int = HORIZON) -> dict:
 
 
 def _by_expression(preds: list[dict]) -> dict:
-    """Strategievergleich: OOS-Mittel je Ausdrucksform, alle und nur die ausgewählten (Prognose > 0)."""
+    """Ergebnis jeder einzelnen Optionsform (ungesehen): alle Fälle und nur die mit Prognose > 0."""
     groups = defaultdict(list)
     for p in preds:
         groups[p.get("expression") or "single"].append(p)
@@ -391,28 +426,135 @@ def _insufficient(s: dict) -> bool:
             or s["independent_periods"] < MIN_INDEPENDENT_PERIODS)
 
 
-def walk_forward(data: list[dict], horizon: int = HORIZON) -> dict:
-    """Je Signaltag trainieren mit Labels, deren Mark-Tag vor dem Testtag liegt; Testtag vorhersagen."""
-    preds = []
-    for day in sorted({d["date"] for d in data}):
+def _due(day: str, as_of: date, horizon: int) -> bool:
+    """Ergebnis spätestens jetzt fällig (Mark-Frist des Ledgers abgelaufen) – unabhängig davon, ob es vorliegt."""
+    return (as_of - date.fromisoformat(day)).days > horizon + DUE_GRACE_DAYS
+
+
+def decide(cand: dict, preds) -> dict:
+    """Auswahlregel – nur aus Prognosen, nie aus Ergebnissen: je Kandidat genau eine zulässige Ausdrucksform
+    (höchste Prognose unter ALLOWED_STRATEGIES, bei Gleichstand die erste); TRADE wenn > 0, sonst ABSTAIN."""
+    elig = [(float(p), e) for p, e in zip(preds, cand["exprs"]) if e["strategy"] in ALLOWED_STRATEGIES]
+    if not elig:
+        return {"action": "ABSTAIN", "reason": "NO_ALLOWED_EXPRESSION", "expression": None, "contract": None,
+                "pred": None}
+    p, e = max(elig, key=lambda t: t[0])
+    return {"action": "TRADE" if p > 0 else "ABSTAIN", "reason": None if p > 0 else "PRED_NOT_POSITIVE",
+            "expression": e["expression"], "contract": e["contract"], "pred": round(p, 6)}
+
+
+def realized(cand: dict, contract) -> dict | None:
+    """Die Ausdrucksform genau des gewählten Kontrakts (mit ihrem Label-Status) – nie eine andere Form."""
+    return next((e for e in cand["exprs"] if e["contract"] == list(contract or ())), None)
+
+
+def _representativeness(picks: list[dict]) -> dict:
+    """Woraus die Evidenz besteht: Forschungsstichprobe vs. Richtungssignale, Richtung, Zeitraum – mit Warnungen,
+    damit eine einseitige Stichprobe nicht unbemerkt als Beleg für alle Marktsituationen gilt."""
+    def group(key):
+        g = defaultdict(list)
+        for p in picks:
+            g[p[key]].append(p["y"])
+        return {k: {"n": len(v), "mean": round(float(np.mean(v)), 6)} for k, v in sorted(g.items())}
+    n, by_sample, by_direction = len(picks), group("sample"), group("direction")
+    days = sorted({p["date"] for p in picks})
+    span = (date.fromisoformat(days[-1]) - date.fromisoformat(days[0])).days + 1 if days else 0
+    warnings = []
+    if n and by_direction.get("bullish", {}).get("n", 0) >= 0.8 * n:
+        warnings.append("überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale")
+    if n and by_sample.get("research_census", {}).get("n", 0) >= 0.8 * n:
+        warnings.append("überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf "
+                        "produktive Richtungssignale übertragbar")
+    if n and span < MIN_SPAN_DAYS:
+        warnings.append(f"nur {span} Kalendertage: höchstens eine Marktphase")
+    return {"by_sample": by_sample, "by_direction": by_direction, "span_days": span, "warnings": warnings}
+
+
+def _paired(by_date: dict[str, list[float]], horizon: int) -> dict:
+    vals = [v for vs in by_date.values() for v in vs]
+    ci = _block_bootstrap_ci(by_date, horizon) if vals else None
+    return {"n": len(vals), "dates": len(by_date), "independent_periods": len(_periods(by_date, horizon)),
+            "mean_diff": round(float(np.mean(vals)), 6) if vals else None,
+            "ci95": [round(c, 6) for c in ci] if ci else None}
+
+
+def assess(records: list[dict], horizon: int) -> dict:
+    """Bewertet vorab getroffene Auswahlentscheidungen [{cand, dec, preds}] auf fälligen Kandidaten. Gezählt wird nur
+    das geprüfte Netto-Ergebnis der gewählten Form; fehlt es, ist der Fall nicht bewertbar (mit Grund) und nie
+    positiv. Je Aktie und Tag zählt ein Kandidat (der erste nach Signal-ID), Varianten nie getrennt."""
+    seen, picks, expr_preds, vs_default = set(), [], [], defaultdict(list)
+    unevaluable, forms, abstained = defaultdict(int), defaultdict(int), 0
+    for rec in sorted(records, key=lambda r: (r["cand"]["date"], r["cand"]["ticker"], str(r["cand"]["signal_id"]))):
+        c, dec = rec["cand"], rec["dec"]
+        if (c["date"], c["ticker"]) in seen:
+            continue
+        seen.add((c["date"], c["ticker"]))
+        expr_preds += [{"date": c["date"], "pred": p, "y": e["y"], "expression": e["expression"]}
+                       for e in c["exprs"] if e["status"] == "VERIFIED"
+                       and (p := rec["preds"].get(tuple(e["contract"]))) is not None]
+        if dec.get("action") != "TRADE":
+            abstained += 1
+            continue
+        e = realized(c, dec.get("contract"))
+        if e is None or e["status"] != "VERIFIED":
+            unevaluable[e["status"] if e else "CONTRACT_NOT_IN_CANDIDATE"] += 1
+            continue
+        forms[e["expression"]] += 1
+        picks.append({"date": c["date"], "pred": 1.0, "y": e["y"], "sample": c["sample"],
+                      "direction": _direction(e["strategy"])})
+        default = c["exprs"][0]                                   # Standardform: Produktions-Strategie bzw. real_option
+        if default["status"] == "VERIFIED":
+            vs_default[c["date"]].append(e["y"] - default["y"])
+    sel, rank = score(picks, horizon), score(expr_preds, horizon)
+    trades = len(picks) + sum(unevaluable.values())
+    lost = sum(p["y"] for p in picks) - sum(unevaluable.values())
+    return {"n": len(seen), "dates": len({d for d, _t in seen}), "independent_periods": sel["independent_periods"],
+            "mean_all": rank["mean_all"], "ic_mean": rank["ic_mean"], "ic_t": rank["ic_t"],
+            "n_selected": sel["n_selected"], "selected_dates": sel["selected_dates"],
+            "mean_selected": sel["mean_selected"], "selected_ci95": sel["selected_ci95"],
+            "trades": trades, "abstained": abstained, "unevaluable": dict(sorted(unevaluable.items())),
+            "coverage": round(len(picks) / trades, 4) if trades else None,
+            "mean_selected_unevaluable_as_loss": round(lost / trades, 6) if trades else None,
+            "chosen_forms": dict(sorted(forms.items())), "by_expression": _by_expression(expr_preds),
+            "vs_default": _paired(vs_default, horizon), "representativeness": _representativeness(picks)}
+
+
+def _verdict(s: dict, kind: str) -> str:
+    if _insufficient(s):
+        return "NEED_MORE_DATA"
+    if (s["coverage"] or 0) < MIN_COVERAGE:
+        return "INSUFFICIENT_COVERAGE"
+    ci = s["selected_ci95"]
+    if kind == "walk_forward":
+        return "VALIDATED" if ci and ci[0] > 0 and (s["ic_t"] or 0) > IC_T_MIN else "NOT_VALIDATED"
+    if ci and ci[1] < 0:
+        return "FORWARD_NEGATIVE"
+    return "FORWARD_POSITIVE" if ci and ci[0] > 0 else "INCONCLUSIVE"
+
+
+def walk_forward(cands: list[dict], as_of: date, horizon: int = HORIZON) -> dict:
+    """Historische Simulation der Auswahlregel: je Testtag nur mit Labels trainiert, deren Mark-Tag davor liegt; je
+    fälligem Kandidat zuerst genau eine Form gewählt (decide), erst danach ihr geprüftes Ergebnis betrachtet."""
+    labels = _verified(cands)
+    by_day = defaultdict(list)
+    for c in cands:
+        if _due(c["date"], as_of, horizon):
+            by_day[c["date"]].append(c)
+    records = []
+    for day in sorted(by_day):
         test_day = date.fromisoformat(day)
-        train = [d for d in data if d["label_day"] < test_day]
+        train = [d for d in labels if d["label_day"] < test_day]
         if len({d["date"] for d in train}) < MIN_TRAIN_DATES:
             continue
         model = fit(train)
         if model is None:
             continue
-        test = [d for d in data if d["date"] == day]
-        for d, p in zip(test, model.predict([t["x"] for t in test])):
-            preds.append({"date": day, "pred": float(p), "y": d["y"], "expression": d.get("expression")})
-    s = score(preds, horizon)
-    if _insufficient(s):
-        verdict = "NEED_MORE_DATA"
-    elif s["selected_ci95"] and s["selected_ci95"][0] > 0 and (s["ic_t"] or 0) > IC_T_MIN:
-        verdict = "VALIDATED"
-    else:
-        verdict = "NOT_VALIDATED"
-    return {**s, "by_expression": _by_expression(preds), "verdict": verdict}
+        for c in by_day[day]:
+            preds = model.predict([e["x"] for e in c["exprs"]])
+            records.append({"cand": c, "dec": decide(c, preds),
+                            "preds": {tuple(e["contract"]): round(float(p), 6) for e, p in zip(c["exprs"], preds)}})
+    s = assess(records, horizon)
+    return {**s, "verdict": _verdict(s, "walk_forward")}
 
 
 def _invalid(j: dict, exp: str, instances: dict) -> str | None:
@@ -439,44 +581,55 @@ def _invalid(j: dict, exp: str, instances: dict) -> str | None:
     return None
 
 
-def forward(journal: list[dict], data: list[dict], horizon: int, instances: list[dict] | None = None,
-            exp: str | None = None) -> dict:
-    """Prospektive Prognosen gegen die inzwischen geprüften Labels; Zuordnung über Signal und Kontrakt. Es zählen
-    nur unveränderte Journal-Einträge der Experimentversion `exp` (Standard: aktuelle Version) – fortlaufend neu
-    trainierte Modellinstanzen derselben Version gemeinsam, jede Prognose mit ihrem damals gespeicherten Wert."""
+def _jkey(j: dict) -> tuple:
+    kind = j.get("kind", "prediction")
+    return (kind, j.get("role", "learning"), j.get("date"), j.get("signal_id"), j.get("horizon"),
+            tuple(j.get("contract") or ()) if kind == "prediction" else None,
+            j.get("experiment_id") or j.get("model_spec"))
+
+
+def forward(journal: list[dict], cands: list[dict], horizon: int, instances: list[dict] | None = None,
+            as_of: date | None = None, exp: str | None = None) -> dict:
+    """Prospektiver Test der Auswahlregel: bewertet die am Signaltag im Journal festgehaltenen Entscheidungen
+    (kind=decision, role=learning) – nie neu berechnet – auf inzwischen fälligen Kandidaten. Es zählen nur
+    unveränderte Einträge der Experimentversion `exp` (Standard: aktuelle Version); fortlaufend neu trainierte
+    Modellinstanzen derselben Version gemeinsam."""
     exp = exp or experiment_id()
+    as_of = as_of or datetime.now(timezone.utc).date()
     reg = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
-    labels = {(d["date"], d["signal_id"], tuple(d["contract"])): d for d in data}
-    preds, seen, excluded, by_exp, models, pending = [], set(), defaultdict(int), defaultdict(int), set(), 0
+    by_cand = {(c["date"], c["signal_id"]): c for c in cands}
+    preds, decisions, seen = defaultdict(dict), {}, set()
+    excluded, by_exp = defaultdict(int), defaultdict(int)
     for j in journal:
-        if not isinstance(j, dict) or j.get("horizon") != horizon:
+        if not isinstance(j, dict) or j.get("horizon") != horizon or j.get("role", "learning") != "learning":
             continue
         by_exp[str(j.get("experiment_id") or j.get("model_spec") or "unbekannt")] += 1
-        key = (j.get("date"), j.get("signal_id"), tuple(j.get("contract") or ()))
+        key = _jkey(j)
         reason = _invalid(j, exp, reg) or ("DUPLICATE" if key in seen else None)
         if reason:
             excluded[reason] += 1
             continue
         seen.add(key)
-        d = labels.get(key)
-        if d is None:
+        if j.get("kind") == "decision":
+            decisions[(j["date"], j.get("signal_id"))] = j
+        else:
+            preds[(j["date"], j.get("signal_id"))][tuple(j.get("contract") or ())] = float(j["pred_net"])
+    records, pending, models = [], 0, set()
+    for ck, j in decisions.items():
+        if not _due(j["date"], as_of, horizon):
             pending += 1
             continue
+        if ck not in by_cand:
+            excluded["CANDIDATE_NOT_IN_LEDGER"] += 1
+            continue
         models.add(j["model_id"])
-        preds.append({"date": j["date"], "pred": float(j["pred_net"]), "y": d["y"], "expression": d["expression"]})
-    s = score(preds, horizon)
-    ci = s["selected_ci95"]
-    if _insufficient(s):
-        verdict = "NEED_MORE_DATA"
-    elif ci and ci[1] < 0:
-        verdict = "FORWARD_NEGATIVE"
-    elif ci and ci[0] > 0:
-        verdict = "FORWARD_POSITIVE"
-    else:
-        verdict = "INCONCLUSIVE"
-    return {**s, "by_expression": _by_expression(preds), "verdict": verdict, "experiment_id": exp,
-            "valid_predictions": len(preds), "pending_predictions": pending, "model_instances": len(models),
-            "excluded": dict(sorted(excluded.items())), "journal_by_experiment": dict(sorted(by_exp.items()))}
+        dec = {"action": j.get("action"), "contract": j.get("contract"), "pred": j.get("pred_net")}
+        records.append({"cand": by_cand[ck], "dec": dec, "preds": preds.get(ck, {})})
+    s = assess(records, horizon)
+    return {**s, "verdict": _verdict(s, "forward"), "experiment_id": exp, "valid_decisions": len(decisions),
+            "valid_predictions": sum(len(v) for v in preds.values()), "pending_decisions": pending,
+            "model_instances": len(models), "excluded": dict(sorted(excluded.items())),
+            "journal_by_experiment": dict(sorted(by_exp.items()))}
 
 
 def release_gate(wf: dict | None, fw: dict | None) -> dict:
@@ -497,9 +650,13 @@ def release_gate(wf: dict | None, fw: dict | None) -> dict:
                       (s["independent_periods"] >= MIN_INDEPENDENT_PERIODS,
                        f"unabhängige Perioden {s['independent_periods']} < {MIN_INDEPENDENT_PERIODS}"),
                       (bool(ci) and ci[0] > 0, f"95-%-KI {ci} nicht über 0"),
-                      (s.get("mean_selected") is not None and s["mean_selected"] > 0, "Ø netto der Auswahl nicht > 0"))
+                      (s.get("mean_selected") is not None and s["mean_selected"] > 0, "Ø netto der Auswahl nicht > 0"),
+                      (s["coverage"] is not None and s["coverage"] >= MIN_COVERAGE,
+                       f"Abdeckung geprüfter Ergebnisse {s['coverage']} < {MIN_COVERAGE}"))
             if name == "walk_forward":
                 checks += (((s.get("ic_t") or 0) > IC_T_MIN, f"Rang-IC t {s.get('ic_t')} <= {IC_T_MIN}"),)
+            else:
+                checks += ((s["experiment_id"] == experiment_id(), f"Experimentversion {s['experiment_id']} veraltet"),)
         except (KeyError, TypeError, IndexError):
             reasons.append(f"{name}: Kennzahlen unvollständig")
             continue
@@ -508,10 +665,12 @@ def release_gate(wf: dict | None, fw: dict | None) -> dict:
 
 
 def _load(as_of: date, horizon: int, ledger: Path, quotes: Path, counts: dict | None = None):
+    """(Ledger-Zeilen, Kandidaten mit allen Formen und Label-Status, geprüfte Trainings-Labels)."""
     rows = red.load(ledger, as_of)
     labelled = [r for r in rows if isinstance(r, dict) and any(
         _num((r.get("outcomes") or {}).get(f"{prefix}_ret_{horizon}d")) is not None for _k, prefix, _n in SOURCES)]
-    return rows, dataset(rows, red.load_quotes(quotes, labelled, as_of), as_of, horizon, counts)
+    cands = candidates(rows, red.load_quotes(quotes, labelled, as_of), as_of, horizon, counts)
+    return rows, cands, _verified(cands)
 
 
 def _label_ids(data: list[dict]) -> list[str]:
@@ -597,11 +756,11 @@ def _vs_previous(history: list[dict], status: dict) -> dict | None:
 def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, quotes: Path = red.QUOTES,
              out: Path = OUT) -> dict:
     counts: dict = {}
-    rows, data = _load(as_of, horizon, ledger, quotes, counts)
+    rows, cands, data = _load(as_of, horizon, ledger, quotes, counts)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
     instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
     model = fit(data)
-    wf = walk_forward(data, horizon)
+    wf = walk_forward(cands, as_of, horizon)
     week = (as_of.toordinal() - 7)
     recent = [r for r in rows if isinstance(r, dict) and r.get("date")
               and date.fromisoformat(str(r["date"])[:10]).toordinal() > week]
@@ -613,7 +772,8 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
               "manifest": manifest(data, as_of), "walk_forward": wf, "baselines": _baselines(wf),
               "by_gate": by_gate(data),
-              "forward": forward(journal, data, horizon, instances), "model": model.describe() if model else None,
+              "forward": forward(journal, cands, horizon, instances, as_of),
+              "model": model.describe() if model else None,
               "production_influence": "NONE", "orders_created": 0}
     mine = [i for i in instances if i.get("horizon") == horizon and i.get("experiment_id") == status["experiment_id"]]
     status["model_instances"] = {"count": len(mine), "latest": {k: v for k, v in mine[-1].items() if k != "features"}
@@ -633,53 +793,53 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
 
 def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, quotes: Path = red.QUOTES,
               out: Path = OUT, now: datetime | None = None) -> dict:
-    """Prognosen für alle Ausdrucksformen der heutigen Kandidaten; append-only ins Journal; je Kandidat die beste
-    Ausdrucksform; Empfehlung nur bei bestandener Freigabe (release_gate), sonst unvalidierte Research-Watchlist."""
+    """Prognosen für alle Ausdrucksformen der heutigen Kandidaten und je Kandidat die Auswahlentscheidung (TRADE mit
+    genau einer Form oder ABSTAIN) append-only ins Journal; Empfehlung nur bei bestandener Freigabe (release_gate),
+    sonst unvalidierte Research-Watchlist."""
     now = now or datetime.now(timezone.utc)
-    rows, data = _load(day, horizon, ledger, quotes)
+    _rows, cands, data = _load(day, horizon, ledger, quotes)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
     instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
-    wf, fw = walk_forward(data, horizon), forward(journal, data, horizon, instances)
+    wf, fw = walk_forward(cands, day, horizon), forward(journal, cands, horizon, instances, day)
     train = [d for d in data if d["label_day"] < day]
     model, exp = fit(train), experiment_id()
     inst = instance(model, train, day) if model is not None else None
     if inst is not None:
         _register(out, inst, horizon, now)
-    done = {(j.get("date"), j.get("signal_id"), j.get("horizon"), tuple(j.get("contract") or ()),
-             j.get("experiment_id") or j.get("model_spec")) for j in journal}
-    new, best = [], {}
-    for r in rows:
-        if not isinstance(r, dict) or r.get("date") != day.isoformat() or model is None:
-            continue
-        exprs = expressions(r)
-        preds = model.predict([features(e["row"]) for e in exprs])
-        for e, p in zip(exprs, preds):
-            rs = e["row"]["real_strategy"]
-            ask, mid = net_quote(_legs_at_decision(rs))
-            item = {"date": r["date"], "signal_id": r.get("signal_id"), "ticker": r["ticker"],
-                    "expression": e["expression"], "contract": e["contract"], "strategy": rs.get("strategy"),
-                    "entry_ask_net": ask, "entry_mid_net": mid, "option_sample": r.get("option_sample"),
-                    "horizon": horizon, "pred_net": round(float(p), 6), "experiment_id": exp,
-                    "model_id": inst["model_id"], "train_cutoff": inst["train_cutoff"],
-                    "walk_forward_verdict": (wf or {}).get("verdict"), "forward_verdict": (fw or {}).get("verdict"),
-                    "created_at": now.isoformat(timespec="seconds")}
-            if (item["date"], item["signal_id"], horizon, tuple(item["contract"]), exp) not in done:
-                new.append(item)
-            if item["strategy"] in ALLOWED_STRATEGIES:
-                key = (item["signal_id"], item["ticker"])
-                if key not in best or item["pred_net"] > best[key]["pred_net"]:
-                    best[key] = item
+    stamp = {"horizon": horizon, "experiment_id": exp, "created_at": now.isoformat(timespec="seconds"),
+             "walk_forward_verdict": (wf or {}).get("verdict"), "forward_verdict": (fw or {}).get("verdict")}
+    new, decisions = [], []
+    for c in (c for c in cands if c["date"] == day.isoformat() and model is not None):
+        preds = model.predict([e["x"] for e in c["exprs"]])
+        base = {"date": c["date"], "signal_id": c["signal_id"], "ticker": c["ticker"], "option_sample": c["sample"],
+                **stamp, "model_id": inst["model_id"], "train_cutoff": inst["train_cutoff"]}
+        new += [{**base, "kind": "prediction", "expression": e["expression"], "contract": e["contract"],
+                 "strategy": e["strategy"], "entry_ask_net": e["ask"], "entry_mid_net": e["mid"],
+                 "pred_net": round(float(p), 6)} for e, p in zip(c["exprs"], preds)]
+        dec = decide(c, preds)
+        chosen = realized(c, dec["contract"]) or {}
+        decisions.append({**base, "kind": "decision", "role": "learning", "action": dec["action"],
+                          "reason": dec["reason"], "expression": dec["expression"], "contract": dec["contract"],
+                          "strategy": chosen.get("strategy"), "direction": _direction(chosen.get("strategy")),
+                          "entry_ask_net": chosen.get("ask"), "entry_mid_net": chosen.get("mid"),
+                          "pred_net": dec["pred"]})
+    done = {_jkey(j) for j in journal}
+    new = [j for j in new + decisions if _jkey(j) not in done]
     if new:
         append_jsonl(out / JOURNAL, new)
     gate = release_gate(wf, fw)                 # fail closed, auch wenn ein Bericht fehlt oder unvollständig ist
-    recs = sorted((i for i in best.values() if gate["allowed"] and i["pred_net"] > 0), key=lambda i: -i["pred_net"])
-    watch = sorted(best.values(), key=lambda i: -i["pred_net"])[:WATCHLIST_N]
+    best = {}
+    for d in sorted((d for d in decisions if d["action"] == "TRADE"), key=lambda d: -d["pred_net"]):
+        best.setdefault(d["ticker"], d)          # je Aktie höchstens eine Empfehlung
+    recs = list(best.values()) if gate["allowed"] else []
+    watch = sorted((d for d in decisions if d["contract"]), key=lambda d: -d["pred_net"])[:WATCHLIST_N]
     result = {"date": day.isoformat(), "horizon": horizon, "model_available": model is not None,
               "experiment_id": exp, "model_id": inst and inst["model_id"],
               "verified_labels": len(data), "walk_forward": wf, "forward": fw, "release": gate,
               "mail_eligible": horizon == MAIL_HORIZON and bool(recs),
               "recommendations": recs, "watchlist": [] if recs else watch,
-              "journaled": len(new), "production_influence": "NONE", "orders_created": 0}
+              "journaled": len(new), "decisions": len(decisions),
+              "production_influence": "NONE", "orders_created": 0}
     target = out / "recommendations" / f"{day.isoformat()}_{horizon}d.json"
     atomic_write_json(target, result, indent=1)
     atomic_write_text(target.with_suffix(".md"), render(result))
@@ -700,15 +860,19 @@ def render(res: dict) -> str:
         lines += [(f"_Frühindikator ({res['horizon']} T): keine Handels-Mail; Hauptmaßstab ist das "
                    f"{MAIL_HORIZON}-Tage-Modell._"), ""]
     lines += [f"- Geprüfte Options-Labels: {res['verified_labels']}",
-              (f"- Walk-Forward: **{wf['verdict']}** – Testtage {wf['dates']} "
-               f"({wf['independent_periods']} unabhängige Perioden), Auswahl n={wf['n_selected']}, "
-               f"Ø netto {_fmt(wf['mean_selected'])} (alle {_fmt(wf['mean_all'])}), 95-%-KI {wf['selected_ci95']}, "
-               f"Rang-IC {wf['ic_mean']} (t {wf['ic_t']})"),
-              (f"- Forward (prospektives Journal): **{fw['verdict']}** – Tage {fw['dates']} "
-               f"({fw['independent_periods']} unabhängige Perioden), Auswahl n={fw['n_selected']}, "
-               f"Ø netto {_fmt(fw['mean_selected'])}"),
+              (f"- Walk-Forward (Auswahlregel): **{wf['verdict']}** – Testtage {wf['dates']} "
+               f"({wf['independent_periods']} unabhängige Perioden), gewählt n={wf['n_selected']}, "
+               f"Ø netto {_fmt(wf['mean_selected'])} (alle Formen {_fmt(wf['mean_all'])}), "
+               f"95-%-KI {wf['selected_ci95']}, Rang-IC {wf['ic_mean']} (t {wf['ic_t']}), "
+               f"Abdeckung {wf['coverage']}"),
+              (f"- Forward (vorab festgehaltene Entscheidungen): **{fw['verdict']}** – Tage {fw['dates']} "
+               f"({fw['independent_periods']} unabhängige Perioden), gewählt n={fw['n_selected']}, "
+               f"Ø netto {_fmt(fw['mean_selected'])}, Abdeckung {fw['coverage']}"),
               f"- Freigabe: **{'erteilt' if gate['allowed'] else 'gesperrt'}**",
               f"- Experimentversion {res.get('experiment_id')}, Modellinstanz {res.get('model_id')}", ""]
+    warnings = list(dict.fromkeys(w for s in (wf, fw) for w in ((s["representativeness"] or {}).get("warnings") or [])))
+    if warnings:
+        lines += ["Evidenzbasis – Einschränkungen:", *[f"- {w}" for w in warnings], ""]
     if res["recommendations"]:
         lines += ["## Empfehlungen (Walk-Forward validiert, Forward positiv bestätigt)", "",
                   "| Ticker | Strategie | Form | Kontrakt | Ask / Mid (Entscheidung) | erwartet netto |",
@@ -749,6 +913,13 @@ def _answers(st: dict) -> dict:
     prev = st.get("vs_previous") or {}
     d_sel = prev.get("delta_mean_selected")
     expr = "; ".join(f"{k} {_fmt(v['mean_all'])} (n={v['n']})" for k, v in (wf.get("by_expression") or {}).items())
+    vd = wf.get("vs_default") or {}
+    choice = (f"gewählt {_fmt(wf.get('mean_selected'))} (n={wf.get('n_selected', 0)}, {wf.get('chosen_forms')}, "
+              f"nicht bewertbar {wf.get('unevaluable')}); ggü. Standardform {_fmt(vd.get('mean_diff'))} "
+              f"(n={vd.get('n', 0)}, KI {vd.get('ci95')})")
+    rep = wf.get("representativeness") or {}
+    rep_text = ("; ".join(f"{k} {_fmt(v['mean'])} (n={v['n']})" for k, v in (rep.get("by_sample") or {}).items())
+                + f"; {rep.get('span_days', 0)} Tage" + "".join(f"; {w}" for w in rep.get("warnings") or []))
     gates = {k: v for k, v in (st.get("by_gate") or {}).items() if v.get("sufficient")}
     gate_text = "; ".join(f"{k} {_fmt(v['mean'])} (n={v['n']})"
                           for k, v in sorted(gates.items(), key=lambda kv: -kv[1]["mean"]))
@@ -763,23 +934,28 @@ def _answers(st: dict) -> dict:
         "learns": ("Ja" if man["trains_model"] else "offen",
                    f"{man['n_labels']} geprüfte Labels, Manifest {man['labels_sha256']}"),
         "validated": ({"VALIDATED": "Ja", "NOT_VALIDATED": "Nein"}.get(wf["verdict"], "offen"),
-                      f"{wf['verdict']}, {wf['dates']} Testtage"),
+                      (f"{wf['verdict']}, {wf['dates']} Testtage, {wf.get('independent_periods', 0)} unabhängige "
+                       f"Perioden, Abdeckung {wf.get('coverage')}")),
         "baselines": ("Ja" if base["beats_no_trade"] and base["beats_trade_all"] else
                       "offen" if wf["n_selected"] == 0 else "Nein",
                       f"Auswahl {_fmt(base['model_selected'])} vs. alles {_fmt(base['trade_all'])} vs. nie 0 %"),
         "forward": ({"FORWARD_POSITIVE": "Ja", "FORWARD_NEGATIVE": "Nein"}.get(fw["verdict"], "offen"),
-                    f"{fw['verdict']}, {fw['n']} vorab festgehaltene Prognosen"),
-        "experiment": ("Ja" if fw.get("valid_predictions") else "offen",
+                    (f"{fw['verdict']}, {fw['n']} fällige vorab festgehaltene Entscheidungen, "
+                     f"{fw.get('pending_decisions', 0)} noch nicht fällig")),
+        "experiment": ("Ja" if fw.get("valid_decisions") else "offen",
                        f"Version {st.get('experiment_id')}; {inst_count} Modellinstanzen"
                        + (f" (zuletzt {latest.get('model_id')}, Stichtag {latest.get('train_cutoff')}, "
                           f"Labels {latest.get('labels_sha256')})" if latest else "")
-                       + f"; gültige Forward-Prognosen {fw.get('valid_predictions', 0)}, offen "
-                       f"{fw.get('pending_predictions', 0)}; ausgeschlossen: "
+                       + f"; gültige Forward-Entscheidungen {fw.get('valid_decisions', 0)} (Prognosen "
+                       f"{fw.get('valid_predictions', 0)}); ausgeschlossen: "
                        + (", ".join(f"{k} {v}" for k, v in (fw.get("excluded") or {}).items()) or "keine")),
         "improves": ("offen" if d_sel is None else "Ja" if d_sel > 0 else "Nein",
                      "keine Vorversion" if not prev else
                      f"Auswahl {_fmt(d_sel)} ggü. {prev['previous_as_of']}, Labels {prev['delta_labels']:+d}"),
-        "expressions": ("offen" if not expr else "Ja", expr or "noch keine Testtage"),
+        "expressions": ("offen" if not expr else "Ja",
+                        f"je Form: {expr}; {choice}" if expr else "noch keine Testtage"),
+        "representative": ("offen" if not rep.get("by_sample") else "Teilweise" if rep.get("warnings") else "Ja",
+                           rep_text if rep.get("by_sample") else "noch keine bewerteten Entscheidungen"),
         "gates": ("offen" if not gates else "Ja",
                   gate_text or f"noch keine Gruppe mit >= {MIN_GATE_N} Labels an >= {MIN_GATE_DATES} Tagen"),
         "proven": ("Ja" if gate["allowed"] else "Nein", "nur bei VALIDATED und FORWARD_POSITIVE samt Mindestzahlen"),
@@ -798,7 +974,8 @@ CARD_QUESTIONS = (
     ("forward", "Bestätigt es sich auf vorab festgehaltenen Prognosen?"),
     ("experiment", "Welche Experimentversion und Modellinstanzen stehen dahinter (ausgeschlossene Prognosen)?"),
     ("improves", "Wird es besser als die Vorversion?"),
-    ("expressions", "Welche Ausdrucksform schneidet ab (Ø netto, ungesehen)?"),
+    ("expressions", "Welche Optionsform schneidet ab, was bringt die Wahl des Modells (Ø netto, ungesehen)?"),
+    ("representative", "Ist die Evidenz repräsentativ (Forschung vs. Richtungssignale, Zeitraum)?"),
     ("gates", "Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)?"),
     ("proven", "Ist eine profitable Optionsstrategie nachgewiesen?"),
     ("self_limit", "Begrenzt es sich selbst?"),
