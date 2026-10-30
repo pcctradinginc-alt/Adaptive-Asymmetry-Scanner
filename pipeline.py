@@ -1942,22 +1942,19 @@ def main() -> None:
         today=today, proposals=trade_proposals, history=history
     )
 
-    # Engine-Monitor: Status-Abschnitt an die Daily-Markdown anhängen.
-    # Reine Observability (kein Gate, keine Schwelle) — darf die Pipeline
-    # nie brechen, deshalb defensiv try/except um den gesamten Block.
-    try:
-        _health = build_health_report(
-            history=history, reports_dir=REPORTS_DIR,
-            today=datetime.strptime(today, "%Y-%m-%d").date(),
-        )
-        append_markdown_section(REPORTS_DIR / f"{today}.md", _health)
-    except Exception as e:
-        log.error(f"Engine-Monitor Markdown-Abschnitt Fehler: {e}")
-
     save_history(history)
 
 
     send_email()
+
+    # Engine-Monitor: Status-Abschnitt an die Daily-Markdown anhängen – erst NACH dem Stats-Snapshot
+    # (send_email -> save_stats_snapshot). Direkt nach Reporter.save stand in der Daily-JSON nur {date, proposals}
+    # ohne "stats" -> falsches "universe=0"/"VIX fehlt" (Live 22.–29.10.). Reine Observability, nie lauf-brechend.
+    try:
+        if _health_ref:
+            append_markdown_section(REPORTS_DIR / f"{today}.md", _health_ref[0])
+    except Exception as e:
+        log.error(f"Engine-Monitor Markdown-Abschnitt Fehler: {e}")
 
     if reject_stats:
         log.info("=== Reject Summary ===")

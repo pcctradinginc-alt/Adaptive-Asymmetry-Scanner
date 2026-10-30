@@ -58,7 +58,7 @@ MIN_FEATURE_COVERAGE = 0.5
 BOOTSTRAP = 2000
 WATCHLIST_N = 5
 SPEC = {"name": "option_learner_ridge_v2", "alpha": RIDGE_ALPHA, "target": "executable return - commission",
-        "expressions": ["strategy", "single", "single_alt"],
+        "expressions": ["strategy", "single", "single_alt"], "features_version": 2,
         "winsor": [0.01, 0.99], "selection": "pred > 0", "min_oos_dates": MIN_OOS_DATES,
         "min_selected": MIN_SELECTED}
 
@@ -69,7 +69,7 @@ LEDGER_FEATURES = (
     "ml_q90_ret_60", "ml_exp_dd_60", "ml_p_gt10_60", "ml_disagreement_sd", "ml_hgb_xs20_v1", "ml_enet_xs20_v1",
 )
 CONTRACT_FEATURES = ("c_entry_spread", "c_is_spread", "c_is_call", "c_iv", "c_dte", "c_moneyness", "c_delta",
-                     "c_log_oi", "c_iv_rank")
+                     "c_log_oi", "c_iv_rank", "c_rv_score", "c_term_score")
 # (Ledger-Schlüssel, Outcome-Präfix, Name) – real_strategy heißt nach Struktur "single" oder "spread"
 SOURCES = (("real_strategy", "real_strat", None), ("real_option", "real_opt", "single"),
            ("real_option_alt", "real_alt", "single_alt"))
@@ -126,6 +126,9 @@ def contract_features(row: dict) -> dict:
     oi = _num(ro.get("open_interest"))
     out["c_log_oi"] = math.log1p(oi) if oi is not None and oi >= 0 else None
     out["c_iv_rank"] = _num(rs.get("iv_rank"))
+    comps = rs.get("iv_rank_components") or {}          # IV relativ zur realisierten Vola und zur Term-Struktur
+    out["c_rv_score"] = _num(comps.get("rv_score"))
+    out["c_term_score"] = _num(comps.get("term_score"))
     if "c_entry_spread" not in out and snap:
         ask, mid = _num(snap.get("ask")), _num(snap.get("mid"))
         if ask is not None and mid and mid > 0:
@@ -199,7 +202,9 @@ def expressions(row: dict) -> list[dict]:
             continue
         seen.add(symbols)
         mapped = {"real_strat" + k[len(prefix):]: v for k, v in oc.items() if k.startswith(prefix + "_")}
-        pseudo = {**row, "real_strategy": {**rs, "iv_rank": rs.get("iv_rank", base_rs.get("iv_rank"))},
+        pseudo = {**row, "real_strategy": {**rs, "iv_rank": rs.get("iv_rank", base_rs.get("iv_rank")),
+                                           "iv_rank_components": rs.get("iv_rank_components",
+                                                                        base_rs.get("iv_rank_components"))},
                   "real_option": contract, "outcomes": mapped}
         out.append({"expression": name or ("spread" if len(symbols) > 1 else "single"),
                     "contract": list(symbols), "row": pseudo})
@@ -230,7 +235,8 @@ def dataset(rows: list[dict], quotes: list[dict], as_of: date, horizon: int = HO
             if status != "VERIFIED":
                 continue
             out.append({"date": r["date"], "label_day": ld, "signal_id": r.get("signal_id"), "ticker": r["ticker"],
-                        "expression": e["expression"], "contract": e["contract"], "x": features(pr), "y": y})
+                        "expression": e["expression"], "contract": e["contract"], "x": features(pr), "y": y,
+                        "gate": r.get("reject_reason") or r.get("status") or "unknown"})
     return sorted(out, key=lambda d: (d["date"], d["ticker"], d["expression"]))
 
 
@@ -406,6 +412,24 @@ def manifest(data: list[dict], as_of: date) -> dict:
             "trains_model": len(data) >= MIN_TRAIN_ROWS}
 
 
+MIN_GATE_N, MIN_GATE_DATES = 20, 10
+
+
+def by_gate(data: list[dict]) -> dict:
+    """Filter-Prüfung (Systemaudit §9): realisiertes Netto je Ablehnungsgrund der geprüften Labels – beschreibend,
+    zeigt, ob ein Filter eher schlechte oder auch gute Options-Gelegenheiten verwirft."""
+    groups = defaultdict(list)
+    for d in data:
+        groups[d.get("gate") or "unknown"].append(d)
+    out = {}
+    for gate, ds in sorted(groups.items()):
+        ys = [d["y"] for d in ds]
+        out[gate] = {"n": len(ys), "dates": len({d["date"] for d in ds}), "mean": round(float(np.mean(ys)), 6),
+                     "win_rate": round(sum(y > 0 for y in ys) / len(ys), 4),
+                     "sufficient": len(ys) >= MIN_GATE_N and len({d["date"] for d in ds}) >= MIN_GATE_DATES}
+    return out
+
+
 def _baselines(wf: dict) -> dict:
     """Modell-Auswahl gegen "nie handeln" (0) und "alles handeln" (Mittel aller OOS-Fälle)."""
     sel, all_, ci = wf.get("mean_selected"), wf.get("mean_all"), wf.get("selected_ci95")
@@ -443,6 +467,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "ledger_rows_7d": len(recent),
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
               "manifest": manifest(data, as_of), "walk_forward": wf, "baselines": _baselines(wf),
+              "by_gate": by_gate(data),
               "forward": forward(journal, data, horizon), "model": model.describe() if model else None,
               "production_influence": "NONE", "orders_created": 0}
     hist_path = out / f"status_history_{horizon}d.jsonl"
@@ -557,6 +582,9 @@ def _answers(st: dict) -> dict:
     prev = st.get("vs_previous") or {}
     d_sel = prev.get("delta_mean_selected")
     expr = "; ".join(f"{k} {_fmt(v['mean_all'])} (n={v['n']})" for k, v in (wf.get("by_expression") or {}).items())
+    gates = {k: v for k, v in (st.get("by_gate") or {}).items() if v.get("sufficient")}
+    gate_text = "; ".join(f"{k} {_fmt(v['mean'])} (n={v['n']})"
+                          for k, v in sorted(gates.items(), key=lambda kv: -kv[1]["mean"]))
     proven = wf["verdict"] == "VALIDATED" and fw["verdict"] == "FORWARD_POSITIVE"
     active = wf["verdict"] == "VALIDATED" and fw["verdict"] != "FORWARD_NEGATIVE"
     return {
@@ -577,6 +605,8 @@ def _answers(st: dict) -> dict:
                      "keine Vorversion" if not prev else
                      f"Auswahl {_fmt(d_sel)} ggü. {prev['previous_as_of']}, Labels {prev['delta_labels']:+d}"),
         "expressions": ("offen" if not expr else "Ja", expr or "noch keine Testtage"),
+        "gates": ("offen" if not gates else "Ja",
+                  gate_text or f"noch keine Gruppe mit >= {MIN_GATE_N} Labels an >= {MIN_GATE_DATES} Tagen"),
         "proven": ("Ja" if proven else "Nein", "nur bei VALIDATED und FORWARD_POSITIVE"),
         "self_limit": ("Ja", f"Empfehlungen {'aktiv' if active else 'gesperrt'} (nur bei validiertem Modell)"),
     }
@@ -591,6 +621,7 @@ CARD_QUESTIONS = (
     ("forward", "Bestätigt es sich auf vorab festgehaltenen Prognosen?"),
     ("improves", "Wird es besser als die Vorversion?"),
     ("expressions", "Welche Ausdrucksform schneidet ab (Ø netto, ungesehen)?"),
+    ("gates", "Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)?"),
     ("proven", "Ist eine profitable Optionsstrategie nachgewiesen?"),
     ("self_limit", "Begrenzt es sich selbst?"),
 )

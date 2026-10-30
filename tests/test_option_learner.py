@@ -224,3 +224,19 @@ def test_contract_variant_is_its_own_expression():
     assert set(exprs) == {"single", "single_alt"}
     assert exprs["single_alt"]["row"]["outcomes"] == {"real_strat_ret_5d": 0.05}
     assert ol.contract_features(exprs["single_alt"]["row"])["c_dte"] == 60
+
+
+def test_gate_check_reports_outcome_per_reject_reason():
+    data = [{"date": f"2026-03-{d:02d}", "gate": "options_design_roi_or_edge", "y": 0.1} for d in range(1, 13)
+            for _ in range(2)] + [{"date": "2026-03-02", "gate": "earnings_gate", "y": -0.2}]
+    g = ol.by_gate(data)
+    assert g["options_design_roi_or_edge"]["sufficient"] is True and g["options_design_roi_or_edge"]["mean"] == 0.1
+    assert g["earnings_gate"]["sufficient"] is False
+
+
+def test_volatility_pricing_features_from_decision_time():
+    r = _row("2026-03-02", 1, 0.1)
+    r["real_strategy"]["iv_rank"] = 30.0
+    r["real_strategy"]["iv_rank_components"] = {"rv_score": 25.0, "term_score": 40.0}
+    f = ol.contract_features(ol.expressions(r)[0]["row"])
+    assert (f["c_iv_rank"], f["c_rv_score"], f["c_term_score"]) == (30.0, 25.0, 40.0)
