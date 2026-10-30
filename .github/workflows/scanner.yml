@@ -139,6 +139,22 @@ jobs:
           TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
         run: python feedback.py
 
+      # ── Options-Lernmodell (Research, kein Handel) ──────────────────────
+      # Prognose je Kandidat mit Kontrakt ins append-only Journal (prospektiv, vor dem Label); Empfehlung und Mail
+      # nur bei validiertem, nicht widerlegtem Modell (modules/option_learner.py). 20 T = Hauptmodell, 5 T = früher
+      # Forward-Indikator ohne Mail. Schreibt nur outputs/research/option_learner/.
+      - name: Options-Lernmodell – Prognosen und Empfehlungen
+        id: option_learner
+        if: steps.scanner.outcome == 'success'
+        continue-on-error: true
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: |
+          python -m modules.option_learner recommend --date "$(date -u +%Y-%m-%d)" --horizon 20 --mail
+          python -m modules.option_learner recommend --date "$(date -u +%Y-%m-%d)" --horizon 5
+
       # ── Ops-Monitoring (READ-ONLY, nach jedem regulären Scanner-Lauf) ───
       # Liest nur Ledger/Archive/Zustände, schreibt ausschließlich outputs/monitoring/ (JSON/MD/HTML, Verlauf,
       # Alarm-Zustand). Läuft auch nach einem Scanner-Fehler (always), meldet ihn als Warnung; Mail nur bei
