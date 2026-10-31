@@ -3,6 +3,7 @@
 All numbers below are synthetic fixtures with hand-computed expectations. They
 test arithmetic and integrity rules and are NEVER evidence of economic success.
 """
+import json
 from datetime import date, datetime, timedelta, timezone
 
 import pytest
@@ -129,14 +130,14 @@ def test_research_decision_is_never_an_order():
     ctrl = [_row("C", r["pit_data_date"], -0.05, group="CONTROL", ticker="Z" + r["ticker"]) for r in rows]
     m = oe.metrics(rows)
     cov = {"TRADE_DECIDED": 40, "PENDING": 0}
-    vs = {"no_trade_conservative": oe.compare(rows, None, view="CONSERVATIVE"), "base_strategy": oe.compare(rows, ctrl)}
+    vs = {"no_trade_conservative": oe.compare(rows, None, view="CONSERVATIVE"), "random_control": oe.compare(rows, ctrl)}
     dec = oe.research_decision(m, cov, vs, _cfg())
     assert dec["label"] == "CANDIDATE_FOR_PROSPECTIVE_VALIDATION"
     assert dec["order"] is None and dec["decision_type"] == "RESEARCH_ONLY" and dec["production_influence"] == "NONE"
     neg = [dict(r, economics={sc: {**e, "return": -0.2, "pnl_usd": -100.0} for sc, e in r["economics"].items()})
            for r in rows]
     vs_neg = {"no_trade_conservative": oe.compare(neg, None, view="CONSERVATIVE"),
-              "base_strategy": oe.compare(neg, ctrl)}
+              "random_control": oe.compare(neg, ctrl)}
     assert oe.research_decision(oe.metrics(neg), cov, vs_neg, _cfg())["label"] == "NO_ECONOMIC_EDGE_AFTER_COSTS"
     few = oe.research_decision(oe.metrics(rows[:3]), {"TRADE_DECIDED": 3, "PENDING": 0}, vs, _cfg())
     assert few["label"] == "NEED_MORE_DATA" and "TOO_FEW_VERIFIED_OUTCOMES" in few["reasons"]
@@ -174,7 +175,7 @@ def test_end_to_end_uses_frozen_decisions_and_reverified_quotes(tmp_path, market
     assert ref["research_decision"]["label"] == "NEED_MORE_DATA" and rep["status"] == "NEED_MORE_DATA"
     assert rep["evidence_classes"]["EXECUTED"]["n"] == 0
     assert rep["order_placed"] is False and rep["production_influence"] == "NONE"
-    assert rep["hypotheses"][al.CONTROL_ID]["LONG_CALL"]["research_decision"]["label"] == "BASE_STRATEGY_BENCHMARK"
+    assert rep["hypotheses"][al.CONTROL_ID]["LONG_CALL"]["research_decision"]["label"] == "RANDOM_CONTROL_BENCHMARK"
     again = oe.evaluate(tmp_path, now=datetime(2026, 12, 12, 15, 0, tzinfo=timezone.utc), persist=False)
     assert again["hypotheses"] == rep["hypotheses"]                                   # deterministic
 
@@ -203,7 +204,7 @@ def test_exit_missing_is_counted_never_in_metrics(tmp_path, market):
 
 def test_structure_proposal_only_among_candidates():
     def entry(label, lo):
-        return {"research_decision": {"label": label}, "comparisons": {"base_strategy": {"ci": [lo, lo + 0.1]}}}
+        return {"research_decision": {"label": label}, "comparisons": {"random_control": {"ci": [lo, lo + 0.1]}}}
     none = oe.propose_structure({"LONG_CALL": entry("NEED_MORE_DATA", 0.5),
                                  "BULL_CALL_SPREAD": entry("NO_ECONOMIC_EDGE_AFTER_COSTS", 0.4)})
     assert none["structure"] is None and none["order"] is None
@@ -221,3 +222,63 @@ def test_cli_option_link_runs_phase_b(tmp_path, market):
     assert cli.main(["option-link", "--root", str(tmp_path)]) == 0
     rep = (tmp_path / oe.REPORT)
     assert rep.exists() and '"order_placed": false' in rep.read_text()
+
+
+# ── audit: benchmark definitions and EXECUTED evidence ───────────────────────
+
+def test_benchmarks_are_distinct_and_random_control_is_not_the_base_strategy(tmp_path, market):
+    rep = _settled(tmp_path, market)
+    assert set(rep["benchmarks"]) == {"random_control", "frozen_ml_benchmark", "existing_base_strategy"}
+    assert "not the existing base strategy" in rep["benchmarks"]["random_control"]
+    text = json.dumps(rep)
+    assert '"base_strategy"' not in text and "BASE_STRATEGY_BENCHMARK" not in text
+    hgb = rep["hypotheses"]["hgb_xs20_v1"]["LONG_CALL"]["comparisons"]
+    assert hgb["random_control"]["benchmark"].startswith("RANDOM_CONTROL")
+    assert hgb["frozen_ml_benchmark"]["benchmark"].startswith("FROZEN_ML_BENCHMARK")
+    assert hgb["existing_base_strategy"]["used_for_superiority"] is False
+    ref = rep["hypotheses"]["momentum_12_1"]["LONG_CALL"]["comparisons"]
+    assert ref["frozen_ml_benchmark"] == {"status": "SELF"}
+
+
+def test_missing_comparison_data_never_counts_as_advantage():
+    rows = [_row("H", (date(2026, 11, 6) + timedelta(days=7 * i)).isoformat(), 0.3, ticker=f"T{i}") for i in range(40)]
+    m = oe.metrics(rows)
+    vs = {"no_trade_conservative": oe.compare(rows, None, view="CONSERVATIVE"),
+          "random_control": oe.compare(rows, [])}                      # control never observed on these dates
+    assert vs["random_control"]["status"] == "NO_COMMON_POPULATION"
+    dec = oe.research_decision(m, {"TRADE_DECIDED": 40, "PENDING": 0}, vs, _cfg())
+    assert dec["label"] == "COMPARISON_DATA_MISSING" and dec["label"] != "CANDIDATE_FOR_PROSPECTIVE_VALIDATION"
+    assert oe.propose_structure({"LONG_CALL": {"research_decision": dec,
+                                               "comparisons": {"random_control": vs["random_control"]}}})["structure"] is None
+
+
+def test_existing_base_strategy_is_descriptive_only(tmp_path, monkeypatch):
+    from modules import option_learner as ol
+    none = oe.existing_base_strategy(tmp_path, {"2026-11-09"})
+    assert none["status"] == "NO_CONTEMPORANEOUS_DATA" and none["used_for_superiority"] is False
+    j = tmp_path / ol.OUT / ol.JOURNAL
+    j.parent.mkdir(parents=True)
+    j.write_text("".join(json.dumps(x) + "\n" for x in [
+        {"kind": "decision", "role": "learning", "horizon": 20, "date": "2026-11-09", "signal_id": "a",
+         "action": "TRADE", "contract": ["X"]},
+        {"kind": "decision", "role": "learning", "horizon": 20, "date": "2026-11-09", "signal_id": "b",
+         "action": "ABSTAIN", "contract": None},
+        {"kind": "decision", "role": "reference", "horizon": 20, "date": "2026-11-09", "signal_id": "a",
+         "action": "TRADE", "contract": ["X"]}]))
+    cand = {"date": "2026-11-09", "signal_id": "a", "exprs": [{"contract": ["X"], "status": "VERIFIED", "y": 0.2}]}
+    monkeypatch.setattr(ol, "_load", lambda *a, **k: ([], [cand], []))
+    rep = oe.existing_base_strategy(tmp_path, {"2026-11-09"})
+    assert rep["status"] == "NOT_COMPARABLE" and rep["used_for_superiority"] is False
+    assert rep["base_decisions"] == 2 and rep["base_mean_per_decision_verified"] == pytest.approx(0.1)
+    assert "DIFFERENT" in rep["comparability"]["population"]
+
+
+def test_executed_counts_only_documented_broker_executions(tmp_path, monkeypatch):
+    from modules.autonomous_alpha import forward_options
+    (tmp_path / forward_options.POLICY).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / forward_options.POLICY).write_text("x")
+    monkeypatch.setattr(forward_options, "evaluate", lambda root, **k: {
+        "n_verified_attributed_ex_ante": 3, "n_executed_attributed_ex_ante": 0,
+        "evidence_classes": {"QUOTE_VERIFIED_PAPER": 3}, "alpha_attribution_checks": {"ATTRIBUTED_EX_ANTE": 3}})
+    ex = oe._executed(tmp_path, {})
+    assert ex["n"] == 0 and ex["status"] == "NONE_DOCUMENTED"           # paper trades never become EXECUTED
