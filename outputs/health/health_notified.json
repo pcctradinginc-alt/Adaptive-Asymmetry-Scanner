@@ -1,5 +1,27 @@
 {
- "at": "2026-10-30T18:11:25+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-10-31T17:21:36+00:00",
+ "changes": [
+  {
+   "source_id": "imf_portwatch_chokepoints",
+   "type": "degradation",
+   "from": "DEGRADED",
+   "to": "BROKEN",
+   "error": "Schema geändert (Orchestrator); Data-Quality-Befund schwerwiegend; 3 Fehlschläge in Folge"
+  },
+  {
+   "source_id": "imf_portwatch_disruptions",
+   "type": "degradation",
+   "from": "DEGRADED",
+   "to": "BROKEN",
+   "error": "Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform query. Please check your parameters.']} (outFields=eventid,eventtype,eve; 3 Fehlschläge in Folge"
+  },
+  {
+   "source_id": "*",
+   "type": "safe_mode_on",
+   "from": false,
+   "to": true,
+   "error": "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
+  }
+ ],
+ "mail": "sent"
 }
