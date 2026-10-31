@@ -1,8 +1,10 @@
 """Self-Improvement Notifications (modules/research_director.py --notify): technische Verbesserungsaufgaben nur aus
-belegten Befunden, feste Vorlagen ohne LLM, Wochen-Digest mit Dedupe, sofortige Warnung bei Widerruf."""
+belegten, aktuellen Befunden; feste Vorlagen ohne LLM; täglich nur P0 (--critical), samstags Digest P1–P3;
+gemeinsame Historie mit Dedupe; OPEN / RESOLVED (nur mit Nachweis) / UNKNOWN (Daten fehlen oder veraltet)."""
 from __future__ import annotations
 
 import json
+import shutil
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -37,11 +39,16 @@ def _ledger(n=40, as_dict=True):
     return rows
 
 
-def _inputs(gaps=(), status=None, ledger=None, **kw):
-    return {"improvement": {"generated": "2026-10-31T09:00:00+00:00", "gaps": list(gaps)},
-            "status": status if status is not None else {5: {"as_of": "2026-10-31", "verified_labels": 359}},
+def _status(at=NOW, **kw):
+    return {5: {"as_of": at.date().isoformat(), "verified_labels": 359, **kw}}
+
+
+def _inputs(gaps=(), status=None, ledger=None, at=NOW, **kw):
+    return {"improvement": {"generated": at.isoformat(timespec="seconds"), "gaps": list(gaps)},
+            "status": status if status is not None else _status(at),
             "ledger": ledger, "source_history": kw.get("history", []), "source_snapshot": kw.get("snapshot", {}),
-            "workflow_status": kw.get("workflow", {})}
+            "workflow_status": kw.get("workflow", {}), "daily_seq": kw.get("daily_seq", {}),
+            "problems": kw.get("problems", {})}
 
 
 class Outbox:
@@ -55,11 +62,26 @@ class Outbox:
         return {"status": self.status, "error": None if self.status == "sent" else "SMTPException: ***"}
 
 
-def _notify(tmp_path, tasks, now=NOW, send=None, **kw):
+def _notify(tmp_path, tasks, now=NOW, send=None, inputs=None, **kw):
     send = send if send is not None else Outbox()
+    resolve = kw.pop("resolve", None) or ((lambda t: rd.resolution(t, inputs, now)) if inputs is not None else None)
     rep = rd.notify_tasks(tasks, now, path=tmp_path / "tasks.jsonl", state_path=tmp_path / "tasks.json", send=send,
-                          decisions=kw.pop("decisions", {}), **kw)
+                          decisions=kw.pop("decisions", {}), resolve=resolve, **kw)
     return rep, send
+
+
+def _run(tmp_path, inputs, now=NOW, mode="weekly", send=None, **kw):
+    """Ein kompletter Lauf wie im Workflow: Erkennung aus den Eingaben, Auflösung mit denselben Eingaben."""
+    tasks, issues = rd.improvement_tasks(inputs, now)
+    return _notify(tmp_path, tasks, now=now, send=send, inputs=inputs, mode=mode, issues=issues, **kw)
+
+
+def _events(tmp_path):
+    return [e["event"] for e in read_jsonl(tmp_path / "tasks.jsonl")] if (tmp_path / "tasks.jsonl").exists() else []
+
+
+def _state(tmp_path):
+    return json.loads((tmp_path / "tasks.json").read_text())
 
 
 def _variant(status="PROPOSE_ADOPTION", state="VALID", contradicts=False, gap_ids=("model:overfit_risk:5d",), **kw):
@@ -76,10 +98,14 @@ def _variant(status="PROPOSE_ADOPTION", state="VALID", contradicts=False, gap_id
             "change_proposal": {"state": state} if state else None}
 
 
-def _status_with(*variants, budget=None, **st):
-    return {5: {"as_of": "2026-10-31", "verified_labels": 359,
-                "variants": {"variants": {v["variant_id"]: v for v in variants},
-                             "test_budget": budget or {"exhausted": False, "used": 1, "max_tests": 20}}, **st}}
+def _status_with(*variants, budget=None, at=NOW, **st):
+    return _status(at, variants={"variants": {v["variant_id"]: v for v in variants},
+                                 "test_budget": budget or {"exhausted": False, "used": 1, "max_tests": 20}}, **st)
+
+
+def _plan_invalid(at=NOW):
+    return {20: {"as_of": at.date().isoformat(), "forward_sequential": {"status": "PLAN_INVALID",
+                                                                        "plan_id": "FWD-20d-x"}}}
 
 
 # ── Pflichttest mit dem echten, dokumentierten Defekt ────────────────────────────────────────────────────────────
@@ -92,6 +118,7 @@ def test_real_documented_defect_yields_a_sensible_copy_ready_email(tmp_path, mon
     assert issues == [] and [t["kind"] for t in tasks] == ["empty_feature"]
     t = tasks[0]
     assert t["priority"] == "P1" and t["task_id"].startswith("IMP-") and t["data_as_of"] == "2026-10-31"
+    assert t["scope"] == {"feature": "news_novelty", "horizons": [5]}
     assert "als dict statt als Zahl" in t["cause"]
     assert any("{'dict': 40}" in e and "'novelty_max': 30" in e for e in t["evidence"])
     assert "modules/option_learner.py (LEDGER_FEATURES, features)" in t["files"]
@@ -111,10 +138,75 @@ def test_real_documented_defect_yields_a_sensible_copy_ready_email(tmp_path, mon
     assert "KEIN automatischer Merge" in task and "Positionsgrößen, Risikolimits" in task
     assert "LLM-/Claude-Aufrufe: 0" in mail["text"] and "kostenpflichtige Daten: nein" in mail["text"]
     assert "Renditeversprechen" in mail["text"]                       # kein erfundener Ertrag
-    assert "&lt;" not in mail["text"] and mail["html"].startswith("<pre")
-    state = json.loads((tmp_path / "tasks.json").read_text())
+    assert mail["html"].startswith("<pre")
+    state = _state(tmp_path)
     assert state["tasks"][t["task_id"]]["status"] == "NOTIFIED"
     assert state["tasks"][t["task_id"]]["notifications"][0]["channel"] == "digest"
+
+
+# ── tägliche P0-Prüfung und Wochen-Digest ────────────────────────────────────────────────────────────────────────
+
+def test_p0_warning_is_sent_by_the_daily_run(tmp_path):
+    inputs = _inputs(status=_plan_invalid())
+    rep, out = _run(tmp_path, inputs, mode="critical")
+    assert rep["mode"] == "critical" and rep["mail_status"] == "sent" and len(out.mails) == 1
+    assert out.mails[0]["subject"] == ("[Scanner] Technischer Verbesserungsvorschlag – WARNUNG: Freigabeprüfung 20 T "
+                                       "defekt (PLAN_INVALID)")
+    assert [n["channel"] for t in _state(tmp_path)["tasks"].values() for n in t["notifications"]] == ["critical"]
+    weekly, out2 = _run(tmp_path / "w", inputs, mode="weekly")             # der Wochenlauf meldet P0 nie
+    assert out2.mails == [] and weekly["tasks_detected"] == 0
+
+
+def test_daily_run_reads_the_latest_release_check_from_the_scanner(tmp_path):
+    """Die tägliche Prüfung nutzt den Freigabestand der heutigen Scanner-Empfehlung, nicht nur den Wochenstatus."""
+    root = tmp_path / "ol"
+    (root / "recommendations").mkdir(parents=True)
+    (root / "status_20d.json").write_text(json.dumps({"as_of": "2026-10-24", "forward_sequential": {
+        "status": "AWAITING_LOOK"}}))
+    (root / "recommendations" / "2026-10-30_20d.json").write_text(json.dumps({
+        "date": "2026-10-30", "forward_sequential": {"status": "ERROR", "error": "kaputt"}}))
+    paths = {"option_root": root, "source_history": tmp_path / "x.jsonl", "source_snapshot": tmp_path / "x.json",
+             "workflow_status": tmp_path / "y.json", "ledger": tmp_path / "none"}
+    inputs = rd.load_task_inputs(paths, NOW)
+    tasks, _ = rd.improvement_tasks(inputs, NOW)
+    assert [(t["kind"], t["subject"]) for t in tasks] == [("release_integrity", "20:ERROR")]
+
+
+def test_unchanged_p0_finding_is_never_mailed_twice(tmp_path):
+    inputs = _inputs(status=_plan_invalid())
+    _run(tmp_path, inputs, mode="critical")
+    for later in (NOW + timedelta(hours=12), NOW + timedelta(days=1), NOW + timedelta(days=3)):
+        rep, out = _run(tmp_path, _inputs(status=_plan_invalid(later), at=later), now=later, mode="critical")
+        assert out.mails == [] and rep["mail_status"] == "nothing_to_send"
+    assert _events(tmp_path) == ["detected", "notified"]
+
+
+def test_p1_to_p3_only_in_the_weekly_digest(tmp_path):
+    inputs = _inputs([_empty_feature()], status=_status_with(_variant()), ledger=_ledger())
+    rep, out = _run(tmp_path, inputs, mode="critical")
+    assert out.mails == [] and rep["tasks_detected"] == 0 and _events(tmp_path) == []   # nicht angefasst
+    rep, out = _run(tmp_path, inputs, mode="weekly")
+    assert len(out.mails) == 1 and out.mails[0]["text"].count("BEGIN CLAUDE CODE TASK") == 2
+    assert {n["channel"] for t in _state(tmp_path)["tasks"].values() for n in t["notifications"]} == {"digest"}
+
+
+def _five_tasks(at=NOW):
+    gaps = [_empty_feature()] + [_gap(f"sparse_feature:f{i}", value=0.1 * i, feature=f"f{i}") for i in range(1, 5)]
+    return _inputs(gaps, at=at)
+
+
+def test_weekly_digest_holds_at_most_three_tasks_and_defers_the_rest(tmp_path):
+    rep, out = _run(tmp_path, _five_tasks())
+    assert len(out.mails) == 1 and "(+2 weitere)" in out.mails[0]["subject"]
+    assert out.mails[0]["text"].count("----- BEGIN CLAUDE CODE TASK -----") == 3
+    assert len(rep["deferred_by_weekly_limit"]) == 2 and rep["pending"][0] in out.mails[0]["text"]   # P1 zuerst
+    later = NOW + timedelta(days=1)                                       # gleiche Kalenderwoche: Limit erreicht
+    rep2, out2 = _run(tmp_path, _five_tasks(later), now=later)
+    assert out2.mails == [] and len(rep2["deferred_by_weekly_limit"]) == 2
+    nxt = NOW + timedelta(days=7)                                         # nächste Woche: der Rest
+    rep3, out3 = _run(tmp_path, _five_tasks(nxt), now=nxt)
+    assert len(out3.mails) == 1 and out3.mails[0]["text"].count("BEGIN CLAUDE CODE TASK") == 2
+    assert rep3["deferred_by_weekly_limit"] == []
 
 
 # ── Pflichttests der Benachrichtigungsregeln ─────────────────────────────────────────────────────────────────────
@@ -129,62 +221,69 @@ def test_no_improvement_need_sends_no_email(tmp_path):
             _gap("representativeness:abc", kind="representativeness", gkind="representativeness",
                  finding="Walk-Forward-Evidenz: nur 8 Kalendertage: höchstens eine Marktphase")]
     running = _variant(status="RUNNING", state=None, look=0, relative="AWAITING_LOOK", economic="AWAITING_LOOK")
-    tasks, _issues = rd.improvement_tasks(_inputs(gaps, status=_status_with(running)), NOW)
-    assert tasks == []
-    rep, out = _notify(tmp_path, tasks)
-    assert rep["mail_status"] == "nothing_to_send" and out.mails == []
-    assert not (tmp_path / "tasks.jsonl").exists() or read_jsonl(tmp_path / "tasks.jsonl") == []
+    waiting = {"status": "AWAITING_LOOK", "plan_id": "FWD-20d-x", "binding": None}
+    inputs = _inputs(gaps, status={**_status_with(running), 20: {"as_of": "2026-10-31",
+                                                                  "forward_sequential": waiting}})
+    assert rd.improvement_tasks(inputs, NOW)[0] == []
+    for mode in rd.MODES:
+        rep, out = _run(tmp_path, inputs, mode=mode)
+        assert rep["mail_status"] == "nothing_to_send" and out.mails == []
+    assert _events(tmp_path) == []
 
 
 def test_known_unchanged_task_is_never_sent_twice(tmp_path):
-    tasks, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger()), NOW)
-    _rep, out = _notify(tmp_path, tasks)
+    _rep, out = _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger()))
     for later in (NOW + timedelta(days=1), NOW + timedelta(days=7), NOW + timedelta(days=30)):
-        again, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger(60)), later)  # mehr Zeilen
-        rep, out2 = _notify(tmp_path, again, now=later)
+        rep, out2 = _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger(60), at=later), now=later)
         assert rep["mail_status"] == "nothing_to_send" and out2.mails == []
-    events = read_jsonl(tmp_path / "tasks.jsonl")
-    assert [e["event"] for e in events] == ["detected", "notified"]       # idempotent, keine Wiederholung
+    assert _events(tmp_path) == ["detected", "notified"]                  # idempotent, keine Wiederholung
     assert len(out.mails) == 1
 
 
 def test_substantially_changed_finding_sends_an_update(tmp_path):
     first, _ = rd.improvement_tasks(_inputs([_empty_feature(0.0)], ledger=_ledger()), NOW)
-    _notify(tmp_path, first)
+    _run(tmp_path, _inputs([_empty_feature(0.0)], ledger=_ledger()))
     later = NOW + timedelta(days=7)
-    changed, _ = rd.improvement_tasks(_inputs([_empty_feature(0.3)], ledger=_ledger()), later)  # 0 % -> 30 %
+    changed_inputs = _inputs([_empty_feature(0.3)], ledger=_ledger(), at=later)            # 0 % -> 30 %
+    changed, _ = rd.improvement_tasks(changed_inputs, later)
     assert changed[0]["task_id"] == first[0]["task_id"] and changed[0]["fingerprint"] != first[0]["fingerprint"]
-    rep, out = _notify(tmp_path, changed, now=later)
+    rep, out = _run(tmp_path, changed_inputs, now=later)
     assert rep["mail_status"] == "sent" and len(out.mails) == 1
     assert "Befund wesentlich geändert" in out.mails[0]["text"] and "kaum befüllt" in out.mails[0]["subject"]
-    assert changed[0]["priority"] == "P2"                                 # nicht mehr leer
-    assert [e["event"] for e in read_jsonl(tmp_path / "tasks.jsonl")] == ["detected", "notified", "changed",
-                                                                          "notified"]
+    assert changed[0]["priority"] == "P2"
+    assert _events(tmp_path) == ["detected", "notified", "changed", "notified"]
 
 
 def test_missing_mail_configuration_is_a_visible_error_and_never_counts_as_sent(tmp_path, monkeypatch):
     for k in ("GMAIL_SENDER", "GMAIL_APP_PW", "NOTIFY_EMAIL", "MAIL_TO", "SMTP_HOST", "MAIL_PROVIDER"):
         monkeypatch.delenv(k, raising=False)
     from modules import mailer
-    tasks, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger()), NOW)
-    rep, _ = _notify(tmp_path, tasks, send=mailer.send_mail)
+    inputs = _inputs([_empty_feature()], ledger=_ledger())
+    rep, _ = _run(tmp_path, inputs, send=mailer.send_mail)
     assert rep["mail_status"] == "not_configured" and rep["mails"][0]["status"] == "not_configured"
-    state = json.loads((tmp_path / "tasks.json").read_text())
-    tid = tasks[0]["task_id"]
-    assert state["last_run"]["mail_status"] == "not_configured"
+    state = _state(tmp_path)
+    tid = next(iter(state["tasks"]))
+    assert state["last_runs"]["weekly"]["mail_status"] == "not_configured"
     assert state["tasks"][tid]["status"] == "OPEN" and state["tasks"][tid]["notifications"] == []
     assert state["tasks"][tid]["send_failures"] == 1
-    rep2, out = _notify(tmp_path, tasks, now=NOW + timedelta(hours=1))   # Konfiguration repariert: erneuter Versuch
-    assert rep2["mail_status"] == "sent" and "Versand stand noch aus" in out.mails[0]["text"]
-    failed, out3 = _notify(tmp_path / "f", tasks, send=Outbox("failed"))
-    assert failed["mail_status"] == "failed" and len(out3.mails) == 1
-    assert json.loads((tmp_path / "f" / "tasks.json").read_text())["tasks"][tid]["notifications"] == []
+
+
+@pytest.mark.parametrize("mode,inputs", [("weekly", _inputs([_empty_feature()], ledger=_ledger())),
+                                         ("critical", _inputs(status=_plan_invalid()))], ids=["weekly", "critical"])
+def test_smtp_failure_is_retried_on_the_next_run(tmp_path, mode, inputs):
+    rep, out = _run(tmp_path, inputs, mode=mode, send=Outbox("failed"))
+    assert rep["mail_status"] == "failed" and len(out.mails) == 1
+    assert _events(tmp_path) == ["detected", "send_failed"]
 
     def boom(subject, html, text):
         raise ConnectionError("smtp down")
-    crashed, _ = _notify(tmp_path / "c", tasks, send=boom)
+    crashed, _ = _run(tmp_path, inputs, mode=mode, send=boom, now=NOW + timedelta(hours=1))
     assert crashed["mail_status"] == "failed" and crashed["mails"][0]["error"] == "ConnectionError"
-    assert json.loads((tmp_path / "c" / "tasks.json").read_text())["tasks"][tid]["notifications"] == []
+    rep2, out2 = _run(tmp_path, inputs, mode=mode, now=NOW + timedelta(hours=2))   # SMTP wieder erreichbar
+    assert rep2["mail_status"] == "sent" and "Versand stand noch aus" in out2.mails[0]["text"]
+    assert _events(tmp_path) == ["detected", "send_failed", "send_failed", "notified"]
+    _rep3, out3 = _run(tmp_path, inputs, mode=mode, now=NOW + timedelta(hours=3))
+    assert out3.mails == []                                               # danach nie wieder
 
 
 def test_invalid_or_incomplete_data_never_invents_a_task():
@@ -206,83 +305,171 @@ def test_invalid_or_incomplete_data_never_invents_a_task():
     assert rd.improvement_tasks({}, NOW) == ([], [])
 
 
+def test_stale_inputs_are_not_evaluated():
+    old = NOW - timedelta(days=20)
+    tasks, issues = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger(), at=old), NOW)
+    assert tasks == [] and any("veraltet" in i for i in issues)
+
+
+# ── OPEN / RESOLVED / UNKNOWN ───────────────────────────────────────────────────────────────────────────────────
+
+def _write_option_root(root: Path, improvement=None, status5=None, corrupt=()):
+    root.mkdir(parents=True, exist_ok=True)
+    for name, data in (("improvement.json", improvement), ("status_5d.json", status5)):
+        path = root / name
+        if name in corrupt:
+            path.write_text("{kaputt")
+        elif data is not None:
+            path.write_text(json.dumps(data))
+        elif path.exists():
+            path.unlink()
+    return {"option_root": root, "source_history": root / "none.jsonl", "source_snapshot": root / "none.json",
+            "workflow_status": root / "none2.json", "ledger": root / "no_ledger"}
+
+
+@pytest.mark.parametrize("damage", ["missing", "corrupt", "stale"])
+def test_missing_damaged_or_stale_data_gives_unknown_and_keeps_the_finding(tmp_path, damage):
+    root = tmp_path / "ol"
+    gap = _empty_feature()
+    imp, st5 = {"generated": NOW.isoformat(), "gaps": [gap]}, {"as_of": "2026-10-31", "verified_labels": 359,
+                                                               "feature_coverage": {"news_novelty": 0.0}}
+    inputs = rd.load_task_inputs(_write_option_root(root, imp, st5), NOW)
+    rep, _out = _run(tmp_path, inputs)
+    tid = rep["pending"][0]
+    later = NOW + timedelta(days=12 if damage == "stale" else 1)
+    if damage == "missing":
+        paths = _write_option_root(root, None, None)
+    elif damage == "corrupt":
+        paths = _write_option_root(root, imp, st5, corrupt=("improvement.json", "status_5d.json"))
+    else:
+        paths = _write_option_root(root, imp, st5)                         # nicht erneuert: 12 Tage alt
+    damaged = rd.load_task_inputs(paths, later)
+    _rep2, out2 = _run(tmp_path, damaged, now=later)
+    state = _state(tmp_path)["tasks"][tid]
+    assert out2.mails == [] and state["status"] == "UNKNOWN"
+    assert state["finding"] and state["notifications"] and state["unknown_reason"]
+    expected = {"missing": "fehlt", "corrupt": "beschädigt", "stale": "veraltet"}[damage]
+    assert expected in state["unknown_reason"]
+    assert _events(tmp_path) == ["detected", "notified", "unknown"]
+    _run(tmp_path, damaged, now=later + timedelta(days=1))                # kein wiederholter Statuswechsel
+    assert _events(tmp_path) == ["detected", "notified", "unknown"]
+    back = rd.load_task_inputs(_write_option_root(root, {**imp, "generated": later.isoformat()},
+                                                  {**st5, "as_of": later.date().isoformat()}), later)
+    _rep3, out3 = _run(tmp_path, back, now=later)                         # Daten wieder da, Befund unverändert
+    assert out3.mails == [] and _state(tmp_path)["tasks"][tid]["status"] == "NOTIFIED"
+    assert _events(tmp_path)[-1] == "confirmed"
+
+
+def test_proven_fix_with_current_data_is_resolved_and_a_reappearance_reported(tmp_path):
+    _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger()))
+    later = NOW + timedelta(days=7)
+    fixed = _inputs([], status=_status(later, feature_coverage={"news_novelty": 0.82}), at=later)   # Lücke weg
+    rep, out = _run(tmp_path, fixed, now=later)
+    task = next(iter(_state(tmp_path)["tasks"].values()))
+    assert out.mails == [] and task["status"] == "RESOLVED" and "Abdeckung" in task["resolved_reason"]
+    assert rep["status_changes"][0]["event"] == "resolved"
+    nxt = NOW + timedelta(days=14)
+    _rep2, out2 = _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger(), at=nxt), now=nxt)
+    assert len(out2.mails) == 1 and "erneut aufgetreten" in out2.mails[0]["text"]
+
+
+def test_gap_gone_without_positive_evidence_is_unknown_not_resolved(tmp_path):
+    """Lücke verschwindet, weil zu wenige Labels für die Abdeckungsprüfung vorliegen -> nicht behoben."""
+    _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger()))
+    later = NOW + timedelta(days=7)
+    few = _inputs([], status=_status(later, verified_labels=12, feature_coverage={}), at=later)
+    _run(tmp_path, few, now=later)
+    task = next(iter(_state(tmp_path)["tasks"].values()))
+    assert task["status"] == "UNKNOWN" and "weniger als 50" in task["unknown_reason"]
+
+
+def test_feature_removed_from_the_specification_counts_as_resolved(tmp_path):
+    _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger()))
+    later = NOW + timedelta(days=7)
+    removed = _inputs([], status=_status(later, experiment={"features": {"ledger": ["impact"]}}), at=later)
+    _run(tmp_path, removed, now=later)
+    assert next(iter(_state(tmp_path)["tasks"].values()))["status"] == "RESOLVED"
+
+
 def test_corrected_evidence_that_refutes_an_earlier_success_sends_an_immediate_warning(tmp_path):
-    adopted = _variant()
-    tasks, _ = rd.improvement_tasks(_inputs(status=_status_with(adopted)), NOW)
-    assert [(t["kind"], t["priority"]) for t in tasks] == [("adoption", "P1")]
-    _notify(tmp_path, tasks)
-    later = NOW + timedelta(days=1)                                       # gleiche Woche: Digest-Kontingent
-    refuted = _variant(status="CONFIRMED_ADOPTION", state="REVIEW_REQUIRED", contradicts=True,
-                       closed_at="2026-10-30T09:00:00+00:00")
-    tasks2, _ = rd.improvement_tasks(_inputs(status=_status_with(refuted)), later)
-    assert [(t["kind"], t["priority"], t["category"]) for t in tasks2] == [("withdrawn_success", "P0", "critical")]
-    rep, out = _notify(tmp_path, tasks2, now=later)
-    assert rep["mail_status"] == "sent" and len(out.mails) == 1
-    assert out.mails[0]["subject"].startswith("[Scanner] Technischer Verbesserungsvorschlag – WARNUNG: belegte "
-                                              "Verbesserung ridge_alpha=30.0 widerrufen")
-    assert "REVIEW_REQUIRED" in out.mails[0]["text"] and "Rücknahme" in out.mails[0]["text"]
-    channels = [e.get("channel") for e in read_jsonl(tmp_path / "tasks.jsonl") if e["event"] == "notified"]
-    assert channels == ["digest", "critical"]
-    events = {e["event"] for e in read_jsonl(tmp_path / "tasks.jsonl")}
-    assert "resolved" in events                                           # Übernahme-Aufgabe ist erledigt
+    _rep, out = _run(tmp_path, _inputs(status=_status_with(_variant())))                   # Wochenlauf: Übernahme
+    assert len(out.mails) == 1 and "Belegte Verbesserung ridge_alpha=30.0" in out.mails[0]["subject"]
+    later = NOW + timedelta(days=1)
+    refuted = _inputs(status=_status_with(_variant(status="CONFIRMED_ADOPTION", state="REVIEW_REQUIRED",
+                                                   contradicts=True, closed_at="2026-10-30T09:00:00+00:00"),
+                                          at=later), at=later)
+    rep2, out2 = _run(tmp_path, refuted, now=later, mode="critical")     # nächster täglicher Lauf
+    assert rep2["mail_status"] == "sent" and len(out2.mails) == 1
+    assert out2.mails[0]["subject"].startswith("[Scanner] Technischer Verbesserungsvorschlag – WARNUNG: belegte "
+                                               "Verbesserung ridge_alpha=30.0 widerrufen")
+    assert "REVIEW_REQUIRED" in out2.mails[0]["text"] and "Rücknahme" in out2.mails[0]["text"]
+    _rep3, out3 = _run(tmp_path, refuted, now=later + timedelta(days=1), mode="weekly")
+    assert out3.mails == []
+    states = {t["kind"]: t["status"] for t in _state(tmp_path)["tasks"].values()}
+    assert states == {"adoption": "RESOLVED", "withdrawn_success": "NOTIFIED"}  # Übernahme belegt erledigt
+
+
+# ── Koordination paralleler Läufe ───────────────────────────────────────────────────────────────────────────────
+
+def test_parallel_daily_and_weekly_runs_never_send_the_same_task_twice(tmp_path):
+    """Beide Läufe starten vom selben Stand (parallele Workflows); ihre Ereignisse werden per Union-Merge in
+    beliebiger Reihenfolge zusammengeführt. Jede Aufgabe gehört genau einer Laufart -> keine doppelte Mail."""
+    inputs = _inputs([_empty_feature()], status={**_status(), **_plan_invalid()}, ledger=_ledger())
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.mkdir()
+    b.mkdir()
+    _rep_w, weekly = _run(a, inputs, mode="weekly")
+    _rep_c, critical = _run(b, inputs, mode="critical")
+    sent = [m["subject"] for m in weekly.mails + critical.mails]
+    assert len(sent) == 2 and len(set(sent)) == 2                         # P1 einmal im Digest, P0 einmal sofort
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    lines_a, lines_b = (p.read_text().splitlines() for p in (a / "tasks.jsonl", b / "tasks.jsonl"))
+    (merged / "tasks.jsonl").write_text("\n".join(lines_b[:1] + lines_a + lines_b[1:]) + "\n")   # verschränkt
+    for mode in rd.MODES:
+        later = NOW + timedelta(hours=6)
+        rep, out = _run(merged, _inputs([_empty_feature()], status={**_status(later), **_plan_invalid(later)},
+                                        ledger=_ledger(), at=later), now=later, mode=mode)
+        assert out.mails == [] and rep["mail_status"] == "nothing_to_send"
+    assert {t["status"] for t in _state(merged)["tasks"].values()} == {"NOTIFIED"}
+
+
+def test_serialized_daily_runs_share_the_history(tmp_path):
+    inputs = _inputs(status=_plan_invalid())
+    _run(tmp_path, inputs, mode="critical")
+    rep, out = _run(tmp_path, inputs, mode="critical", now=NOW + timedelta(minutes=5))      # manuell kurz danach
+    assert out.mails == [] and rep["mail_status"] == "nothing_to_send"
+
+
+def test_dry_run_sends_nothing_and_changes_no_persistent_state(tmp_path):
+    _run(tmp_path, _five_tasks())                                         # vorhandene Historie
+    before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    for mode, inputs in (("weekly", _five_tasks(NOW + timedelta(days=7))),
+                         ("critical", _inputs(status=_plan_invalid(NOW + timedelta(days=7)),
+                                              at=NOW + timedelta(days=7)))):
+        rep, out = _run(tmp_path, inputs, now=NOW + timedelta(days=7), mode=mode, dry_run=True)
+        assert out.mails == [] and rep["mail_status"] == "dry_run" and rep["mails"][0]["text"]
+    assert {p.name: p.read_bytes() for p in tmp_path.iterdir()} == before
 
 
 # ── weitere Regeln ───────────────────────────────────────────────────────────────────────────────────────────────
-
-def _five_tasks():
-    gaps = [_empty_feature()] + [_gap(f"sparse_feature:f{i}", value=0.1 * i, feature=f"f{i}") for i in range(1, 5)]
-    return rd.improvement_tasks(_inputs(gaps), NOW)[0]
-
-
-def test_weekly_digest_holds_at_most_three_tasks_and_defers_the_rest(tmp_path):
-    tasks = _five_tasks()
-    assert len(tasks) == 5
-    rep, out = _notify(tmp_path, tasks)
-    assert len(out.mails) == 1 and "(+2 weitere)" in out.mails[0]["subject"]
-    assert out.mails[0]["text"].count("----- BEGIN CLAUDE CODE TASK -----") == 3
-    assert len(rep["deferred_by_weekly_limit"]) == 2
-    assert tasks[0]["task_id"] in out.mails[0]["text"]                    # P1 zuerst
-    rep2, out2 = _notify(tmp_path, tasks, now=NOW + timedelta(days=1))    # gleiche Kalenderwoche: Limit erreicht
-    assert out2.mails == [] and len(rep2["deferred_by_weekly_limit"]) == 2
-    rep3, out3 = _notify(tmp_path, tasks, now=NOW + timedelta(days=7))    # nächste Woche: der Rest
-    assert len(out3.mails) == 1 and out3.mails[0]["text"].count("BEGIN CLAUDE CODE TASK") == 2
-    assert rep3["deferred_by_weekly_limit"] == []
-
-
-def test_dry_run_sends_nothing_and_stores_nothing(tmp_path):
-    tasks = _five_tasks()
-    rep, out = _notify(tmp_path, tasks, dry_run=True)
-    assert out.mails == [] and rep["mail_status"] == "dry_run" and rep["mails"][0]["text"]
-    assert not (tmp_path / "tasks.jsonl").exists() and not (tmp_path / "tasks.json").exists()
-
 
 def test_human_decision_stops_further_mails(tmp_path):
     tasks, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger()), NOW)
     tid = tasks[0]["task_id"]
     rep, out = _notify(tmp_path, tasks, decisions={tid: {"status": "rejected", "note": "bewusst"}})
     assert out.mails == [] and rep["mail_status"] == "nothing_to_send"
-    state = json.loads((tmp_path / "tasks.json").read_text())["tasks"][tid]
+    state = _state(tmp_path)["tasks"][tid]
     assert state["status"] == "REJECTED" and state["decision_note"] == "bewusst"
     cfg = yaml.safe_load((ROOT / "config" / "improvement_task_decisions.yaml").read_text(encoding="utf-8"))
     assert cfg == {"tasks": {}}
-
-
-def test_resolved_task_is_silent_and_a_reappearance_is_reported(tmp_path):
-    tasks, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger()), NOW)
-    _notify(tmp_path, tasks)
-    _rep, out = _notify(tmp_path, [], now=NOW + timedelta(days=7))        # Befund behoben
-    state = json.loads((tmp_path / "tasks.json").read_text())
-    assert out.mails == [] and state["tasks"][tasks[0]["task_id"]]["status"] == "RESOLVED"
-    _rep2, out2 = _notify(tmp_path, tasks, now=NOW + timedelta(days=14))  # wieder da
-    assert len(out2.mails) == 1 and "erneut aufgetreten" in out2.mails[0]["text"]
 
 
 def test_no_credentials_reach_mail_state_or_report(tmp_path, monkeypatch):
     monkeypatch.setenv("GMAIL_APP_PW", "geheimes-passwort-123")
     monkeypatch.setenv("GMAIL_SENDER", "absender@example.com")
     monkeypatch.setenv("NOTIFY_EMAIL", "empfaenger@example.com")
-    tasks, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger()), NOW)
-    rep, out = _notify(tmp_path, tasks, send=Outbox("failed"))
+    rep, out = _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger()), send=Outbox("failed"))
     blob = json.dumps(rep) + json.dumps(out.mails) + (tmp_path / "tasks.json").read_text() + \
         (tmp_path / "tasks.jsonl").read_text()
     for secret in ("geheimes-passwort-123", "absender@example.com", "empfaenger@example.com"):
@@ -311,18 +498,14 @@ def test_untestable_variant_budget_and_release_findings():
                           forward_sequential=seq)
     kinds = {t["kind"]: t["priority"] for t in rd.improvement_tasks(_inputs(status=status), NOW)[0]}
     assert kinds == {"variant_untestable": "P2", "budget_exhausted": "P3", "base_not_confirmed": "P2"}
-    broken = _status_with(forward_sequential={"status": "PLAN_INVALID", "plan_id": "FWD-5d-x"})
-    assert [(t["kind"], t["priority"]) for t in rd.improvement_tasks(_inputs(status=broken), NOW)[0]] == [
-        ("release_integrity", "P0")]
     missing = _status_with(forward_sequential={"status": "RUNNING", "binding": {
         "look": 1, "verdict": "INSUFFICIENT_COVERAGE", "decision_coverage": 0.5, "excluded": {"NO_DECISION": 9}}})
     assert [t["kind"] for t in rd.improvement_tasks(_inputs(status=missing), NOW)[0]] == ["decision_capture"]
-    waiting = _status_with(forward_sequential={"status": "AWAITING_LOOK", "binding": None})
-    assert rd.improvement_tasks(_inputs(status=waiting), NOW)[0] == []
 
 
-def test_persistent_infrastructure_problems_only():
-    snap = {"sources": {"port": {"status": "BROKEN", "criticality": "IMPORTANT", "last_success": "2026-10-20"},
+def _infra():
+    snap = {"generated": "2026-10-30T18:11:25+00:00",
+            "sources": {"port": {"status": "BROKEN", "criticality": "IMPORTANT", "last_success": "2026-10-20"},
                         "minor": {"status": "BROKEN", "criticality": "NON_CRITICAL"},
                         "fresh": {"status": "BROKEN", "criticality": "CRITICAL"}}}
     hist = ([{"source_id": "port", "checked_at": f"2026-10-{d:02d}T18:00:00+00:00", "status": "HEALTHY"}
@@ -334,49 +517,74 @@ def test_persistent_infrastructure_problems_only():
                                                                                             "scanner": 1}}
     days = {"2026-10-30": {"source_health": {"file": "source_health.yml", "expected": "2026-10-30T12:41+00:00",
                                              "actual_last_run": "2026-10-30T18:10:19Z", "state": "OK"}}}
-    tasks, _ = rd.improvement_tasks(_inputs(history=hist, snapshot=snap, workflow={"recoveries": rec, "days": days}),
-                                    NOW)
+    return snap, hist, {"recoveries": rec, "days": days}
+
+
+def test_persistent_infrastructure_problems_only():
+    snap, hist, wf = _infra()
+    tasks, _ = rd.improvement_tasks(_inputs(history=hist, snapshot=snap, workflow=wf), NOW)
     by = {(t["kind"], t["subject"]): t for t in tasks}
     # nicht: minor (unkritisch), fresh (zu kurz), scanner (nur ein Nachstart)
     assert set(by) == {("source_failure", "port"), ("workflow_recovery", "source_health")}
     assert "seit 2026-10-20 (10 Tage, 11 Prüfungen)" in by[("source_failure", "port")]["finding"]
-    wf = by[("workflow_recovery", "source_health")]
-    assert "an 6 der letzten 7 Tage" in wf["finding"] and ".github/workflows/source_health.yml" in wf["files"]
-    assert any("letzter Lauf 2026-10-30T18:10:19Z" in e for e in wf["evidence"])
+    wf_task = by[("workflow_recovery", "source_health")]
+    assert "an 6 der letzten 7 Tage" in wf_task["finding"] and ".github/workflows/source_health.yml" in wf_task["files"]
+    assert any("letzter Lauf 2026-10-30T18:10:19Z" in e for e in wf_task["evidence"])
+
+
+def test_infrastructure_resolution_needs_fresh_health_data(tmp_path):
+    snap, hist, wf = _infra()
+    _run(tmp_path, _inputs(history=hist, snapshot=snap, workflow=wf))
+    later = NOW + timedelta(days=8)
+    healthy = {"generated": later.isoformat(), "sources": {"port": {"status": "HEALTHY", "criticality": "IMPORTANT"}}}
+    quiet = {"recoveries": {}, "days": {later.date().isoformat(): {}}}
+    _run(tmp_path, _inputs(snapshot=healthy, workflow=quiet, at=later), now=later)
+    assert {t["kind"]: t["status"] for t in _state(tmp_path)["tasks"].values()} == {
+        "source_failure": "RESOLVED", "workflow_recovery": "RESOLVED"}
+    other = tmp_path / "stale"
+    other.mkdir()
+    _run(other, _inputs(history=hist, snapshot=snap, workflow=wf))
+    _run(other, _inputs(snapshot=snap, workflow=wf, at=later), now=later)  # Gesundheitsdaten 9 Tage alt
+    assert {t["status"] for t in _state(other)["tasks"].values()} == {"UNKNOWN"}
 
 
 def test_research_memory_and_meta_cognition_show_the_tasks(tmp_path):
-    tasks, _ = rd.improvement_tasks(_inputs([_empty_feature()], ledger=_ledger()), NOW)
-    _notify(tmp_path, tasks)
-    state = json.loads((tmp_path / "tasks.json").read_text())
+    _run(tmp_path, _inputs([_empty_feature()], ledger=_ledger()))
+    state = _state(tmp_path)
+    tid, task = next(iter(state["tasks"].items()))
     entries = rm.task_entries(state)
-    assert [(e["kind"], e["status"], e["hypothesis_id"]) for e in entries] == [("dev_task", "NOTIFIED",
-                                                                                tasks[0]["task_id"])]
-    assert entries[0]["evidence"]["fingerprint"] == tasks[0]["fingerprint"]
+    assert [(e["kind"], e["status"], e["hypothesis_id"]) for e in entries] == [("dev_task", "NOTIFIED", tid)]
+    assert entries[0]["evidence"]["fingerprint"] == task["fingerprint"]
     assert rm.SOURCES["improvement_tasks"] == Path("outputs/research/improvement_tasks.json")
     from modules import meta_cognition as mc
     st = mc.machine_state({"improvement_tasks": state}, {}, {}, {}, {"active": False, "reasons": []})
-    assert st["open_improvement_tasks"] == [f"[P1] {tasks[0]['task_id']} {tasks[0]['short']} (NOTIFIED)"]
-    assert st["improvement_mail_status"] == "sent"
+    assert st["open_improvement_tasks"] == [f"[P1] {tid} {task['short']} (NOTIFIED)"]
+    assert st["improvement_mail_status"] == {"weekly": "sent"}
     assert "Offene technische Verbesserungsaufgaben" in mc.render_md(st)
 
 
-def test_cli_returns_error_status_when_mail_is_not_configured(tmp_path, monkeypatch):
+def test_cli_modes_and_error_status(tmp_path, monkeypatch):
     for k in ("GMAIL_SENDER", "GMAIL_APP_PW", "NOTIFY_EMAIL", "MAIL_TO", "SMTP_HOST", "MAIL_PROVIDER"):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setattr(rd, "TASKS", tmp_path / "tasks.jsonl")
     monkeypatch.setattr(rd, "TASKS_STATE", tmp_path / "tasks.json")
     monkeypatch.setattr(rd, "TASK_DECISIONS", tmp_path / "none.yaml")
-    monkeypatch.setattr(rd, "load_task_inputs", lambda paths=None, now=None: _inputs([_empty_feature()],
-                                                                                     ledger=_ledger()))
-    monkeypatch.setattr(rm, "sync", lambda *a, **k: 0)
-    assert rd.main(["--notify", "--dry-run"]) == 0 and not (tmp_path / "tasks.jsonl").exists()
-    assert rd.main(["--notify"]) == 2                                     # sichtbar rot (DEGRADED im Workflow)
-    assert json.loads((tmp_path / "tasks.json").read_text())["last_run"]["mail_status"] == "not_configured"
+    inputs = _inputs([_empty_feature()], status={**_status(), **_plan_invalid()}, ledger=_ledger())
+    monkeypatch.setattr(rd, "load_task_inputs", lambda paths=None, now=None: inputs)
+    monkeypatch.setattr(rd, "datetime", type("D", (datetime,), {"now": classmethod(lambda cls, tz=None: NOW)}))
+    synced = []
+    monkeypatch.setattr(rm, "sync", lambda *a, **k: synced.append(1) or 0)
+    assert rd.main(["--notify", "--dry-run"]) == 0 and rd.main(["--notify", "--critical", "--dry-run"]) == 0
+    assert not (tmp_path / "tasks.jsonl").exists() and synced == []
+    assert rd.main(["--notify", "--critical"]) == 2                      # sichtbar rot (Konfiguration fehlt)
+    assert rd.main(["--notify"]) == 2 and synced == [1]                   # Research Memory nur im Wochenlauf
+    runs = _state(tmp_path)["last_runs"]
+    assert {m: r["mail_status"] for m, r in runs.items()} == {"critical": "not_configured", "weekly": "not_configured"}
 
 
-def test_workflows_wire_the_weekly_run_and_a_manual_dry_run_trigger():
+def test_workflows_wire_daily_p0_weekly_digest_and_safe_concurrency():
     ml = yaml.safe_load((ROOT / ".github/workflows/ml_research.yml").read_text(encoding="utf-8"))
+    assert ml["concurrency"]["group"] == "research-write" and "23 8 * * 6" in [c["cron"] for c in ml[True]["schedule"]]
     steps = ml["jobs"]["ml"]["steps"]
     ids = [s.get("id") for s in steps]
     assert ids.index("improvement_notify") == ids.index("research_improvement") + 1
@@ -386,11 +594,19 @@ def test_workflows_wire_the_weekly_run_and_a_manual_dry_run_trigger():
     assert all(v.startswith("${{ secrets.") for v in step["env"].values())
     check = next(s for s in steps if s.get("name", "").startswith("Stufen-Bilanz"))
     assert "improvement_notify=${{ steps.improvement_notify.outcome }}" in check["env"]["DEGRADED"]
-    manual = yaml.safe_load((ROOT / ".github/workflows/improvement_notify.yml").read_text(encoding="utf-8"))
-    trigger = manual[True]["workflow_dispatch"]["inputs"]["dry_run"]        # YAML: "on" -> True
-    assert trigger["default"] == "true" and manual["concurrency"]["group"] == "research-write"
-    run = manual["jobs"]["notify"]["steps"][3]["run"]
-    assert "--notify --dry-run" in run and "${{" not in run               # Eingabe nur über env (keine Injektion)
+    daily = yaml.safe_load((ROOT / ".github/workflows/improvement_notify.yml").read_text(encoding="utf-8"))
+    assert [c["cron"] for c in daily[True]["schedule"]] == ["37 21 * * *"]
+    inputs = daily[True]["workflow_dispatch"]["inputs"]
+    assert inputs["dry_run"]["default"] == "true" and inputs["mode"]["default"] == "critical"
+    group = daily["concurrency"]["group"]
+    assert "improvement-notify" in group and "research-write" in group and "improvement-preview-" in group
+    assert daily["concurrency"]["cancel-in-progress"] is False
+    notify = next(s for s in daily["jobs"]["notify"]["steps"] if s.get("id") == "notify")
+    assert "--critical" in notify["run"] and "--dry-run" in notify["run"] and "${{" not in notify["run"]
+    assert notify["env"]["DRY_RUN"] == "${{ github.event_name == 'schedule' && 'false' || inputs.dry_run }}"
+    push = (ROOT / "scripts" / "ci_push.sh").read_text(encoding="utf-8")
+    assert "outputs/research/improvement_tasks.json)" in push            # abgeleitet: Konflikt -> dieser Lauf
+    assert "outputs/**/*.jsonl merge=union" in (ROOT / ".gitattributes").read_text(encoding="utf-8")
     src = (ROOT / "modules" / "research_director.py").read_text(encoding="utf-8")
     assert "anthropic" not in src.lower() and "openai" not in src.lower()   # kein LLM-Aufruf
 
@@ -401,5 +617,16 @@ def test_missing_inputs_are_tolerated(missing):
     inp[missing] = None
     tasks, _ = rd.improvement_tasks(inp, NOW)
     assert all(t["kind"] == "empty_feature" for t in tasks)
-    if missing == "improvement":
+    if missing in ("improvement", "status"):
         assert tasks == []
+
+
+def test_real_research_snapshot_round_trip(tmp_path):
+    """Kopie des echten Wochenstatus (falls im Checkout vorhanden) lässt sich laden und auswerten, ohne Fehler."""
+    src = ROOT / "outputs" / "research" / "option_learner"
+    if not (src / "status_5d.json").exists():
+        pytest.skip("kein Wochenstatus im Checkout")
+    shutil.copytree(src, tmp_path / "ol", ignore=shutil.ignore_patterns("predictions.jsonl", "variants"))
+    inputs = rd.load_task_inputs({"option_root": tmp_path / "ol"}, NOW)
+    tasks, issues = rd.improvement_tasks(inputs, NOW)
+    assert isinstance(tasks, list) and isinstance(issues, list)

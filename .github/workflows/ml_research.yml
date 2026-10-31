@@ -200,12 +200,12 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_director --options
 
-      # Self-Improvement Notifications (nur Hinweise, nie Code): technische Verbesserungsaufgaben aus BELEGTEN
-      # Befunden (nie aus NEED_MORE_DATA oder Wartezeit); feste Vorlagen mit kopierfertiger Claude-Code-Aufgabe,
-      # kein LLM, keine Kosten. Höchstens 3 neue/geänderte Aufgaben je Woche, kritische Widersprüche sofort;
-      # keine Wiederholung unveränderter Aufgaben; Versand nur mit Status "sent" zählt, sonst Schritt rot
-      # (DEGRADED) und erneuter Versuch beim nächsten Lauf. Verlauf: outputs/research/improvement_tasks.jsonl.
-      # Manuell/Vorschau: Workflow improvement_notify.yml (dry_run).
+      # Self-Improvement Notifications (nur Hinweise, nie Code): Wochen-Digest der technischen
+      # Verbesserungsaufgaben P1–P3 aus BELEGTEN Befunden (nie aus NEED_MORE_DATA, Wartezeit oder veralteten
+      # Daten); feste Vorlagen mit kopierfertiger Claude-Code-Aufgabe, kein LLM, keine Kosten. Höchstens 3
+      # neue/geänderte Aufgaben je Woche; keine Wiederholung unveränderter Aufgaben; Versand nur mit Status
+      # "sent" zählt, sonst Schritt rot (DEGRADED) und erneuter Versuch beim nächsten Lauf. Kritische P0-Aufgaben
+      # meldet täglich improvement_notify.yml (--critical). Verlauf: outputs/research/improvement_tasks.jsonl.
       - name: Self-Improvement – technische Verbesserungsvorschläge per Mail
         id: improvement_notify
         continue-on-error: true

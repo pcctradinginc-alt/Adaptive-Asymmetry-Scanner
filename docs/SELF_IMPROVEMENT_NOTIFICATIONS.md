@@ -1,6 +1,6 @@
 # Self-Improvement Notifications – Claude-Code-Aufgaben per Mail
 
-Stand 2026-10-31. Erweitert `research_director` (Erkennung, Vorlagen, Versand), `research_memory` (Einträge `dev_task`), `meta_cognition` (offene Aufgaben) und den Workflow `ml_research.yml`. Es gibt keinen zweiten Orchestrator. Versand über `modules/mailer.py` mit den bestehenden Mail-Secrets. Tests: `tests/test_improvement_notifications.py`.
+Stand 2026-10-31 (inkl. täglicher P0-Prüfung und Status UNKNOWN). Erweitert `research_director` (Erkennung, Vorlagen, Versand), `research_memory` (Einträge `dev_task`), `meta_cognition` (offene Aufgaben) und die Workflows `ml_research.yml` (Wochen-Digest) und `improvement_notify.yml` (täglich P0, manuell). Es gibt keinen zweiten Orchestrator. Versand über `modules/mailer.py` mit den bestehenden Mail-Secrets. Tests: `tests/test_improvement_notifications.py`.
 
 ## Was das System selbst erkennt
 
@@ -12,11 +12,11 @@ Jede Aufgabe entsteht aus einem **belegten** Befund in den vorhandenen Research-
 | `outcome_capture` | Lücke `outcome_coverage` | < 80 % der gewählten Formen mit geprüftem Ergebnis (ab 10 Trades) | P1 |
 | `sample_bias` | Repräsentativitätswarnung „überwiegend …“ | Evidenz zu ≥ 80 % aus einer Gruppe (die reine Zeitraum-Warnung zählt nicht) | P3 |
 | `adoption` | Varianten-Status | PROPOSE/CONFIRMED_ADOPTION mit gültigem Änderungsvorschlag | P1 |
-| `withdrawn_success` | Varianten-Status | Übernahmevorschlag WITHDRAWN/REVIEW_REQUIRED oder Evidenz widerspricht der Entscheidung | **P0, sofort** |
+| `withdrawn_success` | Varianten-Status | Übernahmevorschlag WITHDRAWN/REVIEW_REQUIRED oder Evidenz widerspricht der Entscheidung | **P0, täglich** |
 | `variant_untestable` | Varianten-Prüfung | Prüfung mit INSUFFICIENT_COVERAGE | P2 |
 | `budget_exhausted` | `test_budget` | Fehlerbudget der Varianten verbraucht | P3 |
 | `proven_weakness` | Lücken `no_skill`, `choice_worse_than_default` | durch Test belegt **und** alle automatischen Varianten dafür ausgeschöpft | P2 |
-| `release_integrity` | `forward_sequential` (falls vorhanden) | PLAN_INVALID oder ERROR | **P0, sofort** |
+| `release_integrity` | `forward_sequential` (falls vorhanden) | PLAN_INVALID oder ERROR | **P0, täglich** |
 | `decision_capture` | `forward_sequential` | Prüfung mit Entscheidungsabdeckung < 80 % | P1 |
 | `base_not_confirmed` | `forward_sequential` | NOT_CONFIRMED oder REJECTED_NEGATIVE | P2 |
 | `source_failure` | `outputs/health/source_health_*` | CRITICAL/IMPORTANT-Quelle ≥ 7 Tage durchgehend BROKEN/FAILED/STALE | P1/P2 |
@@ -50,8 +50,9 @@ Die Texte sind feste Vorlagen. Es gibt keinen LLM- oder Claude-API-Aufruf und ke
 
 ## Versandregeln
 
-- **Wochen-Digest** (Samstag, `ml_research.yml`): höchstens **3** neue oder wesentlich geänderte Aufgaben je Kalenderwoche, nach Priorität. Der Rest folgt in der nächsten Woche.
-- **Sofort und einzeln**: P0, also widerrufene Erfolge und eine defekte Freigabeprüfung.
+- **Täglich, nur P0** (`improvement_notify.yml`, 21:37 UTC, `--notify --critical`): widerrufene Erfolge und eine defekte Freigabeprüfung, jede neue oder geänderte P0-Aufgabe sofort als eigene Mail. Den Stand der Freigabeprüfung liest der Lauf aus der jüngsten täglichen Scanner-Empfehlung (`recommendations/<Tag>_<h>d.json`), sonst aus dem Wochenstatus.
+- **Wochen-Digest, nur P1–P3** (Samstag, `ml_research.yml`, `--notify`): höchstens **3** neue oder wesentlich geänderte Aufgaben je Kalenderwoche, nach Priorität. Der Rest folgt in der nächsten Woche.
+- **Gemeinsame Historie, getrennte Zuständigkeit:** Beide Läufe schreiben in dieselbe Historie. Jede Aufgabe gehört aber genau einer Laufart (P0 täglich, P1–P3 wöchentlich). Ein Lauf ändert nie Status oder Versand der Aufgaben der anderen Art.
 - **Keine Wiederholung** einer unveränderten Aufgabe. Erneut gemeldet wird nur bei:
   - wesentlich geändertem Befund (Fingerabdruck: Größenordnung, Status, Priorität – nicht bloß mehr Daten),
   - Wiederauftreten nach Behebung,
@@ -62,13 +63,42 @@ Die Texte sind feste Vorlagen. Es gibt keinen LLM- oder Claude-API-Aufruf und ke
   - Ereignis `send_failed`,
   - `last_run.mail_status` im Zustand,
   - Exit-Code 2, Schritt im Workflow als DEGRADED.
-  Beim nächsten Lauf wird erneut versucht.
+  Beim nächsten Lauf derselben Art (P0 am nächsten Tag, Digest in der nächsten Woche) wird erneut versucht; der Mailer versucht es innerhalb eines Laufs bereits dreimal.
 - **Menschliche Entscheidung:** In `config/improvement_task_decisions.yaml` lässt sich je Task-ID REJECTED, IN_PROGRESS oder DONE eintragen. Danach kommt zu dieser Aufgabe keine Mail mehr.
-- **Dry-Run:** `python -m modules.research_director --notify --dry-run` zeigt die Mails und sendet oder speichert nichts. Manuell im Workflow `improvement_notify.yml` mit `dry_run=true` (Standard).
+- **Dry-Run:** `python -m modules.research_director --notify [--critical] --dry-run` zeigt die Mails und sendet oder speichert nichts. Manuell im Workflow `improvement_notify.yml` mit `dry_run=true` (Standard) und Laufart `critical` oder `weekly`.
+
+## Status: OPEN, NOTIFIED, RESOLVED, UNKNOWN
+
+- **OPEN / NOTIFIED:** Der Mangel ist mit aktuellen Daten nachgewiesen (noch nicht bzw. bereits gemeldet).
+- **RESOLVED:** Nur wenn aktuelle, gültige Daten die Behebung **positiv** zeigen (`resolution()`), z. B.:
+  - Abdeckung des Merkmals jetzt ≥ 50 % oder Merkmal bewusst entfernt,
+  - Quelle wieder gesund,
+  - 7 Tage ohne Nachstart,
+  - Variante nicht mehr im Übernahme- bzw. Widerspruchszustand,
+  - Freigabeprüfung wieder intakt.
+- **UNKNOWN:** Der Mangel wird nicht mehr erkannt, aber die nötigen Daten fehlen, sind beschädigt, veraltet oder nicht aussagekräftig (z. B. zu wenige Labels für die Abdeckungsprüfung). Befund, Historie und Versandstand bleiben erhalten; es gibt keine Erfolgsmeldung und keine Mail. Wird der Mangel später mit unverändertem Befund wieder nachgewiesen, geht die Aufgabe ohne neue Mail auf ihren alten Stand zurück. Ein geänderter Befund wird gemeldet.
+- **Aktualität** (`input_quality`):
+  - Options-Status und Lückenanalyse ≤ 10 Tage,
+  - Freigabeprüfung ≤ 10 Tage,
+  - Quellen-Gesundheit und Workflow-Status ≤ 2 Tage.
+
+  Ältere Quellen werden nicht ausgewertet; sie erzeugen keine Aufgabe und bestätigen keine Behebung.
+
+## Koordination paralleler Läufe
+
+1. **Getrennte Zuständigkeit** (s. o.): Keine Aufgabe kann von zwei Laufarten gemeldet werden.
+2. **Concurrency:**
+   - Tägliche und manuelle P0-Läufe laufen nacheinander (Gruppe `improvement-notify`).
+   - Ein manueller Wochenversand ohne Dry-Run reiht sich hinter `ml_research.yml` ein (`research-write`).
+   - Vorschauläufe schreiben und senden nichts und blockieren niemanden.
+3. **Historie:**
+   - `improvement_tasks.jsonl` wird bei parallelen Pushes per Union-Merge zusammengeführt und zeitlich sortiert ausgewertet.
+   - `improvement_tasks.json` ist daraus abgeleitet; bei Konflikt gilt die Fassung des aktuellen Laufs (`scripts/ci_push.sh`).
+4. Jeder Lauf checkt `main` beim Start aus und sieht die Historie des vorherigen Laufs.
 
 ## Persistenz
 
-- `outputs/research/improvement_tasks.jsonl` (append-only): detected, changed, reopened, resolved, notified (Kanal, Betreff, Fingerabdruck), send_failed (Status, bereinigter Fehler).
+- `outputs/research/improvement_tasks.jsonl` (append-only): detected, changed, reopened, confirmed, unknown (Grund), resolved (Beleg), notified (Kanal, Betreff, Fingerabdruck), send_failed (Status, bereinigter Fehler).
 - `outputs/research/improvement_tasks.json`: abgeleiteter Zustand je Aufgabe und letzter Lauf. Er wird gelesen von `research_memory` (`dev_task`) und `meta_cognition` (offene Aufgaben, Versandstatus).
 - Idempotent: Gleiche Eingaben ergeben keine neuen Ereignisse und keine Mail.
 

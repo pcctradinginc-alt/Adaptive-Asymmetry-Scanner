@@ -20,9 +20,10 @@ Self-Improvement Notifications (python -m modules.research_director --notify [--
     Erfassung bewerteter Entscheidungen, einseitige Evidenz, belegte/widerrufene Varianten-Ergebnisse, nicht testbare
     Varianten, nachgewiesene Modellschwächen ohne automatische Abhilfe, Freigabeprüfung, dauerhaft gestörte
     Datenquellen, regelmäßig nachgestartete Workflows) – nie aus NEED_MORE_DATA, Wartezeit oder Heuristik.
-  * notify_tasks(): Wochen-Digest mit höchstens 3 neuen/wesentlich geänderten Aufgaben, kritische Widersprüche
-    sofort; Dedupe über Fingerabdruck; append-only Verlauf outputs/research/improvement_tasks.jsonl; feste
-    Vorlagen mit kopierfertiger Claude-Code-Aufgabe, kein LLM, kein automatischer Code.
+  * notify_tasks(): täglich (--critical) nur P0 sofort, samstags Digest mit höchstens 3 neuen/wesentlich geänderten
+    P1–P3-Aufgaben; Dedupe über Fingerabdruck; OPEN/RESOLVED/UNKNOWN (behoben nur mit aktuellem Nachweis);
+    append-only Verlauf outputs/research/improvement_tasks.jsonl; feste Vorlagen mit kopierfertiger
+    Claude-Code-Aufgabe, kein LLM, kein automatischer Code.
 
 Options-Lernmodell (python -m modules.research_director --options, wöchentlich nach option_learner evaluate):
   * option_gaps(): messbare Lücken aus status_<h>d.json – dünn befüllte Merkmale, nicht bewertbare gewählte
@@ -475,7 +476,12 @@ TASK_INPUTS = {"option_root": OPTION_OUT, "source_history": Path("outputs/health
                "source_snapshot": Path("outputs/health/source_health_snapshot.json"),
                "workflow_status": Path("outputs/state/workflow_status.json"),
                "ledger": Path("outputs/candidate_ledger")}
+INPUT_LABEL = {"improvement": "option_learner/improvement.json", "source_snapshot": "source_health_snapshot.json",
+               "workflow_status": "workflow_status.json"}
 DIGEST_MAX = 3                                   # höchstens so viele neue/geänderte Aufgaben je Kalenderwoche
+CRITICAL_KINDS = ("withdrawn_success", "release_integrity")   # P0: täglicher Lauf (--critical), sonst Wochen-Digest
+FRESH_DAYS = {"option": 10, "seq": 10, "health": 2, "workflow": 2}   # ältere Daten sind nicht beurteilbar
+MODES = ("weekly", "critical")
 SUBJECT = "[Scanner] Technischer Verbesserungsvorschlag – {}"
 PRIORITY_TEXT = {"P0": "kritisch", "P1": "hoch", "P2": "mittel", "P3": "niedrig"}
 CATEGORY_TEXT = {"data": "Daten", "capture": "Datenerfassung", "model": "Modell", "testing": "Testbarkeit",
@@ -585,6 +591,7 @@ def _tasks_empty_features(gaps: list[dict], status: dict, ledger: list[dict] | N
         out.append(_task(
             "empty_feature", feat, "P1" if empty else "P2", "data",
             f"Merkmal {feat} im Options-Lernmodell {'leer' if empty else 'kaum befüllt'}",
+            scope={"feature": feat, "horizons": sorted(covs)},
             finding=(f"Das Merkmal {feat} ist in den geprüften Options-Labels {'leer' if empty else 'kaum befüllt'}: "
                      + ", ".join(f"{h} T {c:.0%} von {labels[h]} Labels" for h, c in sorted(covs.items())) + "."),
             problem=("Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: "
@@ -636,6 +643,7 @@ def _tasks_capture(gaps: list[dict], issues: list[str]) -> list[dict]:
         out.append(_task(
             "outcome_capture", f"{name}:{g.get('horizon')}", "P1", "capture",
             f"Ergebnisse gewählter Optionsformen fehlen ({cov:.0%} geprüft, {g.get('horizon')} T)",
+            scope={"name": name, "horizon": g.get("horizon")},
             finding=f"{name} ({g.get('horizon')} T): nur {cov:.0%} der gewählten Formen haben ein geprüftes "
                     f"Netto-Ergebnis; Ausfälle: {reasons}.",
             problem=("Fehlende Entry-/Exit-Quotes machen Entscheidungen unbewertbar. Fehlen sie nicht zufällig "
@@ -667,6 +675,7 @@ def _tasks_sample_bias(gaps: list[dict]) -> list[dict]:
         text = str(g["finding"]).split("Walk-Forward-Evidenz: ", 1)[-1]
         out.append(_task(
             "sample_bias", text.split(":")[0], "P3", "data", f"Evidenz einseitig: {text.split(':')[0]}",
+            scope={"warning": text.split(":")[0], "horizon": g.get("horizon")},
             finding=f"{g.get('horizon')} T: {text}", problem="Die Evidenz deckt nur einen Teil der Marktsituationen "
             "ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
             severity_reason="schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
@@ -708,6 +717,7 @@ def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
         if ev.get("contradicts_decision") or prop.get("state") in ("WITHDRAWN", "REVIEW_REQUIRED"):
             out.append(_task(
                 "withdrawn_success", vid, "P0", "critical", f"WARNUNG: belegte Verbesserung {m}={val} widerrufen",
+                scope={"variant_id": vid, "horizon": v.get("horizon")},
                 finding=(f"Für die Variante {m}={val} lag ein Übernahmevorschlag vor; nach korrigierten oder neuen "
                          f"Daten ist der Vorteil nicht mehr belegt (Vorschlag {prop.get('state')}, aktuelle Evidenz "
                          f"{ev.get('status')}, relativ {ev.get('relative_verdict')}, netto "
@@ -732,6 +742,7 @@ def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
         elif v.get("status") in ("PROPOSE_ADOPTION", "CONFIRMED_ADOPTION") and prop.get("state") == "VALID":
             out.append(_task(
                 "adoption", vid, "P1", "research_result", f"Belegte Verbesserung {m}={val} zur Übernahme prüfen",
+                scope={"variant_id": vid, "horizon": v.get("horizon")},
                 finding=(f"Die Variante {m}={val} ist an einem vorab festgelegten Prüfzeitpunkt relativ besser als "
                          "die Basis UND netto besser als Nicht-Handeln (Status " + str(v.get("status")) + ")."),
                 problem="Ohne Umsetzung bleibt ein belegter Vorteil ungenutzt; umgesetzt wird nur per menschlichem PR.",
@@ -753,6 +764,7 @@ def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
             top = max(excl, key=excl.get) if excl else "unbekannt"
             out.append(_task(
                 "variant_untestable", vid, "P2", "testing", f"Variante {m}={val} mangels Daten nicht testbar",
+                scope={"variant_id": vid, "horizon": v.get("horizon")},
                 finding=f"An Prüfung {v.get('look')} der Variante {m}={val} fehlen zu viele Ergebnisse "
                         f"(Abdeckung {(v.get('comparison') or {}).get('coverage')}, Ausfälle {excl}).",
                 problem="Der vorab festgelegte Test kann kein Urteil fällen; das Fehlerbudget wird verbraucht, ohne "
@@ -771,6 +783,7 @@ def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
         b = next(b for b in budgets if isinstance(b, dict) and b.get("exhausted"))
         out.append(_task(
             "budget_exhausted", "test_budget", "P3", "testing", "Fehlerbudget der Varianten-Tests erschöpft",
+            scope={},
             finding=f"Alle {b.get('max_tests')} Test-Slots des dauerhaften Fehlerbudgets (total_alpha "
                     f"{b.get('total_alpha')}) sind verbraucht; neue Varianten werden nicht mehr registriert.",
             problem="Weitere Modellverbesserungen können nicht mehr statistisch korrekt getestet werden.",
@@ -797,6 +810,7 @@ def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
         out.append(_task(
             "proven_weakness", gid, "P2", "model", f"Nachgewiesene Modellschwäche ({g['gap_id'].split(':')[1]}, "
             f"{g.get('horizon')} T) ohne automatische Abhilfe",
+            scope={"gap_id": gid, "horizon": g.get("horizon")},
             finding=f"{g.get('finding')}; automatisch getestete Varianten: "
                     + (", ".join(f"{v.get('variant_id')} {v.get('status')}" for v in related) or "keine möglich"),
             problem="Die freigegebenen automatischen Varianten haben die Schwäche nicht behoben; ohne technische "
@@ -818,12 +832,12 @@ def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
     return out
 
 
-def _tasks_release(status: dict) -> list[dict]:
-    """Sequenzielle Forward-Prüfung der Basis (falls vorhanden): beschädigter Prüfplan/Fehler kritisch; fehlende
-    Entscheidungen; letzte Prüfung ohne Bestätigung."""
+def _tasks_release(seqs: dict) -> list[dict]:
+    """Sequenzielle Forward-Prüfung der Basis ({Horizont: forward_sequential}, täglich aus dem Scanner bzw.
+    wöchentlich aus dem Status): beschädigter Prüfplan/Fehler kritisch; fehlende Entscheidungen; letzte Prüfung
+    ohne Bestätigung."""
     out = []
-    for h, st in sorted(status.items()):
-        seq = (st or {}).get("forward_sequential")
+    for h, seq in sorted(seqs.items()):
         if not isinstance(seq, dict) or not seq.get("status"):
             continue
         s, b = seq["status"], seq.get("binding") or {}
@@ -833,6 +847,7 @@ def _tasks_release(status: dict) -> list[dict]:
         if s in ("PLAN_INVALID", "ERROR"):
             out.append(_task(
                 "release_integrity", f"{h}:{s}", "P0", "critical", f"WARNUNG: Freigabeprüfung {h} T defekt ({s})",
+                scope={"horizon": h},
                 finding=f"Die sequenzielle Forward-Prüfung ({h} T) meldet {s}"
                         + (f": {seq.get('error')}" if seq.get("error") else "") + ".",
                 problem="Die Freigabe ist dadurch dauerhaft gesperrt; bei PLAN_INVALID wurde ein vorab festgelegter "
@@ -851,6 +866,7 @@ def _tasks_release(status: dict) -> list[dict]:
             out.append(_task(
                 "decision_capture", f"{h}", "P1", "capture",
                 f"Tagesentscheidungen des Hauptmodells fehlen ({b['decision_coverage']:.0%}, {h} T)",
+                scope={"horizon": h},
                 finding=f"An Prüfung {b.get('look')} ({h} T) haben nur {b['decision_coverage']:.0%} der Ledger-"
                         f"Kandidaten eine am Signaltag festgehaltene Entscheidung; Ausfälle {b.get('excluded')}.",
                 problem="Ohne vollständige Tagesentscheidungen kann die Freigabe nie bestätigt werden.",
@@ -867,6 +883,7 @@ def _tasks_release(status: dict) -> list[dict]:
             out.append(_task(
                 "base_not_confirmed", f"{h}:{seq.get('plan_id')}", "P2", "research_result",
                 f"Hauptmodell {h} T im Forward-Test {'negativ' if s == 'REJECTED_NEGATIVE' else 'nicht bestätigt'}",
+                scope={"horizon": h, "plan_id": seq.get("plan_id")},
                 finding=f"Die vorab festgelegte Forward-Prüfung ({h} T, Plan {seq.get('plan_id')}) endet mit {s} "
                         f"(Prüfung {b.get('look')}: KI {b.get('selected_ci95')} zum Niveau {b.get('ci_level')}).",
                 problem="Für diese Experimentversion bleibt die Freigabe dauerhaft gesperrt; nur eine neue, "
@@ -912,6 +929,7 @@ def _tasks_infrastructure(history: list[dict], snapshot: dict, wf_status: dict, 
         out.append(_task(
             "source_failure", sid, "P1" if meta["criticality"] == "CRITICAL" else "P2", "infrastructure",
             f"Datenquelle {sid} seit {days} Tagen {meta['status']}",
+            scope={"source_id": sid},
             finding=f"Die {meta['criticality']}-Quelle {sid} ist seit {streak[0]['checked_at'][:10]} ({days} Tage, "
                     f"{len(streak)} Prüfungen) durchgehend {', '.join(sorted({e['status'] for e in streak}))}.",
             problem="Merkmale aus dieser Quelle fehlen oder veralten; nachgelagerte Modelle arbeiten mit Fallbacks.",
@@ -946,6 +964,7 @@ def _tasks_infrastructure(history: list[dict], snapshot: dict, wf_status: dict, 
             out.append(_task(
                 "workflow_recovery", wf, "P2", "infrastructure",
                 f"Workflow {wf} muss regelmäßig nachgestartet werden",
+                scope={"workflow": wf},
                 finding=f"Der Workflow {wf} wurde an {len(days)} der letzten {RECOVERY_WINDOW_DAYS} Tage vom Watchdog "
                         f"nachgestartet (insgesamt {len(all_days)} Tage seit {all_days[0]}).",
                 problem="Der geplante Lauf startet nicht zuverlässig; nachgelagerte Schritte warten oder nutzen ältere "
@@ -968,43 +987,260 @@ def _tasks_infrastructure(history: list[dict], snapshot: dict, wf_status: dict, 
     return out
 
 
+def _ts(value) -> datetime | None:
+    """Zeitstempel oder Datum (ISO) -> datetime in UTC; ungültig -> None."""
+    try:
+        d = datetime.fromisoformat(str(value)) if value else None
+    except ValueError:
+        return None
+    return None if d is None else d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+
+
+def _fresh(stamp, days: int, now: datetime, problem: str | None = None) -> tuple[str, str]:
+    """("ok", "") oder ("unknown", Grund): fehlt, beschädigt, ohne Zeitstempel, veraltet, aus der Zukunft."""
+    if problem:
+        return "unknown", problem
+    d = _ts(stamp)
+    if d is None:
+        return "unknown", "ohne gültigen Zeitstempel"
+    age = (now - d).total_seconds() / 86400
+    if age < -1:
+        return "unknown", f"Zeitstempel {str(stamp)[:10]} liegt in der Zukunft"
+    if age > days:
+        return "unknown", f"veraltet (Stand {str(stamp)[:10]}, älter als {days} Tage)"
+    return "ok", ""
+
+
+def input_quality(inputs: dict, now: datetime) -> dict[str, tuple[str, str]]:
+    """Beurteilbarkeit jeder Quelle: nur "ok" (vorhanden, gültig, aktuell) darf Aufgaben erzeugen oder als behoben
+    bestätigen; alles andere ergibt UNKNOWN statt eines Statuswechsels."""
+    problems = inputs.get("problems") or {}
+    imp = inputs.get("improvement")
+    q = {"improvement": _fresh(imp.get("generated") if isinstance(imp, dict) else None, FRESH_DAYS["option"], now,
+                               problems.get("improvement") or (None if isinstance(imp, dict) and imp else "fehlt"))}
+    status = inputs.get("status") or {}
+    for h in sorted({*OPTION_HORIZONS, *(k for k in status if str(k).isdigit())}, key=int):
+        st = status.get(h) if isinstance(status, dict) else None
+        q[f"status:{int(h)}"] = _fresh(st.get("as_of") if isinstance(st, dict) else None, FRESH_DAYS["option"], now,
+                                       problems.get(f"status:{h}") or (None if isinstance(st, dict) and st
+                                                                       else "fehlt"))
+        seq, seq_as_of = _seq_of(inputs, int(h))
+        q[f"seq:{int(h)}"] = _fresh(seq_as_of, FRESH_DAYS["seq"], now, None if seq else "fehlt")
+    snap = inputs.get("source_snapshot")
+    q["source_snapshot"] = _fresh(snap.get("generated") if isinstance(snap, dict) else None, FRESH_DAYS["health"], now,
+                                  problems.get("source_snapshot") or (None if isinstance(snap, dict) and snap
+                                                                      else "fehlt"))
+    wf = inputs.get("workflow_status")
+    days = [d for d in ((wf or {}).get("days") or {}) if _ts(d)] if isinstance(wf, dict) else []
+    q["workflow_status"] = _fresh(max(days) if days else None, FRESH_DAYS["workflow"], now,
+                                  problems.get("workflow_status") or (None if days else "fehlt"))
+    return q
+
+
+def _seq_of(inputs: dict, h: int) -> tuple[dict | None, str | None]:
+    """forward_sequential eines Horizonts: der neuere Stand aus der täglichen Empfehlung oder dem Wochenstatus."""
+    st = (inputs.get("status") or {}).get(h) if isinstance(inputs.get("status"), dict) else None
+    cand = [(str(st.get("as_of")), st.get("forward_sequential"))] if isinstance(st, dict) else []
+    daily = (inputs.get("daily_seq") or {}).get(h)
+    if isinstance(daily, dict):
+        cand.append((str(daily.get("as_of")), daily.get("forward_sequential")))
+    cand = [(a, sq) for a, sq in cand if isinstance(sq, dict) and sq.get("status") and _ts(a)]
+    return (max(cand, key=lambda c: c[0])[1], max(cand, key=lambda c: c[0])[0]) if cand else (None, None)
+
+
 def improvement_tasks(inputs: dict, now: datetime | None = None) -> tuple[list[dict], list[str]]:
     """Alle belegten technischen Verbesserungsaufgaben aus den vorhandenen Research-Ausgaben -> (Aufgaben,
-    ignorierte unvollständige Eingaben). Fehlt eine Eingabe, entsteht daraus keine Aufgabe."""
+    ignorierte Eingaben). Ausgewertet wird nur, was vorhanden, gültig und aktuell ist (input_quality); fehlende,
+    beschädigte oder veraltete Quellen erzeugen keine Aufgabe."""
     now = now or datetime.now(timezone.utc)
     issues: list[str] = []
-    imp, status = inputs.get("improvement") or {}, inputs.get("status") or {}
-    gaps = [g for g in imp.get("gaps") or [] if isinstance(g, dict) and isinstance(g.get("gap_id"), str)]
-    if len(gaps) != len(imp.get("gaps") or []):
+    q = input_quality(inputs, now)
+    for key, (state, why) in sorted(q.items()):
+        if state != "ok" and why != "fehlt":
+            issues.append(f"{INPUT_LABEL.get(key, key)}: {why} – nicht ausgewertet (ignoriert)")
+    imp = inputs.get("improvement") if q["improvement"][0] == "ok" else {}
+    gaps = [g for g in (imp or {}).get("gaps") or [] if isinstance(g, dict) and isinstance(g.get("gap_id"), str)]
+    if len(gaps) != len((imp or {}).get("gaps") or []):
         issues.append("improvement.json: Lücken ohne gültige gap_id ignoriert")
-    status = {int(h): st for h, st in status.items() if isinstance(st, dict) and st and str(h).isdigit()}
+    raw = inputs.get("status") if isinstance(inputs.get("status"), dict) else {}
+    status = {int(h): st for h, st in raw.items() if str(h).isdigit() and isinstance(st, dict) and st
+              and q.get(f"status:{int(h)}", ("unknown",))[0] == "ok"}
+    gaps = [g for g in gaps if not isinstance(g.get("horizon"), int) or g["horizon"] in status]
+    seqs = {h: _seq_of(inputs, h)[0] for h in {*OPTION_HORIZONS, *status} if q.get(f"seq:{h}", ("",))[0] == "ok"}
     tasks = (_tasks_empty_features(gaps, status, inputs.get("ledger"), issues) + _tasks_capture(gaps, issues)
-             + _tasks_sample_bias(gaps) + _tasks_variants(status, gaps) + _tasks_release(status)
-             + _tasks_infrastructure(inputs.get("source_history"), inputs.get("source_snapshot"),
-                                     inputs.get("workflow_status"), now))
+             + _tasks_sample_bias(gaps) + _tasks_variants(status, gaps) + _tasks_release(seqs)
+             + _tasks_infrastructure(inputs.get("source_history") if q["source_snapshot"][0] == "ok" else [],
+                                     inputs.get("source_snapshot") if q["source_snapshot"][0] == "ok" else {},
+                                     inputs.get("workflow_status") if q["workflow_status"][0] == "ok" else {}, now))
     as_of = max([str(st.get("as_of")) for st in status.values() if st.get("as_of")]
-                + [str(imp.get("generated", ""))[:10]])
+                + [str((imp or {}).get("generated", ""))[:10]])
     unique = {}
     for t in tasks:
         unique.setdefault(t["task_id"], {**t, "data_as_of": as_of or now.date().isoformat()})
     return sorted(unique.values(), key=lambda t: (t["priority"], t["task_id"])), issues
 
 
+def resolution(task: dict, inputs: dict, now: datetime | None = None) -> tuple[str, str]:
+    """Zustand einer bekannten Aufgabe, die gerade NICHT erkannt wurde: ("RESOLVED", Beleg) nur, wenn aktuelle,
+    gültige Daten die Behebung positiv zeigen; ("UNKNOWN", Grund), wenn die nötigen Daten fehlen, beschädigt,
+    veraltet oder nicht aussagekräftig sind; ("OPEN", Grund), wenn die Daten den Mangel weiter zeigen."""
+    from modules import option_learner as ol
+    now = now or datetime.now(timezone.utc)
+    q, kind, sc = input_quality(inputs, now), task.get("kind"), task.get("scope")
+    if not isinstance(sc, dict):
+        return "UNKNOWN", "Aufgabe ohne Geltungsbereich – nicht beurteilbar"
+
+    def missing(*keys) -> str | None:
+        bad = [f"{INPUT_LABEL.get(k, k)} {q.get(k, ('unknown', 'fehlt'))[1]}" for k in keys
+               if q.get(k, ("unknown",))[0] != "ok"]
+        return "; ".join(bad) or None
+    h = sc.get("horizon")
+    status = inputs.get("status") or {}
+    st = status.get(h) if isinstance(h, int) else None
+    imp = inputs.get("improvement") or {}
+    if kind == "empty_feature":
+        hs = [x for x in sc.get("horizons") or [] if isinstance(x, int)]
+        if not hs or (why := missing("improvement", *[f"status:{x}" for x in hs])):
+            return "UNKNOWN", why or "ohne Horizont"
+        for x in hs:
+            sx = status[x]
+            feats = ((sx.get("experiment") or {}).get("features") or {}).get("ledger")
+            if isinstance(feats, list) and sc.get("feature") not in feats:
+                continue                               # Merkmal bewusst entfernt
+            if (sx.get("verified_labels") or 0) < MIN_LABELS_FOR_COVERAGE:
+                return "UNKNOWN", f"{x} T: weniger als {MIN_LABELS_FOR_COVERAGE} geprüfte Labels – nicht beurteilbar"
+            cov = _num_or_none((sx.get("feature_coverage") or {}).get(sc.get("feature")))
+            if cov is None:
+                return "UNKNOWN", f"{x} T: Abdeckung von {sc.get('feature')} nicht gemessen"
+            if cov < ol.MIN_FEATURE_COVERAGE:
+                return "OPEN", f"{x} T: Abdeckung {cov:.0%}"
+        return "RESOLVED", "aktuelle Daten: Abdeckung >= " + f"{ol.MIN_FEATURE_COVERAGE:.0%} bzw. Merkmal entfernt"
+    needs_status = kind in ("outcome_capture", "sample_bias", "proven_weakness", "adoption", "withdrawn_success",
+                            "variant_untestable")
+    if needs_status and (not isinstance(h, int) or (why := missing(f"status:{h}"))):
+        return "UNKNOWN", why or "ohne Horizont"
+    if kind == "outcome_capture":
+        s = st.get(sc.get("name")) or {}
+        cov, trades = _num_or_none(s.get("coverage")), s.get("trades") or 0
+        if cov is None or trades < MIN_TRADES_FOR_COVERAGE:
+            return "UNKNOWN", f"zu wenige bewertbare Trades ({trades})"
+        return ("RESOLVED", f"Abdeckung {cov:.0%} bei {trades} Trades") if cov >= ol.MIN_COVERAGE else \
+            ("OPEN", f"Abdeckung {cov:.0%}")
+    if kind == "sample_bias":
+        rep = (st.get("walk_forward") or {}).get("representativeness") or {}
+        if not rep.get("by_sample"):
+            return "UNKNOWN", "keine bewerteten Entscheidungen"
+        hit = any(str(w).startswith(str(sc.get("warning"))) for w in rep.get("warnings") or [])
+        return ("OPEN", "Warnung besteht") if hit else ("RESOLVED", "aktuelle Evidenz ohne diese Warnung")
+    if kind == "proven_weakness":
+        if why := missing("improvement"):
+            return "UNKNOWN", why
+        if any(g.get("gap_id") == sc.get("gap_id") for g in imp.get("gaps") or [] if isinstance(g, dict)):
+            return "OPEN", "Lücke besteht (automatische Abhilfe läuft)"
+        if (st.get("walk_forward") or {}).get("verdict") in (None, "NEED_MORE_DATA"):
+            return "UNKNOWN", "Walk-Forward ohne Urteil"
+        return "RESOLVED", "aktuelle Lückenanalyse ohne diese Schwäche"
+    if kind in ("adoption", "withdrawn_success", "variant_untestable"):
+        v = (((st.get("variants") or {}).get("variants")) or {}).get(sc.get("variant_id"))
+        if not isinstance(v, dict):
+            return "UNKNOWN", "Variante im aktuellen Status nicht enthalten"
+        prop, ev = v.get("change_proposal") or {}, v.get("current_evidence") or {}
+        if kind == "adoption":
+            on = v.get("status") in ("PROPOSE_ADOPTION", "CONFIRMED_ADOPTION") and prop.get("state") == "VALID"
+            return ("OPEN", "Übernahmevorschlag gültig") if on else \
+                ("RESOLVED", f"Status {v.get('status')}, Vorschlag {prop.get('state')}")
+        if kind == "withdrawn_success":
+            on = ev.get("contradicts_decision") or prop.get("state") in ("WITHDRAWN", "REVIEW_REQUIRED")
+            return ("OPEN", "Widerspruch besteht") if on else \
+                ("RESOLVED", f"Vorschlag {prop.get('state')}, kein Widerspruch")
+        if not v.get("look"):
+            return "UNKNOWN", "noch keine Prüfung"
+        return ("OPEN", "INSUFFICIENT_COVERAGE") if v.get("relative_verdict") == "INSUFFICIENT_COVERAGE" else \
+            ("RESOLVED", f"Prüfung {v.get('look')}: {v.get('relative_verdict')}")
+    if kind == "budget_exhausted":
+        budgets = [((status.get(x) or {}).get("variants") or {}).get("test_budget")
+                   for x in status if q.get(f"status:{x}", ("",))[0] == "ok"]
+        budgets = [b for b in budgets if isinstance(b, dict) and "exhausted" in b]
+        if not budgets:
+            return "UNKNOWN", "kein aktueller Varianten-Status"
+        return ("OPEN", "erschöpft") if any(b["exhausted"] for b in budgets) else ("RESOLVED", "Budget verfügbar")
+    if kind in ("release_integrity", "decision_capture", "base_not_confirmed"):
+        if not isinstance(h, int) or (why := missing(f"seq:{h}")):
+            return "UNKNOWN", why or "ohne Horizont"
+        seq = _seq_of(inputs, h)[0]
+        if kind == "release_integrity":
+            return ("OPEN", seq["status"]) if seq["status"] in ("PLAN_INVALID", "ERROR") else \
+                ("RESOLVED", f"Freigabeprüfung {seq['status']}")
+        if kind == "decision_capture":
+            b = seq.get("binding") or {}
+            if not b:
+                return "UNKNOWN", "noch keine Prüfung"
+            low = b.get("verdict") == "INSUFFICIENT_COVERAGE" and (_num_or_none(b.get("decision_coverage")) or 0) < 0.8
+            return ("OPEN", "Entscheidungsabdeckung < 80 %") if low else \
+                ("RESOLVED", f"Prüfung {b.get('look')}: {b.get('verdict')}")
+        same = seq.get("plan_id") == sc.get("plan_id")
+        return ("OPEN", seq["status"]) if same and seq["status"] in ("NOT_CONFIRMED", "REJECTED_NEGATIVE") else \
+            ("RESOLVED", f"neuer Prüfplan {seq.get('plan_id')}" if not same else f"Status {seq['status']}")
+    if kind == "source_failure":
+        if why := missing("source_snapshot"):
+            return "UNKNOWN", why
+        meta = ((inputs.get("source_snapshot") or {}).get("sources") or {}).get(sc.get("source_id"))
+        if not isinstance(meta, dict) or not meta.get("status"):
+            return "UNKNOWN", "Quelle im aktuellen Snapshot nicht enthalten"
+        return ("OPEN", meta["status"]) if meta["status"] in SOURCE_BAD else ("RESOLVED", f"Status {meta['status']}")
+    if kind == "workflow_recovery":
+        if why := missing("workflow_status"):
+            return "UNKNOWN", why
+        window = {(now.date() - timedelta(days=i)).isoformat() for i in range(RECOVERY_WINDOW_DAYS)}
+        recov = (inputs.get("workflow_status") or {}).get("recoveries") or {}
+        hits = sorted(d for d, w in recov.items() if d in window and isinstance(w, dict) and sc.get("workflow") in w)
+        return ("OPEN", f"Nachstarts {hits}") if hits else \
+            ("RESOLVED", f"kein Nachstart in den letzten {RECOVERY_WINDOW_DAYS} Tagen")
+    return "UNKNOWN", f"unbekannte Aufgabenart {kind}"
+
+
+def _load_checked(path: Path):
+    """(Inhalt, Problem): fehlende Datei -> "fehlt", kein gültiges JSON-Objekt -> "beschädigt"."""
+    if not path.exists():
+        return {}, "fehlt"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        log.warning(f"research_director: {path} nicht lesbar ({e})")
+        return {}, "beschädigt"
+    return (data, None) if isinstance(data, dict) else ({}, "beschädigt")
+
+
 def load_task_inputs(paths: dict | None = None, now: datetime | None = None) -> dict:
-    """Eingaben der Aufgaben-Erkennung aus den vorhandenen Dateien (fehlende = leer, nie erfunden)."""
+    """Eingaben der Aufgaben-Erkennung aus den vorhandenen Dateien – fehlende oder beschädigte Quellen werden als
+    Problem vermerkt (nie durch Annahmen ersetzt). Dazu der jüngste Stand der Freigabeprüfung aus den täglichen
+    Empfehlungen des Scanners (für die tägliche P0-Prüfung)."""
     from modules.atomic_io import read_jsonl
     p, now = {**TASK_INPUTS, **(paths or {})}, now or datetime.now(timezone.utc)
-    root = Path(p["option_root"])
+    root, problems = Path(p["option_root"]), {}
+    imp, problems["improvement"] = _load_checked(root / "improvement.json")
+    status, daily = {}, {}
+    for h in OPTION_HORIZONS:
+        status[h], problems[f"status:{h}"] = _load_checked(root / f"status_{h}d.json")
+        recs = sorted((root / "recommendations").glob(f"????-??-??_{h}d.json")) if (root / "recommendations").exists() \
+            else []
+        if recs:
+            rec, bad = _load_checked(recs[-1])
+            if not bad and isinstance(rec.get("forward_sequential"), dict):
+                daily[h] = {"as_of": rec.get("date") or recs[-1].name[:10],
+                            "forward_sequential": rec["forward_sequential"]}
+    snapshot, problems["source_snapshot"] = _load_checked(Path(p["source_snapshot"]))
+    wf, problems["workflow_status"] = _load_checked(Path(p["workflow_status"]))
     ledger = None
     try:
         from modules import research_evidence_discovery as red
         ledger = red.load(p["ledger"], now.date()) if Path(p["ledger"]).exists() else None
     except (OSError, ValueError) as e:
         log.warning(f"research_director: Ledger nicht lesbar ({e}) – Formatbelege fehlen")
-    return {"improvement": _load(root / "improvement.json", {}), "status": _option_status(root),
+    return {"improvement": imp, "status": status, "daily_seq": daily,
             "source_history": read_jsonl(p["source_history"]) if Path(p["source_history"]).exists() else [],
-            "source_snapshot": _load(Path(p["source_snapshot"]), {}),
-            "workflow_status": _load(Path(p["workflow_status"]), {}), "ledger": ledger}
+            "source_snapshot": snapshot, "workflow_status": wf, "ledger": ledger,
+            "problems": {k: v for k, v in problems.items() if v}}
 
 
 # ── Vorlagen (deterministisch) ──
@@ -1079,23 +1315,27 @@ def render_mail(tasks: list[tuple[dict, str]]) -> tuple[str, str, str]:
 # ── Zustand, Dedupe und Versand ──
 
 def task_state(events: list[dict]) -> dict:
-    """Zustand je Aufgabe aus dem append-only Ereignisprotokoll."""
+    """Zustand je Aufgabe aus dem append-only Ereignisprotokoll (zeitlich sortiert: parallele Läufe werden per
+    Union-Merge zusammengeführt, ihre Zeilen können verschränkt sein)."""
     st: dict = {}
-    for e in events:
-        if not isinstance(e, dict) or not e.get("task_id"):
-            continue
+    for e in sorted((e for e in events if isinstance(e, dict) and e.get("task_id")), key=lambda e: str(e.get("at"))):
         s = st.setdefault(e["task_id"], {"status": "OPEN", "notified_fingerprint": None, "notifications": [],
                                          "send_failures": 0})
         ev = e.get("event")
         if ev in ("detected", "changed", "reopened"):
-            s.update(task=e.get("task"), fingerprint=e.get("fingerprint"), status="OPEN",
+            s.update(task=e.get("task"), fingerprint=e.get("fingerprint"), status="OPEN", unknown_reason=None,
                      last_changed=e.get("at"), first_detected=s.get("first_detected") or e.get("at"))
+        elif ev == "confirmed":                        # nach UNKNOWN wieder nachgewiesen, Befund unverändert
+            s.update(status="NOTIFIED" if s["notified_fingerprint"] == s.get("fingerprint") else "OPEN",
+                     unknown_reason=None)
+        elif ev == "unknown":
+            s.update(status="UNKNOWN", unknown_reason=e.get("reason"), unknown_since=e.get("at"))
         elif ev == "resolved":
-            s.update(status="RESOLVED", resolved_at=e.get("at"))
+            s.update(status="RESOLVED", resolved_at=e.get("at"), resolved_reason=e.get("reason"))
         elif ev == "notified":
             s["notified_fingerprint"] = e.get("fingerprint")
             s["notifications"].append({k: e.get(k) for k in ("at", "channel", "subject", "fingerprint", "reason")})
-            if s["status"] == "OPEN":
+            if s["status"] == "OPEN" and e.get("fingerprint") == s.get("fingerprint"):
                 s["status"] = "NOTIFIED"
         elif ev == "send_failed":
             s["send_failures"] += 1
@@ -1112,47 +1352,70 @@ def _decisions() -> dict:
     return {k: v for k, v in ((d or {}).get("tasks") or {}).items() if isinstance(v, dict)}
 
 
-def notify_tasks(tasks: list[dict], now: datetime | None = None, *, dry_run: bool = False,
-                 path: Path | None = None, state_path: Path | None = None, send=None,
+def _is_critical(t: dict) -> bool:
+    return (t or {}).get("kind") in CRITICAL_KINDS
+
+
+def notify_tasks(tasks: list[dict], now: datetime | None = None, *, mode: str = "weekly", dry_run: bool = False,
+                 path: Path | None = None, state_path: Path | None = None, send=None, resolve=None,
                  decisions: dict | None = None, issues: list[str] | None = None) -> dict:
-    """Neue oder wesentlich geänderte Aufgaben melden: kritische (P0) sofort einzeln, sonst EIN Wochen-Digest mit
-    höchstens DIGEST_MAX Aufgaben je Kalenderwoche. Unveränderte, bereits gemeldete Aufgaben nie erneut; keine Mail
-    ohne Handlungsbedarf. Nur ein Versand mit Status "sent" zählt; Fehler (auch fehlende Konfiguration) werden
-    sichtbar protokolliert und beim nächsten Lauf erneut versucht. dry_run: nichts senden, nichts speichern."""
+    """Aufgaben verwalten und melden – je Lauf genau eine Zuständigkeit (gemeinsame Historie, getrennte Aufgaben):
+    * mode="critical" (täglich): nur P0 (CRITICAL_KINDS), jede neue/geänderte P0-Aufgabe sofort als eigene Mail.
+    * mode="weekly" (Samstag): nur P1–P3, ein Digest mit höchstens DIGEST_MAX Aufgaben je Kalenderwoche.
+    Da jede Aufgabe nur von einer Laufart gemeldet wird, können parallele Läufe dieselbe Aufgabe nie doppelt melden.
+    Unveränderte, bereits gemeldete Aufgaben nie erneut; keine Mail ohne Handlungsbedarf. Nicht mehr erkannte
+    Aufgaben: RESOLVED nur, wenn `resolve(task)` die Behebung mit aktuellen, gültigen Daten belegt; fehlen die Daten
+    oder sind sie beschädigt/veraltet -> UNKNOWN (Befund und Historie bleiben, keine Erfolgsmeldung). Nur ein
+    Versand mit Status "sent" zählt; Fehler (auch fehlende Konfiguration) werden protokolliert und beim nächsten
+    Lauf derselben Art erneut versucht. dry_run: nichts senden, nichts speichern."""
     from modules.atomic_io import append_jsonl, read_jsonl
+    if mode not in MODES:
+        raise ValueError(f"mode {mode!r} nicht in {MODES}")
     now, path, state_path = now or datetime.now(timezone.utc), path or TASKS, state_path or TASKS_STATE
     decisions = _decisions() if decisions is None else decisions
+    resolve = resolve or (lambda _t: ("UNKNOWN", "keine Prüfdaten für eine Behebung"))
     if send is None:
         from modules import mailer
         send = mailer.send_mail
     at = now.isoformat(timespec="seconds")
     events = read_jsonl(path) if path.exists() else []
     state, new_events, pending = task_state(events), [], []
-    current = {t["task_id"]: t for t in tasks}
+    mine = (lambda t: _is_critical(t)) if mode == "critical" else (lambda t: not _is_critical(t))
+    current = {t["task_id"]: t for t in tasks if mine(t)}
     for tid, t in current.items():
         prev = state.get(tid)
         ev = ("detected" if prev is None else "reopened" if prev["status"] == "RESOLVED"
-              else "changed" if prev.get("fingerprint") != t["fingerprint"] else None)
+              else "changed" if prev.get("fingerprint") != t["fingerprint"]
+              else "confirmed" if prev["status"] == "UNKNOWN" else None)
         if ev:
-            new_events.append({"event": ev, "task_id": tid, "at": at, "fingerprint": t["fingerprint"], "task": t})
+            new_events.append({"event": ev, "task_id": tid, "at": at, "fingerprint": t["fingerprint"],
+                               **({"task": t} if ev != "confirmed" else {})})
         decided = str((decisions.get(tid) or {}).get("status", "")).upper()
-        already = (prev or {}).get("notified_fingerprint") == t["fingerprint"] and ev is None
+        already = (prev or {}).get("notified_fingerprint") == t["fingerprint"] and ev in (None, "confirmed")
         if decided in HUMAN_CLOSED or already:
             continue
         reason = {"detected": "NEW", "changed": "CHANGED", "reopened": "REOPENED"}.get(ev, "PENDING")
         pending.append((t, reason))
-    new_events += [{"event": "resolved", "task_id": tid, "at": at} for tid, s in sorted(state.items())
-                   if tid not in current and s["status"] != "RESOLVED"]
+    for tid, s in sorted(state.items()):
+        if tid in current or s["status"] == "RESOLVED" or not mine(s.get("task")):
+            continue
+        verdict, why = resolve(s.get("task") or {})
+        if verdict == "RESOLVED":
+            new_events.append({"event": "resolved", "task_id": tid, "at": at, "reason": why})
+        elif verdict == "UNKNOWN" and s["status"] != "UNKNOWN":
+            new_events.append({"event": "unknown", "task_id": tid, "at": at, "reason": why})
     week = now.isocalendar()[:2]
     sent_this_week = sum(1 for s in state.values() for n in s["notifications"] if n.get("channel") == "digest"
-                         and n.get("at") and datetime.fromisoformat(n["at"]).isocalendar()[:2] == week)
-    critical = [p for p in pending if p[0]["priority"] == "P0"]
-    rest = sorted((p for p in pending if p[0]["priority"] != "P0"), key=lambda p: (p[0]["priority"], p[0]["task_id"]))
-    quota = max(0, DIGEST_MAX - sent_this_week)
-    mails = [("critical", [c]) for c in critical] + ([("digest", rest[:quota])] if rest[:quota] else [])
-    report = {"generated": at, "dry_run": dry_run, "tasks_detected": len(current), "input_issues": issues or [],
-              "pending": [p[0]["task_id"] for p in pending], "deferred_by_weekly_limit": [p[0]["task_id"]
-                                                                                        for p in rest[quota:]],
+                         and _ts(n.get("at")) and _ts(n["at"]).isocalendar()[:2] == week)
+    pending.sort(key=lambda p: (p[0]["priority"], p[0]["task_id"]))
+    quota = len(pending) if mode == "critical" else max(0, DIGEST_MAX - sent_this_week)
+    mails = ([("critical", [p]) for p in pending] if mode == "critical"
+             else ([("digest", pending[:quota])] if pending[:quota] else []))
+    report = {"generated": at, "mode": mode, "dry_run": dry_run, "tasks_detected": len(current),
+              "input_issues": issues or [], "pending": [p[0]["task_id"] for p in pending],
+              "deferred_by_weekly_limit": [p[0]["task_id"] for p in pending[quota:]],
+              "status_changes": [{k: e.get(k) for k in ("event", "task_id", "reason")} for e in new_events
+                                 if e["event"] in ("resolved", "unknown", "confirmed", "reopened")],
               "mails": [], "mail_status": "nothing_to_send" if not mails else None}
     for channel, items in mails:
         subject, body_html, text = render_mail(items)
@@ -1175,7 +1438,7 @@ def notify_tasks(tasks: list[dict], now: datetime | None = None, *, dry_run: boo
                                    "mail_status": status, "error": res.get("error")})
     if mails:
         st = [m["status"] for m in report["mails"]]
-        report["mail_status"] = ("dry_run" if dry_run else "sent" if all(s == "sent" for s in st)
+        report["mail_status"] = ("dry_run" if dry_run else "sent" if all(x == "sent" for x in st)
                                  else "not_configured" if "not_configured" in st else "failed")
     if report["mail_status"] in ("not_configured", "failed"):
         log.error("research_director: Verbesserungs-Mail nicht versendet (%s) – bleibt offen und wird beim "
@@ -1184,16 +1447,19 @@ def notify_tasks(tasks: list[dict], now: datetime | None = None, *, dry_run: boo
         return report
     if new_events:
         append_jsonl(path, new_events, ensure_ascii=False, sort_keys=True, default=str)
+    previous = _load(state_path, {}) if state_path.exists() else {}
+    last = {k: report[k] for k in ("generated", "mail_status", "pending", "deferred_by_weekly_limit",
+                                   "input_issues", "status_changes")} | {
+        "mails": [{k: m.get(k) for k in ("channel", "subject", "tasks", "status", "error")} for m in report["mails"]]}
     final = task_state(events + new_events)
-    snapshot = {"generated": at, "last_run": {k: report[k] for k in ("mail_status", "pending",
-                                                                       "deferred_by_weekly_limit", "input_issues")}
-                | {"mails": [{k: m.get(k) for k in ("channel", "subject", "tasks", "status", "error")}
-                             for m in report["mails"]]},
+    snapshot = {"generated": at, "last_runs": {**(previous.get("last_runs") or {}), mode: last},
                 "tasks": {tid: {**(s.get("task") or {}), "status": str((decisions.get(tid) or {}).get("status")
                                                                          or s["status"]).upper(),
                                 "decision_note": (decisions.get(tid) or {}).get("note"),
                                 "first_detected": s.get("first_detected"), "last_changed": s.get("last_changed"),
                                 "resolved_at": s.get("resolved_at") if s["status"] == "RESOLVED" else None,
+                                "resolved_reason": s.get("resolved_reason") if s["status"] == "RESOLVED" else None,
+                                "unknown_reason": s.get("unknown_reason") if s["status"] == "UNKNOWN" else None,
                                 "notifications": s["notifications"], "send_failures": s["send_failures"],
                                 "last_send_error": s.get("last_send_error")}
                           for tid, s in sorted(final.items())}}
@@ -1202,12 +1468,16 @@ def notify_tasks(tasks: list[dict], now: datetime | None = None, *, dry_run: boo
     return report
 
 
-def run_notify(now: datetime | None = None, dry_run: bool = False, paths: dict | None = None) -> dict:
-    """Wöchentlich (ml_research.yml) bzw. manuell: Aufgaben erkennen, melden, Zustand und Research Memory."""
+def run_notify(now: datetime | None = None, dry_run: bool = False, paths: dict | None = None,
+               mode: str = "weekly") -> dict:
+    """Aufgaben erkennen und melden: mode="weekly" (ml_research.yml, Samstag: P1–P3-Digest, Research Memory) bzw.
+    mode="critical" (improvement_notify.yml, täglich: nur P0). Beide nutzen dieselbe Historie."""
     now = now or datetime.now(timezone.utc)
-    tasks, issues = improvement_tasks(load_task_inputs(paths, now), now)
-    report = notify_tasks(tasks, now, dry_run=dry_run, issues=issues)
-    if not dry_run:
+    inputs = load_task_inputs(paths, now)
+    tasks, issues = improvement_tasks(inputs, now)
+    report = notify_tasks(tasks, now, mode=mode, dry_run=dry_run, issues=issues,
+                          resolve=lambda t: resolution(t, inputs, now))
+    if not dry_run and mode == "weekly":
         from modules import research_memory as rm
         report["research_memory_new"] = rm.sync()
     return report
@@ -1236,11 +1506,14 @@ def main(argv=None) -> int:
     ap.add_argument("--notify", action="store_true",
                     help="technische Verbesserungsaufgaben erkennen und melden (Wochen-Digest, kritisch sofort)")
     ap.add_argument("--dry-run", action="store_true", help="mit --notify: nur Vorschau, nichts senden oder speichern")
+    ap.add_argument("--critical", action="store_true",
+                    help="mit --notify: täglicher Lauf, nur kritische P0-Aufgaben (sonst Wochen-Digest P1–P3)")
     args = ap.parse_args(argv)
     if args.notify:
-        rep = run_notify(dry_run=args.dry_run)
-        print(json.dumps({k: rep.get(k) for k in ("mail_status", "tasks_detected", "pending",
-                                                    "deferred_by_weekly_limit", "input_issues")}, ensure_ascii=False))
+        rep = run_notify(dry_run=args.dry_run, mode="critical" if args.critical else "weekly")
+        print(json.dumps({k: rep.get(k) for k in ("mode", "mail_status", "tasks_detected", "pending",
+                                                    "deferred_by_weekly_limit", "status_changes", "input_issues")},
+                         ensure_ascii=False))
         for m in rep["mails"]:
             print(f"--- {m['status']}: {m['subject']} ({', '.join(m['tasks'])})")
             if args.dry_run:

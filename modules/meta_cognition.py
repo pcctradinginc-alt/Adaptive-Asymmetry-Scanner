@@ -277,8 +277,9 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
         "open_improvement_tasks": [f"[{t.get('priority')}] {tid} {t.get('short')} ({t.get('status')})"
                                    for tid, t in sorted(((inp.get("improvement_tasks") or {}).get("tasks") or {})
                                                         .items(), key=lambda kv: (str(kv[1].get("priority")), kv[0]))
-                                   if isinstance(t, dict) and t.get("status") in ("OPEN", "NOTIFIED")][:8],
-        "improvement_mail_status": ((inp.get("improvement_tasks") or {}).get("last_run") or {}).get("mail_status"),
+                                   if isinstance(t, dict) and t.get("status") in ("OPEN", "NOTIFIED", "UNKNOWN")][:8],
+        "improvement_mail_status": {mode: (run or {}).get("mail_status") for mode, run in sorted(
+            ((inp.get("improvement_tasks") or {}).get("last_runs") or {}).items())},
         "feature_decay": decay, "model_decay": model_decay, "research_value": rv, "safe_mode": sm,
     }
 
@@ -357,7 +358,8 @@ def render_md(st: dict) -> str:
                        ("open_improvement_tasks", "Offene technische Verbesserungsaufgaben (--notify)")):
         L += ["", f"## {title}", ""] + ([f"- {x}" for x in st.get(key) or []] or ["- (keine gemessene Aussage)"])
     if st.get("improvement_mail_status"):
-        L += ["", f"Letzter Versand der Verbesserungsvorschläge: **{st['improvement_mail_status']}**"]
+        L += ["", "Letzter Versand der Verbesserungsvorschläge: " + ", ".join(
+            f"{mode} **{status}**" for mode, status in st["improvement_mail_status"].items())]
     L += ["", f"Höchste Research-Priorität: {st.get('highest_research_priority')}", "",
           f"Safe Mode: **{'AKTIV' if st['safe_mode']['active'] else 'aus'}** – {st['safe_mode']['reasons'] or '–'}"]
     return "\n".join(L) + "\n"

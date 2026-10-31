@@ -1,13 +1,24 @@
-name: Research – Technische Verbesserungsvorschläge (manuell)
+name: Research – Technische Verbesserungsvorschläge (täglich P0, manuell)
 
-# Manueller Auslöser für die Self-Improvement Notifications (modules/research_director.py --notify), die sonst
-# wöchentlich im Workflow ml_research.yml laufen. Liest nur vorhandene Research-Ausgaben; kein LLM, keine
-# Markt-API, kein Code wird geändert. dry_run=true (Standard): Mails nur als Vorschau im Log, nichts wird gesendet
-# oder gespeichert. dry_run=false: wie der Wochenlauf (Dedupe, Wochenlimit, Versandhistorie) und Commit des Verlaufs.
+# Self-Improvement Notifications (modules/research_director.py --notify). Liest nur vorhandene Research-Ausgaben;
+# kein LLM, keine Markt-API, keine Kosten, es wird nie Code geändert oder Claude Code gestartet.
+#  * täglich 21:37 UTC (nach Scanner und Feedback): nur kritische P0-Aufgaben (--critical), jede sofort einzeln.
+#  * P1–P3 kommen ausschließlich im Wochen-Digest des Workflows ml_research.yml (Samstag).
+#  * manuell: Laufart (critical|weekly) und dry_run (Standard true: Vorschau im Log, nichts senden/speichern).
+# Gemeinsame Historie outputs/research/improvement_tasks.jsonl (append-only, Union-Merge); jede Aufgabe gehört
+# genau einer Laufart, daher melden parallele Läufe nie dieselbe Aufgabe doppelt.
 
 on:
+  schedule:
+    - cron: '37 21 * * *'
   workflow_dispatch:
     inputs:
+      mode:
+        description: "critical = nur P0 (wie der tägliche Lauf), weekly = Wochen-Digest P1–P3"
+        required: false
+        default: "critical"
+        type: choice
+        options: ["critical", "weekly"]
       dry_run:
         description: "true = nur Vorschau im Log (nichts senden, nichts speichern)"
         required: false
@@ -16,7 +27,14 @@ on:
         options: ["true", "false"]
 
 concurrency:
-  group: research-write          # wie ml_research.yml: nie gleichzeitig auf outputs/research schreiben
+  # Tägliche und manuelle P0-Läufe nacheinander ("improvement-notify"); ein manueller Wochenversand ohne dry_run
+  # reiht sich hinter ml_research.yml ein ("research-write"); eine Vorschau schreibt und sendet nichts und
+  # blockiert deshalb niemanden.
+  group: >-
+    ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'false')
+    && format('improvement-preview-{0}', github.run_id)
+    || ((github.event_name == 'workflow_dispatch' && inputs.mode == 'weekly') && 'research-write'
+    || 'improvement-notify') }}
   cancel-in-progress: false
 
 permissions:
@@ -31,7 +49,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
-          ref: main
+          ref: main      # aktueller Stand inkl. Historie des letzten Laufs (Dedupe)
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -45,20 +63,22 @@ jobs:
       - name: Verbesserungsvorschläge erkennen und melden
         id: notify
         env:
-          DRY_RUN: ${{ inputs.dry_run }}
+          MODE: ${{ inputs.mode || 'critical' }}
+          DRY_RUN: ${{ github.event_name == 'schedule' && 'false' || inputs.dry_run }}
           GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: |
-          if [ "$DRY_RUN" = "false" ]; then
-            python -m modules.research_director --notify
-          else
-            python -m modules.research_director --notify --dry-run
-          fi
+          args="--notify"
+          if [ "$MODE" != "weekly" ]; then args="$args --critical"; fi
+          if [ "$DRY_RUN" != "false" ]; then args="$args --dry-run"; fi
+          python -m modules.research_director $args
 
-      - name: Verlauf sichern (nur ohne dry_run)
-        if: always() && inputs.dry_run == 'false'
+      - name: Verlauf sichern (nicht bei dry_run)
+        if: always() && (github.event_name == 'schedule' || inputs.dry_run == 'false')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bash scripts/ci_push.sh "chore: improvement notifications $(date -u +%Y-%m-%dT%H:%M)" outputs/research/improvement_tasks.jsonl outputs/research/improvement_tasks.json outputs/research/research_memory.jsonl
+          bash scripts/ci_push.sh "chore: improvement notifications $(date -u +%Y-%m-%dT%H:%M)" \
+            outputs/research/improvement_tasks.jsonl outputs/research/improvement_tasks.json \
+            outputs/research/research_memory.jsonl
