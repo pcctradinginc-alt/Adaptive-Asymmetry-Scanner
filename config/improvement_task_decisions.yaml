@@ -1,0 +1,14 @@
+# config/improvement_task_decisions.yaml – menschliche Entscheidungen zu technischen Verbesserungsaufgaben
+# (python -m modules.research_director --notify, Mails "[Scanner] Technischer Verbesserungsvorschlag – …").
+#
+# Die Aufgaben selbst stehen in outputs/research/improvement_tasks.json (Task-ID, Befund, Belege, Status, Versand).
+# Hier hältst du fest, wie du entschieden hast; danach kommt zu dieser Aufgabe keine weitere Mail:
+#   REJECTED     – verworfen (kein Handlungsbedarf)
+#   IN_PROGRESS  – wird bearbeitet (z. B. als Claude-Code-Aufgabe, PR offen)
+#   DONE         – umgesetzt (verschwindet der Befund, steht die Aufgabe auf RESOLVED)
+# Nur Status und Notiz; keine Zugangsdaten. Änderungen nur per menschlichem Commit.
+#
+# Beispiel:
+# tasks:
+#   IMP-4a0d2d31: {status: IN_PROGRESS, note: "Claude-Code-Aufgabe gestartet"}
+tasks: {}

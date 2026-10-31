@@ -274,6 +274,12 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
         "highest_research_priority": ((inp.get("director") or {}).get("candidates") or [{}])[0].get("question"),
         "option_learner_gaps": [f"[{g.get('severity')}] {g.get('finding')}"
                                 for g in ((inp.get("option_improvement") or {}).get("gaps") or [])[:8]],
+        "open_improvement_tasks": [f"[{t.get('priority')}] {tid} {t.get('short')} ({t.get('status')})"
+                                   for tid, t in sorted(((inp.get("improvement_tasks") or {}).get("tasks") or {})
+                                                        .items(), key=lambda kv: (str(kv[1].get("priority")), kv[0]))
+                                   if isinstance(t, dict) and t.get("status") in ("OPEN", "NOTIFIED", "UNKNOWN")][:8],
+        "improvement_mail_status": {mode: (run or {}).get("mail_status") for mode, run in sorted(
+            ((inp.get("improvement_tasks") or {}).get("last_runs") or {}).items())},
         "feature_decay": decay, "model_decay": model_decay, "research_value": rv, "safe_mode": sm,
     }
 
@@ -291,6 +297,12 @@ def run() -> dict:
     except (OSError, json.JSONDecodeError) as e:
         log.warning(f"meta_cognition: option_learner/improvement.json nicht lesbar ({e})")
         inp["option_improvement"] = {}
+    try:      # technische Verbesserungsaufgaben (research_director --notify); nie Safe-Mode-relevant
+        tp = OUT / "improvement_tasks.json"
+        inp["improvement_tasks"] = json.loads(tp.read_text()) if tp.exists() else {}
+    except (OSError, json.JSONDecodeError) as e:
+        log.warning(f"meta_cognition: improvement_tasks.json nicht lesbar ({e})")
+        inp["improvement_tasks"] = {}
     hp = Path("outputs/external_data/health/source_health.json")
     try:
         inp["health"] = json.loads(hp.read_text()) if hp.exists() else {}
@@ -342,8 +354,12 @@ def render_md(st: dict) -> str:
                        ("where_is_model_disagreement_high", "Wo ist die Uneinigkeit hoch?"),
                        ("research_tracks_with_real_oos_value", "Research-Tracks mit echtem OOS-Wert"),
                        ("research_tracks_wasting_resources", "Research-Tracks ohne Ertrag"),
-                       ("option_learner_gaps", "Options-Lernmodell: erkannte Lücken (research_director --options)")):
+                       ("option_learner_gaps", "Options-Lernmodell: erkannte Lücken (research_director --options)"),
+                       ("open_improvement_tasks", "Offene technische Verbesserungsaufgaben (--notify)")):
         L += ["", f"## {title}", ""] + ([f"- {x}" for x in st.get(key) or []] or ["- (keine gemessene Aussage)"])
+    if st.get("improvement_mail_status"):
+        L += ["", "Letzter Versand der Verbesserungsvorschläge: " + ", ".join(
+            f"{mode} **{status}**" for mode, status in st["improvement_mail_status"].items())]
     L += ["", f"Höchste Research-Priorität: {st.get('highest_research_priority')}", "",
           f"Safe Mode: **{'AKTIV' if st['safe_mode']['active'] else 'aus'}** – {st['safe_mode']['reasons'] or '–'}"]
     return "\n".join(L) + "\n"

@@ -200,6 +200,21 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_director --options
 
+      # Self-Improvement Notifications (nur Hinweise, nie Code): Wochen-Digest der technischen
+      # Verbesserungsaufgaben P1–P3 aus BELEGTEN Befunden (nie aus NEED_MORE_DATA, Wartezeit oder veralteten
+      # Daten); feste Vorlagen mit kopierfertiger Claude-Code-Aufgabe, kein LLM, keine Kosten. Höchstens 3
+      # neue/geänderte Aufgaben je Woche; keine Wiederholung unveränderter Aufgaben; Versand nur mit Status
+      # "sent" zählt, sonst Schritt rot (DEGRADED) und erneuter Versuch beim nächsten Lauf. Kritische P0-Aufgaben
+      # meldet täglich improvement_notify.yml (--critical). Verlauf: outputs/research/improvement_tasks.jsonl.
+      - name: Self-Improvement – technische Verbesserungsvorschläge per Mail
+        id: improvement_notify
+        continue-on-error: true
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python -m modules.research_director --notify
+
       # Audit F14 / P2-5: eingefrorener Daten-Snapshot für Reproduktionsläufe
       # (workflow repro.yml: ML_PANEL_SNAPSHOT=<dieses Artefakt>).
       - name: Panel-Snapshot sichern
@@ -230,5 +245,5 @@ jobs:
         if: always()
         env:
           CRITICAL: "factory_plan=${{ steps.factory_plan.outcome }} alpha_explore=${{ steps.alpha_explore.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }} alpha_factor_forward=${{ steps.alpha_factor_forward.outcome }} alpha_option_forward=${{ steps.alpha_option_forward.outcome }} alpha_reflection=${{ steps.alpha_reflection.outcome }}"
-          DEGRADED: "alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }} evidence_coverage=${{ steps.evidence_coverage.outcome }} evidence_reconcile=${{ steps.evidence_reconcile.outcome }} evidence_discovery=${{ steps.evidence_discovery.outcome }} option_learner=${{ steps.option_learner.outcome }} research_improvement=${{ steps.research_improvement.outcome }}"
+          DEGRADED: "alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }} evidence_coverage=${{ steps.evidence_coverage.outcome }} evidence_reconcile=${{ steps.evidence_reconcile.outcome }} evidence_discovery=${{ steps.evidence_discovery.outcome }} option_learner=${{ steps.option_learner.outcome }} research_improvement=${{ steps.research_improvement.outcome }} improvement_notify=${{ steps.improvement_notify.outcome }}"
         run: bash scripts/ci_stage_check.sh

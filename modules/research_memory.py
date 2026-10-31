@@ -11,6 +11,7 @@ aus den vorhandenen Speichern
   * outputs/research/factory_plan.json             (nur DATA_GAP-Ideen: fehlende Daten + freie Quellen)
   * outputs/research/option_learner/status_<h>d.json (Varianten-Experimente des Options-Lernmodells, prospektiv)
   * outputs/research/option_learner/improvement.json (Vorschläge, die eine menschliche Freigabe brauchen)
+  * outputs/research/improvement_tasks.json         (technische Verbesserungsaufgaben mit Status und Versand)
 nach outputs/research/research_memory.jsonl. Jeder Eintrag: Spezifikation, Daten, Tests,
 Resultat, Regime, Gründe – und ob die Evidenz PROSPEKTIV (Forward) ist.
 
@@ -44,6 +45,7 @@ SOURCES = {
     "option_status_20d": Path("outputs/research/option_learner/status_20d.json"),
     "option_status_5d": Path("outputs/research/option_learner/status_5d.json"),
     "option_improvement": Path("outputs/research/option_learner/improvement.json"),
+    "improvement_tasks": Path("outputs/research/improvement_tasks.json"),
 }
 # Varianten-Status des Options-Lernmodells -> Memory-Status (laufend = weder Erfolg noch Test)
 # Erfolg nur bei relativem UND wirtschaftlichem Vorteil (PROPOSE_/CONFIRMED_ADOPTION); "nur relativ besser" ist
@@ -178,6 +180,24 @@ def collect(sources: dict | None = None) -> list[dict]:
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))
     out += commodity_entries(src.get("commodity_evaluation"), src.get("factory_results"))
     out += option_entries(*(src.get(k) for k in ("option_status_20d", "option_status_5d", "option_improvement")))
+    out += task_entries(src.get("improvement_tasks"))
+    return out
+
+
+def task_entries(state: dict | None) -> list[dict]:
+    """Technische Verbesserungsaufgaben (research_director --notify): Befund, Priorität, Status und Versand.
+    Ein neuer Eintrag entsteht bei neuem Status oder wesentlich geändertem Befund (Fingerabdruck)."""
+    out = []
+    for tid, t in sorted(((state or {}).get("tasks") or {}).items()):
+        if not isinstance(t, dict) or not t.get("kind"):
+            continue
+        out.append(_entry("dev_task", tid, str(t.get("status") or "OPEN"),
+                          {"signal": t.get("subject"), "family": f"dev_task_{t.get('kind')}",
+                           "domain": t.get("category")},
+                          source="research_director", evidence={"fingerprint": t.get("fingerprint"),
+                                                                "priority": t.get("priority")},
+                          reasons=[t.get("finding")], title=t.get("short"),
+                          notifications=len(t.get("notifications") or []), data_kind="research_outputs"))
     return out
 
 

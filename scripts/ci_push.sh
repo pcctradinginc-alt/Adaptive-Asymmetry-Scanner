@@ -5,7 +5,8 @@
 # Mehrere Workflows (unterschiedliche concurrency-Gruppen) schreiben parallel auf main.
 #  - Append-only Ledger (*.jsonl): Union-Merge über .gitattributes – beide Seiten bleiben erhalten.
 #  - Abgeleitete, jederzeit neu berechenbare Zustandsdateien (outputs/state/*.json,
-#    outputs/health/*.json): bei Konflikt gilt die Version DIESES Laufs (wird ohnehin neu abgeleitet).
+#    outputs/health/*.json, outputs/research/improvement_tasks.json – abgeleitet aus dem append-only
+#    improvement_tasks.jsonl): bei Konflikt gilt die Version DIESES Laufs (wird ohnehin neu abgeleitet).
 #  - Jeder andere Konflikt: Abbruch, Lauf ROT (fail-closed, nie still eine Seite verwerfen).
 #  - Push-Ablehnung (main hat sich bewegt): bis zu 5 Versuche mit Backoff.
 set -uo pipefail
@@ -41,7 +42,7 @@ resolve_rebase() {
     conflicted=$(git diff --name-only --diff-filter=U)
     for f in $conflicted; do
       case "$f" in
-        outputs/state/*.json|outputs/health/*.json)
+        outputs/state/*.json|outputs/health/*.json|outputs/research/improvement_tasks.json)
           echo "Konflikt in abgeleiteter Datei $f -> Version dieses Laufs"
           git checkout --theirs -- "$f" && git add -- "$f" ;;
         *)

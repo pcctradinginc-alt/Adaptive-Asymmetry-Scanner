@@ -15,6 +15,16 @@ required/available data, expected information gain, novelty, overfit risk,
 research cost, priority. Priorität = EIG × Wert × Neuheit × Zuverlässigkeit
 ÷ (Beschaffungskosten × Forschungskosten).
 
+Self-Improvement Notifications (python -m modules.research_director --notify [--dry-run], wöchentlich danach):
+  * improvement_tasks(): technische Verbesserungsaufgaben NUR aus belegten Befunden (leere Merkmale, fehlende
+    Erfassung bewerteter Entscheidungen, einseitige Evidenz, belegte/widerrufene Varianten-Ergebnisse, nicht testbare
+    Varianten, nachgewiesene Modellschwächen ohne automatische Abhilfe, Freigabeprüfung, dauerhaft gestörte
+    Datenquellen, regelmäßig nachgestartete Workflows) – nie aus NEED_MORE_DATA, Wartezeit oder Heuristik.
+  * notify_tasks(): täglich (--critical) nur P0 sofort, samstags Digest mit höchstens 3 neuen/wesentlich geänderten
+    P1–P3-Aufgaben; Dedupe über Fingerabdruck; OPEN/RESOLVED/UNKNOWN (behoben nur mit aktuellem Nachweis);
+    append-only Verlauf outputs/research/improvement_tasks.jsonl; feste Vorlagen mit kopierfertiger
+    Claude-Code-Aufgabe, kein LLM, kein automatischer Code.
+
 Options-Lernmodell (python -m modules.research_director --options, wöchentlich nach option_learner evaluate):
   * option_gaps(): messbare Lücken aus status_<h>d.json – dünn befüllte Merkmale, nicht bewertbare gewählte
     Formen, einseitige Evidenz, Überanpassungsrisiko, fehlende Modellalternativen, fehlende Evidenz.
@@ -37,9 +47,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import logging
-from datetime import datetime, timezone
+import math
+import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import yaml
@@ -450,6 +463,1026 @@ def run_options(root: Path = OPTION_OUT, now: datetime | None = None) -> dict:
     return rep
 
 
+# ── Self-Improvement Notifications: technische Verbesserungsaufgaben per Mail ─────────────────────────────────────
+# Aus BELEGTEN Befunden der vorhandenen Research-Ausgaben werden technische Verbesserungsaufgaben abgeleitet,
+# append-only gespeichert und als kopierfertige Claude-Code-Aufgabe gemeldet. Deterministische Vorlagen: kein LLM,
+# keine Claude-API, keine Markt-API. Es wird nie Code geändert, nichts automatisch umgesetzt, nichts am Handel.
+# Keine Aufgabe (und keine Mail) aus: NEED_MORE_DATA / normaler Wartezeit, laufenden Prüfungen, Heuristiken ohne
+# Test (Überanpassungs-Faustregel, nur Punktschätzung) und Lücken, für die gerade automatische Varianten laufen.
+TASKS = OUT / "improvement_tasks.jsonl"          # append-only: detected/changed/reopened/resolved/notified/send_failed
+TASKS_STATE = OUT / "improvement_tasks.json"     # abgeleiteter Zustand je Aufgabe (Research Memory, meta_cognition)
+TASK_DECISIONS = Path("config/improvement_task_decisions.yaml")   # menschliche Entscheidungen je Task-ID
+TASK_INPUTS = {"option_root": OPTION_OUT, "source_history": Path("outputs/health/source_health_history.jsonl"),
+               "source_snapshot": Path("outputs/health/source_health_snapshot.json"),
+               "workflow_status": Path("outputs/state/workflow_status.json"),
+               "ledger": Path("outputs/candidate_ledger")}
+INPUT_LABEL = {"improvement": "option_learner/improvement.json", "source_snapshot": "source_health_snapshot.json",
+               "workflow_status": "workflow_status.json"}
+DIGEST_MAX = 3                                   # höchstens so viele neue/geänderte Aufgaben je Kalenderwoche
+CRITICAL_KINDS = ("withdrawn_success", "release_integrity")   # P0: täglicher Lauf (--critical), sonst Wochen-Digest
+FRESH_DAYS = {"option": 10, "seq": 10, "health": 2, "workflow": 2}   # ältere Daten sind nicht beurteilbar
+MODES = ("weekly", "critical")
+SUBJECT = "[Scanner] Technischer Verbesserungsvorschlag – {}"
+PRIORITY_TEXT = {"P0": "kritisch", "P1": "hoch", "P2": "mittel", "P3": "niedrig"}
+CATEGORY_TEXT = {"data": "Daten", "capture": "Datenerfassung", "model": "Modell", "testing": "Testbarkeit",
+                 "infrastructure": "Pipeline/Infrastruktur", "research_result": "Forschungsergebnis",
+                 "critical": "Kritischer Evidenzwiderspruch"}
+HUMAN_CLOSED = ("REJECTED", "DONE", "IN_PROGRESS")       # menschlich entschieden: keine weitere Mail
+SOURCE_BAD = ("BROKEN", "FAILED", "STALE")
+SOURCE_PERSIST_DAYS = 7
+RECOVERY_WINDOW_DAYS, RECOVERY_MIN_DAYS = 7, 5
+NO_COST = {"api_calls": 0, "llm_calls": 0, "paid_data": False, "compute": "vernachlässigbar"}
+BOUNDARIES = ("Keine Änderungen an Trading-Secrets, Orders, Positionsgrößen, Risikolimits, Champion oder "
+              "Produktionsregeln. Keine zusätzlichen kostenpflichtigen APIs oder Datenquellen. Kein automatischer "
+              "Merge – menschliche Freigabe bleibt zwingend.")
+
+
+def _num_or_none(v):
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) else None
+
+
+def _code_refs(token: str, limit: int = 6) -> list[str]:
+    """Fundstellen eines Feld- oder Workflow-Namens im Produktionscode (deterministische Textsuche, ohne Tests)."""
+    refs = []
+    for path in sorted([*Path("modules").rglob("*.py"), Path("pipeline.py"), Path("feedback.py")]):
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        refs += [f"{path.as_posix()}:{i}" for i, line in enumerate(lines, 1) if token in line][:2]
+        if len(refs) >= limit:
+            break
+    return refs[:limit]
+
+
+def _field_locations(rows: list[dict] | None, field: str) -> dict | None:
+    """Wo und in welchem Format ein Merkmal im Kandidaten-Ledger steht (Beleg, keine Annahme)."""
+    if not rows:
+        return None
+    n, numeric, other, top, keys = 0, 0, {}, 0, {}
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        n += 1
+        top += field in r
+        v = (r.get("features") or {}).get(field) if isinstance(r.get("features"), dict) else None
+        if v is None:
+            continue
+        if _num_or_none(v) is not None:
+            numeric += 1
+            continue
+        other[type(v).__name__] = other.get(type(v).__name__, 0) + 1
+        if isinstance(v, dict):
+            for k, x in v.items():
+                keys[k] = keys.get(k, 0) + (_num_or_none(x) is not None)
+    return {"rows": n, "in_features": numeric + sum(other.values()), "numeric": numeric,
+            "non_numeric_types": dict(sorted(other.items())),
+            "numeric_by_key": dict(sorted(keys.items(), key=lambda kv: (-kv[1], kv[0]))[:8]), "top_level": top}
+
+
+def _task(kind: str, subject: str, priority: str, category: str, short: str, **f) -> dict:
+    """Aufgabe mit stabiler ID (Erkennungsart + Gegenstand) und Fingerabdruck der wesentlichen Belege: nur eine
+    wesentliche Änderung (andere Größenordnung, Status, Priorität) ergibt eine neue Benachrichtigung."""
+    tid = "IMP-" + hashlib.sha256(f"{kind}|{subject}".encode()).hexdigest()[:8]
+    material = {"priority": priority, **(f.pop("material", None) or {})}
+    return {"task_id": tid, "kind": kind, "subject": subject, "priority": priority, "category": category,
+            "short": short[:80], "fingerprint": hashlib.sha256(json.dumps(material, sort_keys=True, default=str)
+                                                               .encode()).hexdigest()[:12],
+            "material": material, **f}
+
+
+def _bucket(cov: float) -> str:
+    return "leer" if cov == 0 else "<25%" if cov < 0.25 else "<50%" if cov < 0.5 else "<80%"
+
+
+def _tasks_empty_features(gaps: list[dict], status: dict, ledger: list[dict] | None, issues: list[str]) -> list[dict]:
+    """Leere oder kaum befüllte Merkmale (Lücke sparse_feature: < 50 % befüllt bei >= 50 geprüften Labels)."""
+    from modules import option_learner as ol
+    by_feature: dict = {}
+    for g in gaps:
+        if g.get("gap_id", "").split(":")[1:2] != ["sparse_feature"]:
+            continue
+        cov, h, feat = _num_or_none(g.get("value")), g.get("horizon"), g.get("feature")
+        if cov is None or not 0 <= cov <= 1 or not isinstance(h, int) or not feat:
+            issues.append(f"Lücke {g.get('gap_id')}: unvollständig – ignoriert")
+            continue
+        by_feature.setdefault(feat, {})[h] = cov
+    out = []
+    for feat, covs in sorted(by_feature.items()):
+        loc = _field_locations(ledger, feat)
+        labels = {h: (status.get(h) or {}).get("verified_labels") or "?" for h in covs}
+        lines = [f"{h} T: {feat} in {covs[h]:.0%} der {labels[h]} geprüften Options-Labels befüllt (Schwelle "
+                 f"{ol.MIN_FEATURE_COVERAGE:.0%}) – das Modell verwirft das Merkmal" for h in sorted(covs)]
+        cause = "Das Merkmal wird zum Entscheidungszeitpunkt nicht oder unter anderem Namen ins Ledger geschrieben."
+        if loc:
+            lines.append(f"Kandidaten-Ledger: {feat} in {loc['in_features']} von {loc['rows']} Zeilen unter "
+                         f"'features', davon {loc['numeric']} als Zahl; als eigenes Feld außerhalb von 'features': "
+                         f"{loc['top_level']}")
+            if loc["non_numeric_types"]:
+                lines.append(f"Format der übrigen Werte: {loc['non_numeric_types']}"
+                             + (f"; Zahlen je Schlüssel des Objekts: {loc['numeric_by_key']}"
+                                if loc["numeric_by_key"] else ""))
+                cause = (f"Das Ledger speichert {feat} als {', '.join(loc['non_numeric_types'])} statt als Zahl; "
+                         "option_learner.features() liest nur Zahlen (_num) und verwirft den Wert vollständig.")
+            elif loc["top_level"] and not loc["in_features"]:
+                cause = (f"{feat} steht als eigenes Ledger-Feld außerhalb von 'features'; option_learner.features() "
+                         "liest nur row['features'].")
+        refs, empty = _code_refs(feat), all(c == 0 for c in covs.values())
+        out.append(_task(
+            "empty_feature", feat, "P1" if empty else "P2", "data",
+            f"Merkmal {feat} im Options-Lernmodell {'leer' if empty else 'kaum befüllt'}",
+            scope={"feature": feat, "horizons": sorted(covs)},
+            finding=(f"Das Merkmal {feat} ist in den geprüften Options-Labels {'leer' if empty else 'kaum befüllt'}: "
+                     + ", ".join(f"{h} T {c:.0%} von {labels[h]} Labels" for h, c in sorted(covs.items())) + "."),
+            problem=("Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: "
+                     "Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen "
+                     "etwas anderes als beabsichtigt."),
+            severity_reason=("Merkmal vollständig leer" if empty else "Merkmal überwiegend leer")
+            + " – betrifft jede Prognose des Options-Lernmodells.",
+            evidence=lines, sources=["outputs/research/option_learner/improvement.json",
+                                     "outputs/research/option_learner/status_<h>d.json", "outputs/candidate_ledger/"],
+            files=["modules/option_learner.py (LEDGER_FEATURES, features)", *refs],
+            cause=cause,
+            verify=(f"In outputs/candidate_ledger/ Format und Speicherort von {feat} auszählen und mit "
+                    "option_learner.features() vergleichen."),
+            change=(f"Entweder einen numerischen Wert von {feat} dort ablegen bzw. auslesen, wo das Lernmodell ihn "
+                    "erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES "
+                    "streichen."),
+            benefit=("Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose "
+                     "verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen."),
+            risks=("Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und "
+                   "Varianten beginnen für diese Version neu."),
+            effort="klein (eine Lese- bzw. Erfassungsstelle, Tests)", costs=NO_COST,
+            acceptance=[(f"Abdeckung von {feat} in neuen geprüften Labels >= {ol.MIN_FEATURE_COVERAGE:.0%} binnen "
+                         "20 Handelstagen nach Umsetzung (oder Merkmal entfernt)"),
+                        "keine Änderung an Prognosen anderer Merkmale"],
+            tests=[(f"Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von "
+                    f"{feat} den erwarteten Zahlenwert"),
+                   "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"],
+            material={"coverage": {h: _bucket(c) for h, c in covs.items()},
+                      "format": sorted((loc or {}).get("non_numeric_types") or {}),
+                      "top_level": bool((loc or {}).get("top_level"))}))
+    return out
+
+
+def _tasks_capture(gaps: list[dict], issues: list[str]) -> list[dict]:
+    """Fehlende geprüfte Ergebnisse der gewählten Formen (Lücke outcome_coverage). Bewusst nicht aus den
+    Gesamtzählern der Label-Herkunft: dort steckt Altbestand vor dem Start des Quote-Archivs (nie prüfbar, kein
+    behebbarer Defekt) – maßgeblich sind die tatsächlich bewerteten Entscheidungen."""
+    from modules import option_learner as ol
+    out = []
+    for g in gaps:
+        if g.get("gap_id", "").split(":")[1:2] != ["outcome_coverage"]:
+            continue
+        cov, reasons = _num_or_none(g.get("value")), g.get("reasons")
+        if cov is None or not isinstance(reasons, dict):
+            issues.append(f"Lücke {g.get('gap_id')}: unvollständig – ignoriert")
+            continue
+        name = g["gap_id"].split(":")[2]
+        top = max(reasons, key=reasons.get) if reasons else "unbekannt"
+        out.append(_task(
+            "outcome_capture", f"{name}:{g.get('horizon')}", "P1", "capture",
+            f"Ergebnisse gewählter Optionsformen fehlen ({cov:.0%} geprüft, {g.get('horizon')} T)",
+            scope={"name": name, "horizon": g.get("horizon")},
+            finding=f"{name} ({g.get('horizon')} T): nur {cov:.0%} der gewählten Formen haben ein geprüftes "
+                    f"Netto-Ergebnis; Ausfälle: {reasons}.",
+            problem=("Fehlende Entry-/Exit-Quotes machen Entscheidungen unbewertbar. Fehlen sie nicht zufällig "
+                     "(z. B. bei illiquiden Kontrakten), ist jede Auswertung verzerrt; unter "
+                     f"{ol.MIN_COVERAGE:.0%} gibt es deshalb kein Urteil."),
+            severity_reason="blockiert die Bewertung des Modells (INSUFFICIENT_COVERAGE).",
+            evidence=[g.get("finding", ""), f"häufigster Grund: {top} ({reasons.get(top)})"],
+            sources=["outputs/research/option_learner/status_<h>d.json"],
+            files=["modules/research_evidence_discovery.py (provenance)", *_code_refs(top)],
+            cause=f"Die Quote-Erfassung erreicht die gewählten Kontrakte nicht rechtzeitig (häufigster Grund {top}).",
+            verify=f"Für die betroffenen Kandidaten prüfen, warum {top} gesetzt wird (Archiv-Zeitpunkte, Kontrakte).",
+            change="Erfassungslücke im bestehenden Quote-Archiv-Workflow schließen; keine neue Datenquelle.",
+            benefit="Bewertbare Entscheidungen statt INSUFFICIENT_COVERAGE; kein Renditeversprechen.",
+            risks="Mehr Quote-Abrufe im bestehenden Workflow (Rate-Limits beachten).",
+            effort="mittel", costs={**NO_COST, "api_calls": "zusätzliche Abrufe im bestehenden, kostenlosen Archiv"},
+            acceptance=[f"Abdeckung >= {ol.MIN_COVERAGE:.0%} in den nächsten 20 fälligen Handelstagen"],
+            tests=[f"Regressionstest für den Fall {top} (Kontrakt wird archiviert bzw. Grund korrekt gesetzt)"],
+            material={"coverage": _bucket(cov), "top_reason": top}))
+    return out
+
+
+def _tasks_sample_bias(gaps: list[dict]) -> list[dict]:
+    """Einseitige Evidenz (Stichprobe überwiegend Forschung bzw. bullisch) – nicht die reine Zeitraum-Warnung,
+    die nur mit Warten verschwindet."""
+    out = []
+    for g in gaps:
+        if g.get("kind") != "representativeness" or "überwiegend" not in str(g.get("finding")):
+            continue
+        text = str(g["finding"]).split("Walk-Forward-Evidenz: ", 1)[-1]
+        out.append(_task(
+            "sample_bias", text.split(":")[0], "P3", "data", f"Evidenz einseitig: {text.split(':')[0]}",
+            scope={"warning": text.split(":")[0], "horizon": g.get("horizon")},
+            finding=f"{g.get('horizon')} T: {text}", problem="Die Evidenz deckt nur einen Teil der Marktsituationen "
+            "ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
+            severity_reason="schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+            evidence=[g["finding"]], sources=["outputs/research/option_learner/improvement.json"],
+            files=["modules/candidate_ledger.py (Stichprobenregel)", "modules/option_learner.py (_representativeness)"],
+            cause="Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
+            verify="Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
+            change="Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
+            benefit="breitere, übertragbare Evidenz; kein Renditeversprechen.",
+            risks="mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)", effort="mittel",
+            costs={**NO_COST, "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)"},
+            acceptance=["keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"],
+            tests=["Test der erweiterten Stichprobenregel"], material={"warning": text.split(":")[0]}))
+    return out
+
+
+def _variants_of(status: dict) -> list[dict]:
+    return [{**v, "horizon": h} for h, st in sorted(status.items())
+            for v in (((st or {}).get("variants") or {}).get("variants") or {}).values() if isinstance(v, dict)]
+
+
+def _tasks_variants(status: dict, gaps: list[dict]) -> list[dict]:
+    """Forschungsergebnisse der Varianten: belegte Übernahme, Widerruf (kritisch), nicht testbare Varianten,
+    erschöpftes Fehlerbudget und nachgewiesene Modellschwächen, deren automatische Abhilfen ausgeschöpft sind."""
+    out, variants = [], _variants_of(status)
+    for v in variants:
+        vid, ov = v.get("variant_id"), v.get("overrides") or {}
+        if not vid or not isinstance(ov, dict) or len(ov) != 1:
+            continue
+        (m, val), = ov.items()
+        ev, prop = v.get("current_evidence") or {}, v.get("change_proposal") or {}
+        lr = (v.get("vs_base") or {}).get("learning_minus_reference") or {}
+        nt = (v.get("vs_base") or {}).get("learning_minus_no_trade") or {}
+        facts = [(f"Variante {vid} ({m}={val}, {v.get('horizon')} T, Status {v.get('status')}, Prüfung "
+                  f"{v.get('look')}/{v.get('looks')}, Bericht {(v.get('look_report') or {}).get('report_id')})"),
+                 f"relativ zur Basis: {v.get('relative_verdict')}, Δ {lr.get('mean')}/Tag, KI {lr.get('ci95')}",
+                 f"netto gegenüber Nicht-Handeln: {v.get('economic_verdict')}, KI {nt.get('ci95')}",
+                 f"Abdeckung {(v.get('comparison') or {}).get('coverage')}"]
+        if ev.get("contradicts_decision") or prop.get("state") in ("WITHDRAWN", "REVIEW_REQUIRED"):
+            out.append(_task(
+                "withdrawn_success", vid, "P0", "critical", f"WARNUNG: belegte Verbesserung {m}={val} widerrufen",
+                scope={"variant_id": vid, "horizon": v.get("horizon")},
+                finding=(f"Für die Variante {m}={val} lag ein Übernahmevorschlag vor; nach korrigierten oder neuen "
+                         f"Daten ist der Vorteil nicht mehr belegt (Vorschlag {prop.get('state')}, aktuelle Evidenz "
+                         f"{ev.get('status')}, relativ {ev.get('relative_verdict')}, netto "
+                         f"{ev.get('economic_verdict')})."),
+                problem="Eine bereits gemeldete oder umgesetzte Verbesserung stützt sich auf nicht mehr gültige "
+                        "Evidenz. Wurde sie übernommen, läuft das Modell mit einer unbelegten Änderung.",
+                severity_reason="kritischer Evidenzwiderspruch – sofortige Prüfung.",
+                evidence=facts + [f"Änderungsvorschlag: outputs/research/option_learner/change_proposals/{vid}.md"],
+                sources=["outputs/research/option_learner/status_<h>d.json",
+                         f"outputs/research/option_learner/change_proposals/{vid}.json",
+                         "outputs/research/option_learner/look_reports/"],
+                files=["modules/option_learner.py (Parameter der Variante)", f"change_proposals/{vid}.md"],
+                cause="Nachgelieferte oder korrigierte Labels bzw. Quotes haben den Prüfbericht verändert.",
+                verify="Eingefrorene Prüfberichte (alte und neue Fassung) vergleichen; prüfen, ob die Änderung "
+                       "bereits in main übernommen wurde.",
+                change="Falls übernommen: Rücknahme per eigenem PR vorbereiten; sonst den Vorschlag verwerfen.",
+                benefit="verhindert, dass eine unbelegte Änderung im Modell bleibt.",
+                risks="Rücknahme ergibt eine neue Experimentversion.", effort="klein", costs=NO_COST,
+                acceptance=["Entscheidung dokumentiert (Rücknahme-PR oder verworfener Vorschlag)"],
+                tests=["Regressionstest, dass die Basisparameter dem dokumentierten Stand entsprechen"],
+                material={"state": prop.get("state"), "evidence": ev.get("status")}))
+        elif v.get("status") in ("PROPOSE_ADOPTION", "CONFIRMED_ADOPTION") and prop.get("state") == "VALID":
+            out.append(_task(
+                "adoption", vid, "P1", "research_result", f"Belegte Verbesserung {m}={val} zur Übernahme prüfen",
+                scope={"variant_id": vid, "horizon": v.get("horizon")},
+                finding=(f"Die Variante {m}={val} ist an einem vorab festgelegten Prüfzeitpunkt relativ besser als "
+                         "die Basis UND netto besser als Nicht-Handeln (Status " + str(v.get("status")) + ")."),
+                problem="Ohne Umsetzung bleibt ein belegter Vorteil ungenutzt; umgesetzt wird nur per menschlichem PR.",
+                severity_reason="statistisch belegtes Forschungsergebnis (korrigiertes Teil-Alpha).",
+                evidence=facts, sources=[f"outputs/research/option_learner/change_proposals/{vid}.md",
+                                         "outputs/research/option_learner/look_reports/"],
+                files=["modules/option_learner.py (Parameter der Basis)", f"change_proposals/{vid}.md"],
+                cause="kein Defekt – Forschungsergebnis legt eine Parameteränderung nahe.",
+                verify="Prüfbericht und aktuellen Evidenzstatus (current_status VALID) im Änderungsvorschlag prüfen.",
+                change=f"{m} der Basis auf {val} setzen (eine Änderung, neue Experimentversion).",
+                benefit=f"gemessen: Δ {lr.get('mean')} je Tag gegenüber der Basis (KI {lr.get('ci95')}); keine "
+                        "Zusage für die Zukunft.",
+                risks="neue Experimentversion: Forward-Evidenz und Freigabe beginnen neu.", effort="klein",
+                costs=NO_COST, acceptance=["Basis nutzt den neuen Wert; neue Experimentversion dokumentiert"],
+                tests=["experiment_id-Test an die neue Version anpassen", "Regressionstest des Parameters"],
+                material={"status": v.get("status"), "look": v.get("look")}))
+        elif v.get("look") and v.get("relative_verdict") == "INSUFFICIENT_COVERAGE":
+            excl = (v.get("comparison") or {}).get("excluded") or {}
+            top = max(excl, key=excl.get) if excl else "unbekannt"
+            out.append(_task(
+                "variant_untestable", vid, "P2", "testing", f"Variante {m}={val} mangels Daten nicht testbar",
+                scope={"variant_id": vid, "horizon": v.get("horizon")},
+                finding=f"An Prüfung {v.get('look')} der Variante {m}={val} fehlen zu viele Ergebnisse "
+                        f"(Abdeckung {(v.get('comparison') or {}).get('coverage')}, Ausfälle {excl}).",
+                problem="Der vorab festgelegte Test kann kein Urteil fällen; das Fehlerbudget wird verbraucht, ohne "
+                        "dass etwas gelernt wird.",
+                severity_reason="Prüfung ohne Urteil (INSUFFICIENT_COVERAGE).", evidence=facts,
+                sources=["outputs/research/option_learner/status_<h>d.json"],
+                files=["modules/option_learner.py (_run_variant, evaluate_variants)", *_code_refs(top)],
+                cause=f"Häufigster Ausfallgrund {top}: Entscheidungen oder Ergebnisse fehlen.",
+                verify=f"Für die betroffenen Kandidaten nachvollziehen, warum {top} auftritt.",
+                change="Erfassung der fehlenden Entscheidungen bzw. Ergebnisse beheben.",
+                benefit="Varianten werden wieder entscheidbar; kein Renditeversprechen.", risks="gering",
+                effort="mittel", costs=NO_COST, acceptance=["Abdeckung der nächsten Prüfung >= 80 %"],
+                tests=[f"Regressionstest für den Ausfallgrund {top}"], material={"top_reason": top}))
+    budgets = [((st or {}).get("variants") or {}).get("test_budget") for st in status.values()]
+    if any(isinstance(b, dict) and b.get("exhausted") for b in budgets):
+        b = next(b for b in budgets if isinstance(b, dict) and b.get("exhausted"))
+        out.append(_task(
+            "budget_exhausted", "test_budget", "P3", "testing", "Fehlerbudget der Varianten-Tests erschöpft",
+            scope={},
+            finding=f"Alle {b.get('max_tests')} Test-Slots des dauerhaften Fehlerbudgets (total_alpha "
+                    f"{b.get('total_alpha')}) sind verbraucht; neue Varianten werden nicht mehr registriert.",
+            problem="Weitere Modellverbesserungen können nicht mehr statistisch korrekt getestet werden.",
+            severity_reason="stoppt die automatische Forschung, nicht den Betrieb.",
+            evidence=[f"test_budget: {b}"], sources=["outputs/research/option_learner/variants.jsonl"],
+            files=["config/option_learner_variants.yaml (test_budget)", "modules/option_learner.py (test_budget)"],
+            cause="kein Defekt – das vorab festgelegte Budget ist planmäßig aufgebraucht.",
+            verify="Prüfen, welche Varianten welche Slots verbraucht haben (variants.jsonl).",
+            change="Menschliche Entscheidung: bewusster, dokumentierter Neustart des Registers mit neuem Budget "
+                   "oder Ende der Variantenforschung.", benefit="klare Grundlage für weitere Tests.",
+            risks="ein Neustart darf frühere Ergebnisse nicht umdeuten", effort="klein", costs=NO_COST,
+            acceptance=["Entscheidung dokumentiert"], tests=["Test, dass der Neustart das alte Register erhält"],
+            material={"used": b.get("used")}))
+    proven = {g["gap_id"]: g for g in gaps if g.get("gap_id", "").split(":")[1:2] in (["no_skill"],
+                                                                                      ["choice_worse_than_default"])}
+    budget_left = not any(isinstance(b, dict) and b.get("exhausted") for b in budgets)
+    for gid, g in sorted(proven.items()):
+        related = [v for v in variants if gid in (v.get("gap_ids") or [])]
+        if any(not v.get("closed_at") and v.get("status") not in (
+                "FALSIFIED_WORSE", "FALSIFIED_NO_EFFECT", "BETTER_THAN_BASE_NOT_PROFITABLE") for v in related):
+            continue                                  # automatische Abhilfe läuft noch: normales Warten
+        if budget_left and not related:
+            continue                                  # Varianten werden erst registriert: normales Warten
+        out.append(_task(
+            "proven_weakness", gid, "P2", "model", f"Nachgewiesene Modellschwäche ({g['gap_id'].split(':')[1]}, "
+            f"{g.get('horizon')} T) ohne automatische Abhilfe",
+            scope={"gap_id": gid, "horizon": g.get("horizon")},
+            finding=f"{g.get('finding')}; automatisch getestete Varianten: "
+                    + (", ".join(f"{v.get('variant_id')} {v.get('status')}" for v in related) or "keine möglich"),
+            problem="Die freigegebenen automatischen Varianten haben die Schwäche nicht behoben; ohne technische "
+                    "Änderung bleibt sie bestehen.",
+            severity_reason="durch einen abgeschlossenen Test belegt (nicht nur vermutet).",
+            evidence=[g.get("finding", "")] + [f"{v.get('variant_id')}: {v.get('status')}" for v in related],
+            sources=["outputs/research/option_learner/improvement.json",
+                     "outputs/research/option_learner/status_<h>d.json"],
+            files=["modules/option_learner.py (decide, fit)", "config/option_learner_variants.yaml (approved_methods)"],
+            cause="Die zulässigen Variantenmethoden decken die Ursache nicht ab.",
+            verify="Fehleranalyse der gewählten Formen gegen die Standardform bzw. der Prognosen nach Merkmalsgruppe.",
+            change="Eine neue, begründete Variantenmethode in config/option_learner_variants.yaml vorschlagen "
+                   "(menschlicher PR) – kein direkter Eingriff in die Basis.",
+            benefit="ermöglicht einen sauberen, vorab festgelegten Test einer neuen Abhilfe; kein Renditeversprechen.",
+            risks="jede neue Variante verbraucht einen Slot des Fehlerbudgets", effort="mittel", costs=NO_COST,
+            acceptance=["neue Methode in der Allowlist mit Begründung und Falsifikation"],
+            tests=["Test, dass validate_overrides die neue Methode akzeptiert und Unbekanntes ablehnt"],
+            material={"related": sorted(f"{v.get('variant_id')}:{v.get('status')}" for v in related)}))
+    return out
+
+
+def _tasks_release(seqs: dict) -> list[dict]:
+    """Sequenzielle Forward-Prüfung der Basis ({Horizont: forward_sequential}, täglich aus dem Scanner bzw.
+    wöchentlich aus dem Status): beschädigter Prüfplan/Fehler kritisch; fehlende Entscheidungen; letzte Prüfung
+    ohne Bestätigung."""
+    out = []
+    for h, seq in sorted(seqs.items()):
+        if not isinstance(seq, dict) or not seq.get("status"):
+            continue
+        s, b = seq["status"], seq.get("binding") or {}
+        common = {"sources": [f"outputs/research/option_learner/status_{h}d.json",
+                              "outputs/research/option_learner/forward_plans/",
+                              "outputs/research/option_learner/forward_looks/"], "costs": NO_COST}
+        if s in ("PLAN_INVALID", "ERROR"):
+            out.append(_task(
+                "release_integrity", f"{h}:{s}", "P0", "critical", f"WARNUNG: Freigabeprüfung {h} T defekt ({s})",
+                scope={"horizon": h},
+                finding=f"Die sequenzielle Forward-Prüfung ({h} T) meldet {s}"
+                        + (f": {seq.get('error')}" if seq.get("error") else "") + ".",
+                problem="Die Freigabe ist dadurch dauerhaft gesperrt; bei PLAN_INVALID wurde ein vorab festgelegter "
+                        "Prüfplan verändert oder beschädigt.", severity_reason="Integrität der Freigabe betroffen.",
+                evidence=["forward_sequential: " + json.dumps({k: seq.get(k) for k in ("status", "plan_id", "error")},
+                                                              default=str)],
+                files=["modules/option_learner.py (forward_plan, forward_sequential)"],
+                cause="Prüfplan-Datei verändert/beschädigt oder Laufzeitfehler in der Prüfung.",
+                verify="git-Historie der Plandatei und das Scanner-Log prüfen.",
+                change="Ursache beheben; einen Plan nie still ersetzen – Neustart nur dokumentiert per PR.",
+                benefit="funktionierende, nachvollziehbare Freigabe.", risks="gering", effort="klein",
+                acceptance=["Status wieder AWAITING_LOOK/RUNNING/CONFIRMED"],
+                tests=["Regressionstest für die Fehlerursache"], material={"status": s}, **common))
+        elif b.get("verdict") == "INSUFFICIENT_COVERAGE" and _num_or_none(b.get("decision_coverage")) is not None \
+                and b["decision_coverage"] < 0.8:
+            out.append(_task(
+                "decision_capture", f"{h}", "P1", "capture",
+                f"Tagesentscheidungen des Hauptmodells fehlen ({b['decision_coverage']:.0%}, {h} T)",
+                scope={"horizon": h},
+                finding=f"An Prüfung {b.get('look')} ({h} T) haben nur {b['decision_coverage']:.0%} der Ledger-"
+                        f"Kandidaten eine am Signaltag festgehaltene Entscheidung; Ausfälle {b.get('excluded')}.",
+                problem="Ohne vollständige Tagesentscheidungen kann die Freigabe nie bestätigt werden.",
+                severity_reason="blockiert die statistische Freigabe.", evidence=[f"Prüfung: {b}"],
+                files=["modules/option_learner.py (recommend)", ".github/workflows/scanner.yml"],
+                cause="Kandidaten kommen nach dem Scanner-Lauf ins Ledger oder der Lauf fällt aus.",
+                verify="Ledger-Zeitstempel der fehlenden Kandidaten mit den Journal-Zeitpunkten vergleichen.",
+                change="Entscheidung für jeden Ledger-Kandidaten am Signaltag sicherstellen.",
+                benefit="die vorab festgelegte Prüfung wird entscheidbar.", risks="gering", effort="mittel",
+                acceptance=["Entscheidungsabdeckung >= 80 % an der nächsten Prüfung"],
+                tests=["Regressionstest: jeder Kandidat des Tages erhält eine Entscheidung"],
+                material={"coverage": _bucket(b["decision_coverage"])}, **common))
+        elif s in ("NOT_CONFIRMED", "REJECTED_NEGATIVE"):
+            out.append(_task(
+                "base_not_confirmed", f"{h}:{seq.get('plan_id')}", "P2", "research_result",
+                f"Hauptmodell {h} T im Forward-Test {'negativ' if s == 'REJECTED_NEGATIVE' else 'nicht bestätigt'}",
+                scope={"horizon": h, "plan_id": seq.get("plan_id")},
+                finding=f"Die vorab festgelegte Forward-Prüfung ({h} T, Plan {seq.get('plan_id')}) endet mit {s} "
+                        f"(Prüfung {b.get('look')}: KI {b.get('selected_ci95')} zum Niveau {b.get('ci_level')}).",
+                problem="Für diese Experimentversion bleibt die Freigabe dauerhaft gesperrt; nur eine neue, "
+                        "begründete Version kann erneut geprüft werden.",
+                severity_reason="abgeschlossener, statistisch korrekter Test.", evidence=[f"Prüfung: {b}"],
+                files=["modules/option_learner.py (experiment)", "config/option_learner_variants.yaml"],
+                cause="Die Merkmale oder die Auswahlregel tragen prospektiv keinen nachweisbaren Netto-Vorteil.",
+                verify="Leistungszeugnis, Varianten-Ergebnisse und Lücken auswerten.",
+                change=("Eine begründete neue Experimentversion vorschlagen (menschlicher PR) oder das Modell ruhen "
+                        "lassen."),
+                benefit="ehrliche Grundlage statt dauerhaft gesperrter Version.", risks="neue Version startet neu",
+                effort="mittel", acceptance=["Entscheidung dokumentiert"],
+                tests=["experiment_id-Test der neuen Version"],
+                material={"status": s}, **common))
+    return out
+
+
+def _tasks_infrastructure(history: list[dict], snapshot: dict, wf_status: dict, now: datetime) -> list[dict]:
+    """Dauerhaft ausgefallene wichtige Datenquellen und Workflows, die regelmäßig nachgestartet werden müssen."""
+    out, sources = [], (snapshot or {}).get("sources") or {}
+    by_source: dict = {}
+    for e in history or []:
+        if isinstance(e, dict) and e.get("source_id") and e.get("checked_at") and e.get("status"):
+            by_source.setdefault(e["source_id"], []).append(e)
+    for sid, meta in sorted(sources.items()):
+        if not isinstance(meta, dict) or meta.get("status") not in SOURCE_BAD \
+                or meta.get("criticality") not in ("CRITICAL", "IMPORTANT"):
+            continue
+        events = sorted(by_source.get(sid, []), key=lambda e: e["checked_at"])
+        streak = []
+        for e in events:
+            streak = [*streak, e] if e["status"] in SOURCE_BAD else []
+        if not streak:
+            continue
+        try:
+            since = datetime.fromisoformat(streak[0]["checked_at"])
+        except ValueError:
+            continue
+        days = (now - since).days
+        if days < SOURCE_PERSIST_DAYS:
+            continue                                   # kurzfristige Störung: meldet bereits das Ops-Monitoring
+        last = streak[-1]
+        out.append(_task(
+            "source_failure", sid, "P1" if meta["criticality"] == "CRITICAL" else "P2", "infrastructure",
+            f"Datenquelle {sid} seit {days} Tagen {meta['status']}",
+            scope={"source_id": sid},
+            finding=f"Die {meta['criticality']}-Quelle {sid} ist seit {streak[0]['checked_at'][:10]} ({days} Tage, "
+                    f"{len(streak)} Prüfungen) durchgehend {', '.join(sorted({e['status'] for e in streak}))}.",
+            problem="Merkmale aus dieser Quelle fehlen oder veralten; nachgelagerte Modelle arbeiten mit Fallbacks.",
+            severity_reason=f"{meta['criticality']}-Quelle, länger als {SOURCE_PERSIST_DAYS} Tage gestört.",
+            evidence=[(f"letzter Erfolg {meta.get('last_success')}, letzte Beobachtung "
+                       f"{meta.get('latest_observation')}, Datenalter {meta.get('data_age_days')} Tage, erwartet "
+                       f"{meta.get('expected_freshness')}"),
+                      f"letzte Prüfung {last.get('checked_at')}: {last.get('status')}, Fehler {last.get('error')}"],
+            sources=["outputs/health/source_health_snapshot.json", "outputs/health/source_health_history.jsonl"],
+            files=_code_refs(sid) or ["modules/external/"], cause="Format- oder Endpunktänderung der Quelle bzw. "
+            "ausbleibende Veröffentlichung.",
+            verify="Ingest der Quelle lokal ausführen und Fehlermeldung bzw. Datenstand prüfen.",
+            change="Ingest an die Quelle anpassen oder die Quelle bewusst deaktivieren (status_override).",
+            benefit="aktuelle Merkmale statt Fallback; kein Renditeversprechen.", risks="gering", effort="mittel",
+            costs=NO_COST, acceptance=["Quelle wieder HEALTHY oder bewusst deaktiviert"],
+            tests=["Regressionstest des Parsers mit dem aktuellen Antwortformat"],
+            material={"status": meta["status"], "weeks": days // 7}))
+    recov = (wf_status or {}).get("recoveries") or {}
+    if isinstance(recov, dict):
+        window = {(now.date() - timedelta(days=i)).isoformat() for i in range(RECOVERY_WINDOW_DAYS)}
+        counts: dict = {}
+        for day, wfs in recov.items():
+            if day in window and isinstance(wfs, dict):
+                for wf in wfs:
+                    counts.setdefault(wf, []).append(day)
+        latest = ((wf_status or {}).get("days") or {})
+        for wf, days in sorted(counts.items()):
+            if len(days) < RECOVERY_MIN_DAYS:
+                continue
+            all_days = sorted(d for d, w in recov.items() if isinstance(w, dict) and wf in w)
+            info = (latest.get(max(days)) or {}).get(wf) or {}         # letzter Tag mit Nachstart
+            out.append(_task(
+                "workflow_recovery", wf, "P2", "infrastructure",
+                f"Workflow {wf} muss regelmäßig nachgestartet werden",
+                scope={"workflow": wf},
+                finding=f"Der Workflow {wf} wurde an {len(days)} der letzten {RECOVERY_WINDOW_DAYS} Tage vom Watchdog "
+                        f"nachgestartet (insgesamt {len(all_days)} Tage seit {all_days[0]}).",
+                problem="Der geplante Lauf startet nicht zuverlässig; nachgelagerte Schritte warten oder nutzen ältere "
+                        "Daten, der Watchdog verbraucht täglich zusätzliche Läufe.",
+                severity_reason="dauerhaftes Muster, kein Einzelfall.",
+                evidence=[f"Nachstarts: {sorted(days)}",
+                          (f"{max(days)}: Datei {info.get('file')}, erwartet {info.get('expected')}, Frist "
+                           f"{info.get('deadline')}, letzter Lauf {info.get('actual_last_run')}, Zustand "
+                           f"{info.get('state')}, Aktion {info.get('action')}, Grund {info.get('reason')}")],
+                sources=["outputs/state/workflow_status.json"],
+                files=[f".github/workflows/{info.get('file') or wf + '.yml'}", "scripts/workflow_watchdog.py",
+                       "modules/workflow_health.py"],
+                cause="Der Cron-Zeitpunkt kollidiert mit GitHub-Verzögerungen oder einer Abhängigkeit.",
+                verify="Startzeiten der geplanten Läufe der letzten zwei Wochen mit expected/deadline vergleichen.",
+                change="Zeitplan oder Abhängigkeit des Workflows anpassen, sodass er ohne Nachstart läuft.",
+                benefit="weniger Läufe, pünktliche Daten.", risks="gering", effort="klein", costs=NO_COST,
+                acceptance=["keine Nachstarts an 7 aufeinanderfolgenden Tagen"],
+                tests=["Test der Watchdog-Erwartung für den neuen Zeitplan"],
+                material={"chronic": True}))
+    return out
+
+
+def _ts(value) -> datetime | None:
+    """Zeitstempel oder Datum (ISO) -> datetime in UTC; ungültig -> None."""
+    try:
+        d = datetime.fromisoformat(str(value)) if value else None
+    except ValueError:
+        return None
+    return None if d is None else d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+
+
+def _fresh(stamp, days: int, now: datetime, problem: str | None = None) -> tuple[str, str]:
+    """("ok", "") oder ("unknown", Grund): fehlt, beschädigt, ohne Zeitstempel, veraltet, aus der Zukunft."""
+    if problem:
+        return "unknown", problem
+    d = _ts(stamp)
+    if d is None:
+        return "unknown", "ohne gültigen Zeitstempel"
+    age = (now - d).total_seconds() / 86400
+    if age < -1:
+        return "unknown", f"Zeitstempel {str(stamp)[:10]} liegt in der Zukunft"
+    if age > days:
+        return "unknown", f"veraltet (Stand {str(stamp)[:10]}, älter als {days} Tage)"
+    return "ok", ""
+
+
+def input_quality(inputs: dict, now: datetime) -> dict[str, tuple[str, str]]:
+    """Beurteilbarkeit jeder Quelle: nur "ok" (vorhanden, gültig, aktuell) darf Aufgaben erzeugen oder als behoben
+    bestätigen; alles andere ergibt UNKNOWN statt eines Statuswechsels."""
+    problems = inputs.get("problems") or {}
+    imp = inputs.get("improvement")
+    q = {"improvement": _fresh(imp.get("generated") if isinstance(imp, dict) else None, FRESH_DAYS["option"], now,
+                               problems.get("improvement") or (None if isinstance(imp, dict) and imp else "fehlt"))}
+    status = inputs.get("status") or {}
+    for h in sorted({*OPTION_HORIZONS, *(k for k in status if str(k).isdigit())}, key=int):
+        st = status.get(h) if isinstance(status, dict) else None
+        q[f"status:{int(h)}"] = _fresh(st.get("as_of") if isinstance(st, dict) else None, FRESH_DAYS["option"], now,
+                                       problems.get(f"status:{h}") or (None if isinstance(st, dict) and st
+                                                                       else "fehlt"))
+        seq, seq_as_of = _seq_of(inputs, int(h))
+        q[f"seq:{int(h)}"] = _fresh(seq_as_of, FRESH_DAYS["seq"], now, None if seq else "fehlt")
+    snap = inputs.get("source_snapshot")
+    q["source_snapshot"] = _fresh(snap.get("generated") if isinstance(snap, dict) else None, FRESH_DAYS["health"], now,
+                                  problems.get("source_snapshot") or (None if isinstance(snap, dict) and snap
+                                                                      else "fehlt"))
+    wf = inputs.get("workflow_status")
+    days = [d for d in ((wf or {}).get("days") or {}) if _ts(d)] if isinstance(wf, dict) else []
+    q["workflow_status"] = _fresh(max(days) if days else None, FRESH_DAYS["workflow"], now,
+                                  problems.get("workflow_status") or (None if days else "fehlt"))
+    return q
+
+
+def _seq_of(inputs: dict, h: int) -> tuple[dict | None, str | None]:
+    """forward_sequential eines Horizonts: der neuere Stand aus der täglichen Empfehlung oder dem Wochenstatus."""
+    st = (inputs.get("status") or {}).get(h) if isinstance(inputs.get("status"), dict) else None
+    cand = [(str(st.get("as_of")), st.get("forward_sequential"))] if isinstance(st, dict) else []
+    daily = (inputs.get("daily_seq") or {}).get(h)
+    if isinstance(daily, dict):
+        cand.append((str(daily.get("as_of")), daily.get("forward_sequential")))
+    cand = [(a, sq) for a, sq in cand if isinstance(sq, dict) and sq.get("status") and _ts(a)]
+    return (max(cand, key=lambda c: c[0])[1], max(cand, key=lambda c: c[0])[0]) if cand else (None, None)
+
+
+def improvement_tasks(inputs: dict, now: datetime | None = None) -> tuple[list[dict], list[str]]:
+    """Alle belegten technischen Verbesserungsaufgaben aus den vorhandenen Research-Ausgaben -> (Aufgaben,
+    ignorierte Eingaben). Ausgewertet wird nur, was vorhanden, gültig und aktuell ist (input_quality); fehlende,
+    beschädigte oder veraltete Quellen erzeugen keine Aufgabe."""
+    now = now or datetime.now(timezone.utc)
+    issues: list[str] = []
+    q = input_quality(inputs, now)
+    for key, (state, why) in sorted(q.items()):
+        if state != "ok" and why != "fehlt":
+            issues.append(f"{INPUT_LABEL.get(key, key)}: {why} – nicht ausgewertet (ignoriert)")
+    imp = inputs.get("improvement") if q["improvement"][0] == "ok" else {}
+    gaps = [g for g in (imp or {}).get("gaps") or [] if isinstance(g, dict) and isinstance(g.get("gap_id"), str)]
+    if len(gaps) != len((imp or {}).get("gaps") or []):
+        issues.append("improvement.json: Lücken ohne gültige gap_id ignoriert")
+    raw = inputs.get("status") if isinstance(inputs.get("status"), dict) else {}
+    status = {int(h): st for h, st in raw.items() if str(h).isdigit() and isinstance(st, dict) and st
+              and q.get(f"status:{int(h)}", ("unknown",))[0] == "ok"}
+    gaps = [g for g in gaps if not isinstance(g.get("horizon"), int) or g["horizon"] in status]
+    seqs = {h: _seq_of(inputs, h)[0] for h in {*OPTION_HORIZONS, *status} if q.get(f"seq:{h}", ("",))[0] == "ok"}
+    tasks = (_tasks_empty_features(gaps, status, inputs.get("ledger"), issues) + _tasks_capture(gaps, issues)
+             + _tasks_sample_bias(gaps) + _tasks_variants(status, gaps) + _tasks_release(seqs)
+             + _tasks_infrastructure(inputs.get("source_history") if q["source_snapshot"][0] == "ok" else [],
+                                     inputs.get("source_snapshot") if q["source_snapshot"][0] == "ok" else {},
+                                     inputs.get("workflow_status") if q["workflow_status"][0] == "ok" else {}, now))
+    as_of = max([str(st.get("as_of")) for st in status.values() if st.get("as_of")]
+                + [str((imp or {}).get("generated", ""))[:10]])
+    unique = {}
+    for t in tasks:
+        unique.setdefault(t["task_id"], {**t, "data_as_of": as_of or now.date().isoformat()})
+    return sorted(unique.values(), key=lambda t: (t["priority"], t["task_id"])), issues
+
+
+def resolution(task: dict, inputs: dict, now: datetime | None = None) -> tuple[str, str]:
+    """Zustand einer bekannten Aufgabe, die gerade NICHT erkannt wurde: ("RESOLVED", Beleg) nur, wenn aktuelle,
+    gültige Daten die Behebung positiv zeigen; ("UNKNOWN", Grund), wenn die nötigen Daten fehlen, beschädigt,
+    veraltet oder nicht aussagekräftig sind; ("OPEN", Grund), wenn die Daten den Mangel weiter zeigen."""
+    from modules import option_learner as ol
+    now = now or datetime.now(timezone.utc)
+    q, kind, sc = input_quality(inputs, now), task.get("kind"), task.get("scope")
+    if not isinstance(sc, dict):
+        return "UNKNOWN", "Aufgabe ohne Geltungsbereich – nicht beurteilbar"
+
+    def missing(*keys) -> str | None:
+        bad = [f"{INPUT_LABEL.get(k, k)} {q.get(k, ('unknown', 'fehlt'))[1]}" for k in keys
+               if q.get(k, ("unknown",))[0] != "ok"]
+        return "; ".join(bad) or None
+    h = sc.get("horizon")
+    status = inputs.get("status") or {}
+    st = status.get(h) if isinstance(h, int) else None
+    imp = inputs.get("improvement") or {}
+    if kind == "empty_feature":
+        hs = [x for x in sc.get("horizons") or [] if isinstance(x, int)]
+        if not hs or (why := missing("improvement", *[f"status:{x}" for x in hs])):
+            return "UNKNOWN", why or "ohne Horizont"
+        for x in hs:
+            sx = status[x]
+            feats = ((sx.get("experiment") or {}).get("features") or {}).get("ledger")
+            if isinstance(feats, list) and sc.get("feature") not in feats:
+                continue                               # Merkmal bewusst entfernt
+            if (sx.get("verified_labels") or 0) < MIN_LABELS_FOR_COVERAGE:
+                return "UNKNOWN", f"{x} T: weniger als {MIN_LABELS_FOR_COVERAGE} geprüfte Labels – nicht beurteilbar"
+            cov = _num_or_none((sx.get("feature_coverage") or {}).get(sc.get("feature")))
+            if cov is None:
+                return "UNKNOWN", f"{x} T: Abdeckung von {sc.get('feature')} nicht gemessen"
+            if cov < ol.MIN_FEATURE_COVERAGE:
+                return "OPEN", f"{x} T: Abdeckung {cov:.0%}"
+        return "RESOLVED", "aktuelle Daten: Abdeckung >= " + f"{ol.MIN_FEATURE_COVERAGE:.0%} bzw. Merkmal entfernt"
+    needs_status = kind in ("outcome_capture", "sample_bias", "proven_weakness", "adoption", "withdrawn_success",
+                            "variant_untestable")
+    if needs_status and (not isinstance(h, int) or (why := missing(f"status:{h}"))):
+        return "UNKNOWN", why or "ohne Horizont"
+    if kind == "outcome_capture":
+        s = st.get(sc.get("name")) or {}
+        cov, trades = _num_or_none(s.get("coverage")), s.get("trades") or 0
+        if cov is None or trades < MIN_TRADES_FOR_COVERAGE:
+            return "UNKNOWN", f"zu wenige bewertbare Trades ({trades})"
+        return ("RESOLVED", f"Abdeckung {cov:.0%} bei {trades} Trades") if cov >= ol.MIN_COVERAGE else \
+            ("OPEN", f"Abdeckung {cov:.0%}")
+    if kind == "sample_bias":
+        rep = (st.get("walk_forward") or {}).get("representativeness") or {}
+        if not rep.get("by_sample"):
+            return "UNKNOWN", "keine bewerteten Entscheidungen"
+        hit = any(str(w).startswith(str(sc.get("warning"))) for w in rep.get("warnings") or [])
+        return ("OPEN", "Warnung besteht") if hit else ("RESOLVED", "aktuelle Evidenz ohne diese Warnung")
+    if kind == "proven_weakness":
+        if why := missing("improvement"):
+            return "UNKNOWN", why
+        if any(g.get("gap_id") == sc.get("gap_id") for g in imp.get("gaps") or [] if isinstance(g, dict)):
+            return "OPEN", "Lücke besteht (automatische Abhilfe läuft)"
+        if (st.get("walk_forward") or {}).get("verdict") in (None, "NEED_MORE_DATA"):
+            return "UNKNOWN", "Walk-Forward ohne Urteil"
+        return "RESOLVED", "aktuelle Lückenanalyse ohne diese Schwäche"
+    if kind in ("adoption", "withdrawn_success", "variant_untestable"):
+        v = (((st.get("variants") or {}).get("variants")) or {}).get(sc.get("variant_id"))
+        if not isinstance(v, dict):
+            return "UNKNOWN", "Variante im aktuellen Status nicht enthalten"
+        prop, ev = v.get("change_proposal") or {}, v.get("current_evidence") or {}
+        if kind == "adoption":
+            on = v.get("status") in ("PROPOSE_ADOPTION", "CONFIRMED_ADOPTION") and prop.get("state") == "VALID"
+            return ("OPEN", "Übernahmevorschlag gültig") if on else \
+                ("RESOLVED", f"Status {v.get('status')}, Vorschlag {prop.get('state')}")
+        if kind == "withdrawn_success":
+            on = ev.get("contradicts_decision") or prop.get("state") in ("WITHDRAWN", "REVIEW_REQUIRED")
+            return ("OPEN", "Widerspruch besteht") if on else \
+                ("RESOLVED", f"Vorschlag {prop.get('state')}, kein Widerspruch")
+        if not v.get("look"):
+            return "UNKNOWN", "noch keine Prüfung"
+        return ("OPEN", "INSUFFICIENT_COVERAGE") if v.get("relative_verdict") == "INSUFFICIENT_COVERAGE" else \
+            ("RESOLVED", f"Prüfung {v.get('look')}: {v.get('relative_verdict')}")
+    if kind == "budget_exhausted":
+        budgets = [((status.get(x) or {}).get("variants") or {}).get("test_budget")
+                   for x in status if q.get(f"status:{x}", ("",))[0] == "ok"]
+        budgets = [b for b in budgets if isinstance(b, dict) and "exhausted" in b]
+        if not budgets:
+            return "UNKNOWN", "kein aktueller Varianten-Status"
+        return ("OPEN", "erschöpft") if any(b["exhausted"] for b in budgets) else ("RESOLVED", "Budget verfügbar")
+    if kind in ("release_integrity", "decision_capture", "base_not_confirmed"):
+        if not isinstance(h, int) or (why := missing(f"seq:{h}")):
+            return "UNKNOWN", why or "ohne Horizont"
+        seq = _seq_of(inputs, h)[0]
+        if kind == "release_integrity":
+            return ("OPEN", seq["status"]) if seq["status"] in ("PLAN_INVALID", "ERROR") else \
+                ("RESOLVED", f"Freigabeprüfung {seq['status']}")
+        if kind == "decision_capture":
+            b = seq.get("binding") or {}
+            if not b:
+                return "UNKNOWN", "noch keine Prüfung"
+            low = b.get("verdict") == "INSUFFICIENT_COVERAGE" and (_num_or_none(b.get("decision_coverage")) or 0) < 0.8
+            return ("OPEN", "Entscheidungsabdeckung < 80 %") if low else \
+                ("RESOLVED", f"Prüfung {b.get('look')}: {b.get('verdict')}")
+        same = seq.get("plan_id") == sc.get("plan_id")
+        return ("OPEN", seq["status"]) if same and seq["status"] in ("NOT_CONFIRMED", "REJECTED_NEGATIVE") else \
+            ("RESOLVED", f"neuer Prüfplan {seq.get('plan_id')}" if not same else f"Status {seq['status']}")
+    if kind == "source_failure":
+        if why := missing("source_snapshot"):
+            return "UNKNOWN", why
+        meta = ((inputs.get("source_snapshot") or {}).get("sources") or {}).get(sc.get("source_id"))
+        if not isinstance(meta, dict) or not meta.get("status"):
+            return "UNKNOWN", "Quelle im aktuellen Snapshot nicht enthalten"
+        return ("OPEN", meta["status"]) if meta["status"] in SOURCE_BAD else ("RESOLVED", f"Status {meta['status']}")
+    if kind == "workflow_recovery":
+        if why := missing("workflow_status"):
+            return "UNKNOWN", why
+        window = {(now.date() - timedelta(days=i)).isoformat() for i in range(RECOVERY_WINDOW_DAYS)}
+        recov = (inputs.get("workflow_status") or {}).get("recoveries") or {}
+        hits = sorted(d for d, w in recov.items() if d in window and isinstance(w, dict) and sc.get("workflow") in w)
+        return ("OPEN", f"Nachstarts {hits}") if hits else \
+            ("RESOLVED", f"kein Nachstart in den letzten {RECOVERY_WINDOW_DAYS} Tagen")
+    return "UNKNOWN", f"unbekannte Aufgabenart {kind}"
+
+
+def _load_checked(path: Path):
+    """(Inhalt, Problem): fehlende Datei -> "fehlt", kein gültiges JSON-Objekt -> "beschädigt"."""
+    if not path.exists():
+        return {}, "fehlt"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        log.warning(f"research_director: {path} nicht lesbar ({e})")
+        return {}, "beschädigt"
+    return (data, None) if isinstance(data, dict) else ({}, "beschädigt")
+
+
+def load_task_inputs(paths: dict | None = None, now: datetime | None = None) -> dict:
+    """Eingaben der Aufgaben-Erkennung aus den vorhandenen Dateien – fehlende oder beschädigte Quellen werden als
+    Problem vermerkt (nie durch Annahmen ersetzt). Dazu der jüngste Stand der Freigabeprüfung aus den täglichen
+    Empfehlungen des Scanners (für die tägliche P0-Prüfung)."""
+    from modules.atomic_io import read_jsonl
+    p, now = {**TASK_INPUTS, **(paths or {})}, now or datetime.now(timezone.utc)
+    root, problems = Path(p["option_root"]), {}
+    imp, problems["improvement"] = _load_checked(root / "improvement.json")
+    status, daily = {}, {}
+    for h in OPTION_HORIZONS:
+        status[h], problems[f"status:{h}"] = _load_checked(root / f"status_{h}d.json")
+        recs = sorted((root / "recommendations").glob(f"????-??-??_{h}d.json")) if (root / "recommendations").exists() \
+            else []
+        if recs:
+            rec, bad = _load_checked(recs[-1])
+            if not bad and isinstance(rec.get("forward_sequential"), dict):
+                daily[h] = {"as_of": rec.get("date") or recs[-1].name[:10],
+                            "forward_sequential": rec["forward_sequential"]}
+    snapshot, problems["source_snapshot"] = _load_checked(Path(p["source_snapshot"]))
+    wf, problems["workflow_status"] = _load_checked(Path(p["workflow_status"]))
+    ledger = None
+    try:
+        from modules import research_evidence_discovery as red
+        ledger = red.load(p["ledger"], now.date()) if Path(p["ledger"]).exists() else None
+    except (OSError, ValueError) as e:
+        log.warning(f"research_director: Ledger nicht lesbar ({e}) – Formatbelege fehlen")
+    return {"improvement": imp, "status": status, "daily_seq": daily,
+            "source_history": read_jsonl(p["source_history"]) if Path(p["source_history"]).exists() else [],
+            "source_snapshot": snapshot, "workflow_status": wf, "ledger": ledger,
+            "problems": {k: v for k, v in problems.items() if v}}
+
+
+# ── Vorlagen (deterministisch) ──
+
+def _repo() -> str:
+    return os.environ.get("GITHUB_REPOSITORY") or "dieses Repository"
+
+
+def claude_task(t: dict) -> str:
+    """Kopierfertige Aufgabe für Claude Code: zuerst Ursache prüfen, dann gezielt ändern, Tests, PR ohne Merge."""
+    lines = [f"Repository: {_repo()} (neuer Branch von main)",
+             f"Aufgabe {t['task_id']}: {t['short']}", "",
+             f"Befund (Research-Daten vom {t['data_as_of']}):", t["finding"], "", "Belege:",
+             *[f"- {e}" for e in t["evidence"]], "",
+             "Vermutete Ursache – HYPOTHESE, noch nicht bestätigt:", t["cause"], "",
+             "Vorgehen:",
+             (f"1. Ursache zuerst verifizieren: {t['verify']} Bestätigt sich die Hypothese nicht, nichts ändern "
+              "und den tatsächlichen Befund berichten."),
+             "2. Nur gezielte Änderungen, voraussichtlich in: " + "; ".join(t["files"]) + ".",
+             f"3. Vorgeschlagene Änderung: {t['change']}",
+             "4. Regressionstests ergänzen: " + "; ".join(t["tests"]) + ".",
+             "5. Volle Testsuite (pytest) und Ruff ausführen.",
+             "6. Pull Request erstellen – KEIN automatischer Merge.", "",
+             "Akzeptanzkriterien:", *[f"- {a}" for a in t["acceptance"]], "",
+             f"Grenzen: {BOUNDARIES}"]
+    return "\n".join(lines)
+
+
+def _cost_text(c: dict) -> str:
+    return (f"API-Aufrufe: {c.get('api_calls')}; LLM-/Claude-Aufrufe: {c.get('llm_calls')}; kostenpflichtige Daten: "
+            f"{'ja' if c.get('paid_data') else 'nein'}; Rechenaufwand: {c.get('compute', 'vernachlässigbar')}. Keine "
+            "zusätzlichen Infrastrukturkosten durch diese Meldung selbst (feste Vorlage, kein KI-Aufruf).")
+
+
+def task_text(t: dict, reason: str) -> str:
+    return "\n".join([
+        (f"Task-ID {t['task_id']} · Priorität {t['priority']} ({PRIORITY_TEXT[t['priority']]}) · Kategorie "
+         f"{CATEGORY_TEXT.get(t['category'], t['category'])} · Status {t.get('status', 'OPEN')} ({reason})"),
+        "", "1. Was wurde erkannt?", t["finding"],
+        "", "2. Warum ist das problematisch?", t["problem"],
+        "", "3. Wie schwerwiegend ist das Problem?", f"{PRIORITY_TEXT[t['priority']]}: {t['severity_reason']}",
+        "", "4. Welche Verbesserung wird vorgeschlagen?", t["change"], f"Erwarteter Nutzen: {t['benefit']}",
+        f"Risiken: {t['risks']}", f"Aufwand: {t['effort']}",
+        f"Vermutete Ursache (Hypothese, nicht bestätigt): {t['cause']}",
+        "", "5. Welche Daten belegen das?", *[f"- {e}" for e in t["evidence"]],
+        "Quellen: " + ", ".join(t["sources"]) + f" (Stand {t['data_as_of']})",
+        "", "6. Entstehen zusätzliche Infrastrukturkosten?", _cost_text(t["costs"]),
+        "", "7. Aufgabe für Claude Code (zum Kopieren)", "----- BEGIN CLAUDE CODE TASK -----", claude_task(t),
+        "----- END CLAUDE CODE TASK -----"])
+
+
+REASON_TEXT = {"NEW": "neu erkannt", "CHANGED": "Befund wesentlich geändert", "REOPENED": "erneut aufgetreten",
+               "PENDING": "Versand stand noch aus"}
+
+
+def render_mail(tasks: list[tuple[dict, str]]) -> tuple[str, str, str]:
+    """(Betreff, HTML, Text) für eine oder mehrere Aufgaben – feste Vorlage, kein KI-Aufruf."""
+    first = tasks[0][0]
+    subject = SUBJECT.format(first["short"] + (f" (+{len(tasks) - 1} weitere)" if len(tasks) > 1 else ""))
+    head = ("Automatisch aus belegten Research-Befunden erzeugt (feste Vorlage, kein KI-Aufruf, keine API-Kosten). "
+            "Nichts wird automatisch geändert; jede Umsetzung braucht deine Freigabe (PR ohne Auto-Merge).")
+    parts = [head, ""]
+    for i, (t, reason) in enumerate(tasks, 1):
+        parts += [f"=== {i}/{len(tasks)}: {t['short']} ===", task_text(t, REASON_TEXT.get(reason, reason)), ""]
+    parts += [(f"Entscheidung festhalten (keine weitere Mail zu dieser Aufgabe): {TASK_DECISIONS} – "
+               "tasks: {<Task-ID>: {status: REJECTED|IN_PROGRESS|DONE, note: ...}}")]
+    text = "\n".join(parts)
+    body = html.escape(text)
+    return subject, f"<pre style='font-family:monospace;white-space:pre-wrap'>{body}</pre>", text
+
+
+# ── Zustand, Dedupe und Versand ──
+
+def task_state(events: list[dict]) -> dict:
+    """Zustand je Aufgabe aus dem append-only Ereignisprotokoll (zeitlich sortiert: parallele Läufe werden per
+    Union-Merge zusammengeführt, ihre Zeilen können verschränkt sein)."""
+    st: dict = {}
+    for e in sorted((e for e in events if isinstance(e, dict) and e.get("task_id")), key=lambda e: str(e.get("at"))):
+        s = st.setdefault(e["task_id"], {"status": "OPEN", "notified_fingerprint": None, "notifications": [],
+                                         "send_failures": 0})
+        ev = e.get("event")
+        if ev in ("detected", "changed", "reopened"):
+            s.update(task=e.get("task"), fingerprint=e.get("fingerprint"), status="OPEN", unknown_reason=None,
+                     last_changed=e.get("at"), first_detected=s.get("first_detected") or e.get("at"))
+        elif ev == "confirmed":                        # nach UNKNOWN wieder nachgewiesen, Befund unverändert
+            s.update(status="NOTIFIED" if s["notified_fingerprint"] == s.get("fingerprint") else "OPEN",
+                     unknown_reason=None)
+        elif ev == "unknown":
+            s.update(status="UNKNOWN", unknown_reason=e.get("reason"), unknown_since=e.get("at"))
+        elif ev == "resolved":
+            s.update(status="RESOLVED", resolved_at=e.get("at"), resolved_reason=e.get("reason"))
+        elif ev == "notified":
+            s["notified_fingerprint"] = e.get("fingerprint")
+            s["notifications"].append({k: e.get(k) for k in ("at", "channel", "subject", "fingerprint", "reason")})
+            if s["status"] == "OPEN" and e.get("fingerprint") == s.get("fingerprint"):
+                s["status"] = "NOTIFIED"
+        elif ev == "send_failed":
+            s["send_failures"] += 1
+            s["last_send_error"] = {k: e.get(k) for k in ("at", "mail_status", "error")}
+    return st
+
+
+def _decisions() -> dict:
+    try:
+        d = yaml.safe_load(TASK_DECISIONS.read_text(encoding="utf-8")) if TASK_DECISIONS.exists() else {}
+    except (OSError, yaml.YAMLError) as e:
+        log.warning(f"research_director: {TASK_DECISIONS} nicht lesbar ({e})")
+        return {}
+    return {k: v for k, v in ((d or {}).get("tasks") or {}).items() if isinstance(v, dict)}
+
+
+def _is_critical(t: dict) -> bool:
+    return (t or {}).get("kind") in CRITICAL_KINDS
+
+
+def notify_tasks(tasks: list[dict], now: datetime | None = None, *, mode: str = "weekly", dry_run: bool = False,
+                 path: Path | None = None, state_path: Path | None = None, send=None, resolve=None,
+                 decisions: dict | None = None, issues: list[str] | None = None) -> dict:
+    """Aufgaben verwalten und melden – je Lauf genau eine Zuständigkeit (gemeinsame Historie, getrennte Aufgaben):
+    * mode="critical" (täglich): nur P0 (CRITICAL_KINDS), jede neue/geänderte P0-Aufgabe sofort als eigene Mail.
+    * mode="weekly" (Samstag): nur P1–P3, ein Digest mit höchstens DIGEST_MAX Aufgaben je Kalenderwoche.
+    Da jede Aufgabe nur von einer Laufart gemeldet wird, können parallele Läufe dieselbe Aufgabe nie doppelt melden.
+    Unveränderte, bereits gemeldete Aufgaben nie erneut; keine Mail ohne Handlungsbedarf. Nicht mehr erkannte
+    Aufgaben: RESOLVED nur, wenn `resolve(task)` die Behebung mit aktuellen, gültigen Daten belegt; fehlen die Daten
+    oder sind sie beschädigt/veraltet -> UNKNOWN (Befund und Historie bleiben, keine Erfolgsmeldung). Nur ein
+    Versand mit Status "sent" zählt; Fehler (auch fehlende Konfiguration) werden protokolliert und beim nächsten
+    Lauf derselben Art erneut versucht. dry_run: nichts senden, nichts speichern."""
+    from modules.atomic_io import append_jsonl, read_jsonl
+    if mode not in MODES:
+        raise ValueError(f"mode {mode!r} nicht in {MODES}")
+    now, path, state_path = now or datetime.now(timezone.utc), path or TASKS, state_path or TASKS_STATE
+    decisions = _decisions() if decisions is None else decisions
+    resolve = resolve or (lambda _t: ("UNKNOWN", "keine Prüfdaten für eine Behebung"))
+    if send is None:
+        from modules import mailer
+        send = mailer.send_mail
+    at = now.isoformat(timespec="seconds")
+    events = read_jsonl(path) if path.exists() else []
+    state, new_events, pending = task_state(events), [], []
+    mine = (lambda t: _is_critical(t)) if mode == "critical" else (lambda t: not _is_critical(t))
+    current = {t["task_id"]: t for t in tasks if mine(t)}
+    for tid, t in current.items():
+        prev = state.get(tid)
+        ev = ("detected" if prev is None else "reopened" if prev["status"] == "RESOLVED"
+              else "changed" if prev.get("fingerprint") != t["fingerprint"]
+              else "confirmed" if prev["status"] == "UNKNOWN" else None)
+        if ev:
+            new_events.append({"event": ev, "task_id": tid, "at": at, "fingerprint": t["fingerprint"],
+                               **({"task": t} if ev != "confirmed" else {})})
+        decided = str((decisions.get(tid) or {}).get("status", "")).upper()
+        already = (prev or {}).get("notified_fingerprint") == t["fingerprint"] and ev in (None, "confirmed")
+        if decided in HUMAN_CLOSED or already:
+            continue
+        reason = {"detected": "NEW", "changed": "CHANGED", "reopened": "REOPENED"}.get(ev, "PENDING")
+        pending.append((t, reason))
+    for tid, s in sorted(state.items()):
+        if tid in current or s["status"] == "RESOLVED" or not mine(s.get("task")):
+            continue
+        verdict, why = resolve(s.get("task") or {})
+        if verdict == "RESOLVED":
+            new_events.append({"event": "resolved", "task_id": tid, "at": at, "reason": why})
+        elif verdict == "UNKNOWN" and s["status"] != "UNKNOWN":
+            new_events.append({"event": "unknown", "task_id": tid, "at": at, "reason": why})
+    week = now.isocalendar()[:2]
+    sent_this_week = sum(1 for s in state.values() for n in s["notifications"] if n.get("channel") == "digest"
+                         and _ts(n.get("at")) and _ts(n["at"]).isocalendar()[:2] == week)
+    pending.sort(key=lambda p: (p[0]["priority"], p[0]["task_id"]))
+    quota = len(pending) if mode == "critical" else max(0, DIGEST_MAX - sent_this_week)
+    mails = ([("critical", [p]) for p in pending] if mode == "critical"
+             else ([("digest", pending[:quota])] if pending[:quota] else []))
+    report = {"generated": at, "mode": mode, "dry_run": dry_run, "tasks_detected": len(current),
+              "input_issues": issues or [], "pending": [p[0]["task_id"] for p in pending],
+              "deferred_by_weekly_limit": [p[0]["task_id"] for p in pending[quota:]],
+              "status_changes": [{k: e.get(k) for k in ("event", "task_id", "reason")} for e in new_events
+                                 if e["event"] in ("resolved", "unknown", "confirmed", "reopened")],
+              "mails": [], "mail_status": "nothing_to_send" if not mails else None}
+    for channel, items in mails:
+        subject, body_html, text = render_mail(items)
+        entry = {"channel": channel, "subject": subject, "tasks": [t["task_id"] for t, _r in items]}
+        if dry_run:
+            report["mails"].append({**entry, "status": "dry_run", "text": text})
+            continue
+        try:
+            res = send(subject, body_html, text) or {}
+        except Exception as exc:  # noqa: BLE001 – ein Versandfehler zählt nie als gesendet, der Lauf geht weiter
+            res = {"status": "failed", "error": type(exc).__name__}
+        status = res.get("status") or "failed"
+        report["mails"].append({**entry, "status": status, "error": res.get("error")})
+        for t, r in items:
+            if status == "sent":
+                new_events.append({"event": "notified", "task_id": t["task_id"], "at": at, "channel": channel,
+                                   "subject": subject, "fingerprint": t["fingerprint"], "reason": r})
+            else:
+                new_events.append({"event": "send_failed", "task_id": t["task_id"], "at": at, "channel": channel,
+                                   "mail_status": status, "error": res.get("error")})
+    if mails:
+        st = [m["status"] for m in report["mails"]]
+        report["mail_status"] = ("dry_run" if dry_run else "sent" if all(x == "sent" for x in st)
+                                 else "not_configured" if "not_configured" in st else "failed")
+    if report["mail_status"] in ("not_configured", "failed"):
+        log.error("research_director: Verbesserungs-Mail nicht versendet (%s) – bleibt offen und wird beim "
+                  "nächsten Lauf erneut versucht", report["mail_status"])
+    if dry_run:
+        return report
+    if new_events:
+        append_jsonl(path, new_events, ensure_ascii=False, sort_keys=True, default=str)
+    previous = _load(state_path, {}) if state_path.exists() else {}
+    last = {k: report[k] for k in ("generated", "mail_status", "pending", "deferred_by_weekly_limit",
+                                   "input_issues", "status_changes")} | {
+        "mails": [{k: m.get(k) for k in ("channel", "subject", "tasks", "status", "error")} for m in report["mails"]]}
+    final = task_state(events + new_events)
+    snapshot = {"generated": at, "last_runs": {**(previous.get("last_runs") or {}), mode: last},
+                "tasks": {tid: {**(s.get("task") or {}), "status": str((decisions.get(tid) or {}).get("status")
+                                                                         or s["status"]).upper(),
+                                "decision_note": (decisions.get(tid) or {}).get("note"),
+                                "first_detected": s.get("first_detected"), "last_changed": s.get("last_changed"),
+                                "resolved_at": s.get("resolved_at") if s["status"] == "RESOLVED" else None,
+                                "resolved_reason": s.get("resolved_reason") if s["status"] == "RESOLVED" else None,
+                                "unknown_reason": s.get("unknown_reason") if s["status"] == "UNKNOWN" else None,
+                                "notifications": s["notifications"], "send_failures": s["send_failures"],
+                                "last_send_error": s.get("last_send_error")}
+                          for tid, s in sorted(final.items())}}
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps(snapshot, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
+    return report
+
+
+def run_notify(now: datetime | None = None, dry_run: bool = False, paths: dict | None = None,
+               mode: str = "weekly") -> dict:
+    """Aufgaben erkennen und melden: mode="weekly" (ml_research.yml, Samstag: P1–P3-Digest, Research Memory) bzw.
+    mode="critical" (improvement_notify.yml, täglich: nur P0). Beide nutzen dieselbe Historie."""
+    now = now or datetime.now(timezone.utc)
+    inputs = load_task_inputs(paths, now)
+    tasks, issues = improvement_tasks(inputs, now)
+    report = notify_tasks(tasks, now, mode=mode, dry_run=dry_run, issues=issues,
+                          resolve=lambda t: resolution(t, inputs, now))
+    if not dry_run and mode == "weekly":
+        from modules import research_memory as rm
+        report["research_memory_new"] = rm.sync()
+    return report
+
+
 def run() -> dict:
     meta = _load(OUT / "meta_learning.json", {})
     nextv = _load(OUT / "next_validation.json", {})
@@ -470,7 +1503,23 @@ def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO)
     ap = argparse.ArgumentParser()
     ap.add_argument("--options", action="store_true", help="nur Options-Lernmodell: Lücken und Vorschläge")
-    if ap.parse_args(argv).options:
+    ap.add_argument("--notify", action="store_true",
+                    help="technische Verbesserungsaufgaben erkennen und melden (Wochen-Digest, kritisch sofort)")
+    ap.add_argument("--dry-run", action="store_true", help="mit --notify: nur Vorschau, nichts senden oder speichern")
+    ap.add_argument("--critical", action="store_true",
+                    help="mit --notify: täglicher Lauf, nur kritische P0-Aufgaben (sonst Wochen-Digest P1–P3)")
+    args = ap.parse_args(argv)
+    if args.notify:
+        rep = run_notify(dry_run=args.dry_run, mode="critical" if args.critical else "weekly")
+        print(json.dumps({k: rep.get(k) for k in ("mode", "mail_status", "tasks_detected", "pending",
+                                                    "deferred_by_weekly_limit", "status_changes", "input_issues")},
+                         ensure_ascii=False))
+        for m in rep["mails"]:
+            print(f"--- {m['status']}: {m['subject']} ({', '.join(m['tasks'])})")
+            if args.dry_run:
+                print(m["text"])
+        return 2 if rep["mail_status"] in ("not_configured", "failed") else 0
+    if args.options:
         from modules import research_memory as rm
         rep = run_options()
         print(f"Research Memory: {rm.sync()} neue Einträge")

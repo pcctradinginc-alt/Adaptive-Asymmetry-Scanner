@@ -1,0 +1,84 @@
+name: Research – Technische Verbesserungsvorschläge (täglich P0, manuell)
+
+# Self-Improvement Notifications (modules/research_director.py --notify). Liest nur vorhandene Research-Ausgaben;
+# kein LLM, keine Markt-API, keine Kosten, es wird nie Code geändert oder Claude Code gestartet.
+#  * täglich 21:37 UTC (nach Scanner und Feedback): nur kritische P0-Aufgaben (--critical), jede sofort einzeln.
+#  * P1–P3 kommen ausschließlich im Wochen-Digest des Workflows ml_research.yml (Samstag).
+#  * manuell: Laufart (critical|weekly) und dry_run (Standard true: Vorschau im Log, nichts senden/speichern).
+# Gemeinsame Historie outputs/research/improvement_tasks.jsonl (append-only, Union-Merge); jede Aufgabe gehört
+# genau einer Laufart, daher melden parallele Läufe nie dieselbe Aufgabe doppelt.
+
+on:
+  schedule:
+    - cron: '37 21 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "critical = nur P0 (wie der tägliche Lauf), weekly = Wochen-Digest P1–P3"
+        required: false
+        default: "critical"
+        type: choice
+        options: ["critical", "weekly"]
+      dry_run:
+        description: "true = nur Vorschau im Log (nichts senden, nichts speichern)"
+        required: false
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+
+concurrency:
+  # Tägliche und manuelle P0-Läufe nacheinander ("improvement-notify"); ein manueller Wochenversand ohne dry_run
+  # reiht sich hinter ml_research.yml ein ("research-write"); eine Vorschau schreibt und sendet nichts und
+  # blockiert deshalb niemanden.
+  group: >-
+    ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'false')
+    && format('improvement-preview-{0}', github.run_id)
+    || ((github.event_name == 'workflow_dispatch' && inputs.mode == 'weekly') && 'research-write'
+    || 'improvement-notify') }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  notify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          ref: main      # aktueller Stand inkl. Historie des letzten Laufs (Dedupe)
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verbesserungsvorschläge erkennen und melden
+        id: notify
+        env:
+          MODE: ${{ inputs.mode || 'critical' }}
+          DRY_RUN: ${{ github.event_name == 'schedule' && 'false' || inputs.dry_run }}
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: |
+          args="--notify"
+          if [ "$MODE" != "weekly" ]; then args="$args --critical"; fi
+          if [ "$DRY_RUN" != "false" ]; then args="$args --dry-run"; fi
+          python -m modules.research_director $args
+
+      - name: Verlauf sichern (nicht bei dry_run)
+        if: always() && (github.event_name == 'schedule' || inputs.dry_run == 'false')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: improvement notifications $(date -u +%Y-%m-%dT%H:%M)" \
+            outputs/research/improvement_tasks.jsonl outputs/research/improvement_tasks.json \
+            outputs/research/research_memory.jsonl
