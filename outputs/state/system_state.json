@@ -1,21 +1,25 @@
 {
  "schema": "system-state-v2",
- "safe_mode": false,
- "safe_mode_reason": [],
+ "safe_mode": true,
+ "safe_mode_reason": [
+  "DATA: 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
+ ],
  "data_health": {
-  "status": "OK",
-  "data_quality": 0.912,
+  "status": "SAFE_MODE",
+  "data_quality": 0.876,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
-  "global_reasons": [],
-  "generated": "2026-10-30T18:11:25+00:00",
+  "global_reasons": [
+   "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
+  ],
+  "generated": "2026-10-31T17:21:36+00:00",
   "counts": {
    "HEALTHY": 42,
-   "DEGRADED": 3,
+   "DEGRADED": 1,
    "STALE": 1,
-   "BROKEN": 1,
+   "BROKEN": 3,
    "UNVALIDATED": 8
   },
   "fallbacks": []
@@ -88,13 +92,14 @@
     "n_models": 6
    },
    "data": {
-    "level": "NORMAL",
-    "data_quality": 0.912
+    "level": "MILD",
+    "data_quality": 0.876
    }
   },
   "reasons": [
    "FEATURE DRIFT MILD: ['tnx']",
-   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich"
+   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich",
+   "DATA DRIFT MILD: Data Quality 0.876"
   ],
   "policy_version": "drift-v1",
   "consequences": {
@@ -104,7 +109,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-10-31T14:49:39+00:00",
-  "drift_input_age_days": 0.0,
+  "drift_input_age_days": 0.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -179,15 +184,15 @@
  "inputs": {
   "model_health": "af75c8cf0661",
   "meta_learning": "731ebdf86d57",
-  "data_health": "75b58093c9d9",
+  "data_health": "1ea9b3570a69",
   "promotion": "a104b7d24c39",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "4d709beba633"
  },
- "state_version": 82,
- "fingerprint": "2b00623c1d3574d9",
- "updated_at": "2026-10-31T14:49:54+00:00",
- "code_version": "a1975358d89c"
+ "state_version": 83,
+ "fingerprint": "509125fe86a4af64",
+ "updated_at": "2026-10-31T17:21:36+00:00",
+ "code_version": "528c1390574f"
 }
