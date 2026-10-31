@@ -20,6 +20,11 @@ approved_methods:
     positioning: [short_pct_float, options_skew_25d, options_skew_ratio, dealer_oi_ratio]
     volatility_pricing: [c_iv, c_iv_rank, c_rv_score, c_term_score]
 
+test_budget:                       # dauerhaftes Fehlerbudget ALLER Varianten-Tests (Bonferroni-Slots)
+  total_alpha: 0.05                # familienweise Fehlerrate über alle jemals registrierten Varianten und Prüfungen
+  max_tests: 20                    # je Registrierung ein Slot = total_alpha / max_tests; danach keine neuen Tests.
+                                   # Ab der ersten Registrierung gilt die im Register festgeschriebene Definition;
+                                   # eine Änderung hier wirkt erst nach bewusstem, dokumentiertem Neustart des Registers.
+
 falsification:                     # vorab festgelegt, gilt für jede Variante
-  family_alpha: 0.05               # Bonferroni über alle je Basisversion und Horizont registrierten Varianten
-  max_days: {5: 90, 20: 200}       # Kalendertage ab Start; danach ohne signifikanten Vorteil FALSIFIED_NO_EFFECT
+  max_days: {5: 90, 20: 200}       # Kalendertage ab Start; Prüfzeitpunkte bei 1/3, 2/3 und 1 davon (O'Brien-Fleming)

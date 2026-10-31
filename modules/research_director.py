@@ -311,6 +311,8 @@ def _pid(kind: str, change: dict, horizon: int) -> str:
 def _falsification(cfg: dict, horizon: int) -> dict:
     from modules import option_learner as ol
     f = (cfg or {}).get("falsification") or {}
+    tb = (cfg or {}).get("test_budget") or {}
+    budget = f"total_alpha {tb.get('total_alpha', 0.05)} / max_tests {tb.get('max_tests', 20)}"
     max_days = int(((f.get("max_days") or {}).get(horizon)) or 4 * horizon + 60)
     return {"primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
             "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -318,14 +320,14 @@ def _falsification(cfg: dict, horizon: int) -> dict:
                             "Nicht-Handeln"],
             "looks_days": ol.look_days(max_days),
             "accept_if": (f"an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND "
-                          f"netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus family_alpha "
-                          f"{f.get('family_alpha', 0.05)}, Bonferroni über die Varianten), gemeinsame "
+                          f"netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der "
+                          f"Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets {budget}), gemeinsame "
                           f"Ergebnisabdeckung >= {ol.MIN_COVERAGE:.0%}, >= {ol.MIN_OOS_DATES} Tage, >= "
                           f"{ol.MIN_INDEPENDENT_PERIODS} unabhängige Perioden, >= {ol.MIN_SELECTED} Kandidaten"),
             "reject_if": ("relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung "
                           "kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto "
                           "(BETTER_THAN_BASE_NOT_PROFITABLE)"),
-            "max_days": max_days, "family_alpha": float(f.get("family_alpha", 0.05))}
+            "max_days": max_days, "test_budget": budget}
 
 
 def _variant_overrides(method: str, direction: str | None, cfg: dict) -> list[dict]:
@@ -440,7 +442,8 @@ def run_options(root: Path = OPTION_OUT, now: datetime | None = None) -> dict:
     proposals = option_proposals(gaps, cfg, catalog)
     registered = ol.register_variants(root, proposals, now, cfg)
     rep = {"generated": now.isoformat(timespec="seconds"), "gaps": gaps, "proposals": proposals,
-           "registered_variants": [v["variant_id"] for v in registered]}
+           "registered_variants": [v["variant_id"] for v in registered],
+           "test_budget": ol.test_budget(root, cfg)}
     root.mkdir(parents=True, exist_ok=True)
     (root / "improvement.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
     ol.report_card(root)

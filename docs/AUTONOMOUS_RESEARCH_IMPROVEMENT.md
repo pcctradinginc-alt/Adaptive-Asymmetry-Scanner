@@ -32,9 +32,20 @@ Bewusst nicht gebaut: kein neuer Orchestrator, kein LLM, kein Code-Generator, ke
    - Basis-Journal, Freigabe und Mail bleiben unberührt; ein Fehler einer Variante wird nur protokolliert.
 4. **Fairer, sequenziell korrekter Vergleich** – `option_learner.evaluate_variants()`:
    - **Basis des Vergleichs:** identische, fällige Kandidaten mit geprüften Netto-Ergebnissen; gepaart je Tag, gleiches Budget je Kandidat. Primär gegen die Basis-Lernversion, zusätzlich gegen deren eingefrorene Referenz und gegen Nicht-Handeln.
-   - **Prüfzeitpunkte:** Urteile gibt es nur an den bei der Registrierung festgeschriebenen Prüfzeitpunkten `look_days` (1/3, 2/3 und 1 von `max_days`). Prüfung k nutzt nur Entscheidungen bis zu ihrem Stichtag und erst, wenn diese alle fällig sind. Die wöchentlichen Auswertungen zwischen zwei Prüfungen werten also dieselben eingefrorenen Daten aus und erzeugen keine zusätzlichen Tests.
-   - **Alpha-Budget:** Das Teil-Alpha je Prüfung folgt der O'Brien-Fleming-Ausgabefunktion (`alpha_spending`; frühe Prüfungen sehr streng, Summe = Alpha). Dazu kommt Bonferroni über alle für Basisversion und Horizont registrierten Varianten. Das KI kommt aus dem Bootstrap-Standardfehler über unabhängige Haltefenster.
-   - **Abdeckung (gegen Selektionsverzerrung):** Gezählt werden alle fälligen Kandidaten einer Prüfung, dazu die gemeinsame Ergebnisabdeckung und die Ausschlussgründe (nicht im Ledger, keine Basis-Entscheidung, fehlendes geprüftes Ergebnis einer gehandelten Wahl). Unter 80 % lautet das Urteil INSUFFICIENT_COVERAGE; eine positive Freigabe gibt es dann nicht.
+   - **Prüfzeitpunkte:** Urteile gibt es nur an den bei der Registrierung festgeschriebenen Prüfzeitpunkten `look_days` (1/3, 2/3 und 1 von `max_days`).
+     - Prüfung k nutzt nur Kandidaten bis zu ihrem Stichtag und erst, wenn diese alle fällig sind. Die wöchentlichen Auswertungen zwischen zwei Prüfungen werten also dieselben Daten aus und erzeugen keine zusätzlichen Tests.
+     - Eine verpasste frühere Prüfung wird zuerst nachgeholt. Schließt sie die Variante, entfällt die spätere.
+   - **Dauerhaftes Fehlerbudget (`test_budget`):** `total_alpha` 0,05 wird auf `max_tests` 20 gleich große Bonferroni-Slots verteilt.
+     - Jede Registrierung erhält bei der Anmeldung genau einen Slot (`alpha_slot`, `slot_alpha` = 0,0025) und verteilt ihn nach O'Brien-Fleming auf ihre drei Prüfungen (`alpha_spending`). Familienweise Fehlerrate über alle jemals getesteten Varianten und Prüfungen ≤ Summe der Slots ≤ 0,05.
+     - Die Budgetdefinition gilt ab der ersten Registrierung aus dem append-only Register. Verbraucht ist jede jemals registrierte Variante, auch geschlossene, erneut registrierte und solche alter Basisversionen. Neustart, Modellwechsel oder Konfigurationsänderung setzen nichts zurück.
+     - Spätere Registrierungen ändern frühere Ergebnisse nicht. Bei erschöpftem Budget wird nichts mehr registriert; eine Variante ohne gültigen Slot bleibt RESEARCH_ONLY (nie eine Erfolgsfreigabe).
+     - Das KI kommt aus dem Bootstrap-Standardfehler über unabhängige Haltefenster.
+   - **Abdeckung (gegen Selektionsverzerrung):** Der Nenner sind ALLE Ledger-Kandidaten im vorregistrierten Prüfzeitraum [Start, Stichtag], je Aktie und Tag einer, unabhängig von Entscheidungen oder bekannten Ergebnissen.
+     - Als Ausfälle zählen fehlende (`NO_VARIANT_DECISION`) oder ungültige Variantenentscheidungen (z. B. `LATE_PREDICTION`), fehlende Basis-Entscheidungen (`NO_BASE_DECISION`) und fehlende geprüfte Entry-/Exit-Ergebnisse (z. B. `EXIT_NOT_ARCHIVED`, `NO_LABEL`).
+     - Unter 80 % gemeinsamer Abdeckung lautet das Urteil INSUFFICIENT_COVERAGE; eine positive Freigabe und einen Übernahmevorschlag gibt es dann nicht.
+   - **Eingefrorene Prüfberichte (`look_reports/<variante>_look<k>_v<n>.json`, create-only):**
+     - Inhalt: Experiment- und Basisversion, Modellinstanzen, Prüfzeitpunkt und Datenstichtag, Entscheidungs- und Label-IDs, Fallzahl, Abdeckung und Ausschlüsse, Testbudget (Slot, Teil-Alpha), Ergebnis, Freigabestatus sowie Hashes der Eingangsdaten und des Berichts.
+     - Gleiche Eingangsdaten bestätigen den bestehenden Bericht. Nachgelieferte oder korrigierte Daten erzeugen eine neue Fassung `_v<n+1>` mit `supersedes` und `correction_reason`; frühere Fassungen bleiben unverändert. Maßgeblich ist die neueste.
    - **Zwei getrennte Urteile:**
      - relativ: BETTER_THAN_BASE oder WORSE_THAN_BASE;
      - wirtschaftlich gegenüber Nicht-Handeln: POSITIVE_EXECUTABLE_ALPHA, NEGATIVE_NET oder NOT_PROVEN.
@@ -51,7 +62,7 @@ Bewusst nicht gebaut: kein neuer Orchestrator, kein LLM, kein Code-Generator, ke
      - SUPERSEDED: Basisversion geändert.
    - Umsetzung nur per menschlichem PR.
 
-**Bekannte Grenze:** Die Freigabe der Basis-Empfehlungen (`release_gate`, seit #144) prüft den Forward-Test täglich ohne sequenzielle Korrektur. Das kann ein eigener Folgeschritt mit demselben Alpha-Budget werden.
+**Bekannte Grenze (eigener Folge-PR, nicht Teil dieses Moduls):** Die Freigabe der Basis-Empfehlungen (`release_gate`, seit #144) prüft den Forward-Test täglich ohne sequenzielle Korrektur.
 
 ## Automatik
 

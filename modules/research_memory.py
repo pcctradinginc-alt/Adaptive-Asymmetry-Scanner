@@ -51,7 +51,8 @@ SOURCES = {
 OPTION_VARIANT_STATUS = {"PROPOSE_ADOPTION": "FORWARD_VALIDATED", "CONFIRMED_ADOPTION": "FORWARD_VALIDATED",
                          "BETTER_THAN_BASE_NOT_PROFITABLE": "INCONCLUSIVE", "FALSIFIED_WORSE": "REJECTED",
                          "FALSIFIED_NO_EFFECT": "REJECTED", "BASE_CHANGED": "EXPIRED",
-                         "BETTER_THAN_BASE_ONLY": "PENDING_FORWARD", "RUNNING": "PENDING_FORWARD"}
+                         "BETTER_THAN_BASE_ONLY": "PENDING_FORWARD", "RUNNING": "PENDING_FORWARD",
+                         "RESEARCH_ONLY": "PENDING_FORWARD"}
 PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION")
 TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
           *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
@@ -196,7 +197,8 @@ def option_entries(*sources) -> list[dict]:
                                         "look": v.get("look"), "mean": lr.get("mean"), "ci": lr.get("ci95"),
                                         "coverage": (v.get("comparison") or {}).get("coverage"),
                                         "days": (v.get("vs_base") or {}).get("days"),
-                                        "family_size": v.get("family_size"), "alpha_look": v.get("alpha_look"),
+                                        "alpha_slot": v.get("alpha_slot"), "alpha_look": v.get("alpha_look"),
+                                        "look_report": (v.get("look_report") or {}).get("report_id"),
                                         "proposal": (v.get("change_proposal") or {}).get("state")},
                               reasons=[v.get("relative_verdict"), v.get("economic_verdict")],
                               gap_ids=v.get("gap_ids"), proposal_id=v.get("proposal_id"),

@@ -871,13 +871,18 @@ def active_variants(out: Path, horizon: int, day: date) -> list[dict]:
 def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict | None = None) -> list[dict]:
     """Registriert automatisch testbare Vorschläge als isolierte Varianten (append-only, Start am Folgetag, also
     erst auf künftigen Signalen). Höchstens max_active_per_horizon offene Varianten je Horizont, je Methode eine;
-    eine Änderung, die schon einmal registriert oder falsifiziert wurde, wird nie erneut getestet."""
+    eine Änderung, die schon einmal registriert oder falsifiziert wurde, wird nie erneut getestet. Jede
+    Registrierung verbraucht einen Slot des dauerhaften Fehlerbudgets (test_budget); ist es erschöpft, wird
+    nichts mehr registriert."""
     cfg = cfg if cfg is not None else variant_config()
     reg, base, new = variant_registry(out), experiment_id(), []
     max_active = int(cfg.get("max_active_per_horizon") or 0)
+    budget = test_budget(out, cfg)
     for p in proposals:
         if not p.get("auto_experiment"):
             continue
+        if budget["used"] >= budget["max_tests"]:           # Fehlerbudget erschöpft: keine neuen Tests
+            break
         try:
             change, params = validate_overrides(p["change"], cfg), variant_params(p["change"], cfg)
         except (ValueError, KeyError, TypeError):
@@ -895,11 +900,14 @@ def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict
               "experiment_id": vexp, "overrides": change, "params": params, "proposal_id": p.get("proposal_id"),
               "gap_ids": p.get("gap_ids"), "falsification": p.get("falsification"),
               "look_days": look_days(max_days),
+              "test_budget": {"total_alpha": budget["total_alpha"], "max_tests": budget["max_tests"]},
+              "alpha_slot": budget["used"] + 1, "slot_alpha": budget["slot_alpha"],
               "registered_at": now.isoformat(timespec="seconds"),
               "start_date": (now.date() + timedelta(days=1)).isoformat()}
         append_jsonl(out / VARIANTS, [ev])
         reg[vid] = ev
         new.append(ev)
+        budget["used"] += 1
     return new
 
 
@@ -932,9 +940,11 @@ def _run_variant(out: Path, v: dict, cands: list[dict], train: list[dict], day: 
     return len(new)
 
 
-def _decisions(journal: list[dict], exp: str, instances: dict, horizon: int) -> tuple[dict, dict]:
+def _decisions(journal: list[dict], exp: str, instances: dict, horizon: int,
+               invalid_by_cand: dict | None = None) -> tuple[dict, dict]:
     """Gültige, unveränderte Entscheidungen der Version `exp` je Rolle {role: {(Tag, Signal): Eintrag}} und die
-    Ausschlüsse je Grund (dieselbe Prüfung wie im Forward-Test, die erste Fassung gilt)."""
+    Ausschlüsse je Grund (dieselbe Prüfung wie im Forward-Test, die erste Fassung gilt). `invalid_by_cand`
+    erhält je Kandidat den Grund seines ersten ungültigen Eintrags."""
     out, seen, excluded = defaultdict(dict), set(), defaultdict(int)
     for j in journal:
         if not isinstance(j, dict) or j.get("horizon") != horizon or j.get("kind") != "decision":
@@ -943,6 +953,8 @@ def _decisions(journal: list[dict], exp: str, instances: dict, horizon: int) -> 
         reason = _invalid(j, exp, instances) or ("DUPLICATE" if key in seen else None)
         if reason:
             excluded[reason] += 1
+            if invalid_by_cand is not None and reason != "DUPLICATE":
+                invalid_by_cand.setdefault((j.get("date"), j.get("signal_id")), reason)
             continue
         seen.add(key)
         out[j.get("role", "learning")][(j["date"], j.get("signal_id"))] = j
@@ -954,6 +966,7 @@ RELATIVE = {"LEARNING_BETTER": "BETTER_THAN_BASE", "LEARNING_WORSE": "WORSE_THAN
 ADOPTION = ("PROPOSE_ADOPTION", "CONFIRMED_ADOPTION")
 CLOSING = ("BASE_CHANGED", "FALSIFIED_WORSE", "FALSIFIED_NO_EFFECT", "BETTER_THAN_BASE_NOT_PROFITABLE",
            "CONFIRMED_ADOPTION")
+LOOK_DIR = "look_reports"
 
 
 def look_days(max_days: int) -> list[int]:
@@ -971,6 +984,26 @@ def alpha_spending(alpha: float) -> list[float]:
     return [c - prev for c, prev in zip(cum, [0.0, *cum[:-1]])]
 
 
+def test_budget(out: Path = OUT, cfg: dict | None = None) -> dict:
+    """Dauerhaftes Fehlerbudget ALLER Varianten-Tests: total_alpha, aufgeteilt in max_tests gleich große
+    Bonferroni-Slots; jede registrierte Variante erhält bei der Registrierung genau einen Slot und verteilt ihn
+    nach O'Brien-Fleming auf ihre Prüfzeitpunkte. Familienweise Fehlerrate <= Summe der Slots <= total_alpha.
+    Die Definition gilt ab der ersten Registrierung unverändert (aus dem Register, nicht aus der Konfiguration);
+    verbraucht ist jede jemals registrierte Variante – auch geschlossene, erneut registrierte und solche alter
+    Basisversionen. Ein Neustart oder Modellwechsel setzt nichts zurück."""
+    path = out / VARIANTS
+    events = [e for e in (read_jsonl(path) if path.exists() else []) if e.get("event") == "registered"]
+    frozen = next((e["test_budget"] for e in events if isinstance(e.get("test_budget"), dict)), None)
+    conf = (cfg if cfg is not None else variant_config()).get("test_budget") or {}
+    budget = frozen or {"total_alpha": float(conf.get("total_alpha", 0.05)),
+                        "max_tests": int(conf.get("max_tests", 20))}
+    used = len(events)
+    return {"total_alpha": float(budget["total_alpha"]), "max_tests": int(budget["max_tests"]),
+            "slot_alpha": float(budget["total_alpha"]) / int(budget["max_tests"]), "used": used,
+            "remaining": max(0, int(budget["max_tests"]) - used), "exhausted": used >= int(budget["max_tests"]),
+            "frozen_by_registry": frozen is not None}
+
+
 def _economic(cmp: dict) -> str:
     """Wirtschaftlicher Erfolg der Variante gegenüber Nicht-Handeln: Tagesrendite bei gleichem Budget je Kandidat,
     dasselbe korrigierte Alpha wie der relative Test (beide müssen bestehen)."""
@@ -980,90 +1013,194 @@ def _economic(cmp: dict) -> str:
     return "POSITIVE_EXECUTABLE_ALPHA" if ci and ci[0] > 0 else "NEGATIVE_NET" if ci and ci[1] < 0 else "NOT_PROVEN"
 
 
+def _sha(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _compact(cmp: dict) -> dict:
+    return {k: cmp.get(k) for k in ("verdict", "candidates", "due_candidates", "coverage", "days",
+                                    "independent_periods", "ci_level", "daily_mean", "learning_minus_reference",
+                                    "learning_minus_no_trade")}
+
+
+def freeze_look_report(out: Path, report: dict, now: datetime) -> dict:
+    """Prüfbericht je Variante und Prüfzeitpunkt unveränderlich einfrieren (create-only). Gleiche Eingangsdaten
+    (input_sha256) -> der bestehende Bericht gilt unverändert. Weichen sie später ab (nachgelieferte oder
+    korrigierte Daten), entsteht eine ausdrücklich versionierte Korrektur _v<n+1> mit Verweis auf die Vorfassung
+    und Grund; frühere Fassungen bleiben unverändert erhalten. Maßgeblich ist die neueste Fassung."""
+    d = out / LOOK_DIR
+    stem = f"{report['variant_id']}_look{report['look']}"
+    versions = sorted(d.glob(f"{stem}_v*.json"), key=lambda p: int(p.stem.rsplit("_v", 1)[1])) if d.exists() else []
+    latest = _read_json(versions[-1]) if versions else None
+    if latest and latest.get("input_sha256") == report["input_sha256"]:
+        return latest
+    ver = len(versions) + 1
+    rec = {**report, "report_id": f"{stem}_v{ver}", "version": ver, "created_at": now.isoformat(timespec="seconds"),
+           "supersedes": latest.get("report_id") if latest else None,
+           "correction_reason": (f"Eingangsdaten seit {latest.get('report_id')} geändert (Fälle "
+                                 f"{latest.get('n_compared')} -> {report['n_compared']}, Labels "
+                                 f"{len(latest.get('label_ids') or [])} -> {len(report['label_ids'])})")
+           if latest else None}
+    rec["report_sha256"] = _sha(rec)
+    path = d / f"{rec['report_id']}.json"
+    if path.exists():                                   # nie überschreiben
+        raise FileExistsError(path)
+    atomic_write_json(path, rec, indent=1)
+    return rec
+
+
 def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, journal: list[dict],
                       instances: list[dict], cfg: dict | None = None, now: datetime | None = None) -> dict:
     """Fairer, sequenziell korrekter Vergleich jeder Variante auf identischen, fälligen Kandidaten mit geprüften
     Netto-Ergebnissen, primär gegen die Basis-Lernversion, zusätzlich gegen deren eingefrorene Referenz.
 
-    * Prüfzeitpunkte: Urteile nur an den vorab festgelegten Tagen (look_days, 1/3, 2/3, 1 von max_days). Prüfung k
-      nutzt nur Entscheidungen bis zu ihrem Stichtag und erst, wenn alle fällig sind – wöchentliche Wiederholungen
-      werten dieselben eingefrorenen Daten aus. Teil-Alpha nach O'Brien-Fleming, dazu Bonferroni über alle für
-      Basisversion und Horizont registrierten Varianten; KI per Bootstrap-Standardfehler.
-    * Abdeckung: alle fälligen Kandidaten der Prüfung werden gezählt, samt Ausschlussgründen (nicht im Ledger,
-      keine Basis-Entscheidung, fehlendes geprüftes Ergebnis); unter MIN_COVERAGE gibt es kein Urteil.
+    * Population (Nenner der Abdeckung): ALLE Ledger-Kandidaten im vorregistrierten Prüfzeitraum
+      [Start, Stichtag], je Aktie und Tag einer – unabhängig davon, ob eine Variantenentscheidung oder ein
+      Ergebnis vorliegt. Fehlende oder ungültige Variantenentscheidungen, fehlende Basis-Entscheidungen und
+      fehlende Entry-/Exit-Quotes zählen ausdrücklich als Ausfälle; unter MIN_COVERAGE gibt es kein Urteil.
+    * Prüfzeitpunkte: Urteile nur an den bei der Registrierung festgeschriebenen look_days (1/3, 2/3, 1 von
+      max_days). Prüfung k nutzt nur Kandidaten bis zu ihrem Stichtag und erst, wenn alle fällig sind; ihr Bericht
+      wird eingefroren (freeze_look_report), Korrekturen werden versioniert.
+    * Fehlerbudget: jede Variante testet mit ihrem bei der Registrierung zugeteilten Slot aus dem dauerhaften
+      Budget (test_budget), verteilt nach O'Brien-Fleming auf die Prüfzeitpunkte. Spätere Registrierungen ändern
+      frühere Ergebnisse nicht; eine Variante ohne gültigen Slot bleibt RESEARCH_ONLY (nie eine Erfolgsfreigabe).
     * Getrennte Urteile: relativ (BETTER_THAN_BASE / WORSE_THAN_BASE) und wirtschaftlich gegenüber Nicht-Handeln
       (POSITIVE_EXECUTABLE_ALPHA / NEGATIVE_NET / NOT_PROVEN). Ein Übernahmevorschlag braucht beides.
-    * Status: RUNNING, BETTER_THAN_BASE_ONLY, PROPOSE_ADOPTION (offen, wird weiter geprüft); geschlossen
-      (Ereignis 'closed'): FALSIFIED_WORSE, FALSIFIED_NO_EFFECT, BETTER_THAN_BASE_NOT_PROFITABLE,
+    * Status: RUNNING, RESEARCH_ONLY, BETTER_THAN_BASE_ONLY, PROPOSE_ADOPTION (offen, wird weiter geprüft);
+      geschlossen (Ereignis 'closed'): FALSIFIED_WORSE, FALSIFIED_NO_EFFECT, BETTER_THAN_BASE_NOT_PROFITABLE,
       CONFIRMED_ADOPTION (letzte Prüfung), BASE_CHANGED."""
     cfg = cfg if cfg is not None else variant_config()
     now = now or datetime.now(timezone.utc)
     reg_inst = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
-    by_cand = {(c["date"], c["signal_id"]): c for c in cands}
+    budget = test_budget(out, cfg)
     base = experiment_id()
-    variants = [v for v in variant_registry(out).values() if v.get("horizon") == horizon]
-    family = max(1, sum(1 for v in variants if v.get("base_experiment_id") == base))
-    alpha_var = float(((cfg.get("falsification") or {}).get("family_alpha")) or 0.05) / family
-    spend = alpha_spending(alpha_var)
     base_dec = _decisions(journal, base, reg_inst, horizon)[0]
     results, closed = {}, []
-    for v in variants:
+    for v in (v for v in variant_registry(out).values() if v.get("horizon") == horizon):
         path = out / VARIANT_DIR / f"{v['variant_id']}.jsonl"
-        own, invalid = _decisions(read_jsonl(path) if path.exists() else [], v["experiment_id"], reg_inst, horizon)
+        invalid_ck: dict = {}
+        own, invalid = _decisions(read_jsonl(path) if path.exists() else [], v["experiment_id"], reg_inst, horizon,
+                                  invalid_ck)
+        own_var = own.get("variant", {})
         start = date.fromisoformat(v["start_date"])
         days = v.get("look_days") or look_days(int((v.get("falsification") or {}).get("max_days") or 4 * horizon + 60))
         cutoffs = [(start + timedelta(days=d)).isoformat() for d in days]
-        look = max((k for k, c in enumerate(cutoffs, 1) if _due(c, as_of, horizon)), default=0)
-        pairs, records, seen, why, later = {"learning": [], "reference": []}, [], set(), defaultdict(int), 0
-        for ck, j in sorted(own.get("variant", {}).items(),
-                            key=lambda kv: (kv[0][0], str(kv[1].get("ticker")), str(kv[0][1]))):
-            if not look or j["date"] > cutoffs[look - 1]:
-                later += 1                                   # gehört zu einer späteren Prüfung
-                continue
-            if (j["date"], j.get("ticker")) in seen:
-                continue
-            seen.add((j["date"], j.get("ticker")))
-            if ck not in by_cand:
-                why["CANDIDATE_NOT_IN_LEDGER"] += 1
-                continue
-            dec = {"action": j.get("action"), "contract": j.get("contract")}
-            records.append({"cand": by_cand[ck], "dec": dec, "preds": {}})
-            if base_dec.get("learning", {}).get(ck) is None:
-                why["NO_BASE_DECISION"] += 1
-            for role, ps in pairs.items():
-                if (b := base_dec.get(role, {}).get(ck)) is not None:
-                    ps.append({"cand": by_cand[ck], "learning": dec,
-                               "reference": {"action": b.get("action"), "contract": b.get("contract")}})
-        alpha_look = spend[look - 1] if look else alpha_var
-        vs_base = compare_policies(pairs["learning"], horizon, alpha_look, due=len(seen), method="normal")
-        vs_ref = compare_policies(pairs["reference"], horizon, alpha_look, due=len(seen), method="normal")
-        relative = RELATIVE.get(vs_base["verdict"], vs_base["verdict"]) if look else "AWAITING_LOOK"
-        economic = _economic(vs_base) if look else "AWAITING_LOOK"
-        final = look == len(days)
+        ready = max((k for k, c in enumerate(cutoffs, 1) if _due(c, as_of, horizon)), default=0)
+        slot = v.get("alpha_slot")
+        slot_alpha = v.get("slot_alpha") if slot and v.get("test_budget") and slot <= v["test_budget"]["max_tests"] \
+            else None
+        spend = alpha_spending(slot_alpha) if slot_alpha else None
+
+        def run_look(k, freeze, v=v, own_var=own_var, invalid_ck=invalid_ck, cutoffs=cutoffs, days=days,
+                     slot=slot, slot_alpha=slot_alpha, spend=spend):
+            """Prüfung k auf ihrer festen Population [Start, Stichtag k]; friert den Bericht ein (falls freeze)."""
+            alpha_k = spend[k - 1] if spend and k else (slot_alpha or 0.05)
+            pop, seen = [], set()                      # je Aktie und Tag der erste Kandidat nach Signal-ID
+            for c in sorted(cands, key=lambda c: (c["date"], c["ticker"], str(c["signal_id"]))):
+                if k and v["start_date"] <= c["date"] <= cutoffs[k - 1] and (c["date"], c["ticker"]) not in seen:
+                    seen.add((c["date"], c["ticker"]))
+                    pop.append(c)
+            pairs, records, why, model_ids = {"learning": [], "reference": []}, [], defaultdict(int), defaultdict(set)
+            for c in pop:
+                ck = (c["date"], c["signal_id"])
+                j, b = own_var.get(ck), base_dec.get("learning", {}).get(ck)
+                if j is None:
+                    why[invalid_ck.get(ck, "NO_VARIANT_DECISION")] += 1
+                    continue
+                if b is None:
+                    why["NO_BASE_DECISION"] += 1
+                    continue
+                dec = {"action": j.get("action"), "contract": j.get("contract")}
+                records.append({"cand": c, "dec": dec, "preds": {}})
+                model_ids["variant"].add(j.get("model_id"))
+                model_ids["base"].add(b.get("model_id"))
+                pairs["learning"].append({"cand": c, "learning": dec,
+                                          "reference": {"action": b.get("action"), "contract": b.get("contract")}})
+                if (r := base_dec.get("reference", {}).get(ck)) is not None:
+                    model_ids["reference"].add(r.get("model_id"))
+                    pairs["reference"].append({"cand": c, "learning": dec, "reference": {
+                        "action": r.get("action"), "contract": r.get("contract")}})
+            vs_base = compare_policies(pairs["learning"], horizon, alpha_k, due=len(pop), method="normal")
+            vs_ref = compare_policies(pairs["reference"], horizon, alpha_k, due=len(pop), method="normal")
+            excluded = defaultdict(int, why)
+            for reason, n in vs_base["excluded"].items():
+                excluded[reason] += n
+            if not k:
+                relative = economic = "AWAITING_LOOK"
+            elif not slot_alpha:
+                relative = economic = "RESEARCH_ONLY"
+            else:
+                relative, economic = RELATIVE.get(vs_base["verdict"], vs_base["verdict"]), _economic(vs_base)
+            report = None
+            if k and freeze:
+                labels = sorted(f"{c['date']}|{c['signal_id']}|{'/'.join(e['contract'])}|{e['label_day']}"
+                                for c in (p["cand"] for p in pairs["learning"]) for e in c["exprs"]
+                                if e["status"] == "VERIFIED")
+                inputs = [[p["cand"]["date"], p["cand"]["signal_id"], p["learning"], p["reference"],
+                           [[e["contract"], e["status"], e["y"]] for e in p["cand"]["exprs"]]]
+                          for p in pairs["learning"]]
+                report = freeze_look_report(out, {
+                    "variant_id": v["variant_id"], "look": k, "looks": len(days), "look_day": days[k - 1],
+                    "data_cutoff": cutoffs[k - 1], "evaluated_as_of": as_of.isoformat(), "horizon": horizon,
+                    "experiment_id": v["experiment_id"], "base_experiment_id": v.get("base_experiment_id"),
+                    "current_base_experiment_id": base,
+                    "model_ids": {r: sorted(x for x in s if x) for r, s in sorted(model_ids.items())},
+                    "decision_ids": [f"{c['date']}|{c['signal_id']}" for c in pop], "label_ids": labels,
+                    "n_population": len(pop), "n_compared": vs_base["candidates"], "coverage": vs_base["coverage"],
+                    "excluded": dict(sorted(excluded.items())),
+                    "test_budget": {"total_alpha": (v.get("test_budget") or {}).get("total_alpha"),
+                                    "max_tests": (v.get("test_budget") or {}).get("max_tests"), "slot": slot,
+                                    "slot_alpha": slot_alpha, "look_alpha": alpha_k if slot_alpha else None,
+                                    "spending": spend},
+                    "result": {"relative_verdict": relative, "economic_verdict": economic,
+                               "vs_base": _compact(vs_base), "vs_frozen_reference": _compact(vs_ref)},
+                    "release_status": ("RESEARCH_ONLY" if not slot_alpha else "ADOPTION_CANDIDATE"
+                                       if relative == "BETTER_THAN_BASE" and economic == "POSITIVE_EXECUTABLE_ALPHA"
+                                       else "NO_RELEASE"),
+                    "input_sha256": _sha({"pop": [f"{c['date']}|{c['signal_id']}" for c in pop], "inputs": inputs,
+                                          "excluded": dict(sorted(excluded.items())), "slot_alpha": slot_alpha,
+                                          "look_alpha": alpha_k})}, now)
+                relative, economic = report["result"]["relative_verdict"], report["result"]["economic_verdict"]
+            return {"pop": pop, "records": records, "vs_base": vs_base, "vs_ref": vs_ref, "excluded": excluded,
+                    "relative": relative, "economic": economic, "report": report, "alpha": alpha_k}
+
+        def decide_status(k, relative, economic, days=days, slot_alpha=slot_alpha):
+            final = k == len(days)
+            if not k:
+                return "RUNNING"
+            if not slot_alpha:
+                return "RESEARCH_ONLY"
+            if relative == "WORSE_THAN_BASE":
+                return "FALSIFIED_WORSE"
+            if relative == "BETTER_THAN_BASE" and economic == "POSITIVE_EXECUTABLE_ALPHA":
+                return "CONFIRMED_ADOPTION" if final else "PROPOSE_ADOPTION"
+            if relative == "BETTER_THAN_BASE":
+                return "BETTER_THAN_BASE_NOT_PROFITABLE" if final else "BETTER_THAN_BASE_ONLY"
+            return "FALSIFIED_NO_EFFECT" if final else "RUNNING"
+
+        # Jede fällige Prüfung der Reihe nach (auch eine verpasste frühere); eine Schließung beendet die Folge.
+        is_open = not v.get("closed_at") and v.get("base_experiment_id") == base
+        look, lk, status = 0, run_look(0, False), "RUNNING"
+        for k in range(1, ready + 1):
+            look, lk = k, run_look(k, is_open)
+            status = decide_status(k, lk["relative"], lk["economic"])
+            if status in CLOSING:
+                break
         if v.get("closed_at"):
             status = v.get("status")
         elif v.get("base_experiment_id") != base:
             status = "BASE_CHANGED"
-        elif not look:
-            status = "RUNNING"
-        elif relative == "WORSE_THAN_BASE":
-            status = "FALSIFIED_WORSE"
-        elif relative == "BETTER_THAN_BASE" and economic == "POSITIVE_EXECUTABLE_ALPHA":
-            status = "CONFIRMED_ADOPTION" if final else "PROPOSE_ADOPTION"
-        elif relative == "BETTER_THAN_BASE":
-            status = "BETTER_THAN_BASE_NOT_PROFITABLE" if final else "BETTER_THAN_BASE_ONLY"
-        else:
-            status = "FALSIFIED_NO_EFFECT" if final else "RUNNING"
+        pop, records, vs_base, vs_ref, excluded = lk["pop"], lk["records"], lk["vs_base"], lk["vs_ref"], lk["excluded"]
+        relative, economic, report, alpha_look = lk["relative"], lk["economic"], lk["report"], lk["alpha"]
+        later = sum(1 for (d, _s) in own_var if not look or d > cutoffs[look - 1])
         if not v.get("closed_at") and status in CLOSING:
             stichtag = cutoffs[look - 1] if look else "-"
             closed.append({"event": "closed", "variant_id": v["variant_id"], "status": status,
                            "closed_at": now.isoformat(timespec="seconds"),
                            "close_reason": f"Prüfung {look}/{len(days)} (Stichtag {stichtag}): relativ {relative}, "
-                                           f"netto {economic}, Abdeckung {vs_base['coverage']}"})
+                                           f"netto {economic}, Abdeckung {vs_base['coverage']}",
+                           "look_report": report and report["report_id"]})
         s = assess(records, horizon)
-        excluded = defaultdict(int, why)
-        for k, n in vs_base["excluded"].items():
-            excluded[k] += n
         nxt = next(((k, c) for k, c in enumerate(cutoffs, 1) if k > look), None)
         results[v["variant_id"]] = {
             "variant_id": v["variant_id"], "overrides": v["overrides"], "experiment_id": v["experiment_id"],
@@ -1074,12 +1211,14 @@ def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, j
             "next_look": {"look": nxt[0], "cutoff": nxt[1],
                           "ready_after": (date.fromisoformat(nxt[1]) + timedelta(days=horizon + DUE_GRACE_DAYS))
                           .isoformat()} if nxt else None,
-            "status": status, "relative_verdict": relative, "economic_verdict": economic, "family_size": family,
-            "alpha_variant": round(alpha_var, 6), "alpha_look": round(alpha_look, 8),
-            "comparison": {"due_candidates": len(seen), "compared": vs_base["candidates"],
+            "status": status, "relative_verdict": relative, "economic_verdict": economic,
+            "alpha_slot": slot, "slot_alpha": slot_alpha, "alpha_look": round(alpha_look, 8) if slot_alpha else None,
+            "look_report": {"report_id": report["report_id"], "version": report["version"],
+                            "corrected": report["version"] > 1} if report else None,
+            "comparison": {"due_candidates": len(pop), "compared": vs_base["candidates"],
                            "coverage": vs_base["coverage"], "min_coverage": MIN_COVERAGE,
                            "excluded": dict(sorted(excluded.items())), "decisions_after_cutoff": later},
-            "valid_decisions": len(own.get("variant", {})), "invalid_entries": dict(sorted(invalid.items())),
+            "valid_decisions": len(own_var), "invalid_entries": dict(sorted(invalid.items())),
             "vs_base": vs_base, "vs_frozen_reference": vs_ref,
             "forward": {k: s[k] for k in ("n", "dates", "independent_periods", "n_selected", "mean_selected",
                                           "selected_ci95", "coverage")} | {"verdict": _verdict(s, "forward")}}
@@ -1088,8 +1227,7 @@ def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, j
     for r in results.values():
         if r["status"] in ADOPTION or (out / CHANGE_DIR / f"{r['variant_id']}.json").exists():
             r["change_proposal"] = change_proposal(out, r, now)
-    return {"horizon": horizon, "base_experiment_id": base, "family_size": family, "alpha_variant": round(alpha_var, 6),
-            "alpha_spending": [round(a, 8) for a in spend], "variants": results}
+    return {"horizon": horizon, "base_experiment_id": base, "test_budget": budget, "variants": results}
 
 
 CHANGE_DIR = "change_proposals"
@@ -1110,7 +1248,8 @@ def _evidence_lines(r: dict) -> list[str]:
     lb, ln, lr = vb["learning_minus_reference"], vb["learning_minus_no_trade"], vr["learning_minus_reference"]
     cmp = r["comparison"]
     return [(f"- Prüfzeitpunkt {r['look']}/{r['looks']} (Stichtag {r['look_cutoff']}), Teil-Alpha {r['alpha_look']} "
-             f"(O'Brien-Fleming, Bonferroni über {r['family_size']} Varianten)"),
+             f"(O'Brien-Fleming aus Slot {r['alpha_slot']} = {r['slot_alpha']} des dauerhaften Fehlerbudgets; "
+             f"Prüfbericht {(r.get('look_report') or {}).get('report_id')})"),
             (f"- Relativ gegen die Basis-Lernversion: **{r['relative_verdict']}** – Δ {lb['mean']} je Kandidat und "
              f"Tag, KI {lb['ci95']}, {vb['days']} Tage, {vb['independent_periods']} unabhängige Perioden"),
             (f"- Netto gegen Nicht-Handeln: **{r['economic_verdict']}** – Tagesrendite {ln['mean']}, KI {ln['ci95']} "
@@ -1166,7 +1305,8 @@ def change_proposal(out: Path, r: dict, now: datetime) -> dict | None:
                "requires_human_pr": True, "code_change": _code_change(r["overrides"]),
                "original": {k: r[k] for k in ("overrides", "experiment_id", "base_experiment_id", "look",
                                               "look_cutoff", "relative_verdict", "economic_verdict", "comparison",
-                                              "alpha_look", "family_size", "status")},
+                                              "alpha_look", "alpha_slot", "slot_alpha", "look_report",
+                                              "status")},
                "original_markdown": _proposal_body(r, now), "status_history": []}
     state = "VALID" if r["status"] in ADOPTION else "SUPERSEDED" if r["status"] == "BASE_CHANGED" else "WITHDRAWN"
     current = {"state": state, "variant_status": r["status"], "look": r["look"], "look_cutoff": r["look_cutoff"],
@@ -1457,13 +1597,15 @@ def _improvement_answers(st: dict, imp: dict, horizon: int) -> dict:
     variants = list(((st or {}).get("variants") or {}).get("variants", {}).values())
     states = [v["status"] for v in variants]
     tested = "; ".join(
-        f"{next(iter(v['overrides']))}={next(iter(v['overrides'].values()))}: {v['status']} (Prüfung "
+        f"{next(iter(v['overrides']))}={next(iter(v['overrides'].values()))}: {v['status']} (Slot "
+        f"{v.get('alpha_slot')}, Prüfung "
         f"{v.get('look', 0)}/{v.get('looks', '?')}, relativ {v.get('relative_verdict')}, netto "
         f"{v.get('economic_verdict')}, Abdeckung {(v.get('comparison') or {}).get('coverage')}"
         + (f", nächste Prüfung nach {v['next_look']['ready_after']}" if v.get("next_look") else "") + ")"
         + (f", Vorschlag {v['change_proposal']['state']}" if v.get("change_proposal") else "")
         for v in variants)
     adopted = any(s in ADOPTION for s in states)
+    budget = ((st or {}).get("variants") or {}).get("test_budget")
     return {
         "gaps": ("Ja" if gaps else "offen",
                  (f"{len(gaps)} Lücke(n), zuerst: {gaps[0]['finding']}; Vorschläge: "
@@ -1472,8 +1614,11 @@ def _improvement_answers(st: dict, imp: dict, horizon: int) -> dict:
                  "keine gemessene Lücke (oder research_director --options noch nicht gelaufen)"),
         "improvements": ("Ja" if adopted else "offen" if any(s not in CLOSING for s in states)
                          else "Nein" if variants else "offen",
-                         (tested + ("; gültiger Übernahmevorschlag liegt zur Prüfung vor" if adopted else ""))
-                         if variants else "noch keine Variante registriert"),
+                         ((tested + ("; gültiger Übernahmevorschlag liegt zur Prüfung vor" if adopted else ""))
+                          if variants else "noch keine Variante registriert") + (
+                             f"; Fehlerbudget {budget['used']}/{budget['max_tests']} Tests verbraucht"
+                             + (" – ERSCHÖPFT, keine neuen Tests" if budget.get("exhausted") else "")
+                             if budget else "")),
     }
 
 

@@ -778,8 +778,11 @@ def test_a_failing_variant_never_touches_the_base(monkeypatch, tmp_path):
     assert not (tmp_path / ol.VARIANT_DIR).exists()
 
 
-def _variant_case(tmp_path, rule, n_days=30, variant_pick=1, base_pick=0, family=1, single_status=None,
-                  drop_base=(), late=False, base_exp=None):
+BUDGET = {"total_alpha": 0.05, "max_tests": 20}
+
+
+def _variant_case(tmp_path, rule, n_days=30, variant_pick=1, base_pick=0, single_status=None, drop_base=(),
+                  late=False, base_exp=None, keep_variant=None, slot=1):
     """Ab 2.3.2026 n_days Handelstage à 4 Kandidaten mit zwei Formen (Spread = Standardform, Einzel-Option);
     rule(tag_index, rng) -> (y_spread, y_single). Basis und Referenz wählen base_pick, die Variante variant_pick.
     Prüfzeitpunkte bei 30/60/90 Tagen ab Start (max_days 90)."""
@@ -807,15 +810,17 @@ def _variant_case(tmp_path, rule, n_days=30, variant_pick=1, base_pick=0, family
                 for role in ("learning", "reference"):
                     journal.append(dict(e, role=role, experiment_id=base, model_id="base",
                                         contract=c["exprs"][base_pick]["contract"]))
-            vj.append(dict(e, role="variant", variant_id="OLV-1", experiment_id="VEXP", model_id="var",
-                           contract=c["exprs"][variant_pick]["contract"],
-                           created_at="2026-12-01T00:00:00+00:00" if late else e["created_at"]))
+            n = len(cands) - 1
+            if keep_variant is None or keep_variant(n):
+                vj.append(dict(e, role="variant", variant_id="OLV-1", experiment_id="VEXP", model_id="var",
+                               contract=c["exprs"][variant_pick]["contract"],
+                               created_at="2026-12-01T00:00:00+00:00" if late else e["created_at"]))
     reg = [{"event": "registered", "variant_id": "OLV-1", "horizon": H, "base_experiment_id": base_exp or base,
             "experiment_id": "VEXP", "overrides": {"ridge_alpha": 30.0}, "start_date": "2026-03-02",
             "falsification": {"max_days": 90}, "look_days": ol.look_days(90), "proposal_id": "OLP-x",
             "gap_ids": ["model:overfit_risk:5d"]}]
-    reg += [dict(reg[0], variant_id=f"OLV-dummy{i}", experiment_id=f"D{i}", base_experiment_id=base)
-            for i in range(family - 1)]
+    if slot:
+        reg[0] |= {"test_budget": BUDGET, "alpha_slot": slot, "slot_alpha": BUDGET["total_alpha"] / BUDGET["max_tests"]}
     append_jsonl(tmp_path / ol.VARIANTS, reg)
     append_jsonl(tmp_path / ol.VARIANT_DIR / "OLV-1.jsonl", vj)
     return cands, journal, inst
@@ -924,14 +929,13 @@ def test_preregistered_falsification_closes_variants(tmp_path):
     _res, final = _eval_variant(tmp_path / "f", FINAL, rule=_gauss(0.0, 0.3), variant_pick=0, n_days=70)
     assert final["status"] == "FALSIFIED_NO_EFFECT"
     assert "Prüfung 3/3" in ol.variant_registry(tmp_path / "f")["OLV-1"]["close_reason"]
-    res, family = _eval_variant(tmp_path / "k", LOOK1, rule=_gauss(0.0, 0.3), family=20)
-    assert res["family_size"] == 20 and res["alpha_variant"] == 0.0025
-    assert family["alpha_look"] == round(ol.alpha_spending(0.0025)[0], 8)
 
 
 def test_variant_evidence_counts_only_prospective_entries(tmp_path):
     _res, v = _eval_variant(tmp_path, LOOK1, rule=_gauss(0.0, 0.3), late=True)
-    assert v["invalid_entries"] == {"LATE_PREDICTION": 120} and v["comparison"]["due_candidates"] == 0
+    cmp, due = v["comparison"], 4 * sum(d <= date(2026, 4, 1) for d in _trading_days(date(2026, 3, 2), 30))
+    assert v["invalid_entries"] == {"LATE_PREDICTION": 120}
+    assert cmp["due_candidates"] == due and cmp["coverage"] == 0.0 and cmp["excluded"] == {"LATE_PREDICTION": due}
     assert v["relative_verdict"] == "NEED_MORE_DATA" and v["status"] == "RUNNING"
 
 
@@ -966,7 +970,8 @@ def test_report_card_shows_detected_gaps_and_running_improvements(monkeypatch, t
         "proposals": [{"horizon": H, "auto_experiment": True, "approval_required": False}]}))
     card = {r["key"]: r[f"{H}d"] for r in ol.report_card(tmp_path, horizons=(H,))["rows"]}
     assert card["gaps"][0] == "Ja" and "34 Merkmale" in card["gaps"][1] and "1 automatisch" in card["gaps"][1]
-    assert list(card["improvements"]) == ["offen", "noch keine Variante registriert"]
+    assert card["improvements"][0] == "offen"
+    assert card["improvements"][1].startswith("noch keine Variante registriert; Fehlerbudget 0/20")
 
 
 def test_weekly_workflow_runs_research_improvement_after_the_evaluation_without_secrets():
@@ -980,3 +985,138 @@ def test_weekly_workflow_runs_research_improvement_after_the_evaluation_without_
     assert step["run"].strip() == "python -m modules.research_director --options"
     assert "env" not in step and step.get("continue-on-error") is True and "secrets" not in json.dumps(step)
     assert "steps.research_improvement.outcome" in json.dumps(steps[-1])
+
+
+# ── Abschluss-Review PR #145: Abdeckungs-Nenner, dauerhaftes Fehlerbudget, eingefrorene Prüfberichte ──
+
+def test_coverage_denominator_is_all_planned_candidates_not_logged_decisions(tmp_path):
+    """Pflichttest: 40 vorgesehene Kandidaten, nur 10 gültige Variantenentscheidungen -> 25 %, nicht 100 %."""
+    _res, v = _eval_variant(tmp_path, LOOK1, rule=_gauss(0.0, 0.3), n_days=10, keep_variant=lambda n: n < 10)
+    cmp = v["comparison"]
+    assert cmp["due_candidates"] == 40 and cmp["compared"] == 10 and cmp["coverage"] == 0.25
+    assert cmp["excluded"] == {"NO_VARIANT_DECISION": 30}
+    assert v["relative_verdict"] in ("NEED_MORE_DATA", "INSUFFICIENT_COVERAGE") and "change_proposal" not in v
+
+
+def test_low_coverage_blocks_a_strong_effect_and_population_ignores_outcomes(tmp_path):
+    _res, v = _eval_variant(tmp_path / "a", LOOK1, rule=_gauss(0.0, 0.3), keep_variant=lambda n: n % 10 >= 3)
+    assert v["comparison"]["coverage"] < 0.8 and v["comparison"]["excluded"]["NO_VARIANT_DECISION"] > 0
+    assert v["relative_verdict"] == v["economic_verdict"] == "INSUFFICIENT_COVERAGE"
+    assert v["status"] == "RUNNING" and "change_proposal" not in v
+    _res, unknown = _eval_variant(tmp_path / "b", LOOK1, rule=_gauss(0.0, 0.3),
+                                  single_status=lambda i: "NO_LABEL")           # Ergebnisse unbekannt
+    _res, known = _eval_variant(tmp_path / "c", LOOK1, rule=_gauss(0.0, 0.3))
+    assert unknown["comparison"]["due_candidates"] == known["comparison"]["due_candidates"]
+    assert unknown["comparison"]["coverage"] == 0.0
+
+
+def _proposal(change, h=H):
+    return {"proposal_id": f"P-{h}-{change}", "horizon": h, "change": change, "auto_experiment": True,
+            "gap_ids": ["model:untested_alternatives"], "falsification": {"max_days": 90}}
+
+
+ALL_CHANGES = [{"ridge_alpha": a} for a in (3.0, 30.0, 100.0)] + [{"min_pred": m} for m in (0.02, 0.05)] + [
+    {"drop_feature_group": g} for g in ("ml_scores", "news_sentiment", "positioning", "volatility_pricing")]
+
+
+def _close_all(out, status="FALSIFIED_NO_EFFECT", keep=()):
+    open_ = [vid for vid, v in ol.variant_registry(out).items() if not v.get("closed_at") and vid not in keep]
+    append_jsonl(out / ol.VARIANTS, [{"event": "closed", "variant_id": vid, "status": status,
+                                      "closed_at": "2027-01-01"} for vid in open_])
+
+
+def test_error_budget_is_persistent_over_months_and_never_exceeds_the_total(tmp_path):
+    cfg = ol.variant_config()
+    slots = []
+    for month in range(12):                                      # ein Jahr monatlicher Registrierungsrunden
+        now = datetime(2026, 11, 7, tzinfo=timezone.utc) + timedelta(days=30 * month)
+        props = [_proposal(c, h) for h in (5, 20) for c in ALL_CHANGES]
+        slots += [v["alpha_slot"] for v in ol.register_variants(tmp_path, props, now, cfg)]
+        _close_all(tmp_path)
+    budget = ol.test_budget(tmp_path, cfg)
+    assert slots == list(range(1, 19)) and budget["used"] == 18     # 9 Änderungen × 2 Horizonte, nie doppelt
+    reg = ol.variant_registry(tmp_path).values()
+    assert sum(v["slot_alpha"] for v in reg) <= budget["total_alpha"] + 1e-12
+    assert all(v["slot_alpha"] == 0.0025 and v["test_budget"] == BUDGET for v in reg)
+
+
+def test_budget_is_not_reset_by_base_change_reregistration_or_config(tmp_path, monkeypatch):
+    cfg = ol.variant_config()
+    now = datetime(2026, 11, 7, tzinfo=timezone.utc)
+    first = ol.register_variants(tmp_path, [_proposal({"ridge_alpha": 30.0}), _proposal({"min_pred": 0.02})], now, cfg)
+    assert [v["alpha_slot"] for v in first] == [1, 2]
+    _close_all(tmp_path, "BASE_CHANGED")
+    monkeypatch.setattr(ol, "experiment_id", lambda params=None: "NEUE_BASIS" if params is None else f"V{params}")
+    again = ol.register_variants(tmp_path, [_proposal({"ridge_alpha": 30.0})], now, cfg)   # gleiche Änderung
+    assert [v["alpha_slot"] for v in again] == [3]                     # neue Basis: der Zähler läuft weiter
+    bigger = {**cfg, "test_budget": {"total_alpha": 0.5, "max_tests": 100}}
+    assert ol.test_budget(tmp_path, bigger) | {"used": 0} == ol.test_budget(tmp_path, cfg) | {"used": 0}
+    frozen = ol.test_budget(tmp_path, bigger)
+    assert frozen["max_tests"] == 20 and frozen["slot_alpha"] == 0.0025
+
+
+def test_exhausted_budget_allows_no_new_tests_and_unbudgeted_variants_stay_research_only(tmp_path):
+    cfg = {**ol.variant_config(), "test_budget": {"total_alpha": 0.05, "max_tests": 2}}
+    now = datetime(2026, 11, 7, tzinfo=timezone.utc)
+    assert len(ol.register_variants(tmp_path / "x", [_proposal(c) for c in ALL_CHANGES[:2]], now, cfg)) == 1
+    _close_all(tmp_path / "x")
+    assert len(ol.register_variants(tmp_path / "x", [_proposal(c) for c in ALL_CHANGES[2:4]], now, cfg)) == 1
+    _close_all(tmp_path / "x")
+    assert ol.register_variants(tmp_path / "x", [_proposal(c) for c in ALL_CHANGES[4:]], now, cfg) == []
+    assert ol.test_budget(tmp_path / "x", cfg)["exhausted"] is True
+    _res, v = _eval_variant(tmp_path / "y", LOOK1, rule=_gauss(0.0, 0.3), slot=None)       # starker Effekt, kein Slot
+    assert v["status"] == "RESEARCH_ONLY" and v["relative_verdict"] == "RESEARCH_ONLY" and "change_proposal" not in v
+    report = json.loads((tmp_path / "y" / ol.LOOK_DIR / "OLV-1_look1_v1.json").read_text())
+    assert report["release_status"] == "RESEARCH_ONLY"
+
+
+def test_later_registrations_never_change_an_earlier_result(tmp_path):
+    case = _variant_case(tmp_path, rule=_gauss(0.0, 0.3))
+    _res, before = _eval_variant(tmp_path, LOOK1, case=case)
+    now = datetime(2026, 4, 25, tzinfo=timezone.utc)
+    for month in range(3):
+        ol.register_variants(tmp_path, [_proposal(c, 20) for c in ALL_CHANGES], now + timedelta(days=30 * month),
+                             ol.variant_config())
+        _close_all(tmp_path, keep=("OLV-1",))      # nur die neuen Varianten der Runde schließen
+    assert ol.test_budget(tmp_path)["used"] == 9 and not ol.variant_registry(tmp_path)["OLV-1"].get("closed_at")
+    _res, after = _eval_variant(tmp_path, LOOK1, case=case)
+    for k in ("alpha_slot", "slot_alpha", "alpha_look", "relative_verdict", "economic_verdict", "look_report"):
+        assert before[k] == after[k], k
+    assert len(list((tmp_path / ol.LOOK_DIR).glob("OLV-1_look1_v*.json"))) == 1
+
+
+def test_look_reports_are_frozen_and_corrections_are_versioned(tmp_path):
+    cands, journal, inst = _variant_case(tmp_path, rule=_gauss(0.0, 0.3))
+    _eval_variant(tmp_path, LOOK1, case=(cands, journal, inst))
+    path = tmp_path / ol.LOOK_DIR / "OLV-1_look1_v1.json"
+    rep = json.loads(path.read_text())
+    for k in ("experiment_id", "base_experiment_id", "model_ids", "look", "look_day", "data_cutoff",
+              "decision_ids", "label_ids", "n_population", "n_compared", "coverage", "test_budget", "result",
+              "release_status", "input_sha256", "report_sha256"):
+        assert rep.get(k) is not None, k
+    assert rep["model_ids"] == {"base": ["base"], "reference": ["base"], "variant": ["var"]}
+    assert rep["data_cutoff"] == "2026-04-01" and len(rep["decision_ids"]) == rep["n_population"]
+    assert rep["test_budget"]["slot"] == 1 and rep["release_status"] == "ADOPTION_CANDIDATE"
+    frozen = path.read_bytes()
+    _eval_variant(tmp_path, date(2026, 5, 10), case=(cands, journal, inst))              # gleiche Prüfung, später
+    assert path.read_bytes() == frozen and not (tmp_path / ol.LOOK_DIR / "OLV-1_look1_v2.json").exists()
+    cands[0]["exprs"][1] = dict(cands[0]["exprs"][1], status="EXIT_NOT_ARCHIVED", y=None, label_day=None)
+    _res, corrected = _eval_variant(tmp_path, date(2026, 5, 10), case=(cands, journal, inst))  # korrigierte Daten
+    v2 = json.loads((tmp_path / ol.LOOK_DIR / "OLV-1_look1_v2.json").read_text())
+    assert path.read_bytes() == frozen                                                    # v1 nie überschrieben
+    assert v2["supersedes"] == "OLV-1_look1_v1" and "geändert" in v2["correction_reason"]
+    assert v2["n_compared"] == rep["n_compared"] - 1
+    assert corrected["look_report"] == {"report_id": "OLV-1_look1_v2", "version": 2, "corrected": True}
+
+
+def test_a_missed_look_is_still_evaluated_and_frozen_in_order(tmp_path):
+    """Läuft die Auswertung erst, wenn schon Prüfung 2 fällig ist, wird Prüfung 1 trotzdem zuerst geprüft und
+    eingefroren; schließt sie die Variante, gibt es keine Prüfung 2."""
+    _res, ok = _eval_variant(tmp_path / "a", LOOK2, rule=_gauss(0.0, 0.3), n_days=62)
+    assert ok["look"] == 2 and {p.name for p in (tmp_path / "a" / ol.LOOK_DIR).iterdir()} == {
+        "OLV-1_look1_v1.json", "OLV-1_look2_v1.json"}
+    _res, worse = _eval_variant(tmp_path / "b", LOOK2, rule=_gauss(-0.3, 0.0), n_days=62, variant_pick=0,
+                                base_pick=1)
+    assert worse["status"] == "FALSIFIED_WORSE" and worse["look"] == 1
+    assert "Prüfung 1/3" in ol.variant_registry(tmp_path / "b")["OLV-1"]["close_reason"]
+    assert {p.name for p in (tmp_path / "b" / ol.LOOK_DIR).iterdir()} == {"OLV-1_look1_v1.json"}
