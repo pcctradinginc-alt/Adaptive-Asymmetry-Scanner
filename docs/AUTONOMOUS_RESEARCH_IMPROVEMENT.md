@@ -62,7 +62,7 @@ Bewusst nicht gebaut: kein neuer Orchestrator, kein LLM, kein Code-Generator, ke
      - SUPERSEDED: Basisversion geändert.
    - Umsetzung nur per menschlichem PR.
 
-**Bekannte Grenze (eigener Folge-PR, nicht Teil dieses Moduls):** Die Freigabe der Basis-Empfehlungen (`release_gate`, seit #144) prüft den Forward-Test täglich ohne sequenzielle Korrektur.
+**Freigabe der Basis (Folge-PR):** `release_gate` verlangt seit 2026-10-31 zusätzlich eine sequenzielle Bestätigung des Forward-Tests an vorab festgelegten Prüfzeitpunkten (`forward_sequential`, siehe `docs/OPTION_LEARNER.md` Punkt 8). Das tägliche nominale Prüfen allein gibt nicht mehr frei.
 
 ## Automatik
 

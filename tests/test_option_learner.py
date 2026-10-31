@@ -93,8 +93,19 @@ def _stats(verdict, **kw):
     return s
 
 
-def _gated(monkeypatch, tmp_path, fw, horizon=20):
-    """recommend mit vorgegebenem Walk-Forward (VALIDATED) und Forward-Bericht; zählt versandte Mails."""
+def _seq(status="CONFIRMED", look=1, alpha=0.05, **kw):
+    """Sequenzielle Forward-Prüfung, an Prüfung `look` bestätigt: KI-Niveau = 1 − Teil-Alpha dieser Prüfung."""
+    spend = ol.alpha_spending(alpha)
+    b = {**_stats("FORWARD_POSITIVE"), "look": look, "ci_level": round(1 - spend[min(look, len(spend)) - 1], 8),
+         "decision_coverage": 1.0, "ci_method": "t", "report_id": f"FWD-20d-{ol.experiment_id()}_look{look}_v1"}
+    b.update(kw)
+    return {"status": status, "experiment_id": ol.experiment_id(), "alpha": alpha, "look": look, "looks": 3,
+            "plan_id": f"FWD-20d-{ol.experiment_id()}", "start_date": "2026-01-05", "binding": b, "next_look": None}
+
+
+def _gated(monkeypatch, tmp_path, fw, horizon=20, seq=None):
+    """recommend mit vorgegebenem Walk-Forward (VALIDATED), Forward-Bericht und sequenzieller Prüfung (Standard:
+    bestätigt); zählt versandte Mails."""
     days = _trading_days(date(2026, 1, 5), 40)
     rows, quotes = _history(days, h=horizon)
     today = _trading_days(days[-1] + timedelta(days=40), 1)[0].isoformat()
@@ -103,6 +114,7 @@ def _gated(monkeypatch, tmp_path, fw, horizon=20):
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     monkeypatch.setattr(ol, "walk_forward", lambda *a, **k: _stats("VALIDATED"))
     monkeypatch.setattr(ol, "forward", lambda *a, **k: fw)
+    monkeypatch.setattr(ol, "forward_sequential", lambda *a, **k: _seq() if seq is None else seq)
     sent = []
     monkeypatch.setattr("modules.mailer.send_mail", lambda subject, html, text: sent.append(subject) or {"status": "sent"})
     res = ol.recommend(date.fromisoformat(today), horizon=horizon, out=tmp_path)
@@ -141,7 +153,7 @@ def test_five_day_model_is_an_early_indicator_without_trade_mail(monkeypatch, tm
 
 def test_release_gate_fails_closed_on_contradictory_or_incomplete_reports():
     ok = _stats("FORWARD_POSITIVE")
-    assert ol.release_gate(_stats("VALIDATED"), ok)["allowed"] is True
+    assert ol.release_gate(_stats("VALIDATED"), ok, _seq())["allowed"] is True
     contradictory = [
         (_stats("VALIDATED", dates=5), ok),                              # Verdikt passt nicht zu den Zahlen
         (_stats("VALIDATED", ic_t=1.2), ok),
@@ -155,7 +167,7 @@ def test_release_gate_fails_closed_on_contradictory_or_incomplete_reports():
         (None, ok),
     ]
     for wf, fw in contradictory:
-        gate = ol.release_gate(wf, fw)
+        gate = ol.release_gate(wf, fw, _seq())
         assert gate["allowed"] is False and gate["reasons"]
 
 
@@ -165,6 +177,41 @@ def test_mail_rechecks_the_gate_even_for_a_forged_result():
               "recommendations": [{"ticker": "X", "pred_net": 0.2}], "watchlist": []}
     assert ol.mail(forged) is None
     assert ol.mail({**forged, "forward": None}) is None
+    nominal_only = {**forged, "forward": _stats("FORWARD_POSITIVE")}            # nur tägliches nominales KI
+    assert ol.mail(nominal_only) is None
+    assert ol.mail({**nominal_only, "forward_sequential": _seq(ci_level=0.95)}) is None
+
+
+@pytest.mark.parametrize("seq,reason", [
+    (None, "fehlt"),
+    ({}, "fehlt"),
+    (_seq("NO_PLAN"), "NO_PLAN"),
+    (_seq("PLAN_INVALID"), "PLAN_INVALID"),
+    (_seq("AWAITING_LOOK"), "AWAITING_LOOK"),
+    (_seq("RUNNING"), "RUNNING"),
+    (_seq("NOT_CONFIRMED"), "NOT_CONFIRMED"),
+    (_seq("REJECTED_NEGATIVE"), "REJECTED_NEGATIVE"),
+    (_seq(ci_level=0.95), "KI-Niveau"),                                 # nominales 95-%-KI statt Teil-Alpha
+    (_seq(look=4), "KI-Niveau"),                                        # kein vorab festgelegter Prüfzeitpunkt
+    (_seq(alpha=0.2), "Gesamt-Alpha"),
+    (_seq(ci_method="normal"), "KI-Methode"),                           # Normal-Approximation zu optimistisch
+    (_seq(report_id=None), "nicht eingefroren"),
+    (_seq(decision_coverage=0.5), "Entscheidungsabdeckung"),
+    (_seq(selected_ci95=[-0.01, 0.2]), "nicht über 0"),
+    (_seq(n_selected=12), "Auswahl n=12"),
+    (_seq(verdict="INSUFFICIENT_COVERAGE"), "INSUFFICIENT_COVERAGE"),
+    ({**_seq(), "experiment_id": "alt"}, "veraltet"),
+    ({**_seq(), "binding": None}, "unvollständig"),
+], ids=["missing", "empty", "no_plan", "plan_invalid", "awaiting", "running", "not_confirmed", "negative",
+        "nominal_ci", "unplanned_look", "alpha", "ci_method", "not_frozen", "decision_coverage", "ci", "n", "verdict", "exp",
+        "no_binding"])
+def test_release_needs_sequential_confirmation_at_a_preregistered_look(seq, reason):
+    """Walk-Forward VALIDATED und täglicher Forward FORWARD_POSITIVE reichen nicht mehr: ohne gültige sequenzielle
+    Bestätigung (richtiges KI-Niveau, eingefrorener Bericht, Mindestzahlen, aktuelle Version) bleibt gesperrt."""
+    gate = ol.release_gate(_stats("VALIDATED"), _stats("FORWARD_POSITIVE"), seq)
+    assert gate["allowed"] is False
+    assert any(r.startswith("forward_sequential:") and reason in r for r in gate["reasons"]), gate["reasons"]
+    assert ol.release_gate(_stats("VALIDATED"), _stats("FORWARD_POSITIVE"), _seq(look=3))["allowed"] is True
 
 
 def test_no_relation_means_no_recommendation_only_watchlist(monkeypatch, tmp_path):
@@ -284,6 +331,7 @@ def test_recommend_journals_every_expression_and_recommends_one_per_candidate(mo
     monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))
+    monkeypatch.setattr(ol, "forward_sequential", lambda *a, **k: _seq())
     res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
     assert res["journaled"] == 4 and res["decisions"] == 1          # 2 Formen + Entscheidung + Referenz-Entscheidung
     assert len(res["recommendations"]) == 1
@@ -1174,3 +1222,233 @@ def test_confirmed_adoption_contradicted_by_corrected_data_requires_review(tmp_p
     assert ol._improvement_answers(status, {}, H)["improvements"][0] != "Ja"   # kein gültiger Erfolg mehr
     entry = rm.option_entries(status)[0]
     assert entry["status"] == "REVIEW_REQUIRED" and entry["prospective"] is False
+
+
+# ── Sequenzielle Forward-Prüfung der Basis (Freigabe) ──────────────────────────────────────────────────────────
+FWD_START = date(2026, 3, 2)                       # Registrierung des Prüfplans; H=5: Prüfungen nach 40/80/120 Tagen
+FWD_NOW = datetime(2026, 3, 2, 12, tzinfo=timezone.utc)
+FWD_LOOK1, FWD_LOOK2, FWD_FINAL = date(2026, 4, 27), date(2026, 6, 6), date(2026, 7, 16)   # erstmals auswertbar
+
+
+def _fwd_case(rule, n_days=60, start=date(2026, 2, 2), drop=(), late=(), seed=5):
+    """Ab `start` n_days Handelstage à 4 Kandidaten (eine Form); rule(tag, rng) -> y. Die Basis entscheidet am
+    Signaltag TRADE (Journal wie im Scanner); drop: Kandidaten ohne Entscheidung, late: nachträglich geschrieben."""
+    rng, exp = random.Random(seed), ol.experiment_id()
+    inst = [{"model_id": "base", "experiment_id": exp, "train_cutoff": "2026-01-01", "max_label_day": "2025-12-31"}]
+    cands, journal = [], []
+    for d in _trading_days(start, n_days):
+        for i in range(4):
+            y = rule(d, rng)
+            c = {"date": d.isoformat(), "signal_id": f"{d}-{i}", "ticker": f"T{i}", "sample": "directional",
+                 "gate": "x", "exprs": [{"expression": "single", "contract": [f"T{i}C1"], "strategy": "LONG_CALL",
+                                         "x": {}, "ask": 2.0, "mid": 1.9, "status": "VERIFIED", "y": y,
+                                         "label_day": d + timedelta(days=H + 1)}]}
+            cands.append(c)
+            if i in drop:
+                continue
+            created = "2026-12-01T00:00:00+00:00" if i in late else f"{c['date']}T16:00:00+00:00"
+            journal.append({"date": c["date"], "signal_id": c["signal_id"], "ticker": c["ticker"], "horizon": H,
+                            "kind": "decision", "role": "learning", "experiment_id": exp, "model_id": "base",
+                            "action": "TRADE", "contract": c["exprs"][0]["contract"], "pred_net": 0.1,
+                            "created_at": created})
+    return cands, journal, inst
+
+
+def _seq_run(tmp_path, case, as_of, register=True, freeze=True):
+    cands, journal, inst = case
+    return ol.forward_sequential(tmp_path, journal, cands, H, inst, as_of,
+                                 datetime.combine(as_of, datetime.min.time(), tzinfo=timezone.utc)
+                                 if as_of > FWD_START else FWD_NOW, register, freeze)
+
+
+def _register_plan(tmp_path):
+    return ol.forward_plan(tmp_path, H, now=FWD_NOW, register=True)
+
+
+def test_daily_nominal_forward_check_cannot_release_before_the_first_preregistered_look(tmp_path):
+    case = _fwd_case(lambda d, rng: rng.gauss(0.3, 0.1))
+    plan = _register_plan(tmp_path)
+    assert plan["start_date"] == "2026-03-02" and plan["look_cutoffs"] == ["2026-04-11", "2026-05-21", "2026-06-30"]
+    assert abs(sum(plan["look_alpha"]) - ol.FORWARD_ALPHA) < 1e-12 and plan["look_alpha"][0] < 0.001
+    cands, journal, inst = case
+    for day in (date(2026, 4, 20), date(2026, 4, 26)):           # täglicher Lauf vor Prüfung 1
+        fw = ol.forward(journal, cands, H, inst, day)
+        seq = _seq_run(tmp_path, case, day)
+        assert fw["verdict"] == "FORWARD_POSITIVE"                 # nominal schon "positiv" ...
+        assert seq["status"] == "AWAITING_LOOK" and seq["next_look"]["ready_after"] == "2026-04-26"
+        gate = ol.release_gate(_stats("VALIDATED"), fw, seq)      # ... aber keine Freigabe vor Prüfung 1
+        assert gate["allowed"] is False and gate["reasons"] == [
+            "forward_sequential: AWAITING_LOOK (verlangt CONFIRMED an einem vorab festgelegten Prüfzeitpunkt)"]
+    assert not (tmp_path / ol.FORWARD_LOOK_DIR).exists()
+    seq = _seq_run(tmp_path, case, FWD_LOOK1)
+    b = seq["binding"]
+    assert seq["status"] == "CONFIRMED" and seq["look"] == 1 and seq["next_look"] is None
+    assert b["data_cutoff"] == "2026-04-11" and b["ci_level"] == round(1 - plan["look_alpha"][0], 8)
+    assert b["decision_coverage"] == 1.0 and b["report_id"] == f"{plan['plan_id']}_look1_v1"
+    report = json.loads((tmp_path / ol.FORWARD_LOOK_DIR / f"{b['report_id']}.json").read_text())
+    assert report["release_status"] == "CONFIRMED" and report["plan_sha256"] == plan["plan_sha256"]
+    assert max(i.split("|")[0] for i in report["decision_ids"]) <= "2026-04-11"
+    assert min(i.split("|")[0] for i in report["decision_ids"]) >= "2026-03-02"
+    assert len(report["label_ids"]) == report["n_compared"] == report["n_population"]
+    gate = ol.release_gate(_stats("VALIDATED"), ol.forward(journal, cands, H, inst, FWD_LOOK1), seq)
+    assert gate == {"allowed": True, "reasons": []}
+
+
+def test_weak_effect_that_the_daily_nominal_ci_accepts_is_not_released(tmp_path):
+    """Ein kleiner Vorteil, den das tägliche nominale 95-%-KI schon akzeptiert, reicht an Prüfung 1 (strenges
+    O'Brien-Fleming-Teil-Alpha) nicht. Tägliche Läufe zwischen zwei Prüfungen werten dieselben Daten aus –
+    gleiches Ergebnis, kein neuer Bericht, also kein zusätzlicher Test."""
+    case = _fwd_case(lambda d, rng: rng.gauss(0.05, 0.25), seed=5)
+    _register_plan(tmp_path)
+    cands, journal, inst = case
+    fw = ol.forward(journal, cands, H, inst, FWD_LOOK1)
+    assert fw["verdict"] == "FORWARD_POSITIVE"
+    first = _seq_run(tmp_path, case, FWD_LOOK1)
+    assert first["status"] == "RUNNING" and first["binding"]["verdict"] == "INCONCLUSIVE"
+    assert first["binding"]["selected_ci95"][0] <= 0 < first["binding"]["mean_selected"]
+    assert ol.release_gate(_stats("VALIDATED"), fw, first)["allowed"] is False
+    for day in (date(2026, 4, 28), date(2026, 5, 15), FWD_LOOK2 - timedelta(days=1)):
+        again = _seq_run(tmp_path, case, day)
+        assert again["status"] == "RUNNING" and again["look"] == 1
+        assert again["binding"]["selected_ci95"] == first["binding"]["selected_ci95"]
+    assert [p.name for p in (tmp_path / ol.FORWARD_LOOK_DIR).iterdir()] == [f"{first['plan_id']}_look1_v1.json"]
+
+
+def test_sequential_look_uses_only_the_preregistered_window_and_no_future_data(tmp_path):
+    """Entscheidungen vor dem Plan-Start (Ergebnis bei Registrierung evtl. bekannt) und nach dem Stichtag zählen
+    nicht; eine Prüfung wird erst ausgewertet, wenn alle ihre Kandidaten fällig sind."""
+    def rule(d, rng):
+        if d < FWD_START:
+            return 0.9                                            # vor der Registrierung: glänzend, zählt nicht
+        return rng.gauss(0.3, 0.1) if d <= date(2026, 4, 11) else -0.9   # nach dem Stichtag: Verluste, zählen nicht
+    _register_plan(tmp_path / "a")
+    seq = _seq_run(tmp_path / "a", _fwd_case(rule), FWD_LOOK1)
+    clean = _fwd_case(lambda d, rng: rng.gauss(0.3, 0.1) if FWD_START <= d <= date(2026, 4, 11) else 0.0)
+    _register_plan(tmp_path / "b")
+    ref = _seq_run(tmp_path / "b", clean, FWD_LOOK1)
+    assert seq["status"] == ref["status"] == "CONFIRMED"
+    assert seq["binding"]["mean_selected"] == ref["binding"]["mean_selected"]
+    assert seq["binding"]["selected_ci95"] == ref["binding"]["selected_ci95"]
+    assert _seq_run(tmp_path / "c", clean, FWD_LOOK1 - timedelta(days=1), register=False)["status"] == "NO_PLAN"
+    _register_plan(tmp_path / "c")
+    assert _seq_run(tmp_path / "c", clean, FWD_LOOK1 - timedelta(days=1))["status"] == "AWAITING_LOOK"
+
+
+def test_missing_or_late_decisions_block_release_as_insufficient_coverage(tmp_path):
+    """Nenner sind ALLE Ledger-Kandidaten im Prüfzeitraum: fehlen gültige Entscheidungen (nicht geschrieben oder
+    erst nachträglich), gibt es keine Bestätigung – auch wenn die vorhandenen Fälle glänzen."""
+    for sub, kw in (("drop", {"drop": (1, 2, 3)}), ("late", {"late": (0, 1)})):
+        _register_plan(tmp_path / sub)
+        seq = _seq_run(tmp_path / sub, _fwd_case(lambda d, rng: rng.gauss(0.3, 0.1), **kw), FWD_FINAL)
+        b = seq["binding"]
+        assert seq["status"] == "NOT_CONFIRMED" and seq["look"] == 3
+        assert b["verdict"] == "INSUFFICIENT_COVERAGE" and b["mean_selected"] > 0.2      # vorhandene Fälle glänzen
+        assert all(lk["verdict"] in ("NEED_MORE_DATA", "INSUFFICIENT_COVERAGE") for lk in seq["looks_evaluated"])
+        assert b["decision_coverage"] == (0.25 if sub == "drop" else 0.5)
+        assert b["excluded"] == ({"NO_DECISION": 3 * b["n_population"] // 4} if sub == "drop"
+                                 else {"LATE_PREDICTION": b["n_population"] // 2})
+        assert ol.release_gate(_stats("VALIDATED"), _stats("FORWARD_POSITIVE"), seq)["allowed"] is False
+
+
+def test_final_look_without_confirmation_and_negative_evidence_close_the_plan(tmp_path):
+    _register_plan(tmp_path / "flat")
+    flat = _seq_run(tmp_path / "flat", _fwd_case(lambda d, rng: rng.gauss(0.0, 0.3), n_days=140), FWD_FINAL)
+    assert flat["status"] == "NOT_CONFIRMED" and flat["look"] == 3 and flat["next_look"] is None
+    assert [lk["look"] for lk in flat["looks_evaluated"]] == [1, 2, 3]       # verpasste Prüfungen nachgeholt
+    _register_plan(tmp_path / "neg")
+    neg = _seq_run(tmp_path / "neg", _fwd_case(lambda d, rng: rng.gauss(-0.3, 0.1)), FWD_FINAL)
+    assert neg["status"] == "REJECTED_NEGATIVE" and neg["look"] == 1        # Prüfung 1 beendet die Folge
+    assert not (tmp_path / "neg" / ol.FORWARD_LOOK_DIR / f"{neg['plan_id']}_look2_v1.json").exists()
+
+
+def test_forward_plan_is_immutable_and_bound_to_the_experiment_version(tmp_path):
+    plan = _register_plan(tmp_path)
+    path = tmp_path / ol.FORWARD_PLAN_DIR / f"{H}d_{ol.experiment_id()}.json"
+    frozen = path.read_bytes()
+    later = ol.forward_plan(tmp_path, H, now=FWD_NOW + timedelta(days=30), register=True)
+    assert later == plan and path.read_bytes() == frozen                      # nie neu angelegt oder verschoben
+    assert ol.forward_plan(tmp_path, H, exp="andere", register=False) is None  # neue Version: eigener Plan
+    tampered = {**plan, "start_date": "2026-01-01"}                           # nachträglich verschoben
+    path.write_text(json.dumps(tampered))
+    seq = _seq_run(tmp_path, _fwd_case(lambda d, rng: rng.gauss(0.3, 0.1)), FWD_LOOK1)
+    assert seq["status"] == "PLAN_INVALID"
+    assert ol.release_gate(_stats("VALIDATED"), _stats("FORWARD_POSITIVE"), seq)["allowed"] is False
+
+
+def test_frozen_forward_look_report_is_confirmed_or_corrected_never_overwritten(tmp_path):
+    case = _fwd_case(lambda d, rng: rng.gauss(0.3, 0.1))
+    _register_plan(tmp_path)
+    first = _seq_run(tmp_path, case, FWD_LOOK1)
+    path = tmp_path / ol.FORWARD_LOOK_DIR / f"{first['binding']['report_id']}.json"
+    frozen = path.read_bytes()
+    assert _seq_run(tmp_path, case, FWD_LOOK1 + timedelta(days=3))["binding"]["report_id"] == path.stem
+    assert path.read_bytes() == frozen
+    inside = [c for c in case[0] if "2026-03-02" <= c["date"] <= "2026-04-11"]
+    inside[0]["exprs"][0] |= {"status": "EXIT_NOT_ARCHIVED", "y": None, "label_day": None}   # Label korrigiert
+    corrected = _seq_run(tmp_path, case, FWD_LOOK1 + timedelta(days=5))
+    v2 = json.loads((tmp_path / ol.FORWARD_LOOK_DIR / f"{first['plan_id']}_look1_v2.json").read_text())
+    assert corrected["binding"]["report_version"] == 2 and path.read_bytes() == frozen
+    assert v2["supersedes"] == path.stem and v2["correction_reason"]
+    preview = _seq_run(tmp_path, case, FWD_LOOK1 + timedelta(days=6), register=False, freeze=False)
+    assert preview["binding"]["report_id"] == v2["report_id"]                 # nur lesen: passender Bericht
+    inside[1]["exprs"][0]["y"] = 0.5                                          # weitere Änderung, nicht eingefroren
+    unfrozen = _seq_run(tmp_path, case, FWD_LOOK1 + timedelta(days=6), register=False, freeze=False)
+    assert unfrozen["binding"]["report_id"] is None
+    assert ol.release_gate(_stats("VALIDATED"), _stats("FORWARD_POSITIVE"), unfrozen)["allowed"] is False
+
+
+def test_sequential_check_never_changes_predictions_or_decisions(monkeypatch, tmp_path):
+    """Prüfplan und Freigabestatus wirken nur auf die Freigabe: das Journal ist byte-gleich, egal ob die
+    sequenzielle Prüfung bestätigt, fehlt oder abstürzt."""
+    days = _trading_days(date(2026, 1, 5), 40)
+    rows, quotes = _history(days)
+    today = _trading_days(days[-1] + timedelta(days=10), 1)[0]
+    rows += [_row(today.isoformat(), 1, 0.8), _row(today.isoformat(), 2, -0.8)]
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    monkeypatch.setattr(ol, "walk_forward", lambda *a, **k: _stats("VALIDATED"))
+    monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))
+    now = datetime.combine(today, datetime.min.time(), tzinfo=timezone.utc)
+
+    def boom(*a, **k):
+        raise RuntimeError("defekt")
+    journals, results = [], []
+    for sub, fake in (("ok", lambda *a, **k: _seq()), ("none", ol.forward_sequential), ("err", boom)):
+        monkeypatch.setattr(ol, "forward_sequential", fake)              # "none": echte Prüfung, neuer Plan
+        results.append(ol.recommend(today, horizon=H, out=tmp_path / sub, now=now))
+        journals.append((tmp_path / sub / ol.JOURNAL).read_bytes())
+    assert journals[0] == journals[1] == journals[2]
+    assert results[0]["release"]["allowed"] is True and results[0]["recommendations"]
+    assert results[1]["forward_sequential"]["status"] == "AWAITING_LOOK"     # Plan im Scanner angelegt
+    assert (tmp_path / "none" / ol.FORWARD_PLAN_DIR / f"{H}d_{ol.experiment_id()}.json").exists()
+    assert results[2]["forward_sequential"]["status"] == "ERROR"
+    assert results[1]["recommendations"] == results[2]["recommendations"] == []
+    assert results[1]["watchlist"] and results[2]["watchlist"]
+
+
+def test_weekly_evaluate_only_reads_the_plan(monkeypatch, tmp_path):
+    """Ein Schreiber: Prüfplan und Prüfberichte entstehen nur im täglichen Scanner (recommend), die wöchentliche
+    Auswertung liest sie nur (keine Push-Konflikte zwischen Workflows)."""
+    days = _trading_days(date(2026, 1, 5), 30)
+    rows, quotes = _history(days)
+    monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
+    monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
+    st = ol.evaluate(days[-1] + timedelta(days=20), horizon=H, out=tmp_path)
+    assert st["forward_sequential"]["status"] == "NO_PLAN"
+    assert not (tmp_path / ol.FORWARD_PLAN_DIR).exists() and not (tmp_path / ol.FORWARD_LOOK_DIR).exists()
+    card = {r["key"]: r[f"{H}d"] for r in ol.report_card(tmp_path, horizons=(H,))["rows"]}
+    assert card["sequential"][0] == "offen" and "kein Prüfplan" in card["sequential"][1]
+    assert card["proven"][0] == "Nein"
+
+
+def test_t_interval_is_more_conservative_than_normal_for_few_independent_windows():
+    """Wenige unabhängige Haltefenster: das t-KI (Fenster − 1 Freiheitsgrade) ist breiter als die
+    Normal-Approximation, besonders beim strengen Teil-Alpha der ersten Prüfung."""
+    rng = random.Random(4)
+    by_date = {(date(2026, 3, 2) + timedelta(days=d)).isoformat(): [rng.gauss(0.05, 0.3) for _ in range(4)]
+               for d in range(0, 40, 2)}                                      # 8 Fenster à 5 Tage
+    for alpha in ol.alpha_spending(0.05):
+        lo_n, hi_n = ol._block_bootstrap_ci(by_date, H, alpha=alpha, method="normal")
+        lo_t, hi_t = ol._block_bootstrap_ci(by_date, H, alpha=alpha, method="t")
+        assert lo_t < lo_n and hi_t > hi_n
+        assert abs((lo_t + hi_t) - (lo_n + hi_n)) < 1e-12                     # gleiches Mittel
