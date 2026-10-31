@@ -1,0 +1,67 @@
+# Alpha-to-Options research link (Phase A). RESEARCH / PAPER ONLY.
+#
+# Links frozen alpha hypotheses (ML registry models, AUTO-* factor hypotheses)
+# to pre-fixed option decisions and quote-verified outcomes. No orders, no LLM,
+# no production, champion, gate, sizing or risk-limit influence.
+#
+# Rules are FROZEN before any outcome exists. Changing any value under `rule:`
+# requires a NEW rule.rule_version (decisions store the rule hash; a changed hash
+# under an already-used version stops the pipeline with an integrity error).
+# Changes here are human PRs only and never re-label existing records.
+version: alpha-option-link-v1
+enabled: true
+production_influence: NONE
+allow_llm: false
+# Predictions created before this day are NOT linked retroactively (no
+# contemporaneous option decision exists for them); they are reported as
+# PRE_LINK in the coverage report instead.
+link_start: "2026-11-02"
+sources:
+  ml_registry: {enabled: true, top_k: 3, bottom_k: 3}
+  autonomous_factor: {enabled: true, top_k: 3, bottom_k: 3}
+# Same-date, same-budget comparison group: deterministic pseudo-random names
+# from the same PIT universe, same contract rule (unconditional call buying).
+control:
+  per_signal_date: 5
+  seed: alpha-option-control-v1
+max_signals_per_date: 30
+# A prediction older than this (created_at -> registration) is never linked.
+registration_max_age_days: 4
+decision_max_lag_trading_days: 3
+max_underlyings_per_decision_run: 15
+decision_time_budget_seconds: 240
+max_capture_symbols_per_run: 40
+rule:
+  rule_version: alpha-option-rule-v1
+  structures: [LONG_CALL, BULL_CALL_SPREAD]
+  direction: BULLISH
+  horizon_trading_days: 20
+  exit_max_lag_trading_days: 5
+  # Contract: first expiry with DTE in [dte_min, dte_max]; long call strike
+  # nearest the underlying mid (tie -> lower strike); spread short leg from the
+  # production window [1.05, 1.20] x long strike, target 1.10 x.
+  dte_min: 45
+  dte_max: 90
+  long_strike: ATM_NEAREST_TIE_LOWER
+  short_strike_window: [1.05, 1.20]
+  short_strike_target: 1.10
+  contracts_per_position: 1
+  # Executability gates (ABSTAIN when violated). Recorded at the first binding
+  # observation; never re-tried to find a better quote.
+  max_leg_spread_pct: 0.25
+  min_open_interest: 50
+  min_bid: 0.05
+  max_iv: 1.5
+  max_capital_usd: 5000
+  # Economics (Phase B): buy at ask, sell at bid, per-contract fee each side,
+  # plus an adverse execution scenario.
+  commission_usd_per_contract_per_side: 0.65
+  adverse_slippage_fraction_of_spread: 0.25
+  # The predicted edge is recorded but does NOT gate v1 decisions: it is not
+  # calibrated, so gating on it would be an untested selection rule.
+  edge_gate: NONE
+  timing: FIRST_USABLE_RTH_CAPTURE_AFTER_REGISTRATION
+# Phase A coverage floor per hypothesis and structure (below -> NEED_MORE_DATA).
+coverage:
+  min_verified_outcomes: 20
+  min_distinct_signal_dates: 6

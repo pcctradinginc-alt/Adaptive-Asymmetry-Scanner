@@ -2,8 +2,11 @@
 
 Research-only, no market calls, no LLM, no order placement. A closed trade is
 not evidence for a generated factor unless its frozen hypothesis ID and
-contemporaneous signal were registered BEFORE entry. Current trade-outcome
-schema lacks that binding, so outputs remain explicitly UNATTRIBUTED.
+contemporaneous signal were registered BEFORE entry. The check is explicit
+(option_link.ex_ante_attribution): a trade is attributed only when its record
+carries an ``alpha_signal_id`` frozen in the alpha-option link journal before
+the entry. Today's trade-outcome schema carries none, so outputs stay
+UNATTRIBUTED - verified per trade instead of assumed.
 """
 from __future__ import annotations
 
@@ -107,7 +110,8 @@ def _quote_ids_for_days(root: Path, days: set[str], cfg: dict) -> tuple[dict[str
     return ids, missing
 
 
-def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict]) -> dict:
+def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict],
+             signals: dict | None = None) -> dict:
     tid = row.get("trade_id")
     ed, xd = _date(row.get("entry_date")), _date(row.get("close_date"))
     reasons = []
@@ -152,7 +156,12 @@ def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict]) -> di
                     reasons.append("quote_contract_mismatch")
                 if quote.get("quality_status") not in ("OK",):
                     reasons.append("quote_quality_not_ok")
-    # No evidence of ex-ante alpha assignment in trade-outcome-v1.
+    from .option_link import (
+        broker_execution_documented,
+        ex_ante_attribution,
+        trade_evidence_class,
+    )
+    alpha_id, attribution = ex_ante_attribution(row, signals or {})
     return {
         "trade_id": tid, "ticker": row.get("ticker"),
         "entry_date": ed.isoformat() if ed else None,
@@ -160,9 +169,27 @@ def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict]) -> di
         "strategy": row.get("strategy"), "net_return": net,
         "gross_return": gross,
         "quote_verifiable": not reasons, "exclude_reasons": sorted(set(reasons)),
-        "alpha_id": None, "alpha_attribution": "UNATTRIBUTED",
+        "alpha_id": alpha_id,
+        "alpha_attribution": "ATTRIBUTED_EX_ANTE" if alpha_id else "UNATTRIBUTED",
+        "alpha_attribution_check": attribution,
+        # derived only: archived bid/ask valuations are paper, never broker executions
+        "evidence_class": trade_evidence_class(row, quote_verifiable=not reasons),
+        "broker_execution_check": broker_execution_documented(row)[1],
         "forward_evidence": "POST_REGISTRATION_REALIZED" if not reasons else "INELIGIBLE",
     }
+
+
+def verified_rows(inspected: list[dict]) -> list[dict]:
+    return [x for x in inspected if x["quote_verifiable"]]
+
+
+def _link_signals(root: Path) -> dict:
+    """Frozen alpha-option link signals (empty when the link is not set up)."""
+    from . import option_link
+    if not (Path(root) / option_link.CONFIG).exists():
+        return {}
+    rows, _ = option_link._read_kind(Path(root), "signals")
+    return {s["signal_id"]: s for s in rows}
 
 
 def evaluate(root: Path = Path("."), *, today: date | None = None,
@@ -185,8 +212,11 @@ def evaluate(root: Path = Path("."), *, today: date | None = None,
     dates = {str(row.get(f)) for row in unique.values()
              for f in ("entry_date", "close_date") if _date(row.get(f))}
     ids, missing_quote_days = _quote_ids_for_days(root, dates, cfg)
-    inspected = [_inspect(row, start=start, today=today, ids=ids)
+    signals = _link_signals(root)
+    inspected = [_inspect(row, start=start, today=today, ids=ids, signals=signals)
                  for _, row in sorted(unique.items())]
+    attribution = Counter(x["alpha_attribution_check"] for x in inspected)
+    attributed = [x for x in verified_rows(inspected) if x["alpha_id"]]
     verified = [x for x in inspected if x["quote_verifiable"]]
     unverified_counts = Counter(reason for x in inspected for reason in x["exclude_reasons"])
     by_strategy = {}
@@ -212,10 +242,15 @@ def evaluate(root: Path = Path("."), *, today: date | None = None,
         "net_median_verified": round(median(x["net_return"] for x in verified), 6) if verified else None,
         "by_strategy": by_strategy,
         "sample_floor_reached": enough,
-        "strategy_alpha_status": "NOT_ATTRIBUTABLE",
+        "strategy_alpha_status": "ATTRIBUTED_EX_ANTE" if attributed else "NOT_ATTRIBUTABLE",
+        "alpha_attribution_checks": dict(sorted(attribution.items())),
+        "evidence_classes": dict(sorted(Counter(x["evidence_class"] for x in inspected).items())),
+        "n_executed_attributed_ex_ante": sum(1 for x in attributed if x["evidence_class"] == "EXECUTED"),
+        "n_verified_attributed_ex_ante": len(attributed),
         "research_eligible": bool(enough),
         "prospective_alpha_validated": False,
-        "reason": "Real outcomes have no frozen ex-ante alpha ID/signal link; cost model omits some fees.",
+        "reason": ("Attributed only via ex-ante alpha_signal_id; cost model omits some fees." if attributed
+                   else "Real outcomes have no frozen ex-ante alpha ID/signal link; cost model omits some fees."),
         "production_influence": "NONE",
     }
     if persist:
