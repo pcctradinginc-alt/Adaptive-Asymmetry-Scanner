@@ -144,3 +144,69 @@ Each **outcome** records:
 
 Phase A makes **no economic statement** (`economic_result:
 NOT_EVALUATED_IN_PHASE_A`).
+
+## Phase B – Economic evaluation per hypothesis (`option_economics.py`)
+
+Inputs are only the Phase A journals and the quote archive. Nothing is
+re-quoted, re-selected or optimized on outcomes; the contract rule stays the
+frozen `alpha-option-rule-v1`.
+
+* **Execution model.**
+  * Entry: long @ ask, short @ bid. Exit: long @ bid, short @ ask.
+  * Fees: $0.65 per contract and side.
+  * **ADVERSE** (primary scenario): every fill moves 25 % of the leg's
+    bid/ask spread against us, with bids floored at 0.
+  * **BASE**: plain bid/ask.
+  * Hand-computed examples are in `tests/test_alpha_option_economics.py`.
+* **Evidence classes** are kept separate and never mixed into one metric:
+  * `EXECUTED`: documented broker executions (entry and exit fills) with an
+    ex-ante `alpha_signal_id`. Currently 0: the real trade outcomes are paper
+    trades valued from quotes.
+  * `QUOTE_VERIFIED_PAPER`: every entry and exit quote is re-verified in the
+    archive (record ID, contract, price, RTH usability, day, multiplier).
+  * `UNVERIFIABLE`: counted with reasons, never in a metric.
+* **Metrics** (verified paper positions):
+  * n, winrate, average win and loss, net EV in return and USD;
+  * profit factor, capital-weighted return;
+  * max loss, structural max loss;
+  * drawdown on the cumulative P&L series and peak concurrent capital;
+  * independent periods (non-overlapping 28-day windows, same blocking as
+    `option_learner._periods`);
+  * concentration (top ticker and top date share of |P&L|);
+  * results by regime;
+  * quote coverage and failure reasons.
+* **Benchmarks** are kept strictly apart:
+  * **`RANDOM_CONTROL`**: the identical frozen rule on random names of the
+    same universe and signal date. It is **not** the existing base strategy.
+  * **`FROZEN_ML_BENCHMARK`**: the frozen registry benchmark model
+    (`momentum_12_1`), with the identical rule and dates.
+  * **`EXISTING_BASE_STRATEGY`**: the existing scanner/option_learner base
+    decisions on scanner candidates, on the same decision days. Its
+    population and holding horizon differ (20 calendar days versus 20 trading
+    days), so it is `NOT_COMPARABLE`. It is reported descriptively and never
+    used for a superiority claim.
+* **Comparisons** use only contemporaneously observed, comparable results
+  against `RANDOM_CONTROL`, `FROZEN_ML_BENCHMARK` and no trade (0).
+  * Population and budget: same signal dates, dates whose decisions are all
+    final, equal budget per signal, ABSTAIN = cash = 0.
+  * **Missing comparison data** never count as an advantage; the result is
+    `COMPARISON_DATA_MISSING`.
+  * **Missing results** never count as positive. The primary view excludes
+    them and reports coverage; the conservative view books them as a total
+    loss.
+  * Confidence intervals come from a block bootstrap over non-overlapping
+    windows with t-quantiles. They are descriptive, not a test; the test
+    happens in Phase C.
+* **Research decision** (never an order), one of:
+  * `NEED_MORE_DATA`: fewer than 20 verified outcomes, fewer than 6
+    independent periods, or quote coverage below 80 %;
+  * `NO_ECONOMIC_EDGE_AFTER_COSTS`;
+  * `COMPARISON_DATA_MISSING`;
+  * `NOT_BETTER_THAN_RANDOM_CONTROL`;
+  * `ADVANTAGE_NOT_ESTABLISHED`;
+  * `CANDIDATE_FOR_PROSPECTIVE_VALIDATION`.
+
+  Per hypothesis, `proposals` names the structure for further prospective
+  research. Only candidates are eligible; the one with the highest lower CI
+  bound versus the random control wins, and a tie goes to the spread. The
+  selection used exploratory data, so Phase C validates it on new data only.
