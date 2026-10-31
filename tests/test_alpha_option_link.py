@@ -543,3 +543,58 @@ def test_rth_marks_capture_adds_alpha_exit_targets(tmp_path, monkeypatch, market
     res = rth_marks.run(exit_day, tmp_path / "h.json", capture_only=True)
     assert res["alpha_link"]["status"] == "OK"
     assert {leg["occ_symbol"] for leg in d["legs"]} <= set(asked)
+
+
+# ── audit: EXECUTED only with documented broker executions ───────────────────
+
+FILL = {"broker": "tradier", "entry": {"order_id": "E1", "fill_price": 3.1, "filled_at": "2026-11-10T15:00:00+00:00"},
+        "exit": {"order_id": "X1", "fill_price": 4.0, "filled_at": "2026-12-08T15:00:00+00:00"}}
+
+
+@pytest.mark.parametrize("execution, expected", [
+    (None, "NO_BROKER_EXECUTION_RECORD"),
+    ({"broker": "tradier", "entry": FILL["entry"]}, "EXIT_FILL_INCOMPLETE"),
+    ({**FILL, "broker": ""}, "BROKER_MISSING"),
+    ({**FILL, "exit": {**FILL["exit"], "filled_at": "2026-11-09T15:00:00+00:00"}}, "FILL_ORDER_INVALID"),
+    ({**FILL, "entry": {**FILL["entry"], "fill_price": "n/a"}}, "ENTRY_FILL_INVALID"),
+    (FILL, "BROKER_EXECUTION_DOCUMENTED"),
+])
+def test_executed_requires_documented_broker_fills(execution, expected):
+    row = {"broker_execution": execution} if execution is not None else {}
+    ok, reason = al.broker_execution_documented(row)
+    assert reason == expected and ok == (expected == "BROKER_EXECUTION_DOCUMENTED")
+
+
+def test_quote_verified_paper_trade_is_never_upgraded_to_executed():
+    paper = {"price_type": "OBSERVED_QUOTE", "reliable": True, "entry_quote_record_ids": ["a"],
+             "exit_quote_record_ids": ["b"], "outcome_net": 0.4}
+    assert al.trade_evidence_class(paper, quote_verifiable=True) == "QUOTE_VERIFIED_PAPER"
+    assert al.trade_evidence_class(paper, quote_verifiable=False) == "UNVERIFIABLE"
+    assert al.trade_evidence_class({**paper, "broker_execution": FILL}, quote_verifiable=False) == "EXECUTED"
+
+
+def test_real_trade_outcomes_stay_paper_and_unchanged(tmp_path):
+    _, sigs = _registered(tmp_path)
+    s = next(x for x in sigs if x["tradable"] and x["comparison_group"] == "REFERENCE")
+    shutil.copy(REPO / forward_options.POLICY, tmp_path / forward_options.POLICY)
+    src = tmp_path / forward_options.SOURCE
+    src.parent.mkdir(parents=True, exist_ok=True)
+    rows = [{"schema": "trade-outcome-v1", "trade_id": "P-1", "ticker": s["ticker"], "entry_date": "2026-11-10",
+             "close_date": "2026-11-20", "alpha_signal_id": s["signal_id"], "price_type": "OBSERVED_QUOTE"},
+            {"schema": "trade-outcome-v1", "trade_id": "B-1", "ticker": s["ticker"], "entry_date": "2026-11-10",
+             "close_date": "2026-11-20", "alpha_signal_id": s["signal_id"], "broker_execution": FILL}]
+    src.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    before = src.read_bytes()
+    rep = forward_options.evaluate(tmp_path, today=date(2026, 11, 30), persist=False)
+    assert rep["evidence_classes"] == {"EXECUTED": 1, "UNVERIFIABLE": 1}
+    assert rep["n_executed_attributed_ex_ante"] == 0                  # B-1 is not quote-verifiable in this fixture
+    cov = al.coverage(tmp_path, now=datetime(2026, 11, 30, tzinfo=timezone.utc), persist=False)
+    ex = cov["executed"]
+    assert ex["n_documented_broker_executions"] == 1 and ex["n_executed_evidence"] == 1
+    assert ex["broker_execution_checks"]["NO_BROKER_EXECUTION_RECORD"] == 1
+    assert src.read_bytes() == before                                  # historical records never rewritten
+
+
+def test_repository_trade_outcomes_are_paper_not_executed():
+    rep = forward_options.evaluate(REPO, persist=False)
+    assert "EXECUTED" not in rep["evidence_classes"] and rep["n_executed_attributed_ex_ante"] == 0

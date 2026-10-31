@@ -11,7 +11,8 @@ the existing quote archive and the existing workflows.
 
 * `modules/autonomous_alpha/forward_options.py` hard-coded every real trade to
   `alpha_id: None, alpha_attribution: UNATTRIBUTED`. That was correct, because
-  `trade-outcome-v1` records have no ex-ante hypothesis binding. Since Phase A
+  `trade-outcome-v1` records have no ex-ante hypothesis binding. The 4 real trade outcomes are scanner **paper** trades valued from archived
+  bid/ask quotes. They carry no broker fills, so they can never be `EXECUTED` evidence (see below). Since Phase A
   the result is **checked per trade**
   (`option_link.ex_ante_attribution`). A trade counts for a hypothesis only if
   its record carries an `alpha_signal_id` that was frozen before the entry.
@@ -128,6 +129,13 @@ Each **outcome** records:
     `DOWNGRADE_EVIDENCE`).
   * The original lines stay byte-identical.
   * An evidence class is never upgraded.
+* **EXECUTED evidence:** requires a documented broker execution
+  (`broker_execution` with broker, plus order ID, fill price and fill time for
+  entry and exit) **and** an ex-ante `alpha_signal_id`.
+  * Paper bookings and archived bid/ask valuations stay `QUOTE_VERIFIED_PAPER`
+    at best.
+  * The classification is derived only; it is never written back, never
+    upgraded, and never changes a historical record.
 * **Coverage:** `option_link.json` is reported per hypothesis and structure.
   It includes TRADE/ABSTAIN with reasons, pending and overdue decisions,
   exit status, evidence classes, distinct signal dates, PRE_LINK counts and
