@@ -853,7 +853,8 @@ def variant_registry(out: Path = OUT) -> dict[str, dict]:
         if e.get("event") == "registered":
             state.setdefault(e["variant_id"], dict(e))
         elif e.get("event") == "closed" and e.get("variant_id") in state:
-            state[e["variant_id"]].update({k: e.get(k) for k in ("status", "closed_at", "close_reason")})
+            state[e["variant_id"]].update({k: e.get(k) for k in ("status", "closed_at", "close_reason", "closed_look",
+                                                                 "look_report")})
     return state
 
 
@@ -1179,17 +1180,30 @@ def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, j
             return "FALSIFIED_NO_EFFECT" if final else "RUNNING"
 
         # Jede fällige Prüfung der Reihe nach (auch eine verpasste frühere); eine Schließung beendet die Folge.
-        is_open = not v.get("closed_at") and v.get("base_experiment_id") == base
+        # Geschlossene Varianten (gleiche Basis) werden bis zu ihrer schließenden Prüfung nachgerechnet: gleiche
+        # Daten bestätigen den Bericht, korrigierte Daten ergeben eine versionierte Korrektur. Die historische
+        # Entscheidung bleibt Status; widerspricht die aktuelle Evidenz, wird das in current_evidence ausgewiesen.
+        same_base = v.get("base_experiment_id") == base
+        closed_look = v.get("closed_look") or (int(str(v["look_report"]).split("_look")[1].split("_v")[0])
+                                               if v.get("look_report") else ready)
+        last = min(ready, closed_look) if v.get("closed_at") else ready
         look, lk, status = 0, run_look(0, False), "RUNNING"
-        for k in range(1, ready + 1):
-            look, lk = k, run_look(k, is_open)
+        for k in range(1, last + 1):
+            look, lk = k, run_look(k, same_base)
             status = decide_status(k, lk["relative"], lk["economic"])
             if status in CLOSING:
                 break
+        evidence_status = status if same_base else "BASE_CHANGED"
         if v.get("closed_at"):
-            status = v.get("status")
-        elif v.get("base_experiment_id") != base:
+            status = v.get("status")                     # historische Entscheidung, nie umgeschrieben
+        elif not same_base:
             status = "BASE_CHANGED"
+        current_evidence = {"status": evidence_status, "look": look, "relative_verdict": lk["relative"],
+                            "economic_verdict": lk["economic"],
+                            "look_report": lk["report"] and lk["report"]["report_id"],
+                            "decision_look_report": v.get("look_report"),
+                            "contradicts_decision": bool(v.get("closed_at") and same_base and look
+                                                         and (status in ADOPTION) != (evidence_status in ADOPTION))}
         pop, records, vs_base, vs_ref, excluded = lk["pop"], lk["records"], lk["vs_base"], lk["vs_ref"], lk["excluded"]
         relative, economic, report, alpha_look = lk["relative"], lk["economic"], lk["report"], lk["alpha"]
         later = sum(1 for (d, _s) in own_var if not look or d > cutoffs[look - 1])
@@ -1199,7 +1213,7 @@ def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, j
                            "closed_at": now.isoformat(timespec="seconds"),
                            "close_reason": f"Prüfung {look}/{len(days)} (Stichtag {stichtag}): relativ {relative}, "
                                            f"netto {economic}, Abdeckung {vs_base['coverage']}",
-                           "look_report": report and report["report_id"]})
+                           "closed_look": look, "look_report": report and report["report_id"]})
         s = assess(records, horizon)
         nxt = next(((k, c) for k, c in enumerate(cutoffs, 1) if k > look), None)
         results[v["variant_id"]] = {
@@ -1212,6 +1226,7 @@ def evaluate_variants(out: Path, cands: list[dict], horizon: int, as_of: date, j
                           "ready_after": (date.fromisoformat(nxt[1]) + timedelta(days=horizon + DUE_GRACE_DAYS))
                           .isoformat()} if nxt else None,
             "status": status, "relative_verdict": relative, "economic_verdict": economic,
+            "current_evidence": current_evidence,
             "alpha_slot": slot, "slot_alpha": slot_alpha, "alpha_look": round(alpha_look, 8) if slot_alpha else None,
             "look_report": {"report_id": report["report_id"], "version": report["version"],
                             "corrected": report["version"] > 1} if report else None,
@@ -1288,6 +1303,8 @@ PROPOSAL_STATE_TEXT = {
     "VALID": "GÜLTIG – Vorteil gegenüber Basis und Nicht-Handeln am letzten Prüfzeitpunkt belegt",
     "WITHDRAWN": "ZURÜCKGEZOGEN – Vorteil nicht mehr belegt; die Begründung unten ist kein Erfolgsnachweis mehr",
     "SUPERSEDED": "ÜBERHOLT – Basisversion geändert; der Vorschlag bezieht sich auf eine alte Basis",
+    "REVIEW_REQUIRED": ("PRÜFUNG ERFORDERLICH – die historische Entscheidung bleibt dokumentiert, aber korrigierte "
+                        "Daten belegen den Vorteil nicht mehr; kein gültiger Erfolgsvorschlag"),
 }
 
 
@@ -1308,10 +1325,15 @@ def change_proposal(out: Path, r: dict, now: datetime) -> dict | None:
                                               "alpha_look", "alpha_slot", "slot_alpha", "look_report",
                                               "status")},
                "original_markdown": _proposal_body(r, now), "status_history": []}
-    state = "VALID" if r["status"] in ADOPTION else "SUPERSEDED" if r["status"] == "BASE_CHANGED" else "WITHDRAWN"
-    current = {"state": state, "variant_status": r["status"], "look": r["look"], "look_cutoff": r["look_cutoff"],
+    ev = r.get("current_evidence") or {}
+    state = ("SUPERSEDED" if r["status"] == "BASE_CHANGED" else "REVIEW_REQUIRED" if ev.get("contradicts_decision")
+             else "VALID" if r["status"] in ADOPTION else "WITHDRAWN")
+    current = {"state": state, "variant_status": r["status"], "evidence_status": ev.get("status"),
+               "look": r["look"], "look_cutoff": r["look_cutoff"],
                "relative_verdict": r["relative_verdict"], "economic_verdict": r["economic_verdict"],
-               "coverage": r["comparison"]["coverage"], "evaluated_at": now.isoformat(timespec="seconds")}
+               "coverage": r["comparison"]["coverage"], "look_report": ev.get("look_report"),
+               "decision_look_report": ev.get("decision_look_report"),
+               "evaluated_at": now.isoformat(timespec="seconds")}
     hist = rec.setdefault("status_history", [])
     if not hist or hist[-1]["state"] != state:
         hist.append({"state": state, "since": current["evaluated_at"], "variant_status": r["status"],
@@ -1319,7 +1341,10 @@ def change_proposal(out: Path, r: dict, now: datetime) -> dict | None:
     rec["current_status"] = current
     banner = [f"> **Aktueller Evidenzstatus: {PROPOSAL_STATE_TEXT[state]}**", ">",
               (f"> Stand {current['evaluated_at']}, Prüfzeitpunkt {r['look']}/{r['looks']}: Variante {r['status']}, "
-               f"relativ {r['relative_verdict']}, netto {r['economic_verdict']}, Abdeckung {current['coverage']}."), ""]
+               f"relativ {r['relative_verdict']}, netto {r['economic_verdict']}, Abdeckung {current['coverage']}."),
+              *([(f"> Historische Entscheidung {r['status']} (Prüfbericht {current['decision_look_report']}); "
+                  f"aktuelle Evidenz {current['evidence_status']} (Prüfbericht {current['look_report']}).")]
+                if state == "REVIEW_REQUIRED" else []), ""]
     atomic_write_json(path, rec, indent=1)
     atomic_write_text(path.with_suffix(".md"), "\n".join(banner) + "\n" + rec["original_markdown"])
     return {"path": str(path.with_suffix(".md")), "state": state}
@@ -1604,7 +1629,8 @@ def _improvement_answers(st: dict, imp: dict, horizon: int) -> dict:
         + (f", nächste Prüfung nach {v['next_look']['ready_after']}" if v.get("next_look") else "") + ")"
         + (f", Vorschlag {v['change_proposal']['state']}" if v.get("change_proposal") else "")
         for v in variants)
-    adopted = any(s in ADOPTION for s in states)
+    adopted = any(v["status"] in ADOPTION and not (v.get("current_evidence") or {}).get("contradicts_decision")
+                  for v in variants)
     budget = ((st or {}).get("variants") or {}).get("test_budget")
     return {
         "gaps": ("Ja" if gaps else "offen",

@@ -189,7 +189,10 @@ def option_entries(*sources) -> list[dict]:
         for vid, v in (((src or {}).get("variants") or {}).get("variants") or {}).items():
             ((method, value),) = (v.get("overrides") or {"?": None}).items()
             lr = (v.get("vs_base") or {}).get("learning_minus_reference") or {}
-            out.append(_entry("option_experiment", vid, OPTION_VARIANT_STATUS.get(v.get("status"), "INCONCLUSIVE"),
+            ev = v.get("current_evidence") or {}
+            status = ("REVIEW_REQUIRED" if ev.get("contradicts_decision")      # korrigierte Daten widersprechen
+                      else OPTION_VARIANT_STATUS.get(v.get("status"), "INCONCLUSIVE"))
+            out.append(_entry("option_experiment", vid, status,
                               {"signal": f"{method}={value}", "family": "option_learner_variant",
                                "domain": "options_net", "experiment_id": v.get("experiment_id")},
                               source="option_learner",
@@ -199,7 +202,8 @@ def option_entries(*sources) -> list[dict]:
                                         "days": (v.get("vs_base") or {}).get("days"),
                                         "alpha_slot": v.get("alpha_slot"), "alpha_look": v.get("alpha_look"),
                                         "look_report": (v.get("look_report") or {}).get("report_id"),
-                                        "proposal": (v.get("change_proposal") or {}).get("state")},
+                                        "proposal": (v.get("change_proposal") or {}).get("state"),
+                                        "evidence_status": ev.get("status")},
                               reasons=[v.get("relative_verdict"), v.get("economic_verdict")],
                               gap_ids=v.get("gap_ids"), proposal_id=v.get("proposal_id"),
                               data_kind="prospective_forward_options"))

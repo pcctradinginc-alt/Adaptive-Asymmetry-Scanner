@@ -1120,3 +1120,57 @@ def test_a_missed_look_is_still_evaluated_and_frozen_in_order(tmp_path):
     assert worse["status"] == "FALSIFIED_WORSE" and worse["look"] == 1
     assert "Prüfung 1/3" in ol.variant_registry(tmp_path / "b")["OLV-1"]["close_reason"]
     assert {p.name for p in (tmp_path / "b" / ol.LOOK_DIR).iterdir()} == {"OLV-1_look1_v1.json"}
+
+
+def _snapshot(d):
+    return {p.name: p.read_bytes() for p in sorted(d.iterdir())}
+
+
+@pytest.mark.parametrize("correction", ["values", "missing"])
+def test_confirmed_adoption_contradicted_by_corrected_data_requires_review(tmp_path, correction):
+    """Sonderfall: Variante bei der letzten Prüfung als CONFIRMED_ADOPTION geschlossen; danach korrigierte
+    Optionsdaten widerlegen den Netto-Vorteil. Die historische Entscheidung und alle Prüfberichte bleiben
+    unverändert; der aktuelle Evidenzstatus des Vorschlags wechselt auf REVIEW_REQUIRED."""
+    from modules import research_memory as rm
+    cands, journal, inst = _variant_case(tmp_path, rule=_gauss(0.0, 0.3), n_days=70)
+    _res, done = _eval_variant(tmp_path, FINAL, case=(cands, journal, inst))
+    assert done["status"] == "CONFIRMED_ADOPTION" and done["change_proposal"]["state"] == "VALID"
+    reg = ol.variant_registry(tmp_path)["OLV-1"]
+    assert reg["status"] == "CONFIRMED_ADOPTION" and reg["closed_look"] == 3
+    assert reg["look_report"] == "OLV-1_look3_v1"
+    _res, same = _eval_variant(tmp_path, FINAL + timedelta(days=7), case=(cands, journal, inst))  # Kontrolle
+    assert same["change_proposal"]["state"] == "VALID" and not same["current_evidence"]["contradicts_decision"]
+    reports, registry = _snapshot(tmp_path / ol.LOOK_DIR), (tmp_path / ol.VARIANTS).read_bytes()
+    proposal = tmp_path / ol.CHANGE_DIR / "OLV-1"
+    original = json.loads(proposal.with_suffix(".json").read_text())
+
+    for c in cands:                                        # Korrektur der Optionsdaten
+        single = c["exprs"][1]
+        c["exprs"][1] = (dict(single, y=-0.3) if correction == "values" else
+                         dict(single, status="EXIT_NOT_ARCHIVED", y=None, label_day=None))
+    _res, v = _eval_variant(tmp_path, FINAL + timedelta(days=14), case=(cands, journal, inst))
+
+    assert v["status"] == "CONFIRMED_ADOPTION"                                  # historische Entscheidung bleibt
+    assert (tmp_path / ol.VARIANTS).read_bytes() == registry                    # kein neues/geändertes Ereignis
+    ev = v["current_evidence"]
+    assert ev["contradicts_decision"] is True and ev["status"] not in ol.ADOPTION
+    assert ev["decision_look_report"] == "OLV-1_look3_v1" and ev["look_report"].endswith("_v2")
+    after = _snapshot(tmp_path / ol.LOOK_DIR)
+    assert all(after[name] == data for name, data in reports.items())          # nichts gelöscht/überschrieben
+    added = set(after) - set(reports)                                            # Korrekturen als neue Fassungen
+    assert ev["look_report"] + ".json" in added and all(n.endswith("_v2.json") for n in added)
+    correction_report = json.loads((tmp_path / ol.LOOK_DIR / f"{ev['look_report']}.json").read_text())
+    assert correction_report["supersedes"].endswith("_v1") and correction_report["correction_reason"]
+
+    assert v["change_proposal"]["state"] == "REVIEW_REQUIRED"
+    rec = json.loads(proposal.with_suffix(".json").read_text())
+    assert rec["original"] == original["original"] and rec["original_markdown"] == original["original_markdown"]
+    assert [h["state"] for h in rec["status_history"]] == ["VALID", "REVIEW_REQUIRED"]
+    assert rec["current_status"]["variant_status"] == "CONFIRMED_ADOPTION"
+    md = proposal.with_suffix(".md").read_text()
+    assert md.startswith("> **Aktueller Evidenzstatus: PRÜFUNG ERFORDERLICH") and md.endswith(rec["original_markdown"])
+
+    status = {"variants": {"variants": {"OLV-1": v}, "test_budget": ol.test_budget(tmp_path)}}
+    assert ol._improvement_answers(status, {}, H)["improvements"][0] != "Ja"   # kein gültiger Erfolg mehr
+    entry = rm.option_entries(status)[0]
+    assert entry["status"] == "REVIEW_REQUIRED" and entry["prospective"] is False
