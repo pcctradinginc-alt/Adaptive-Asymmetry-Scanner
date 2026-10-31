@@ -156,7 +156,11 @@ def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict],
                     reasons.append("quote_contract_mismatch")
                 if quote.get("quality_status") not in ("OK",):
                     reasons.append("quote_quality_not_ok")
-    from .option_link import ex_ante_attribution
+    from .option_link import (
+        broker_execution_documented,
+        ex_ante_attribution,
+        trade_evidence_class,
+    )
     alpha_id, attribution = ex_ante_attribution(row, signals or {})
     return {
         "trade_id": tid, "ticker": row.get("ticker"),
@@ -168,6 +172,9 @@ def _inspect(row: dict, *, start: date, today: date, ids: dict[str, dict],
         "alpha_id": alpha_id,
         "alpha_attribution": "ATTRIBUTED_EX_ANTE" if alpha_id else "UNATTRIBUTED",
         "alpha_attribution_check": attribution,
+        # derived only: archived bid/ask valuations are paper, never broker executions
+        "evidence_class": trade_evidence_class(row, quote_verifiable=not reasons),
+        "broker_execution_check": broker_execution_documented(row)[1],
         "forward_evidence": "POST_REGISTRATION_REALIZED" if not reasons else "INELIGIBLE",
     }
 
@@ -237,6 +244,8 @@ def evaluate(root: Path = Path("."), *, today: date | None = None,
         "sample_floor_reached": enough,
         "strategy_alpha_status": "ATTRIBUTED_EX_ANTE" if attributed else "NOT_ATTRIBUTABLE",
         "alpha_attribution_checks": dict(sorted(attribution.items())),
+        "evidence_classes": dict(sorted(Counter(x["evidence_class"] for x in inspected).items())),
+        "n_executed_attributed_ex_ante": sum(1 for x in attributed if x["evidence_class"] == "EXECUTED"),
         "n_verified_attributed_ex_ante": len(attributed),
         "research_eligible": bool(enough),
         "prospective_alpha_validated": False,

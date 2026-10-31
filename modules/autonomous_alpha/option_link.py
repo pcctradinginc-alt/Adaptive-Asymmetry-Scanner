@@ -985,6 +985,38 @@ def apply_corrections(data: dict, corrections: list[dict]) -> dict:
 
 # ── executed-trade attribution check (forward_options) ───────────────────────
 
+BROKER_FILL_FIELDS = ("order_id", "fill_price", "filled_at")
+
+
+def broker_execution_documented(row: dict) -> tuple[bool, str]:
+    """EXECUTED evidence requires a documented BROKER execution for entry AND exit:
+    ``broker_execution = {"broker": str, "entry": {order_id, fill_price, filled_at},
+    "exit": {order_id, fill_price, filled_at}}``. Archived bid/ask quotes, paper
+    bookings and quote-derived outcomes never qualify, however well verified -
+    they stay QUOTE_VERIFIED_PAPER at best. Nothing is ever upgraded later."""
+    ex = row.get("broker_execution")
+    if not isinstance(ex, dict) or not ex:
+        return False, "NO_BROKER_EXECUTION_RECORD"
+    if not isinstance(ex.get("broker"), str) or not ex["broker"].strip():
+        return False, "BROKER_MISSING"
+    for side in ("entry", "exit"):
+        fill = ex.get(side)
+        if not isinstance(fill, dict) or any(fill.get(k) in (None, "") for k in BROKER_FILL_FIELDS):
+            return False, f"{side.upper()}_FILL_INCOMPLETE"
+        if _num(fill.get("fill_price")) is None or _ts(fill.get("filled_at")) is None:
+            return False, f"{side.upper()}_FILL_INVALID"
+    if _ts(ex["exit"]["filled_at"]) <= _ts(ex["entry"]["filled_at"]):
+        return False, "FILL_ORDER_INVALID"
+    return True, "BROKER_EXECUTION_DOCUMENTED"
+
+
+def trade_evidence_class(row: dict, *, quote_verifiable: bool) -> str:
+    """Evidence class of a real trade record (derived, never written back)."""
+    if broker_execution_documented(row)[0]:
+        return "EXECUTED"
+    return "QUOTE_VERIFIED_PAPER" if quote_verifiable else "UNVERIFIABLE"
+
+
 def ex_ante_attribution(row: dict, signals_by_id: dict) -> tuple[str | None, str]:
     """A real trade counts for a hypothesis ONLY if its record carries a signal
     ID that was registered BEFORE the trade entry. Nothing else attributes."""
@@ -1121,7 +1153,7 @@ def coverage(root: Path = Path("."), *, now: datetime | None = None, persist: bo
 
 def _executed_check(root: Path, signals_by_id: dict) -> dict:
     p = Path(root) / TRADE_OUTCOMES
-    counts = Counter()
+    counts, executed = Counter(), Counter()
     n = 0
     if p.exists():
         for line in p.read_text(encoding="utf-8").splitlines():
@@ -1133,11 +1165,20 @@ def _executed_check(root: Path, signals_by_id: dict) -> dict:
                 counts["UNREADABLE"] += 1
                 continue
             n += 1
-            counts[ex_ante_attribution(row, signals_by_id)[1]] += 1
+            hid, why = ex_ante_attribution(row, signals_by_id)
+            counts[why] += 1
+            documented, reason = broker_execution_documented(row)
+            executed[reason] += 1
+            if hid and documented:
+                executed["EXECUTED_AND_ATTRIBUTED_EX_ANTE"] += 1
     return {"n_real_trades": n, "attribution": dict(sorted(counts.items())),
             "n_attributed_ex_ante": counts.get("ATTRIBUTED_EX_ANTE", 0),
-            "note": "Real trades never carry an ex-ante alpha_signal_id today; EXECUTED evidence stays 0 "
-                    "until the trading path records one (not changed here)."}
+            "broker_execution_checks": dict(sorted(executed.items())),
+            "n_documented_broker_executions": executed.get("BROKER_EXECUTION_DOCUMENTED", 0),
+            "n_executed_evidence": executed.get("EXECUTED_AND_ATTRIBUTED_EX_ANTE", 0),
+            "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without "
+                    "broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution "
+                    "AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."}
 
 
 def run(root: Path = Path("."), *, cache: Path | None = None, panel=None,
