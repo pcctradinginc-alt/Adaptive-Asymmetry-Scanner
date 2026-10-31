@@ -43,19 +43,29 @@ def _signal(hid, d, i, version="v1", group="TREATMENT"):
             "tradable": True, "features": {}, "features_status": "OK"}
 
 
-def _world(monkeypatch, h_ret, c_ret=-0.05, weeks=40, per_date=2, ticker_fn=None):
-    """Synthetic journals: signals/decisions + economics rows for H and CONTROL after plan start."""
+REF = "momentum_12_1"
+
+
+def _world(monkeypatch, h_ret, c_ret=-0.05, weeks=40, per_date=2, ticker_fn=None, f_ret=0.0, hid=HID):
+    """Synthetic journals: signals/decisions + economics rows for H, the RANDOM_CONTROL and the
+    FROZEN_ML_BENCHMARK (REF) after plan start. c_ret/f_ret=None: that benchmark was never observed."""
     signals, rows = [], []
     for w in range(weeks):
         d = (date(2026, 11, 13) + timedelta(days=7 * w)).isoformat()
         for i in range(per_date):
             t = ticker_fn(w, i) if ticker_fn else f"T{w}_{i}"
-            r = _row(HID, d, h_ret(w, i), ticker=t)
-            r["signal_id"] = f"s{d}{HID}{i}"
+            group = "REFERENCE" if hid == REF else "TREATMENT"
+            r = _row(hid, d, h_ret(w, i), ticker=t, group=group)
+            r["signal_id"] = f"s{d}{hid}{i}"
             rows.append(r)
-            signals.append(_signal(HID, d, i))
-            cr = _row(al.CONTROL_ID, d, c_ret, ticker="C" + t, group="CONTROL")
-            rows.append(cr)
+            signals.append(_signal(hid, d, i, group=group))
+            if c_ret is not None:
+                rows.append(_row(al.CONTROL_ID, d, c_ret, ticker="C" + t, group="CONTROL"))
+            if f_ret is not None and hid != REF:
+                fr = _row(REF, d, f_ret, ticker="F" + t, group="REFERENCE")
+                fr["signal_id"] = f"s{d}{REF}{i}"
+                rows.append(fr)
+                signals.append(_signal(REF, d, i, group="REFERENCE"))
     data = {"signals": signals, "decisions": [{"signal_id": s["signal_id"]} for s in signals],
             "outcomes": [], "corrections": []}
     monkeypatch.setattr(al, "read_all", lambda root: data)
@@ -70,6 +80,7 @@ ECON = {"proposals": {HID: {"structure": "LONG_CALL"}, "momentum_12_1": {"struct
 
 @pytest.mark.parametrize("over", [{"min_quote_coverage": 0.5}, {"min_verified_outcomes": 10},
                                   {"test_budget": {"total_alpha": 0.2}}, {"comparisons": ["NO_TRADE"]},
+                                  {"comparisons": ["NO_TRADE", "BASE_STRATEGY"]},
                                   {"production_influence": "SHADOW"}])
 def test_config_cannot_be_relaxed(tmp_path, over):
     _setup(tmp_path, **over)
@@ -78,7 +89,7 @@ def test_config_cannot_be_relaxed(tmp_path, over):
 
 
 def test_repo_config_valid():
-    assert ov.config(REPO)["comparisons"] == ["NO_TRADE", "BASE_STRATEGY"]
+    assert ov.config(REPO)["comparisons"] == ["NO_TRADE", "RANDOM_CONTROL", "FROZEN_ML_BENCHMARK"]
 
 
 def test_plan_is_preregistered_create_only_with_budget_slot(tmp_path, monkeypatch):
@@ -127,7 +138,8 @@ def test_exhausted_budget_never_qualifies(tmp_path, monkeypatch):
 def _plan(tmp_path, monkeypatch, h_ret, **kw):
     _setup(tmp_path)
     rows = _world(monkeypatch, h_ret, **kw)
-    ov.register_plans(tmp_path, ECON, now=REG)
+    hid = kw.get("hid", HID)
+    ov.register_plans(tmp_path, {"proposals": {hid: {"structure": "LONG_CALL"}}}, now=REG)
     return rows
 
 
@@ -292,3 +304,54 @@ def test_cli_runs_validation_after_economics(tmp_path, monkeypatch):
     rep = json.loads((tmp_path / ov.REPORT).read_text())
     assert rep["status"] == "NEED_MORE_DATA" and rep["n_plans"] == 0           # fixture: no proposal, no success
     assert (tmp_path / ov.LEARNING).exists()
+
+
+# ── audit: benchmark definitions ─────────────────────────────────────────────
+
+
+def test_benchmarks_are_separate_and_existing_base_is_never_used(tmp_path, monkeypatch):
+    _plan(tmp_path, monkeypatch, lambda w, i: 0.3 + 0.01 * ((w + i) % 3))
+    res = ov.evaluate_plans(tmp_path, now=datetime(2027, 8, 1, tzinfo=timezone.utc))[0]
+    b, q = res["binding"], res["qualification"]
+    assert b["vs_random_control"]["status"] == b["vs_frozen_ml_benchmark"]["status"] == "DESCRIPTIVE_NOT_A_TEST"
+    assert b["existing_base_strategy"]["used_for_superiority"] is False
+    assert "2_advantage_vs_comparable_benchmarks" in q["criteria"]
+    assert not any("base_strategy" in k for k in q["criteria"])
+    assert q["benchmarks"]["existing_base_strategy_used_for_superiority"] is False
+    plan = ov.plans(tmp_path)[0]
+    assert "not the existing base strategy" in plan["comparisons"]["RANDOM_CONTROL"]
+    assert "never for superiority" in plan["comparisons"]["EXISTING_BASE_STRATEGY"]
+
+
+@pytest.mark.parametrize("missing", [{"c_ret": None}, {"f_ret": None}])
+def test_missing_benchmark_data_never_confirms_or_qualifies(tmp_path, monkeypatch, missing):
+    _plan(tmp_path, monkeypatch, lambda w, i: 0.3 + 0.01 * ((w + i) % 3), **missing)
+    res = ov.evaluate_plans(tmp_path, now=datetime(2027, 12, 30, tzinfo=timezone.utc))[0]
+    assert res["status"] == "NOT_CONFIRMED" and res["classification"] == "NOT_CONFIRMED"
+    assert "CONFIRMED" not in [x["verdict"] for x in res["looks"]]
+
+
+def test_worse_than_frozen_ml_benchmark_never_confirms(tmp_path, monkeypatch):
+    _plan(tmp_path, monkeypatch, lambda w, i: 0.3 + 0.01 * ((w + i) % 3), f_ret=0.6)
+    res = ov.evaluate_plans(tmp_path, now=datetime(2027, 12, 30, tzinfo=timezone.utc))[0]
+    assert res["status"] == "NOT_CONFIRMED"
+    assert res["binding"]["vs_frozen_ml_benchmark"]["mean_difference"] < 0
+
+
+def test_frozen_benchmark_itself_needs_no_self_comparison(tmp_path, monkeypatch):
+    _plan(tmp_path, monkeypatch, lambda w, i: 0.3 + 0.01 * ((w + i) % 3), hid=REF)
+    res = ov.evaluate_plans(tmp_path, now=datetime(2027, 8, 1, tzinfo=timezone.utc))[0]
+    assert res["binding"]["vs_frozen_ml_benchmark"] == {"status": "SELF"}
+    assert res["status"] == "CONFIRMED" and res["qualification"]["criteria"]["2_advantage_vs_comparable_benchmarks"]
+
+
+def test_mail_names_benchmarks_explicitly(tmp_path, monkeypatch):
+    now = datetime(2027, 8, 1, 12, tzinfo=timezone.utc)
+    rep = _qualified_report(tmp_path, monkeypatch, now)
+    inputs = _inputs(at=now)
+    inputs["alpha_validation"] = rep
+    task = next(t for t in rd.improvement_tasks(inputs, now)[0] if t["kind"] == "alpha_option_qualified")
+    text = rd.task_text({**task, "status": "OPEN"}, "neu erkannt")
+    sec6 = text.split("\n6. ")[1].split("\n7. ")[0]
+    assert "Zufallskontrolle" in sec6 and "NICHT die bestehende Basisstrategie" in sec6
+    assert "eingefrorenen ML-Benchmark" in sec6 and "KEIN Überlegenheitsnachweis" in sec6

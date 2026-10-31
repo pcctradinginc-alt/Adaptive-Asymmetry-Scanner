@@ -934,7 +934,9 @@ def _alpha_sections(p: dict, rep: dict) -> list:
     b = p.get("binding") or {}
     m = b.get("metrics") or {}
     q = p.get("qualification") or {}
-    nt, base, cons = b.get("vs_no_trade") or {}, b.get("vs_base_strategy") or {}, b.get("vs_no_trade_conservative") or {}
+    nt, cons = b.get("vs_no_trade") or {}, b.get("vs_no_trade_conservative") or {}
+    rnd, frz = b.get("vs_random_control") or {}, b.get("vs_frozen_ml_benchmark") or {}
+    ex = b.get("existing_base_strategy") or {}
     learn = rep.get("learning") or {}
     return [
         [(f"Hypothese {p['hypothesis_id']} (Version {p['hypothesis_version']}): prospektive Rangfolge, deren "
@@ -953,8 +955,13 @@ def _alpha_sections(p: dict, rep: dict) -> list:
           f"Winrate {_pct(m.get('winrate'))}.")],
         [(f"Gegen Nicht-Handeln: {_pct(nt.get('mean_difference'))} je Signal, KI {nt.get('ci')}; konservativ "
           f"(fehlende = Totalverlust) {_pct(cons.get('mean_difference'))}."),
-         (f"Gegen Basisstrategie (gleiche Regel, Zufallsnamen desselben Tages): "
-          f"{_pct(base.get('mean_difference'))}, KI {base.get('ci')}.")],
+         (f"Gegen Zufallskontrolle (gleiche Regel, Zufallsnamen desselben Tages – NICHT die bestehende "
+          f"Basisstrategie): {_pct(rnd.get('mean_difference'))}, KI {rnd.get('ci')}."),
+         (f"Gegen eingefrorenen ML-Benchmark: {_pct(frz.get('mean_difference'))}, KI {frz.get('ci')} "
+          f"({frz.get('status')})."),
+         (f"Bestehende Scanner-/Options-Learner-Basisstrategie: {ex.get('status')} – nur beschreibend "
+          "(andere Population und Haltedauer); daraus folgt KEIN Überlegenheitsnachweis gegenüber der "
+          "bestehenden Strategie.")],
         [(f"Vorab registrierter sequenzieller Test: Fehlerbudget-Slot {p.get('alpha_slot')}, Teil-Alpha der "
           f"Prüfung {(b.get('alpha') or {}).get('look_alpha')}, KI-Niveau {(b.get('alpha') or {}).get('ci_level')}, "
           "Block-Bootstrap über nicht überlappende Haltefenster mit t-Quantil."),

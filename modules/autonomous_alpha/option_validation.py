@@ -53,8 +53,8 @@ def config(root: Path = Path(".")) -> dict:
         raise EvidenceIntegrityError("validation must have no production/LLM access")
     if cfg.get("target") != "PER_SIGNAL_NET_RETURN_EQUAL_BUDGET_ADVERSE":
         raise EvidenceIntegrityError("unknown validation target")
-    if sorted(cfg.get("comparisons") or []) != ["BASE_STRATEGY", "NO_TRADE"]:
-        raise EvidenceIntegrityError("both comparisons (no trade, base strategy) are mandatory")
+    if sorted(cfg.get("comparisons") or []) != ["FROZEN_ML_BENCHMARK", "NO_TRADE", "RANDOM_CONTROL"]:
+        raise EvidenceIntegrityError("comparisons (no trade, random control, frozen ML benchmark) are mandatory")
     if not 180 <= int(cfg.get("max_days", 0)) <= 730:
         raise EvidenceIntegrityError("validation horizon invalid")
     if not 0.8 <= float(cfg.get("min_decision_coverage", 0)) <= 1 or not 0.8 <= float(cfg.get("min_quote_coverage", 0)) <= 1:
@@ -143,8 +143,15 @@ def register_plans(root: Path, econ: dict, *, now: datetime | None = None) -> li
                                    "scenario": oe.PRIMARY, "abstain": "cash = 0",
                                    "missing": "excluded and counted; conservative view = total loss",
                                    "fees_usd_per_contract_per_side": link["rule"]["commission_usd_per_contract_per_side"]},
-            "comparisons": {"NO_TRADE": "0 per signal", "BASE_STRATEGY": f"{al.CONTROL_ID}, same structure and dates",
-                            "FROZEN_REFERENCE": "descriptive only"},
+            "comparisons": {"NO_TRADE": "0 per signal",
+                            "RANDOM_CONTROL": f"{al.CONTROL_ID}: identical rule, random names, same dates "
+                                              "(not the existing base strategy) - required",
+                            "FROZEN_ML_BENCHMARK": "frozen registry benchmark model, identical rule and dates - "
+                                                   "required unless the hypothesis is the benchmark itself",
+                            "EXISTING_BASE_STRATEGY": "existing scanner/option_learner base - descriptive only "
+                                                      "(different population and horizon), never for superiority",
+                            "rule": "only contemporaneously observed, comparable results; missing comparison "
+                                    "data never confirm"},
             "population": {"signals": "tradable signals of this hypothesis version, pit_data_date in "
                                        "[start_date, look cutoff]", "unit": "signal date (equal budget)"},
             "min_decision_coverage": cfg["min_decision_coverage"], "min_quote_coverage": cfg["min_quote_coverage"],
@@ -156,8 +163,10 @@ def register_plans(root: Path, econ: dict, *, now: datetime | None = None) -> li
             "alpha_slot": slot, "look_alpha": ol.alpha_spending(slot) if slot else None,
             "test_budget": {k: budget[k] for k in ("total_alpha", "max_tests", "used")},
             "ci_method": "block_bootstrap_t_non_overlapping_windows",
-            "stop_rules": {"CONFIRMED": "CI(H-no trade) and CI(H-base) both entirely > 0 at the look alpha, "
-                                        "conservative mean > 0, minimum sample and coverage met",
+            "stop_rules": {"CONFIRMED": "CI(H-no trade), CI(H-random control) and CI(H-frozen ML benchmark) "
+                                        "entirely > 0 at the look alpha on comparable data with >= "
+                                        "min_independent_periods common periods each, conservative mean > 0, "
+                                        "minimum sample and coverage met",
                            "FALSIFIED": "CI(H-no trade) entirely < 0 at the look alpha",
                            "NOT_CONFIRMED": "last look without confirmation (plan ends for good)"},
             "concentration": cfg["concentration"], "stability": cfg["stability"],
@@ -175,6 +184,10 @@ def register_plans(root: Path, econ: dict, *, now: datetime | None = None) -> li
 
 # ── 2. preregistered looks ───────────────────────────────────────────────────
 
+def _reference_id(signals: list[dict]) -> str | None:
+    return next((s["hypothesis_id"] for s in signals if s.get("comparison_group") == "REFERENCE"), None)
+
+
 def _population(plan: dict, rows: list[dict], signals: list[dict], cutoff: str):
     def inside(d):
         return plan["start_date"] <= d <= cutoff
@@ -186,7 +199,11 @@ def _population(plan: dict, rows: list[dict], signals: list[dict], cutoff: str):
     sig = [s for s in signals if s["hypothesis_id"] == plan["hypothesis_id"]
            and s["hypothesis_version"] == plan["hypothesis_version"] and s["tradable"]
            and not s.get("excluded_by_correction") and inside(s["pit_data_date"])]
-    return h, c, sig
+    ref = _reference_id(signals)
+    f = None if ref == plan["hypothesis_id"] else [
+        r for r in rows if ref is not None and r["hypothesis_id"] == ref and r["structure"] == plan["structure"]
+        and inside(r["pit_data_date"])]
+    return h, c, sig, f
 
 
 def _due(h: list[dict], sig: list[dict], decided: set, cutoff: str, today: date, lag: int) -> bool:
@@ -202,8 +219,15 @@ def _due(h: list[dict], sig: list[dict], decided: set, cutoff: str, today: date,
     return True
 
 
+def comparable_advantage(cmp: dict, min_periods: int) -> bool:
+    """A benchmark comparison supports superiority only with contemporaneous,
+    comparable observations, enough common independent periods and a CI > 0."""
+    return bool(cmp.get("status") == "DESCRIPTIVE_NOT_A_TEST" and cmp.get("ci") and cmp["ci"][0] > 0
+                and (cmp.get("independent_periods") or 0) >= min_periods)
+
+
 def _look(root: Path, plan: dict, k: int, h: list[dict], c: list[dict], sig: list[dict],
-          now: datetime, cfg: dict) -> dict:
+          f: list[dict] | None, now: datetime, cfg: dict) -> dict:
     from modules import option_learner as ol
     alpha_k = plan["look_alpha"][k - 1]
     final_trades = [r for r in h if r["decision"] == "TRADE"]
@@ -213,7 +237,12 @@ def _look(root: Path, plan: dict, k: int, h: list[dict], c: list[dict], sig: lis
     m = oe.metrics(h)
     vs_nt = oe.compare(h, None, alpha=alpha_k)
     vs_cons = oe.compare(h, None, view="CONSERVATIVE", alpha=alpha_k)
-    vs_base = oe.compare(h, c, alpha=alpha_k)
+    vs_random = oe.compare(h, c, alpha=alpha_k)
+    vs_frozen = {"status": "SELF"} if f is None else oe.compare(h, f, alpha=alpha_k)
+    existing = oe.existing_base_strategy(root, {r["decision_day"] for r in h})
+    min_p = plan["min_independent_periods"]
+    benchmarks_ok = comparable_advantage(vs_random, min_p) and (
+        vs_frozen.get("status") == "SELF" or comparable_advantage(vs_frozen, min_p))
     periods = m.get("independent_periods") or 0
     final_look = k == len(plan["look_cutoffs"])
     if dcov is None or dcov < plan["min_decision_coverage"] or (qcov is not None and qcov < plan["min_quote_coverage"]):
@@ -222,8 +251,7 @@ def _look(root: Path, plan: dict, k: int, h: list[dict], c: list[dict], sig: lis
         verdict = "NEED_MORE_DATA"
     elif vs_nt.get("ci") and vs_nt["ci"][1] < 0:
         verdict = "FALSIFIED"
-    elif (vs_nt.get("ci") and vs_nt["ci"][0] > 0 and vs_base.get("ci") and vs_base["ci"][0] > 0
-          and (vs_cons.get("mean_difference") or 0) > 0):
+    elif vs_nt.get("ci") and vs_nt["ci"][0] > 0 and benchmarks_ok and (vs_cons.get("mean_difference") or 0) > 0:
         verdict = "CONFIRMED"
     else:
         verdict = "CONTINUE"
@@ -237,12 +265,17 @@ def _look(root: Path, plan: dict, k: int, h: list[dict], c: list[dict], sig: lis
         "decision_coverage": dcov, "quote_coverage": qcov,
         "label_ids": sorted(r["decision_id"] + "|" + str(r["exit_day"]) for r in settled),
         "alpha": {"slot": plan["alpha_slot"], "look_alpha": alpha_k, "ci_level": round(1 - alpha_k, 8)},
-        "metrics": m, "vs_no_trade": vs_nt, "vs_no_trade_conservative": vs_cons, "vs_base_strategy": vs_base,
+        "metrics": m, "vs_no_trade": vs_nt, "vs_no_trade_conservative": vs_cons,
+        "vs_random_control": vs_random, "vs_frozen_ml_benchmark": vs_frozen,
+        "existing_base_strategy": existing,
         "verdict": verdict,
         "input_sha256": ol._sha({"h": [[r["decision_id"], r["status"],
                                         (r["economics"].get(oe.PRIMARY) or {}).get("return")] for r in h],
                                  "c": [[r["decision_id"], r["status"],
                                         (r["economics"].get(oe.PRIMARY) or {}).get("return")] for r in c],
+                                 "f": None if f is None else [[r["decision_id"], r["status"],
+                                                               (r["economics"].get(oe.PRIMARY) or {}).get("return")]
+                                                              for r in f],
                                  "n_signals": len(sig), "look_alpha": alpha_k, "plan_sha256": plan["plan_sha256"]}),
     }
     rec = ol.freeze_look_report(_out(root), report, now, LOOK_DIR)
@@ -272,10 +305,10 @@ def evaluate_plans(root: Path, *, now: datetime | None = None) -> list[dict]:
             continue
         status, binding = "AWAITING_LOOK", None
         for k, cutoff in enumerate(plan["look_cutoffs"], 1):
-            h, c, sig = _population(plan, rows, data["signals"], cutoff)
+            h, c, sig, f = _population(plan, rows, data["signals"], cutoff)
             if not _due(h, sig, decided, cutoff, now.date(), lag):
                 break
-            lk = _look(root, plan, k, h, c, sig, now, cfg)
+            lk = _look(root, plan, k, h, c, sig, f, now, cfg)
             res["looks"].append({x: lk[x] for x in ("look", "data_cutoff", "verdict", "report_id",
                                                      "report_version", "n_compared", "decision_coverage",
                                                      "quote_coverage")})
@@ -318,7 +351,9 @@ def _stability(rows: list[dict], n_min: int) -> dict:
 def qualification(plan: dict, look: dict, cfg: dict, link: dict) -> dict:
     """All eight criteria are required; each is reported with its evidence."""
     m, rows = look["metrics"], look["rows"]
-    nt, base, cons = look["vs_no_trade"], look["vs_base_strategy"], look["vs_no_trade_conservative"]
+    nt, cons = look["vs_no_trade"], look["vs_no_trade_conservative"]
+    rnd, frz = look["vs_random_control"], look["vs_frozen_ml_benchmark"]
+    min_p = plan["min_independent_periods"]
     conc = m.get("concentration") or {}
     settled = [r for r in rows if r["status"] == "SETTLED"]
     # entry capital is capped by the rule; ADVERSE fills may add at most the slippage share on top
@@ -326,7 +361,9 @@ def qualification(plan: dict, look: dict, cfg: dict, link: dict) -> dict:
                  + 4 * float(link["rule"]["commission_usd_per_contract_per_side"]))
     crit = {
         "1_positive_net_ev_prospective": bool(nt.get("ci") and nt["ci"][0] > 0 and (cons.get("mean_difference") or 0) > 0),
-        "2_advantage_vs_base_strategy": bool(base.get("ci") and base["ci"][0] > 0),
+        # comparable, contemporaneous benchmarks only; missing comparison data never qualify
+        "2_advantage_vs_comparable_benchmarks": comparable_advantage(rnd, min_p) and (
+            frz.get("status") == "SELF" or comparable_advantage(frz, min_p)),
         "3_enough_independent_periods": (m.get("independent_periods") or 0) >= plan["min_independent_periods"],
         "4_coverage_meets_plan": ((look["decision_coverage"] or 0) >= plan["min_decision_coverage"]
                                   and (look["quote_coverage"] or 0) >= plan["min_quote_coverage"]),
@@ -342,6 +379,9 @@ def qualification(plan: dict, look: dict, cfg: dict, link: dict) -> dict:
     return {"qualified": all(crit.values()), "criteria": crit,
             "failed": sorted(k for k, v in crit.items() if not v),
             "stability": _stability(rows, int(cfg["stability"]["min_bucket_n"])),
+            "benchmarks": {"random_control": rnd.get("status"), "frozen_ml_benchmark": frz.get("status"),
+                           "existing_base_strategy": (look.get("existing_base_strategy") or {}).get("status"),
+                           "existing_base_strategy_used_for_superiority": False},
             "concentration": conc, "max_structural_loss_usd": m.get("max_structural_loss_usd"),
             "peak_concurrent_capital_usd": m.get("peak_concurrent_capital_usd"),
             "note": "Profit factor > 1 or winrate > 50 % alone never qualify; human decision required."}
@@ -349,7 +389,7 @@ def qualification(plan: dict, look: dict, cfg: dict, link: dict) -> dict:
 
 # ── 4. learning ──────────────────────────────────────────────────────────────
 
-NEGATIVE = ("NO_ECONOMIC_EDGE_AFTER_COSTS", "NOT_BETTER_THAN_BASE_STRATEGY")
+NEGATIVE = ("NO_ECONOMIC_EDGE_AFTER_COSTS", "NOT_BETTER_THAN_RANDOM_CONTROL")
 
 
 def _family(hid: str, signals: list[dict], root: Path) -> str:

@@ -231,7 +231,9 @@ Reuses the sequential machinery of PR #145/#147 instead of building a new one:
      and hash);
    * target (per-signal net return, equal budget, ADVERSE, ABSTAIN = 0) and
      return calculation;
-   * comparisons (no trade **and** base strategy);
+   * comparisons: no trade, `RANDOM_CONTROL` and `FROZEN_ML_BENCHMARK` (the
+     latter not needed when the hypothesis is the benchmark itself);
+     `EXISTING_BASE_STRATEGY` is descriptive only;
    * population: only signals dated **after** the registration day;
    * minimum coverage (decisions 90 %, quotes 80 %) and minimum sample
      (30 verified outcomes, 8 independent periods);
@@ -243,14 +245,20 @@ Reuses the sequential machinery of PR #145/#147 instead of building a new one:
 2. **Looks (`evaluate_plans`).** Look k runs only after its cutoff and only
    once its population is final. Daily or weekly re-runs return the same
    frozen report.
-   * `CONFIRMED`: the CIs of H − no trade and H − base are both entirely > 0
-     at the look alpha, and the conservative mean is > 0.
+   * `CONFIRMED`: the CIs of H − no trade, H − random control and H − frozen
+     ML benchmark are all entirely > 0 at the look alpha. Each comparison
+     must rest on comparable, contemporaneous data with at least
+     `min_independent_periods` common periods. The conservative mean must
+     also be > 0. Missing comparison data never confirm.
    * `FALSIFIED`: the CI of H − no trade is entirely < 0.
    * `NOT_CONFIRMED`: the last look passed without confirmation.
    * `NEED_MORE_DATA` / `INSUFFICIENT_COVERAGE` never confirm.
 3. **Qualification.** All 8 criteria are required:
    1. positive net EV, prospectively supported;
-   2. advantage over the base strategy;
+   2. advantage over the comparable benchmarks (`RANDOM_CONTROL` and
+      `FROZEN_ML_BENCHMARK`). The existing scanner/option_learner base
+      strategy is disclosed but never used for superiority; the mail says
+      so explicitly;
    3. enough independent periods;
    4. coverage as preregistered;
    5. concentration disclosed and limited (top ticker ≤ 25 %, top date ≤ 35 %);

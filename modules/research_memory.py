@@ -52,8 +52,8 @@ SOURCES = {
 # Alpha-to-Options: Phase-B-Labels sind explorativ (kein abgeschlossener Test), Phase-C-Ergebnisse sind vorab
 # registrierte prospektive Tests. "Qualifiziert" ist ein Forschungserfolg, nie ein Produktionsstatus.
 ALPHA_ECON_STATUS = {"CANDIDATE_FOR_PROSPECTIVE_VALIDATION": "PENDING_FORWARD", "NEED_MORE_DATA": "DATA_GAP",
-                     "NO_ECONOMIC_EDGE_AFTER_COSTS": "INCONCLUSIVE", "NOT_BETTER_THAN_BASE_STRATEGY": "INCONCLUSIVE",
-                     "ADVANTAGE_NOT_ESTABLISHED": "INCONCLUSIVE"}
+                     "COMPARISON_DATA_MISSING": "DATA_GAP", "NO_ECONOMIC_EDGE_AFTER_COSTS": "INCONCLUSIVE",
+                     "NOT_BETTER_THAN_RANDOM_CONTROL": "INCONCLUSIVE", "ADVANTAGE_NOT_ESTABLISHED": "INCONCLUSIVE"}
 ALPHA_PLAN_STATUS = {"FALSIFIED": "REJECTED", "NOT_CONFIRMED": "REJECTED", "NO_BUDGET": "INCONCLUSIVE",
                      "PLAN_INVALID": "INCONCLUSIVE"}
 # Varianten-Status des Options-Lernmodells -> Memory-Status (laufend = weder Erfolg noch Test)
