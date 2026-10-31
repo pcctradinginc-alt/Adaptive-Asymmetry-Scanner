@@ -106,6 +106,7 @@ def _captured_today(symbols: list[str], now: datetime) -> set[str]:
 def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_only: bool = False) -> dict:
     from modules import candidate_ledger as cl
     from modules import market_snapshot as ms
+    fixed_clock = now is not None
     now = now or datetime.now(timezone.utc)
     ok, window = capture_window(now)
     res = {"mode": "capture" if capture_only else "full", "window": window,
@@ -128,6 +129,17 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
                 cand_t[sym] = max(cand_t.get(sym, day0), earliest)
         except Exception as exc:
             log.warning("roi_learning_shadow capture targets unavailable: %s", exc)
+        # Alpha-to-Options link (research/paper only, config/alpha_option_link.yaml): binding RTH decisions for
+        # frozen hypothesis signals (archives the observed chain quotes itself, capped per run) and exit-quote
+        # targets of open paper positions (capped). Never an order; never breaks the capture.
+        try:
+            from modules.autonomous_alpha import option_link as al
+            res["alpha_link"] = al.decide(now=now if fixed_clock else None)
+            for sym, earliest in al.due_capture_targets(today=now.astimezone(ms.NY_TZ).date()).items():
+                cand_t[sym] = max(cand_t.get(sym, day0), earliest)
+        except Exception as exc:  # noqa: BLE001 – research add-on, never a capture condition
+            log.warning("alpha option link unavailable: %s", exc)
+            res["alpha_link"] = {"status": "ERROR", "error": f"{type(exc).__name__}: {exc}"[:300]}
         cand_syms = sorted(set(cand_t) - set(trade_syms))
         done = _satisfied({**{c: cand_t[c] for c in cand_syms}, **targets}, now)
         todo_t = [s for s in trade_syms if s not in done]

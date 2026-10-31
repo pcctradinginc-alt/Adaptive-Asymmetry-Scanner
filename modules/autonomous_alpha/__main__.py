@@ -9,12 +9,19 @@ from . import registry as reg
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Experiment registry and research cycle")
-    ap.add_argument("command", choices=["run", "ingest", "explore", "option-forward", "factor-forward", "reflect", "status", "leaderboard", "verify"])
+    ap.add_argument("command", choices=["run", "ingest", "explore", "option-forward", "factor-forward", "option-link",
+                                        "option-link-correct", "reflect", "status", "leaderboard", "verify"])
     ap.add_argument("--root", type=Path, default=Path("."))
     ap.add_argument("--panel-cache", type=Path)
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--strict", action="store_true")
     ap.add_argument("--limit", type=int, default=15)
+    # option-link-correct (human use only): versioned, never deletes or re-labels
+    ap.add_argument("--kind", choices=["signals", "decisions", "outcomes"])
+    ap.add_argument("--target")
+    ap.add_argument("--action", choices=["EXCLUDE_DATA_ERROR", "DOWNGRADE_EVIDENCE"])
+    ap.add_argument("--reason")
+    ap.add_argument("--by")
     args = ap.parse_args(argv)
     root = args.root.resolve()
     try:
@@ -27,6 +34,15 @@ def main(argv=None):
             if args.panel_cache is None:
                 raise ValueError("--panel-cache from the current trusted CI job is required")
             result = process(root, cache=args.panel_cache)
+            code = 0
+        elif args.command == "option-link":
+            from .option_link import run as link_run
+            result = link_run(root, cache=args.panel_cache if args.panel_cache and args.panel_cache.is_file() else None)
+            code = 0
+        elif args.command == "option-link-correct":
+            from .option_link import record_correction
+            result = record_correction(root, kind=args.kind, target_id=args.target, action=args.action,
+                                       reason=args.reason, recorded_by=args.by)
             code = 0
         elif args.command == "reflect":
             from .reflection import reflect
