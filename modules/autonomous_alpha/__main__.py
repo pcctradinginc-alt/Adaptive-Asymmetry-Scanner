@@ -38,6 +38,11 @@ def main(argv=None):
         elif args.command == "option-link":
             from .option_link import run as link_run
             result = link_run(root, cache=args.panel_cache if args.panel_cache and args.panel_cache.is_file() else None)
+            # Phase B: research-only economics on the same journals (no network, no orders)
+            from .option_economics import evaluate as economics
+            eco = economics(root)
+            result["economics"] = {"status": eco["status"], "evidence_classes": eco["evidence_classes"],
+                                   "proposals": {h: p["structure"] for h, p in eco["proposals"].items()}}
             code = 0
         elif args.command == "option-link-correct":
             from .option_link import record_correction
