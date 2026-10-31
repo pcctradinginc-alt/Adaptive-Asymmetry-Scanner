@@ -12,13 +12,21 @@ or optimized on known outcomes (the contract rule is frozen in Phase A).
 * Evidence classes stay separate: EXECUTED (real trades attributed ex ante),
   QUOTE_VERIFIED_PAPER (entry and exit quotes re-verified in the archive) and
   UNVERIFIABLE (counted with reasons, never in a metric).
-* Comparisons use the same population (same signal dates, all decisions of a
-  date final) and the same budget per signal (return on equal capital; ABSTAIN
-  = cash = 0): versus the base strategy (CONTROL: identical rule on random
-  names of the same universe and date), versus no trade (0) and versus the
-  frozen reference (REFERENCE, benchmark model). Missing results are never
-  positive: primary view excludes them and reports coverage, the conservative
-  view books them as a total loss.
+* Three benchmarks are kept strictly apart (BENCHMARKS):
+  - RANDOM_CONTROL: identical rule on random names of the same universe and
+    date. It is NOT the existing base strategy.
+  - FROZEN_ML_BENCHMARK: the frozen registry benchmark model (role benchmark),
+    identical rule, same dates.
+  - EXISTING_BASE_STRATEGY: the existing scanner / option_learner base
+    decisions on scanner candidates. Different population and holding horizon,
+    therefore reported descriptively only and NEVER used for a superiority
+    claim (``used_for_superiority: False``).
+  Superiority comparisons use only contemporaneously observed, comparable
+  results (same signal dates, all decisions of a date final, same rule,
+  horizon and execution, same budget per signal; ABSTAIN = cash = 0), plus no
+  trade (0). Missing comparison data never count as an advantage; missing
+  results are never positive: primary view excludes them and reports
+  coverage, the conservative view books them as a total loss.
 """
 from __future__ import annotations
 
@@ -31,6 +39,14 @@ from . import option_link as al
 from .registry import _atomic_json
 
 REPORT = Path("outputs/research/autonomous_alpha/option_economics.json")
+BENCHMARKS = {
+    "random_control": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal "
+                      "date (not the existing base strategy)",
+    "frozen_ml_benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule "
+                           "and dates",
+    "existing_base_strategy": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner "
+                              "candidates (descriptive only: different population and holding horizon)",
+}
 HOLD_CALENDAR_DAYS = 28            # 20 NYSE trading days ~ 4 weeks: non-overlapping holding windows
 SCENARIOS = ("BASE", "ADVERSE")
 PRIMARY = "ADVERSE"
@@ -322,9 +338,12 @@ def research_decision(m: dict, cov: dict, vs: dict, cfg: dict) -> dict:
         label = "NEED_MORE_DATA"
     elif m["net_ev_return"] <= 0 or (vs["no_trade_conservative"].get("mean_difference") or 0) <= 0:
         label = "NO_ECONOMIC_EDGE_AFTER_COSTS"
-    elif (vs["base_strategy"].get("mean_difference") or 0) <= 0:
-        label = "NOT_BETTER_THAN_BASE_STRATEGY"
-    elif not vs["base_strategy"].get("ci") or vs["base_strategy"]["ci"][0] <= 0:
+    elif vs["random_control"].get("status") != "DESCRIPTIVE_NOT_A_TEST":
+        label = "COMPARISON_DATA_MISSING"            # missing comparison data never count as an advantage
+        reasons.append("RANDOM_CONTROL_NOT_CONTEMPORANEOUSLY_OBSERVED")
+    elif (vs["random_control"].get("mean_difference") or 0) <= 0:
+        label = "NOT_BETTER_THAN_RANDOM_CONTROL"
+    elif not vs["random_control"].get("ci") or vs["random_control"]["ci"][0] <= 0:
         label = "ADVANTAGE_NOT_ESTABLISHED"
     else:
         label = "CANDIDATE_FOR_PROSPECTIVE_VALIDATION"
@@ -340,20 +359,20 @@ def propose_structure(per_structure: dict) -> dict:
     Only structures labelled CANDIDATE_FOR_PROSPECTIVE_VALIDATION qualify (a
     higher return with insufficient liquidity or data quality is not a valid
     success: those never reach that label). Among them the higher lower CI
-    bound versus the base strategy wins; ties prefer the spread (smaller
+    bound versus the random control wins; ties prefer the spread (smaller
     maximum loss). The selection uses exploratory data, so Phase C validates
     it only on NEW data registered after this proposal.
     """
     cands = []
     for st, e in per_structure.items():
         if e["research_decision"]["label"] == "CANDIDATE_FOR_PROSPECTIVE_VALIDATION":
-            ci = e["comparisons"]["base_strategy"].get("ci") or [float("-inf")]
+            ci = e["comparisons"]["random_control"].get("ci") or [float("-inf")]
             cands.append((ci[0], st == "BULL_CALL_SPREAD", st))
     if not cands:
         return {"structure": None, "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
                 "decision_type": "RESEARCH_ONLY", "order": None}
     best = max(cands)
-    return {"structure": best[2], "reason": "HIGHEST_LOWER_CI_VS_BASE_AMONG_CANDIDATES",
+    return {"structure": best[2], "reason": "HIGHEST_LOWER_CI_VS_RANDOM_CONTROL_AMONG_CANDIDATES",
             "candidates": sorted(c[2] for c in cands), "selection_uses_exploratory_data": True,
             "requires": "Phase C preregistration and validation on new data only",
             "decision_type": "RESEARCH_ONLY", "order": None}
@@ -370,6 +389,7 @@ def evaluate(root: Path = Path("."), *, now: datetime | None = None, persist: bo
     for r in rows:
         groups[(r["hypothesis_id"], r["structure"])].append(r)
     control = {st: groups.get((al.CONTROL_ID, st), []) for st in al.STRUCTURES}
+    existing = existing_base_strategy(root, {r["decision_day"] for r in rows if r["status"] != "PENDING"})
     reference_id = next((s["hypothesis_id"] for s in data["signals"] if s["comparison_group"] == "REFERENCE"), None)
     out = {}
     for (hid, st), rs in sorted(groups.items()):
@@ -382,9 +402,13 @@ def evaluate(root: Path = Path("."), *, now: datetime | None = None, persist: bo
             sub = metrics([r for r in rs if r["regime"] == reg], PRIMARY)
             by_regime[reg] = {k: sub.get(k) for k in ("n", "winrate", "net_ev_return", "capital_weighted_return")}
         vs = {"no_trade": compare(rs, None), "no_trade_conservative": compare(rs, None, view="CONSERVATIVE"),
-              "base_strategy": compare(rs, control[st]) if hid != al.CONTROL_ID else {"status": "SELF"},
-              "frozen_reference": (compare(rs, groups.get((reference_id, st), []))
-                                   if reference_id and hid != reference_id else {"status": "SELF_OR_NONE"})}
+              "random_control": ({**compare(rs, control[st]), "benchmark": BENCHMARKS["random_control"]}
+                                 if hid != al.CONTROL_ID else {"status": "SELF"}),
+              "frozen_ml_benchmark": (
+                  {**compare(rs, groups.get((reference_id, st), [])), "benchmark": BENCHMARKS["frozen_ml_benchmark"]}
+                  if reference_id and hid != reference_id
+                  else {"status": "SELF" if hid == reference_id else "NO_FROZEN_BENCHMARK_SIGNALS"}),
+              "existing_base_strategy": existing}
         entry = {"comparison_group": rs[0]["comparison_group"],
                  "versions": sorted({r["hypothesis_version"] for r in rs}),
                  "coverage": {"decisions": len(rs), "trade_decided": cov["TRADE_DECIDED"],
@@ -397,7 +421,7 @@ def evaluate(root: Path = Path("."), *, now: datetime | None = None, persist: bo
                                   x for r in rs if r["status"] == "ABSTAIN" for x in r["reasons"]).items()))},
                  "metrics": m, "by_regime": by_regime, "comparisons": vs}
         entry["research_decision"] = (research_decision(m[PRIMARY], cov, vs, cfg) if hid != al.CONTROL_ID
-                                      else {"label": "BASE_STRATEGY_BENCHMARK", "decision_type": "RESEARCH_ONLY",
+                                      else {"label": "RANDOM_CONTROL_BENCHMARK", "decision_type": "RESEARCH_ONLY",
                                             "order": None, "production_influence": "NONE"})
         out.setdefault(hid, {})[st] = entry
     executed = _executed(root, data)
@@ -412,10 +436,11 @@ def evaluate(root: Path = Path("."), *, now: datetime | None = None, persist: bo
         "evidence_classes": {"EXECUTED": executed, "QUOTE_VERIFIED_PAPER": coverage_all.get("SETTLED", 0),
                              "UNVERIFIABLE": sum(coverage_all.get(k, 0) for k in
                                                  ("UNVERIFIABLE", "EXIT_MISSING", "EXCLUDED_BY_CORRECTION"))},
-        "coverage": coverage_all, "hypotheses": out,
+        "coverage": coverage_all, "benchmarks": BENCHMARKS, "existing_base_strategy": existing,
+        "hypotheses": out,
         "proposals": {hid: propose_structure(h) for hid, h in sorted(out.items()) if hid != al.CONTROL_ID},
         "status": ("NEED_MORE_DATA" if not any(e["research_decision"]["label"] not in
-                                               ("NEED_MORE_DATA", "BASE_STRATEGY_BENCHMARK")
+                                               ("NEED_MORE_DATA", "RANDOM_CONTROL_BENCHMARK")
                                                for h in out.values() for e in h.values()) else "EVALUATED"),
         "data_origin": "REPOSITORY_JOURNALS_ONLY", "decision_type": "RESEARCH_ONLY",
         "order_placed": False, "production_influence": "NONE", "llm_calls": 0,
@@ -426,11 +451,58 @@ def evaluate(root: Path = Path("."), *, now: datetime | None = None, persist: bo
 
 
 def _executed(root: Path, data: dict) -> dict:
-    """Real trades count as EXECUTED only with an ex-ante alpha signal ID."""
+    """EXECUTED = documented broker execution AND ex-ante alpha signal ID. Paper
+    bookings and archived bid/ask valuations never count here (no upgrade)."""
     from . import forward_options
     if not (Path(root) / forward_options.POLICY).exists():
         return {"n": 0, "status": "NO_POLICY"}
     rep = forward_options.evaluate(root, persist=False)
-    return {"n": rep.get("n_verified_attributed_ex_ante", 0),
-            "attribution_checks": rep.get("alpha_attribution_checks", {}),
-            "status": "NONE_ATTRIBUTED" if not rep.get("n_verified_attributed_ex_ante") else "PRESENT"}
+    n = rep.get("n_executed_attributed_ex_ante", 0)
+    return {"n": n, "attribution_checks": rep.get("alpha_attribution_checks", {}),
+            "real_trade_evidence_classes": rep.get("evidence_classes", {}),
+            "rule": "documented broker execution (entry and exit fills) AND ex-ante alpha_signal_id",
+            "status": "PRESENT" if n else "NONE_DOCUMENTED"}
+
+
+def existing_base_strategy(root: Path, decision_days: set[str], horizon: int = 20) -> dict:
+    """Existing scanner/option_learner base strategy on the same decision days.
+
+    Descriptive only: its population (scanner candidates) and holding horizon
+    (calendar-day ledger marks) differ from the hypothesis signals, so it is
+    NOT comparable and never used for a superiority claim. Missing data are
+    reported as such, never as an advantage."""
+    out = {"benchmark": BENCHMARKS["existing_base_strategy"], "used_for_superiority": False,
+           "comparability": {"population": "DIFFERENT (scanner candidates vs hypothesis signals)",
+                             "holding_horizon": f"{horizon} calendar days vs 20 trading days",
+                             "execution": "ask/bid + commission (no adverse scenario)"}}
+    from modules import option_learner as ol
+    from modules import research_evidence_discovery as red
+    from modules.atomic_io import read_jsonl
+    jp = Path(root) / ol.OUT / ol.JOURNAL
+    if not decision_days or not jp.exists():
+        return {**out, "status": "NO_CONTEMPORANEOUS_DATA", "reason": "no base journal or no decision days"}
+    decs = [j for j in read_jsonl(jp) if j.get("kind") == "decision" and j.get("role") == "learning"
+            and j.get("horizon") == horizon and j.get("date") in decision_days]
+    if not decs:
+        return {**out, "status": "NO_CONTEMPORANEOUS_DATA", "reason": "no base decision on these decision days"}
+    try:
+        as_of = datetime.now(timezone.utc).date()
+        _, cands, _ = ol._load(as_of, horizon, Path(root) / red.LEDGER, Path(root) / red.QUOTES)
+    except Exception as exc:  # noqa: BLE001 – descriptive add-on, never blocks the evaluation
+        return {**out, "status": "UNAVAILABLE", "reason": f"{type(exc).__name__}: {exc}"[:200]}
+    by_key = {(c["date"], c["signal_id"]): c for c in cands}
+    vals, unverified, trades = [], 0, 0
+    for j in decs:
+        if j.get("action") != "TRADE":
+            vals.append(0.0)
+            continue
+        trades += 1
+        e = ol.realized(by_key.get((j["date"], j["signal_id"])) or {"exprs": []}, j.get("contract"))
+        if e and e.get("status") == "VERIFIED" and e.get("y") is not None:
+            vals.append(float(e["y"]))
+        else:
+            unverified += 1
+    return {**out, "status": "NOT_COMPARABLE", "common_decision_days": len({j["date"] for j in decs}),
+            "base_decisions": len(decs), "base_trades": trades, "base_unverified_or_pending": unverified,
+            "base_mean_per_decision_verified": round(sum(vals) / len(vals), 6) if vals else None,
+            "note": "No superiority claim versus the existing base strategy is possible from these data."}
