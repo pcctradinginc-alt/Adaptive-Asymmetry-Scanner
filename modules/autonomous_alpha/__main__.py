@@ -43,6 +43,14 @@ def main(argv=None):
             eco = economics(root)
             result["economics"] = {"status": eco["status"], "evidence_classes": eco["evidence_classes"],
                                    "proposals": {h: p["structure"] for h, p in eco["proposals"].items()}}
+            # Phase C: preregistered prospective validation + learning (research only, no orders)
+            from .option_validation import CONFIG as VAL_CONFIG
+            from .option_validation import run as validate
+            if (root / VAL_CONFIG).is_file():
+                val = validate(root, econ=eco)
+                result["validation"] = {"status": val["status"], "n_plans": val["n_plans"],
+                                        "new_plans": val["new_plans"],
+                                        "classification_counts": val["classification_counts"]}
             code = 0
         elif args.command == "option-link-correct":
             from .option_link import record_correction

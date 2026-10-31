@@ -475,15 +475,26 @@ TASK_DECISIONS = Path("config/improvement_task_decisions.yaml")   # menschliche 
 TASK_INPUTS = {"option_root": OPTION_OUT, "source_history": Path("outputs/health/source_health_history.jsonl"),
                "source_snapshot": Path("outputs/health/source_health_snapshot.json"),
                "workflow_status": Path("outputs/state/workflow_status.json"),
-               "ledger": Path("outputs/candidate_ledger")}
+               "ledger": Path("outputs/candidate_ledger"),
+               "alpha_validation": Path("outputs/research/autonomous_alpha/option_validation.json")}
 INPUT_LABEL = {"improvement": "option_learner/improvement.json", "source_snapshot": "source_health_snapshot.json",
-               "workflow_status": "workflow_status.json"}
+               "workflow_status": "workflow_status.json",
+               "alpha_validation": "autonomous_alpha/option_validation.json"}
 DIGEST_MAX = 3                                   # höchstens so viele neue/geänderte Aufgaben je Kalenderwoche
 CRITICAL_KINDS = ("withdrawn_success", "release_integrity")   # P0: täglicher Lauf (--critical), sonst Wochen-Digest
 FRESH_DAYS = {"option": 10, "seq": 10, "health": 2, "workflow": 2}   # ältere Daten sind nicht beurteilbar
 MODES = ("weekly", "critical")
 SUBJECT = "[Scanner] Technischer Verbesserungsvorschlag – {}"
 PRIORITY_TEXT = {"P0": "kritisch", "P1": "hoch", "P2": "mittel", "P3": "niedrig"}
+ALPHA_SUBJECT = "[Scanner] Alpha-to-Options Forschungsergebnis – {}"
+ALPHA_SECTIONS = ("Entdeckter ungewöhnlicher Zusammenhang", "Wirtschaftliche Erklärung der Hypothese",
+                  "Vorgeschlagene Optionsstrategie", "Anzahl und Herkunft der Beobachtungen",
+                  "Netto-Rendite und Profit Factor", "Vergleich mit Basisstrategie und Nicht-Handeln",
+                  "Statistische Sicherheit und verbleibende Unsicherheiten", "Maximales Risiko und Datenlücken",
+                  "Einstufung", "Claude-Code-Auftrag (falls eine technische Änderung notwendig wäre)")
+ALPHA_CLASS_TEXT = {"RESEARCH": "Research (laufend, noch keine Aussage)",
+                    "NOT_CONFIRMED": "nicht bestätigt",
+                    "QUALIFIED_FOR_HUMAN_REVIEW": "für menschliche Prüfung qualifiziert (keine Freigabe)"}
 CATEGORY_TEXT = {"data": "Daten", "capture": "Datenerfassung", "model": "Modell", "testing": "Testbarkeit",
                  "infrastructure": "Pipeline/Infrastruktur", "research_result": "Forschungsergebnis",
                  "critical": "Kritischer Evidenzwiderspruch"}
@@ -901,6 +912,122 @@ def _tasks_release(seqs: dict) -> list[dict]:
     return out
 
 
+def _pct(x) -> str:
+    return f"{x:.1%}" if isinstance(x, (int, float)) else "n/a"
+
+
+def _alpha_gap(rep: dict) -> dict | None:
+    """Blockierende Datenlücke der Alpha-to-Options-Kette (nur bei genug Fällen, nie bei normaler Wartezeit)."""
+    miss = ((rep.get("learning") or {}).get("missing_data") or {})
+    overdue = miss.get("DECISION_WINDOW_OVERDUE", 0)
+    unver = sum(v for k, v in miss.items() if not k.startswith(("ABSTAIN:", "PRE_LINK", "NO_EXECUTED", "DECISION_")))
+    if overdue >= 10:
+        return {"summary": f"{overdue} Signale ohne Entscheidung im Entscheidungsfenster", "overdue": overdue,
+                "unverifiable": unver}
+    if unver >= 10:
+        return {"summary": f"{unver} Paper-Ergebnisse nicht quote-verifizierbar", "overdue": overdue,
+                "unverifiable": unver}
+    return None
+
+
+def _alpha_sections(p: dict, rep: dict) -> list:
+    b = p.get("binding") or {}
+    m = b.get("metrics") or {}
+    q = p.get("qualification") or {}
+    nt, base, cons = b.get("vs_no_trade") or {}, b.get("vs_base_strategy") or {}, b.get("vs_no_trade_conservative") or {}
+    learn = rep.get("learning") or {}
+    return [
+        [(f"Hypothese {p['hypothesis_id']} (Version {p['hypothesis_version']}): prospektive Rangfolge, deren "
+          f"Top-Namen als Signal gelten; Optionsumsetzung {p['structure']}.")],
+        [("Im Register ist keine geprüfte ökonomische Begründung hinterlegt; die Hypothese ist statistisch "
+          "definiert. Ein Vorteil ist nur so weit belegt, wie die folgenden prospektiven Zahlen reichen.")],
+        [(f"{p['structure']} nach der eingefrorenen Regel (Plan {p['plan_id']}): erste Expiry mit 45–90 Tagen "
+          "Restlaufzeit, Long-Strike am Geld, Spread-Short-Leg 1,05–1,20 × Strike, 1 Kontrakt, Kauf zum Ask, "
+          "Verkauf zum Bid, 0,65 $ je Kontrakt und Seite, ungünstige Ausführung als Hauptszenario.")],
+        [(f"{m.get('n', 0)} quote-verifizierte Paper-Ergebnisse (keine ausgeführten Trades) an "
+          f"{m.get('distinct_signal_dates', 0)} Signaltagen, {m.get('independent_periods', 0)} unabhängige "
+          f"Haltefenster; Prüfung {b.get('look')} mit Stichtag {b.get('data_cutoff')}; Herkunft: "
+          "Options-Quote-Archiv (record_id je Leg), Signale aus dem prospektiven Prognose-Journal.")],
+        [(f"Netto-Erwartungswert je Position {_pct(m.get('net_ev_return'))} auf das eingesetzte Kapital, "
+          f"kapitalgewichtet {_pct(m.get('capital_weighted_return'))}, Profit Factor {m.get('profit_factor')}, "
+          f"Winrate {_pct(m.get('winrate'))}.")],
+        [(f"Gegen Nicht-Handeln: {_pct(nt.get('mean_difference'))} je Signal, KI {nt.get('ci')}; konservativ "
+          f"(fehlende = Totalverlust) {_pct(cons.get('mean_difference'))}."),
+         (f"Gegen Basisstrategie (gleiche Regel, Zufallsnamen desselben Tages): "
+          f"{_pct(base.get('mean_difference'))}, KI {base.get('ci')}.")],
+        [(f"Vorab registrierter sequenzieller Test: Fehlerbudget-Slot {p.get('alpha_slot')}, Teil-Alpha der "
+          f"Prüfung {(b.get('alpha') or {}).get('look_alpha')}, KI-Niveau {(b.get('alpha') or {}).get('ci_level')}, "
+          "Block-Bootstrap über nicht überlappende Haltefenster mit t-Quantil."),
+         (f"Kriterien nicht erfüllt: {q.get('failed') or 'keine'}. Unsicherheiten: Paper-Ergebnisse sind keine "
+          "Broker-Ausführungen; kleine Stichproben, Regimewechsel und Liquidität können das Ergebnis ändern.")],
+        [(f"Maximaler Verlust je Position (strukturell) "
+          f"{q.get('max_structural_loss_usd') or m.get('max_structural_loss_usd')} $; größter beobachteter Verlust "
+          f"{m.get('max_loss_usd')} $; Drawdown {m.get('max_drawdown_usd')} $; Spitzen-Kapitalbindung "
+          f"{m.get('peak_concurrent_capital_usd')} $."),
+         (f"Datenabdeckung: Entscheidungen {_pct(b.get('decision_coverage'))}, Quotes "
+          f"{_pct(b.get('quote_coverage'))}; Datenlücken: {dict(list((learn.get('missing_data') or {}).items())[:6])}.")],
+        [ALPHA_CLASS_TEXT.get(p.get("classification"), str(p.get("classification")))],
+    ]
+
+
+def _tasks_alpha_options(rep: dict) -> list[dict]:
+    """Alpha-to-Options (Phase C): neu qualifizierte oder abschließend nicht bestätigte Prüfpläne als Ergebnis-Mail
+    mit 10 Abschnitten; blockierende Datenlücken als technische Aufgabe. Laufende Prüfungen und NEED_MORE_DATA
+    erzeugen nie eine Mail."""
+    out = []
+    if not isinstance(rep, dict) or not rep:
+        return out
+    common = {"sources": ["outputs/research/autonomous_alpha/option_validation.json",
+                          "outputs/research/autonomous_alpha/option_validation/looks/"], "costs": NO_COST}
+    for p in rep.get("plans") or []:
+        cls = p.get("classification")
+        if cls not in ("QUALIFIED_FOR_HUMAN_REVIEW", "NOT_CONFIRMED") or not p.get("binding"):
+            continue
+        qualified = cls == "QUALIFIED_FOR_HUMAN_REVIEW"
+        out.append(_task(
+            "alpha_option_qualified" if qualified else "alpha_option_result", p["plan_id"],
+            "P1" if qualified else "P3", "research_result",
+            (f"{p['hypothesis_id']} {p['structure']}: für menschliche Prüfung qualifiziert" if qualified
+             else f"{p['hypothesis_id']} {p['structure']}: nicht bestätigt ({p.get('status')})"),
+            scope={"plan_id": p["plan_id"], "classification": cls},
+            report_sections=_alpha_sections(p, rep), technical_change_needed=qualified,
+            finding=(f"Prüfplan {p['plan_id']} ({p['hypothesis_id']}, {p['structure']}) endet mit {p.get('status')}"
+                     f" – Einstufung {cls}."),
+            problem="Ergebnis eines vorab registrierten, prospektiven Tests.", severity_reason="Forschungsergebnis.",
+            evidence=[f"Prüfung: {json.dumps({k: (p.get('binding') or {}).get(k) for k in ('look', 'verdict', 'report_id')}, default=str)}"],
+            files=["modules/autonomous_alpha/option_link.py", "modules/autonomous_alpha/option_validation.py",
+                   "config/alpha_option_link.yaml"],
+            cause="Prospektiver Nachweis gemäß Prüfplan (kein Defekt).",
+            verify=f"Eingefrorenen Prüfbericht {(p.get('binding') or {}).get('report_id')} und Rohdaten nachrechnen.",
+            change=("Nach deiner Entscheidung: die Strategie ausschließlich als Paper-/Shadow-Kandidat neben der "
+                    "Produktion führen (eigene Konfiguration, keine Orders, keine Änderung an Champion, Gates, "
+                    "Positionsgrößen oder Risikolimits) und weiter prospektiv messen."),
+            benefit="kontrollierte, menschlich entschiedene Weiterführung", risks="Paper ≠ Ausführung",
+            effort="mittel", acceptance=["keine Order-, Champion- oder Risikolimit-Änderung im Diff",
+                                         "neue Paper-Ergebnisse weiterhin quote-verifiziert"],
+            tests=["Regressionstest: Shadow-Kandidat erzeugt nie eine Order"],
+            material={"classification": cls, "status": p.get("status")}, **common))
+    gap = _alpha_gap(rep)
+    if gap:
+        out.append(_task(
+            "alpha_option_data_gap", "alpha_link", "P2", "capture",
+            f"Alpha-to-Options: {gap['summary']}", scope={"component": "alpha_link"},
+            finding=f"Die Alpha-to-Options-Kette meldet: {gap['summary']}.",
+            problem="Ohne vollständige Entscheidungen und verifizierbare Quotes kann kein Prüfplan entscheiden.",
+            severity_reason="blockiert die prospektive Validierung.",
+            evidence=[f"missing_data: {json.dumps((rep.get('learning') or {}).get('missing_data'), default=str)[:400]}"],
+            files=["scripts/rth_marks.py", "modules/autonomous_alpha/option_link.py",
+                   ".github/workflows/options_capture.yml"],
+            cause="Capture-Läufe außerhalb des RTH-Fensters, Tradier-Ausfälle oder fehlende Exit-Quotes.",
+            verify="options_capture-Logs (alpha_link-Ergebnis) und outputs/options_archive/alpha_link/ prüfen.",
+            change="Ursache der fehlenden Entscheidungen/Quotes beheben, ohne Budgets oder Regeln zu lockern.",
+            benefit="entscheidbare Prüfpläne", risks="gering", effort="klein",
+            acceptance=["überfällige Entscheidungen < 10", "nicht verifizierbare Ergebnisse < 10"],
+            tests=["Regressionstest für die gefundene Ursache"],
+            material={"overdue": gap["overdue"] >= 10, "unverifiable": gap["unverifiable"] >= 10}, **common))
+    return out
+
+
 def _tasks_infrastructure(history: list[dict], snapshot: dict, wf_status: dict, now: datetime) -> list[dict]:
     """Dauerhaft ausgefallene wichtige Datenquellen und Workflows, die regelmäßig nachgestartet werden müssen."""
     out, sources = [], (snapshot or {}).get("sources") or {}
@@ -1030,6 +1157,10 @@ def input_quality(inputs: dict, now: datetime) -> dict[str, tuple[str, str]]:
     q["source_snapshot"] = _fresh(snap.get("generated") if isinstance(snap, dict) else None, FRESH_DAYS["health"], now,
                                   problems.get("source_snapshot") or (None if isinstance(snap, dict) and snap
                                                                       else "fehlt"))
+    av = inputs.get("alpha_validation")
+    q["alpha_validation"] = _fresh(av.get("generated_at") if isinstance(av, dict) else None, FRESH_DAYS["option"], now,
+                                   problems.get("alpha_validation") or (None if isinstance(av, dict) and av
+                                                                        else "fehlt"))
     wf = inputs.get("workflow_status")
     days = [d for d in ((wf or {}).get("days") or {}) if _ts(d)] if isinstance(wf, dict) else []
     q["workflow_status"] = _fresh(max(days) if days else None, FRESH_DAYS["workflow"], now,
@@ -1071,7 +1202,8 @@ def improvement_tasks(inputs: dict, now: datetime | None = None) -> tuple[list[d
              + _tasks_sample_bias(gaps) + _tasks_variants(status, gaps) + _tasks_release(seqs)
              + _tasks_infrastructure(inputs.get("source_history") if q["source_snapshot"][0] == "ok" else [],
                                      inputs.get("source_snapshot") if q["source_snapshot"][0] == "ok" else {},
-                                     inputs.get("workflow_status") if q["workflow_status"][0] == "ok" else {}, now))
+                                     inputs.get("workflow_status") if q["workflow_status"][0] == "ok" else {}, now)
+             + _tasks_alpha_options(inputs.get("alpha_validation") if q["alpha_validation"][0] == "ok" else {}))
     as_of = max([str(st.get("as_of")) for st in status.values() if st.get("as_of")]
                 + [str((imp or {}).get("generated", ""))[:10]])
     unique = {}
@@ -1196,6 +1328,18 @@ def resolution(task: dict, inputs: dict, now: datetime | None = None) -> tuple[s
         hits = sorted(d for d, w in recov.items() if d in window and isinstance(w, dict) and sc.get("workflow") in w)
         return ("OPEN", f"Nachstarts {hits}") if hits else \
             ("RESOLVED", f"kein Nachstart in den letzten {RECOVERY_WINDOW_DAYS} Tagen")
+    if kind in ("alpha_option_qualified", "alpha_option_result", "alpha_option_data_gap"):
+        if why := missing("alpha_validation"):
+            return "UNKNOWN", why
+        rep = inputs.get("alpha_validation") or {}
+        if kind == "alpha_option_data_gap":
+            gap = _alpha_gap(rep)
+            return ("OPEN", gap["summary"]) if gap else ("RESOLVED", "keine blockierende Datenlücke mehr")
+        plan = next((x for x in rep.get("plans") or [] if x.get("plan_id") == sc.get("plan_id")), None)
+        if plan is None:
+            return "UNKNOWN", "Prüfplan nicht im aktuellen Bericht"
+        return ("OPEN", plan.get("classification")) if plan.get("classification") == sc.get("classification") else \
+            ("RESOLVED", f"Einstufung jetzt {plan.get('classification')}")
     return "UNKNOWN", f"unbekannte Aufgabenart {kind}"
 
 
@@ -1231,6 +1375,7 @@ def load_task_inputs(paths: dict | None = None, now: datetime | None = None) -> 
                             "forward_sequential": rec["forward_sequential"]}
     snapshot, problems["source_snapshot"] = _load_checked(Path(p["source_snapshot"]))
     wf, problems["workflow_status"] = _load_checked(Path(p["workflow_status"]))
+    alpha, problems["alpha_validation"] = _load_checked(Path(p["alpha_validation"]))
     ledger = None
     try:
         from modules import research_evidence_discovery as red
@@ -1239,7 +1384,7 @@ def load_task_inputs(paths: dict | None = None, now: datetime | None = None) -> 
         log.warning(f"research_director: Ledger nicht lesbar ({e}) – Formatbelege fehlen")
     return {"improvement": imp, "status": status, "daily_seq": daily,
             "source_history": read_jsonl(p["source_history"]) if Path(p["source_history"]).exists() else [],
-            "source_snapshot": snapshot, "workflow_status": wf, "ledger": ledger,
+            "source_snapshot": snapshot, "workflow_status": wf, "ledger": ledger, "alpha_validation": alpha,
             "problems": {k: v for k, v in problems.items() if v}}
 
 
@@ -1275,7 +1420,29 @@ def _cost_text(c: dict) -> str:
             "zusätzlichen Infrastrukturkosten durch diese Meldung selbst (feste Vorlage, kein KI-Aufruf).")
 
 
+def alpha_report_text(t: dict, reason: str) -> str:
+    """Alpha-to-Options-Ergebnis: genau die 10 vorgegebenen Abschnitte (feste Vorlage, kein KI-Aufruf)."""
+    sec = t["report_sections"]
+    lines = [(f"Task-ID {t['task_id']} · Priorität {t['priority']} ({PRIORITY_TEXT[t['priority']]}) · "
+              f"Status {t.get('status', 'OPEN')} ({reason})"),
+             "Keine Renditeversprechen. Keine automatisch freigegebenen Trades. Research/Paper ausschließlich."]
+    for i, title in enumerate(ALPHA_SECTIONS, 1):
+        lines += ["", f"{i}. {title}"]
+        if i == 10:
+            if t.get("technical_change_needed"):
+                lines += ["Nur nach deiner ausdrücklichen Entscheidung verwenden:",
+                          "----- BEGIN CLAUDE CODE TASK -----", claude_task(t), "----- END CLAUDE CODE TASK -----"]
+            else:
+                lines.append("Keine technische Änderung notwendig.")
+        else:
+            body = sec[i - 1]
+            lines += body if isinstance(body, list) else [str(body)]
+    return "\n".join(lines)
+
+
 def task_text(t: dict, reason: str) -> str:
+    if t.get("report_sections"):
+        return alpha_report_text(t, reason)
     return "\n".join([
         (f"Task-ID {t['task_id']} · Priorität {t['priority']} ({PRIORITY_TEXT[t['priority']]}) · Kategorie "
          f"{CATEGORY_TEXT.get(t['category'], t['category'])} · Status {t.get('status', 'OPEN')} ({reason})"),
@@ -1299,7 +1466,8 @@ REASON_TEXT = {"NEW": "neu erkannt", "CHANGED": "Befund wesentlich geändert", "
 def render_mail(tasks: list[tuple[dict, str]]) -> tuple[str, str, str]:
     """(Betreff, HTML, Text) für eine oder mehrere Aufgaben – feste Vorlage, kein KI-Aufruf."""
     first = tasks[0][0]
-    subject = SUBJECT.format(first["short"] + (f" (+{len(tasks) - 1} weitere)" if len(tasks) > 1 else ""))
+    subject = (ALPHA_SUBJECT if first.get("report_sections") else SUBJECT).format(
+        first["short"] + (f" (+{len(tasks) - 1} weitere)" if len(tasks) > 1 else ""))
     head = ("Automatisch aus belegten Research-Befunden erzeugt (feste Vorlage, kein KI-Aufruf, keine API-Kosten). "
             "Nichts wird automatisch geändert; jede Umsetzung braucht deine Freigabe (PR ohne Auto-Merge).")
     parts = [head, ""]
