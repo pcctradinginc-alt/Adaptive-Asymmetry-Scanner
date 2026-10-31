@@ -46,7 +46,16 @@ SOURCES = {
     "option_status_5d": Path("outputs/research/option_learner/status_5d.json"),
     "option_improvement": Path("outputs/research/option_learner/improvement.json"),
     "improvement_tasks": Path("outputs/research/improvement_tasks.json"),
+    "alpha_option_economics": Path("outputs/research/autonomous_alpha/option_economics.json"),
+    "alpha_option_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
 }
+# Alpha-to-Options: Phase-B-Labels sind explorativ (kein abgeschlossener Test), Phase-C-Ergebnisse sind vorab
+# registrierte prospektive Tests. "Qualifiziert" ist ein Forschungserfolg, nie ein Produktionsstatus.
+ALPHA_ECON_STATUS = {"CANDIDATE_FOR_PROSPECTIVE_VALIDATION": "PENDING_FORWARD", "NEED_MORE_DATA": "DATA_GAP",
+                     "COMPARISON_DATA_MISSING": "DATA_GAP", "NO_ECONOMIC_EDGE_AFTER_COSTS": "INCONCLUSIVE",
+                     "NOT_BETTER_THAN_RANDOM_CONTROL": "INCONCLUSIVE", "ADVANTAGE_NOT_ESTABLISHED": "INCONCLUSIVE"}
+ALPHA_PLAN_STATUS = {"FALSIFIED": "REJECTED", "NOT_CONFIRMED": "REJECTED", "NO_BUDGET": "INCONCLUSIVE",
+                     "PLAN_INVALID": "INCONCLUSIVE"}
 # Varianten-Status des Options-Lernmodells -> Memory-Status (laufend = weder Erfolg noch Test)
 # Erfolg nur bei relativem UND wirtschaftlichem Vorteil (PROPOSE_/CONFIRMED_ADOPTION); "nur relativ besser" ist
 # kein Erfolg. Laufende Varianten sind weder Erfolg noch abgeschlossener Test.
@@ -181,6 +190,39 @@ def collect(sources: dict | None = None) -> list[dict]:
     out += commodity_entries(src.get("commodity_evaluation"), src.get("factory_results"))
     out += option_entries(*(src.get(k) for k in ("option_status_20d", "option_status_5d", "option_improvement")))
     out += task_entries(src.get("improvement_tasks"))
+    out += alpha_option_entries(src.get("alpha_option_economics"), src.get("alpha_option_validation"))
+    return out
+
+
+def alpha_option_entries(econ: dict | None, validation: dict | None) -> list[dict]:
+    """Alpha-to-Options: Phase-B-Forschungsentscheidung je Hypothese und Struktur sowie Phase-C-Prüfpläne."""
+    out = []
+    for hid, per in sorted(((econ or {}).get("hypotheses") or {}).items()):
+        for st, e in sorted((per or {}).items()):
+            label = (e.get("research_decision") or {}).get("label")
+            if label not in ALPHA_ECON_STATUS:
+                continue
+            m = (e.get("metrics") or {}).get("ADVERSE") or {}
+            out.append(_entry("alpha_option_research", f"{hid}:{st}", ALPHA_ECON_STATUS[label],
+                              {"signal": hid, "family": f"alpha_option_{st.lower()}", "domain": "options_net"},
+                              source="option_economics", evidence={"label": label, "n": m.get("n"),
+                                                                   "net_ev": m.get("net_ev_return")},
+                              reasons=(e.get("research_decision") or {}).get("reasons"),
+                              data_kind="prospective_quote_verified_paper"))
+    for p in (validation or {}).get("plans") or []:
+        if p.get("classification") == "QUALIFIED_FOR_HUMAN_REVIEW":
+            status = "ACCEPTED"
+        else:
+            status = ALPHA_PLAN_STATUS.get(p.get("status"), "PENDING_FORWARD")
+        b = p.get("binding") or {}
+        out.append(_entry("alpha_option_validation", str(p.get("plan_id")), status,
+                          {"signal": p.get("hypothesis_id"), "family": f"alpha_option_{str(p.get('structure')).lower()}",
+                           "domain": "options_net"},
+                          source="option_validation", evidence={"status": p.get("status"), "look": b.get("look"),
+                                                                "report": b.get("report_id"),
+                                                                "classification": p.get("classification")},
+                          reasons=(p.get("qualification") or {}).get("failed"),
+                          data_kind="prospective_preregistered_paper"))
     return out
 
 

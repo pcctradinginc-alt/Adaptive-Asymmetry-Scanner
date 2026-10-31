@@ -280,8 +280,30 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
                                    if isinstance(t, dict) and t.get("status") in ("OPEN", "NOTIFIED", "UNKNOWN")][:8],
         "improvement_mail_status": {mode: (run or {}).get("mail_status") for mode, run in sorted(
             ((inp.get("improvement_tasks") or {}).get("last_runs") or {}).items())},
+        "alpha_to_options": alpha_lines(inp.get("alpha_validation") or {}),
         "feature_decay": decay, "model_decay": model_decay, "research_value": rv, "safe_mode": sm,
     }
+
+
+def alpha_lines(rep: dict) -> list[str]:
+    """Alpha-to-Options-Stand (Prüfpläne, Einstufungen, wichtigste Lernbefunde) – nur Beschreibung."""
+    if not rep:
+        return []
+    learn = rep.get("learning") or {}
+    lines = [(f"Status {rep.get('status')} · Prüfpläne {rep.get('n_plans', 0)} · Einstufungen "
+              f"{rep.get('classification_counts') or {}} · Abdeckung {rep.get('link_status')} · Ökonomie "
+              f"{rep.get('economics_status')}")]
+    lines += [(f"{p.get('plan_id')} {p.get('hypothesis_id')} {p.get('structure')}: {p.get('status')} "
+               f"({p.get('classification')})") for p in (rep.get("plans") or [])[:5]]
+    if learn.get("missing_data"):
+        lines.append(f"Fehlende Daten: {dict(list(learn['missing_data'].items())[:5])}")
+    if learn.get("problematic_regimes"):
+        lines.append(f"Problematische Regime: {learn['problematic_regimes']}")
+    if learn.get("economically_unsuitable_structures"):
+        lines.append(f"Wirtschaftlich ungeeignete Strukturen: {learn['economically_unsuitable_structures']}")
+    if learn.get("repeatedly_failing_feature_combinations"):
+        lines.append(f"Wiederholt scheiternde Merkmalskombinationen: {learn['repeatedly_failing_feature_combinations']}")
+    return lines
 
 
 def run() -> dict:
@@ -303,6 +325,12 @@ def run() -> dict:
     except (OSError, json.JSONDecodeError) as e:
         log.warning(f"meta_cognition: improvement_tasks.json nicht lesbar ({e})")
         inp["improvement_tasks"] = {}
+    try:      # Alpha-to-Options (Phase C, Vorwoche); nie Safe-Mode-relevant
+        ap = OUT / "autonomous_alpha" / "option_validation.json"
+        inp["alpha_validation"] = json.loads(ap.read_text()) if ap.exists() else {}
+    except (OSError, json.JSONDecodeError) as e:
+        log.warning(f"meta_cognition: option_validation.json nicht lesbar ({e})")
+        inp["alpha_validation"] = {}
     hp = Path("outputs/external_data/health/source_health.json")
     try:
         inp["health"] = json.loads(hp.read_text()) if hp.exists() else {}
@@ -355,7 +383,8 @@ def render_md(st: dict) -> str:
                        ("research_tracks_with_real_oos_value", "Research-Tracks mit echtem OOS-Wert"),
                        ("research_tracks_wasting_resources", "Research-Tracks ohne Ertrag"),
                        ("option_learner_gaps", "Options-Lernmodell: erkannte Lücken (research_director --options)"),
-                       ("open_improvement_tasks", "Offene technische Verbesserungsaufgaben (--notify)")):
+                       ("open_improvement_tasks", "Offene technische Verbesserungsaufgaben (--notify)"),
+                       ("alpha_to_options", "Alpha-to-Options: Prüfpläne und Lernbefunde")):
         L += ["", f"## {title}", ""] + ([f"- {x}" for x in st.get(key) or []] or ["- (keine gemessene Aussage)"])
     if st.get("improvement_mail_status"):
         L += ["", "Letzter Versand der Verbesserungsvorschläge: " + ", ".join(

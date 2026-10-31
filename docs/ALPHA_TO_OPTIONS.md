@@ -210,3 +210,89 @@ frozen `alpha-option-rule-v1`.
   research. Only candidates are eligible; the one with the highest lower CI
   bound versus the random control wins, and a tie goes to the spread. The
   selection used exploratory data, so Phase C validates it on new data only.
+
+## Phase C – Prospective validation, learning and result mail (`option_validation.py`)
+
+Reuses the sequential machinery of PR #145/#147 instead of building a new one:
+
+* `option_learner.test_budget` – permanent Bonferroni error budget. The
+  register lives in `outputs/research/autonomous_alpha/option_validation/variants.jsonl`.
+* `look_days` / `alpha_spending` – looks at 1/3, 2/3 and 1 of 364 days, with
+  O'Brien-Fleming spending.
+* `freeze_look_report` – create-only look reports; corrections become `_v2…`.
+* The block bootstrap with t-quantiles over non-overlapping holding windows.
+
+### Workflow
+
+1. **Preregistration (`register_plans`).** For each structure that Phase B
+   proposes (B5), a create-only plan file is written and hashed:
+   `option_validation/plans/AOV-*.json`. It fixes:
+   * hypothesis and version, signal definition and contract rule (version
+     and hash);
+   * target (per-signal net return, equal budget, ADVERSE, ABSTAIN = 0) and
+     return calculation;
+   * comparisons: no trade, `RANDOM_CONTROL` and `FROZEN_ML_BENCHMARK` (the
+     latter not needed when the hypothesis is the benchmark itself);
+     `EXISTING_BASE_STRATEGY` is descriptive only;
+   * population: only signals dated **after** the registration day;
+   * minimum coverage (decisions 90 %, quotes 80 %) and minimum sample
+     (30 verified outcomes, 8 independent periods);
+   * looks, stop and falsification rules, and the alpha slot.
+
+   The same hypothesis version, structure and rule are never registered
+   twice, so the same data is never re-tested. When the budget is exhausted
+   the plan gets `NO_BUDGET` and can never qualify.
+2. **Looks (`evaluate_plans`).** Look k runs only after its cutoff and only
+   once its population is final. Daily or weekly re-runs return the same
+   frozen report.
+   * `CONFIRMED`: the CIs of H − no trade, H − random control and H − frozen
+     ML benchmark are all entirely > 0 at the look alpha. Each comparison
+     must rest on comparable, contemporaneous data with at least
+     `min_independent_periods` common periods. The conservative mean must
+     also be > 0. Missing comparison data never confirm.
+   * `FALSIFIED`: the CI of H − no trade is entirely < 0.
+   * `NOT_CONFIRMED`: the last look passed without confirmation.
+   * `NEED_MORE_DATA` / `INSUFFICIENT_COVERAGE` never confirm.
+3. **Qualification.** All 8 criteria are required:
+   1. positive net EV, prospectively supported;
+   2. advantage over the comparable benchmarks (`RANDOM_CONTROL` and
+      `FROZEN_ML_BENCHMARK`). The existing scanner/option_learner base
+      strategy is disclosed but never used for superiority; the mail says
+      so explicitly;
+   3. enough independent periods;
+   4. coverage as preregistered;
+   5. concentration disclosed and limited (top ticker ≤ 25 %, top date ≤ 35 %);
+   6. regime and time-cohort stability;
+   7. multiple testing and error budget respected;
+   8. maximum risk traceable.
+
+   Overlapping holds are handled by non-overlapping 28-day windows. A profit
+   factor > 1 or a winrate > 50 % never suffices on its own.
+
+   Classification: `RESEARCH` / `NOT_CONFIRMED` / `QUALIFIED_FOR_HUMAN_REVIEW`.
+   No automatic release.
+4. **Learning (`option_learning.json`).** The report lists:
+   * repeatedly failing feature combinations;
+   * problematic regimes;
+   * economically unsuitable structures;
+   * missing data, including PRE_LINK, missing ex-ante IDs and abstain
+     reasons;
+   * existing but unusable features;
+   * at most 3 suggested hypotheses (`SUGGESTED_NOT_REGISTERED`). They are
+     never auto-registered; the explorer budget still applies.
+
+   Fed into:
+   * `research_memory` (`alpha_option_research`, `alpha_option_validation`;
+     qualified = `ACCEPTED`, never a production state);
+   * `meta_cognition` ("Alpha-to-Options" section);
+   * `research_director` tasks.
+5. **Result mail.** Uses the existing `research_director --notify` path, so
+   there is no second mail service.
+   * **Triggers:** a newly qualified plan (P1) or a final `NOT_CONFIRMED`
+     plan (P3) produces a mail with exactly the 10 required sections.
+     Section 10 contains a Claude Code task only when a technical change
+     would be needed (shadow or paper only, after a human decision).
+   * **Never mailed:** running plans and `NEED_MORE_DATA`.
+   * **Data gaps:** blocking gaps become a P2 technical task.
+   * **Content rules:** no return promises, no automatically released
+     trades.
