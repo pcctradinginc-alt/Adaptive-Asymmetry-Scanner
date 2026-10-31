@@ -1,4 +1,5 @@
 import hashlib
+import json
 import random
 from datetime import date, datetime, timedelta, timezone
 
@@ -6,7 +7,7 @@ import pytest
 
 from modules import market_snapshot as ms
 from modules import option_learner as ol
-from modules.atomic_io import read_jsonl
+from modules.atomic_io import append_jsonl, read_jsonl
 
 H = 5
 
@@ -257,6 +258,7 @@ def test_evaluate_writes_manifest_history_learning_curve_and_report_card(monkeyp
     early = days[25] + timedelta(days=1)
     first = ol.evaluate(early, horizon=H, out=tmp_path)
     assert first["manifest"]["all_labels_verified"] and first["manifest"]["trains_model"]
+    assert first["feature_coverage"]["sentiment_score"] == 1.0 and first["feature_coverage"]["news_novelty"] == 0.0
     assert first["vs_previous"] is None
     ol.evaluate(early, horizon=H, out=tmp_path)                                    # gleicher Stand: kein neuer Eintrag
     later = ol.evaluate(date(2026, 12, 31), horizon=H, out=tmp_path)
@@ -665,3 +667,510 @@ def test_report_card_and_monday_report_show_learning_progress(monkeypatch, tmp_p
     from reports import weekly
     table = weekly.option_learner_blocks({"option_learner_card": card})[1][2]
     assert any("eingefrorene Referenz" in r[0] for r in table)
+
+
+def test_only_approved_single_changes_are_valid_variants():
+    cfg = ol.variant_config()
+    assert cfg["version"] == "olv-1"
+    assert ol.validate_overrides({"ridge_alpha": 30}, cfg) == {"ridge_alpha": 30}
+    assert ol.validate_overrides({"drop_feature_group": "ml_scores"}, cfg)
+    for bad in ({}, {"ridge_alpha": 30.0, "min_pred": 0.02}, {"ridge_alpha": 31.0}, {"learning_rate": 0.1},
+                {"drop_feature_group": "everything"}, {"min_pred": -1.0}, "ridge_alpha=30"):
+        with pytest.raises(ValueError):
+            ol.validate_overrides(bad, cfg)
+    with pytest.raises(ValueError):
+        ol.validate_overrides({"ridge_alpha": 30.0}, {})                  # ohne Konfiguration nichts freigegeben
+
+
+def _auto(change, h=H, pid=None):
+    return {"proposal_id": pid or f"P-{change}", "horizon": h, "change": change, "auto_experiment": True,
+            "gap_ids": ["model:untested_alternatives"], "falsification": {"max_days": 90}}
+
+
+def test_base_version_is_unchanged_and_each_variant_is_its_own_version():
+    assert ol.experiment_id() == ol.experiment_id(None) == ol.experiment_id({}) == "4a0f886d1979"   # Basis gepinnt
+    cfg = ol.variant_config()
+    params = [ol.variant_params(c, cfg) for c in ({"ridge_alpha": 30.0}, {"min_pred": 0.02},
+                                                   {"drop_feature_group": "ml_scores"})]
+    assert params[2]["drop"] == sorted(cfg["approved_methods"]["drop_feature_group"]["ml_scores"])
+    ids = {ol.experiment_id(p) for p in params}
+    assert len(ids) == 3 and ol.experiment_id() not in ids
+
+
+def test_variant_parameters_change_only_the_approved_part():
+    days = _trading_days(date(2026, 1, 5), 20)
+    rows, quotes = _history(days)
+    data = ol.dataset(rows, quotes, AS_OF, H)
+    base, strong = ol.fit(data), ol.fit(data, {"alpha": 100.0})
+    assert base.names == strong.names and abs(strong.coef).sum() < abs(base.coef).sum()
+    assert "sentiment_score" not in ol.fit(data, {"drop": ["sentiment_score"]}).names
+    cand = _two_form_cands([date(2026, 3, 2)], lambda s, rng: (0.1, 0.1), n=1)[0]
+    assert ol.decide(cand, [0.01, 0.03])["action"] == "TRADE"
+    low = ol.decide(cand, [0.01, 0.03], min_pred=0.05)
+    assert low["action"] == "ABSTAIN" and low["reason"] == "PRED_BELOW_MIN"
+
+
+def test_variant_registration_is_bounded_diverse_and_never_repeats(tmp_path):
+    cfg = ol.variant_config()
+    now = datetime(2026, 11, 7, 9, tzinfo=timezone.utc)
+    props = [_auto({"ridge_alpha": 30.0}), _auto({"ridge_alpha": 100.0}), _auto({"drop_feature_group": "ml_scores"}),
+             _auto({"drop_feature_group": "positioning"}), _auto({"min_pred": 0.02}),
+             dict(_auto({"ridge_alpha": 3.0}), auto_experiment=False), _auto({"ridge_alpha": 31.0}),
+             _auto({"ridge_alpha": 30.0}, h=20)]
+    new = ol.register_variants(tmp_path, props, now, cfg)
+    by_h = {h: [v["overrides"] for v in new if v["horizon"] == h] for h in (5, 20)}
+    assert by_h[5] == [{"ridge_alpha": 30.0}, {"drop_feature_group": "ml_scores"}, {"min_pred": 0.02}]
+    assert by_h[20] == [{"ridge_alpha": 30.0}]
+    assert all(v["start_date"] == "2026-11-08" and v["base_experiment_id"] == ol.experiment_id() for v in new)
+    assert ol.register_variants(tmp_path, props, now, cfg) == []                 # idempotent
+    ridge = next(v for v in new if v["horizon"] == 5 and "ridge_alpha" in v["overrides"])
+    append_jsonl(tmp_path / ol.VARIANTS, [{"event": "closed", "variant_id": ridge["variant_id"],
+                                           "status": "FALSIFIED_NO_EFFECT", "closed_at": "2026-12-01"}])
+    again = ol.register_variants(tmp_path, props, now, cfg)
+    assert [v["overrides"] for v in again] == [{"ridge_alpha": 100.0}]          # freier Platz, nie ridge 30 erneut
+    assert ol.active_variants(tmp_path, 5, date(2026, 11, 7)) == []            # erst ab dem Folgetag aktiv
+    assert len(ol.active_variants(tmp_path, 5, date(2026, 11, 8))) == 3
+
+
+def _variant_env(monkeypatch, tmp_path, register=True):
+    days, rows = _ledger_env(monkeypatch, 40)
+    day = days[30]
+    rows += [_row(day.isoformat(), 1, 0.8)]
+    if register:
+        ol.register_variants(tmp_path, [_auto({"ridge_alpha": 100.0}), _auto({"min_pred": 0.05})],
+                             datetime.combine(day - timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc),
+                             ol.variant_config())
+    now = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc).replace(hour=17)
+    return day, now
+
+
+def test_variants_run_isolated_on_identical_candidates(monkeypatch, tmp_path):
+    base_dir, var_dir = tmp_path / "base", tmp_path / "var"
+    day, now = _variant_env(monkeypatch, base_dir, register=False)
+    plain = ol.recommend(day, horizon=H, out=base_dir, now=now)
+    _variant_env(monkeypatch, var_dir)
+    with_variants = ol.recommend(day, horizon=H, out=var_dir, now=now)
+    assert {k: v for k, v in with_variants.items() if k != "variant_runs"} == \
+        {k: v for k, v in plain.items() if k != "variant_runs"}
+    assert (var_dir / ol.JOURNAL).read_text() == (base_dir / ol.JOURNAL).read_text()   # Basis-Journal unberührt
+    assert sorted(with_variants["variant_runs"].values()) == [10, 10]           # alle Kandidaten des Tages
+    for v in ol.variant_registry(var_dir).values():
+        entries = read_jsonl(var_dir / ol.VARIANT_DIR / f"{v['variant_id']}.jsonl")
+        base_dec = [j for j in read_jsonl(base_dir / ol.JOURNAL) if j["kind"] == "decision" and j["role"] == "learning"]
+        assert {(e["date"], e["signal_id"]) for e in entries} == {(j["date"], j["signal_id"]) for j in base_dec}
+        assert {e["experiment_id"] for e in entries} == {v["experiment_id"]}
+        assert {e["role"] for e in entries} == {"variant"}
+        inst = {i["model_id"]: i for i in read_jsonl(var_dir / ol.INSTANCES)}
+        assert all(ol._invalid(e, v["experiment_id"], inst) is None for e in entries)
+
+
+def test_a_failing_variant_never_touches_the_base(monkeypatch, tmp_path):
+    day, now = _variant_env(monkeypatch, tmp_path)
+    real_fit = ol.fit
+
+    def broken(train, params=None):
+        if params:
+            raise RuntimeError("Variante defekt")
+        return real_fit(train)
+    monkeypatch.setattr(ol, "fit", broken)
+    res = ol.recommend(day, horizon=H, out=tmp_path, now=now)
+    assert res["decisions"] == 10 and all(str(r).startswith("Fehler") for r in res["variant_runs"].values())
+    assert not (tmp_path / ol.VARIANT_DIR).exists()
+
+
+BUDGET = {"total_alpha": 0.05, "max_tests": 20}
+
+
+def _variant_case(tmp_path, rule, n_days=30, variant_pick=1, base_pick=0, single_status=None, drop_base=(),
+                  late=False, base_exp=None, keep_variant=None, slot=1):
+    """Ab 2.3.2026 n_days Handelstage à 4 Kandidaten mit zwei Formen (Spread = Standardform, Einzel-Option);
+    rule(tag_index, rng) -> (y_spread, y_single). Basis und Referenz wählen base_pick, die Variante variant_pick.
+    Prüfzeitpunkte bei 30/60/90 Tagen ab Start (max_days 90)."""
+    days, rng = _trading_days(date(2026, 3, 2), n_days), random.Random(3)
+    base = ol.experiment_id()
+    inst = [{"model_id": m, "experiment_id": e, "train_cutoff": "2026-03-01", "max_label_day": "2026-02-27"}
+            for m, e in (("base", base), ("var", "VEXP"))]
+    cands, journal, vj = [], [], []
+    for k, d in enumerate(days):
+        for i in range(4):
+            ys, y1 = rule(k, rng)
+            st1 = (single_status or (lambda i: "VERIFIED"))(i)
+            ld = d + timedelta(days=H + 1)
+            c = {"date": d.isoformat(), "signal_id": f"{d}-{i}", "ticker": f"T{i}", "sample": "research_census",
+                 "gate": "x", "exprs": [
+                     {"expression": "spread", "contract": [f"T{i}C1", f"T{i}C2"], "strategy": "BULL_CALL_SPREAD",
+                      "x": {}, "ask": 1.0, "mid": 0.9, "status": "VERIFIED", "y": ys, "label_day": ld},
+                     {"expression": "single", "contract": [f"T{i}C1"], "strategy": "LONG_CALL", "x": {}, "ask": 2.0,
+                      "mid": 1.9, "status": st1, "y": y1 if st1 == "VERIFIED" else None,
+                      "label_day": ld if st1 == "VERIFIED" else None}]}
+            cands.append(c)
+            e = {"date": c["date"], "signal_id": c["signal_id"], "ticker": c["ticker"], "horizon": H,
+                 "kind": "decision", "action": "TRADE", "created_at": f"{c['date']}T16:00:00+00:00", "pred_net": 0.1}
+            if i not in drop_base:
+                for role in ("learning", "reference"):
+                    journal.append(dict(e, role=role, experiment_id=base, model_id="base",
+                                        contract=c["exprs"][base_pick]["contract"]))
+            n = len(cands) - 1
+            if keep_variant is None or keep_variant(n):
+                vj.append(dict(e, role="variant", variant_id="OLV-1", experiment_id="VEXP", model_id="var",
+                               contract=c["exprs"][variant_pick]["contract"],
+                               created_at="2026-12-01T00:00:00+00:00" if late else e["created_at"]))
+    reg = [{"event": "registered", "variant_id": "OLV-1", "horizon": H, "base_experiment_id": base_exp or base,
+            "experiment_id": "VEXP", "overrides": {"ridge_alpha": 30.0}, "start_date": "2026-03-02",
+            "falsification": {"max_days": 90}, "look_days": ol.look_days(90), "proposal_id": "OLP-x",
+            "gap_ids": ["model:overfit_risk:5d"]}]
+    if slot:
+        reg[0] |= {"test_budget": BUDGET, "alpha_slot": slot, "slot_alpha": BUDGET["total_alpha"] / BUDGET["max_tests"]}
+    append_jsonl(tmp_path / ol.VARIANTS, reg)
+    append_jsonl(tmp_path / ol.VARIANT_DIR / "OLV-1.jsonl", vj)
+    return cands, journal, inst
+
+
+def _eval_variant(tmp_path, as_of, case=None, **kw):
+    cands, journal, inst = case or _variant_case(tmp_path, **kw)
+    res = ol.evaluate_variants(tmp_path, cands, H, as_of, journal, inst, ol.variant_config(),
+                               datetime.combine(as_of, datetime.min.time(), tzinfo=timezone.utc))
+    return res, res["variants"]["OLV-1"]
+
+
+def _gauss(spread, single, sd=0.1):
+    return lambda k, rng: (rng.gauss(spread, sd), rng.gauss(single, sd))
+
+
+LOOK1, LOOK2, FINAL = date(2026, 4, 20), date(2026, 5, 20), date(2026, 6, 20)   # Prüfung 1 / 2 / 3 auswertbar
+
+
+def test_better_and_net_profitable_variant_is_proposed_for_adoption(tmp_path):
+    _res, v = _eval_variant(tmp_path, LOOK1, rule=_gauss(0.0, 0.3))
+    assert (v["look"], v["relative_verdict"], v["economic_verdict"]) == (1, "BETTER_THAN_BASE",
+                                                                         "POSITIVE_EXECUTABLE_ALPHA")
+    assert v["status"] == "PROPOSE_ADOPTION" and v["change_proposal"]["state"] == "VALID"
+    assert v["comparison"]["coverage"] == 1.0 and v["comparison"]["decisions_after_cutoff"] > 0
+    assert v["vs_frozen_reference"]["verdict"] == "LEARNING_BETTER"
+    md = (tmp_path / ol.CHANGE_DIR / "OLV-1.md").read_text()
+    assert md.startswith("> **Aktueller Evidenzstatus: GÜLTIG") and "RIDGE_ALPHA = 30.0" in md
+
+
+def test_relatively_better_but_net_losing_variant_is_never_an_adoption(tmp_path):
+    _res, v = _eval_variant(tmp_path / "a", LOOK1, rule=_gauss(-0.4, -0.1, sd=0.05))
+    assert v["relative_verdict"] == "BETTER_THAN_BASE" and v["economic_verdict"] == "NEGATIVE_NET"
+    assert v["status"] == "BETTER_THAN_BASE_ONLY" and "change_proposal" not in v
+    assert not (tmp_path / "a" / ol.CHANGE_DIR).exists()
+    _res, final = _eval_variant(tmp_path / "b", FINAL, rule=_gauss(-0.4, -0.1, sd=0.05), n_days=70)
+    assert final["look"] == 3 and final["status"] == "BETTER_THAN_BASE_NOT_PROFITABLE"
+    assert ol.variant_registry(tmp_path / "b")["OLV-1"]["status"] == "BETTER_THAN_BASE_NOT_PROFITABLE"
+    assert not (tmp_path / "b" / ol.CHANGE_DIR).exists()
+
+
+def test_missing_quotes_or_base_decisions_block_a_positive_verdict(tmp_path):
+    _res, v = _eval_variant(tmp_path / "q", LOOK1, rule=_gauss(0.0, 0.3),
+                            single_status=lambda i: "EXIT_NOT_ARCHIVED" if i == 0 else "VERIFIED")
+    cmp = v["comparison"]
+    assert cmp["coverage"] == 0.75 and cmp["excluded"] == {"EXIT_NOT_ARCHIVED": cmp["due_candidates"] // 4}
+    assert v["relative_verdict"] == v["economic_verdict"] == "INSUFFICIENT_COVERAGE"
+    assert v["status"] == "RUNNING" and "change_proposal" not in v
+    _res, b = _eval_variant(tmp_path / "b", LOOK1, rule=_gauss(0.0, 0.3), drop_base=(0,))
+    assert b["comparison"]["excluded"] == {"NO_BASE_DECISION": b["comparison"]["due_candidates"] // 4}
+    assert b["comparison"]["coverage"] == 0.75 and b["status"] == "RUNNING"
+
+
+def test_alpha_is_spent_over_preregistered_looks():
+    spend = ol.alpha_spending(0.05)
+    assert len(spend) == 3 and abs(sum(spend) - 0.05) < 1e-12 and spend[0] < 0.001 < spend[1] < spend[2]
+    assert ol.look_days(90) == [30, 60, 90] and ol.look_days(200) == [67, 133, 200]
+    # ein Effekt, der einen einzelnen 95-%-Test besteht, reicht an der frühen Prüfung nicht
+    cands = _two_form_cands(_trading_days(date(2026, 3, 2), 30),
+                            lambda s, rng: (rng.gauss(0, 0.15), rng.gauss(0.05, 0.15)), n=4, seed=3)
+    pairs = [{"cand": c, "learning": {"action": "TRADE", "contract": c["exprs"][1]["contract"]},
+              "reference": {"action": "TRADE", "contract": c["exprs"][0]["contract"]}} for c in cands]
+    assert ol.compare_policies(pairs, H)["verdict"] == "LEARNING_BETTER"
+    assert ol.compare_policies(pairs, H, spend[0], method="normal")["verdict"] == "NO_SIGNIFICANT_DIFFERENCE"
+
+
+def test_weekly_reevaluation_reuses_the_frozen_look_data(tmp_path):
+    case = _variant_case(tmp_path, rule=_gauss(0.0, 0.05), n_days=62)
+    _res, early = _eval_variant(tmp_path, date(2026, 4, 10), case=case)
+    assert early["look"] == 0 and early["status"] == "RUNNING" and early["relative_verdict"] == "AWAITING_LOOK"
+    assert early["next_look"] == {"look": 1, "cutoff": "2026-04-01", "ready_after": "2026-04-16"}
+    _res, w1 = _eval_variant(tmp_path, LOOK1, case=case)
+    _res, w2 = _eval_variant(tmp_path, date(2026, 5, 10), case=case)          # eine Woche später, gleiche Prüfung
+    assert w1["look"] == w2["look"] == 1 and w1["look_cutoff"] == "2026-04-01"
+    assert w1["vs_base"] == w2["vs_base"] and w1["comparison"] == w2["comparison"] | {
+        "decisions_after_cutoff": w1["comparison"]["decisions_after_cutoff"]}
+
+
+def test_proposal_shows_its_current_evidence_and_is_withdrawn_when_the_advantage_fades(tmp_path, monkeypatch):
+    def fades(k, rng):                                     # Vorteil nur in den ersten ~22 Handelstagen
+        return rng.gauss(0.0, 0.05), rng.gauss(0.3 if k < 22 else -0.3, 0.05)
+    case = _variant_case(tmp_path, rule=fades, n_days=62)
+    _res, first = _eval_variant(tmp_path, LOOK1, case=case)
+    assert first["status"] == "PROPOSE_ADOPTION" and first["change_proposal"]["state"] == "VALID"
+    path = tmp_path / ol.CHANGE_DIR / "OLV-1"
+    original = json.loads(path.with_suffix(".json").read_text())["original_markdown"]
+    _res, later = _eval_variant(tmp_path, LOOK2, case=case)
+    assert later["look"] == 2 and later["status"] not in ol.ADOPTION
+    assert later["change_proposal"]["state"] == "WITHDRAWN"
+    rec = json.loads(path.with_suffix(".json").read_text())
+    assert rec["original_markdown"] == original and rec["original"]["status"] == "PROPOSE_ADOPTION"
+    assert [h["state"] for h in rec["status_history"]] == ["VALID", "WITHDRAWN"]
+    md = path.with_suffix(".md").read_text()
+    assert md.startswith("> **Aktueller Evidenzstatus: ZURÜCKGEZOGEN") and md.endswith(original)
+    monkeypatch.setattr(ol, "experiment_id", lambda params=None: "NEUE_BASIS")
+    _res, moved = _eval_variant(tmp_path, LOOK2, case=case)
+    assert moved["status"] == "BASE_CHANGED" and moved["change_proposal"]["state"] == "SUPERSEDED"
+
+
+def test_preregistered_falsification_closes_variants(tmp_path):
+    _res, worse = _eval_variant(tmp_path / "w", LOOK1, rule=_gauss(-0.3, 0.0), variant_pick=0, base_pick=1)
+    assert worse["status"] == "FALSIFIED_WORSE"
+    assert ol.variant_registry(tmp_path / "w")["OLV-1"]["status"] == "FALSIFIED_WORSE"
+    _res, interim = _eval_variant(tmp_path / "i", LOOK1, rule=_gauss(0.0, 0.3), variant_pick=0)
+    assert interim["relative_verdict"] == "NO_SIGNIFICANT_DIFFERENCE" and interim["status"] == "RUNNING"
+    _res, final = _eval_variant(tmp_path / "f", FINAL, rule=_gauss(0.0, 0.3), variant_pick=0, n_days=70)
+    assert final["status"] == "FALSIFIED_NO_EFFECT"
+    assert "Prüfung 3/3" in ol.variant_registry(tmp_path / "f")["OLV-1"]["close_reason"]
+
+
+def test_variant_evidence_counts_only_prospective_entries(tmp_path):
+    _res, v = _eval_variant(tmp_path, LOOK1, rule=_gauss(0.0, 0.3), late=True)
+    cmp, due = v["comparison"], 4 * sum(d <= date(2026, 4, 1) for d in _trading_days(date(2026, 3, 2), 30))
+    assert v["invalid_entries"] == {"LATE_PREDICTION": 120}
+    assert cmp["due_candidates"] == due and cmp["coverage"] == 0.0 and cmp["excluded"] == {"LATE_PREDICTION": due}
+    assert v["relative_verdict"] == "NEED_MORE_DATA" and v["status"] == "RUNNING"
+
+
+def test_variant_experiments_and_open_proposals_land_in_research_memory(tmp_path):
+    from modules import research_memory as rm
+    _res, v = _eval_variant(tmp_path, LOOK1, rule=_gauss(0.0, 0.3))
+    status = {"variants": {"variants": {
+        "OLV-1": v, "OLV-2": {**v, "variant_id": "OLV-2", "status": "FALSIFIED_WORSE", "overrides": {"min_pred": 0.02}},
+        "OLV-3": {**v, "variant_id": "OLV-3", "status": "BETTER_THAN_BASE_ONLY", "overrides": {"min_pred": 0.05}}}}}
+    imp = {"proposals": [{"proposal_id": "OLP-d", "kind": "data_source", "change": {"source": "x"},
+                          "approval_required": True, "priority": 0.1, "gap_ids": ["model:no_skill:20d"],
+                          "cost": {"paid_data": True}},
+                         {"proposal_id": "OLP-v", "kind": "variant", "approval_required": False}]}
+    paths = {"option_status_5d": tmp_path / "s.json", "option_improvement": tmp_path / "i.json"}
+    paths["option_status_5d"].write_text(json.dumps(status))
+    paths["option_improvement"].write_text(json.dumps(imp))
+    entries = {e["hypothesis_id"]: e for e in rm.collect(paths)}
+    assert entries["OLV-1"]["status"] == "FORWARD_VALIDATED" and entries["OLV-1"]["prospective"] is True
+    assert entries["OLV-1"]["evidence"]["economic"] == "POSITIVE_EXECUTABLE_ALPHA"
+    assert entries["OLV-1"]["spec"]["signal"] == "ridge_alpha=30.0" and entries["OLV-1"]["evidence"]["coverage"] == 1.0
+    assert entries["OLV-2"]["status"] == "REJECTED" and entries["OLV-3"]["status"] == "PENDING_FORWARD"
+    assert entries["OLP-d"]["status"] == "APPROVAL_REQUIRED" and "OLP-v" not in entries
+    memory = tmp_path / "memory.jsonl"
+    assert rm.sync(memory, paths) == 4 and rm.sync(memory, paths) == 0      # append-only, keine Dubletten
+
+
+def test_report_card_shows_detected_gaps_and_running_improvements(monkeypatch, tmp_path):
+    _ledger_env(monkeypatch, 40)
+    ol.evaluate(date(2026, 12, 31), horizon=H, out=tmp_path)
+    (tmp_path / "improvement.json").write_text(json.dumps({
+        "gaps": [{"gap_id": "model:overfit_risk:5d", "horizon": H, "finding": "34 Merkmale auf 359 Labels"}],
+        "proposals": [{"horizon": H, "auto_experiment": True, "approval_required": False}]}))
+    card = {r["key"]: r[f"{H}d"] for r in ol.report_card(tmp_path, horizons=(H,))["rows"]}
+    assert card["gaps"][0] == "Ja" and "34 Merkmale" in card["gaps"][1] and "1 automatisch" in card["gaps"][1]
+    assert card["improvements"][0] == "offen"
+    assert card["improvements"][1].startswith("noch keine Variante registriert; Fehlerbudget 0/20")
+
+
+def test_weekly_workflow_runs_research_improvement_after_the_evaluation_without_secrets():
+    import yaml as _yaml
+    with open(".github/workflows/ml_research.yml", encoding="utf-8") as fh:
+        wf = _yaml.safe_load(fh)
+    steps = next(iter(wf["jobs"].values()))["steps"]
+    ids = [s.get("id") for s in steps]
+    step = steps[ids.index("research_improvement")]
+    assert ids.index("research_improvement") == ids.index("option_learner") + 1
+    assert step["run"].strip() == "python -m modules.research_director --options"
+    assert "env" not in step and step.get("continue-on-error") is True and "secrets" not in json.dumps(step)
+    assert "steps.research_improvement.outcome" in json.dumps(steps[-1])
+
+
+# ── Abschluss-Review PR #145: Abdeckungs-Nenner, dauerhaftes Fehlerbudget, eingefrorene Prüfberichte ──
+
+def test_coverage_denominator_is_all_planned_candidates_not_logged_decisions(tmp_path):
+    """Pflichttest: 40 vorgesehene Kandidaten, nur 10 gültige Variantenentscheidungen -> 25 %, nicht 100 %."""
+    _res, v = _eval_variant(tmp_path, LOOK1, rule=_gauss(0.0, 0.3), n_days=10, keep_variant=lambda n: n < 10)
+    cmp = v["comparison"]
+    assert cmp["due_candidates"] == 40 and cmp["compared"] == 10 and cmp["coverage"] == 0.25
+    assert cmp["excluded"] == {"NO_VARIANT_DECISION": 30}
+    assert v["relative_verdict"] in ("NEED_MORE_DATA", "INSUFFICIENT_COVERAGE") and "change_proposal" not in v
+
+
+def test_low_coverage_blocks_a_strong_effect_and_population_ignores_outcomes(tmp_path):
+    _res, v = _eval_variant(tmp_path / "a", LOOK1, rule=_gauss(0.0, 0.3), keep_variant=lambda n: n % 10 >= 3)
+    assert v["comparison"]["coverage"] < 0.8 and v["comparison"]["excluded"]["NO_VARIANT_DECISION"] > 0
+    assert v["relative_verdict"] == v["economic_verdict"] == "INSUFFICIENT_COVERAGE"
+    assert v["status"] == "RUNNING" and "change_proposal" not in v
+    _res, unknown = _eval_variant(tmp_path / "b", LOOK1, rule=_gauss(0.0, 0.3),
+                                  single_status=lambda i: "NO_LABEL")           # Ergebnisse unbekannt
+    _res, known = _eval_variant(tmp_path / "c", LOOK1, rule=_gauss(0.0, 0.3))
+    assert unknown["comparison"]["due_candidates"] == known["comparison"]["due_candidates"]
+    assert unknown["comparison"]["coverage"] == 0.0
+
+
+def _proposal(change, h=H):
+    return {"proposal_id": f"P-{h}-{change}", "horizon": h, "change": change, "auto_experiment": True,
+            "gap_ids": ["model:untested_alternatives"], "falsification": {"max_days": 90}}
+
+
+ALL_CHANGES = [{"ridge_alpha": a} for a in (3.0, 30.0, 100.0)] + [{"min_pred": m} for m in (0.02, 0.05)] + [
+    {"drop_feature_group": g} for g in ("ml_scores", "news_sentiment", "positioning", "volatility_pricing")]
+
+
+def _close_all(out, status="FALSIFIED_NO_EFFECT", keep=()):
+    open_ = [vid for vid, v in ol.variant_registry(out).items() if not v.get("closed_at") and vid not in keep]
+    append_jsonl(out / ol.VARIANTS, [{"event": "closed", "variant_id": vid, "status": status,
+                                      "closed_at": "2027-01-01"} for vid in open_])
+
+
+def test_error_budget_is_persistent_over_months_and_never_exceeds_the_total(tmp_path):
+    cfg = ol.variant_config()
+    slots = []
+    for month in range(12):                                      # ein Jahr monatlicher Registrierungsrunden
+        now = datetime(2026, 11, 7, tzinfo=timezone.utc) + timedelta(days=30 * month)
+        props = [_proposal(c, h) for h in (5, 20) for c in ALL_CHANGES]
+        slots += [v["alpha_slot"] for v in ol.register_variants(tmp_path, props, now, cfg)]
+        _close_all(tmp_path)
+    budget = ol.test_budget(tmp_path, cfg)
+    assert slots == list(range(1, 19)) and budget["used"] == 18     # 9 Änderungen × 2 Horizonte, nie doppelt
+    reg = ol.variant_registry(tmp_path).values()
+    assert sum(v["slot_alpha"] for v in reg) <= budget["total_alpha"] + 1e-12
+    assert all(v["slot_alpha"] == 0.0025 and v["test_budget"] == BUDGET for v in reg)
+
+
+def test_budget_is_not_reset_by_base_change_reregistration_or_config(tmp_path, monkeypatch):
+    cfg = ol.variant_config()
+    now = datetime(2026, 11, 7, tzinfo=timezone.utc)
+    first = ol.register_variants(tmp_path, [_proposal({"ridge_alpha": 30.0}), _proposal({"min_pred": 0.02})], now, cfg)
+    assert [v["alpha_slot"] for v in first] == [1, 2]
+    _close_all(tmp_path, "BASE_CHANGED")
+    monkeypatch.setattr(ol, "experiment_id", lambda params=None: "NEUE_BASIS" if params is None else f"V{params}")
+    again = ol.register_variants(tmp_path, [_proposal({"ridge_alpha": 30.0})], now, cfg)   # gleiche Änderung
+    assert [v["alpha_slot"] for v in again] == [3]                     # neue Basis: der Zähler läuft weiter
+    bigger = {**cfg, "test_budget": {"total_alpha": 0.5, "max_tests": 100}}
+    assert ol.test_budget(tmp_path, bigger) | {"used": 0} == ol.test_budget(tmp_path, cfg) | {"used": 0}
+    frozen = ol.test_budget(tmp_path, bigger)
+    assert frozen["max_tests"] == 20 and frozen["slot_alpha"] == 0.0025
+
+
+def test_exhausted_budget_allows_no_new_tests_and_unbudgeted_variants_stay_research_only(tmp_path):
+    cfg = {**ol.variant_config(), "test_budget": {"total_alpha": 0.05, "max_tests": 2}}
+    now = datetime(2026, 11, 7, tzinfo=timezone.utc)
+    assert len(ol.register_variants(tmp_path / "x", [_proposal(c) for c in ALL_CHANGES[:2]], now, cfg)) == 1
+    _close_all(tmp_path / "x")
+    assert len(ol.register_variants(tmp_path / "x", [_proposal(c) for c in ALL_CHANGES[2:4]], now, cfg)) == 1
+    _close_all(tmp_path / "x")
+    assert ol.register_variants(tmp_path / "x", [_proposal(c) for c in ALL_CHANGES[4:]], now, cfg) == []
+    assert ol.test_budget(tmp_path / "x", cfg)["exhausted"] is True
+    _res, v = _eval_variant(tmp_path / "y", LOOK1, rule=_gauss(0.0, 0.3), slot=None)       # starker Effekt, kein Slot
+    assert v["status"] == "RESEARCH_ONLY" and v["relative_verdict"] == "RESEARCH_ONLY" and "change_proposal" not in v
+    report = json.loads((tmp_path / "y" / ol.LOOK_DIR / "OLV-1_look1_v1.json").read_text())
+    assert report["release_status"] == "RESEARCH_ONLY"
+
+
+def test_later_registrations_never_change_an_earlier_result(tmp_path):
+    case = _variant_case(tmp_path, rule=_gauss(0.0, 0.3))
+    _res, before = _eval_variant(tmp_path, LOOK1, case=case)
+    now = datetime(2026, 4, 25, tzinfo=timezone.utc)
+    for month in range(3):
+        ol.register_variants(tmp_path, [_proposal(c, 20) for c in ALL_CHANGES], now + timedelta(days=30 * month),
+                             ol.variant_config())
+        _close_all(tmp_path, keep=("OLV-1",))      # nur die neuen Varianten der Runde schließen
+    assert ol.test_budget(tmp_path)["used"] == 9 and not ol.variant_registry(tmp_path)["OLV-1"].get("closed_at")
+    _res, after = _eval_variant(tmp_path, LOOK1, case=case)
+    for k in ("alpha_slot", "slot_alpha", "alpha_look", "relative_verdict", "economic_verdict", "look_report"):
+        assert before[k] == after[k], k
+    assert len(list((tmp_path / ol.LOOK_DIR).glob("OLV-1_look1_v*.json"))) == 1
+
+
+def test_look_reports_are_frozen_and_corrections_are_versioned(tmp_path):
+    cands, journal, inst = _variant_case(tmp_path, rule=_gauss(0.0, 0.3))
+    _eval_variant(tmp_path, LOOK1, case=(cands, journal, inst))
+    path = tmp_path / ol.LOOK_DIR / "OLV-1_look1_v1.json"
+    rep = json.loads(path.read_text())
+    for k in ("experiment_id", "base_experiment_id", "model_ids", "look", "look_day", "data_cutoff",
+              "decision_ids", "label_ids", "n_population", "n_compared", "coverage", "test_budget", "result",
+              "release_status", "input_sha256", "report_sha256"):
+        assert rep.get(k) is not None, k
+    assert rep["model_ids"] == {"base": ["base"], "reference": ["base"], "variant": ["var"]}
+    assert rep["data_cutoff"] == "2026-04-01" and len(rep["decision_ids"]) == rep["n_population"]
+    assert rep["test_budget"]["slot"] == 1 and rep["release_status"] == "ADOPTION_CANDIDATE"
+    frozen = path.read_bytes()
+    _eval_variant(tmp_path, date(2026, 5, 10), case=(cands, journal, inst))              # gleiche Prüfung, später
+    assert path.read_bytes() == frozen and not (tmp_path / ol.LOOK_DIR / "OLV-1_look1_v2.json").exists()
+    cands[0]["exprs"][1] = dict(cands[0]["exprs"][1], status="EXIT_NOT_ARCHIVED", y=None, label_day=None)
+    _res, corrected = _eval_variant(tmp_path, date(2026, 5, 10), case=(cands, journal, inst))  # korrigierte Daten
+    v2 = json.loads((tmp_path / ol.LOOK_DIR / "OLV-1_look1_v2.json").read_text())
+    assert path.read_bytes() == frozen                                                    # v1 nie überschrieben
+    assert v2["supersedes"] == "OLV-1_look1_v1" and "geändert" in v2["correction_reason"]
+    assert v2["n_compared"] == rep["n_compared"] - 1
+    assert corrected["look_report"] == {"report_id": "OLV-1_look1_v2", "version": 2, "corrected": True}
+
+
+def test_a_missed_look_is_still_evaluated_and_frozen_in_order(tmp_path):
+    """Läuft die Auswertung erst, wenn schon Prüfung 2 fällig ist, wird Prüfung 1 trotzdem zuerst geprüft und
+    eingefroren; schließt sie die Variante, gibt es keine Prüfung 2."""
+    _res, ok = _eval_variant(tmp_path / "a", LOOK2, rule=_gauss(0.0, 0.3), n_days=62)
+    assert ok["look"] == 2 and {p.name for p in (tmp_path / "a" / ol.LOOK_DIR).iterdir()} == {
+        "OLV-1_look1_v1.json", "OLV-1_look2_v1.json"}
+    _res, worse = _eval_variant(tmp_path / "b", LOOK2, rule=_gauss(-0.3, 0.0), n_days=62, variant_pick=0,
+                                base_pick=1)
+    assert worse["status"] == "FALSIFIED_WORSE" and worse["look"] == 1
+    assert "Prüfung 1/3" in ol.variant_registry(tmp_path / "b")["OLV-1"]["close_reason"]
+    assert {p.name for p in (tmp_path / "b" / ol.LOOK_DIR).iterdir()} == {"OLV-1_look1_v1.json"}
+
+
+def _snapshot(d):
+    return {p.name: p.read_bytes() for p in sorted(d.iterdir())}
+
+
+@pytest.mark.parametrize("correction", ["values", "missing"])
+def test_confirmed_adoption_contradicted_by_corrected_data_requires_review(tmp_path, correction):
+    """Sonderfall: Variante bei der letzten Prüfung als CONFIRMED_ADOPTION geschlossen; danach korrigierte
+    Optionsdaten widerlegen den Netto-Vorteil. Die historische Entscheidung und alle Prüfberichte bleiben
+    unverändert; der aktuelle Evidenzstatus des Vorschlags wechselt auf REVIEW_REQUIRED."""
+    from modules import research_memory as rm
+    cands, journal, inst = _variant_case(tmp_path, rule=_gauss(0.0, 0.3), n_days=70)
+    _res, done = _eval_variant(tmp_path, FINAL, case=(cands, journal, inst))
+    assert done["status"] == "CONFIRMED_ADOPTION" and done["change_proposal"]["state"] == "VALID"
+    reg = ol.variant_registry(tmp_path)["OLV-1"]
+    assert reg["status"] == "CONFIRMED_ADOPTION" and reg["closed_look"] == 3
+    assert reg["look_report"] == "OLV-1_look3_v1"
+    _res, same = _eval_variant(tmp_path, FINAL + timedelta(days=7), case=(cands, journal, inst))  # Kontrolle
+    assert same["change_proposal"]["state"] == "VALID" and not same["current_evidence"]["contradicts_decision"]
+    reports, registry = _snapshot(tmp_path / ol.LOOK_DIR), (tmp_path / ol.VARIANTS).read_bytes()
+    proposal = tmp_path / ol.CHANGE_DIR / "OLV-1"
+    original = json.loads(proposal.with_suffix(".json").read_text())
+
+    for c in cands:                                        # Korrektur der Optionsdaten
+        single = c["exprs"][1]
+        c["exprs"][1] = (dict(single, y=-0.3) if correction == "values" else
+                         dict(single, status="EXIT_NOT_ARCHIVED", y=None, label_day=None))
+    _res, v = _eval_variant(tmp_path, FINAL + timedelta(days=14), case=(cands, journal, inst))
+
+    assert v["status"] == "CONFIRMED_ADOPTION"                                  # historische Entscheidung bleibt
+    assert (tmp_path / ol.VARIANTS).read_bytes() == registry                    # kein neues/geändertes Ereignis
+    ev = v["current_evidence"]
+    assert ev["contradicts_decision"] is True and ev["status"] not in ol.ADOPTION
+    assert ev["decision_look_report"] == "OLV-1_look3_v1" and ev["look_report"].endswith("_v2")
+    after = _snapshot(tmp_path / ol.LOOK_DIR)
+    assert all(after[name] == data for name, data in reports.items())          # nichts gelöscht/überschrieben
+    added = set(after) - set(reports)                                            # Korrekturen als neue Fassungen
+    assert ev["look_report"] + ".json" in added and all(n.endswith("_v2.json") for n in added)
+    correction_report = json.loads((tmp_path / ol.LOOK_DIR / f"{ev['look_report']}.json").read_text())
+    assert correction_report["supersedes"].endswith("_v1") and correction_report["correction_reason"]
+
+    assert v["change_proposal"]["state"] == "REVIEW_REQUIRED"
+    rec = json.loads(proposal.with_suffix(".json").read_text())
+    assert rec["original"] == original["original"] and rec["original_markdown"] == original["original_markdown"]
+    assert [h["state"] for h in rec["status_history"]] == ["VALID", "REVIEW_REQUIRED"]
+    assert rec["current_status"]["variant_status"] == "CONFIRMED_ADOPTION"
+    md = proposal.with_suffix(".md").read_text()
+    assert md.startswith("> **Aktueller Evidenzstatus: PRÜFUNG ERFORDERLICH") and md.endswith(rec["original_markdown"])
+
+    status = {"variants": {"variants": {"OLV-1": v}, "test_budget": ol.test_budget(tmp_path)}}
+    assert ol._improvement_answers(status, {}, H)["improvements"][0] != "Ja"   # kein gültiger Erfolg mehr
+    entry = rm.option_entries(status)[0]
+    assert entry["status"] == "REVIEW_REQUIRED" and entry["prospective"] is False

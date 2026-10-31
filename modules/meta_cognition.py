@@ -272,6 +272,8 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
         if dis.get("current_level") else [],
         "research_tracks_with_real_oos_value": valuable, "research_tracks_wasting_resources": waste,
         "highest_research_priority": ((inp.get("director") or {}).get("candidates") or [{}])[0].get("question"),
+        "option_learner_gaps": [f"[{g.get('severity')}] {g.get('finding')}"
+                                for g in ((inp.get("option_improvement") or {}).get("gaps") or [])[:8]],
         "feature_decay": decay, "model_decay": model_decay, "research_value": rv, "safe_mode": sm,
     }
 
@@ -283,6 +285,12 @@ def run() -> dict:
     inp = {"meta": _load("meta_learning.json", {}), "nextv": _load("next_validation.json", {}),
            "world": _load("world_model.json", {}), "ml": _load("ml_research.json", {}),
            "hyp": _load("hypothesis_db.json", {}), "director": _load("research_candidates.json", {})}
+    try:      # Lücken des Options-Lernmodells (research_director --options); nie Safe-Mode-relevant
+        ip = OUT / "option_learner" / "improvement.json"
+        inp["option_improvement"] = json.loads(ip.read_text()) if ip.exists() else {}
+    except (OSError, json.JSONDecodeError) as e:
+        log.warning(f"meta_cognition: option_learner/improvement.json nicht lesbar ({e})")
+        inp["option_improvement"] = {}
     hp = Path("outputs/external_data/health/source_health.json")
     try:
         inp["health"] = json.loads(hp.read_text()) if hp.exists() else {}
@@ -333,7 +341,8 @@ def render_md(st: dict) -> str:
                        ("where_is_data_quality_low", "Wo ist die Datenqualität niedrig?"),
                        ("where_is_model_disagreement_high", "Wo ist die Uneinigkeit hoch?"),
                        ("research_tracks_with_real_oos_value", "Research-Tracks mit echtem OOS-Wert"),
-                       ("research_tracks_wasting_resources", "Research-Tracks ohne Ertrag")):
+                       ("research_tracks_wasting_resources", "Research-Tracks ohne Ertrag"),
+                       ("option_learner_gaps", "Options-Lernmodell: erkannte Lücken (research_director --options)")):
         L += ["", f"## {title}", ""] + ([f"- {x}" for x in st.get(key) or []] or ["- (keine gemessene Aussage)"])
     L += ["", f"Höchste Research-Priorität: {st.get('highest_research_priority')}", "",
           f"Safe Mode: **{'AKTIV' if st['safe_mode']['active'] else 'aus'}** – {st['safe_mode']['reasons'] or '–'}"]

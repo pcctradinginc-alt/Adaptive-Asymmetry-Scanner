@@ -15,6 +15,17 @@ required/available data, expected information gain, novelty, overfit risk,
 research cost, priority. Priorität = EIG × Wert × Neuheit × Zuverlässigkeit
 ÷ (Beschaffungskosten × Forschungskosten).
 
+Options-Lernmodell (python -m modules.research_director --options, wöchentlich nach option_learner evaluate):
+  * option_gaps(): messbare Lücken aus status_<h>d.json – dünn befüllte Merkmale, nicht bewertbare gewählte
+    Formen, einseitige Evidenz, Überanpassungsrisiko, fehlende Modellalternativen, fehlende Evidenz.
+    Ergebnis: outputs/research/option_learner/improvement.json (auch in meta_cognition sichtbar).
+  * option_proposals(): je Lücke strukturierte Vorschläge mit Änderung, Hypothese, erwartetem Nutzen, Kosten,
+    Datenverfügbarkeit, vorab festgelegter Falsifikation und Freigabebedarf. Automatisch testbar sind nur
+    Varianten aus config/option_learner_variants.yaml (eine Änderung, freigegebener Wert, ohne Kosten);
+    Datenquellen, Erfassung und Stichprobe bleiben Vorschläge zur menschlichen Freigabe.
+  * Automatisch testbare Vorschläge registriert option_learner.register_variants() als isolierte Varianten
+    (begrenzt, je Methode eine, nie eine falsifizierte Änderung erneut); sie laufen ab dem Folgetag im Scanner.
+
 Nur die besten K testbaren Kandidaten (Protokoll: max_new_per_run) werden als
 Hypothesen an das Research-Lab übergeben (outputs/research/director_hypotheses.json)
 – dort gelten dieselbe Prüfkette, BH über ALLE Tests und die Ähnlichkeits-
@@ -24,6 +35,7 @@ vertrauenswürdig behandelt (Aufnahmeprüfung, config/data_catalog.yaml).
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import logging
@@ -37,6 +49,11 @@ log = logging.getLogger(__name__)
 OUT = Path("outputs/research")
 CATALOG = Path("config/data_catalog.yaml")
 MAX_NEW_PER_RUN = 5                  # begrenzt den Mehrfachtest-Nenner je Lauf
+OPTION_OUT = OUT / "option_learner"
+OPTION_HORIZONS = (20, 5)
+MIN_LABELS_FOR_COVERAGE = 50         # Merkmalsabdeckung erst ab so vielen geprüften Labels beurteilen
+LABELS_PER_FEATURE = 20              # Faustregel gegen Überanpassung: geprüfte Labels je Merkmal
+MIN_TRADES_FOR_COVERAGE = 10
 
 # Eigenschaft (blind_spots.properties) -> PIT-Ausdruck der Signal-Sprache (1 = im Segment)
 PROPERTY_EXPR = {
@@ -204,6 +221,235 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
             "active_learning": active_learning(world, blind, catalog)}
 
 
+# ── Options-Lernmodell: messbare Lücken ──────────────────────────────────────
+
+def _gap(gid: str, kind: str, horizon: int, finding: str, metric: str, value, threshold, severity: float,
+         **kw) -> dict:
+    return {"gap_id": f"{kind}:{gid}:{horizon}d", "kind": kind, "horizon": horizon, "finding": finding,
+            "metric": metric, "value": value, "threshold": threshold,
+            "severity": round(min(1.0, max(0.0, severity)), 3), **kw}
+
+
+def option_gaps(status: dict, variants: list[dict] | None = None) -> list[dict]:
+    """Lücken des Options-Lernmodells je Horizont aus status_<h>d.json – jede mit Befund, Metrik, Wert, Schwelle
+    und Schweregrad 0–1. Ohne Messung keine Lücke; ein fehlender Status ist selbst eine Lücke."""
+    from modules import option_learner as ol
+    out = []
+    for h in sorted(status):
+        st = status[h] or {}
+        if not st:
+            out.append(_gap("status_missing", "evidence", h, f"kein Status für {h} T (evaluate nicht gelaufen)",
+                            "status", None, "vorhanden", 1.0))
+            continue
+        n = st.get("verified_labels") or 0
+        wf, fw, model = st.get("walk_forward") or {}, st.get("forward") or {}, st.get("model") or {}
+        if n >= MIN_LABELS_FOR_COVERAGE:
+            for f, c in sorted((st.get("feature_coverage") or {}).items()):
+                if c < ol.MIN_FEATURE_COVERAGE:
+                    out.append(_gap(f"sparse_feature:{f}", "data", h,
+                                    f"Merkmal {f} nur in {c:.0%} der {n} geprüften Labels befüllt – vom Modell verworfen",
+                                    "feature_coverage", c, ol.MIN_FEATURE_COVERAGE, 1 - c, feature=f))
+        for name, s in (("walk_forward", wf), ("forward", fw)):
+            cov = s.get("coverage")
+            if (s.get("trades") or 0) >= MIN_TRADES_FOR_COVERAGE and cov is not None and cov < ol.MIN_COVERAGE:
+                out.append(_gap(f"outcome_coverage:{name}", "data", h,
+                                f"{name}: nur {cov:.0%} der gewählten Formen mit geprüftem Ergebnis "
+                                f"({s.get('unevaluable')})", "coverage", cov, ol.MIN_COVERAGE, 1 - cov,
+                                reasons=s.get("unevaluable")))
+        for w in (wf.get("representativeness") or {}).get("warnings") or []:
+            out.append(_gap("representativeness:" + hashlib.sha256(w.encode()).hexdigest()[:6], "representativeness",
+                            h, f"Walk-Forward-Evidenz: {w}", "evidence_mix", None, "nicht einseitig, >= 90 Tage", 0.5))
+        k = model.get("features") or 0
+        if n and k and n / k < LABELS_PER_FEATURE:
+            out.append(_gap("overfit_risk", "model", h,
+                            f"{k} Merkmale auf {n} geprüfte Labels ({n / k:.0f} je Merkmal, Faustregel >= "
+                            f"{LABELS_PER_FEATURE})", "labels_per_feature", round(n / k, 1), LABELS_PER_FEATURE,
+                            1 - n / k / LABELS_PER_FEATURE))
+        if wf.get("verdict") == "NOT_VALIDATED":
+            out.append(_gap("no_skill", "model", h, f"Walk-Forward NOT_VALIDATED (Rang-IC t {wf.get('ic_t')}, "
+                            f"KI {wf.get('selected_ci95')})", "walk_forward_verdict", "NOT_VALIDATED", "VALIDATED", 0.8))
+        ms, ma = wf.get("mean_selected"), wf.get("mean_all")
+        if ms is not None and ma is not None and ms <= ma:
+            out.append(_gap("selection_no_value", "model", h, f"gewählte Fälle Ø {ms} nicht besser als alle Formen "
+                            f"Ø {ma}", "mean_selected_minus_all", round(ms - ma, 6), "> 0", 0.6))
+        vd = wf.get("vs_default") or {}
+        if vd.get("ci95") and vd["ci95"][1] < 0:
+            out.append(_gap("choice_worse_than_default", "model", h, f"Wahl der Form schlechter als die Standardform "
+                            f"(Δ {vd.get('mean_diff')}, KI {vd['ci95']})", "vs_default", vd.get("mean_diff"), "> 0", 0.7))
+        if k and not any(v.get("horizon") == h for v in variants or []):
+            out.append(_gap("untested_alternatives", "model", h, f"für {h} T wurde noch keine Modell-, Merkmals- oder "
+                            "Auswahlvariante prospektiv gegen die Basis getestet", "variants_tested", 0, ">= 1", 0.4))
+        missing = [f"{name}: {s.get('dates', 0)}/{ol.MIN_OOS_DATES} Testtage, {s.get('independent_periods', 0)}/"
+                   f"{ol.MIN_INDEPENDENT_PERIODS} Perioden, {s.get('n_selected', 0)}/{ol.MIN_SELECTED} Fälle"
+                   for name, s in (("walk_forward", wf), ("forward", fw)) if s.get("verdict") == "NEED_MORE_DATA"]
+        if missing:
+            out.append(_gap("insufficient", "evidence", h, "NEED_MORE_DATA – " + "; ".join(missing), "verdict",
+                            "NEED_MORE_DATA", "VALIDATED / FORWARD_POSITIVE", 0.3, missing=missing))
+    return sorted(out, key=lambda g: (-g["severity"], g["gap_id"]))
+
+
+# Lückenart -> freigegebene Methoden ("up"/"down": Regularisierung stärker/schwächer als die Basis)
+GAP_METHODS = {
+    "overfit_risk": (("ridge_alpha", "up"), ("drop_feature_group", None)),
+    "no_skill": (("drop_feature_group", None), ("ridge_alpha", "up"), ("ridge_alpha", "down")),
+    "selection_no_value": (("min_pred", None),),
+    "choice_worse_than_default": (("min_pred", None),),
+    "untested_alternatives": (("ridge_alpha", "up"), ("min_pred", None), ("drop_feature_group", None)),
+}
+MECHANISM = {
+    "ridge_alpha": "Stärkere/schwächere Regularisierung verschiebt den Kompromiss zwischen Varianz und Verzerrung",
+    "min_pred": "Erst ab einer Netto-Prognose über der Kostenunsicherheit handeln: weniger, dafür bessere Fälle",
+    "drop_feature_group": "Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser",
+}
+PROPOSAL_COST = {"variant": 1.0, "data_pipeline": 2.0, "data_capture": 3.0, "sampling": 3.0}
+
+
+def _pid(kind: str, change: dict, horizon: int) -> str:
+    return "OLP-" + hashlib.sha256(json.dumps([kind, change, horizon], sort_keys=True).encode()).hexdigest()[:8]
+
+
+def _falsification(cfg: dict, horizon: int) -> dict:
+    from modules import option_learner as ol
+    f = (cfg or {}).get("falsification") or {}
+    tb = (cfg or {}).get("test_budget") or {}
+    budget = f"total_alpha {tb.get('total_alpha', 0.05)} / max_tests {tb.get('max_tests', 20)}"
+    max_days = int(((f.get("max_days") or {}).get(horizon)) or 4 * horizon + 60)
+    return {"primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+            "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+            "comparators": ["Basis-Lernversion (gleiche Labels, gleicher Tag)", "eingefrorene Referenz der Basis",
+                            "Nicht-Handeln"],
+            "looks_days": ol.look_days(max_days),
+            "accept_if": (f"an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND "
+                          f"netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der "
+                          f"Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets {budget}), gemeinsame "
+                          f"Ergebnisabdeckung >= {ol.MIN_COVERAGE:.0%}, >= {ol.MIN_OOS_DATES} Tage, >= "
+                          f"{ol.MIN_INDEPENDENT_PERIODS} unabhängige Perioden, >= {ol.MIN_SELECTED} Kandidaten"),
+            "reject_if": ("relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung "
+                          "kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto "
+                          "(BETTER_THAN_BASE_NOT_PROFITABLE)"),
+            "max_days": max_days, "test_budget": budget}
+
+
+def _variant_overrides(method: str, direction: str | None, cfg: dict) -> list[dict]:
+    from modules import option_learner as ol
+    allowed = ((cfg or {}).get("approved_methods") or {}).get(method)
+    if not allowed:
+        return []
+    if method == "drop_feature_group":
+        return [{method: g} for g in allowed]
+    vals = [float(v) for v in allowed]
+    if method == "ridge_alpha":
+        vals = [v for v in vals if (v > ol.RIDGE_ALPHA if direction == "up" else v < ol.RIDGE_ALPHA)]
+        vals = sorted(vals, reverse=direction != "up")          # nächstliegender Schritt zuerst
+    return [{method: v} for v in vals]
+
+
+def option_proposals(gaps: list[dict], cfg: dict | None = None, catalog: list[dict] | None = None) -> list[dict]:
+    """Strukturierte Verbesserungsvorschläge je gemessener Lücke. Erwarteter Nutzen = Schweregrad der Lücke als
+    Priorität (keine erfundene Renditeprognose); die Falsifikation ist vorab festgelegt. auto_experiment nur für
+    freigegebene, kostenlose Varianten; alles mit Daten-, Erfassungs- oder Stichprobenänderung braucht Freigabe."""
+    from modules import option_learner as ol
+    cfg = cfg if cfg is not None else ol.variant_config()
+    props = {}
+
+    def add(kind, change, gap, title, hypothesis, cost, availability, falsification, auto, weight=1.0, **kw):
+        pid = _pid(kind, change, gap["horizon"])
+        if pid in props:
+            props[pid]["gap_ids"].append(gap["gap_id"])
+            props[pid]["priority"] = max(props[pid]["priority"], round(gap["severity"] * weight, 4))
+            return
+        props[pid] = {"proposal_id": pid, "kind": kind, "horizon": gap["horizon"], "gap_ids": [gap["gap_id"]],
+                      "title": title, "change": change, "hypothesis": hypothesis,
+                      "expected_benefit": {"target": falsification.get("primary_metric")
+                                           or "Lücke geschlossen (siehe Falsifikation)",
+                                           "priority_basis": f"Schweregrad {gap['severity']} der Lücke {gap['gap_id']}",
+                                           "finding": gap["finding"]},
+                      "cost": cost, "data_availability": availability, "falsification": falsification,
+                      "auto_experiment": auto, "approval_required": not auto,
+                      "priority": round(gap["severity"] * weight / PROPOSAL_COST.get(kind, 4.0), 4), **kw}
+
+    variant_cost = {"api_calls": 0, "llm_calls": 0, "paid_data": False,
+                    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"}
+    for g in gaps:
+        name = g["gap_id"].split(":")[1]
+        for method, direction in GAP_METHODS.get(name, ()):
+            for change in _variant_overrides(method, direction, cfg):
+                try:
+                    ol.validate_overrides(change, cfg)
+                except ValueError:
+                    continue
+                (m, v), = change.items()
+                add("variant", change, g, f"Variante {m}={v} ({g['horizon']} T)",
+                    f"Mit {m}={v} trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als "
+                    f"die Basis. Mechanismus: {MECHANISM[m]}.", variant_cost,
+                    "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+                    _falsification(cfg, g["horizon"]), True)
+        if name == "sparse_feature":
+            add("data_pipeline", {"feature": g["feature"]}, g, f"Merkmal {g['feature']} befüllen oder streichen",
+                f"Das Ledger-Feld {g['feature']} fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, "
+                "sonst gehört es nicht in die Spezifikation.",
+                {"api_calls": "keine zusätzlichen erwartet", "llm_calls": 0, "paid_data": False,
+                 "human_effort": "Code-Prüfung der Erfassung"}, "Feld im Ledger leer – Erfassung prüfen",
+                {"accept_if": f"Abdeckung >= {ol.MIN_FEATURE_COVERAGE:.0%} binnen 20 Handelstagen nach Korrektur",
+                 "reject_if": "sonst Merkmal aus der Spezifikation entfernen (neue Experimentversion)"}, False)
+        elif name == "outcome_coverage":
+            add("data_capture", {"reasons": g.get("reasons")}, g, "Quote-Erfassung für gewählte Kontrakte schließen",
+                "Fehlende Entry-/Exit-Quotes der gewählten Formen verhindern die Bewertung und können sie verzerren.",
+                {"api_calls": "zusätzliche Quote-Abrufe im bestehenden Erfassungs-Workflow", "llm_calls": 0,
+                 "paid_data": False, "human_effort": "Erfassungslogik ändern"},
+                "Quotes nur bei rechtzeitiger Erfassung verfügbar",
+                {"accept_if": f"Abdeckung >= {ol.MIN_COVERAGE:.0%} in den nächsten 20 fälligen Handelstagen",
+                 "reject_if": "Abdeckung bleibt darunter: Ursache (z. B. Liquidität) statt Erfassung prüfen"}, False)
+        elif g["kind"] == "representativeness":
+            add("sampling", {"warning": g["finding"]}, g, "Evidenzbasis verbreitern (Richtungssignale, bearishe Fälle)",
+                "Eine einseitige Stichprobe belegt nicht alle Marktsituationen; zusätzliche Snapshots würden das zeigen.",
+                {"api_calls": "zusätzliche Kontrakt-Snapshots je Scanner-Lauf", "llm_calls": 0, "paid_data": False,
+                 "human_effort": "Stichprobenregel im Kandidaten-Ledger ändern"}, "erfordert neue Snapshots",
+                {"accept_if": "keine Repräsentativitätswarnung binnen 90 Tagen",
+                 "reject_if": "Warnung bleibt bestehen: Einschränkung im Leistungszeugnis dauerhaft ausweisen"}, False)
+        elif name == "no_skill":
+            for src in catalog or []:
+                if src.get("status") == "integrated":
+                    continue
+                cost = float(src.get("acquisition_cost") or 3)
+                paid = cost >= 5 or "kommerziell" in str(src.get("license", "")).lower()
+                add("data_source", {"source": src.get("id")}, g, f"Datenquelle {src.get('id')} prüfen",
+                    f"Zusätzliche Information ({', '.join(src.get('dimension') or [])}) könnte die fehlende "
+                    "Prognosekraft liefern.",
+                    {"api_calls": "Abrufe der neuen Quelle", "llm_calls": 0, "paid_data": paid,
+                     "acquisition_cost": cost, "license": src.get("license")},
+                    {"onboarding_checklist": onboarding_checklist(src), "history_from": src.get("history_from")},
+                    {"accept_if": "nach Aufnahmeprüfung als Merkmalsvariante: Bonferroni-KI der Tagesdifferenz > 0",
+                     "reject_if": "kein signifikanter Vorteil nach max_days oder Aufnahmeprüfung nicht bestanden"},
+                    False, weight=1.0 / (2 * cost))
+    # Gleichstand: mehr stützende Lücken zuerst, dann die Reihenfolge der Methoden in GAP_METHODS
+    order = {pid: i for i, pid in enumerate(props)}
+    return sorted(props.values(), key=lambda p: (-p["priority"], -len(p["gap_ids"]), order[p["proposal_id"]]))
+
+
+def _option_status(root: Path = OPTION_OUT) -> dict:
+    return {h: _load(root / f"status_{h}d.json", {}) for h in OPTION_HORIZONS}
+
+
+def run_options(root: Path = OPTION_OUT, now: datetime | None = None) -> dict:
+    """Wöchentlich nach option_learner evaluate: Lücken und Vorschläge des Options-Lernmodells; freigegebene,
+    kostenlose Varianten werden als isolierte Experimente registriert (Start am Folgetag) -> improvement.json."""
+    from modules import option_learner as ol
+    now = now or datetime.now(timezone.utc)
+    cfg = ol.variant_config()
+    gaps = option_gaps(_option_status(root), list(ol.variant_registry(root).values()))
+    catalog = (yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", []) if CATALOG.exists() else []
+    proposals = option_proposals(gaps, cfg, catalog)
+    registered = ol.register_variants(root, proposals, now, cfg)
+    rep = {"generated": now.isoformat(timespec="seconds"), "gaps": gaps, "proposals": proposals,
+           "registered_variants": [v["variant_id"] for v in registered],
+           "test_budget": ol.test_budget(root, cfg)}
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "improvement.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
+    ol.report_card(root)
+    return rep
+
+
 def run() -> dict:
     meta = _load(OUT / "meta_learning.json", {})
     nextv = _load(OUT / "next_validation.json", {})
@@ -220,8 +466,19 @@ def run() -> dict:
     return rep
 
 
-def main() -> int:
+def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--options", action="store_true", help="nur Options-Lernmodell: Lücken und Vorschläge")
+    if ap.parse_args(argv).options:
+        from modules import research_memory as rm
+        rep = run_options()
+        print(f"Research Memory: {rm.sync()} neue Einträge")
+        for g in rep["gaps"][:10]:
+            print(f"- [{g['severity']}] {g['gap_id']}: {g['finding']}")
+        for p in rep["proposals"][:10]:
+            print(f"  -> [{p['priority']}] {p['proposal_id']} {p['kind']} {p['change']} auto={p['auto_experiment']}")
+        return 0
     rep = run()
     print(json.dumps({k: rep[k] for k in ("n_candidates", "n_selected_for_testing", "selected")}, indent=1))
     for c in rep["candidates"][:10]:

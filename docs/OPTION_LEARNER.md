@@ -46,6 +46,18 @@ Stand 2026-10-30 (Freigabe, Versionierung, Auswahl-Validierung, Lernfortschritt)
 - Dieselbe Rechnung läuft zusätzlich retrospektiv im Walk-Forward (erste Walk-Forward-Instanz eingefroren). Sie ist nur ein Hinweis; maßgeblich ist der Forward-Vergleich.
 - Verlauf (`learning_trend`) und Verdikt stehen im Leistungszeugnis und damit im Montagsbericht.
 
+## Varianten-Experimente (Autonomous Research Improvement)
+
+Siehe `docs/AUTONOMOUS_RESEARCH_IMPROVEMENT.md`. Kurz:
+- `research_director --options` erkennt messbare Lücken und erzeugt Vorschläge.
+- Freigegebene, kostenlose Varianten (`config/option_learner_variants.yaml`) laufen isoliert auf denselben Kandidaten.
+- Sie werden nur an vorab festgelegten Prüfzeitpunkten geprüft, gepaart gegen Basis, eingefrorene Referenz und Nicht-Handeln.
+- Jede Variante testet mit einem Slot aus dem dauerhaften Fehlerbudget (0,05 auf 20 Tests), verteilt nach O'Brien-Fleming.
+- Die Mindestabdeckung beträgt 80 %, gemessen an allen vorgesehenen Kandidaten. Jede Prüfung wird als versionierter Bericht eingefroren.
+- Ein Übernahmevorschlag braucht einen relativen Vorteil UND positive Netto-Evidenz. Sein aktueller Status (gültig, zurückgezogen, überholt) wird laufend nachgeführt.
+- Gepaarte Vergleiche (auch lernende Version gegen Referenz) melden die gemeinsame Ergebnisabdeckung. Unter 80 % lautet das Urteil INSUFFICIENT_COVERAGE.
+- Die Basisversion `4a0f886d1979`, ihre Freigabe und ihre Mail bleiben davon unberührt.
+
 ## Leistungszeugnis und Lernkurve
 
 - **Manifest** je Auswertung: Anzahl und Hash der verwendeten geprüften Labels, Stichtag, Verteilung je Ausdrucksform. Damit ist nachvollziehbar, welche Labels in welches Modell geflossen sind.
