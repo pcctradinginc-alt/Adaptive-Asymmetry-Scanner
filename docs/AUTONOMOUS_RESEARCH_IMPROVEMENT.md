@@ -70,6 +70,7 @@ Bewusst nicht gebaut: kein neuer Orchestrator, kein LLM, kein Code-Generator, ke
 |---|---|---|
 | `ml_research.yml` (Samstag, monatlich) | `option_learner evaluate` → `research_director --options` | Varianten bewerten und ggf. schließen, Lücken, Vorschläge, Registrierung, Research Memory, Leistungszeugnis |
 | `scanner.yml` (täglich) | `option_learner recommend` | Basis wie bisher, danach aktive Varianten isoliert |
+| `ml_research.yml` (Samstag) | `research_director --notify` | technische Verbesserungsaufgaben per Mail (siehe `docs/SELF_IMPROVEMENT_NOTIFICATIONS.md`) |
 
 ## Sicherheitsgrenzen
 

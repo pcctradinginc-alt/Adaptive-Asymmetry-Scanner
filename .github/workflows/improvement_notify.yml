@@ -1,0 +1,64 @@
+name: Research – Technische Verbesserungsvorschläge (manuell)
+
+# Manueller Auslöser für die Self-Improvement Notifications (modules/research_director.py --notify), die sonst
+# wöchentlich im Workflow ml_research.yml laufen. Liest nur vorhandene Research-Ausgaben; kein LLM, keine
+# Markt-API, kein Code wird geändert. dry_run=true (Standard): Mails nur als Vorschau im Log, nichts wird gesendet
+# oder gespeichert. dry_run=false: wie der Wochenlauf (Dedupe, Wochenlimit, Versandhistorie) und Commit des Verlaufs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true = nur Vorschau im Log (nichts senden, nichts speichern)"
+        required: false
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+
+concurrency:
+  group: research-write          # wie ml_research.yml: nie gleichzeitig auf outputs/research schreiben
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  notify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verbesserungsvorschläge erkennen und melden
+        id: notify
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: |
+          if [ "$DRY_RUN" = "false" ]; then
+            python -m modules.research_director --notify
+          else
+            python -m modules.research_director --notify --dry-run
+          fi
+
+      - name: Verlauf sichern (nur ohne dry_run)
+        if: always() && inputs.dry_run == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: improvement notifications $(date -u +%Y-%m-%dT%H:%M)" outputs/research/improvement_tasks.jsonl outputs/research/improvement_tasks.json outputs/research/research_memory.jsonl
