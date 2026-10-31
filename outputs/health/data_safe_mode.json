@@ -1,12 +1,20 @@
 {
- "generated": "2026-10-30T18:11:25+00:00",
- "active": false,
- "global_reasons": [],
+ "generated": "2026-10-31T17:21:36+00:00",
+ "active": true,
+ "global_reasons": [
+  "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
+ ],
  "reasons": [],
- "data_quality": 0.912,
+ "data_quality": 0.876,
  "blocked_decisions": [],
  "disabled_signals": [],
  "unavailable_features": [],
  "stale_features": [],
- "effects": []
+ "effects": [
+  "keine neuen High-Confidence-Labels",
+  "keine positiven Intelligence-Boosts",
+  "keine Promotion neuer Hypothesen",
+  "keine Signale mit fehlenden Pflichtdaten",
+  "Champion nur mit HEALTHY-Pflichtdaten"
+ ]
 }
