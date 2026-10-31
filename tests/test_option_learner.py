@@ -84,16 +84,22 @@ def test_walk_forward_validates_but_without_forward_evidence_nothing_is_recommen
 
 
 def _stats(verdict, **kw):
+    """Kennzahlen eines Berichts; als Forward-Evidenz der eingefrorene Bericht eines abgeschlossenen
+    Prüfzeitpunkts (sequential, KI zum Teil-Alpha, Abdeckung aller fälligen Kandidaten)."""
+    a = ol.obrien_fleming_spending(ol.RELEASE_ALPHA)[1]
     s = {"n": 400, "dates": 25, "independent_periods": 6, "mean_all": 0.01, "ic_mean": 0.2, "ic_t": 3.0,
          "n_selected": 120, "selected_dates": 25, "mean_selected": 0.08, "selected_ci95": [0.02, 0.14],
          "coverage": 1.0, "experiment_id": ol.experiment_id(), "representativeness": {"warnings": []},
-         "by_expression": {}, "verdict": verdict}
+         "by_expression": {}, "verdict": verdict, "selected_ci": [0.01, 0.15], "population_coverage": 1.0,
+         "sequential": {"look": 2, "looks": 3, "look_alpha": a, "ci_level": 1 - a, "data_cutoff": "2026-02-14",
+                        "experiment_id": ol.experiment_id(), "report_id": "20d_look2_v1", "version": 1}}
     s.update(kw)
     return s
 
 
 def _gated(monkeypatch, tmp_path, fw, horizon=20):
-    """recommend mit vorgegebenem Walk-Forward (VALIDATED) und Forward-Bericht; zählt versandte Mails."""
+    """recommend mit vorgegebenem Walk-Forward (VALIDATED) und Forward-Bericht (laufend und als eingefrorener Bericht
+    des letzten Prüfzeitpunkts); zählt versandte Mails."""
     days = _trading_days(date(2026, 1, 5), 40)
     rows, quotes = _history(days, h=horizon)
     today = _trading_days(days[-1] + timedelta(days=40), 1)[0].isoformat()
@@ -102,6 +108,7 @@ def _gated(monkeypatch, tmp_path, fw, horizon=20):
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     monkeypatch.setattr(ol, "walk_forward", lambda *a, **k: _stats("VALIDATED"))
     monkeypatch.setattr(ol, "forward", lambda *a, **k: fw)
+    monkeypatch.setattr(ol, "release_checkpoint", lambda *a, **k: {"look": 2, "looks": 3, "forward": fw})
     sent = []
     monkeypatch.setattr("modules.mailer.send_mail", lambda subject, html, text: sent.append(subject) or {"status": "sent"})
     res = ol.recommend(date.fromisoformat(today), horizon=horizon, out=tmp_path)
@@ -282,6 +289,7 @@ def test_recommend_journals_every_expression_and_recommends_one_per_candidate(mo
     monkeypatch.setattr(ol.red, "load", lambda root, as_of: rows)
     monkeypatch.setattr(ol.red, "load_quotes", lambda root, labelled, as_of: quotes)
     monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))
+    monkeypatch.setattr(ol, "release_checkpoint", lambda *a, **k: {"look": 2, "forward": _stats("FORWARD_POSITIVE")})
     res = ol.recommend(date.fromisoformat(today), horizon=H, out=tmp_path)
     assert res["journaled"] == 4 and res["decisions"] == 1          # 2 Formen + Entscheidung + Referenz-Entscheidung
     assert len(res["recommendations"]) == 1
@@ -665,3 +673,208 @@ def test_report_card_and_monday_report_show_learning_progress(monkeypatch, tmp_p
     from reports import weekly
     table = weekly.option_learner_blocks({"option_learner_card": card})[1][2]
     assert any("eingefrorene Referenz" in r[0] for r in table)
+
+
+# ── Sequenziell gültige Freigabe: vorab festgelegte Prüfzeitpunkte des Forward-Tests ──────────────────────────────
+SEQ_START = date(2026, 3, 2)
+
+
+def _seq_case(effect=0.04, seed=5, end=date(2026, 7, 31), n=4, decided=lambda d, i: True, status=lambda d, i: "VERIFIED",
+              created=lambda d, i: f"{d}T16:00:00+00:00"):
+    """Prospektiver Forward-Fall der aktuellen Experimentversion ab SEQ_START: je Handelstag n Kandidaten, alle mit
+    am Signaltag festgehaltener TRADE-Entscheidung (sofern decided); Netto = effect + Tages-Schock N(0, 0,1) +
+    Rauschen. Tages-Schocks machen die Unsicherheit realistisch (Block-Bootstrap über Haltefenster)."""
+    rng, cands, journal, exp = random.Random(seed), [], [], ol.experiment_id()
+    inst = [{"model_id": "m", "experiment_id": exp, "train_cutoff": SEQ_START.isoformat(),
+             "max_label_day": (SEQ_START - timedelta(days=1)).isoformat()}]
+    d = SEQ_START
+    while d <= end:
+        if ms.is_trading_day(d):
+            mu = effect + rng.gauss(0, 0.1)
+            for i in range(n):
+                sid, contract, st = f"{d}-{i}", [f"T{i}270319C00100000"], status(d, i)
+                y = mu + rng.uniform(-0.05, 0.05)
+                cands.append({"date": d.isoformat(), "signal_id": sid, "ticker": f"T{i}", "sample": "directional",
+                              "gate": "x", "exprs": [
+                                  {"expression": "single", "contract": contract, "strategy": "LONG_CALL", "x": {},
+                                   "ask": 1.0, "mid": 0.95, "status": st, "y": y if st == "VERIFIED" else None,
+                                   "label_day": d + timedelta(days=H + 1) if st == "VERIFIED" else None}]})
+                if decided(d, i):
+                    journal.append({"kind": "decision", "role": "learning", "date": d.isoformat(), "signal_id": sid,
+                                    "horizon": H, "action": "TRADE", "contract": contract, "pred_net": 0.1,
+                                    "experiment_id": exp, "model_id": "m", "created_at": created(d, i)})
+        d += timedelta(days=1)
+    return cands, journal, inst
+
+
+def _view(cands, journal, as_of):
+    """Stand am Tag as_of: nur bis dahin journalisierte Entscheidungen und bekannte Labels (Mark-Tag <= as_of)."""
+    def known(e):
+        return e if e["label_day"] is None or e["label_day"] <= as_of else dict(e, status="NO_LABEL", y=None,
+                                                                               label_day=None)
+    cs = [dict(c, exprs=[known(e) for e in c["exprs"]]) for c in cands if c["date"] <= as_of.isoformat()]
+    return cs, [j for j in journal if j["date"] <= as_of.isoformat()]
+
+
+def _gate_at(out, cands, journal, inst, as_of):
+    cs, js = _view(cands, journal, as_of)
+    now = datetime.combine(as_of, datetime.min.time(), tzinfo=timezone.utc).replace(hour=18)
+    cp = ol.release_checkpoint(out, js, cs, H, inst, as_of, now)
+    return cp, ol.release_gate(_stats("VALIDATED"), cp["forward"]), ol.forward(js, cs, H, inst, as_of)
+
+
+def _ready(k):
+    return SEQ_START + timedelta(days=ol.release_look_days(H)[k - 1] + H + ol.DUE_GRACE_DAYS + 1)
+
+
+def test_obrien_fleming_spends_the_forward_alpha_over_preregistered_looks():
+    spend = ol.obrien_fleming_spending(0.05)
+    assert abs(sum(spend) - 0.05) < 1e-12 and spend[0] < spend[1] < spend[2]
+    assert spend[0] < 0.001                                              # erste Prüfung: sehr starke Evidenz
+    assert ol.release_look_days(20) == [100, 200, 300] and ol.release_look_days(5) == [30, 60, 90]
+
+
+def test_plan_is_registered_once_at_the_first_journaled_decision_and_never_changes(monkeypatch, tmp_path):
+    cands, journal, inst = _seq_case(end=date(2026, 3, 20))
+    assert ol.release_plan(tmp_path, H, [], inst) is None                 # ohne Entscheidung kein Plan
+    plan = ol.release_plan(tmp_path, H, journal[8:], inst)               # erster Journal-Tag = Start
+    assert plan["start_date"] == journal[8]["date"] and plan["look_days"] == [30, 60, 90]
+    assert plan["cutoffs"][0] == (date.fromisoformat(journal[8]["date"]) + timedelta(days=30)).isoformat()
+    path = tmp_path / ol.RELEASE_DIR / f"{H}d_{ol.experiment_id()}_plan.json"
+    frozen = path.read_text()
+    monkeypatch.setattr(ol, "RELEASE_LOOK_FRACTIONS", (0.1, 1.0))       # spätere Änderung: Plan bleibt
+    assert ol.release_plan(tmp_path, H, journal, inst) == plan and path.read_text() == frozen
+    tampered = frozen.replace(plan["cutoffs"][0], SEQ_START.isoformat())   # nachträglich verändert
+    path.write_text(tampered)
+    assert ol.release_plan(tmp_path, H, journal, inst) is None
+    cp = ol.release_checkpoint(tmp_path, journal, cands, H, inst, date(2026, 12, 31))
+    assert cp["state"] == "PLAN_INVALID" and not ol.release_gate(_stats("VALIDATED"), cp["forward"])["allowed"]
+    assert path.read_text() == tampered                                  # nie still neu angelegt
+
+
+def test_gate_stays_closed_before_the_first_checkpoint_even_for_a_strong_effect(tmp_path):
+    cands, journal, inst = _seq_case(effect=0.07, seed=7)
+    before = _ready(1) - timedelta(days=1)
+    cp, gate, naive = _gate_at(tmp_path, cands, journal, inst, before)
+    assert naive["verdict"] == "FORWARD_POSITIVE"                         # täglicher 95-%-Test: "positiv"
+    assert cp["state"] == "BEFORE_FIRST_CHECKPOINT" and cp["forward"]["verdict"] == "NEED_MORE_DATA"
+    assert cp["release_status"] == "NEED_MORE_DATA" and gate["allowed"] is False
+    assert any("vor dem ersten Prüfzeitpunkt" in r for r in gate["reasons"])
+    assert not list((tmp_path / ol.RELEASE_DIR).glob("*_look*"))         # noch kein Prüfbericht
+    cp, gate, _ = _gate_at(tmp_path, cands, journal, inst, _ready(1))     # Prüfung 1 abgeschlossen
+    assert cp["look"] == 1 and cp["forward"]["verdict"] == "FORWARD_POSITIVE" and gate == {"allowed": True,
+                                                                                            "reasons": []}
+
+
+def test_an_effect_passing_a_single_95_percent_test_does_not_open_the_gate_at_an_early_checkpoint(tmp_path):
+    cands, journal, inst = _seq_case()
+    cp, gate, _ = _gate_at(tmp_path, cands, journal, inst, _ready(1))
+    fw = cp["forward"]
+    assert cp["look"] == 1 and fw["single_test_verdict_95"] == "FORWARD_POSITIVE" and fw["selected_ci95"][0] > 0
+    assert fw["sequential"]["look_alpha"] < 0.001 and fw["selected_ci"][0] < 0 < fw["selected_ci"][1]
+    assert fw["verdict"] == "INCONCLUSIVE" and gate["allowed"] is False
+    assert any("Teil-Alpha der Prüfung 1/3" in r for r in gate["reasons"])
+
+
+def test_daily_reevaluation_between_checkpoints_does_not_change_the_gate_decision(tmp_path):
+    cands, journal, inst = _seq_case()
+    decisions, reports, naive = set(), set(), set()
+    day = _ready(1)
+    while day < _ready(2):                                               # täglich, wachsende Forward-Daten
+        cp, gate, fw = _gate_at(tmp_path, cands, journal, inst, day)
+        decisions.add((gate["allowed"], tuple(gate["reasons"])))
+        reports.add((cp["look"], cp["report"]["report_id"], cp["forward"]["verdict"]))
+        naive.add((fw["verdict"], fw["n_selected"]))
+        day += timedelta(days=1)
+    assert len(decisions) == 1 and next(iter(decisions))[0] is False   # jeden Tag dieselbe Entscheidung
+    assert reports == {(1, f"{H}d_{ol.experiment_id()}_look1_v1", "INCONCLUSIVE")}
+    assert len(naive) > 10 and {v for v, _n in naive} == {"FORWARD_POSITIVE"}   # täglich neu: "positiv"
+    assert len(list((tmp_path / ol.RELEASE_DIR).glob("*_look*"))) == 1  # kein neuer Test zwischen den Prüfungen
+    cp, gate, _ = _gate_at(tmp_path, cands, journal, inst, _ready(2))     # erst die nächste Prüfung entscheidet neu
+    assert cp["look"] == 2 and cp["forward"]["verdict"] == "FORWARD_POSITIVE" and gate["allowed"] is True
+
+
+def test_coverage_below_80_percent_of_all_due_candidates_keeps_the_gate_closed(tmp_path):
+    # 1 von 4 Kandidaten je Tag ohne gültige Entscheidung (fehlt oder am Folgetag geschrieben): 75 % Abdeckung,
+    # obwohl jede gehandelte Wahl ein geprüftes Ergebnis hat (Abdeckung der Trades 100 %)
+    cands, journal, inst = _seq_case(effect=0.07, seed=7, decided=lambda d, i: i != 0 or d.day % 2,
+                                     created=lambda d, i: f"{d + timedelta(days=1)}T09:00:00+00:00" if i == 0
+                                     else f"{d}T16:00:00+00:00")
+    cp, gate, naive = _gate_at(tmp_path, cands, journal, inst, _ready(1))
+    fw = cp["forward"]
+    assert naive["verdict"] == "FORWARD_POSITIVE" and fw["coverage"] == 1.0
+    assert fw["population_coverage"] == 0.75 and set(fw["failures"]) == {"NO_DECISION", "LATE_PREDICTION"}
+    assert fw["verdict"] == "INSUFFICIENT_COVERAGE" and cp["release_status"] == "NEED_MORE_DATA"
+    assert gate["allowed"] is False and any("Abdeckung aller fälligen Kandidaten" in r for r in gate["reasons"])
+    # fehlende Exit-Quotes der gewählten Form zählen ebenso als Ausfall
+    cands, journal, inst = _seq_case(effect=0.07, seed=7, status=lambda d, i: "EXIT_NOT_ARCHIVED" if i < 1
+                                     else "VERIFIED")
+    cp, gate, _ = _gate_at(tmp_path / "exit", cands, journal, inst, _ready(1))
+    assert cp["forward"]["population_coverage"] == 0.75 and cp["forward"]["failures"] == {
+        "EXIT_NOT_ARCHIVED": cp["forward"]["population"] // 4}
+    assert cp["forward"]["verdict"] == "INSUFFICIENT_COVERAGE" and gate["allowed"] is False
+
+
+def test_checkpoint_reports_are_create_only_and_corrections_are_new_versions(tmp_path):
+    cands, journal, inst = _seq_case(effect=0.07, seed=7)
+    cp, _gate, _ = _gate_at(tmp_path, cands, journal, inst, _ready(1))
+    v1 = tmp_path / ol.RELEASE_DIR / f"{cp['report']['report_id']}.json"
+    frozen = v1.read_text()
+    rep = ol._read_json(v1)
+    assert rep["version"] == 1 and rep["supersedes"] is None and rep["n_population"] == len(rep["decision_ids"])
+    assert rep["model_ids"] == ["m"] and len(rep["label_ids"]) == rep["forward"]["n_selected"]
+    assert rep["alpha"]["look_alpha"] == ol.release_plan(tmp_path, H)["look_alpha"][0] and rep["report_sha256"]
+    _gate_at(tmp_path, cands, journal, inst, _ready(1) + timedelta(days=3))       # gleiche Daten: gleicher Bericht
+    assert len(list((tmp_path / ol.RELEASE_DIR).glob("*_look1_v*"))) == 1
+    first = cands[0]                                                       # nachträglich korrigiertes Label
+    cands[0] = dict(first, exprs=[dict(first["exprs"][0], status="EXIT_NOT_ARCHIVED", y=None, label_day=None)])
+    cp, _gate, _ = _gate_at(tmp_path, cands, journal, inst, _ready(1) + timedelta(days=4))
+    v2 = ol._read_json(tmp_path / ol.RELEASE_DIR / f"{cp['report']['report_id']}.json")
+    assert cp["report"]["version"] == 2 and cp["report"]["corrected"] is True
+    assert v2["supersedes"] == v1.stem and "Labels" in v2["correction_reason"] and v1.read_text() == frozen
+    assert v2["failures"] == {"EXIT_NOT_ARCHIVED": 1}
+
+
+def test_release_gate_requires_a_frozen_checkpoint_report():
+    ok = _stats("FORWARD_POSITIVE")
+    assert ol.release_gate(_stats("VALIDATED"), ok)["allowed"] is True
+    daily = {k: v for k, v in ok.items() if k not in ("sequential", "selected_ci", "population_coverage")}
+    seq = ok["sequential"]
+    closed = [daily,                                                     # täglicher Forward-Test ohne Prüfbericht
+              _stats("FORWARD_POSITIVE", sequential={**seq, "look": 0}),
+              _stats("FORWARD_POSITIVE", sequential={**seq, "report_id": None}),
+              _stats("FORWARD_POSITIVE", selected_ci=[-0.01, 0.2]),      # 95 % ja, Teil-Alpha nein
+              _stats("FORWARD_POSITIVE", population_coverage=0.79),
+              _stats("FORWARD_POSITIVE", population_coverage=None),
+              _stats("FORWARD_POSITIVE", sequential={**seq, "look_alpha": 0.05, "ci_level": 0.95 + 0.01}),
+              _stats("FORWARD_POSITIVE", sequential={**seq, "look_alpha": 0.2, "ci_level": 0.8}),
+              _stats("FORWARD_POSITIVE", sequential={**seq, "experiment_id": "alt"}),
+              _stats("FORWARD_POSITIVE", sequential={k: v for k, v in seq.items() if k != "look_alpha"})]
+    for fw in closed:
+        gate = ol.release_gate(_stats("VALIDATED"), fw)
+        assert gate["allowed"] is False and gate["reasons"], fw
+
+
+def test_recommend_registers_the_plan_and_releases_only_from_a_checkpoint(monkeypatch, tmp_path):
+    days, rows = _ledger_env(monkeypatch, 40)
+    today = days[39]
+    rows += [_row(today.isoformat(), 1, 0.8), _row(today.isoformat(), 2, -0.8)]
+    monkeypatch.setattr(ol, "walk_forward", lambda *a, **k: _stats("VALIDATED"))
+    monkeypatch.setattr(ol, "forward", lambda *a, **k: _stats("FORWARD_POSITIVE"))   # täglich "positiv"
+    sent = []
+    monkeypatch.setattr("modules.mailer.send_mail", lambda subject, html, text: sent.append(subject) or {"status": "sent"})
+    now = datetime.combine(today, datetime.min.time(), tzinfo=timezone.utc).replace(hour=17)
+    res = ol.recommend(today, horizon=H, out=tmp_path, now=now)
+    plan = ol.release_plan(tmp_path, H)
+    assert plan["start_date"] == today.isoformat() and plan["first_decision"].startswith(today.isoformat())
+    assert res["forward_checkpoint"]["state"] == "BEFORE_FIRST_CHECKPOINT"
+    assert res["release"]["allowed"] is False and res["recommendations"] == [] and ol.mail(res) is None
+    forged = {**res, "horizon": 20, "recommendations": res["watchlist"]}  # Mail prüft den Prüfbericht erneut
+    assert res["watchlist"] and ol.mail(forged) is None and sent == []
+    md = (tmp_path / "recommendations" / f"{today}_{H}d.md").read_text()
+    assert "vor dem ersten Prüfzeitpunkt" in md and "nur beschreibend" in md
+    def broken(*a, **k):
+        raise ValueError("Bericht beschädigt")
+    monkeypatch.setattr(ol, "release_checkpoint", broken)                 # nicht auswertbar: gesperrt, kein Abbruch
+    res = ol.recommend(today, horizon=H, out=tmp_path, now=now)
+    assert res["release"]["allowed"] is False and any("nicht auswertbar" in r for r in res["release"]["reasons"])

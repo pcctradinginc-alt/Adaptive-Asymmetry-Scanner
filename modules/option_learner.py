@@ -18,6 +18,10 @@ Kreislauf (autonom, kein LLM, keine Markt-API, keine Order):
      VALIDATED UND Forward FORWARD_POSITIVE, jeweils mit Mindest-Testtagen, unabhängigen Perioden, Fallzahl und
      Konfidenzintervall über 0 – fail closed bei fehlenden oder widersprüchlichen Angaben; je Kandidat die
      Ausdrucksform mit der höchsten Prognose > 0. Sonst nur eine als UNVALIDIERT markierte Research-Watchlist.
+     Sequenziell gültig: Der Forward-Teil zählt nur an vorab festgelegten Prüfzeitpunkten (release_plan, je
+     Experimentversion und Horizont beim Start eingefroren) mit O'Brien-Fleming-Teil-Alpha und mindestens
+     MIN_COVERAGE Abdeckung aller fälligen Kandidaten; dazwischen gilt der eingefrorene Bericht der letzten
+     Prüfung (release_checkpoint), der tägliche Forward-Test ist nur beschreibend.
      Mail nur für das 20-Tage-Hauptmodell; das 5-Tage-Modell ist Frühindikator ohne Handels-Mail.
   -> Lernfortschritt: je Experimentversion wird die erste Modellinstanz als Referenz eingefroren (Gewichte einmalig
      gespeichert); lernende Version und Referenz entscheiden täglich über dieselben Kandidaten (inkl. ABSTAIN).
@@ -40,8 +44,9 @@ import logging
 import math
 import random
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from statistics import NormalDist
 
 import numpy as np
 
@@ -373,8 +378,11 @@ def _periods(by_date: dict[str, list], horizon: int) -> dict[int, list]:
     return dict(out)
 
 
-def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int = 7) -> tuple[float, float] | None:
-    """95-%-KI des gepoolten Mittels; gezogen werden ganze Haltefenster (Block-Bootstrap), nicht einzelne Tage."""
+def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int = 7, alpha: float = 0.05,
+                        method: str = "percentile") -> tuple[float, float] | None:
+    """(1 − alpha)-KI des gepoolten Mittels (Standard 95 %); gezogen werden ganze Haltefenster (Block-Bootstrap),
+    nicht einzelne Tage. method="normal": Mittel ± z·Bootstrap-Standardfehler – für sehr kleine, korrigierte alpha
+    (sequenziell, Bonferroni), deren Perzentile 2000 Ziehungen nicht verlässlich auflösen."""
     blocks = [b for b in _periods(by_date, horizon).values() if b]
     if len(blocks) < 2:
         return None
@@ -383,8 +391,12 @@ def _block_bootstrap_ci(by_date: dict[str, list[float]], horizon: int, seed: int
     for _ in range(BOOTSTRAP):
         vals = [v for b in (rng.choice(blocks) for _ in blocks) for v in b]
         means.append(sum(vals) / len(vals))
+    if method == "normal":
+        pooled = [v for b in blocks for v in b]
+        m, half = sum(pooled) / len(pooled), NormalDist().inv_cdf(1 - alpha / 2) * float(np.std(means, ddof=1))
+        return m - half, m + half
     means.sort()
-    return means[int(0.025 * BOOTSTRAP)], means[int(0.975 * BOOTSTRAP) - 1]
+    return means[int(alpha / 2 * BOOTSTRAP)], means[int((1 - alpha / 2) * BOOTSTRAP) - 1]
 
 
 def score(preds: list[dict], horizon: int = HORIZON) -> dict:
@@ -709,7 +721,11 @@ def forward(journal: list[dict], cands: list[dict], horizon: int, instances: lis
 def release_gate(wf: dict | None, fw: dict | None) -> dict:
     """Freigabe von Empfehlungen – fail closed. Erlaubt nur bei Walk-Forward VALIDATED UND Forward FORWARD_POSITIVE;
     die Mindestzahlen und Evidenzanforderungen werden aus den Kennzahlen erneut geprüft, damit ein fehlender,
-    unvollständiger oder widersprüchlicher Bericht (z. B. Verdikt ohne passende Zahlen) nie freigibt."""
+    unvollständiger oder widersprüchlicher Bericht (z. B. Verdikt ohne passende Zahlen) nie freigibt.
+    `fw` ist der eingefrorene Bericht des letzten abgeschlossenen, vorab festgelegten Prüfzeitpunkts
+    (release_checkpoint), nie der täglich neu gerechnete Forward-Test: verlangt werden ein Prüfbericht
+    (`sequential`), ein Konfidenzintervall zum O'Brien-Fleming-Teil-Alpha dieser Prüfung über 0 und eine Abdeckung
+    aller fälligen Kandidaten des Prüfzeitraums von mindestens MIN_COVERAGE."""
     reasons = []
     for name, s, want in (("walk_forward", wf, "VALIDATED"), ("forward", fw, "FORWARD_POSITIVE")):
         if not isinstance(s, dict) or not s.get("verdict"):
@@ -717,6 +733,11 @@ def release_gate(wf: dict | None, fw: dict | None) -> dict:
             continue
         if s["verdict"] != want:
             reasons.append(f"{name}: {s['verdict']} (verlangt {want})")
+        seq = s.get("sequential") if isinstance(s.get("sequential"), dict) else {}
+        if name == "forward" and not (seq.get("look") and seq.get("report_id")):
+            reasons.append("forward: " + (seq.get("reason") or "kein eingefrorener Bericht eines vorab festgelegten "
+                                                                "Prüfzeitpunkts (sequenzielle Freigabe)"))
+            continue
         try:
             ci = s.get("selected_ci95")
             checks = ((s["dates"] >= MIN_OOS_DATES, f"Testtage {s['dates']} < {MIN_OOS_DATES}"),
@@ -730,12 +751,273 @@ def release_gate(wf: dict | None, fw: dict | None) -> dict:
             if name == "walk_forward":
                 checks += (((s.get("ic_t") or 0) > IC_T_MIN, f"Rang-IC t {s.get('ic_t')} <= {IC_T_MIN}"),)
             else:
-                checks += ((s["experiment_id"] == experiment_id(), f"Experimentversion {s['experiment_id']} veraltet"),)
-        except (KeyError, TypeError, IndexError):
+                a, sci, pop = float(seq["look_alpha"]), s["selected_ci"], s["population_coverage"]
+                checks += ((s["experiment_id"] == experiment_id(), f"Experimentversion {s['experiment_id']} veraltet"),
+                           (seq["experiment_id"] == s["experiment_id"], "Prüfplan einer anderen Experimentversion"),
+                           (0 < a <= RELEASE_ALPHA and abs(float(seq["ci_level"]) - (1 - a)) < 1e-9,
+                            f"Teil-Alpha {a} / KI-Niveau {seq['ci_level']} ungültig"),
+                           (bool(sci) and sci[0] > 0,
+                            f"KI zum Teil-Alpha der Prüfung {seq['look']}/{seq['looks']} {sci} nicht über 0"),
+                           (pop is not None and pop >= MIN_COVERAGE,
+                            f"Abdeckung aller fälligen Kandidaten {pop} < {MIN_COVERAGE}"))
+        except (KeyError, TypeError, IndexError, ValueError):
             reasons.append(f"{name}: Kennzahlen unvollständig")
             continue
         reasons += [f"{name}: {text}" for ok, text in checks if not ok]
     return {"allowed": not reasons, "reasons": reasons}
+
+
+# ── Sequenziell gültige Freigabe: vorab festgelegte Prüfzeitpunkte des Forward-Tests der Basis ─────────────────
+# Der Forward-Test wird täglich auf einem wachsenden Journal neu gerechnet. Würde die Freigabe jeden Tag mit einem
+# festen 95-%-KI prüfen, stiege die Fehlerrate mit der Zahl der Blicke (optional stopping). Deshalb gilt für die
+# Freigabe nur der eingefrorene Bericht des letzten abgeschlossenen Prüfzeitpunkts; das Forward-Alpha 0,05 wird nach
+# O'Brien-Fleming auf die Prüfzeitpunkte verteilt (wie bei den Varianten-Experimenten).
+RELEASE_DIR = "release_checkpoints"
+RELEASE_ALPHA = 0.05                            # Forward-Alpha (95-%-KI), über alle Prüfzeitpunkte verteilt
+RELEASE_LOOK_FRACTIONS = (1 / 3, 2 / 3, 1.0)    # Informationsanteil je Prüfzeitpunkt
+RELEASE_MIN_FIRST_LOOK_DAYS = 30                # erste Prüfung frühestens nach ~MIN_OOS_DATES Handelstagen
+
+
+def release_look_days(horizon: int) -> list[int]:
+    """Prüfzeitpunkte in Kalendertagen ab der ersten festgehaltenen Entscheidung. Die erste Prüfung liegt dort, wo
+    die Mindestzahlen frühestens erreichbar sind (MIN_INDEPENDENT_PERIODS Haltefenster, ~MIN_OOS_DATES Handelstage),
+    die weiteren im festen Verhältnis von RELEASE_LOOK_FRACTIONS (20 T: 100/200/300, 5 T: 30/60/90)."""
+    total = max(MIN_INDEPENDENT_PERIODS * horizon, RELEASE_MIN_FIRST_LOOK_DAYS) / RELEASE_LOOK_FRACTIONS[0]
+    return [max(1, round(total * f)) for f in RELEASE_LOOK_FRACTIONS]
+
+
+def obrien_fleming_spending(alpha: float, fractions=RELEASE_LOOK_FRACTIONS) -> list[float]:
+    """Teil-Alpha je Prüfzeitpunkt nach der O'Brien-Fleming-Ausgabefunktion (Lan-DeMets):
+    α(t) = 2 − 2·Φ(z_{1−α/2} / √t). Frühe Prüfungen verlangen sehr starke Evidenz; die Teil-Alphas summieren sich zu
+    alpha (je Prüfung ein eigenes KI zum Teil-Alpha: konservativ), wiederholtes Prüfen erhöht die Fehlerrate nicht."""
+    nd = NormalDist()
+    z = nd.inv_cdf(1 - alpha / 2)
+    cum = [2 - 2 * nd.cdf(z / math.sqrt(f)) for f in fractions]
+    return [c - prev for c, prev in zip(cum, [0.0, *cum[:-1]])]
+
+
+def _digest(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _learning_decisions(journal: list[dict], exp: str, reg: dict, horizon: int) -> tuple[dict, dict]:
+    """Gültige, unveränderte Lern-Entscheidungen der Version `exp` je (Tag, Signal) – dieselbe Prüfung wie im
+    Forward-Test, die erste Fassung gilt – und je Kandidat der Grund seines ersten ungültigen Eintrags."""
+    valid, invalid, seen = {}, {}, set()
+    for j in journal:
+        if not isinstance(j, dict) or j.get("horizon") != horizon or j.get("kind") != "decision" \
+                or j.get("role", "learning") != "learning":
+            continue
+        key, ck = _jkey(j), (j.get("date"), j.get("signal_id"))
+        reason = _invalid(j, exp, reg) or ("DUPLICATE" if key in seen else None)
+        if reason:
+            if reason != "DUPLICATE":
+                invalid.setdefault(ck, reason)
+            continue
+        seen.add(key)
+        valid[ck] = j
+    return valid, invalid
+
+
+def release_plan(out: Path, horizon: int, journal: list[dict] | None = None, instances: list[dict] | None = None,
+                 now: datetime | None = None, exp: str | None = None) -> dict | None:
+    """Prüfplan des Forward-Tests je Experimentversion und Horizont, einmalig beim Start der Version festgeschrieben
+    (`release_checkpoints/<h>d_<experiment_id>_plan.json`, create-only, nie überschrieben): Start = Signaltag der
+    ersten gültig festgehaltenen Lern-Entscheidung, feste Kalender-Offsets, Datenstichtage und Teil-Alphas. Spätere
+    Änderungen an Konstanten ändern einen bestehenden Plan nicht. Ohne gültige Entscheidung kein Plan; ein
+    unlesbarer oder veränderter Plan sperrt die Freigabe (None) und wird nie still neu angelegt."""
+    exp = exp or experiment_id()
+    path = out / RELEASE_DIR / f"{horizon}d_{exp}_plan.json"
+    if path.exists():
+        try:
+            plan = json.loads(path.read_text(encoding="utf-8"))
+            if plan["plan_sha256"] != _digest({k: v for k, v in plan.items() if k != "plan_sha256"}):
+                raise ValueError("Prüfsumme weicht ab")
+            return plan
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+            log.warning("option_learner: Prüfplan %s unlesbar oder verändert (%s) – Freigabe gesperrt", path, exc)
+            return None
+    reg = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
+    valid = _learning_decisions(journal or [], exp, reg, horizon)[0]
+    if not valid:
+        return None
+    first = min(valid, key=lambda ck: (str(ck[0]), str(ck[1])))
+    start, days = date.fromisoformat(str(first[0])), release_look_days(horizon)
+    cutoffs = [(start + timedelta(days=d)).isoformat() for d in days]
+    plan = {"experiment_id": exp, "horizon": horizon, "start_date": start.isoformat(),
+            "first_decision": f"{first[0]}|{first[1]}",
+            "registered_at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds"),
+            "look_fractions": [round(f, 6) for f in RELEASE_LOOK_FRACTIONS], "look_days": days, "cutoffs": cutoffs,
+            "ready_after": [(date.fromisoformat(c) + timedelta(days=horizon + DUE_GRACE_DAYS + 1)).isoformat()
+                            for c in cutoffs],
+            "total_alpha": RELEASE_ALPHA, "spending": "O'Brien-Fleming (Lan-DeMets)",
+            "look_alpha": [round(a, 10) for a in obrien_fleming_spending(RELEASE_ALPHA)],
+            "ci_method": "Mittel ± z·Block-Bootstrap-Standardfehler über unabhängige Haltefenster",
+            "min_coverage": MIN_COVERAGE,
+            "coverage_denominator": "alle Ledger-Kandidaten im Prüfzeitraum [Start, Stichtag], je Aktie und Tag einer",
+            "evidence": EVIDENCE}
+    plan["plan_sha256"] = _digest(plan)
+    atomic_write_json(path, plan, indent=1)
+    return plan
+
+
+def _freeze_versioned(directory: Path, stem: str, input_sha: str, build, now: datetime) -> dict:
+    """Bericht unveränderlich einfrieren (create-only), versioniert wie die Prüfberichte der Varianten: gleiche
+    Eingangsdaten (input_sha256) -> der bestehende Bericht gilt unverändert (nichts wird neu getestet); abweichende
+    (nachgelieferte oder korrigierte Daten des festen Prüfzeitraums) -> neue Fassung _v<n+1> mit `supersedes` und
+    Grund. Frühere Fassungen bleiben unverändert; maßgeblich ist die neueste."""
+    versions = sorted(directory.glob(f"{stem}_v*.json"), key=lambda p: int(p.stem.rsplit("_v", 1)[1])) \
+        if directory.exists() else []
+    latest = _read_json(versions[-1]) if versions else None
+    intact = bool(latest) and latest.get("report_sha256") == _digest(
+        {k: v for k, v in latest.items() if k != "report_sha256"})
+    if intact and latest.get("input_sha256") == input_sha:
+        return latest
+    report, ver = build(), len(versions) + 1
+    rec = {**report, "input_sha256": input_sha, "report_id": f"{stem}_v{ver}", "version": ver,
+           "created_at": now.isoformat(timespec="seconds"),
+           "supersedes": versions[-1].stem if versions else None,
+           "correction_reason": None if not versions else
+           (f"Eingangsdaten seit {versions[-1].stem} geändert (Population {latest.get('n_population')} -> "
+            f"{report.get('n_population')}, Entscheidungen {len(latest.get('decision_ids') or [])} -> "
+            f"{len(report.get('decision_ids') or [])}, Labels {len(latest.get('label_ids') or [])} -> "
+            f"{len(report.get('label_ids') or [])})" if intact else "Vorfassung unlesbar oder verändert")}
+    rec["report_sha256"] = _digest(rec)
+    path = directory / f"{rec['report_id']}.json"
+    if path.exists():                                   # nie überschreiben
+        raise FileExistsError(path)
+    atomic_write_json(path, rec, indent=1)
+    return rec
+
+
+FORWARD_KEYS = ("n", "dates", "independent_periods", "mean_all", "ic_mean", "ic_t", "n_selected", "selected_dates",
+                "mean_selected", "selected_ci95", "trades", "abstained", "unevaluable", "coverage",
+                "mean_selected_unevaluable_as_loss", "chosen_forms", "by_expression", "representativeness",
+                "experiment_id", "valid_decisions", "valid_predictions", "pending_decisions", "model_instances",
+                "excluded")
+
+
+def _release_look(plan: dict, k: int, journal: list[dict], cands: list[dict], horizon: int, reg: dict,
+                  instances: list[dict], as_of: date) -> tuple[str, object]:
+    """Prüfung k auf ihrer festen Population: ALLE Ledger-Kandidaten im Prüfzeitraum [Start, Stichtag k], je Aktie
+    und Tag einer (der erste nach Signal-ID) – unabhängig davon, ob eine Entscheidung oder ein Ergebnis vorliegt.
+    Ausfälle: fehlende (NO_DECISION) oder ungültige Entscheidungen (z. B. LATE_PREDICTION) und gehandelte Formen
+    ohne geprüftes Ergebnis (z. B. EXIT_NOT_ARCHIVED). Ausgewertet wird wie im Forward-Test (forward), geurteilt mit
+    dem KI zum Teil-Alpha der Prüfung. Gibt (Hash der Eingangsdaten, Bericht-Erzeuger) zurück."""
+    exp, start, cutoff = plan["experiment_id"], plan["start_date"], plan["cutoffs"][k - 1]
+    alpha = float(plan["look_alpha"][k - 1])
+    pop, seen = [], set()
+    for c in sorted(cands, key=lambda c: (c["date"], c["ticker"], str(c["signal_id"]))):
+        if start <= c["date"] <= cutoff and (c["date"], c["ticker"]) not in seen:
+            seen.add((c["date"], c["ticker"]))
+            pop.append(c)
+    keys = {(c["date"], c["signal_id"]) for c in pop}
+    entries = [j for j in journal if isinstance(j, dict) and j.get("horizon") == horizon
+               and j.get("role", "learning") == "learning" and (j.get("date"), j.get("signal_id")) in keys]
+    used = sorted({str(j.get("model_id")) for j in entries})
+    input_sha = _digest({"plan": plan["plan_sha256"], "look": k, "entries": entries,
+                         "instances": [reg.get(m) for m in used],
+                         "population": [[c["date"], c["signal_id"], c["ticker"],
+                                         [[e["contract"], e["strategy"], e["status"], e["y"]] for e in c["exprs"]]]
+                                        for c in pop]})
+
+    def build() -> dict:
+        valid, invalid = _learning_decisions(entries, exp, reg, horizon)
+        fw = forward(entries, pop, horizon, instances, as_of, exp)
+        failures, sel, labels = defaultdict(int), defaultdict(list), []
+        for c in pop:
+            ck = (c["date"], c["signal_id"])
+            j = valid.get(ck)
+            if j is None:
+                failures[invalid.get(ck, "NO_DECISION")] += 1
+                continue
+            if j.get("action") != "TRADE":
+                continue
+            e = realized(c, j.get("contract"))
+            if e is None or e["status"] != "VERIFIED":
+                failures[e["status"] if e else "CONTRACT_NOT_IN_CANDIDATE"] += 1
+                continue
+            sel[c["date"]].append(e["y"])
+            labels.append(f"{c['date']}|{c['signal_id']}|{'/'.join(e['contract'])}|{e['label_day']}")
+        covered = len(pop) - sum(failures.values())
+        pop_cov = round(covered / len(pop), 4) if pop else None
+        ci = _block_bootstrap_ci(sel, horizon, alpha=alpha, method="normal") if sel else None
+        if _insufficient(fw):
+            verdict = "NEED_MORE_DATA"
+        elif (fw["coverage"] or 0) < MIN_COVERAGE or (pop_cov or 0) < MIN_COVERAGE:
+            verdict = "INSUFFICIENT_COVERAGE"
+        elif ci and ci[1] < 0:
+            verdict = "FORWARD_NEGATIVE"
+        else:
+            verdict = "FORWARD_POSITIVE" if ci and ci[0] > 0 else "INCONCLUSIVE"
+        level = round(1 - alpha, 10)
+        seq = {"look": k, "looks": len(plan["cutoffs"]), "look_day": plan["look_days"][k - 1], "start_date": start,
+               "data_cutoff": cutoff, "look_alpha": alpha, "ci_level": level, "experiment_id": exp,
+               "plan_sha256": plan["plan_sha256"]}
+        return {"experiment_id": exp, "horizon": horizon, **{x: seq[x] for x in ("look", "looks", "look_day")},
+                "start_date": start, "data_cutoff": cutoff, "evaluated_as_of": as_of.isoformat(),
+                "plan_sha256": plan["plan_sha256"],
+                "model_ids": sorted({str(valid[ck].get("model_id")) for ck in valid}),
+                "decision_ids": sorted(f"{d}|{s}" for d, s in valid), "label_ids": sorted(labels),
+                "n_population": len(pop), "n_covered": covered, "population_coverage": pop_cov,
+                "failures": dict(sorted(failures.items())),
+                "alpha": {"total_alpha": plan["total_alpha"], "spending": plan["look_alpha"], "look_alpha": alpha,
+                          "ci_level": level, "method": "normal"},
+                "forward": {**{x: fw.get(x) for x in FORWARD_KEYS}, "verdict": verdict,
+                            "single_test_verdict_95": fw["verdict"],
+                            "selected_ci": [round(v, 6) for v in ci] if ci else None, "ci_level": level,
+                            "population": len(pop), "population_coverage": pop_cov,
+                            "failures": dict(sorted(failures.items())), "sequential": seq},
+                "release_status": "RELEASE_ELIGIBLE" if verdict == "FORWARD_POSITIVE" else
+                "NEED_MORE_DATA" if verdict in ("NEED_MORE_DATA", "INSUFFICIENT_COVERAGE") else "NO_RELEASE"}
+    return input_sha, build
+
+
+def release_checkpoint(out: Path, journal: list[dict], cands: list[dict], horizon: int,
+                       instances: list[dict] | None = None, as_of: date | None = None, now: datetime | None = None,
+                       exp: str | None = None) -> dict:
+    """Forward-Evidenz für die Freigabe (sequenziell gültig): der eingefrorene Bericht des letzten abgeschlossenen
+    Prüfzeitpunkts des Prüfplans (release_plan). Prüfung k ist abgeschlossen, sobald alle Kandidaten bis zu ihrem
+    Stichtag fällig sind; eine verpasste frühere Prüfung wird zuerst nachgeholt und eingefroren. Zwischen zwei
+    Prüfzeitpunkten wird nichts neu getestet: bei unveränderten Eingangsdaten gilt der bestehende Bericht, Daten nach
+    dem Stichtag fließen erst in die nächste Prüfung ein. Vor der ersten Prüfung (oder ohne Plan) NEED_MORE_DATA."""
+    exp = exp or experiment_id()
+    now = now or datetime.now(timezone.utc)
+    as_of = as_of or now.date()
+    plan = release_plan(out, horizon, journal, instances, now, exp)
+    reg = {i.get("model_id"): i for i in instances or [] if isinstance(i, dict)}
+    cutoffs = (plan or {}).get("cutoffs") or []
+    ready = max((k for k, c in enumerate(cutoffs, 1) if _due(c, as_of, horizon)), default=0)
+    nxt = next(({"look": k, "cutoff": c, "ready_after": plan["ready_after"][k - 1]}
+                for k, c in enumerate(cutoffs, 1) if k > ready), None)
+    summary = {k: plan[k] for k in ("start_date", "look_days", "cutoffs", "ready_after", "look_alpha",
+                                    "total_alpha", "plan_sha256")} if plan else None
+    base = {"experiment_id": exp, "horizon": horizon, "plan": summary, "looks": len(cutoffs), "next_look": nxt}
+    if not ready:
+        invalid = plan is None and (out / RELEASE_DIR / f"{horizon}d_{exp}_plan.json").exists()
+        state = "PLAN_INVALID" if invalid else "NO_PLAN" if plan is None else "BEFORE_FIRST_CHECKPOINT"
+        reason = {"PLAN_INVALID": "Prüfplan unlesbar oder verändert – Freigabe gesperrt",
+                  "NO_PLAN": "kein Prüfplan: noch keine gültig festgehaltene Lern-Entscheidung dieser Experimentversion",
+                  "BEFORE_FIRST_CHECKPOINT": f"vor dem ersten Prüfzeitpunkt (Stichtag {cutoffs[0] if cutoffs else '-'}, "
+                                             f"auswertbar ab {plan['ready_after'][0] if plan else '-'})"}[state]
+        return {**base, "state": state, "look": 0,
+                "report": None, "release_status": "NEED_MORE_DATA",
+                "forward": {"verdict": "NEED_MORE_DATA", "experiment_id": exp,
+                            "sequential": {"look": 0, "looks": len(cutoffs), "reason": reason}}}
+    d, report = out / RELEASE_DIR, None
+    for k in range(1, ready + 1):
+        stem = f"{horizon}d_{exp}_look{k}"
+        if k < ready and d.exists() and any(d.glob(f"{stem}_v*.json")):
+            continue                                    # abgelöste frühere Prüfung: bleibt wie eingefroren
+        input_sha, build = _release_look(plan, k, journal, cands, horizon, reg, instances or [], as_of)
+        report = _freeze_versioned(d, stem, input_sha, build, now)
+    fw = report["forward"]
+    return {**base, "state": "CHECKPOINT", "look": ready, "data_cutoff": cutoffs[ready - 1],
+            "report": {"report_id": report["report_id"], "version": report["version"],
+                       "corrected": report["version"] > 1, "created_at": report["created_at"]},
+            "release_status": report["release_status"],
+            "forward": {**fw, "sequential": {**fw["sequential"], "report_id": report["report_id"],
+                                             "version": report["version"]}}}
 
 
 def _load(as_of: date, horizon: int, ledger: Path, quotes: Path, counts: dict | None = None):
@@ -879,6 +1161,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
     mine = [i for i in instances if i.get("horizon") == horizon and i.get("experiment_id") == status["experiment_id"]]
     status["model_instances"] = {"count": len(mine), "latest": {k: v for k, v in mine[-1].items() if k != "features"}
                                  if mine else None}
+    status["forward_checkpoint"] = release_checkpoint(out, journal, cands, horizon, instances, as_of)
     status["reference"] = reference(out, horizon)[1]
     hist_path = out / f"status_history_{horizon}d.jsonl"
     history = read_jsonl(hist_path) if hist_path.exists() else []
@@ -942,7 +1225,16 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     new = [j for j in new + decisions if _jkey(j) not in done]
     if new:
         append_jsonl(out / JOURNAL, new)
-    gate = release_gate(wf, fw)                 # fail closed, auch wenn ein Bericht fehlt oder unvollständig ist
+    # Forward-Evidenz der Freigabe: eingefrorener Bericht des letzten abgeschlossenen, vorab festgelegten
+    # Prüfzeitpunkts – nie der heute neu gerechnete Forward-Test `fw` (der bleibt beschreibend).
+    try:
+        cp = release_checkpoint(out, journal + new, cands, horizon,
+                                read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else [], day, now)
+    except Exception as exc:  # noqa: BLE001 – ohne lesbaren Prüfbericht bleibt die Freigabe gesperrt
+        log.warning("option_learner: Forward-Prüfung nicht auswertbar (%s) – Freigabe gesperrt", exc)
+        cp = {"state": "ERROR", "look": 0, "forward": {"verdict": "NEED_MORE_DATA", "sequential": {
+            "look": 0, "reason": f"Prüfbericht nicht auswertbar ({type(exc).__name__}: {exc})"}}}
+    gate = release_gate(wf, cp["forward"])      # fail closed, auch wenn ein Bericht fehlt oder unvollständig ist
     best = {}
     for d in sorted((d for d in decisions if d["action"] == "TRADE"), key=lambda d: -d["pred_net"]):
         best.setdefault(d["ticker"], d)          # je Aktie höchstens eine Empfehlung
@@ -951,7 +1243,7 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     result = {"date": day.isoformat(), "horizon": horizon, "model_available": model is not None,
               "experiment_id": exp, "model_id": inst and inst["model_id"],
               "reference_model_id": ref_meta and ref_meta["model_id"], "verified_labels": len(data),
-              "walk_forward": wf, "forward": fw, "release": gate,
+              "walk_forward": wf, "forward": fw, "forward_checkpoint": cp, "release": gate,
               "mail_eligible": horizon == MAIL_HORIZON and bool(recs),
               "recommendations": recs, "watchlist": [] if recs else watch,
               "journaled": len(new), "decisions": len(decisions),
@@ -966,8 +1258,23 @@ def _fmt(v, pct=True):
     return "n/a" if v is None else (f"{v * 100:+.1f} %" if pct else f"{v:.2f}")
 
 
+def _checkpoint_text(cp: dict | None) -> str:
+    """Kurzbeschreibung der sequenziellen Forward-Prüfung (maßgeblich für die Freigabe)."""
+    cp = cp or {}
+    fw, nxt = cp.get("forward") or {}, cp.get("next_look") or {}
+    later = f"; nächste Prüfung {nxt['look']}/{cp.get('looks')} ab {nxt['ready_after']}" if nxt else ""
+    if not cp.get("look"):
+        return f"**{fw.get('verdict', 'NEED_MORE_DATA')}** – {(fw.get('sequential') or {}).get('reason', 'kein Prüfplan')}"
+    seq = fw.get("sequential") or {}
+    return (f"**{fw.get('verdict')}** – Prüfzeitpunkt {cp['look']}/{cp.get('looks')} (Stichtag {seq.get('data_cutoff')}, "
+            f"Bericht {seq.get('report_id')}), Teil-Alpha {seq.get('look_alpha')}, gewählt n={fw.get('n_selected')}, "
+            f"Ø netto {_fmt(fw.get('mean_selected'))}, KI {fw.get('selected_ci')}, Abdeckung aller fälligen Kandidaten "
+            f"{fw.get('population_coverage')}{later}")
+
+
 def render(res: dict) -> str:
-    gate = res.get("release") or release_gate(res.get("walk_forward"), res.get("forward"))
+    gate = res.get("release") or release_gate(res.get("walk_forward"), (res.get("forward_checkpoint") or {}).get(
+        "forward"))
     wf, fw = (defaultdict(lambda: None, res.get(k) or {"verdict": "FEHLT"}) for k in ("walk_forward", "forward"))
     early = res["horizon"] != MAIL_HORIZON
     lines = [f"# Options-Lernmodell – {res['date']} ({res['horizon']} T)", "",
@@ -981,7 +1288,9 @@ def render(res: dict) -> str:
                f"Ø netto {_fmt(wf['mean_selected'])} (alle Formen {_fmt(wf['mean_all'])}), "
                f"95-%-KI {wf['selected_ci95']}, Rang-IC {wf['ic_mean']} (t {wf['ic_t']}), "
                f"Abdeckung {wf['coverage']}"),
-              (f"- Forward (vorab festgehaltene Entscheidungen): **{fw['verdict']}** – Tage {fw['dates']} "
+              (f"- Forward-Prüfung (vorab festgelegte Prüfzeitpunkte, maßgeblich für die Freigabe): "
+               f"{_checkpoint_text(res.get('forward_checkpoint'))}"),
+              (f"- Forward laufend (täglich, nur beschreibend – keine Freigabe): {fw['verdict']} – Tage {fw['dates']} "
                f"({fw['independent_periods']} unabhängige Perioden), gewählt n={fw['n_selected']}, "
                f"Ø netto {_fmt(fw['mean_selected'])}, Abdeckung {fw['coverage']}"),
               f"- Freigabe: **{'erteilt' if gate['allowed'] else 'gesperrt'}**",
@@ -995,7 +1304,7 @@ def render(res: dict) -> str:
     if warnings:
         lines += ["Evidenzbasis – Einschränkungen:", *[f"- {w}" for w in warnings], ""]
     if res["recommendations"]:
-        lines += ["## Empfehlungen (Walk-Forward validiert, Forward positiv bestätigt)", "",
+        lines += ["## Empfehlungen (Walk-Forward validiert, Forward an einem Prüfzeitpunkt positiv bestätigt)", "",
                   "| Ticker | Strategie | Form | Kontrakt | Ask / Mid (Entscheidung) | erwartet netto |",
                   "|---|---|---|---|---|---|"]
         lines += [f"| {i['ticker']} | {i['strategy']} | {i['expression']} | {' / '.join(i['contract'])} | "
@@ -1045,7 +1354,9 @@ def _answers(st: dict) -> dict:
     gates = {k: v for k, v in (st.get("by_gate") or {}).items() if v.get("sufficient")}
     gate_text = "; ".join(f"{k} {_fmt(v['mean'])} (n={v['n']})"
                           for k, v in sorted(gates.items(), key=lambda kv: -kv[1]["mean"]))
-    gate = release_gate(wf, fw)
+    cp = st.get("forward_checkpoint") or {}
+    cpf = cp.get("forward") or {}
+    gate = release_gate(wf, cpf or None)
     latest = (st.get("model_instances") or {}).get("latest") or {}
     inst_count = (st.get("model_instances") or {}).get("count", 0)
     return {
@@ -1062,8 +1373,9 @@ def _answers(st: dict) -> dict:
                       "offen" if not base.get("days") else "Nein",
                       (f"je Kandidat und Tag (gleiches Budget, {base.get('days', 0)} Tage, retrospektiv): Modell "
                        f"{_fmt(base.get('model'))} vs. alles {_fmt(base['trade_all'])} vs. nie 0 %")),
-        "forward": ({"FORWARD_POSITIVE": "Ja", "FORWARD_NEGATIVE": "Nein"}.get(fw["verdict"], "offen"),
-                    (f"{fw['verdict']}, {fw['n']} fällige vorab festgehaltene Entscheidungen, "
+        "forward": ({"FORWARD_POSITIVE": "Ja", "FORWARD_NEGATIVE": "Nein"}.get(cpf.get("verdict"), "offen"),
+                    (f"sequenziell (maßgeblich): {_checkpoint_text(cp)}; laufend (beschreibend): {fw['verdict']}, "
+                     f"{fw['n']} fällige vorab festgehaltene Entscheidungen, "
                      f"{fw.get('pending_decisions', 0)} noch nicht fällig")),
         "experiment": ("Ja" if fw.get("valid_decisions") else "offen",
                        f"Version {st.get('experiment_id')}; {inst_count} Modellinstanzen"
@@ -1086,7 +1398,8 @@ def _answers(st: dict) -> dict:
                            rep_text if rep.get("by_sample") else "noch keine bewerteten Entscheidungen"),
         "gates": ("offen" if not gates else "Ja",
                   gate_text or f"noch keine Gruppe mit >= {MIN_GATE_N} Labels an >= {MIN_GATE_DATES} Tagen"),
-        "proven": ("Ja" if gate["allowed"] else "Nein", "nur bei VALIDATED und FORWARD_POSITIVE samt Mindestzahlen"),
+        "proven": ("Ja" if gate["allowed"] else "Nein", "nur bei VALIDATED und FORWARD_POSITIVE an einem vorab "
+                                                        "festgelegten Prüfzeitpunkt samt Mindestzahlen und Abdeckung"),
         "self_limit": ("Ja", "Empfehlungen freigegeben" if gate["allowed"] else
                        f"Empfehlungen gesperrt ({len(gate['reasons'])} offene Bedingungen, z. B. "
                        f"{gate['reasons'][0]})"),
@@ -1131,7 +1444,8 @@ def mail(res: dict) -> dict | None:
     """Mail nur bei echten Empfehlungen des Hauptmodells; die Freigabe wird hier erneut geprüft (fail closed) –
     keine tägliche Nullmeldung, keine Mail für den 5-Tage-Frühindikator."""
     if (res.get("horizon") != MAIL_HORIZON or not res.get("recommendations")
-            or not release_gate(res.get("walk_forward"), res.get("forward"))["allowed"]):
+            or not release_gate(res.get("walk_forward"), (res.get("forward_checkpoint") or {}).get("forward"))[
+                "allowed"]):
         return None
     from modules import mailer
     text = render(res)
