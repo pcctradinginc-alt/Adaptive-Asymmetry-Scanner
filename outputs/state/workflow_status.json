@@ -1258,6 +1258,74 @@
         "reason": null,
         "state": "OK"
       }
+    },
+    "2026-10-31": {
+      "external_data": {
+        "file": "external_data.yml",
+        "expected": "2026-10-31T06:17+00:00",
+        "deadline": "2026-10-31T16:17+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "source_health": {
+        "file": "source_health.yml",
+        "expected": "2026-10-31T12:41+00:00",
+        "deadline": "2026-10-31T15:41+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "scanner": {
+        "file": "scanner.yml",
+        "expected": "2026-10-31T13:30+00:00",
+        "deadline": "2026-10-31T17:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [
+          "source_health"
+        ],
+        "reason": null,
+        "state": "NOT_SCHEDULED"
+      },
+      "feedback": {
+        "file": "feedback.yml",
+        "expected": "2026-10-31T15:30+00:00",
+        "deadline": "2026-10-31T23:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": null,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "NOT_SCHEDULED"
+      }
     }
   },
   "recoveries": {
