@@ -1,0 +1,34 @@
+{
+  "as_of": "2026-10-31",
+  "by_strategy": {},
+  "evaluated_at": "2026-10-31T14:49:59+00:00",
+  "excluded_by_reason": {
+    "entry_or_exit_quote_missing": 3,
+    "not_rth_reproducible": 3,
+    "pre_registration": 4,
+    "quote_not_from_execution_day": 1,
+    "quote_quality_flags": 3
+  },
+  "forward_start": "2026-10-29",
+  "missing_quote_days": [
+    "2026-08-31",
+    "2026-09-24",
+    "2026-10-06"
+  ],
+  "n_closed_rows": 4,
+  "n_distinct_trades": 4,
+  "n_distinct_verified_entry_dates": 0,
+  "n_unverified_or_pre_registration": 4,
+  "n_verified_post_registration": 0,
+  "net_mean_verified": null,
+  "net_median_verified": null,
+  "production_influence": "NONE",
+  "prospective_alpha_validated": false,
+  "reason": "Real outcomes have no frozen ex-ante alpha ID/signal link; cost model omits some fees.",
+  "research_eligible": false,
+  "sample_floor_reached": false,
+  "schema": "alpha-options-forward-v1",
+  "source": "outputs/options_archive/trade_outcomes.jsonl",
+  "source_state": "PRESENT",
+  "strategy_alpha_status": "NOT_ATTRIBUTABLE"
+}

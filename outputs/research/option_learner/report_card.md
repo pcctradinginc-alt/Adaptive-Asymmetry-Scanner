@@ -1,0 +1,20 @@
+# Leistungszeugnis Options-Lernmodell – 2026-10-31
+
+| Frage | 20 Tage | 5 Tage |
+|---|---|---|
+| Werden Daten automatisch gesammelt? | **Ja** – 1785 Kandidaten, 107 mit Optionskontrakt (7 T) | **Ja** – 1785 Kandidaten, 107 mit Optionskontrakt (7 T) |
+| Sind die Options-Ergebnisse gegen das Quote-Archiv geprüft? | **Nein** – 0/308 fällige Labels geprüft | **Teilweise** – 359/667 fällige Labels geprüft |
+| Lernt das System aus geprüften Options-Ergebnissen? | **offen** – 0 geprüfte Labels, Manifest e3b0c44298fc1c14 | **Ja** – 359 geprüfte Labels, Manifest bfa297eef5341a67 |
+| Ist das Modell auf ungesehenen Tagen validiert? | **offen** – NEED_MORE_DATA, 0 Testtage, 0 unabhängige Perioden, Abdeckung None | **offen** – NEED_MORE_DATA, 0 Testtage, 0 unabhängige Perioden, Abdeckung None |
+| Schlägt es 'nie handeln' und 'alles handeln'? | **offen** – je Kandidat und Tag (gleiches Budget, 0 Tage, retrospektiv): Modell n/a vs. alles n/a vs. nie 0 % | **offen** – je Kandidat und Tag (gleiches Budget, 0 Tage, retrospektiv): Modell n/a vs. alles n/a vs. nie 0 % |
+| Bestätigt es sich auf vorab festgehaltenen Prognosen? | **offen** – NEED_MORE_DATA, 0 fällige vorab festgehaltene Entscheidungen, 0 noch nicht fällig | **offen** – NEED_MORE_DATA, 0 fällige vorab festgehaltene Entscheidungen, 0 noch nicht fällig |
+| Ist das an vorab festgelegten Prüfzeitpunkten statistisch korrekt bestätigt (kein tägliches Nachprüfen bis zum Zufallstreffer)? | **offen** – kein Prüfplan (wird beim nächsten Scanner-Lauf vorab festgelegt) | **offen** – kein Prüfplan (wird beim nächsten Scanner-Lauf vorab festgelegt) |
+| Welche Experimentversion und Modellinstanzen stehen dahinter (ausgeschlossene Prognosen)? | **offen** – Version 4a0f886d1979; 0 Modellinstanzen; gültige Forward-Entscheidungen 0 (Prognosen 0); ausgeschlossen: keine | **offen** – Version 4a0f886d1979; 0 Modellinstanzen; gültige Forward-Entscheidungen 0 (Prognosen 0); ausgeschlossen: OTHER_EXPERIMENT 40 |
+| Entscheidet die lernende Version besser als die eingefrorene Referenz (gleiche Signale)? | **offen** – Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, Δ n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (Δ n/a); Verlauf: 10-31 NEED_MORE_DATA n/a | **offen** – Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, Δ n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (Δ n/a); Verlauf: 10-31 NEED_MORE_DATA n/a |
+| Welche Optionsform schneidet ab, was bringt die Wahl des Modells (Ø netto, ungesehen)? | **offen** – noch keine Testtage | **offen** – noch keine Testtage |
+| Ist die Evidenz repräsentativ (Forschung vs. Richtungssignale, Zeitraum)? | **offen** – noch keine bewerteten Entscheidungen | **offen** – noch keine bewerteten Entscheidungen |
+| Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)? | **offen** – noch keine Gruppe mit >= 20 Labels an >= 10 Tagen | **offen** – noch keine Gruppe mit >= 20 Labels an >= 10 Tagen |
+| Ist eine profitable Optionsstrategie nachgewiesen? | **Nein** – nur bei VALIDATED, FORWARD_POSITIVE und sequenzieller Bestätigung samt Mindestzahlen | **Nein** – nur bei VALIDATED, FORWARD_POSITIVE und sequenzieller Bestätigung samt Mindestzahlen |
+| Begrenzt es sich selbst? | **Ja** – Empfehlungen gesperrt (16 offene Bedingungen, z. B. walk_forward: NEED_MORE_DATA (verlangt VALIDATED)) | **Ja** – Empfehlungen gesperrt (16 offene Bedingungen, z. B. walk_forward: NEED_MORE_DATA (verlangt VALIDATED)) |
+| Welche Lücken erkennt es selbst (Daten, Modell, Evidenz)? | **Ja** – 1 Lücke(n), zuerst: NEED_MORE_DATA – walk_forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle; Vorschläge: 0 automatisch testbar, 0 zur Freigabe | **Ja** – 4 Lücke(n), zuerst: Merkmal news_novelty nur in 0% der 359 geprüften Labels befüllt – vom Modell verworfen; Vorschläge: 8 automatisch testbar, 1 zur Freigabe |
+| Welche Verbesserungen testet es selbst – mit welchem Ergebnis? | **offen** – noch keine Variante registriert; Fehlerbudget 0/20 Tests verbraucht | **offen** – noch keine Variante registriert; Fehlerbudget 0/20 Tests verbraucht |

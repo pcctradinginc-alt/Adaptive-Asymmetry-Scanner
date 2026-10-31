@@ -1,0 +1,202 @@
+{
+ "as_of": "2026-10-31",
+ "horizons": [
+  20,
+  5
+ ],
+ "rows": [
+  {
+   "key": "data",
+   "question": "Werden Daten automatisch gesammelt?",
+   "20d": [
+    "Ja",
+    "1785 Kandidaten, 107 mit Optionskontrakt (7 T)"
+   ],
+   "5d": [
+    "Ja",
+    "1785 Kandidaten, 107 mit Optionskontrakt (7 T)"
+   ]
+  },
+  {
+   "key": "provenance",
+   "question": "Sind die Options-Ergebnisse gegen das Quote-Archiv gepr\u00fcft?",
+   "20d": [
+    "Nein",
+    "0/308 f\u00e4llige Labels gepr\u00fcft"
+   ],
+   "5d": [
+    "Teilweise",
+    "359/667 f\u00e4llige Labels gepr\u00fcft"
+   ]
+  },
+  {
+   "key": "learns",
+   "question": "Lernt das System aus gepr\u00fcften Options-Ergebnissen?",
+   "20d": [
+    "offen",
+    "0 gepr\u00fcfte Labels, Manifest e3b0c44298fc1c14"
+   ],
+   "5d": [
+    "Ja",
+    "359 gepr\u00fcfte Labels, Manifest bfa297eef5341a67"
+   ]
+  },
+  {
+   "key": "validated",
+   "question": "Ist das Modell auf ungesehenen Tagen validiert?",
+   "20d": [
+    "offen",
+    "NEED_MORE_DATA, 0 Testtage, 0 unabh\u00e4ngige Perioden, Abdeckung None"
+   ],
+   "5d": [
+    "offen",
+    "NEED_MORE_DATA, 0 Testtage, 0 unabh\u00e4ngige Perioden, Abdeckung None"
+   ]
+  },
+  {
+   "key": "baselines",
+   "question": "Schl\u00e4gt es 'nie handeln' und 'alles handeln'?",
+   "20d": [
+    "offen",
+    "je Kandidat und Tag (gleiches Budget, 0 Tage, retrospektiv): Modell n/a vs. alles n/a vs. nie 0 %"
+   ],
+   "5d": [
+    "offen",
+    "je Kandidat und Tag (gleiches Budget, 0 Tage, retrospektiv): Modell n/a vs. alles n/a vs. nie 0 %"
+   ]
+  },
+  {
+   "key": "forward",
+   "question": "Best\u00e4tigt es sich auf vorab festgehaltenen Prognosen?",
+   "20d": [
+    "offen",
+    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 0 noch nicht f\u00e4llig"
+   ],
+   "5d": [
+    "offen",
+    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 0 noch nicht f\u00e4llig"
+   ]
+  },
+  {
+   "key": "sequential",
+   "question": "Ist das an vorab festgelegten Pr\u00fcfzeitpunkten statistisch korrekt best\u00e4tigt (kein t\u00e4gliches Nachpr\u00fcfen bis zum Zufallstreffer)?",
+   "20d": [
+    "offen",
+    "kein Pr\u00fcfplan (wird beim n\u00e4chsten Scanner-Lauf vorab festgelegt)"
+   ],
+   "5d": [
+    "offen",
+    "kein Pr\u00fcfplan (wird beim n\u00e4chsten Scanner-Lauf vorab festgelegt)"
+   ]
+  },
+  {
+   "key": "experiment",
+   "question": "Welche Experimentversion und Modellinstanzen stehen dahinter (ausgeschlossene Prognosen)?",
+   "20d": [
+    "offen",
+    "Version 4a0f886d1979; 0 Modellinstanzen; g\u00fcltige Forward-Entscheidungen 0 (Prognosen 0); ausgeschlossen: keine"
+   ],
+   "5d": [
+    "offen",
+    "Version 4a0f886d1979; 0 Modellinstanzen; g\u00fcltige Forward-Entscheidungen 0 (Prognosen 0); ausgeschlossen: OTHER_EXPERIMENT 40"
+   ]
+  },
+  {
+   "key": "improves",
+   "question": "Entscheidet die lernende Version besser als die eingefrorene Referenz (gleiche Signale)?",
+   "20d": [
+    "offen",
+    "Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a"
+   ],
+   "5d": [
+    "offen",
+    "Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a"
+   ]
+  },
+  {
+   "key": "expressions",
+   "question": "Welche Optionsform schneidet ab, was bringt die Wahl des Modells (\u00d8 netto, ungesehen)?",
+   "20d": [
+    "offen",
+    "noch keine Testtage"
+   ],
+   "5d": [
+    "offen",
+    "noch keine Testtage"
+   ]
+  },
+  {
+   "key": "representative",
+   "question": "Ist die Evidenz repr\u00e4sentativ (Forschung vs. Richtungssignale, Zeitraum)?",
+   "20d": [
+    "offen",
+    "noch keine bewerteten Entscheidungen"
+   ],
+   "5d": [
+    "offen",
+    "noch keine bewerteten Entscheidungen"
+   ]
+  },
+  {
+   "key": "gates",
+   "question": "Was bringen die verworfenen Kandidaten je Filter (\u00d8 netto, beschreibend)?",
+   "20d": [
+    "offen",
+    "noch keine Gruppe mit >= 20 Labels an >= 10 Tagen"
+   ],
+   "5d": [
+    "offen",
+    "noch keine Gruppe mit >= 20 Labels an >= 10 Tagen"
+   ]
+  },
+  {
+   "key": "proven",
+   "question": "Ist eine profitable Optionsstrategie nachgewiesen?",
+   "20d": [
+    "Nein",
+    "nur bei VALIDATED, FORWARD_POSITIVE und sequenzieller Best\u00e4tigung samt Mindestzahlen"
+   ],
+   "5d": [
+    "Nein",
+    "nur bei VALIDATED, FORWARD_POSITIVE und sequenzieller Best\u00e4tigung samt Mindestzahlen"
+   ]
+  },
+  {
+   "key": "self_limit",
+   "question": "Begrenzt es sich selbst?",
+   "20d": [
+    "Ja",
+    "Empfehlungen gesperrt (16 offene Bedingungen, z. B. walk_forward: NEED_MORE_DATA (verlangt VALIDATED))"
+   ],
+   "5d": [
+    "Ja",
+    "Empfehlungen gesperrt (16 offene Bedingungen, z. B. walk_forward: NEED_MORE_DATA (verlangt VALIDATED))"
+   ]
+  },
+  {
+   "key": "gaps",
+   "question": "Welche L\u00fccken erkennt es selbst (Daten, Modell, Evidenz)?",
+   "20d": [
+    "Ja",
+    "1 L\u00fccke(n), zuerst: NEED_MORE_DATA \u2013 walk_forward: 0/20 Testtage, 0/5 Perioden, 0/30 F\u00e4lle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 F\u00e4lle; Vorschl\u00e4ge: 0 automatisch testbar, 0 zur Freigabe"
+   ],
+   "5d": [
+    "Ja",
+    "4 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 359 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 8 automatisch testbar, 1 zur Freigabe"
+   ]
+  },
+  {
+   "key": "improvements",
+   "question": "Welche Verbesserungen testet es selbst \u2013 mit welchem Ergebnis?",
+   "20d": [
+    "offen",
+    "noch keine Variante registriert; Fehlerbudget 0/20 Tests verbraucht"
+   ],
+   "5d": [
+    "offen",
+    "noch keine Variante registriert; Fehlerbudget 0/20 Tests verbraucht"
+   ]
+  }
+ ],
+ "production_influence": "NONE"
+}

@@ -1,18 +1,14 @@
 {
- "active": true,
- "reasons": [
-  "EXCESSIVE MODEL DISAGREEMENT"
- ],
+ "active": false,
+ "reasons": [],
  "components": {
   "drift": [],
-  "model": [
-   "EXCESSIVE MODEL DISAGREEMENT"
-  ],
+  "model": [],
   "data": []
  },
  "drift": {
   "feature": {
-   "level": "MODERATE",
+   "level": "MILD",
    "features_out_of_range": [
     "tnx"
    ],
@@ -21,35 +17,35 @@
     "vix": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 19.45,
+     "value": 19.42,
      "p01": 12.2374,
      "p99": 33.3101
     },
     "vix_chg_21": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 3.78,
+     "value": 3.03,
      "p01": -11.8762,
      "p99": 13.7307
     },
     "spy_trend_200": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 0.0497,
+     "value": 0.041,
      "p01": -0.1303,
      "p99": 0.1626
     },
     "spy_mom_63": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 0.0308,
+     "value": -0.0001,
      "p01": -0.1323,
      "p99": 0.1471
     },
     "tnx": {
-     "level": "MODERATE",
-     "excess": 0.056,
-     "value": 4.988,
+     "level": "MILD",
+     "excess": 0.04,
+     "value": 4.929,
      "p01": 1.0993,
      "p99": 4.7817
     },
@@ -63,14 +59,16 @@
    }
   },
   "model": {
-   "level": "NORMAL",
-   "share_deteriorating": 0.0,
-   "deteriorating": [],
+   "level": "MILD",
+   "share_deteriorating": 0.167,
+   "deteriorating": [
+    "enet_xs20_v1"
+   ],
    "n_models": 6
   }
  },
  "canonical": false,
  "see": "outputs/state/system_state.json",
  "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
- "updated": "2026-10-24T13:04:05+00:00"
+ "updated": "2026-10-31T14:49:54+00:00"
 }

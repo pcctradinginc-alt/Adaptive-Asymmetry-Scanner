@@ -1,0 +1,330 @@
+{
+ "as_of": "2026-10-31",
+ "horizon": 20,
+ "experiment": {
+  "name": "option_learner_ridge",
+  "features": {
+   "ledger": [
+    "impact",
+    "surprise",
+    "sentiment_score",
+    "sentiment_confidence",
+    "sentiment_drift",
+    "news_count",
+    "news_novelty",
+    "rel_volume",
+    "scan_day_ret",
+    "short_mom",
+    "log_market_cap",
+    "short_pct_float",
+    "options_skew_25d",
+    "options_skew_ratio",
+    "dealer_oi_ratio",
+    "ml_exp_ret_60",
+    "ml_q10_ret_60",
+    "ml_q90_ret_60",
+    "ml_exp_dd_60",
+    "ml_p_gt10_60",
+    "ml_disagreement_sd",
+    "ml_hgb_xs20_v1",
+    "ml_enet_xs20_v1"
+   ],
+   "contract": [
+    "c_entry_spread",
+    "c_is_spread",
+    "c_is_call",
+    "c_iv",
+    "c_dte",
+    "c_moneyness",
+    "c_delta",
+    "c_log_oi",
+    "c_iv_rank",
+    "c_rv_score",
+    "c_term_score"
+   ],
+   "min_coverage": 0.5
+  },
+  "label": {
+   "target": "executable return (buy ask, sell bid) - commission",
+   "provenance": "VERIFIED",
+   "sources": [
+    "real_strategy",
+    "real_option",
+    "real_option_alt"
+   ]
+  },
+  "costs": {
+   "commission_per_leg_side_usd": 0.65
+  },
+  "training": {
+   "model": "ridge",
+   "alpha": 10.0,
+   "winsor": [
+    0.01,
+    0.99
+   ],
+   "min_train_rows": 100,
+   "min_train_dates": 8,
+   "embargo": "label_day < decision day"
+  },
+  "selection": {
+   "rule": "per candidate the allowed expression with the highest prediction; TRADE if > 0, else ABSTAIN",
+   "allowed_strategies": [
+    "LONG_CALL",
+    "BULL_CALL_SPREAD"
+   ],
+   "unit": "one decision per candidate; one candidate per ticker and day"
+  }
+ },
+ "experiment_id": "4a0f886d1979",
+ "evidence_requirements": {
+  "min_oos_dates": 20,
+  "min_selected": 30,
+  "min_independent_periods": 5,
+  "ic_t_min": 2.0,
+  "bootstrap": "block/horizon",
+  "min_coverage": 0.8,
+  "due_grace_days": 10
+ },
+ "verified_labels": 0,
+ "label_dates": 0,
+ "provenance_counts": {
+  "ENTRY_NOT_ARCHIVED": 308
+ },
+ "ledger_rows_7d": 1785,
+ "option_snapshots_7d": 107,
+ "manifest": {
+  "cutoff": "2026-10-31",
+  "n_labels": 0,
+  "labels_sha256": "e3b0c44298fc1c14",
+  "first_signal": null,
+  "last_signal": null,
+  "by_expression": {},
+  "all_labels_verified": true,
+  "trains_model": false
+ },
+ "feature_coverage": {
+  "impact": 0.0,
+  "surprise": 0.0,
+  "sentiment_score": 0.0,
+  "sentiment_confidence": 0.0,
+  "sentiment_drift": 0.0,
+  "news_count": 0.0,
+  "news_novelty": 0.0,
+  "rel_volume": 0.0,
+  "scan_day_ret": 0.0,
+  "short_mom": 0.0,
+  "log_market_cap": 0.0,
+  "short_pct_float": 0.0,
+  "options_skew_25d": 0.0,
+  "options_skew_ratio": 0.0,
+  "dealer_oi_ratio": 0.0,
+  "ml_exp_ret_60": 0.0,
+  "ml_q10_ret_60": 0.0,
+  "ml_q90_ret_60": 0.0,
+  "ml_exp_dd_60": 0.0,
+  "ml_p_gt10_60": 0.0,
+  "ml_disagreement_sd": 0.0,
+  "ml_hgb_xs20_v1": 0.0,
+  "ml_enet_xs20_v1": 0.0,
+  "c_entry_spread": 0.0,
+  "c_is_spread": 0.0,
+  "c_is_call": 0.0,
+  "c_iv": 0.0,
+  "c_dte": 0.0,
+  "c_moneyness": 0.0,
+  "c_delta": 0.0,
+  "c_log_oi": 0.0,
+  "c_iv_rank": 0.0,
+  "c_rv_score": 0.0,
+  "c_term_score": 0.0
+ },
+ "walk_forward": {
+  "n": 0,
+  "dates": 0,
+  "independent_periods": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "trades": 0,
+  "abstained": 0,
+  "unevaluable": {},
+  "coverage": null,
+  "mean_selected_unevaluable_as_loss": null,
+  "chosen_forms": {},
+  "by_expression": {},
+  "vs_default": {
+   "n": 0,
+   "dates": 0,
+   "independent_periods": 0,
+   "mean_diff": null,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {},
+   "by_direction": {},
+   "span_days": 0,
+   "warnings": []
+  },
+  "verdict": "NEED_MORE_DATA",
+  "vs_reference": {
+   "candidates": 0,
+   "due_candidates": 0,
+   "coverage": null,
+   "days": 0,
+   "independent_periods": 0,
+   "ci_level": 0.95,
+   "decisions_differ": 0,
+   "excluded": {},
+   "daily_mean": {
+    "learning": null,
+    "reference": null,
+    "trade_all": null,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_trade_all": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_no_trade": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "retrospective",
+   "reference_cutoff": null
+  }
+ },
+ "baselines": {
+  "no_trade": 0.0,
+  "trade_all": null,
+  "model": null,
+  "days": 0,
+  "beats_no_trade": false,
+  "beats_trade_all": false
+ },
+ "by_gate": {},
+ "forward": {
+  "n": 0,
+  "dates": 0,
+  "independent_periods": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "trades": 0,
+  "abstained": 0,
+  "unevaluable": {},
+  "coverage": null,
+  "mean_selected_unevaluable_as_loss": null,
+  "chosen_forms": {},
+  "by_expression": {},
+  "vs_default": {
+   "n": 0,
+   "dates": 0,
+   "independent_periods": 0,
+   "mean_diff": null,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {},
+   "by_direction": {},
+   "span_days": 0,
+   "warnings": []
+  },
+  "verdict": "NEED_MORE_DATA",
+  "experiment_id": "4a0f886d1979",
+  "valid_decisions": 0,
+  "valid_predictions": 0,
+  "pending_decisions": 0,
+  "model_instances": 0,
+  "excluded": {},
+  "journal_by_experiment": {},
+  "vs_reference": {
+   "candidates": 0,
+   "due_candidates": 0,
+   "coverage": null,
+   "days": 0,
+   "independent_periods": 0,
+   "ci_level": 0.95,
+   "decisions_differ": 0,
+   "excluded": {},
+   "daily_mean": {
+    "learning": null,
+    "reference": null,
+    "trade_all": null,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_trade_all": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_no_trade": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "forward",
+   "reference_models": []
+  }
+ },
+ "forward_sequential": {
+  "experiment_id": "4a0f886d1979",
+  "horizon": 20,
+  "evaluated_as_of": "2026-10-31",
+  "looks_evaluated": [],
+  "binding": null,
+  "status": "NO_PLAN"
+ },
+ "model": null,
+ "production_influence": "NONE",
+ "orders_created": 0,
+ "model_instances": {
+  "count": 0,
+  "latest": null
+ },
+ "reference": null,
+ "variants": {
+  "horizon": 20,
+  "base_experiment_id": "4a0f886d1979",
+  "test_budget": {
+   "total_alpha": 0.05,
+   "max_tests": 20,
+   "slot_alpha": 0.0025,
+   "used": 0,
+   "remaining": 20,
+   "exhausted": false,
+   "frozen_by_registry": false
+  },
+  "variants": {}
+ },
+ "learning_trend": [
+  {
+   "as_of": "2026-10-31",
+   "verdict": "NEED_MORE_DATA",
+   "mean_diff": null
+  }
+ ],
+ "vs_previous": null
+}

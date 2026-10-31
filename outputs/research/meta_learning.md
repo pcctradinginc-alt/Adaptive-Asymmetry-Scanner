@@ -1,98 +1,98 @@
-# Meta-Learning-Validierung – 2026-10-24T13:03:43+00:00
+# Meta-Learning-Validierung – 2026-10-31T14:49:39+00:00
 
-Version meta-v1 · Panel-Hash f9747e705eb10b42 · Referenz: static_equal · Primär: meta_regime_weights · Leakage-Checks: OK
-**Entscheidung (meta_regime_weights): NEED_MORE_DATA** – nicht erfüllt: bootstrap_ci_positive, halves_positive
+Version meta-v1 · Panel-Hash 4c39bb7c6ce59193 · Referenz: static_equal · Primär: meta_regime_weights · Leakage-Checks: OK
+**Entscheidung (meta_regime_weights): NEED_MORE_DATA** – nicht erfüllt: bootstrap_ci_positive, halves_positive, not_outlier_driven
 Aktives Ensemble für Research-Signale: static_equal
 
 ## Out-of-Sample (Meta-Testjahre vor Locked)
 
 | Variante | CAGR | Sharpe | Sortino | MaxDD | Calmar | PF | Hit | Ø Gew. | Ø Verl. | Payoff | Expectancy | Brier | ECE | Prec@K | Recall stark | Turnover | Trades |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| static_equal | -0.0095 | -0.07 | -0.074 | -0.1985 | -0.048 | 0.988 | 0.4804 | 0.06221 | -0.05823 | 1.068 | -0.00037 | 0.25036 | 0.01644 | 0.2226 | 0.1201 | 0.4709 | 11006 |
-| best_single_ex_ante | -0.0204 | -0.203 | -0.225 | -0.2564 | -0.08 | 0.953 | 0.4727 | 0.0636 | -0.05978 | 1.064 | -0.00147 | 0.2507 | 0.02269 | 0.2164 | 0.1213 | 0.4949 | 11006 |
-| trailing_ic_weighted | -0.009 | -0.094 | -0.097 | -0.1671 | -0.054 | 0.978 | 0.4874 | 0.06118 | -0.0595 | 1.028 | -0.00068 | 0.2499 | 0.00185 | 0.2225 | 0.1201 | 0.4264 | 11006 |
-| meta_regime_weights | 0.0267 | 0.329 | 0.42 | -0.1428 | 0.187 | 1.092 | 0.4916 | 0.06837 | -0.06052 | 1.13 | 0.00284 | 0.25028 | 0.01382 | 0.2362 | 0.1411 | 0.4505 | 11006 |
-| meta_regime_weights__no_regime | -0.0266 | -0.218 | -0.243 | -0.2432 | -0.11 | 0.959 | 0.4709 | 0.06694 | -0.06211 | 1.078 | -0.00134 | 0.25059 | 0.01649 | 0.2222 | 0.1282 | 0.4417 | 11006 |
-| meta_regime_weights__no_failure_memory | 0.0085 | 0.133 | 0.141 | -0.1451 | 0.059 | 1.053 | 0.4941 | 0.06547 | -0.06071 | 1.078 | 0.00163 | 0.24981 | 0.00621 | 0.238 | 0.1335 | 0.4229 | 11006 |
-| meta_regime_weights__no_disagreement | 0.0098 | 0.154 | 0.18 | -0.1504 | 0.065 | 1.046 | 0.4828 | 0.06834 | -0.06098 | 1.121 | 0.00146 | 0.25028 | 0.01484 | 0.2351 | 0.1394 | 0.4482 | 11006 |
-| meta_stacking | -0.0088 | -0.052 | -0.065 | -0.2463 | -0.036 | 0.996 | 0.484 | 0.07145 | -0.06728 | 1.062 | -0.00014 | 0.25004 | 0.01476 | 0.2418 | 0.1407 | 0.4796 | 11006 |
-| meta_stacking__no_regime | -0.0023 | 0.013 | 0.015 | -0.2195 | -0.01 | 1.002 | 0.4869 | 0.06931 | -0.06567 | 1.056 | 6e-05 | 0.25028 | 0.01677 | 0.2395 | 0.1383 | 0.484 | 11006 |
-| meta_stacking__no_disagreement | -0.018 | -0.145 | -0.161 | -0.2903 | -0.062 | 0.975 | 0.4831 | 0.06674 | -0.06398 | 1.043 | -0.00083 | 0.25011 | 0.0174 | 0.2324 | 0.1307 | 0.476 | 11006 |
-| meta_stacking__no_failure_memory | -0.0138 | -0.133 | -0.176 | -0.1925 | -0.072 | 0.99 | 0.4833 | 0.06566 | -0.06201 | 1.059 | -0.00031 | 0.24996 | 0.00097 | 0.2299 | 0.133 | 0.5582 | 11006 |
-| meta_stacking__no_sector | -0.0088 | -0.052 | -0.065 | -0.2463 | -0.036 | 0.996 | 0.484 | 0.07145 | -0.06728 | 1.062 | -0.00014 | 0.25004 | 0.01476 | 0.2418 | 0.1407 | 0.4796 | 11006 |
+| static_equal | -0.0001 | 0.04 | 0.046 | -0.1945 | -0.0 | 1.009 | 0.4834 | 0.06223 | -0.05769 | 1.079 | 0.00028 | 0.25031 | 0.0155 | 0.223 | 0.1216 | 0.4669 | 11006 |
+| best_single_ex_ante | -0.0274 | -0.291 | -0.33 | -0.2597 | -0.105 | 0.934 | 0.4671 | 0.06419 | -0.06023 | 1.066 | -0.00211 | 0.25053 | 0.01952 | 0.2128 | 0.1241 | 0.4723 | 11006 |
+| trailing_ic_weighted | -0.0065 | -0.057 | -0.055 | -0.1527 | -0.042 | 0.986 | 0.4892 | 0.06192 | -0.06014 | 1.03 | -0.00043 | 0.25009 | 0.008 | 0.2275 | 0.1233 | 0.3982 | 11006 |
+| meta_regime_weights | 0.0105 | 0.159 | 0.184 | -0.1392 | 0.076 | 1.044 | 0.4813 | 0.06822 | -0.06062 | 1.125 | 0.00139 | 0.25018 | 0.01078 | 0.2335 | 0.1407 | 0.4779 | 11006 |
+| meta_regime_weights__no_regime | -0.0405 | -0.387 | -0.412 | -0.2928 | -0.138 | 0.919 | 0.4648 | 0.0645 | -0.06099 | 1.058 | -0.00266 | 0.25039 | 0.01404 | 0.2103 | 0.1217 | 0.4585 | 11006 |
+| meta_regime_weights__no_failure_memory | 0.0121 | 0.173 | 0.183 | -0.1429 | 0.085 | 1.059 | 0.4886 | 0.06558 | -0.05913 | 1.109 | 0.0018 | 0.24989 | 0.00866 | 0.2336 | 0.1326 | 0.4268 | 11006 |
+| meta_regime_weights__no_disagreement | 0.0215 | 0.297 | 0.382 | -0.136 | 0.158 | 1.071 | 0.4876 | 0.068 | -0.06044 | 1.125 | 0.00219 | 0.24998 | 0.01032 | 0.2349 | 0.1424 | 0.4756 | 11006 |
+| meta_stacking | 0.01 | 0.155 | 0.167 | -0.2701 | 0.037 | 1.038 | 0.4872 | 0.06906 | -0.06323 | 1.092 | 0.00122 | 0.25002 | 0.00906 | 0.2448 | 0.1389 | 0.5123 | 11006 |
+| meta_stacking__no_regime | -0.0121 | -0.089 | -0.11 | -0.2703 | -0.045 | 0.985 | 0.4803 | 0.07015 | -0.06582 | 1.066 | -0.00052 | 0.25004 | 0.01348 | 0.2391 | 0.1379 | 0.5129 | 11006 |
+| meta_stacking__no_disagreement | -0.0192 | -0.167 | -0.195 | -0.3109 | -0.062 | 0.969 | 0.4782 | 0.06953 | -0.06577 | 1.057 | -0.00107 | 0.24997 | 0.01051 | 0.2371 | 0.1383 | 0.4434 | 11006 |
+| meta_stacking__no_failure_memory | -0.0149 | -0.16 | -0.191 | -0.1926 | -0.078 | 0.985 | 0.4766 | 0.06625 | -0.06126 | 1.081 | -0.00048 | 0.24987 | 0.00101 | 0.2252 | 0.1261 | 0.6052 | 11006 |
+| meta_stacking__no_sector | 0.01 | 0.155 | 0.167 | -0.2701 | 0.037 | 1.038 | 0.4872 | 0.06906 | -0.06323 | 1.092 | 0.00122 | 0.25002 | 0.00906 | 0.2448 | 0.1389 | 0.5123 | 11006 |
 
 ## Deltas gegenüber Referenz (Bootstrap, Bonferroni)
 
-- **best_single_ex_ante**: Δ Sharpe -0.133, Δ Expectancy -0.0011, Δ MaxDD -0.0579, Δ PF -0.035, Δ Hit -0.0077, Δ Brier 0.00034, Δ ECE 0.00625, Δ Prec@K -0.0062 · Monats-Δ -0.000934 CI [-0.004237, 0.00243]
-- **trailing_ic_weighted**: Δ Sharpe -0.024, Δ Expectancy -0.00031, Δ MaxDD 0.0314, Δ PF -0.01, Δ Hit 0.007, Δ Brier -0.00046, Δ ECE -0.01459, Δ Prec@K -0.0001 · Monats-Δ -5.4e-05 CI [-0.003688, 0.003574]
-- **meta_regime_weights**: Δ Sharpe 0.399, Δ Expectancy 0.00321, Δ MaxDD 0.0557, Δ PF 0.104, Δ Hit 0.0112, Δ Brier -8e-05, Δ ECE -0.00262, Δ Prec@K 0.0136 · Monats-Δ 0.003037 CI [-0.000297, 0.006434]
-- **meta_regime_weights__no_regime**: Δ Sharpe -0.148, Δ Expectancy -0.00097, Δ MaxDD -0.0447, Δ PF -0.029, Δ Hit -0.0095, Δ Brier 0.00023, Δ ECE 5e-05, Δ Prec@K -0.0004 · Monats-Δ -0.001339 CI [-0.00553, 0.002889]
-- **meta_regime_weights__no_failure_memory**: Δ Sharpe 0.203, Δ Expectancy 0.002, Δ MaxDD 0.0534, Δ PF 0.065, Δ Hit 0.0137, Δ Brier -0.00055, Δ ECE -0.01023, Δ Prec@K 0.0154 · Monats-Δ 0.001616 CI [-0.002099, 0.005437]
-- **meta_regime_weights__no_disagreement**: Δ Sharpe 0.224, Δ Expectancy 0.00183, Δ MaxDD 0.0481, Δ PF 0.058, Δ Hit 0.0024, Δ Brier -8e-05, Δ ECE -0.0016, Δ Prec@K 0.0125 · Monats-Δ 0.00162 CI [-0.001493, 0.004738]
-- **meta_stacking**: Δ Sharpe 0.018, Δ Expectancy 0.00023, Δ MaxDD -0.0478, Δ PF 0.008, Δ Hit 0.0036, Δ Brier -0.00032, Δ ECE -0.00168, Δ Prec@K 0.0192 · Monats-Δ 0.000101 CI [-0.00505, 0.005602]
-- **meta_stacking__no_regime**: Δ Sharpe 0.083, Δ Expectancy 0.00043, Δ MaxDD -0.021, Δ PF 0.014, Δ Hit 0.0065, Δ Brier -8e-05, Δ ECE 0.00033, Δ Prec@K 0.0169 · Monats-Δ 0.00059 CI [-0.004968, 0.006485]
-- **meta_stacking__no_disagreement**: Δ Sharpe -0.075, Δ Expectancy -0.00046, Δ MaxDD -0.0918, Δ PF -0.013, Δ Hit 0.0027, Δ Brier -0.00025, Δ ECE 0.00096, Δ Prec@K 0.0098 · Monats-Δ -0.000653 CI [-0.005653, 0.004155]
-- **meta_stacking__no_failure_memory**: Δ Sharpe -0.063, Δ Expectancy 6e-05, Δ MaxDD 0.006, Δ PF 0.002, Δ Hit 0.0029, Δ Brier -0.0004, Δ ECE -0.01547, Δ Prec@K 0.0073 · Monats-Δ -0.0004 CI [-0.004374, 0.003804]
-- **meta_stacking__no_sector**: Δ Sharpe 0.018, Δ Expectancy 0.00023, Δ MaxDD -0.0478, Δ PF 0.008, Δ Hit 0.0036, Δ Brier -0.00032, Δ ECE -0.00168, Δ Prec@K 0.0192 · Monats-Δ 0.000101 CI [-0.00505, 0.005602]
+- **best_single_ex_ante**: Δ Sharpe -0.331, Δ Expectancy -0.00239, Δ MaxDD -0.0652, Δ PF -0.075, Δ Hit -0.0163, Δ Brier 0.00022, Δ ECE 0.00402, Δ Prec@K -0.0102 · Monats-Δ -0.002309 CI [-0.005492, 0.000976]
+- **trailing_ic_weighted**: Δ Sharpe -0.097, Δ Expectancy -0.00071, Δ MaxDD 0.0418, Δ PF -0.023, Δ Hit 0.0058, Δ Brier -0.00022, Δ ECE -0.0075, Δ Prec@K 0.0045 · Monats-Δ -0.000616 CI [-0.004124, 0.003078]
+- **meta_regime_weights**: Δ Sharpe 0.119, Δ Expectancy 0.00111, Δ MaxDD 0.0553, Δ PF 0.035, Δ Hit -0.0021, Δ Brier -0.00013, Δ ECE -0.00472, Δ Prec@K 0.0105 · Monats-Δ 0.000917 CI [-0.001976, 0.003829]
+- **meta_regime_weights__no_regime**: Δ Sharpe -0.427, Δ Expectancy -0.00294, Δ MaxDD -0.0983, Δ PF -0.09, Δ Hit -0.0186, Δ Brier 8e-05, Δ ECE -0.00146, Δ Prec@K -0.0127 · Monats-Δ -0.003352 CI [-0.007126, 0.000122]
+- **meta_regime_weights__no_failure_memory**: Δ Sharpe 0.133, Δ Expectancy 0.00152, Δ MaxDD 0.0516, Δ PF 0.05, Δ Hit 0.0052, Δ Brier -0.00042, Δ ECE -0.00684, Δ Prec@K 0.0106 · Monats-Δ 0.001097 CI [-0.002989, 0.005235]
+- **meta_regime_weights__no_disagreement**: Δ Sharpe 0.257, Δ Expectancy 0.00191, Δ MaxDD 0.0585, Δ PF 0.062, Δ Hit 0.0042, Δ Brier -0.00033, Δ ECE -0.00518, Δ Prec@K 0.0119 · Monats-Δ 0.001774 CI [-0.001377, 0.005337]
+- **meta_stacking**: Δ Sharpe 0.115, Δ Expectancy 0.00094, Δ MaxDD -0.0756, Δ PF 0.029, Δ Hit 0.0038, Δ Brier -0.00029, Δ ECE -0.00644, Δ Prec@K 0.0218 · Monats-Δ 0.000882 CI [-0.004616, 0.006162]
+- **meta_stacking__no_regime**: Δ Sharpe -0.129, Δ Expectancy -0.0008, Δ MaxDD -0.0758, Δ PF -0.024, Δ Hit -0.0031, Δ Brier -0.00027, Δ ECE -0.00202, Δ Prec@K 0.0161 · Monats-Δ -0.000958 CI [-0.006185, 0.004399]
+- **meta_stacking__no_disagreement**: Δ Sharpe -0.207, Δ Expectancy -0.00135, Δ MaxDD -0.1164, Δ PF -0.04, Δ Hit -0.0052, Δ Brier -0.00034, Δ ECE -0.00499, Δ Prec@K 0.0141 · Monats-Δ -0.001557 CI [-0.006914, 0.00384]
+- **meta_stacking__no_failure_memory**: Δ Sharpe -0.2, Δ Expectancy -0.00076, Δ MaxDD 0.0019, Δ PF -0.024, Δ Hit -0.0068, Δ Brier -0.00044, Δ ECE -0.01449, Δ Prec@K 0.0022 · Monats-Δ -0.001301 CI [-0.004866, 0.002533]
+- **meta_stacking__no_sector**: Δ Sharpe 0.115, Δ Expectancy 0.00094, Δ MaxDD -0.0756, Δ PF 0.029, Δ Hit 0.0038, Δ Brier -0.00029, Δ ECE -0.00644, Δ Prec@K 0.0218 · Monats-Δ 0.000882 CI [-0.004616, 0.006162]
 
 ## Gate
 
 - ✅ reproducible_leakage_checks: None
 - ✅ enough_oos: [230, 53]
-- ✅ delta_sharpe_positive: 0.399
-- ❌ bootstrap_ci_positive: [-0.000297, 0.006434]
-- ✅ years_positive: 0.8
-- ❌ halves_positive: [-0.0014, 0.00731]
-- ✅ no_regime_collapse: {'vix_lt_20': 0.00257, 'vix_ge_20': 0.00423, 'spy_uptrend': 0.00308, 'spy_downtrend': 0.00364}
-- ✅ calibration_not_worse: {'brier': [0.25028, 0.25036], 'ece': [0.01382, 0.01644]}
-- ✅ not_outlier_driven: 0.001576
-- ✅ locked_delta_positive: 0.00932
+- ✅ delta_sharpe_positive: 0.119
+- ❌ bootstrap_ci_positive: [-0.001976, 0.003829]
+- ✅ years_positive: 0.6
+- ❌ halves_positive: [-0.00279, 0.00449]
+- ✅ no_regime_collapse: {'vix_lt_20': 0.00132, 'vix_ge_20': 0.00077, 'spy_uptrend': 0.00158, 'spy_downtrend': -0.00038}
+- ✅ calibration_not_worse: {'brier': [0.25018, 0.25031], 'ece': [0.01078, 0.0155]}
+- ❌ not_outlier_driven: -8.1e-05
+- ✅ locked_delta_positive: 0.01146
 
 ## Locked-Holdout
 
-- static_equal: Expectancy 0.00059, Sharpe 0.168, Trades 3247
-- best_single_ex_ante: Expectancy 0.00066, Sharpe 0.184, Trades 3247
-- trailing_ic_weighted: Expectancy -0.00055, Sharpe -0.038, Trades 3247
-- meta_regime_weights: Expectancy 0.00991, Sharpe 1.127, Trades 3247
-- meta_regime_weights__no_regime: Expectancy 0.00293, Sharpe 0.468, Trades 3247
-- meta_regime_weights__no_failure_memory: Expectancy 0.00158, Sharpe 0.168, Trades 3247
-- meta_regime_weights__no_disagreement: Expectancy 0.00311, Sharpe 0.302, Trades 3247
-- meta_stacking: Expectancy 0.00458, Sharpe 0.982, Trades 3247
-- meta_stacking__no_regime: Expectancy 0.0089, Sharpe 1.227, Trades 3247
-- meta_stacking__no_disagreement: Expectancy 0.00046, Sharpe 0.126, Trades 3247
-- meta_stacking__no_failure_memory: Expectancy 0.01043, Sharpe 1.391, Trades 3247
-- meta_stacking__no_sector: Expectancy 0.00458, Sharpe 0.982, Trades 3247
+- static_equal: Expectancy -0.00057, Sharpe -0.022, Trades 3397
+- best_single_ex_ante: Expectancy 0.001, Sharpe 0.285, Trades 3397
+- trailing_ic_weighted: Expectancy -0.00731, Sharpe -0.837, Trades 3397
+- meta_regime_weights: Expectancy 0.01089, Sharpe 1.099, Trades 3397
+- meta_regime_weights__no_regime: Expectancy -0.00141, Sharpe -0.286, Trades 3397
+- meta_regime_weights__no_failure_memory: Expectancy 0.00202, Sharpe -0.03, Trades 3397
+- meta_regime_weights__no_disagreement: Expectancy 0.00695, Sharpe 0.761, Trades 3397
+- meta_stacking: Expectancy 0.00265, Sharpe 0.313, Trades 3397
+- meta_stacking__no_regime: Expectancy -0.00052, Sharpe 0.16, Trades 3397
+- meta_stacking__no_disagreement: Expectancy 0.00343, Sharpe 0.271, Trades 3397
+- meta_stacking__no_failure_memory: Expectancy 0.01086, Sharpe 1.356, Trades 3397
+- meta_stacking__no_sector: Expectancy 0.00265, Sharpe 0.313, Trades 3397
 
 ## Ablationen
 
-- meta_regime_weights__no_regime: {'expectancy': -0.00134, 'sharpe': -0.218, 'brier': 0.25059, 'delta_vs_full_expectancy': -0.00418}
-- meta_regime_weights__no_failure_memory: {'expectancy': 0.00163, 'sharpe': 0.133, 'brier': 0.24981, 'delta_vs_full_expectancy': -0.00121}
-- meta_regime_weights__no_disagreement: {'expectancy': 0.00146, 'sharpe': 0.154, 'brier': 0.25028, 'delta_vs_full_expectancy': -0.00138}
-- meta_stacking__no_regime: {'expectancy': 6e-05, 'sharpe': 0.013, 'brier': 0.25028, 'delta_vs_full_expectancy': 0.0002}
-- meta_stacking__no_disagreement: {'expectancy': -0.00083, 'sharpe': -0.145, 'brier': 0.25011, 'delta_vs_full_expectancy': -0.00069}
-- meta_stacking__no_failure_memory: {'expectancy': -0.00031, 'sharpe': -0.133, 'brier': 0.24996, 'delta_vs_full_expectancy': -0.00017}
-- meta_stacking__no_sector: {'expectancy': -0.00014, 'sharpe': -0.052, 'brier': 0.25004, 'delta_vs_full_expectancy': 0.0}
-- without_dynamic_weighting (= static_equal): {'expectancy': -0.00037, 'sharpe': -0.07}
+- meta_regime_weights__no_regime: {'expectancy': -0.00266, 'sharpe': -0.387, 'brier': 0.25039, 'delta_vs_full_expectancy': -0.00405}
+- meta_regime_weights__no_failure_memory: {'expectancy': 0.0018, 'sharpe': 0.173, 'brier': 0.24989, 'delta_vs_full_expectancy': 0.00041}
+- meta_regime_weights__no_disagreement: {'expectancy': 0.00219, 'sharpe': 0.297, 'brier': 0.24998, 'delta_vs_full_expectancy': 0.0008}
+- meta_stacking__no_regime: {'expectancy': -0.00052, 'sharpe': -0.089, 'brier': 0.25004, 'delta_vs_full_expectancy': -0.00174}
+- meta_stacking__no_disagreement: {'expectancy': -0.00107, 'sharpe': -0.167, 'brier': 0.24997, 'delta_vs_full_expectancy': -0.00229}
+- meta_stacking__no_failure_memory: {'expectancy': -0.00048, 'sharpe': -0.16, 'brier': 0.24987, 'delta_vs_full_expectancy': -0.0017}
+- meta_stacking__no_sector: {'expectancy': 0.00122, 'sharpe': 0.155, 'brier': 0.25002, 'delta_vs_full_expectancy': 0.0}
+- without_dynamic_weighting (= static_equal): {'expectancy': 0.00028, 'sharpe': 0.04}
 - without_historical_analogies: n/a – Analogie-Engine ist nicht Teil der Basismodelle/Meta-Merkmale
 - without_alternative_data: n/a – kein Basismodell nutzt alternative Daten (PIT-Historie zu kurz)
 
 ## Robustheit (Expectancy)
 
-- meta_regime_weights: {'rebalance_4w': 0.00079, 'liquid_half': 0.00325, 'less_liquid_half': 0.00105}
-- meta_stacking: {'rebalance_4w': -0.00158, 'liquid_half': -0.00084, 'less_liquid_half': -0.00036}
-- static_equal: {'rebalance_4w': -0.00329, 'liquid_half': -8e-05, 'less_liquid_half': -0.00223}
-- best_single_ex_ante: {'rebalance_4w': -0.00243, 'liquid_half': -0.0009, 'less_liquid_half': -0.00356}
+- meta_regime_weights: {'rebalance_4w': -0.00212, 'liquid_half': 0.00134, 'less_liquid_half': -0.00025}
+- meta_stacking: {'rebalance_4w': -0.00074, 'liquid_half': 0.00093, 'less_liquid_half': 0.00104}
+- static_equal: {'rebalance_4w': -0.00037, 'liquid_half': 0.00039, 'less_liquid_half': -0.00126}
+- best_single_ex_ante: {'rebalance_4w': -0.00293, 'liquid_half': -0.00135, 'less_liquid_half': -0.00433}
 
 ## Disagreement (G)
 
-- dis_rank_sd: {'low_minus_high_mean': 0.00097, 't_months': 0.37, 'share_years_positive': 0.6, 'empirically_supported': False}
-- dis_bull_bear: {'low_minus_high_mean': 0.00423, 't_months': 1.44, 'share_years_positive': 0.8, 'empirically_supported': False}
-- dis_rank_range: {'low_minus_high_mean': 5e-05, 't_months': 0.01, 'share_years_positive': 0.4, 'empirically_supported': False}
-- dis_pred_sd: {'low_minus_high_mean': -0.001, 't_months': -0.47, 'share_years_positive': 0.6, 'empirically_supported': False}
+- dis_rank_sd: {'low_minus_high_mean': 0.00208, 't_months': 0.98, 'share_years_positive': 0.6, 'empirically_supported': False}
+- dis_bull_bear: {'low_minus_high_mean': 0.001, 't_months': 0.33, 'share_years_positive': 0.4, 'empirically_supported': False}
+- dis_rank_range: {'low_minus_high_mean': 0.00279, 't_months': 1.51, 'share_years_positive': 0.6, 'empirically_supported': False}
+- dis_pred_sd: {'low_minus_high_mean': 0.00037, 't_months': 0.1, 'share_years_positive': 0.6, 'empirically_supported': False}
 - use_in_score: False
 - probability_disagreement: n/a – Basismodelle liefern Renditen/Ränge, keine Wahrscheinlichkeiten
-- current_mean_rank_sd: 0.2819
-- current_level: HIGH
+- current_mean_rank_sd: 0.2185
+- current_level: LOW
 
 ## Failure-Profile (F, nur gemessene Segmente mit |t| >= 2)
 
@@ -108,10 +108,10 @@ Aktives Ensemble für Research-Signale: static_equal
 **static_equal**
 | Bucket | N | Trefferquote | Prognose | Ø Rendite | Median | Ø Drawdown | EV netto | Fehler | Flag |
 |---|---|---|---|---|---|---|---|---|---|
-| 50–55 % | 12882 | 0.468 | 0.5204 | -0.00271 | -0.00456 | -0.05698 | -0.00271 | -0.0523 | overconfident |
-| 55–60 % | 299 | 0.5017 | 0.5763 | 0.01582 | 0.00074 | -0.07238 | 0.01582 | -0.0747 | overconfident |
-| 60–65 % | 104 | 0.4327 | 0.6021 | -0.01296 | -0.01315 | -0.05648 | -0.01296 | -0.1694 | low_n |
-| 65–70 % | 0 | None | None | None | None | None | None | None | empty |
+| 50–55 % | 26844 | 0.4686 | 0.5141 | -0.00211 | -0.0048 | -0.05966 | -0.00211 | -0.0455 | calibrated |
+| 55–60 % | 66 | 0.5606 | 0.5567 | 0.06073 | 0.03229 | -0.12215 | 0.06073 | 0.0039 | low_n |
+| 60–65 % | 68 | 0.3971 | 0.6364 | -0.00839 | -0.02515 | -0.10968 | -0.00839 | -0.2393 | low_n |
+| 65–70 % | 104 | 0.4135 | 0.661 | -0.00664 | -0.01367 | -0.05095 | -0.00664 | -0.2476 | low_n |
 | 70–75 % | 0 | None | None | None | None | None | None | None | empty |
 | 75–80 % | 0 | None | None | None | None | None | None | None | empty |
 | 80–85 % | 0 | None | None | None | None | None | None | None | empty |
@@ -120,10 +120,10 @@ Aktives Ensemble für Research-Signale: static_equal
 **meta_regime_weights**
 | Bucket | N | Trefferquote | Prognose | Ø Rendite | Median | Ø Drawdown | EV netto | Fehler | Flag |
 |---|---|---|---|---|---|---|---|---|---|
-| 50–55 % | 22181 | 0.4738 | 0.5156 | 0.0003 | -0.00405 | -0.06036 | 0.0003 | -0.0418 | calibrated |
-| 55–60 % | 1209 | 0.4955 | 0.5836 | 0.01176 | -0.00084 | -0.08489 | 0.01176 | -0.0881 | overconfident |
-| 60–65 % | 126 | 0.5635 | 0.6112 | 0.01158 | 0.00438 | -0.06552 | 0.01158 | -0.0477 | low_n |
-| 65–70 % | 65 | 0.5692 | 0.6818 | 0.05569 | 0.01837 | -0.0789 | 0.05569 | -0.1126 | low_n |
+| 50–55 % | 28143 | 0.4809 | 0.5134 | 0.00065 | -0.00314 | -0.06025 | 0.00065 | -0.0326 | calibrated |
+| 55–60 % | 894 | 0.4911 | 0.5816 | 0.00663 | -0.0027 | -0.09024 | 0.00663 | -0.0905 | overconfident |
+| 60–65 % | 52 | 0.4423 | 0.625 | -0.00665 | -0.01407 | -0.04979 | -0.00665 | -0.1827 | low_n |
+| 65–70 % | 0 | None | None | None | None | None | None | None | empty |
 | 70–75 % | 0 | None | None | None | None | None | None | None | empty |
 | 75–80 % | 0 | None | None | None | None | None | None | None | empty |
 | 80–85 % | 0 | None | None | None | None | None | None | None | empty |
@@ -132,9 +132,9 @@ Aktives Ensemble für Research-Signale: static_equal
 **meta_stacking**
 | Bucket | N | Trefferquote | Prognose | Ø Rendite | Median | Ø Drawdown | EV netto | Fehler | Flag |
 |---|---|---|---|---|---|---|---|---|---|
-| 50–55 % | 28293 | 0.4778 | 0.5121 | -3e-05 | -0.00359 | -0.0638 | -3e-05 | -0.0343 | calibrated |
-| 55–60 % | 92 | 0.4674 | 0.5812 | 0.01323 | -0.00496 | -0.13262 | 0.01323 | -0.1138 | low_n |
-| 60–65 % | 61 | 0.541 | 0.6111 | -0.01114 | 0.0217 | -0.09807 | -0.01114 | -0.0701 | low_n |
+| 50–55 % | 14091 | 0.4884 | 0.5187 | 0.00118 | -0.00186 | -0.06665 | 0.00118 | -0.0303 | calibrated |
+| 55–60 % | 480 | 0.5229 | 0.5799 | 0.00595 | 0.00438 | -0.09379 | 0.00595 | -0.057 | overconfident |
+| 60–65 % | 0 | None | None | None | None | None | None | None | empty |
 | 65–70 % | 0 | None | None | None | None | None | None | None | empty |
 | 70–75 % | 0 | None | None | None | None | None | None | None | empty |
 | 75–80 % | 0 | None | None | None | None | None | None | None | empty |
@@ -144,12 +144,12 @@ Aktives Ensemble für Research-Signale: static_equal
 
 ## Modell-Intelligenz
 
-- momentum_12_1: {'oos_ic': 0.0048, 'recent_ic': -0.018, 'prior_ic': 0.0533, 'trend': 'stable', 'trend_t': -0.88, 'calibration_slope_recent': -0.00717, 'meta_weight': 0.5974, 'contribution': -0.00095}
-- enet_xs20_v1: {'oos_ic': 0.0206, 'recent_ic': -0.0557, 'prior_ic': 0.0559, 'trend': 'stable', 'trend_t': -1.27, 'calibration_slope_recent': -0.008, 'meta_weight': 0.4026, 'contribution': -0.00041}
-- hgb_xs20_v1: {'oos_ic': 0.0224, 'recent_ic': 0.0811, 'prior_ic': -0.0565, 'trend': 'improving', 'trend_t': 2.46, 'calibration_slope_recent': 0.01938, 'meta_weight': 0.0, 'contribution': -0.00015}
-- hgb_asym20_v1: {'oos_ic': 0.0094, 'recent_ic': 0.032, 'prior_ic': -0.0342, 'trend': 'stable', 'trend_t': 1.23, 'calibration_slope_recent': 0.00316, 'meta_weight': 0.0, 'contribution': -0.00149}
-- hgb_xs20_momentum_v1: {'oos_ic': 0.0101, 'recent_ic': 0.064, 'prior_ic': -0.0113, 'trend': 'improving', 'trend_t': 2.41, 'calibration_slope_recent': 0.01748, 'meta_weight': 0.0, 'contribution': -0.00017}
-- hgb_xs20_risk_regime_v1: {'oos_ic': 0.0212, 'recent_ic': 0.0599, 'prior_ic': -0.0267, 'trend': 'stable', 'trend_t': 1.5, 'calibration_slope_recent': 0.01243, 'meta_weight': 0.0, 'contribution': -0.00068}
+- momentum_12_1: {'oos_ic': 0.0029, 'recent_ic': -0.036, 'prior_ic': 0.0371, 'trend': 'stable', 'trend_t': -0.87, 'calibration_slope_recent': -0.01694, 'meta_weight': 0.1842, 'contribution': -0.00059}
+- enet_xs20_v1: {'oos_ic': 0.0169, 'recent_ic': -0.1769, 'prior_ic': 0.0679, 'trend': 'deteriorating', 'trend_t': -2.5, 'calibration_slope_recent': -0.04902, 'meta_weight': 0.0, 'contribution': 0.00022}
+- hgb_xs20_v1: {'oos_ic': 0.0223, 'recent_ic': 0.1573, 'prior_ic': -0.0475, 'trend': 'improving', 'trend_t': 3.4, 'calibration_slope_recent': 0.0467, 'meta_weight': 0.3959, 'contribution': 0.00085}
+- hgb_asym20_v1: {'oos_ic': 0.012, 'recent_ic': 0.1248, 'prior_ic': -0.0451, 'trend': 'improving', 'trend_t': 3.11, 'calibration_slope_recent': 0.03815, 'meta_weight': 0.1128, 'contribution': -0.0001}
+- hgb_xs20_momentum_v1: {'oos_ic': 0.0102, 'recent_ic': 0.0507, 'prior_ic': -0.0062, 'trend': 'stable', 'trend_t': 1.64, 'calibration_slope_recent': 0.01363, 'meta_weight': 0.0, 'contribution': 0.00038}
+- hgb_xs20_risk_regime_v1: {'oos_ic': 0.0228, 'recent_ic': 0.1503, 'prior_ic': -0.0317, 'trend': 'improving', 'trend_t': 3.13, 'calibration_slope_recent': 0.04144, 'meta_weight': 0.307, 'contribution': 0.00047}
 
 ## High-Confidence-Regel (I)
 

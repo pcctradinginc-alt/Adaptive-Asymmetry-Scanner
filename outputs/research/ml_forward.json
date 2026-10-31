@@ -1,11 +1,11 @@
 {
-  "generated": "2026-10-24T12:56:25+00:00",
+  "generated": "2026-10-31T14:43:25+00:00",
   "mode": "weekly",
-  "n_rows": 293795,
+  "n_rows": 294298,
   "n_tickers": 600,
-  "panel_hash": "f9747e705eb10b42",
-  "code_sha": "1cc3cfbcdab6",
-  "period": "2014-06-06..2026-10-23",
+  "panel_hash": "4c39bb7c6ce59193",
+  "code_sha": "a1975358d89c",
+  "period": "2014-06-06..2026-10-30",
   "locked_from": "2025-07-01",
   "locked_status": "CONTAMINATED",
   "forward_holdout_from": "2026-09-29",
@@ -15,46 +15,46 @@
   "universe": {
     "pit": true,
     "source": "wikipedia:List_of_S&P_500_companies#changes",
-    "n_changes": 412,
+    "n_changes": 414,
     "first_change": "1976-07-01",
-    "n_tickers_ever": 760,
-    "n_removed_since_start": 257,
+    "n_tickers_ever": 762,
+    "n_removed_since_start": 259,
     "n_removed_with_prices": 122,
-    "removed_price_coverage": 0.475,
+    "removed_price_coverage": 0.471,
     "residual_bias": "entfernte Titel ohne Yahoo-Kurse fehlen weiterhin",
     "sector_assignment": "point-in-time: Sektor erst ab erster Beobachtung (Candidate-Ledger/Abrufdatum, outputs/research/sector_history.jsonl); davor 'unknown' – historische Sektor-Attribution daher meist unknown",
     "sector_pit_coverage": 0.0,
     "survivorship": {
       "available": true,
       "label": "fwd_xs_20",
-      "mean_missing_member_share": 0.1055,
-      "max_missing_member_share": 0.2425,
+      "mean_missing_member_share": 0.1058,
+      "max_missing_member_share": 0.2455,
       "missing_share_by_year": {
-        "2014": 0.2395,
-        "2015": 0.225,
-        "2016": 0.1915,
+        "2014": 0.2425,
+        "2015": 0.2276,
+        "2016": 0.1919,
         "2017": 0.1628,
         "2018": 0.1421,
-        "2019": 0.1179,
+        "2019": 0.118,
         "2020": 0.0946,
         "2021": 0.08,
         "2022": 0.0601,
         "2023": 0.0415,
         "2024": 0.0331,
         "2025": 0.0208,
-        "2026": 0.0062
+        "2026": 0.006
       },
-      "worst_case_xs_mean_shift": -0.00801,
+      "worst_case_xs_mean_shift": -0.008,
       "note": "Schranke: fehlende Mitglieder am 10-%-Quantil des Stichtags; verschiebt das Querschnittsmittel (Benchmark der Top-Dezil-Rendite) um diesen Betrag – Top-Dezil-Überrenditen darunter sind nicht von Survivorship unterscheidbar"
     }
   },
   "new_predictions": [
-    "momentum_12_1@2026-10-23",
-    "enet_xs20_v1@2026-10-23",
-    "hgb_xs20_v1@2026-10-23",
-    "hgb_asym20_v1@2026-10-23",
-    "hgb_xs20_momentum_v1@2026-10-23",
-    "hgb_xs20_risk_regime_v1@2026-10-23"
+    "momentum_12_1@2026-10-30",
+    "enet_xs20_v1@2026-10-30",
+    "hgb_xs20_v1@2026-10-30",
+    "hgb_asym20_v1@2026-10-30",
+    "hgb_xs20_momentum_v1@2026-10-30",
+    "hgb_xs20_risk_regime_v1@2026-10-30"
   ],
   "calibration": {
     "status": "ok",
@@ -226,8 +226,141 @@
     "p_up_informative": false
   },
   "cards": {
-    "date": "2026-10-23",
+    "date": "2026-10-30",
     "n": 503
   },
-  "forward": {}
+  "forward": {
+    "momentum_12_1": {
+      "base": {
+        "n_cohorts": 2,
+        "n_months": 1,
+        "mean": -0.12961,
+        "median": -0.12961,
+        "hit_rate": 0.0,
+        "t_months": null,
+        "sharpe_ann": null,
+        "max_dd": 0.0,
+        "years_positive_share": 0.0,
+        "top_mfe": 0.08417,
+        "top_mae": -0.16615,
+        "top_asymmetry": 0.507,
+        "univ_asymmetry": 1.839
+      },
+      "ic": {
+        "n_dates": 2,
+        "mean_ic": -0.26226,
+        "t_months": null
+      }
+    },
+    "enet_xs20_v1": {
+      "base": {
+        "n_cohorts": 2,
+        "n_months": 1,
+        "mean": -0.17575,
+        "median": -0.17575,
+        "hit_rate": 0.0,
+        "t_months": null,
+        "sharpe_ann": null,
+        "max_dd": 0.0,
+        "years_positive_share": 0.0,
+        "top_mfe": 0.05899,
+        "top_mae": -0.20755,
+        "top_asymmetry": 0.284,
+        "univ_asymmetry": 1.827
+      },
+      "ic": {
+        "n_dates": 2,
+        "mean_ic": -0.45658,
+        "t_months": null
+      }
+    },
+    "hgb_xs20_v1": {
+      "base": {
+        "n_cohorts": 2,
+        "n_months": 1,
+        "mean": -0.13685,
+        "median": -0.13685,
+        "hit_rate": 0.0,
+        "t_months": null,
+        "sharpe_ann": null,
+        "max_dd": 0.0,
+        "years_positive_share": 0.0,
+        "top_mfe": 0.07655,
+        "top_mae": -0.16757,
+        "top_asymmetry": 0.457,
+        "univ_asymmetry": 1.827
+      },
+      "ic": {
+        "n_dates": 2,
+        "mean_ic": -0.31499,
+        "t_months": null
+      }
+    },
+    "hgb_asym20_v1": {
+      "base": {
+        "n_cohorts": 2,
+        "n_months": 1,
+        "mean": -0.01587,
+        "median": -0.01587,
+        "hit_rate": 0.0,
+        "t_months": null,
+        "sharpe_ann": null,
+        "max_dd": 0.0,
+        "years_positive_share": 0.0,
+        "top_mfe": 0.0815,
+        "top_mae": -0.05135,
+        "top_asymmetry": 1.587,
+        "univ_asymmetry": 1.827
+      },
+      "ic": {
+        "n_dates": 2,
+        "mean_ic": 0.06665,
+        "t_months": null
+      }
+    },
+    "hgb_xs20_momentum_v1": {
+      "base": {
+        "n_cohorts": 2,
+        "n_months": 1,
+        "mean": -0.10371,
+        "median": -0.10371,
+        "hit_rate": 0.0,
+        "t_months": null,
+        "sharpe_ann": null,
+        "max_dd": 0.0,
+        "years_positive_share": 0.0,
+        "top_mfe": 0.09455,
+        "top_mae": -0.14874,
+        "top_asymmetry": 0.636,
+        "univ_asymmetry": 1.827
+      },
+      "ic": {
+        "n_dates": 2,
+        "mean_ic": -0.12398,
+        "t_months": null
+      }
+    },
+    "hgb_xs20_risk_regime_v1": {
+      "base": {
+        "n_cohorts": 2,
+        "n_months": 1,
+        "mean": -0.16385,
+        "median": -0.16385,
+        "hit_rate": 0.0,
+        "t_months": null,
+        "sharpe_ann": null,
+        "max_dd": 0.0,
+        "years_positive_share": 0.0,
+        "top_mfe": 0.07821,
+        "top_mae": -0.19538,
+        "top_asymmetry": 0.4,
+        "univ_asymmetry": 1.827
+      },
+      "ic": {
+        "n_dates": 2,
+        "mean_ic": -0.31401,
+        "t_months": null
+      }
+    }
+  }
 }

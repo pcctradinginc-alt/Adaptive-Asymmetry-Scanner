@@ -1,9 +1,7 @@
 {
  "schema": "system-state-v2",
- "safe_mode": true,
- "safe_mode_reason": [
-  "MODEL: EXCESSIVE MODEL DISAGREEMENT"
- ],
+ "safe_mode": false,
+ "safe_mode_reason": [],
  "data_health": {
   "status": "OK",
   "data_quality": 0.912,
@@ -23,17 +21,15 @@
   "fallbacks": []
  },
  "model_health": {
-  "status": "SAFE_MODE",
-  "reasons": [
-   "EXCESSIVE MODEL DISAGREEMENT"
-  ],
-  "updated": "2026-10-24T13:04:05+00:00"
+  "status": "OK",
+  "reasons": [],
+  "updated": "2026-10-31T14:49:54+00:00"
  },
  "drift_state": {
-  "level": "MODERATE",
+  "level": "MILD",
   "components": {
    "feature": {
-    "level": "MODERATE",
+    "level": "MILD",
     "features_out_of_range": [
      "tnx"
     ],
@@ -42,35 +38,35 @@
      "vix": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 19.45,
+      "value": 19.42,
       "p01": 12.2374,
       "p99": 33.3101
      },
      "vix_chg_21": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 3.78,
+      "value": 3.03,
       "p01": -11.8762,
       "p99": 13.7307
      },
      "spy_trend_200": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 0.0497,
+      "value": 0.041,
       "p01": -0.1303,
       "p99": 0.1626
      },
      "spy_mom_63": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 0.0308,
+      "value": -0.0001,
       "p01": -0.1323,
       "p99": 0.1471
      },
      "tnx": {
-      "level": "MODERATE",
-      "excess": 0.056,
-      "value": 4.988,
+      "level": "MILD",
+      "excess": 0.04,
+      "value": 4.929,
       "p01": 1.0993,
       "p99": 4.7817
      },
@@ -84,9 +80,11 @@
     }
    },
    "model": {
-    "level": "NORMAL",
-    "share_deteriorating": 0.0,
-    "deteriorating": [],
+    "level": "MILD",
+    "share_deteriorating": 0.167,
+    "deteriorating": [
+     "enet_xs20_v1"
+    ],
     "n_models": 6
    },
    "data": {
@@ -95,17 +93,18 @@
    }
   },
   "reasons": [
-   "FEATURE DRIFT MODERATE: ['tnx']"
+   "FEATURE DRIFT MILD: ['tnx']",
+   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich"
   ],
   "policy_version": "drift-v1",
   "consequences": {
-   "confidence_multiplier": 0.75,
-   "positive_boost_cap": 0.5,
-   "allow_weight_increase": false,
+   "confidence_multiplier": 0.9,
+   "positive_boost_cap": 1.0,
+   "allow_weight_increase": true,
    "safe_mode": false
   },
-  "drift_input_timestamp": "2026-10-24T13:03:43+00:00",
-  "drift_input_age_days": 6.4,
+  "drift_input_timestamp": "2026-10-31T14:49:39+00:00",
+  "drift_input_age_days": 0.0,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -115,7 +114,7 @@
   "version": "scanner_rules@fa6cc74e0def"
  },
  "promotion_state": {
-  "generated": "2026-10-30T19:59:11+00:00",
+  "generated": "2026-10-30T23:04:42+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -178,17 +177,17 @@
   }
  },
  "inputs": {
-  "model_health": "c9f28b20fe07",
-  "meta_learning": "a46310463c23",
+  "model_health": "af75c8cf0661",
+  "meta_learning": "731ebdf86d57",
   "data_health": "75b58093c9d9",
-  "promotion": "a3c39e37d97b",
+  "promotion": "a104b7d24c39",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
-  "commodity_status": "3eadbdc6bc59"
+  "commodity_status": "4d709beba633"
  },
- "state_version": 80,
- "fingerprint": "3c0f694da9d5e3b7",
- "updated_at": "2026-10-30T23:04:42+00:00",
- "code_version": "ded0836229da"
+ "state_version": 82,
+ "fingerprint": "2b00623c1d3574d9",
+ "updated_at": "2026-10-31T14:49:54+00:00",
+ "code_version": "a1975358d89c"
 }

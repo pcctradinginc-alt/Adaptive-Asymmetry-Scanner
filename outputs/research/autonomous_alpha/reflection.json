@@ -1,0 +1,82 @@
+{
+  "alpha_validated": false,
+  "code_changes_authorized": false,
+  "exploration_slots_recommended": 1,
+  "explorer_states": {},
+  "family_states": {},
+  "forward_stock_family_exploratory_counts": {},
+  "generated": "2026-10-31T14:49:59+00:00",
+  "llm_calls": 0,
+  "n_frozen_hypotheses": 0,
+  "n_historical_recorded": 59,
+  "n_matured_stock_factor_cohorts": 0,
+  "next_research_tasks": [
+    {
+      "id": "PROSPECTIVE_FACTOR_LABELS",
+      "priority": 1,
+      "reason": "Need out-of-sample, time-stamped predictions and matured labels for every frozen AUTO-* factor."
+    },
+    {
+      "id": "OPTIONS_ATTRIBUTION_LINK",
+      "priority": 2,
+      "reason": "Observed option P&L has no immutable pre-trade factor identifier; do not attribute performance."
+    },
+    {
+      "id": "MORE_EXECUTABLE_QUOTES",
+      "priority": 3,
+      "reason": "Too few quote-verifiable post-registration option outcomes."
+    },
+    {
+      "id": "COLLECT_ROI_COUNTERFACTUALS",
+      "priority": 5,
+      "reason": "Hold production ROI unchanged; need >=25 quote-backed 45d rejected option marks before interpreting ROI thresholds."
+    }
+  ],
+  "production_influence": "NONE",
+  "promotion_authorized": false,
+  "real_options_diagnostics": {
+    "alpha_attribution": "NOT_ATTRIBUTABLE",
+    "n_unverified": 4,
+    "n_verified": 0,
+    "outcome_net_mean_observational": null,
+    "sample_floor_reached": false
+  },
+  "roi_learning_diagnostics": {
+    "observed_marks_by_horizon": {},
+    "production_gate_changed": false,
+    "registered_rejects": 0,
+    "threshold_groups": {
+      "0.00": {
+        "calibration_status": "NEED_MORE_MATURED_QUOTES",
+        "eligible_counterfactual_cohorts": 0,
+        "n_independent_signal_dates": 0,
+        "net_mean_45d": null,
+        "net_median_45d": null,
+        "realized_mark_45": 0,
+        "win_rate_45d": null
+      },
+      "0.05": {
+        "calibration_status": "NEED_MORE_MATURED_QUOTES",
+        "eligible_counterfactual_cohorts": 0,
+        "n_independent_signal_dates": 0,
+        "net_mean_45d": null,
+        "net_median_45d": null,
+        "realized_mark_45": 0,
+        "win_rate_45d": null
+      },
+      "0.07": {
+        "calibration_status": "NEED_MORE_MATURED_QUOTES",
+        "eligible_counterfactual_cohorts": 0,
+        "n_independent_signal_dates": 0,
+        "net_mean_45d": null,
+        "net_median_45d": null,
+        "realized_mark_45": 0,
+        "win_rate_45d": null
+      }
+    }
+  },
+  "schema": "alpha-reflection-v1",
+  "source_gaps": [
+    "NO_REGISTERED_AUTONOMOUS_FACTORS"
+  ]
+}
