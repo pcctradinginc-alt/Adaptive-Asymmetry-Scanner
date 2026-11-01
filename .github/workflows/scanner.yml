@@ -224,7 +224,7 @@ jobs:
         run: |
           bash scripts/ci_push.sh "chore: UNIVERSE_V2 shadow ledger $(date -u +%Y-%m-%d)" outputs/universe/
 
-      - name: Stufen-Bilanz (V2-Shadow-Scan oder Options-Lernmodell ausgefallen -> Lauf rot, nach dem Commit)
+      - name: Stufen-Bilanz (V2-Shadow-Scan ausgefallen -> Lauf rot, nach dem Commit)
         if: always()
         env:
           # 2026-11-01: das Options-Lernmodell friert hier die prospektiven Prognosen und Entscheidungen ein –
