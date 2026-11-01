@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-01T14:18:39+00:00",
+  "generated_at": "2026-11-01T14:08:50+00:00",
   "label": "EXPLORATORY — Bestätigung nur prospektiv über challengers.yaml",
   "results": {
     "20": {
       "horizon": 20,
-      "n_rows": 0,
-      "n_dates": 0,
+      "n_rows": 477,
+      "n_dates": 8,
       "findings": [],
       "tested": 0,
       "status": "INSUFFICIENT_DATA (benötigt 300 Zeilen / 30 Tage)"
@@ -22,7 +22,123 @@
   "new_proposals": [],
   "gate_efficacy": {
     "20": {
-      "status": "NO_DATA"
+      "status": "OK",
+      "horizon": 20,
+      "groups": {
+        "bearish_disabled": {
+          "n": 143,
+          "n_dates": 8,
+          "mean_adj": -0.0417,
+          "t_vs_day_mean": -7.98,
+          "p": 0.0001
+        },
+        "deep_analysis_veto_or_invalid": {
+          "n": 68,
+          "n_dates": 7,
+          "mean_adj": -0.0397,
+          "t_vs_day_mean": -2.86,
+          "p": 0.0287
+        },
+        "earnings_gate": {
+          "n": 36,
+          "n_dates": 9,
+          "mean_adj": 0.0219,
+          "t_vs_day_mean": 1.95,
+          "p": 0.0864
+        },
+        "impact_x_surprise_below_floor": {
+          "n": 17,
+          "n_dates": 6,
+          "mean_adj": -0.0052,
+          "t_vs_day_mean": -0.14,
+          "p": 0.8952
+        },
+        "intraday_too_late": {
+          "n": 1,
+          "n_dates": 1,
+          "mean_adj": -0.2477,
+          "t_vs_day_mean": null,
+          "p": null
+        },
+        "mc_below_threshold": {
+          "n": 46,
+          "n_dates": 7,
+          "mean_adj": 0.0317,
+          "t_vs_day_mean": 2.58,
+          "p": 0.0416
+        },
+        "mismatch_below_min": {
+          "n": 129,
+          "n_dates": 7,
+          "mean_adj": -0.0257,
+          "t_vs_day_mean": -0.83,
+          "p": 0.4399
+        },
+        "options_design_roi_or_edge": {
+          "n": 112,
+          "n_dates": 7,
+          "mean_adj": -0.045,
+          "t_vs_day_mean": -3.14,
+          "p": 0.0201
+        },
+        "pre_mc_sigma_too_low": {
+          "n": 141,
+          "n_dates": 9,
+          "mean_adj": 0.0464,
+          "t_vs_day_mean": 7.14,
+          "p": 0.0001
+        },
+        "prescreen_no": {
+          "n": 1915,
+          "n_dates": 9,
+          "mean_adj": 0.0067,
+          "t_vs_day_mean": 5.5,
+          "p": 0.0006
+        },
+        "proposed": {
+          "n": 3,
+          "n_dates": 2,
+          "mean_adj": -0.1248,
+          "t_vs_day_mean": null,
+          "p": null
+        },
+        "sector_momentum_weak": {
+          "n": 263,
+          "n_dates": 9,
+          "mean_adj": 0.0084,
+          "t_vs_day_mean": 2.23,
+          "p": 0.0567
+        },
+        "time_budget_exceeded": {
+          "n": 252,
+          "n_dates": 4,
+          "mean_adj": -0.0189,
+          "t_vs_day_mean": -2.61,
+          "p": 0.0795
+        },
+        "unlabeled_after_deep_analysis": {
+          "n": 8,
+          "n_dates": 1,
+          "mean_adj": -0.0618,
+          "t_vs_day_mean": null,
+          "p": null
+        },
+        "unlabeled_after_options_design": {
+          "n": 17,
+          "n_dates": 3,
+          "mean_adj": -0.0419,
+          "t_vs_day_mean": 1.0,
+          "p": 0.4219
+        },
+        "unlabeled_after_universe": {
+          "n": 5,
+          "n_dates": 1,
+          "mean_adj": -0.0316,
+          "t_vs_day_mean": null,
+          "p": null
+        }
+      },
+      "note": "positiv = besser als der Tagesdurchschnitt aller Kandidaten"
     },
     "45": {
       "status": "NO_DATA"
