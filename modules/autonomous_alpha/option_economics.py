@@ -111,6 +111,7 @@ def _verify(d: dict, o: dict, archive: dict) -> list[str]:
     """Re-check every referenced quote in the archive; reasons if anything is off."""
     from modules import option_quotes as oq
     reasons = []
+    side = {leg["occ_symbol"]: leg.get("side", "long") for leg in d["legs"]}
     pairs = [(leg, d["decision_day"], "ENTRY") for leg in d["legs"]]
     pairs += [(leg, o["exit_day"], "EXIT") for leg in o.get("exit_legs") or []]
     if len(o.get("exit_legs") or []) != len(d["legs"]):
@@ -124,7 +125,10 @@ def _verify(d: dict, o: dict, archive: dict) -> list[str]:
             reasons.append(f"{tag}_QUOTE_CONTRACT_MISMATCH")
         if _num(rec.get("bid")) != _num(leg.get("bid")) or _num(rec.get("ask")) != _num(leg.get("ask")):
             reasons.append(f"{tag}_QUOTE_PRICE_MISMATCH")
-        if not oq.usable_rth_quote(rec):
+        # entry: short legs are sold at bid (bid > 0 needed); exit: short legs are bought back at ask
+        usable = (oq.usable_rth_exit_quote(rec, side.get(leg["occ_symbol"], "long")) if tag == "EXIT"
+                  else oq.usable_rth_quote(rec))
+        if not usable:
             reasons.append(f"{tag}_QUOTE_NOT_USABLE_RTH")
         if oq.quote_day(rec) != day:
             reasons.append(f"{tag}_QUOTE_WRONG_DAY")
