@@ -18,6 +18,18 @@ REALIZABLE_PRICE_TYPES = frozenset({"OBSERVED_QUOTE", "SETTLEMENT_INTRINSIC"})
 # Produktives Gewichts-Update (feedback.compute_pearson_weights) erst ab so vielen RELIABLE-Outcomes.
 MIN_RELIABLE_FOR_WEIGHT_UPDATE = 5
 
+# Totalverlust – eine Definition für Performance-Reports (2026-11-01): Outcome <= -95 % des Einsatzes, wie im
+# vorab festgelegten Challenger-Protokoll (modules/challenger.py) und in exit_sim. Restwerte von höchstens 5 % sind
+# wirtschaftlich ein Totalverlust (Spread/Mindestgebot). Historische Daten und Protokolle bleiben unverändert.
+TOTAL_LOSS_THRESHOLD = -0.95
+
+
+def is_total_loss(outcome) -> bool:
+    try:
+        return outcome is not None and float(outcome) <= TOTAL_LOSS_THRESHOLD
+    except (TypeError, ValueError):
+        return False
+
 
 def is_reliable_outcome(t: dict) -> bool:
     """Neue Trades tragen outcome_reliable/outcome_method. Altbestand OHNE dokumentierte
