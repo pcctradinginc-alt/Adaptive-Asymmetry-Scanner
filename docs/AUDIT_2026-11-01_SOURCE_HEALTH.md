@@ -62,6 +62,12 @@ Modelle und Forward-Journale sind unverändert.
   - Das Ergebnis steht **am Anfang** der Meldung, z. B. `[Isolation basis=OK where=FAIL(400) …]`, und bleibt
     damit auch in der auf 200 Zeichen gekürzten Snapshot-Meldung sichtbar.
   - Die Abfragen dienen nur der Diagnose. Der Status bleibt `FAIL`, und es werden keine Daten übernommen.
+    Auch wenn alle Einzelabfragen OK sind, gilt die Quelle nicht als repariert.
+  - Budget: je Abfrage ein Versuch ohne Retries mit 20 s Timeout. Nach 60 s folgen keine weiteren Abfragen
+    (`SKIPPED(Budget)`). Damit bleibt alles innerhalb des Abrufbudgets der Quelle (Ports 600 s, sonst 300 s).
+  - Lesehilfe: `FAIL` bei genau einem Parameter zeigt den fehlerhaften Teil der Query. `basis=FAIL` bedeutet,
+    dass der Layer gar keine Abfrage annimmt (Dienst- oder Layer-Problem). Sind alle Einzelabfragen OK, liegt
+    der Fehler in der Kombination; dann ist ein Folge-Audit nötig.
   - Das gilt für die Ports-, Chokepoints- und Disruptions-Hauptabfragen.
 
 ## B – e-Stat (`estat_jp_truck`)
@@ -156,11 +162,21 @@ Die Korrektur E1 kann den angezeigten Wert kurzfristig nur senken, nie erhöhen.
 
 ## Tests
 
-`tests/test_source_stabilization_2026_11.py` (9 Tests). 7 schlagen auf dem alten Code nachweislich fehl:
-- Recovery aus demselben Ingest
-- Recovery ohne neuen Abruf
-- Disruptions mit fehlendem Feld (2 Tests)
-- Isolation (3 Tests)
+`tests/test_source_stabilization_2026_11.py` (12 Tests, alle ArcGIS-Antworten Fakes ohne Netz). 10 davon
+schlagen auf dem alten Code (`8c670d1e`) nachweislich fehl:
+- Recovery aus demselben Ingest, Recovery ohne neuen Abruf, Recovery über einen Neustart (persistierter
+  Snapshot, wiederholte Läufe)
+- Disruptions mit fehlendem Feld (2 Tests, inklusive Point-in-Time)
+- Isolation (5 Tests: Eingrenzung, Seitenoffset, Netzfehler, Timeout und Budget, „Diagnose ist keine
+  Reparatur“)
 
-Die beiden übrigen sichern unverändertes Verhalten ab (Abbruch der Recovery, identische Anfrage bei
-vollständigem Schema). Alle ArcGIS-Antworten sind Fakes ohne Netz.
+Die beiden übrigen sichern unverändertes Verhalten ab (Abbruch der Recovery bei Fehlschlag, identische Anfrage
+bei vollständigem Schema).
+
+## Nachweisstand
+
+| Ebene | Inhalt |
+|---|---|
+| Technisch getestet | Recovery-Verschärfung, Disruptions-Feldvalidierung, Isolation (Fakes, reproduzierbar) |
+| Durch Live-Abfrage bestätigt | **nichts**, da Live-Zugriff aus der Audit-Umgebung blockiert ist |
+| Weiterhin offen | Ports-Ursache (Isolation im nächsten regulären Ingest-Lauf), Disruptions-Wiederherstellung, Chokepoints-Bestätigung (zweiter neuer Ingest), e-Stat-Veröffentlichung 2026-04, NCEI-Datentyp und -Stationen (Owner) |

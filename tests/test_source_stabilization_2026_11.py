@@ -105,6 +105,8 @@ def test_disruptions_request_only_fields_listed_in_layer_metadata():
     assert res.status.value == "PASS", res.message                 # ungenutzte Felder: kein Datenverlust
     assert len([o for o in res.observations if o.metric == "disruption_alert_level"]) == 2
     assert len(sent) == 1 and "editdate" not in sent[0]["outFields"] and "n_affectedports" not in sent[0]["outFields"]
+    # Point-in-Time unverändert: Ereignisbeginn als observation_time, Verfügbarkeit = Abrufzeit
+    assert all(o.observation_time.year == 2019 and o.available_at == NOW == o.retrieved_at for o in res.observations)
     assert "nicht im Layer" in res.message and "editdate" in res.message
 
 
@@ -182,3 +184,60 @@ def test_isolation_network_error_never_masks_original_failure():
         assert isinstance(e, mw.FetchError)                         # Konnektoren behandeln ihn wie bisher
     else:  # pragma: no cover
         raise AssertionError("ArcGIS-Fehler muss als FetchError durchschlagen")
+
+
+def test_recovery_survives_restart_via_persisted_snapshot(tmp_path):
+    """Neustart = neuer Prozess, der nur die gespeicherte Snapshot-Datei liest (sh.check, kein Mail-Versand)."""
+    c = _cfg()
+
+    def run(check, now):
+        orig = sh.gather
+        sh.gather = lambda *a, **k: [check]
+        try:
+            return sh.check(now=now, cfg=c, probes=False, mail=False, out_dir=tmp_path)["snapshot"]
+        finally:
+            sh.gather = orig
+
+    before = T0 - timedelta(days=4)
+    run(_registry_check(before, status="FAIL", failures=3), T0 - timedelta(days=1))
+    assert run(_registry_check(T0), T0 + timedelta(hours=4))["sources"]["finra_short_interest"]["recovery_passes"] == 1
+    for h in (6, 8, 10):                                            # wiederholte Läufe, je frischer Prozess
+        e = run(_registry_check(T0), T0 + timedelta(hours=h))["sources"]["finra_short_interest"]
+        assert e["status"] == sh.DEGRADED and e["recovery_passes"] == 1
+    e = run(_registry_check(T0 + timedelta(days=1)), T0 + timedelta(days=1, hours=4))["sources"]["finra_short_interest"]
+    assert e["status"] == sh.HEALTHY
+
+
+def test_isolation_respects_probe_timeout_and_budget():
+    calls: list = []
+
+    def fetch(url, params=None, **kwargs):
+        calls.append(kwargs)
+        return FakeResponse({"features": []})
+
+    mw.isolate_query_error("https://x/FeatureServer", 0, fetch, where="d >= DATE '2026-10-01'", out_fields="OBJECTID,a",
+                           order_by="d ASC", offset=2000, base_field="OBJECTID")
+    assert len(calls) == 5                                                        # Obergrenze 5 Probes
+    assert all(k == {"retries": 1, "timeout": mw.ISOLATION_PROBE_TIMEOUT_S} for k in calls)
+    calls.clear()
+    iso = mw.isolate_query_error("https://x/FeatureServer", 0, fetch, where="1=1", out_fields="OBJECTID,a",
+                                 order_by=None, offset=0, base_field="OBJECTID", budget_s=-1)
+    assert not calls and all(v["result"] == "SKIPPED(Budget)" for v in iso.values())
+
+
+def test_successful_diagnosis_never_reports_a_repaired_source(tmp_path):
+    """Alle Einzelprobes OK, die eigentliche Abfrage scheitert weiter -> FAIL, keine Daten."""
+    base, _ = make_fake_fetch()
+    q_url = SERVICE_URLS["ports_daily"] + "/0/query"
+
+    def fetch(url, params=None, **kwargs):
+        params = params or {}
+        if url == q_url:
+            if params.get("resultRecordCount") == 1:
+                return FakeResponse({"features": [{"attributes": {"OBJECTID": 1}}], "exceededTransferLimit": False})
+            return FakeResponse(ARCGIS_400)
+        return base(url, params=params, **kwargs)
+
+    res = mw.PortWatchPortsConnector(http_fetch=fetch, cache_path=str(tmp_path / "ep.json")).fetch(NOW)
+    assert res.status.value == "FAIL" and not res.observations and not res.raw
+    assert res.message.startswith("[Isolation basis=OK where=OK outFields=OK orderByFields=OK]")

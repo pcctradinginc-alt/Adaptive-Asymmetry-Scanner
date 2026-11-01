@@ -520,12 +520,20 @@ def oid_field(meta: dict) -> str | None:
                  if isinstance(f, dict) and f.get("type") == "esriFieldTypeOID" and f.get("name")), None)
 
 
+ISOLATION_PROBE_TIMEOUT_S = 20      # je Probe ein Versuch (keine Retries), kurzes Timeout
+ISOLATION_BUDGET_S = 60.0           # danach keine weitere Probe (SKIPPED) -> bleibt im Abrufbudget der Quelle
+
+
 def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *, where: str, out_fields: str,
-                        order_by: str | None, offset: int, base_field: str) -> dict:
+                        order_by: str | None, offset: int, base_field: str,
+                        budget_s: float = ISOLATION_BUDGET_S) -> dict:
     """Nach einem ArcGIS-Query-Fehler: höchstens 5 minimale read-only Abfragen (resultRecordCount=1, ohne
     Geometrie). Jede übernimmt genau EINEN Parameter der fehlgeschlagenen Abfrage, alle anderen bleiben minimal
-    (where=1=1, outFields=Objekt-ID). Ergebnis je Parameter: OK | FAIL(<code>) | ERROR(<Typ>) plus Detailtext.
-    Reine Diagnose: Antworten werden nie als Daten verwendet."""
+    (where=1=1, outFields=Objekt-ID). Ergebnis je Parameter: OK | FAIL(<code>) | ERROR(<Typ>) | SKIPPED(Budget)
+    plus Detailtext. Je Probe ein Versuch mit kurzem Timeout, gesamt höchstens `budget_s` Sekunden.
+    Reine Diagnose: Antworten werden nie als Daten verwendet und ändern nie den Quellenstatus."""
+    import time
+    t0 = time.monotonic()
     url = f"{service_url}/{layer_id}/query"
     probes: dict[str, dict] = {"basis": {"where": "1=1", "outFields": base_field}}
     if where.strip() != "1=1":
@@ -539,9 +547,12 @@ def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *,
                                   **({"orderByFields": order_by} if order_by else {})}
     result: dict[str, dict] = {}
     for name, p in probes.items():
+        if time.monotonic() - t0 > budget_s:
+            result[name] = {"result": "SKIPPED(Budget)", "detail": ""}
+            continue
         params = {**p, "resultRecordCount": 1, "returnGeometry": "false", "f": "json"}
         try:
-            data = http_fetch(url, params=params).json()
+            data = http_fetch(url, params=params, retries=1, timeout=ISOLATION_PROBE_TIMEOUT_S).json()
         except Exception as e:  # noqa: BLE001 - Diagnose darf den Fehlerpfad nie verdecken
             result[name] = {"result": f"ERROR({type(e).__name__})", "detail": str(e)[:160]}
             continue
