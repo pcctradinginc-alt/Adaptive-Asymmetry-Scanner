@@ -18,6 +18,8 @@ import statistics
 import sys
 from pathlib import Path
 
+from modules.outcomes import outcome_class
+
 HISTORY_PATH = Path("outputs/history.json")
 
 
@@ -48,6 +50,9 @@ def trade_rows(history: dict) -> list[dict]:
                 # v7.2: Short-Interest-Features (nur bei Trades ab 2026-07 vorhanden)
                 "short_pct_float": (t.get("features") or {}).get("short_pct_float"),
                 "short_mom":       (t.get("features") or {}).get("short_mom"),
+                # Evidenzqualität (modules/outcomes.py) – Reports trennen danach; Schatten sind nie RELIABLE
+                "outcome_class":   outcome_class(t) if src == "real" else "UNKNOWN",
+                "entry_date":      t.get("entry_date"),
             })
     return rows
 

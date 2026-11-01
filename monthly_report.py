@@ -2,10 +2,12 @@
 monthly_report.py – Monatlicher Performance-Report per E-Mail
 
 Läuft am 1. jedes Monats (GitHub Actions: monthly_report.yml) und sendet:
-  - Win-Rate, Trade-Anzahl, Mean/Median-Return, Totalverluste des Vormonats
-    (= Trades mit close_date im Vormonat)
-  - Rollende Statistiken (30er, 60er Fenster, alle) mit ehrlichen Metriken und
-    90%-Konfidenzintervallen (dedupliziert) — objektive Bewertung ohne Übertreibung
+  - A. Verifizierte Performance (nur RELIABLE, modules/outcomes.py) mit INSUFFICIENT_EVIDENCE bei zu wenig Daten
+  - B. Historische Performance – EXPLORATIV (alle Evidenzklassen; kein Alpha-Nachweis): Win-Rate,
+    Trade-Anzahl, Mean/Median-Return, Totalverluste (<= -95 %) des Vormonats (close_date im Vormonat)
+  - C. Forschungs- und Lernfortschritt aus vorhandenen Forschungsdateien (fehlend = fehlend, nie 0)
+  - Rollende Statistiken (30er, 60er Fenster, alle) mit 90%-Konfidenzintervallen über unabhängige
+    Haltefenster (dedupliziert je Kontrakt) — kein KI bei zu wenigen unabhängigen Fenstern
   - Gesamt-Statistik über alle closed_trades
   - Signal-Funnel: Wie viele Tage hatten 0 Trades und welche Gates blockierten
 
@@ -15,8 +17,10 @@ tägliche Scanner. Keine zusätzlichen Kosten, keine neuen API-Keys.
 
 import json
 import logging
+import math
 import os
 import random
+from html import escape
 import statistics
 import sys
 from collections import Counter
@@ -24,6 +28,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from modules.email_reporter import _send_smtp
+from modules.outcomes import TOTAL_LOSS_THRESHOLD, class_counts, is_total_loss, outcome_class
 
 
 # ── Field Mapping: suggestion gate names → ledger field paths ────────────────
@@ -50,17 +55,25 @@ REPORTS_DIR  = Path("outputs/daily_reports")
 REPO_NAME    = os.getenv("GITHUB_REPOSITORY", "Adaptive-Asymmetry-Scanner")
 
 
+def trade_identity(trade: dict) -> tuple:
+    """Identität eines Trades = Underlying, Entry-Tag, Strategie und KONTRAKT (Strike(s), Verfall, Symbol).
+    Zwei verschiedene Kontrakte desselben Tickers am selben Tag (z. B. Put und Call) sind zwei Trades."""
+    o = trade.get("option") if isinstance(trade.get("option"), dict) else {}
+    leg = o.get("spread_leg") if isinstance(o.get("spread_leg"), dict) else {}
+    return (trade.get("ticker", "?"), str(trade.get("entry_date", "?"))[:10], trade.get("strategy"),
+            o.get("symbol"), o.get("strike"), o.get("expiry") or o.get("expiration"), leg.get("strike"))
+
+
 def dedup_closed_trades(closed: list[dict]) -> list[dict]:
     """
-    Deduplicate trades: keep one trade per (ticker, entry_date).
-    Returns only the first occurrence of each unique (ticker, entry_date) pair.
+    Deduplicate trades: keep the first occurrence of each trade identity (trade_identity).
+    Audit 2026-11-01: früher nur (ticker, entry_date) – das legte zwei verschiedene UNH-Kontrakte vom
+    2026-04-11 (Put 310 / Call 330) zusammen und verwarf einen davon (116 statt 117 Trades).
     """
     seen = set()
     result = []
     for trade in closed:
-        ticker = trade.get("ticker", "?")
-        entry_date = trade.get("entry_date", "?")
-        key = (ticker, entry_date)
+        key = trade_identity(trade)
         if key not in seen:
             seen.add(key)
             result.append(trade)
@@ -92,8 +105,8 @@ def rolling_stats(trades: list[dict], window: int | None = None) -> dict:
     wins = sum(1 for o in outs if o > 0)
     win_rate = wins / len(outs)
 
-    # total_loss_rate: fraction of outcomes <= -0.95
-    total_losses = sum(1 for o in outs if o <= -0.95)
+    # total_loss_rate: Anteil Totalverluste (modules.outcomes.TOTAL_LOSS_THRESHOLD, <= -95 %)
+    total_losses = sum(1 for o in outs if is_total_loss(o))
     total_loss_rate = total_losses / len(outs)
 
     # mean_ex_top3: mean after removing 3 best outcomes
@@ -142,6 +155,123 @@ def bootstrap_ci(values: list[float], n_boot: int = 2000, seed: int = 42) -> tup
     return (boot_means[lower_idx], boot_means[upper_idx])
 
 
+# ── Evidenzqualität (Audit 2026-11-01) ───────────────────────────────────────
+# Eine Klassifizierung: modules/outcomes.outcome_class (RELIABLE | RECONSTRUCTED | APPROXIMATED | UNKNOWN).
+# Belastbar ist nur RELIABLE; alles andere ist explorativ und wird nie als Alpha-Nachweis dargestellt.
+EVIDENCE_CLASSES = ("RELIABLE", "RECONSTRUCTED", "APPROXIMATED", "UNKNOWN")
+MIN_EVIDENCE_N = 20                 # wie backtest_thresholds.MIN_N_FOR_SUGGESTION: darunter keine Statistik
+MIN_INDEPENDENT_WINDOWS = 5         # wie option_learner.MIN_INDEPENDENT_PERIODS: darunter kein Konfidenzintervall
+HOLDING_WINDOW_DAYS = int(os.getenv("CLOSE_AFTER_DAYS", "45"))
+EXPLORATIVE_BANNER = ("EXPLORATIV – enthält rekonstruierte beziehungsweise nicht ausreichend verifizierte "
+                      "Options-Ergebnisse. Kein belastbarer Alpha-Nachweis.")
+INSUFFICIENT = "INSUFFICIENT_EVIDENCE"
+TRADE_MEMORY_PATH = Path("outputs/research/trade_memory.jsonl")
+FAILURE_ANALYSIS_PATH = Path("outputs/research/failure_analysis.json")
+OPTION_LEARNER_DIR = Path("outputs/research/option_learner")
+ALPHA_VALIDATION_PATH = Path("outputs/research/autonomous_alpha/option_validation.json")
+
+
+def _outcome(t: dict) -> float | None:
+    try:
+        v = float(t.get("outcome"))
+    except (TypeError, ValueError):
+        return None
+    return v if math.isfinite(v) else None
+
+
+def _entry_day(t: dict) -> date | None:
+    try:
+        return date.fromisoformat(str(t.get("entry_date"))[:10])
+    except ValueError:
+        return None
+
+
+def holding_windows(trades: list[dict]) -> list[int | None]:
+    """Unabhängige Beobachtungsgruppen: nicht überlappende Haltefenster (HOLDING_WINDOW_DAYS ab dem frühesten Entry).
+    Trades desselben Fensters überlappen zeitlich und sind voneinander abhängig."""
+    days = [_entry_day(t) for t in trades]
+    known = [d for d in days if d is not None]
+    if not known:
+        return [None] * len(trades)
+    origin = min(known)
+    return [None if d is None else (d - origin).days // HOLDING_WINDOW_DAYS for d in days]
+
+
+def grouped_ci(trades: list[dict], alpha: float = 0.10) -> dict:
+    """90-%-KI des Mittelwerts per Bootstrap über ganze Haltefenster (modules.evidence_core.group_bootstrap_ci).
+    Weniger als MIN_INDEPENDENT_WINDOWS Fenster -> kein Intervall (statt eines scheinbar präzisen iid-KI)."""
+    pairs = [(o, g) for t, g in zip(trades, holding_windows(trades))
+             if (o := _outcome(t)) is not None and g is not None]
+    k = len({g for _, g in pairs})
+    if k < MIN_INDEPENDENT_WINDOWS:
+        return {"ci": None, "independent_windows": k,
+                "reason": f"nur {k} unabhängige Haltefenster ({HOLDING_WINDOW_DAYS} T; mind. {MIN_INDEPENDENT_WINDOWS})"}
+    from modules import evidence_core as ec
+    lo, hi = ec.group_bootstrap_ci([o for o, _ in pairs], [g for _, g in pairs], alpha=alpha)
+    return {"ci": None if lo is None else (lo, hi), "independent_windows": k, "reason": None}
+
+
+def evidence_stats(trades: list[dict]) -> dict:
+    """Kennzahlen einer Population; fehlende Outcomes zählen nie als 0. Status INSUFFICIENT_EVIDENCE, wenn zu wenige
+    Outcomes oder unabhängige Haltefenster vorliegen – die Werte sind dann nur beschreibend."""
+    outs = [o for t in trades if (o := _outcome(t)) is not None]
+    rs = rolling_stats([{"outcome": o} for o in outs])
+    ci = grouped_ci([t for t in trades if _outcome(t) is not None])
+    enough = len(outs) >= MIN_EVIDENCE_N and ci["independent_windows"] >= MIN_INDEPENDENT_WINDOWS
+    return {"n_trades": len(trades), "n_evaluable": len(outs), "n_missing_outcome": len(trades) - len(outs),
+            "win_rate": rs["win_rate"], "mean": rs["mean"], "median": rs["median"],
+            "profit_factor": rs["profit_factor"], "total_loss_rate": rs["total_loss_rate"],
+            "mean_ex_top3": rs["mean_ex_top3"], "independent_windows": ci["independent_windows"],
+            "ci90": ci["ci"] if enough else None, "status": "EVALUABLE" if enough else INSUFFICIENT,
+            "reason": None if enough else (f"n={len(outs)} < {MIN_EVIDENCE_N}" if len(outs) < MIN_EVIDENCE_N
+                                           else ci["reason"])}
+
+
+def _load_trade_memory(path: Path | None = None) -> dict:
+    """case_id -> Fall aus dem Trade-Gedächtnis (Regime zum Entry); fehlt die Datei: leer."""
+    path = path or TRADE_MEMORY_PATH
+    out = {}
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            c = json.loads(line) if line.strip() else None
+            if isinstance(c, dict) and c.get("case_id"):
+                out[c["case_id"]] = c
+    except (OSError, ValueError):
+        return {}
+    return out
+
+
+def _regime_label(t: dict, memory: dict) -> str:
+    from modules.trade_memory import make_case_id
+    c = memory.get(make_case_id(t.get("ticker"), t.get("entry_date"), t.get("strategy"))) or {}
+    vix = (c.get("regime_entry") or {}).get("vix") if isinstance(c.get("regime_entry"), dict) else None
+    return str(vix) if vix else "unbekannt"
+
+
+def _sector_label(t: dict) -> str:
+    return str(t.get("sector_etf") or (t.get("features") or {}).get("sector") or "unbekannt")
+
+
+def evidence_report(closed: list[dict], report_month: str | None = None, memory: dict | None = None) -> dict:
+    """Alle Kennzahlen getrennt nach Evidenzklasse; Aufschlüsselungen (Struktur, Sektor, Regime) nur für RELIABLE."""
+    memory = memory if memory is not None else _load_trade_memory()
+    by_cls = {c: [t for t in closed if outcome_class(t) == c] for c in EVIDENCE_CLASSES}
+    rel = by_cls["RELIABLE"]
+
+    def split(key):
+        g: dict = {}
+        for t in rel:
+            g.setdefault(key(t), []).append(t)
+        return {k: evidence_stats(v) for k, v in sorted(g.items())}
+    month_rel = [t for t in rel if report_month and str(t.get("close_date", ""))[:7] == report_month]
+    return {"classes": {c: evidence_stats(v) for c, v in by_cls.items()}, "class_counts": class_counts(closed),
+            "reliable": evidence_stats(rel), "reliable_month": evidence_stats(month_rel),
+            "explorative": evidence_stats(closed),
+            "by_strategy": split(lambda t: str(t.get("strategy") or "unbekannt")),
+            "by_sector": split(_sector_label), "by_regime": split(lambda t: _regime_label(t, memory)),
+            "total_loss_definition": f"Outcome ≤ {TOTAL_LOSS_THRESHOLD * 100:.0f} %"}
+
+
 def month_key(d: date) -> str:
     return d.strftime("%Y-%m")
 
@@ -167,7 +297,7 @@ def month_stats(closed: list[dict], key: str) -> dict | None:
         "wins":         wins,
         "mean":         statistics.mean(outs),
         "median":       statistics.median(outs),
-        "total_losses": sum(1 for o in outs if o <= -0.99),
+        "total_losses": sum(1 for o in outs if is_total_loss(o)),
     }
 
 
@@ -179,7 +309,7 @@ def overall_stats(closed: list[dict]) -> dict | None:
     return {
         "n": len(outs), "win_rate": wins / len(outs), "wins": wins,
         "mean": statistics.mean(outs), "median": statistics.median(outs),
-        "total_losses": sum(1 for o in outs if o <= -0.99),
+        "total_losses": sum(1 for o in outs if is_total_loss(o)),
     }
 
 
@@ -381,7 +511,24 @@ def challenger_snippet(suggestion: dict, today: date) -> str:
     return yaml_snippet
 
 
-def build_tuning_html(suggestions: list[dict]) -> str:
+def suggestion_evidence(history: dict | None, s: dict) -> dict:
+    """Evidenzbasis eines retrospektiven Vorschlags: Klassen der Outcomes in der vorgeschlagenen Teilmenge und
+    unabhängige Haltefenster der RELIABLE-Fälle. Challenger-Vorlage nur bei ausreichender verifizierter Basis."""
+    try:
+        from backtest_thresholds import MIN_N_FOR_SUGGESTION, _select, trade_rows
+    except ImportError:
+        return {"classes": {}, "reliable_n": 0, "windows": 0, "template_allowed": False}
+    rows = [r for r in trade_rows(history or {}) if isinstance(r.get(s.get("field")), (int, float))]
+    sel = _select(rows, s["field"], s["suggested"], s.get("mode", "min")) if rows else []
+    classes = dict(Counter(r.get("outcome_class", "UNKNOWN") for r in sel))
+    rel = [{"outcome": r["outcome"], "entry_date": r.get("entry_date")} for r in sel
+           if r.get("outcome_class") == "RELIABLE"]
+    windows = grouped_ci(rel)["independent_windows"] if rel else 0
+    allowed = len(rel) >= max(MIN_N_FOR_SUGGESTION, MIN_EVIDENCE_N) and windows >= MIN_INDEPENDENT_WINDOWS
+    return {"classes": classes, "reliable_n": len(rel), "windows": windows, "template_allowed": allowed}
+
+
+def build_tuning_html(suggestions: list[dict], history: dict | None = None) -> str:
     today = date.today()
     if not suggestions:
         return (
@@ -392,6 +539,7 @@ def build_tuning_html(suggestions: list[dict]) -> str:
         )
     rows = ""
     yaml_snippets = ""
+    any_template = False
     for s in suggestions:
         cs, ss = s["current_stats"], s["suggested_stats"]
         op = "≥" if s["mode"] == "min" else "≤"
@@ -406,10 +554,22 @@ def build_tuning_html(suggestions: list[dict]) -> str:
             f"<td style='padding:4px 8px;border-bottom:1px solid #e2e8f0;'><b>+{s['gain_pp']:.0f}pp</b></td>"
             f"</tr>"
         )
-        # Generate YAML snippet for this suggestion
-        snippet = challenger_snippet(s, today)
-        yaml_snippets += f"<p style='font-size:0.80em;margin-top:1em;'><b>{s['gate']}:</b></p>\n"
-        yaml_snippets += f"<pre style='background:#f5f5f5;padding:8px;border-radius:4px;overflow-x:auto;font-size:0.75em;'>{snippet}</pre>\n"
+        # Audit 2026-11-01: Vorlage nur bei ausreichender VERIFIZIERTER Basis – explorative Vorschläge bekommen
+        # keine kopierfertige Challenger-Registrierung (kein Testslot für unbelegte Hypothesen).
+        se = suggestion_evidence(history, s)
+        basis = escape(f"Evidenzbasis der Teilmenge: {se['classes'] or 'unbekannt'}; RELIABLE n={se['reliable_n']}, "
+                       f"{se['windows']} unabhängige Haltefenster")
+        any_template = any_template or se["template_allowed"]
+        yaml_snippets += f"<p style='font-size:0.80em;margin-top:1em;'><b>{s['gate']}:</b> {basis}</p>\n"
+        if se["template_allowed"]:
+            snippet = challenger_snippet(s, today)
+            yaml_snippets += f"<pre style='background:#f5f5f5;padding:8px;border-radius:4px;overflow-x:auto;font-size:0.75em;'>{snippet}</pre>\n"
+        else:
+            yaml_snippets += ("<p style='font-size:0.80em;color:#92400e;'><b>EXPLORATIV – keine Challenger-Vorlage.</b> "
+                              "Die Teilmenge beruht überwiegend auf nicht verifizierten Ergebnissen (mind. "
+                              f"{MIN_EVIDENCE_N} RELIABLE-Outcomes und {MIN_INDEPENDENT_WINDOWS} unabhängige "
+                              "Haltefenster nötig). Kein Testslot, keine Registrierung; Schwellen bleiben unverändert. "
+                              "Eine prospektive Prüfung wäre nur nach menschlicher Freigabe neu zu registrieren.</p>\n")
 
     return f"""
     <h3>💡 Hypothesen-Generator (retrospektiv, NICHT promotion-fähig)</h3>
@@ -430,12 +590,19 @@ def build_tuning_html(suggestions: list[dict]) -> str:
     </table>
     <p style="font-size:0.85em;color:#555;margin-top:1em;"><b>Challenger-Vorlagen:</b></p>
     {yaml_snippets}
-    <p style="font-size:0.80em;color:#666;"><i>Diese Snippets können in challengers.yaml
-    kopiert und angepasst werden. Jeder Challenger wird mit der heutigen Registrierung
-    und morgen als start_date erstellt, um Walk-Forward-Validität zu gewährleisten.</i></p>"""
+    {_snippet_note(any_template)}"""
 
 
-def build_slot_html(candidates: list[dict]) -> str:
+def _snippet_note(any_template: bool) -> str:
+    if not any_template:
+        return ("<p style='font-size:0.80em;color:#666;'><i>Keine Challenger-Vorlage: kein Vorschlag hat eine "
+                "ausreichende verifizierte Datenbasis.</i></p>")
+    return ("<p style='font-size:0.80em;color:#666;'><i>Diese Snippets können in challengers.yaml kopiert und angepasst "
+            "werden. Jeder Challenger wird mit der heutigen Registrierung und morgen als start_date erstellt, um "
+            "Walk-Forward-Validität zu gewährleisten.</i></p>")
+
+
+def build_slot_html(candidates: list[dict], evidence: dict | None = None) -> str:
     """
     Entscheidungsvorlage für den nächsten Tuning-Slot — fasst die laufenden
     Schatten-Messungen (Trailing-Stop, Spreads vs. Long Calls, Sektor-
@@ -473,7 +640,17 @@ def build_slot_html(candidates: list[dict]) -> str:
     <p style="font-size:0.85em;color:#92400e;">⚠️ Ausgegraute Zeilen (⏳) haben noch zu wenig
     Daten — Empfehlung lautet dann "weiter Daten sammeln". Es gilt weiterhin: max. eine
     Schwellen-Änderung pro Monat (Tuning-Slot), und der User entscheidet, ob und welcher
-    Kandidat umgesetzt wird.</p>"""
+    Kandidat umgesetzt wird.</p>{_slot_evidence_note(evidence)}"""
+
+
+def _slot_evidence_note(evidence: dict | None) -> str:
+    if not evidence:
+        return ""
+    strat = "; ".join(f"{k}: n={v['n_evaluable']}, Ø {_p(v['mean'])}, {v['status']}"
+                      for k, v in evidence.get("by_strategy", {}).items()) or "keine RELIABLE-Trades"
+    return (f"<p style='font-size:0.85em;background:#fef3c7;padding:4px;'><b>{EXPLORATIVE_BANNER}</b> Die Slot-Analyse "
+            f"nutzt alle closed_trades (Klassen {evidence.get('class_counts')}); ✅ bedeutet nur genug Fälle, keine "
+            f"verifizierte Evidenz. Verifiziert (RELIABLE) nach Struktur: {strat}.</p>")
 
 
 def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None = None,
@@ -513,12 +690,13 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
         mean_ex_top3_str = f"{stats['mean_ex_top3']:+.1%}" if stats['mean_ex_top3'] is not None else "—"
         total_loss_str = f"{stats['total_loss_rate'] * 100:.0f}%" if stats['total_loss_rate'] is not None else "—"
 
-        outcomes_for_ci = [float(t["outcome"]) for t in sorted_trades[-window:] if t.get("outcome") is not None] if window else [float(t["outcome"]) for t in sorted_trades if t.get("outcome") is not None]
-        ci = bootstrap_ci(outcomes_for_ci)
-        if ci:
-            ci_str = f"{ci[0]:+.1%} bis {ci[1]:+.1%}"
+        # Audit 2026-11-01: KI über ganze, nicht überlappende Haltefenster (abhängige Trades desselben Fensters
+        # zusammen gezogen); zu wenige Fenster -> kein Intervall statt eines scheinbar präzisen iid-Bootstraps.
+        gci = grouped_ci(sorted_trades[-window:] if window else sorted_trades)
+        if gci["ci"]:
+            ci_str = f"{gci['ci'][0]:+.1%} bis {gci['ci'][1]:+.1%} ({gci['independent_windows']} Fenster)"
         else:
-            ci_str = "—"
+            ci_str = f"— ({gci['reason']})"
 
         rows += (
             f"<tr>"
@@ -539,9 +717,8 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
     delta_html = ""
     if prev_closed_stats and cur_stats:
         delta = (cur_stats["win_rate"] - prev_closed_stats["win_rate"]) * 100
-        outs = [float(t["outcome"]) for t in sorted_trades]
-        last_ci = bootstrap_ci(outs[-30:]) if len(outs) >= 60 else None
-        prior_ci = bootstrap_ci(outs[-60:-30]) if len(outs) >= 60 else None
+        last_ci = grouped_ci(sorted_trades[-30:])["ci"] if len(sorted_trades) >= 60 else None
+        prior_ci = grouped_ci(sorted_trades[-60:-30])["ci"] if len(sorted_trades) >= 60 else None
         if last_ci and prior_ci and last_ci[0] > prior_ci[1]:
             significance = "signifikant besser (letzte 30 vs. 30 davor, KIs überschneiden sich nicht)"
         elif last_ci and prior_ci and last_ci[1] < prior_ci[0]:
@@ -556,7 +733,7 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
         )
 
     return f"""
-    <h3>📊 Beobachtete Performance (rollierend)</h3>
+    <h3>📊 Beobachtete Performance (rollierend, alle Evidenzklassen – explorativ)</h3>
     <table style="border-collapse:collapse;font-size:13px;width:100%">
       <tr style="text-align:left;color:#64748b;">
         <th style="padding:4px 8px;">Fenster</th>
@@ -565,8 +742,8 @@ def build_rolling_stats_html(closed: list[dict], prev_closed_stats: dict | None 
         <th style="padding:4px 8px;">Ø</th>
         <th style="padding:4px 8px;">Median</th>
         <th style="padding:4px 8px;">Ø ohne Top-3</th>
-        <th style="padding:4px 8px;">Totalverlust-Quote</th>
-        <th style="padding:4px 8px;">90%-KI des Ø</th>
+        <th style="padding:4px 8px;">Totalverlust-Quote (≤ −95 %)</th>
+        <th style="padding:4px 8px;">90%-KI des Ø (über Haltefenster)</th>
       </tr>
       {rows}
     </table>
@@ -993,18 +1170,179 @@ def _safe_cost_html(report_month: str) -> str:
                 f"<p><i>Kosten-Telemetrie {NV}.</i></p>")
 
 
+def _p(x, signed: bool = True) -> str:
+    if not isinstance(x, (int, float)):
+        return "–"
+    return f"{x:+.1%}" if signed else f"{x:.0%}"
+
+
+def _stats_row(label: str, s: dict) -> str:
+    td = "padding:4px 8px;border-bottom:1px solid #e2e8f0;"
+    pf = f"{s['profit_factor']:.2f}" if isinstance(s.get("profit_factor"), (int, float)) else "–"
+    ci = f"{s['ci90'][0]:+.1%} bis {s['ci90'][1]:+.1%}" if s.get("ci90") else "–"
+    label = escape(str(label))
+    return (f"<tr><td style='{td}'><b>{label}</b></td><td style='{td}'>{s['n_trades']}</td>"
+            f"<td style='{td}'>{s['n_evaluable']}</td><td style='{td}'>{_p(s['win_rate'], False)}</td>"
+            f"<td style='{td}'>{_p(s['mean'])}</td><td style='{td}'>{_p(s['median'])}</td><td style='{td}'>{pf}</td>"
+            f"<td style='{td}'>{_p(s['total_loss_rate'], False)}</td><td style='{td}'>{_p(s['mean_ex_top3'])}</td>"
+            f"<td style='{td}'>{s['independent_windows']}</td><td style='{td}'>{ci}</td>"
+            f"<td style='{td}'>{s['status']}{'' if not s.get('reason') else ' (' + escape(s['reason']) + ')'}</td></tr>")
+
+
+_STATS_HEAD = ("<tr style='text-align:left;color:#64748b;'><th>Gruppe</th><th>Trades</th><th>auswertbar</th>"
+               "<th>Win-Rate</th><th>Ø</th><th>Median</th><th>PF</th><th>Totalverlust (≤ −95 %)</th>"
+               "<th>Ø ohne Top-3</th><th>unabh. Haltefenster</th><th>90%-KI</th><th>Status</th></tr>")
+
+
+def build_evidence_html(ev: dict, report_month: str) -> str:
+    """A. Verifizierte Performance (nur RELIABLE) + Kennzahlen je Evidenzklasse."""
+    rel, mon = ev["reliable"], ev["reliable_month"]
+    verdict = ("<p style='color:#92400e;'><b>INSUFFICIENT_EVIDENCE</b> – die verifizierte Datenbasis reicht für keine "
+               "statistisch belastbare Aussage (mind. "
+               f"{MIN_EVIDENCE_N} RELIABLE-Outcomes und {MIN_INDEPENDENT_WINDOWS} unabhängige Haltefenster). "
+               "Die Werte sind rein beschreibend.</p>" if rel["status"] == INSUFFICIENT else
+               "<p>Verifizierte Datenbasis ausreichend für eine beschreibende Statistik mit Haltefenster-KI "
+               "(kein Alpha-Nachweis ohne prospektive Bestätigung).</p>")
+    groups = ""
+    for title, key in (("Optionsstruktur", "by_strategy"), ("Sektor", "by_sector"), ("Marktregime (VIX)", "by_regime")):
+        rows = "".join(_stats_row(k, v) for k, v in ev[key].items()) or \
+            "<tr><td colspan='12'><i>keine RELIABLE-Trades</i></td></tr>"
+        groups += f"<p><b>RELIABLE nach {title}:</b></p><table style='border-collapse:collapse;font-size:12px'>" \
+                  f"{_STATS_HEAD}{rows}</table>"
+    classes = "".join(_stats_row(c, ev["classes"][c]) for c in EVIDENCE_CLASSES)
+    return f"""
+    <h3>✅ A. Verifizierte Performance (nur RELIABLE)</h3>
+    <p style="font-size:0.9em;color:#555;">RELIABLE = realisierbarer Preis aus beobachteten Quotes oder vertraglichem
+    Settlement (modules/outcomes.py). Nur diese Ergebnisse gelten als Options-Performance-Evidenz und dürfen ins
+    autonome Lernen. Totalverlust = {ev['total_loss_definition']}.</p>
+    <table style="border-collapse:collapse;font-size:12px">{_STATS_HEAD}
+      {_stats_row("Alle RELIABLE", rel)}{_stats_row(f"RELIABLE geschlossen im {report_month}", mon)}
+    </table>
+    {verdict}
+    {groups}
+    <p><b>Alle Kennzahlen je Evidenzklasse</b> (Klassen: {ev['class_counts']}):</p>
+    <table style="border-collapse:collapse;font-size:12px">{_STATS_HEAD}{classes}</table>"""
+
+
+def _read_json(path: Path) -> dict | None:
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else None
+    except (OSError, ValueError):
+        return None
+
+
+def research_progress(root: Path | None = None, alpha_path: Path | None = None) -> dict:
+    """C. Lernfortschritt aus vorhandenen Forschungsdateien (keine eigene Logik); fehlend bleibt fehlend (None)."""
+    root = root or OPTION_LEARNER_DIR
+    out: dict = {"horizons": {}, "alpha_validation": None, "gaps": [], "missing": []}
+    for h in (20, 5):
+        st = _read_json(root / f"status_{h}d.json")
+        if st is None:
+            out["missing"].append(f"option_learner/status_{h}d.json")
+            out["horizons"][h] = None
+            continue
+        fw = st.get("forward") or {}
+        out["horizons"][h] = {
+            "verified_labels": st.get("verified_labels"), "signal_days": st.get("label_dates"),
+            "model_instances": (st.get("model_instances") or {}).get("count"),
+            "valid_forward_decisions": fw.get("valid_decisions"), "valid_forward_predictions": fw.get("valid_predictions"),
+            "forward_due_evaluated": fw.get("n"), "forward_verified_outcomes": fw.get("n_selected"),
+            "forward_verdict": fw.get("verdict"), "vs_reference": (fw.get("vs_reference") or {}).get("verdict"),
+            "learning_state": (st.get("learning_status") or {}).get("state"),
+            "technically_missing": (st.get("label_pipeline") or {}).get("technically_missing"),
+            "as_of": st.get("as_of")}
+    val = _read_json(alpha_path or ALPHA_VALIDATION_PATH)
+    if val is None:
+        out["missing"].append("autonomous_alpha/option_validation.json")
+    else:
+        out["alpha_validation"] = {"status": val.get("status"), "n_plans": val.get("n_plans"),
+                                   "classifications": val.get("classification_counts")}
+    imp = _read_json(root / "improvement.json")
+    if imp is None:
+        out["missing"].append("option_learner/improvement.json")
+    else:
+        out["gaps"] = [g.get("finding") for g in (imp.get("gaps") or [])[:3] if g.get("finding")]
+    return out
+
+
+def build_research_html(rp: dict) -> str:
+    def v(x):
+        if x is None:
+            return "<i>fehlt</i>"
+        return escape(", ".join(f"{k} {n}" for k, n in x.items()) or "keine") if isinstance(x, dict) else escape(str(x))
+    rows = ""
+    labels = (("Verifizierte Options-Labels", "verified_labels"), ("Unabhängige Signaltage", "signal_days"),
+              ("Registrierte Modellinstanzen", "model_instances"),
+              ("Gültige Forward-Prognosen (Entscheidungen / Prognosen)", None),
+              ("Fällige Forward-Entscheidungen bewertet / mit verifiziertem Ergebnis", None),
+              ("Forward-Urteil", "forward_verdict"), ("Vergleich zur eingefrorenen Referenz", "vs_reference"),
+              ("Lernstatus", "learning_state"), ("Technisch fehlende Labels", "technically_missing"))
+    for label, key in labels:
+        cells = ""
+        for h in (20, 5):
+            hz = rp["horizons"].get(h)
+            if hz is None:
+                cells += "<td><i>fehlt</i></td>"
+            elif key is None and label.startswith("Gültige"):
+                cells += f"<td>{v(hz['valid_forward_decisions'])} / {v(hz['valid_forward_predictions'])}</td>"
+            elif key is None:
+                cells += f"<td>{v(hz['forward_due_evaluated'])} / {v(hz['forward_verified_outcomes'])}</td>"
+            else:
+                cells += f"<td>{v(hz[key])}</td>"
+        rows += f"<tr><td>{label}</td>{cells}</tr>"
+    av = rp.get("alpha_validation")
+    alpha = ("<i>fehlt</i> (noch kein Lauf der prospektiven Alpha-Validierung)" if av is None else
+             escape(f"{av.get('status')} – {av.get('n_plans')} Prüfpläne, Klassen {av.get('classifications') or {}}"))
+    gaps = "".join(f"<li>{escape(str(g))}</li>" for g in rp.get("gaps") or []) or \
+        "<li><i>keine gemessene Lücke oder Datei fehlt</i></li>"
+    missing = (f"<p style='font-size:0.85em;color:#92400e;'>Fehlende Forschungsdateien: {', '.join(rp['missing'])} – "
+               "Werte als fehlend gekennzeichnet, nie als 0.</p>" if rp.get("missing") else "")
+    return f"""
+    <h3>🔬 C. Forschungs- und Lernfortschritt</h3>
+    <table style="border-collapse:collapse;font-size:12px"><tr style="color:#64748b;"><th></th><th>20 T</th><th>5 T</th></tr>
+    {rows}</table>
+    <p><b>Prospektive Alpha-Validierung (Alpha→Options):</b> {alpha}</p>
+    <p><b>Wichtigste Datenlücken:</b></p><ul>{gaps}</ul>{missing}"""
+
+
+def build_loss_causes_html(path: Path | None = None) -> str:
+    """Verlustursachen aus dem bestehenden Failure Analyzer (trade_memory), getrennt nach Evidenzstärke."""
+    fa = _read_json(path or FAILURE_ANALYSIS_PATH)
+    if fa is None:
+        return "<h3>🧩 Verlustursachen</h3><p><i>failure_analysis.json fehlt – keine Aussage.</i></p>"
+    rel, unrel = fa.get("reliable") or {}, fa.get("unreliable") or {}
+    n = rel.get("n") or 0
+    prim = ", ".join(f"{k} {v.get('n')}" for k, v in (rel.get("primary") or {}).items()) or "keine"
+    labels = ", ".join(f"{k} {v.get('n')}/{n}" for k, v in (rel.get("labels") or {}).items()) or "keine"
+    supported = ("keine – n=" + str(n) + f" verifizierte Verluste (unter {MIN_EVIDENCE_N}), keine Signifikanzaussage"
+                 if n < MIN_EVIDENCE_N else "nur mit eigenem, vorab registriertem Test")
+    return f"""
+    <h3>🧩 Verlustursachen (Failure Analyzer, deterministische Regeln)</h3>
+    <ul>
+      <li><b>Beobachtete Tatsache</b> ({n} RELIABLE-Verluste): primäre Ursache {escape(prim)}; Merkmale
+          {escape(labels)}.</li>
+      <li><b>Plausible Ursache</b>: hohe Einstiegskosten (Spread) und Zeitwertverlust bei Spreads – Regel-Labels, kein
+          Kausalnachweis.</li>
+      <li><b>Statistisch unterstützt</b>: {supported}.</li>
+      <li><b>Ungeprüft / Datenlücke</b>: {unrel.get('n', 0)} Verluste ohne verifizierte Preisquelle werden nicht nach
+          Ursachen klassifiziert; Veränderungen der impliziten Volatilität sind je Trade nicht erfasst.</li>
+    </ul>"""
+
+
 def build_html(report_month: str, cur: dict | None, prev: dict | None,
                total: dict | None, funnel: dict, closed: list[dict] | None = None,
                spy: float | None = None, shadow: dict | None = None,
                tuning: list[dict] | None = None,
-               slot: list[dict] | None = None) -> str:
+               slot: list[dict] | None = None, *, evidence: dict | None = None,
+               research: dict | None = None, history: dict | None = None) -> str:
     def stat_block(label: str, s: dict | None) -> str:
         if s is None:
             return f"<p><b>{label}:</b> keine geschlossenen Trades</p>"
         return (
             f"<p><b>{label}:</b> Win-Rate <b>{_fmt_pct(s['win_rate'])}</b> "
             f"({s['wins']}/{s['n']}) · Ø {s['mean']:+.1%} · "
-            f"Median {s['median']:+.1%} · Totalverluste {s['total_losses']}</p>"
+            f"Median {s['median']:+.1%} · Totalverluste (≤ −95 %) {s['total_losses']}</p>"
         )
 
     # Rolling stats and month-over-month analysis
@@ -1012,20 +1350,13 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
     if closed:
         rolling_html = build_rolling_stats_html(closed, prev, cur)
 
-    # SPY-Benchmark: schlägt das System buy-and-hold?
+    # SPY nur als Marktkontext (Audit 2026-11-01): Options-Renditen beziehen sich auf das eingesetzte Prämienkapital,
+    # sind gehebelt, haben andere Haltedauern und Ausführungskosten -> keine "Edge"-Differenz, kein Alpha-Nachweis.
     bench_html = ""
-    if spy is not None and cur:
-        edge  = cur["mean"] - spy
-        color = "#16a34a" if edge > 0 else "#dc2626"
-        bench_html = (
-            f"<p><b>Benchmark:</b> Ø Trade-Return {cur['mean']:+.1%} vs. "
-            f"SPY {spy:+.1%} → Edge "
-            f"<b style='color:{color}'>{edge:+.1%}</b> "
-            f"<i>(Achtung: Options-Returns sind gehebelt — fairer Vergleich nur "
-            f"über das eingesetzte Risikokapital)</i></p>"
-        )
-    elif spy is not None:
-        bench_html = f"<p><b>Benchmark:</b> SPY {spy:+.1%} im {report_month}</p>"
+    if spy is not None:
+        bench_html = (f"<p><b>Marktkontext:</b> SPY {spy:+.1%} im {report_month}. <i>Kein Vergleichsmaßstab für die "
+                      f"Options-Renditen (Risikokapital, Hebel, Haltedauer und Ausführung nicht vergleichbar) – "
+                      f"daraus folgt kein Options-Alpha.</i></p>")
 
     # Schatten-Trades: filtern die Gates Gewinner weg?
     shadow_html = ""
@@ -1053,19 +1384,28 @@ def build_html(report_month: str, cur: dict | None, prev: dict | None,
             items = "".join(f"<li>{r} ({c}×)</li>" for r, c in funnel["top_stops"])
             funnel_html += f"<p><b>Häufigste Stop-Gründe (0-Trade-Tage):</b></p><ul>{items}</ul>"
 
+    evidence_html = build_evidence_html(evidence, report_month) if evidence else ""
+    research_html = build_research_html(research) if research else ""
     return f"""
     <html><body style="font-family:Arial,sans-serif;max-width:640px">
       <h2>📊 Monats-Report — {REPO_NAME}</h2>
       <p>Berichtsmonat: <b>{report_month}</b> (Trades mit Close-Datum in diesem Monat)</p>
+      {evidence_html}
+      <hr>
+      <h3>🧪 B. Historische Performance – explorativ</h3>
+      <p style="background:#fef3c7;border:1px solid #f59e0b;padding:6px;"><b>{EXPLORATIVE_BANNER}</b></p>
       {stat_block(f"Monat {report_month}", cur)}
       {stat_block("Vormonat", prev)}
       {rolling_html}
       {bench_html}
       {shadow_html}
+      {stat_block("Gesamt (alle closed Trades, alle Evidenzklassen)", total)}
       <hr>
-      {stat_block("Gesamt (alle closed Trades)", total)}
-      {build_tuning_html(tuning or [])}
-      {build_slot_html(slot or [])}
+      {research_html}
+      {build_loss_causes_html() if evidence else ""}
+      <hr>
+      {build_tuning_html(tuning or [], history)}
+      {build_slot_html(slot or [], evidence)}
       {build_challenger_html()}
       {_safe_external_context_html()}
       {funnel_html}
@@ -1106,20 +1446,24 @@ def main() -> None:
     tuning = tuning_suggestions(history)
     slot   = slot_candidates(history)
 
-    if cur and prev:
-        delta   = (cur["win_rate"] - prev["win_rate"]) * 100
-        subject = (
-            f"📊 {REPO_NAME}: Win-Rate {_fmt_pct(cur['win_rate'])} im {report_month} "
-            f"({delta:+.0f}pp vs. Vormonat)"
-        )
-    elif cur:
-        subject = f"📊 {REPO_NAME}: Win-Rate {_fmt_pct(cur['win_rate'])} im {report_month}"
-    else:
-        subject = f"📊 {REPO_NAME}: Monats-Report {report_month} — keine geschlossenen Trades"
+    evidence = evidence_report(closed, report_month)
+    try:
+        research = research_progress()
+    except Exception as e:  # noqa: BLE001 – der Report darf an Forschungsdateien nie scheitern
+        log.warning(f"Forschungsfortschritt nicht lesbar: {e}")
+        research = {"horizons": {20: None, 5: None}, "alpha_validation": None, "gaps": [],
+                    "missing": [f"Forschungsdateien nicht lesbar ({type(e).__name__})"]}
+    rel = evidence["reliable"]
+    # Betreff nach Evidenzqualität (Audit 2026-11-01): nie eine explorative Win-Rate als Schlagzeile
+    rel_txt = (f"verifiziert n={rel['n_evaluable']} ({rel['status']})" if rel["n_evaluable"] else
+               "verifiziert: keine RELIABLE-Trades")
+    subject = (f"📊 {REPO_NAME}: Monats-Report {report_month} — {rel_txt}; "
+               f"explorativ n={evidence['explorative']['n_evaluable']}")
 
     if tuning:
         log.info(f"{len(tuning)} Hypothesen-Vorschlag/Vorschläge gefunden (retrospektiv)")
-    html = build_html(report_month, cur, prev, total, funnel, closed, spy, shadow, tuning, slot)
+    html = build_html(report_month, cur, prev, total, funnel, closed, spy, shadow, tuning, slot,
+                      evidence=evidence, research=research, history=history)
     log.info(f"Sende Monats-Report: {subject}")
     _send_smtp(subject, html)
     log.info("=== Monats-Report abgeschlossen ===")
