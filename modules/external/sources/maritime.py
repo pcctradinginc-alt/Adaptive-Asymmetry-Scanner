@@ -505,6 +505,59 @@ def build_where_clause(start: date, end: date, date_field: str = "date",
     )
 
 
+class ArcGISQueryError(FetchError):
+    """ArcGIS hat die Query mit einem Fehlerobjekt beantwortet (HTTP 200, {"error": ...}).
+    `isolation` = Ergebnis der minimalen Probe-Abfragen (siehe isolate_query_error) oder None."""
+
+    def __init__(self, message: str, isolation: dict | None = None):
+        super().__init__(message)
+        self.isolation = isolation
+
+
+def oid_field(meta: dict) -> str | None:
+    """Objekt-ID-Feld laut Layer-Metadaten (Feldtyp esriFieldTypeOID) -- nie geraten."""
+    return next((f["name"] for f in meta.get("fields", [])
+                 if isinstance(f, dict) and f.get("type") == "esriFieldTypeOID" and f.get("name")), None)
+
+
+def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *, where: str, out_fields: str,
+                        order_by: str | None, offset: int, base_field: str) -> dict:
+    """Nach einem ArcGIS-Query-Fehler: höchstens 5 minimale read-only Abfragen (resultRecordCount=1, ohne
+    Geometrie). Jede übernimmt genau EINEN Parameter der fehlgeschlagenen Abfrage, alle anderen bleiben minimal
+    (where=1=1, outFields=Objekt-ID). Ergebnis je Parameter: OK | FAIL(<code>) | ERROR(<Typ>) plus Detailtext.
+    Reine Diagnose: Antworten werden nie als Daten verwendet."""
+    url = f"{service_url}/{layer_id}/query"
+    probes: dict[str, dict] = {"basis": {"where": "1=1", "outFields": base_field}}
+    if where.strip() != "1=1":
+        probes["where"] = {"where": where, "outFields": base_field}
+    if out_fields != base_field:
+        probes["outFields"] = {"where": "1=1", "outFields": out_fields}
+    if order_by:
+        probes["orderByFields"] = {"where": "1=1", "outFields": base_field, "orderByFields": order_by}
+    if offset:
+        probes["resultOffset"] = {"where": where, "outFields": base_field, "resultOffset": offset,
+                                  **({"orderByFields": order_by} if order_by else {})}
+    result: dict[str, dict] = {}
+    for name, p in probes.items():
+        params = {**p, "resultRecordCount": 1, "returnGeometry": "false", "f": "json"}
+        try:
+            data = http_fetch(url, params=params).json()
+        except Exception as e:  # noqa: BLE001 - Diagnose darf den Fehlerpfad nie verdecken
+            result[name] = {"result": f"ERROR({type(e).__name__})", "detail": str(e)[:160]}
+            continue
+        if isinstance(data, dict) and "error" in data:
+            err = data.get("error") or {}
+            detail = "; ".join(str(d) for d in (err.get("details") or [])) or str(err.get("message") or "")
+            result[name] = {"result": f"FAIL({err.get('code')})", "detail": detail[:160]}
+        else:
+            result[name] = {"result": "OK", "detail": ""}
+    return result
+
+
+def isolation_summary(isolation: dict | None) -> str:
+    return " ".join(f"{k}={v['result']}" for k, v in (isolation or {}).items())
+
+
 def query_features(
     service_url: str,
     layer_id: int,
@@ -514,11 +567,13 @@ def query_features(
     order_by: str | None = None,
     max_record_count: int | None = None,
     return_geometry: bool = False,
+    isolation_field: str | None = None,
 ) -> list[dict]:
     """Robuste Pagination über resultOffset/resultRecordCount. Nimmt NIE eine
     fixe Pagegröße an -- nutzt maxRecordCount aus den Layer-Metadaten. Stoppt,
     wenn `exceededTransferLimit` nicht (mehr) gesetzt ist oder keine Features
-    mehr zurückkommen."""
+    mehr zurückkommen. Mit `isolation_field` (Objekt-ID-Feld aus den Metadaten)
+    wird ein ArcGIS-Fehler per isolate_query_error eingegrenzt."""
     out = ",".join(out_fields) if out_fields != "*" else "*"
     page_size = max_record_count or 2000
     query_url = f"{service_url}/{layer_id}/query"
@@ -538,8 +593,17 @@ def query_features(
         res = http_fetch(query_url, params=params)
         data = res.json()
         if isinstance(data, dict) and "error" in data:
-            raise FetchError(
-                f"ArcGIS-Query-Fehler: {data['error']} (outFields={out}, service_url={service_url}/{layer_id})"
+            isolation = (isolate_query_error(service_url, layer_id, http_fetch, where=where, out_fields=out,
+                                             order_by=order_by, offset=offset, base_field=isolation_field)
+                         if isolation_field else None)
+            # Isolation vorn: der Source-Health-Snapshot kürzt Meldungen auf 200 Zeichen
+            prefix = f"[Isolation {isolation_summary(isolation)}] " if isolation else ""
+            details = {k: v["detail"] for k, v in (isolation or {}).items() if v["detail"]}
+            raise ArcGISQueryError(
+                f"{prefix}ArcGIS-Query-Fehler: {data['error']} (where={where}, orderByFields={order_by or '-'}, "
+                f"resultOffset={offset}, resultRecordCount={page_size}, outFields={out}, "
+                f"service_url={service_url}/{layer_id})" + (f" Isolation-Details: {details}" if details else ""),
+                isolation=isolation,
             )
         feats = data.get("features", [])
         all_features.extend(feats)
@@ -1013,6 +1077,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             raw_features = query_features(
                 ep["service_url"], ep["layer_id"], where, out_fields, self._fetch,
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
+                isolation_field=oid_field(meta) or schema["id_field"],
             )
 
             if ref_ep.get("fallback_to_daily_layer"):
@@ -1166,6 +1231,7 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
             raw_features = query_features(
                 ep["service_url"], ep["layer_id"], where, out_fields, self._fetch,
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
+                isolation_field=oid_field(meta) or schema["id_field"],
             )
 
             if ref_ep.get("fallback_to_daily_layer"):
@@ -1241,6 +1307,11 @@ DISRUPTIONS_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/se
                    "portwatch_disruptions_database/FeatureServer")
 DISRUPTION_FIELDS = ["eventid", "eventtype", "eventname", "alertlevel", "country", "fromdate",
                      "todate", "affectedports", "n_affectedports", "severitytext", "editdate"]
+# Pflicht (fehlt eins -> SCHEMA_CHANGED); beschreibend (in attrs, fehlt eins -> WARN); n_affectedports/editdate
+# werden nirgends gelesen. Angefragt wird nur, was die Layer-Metadaten tatsächlich führen (Audit 2026-11-01:
+# vorher gingen 6 ungeprüfte Feldnamen an ArcGIS; seit 2026-10-30 jede Query 400 "Invalid query parameters").
+DISRUPTION_REQUIRED = ("eventid", "fromdate", "todate", "affectedports", "alertlevel")
+DISRUPTION_DESCRIPTIVE = ("eventtype", "eventname", "country", "severitytext")
 ALERT_LEVEL_VALUE = {"GREEN": 1.0, "ORANGE": 2.0, "RED": 3.0}
 
 
@@ -1286,14 +1357,17 @@ class PortWatchDisruptionsConnector(_PortWatchConnectorBase):
         url = self.cfg.get("service_url", DISRUPTIONS_URL)
         try:
             meta = fetch_layer_metadata(url, 0, self._fetch)
-            missing = [f for f in ("eventid", "fromdate", "todate", "affectedports", "alertlevel")
-                       if f not in _field_names(meta)]
+            names = _field_names(meta)
+            missing = [f for f in DISRUPTION_REQUIRED if f not in names]
             if missing:
                 return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
                                        message=f"Disruptions-Layer: Felder fehlen {missing}",
                                        discovered_ids={"diagnostics": _layer_diagnostics(meta, url, 0)})
-            feats = query_features(url, 0, "1=1", DISRUPTION_FIELDS, self._fetch,
-                                   max_record_count=meta.get("maxRecordCount", 2000))
+            out_fields = [f for f in DISRUPTION_FIELDS if f in names]
+            not_in_layer = [f for f in DISRUPTION_FIELDS if f not in names]
+            feats = query_features(url, 0, "1=1", out_fields, self._fetch,
+                                   max_record_count=meta.get("maxRecordCount", 2000),
+                                   isolation_field=oid_field(meta) or "eventid")
         except SchemaError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
                                    message=str(e), discovered_ids={"diagnostics": e.diagnostics})
@@ -1305,11 +1379,16 @@ class PortWatchDisruptionsConnector(_PortWatchConnectorBase):
             obs.extend(build_disruption_observations(f.get("attributes", f), retrieved_at,
                                                      self.source_id, self.parser_version))
         latest = max((o.observation_time for o in obs), default=None)
+        lost = [f for f in not_in_layer if f in DISRUPTION_DESCRIPTIVE]
         return ConnectorResult(
-            source_id=self.source_id, status=SourceStatus.PASS, observations=obs,
+            source_id=self.source_id, status=SourceStatus.WARN if lost else SourceStatus.PASS, observations=obs,
             raw=[self._raw_record(f"{url}/0/query", "1=1", retrieved_at)],
-            message=f"{len(feats)} Ereignisse, {len(obs)} Hafen-Beobachtungen",
-            latest_observation_time=latest)
+            message=f"{len(feats)} Ereignisse, {len(obs)} Hafen-Beobachtungen"
+                    + (f"; beschreibende Felder fehlen im Layer: {lost}" if lost else "")
+                    + (f"; nicht im Layer, nicht angefragt (ungenutzt): "
+                       f"{[f for f in not_in_layer if f not in lost]}" if set(not_in_layer) - set(lost) else ""),
+            latest_observation_time=latest,
+            discovered_ids={"diagnostics": {"fields_not_in_layer": not_in_layer}} if not_in_layer else {})
 
 
 CONNECTORS: dict[str, type[Connector]] = {
