@@ -402,6 +402,8 @@ def _family(hid: str, signals: list[dict], root: Path) -> str:
         return f"ml:{spec.get('model')}:{feats if isinstance(feats, str) else '+'.join(map(str, feats))}"
     if sig["hypothesis_source"] == "autonomous_factor":
         return f"auto:{hid}"
+    if sig["hypothesis_source"] == "factory_challenger":
+        return f"factory:{hid}"
     return sig["hypothesis_source"]
 
 

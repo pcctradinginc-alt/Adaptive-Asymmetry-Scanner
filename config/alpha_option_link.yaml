@@ -19,6 +19,9 @@ link_start: "2026-11-02"
 sources:
   ml_registry: {enabled: true, top_k: 3, bottom_k: 3}
   autonomous_factor: {enabled: true, top_k: 3, bottom_k: 3}
+  # Prospective Challenger der Hypothesis Factory (2026-11-01): nur frische Forward-Ledger-Zeilen nach der
+  # Registrierung; Top-Dezil ohne Score-Reihenfolge -> deterministische Hash-Auswahl, kein Bottom-Tail.
+  factory_challenger: {enabled: true, top_k: 3, bottom_k: 0}
 # Same-date, same-budget comparison group: deterministic pseudo-random names
 # from the same PIT universe, same contract rule (unconditional call buying).
 control:

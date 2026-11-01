@@ -227,5 +227,7 @@ jobs:
       - name: Stufen-Bilanz (V2-Shadow-Scan ausgefallen -> Lauf rot, nach dem Commit)
         if: always()
         env:
-          CRITICAL: "universe_v2_shadow_scan=${{ steps.v2scan.outcome }}"
+          # 2026-11-01: das Options-Lernmodell friert hier die prospektiven Prognosen und Entscheidungen ein –
+          # ein Ausfall darf nicht als grüner Lauf erscheinen (nach dem Commit, damit Daten gesichert sind).
+          CRITICAL: "universe_v2_shadow_scan=${{ steps.v2scan.outcome }} option_learner=${{ steps.option_learner.outcome }}"
         run: bash scripts/ci_stage_check.sh
