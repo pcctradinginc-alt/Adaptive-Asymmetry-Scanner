@@ -21,7 +21,8 @@ seit dem letzten Check, nachgelagerte Nutzung (Features, Modelle, Entscheidungen
 
 Status: HEALTHY | DEGRADED | STALE | BROKEN | UNVALIDATED.
 Recovery: nach STALE/BROKEN erst nach `recovery_passes_required` vollständig bestandenen
-Prüfungen in Folge wieder HEALTHY (bis dahin DEGRADED, "RECOVERING").
+Prüfungen in Folge wieder HEALTHY (bis dahin DEGRADED, "RECOVERING"); jede zählende Prüfung braucht einen
+neuen erfolgreichen Abruf (Probe live oder fortgeschrittenes last_success des Ingests).
 
 Ausgaben (outputs/health/):
   source_health_snapshot.json   aktueller Zustand (Scanner liest NUR diesen)
@@ -604,15 +605,23 @@ def classify(chk: dict, prev: dict | None, cfg: dict, now: datetime) -> dict:
         raw = BROKEN
     status, rec = raw, 0
     prev_status = (prev or {}).get("status")
-    if raw == HEALTHY and (prev_status in (STALE, BROKEN) or (prev or {}).get("recovering")):
-        rec = int((prev or {}).get("recovery_passes") or 0) + 1
+    in_recovery = raw == HEALTHY and (prev_status in (STALE, BROKEN) or bool((prev or {}).get("recovering")))
+    if in_recovery:
+        # Eine Recovery-Prüfung zählt nur mit einem NEUEN vollständigen Abruf. Probe-Quellen rufen bei jeder
+        # Prüfung selbst live ab; Registry-/Alt-Quellen lesen nur den Ingest-Zustand -> zählt nur, wenn
+        # last_success seit der Vorprüfung fortgeschritten ist (2026-10-27: finra_short_interest wurde aus
+        # EINEM Ingest von 12:16 in zwei Prüfungen 16:36/18:14 als 2/2 "bestätigt").
+        prev_ls = _ts((prev or {}).get("last_success"))
+        fresh = pr is not None or (ls is not None and (prev_ls is None or ls > prev_ls))
+        rec = int((prev or {}).get("recovery_passes") or 0) + (1 if fresh else 0)
         if rec < th["recovery_passes_required"]:
             status = DEGRADED
-            reasons.append(f"RECOVERING {rec}/{th['recovery_passes_required']}: vollständiger Abruf ok, "
-                           f"Bestätigung ausstehend")
+            reasons.append(f"RECOVERING {rec}/{th['recovery_passes_required']}: " +
+                           ("vollständiger Abruf ok, Bestätigung ausstehend" if fresh else
+                            "kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend"))
     return {"status": status, "raw_status": raw, "reasons": reasons, "failed": failed, "consecutive_failures": cons,
-            "recovery_passes": rec if status == DEGRADED and rec else 0, "recovering": status == DEGRADED and rec > 0,
-            "new_data": new_data}
+            "recovery_passes": rec if status == DEGRADED and in_recovery else 0,
+            "recovering": status == DEGRADED and in_recovery, "new_data": new_data}
 
 
 # ── Snapshot, Fallbacks, Features, Safe Mode ────────────────────────────────
