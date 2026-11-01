@@ -292,6 +292,18 @@ def option_gaps(status: dict, variants: list[dict] | None = None) -> list[dict]:
         if k and not any(v.get("horizon") == h for v in variants or []):
             out.append(_gap("untested_alternatives", "model", h, f"für {h} T wurde noch keine Modell-, Merkmals- oder "
                             "Auswahlvariante prospektiv gegen die Basis getestet", "variants_tested", 0, ">= 1", 0.4))
+        ls = st.get("learning_status") or {}
+        if ls.get("state") == "TECHNICAL_DEFECT":
+            out.append(_gap("technical_defect", "data", h, f"Lernstatus TECHNICAL_DEFECT – {ls.get('reason')}",
+                            "learning_status", "TECHNICAL_DEFECT", "kein technischer Ausfall", 0.9,
+                            reasons=(st.get("label_pipeline") or {}).get("technically_missing")))
+        for name, s in (("walk_forward", wf), ("forward", fw)):
+            seg = s.get("segments") or {}
+            for w in seg.get("weak") or []:
+                out.append(_gap(f"weak_segment:{name}:{w['dimension']}={w['level']}", "model", h,
+                                f"{name}: Entscheidungen im Segment {w['dimension']}={w['level']} netto Ø {w['mean']} "
+                                f"(n={w['n']}, {w['dates']} Tage) unter dem Gesamtmittel {seg.get('overall_mean')}",
+                                "segment_mean", w["mean"], f"> {seg.get('overall_mean')} und >= 0", 0.5, segment=w))
         missing = [f"{name}: {s.get('dates', 0)}/{ol.MIN_OOS_DATES} Testtage, {s.get('independent_periods', 0)}/"
                    f"{ol.MIN_INDEPENDENT_PERIODS} Perioden, {s.get('n_selected', 0)}/{ol.MIN_SELECTED} Fälle"
                    for name, s in (("walk_forward", wf), ("forward", fw)) if s.get("verdict") == "NEED_MORE_DATA"]
@@ -314,7 +326,7 @@ MECHANISM = {
     "min_pred": "Erst ab einer Netto-Prognose über der Kostenunsicherheit handeln: weniger, dafür bessere Fälle",
     "drop_feature_group": "Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser",
 }
-PROPOSAL_COST = {"variant": 1.0, "data_pipeline": 2.0, "data_capture": 3.0, "sampling": 3.0}
+PROPOSAL_COST = {"variant": 1.0, "data_pipeline": 2.0, "data_capture": 3.0, "sampling": 3.0, "segment_review": 2.0}
 
 
 def _pid(kind: str, change: dict, horizon: int) -> str:
@@ -413,6 +425,27 @@ def option_proposals(gaps: list[dict], cfg: dict | None = None, catalog: list[di
                 "Quotes nur bei rechtzeitiger Erfassung verfügbar",
                 {"accept_if": f"Abdeckung >= {ol.MIN_COVERAGE:.0%} in den nächsten 20 fälligen Handelstagen",
                  "reject_if": "Abdeckung bleibt darunter: Ursache (z. B. Liquidität) statt Erfassung prüfen"}, False)
+        elif name == "weak_segment":
+            w = g["segment"]
+            add("segment_review", {"segment": f"{w['dimension']}={w['level']}"}, g,
+                f"Schwaches Segment {w['dimension']}={w['level']} untersuchen ({g['horizon']} T)",
+                f"Das Modell entscheidet im Segment {w['dimension']}={w['level']} systematisch schlechter. Eine neue, "
+                "versionierte Variante (z. B. Segment-Merkmal oder Ausschluss) könnte das beheben – das wäre eine "
+                "Änderung der Merkmals- bzw. Auswahldefinition und braucht eine eigene Forschungsspezifikation.",
+                {"api_calls": 0, "llm_calls": 0, "paid_data": False,
+                 "human_effort": "Spezifikation einer neuen Experimentversion (nicht in der Allowlist)"},
+                "vorhanden: dieselben geprüften Labels und Entscheidungen",
+                {"accept_if": "neue Version schlägt die Basis im Segment prospektiv (gepaart, eigenes Fehlerbudget)",
+                 "reject_if": "Segment-Schwäche verschwindet mit mehr Daten (Zufall) oder neue Version nicht besser"},
+                False)
+        elif name == "technical_defect":
+            add("data_capture", {"learning_status": "TECHNICAL_DEFECT", "reasons": g.get("reasons")}, g,
+                "Technisch fehlende Options-Labels beheben", "Fällige Labels nach Archivstart fehlen; ohne sie "
+                "lernt das Modell auf einer verzerrten Auswahl.",
+                {"api_calls": "keine zusätzlichen erwartet", "llm_calls": 0, "paid_data": False,
+                 "human_effort": "Erfassung/Provenienz prüfen"}, "Quote-Archiv und Ledger vorhanden",
+                {"accept_if": f"technischer Fehlanteil <= {1 - ol.MIN_COVERAGE:.0%} binnen 20 Handelstagen",
+                 "reject_if": "Anteil bleibt darüber: Ursache dokumentieren (z. B. Liquidität)"}, False)
         elif g["kind"] == "representativeness":
             add("sampling", {"warning": g["finding"]}, g, "Evidenzbasis verbreitern (Richtungssignale, bearishe Fälle)",
                 "Eine einseitige Stichprobe belegt nicht alle Marktsituationen; zusätzliche Snapshots würden das zeigen.",

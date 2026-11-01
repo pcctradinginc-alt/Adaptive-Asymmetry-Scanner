@@ -491,7 +491,12 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
             recs[hyp["id"]] = {**prev, "status": "invalid_modified",
                                "reasons": ["Signal nach Test geändert – neue id nötig"]}
             continue
-        if not prev:                                            # neue Idee: Ähnlichkeit zu Verworfenem?
+        # Neue Text-Idee: Ähnlichkeit zu Verworfenem? Maschinelle Spezifikationen (Fabrik: spec_hash + family)
+        # sind davon ausgenommen – ihr Text ist eine Vorlage, die Wort-Ähnlichkeit sagt nichts über das Signal
+        # (Audit 2026-11-01: 4 von 6 Fabrik-Tests 2026-10-03 ungeprüft als "ähnlich" verworfen). Für sie gelten die
+        # Ähnlichkeitssperre der Fabrik auf Spezifikations-Tokens (factory_protocol similarity_block) und hier die
+        # statistische Duplikat-Prüfung (Rang-Korrelation) – beides unverändert.
+        if not prev and not (hyp.get("source") == "factory" and hyp.get("spec_hash") and hyp.get("family")):
             sim = [(k, text_similarity(hyp, r)) for k, r in recs.items() if canonical_status(r) == "REJECTED"
                    and k != hyp["id"] and not r.get("retest_after")]
             k_best, s_best = max(sim, key=lambda x: x[1], default=(None, 0.0))

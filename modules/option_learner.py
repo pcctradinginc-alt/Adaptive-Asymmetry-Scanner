@@ -36,6 +36,7 @@ CLI:
 from __future__ import annotations
 
 import argparse
+import bisect
 import hashlib
 import json
 import logging
@@ -312,6 +313,33 @@ def _direction(strategy) -> str:
             "BEAR_PUT_SPREAD": "bearish"}.get(s, "unknown")
 
 
+WORLD_STATE = Path("outputs/research/world_state.jsonl")   # wöchentliche PIT-Zustände (modules/world_model.py)
+_REGIMES: dict = {}
+
+
+def regime_of(day: str, path: Path | None = None) -> str:
+    """Marktregime zum Entscheidungstag aus dem World Model: letzter Zustand mit Datum VOR dem Tag (PIT, nie der
+    Zustand desselben Abends). Volatilität × Risikoappetit; ohne Zustand "unknown". Nur zur Fehleranalyse."""
+    path = path or WORLD_STATE
+    key = (str(path), path.stat().st_mtime if path.exists() else None)
+    if _REGIMES.get("key") != key:
+        states = []
+        if path.exists():
+            for line in path.read_text(encoding="utf-8").splitlines():
+                try:
+                    w = json.loads(line)
+                except ValueError:
+                    continue
+                if isinstance(w, dict) and w.get("date"):
+                    label = f"vol_{w.get('volatility_state') or 'na'}|risk_{w.get('risk_appetite_state') or 'na'}"
+                    states.append((str(w["date"])[:10], label))
+        states = sorted(states)
+        _REGIMES.clear()
+        _REGIMES.update(key=key, days=[d for d, _ in states], labels=[lab for _, lab in states])
+    i = bisect.bisect_left(_REGIMES["days"], day)          # Zustände mit Datum < day
+    return _REGIMES["labels"][i - 1] if i else "unknown"
+
+
 def candidates(rows: list[dict], quotes: list[dict], as_of: date, horizon: int = HORIZON,
                counts: dict | None = None) -> list[dict]:
     """Je Ledger-Kandidat alle zum Entscheidungszeitpunkt erfassten Ausdrucksformen mit Merkmalen, Entscheidungs-
@@ -341,7 +369,8 @@ def candidates(rows: list[dict], quotes: list[dict], as_of: date, horizon: int =
         if exprs:
             out.append({"date": r["date"], "signal_id": r.get("signal_id"), "ticker": r["ticker"],
                         "sample": _sample(r), "gate": r.get("reject_reason") or r.get("status") or "unknown",
-                        "exprs": exprs})
+                        "sector": str((r.get("features") or {}).get("sector") or "unknown"),
+                        "regime": regime_of(str(r["date"])[:10]), "exprs": exprs})
     return sorted(out, key=lambda c: (c["date"], c["ticker"], str(c["signal_id"])))
 
 
@@ -555,6 +584,45 @@ def _paired(by_date: dict[str, list[float]], horizon: int, alpha: float = 0.05, 
             "ci95": [round(c, 6) for c in ci] if ci else None}
 
 
+ADVERSE_FRACTION = 0.25          # wie alpha_option_link rule.adverse_slippage_fraction_of_spread (Sensitivität)
+SEGMENT_DIMENSIONS = ("expression", "sample", "gate", "sector", "regime")
+MIN_SEGMENT_N, MIN_SEGMENT_DATES = 20, 5
+
+
+def _adverse(e: dict) -> float | None:
+    """ADVERSE-Szenario (nur Sensitivität, kein Label): Einstieg zusätzlich um einen Anteil der Geld-Brief-Spanne
+    ungünstiger. Der Exit-Spread ist im Lern-Datensatz nicht enthalten -> nur Einstieg (konservativ benannt)."""
+    ask, mid, y = _num(e.get("ask")), _num(e.get("mid")), _num(e.get("y"))
+    if y is None or not ask or ask <= 0 or mid is None or mid > ask:
+        return None
+    return round((1 + y) * ask / (ask + ADVERSE_FRACTION * 2 * (ask - mid)) - 1, 6)
+
+
+def segments(picks: list[dict]) -> dict:
+    """Wo die Entscheidungen schlecht funktionieren: je Dimension (Optionsform, Stichprobe, Filter, Sektor, Regime)
+    Fälle, Tage und Ø netto; `weak` = genug Fälle (>= MIN_SEGMENT_N an >= MIN_SEGMENT_DATES Tagen), Ø netto < 0
+    und unter dem Gesamtmittel. Beschreibend – Grundlage für Research-Vorschläge, nie für eine Handelsregel."""
+    if not picks:
+        return {"overall_mean": None, "by": {}, "weak": []}
+    overall = float(np.mean([p["y"] for p in picks]))
+    by, weak = {}, []
+    for dim in SEGMENT_DIMENSIONS:
+        groups = defaultdict(list)
+        for p in picks:
+            groups[str(p.get(dim, "unknown"))].append(p)
+        by[dim] = {}
+        for level, ps in sorted(groups.items()):
+            m = float(np.mean([p["y"] for p in ps]))
+            st = {"n": len(ps), "dates": len({p["date"] for p in ps}), "mean": round(m, 6),
+                  "win_rate": round(sum(p["y"] > 0 for p in ps) / len(ps), 4)}
+            by[dim][level] = st
+            if st["n"] >= MIN_SEGMENT_N and st["dates"] >= MIN_SEGMENT_DATES and m < 0 and m < overall \
+                    and len(groups) > 1:
+                weak.append({"dimension": dim, "level": level, **st})
+    return {"overall_mean": round(overall, 6), "by": by,
+            "weak": sorted(weak, key=lambda w: (w["mean"], w["dimension"], w["level"]))}
+
+
 def assess(records: list[dict], horizon: int, alpha: float = 0.05, method: str = "percentile") -> dict:
     """Bewertet vorab getroffene Auswahlentscheidungen [{cand, dec, preds}] auf fälligen Kandidaten. Gezählt wird nur
     das geprüfte Netto-Ergebnis der gewählten Form; fehlt es, ist der Fall nicht bewertbar (mit Grund) und nie
@@ -579,7 +647,9 @@ def assess(records: list[dict], horizon: int, alpha: float = 0.05, method: str =
             continue
         forms[e["expression"]] += 1
         picks.append({"date": c["date"], "pred": 1.0, "y": e["y"], "sample": c["sample"],
-                      "direction": _direction(e["strategy"])})
+                      "direction": _direction(e["strategy"]), "expression": e["expression"],
+                      "gate": c.get("gate", "unknown"), "sector": c.get("sector", "unknown"),
+                      "regime": c.get("regime", "unknown"), "y_adverse": _adverse(e)})
         default = c["exprs"][0]                                   # Standardform: Produktions-Strategie bzw. real_option
         if default["status"] == "VERIFIED":
             vs_default[c["date"]].append(e["y"] - default["y"])
@@ -594,7 +664,11 @@ def assess(records: list[dict], horizon: int, alpha: float = 0.05, method: str =
             "coverage": round(len(picks) / trades, 4) if trades else None,
             "mean_selected_unevaluable_as_loss": round(lost / trades, 6) if trades else None,
             "chosen_forms": dict(sorted(forms.items())), "by_expression": _by_expression(expr_preds),
-            "vs_default": _paired(vs_default, horizon), "representativeness": _representativeness(picks)}
+            "vs_default": _paired(vs_default, horizon), "representativeness": _representativeness(picks),
+            "mean_selected_adverse_entry": (round(float(np.mean(adv)), 6)
+                                            if (adv := [p["y_adverse"] for p in picks if p["y_adverse"] is not None])
+                                            else None),
+            "segments": segments(picks)}
 
 
 def compare_policies(pairs: list[dict], horizon: int, alpha: float = 0.05, due: int | None = None,
@@ -1669,6 +1743,69 @@ def _vs_previous(history: list[dict], status: dict) -> dict | None:
             "delta_labels": status["manifest"]["n_labels"] - (prev.get("manifest") or {}).get("n_labels", 0)}
 
 
+TECH_MISSING_MIN_DUE = 20        # erst ab so vielen fälligen Labels nach Archivstart ist ein Anteil belastbar
+
+
+def archive_start(quotes: Path) -> str | None:
+    """Erster Tag des Quote-Archivs (Datei YYYY-MM-DD.jsonl); davor fehlende Quotes sind eine historische Lücke."""
+    days = sorted(f.stem for f in Path(quotes).glob("????-??-??.jsonl")) if Path(quotes).exists() else []
+    return days[0] if days else None
+
+
+def label_pipeline(cands: list[dict], as_of: date, horizon: int, start: str | None) -> dict:
+    """Wo jedes mögliche Label steht: geprüft, noch nicht fällig, historisch fehlend (Einstieg vor Archivstart)
+    oder technisch fehlend (fällig nach Archivstart, aber nicht geprüft – mit Grund). Fehlende Labels werden nie
+    als Rendite gezählt."""
+    verified, days, not_due, tech, hist = 0, set(), 0, defaultdict(int), defaultdict(int)
+    for c in cands:
+        for e in c["exprs"]:
+            st = e["status"]
+            if st == "VERIFIED":
+                verified += 1
+                days.add(c["date"])
+                continue
+            if st == "NO_LABEL":
+                if not _due(c["date"], as_of, horizon):
+                    not_due += 1
+                    continue
+                st = "NO_LABEL_AFTER_DUE"
+            (hist if start and c["date"] < start else tech)[st] += 1
+    due = verified + sum(tech.values())
+    return {"verified": verified, "independent_signal_days": len(days), "not_yet_due": not_due,
+            "technically_missing": dict(sorted(tech.items())), "historical_gap": dict(sorted(hist.items())),
+            "archive_start": start, "due_after_archive_start": due,
+            "technical_missing_share": round(sum(tech.values()) / due, 4) if due else None}
+
+
+def learning_status(lp: dict, wf: dict, fw: dict) -> dict:
+    """Ein Zustand für den Lernfortschritt aus bestehenden Verdikten (keine neue Bewertungslogik):
+    TECHNICAL_DEFECT > NO_DATA > NOT_VALIDATED > FORWARD_NEGATIVE > FORWARD_POSITIVE > INCONCLUSIVE > NEED_MORE_DATA."""
+    share, due = lp.get("technical_missing_share"), lp.get("due_after_archive_start") or 0
+    wv, fv = (wf or {}).get("verdict"), (fw or {}).get("verdict")
+    if (share is not None and due >= TECH_MISSING_MIN_DUE and share > 1 - MIN_COVERAGE) \
+            or "INSUFFICIENT_COVERAGE" in (wv, fv):
+        state = "TECHNICAL_DEFECT"
+        why = (f"{share:.0%} der {due} fälligen Labels nach Archivstart technisch fehlend "
+               f"{lp.get('technically_missing')}" if share is not None and share > 1 - MIN_COVERAGE
+               else f"Ergebnisabdeckung unter {MIN_COVERAGE:.0%} (Walk-Forward {wv}, Forward {fv})")
+    elif not lp.get("verified") and not lp.get("not_yet_due"):
+        state, why = "NO_DATA", "keine geprüften und keine ausstehenden Labels"
+    elif wv == "NOT_VALIDATED":
+        state, why = "NOT_VALIDATED", "Walk-Forward auf ungesehenen Tagen ohne belastbaren Vorteil"
+    elif fv == "FORWARD_NEGATIVE":
+        state, why = "FORWARD_NEGATIVE", "vorab festgehaltene Entscheidungen netto signifikant negativ"
+    elif wv == "VALIDATED" and fv == "FORWARD_POSITIVE":
+        state, why = "FORWARD_POSITIVE", "Walk-Forward VALIDATED und Forward FORWARD_POSITIVE (Freigabe separat)"
+    elif fv == "INCONCLUSIVE":
+        state, why = "INCONCLUSIVE", "genug Forward-Daten, Konfidenzintervall schließt 0 ein"
+    else:
+        state = "NEED_MORE_DATA"
+        why = (f"{lp.get('verified', 0)} geprüfte Labels an {lp.get('independent_signal_days', 0)} Signaltagen, "
+               f"{lp.get('not_yet_due', 0)} noch nicht fällig; Walk-Forward {wv}, Forward {fv}")
+    claim = "nur zusammen mit sequenzieller Bestätigung (release_gate)" if state == "FORWARD_POSITIVE" else "keiner"
+    return {"state": state, "reason": why, "alpha_claim": claim}
+
+
 def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, quotes: Path = red.QUOTES,
              out: Path = OUT) -> dict:
     counts: dict = {}
@@ -1693,6 +1830,8 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "forward_sequential": forward_sequential(out, journal, cands, horizon, instances, as_of),
               "model": model.describe() if model else None,
               "production_influence": "NONE", "orders_created": 0}
+    status["label_pipeline"] = label_pipeline(cands, as_of, horizon, archive_start(quotes))
+    status["learning_status"] = learning_status(status["label_pipeline"], wf, status["forward"])
     mine = [i for i in instances if i.get("horizon") == horizon and i.get("experiment_id") == status["experiment_id"]]
     status["model_instances"] = {"count": len(mine), "latest": {k: v for k, v in mine[-1].items() if k != "features"}
                                  if mine else None}
@@ -1934,6 +2073,8 @@ def _answers(st: dict) -> dict:
     gate = release_gate(wf, fw, seq)
     latest = (st.get("model_instances") or {}).get("latest") or {}
     inst_count = (st.get("model_instances") or {}).get("count", 0)
+    lp, ls = st.get("label_pipeline") or {}, st.get("learning_status") or {}
+    weak = ((wf.get("segments") or {}).get("weak") or []) + ((fw.get("segments") or {}).get("weak") or [])
     return {
         "data": ("Ja" if st.get("option_snapshots_7d") else "Nein",
                  f"{st.get('ledger_rows_7d', 0)} Kandidaten, {st.get('option_snapshots_7d', 0)} mit Optionskontrakt (7 T)"),
@@ -1974,6 +2115,18 @@ def _answers(st: dict) -> dict:
                            rep_text if rep.get("by_sample") else "noch keine bewerteten Entscheidungen"),
         "gates": ("offen" if not gates else "Ja",
                   gate_text or f"noch keine Gruppe mit >= {MIN_GATE_N} Labels an >= {MIN_GATE_DATES} Tagen"),
+        "labels": ("offen" if not lp else "Ja" if lp.get("verified") else "Nein",
+                   (f"{lp.get('verified', 0)} geprüft an {lp.get('independent_signal_days', 0)} unabhängigen "
+                    f"Signaltagen; {lp.get('not_yet_due', 0)} noch nicht fällig; technisch fehlend "
+                    f"{lp.get('technically_missing') or 'keine'} (Anteil {lp.get('technical_missing_share')}); "
+                    f"historische Lücke vor Archivstart {lp.get('archive_start')}: "
+                    f"{lp.get('historical_gap') or 'keine'}") if lp else "kein Label-Status"),
+        "learning_state": ({"FORWARD_POSITIVE": "Ja", "TECHNICAL_DEFECT": "Nein", "NOT_VALIDATED": "Nein",
+                            "FORWARD_NEGATIVE": "Nein"}.get(ls.get("state"), "offen"),
+                           f"{ls.get('state', 'n/a')} – {ls.get('reason', '')}; Netto Ø gewählt (Walk-Forward) "
+                           f"{_fmt(wf.get('mean_selected'))}, ADVERSE-Einstieg {_fmt(wf.get('mean_selected_adverse_entry'))}; "
+                           f"schwache Segmente: " + (", ".join(f"{w['dimension']}={w['level']} {_fmt(w['mean'])} "
+                                                                 f"(n={w['n']})" for w in weak) or "keine belegten")),
         "proven": ("Ja" if gate["allowed"] else "Nein",
                    "nur bei VALIDATED, FORWARD_POSITIVE und sequenzieller Bestätigung samt Mindestzahlen"),
         "self_limit": ("Ja", "Empfehlungen freigegeben" if gate["allowed"] else
@@ -1996,6 +2149,8 @@ CARD_QUESTIONS = (
     ("expressions", "Welche Optionsform schneidet ab, was bringt die Wahl des Modells (Ø netto, ungesehen)?"),
     ("representative", "Ist die Evidenz repräsentativ (Forschung vs. Richtungssignale, Zeitraum)?"),
     ("gates", "Was bringen die verworfenen Kandidaten je Filter (Ø netto, beschreibend)?"),
+    ("labels", "Wie viele Labels sind geprüft, ausstehend oder fehlend (mit Ursache)?"),
+    ("learning_state", "Welchen Lernstatus hat das Modell (netto, ADVERSE, schwache Segmente)?"),
     ("proven", "Ist eine profitable Optionsstrategie nachgewiesen?"),
     ("self_limit", "Begrenzt es sich selbst?"),
     ("gaps", "Welche Lücken erkennt es selbst (Daten, Modell, Evidenz)?"),

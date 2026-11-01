@@ -103,6 +103,9 @@ def config(root: Path = Path(".")) -> dict:
         src = (cfg.get("sources") or {}).get(name) or {}
         if not 0 <= int(src.get("top_k", -1)) <= 5 or not 0 <= int(src.get("bottom_k", -1)) <= 10:
             raise EvidenceIntegrityError("source tail sizes invalid: " + name)
+    fac = (cfg.get("sources") or {}).get("factory_challenger")
+    if fac is not None and (not 0 <= int(fac.get("top_k", -1)) <= 5 or int(fac.get("bottom_k", -1)) != 0):
+        raise EvidenceIntegrityError("source tail sizes invalid: factory_challenger (top only, no bottom tail)")
     rule = cfg.get("rule") or {}
     if tuple(rule.get("structures") or ()) != STRUCTURES or rule.get("direction") != "BULLISH":
         raise EvidenceIntegrityError("only LONG_CALL and BULL_CALL_SPREAD are allowed")
@@ -343,6 +346,81 @@ def _tails(ranked: list[tuple[str, float]], top_k: int, bottom_k: int):
     return top, bottom
 
 
+FACTORY_CHALLENGERS = Path("outputs/research/factory_challengers.jsonl")
+FACTORY_FORWARD = Path("outputs/research/factory_forward_ledger.jsonl")
+
+
+def _jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            try:
+                out.append(json.loads(line))
+            except ValueError:
+                continue
+    return out
+
+
+def _factory_batches(root: Path, fsrc: dict, link_start: date, max_age: timedelta, now: datetime,
+                     stats: Counter) -> list[dict]:
+    """Prospective Challenger der Hypothesis Factory (eingefroren nach Lab + Robustheit) -> Options-Signale.
+    Nur Forward-Ledger-Zeilen, die NACH der Registrierung, ab forward_start und frisch (Stichtag höchstens
+    registration_max_age_days vor der Erfassung, kein Nachtrag) erfasst wurden. Das Top-Dezil ist im Ledger nicht
+    nach Score sortiert: die Auswahl ist ein deterministischer Hash je (Hypothese, Tag, Ticker) – unabhängig von
+    späteren Renditen und ohne nachträgliche Strukturwahl."""
+    challengers = {}
+    for c in _jsonl(Path(root) / FACTORY_CHALLENGERS):
+        challengers.setdefault(c.get("hypothesis_id"), c)              # erste Registrierung bindet
+    out, k_top = [], int(fsrc["top_k"])
+    for r in _jsonl(Path(root) / FACTORY_FORWARD):
+        created = _ts(r.get("recorded_at"))
+        if created is None or created.date() < link_start:
+            stats["fac_pre_link_rows"] += 1
+            continue
+        if created > now or now - created > max_age:
+            stats["fac_late_or_future"] += 1
+            continue
+        c = challengers.get(r.get("hypothesis_id"))
+        if c is None:
+            stats["fac_unregistered"] += 1
+            continue
+        if r.get("spec_hash") != c.get("spec_hash"):
+            stats["fac_spec_hash_mismatch"] += 1
+            continue
+        reg_at = _ts(str(c.get("registered_at")))
+        if reg_at is None or created <= reg_at:
+            stats["fac_pre_registration"] += 1
+            continue
+        try:
+            pit, start = date.fromisoformat(str(r["date"])[:10]), date.fromisoformat(str(c["forward_start"])[:10])
+        except (KeyError, ValueError):
+            stats["fac_bad_date"] += 1
+            continue
+        if pit < start:
+            stats["fac_pre_forward_start"] += 1
+            continue
+        if (created.date() - pit).days > max_age.days:
+            stats["fac_backfilled_stale"] += 1
+            continue
+        hid = str(r["hypothesis_id"])
+        top = sorted(map(str, r.get("top_decile") or []),
+                     key=lambda t: hashlib.sha256(f"{hid}|{pit.isoformat()}|{t}".encode()).hexdigest())[:k_top]
+        out.append({
+            "hypothesis_id": hid, "hypothesis_source": "factory_challenger", "comparison_group": "TREATMENT",
+            "hypothesis_version": c["spec_hash"], "hypothesis_hash": digest(c.get("spec") or c["spec_hash"]),
+            "hypothesis_registered_at": str(c["registered_at"]), "model_id": hid,
+            "experiment_version": f"hypothesis_factory:{c['spec_hash'][:16]}",
+            "prediction_ref": {"journal": str(FACTORY_FORWARD), "hash": digest(r), "created_at": r["recorded_at"],
+                               "prediction_date": pit.isoformat(), "n_universe": r.get("n_cross_section"),
+                               "selection": "hash_sample_of_top_decile"},
+            "signal_time": _iso(created), "pit_data_date": pit.isoformat(),
+            "top": [(t, None) for t in top], "bottom": [], "universe": [], "expected": None,
+        })
+    return out
+
+
 def _sources(root: Path, cfg: dict, now: datetime) -> tuple[list[dict], dict]:
     """Normalized hypothesis predictions from the existing journals."""
     stats = Counter()
@@ -437,6 +515,8 @@ def _sources(root: Path, cfg: dict, now: datetime) -> tuple[list[dict], dict]:
                     "signal_time": _iso(created), "pit_data_date": p["prediction_date"],
                     "top": top, "bottom": bottom, "universe": [], "expected": None,
                 })
+    if (src.get("factory_challenger") or {}).get("enabled"):
+        batches += _factory_batches(root, src["factory_challenger"], link_start, max_age, now, stats)
     return batches, dict(stats)
 
 
