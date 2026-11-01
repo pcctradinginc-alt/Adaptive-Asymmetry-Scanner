@@ -1911,6 +1911,16 @@ def _mark_quotes(symbols: list[str]) -> tuple[str, dict]:
     return "archive", oq.rth_quote_history(symbols, now, lookback_days=MARK_ARCHIVE_LOOKBACK_DAYS)
 
 
+def _short_leg_history(symbols: list[str]) -> dict:
+    """Archivierte RTH-Quotes der Spread-Short-Legs nach der Exit-Regel für Short-Legs (Rückkauf zum Ask:
+    option_quotes.usable_rth_exit_quote) – ein Bid von 0 verschiebt den Mark nicht. Leer ohne Short-Legs."""
+    from modules import option_quotes as oq
+    if not symbols:
+        return {}
+    return oq.rth_quote_history(symbols, _now_utc(), lookback_days=MARK_ARCHIVE_LOOKBACK_DAYS,
+                                short_symbols=symbols)
+
+
 def _archived_mark(history: dict, symbols: list[str], due_day: str) -> tuple[str, list[dict]] | None:
     """Frühester NY-Handelstag >= due_day, an dem ALLE symbols (Spread: beide Legs) eine verwertbare RTH-Quote
     haben -> (Tag, [erste Quote je Symbol an diesem Tag]); sonst None (Mark bleibt offen)."""
@@ -2099,6 +2109,9 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
         if leg.get("symbol")
     })
     mode, quotes = _mark_quotes(symbols)
+    short_syms = sorted({leg.get("symbol") for t in tasks for leg in (t[0]["real_strategy"].get("legs") or [])
+                         if leg.get("side") == "short" and leg.get("symbol")})
+    short_hist = _short_leg_history(short_syms) if mode == "archive" else {}
 
     changed = False
     for row, h, entry_dt in tasks:
@@ -2146,7 +2159,11 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                     q_by = {sym: quotes.get(sym) for sym in leg_syms}
                     mark_day = today_dt.strftime("%Y-%m-%d")
                 else:                                 # beide Legs vom selben Handelstag
-                    m = _archived_mark(quotes, leg_syms, (entry_dt + timedelta(days=h)).strftime("%Y-%m-%d"))
+                    # Short-Leg: Rückkauf zum Ask -> Exit-Regel für Short-Legs (Bid 0 zulässig), Long-Leg unverändert
+                    hist = dict(quotes)
+                    if short_leg is not None and short_hist.get(short_leg.get("symbol")):
+                        hist[short_leg.get("symbol")] = short_hist[short_leg.get("symbol")]
+                    m = _archived_mark(hist, leg_syms, (entry_dt + timedelta(days=h)).strftime("%Y-%m-%d"))
                     if not m:
                         continue
                     mark_day, recs = m

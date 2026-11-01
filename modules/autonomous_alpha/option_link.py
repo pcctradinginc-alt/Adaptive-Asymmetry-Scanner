@@ -849,6 +849,7 @@ def _exit_quotes(d: dict, quotes: list[dict], now: datetime) -> tuple[str, list[
     from modules import option_quotes as oq
     target, deadline = d["exit_target_day"], d["exit_deadline_day"]
     want = [leg["occ_symbol"] for leg in d["legs"]]
+    side = {leg["occ_symbol"]: leg.get("side", "long") for leg in d["legs"]}
     per_day: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
     for q in quotes:
         sym = q.get("occ_symbol")
@@ -856,7 +857,7 @@ def _exit_quotes(d: dict, quotes: list[dict], now: datetime) -> tuple[str, list[
         day = oq.quote_day(q)
         if sym not in want or t is None or t > now or day is None:
             continue
-        if not target <= day <= deadline or not oq.usable_rth_quote(q):
+        if not target <= day <= deadline or not oq.usable_rth_exit_quote(q, side[sym]):
             continue
         per_day[day][sym].append(q)
     for day in sorted(per_day):

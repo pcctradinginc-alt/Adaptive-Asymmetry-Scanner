@@ -566,16 +566,35 @@ def usable_rth_quote(rec: dict | None) -> bool:
     return bid is not None and ask is not None and bid > 0 and ask > 0
 
 
+def usable_rth_exit_quote(rec: dict | None, side: str = "long") -> bool:
+    """Exit-Verwertbarkeit je Leg-Seite eines Spreads. Long-Legs werden zum Bid verkauft: identisch mit
+    usable_rth_quote (Bid und Ask > 0). Short-Legs werden zum Ask zurückgekauft: Ask > 0 genügt, ein Bid von 0
+    (Short-Leg tief aus dem Geld) ist ein gültig beobachteter Kurs. Sonst würde ausgerechnet der Mark verlustreicher
+    Spreads verschoben oder verworfen (Audit 2026-11-01: PTC270416C00210000, Bid 0 / Ask 0,20 am Fälligkeitstag).
+    Gleiches Mark-Fenster, gleiche Sitzung, nie UNUSABLE/STALE."""
+    if side != "short":
+        return usable_rth_quote(rec)
+    if not rec or rec.get("quality_status") == "UNUSABLE" or "STALE" in (rec.get("quality_flags") or []):
+        return False
+    if mark_window(rec.get("retrieved_at"), rec.get("occ_symbol")) != "IN_WINDOW" or quote_session(rec) != "RTH":
+        return False
+    bid, ask = _num(rec.get("bid")), _num(rec.get("ask"))
+    return bid is not None and ask is not None and bid >= 0 and ask > 0
+
+
 def rth_quote_history(symbols, as_of, *, root: Path | None = None,
-                      lookback_days: int = 10) -> dict[str, list[tuple[str, dict]]]:
+                      lookback_days: int = 10, short_symbols=()) -> dict[str, list[tuple[str, dict]]]:
     """Point-in-time: je OCC-Symbol alle verwertbaren RTH-Quotes (usable_rth_quote) mit retrieved_at <= as_of
     aus den letzten lookback_days Tagesdateien als [(quote_day, Record)], aufsteigend nach retrieved_at
     (quote_day = Tag der Börsenzeit: eine am Morgen abgerufene, seit gestern unveränderte Quote zählt für gestern).
-    Grundlage für Marks, deren Lauf selbst außerhalb der Sitzung liegt (Erfassung und Mark entkoppelt). Wirft nie."""
+    Grundlage für Marks, deren Lauf selbst außerhalb der Sitzung liegt (Erfassung und Mark entkoppelt).
+    short_symbols: Spread-Short-Legs, die mit usable_rth_exit_quote(..., "short") geprüft werden (Rückkauf zum Ask);
+    Standard leer = bisheriges Verhalten für alle Symbole (u. a. timing_policy). Wirft nie."""
     out: dict[str, list[tuple[str, dict]]] = {}
     try:
         ts = _parse_ts(as_of)
         want = {str(x).strip().upper().replace(" ", "") for x in (symbols or []) if x}
+        short = {str(x).strip().upper().replace(" ", "") for x in (short_symbols or []) if x}
         if ts is None or not want:
             return out
         base = Path(root) if root is not None else ROOT
@@ -586,7 +605,8 @@ def rth_quote_history(symbols, as_of, *, root: Path | None = None,
             for r in _read_day(path):
                 sym = r.get("occ_symbol")
                 t = _parse_ts(r.get("retrieved_at"))
-                if sym in want and t is not None and t <= ts and usable_rth_quote(r):
+                if sym in want and t is not None and t <= ts and (
+                        usable_rth_exit_quote(r, "short") if sym in short else usable_rth_quote(r)):
                     out.setdefault(sym, []).append((quote_day(r), r))
         for sym in out:
             out[sym].sort(key=lambda x: str(x[1].get("retrieved_at")))
