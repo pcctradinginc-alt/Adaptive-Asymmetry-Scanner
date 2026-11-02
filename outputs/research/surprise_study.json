@@ -1,98 +1,98 @@
 {
-  "n_events": 21917,
-  "n_tickers": 588,
+  "n_events": 21953,
+  "n_tickers": 591,
   "period": [
     "2014-02-06",
-    "2026-10-02"
+    "2026-11-02"
   ],
   "hypotheses": {
     "S1_pead": {
       "description": "Richtung der fundamentalen Überraschung setzt sich fort (PEAD), long/short",
       "h20": {
         "base_cost": {
-          "n": 13930,
-          "n_dates": 1422,
-          "n_months": 93,
-          "mean": -0.00137,
-          "median": -0.00348,
-          "hit_rate": 0.47703,
-          "t_months": 0.34676,
-          "sharpe_ann": 0.12456,
-          "sortino_ann": 0.19679,
-          "max_dd_monthly_cohorts": -0.11824,
+          "n": 13916,
+          "n_dates": 1433,
+          "n_months": 94,
+          "mean": -0.00135,
+          "median": -0.00351,
+          "hit_rate": 0.47693,
+          "t_months": 0.59166,
+          "sharpe_ann": 0.2114,
+          "sortino_ann": 0.35692,
+          "max_dd_monthly_cohorts": -0.11829,
           "years_positive_share": 0.375,
           "by_year": {
-            "2019": -0.00139,
-            "2020": -0.00058,
-            "2021": 0.00333,
-            "2022": 0.00522,
-            "2023": -0.00857,
-            "2024": -0.00689,
-            "2025": 0.00253,
-            "2026": -0.00525
+            "2019": -0.00136,
+            "2020": -0.00059,
+            "2021": 0.00336,
+            "2022": 0.00528,
+            "2023": -0.0087,
+            "2024": -0.00697,
+            "2025": 0.00245,
+            "2026": -0.00479
           }
         },
         "stress_cost": {
-          "mean": -0.00437,
-          "t_months": -1.28348
+          "mean": -0.00435,
+          "t_months": -0.94852
         },
         "regimes": {
           "vix_low": {
-            "n": 8826,
-            "mean": -0.00278,
-            "t_months": -0.40195
+            "n": 8828,
+            "mean": -0.00276,
+            "t_months": -0.1215
           },
           "vix_high": {
-            "n": 5104,
-            "mean": 0.00107,
-            "t_months": -0.28345
+            "n": 5088,
+            "mean": 0.00109,
+            "t_months": -0.2839
           },
           "trend_up": {
-            "n": 11117,
-            "mean": -0.00229,
-            "t_months": 0.92483
+            "n": 11112,
+            "mean": -0.00226,
+            "t_months": 1.12127
           },
           "trend_down": {
-            "n": 2813,
-            "mean": 0.00224,
-            "t_months": -0.42079
+            "n": 2804,
+            "mean": 0.00226,
+            "t_months": -0.5225
           }
         },
         "lag": {
-          "n": 13921,
+          "n": 13909,
           "mean": -0.00109,
-          "t_months": -0.7123
+          "t_months": -0.28962
         },
         "replication": {
           "universe_A": {
-            "n": 6955,
-            "mean": -0.00152,
-            "t_months": -1.32795
+            "n": 6928,
+            "mean": -0.00149,
+            "t_months": -0.7462
           },
           "universe_B": {
-            "n": 6975,
-            "mean": -0.00122,
-            "t_months": 0.92928
+            "n": 6988,
+            "mean": -0.00121,
+            "t_months": -0.04909
           },
           "period_early": {
-            "n": 6940,
-            "mean": 0.00175,
-            "t_months": 0.62334
+            "n": 6921,
+            "mean": 0.00178,
+            "t_months": 0.63001
           },
           "period_late": {
-            "n": 6990,
-            "mean": -0.00447,
-            "t_months": -0.06313
+            "n": 6995,
+            "mean": -0.00444,
+            "t_months": 0.26829
           }
         },
-        "p_value": 0.7287716300532843,
+        "p_value": 0.5540782870084614,
         "bh_significant": false,
         "placebo_p": null
       },
       "decision": {
         "verdict": "REJECT",
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00137, t=0.34676)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00135, t=0.59166)",
           "nur 0.375 der Jahre positiv",
           "bei 25 bp/Seite nicht positiv",
           "nicht signifikant nach Benjamini-Hochberg (q=0.1)",
@@ -104,82 +104,82 @@
       },
       "h60": {
         "base_cost": {
-          "n": 13471,
-          "n_dates": 1387,
-          "n_months": 91,
-          "mean": -0.00429,
-          "median": -0.00748,
-          "hit_rate": 0.46968,
-          "t_months": -0.70526,
-          "sharpe_ann": -0.2561,
-          "sortino_ann": -0.34433,
-          "max_dd_monthly_cohorts": -0.40736,
+          "n": 13849,
+          "n_dates": 1406,
+          "n_months": 92,
+          "mean": -0.00475,
+          "median": -0.00837,
+          "hit_rate": 0.46689,
+          "t_months": -0.66575,
+          "sharpe_ann": -0.24044,
+          "sortino_ann": -0.32425,
+          "max_dd_monthly_cohorts": -0.41039,
           "years_positive_share": 0.25,
           "by_year": {
-            "2019": -0.00806,
-            "2020": -0.00034,
-            "2021": 0.00056,
-            "2022": 0.00747,
-            "2023": -0.01673,
-            "2024": -0.01309,
-            "2025": -0.00144,
-            "2026": -0.00086
+            "2019": -0.00817,
+            "2020": -0.00044,
+            "2021": 0.0007,
+            "2022": 0.00778,
+            "2023": -0.01708,
+            "2024": -0.01338,
+            "2025": -0.0022,
+            "2026": -0.00509
           }
         },
         "stress_cost": {
-          "mean": -0.00729,
-          "t_months": -1.71434
+          "mean": -0.00775,
+          "t_months": -1.66677
         },
         "regimes": {
           "vix_low": {
-            "n": 8412,
-            "mean": -0.00904,
-            "t_months": -2.22618
+            "n": 8761,
+            "mean": -0.0093,
+            "t_months": -2.18406
           },
           "vix_high": {
-            "n": 5059,
-            "mean": 0.00361,
-            "t_months": 0.37481
+            "n": 5088,
+            "mean": 0.00308,
+            "t_months": 0.20894
           },
           "trend_up": {
-            "n": 10658,
-            "mean": -0.00571,
-            "t_months": 0.28405
+            "n": 11045,
+            "mean": -0.00628,
+            "t_months": 0.2851
           },
           "trend_down": {
-            "n": 2813,
-            "mean": 0.00109,
-            "t_months": 0.46672
+            "n": 2804,
+            "mean": 0.00126,
+            "t_months": 0.35967
           }
         },
         "lag": {
-          "n": 13470,
-          "mean": -0.00374,
-          "t_months": -1.73696
+          "n": 13717,
+          "mean": -0.00395,
+          "t_months": -1.52241
         },
         "replication": {
           "universe_A": {
-            "n": 6721,
-            "mean": -0.00555,
-            "t_months": -2.78075
+            "n": 6898,
+            "mean": -0.00607,
+            "t_months": -2.69624
           },
           "universe_B": {
-            "n": 6750,
-            "mean": -0.00304,
-            "t_months": 0.79214
+            "n": 6951,
+            "mean": -0.00345,
+            "t_months": 0.97016
           },
           "period_early": {
-            "n": 6940,
-            "mean": 0.00012,
-            "t_months": 0.05574
+            "n": 6921,
+            "mean": 0.00019,
+            "t_months": 0.05968
           },
           "period_late": {
-            "n": 6531,
-            "mean": -0.00898,
-            "t_months": -1.02512
+            "n": 6928,
+            "mean": -0.00969,
+            "t_months": -0.95632
           }
         },
-        "p_value": 0.4806484482792497,
+        "p_value": 0.505570908675079,
         "bh_significant": false
       }
     },
@@ -187,175 +187,174 @@
       "description": "Oberes Trainings-Terzil der fundamentalen Überraschung, nur long",
       "h20": {
         "base_cost": {
-          "n": 5367,
-          "n_dates": 1055,
-          "n_months": 93,
+          "n": 5359,
+          "n_dates": 1058,
+          "n_months": 94,
           "mean": 0.00037,
-          "median": -0.00462,
-          "hit_rate": 0.46879,
-          "t_months": 0.06234,
-          "sharpe_ann": 0.02239,
-          "sortino_ann": 0.03546,
-          "max_dd_monthly_cohorts": -0.33939,
+          "median": -0.00466,
+          "hit_rate": 0.46893,
+          "t_months": 0.12669,
+          "sharpe_ann": 0.04526,
+          "sortino_ann": 0.06899,
+          "max_dd_monthly_cohorts": -0.33931,
           "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.00691,
+            "2019": -0.00684,
             "2020": 0.0043,
-            "2021": 0.00912,
-            "2022": 0.01177,
-            "2023": -0.01965,
-            "2024": -0.00805,
-            "2025": 0.0062,
-            "2026": -0.00269
+            "2021": 0.00921,
+            "2022": 0.012,
+            "2023": -0.01986,
+            "2024": -0.00863,
+            "2025": 0.00609,
+            "2026": -0.00217
           }
         },
         "stress_cost": {
           "mean": -0.00263,
-          "t_months": -0.76199
+          "t_months": -0.73948
         },
         "regimes": {
           "vix_low": {
-            "n": 3250,
+            "n": 3245,
             "mean": -0.00476,
-            "t_months": -1.23451
+            "t_months": -1.25409
           },
           "vix_high": {
-            "n": 2117,
-            "mean": 0.00823,
-            "t_months": -0.22012
+            "n": 2114,
+            "mean": 0.00825,
+            "t_months": -0.19319
           },
           "trend_up": {
-            "n": 4391,
-            "mean": -0.00089,
-            "t_months": 0.40552
+            "n": 4385,
+            "mean": -0.00088,
+            "t_months": 0.45994
           },
           "trend_down": {
-            "n": 976,
-            "mean": 0.006,
-            "t_months": -0.77367
+            "n": 974,
+            "mean": 0.00603,
+            "t_months": -0.82748
           }
         },
         "lag": {
-          "n": 5366,
-          "mean": 0.00128,
-          "t_months": -0.3612
+          "n": 5357,
+          "mean": 0.00117,
+          "t_months": -0.15967
         },
         "replication": {
           "universe_A": {
-            "n": 2624,
-            "mean": 0.00048,
-            "t_months": -0.52778
+            "n": 2607,
+            "mean": 0.0006,
+            "t_months": -0.17745
           },
           "universe_B": {
-            "n": 2743,
-            "mean": 0.00025,
-            "t_months": 0.54181
+            "n": 2752,
+            "mean": 0.00016,
+            "t_months": 0.25203
           },
           "period_early": {
-            "n": 3065,
-            "mean": 0.00529,
-            "t_months": 0.92289
+            "n": 3055,
+            "mean": 0.00539,
+            "t_months": 0.94414
           },
           "period_late": {
-            "n": 2302,
-            "mean": -0.00619,
-            "t_months": -0.41808
+            "n": 2304,
+            "mean": -0.00628,
+            "t_months": -0.3819
           }
         },
-        "p_value": 0.9502920750121661,
+        "p_value": 0.8991857609037289,
         "bh_significant": false,
-        "placebo_p": 0.0693
+        "placebo_p": 0.0297
       },
       "decision": {
         "verdict": "REJECT",
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=0.00037, t=0.06234)",
+          "OOS-Mittel/t nicht ausreichend (mean=0.00037, t=0.12669)",
           "nur 0.5 der Jahre positiv",
           "bei 25 bp/Seite nicht positiv",
           "nicht signifikant nach Benjamini-Hochberg (q=0.1)",
-          "Placebo nicht übertroffen (p=0.0693)",
           "Replikation (Universumshälften / Zeithälften) nicht durchgehend positiv",
           "nicht in allen Regimen positiv"
         ]
       },
       "h60": {
         "base_cost": {
-          "n": 5215,
-          "n_dates": 1028,
-          "n_months": 91,
-          "mean": -0.00148,
-          "median": -0.0094,
-          "hit_rate": 0.4652,
-          "t_months": -0.28194,
-          "sharpe_ann": -0.10238,
-          "sortino_ann": -0.14938,
-          "max_dd_monthly_cohorts": -0.71969,
-          "years_positive_share": 0.625,
+          "n": 5357,
+          "n_dates": 1044,
+          "n_months": 92,
+          "mean": -0.00267,
+          "median": -0.01062,
+          "hit_rate": 0.46089,
+          "t_months": -0.09657,
+          "sharpe_ann": -0.03488,
+          "sortino_ann": -0.05423,
+          "max_dd_monthly_cohorts": -0.73116,
+          "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.01631,
-            "2020": 0.00737,
-            "2021": 0.00753,
-            "2022": 0.01468,
-            "2023": -0.03515,
-            "2024": -0.01381,
-            "2025": 0.00638,
-            "2026": 0.01149
+            "2019": -0.01669,
+            "2020": 0.00723,
+            "2021": 0.00773,
+            "2022": 0.01505,
+            "2023": -0.03514,
+            "2024": -0.01445,
+            "2025": 0.00474,
+            "2026": -0.00405
           }
         },
         "stress_cost": {
-          "mean": -0.00448,
-          "t_months": -0.72056
+          "mean": -0.00567,
+          "t_months": -0.54174
         },
         "regimes": {
           "vix_low": {
-            "n": 3109,
-            "mean": -0.01317,
-            "t_months": -2.45323
+            "n": 3236,
+            "mean": -0.01433,
+            "t_months": -2.39487
           },
           "vix_high": {
-            "n": 2106,
-            "mean": 0.01577,
-            "t_months": 0.65211
+            "n": 2121,
+            "mean": 0.01511,
+            "t_months": 0.60076
           },
           "trend_up": {
-            "n": 4233,
-            "mean": -0.0026,
-            "t_months": 0.07234
+            "n": 4377,
+            "mean": -0.00402,
+            "t_months": 0.18682
           },
           "trend_down": {
-            "n": 982,
-            "mean": 0.00333,
-            "t_months": -0.33399
+            "n": 980,
+            "mean": 0.00335,
+            "t_months": -0.36082
           }
         },
         "lag": {
-          "n": 5215,
-          "mean": -0.00137,
-          "t_months": -0.5039
+          "n": 5305,
+          "mean": -0.00229,
+          "t_months": -0.26554
         },
         "replication": {
           "universe_A": {
-            "n": 2537,
-            "mean": -0.00349,
-            "t_months": -2.3108
+            "n": 2596,
+            "mean": -0.00464,
+            "t_months": -2.30422
           },
           "universe_B": {
-            "n": 2678,
-            "mean": 0.00042,
-            "t_months": 1.33252
+            "n": 2761,
+            "mean": -0.00083,
+            "t_months": 1.29384
           },
           "period_early": {
-            "n": 3098,
-            "mean": 0.00455,
-            "t_months": 1.0671
+            "n": 3088,
+            "mean": 0.0046,
+            "t_months": 1.07661
           },
           "period_late": {
-            "n": 2117,
-            "mean": -0.01031,
-            "t_months": -0.93215
+            "n": 2269,
+            "mean": -0.01258,
+            "t_months": -0.72373
           }
         },
-        "p_value": 0.777989517582282,
+        "p_value": 0.923067881644883,
         "bh_significant": false
       }
     },
@@ -363,89 +362,89 @@
       "description": "Unpriced Surprise (Perzentil Fundamental − Perzentil Reaktion), oberes vs. unteres Terzil",
       "h20": {
         "base_cost": {
-          "n": 9880,
-          "n_dates": 1305,
-          "n_months": 93,
-          "mean": -0.00147,
-          "median": -0.00382,
-          "hit_rate": 0.475,
-          "t_months": 0.81574,
-          "sharpe_ann": 0.29302,
-          "sortino_ann": 0.54137,
-          "max_dd_monthly_cohorts": -0.18172,
+          "n": 9879,
+          "n_dates": 1316,
+          "n_months": 94,
+          "mean": -0.00154,
+          "median": -0.00408,
+          "hit_rate": 0.47424,
+          "t_months": 0.56789,
+          "sharpe_ann": 0.20291,
+          "sortino_ann": 0.31342,
+          "max_dd_monthly_cohorts": -0.18447,
           "years_positive_share": 0.375,
           "by_year": {
-            "2019": -0.00829,
-            "2020": -0.00092,
-            "2021": 0.00145,
-            "2022": -0.0031,
-            "2023": -0.0036,
-            "2024": -0.00378,
-            "2025": 0.00313,
-            "2026": 0.00381
+            "2019": -0.00838,
+            "2020": -0.00096,
+            "2021": 0.0015,
+            "2022": -0.00311,
+            "2023": -0.00397,
+            "2024": -0.00369,
+            "2025": 0.00291,
+            "2026": 0.00372
           }
         },
         "stress_cost": {
-          "mean": -0.00447,
-          "t_months": -0.50991
+          "mean": -0.00454,
+          "t_months": -1.03353
         },
         "regimes": {
           "vix_low": {
-            "n": 6307,
-            "mean": -0.00233,
-            "t_months": 0.11824
+            "n": 6319,
+            "mean": -0.00245,
+            "t_months": -0.35603
           },
           "vix_high": {
-            "n": 3573,
-            "mean": 5e-05,
-            "t_months": -0.36874
+            "n": 3560,
+            "mean": 8e-05,
+            "t_months": -0.32653
           },
           "trend_up": {
-            "n": 7982,
-            "mean": -0.00111,
-            "t_months": 0.65682
+            "n": 7987,
+            "mean": -0.0012,
+            "t_months": 0.40312
           },
           "trend_down": {
-            "n": 1898,
-            "mean": -0.00295,
-            "t_months": -0.08784
+            "n": 1892,
+            "mean": -0.00298,
+            "t_months": -0.0567
           }
         },
         "lag": {
-          "n": 9875,
-          "mean": -0.0002,
-          "t_months": 1.02167
+          "n": 9869,
+          "mean": -0.00028,
+          "t_months": 1.18881
         },
         "replication": {
           "universe_A": {
-            "n": 4964,
-            "mean": -0.00182,
-            "t_months": 0.21117
+            "n": 4950,
+            "mean": -0.00188,
+            "t_months": 0.0401
           },
           "universe_B": {
-            "n": 4916,
-            "mean": -0.00111,
-            "t_months": 1.33597
+            "n": 4929,
+            "mean": -0.0012,
+            "t_months": 0.94559
           },
           "period_early": {
-            "n": 4946,
-            "mean": -0.00256,
-            "t_months": 0.44171
+            "n": 4935,
+            "mean": -0.00258,
+            "t_months": 0.44586
           },
           "period_late": {
-            "n": 4934,
-            "mean": -0.00037,
-            "t_months": 0.68499
+            "n": 4944,
+            "mean": -0.0005,
+            "t_months": 0.34953
           }
         },
-        "p_value": 0.41464885615987923,
+        "p_value": 0.5701096625713773,
         "bh_significant": false,
         "placebo_p": null
       },
       "decision": {
         "verdict": "REJECT",
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00147, t=0.81574)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00154, t=0.56789)",
           "nur 0.375 der Jahre positiv",
           "bei 25 bp/Seite nicht positiv",
           "nicht signifikant nach Benjamini-Hochberg (q=0.1)",
@@ -457,82 +456,82 @@
       },
       "h60": {
         "base_cost": {
-          "n": 9542,
-          "n_dates": 1272,
-          "n_months": 91,
-          "mean": 0.00211,
-          "median": -0.00027,
-          "hit_rate": 0.49927,
-          "t_months": 0.91461,
-          "sharpe_ann": 0.33213,
-          "sortino_ann": 0.47449,
-          "max_dd_monthly_cohorts": -0.21366,
+          "n": 9816,
+          "n_dates": 1289,
+          "n_months": 92,
+          "mean": 0.00199,
+          "median": -0.00066,
+          "hit_rate": 0.49766,
+          "t_months": 1.60563,
+          "sharpe_ann": 0.57989,
+          "sortino_ann": 0.98361,
+          "max_dd_monthly_cohorts": -0.21478,
           "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.00171,
-            "2020": 0.00685,
-            "2021": 0.00249,
-            "2022": -0.00645,
-            "2023": -0.00334,
-            "2024": -0.00318,
-            "2025": 0.00821,
-            "2026": 0.02273
+            "2019": -0.00187,
+            "2020": 0.00672,
+            "2021": 0.00269,
+            "2022": -0.00648,
+            "2023": -0.0034,
+            "2024": -0.00323,
+            "2025": 0.00743,
+            "2026": 0.01643
           }
         },
         "stress_cost": {
-          "mean": -0.00089,
-          "t_months": 0.10343
+          "mean": -0.00101,
+          "t_months": 0.67662
         },
         "regimes": {
           "vix_low": {
-            "n": 6008,
-            "mean": -0.00069,
-            "t_months": -0.77306
+            "n": 6260,
+            "mean": -0.00048,
+            "t_months": -0.27863
           },
           "vix_high": {
-            "n": 3534,
-            "mean": 0.00688,
-            "t_months": 1.96597
+            "n": 3556,
+            "mean": 0.00634,
+            "t_months": 1.78506
           },
           "trend_up": {
-            "n": 7649,
-            "mean": 0.00275,
-            "t_months": 0.21046
+            "n": 7927,
+            "mean": 0.00258,
+            "t_months": 0.71465
           },
           "trend_down": {
-            "n": 1893,
-            "mean": -0.00046,
-            "t_months": 1.87229
+            "n": 1889,
+            "mean": -0.00052,
+            "t_months": 1.9094
           }
         },
         "lag": {
-          "n": 9542,
-          "mean": 0.00351,
-          "t_months": 1.22409
+          "n": 9720,
+          "mean": 0.00328,
+          "t_months": 1.92706
         },
         "replication": {
           "universe_A": {
-            "n": 4795,
-            "mean": 0.00354,
-            "t_months": 0.0272
+            "n": 4919,
+            "mean": 0.00317,
+            "t_months": 0.629
           },
           "universe_B": {
-            "n": 4747,
-            "mean": 0.00068,
-            "t_months": 1.28221
+            "n": 4897,
+            "mean": 0.0008,
+            "t_months": 1.69155
           },
           "period_early": {
-            "n": 4949,
-            "mean": 0.00056,
-            "t_months": 0.76412
+            "n": 4941,
+            "mean": 0.00054,
+            "t_months": 0.75971
           },
           "period_late": {
-            "n": 4593,
-            "mean": 0.00379,
-            "t_months": 0.59587
+            "n": 4875,
+            "mean": 0.00345,
+            "t_months": 1.43239
           }
         },
-        "p_value": 0.3603964070674173,
+        "p_value": 0.10835522985572321,
         "bh_significant": false
       }
     },
@@ -540,89 +539,89 @@
       "description": "Unpriced Surprise oberes Terzil, nur long (produktionsnah: Long Calls)",
       "h20": {
         "base_cost": {
-          "n": 5361,
-          "n_dates": 1074,
-          "n_months": 93,
-          "mean": -0.00135,
-          "median": -0.0063,
-          "hit_rate": 0.45868,
-          "t_months": 0.60091,
-          "sharpe_ann": 0.21585,
-          "sortino_ann": 0.41394,
-          "max_dd_monthly_cohorts": -0.27944,
+          "n": 5356,
+          "n_dates": 1081,
+          "n_months": 94,
+          "mean": -0.00141,
+          "median": -0.00641,
+          "hit_rate": 0.45799,
+          "t_months": 0.52622,
+          "sharpe_ann": 0.18802,
+          "sortino_ann": 0.31104,
+          "max_dd_monthly_cohorts": -0.28008,
           "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.01083,
-            "2020": 0.00306,
-            "2021": 0.0069,
-            "2022": 0.00918,
-            "2023": -0.01713,
-            "2024": -0.01103,
-            "2025": 0.00367,
-            "2026": -0.00043
+            "2019": -0.011,
+            "2020": 0.00302,
+            "2021": 0.00699,
+            "2022": 0.00929,
+            "2023": -0.01763,
+            "2024": -0.01085,
+            "2025": 0.00344,
+            "2026": -0.00041
           }
         },
         "stress_cost": {
-          "mean": -0.00435,
-          "t_months": -0.29511
+          "mean": -0.00441,
+          "t_months": -0.5223
         },
         "regimes": {
           "vix_low": {
-            "n": 3339,
-            "mean": -0.00587,
-            "t_months": -0.8494
+            "n": 3341,
+            "mean": -0.00598,
+            "t_months": -1.24268
           },
           "vix_high": {
-            "n": 2022,
-            "mean": 0.00613,
-            "t_months": 0.20987
+            "n": 2015,
+            "mean": 0.00617,
+            "t_months": 0.22836
           },
           "trend_up": {
-            "n": 4446,
-            "mean": -0.00222,
-            "t_months": 0.5293
+            "n": 4445,
+            "mean": -0.00228,
+            "t_months": 0.42497
           },
           "trend_down": {
-            "n": 915,
-            "mean": 0.00288,
-            "t_months": -0.67342
+            "n": 911,
+            "mean": 0.00286,
+            "t_months": -0.73159
           }
         },
         "lag": {
-          "n": 5359,
-          "mean": -9e-05,
-          "t_months": -0.29741
+          "n": 5352,
+          "mean": -0.00018,
+          "t_months": 0.0005
         },
         "replication": {
           "universe_A": {
-            "n": 2628,
+            "n": 2616,
             "mean": -0.00182,
-            "t_months": -0.01094
+            "t_months": 0.00762
           },
           "universe_B": {
-            "n": 2733,
-            "mean": -0.00089,
-            "t_months": 0.5574
+            "n": 2740,
+            "mean": -0.00102,
+            "t_months": -0.00171
           },
           "period_early": {
-            "n": 2859,
-            "mean": 0.00302,
-            "t_months": 1.5131
+            "n": 2848,
+            "mean": 0.00303,
+            "t_months": 1.51499
           },
           "period_late": {
-            "n": 2502,
-            "mean": -0.00634,
-            "t_months": -0.29949
+            "n": 2508,
+            "mean": -0.00644,
+            "t_months": -0.6088
           }
         },
-        "p_value": 0.5478999323423999,
+        "p_value": 0.5987353595298637,
         "bh_significant": false,
         "placebo_p": null
       },
       "decision": {
         "verdict": "REJECT",
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00135, t=0.60091)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00141, t=0.52622)",
           "nur 0.5 der Jahre positiv",
           "bei 25 bp/Seite nicht positiv",
           "nicht signifikant nach Benjamini-Hochberg (q=0.1)",
@@ -634,82 +633,82 @@
       },
       "h60": {
         "base_cost": {
-          "n": 5174,
-          "n_dates": 1045,
-          "n_months": 91,
-          "mean": -0.0051,
-          "median": -0.01209,
-          "hit_rate": 0.45555,
-          "t_months": -0.79189,
-          "sharpe_ann": -0.28756,
-          "sortino_ann": -0.38871,
-          "max_dd_monthly_cohorts": -0.80617,
+          "n": 5335,
+          "n_dates": 1061,
+          "n_months": 92,
+          "mean": -0.00544,
+          "median": -0.01306,
+          "hit_rate": 0.45267,
+          "t_months": -0.4155,
+          "sharpe_ann": -0.15006,
+          "sortino_ann": -0.22073,
+          "max_dd_monthly_cohorts": -0.80594,
           "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.01521,
-            "2020": 0.00377,
-            "2021": 0.00661,
-            "2022": 0.01263,
+            "2019": -0.01561,
+            "2020": 0.00357,
+            "2021": 0.00691,
+            "2022": 0.01316,
             "2023": -0.03562,
-            "2024": -0.0234,
-            "2025": -0.00162,
-            "2026": 0.0107
+            "2024": -0.02343,
+            "2025": -0.00314,
+            "2026": 0.00317
           }
         },
         "stress_cost": {
-          "mean": -0.0081,
-          "t_months": -1.2834
+          "mean": -0.00844,
+          "t_months": -0.93688
         },
         "regimes": {
           "vix_low": {
-            "n": 3171,
-            "mean": -0.01515,
-            "t_months": -3.43124
+            "n": 3318,
+            "mean": -0.01486,
+            "t_months": -3.21597
           },
           "vix_high": {
-            "n": 2003,
-            "mean": 0.01081,
-            "t_months": 0.05151
+            "n": 2017,
+            "mean": 0.01006,
+            "t_months": -0.02712
           },
           "trend_up": {
-            "n": 4260,
-            "mean": -0.00655,
-            "t_months": -1.53328
+            "n": 4423,
+            "mean": -0.00688,
+            "t_months": -1.23333
           },
           "trend_down": {
-            "n": 914,
-            "mean": 0.00168,
-            "t_months": 0.03571
+            "n": 912,
+            "mean": 0.00154,
+            "t_months": 0.00676
           }
         },
         "lag": {
-          "n": 5174,
-          "mean": -0.00296,
-          "t_months": -0.72899
+          "n": 5281,
+          "mean": -0.00328,
+          "t_months": -0.45272
         },
         "replication": {
           "universe_A": {
-            "n": 2535,
-            "mean": -0.0067,
-            "t_months": -1.71808
+            "n": 2604,
+            "mean": -0.00765,
+            "t_months": -1.53137
           },
           "universe_B": {
-            "n": 2639,
-            "mean": -0.00357,
-            "t_months": 0.02393
+            "n": 2731,
+            "mean": -0.00333,
+            "t_months": 0.31809
           },
           "period_early": {
-            "n": 2879,
-            "mean": 0.00309,
-            "t_months": 0.89887
+            "n": 2872,
+            "mean": 0.00316,
+            "t_months": 0.90641
           },
           "period_late": {
-            "n": 2295,
-            "mean": -0.01537,
-            "t_months": -1.78963
+            "n": 2463,
+            "mean": -0.01547,
+            "t_months": -1.3648
           }
         },
-        "p_value": 0.42842481830978096,
+        "p_value": 0.6777759151566276,
         "bh_significant": false
       }
     },
@@ -717,90 +716,90 @@
       "description": "KONTROLLE: Richtung der Kursreaktion allein (ohne Fundamentaldaten)",
       "h20": {
         "base_cost": {
-          "n": 14595,
-          "n_dates": 1429,
-          "n_months": 93,
-          "mean": -0.0018,
-          "median": -0.00079,
-          "hit_rate": 0.49544,
-          "t_months": -2.58993,
-          "sharpe_ann": -0.93033,
-          "sortino_ann": -0.99279,
-          "max_dd_monthly_cohorts": -0.40951,
-          "years_positive_share": 0.25,
+          "n": 14581,
+          "n_dates": 1441,
+          "n_months": 94,
+          "mean": -0.00179,
+          "median": -0.00075,
+          "hit_rate": 0.49565,
+          "t_months": -2.65661,
+          "sharpe_ann": -0.94919,
+          "sortino_ann": -1.02358,
+          "max_dd_monthly_cohorts": -0.39839,
+          "years_positive_share": 0.125,
           "by_year": {
-            "2019": 0.00053,
+            "2019": 0.00063,
             "2020": -0.00061,
-            "2021": -0.00214,
-            "2022": -0.0026,
-            "2023": -0.00371,
-            "2024": 0.00019,
-            "2025": -0.00175,
-            "2026": -0.00478
+            "2021": -0.00215,
+            "2022": -0.00254,
+            "2023": -0.00356,
+            "2024": -3e-05,
+            "2025": -0.00165,
+            "2026": -0.00483
           }
         },
         "stress_cost": {
-          "mean": -0.0048,
-          "t_months": -4.32678
+          "mean": -0.00479,
+          "t_months": -4.51047
         },
         "regimes": {
           "vix_low": {
-            "n": 9280,
-            "mean": -0.00178,
-            "t_months": -2.75594
+            "n": 9282,
+            "mean": -0.00177,
+            "t_months": -2.81737
           },
           "vix_high": {
-            "n": 5315,
-            "mean": -0.00182,
-            "t_months": -1.37716
+            "n": 5299,
+            "mean": -0.00181,
+            "t_months": -1.38156
           },
           "trend_up": {
-            "n": 11652,
-            "mean": -0.00185,
-            "t_months": -1.93926
+            "n": 11647,
+            "mean": -0.00184,
+            "t_months": -1.95682
           },
           "trend_down": {
-            "n": 2943,
-            "mean": -0.00158,
-            "t_months": -0.67593
+            "n": 2934,
+            "mean": -0.00156,
+            "t_months": -0.6579
           }
         },
         "lag": {
-          "n": 14586,
-          "mean": -0.00247,
-          "t_months": -2.39289
+          "n": 14574,
+          "mean": -0.00245,
+          "t_months": -2.614
         },
         "replication": {
           "universe_A": {
-            "n": 7315,
+            "n": 7288,
             "mean": -0.00151,
-            "t_months": -2.08728
+            "t_months": -2.30635
           },
           "universe_B": {
-            "n": 7280,
-            "mean": -0.00209,
-            "t_months": -2.16085
+            "n": 7293,
+            "mean": -0.00206,
+            "t_months": -2.02289
           },
           "period_early": {
-            "n": 7300,
-            "mean": -0.00123,
-            "t_months": -2.61814
+            "n": 7281,
+            "mean": -0.0012,
+            "t_months": -2.6054
           },
           "period_late": {
-            "n": 7295,
-            "mean": -0.00236,
-            "t_months": -1.39821
+            "n": 7300,
+            "mean": -0.00237,
+            "t_months": -1.42495
           }
         },
-        "p_value": 0.00959954497964561,
+        "p_value": 0.007893069586758934,
         "bh_significant": true,
         "placebo_p": null
       },
       "decision": {
         "verdict": "REJECT",
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.0018, t=-2.58993)",
-          "nur 0.25 der Jahre positiv",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00179, t=-2.65661)",
+          "nur 0.125 der Jahre positiv",
           "bei 25 bp/Seite nicht positiv",
           "Lag-Test (5 T später) nicht positiv",
           "Replikation (Universumshälften / Zeithälften) nicht durchgehend positiv",
@@ -809,82 +808,82 @@
       },
       "h60": {
         "base_cost": {
-          "n": 14123,
-          "n_dates": 1394,
-          "n_months": 91,
-          "mean": -0.00334,
-          "median": -0.00229,
-          "hit_rate": 0.49133,
-          "t_months": -2.54366,
-          "sharpe_ann": -0.9237,
-          "sortino_ann": -1.08716,
-          "max_dd_monthly_cohorts": -0.59817,
+          "n": 14511,
+          "n_dates": 1413,
+          "n_months": 92,
+          "mean": -0.00346,
+          "median": -0.00224,
+          "hit_rate": 0.4917,
+          "t_months": -2.85262,
+          "sharpe_ann": -1.03024,
+          "sortino_ann": -1.18574,
+          "max_dd_monthly_cohorts": -0.63791,
           "years_positive_share": 0.25,
           "by_year": {
-            "2019": -0.00518,
-            "2020": -0.00466,
-            "2021": -0.00667,
-            "2022": -0.00103,
-            "2023": -0.00443,
-            "2024": 0.00236,
-            "2025": 0.00143,
-            "2026": -0.01424
+            "2019": -0.00519,
+            "2020": -0.00483,
+            "2021": -0.0068,
+            "2022": -0.00077,
+            "2023": -0.00421,
+            "2024": 0.00231,
+            "2025": 0.00193,
+            "2026": -0.01312
           }
         },
         "stress_cost": {
-          "mean": -0.00634,
-          "t_months": -3.73179
+          "mean": -0.00646,
+          "t_months": -4.05616
         },
         "regimes": {
           "vix_low": {
-            "n": 8854,
-            "mean": -0.00401,
-            "t_months": -1.89558
+            "n": 9212,
+            "mean": -0.00424,
+            "t_months": -2.21072
           },
           "vix_high": {
-            "n": 5269,
-            "mean": -0.0022,
-            "t_months": -1.11789
+            "n": 5299,
+            "mean": -0.0021,
+            "t_months": -1.10985
           },
           "trend_up": {
-            "n": 11180,
-            "mean": -0.00439,
-            "t_months": -1.37708
+            "n": 11577,
+            "mean": -0.00453,
+            "t_months": -1.62353
           },
           "trend_down": {
-            "n": 2943,
-            "mean": 0.00066,
-            "t_months": -0.10184
+            "n": 2934,
+            "mean": 0.00075,
+            "t_months": -0.09381
           }
         },
         "lag": {
-          "n": 14122,
-          "mean": -0.00405,
-          "t_months": -2.896
+          "n": 14376,
+          "mean": -0.00406,
+          "t_months": -2.77642
         },
         "replication": {
           "universe_A": {
-            "n": 7074,
-            "mean": -0.00425,
-            "t_months": -1.93573
+            "n": 7256,
+            "mean": -0.00405,
+            "t_months": -1.97365
           },
           "universe_B": {
-            "n": 7049,
-            "mean": -0.00242,
-            "t_months": -0.7309
+            "n": 7255,
+            "mean": -0.00287,
+            "t_months": -1.30868
           },
           "period_early": {
-            "n": 7300,
-            "mean": -0.00436,
-            "t_months": -2.06419
+            "n": 7281,
+            "mean": -0.00437,
+            "t_months": -2.06398
           },
           "period_late": {
-            "n": 6823,
-            "mean": -0.00224,
-            "t_months": -1.62621
+            "n": 7230,
+            "mean": -0.00254,
+            "t_months": -2.00976
           }
         },
-        "p_value": 0.010969780408947133,
+        "p_value": 0.0043360437749489405,
         "bh_significant": true
       }
     },
@@ -892,89 +891,89 @@
       "description": "Positive Überraschung, aber negative Marktreaktion -> long",
       "h20": {
         "base_cost": {
-          "n": 4993,
-          "n_dates": 1078,
-          "n_months": 93,
-          "mean": -0.00141,
-          "median": -0.00611,
-          "hit_rate": 0.46145,
-          "t_months": 0.6567,
-          "sharpe_ann": 0.23589,
-          "sortino_ann": 0.44691,
-          "max_dd_monthly_cohorts": -0.26125,
+          "n": 4988,
+          "n_dates": 1086,
+          "n_months": 94,
+          "mean": -0.00139,
+          "median": -0.00623,
+          "hit_rate": 0.46111,
+          "t_months": 0.59887,
+          "sharpe_ann": 0.21397,
+          "sortino_ann": 0.34582,
+          "max_dd_monthly_cohorts": -0.2606,
           "years_positive_share": 0.5,
           "by_year": {
-            "2019": -0.00527,
+            "2019": -0.00538,
             "2020": 0.00105,
-            "2021": 0.00565,
-            "2022": 0.01196,
-            "2023": -0.01322,
-            "2024": -0.01225,
-            "2025": 0.00296,
-            "2026": -0.00348
+            "2021": 0.00572,
+            "2022": 0.012,
+            "2023": -0.01336,
+            "2024": -0.01202,
+            "2025": 0.00287,
+            "2026": -0.00329
           }
         },
         "stress_cost": {
-          "mean": -0.00441,
-          "t_months": -0.26886
+          "mean": -0.00439,
+          "t_months": -0.49798
         },
         "regimes": {
           "vix_low": {
             "n": 3241,
-            "mean": -0.00476,
-            "t_months": -0.17654
+            "mean": -0.00474,
+            "t_months": -0.39325
           },
           "vix_high": {
-            "n": 1752,
-            "mean": 0.0048,
-            "t_months": -0.01925
+            "n": 1747,
+            "mean": 0.00483,
+            "t_months": -0.01215
           },
           "trend_up": {
-            "n": 4107,
-            "mean": -0.00265,
-            "t_months": 0.58375
+            "n": 4105,
+            "mean": -0.00261,
+            "t_months": 0.51046
           },
           "trend_down": {
-            "n": 886,
-            "mean": 0.00435,
-            "t_months": 0.15025
+            "n": 883,
+            "mean": 0.00431,
+            "t_months": 0.14174
           }
         },
         "lag": {
-          "n": 4988,
+          "n": 4985,
           "mean": -0.00025,
-          "t_months": -0.30828
+          "t_months": 0.01104
         },
         "replication": {
           "universe_A": {
-            "n": 2465,
-            "mean": -0.00209,
-            "t_months": 0.20495
+            "n": 2455,
+            "mean": -0.00201,
+            "t_months": 0.23207
           },
           "universe_B": {
-            "n": 2528,
-            "mean": -0.00074,
-            "t_months": 0.84294
+            "n": 2533,
+            "mean": -0.00079,
+            "t_months": 0.34703
           },
           "period_early": {
-            "n": 2429,
+            "n": 2420,
             "mean": 0.00374,
-            "t_months": 1.63804
+            "t_months": 1.64363
           },
           "period_late": {
-            "n": 2564,
-            "mean": -0.00629,
-            "t_months": -0.22898
+            "n": 2568,
+            "mean": -0.00623,
+            "t_months": -0.51333
           }
         },
-        "p_value": 0.5113738344493562,
+        "p_value": 0.5492595782967357,
         "bh_significant": false,
         "placebo_p": null
       },
       "decision": {
         "verdict": "REJECT",
         "reasons": [
-          "OOS-Mittel/t nicht ausreichend (mean=-0.00141, t=0.6567)",
+          "OOS-Mittel/t nicht ausreichend (mean=-0.00139, t=0.59887)",
           "nur 0.5 der Jahre positiv",
           "bei 25 bp/Seite nicht positiv",
           "nicht signifikant nach Benjamini-Hochberg (q=0.1)",
@@ -986,82 +985,82 @@
       },
       "h60": {
         "base_cost": {
-          "n": 4792,
-          "n_dates": 1049,
-          "n_months": 91,
-          "mean": -0.00588,
-          "median": -0.0131,
-          "hit_rate": 0.45346,
-          "t_months": -0.77872,
-          "sharpe_ann": -0.28278,
-          "sortino_ann": -0.37431,
-          "max_dd_monthly_cohorts": -0.78823,
+          "n": 4959,
+          "n_dates": 1067,
+          "n_months": 92,
+          "mean": -0.00628,
+          "median": -0.01417,
+          "hit_rate": 0.45009,
+          "t_months": -0.45951,
+          "sharpe_ann": -0.16595,
+          "sortino_ann": -0.23401,
+          "max_dd_monthly_cohorts": -0.78959,
           "years_positive_share": 0.375,
           "by_year": {
-            "2019": -0.00905,
-            "2020": -0.00035,
-            "2021": 0.00822,
-            "2022": 0.01557,
-            "2023": -0.02924,
-            "2024": -0.02462,
-            "2025": -0.00888,
-            "2026": 0.00671
+            "2019": -0.00923,
+            "2020": -0.00025,
+            "2021": 0.00857,
+            "2022": 0.01571,
+            "2023": -0.02918,
+            "2024": -0.02487,
+            "2025": -0.01027,
+            "2026": 0.0004
           }
         },
         "stress_cost": {
-          "mean": -0.00888,
-          "t_months": -1.30333
+          "mean": -0.00928,
+          "t_months": -1.02304
         },
         "regimes": {
           "vix_low": {
-            "n": 3058,
-            "mean": -0.01324,
-            "t_months": -2.92871
+            "n": 3212,
+            "mean": -0.01317,
+            "t_months": -2.70968
           },
           "vix_high": {
-            "n": 1734,
-            "mean": 0.00708,
-            "t_months": -0.19234
+            "n": 1747,
+            "mean": 0.00639,
+            "t_months": -0.28136
           },
           "trend_up": {
-            "n": 3906,
-            "mean": -0.00719,
-            "t_months": -0.85177
+            "n": 4076,
+            "mean": -0.00757,
+            "t_months": -0.56019
           },
           "trend_down": {
-            "n": 886,
-            "mean": -0.00012,
-            "t_months": -0.04207
+            "n": 883,
+            "mean": -0.00033,
+            "t_months": -0.059
           }
         },
         "lag": {
-          "n": 4792,
-          "mean": -0.00488,
-          "t_months": -0.9931
+          "n": 4902,
+          "mean": -0.00507,
+          "t_months": -0.79929
         },
         "replication": {
           "universe_A": {
-            "n": 2364,
-            "mean": -0.00811,
-            "t_months": -1.54392
+            "n": 2440,
+            "mean": -0.009,
+            "t_months": -1.55152
           },
           "universe_B": {
-            "n": 2428,
-            "mean": -0.00372,
-            "t_months": -0.12963
+            "n": 2519,
+            "mean": -0.00364,
+            "t_months": 0.16168
           },
           "period_early": {
-            "n": 2429,
-            "mean": 0.00426,
-            "t_months": 0.90565
+            "n": 2420,
+            "mean": 0.00438,
+            "t_months": 0.91258
           },
           "period_late": {
-            "n": 2363,
-            "mean": -0.01631,
-            "t_months": -1.6117
+            "n": 2539,
+            "mean": -0.01643,
+            "t_months": -1.29113
           }
         },
-        "p_value": 0.43614467207473756,
+        "p_value": 0.6458679726128069,
         "bh_significant": false
       }
     }
@@ -1070,12 +1069,29 @@
     "historische implizite Volatilität/Implied Move je Meldung (Optionsarchiv)",
     "Positionierung (Short-Interest-Historie, Dealer-Gamma historisch)",
     "Prediction Markets (keine kostenlose PIT-Historie)",
-    "PIT-Sektorzuordnung (Sektor-Analyse nur mit heutiger Zuordnung, beschreibend)"
+    "PIT-Sektorzuordnung (Sektor-Analyse nur mit heutiger Zuordnung, beschreibend)",
+    "Konsens-Erwartung EIA-Rohöllager/Gasspeicher (keine offizielle kostenlose Quelle) -> storage_surprise EXPECTATION_UNKNOWN; Commodity-Abweichungen gehen nur als Hypothesen in die Fabrik (commodity_intelligence)"
   ],
-  "control_mean": -0.0018,
-  "generated": "2026-10-03T17:45:31",
+  "control_mean": -0.00179,
+  "counter_hypotheses": {
+    "S5_reaction_reversal": {
+      "id": "S5_reaction_reversal@forward-v1",
+      "description": "Earnings-Reaktion kehrt sich um: gegen die Richtung der abnormalen Reaktion positionieren (Gegenhypothese zu S3; prospektiver Locked Holdout, Meldungen ab Registrierung)",
+      "spec_hash": "e605109c98edd1973a5207828170351c4a985a328a41f70a33b21d95878606f8",
+      "events_from": "2026-10-05",
+      "events_until": "2027-10-04",
+      "evaluation_not_before": "2027-11-15",
+      "used_holdouts": {
+        "ml_locked_from_2025-07-01": "CONTAMINATED/USED",
+        "surprise_years_before_2019": "USED (Trainingsfenster Lauf 1) – nie für S5"
+      },
+      "n_events_collected": 289,
+      "status": "LOCKED"
+    }
+  },
+  "generated": "2026-11-02T16:20:40",
   "prereg": "docs/research/PREREG_surprise_engine_2026-10-03.md",
-  "tickers_requested": 746,
-  "tickers_with_prices": 617,
-  "tickers_with_earnings": 607
+  "tickers_requested": 750,
+  "tickers_with_prices": 619,
+  "tickers_with_earnings": 610
 }
