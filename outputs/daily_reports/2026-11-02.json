@@ -1,0 +1,483 @@
+{
+  "date": "2026-11-02",
+  "stats": {
+    "vix": 18.469999313354492,
+    "universe": 518,
+    "candidates": 143,
+    "prescreened": 2,
+    "sector_ok": 123,
+    "pre_mc": 2,
+    "roi_precheck": 2,
+    "analyzed": 1,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Signale bearish (Bearish-Trades deaktiviert).",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.0,
+      "month_usd": 0.0,
+      "warnings": [
+        "Projected monthly API cost $12.50 > Ziel $10.00 (nur Report + OPTIONAL zur\u00fcckgestellt; Produktion l\u00e4uft vollst\u00e4ndig)"
+      ],
+      "projected_month_usd": 12.5,
+      "monthly_api_budget_usd": 10.0,
+      "soft_pressure": true,
+      "deferred_tiers": [
+        "TIER4_OPTIONAL"
+      ]
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.9,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 85,
+      "active": false,
+      "reasons": [],
+      "drift_level": "MILD",
+      "known": true
+    },
+    "economics_first": {
+      "mode": "active",
+      "input": 123,
+      "probed": 8,
+      "quoted_pass": 4,
+      "unknown_selected": 2,
+      "haiku": 6,
+      "audit_haiku": 1,
+      "deferred": 117
+    },
+    "economics_first_candidates": 6,
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "6ab94c4fbe9be8fd",
+      "as_of": "2026-11-02T16:14:51+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      }
+    },
+    "economics_first_sonnet_input": 2,
+    "economics_first_sonnet_deferred": 0,
+    "direction_conflicts": 1,
+    "expectation_alpha": {
+      "mode": "shadow",
+      "enabled": true,
+      "production_influence": "NONE",
+      "candidate_count": 1,
+      "date": "2026-11-02",
+      "context_id": "7d1684cb8de335eb",
+      "enriched_count": 1,
+      "recorded": 1,
+      "status_counts": {
+        "TRADE": 0,
+        "WAIT": 0,
+        "ABSTAIN": 1,
+        "ERROR": 0
+      },
+      "shadow_trade_count": 0,
+      "wait_count": 0,
+      "abstain_count": 1,
+      "error_count": 0,
+      "missing_counts": {
+        "credit": "UNAVAILABLE",
+        "equity_earnings": "UNAVAILABLE"
+      },
+      "stale_components": [],
+      "gap_z": {
+        "inflation": 0.0583,
+        "policy_rates": -0.5875,
+        "growth": 1.6302,
+        "oil": -0.6522,
+        "credit": null,
+        "equity_earnings": null
+      },
+      "confirmation_ratio": {
+        "n": 1,
+        "min": 0.4444,
+        "median": 0.4444,
+        "max": 0.4444
+      },
+      "effective_vs_raw_confirmation": {
+        "raw": 4,
+        "effective": 4.0,
+        "ratio": 1.0
+      },
+      "claims": {
+        "extraction_status_counts": {
+          "OK": 1
+        },
+        "n_claims": 4,
+        "n_verified": 1,
+        "n_unverified": 1,
+        "n_contradicted": 2,
+        "verified_claim_fraction": {
+          "n": 1,
+          "min": 0.25,
+          "median": 0.25,
+          "max": 0.25
+        }
+      },
+      "insufficient_history_count": {
+        "gaps": 0,
+        "roc_fields": 3,
+        "regime": 0,
+        "signals": 0,
+        "total": 3
+      },
+      "family_diversity": {
+        "n": 1,
+        "min": 8.0,
+        "median": 8.0,
+        "max": 8.0
+      },
+      "regime_uncertainty": 0.571,
+      "groups": {
+        "A": 0,
+        "B": 0,
+        "C": 1,
+        "D": 0,
+        "E": 0,
+        "X": 0
+      },
+      "errors": [],
+      "run_errors": [],
+      "runtime_seconds": 33.17
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 20,
+      "tickers": [
+        "NBIS",
+        "STX",
+        "FTNT",
+        "CRWV",
+        "HOOD",
+        "INTC",
+        "RDDT",
+        "CAT",
+        "ALNY",
+        "SNDK"
+      ]
+    },
+    "economics_first_quote_probe_budget": {
+      "count": 115,
+      "tickers": [
+        "PYPL",
+        "PFE",
+        "RMD",
+        "ASML",
+        "WMT",
+        "APO",
+        "ILMN",
+        "GM",
+        "SHOP",
+        "SBUX"
+      ]
+    },
+    "economics_first_earnings_gate": {
+      "count": 2,
+      "tickers": [
+        "ALAB",
+        "LITE"
+      ]
+    },
+    "prescreen_no": {
+      "count": 4,
+      "tickers": [
+        "TSLA",
+        "AMZN",
+        "KVUE",
+        "IR"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 1,
+      "tickers": [
+        "MRVL"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "ORCL"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 10 Tage ohne Trade in Folge (dominanter Killer: roi_ok, 6x).",
+      "PPO-Policy kollabiert: 100% BOOST \u00fcber 7 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 10,
+        "killer_counts": {
+          "mismatch_ok": 3,
+          "quick_mc": 1,
+          "roi_ok": 6
+        },
+        "last_10_days": [
+          {
+            "date": "2026-11-02",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-10-30",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-10-29",
+            "trades": 0,
+            "killer": "quick_mc"
+          },
+          {
+            "date": "2026-10-28",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-10-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-26",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-23",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-22",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-21",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-10-20",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ]
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 263,
+            "evaluated": 0,
+            "ready_in_14d": 75,
+            "next_eval_date": "2026-10-31"
+          },
+          "roi_gate": {
+            "total": 127,
+            "evaluated": 0,
+            "ready_in_14d": 47,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_52": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_43": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-10-31"
+          },
+          "score_48": {
+            "total": 2,
+            "evaluated": 0,
+            "ready_in_14d": 2,
+            "next_eval_date": "2026-11-02"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_47": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-12-03"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 2,
+          "avg_delta": -0.5492
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": false,
+        "feature_corr": {},
+        "n_reliable": 7,
+        "n_non_reliable": 110,
+        "min_reliable_for_weight_update": 5,
+        "feature_corr_exploratory": {
+          "impact": -0.01,
+          "mismatch": -0.045,
+          "eps_drift": -0.046
+        },
+        "weight_update_status": "ELIGIBLE"
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": true,
+            "constant_days": 24,
+            "stale": false,
+            "n": 1213
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "suez_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "panama_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "malacca_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1213
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {
+        "n": 7,
+        "counts": {
+          "SKIP": 0,
+          "NORMAL": 0,
+          "BOOST": 7
+        },
+        "max_share": 1.0
+      }
+    }
+  }
+}

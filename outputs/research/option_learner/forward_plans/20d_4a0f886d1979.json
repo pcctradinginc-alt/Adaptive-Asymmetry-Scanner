@@ -1,0 +1,38 @@
+{
+ "plan_id": "FWD-20d-4a0f886d1979",
+ "experiment_id": "4a0f886d1979",
+ "horizon": 20,
+ "registered_at": "2026-11-02T16:22:58+00:00",
+ "start_date": "2026-11-02",
+ "max_days": 300,
+ "look_days": [
+  100,
+  200,
+  300
+ ],
+ "look_cutoffs": [
+  "2027-02-10",
+  "2027-05-21",
+  "2027-08-29"
+ ],
+ "alpha": 0.05,
+ "spending": "O'Brien-Fleming (Lan-DeMets)",
+ "look_alpha": [
+  0.0006868948682239306,
+  0.01568777158182444,
+  0.033625333549951675
+ ],
+ "ci_method": "t",
+ "evidence": {
+  "min_oos_dates": 20,
+  "min_selected": 30,
+  "min_independent_periods": 5,
+  "ic_t_min": 2.0,
+  "bootstrap": "block/horizon",
+  "min_coverage": 0.8,
+  "due_grace_days": 10
+ },
+ "min_decision_coverage": 0.8,
+ "rule": "Pr\u00fcfung k erst, wenn alle Kandidaten bis Stichtag k f\u00e4llig sind; nur Kandidaten im Zeitraum [Start, Stichtag k]; CONFIRMED, sobald das KI zum Teil-Alpha von k ganz \u00fcber 0 liegt (Mindestzahlen und Abdeckung erf\u00fcllt); REJECTED_NEGATIVE, wenn ganz unter 0; nach der letzten Pr\u00fcfung ohne Best\u00e4tigung NOT_CONFIRMED (Freigabe f\u00fcr diese Version dauerhaft gesperrt).",
+ "plan_sha256": "440069c2a964bda206c5d1faa57d3d79038dc0a580b2fca337046fdb1f69d9e5"
+}

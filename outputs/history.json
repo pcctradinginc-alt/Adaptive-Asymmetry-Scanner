@@ -130,8 +130,8 @@
       },
       "outcome": null,
       "peak_return": 0.0568,
-      "last_price": 344.63,
-      "current_return": -0.054
+      "last_price": 340.85,
+      "current_return": -0.125
     },
     {
       "ticker": "ABBV",
@@ -376,7 +376,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-30T23:04:38+00:00",
+        "evaluated_at": "2026-11-02T16:22:33+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -401,8 +401,8 @@
         ]
       },
       "peak_return": 0.1806,
-      "last_price": 294.89,
-      "current_return": 0.1746
+      "last_price": 287.62,
+      "current_return": -0.0218
     },
     {
       "ticker": "MET",
@@ -652,7 +652,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-10-30T23:04:38+00:00",
+        "evaluated_at": "2026-11-02T16:22:33+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -677,8 +677,8 @@
         ]
       },
       "peak_return": 0.0506,
-      "last_price": 100.02,
-      "current_return": -0.1519
+      "last_price": 100.745,
+      "current_return": -0.2278
     }
   ],
   "closed_trades": [
@@ -11784,11 +11784,6 @@
     ],
     "AMZN": [
       {
-        "date": "2026-07-01",
-        "score": 0.2253,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-02",
         "score": 0.0898,
         "headline_count": 5
@@ -12081,6 +12076,11 @@
       {
         "date": "2026-10-30",
         "score": 0.2679,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1055,
         "headline_count": 5
       }
     ],
@@ -12400,11 +12400,6 @@
     ],
     "DAL": [
       {
-        "date": "2026-06-01",
-        "score": -0.0495,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-03",
         "score": 0.2137,
         "headline_count": 5
@@ -12698,6 +12693,11 @@
         "date": "2026-10-29",
         "score": 0.0988,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2333,
+        "headline_count": 3
       }
     ],
     "HOLX": [
@@ -12847,6 +12847,11 @@
         "date": "2026-10-30",
         "score": -0.6649,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2931,
+        "headline_count": 5
       }
     ],
     "MU": [
@@ -12969,6 +12974,11 @@
         "date": "2026-10-30",
         "score": -0.3818,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0429,
+        "headline_count": 5
       }
     ],
     "ORCL": [
@@ -13090,6 +13100,11 @@
       {
         "date": "2026-10-30",
         "score": 0.2456,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.5706,
         "headline_count": 5
       }
     ],
@@ -13325,6 +13340,11 @@
         "date": "2026-10-30",
         "score": 0.4751,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1266,
+        "headline_count": 1
       }
     ],
     "WFC": [
@@ -13553,6 +13573,11 @@
       {
         "date": "2026-10-30",
         "score": -0.573,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1381,
         "headline_count": 5
       }
     ],
@@ -13842,6 +13867,11 @@
       {
         "date": "2026-10-30",
         "score": -0.4705,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0093,
         "headline_count": 5
       }
     ],
@@ -14361,6 +14391,11 @@
       {
         "date": "2026-10-30",
         "score": -0.4276,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0211,
         "headline_count": 5
       }
     ],
@@ -17635,6 +17670,11 @@
         "date": "2026-10-30",
         "score": -0.4411,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.5619,
+        "headline_count": 4
       }
     ],
     "HST": [
@@ -18197,6 +18237,11 @@
         "date": "2026-10-30",
         "score": -0.3709,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2332,
+        "headline_count": 5
       }
     ],
     "MS": [
@@ -18665,6 +18710,11 @@
         "date": "2026-10-30",
         "score": -0.542,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0144,
+        "headline_count": 5
       }
     ],
     "OXY": [
@@ -19033,6 +19083,11 @@
         "date": "2026-10-30",
         "score": -0.4598,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1946,
+        "headline_count": 5
       }
     ],
     "SYK": [
@@ -19144,6 +19199,11 @@
       {
         "date": "2026-10-30",
         "score": -0.3257,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.6234,
         "headline_count": 5
       }
     ],
@@ -19334,6 +19394,11 @@
         "date": "2026-10-30",
         "score": 0.0364,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4049,
+        "headline_count": 5
       }
     ],
     "TMO": [
@@ -19441,6 +19506,11 @@
         "date": "2026-10-30",
         "score": 0.737,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1489,
+        "headline_count": 5
       }
     ],
     "XEL": [
@@ -19533,6 +19603,11 @@
         "date": "2026-10-30",
         "score": 0.1821,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1029,
+        "headline_count": 3
       }
     ],
     "ZBH": [
@@ -20119,6 +20194,11 @@
         "date": "2026-10-30",
         "score": -0.252,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0724,
+        "headline_count": 5
       }
     ],
     "PLTR": [
@@ -20235,6 +20315,11 @@
       {
         "date": "2026-10-30",
         "score": -0.0858,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.3887,
         "headline_count": 5
       }
     ],
@@ -20357,6 +20442,11 @@
       {
         "date": "2026-10-30",
         "score": -0.3046,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0347,
         "headline_count": 5
       }
     ],
@@ -20485,6 +20575,11 @@
         "date": "2026-10-30",
         "score": -0.1119,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2226,
+        "headline_count": 5
       }
     ],
     "PDD": [
@@ -20572,6 +20667,11 @@
         "date": "2026-10-30",
         "score": -0.2041,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.8795,
+        "headline_count": 1
       }
     ],
     "ZS": [
@@ -20642,11 +20742,6 @@
       }
     ],
     "T": [
-      {
-        "date": "2026-06-30",
-        "score": -0.1197,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-01",
         "score": -0.6898,
@@ -20940,6 +21035,11 @@
       {
         "date": "2026-10-30",
         "score": -0.2395,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0393,
         "headline_count": 5
       }
     ],
@@ -21284,11 +21384,6 @@
     ],
     "COP": [
       {
-        "date": "2026-05-29",
-        "score": -0.4552,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-01",
         "score": -0.2607,
         "headline_count": 5
@@ -21581,6 +21676,11 @@
       {
         "date": "2026-10-30",
         "score": 0.1987,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4181,
         "headline_count": 5
       }
     ],
@@ -23320,11 +23420,6 @@
     ],
     "AAPL": [
       {
-        "date": "2026-07-07",
-        "score": 0.1281,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-09",
         "score": 0.1226,
         "headline_count": 5
@@ -23618,14 +23713,14 @@
         "date": "2026-10-30",
         "score": -0.2741,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1311,
+        "headline_count": 5
       }
     ],
     "BAC": [
-      {
-        "date": "2026-07-02",
-        "score": 0.2629,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-03",
         "score": -0.3545,
@@ -23919,6 +24014,11 @@
       {
         "date": "2026-10-30",
         "score": -0.1564,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0656,
         "headline_count": 5
       }
     ],
@@ -24338,11 +24438,6 @@
     ],
     "BRK-B": [
       {
-        "date": "2026-06-12",
-        "score": 0.0968,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-15",
         "score": 0.0596,
         "headline_count": 5
@@ -24635,6 +24730,11 @@
       {
         "date": "2026-10-30",
         "score": -0.0191,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0269,
         "headline_count": 5
       }
     ],
@@ -24942,11 +25042,6 @@
     ],
     "CAT": [
       {
-        "date": "2026-06-18",
-        "score": -0.1547,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-19",
         "score": 0.1328,
         "headline_count": 5
@@ -25240,6 +25335,11 @@
         "date": "2026-10-30",
         "score": -0.1209,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3369,
+        "headline_count": 5
       }
     ],
     "BF-B": [
@@ -25473,6 +25573,11 @@
       {
         "date": "2026-10-30",
         "score": 0.1227,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0462,
         "headline_count": 5
       }
     ],
@@ -25720,6 +25825,11 @@
         "date": "2026-10-30",
         "score": 0.4834,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0605,
+        "headline_count": 5
       }
     ],
     "KLAC": [
@@ -25822,6 +25932,11 @@
         "date": "2026-10-30",
         "score": 0.1968,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1546,
+        "headline_count": 4
       }
     ],
     "KEY": [
@@ -26793,6 +26908,11 @@
         "date": "2026-10-27",
         "score": 0.1344,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.48,
+        "headline_count": 3
       }
     ],
     "PGR": [
@@ -26996,6 +27116,11 @@
       {
         "date": "2026-10-30",
         "score": -0.3582,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2164,
         "headline_count": 5
       }
     ],
@@ -27201,6 +27326,11 @@
         "date": "2026-10-30",
         "score": 0.2079,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.46,
+        "headline_count": 5
       }
     ],
     "XYL": [
@@ -27291,11 +27421,6 @@
       }
     ],
     "APP": [
-      {
-        "date": "2026-06-25",
-        "score": 0.0389,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-29",
         "score": 0.1536,
@@ -27589,6 +27714,11 @@
       {
         "date": "2026-10-30",
         "score": 0.2224,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.3151,
         "headline_count": 5
       }
     ],
@@ -28025,11 +28155,6 @@
     ],
     "DDOG": [
       {
-        "date": "2026-05-28",
-        "score": 0.2041,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-29",
         "score": 0.2304,
         "headline_count": 5
@@ -28323,6 +28448,11 @@
         "date": "2026-10-30",
         "score": 0.0789,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2943,
+        "headline_count": 5
       }
     ],
     "MDB": [
@@ -28383,11 +28513,6 @@
       }
     ],
     "CCL": [
-      {
-        "date": "2026-06-15",
-        "score": -0.1433,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-16",
         "score": -0.2699,
@@ -28682,14 +28807,14 @@
         "date": "2026-10-30",
         "score": 0.3213,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0126,
+        "headline_count": 3
       }
     ],
     "CVS": [
-      {
-        "date": "2026-05-19",
-        "score": 0.2325,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-20",
         "score": 0.0259,
@@ -28983,6 +29108,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0682,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.117,
         "headline_count": 5
       }
     ],
@@ -29670,6 +29800,11 @@
         "date": "2026-10-29",
         "score": 0.141,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3887,
+        "headline_count": 5
       }
     ],
     "EQR": [
@@ -29834,6 +29969,11 @@
         "date": "2026-10-30",
         "score": 0.4788,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4213,
+        "headline_count": 3
       }
     ],
     "MAR": [
@@ -29920,6 +30060,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0369,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4066,
         "headline_count": 5
       }
     ],
@@ -30025,6 +30170,11 @@
         "date": "2026-10-30",
         "score": 0.3792,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2663,
+        "headline_count": 4
       }
     ],
     "TT": [
@@ -31608,6 +31758,11 @@
         "date": "2026-10-30",
         "score": -0.0495,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.096,
+        "headline_count": 4
       }
     ],
     "GPC": [
@@ -34449,11 +34604,6 @@
     ],
     "KO": [
       {
-        "date": "2026-06-22",
-        "score": -0.3773,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-23",
         "score": 0.0504,
         "headline_count": 5
@@ -34747,14 +34897,14 @@
         "date": "2026-10-30",
         "score": 0.2103,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3549,
+        "headline_count": 5
       }
     ],
     "GLW": [
-      {
-        "date": "2026-06-16",
-        "score": 0.4328,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-17",
         "score": 0.2152,
@@ -35049,14 +35199,14 @@
         "date": "2026-10-30",
         "score": 0.0049,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0119,
+        "headline_count": 5
       }
     ],
     "COST": [
-      {
-        "date": "2026-06-22",
-        "score": 0.0486,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-23",
         "score": -0.1062,
@@ -35350,6 +35500,11 @@
       {
         "date": "2026-10-30",
         "score": -0.1779,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0078,
         "headline_count": 5
       }
     ],
@@ -36175,11 +36330,6 @@
     ],
     "AMD": [
       {
-        "date": "2026-07-06",
-        "score": 0.099,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-07",
         "score": -0.6685,
         "headline_count": 5
@@ -36473,14 +36623,14 @@
         "date": "2026-10-30",
         "score": -0.1567,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.3979,
+        "headline_count": 5
       }
     ],
     "GOOG": [
-      {
-        "date": "2026-06-29",
-        "score": 0.3112,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-01",
         "score": -0.2912,
@@ -36774,6 +36924,11 @@
       {
         "date": "2026-10-30",
         "score": 0.4579,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.109,
         "headline_count": 5
       }
     ],
@@ -37353,11 +37508,6 @@
     ],
     "ABBV": [
       {
-        "date": "2026-04-24",
-        "score": 0.008,
-        "headline_count": 5
-      },
-      {
         "date": "2026-04-27",
         "score": -0.0511,
         "headline_count": 5
@@ -37651,14 +37801,14 @@
         "date": "2026-10-30",
         "score": -0.1465,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4693,
+        "headline_count": 5
       }
     ],
     "GOOGL": [
-      {
-        "date": "2026-06-18",
-        "score": -0.0265,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-19",
         "score": 0.3753,
@@ -37953,14 +38103,14 @@
         "date": "2026-10-30",
         "score": 0.4579,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0084,
+        "headline_count": 5
       }
     ],
     "AMGN": [
-      {
-        "date": "2026-06-08",
-        "score": 0.0934,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-09",
         "score": 0.3947,
@@ -38254,6 +38404,11 @@
       {
         "date": "2026-10-30",
         "score": 0.3388,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2961,
         "headline_count": 5
       }
     ],
@@ -39467,11 +39622,6 @@
     ],
     "ANET": [
       {
-        "date": "2026-06-12",
-        "score": 0.2645,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-15",
         "score": 0.5963,
         "headline_count": 4
@@ -39764,6 +39914,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0552,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1902,
         "headline_count": 5
       }
     ],
@@ -40415,11 +40570,6 @@
     ],
     "BA": [
       {
-        "date": "2026-06-29",
-        "score": -0.0191,
-        "headline_count": 4
-      },
-      {
         "date": "2026-06-30",
         "score": -0.0008,
         "headline_count": 5
@@ -40712,6 +40862,11 @@
       {
         "date": "2026-10-30",
         "score": 0.3475,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4227,
         "headline_count": 5
       }
     ],
@@ -42087,11 +42242,6 @@
     ],
     "ABNB": [
       {
-        "date": "2026-06-05",
-        "score": -0.0127,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-08",
         "score": 0.414,
         "headline_count": 3
@@ -42384,6 +42534,11 @@
       {
         "date": "2026-10-29",
         "score": -0.1759,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0848,
         "headline_count": 5
       }
     ],
@@ -43213,6 +43368,11 @@
         "date": "2026-10-30",
         "score": 0.316,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.155,
+        "headline_count": 5
       }
     ],
     "IVZ": [
@@ -43330,6 +43490,11 @@
         "date": "2026-10-30",
         "score": 0.3867,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4016,
+        "headline_count": 3
       }
     ],
     "ON": [
@@ -43533,6 +43698,11 @@
       {
         "date": "2026-10-30",
         "score": 0.1157,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0993,
         "headline_count": 5
       }
     ],
@@ -43815,6 +43985,11 @@
         "date": "2026-10-30",
         "score": 0.5515,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0495,
+        "headline_count": 3
       }
     ],
     "STT": [
@@ -45177,11 +45352,6 @@
     ],
     "CVX": [
       {
-        "date": "2026-06-18",
-        "score": -0.1799,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-19",
         "score": -0.2088,
         "headline_count": 5
@@ -45475,14 +45645,14 @@
         "date": "2026-10-30",
         "score": -0.1033,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3652,
+        "headline_count": 5
       }
     ],
     "DVN": [
-      {
-        "date": "2026-05-25",
-        "score": 0.0385,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-26",
         "score": -0.0933,
@@ -45777,6 +45947,11 @@
         "date": "2026-10-30",
         "score": -0.025,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.6093,
+        "headline_count": 3
       }
     ],
     "EXC": [
@@ -45879,6 +46054,11 @@
         "date": "2026-10-30",
         "score": 0.224,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1124,
+        "headline_count": 5
       }
     ],
     "LYB": [
@@ -45916,6 +46096,11 @@
         "date": "2026-10-30",
         "score": -0.4395,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1541,
+        "headline_count": 4
       }
     ],
     "NFLX": [
@@ -46027,6 +46212,11 @@
       {
         "date": "2026-10-30",
         "score": -0.3182,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2645,
         "headline_count": 5
       }
     ],
@@ -47023,6 +47213,11 @@
         "date": "2026-10-30",
         "score": -0.0929,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1844,
+        "headline_count": 5
       }
     ],
     "FCX": [
@@ -47177,6 +47372,11 @@
         "date": "2026-10-30",
         "score": 0.1813,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1357,
+        "headline_count": 5
       }
     ],
     "HD": [
@@ -47584,6 +47784,11 @@
       {
         "date": "2026-10-29",
         "score": 0.3068,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2476,
         "headline_count": 5
       }
     ],
@@ -48972,6 +49177,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0286,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4927,
         "headline_count": 5
       }
     ],
@@ -50705,11 +50915,6 @@
     ],
     "AXP": [
       {
-        "date": "2026-06-09",
-        "score": -0.0895,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-10",
         "score": 0.1757,
         "headline_count": 5
@@ -51003,14 +51208,14 @@
         "date": "2026-10-30",
         "score": 0.5432,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1763,
+        "headline_count": 4
       }
     ],
     "BMY": [
-      {
-        "date": "2026-05-29",
-        "score": 0.6311,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-01",
         "score": 0.348,
@@ -51304,6 +51509,11 @@
       {
         "date": "2026-10-30",
         "score": 0.5003,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2552,
         "headline_count": 5
       }
     ],
@@ -52135,11 +52345,6 @@
     ],
     "COF": [
       {
-        "date": "2026-06-04",
-        "score": 0.1282,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-05",
         "score": -0.2038,
         "headline_count": 5
@@ -52433,6 +52638,11 @@
         "date": "2026-10-30",
         "score": 0.1222,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4085,
+        "headline_count": 4
       }
     ],
     "COR": [
@@ -52739,11 +52949,6 @@
     ],
     "CMG": [
       {
-        "date": "2026-06-04",
-        "score": -0.1297,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-05",
         "score": -0.0506,
         "headline_count": 5
@@ -53037,6 +53242,11 @@
         "date": "2026-10-30",
         "score": -0.0835,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4707,
+        "headline_count": 4
       }
     ],
     "CHD": [
@@ -55071,6 +55281,11 @@
         "date": "2026-10-30",
         "score": 0.5143,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0832,
+        "headline_count": 5
       }
     ],
     "DUK": [
@@ -55887,6 +56102,11 @@
         "date": "2026-10-26",
         "score": -0.0553,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0564,
+        "headline_count": 3
       }
     ],
     "EIX": [
@@ -56325,6 +56545,11 @@
       {
         "date": "2026-10-30",
         "score": 0.5623,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0048,
         "headline_count": 5
       }
     ],
@@ -57879,11 +58104,6 @@
     ],
     "DLR": [
       {
-        "date": "2026-05-15",
-        "score": -0.227,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-17",
         "score": 0.2261,
         "headline_count": 5
@@ -58176,6 +58396,11 @@
       {
         "date": "2026-10-30",
         "score": 0.4981,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2831,
         "headline_count": 5
       }
     ],
@@ -60454,6 +60679,11 @@
         "date": "2026-10-30",
         "score": 0.4297,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4686,
+        "headline_count": 5
       }
     ],
     "ETSY": [
@@ -62229,11 +62459,6 @@
     ],
     "MO": [
       {
-        "date": "2026-06-19",
-        "score": 0.0134,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-22",
         "score": 0.061,
         "headline_count": 5
@@ -62527,14 +62752,14 @@
         "date": "2026-10-30",
         "score": 0.0818,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1923,
+        "headline_count": 5
       }
     ],
     "APO": [
-      {
-        "date": "2026-05-20",
-        "score": -0.1076,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-21",
         "score": -0.1067,
@@ -62829,14 +63054,14 @@
         "date": "2026-10-30",
         "score": 0.3806,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4526,
+        "headline_count": 4
       }
     ],
     "XYZ": [
-      {
-        "date": "2026-06-04",
-        "score": 0.2373,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-05",
         "score": 0.1155,
@@ -63131,6 +63356,11 @@
         "date": "2026-10-30",
         "score": 0.1517,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0336,
+        "headline_count": 3
       }
     ],
     "BSX": [
@@ -63437,11 +63667,6 @@
     ],
     "BKNG": [
       {
-        "date": "2026-06-15",
-        "score": 0.3007,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-16",
         "score": 0.205,
         "headline_count": 5
@@ -63734,6 +63959,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0174,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.416,
         "headline_count": 5
       }
     ],
@@ -64218,11 +64448,6 @@
     ],
     "COIN": [
       {
-        "date": "2026-07-03",
-        "score": -0.2363,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-06",
         "score": 0.032,
         "headline_count": 5
@@ -64516,14 +64741,14 @@
         "date": "2026-10-30",
         "score": -0.358,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.5194,
+        "headline_count": 5
       }
     ],
     "COHR": [
-      {
-        "date": "2026-07-16",
-        "score": 0.1586,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-17",
         "score": 0.1588,
@@ -64818,14 +65043,14 @@
         "date": "2026-10-30",
         "score": -0.0993,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1901,
+        "headline_count": 5
       }
     ],
     "CRWD": [
-      {
-        "date": "2026-06-10",
-        "score": -0.5322,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-12",
         "score": 0.0686,
@@ -65120,14 +65345,14 @@
         "date": "2026-10-30",
         "score": -0.1821,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0099,
+        "headline_count": 5
       }
     ],
     "DELL": [
-      {
-        "date": "2026-06-24",
-        "score": 0.0853,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-25",
         "score": 0.2434,
@@ -65421,6 +65646,11 @@
       {
         "date": "2026-10-30",
         "score": -0.2011,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4121,
         "headline_count": 5
       }
     ],
@@ -66340,6 +66570,11 @@
         "date": "2026-10-30",
         "score": -0.1891,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0426,
+        "headline_count": 3
       }
     ],
     "EXE": [
@@ -66729,6 +66964,11 @@
         "date": "2026-10-30",
         "score": -0.0082,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3125,
+        "headline_count": 5
       }
     ],
     "DTE": [
@@ -66928,6 +67168,11 @@
         "date": "2026-10-30",
         "score": -0.5411,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2065,
+        "headline_count": 5
       }
     ],
     "EVRG": [
@@ -67577,6 +67822,11 @@
         "date": "2026-10-30",
         "score": 0.254,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.025,
+        "headline_count": 5
       }
     ],
     "IBM": [
@@ -67832,6 +68082,11 @@
       {
         "date": "2026-10-30",
         "score": -0.2103,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1954,
         "headline_count": 5
       }
     ],
@@ -68134,6 +68389,11 @@
         "date": "2026-10-30",
         "score": 0.0928,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0413,
+        "headline_count": 5
       }
     ],
     "IT": [
@@ -68253,6 +68513,11 @@
         "date": "2026-10-30",
         "score": 0.6325,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3593,
+        "headline_count": 4
       }
     ],
     "VST": [
@@ -69083,6 +69348,11 @@
         "date": "2026-10-30",
         "score": 0.1622,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1802,
+        "headline_count": 5
       }
     ],
     "SBUX": [
@@ -69184,6 +69454,11 @@
       {
         "date": "2026-10-30",
         "score": 0.157,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1698,
         "headline_count": 5
       }
     ],
@@ -69441,6 +69716,11 @@
         "date": "2026-10-30",
         "score": 0.525,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4746,
+        "headline_count": 5
       }
     ],
     "WEC": [
@@ -69589,6 +69869,11 @@
       {
         "date": "2026-10-30",
         "score": 0.215,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0279,
         "headline_count": 5
       }
     ],
@@ -69794,6 +70079,11 @@
         "date": "2026-10-30",
         "score": -0.2876,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1931,
+        "headline_count": 5
       }
     ],
     "JNJ": [
@@ -69895,6 +70185,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0925,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1482,
         "headline_count": 5
       }
     ],
@@ -70823,6 +71118,11 @@
         "date": "2026-10-30",
         "score": 0.0074,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1235,
+        "headline_count": 5
       }
     ],
     "VZ": [
@@ -70924,6 +71224,11 @@
       {
         "date": "2026-10-30",
         "score": -0.0779,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1488,
         "headline_count": 5
       }
     ],
@@ -71243,6 +71548,11 @@
         "date": "2026-10-30",
         "score": 0.1063,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2096,
+        "headline_count": 3
       }
     ],
     "KMB": [
@@ -71335,6 +71645,11 @@
         "date": "2026-10-30",
         "score": -0.0033,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.022,
+        "headline_count": 3
       }
     ],
     "PSX": [
@@ -71431,6 +71746,11 @@
       {
         "date": "2026-10-30",
         "score": 0.46,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1653,
         "headline_count": 5
       }
     ],
@@ -71723,6 +72043,11 @@
         "date": "2026-10-30",
         "score": -0.5763,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.3574,
+        "headline_count": 5
       }
     ],
     "PWR": [
@@ -71824,6 +72149,11 @@
       {
         "date": "2026-10-30",
         "score": 0.4198,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.036,
         "headline_count": 5
       }
     ],
@@ -72255,6 +72585,11 @@
         "date": "2026-10-30",
         "score": -0.1524,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.238,
+        "headline_count": 4
       }
     ],
     "MDLZ": [
@@ -72346,6 +72681,11 @@
       {
         "date": "2026-10-30",
         "score": 0.079,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1207,
         "headline_count": 5
       }
     ],
@@ -72449,6 +72789,11 @@
         "date": "2026-10-30",
         "score": 0.885,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0144,
+        "headline_count": 5
       }
     ],
     "UNH": [
@@ -72550,6 +72895,11 @@
       {
         "date": "2026-10-30",
         "score": 0.2719,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1648,
         "headline_count": 5
       }
     ],
@@ -72674,6 +73024,11 @@
       {
         "date": "2026-10-30",
         "score": 0.1884,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2548,
         "headline_count": 5
       }
     ],
@@ -72834,6 +73189,11 @@
         "date": "2026-10-30",
         "score": -0.423,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2065,
+        "headline_count": 5
       }
     ],
     "PFE": [
@@ -72935,6 +73295,11 @@
       {
         "date": "2026-10-30",
         "score": -0.1062,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0109,
         "headline_count": 5
       }
     ],
@@ -73284,6 +73649,11 @@
         "date": "2026-10-30",
         "score": 0.3669,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2024,
+        "headline_count": 3
       }
     ],
     "TTWO": [
@@ -73587,6 +73957,11 @@
         "date": "2026-10-30",
         "score": -0.8467,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4726,
+        "headline_count": 5
       }
     ],
     "GIS": [
@@ -73684,6 +74059,11 @@
         "date": "2026-10-30",
         "score": 0.369,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.5359,
+        "headline_count": 3
       }
     ],
     "VRSK": [
@@ -73808,6 +74188,11 @@
         "date": "2026-10-27",
         "score": -0.1195,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4889,
+        "headline_count": 5
       }
     ],
     "VRT": [
@@ -73909,6 +74294,11 @@
       {
         "date": "2026-10-30",
         "score": 0.2196,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.4857,
         "headline_count": 5
       }
     ],
@@ -74489,6 +74879,11 @@
         "date": "2026-10-30",
         "score": -0.0918,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.056,
+        "headline_count": 5
       }
     ],
     "LITE": [
@@ -74590,6 +74985,11 @@
       {
         "date": "2026-10-30",
         "score": -0.1383,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0123,
         "headline_count": 5
       }
     ],
@@ -75090,6 +75490,11 @@
         "date": "2026-10-30",
         "score": 0.1937,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1386,
+        "headline_count": 5
       }
     ],
     "NWSA": [
@@ -75268,6 +75673,11 @@
       {
         "date": "2026-10-30",
         "score": -0.0438,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1815,
         "headline_count": 5
       }
     ],
@@ -75694,6 +76104,11 @@
         "date": "2026-10-30",
         "score": -0.0849,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3031,
+        "headline_count": 5
       }
     ],
     "ODFL": [
@@ -76069,6 +76484,11 @@
         "date": "2026-10-29",
         "score": 0.2242,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0642,
+        "headline_count": 5
       }
     ],
     "MRK": [
@@ -76315,6 +76735,11 @@
         "date": "2026-10-30",
         "score": -0.3136,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4511,
+        "headline_count": 5
       }
     ],
     "PM": [
@@ -76787,6 +77212,11 @@
         "date": "2026-10-30",
         "score": -0.1911,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1886,
+        "headline_count": 5
       }
     ],
     "KKR": [
@@ -76975,6 +77405,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0696,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.051,
         "headline_count": 5
       }
     ],
@@ -77165,6 +77600,11 @@
         "date": "2026-10-29",
         "score": 0.4773,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.5313,
+        "headline_count": 3
       }
     ],
     "BEN": [
@@ -77334,6 +77774,11 @@
         "date": "2026-10-30",
         "score": 0.3745,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.0554,
+        "headline_count": 5
       }
     ],
     "EXPD": [
@@ -77401,6 +77846,11 @@
         "date": "2026-10-29",
         "score": 0.1389,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3219,
+        "headline_count": 3
       }
     ],
     "MCD": [
@@ -77502,6 +77952,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0184,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1867,
         "headline_count": 5
       }
     ],
@@ -77905,6 +78360,11 @@
         "date": "2026-10-29",
         "score": -0.1441,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.0987,
+        "headline_count": 5
       }
     ],
     "PAYX": [
@@ -78083,6 +78543,11 @@
       {
         "date": "2026-10-30",
         "score": -0.1857,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.5131,
         "headline_count": 5
       }
     ],
@@ -78690,6 +79155,11 @@
         "date": "2026-10-30",
         "score": 0.3657,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1704,
+        "headline_count": 5
       }
     ],
     "SRE": [
@@ -78990,6 +79460,11 @@
         "date": "2026-10-30",
         "score": -0.3336,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1432,
+        "headline_count": 4
       }
     ],
     "ICE": [
@@ -79499,6 +79974,11 @@
         "date": "2026-10-30",
         "score": 0.2498,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1424,
+        "headline_count": 5
       }
     ],
     "ZTS": [
@@ -79945,6 +80425,11 @@
         "date": "2026-10-30",
         "score": 0.5244,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.2521,
+        "headline_count": 5
       }
     ],
     "IFF": [
@@ -80385,6 +80870,11 @@
         "date": "2026-10-30",
         "score": -0.6073,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2961,
+        "headline_count": 5
       }
     ],
     "VMRK": [
@@ -80506,6 +80996,11 @@
         "date": "2026-10-30",
         "score": -0.1995,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.1843,
+        "headline_count": 5
       }
     ],
     "ALNY": [
@@ -80557,6 +81052,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0009,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.1288,
         "headline_count": 5
       }
     ],
@@ -80610,6 +81110,11 @@
         "date": "2026-10-30",
         "score": -0.2802,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2058,
+        "headline_count": 5
       }
     ],
     "NBIS": [
@@ -80661,6 +81166,11 @@
       {
         "date": "2026-10-30",
         "score": 0.0273,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.3511,
         "headline_count": 5
       }
     ],
@@ -80756,6 +81266,11 @@
         "date": "2026-10-30",
         "score": -0.7085,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.4011,
+        "headline_count": 5
       }
     ],
     "SHOP": [
@@ -80803,6 +81318,11 @@
         "date": "2026-10-30",
         "score": 0.1535,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-02",
+        "score": 0.3365,
+        "headline_count": 5
       }
     ],
     "TRI": [
@@ -80835,6 +81355,11 @@
         "date": "2026-10-30",
         "score": 0.6778,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-02",
+        "score": -0.2945,
+        "headline_count": 5
       }
     ],
     "CCEP": [
@@ -81148,766 +81673,6 @@
     ]
   },
   "shadow_trades": [
-    {
-      "ticker": "ABNB",
-      "entry_date": "2026-09-16",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 168.78,
-        "target_price": 182.95,
-        "hit_rate": 0.7228,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.025,
-        "alpha": 0.00281
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.419,
-        "z_score": 0.316,
-        "sigma_30d": 0.0347,
-        "price_move_48h": 0.011,
-        "eps_drift": 0.0114,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.666
-      },
-      "sector": "Consumer Cyclical",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "AMD",
-      "entry_date": "2026-09-16",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 521.32,
-        "target_price": 603.77,
-        "hit_rate": 0.5486,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0472,
-        "alpha": 0.00039
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 2.06,
-        "z_score": 0.588,
-        "sigma_30d": 0.0393,
-        "price_move_48h": 0.0231,
-        "eps_drift": 0.0127,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5498
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "AAPL",
-      "entry_date": "2026-09-16",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 333.21,
-        "target_price": 359.87,
-        "hit_rate": 0.7304,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0173,
-        "alpha": 0.00269
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.243,
-        "z_score": 0.151,
-        "sigma_30d": 0.0185,
-        "price_move_48h": 0.0028,
-        "eps_drift": 0.0034,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6076
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "6 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "CVS",
-      "entry_date": "2026-09-16",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 93.15,
-        "target_price": 100.6,
-        "hit_rate": 0.6752,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.019,
-        "alpha": 0.00226
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.442,
-        "z_score": 0.112,
-        "sigma_30d": 0.0161,
-        "price_move_48h": 0.0018,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5814
-      },
-      "sector": "Healthcare",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "DELL",
-      "entry_date": "2026-09-16",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 564.38,
-        "target_price": 670.75,
-        "hit_rate": 0.5404,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0562,
-        "alpha": 0.00039
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 1.041,
-        "z_score": 0.792,
-        "sigma_30d": 0.0529,
-        "price_move_48h": 0.0419,
-        "eps_drift": 0.0012,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5362
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "ABNB",
-      "entry_date": "2026-09-16",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "INSIDER",
-      "strategy": "LONG_CALL",
-      "entry_debit": 23.7,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 165.0,
-        "bid": 21.65,
-        "ask": 23.7,
-        "open_interest": 166,
-        "implied_vol": 0.3885,
-        "spread_ratio": 0.0865,
-        "dte": 183,
-        "delta": 0.6289,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 168.78,
-        "target_price": 182.95,
-        "hit_rate": 0.7228,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.025,
-        "alpha": 0.00281
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.419,
-        "z_score": 0.316,
-        "sigma_30d": 0.0347,
-        "price_move_48h": 0.011,
-        "eps_drift": 0.0114,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.666
-      },
-      "roi_net": 0.0731,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.0031,
-      "vix": 16.83,
-      "mc_hit_rate": 0.666,
-      "outcome": null
-    },
-    {
-      "ticker": "AMD",
-      "entry_date": "2026-09-16",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "LONG_CALL",
-      "entry_debit": 81.9,
-      "option": {
-        "expiry": "2027-02-19",
-        "strike": 520.0,
-        "bid": 79.05,
-        "ask": 81.9,
-        "open_interest": 461,
-        "implied_vol": 0.554,
-        "spread_ratio": 0.0348,
-        "dte": 155,
-        "delta": 0.6007,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 521.32,
-        "target_price": 603.77,
-        "hit_rate": 0.5486,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0472,
-        "alpha": 0.00039
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 2.06,
-        "z_score": 0.588,
-        "sigma_30d": 0.0393,
-        "price_move_48h": 0.0231,
-        "eps_drift": 0.0127,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5498
-      },
-      "roi_net": 0.2361,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.1661,
-      "vix": 16.83,
-      "mc_hit_rate": 0.5498,
-      "outcome": null
-    },
-    {
-      "ticker": "DELL",
-      "entry_date": "2026-09-16",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 91.2,
-      "option": {
-        "expiry": "2027-02-19",
-        "strike": 600.0,
-        "bid": 87.6,
-        "ask": 91.2,
-        "open_interest": 243,
-        "implied_vol": 0.673,
-        "spread_ratio": 0.0395,
-        "dte": 155,
-        "delta": 0.5514,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 660.0,
-          "bid": 67.9,
-          "ask": 71.5
-        },
-        "net_debit": 23.3
-      },
-      "simulation": {
-        "current_price": 564.38,
-        "target_price": 670.75,
-        "hit_rate": 0.5404,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0562,
-        "alpha": 0.00039
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 1.041,
-        "z_score": 0.792,
-        "sigma_30d": 0.0529,
-        "price_move_48h": 0.0419,
-        "eps_drift": 0.0012,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5362
-      },
-      "roi_net": 0.8465,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.7765,
-      "vix": 16.83,
-      "mc_hit_rate": 0.5362,
-      "outcome": null
-    },
-    {
-      "ticker": "AAPL",
-      "entry_date": "2026-09-16",
-      "reject_reason": "score_52",
-      "catalyst_type": "EARNINGS",
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 28.3,
-      "option": {
-        "expiry": "2027-02-19",
-        "strike": 330.0,
-        "bid": 27.65,
-        "ask": 28.3,
-        "open_interest": 4965,
-        "implied_vol": 0.2693,
-        "spread_ratio": 0.023,
-        "dte": 155,
-        "delta": 0.5942,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 360.0,
-          "bid": 14.25,
-          "ask": 14.6
-        },
-        "net_debit": 14.05
-      },
-      "simulation": {
-        "current_price": 333.21,
-        "target_price": 359.87,
-        "hit_rate": 0.7304,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0173,
-        "alpha": 0.00269
-      },
-      "trade_score": 52,
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.243,
-        "z_score": 0.151,
-        "sigma_30d": 0.0185,
-        "price_move_48h": 0.0028,
-        "eps_drift": 0.0034,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6076
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "CVS",
-      "entry_date": "2026-09-16",
-      "reject_reason": "score_43",
-      "catalyst_type": "EARNINGS",
-      "strategy": "LONG_CALL",
-      "entry_debit": 9.85,
-      "option": {
-        "expiry": "2027-02-19",
-        "strike": 90.0,
-        "bid": 9.1,
-        "ask": 9.85,
-        "open_interest": 178,
-        "implied_vol": 0.3156,
-        "spread_ratio": 0.0761,
-        "dte": 155,
-        "delta": 0.6133,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 93.15,
-        "target_price": 100.6,
-        "hit_rate": 0.6752,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.019,
-        "alpha": 0.00226
-      },
-      "trade_score": 43,
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 3.442,
-        "z_score": 0.112,
-        "sigma_30d": 0.0161,
-        "price_move_48h": 0.0018,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5814
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "CEG",
-      "entry_date": "2026-09-17",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 261.98,
-        "target_price": 287.31,
-        "hit_rate": 0.5256,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0288,
-        "alpha": -0.00043
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 0.971,
-        "z_score": 0.806,
-        "sigma_30d": 0.0236,
-        "price_move_48h": 0.019,
-        "eps_drift": 0.001,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5028
-      },
-      "sector": "Utilities",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "ETN",
-      "entry_date": "2026-09-17",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 410.04,
-        "target_price": 449.62,
-        "hit_rate": 0.6552,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0288,
-        "alpha": 0.00175
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 1.935,
-        "z_score": 0.413,
-        "sigma_30d": 0.0286,
-        "price_move_48h": 0.0118,
-        "eps_drift": 0.0122,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6376
-      },
-      "sector": "Industrials",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "ETN",
-      "entry_date": "2026-09-17",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "INSIDER",
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 46.1,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 420.0,
-        "bid": 43.5,
-        "ask": 46.1,
-        "open_interest": 147,
-        "implied_vol": 0.3895,
-        "spread_ratio": 0.0564,
-        "dte": 182,
-        "delta": 0.5528,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 460.0,
-          "bid": 28.1,
-          "ask": 31.0
-        },
-        "net_debit": 18.0
-      },
-      "simulation": {
-        "current_price": 410.04,
-        "target_price": 449.62,
-        "hit_rate": 0.6552,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0288,
-        "alpha": 0.00175
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 1.935,
-        "z_score": 0.413,
-        "sigma_30d": 0.0286,
-        "price_move_48h": 0.0118,
-        "eps_drift": 0.0122,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6376
-      },
-      "roi_net": 0.4901,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.4201,
-      "vix": 15.66,
-      "mc_hit_rate": 0.6376,
-      "outcome": null
-    },
-    {
-      "ticker": "ABBV",
-      "entry_date": "2026-09-18",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 264.25,
-        "target_price": 285.4,
-        "hit_rate": 0.683,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0164,
-        "alpha": 0.00246
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.608,
-        "z_score": 0.278,
-        "sigma_30d": 0.0134,
-        "price_move_48h": 0.0037,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5562
-      },
-      "sector": "Healthcare",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "BIIB",
-      "entry_date": "2026-09-18",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 216.98,
-        "target_price": 234.34,
-        "hit_rate": 0.6828,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0227,
-        "alpha": 0.00202
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 0.997,
-        "z_score": 0.801,
-        "sigma_30d": 0.0166,
-        "price_move_48h": 0.0133,
-        "eps_drift": 0.016,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5876
-      },
-      "sector": "Healthcare",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "BKNG",
-      "entry_date": "2026-09-18",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 168.78,
-        "target_price": 182.67,
-        "hit_rate": 0.577,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0245,
-        "alpha": 0.00038
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.998,
-        "z_score": 0.2,
-        "sigma_30d": 0.0233,
-        "price_move_48h": 0.0047,
-        "eps_drift": 0.0056,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.4924
-      },
-      "sector": "Consumer Cyclical",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "BKNG",
-      "entry_date": "2026-09-18",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "LONG_CALL",
-      "entry_debit": 22.5,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 165.0,
-        "bid": 21.7,
-        "ask": 22.5,
-        "open_interest": 110,
-        "implied_vol": 0.3971,
-        "spread_ratio": 0.0356,
-        "dte": 181,
-        "delta": 0.6123,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 168.78,
-        "target_price": 182.67,
-        "hit_rate": 0.577,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0245,
-        "alpha": 0.00038
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.998,
-        "z_score": 0.2,
-        "sigma_30d": 0.0233,
-        "price_move_48h": 0.0047,
-        "eps_drift": 0.0056,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.4924
-      },
-      "roi_net": 0.0859,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.0159,
-      "vix": 15.41,
-      "mc_hit_rate": 0.4924,
-      "outcome": null
-    },
-    {
-      "ticker": "ABBV",
-      "entry_date": "2026-09-18",
-      "reject_reason": "score_48",
-      "catalyst_type": "EARNINGS",
-      "strategy": "LONG_CALL",
-      "entry_debit": 23.5,
-      "option": {
-        "expiry": "2027-02-19",
-        "strike": 260.0,
-        "bid": 22.2,
-        "ask": 23.5,
-        "open_interest": 219,
-        "implied_vol": 0.299,
-        "spread_ratio": 0.0553,
-        "dte": 153,
-        "delta": 0.5786,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 264.25,
-        "target_price": 285.4,
-        "hit_rate": 0.683,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0164,
-        "alpha": 0.00246
-      },
-      "trade_score": 48,
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.608,
-        "z_score": 0.278,
-        "sigma_30d": 0.0134,
-        "price_move_48h": 0.0037,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5562
-      },
-      "outcome": null
-    },
     {
       "ticker": "ABNB",
       "entry_date": "2026-09-21",
@@ -144501,7 +144266,15 @@
     "shadow:4a127fe7e0312c68:45d:feature_stats_external": "2026-10-30",
     "shadow:cf0b06f8c7b3081e:45d:feature_stats_external": "2026-10-30",
     "shadow:803fdee8e515cb28:45d:feature_stats_external": "2026-10-30",
-    "shadow:5962d42e6df402ad:45d:feature_stats_external": "2026-10-30"
+    "shadow:5962d42e6df402ad:45d:feature_stats_external": "2026-10-30",
+    "shadow:a268708bda144d76:45d:feature_stats_external": "2026-11-02",
+    "shadow:d50c4a627670069b:45d:feature_stats_external": "2026-11-02",
+    "shadow:4996004e53c32832:45d:feature_stats_external": "2026-11-02",
+    "shadow:b1cd508b774f268d:45d:feature_stats_external": "2026-11-02",
+    "shadow:cfdb7e1820b142c3:45d:feature_stats_external": "2026-11-02",
+    "shadow:7e47f2142f8f52e0:45d:feature_stats_external": "2026-11-02",
+    "shadow:7a4b4aa429030aed:45d:feature_stats_external": "2026-11-02",
+    "shadow:42cd9bcaafbbc975:45d:feature_stats_external": "2026-11-02"
   },
   "processed_outcomes_meta": {
     "duplicate_skips": 0,
