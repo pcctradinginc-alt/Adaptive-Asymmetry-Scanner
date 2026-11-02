@@ -1,9 +1,9 @@
 {
-  "generated": "2026-10-26T11:33:22+00:00",
-  "n": 19,
+  "generated": "2026-11-02T13:51:19+00:00",
+  "n": 20,
   "status_counts": {
     "FORWARD_TEST": 8,
-    "UNDER_TEST": 5,
+    "UNDER_TEST": 6,
     "HISTORICALLY_REJECTED": 3,
     "OPEN_QUESTION": 3
   },
@@ -1186,6 +1186,51 @@
       "question_5_behaviour": "keine Änderung",
       "status": "FORWARD_TEST",
       "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "model_drift:enet_xs20_v1",
+        "kind": "model_drift",
+        "finding": "Modell enet_xs20_v1 verliert Prognosekraft",
+        "keys": [
+          "model_drift:enet_xs20_v1"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "RD-fd37738e",
+          "source": "director",
+          "explanation": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?",
+          "data_needed": [
+            "Basis-OOS je Segment"
+          ],
+          "data_available": true,
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "RD-fd37738e",
+          "needed": [
+            "Basis-OOS je Segment"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "RD-fd37738e",
+          "status": "NOT_YET_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
     },
     {
       "question_1_not_understood": {

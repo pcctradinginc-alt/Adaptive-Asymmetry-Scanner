@@ -1,5 +1,5 @@
 {
- "n_spreads": 93,
+ "n_spreads": 94,
  "buckets": {
   "<5%": {
    "n_candidates": 2,
@@ -52,14 +52,14 @@
    "median_dte": 160
   },
   ">=30%": {
-   "n_candidates": 49,
-   "n_with_outcome": 19,
-   "n_reliable": 3,
+   "n_candidates": 50,
+   "n_with_outcome": 21,
+   "n_reliable": 5,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": -0.4416,
-   "stop_frequency": 0.211,
+   "mean_outcome_exploratory": -0.4687,
+   "stop_frequency": 0.19,
    "false_stop_frequency": 0.5,
-   "median_dte": 167
+   "median_dte": 167.0
   }
  },
  "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
@@ -67,7 +67,7 @@
  "sources": {
   "closed": 117,
   "active": 3,
-  "shadow_view": 409,
+  "shadow_view": 399,
   "archive": true
  }
 }

@@ -1,7 +1,7 @@
 {
   "calibration_coverage": 0.6582,
   "champion": null,
-  "date": "2026-10-26",
+  "date": "2026-11-02",
   "hypotheses": {
     "ALT-SEC-001": "rejected",
     "ALT-SEC-002": "rejected",
@@ -65,12 +65,12 @@
   },
   "meta_verdict": "NEED_MORE_DATA",
   "meta_weights": {
-    "enet_xs20_v1": 0.4026,
-    "hgb_asym20_v1": 0.0,
+    "enet_xs20_v1": 0.0,
+    "hgb_asym20_v1": 0.1128,
     "hgb_xs20_momentum_v1": 0.0,
-    "hgb_xs20_risk_regime_v1": 0.0,
-    "hgb_xs20_v1": 0.0,
-    "momentum_12_1": 0.5974
+    "hgb_xs20_risk_regime_v1": 0.307,
+    "hgb_xs20_v1": 0.3959,
+    "momentum_12_1": 0.1842
   },
   "model_verdicts": {
     "enet_xs20_v1": "rejected_so_far",
@@ -79,5 +79,5 @@
     "hgb_xs20_risk_regime_v1": "rejected_so_far",
     "hgb_xs20_v1": "rejected_so_far"
   },
-  "safe_mode": true
+  "safe_mode": false
 }
