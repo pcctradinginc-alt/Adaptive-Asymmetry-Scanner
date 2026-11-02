@@ -1313,16 +1313,16 @@
         "expected": "2026-11-02T13:30+00:00",
         "deadline": "2026-11-02T17:30+00:00",
         "actual_last_run": "2026-11-02T16:06:52Z",
-        "conclusion": null,
+        "conclusion": "success",
         "delay_hours": 2.6,
         "runs_today": 1,
         "recovered": true,
         "recoveries_today": 1,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
         "stale_upstream": [],
         "reason": null,
-        "state": "RUNNING"
+        "state": "OK"
       },
       "feedback": {
         "file": "feedback.yml",
