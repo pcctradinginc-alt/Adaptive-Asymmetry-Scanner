@@ -525,12 +525,13 @@ ISOLATION_BUDGET_S = 60.0           # danach keine weitere Probe (SKIPPED) -> bl
 
 
 def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *, where: str, out_fields: str,
-                        order_by: str | None, offset: int, base_field: str,
+                        order_by: str | None, offset: int, base_field: str, page_size: int | None = None,
                         budget_s: float = ISOLATION_BUDGET_S) -> dict:
     """Nach einem ArcGIS-Query-Fehler: höchstens 5 minimale read-only Abfragen (resultRecordCount=1, ohne
-    Geometrie). Jede übernimmt genau EINEN Parameter der fehlgeschlagenen Abfrage, alle anderen bleiben minimal
-    (where=1=1, outFields=Objekt-ID). Ergebnis je Parameter: OK | FAIL(<code>) | ERROR(<Typ>) | SKIPPED(Budget)
-    plus Detailtext. Je Probe ein Versuch mit kurzem Timeout, gesamt höchstens `budget_s` Sekunden.
+    Geometrie). Jede übernimmt genau EINEN Bestandteil der fehlgeschlagenen Abfrage, alle anderen bleiben minimal
+    (where=1=1, outFields=Objekt-ID): basis, where, outFields, orderByFields und paging (resultOffset und
+    resultRecordCount wie gesendet, nur Objekt-ID). Ergebnis je Bestandteil: OK | FAIL(<code>) | ERROR(<Typ>) |
+    SKIPPED(Budget) plus Detailtext. Je Probe ein Versuch mit kurzem Timeout, gesamt höchstens `budget_s` Sekunden.
     Reine Diagnose: Antworten werden nie als Daten verwendet und ändern nie den Quellenstatus."""
     import time
     t0 = time.monotonic()
@@ -542,15 +543,17 @@ def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *,
         probes["outFields"] = {"where": "1=1", "outFields": out_fields}
     if order_by:
         probes["orderByFields"] = {"where": "1=1", "outFields": base_field, "orderByFields": order_by}
-    if offset:
-        probes["resultOffset"] = {"where": where, "outFields": base_field, "resultOffset": offset,
-                                  **({"orderByFields": order_by} if order_by else {})}
+    if page_size is not None:
+        # Messung 2026-11-02 (Disruptions): basis=OK outFields=OK, die Hauptabfrage scheiterte trotzdem -> der einzige
+        # ungeprüfte Unterschied waren die Paging-Parameter. Diese Probe prüft sie isoliert (nur Objekt-ID).
+        probes["paging"] = {"where": "1=1", "outFields": base_field, "resultOffset": offset,
+                            "resultRecordCount": page_size}
     result: dict[str, dict] = {}
     for name, p in probes.items():
         if time.monotonic() - t0 > budget_s:
             result[name] = {"result": "SKIPPED(Budget)", "detail": ""}
             continue
-        params = {**p, "resultRecordCount": 1, "returnGeometry": "false", "f": "json"}
+        params = {"resultRecordCount": 1, **p, "returnGeometry": "false", "f": "json"}
         try:
             data = http_fetch(url, params=params, retries=1, timeout=ISOLATION_PROBE_TIMEOUT_S).json()
         except Exception as e:  # noqa: BLE001 - Diagnose darf den Fehlerpfad nie verdecken
@@ -563,6 +566,15 @@ def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *,
         else:
             result[name] = {"result": "OK", "detail": ""}
     return result
+
+
+def pagination_supported(meta: dict) -> bool | None:
+    """advancedQueryCapabilities.supportsPagination laut Layer-Metadaten (True/False), sonst None (unbekannt).
+    Laut ArcGIS-REST-Spezifikation sind resultOffset/resultRecordCount nur bei supportsPagination=true zulässig."""
+    adv = meta.get("advancedQueryCapabilities")
+    if isinstance(adv, dict) and isinstance(adv.get("supportsPagination"), bool):
+        return adv["supportsPagination"]
+    return meta["supportsPagination"] if isinstance(meta.get("supportsPagination"), bool) else None
 
 
 def isolation_summary(isolation: dict | None) -> str:
@@ -579,23 +591,26 @@ def query_features(
     max_record_count: int | None = None,
     return_geometry: bool = False,
     isolation_field: str | None = None,
+    supports_pagination: bool | None = None,
 ) -> list[dict]:
     """Robuste Pagination über resultOffset/resultRecordCount. Nimmt NIE eine
     fixe Pagegröße an -- nutzt maxRecordCount aus den Layer-Metadaten. Stoppt,
     wenn `exceededTransferLimit` nicht (mehr) gesetzt ist oder keine Features
     mehr zurückkommen. Mit `isolation_field` (Objekt-ID-Feld aus den Metadaten)
-    wird ein ArcGIS-Fehler per isolate_query_error eingegrenzt."""
+    wird ein ArcGIS-Fehler per isolate_query_error eingegrenzt.
+    supports_pagination=False (Layer-Metadaten): eine Abfrage OHNE resultOffset/resultRecordCount; meldet ArcGIS
+    dann exceededTransferLimit, ist das Ergebnis unvollständig -> FetchError (nie Teil-Daten)."""
     out = ",".join(out_fields) if out_fields != "*" else "*"
     page_size = max_record_count or 2000
     query_url = f"{service_url}/{layer_id}/query"
     offset = 0
     all_features: list[dict] = []
+    paging = supports_pagination is not False
     for _ in range(MAX_PAGES_SAFETY):
         params = {
             "where": where,
             "outFields": out,
-            "resultOffset": offset,
-            "resultRecordCount": page_size,
+            **({"resultOffset": offset, "resultRecordCount": page_size} if paging else {}),
             "returnGeometry": str(return_geometry).lower(),
             "f": "json",
         }
@@ -605,20 +620,27 @@ def query_features(
         data = res.json()
         if isinstance(data, dict) and "error" in data:
             isolation = (isolate_query_error(service_url, layer_id, http_fetch, where=where, out_fields=out,
-                                             order_by=order_by, offset=offset, base_field=isolation_field)
+                                             order_by=order_by, offset=offset, base_field=isolation_field,
+                                             page_size=page_size if paging else None)
                          if isolation_field else None)
             # Isolation vorn: der Source-Health-Snapshot kürzt Meldungen auf 200 Zeichen
             prefix = f"[Isolation {isolation_summary(isolation)}] " if isolation else ""
             details = {k: v["detail"] for k, v in (isolation or {}).items() if v["detail"]}
             raise ArcGISQueryError(
                 f"{prefix}ArcGIS-Query-Fehler: {data['error']} (where={where}, orderByFields={order_by or '-'}, "
-                f"resultOffset={offset}, resultRecordCount={page_size}, outFields={out}, "
+                f"resultOffset={offset if paging else '-'}, resultRecordCount={page_size if paging else '-'}, "
+                f"supportsPagination={supports_pagination}, outFields={out}, "
                 f"service_url={service_url}/{layer_id})" + (f" Isolation-Details: {details}" if details else ""),
                 isolation=isolation,
             )
         feats = data.get("features", [])
-        all_features.extend(feats)
         exceeded = bool(data.get("exceededTransferLimit"))
+        if not paging:
+            if exceeded:
+                raise FetchError(f"Ergebnis unvollständig: Layer ohne Paginierung (supportsPagination=false) meldet "
+                                 f"exceededTransferLimit nach {len(feats)} Features ({service_url}/{layer_id})")
+            return list(feats)
+        all_features.extend(feats)
         if not exceeded or not feats:
             break
         offset += len(feats)
@@ -1089,6 +1111,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 ep["service_url"], ep["layer_id"], where, out_fields, self._fetch,
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
                 isolation_field=oid_field(meta) or schema["id_field"],
+                supports_pagination=pagination_supported(meta),
             )
 
             if ref_ep.get("fallback_to_daily_layer"):
@@ -1243,6 +1266,7 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 ep["service_url"], ep["layer_id"], where, out_fields, self._fetch,
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
                 isolation_field=oid_field(meta) or schema["id_field"],
+                supports_pagination=pagination_supported(meta),
             )
 
             if ref_ep.get("fallback_to_daily_layer"):
@@ -1378,7 +1402,8 @@ class PortWatchDisruptionsConnector(_PortWatchConnectorBase):
             not_in_layer = [f for f in DISRUPTION_FIELDS if f not in names]
             feats = query_features(url, 0, "1=1", out_fields, self._fetch,
                                    max_record_count=meta.get("maxRecordCount", 2000),
-                                   isolation_field=oid_field(meta) or "eventid")
+                                   isolation_field=oid_field(meta) or "eventid",
+                                   supports_pagination=pagination_supported(meta))
         except SchemaError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
                                    message=str(e), discovered_ids={"diagnostics": e.diagnostics})
