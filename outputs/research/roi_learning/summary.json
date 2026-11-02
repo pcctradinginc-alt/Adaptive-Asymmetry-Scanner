@@ -1,11 +1,11 @@
 {
   "actual_production_roi_gate_changed": false,
-  "as_of": "2026-10-30",
+  "as_of": "2026-11-02",
   "candidate_underlying_by_gate": {
     "by_reject_reason": {
       "bearish_disabled": {
-        "direction_known": 307,
-        "registered": 307,
+        "direction_known": 308,
+        "registered": 308,
         "underlying": {
           "20": {
             "independent_days": 8,
@@ -20,16 +20,16 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 16,
-            "mean_stock_return": 0.000192,
-            "observed": 293,
+            "independent_days": 18,
+            "mean_stock_return": 4.1e-05,
+            "observed": 303,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
       },
       "deep_analysis_veto_or_invalid": {
         "direction_known": 0,
-        "registered": 160,
+        "registered": 161,
         "underlying": {
           "20": {
             "independent_days": 7,
@@ -44,9 +44,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 15,
-            "mean_stock_return": -0.002907,
-            "observed": 150,
+            "independent_days": 17,
+            "mean_stock_return": -0.002316,
+            "observed": 160,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -68,16 +68,16 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 17,
-            "mean_stock_return": 0.001852,
-            "observed": 329,
+            "independent_days": 19,
+            "mean_stock_return": -0.003447,
+            "observed": 439,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
       },
       "economics_first_earnings_gate": {
         "direction_known": 0,
-        "registered": 6,
+        "registered": 8,
         "underlying": {
           "20": {
             "independent_days": 0,
@@ -101,7 +101,7 @@
       },
       "economics_first_quote_probe_budget": {
         "direction_known": 0,
-        "registered": 1000,
+        "registered": 1115,
         "underlying": {
           "20": {
             "independent_days": 0,
@@ -140,9 +140,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 14,
-            "mean_stock_return": -0.00235,
-            "observed": 32,
+            "independent_days": 16,
+            "mean_stock_return": 0.001197,
+            "observed": 36,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -188,9 +188,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 15,
-            "mean_stock_return": 0.009786,
-            "observed": 92,
+            "independent_days": 17,
+            "mean_stock_return": 0.009864,
+            "observed": 99,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -212,9 +212,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 15,
-            "mean_stock_return": 0.00377,
-            "observed": 312,
+            "independent_days": 17,
+            "mean_stock_return": 0.00246,
+            "observed": 338,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -236,9 +236,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 15,
-            "mean_stock_return": 0.002367,
-            "observed": 153,
+            "independent_days": 17,
+            "mean_stock_return": 0.001636,
+            "observed": 164,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -260,9 +260,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 17,
-            "mean_stock_return": 0.01105,
-            "observed": 195,
+            "independent_days": 19,
+            "mean_stock_return": 0.010478,
+            "observed": 204,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -284,9 +284,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 5,
+            "independent_days": 7,
             "mean_stock_return": null,
-            "observed": 7,
+            "observed": 9,
             "status": "NEED_MORE_DATA"
           }
         }
@@ -308,16 +308,16 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 1,
+            "independent_days": 3,
             "mean_stock_return": null,
-            "observed": 16,
+            "observed": 37,
             "status": "NEED_MORE_DATA"
           }
         }
       },
       "prescreen_no": {
         "direction_known": 0,
-        "registered": 3912,
+        "registered": 3916,
         "underlying": {
           "20": {
             "independent_days": 9,
@@ -332,9 +332,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 17,
-            "mean_stock_return": 0.005133,
-            "observed": 3518,
+            "independent_days": 19,
+            "mean_stock_return": 0.005058,
+            "observed": 3891,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -365,7 +365,7 @@
       },
       "sector_momentum_weak": {
         "direction_known": 1,
-        "registered": 677,
+        "registered": 697,
         "underlying": {
           "20": {
             "independent_days": 9,
@@ -380,9 +380,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 17,
-            "mean_stock_return": 0.011242,
-            "observed": 499,
+            "independent_days": 19,
+            "mean_stock_return": 0.010348,
+            "observed": 568,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -487,13 +487,28 @@
     "direction_mixed_or_unknown": true,
     "interpretation": "Direction unknown for early deferrals, so their stock returns are not comparable to long-call option outcomes. No causal inference.",
     "lookback_days": 100,
-    "signals_read": 7688,
+    "signals_read": 7831,
     "stocks_are_not_option_returns": true,
     "unreadable_rows": 0
   },
   "economics_first_acquisition": {
     "budget_not_probed_is_unprofitable": false,
     "days": [
+      {
+        "budget_not_probed": 115,
+        "date": "2026-11-02",
+        "earnings_rejected": 2,
+        "haiku_audit_inputs": 1,
+        "haiku_inputs": 6,
+        "mismatch_rejected": 0,
+        "mode": "active",
+        "quick_mc_survivors": 0,
+        "quote_probes": 8,
+        "roi_approved": 0,
+        "sector_survivors": 123,
+        "sonnet_analyzed": 1,
+        "trades": 0
+      },
       {
         "budget_not_probed": 283,
         "date": "2026-10-30",
@@ -544,16 +559,16 @@
     "options_outcomes_for_unprobed_candidates": "UNKNOWN",
     "status": "OBSERVED_DESCRIPTIVE_ONLY",
     "totals": {
-      "budget_not_probed": 1000,
-      "earnings_rejected": 6,
-      "haiku_audit_inputs": 5,
-      "haiku_inputs": 18,
+      "budget_not_probed": 1115,
+      "earnings_rejected": 8,
+      "haiku_audit_inputs": 6,
+      "haiku_inputs": 24,
       "mismatch_rejected": 2,
       "quick_mc_survivors": 0,
-      "quote_probes": 24,
+      "quote_probes": 32,
       "roi_approved": 0,
-      "sector_survivors": 1024,
-      "sonnet_analyzed": 6,
+      "sector_survivors": 1147,
+      "sonnet_analyzed": 7,
       "trades": 0
     }
   },
