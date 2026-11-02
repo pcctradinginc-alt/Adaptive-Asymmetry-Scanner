@@ -35,6 +35,8 @@ Modelle und Forward-Journale sind unverändert.
   Feld führt bei ArcGIS Online genau zu „Invalid query parameters“.
   → Nachgewiesener Defekt: stillschweigende Schema-Annahme. Dass er die **Ursache** ist, ist plausibel, aber
   ohne Live-Abfrage **nicht bewiesen**.
+  **Nachtrag 2026-11-02: durch die Produktionsmessung widerlegt.** Alle 11 Felder existieren
+  (`outFields=OK`). Die Feldvalidierung bleibt als Härtung, war aber nicht die Ursache (siehe Nachtrag unten).
 - **Ports:** `outFields` stammt bereits vollständig aus den Metadaten. Die gespeicherte Fehlermeldung nennt
   weder die WHERE-Klausel noch den Feldtyp noch die Seite (`resultOffset`). Offline lässt sich die Ursache nicht
   eingrenzen (Datumsliteral, Sortierung oder eine spätere Seite). **Kein Parameter geändert**, weil keiner
@@ -180,3 +182,27 @@ bei vollständigem Schema).
 | Technisch getestet | Recovery-Verschärfung, Disruptions-Feldvalidierung, Isolation (Fakes, reproduzierbar) |
 | Durch Live-Abfrage bestätigt | **nichts**, da Live-Zugriff aus der Audit-Umgebung blockiert ist |
 | Weiterhin offen | Ports-Ursache (Isolation im nächsten regulären Ingest-Lauf), Disruptions-Wiederherstellung, Chokepoints-Bestätigung (zweiter neuer Ingest), e-Stat-Veröffentlichung 2026-04, NCEI-Datentyp und -Stationen (Owner) |
+
+## Nachtrag 2026-11-02 – erste Produktionsmessung (Ingest 15:59 UTC, Code aus #155)
+
+| Quelle | Gemessen | Bewertung |
+|---|---|---|
+| `imf_portwatch_disruptions` | FAIL, `[Isolation basis=OK outFields=OK]`. Hauptabfrage mit `where=1=1`, alle 11 Felder, `resultOffset=0`, `resultRecordCount=2000` → 400 | Die Feld-Hypothese ist **widerlegt**. Der einzige ungeprüfte Unterschied zu den erfolgreichen Probes sind die **Paging-Parameter** `resultOffset` und `resultRecordCount`. Diese testete die Isolation bisher nicht, eine Lücke im Diagnose-Design. |
+| `imf_portwatch_ports` | SCHEMA_CHANGED: `Layer-Metadaten ohne 'fields'` | Der Dienst wird beim Anbieter umgebaut (wie Chokepoints am 31.10.). Heute war keine Isolation möglich. |
+| `imf_portwatch_chokepoints` | PASS, 5488 Beobachtungen, neues `last_success` 02.11. 15:59 | Die Health-Prüfung um 16:06 lief **vor** dem Ingest-Commit (16:08) und blieb korrekt bei „RECOVERING 1/2: kein neuer erfolgreicher Abruf“. Der Recovery-Fix aus #155 wirkt also im Produktivlauf; der alte Code hätte hier HEALTHY gemeldet. Die Bestätigung kommt mit der nächsten Health-Prüfung. |
+| `estat_jp_truck` | PASS (4320 Beobachtungen), jüngste Periode weiter 2026-03 | Der Timeout vom 01.11. war vorübergehend. Die Veröffentlichungslücke besteht weiter. |
+| `ncei_normals`, `noaa_storm_events` | übersprungen (`min_refetch_days`) | unverändert |
+
+### Folge-Fix (eigener PR)
+
+- **Isolation:** Die Probe `paging` prüft `resultOffset` und `resultRecordCount` wie gesendet (nur
+  Objekt-ID). Sie ersetzt die bisherige Probe `resultOffset`; es bleiben höchstens 5 Probes.
+- **Paginierung:** Gesteuert durch die Layer-Metadaten (`advancedQueryCapabilities.supportsPagination`).
+  - Meldet der Layer ausdrücklich `false`, gibt es eine Abfrage **ohne** Paging-Parameter, wie es die
+    ArcGIS-Spezifikation verlangt.
+  - Kommt dann `exceededTransferLimit`, gilt das Ergebnis als unvollständig: `FAIL`, keine Teil-Daten.
+  - Ist der Wert unbekannt oder `true`, bleibt das Verhalten unverändert.
+  - Die Fehlermeldung nennt jetzt `supportsPagination`.
+- **Nicht bewiesen:** Ob der Disruptions-Layer `supportsPagination=false` meldet, ist nicht gemessen. Der
+  Fall ist Teil des Folge-Fixes, aber ausdrücklich nicht als Reparatur deklariert. Der nächste Lauf zeigt,
+  ob die Paginierung aus den Metadaten greift oder ob die Probe `paging` die Ursache weiter eingrenzt.

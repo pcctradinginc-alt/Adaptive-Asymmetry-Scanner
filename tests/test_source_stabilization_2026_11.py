@@ -148,8 +148,8 @@ def test_portwatch_query_error_is_isolated_with_minimal_read_only_probes(tmp_pat
 
     res = mw.PortWatchPortsConnector(http_fetch=fetch, cache_path=str(tmp_path / "ep.json")).fetch(NOW)
     assert res.status.value == "FAIL" and not res.observations                # fail-closed, keine Daten
-    assert res.message.startswith("[Isolation basis=OK where=FAIL(400) outFields=OK orderByFields=OK]")
-    assert len(probes) == 4
+    assert res.message.startswith("[Isolation basis=OK where=FAIL(400) outFields=OK orderByFields=OK paging=OK]")
+    assert len(probes) == 4                                     # + paging-Probe (resultRecordCount wie gesendet)
     assert all(p["resultRecordCount"] == 1 and p["returnGeometry"] == "false" for p in probes)
     assert probes[0] == {"where": "1=1", "outFields": "OBJECTID", "resultRecordCount": 1,
                          "returnGeometry": "false", "f": "json"}           # Objekt-ID-Feld aus den Metadaten
@@ -166,9 +166,10 @@ def test_isolation_probes_failing_page_offset():
         return FakeResponse(ARCGIS_400 if bad else {"features": []})
 
     iso = mw.isolate_query_error("https://x/FeatureServer", 0, fetch, where="1=1", out_fields="OBJECTID,a",
-                                 order_by="date ASC", offset=4000, base_field="OBJECTID")
-    assert mw.isolation_summary(iso) == "basis=OK outFields=OK orderByFields=OK resultOffset=FAIL(400)"
-    assert len(calls) == 4 and all(c["resultRecordCount"] == 1 for c in calls)
+                                 order_by="date ASC", offset=4000, base_field="OBJECTID", page_size=2000)
+    assert mw.isolation_summary(iso) == "basis=OK outFields=OK orderByFields=OK paging=FAIL(400)"
+    assert len(calls) == 4 and [c["resultRecordCount"] for c in calls] == [1, 1, 1, 2000]
+    assert calls[-1]["outFields"] == "OBJECTID" and calls[-1]["resultOffset"] == 4000      # nur Objekt-ID
 
 
 def test_isolation_network_error_never_masks_original_failure():
@@ -216,7 +217,7 @@ def test_isolation_respects_probe_timeout_and_budget():
         return FakeResponse({"features": []})
 
     mw.isolate_query_error("https://x/FeatureServer", 0, fetch, where="d >= DATE '2026-10-01'", out_fields="OBJECTID,a",
-                           order_by="d ASC", offset=2000, base_field="OBJECTID")
+                           order_by="d ASC", offset=2000, base_field="OBJECTID", page_size=2000)
     assert len(calls) == 5                                                        # Obergrenze 5 Probes
     assert all(k == {"retries": 1, "timeout": mw.ISOLATION_PROBE_TIMEOUT_S} for k in calls)
     calls.clear()
@@ -233,11 +234,64 @@ def test_successful_diagnosis_never_reports_a_repaired_source(tmp_path):
     def fetch(url, params=None, **kwargs):
         params = params or {}
         if url == q_url:
-            if params.get("resultRecordCount") == 1:
-                return FakeResponse({"features": [{"attributes": {"OBJECTID": 1}}], "exceededTransferLimit": False})
-            return FakeResponse(ARCGIS_400)
+            if "orderByFields" in params and params.get("where") != "1=1":     # nur die Kombination scheitert
+                return FakeResponse(ARCGIS_400)
+            return FakeResponse({"features": [{"attributes": {"OBJECTID": 1}}], "exceededTransferLimit": False})
         return base(url, params=params, **kwargs)
 
     res = mw.PortWatchPortsConnector(http_fetch=fetch, cache_path=str(tmp_path / "ep.json")).fetch(NOW)
     assert res.status.value == "FAIL" and not res.observations and not res.raw
-    assert res.message.startswith("[Isolation basis=OK where=OK outFields=OK orderByFields=OK]")
+    assert res.message.startswith("[Isolation basis=OK where=OK outFields=OK orderByFields=OK paging=OK]")
+
+
+# ── Folge-Fix 2026-11-02: gemessene Ursache Disruptions = Paging-Parameter ────
+def _paging_layer(meta_extra, features, exceeded=False, sent=None):
+    """Layer wie am 2026-11-02 gemessen: jede Abfrage mit resultOffset -> 400, ohne Paging OK."""
+    fields = list(mw.DISRUPTION_FIELDS)
+
+    def fetch(url, params=None, **kwargs):
+        params = params or {}
+        if url.endswith("/FeatureServer/0") and "where" not in params:
+            return FakeResponse({"name": "disruptions", "maxRecordCount": 2000, **meta_extra,
+                                 "fields": [{"name": "OBJECTID", "type": "esriFieldTypeOID"}]
+                                 + [{"name": f, "type": "esriFieldTypeString"} for f in fields]})
+        if url.endswith("/query"):
+            if sent is not None:
+                sent.append(dict(params))
+            if "resultOffset" in params:
+                return FakeResponse(ARCGIS_400)
+            return FakeResponse({"features": [{"attributes": a} for a in features], "exceededTransferLimit": exceeded})
+        raise AssertionError(url)
+    return fetch
+
+
+def test_measured_disruptions_failure_is_attributed_to_paging_parameters():
+    """Produktion 2026-11-02: '[Isolation basis=OK outFields=OK]' – die neue paging-Probe benennt den Unterschied."""
+    res = mw.PortWatchDisruptionsConnector({}, http_fetch=_paging_layer({}, [IDAI])).fetch(NOW)
+    assert res.status.value == "FAIL" and not res.observations                  # Metadaten ohne Angabe: unverändert
+    assert res.message.startswith("[Isolation basis=OK outFields=OK paging=FAIL(400)]")
+    assert "supportsPagination=None" in res.message
+
+
+def test_layer_without_pagination_is_queried_without_paging_parameters():
+    sent: list = []
+    meta = {"advancedQueryCapabilities": {"supportsPagination": False}}
+    res = mw.PortWatchDisruptionsConnector({}, http_fetch=_paging_layer(meta, [IDAI], sent=sent)).fetch(NOW)
+    assert res.status.value == "PASS" and len(res.observations) == 4
+    assert len(sent) == 1 and "resultOffset" not in sent[0] and "resultRecordCount" not in sent[0]
+    assert sent[0]["where"] == "1=1" and sent[0]["outFields"] == ",".join(mw.DISRUPTION_FIELDS)
+
+
+def test_layer_without_pagination_never_returns_truncated_data():
+    meta = {"advancedQueryCapabilities": {"supportsPagination": False}}
+    res = mw.PortWatchDisruptionsConnector({}, http_fetch=_paging_layer(meta, [IDAI], exceeded=True)).fetch(NOW)
+    assert res.status.value == "FAIL" and not res.observations                   # unvollständig -> fail-closed
+    assert "unvollständig" in res.message
+
+
+def test_pagination_capability_is_read_only_from_metadata():
+    assert mw.pagination_supported({"advancedQueryCapabilities": {"supportsPagination": False}}) is False
+    assert mw.pagination_supported({"advancedQueryCapabilities": {"supportsPagination": True}}) is True
+    assert mw.pagination_supported({"supportsPagination": False}) is False
+    assert mw.pagination_supported({}) is None                                  # unbekannt -> bisheriges Paging
+    assert mw.pagination_supported({"advancedQueryCapabilities": {"supportsPagination": "no"}}) is None
